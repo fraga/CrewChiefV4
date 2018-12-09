@@ -124,7 +124,7 @@ namespace CrewChiefV4.rFactor2
             this.suspensionDamageThresholds.Add(new CornerData.EnumWithThresholds(DamageLevel.DESTROYED, 1.0f, 2.0f));
         }
 
-        private int[] minimumSupportedVersionParts = new int[] { 3, 1, 0, 0 };
+        private int[] minimumSupportedVersionParts = new int[] { 3, 2, 0, 0 };
         public static bool pluginVerified = false;
         public override void versionCheck(Object memoryMappedFileStruct)
         {
@@ -1615,7 +1615,7 @@ namespace CrewChiefV4.rFactor2
                     else if (playerRulesIdx != -1
                         && shared.scoring.mScoringInfo.mYellowFlagState == (sbyte)rFactor2Constants.rF2YellowFlagState.PitClosed)
                     {
-                        var allowedToPit = shared.rules.mParticipants[playerRulesIdx].mAllowedToPit;
+                        var allowedToPit = shared.rules.mParticipants[playerRulesIdx].mPitsOpen;
                         // Core rules: always open, pit state == 3
                         if (shared.extended.mHostedPluginVars.StockCarRules_IsHosted == 0)
                             cgs.FlagData.fcyPhase = FullCourseYellowPhase.PITS_OPEN;
@@ -2110,7 +2110,7 @@ namespace CrewChiefV4.rFactor2
                 case rFactor2Constants.rF2GamePhase.Formation:
                     return SessionPhase.Formation;
                 case rFactor2Constants.rF2GamePhase.Garage:
-                case rFactor2Constants.rF2GamePhase.Undocumented_PreRace:
+                case rFactor2Constants.rF2GamePhase.PausedOrHeartbeat:
                     return SessionPhase.Garage;
                 case rFactor2Constants.rF2GamePhase.GridWalk:
                     return SessionPhase.Gridwalk;
