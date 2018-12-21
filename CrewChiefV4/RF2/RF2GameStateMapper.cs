@@ -170,12 +170,13 @@ namespace CrewChiefV4.rFactor2
             }
             else
             {
-                RF2GameStateMapper.pluginVerified = true;
-
                 var msg = "rFactor 2 Shared Memory version: " + versionStr + " 64bit."
                     + (shared.extended.mHostedPluginVars.StockCarRules_IsHosted != 0 ? ("  Stock Car Rules plugin hosted. (DFT:" + shared.extended.mHostedPluginVars.StockCarRules_DoubleFileType + ")")  : "");
                 Console.WriteLine(msg);
             }
+
+            // Only verify once.
+            RF2GameStateMapper.pluginVerified = true;
         }
         
         // Abrupt session detection variables.
