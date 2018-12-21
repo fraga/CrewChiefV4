@@ -155,14 +155,17 @@ namespace CrewChiefV4
                 UserSettings.GetUserSettings().setProperty("last_game_definition", gameDefinition.gameEnum.ToString());
                 UserSettings.GetUserSettings().saveUserSettings();
                 CrewChief.gameDefinition = gameDefinition;
-                //I think we shuld add it here 
-                if (gameDefinition.gameEnum == GameEnum.ASSETTO_32BIT || 
-                    gameDefinition.gameEnum == GameEnum.ASSETTO_64BIT ||
-                    gameDefinition.gameEnum == GameEnum.RF1 ||
-                    gameDefinition.gameEnum == GameEnum.RF2_64BIT)
+                // I think we shuld add it here 
+                if (UserSettings.GetUserSettings().getBoolean("enable_automatic_plugin_update"))
                 {
-                    PluginInstaller pluginInstaller = new PluginInstaller();
-                    pluginInstaller.InstallOrUpdatePlugins(gameDefinition);
+                    if (gameDefinition.gameEnum == GameEnum.ASSETTO_32BIT ||
+                        gameDefinition.gameEnum == GameEnum.ASSETTO_64BIT ||
+                        gameDefinition.gameEnum == GameEnum.RF1 ||
+                        gameDefinition.gameEnum == GameEnum.RF2_64BIT)
+                    {
+                        PluginInstaller pluginInstaller = new PluginInstaller();
+                        pluginInstaller.InstallOrUpdatePlugins(gameDefinition);
+                    }
                 }
             }
         }
