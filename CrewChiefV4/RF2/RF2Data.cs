@@ -22,8 +22,10 @@ namespace CrewChiefV4.rFactor2
     // signed char   ->    sbyte
     // bool          ->    byte
     // long          ->    int
-    // ULONGLONG     ->    Int64
     // unsigned long ->    uint
+    // short         ->    short
+    // unsigned short ->   ushort
+    // ULONGLONG     ->    Int64
     public class rFactor2Constants
     {
         public const string MM_TELEMETRY_FILE_NAME = "$rFactor2SMMP_Telemetry$";
@@ -48,6 +50,7 @@ namespace CrewChiefV4.rFactor2
         // 6 Full course yellow / safety car
         // 7 Session stopped
         // 8 Session over
+        // 9 Paused (tag.2015.09.14 - this is new, and indicates that this is a heartbeat call to the plugin)
         public enum rF2GamePhase
         {
             Garage = 0,
@@ -59,7 +62,7 @@ namespace CrewChiefV4.rFactor2
             FullCourseYellow = 6,
             SessionStopped = 7,
             SessionOver = 8,
-            Undocumented_PreRace = 9  // I suspect 9 means we're in a garage/monitor, waiting for race to start.
+            PausedOrHeartbeat = 9
         }
 
         // Yellow flag states (applies to full-course only)
@@ -214,6 +217,7 @@ namespace CrewChiefV4.rFactor2
             public byte mSurfaceType;             // 0=dry, 1=wet, 2=grass, 3=dirt, 4=gravel, 5=rumblestrip, 6=special
             public byte mFlat;                    // whether tire is flat
             public byte mDetached;                // whether wheel is detached
+            public byte mStaticUndeflectedRadius; // tire radius in centimeters
 
             [XmlIgnore] public double mVerticalTireDeflection;// how much is tire deflected from its (speed-sensitive) radius
             [XmlIgnore] public double mWheelYLocation;        // wheel's y location relative to vehicle y location
@@ -379,6 +383,7 @@ namespace CrewChiefV4.rFactor2
             // 6 Full course yellow / safety car
             // 7 Session stopped
             // 8 Session over
+            // 9 Paused (tag.2015.09.14 - this is new, and indicates that this is a heartbeat call to the plugin)
             public byte mGamePhase;
 
             // Yellow flag states (applies to full-course only)
@@ -410,12 +415,24 @@ namespace CrewChiefV4.rFactor2
             public double mRaining;                 // raining severity 0.0-1.0
             public double mAmbientTemp;             // temperature (Celsius)
             public double mTrackTemp;               // temperature (Celsius)
-            public rF2Vec3 mWind;                // wind speed
+            public rF2Vec3 mWind;                   // wind speed
             [XmlIgnore] public double mMinPathWetness;          // minimum wetness on main path 0.0-1.0
             [XmlIgnore] public double mMaxPathWetness;          // maximum wetness on main path 0.0-1.0
 
+            // multiplayer
+            public byte mGameMode;                  // 1 = server, 2 = client, 3 = server and client
+            [XmlIgnore] public byte mIsPasswordProtected;       // is the server password protected
+            [XmlIgnore] public ushort mServerPort;              // the port of the server (if on a server)
+            [XmlIgnore] public uint mServerPublicIP;            // the public IP address of the server (if on a server)
+            [XmlIgnore] public int mMaxPlayers;                 // maximum number of vehicles that can be in the session
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 32)]
+            [XmlIgnore] public byte[] mServerName;            // name of the server
+            [XmlIgnore] public float mStartET;                  // start time (seconds since midnight) of the event
+
+            [XmlIgnore] public double mAvgPathWetness;          // average wetness on main path 0.0-1.0
+
             // Future use
-            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 256)]
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 200)]
             [XmlIgnore] public byte[] mExpansion;
 
             // MM_NOT_USED
@@ -508,9 +525,14 @@ namespace CrewChiefV4.rFactor2
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 16)]
             [XmlIgnore] public byte[] mUpgradePack;  // Coded upgrades
 
+            public float mPitLapDist;             // location of pit in terms of lap distance
+
+            [XmlIgnore] public float mBestLapSector1;         // sector 1 time from best lap (not necessarily the best sector 1 time)
+            [XmlIgnore] public float mBestLapSector2;         // sector 2 time from best lap (not necessarily the best sector 2 time)
+
             // Future use
             // tag.2012.04.06 - SEE ABOVE!
-            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 60)]
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 48)]
             [XmlIgnore] public byte[] mExpansion;  // for future use
         }
 
@@ -620,13 +642,14 @@ namespace CrewChiefV4.rFactor2
             [XmlIgnore] public double mCurrentRelativeDistance;      // equal to ( ( ScoringInfoV01::mLapDist * this->mRelativeLaps ) + VehicleScoringInfoV01::mLapDist )
 
             // input/output
-            public int mRelativeLaps;                   // current formation/caution laps relative to safety car (should generally be zero except when safety car crosses s/f line); this can be decremented to implement 'wave around' or 'beneficiary rule' (a.k.a. 'lucky dog' or 'free pass')
+            public int mRelativeLaps;                    // current formation/caution laps relative to safety car (should generally be zero except when safety car crosses s/f line); this can be decremented to implement 'wave around' or 'beneficiary rule' (a.k.a. 'lucky dog' or 'free pass')
             public rF2TrackRulesColumn mColumnAssignment;// which column (line/lane) that participant is supposed to be in
-            public int mPositionAssignment;             // 0-based position within column (line/lane) that participant is supposed to be located at (-1 is invalid)
-            public byte mAllowedToPit;                   // whether the rules allow this particular vehicle to enter pits right now
+            public int mPositionAssignment;              // 0-based position within column (line/lane) that participant is supposed to be located at (-1 is invalid)
+            public byte mPitsOpen;                       // whether the rules allow this particular vehicle to enter pits right now (input is 2=false or 3=true; if you want to edit it, set to 0=false or 1=true)
+            [XmlIgnore] public byte mUpToSpeed;                      // while in the frozen order, this flag indicates whether the vehicle can be followed (this should be false for somebody who has temporarily spun and hasn't gotten back up to speed yet)
 
-            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 3)]
-            [XmlIgnore] public byte[] mUnused;                    //
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 2)]
+            [XmlIgnore] public byte[] mUnused;                       //
 
             [XmlIgnore] public double mGoalRelativeDistance;         // calculated based on where the leader is, and adjusted by the desired column spacing and the column/position assignments
 
@@ -676,7 +699,7 @@ namespace CrewChiefV4.rFactor2
             public int mNumParticipants;                // number of participants (vehicles)
 
             [XmlIgnore] public byte mYellowFlagDetected;             // whether yellow flag was requested or sum of participant mYellowSeverity's exceeds mSafetyCarThreshold
-            [XmlIgnore] public byte mYellowFlagLapsWasOverridden;    // whether mYellowFlagLaps (below) is an admin request
+            [XmlIgnore] public byte mYellowFlagLapsWasOverridden;    // whether mYellowFlagLaps (below) is an admin request (0=no 1=yes 2=clear yellow)
             [XmlIgnore] public byte mSafetyCarExists;                // whether safety car even exists
             public byte mSafetyCarActive;                // whether safety car is active
 

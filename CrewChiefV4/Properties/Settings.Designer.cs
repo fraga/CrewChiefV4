@@ -3562,5 +3562,17 @@ namespace CrewChiefV4.Properties {
                 this["persist_pitstop_benchmark_times"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool enable_automatic_plugin_update {
+            get {
+                return ((bool)(this["enable_automatic_plugin_update"]));
+            }
+            set {
+                this["enable_automatic_plugin_update"] = value;
+            }
+        }
     }
 }
