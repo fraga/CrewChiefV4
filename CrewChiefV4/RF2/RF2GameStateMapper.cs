@@ -649,6 +649,10 @@ namespace CrewChiefV4.rFactor2
                     cgs.PositionAndMotionData.Orientation = RF2GameStateMapper.GetRotation(ref playerScoring.mOri);
             }
 
+            // During Gridwalk/Formation and Finished phases, distance close to S/F line is negative.  Fix it up.
+            if (cgs.PositionAndMotionData.DistanceRoundTrack < 0.0f)
+                cgs.PositionAndMotionData.DistanceRoundTrack += (float)shared.scoring.mScoringInfo.mLapDist;
+
             // Initialize DeltaTime.
             if (csd.IsNewSession)
                 csd.DeltaTime = new DeltaTime(csd.TrackDefinition.trackLength, cgs.PositionAndMotionData.DistanceRoundTrack, cgs.Now);
