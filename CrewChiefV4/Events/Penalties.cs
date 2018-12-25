@@ -266,7 +266,7 @@ namespace CrewChiefV4.Events
                     {
                         if (currentGameState.SessionData.SessionType == SessionType.Race)
                         {
-                            audioPlayer.playMessage(new QueuedMessage(folderCutTrackInRace, 5, secondsDelay: 2, abstractEvent: this, priority: 3));
+                            audioPlayer.playMessage(new QueuedMessage(folderCutTrackInRace, 5, secondsDelay: Utilities.random.Next(2, 4), abstractEvent: this, priority: 3));
                         }
                         else if (!playedTrackCutWarningInPracticeOrQualOnThisLap)
                         {
@@ -275,11 +275,11 @@ namespace CrewChiefV4.Events
                                 && currentGameState.SessionData.TrackDefinition.raceroomRollingStartLapDistance != -1.0f
                                 && currentGameState.PositionAndMotionData.DistanceRoundTrack > currentGameState.SessionData.TrackDefinition.raceroomRollingStartLapDistance)
                             {
-                                audioPlayer.playMessage(new QueuedMessage(Utilities.random.NextDouble() < 0.3 ? folderLapDeleted : folderCutTrackPracticeOrQualNextLapInvalid, 5, secondsDelay: 2, abstractEvent: this, priority: 10));
+                                audioPlayer.playMessage(new QueuedMessage(Utilities.random.NextDouble() < 0.3 ? folderLapDeleted : folderCutTrackPracticeOrQualNextLapInvalid, 5, secondsDelay: Utilities.random.Next(2, 4), abstractEvent: this, priority: 10));
                             }
                             else
                             {
-                                audioPlayer.playMessage(new QueuedMessage(Utilities.random.NextDouble() < 0.3 ? folderLapDeleted : folderCutTrackPracticeOrQual, 5, secondsDelay: 5, abstractEvent: this, priority: 10));
+                                audioPlayer.playMessage(new QueuedMessage(Utilities.random.NextDouble() < 0.3 ? folderLapDeleted : folderCutTrackPracticeOrQual, 5, secondsDelay: Utilities.random.Next(2, 4), abstractEvent: this, priority: 10));
                             }
                             playedTrackCutWarningInPracticeOrQualOnThisLap = true;
                         }
@@ -303,11 +303,11 @@ namespace CrewChiefV4.Events
                         && currentGameState.SessionData.TrackDefinition.raceroomRollingStartLapDistance != -1.0f
                         && currentGameState.PositionAndMotionData.DistanceRoundTrack > currentGameState.SessionData.TrackDefinition.raceroomRollingStartLapDistance)
                     {
-                        audioPlayer.playMessage(new QueuedMessage(Utilities.random.NextDouble() < 0.3 ? folderLapDeleted : folderCutTrackPracticeOrQualNextLapInvalid, 5, secondsDelay: 2, abstractEvent: this, priority: 10));
+                        audioPlayer.playMessage(new QueuedMessage(Utilities.random.NextDouble() < 0.3 ? folderLapDeleted : folderCutTrackPracticeOrQualNextLapInvalid, 5, secondsDelay: Utilities.random.Next(2, 4), abstractEvent: this, priority: 10));
                     }
                     else
                     {
-                        audioPlayer.playMessage(new QueuedMessage(Utilities.random.NextDouble() < 0.3 ? folderLapDeleted : folderCutTrackPracticeOrQual, 5, secondsDelay: 2, abstractEvent: this, priority: 10));
+                        audioPlayer.playMessage(new QueuedMessage(Utilities.random.NextDouble() < 0.3 ? folderLapDeleted : folderCutTrackPracticeOrQual, 5, secondsDelay: Utilities.random.Next(2, 4), abstractEvent: this, priority: 10));
                     }
                     clearPenaltyState();
                 }
@@ -359,7 +359,7 @@ namespace CrewChiefV4.Events
             else if (currentGameState.PenaltiesData.PossibleTrackLimitsViolation && playCutTrackWarnings && !warnedOfPossibleTrackLimitsViolationOnThisLap)
             {
                 warnedOfPossibleTrackLimitsViolationOnThisLap = true;
-                audioPlayer.playMessage(new QueuedMessage(folderPossibleTrackLimitsViolation, 4, secondsDelay: 2, abstractEvent: this, priority: 0));
+                audioPlayer.playMessage(new QueuedMessage(folderPossibleTrackLimitsViolation, 4, secondsDelay: Utilities.random.Next(2, 4), abstractEvent: this, priority: 0));
             }
             else if (currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.PenaltiesData.HasSlowDown && !playedSlowdownNotificationOnThisLap)
             {
