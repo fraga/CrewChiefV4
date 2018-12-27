@@ -1776,11 +1776,6 @@ namespace CrewChiefV4
             }
         }
         
-        private void saveConsoleOutputButtonClicked(object sender, EventArgs e)
-        {
-            saveConsoleOutputText();
-        }
-
         private void scanControllersButtonClicked(object sender, EventArgs e)
         {
             controllerConfiguration.controllers = this.controllerConfiguration.scanControllers();
