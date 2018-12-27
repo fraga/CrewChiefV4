@@ -1761,7 +1761,7 @@ namespace CrewChiefV4
                     {
                         Directory.CreateDirectory(path);
                     }
-                    foreach (var fi in new DirectoryInfo(path).GetFiles().Where(f => f.Extension == ".txt").OrderByDescending(x => x.LastWriteTime).Skip(5))
+                    foreach (var fi in new DirectoryInfo(path).GetFiles().Where(f => f.Extension == ".txt").OrderByDescending(x => x.LastWriteTime).Skip(25))
                     {
                         fi.Delete();
                     }                        
