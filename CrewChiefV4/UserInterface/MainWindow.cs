@@ -622,6 +622,7 @@ namespace CrewChiefV4
         {
             base.OnFormClosing(e);
             MacroManager.stop();
+            saveConsoleOutputText();
             lock (consoleWriter)
             {
                 consoleWriter.textbox = null;
@@ -1748,7 +1749,7 @@ namespace CrewChiefV4
             doRestart(Configuration.getUIString("the_application_must_be_restarted_to_check_for_updates"), Configuration.getUIString("check_for_updates"), true);
         }
 
-        private void saveConsoleOutputButtonClicked(object sender, EventArgs e)
+        private void saveConsoleOutputText()
         {
             try
             {
@@ -1760,6 +1761,10 @@ namespace CrewChiefV4
                     {
                         Directory.CreateDirectory(path);
                     }
+                    foreach (var fi in new DirectoryInfo(path).GetFiles().Where(f => f.Extension == ".txt").OrderByDescending(x => x.LastWriteTime).Skip(25))
+                    {
+                        fi.Delete();
+                    }                        
                     path = System.IO.Path.Combine(path, filename);
                     File.WriteAllText(path, consoleTextBox.Text);
                     Console.WriteLine("Console output saved to " + path);
@@ -1770,7 +1775,7 @@ namespace CrewChiefV4
                 Console.WriteLine("Unable to save console output, message = " + ex.Message);
             }
         }
-
+        
         private void scanControllersButtonClicked(object sender, EventArgs e)
         {
             controllerConfiguration.controllers = this.controllerConfiguration.scanControllers();

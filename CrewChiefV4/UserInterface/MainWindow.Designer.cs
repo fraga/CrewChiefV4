@@ -34,7 +34,6 @@ namespace CrewChiefV4
             this.consoleTextBoxBackgroundPanel = new System.Windows.Forms.Panel();
             this.startApplicationButton = new System.Windows.Forms.Button();
             this.forceVersionCheckButton = new System.Windows.Forms.Button();
-            this.saveConsoleOutputButton = new System.Windows.Forms.Button();
             this.buttonActionSelect = new System.Windows.Forms.ListBox();
             this.controllersList = new System.Windows.Forms.ListBox();
             this.assignButtonToAction = new System.Windows.Forms.Button();
@@ -427,17 +426,6 @@ namespace CrewChiefV4
             this.forceVersionCheckButton.UseVisualStyleBackColor = true;
             this.forceVersionCheckButton.Click += new System.EventHandler(this.forceVersionCheckButtonClicked);
             // 
-            // save_console_output
-            // 
-            this.saveConsoleOutputButton.AutoSize = true;
-            this.saveConsoleOutputButton.Location = new System.Drawing.Point(925, 665);
-            this.saveConsoleOutputButton.Name = "saveConsoleOutputButton";
-            this.saveConsoleOutputButton.Size = new System.Drawing.Size(65, 13);
-            this.saveConsoleOutputButton.TabIndex = 280;
-            this.saveConsoleOutputButton.Text = Configuration.getUIString("save_console_output");
-            this.saveConsoleOutputButton.UseVisualStyleBackColor = true;
-            this.saveConsoleOutputButton.Click += new System.EventHandler(this.saveConsoleOutputButtonClicked);
-            // 
             // soundPackProgressBar
             // 
             this.soundPackProgressBar.Location = new System.Drawing.Point(39, 176);
@@ -666,7 +654,6 @@ namespace CrewChiefV4
             this.Controls.Add(this.buttonActionSelect);
             this.Controls.Add(this.startApplicationButton);
             this.Controls.Add(this.forceVersionCheckButton);
-            this.Controls.Add(this.saveConsoleOutputButton);
             this.Controls.Add(this.consoleTextBoxBackgroundPanel);
             this.Controls.Add(this.personalisationBox);
             this.Controls.Add(this.spotterNameBox);
@@ -700,7 +687,6 @@ namespace CrewChiefV4
         public System.Windows.Forms.Button startApplicationButton;
         public System.Windows.Forms.CheckBox recordSession;
         private System.Windows.Forms.Button forceVersionCheckButton;
-        private System.Windows.Forms.Button saveConsoleOutputButton;
         private System.Windows.Forms.ListBox buttonActionSelect;
         private System.Windows.Forms.ListBox controllersList;
         private System.Windows.Forms.Button assignButtonToAction;
