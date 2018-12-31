@@ -102,6 +102,7 @@ namespace CrewChiefV4
         public bool formClosed = false;
 
         public static bool soundTestMode = false;
+        public static bool stopButtonClicked = false;
 
         public void killChief()
         {
@@ -464,7 +465,9 @@ namespace CrewChiefV4
             set
             {
                 _IsAppRunning = value;
-                startApplicationButton.Text = _IsAppRunning ? Configuration.getUIString("stop") : Configuration.getUIString("start_application");
+                startApplicationButton.Text = _IsAppRunning 
+                    ? !this.recordSession.Checked ? Configuration.getUIString("stop") : Configuration.getUIString("stop_and_save")
+                    : Configuration.getUIString("start_application");
                 downloadDriverNamesButton.Enabled = !value && newDriverNamesAvailable;
                 downloadSoundPackButton.Enabled = !value && newSoundPackAvailable;
                 downloadPersonalisationsButton.Enabled = !value && newPersonalisationsAvailable;
@@ -652,7 +655,7 @@ namespace CrewChiefV4
             // Start/Stop items.
             cms.Items.Add(new ToolStripSeparator());
             contextMenuStartItem = cms.Items.Add(Configuration.getUIString("start_application"), null, this.startApplicationButton_Click);
-            contextMenuStopItem = cms.Items.Add(Configuration.getUIString("stop"), null, this.startApplicationButton_Click);
+            contextMenuStopItem = cms.Items.Add(!this.recordSession.Checked ? Configuration.getUIString("stop") : Configuration.getUIString("stop_and_save"), null, this.startApplicationButton_Click);
             cms.Items.Add(new ToolStripSeparator());
 
             // Form Game context submenu.
@@ -1356,6 +1359,8 @@ namespace CrewChiefV4
 
         private void startApplicationButton_Click(object sender, EventArgs e)
         {
+            MainWindow.stopButtonClicked = IsAppRunning;
+
             doStartAppStuff();
 
             if (IsAppRunning)
@@ -1753,7 +1758,7 @@ namespace CrewChiefV4
         {
             try
             {
-                if(consoleTextBox.Text.Length > 0) 
+                if (consoleTextBox.Text.Length > 0) 
                 {
                     String filename = "console_" + DateTime.Now.ToString("yyyy_MM_dd-HH-mm-ss") + ".txt";
                     String path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "debugLogs");

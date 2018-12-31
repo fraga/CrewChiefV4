@@ -6,6 +6,8 @@ using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 using System.IO.Compression;
+using System.Windows.Forms;
+
 namespace CrewChiefV4
 {
     public abstract class GameDataReader
@@ -73,6 +75,14 @@ namespace CrewChiefV4
 
             try
             {
+                if (!MainWindow.stopButtonClicked)
+                {
+                    // Message box with y/n to save?
+                    var dialogResult = MessageBox.Show("A trace was captured, would you like to save it?", "Save trace?", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2, (MessageBoxOptions)0x40000 /*MB_TOPMOST*/);
+                    if (dialogResult == DialogResult.No)
+                        return;
+                }
+
                 Console.WriteLine("About to dump game data - this may take a while");
                 XmlSerializer serializer = new XmlSerializer(serializableObject.GetType());
                 
