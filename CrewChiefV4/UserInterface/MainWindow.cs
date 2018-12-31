@@ -102,7 +102,7 @@ namespace CrewChiefV4
         public bool formClosed = false;
 
         public static bool soundTestMode = false;
-        public static bool stopButtonClicked = false;
+        public static bool shouldSaveTrace = false;
 
         public void killChief()
         {
@@ -623,6 +623,17 @@ namespace CrewChiefV4
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
+            if (!MainWindow.shouldSaveTrace
+                && this.recordSession.Checked)
+            {
+                // Message box with y/n to save?
+                var dialogResult = MessageBox.Show("A trace was enabled, would you like to save this trace?", "Save trace?", MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question, MessageBoxDefaultButton.Button2, (MessageBoxOptions)0x40000 /*MB_TOPMOST*/);
+
+                if (dialogResult == DialogResult.Yes)
+                    MainWindow.shouldSaveTrace = true;
+            }
+
             base.OnFormClosing(e);
             MacroManager.stop();
             saveConsoleOutputText();
@@ -1359,7 +1370,7 @@ namespace CrewChiefV4
 
         private void startApplicationButton_Click(object sender, EventArgs e)
         {
-            MainWindow.stopButtonClicked = IsAppRunning;
+            MainWindow.shouldSaveTrace = IsAppRunning;
 
             doStartAppStuff();
 
