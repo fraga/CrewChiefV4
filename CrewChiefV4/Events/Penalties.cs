@@ -79,7 +79,7 @@ namespace CrewChiefV4.Events
         private Boolean playedTrackCutWarningInPracticeOrQualOnThisLap = false;
 
         private DateTime lastCutTrackWarningTime;
-
+    
         private Boolean playedNotServedPenalty;
 
         private Boolean warnedOfPossibleTrackLimitsViolationOnThisLap = false;

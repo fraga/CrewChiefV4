@@ -4161,7 +4161,7 @@ namespace CrewChiefV4.GameState
         public void display()
         {
             Console.WriteLine("Laps completed = " + SessionData.CompletedLaps);
-            Console.WriteLine("Time elapsed = " + SessionData.SessionRunningTime.ToString("0.000"));
+            Console.WriteLine("Time elapsed = " + TimeSpan.FromSeconds(SessionData.SessionRunningTime).ToString(@"mm\:ss\.fff") + " (" + SessionData.SessionRunningTime.ToString("0.000") + ")");
             Console.WriteLine("Overall Position = " + SessionData.OverallPosition);
             Console.WriteLine("Class Position = " + SessionData.ClassPosition);
             Console.WriteLine("Session phase = " + SessionData.SessionPhase);
