@@ -976,6 +976,7 @@
         {
             "carClassEnum": "F1_90S",
             "rf2ClassNames": [ "F1_1996_SL1DE" ],
+            "raceroomClassIds": [7214],
             "brakeType": "Carbon",
             "maxSafeWaterTemp": 105,
             "maxSafeOilTemp": 140,
