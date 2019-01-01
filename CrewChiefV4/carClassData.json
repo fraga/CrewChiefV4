@@ -101,7 +101,7 @@
 # VINTAGE_F1_C, VINTAGE_STOCK_CAR,
 # F1, F2, F3, F4, FF, FORMULA_E, F1_70S, TC1, TC2, TCR, TC1_2014, AUDI_TT_CUP, AUDI_TT_VLN, CLIO_CUP, DTM, DTM_2013, V8_SUPERCAR, DTM_2014, DTM_2015, DTM_2016, TRANS_AM, HILL_CLIMB_ICONS, FORMULA_RENAULT,
 # MEGANE_TROPHY, NSU_TT, KTM_RR, INDYCAR, HYPER_CAR, HYPER_CAR_RACE, UNKNOWN_RACE, STOCK_V8, BOXER_CUP, NASCAR_2016, ISI_STOCKCAR_2015, RADICAL_SR3,
-# RS01_TROPHY, TRACKDAY_A, TRACKDAY_B, BMW_235I, CARRERA_CUP, CAYMAN_CLUBSPORT, CAN_AM, M1_PROCAR
+# RS01_TROPHY, TRACKDAY_A, TRACKDAY_B, BMW_235I, CARRERA_CUP, CAYMAN_CLUBSPORT, CAN_AM, M1_PROCAR, PORSCHE_964_CUP
 # 
 # Car classes can skip an entry if they're using the default - e.g. most cars
 # skip defaultTyreType so they use Unknown_Race - this is only overridden in
@@ -976,6 +976,7 @@
         {
             "carClassEnum": "F1_90S",
             "rf2ClassNames": [ "F1_1996_SL1DE" ],
+            "raceroomClassIds": [7214],
             "brakeType": "Carbon",
             "maxSafeWaterTemp": 105,
             "maxSafeOilTemp": 140,
@@ -999,6 +1000,12 @@
 			"maxSafeOilTemp": 140,
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL"
+		},
+		{
+			"carClassEnum": "PORSCHE_964_CUP",
+			"raceroomClassIds": [7287],
+            "enabledMessageTypes": "ALL",
+            "allMembersAreRWD": true
 		}
 	]
 }
