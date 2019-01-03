@@ -6,6 +6,7 @@ using CrewChiefV4.Events;
 using CrewChiefV4.GameState;
 using CrewChiefV4.Audio;
 using CrewChiefV4.NumberProcessing;
+using System.Diagnostics;
 
 namespace CrewChiefV4
 {
@@ -186,6 +187,9 @@ namespace CrewChiefV4
             this.creationTime = GameStateData.CurrentTime.Ticks / TimeSpan.TicksPerMillisecond;
             this.dueTime = secondsDelay == 0 ? 0 : this.creationTime + (secondsDelay * 1000) + updateInterval;
             this.expiryTime = expiresAfter == 0 ? 0 : this.creationTime + (expiresAfter * 1000);
+
+            Debug.Assert(expiresAfter == 0 || expiresAfter > secondsDelay, "Expiry time specified should be longer than delay time");
+
             this.secondsDelay = secondsDelay;
             this.abstractEvent = abstractEvent;
             this.metadata = new SoundMetadata(type, priority);

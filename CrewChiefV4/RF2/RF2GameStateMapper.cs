@@ -93,10 +93,14 @@ namespace CrewChiefV4.rFactor2
         private HardPartsOnTrackData lastSessionHardPartsOnTrackData = null;
         private double lastSessionTrackLength = -1.0;
 
-        // next track conditions sample due after:
+        // Next track conditions sample due after:
         private DateTime nextConditionsSampleDue = DateTime.MinValue;
 
         private DateTime lastTimeEngineWasRunning = DateTime.MaxValue;
+
+        // Penalty state.
+        private readonly TimeSpan lastPenaltyCheckWndow = TimeSpan.FromSeconds(2);
+        private DateTime lastPenaltyTime = DateTime.MinValue;
 
         // Session caches:
         private Dictionary<string, TyreType> compoundNameToTyreType = new Dictionary<string, TyreType>();
@@ -170,12 +174,13 @@ namespace CrewChiefV4.rFactor2
             }
             else
             {
-                RF2GameStateMapper.pluginVerified = true;
-
                 var msg = "rFactor 2 Shared Memory version: " + versionStr + " 64bit."
                     + (shared.extended.mHostedPluginVars.StockCarRules_IsHosted != 0 ? ("  Stock Car Rules plugin hosted. (DFT:" + shared.extended.mHostedPluginVars.StockCarRules_DoubleFileType + ")")  : "");
                 Console.WriteLine(msg);
             }
+
+            // Only verify once.
+            RF2GameStateMapper.pluginVerified = true;
         }
         
         // Abrupt session detection variables.
@@ -205,6 +210,7 @@ namespace CrewChiefV4.rFactor2
             this.lastTimeEngineWasRunning = DateTime.MaxValue;
             this.compoundNameToTyreType.Clear();
             this.idToCarInfoMap.Clear();
+            this.lastPenaltyTime = DateTime.MinValue;
         }
 
         public override GameStateData mapToGameStateData(Object memoryMappedFileStruct, GameStateData previousGameState)
@@ -594,6 +600,8 @@ namespace CrewChiefV4.rFactor2
                 csd.formattedPlayerLapTimes = psd.formattedPlayerLapTimes;
                 cgs.TimingData = pgs.TimingData;
                 csd.JustGoneGreenTime = psd.JustGoneGreenTime;
+
+                cgs.SessionData.IsLastLap = pgs.SessionData.IsLastLap;
             }
 
             csd.SessionStartTime = csd.IsNewSession ? cgs.Now : psd.SessionStartTime;
@@ -608,16 +616,18 @@ namespace CrewChiefV4.rFactor2
             csd.NumCarsOverall = shared.scoring.mScoringInfo.mNumVehicles;
             csd.NumCarsOverallAtStartOfSession = csd.IsNewSession ? csd.NumCarsOverall : psd.NumCarsOverallAtStartOfSession;
             csd.OverallPosition = playerScoring.mPlace;
-            
+
             csd.SectorNumber = playerScoring.mSector == 0 ? 3 : playerScoring.mSector;
             csd.IsNewSector = csd.IsNewSession || csd.SectorNumber != psd.SectorNumber;
             csd.IsNewLap = csd.IsNewSession || (csd.IsNewSector && csd.SectorNumber == 1);
+
             if (csd.IsNewLap)
             {
                 cgs.readLandmarksForThisLap = false;
                 cgs.FlagData.previousLapWasFCY = pgs != null && pgs.FlagData.currentLapIsFCY;
                 cgs.FlagData.currentLapIsFCY = cgs.FlagData.isFullCourseYellow;
             }
+
             csd.PositionAtStartOfCurrentLap = csd.IsNewLap ? csd.OverallPosition : psd.PositionAtStartOfCurrentLap;
             // TODO: See if Black Flag handling needed here.
             csd.IsDisqualified = (rFactor2Constants.rF2FinishStatus)playerScoring.mFinishStatus == rFactor2Constants.rF2FinishStatus.Dq;
@@ -647,6 +657,10 @@ namespace CrewChiefV4.rFactor2
                 if (playerScoring.mOri != null)  // Don't bother with corner case of no telemetry data if we're reading from a file.
                     cgs.PositionAndMotionData.Orientation = RF2GameStateMapper.GetRotation(ref playerScoring.mOri);
             }
+
+            // During Gridwalk/Formation and Finished phases, distance close to S/F line is negative.  Fix it up.
+            if (cgs.PositionAndMotionData.DistanceRoundTrack < 0.0f)
+                cgs.PositionAndMotionData.DistanceRoundTrack += (float)shared.scoring.mScoringInfo.mLapDist;
 
             // Initialize DeltaTime.
             if (csd.IsNewSession)
@@ -1540,6 +1554,19 @@ namespace CrewChiefV4.rFactor2
                 csd.NumCarsInPlayerClassAtStartOfSession = pgs.SessionData.NumCarsInPlayerClassAtStartOfSession;
             }
 
+            // See if this looks like the last lap of a timed race.
+            if (cgs.SessionData.IsNewLap)
+            {
+                if (cgs.SessionData.SessionType == SessionType.Race
+                    && cgs.SessionData.SessionPhase != SessionPhase.Finished
+                    && cgs.SessionData.SessionPhase != SessionPhase.Checkered
+                    && csd.SessionHasFixedTime)
+                {
+                    if (cgs.SessionData.PlayerLapTimeSessionBest > 0.0f)
+                        cgs.SessionData.IsLastLap = csd.SessionTimeRemaining < cgs.SessionData.PlayerLapTimeSessionBest * 0.90f;
+                }
+            }
+
             // --------------------------------
             // fuel/battery data
             cgs.FuelData.FuelUseActive = cgs.BatteryData.BatteryUseActive = shared.extended.mPhysics.mFuelMult > 0;
@@ -1654,6 +1681,8 @@ namespace CrewChiefV4.rFactor2
             // --------------------------------
             // penalties data
             cgs.PenaltiesData.NumPenalties = playerScoring.mNumPenalties;
+            if (pgs != null && cgs.PenaltiesData.NumPenalties > pgs.PenaltiesData.NumPenalties)
+                this.lastPenaltyTime = cgs.Now;
 
             var cutTrackByInvalidLapDetected = false;
             // If lap state changed from valid to invalid, consider it due to cut track.
@@ -1695,6 +1724,14 @@ namespace CrewChiefV4.rFactor2
                         cgs.PenaltiesData.CutTrackWarnings = pgs.PenaltiesData.CutTrackWarnings + 1;
                     }
                 }
+            }
+
+            if (pgs != null
+                && cgs.PenaltiesData.CutTrackWarnings > pgs.PenaltiesData.CutTrackWarnings
+                && this.lastPenaltyTime.Add(this.lastPenaltyCheckWndow) > cgs.Now)
+            {
+                Console.WriteLine("Ignoring player off track due to recent penalty.");
+                --cgs.PenaltiesData.CutTrackWarnings;
             }
 
             // See if we're off track by distance.

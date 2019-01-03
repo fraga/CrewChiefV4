@@ -23,14 +23,6 @@ namespace CrewChiefV4.iRacing
         private int _DriverId = -1;
         public int DriverId { get { return _DriverId; } }
 
-        public object GetData(string headerName)
-        {
-            if (!sdk.IsConnected())
-                return null;
-
-            return sdk.GetData(headerName);
-        }
-
         private object TryGetSessionNum()
         {
             try
@@ -130,10 +122,9 @@ namespace CrewChiefV4.iRacing
                             {
                                 dataToDump = new List<iRacingStructDumpWrapper>();
                             }
-;
                             int attempts = 0;
                             const int maxAttempts = 99;
-
+                            //sdk.Generate_iRacingData_cs();
                             object sessionnum = this.TryGetSessionNum();
                             while (sessionnum == null && attempts <= maxAttempts)
                             {

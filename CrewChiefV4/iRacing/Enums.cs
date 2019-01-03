@@ -5,7 +5,6 @@ using System.Text;
 
 namespace CrewChiefV4.iRacing
 {
-    [Flags]
     public enum TrackSurfaces
     {
         NotInWorld = -1,
@@ -14,7 +13,6 @@ namespace CrewChiefV4.iRacing
         AproachingPits,
         OnTrack
     }
-    [Flags]
     public enum TrackSurfaceMaterial
     {
         SurfaceNotInWorld = -1,
@@ -49,8 +47,6 @@ namespace CrewChiefV4.iRacing
         GrasscreteMaterial,
         AstroturfMaterial,
     };
-
-    [Flags]
     public enum SessionStates
     {
         Invalid,
@@ -61,8 +57,7 @@ namespace CrewChiefV4.iRacing
         Checkered,
         CoolDown
     }
-    [Flags]
-    public enum CarLeftRight : uint
+    public enum CarLeftRight
     {
         irsdk_LROff,
         irsdk_LRClear, // no cars around us.
@@ -72,25 +67,26 @@ namespace CrewChiefV4.iRacing
         irsdk_LR2CarsLeft, // there are two cars to our left.
         irsdk_LR2CarsRight // there are two cars to our right. 
     };
-    [Flags]
     public enum DisplayUnits
     {
         EnglishImperial = 0,
         Metric = 1
     }
-    [Flags]
     public enum WeatherType
     {
         Constant = 0,
-        Dynamic = 1
+        Dynamic = 1,
+        Unknown0 = 2,
+        Unknown1 = 3
     }
-    [Flags]
     public enum Skies
     {
         Clear = 0,
         PartlyCloudy = 1,
         MostlyCloudy = 2,
-        Overcast = 3
+        Overcast = 3,
+        Unknown0 = 4,
+        Unknown1 = 5
     }
     public enum ReasonOutId
     {
