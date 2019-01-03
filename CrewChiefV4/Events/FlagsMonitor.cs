@@ -925,7 +925,7 @@ namespace CrewChiefV4.Events
                                         // a duplicate clear for local sectors
                                         //Console.WriteLine("FLAG_DEBUG: queuing sector " + (i + 1) + " " + sectorFlag + " at " + currentGameState.Now.ToString("HH:mm:ss"));
                                         String messageKey = i == currentGameState.SessionData.SectorNumber - 1 ? localFlagChangeMessageKey+ "_clear" : sectorFlagChangeMessageKeyStart + (i + 1);
-                                        audioPlayer.playMessageImmediately(new QueuedMessage(messageKey, 5, secondsDelay: 3,
+                                        audioPlayer.playMessageImmediately(new QueuedMessage(messageKey, 5, secondsDelay: Utilities.random.Next(2, 4),
                                             messageFragments: MessageContents(folderGreenFlagSectors[i]), 
                                             abstractEvent: this, validationData: validationData, type: SoundType.IMPORTANT_MESSAGE, priority: 0));
                                     }
