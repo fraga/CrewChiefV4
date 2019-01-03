@@ -35,8 +35,8 @@ namespace CrewChiefV4.iRacing
         {
             if(enabled && !paused)
             {
-                int currentState = (int)currentStateObj;
-                internalSpotter.triggerInternal((int)currentState);
+                CarLeftRight currentState = (CarLeftRight)currentStateObj;
+                internalSpotter.triggerInternal(currentState);
             }
             return;
         }

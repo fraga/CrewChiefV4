@@ -8,7 +8,7 @@ using CrewChiefV4.Events;
 using CrewChiefV4.Audio;
 using CrewChiefV4.GameState;
 using System.IO;
-
+using CrewChiefV4.iRacing;
 namespace CrewChiefV4
 {
     class PreviousPositionAndVelocityData {
@@ -436,7 +436,7 @@ namespace CrewChiefV4
             }
         }
         //For i racing spotter 
-        public void triggerInternal(int carLeftRight)
+        public void triggerInternal(CarLeftRight carLeftRight)
         {
             if (GameStateData.onManualFormationLap)
             {
@@ -446,26 +446,34 @@ namespace CrewChiefV4
             channelLeftOpenTimerStarted = false;
             int carsOnLeft = 0;
             int carsOnRight = 0;
-            if (carLeftRight == 2)
+            switch(carLeftRight)
             {
-                carsOnLeft = 1;
-            }
-            else if (carLeftRight == 3)
-            {
-                carsOnRight = 1;
-            }
-            else if (carLeftRight == 4)
-            {
-                carsOnRight = 1;
-                carsOnLeft = 1;
-            }
-            else if (carLeftRight == 5)
-            {
-                carsOnLeft = 2;
-            }
-            else if (carLeftRight == 6)
-            {
-                carsOnRight = 2;
+                case CarLeftRight.irsdk_LRCarLeft:
+                    {
+                        carsOnLeft = 1;
+                    }
+                    break;
+                case CarLeftRight.irsdk_LRCarRight:
+                    {
+                        carsOnRight = 1;
+                    }
+                    break;
+                case CarLeftRight.irsdk_LRCarLeftRight:
+                    {
+                        carsOnRight = 1;
+                        carsOnLeft = 1;
+                    }
+                    break;
+                case CarLeftRight.irsdk_LR2CarsLeft:
+                    {
+                        carsOnLeft = 2;
+                    }
+                    break;
+                case CarLeftRight.irsdk_LR2CarsRight:
+                    {
+                        carsOnRight = 2;
+                    }
+                    break;                
             }
             getNextMessage(carsOnLeft, carsOnRight, now);
             playNextMessage(carsOnLeft, carsOnRight, now);
