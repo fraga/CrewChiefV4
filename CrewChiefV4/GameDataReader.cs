@@ -6,6 +6,8 @@ using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 using System.IO.Compression;
+using System.Windows.Forms;
+
 namespace CrewChiefV4
 {
     public abstract class GameDataReader
@@ -73,6 +75,9 @@ namespace CrewChiefV4
 
             try
             {
+                if (!MainWindow.shouldSaveTrace)
+                    return;
+
                 Console.WriteLine("About to dump game data - this may take a while");
                 XmlSerializer serializer = new XmlSerializer(serializableObject.GetType());
                 

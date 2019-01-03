@@ -605,7 +605,7 @@
 			]
 		},
 		{
-			"rf2TrackNames": ["RaceRfactor Spa 2013"],
+			"rf2TrackNames": ["RaceRfactor Spa 2013", "Spa Francorchamps"],
 			"trackLandmarks": [{
 					"landmarkName": "la_source",
 					"distanceRoundLapStart": 290,

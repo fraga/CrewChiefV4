@@ -150,16 +150,19 @@ namespace CrewChiefV4
         public static string ResolveDataFile(string dataFilesPath, string fileNameToResolve)
         {
             // Search in dataFiles:
-            var resolvedFilePaths = Directory.GetFiles(dataFilesPath, fileNameToResolve, SearchOption.AllDirectories);
-            if (resolvedFilePaths.Length > 0)
-                return resolvedFilePaths[0];
+            if (Directory.Exists(dataFilesPath))
+            {
+                var resolvedFilePaths = Directory.GetFiles(dataFilesPath, fileNameToResolve, SearchOption.AllDirectories);
+                if (resolvedFilePaths.Length > 0)
+                    return resolvedFilePaths[0];
+            }
 
             // Search documents debugLogs:
-            resolvedFilePaths = Directory.GetFiles(System.IO.Path.Combine(Environment.GetFolderPath(
+            var resolvedFileUserPaths = Directory.GetFiles(System.IO.Path.Combine(Environment.GetFolderPath(
                 Environment.SpecialFolder.MyDocuments), @"CrewChiefV4\debugLogs"), fileNameToResolve, SearchOption.AllDirectories);
 
-            if (resolvedFilePaths.Length > 0)
-                return resolvedFilePaths[0];
+            if (resolvedFileUserPaths.Length > 0)
+                return resolvedFileUserPaths[0];
 
             Console.WriteLine("Failed to resolve trace file full path: " + fileNameToResolve);
             return null;
