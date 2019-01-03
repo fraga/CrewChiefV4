@@ -9,19 +9,18 @@ namespace CrewChiefV4
     class Validator
     {
 
-        // TODO: add more undeserving shitbags to this list as and when they crawl out the woodwork
+        // TODO: add more undeserving **** to this list as and when they crawl out the woodwork
         // Mostly for wrecking but some notable exceptions - sangalli for thinking it's ok to threaten people, 
         // hance, hotdog and koch for being extraordinarily ignorant and rude, and so on. My app, my rules :)
-        //Perverted breather with open mic pissing everyone off(re add him if it ever happens again "alberto balsalobre"
-         private static HashSet<String> wankers = new HashSet<String>(StringComparer.InvariantCultureIgnoreCase) { "mr.sisterfister", "bigsilverhotdog", 
+         private static HashSet<String> wnkers = new HashSet<String>(StringComparer.InvariantCultureIgnoreCase) { "mr.sisterfister", "bigsilverhotdog", 
              "paul hance", "aline senna", "giuseppe sangalli", "patrick förster", "chris iwaski", "gazman", "peter koch",
-             "andreas christiansen", "greg metcalf" /* twat...*/, "Aditas H1Z1Cases.com.", /* TODO: remove bruno in a future update */"Bruno Bæ",
-             "maciej bugno" /* shouty entitled mong */, "patrick schilhan" /*as reward for your "make r3e app free" campaign. You turd.*/,
-             "tim heinemann" /* shit head */, "Josh Cassar"};
+             "andreas christiansen", "greg metcalf", "Aditas H1Z1Cases.com.", /* TODO: remove bruno in a future update */"Bruno Bæ",
+             "maciej bugno", "patrick schilhan" /*as reward for your "make r3e app free" campaign.*/,
+             "tim heinemann", "Josh Cassar", "Jesse Hoppo"};
  
           public static void validate(String str)
           {
-             if (wankers.Contains(str.Trim()))
+             if (wnkers.Contains(str.Trim()))
              {
                  throw new ValidationException();
              }

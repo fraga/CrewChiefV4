@@ -158,9 +158,9 @@ namespace CrewChiefV4.Events
                             lastAirTempReport = currentGameState.Now;
                             lastTrackTempReport = currentGameState.Now;
                             // do the reporting
-                            audioPlayer.playMessage(new QueuedMessage("airAndTrackTemp", MessageContents
+                            audioPlayer.playMessage(new QueuedMessage("airAndTrackTemp", 10, messageFragments: MessageContents
                                 (folderAirAndTrackTempIncreasing, folderAirTempIsNow, convertTemp(currentConditions.AmbientTemperature),
-                                folderTrackTempIsNow, convertTemp(trackTempToUse), getTempUnit()), 0, this), 0);
+                                folderTrackTempIsNow, convertTemp(trackTempToUse), getTempUnit()), abstractEvent: this, priority: 0));
                             reportedCombinedTemps = true;
                         }
                         else if (trackTempToUse < trackTempAtLastReport - minTrackTempDeltaToReport && currentConditions.AmbientTemperature < airTempAtLastReport - minAirTempDeltaToReport)
@@ -170,9 +170,9 @@ namespace CrewChiefV4.Events
                             lastAirTempReport = currentGameState.Now;
                             lastTrackTempReport = currentGameState.Now;
                             // do the reporting
-                            audioPlayer.playMessage(new QueuedMessage("airAndTrackTemp", MessageContents
+                            audioPlayer.playMessage(new QueuedMessage("airAndTrackTemp", 10, messageFragments: MessageContents
                                 (folderAirAndTrackTempDecreasing, folderAirTempIsNow, convertTemp(currentConditions.AmbientTemperature),
-                                folderTrackTempIsNow, convertTemp(trackTempToUse), getTempUnit()), 0, this), 0);
+                                folderTrackTempIsNow, convertTemp(trackTempToUse), getTempUnit()), abstractEvent: this, priority: 0));
                             reportedCombinedTemps = true;
                         }
                     }
@@ -183,16 +183,16 @@ namespace CrewChiefV4.Events
                             airTempAtLastReport = currentConditions.AmbientTemperature;
                             lastAirTempReport = currentGameState.Now;
                             // do the reporting
-                            audioPlayer.playMessage(new QueuedMessage("airTemp", MessageContents
-                                (folderAirTempIncreasing, convertTemp(currentConditions.AmbientTemperature), getTempUnit()), 0, this), 0);
+                            audioPlayer.playMessage(new QueuedMessage("airTemp", 10, messageFragments: MessageContents
+                                (folderAirTempIncreasing, convertTemp(currentConditions.AmbientTemperature), getTempUnit()), abstractEvent: this, priority: 0));
                         }
                         else if (currentConditions.AmbientTemperature < airTempAtLastReport - minAirTempDeltaToReport)
                         {
                             airTempAtLastReport = currentConditions.AmbientTemperature;
                             lastAirTempReport = currentGameState.Now;
                             // do the reporting
-                            audioPlayer.playMessage(new QueuedMessage("airTemp", MessageContents
-                                (folderAirTempDecreasing, convertTemp(currentConditions.AmbientTemperature), getTempUnit()), 0, this), 0);
+                            audioPlayer.playMessage(new QueuedMessage("airTemp", 10, messageFragments: MessageContents
+                                (folderAirTempDecreasing, convertTemp(currentConditions.AmbientTemperature), getTempUnit()), abstractEvent: this, priority: 0));
                         }
                     }
                     if (!reportedCombinedTemps && canReportTrackChange)
@@ -202,16 +202,16 @@ namespace CrewChiefV4.Events
                             trackTempAtLastReport = trackTempToUse;
                             lastTrackTempReport = currentGameState.Now;
                             // do the reporting
-                            audioPlayer.playMessage(new QueuedMessage("trackTemp", MessageContents
-                                (folderTrackTempIncreasing, convertTemp(trackTempToUse), getTempUnit()), 0, this), 0);
+                            audioPlayer.playMessage(new QueuedMessage("trackTemp", 10, messageFragments: MessageContents
+                                (folderTrackTempIncreasing, convertTemp(trackTempToUse), getTempUnit()), abstractEvent: this, priority: 0));
                         }
                         else if (trackTempToUse < trackTempAtLastReport - minTrackTempDeltaToReport)
                         {
                             trackTempAtLastReport = trackTempToUse;
                             lastTrackTempReport = currentGameState.Now;
                             // do the reporting
-                            audioPlayer.playMessage(new QueuedMessage("trackTemp", MessageContents
-                                (folderTrackTempDecreasing, convertTemp(trackTempToUse), getTempUnit()), 0, this), 0);
+                            audioPlayer.playMessage(new QueuedMessage("trackTemp", 10, messageFragments: MessageContents
+                                (folderTrackTempDecreasing, convertTemp(trackTempToUse), getTempUnit()), abstractEvent: this, priority: 0));
                         }
                     }
                     //pcars2 test warning
@@ -246,8 +246,8 @@ namespace CrewChiefV4.Events
 
                                     if (minutes > 2)
                                     {
-                                        audioPlayer.playMessage(new QueuedMessage("expecting_rain", MessageContents(folderExpectRain,
-                                            new TimeSpanWrapper(TimeSpan.FromMinutes(minutes), Precision.MINUTES)), 0, this), 5);
+                                        audioPlayer.playMessage(new QueuedMessage("expecting_rain", 10, messageFragments: MessageContents(folderExpectRain,
+                                            new TimeSpanWrapper(TimeSpan.FromMinutes(minutes), Precision.MINUTES)), abstractEvent: this));
                                     }
                                 }
                             }
@@ -270,13 +270,13 @@ namespace CrewChiefV4.Events
                             {
                                 rainAtLastReport = currentGameState.RainDensity;
                                 lastRainReport = currentGameState.Now;
-                                audioPlayer.playMessage(new QueuedMessage(folderStoppedRaining, 0, this), 2);
+                                audioPlayer.playMessage(new QueuedMessage(folderStoppedRaining, 10, abstractEvent: this, priority: 2));
                             }
                             else if (currentConditions.RainDensity == 1 && rainAtLastReport == 0)
                             {
                                 rainAtLastReport = currentGameState.RainDensity;
                                 lastRainReport = currentGameState.Now;
-                                audioPlayer.playMessage(new QueuedMessage(folderSeeingSomeRain, 0, this), 5);
+                                audioPlayer.playMessage(new QueuedMessage(folderSeeingSomeRain, 10, abstractEvent: this, priority: 5));
                             }
                         }
                         else if (CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT || CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2)
@@ -298,22 +298,22 @@ namespace CrewChiefV4.Events
                                 switch (currentRainLevel)
                                 {
                                     case RainLevel.DRIZZLE:
-                                        audioPlayer.playMessageImmediately(new QueuedMessage(folderDrizzleIncreasing, 0, null) { metadata = new SoundMetadata(SoundType.IMPORTANT_MESSAGE, 0) });
+                                        audioPlayer.playMessageImmediately(new QueuedMessage(increasing ? folderDrizzleIncreasing : folderDrizzleDecreasing, 0, type: SoundType.IMPORTANT_MESSAGE, priority: 0));
                                         break;
                                     case RainLevel.LIGHT:
-                                        audioPlayer.playMessageImmediately(new QueuedMessage(increasing ? folderRainLightIncreasing : folderRainLightDecreasing, 0, null) { metadata = new SoundMetadata(SoundType.IMPORTANT_MESSAGE, 0) });
+                                        audioPlayer.playMessageImmediately(new QueuedMessage(increasing ? folderRainLightIncreasing : folderRainLightDecreasing, 0, type: SoundType.IMPORTANT_MESSAGE, priority: 0));
                                         break;
                                     case RainLevel.MID:
-                                        audioPlayer.playMessageImmediately(new QueuedMessage(increasing ? folderRainMidIncreasing : folderRainMidDecreasing, 0, null) { metadata = new SoundMetadata(SoundType.IMPORTANT_MESSAGE, 0) });
+                                        audioPlayer.playMessageImmediately(new QueuedMessage(increasing ? folderRainMidIncreasing : folderRainMidDecreasing, 0, type: SoundType.IMPORTANT_MESSAGE, priority: 0));
                                         break;
                                     case RainLevel.HEAVY:
-                                        audioPlayer.playMessageImmediately(new QueuedMessage(increasing ? folderRainHeavyIncreasing : folderRainHeavyDecreasing, 0, null) { metadata = new SoundMetadata(SoundType.IMPORTANT_MESSAGE, 0) });
+                                        audioPlayer.playMessageImmediately(new QueuedMessage(increasing ? folderRainHeavyIncreasing : folderRainHeavyDecreasing, 0, type: SoundType.IMPORTANT_MESSAGE, priority: 0));
                                         break;
                                     case RainLevel.STORM:
-                                        audioPlayer.playMessageImmediately(new QueuedMessage(folderRainMax, 0, null) { metadata = new SoundMetadata(SoundType.IMPORTANT_MESSAGE, 0) });
+                                        audioPlayer.playMessageImmediately(new QueuedMessage(folderRainMax, 0, type: SoundType.IMPORTANT_MESSAGE, priority: 0));
                                         break;
                                     case RainLevel.NONE:
-                                        audioPlayer.playMessage(new QueuedMessage(folderStoppedRaining, 0, this), 3);
+                                        audioPlayer.playMessage(new QueuedMessage(folderStoppedRaining, 10, abstractEvent: this, priority: 3));
                                         break;
                                 }
                                 lastRainReport = currentGameState.Now;
@@ -369,19 +369,19 @@ namespace CrewChiefV4.Events
         {
             if (currentConditions == null)
             {
-                audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0, null));
+                audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
             }
             else
             {
                 if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHATS_THE_AIR_TEMP))
                 {
-                    audioPlayer.playMessageImmediately(new QueuedMessage("airTemp",
-                        MessageContents(folderAirTempIsNow, convertTemp(currentConditions.AmbientTemperature), getTempUnit()), 0, null));
+                    audioPlayer.playMessageImmediately(new QueuedMessage("airTemp", 0,
+                        messageFragments: MessageContents(folderAirTempIsNow, convertTemp(currentConditions.AmbientTemperature), getTempUnit())));
                 }
                 if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHATS_THE_TRACK_TEMP))
                 {
-                    audioPlayer.playMessageImmediately(new QueuedMessage("trackTemp",
-                        MessageContents(folderTrackTempIsNow, convertTemp(currentConditions.TrackTemperature), getTempUnit()), 0, null));
+                    audioPlayer.playMessageImmediately(new QueuedMessage("trackTemp", 0,
+                        messageFragments: MessageContents(folderTrackTempIsNow, convertTemp(currentConditions.TrackTemperature), getTempUnit())));
                 }
             }
         }

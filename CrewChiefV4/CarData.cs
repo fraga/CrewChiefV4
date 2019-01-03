@@ -46,6 +46,10 @@ namespace CrewChiefV4
         private static float maxWarmUltraSoftTyreTempPeak = 95;
         private static float maxHotUltraSoftTyreTempPeak = 107;
 
+        private static float maxColdHyperSoftTyreTempPeak = 60;
+        private static float maxWarmHyperSoftTyreTempPeak = 94;
+        private static float maxHotHyperSoftTyreTempPeak = 105;
+
         private static float maxColdWetTyreTempPeak = 40;
         private static float maxWarmWetTyreTempPeak = 80;
         private static float maxHotWetTyreTempPeak = 105;
@@ -131,7 +135,8 @@ namespace CrewChiefV4
             VINTAGE_F1_C, VINTAGE_STOCK_CAR,
             F1, F2, F3, F4, FF, FORMULA_E, F1_70S, F1_90S, TC1, TC2, TCR, TC1_2014, AUDI_TT_CUP, AUDI_TT_VLN, CLIO_CUP, DTM, DTM_2013, V8_SUPERCAR, DTM_2014, DTM_2015, DTM_2016, TRANS_AM, HILL_CLIMB_ICONS, FORMULA_RENAULT,
             MEGANE_TROPHY, NSU_TT, KTM_RR, INDYCAR, HYPER_CAR, HYPER_CAR_RACE, UNKNOWN_RACE, STOCK_V8, BOXER_CUP, NASCAR_2016, ISI_STOCKCAR_2015, RADICAL_SR3, USER_CREATED,
-            RS01_TROPHY, TRACKDAY_A, TRACKDAY_B, BMW_235I, CARRERA_CUP, R3E_SILHOUETTE, SPEC_MIATA, SKIP_BARBER, CAYMAN_CLUBSPORT, CAN_AM, FORMULA_RENAULT20, INDYCAR_DALLARA_2011, INDYCAR_DALLARA_DW12
+            RS01_TROPHY, TRACKDAY_A, TRACKDAY_B, BMW_235I, CARRERA_CUP, R3E_SILHOUETTE, SPEC_MIATA, SKIP_BARBER, CAYMAN_CLUBSPORT, CAN_AM, FORMULA_RENAULT20, INDYCAR_DALLARA_2011, INDYCAR_DALLARA_DW12,
+            M1_PROCAR, PORSCHE_964_CUP
         }
 
         // use different thresholds for R3E car classes - there are a few different tyre models in the game with different heating characteristics:
@@ -164,6 +169,13 @@ namespace CrewChiefV4
             roadTyreTempsThresholds.Add(new CornerData.EnumWithThresholds(TyreTemp.HOT, maxWarmRoadTyreTempPeak, maxHotRoadTyreTempPeak));
             roadTyreTempsThresholds.Add(new CornerData.EnumWithThresholds(TyreTemp.COOKING, maxHotRoadTyreTempPeak, 10000));
             tyreTempThresholds.Add(TyreType.Road, roadTyreTempsThresholds);
+
+            List<CornerData.EnumWithThresholds> hyperSoftTyreTempsThresholds = new List<CornerData.EnumWithThresholds>();
+            hyperSoftTyreTempsThresholds.Add(new CornerData.EnumWithThresholds(TyreTemp.COLD, -10000, maxColdUltraSoftTyreTempPeak));
+            hyperSoftTyreTempsThresholds.Add(new CornerData.EnumWithThresholds(TyreTemp.WARM, maxColdHyperSoftTyreTempPeak, maxWarmHyperSoftTyreTempPeak));
+            hyperSoftTyreTempsThresholds.Add(new CornerData.EnumWithThresholds(TyreTemp.HOT, maxWarmHyperSoftTyreTempPeak, maxHotHyperSoftTyreTempPeak));
+            hyperSoftTyreTempsThresholds.Add(new CornerData.EnumWithThresholds(TyreTemp.COOKING, maxHotHyperSoftTyreTempPeak, 10000));
+            tyreTempThresholds.Add(TyreType.Hyper_Soft, hyperSoftTyreTempsThresholds);
 
             List<CornerData.EnumWithThresholds> ultraSoftTyreTempsThresholds = new List<CornerData.EnumWithThresholds>();
             ultraSoftTyreTempsThresholds.Add(new CornerData.EnumWithThresholds(TyreTemp.COLD, -10000, maxColdUltraSoftTyreTempPeak));
@@ -241,6 +253,9 @@ namespace CrewChiefV4
             unknownRaceTyreTempsThresholds.Add(new CornerData.EnumWithThresholds(TyreTemp.HOT, maxWarmUnknownRaceTyreTempPeak, maxHotUnknownRaceTyreTempPeak));
             unknownRaceTyreTempsThresholds.Add(new CornerData.EnumWithThresholds(TyreTemp.COOKING, maxHotUnknownRaceTyreTempPeak, 10000));
             tyreTempThresholds.Add(TyreType.Unknown_Race, unknownRaceTyreTempsThresholds);
+
+            // to ensure uninitialized tyres still have some thresholds associated with them
+            tyreTempThresholds.Add(TyreType.Uninitialized, unknownRaceTyreTempsThresholds);
 
             List<CornerData.EnumWithThresholds> biasPlyTyreTempsThresholds = new List<CornerData.EnumWithThresholds>();
             biasPlyTyreTempsThresholds.Add(new CornerData.EnumWithThresholds(TyreTemp.COLD, -10000, maxColdBiasPlyTyreTempPeak));
@@ -574,8 +589,15 @@ namespace CrewChiefV4
             }
         }
 
-        public static Boolean IsCarClassEqual(CarClass class1, CarClass class2)
+        public static Boolean IsCarClassEqual(CarClass class1, CarClass class2, Boolean assumeEqualIfSingleClass = true)
         {
+            // if multiclass is disabled (from UI setting or because of unusable car class data) then in *most*
+            // cases we can assume all car classes are equal. The exception here is when checking if the player's
+            // car class has changed (done as part of the new session logic).
+            if (assumeEqualIfSingleClass && (CrewChief.forceSingleClass || !GameStateData.Multiclass))
+            {
+                return true;
+            }
             if (class1 == class2)
             {
                 return true;

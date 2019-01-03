@@ -155,14 +155,17 @@ namespace CrewChiefV4
                 UserSettings.GetUserSettings().setProperty("last_game_definition", gameDefinition.gameEnum.ToString());
                 UserSettings.GetUserSettings().saveUserSettings();
                 CrewChief.gameDefinition = gameDefinition;
-                //I think we shuld add it here 
-                if (gameDefinition.gameEnum == GameEnum.ASSETTO_32BIT || 
-                    gameDefinition.gameEnum == GameEnum.ASSETTO_64BIT ||
-                    gameDefinition.gameEnum == GameEnum.RF1 ||
-                    gameDefinition.gameEnum == GameEnum.RF2_64BIT)
+                // I think we shuld add it here 
+                if (UserSettings.GetUserSettings().getBoolean("enable_automatic_plugin_update"))
                 {
-                    PluginInstaller pluginInstaller = new PluginInstaller();
-                    pluginInstaller.InstallOrUpdatePlugins(gameDefinition);
+                    if (gameDefinition.gameEnum == GameEnum.ASSETTO_32BIT ||
+                        gameDefinition.gameEnum == GameEnum.ASSETTO_64BIT ||
+                        gameDefinition.gameEnum == GameEnum.RF1 ||
+                        gameDefinition.gameEnum == GameEnum.RF2_64BIT)
+                    {
+                        PluginInstaller pluginInstaller = new PluginInstaller();
+                        pluginInstaller.InstallOrUpdatePlugins(gameDefinition);
+                    }
                 }
             }
         }
@@ -217,7 +220,7 @@ namespace CrewChiefV4
             {
                 currentGameState.SessionData.TrackDefinition.adjustGapPoints(currentGameState.hardPartsOnTrackData.processedHardPartsForBestLap);
             }
-            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowledgeEnableDelayInHardParts, 0, null));
+            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowledgeEnableDelayInHardParts, 0));
         }
 
         public void disableDelayMessagesInHardParts()
@@ -231,7 +234,7 @@ namespace CrewChiefV4
             {
                 currentGameState.SessionData.TrackDefinition.setGapPoints();
             }
-            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowledgeDisableDelayInHardParts, 0, null));
+            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowledgeDisableDelayInHardParts, 0));
         }
 
         public void toggleReadOpponentDeltasMode()
@@ -252,7 +255,7 @@ namespace CrewChiefV4
             {
                 readOpponentDeltasForEveryLap = true;
             }
-            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderDeltasEnabled, 0, null));
+            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderDeltasEnabled, 0));
         }
 
         public void disableDeltasMode()
@@ -261,7 +264,7 @@ namespace CrewChiefV4
             {
                 readOpponentDeltasForEveryLap = false;
             }
-            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderDeltasDisabled, 0, null));
+            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderDeltasDisabled, 0));
         }
 
         public void toggleEnableYellowFlagsMode()
@@ -279,13 +282,13 @@ namespace CrewChiefV4
         public void enableYellowFlagMessages()
         {
             yellowFlagMessagesEnabled = true;
-            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderYellowEnabled, 0, null));
+            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderYellowEnabled, 0));
         }
 
         public void disableYellowFlagMessages()
         {
             yellowFlagMessagesEnabled = false;
-            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderYellowDisabled, 0, null));
+            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderYellowDisabled, 0));
         }
 
         public void toggleManualFormationLapMode()
@@ -314,7 +317,7 @@ namespace CrewChiefV4
                 GameStateData.onManualFormationLap = true;
             }
             Console.WriteLine("Manual formation lap mode is ACTIVE");
-            audioPlayer.playMessageImmediately(new QueuedMessage(LapCounter.folderManualFormationLapModeEnabled, 0, null));
+            audioPlayer.playMessageImmediately(new QueuedMessage(LapCounter.folderManualFormationLapModeEnabled, 0));
         }
 
         public void disableManualFormationLapMode()
@@ -325,7 +328,7 @@ namespace CrewChiefV4
                 GameStateData.onManualFormationLap = false;
             }
             Console.WriteLine("Manual formation lap mode is DISABLED");
-            audioPlayer.playMessageImmediately(new QueuedMessage(LapCounter.folderManualFormationLapModeDisabled, 0, null));
+            audioPlayer.playMessageImmediately(new QueuedMessage(LapCounter.folderManualFormationLapModeDisabled, 0));
         }
 
         public void reportFuelStatus()
@@ -366,7 +369,7 @@ namespace CrewChiefV4
         {
             if (currentGameState != null)
             {
-                audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0, null));
+                audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
                 currentGameState.readLandmarksForThisLap = true;
             }
         }
@@ -401,7 +404,7 @@ namespace CrewChiefV4
 
         public void respondToRadioCheck()
         {
-            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderRadioCheckResponse, 0, null));
+            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderRadioCheckResponse, 0));
         }
 
         public void youWot(Boolean detectedSomeSpeech)
@@ -427,7 +430,7 @@ namespace CrewChiefV4
             else
             {
                 // TODO: separate responses for no input detected, and input not understood?
-                audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderDidntUnderstand, 0, null));
+                audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderDidntUnderstand, 0));
             }
         }
 
@@ -436,7 +439,7 @@ namespace CrewChiefV4
             if (DriverTrainingService.isPlayingPaceNotes)
             {
                 DriverTrainingService.stopPlayingPaceNotes();
-                audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0, null));
+                audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
             }
             else
             {
@@ -447,7 +450,7 @@ namespace CrewChiefV4
                         if (DriverTrainingService.loadPaceNotes(CrewChief.gameDefinition.gameEnum,
                                 CrewChief.currentGameState.SessionData.TrackDefinition.name, CrewChief.currentGameState.carClass.carClassEnum))
                         {
-                            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0, null));
+                            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
                         }
                     }
                 }
@@ -570,8 +573,8 @@ namespace CrewChiefV4
             }
             if (AudioPlayer.soundPackLanguage == "it")
             {
-                audioPlayer.playMessageImmediately(new QueuedMessage("current_time",
-                    AbstractEvent.MessageContents(hour, NumberReaderIt2.folderAnd, now.Minute), 0, null));
+                audioPlayer.playMessageImmediately(new QueuedMessage("current_time", 0,
+                    messageFragments: AbstractEvent.MessageContents(hour, NumberReaderIt2.folderAnd, now.Minute)));
             }
             else
             {
@@ -588,19 +591,19 @@ namespace CrewChiefV4
                 {
                     if (minute == 0)
                     {
-                        audioPlayer.playMessageImmediately(new QueuedMessage("current_time",
-                           AbstractEvent.MessageContents(hour, isPastMidDay ? AlarmClock.folderPM : AlarmClock.folderAM), 0, null));
+                        audioPlayer.playMessageImmediately(new QueuedMessage("current_time", 0,
+                           messageFragments: AbstractEvent.MessageContents(hour, isPastMidDay ? AlarmClock.folderPM : AlarmClock.folderAM)));
                     }
                     else
                     {
-                        audioPlayer.playMessageImmediately(new QueuedMessage("current_time",
-                            AbstractEvent.MessageContents(hour, NumberReader.folderOh, now.Minute, isPastMidDay ? AlarmClock.folderPM : AlarmClock.folderAM), 0, null));
+                        audioPlayer.playMessageImmediately(new QueuedMessage("current_time", 0,
+                            messageFragments: AbstractEvent.MessageContents(hour, NumberReader.folderOh, now.Minute, isPastMidDay ? AlarmClock.folderPM : AlarmClock.folderAM)));
                     }
                 }
                 else
                 {
-                    audioPlayer.playMessageImmediately(new QueuedMessage("current_time",
-                        AbstractEvent.MessageContents(hour, now.Minute, isPastMidDay ? AlarmClock.folderPM : AlarmClock.folderAM), 0, null));
+                    audioPlayer.playMessageImmediately(new QueuedMessage("current_time", 0,
+                        messageFragments: AbstractEvent.MessageContents(hour, now.Minute, isPastMidDay ? AlarmClock.folderPM : AlarmClock.folderAM)));
                 }
             }
         }
@@ -907,6 +910,7 @@ namespace CrewChiefV4
                                         previousGameState.SessionData.NumCarsInPlayerClassAtStartOfSession, previousGameState.SessionData.CompletedLaps,
                                         currentGameState.SessionData.IsDisqualified, currentGameState.SessionData.IsDNF, currentGameState.Now);
                                 }
+                                audioPlayer.holdChannelOpen = false;    // clear the 'hold open' state here before waking the monitor
                                 audioPlayer.wakeMonitorThreadForRegularMessages(currentGameState.Now);
                                 sessionFinished = true;
                                 audioPlayer.disablePearlsOfWisdom = false;

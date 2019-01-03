@@ -826,6 +826,10 @@ load_sound_files_on_startup = Load sound files on startup
 load_sound_files_on_startup_help = Load all the sounds when the app starts up. This may make app start times quite long, but prevents the app having to load stuff while you're racing.
 load_sound_files_on_startup_category = UI_STARTUP_AND_PATHS
 
+enable_automatic_plugin_update = Update game plugins on startup
+enable_automatic_plugin_update_help = If enabled, CC will check if latest plugin is installed and will prompt to install plugin if it is not found or out of date.
+enable_automatic_plugin_update_category = UI_STARTUP_AND_PATHS
+
 pcars_character_encoding = pCARS character encoding
 pcars_character_encoding_help = For PS4 always use UTF-8. For PC and XBox this will usually be windows-1252 (Windows Western European).
 pcars_character_encoding_filter = PCARS_64BIT;PCARS_32BIT;PCARS_NETWORK
@@ -1188,3 +1192,7 @@ slow_class_car_warnings_in_race_only_category = PIT_STOPS_AND_MULTICLASS
 record_sound_variety_data = Record sound variety data
 record_sound_variety_data_help = Log the number of times each sound is played and the number of versions of this sound. For sound pack developers
 record_sound_variety_data_category = AUDIO_VOICE_AND_CONTROLLERS
+
+persist_pitstop_benchmark_times = Save pitstop benchmark times to disk
+persist_pitstop_benchmark_times_help = Save benchmark times to Documents folder
+persist_pitstop_benchmark_times_category = PIT_STOPS_AND_MULTICLASS

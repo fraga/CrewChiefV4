@@ -44,15 +44,18 @@ namespace CrewChiefV4.rFactor2
             this.internalSpotter.clearState();
         }
 
-        private rF2VehicleScoring getVehicleInfo(CrewChiefV4.rFactor2.RF2SharedMemoryReader.RF2StructWrapper shared)
+        private bool tryGetVehicleInfo(CrewChiefV4.rFactor2.RF2SharedMemoryReader.RF2StructWrapper shared, out rF2VehicleScoring vehicleScoring)
         {
             for (int i = 0; i < shared.scoring.mScoringInfo.mNumVehicles; ++i)
             {
-                var vehicle = shared.scoring.mVehicles[i];
-                if (vehicle.mIsPlayer == 1)
-                    return vehicle;
+                if (shared.scoring.mVehicles[i].mIsPlayer == 1)
+                {
+                    vehicleScoring = shared.scoring.mVehicles[i];
+                    return true;
+                }
             }
-            throw new Exception("no vehicle for player!");
+            vehicleScoring = default(rF2VehicleScoring);
+            return false;
         }
 
         public override void trigger(Object lastStateObj, Object currentStateObj, GameStateData currentGameState)
@@ -66,38 +69,26 @@ namespace CrewChiefV4.rFactor2
             var lastState = lastStateObj as CrewChiefV4.rFactor2.RF2SharedMemoryReader.RF2StructWrapper;
             var currentState = currentStateObj as CrewChiefV4.rFactor2.RF2SharedMemoryReader.RF2StructWrapper;
 
+            rF2VehicleScoring currentPlayerScoring;
+            rF2VehicleScoring previousPlayerScoring;
+
             if (!this.enabled 
                 || currentState.scoring.mScoringInfo.mCurrentET < this.timeAfterRaceStartToActivate
-                || currentState.extended.mInRealtimeFC == 0
-                || currentState.scoring.mScoringInfo.mInRealtime == 0
                 || currentGameState.OpponentData.Count == 0
-                || lastState.extended.mInRealtimeFC == 0
-                || lastState.scoring.mScoringInfo.mInRealtime == 0)
-                return;
-
-            // turn off spotter for formation lap before going green
-            if (currentState.scoring.mScoringInfo.mGamePhase == (int)rFactor2Constants.rF2GamePhase.Formation)
+                || currentState.scoring.mScoringInfo.mInRealtime == 0
+                || lastState.scoring.mScoringInfo.mInRealtime == 0
+                // turn off spotter for formation lap before going green
+                || currentState.scoring.mScoringInfo.mGamePhase == (int)rFactor2Constants.rF2GamePhase.Formation
+                || !this.tryGetVehicleInfo(currentState, out currentPlayerScoring)
+                || !this.tryGetVehicleInfo(lastState, out previousPlayerScoring))
                 return;
 
             var now = DateTime.UtcNow;
-            rF2VehicleScoring currentPlayerScoring;
-            rF2VehicleScoring previousPlayerScoring;
-            float timeDiffSeconds;
-            try
+            float timeDiffSeconds = ((float)(now - this.previousTime).TotalMilliseconds) / 1000.0f;
+            this.previousTime = now;
+            if (timeDiffSeconds <= 0.0f)
             {
-                currentPlayerScoring = this.getVehicleInfo(currentState);
-                previousPlayerScoring = this.getVehicleInfo(lastState);
-                timeDiffSeconds = ((float)(now - this.previousTime).TotalMilliseconds) / 1000.0f;
-                this.previousTime = now;
-
-                if (timeDiffSeconds <= 0.0f)
-                {
-                    // In pits probably.
-                    return;
-                }
-            }
-            catch (Exception)
-            {
+                // In pits probably.
                 return;
             }
 

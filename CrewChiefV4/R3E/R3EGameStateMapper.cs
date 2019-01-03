@@ -1163,7 +1163,7 @@ namespace CrewChiefV4.RaceRoom
             currentGameState.PenaltiesData.HasSlowDown = shared.Penalties.SlowDown > 0;
             currentGameState.PenaltiesData.HasPitStop = shared.Penalties.PitStop > 0;
             currentGameState.PenaltiesData.HasStopAndGo = shared.Penalties.StopAndGo > 0;
-            currentGameState.PenaltiesData.HasTimeDeduction = shared.Penalties.TimeDeduction > 0; ;
+            currentGameState.PenaltiesData.HasTimeDeduction = shared.Penalties.TimeDeduction > 0;
             currentGameState.PenaltiesData.NumPenalties = shared.NumPenalties;
 
 
@@ -1328,7 +1328,7 @@ namespace CrewChiefV4.RaceRoom
             if (currentGameState.Now < recheckCarClassesUntil)
             {
                 CarData.CarClass correctedCarClass = CarData.getCarClassForRaceRoomId(playerDriverData.DriverInfo.ClassId);
-                if (!CarData.IsCarClassEqual(correctedCarClass, currentGameState.carClass))
+                if (!CarData.IsCarClassEqual(correctedCarClass, currentGameState.carClass, false))
                 {
                     Console.WriteLine("Player car class in game data has changed. Updating to " + correctedCarClass.getClassIdentifier());
                     currentGameState.carClass = correctedCarClass;
@@ -1642,7 +1642,7 @@ namespace CrewChiefV4.RaceRoom
             if (now < recheckCarClassesUntil)
             {
                 CarData.CarClass correctedCarClass = CarData.getCarClassForRaceRoomId(carClassId);
-                if (!CarData.IsCarClassEqual(opponentData.CarClass, correctedCarClass)) 
+                if (!CarData.IsCarClassEqual(opponentData.CarClass, correctedCarClass, false)) 
                 {
                     // note we're not correcting the tyre types here but this shouldn't matter as we don't announce them in 
                     // practice and qually anyway

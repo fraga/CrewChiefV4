@@ -89,7 +89,7 @@ namespace CrewChiefV4.Events
                 if (alarm.enabled && (DateTime.Now > alarm.alarmTime && DateTime.Now < alarm.alarmTime + TimeSpan.FromSeconds(60)))
                 {
                     alarm.enabled = false;
-                    audioPlayer.playMessageImmediately(new QueuedMessage(AlarmClock.wakeUp, 0, null) { metadata = new SoundMetadata(SoundType.CRITICAL_MESSAGE, 15) });
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AlarmClock.wakeUp, 0, type: SoundType.CRITICAL_MESSAGE, priority: 15));
                 }
             }
         }
@@ -176,22 +176,23 @@ namespace CrewChiefV4.Events
                     }
                     if (minutes < 10)
                     {
-                        audioPlayer.playMessageImmediately(new QueuedMessage("alarm",
-                            MessageContents(notifyYouAt, hour, NumberReader.folderOh, minutes, isPastMidDay ? folderPM : folderAM), 0, null)
-                            { metadata = new SoundMetadata(SoundType.CRITICAL_MESSAGE, 0) });
+                        audioPlayer.playMessageImmediately(new QueuedMessage("alarm", 0,
+                            messageFragments: MessageContents(notifyYouAt, hour, NumberReader.folderOh, minutes, isPastMidDay ? folderPM : folderAM),
+                            type: SoundType.CRITICAL_MESSAGE, priority: 0));
                     }
                     else
                     {
-                        audioPlayer.playMessageImmediately(new QueuedMessage("alarm",
-                            MessageContents(notifyYouAt, hour, minutes, isPastMidDay ? folderPM : folderAM), 0, null)
-                            { metadata = new SoundMetadata(SoundType.CRITICAL_MESSAGE, 0) });
+                        audioPlayer.playMessageImmediately(new QueuedMessage("alarm", 0,
+                            messageFragments: MessageContents(notifyYouAt, hour, minutes, isPastMidDay ? folderPM : folderAM),
+                            type: SoundType.CRITICAL_MESSAGE, priority: 0));
                     }
                 }
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.CLEAR_ALARM_CLOCK))
             {
                 alarmTimes.Clear();
-                audioPlayer.playMessageImmediately(new QueuedMessage("alarm", MessageContents(AudioPlayer.folderAcknowlegeOK), 0, null));
+                audioPlayer.playMessageImmediately(new QueuedMessage("alarm", 0,
+                    messageFragments: MessageContents(AudioPlayer.folderAcknowlegeOK)));
             }
 
         }
