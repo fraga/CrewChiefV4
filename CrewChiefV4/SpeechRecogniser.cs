@@ -399,13 +399,13 @@ namespace CrewChiefV4
                         gb.Append(appendChoices);
                     }
                 }
+                Grammar grammar = new Grammar(gb);
+                sre.LoadGrammar(grammar);
+                generatedGrammars.Add(grammar);
                 if (disable_alternative_voice_commands && !alwaysUseAllPhrases)
                 {
                     break;
                 }
-                Grammar grammar = new Grammar(gb);
-                sre.LoadGrammar(grammar);
-                generatedGrammars.Add(grammar);
             }
             return generatedGrammars;
         }
