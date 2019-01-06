@@ -146,10 +146,11 @@ namespace CrewChiefV4
                 var overrideFileName = getUserOverridesFileLocation(configFileName);
                 if (File.Exists(overrideFileName))
                 {
+                    Debug.WriteLine("Found user override for: " + configFileName + ".  Merging.");
                     overridesFile = new StreamReader(overrideFileName);
                     merge(overridesFile, dict);
                 }
-            }
+                }
             catch (Exception)
             {
 
