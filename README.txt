@@ -224,7 +224,7 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
-Version 4.9.6.1: Extended free-text macros a little (upper case characters and slash); speech recognition fixes when running with 'disable alternate voice commands' switched on; automatically save console logs; iRacing - fixed debug logging on ovals; RF2 - some bug fixes
+Version 4.9.6.1: Extended free-text macros a little (upper case characters and slash); prevent off-track messages expiring immediately in practice sessions; speech recognition fixes when running with 'disable alternate voice commands' switched on; automatically save console logs; iRacing - fixed debug logging on ovals; RF2 - some bug fixes
 
 Version 4.9.6.0: Corrected some car classes for AC and R3E; RF2 - updated plugin; RF2 - more accurate pit stall location detection
 
