@@ -239,9 +239,9 @@ namespace CrewChiefV4.commands
                     {
                         break;
                     }
-                    foreach (KeyPresser.KeyCode keyCode in actionItem.keyCodes)
+                    for (int keyIndex = 0; keyIndex < actionItem.keyCodes.Length; keyIndex++)
                     {
-                        KeyPresser.SendScanCodeKeyPress(keyCode, keyPressTime);
+                        KeyPresser.SendScanCodeKeyPress(actionItem.keyCodes[keyIndex], actionItem.forcedUpperCases[keyIndex], keyPressTime);
                         Thread.Sleep(waitBetweenKeys);
                     }
                 }
@@ -385,6 +385,9 @@ namespace CrewChiefV4.commands
     {
         public Boolean parsedSuccessfully = false;
         public KeyPresser.KeyCode[] keyCodes;
+        // for free-text entry, capital letters (e.g. in chat commands) will trigger holding down the LSHIFT key
+        // for single action items this will be a single element array with 'false'
+        public Boolean[] forcedUpperCases;
         public String actionText;
         public String extendedType;
         public String extendedTypeTextParam;
@@ -435,19 +438,20 @@ namespace CrewChiefV4.commands
                 {
                     // first assume we have a single key binding
                     this.keyCodes = new KeyPresser.KeyCode[1];
+                    this.forcedUpperCases = new Boolean[] { false };
                     foreach (KeyBinding keyBinding in keyBindings)
                     {
                         if (String.Equals(keyBinding.action, action, StringComparison.InvariantCultureIgnoreCase))
                         {
                             // keyCode = (KeyPresser.KeyCode)Enum.Parse(typeof(KeyPresser.KeyCode), keyBinding.key, true);
-                            parsedSuccessfully = parseKeycode(keyBinding.key, false, out this.keyCodes[0]);
+                            parsedSuccessfully = parseKeycode(keyBinding.key, false, out this.keyCodes[0], out this.forcedUpperCases[0]);
                             break;
                         }
                     }
                     if (!parsedSuccessfully)
                     {
                         // try and get it directly without going through the key bindings
-                        parsedSuccessfully = parseKeycode(action, false, out this.keyCodes[0]);
+                        parsedSuccessfully = parseKeycode(action, false, out this.keyCodes[0], out this.forcedUpperCases[0]);
                     }
                     if (!parsedSuccessfully)
                     {
@@ -455,9 +459,11 @@ namespace CrewChiefV4.commands
                         {
                             // finally, try to parse each letter
                             this.keyCodes = new KeyPresser.KeyCode[action.Length];
+                            // any of the free text chars might be upper case
+                            this.forcedUpperCases = new Boolean[action.Length];
                             for (int i = 0; i < action.Length; i++)
                             {
-                                parsedSuccessfully = parseKeycode(action[i].ToString(), true, out keyCodes[i]);
+                                parsedSuccessfully = parseKeycode(action[i].ToString(), true, out this.keyCodes[i], out this.forcedUpperCases[i]);
                                 if (!parsedSuccessfully)
                                 {
                                     Console.WriteLine("Unable to convert character " + action[i] + " to a key press");
@@ -486,8 +492,10 @@ namespace CrewChiefV4.commands
             }
         }
 
-        private Boolean parseKeycode(String keyString, Boolean freeText, out KeyPresser.KeyCode keyCode)
+        private Boolean parseKeycode(String keyString, Boolean freeText, out KeyPresser.KeyCode keyCode, out Boolean forcedUppercase)
         {
+            // assume we don't need to hold shift for this press:
+            forcedUppercase = false;
             // some character literal replacements, only applicable to free text macros:
             if (freeText)
             {
@@ -518,6 +526,8 @@ namespace CrewChiefV4.commands
             }
             if (Enum.TryParse("KEY_" + keyString, true, out keyCode))
             {
+                // if we're parsing this as a raw key and we're in free-text mode, hold shift if it's upper case
+                forcedUppercase = freeText && Char.IsUpper(keyString[0]);
                 return true;
             }
             return false;

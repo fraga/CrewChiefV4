@@ -147,14 +147,14 @@
 			"commandSets": [{
 					"description": "r3e version",
 					"gameDefinition": "RACE_ROOM",
-					"actionSequence": ["Real-time Chat", "{FREE_TEXT}sorry, my bad", "ENTER"],
+					"actionSequence": ["Real-time Chat", "{FREE_TEXT}Sorry, my bad", "ENTER"],
 					"keyPressTime": 10,
 					"waitBetweenEachCommand": 200
 				},
 				{
 					"description": "pcars2 version",
 					"gameDefinition": "PCARS2",
-					"actionSequence": ["In-game Chat Box", "{FREE_TEXT}sorry, my bad", "ENTER"],
+					"actionSequence": ["In-game Chat Box", "{FREE_TEXT}Sorry, my bad", "ENTER"],
 					"keyPressTime": 50,
 					"waitBetweenEachCommand": 100
 				}
