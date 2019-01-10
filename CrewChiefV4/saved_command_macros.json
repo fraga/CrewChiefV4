@@ -133,9 +133,13 @@
 					"action": "Toggle Selected Control",
 					"key": "SPACE_BAR"
 				},
-				{
-					"action": "Get Out Of Car",
-					"key": "ESC"
+                {
+                    "action": "Get Out Of Car",
+                    "key": "ESC"
+                },
+                {
+					"action": "chat",
+					"key": "KEY_T"
 				}
 			]
 		}
@@ -151,13 +155,21 @@
 					"keyPressTime": 10,
 					"waitBetweenEachCommand": 200
 				},
-				{
-					"description": "pcars2 version",
-					"gameDefinition": "PCARS2",
-					"actionSequence": ["In-game Chat Box", "{FREE_TEXT}Sorry, my bad", "ENTER"],
-					"keyPressTime": 50,
-					"waitBetweenEachCommand": 100
-				}
+                {
+                    "description": "pcars2 version",
+                    "gameDefinition": "PCARS2",
+                    "actionSequence": ["In-game Chat Box", "{FREE_TEXT}Sorry, my bad", "ENTER"],
+                    "keyPressTime": 50,
+                    "waitBetweenEachCommand": 100
+                },
+                {
+                    "description": "iracing version",
+                    "gameDefinition": "IRACING",
+                    "actionSequence": ["chat", "{FREE_TEXT}Sorry, my bad", "ENTER"],
+                    "keyPressTime": 50,
+                    "waitBetweenEachCommand": 100
+                }
+
 			]
 		},
 		{
@@ -171,10 +183,18 @@
 					"keyPressTime": 10,
 					"waitBetweenEachCommand": 200
 				},
+                {
+                    "description": "pcars2 version",
+                    "gameDefinition": "PCARS2",
+                    "actionSequence": ["In-game Chat Box", "{FREE_TEXT}good pass", "ENTER"],
+                    "keyPressTime": 50,
+                    "waitBetweenEachCommand": 100
+                }
+                ,
 				{
-					"description": "pcars2 version",
-					"gameDefinition": "PCARS2",
-					"actionSequence": ["In-game Chat Box", "{FREE_TEXT}good pass", "ENTER"],
+					"description": "iracing version",
+					"gameDefinition": "IRACING",
+					"actionSequence": ["chat", "{FREE_TEXT}good pass", "ENTER"],
 					"keyPressTime": 50,
 					"waitBetweenEachCommand": 100
 				}
