@@ -138,7 +138,7 @@
                     "key": "ESC"
                 },
                 {
-					"action": "chat",
+					"action": "Text Chat",
 					"key": "KEY_T"
 				}
 			]
@@ -147,7 +147,7 @@
 	"macros": [{
 			"name": "say sorry",
 			"description": "opens chat, types 'sorry, my bad', presses enter. An action sequence item starting with {FREE_TEXT} tells the app to press each of the following keys in sequence. Numbers, letters, commas and full-stops only are supported.",
-			"voiceTriggers": ["chat, say sorry"],
+			"voiceTriggers": ["chat, say sorry", "sorry"],
 			"commandSets": [{
 					"description": "r3e version",
 					"gameDefinition": "RACE_ROOM",
@@ -165,7 +165,7 @@
                 {
                     "description": "iracing version",
                     "gameDefinition": "IRACING",
-                    "actionSequence": ["chat", "{FREE_TEXT}Sorry, my bad", "ENTER"],
+                    "actionSequence": ["Text Chat", "{FREE_TEXT}Sorry, my bad", "ENTER"],
                     "keyPressTime": 50,
                     "waitBetweenEachCommand": 100
                 }
@@ -194,7 +194,7 @@
 				{
 					"description": "iracing version",
 					"gameDefinition": "IRACING",
-					"actionSequence": ["chat", "{FREE_TEXT}good pass", "ENTER"],
+					"actionSequence": ["Text Chat", "{FREE_TEXT}Good pass", "ENTER"],
 					"keyPressTime": 50,
 					"waitBetweenEachCommand": 100
 				}
