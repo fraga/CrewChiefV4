@@ -126,7 +126,7 @@ namespace CrewChiefV4.rFactor2
             this.suspensionDamageThresholds.Add(new CornerData.EnumWithThresholds(DamageLevel.DESTROYED, 1.0f, 2.0f));
         }
 
-        private int[] minimumSupportedVersionParts = new int[] { 3, 2, 0, 0 };
+        private int[] minimumSupportedVersionParts = new int[] { 3, 3, 0, 0 };
         public static bool pluginVerified = false;
         public override void versionCheck(Object memoryMappedFileStruct)
         {
@@ -175,7 +175,8 @@ namespace CrewChiefV4.rFactor2
             else
             {
                 var msg = "rFactor 2 Shared Memory version: " + versionStr + " 64bit."
-                    + (shared.extended.mHostedPluginVars.StockCarRules_IsHosted != 0 ? ("  Stock Car Rules plugin hosted. (DFT:" + shared.extended.mHostedPluginVars.StockCarRules_DoubleFileType + ")")  : "");
+                    + (shared.extended.mHostedPluginVars.StockCarRules_IsHosted != 0 ? ("  Stock Car Rules plugin hosted. (DFT:" + shared.extended.mHostedPluginVars.StockCarRules_DoubleFileType + ")")  : "")
+                    + (shared.extended.mDirectMemoryAccessEnabled != 0 ? "  DMA enabled." : "");
                 Console.WriteLine(msg);
             }
 
@@ -192,6 +193,8 @@ namespace CrewChiefV4.rFactor2
 
         private Int64 lastSessionEndTicks = -1;
         private bool lastInRealTimeState = false;
+        private Int64 lastHistoryMessageUpdatedTicks = 0;
+        private Int64 statusMessageUpdatedTicks = 0;
 
         private void ClearState()
         {
@@ -211,9 +214,9 @@ namespace CrewChiefV4.rFactor2
             this.compoundNameToTyreType.Clear();
             this.idToCarInfoMap.Clear();
             this.lastPenaltyTime = DateTime.MinValue;
-        }
+    }
 
-        public override GameStateData mapToGameStateData(Object memoryMappedFileStruct, GameStateData previousGameState)
+    public override GameStateData mapToGameStateData(Object memoryMappedFileStruct, GameStateData previousGameState)
         {
             var pgs = previousGameState;
             var shared = memoryMappedFileStruct as CrewChiefV4.rFactor2.RF2SharedMemoryReader.RF2StructWrapper;
@@ -762,9 +765,24 @@ namespace CrewChiefV4.rFactor2
             // Check if it's time to mark pit crew as ready.
             if (pgs != null
                 && pgs.PitData.HasRequestedPitStop
-                && cgs.PitData.HasRequestedPitStop
-                && (cgs.Now - this.timePitStopRequested).TotalSeconds > cgs.carClass.pitCrewPreparationTime)
-                cgs.PitData.IsPitCrewReady = true;
+                && cgs.PitData.HasRequestedPitStop)
+            {
+                if (shared.extended.mDirectMemoryAccessEnabled == 0)
+                {
+                    if ((cgs.Now - this.timePitStopRequested).TotalSeconds > cgs.carClass.pitCrewPreparationTime)
+                        cgs.PitData.IsPitCrewReady = true;
+                }
+                else
+                {
+                    if (shared.extended.mTicksLastHistoryMessageUpdated != this.lastHistoryMessageUpdatedTicks)
+                    {
+                        this.lastHistoryMessageUpdatedTicks = shared.extended.mTicksLastHistoryMessageUpdated;
+                        var msg = RF2GameStateMapper.GetStringFromBytes(shared.extended.mLastHistoryMessage);
+                        if (msg == "Crew Is Ready For Pitstop")
+                            cgs.PitData.IsPitCrewReady = true;
+                    }
+                }
+            }
 
             // This sometimes fires under Countdown, so limit to phases when message might make sense.
             if ((csd.SessionPhase == SessionPhase.Green
