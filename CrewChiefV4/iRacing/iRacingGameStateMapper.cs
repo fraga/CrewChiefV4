@@ -515,12 +515,12 @@ namespace CrewChiefV4.iRacing
             //use qual position in race session position until we green and first lap has been started. 
             //Here i'm a bit blindfolded, but this might be a fix for wrong multiclass start position message.
             Boolean sortClassPositions = true;
-            
+            Boolean useQualifyingPosition = false;
             if ((currentGameState.SessionData.SessionPhase == SessionPhase.Formation || currentGameState.SessionData.SessionPhase == SessionPhase.Gridwalk ||
                 currentGameState.SessionData.SessionPhase == SessionPhase.Countdown || playerCar.Live.Lap < 1) && currentGameState.SessionData.SessionType == SessionType.Race)
             {
                 currentGameState.SessionData.OverallPosition = playerCar.CurrentResults.QualifyingPosition;
-                sortClassPositions = false;
+                useQualifyingPosition = true;
             }
             else
             {
@@ -791,11 +791,15 @@ namespace CrewChiefV4.iRacing
                             {
                                 currentOpponentLapValid = false;
                             }
-
+                            
+                            
                             int currentOpponentOverallPosition = currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.SessionData.SessionPhase != SessionPhase.Finished && previousOpponentOverallPosition > 0 ?
                                 getRacePosition(opponentDataKey, previousOpponentOverallPosition, driver.Live.Position, currentGameState.Now)
                                 : driver.Live.Position;
-
+                            if(useQualifyingPosition)
+                            {
+                                currentOpponentOverallPosition = driver.CurrentResults.QualifyingPosition;
+                            }
                             int currentOpponentLapsCompleted = driver.Live.LiveLapsCompleted;
 
                             if (currentOpponentSector == 0)
