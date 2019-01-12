@@ -7,6 +7,8 @@ using System.Xml;
 using System.Xml.Serialization;
 using System.IO.Compression;
 using System.Windows.Forms;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace CrewChiefV4
 {
@@ -68,7 +70,102 @@ namespace CrewChiefV4
             }
             return initialised;
         }
+        protected void SerializeObjectJSON<T>(T serializableObject, string fileName)
+        {
+            if (serializableObject == null) { return; }
 
+            try
+            {
+                if (!MainWindow.shouldSaveTrace)
+                    return;
+
+                Console.WriteLine("About to dump game data - this may take a while");
+                JsonSerializer serializer = new JsonSerializer();
+                serializer.Formatting = Newtonsoft.Json.Formatting.Indented;
+                using (FileStream fileStream = new FileStream(fileName, FileMode.Create))
+                {
+                    using (GZipStream zipStream = new GZipStream(fileStream, CompressionLevel.Optimal))
+                    {
+                        using (StreamWriter sw = new StreamWriter(zipStream, Encoding.Default))
+                        {
+                            using (JsonWriter writer = new JsonTextWriter(sw))
+                            {
+                                serializer.Serialize(writer, serializableObject);
+                            }
+                        }
+
+                    }
+                }
+
+                lock (MainWindow.instanceLock)
+                {
+                    if (MainWindow.instance != null)
+                    {
+                        File.WriteAllText(Path.ChangeExtension(fileName, "txt"), MainWindow.instance.consoleWriter.enable ?
+                            MainWindow.instance.consoleTextBox.Text : MainWindow.instance.consoleWriter.builder.ToString());
+                    }
+                }
+
+                Console.WriteLine("Done writing session data log to: " + fileName);
+                Console.WriteLine("PLEASE RESTART THE APPLICATION BEFORE ATTEMPTING TO RECORD ANOTHER SESSION");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Unable to write raw game data: " + ex.Message);
+                Console.WriteLine("Stack trace: " + ex.StackTrace);
+            }
+        }
+        protected T DeSerializeObjectJSON<T>(string fileName)
+        {
+            Console.WriteLine("About to load recorded game data from file " + fileName + " - this may take a while");
+            if (string.IsNullOrEmpty(fileName)) { return default(T); }
+
+            T objectOut = default(T);
+
+            try
+            {
+                if (Path.GetExtension(fileName) == ".gz")
+                {
+                    JsonSerializer serializer = new JsonSerializer();
+                    using (FileStream fileStream = new FileStream(fileName, FileMode.Open))
+                    {
+                        using (GZipStream zipStream = new GZipStream(fileStream, CompressionMode.Decompress))
+                        {
+                            Type outType = typeof(T);
+                            using (StreamReader reader = new StreamReader(zipStream))
+                            {
+                                using (JsonTextReader jsonReader = new JsonTextReader(reader))
+                                {
+                                    JsonSerializer ser = new JsonSerializer();
+                                    objectOut = ser.Deserialize<T>(jsonReader);
+                                }
+                            }
+                        }
+                    }
+                }
+                else // assume xml
+                {
+                    using (FileStream fileStream = new FileStream(fileName, FileMode.Open))
+                    {
+                        Type outType = typeof(T);
+                        using (StreamReader reader = new StreamReader(fileStream))
+                        {
+                            using (JsonTextReader jsonReader = new JsonTextReader(reader))
+                            {
+                                JsonSerializer ser = new JsonSerializer();
+                                objectOut = ser.Deserialize<T>(jsonReader);
+                            }
+                        }
+                    }
+                }
+                Console.WriteLine("Done reading session data from: " + fileName);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Unable to read raw game data: " + ex.Message);
+            }
+            return objectOut;
+        }
         protected void SerializeObject<T>(T serializableObject, string fileName)
         {
             if (serializableObject == null) { return; }
