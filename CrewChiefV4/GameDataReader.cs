@@ -73,7 +73,6 @@ namespace CrewChiefV4
         protected void SerializeObjectJSON<T>(T serializableObject, string fileName)
         {
             if (serializableObject == null) { return; }
-
             try
             {
                 if (!MainWindow.shouldSaveTrace)
@@ -86,7 +85,7 @@ namespace CrewChiefV4
                 {
                     using (GZipStream zipStream = new GZipStream(fileStream, CompressionLevel.Optimal))
                     {
-                        using (StreamWriter sw = new StreamWriter(zipStream, Encoding.Default))
+                        using (StreamWriter sw = new StreamWriter(zipStream, Encoding.UTF8))
                         {
                             using (JsonWriter writer = new JsonTextWriter(sw))
                             {
@@ -126,7 +125,6 @@ namespace CrewChiefV4
             {
                 if (Path.GetExtension(fileName) == ".gz")
                 {
-                    JsonSerializer serializer = new JsonSerializer();
                     using (FileStream fileStream = new FileStream(fileName, FileMode.Open))
                     {
                         using (GZipStream zipStream = new GZipStream(fileStream, CompressionMode.Decompress))
@@ -143,7 +141,7 @@ namespace CrewChiefV4
                         }
                     }
                 }
-                else // assume xml
+                else // assume json
                 {
                     using (FileStream fileStream = new FileStream(fileName, FileMode.Open))
                     {
