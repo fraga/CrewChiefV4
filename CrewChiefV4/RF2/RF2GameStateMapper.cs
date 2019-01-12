@@ -196,6 +196,12 @@ namespace CrewChiefV4.rFactor2
         private Int64 lastHistoryMessageUpdatedTicks = 0;
         private Int64 statusMessageUpdatedTicks = 0;
 
+        //
+        // Since some of MC messages disapper (Player Control: N, for example), we need to remember last message that
+        // mattered from CC's standpoint, otherwise, same message could get applied multiple times.
+        //
+        private string lastEffectiveHistoryMessage = string.Empty;
+
         private void ClearState()
         {
             this.lastPlayerTelemetryET = -1.0;
@@ -214,7 +220,8 @@ namespace CrewChiefV4.rFactor2
             this.compoundNameToTyreType.Clear();
             this.idToCarInfoMap.Clear();
             this.lastPenaltyTime = DateTime.MinValue;
-    }
+            this.lastEffectiveHistoryMessage = string.Empty;
+        }
 
     public override GameStateData mapToGameStateData(Object memoryMappedFileStruct, GameStateData previousGameState)
         {
@@ -776,10 +783,16 @@ namespace CrewChiefV4.rFactor2
                 {
                     if (shared.extended.mTicksLastHistoryMessageUpdated != this.lastHistoryMessageUpdatedTicks)
                     {
-                        this.lastHistoryMessageUpdatedTicks = shared.extended.mTicksLastHistoryMessageUpdated;
+                        // Do not update this.lastHistoryMessageUpdatedTicks here, unless we consumed the message.
+                        // (So that we can process it in the main processing path).
                         var msg = RF2GameStateMapper.GetStringFromBytes(shared.extended.mLastHistoryMessage);
-                        if (msg == "Crew Is Ready For Pitstop")
+                        if (msg != this.lastEffectiveHistoryMessage
+                            && msg == "Crew Is Ready For Pitstop")
+                        {
+                            this.lastHistoryMessageUpdatedTicks = shared.extended.mTicksLastHistoryMessageUpdated;
+                            this.lastEffectiveHistoryMessage = msg;
                             cgs.PitData.IsPitCrewReady = true;
+                        }
                     }
                 }
             }
@@ -1770,6 +1783,36 @@ namespace CrewChiefV4.rFactor2
                         Console.WriteLine("Player off track: by distance.");
                         cgs.PenaltiesData.CutTrackWarnings = pgs.PenaltiesData.CutTrackWarnings + 1;
                     }
+                }
+            }
+
+
+            // --------------------------------
+            // MC warnings
+            if (shared.extended.mTicksLastHistoryMessageUpdated != this.lastHistoryMessageUpdatedTicks)
+            {
+                // Do not re-process this update.
+                this.lastHistoryMessageUpdatedTicks = shared.extended.mTicksLastHistoryMessageUpdated;
+
+                var msg = RF2GameStateMapper.GetStringFromBytes(shared.extended.mLastHistoryMessage);
+                if (msg != this.lastEffectiveHistoryMessage)
+                {
+                    var messageConsumed = true;
+
+                    Console.WriteLine("NEW MC MESSAGE ARRIVED: " + msg);
+
+                    // if ..
+                    // else if ..
+                    if (msg == "Headlights are now required")
+                        messageConsumed = true;
+                    else
+                    {
+                        Console.WriteLine("Ignored MC Message: " + msg);
+                        messageConsumed = false;
+                    }
+
+                    if (messageConsumed)
+                        this.lastEffectiveHistoryMessage = msg;
                 }
             }
 
