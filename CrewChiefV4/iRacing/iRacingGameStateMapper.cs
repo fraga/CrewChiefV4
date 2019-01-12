@@ -506,7 +506,6 @@ namespace CrewChiefV4.iRacing
                 {
                     currentGameState.SessionData.Flag = FlagEnum.WHITE;
                 }
-
                 currentGameState.SessionData.IsLastLap = true;
             }
             currentGameState.SessionData.CompletedLaps = playerCar.Live.LiveLapsCompleted;
@@ -514,10 +513,14 @@ namespace CrewChiefV4.iRacing
 
             currentGameState.SessionData.NumCarsOverall = shared.PaceCarPresent ? shared.Drivers.Count - 1 : shared.Drivers.Count;
             //use qual position in race session position until we green and first lap has been started. 
+            //Here i'm a bit blindfolded, but this might be a fix for wrong multiclass start position message.
+            Boolean sortClassPositions = true;
+            
             if ((currentGameState.SessionData.SessionPhase == SessionPhase.Formation || currentGameState.SessionData.SessionPhase == SessionPhase.Gridwalk ||
                 currentGameState.SessionData.SessionPhase == SessionPhase.Countdown || playerCar.Live.Lap < 1) && currentGameState.SessionData.SessionType == SessionType.Race)
             {
                 currentGameState.SessionData.OverallPosition = playerCar.CurrentResults.QualifyingPosition;
+                sortClassPositions = false;
             }
             else
             {
@@ -942,7 +945,7 @@ namespace CrewChiefV4.iRacing
             }
 
             //Sort class positions
-            if (currentGameState.SessionData.SessionType == SessionType.Race)
+            if (currentGameState.SessionData.SessionType == SessionType.Race && sortClassPositions)
             {
                 currentGameState.sortClassPositions();
             }

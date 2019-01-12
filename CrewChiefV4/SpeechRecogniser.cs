@@ -971,26 +971,33 @@ namespace CrewChiefV4
             {
                 foreach (String numberStr in entry.Key)
                 {
-                    opponentNameOrPositionChoices.Add(POSITION_LONG + " " + numberStr);
                     opponentNameOrPositionChoices.Add(POSITION_SHORT + " " + numberStr);
-                    opponentPositionChoices.Add(POSITION_LONG + " " + numberStr);
                     opponentPositionChoices.Add(POSITION_SHORT + " " + numberStr);
-                    opponentNameOrPositionPossessiveChoices.Add(POSITION_LONG + " " + numberStr + POSSESSIVE);
                     opponentNameOrPositionPossessiveChoices.Add(POSITION_SHORT + " " + numberStr + POSSESSIVE);
+                    if (!disable_alternative_voice_commands)
+                    {
+                        opponentNameOrPositionChoices.Add(POSITION_LONG + " " + numberStr);
+                        opponentPositionChoices.Add(POSITION_LONG + " " + numberStr);
+                        opponentNameOrPositionPossessiveChoices.Add(POSITION_LONG + " " + numberStr + POSSESSIVE);
+                    }
                 }
             }
-            opponentNameOrPositionChoices.Add(THE_GUY_AHEAD);
             opponentNameOrPositionChoices.Add(THE_CAR_AHEAD);
-            opponentNameOrPositionChoices.Add(THE_GUY_IN_FRONT);
-            opponentNameOrPositionChoices.Add(THE_GUY_BEHIND);
             opponentNameOrPositionChoices.Add(THE_CAR_BEHIND);
             opponentNameOrPositionChoices.Add(THE_LEADER);
-            opponentNameOrPositionPossessiveChoices.Add(THE_GUY_AHEAD);
             opponentNameOrPositionPossessiveChoices.Add(THE_CAR_AHEAD);
-            opponentNameOrPositionPossessiveChoices.Add(THE_GUY_IN_FRONT);
-            opponentNameOrPositionPossessiveChoices.Add(THE_GUY_BEHIND);
             opponentNameOrPositionPossessiveChoices.Add(THE_CAR_BEHIND);
             opponentNameOrPositionPossessiveChoices.Add(THE_LEADER);
+
+            if (!disable_alternative_voice_commands)
+            {
+                opponentNameOrPositionChoices.Add(THE_GUY_AHEAD);
+                opponentNameOrPositionChoices.Add(THE_GUY_IN_FRONT);
+                opponentNameOrPositionChoices.Add(THE_GUY_BEHIND);
+                opponentNameOrPositionPossessiveChoices.Add(THE_GUY_AHEAD);
+                opponentNameOrPositionPossessiveChoices.Add(THE_GUY_IN_FRONT);
+                opponentNameOrPositionPossessiveChoices.Add(THE_GUY_BEHIND);
+            }
 
             opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHERE_IS, WHERES }, false, opponentNameOrPositionChoices, null, true));
             opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHOS_IN }, false, opponentPositionChoices, null, true));

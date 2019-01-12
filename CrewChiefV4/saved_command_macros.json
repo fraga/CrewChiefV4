@@ -133,9 +133,13 @@
 					"action": "Toggle Selected Control",
 					"key": "SPACE_BAR"
 				},
-				{
-					"action": "Get Out Of Car",
-					"key": "ESC"
+                {
+                    "action": "Get Out Of Car",
+                    "key": "ESC"
+                },
+                {
+					"action": "Text Chat",
+					"key": "KEY_T"
 				}
 			]
 		}
@@ -143,21 +147,29 @@
 	"macros": [{
 			"name": "say sorry",
 			"description": "opens chat, types 'sorry, my bad', presses enter. An action sequence item starting with {FREE_TEXT} tells the app to press each of the following keys in sequence. Numbers, letters, commas and full-stops only are supported.",
-			"voiceTriggers": ["chat, say sorry"],
+			"voiceTriggers": ["chat, say sorry", "sorry"],
 			"commandSets": [{
 					"description": "r3e version",
 					"gameDefinition": "RACE_ROOM",
-					"actionSequence": ["Real-time Chat", "{FREE_TEXT}sorry, my bad", "ENTER"],
+					"actionSequence": ["Real-time Chat", "{FREE_TEXT}Sorry, my bad", "ENTER"],
 					"keyPressTime": 10,
 					"waitBetweenEachCommand": 200
 				},
-				{
-					"description": "pcars2 version",
-					"gameDefinition": "PCARS2",
-					"actionSequence": ["In-game Chat Box", "{FREE_TEXT}sorry, my bad", "ENTER"],
-					"keyPressTime": 50,
-					"waitBetweenEachCommand": 100
-				}
+                {
+                    "description": "pcars2 version",
+                    "gameDefinition": "PCARS2",
+                    "actionSequence": ["In-game Chat Box", "{FREE_TEXT}Sorry, my bad", "ENTER"],
+                    "keyPressTime": 50,
+                    "waitBetweenEachCommand": 100
+                },
+                {
+                    "description": "iracing version",
+                    "gameDefinition": "IRACING",
+                    "actionSequence": ["Text Chat", "{FREE_TEXT}Sorry, my bad", "ENTER"],
+                    "keyPressTime": 50,
+                    "waitBetweenEachCommand": 100
+                }
+
 			]
 		},
 		{
@@ -171,10 +183,18 @@
 					"keyPressTime": 10,
 					"waitBetweenEachCommand": 200
 				},
+                {
+                    "description": "pcars2 version",
+                    "gameDefinition": "PCARS2",
+                    "actionSequence": ["In-game Chat Box", "{FREE_TEXT}good pass", "ENTER"],
+                    "keyPressTime": 50,
+                    "waitBetweenEachCommand": 100
+                }
+                ,
 				{
-					"description": "pcars2 version",
-					"gameDefinition": "PCARS2",
-					"actionSequence": ["In-game Chat Box", "{FREE_TEXT}good pass", "ENTER"],
+					"description": "iracing version",
+					"gameDefinition": "IRACING",
+					"actionSequence": ["Text Chat", "{FREE_TEXT}Good pass", "ENTER"],
 					"keyPressTime": 50,
 					"waitBetweenEachCommand": 100
 				}
