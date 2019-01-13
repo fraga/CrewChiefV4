@@ -239,6 +239,10 @@ namespace CrewChiefV4.Events
                 {
                     return !currentGameState.PitData.HasRequestedPitStop;
                 }
+                else if (eventSubType == folderDisengageLimiter)
+                {
+                    return currentGameState.PitData.limiterStatus == 1;
+                }
             }
             else
             {
@@ -442,7 +446,7 @@ namespace CrewChiefV4.Events
                     // in S1 but have exited pits, and we're expecting the limit to have been turned off
                     timeOfDisengageCheck = DateTime.MaxValue;
                     timeOfLastLimiterWarning = currentGameState.Now;
-                    audioPlayer.playMessageImmediately(new QueuedMessage(folderDisengageLimiter, 2, abstractEvent: this, type: SoundType.IMPORTANT_MESSAGE, priority: 7));
+                    audioPlayer.playMessageImmediately(new QueuedMessage(folderDisengageLimiter, 5, abstractEvent: this, type: SoundType.IMPORTANT_MESSAGE, priority: 7));
                 }
                 else if (previousGameState != null)
                 {
