@@ -114,6 +114,19 @@ namespace CrewChiefV4.rFactor2
 
         private Dictionary<long, CarInfo> idToCarInfoMap = new Dictionary<long, CarInfo>();
 
+        // Message center stuff
+        private Int64 lastHistoryMessageUpdatedTicks = 0;
+        //private Int64 statusMessageUpdatedTicks = 0;
+
+        // Since some of MC messages disapper (Player Control: N, for example), we need to remember last message that
+        // mattered from CC's standpoint, otherwise, same message could get applied multiple times.
+        private string lastEffectiveHistoryMessage = string.Empty;
+
+        // It is however sometimes valid for message to re-appear.  For example, Crew got ready in two separate pit
+        // requests.  Allow message processed to expire.
+        private readonly int effectiveMessageExpirySeconds = 120;
+        private DateTime timeEffectiveMessageProcessed = DateTime.MinValue;
+
         public RF2GameStateMapper()
         {
             this.tyreWearThresholds.Add(new CornerData.EnumWithThresholds(TyreCondition.NEW, -10000.0f, this.scrubbedTyreWearPercent));
@@ -193,14 +206,6 @@ namespace CrewChiefV4.rFactor2
 
         private Int64 lastSessionEndTicks = -1;
         private bool lastInRealTimeState = false;
-        private Int64 lastHistoryMessageUpdatedTicks = 0;
-        private Int64 statusMessageUpdatedTicks = 0;
-
-        //
-        // Since some of MC messages disapper (Player Control: N, for example), we need to remember last message that
-        // mattered from CC's standpoint, otherwise, same message could get applied multiple times.
-        //
-        private string lastEffectiveHistoryMessage = string.Empty;
 
         private void ClearState()
         {
@@ -221,6 +226,7 @@ namespace CrewChiefV4.rFactor2
             this.idToCarInfoMap.Clear();
             this.lastPenaltyTime = DateTime.MinValue;
             this.lastEffectiveHistoryMessage = string.Empty;
+            this.timeEffectiveMessageProcessed = DateTime.MinValue;
         }
 
     public override GameStateData mapToGameStateData(Object memoryMappedFileStruct, GameStateData previousGameState)
@@ -769,32 +775,14 @@ namespace CrewChiefV4.rFactor2
             if (pgs != null && !pgs.PitData.HasRequestedPitStop && cgs.PitData.HasRequestedPitStop)
                 this.timePitStopRequested = cgs.Now;
 
-            // Check if it's time to mark pit crew as ready.
-            if (pgs != null
-                && pgs.PitData.HasRequestedPitStop
-                && cgs.PitData.HasRequestedPitStop)
+            if (shared.extended.mDirectMemoryAccessEnabled == 0)
             {
-                if (shared.extended.mDirectMemoryAccessEnabled == 0)
-                {
-                    if ((cgs.Now - this.timePitStopRequested).TotalSeconds > cgs.carClass.pitCrewPreparationTime)
+                // If DMA is not enabled, check if it's time to mark pit crew as ready.
+                if (pgs != null
+                    && pgs.PitData.HasRequestedPitStop
+                    && cgs.PitData.HasRequestedPitStop
+                    && (cgs.Now - this.timePitStopRequested).TotalSeconds > cgs.carClass.pitCrewPreparationTime)
                         cgs.PitData.IsPitCrewReady = true;
-                }
-                else
-                {
-                    if (shared.extended.mTicksLastHistoryMessageUpdated != this.lastHistoryMessageUpdatedTicks)
-                    {
-                        // Do not update this.lastHistoryMessageUpdatedTicks here, unless we consumed the message.
-                        // (So that we can process it in the main processing path).
-                        var msg = RF2GameStateMapper.GetStringFromBytes(shared.extended.mLastHistoryMessage);
-                        if (msg != this.lastEffectiveHistoryMessage
-                            && msg == "Crew Is Ready For Pitstop")
-                        {
-                            this.lastHistoryMessageUpdatedTicks = shared.extended.mTicksLastHistoryMessageUpdated;
-                            this.lastEffectiveHistoryMessage = msg;
-                            cgs.PitData.IsPitCrewReady = true;
-                        }
-                    }
-                }
             }
 
             // This sometimes fires under Countdown, so limit to phases when message might make sense.
@@ -1789,32 +1777,7 @@ namespace CrewChiefV4.rFactor2
 
             // --------------------------------
             // MC warnings
-            if (shared.extended.mTicksLastHistoryMessageUpdated != this.lastHistoryMessageUpdatedTicks)
-            {
-                // Do not re-process this update.
-                this.lastHistoryMessageUpdatedTicks = shared.extended.mTicksLastHistoryMessageUpdated;
-
-                var msg = RF2GameStateMapper.GetStringFromBytes(shared.extended.mLastHistoryMessage);
-                if (msg != this.lastEffectiveHistoryMessage)
-                {
-                    var messageConsumed = true;
-
-                    Console.WriteLine("NEW MC MESSAGE ARRIVED: " + msg);
-
-                    // if ..
-                    // else if ..
-                    if (msg == "Headlights are now required")
-                        messageConsumed = true;
-                    else
-                    {
-                        Console.WriteLine("Ignored MC Message: " + msg);
-                        messageConsumed = false;
-                    }
-
-                    if (messageConsumed)
-                        this.lastEffectiveHistoryMessage = msg;
-                }
-            }
+            this.ProcessMCMessages(cgs, pgs, shared);
 
             // --------------------------------
             // console output
@@ -1874,6 +1837,50 @@ namespace CrewChiefV4.rFactor2
             this.lastSessionHardPartsOnTrackData = cgs.hardPartsOnTrackData;
 
             return cgs;
+        }
+
+        private void ProcessMCMessages(GameStateData cgs, GameStateData pgs, RF2SharedMemoryReader.RF2StructWrapper shared)
+        {
+            if (shared.extended.mDirectMemoryAccessEnabled == 0)
+                return;
+
+            if (shared.extended.mTicksLastHistoryMessageUpdated == this.lastHistoryMessageUpdatedTicks)
+                return;
+
+            // Do not re-process this update.
+            this.lastHistoryMessageUpdatedTicks = shared.extended.mTicksLastHistoryMessageUpdated;
+
+            var msg = RF2GameStateMapper.GetStringFromBytes(shared.extended.mLastHistoryMessage);
+            if (msg != this.lastEffectiveHistoryMessage
+                || (cgs.Now - this.timeEffectiveMessageProcessed).TotalSeconds > this.effectiveMessageExpirySeconds)
+            {
+                Console.WriteLine("NEW MC MESSAGE ARRIVED: " + msg);
+
+                var messageConsumed = true;
+                if (msg == "Crew Is Ready For Pitstop")
+                {
+                    if (pgs != null
+                        && pgs.PitData.HasRequestedPitStop
+                        && cgs.PitData.HasRequestedPitStop)
+                        cgs.PitData.IsPitCrewReady = true;
+                }
+                //else if (msg == "Headlights are now required")
+                //{}
+                else
+                {
+                    Console.WriteLine("MC Message: ignored - \"" + msg + "\"");
+                    messageConsumed = false;
+                }
+
+                if (messageConsumed)
+                {
+                    this.lastEffectiveHistoryMessage = msg;
+                    this.timeEffectiveMessageProcessed = cgs.Now;
+                    Console.WriteLine("MC Message: processed - \"" + msg + "\"");
+                }
+            }
+            else
+                Console.WriteLine("MC Messages: message was already processed - \"" + msg + "\"    Elapsed seconds: " + (cgs.Now - this.timeEffectiveMessageProcessed).TotalSeconds.ToString("0.00"));
         }
 
         private StockCarRulesData GetStockCarRulesData(GameStateData currentGameState, ref rF2TrackRulesParticipant playerRules, ref rF2Rules rules, ref CrewChiefV4.rFactor2.RF2SharedMemoryReader.RF2StructWrapper shared)
