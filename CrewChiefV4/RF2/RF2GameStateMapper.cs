@@ -139,7 +139,7 @@ namespace CrewChiefV4.rFactor2
             this.suspensionDamageThresholds.Add(new CornerData.EnumWithThresholds(DamageLevel.DESTROYED, 1.0f, 2.0f));
         }
 
-        private int[] minimumSupportedVersionParts = new int[] { 3, 3, 0, 2 };
+        private int[] minimumSupportedVersionParts = new int[] { 3, 3, 0, 4 };
         public static bool pluginVerified = false;
         public override void versionCheck(Object memoryMappedFileStruct)
         {
@@ -1864,8 +1864,38 @@ namespace CrewChiefV4.rFactor2
                         && cgs.PitData.HasRequestedPitStop)
                         cgs.PitData.IsPitCrewReady = true;
                 }
-                //else if (msg == "Headlights are now required")
-                //{}
+                else if (msg == "Enter Pits To Avoid Exceeding Lap Allowance")
+                {
+                    messageConsumed = true;
+                }
+                else if (msg == "Wrong Way")  // Might be too idiotic to announce
+                {
+                    messageConsumed = true;
+                }
+                else if (msg == "Warning: Driving Too Slow")
+                {
+                    messageConsumed = true;
+                }
+                else if (msg == "Headlights Are Now Required")
+                {
+                    messageConsumed = true;
+                }
+                else if (msg == "Pit Speed Limit: 100 kph")
+                {
+                    messageConsumed = true;
+                }
+                else if (msg == "Stop/Go Penalty: Speeding In Pitlane")
+                {
+                    messageConsumed = true;
+                }
+                else if (msg == "Stop/Go Penalty: False Start")
+                {
+                    messageConsumed = true;
+                }
+                else if (msg == "Stop/Go Penalty: Cut Track")
+                {
+                    messageConsumed = true;
+                }
                 else
                 {
                     Console.WriteLine("MC Message: ignored - \"" + msg + "\"");
