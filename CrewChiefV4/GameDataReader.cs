@@ -65,7 +65,7 @@ namespace CrewChiefV4
             }
             if (initialised && dumpToFile)
             {
-                filenameToDump = dataFilesPath + "\\" + CrewChief.gameDefinition.gameEnum.ToString() + "_" + DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss") + ".gz";
+                filenameToDump = dataFilesPath + "\\" + CrewChief.gameDefinition.gameEnum.ToString() + "_" + DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss") + ".cct";
                 Console.WriteLine("Session recording will be dumped to file: " + filenameToDump);
             }
             return initialised;
@@ -120,7 +120,6 @@ namespace CrewChiefV4
             if (string.IsNullOrEmpty(fileName)) { return default(T); }
 
             T objectOut = default(T);
-            bool isXML = false;
             try
             {
                 if (Path.GetExtension(fileName) == ".gz")
@@ -128,70 +127,23 @@ namespace CrewChiefV4
                     using (FileStream fileStream = new FileStream(fileName, FileMode.Open))
                     {
                         using(GZipStream zipStream = new GZipStream(fileStream, CompressionMode.Decompress))
-                        {                            
-                            using (StreamReader reader = new StreamReader(zipStream))
-                            {
-                                char []readBuf = new char[1];
-                                reader.Read(readBuf, 0, 1);
-                                isXML = readBuf[0].Equals('<');
-                            }
-                        }
-                    }
-                    using (FileStream fileStream = new FileStream(fileName, FileMode.Open))
-                    {
-                        using(GZipStream zipStream = new GZipStream(fileStream, CompressionMode.Decompress))
-                        {                            
-                            if (isXML)
-                            {
-                                Type outType = typeof(T);
-                                XmlSerializer serializer = new XmlSerializer(outType);
-                                using (XmlReader xmlReader = new XmlTextReader(zipStream))
-                                {
-                                    objectOut = (T)serializer.Deserialize(xmlReader);
-                                }
-                            }
-                            else
-                            {
-                                using (StreamReader reader = new StreamReader(zipStream))
-                                {
-                                    using (JsonTextReader jsonReader = new JsonTextReader(reader))
-                                    {
-                                        JsonSerializer ser = new JsonSerializer();
-                                        objectOut = ser.Deserialize<T>(jsonReader);
-                                    }                                                               
-                                }
-                            }                               
-                        }
-                    }
-                }
-                else // assume xml
-                {
-                    using (FileStream fileStream = new FileStream(fileName, FileMode.Open))
-                    {
-                        using (StreamReader reader = new StreamReader(fileStream))
-                        {
-                            char[] readBuf = new char[1];
-                            reader.Read(readBuf, 0, 1);
-                            isXML = readBuf[0].Equals('<');
-                        }
-                    }
-                    if(isXML)
-                    {
-                        using (FileStream fileStream = new FileStream(fileName, FileMode.Open))
                         {
                             Type outType = typeof(T);
                             XmlSerializer serializer = new XmlSerializer(outType);
-                            using (XmlReader reader = new XmlTextReader(fileStream))
+                            using (XmlReader xmlReader = new XmlTextReader(zipStream))
                             {
-                                objectOut = (T)serializer.Deserialize(reader);
+                                objectOut = (T)serializer.Deserialize(xmlReader);
                             }
                         }
                     }
-                    else
+                }
+                else if (Path.GetExtension(fileName) == ".cct")
+                {
+                    using (FileStream fileStream = new FileStream(fileName, FileMode.Open))
                     {
-                        using (FileStream fileStream = new FileStream(fileName, FileMode.Open))
+                        using (GZipStream zipStream = new GZipStream(fileStream, CompressionMode.Decompress))
                         {
-                            using (StreamReader reader = new StreamReader(fileStream))
+                            using (StreamReader reader = new StreamReader(zipStream))
                             {
                                 using (JsonTextReader jsonReader = new JsonTextReader(reader))
                                 {
@@ -201,7 +153,18 @@ namespace CrewChiefV4
                             }
                         }
                     }
-
+                }
+                else // assume xml
+                {
+                    using (FileStream fileStream = new FileStream(fileName, FileMode.Open))
+                    {
+                        Type outType = typeof(T);
+                        XmlSerializer serializer = new XmlSerializer(outType);
+                        using (XmlReader reader = new XmlTextReader(fileStream))
+                        {
+                            objectOut = (T)serializer.Deserialize(reader);
+                        }
+                    }                    
                 }
                 Console.WriteLine("Done reading session data from: " + fileName);
             }
