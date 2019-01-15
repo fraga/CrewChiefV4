@@ -45,14 +45,12 @@ namespace CrewChiefV4.iRacing
         {
             public long ticksWhenRead;
             public iRacingData data;
-
-
         }
         public override void DumpRawGameData()
         {
             if (dumpToFile && dataToDump != null && dataToDump.Count > 0 && filenameToDump != null)
             {
-                SerializeObjectJSON(dataToDump.ToArray<iRacingStructDumpWrapper>(), filenameToDump);
+                SerializeObject(dataToDump.ToArray<iRacingStructDumpWrapper>(), filenameToDump);
             }
         }
 
@@ -71,7 +69,7 @@ namespace CrewChiefV4.iRacing
             {
                 dataReadFromFileIndex = 0;
                 var filePathResolved = Utilities.ResolveDataFile(this.dataFilesPath, filename);
-                dataReadFromFile = DeSerializeObjectJSON<iRacingStructDumpWrapper[]>(filePathResolved);
+                dataReadFromFile = DeSerializeObject<iRacingStructDumpWrapper[]>(filePathResolved);
                 lastReadFileName = filename;
                 Thread.Sleep(pauseBeforeStart);
             }
