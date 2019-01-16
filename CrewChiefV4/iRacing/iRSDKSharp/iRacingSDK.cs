@@ -148,13 +148,13 @@ namespace iRSDKSharp
 
                 foreach (CVarHeader header in VarHeaders.Values)
                 {
-                    if (header.Name.StartsWith("dp") || header.Name.StartsWith("dc") || header.Name.Contains("shockDefl") || header.Name.Contains("shockVel"))
+                    if (header.Name.StartsWith("dp") || header.Name.StartsWith("dc") || header.Name.Contains("shockDefl") || header.Name.Contains("shockVel") || header.Name.Contains("_ST"))
                     {
                         continue;
                     }
                     else
                     {
-                        file.WriteLine("\t\t\t" + header.Name + " = " + "(" + GetData(header.Name).GetType().ToString() + ")" + "sdk.GetData(\"" + header.Name + "\");");   
+                        file.WriteLine("\t\t\t" + header.Name + " = " + "(" + GetData(header.Name).GetType().ToString() + ")" + "sdk.TryGetData(\"" + header.Name + "\");");   
                     }                                 
                 }
                 file.WriteLine("\t\t}");
@@ -164,7 +164,7 @@ namespace iRSDKSharp
                 file.WriteLine("\t\tpublic System.String SessionInfo;");
                 foreach (CVarHeader header in VarHeaders.Values)
                 {
-                    if (header.Name.StartsWith("dp") || header.Name.StartsWith("dc") || header.Name.Contains("shockDefl") || header.Name.Contains("shockVel"))
+                    if (header.Name.StartsWith("dp") || header.Name.StartsWith("dc") || header.Name.Contains("shockDefl") || header.Name.Contains("shockVel") || header.Name.Contains("_ST"))
                     {
                         continue;
                     }
@@ -176,7 +176,7 @@ namespace iRSDKSharp
                     {
                         file.WriteLine("\t\t[MarshalAs(UnmanagedType.ByValArray, SizeConst = " + header.Count + ")]");
                     }
-                    file.WriteLine("\t\tpublic " + GetData(header.Name).GetType().ToString() + " " + header.Name + ";");
+                    file.WriteLine("\t\tpublic " + GetData(header.Name).GetType().ToString() + "? " + header.Name + ";");
                 
                 }
                 file.WriteLine("\t}");
@@ -282,7 +282,7 @@ namespace iRSDKSharp
                     {
                         if (header.Name == "SessionFlags")
                         {
-                            return (SessionFlags)FileMapView.ReadUInt32(Header.Buffer + varOffset);
+                            return FileMapView.ReadUInt32(Header.Buffer + varOffset);
                         }
                         else if (header.Name == "EngineWarnings")
                         {
