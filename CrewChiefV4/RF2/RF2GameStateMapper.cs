@@ -1880,10 +1880,6 @@ namespace CrewChiefV4.rFactor2
                 {
                     messageConsumed = true;
                 }
-                else if (msg == "Pit Speed Limit: 100 kph")
-                {
-                    messageConsumed = true;
-                }
                 else if (msg == "Stop/Go Penalty: Speeding In Pitlane")
                 {
                     messageConsumed = true;
@@ -1893,6 +1889,30 @@ namespace CrewChiefV4.rFactor2
                     messageConsumed = true;
                 }
                 else if (msg == "Stop/Go Penalty: Cut Track")
+                {
+                    messageConsumed = true;
+                }
+                else if (msg == "Stop/Go Penalty: Exiting Pits Under Red")
+                {
+                    messageConsumed = true;
+                }
+                else if (msg == "Stop/Go Penalty: Illegally Passed Before Green")
+                {
+                    messageConsumed = true;
+                }
+                else if (msg == "Drive-Thru Penalty: Speeding In Pitlane")
+                {
+                    messageConsumed = true;
+                }
+                else if (msg == "Disqualified: Driving In Dark Without Headlights")
+                {
+                    messageConsumed = true;
+                }
+                else if (msg == "Pit Speed Limit: 100 kph")  // TODO: See if can be hacked, announce otherwise.
+                {
+                    messageConsumed = true;
+                }
+                else if (msg == "Disqualified: 6 Laps")  // TODO: Need to re-capture this.
                 {
                     messageConsumed = true;
                 }

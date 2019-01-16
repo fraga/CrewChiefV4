@@ -2671,6 +2671,37 @@ namespace CrewChiefV4.GameState
         public Boolean IsOffRacingSurface;
 
         public Boolean PossibleTrackLimitsViolation;
+
+        // Below fields are one tick triggers.
+        public enum DetailedPenaltyType
+        {
+           NONE,
+           STOP_AND_GO,
+           DRIVE_THROUGH
+        }
+        public DetailedPenaltyType PenaltyType = DetailedPenaltyType.NONE;
+
+        public enum DetailedPenaltyCause
+        {
+            NONE,
+            SPEEDING_IN_PITLANE,
+            FALSE_START,
+            CUT_TRACK,
+            EXITING_PITS_UNDER_RED,
+            ILLEGAL_PASS_BEFORE_GREEN  // Formation/Rolling or Safety car phase.
+        }
+        public DetailedPenaltyCause PenaltyCause = DetailedPenaltyCause.NONE;
+
+        public enum WarningMessage
+        {
+            NONE,
+            WRONG_WAY,
+            DRIVING_TOO_SLOW,
+            HEADLIGHTS_REQUIRED,
+            DISQUALIFIED_FOR_DRIVING_WITHOUT_HEADLIGHTS,
+            DISQUALIFIED_FOR_EXCEEDING_ALLOWED_LAP_COUNT // Prac/Quali.
+        }
+        public WarningMessage Warning = WarningMessage.NONE;
     }
 
     public class TyreData
