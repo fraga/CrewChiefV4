@@ -192,22 +192,22 @@ namespace CrewChiefV4.rFactor2
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 4)]
         public struct rF2Wheel
         {
-            [JsonIgnore] public double mSuspensionDeflection;  // meters
-            [JsonIgnore] public double mRideHeight;            // meters
-            [JsonIgnore] public double mSuspForce;             // pushrod load in Newtons
+            [JsonIgnore][XmlIgnore] public double mSuspensionDeflection;  // meters
+            [JsonIgnore][XmlIgnore] public double mRideHeight;            // meters
+            [JsonIgnore][XmlIgnore] public double mSuspForce;             // pushrod load in Newtons
             public double mBrakeTemp;             // Celsius
-            [JsonIgnore] public double mBrakePressure;         // currently 0.0-1.0, depending on driver input and brake balance; will convert to true brake pressure (kPa) in future
+            [JsonIgnore][XmlIgnore] public double mBrakePressure;         // currently 0.0-1.0, depending on driver input and brake balance; will convert to true brake pressure (kPa) in future
             public double mRotation;              // radians/sec
-            [JsonIgnore] public double mLateralPatchVel;       // lateral velocity at contact patch
-            [JsonIgnore] public double mLongitudinalPatchVel;  // longitudinal velocity at contact patch
-            [JsonIgnore] public double mLateralGroundVel;      // lateral velocity at contact patch
-            [JsonIgnore] public double mLongitudinalGroundVel; // longitudinal velocity at contact patch
-            [JsonIgnore] public double mCamber;                // radians (positive is left for left-side wheels, right for right-side wheels)
-            [JsonIgnore] public double mLateralForce;          // Newtons
-            [JsonIgnore] public double mLongitudinalForce;     // Newtons
-            [JsonIgnore] public double mTireLoad;              // Newtons
+            [JsonIgnore][XmlIgnore] public double mLateralPatchVel;       // lateral velocity at contact patch
+            [JsonIgnore][XmlIgnore] public double mLongitudinalPatchVel;  // longitudinal velocity at contact patch
+            [JsonIgnore][XmlIgnore] public double mLateralGroundVel;      // lateral velocity at contact patch
+            [JsonIgnore][XmlIgnore] public double mLongitudinalGroundVel; // longitudinal velocity at contact patch
+            [JsonIgnore][XmlIgnore] public double mCamber;                // radians (positive is left for left-side wheels, right for right-side wheels)
+            [JsonIgnore][XmlIgnore] public double mLateralForce;          // Newtons
+            [JsonIgnore][XmlIgnore] public double mLongitudinalForce;     // Newtons
+            [JsonIgnore][XmlIgnore] public double mTireLoad;              // Newtons
 
-            [JsonIgnore] public double mGripFract;             // an approximation of what fraction of the contact patch is sliding
+            [JsonIgnore][XmlIgnore] public double mGripFract;             // an approximation of what fraction of the contact patch is sliding
             public double mPressure;              // kPa (tire pressure)
 
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 3)]
@@ -215,23 +215,23 @@ namespace CrewChiefV4.rFactor2
             public double mWear;                  // wear (0.0-1.0, fraction of maximum) ... this is not necessarily proportional with grip loss
 
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 16)]
-            [JsonIgnore] public byte[] mTerrainName;           // the material prefixes from the TDF file
+            [JsonIgnore][XmlIgnore] public byte[] mTerrainName;           // the material prefixes from the TDF file
             public byte mSurfaceType;             // 0=dry, 1=wet, 2=grass, 3=dirt, 4=gravel, 5=rumblestrip, 6=special
             public byte mFlat;                    // whether tire is flat
             public byte mDetached;                // whether wheel is detached
             public byte mStaticUndeflectedRadius; // tire radius in centimeters
 
-            [JsonIgnore] public double mVerticalTireDeflection;// how much is tire deflected from its (speed-sensitive) radius
-            [JsonIgnore] public double mWheelYLocation;        // wheel's y location relative to vehicle y location
-            [JsonIgnore] public double mToe;                   // current toe angle w.r.t. the vehicle
+            [JsonIgnore][XmlIgnore] public double mVerticalTireDeflection;// how much is tire deflected from its (speed-sensitive) radius
+            [JsonIgnore][XmlIgnore] public double mWheelYLocation;        // wheel's y location relative to vehicle y location
+            [JsonIgnore][XmlIgnore] public double mToe;                   // current toe angle w.r.t. the vehicle
 
-            [JsonIgnore] public double mTireCarcassTemperature;       // rough average of temperature samples from carcass (Kelvin)
+            [JsonIgnore][XmlIgnore] public double mTireCarcassTemperature;       // rough average of temperature samples from carcass (Kelvin)
 
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 3)]
-            [JsonIgnore] public double[] mTireInnerLayerTemperature;  // rough average of temperature samples from innermost layer of rubber (before carcass) (Kelvin)
+            [JsonIgnore][XmlIgnore] public double[] mTireInnerLayerTemperature;  // rough average of temperature samples from innermost layer of rubber (before carcass) (Kelvin)
 
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 24)]
-            [JsonIgnore] byte[] mExpansion;                    // for future use
+            [JsonIgnore][XmlIgnore] byte[] mExpansion;                    // for future use
         }
 
 
@@ -240,62 +240,62 @@ namespace CrewChiefV4.rFactor2
         {
             // Time
             public int mID;                      // slot ID (note that it can be re-used in multiplayer after someone leaves)
-            [JsonIgnore] public double mDeltaTime;             // time since last update (seconds)
+            [JsonIgnore][XmlIgnore] public double mDeltaTime;             // time since last update (seconds)
             public double mElapsedTime;           // game session time
-            [JsonIgnore] public int mLapNumber;               // current lap number
-            [JsonIgnore] public double mLapStartET;            // time this lap was started
+            [JsonIgnore][XmlIgnore] public int mLapNumber;               // current lap number
+            [JsonIgnore][XmlIgnore] public double mLapStartET;            // time this lap was started
 
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 64)]
-            [JsonIgnore] public byte[] mVehicleName;         // current vehicle name
+            [JsonIgnore][XmlIgnore] public byte[] mVehicleName;         // current vehicle name
 
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 64)]
-            [JsonIgnore] public byte[] mTrackName;           // current track name
+            [JsonIgnore][XmlIgnore] public byte[] mTrackName;           // current track name
 
             // Position and derivatives
             public rF2Vec3 mPos;                  // world position in meters
             public rF2Vec3 mLocalVel;             // velocity (meters/sec) in local vehicle coordinates
-            [JsonIgnore] public rF2Vec3 mLocalAccel;           // acceleration (meters/sec^2) in local vehicle coordinates
+            [JsonIgnore][XmlIgnore] public rF2Vec3 mLocalAccel;           // acceleration (meters/sec^2) in local vehicle coordinates
 
             // Orientation and derivatives
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 3)]
             public rF2Vec3[] mOri;               // rows of orientation matrix (use TelemQuat conversions if desired), also converts local
                                                              // vehicle vectors into world X, Y, or Z using dot product of rows 0, 1, or 2 respectively
 
-            [JsonIgnore] public rF2Vec3 mLocalRot;             // rotation (radians/sec) in local vehicle coordinates
+            [JsonIgnore][XmlIgnore] public rF2Vec3 mLocalRot;             // rotation (radians/sec) in local vehicle coordinates
 
-            [JsonIgnore] public rF2Vec3 mLocalRotAccel;        // rotational acceleration (radians/sec^2) in local vehicle coordinates
+            [JsonIgnore][XmlIgnore] public rF2Vec3 mLocalRotAccel;        // rotational acceleration (radians/sec^2) in local vehicle coordinates
 
             // Vehicle status
             public int mGear;                    // -1=reverse, 0=neutral, 1+=forward gears
             public double mEngineRPM;             // engine RPM
             public double mEngineWaterTemp;       // Celsius
             public double mEngineOilTemp;         // Celsius
-            [JsonIgnore] public double mClutchRPM;             // clutch RPM
+            [JsonIgnore][XmlIgnore] public double mClutchRPM;             // clutch RPM
 
             // Driver input
             public double mUnfilteredThrottle;    // ranges  0.0-1.0
             public double mUnfilteredBrake;       // ranges  0.0-1.0
-            [JsonIgnore] public double mUnfilteredSteering;    // ranges -1.0-1.0 (left to right)
+            [JsonIgnore][XmlIgnore] public double mUnfilteredSteering;    // ranges -1.0-1.0 (left to right)
             public double mUnfilteredClutch;      // ranges  0.0-1.0
 
             // Filtered input (various adjustments for rev or speed limiting, TC, ABS?, speed sensitive steering, clutch work for semi-automatic shifting, etc.)
-            [JsonIgnore] public double mFilteredThrottle;      // ranges  0.0-1.0
-            [JsonIgnore] public double mFilteredBrake;         // ranges  0.0-1.0
-            [JsonIgnore] public double mFilteredSteering;      // ranges -1.0-1.0 (left to right)
-            [JsonIgnore] public double mFilteredClutch;        // ranges  0.0-1.0
+            [JsonIgnore][XmlIgnore] public double mFilteredThrottle;      // ranges  0.0-1.0
+            [JsonIgnore][XmlIgnore] public double mFilteredBrake;         // ranges  0.0-1.0
+            [JsonIgnore][XmlIgnore] public double mFilteredSteering;      // ranges -1.0-1.0 (left to right)
+            [JsonIgnore][XmlIgnore] public double mFilteredClutch;        // ranges  0.0-1.0
 
             // Misc
-            [JsonIgnore] public double mSteeringShaftTorque;   // torque around steering shaft (used to be mSteeringArmForce, but that is not necessarily accurate for feedback purposes)
-            [JsonIgnore] public double mFront3rdDeflection;    // deflection at front 3rd spring
-            [JsonIgnore] public double mRear3rdDeflection;     // deflection at rear 3rd spring
+            [JsonIgnore][XmlIgnore] public double mSteeringShaftTorque;   // torque around steering shaft (used to be mSteeringArmForce, but that is not necessarily accurate for feedback purposes)
+            [JsonIgnore][XmlIgnore] public double mFront3rdDeflection;    // deflection at front 3rd spring
+            [JsonIgnore][XmlIgnore] public double mRear3rdDeflection;     // deflection at rear 3rd spring
 
             // Aerodynamics
-            [JsonIgnore] public double mFrontWingHeight;       // front wing height
-            [JsonIgnore] public double mFrontRideHeight;       // front ride height
-            [JsonIgnore] public double mRearRideHeight;        // rear ride height
-            [JsonIgnore] public double mDrag;                  // drag
-            [JsonIgnore] public double mFrontDownforce;        // front downforce
-            [JsonIgnore] public double mRearDownforce;         // rear downforce
+            [JsonIgnore][XmlIgnore] public double mFrontWingHeight;       // front wing height
+            [JsonIgnore][XmlIgnore] public double mFrontRideHeight;       // front ride height
+            [JsonIgnore][XmlIgnore] public double mRearRideHeight;        // rear ride height
+            [JsonIgnore][XmlIgnore] public double mDrag;                  // drag
+            [JsonIgnore][XmlIgnore] public double mFrontDownforce;        // front downforce
+            [JsonIgnore][XmlIgnore] public double mRearDownforce;         // rear downforce
 
             // State/damage info
             public double mFuel;                  // amount of fuel (liters)
@@ -303,53 +303,53 @@ namespace CrewChiefV4.rFactor2
             public byte mScheduledStops; // number of scheduled pitstops
             public byte mOverheating;            // whether overheating icon is shown
             public byte mDetached;               // whether any parts (besides wheels) have been detached
-            [JsonIgnore] public byte mHeadlights;             // whether headlights are on
+            [JsonIgnore][XmlIgnore] public byte mHeadlights;             // whether headlights are on
 
             // mDentSeverity is always zero as of 7/3/2017.
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 8)]
-            [JsonIgnore] public byte[] mDentSeverity;// dent severity at 8 locations around the car (0=none, 1=some, 2=more)
+            [JsonIgnore][XmlIgnore] public byte[] mDentSeverity;// dent severity at 8 locations around the car (0=none, 1=some, 2=more)
             public double mLastImpactET;          // time of last impact
-            [JsonIgnore] public double mLastImpactMagnitude;   // magnitude of last impact
-            [JsonIgnore] public rF2Vec3 mLastImpactPos;        // location of last impact
+            [JsonIgnore][XmlIgnore] public double mLastImpactMagnitude;   // magnitude of last impact
+            [JsonIgnore][XmlIgnore] public rF2Vec3 mLastImpactPos;        // location of last impact
 
             // Expanded
-            [JsonIgnore] public double mEngineTorque;          // current engine torque (including additive torque) (used to be mEngineTq, but there's little reason to abbreviate it)
-            [JsonIgnore] public int mCurrentSector;           // the current sector (zero-based) with the pitlane stored in the sign bit (example: entering pits from third sector gives 0x80000002)
+            [JsonIgnore][XmlIgnore] public double mEngineTorque;          // current engine torque (including additive torque) (used to be mEngineTq, but there's little reason to abbreviate it)
+            [JsonIgnore][XmlIgnore] public int mCurrentSector;           // the current sector (zero-based) with the pitlane stored in the sign bit (example: entering pits from third sector gives 0x80000002)
             public byte mSpeedLimiter;   // whether speed limiter is on
-            [JsonIgnore] public byte mMaxGears;       // maximum forward gears
+            [JsonIgnore][XmlIgnore] public byte mMaxGears;       // maximum forward gears
             public byte mFrontTireCompoundIndex;   // index within brand
-            [JsonIgnore] public byte mRearTireCompoundIndex;    // index within brand
-            [JsonIgnore] public double mFuelCapacity;          // capacity in liters
-            [JsonIgnore] public byte mFrontFlapActivated;       // whether front flap is activated
+            [JsonIgnore][XmlIgnore] public byte mRearTireCompoundIndex;    // index within brand
+            [JsonIgnore][XmlIgnore] public double mFuelCapacity;          // capacity in liters
+            [JsonIgnore][XmlIgnore] public byte mFrontFlapActivated;       // whether front flap is activated
             public byte mRearFlapActivated;        // whether rear flap is activated
             public byte mRearFlapLegalStatus;      // 0=disallowed, 1=criteria detected but not allowed quite yet, 2=allowed
-            [JsonIgnore] public byte mIgnitionStarter;          // 0=off 1=ignition 2=ignition+starter
+            [JsonIgnore][XmlIgnore] public byte mIgnitionStarter;          // 0=off 1=ignition 2=ignition+starter
 
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 18)]
             public byte[] mFrontTireCompoundName;         // name of front tire compound
 
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 18)]
-            [JsonIgnore] public byte[] mRearTireCompoundName;          // name of rear tire compound
+            [JsonIgnore][XmlIgnore] public byte[] mRearTireCompoundName;          // name of rear tire compound
 
             public byte mSpeedLimiterAvailable;    // whether speed limiter is available
-            [JsonIgnore] public byte mAntiStallActivated;       // whether (hard) anti-stall is activated
+            [JsonIgnore][XmlIgnore] public byte mAntiStallActivated;       // whether (hard) anti-stall is activated
 
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 2)]
-            [JsonIgnore] public byte[] mUnused;                //
+            [JsonIgnore][XmlIgnore] public byte[] mUnused;                //
 
-            [JsonIgnore] public float mVisualSteeringWheelRange;         // the *visual* steering wheel range
+            [JsonIgnore][XmlIgnore] public float mVisualSteeringWheelRange;         // the *visual* steering wheel range
 
-            [JsonIgnore] public double mRearBrakeBias;                   // fraction of brakes on rear
-            [JsonIgnore] public double mTurboBoostPressure;              // current turbo boost pressure if available
+            [JsonIgnore][XmlIgnore] public double mRearBrakeBias;                   // fraction of brakes on rear
+            [JsonIgnore][XmlIgnore] public double mTurboBoostPressure;              // current turbo boost pressure if available
 
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 3)]
-            [JsonIgnore] public float[] mPhysicsToGraphicsOffset;       // offset from static CG to graphical center
+            [JsonIgnore][XmlIgnore] public float[] mPhysicsToGraphicsOffset;       // offset from static CG to graphical center
 
-            [JsonIgnore] public float mPhysicalSteeringWheelRange;       // the *physical* steering wheel range
+            [JsonIgnore][XmlIgnore] public float mPhysicalSteeringWheelRange;       // the *physical* steering wheel range
 
             // Future use
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 152)]
-            [JsonIgnore] public byte[] mExpansion;           // for future use (note that the slot ID has been moved to mID above)
+            [JsonIgnore][XmlIgnore] public byte[] mExpansion;           // for future use (note that the slot ID has been moved to mID above)
 
             // keeping this at the end of the structure to make it easier to replace in future versions
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 4)]
@@ -371,7 +371,7 @@ namespace CrewChiefV4.rFactor2
             //char *mResultsStream;          // results stream additions since last update (newline-delimited and NULL-terminated)
             // MM_NEW
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 8)]
-            [JsonIgnore] public byte[] pointer1;
+            [JsonIgnore][XmlIgnore] public byte[] pointer1;
 
             public int mNumVehicles;             // current number of vehicles
 
@@ -402,47 +402,47 @@ namespace CrewChiefV4.rFactor2
 
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 3)]
             public sbyte[] mSectorFlag;      // whether there are any local yellows at the moment in each sector (not sure if sector 0 is first or last, so test)
-            [JsonIgnore] public byte mStartLight;       // start light frame (number depends on track)
-            [JsonIgnore] public byte mNumRedLights;     // number of red lights in start sequence
+            [JsonIgnore][XmlIgnore] public byte mStartLight;       // start light frame (number depends on track)
+            [JsonIgnore][XmlIgnore] public byte mNumRedLights;     // number of red lights in start sequence
             public byte mInRealtime;                // in realtime as opposed to at the monitor
 
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 32)]
-            [JsonIgnore] public byte[] mPlayerName;            // player name (including possible multiplayer override)
+            [JsonIgnore][XmlIgnore] public byte[] mPlayerName;            // player name (including possible multiplayer override)
 
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 64)]
-            [JsonIgnore] public byte[] mPlrFileName;           // may be encoded to be a legal filename
+            [JsonIgnore][XmlIgnore] public byte[] mPlrFileName;           // may be encoded to be a legal filename
 
             // weather
-            [JsonIgnore] public double mDarkCloud;               // cloud darkness? 0.0-1.0
+            [JsonIgnore][XmlIgnore] public double mDarkCloud;               // cloud darkness? 0.0-1.0
             public double mRaining;                 // raining severity 0.0-1.0
             public double mAmbientTemp;             // temperature (Celsius)
             public double mTrackTemp;               // temperature (Celsius)
             public rF2Vec3 mWind;                   // wind speed
-            [JsonIgnore] public double mMinPathWetness;          // minimum wetness on main path 0.0-1.0
-            [JsonIgnore] public double mMaxPathWetness;          // maximum wetness on main path 0.0-1.0
+            [JsonIgnore][XmlIgnore] public double mMinPathWetness;          // minimum wetness on main path 0.0-1.0
+            [JsonIgnore][XmlIgnore] public double mMaxPathWetness;          // maximum wetness on main path 0.0-1.0
 
             // multiplayer
             public byte mGameMode;                  // 1 = server, 2 = client, 3 = server and client
-            [JsonIgnore] public byte mIsPasswordProtected;       // is the server password protected
-            [JsonIgnore] public ushort mServerPort;              // the port of the server (if on a server)
-            [JsonIgnore] public uint mServerPublicIP;            // the public IP address of the server (if on a server)
-            [JsonIgnore] public int mMaxPlayers;                 // maximum number of vehicles that can be in the session
+            [JsonIgnore][XmlIgnore] public byte mIsPasswordProtected;       // is the server password protected
+            [JsonIgnore][XmlIgnore] public ushort mServerPort;              // the port of the server (if on a server)
+            [JsonIgnore][XmlIgnore] public uint mServerPublicIP;            // the public IP address of the server (if on a server)
+            [JsonIgnore][XmlIgnore] public int mMaxPlayers;                 // maximum number of vehicles that can be in the session
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 32)]
-            [JsonIgnore] public byte[] mServerName;            // name of the server
-            [JsonIgnore] public float mStartET;                  // start time (seconds since midnight) of the event
+            [JsonIgnore][XmlIgnore] public byte[] mServerName;            // name of the server
+            [JsonIgnore][XmlIgnore] public float mStartET;                  // start time (seconds since midnight) of the event
 
-            [JsonIgnore] public double mAvgPathWetness;          // average wetness on main path 0.0-1.0
+            [JsonIgnore][XmlIgnore] public double mAvgPathWetness;          // average wetness on main path 0.0-1.0
 
             // Future use
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 200)]
-            [JsonIgnore] public byte[] mExpansion;
+            [JsonIgnore][XmlIgnore] public byte[] mExpansion;
 
             // MM_NOT_USED
             // keeping this at the end of the structure to make it easier to replace in future versions
             // VehicleScoringInfoV01 *mVehicle; // array of vehicle scoring info's
             // MM_NEW
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 8)]
-            [JsonIgnore] public byte[] pointer2;
+            [JsonIgnore][XmlIgnore] public byte[] pointer2;
         }
 
 
@@ -455,7 +455,7 @@ namespace CrewChiefV4.rFactor2
             public byte[] mDriverName;          // driver name
 
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 64)]
-            [JsonIgnore] public byte[] mVehicleName;         // vehicle name
+            [JsonIgnore][XmlIgnore] public byte[] mVehicleName;         // vehicle name
 
             public short mTotalLaps;              // laps completed
             public sbyte mSector;           // 0=sector3, 1=sector1, 2=sector2 (don't ask why)
@@ -486,94 +486,94 @@ namespace CrewChiefV4.rFactor2
 
             // Dash Indicators
             public double mTimeBehindNext;        // time behind vehicle in next higher place
-            [JsonIgnore] public int mLapsBehindNext;           // laps behind vehicle in next higher place
-            [JsonIgnore] public double mTimeBehindLeader;      // time behind leader
-            [JsonIgnore] public int mLapsBehindLeader;         // laps behind leader
+            [JsonIgnore][XmlIgnore] public int mLapsBehindNext;           // laps behind vehicle in next higher place
+            [JsonIgnore][XmlIgnore] public double mTimeBehindLeader;      // time behind leader
+            [JsonIgnore][XmlIgnore] public int mLapsBehindLeader;         // laps behind leader
             public double mLapStartET;            // time this lap was started
 
             // Position and derivatives
-            [JsonIgnore] public rF2Vec3 mPos;                  // world position in meters
+            [JsonIgnore][XmlIgnore] public rF2Vec3 mPos;                  // world position in meters
             // TODO: remove these serialization, once we use telemetry
             public rF2Vec3 mLocalVel;             // velocity (meters/sec) in local vehicle coordinates
             public rF2Vec3 mLocalAccel;           // acceleration (meters/sec^2) in local vehicle coordinates
 
             // Orientation and derivatives
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 3)]
-            [JsonIgnore] public rF2Vec3[] mOri;               // rows of orientation matrix (use TelemQuat conversions if desired), also converts local
+            [JsonIgnore][XmlIgnore] public rF2Vec3[] mOri;               // rows of orientation matrix (use TelemQuat conversions if desired), also converts local
                                                  // vehicle vectors into world X, Y, or Z using dot product of rows 0, 1, or 2 respectively
 
-            [JsonIgnore] public rF2Vec3 mLocalRot;             // rotation (radians/sec) in local vehicle coordinates
+            [JsonIgnore][XmlIgnore] public rF2Vec3 mLocalRot;             // rotation (radians/sec) in local vehicle coordinates
 
-            [JsonIgnore] public rF2Vec3 mLocalRotAccel;        // rotational acceleration (radians/sec^2) in local vehicle coordinates
+            [JsonIgnore][XmlIgnore] public rF2Vec3 mLocalRotAccel;        // rotational acceleration (radians/sec^2) in local vehicle coordinates
 
             // tag.2012.03.01 - stopped casting some of these so variables now have names and mExpansion has shrunk, overall size and old data locations should be same
-            [JsonIgnore] public byte mHeadlights;     // status of headlights
+            [JsonIgnore][XmlIgnore] public byte mHeadlights;     // status of headlights
             public byte mPitState;       // 0=none, 1=request, 2=entering, 3=stopped, 4=exiting
-            [JsonIgnore] public byte mServerScored;   // whether this vehicle is being scored by server (could be off in qualifying or racing heats)
-            [JsonIgnore] public byte mIndividualPhase;// game phases (described below) plus 9=after formation, 10=under yellow, 11=under blue (not used)
+            [JsonIgnore][XmlIgnore] public byte mServerScored;   // whether this vehicle is being scored by server (could be off in qualifying or racing heats)
+            [JsonIgnore][XmlIgnore] public byte mIndividualPhase;// game phases (described below) plus 9=after formation, 10=under yellow, 11=under blue (not used)
 
-            [JsonIgnore] public int mQualification;           // 1-based, can be -1 when invalid
+            [JsonIgnore][XmlIgnore] public int mQualification;           // 1-based, can be -1 when invalid
 
-            [JsonIgnore] public double mTimeIntoLap;           // estimated time into lap
-            [JsonIgnore] public double mEstimatedLapTime;      // estimated laptime used for 'time behind' and 'time into lap' (note: this may changed based on vehicle and setup!?)
+            [JsonIgnore][XmlIgnore] public double mTimeIntoLap;           // estimated time into lap
+            [JsonIgnore][XmlIgnore] public double mEstimatedLapTime;      // estimated laptime used for 'time behind' and 'time into lap' (note: this may changed based on vehicle and setup!?)
 
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 24)]
-            [JsonIgnore] public byte[] mPitGroup;            // pit group (same as team name unless pit is shared)
+            [JsonIgnore][XmlIgnore] public byte[] mPitGroup;            // pit group (same as team name unless pit is shared)
             public byte mFlag;           // primary flag being shown to vehicle (currently only 0=green or 6=blue)
-            [JsonIgnore] public byte mUnderYellow;             // whether this car has taken a full-course caution flag at the start/finish line
+            [JsonIgnore][XmlIgnore] public byte mUnderYellow;             // whether this car has taken a full-course caution flag at the start/finish line
             public byte mCountLapFlag;   // 0 = do not count lap or time, 1 = count lap but not time, 2 = count lap and time
             public byte mInGarageStall;           // appears to be within the correct garage stall
 
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 16)]
-            [JsonIgnore] public byte[] mUpgradePack;  // Coded upgrades
+            [JsonIgnore][XmlIgnore] public byte[] mUpgradePack;  // Coded upgrades
 
             public float mPitLapDist;             // location of pit in terms of lap distance
 
-            [JsonIgnore] public float mBestLapSector1;         // sector 1 time from best lap (not necessarily the best sector 1 time)
-            [JsonIgnore] public float mBestLapSector2;         // sector 2 time from best lap (not necessarily the best sector 2 time)
+            [JsonIgnore][XmlIgnore] public float mBestLapSector1;         // sector 1 time from best lap (not necessarily the best sector 1 time)
+            [JsonIgnore][XmlIgnore] public float mBestLapSector2;         // sector 2 time from best lap (not necessarily the best sector 2 time)
 
             // Future use
             // tag.2012.04.06 - SEE ABOVE!
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 48)]
-            [JsonIgnore] public byte[] mExpansion;  // for future use
+            [JsonIgnore][XmlIgnore] public byte[] mExpansion;  // for future use
         }
 
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 4)]
         public struct rF2PhysicsOptions
         {
-            [JsonIgnore] public byte mTractionControl;  // 0 (off) - 3 (high)
-            [JsonIgnore] public byte mAntiLockBrakes;   // 0 (off) - 2 (high)
-            [JsonIgnore] public byte mStabilityControl; // 0 (off) - 2 (high)
-            [JsonIgnore] public byte mAutoShift;        // 0 (off), 1 (upshifts), 2 (downshifts), 3 (all)
-            [JsonIgnore] public byte mAutoClutch;       // 0 (off), 1 (on)
+            [JsonIgnore][XmlIgnore] public byte mTractionControl;  // 0 (off) - 3 (high)
+            [JsonIgnore][XmlIgnore] public byte mAntiLockBrakes;   // 0 (off) - 2 (high)
+            [JsonIgnore][XmlIgnore] public byte mStabilityControl; // 0 (off) - 2 (high)
+            [JsonIgnore][XmlIgnore] public byte mAutoShift;        // 0 (off), 1 (upshifts), 2 (downshifts), 3 (all)
+            [JsonIgnore][XmlIgnore] public byte mAutoClutch;       // 0 (off), 1 (on)
             public byte mInvulnerable;     // 0 (off), 1 (on)
-            [JsonIgnore] public byte mOppositeLock;     // 0 (off), 1 (on)
-            [JsonIgnore] public byte mSteeringHelp;     // 0 (off) - 3 (high)
-            [JsonIgnore] public byte mBrakingHelp;      // 0 (off) - 2 (high)
-            [JsonIgnore] public byte mSpinRecovery;     // 0 (off), 1 (on)
-            [JsonIgnore] public byte mAutoPit;          // 0 (off), 1 (on)
-            [JsonIgnore] public byte mAutoLift;         // 0 (off), 1 (on)
-            [JsonIgnore] public byte mAutoBlip;         // 0 (off), 1 (on)
+            [JsonIgnore][XmlIgnore] public byte mOppositeLock;     // 0 (off), 1 (on)
+            [JsonIgnore][XmlIgnore] public byte mSteeringHelp;     // 0 (off) - 3 (high)
+            [JsonIgnore][XmlIgnore] public byte mBrakingHelp;      // 0 (off) - 2 (high)
+            [JsonIgnore][XmlIgnore] public byte mSpinRecovery;     // 0 (off), 1 (on)
+            [JsonIgnore][XmlIgnore] public byte mAutoPit;          // 0 (off), 1 (on)
+            [JsonIgnore][XmlIgnore] public byte mAutoLift;         // 0 (off), 1 (on)
+            [JsonIgnore][XmlIgnore] public byte mAutoBlip;         // 0 (off), 1 (on)
 
             public byte mFuelMult;         // fuel multiplier (0x-7x)
-            [JsonIgnore] public byte mTireMult;         // tire wear multiplier (0x-7x)
-            [JsonIgnore] public byte mMechFail;         // mechanical failure setting; 0 (off), 1 (normal), 2 (timescaled)
-            [JsonIgnore] public byte mAllowPitcrewPush; // 0 (off), 1 (on)
-            [JsonIgnore] public byte mRepeatShifts;     // accidental repeat shift prevention (0-5; see PLR file)
-            [JsonIgnore] public byte mHoldClutch;       // for auto-shifters at start of race: 0 (off), 1 (on)
-            [JsonIgnore] public byte mAutoReverse;      // 0 (off), 1 (on)
-            [JsonIgnore] public byte mAlternateNeutral; // Whether shifting up and down simultaneously equals neutral
+            [JsonIgnore][XmlIgnore] public byte mTireMult;         // tire wear multiplier (0x-7x)
+            [JsonIgnore][XmlIgnore] public byte mMechFail;         // mechanical failure setting; 0 (off), 1 (normal), 2 (timescaled)
+            [JsonIgnore][XmlIgnore] public byte mAllowPitcrewPush; // 0 (off), 1 (on)
+            [JsonIgnore][XmlIgnore] public byte mRepeatShifts;     // accidental repeat shift prevention (0-5; see PLR file)
+            [JsonIgnore][XmlIgnore] public byte mHoldClutch;       // for auto-shifters at start of race: 0 (off), 1 (on)
+            [JsonIgnore][XmlIgnore] public byte mAutoReverse;      // 0 (off), 1 (on)
+            [JsonIgnore][XmlIgnore] public byte mAlternateNeutral; // Whether shifting up and down simultaneously equals neutral
 
             // tag.2014.06.09 - yes these are new, but no they don't change the size of the structure nor the address of the other variables in it (because we're just using the existing padding)
-            [JsonIgnore] public byte mAIControl;        // Whether player vehicle is currently under AI control
-            [JsonIgnore] public byte mUnused1;          //
-            [JsonIgnore] public byte mUnused2;          //
+            [JsonIgnore][XmlIgnore] public byte mAIControl;        // Whether player vehicle is currently under AI control
+            [JsonIgnore][XmlIgnore] public byte mUnused1;          //
+            [JsonIgnore][XmlIgnore] public byte mUnused2;          //
 
-            [JsonIgnore] public float mManualShiftOverrideTime;  // time before auto-shifting can resume after recent manual shift
-            [JsonIgnore] public float mAutoShiftOverrideTime;    // time before manual shifting can resume after recent auto shift
-            [JsonIgnore] public float mSpeedSensitiveSteering;   // 0.0 (off) - 1.0
-            [JsonIgnore] public float mSteerRatioSpeed;          // speed (m/s) under which lock gets expanded to full
+            [JsonIgnore][XmlIgnore] public float mManualShiftOverrideTime;  // time before auto-shifting can resume after recent manual shift
+            [JsonIgnore][XmlIgnore] public float mAutoShiftOverrideTime;    // time before manual shifting can resume after recent auto shift
+            [JsonIgnore][XmlIgnore] public float mSpeedSensitiveSteering;   // 0.0 (off) - 1.0
+            [JsonIgnore][XmlIgnore] public float mSteerRatioSpeed;          // speed (m/s) under which lock gets expanded to full
         }
 
 
@@ -603,9 +603,9 @@ namespace CrewChiefV4.rFactor2
         public struct rF2TrackRulesAction
         {
             // input only
-            [JsonIgnore] public rF2TrackRulesCommand mCommand;        // recommended action
-            [JsonIgnore] public int mID;                              // slot ID if applicable
-            [JsonIgnore] public double mET;                           // elapsed time that event occurred, if applicable
+            [JsonIgnore][XmlIgnore] public rF2TrackRulesCommand mCommand;        // recommended action
+            [JsonIgnore][XmlIgnore] public int mID;                              // slot ID if applicable
+            [JsonIgnore][XmlIgnore] public double mET;                           // elapsed time that event occurred, if applicable
         }
 
 
@@ -638,29 +638,29 @@ namespace CrewChiefV4.rFactor2
         {
             // input only
             public int mID;                             // slot ID
-            [JsonIgnore] public short mFrozenOrder;                   // 0-based place when caution came out (not valid for formation laps)
+            [JsonIgnore][XmlIgnore] public short mFrozenOrder;                   // 0-based place when caution came out (not valid for formation laps)
             public short mPlace;                         // 1-based place (typically used for the initialization of the formation lap track order)
-            [JsonIgnore] public float mYellowSeverity;                // a rating of how much this vehicle is contributing to a yellow flag (the sum of all vehicles is compared to TrackRulesV01::mSafetyCarThreshold)
-            [JsonIgnore] public double mCurrentRelativeDistance;      // equal to ( ( ScoringInfoV01::mLapDist * this->mRelativeLaps ) + VehicleScoringInfoV01::mLapDist )
+            [JsonIgnore][XmlIgnore] public float mYellowSeverity;                // a rating of how much this vehicle is contributing to a yellow flag (the sum of all vehicles is compared to TrackRulesV01::mSafetyCarThreshold)
+            [JsonIgnore][XmlIgnore] public double mCurrentRelativeDistance;      // equal to ( ( ScoringInfoV01::mLapDist * this->mRelativeLaps ) + VehicleScoringInfoV01::mLapDist )
 
             // input/output
             public int mRelativeLaps;                    // current formation/caution laps relative to safety car (should generally be zero except when safety car crosses s/f line); this can be decremented to implement 'wave around' or 'beneficiary rule' (a.k.a. 'lucky dog' or 'free pass')
             public rF2TrackRulesColumn mColumnAssignment;// which column (line/lane) that participant is supposed to be in
             public int mPositionAssignment;              // 0-based position within column (line/lane) that participant is supposed to be located at (-1 is invalid)
             public byte mPitsOpen;                       // whether the rules allow this particular vehicle to enter pits right now (input is 2=false or 3=true; if you want to edit it, set to 0=false or 1=true)
-            [JsonIgnore] public byte mUpToSpeed;                      // while in the frozen order, this flag indicates whether the vehicle can be followed (this should be false for somebody who has temporarily spun and hasn't gotten back up to speed yet)
+            [JsonIgnore][XmlIgnore] public byte mUpToSpeed;                      // while in the frozen order, this flag indicates whether the vehicle can be followed (this should be false for somebody who has temporarily spun and hasn't gotten back up to speed yet)
 
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 2)]
-            [JsonIgnore] public byte[] mUnused;                       //
+            [JsonIgnore][XmlIgnore] public byte[] mUnused;                       //
 
-            [JsonIgnore] public double mGoalRelativeDistance;         // calculated based on where the leader is, and adjusted by the desired column spacing and the column/position assignments
+            [JsonIgnore][XmlIgnore] public double mGoalRelativeDistance;         // calculated based on where the leader is, and adjusted by the desired column spacing and the column/position assignments
 
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 96)]
             public byte[] mMessage;                  // a message for this participant to explain what is going on (untranslated; it will get run through translator on client machines)
 
             // future expansion
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 192)]
-            [JsonIgnore] public byte[] mExpansion;
+            [JsonIgnore][XmlIgnore] public byte[] mExpansion;
         }
 
 
@@ -686,50 +686,50 @@ namespace CrewChiefV4.rFactor2
         public struct rF2TrackRules
         {
             // input only
-            [JsonIgnore] public double mCurrentET;                    // current time
+            [JsonIgnore][XmlIgnore] public double mCurrentET;                    // current time
             public rF2TrackRulesStage mStage;            // current stage
             public rF2TrackRulesColumn mPoleColumn;      // column assignment where pole position seems to be located
-            [JsonIgnore] public int mNumActions;                     // number of recent actions
+            [JsonIgnore][XmlIgnore] public int mNumActions;                     // number of recent actions
 
             // MM_NOT_USED
             // TrackRulesActionV01 *mAction;         // array of recent actions
             // MM_NEW
 
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 8)]
-            [JsonIgnore] public byte[] pointer1;
+            [JsonIgnore][XmlIgnore] public byte[] pointer1;
 
             public int mNumParticipants;                // number of participants (vehicles)
 
-            [JsonIgnore] public byte mYellowFlagDetected;             // whether yellow flag was requested or sum of participant mYellowSeverity's exceeds mSafetyCarThreshold
-            [JsonIgnore] public byte mYellowFlagLapsWasOverridden;    // whether mYellowFlagLaps (below) is an admin request (0=no 1=yes 2=clear yellow)
-            [JsonIgnore] public byte mSafetyCarExists;                // whether safety car even exists
+            [JsonIgnore][XmlIgnore] public byte mYellowFlagDetected;             // whether yellow flag was requested or sum of participant mYellowSeverity's exceeds mSafetyCarThreshold
+            [JsonIgnore][XmlIgnore] public byte mYellowFlagLapsWasOverridden;    // whether mYellowFlagLaps (below) is an admin request (0=no 1=yes 2=clear yellow)
+            [JsonIgnore][XmlIgnore] public byte mSafetyCarExists;                // whether safety car even exists
             public byte mSafetyCarActive;                // whether safety car is active
 
             public int mSafetyCarLaps;                  // number of laps
-            [JsonIgnore] public float mSafetyCarThreshold;            // the threshold at which a safety car is called out (compared to the sum of TrackRulesParticipantV01::mYellowSeverity for each vehicle) 
+            [JsonIgnore][XmlIgnore] public float mSafetyCarThreshold;            // the threshold at which a safety car is called out (compared to the sum of TrackRulesParticipantV01::mYellowSeverity for each vehicle) 
             public double mSafetyCarLapDist;             // safety car lap distance
 
-            [JsonIgnore] public float mSafetyCarLapDistAtStart;       // where the safety car starts from
+            [JsonIgnore][XmlIgnore] public float mSafetyCarLapDistAtStart;       // where the safety car starts from
             public float mPitLaneStartDist;              // where the waypoint branch to the pits breaks off (this may not be perfectly accurate)
-            [JsonIgnore] public float mTeleportLapDist;               // the front of the teleport locations (a useful first guess as to where to throw the green flag)
+            [JsonIgnore][XmlIgnore] public float mTeleportLapDist;               // the front of the teleport locations (a useful first guess as to where to throw the green flag)
 
             // future input expansion
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 256)]
-            [JsonIgnore] public byte[] mInputExpansion;
+            [JsonIgnore][XmlIgnore] public byte[] mInputExpansion;
 
             // input/output
-            [JsonIgnore] public sbyte mYellowFlagState;         // see ScoringInfoV01 for values
-            [JsonIgnore] public short mYellowFlagLaps;                // suggested number of laps to run under yellow (may be passed in with admin command)
-            [JsonIgnore] public int mSafetyCarInstruction;           // 0=no change, 1=go active, 2=head for pits
+            [JsonIgnore][XmlIgnore] public sbyte mYellowFlagState;         // see ScoringInfoV01 for values
+            [JsonIgnore][XmlIgnore] public short mYellowFlagLaps;                // suggested number of laps to run under yellow (may be passed in with admin command)
+            [JsonIgnore][XmlIgnore] public int mSafetyCarInstruction;           // 0=no change, 1=go active, 2=head for pits
             public float mSafetyCarSpeed;                // maximum speed at which to drive
 
-            [JsonIgnore] public float mSafetyCarMinimumSpacing;       // minimum spacing behind safety car (-1 to indicate no limit)
-            [JsonIgnore] public float mSafetyCarMaximumSpacing;       // maximum spacing behind safety car (-1 to indicate no limit)
-            [JsonIgnore] public float mMinimumColumnSpacing;          // minimum desired spacing between vehicles in a column (-1 to indicate indeterminate/unenforced)
-            [JsonIgnore] public float mMaximumColumnSpacing;          // maximum desired spacing between vehicles in a column (-1 to indicate indeterminate/unenforced)
+            [JsonIgnore][XmlIgnore] public float mSafetyCarMinimumSpacing;       // minimum spacing behind safety car (-1 to indicate no limit)
+            [JsonIgnore][XmlIgnore] public float mSafetyCarMaximumSpacing;       // maximum spacing behind safety car (-1 to indicate no limit)
+            [JsonIgnore][XmlIgnore] public float mMinimumColumnSpacing;          // minimum desired spacing between vehicles in a column (-1 to indicate indeterminate/unenforced)
+            [JsonIgnore][XmlIgnore] public float mMaximumColumnSpacing;          // maximum desired spacing between vehicles in a column (-1 to indicate indeterminate/unenforced)
 
-            [JsonIgnore] public float mMinimumSpeed;                  // minimum speed that anybody should be driving (-1 to indicate no limit)
-            [JsonIgnore] public float mMaximumSpeed;                  // maximum speed that anybody should be driving (-1 to indicate no limit)
+            [JsonIgnore][XmlIgnore] public float mMinimumSpeed;                  // minimum speed that anybody should be driving (-1 to indicate no limit)
+            [JsonIgnore][XmlIgnore] public float mMaximumSpeed;                  // maximum speed that anybody should be driving (-1 to indicate no limit)
 
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 96)]
             public byte[] mMessage;                  // a message for everybody to explain what is going on (which will get run through translator on client machines)
@@ -738,11 +738,11 @@ namespace CrewChiefV4.rFactor2
             // TrackRulesParticipantV01 *mParticipant;         // array of partipants (vehicles)
             // MM_NEW
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 8)]
-            [JsonIgnore] public byte[] pointer2;
+            [JsonIgnore][XmlIgnore] public byte[] pointer2;
 
             // future input/output expansion
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 256)]
-            [JsonIgnore] public byte[] mInputOutputExpansion;
+            [JsonIgnore][XmlIgnore] public byte[] mInputOutputExpansion;
         };
 
 
@@ -751,18 +751,18 @@ namespace CrewChiefV4.rFactor2
         {
             // If both version variables are equal, buffer is not being written to, or we're extremely unlucky and second check is necessary.
             // If versions don't match, buffer is being written to, or is incomplete (game crash, or missed transition).
-            [JsonIgnore] public uint mVersionUpdateBegin;          // Incremented right before buffer is written to.
-            [JsonIgnore] public uint mVersionUpdateEnd;            // Incremented after buffer write is done.
+            [JsonIgnore][XmlIgnore] public uint mVersionUpdateBegin;          // Incremented right before buffer is written to.
+            [JsonIgnore][XmlIgnore] public uint mVersionUpdateEnd;            // Incremented after buffer write is done.
         }
 
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 4)]
         public struct rF2MappedBufferVersionBlockWithSize
         {
-            [JsonIgnore] public uint mVersionUpdateBegin;          // Incremented right before buffer is written to.
-            [JsonIgnore] public uint mVersionUpdateEnd;            // Incremented after buffer write is done.
+            [JsonIgnore][XmlIgnore] public uint mVersionUpdateBegin;          // Incremented right before buffer is written to.
+            [JsonIgnore][XmlIgnore] public uint mVersionUpdateEnd;            // Incremented after buffer write is done.
 
-            [JsonIgnore] public int mBytesUpdatedHint;             // How many bytes of the structure were written during the last update.
+            [JsonIgnore][XmlIgnore] public int mBytesUpdatedHint;             // How many bytes of the structure were written during the last update.
                                                       // 0 means unknown (whole buffer should be considered as updated).
         }
 
@@ -770,10 +770,10 @@ namespace CrewChiefV4.rFactor2
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 4)]
         public struct rF2Telemetry
         {
-            [JsonIgnore] public uint mVersionUpdateBegin;          // Incremented right before buffer is written to.
-            [JsonIgnore] public uint mVersionUpdateEnd;            // Incremented after buffer write is done.
+            [JsonIgnore][XmlIgnore] public uint mVersionUpdateBegin;          // Incremented right before buffer is written to.
+            [JsonIgnore][XmlIgnore] public uint mVersionUpdateEnd;            // Incremented after buffer write is done.
 
-            [JsonIgnore] public int mBytesUpdatedHint;             // How many bytes of the structure were written during the last update.
+            [JsonIgnore][XmlIgnore] public int mBytesUpdatedHint;             // How many bytes of the structure were written during the last update.
                                                                   // 0 means unknown (whole buffer should be considered as updated).
 
             public int mNumVehicles;                  // current number of vehicles
@@ -785,10 +785,10 @@ namespace CrewChiefV4.rFactor2
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 4)]
         public struct rF2Scoring
         {
-            [JsonIgnore] public uint mVersionUpdateBegin;          // Incremented right before buffer is written to.
-            [JsonIgnore] public uint mVersionUpdateEnd;            // Incremented after buffer write is done.
+            [JsonIgnore][XmlIgnore] public uint mVersionUpdateBegin;          // Incremented right before buffer is written to.
+            [JsonIgnore][XmlIgnore] public uint mVersionUpdateEnd;            // Incremented after buffer write is done.
 
-            [JsonIgnore] public int mBytesUpdatedHint;             // How many bytes of the structure were written during the last update.
+            [JsonIgnore][XmlIgnore] public int mBytesUpdatedHint;             // How many bytes of the structure were written during the last update.
 
             public rF2ScoringInfo mScoringInfo;
 
@@ -800,15 +800,15 @@ namespace CrewChiefV4.rFactor2
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 4)]
         public struct rF2Rules
         {
-            [JsonIgnore] public uint mVersionUpdateBegin;          // Incremented right before buffer is written to.
-            [JsonIgnore] public uint mVersionUpdateEnd;            // Incremented after buffer write is done.
+            [JsonIgnore][XmlIgnore] public uint mVersionUpdateBegin;          // Incremented right before buffer is written to.
+            [JsonIgnore][XmlIgnore] public uint mVersionUpdateEnd;            // Incremented after buffer write is done.
 
-            [JsonIgnore] public int mBytesUpdatedHint;             // How many bytes of the structure were written during the last update.
+            [JsonIgnore][XmlIgnore] public int mBytesUpdatedHint;             // How many bytes of the structure were written during the last update.
 
             public rF2TrackRules mTrackRules;
 
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = rFactor2Constants.MAX_MAPPED_VEHICLES)]
-            [JsonIgnore] public rF2TrackRulesAction[] mActions;
+            [JsonIgnore][XmlIgnore] public rF2TrackRulesAction[] mActions;
 
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = rFactor2Constants.MAX_MAPPED_VEHICLES)]
             public rF2TrackRulesParticipant[] mParticipants;
@@ -830,7 +830,7 @@ namespace CrewChiefV4.rFactor2
             public int mID;                      // slot ID (note that it can be re-used in multiplayer after someone leaves)
             public byte mPlace;
             public byte mIsPlayer;
-            [JsonIgnore] public sbyte mFinishStatus;     // 0=none, 1=finished, 2=dnf, 3=dq
+            [JsonIgnore][XmlIgnore] public sbyte mFinishStatus;     // 0=none, 1=finished, 2=dnf, 3=dq
         };
 
 
@@ -838,8 +838,8 @@ namespace CrewChiefV4.rFactor2
         public struct rF2SessionTransitionCapture
         {
             // ScoringInfoV01 members:
-            [JsonIgnore] public byte mGamePhase;
-            [JsonIgnore] public int mSession;
+            [JsonIgnore][XmlIgnore] public byte mGamePhase;
+            [JsonIgnore][XmlIgnore] public int mSession;
 
             // VehicleScoringInfoV01 members:
             public int mNumScoringVehicles;
@@ -859,8 +859,8 @@ namespace CrewChiefV4.rFactor2
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 4)]
         public struct rF2Extended
         {
-            [JsonIgnore] public uint mVersionUpdateBegin;          // Incremented right before buffer is written to.
-            [JsonIgnore] public uint mVersionUpdateEnd;            // Incremented after buffer write is done.
+            [JsonIgnore][XmlIgnore] public uint mVersionUpdateBegin;          // Incremented right before buffer is written to.
+            [JsonIgnore][XmlIgnore] public uint mVersionUpdateEnd;            // Incremented after buffer write is done.
 
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 8)]
             public byte[] mVersion;                            // API version
@@ -875,11 +875,11 @@ namespace CrewChiefV4.rFactor2
 
             // Function call based flags:
             public byte mInRealtimeFC;                         // in realtime as opposed to at the monitor (reported via last EnterRealtime/ExitRealtime calls).
-            [JsonIgnore] public byte mMultimediaThreadStarted;              // multimedia thread started (reported via ThreadStarted/ThreadStopped calls).
-            [JsonIgnore] public byte mSimulationThreadStarted;              // simulation thread started (reported via ThreadStarted/ThreadStopped calls).
+            [JsonIgnore][XmlIgnore] public byte mMultimediaThreadStarted;              // multimedia thread started (reported via ThreadStarted/ThreadStopped calls).
+            [JsonIgnore][XmlIgnore] public byte mSimulationThreadStarted;              // simulation thread started (reported via ThreadStarted/ThreadStopped calls).
 
             public byte mSessionStarted;                       // Set to true on Session Started, set to false on Session Ended.
-            [JsonIgnore] public Int64 mTicksSessionStarted;                 // Ticks when session started.
+            [JsonIgnore][XmlIgnore] public Int64 mTicksSessionStarted;                 // Ticks when session started.
             public Int64 mTicksSessionEnded;                   // Ticks when session ended.
             public rF2SessionTransitionCapture mSessionTransitionCapture;  // Contains partial internals capture at session transition time.
 

@@ -116,7 +116,7 @@ namespace CrewChiefV4.rFactor2
 
         // Message center stuff
         private Int64 lastHistoryMessageUpdatedTicks = 0;
-        //private Int64 statusMessageUpdatedTicks = 0;
+        private Int64 statusMessageUpdatedTicks = 0;
 
         // Since some of MC messages disapper (Player Control: N, for example), we need to remember last message that
         // mattered from CC's standpoint, otherwise, same message could get applied multiple times.
@@ -1844,6 +1844,14 @@ namespace CrewChiefV4.rFactor2
             if (shared.extended.mDirectMemoryAccessEnabled == 0)
                 return;
 
+#if DEBUG
+            if (shared.extended.mTicksStatusMessageUpdated != this.statusMessageUpdatedTicks)
+            {
+                this.statusMessageUpdatedTicks = shared.extended.mTicksStatusMessageUpdated;
+                Console.WriteLine("Status message: updated - \"" + RF2GameStateMapper.GetStringFromBytes(shared.extended.mStatusMessage) + "\"");
+            }
+#endif
+
             if (shared.extended.mTicksLastHistoryMessageUpdated == this.lastHistoryMessageUpdatedTicks)
                 return;
 
@@ -1854,8 +1862,6 @@ namespace CrewChiefV4.rFactor2
             if (msg != this.lastEffectiveHistoryMessage
                 || (cgs.Now - this.timeEffectiveMessageProcessed).TotalSeconds > this.effectiveMessageExpirySeconds)
             {
-                Console.WriteLine("NEW MC MESSAGE ARRIVED: " + msg);
-
                 var messageConsumed = true;
                 if (msg == "Crew Is Ready For Pitstop")
                 {
@@ -1864,57 +1870,71 @@ namespace CrewChiefV4.rFactor2
                         && cgs.PitData.HasRequestedPitStop)
                         cgs.PitData.IsPitCrewReady = true;
                 }
-                else if (msg == "Enter Pits To Avoid Exceeding Lap Allowance")
-                {
-                    messageConsumed = true;
-                }
-                else if (msg == "Wrong Way")  // Might be too idiotic to announce
-                {
-                    messageConsumed = true;
-                }
-                else if (msg == "Warning: Driving Too Slow")
-                {
-                    messageConsumed = true;
-                }
                 else if (msg == "Headlights Are Now Required")
                 {
-                    messageConsumed = true;
-                }
-                else if (msg == "Stop/Go Penalty: Speeding In Pitlane")
-                {
-                    messageConsumed = true;
-                }
-                else if (msg == "Stop/Go Penalty: False Start")
-                {
-                    messageConsumed = true;
+                    cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.HEADLIGHTS_REQUIRED;
                 }
                 else if (msg == "Stop/Go Penalty: Cut Track")
                 {
-                    messageConsumed = true;
+                    cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
+                    cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.CUT_TRACK;
                 }
-                else if (msg == "Stop/Go Penalty: Exiting Pits Under Red")
+                else if (msg == "Stop/Go Penalty: Speeding In Pitlane")
                 {
-                    messageConsumed = true;
-                }
-                else if (msg == "Stop/Go Penalty: Illegally Passed Before Green")
-                {
-                    messageConsumed = true;
+                    cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
+                    cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.SPEEDING_IN_PITLANE;
                 }
                 else if (msg == "Drive-Thru Penalty: Speeding In Pitlane")
                 {
-                    messageConsumed = true;
+                    cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.DRIVE_THROUGH;
+                    cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.SPEEDING_IN_PITLANE;
+                }
+                else if (msg == "Stop/Go Penalty: False Start")
+                {
+                    cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
+                    cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.FALSE_START;
+                }
+                else if (msg == "Stop/Go Penalty: Exiting Pits Under Red")
+                {
+                    cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
+                    cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.EXITING_PITS_UNDER_RED;
+                }
+                else if (msg == "Stop/Go Penalty: Illegally Passed Before Green")
+                {
+                    // TODO: test
+                    cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
+                    cgs.PenaltiesData.PenaltyCause = cgs.FlagData.previousLapWasFCY
+                        ? PenatiesData.DetailedPenaltyCause.ILLEGAL_PASS_FCY_BEFORE_GREEN
+                        : PenatiesData.DetailedPenaltyCause.ILLEGAL_PASS_ROLLING_BEFORE_GREEN;
                 }
                 else if (msg == "Disqualified: Driving In Dark Without Headlights")
                 {
-                    messageConsumed = true;
+                    cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.DISQUALIFIED;
+                    cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.DRIVING_WITHOUT_HEADLIGHTS;
                 }
-                else if (msg == "Pit Speed Limit: 100 kph")  // TODO: See if can be hacked, announce otherwise.
+                // msg == "Disqualified: 4 Laps"
+                else if (msg.StartsWith("Disqualified: ") && msg.EndsWith(" Laps"))
                 {
-                    messageConsumed = true;
+                    cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.DISQUALIFIED;
+                    cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.EXCEEDING_ALLOWED_LAP_COUNT;
                 }
-                else if (msg == "Disqualified: 6 Laps")  // TODO: Need to re-capture this.
+                else if (msg == "Enter Pits To Avoid Exceeding Lap Allowance")
                 {
-                    messageConsumed = true;
+                    cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.ENTER_PITS_TO_AVOID_EXCEEDING_LAPS;
+
+                }
+                else if (msg == "Wrong Way")  // Might be too idiotic to announce
+                {
+                    cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.WRONG_WAY;
+                }
+                else if (msg == "Warning: Driving Too Slow")
+                {
+                    cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.DRIVING_TOO_SLOW;
+                }
+                // msg == "Pit Speed Limit: 100 kph"
+                else if (msg.StartsWith("Pit Speed Limit: ")) // TODO: See if can be hacked, otherwise announce when visible. 
+                {
+                    messageConsumed = false;
                 }
                 else
                 {

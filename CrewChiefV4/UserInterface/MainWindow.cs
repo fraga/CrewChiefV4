@@ -1426,8 +1426,12 @@ namespace CrewChiefV4
             {
                 startApplicationButton.Enabled = false;
                 uiSyncAppStart();
+
+// Don't pause scrolling in Debug build.
+#if !DEBUG
                 Console.WriteLine("Pausing console scrolling");
                 MainWindow.autoScrollConsole = false;
+#endif
                 GameDefinition gameDefinition = GameDefinition.getGameDefinitionForFriendlyName(gameDefinitionList.Text);
                 if (gameDefinition != null)
                 {

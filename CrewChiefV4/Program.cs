@@ -90,6 +90,7 @@ namespace CrewChiefV4
             var watch = System.Diagnostics.Stopwatch.StartNew();
             ThreadManager.WaitForRootThreadsShutdown();
             watch.Stop();
+
             Debug.WriteLine("Root threads took: " + watch.ElapsedTicks * 1000 / System.Diagnostics.Stopwatch.Frequency + "ms to shutdown");
 
             watch = System.Diagnostics.Stopwatch.StartNew();
