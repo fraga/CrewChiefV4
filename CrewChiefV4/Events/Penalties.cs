@@ -88,6 +88,8 @@ namespace CrewChiefV4.Events
         private Boolean playedPitNow;
 
         private Boolean hasOutstandingPenalty = false;
+        private PenatiesData.DetailedPenaltyType outstandingPenaltyType = PenatiesData.DetailedPenaltyType.NONE;
+        private PenatiesData.DetailedPenaltyCause outstandingPenaltyCause = PenatiesData.DetailedPenaltyCause.NONE;
 
         private Boolean playedTimePenaltyMessage;
 
@@ -110,6 +112,11 @@ namespace CrewChiefV4.Events
         private DateTime timeToNotifyOfSlowdown = DateTime.MinValue;
 
         private Boolean playedSlowdownNotificationOnThisLap = false;
+        
+        public override List<SessionPhase> applicableSessionPhases
+        {
+            get { return new List<SessionPhase> { SessionPhase.Green, SessionPhase.Countdown, SessionPhase.Garage /*Apparently rF2 issues penalties in garage too :)*/}; }
+        }
 
         public Penalties(AudioPlayer audioPlayer)
         {
@@ -134,6 +141,8 @@ namespace CrewChiefV4.Events
             penaltyLap = -1;
             lapsCompleted = -1;
             hasOutstandingPenalty = false;
+            outstandingPenaltyType = PenatiesData.DetailedPenaltyType.NONE;
+            outstandingPenaltyCause = PenatiesData.DetailedPenaltyCause.NONE;
             // edge case here: if a penalty is given and immediately served (slow down penalty), then
             // the player gets another within the next 20 seconds, the 'you have 3 laps to come in to serve'
             // message would be in the queue and would be made valid again, so would play. So we explicity 
@@ -343,81 +352,15 @@ namespace CrewChiefV4.Events
                 {
                     lapsCompleted = currentGameState.SessionData.CompletedLaps;
                     // this is a new penalty
-                    int delay1 = Utilities.random.Next(3, 7);
-                    int delay2 = Utilities.random.Next(10, 20);
-                    if (currentGameState.PenaltiesData.PenaltyType == PenatiesData.DetailedPenaltyType.STOP_AND_GO)
-                    {
-                        switch (currentGameState.PenaltiesData.PenaltyCause)
-                        {
-                            case PenatiesData.DetailedPenaltyCause.NONE:
-                                Debug.Assert(false, "Penalty without cause.");
-                                break;
-                            case PenatiesData.DetailedPenaltyCause.SPEEDING_IN_PITLANE:
-                                audioPlayer.playMessage(new QueuedMessage(folderStopGoSpeedingInPitlane, delay1 + 6, secondsDelay: delay1, abstractEvent: this, priority: 10));
-                                break;
-                            case PenatiesData.DetailedPenaltyCause.FALSE_START:
-                                audioPlayer.playMessage(new QueuedMessage(folderStopGoFalseStart, delay1 + 6, secondsDelay: delay1, abstractEvent: this, priority: 10));
-                                break;
-                            case PenatiesData.DetailedPenaltyCause.CUT_TRACK:
-                                audioPlayer.playMessage(new QueuedMessage(folderStopGoCutTrack, delay1 + 6, secondsDelay: delay1, abstractEvent: this, priority: 10));
-                                break;
-                            case PenatiesData.DetailedPenaltyCause.EXITING_PITS_UNDER_RED:
-                                audioPlayer.playMessage(new QueuedMessage(folderStopGoExitingPitsUnderRed, delay1 + 6, secondsDelay: delay1, abstractEvent: this, priority: 10));
-                                break;
-                            case PenatiesData.DetailedPenaltyCause.ILLEGAL_PASS_ROLLING_BEFORE_GREEN:
-                                audioPlayer.playMessage(new QueuedMessage(folderStopGoRollingPassBeforeGreen, delay1 + 6, secondsDelay: delay1, abstractEvent: this, priority: 10));
-                                break;
-                            case PenatiesData.DetailedPenaltyCause.ILLEGAL_PASS_FCY_BEFORE_GREEN:
-                                audioPlayer.playMessage(new QueuedMessage(GlobalBehaviourSettings.useAmericanTerms ? folderStopGoFCYPassBeforeGreenUS : folderStopGoFCYPassBeforeGreenEU, delay1 + 6, secondsDelay: delay1, abstractEvent: this, priority: 10));
-                                break;
-                            default:
-                                Debug.Assert(false, "Unhandled penalty cause");
-                                Console.WriteLine("Penalties: unhandled stop/go penalty cause: " + currentGameState.PenaltiesData.PenaltyCause);
-                                break;
-                        }
-                    }
-                    else if (currentGameState.PenaltiesData.PenaltyType == PenatiesData.DetailedPenaltyType.DRIVE_THROUGH)
-                    {
-                        switch (currentGameState.PenaltiesData.PenaltyCause)
-                        {
-                            case PenatiesData.DetailedPenaltyCause.NONE:
-                                Debug.Assert(false, "Penalty without cause.");
-                                break;
-                            case PenatiesData.DetailedPenaltyCause.SPEEDING_IN_PITLANE:
-                                audioPlayer.playMessage(new QueuedMessage(folderDriveThroughSpeedingInPitlane, delay1 + 6, secondsDelay: delay1, abstractEvent: this, priority: 10));
-                                break;
-                            default:
-                                Debug.Assert(false, "Unhandled penalty cause");
-                                Console.WriteLine("Penalties: unhandled stop/go penalty cause: " + currentGameState.PenaltiesData.PenaltyCause);
-                                break;
-                        }
-                    }
-                    else if (currentGameState.PenaltiesData.PenaltyType == PenatiesData.DetailedPenaltyType.DISQUALIFIED)
-                    {
-                        switch (currentGameState.PenaltiesData.PenaltyCause)
-                        {
-                            case PenatiesData.DetailedPenaltyCause.NONE:
-                                Debug.Assert(false, "Penalty without cause.");
-                                break;
-                            case PenatiesData.DetailedPenaltyCause.DRIVING_WITHOUT_HEADLIGHTS:
-                                audioPlayer.playMessage(new QueuedMessage(folderDisqualifiedDrivingWithoutHeadlights, delay1 + 6, secondsDelay: delay1, abstractEvent: this, priority: 10));
-                                break;
-                            case PenatiesData.DetailedPenaltyCause.EXCEEDING_ALLOWED_LAP_COUNT:
-                                audioPlayer.playMessage(new QueuedMessage(folderDisqualifiedExceededAllowedLapCount, delay1 + 6, secondsDelay: delay1, abstractEvent: this, priority: 10));
-                                break;
-                            default:
-                                Debug.Assert(false, "Unhandled penalty cause");
-                                Console.WriteLine("Penalties: unhandled disqualification cause: " + currentGameState.PenaltiesData.PenaltyCause);
-                                break;
-                        }
-                    }
-                    else
-                    {
-                        // If no detailed message available, play basic message.
-                        audioPlayer.playMessage(new QueuedMessage(folderYouHavePenalty, delay1 + 6, secondsDelay: delay1, abstractEvent: this, priority: 10));
-                    }
+                    int delay1 = Utilities.random.Next(1, 5);
+                    int delay2 = Utilities.random.Next(7, 12);
+                    outstandingPenaltyType = currentGameState.PenaltiesData.PenaltyType;
+                    outstandingPenaltyCause = currentGameState.PenaltiesData.PenaltyCause;
 
-                    // queue a '3 laps to serve penalty' message - this might not get played
+                    var message = getPenaltyMessge(outstandingPenaltyType, outstandingPenaltyCause);
+                    audioPlayer.playMessage(new QueuedMessage(message, delay1 + 6, secondsDelay: delay1, abstractEvent: this, priority: 10));
+
+                    // queue a '3 laps to serve penalty' message - this might not get played if player crosses s/f line before
                     audioPlayer.playMessage(new QueuedMessage(folderThreeLapsToServe, delay2 + 6, secondsDelay: delay2, abstractEvent: this, priority: 10));
                     // we don't already have a penalty
                     if (penaltyLap == -1 || !hasOutstandingPenalty)
@@ -490,14 +433,15 @@ namespace CrewChiefV4.Events
             {
                 if (hasOutstandingPenalty)
                 {
+                    var penaltyMessage = getPenaltyMessge(outstandingPenaltyType, outstandingPenaltyCause);
                     if (lapsCompleted - penaltyLap == 2)
                     {
                         audioPlayer.playMessageImmediately(new QueuedMessage("youHaveAPenaltyBoxThisLap", 0,
-                            messageFragments: MessageContents(folderYouHavePenalty, PitStops.folderMandatoryPitStopsPitThisLap)));
+                            messageFragments: MessageContents(penaltyMessage, PitStops.folderMandatoryPitStopsPitThisLap)));
                     }
                     else
                     {
-                        audioPlayer.playMessageImmediately(new QueuedMessage(folderYouHavePenalty, 0));
+                        audioPlayer.playMessageImmediately(new QueuedMessage(penaltyMessage, 0));
                     }
                 }
             }
@@ -512,14 +456,15 @@ namespace CrewChiefV4.Events
                 {
                     if (hasOutstandingPenalty)
                     {
+                        var penaltyMessage = getPenaltyMessge(outstandingPenaltyType, outstandingPenaltyCause);
                         if (lapsCompleted - penaltyLap == 2)
                         {
                             audioPlayer.playMessageImmediately(new QueuedMessage("youHaveAPenaltyBoxThisLap", 0,
-                            messageFragments: MessageContents(folderYouHavePenalty, PitStops.folderMandatoryPitStopsPitThisLap)));
+                            messageFragments: MessageContents(penaltyMessage, PitStops.folderMandatoryPitStopsPitThisLap)));
                         }
                         else
                         {
-                            audioPlayer.playMessageImmediately(new QueuedMessage(folderYouHavePenalty, 0));
+                            audioPlayer.playMessageImmediately(new QueuedMessage(penaltyMessage, 0));
                         }
                     }
                     else
@@ -566,6 +511,70 @@ namespace CrewChiefV4.Events
                     }
                 }
             }
+        }
+
+        private String getPenaltyMessge(PenatiesData.DetailedPenaltyType penaltyType, PenatiesData.DetailedPenaltyCause penaltyCause)
+        {
+            if (penaltyType == PenatiesData.DetailedPenaltyType.STOP_AND_GO)
+            {
+                switch (penaltyCause)
+                {
+                    case PenatiesData.DetailedPenaltyCause.NONE:
+                        Debug.Assert(false, "Penalty without cause.");
+                        break;
+                    case PenatiesData.DetailedPenaltyCause.SPEEDING_IN_PITLANE:
+                        return folderStopGoSpeedingInPitlane;
+                    case PenatiesData.DetailedPenaltyCause.FALSE_START:
+                        return folderStopGoFalseStart;
+                    case PenatiesData.DetailedPenaltyCause.CUT_TRACK:
+                        return folderStopGoCutTrack;
+                    case PenatiesData.DetailedPenaltyCause.EXITING_PITS_UNDER_RED:
+                        return folderStopGoExitingPitsUnderRed;
+                    case PenatiesData.DetailedPenaltyCause.ILLEGAL_PASS_ROLLING_BEFORE_GREEN:
+                        return folderStopGoRollingPassBeforeGreen;
+                    case PenatiesData.DetailedPenaltyCause.ILLEGAL_PASS_FCY_BEFORE_GREEN:
+                        return GlobalBehaviourSettings.useAmericanTerms ? folderStopGoFCYPassBeforeGreenUS : folderStopGoFCYPassBeforeGreenEU;
+                    default:
+                        Debug.Assert(false, "Unhandled penalty cause");
+                        Console.WriteLine("Penalties: unhandled stop/go penalty cause: " + penaltyCause);
+                        break;
+                }
+            }
+            else if (penaltyType == PenatiesData.DetailedPenaltyType.DRIVE_THROUGH)
+            {
+                switch (penaltyCause)
+                {
+                    case PenatiesData.DetailedPenaltyCause.NONE:
+                        Debug.Assert(false, "Penalty without cause.");
+                        break;
+                    case PenatiesData.DetailedPenaltyCause.SPEEDING_IN_PITLANE:
+                        return folderDriveThroughSpeedingInPitlane;
+                    default:
+                        Debug.Assert(false, "Unhandled penalty cause");
+                        Console.WriteLine("Penalties: unhandled stop/go penalty cause: " + penaltyCause);
+                        break;
+                }
+            }
+            else if (penaltyType == PenatiesData.DetailedPenaltyType.DISQUALIFIED)
+            {
+                switch (penaltyCause)
+                {
+                    case PenatiesData.DetailedPenaltyCause.NONE:
+                        Debug.Assert(false, "Penalty without cause.");
+                        break;
+                    case PenatiesData.DetailedPenaltyCause.DRIVING_WITHOUT_HEADLIGHTS:
+                        return folderDisqualifiedDrivingWithoutHeadlights;
+                    case PenatiesData.DetailedPenaltyCause.EXCEEDING_ALLOWED_LAP_COUNT:
+                        return folderDisqualifiedExceededAllowedLapCount;
+                    default:
+                        Debug.Assert(false, "Unhandled penalty cause");
+                        Console.WriteLine("Penalties: unhandled disqualification cause: " + penaltyCause);
+                        break;
+                }
+            }
+
+            // If no detailed message available, play basic message.
+            return folderYouHavePenalty;
         }
     }
 }
