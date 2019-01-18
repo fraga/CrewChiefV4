@@ -2727,19 +2727,25 @@ namespace CrewChiefV4
                 sb.Append(" : ").Append(value).AppendLine();
                 if (enable)
                 {
-                    lock (MainWindow.instanceLock)
+                    if (MainWindow.instance != null && textbox != null && !textbox.IsDisposed)
                     {
-                        if (MainWindow.instance != null && textbox != null && !textbox.IsDisposed)
+                        try
                         {
-                            try
+                            if (textbox.InvokeRequired)
                             {
-                                // TODO: I don't think this is thread safe.
-                                textbox.AppendText(sb.ToString());
+                                textbox.Invoke((MethodInvoker)delegate
+                                {
+                                    AppendText(sb.ToString());
+                                });
                             }
-                            catch (Exception)
+                            else
                             {
-                                // swallow - nothing to log it to
+                                AppendText(sb.ToString());
                             }
+                        }
+                        catch (Exception)
+                        {
+                            // Nothing to do - this is likely shutdown.
                         }
                     }
                 }
@@ -2755,11 +2761,21 @@ namespace CrewChiefV4
             {
                 try
                 {
-                    textbox.ScrollToCaret();
+                    if (textbox.InvokeRequired)
+                    {
+                        textbox.Invoke((MethodInvoker)delegate
+                        {
+                            ScrollToCaret();
+                        });
+                    }
+                    else
+                    {
+                        ScrollToCaret();
+                    }
                 }
                 catch (Exception)
                 {
-                    // ignore
+                    // Nothing to do - this is likely shutdown.
                 }
             }
         }
@@ -2768,6 +2784,38 @@ namespace CrewChiefV4
         public override Encoding Encoding
         {
             get { return Encoding.UTF8; }
+        }
+
+        private void AppendText(string s)
+        {
+            if (MainWindow.instance != null && textbox != null && !textbox.IsDisposed)
+            {
+                try
+                {
+                    // TODO: I don't think this is thread safe.
+                    textbox.AppendText(s);
+                }
+                catch (Exception)
+                {
+                    // swallow - nothing to log it to
+                }
+            }
+
+        }
+
+        private void ScrollToCaret()
+        {
+            if (MainWindow.autoScrollConsole && textbox != null && !textbox.IsDisposed)
+            {
+                try
+                {
+                    textbox.ScrollToCaret();
+                }
+                catch (Exception)
+                {
+                    // ignore
+                }
+            }
         }
     }
 
