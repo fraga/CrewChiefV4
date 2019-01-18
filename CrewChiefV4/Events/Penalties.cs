@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using CrewChiefV4.GameState;
 using CrewChiefV4.Audio;
+using System.Diagnostics;
 
 namespace CrewChiefV4.Events
 {
@@ -55,8 +56,26 @@ namespace CrewChiefV4.Events
 
         private String folderPenaltyServed = "penalties/penalty_served";
 
+        // Detailed penalty messages
         private String folderYouDontHaveAPenalty = "penalties/you_dont_have_a_penalty";
 
+        private String folderStopGoSpeedingInPitlane = "penalties/stop_go_penalty_speeding_in_pit_lane";
+
+        private String folderStopGoCutTrack = "penalties/stop_go_penalty_cutting_track";
+
+        private String folderStopGoExitingPitsUnderRed = "penalties/stop_go_exitting_pits_on_red";  // MISSING
+
+        private String folderStopGoRollingPassBeforeGreen = "penalties/stop_go_penalty_overtaking_on_formation_lap";
+
+        private String folderStopGoFCYPassBeforeGreenEU = "penalties/stop_go_penalty_overtaking_under_safety_car";
+
+        private String folderStopGoFCYPassBeforeGreenUS = "penalties/stop_go_penalty_overtaking_under_pace_car";
+
+        private String folderDisqualifiedDrivingWithoutHeadlights = "penalties/disqualified_driving_without_headlights";  // MISSING
+
+        private String folderDisqualifiedExceededAllowedLapCount = "penalties/disqualified_exceeded_allowed_lap_count";  // MISSING
+
+        private String folderDriveThroughSpeedingInPitlane = "penalties/drive_through_speeding_in_pit_lane";
 
         private Boolean hasHadAPenalty;
 
@@ -315,7 +334,7 @@ namespace CrewChiefV4.Events
             
             // can't read penalty type in Automobilista
             // Assume this applies to rF2 as well for now
-            else if (currentGameState.SessionData.SessionType == SessionType.Race && previousGameState != null &&
+            else if ((currentGameState.SessionData.SessionType == SessionType.Race || currentGameState.SessionData.SessionType == SessionType.Qualify || currentGameState.SessionData.SessionType == SessionType.Practice) && previousGameState != null &&
                 currentGameState.PenaltiesData.NumPenalties > 0 && (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT))
             {
                 if (currentGameState.PenaltiesData.NumPenalties > previousGameState.PenaltiesData.NumPenalties)
@@ -324,7 +343,78 @@ namespace CrewChiefV4.Events
                     // this is a new penalty
                     int delay1 = Utilities.random.Next(3, 7);
                     int delay2 = Utilities.random.Next(10, 20);
-                    audioPlayer.playMessage(new QueuedMessage(folderYouHavePenalty, delay1 + 6, secondsDelay: delay1, abstractEvent: this, priority: 10));
+                    if (currentGameState.PenaltiesData.PenaltyType == PenatiesData.DetailedPenaltyType.STOP_AND_GO)
+                    {
+                        switch (currentGameState.PenaltiesData.PenaltyCause)
+                        {
+                            case PenatiesData.DetailedPenaltyCause.NONE:
+                                Debug.Assert(false, "Penalty without cause.");
+                                break;
+                            case PenatiesData.DetailedPenaltyCause.SPEEDING_IN_PITLANE:
+                                audioPlayer.playMessage(new QueuedMessage(folderStopGoSpeedingInPitlane, delay1 + 6, secondsDelay: delay1, abstractEvent: this, priority: 10));
+                                break;
+                            case PenatiesData.DetailedPenaltyCause.FALSE_START:
+                                audioPlayer.playMessage(new QueuedMessage(folderStopGoCutTrack, delay1 + 6, secondsDelay: delay1, abstractEvent: this, priority: 10));
+                                break;
+                            case PenatiesData.DetailedPenaltyCause.CUT_TRACK:
+                                audioPlayer.playMessage(new QueuedMessage(folderStopGoCutTrack, delay1 + 6, secondsDelay: delay1, abstractEvent: this, priority: 10));
+                                break;
+                            case PenatiesData.DetailedPenaltyCause.EXITING_PITS_UNDER_RED:
+                                audioPlayer.playMessage(new QueuedMessage(folderStopGoExitingPitsUnderRed, delay1 + 6, secondsDelay: delay1, abstractEvent: this, priority: 10));
+                                break;
+                            case PenatiesData.DetailedPenaltyCause.ILLEGAL_PASS_ROLLING_BEFORE_GREEN:
+                                audioPlayer.playMessage(new QueuedMessage(folderStopGoRollingPassBeforeGreen, delay1 + 6, secondsDelay: delay1, abstractEvent: this, priority: 10));
+                                break;
+                            case PenatiesData.DetailedPenaltyCause.ILLEGAL_PASS_FCY_BEFORE_GREEN:
+                                audioPlayer.playMessage(new QueuedMessage(GlobalBehaviourSettings.useAmericanTerms ? folderStopGoFCYPassBeforeGreenUS : folderStopGoFCYPassBeforeGreenEU, delay1 + 6, secondsDelay: delay1, abstractEvent: this, priority: 10));
+                                break;
+                            default:
+                                Debug.Assert(false, "Unhandled penalty cause");
+                                Console.WriteLine("Penalties: unhandled stop/go penalty cause: " + currentGameState.PenaltiesData.PenaltyCause);
+                                break;
+                        }
+                    }
+                    else if (currentGameState.PenaltiesData.PenaltyType == PenatiesData.DetailedPenaltyType.DRIVE_THROUGH)
+                    {
+                        switch (currentGameState.PenaltiesData.PenaltyCause)
+                        {
+                            case PenatiesData.DetailedPenaltyCause.NONE:
+                                Debug.Assert(false, "Penalty without cause.");
+                                break;
+                            case PenatiesData.DetailedPenaltyCause.SPEEDING_IN_PITLANE:
+                                audioPlayer.playMessage(new QueuedMessage(folderDriveThroughSpeedingInPitlane, delay1 + 6, secondsDelay: delay1, abstractEvent: this, priority: 10));
+                                break;
+                            default:
+                                Debug.Assert(false, "Unhandled penalty cause");
+                                Console.WriteLine("Penalties: unhandled stop/go penalty cause: " + currentGameState.PenaltiesData.PenaltyCause);
+                                break;
+                        }
+                    }
+                    else if (currentGameState.PenaltiesData.PenaltyType == PenatiesData.DetailedPenaltyType.DISQUALIFIED)
+                    {
+                        switch (currentGameState.PenaltiesData.PenaltyCause)
+                        {
+                            case PenatiesData.DetailedPenaltyCause.NONE:
+                                Debug.Assert(false, "Penalty without cause.");
+                                break;
+                            case PenatiesData.DetailedPenaltyCause.DRIVING_WITHOUT_HEADLIGHTS:
+                                audioPlayer.playMessage(new QueuedMessage(folderDisqualifiedDrivingWithoutHeadlights, delay1 + 6, secondsDelay: delay1, abstractEvent: this, priority: 10));
+                                break;
+                            case PenatiesData.DetailedPenaltyCause.EXCEEDING_ALLOWED_LAP_COUNT:
+                                audioPlayer.playMessage(new QueuedMessage(folderDisqualifiedExceededAllowedLapCount, delay1 + 6, secondsDelay: delay1, abstractEvent: this, priority: 10));
+                                break;
+                            default:
+                                Debug.Assert(false, "Unhandled penalty cause");
+                                Console.WriteLine("Penalties: unhandled disqualification cause: " + currentGameState.PenaltiesData.PenaltyCause);
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        // If no detailed message available, play basic message.
+                        audioPlayer.playMessage(new QueuedMessage(folderYouHavePenalty, delay1 + 6, secondsDelay: delay1, abstractEvent: this, priority: 10));
+                    }
+
                     // queue a '3 laps to serve penalty' message - this might not get played
                     audioPlayer.playMessage(new QueuedMessage(folderThreeLapsToServe, delay2 + 6, secondsDelay: delay2, abstractEvent: this, priority: 10));
                     // we don't already have a penalty
@@ -388,7 +478,7 @@ namespace CrewChiefV4.Events
                 (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT))))
             {
                 audioPlayer.playMessage(new QueuedMessage(folderPenaltyServed, 0, abstractEvent: this, priority: 10));
-            }            
+            }
         }
 
         public override void respond(string voiceMessage)
