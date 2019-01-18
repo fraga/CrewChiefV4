@@ -2733,6 +2733,7 @@ namespace CrewChiefV4
                         {
                             try
                             {
+                                // TODO: I don't think this is thread safe.
                                 textbox.AppendText(sb.ToString());
                             }
                             catch (Exception)
