@@ -79,6 +79,14 @@ namespace CrewChiefV4.Events
 
         private String folderDriveThroughSpeedingInPitlane = "penalties/drive_through_speeding_in_pit_lane";
 
+        private String folderWarningDrivingTooSlow = "penalties/warning_driving_too_slow";  // MISSING
+
+        private String folderWarningWrongWay = "penalties/warning_wrong_way";  // MISSING
+
+        private String folderWarningHeadlightsRequired = "penalties/warning_headlights_required";  // MISSING
+
+        private String folderWarningEnterPitsToAvoidExceedingLaps = "penalties/warning_enter_pits_to_avoid_exceeding_laps";  // MISSING
+
         private Boolean hasHadAPenalty;
 
         private int penaltyLap;
@@ -201,7 +209,7 @@ namespace CrewChiefV4.Events
                 playedTrackCutWarningInPracticeOrQualOnThisLap = false;
                 playedSlowdownNotificationOnThisLap = false;
             }
-            if (currentGameState.SessionData.SessionType == SessionType.Race && previousGameState != null && 
+            if (currentGameState.SessionData.SessionType == SessionType.Race && previousGameState != null &&
                 (currentGameState.PenaltiesData.HasDriveThrough || currentGameState.PenaltiesData.HasStopAndGo || currentGameState.PenaltiesData.HasTimeDeduction))
             {
                 if (currentGameState.PenaltiesData.HasDriveThrough && !previousGameState.PenaltiesData.HasDriveThrough)
@@ -240,7 +248,7 @@ namespace CrewChiefV4.Events
                     // we've exited the pits but there's still an outstanding penalty
                     audioPlayer.playMessage(new QueuedMessage(folderPenaltyNotServed, 0, secondsDelay: 3, abstractEvent: this, priority: 10));
                     playedNotServedPenalty = true;
-                } 
+                }
                 else if (currentGameState.SessionData.IsNewLap && (currentGameState.PenaltiesData.HasStopAndGo || currentGameState.PenaltiesData.HasDriveThrough))
                 {
                     lapsCompleted = currentGameState.SessionData.CompletedLaps;
@@ -281,7 +289,7 @@ namespace CrewChiefV4.Events
                     audioPlayer.playMessage(new QueuedMessage(folderTimePenalty, 0, abstractEvent: this, priority: 10));
                 }
             }
-            else if (currentGameState.PositionAndMotionData.CarSpeed > 1 && playCutTrackWarnings && 
+            else if (currentGameState.PositionAndMotionData.CarSpeed > 1 && playCutTrackWarnings &&
                 !currentGameState.PitData.OnOutLap &&
                 currentGameState.PenaltiesData.CutTrackWarnings > cutTrackWarningsCount &&
                 currentGameState.PenaltiesData.NumPenalties == previousGameState.PenaltiesData.NumPenalties)  // Make sure we've no new penalty for this cut.
@@ -342,7 +350,7 @@ namespace CrewChiefV4.Events
                     clearPenaltyState();
                 }
             }
-            
+
             // can't read penalty type in Automobilista
             // Assume this applies to rF2 as well for now
             else if ((currentGameState.SessionData.SessionType == SessionType.Race || currentGameState.SessionData.SessionType == SessionType.Qualify || currentGameState.SessionData.SessionType == SessionType.Practice) && previousGameState != null &&
@@ -358,10 +366,13 @@ namespace CrewChiefV4.Events
                     outstandingPenaltyCause = currentGameState.PenaltiesData.PenaltyCause;
 
                     var message = getPenaltyMessge(outstandingPenaltyType, outstandingPenaltyCause);
-                    audioPlayer.playMessage(new QueuedMessage(message, delay1 + 6, secondsDelay: delay1, abstractEvent: this, priority: 10));
+                    audioPlayer.playMessage(new QueuedMessage(message, delay1 + 6, secondsDelay: delay1, abstractEvent: this, priority: 15));
 
-                    // queue a '3 laps to serve penalty' message - this might not get played if player crosses s/f line before
-                    audioPlayer.playMessage(new QueuedMessage(folderThreeLapsToServe, delay2 + 6, secondsDelay: delay2, abstractEvent: this, priority: 10));
+                    if (outstandingPenaltyType != PenatiesData.DetailedPenaltyType.DISQUALIFIED)
+                    {
+                        // queue a '3 laps to serve penalty' message - this might not get played if player crosses s/f line before
+                        audioPlayer.playMessage(new QueuedMessage(folderThreeLapsToServe, delay2 + 6, secondsDelay: delay2, abstractEvent: this, priority: 12));
+                    }
                     // we don't already have a penalty
                     if (penaltyLap == -1 || !hasOutstandingPenalty)
                     {
@@ -415,7 +426,7 @@ namespace CrewChiefV4.Events
             {
                 clearPenaltyState();
             }
-            if (currentGameState.SessionData.SessionType == SessionType.Race && previousGameState != null && 
+            if (currentGameState.SessionData.SessionType == SessionType.Race && previousGameState != null &&
                 ((previousGameState.PenaltiesData.HasStopAndGo && !currentGameState.PenaltiesData.HasStopAndGo) ||
                 (previousGameState.PenaltiesData.HasDriveThrough && !currentGameState.PenaltiesData.HasDriveThrough) ||
                 // can't read penalty type in Automobilista (and presumably in rF2).
@@ -423,6 +434,35 @@ namespace CrewChiefV4.Events
                 (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT))))
             {
                 audioPlayer.playMessage(new QueuedMessage(folderPenaltyServed, 0, abstractEvent: this, priority: 10));
+            }
+
+            if (currentGameState.PenaltiesData.Warning != PenatiesData.WarningMessage.NONE)
+            {
+                string warningMsg = null;
+                switch (currentGameState.PenaltiesData.Warning)
+                {
+                    case PenatiesData.WarningMessage.WRONG_WAY:
+                        warningMsg = folderWarningWrongWay;
+                        break;
+                    case PenatiesData.WarningMessage.DRIVING_TOO_SLOW:
+                        warningMsg = folderWarningDrivingTooSlow;
+                        break;
+                    case PenatiesData.WarningMessage.HEADLIGHTS_REQUIRED:
+                        warningMsg = folderWarningHeadlightsRequired;
+                        break;
+                    case PenatiesData.WarningMessage.ENTER_PITS_TO_AVOID_EXCEEDING_LAPS:
+                        warningMsg = folderWarningEnterPitsToAvoidExceedingLaps;
+                        break;
+                    default:
+                        Debug.Assert(false, "Unhandled warning");
+                        Console.WriteLine("Penalties: unhandled warning: " + currentGameState.PenaltiesData.Warning);
+                        break;
+                }
+
+                if (!String.IsNullOrWhiteSpace(warningMsg))
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(warningMsg, 0, priority: 15));
+                }
             }
         }
 

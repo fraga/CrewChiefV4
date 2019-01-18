@@ -1911,12 +1911,14 @@ namespace CrewChiefV4.rFactor2
                 {
                     cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.DISQUALIFIED;
                     cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.DRIVING_WITHOUT_HEADLIGHTS;
+                    ++cgs.PenaltiesData.NumPenalties;  // Artificially bump penalty number.
                 }
                 // msg == "Disqualified: 4 Laps"
                 else if (msg.StartsWith("Disqualified: ") && msg.EndsWith(" Laps"))
                 {
                     cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.DISQUALIFIED;
                     cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.EXCEEDING_ALLOWED_LAP_COUNT;
+                    ++cgs.PenaltiesData.NumPenalties;  // Artificially bump penalty number.
                 }
                 else if (msg == "Enter Pits To Avoid Exceeding Lap Allowance")
                 {
