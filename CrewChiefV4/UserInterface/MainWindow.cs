@@ -753,7 +753,7 @@ namespace CrewChiefV4
             CheckForIllegalCrossThreadCalls = false;
             consoleWriter = new ControlWriter(consoleTextBox);
             consoleTextBox.KeyDown += TextBoxConsole_KeyDown;
-            Console.SetOut(consoleWriter);
+            Console.SetOut(TextWriter.Synchronized(consoleWriter));
 
             // if we can't init the UserSettings the app will basically be fucked. So try to nuke the Britton_IT_Ltd directory from
             // orbit (it's the only way to be sure) then restart the app. This shit is comically flakey but what else can we do here?
