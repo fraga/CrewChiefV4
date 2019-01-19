@@ -45,8 +45,6 @@ namespace CrewChiefV4.iRacing
         {
             public long ticksWhenRead;
             public iRacingData data;
-
-
         }
         public override void DumpRawGameData()
         {

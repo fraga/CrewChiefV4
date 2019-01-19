@@ -25,7 +25,7 @@ namespace CrewChiefV4.iRacing
 			SessionTime = (System.Double)sdk.GetData("SessionTime");
 			SessionNum = (System.Int32)sdk.GetData("SessionNum");
 			SessionState = (CrewChiefV4.iRacing.SessionStates)sdk.GetData("SessionState");
-			SessionFlags = (CrewChiefV4.iRacing.SessionFlags)sdk.GetData("SessionFlags");
+            SessionFlags = (System.UInt32)sdk.GetData("SessionFlags");
 			SessionTimeRemain = (System.Double)sdk.GetData("SessionTimeRemain");
 			IsOnTrack = (System.Boolean)sdk.GetData("IsOnTrack");
 			IsReplayPlaying = (System.Boolean)sdk.GetData("IsReplayPlaying");
@@ -95,7 +95,7 @@ namespace CrewChiefV4.iRacing
 		/// <summary>
 		/// Session flags
 		/// <summary>
-		public CrewChiefV4.iRacing.SessionFlags SessionFlags;
+		public System.UInt32 SessionFlags;
 
 		/// <summary>
 		/// Seconds left till session ends
