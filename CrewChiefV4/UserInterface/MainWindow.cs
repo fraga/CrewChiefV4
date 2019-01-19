@@ -1439,6 +1439,7 @@ namespace CrewChiefV4
                 Console.WriteLine("Pausing console scrolling");
                 MainWindow.autoScrollConsole = false;
 #endif
+                MainWindow.autoScrollConsole = false;
                 GameDefinition gameDefinition = GameDefinition.getGameDefinitionForFriendlyName(gameDefinitionList.Text);
                 if (gameDefinition != null)
                 {
