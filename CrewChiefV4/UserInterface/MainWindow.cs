@@ -70,7 +70,7 @@ namespace CrewChiefV4
         // this is the physical file:
         // private static String autoUpdateXMLURL1 = "http://thecrewchief.org/downloads/auto_update_data_primary.xml";
         // this is the file accessed via the PHP download script:
-        private static String autoUpdateXMLURL1 = "http://thecrewchief.org/downloads.php?do=downloadxml&lastplayed=";
+        private static String autoUpdateXMLURL1 = "http://thecrewchief.org/downloads.php?do=downloadxml";
 
         // the legacy update stuff hosted on GoogleDrive with downloads on the isnais ftp server
         private static String autoUpdateXMLURL2 = "https://drive.google.com/uc?export=download&id=0B4KQS820QNFbWWFjaDAzRldMNUE";
@@ -148,14 +148,7 @@ namespace CrewChiefV4
                         Console.WriteLine("Checking for updates");
                         String firstUpdate = preferAlternativeDownloadSite ? autoUpdateXMLURL2 : autoUpdateXMLURL1;
                         String secondUpdate = preferAlternativeDownloadSite ? autoUpdateXMLURL1 : autoUpdateXMLURL2;
-                        if (firstUpdate == autoUpdateXMLURL1)
-                        {
-                            firstUpdate += CrewChief.gameDefinition.gameEnum.ToString();
-                        }
-                        else
-                        {
-                            secondUpdate += CrewChief.gameDefinition.gameEnum.ToString();
-                        }
+
                         Thread.CurrentThread.IsBackground = true;
                         // now the sound packs
                         downloadSoundPackButton.Text = Configuration.getUIString("checking_sound_pack_version");
