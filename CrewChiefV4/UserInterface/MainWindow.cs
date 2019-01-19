@@ -1433,12 +1433,7 @@ namespace CrewChiefV4
             {
                 startApplicationButton.Enabled = false;
                 uiSyncAppStart();
-
-                // Don't pause scrolling in Debug build.
-#if !DEBUG
                 Console.WriteLine("Pausing console scrolling");
-                MainWindow.autoScrollConsole = false;
-#endif
                 MainWindow.autoScrollConsole = false;
                 GameDefinition gameDefinition = GameDefinition.getGameDefinitionForFriendlyName(gameDefinitionList.Text);
                 if (gameDefinition != null)
@@ -2735,25 +2730,18 @@ namespace CrewChiefV4
                 sb.Append(" : ").Append(value).AppendLine();
                 if (enable)
                 {
-                    if (MainWindow.instance != null && textbox != null && !textbox.IsDisposed)
+                    lock (MainWindow.instanceLock)
                     {
-                        try
+                        if (MainWindow.instance != null && textbox != null && !textbox.IsDisposed)
                         {
-                            if (textbox.InvokeRequired)
+                            try
                             {
-                                textbox.Invoke((MethodInvoker)delegate
-                                {
-                                    AppendText(sb.ToString());
-                                });
+                                textbox.AppendText(sb.ToString());
                             }
-                            else
+                            catch (Exception)
                             {
-                                AppendText(sb.ToString());
+                                // swallow - nothing to log it to
                             }
-                        }
-                        catch (Exception)
-                        {
-                            // Nothing to do - this is likely shutdown.
                         }
                     }
                 }
@@ -2769,54 +2757,6 @@ namespace CrewChiefV4
             {
                 try
                 {
-                    if (textbox.InvokeRequired)
-                    {
-                        textbox.Invoke((MethodInvoker)delegate
-                        {
-                            ScrollToCaret();
-                        });
-                    }
-                    else
-                    {
-                        ScrollToCaret();
-                    }
-                }
-                catch (Exception)
-                {
-                    // Nothing to do - this is likely shutdown.
-                }
-            }
-        }
-
-
-        public override Encoding Encoding
-        {
-            get { return Encoding.UTF8; }
-        }
-
-        private void AppendText(string s)
-        {
-            if (MainWindow.instance != null && textbox != null && !textbox.IsDisposed)
-            {
-                try
-                {
-                    // TODO: I don't think this is thread safe.
-                    textbox.AppendText(s);
-                }
-                catch (Exception)
-                {
-                    // swallow - nothing to log it to
-                }
-            }
-
-        }
-
-        private void ScrollToCaret()
-        {
-            if (MainWindow.autoScrollConsole && textbox != null && !textbox.IsDisposed)
-            {
-                try
-                {
                     textbox.ScrollToCaret();
                 }
                 catch (Exception)
@@ -2824,6 +2764,12 @@ namespace CrewChiefV4
                     // ignore
                 }
             }
+        }
+        
+
+        public override Encoding Encoding
+        {
+            get { return Encoding.UTF8; }
         }
     }
 
