@@ -65,7 +65,7 @@ namespace CrewChiefV4.Events
 
         private String folderStopGoFalseStart = "penalties/stop_go_penalty_false_start";
 
-        private String folderStopGoExitingPitsUnderRed = "penalties/stop_go_exitting_pits_on_red";  // MISSING
+        private String folderStopGoExitingPitsUnderRed = "penalties/stop_go_exitting_pits_on_red";
 
         private String folderStopGoRollingPassBeforeGreen = "penalties/stop_go_penalty_overtaking_on_formation_lap";
 
@@ -73,19 +73,19 @@ namespace CrewChiefV4.Events
 
         private String folderStopGoFCYPassBeforeGreenUS = "penalties/stop_go_penalty_overtaking_under_pace_car";
 
-        private String folderDisqualifiedDrivingWithoutHeadlights = "penalties/disqualified_driving_without_headlights";  // MISSING
+        private String folderDisqualifiedDrivingWithoutHeadlights = "penalties/disqualified_driving_without_headlights";
 
-        private String folderDisqualifiedExceededAllowedLapCount = "penalties/disqualified_exceeded_allowed_lap_count";  // MISSING
+        private String folderDisqualifiedExceededAllowedLapCount = "penalties/disqualified_exceeded_allowed_lap_count";
 
         private String folderDriveThroughSpeedingInPitlane = "penalties/drive_through_speeding_in_pit_lane";
 
-        private String folderWarningDrivingTooSlow = "penalties/warning_driving_too_slow";  // MISSING
+        private String folderWarningDrivingTooSlow = "penalties/warning_driving_too_slow";
 
-        private String folderWarningWrongWay = "penalties/warning_wrong_way";  // MISSING
+        private String folderWarningWrongWay = "penalties/warning_wrong_way";
 
-        private String folderWarningHeadlightsRequired = "penalties/warning_headlights_required";  // MISSING
+        private String folderWarningHeadlightsRequired = "penalties/warning_headlights_required";
 
-        private String folderWarningEnterPitsToAvoidExceedingLaps = "penalties/warning_enter_pits_to_avoid_exceeding_laps";  // MISSING
+        private String folderWarningEnterPitsToAvoidExceedingLaps = "penalties/warning_enter_pits_to_avoid_exceeding_laps";
 
         private Boolean hasHadAPenalty;
 
