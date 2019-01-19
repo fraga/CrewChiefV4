@@ -2781,7 +2781,7 @@ namespace CrewChiefV4
                 }
             }
         }
-        
+
 
         public override Encoding Encoding
         {
