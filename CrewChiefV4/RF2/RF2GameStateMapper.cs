@@ -1909,16 +1909,12 @@ namespace CrewChiefV4.rFactor2
                 }
                 else if (msg == "Disqualified: Driving In Dark Without Headlights")
                 {
-                    cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.DISQUALIFIED;
-                    cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.DRIVING_WITHOUT_HEADLIGHTS;
-                    ++cgs.PenaltiesData.NumPenalties;  // Artificially bump penalty number.
+                    cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.DISQUALIFIED_DRIVING_WITHOUT_HEADLIGHTS;
                 }
                 // msg == "Disqualified: 4 Laps"
                 else if (msg.StartsWith("Disqualified: ") && msg.EndsWith(" Laps"))
                 {
-                    cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.DISQUALIFIED;
-                    cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.EXCEEDING_ALLOWED_LAP_COUNT;
-                    ++cgs.PenaltiesData.NumPenalties;  // Artificially bump penalty number.
+                    cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.DISQUALIFIED_EXCEEDING_ALLOWED_LAP_COUNT;
                 }
                 else if (msg == "Enter Pits To Avoid Exceeding Lap Allowance")
                 {

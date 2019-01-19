@@ -120,7 +120,9 @@ namespace CrewChiefV4.Events
         private DateTime timeToNotifyOfSlowdown = DateTime.MinValue;
 
         private Boolean playedSlowdownNotificationOnThisLap = false;
-        
+
+        public static Boolean playerMustPitThisLap = false;
+
         public override List<SessionPhase> applicableSessionPhases
         {
             get { return new List<SessionPhase> { SessionPhase.Green, SessionPhase.Countdown, SessionPhase.Garage /*Apparently rF2 issues penalties in garage too :)*/}; }
@@ -142,6 +144,7 @@ namespace CrewChiefV4.Events
             waitingToNotifyOfSlowdown = false;
             timeToNotifyOfSlowdown = DateTime.MinValue;
             playedSlowdownNotificationOnThisLap = false;
+            playerMustPitThisLap = false;
         }
 
         private void clearPenaltyState()
@@ -208,6 +211,7 @@ namespace CrewChiefV4.Events
                 warnedOfPossibleTrackLimitsViolationOnThisLap = false;
                 playedTrackCutWarningInPracticeOrQualOnThisLap = false;
                 playedSlowdownNotificationOnThisLap = false;
+                playerMustPitThisLap = false;
             }
             if (currentGameState.SessionData.SessionType == SessionType.Race && previousGameState != null &&
                 (currentGameState.PenaltiesData.HasDriveThrough || currentGameState.PenaltiesData.HasStopAndGo || currentGameState.PenaltiesData.HasTimeDeduction))
@@ -368,11 +372,9 @@ namespace CrewChiefV4.Events
                     var message = getPenaltyMessge(outstandingPenaltyType, outstandingPenaltyCause);
                     audioPlayer.playMessage(new QueuedMessage(message, delay1 + 6, secondsDelay: delay1, abstractEvent: this, priority: 15));
 
-                    if (outstandingPenaltyType != PenatiesData.DetailedPenaltyType.DISQUALIFIED)
-                    {
-                        // queue a '3 laps to serve penalty' message - this might not get played if player crosses s/f line before
-                        audioPlayer.playMessage(new QueuedMessage(folderThreeLapsToServe, delay2 + 6, secondsDelay: delay2, abstractEvent: this, priority: 12));
-                    }
+                    // queue a '3 laps to serve penalty' message - this might not get played if player crosses s/f line before
+                    audioPlayer.playMessage(new QueuedMessage(folderThreeLapsToServe, delay2 + 6, secondsDelay: delay2, abstractEvent: this, priority: 12));
+
                     // we don't already have a penalty
                     if (penaltyLap == -1 || !hasOutstandingPenalty)
                     {
@@ -452,6 +454,13 @@ namespace CrewChiefV4.Events
                         break;
                     case PenatiesData.WarningMessage.ENTER_PITS_TO_AVOID_EXCEEDING_LAPS:
                         warningMsg = folderWarningEnterPitsToAvoidExceedingLaps;
+                        playerMustPitThisLap = true;
+                        break;
+                    case PenatiesData.WarningMessage.DISQUALIFIED_DRIVING_WITHOUT_HEADLIGHTS:
+                        warningMsg = folderDisqualifiedDrivingWithoutHeadlights;
+                        break;
+                    case PenatiesData.WarningMessage.DISQUALIFIED_EXCEEDING_ALLOWED_LAP_COUNT:
+                        warningMsg = folderDisqualifiedExceededAllowedLapCount;
                         break;
                     default:
                         Debug.Assert(false, "Unhandled warning");
@@ -592,23 +601,6 @@ namespace CrewChiefV4.Events
                     default:
                         Debug.Assert(false, "Unhandled penalty cause");
                         Console.WriteLine("Penalties: unhandled stop/go penalty cause: " + penaltyCause);
-                        break;
-                }
-            }
-            else if (penaltyType == PenatiesData.DetailedPenaltyType.DISQUALIFIED)
-            {
-                switch (penaltyCause)
-                {
-                    case PenatiesData.DetailedPenaltyCause.NONE:
-                        Debug.Assert(false, "Penalty without cause.");
-                        break;
-                    case PenatiesData.DetailedPenaltyCause.DRIVING_WITHOUT_HEADLIGHTS:
-                        return folderDisqualifiedDrivingWithoutHeadlights;
-                    case PenatiesData.DetailedPenaltyCause.EXCEEDING_ALLOWED_LAP_COUNT:
-                        return folderDisqualifiedExceededAllowedLapCount;
-                    default:
-                        Debug.Assert(false, "Unhandled penalty cause");
-                        Console.WriteLine("Penalties: unhandled disqualification cause: " + penaltyCause);
                         break;
                 }
             }

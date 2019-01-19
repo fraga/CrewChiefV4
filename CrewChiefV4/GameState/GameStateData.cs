@@ -2677,8 +2677,7 @@ namespace CrewChiefV4.GameState
         {
            NONE,
            STOP_AND_GO,
-           DRIVE_THROUGH,
-           DISQUALIFIED
+           DRIVE_THROUGH
         }
         public DetailedPenaltyType PenaltyType = DetailedPenaltyType.NONE;
 
@@ -2691,8 +2690,6 @@ namespace CrewChiefV4.GameState
             EXITING_PITS_UNDER_RED,
             ILLEGAL_PASS_ROLLING_BEFORE_GREEN,
             ILLEGAL_PASS_FCY_BEFORE_GREEN,
-            DRIVING_WITHOUT_HEADLIGHTS,
-            EXCEEDING_ALLOWED_LAP_COUNT // Prac/Quali.
         }
         public DetailedPenaltyCause PenaltyCause = DetailedPenaltyCause.NONE;
 
@@ -2702,7 +2699,9 @@ namespace CrewChiefV4.GameState
             WRONG_WAY,
             DRIVING_TOO_SLOW,
             HEADLIGHTS_REQUIRED,
-            ENTER_PITS_TO_AVOID_EXCEEDING_LAPS // Prac/Quali.
+            ENTER_PITS_TO_AVOID_EXCEEDING_LAPS, // Prac/Quali.
+            DISQUALIFIED_DRIVING_WITHOUT_HEADLIGHTS,
+            DISQUALIFIED_EXCEEDING_ALLOWED_LAP_COUNT // Prac/Quali.
         }
         public WarningMessage Warning = WarningMessage.NONE;
     }
