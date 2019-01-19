@@ -103,6 +103,7 @@ namespace CrewChiefV4
 
         public static bool soundTestMode = false;
         public static bool shouldSaveTrace = false;
+        private System.Windows.Forms.Timer consoleRefreshTimer = new System.Windows.Forms.Timer();
 
         public void killChief()
         {
@@ -644,9 +645,9 @@ namespace CrewChiefV4
             base.OnFormClosing(e);
             MacroManager.stop();
             saveConsoleOutputText();
+            consoleRefreshTimer.Stop();
             lock (consoleWriter)
             {
-                consoleWriter.textbox = null;
                 consoleWriter.Dispose();
             }
         }
@@ -758,9 +759,14 @@ namespace CrewChiefV4
             }
 
             CheckForIllegalCrossThreadCalls = false;
+            consoleTextBox.WordWrap = false;
             consoleWriter = new ControlWriter(consoleTextBox);
             consoleTextBox.KeyDown += TextBoxConsole_KeyDown;
             Console.SetOut(TextWriter.Synchronized(consoleWriter));
+
+            consoleRefreshTimer.Tick += ConsoleRefreshTimer_Tick;
+            consoleRefreshTimer.Interval = 1000;
+            consoleRefreshTimer.Start();
 
             // if we can't init the UserSettings the app will basically be fucked. So try to nuke the Britton_IT_Ltd directory from
             // orbit (it's the only way to be sure) then restart the app. This shit is comically flakey but what else can we do here?
@@ -1037,6 +1043,54 @@ namespace CrewChiefV4
             this.KeyDown += MainWindow_KeyDown;
 
             this.constructingWindow = false;
+        }
+
+        private void ConsoleRefreshTimer_Tick(object sender, EventArgs e)
+        {
+            if (!consoleWriter.hasChanges)
+            {
+                return;
+            }
+
+            // Don't update if user is not idle.
+            if (Utilities.GetLastInputTimeMillis() < 50u)
+            {
+                return;
+            }
+
+            Debug.Assert(!consoleTextBox.InvokeRequired);
+
+            string messages = null;
+            lock (ControlWriter.controlWriterLock)
+            {
+                messages = consoleWriter.newMessagesBuilder.ToString();
+                consoleWriter.newMessagesBuilder.Clear();
+                consoleWriter.hasChanges = false;
+            }
+
+            if (MainWindow.instance != null
+                && consoleTextBox != null
+                && !consoleTextBox.IsDisposed
+                && !string.IsNullOrWhiteSpace(messages))
+            {
+                try
+                {
+                    consoleTextBox.AppendText(messages);
+                    if (MainWindow.autoScrollConsole)
+                    {
+                        consoleTextBox.ScrollToCaret();
+                    }
+                }
+                catch (Exception)
+                {
+                    // swallow - nothing to log it to
+                }
+            }
+
+            if (!consoleWriter.enable)
+            {
+                consoleRefreshTimer.Stop();
+            }
         }
 
         private void MainWindow_KeyDown(object sender, KeyEventArgs e)
@@ -1433,9 +1487,11 @@ namespace CrewChiefV4
             {
                 startApplicationButton.Enabled = false;
                 uiSyncAppStart();
-
+// Don't disable auto scroll in Debug builds.
+#if !DEBUG
                 Console.WriteLine("Pausing console scrolling");
                 MainWindow.autoScrollConsole = false;
+#endif
                 GameDefinition gameDefinition = GameDefinition.getGameDefinitionForFriendlyName(gameDefinitionList.Text);
                 if (gameDefinition != null)
                 {
@@ -1530,8 +1586,10 @@ namespace CrewChiefV4
                 formClosed = true;
             }
 
+            consoleRefreshTimer.Stop();
+
             // Shutdown long running threads:
-            
+
             // SoundCache spawns a Thread to lazy-load the sound data. Cancel this:
             SoundCache.cancelLazyLoading = true;
             
@@ -2698,14 +2756,14 @@ namespace CrewChiefV4
 
     public class ControlWriter : TextWriter
     {
-        public RichTextBox textbox = null;
         public Boolean enable = true;
         public StringBuilder builder = new StringBuilder();
+
+        public StringBuilder newMessagesBuilder = new StringBuilder();
+        public bool hasChanges = false;
+        public static object controlWriterLock = new object();
         public ControlWriter(RichTextBox textbox)
-        {
-            this.textbox = textbox;
-            this.textbox.WordWrap = false;
-        }
+        {}
 
         public override void WriteLine(string value)
         {
@@ -2733,42 +2791,21 @@ namespace CrewChiefV4
                 sb.Append(" : ").Append(value).AppendLine();
                 if (enable)
                 {
-                    lock (MainWindow.instanceLock)
+                    lock (ControlWriter.controlWriterLock)
                     {
-                        if (MainWindow.instance != null && textbox != null && !textbox.IsDisposed)
-                        {
-                            try
-                            {
-                                textbox.AppendText(sb.ToString());
-                            }
-                            catch (Exception)
-                            {
-                                // swallow - nothing to log it to
-                            }
-                        }
+                        hasChanges = true;
+                        newMessagesBuilder.Append(sb.ToString());
                     }
                 }
                 else
                 {
-                    lock (MainWindow.instanceLock)
+                    lock (ControlWriter.controlWriterLock)
                     {
                         builder.Append(sb.ToString());
                     }
                 }
             }
-            if (MainWindow.autoScrollConsole && textbox != null && !textbox.IsDisposed)
-            {
-                try
-                {
-                    textbox.ScrollToCaret();
-                }
-                catch (Exception)
-                {
-                    // ignore
-                }
-            }
         }
-        
 
         public override Encoding Encoding
         {
