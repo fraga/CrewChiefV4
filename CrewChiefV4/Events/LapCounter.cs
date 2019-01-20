@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -39,6 +39,7 @@ namespace CrewChiefV4.Events
         // until their car crosses the line
         private Boolean manualFormationGoWhenLeaderCrossesLine = UserSettings.GetUserSettings().getBoolean("manual_formation_go_with_leader");
         private Boolean manualFormationDoubleFile = UserSettings.GetUserSettings().getBoolean("manual_formation_double_file");
+        private Boolean manualFormationSplitClasses = UserSettings.GetUserSettings().getBoolean("manual_formation_split_classes");
 
         private Boolean playedManualStartGetReady = false;
         private Boolean playedManualStartLeaderHasCrossedLine = false;
@@ -605,7 +606,9 @@ namespace CrewChiefV4.Events
         private void playManualStartInitialMessage(GameStateData currentGameState)
         {
             setOpponentToFollowAndStartPosition(currentGameState, false, true);
-            poleSitter = currentGameState.getOpponentAtOverallPosition(1);
+            // in multiclass, 'pole' is the car in p1 for our class
+            poleSitter = CrewChief.forceSingleClass || !GameStateData.Multiclass || !manualFormationSplitClasses ? currentGameState.getOpponentAtOverallPosition(1) :
+                    currentGameState.getOpponentAtClassPosition(1, currentGameState.carClass);
 
             // use the driver name in front if we have it - if we're starting on pole the manualStartOpponentAhead var will be null,
             // which will force the audio player to use the secondary message

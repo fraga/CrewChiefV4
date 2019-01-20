@@ -212,7 +212,6 @@ namespace CrewChiefV4.RaceRoom
                     playerDriverDataIndex = i;
                 }
             }
-
             int previousLapsCompleted = previousGameState == null ? 0 : previousGameState.SessionData.CompletedLaps;
             currentGameState.SessionData.SessionPhase = mapToSessionPhase(lastSessionPhase, currentGameState.SessionData.SessionType, lastSessionRunningTime,
                 currentGameState.SessionData.SessionRunningTime, shared.SessionPhase, currentGameState.ControlData.ControlType,

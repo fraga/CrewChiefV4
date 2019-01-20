@@ -3418,7 +3418,7 @@ namespace CrewChiefV4.Properties {
                 this["disable_behavior_altering_voice_commands"] = value;
             }
         }
-
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
@@ -3572,6 +3572,18 @@ namespace CrewChiefV4.Properties {
             }
             set {
                 this["enable_automatic_plugin_update"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool manual_formation_split_classes {
+            get {
+                return ((bool)(this["manual_formation_split_classes"]));
+            }
+            set {
+                this["manual_formation_split_classes"] = value;
             }
         }
     }
