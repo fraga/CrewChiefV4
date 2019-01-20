@@ -773,7 +773,7 @@ namespace CrewChiefV4
             consoleTextBox.WordWrap = false;
             consoleWriter = new ControlWriter(consoleTextBox);
             consoleTextBox.KeyDown += TextBoxConsole_KeyDown;
-            Console.SetOut(TextWriter.Synchronized(consoleWriter));
+            Console.SetOut(consoleWriter);
 
             consoleRefreshTimer.Tick += ConsoleRefreshTimer_Tick;
             consoleRefreshTimer.Interval = 500;
