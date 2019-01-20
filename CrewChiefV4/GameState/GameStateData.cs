@@ -1099,6 +1099,7 @@ namespace CrewChiefV4.GameState
 
         public int StrengthOfField;
 
+        // TODO: this is only being set in the iRacing and RF2 mappers, but it's checked in fuel and LapCounter events. Which is odd.
         public Boolean IsLastLap;
 
         public StartType StartType = StartType.None;

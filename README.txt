@@ -224,6 +224,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.9.6.3: Tweaked manual rolling start logic for multiclass races, so each class has its own pole-sitter for determining when to start the race (can be disabled with the 'Manual formation lap separate classes' option); significantly reduced the size of debug traces; reworked console logging output to fix some potential crash bugs; iRacing - potential fix for incorrect race start position in multiclass races (this caused quite a few issues)
+
 Version 4.9.6.2: Hotfix for iRacing crash
 
 Version 4.9.6.1: Extended free-text macros a little (upper case characters and slash); prevent off-track messages expiring immediately in practice sessions; speech recognition fixes when running with 'disable alternate voice commands' switched on; automatically save console logs; iRacing - fixed debug logging on ovals; RF2 - some bug fixes
