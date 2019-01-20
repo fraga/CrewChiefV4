@@ -104,6 +104,7 @@ namespace CrewChiefV4
         public static bool soundTestMode = false;
         public static bool shouldSaveTrace = false;
         private System.Windows.Forms.Timer consoleRefreshTimer = new System.Windows.Forms.Timer();
+        private int consoleUpdateUINotIdleCount = 0;
 
         public void killChief()
         {
@@ -1053,10 +1054,13 @@ namespace CrewChiefV4
             }
 
             // Don't update if user is not idle.
-            if (Utilities.GetLastInputTimeMillis() < 50u)
+            if (consoleUpdateUINotIdleCount < 3 && Utilities.GetLastInputTimeMillis() < 50u)
             {
+                ++consoleUpdateUINotIdleCount;
                 return;
             }
+
+            consoleUpdateUINotIdleCount = 0;
 
             Debug.Assert(!consoleTextBox.InvokeRequired);
 
