@@ -776,11 +776,7 @@ namespace CrewChiefV4
             Console.SetOut(TextWriter.Synchronized(consoleWriter));
 
             consoleRefreshTimer.Tick += ConsoleRefreshTimer_Tick;
-            consoleRefreshTimer.Interval = 1000;
-            consoleRefreshTimer.Start();
-
-            consoleRefreshTimer.Tick += ConsoleRefreshTimer_Tick;
-            consoleRefreshTimer.Interval = 1000;
+            consoleRefreshTimer.Interval = 500;
             consoleRefreshTimer.Start();
 
             // if we can't init the UserSettings the app will basically be fucked. So try to nuke the Britton_IT_Ltd directory from
