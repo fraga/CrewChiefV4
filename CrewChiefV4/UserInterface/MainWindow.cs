@@ -1052,12 +1052,6 @@ namespace CrewChiefV4
                 return;
             }
 
-            // Don't update if user is not idle.
-            if (Utilities.GetLastInputTimeMillis() < 50u)
-            {
-                return;
-            }
-
             Debug.Assert(!consoleTextBox.InvokeRequired);
 
             string messages = null;
