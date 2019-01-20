@@ -453,8 +453,11 @@ namespace CrewChiefV4.Events
                         warningMsg = folderWarningHeadlightsRequired;
                         break;
                     case PenatiesData.WarningMessage.ENTER_PITS_TO_AVOID_EXCEEDING_LAPS:
-                        warningMsg = folderWarningEnterPitsToAvoidExceedingLaps;
-                        playerMustPitThisLap = true;
+                        if (!currentGameState.PitData.HasRequestedPitStop)
+                        {
+                            warningMsg = folderWarningEnterPitsToAvoidExceedingLaps;
+                            playerMustPitThisLap = true;
+                        }
                         break;
                     case PenatiesData.WarningMessage.DISQUALIFIED_DRIVING_WITHOUT_HEADLIGHTS:
                         warningMsg = folderDisqualifiedDrivingWithoutHeadlights;
