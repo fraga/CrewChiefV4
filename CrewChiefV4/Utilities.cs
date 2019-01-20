@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 
 namespace CrewChiefV4
@@ -229,5 +230,40 @@ namespace CrewChiefV4
 
             return true;
         }
+
+        [StructLayout(LayoutKind.Sequential)]
+        struct LASTINPUTINFO
+        {
+            public static readonly int SizeOf = Marshal.SizeOf(typeof(LASTINPUTINFO));
+
+            [MarshalAs(UnmanagedType.U4)]
+            public UInt32 cbSize;
+            [MarshalAs(UnmanagedType.U4)]
+            public UInt32 dwTime;
+        }
+
+        [DllImport("user32.dll")]
+        static extern bool GetLastInputInfo(ref LASTINPUTINFO plii);
+
+        internal static uint GetLastInputTimeMillis()
+        {
+            var idleTime = 0u;
+            var lastInputInfo = new LASTINPUTINFO();
+            lastInputInfo.cbSize = (uint)Marshal.SizeOf(lastInputInfo);
+            lastInputInfo.dwTime = 0;
+
+            var envTicks = (uint)Environment.TickCount;
+
+            if (GetLastInputInfo(ref lastInputInfo))
+            {
+                var lastInputTick = lastInputInfo.dwTime;
+
+                idleTime = envTicks - lastInputTick;
+            }
+
+            return ((idleTime > 0) ? (idleTime) : 0);
+        }
+
+
     }
 }
