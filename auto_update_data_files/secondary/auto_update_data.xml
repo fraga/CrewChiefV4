@@ -17,7 +17,7 @@ secondary update sources) can still be updated. All downloads from this source w
 
 <!-- current implementation where all the sound pack update information is in this document -->
 <sounds language="en">
-	<voice-messages latest-version="160">
+	<voice-messages latest-version="161">
 		<update-pack url="http://thecrewchief.org/downloads/base_sound_pack.zip" updates-from-version="-1"/>
 		<update-pack url="http://thecrewchief.org/downloads/update_sound_pack.zip" updates-from-version="0"/>
 		<update-pack url="http://thecrewchief.org/downloads/update_2_sound_pack.zip" updates-from-version="122"/>
@@ -26,6 +26,7 @@ secondary update sources) can still be updated. All downloads from this source w
 		<update-pack url="http://thecrewchief.org/downloads/update_5_sound_pack.zip" updates-from-version="156"/>
 		<update-pack url="http://thecrewchief.org/downloads/update_6_sound_pack.zip" updates-from-version="157"/>
 		<update-pack url="http://thecrewchief.org/downloads/update_7_sound_pack.zip" updates-from-version="158"/>
+		<update-pack url="http://thecrewchief.org/downloads/update_8_sound_pack.zip" updates-from-version="160"/>
 	</voice-messages>
 	<driver-names latest-version="134">
 		<update-pack url="http://thecrewchief.org/downloads/base_driver_names.zip" updates-from-version="-1"/>

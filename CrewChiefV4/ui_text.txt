@@ -1007,6 +1007,10 @@ manual_formation_double_file = Manual formation lap double-file start
 manual_formation_double_file_help = Assume manual formation lap starts use 2 lines of cars
 manual_formation_double_file_category = FLAGS_AND_RULES
 
+manual_formation_split_classes = Manual formation lap separate classes
+manual_formation_split_classes_help = Assume there's a gap between different classes during a rolling start
+manual_formation_split_classes_category = FLAGS_AND_RULES
+
 save_list_of_unvocalized_names = Save driver names with no sound
 save_list_of_unvocalized_names_help = Write unvocalized driver names to file
 save_list_of_unvocalized_names_category = AUDIO_VOICE_AND_CONTROLLERS
