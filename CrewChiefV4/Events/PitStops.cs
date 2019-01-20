@@ -840,6 +840,8 @@ namespace CrewChiefV4.Events
                     {
                         timeOfPitRequestOrCancel = currentGameState.Now;
                         playedRequestPitOnThisLap = true;
+
+                        Penalties.playerMustPitThisLap = true;
                         // respond immediately to this request
                         audioPlayer.playMessageImmediately(new QueuedMessage(folderPitStopRequestReceived, 0));
                     }
@@ -856,6 +858,8 @@ namespace CrewChiefV4.Events
                         playedPitRequestCancelledOnThisLap = true;
                         int delay = Utilities.random.Next(1, 3);
                         audioPlayer.playMessage(new QueuedMessage(folderPitStopRequestCancelled, delay + 6, secondsDelay: delay, abstractEvent: this, priority: 10));
+
+                        Penalties.playerMustPitThisLap = false;
                     }
                 }
                 else if ((CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2 || CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2_NETWORK) &&
@@ -865,6 +869,8 @@ namespace CrewChiefV4.Events
                 {
                     timeOfPitRequestOrCancel = currentGameState.Now;
                     playedRequestPitOnThisLap = true;
+
+                    Penalties.playerMustPitThisLap = true;
                     // respond immediately to this request
                     audioPlayer.playMessageImmediately(new QueuedMessage(folderPitStopRequestReceived, 2, abstractEvent: this));
                 }
