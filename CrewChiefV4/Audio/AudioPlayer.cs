@@ -130,7 +130,6 @@ namespace CrewChiefV4.Audio
         public static String folderChiefRadioCheck = null;
         private Thread monitorQueueThread = null;
 
-
         private AutoResetEvent monitorQueueWakeUpEvent = new AutoResetEvent(false);
         private AutoResetEvent hangingChannelCloseWakeUpEvent = new AutoResetEvent(false);
         private DateTime nextWakeupCheckTime = DateTime.MinValue;
