@@ -70,7 +70,7 @@ namespace CrewChiefV4
         // this is the physical file:
         // private static String autoUpdateXMLURL1 = "http://thecrewchief.org/downloads/auto_update_data_primary.xml";
         // this is the file accessed via the PHP download script:
-        private static String autoUpdateXMLURL1 = "http://thecrewchief.org/downloads.php?do=downloadxml&lastplayed=";
+        private static String autoUpdateXMLURL1 = "http://thecrewchief.org/downloads.php?do=downloadxml";
 
         // the legacy update stuff hosted on GoogleDrive with downloads on the isnais ftp server
         private static String autoUpdateXMLURL2 = "https://drive.google.com/uc?export=download&id=0B4KQS820QNFbWWFjaDAzRldMNUE";
@@ -140,7 +140,7 @@ namespace CrewChiefV4
 
             // do the auto updating stuff in a separate Thread
             if (!CrewChief.Debugging ||
-                SoundPackVersionsHelper.currentSoundPackVersion <= 0 || SoundPackVersionsHelper.currentPersonalisationsVersion <= 0 || SoundPackVersionsHelper.currentDriverNamesVersion <=0)
+                SoundPackVersionsHelper.currentSoundPackVersion <= 0 || SoundPackVersionsHelper.currentPersonalisationsVersion <= 0 || SoundPackVersionsHelper.currentDriverNamesVersion <= 0)
             {
                 var checkForUpdatesThread = new Thread(() =>
                 {
@@ -149,14 +149,7 @@ namespace CrewChiefV4
                         Console.WriteLine("Checking for updates");
                         String firstUpdate = preferAlternativeDownloadSite ? autoUpdateXMLURL2 : autoUpdateXMLURL1;
                         String secondUpdate = preferAlternativeDownloadSite ? autoUpdateXMLURL1 : autoUpdateXMLURL2;
-                        if (firstUpdate == autoUpdateXMLURL1)
-                        {
-                            firstUpdate += CrewChief.gameDefinition.gameEnum.ToString();
-                        }
-                        else
-                        {
-                            secondUpdate += CrewChief.gameDefinition.gameEnum.ToString();
-                        }
+
                         Thread.CurrentThread.IsBackground = true;
                         // now the sound packs
                         downloadSoundPackButton.Text = Configuration.getUIString("checking_sound_pack_version");
@@ -164,6 +157,7 @@ namespace CrewChiefV4
                         downloadPersonalisationsButton.Text = Configuration.getUIString("checking_personalisations_version");
 
                         String[] commandLineArgs = Environment.GetCommandLineArgs();
+                        Boolean appRestarted = false;
                         Boolean skipUpdates = false;
                         if (commandLineArgs != null)
                         {
@@ -173,6 +167,15 @@ namespace CrewChiefV4
                                 {
                                     Console.WriteLine("Skipping application update check. To enable this check, run the app *without* the SKIP_UPDATES command line argument");
                                     skipUpdates = true;
+                                    continue;
+                                }
+                                if ("app_restart".Equals(arg))
+                                {
+                                    appRestarted = true;
+                                    continue;
+                                }
+                                if(appRestarted && skipUpdates)
+                                {
                                     break;
                                 }
                             }
@@ -183,6 +186,10 @@ namespace CrewChiefV4
                             if (!skipUpdates)
                             {
                                 AutoUpdater.Start(firstUpdate);
+                            }
+                            if (firstUpdate == autoUpdateXMLURL1)
+                            {
+                                firstUpdate += "&lastplayed=" + (appRestarted ? "app_restart" : CrewChief.gameDefinition.gameEnum.ToString());
                             }
                             string xml = new WebClient().DownloadString(firstUpdate);
                             gotUpdateData = SoundPackVersionsHelper.parseUpdateData(xml);
@@ -199,11 +206,15 @@ namespace CrewChiefV4
                             {
                                 if (formClosed)
                                 {
-                                    return;
+                                    return;                                
                                 }
                                 if (!skipUpdates)
                                 {
                                     AutoUpdater.Start(secondUpdate);
+                                }
+                                if (secondUpdate == autoUpdateXMLURL1)
+                                {
+                                    secondUpdate += "&lastplayed=" + (appRestarted ? "app_restart" : CrewChief.gameDefinition.gameEnum.ToString());
                                 }
                                 string xml = new WebClient().DownloadString(secondUpdate);
                                 gotUpdateData = SoundPackVersionsHelper.parseUpdateData(xml);
@@ -765,7 +776,7 @@ namespace CrewChiefV4
             Console.SetOut(consoleWriter);
 
             consoleRefreshTimer.Tick += ConsoleRefreshTimer_Tick;
-            consoleRefreshTimer.Interval = 1000;
+            consoleRefreshTimer.Interval = 500;
             consoleRefreshTimer.Start();
 
             // if we can't init the UserSettings the app will basically be fucked. So try to nuke the Britton_IT_Ltd directory from
@@ -1048,12 +1059,6 @@ namespace CrewChiefV4
         private void ConsoleRefreshTimer_Tick(object sender, EventArgs e)
         {
             if (!consoleWriter.hasChanges)
-            {
-                return;
-            }
-
-            // Don't update if user is not idle.
-            if (Utilities.GetLastInputTimeMillis() < 50u)
             {
                 return;
             }
@@ -2654,7 +2659,10 @@ namespace CrewChiefV4
                     {
                         startArgs.Add("multi");
                     }
-
+                    if (!startArgs.Contains("app_restart"))
+                    {
+                        startArgs.Add("app_restart");
+                    }
                     System.Diagnostics.Process.Start(Application.ExecutablePath, String.Join(" ", startArgs.ToArray())); // to start new instance of application
                     this.Close(); //to turn off current app
                 }
