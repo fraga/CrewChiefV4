@@ -41,7 +41,6 @@ namespace CrewChiefV4
         private String personalisationsTempFileName = "temp_personalisations.zip";
         private String personalisationsDownloadURL;
 
-
         private Boolean isDownloadingDriverNames = false;
         private Boolean isDownloadingSoundPack = false;
         private Boolean isDownloadingPersonalisations = false;
@@ -103,7 +102,9 @@ namespace CrewChiefV4
 
         public static bool soundTestMode = false;
         public static bool shouldSaveTrace = false;
-        private System.Windows.Forms.Timer consoleRefreshTimer = new System.Windows.Forms.Timer();
+
+        private AutoResetEvent consoleUpdateThreadWakeUpEvent = new AutoResetEvent(false);
+        private bool consoleUpdateThreadRunning = false;
 
         public void killChief()
         {
@@ -112,6 +113,14 @@ namespace CrewChiefV4
 
         private void FormMain_Load(object sender, EventArgs e)
         {
+            // Set up console update thread.  We need this because we call Console.WriteLine from random threads.
+            ThreadStart ts = consoleUpdateThreadWorker;
+            var consoleUpdateThread = new Thread(ts);
+            consoleUpdateThread.Name = "MainWindow.consoleUpdateThreadWorker";
+            consoleUpdateThreadRunning = true;
+            ThreadManager.RegisterResourceThread(consoleUpdateThread);
+            consoleUpdateThread.Start();
+
             // Run immediately if requested.
             // Note that it is not safe to run immidiately from the constructor, becasue form handle
             // is created on a message pump, at undefined moment, which prevents Invoke from
@@ -656,7 +665,10 @@ namespace CrewChiefV4
             base.OnFormClosing(e);
             MacroManager.stop();
             saveConsoleOutputText();
-            consoleRefreshTimer.Stop();
+
+            consoleUpdateThreadRunning = false;
+            consoleUpdateThreadWakeUpEvent.Set();
+
             lock (consoleWriter)
             {
                 consoleWriter.Dispose();
@@ -771,13 +783,10 @@ namespace CrewChiefV4
 
             CheckForIllegalCrossThreadCalls = false;
             consoleTextBox.WordWrap = false;
-            consoleWriter = new ControlWriter(consoleTextBox);
+            consoleWriter = new ControlWriter(consoleTextBox, consoleUpdateThreadWakeUpEvent);
             consoleTextBox.KeyDown += TextBoxConsole_KeyDown;
-            Console.SetOut(consoleWriter);
 
-            consoleRefreshTimer.Tick += ConsoleRefreshTimer_Tick;
-            consoleRefreshTimer.Interval = 500;
-            consoleRefreshTimer.Start();
+            Console.SetOut(consoleWriter);
 
             // if we can't init the UserSettings the app will basically be fucked. So try to nuke the Britton_IT_Ltd directory from
             // orbit (it's the only way to be sure) then restart the app. This shit is comically flakey but what else can we do here?
@@ -1056,45 +1065,66 @@ namespace CrewChiefV4
             this.constructingWindow = false;
         }
 
-        private void ConsoleRefreshTimer_Tick(object sender, EventArgs e)
+        private void consoleUpdateThreadWorker()
         {
-            if (!consoleWriter.hasChanges)
+            while (consoleUpdateThreadRunning)
             {
-                return;
-            }
-
-            Debug.Assert(!consoleTextBox.InvokeRequired);
-
-            string messages = null;
-            lock (ControlWriter.controlWriterLock)
-            {
-                messages = consoleWriter.newMessagesBuilder.ToString();
-                consoleWriter.newMessagesBuilder.Clear();
-                consoleWriter.hasChanges = false;
-            }
-
-            if (MainWindow.instance != null
-                && consoleTextBox != null
-                && !consoleTextBox.IsDisposed
-                && !string.IsNullOrWhiteSpace(messages))
-            {
-                try
+                consoleUpdateThreadWakeUpEvent.WaitOne();
+                if (!consoleUpdateThreadRunning)
                 {
-                    consoleTextBox.AppendText(messages);
-                    if (MainWindow.autoScrollConsole)
+                    Debug.WriteLine("Exiting console update thread.");
+                    return;
+                }
+
+                if (!consoleWriter.enable)
+                {
+                    Debug.WriteLine("Exiting console update thread, console output disabled.");
+                    return;
+                }
+
+                Debug.Assert(consoleTextBox.InvokeRequired);
+
+                string messages = null;
+                // Pick up the new messages.
+                lock (ControlWriter.controlWriterLock)
+                {
+                    messages = consoleWriter.newMessagesBuilder.ToString();
+                    consoleWriter.newMessagesBuilder.Clear();
+                }
+
+                if (MainWindow.instance != null
+                    && consoleTextBox != null
+                    && !consoleTextBox.IsDisposed
+                    && !string.IsNullOrWhiteSpace(messages))
+                {
+                    try
                     {
-                        consoleTextBox.ScrollToCaret();
+                        consoleTextBox.Invoke((MethodInvoker)delegate
+                        {
+                            if (MainWindow.instance != null
+                                && consoleTextBox != null
+                                && !consoleTextBox.IsDisposed)
+                            {
+                                try
+                                {
+                                    consoleTextBox.AppendText(messages);
+                                    if (MainWindow.autoScrollConsole)
+                                    {
+                                        consoleTextBox.ScrollToCaret();
+                                    }
+                                }
+                                catch (Exception)
+                                {
+                                    // swallow - nothing to log it to
+                                }
+                            }
+                        });
+                    }
+                    catch (Exception)
+                    {
+                        // Possible shutdown.
                     }
                 }
-                catch (Exception)
-                {
-                    // swallow - nothing to log it to
-                }
-            }
-
-            if (!consoleWriter.enable)
-            {
-                consoleRefreshTimer.Stop();
             }
         }
 
@@ -1590,8 +1620,6 @@ namespace CrewChiefV4
                 MainWindow.instance = null;
                 formClosed = true;
             }
-
-            consoleRefreshTimer.Stop();
 
             // Shutdown long running threads:
 
@@ -2768,10 +2796,12 @@ namespace CrewChiefV4
         public StringBuilder builder = new StringBuilder();
 
         public StringBuilder newMessagesBuilder = new StringBuilder();
-        public bool hasChanges = false;
         public static object controlWriterLock = new object();
-        public ControlWriter(RichTextBox textbox)
-        {}
+        private AutoResetEvent consoleUpdateThreadWakeUpEvent = null;
+        public ControlWriter(RichTextBox textbox, AutoResetEvent consoleUpdateThreadWakeUpEvent)
+        {
+            this.consoleUpdateThreadWakeUpEvent = consoleUpdateThreadWakeUpEvent;
+        }
 
         public override void WriteLine(string value)
         {
@@ -2801,9 +2831,9 @@ namespace CrewChiefV4
                 {
                     lock (ControlWriter.controlWriterLock)
                     {
-                        hasChanges = true;
                         newMessagesBuilder.Append(sb.ToString());
                     }
+                    consoleUpdateThreadWakeUpEvent.Set();
                 }
                 else
                 {
