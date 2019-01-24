@@ -139,7 +139,7 @@ namespace CrewChiefV4.rFactor2
             this.suspensionDamageThresholds.Add(new CornerData.EnumWithThresholds(DamageLevel.DESTROYED, 1.0f, 2.0f));
         }
 
-        private int[] minimumSupportedVersionParts = new int[] { 3, 3, 0, 4 };
+        private int[] minimumSupportedVersionParts = new int[] { 3, 3, 0, 5 };
         public static bool pluginVerified = false;
         public override void versionCheck(Object memoryMappedFileStruct)
         {
@@ -784,6 +784,8 @@ namespace CrewChiefV4.rFactor2
                     && (cgs.Now - this.timePitStopRequested).TotalSeconds > cgs.carClass.pitCrewPreparationTime)
                         cgs.PitData.IsPitCrewReady = true;
             }
+
+            cgs.PitData.PitSpeedLimit = shared.extended.mCurrentPitSpeedLimit;
 
             // This sometimes fires under Countdown, so limit to phases when message might make sense.
             if ((csd.SessionPhase == SessionPhase.Green

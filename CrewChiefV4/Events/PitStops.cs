@@ -86,6 +86,9 @@ namespace CrewChiefV4.Events
         private String folderFiftyMetreWarning = "mandatory_pit_stops/fifty_metres";
         private String folderOneHundredFeetWarning = "mandatory_pit_stops/one_hundred_feet";
 
+        private String foldePitSpeedLimit = "mandatory_pit_stops/pit_speed_limit";  // MISSING
+        private String folderNoPitSpeedLimit = "mandatory_pit_stops/no_pit_speed_limit";  // MISSING
+
         private int pitWindowOpenLap;
 
         private int pitWindowClosedLap;
@@ -788,7 +791,14 @@ namespace CrewChiefV4.Events
                         timeStartedAppoachingPitsCheck = DateTime.MaxValue;
                         timeSpeedInPitsWarning = currentGameState.Now;
 
-                        audioPlayer.playMessageImmediately(new QueuedMessage(folderWatchYourPitSpeed, 2, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
+                        if (currentGameState.PitData.PitSpeedLimit == -1.0f)
+                        {
+                            audioPlayer.playMessageImmediately(new QueuedMessage(folderWatchYourPitSpeed, 2, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
+                        }
+                        else
+                        {
+                            announcePitlaneSpeedLimit(currentGameState, false /*voiceCommandResponse*/);
+                        }
                     }
                     if (!previousGameState.PitData.IsApproachingPitlane
                         && currentGameState.PitData.IsApproachingPitlane && timeStartedAppoachingPitsCheck == DateTime.MaxValue)
@@ -874,7 +884,41 @@ namespace CrewChiefV4.Events
                     // respond immediately to this request
                     audioPlayer.playMessageImmediately(new QueuedMessage(folderPitStopRequestReceived, 2, abstractEvent: this));
                 }
-            }            
+            }
+        }
+
+        private void announcePitlaneSpeedLimit(GameStateData currentGameState, bool voiceCommandResponse)
+        {
+            // TODO: this check is needed for limiter messages.
+            if (currentGameState.PitData.pitlaneHasSpeedLimit())
+            {
+                if (!voiceCommandResponse && Utilities.random.NextDouble() < 0.66)
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(folderWatchYourPitSpeed, 2, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
+                }
+
+                var kmPerHour = currentGameState.PitData.PitSpeedLimit * 3.6f;
+                var messageFragments = new List<MessageFragment>();
+                if (GlobalBehaviourSettings.useAmericanTerms || GlobalBehaviourSettings.useOvalLogic)
+                {
+                    messageFragments.Add(MessageFragment.Text(foldePitSpeedLimit));
+                    var milesPerHour = kmPerHour * 0.621371f;
+                    messageFragments.Add(MessageFragment.Integer((int)Math.Round(milesPerHour), false));
+                    messageFragments.Add(MessageFragment.Text(FrozenOrderMonitor.folderMilesPerHour));
+                }
+                else
+                {
+                    messageFragments.Add(MessageFragment.Text(foldePitSpeedLimit));
+                    messageFragments.Add(MessageFragment.Integer((int)Math.Round(kmPerHour), false));
+                    messageFragments.Add(MessageFragment.Text(FrozenOrderMonitor.folderKilometresPerHour));
+                }
+
+                audioPlayer.playMessageImmediately(new QueuedMessage(foldePitSpeedLimit, 2, messageFragments: messageFragments, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
+            }
+            else
+            {
+                audioPlayer.playMessageImmediately(new QueuedMessage(folderNoPitSpeedLimit, 2, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
+            }
         }
 
         public override void respond(String voiceMessage)
@@ -916,10 +960,22 @@ namespace CrewChiefV4.Events
                         }
                         else
                         {
-                            audioPlayer.playMessageImmediately(new QueuedMessage("pit_window_open",  0,
+                            audioPlayer.playMessageImmediately(new QueuedMessage("pit_window_open", 0,
                                     messageFragments: MessageContents(folderMandatoryPitStopsPitWindowOpen, pitWindowOpenLap)));
                         }
                     }
+                }
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHATS_PITLANE_SPEED_LIMIT))
+            {
+                var currentGameState = CrewChief.currentGameState;
+                if (currentGameState == null || currentGameState.PitData.PitSpeedLimit == -1.0f)
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                }
+                else
+                {
+                    announcePitlaneSpeedLimit(currentGameState, true /*voiceCommandResponse*/);
                 }
             }
             else

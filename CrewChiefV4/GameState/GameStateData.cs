@@ -2638,6 +2638,7 @@ namespace CrewChiefV4.GameState
 
         public Boolean IsPitCrewReady;
 
+        // m/s
         public float PitSpeedLimit = -1.0f;
 
         // distance round track of pit box
@@ -2648,6 +2649,12 @@ namespace CrewChiefV4.GameState
         public Boolean JumpedToPits;
 
         public Boolean IsInGarage;
+
+        // Note that callers have to also check if PitSpeedLimit != -1.0f, which means no data.
+        public bool pitlaneHasSpeedLimit()
+        {
+            return PitSpeedLimit > 0.0f && PitSpeedLimit < 56.0f; // 200kph
+        }
     }
 
     public class PenatiesData
