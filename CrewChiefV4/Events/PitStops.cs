@@ -244,7 +244,7 @@ namespace CrewChiefV4.Events
                 }
                 else if (eventSubType == folderDisengageLimiter)
                 {
-                    return currentGameState.PitData.limiterStatus == 1;
+                    return currentGameState.PitData.limiterStatus == PitData.LimiterStatus.ACTIVE;
                 }
             }
             else
@@ -440,10 +440,10 @@ namespace CrewChiefV4.Events
                 playBoxNowMessage = false;
                 mandatoryStopBoxThisLap = false;
             }
-            if (currentGameState.PitData.limiterStatus != -1 && currentGameState.Now > timeOfLastLimiterWarning + TimeSpan.FromSeconds(30))
+            if (currentGameState.PitData.limiterStatus != PitData.LimiterStatus.NOT_AVAILABLE && currentGameState.Now > timeOfLastLimiterWarning + TimeSpan.FromSeconds(30))
             {
                 if (currentGameState.SessionData.SectorNumber == 1 && 
-                    currentGameState.Now > timeOfDisengageCheck && !currentGameState.PitData.InPitlane && currentGameState.PitData.limiterStatus == 1 &&
+                    currentGameState.Now > timeOfDisengageCheck && !currentGameState.PitData.InPitlane && currentGameState.PitData.limiterStatus == PitData.LimiterStatus.ACTIVE &&
                     !(CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT && currentGameState.SessionData.SessionPhase == SessionPhase.Finished))  // In rF2, Sector number is not updated on cooldown lap, hence ignore disengage limiter logic.
                 {
                     // in S1 but have exited pits, and we're expecting the limit to have been turned off
@@ -455,7 +455,8 @@ namespace CrewChiefV4.Events
                 {
                     if (!previousGameState.PitData.InPitlane && currentGameState.PitData.InPitlane)
                     {
-                        if (currentGameState.PitData.limiterStatus == 0 && currentGameState.PositionAndMotionData.CarSpeed > 1)
+                        if (currentGameState.PitData.limiterStatus == PitData.LimiterStatus.INACTIVE && currentGameState.PositionAndMotionData.CarSpeed > 1
+                            && (currentGameState.PitData.PitSpeedLimit == -1.0f || currentGameState.PitData.pitlaneHasSpeedLimit()))
                         {
                             // just entered the pit lane with no limiter active
                             audioPlayer.playMessageImmediately(new QueuedMessage(folderEngageLimiter, 1, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
@@ -463,12 +464,12 @@ namespace CrewChiefV4.Events
                         }
                     }
                     else if (currentGameState.SessionData.SectorNumber == 1 &&
-                        previousGameState.PitData.InPitlane && !currentGameState.PitData.InPitlane && currentGameState.PitData.limiterStatus == 1 && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)
+                        previousGameState.PitData.InPitlane && !currentGameState.PitData.InPitlane && currentGameState.PitData.limiterStatus == PitData.LimiterStatus.ACTIVE && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)
                     {
                         // just left the pitlane with the limiter active - wait 2 seconds then warn
                         timeOfDisengageCheck = currentGameState.Now + TimeSpan.FromSeconds(2);
                     }
-                    else if (currentGameState.PitData.IsAtPitExit && currentGameState.PitData.limiterStatus == 1 && CrewChief.gameDefinition.gameEnum == GameEnum.IRACING)
+                    else if (currentGameState.PitData.IsAtPitExit && currentGameState.PitData.limiterStatus == PitData.LimiterStatus.ACTIVE && CrewChief.gameDefinition.gameEnum == GameEnum.IRACING)
                     {
                         // TODO: this needs a bit more investigation. We have 2 separate blocks here because the time delay may need to be different for iRacing. 
                         // I know this looks like a fucking retarded if-else statement but I don't care. It's all Morten's fault anyway. Just like the AccessViolationErrors
@@ -477,17 +478,25 @@ namespace CrewChiefV4.Events
                 }
             }
             else if (previousGameState != null 
-                && currentGameState.PitData.limiterStatus == -1  // If limiter is not available
+                && currentGameState.PitData.limiterStatus == PitData.LimiterStatus.NOT_AVAILABLE
                 && !previousGameState.PitData.InPitlane && currentGameState.PitData.InPitlane  // Just entered the pits
                 && currentGameState.Now > timeSpeedInPitsWarning + TimeSpan.FromSeconds(120)  // We did not play this on pit approach
                 && previousGameState.PositionAndMotionData.CarSpeed > 2.0f && currentGameState.PositionAndMotionData.CarSpeed > 2.0f  // Guard against tow, teleport, returning to ISI game's Monitor and other bullshit
-                && currentGameState.SessionData.SessionRunningTime > 30.0f)  // Sanity check !inPts -> inPits flip on session start.
+                && currentGameState.SessionData.SessionRunningTime > 30.0f  // Sanity check !inPts -> inPits flip on session start.
+                && (currentGameState.PitData.PitSpeedLimit == -1.0f || currentGameState.PitData.pitlaneHasSpeedLimit()))  // If there's pit speed limit or if we have no idea.
             {
-                audioPlayer.playMessageImmediately(new QueuedMessage(folderWatchYourPitSpeed, 2, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
+                if (currentGameState.PitData.PitSpeedLimit == -1.0f)
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(folderWatchYourPitSpeed, 2, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
+                }
+                else
+                {
+                    announcePitlaneSpeedLimit(currentGameState, false /*possiblyPlayIntro*/);
+                }
             }
             if (currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.PitData.HasMandatoryPitStop &&
                 (currentGameState.SessionData.SessionPhase == SessionPhase.Green || currentGameState.SessionData.SessionPhase == SessionPhase.FullCourseYellow))
-            {                
+            {
                 // allow this data to be reinitialised during a race (hack for AMS)
                 if (!pitDataInitialised || currentGameState.PitData.ResetEvents)
                 {
@@ -797,7 +806,7 @@ namespace CrewChiefV4.Events
                         }
                         else
                         {
-                            announcePitlaneSpeedLimit(currentGameState, false /*voiceCommandResponse*/);
+                            announcePitlaneSpeedLimit(currentGameState, true /*possiblyPlayIntro*/);
                         }
                     }
                     if (!previousGameState.PitData.IsApproachingPitlane
@@ -887,12 +896,11 @@ namespace CrewChiefV4.Events
             }
         }
 
-        private void announcePitlaneSpeedLimit(GameStateData currentGameState, bool voiceCommandResponse)
+        private void announcePitlaneSpeedLimit(GameStateData currentGameState, bool possiblyPlayIntro)
         {
-            // TODO: this check is needed for limiter messages.
             if (currentGameState.PitData.pitlaneHasSpeedLimit())
             {
-                if (!voiceCommandResponse && Utilities.random.NextDouble() < 0.66)
+                if (possiblyPlayIntro && Utilities.random.NextDouble() < 0.66)
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(folderWatchYourPitSpeed, 2, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
                 }
@@ -975,7 +983,7 @@ namespace CrewChiefV4.Events
                 }
                 else
                 {
-                    announcePitlaneSpeedLimit(currentGameState, true /*voiceCommandResponse*/);
+                    announcePitlaneSpeedLimit(currentGameState, false /*possiblyPlayIntro*/);
                 }
             }
             else

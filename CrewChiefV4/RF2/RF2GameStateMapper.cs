@@ -744,10 +744,10 @@ namespace CrewChiefV4.rFactor2
                 || shared.scoring.mScoringInfo.mInRealtime == 0
                 || playerTelemetry.mSpeedLimiterAvailable == 0)
             {
-                cgs.PitData.limiterStatus = -1;
+                cgs.PitData.limiterStatus = PitData.LimiterStatus.NOT_AVAILABLE;
             }
             else
-                cgs.PitData.limiterStatus = playerTelemetry.mSpeedLimiter > 0 ? 1 : 0;
+                cgs.PitData.limiterStatus = playerTelemetry.mSpeedLimiter > 0 ? PitData.LimiterStatus.ACTIVE : PitData.LimiterStatus.INACTIVE;
 
             if (pgs != null
                 && csd.CompletedLaps == psd.CompletedLaps

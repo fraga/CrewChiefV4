@@ -1174,7 +1174,7 @@ namespace CrewChiefV4.RaceRoom
             {
                 currentGameState.PitData.MandatoryPitStopCompleted = previousGameState.PitData.MandatoryPitStopCompleted || shared.PitWindowStatus == (int)PitWindow.Completed;
             }
-            currentGameState.PitData.limiterStatus = shared.PitLimiter;
+            currentGameState.PitData.limiterStatus = (PitData.LimiterStatus)shared.PitLimiter;
 
             //------------------------ Car position / motion data -----------------------
             currentGameState.PositionAndMotionData.CarSpeed = shared.CarSpeed;

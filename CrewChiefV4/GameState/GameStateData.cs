@@ -2626,8 +2626,8 @@ namespace CrewChiefV4.GameState
         public int MaxPermittedDistanceOnCurrentTyre = -1;
         public int MinPermittedDistanceOnCurrentTyre = -1;
 
-        // -1 == n/a; 0 = inactive; 1 = active
-        public int limiterStatus = -1;
+        public enum LimiterStatus { NOT_AVAILABLE, INACTIVE, ACTIVE }
+        public LimiterStatus limiterStatus = LimiterStatus.NOT_AVAILABLE;
 
         // RF1/RF2 hack for mandatory pit stop windows, which are used to trigger 'box now' messages
         public Boolean ResetEvents;

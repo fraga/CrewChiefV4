@@ -983,7 +983,7 @@ namespace CrewChiefV4.iRacing
 
             if (currentGameState.carClass.limiterAvailable)
             {
-                currentGameState.PitData.limiterStatus = shared.Telemetry.EngineWarnings.HasFlag(EngineWarnings.PitSpeedLimiter) == true ? 1 : 0;
+                currentGameState.PitData.limiterStatus = shared.Telemetry.EngineWarnings.HasFlag(EngineWarnings.PitSpeedLimiter) == true ? PitData.LimiterStatus.ACTIVE : PitData.LimiterStatus.INACTIVE;
             }
 
             //conditions
