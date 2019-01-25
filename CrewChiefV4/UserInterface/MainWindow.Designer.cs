@@ -30,7 +30,7 @@ namespace CrewChiefV4
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
-            this.consoleTextBox = new System.Windows.Forms.RichTextBox();
+            this.consoleTextBox = new ExRichText();
             this.consoleTextBoxBackgroundPanel = new System.Windows.Forms.Panel();
             this.startApplicationButton = new System.Windows.Forms.Button();
             this.forceVersionCheckButton = new System.Windows.Forms.Button();
@@ -682,7 +682,7 @@ namespace CrewChiefV4
 
         #endregion
 
-        public System.Windows.Forms.RichTextBox consoleTextBox;
+        public ExRichText consoleTextBox;
         private Panel consoleTextBoxBackgroundPanel;
         public System.Windows.Forms.Button startApplicationButton;
         public System.Windows.Forms.CheckBox recordSession;
