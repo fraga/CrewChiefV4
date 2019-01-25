@@ -167,6 +167,7 @@ namespace CrewChiefV4.Events
         private Boolean getPitCountdownTimingPoints = false;
 
         private DateTime timeStartedAppoachingPitsCheck = DateTime.MaxValue;
+        private bool initialPitLaneSpeedWarningAnnounced = false;
 
         public PitStops(AudioPlayer audioPlayer)
         {
@@ -180,7 +181,7 @@ namespace CrewChiefV4.Events
 
         public override List<SessionPhase> applicableSessionPhases
         {
-            get { return new List<SessionPhase> { SessionPhase.Green, SessionPhase.Countdown, SessionPhase.Finished, SessionPhase.Checkered, SessionPhase.FullCourseYellow }; }
+            get { return new List<SessionPhase> { SessionPhase.Green, SessionPhase.Countdown, SessionPhase.Finished, SessionPhase.Checkered, SessionPhase.FullCourseYellow, SessionPhase.Garage /*rF2 stays in "Garage" while exiting pits*/ }; }
         }
 
         public override void clearState()
@@ -228,6 +229,7 @@ namespace CrewChiefV4.Events
             pitEntryTime = DateTime.MinValue;
             nextPitDistanceIndex = 0;
             getPitCountdownTimingPoints = false;
+            initialPitLaneSpeedWarningAnnounced = false;
         }
 
         public override bool isMessageStillValid(String eventSubType, GameStateData currentGameState, Dictionary<String, Object> validationData)
@@ -892,6 +894,20 @@ namespace CrewChiefV4.Events
                     Penalties.playerMustPitThisLap = true;
                     // respond immediately to this request
                     audioPlayer.playMessageImmediately(new QueuedMessage(folderPitStopRequestReceived, 2, abstractEvent: this));
+                }
+            }
+
+            if (!initialPitLaneSpeedWarningAnnounced
+                && currentGameState.SessionData.SessionPhase == SessionPhase.Garage
+                && (currentGameState.SessionData.SessionType == SessionType.Practice || currentGameState.SessionData.SessionType == SessionType.Qualify)
+                && CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT
+                && currentGameState.PitData.InPitlane
+                && currentGameState.PositionAndMotionData.CarSpeed > 0.0f)
+            {
+                initialPitLaneSpeedWarningAnnounced = true;
+                if (currentGameState.PitData.PitSpeedLimit != -1.0f)
+                {
+                    announcePitlaneSpeedLimit(currentGameState, false /*possiblyAnnounceIntro*/);
                 }
             }
         }
