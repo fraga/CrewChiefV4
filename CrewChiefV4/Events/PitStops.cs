@@ -789,7 +789,9 @@ namespace CrewChiefV4.Events
             }
             if (previousGameState != null)
             {
-                if (currentGameState.SessionData.SessionType == SessionType.Race)
+                if (currentGameState.SessionData.SessionType == SessionType.Race
+                    || currentGameState.SessionData.SessionType == SessionType.Qualify
+                    || currentGameState.SessionData.SessionType == SessionType.Practice)
                 {
                     if ((!previousGameState.PitData.IsApproachingPitlane
                         && currentGameState.PitData.IsApproachingPitlane && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)

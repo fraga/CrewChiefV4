@@ -810,48 +810,52 @@ namespace CrewChiefV4.rFactor2
                 this.minTrackWidth = -1.0;
                 this.isApproachingPitEntry = false;
             }
-            else if (this.enablePitLaneApproachHeuristics
-                && cgs.SessionData.SessionType == SessionType.Race)  // Turns out mTrackRules are only updated in race, hence mPitLaneStartDist is always 0 in Quali :(
+            else if (this.enablePitLaneApproachHeuristics)
             {
                 if (cgs.PitData.InPitlane)
-                    this.isApproachingPitEntry = false;
-
-                var estTrackWidth = Math.Abs(playerScoring.mTrackEdge) * 2.0;
-
-                if (this.minTrackWidth == -1.0 || estTrackWidth < this.minTrackWidth)
                 {
-                    this.minTrackWidth = estTrackWidth;
+                    this.minTrackWidth = -1.0;
+                    this.isApproachingPitEntry = false;
+                }
+                else
+                {
+                    var estTrackWidth = Math.Abs(playerScoring.mTrackEdge) * 2.0;
 
-                    var pitLaneStartDist = shared.rules.mTrackRules.mPitLaneStartDist;
-                    if (cgs.SessionData.SessionType != SessionType.Race)
+                    if (this.minTrackWidth == -1.0 || estTrackWidth < this.minTrackWidth)
                     {
-                        // Rules aren't updated in non-race sessions, so estimate pit lane start based on
-                        // pit stall position.
-                        pitLaneStartDist = playerScoring.mPitLapDist - 300.0f;
-                        if (pitLaneStartDist < 0.0f)
-                            pitLaneStartDist += (float)shared.scoring.mScoringInfo.mLapDist;
-                    }
+                        this.minTrackWidth = estTrackWidth;
 
-                    // See if it looks like we're entering the pits.
-                    // The idea here is that if:
-                    // - current DistanceRoundTrack is past the point where track forks into pits
-                    // - this appears like narrowest part of a track surface (tracked for an entire lap)
-                    // - and pit is requested, assume we're approaching pit entry.
-                    if (cgs.PositionAndMotionData.DistanceRoundTrack > pitLaneStartDist
-                        && cgs.PitData.HasRequestedPitStop)
-                        this.isApproachingPitEntry = true;
+                        var pitLaneStartDist = shared.rules.mTrackRules.mPitLaneStartDist;
+                        if (cgs.SessionData.SessionType != SessionType.Race)
+                        {
+                            // Rules aren't updated in non-race sessions, so estimate pit lane start based on
+                            // pit stall position.
+                            pitLaneStartDist = playerScoring.mPitLapDist - 400.0f;
+                            if (pitLaneStartDist < 0.0f)
+                                pitLaneStartDist += (float)shared.scoring.mScoringInfo.mLapDist;
+                        }
 
-                    if (cgs.SessionData.SectorNumber > 2)  // Only print in S3, that's the most interesting.
-                    {
-                        Console.WriteLine(string.Format("New min width: {0:0.000}    lapDist: {1:0.000}    pathLat: {2:0.000}    inPit: {3}    ps: {4}    appr: {5}    lap: {6}    pit lane: {7:0.000}",
-                            this.minTrackWidth,
-                            playerScoring.mLapDist,
-                            playerScoring.mPathLateral,
-                            cgs.PitData.InPitlane,
-                            playerScoring.mPitState,
-                            this.isApproachingPitEntry,
-                            csd.CompletedLaps + 1,
-                            shared.rules.mTrackRules.mPitLaneStartDist));
+                        // See if it looks like we're entering the pits.
+                        // The idea here is that if:
+                        // - current DistanceRoundTrack is past the point where track forks into pits
+                        // - this appears like narrowest part of a track surface (tracked for an entire lap)
+                        // - and pit is requested, assume we're approaching pit entry.
+                        if (cgs.PositionAndMotionData.DistanceRoundTrack > pitLaneStartDist
+                            && cgs.PitData.HasRequestedPitStop)
+                            this.isApproachingPitEntry = true;
+
+                        if (cgs.SessionData.SectorNumber > 2)  // Only print in S3, that's the most interesting.
+                        {
+                            Console.WriteLine(string.Format("New min width: {0:0.000}    lapDist: {1:0.000}    pathLat: {2:0.000}    inPit: {3}    ps: {4}    appr: {5}    lap: {6}    pit lane: {7:0.000}",
+                                this.minTrackWidth,
+                                playerScoring.mLapDist,
+                                playerScoring.mPathLateral,
+                                cgs.PitData.InPitlane,
+                                playerScoring.mPitState,
+                                this.isApproachingPitEntry,
+                                csd.CompletedLaps + 1,
+                                shared.rules.mTrackRules.mPitLaneStartDist));
+                        }
                     }
                 }
 
