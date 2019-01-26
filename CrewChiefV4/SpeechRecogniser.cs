@@ -1759,7 +1759,8 @@ namespace CrewChiefV4
                 return CrewChief.getEvent("Penalties");
             }
             else if (ResultContains(recognisedSpeech, DO_I_HAVE_A_MANDATORY_PIT_STOP, false) ||
-                ResultContains(recognisedSpeech, IS_MY_PIT_BOX_OCCUPIED, false))
+                ResultContains(recognisedSpeech, IS_MY_PIT_BOX_OCCUPIED, false) ||
+                ResultContains(recognisedSpeech, WHATS_PITLANE_SPEED_LIMIT, false))
             {
                 return CrewChief.getEvent("PitStops");
             }

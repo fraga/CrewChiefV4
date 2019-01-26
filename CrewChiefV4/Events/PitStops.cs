@@ -898,12 +898,13 @@ namespace CrewChiefV4.Events
             }
 
             if (!initialPitLaneSpeedWarningAnnounced
-                && currentGameState.SessionData.SessionPhase == SessionPhase.Garage
                 && (currentGameState.SessionData.SessionType == SessionType.Practice || currentGameState.SessionData.SessionType == SessionType.Qualify)
                 && CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT
                 && currentGameState.PitData.InPitlane
-                && currentGameState.PositionAndMotionData.CarSpeed > 0.0f)
+                && currentGameState.PositionAndMotionData.CarSpeed > 0.5f)
             {
+                // TODO:  remove garage
+                // TODO: approaching in quali was bad
                 initialPitLaneSpeedWarningAnnounced = true;
                 if (currentGameState.PitData.PitSpeedLimit != -1.0f)
                 {
@@ -925,14 +926,14 @@ namespace CrewChiefV4.Events
                 var messageFragments = new List<MessageFragment>();
                 if (GlobalBehaviourSettings.useAmericanTerms || GlobalBehaviourSettings.useOvalLogic)
                 {
-                    messageFragments.Add(MessageFragment.Text(foldePitSpeedLimit));
+                    //messageFragments.Add(MessageFragment.Text(foldePitSpeedLimit));
                     var milesPerHour = kmPerHour * 0.621371f;
                     messageFragments.Add(MessageFragment.Integer((int)Math.Round(milesPerHour), false));
                     messageFragments.Add(MessageFragment.Text(FrozenOrderMonitor.folderMilesPerHour));
                 }
                 else
                 {
-                    messageFragments.Add(MessageFragment.Text(foldePitSpeedLimit));
+                    //messageFragments.Add(MessageFragment.Text(foldePitSpeedLimit));
                     messageFragments.Add(MessageFragment.Integer((int)Math.Round(kmPerHour), false));
                     messageFragments.Add(MessageFragment.Text(FrozenOrderMonitor.folderKilometresPerHour));
                 }
