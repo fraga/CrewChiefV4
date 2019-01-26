@@ -493,7 +493,7 @@ namespace CrewChiefV4.Events
                 }
                 else
                 {
-                    announcePitlaneSpeedLimit(currentGameState, false /*possiblyPlayIntro*/);
+                    announcePitlaneSpeedLimit(currentGameState, false /*possiblyPlayIntro*/, false /*voiceResponse*/);
                 }
             }
             if (currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.PitData.HasMandatoryPitStop &&
@@ -808,7 +808,7 @@ namespace CrewChiefV4.Events
                         }
                         else
                         {
-                            announcePitlaneSpeedLimit(currentGameState, true /*possiblyPlayIntro*/);
+                            announcePitlaneSpeedLimit(currentGameState, true /*possiblyPlayIntro*/, false /*voiceResponse*/);
                         }
                     }
                     if (!previousGameState.PitData.IsApproachingPitlane
@@ -906,12 +906,12 @@ namespace CrewChiefV4.Events
                 initialPitLaneSpeedWarningAnnounced = true;
                 if (currentGameState.PitData.PitSpeedLimit != -1.0f)
                 {
-                    announcePitlaneSpeedLimit(currentGameState, false /*possiblyAnnounceIntro*/);
+                    announcePitlaneSpeedLimit(currentGameState, false /*possiblyAnnounceIntro*/, false /*voiceResponse*/);
                 }
             }
         }
 
-        private void announcePitlaneSpeedLimit(GameStateData currentGameState, bool possiblyPlayIntro)
+        private void announcePitlaneSpeedLimit(GameStateData currentGameState, bool possiblyPlayIntro, bool voiceResponse)
         {
             if (currentGameState.PitData.pitlaneHasSpeedLimit())
             {
@@ -924,6 +924,7 @@ namespace CrewChiefV4.Events
                 var messageFragments = new List<MessageFragment>();
                 if (GlobalBehaviourSettings.useAmericanTerms || GlobalBehaviourSettings.useOvalLogic)
                 {
+                    //if (!voiceResponse)
                     //messageFragments.Add(MessageFragment.Text(foldePitSpeedLimit));
                     var milesPerHour = kmPerHour * 0.621371f;
                     messageFragments.Add(MessageFragment.Integer((int)Math.Round(milesPerHour), false));
@@ -931,6 +932,7 @@ namespace CrewChiefV4.Events
                 }
                 else
                 {
+                    //if (!voiceResponse)
                     //messageFragments.Add(MessageFragment.Text(foldePitSpeedLimit));
                     messageFragments.Add(MessageFragment.Integer((int)Math.Round(kmPerHour), false));
                     messageFragments.Add(MessageFragment.Text(FrozenOrderMonitor.folderKilometresPerHour));
@@ -998,7 +1000,7 @@ namespace CrewChiefV4.Events
                 }
                 else
                 {
-                    announcePitlaneSpeedLimit(currentGameState, false /*possiblyPlayIntro*/);
+                    announcePitlaneSpeedLimit(currentGameState, false /*possiblyPlayIntro*/, true /*voiceResponse*/);
                 }
             }
             else

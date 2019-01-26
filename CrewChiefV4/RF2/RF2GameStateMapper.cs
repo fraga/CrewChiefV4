@@ -1935,7 +1935,6 @@ namespace CrewChiefV4.rFactor2
                 else if (msg == "Enter Pits To Avoid Exceeding Lap Allowance")
                 {
                     cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.ENTER_PITS_TO_AVOID_EXCEEDING_LAPS;
-
                 }
                 else if (msg == "Wrong Way")  // Might be too idiotic to announce
                 {
