@@ -225,13 +225,15 @@ default key bindings:
 "Pit Request Toggle":	r
 "Real-time Chat":		c
 
-Ensure that there's a least one Pitstop Preset defined (from the in-game pit menu).
+Ensure that there are at least *two* Pitstop Presets defined (from the in-game pit menu). This is necessary because if there's only one preset (or zero) the game doesn't allow the 'Pit preset' menu item to be highlighted, which messes up the button press sequences.
 
 You can request a pit stop by saying "pit request", "in this lap" or "box this lap". This will open the pit menu, select 'pit request' and close it again after a few seconds' delay (so you can see what's selected).
 
 You can also cycle pit presets with the voice commands "next strategy", "next pit preset", "previous strategy", "previous pit preset".
 
 If you want to manually navigate the pit menu with voice commands, use "pit menu toggle", "pit menu up", "pit menu down", "pit menu left", "pit menu right" and "pit menu select".
+
+There are more sophisticated macros that can handle refuelling ("fuel to the end" and "add fuel, X litres") - these require the current pit strategy to have fuel *selected* (green). They work by moving the pit menu to the fuel item, de-selecting 'fuel' and then changing the amount to zero by pressing 'Pit menu Decrease' many (about 100) times. They then press 'Pit menu Increase' the correct number of times to set the required (or calculated) fuel amount. Because many key presses are sent in quick succession, some users my encounter issues with these macros (but I've not had any problems myself) - it takes a few seconds to complete these macros to ensure you do them in plenty of time, before you reach the pit lane.
 
 
 PCars2

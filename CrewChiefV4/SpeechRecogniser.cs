@@ -631,8 +631,6 @@ namespace CrewChiefV4
 
         private void validateAndAdd(String[] speechPhrases, Choices choices)
         {
-            Debug.Assert(!initialised);  // Unless, we plan to add stuff dynamically, this should be false.
-
             if (speechPhrases != null && speechPhrases.Count() > 0)
             {
                 Boolean valid = true;
