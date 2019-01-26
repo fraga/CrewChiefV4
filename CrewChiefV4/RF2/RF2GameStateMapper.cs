@@ -822,12 +822,22 @@ namespace CrewChiefV4.rFactor2
                 {
                     this.minTrackWidth = estTrackWidth;
 
+                    var pitLaneStartDist = shared.rules.mTrackRules.mPitLaneStartDist;
+                    if (cgs.SessionData.SessionType != SessionType.Race)
+                    {
+                        // Rules aren't updated in non-race sessions, so estimate pit lane start based on
+                        // pit stall position.
+                        pitLaneStartDist = playerScoring.mPitLapDist - 300.0f;
+                        if (pitLaneStartDist < 0.0f)
+                            pitLaneStartDist += (float)shared.scoring.mScoringInfo.mLapDist;
+                    }
+
                     // See if it looks like we're entering the pits.
                     // The idea here is that if:
                     // - current DistanceRoundTrack is past the point where track forks into pits
                     // - this appears like narrowest part of a track surface (tracked for an entire lap)
                     // - and pit is requested, assume we're approaching pit entry.
-                    if (cgs.PositionAndMotionData.DistanceRoundTrack > shared.rules.mTrackRules.mPitLaneStartDist
+                    if (cgs.PositionAndMotionData.DistanceRoundTrack > pitLaneStartDist
                         && cgs.PitData.HasRequestedPitStop)
                         this.isApproachingPitEntry = true;
 
@@ -2420,20 +2430,6 @@ namespace CrewChiefV4.rFactor2
                     return ControlType.Replay;
                 default:
                     return ControlType.Unavailable;
-            }
-        }
-
-        public bool IsBehindWithinDistance(float trackLength, float minDistance, float maxDistance, float playerTrackDistance, float opponentTrackDistance)
-        {
-            float difference = playerTrackDistance - opponentTrackDistance;
-            if (difference > 0)
-            {
-                return difference < maxDistance && difference > minDistance;
-            }
-            else
-            {
-                difference = (playerTrackDistance + trackLength) - opponentTrackDistance;
-                return difference < maxDistance && difference > minDistance;
             }
         }
 
