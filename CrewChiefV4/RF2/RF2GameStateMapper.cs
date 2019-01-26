@@ -810,7 +810,8 @@ namespace CrewChiefV4.rFactor2
                 this.minTrackWidth = -1.0;
                 this.isApproachingPitEntry = false;
             }
-            else if (this.enablePitLaneApproachHeuristics)
+            else if (this.enablePitLaneApproachHeuristics
+                && cgs.SessionData.SessionType == SessionType.Race)  // Turns out mTrackRules are only updated in race, hence mPitLaneStartDist is always 0 in Quali :(
             {
                 if (cgs.PitData.InPitlane)
                     this.isApproachingPitEntry = false;
