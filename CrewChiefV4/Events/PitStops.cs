@@ -86,8 +86,8 @@ namespace CrewChiefV4.Events
         private String folderFiftyMetreWarning = "mandatory_pit_stops/fifty_metres";
         private String folderOneHundredFeetWarning = "mandatory_pit_stops/one_hundred_feet";
 
-        private String foldePitSpeedLimit = "mandatory_pit_stops/pit_speed_limit";  // MISSING
-        private String folderNoPitSpeedLimit = "mandatory_pit_stops/no_pit_speed_limit";  // MISSING
+        private String foldePitSpeedLimit = "mandatory_pit_stops/pit_speed_limit";
+        private String folderNoPitSpeedLimit = "mandatory_pit_stops/no_pit_speed_limit";
 
         private int pitWindowOpenLap;
 
@@ -922,18 +922,20 @@ namespace CrewChiefV4.Events
 
                 var kmPerHour = currentGameState.PitData.PitSpeedLimit * 3.6f;
                 var messageFragments = new List<MessageFragment>();
+
+                if (!voiceResponse)
+                {
+                    messageFragments.Add(MessageFragment.Text(foldePitSpeedLimit));
+                }
+
                 if (GlobalBehaviourSettings.useAmericanTerms || GlobalBehaviourSettings.useOvalLogic)
                 {
-                    //if (!voiceResponse)
-                    //messageFragments.Add(MessageFragment.Text(foldePitSpeedLimit));
                     var milesPerHour = kmPerHour * 0.621371f;
                     messageFragments.Add(MessageFragment.Integer((int)Math.Round(milesPerHour), false));
                     messageFragments.Add(MessageFragment.Text(FrozenOrderMonitor.folderMilesPerHour));
                 }
                 else
                 {
-                    //if (!voiceResponse)
-                    //messageFragments.Add(MessageFragment.Text(foldePitSpeedLimit));
                     messageFragments.Add(MessageFragment.Integer((int)Math.Round(kmPerHour), false));
                     messageFragments.Add(MessageFragment.Text(FrozenOrderMonitor.folderKilometresPerHour));
                 }
