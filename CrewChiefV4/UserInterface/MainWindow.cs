@@ -106,9 +106,25 @@ namespace CrewChiefV4
         private AutoResetEvent consoleUpdateThreadWakeUpEvent = new AutoResetEvent(false);
         private bool consoleUpdateThreadRunning = false;
 
+        private const int WM_DEVICECHANGE = 0x219;
+        private const int DBT_DEVNODES_CHANGED = 0x0007;
+
         public void killChief()
         {
             crewChief.stop();
+        }        
+
+        protected override void WndProc(ref Message m)
+        {
+            base.WndProc(ref m);
+
+            if (m.Msg == WM_DEVICECHANGE)
+            {
+               if((int)m.WParam == DBT_DEVNODES_CHANGED)
+                {
+                    refreshControllerList();
+                }                    
+            }
         }
 
         private void FormMain_Load(object sender, EventArgs e)
@@ -126,6 +142,7 @@ namespace CrewChiefV4
             // is created on a message pump, at undefined moment, which prevents Invoke from
             // working while constructor is running.
             Debug.Assert(this.IsHandleCreated);
+            refreshControllerList();
             if (UserSettings.GetUserSettings().getBoolean("run_immediately") &&
                 GameDefinition.getGameDefinitionForFriendlyName(gameDefinitionList.Text) != null)
             {
@@ -770,6 +787,8 @@ namespace CrewChiefV4
             this.constructingWindow = true;
 
             InitializeComponent();
+            this.consoleTextBoxBackgroundPanel.Size = new System.Drawing.Size(MainWindow.soundTestMode ? 793 : 1093, 285);
+            this.consoleTextBox.Size = new System.Drawing.Size(MainWindow.soundTestMode ? 793 : 1093, 285);
             this.SuspendLayout();
 
             SetupNotificationTrayIcon();
@@ -1487,7 +1506,6 @@ namespace CrewChiefV4
             this.deleteAssigmentButton.Enabled = false;
             this.groupBox1.Enabled = false;
             this.propertiesButton.Enabled = false;
-            this.scanControllersButton.Enabled = false;
             this.personalisationBox.Enabled = false;
             this.chiefNameBox.Enabled = false;
             this.spotterNameBox.Enabled = false;
@@ -1505,7 +1523,6 @@ namespace CrewChiefV4
             this.assignButtonToAction.Enabled = this.buttonActionSelect.SelectedIndex > -1 && this.controllersList.SelectedIndex > -1;
             this.propertiesButton.Enabled = true;
             this.groupBox1.Enabled = true;
-            this.scanControllersButton.Enabled = true;
             this.personalisationBox.Enabled = true;
             this.chiefNameBox.Enabled = true;
             this.spotterNameBox.Enabled = true;
@@ -1522,7 +1539,8 @@ namespace CrewChiefV4
             {
                 startApplicationButton.Enabled = false;
                 uiSyncAppStart();
-// Don't disable auto scroll in Debug builds.
+                
+                // Don't disable auto scroll in Debug builds.
 #if !DEBUG
                 Console.WriteLine("Pausing console scrolling");
                 MainWindow.autoScrollConsole = false;
@@ -1577,7 +1595,7 @@ namespace CrewChiefV4
 
                         buttonPressesListenerThread.Start();
                     }
-
+                    
                 }
                 else
                 {
@@ -1655,7 +1673,6 @@ namespace CrewChiefV4
                 this.assignButtonToAction.Enabled = this.buttonActionSelect.SelectedIndex > -1 && this.controllersList.SelectedIndex > -1;
                 stopApp();
                 this.propertiesButton.Enabled = true;
-                this.scanControllersButton.Enabled = true;
                 this.personalisationBox.Enabled = true;
                 IsAppRunning = false;
             }
@@ -1890,10 +1907,10 @@ namespace CrewChiefV4
                 Console.WriteLine("Unable to save console output, message = " + ex.Message);
             }
         }
-        
-        private void scanControllersButtonClicked(object sender, EventArgs e)
+
+        private void refreshControllerList()
         {
-            controllerConfiguration.controllers = this.controllerConfiguration.scanControllers();
+            controllerConfiguration.controllers = this.controllerConfiguration.scanControllers(this);
             this.controllersList.Items.Clear();
             if (this.gameDefinitionList.Text.Equals(GameDefinition.pCarsNetwork.friendlyName) || this.gameDefinitionList.Text.Equals(GameDefinition.pCars2Network.friendlyName))
             {
@@ -1903,6 +1920,8 @@ namespace CrewChiefV4
             {
                 this.controllersList.Items.Add(configData.deviceType.ToString() + " " + configData.deviceName);
             }
+            runListenForChannelOpenThread = controllerConfiguration.listenForChannelOpen()
+                        && voiceOption == VoiceOptionEnum.HOLD && crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised;
         }
 
         private void voiceDisableButton_CheckedChanged(object sender, EventArgs e)
