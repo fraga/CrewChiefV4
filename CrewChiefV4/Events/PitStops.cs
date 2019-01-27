@@ -905,7 +905,7 @@ namespace CrewChiefV4.Events
 
             if (!pitLaneSpeedWarningAnnounced
                 && (currentGameState.SessionData.SessionType == SessionType.Practice || currentGameState.SessionData.SessionType == SessionType.Qualify)
-                && CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT
+                && CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT  // VL: rF2 only for now, Morten, would you like this?
                 && currentGameState.PitData.InPitlane
                 && currentGameState.PositionAndMotionData.CarSpeed > 0.5f)
             {

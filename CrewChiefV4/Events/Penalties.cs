@@ -354,9 +354,6 @@ namespace CrewChiefV4.Events
                     clearPenaltyState();
                 }
             }
-
-            // can't read penalty type in Automobilista
-            // Assume this applies to rF2 as well for now
             else if ((currentGameState.SessionData.SessionType == SessionType.Race || currentGameState.SessionData.SessionType == SessionType.Qualify || currentGameState.SessionData.SessionType == SessionType.Practice) && previousGameState != null &&
                 currentGameState.PenaltiesData.NumPenalties > 0 && (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT))
             {
