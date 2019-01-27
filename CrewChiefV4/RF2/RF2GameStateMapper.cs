@@ -126,6 +126,7 @@ namespace CrewChiefV4.rFactor2
         // requests.  Allow message processed to expire.
         private readonly int effectiveMessageExpirySeconds = 120;
         private DateTime timeEffectiveMessageProcessed = DateTime.MinValue;
+        private DateTime timeHistoryMessageIgnored = DateTime.MinValue;
 
         public RF2GameStateMapper()
         {
@@ -227,6 +228,7 @@ namespace CrewChiefV4.rFactor2
             this.lastPenaltyTime = DateTime.MinValue;
             this.lastEffectiveHistoryMessage = string.Empty;
             this.timeEffectiveMessageProcessed = DateTime.MinValue;
+            this.timeHistoryMessageIgnored = DateTime.MinValue;
         }
 
     public override GameStateData mapToGameStateData(Object memoryMappedFileStruct, GameStateData previousGameState)
@@ -1945,14 +1947,15 @@ namespace CrewChiefV4.rFactor2
                 {
                     cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.DRIVING_TOO_SLOW;
                 }
-                // msg == "Pit Speed Limit: 100 kph"
-                else if (msg.StartsWith("Pit Speed Limit: ")) // TODO: See if can be hacked, otherwise announce when visible. 
-                {
-                    messageConsumed = false;
-                }
                 else
                 {
-                    Console.WriteLine("MC Message: ignored - \"" + msg + "\"");
+                    // Avoid spamming console too aggressively.
+                    if ((cgs.Now - this.timeHistoryMessageIgnored).TotalSeconds > 10)
+                    {
+                        this.timeHistoryMessageIgnored = cgs.Now;
+                        Console.WriteLine("MC Message: ignored - \"" + msg + "\"");
+                    }
+
                     messageConsumed = false;
                 }
 

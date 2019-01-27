@@ -167,7 +167,9 @@ namespace CrewChiefV4.Events
         private Boolean getPitCountdownTimingPoints = false;
 
         private DateTime timeStartedAppoachingPitsCheck = DateTime.MaxValue;
-        private bool initialPitLaneSpeedWarningAnnounced = false;
+
+        // Announce pit speed limit once per session.  Voice command response also counts.
+        private bool pitLaneSpeedWarningAnnounced = false;
 
         public PitStops(AudioPlayer audioPlayer)
         {
@@ -229,7 +231,7 @@ namespace CrewChiefV4.Events
             pitEntryTime = DateTime.MinValue;
             nextPitDistanceIndex = 0;
             getPitCountdownTimingPoints = false;
-            initialPitLaneSpeedWarningAnnounced = false;
+            pitLaneSpeedWarningAnnounced = false;
         }
 
         public override bool isMessageStillValid(String eventSubType, GameStateData currentGameState, Dictionary<String, Object> validationData)
@@ -487,13 +489,15 @@ namespace CrewChiefV4.Events
                 && currentGameState.SessionData.SessionRunningTime > 30.0f  // Sanity check !inPts -> inPits flip on session start.
                 && (currentGameState.PitData.PitSpeedLimit == -1.0f || currentGameState.PitData.pitlaneHasSpeedLimit()))  // If there's pit speed limit or if we have no idea.
             {
-                if (currentGameState.PitData.PitSpeedLimit == -1.0f)
+                if (currentGameState.PitData.PitSpeedLimit == -1.0f
+                    || pitLaneSpeedWarningAnnounced)  // Announce pitlane speed limit automatically only once per session
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(folderWatchYourPitSpeed, 2, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
                 }
                 else
                 {
                     announcePitlaneSpeedLimit(currentGameState, false /*possiblyPlayIntro*/, false /*voiceResponse*/);
+                    pitLaneSpeedWarningAnnounced = true;
                 }
             }
             if (currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.PitData.HasMandatoryPitStop &&
@@ -802,13 +806,15 @@ namespace CrewChiefV4.Events
                         timeStartedAppoachingPitsCheck = DateTime.MaxValue;
                         timeSpeedInPitsWarning = currentGameState.Now;
 
-                        if (currentGameState.PitData.PitSpeedLimit == -1.0f)
+                        if (currentGameState.PitData.PitSpeedLimit == -1.0f
+                            || pitLaneSpeedWarningAnnounced)  // Announce pitlane speed limit automatically only once per session
                         {
                             audioPlayer.playMessageImmediately(new QueuedMessage(folderWatchYourPitSpeed, 2, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
                         }
                         else
                         {
                             announcePitlaneSpeedLimit(currentGameState, true /*possiblyPlayIntro*/, false /*voiceResponse*/);
+                            pitLaneSpeedWarningAnnounced = true;
                         }
                     }
                     if (!previousGameState.PitData.IsApproachingPitlane
@@ -897,13 +903,13 @@ namespace CrewChiefV4.Events
                 }
             }
 
-            if (!initialPitLaneSpeedWarningAnnounced
+            if (!pitLaneSpeedWarningAnnounced
                 && (currentGameState.SessionData.SessionType == SessionType.Practice || currentGameState.SessionData.SessionType == SessionType.Qualify)
                 && CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT
                 && currentGameState.PitData.InPitlane
                 && currentGameState.PositionAndMotionData.CarSpeed > 0.5f)
             {
-                initialPitLaneSpeedWarningAnnounced = true;
+                pitLaneSpeedWarningAnnounced = true;
                 if (currentGameState.PitData.PitSpeedLimit != -1.0f)
                 {
                     announcePitlaneSpeedLimit(currentGameState, false /*possiblyAnnounceIntro*/, false /*voiceResponse*/);
@@ -1003,6 +1009,7 @@ namespace CrewChiefV4.Events
                 else
                 {
                     announcePitlaneSpeedLimit(currentGameState, false /*possiblyPlayIntro*/, true /*voiceResponse*/);
+                    pitLaneSpeedWarningAnnounced = true;
                 }
             }
             else
