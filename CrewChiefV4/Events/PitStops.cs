@@ -940,7 +940,7 @@ namespace CrewChiefV4.Events
                     messageFragments.Add(MessageFragment.Text(FrozenOrderMonitor.folderKilometresPerHour));
                 }
 
-                audioPlayer.playMessageImmediately(new QueuedMessage(foldePitSpeedLimit, 2, messageFragments: messageFragments, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
+                audioPlayer.playMessageImmediately(new QueuedMessage(foldePitSpeedLimit, 4, messageFragments: messageFragments, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
             }
             else
             {

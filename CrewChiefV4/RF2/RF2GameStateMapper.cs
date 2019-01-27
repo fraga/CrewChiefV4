@@ -785,7 +785,8 @@ namespace CrewChiefV4.rFactor2
                         cgs.PitData.IsPitCrewReady = true;
             }
 
-            cgs.PitData.PitSpeedLimit = shared.extended.mCurrentPitSpeedLimit;
+            if (shared.extended.mDirectMemoryAccessEnabled != 0)
+                cgs.PitData.PitSpeedLimit = shared.extended.mCurrentPitSpeedLimit;
 
             // This sometimes fires under Countdown, so limit to phases when message might make sense.
             if ((csd.SessionPhase == SessionPhase.Green

@@ -112,18 +112,17 @@ namespace CrewChiefV4
         public void killChief()
         {
             crewChief.stop();
-        }        
+        }
 
         protected override void WndProc(ref Message m)
         {
             base.WndProc(ref m);
-
             if (m.Msg == WM_DEVICECHANGE)
             {
-               if((int)m.WParam == DBT_DEVNODES_CHANGED)
+                if ((int)m.WParam == DBT_DEVNODES_CHANGED)
                 {
                     refreshControllerList();
-                }                    
+                }
             }
         }
 
