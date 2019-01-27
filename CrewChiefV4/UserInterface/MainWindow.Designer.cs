@@ -30,7 +30,7 @@ namespace CrewChiefV4
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
-            this.consoleTextBox = new System.Windows.Forms.RichTextBox();
+            this.consoleTextBox = new ExRichText();
             this.consoleTextBoxBackgroundPanel = new System.Windows.Forms.Panel();
             this.startApplicationButton = new System.Windows.Forms.Button();
             this.forceVersionCheckButton = new System.Windows.Forms.Button();
@@ -43,7 +43,6 @@ namespace CrewChiefV4
             this.propertiesButton = new System.Windows.Forms.Button();
             this.aboutButton = new System.Windows.Forms.Button();
             this.helpButton = new System.Windows.Forms.Button();
-            this.scanControllersButton = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.alwaysOnButton = new System.Windows.Forms.RadioButton();
             this.toggleButton = new System.Windows.Forms.RadioButton();
@@ -92,7 +91,7 @@ namespace CrewChiefV4
             this.SuspendLayout();
 
             this.consoleTextBoxBackgroundPanel.Location = new System.Drawing.Point(41, 215);
-            this.consoleTextBoxBackgroundPanel.Size = new System.Drawing.Size(MainWindow.soundTestMode ? 793 : 1093, 285);
+            this.consoleTextBoxBackgroundPanel.Size = new System.Drawing.Size(1093, 285);
             this.consoleTextBoxBackgroundPanel.BorderStyle = BorderStyle.FixedSingle;
             // 
             // consoleTextBox
@@ -102,7 +101,7 @@ namespace CrewChiefV4
             this.consoleTextBox.Multiline = true;
             this.consoleTextBox.Name = "textBox1";
             this.consoleTextBox.ReadOnly = true;
-            this.consoleTextBox.Size = new System.Drawing.Size(MainWindow.soundTestMode ? 793 : 1093, 285);
+            this.consoleTextBox.Size = new System.Drawing.Size(1093, 285);
             this.consoleTextBox.TabIndex = 200;
             this.consoleTextBox.BorderStyle = BorderStyle.None;
             this.consoleTextBox.Dock = DockStyle.Fill;
@@ -133,7 +132,7 @@ namespace CrewChiefV4
             this.controllersList.FormattingEnabled = true;
             this.controllersList.Location = new System.Drawing.Point(41, 520);
             this.controllersList.Name = "controllersList";
-            this.controllersList.Size = new System.Drawing.Size(248, 85);
+            this.controllersList.Size = new System.Drawing.Size(248, 115);
             this.controllersList.TabIndex = 210;
             this.controllersList.SelectedIndexChanged += new System.EventHandler(this.controllersList_SelectedIndexChanged);
             // 
@@ -167,13 +166,6 @@ namespace CrewChiefV4
             this.label1.TabIndex = 209;
             this.label1.Text = Configuration.getUIString("available_controllers");
 
-            this.scanControllersButton.Location = new System.Drawing.Point(38, 610);
-            this.scanControllersButton.Name = "scan_controllers_button";
-            this.scanControllersButton.Size = new System.Drawing.Size(143, 30);
-            this.scanControllersButton.TabIndex = 220;
-            this.scanControllersButton.Text = Configuration.getUIString("scan_controllers");
-            this.scanControllersButton.UseVisualStyleBackColor = true;
-            this.scanControllersButton.Click += new System.EventHandler(this.scanControllersButtonClicked);
             // 
             // label2
             // 
@@ -645,7 +637,6 @@ namespace CrewChiefV4
             this.Controls.Add(this.propertiesButton);
             this.Controls.Add(this.helpButton);
             this.Controls.Add(this.aboutButton);
-            this.Controls.Add(this.scanControllersButton);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.deleteAssigmentButton);
@@ -682,7 +673,7 @@ namespace CrewChiefV4
 
         #endregion
 
-        public System.Windows.Forms.RichTextBox consoleTextBox;
+        public ExRichText consoleTextBox;
         private Panel consoleTextBoxBackgroundPanel;
         public System.Windows.Forms.Button startApplicationButton;
         public System.Windows.Forms.CheckBox recordSession;
@@ -696,7 +687,6 @@ namespace CrewChiefV4
         private System.Windows.Forms.Button propertiesButton;
         private System.Windows.Forms.Button helpButton;
         private System.Windows.Forms.Button aboutButton;
-        private System.Windows.Forms.Button scanControllersButton;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.RadioButton alwaysOnButton;
         private System.Windows.Forms.RadioButton toggleButton;
