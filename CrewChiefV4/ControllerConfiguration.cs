@@ -209,8 +209,7 @@ namespace CrewChiefV4
         {
             foreach (ButtonAssignment buttonAssignment in buttonAssignments)
             {
-                if (buttonAssignment.action == CHANNEL_OPEN_FUNCTION && buttonAssignment.buttonIndex != -1
-                    && (buttonAssignment.joystick != null || (buttonAssignment.controller != null && buttonAssignment.controller.guid == UDP_NETWORK_CONTROLLER_GUID)))
+                if (buttonAssignment.action == CHANNEL_OPEN_FUNCTION && buttonAssignment.buttonIndex != -1)
                 {
                     return true;
                 }
@@ -513,7 +512,7 @@ namespace CrewChiefV4
                         {
                             var joystick = new Joystick(directInput, controller.guid);
                             // Acquire the joystick
-                            joystick.SetCooperativeLevel(parent, (CooperativeLevel.NonExclusive | CooperativeLevel.Background));
+                            joystick.SetCooperativeLevel(parent.Handle, (CooperativeLevel.NonExclusive | CooperativeLevel.Background));
                             joystick.Properties.BufferSize = 128;
                             joystick.Acquire();
                             buttonAssignments[buttonAssignmentIndexes[functionName]].joystick = joystick;
@@ -557,9 +556,9 @@ namespace CrewChiefV4
                     {
                         return ba.joystick.GetCurrentState().Buttons[ba.buttonIndex];
                     }
-                    catch (Exception)
+                    catch
                     {
-                        // ignore this exception
+                        
                     }
                 }
                 else if (ba.controller.guid == UDP_NETWORK_CONTROLLER_GUID && CrewChief.gameDefinition.gameEnum == GameEnum.PCARS_NETWORK)
@@ -579,7 +578,7 @@ namespace CrewChiefV4
             return ControllerData.parse(UserSettings.GetUserSettings().getString(ControllerData.PROPERTY_CONTAINER));
         }
         
-        public List<ControllerData> scanControllers()
+        public List<ControllerData> scanControllers(System.Windows.Forms.Form parent)
         {
             List<ControllerData> controllers = new List<ControllerData>(); 
             foreach (DeviceType deviceType in supportedDeviceTypes)
@@ -603,6 +602,7 @@ namespace CrewChiefV4
                             }
                             asyncDispose(deviceType, joystick);
                             controllers.Add(new ControllerData(productName, deviceType, joystickGuid));
+                            ReassignButtonsIfRequired(parent, deviceInstance);
                         }
                         catch (Exception e)
                         {
@@ -611,10 +611,34 @@ namespace CrewChiefV4
                     }
                 }
             }
+            UnassignButtonsIfRequired();
             String propVal = ControllerData.createPropValue(controllers);
             UserSettings.GetUserSettings().setProperty(ControllerData.PROPERTY_CONTAINER, propVal);
             UserSettings.GetUserSettings().saveUserSettings();
             return controllers;
+        }
+
+        private void UnassignButtonsIfRequired()
+        {
+            foreach (var ba in buttonAssignments.Where(b => b.controller != null && b.joystick != null && !directInput.IsDeviceAttached(b.controller.guid)))
+            {
+                ba.joystick.Unacquire();
+                ba.joystick.Dispose();
+                ba.joystick = null;
+            }
+        }
+
+        private void ReassignButtonsIfRequired(System.Windows.Forms.Form parent, DeviceInstance deviceInstance)
+        {
+            var joystickGuid = deviceInstance.InstanceGuid;
+            foreach (var ba in buttonAssignments.Where(b => b.controller != null && b.controller.guid == joystickGuid && b.buttonIndex != -1))
+            {
+                var joystick = new Joystick(directInput, ba.controller.guid);
+                joystick.SetCooperativeLevel(parent.Handle, (CooperativeLevel.NonExclusive | CooperativeLevel.Background));
+                joystick.Properties.BufferSize = 128;
+                joystick.Acquire();
+                ba.joystick = joystick;
+            }
         }
 
         public void addNetworkControllerToList()
@@ -668,7 +692,7 @@ namespace CrewChiefV4
                 {
                     var joystick = new Joystick(directInput, controllerData.guid);
                     // Acquire the joystick
-                    joystick.SetCooperativeLevel(parent, (CooperativeLevel.NonExclusive | CooperativeLevel.Background));
+                    joystick.SetCooperativeLevel(parent.Handle, (CooperativeLevel.NonExclusive | CooperativeLevel.Background));
                     joystick.Properties.BufferSize = 128;
                     joystick.Acquire();
                     while (listenForAssignment)
