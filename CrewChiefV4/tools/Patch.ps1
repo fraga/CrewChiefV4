@@ -51,6 +51,14 @@ OverwriteFile $rootPath\"trackLandmarksData.json" $ccLayoutMainPath
 OverwriteFile $rootPath\"saved_command_macros.json" $ccLayoutMainPath
 OverwriteFile $rootPath\"speech_recognition_config.txt" $ccLayoutMainPath
 
+# Update binary dependencies.
+OverwriteFile $releaseBinPath\"AutoUpdater.NET.dll" $ccLayoutMainPath
+OverwriteFile $releaseBinPath\"MathNet.Numerics.dll" $ccLayoutMainPath
+OverwriteFile $releaseBinPath\"NAudio.dll" $ccLayoutMainPath
+OverwriteFile $releaseBinPath\"Newtonsoft.Json.dll" $ccLayoutMainPath
+OverwriteFile $releaseBinPath\"SharpDX.dll" $ccLayoutMainPath
+OverwriteFile $releaseBinPath\"SharpDX.DirectInput.dll" $ccLayoutMainPath
+
 echo "Press any key to finish..."
 
 Read-Host
