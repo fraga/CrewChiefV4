@@ -181,7 +181,7 @@ namespace CrewChiefV4.Events
 
         public override List<SessionPhase> applicableSessionPhases
         {
-            get { return new List<SessionPhase> { SessionPhase.Green, SessionPhase.Countdown, SessionPhase.Finished, SessionPhase.Checkered, SessionPhase.FullCourseYellow }; }
+            get { return new List<SessionPhase> { SessionPhase.Green, SessionPhase.Countdown, SessionPhase.Finished, SessionPhase.Checkered, SessionPhase.FullCourseYellow, SessionPhase.Garage /*rF2 Garage phase sticks while exiting pits in practice/qualification, so we need to handle it*/ }; }
         }
 
         public override void clearState()
