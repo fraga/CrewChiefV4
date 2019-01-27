@@ -786,9 +786,13 @@ namespace CrewChiefV4
             this.constructingWindow = true;
 
             InitializeComponent();
-            this.consoleTextBoxBackgroundPanel.Size = new System.Drawing.Size(MainWindow.soundTestMode ? 793 : 1093, 285);
-            this.consoleTextBox.Size = new System.Drawing.Size(MainWindow.soundTestMode ? 793 : 1093, 285);
             this.SuspendLayout();
+
+            if (MainWindow.soundTestMode)
+            {
+                this.consoleTextBoxBackgroundPanel.Size = new System.Drawing.Size(793, 285);
+                this.consoleTextBox.Size = new System.Drawing.Size(793, 285);
+            }
 
             SetupNotificationTrayIcon();
 
