@@ -151,6 +151,8 @@ Crew Chief supports some rF2 specific features not exposed via official rF2 Inte
     "EnableStockCarRulesPlugin":0
   }
 
+Note: first space in " Enabled" above is required.
+
 See this post for more information: http://thecrewchief.org/showthread.php?1011-rFactor-2-Unofficial-Features
 
 
