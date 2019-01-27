@@ -1881,6 +1881,7 @@ namespace CrewChiefV4.rFactor2
             if (msg != this.lastEffectiveHistoryMessage
                 || (cgs.Now - this.timeEffectiveMessageProcessed).TotalSeconds > this.effectiveMessageExpirySeconds)
             {
+                // TODO: micro optimization, group messages by StartsWith.
                 var messageConsumed = true;
                 if (msg == "Crew Is Ready For Pitstop")
                 {
@@ -1946,6 +1947,16 @@ namespace CrewChiefV4.rFactor2
                 else if (msg == "Warning: Driving Too Slow")
                 {
                     cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.DRIVING_TOO_SLOW;
+                }
+                else if (msg == "Warning: One Lap To Serve Drive-Thru Penalty")
+                {
+                    // TODO: implement
+                    messageConsumed = false;
+                }
+                else if (msg == "Warning: One Lap To Serve Stop/Go Penalty")
+                {
+                    // TODO: implement
+                    messageConsumed = false;
                 }
                 else
                 {
