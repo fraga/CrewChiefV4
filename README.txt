@@ -139,6 +139,23 @@ If you want to have the game pre-selected, start the app like this for PCars: [f
 This can be used in conjunction with the launch_pcars / launch_raceroom / [game]_launch_exe / [game]_launch_params and run_immediately options to set crew chief up to start the game selected in the app launch argument, and start its own process. I'll provide examples of this approach soon. 
 
 
+rFactor2 Unofficial Features
+-------------------------------------
+Crew Chief supports some rF2 specific features not exposed via official rF2 Internals API.  Those features are turned off by default.  To enable those features, modify UserData\player\CustomPluginVariables.json by setting "EnableDirectMemoryAccess" to "1".  Plugin configuration should look like this:
+  "rFactor2SharedMemoryMapPlugin64.dll":{
+    " Enabled":1,
+    "DebugISIInternals":0,
+    "DebugOutputLevel":0,
+    "DedicatedServerMapGlobally":0,
+    "EnableDirectMemoryAccess":1,
+    "EnableStockCarRulesPlugin":0
+  }
+
+Note: first space in " Enabled" above is required.
+
+See this post for more information: http://thecrewchief.org/showthread.php?1011-rFactor-2-Unofficial-Features
+
+
 rFactor2 Stock Car Rules (SCR) plugin
 -------------------------------------
 rFactor 2 Stock Car Rules (SCR) are implemented as a plugin. The Shared Memory plugin which Crew Chief uses does not see the output of the SCR plugin, because rF2 (partially) isolates plugins from each other. In order to work around this issue the Shared Memory plugin has to load the SCR plugin and forward all rF2 calls to it.

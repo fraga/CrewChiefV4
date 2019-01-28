@@ -72,6 +72,7 @@ namespace CrewChiefV4
         public static String[] WHAT_TYRES_AM_I_ON = Configuration.getSpeechRecognitionPhrases("WHAT_TYRES_AM_I_ON");
         public static String[] WHAT_ARE_THE_RELATIVE_TYRE_PERFORMANCES = Configuration.getSpeechRecognitionPhrases("WHAT_ARE_THE_RELATIVE_TYRE_PERFORMANCES");
         public static String[] HOW_LONG_WILL_THESE_TYRES_LAST = Configuration.getSpeechRecognitionPhrases("HOW_LONG_WILL_THESE_TYRES_LAST");
+        public static String[] WHATS_PITLANE_SPEED_LIMIT = Configuration.getSpeechRecognitionPhrases("WHATS_PITLANE_SPEED_LIMIT");
 
         public static String[] HOW_MUCH_FUEL_TO_END_OF_RACE = Configuration.getSpeechRecognitionPhrases("HOW_MUCH_FUEL_TO_END_OF_RACE");
         public static String[] CALCULATE_FUEL_FOR = Configuration.getSpeechRecognitionPhrases("CALCULATE_FUEL_FOR");
@@ -762,6 +763,7 @@ namespace CrewChiefV4
                 validateAndAdd(WHAT_ARE_THE_RELATIVE_TYRE_PERFORMANCES, staticSpeechChoices);
                 validateAndAdd(PLAY_CORNER_NAMES, staticSpeechChoices);
                 validateAndAdd(HOW_LONG_WILL_THESE_TYRES_LAST, staticSpeechChoices);
+                validateAndAdd(WHATS_PITLANE_SPEED_LIMIT, staticSpeechChoices);
 
                 validateAndAdd(DAMAGE_REPORT, staticSpeechChoices);
                 validateAndAdd(CAR_STATUS, staticSpeechChoices);
@@ -1755,7 +1757,8 @@ namespace CrewChiefV4
                 return CrewChief.getEvent("Penalties");
             }
             else if (ResultContains(recognisedSpeech, DO_I_HAVE_A_MANDATORY_PIT_STOP, false) ||
-                ResultContains(recognisedSpeech, IS_MY_PIT_BOX_OCCUPIED, false))
+                ResultContains(recognisedSpeech, IS_MY_PIT_BOX_OCCUPIED, false) ||
+                ResultContains(recognisedSpeech, WHATS_PITLANE_SPEED_LIMIT, false))
             {
                 return CrewChief.getEvent("PitStops");
             }

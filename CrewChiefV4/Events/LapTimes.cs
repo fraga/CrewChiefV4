@@ -234,6 +234,10 @@ namespace CrewChiefV4.Events
 
         public override bool isMessageStillValid(string eventSubType, GameStateData currentGameState, Dictionary<string, object> validationData)
         {
+            if (Penalties.playerMustPitThisLap)
+            {
+                return false;
+            }
             // not sure if we need this - validate that we're not in sector 2 by the time the lap consistency message is played
             if ((eventSubType == folderImprovingTimes || eventSubType == folderConsistentTimes || eventSubType == folderWorseningTimes) &&
                     currentGameState.SessionData.SectorNumber != 1)

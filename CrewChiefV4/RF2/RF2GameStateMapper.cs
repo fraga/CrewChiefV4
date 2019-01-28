@@ -114,6 +114,20 @@ namespace CrewChiefV4.rFactor2
 
         private Dictionary<long, CarInfo> idToCarInfoMap = new Dictionary<long, CarInfo>();
 
+        // Message center stuff
+        private Int64 lastHistoryMessageUpdatedTicks = 0;
+        private Int64 statusMessageUpdatedTicks = 0;
+
+        // Since some of MC messages disapper (Player Control: N, for example), we need to remember last message that
+        // mattered from CC's standpoint, otherwise, same message could get applied multiple times.
+        private string lastEffectiveHistoryMessage = string.Empty;
+
+        // It is however sometimes valid for message to re-appear.  For example, Crew got ready in two separate pit
+        // requests.  Allow message processed to expire.
+        private readonly int effectiveMessageExpirySeconds = 120;
+        private DateTime timeEffectiveMessageProcessed = DateTime.MinValue;
+        private DateTime timeHistoryMessageIgnored = DateTime.MinValue;
+
         public RF2GameStateMapper()
         {
             this.tyreWearThresholds.Add(new CornerData.EnumWithThresholds(TyreCondition.NEW, -10000.0f, this.scrubbedTyreWearPercent));
@@ -126,7 +140,7 @@ namespace CrewChiefV4.rFactor2
             this.suspensionDamageThresholds.Add(new CornerData.EnumWithThresholds(DamageLevel.DESTROYED, 1.0f, 2.0f));
         }
 
-        private int[] minimumSupportedVersionParts = new int[] { 3, 2, 0, 0 };
+        private int[] minimumSupportedVersionParts = new int[] { 3, 3, 0, 5 };
         public static bool pluginVerified = false;
         public override void versionCheck(Object memoryMappedFileStruct)
         {
@@ -175,7 +189,8 @@ namespace CrewChiefV4.rFactor2
             else
             {
                 var msg = "rFactor 2 Shared Memory version: " + versionStr + " 64bit."
-                    + (shared.extended.mHostedPluginVars.StockCarRules_IsHosted != 0 ? ("  Stock Car Rules plugin hosted. (DFT:" + shared.extended.mHostedPluginVars.StockCarRules_DoubleFileType + ")")  : "");
+                    + (shared.extended.mHostedPluginVars.StockCarRules_IsHosted != 0 ? ("  Stock Car Rules plugin hosted. (DFT:" + shared.extended.mHostedPluginVars.StockCarRules_DoubleFileType + ")")  : "")
+                    + (shared.extended.mDirectMemoryAccessEnabled != 0 ? "  DMA enabled." : "");
                 Console.WriteLine(msg);
             }
 
@@ -211,9 +226,12 @@ namespace CrewChiefV4.rFactor2
             this.compoundNameToTyreType.Clear();
             this.idToCarInfoMap.Clear();
             this.lastPenaltyTime = DateTime.MinValue;
+            this.lastEffectiveHistoryMessage = string.Empty;
+            this.timeEffectiveMessageProcessed = DateTime.MinValue;
+            this.timeHistoryMessageIgnored = DateTime.MinValue;
         }
 
-        public override GameStateData mapToGameStateData(Object memoryMappedFileStruct, GameStateData previousGameState)
+    public override GameStateData mapToGameStateData(Object memoryMappedFileStruct, GameStateData previousGameState)
         {
             var pgs = previousGameState;
             var shared = memoryMappedFileStruct as CrewChiefV4.rFactor2.RF2SharedMemoryReader.RF2StructWrapper;
@@ -476,7 +494,7 @@ namespace CrewChiefV4.rFactor2
                 shared.scoring.mScoringInfo.mSession >= 5 && shared.scoring.mScoringInfo.mSession <= 8 ? shared.scoring.mScoringInfo.mSession - 5 :
                 shared.scoring.mScoringInfo.mSession >= 10 && shared.scoring.mScoringInfo.mSession <= 13 ? shared.scoring.mScoringInfo.mSession - 10 : 0;
 
-            csd.SessionType = mapToSessionType(shared);
+            csd.SessionType = MapToSessionType(shared);
             csd.SessionPhase = mapToSessionPhase((rFactor2Constants.rF2GamePhase)shared.scoring.mScoringInfo.mGamePhase, csd.SessionType, ref playerScoring);
 
             csd.SessionNumberOfLaps = shared.scoring.mScoringInfo.mMaxLaps > 0 && shared.scoring.mScoringInfo.mMaxLaps < 1000 ? shared.scoring.mScoringInfo.mMaxLaps : 0;
@@ -728,10 +746,10 @@ namespace CrewChiefV4.rFactor2
                 || shared.scoring.mScoringInfo.mInRealtime == 0
                 || playerTelemetry.mSpeedLimiterAvailable == 0)
             {
-                cgs.PitData.limiterStatus = -1;
+                cgs.PitData.limiterStatus = PitData.LimiterStatus.NOT_AVAILABLE;
             }
             else
-                cgs.PitData.limiterStatus = playerTelemetry.mSpeedLimiter > 0 ? 1 : 0;
+                cgs.PitData.limiterStatus = playerTelemetry.mSpeedLimiter > 0 ? PitData.LimiterStatus.ACTIVE : PitData.LimiterStatus.INACTIVE;
 
             if (pgs != null
                 && csd.CompletedLaps == psd.CompletedLaps
@@ -759,12 +777,18 @@ namespace CrewChiefV4.rFactor2
             if (pgs != null && !pgs.PitData.HasRequestedPitStop && cgs.PitData.HasRequestedPitStop)
                 this.timePitStopRequested = cgs.Now;
 
-            // Check if it's time to mark pit crew as ready.
-            if (pgs != null
-                && pgs.PitData.HasRequestedPitStop
-                && cgs.PitData.HasRequestedPitStop
-                && (cgs.Now - this.timePitStopRequested).TotalSeconds > cgs.carClass.pitCrewPreparationTime)
-                cgs.PitData.IsPitCrewReady = true;
+            if (shared.extended.mDirectMemoryAccessEnabled == 0)
+            {
+                // If DMA is not enabled, check if it's time to mark pit crew as ready.
+                if (pgs != null
+                    && pgs.PitData.HasRequestedPitStop
+                    && cgs.PitData.HasRequestedPitStop
+                    && (cgs.Now - this.timePitStopRequested).TotalSeconds > cgs.carClass.pitCrewPreparationTime)
+                        cgs.PitData.IsPitCrewReady = true;
+            }
+
+            if (shared.extended.mDirectMemoryAccessEnabled != 0)
+                cgs.PitData.PitSpeedLimit = shared.extended.mCurrentPitSpeedLimit;
 
             // This sometimes fires under Countdown, so limit to phases when message might make sense.
             if ((csd.SessionPhase == SessionPhase.Green
@@ -792,35 +816,49 @@ namespace CrewChiefV4.rFactor2
             else if (this.enablePitLaneApproachHeuristics)
             {
                 if (cgs.PitData.InPitlane)
-                    this.isApproachingPitEntry = false;
-
-                var estTrackWidth = Math.Abs(playerScoring.mTrackEdge) * 2.0;
-
-                if (this.minTrackWidth == -1.0 || estTrackWidth < this.minTrackWidth)
                 {
-                    this.minTrackWidth = estTrackWidth;
+                    this.minTrackWidth = -1.0;
+                    this.isApproachingPitEntry = false;
+                }
+                else
+                {
+                    var estTrackWidth = Math.Abs(playerScoring.mTrackEdge) * 2.0;
 
-                    // See if it looks like we're entering the pits.
-                    // The idea here is that if:
-                    // - current DistanceRoundTrack is past the point where track forks into pits
-                    // - this appears like narrowest part of a track surface (tracked for an entire lap)
-                    // - and pit is requested, assume we're approaching pit entry.
-                    if (cgs.SessionData.SessionType == SessionType.Race
-                        && cgs.PositionAndMotionData.DistanceRoundTrack > shared.rules.mTrackRules.mPitLaneStartDist
-                        && cgs.PitData.HasRequestedPitStop)
-                        this.isApproachingPitEntry = true;
-
-                    if (cgs.SessionData.SectorNumber > 2)  // Only print in S3, that's the most interesting.
+                    if (this.minTrackWidth == -1.0 || estTrackWidth < this.minTrackWidth)
                     {
-                        Console.WriteLine(string.Format("New min width: {0:0.000}    lapDist: {1:0.000}    pathLat: {2:0.000}    inPit: {3}    ps: {4}    appr: {5}    lap: {6}    pit lane: {7:0.000}",
-                            this.minTrackWidth,
-                            playerScoring.mLapDist,
-                            playerScoring.mPathLateral,
-                            cgs.PitData.InPitlane,
-                            playerScoring.mPitState,
-                            this.isApproachingPitEntry,
-                            csd.CompletedLaps + 1,
-                            shared.rules.mTrackRules.mPitLaneStartDist));
+                        this.minTrackWidth = estTrackWidth;
+
+                        var pitLaneStartDist = shared.rules.mTrackRules.mPitLaneStartDist;
+                        if (cgs.SessionData.SessionType != SessionType.Race)
+                        {
+                            // Rules aren't updated in non-race sessions, so estimate pit lane start based on
+                            // pit stall position.
+                            pitLaneStartDist = playerScoring.mPitLapDist - 400.0f;
+                            if (pitLaneStartDist < 0.0f)
+                                pitLaneStartDist += (float)shared.scoring.mScoringInfo.mLapDist;
+                        }
+
+                        // See if it looks like we're entering the pits.
+                        // The idea here is that if:
+                        // - current DistanceRoundTrack is past the point where track forks into pits
+                        // - this appears like narrowest part of a track surface (tracked for an entire lap)
+                        // - and pit is requested, assume we're approaching pit entry.
+                        if (cgs.PositionAndMotionData.DistanceRoundTrack > pitLaneStartDist
+                            && cgs.PitData.HasRequestedPitStop)
+                            this.isApproachingPitEntry = true;
+
+                        if (cgs.SessionData.SectorNumber > 2)  // Only print in S3, that's the most interesting.
+                        {
+                            Console.WriteLine(string.Format("New min width: {0:0.000}    lapDist: {1:0.000}    pathLat: {2:0.000}    inPit: {3}    ps: {4}    appr: {5}    lap: {6}    pit lane: {7:0.000}",
+                                this.minTrackWidth,
+                                playerScoring.mLapDist,
+                                playerScoring.mPathLateral,
+                                cgs.PitData.InPitlane,
+                                playerScoring.mPitState,
+                                this.isApproachingPitEntry,
+                                csd.CompletedLaps + 1,
+                                shared.rules.mTrackRules.mPitLaneStartDist));
+                        }
                     }
                 }
 
@@ -1755,6 +1793,11 @@ namespace CrewChiefV4.rFactor2
                 }
             }
 
+
+            // --------------------------------
+            // MC warnings
+            this.ProcessMCMessages(cgs, pgs, shared);
+
             // --------------------------------
             // console output
             if (csd.IsNewSession)
@@ -1813,6 +1856,135 @@ namespace CrewChiefV4.rFactor2
             this.lastSessionHardPartsOnTrackData = cgs.hardPartsOnTrackData;
 
             return cgs;
+        }
+
+        private void ProcessMCMessages(GameStateData cgs, GameStateData pgs, RF2SharedMemoryReader.RF2StructWrapper shared)
+        {
+            if (shared.extended.mDirectMemoryAccessEnabled == 0)
+                return;
+
+#if DEBUG
+            if (shared.extended.mTicksStatusMessageUpdated != this.statusMessageUpdatedTicks)
+            {
+                this.statusMessageUpdatedTicks = shared.extended.mTicksStatusMessageUpdated;
+                Console.WriteLine("Status message: updated - \"" + RF2GameStateMapper.GetStringFromBytes(shared.extended.mStatusMessage) + "\"");
+            }
+#endif
+
+            if (shared.extended.mTicksLastHistoryMessageUpdated == this.lastHistoryMessageUpdatedTicks)
+                return;
+
+            // Do not re-process this update.
+            this.lastHistoryMessageUpdatedTicks = shared.extended.mTicksLastHistoryMessageUpdated;
+
+            var msg = RF2GameStateMapper.GetStringFromBytes(shared.extended.mLastHistoryMessage);
+            if (msg != this.lastEffectiveHistoryMessage
+                || (cgs.Now - this.timeEffectiveMessageProcessed).TotalSeconds > this.effectiveMessageExpirySeconds)
+            {
+                // TODO: micro optimization, group messages by StartsWith.
+                var messageConsumed = true;
+                if (msg == "Crew Is Ready For Pitstop")
+                {
+                    if (pgs != null
+                        && pgs.PitData.HasRequestedPitStop
+                        && cgs.PitData.HasRequestedPitStop)
+                        cgs.PitData.IsPitCrewReady = true;
+                }
+                else if (msg == "Headlights Are Now Required")
+                {
+                    cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.HEADLIGHTS_REQUIRED;
+                }
+                else if (msg == "Stop/Go Penalty: Cut Track")
+                {
+                    cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
+                    cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.CUT_TRACK;
+                }
+                else if (msg == "Stop/Go Penalty: Speeding In Pitlane")
+                {
+                    cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
+                    cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.SPEEDING_IN_PITLANE;
+                }
+                else if (msg == "Drive-Thru Penalty: Speeding In Pitlane")
+                {
+                    cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.DRIVE_THROUGH;
+                    cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.SPEEDING_IN_PITLANE;
+                }
+                else if (msg == "Stop/Go Penalty: False Start")
+                {
+                    cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
+                    cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.FALSE_START;
+                }
+                else if (msg == "Stop/Go Penalty: Exiting Pits Under Red")
+                {
+                    cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
+                    cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.EXITING_PITS_UNDER_RED;
+                }
+                else if (msg == "Stop/Go Penalty: Illegally Passed Before Green")
+                {
+                    // TODO: test
+                    cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
+                    cgs.PenaltiesData.PenaltyCause = cgs.FlagData.previousLapWasFCY
+                        ? PenatiesData.DetailedPenaltyCause.ILLEGAL_PASS_FCY_BEFORE_GREEN
+                        : PenatiesData.DetailedPenaltyCause.ILLEGAL_PASS_ROLLING_BEFORE_GREEN;
+                }
+                else if (msg == "Disqualified: Driving In Dark Without Headlights")
+                {
+                    cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.DISQUALIFIED_DRIVING_WITHOUT_HEADLIGHTS;
+                }
+                // msg == "Disqualified: 4 Laps"
+                else if (msg.StartsWith("Disqualified: ") && msg.EndsWith(" Laps"))
+                {
+                    cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.DISQUALIFIED_EXCEEDING_ALLOWED_LAP_COUNT;
+                }
+                else if (msg == "Enter Pits To Avoid Exceeding Lap Allowance")
+                {
+                    cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.ENTER_PITS_TO_AVOID_EXCEEDING_LAPS;
+                }
+                else if (msg == "Wrong Way")  // Might be too idiotic to announce
+                {
+                    cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.WRONG_WAY;
+                }
+                else if (msg == "Warning: Driving Too Slow")
+                {
+                    cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.DRIVING_TOO_SLOW;
+                }
+                else if (msg == "Warning: One Lap To Serve Drive-Thru Penalty")
+                {
+                    // TODO: implement
+                    messageConsumed = false;
+                }
+                else if (msg == "Warning: One Lap To Serve Stop/Go Penalty")
+                {
+                    // TODO: implement
+                    messageConsumed = false;
+                }
+                else
+                {
+                    // Avoid spamming console too aggressively.
+                    if ((cgs.Now - this.timeHistoryMessageIgnored).TotalSeconds > 10)
+                    {
+                        this.timeHistoryMessageIgnored = cgs.Now;
+                        Console.WriteLine("MC Message: ignored - \"" + msg + "\"");
+                    }
+
+                    messageConsumed = false;
+                }
+
+                if (messageConsumed)
+                {
+                    this.lastEffectiveHistoryMessage = msg;
+                    this.timeEffectiveMessageProcessed = cgs.Now;
+                    Console.WriteLine("MC Message: processed - \"" + msg + "\"");
+                }
+            }
+            else
+            {
+                if ((cgs.Now - this.timeHistoryMessageIgnored).TotalSeconds > 5)
+                {
+                    this.timeHistoryMessageIgnored = cgs.Now;
+                    Console.WriteLine("MC Messages: message was already processed - \"" + msg + "\"    Elapsed seconds: " + (cgs.Now - this.timeEffectiveMessageProcessed).TotalSeconds.ToString("0.00"));
+                }
+            }
         }
 
         private StockCarRulesData GetStockCarRulesData(GameStateData currentGameState, ref rF2TrackRulesParticipant playerRules, ref rF2Rules rules, ref CrewChiefV4.rFactor2.RF2SharedMemoryReader.RF2StructWrapper shared)
@@ -2185,7 +2357,7 @@ namespace CrewChiefV4.rFactor2
             return bestKey;
         }
 
-        public SessionType mapToSessionType(Object wrapper)
+        public SessionType MapToSessionType(Object wrapper)
         {
             var shared = wrapper as CrewChiefV4.rFactor2.RF2SharedMemoryReader.RF2StructWrapper;
             switch (shared.scoring.mScoringInfo.mSession)
@@ -2282,20 +2454,6 @@ namespace CrewChiefV4.rFactor2
                     return ControlType.Replay;
                 default:
                     return ControlType.Unavailable;
-            }
-        }
-
-        public bool IsBehindWithinDistance(float trackLength, float minDistance, float maxDistance, float playerTrackDistance, float opponentTrackDistance)
-        {
-            float difference = playerTrackDistance - opponentTrackDistance;
-            if (difference > 0)
-            {
-                return difference < maxDistance && difference > minDistance;
-            }
-            else
-            {
-                difference = (playerTrackDistance + trackLength) - opponentTrackDistance;
-                return difference < maxDistance && difference > minDistance;
             }
         }
 

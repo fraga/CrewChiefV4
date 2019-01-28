@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using CrewChiefV4.GameState;
 using CrewChiefV4.Audio;
+using System.Diagnostics;
 
 namespace CrewChiefV4.Events
 {
@@ -55,8 +56,36 @@ namespace CrewChiefV4.Events
 
         private String folderPenaltyServed = "penalties/penalty_served";
 
+        // Detailed penalty messages
         private String folderYouDontHaveAPenalty = "penalties/you_dont_have_a_penalty";
 
+        private String folderStopGoSpeedingInPitlane = "penalties/stop_go_penalty_speeding_in_pit_lane";
+
+        private String folderStopGoCutTrack = "penalties/stop_go_penalty_cutting_track";
+
+        private String folderStopGoFalseStart = "penalties/stop_go_penalty_false_start";
+
+        private String folderStopGoExitingPitsUnderRed = "penalties/stop_go_exitting_pits_on_red";
+
+        private String folderStopGoRollingPassBeforeGreen = "penalties/stop_go_penalty_overtaking_on_formation_lap";
+
+        private String folderStopGoFCYPassBeforeGreenEU = "penalties/stop_go_penalty_overtaking_under_safety_car";
+
+        private String folderStopGoFCYPassBeforeGreenUS = "penalties/stop_go_penalty_overtaking_under_pace_car";
+
+        private String folderDisqualifiedDrivingWithoutHeadlights = "penalties/disqualified_driving_without_headlights";
+
+        private String folderDisqualifiedExceededAllowedLapCount = "penalties/disqualified_exceeded_allowed_lap_count";
+
+        private String folderDriveThroughSpeedingInPitlane = "penalties/drive_through_speeding_in_pit_lane";
+
+        private String folderWarningDrivingTooSlow = "penalties/warning_driving_too_slow";
+
+        private String folderWarningWrongWay = "penalties/warning_wrong_way";
+
+        private String folderWarningHeadlightsRequired = "penalties/warning_headlights_required";
+
+        private String folderWarningEnterPitsToAvoidExceedingLaps = "penalties/warning_enter_pits_to_avoid_exceeding_laps";
 
         private Boolean hasHadAPenalty;
 
@@ -67,6 +96,8 @@ namespace CrewChiefV4.Events
         private Boolean playedPitNow;
 
         private Boolean hasOutstandingPenalty = false;
+        private PenatiesData.DetailedPenaltyType outstandingPenaltyType = PenatiesData.DetailedPenaltyType.NONE;
+        private PenatiesData.DetailedPenaltyCause outstandingPenaltyCause = PenatiesData.DetailedPenaltyCause.NONE;
 
         private Boolean playedTimePenaltyMessage;
 
@@ -90,6 +121,13 @@ namespace CrewChiefV4.Events
 
         private Boolean playedSlowdownNotificationOnThisLap = false;
 
+        public static Boolean playerMustPitThisLap = false;
+
+        public override List<SessionPhase> applicableSessionPhases
+        {
+            get { return new List<SessionPhase> { SessionPhase.Green, SessionPhase.Countdown, SessionPhase.Garage /*Apparently rF2 issues penalties in garage too :)*/}; }
+        }
+
         public Penalties(AudioPlayer audioPlayer)
         {
             this.audioPlayer = audioPlayer;
@@ -106,6 +144,7 @@ namespace CrewChiefV4.Events
             waitingToNotifyOfSlowdown = false;
             timeToNotifyOfSlowdown = DateTime.MinValue;
             playedSlowdownNotificationOnThisLap = false;
+            playerMustPitThisLap = false;
         }
 
         private void clearPenaltyState()
@@ -113,6 +152,8 @@ namespace CrewChiefV4.Events
             penaltyLap = -1;
             lapsCompleted = -1;
             hasOutstandingPenalty = false;
+            outstandingPenaltyType = PenatiesData.DetailedPenaltyType.NONE;
+            outstandingPenaltyCause = PenatiesData.DetailedPenaltyCause.NONE;
             // edge case here: if a penalty is given and immediately served (slow down penalty), then
             // the player gets another within the next 20 seconds, the 'you have 3 laps to come in to serve'
             // message would be in the queue and would be made valid again, so would play. So we explicity 
@@ -170,8 +211,9 @@ namespace CrewChiefV4.Events
                 warnedOfPossibleTrackLimitsViolationOnThisLap = false;
                 playedTrackCutWarningInPracticeOrQualOnThisLap = false;
                 playedSlowdownNotificationOnThisLap = false;
+                playerMustPitThisLap = false;
             }
-            if (currentGameState.SessionData.SessionType == SessionType.Race && previousGameState != null && 
+            if (currentGameState.SessionData.SessionType == SessionType.Race && previousGameState != null &&
                 (currentGameState.PenaltiesData.HasDriveThrough || currentGameState.PenaltiesData.HasStopAndGo || currentGameState.PenaltiesData.HasTimeDeduction))
             {
                 if (currentGameState.PenaltiesData.HasDriveThrough && !previousGameState.PenaltiesData.HasDriveThrough)
@@ -210,7 +252,7 @@ namespace CrewChiefV4.Events
                     // we've exited the pits but there's still an outstanding penalty
                     audioPlayer.playMessage(new QueuedMessage(folderPenaltyNotServed, 0, secondsDelay: 3, abstractEvent: this, priority: 10));
                     playedNotServedPenalty = true;
-                } 
+                }
                 else if (currentGameState.SessionData.IsNewLap && (currentGameState.PenaltiesData.HasStopAndGo || currentGameState.PenaltiesData.HasDriveThrough))
                 {
                     lapsCompleted = currentGameState.SessionData.CompletedLaps;
@@ -251,7 +293,7 @@ namespace CrewChiefV4.Events
                     audioPlayer.playMessage(new QueuedMessage(folderTimePenalty, 0, abstractEvent: this, priority: 10));
                 }
             }
-            else if (currentGameState.PositionAndMotionData.CarSpeed > 1 && playCutTrackWarnings && 
+            else if (currentGameState.PositionAndMotionData.CarSpeed > 1 && playCutTrackWarnings &&
                 !currentGameState.PitData.OnOutLap &&
                 currentGameState.PenaltiesData.CutTrackWarnings > cutTrackWarningsCount &&
                 currentGameState.PenaltiesData.NumPenalties == previousGameState.PenaltiesData.NumPenalties)  // Make sure we've no new penalty for this cut.
@@ -312,21 +354,24 @@ namespace CrewChiefV4.Events
                     clearPenaltyState();
                 }
             }
-            
-            // can't read penalty type in Automobilista
-            // Assume this applies to rF2 as well for now
-            else if (currentGameState.SessionData.SessionType == SessionType.Race && previousGameState != null &&
+            else if ((currentGameState.SessionData.SessionType == SessionType.Race || currentGameState.SessionData.SessionType == SessionType.Qualify || currentGameState.SessionData.SessionType == SessionType.Practice) && previousGameState != null &&
                 currentGameState.PenaltiesData.NumPenalties > 0 && (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT))
             {
                 if (currentGameState.PenaltiesData.NumPenalties > previousGameState.PenaltiesData.NumPenalties)
                 {
                     lapsCompleted = currentGameState.SessionData.CompletedLaps;
                     // this is a new penalty
-                    int delay1 = Utilities.random.Next(3, 7);
-                    int delay2 = Utilities.random.Next(10, 20);
-                    audioPlayer.playMessage(new QueuedMessage(folderYouHavePenalty, delay1 + 6, secondsDelay: delay1, abstractEvent: this, priority: 10));
-                    // queue a '3 laps to serve penalty' message - this might not get played
-                    audioPlayer.playMessage(new QueuedMessage(folderThreeLapsToServe, delay2 + 6, secondsDelay: delay2, abstractEvent: this, priority: 10));
+                    int delay1 = Utilities.random.Next(1, 5);
+                    int delay2 = Utilities.random.Next(7, 12);
+                    outstandingPenaltyType = currentGameState.PenaltiesData.PenaltyType;
+                    outstandingPenaltyCause = currentGameState.PenaltiesData.PenaltyCause;
+
+                    var message = getPenaltyMessge(outstandingPenaltyType, outstandingPenaltyCause);
+                    audioPlayer.playMessage(new QueuedMessage(message, delay1 + 6, secondsDelay: delay1, abstractEvent: this, priority: 15));
+
+                    // queue a '3 laps to serve penalty' message - this might not get played if player crosses s/f line before
+                    audioPlayer.playMessage(new QueuedMessage(folderThreeLapsToServe, delay2 + 6, secondsDelay: delay2, abstractEvent: this, priority: 12));
+
                     // we don't already have a penalty
                     if (penaltyLap == -1 || !hasOutstandingPenalty)
                     {
@@ -380,7 +425,7 @@ namespace CrewChiefV4.Events
             {
                 clearPenaltyState();
             }
-            if (currentGameState.SessionData.SessionType == SessionType.Race && previousGameState != null && 
+            if (currentGameState.SessionData.SessionType == SessionType.Race && previousGameState != null &&
                 ((previousGameState.PenaltiesData.HasStopAndGo && !currentGameState.PenaltiesData.HasStopAndGo) ||
                 (previousGameState.PenaltiesData.HasDriveThrough && !currentGameState.PenaltiesData.HasDriveThrough) ||
                 // can't read penalty type in Automobilista (and presumably in rF2).
@@ -388,7 +433,46 @@ namespace CrewChiefV4.Events
                 (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT))))
             {
                 audioPlayer.playMessage(new QueuedMessage(folderPenaltyServed, 0, abstractEvent: this, priority: 10));
-            }            
+            }
+
+            if (currentGameState.PenaltiesData.Warning != PenatiesData.WarningMessage.NONE)
+            {
+                string warningMsg = null;
+                switch (currentGameState.PenaltiesData.Warning)
+                {
+                    case PenatiesData.WarningMessage.WRONG_WAY:
+                        warningMsg = folderWarningWrongWay;
+                        break;
+                    case PenatiesData.WarningMessage.DRIVING_TOO_SLOW:
+                        warningMsg = folderWarningDrivingTooSlow;
+                        break;
+                    case PenatiesData.WarningMessage.HEADLIGHTS_REQUIRED:
+                        warningMsg = folderWarningHeadlightsRequired;
+                        break;
+                    case PenatiesData.WarningMessage.ENTER_PITS_TO_AVOID_EXCEEDING_LAPS:
+                        if (!currentGameState.PitData.HasRequestedPitStop)
+                        {
+                            warningMsg = folderWarningEnterPitsToAvoidExceedingLaps;
+                            playerMustPitThisLap = true;
+                        }
+                        break;
+                    case PenatiesData.WarningMessage.DISQUALIFIED_DRIVING_WITHOUT_HEADLIGHTS:
+                        warningMsg = folderDisqualifiedDrivingWithoutHeadlights;
+                        break;
+                    case PenatiesData.WarningMessage.DISQUALIFIED_EXCEEDING_ALLOWED_LAP_COUNT:
+                        warningMsg = folderDisqualifiedExceededAllowedLapCount;
+                        break;
+                    default:
+                        Debug.Assert(false, "Unhandled warning");
+                        Console.WriteLine("Penalties: unhandled warning: " + currentGameState.PenaltiesData.Warning);
+                        break;
+                }
+
+                if (!String.IsNullOrWhiteSpace(warningMsg))
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(warningMsg, 0, priority: 15));
+                }
+            }
         }
 
         public override void respond(string voiceMessage)
@@ -398,14 +482,15 @@ namespace CrewChiefV4.Events
             {
                 if (hasOutstandingPenalty)
                 {
+                    var penaltyMessage = getPenaltyMessge(outstandingPenaltyType, outstandingPenaltyCause);
                     if (lapsCompleted - penaltyLap == 2)
                     {
                         audioPlayer.playMessageImmediately(new QueuedMessage("youHaveAPenaltyBoxThisLap", 0,
-                            messageFragments: MessageContents(folderYouHavePenalty, PitStops.folderMandatoryPitStopsPitThisLap)));
+                            messageFragments: MessageContents(penaltyMessage, PitStops.folderMandatoryPitStopsPitThisLap)));
                     }
                     else
                     {
-                        audioPlayer.playMessageImmediately(new QueuedMessage(folderYouHavePenalty, 0));
+                        audioPlayer.playMessageImmediately(new QueuedMessage(penaltyMessage, 0));
                     }
                 }
             }
@@ -420,14 +505,15 @@ namespace CrewChiefV4.Events
                 {
                     if (hasOutstandingPenalty)
                     {
+                        var penaltyMessage = getPenaltyMessge(outstandingPenaltyType, outstandingPenaltyCause);
                         if (lapsCompleted - penaltyLap == 2)
                         {
                             audioPlayer.playMessageImmediately(new QueuedMessage("youHaveAPenaltyBoxThisLap", 0,
-                            messageFragments: MessageContents(folderYouHavePenalty, PitStops.folderMandatoryPitStopsPitThisLap)));
+                            messageFragments: MessageContents(penaltyMessage, PitStops.folderMandatoryPitStopsPitThisLap)));
                         }
                         else
                         {
-                            audioPlayer.playMessageImmediately(new QueuedMessage(folderYouHavePenalty, 0));
+                            audioPlayer.playMessageImmediately(new QueuedMessage(penaltyMessage, 0));
                         }
                     }
                     else
@@ -474,6 +560,53 @@ namespace CrewChiefV4.Events
                     }
                 }
             }
+        }
+
+        private String getPenaltyMessge(PenatiesData.DetailedPenaltyType penaltyType, PenatiesData.DetailedPenaltyCause penaltyCause)
+        {
+            if (penaltyType == PenatiesData.DetailedPenaltyType.STOP_AND_GO)
+            {
+                switch (penaltyCause)
+                {
+                    case PenatiesData.DetailedPenaltyCause.NONE:
+                        Debug.Assert(false, "Penalty without cause.");
+                        break;
+                    case PenatiesData.DetailedPenaltyCause.SPEEDING_IN_PITLANE:
+                        return folderStopGoSpeedingInPitlane;
+                    case PenatiesData.DetailedPenaltyCause.FALSE_START:
+                        return folderStopGoFalseStart;
+                    case PenatiesData.DetailedPenaltyCause.CUT_TRACK:
+                        return folderStopGoCutTrack;
+                    case PenatiesData.DetailedPenaltyCause.EXITING_PITS_UNDER_RED:
+                        return folderStopGoExitingPitsUnderRed;
+                    case PenatiesData.DetailedPenaltyCause.ILLEGAL_PASS_ROLLING_BEFORE_GREEN:
+                        return folderStopGoRollingPassBeforeGreen;
+                    case PenatiesData.DetailedPenaltyCause.ILLEGAL_PASS_FCY_BEFORE_GREEN:
+                        return GlobalBehaviourSettings.useAmericanTerms ? folderStopGoFCYPassBeforeGreenUS : folderStopGoFCYPassBeforeGreenEU;
+                    default:
+                        Debug.Assert(false, "Unhandled penalty cause");
+                        Console.WriteLine("Penalties: unhandled stop/go penalty cause: " + penaltyCause);
+                        break;
+                }
+            }
+            else if (penaltyType == PenatiesData.DetailedPenaltyType.DRIVE_THROUGH)
+            {
+                switch (penaltyCause)
+                {
+                    case PenatiesData.DetailedPenaltyCause.NONE:
+                        Debug.Assert(false, "Penalty without cause.");
+                        break;
+                    case PenatiesData.DetailedPenaltyCause.SPEEDING_IN_PITLANE:
+                        return folderDriveThroughSpeedingInPitlane;
+                    default:
+                        Debug.Assert(false, "Unhandled penalty cause");
+                        Console.WriteLine("Penalties: unhandled stop/go penalty cause: " + penaltyCause);
+                        break;
+                }
+            }
+
+            // If no detailed message available, play basic message.
+            return folderYouHavePenalty;
         }
     }
 }

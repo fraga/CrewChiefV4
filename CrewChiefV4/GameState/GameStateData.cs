@@ -2626,8 +2626,8 @@ namespace CrewChiefV4.GameState
         public int MaxPermittedDistanceOnCurrentTyre = -1;
         public int MinPermittedDistanceOnCurrentTyre = -1;
 
-        // -1 == n/a; 0 = inactive; 1 = active
-        public int limiterStatus = -1;
+        public enum LimiterStatus { NOT_AVAILABLE, INACTIVE, ACTIVE }
+        public LimiterStatus limiterStatus = LimiterStatus.NOT_AVAILABLE;
 
         // RF1/RF2 hack for mandatory pit stop windows, which are used to trigger 'box now' messages
         public Boolean ResetEvents;
@@ -2638,6 +2638,7 @@ namespace CrewChiefV4.GameState
 
         public Boolean IsPitCrewReady;
 
+        // m/s
         public float PitSpeedLimit = -1.0f;
 
         // distance round track of pit box
@@ -2648,6 +2649,12 @@ namespace CrewChiefV4.GameState
         public Boolean JumpedToPits;
 
         public Boolean IsInGarage;
+
+        // Note that callers have to also check if PitSpeedLimit != -1.0f, which means no data.
+        public bool pitlaneHasSpeedLimit()
+        {
+            return PitSpeedLimit > 0.0f && PitSpeedLimit < 56.0f; // 200kph
+        }
     }
 
     public class PenatiesData
@@ -2672,6 +2679,39 @@ namespace CrewChiefV4.GameState
         public Boolean IsOffRacingSurface;
 
         public Boolean PossibleTrackLimitsViolation;
+
+        // Below fields are one tick triggers.
+        public enum DetailedPenaltyType
+        {
+           NONE,
+           STOP_AND_GO,
+           DRIVE_THROUGH
+        }
+        public DetailedPenaltyType PenaltyType = DetailedPenaltyType.NONE;
+
+        public enum DetailedPenaltyCause
+        {
+            NONE,
+            SPEEDING_IN_PITLANE,
+            FALSE_START,
+            CUT_TRACK,
+            EXITING_PITS_UNDER_RED,
+            ILLEGAL_PASS_ROLLING_BEFORE_GREEN,
+            ILLEGAL_PASS_FCY_BEFORE_GREEN,
+        }
+        public DetailedPenaltyCause PenaltyCause = DetailedPenaltyCause.NONE;
+
+        public enum WarningMessage
+        {
+            NONE,
+            WRONG_WAY,
+            DRIVING_TOO_SLOW,
+            HEADLIGHTS_REQUIRED,
+            ENTER_PITS_TO_AVOID_EXCEEDING_LAPS, // Prac/Quali.
+            DISQUALIFIED_DRIVING_WITHOUT_HEADLIGHTS,
+            DISQUALIFIED_EXCEEDING_ALLOWED_LAP_COUNT // Prac/Quali.
+        }
+        public WarningMessage Warning = WarningMessage.NONE;
     }
 
     public class TyreData

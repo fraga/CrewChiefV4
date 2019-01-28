@@ -112,18 +112,17 @@ namespace CrewChiefV4
         public void killChief()
         {
             crewChief.stop();
-        }        
+        }
 
         protected override void WndProc(ref Message m)
         {
             base.WndProc(ref m);
-
             if (m.Msg == WM_DEVICECHANGE)
             {
-               if((int)m.WParam == DBT_DEVNODES_CHANGED)
+                if ((int)m.WParam == DBT_DEVNODES_CHANGED)
                 {
                     refreshControllerList();
-                }                    
+                }
             }
         }
 
@@ -2745,6 +2744,7 @@ namespace CrewChiefV4
                 startDownload(DownloadType.SOUND_PACK);
             }
         }
+
         private void downloadDriverNamesButtonPress(object sender, EventArgs e)
         {
             if (AudioPlayer.soundPackLanguage == null)
@@ -2770,6 +2770,7 @@ namespace CrewChiefV4
                 startDownload(DownloadType.DRIVER_NAMES);
             }
         }
+
         private void downloadPersonalisationsButtonPress(object sender, EventArgs e)
         {
             if (AudioPlayer.soundPackLanguage == null)
