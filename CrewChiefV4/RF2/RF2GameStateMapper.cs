@@ -1960,12 +1960,16 @@ namespace CrewChiefV4.rFactor2
                 }
                 else
                 {
+#if !DEBUG
                     // Avoid spamming console too aggressively.
                     if ((cgs.Now - this.timeHistoryMessageIgnored).TotalSeconds > 10)
                     {
                         this.timeHistoryMessageIgnored = cgs.Now;
                         Console.WriteLine("MC Message: ignored - \"" + msg + "\"");
                     }
+#else
+                    Console.WriteLine("MC Message: ignored - \"" + msg + "\"");
+#endif
 
                     messageConsumed = false;
                 }
@@ -1979,11 +1983,15 @@ namespace CrewChiefV4.rFactor2
             }
             else
             {
+#if !DEBUG
                 if ((cgs.Now - this.timeHistoryMessageIgnored).TotalSeconds > 5)
                 {
                     this.timeHistoryMessageIgnored = cgs.Now;
                     Console.WriteLine("MC Messages: message was already processed - \"" + msg + "\"    Elapsed seconds: " + (cgs.Now - this.timeEffectiveMessageProcessed).TotalSeconds.ToString("0.00"));
                 }
+#else
+                Console.WriteLine("MC Messages: message was already processed - \"" + msg + "\"    Elapsed seconds: " + (cgs.Now - this.timeEffectiveMessageProcessed).TotalSeconds.ToString("0.00"));
+#endif
             }
         }
 
