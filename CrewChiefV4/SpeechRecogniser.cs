@@ -122,6 +122,8 @@ namespace CrewChiefV4
         public static String[] PLAY_POST_PIT_POSITION_ESTIMATE = Configuration.getSpeechRecognitionPhrases("PLAY_POST_PIT_POSITION_ESTIMATE");
         public static String[] PRACTICE_PIT_STOP = Configuration.getSpeechRecognitionPhrases("PRACTICE_PIT_STOP");
 
+        public static String[] ENABLE_CUT_TRACK_WARNINGS = Configuration.getSpeechRecognitionPhrases("ENABLE_CUT_TRACK_WARNINGS");
+        public static String[] DISABLE_CUT_TRACK_WARNINGS = Configuration.getSpeechRecognitionPhrases("DISABLE_CUT_TRACK_WARNINGS");
 
         public static String ON = Configuration.getSpeechRecognitionConfigOption("ON");
         public static String POSSESSIVE = Configuration.getSpeechRecognitionConfigOption("POSSESSIVE");
@@ -787,6 +789,8 @@ namespace CrewChiefV4
                     validateAndAdd(DONT_TALK_IN_THE_CORNERS, staticSpeechChoices);
                     validateAndAdd(SPOT, staticSpeechChoices);
                     validateAndAdd(DONT_SPOT, staticSpeechChoices);
+                    validateAndAdd(ENABLE_CUT_TRACK_WARNINGS, staticSpeechChoices);
+                    validateAndAdd(DISABLE_CUT_TRACK_WARNINGS, staticSpeechChoices);
                 }
 
                 validateAndAdd(WHATS_THE_FASTEST_LAP_TIME, staticSpeechChoices);
@@ -1669,6 +1673,14 @@ namespace CrewChiefV4
             else if (ResultContains(recognisedSpeech, DISABLE_YELLOW_FLAG_MESSAGES, false))
             {
                 crewChief.disableYellowFlagMessages();
+            }
+            else if (ResultContains(recognisedSpeech, ENABLE_CUT_TRACK_WARNINGS, false))
+            {
+                crewChief.enableCutTrackWarnings();
+            }
+            else if (ResultContains(recognisedSpeech, DISABLE_CUT_TRACK_WARNINGS, false))
+            {
+                crewChief.disableCutTrackWarnings();
             }
             else if (ResultContains(recognisedSpeech, ENABLE_MANUAL_FORMATION_LAP, false))
             {

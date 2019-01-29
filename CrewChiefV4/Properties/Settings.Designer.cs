@@ -3586,5 +3586,41 @@ namespace CrewChiefV4.Properties {
                 this["manual_formation_split_classes"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string TOGGLE_ENABLE_CUT_TRACK_WARNINGS_device_guid {
+            get {
+                return ((string)(this["TOGGLE_ENABLE_CUT_TRACK_WARNINGS_device_guid"]));
+            }
+            set {
+                this["TOGGLE_ENABLE_CUT_TRACK_WARNINGS_device_guid"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string TOGGLE_ENABLE_CUT_TRACK_WARNINGS_device_type {
+            get {
+                return ((string)(this["TOGGLE_ENABLE_CUT_TRACK_WARNINGS_device_type"]));
+            }
+            set {
+                this["TOGGLE_ENABLE_CUT_TRACK_WARNINGS_device_type"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
+        public int TOGGLE_ENABLE_CUT_TRACK_WARNINGS_button_index {
+            get {
+                return ((int)(this["TOGGLE_ENABLE_CUT_TRACK_WARNINGS_button_index"]));
+            }
+            set {
+                this["TOGGLE_ENABLE_CUT_TRACK_WARNINGS_button_index"] = value;
+            }
+        }
     }
 }

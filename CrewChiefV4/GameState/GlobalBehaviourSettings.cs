@@ -47,6 +47,9 @@ namespace CrewChiefV4.GameState
         public static Boolean spotterEnabledInitialState = UserSettings.GetUserSettings().getBoolean("enable_spotter");
         public static Boolean spotterEnabled = spotterEnabledInitialState;
 
+        public static Boolean cutTrackWarningsEnabledInitialState = UserSettings.GetUserSettings().getBoolean("play_cut_track_warnings");
+        public static Boolean cutTrackWarningsEnabled = cutTrackWarningsEnabledInitialState;
+
         public static readonly List<MessageTypes> defaultEnabledMessageTypes = new List<MessageTypes> { 
             MessageTypes.TYRE_TEMPS, MessageTypes.TYRE_WEAR, MessageTypes.BRAKE_TEMPS, MessageTypes.BRAKE_DAMAGE, MessageTypes.FUEL, MessageTypes.LOCKING_AND_SPINNING };
         public static readonly List<MessageTypes> defaultBatteryPoweredEnabledMessageTypes = new List<MessageTypes> {

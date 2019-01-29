@@ -206,6 +206,8 @@ timings_category_label = Timings
 pit_stops_and_multiclass_category_label = Pit Stops & Multiclass
 misc_category_label = Miscellaneous
 
+toggle_enable_cut_track_warnings = Toggle cut track warnings on / off
+
 category_filter_label = Ca&tegory filter:
 
 ###################################### Preferences ######################################################

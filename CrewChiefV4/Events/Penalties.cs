@@ -105,8 +105,6 @@ namespace CrewChiefV4.Events
 
         private TimeSpan cutTrackWarningFrequency = TimeSpan.FromSeconds(30);
 
-        private Boolean playCutTrackWarnings = UserSettings.GetUserSettings().getBoolean("play_cut_track_warnings");
-
         private Boolean playedTrackCutWarningInPracticeOrQualOnThisLap = false;
 
         private DateTime lastCutTrackWarningTime;
@@ -293,7 +291,7 @@ namespace CrewChiefV4.Events
                     audioPlayer.playMessage(new QueuedMessage(folderTimePenalty, 0, abstractEvent: this, priority: 10));
                 }
             }
-            else if (currentGameState.PositionAndMotionData.CarSpeed > 1 && playCutTrackWarnings &&
+            else if (currentGameState.PositionAndMotionData.CarSpeed > 1 && GlobalBehaviourSettings.cutTrackWarningsEnabled &&
                 !currentGameState.PitData.OnOutLap &&
                 currentGameState.PenaltiesData.CutTrackWarnings > cutTrackWarningsCount &&
                 currentGameState.PenaltiesData.NumPenalties == previousGameState.PenaltiesData.NumPenalties)  // Make sure we've no new penalty for this cut.
@@ -329,7 +327,7 @@ namespace CrewChiefV4.Events
                     clearPenaltyState();
                 }
             }
-            else if (currentGameState.PositionAndMotionData.CarSpeed > 1 && playCutTrackWarnings && currentGameState.SessionData.SessionType != SessionType.Race &&
+            else if (currentGameState.PositionAndMotionData.CarSpeed > 1 && GlobalBehaviourSettings.cutTrackWarningsEnabled && currentGameState.SessionData.SessionType != SessionType.Race &&
               !currentGameState.SessionData.CurrentLapIsValid && previousGameState != null && previousGameState.SessionData.CurrentLapIsValid &&
                 CrewChief.gameDefinition.gameEnum != GameEnum.IRACING && !currentGameState.PitData.OnOutLap)
             {
@@ -401,7 +399,7 @@ namespace CrewChiefV4.Events
                     }
                 }
             }
-            else if (currentGameState.PenaltiesData.PossibleTrackLimitsViolation && playCutTrackWarnings && !warnedOfPossibleTrackLimitsViolationOnThisLap)
+            else if (currentGameState.PenaltiesData.PossibleTrackLimitsViolation && GlobalBehaviourSettings.cutTrackWarningsEnabled && !warnedOfPossibleTrackLimitsViolationOnThisLap)
             {
                 warnedOfPossibleTrackLimitsViolationOnThisLap = true;
                 audioPlayer.playMessage(new QueuedMessage(folderPossibleTrackLimitsViolation, 4, secondsDelay: Utilities.random.Next(2, 4), abstractEvent: this, priority: 0));

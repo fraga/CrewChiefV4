@@ -48,6 +48,8 @@ namespace CrewChiefV4.Audio
         public static String folderRadioCheckResponse = "acknowledge/radio_check";
         public static String folderStandBy = "acknowledge/stand_by";
         public static String folderFuelToEnd = "acknowledge/fuel_to_end";
+        public static String folderCutWarningsDisabled = "acknowledge/cut_warnings_disabled";
+        public static String folderCutWarningsEnabled = "acknowledge/cut_warnings_enabled";
 
         public static String folderAcknowledgeEnableDelayInHardParts = "acknowledge/keep_quiet_in_corners_enabled";
         public static String folderAcknowledgeDisableDelayInHardParts = "acknowledge/keep_quiet_in_corners_disabled";
