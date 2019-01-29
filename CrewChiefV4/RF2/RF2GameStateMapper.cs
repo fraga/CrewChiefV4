@@ -1881,7 +1881,6 @@ namespace CrewChiefV4.rFactor2
             if (msg != this.lastEffectiveHistoryMessage
                 || (cgs.Now - this.timeEffectiveMessageProcessed).TotalSeconds > this.effectiveMessageExpirySeconds)
             {
-                // TODO: micro optimization, group messages by StartsWith.
                 var messageConsumed = true;
                 if (msg == "Crew Is Ready For Pitstop")
                 {
@@ -1891,73 +1890,75 @@ namespace CrewChiefV4.rFactor2
                         cgs.PitData.IsPitCrewReady = true;
                 }
                 else if (msg == "Headlights Are Now Required")
-                {
                     cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.HEADLIGHTS_REQUIRED;
-                }
-                else if (msg == "Stop/Go Penalty: Cut Track")
+                else if (msg.StartsWith("Stop/Go Penalty: "))
                 {
-                    cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
-                    cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.CUT_TRACK;
+                    if (msg.EndsWith("Cut Track"))  // "Stop/Go Penalty: Cut Track"
+                    {
+                        cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
+                        cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.CUT_TRACK;
+                    }
+                    else if (msg.EndsWith("Speeding In Pitlane"))  // "Stop/Go Penalty: Speeding In Pitlane"
+                    {
+                        cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
+                        cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.SPEEDING_IN_PITLANE;
+                    }
+                    else if (msg.EndsWith("False Start"))  // "Stop/Go Penalty: False Start"
+                    {
+                        cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
+                        cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.FALSE_START;
+                    }
+                    else if (msg.EndsWith("Exiting Pits Under Red"))  // "Stop/Go Penalty: Exiting Pits Under Red"
+                    {
+                        cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
+                        cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.EXITING_PITS_UNDER_RED;
+                    }
+                    else if (msg.EndsWith("Illegally Passed Before Green"))  // "Stop/Go Penalty: Illegally Passed Before Green"
+                    {
+                        // TODO: test
+                        cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
+                        cgs.PenaltiesData.PenaltyCause = cgs.FlagData.previousLapWasFCY
+                            ? PenatiesData.DetailedPenaltyCause.ILLEGAL_PASS_FCY_BEFORE_GREEN
+                            : PenatiesData.DetailedPenaltyCause.ILLEGAL_PASS_ROLLING_BEFORE_GREEN;
+                    }
+                    else
+                        messageConsumed = false;
                 }
-                else if (msg == "Stop/Go Penalty: Speeding In Pitlane")
+                else if (msg.StartsWith("Warning: "))
                 {
-                    cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
-                    cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.SPEEDING_IN_PITLANE;
+                    if (msg.EndsWith("Driving Too Slow"))  // "Warning: Driving Too Slow"
+                        cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.DRIVING_TOO_SLOW;
+                    else if (msg.EndsWith("One Lap To Serve Drive-Thru Penalty"))  // "Warning: One Lap To Serve Drive-Thru Penalty"
+                    {
+                        // TODO: implement
+                        messageConsumed = false;
+                    }
+                    else if (msg.EndsWith("One Lap To Serve Stop/Go Penalty"))  // "Warning: One Lap To Serve Stop/Go Penalty"
+                    {
+                        // TODO: implement
+                        messageConsumed = false;
+                    }
+                    else
+                        messageConsumed = false;
+                }
+                else if (msg.StartsWith("Disqualified: "))
+                {
+                    if (msg.EndsWith(" Laps"))  // "Disqualified: 4 Laps"
+                        cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.DISQUALIFIED_EXCEEDING_ALLOWED_LAP_COUNT;
+                    else if (msg.EndsWith("Driving In Dark Without Headlights"))  // "Disqualified: Driving In Dark Without Headlights"
+                        cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.DISQUALIFIED_DRIVING_WITHOUT_HEADLIGHTS;
+                    else
+                        messageConsumed = false;
                 }
                 else if (msg == "Drive-Thru Penalty: Speeding In Pitlane")
                 {
                     cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.DRIVE_THROUGH;
                     cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.SPEEDING_IN_PITLANE;
                 }
-                else if (msg == "Stop/Go Penalty: False Start")
-                {
-                    cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
-                    cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.FALSE_START;
-                }
-                else if (msg == "Stop/Go Penalty: Exiting Pits Under Red")
-                {
-                    cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
-                    cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.EXITING_PITS_UNDER_RED;
-                }
-                else if (msg == "Stop/Go Penalty: Illegally Passed Before Green")
-                {
-                    // TODO: test
-                    cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
-                    cgs.PenaltiesData.PenaltyCause = cgs.FlagData.previousLapWasFCY
-                        ? PenatiesData.DetailedPenaltyCause.ILLEGAL_PASS_FCY_BEFORE_GREEN
-                        : PenatiesData.DetailedPenaltyCause.ILLEGAL_PASS_ROLLING_BEFORE_GREEN;
-                }
-                else if (msg == "Disqualified: Driving In Dark Without Headlights")
-                {
-                    cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.DISQUALIFIED_DRIVING_WITHOUT_HEADLIGHTS;
-                }
-                // msg == "Disqualified: 4 Laps"
-                else if (msg.StartsWith("Disqualified: ") && msg.EndsWith(" Laps"))
-                {
-                    cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.DISQUALIFIED_EXCEEDING_ALLOWED_LAP_COUNT;
-                }
                 else if (msg == "Enter Pits To Avoid Exceeding Lap Allowance")
-                {
                     cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.ENTER_PITS_TO_AVOID_EXCEEDING_LAPS;
-                }
-                else if (msg == "Wrong Way")  // Might be too idiotic to announce
-                {
+                else if (msg == "Wrong Way")
                     cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.WRONG_WAY;
-                }
-                else if (msg == "Warning: Driving Too Slow")
-                {
-                    cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.DRIVING_TOO_SLOW;
-                }
-                else if (msg == "Warning: One Lap To Serve Drive-Thru Penalty")
-                {
-                    // TODO: implement
-                    messageConsumed = false;
-                }
-                else if (msg == "Warning: One Lap To Serve Stop/Go Penalty")
-                {
-                    // TODO: implement
-                    messageConsumed = false;
-                }
                 else
                 {
 #if !DEBUG
@@ -1970,7 +1971,6 @@ namespace CrewChiefV4.rFactor2
 #else
                     Console.WriteLine("MC Message: ignored - \"" + msg + "\"");
 #endif
-
                     messageConsumed = false;
                 }
 
