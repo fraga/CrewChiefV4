@@ -199,6 +199,12 @@ namespace CrewChiefV4.Events
                 {
                     return currentGameState.PenaltiesData.HasSlowDown;
                 }
+                else if (eventSubType == folderPenaltyServed &&
+                    (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT))
+                {
+                    // Don't validate "Penalty served" in rF1/rF2, hasOutstandingPenalty is false by the time we get here.
+                    return true;
+                }
                 else
                 {
                     return hasOutstandingPenalty && currentGameState.SessionData.SessionPhase != SessionPhase.Finished;
@@ -262,7 +268,7 @@ namespace CrewChiefV4.Events
 
             if (currentGameState.SessionData.SessionPhase == SessionPhase.FullCourseYellow)
             {
-                // Only allow warning messages under FCY.
+                // For now, only allow warning messages under FCY.
                 return;
             }
 
@@ -497,7 +503,9 @@ namespace CrewChiefV4.Events
             {
                 clearPenaltyState();
             }
-            if (currentGameState.SessionData.SessionType == SessionType.Race && previousGameState != null &&
+            if ((currentGameState.SessionData.SessionType == SessionType.Race ||
+                currentGameState.SessionData.SessionType == SessionType.Qualify ||
+                currentGameState.SessionData.SessionType == SessionType.Practice) && previousGameState != null &&
                 ((previousGameState.PenaltiesData.HasStopAndGo && !currentGameState.PenaltiesData.HasStopAndGo) ||
                 (previousGameState.PenaltiesData.HasDriveThrough && !currentGameState.PenaltiesData.HasDriveThrough) ||
                 // can't read penalty type in Automobilista (and presumably in rF2).
@@ -659,6 +667,7 @@ namespace CrewChiefV4.Events
                         break;
                 }
             }
+
             return String.Empty;
         }
     }
