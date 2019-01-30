@@ -52,6 +52,10 @@ namespace CrewChiefV4.Events
         // for voice requests
         private String folderYouStillHavePenalty = "penalties/you_still_have_a_penalty";
 
+        private String folderYouStillHaveToServeDriveThrough = "penalties/still_have_to_serve_drive_through";
+
+        private String folderYouStillHaveToServeStopGo = "penalties/still_have_to_serve_stop_go";
+
         private String folderYouHavePenalty = "penalties/you_have_a_penalty";
 
         private String folderPenaltyServed = "penalties/penalty_served";
@@ -86,6 +90,10 @@ namespace CrewChiefV4.Events
         private String folderWarningHeadlightsRequired = "penalties/warning_headlights_required";
 
         private String folderWarningEnterPitsToAvoidExceedingLaps = "penalties/warning_enter_pits_to_avoid_exceeding_laps";
+
+        private String folderWarningOneLapToServeDriveThrough = "penalties/one_lap_to_serve_drive_through";
+
+        private String folderWarningOneLapToServeStopAndGo = "penalties/one_lap_to_serve_stop_go";
 
         private Boolean hasHadAPenalty;
 
@@ -231,6 +239,14 @@ namespace CrewChiefV4.Events
                         break;
                     case PenatiesData.WarningMessage.DISQUALIFIED_EXCEEDING_ALLOWED_LAP_COUNT:
                         warningMsg = folderDisqualifiedExceededAllowedLapCount;
+                        break;
+                    case PenatiesData.WarningMessage.ONE_LAP_TO_SERVE_DRIVE_THROUGH:
+                        warningMsg = folderWarningOneLapToServeDriveThrough;
+                        playerMustPitThisLap = true;
+                        break;
+                    case PenatiesData.WarningMessage.ONE_LAP_TO_SERVE_STOP_AND_GO:
+                        warningMsg = folderWarningOneLapToServeStopAndGo;
+                        playerMustPitThisLap = true;
                         break;
                     default:
                         Debug.Assert(false, "Unhandled warning");
@@ -437,7 +453,19 @@ namespace CrewChiefV4.Events
                     if (lapsCompleted - penaltyLap >= 2 && !currentGameState.PitData.InPitlane)
                     {
                         // run out of laps, an not in the pitlane
-                        audioPlayer.playMessage(new QueuedMessage(folderYouStillHavePenalty, 0, secondsDelay: 5, abstractEvent: this, priority: 10));
+                        if (Utilities.random.NextDouble() < 0.2)
+                        {
+                            // For variety, sometimes just play basic reminder.
+                            audioPlayer.playMessage(new QueuedMessage(folderYouStillHavePenalty, 0, secondsDelay: 5, abstractEvent: this, priority: 10));
+                        }
+                        else
+                        {
+                            var message = getOutstandingPenaltyMessage();
+                            if (!String.IsNullOrWhiteSpace(message))
+                            {
+                                audioPlayer.playMessage(new QueuedMessage(message, 0, secondsDelay: 5, abstractEvent: this, priority: 10));
+                            }
+                        }
                     }
                     else if (lapsCompleted - penaltyLap == 1)
                     {
@@ -532,7 +560,7 @@ namespace CrewChiefV4.Events
                     {
                         List<MessageFragment> messages = new List<MessageFragment>();
                         messages.Add(MessageFragment.Text(AudioPlayer.folderNo));
-                        messages.Add(MessageFragment.Text(folderYouStillHavePenalty));
+                        messages.Add(MessageFragment.Text(getOutstandingPenaltyMessage()));
                         if (lapsCompleted - penaltyLap == 2)
                         {
                             messages.Add(MessageFragment.Text(PitStops.folderMandatoryPitStopsPitThisLap));
@@ -551,7 +579,7 @@ namespace CrewChiefV4.Events
                     {
                         List<MessageFragment> messages = new List<MessageFragment>();
                         messages.Add(MessageFragment.Text(AudioPlayer.folderYes));
-                        messages.Add(MessageFragment.Text(folderYouStillHavePenalty));
+                        messages.Add(MessageFragment.Text(getOutstandingPenaltyMessage()));
                         if (lapsCompleted - penaltyLap == 2)
                         {
                             messages.Add(MessageFragment.Text(PitStops.folderMandatoryPitStopsPitThisLap));
@@ -612,6 +640,26 @@ namespace CrewChiefV4.Events
 
             // If no detailed message available, play basic message.
             return folderYouHavePenalty;
+        }
+
+        private String getOutstandingPenaltyMessage()
+        {
+            if (hasOutstandingPenalty)
+            {
+                switch (outstandingPenaltyType)
+                {
+                    case PenatiesData.DetailedPenaltyType.NONE:
+                        return folderYouStillHavePenalty;
+                    case PenatiesData.DetailedPenaltyType.STOP_AND_GO:
+                        return folderYouStillHaveToServeStopGo;
+                    case PenatiesData.DetailedPenaltyType.DRIVE_THROUGH:
+                        return folderYouStillHaveToServeDriveThrough;
+                    default:
+                        Debug.Assert(false, "Unhandled penalty cause");
+                        break;
+                }
+            }
+            return String.Empty;
         }
     }
 }

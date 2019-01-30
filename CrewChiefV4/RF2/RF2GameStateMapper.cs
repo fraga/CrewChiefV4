@@ -1929,15 +1929,9 @@ namespace CrewChiefV4.rFactor2
                     if (msg.EndsWith("Driving Too Slow"))  // "Warning: Driving Too Slow"
                         cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.DRIVING_TOO_SLOW;
                     else if (msg.EndsWith("One Lap To Serve Drive-Thru Penalty"))  // "Warning: One Lap To Serve Drive-Thru Penalty"
-                    {
-                        // TODO: implement
-                        messageConsumed = false;
-                    }
+                        cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.ONE_LAP_TO_SERVE_DRIVE_THROUGH;
                     else if (msg.EndsWith("One Lap To Serve Stop/Go Penalty"))  // "Warning: One Lap To Serve Stop/Go Penalty"
-                    {
-                        // TODO: implement
-                        messageConsumed = false;
-                    }
+                        cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.ONE_LAP_TO_SERVE_STOP_AND_GO;
                     else
                         messageConsumed = false;
                 }

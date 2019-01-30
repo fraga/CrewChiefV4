@@ -2709,7 +2709,9 @@ namespace CrewChiefV4.GameState
             HEADLIGHTS_REQUIRED,
             ENTER_PITS_TO_AVOID_EXCEEDING_LAPS, // Prac/Quali.
             DISQUALIFIED_DRIVING_WITHOUT_HEADLIGHTS,
-            DISQUALIFIED_EXCEEDING_ALLOWED_LAP_COUNT // Prac/Quali.
+            DISQUALIFIED_EXCEEDING_ALLOWED_LAP_COUNT, // Prac/Quali.
+            ONE_LAP_TO_SERVE_DRIVE_THROUGH,
+            ONE_LAP_TO_SERVE_STOP_AND_GO
         }
         public WarningMessage Warning = WarningMessage.NONE;
     }
