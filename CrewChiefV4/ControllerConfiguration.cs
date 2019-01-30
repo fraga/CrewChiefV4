@@ -44,6 +44,8 @@ namespace CrewChiefV4
         public static String TOGGLE_PACE_NOTES_PLAYBACK = Configuration.getUIString("toggle_pace_notes_playback");
 
         public static String TOGGLE_TRACK_LANDMARKS_RECORDING = Configuration.getUIString("toggle_track_landmarks_recording");
+        public static String TOGGLE_ENABLE_CUT_TRACK_WARNINGS = Configuration.getUIString("toggle_enable_cut_track_warnings");
+        
         public static String ADD_TRACK_LANDMARK = Configuration.getUIString("add_track_landmark");
 
         public static String PIT_PREDICTION = Configuration.getUIString("activate_pit_prediction");
@@ -101,6 +103,7 @@ namespace CrewChiefV4
             addButtonAssignment(TOGGLE_PACE_NOTES_PLAYBACK);
             addButtonAssignment(TOGGLE_PACE_NOTES_RECORDING);
             addButtonAssignment(TOGGLE_TRACK_LANDMARKS_RECORDING);
+            addButtonAssignment(TOGGLE_ENABLE_CUT_TRACK_WARNINGS);
             addButtonAssignment(ADD_TRACK_LANDMARK);
             addButtonAssignment(PIT_PREDICTION);
             controllers = loadControllers();
@@ -143,6 +146,7 @@ namespace CrewChiefV4
             pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[TOGGLE_PACE_NOTES_PLAYBACK]]);
             pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[TOGGLE_PACE_NOTES_RECORDING]]);
             pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[TOGGLE_TRACK_LANDMARKS_RECORDING]]);
+            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[TOGGLE_ENABLE_CUT_TRACK_WARNINGS]]);
             pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[ADD_TRACK_LANDMARK]]);
             pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[PIT_PREDICTION]]);
             
@@ -316,6 +320,10 @@ namespace CrewChiefV4
                 {
                     actionId = "TOGGLE_TRACK_LANDMARKS_RECORDING";
                 }
+                else if (buttonAssignment.action == TOGGLE_ENABLE_CUT_TRACK_WARNINGS)
+                {
+                    actionId = "TOGGLE_ENABLE_CUT_TRACK_WARNINGS";
+                }
                 else if (buttonAssignment.action == ADD_TRACK_LANDMARK)
                 {
                     actionId = "ADD_TRACK_LANDMARK";
@@ -477,6 +485,12 @@ namespace CrewChiefV4
             if (toggleTrackLandmarkButtonIndex != -1 && toggleTrackLandmarkRecordingDeviceGuid.Length > 0)
             {
                 loadAssignment(parent, TOGGLE_TRACK_LANDMARKS_RECORDING, toggleTrackLandmarkButtonIndex, toggleTrackLandmarkRecordingDeviceGuid);
+            }
+            int toggleEnableCutTrackWarningsButtonIndex = UserSettings.GetUserSettings().getInt("TOGGLE_ENABLE_CUT_TRACK_WARNINGS_button_index");
+            String toggleEnableCutTrackWarningsDeviceGuid = UserSettings.GetUserSettings().getString("TOGGLE_ENABLE_CUT_TRACK_WARNINGS_device_guid");
+            if (toggleEnableCutTrackWarningsButtonIndex != -1 && toggleEnableCutTrackWarningsDeviceGuid.Length > 0)
+            {
+                loadAssignment(parent, TOGGLE_ENABLE_CUT_TRACK_WARNINGS, toggleEnableCutTrackWarningsButtonIndex, toggleEnableCutTrackWarningsDeviceGuid);
             }
             int addTracklandmarkButtonIndex = UserSettings.GetUserSettings().getInt("ADD_TRACK_LANDMARK_button_index");
             String addTracklandmarkDeviceGuid = UserSettings.GetUserSettings().getString("ADD_TRACK_LANDMARK_device_guid");

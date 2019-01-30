@@ -197,6 +197,30 @@ namespace CrewChiefV4
             }
         }
 
+        public void toggleEnableCutTrackWarnings()
+        {
+            if (GlobalBehaviourSettings.cutTrackWarningsEnabled)
+            {
+                disableCutTrackWarnings();
+            }
+            else
+            {
+                enableCutTrackWarnings();
+            }
+        }
+
+        public void enableCutTrackWarnings()
+        {
+            GlobalBehaviourSettings.cutTrackWarningsEnabled = true;
+            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderCutWarningsEnabled, 0));
+        }
+
+        public void disableCutTrackWarnings()
+        {
+            GlobalBehaviourSettings.cutTrackWarningsEnabled = false;
+            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderCutWarningsDisabled, 0));
+        }
+
         public void toggleDelayMessagesInHardParts()
         {
             if (AudioPlayer.delayMessagesInHardParts)

@@ -1379,6 +1379,12 @@ namespace CrewChiefV4
                         crewChief.toggleTrackLandmarkRecording();
                         nextPollWait = 1000;
                     }
+                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_ENABLE_CUT_TRACK_WARNINGS))
+                    {
+                        Console.WriteLine("Enable / disable cut track warnings");
+                        crewChief.toggleEnableCutTrackWarnings();
+                        nextPollWait = 1000;
+                    }
                     else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.ADD_TRACK_LANDMARK))
                     {
                         //dont confirm press here we do that in addLandmark

@@ -134,6 +134,10 @@ SET_ALARM_CLOCK = set alarm to:alarm me at
 CLEAR_ALARM_CLOCK = clear alarm clock:clear alarms
 AM=a m
 PM=pe m
+
+ENABLE_CUT_TRACK_WARNINGS = enable cut track warnings:play cut track warnings:warn about cuts
+DISABLE_CUT_TRACK_WARNINGS = no cut track warnings:no more cut warnings:no more cut track warnings
+
 #################################################
 # Dynamic recognition phrase fragments - these are used to build up recognition sentences for opponent information.
 # Multiple options are NOT supported here - each must be a single word or phrase. These are combined for each opponent
