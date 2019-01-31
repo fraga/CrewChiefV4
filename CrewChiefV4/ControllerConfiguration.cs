@@ -120,6 +120,7 @@ namespace CrewChiefV4
             foreach (KeyValuePair<String,String> assignment in assignmentNames)
             {
                 addButtonAssignment(assignment.Value);
+                Console.WriteLine(assignment.Key + " " + assignment.Value);
             }
             controllers = loadControllers();
         }
@@ -242,12 +243,12 @@ namespace CrewChiefV4
                         actionId = assignment.Key;
                     }
                 }
-                if (buttonAssignment.controller != null && (buttonAssignment.joystick != null || buttonAssignment.controller.guid == UDP_NETWORK_CONTROLLER_GUID) && buttonAssignment.buttonIndex != -1)
+                if (actionId != "" && buttonAssignment.controller != null && (buttonAssignment.joystick != null || buttonAssignment.controller.guid == UDP_NETWORK_CONTROLLER_GUID) && buttonAssignment.buttonIndex != -1)
                 {
                     UserSettings.GetUserSettings().setProperty(actionId + "_button_index", buttonAssignment.buttonIndex);
                     UserSettings.GetUserSettings().setProperty(actionId + "_device_guid", buttonAssignment.controller.guid.ToString());
                 }
-                else
+                else if (actionId != "")
                 {
                     UserSettings.GetUserSettings().setProperty(actionId + "_button_index", -1);
                     UserSettings.GetUserSettings().setProperty(actionId + "_device_guid", "");
