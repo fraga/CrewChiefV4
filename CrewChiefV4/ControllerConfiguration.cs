@@ -53,7 +53,40 @@ namespace CrewChiefV4
         public static String TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS = Configuration.getUIString("toggle_delay_messages_in_hard_parts");
 
         private ControllerData networkGamePad = new ControllerData(Configuration.getUIString("udp_network_data_buttons"), DeviceType.Gamepad, UDP_NETWORK_CONTROLLER_GUID);
-        
+
+        private static Dictionary<String, String> assignmentNames = new Dictionary<String, String>()
+        {
+            { GetParameterName(new { CHANNEL_OPEN_FUNCTION }), CHANNEL_OPEN_FUNCTION},
+            { GetParameterName(new { TOGGLE_RACE_UPDATES_FUNCTION }), TOGGLE_RACE_UPDATES_FUNCTION},
+            { GetParameterName(new { TOGGLE_SPOTTER_FUNCTION }), TOGGLE_SPOTTER_FUNCTION},
+            { GetParameterName(new { TOGGLE_READ_OPPONENT_DELTAS }), TOGGLE_READ_OPPONENT_DELTAS},
+            { GetParameterName(new { REPEAT_LAST_MESSAGE_BUTTON }), REPEAT_LAST_MESSAGE_BUTTON},
+            { GetParameterName(new { VOLUME_UP }), VOLUME_UP},
+            { GetParameterName(new { VOLUME_DOWN }), VOLUME_DOWN},
+            { GetParameterName(new { PRINT_TRACK_DATA }), PRINT_TRACK_DATA},
+            { GetParameterName(new { TOGGLE_YELLOW_FLAG_MESSAGES }), TOGGLE_YELLOW_FLAG_MESSAGES},
+            { GetParameterName(new { GET_FUEL_STATUS }), GET_FUEL_STATUS},
+            { GetParameterName(new { TOGGLE_MANUAL_FORMATION_LAP }), TOGGLE_MANUAL_FORMATION_LAP},
+            { GetParameterName(new { GET_CAR_STATUS }), GET_CAR_STATUS},
+            { GetParameterName(new { GET_STATUS }), GET_STATUS},
+            { GetParameterName(new { GET_SESSION_STATUS }), GET_SESSION_STATUS},
+            { GetParameterName(new { GET_DAMAGE_REPORT }), GET_DAMAGE_REPORT},
+            { GetParameterName(new { TOGGLE_PACE_NOTES_RECORDING }), TOGGLE_PACE_NOTES_RECORDING},
+            { GetParameterName(new { TOGGLE_PACE_NOTES_PLAYBACK }), TOGGLE_PACE_NOTES_PLAYBACK},
+            { GetParameterName(new { TOGGLE_TRACK_LANDMARKS_RECORDING }), TOGGLE_TRACK_LANDMARKS_RECORDING},
+            { GetParameterName(new { TOGGLE_ENABLE_CUT_TRACK_WARNINGS }), TOGGLE_ENABLE_CUT_TRACK_WARNINGS},
+            { GetParameterName(new { ADD_TRACK_LANDMARK }), ADD_TRACK_LANDMARK},
+            { GetParameterName(new { PIT_PREDICTION }), PIT_PREDICTION},
+            { GetParameterName(new { TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS }), TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS}
+        };
+
+        public static string GetParameterName<T>(T item) where T : class
+        {
+            if (item == null)
+                return string.Empty;
+
+            return item.ToString().TrimStart('{').TrimEnd('}').Split('=')[0].Trim();
+        }
         // yuk...
         public Dictionary<String, int> buttonAssignmentIndexes = new Dictionary<String, int>();
         private Thread asyncDisposeThread = null;
@@ -83,29 +116,10 @@ namespace CrewChiefV4
         public ControllerConfiguration(MainWindow mainWindow)
         {
             this.mainWindow = mainWindow;
-            addButtonAssignment(CHANNEL_OPEN_FUNCTION);
-            addButtonAssignment(TOGGLE_RACE_UPDATES_FUNCTION);
-            addButtonAssignment(TOGGLE_SPOTTER_FUNCTION);
-            addButtonAssignment(TOGGLE_READ_OPPONENT_DELTAS);
-            addButtonAssignment(TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS);
-            addButtonAssignment(REPEAT_LAST_MESSAGE_BUTTON);
-            addButtonAssignment(VOLUME_UP);
-            addButtonAssignment(VOLUME_DOWN);
-            addButtonAssignment(TOGGLE_YELLOW_FLAG_MESSAGES);
-            addButtonAssignment(GET_FUEL_STATUS);
-            addButtonAssignment(TOGGLE_MANUAL_FORMATION_LAP);
-            addButtonAssignment(PRINT_TRACK_DATA);
-            addButtonAssignment(READ_CORNER_NAMES_FOR_LAP);
-            addButtonAssignment(GET_CAR_STATUS);
-            addButtonAssignment(GET_DAMAGE_REPORT);
-            addButtonAssignment(GET_SESSION_STATUS);
-            addButtonAssignment(GET_STATUS);
-            addButtonAssignment(TOGGLE_PACE_NOTES_PLAYBACK);
-            addButtonAssignment(TOGGLE_PACE_NOTES_RECORDING);
-            addButtonAssignment(TOGGLE_TRACK_LANDMARKS_RECORDING);
-            addButtonAssignment(TOGGLE_ENABLE_CUT_TRACK_WARNINGS);
-            addButtonAssignment(ADD_TRACK_LANDMARK);
-            addButtonAssignment(PIT_PREDICTION);
+            foreach (KeyValuePair<String,String> assignment in assignmentNames)
+            {
+                addButtonAssignment(assignment.Value);
+            }
             controllers = loadControllers();
         }
 
@@ -126,30 +140,10 @@ namespace CrewChiefV4
 
         public void pollForButtonClicks(Boolean channelOpenIsToggle)
         {
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[TOGGLE_RACE_UPDATES_FUNCTION]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[TOGGLE_SPOTTER_FUNCTION]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[TOGGLE_READ_OPPONENT_DELTAS]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[REPEAT_LAST_MESSAGE_BUTTON]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[VOLUME_UP]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[VOLUME_DOWN]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[TOGGLE_YELLOW_FLAG_MESSAGES]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[GET_FUEL_STATUS]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[TOGGLE_MANUAL_FORMATION_LAP]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[READ_CORNER_NAMES_FOR_LAP]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[PRINT_TRACK_DATA]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[CHANNEL_OPEN_FUNCTION]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[GET_STATUS]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[GET_SESSION_STATUS]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[GET_DAMAGE_REPORT]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[GET_CAR_STATUS]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[TOGGLE_PACE_NOTES_PLAYBACK]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[TOGGLE_PACE_NOTES_RECORDING]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[TOGGLE_TRACK_LANDMARKS_RECORDING]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[TOGGLE_ENABLE_CUT_TRACK_WARNINGS]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[ADD_TRACK_LANDMARK]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[PIT_PREDICTION]]);
-            
+            foreach (KeyValuePair<String, String> assignment in assignmentNames)
+            {
+                pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[assignment.Value]]);
+            }            
         }
 
         private void pollForButtonClicks(ButtonAssignment ba)
@@ -240,97 +234,12 @@ namespace CrewChiefV4
             foreach (ButtonAssignment buttonAssignment in buttonAssignments)
             {
                 String actionId = "";
-                if (buttonAssignment.action == CHANNEL_OPEN_FUNCTION)
+                foreach (KeyValuePair<String, String> assignment in assignmentNames)
                 {
-                    actionId = "CHANNEL_OPEN_FUNCTION";
-                }
-                else if (buttonAssignment.action == TOGGLE_RACE_UPDATES_FUNCTION)
-                {
-                    actionId = "TOGGLE_RACE_UPDATES_FUNCTION";
-                }
-                else if (buttonAssignment.action == TOGGLE_SPOTTER_FUNCTION)
-                {
-                    actionId = "TOGGLE_SPOTTER_FUNCTION";
-                }
-                else if (buttonAssignment.action == TOGGLE_READ_OPPONENT_DELTAS)
-                {
-                    actionId = "TOGGLE_READ_OPPONENT_DELTAS";
-                }
-                else if (buttonAssignment.action == TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS)
-                {
-                    actionId = "TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS";
-                }
-                else if (buttonAssignment.action == REPEAT_LAST_MESSAGE_BUTTON)
-                {
-                    actionId = "REPEAT_LAST_MESSAGE_BUTTON";
-                }
-                else if (buttonAssignment.action == VOLUME_UP)
-                {
-                    actionId = "VOLUME_UP";
-                }
-                else if (buttonAssignment.action == VOLUME_DOWN)
-                {
-                    actionId = "VOLUME_DOWN";
-                }
-                else if (buttonAssignment.action == PRINT_TRACK_DATA)
-                {
-                    actionId = "PRINT_TRACK_DATA";
-                }
-                else if (buttonAssignment.action == TOGGLE_YELLOW_FLAG_MESSAGES)
-                {
-                    actionId = "TOGGLE_YELLOW_FLAG_MESSAGES";
-                }
-                else if (buttonAssignment.action == GET_FUEL_STATUS)
-                {
-                    actionId = "GET_FUEL_STATUS";
-                }
-                else if (buttonAssignment.action == TOGGLE_MANUAL_FORMATION_LAP)
-                {
-                    actionId = "TOGGLE_MANUAL_FORMATION_LAP";
-                }
-                else if (buttonAssignment.action == READ_CORNER_NAMES_FOR_LAP)
-                {
-                    actionId = "READ_CORNER_NAMES_FOR_LAP";
-                }
-                else if (buttonAssignment.action == GET_CAR_STATUS)
-                {
-                    actionId = "GET_CAR_STATUS";
-                }
-                else if (buttonAssignment.action == GET_DAMAGE_REPORT)
-                {
-                    actionId = "GET_DAMAGE_REPORT";
-                }
-                else if (buttonAssignment.action == GET_SESSION_STATUS)
-                {
-                    actionId = "GET_SESSION_STATUS";
-                }
-                else if (buttonAssignment.action == GET_STATUS)
-                {
-                    actionId = "GET_STATUS";
-                }
-                else if (buttonAssignment.action == TOGGLE_PACE_NOTES_PLAYBACK)
-                {
-                    actionId = "TOGGLE_PACE_NOTES_PLAYBACK";
-                }
-                else if (buttonAssignment.action == TOGGLE_PACE_NOTES_RECORDING)
-                {
-                    actionId = "TOGGLE_PACE_NOTES_RECORDING";
-                }
-                else if (buttonAssignment.action == TOGGLE_TRACK_LANDMARKS_RECORDING)
-                {
-                    actionId = "TOGGLE_TRACK_LANDMARKS_RECORDING";
-                }
-                else if (buttonAssignment.action == TOGGLE_ENABLE_CUT_TRACK_WARNINGS)
-                {
-                    actionId = "TOGGLE_ENABLE_CUT_TRACK_WARNINGS";
-                }
-                else if (buttonAssignment.action == ADD_TRACK_LANDMARK)
-                {
-                    actionId = "ADD_TRACK_LANDMARK";
-                }
-                else if (buttonAssignment.action == PIT_PREDICTION)
-                {
-                    actionId = "PIT_PREDICTION";
+                    if (buttonAssignment.action == assignment.Value)
+                    {
+                        actionId = assignment.Key;
+                    }
                 }
                 if (buttonAssignment.controller != null && (buttonAssignment.joystick != null || buttonAssignment.controller.guid == UDP_NETWORK_CONTROLLER_GUID) && buttonAssignment.buttonIndex != -1)
                 {
@@ -347,163 +256,15 @@ namespace CrewChiefV4
         }
 
         public void loadSettings(System.Windows.Forms.Form parent)
-        {
-            int channelOpenButtonIndex = UserSettings.GetUserSettings().getInt("CHANNEL_OPEN_FUNCTION_button_index");
-            String channelOpenButtonDeviceGuid = UserSettings.GetUserSettings().getString("CHANNEL_OPEN_FUNCTION_device_guid");
-            if (channelOpenButtonIndex != -1 && channelOpenButtonDeviceGuid.Length > 0)
+        {            
+            foreach (KeyValuePair<String, String> assignment in assignmentNames)
             {
-                loadAssignment(parent, CHANNEL_OPEN_FUNCTION, channelOpenButtonIndex, channelOpenButtonDeviceGuid);
-            }
-
-            int toggleRaceUpdatesButtonIndex = UserSettings.GetUserSettings().getInt("TOGGLE_RACE_UPDATES_FUNCTION_button_index");
-            String toggleRaceUpdatesButtonDeviceGuid = UserSettings.GetUserSettings().getString("TOGGLE_RACE_UPDATES_FUNCTION_device_guid");
-            if (toggleRaceUpdatesButtonIndex != -1 && toggleRaceUpdatesButtonDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, TOGGLE_RACE_UPDATES_FUNCTION, toggleRaceUpdatesButtonIndex, toggleRaceUpdatesButtonDeviceGuid);
-            }
-
-            int toggleSpotterFunctionButtonIndex = UserSettings.GetUserSettings().getInt("TOGGLE_SPOTTER_FUNCTION_button_index");
-            String toggleSpotterFunctionDeviceGuid = UserSettings.GetUserSettings().getString("TOGGLE_SPOTTER_FUNCTION_device_guid");
-            if (toggleSpotterFunctionButtonIndex != -1 && toggleSpotterFunctionDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, TOGGLE_SPOTTER_FUNCTION, toggleSpotterFunctionButtonIndex, toggleSpotterFunctionDeviceGuid);
-            }
-
-            int toggleReadOpponentDeltasButtonIndex = UserSettings.GetUserSettings().getInt("TOGGLE_READ_OPPONENT_DELTAS_button_index");
-            String toggleReadOpponentDeltasDeviceGuid = UserSettings.GetUserSettings().getString("TOGGLE_READ_OPPONENT_DELTAS_device_guid");
-            if (toggleReadOpponentDeltasButtonIndex != -1 && toggleReadOpponentDeltasDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, TOGGLE_READ_OPPONENT_DELTAS, toggleReadOpponentDeltasButtonIndex, toggleReadOpponentDeltasDeviceGuid);
-            }
-
-            int toggleBlockMessagesInHardPartsButtonIndex = UserSettings.GetUserSettings().getInt("TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS_button_index");
-            String toggleBlockMessagesInHardPartsDeviceGuid = UserSettings.GetUserSettings().getString("TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS_device_guid");
-            if (toggleBlockMessagesInHardPartsButtonIndex != -1 && toggleBlockMessagesInHardPartsDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS, toggleBlockMessagesInHardPartsButtonIndex, toggleBlockMessagesInHardPartsDeviceGuid);
-            }
-
-            int repeatLastMessageButtonIndex = UserSettings.GetUserSettings().getInt("REPEAT_LAST_MESSAGE_BUTTON_button_index");
-            String repeatLastMessageDeviceGuid = UserSettings.GetUserSettings().getString("REPEAT_LAST_MESSAGE_BUTTON_device_guid");
-            if (repeatLastMessageButtonIndex != -1 && repeatLastMessageDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, REPEAT_LAST_MESSAGE_BUTTON, repeatLastMessageButtonIndex, repeatLastMessageDeviceGuid);
-            }
-
-            int volumeUpButtonIndex = UserSettings.GetUserSettings().getInt("VOLUME_UP_button_index");
-            String volumeUpDeviceGuid = UserSettings.GetUserSettings().getString("VOLUME_UP_device_guid");
-            if (volumeUpButtonIndex != -1 && volumeUpDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, VOLUME_UP, volumeUpButtonIndex, volumeUpDeviceGuid);
-            }
-
-            int volumeDownButtonIndex = UserSettings.GetUserSettings().getInt("VOLUME_DOWN_button_index");
-            String volumeDownDeviceGuid = UserSettings.GetUserSettings().getString("VOLUME_DOWN_device_guid");
-            if (volumeDownButtonIndex != -1 && volumeDownDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, VOLUME_DOWN, volumeDownButtonIndex, volumeDownDeviceGuid);
-            }
-
-            int printTrackDataButtonIndex = UserSettings.GetUserSettings().getInt("PRINT_TRACK_DATA_button_index");
-            String printTrackDataDeviceGuid = UserSettings.GetUserSettings().getString("PRINT_TRACK_DATA_device_guid");
-            if (printTrackDataButtonIndex != -1 && printTrackDataDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, PRINT_TRACK_DATA, printTrackDataButtonIndex, printTrackDataDeviceGuid);
-            }
-
-            int toggleYellowFlagMessagesButtonIndex = UserSettings.GetUserSettings().getInt("TOGGLE_YELLOW_FLAG_MESSAGES_button_index");
-            String toggleYellowFlagMessagesDeviceGuid = UserSettings.GetUserSettings().getString("TOGGLE_YELLOW_FLAG_MESSAGES_device_guid");
-            if (toggleYellowFlagMessagesButtonIndex != -1 && toggleYellowFlagMessagesDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, TOGGLE_YELLOW_FLAG_MESSAGES, toggleYellowFlagMessagesButtonIndex, toggleYellowFlagMessagesDeviceGuid);
-            }
-
-            int getFuelStatusButtonIndex = UserSettings.GetUserSettings().getInt("GET_FUEL_STATUS_button_index");
-            String getFuelStatusDeviceGuid = UserSettings.GetUserSettings().getString("GET_FUEL_STATUS_device_guid");
-            if (getFuelStatusButtonIndex != -1 && getFuelStatusDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, GET_FUEL_STATUS, getFuelStatusButtonIndex, getFuelStatusDeviceGuid);
-            }
-
-            int toggleManualFormationLapButtonIndex = UserSettings.GetUserSettings().getInt("TOGGLE_MANUAL_FORMATION_LAP_button_index");
-            String toggleManualFormationLapDeviceGuid = UserSettings.GetUserSettings().getString("TOGGLE_MANUAL_FORMATION_LAP_device_guid");
-            if (toggleManualFormationLapButtonIndex != -1 && toggleManualFormationLapDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, TOGGLE_MANUAL_FORMATION_LAP, toggleManualFormationLapButtonIndex, toggleManualFormationLapDeviceGuid);
-            }
-
-            int readCornerNamesForLapButtonIndex = UserSettings.GetUserSettings().getInt("READ_CORNER_NAMES_FOR_LAP_button_index");
-            String readCornerNamesForLapDeviceGuid = UserSettings.GetUserSettings().getString("READ_CORNER_NAMES_FOR_LAP_device_guid");
-            if (readCornerNamesForLapButtonIndex != -1 && readCornerNamesForLapDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, READ_CORNER_NAMES_FOR_LAP, readCornerNamesForLapButtonIndex, readCornerNamesForLapDeviceGuid);
-            }
-
-            int getStatusButtonIndex = UserSettings.GetUserSettings().getInt("GET_STATUS_button_index");
-            String getStatusDeviceGuid = UserSettings.GetUserSettings().getString("GET_STATUS_device_guid");
-            if (getStatusButtonIndex != -1 && getStatusDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, GET_STATUS, getStatusButtonIndex, getStatusDeviceGuid);
-            }
-
-            int getDamageReportButtonIndex = UserSettings.GetUserSettings().getInt("GET_DAMAGE_REPORT_button_index");
-            String getDamageReportDeviceGuid = UserSettings.GetUserSettings().getString("GET_DAMAGE_REPORT_device_guid");
-            if (getDamageReportButtonIndex != -1 && getDamageReportDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, GET_DAMAGE_REPORT, getDamageReportButtonIndex, getDamageReportDeviceGuid);
-            }
-
-            int getCarStatusButtonIndex = UserSettings.GetUserSettings().getInt("GET_CAR_STATUS_button_index");
-            String getCarStatusDeviceGuid = UserSettings.GetUserSettings().getString("GET_CAR_STATUS_device_guid");
-            if (getCarStatusButtonIndex != -1 && getCarStatusDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, GET_CAR_STATUS, getCarStatusButtonIndex, getCarStatusDeviceGuid);
-            }
-
-            int getSessionStatusButtonIndex = UserSettings.GetUserSettings().getInt("GET_SESSION_STATUS_button_index");
-            String getSessionStatusDeviceGuid = UserSettings.GetUserSettings().getString("GET_SESSION_STATUS_device_guid");
-            if (getSessionStatusButtonIndex != -1 && getSessionStatusDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, GET_SESSION_STATUS, getSessionStatusButtonIndex, getSessionStatusDeviceGuid);
-            }
-
-            int togglePaceNotesPlaybackButtonIndex = UserSettings.GetUserSettings().getInt("TOGGLE_PACE_NOTES_PLAYBACK_button_index");
-            String togglePaceNotesPlaybackDeviceGuid = UserSettings.GetUserSettings().getString("TOGGLE_PACE_NOTES_PLAYBACK_device_guid");
-            if (togglePaceNotesPlaybackButtonIndex != -1 && togglePaceNotesPlaybackDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, TOGGLE_PACE_NOTES_PLAYBACK, togglePaceNotesPlaybackButtonIndex, togglePaceNotesPlaybackDeviceGuid);
-            }
-
-            int togglePaceNotesRecordingButtonIndex = UserSettings.GetUserSettings().getInt("TOGGLE_PACE_NOTES_RECORDING_button_index");
-            String togglePaceNotesRecordingDeviceGuid = UserSettings.GetUserSettings().getString("TOGGLE_PACE_NOTES_RECORDING_device_guid");
-            if (togglePaceNotesRecordingButtonIndex != -1 && togglePaceNotesRecordingDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, TOGGLE_PACE_NOTES_RECORDING, togglePaceNotesRecordingButtonIndex, togglePaceNotesRecordingDeviceGuid);
-            }
-            int toggleTrackLandmarkButtonIndex = UserSettings.GetUserSettings().getInt("TOGGLE_TRACK_LANDMARKS_RECORDING_button_index");
-            String toggleTrackLandmarkRecordingDeviceGuid = UserSettings.GetUserSettings().getString("TOGGLE_TRACK_LANDMARKS_RECORDING_device_guid");
-            if (toggleTrackLandmarkButtonIndex != -1 && toggleTrackLandmarkRecordingDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, TOGGLE_TRACK_LANDMARKS_RECORDING, toggleTrackLandmarkButtonIndex, toggleTrackLandmarkRecordingDeviceGuid);
-            }
-            int toggleEnableCutTrackWarningsButtonIndex = UserSettings.GetUserSettings().getInt("TOGGLE_ENABLE_CUT_TRACK_WARNINGS_button_index");
-            String toggleEnableCutTrackWarningsDeviceGuid = UserSettings.GetUserSettings().getString("TOGGLE_ENABLE_CUT_TRACK_WARNINGS_device_guid");
-            if (toggleEnableCutTrackWarningsButtonIndex != -1 && toggleEnableCutTrackWarningsDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, TOGGLE_ENABLE_CUT_TRACK_WARNINGS, toggleEnableCutTrackWarningsButtonIndex, toggleEnableCutTrackWarningsDeviceGuid);
-            }
-            int addTracklandmarkButtonIndex = UserSettings.GetUserSettings().getInt("ADD_TRACK_LANDMARK_button_index");
-            String addTracklandmarkDeviceGuid = UserSettings.GetUserSettings().getString("ADD_TRACK_LANDMARK_device_guid");
-            if (addTracklandmarkButtonIndex != -1 && addTracklandmarkDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, ADD_TRACK_LANDMARK, addTracklandmarkButtonIndex, addTracklandmarkDeviceGuid);
-            }
-
-            int pitPredictionButtonIndex = UserSettings.GetUserSettings().getInt("PIT_PREDICTION_button_index");
-            String pitPredictionDeviceGuid = UserSettings.GetUserSettings().getString("PIT_PREDICTION_device_guid");
-            if (pitPredictionButtonIndex != -1 && pitPredictionDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, PIT_PREDICTION, pitPredictionButtonIndex, pitPredictionDeviceGuid);
+                int buttonIndex = UserSettings.GetUserSettings().getInt(assignment.Key + "_button_index");
+                String deviceGuid = UserSettings.GetUserSettings().getString(assignment.Key + "_device_guid");
+                if (buttonIndex != -1 && deviceGuid.Length > 0)
+                {
+                    loadAssignment(parent, CHANNEL_OPEN_FUNCTION, buttonIndex, deviceGuid);
+                }
             }
         }
 
