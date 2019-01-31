@@ -263,7 +263,7 @@ namespace CrewChiefV4
                 String deviceGuid = UserSettings.GetUserSettings().getString(assignment.Key + "_device_guid");
                 if (buttonIndex != -1 && deviceGuid.Length > 0)
                 {
-                    loadAssignment(parent, CHANNEL_OPEN_FUNCTION, buttonIndex, deviceGuid);
+                    loadAssignment(parent, assignment.Value, buttonIndex, deviceGuid);
                 }
             }
         }
