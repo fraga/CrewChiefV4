@@ -1202,8 +1202,12 @@ namespace CrewChiefV4.GameState
             PositionAtStartOfCurrentLap = overallPosition;
             
             LapData lapData = PlayerLapData[PlayerLapData.Count - 1];
-            
-            LapTimePreviousEstimateForInvalidLap = SessionRunningTime - SessionTimesAtEndOfSectors[numberOfSectors - 1];
+
+            float sessionTimeAtEndOfLastLap = -1;
+            if (SessionTimesAtEndOfSectors.TryGetValue(numberOfSectors - 1, out sessionTimeAtEndOfLastLap) && sessionTimeAtEndOfLastLap > 0)
+            {
+                LapTimePreviousEstimateForInvalidLap = SessionRunningTime - sessionTimeAtEndOfLastLap;
+            }
             playerAddCumulativeSectorData(numberOfSectors, overallPosition, providedLapTime, gameTimeAtLapEnd, lapIsValid, isRaining, trackTemp, airTemp);
             lapData.LapTime = providedLapTime;
             lapData.InLap = inPitLane;
