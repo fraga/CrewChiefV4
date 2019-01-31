@@ -67,6 +67,7 @@ namespace CrewChiefV4
             { GetParameterName(new { TOGGLE_YELLOW_FLAG_MESSAGES }), TOGGLE_YELLOW_FLAG_MESSAGES},
             { GetParameterName(new { GET_FUEL_STATUS }), GET_FUEL_STATUS},
             { GetParameterName(new { TOGGLE_MANUAL_FORMATION_LAP }), TOGGLE_MANUAL_FORMATION_LAP},
+            { GetParameterName(new { READ_CORNER_NAMES_FOR_LAP }), READ_CORNER_NAMES_FOR_LAP},            
             { GetParameterName(new { GET_CAR_STATUS }), GET_CAR_STATUS},
             { GetParameterName(new { GET_STATUS }), GET_STATUS},
             { GetParameterName(new { GET_SESSION_STATUS }), GET_SESSION_STATUS},
