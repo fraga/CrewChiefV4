@@ -120,7 +120,6 @@ namespace CrewChiefV4
             foreach (KeyValuePair<String,String> assignment in assignmentNames)
             {
                 addButtonAssignment(assignment.Value);
-                Console.WriteLine(assignment.Key + " " + assignment.Value);
             }
             controllers = loadControllers();
         }
