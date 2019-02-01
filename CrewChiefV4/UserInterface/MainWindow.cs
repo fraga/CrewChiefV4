@@ -828,9 +828,6 @@ namespace CrewChiefV4
                 }
             }
 
-            controllerConfiguration = new ControllerConfiguration(this);
-            GlobalResources.controllerConfiguration = controllerConfiguration;
-
             setSelectedGameType();
 
             this.app_version.Text = Configuration.getUIString("version") + ": " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
@@ -970,6 +967,9 @@ namespace CrewChiefV4
             }
 
             crewChief = new CrewChief();
+            controllerConfiguration = new ControllerConfiguration(this);
+            GlobalResources.controllerConfiguration = controllerConfiguration;
+
             this.personalisationBox.Items.AddRange(this.crewChief.audioPlayer.personalisationsArray);
             this.chiefNameBox.Items.AddRange(AudioPlayer.availableChiefVoices.ToArray());
             this.spotterNameBox.Items.AddRange(NoisyCartesianCoordinateSpotter.availableSpotters.ToArray());

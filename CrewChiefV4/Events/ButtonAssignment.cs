@@ -11,6 +11,7 @@ namespace CrewChiefV4.Events
     class ButtonAssignment : AbstractEvent
     {
         private Boolean initialised = false;
+        private Boolean keepQuietEnabled = false;
         public ButtonAssignment(AudioPlayer audioPlayer)
         {
             this.audioPlayer = audioPlayer;
@@ -21,11 +22,22 @@ namespace CrewChiefV4.Events
         }
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
-
+            initialised = true;
         }
         public override void respond(String voiceMessage)
         {
+            Console.WriteLine(voiceMessage);
+        }
 
+        public void enableKeepQuietMode()
+        {
+            keepQuietEnabled = true;
+            audioPlayer.enableKeepQuietMode();
+        }
+        public void disableKeepQuietMode()
+        {
+            keepQuietEnabled = false;
+            audioPlayer.disableKeepQuietMode();
         }
     }
 }

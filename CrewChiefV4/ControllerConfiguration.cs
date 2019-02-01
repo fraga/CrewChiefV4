@@ -8,7 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-
+using CrewChiefV4.Events;
 namespace CrewChiefV4
 {
     public class ControllerConfiguration : IDisposable
@@ -88,12 +88,6 @@ namespace CrewChiefV4
         };
         public class ControllerConfigurationDevice
         {
-            public ControllerConfigurationDevice()
-            {
-                deviceType = -1;
-                productName = string.Empty;
-                guid = string.Empty;
-            }
             public int deviceType { get; set; }
             public String productName { get; set; }
             public String guid { get; set; }
@@ -122,7 +116,7 @@ namespace CrewChiefV4
                 buttonAssignments = new List<ButtonAssignmentData>();
             }
             public List<ControllerConfigurationDevice> devices { get; set; }
-            public List<ButtonAssignmentData> buttonAssignments;
+            public List<ButtonAssignmentData> buttonAssignments { get; set; }
         }
 
         private static String getDefaultControllerConfigurationDataFileLocation()
@@ -240,10 +234,6 @@ namespace CrewChiefV4
         {
             this.mainWindow = mainWindow;
             
-           /* foreach (KeyValuePair<String,String> assignment in assignmentNames)
-            {
-                addButtonAssignment(assignment.Value);
-            }*/
             // update existing data
             if(getUserControllerConfigurationDataFileLocation() == null)
             {
@@ -303,10 +293,9 @@ namespace CrewChiefV4
             ControllerConfigurationData controllerConfigurationData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
             foreach (var assignment in controllerConfigurationData.buttonAssignments)
             {
-                addButtonAssignment(assignment.action);
+                addButtonAssignment(assignment.action, assignment.eventName);
             }
             controllers = new List<ControllerData>();
-
             foreach (var device in controllerConfigurationData.devices)
             {
                 controllers.Add(new ControllerData(device.productName, (DeviceType)device.deviceType, new Guid(device.guid)));
@@ -353,6 +342,7 @@ namespace CrewChiefV4
                                 Boolean click = state.Buttons[ba.buttonIndex];
                                 if (click)
                                 {
+                                    ba.execute();
                                     ba.hasUnprocessedClick = true;
                                 }
                             }
@@ -497,10 +487,10 @@ namespace CrewChiefV4
             
         }
 
-        private void addButtonAssignment(String action)
+        private void addButtonAssignment(String action, String eventName)
         {
             buttonAssignmentIndexes.Add(action, buttonAssignmentIndexes.Count());
-            buttonAssignments.Add(new ButtonAssignment(action));
+            buttonAssignments.Add(new ButtonAssignment(action, eventName));
         }
 
         public Boolean isChannelOpen()
@@ -794,15 +784,30 @@ namespace CrewChiefV4
         public class ButtonAssignment
         {
             public String action;
+            public String eventName;
             public ControllerData controller;
             public int buttonIndex = -1;
             public Joystick joystick;
             public Boolean hasUnprocessedClick = false;
-            public ButtonAssignment(String action)
+            AbstractEvent actionEvent = null;
+            public ButtonAssignment(String action, String eventName)
             {
                 this.action = action;
+                this.eventName = eventName;
+                
+                if(eventName != string.Empty)
+                {
+                    actionEvent = CrewChief.getEvent(eventName);
+                    
+                }
             }
-            
+            public void execute()
+            {
+                if(actionEvent != null)
+                {
+                    actionEvent.respond(action);
+                }
+            }
             public String getInfo()
             {
                 if (controller != null && buttonIndex > -1)

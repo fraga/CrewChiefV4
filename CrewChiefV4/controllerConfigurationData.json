@@ -10,154 +10,154 @@
         {
             "action": "",
             "uiText": "toggle_race_updates_on/off",
-            "eventName": "",
+            "eventName": "ButtonAssignment",
             "buttonIndex": -1,
             "deviceGuid": ""
         },
         {
             "action": "",
             "uiText": "toggle_spotter_on/off",
-            "eventName": "",
+            "eventName": "ButtonAssignment",
             "buttonIndex": -1,
             "deviceGuid": ""
         },
         {
             "action": "",
             "uiText": "toggle_opponent_deltas_on/off_for_each_lap",
-            "eventName": "",
+            "eventName": "ButtonAssignment",
             "buttonIndex": -1,
             "deviceGuid": ""
         },
         {
             "action": "",
             "uiText": "press_to_replay_the_last_message",
-            "eventName": "",
+            "eventName": "ButtonAssignment",
             "buttonIndex": -1,
             "deviceGuid": ""
         },
         {
             "action": "",
             "uiText": "volume_up",
-            "eventName": "",
+            "eventName": "ButtonAssignment",
             "buttonIndex": -1,
             "deviceGuid": ""
         },
         {
             "action": "",
             "uiText": "volume_down",
-            "eventName": "",
+            "eventName": "ButtonAssignment",
             "buttonIndex": -1,
             "deviceGuid": ""
         },
         {
             "action": "",
             "uiText": "print_track_data",
-            "eventName": "",
+            "eventName": "ButtonAssignment",
             "buttonIndex": -1,
             "deviceGuid": ""
         },
         {
             "action": "",
             "uiText": "toggle_yellow_flag_messages",
-            "eventName": "",
+            "eventName": "ButtonAssignment",
             "buttonIndex": -1,
             "deviceGuid": ""
         },
         {
             "action": "",
             "uiText": "get_fuel_status",
-            "eventName": "",
+            "eventName": "ButtonAssignment",
             "buttonIndex": -1,
             "deviceGuid": ""
         },
         {
             "action": "",
             "uiText": "toggle_manual_formation_lap",
-            "eventName": "",
+            "eventName": "ButtonAssignment",
             "buttonIndex": -1,
             "deviceGuid": ""
         },
         {
             "action": "",
             "uiText": "read_corner_names_for_lap",
-            "eventName": "",
+            "eventName": "ButtonAssignment",
             "buttonIndex": -1,
             "deviceGuid": ""
         },
         {
             "action": "",
             "uiText": "get_car_status",
-            "eventName": "",
+            "eventName": "ButtonAssignment",
             "buttonIndex": -1,
             "deviceGuid": ""
         },
         {
             "action": "",
             "uiText": "get_status",
-            "eventName": "",
+            "eventName": "ButtonAssignment",
             "buttonIndex": -1,
             "deviceGuid": ""
         },
         {
             "action": "",
             "uiText": "get_session_status",
-            "eventName": "",
+            "eventName": "ButtonAssignment",
             "buttonIndex": -1,
             "deviceGuid": ""
         },
         {
             "action": "",
             "uiText": "get_damage_report",
-            "eventName": "",
+            "eventName": "ButtonAssignment",
             "buttonIndex": -1,
             "deviceGuid": ""
         },
         {
             "action": "",
             "uiText": "toggle_pace_notes_recording",
-            "eventName": "",
+            "eventName": "ButtonAssignment",
             "buttonIndex": -1,
             "deviceGuid": ""
         },
         {
             "action": "",
             "uiText": "toggle_pace_notes_playback",
-            "eventName": "",
+            "eventName": "ButtonAssignment",
             "buttonIndex": -1,
             "deviceGuid": ""
         },
         {
             "action": "",
             "uiText": "toggle_track_landmarks_recording",
-            "eventName": "",
+            "eventName": "ButtonAssignment",
             "buttonIndex": -1,
             "deviceGuid": ""
         },
         {
             "action": "",
             "uiText": "toggle_enable_cut_track_warnings",
-            "eventName": "",
+            "eventName": "ButtonAssignment",
             "buttonIndex": -1,
             "deviceGuid": ""
         },
         {
             "action": "",
             "uiText": "add_track_landmark",
-            "eventName": "",
+            "eventName": "ButtonAssignment",
             "buttonIndex": -1,
             "deviceGuid": ""
         },
         {
             "action": "",
             "uiText": "activate_pit_prediction",
-            "eventName": "",
+            "eventName": "ButtonAssignment",
             "buttonIndex": -1,
             "deviceGuid": ""
         },
         {
             "action": "",
             "uiText": "toggle_delay_messages_in_hard_parts",
-            "eventName": "",
+            "eventName": "ButtonAssignment",
             "buttonIndex": -1,
             "deviceGuid": ""
         }
