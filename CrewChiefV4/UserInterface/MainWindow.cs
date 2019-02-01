@@ -117,11 +117,14 @@ namespace CrewChiefV4
         protected override void WndProc(ref Message m)
         {
             base.WndProc(ref m);
-            if (m.Msg == WM_DEVICECHANGE)
+            if (!constructingWindow)
             {
-                if ((int)m.WParam == DBT_DEVNODES_CHANGED)
+                if (m.Msg == WM_DEVICECHANGE)
                 {
-                    refreshControllerList();
+                    if ((int)m.WParam == DBT_DEVNODES_CHANGED)
+                    {
+                        refreshControllerList();
+                    }
                 }
             }
         }
@@ -1015,7 +1018,6 @@ namespace CrewChiefV4
 
             Console.WriteLine("Loading controller settings");
             getControllers();
-            controllerConfiguration.loadSettings(this);
             String customDeviceGuid = UserSettings.GetUserSettings().getString("custom_device_guid");
             if (customDeviceGuid != null && customDeviceGuid.Length > 0)
             {
@@ -1074,7 +1076,6 @@ namespace CrewChiefV4
             {
                 initialiseSpeechEngine();
             }
-            updateActions();
             this.assignButtonToAction.Enabled = false;
             this.deleteAssigmentButton.Enabled = false;
 
@@ -1527,7 +1528,7 @@ namespace CrewChiefV4
         public void uiSyncAppStop()
         {
             this.deleteAssigmentButton.Enabled = this.buttonActionSelect.SelectedIndex > -1 &&
-                this.controllerConfiguration.buttonAssignments[this.buttonActionSelect.SelectedIndex].joystick != null;
+                this.controllerConfiguration.buttonAssignments[this.buttonActionSelect.SelectedIndex].controller != null;
 
             this.assignButtonToAction.Enabled = this.buttonActionSelect.SelectedIndex > -1 && this.controllersList.SelectedIndex > -1;
             this.propertiesButton.Enabled = true;
@@ -1678,7 +1679,7 @@ namespace CrewChiefV4
             if (!crewChief.Run(filenameToRun, record))
             {
                 this.deleteAssigmentButton.Enabled = this.buttonActionSelect.SelectedIndex > -1 &&
-                    this.controllerConfiguration.buttonAssignments[this.buttonActionSelect.SelectedIndex].joystick != null;
+                    this.controllerConfiguration.buttonAssignments[this.buttonActionSelect.SelectedIndex].controller != null;
                 this.assignButtonToAction.Enabled = this.buttonActionSelect.SelectedIndex > -1 && this.controllersList.SelectedIndex > -1;
                 stopApp();
                 this.propertiesButton.Enabled = true;
@@ -1919,7 +1920,7 @@ namespace CrewChiefV4
 
         private void refreshControllerList()
         {
-            controllerConfiguration.controllers = this.controllerConfiguration.scanControllers(this);
+            this.controllerConfiguration.scanControllers(this);
             this.controllersList.Items.Clear();
             if (this.gameDefinitionList.Text.Equals(GameDefinition.pCarsNetwork.friendlyName) || this.gameDefinitionList.Text.Equals(GameDefinition.pCars2Network.friendlyName))
             {
@@ -1927,10 +1928,12 @@ namespace CrewChiefV4
             }
             foreach (ControllerConfiguration.ControllerData configData in controllerConfiguration.controllers)
             {
-                this.controllersList.Items.Add(configData.deviceType.ToString() + " " + configData.deviceName);
+                this.controllersList.Items.Add(configData.deviceName);
             }
             runListenForChannelOpenThread = controllerConfiguration.listenForChannelOpen()
                         && voiceOption == VoiceOptionEnum.HOLD && crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised;
+
+            updateActions();
         }
 
         private void voiceDisableButton_CheckedChanged(object sender, EventArgs e)
