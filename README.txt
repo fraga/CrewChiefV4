@@ -241,6 +241,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.9.6.5: Speculative fix for startup error in previous version; added R3E GT Masters 2018 car class to GT3s; AC - fix crash on tracks with > 3 sectors
+
 Version 4.9.6.4: Automatically scan for controllers on app start; better handling of controllers; disable some irrelevant messages on in-laps; RF2 - better (more detailed) penalty messages; RF2 - updated plugin with more data and additional features not exposed via official rF2 Internals API. These are turned off by default - to enable them see 'rFactor2 Unofficial Features' section above
 
 Version 4.9.6.3: Tweaked manual rolling start logic for multiclass races, so each class has its own pole-sitter for determining when to start the race (can be disabled with the 'Manual formation lap separate classes' option); significantly reduced the size of debug traces; reworked console logging output to fix some potential crash bugs; iRacing - potential fix for incorrect race start position in multiclass races (this caused quite a few issues)
