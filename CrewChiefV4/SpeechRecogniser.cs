@@ -256,7 +256,6 @@ namespace CrewChiefV4
 
         private EventWaitHandle triggerTimeoutWaitHandle = new EventWaitHandle(false, EventResetMode.ManualReset);
         private Thread restartWaitTimeoutThreadReference = null;
-        private List<ControllerConfiguration.ButtonAssignmentData> buttonAssignments = new List<ControllerConfiguration.ButtonAssignmentData>();
         // load voice commands for triggering keyboard macros. The String key of the input Dictionary is the
         // command list key in speech_recognition_config.txt. When one of these phrases is heard the map value
         // CommandMacro is executed.
@@ -862,10 +861,7 @@ namespace CrewChiefV4
                 Console.WriteLine("Unable to add event handler to speech engine");
                 Console.WriteLine("Exception message: " + e.Message);
                 return;
-            }
-            ControllerConfiguration.ControllerConfigurationData controllerData = ControllerConfiguration.getControllerConfigurationDataFromFile(ControllerConfiguration.getUserControllerConfigurationDataFileLocation());
-            buttonAssignments = controllerData.buttonAssignments.Where(ba => ba.eventName != string.Empty).ToList();
-        
+            }     
             initialised = true;
         }
 
