@@ -372,7 +372,7 @@ namespace CrewChiefV4
                 }
             }
 
-            // Keep old assignments
+            // If device is disconnected while CC is running, keep old control mappings by merging old and new controllers.
             var mergedControllers = controllers.ToList();
             foreach (var savedController in savedControllers)
             {
