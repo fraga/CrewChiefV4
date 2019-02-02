@@ -369,7 +369,7 @@ namespace CrewChiefV4
                                     if (click)
                                     {
                                         ba.hasUnprocessedClick = true;
-                                        ba.execute();
+                                        
                                     }
                                 }
                             }
@@ -381,13 +381,31 @@ namespace CrewChiefV4
             }
         }
 
-        public Boolean hasOutstandingClick(String action)
+        public Boolean hasOutstandingClick(String action = null)
         {
-            ButtonAssignment ba = buttonAssignments[buttonAssignmentIndexes[action]];
-            if (ba.hasUnprocessedClick)
+            if (action != null && (action == CHANNEL_OPEN_FUNCTION || 
+                action == TOGGLE_SPOTTER_FUNCTION ||
+                action == VOLUME_UP || action == VOLUME_DOWN))
             {
-                ba.hasUnprocessedClick = false;
-                return true;
+                ButtonAssignment ba = buttonAssignments[buttonAssignmentIndexes[action]];
+                if (ba.hasUnprocessedClick)
+                {
+                    ba.hasUnprocessedClick = false;
+                    return true;
+                }
+                return false;                
+            }
+            else
+            {
+                foreach(var ba in buttonAssignments)
+                {
+                    if (ba.hasUnprocessedClick && ba.eventName != string.Empty)
+                    {
+                        ba.execute();
+                        ba.hasUnprocessedClick = false;
+                        return true;
+                    }                    
+                }
             }
             return false;
         }

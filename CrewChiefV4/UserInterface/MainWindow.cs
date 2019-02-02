@@ -1284,160 +1284,7 @@ namespace CrewChiefV4
                 if (now > lastButtoncheck.Add(buttonCheckInterval))
                 {
                     lastButtoncheck = now;
-                    if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_RACE_UPDATES_FUNCTION))
-                    {
-                        Console.WriteLine("Toggling keep quiet mode");
-                        crewChief.toggleKeepQuietMode();
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_SPOTTER_FUNCTION))
-                    {
-                        Console.WriteLine("Toggling spotter mode");
-                        crewChief.toggleSpotterMode();
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_READ_OPPONENT_DELTAS))
-                    {
-                        Console.WriteLine("Toggling read opponent deltas mode");
-                        crewChief.toggleReadOpponentDeltasMode();
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_MANUAL_FORMATION_LAP))
-                    {
-                        Console.WriteLine("Toggling manual formation lap mode");
-                        crewChief.toggleManualFormationLapMode();
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.READ_CORNER_NAMES_FOR_LAP))
-                    {
-                        Console.WriteLine("Enabling corner name reading for current lap");
-                        crewChief.playCornerNamesForCurrentLap();
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.REPEAT_LAST_MESSAGE_BUTTON))
-                    {
-                        Console.WriteLine("Repeating last message");
-                        crewChief.audioPlayer.repeatLastMessage();
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_YELLOW_FLAG_MESSAGES))
-                    {
-                        Console.WriteLine("Toggling yellow flag messages to: " + (CrewChief.yellowFlagMessagesEnabled ? "disabled" : "enabled"));
-                        crewChief.toggleEnableYellowFlagsMode();
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS))
-                    {
-                        Console.WriteLine("Toggling delay-messages-in-hard-parts");
-                        crewChief.toggleDelayMessagesInHardParts();
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.GET_FUEL_STATUS))
-                    {
-                        Console.WriteLine("Getting fuel/battery status");
-                        crewChief.reportFuelStatus();
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.GET_STATUS))
-                    {
-                        Console.WriteLine("Getting full status");
-                        CrewChief.getStatus();
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.GET_SESSION_STATUS))
-                    {
-                        Console.WriteLine("Getting session status");
-                        CrewChief.getSessionStatus();
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.GET_DAMAGE_REPORT))
-                    {
-                        Console.WriteLine("Getting damage report");
-                        CrewChief.getDamageReport();
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.GET_CAR_STATUS))
-                    {
-                        Console.WriteLine("Getting car status");
-                        CrewChief.getCarStatus();
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_PACE_NOTES_RECORDING))
-                    {
-                        Console.WriteLine("Start / stop pace notes recording");
-                        crewChief.togglePaceNotesRecording();
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_PACE_NOTES_PLAYBACK))
-                    {
-                        Console.WriteLine("Start / stop pace notes playback");
-                        crewChief.togglePaceNotesPlayback();
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_TRACK_LANDMARKS_RECORDING))
-                    {
-                        Console.WriteLine("Start / stop track landmark recording");
-                        crewChief.toggleTrackLandmarkRecording();
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_ENABLE_CUT_TRACK_WARNINGS))
-                    {
-                        Console.WriteLine("Enable / disable cut track warnings");
-                        crewChief.toggleEnableCutTrackWarnings();
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.ADD_TRACK_LANDMARK))
-                    {
-                        //dont confirm press here we do that in addLandmark
-                        crewChief.toggleAddTrackLandmark();
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.PIT_PREDICTION))
-                    {
-                        Console.WriteLine("pit prediction");
-                        if (CrewChief.currentGameState != null)
-                        {
-                            Strategy strategy = (Strategy) CrewChief.getEvent("Strategy");
-                            if (CrewChief.currentGameState.SessionData.SessionType == SessionType.Race)
-                            {
-                                strategy.respondRace();
-                            }
-                            else if (CrewChief.currentGameState.SessionData.SessionType == SessionType.Practice)
-                            {
-                                strategy.respondPracticeStop();
-                            }
-                        }
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.PRINT_TRACK_DATA))
-                    {
-                        if (CrewChief.currentGameState != null && CrewChief.currentGameState.SessionData != null &&
-                            CrewChief.currentGameState.SessionData.TrackDefinition != null)
-                        {
-                            string posInfo = "";
-                            var worldPos = CrewChief.currentGameState.PositionAndMotionData.WorldPosition;
-                            if (worldPos != null && worldPos.Length > 2)
-                            {
-                                posInfo = string.Format(", position x: {0} y: {1} z:{2}", worldPos[0], worldPos[1], worldPos[2]);
-                            }
-                            if (CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM)
-                            {
-                                Console.WriteLine("RaceroomLayoutId: " + CrewChief.currentGameState.SessionData.TrackDefinition.id + ", distanceRoundLap = " +
-                                    CrewChief.currentGameState.PositionAndMotionData.DistanceRoundTrack + ", player's car ID: " + CrewChief.currentGameState.carClass.getClassIdentifier() + posInfo);
-                            }
-                            else
-                            {
-                                Console.WriteLine("TrackName: " + CrewChief.currentGameState.SessionData.TrackDefinition.name + ", distanceRoundLap = " +
-                                    CrewChief.currentGameState.PositionAndMotionData.DistanceRoundTrack + ", player's car ID: " + CrewChief.currentGameState.carClass.getClassIdentifier() + posInfo);
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine("No track data available");
-                        }
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.VOLUME_UP))
+                    if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.VOLUME_UP))
                     {
                         if (currentVolume == -1)
                         {
@@ -1488,6 +1335,22 @@ namespace CrewChiefV4
                             nextPollWait = 1000;
                         }
                     }
+                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_SPOTTER_FUNCTION))
+                    {
+                        Console.WriteLine("Toggling spotter mode");
+                        crewChief.toggleSpotterMode();
+                        nextPollWait = 1000;
+                    }
+                    else if (controllerConfiguration.hasOutstandingClick())
+                    {
+                        //Console.WriteLine("Toggling keep quiet mode");
+                        //crewChief.toggleKeepQuietMode();
+                        nextPollWait = 1000;
+                    }
+
+                    /*
+*/
+
                 }
                 Thread.Sleep(nextPollWait);
             }

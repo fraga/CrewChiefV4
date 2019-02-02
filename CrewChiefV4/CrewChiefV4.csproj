@@ -122,7 +122,7 @@
     <Compile Include="ControllerConfiguration.cs" />
     <Compile Include="Events\AlarmClock.cs" />
     <Compile Include="Events\Battery.cs" />
-    <Compile Include="Events\ButtonAssignment.cs" />
+    <Compile Include="Events\CommonActions.cs" />
     <Compile Include="Events\CommonDataContainers.cs" />
     <Compile Include="Events\Strategy.cs" />
     <Compile Include="Events\FrozenOrderMonitor.cs" />
