@@ -446,6 +446,11 @@ namespace CrewChiefV4
                     controllerData.buttonAssignments[index].buttonIndex = buttonAssignment.buttonIndex;
                     controllerData.buttonAssignments[index].deviceGuid = buttonAssignment.controller.guid.ToString();
                 }
+                else if (index != -1)
+                {
+                    controllerData.buttonAssignments[index].buttonIndex = -1;
+                    controllerData.buttonAssignments[index].deviceGuid = string.Empty;
+                }
             }
             saveControllerConfigurationDataFile(controllerData);
         }
