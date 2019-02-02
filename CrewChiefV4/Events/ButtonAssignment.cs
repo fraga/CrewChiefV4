@@ -26,6 +26,10 @@ namespace CrewChiefV4.Events
         }
         public override void respond(String voiceMessage)
         {
+            if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RADIO_CHECK, false))
+            {
+                audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderRadioCheckResponse, 0));
+            }
             Console.WriteLine(voiceMessage);
         }
 

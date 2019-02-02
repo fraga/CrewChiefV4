@@ -427,11 +427,6 @@ namespace CrewChiefV4
             }
         }
 
-        public void respondToRadioCheck()
-        {
-            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderRadioCheckResponse, 0));
-        }
-
         public void youWot(Boolean detectedSomeSpeech)
         {
             if (!running)

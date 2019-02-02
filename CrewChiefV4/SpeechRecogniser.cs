@@ -256,45 +256,7 @@ namespace CrewChiefV4
 
         private EventWaitHandle triggerTimeoutWaitHandle = new EventWaitHandle(false, EventResetMode.ManualReset);
         private Thread restartWaitTimeoutThreadReference = null;
-
-        static SpeechRecogniser () 
-        {
-            if (UserSettings.GetUserSettings().getBoolean("use_naudio_for_speech_recognition"))
-            {
-                speechRecognitionDevices.Clear();
-                for (int deviceId = 0; deviceId < NAudio.Wave.WaveIn.DeviceCount; deviceId++)
-                {
-                    // the audio device stuff makes no guarantee as to the presence of sensible device and product guids,
-                    // so we have to do the best we can here
-                    NAudio.Wave.WaveInCapabilities capabilities = NAudio.Wave.WaveIn.GetCapabilities(deviceId);
-                    Boolean hasNameGuid = capabilities.NameGuid != null && !capabilities.NameGuid.Equals(Guid.Empty);
-                    Boolean hasProductGuid = capabilities.ProductGuid != null && !capabilities.ProductGuid.Equals(Guid.Empty);
-                    String rawName = capabilities.ProductName;
-                    String name = rawName;
-                    int nameAddition = 0;
-                    while (speechRecognitionDevices.Keys.Contains(name))
-                    {
-                        nameAddition++;
-                        name = rawName += "(" + nameAddition + ")";
-                    }
-                    String guidToUse;
-                    if (hasNameGuid)
-                    {
-                        guidToUse = capabilities.NameGuid.ToString();
-                    }
-                    else if (hasProductGuid)
-                    {
-                        guidToUse = capabilities.ProductGuid.ToString() + "_" + name;
-                    }
-                    else
-                    {
-                        guidToUse = name;
-                    }
-                    speechRecognitionDevices.Add(name, new Tuple<string, int>(guidToUse, deviceId));
-                }
-            }
-        }
-        
+        private List<ControllerConfiguration.ButtonAssignmentData> buttonAssignments = new List<ControllerConfiguration.ButtonAssignmentData>();
         // load voice commands for triggering keyboard macros. The String key of the input Dictionary is the
         // command list key in speech_recognition_config.txt. When one of these phrases is heard the map value
         // CommandMacro is executed.
@@ -901,6 +863,9 @@ namespace CrewChiefV4
                 Console.WriteLine("Exception message: " + e.Message);
                 return;
             }
+            ControllerConfiguration.ControllerConfigurationData controllerData = ControllerConfiguration.getControllerConfigurationDataFromFile(ControllerConfiguration.getUserControllerConfigurationDataFileLocation());
+            buttonAssignments = controllerData.buttonAssignments.Where(ba => ba.eventName != string.Empty).ToList();
+        
             initialised = true;
         }
 
@@ -1316,6 +1281,17 @@ namespace CrewChiefV4
                         {
                             crewChief.audioPlayer.repeatLastMessage();
                         }
+                        else if (buttonAssignments.Count > 0)
+                        {
+                            foreach (var buttonAssignment in buttonAssignments)
+                            {
+                                if(ResultContains(e.Result.Text, buttonAssignment.action, false))
+                                {
+                                    this.lastRecognisedText = e.Result.Text;
+                                    CrewChief.getEvent(buttonAssignment.eventName).respond(e.Result.Text);
+                                }
+                            }
+                        }
                         else if (ResultContains(e.Result.Text, MORE_INFO, false) && this.lastRecognisedText != null && !use_verbose_responses)
                         {
                             AbstractEvent abstractEvent = getEventForSpeech(this.lastRecognisedText);
@@ -1638,10 +1614,7 @@ namespace CrewChiefV4
                 return null;
             }
 
-            if (ResultContains(recognisedSpeech, RADIO_CHECK, false))
-            {
-                crewChief.respondToRadioCheck();
-            }
+
             else if (ResultContains(recognisedSpeech, DONT_SPOT, false))
             {
                 crewChief.disableSpotter();

@@ -101,13 +101,13 @@ namespace CrewChiefV4
         {
             public ButtonAssignmentData()
             {
-                action = string.Empty;
+                action = new string[]{string.Empty};
                 uiText = string.Empty;
                 eventName = string.Empty;
                 buttonIndex = -1;
                 deviceGuid = string.Empty;
             }
-            public String action { get; set; }
+            public String[] action { get; set; }
             public String uiText { get; set; }
             public String eventName { get; set; }
             public int buttonIndex { get; set; }
@@ -136,7 +136,7 @@ namespace CrewChiefV4
                 return null;
             }
         }
-        private static String getUserControllerConfigurationDataFileLocation()
+        public static String getUserControllerConfigurationDataFileLocation()
         {
             String path = System.IO.Path.Combine(Environment.GetFolderPath(
                 Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "controllerConfigurationData.json");
@@ -152,7 +152,7 @@ namespace CrewChiefV4
             }
         }
 
-        private static ControllerConfigurationData getControllerConfigurationDataFromFile(String filename)
+        public static ControllerConfigurationData getControllerConfigurationDataFromFile(String filename)
         {
             if (filename != null)
             {
@@ -265,13 +265,12 @@ namespace CrewChiefV4
                             defaultData.buttonAssignments[index].buttonIndex = buttonIndex;
                             defaultData.buttonAssignments[index].deviceGuid = deviceGuid;
                         }
-                        String action = Configuration.getUIStringStrict(defaultData.buttonAssignments[index].uiText);
-                        if (action == null)
-                        {
-                            action = Configuration.getSpeechRecognitionPhrases(defaultData.buttonAssignments[index].uiText)[0];
-                        }
-                        defaultData.buttonAssignments[index].action = action;
                     }                                      
+                }
+                for (int i = 0; i < defaultData.buttonAssignments.Count; i++)
+                {
+                    String uiText = defaultData.buttonAssignments[i].uiText;
+                    defaultData.buttonAssignments[i].action = Configuration.getUIStringStrict(uiText) == null ? Configuration.getSpeechRecognitionPhrases(uiText) : new string[] { Configuration.getUIString(uiText) };
                 }
                 List<ControllerData> currentControllers = ControllerData.parse(UserSettings.GetUserSettings().getString(ControllerData.PROPERTY_CONTAINER));
                 foreach (var controller in currentControllers)
@@ -280,8 +279,7 @@ namespace CrewChiefV4
                     deviceData.deviceType = (int)controller.deviceType;
                     deviceData.guid = controller.guid.ToString();
                     deviceData.productName = controller.deviceName;
-                    defaultData.devices.Add(deviceData);
-                    
+                    defaultData.devices.Add(deviceData);                    
                 }
                 saveControllerConfigurationDataFile(defaultData);
             }
@@ -295,7 +293,7 @@ namespace CrewChiefV4
                     { 
                         uiText = ba.uiText,
                         eventName = ba.eventName,
-                        action = Configuration.getUIStringStrict(ba.uiText) == null ? Configuration.getSpeechRecognitionPhrases(ba.uiText)[0] : Configuration.getUIStringStrict(ba.uiText)
+                        action = Configuration.getUIStringStrict(ba.uiText) == null ? Configuration.getSpeechRecognitionPhrases(ba.uiText) : new string[] { Configuration.getUIString(ba.uiText) }
                     });
                 if(missingItems.ToList().Count > 0)
                 {
@@ -307,7 +305,7 @@ namespace CrewChiefV4
             ControllerConfigurationData controllerConfigurationData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
             foreach (var assignment in controllerConfigurationData.buttonAssignments)
             {
-                addButtonAssignment(assignment.action, assignment.eventName);
+                addButtonAssignment(assignment.action[0], assignment.eventName);
             }
 
             controllers = new List<ControllerData>();
@@ -319,7 +317,7 @@ namespace CrewChiefV4
             {
                 if (assignment.buttonIndex != -1 && assignment.deviceGuid.Length > 0)
                 {
-                    loadAssignment(assignment.action, assignment.buttonIndex, assignment.deviceGuid);
+                    loadAssignment(assignment.action[0], assignment.buttonIndex, assignment.deviceGuid);
                 }
             }
         }
@@ -424,7 +422,7 @@ namespace CrewChiefV4
             ControllerConfigurationData controllerData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
             foreach (ButtonAssignment buttonAssignment in buttonAssignments)
             {
-                int index = controllerData.buttonAssignments.FindIndex(ind => ind.action.Equals(buttonAssignment.action));
+                int index = controllerData.buttonAssignments.FindIndex(ind => ind.action[0].Equals(buttonAssignment.action));
                 if (index != -1 && buttonAssignment.controller != null && (buttonAssignment.controller != null || buttonAssignment.controller.guid == UDP_NETWORK_CONTROLLER_GUID) && buttonAssignment.buttonIndex != -1)
                 {
                     controllerData.buttonAssignments[index].buttonIndex = buttonAssignment.buttonIndex;
@@ -443,7 +441,7 @@ namespace CrewChiefV4
                 String deviceGuid = assignment.deviceGuid;
                 if (buttonIndex != -1 && deviceGuid.Length > 0)
                 {
-                    loadAssignment(assignment.action, buttonIndex, deviceGuid);
+                    loadAssignment(assignment.action[0], buttonIndex, deviceGuid);
                 }
             }
         }
