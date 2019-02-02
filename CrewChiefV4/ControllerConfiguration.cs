@@ -249,13 +249,12 @@ namespace CrewChiefV4
         {
             this.mainWindow = mainWindow;
             
-            // update existing data
+            // update existing data to use new json 
             if(getUserControllerConfigurationDataFileLocation() == null)
             {
                 ControllerConfigurationData defaultData = getControllerConfigurationDataFromFile(getDefaultControllerConfigurationDataFileLocation());
                 foreach (KeyValuePair<String, String> assignment in assignmentNames)
                 {
-
                     int index = defaultData.buttonAssignments.FindIndex(ind => Configuration.getUIString(ind.uiText).Equals(assignment.Value));
                     if (index != -1)
                     {
@@ -286,7 +285,7 @@ namespace CrewChiefV4
                 }
                 saveControllerConfigurationDataFile(defaultData);
             }
-            else // app updated add missing elements ?
+            else // app updated add, missing elements ?
             {
                 ControllerConfigurationData defaultData = getControllerConfigurationDataFromFile(getDefaultControllerConfigurationDataFileLocation());
                 ControllerConfigurationData userData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
@@ -316,19 +315,14 @@ namespace CrewChiefV4
             {
                 controllers.Add(new ControllerData(device.productName, (DeviceType)device.deviceType, new Guid(device.guid)));
             }
-
-            // now load the saved button mappings:
-            foreach (KeyValuePair<String, String> assignment in assignmentNames)
+            foreach (ButtonAssignmentData assignment in controllerConfigurationData.buttonAssignments)
             {
-                int buttonIndex = UserSettings.GetUserSettings().getInt(assignment.Key + "_button_index");
-                String deviceGuid = UserSettings.GetUserSettings().getString(assignment.Key + "_device_guid");
-                if (buttonIndex != -1 && deviceGuid.Length > 0)
+                if (assignment.buttonIndex != -1 && assignment.deviceGuid.Length > 0)
                 {
-                    loadAssignment(assignment.Value, buttonIndex, deviceGuid);
+                    loadAssignment(assignment.action, assignment.buttonIndex, assignment.deviceGuid);
                 }
             }
         }
-
         // just sets the custom controller guid so the scan call will populate it later
         public void addCustomController(Guid guid)
         {
@@ -377,6 +371,7 @@ namespace CrewChiefV4
                                     if (click)
                                     {
                                         ba.hasUnprocessedClick = true;
+                                        ba.execute();
                                     }
                                 }
                             }
@@ -550,9 +545,17 @@ namespace CrewChiefV4
                     }
                 }
             }
-            String propVal = ControllerData.createPropValue(controllers);
-            UserSettings.GetUserSettings().setProperty(ControllerData.PROPERTY_CONTAINER, propVal);
-            UserSettings.GetUserSettings().saveUserSettings();
+            ControllerConfigurationData controllerConfigurationData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
+            controllerConfigurationData.devices.Clear();
+            foreach (var controller in controllers)
+            {
+                ControllerConfigurationDevice deviceData = new ControllerConfigurationDevice();
+                deviceData.deviceType = (int)controller.deviceType;
+                deviceData.guid = controller.guid.ToString();
+                deviceData.productName = controller.deviceName;
+                controllerConfigurationData.devices.Add(deviceData);
+            }
+            saveControllerConfigurationDataFile(controllerConfigurationData);
             Console.WriteLine("Refreshed controllers, there are " + availableCount + " available controllers and " + activeDevices.Count + " active controllers");
         }
 
