@@ -303,9 +303,12 @@ namespace CrewChiefV4
             }
                        
             ControllerConfigurationData controllerConfigurationData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
-            foreach (var assignment in controllerConfigurationData.buttonAssignments)
+            for  (int i = 0; i < controllerConfigurationData.buttonAssignments.Count; i++)
             {
-                addButtonAssignment(assignment.action[0], assignment.eventName);
+                String uiText = controllerConfigurationData.buttonAssignments[i].uiText;
+                controllerConfigurationData.buttonAssignments[i].action = Configuration.getUIStringStrict(uiText) == null ? Configuration.getSpeechRecognitionPhrases(uiText) : new string[] { Configuration.getUIString(uiText) };
+                saveControllerConfigurationDataFile(controllerConfigurationData);
+                addButtonAssignment(controllerConfigurationData.buttonAssignments[i].action[0], controllerConfigurationData.buttonAssignments[i].eventName);
             }
 
             controllers = new List<ControllerData>();
