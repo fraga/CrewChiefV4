@@ -328,6 +328,7 @@ namespace CrewChiefV4
         public void scanControllers(System.Windows.Forms.Form parent)
         {
             int availableCount = 0;
+            var savedControllers = this.controllers;
             this.controllers = new List<ControllerData>();
 
             // this method is called from the UI thread, either by the device-changed event handler or explicitly on app start.
@@ -370,7 +371,18 @@ namespace CrewChiefV4
                     }
                 }
             }
-            String propVal = ControllerData.createPropValue(controllers);
+
+            // Keep old assignments
+            var mergedControllers = controllers.ToList();
+            foreach (var savedController in savedControllers)
+            {
+                if (!mergedControllers.Exists(c => c.guid == savedController.guid))
+                {
+                    mergedControllers.Add(savedController);
+                }
+            }
+
+            String propVal = ControllerData.createPropValue(mergedControllers);
             UserSettings.GetUserSettings().setProperty(ControllerData.PROPERTY_CONTAINER, propVal);
             UserSettings.GetUserSettings().saveUserSettings();
             Console.WriteLine("Refreshed controllers, there are " + availableCount + " available controllers and " + activeDevices.Count + " active controllers");
