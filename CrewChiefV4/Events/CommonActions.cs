@@ -93,20 +93,28 @@ namespace CrewChiefV4.Events
             }
              
             // multiple events for status reporting:
-            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.DAMAGE_REPORT, false))
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.DAMAGE_REPORT, false) ||
+                SpeechRecogniser.ResultContains(voiceMessage, new string[] { ControllerConfiguration.GET_DAMAGE_REPORT }))
             {
+                Console.WriteLine("Getting damage report");
                 getDamageReport();
             }
-            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.CAR_STATUS, false))
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.CAR_STATUS, false) || 
+                SpeechRecogniser.ResultContains(voiceMessage, new string[]{ ControllerConfiguration.GET_CAR_STATUS}))
             {
+                Console.WriteLine("Getting car status");
                 getCarStatus();
             }
-            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.STATUS, false))
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.STATUS, false) || 
+                SpeechRecogniser.ResultContains(voiceMessage, new string[] { ControllerConfiguration.GET_STATUS }))
             {
+                Console.WriteLine("Getting full status");
                 getStatus();
             }
-            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.SESSION_STATUS, false))
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.SESSION_STATUS, false) ||
+                SpeechRecogniser.ResultContains(voiceMessage, new string[] { ControllerConfiguration.GET_SESSION_STATUS }))
             {
+                Console.WriteLine("Getting session status");
                 getSessionStatus();
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.START_PACE_NOTES_PLAYBACK, false))
@@ -157,26 +165,6 @@ namespace CrewChiefV4.Events
             {
                 Console.WriteLine("Getting fuel/battery status");
                 reportFuelStatus();
-            }
-            else if (SpeechRecogniser.ResultContains(voiceMessage, new string[]{ ControllerConfiguration.GET_STATUS}))
-            {
-                Console.WriteLine("Getting full status");
-                getStatus();
-            }
-            else if (SpeechRecogniser.ResultContains(voiceMessage, new string[]{ ControllerConfiguration.GET_SESSION_STATUS}))
-            {
-                Console.WriteLine("Getting session status");
-                getSessionStatus();
-            }
-            else if (SpeechRecogniser.ResultContains(voiceMessage, new string[]{ ControllerConfiguration.GET_DAMAGE_REPORT}))
-            {
-                Console.WriteLine("Getting damage report");
-                getDamageReport();
-            }
-            else if (SpeechRecogniser.ResultContains(voiceMessage, new string[]{ ControllerConfiguration.GET_CAR_STATUS}))
-            {
-                Console.WriteLine("Getting car status");
-                getCarStatus();
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, new string[]{ ControllerConfiguration.TOGGLE_PACE_NOTES_RECORDING}))
             {
