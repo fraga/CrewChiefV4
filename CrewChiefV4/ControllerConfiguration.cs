@@ -544,14 +544,17 @@ namespace CrewChiefV4
                 }
             }
             ControllerConfigurationData controllerConfigurationData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
-            controllerConfigurationData.devices.Clear();
+            // add controllers not in our saved list
             foreach (var controller in controllers)
             {
-                ControllerConfigurationDevice deviceData = new ControllerConfigurationDevice();
-                deviceData.deviceType = (int)controller.deviceType;
-                deviceData.guid = controller.guid.ToString();
-                deviceData.productName = controller.deviceName;
-                controllerConfigurationData.devices.Add(deviceData);
+                if (!controllerConfigurationData.devices.Exists(c => c.guid == controller.guid.ToString()))
+                {
+                     ControllerConfigurationDevice deviceData = new ControllerConfigurationDevice();
+                     deviceData.deviceType = (int)controller.deviceType;
+                     deviceData.guid = controller.guid.ToString();
+                     deviceData.productName = controller.deviceName;
+                     controllerConfigurationData.devices.Add(deviceData);
+                }
             }
             saveControllerConfigurationDataFile(controllerConfigurationData);
             Console.WriteLine("Refreshed controllers, there are " + availableCount + " available controllers and " + activeDevices.Count + " active controllers");
