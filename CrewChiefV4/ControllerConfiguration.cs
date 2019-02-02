@@ -101,13 +101,13 @@ namespace CrewChiefV4
         {
             public ButtonAssignmentData()
             {
-                action = new string[]{string.Empty};
+                action = string.Empty;
                 uiText = string.Empty;
                 eventName = string.Empty;
                 buttonIndex = -1;
                 deviceGuid = string.Empty;
             }
-            public String[] action { get; set; }
+            public String action { get; set; }
             public String uiText { get; set; }
             public String eventName { get; set; }
             public int buttonIndex { get; set; }
@@ -270,7 +270,7 @@ namespace CrewChiefV4
                 for (int i = 0; i < defaultData.buttonAssignments.Count; i++)
                 {
                     String uiText = defaultData.buttonAssignments[i].uiText;
-                    defaultData.buttonAssignments[i].action = Configuration.getUIStringStrict(uiText) == null ? Configuration.getSpeechRecognitionPhrases(uiText) : new string[] { Configuration.getUIString(uiText) };
+                    defaultData.buttonAssignments[i].action = Configuration.getUIStringStrict(uiText) == null ? Configuration.getSpeechRecognitionPhrases(uiText)[0] :  Configuration.getUIString(uiText);
                 }
                 List<ControllerData> currentControllers = ControllerData.parse(UserSettings.GetUserSettings().getString(ControllerData.PROPERTY_CONTAINER));
                 foreach (var controller in currentControllers)
@@ -293,7 +293,7 @@ namespace CrewChiefV4
                     { 
                         uiText = ba.uiText,
                         eventName = ba.eventName,
-                        action = Configuration.getUIStringStrict(ba.uiText) == null ? Configuration.getSpeechRecognitionPhrases(ba.uiText) : new string[] { Configuration.getUIString(ba.uiText) }
+                        action = Configuration.getUIStringStrict(ba.uiText) == null ? Configuration.getSpeechRecognitionPhrases(ba.uiText)[0] :  Configuration.getUIString(ba.uiText)
                     });
                 if(missingItems.ToList().Count > 0)
                 {
@@ -303,12 +303,13 @@ namespace CrewChiefV4
             }
                        
             ControllerConfigurationData controllerConfigurationData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
+            // update actions and add assignments 
             for  (int i = 0; i < controllerConfigurationData.buttonAssignments.Count; i++)
             {
                 String uiText = controllerConfigurationData.buttonAssignments[i].uiText;
-                controllerConfigurationData.buttonAssignments[i].action = Configuration.getUIStringStrict(uiText) == null ? Configuration.getSpeechRecognitionPhrases(uiText) : new string[] { Configuration.getUIString(uiText) };
+                controllerConfigurationData.buttonAssignments[i].action = Configuration.getUIStringStrict(uiText) == null ? Configuration.getSpeechRecognitionPhrases(uiText)[0] : Configuration.getUIString(uiText);
                 saveControllerConfigurationDataFile(controllerConfigurationData);
-                addButtonAssignment(controllerConfigurationData.buttonAssignments[i].action[0], controllerConfigurationData.buttonAssignments[i].eventName);
+                addButtonAssignment(controllerConfigurationData.buttonAssignments[i].action, controllerConfigurationData.buttonAssignments[i].eventName);
             }
 
             controllers = new List<ControllerData>();
@@ -320,7 +321,7 @@ namespace CrewChiefV4
             {
                 if (assignment.buttonIndex != -1 && assignment.deviceGuid.Length > 0)
                 {
-                    loadAssignment(assignment.action[0], assignment.buttonIndex, assignment.deviceGuid);
+                    loadAssignment(assignment.action, assignment.buttonIndex, assignment.deviceGuid);
                 }
             }
         }
@@ -467,7 +468,7 @@ namespace CrewChiefV4
                 String deviceGuid = assignment.deviceGuid;
                 if (buttonIndex != -1 && deviceGuid.Length > 0)
                 {
-                    loadAssignment(assignment.action[0], buttonIndex, deviceGuid);
+                    loadAssignment(assignment.action, buttonIndex, deviceGuid);
                 }
             }
         }
