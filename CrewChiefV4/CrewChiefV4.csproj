@@ -122,6 +122,7 @@
     <Compile Include="ControllerConfiguration.cs" />
     <Compile Include="Events\AlarmClock.cs" />
     <Compile Include="Events\Battery.cs" />
+    <Compile Include="Events\CommonActions.cs" />
     <Compile Include="Events\CommonDataContainers.cs" />
     <Compile Include="Events\Strategy.cs" />
     <Compile Include="Events\FrozenOrderMonitor.cs" />
@@ -368,6 +369,7 @@
     <EmbeddedResource Include="UserInterface\BooleanPropertyControl.resx">
       <DependentUpon>BooleanPropertyControl.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="controllerConfigurationData.json" />
     <None Include="carClassData.json" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">

@@ -37,8 +37,6 @@ namespace CrewChiefV4
         public static Boolean readOpponentDeltasForEveryLap = false;
         // initial state from properties but can be overridden during a session:
         public static Boolean yellowFlagMessagesEnabled = UserSettings.GetUserSettings().getBoolean("enable_yellow_flag_messages");
-        private static Boolean useVerboseResponses = UserSettings.GetUserSettings().getBoolean("use_verbose_responses");
-        private Boolean keepQuietEnabled = false;
                 
         public static Boolean enableDriverNames = UserSettings.GetUserSettings().getBoolean("enable_driver_names");
 
@@ -135,7 +133,8 @@ namespace CrewChiefV4
             eventsList.Add("OvertakingAidsMonitor", new OvertakingAidsMonitor(audioPlayer));
             eventsList.Add("FrozenOrderMonitor", new FrozenOrderMonitor(audioPlayer));
             eventsList.Add("IRacingBroadcastMessageEvent", new IRacingBroadcastMessageEvent(audioPlayer));
-            eventsList.Add("MulticlassWarnings", new MulticlassWarnings(audioPlayer));            
+            eventsList.Add("MulticlassWarnings", new MulticlassWarnings(audioPlayer));
+            eventsList.Add("CommonActions", new CommonActions(audioPlayer));  
             sessionEndMessages = new SessionEndMessages(audioPlayer);
             alarmClock = new AlarmClock(audioPlayer);
             DriverNameHelper.readRawNamesToUsableNamesFiles(AudioPlayer.soundFilesPath);
@@ -185,191 +184,6 @@ namespace CrewChiefV4
             return null;
         }
 
-        public void toggleKeepQuietMode()
-        {
-            if (keepQuietEnabled) 
-            {
-                disableKeepQuietMode();
-            }
-            else
-            {
-                enableKeepQuietMode();
-            }
-        }
-
-        public void toggleEnableCutTrackWarnings()
-        {
-            if (GlobalBehaviourSettings.cutTrackWarningsEnabled)
-            {
-                disableCutTrackWarnings();
-            }
-            else
-            {
-                enableCutTrackWarnings();
-            }
-        }
-
-        public void enableCutTrackWarnings()
-        {
-            GlobalBehaviourSettings.cutTrackWarningsEnabled = true;
-            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderCutWarningsEnabled, 0));
-        }
-
-        public void disableCutTrackWarnings()
-        {
-            GlobalBehaviourSettings.cutTrackWarningsEnabled = false;
-            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderCutWarningsDisabled, 0));
-        }
-
-        public void toggleDelayMessagesInHardParts()
-        {
-            if (AudioPlayer.delayMessagesInHardParts)
-            {
-                disableDelayMessagesInHardParts();
-            }
-            else
-            {
-                enableDelayMessagesInHardParts();
-            }
-        }
-
-        public void enableDelayMessagesInHardParts()
-        {
-            if (!AudioPlayer.delayMessagesInHardParts)
-            {
-                AudioPlayer.delayMessagesInHardParts = true;
-            }
-            // switch the gap points to use the adjusted ones
-            if (currentGameState != null && currentGameState.SessionData.TrackDefinition != null && currentGameState.hardPartsOnTrackData.hardPartsMapped)
-            {
-                currentGameState.SessionData.TrackDefinition.adjustGapPoints(currentGameState.hardPartsOnTrackData.processedHardPartsForBestLap);
-            }
-            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowledgeEnableDelayInHardParts, 0));
-        }
-
-        public void disableDelayMessagesInHardParts()
-        {
-            if (AudioPlayer.delayMessagesInHardParts)
-            {
-                AudioPlayer.delayMessagesInHardParts = false;
-            }
-            // switch the gap points back to use the regular ones
-            if (currentGameState != null && currentGameState.SessionData.TrackDefinition != null && currentGameState.hardPartsOnTrackData.hardPartsMapped)
-            {
-                currentGameState.SessionData.TrackDefinition.setGapPoints();
-            }
-            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowledgeDisableDelayInHardParts, 0));
-        }
-
-        public void toggleReadOpponentDeltasMode()
-        {
-            if (readOpponentDeltasForEveryLap)
-            {
-                disableDeltasMode();
-            }
-            else
-            {
-                enableDeltasMode();
-            }
-        }
-
-        public void enableDeltasMode()
-        {
-            if (!readOpponentDeltasForEveryLap)
-            {
-                readOpponentDeltasForEveryLap = true;
-            }
-            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderDeltasEnabled, 0));
-        }
-
-        public void disableDeltasMode()
-        {
-            if (readOpponentDeltasForEveryLap)
-            {
-                readOpponentDeltasForEveryLap = false;
-            }
-            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderDeltasDisabled, 0));
-        }
-
-        public void toggleEnableYellowFlagsMode()
-        {
-            if (yellowFlagMessagesEnabled)
-            {
-                disableYellowFlagMessages();
-            }
-            else
-            {
-                enableYellowFlagMessages();
-            }
-        }
-
-        public void enableYellowFlagMessages()
-        {
-            yellowFlagMessagesEnabled = true;
-            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderYellowEnabled, 0));
-        }
-
-        public void disableYellowFlagMessages()
-        {
-            yellowFlagMessagesEnabled = false;
-            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderYellowDisabled, 0));
-        }
-
-        public void toggleManualFormationLapMode()
-        {
-            if (GameStateData.useManualFormationLap)
-            {
-                disableManualFormationLapMode();
-            }
-            else
-            {
-                enableManualFormationLapMode();
-            }
-        }
-
-        public void enableManualFormationLapMode()
-        {
-            // Prevent accidential trigger during the race.  Luckily, there's a handy hack available :)
-            if (currentGameState != null && currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.SessionData.CompletedLaps >=1)
-            {
-                Console.WriteLine("Rejecting manual formation lap request due to race already in progress");
-                return;
-            }
-            if (!GameStateData.useManualFormationLap)
-            {
-                GameStateData.useManualFormationLap = true;
-                GameStateData.onManualFormationLap = true;
-            }
-            Console.WriteLine("Manual formation lap mode is ACTIVE");
-            audioPlayer.playMessageImmediately(new QueuedMessage(LapCounter.folderManualFormationLapModeEnabled, 0));
-        }
-
-        public void disableManualFormationLapMode()
-        {
-            if (GameStateData.useManualFormationLap)
-            {
-                GameStateData.useManualFormationLap = false;
-                GameStateData.onManualFormationLap = false;
-            }
-            Console.WriteLine("Manual formation lap mode is DISABLED");
-            audioPlayer.playMessageImmediately(new QueuedMessage(LapCounter.folderManualFormationLapModeDisabled, 0));
-        }
-
-        public void reportFuelStatus()
-        {
-            if (GlobalBehaviourSettings.enabledMessageTypes.Contains(MessageTypes.BATTERY))
-            {
-                ((Battery)eventsList["Battery"]).reportBatteryStatus(true);
-                if (useVerboseResponses)
-                {
-                    ((Battery)eventsList["Battery"]).reportExtendedBatteryStatus(true, false);
-                }
-            }
-            else
-            {
-                ((Fuel)eventsList["Fuel"]).reportFuelStatus(true, (CrewChief.currentGameState != null && CrewChief.currentGameState.SessionData.SessionType == SessionType.Race));
-            }
-        }
 
         public void toggleSpotterMode()
         {
@@ -381,27 +195,6 @@ namespace CrewChiefV4
             {
                 enableSpotter();
             }
-        }
-
-        public void enableKeepQuietMode()
-        {
-            keepQuietEnabled = true;
-            audioPlayer.enableKeepQuietMode();
-        }
-
-        public void playCornerNamesForCurrentLap()
-        {
-            if (currentGameState != null)
-            {
-                audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
-                currentGameState.readLandmarksForThisLap = true;
-            }
-        }
-
-        public void disableKeepQuietMode()
-        {
-            keepQuietEnabled = false;
-            audioPlayer.disableKeepQuietMode();
         }
 
         public void enableSpotter()
@@ -424,11 +217,6 @@ namespace CrewChiefV4
                 GlobalBehaviourSettings.spotterEnabled = false;
                 spotter.disableSpotter();
             }
-        }
-
-        public void respondToRadioCheck()
-        {
-            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderRadioCheckResponse, 0));
         }
 
         public void youWot(Boolean detectedSomeSpeech)
@@ -455,180 +243,6 @@ namespace CrewChiefV4
             {
                 // TODO: separate responses for no input detected, and input not understood?
                 audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderDidntUnderstand, 0));
-            }
-        }
-
-        public void togglePaceNotesPlayback()
-        {
-            if (DriverTrainingService.isPlayingPaceNotes)
-            {
-                DriverTrainingService.stopPlayingPaceNotes();
-                audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
-            }
-            else
-            {
-                if (CrewChief.currentGameState != null && CrewChief.currentGameState.SessionData.TrackDefinition != null)
-                {
-                    if (!DriverTrainingService.isPlayingPaceNotes)
-                    {
-                        if (DriverTrainingService.loadPaceNotes(CrewChief.gameDefinition.gameEnum,
-                                CrewChief.currentGameState.SessionData.TrackDefinition.name, CrewChief.currentGameState.carClass.carClassEnum))
-                        {
-                            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
-                        }
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("No track or car has been loaded - start an on-track session before loading a pace notes");
-                }
-            }
-        }
-        
-        public void togglePaceNotesRecording()
-        {
-            if (DriverTrainingService.isRecordingPaceNotes)
-            {
-                DriverTrainingService.completeRecordingPaceNotes();
-            }
-            else
-            {
-                if (CrewChief.trackName == null || CrewChief.trackName.Equals(""))
-                {
-                    Console.WriteLine("No track has been loaded - start an on-track session before recording pace notes");
-                    return;
-                }
-                if (CrewChief.carClass == CarData.CarClassEnum.UNKNOWN_RACE || CrewChief.carClass == CarData.CarClassEnum.USER_CREATED)
-                {
-                    Console.WriteLine("No car class has been set - this pace notes session will not be class specific");
-                }
-                DriverTrainingService.startRecordingPaceNotes(CrewChief.gameDefinition.gameEnum,
-                    CrewChief.trackName, CrewChief.carClass);                
-            }
-        }
-        public void toggleTrackLandmarkRecording()
-        {
-            if(TrackLandMarksRecorder.isRecordingTrackLandmarks)
-            {
-                TrackLandMarksRecorder.completeRecordingTrackLandmarks();
-            }
-            else
-            {
-                if (CrewChief.trackName == null || CrewChief.trackName.Equals(""))
-                {
-                    Console.WriteLine("No track has been loaded - start an on-track session before recording landmarks");
-                    return;
-                }
-                else
-                {
-                    TrackLandMarksRecorder.startRecordingTrackLandmarks(CrewChief.gameDefinition.gameEnum,
-                    CrewChief.trackName, CrewChief.raceroomTrackId);
-                }
-                
-            }
-        }
-        public void toggleAddTrackLandmark()
-        {
-            if (TrackLandMarksRecorder.isRecordingTrackLandmarks)
-            {
-                TrackLandMarksRecorder.addLandmark(CrewChief.distanceRoundTrack);
-            }
-        }
-        // nasty... these triggers come from the speech recogniser or from button presses, and invoke speech
-        // recognition 'respond' methods in the events
-        public static void getStatus()
-        {
-            getEvent("Penalties").respond(SpeechRecogniser.STATUS[0]);
-            getEvent("RaceTime").respond(SpeechRecogniser.STATUS[0]);
-            getEvent("Position").respond(SpeechRecogniser.STATUS[0]);
-            getEvent("PitStops").respond(SpeechRecogniser.STATUS[0]);
-            getEvent("DamageReporting").respond(SpeechRecogniser.STATUS[0]);
-            if (GlobalBehaviourSettings.enabledMessageTypes.Contains(MessageTypes.BATTERY))
-            {
-                getEvent("Battery").respond(SpeechRecogniser.CAR_STATUS[0]);
-            }
-            else
-            {
-                getEvent("Fuel").respond(SpeechRecogniser.CAR_STATUS[0]);
-            }
-            getEvent("TyreMonitor").respond(SpeechRecogniser.STATUS[0]);
-            getEvent("EngineMonitor").respond(SpeechRecogniser.STATUS[0]);
-            getEvent("Timings").respond(SpeechRecogniser.STATUS[0]);
-        }
-
-        public static void getSessionStatus()
-       {
-            getEvent("Penalties").respond(SpeechRecogniser.SESSION_STATUS[0]);
-            getEvent("RaceTime").respond(SpeechRecogniser.SESSION_STATUS[0]);
-            getEvent("Position").respond(SpeechRecogniser.SESSION_STATUS[0]);
-            getEvent("PitStops").respond(SpeechRecogniser.SESSION_STATUS[0]);
-            getEvent("Timings").respond(SpeechRecogniser.SESSION_STATUS[0]);
-        }
-
-        public static void getCarStatus()
-        {
-            getEvent("DamageReporting").respond(SpeechRecogniser.CAR_STATUS[0]);
-            if (GlobalBehaviourSettings.enabledMessageTypes.Contains(MessageTypes.BATTERY))
-            {
-                getEvent("Battery").respond(SpeechRecogniser.CAR_STATUS[0]);
-            }
-            else
-            {
-                getEvent("Fuel").respond(SpeechRecogniser.CAR_STATUS[0]);
-            }
-            getEvent("TyreMonitor").respond(SpeechRecogniser.CAR_STATUS[0]);
-            getEvent("EngineMonitor").respond(SpeechRecogniser.CAR_STATUS[0]);
-        }
-
-        public static void getDamageReport()
-        {
-            getEvent("DamageReporting").respond(SpeechRecogniser.DAMAGE_REPORT[0]);
-        }
-        
-        public void reportCurrentTime()
-        {
-            DateTime now = DateTime.Now;
-            int hour = now.Hour;
-            int minute = now.Minute;
-            Boolean isPastMidDay = false;
-            if (hour >= 12)
-            {
-                isPastMidDay = true;
-            }
-            if (AudioPlayer.soundPackLanguage == "it")
-            {
-                audioPlayer.playMessageImmediately(new QueuedMessage("current_time", 0,
-                    messageFragments: AbstractEvent.MessageContents(hour, NumberReaderIt2.folderAnd, now.Minute)));
-            }
-            else
-            {
-                if (hour == 0)
-                {
-                    isPastMidDay = false;
-                    hour = 24;
-                }
-                if (hour > 12)
-                {
-                    hour = hour - 12;
-                }
-                if (minute < 10)
-                {
-                    if (minute == 0)
-                    {
-                        audioPlayer.playMessageImmediately(new QueuedMessage("current_time", 0,
-                           messageFragments: AbstractEvent.MessageContents(hour, isPastMidDay ? AlarmClock.folderPM : AlarmClock.folderAM)));
-                    }
-                    else
-                    {
-                        audioPlayer.playMessageImmediately(new QueuedMessage("current_time", 0,
-                            messageFragments: AbstractEvent.MessageContents(hour, NumberReader.folderOh, now.Minute, isPastMidDay ? AlarmClock.folderPM : AlarmClock.folderAM)));
-                    }
-                }
-                else
-                {
-                    audioPlayer.playMessageImmediately(new QueuedMessage("current_time", 0,
-                        messageFragments: AbstractEvent.MessageContents(hour, now.Minute, isPastMidDay ? AlarmClock.folderPM : AlarmClock.folderAM)));
-                }
             }
         }
 

@@ -256,45 +256,7 @@ namespace CrewChiefV4
 
         private EventWaitHandle triggerTimeoutWaitHandle = new EventWaitHandle(false, EventResetMode.ManualReset);
         private Thread restartWaitTimeoutThreadReference = null;
-
-        static SpeechRecogniser () 
-        {
-            if (UserSettings.GetUserSettings().getBoolean("use_naudio_for_speech_recognition"))
-            {
-                speechRecognitionDevices.Clear();
-                for (int deviceId = 0; deviceId < NAudio.Wave.WaveIn.DeviceCount; deviceId++)
-                {
-                    // the audio device stuff makes no guarantee as to the presence of sensible device and product guids,
-                    // so we have to do the best we can here
-                    NAudio.Wave.WaveInCapabilities capabilities = NAudio.Wave.WaveIn.GetCapabilities(deviceId);
-                    Boolean hasNameGuid = capabilities.NameGuid != null && !capabilities.NameGuid.Equals(Guid.Empty);
-                    Boolean hasProductGuid = capabilities.ProductGuid != null && !capabilities.ProductGuid.Equals(Guid.Empty);
-                    String rawName = capabilities.ProductName;
-                    String name = rawName;
-                    int nameAddition = 0;
-                    while (speechRecognitionDevices.Keys.Contains(name))
-                    {
-                        nameAddition++;
-                        name = rawName += "(" + nameAddition + ")";
-                    }
-                    String guidToUse;
-                    if (hasNameGuid)
-                    {
-                        guidToUse = capabilities.NameGuid.ToString();
-                    }
-                    else if (hasProductGuid)
-                    {
-                        guidToUse = capabilities.ProductGuid.ToString() + "_" + name;
-                    }
-                    else
-                    {
-                        guidToUse = name;
-                    }
-                    speechRecognitionDevices.Add(name, new Tuple<string, int>(guidToUse, deviceId));
-                }
-            }
-        }
-        
+        private List<ControllerConfiguration.ButtonAssignmentData> buttonAssignments = new List<ControllerConfiguration.ButtonAssignmentData>();
         // load voice commands for triggering keyboard macros. The String key of the input Dictionary is the
         // command list key in speech_recognition_config.txt. When one of these phrases is heard the map value
         // CommandMacro is executed.
@@ -901,6 +863,9 @@ namespace CrewChiefV4
                 Console.WriteLine("Exception message: " + e.Message);
                 return;
             }
+            ControllerConfiguration.ControllerConfigurationData controllerData = ControllerConfiguration.getControllerConfigurationDataFromFile(ControllerConfiguration.getUserControllerConfigurationDataFileLocation());
+            buttonAssignments = controllerData.buttonAssignments.Where(ba => ba.eventName != string.Empty).ToList();
+        
             initialised = true;
         }
 
@@ -1315,7 +1280,7 @@ namespace CrewChiefV4
                         else if (ResultContains(e.Result.Text, REPEAT_LAST_MESSAGE, false))
                         {
                             crewChief.audioPlayer.repeatLastMessage();
-                        }
+                        }    
                         else if (ResultContains(e.Result.Text, MORE_INFO, false) && this.lastRecognisedText != null && !use_verbose_responses)
                         {
                             AbstractEvent abstractEvent = getEventForSpeech(this.lastRecognisedText);
@@ -1339,6 +1304,17 @@ namespace CrewChiefV4
                                 }
                             }
                         }
+                        /*if (buttonAssignments.Count > 0)
+                        {
+                            foreach (var buttonAssignment in buttonAssignments)
+                            {
+                                if(ResultContains(e.Result.Text, buttonAssignment.action, false))
+                                {
+                                    this.lastRecognisedText = e.Result.Text;
+                                    CrewChief.getEvent(buttonAssignment.eventName).respond(e.Result.Text);
+                                }
+                            }
+                        }*/
                     }
                     else
                     {
@@ -1637,12 +1613,7 @@ namespace CrewChiefV4
             {
                 return null;
             }
-
-            if (ResultContains(recognisedSpeech, RADIO_CHECK, false))
-            {
-                crewChief.respondToRadioCheck();
-            }
-            else if (ResultContains(recognisedSpeech, DONT_SPOT, false))
+            if (ResultContains(recognisedSpeech, DONT_SPOT, false))
             {
                 crewChief.disableSpotter();
             }
@@ -1650,57 +1621,29 @@ namespace CrewChiefV4
             {
                 crewChief.enableSpotter();
             }
-            else if (ResultContains(recognisedSpeech, KEEP_QUIET, false))
+
+            else if (ResultContains(recognisedSpeech, RADIO_CHECK, false) ||
+                ResultContains(recognisedSpeech, KEEP_QUIET, false) ||
+                ResultContains(recognisedSpeech, DONT_TELL_ME_THE_GAPS, false) ||
+                ResultContains(recognisedSpeech, TELL_ME_THE_GAPS, false) ||
+                ResultContains(recognisedSpeech, ENABLE_YELLOW_FLAG_MESSAGES, false) ||
+                ResultContains(recognisedSpeech, DISABLE_YELLOW_FLAG_MESSAGES, false) ||
+                ResultContains(recognisedSpeech, ENABLE_CUT_TRACK_WARNINGS, false) ||
+                ResultContains(recognisedSpeech, DISABLE_CUT_TRACK_WARNINGS, false) ||
+                ResultContains(recognisedSpeech, ENABLE_MANUAL_FORMATION_LAP, false) ||
+                ResultContains(recognisedSpeech, DISABLE_MANUAL_FORMATION_LAP, false) ||
+                ResultContains(recognisedSpeech, WHATS_THE_TIME, false) ||
+                ResultContains(recognisedSpeech, TALK_TO_ME_ANYWHERE, false) ||
+                ResultContains(recognisedSpeech, DONT_TALK_IN_THE_CORNERS, false) ||
+                ResultContains(recognisedSpeech, KEEP_ME_INFORMED, false) ||
+                ResultContains(recognisedSpeech, DAMAGE_REPORT, false) ||
+                ResultContains(recognisedSpeech, CAR_STATUS, false) ||
+                ResultContains(recognisedSpeech, STATUS, false) ||
+                ResultContains(recognisedSpeech, SESSION_STATUS, false) ||
+                ResultContains(recognisedSpeech, START_PACE_NOTES_PLAYBACK, false) ||
+                ResultContains(recognisedSpeech, STOP_PACE_NOTES_PLAYBACK, false))
             {
-                crewChief.enableKeepQuietMode();
-            }
-            else if (ResultContains(recognisedSpeech, PLAY_CORNER_NAMES, false))
-            {
-                crewChief.playCornerNamesForCurrentLap();
-            }
-            else if (ResultContains(recognisedSpeech, DONT_TELL_ME_THE_GAPS, false))
-            {
-                crewChief.disableDeltasMode();
-            }
-            else if (ResultContains(recognisedSpeech, TELL_ME_THE_GAPS, false))
-            {
-                crewChief.enableDeltasMode();
-            }
-            else if (ResultContains(recognisedSpeech, ENABLE_YELLOW_FLAG_MESSAGES, false))
-            {
-                crewChief.enableYellowFlagMessages();
-            }
-            else if (ResultContains(recognisedSpeech, DISABLE_YELLOW_FLAG_MESSAGES, false))
-            {
-                crewChief.disableYellowFlagMessages();
-            }
-            else if (ResultContains(recognisedSpeech, ENABLE_CUT_TRACK_WARNINGS, false))
-            {
-                crewChief.enableCutTrackWarnings();
-            }
-            else if (ResultContains(recognisedSpeech, DISABLE_CUT_TRACK_WARNINGS, false))
-            {
-                crewChief.disableCutTrackWarnings();
-            }
-            else if (ResultContains(recognisedSpeech, ENABLE_MANUAL_FORMATION_LAP, false))
-            {
-                crewChief.enableManualFormationLapMode();
-            }
-            else if (ResultContains(recognisedSpeech, DISABLE_MANUAL_FORMATION_LAP, false))
-            {
-                crewChief.disableManualFormationLapMode();
-            }
-            else if (ResultContains(recognisedSpeech, WHATS_THE_TIME, false))
-            {
-                crewChief.reportCurrentTime();
-            }
-            else if (ResultContains(recognisedSpeech, TALK_TO_ME_ANYWHERE, false))
-            {
-                crewChief.disableDelayMessagesInHardParts();
-            }
-            else if (ResultContains(recognisedSpeech, DONT_TALK_IN_THE_CORNERS, false))
-            {
-                crewChief.enableDelayMessagesInHardParts();
+                return CrewChief.getEvent("CommonActions");
             }
             else if (ResultContains(recognisedSpeech, HOWS_MY_AERO, false) ||
                ResultContains(recognisedSpeech, HOWS_MY_TRANSMISSION, false) ||
@@ -1710,10 +1653,7 @@ namespace CrewChiefV4
             {
                 return CrewChief.getEvent("DamageReporting");
             }
-            else if (ResultContains(recognisedSpeech, KEEP_ME_INFORMED, false))
-            {
-                crewChief.disableKeepQuietMode();
-            }
+
             else if (ResultContains(recognisedSpeech, WHATS_MY_FUEL_LEVEL, false)
                 || ResultContains(recognisedSpeech, HOWS_MY_FUEL, false)
                 || ResultContains(recognisedSpeech, WHATS_MY_FUEL_USAGE, false)
@@ -1791,37 +1731,6 @@ namespace CrewChiefV4
                 ResultContains(recognisedSpeech, WHOS_LEADING, false))
             {
                 return CrewChief.getEvent("Opponents");
-            }
-            // multiple events for status reporting:
-            else if (ResultContains(recognisedSpeech, DAMAGE_REPORT, false))
-            {
-                CrewChief.getDamageReport();
-            }
-            else if (ResultContains(recognisedSpeech, CAR_STATUS, false))
-            {
-                CrewChief.getCarStatus();
-            }
-            else if (ResultContains(recognisedSpeech, STATUS, false))
-            {
-                CrewChief.getStatus();
-            }
-            else if (ResultContains(recognisedSpeech, SESSION_STATUS, false))
-            {
-                CrewChief.getSessionStatus();
-            }
-            else if (ResultContains(recognisedSpeech, START_PACE_NOTES_PLAYBACK, false))
-            {
-                if (!DriverTrainingService.isPlayingPaceNotes)
-                {
-                    crewChief.togglePaceNotesPlayback();
-                }
-            }
-            else if (ResultContains(recognisedSpeech, STOP_PACE_NOTES_PLAYBACK, false))
-            {
-                if (DriverTrainingService.isPlayingPaceNotes)
-                {
-                    crewChief.togglePaceNotesPlayback();
-                }
             }
             else if (ResultContains(recognisedSpeech, IS_CAR_AHEAD_MY_CLASS, false) ||
                 ResultContains(recognisedSpeech, IS_CAR_BEHIND_MY_CLASS, false) ||
