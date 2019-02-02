@@ -22,12 +22,8 @@ namespace CrewChiefV4.rFactor2
         private readonly bool enableFCYPitStateMessages = UserSettings.GetUserSettings().getBoolean("enable_rf2_pit_state_during_fcy");
         private readonly bool forceRollingStart = UserSettings.GetUserSettings().getBoolean("force_rf2_rolling_start");
 
-        // Stock Car Rules plugin message constants.
-        private readonly string scrLuckyDogPassOnLeftUpper = "Lucky Dog: Pass Field On Left".ToUpperInvariant();
-        private readonly string scrAllowLuckyDogPassOnLeftUpper = "Allow Lucky Dog To Pass On Left".ToUpperInvariant();
-        private readonly string scrLuckyDogIsUpperPrefix = "Lucky Dog: ".ToUpperInvariant();
-        private readonly string scrLeaderChooseLaneUpper = "Choose A Lane By Staying Left Or Right".ToUpperInvariant();
-
+        private readonly string scrLuckyDogIsPrefix = "Lucky Dog: ".ToUpperInvariant();
+        
         // Note: "wave around" is a prefix message, because apparently ISI plugin says "on left",
         // but custom plugin leagues use says "on right".
         private readonly string scrWaveArroundPassOnUpperPrefix = "Wave Around: Pass Field On".ToUpperInvariant();
@@ -117,6 +113,7 @@ namespace CrewChiefV4.rFactor2
         // Message center stuff
         private Int64 lastHistoryMessageUpdatedTicks = 0;
         private Int64 statusMessageUpdatedTicks = 0;
+        private Int64 rulesInstructionMessageUpdatedTicks = 0;
 
         // Since some of MC messages disapper (Player Control: N, for example), we need to remember last message that
         // mattered from CC's standpoint, otherwise, same message could get applied multiple times.
@@ -140,7 +137,7 @@ namespace CrewChiefV4.rFactor2
             this.suspensionDamageThresholds.Add(new CornerData.EnumWithThresholds(DamageLevel.DESTROYED, 1.0f, 2.0f));
         }
 
-        private int[] minimumSupportedVersionParts = new int[] { 3, 3, 0, 6 };
+        private int[] minimumSupportedVersionParts = new int[] { 3, 4, 0, 4 };
         public static bool pluginVerified = false;
         public override void versionCheck(Object memoryMappedFileStruct)
         {
@@ -189,7 +186,7 @@ namespace CrewChiefV4.rFactor2
             else
             {
                 var msg = "rFactor 2 Shared Memory version: " + versionStr + " 64bit."
-                    + (shared.extended.mHostedPluginVars.StockCarRules_IsHosted != 0 ? ("  Stock Car Rules plugin hosted. (DFT:" + shared.extended.mHostedPluginVars.StockCarRules_DoubleFileType + ")")  : "")
+                    + (shared.extended.mDirectMemoryAccessEnabled != 0 && shared.extended.mSCRPluginEnabled != 0 ? ("  Stock Car Rules plugin enabled. (DFT:" + shared.extended.mSCRPluginDoubleFileType + ")")  : "")
                     + (shared.extended.mDirectMemoryAccessEnabled != 0 ? "  DMA enabled." : "");
                 Console.WriteLine(msg);
             }
@@ -1638,7 +1635,7 @@ namespace CrewChiefV4.rFactor2
                     {
                         var allowedToPit = shared.rules.mParticipants[playerRulesIdx].mPitsOpen;
                         // Core rules: always open, pit state == 3
-                        if (shared.extended.mHostedPluginVars.StockCarRules_IsHosted == 0)
+                        if (shared.extended.mDirectMemoryAccessEnabled == 0 || shared.extended.mSCRPluginEnabled == 0)
                             cgs.FlagData.fcyPhase = FullCourseYellowPhase.PITS_OPEN;
                         else
                         {
@@ -1992,7 +1989,7 @@ namespace CrewChiefV4.rFactor2
         private StockCarRulesData GetStockCarRulesData(GameStateData currentGameState, ref rF2TrackRulesParticipant playerRules, ref rF2Rules rules, ref CrewChiefV4.rFactor2.RF2SharedMemoryReader.RF2StructWrapper shared)
         {
             var scrData = new StockCarRulesData();
-            scrData.stockCarRulesEnabled = shared.extended.mHostedPluginVars.StockCarRules_IsHosted != 0;
+            scrData.stockCarRulesEnabled = shared.extended.mDirectMemoryAccessEnabled != 0 && shared.extended.mSCRPluginEnabled != 0;
 
             var cgs = currentGameState;
 
@@ -2002,46 +1999,43 @@ namespace CrewChiefV4.rFactor2
                 || cgs.SessionData.SessionType != SessionType.Race)
                 return scrData;
 
-            // When saving session to file, mMessage strings might be null if empty.
-            var globalMsgUpper = rules.mTrackRules.mMessage != null ? RF2GameStateMapper.GetStringFromBytes(rules.mTrackRules.mMessage).ToUpperInvariant() : null;
-            var playerMsgUpper = playerRules.mMessage != null ? RF2GameStateMapper.GetStringFromBytes(playerRules.mMessage).ToUpperInvariant() : null;
+            if (this.rulesInstructionMessageUpdatedTicks == shared.extended.mTicksRulesInstructionMessageUpdated)
+                return scrData;
 
-            if (!string.IsNullOrWhiteSpace(globalMsgUpper))
+            this.rulesInstructionMessageUpdatedTicks = shared.extended.mTicksRulesInstructionMessageUpdated;
+
+            var msg = RF2GameStateMapper.GetStringFromBytes(shared.extended.mRulesInstructionMessage);
+            if (string.IsNullOrWhiteSpace(msg))
+                return scrData;
+
+            var consumed = true;
+            if (msg.Length > this.scrLuckyDogIsPrefix.Length
+                && msg.StartsWith(this.scrLuckyDogIsPrefix))
             {
-                if (globalMsgUpper.Length > this.scrLuckyDogIsUpperPrefix.Length
-                    && globalMsgUpper.StartsWith(this.scrLuckyDogIsUpperPrefix))
-                {
-                    scrData.luckyDogNameRaw = globalMsgUpper.Substring(this.scrLuckyDogIsUpperPrefix.Length).ToLowerInvariant();
-                    scrData.luckyDogNameRaw = RF2GameStateMapper.GetSanitizedDriverName(scrData.luckyDogNameRaw);
-                }
-                else
-                {
-                    if (this.lastUnknownGlobalRuleMessage != globalMsgUpper)
-                    {
-                        this.lastUnknownGlobalRuleMessage = globalMsgUpper;
-                        Console.WriteLine("Unrecognized global rule message: " + globalMsgUpper);
-                    }
-                }
+                scrData.luckyDogNameRaw = msg.Substring(this.scrLuckyDogIsPrefix.Length).ToLowerInvariant();
+                scrData.luckyDogNameRaw = RF2GameStateMapper.GetSanitizedDriverName(scrData.luckyDogNameRaw);
+            }
+            else if (msg == "Allow Lucky Dog To Pass On Left")
+                scrData.stockCarRuleApplicable = StockCarRule.LUCKY_DOG_ALLOW_TO_PASS_ON_LEFT;
+            else if (msg == "Lucky Dog: Pass Field On Left")
+                scrData.stockCarRuleApplicable = StockCarRule.LUCKY_DOG_PASS_ON_LEFT;
+            else if (msg == "Choose A Lane By Staying Left Or Right")
+                scrData.stockCarRuleApplicable = StockCarRule.LEADER_CHOOSE_LANE;
+            else if (msg == "Move To End Of Longest Line")
+                scrData.stockCarRuleApplicable = StockCarRule.MOVE_TO_EOLL;
+            // Note: "wave around" is a prefix message, because apparently ISI plugin says "on left",
+            // but custom plugin leagues use says "on right".
+            else if (msg.StartsWith("Wave Around: Pass Field On"))
+                scrData.stockCarRuleApplicable = StockCarRule.WAVE_AROUND_PASS_ON_RIGHT;
+            else
+            {
+                Console.WriteLine("Rule instruction messages: unrecognized message: " + msg);
+                consumed = false;
             }
 
-            if (!string.IsNullOrWhiteSpace(playerMsgUpper))
-            {
-                if (playerMsgUpper == this.scrAllowLuckyDogPassOnLeftUpper)
-                    scrData.stockCarRuleApplicable = StockCarRule.LUCKY_DOG_ALLOW_TO_PASS_ON_LEFT;
-                else if (playerMsgUpper == this.scrLuckyDogPassOnLeftUpper)
-                    scrData.stockCarRuleApplicable = StockCarRule.LUCKY_DOG_PASS_ON_LEFT;
-                else if (playerMsgUpper == this.scrLeaderChooseLaneUpper)
-                    scrData.stockCarRuleApplicable = StockCarRule.LEADER_CHOOSE_LANE;
-                else if (playerMsgUpper == this.scrMoveToEOLLUpper)
-                    scrData.stockCarRuleApplicable = StockCarRule.MOVE_TO_EOLL;
-                else if (playerMsgUpper.StartsWith(this.scrWaveArroundPassOnUpperPrefix))
-                    scrData.stockCarRuleApplicable = StockCarRule.WAVE_AROUND_PASS_ON_RIGHT;
-                else if (this.lastUnknownPlayerRuleMessage != playerMsgUpper)
-                {
-                    this.lastUnknownPlayerRuleMessage = playerMsgUpper;
-                    Console.WriteLine("Unrecognized player rule message: " + playerMsgUpper);
-                }
-            }
+            // "Two to Green"
+            if (consumed)
+                Console.WriteLine("Rule instruction messages: processed message: \"" + msg + "\"");
 
             return scrData;
         }
@@ -2568,13 +2562,13 @@ namespace CrewChiefV4.rFactor2
 
             Debug.Assert(fod.Phase != FrozenOrderPhase.None);
 
-            var useSCRules = GlobalBehaviourSettings.useAmericanTerms && extended.mHostedPluginVars.StockCarRules_IsHosted != 0;
+            var useSCRules = GlobalBehaviourSettings.useAmericanTerms && extended.mDirectMemoryAccessEnabled != 0 && extended.mSCRPluginEnabled != 0;
             if (vehicleRules.mPositionAssignment != -1)
             {
                 var gridOrder = false;
                 var scrLastLapDoubleFile = useSCRules
                     && fod.Phase == FrozenOrderPhase.FullCourseYellow
-                    && (extended.mHostedPluginVars.StockCarRules_DoubleFileType == 1 || extended.mHostedPluginVars.StockCarRules_DoubleFileType == 2)
+                    && (extended.mSCRPluginDoubleFileType == 1 || extended.mSCRPluginDoubleFileType == 2)
                     && scoring.mScoringInfo.mYellowFlagState == (sbyte)rFactor2Constants.rF2YellowFlagState.LastLap;
 
                 if (fod.Phase == FrozenOrderPhase.FullCourseYellow  // Core FCY does not use grid order. 

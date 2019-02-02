@@ -143,7 +143,6 @@ namespace CrewChiefV4
 
             if (File.Exists(path))
             {
-                
                 return path;
             }
             else
