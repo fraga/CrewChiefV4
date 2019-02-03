@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using CrewChiefV4.Events;
+using System.Windows.Forms;
 namespace CrewChiefV4
 {
     public class ControllerConfiguration : IDisposable
@@ -23,6 +24,8 @@ namespace CrewChiefV4
             DeviceType.Supplemental, DeviceType.Remote};
         public List<ButtonAssignment> buttonAssignments = new List<ButtonAssignment>();
         public List<ControllerData> controllers;
+
+        private static Boolean usersConfigFileIsBroken = false;
 
         // keep track of all the Joystick devices we've 'acquired'
         private static Dictionary<Guid, Joystick> activeDevices = new Dictionary<Guid, Joystick>();
@@ -138,19 +141,26 @@ namespace CrewChiefV4
 
         public static ControllerConfigurationData getControllerConfigurationDataFromFile(String filename)
         {
-            if (filename != null)
+            if (filename != null && !usersConfigFileIsBroken)
             {
                 try
                 {
                     using (StreamReader r = new StreamReader(filename))
                     {
                         string json = r.ReadToEnd();
-                        return JsonConvert.DeserializeObject<ControllerConfigurationData>(json);
+                        ControllerConfigurationData data = JsonConvert.DeserializeObject<ControllerConfigurationData>(json);
+                        usersConfigFileIsBroken = false;
+                        return data;
                     }                    
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine("Error parsing " + filename + ": " + e.Message);
+                    ControllerConfiguration.usersConfigFileIsBroken = true;
+                    MessageBox.Show(Configuration.getUIString("controller_mappings_file_error_details_1") + " " + filename +  
+                            Configuration.getUIString("controller_mappings_file_error_details_2") + " " + e.Message,
+                        Configuration.getUIString("controller_mappings_file_error_title"), 
+                        MessageBoxButtons.OK);
                 }
             }
             return new ControllerConfigurationData();
@@ -158,6 +168,11 @@ namespace CrewChiefV4
 
         private static void saveControllerConfigurationDataFile(ControllerConfigurationData buttonsActions)
         {
+            if (usersConfigFileIsBroken)
+            {
+                Console.WriteLine("Unable to update controller bindings because the file isn't valid JSON");
+                return;
+            }
             String fileName = "controllerConfigurationData.json";
             String path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4");
             if (!Directory.Exists(path))
