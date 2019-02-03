@@ -91,37 +91,15 @@ namespace CrewChiefV4
             { GetParameterName(new { PIT_PREDICTION }), PIT_PREDICTION},
             { GetParameterName(new { TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS }), TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS}
         };
-        public class ControllerConfigurationDevice
-        {
-            public int deviceType { get; set; }
-            public String productName { get; set; }
-            public String guid { get; set; }
-        }
-        public class ButtonAssignmentData
-        {
-            public ButtonAssignmentData()
-            {
-                action = new string[]{string.Empty};
-                uiText = string.Empty;
-                eventName = string.Empty;
-                buttonIndex = -1;
-                deviceGuid = string.Empty;
-            }
-            public String[] action { get; set; }
-            public String uiText { get; set; }
-            public String eventName { get; set; }
-            public int buttonIndex { get; set; }
-            public String deviceGuid { get; set; }
-        }
         public class ControllerConfigurationData
         {
             public ControllerConfigurationData()
             {
-                devices = new List<ControllerConfigurationDevice>();
-                buttonAssignments = new List<ButtonAssignmentData>();
+                devices = new List<ControllerData>();
+                buttonAssignments = new List<ButtonAssignment>();
             }
-            public List<ControllerConfigurationDevice> devices { get; set; }
-            public List<ButtonAssignmentData> buttonAssignments { get; set; }
+            public List<ControllerData> devices { get; set; }
+            public List<ButtonAssignment> buttonAssignments { get; set; }
         }
 
         private static String getDefaultControllerConfigurationDataFileLocation()
@@ -266,20 +244,7 @@ namespace CrewChiefV4
                         }
                     }                                      
                 }
-                for (int i = 0; i < defaultData.buttonAssignments.Count; i++)
-                {
-                    String uiText = defaultData.buttonAssignments[i].uiText;
-                    defaultData.buttonAssignments[i].action = Configuration.getUIStringStrict(uiText) == null ? Configuration.getSpeechRecognitionPhrases(uiText) : new string[] { Configuration.getUIString(uiText) };
-                }
-                List<ControllerData> currentControllers = ControllerData.parse(UserSettings.GetUserSettings().getString(ControllerData.PROPERTY_CONTAINER));
-                foreach (var controller in currentControllers)
-                {
-                    ControllerConfigurationDevice deviceData = new ControllerConfigurationDevice();
-                    deviceData.deviceType = (int)controller.deviceType;
-                    deviceData.guid = controller.guid.ToString();
-                    deviceData.productName = controller.deviceName;
-                    defaultData.devices.Add(deviceData);                    
-                }
+                defaultData.devices = ControllerData.parse(UserSettings.GetUserSettings().getString(ControllerData.PROPERTY_CONTAINER));
                 saveControllerConfigurationDataFile(defaultData);
             }
             else // app updated add, missing elements ?
@@ -287,13 +252,7 @@ namespace CrewChiefV4
                 ControllerConfigurationData defaultData = getControllerConfigurationDataFromFile(getDefaultControllerConfigurationDataFileLocation());
                 ControllerConfigurationData userData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
 
-                var missingItems = defaultData.buttonAssignments.Where(ba2 => userData.buttonAssignments.Any(ba1 => ba1.uiText == ba2.uiText) == false)
-                    .Select(ba => new ButtonAssignmentData
-                    { 
-                        uiText = ba.uiText,
-                        eventName = ba.eventName,
-                        action = Configuration.getUIStringStrict(ba.uiText) == null ? Configuration.getSpeechRecognitionPhrases(ba.uiText) : new string[] { Configuration.getUIString(ba.uiText) }
-                    });
+                var missingItems = defaultData.buttonAssignments.Where(ba2 => userData.buttonAssignments.Any(ba1 => ba1.uiText == ba2.uiText) == false);
                 if(missingItems.ToList().Count > 0)
                 {
                     userData.buttonAssignments.AddRange(missingItems);                    
@@ -302,21 +261,25 @@ namespace CrewChiefV4
             }
                        
             ControllerConfigurationData controllerConfigurationData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
-            foreach (var assignment in controllerConfigurationData.buttonAssignments)
+            // update actions and add assignments 
+            for  (int i = 0; i < controllerConfigurationData.buttonAssignments.Count; i++)
             {
-                addButtonAssignment(assignment.action[0], assignment.eventName);
+                String uiText = controllerConfigurationData.buttonAssignments[i].uiText;
+                String action = Configuration.getUIStringStrict(uiText) == null ? Configuration.getSpeechRecognitionPhrases(uiText)[0] : Configuration.getUIString(uiText);
+                if (action != null || action != string.Empty)
+                {
+                    controllerConfigurationData.buttonAssignments[i].action = action;
+                }                
+                saveControllerConfigurationDataFile(controllerConfigurationData);
+                addButtonAssignment(controllerConfigurationData.buttonAssignments[i].action, controllerConfigurationData.buttonAssignments[i].eventName, uiText);
             }
 
-            controllers = new List<ControllerData>();
-            foreach (var device in controllerConfigurationData.devices)
-            {
-                controllers.Add(new ControllerData(device.productName, (DeviceType)device.deviceType, new Guid(device.guid)));
-            }
-            foreach (ButtonAssignmentData assignment in controllerConfigurationData.buttonAssignments)
+            controllers = controllerConfigurationData.devices;
+            foreach (ButtonAssignment assignment in controllerConfigurationData.buttonAssignments)
             {
                 if (assignment.buttonIndex != -1 && assignment.deviceGuid.Length > 0)
                 {
-                    loadAssignment(assignment.action[0], assignment.buttonIndex, assignment.deviceGuid);
+                    loadAssignment(assignment.action, assignment.buttonIndex, assignment.deviceGuid);
                 }
             }
         }
@@ -439,7 +402,7 @@ namespace CrewChiefV4
             ControllerConfigurationData controllerData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
             foreach (ButtonAssignment buttonAssignment in buttonAssignments)
             {
-                int index = controllerData.buttonAssignments.FindIndex(ind => ind.action[0].Equals(buttonAssignment.action));
+                int index = controllerData.buttonAssignments.FindIndex(ind => ind.uiText.Equals(buttonAssignment.uiText));
                 if (index != -1 && buttonAssignment.controller != null && (buttonAssignment.controller != null || buttonAssignment.controller.guid == UDP_NETWORK_CONTROLLER_GUID) && buttonAssignment.buttonIndex != -1)
                 {
                     controllerData.buttonAssignments[index].buttonIndex = buttonAssignment.buttonIndex;
@@ -451,21 +414,10 @@ namespace CrewChiefV4
                     controllerData.buttonAssignments[index].deviceGuid = string.Empty;
                 }
             }
-            saveControllerConfigurationDataFile(controllerData);
-        }
+            //controllerData.buttonAssignments = buttonAssignments;
+            controllerData.devices = controllers;
 
-        public void loadSettings(System.Windows.Forms.Form parent)
-        {
-            ControllerConfigurationData controllerData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
-            foreach (ButtonAssignmentData assignment in controllerData.buttonAssignments)
-            {
-                int buttonIndex = assignment.buttonIndex;
-                String deviceGuid = assignment.deviceGuid;
-                if (buttonIndex != -1 && deviceGuid.Length > 0)
-                {
-                    loadAssignment(assignment.action[0], buttonIndex, deviceGuid);
-                }
-            }
+            saveControllerConfigurationDataFile(controllerData);
         }
 
         private void loadAssignment(String functionName, int buttonIndex, String deviceGuid)
@@ -484,10 +436,10 @@ namespace CrewChiefV4
             }
         }
 
-        private void addButtonAssignment(String action, String eventName)
+        private void addButtonAssignment(String action, String eventName, String uiText)
         {
             buttonAssignmentIndexes.Add(action, buttonAssignmentIndexes.Count());
-            buttonAssignments.Add(new ButtonAssignment(action, eventName));
+            buttonAssignments.Add(new ButtonAssignment(action, eventName, uiText));
         }
 
         public Boolean isChannelOpen()
@@ -567,17 +519,7 @@ namespace CrewChiefV4
             }
             ControllerConfigurationData controllerConfigurationData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
             // add controllers not in our saved list
-            foreach (var controller in controllers)
-            {
-                if (!controllerConfigurationData.devices.Exists(c => c.guid == controller.guid.ToString()))
-                {
-                     ControllerConfigurationDevice deviceData = new ControllerConfigurationDevice();
-                     deviceData.deviceType = (int)controller.deviceType;
-                     deviceData.guid = controller.guid.ToString();
-                     deviceData.productName = controller.deviceName;
-                     controllerConfigurationData.devices.Add(deviceData);
-                }
-            }
+            controllerConfigurationData.devices = controllers;
             saveControllerConfigurationDataFile(controllerConfigurationData);
             Console.WriteLine("Refreshed controllers, there are " + availableCount + " available controllers and " + activeDevices.Count + " active controllers");
         }
@@ -657,6 +599,7 @@ namespace CrewChiefV4
                 {
                     removeAssignmentsForControllerAndButton(controllerData.guid, assignedButton);
                     buttonAssignment.controller = controllerData;
+                    buttonAssignment.deviceGuid = controllerData.guid.ToString();
                     buttonAssignment.buttonIndex = assignedButton;
                     listenForAssignment = false;
                     gotAssignment = true;
@@ -723,8 +666,11 @@ namespace CrewChiefV4
 
         public class ControllerData
         {
+            [JsonIgnore]
             public static String PROPERTY_CONTAINER = "CONTROLLER_DATA";
+            [JsonIgnore]
             public static String definitionSeparator = "CC_CD_SEPARATOR";
+            [JsonIgnore]
             public static String elementSeparator = "CC_CE_SEPARATOR";
 
             public String deviceName;
@@ -759,18 +705,6 @@ namespace CrewChiefV4
                 }
                 return definitionsList;
             }
-
-            public static String createPropValue(List<ControllerData> definitions)
-            {
-                StringBuilder propVal = new StringBuilder();
-                foreach (ControllerData def in definitions)
-                {
-                    propVal.Append(def.deviceName).Append(elementSeparator).Append(def.deviceType.ToString()).Append(elementSeparator).
-                            Append(def.guid.ToString()).Append(definitionSeparator);
-                }
-                return propVal.ToString();
-            }
-
             public ControllerData(String deviceName, DeviceType deviceType, Guid guid)
             {
                 this.deviceName = deviceName;
@@ -781,17 +715,30 @@ namespace CrewChiefV4
 
         public class ButtonAssignment
         {
+            ButtonAssignment()
+            {
+                eventName = string.Empty;
+                deviceGuid = string.Empty; 
+                buttonIndex = -1;
+                uiText = string.Empty; 
+            }
+            public String eventName { get; set; }
+            public String deviceGuid { get; set; }
+            public String uiText { get; set; }
+            public int buttonIndex { get; set; }
+            [JsonIgnore]
             public String action;
-            public String eventName;
+            [JsonIgnore]
             public ControllerData controller;
-            public int buttonIndex = -1;
+            [JsonIgnore]
             public Boolean hasUnprocessedClick = false;
+            [JsonIgnore]
             AbstractEvent actionEvent = null;
-            public ButtonAssignment(String action, String eventName)
+            public ButtonAssignment(String action, String eventName, String uiText)
             {
                 this.action = action;
                 this.eventName = eventName;
-                
+                this.uiText = uiText;
                 if(eventName != string.Empty)
                 {
                     actionEvent = CrewChief.getEvent(eventName);
