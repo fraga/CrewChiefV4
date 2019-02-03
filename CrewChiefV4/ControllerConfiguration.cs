@@ -157,9 +157,9 @@ namespace CrewChiefV4
                 {
                     Console.WriteLine("Error parsing " + filename + ": " + e.Message);
                     ControllerConfiguration.usersConfigFileIsBroken = true;
-                    MessageBox.Show(Configuration.getUIString("controller_mappings_file_error_details_1") + " " + filename +  
+                    MessageBox.Show(Configuration.getUIString("controller_mappings_file_error_details_1") + " " + filename + " " +
                             Configuration.getUIString("controller_mappings_file_error_details_2") + " " + e.Message,
-                        Configuration.getUIString("controller_mappings_file_error_title"), 
+                            Configuration.getUIString("controller_mappings_file_error_title"), 
                         MessageBoxButtons.OK);
                 }
             }
