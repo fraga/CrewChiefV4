@@ -675,7 +675,8 @@ namespace CrewChiefV4
         {
             ButtonAssignment()
             {
-                // action is either the built-in action name, or the SRE action name
+                // action is the built-in action name, the SRE action name (key in the SRE config file) or one of the SRE
+                // values from the SRE config file (e.g "get_session_status", "SESSION_STATUS", or "session status" will all do the same thing)
                 action = string.Empty;
                 deviceGuid = string.Empty; 
                 buttonIndex = -1;
