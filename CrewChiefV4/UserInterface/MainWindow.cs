@@ -106,6 +106,8 @@ namespace CrewChiefV4
         private AutoResetEvent consoleUpdateThreadWakeUpEvent = new AutoResetEvent(false);
         private bool consoleUpdateThreadRunning = false;
 
+        private bool completedStartupControllerScan = false;
+
         private const int WM_DEVICECHANGE = 0x219;
         private const int DBT_DEVNODES_CHANGED = 0x0007;
 
@@ -117,7 +119,7 @@ namespace CrewChiefV4
         protected override void WndProc(ref Message m)
         {
             base.WndProc(ref m);
-            if (!constructingWindow)
+            if (completedStartupControllerScan)
             {
                 if (m.Msg == WM_DEVICECHANGE)
                 {
@@ -145,6 +147,7 @@ namespace CrewChiefV4
             // working while constructor is running.
             Debug.Assert(this.IsHandleCreated);
             refreshControllerList();
+            completedStartupControllerScan = true;
             if (UserSettings.GetUserSettings().getBoolean("run_immediately") &&
                 GameDefinition.getGameDefinitionForFriendlyName(gameDefinitionList.Text) != null)
             {
