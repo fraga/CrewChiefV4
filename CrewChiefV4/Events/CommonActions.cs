@@ -11,7 +11,6 @@ namespace CrewChiefV4.Events
 {
     class CommonActions : AbstractEvent
     {
-        private Boolean initialised = false;
         private Boolean keepQuietEnabled = false;
         private static Boolean useVerboseResponses = UserSettings.GetUserSettings().getBoolean("use_verbose_responses");
         GameStateData currentGameState = null;
@@ -21,12 +20,10 @@ namespace CrewChiefV4.Events
         }
         public override void clearState()
         {
-            initialised = false;
         }
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
             this.currentGameState = currentGameState;
-            initialised = true;
         }
 
         public override void respond(String voiceMessage)
