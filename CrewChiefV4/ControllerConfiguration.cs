@@ -29,68 +29,77 @@ namespace CrewChiefV4
         // separate var for added custom controller
         private Guid customControllerGuid = Guid.Empty; 
 
-        public static String CHANNEL_OPEN_FUNCTION = Configuration.getUIString("talk_to_crew_chief");
-        public static String TOGGLE_RACE_UPDATES_FUNCTION = Configuration.getUIString("toggle_race_updates_on/off");
-        public static String TOGGLE_SPOTTER_FUNCTION = Configuration.getUIString("toggle_spotter_on/off");
-        public static String TOGGLE_READ_OPPONENT_DELTAS = Configuration.getUIString("toggle_opponent_deltas_on/off_for_each_lap");
-        public static String REPEAT_LAST_MESSAGE_BUTTON = Configuration.getUIString("press_to_replay_the_last_message");
-        public static String VOLUME_UP = Configuration.getUIString("volume_up");
-        public static String VOLUME_DOWN = Configuration.getUIString("volume_down");
-        public static String PRINT_TRACK_DATA = Configuration.getUIString("print_track_data");
-        public static String TOGGLE_YELLOW_FLAG_MESSAGES = Configuration.getUIString("toggle_yellow_flag_messages");
-        public static String GET_FUEL_STATUS = Configuration.getUIString("get_fuel_status");
-        public static String TOGGLE_MANUAL_FORMATION_LAP = Configuration.getUIString("toggle_manual_formation_lap");
-        public static String READ_CORNER_NAMES_FOR_LAP = Configuration.getUIString("read_corner_names_for_lap");
+        // built in controller button functions:
+        public static String CHANNEL_OPEN_FUNCTION = "talk_to_crew_chief";
+        public static String TOGGLE_RACE_UPDATES_FUNCTION = "toggle_race_updates_on/off";
+        public static String TOGGLE_SPOTTER_FUNCTION = "toggle_spotter_on/off";
+        public static String TOGGLE_READ_OPPONENT_DELTAS = "toggle_opponent_deltas_on/off_for_each_lap";
+        public static String REPEAT_LAST_MESSAGE_BUTTON = "press_to_replay_the_last_message";
+        public static String VOLUME_UP = "volume_up";
+        public static String VOLUME_DOWN = "volume_down";
+        public static String PRINT_TRACK_DATA ="print_track_data";
+        public static String TOGGLE_YELLOW_FLAG_MESSAGES = "toggle_yellow_flag_messages";
+        public static String GET_FUEL_STATUS = "get_fuel_status";
+        public static String TOGGLE_MANUAL_FORMATION_LAP = "toggle_manual_formation_lap";
+        public static String READ_CORNER_NAMES_FOR_LAP = "read_corner_names_for_lap";
 
-        public static String GET_CAR_STATUS = Configuration.getUIString("get_car_status");
-        public static String GET_STATUS = Configuration.getUIString("get_status");
-        public static String GET_SESSION_STATUS = Configuration.getUIString("get_session_status");
-        public static String GET_DAMAGE_REPORT = Configuration.getUIString("get_damage_report");
+        public static String GET_CAR_STATUS = "get_car_status";
+        public static String GET_STATUS = "get_status";
+        public static String GET_SESSION_STATUS = "get_session_status";
+        public static String GET_DAMAGE_REPORT = "get_damage_report";
                 
-        public static String TOGGLE_PACE_NOTES_RECORDING = Configuration.getUIString("toggle_pace_notes_recording");
-        public static String TOGGLE_PACE_NOTES_PLAYBACK = Configuration.getUIString("toggle_pace_notes_playback");
+        public static String TOGGLE_PACE_NOTES_RECORDING = "toggle_pace_notes_recording";
+        public static String TOGGLE_PACE_NOTES_PLAYBACK = "toggle_pace_notes_playback";
 
-        public static String TOGGLE_TRACK_LANDMARKS_RECORDING = Configuration.getUIString("toggle_track_landmarks_recording");
-        public static String TOGGLE_ENABLE_CUT_TRACK_WARNINGS = Configuration.getUIString("toggle_enable_cut_track_warnings");
+        public static String TOGGLE_TRACK_LANDMARKS_RECORDING = "toggle_track_landmarks_recording";
+        public static String TOGGLE_ENABLE_CUT_TRACK_WARNINGS = "toggle_enable_cut_track_warnings";
         
-        public static String ADD_TRACK_LANDMARK = Configuration.getUIString("add_track_landmark");
+        public static String ADD_TRACK_LANDMARK = "add_track_landmark";
 
-        public static String PIT_PREDICTION = Configuration.getUIString("activate_pit_prediction");
+        public static String PIT_PREDICTION = "activate_pit_prediction";
 
-        public static String TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS = Configuration.getUIString("toggle_delay_messages_in_hard_parts");
+        public static String TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS = "toggle_delay_messages_in_hard_parts";
 
         private ControllerData networkGamePad = new ControllerData(Configuration.getUIString("udp_network_data_buttons"), DeviceType.Gamepad, UDP_NETWORK_CONTROLLER_GUID);
 
         // yuk...
         public Dictionary<String, int> buttonAssignmentIndexes = new Dictionary<String, int>();
-        private Thread asyncDisposeThread = null;
 
-        private static Dictionary<String, String> assignmentNames = new Dictionary<String, String>()
+        // these are actions *not* handled by an AbstractEvent instance because of some batshit internal wiring that's impossible to unpick
+        private static List<String> specialActions = new List<String>()
         {
-            { GetParameterName(new { CHANNEL_OPEN_FUNCTION }), CHANNEL_OPEN_FUNCTION},
-            { GetParameterName(new { TOGGLE_RACE_UPDATES_FUNCTION }), TOGGLE_RACE_UPDATES_FUNCTION},
-            { GetParameterName(new { TOGGLE_SPOTTER_FUNCTION }), TOGGLE_SPOTTER_FUNCTION},
-            { GetParameterName(new { TOGGLE_READ_OPPONENT_DELTAS }), TOGGLE_READ_OPPONENT_DELTAS},
-            { GetParameterName(new { REPEAT_LAST_MESSAGE_BUTTON }), REPEAT_LAST_MESSAGE_BUTTON},
-            { GetParameterName(new { VOLUME_UP }), VOLUME_UP},
-            { GetParameterName(new { VOLUME_DOWN }), VOLUME_DOWN},
-            { GetParameterName(new { PRINT_TRACK_DATA }), PRINT_TRACK_DATA},
-            { GetParameterName(new { TOGGLE_YELLOW_FLAG_MESSAGES }), TOGGLE_YELLOW_FLAG_MESSAGES},
-            { GetParameterName(new { GET_FUEL_STATUS }), GET_FUEL_STATUS},
-            { GetParameterName(new { TOGGLE_MANUAL_FORMATION_LAP }), TOGGLE_MANUAL_FORMATION_LAP},
-            { GetParameterName(new { READ_CORNER_NAMES_FOR_LAP }), READ_CORNER_NAMES_FOR_LAP},            
-            { GetParameterName(new { GET_CAR_STATUS }), GET_CAR_STATUS},
-            { GetParameterName(new { GET_STATUS }), GET_STATUS},
-            { GetParameterName(new { GET_SESSION_STATUS }), GET_SESSION_STATUS},
-            { GetParameterName(new { GET_DAMAGE_REPORT }), GET_DAMAGE_REPORT},
-            { GetParameterName(new { TOGGLE_PACE_NOTES_RECORDING }), TOGGLE_PACE_NOTES_RECORDING},
-            { GetParameterName(new { TOGGLE_PACE_NOTES_PLAYBACK }), TOGGLE_PACE_NOTES_PLAYBACK},
-            { GetParameterName(new { TOGGLE_TRACK_LANDMARKS_RECORDING }), TOGGLE_TRACK_LANDMARKS_RECORDING},
-            { GetParameterName(new { TOGGLE_ENABLE_CUT_TRACK_WARNINGS }), TOGGLE_ENABLE_CUT_TRACK_WARNINGS},
-            { GetParameterName(new { ADD_TRACK_LANDMARK }), ADD_TRACK_LANDMARK},
-            { GetParameterName(new { PIT_PREDICTION }), PIT_PREDICTION},
-            { GetParameterName(new { TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS }), TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS}
+            CHANNEL_OPEN_FUNCTION, TOGGLE_SPOTTER_FUNCTION, VOLUME_UP, VOLUME_DOWN
         };
+
+        // this is a map of legacy action name (stuff like "CHANNEL_OPEN_FUNCTION") to new action name (stuff like "talk_to_crew_chief")
+        // and is used to move old properties values over to the new JSON format on app start (when there's no user file for mappings)
+        public static Dictionary<String, String> builtInActionMappings = new Dictionary<String, String>()
+        {
+            { GetParameterName(new { CHANNEL_OPEN_FUNCTION }), CHANNEL_OPEN_FUNCTION },
+            { GetParameterName(new { TOGGLE_SPOTTER_FUNCTION }), TOGGLE_SPOTTER_FUNCTION },
+            { GetParameterName(new { VOLUME_UP }), VOLUME_UP },
+            { GetParameterName(new { VOLUME_DOWN }), VOLUME_DOWN },
+            { GetParameterName(new { TOGGLE_RACE_UPDATES_FUNCTION }), TOGGLE_RACE_UPDATES_FUNCTION },
+            { GetParameterName(new { TOGGLE_READ_OPPONENT_DELTAS }), TOGGLE_READ_OPPONENT_DELTAS },
+            { GetParameterName(new { REPEAT_LAST_MESSAGE_BUTTON }), REPEAT_LAST_MESSAGE_BUTTON },
+            { GetParameterName(new { PRINT_TRACK_DATA }), PRINT_TRACK_DATA },
+            { GetParameterName(new { TOGGLE_YELLOW_FLAG_MESSAGES }), TOGGLE_YELLOW_FLAG_MESSAGES },
+            { GetParameterName(new { GET_FUEL_STATUS }), GET_FUEL_STATUS },
+            { GetParameterName(new { TOGGLE_MANUAL_FORMATION_LAP }), TOGGLE_MANUAL_FORMATION_LAP },
+            { GetParameterName(new { READ_CORNER_NAMES_FOR_LAP }), READ_CORNER_NAMES_FOR_LAP },
+            { GetParameterName(new { GET_CAR_STATUS }), GET_CAR_STATUS },
+            { GetParameterName(new { GET_STATUS }), GET_STATUS },
+            { GetParameterName(new { GET_SESSION_STATUS }), GET_SESSION_STATUS },
+            { GetParameterName(new { GET_DAMAGE_REPORT }), GET_DAMAGE_REPORT },
+            { GetParameterName(new { TOGGLE_PACE_NOTES_RECORDING }), TOGGLE_PACE_NOTES_RECORDING },
+            { GetParameterName(new { TOGGLE_PACE_NOTES_PLAYBACK }), TOGGLE_PACE_NOTES_PLAYBACK },
+            { GetParameterName(new { TOGGLE_TRACK_LANDMARKS_RECORDING }), TOGGLE_TRACK_LANDMARKS_RECORDING },
+            { GetParameterName(new { TOGGLE_ENABLE_CUT_TRACK_WARNINGS }), TOGGLE_ENABLE_CUT_TRACK_WARNINGS },
+            { GetParameterName(new { ADD_TRACK_LANDMARK }), ADD_TRACK_LANDMARK },
+            { GetParameterName(new { PIT_PREDICTION }), PIT_PREDICTION },
+            { GetParameterName(new { TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS }), TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS }
+        };
+
         public class ControllerConfigurationData
         {
             public ControllerConfigurationData()
@@ -227,13 +236,14 @@ namespace CrewChiefV4
         {
             this.mainWindow = mainWindow;
             
-            // update existing data to use new json 
-            if(getUserControllerConfigurationDataFileLocation() == null)
+            // update existing data to use new json - copies assignments from old properties data into new json data, used when there's
+            // no user controllers config json file
+            if (getUserControllerConfigurationDataFileLocation() == null)
             {
                 ControllerConfigurationData defaultData = getControllerConfigurationDataFromFile(getDefaultControllerConfigurationDataFileLocation());
-                foreach (KeyValuePair<String, String> assignment in assignmentNames)
+                foreach (KeyValuePair<String, String> assignment in builtInActionMappings)
                 {
-                    int index = defaultData.buttonAssignments.FindIndex(ind => Configuration.getUIString(ind.uiText).Equals(assignment.Value));
+                    int index = defaultData.buttonAssignments.FindIndex(ind => ind.action.Equals(assignment.Value));
                     if (index != -1)
                     {
                         int buttonIndex = UserSettings.GetUserSettings().getInt(assignment.Key + "_button_index");
@@ -253,7 +263,7 @@ namespace CrewChiefV4
                 ControllerConfigurationData defaultData = getControllerConfigurationDataFromFile(getDefaultControllerConfigurationDataFileLocation());
                 ControllerConfigurationData userData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
 
-                var missingItems = defaultData.buttonAssignments.Where(ba2 => userData.buttonAssignments.Any(ba1 => ba1.uiText == ba2.uiText) == false);
+                var missingItems = defaultData.buttonAssignments.Where(ba2 => userData.buttonAssignments.Any(ba1 => ba1.action == ba2.action) == false);
                 if(missingItems.ToList().Count > 0)
                 {
                     userData.buttonAssignments.AddRange(missingItems);                    
@@ -265,16 +275,16 @@ namespace CrewChiefV4
             // update actions and add assignments 
             for  (int i = 0; i < controllerConfigurationData.buttonAssignments.Count; i++)
             {
+                String action = controllerConfigurationData.buttonAssignments[i].action;
+                // this might empty / null:
                 String uiText = controllerConfigurationData.buttonAssignments[i].uiText;
-                String action = Configuration.getUIStringStrict(uiText) == null ? Configuration.getSpeechRecognitionPhrases(uiText)[0] : Configuration.getUIString(uiText);
                 if (action != null || action != string.Empty)
                 {
                     controllerConfigurationData.buttonAssignments[i].action = action;
                 }                
-                saveControllerConfigurationDataFile(controllerConfigurationData);
-                addButtonAssignment(controllerConfigurationData.buttonAssignments[i].action, controllerConfigurationData.buttonAssignments[i].eventName, uiText);
+                addButtonAssignment(controllerConfigurationData.buttonAssignments[i].action, uiText);
             }
-
+            saveControllerConfigurationDataFile(controllerConfigurationData);
             controllers = controllerConfigurationData.devices;
             foreach (ButtonAssignment assignment in controllerConfigurationData.buttonAssignments)
             {
@@ -284,6 +294,7 @@ namespace CrewChiefV4
                 }
             }
         }
+
         // just sets the custom controller guid so the scan call will populate it later
         public void addCustomController(Guid guid)
         {
@@ -362,7 +373,7 @@ namespace CrewChiefV4
             {
                 foreach(var ba in buttonAssignments)
                 {
-                    if (ba.hasUnprocessedClick && ba.eventName != string.Empty)
+                    if (ba.hasUnprocessedClick && ba.actionEvent != null)
                     {
                         ba.execute();
                         ba.hasUnprocessedClick = false;
@@ -403,7 +414,7 @@ namespace CrewChiefV4
             ControllerConfigurationData controllerData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
             foreach (ButtonAssignment buttonAssignment in buttonAssignments)
             {
-                int index = controllerData.buttonAssignments.FindIndex(ind => ind.uiText.Equals(buttonAssignment.uiText));
+                int index = controllerData.buttonAssignments.FindIndex(ind => ind.action.Equals(buttonAssignment.action));
                 if (index != -1 && buttonAssignment.controller != null && (buttonAssignment.controller != null || buttonAssignment.controller.guid == UDP_NETWORK_CONTROLLER_GUID) && buttonAssignment.buttonIndex != -1)
                 {
                     controllerData.buttonAssignments[index].buttonIndex = buttonAssignment.buttonIndex;
@@ -437,10 +448,10 @@ namespace CrewChiefV4
             }
         }
 
-        private void addButtonAssignment(String action, String eventName, String uiText)
+        private void addButtonAssignment(String action, String uiText)
         {
             buttonAssignmentIndexes.Add(action, buttonAssignmentIndexes.Count());
-            buttonAssignments.Add(new ButtonAssignment(action, eventName, uiText));
+            buttonAssignments.Add(new ButtonAssignment(action, uiText));
         }
 
         public Boolean isChannelOpen()
@@ -718,51 +729,108 @@ namespace CrewChiefV4
         {
             ButtonAssignment()
             {
-                eventName = string.Empty;
+                // action is either the built-in action name, or the SRE action name
+                action = string.Empty;
                 deviceGuid = string.Empty; 
                 buttonIndex = -1;
+                // uiText is optional and will be resolved from the ui_text file or from the SRE config if it's not in the ui_text
                 uiText = string.Empty; 
             }
-            public String eventName { get; set; }
+            public String action { get; set; }
             public String deviceGuid { get; set; }
-            public String uiText { get; set; }
             public int buttonIndex { get; set; }
+            
+            // used to override the default ui text for an action - is optional and generally not used much
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public String uiText { get; set; }
+
+            // the ui text value that's been resolved for this action
             [JsonIgnore]
-            public String action;
+            public String resolvedUiText;
+            // the first element in the SRE text list for this command
+            [JsonIgnore]
+            public String resolvedSRECommand;
             [JsonIgnore]
             public ControllerData controller;
             [JsonIgnore]
             public Boolean hasUnprocessedClick = false;
             [JsonIgnore]
-            AbstractEvent actionEvent = null;
-            public ButtonAssignment(String action, String eventName, String uiText)
+            public AbstractEvent actionEvent = null;
+            public ButtonAssignment(String action, String uiText)
             {
                 this.action = action;
-                this.eventName = eventName;
                 this.uiText = uiText;
-                if(eventName != string.Empty)
+                findEvent();
+                findUiText();
+            }
+
+            private void findEvent()
+            {
+                if (this.action != null && !specialActions.Contains(this.action))
                 {
-                    actionEvent = CrewChief.getEvent(eventName);
-                    
+                    string[] srePhrases = Configuration.getSpeechRecognitionPhrases(this.action);
+                    if (srePhrases != null && srePhrases.Length > 0)
+                    {
+                        this.actionEvent = SpeechRecogniser.getEventForAction(srePhrases[0]);
+                        this.resolvedSRECommand = srePhrases[0];
+                    }
+                    else
+                    {
+                        // final possibility, the action value is an actual SRE command
+                        this.actionEvent = SpeechRecogniser.getEventForAction(action);
+                        if (this.actionEvent != null)
+                        {
+                            this.resolvedSRECommand = this.action;
+                        }
+                        else
+                        {
+                            Console.WriteLine("No SRE key or value item for action " + action);
+                        }
+                    }
                 }
             }
+
+            private void findUiText()
+            {
+                if (string.IsNullOrEmpty(this.uiText))
+                {
+                    // no override for uitext so work out what it should be
+                    this.resolvedUiText = Configuration.getUIStringStrict(action);
+                    if (string.IsNullOrEmpty(this.resolvedUiText))
+                    {
+                        // nothing in the ui_text, use the resolved SRE command
+                        this.resolvedUiText = resolvedSRECommand;                        
+                    }
+                    if (string.IsNullOrEmpty(this.resolvedUiText))
+                    {
+                        // if we get no hits at this point we'll use the action for the UI text
+                        this.resolvedUiText = action;
+                    }
+                }
+                else
+                {
+                    this.resolvedUiText = this.uiText;
+                }
+            }
+
             public void execute()
             {
-                if(actionEvent != null)
+                if (actionEvent != null)
                 {
-                    actionEvent.respond(action);
+                    actionEvent.respond(resolvedSRECommand);
                 }
             }
+
             public String getInfo()
             {
                 if (controller != null && buttonIndex > -1)
                 {
                     String name = controller.deviceName == null || controller.deviceName.Length == 0 ? controller.deviceType.ToString() : controller.deviceName;
-                    return action + " " + Configuration.getUIString("assigned_to") + " " + name + ", " + Configuration.getUIString("button") + ": " + buttonIndex;
+                    return resolvedUiText + " " + Configuration.getUIString("assigned_to") + " " + name + ", " + Configuration.getUIString("button") + ": " + buttonIndex;
                 }
                 else
                 {
-                    return action + " " + Configuration.getUIString("not_assigned");
+                    return resolvedUiText + " " + Configuration.getUIString("not_assigned");
                 }
             }
 
