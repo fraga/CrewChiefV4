@@ -62,9 +62,6 @@ namespace CrewChiefV4
 
         private ControllerData networkGamePad = new ControllerData(Configuration.getUIString("udp_network_data_buttons"), DeviceType.Gamepad, UDP_NETWORK_CONTROLLER_GUID);
 
-        // yuk...
-        public Dictionary<String, int> buttonAssignmentIndexes = new Dictionary<String, int>();
-
         // these are actions *not* handled by an AbstractEvent instance because of some batshit internal wiring that's impossible to unpick
         private static List<String> specialActions = new List<String>()
         {
@@ -272,18 +269,7 @@ namespace CrewChiefV4
             }
                        
             ControllerConfigurationData controllerConfigurationData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
-            // update actions and add assignments 
-            
-            for  (int i = 0; i < controllerConfigurationData.buttonAssignments.Count; i++)
-            {
-                String action = controllerConfigurationData.buttonAssignments[i].action;
-                // this might empty / null:
-                if (action != null || action != string.Empty)
-                {
-                    controllerConfigurationData.buttonAssignments[i].action = action;
-                }
-                buttonAssignmentIndexes.Add(action, buttonAssignmentIndexes.Count());
-            }
+            // update actions and add assignments            
             buttonAssignments = controllerConfigurationData.buttonAssignments;
             controllers = controllerConfigurationData.devices;
             ButtonAssignment networkAssignment = buttonAssignments.SingleOrDefault(ba => ba.deviceGuid == UDP_NETWORK_CONTROLLER_GUID.ToString());
@@ -364,8 +350,8 @@ namespace CrewChiefV4
                 action == TOGGLE_SPOTTER_FUNCTION ||
                 action == VOLUME_UP || action == VOLUME_DOWN))
             {
-                ButtonAssignment ba = buttonAssignments[buttonAssignmentIndexes[action]];
-                if (ba.hasUnprocessedClick)
+                ButtonAssignment ba = buttonAssignments.SingleOrDefault(ba1 => ba1.action == action);
+                if (ba != null && ba.hasUnprocessedClick)
                 {
                     ba.hasUnprocessedClick = false;
                     return true;
@@ -419,7 +405,7 @@ namespace CrewChiefV4
 
         public Boolean isChannelOpen()
         {
-            ButtonAssignment ba = buttonAssignments[buttonAssignmentIndexes[CHANNEL_OPEN_FUNCTION]];
+            ButtonAssignment ba = buttonAssignments.SingleOrDefault(ba1 => ba1.action == CHANNEL_OPEN_FUNCTION);
             if (ba != null && ba.buttonIndex != -1 && ba.controller != null && ba.controller.guid != Guid.Empty)
             {
                 if (ba.controller.guid == UDP_NETWORK_CONTROLLER_GUID)
