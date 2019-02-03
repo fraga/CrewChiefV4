@@ -193,7 +193,7 @@ namespace CrewChiefV4
         public static String[] HOW_MANY_INCIDENT_POINTS = Configuration.getSpeechRecognitionPhrases("HOW_MANY_INCIDENT_POINTS");
         public static String[] WHATS_THE_INCIDENT_LIMIT = Configuration.getSpeechRecognitionPhrases("WHATS_THE_INCIDENT_LIMIT");
         public static String[] WHATS_THE_SOF = Configuration.getSpeechRecognitionPhrases("WHATS_THE_SOF");
-        
+
         public static String[] PIT_STOP_FUEL_TO_THE_END = Configuration.getSpeechRecognitionPhrases("PIT_STOP_FUEL_TO_THE_END");
 
         public static String[] MORE_INFO = Configuration.getSpeechRecognitionPhrases("MORE_INFO");
@@ -240,7 +240,7 @@ namespace CrewChiefV4
 
         private Choices digitsChoices;
 
-        private Choices hourChoices; 
+        private Choices hourChoices;
 
         public static Boolean waitingForSpeech = false;
 
@@ -413,7 +413,7 @@ namespace CrewChiefV4
             {
                 return;
             }
-            
+
             if (waveIn != null)
             {
                 try
@@ -491,7 +491,7 @@ namespace CrewChiefV4
             }
 
             String overrideCountry = null;
-            if(localeCountryPropertySetting != null && localeCountryPropertySetting.Length == 2)
+            if (localeCountryPropertySetting != null && localeCountryPropertySetting.Length == 2)
             {
                 overrideCountry = localeCountryPropertySetting.ToUpper();
             }
@@ -504,7 +504,7 @@ namespace CrewChiefV4
             RecognizerInfo info = null;
 
             String langToUse = sreConfigLang;
-            String countryToUse = overrideCountry != null ? overrideCountry : sreConfigCountry;            
+            String countryToUse = overrideCountry != null ? overrideCountry : sreConfigCountry;
             String langAndCountryToUse = countryToUse != null ? langToUse + "-" + countryToUse : null;
 
             if (langAndCountryToUse != null)
@@ -558,7 +558,7 @@ namespace CrewChiefV4
                     "Check that at least one of MSSpeech_SR_en-GB_TELE.msi, MSSpeech_SR_en-US_TELE.msi, " +
                     "MSSpeech_SR_en-AU_TELE.msi, MSSpeech_SR_en-CA_TELE.msi or MSSpeech_SR_en-IN_TELE.msi are installed." +
                     " It can be downloaded from https://www.microsoft.com/en-us/download/details.aspx?id=27224");
-                } 
+                }
                 else
                 {
                     if (MessageBox.Show(Configuration.getUIString("install_single_speechlanguage_popup_text_start") + langToUse +
@@ -572,7 +572,7 @@ namespace CrewChiefV4
                     "Check that and appropriate language pack is installed." +
                     " They can be downloaded from https://www.microsoft.com/en-us/download/details.aspx?id=27224");
                 }
-                
+
                 return false;
             }
             else
@@ -587,7 +587,7 @@ namespace CrewChiefV4
                 Console.WriteLine("Unable to initialise speech engine with voice recognition pack for location " + langAndCountryToUse +
                     ". Check MSSpeech_SR_" + langAndCountryToUse + "_TELE.msi is installed." +
                     " It can be downloaded from https://www.microsoft.com/en-us/download/details.aspx?id=27224");
-                
+
                 return false;
             }
         }
@@ -660,7 +660,7 @@ namespace CrewChiefV4
                 Console.WriteLine("Unable to initialise speech engine.");
                 Console.WriteLine("Exception message: " + e.Message);
             }
-           
+
             try
             {
                 if (useNAudio)
@@ -789,7 +789,7 @@ namespace CrewChiefV4
                 validateAndAdd(MORE_INFO, staticSpeechChoices);
 
                 validateAndAdd(I_AM_OK, staticSpeechChoices);
-                if(alarmClockVoiceRecognitionEnabled)
+                if (alarmClockVoiceRecognitionEnabled)
                 {
                     validateAndAdd(CLEAR_ALARM_CLOCK, staticSpeechChoices);
                 }
@@ -814,7 +814,7 @@ namespace CrewChiefV4
                     fuelTimeChoices.AddRange(HOURS);
                 }
                 addCompoundChoices(CALCULATE_FUEL_FOR, false, this.digitsChoices, fuelTimeChoices.ToArray(), true);
-                if(alarmClockVoiceRecognitionEnabled)
+                if (alarmClockVoiceRecognitionEnabled)
                 {
                     this.hourChoices = new Choices();
                     foreach (KeyValuePair<String[], int> entry in hourMappings)
@@ -830,7 +830,7 @@ namespace CrewChiefV4
                         foreach (String numberStr in entry.Key)
                         {
                             minuteArray.Add(numberStr);
-                            foreach(String ams in AM)
+                            foreach (String ams in AM)
                             {
                                 minuteArray.Add(numberStr + " " + AM);
                             }
@@ -861,7 +861,7 @@ namespace CrewChiefV4
                 Console.WriteLine("Unable to add event handler to speech engine");
                 Console.WriteLine("Exception message: " + e.Message);
                 return;
-            }     
+            }
             initialised = true;
         }
 
@@ -1276,7 +1276,7 @@ namespace CrewChiefV4
                         else if (ResultContains(e.Result.Text, REPEAT_LAST_MESSAGE, false))
                         {
                             crewChief.audioPlayer.repeatLastMessage();
-                        }    
+                        }
                         else if (ResultContains(e.Result.Text, MORE_INFO, false) && this.lastRecognisedText != null && !use_verbose_responses)
                         {
                             AbstractEvent abstractEvent = getEventForSpeech(this.lastRecognisedText);
@@ -1396,7 +1396,7 @@ namespace CrewChiefV4
             }
 
             if (voiceOptionEnum == MainWindow.VoiceOptionEnum.TRIGGER_WORD)
-            {   
+            {
                 try
                 {
                     triggerSre.UnloadAllGrammars();
@@ -1440,7 +1440,7 @@ namespace CrewChiefV4
                     Console.WriteLine("Getting audio from nAudio input stream");
                     if (MainWindow.voiceOption == MainWindow.VoiceOptionEnum.HOLD)
                     {
-                         waveIn.StartRecording();
+                        waveIn.StartRecording();
                     }
                     else if (MainWindow.voiceOption == MainWindow.VoiceOptionEnum.ALWAYS_ON)
                     {
@@ -1612,13 +1612,22 @@ namespace CrewChiefV4
             if (ResultContains(recognisedSpeech, DONT_SPOT, false))
             {
                 crewChief.disableSpotter();
+                return null;
             }
             else if (ResultContains(recognisedSpeech, SPOT, false))
             {
                 crewChief.enableSpotter();
+                return null;
             }
+            else
+            {
+                return getEventForAction(recognisedSpeech);
+            }
+        }
 
-            else if (ResultContains(recognisedSpeech, RADIO_CHECK, false) ||
+        public static AbstractEvent getEventForAction(String recognisedSpeech)
+        {
+            if (ResultContains(recognisedSpeech, RADIO_CHECK, false) ||
                 ResultContains(recognisedSpeech, KEEP_QUIET, false) ||
                 ResultContains(recognisedSpeech, DONT_TELL_ME_THE_GAPS, false) ||
                 ResultContains(recognisedSpeech, TELL_ME_THE_GAPS, false) ||
@@ -1637,7 +1646,8 @@ namespace CrewChiefV4
                 ResultContains(recognisedSpeech, STATUS, false) ||
                 ResultContains(recognisedSpeech, SESSION_STATUS, false) ||
                 ResultContains(recognisedSpeech, START_PACE_NOTES_PLAYBACK, false) ||
-                ResultContains(recognisedSpeech, STOP_PACE_NOTES_PLAYBACK, false))
+                ResultContains(recognisedSpeech, STOP_PACE_NOTES_PLAYBACK, false) ||
+                ControllerConfiguration.builtInActionMappings.ContainsValue(recognisedSpeech))
             {
                 return CrewChief.getEvent("CommonActions");
             }
@@ -1740,10 +1750,33 @@ namespace CrewChiefV4
             {
                 return CrewChief.getEvent("Strategy");
             }
-            else if (alarmClockVoiceRecognitionEnabled && 
+            else if (ResultContains(recognisedSpeech, PIT_STOP_TEAROFF, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_FAST_REPAIR, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CLEAR_ALL, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CLEAR_TYRES, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CLEAR_WIND_SCREEN, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CLEAR_FAST_REPAIR, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CLEAR_FUEL, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CHANGE_ALL_TYRES, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CHANGE_FRONT_LEFT_TYRE, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CHANGE_FRONT_RIGHT_TYRE, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CHANGE_REAR_LEFT_TYRE, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CHANGE_REAR_RIGHT_TYRE, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CHANGE_LEFT_SIDE_TYRES, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CHANGE_RIGHT_SIDE_TYRES, false) ||
+                ResultContains(recognisedSpeech, HOW_MANY_INCIDENT_POINTS, false) ||
+                ResultContains(recognisedSpeech, WHATS_THE_INCIDENT_LIMIT, false) ||
+                ResultContains(recognisedSpeech, WHATS_MY_IRATING, false) ||
+                ResultContains(recognisedSpeech, WHATS_MY_LICENSE_CLASS, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_FUEL_TO_THE_END, false) ||
+                ResultContains(recognisedSpeech, WHATS_THE_SOF, false))
+            {
+                return CrewChief.getEvent("IRacingBroadcastMessageEvent");
+            }
+            else if (alarmClockVoiceRecognitionEnabled &&
                 (ResultContains(recognisedSpeech, SET_ALARM_CLOCK, false) || ResultContains(recognisedSpeech, CLEAR_ALARM_CLOCK, false)))
             {
-                return crewChief.alarmClock;
+                return CrewChief.alarmClock;
             }
             return null;
         }
