@@ -694,7 +694,7 @@ namespace CrewChiefV4
                 deviceGuid = string.Empty; 
                 buttonIndex = -1;
                 // uiText is optional and will be resolved from the ui_text file or from the SRE config if it's not in the ui_text
-                uiText = string.Empty; 
+                uiText = null;
             }
             public String action { get; set; }
             public String deviceGuid { get; set; }
