@@ -237,38 +237,28 @@ namespace CrewChiefV4
             // no user controllers config json file
             if (getUserControllerConfigurationDataFileLocation() == null)
             {
-                ControllerConfigurationData defaultData = getControllerConfigurationDataFromFile(getDefaultControllerConfigurationDataFileLocation());
+                ControllerConfigurationData oldUserData = new ControllerConfigurationData();
                 foreach (KeyValuePair<String, String> assignment in builtInActionMappings)
                 {
-                    int index = defaultData.buttonAssignments.FindIndex(ind => ind.action.Equals(assignment.Value));
-                    if (index != -1)
-                    {
-                        int buttonIndex = UserSettings.GetUserSettings().getInt(assignment.Key + "_button_index");
-                        String deviceGuid = UserSettings.GetUserSettings().getString(assignment.Key + "_device_guid");
-                        if (buttonIndex != -1 && deviceGuid.Length > 0)
-                        {
-                            defaultData.buttonAssignments[index].buttonIndex = buttonIndex;
-                            defaultData.buttonAssignments[index].deviceGuid = deviceGuid;
-                        }
-                    }                                      
+                    int buttonIndex = UserSettings.GetUserSettings().getInt(assignment.Key + "_button_index");
+                    String deviceGuid = UserSettings.GetUserSettings().getString(assignment.Key + "_device_guid");
+                    oldUserData.buttonAssignments.Add(new ButtonAssignment() { deviceGuid = deviceGuid, buttonIndex = buttonIndex, action = assignment.Value });                               
                 }
-                defaultData.devices = ControllerData.parse(UserSettings.GetUserSettings().getString(ControllerData.PROPERTY_CONTAINER));
-                saveControllerConfigurationDataFile(defaultData);
+                oldUserData.devices = ControllerData.parse(UserSettings.GetUserSettings().getString(ControllerData.PROPERTY_CONTAINER));
+                saveControllerConfigurationDataFile(oldUserData);
             }
-            else // app updated add, missing elements ?
-            {
-                ControllerConfigurationData defaultData = getControllerConfigurationDataFromFile(getDefaultControllerConfigurationDataFileLocation());
-                ControllerConfigurationData userData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
-
-                var missingItems = defaultData.buttonAssignments.Where(ba2 => userData.buttonAssignments.Any(ba1 => ba1.action == ba2.action) == false);
+            // if there is something in the default data file we want to add it, this is in case we want to add default button actions later on  
+            ControllerConfigurationData defaultData = getControllerConfigurationDataFromFile(getDefaultControllerConfigurationDataFileLocation());
+            ControllerConfigurationData controllerConfigurationData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
+            if (defaultData.buttonAssignments.Count > 0) // app updated add, missing elements ?
+            {                
+                var missingItems = defaultData.buttonAssignments.Where(ba2 => !controllerConfigurationData.buttonAssignments.Any(ba1 => ba1.action == ba2.action));
                 if(missingItems.ToList().Count > 0)
                 {
-                    userData.buttonAssignments.AddRange(missingItems);                    
+                    controllerConfigurationData.buttonAssignments.AddRange(missingItems);
+                    saveControllerConfigurationDataFile(controllerConfigurationData);
                 }
-                saveControllerConfigurationDataFile(userData);
-            }
-                       
-            ControllerConfigurationData controllerConfigurationData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
+            }                                   
             // update actions and add assignments            
             buttonAssignments = controllerConfigurationData.buttonAssignments;
             controllers = controllerConfigurationData.devices;
@@ -346,9 +336,7 @@ namespace CrewChiefV4
 
         public Boolean hasOutstandingClick(String action = null)
         {
-            if (action != null && (action == CHANNEL_OPEN_FUNCTION || 
-                action == TOGGLE_SPOTTER_FUNCTION ||
-                action == VOLUME_UP || action == VOLUME_DOWN))
+            if (specialActions.Contains(action))
             {
                 ButtonAssignment ba = buttonAssignments.SingleOrDefault(ba1 => ba1.action == action);
                 if (ba != null && ba.hasUnprocessedClick)
@@ -673,7 +661,7 @@ namespace CrewChiefV4
 
         public class ButtonAssignment
         {
-            ButtonAssignment()
+            public ButtonAssignment()
             {
                 // action is the built-in action name, the SRE action name (key in the SRE config file) or one of the SRE
                 // values from the SRE config file (e.g "get_session_status", "SESSION_STATUS", or "session status" will all do the same thing)
