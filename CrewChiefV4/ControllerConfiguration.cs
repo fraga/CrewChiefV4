@@ -273,25 +273,28 @@ namespace CrewChiefV4
                        
             ControllerConfigurationData controllerConfigurationData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
             // update actions and add assignments 
+            
             for  (int i = 0; i < controllerConfigurationData.buttonAssignments.Count; i++)
             {
                 String action = controllerConfigurationData.buttonAssignments[i].action;
                 // this might empty / null:
-                String uiText = controllerConfigurationData.buttonAssignments[i].uiText;
                 if (action != null || action != string.Empty)
                 {
                     controllerConfigurationData.buttonAssignments[i].action = action;
-                }                
-                addButtonAssignment(controllerConfigurationData.buttonAssignments[i].action, uiText);
-            }
-            saveControllerConfigurationDataFile(controllerConfigurationData);
-            controllers = controllerConfigurationData.devices;
-            foreach (ButtonAssignment assignment in controllerConfigurationData.buttonAssignments)
-            {
-                if (assignment.buttonIndex != -1 && assignment.deviceGuid.Length > 0)
-                {
-                    loadAssignment(assignment.action, assignment.buttonIndex, assignment.deviceGuid);
                 }
+                buttonAssignmentIndexes.Add(action, buttonAssignmentIndexes.Count());
+            }
+            buttonAssignments = controllerConfigurationData.buttonAssignments;
+            controllers = controllerConfigurationData.devices;
+            ButtonAssignment networkAssignment = buttonAssignments.SingleOrDefault(ba => ba.deviceGuid == UDP_NETWORK_CONTROLLER_GUID.ToString());
+            if(networkAssignment != null)
+            {
+                addNetworkControllerToList();
+            }            
+            foreach (ButtonAssignment assignment in buttonAssignments)
+            {
+                ControllerData controller = controllers.SingleOrDefault(c => c.guid.ToString() == assignment.deviceGuid);
+                assignment.Initialize(controller);
             }
         }
 
@@ -305,7 +308,7 @@ namespace CrewChiefV4
         {
             foreach (var assignment in buttonAssignments)
             {
-                pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[assignment.action]]);
+                pollForButtonClicks(assignment);
             }
         }
 
@@ -411,47 +414,7 @@ namespace CrewChiefV4
         
         public void saveSettings()
         {
-            ControllerConfigurationData controllerData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
-            foreach (ButtonAssignment buttonAssignment in buttonAssignments)
-            {
-                int index = controllerData.buttonAssignments.FindIndex(ind => ind.action.Equals(buttonAssignment.action));
-                if (index != -1 && buttonAssignment.controller != null && (buttonAssignment.controller != null || buttonAssignment.controller.guid == UDP_NETWORK_CONTROLLER_GUID) && buttonAssignment.buttonIndex != -1)
-                {
-                    controllerData.buttonAssignments[index].buttonIndex = buttonAssignment.buttonIndex;
-                    controllerData.buttonAssignments[index].deviceGuid = buttonAssignment.controller.guid.ToString();
-                }
-                else if (index != -1)
-                {
-                    controllerData.buttonAssignments[index].buttonIndex = -1;
-                    controllerData.buttonAssignments[index].deviceGuid = string.Empty;
-                }
-            }
-            //controllerData.buttonAssignments = buttonAssignments;
-            controllerData.devices = controllers;
-
-            saveControllerConfigurationDataFile(controllerData);
-        }
-
-        private void loadAssignment(String functionName, int buttonIndex, String deviceGuid)
-        {
-            if (deviceGuid == UDP_NETWORK_CONTROLLER_GUID.ToString())
-            {
-                addNetworkControllerToList();
-            }
-            foreach (ControllerData controller in this.controllers)
-            {                
-                if (controller.guid.ToString() == deviceGuid)
-                {
-                    buttonAssignments[buttonAssignmentIndexes[functionName]].controller = controller;
-                    buttonAssignments[buttonAssignmentIndexes[functionName]].buttonIndex = buttonIndex;                    
-                }
-            }
-        }
-
-        private void addButtonAssignment(String action, String uiText)
-        {
-            buttonAssignmentIndexes.Add(action, buttonAssignmentIndexes.Count());
-            buttonAssignments.Add(new ButtonAssignment(action, uiText));
+            saveControllerConfigurationDataFile(new ControllerConfigurationData() { buttonAssignments = buttonAssignments, devices = controllers });
         }
 
         public Boolean isChannelOpen()
@@ -643,6 +606,7 @@ namespace CrewChiefV4
                                 Console.WriteLine("Got button at index " + i);
                                 removeAssignmentsForControllerAndButton(controllerData.guid, i);
                                 buttonAssignment.controller = controllerData;
+                                buttonAssignment.deviceGuid = controllerData.guid.ToString();
                                 buttonAssignment.buttonIndex = i;
                                 listenForAssignment = false;
                                 gotAssignment = true;
@@ -665,14 +629,10 @@ namespace CrewChiefV4
         }
 
         private void removeAssignmentsForControllerAndButton(Guid controllerGuid, int buttonIndex)
-        {
-            foreach (ButtonAssignment ba in buttonAssignments)
+        {            
+            foreach (ButtonAssignment ba in buttonAssignments.Where(ba => ba.controller != null && ba.controller.guid == controllerGuid && ba.buttonIndex == buttonIndex))
             {
-                if (ba.controller != null && ba.controller.guid == controllerGuid && ba.buttonIndex == buttonIndex)
-                {
-                    ba.controller = null;
-                    ba.buttonIndex = -1;
-                }
+                ba.unassign();
             }
         }
 
@@ -756,10 +716,9 @@ namespace CrewChiefV4
             public Boolean hasUnprocessedClick = false;
             [JsonIgnore]
             public AbstractEvent actionEvent = null;
-            public ButtonAssignment(String action, String uiText)
+            public void Initialize(ControllerData controller)
             {
-                this.action = action;
-                this.uiText = uiText;
+                this.controller = controller;
                 findEvent();
                 findUiText();
             }
@@ -838,6 +797,7 @@ namespace CrewChiefV4
             {
                 this.controller = null;
                 this.buttonIndex = -1;
+                this.deviceGuid = string.Empty;
             }
         }
     }
