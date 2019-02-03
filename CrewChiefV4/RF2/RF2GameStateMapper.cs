@@ -22,12 +22,7 @@ namespace CrewChiefV4.rFactor2
         private readonly bool enableFCYPitStateMessages = UserSettings.GetUserSettings().getBoolean("enable_rf2_pit_state_during_fcy");
         private readonly bool forceRollingStart = UserSettings.GetUserSettings().getBoolean("force_rf2_rolling_start");
 
-        private readonly string scrLuckyDogIsPrefix = "Lucky Dog: ".ToUpperInvariant();
-        
-        // Note: "wave around" is a prefix message, because apparently ISI plugin says "on left",
-        // but custom plugin leagues use says "on right".
-        private readonly string scrWaveArroundPassOnUpperPrefix = "Wave Around: Pass Field On".ToUpperInvariant();
-        private readonly string scrMoveToEOLLUpper = "Move To End Of Longest Line".ToUpperInvariant();
+        private readonly string scrLuckyDogIsPrefix = "Lucky Dog: ";
 
         public static string playerName = null;
 
@@ -2029,13 +2024,13 @@ namespace CrewChiefV4.rFactor2
                 scrData.stockCarRuleApplicable = StockCarRule.WAVE_AROUND_PASS_ON_RIGHT;
             else
             {
-                Console.WriteLine("Rule instruction messages: unrecognized message: " + msg);
+                Console.WriteLine("Rule instruction messages: unrecognized message - " + msg);
                 consumed = false;
             }
 
             // "Two to Green"
             if (consumed)
-                Console.WriteLine("Rule instruction messages: processed message: \"" + msg + "\"");
+                Console.WriteLine("Rule instruction messages: processed message - \"" + msg + "\"");
 
             return scrData;
         }
