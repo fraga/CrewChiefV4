@@ -412,10 +412,11 @@ namespace CrewChiefV4.Events
                 {
                     if (!string.IsNullOrWhiteSpace(currentGameState.StockCarRulesData.luckyDogNameRaw)
                         && previousGameState.StockCarRulesData.luckyDogNameRaw != currentGameState.StockCarRulesData.luckyDogNameRaw
-                        && currentGameState.StockCarRulesData.stockCarRuleApplicable != StockCarRule.LUCKY_DOG_PASS_ON_LEFT)  // Make sure that's not player.
+                        && currentGameState.StockCarRulesData.stockCarRuleApplicable == StockCarRule.NEW_LUCKY_DOG)
                     {
                         if (currentGameState.StockCarRulesData.luckyDogNameRaw == currentGameState.SessionData.DriverRawName)
                         {
+                            // But maybe we should?
                             Console.WriteLine("Won't announce current lucky dog because it appears to be player");
                         }
                         else if (AudioPlayer.canReadName(currentGameState.StockCarRulesData.luckyDogNameRaw))

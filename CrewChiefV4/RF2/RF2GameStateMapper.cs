@@ -2004,16 +2004,17 @@ namespace CrewChiefV4.rFactor2
                 return scrData;
 
             var consumed = true;
-            if (msg.Length > this.scrLuckyDogIsPrefix.Length
+            if (msg == "Lucky Dog: Pass Field On Left")
+                scrData.stockCarRuleApplicable = StockCarRule.LUCKY_DOG_PASS_ON_LEFT;
+            else if (msg.Length > this.scrLuckyDogIsPrefix.Length
                 && msg.StartsWith(this.scrLuckyDogIsPrefix))
             {
                 scrData.luckyDogNameRaw = msg.Substring(this.scrLuckyDogIsPrefix.Length).ToLowerInvariant();
                 scrData.luckyDogNameRaw = RF2GameStateMapper.GetSanitizedDriverName(scrData.luckyDogNameRaw);
+                scrData.stockCarRuleApplicable = StockCarRule.NEW_LUCKY_DOG;
             }
             else if (msg == "Allow Lucky Dog To Pass On Left")
                 scrData.stockCarRuleApplicable = StockCarRule.LUCKY_DOG_ALLOW_TO_PASS_ON_LEFT;
-            else if (msg == "Lucky Dog: Pass Field On Left")
-                scrData.stockCarRuleApplicable = StockCarRule.LUCKY_DOG_PASS_ON_LEFT;
             else if (msg == "Choose A Lane By Staying Left Or Right")
                 scrData.stockCarRuleApplicable = StockCarRule.LEADER_CHOOSE_LANE;
             else if (msg == "Move To End Of Longest Line")

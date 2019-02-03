@@ -78,6 +78,7 @@ namespace CrewChiefV4.GameState
         LEADER_CHOOSE_LANE,
         LUCKY_DOG_PASS_ON_LEFT,  // Player's LD
         LUCKY_DOG_ALLOW_TO_PASS_ON_LEFT,  // Opponent's LD
+        NEW_LUCKY_DOG,
         MOVE_TO_EOLL,
         WAVE_AROUND_PASS_ON_RIGHT  // Or left??
     }
