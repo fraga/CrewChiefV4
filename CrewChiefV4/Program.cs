@@ -66,6 +66,10 @@ namespace CrewChiefV4
                     {
                         MainWindow.soundTestMode = true;
                     }
+                    if (commandLineArg.Equals("NODEVICESCAN"))
+                    {
+                        MainWindow.disableDeviceScan = true;
+                    }
                 }
                 if (!allowMultipleInst)
                 {

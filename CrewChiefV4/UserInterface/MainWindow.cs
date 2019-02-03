@@ -107,6 +107,7 @@ namespace CrewChiefV4
         private bool consoleUpdateThreadRunning = false;
 
         private bool completedStartupControllerScan = false;
+        public static bool disableDeviceScan = false;
 
         private const int WM_DEVICECHANGE = 0x219;
         private const int DBT_DEVNODES_CHANGED = 0x0007;
@@ -119,7 +120,7 @@ namespace CrewChiefV4
         protected override void WndProc(ref Message m)
         {
             base.WndProc(ref m);
-            if (completedStartupControllerScan)
+            if (!disableDeviceScan && completedStartupControllerScan)
             {
                 if (m.Msg == WM_DEVICECHANGE)
                 {
