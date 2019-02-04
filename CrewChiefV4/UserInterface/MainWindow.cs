@@ -1787,7 +1787,7 @@ namespace CrewChiefV4
 
         private void refreshControllerList()
         {
-            this.controllerConfiguration.scanControllers(this);
+            this.controllerConfiguration.scanControllers();
             this.controllersList.Items.Clear();
             if (this.gameDefinitionList.Text.Equals(GameDefinition.pCarsNetwork.friendlyName) || this.gameDefinitionList.Text.Equals(GameDefinition.pCars2Network.friendlyName))
             {

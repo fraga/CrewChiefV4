@@ -284,8 +284,8 @@ namespace CrewChiefV4
             }            
             foreach (ButtonAssignment assignment in buttonAssignments)
             {
-                ControllerData controller = controllers.FirstOrDefault(c => c.guid.ToString() == assignment.deviceGuid);
-                assignment.Initialize(controller);
+                assignment.controller = controllers.FirstOrDefault(c => c.guid.ToString() == assignment.deviceGuid);
+                assignment.Initialize();
             }
         }
 
@@ -438,7 +438,7 @@ namespace CrewChiefV4
             return false;
         }
         
-        public void scanControllers(System.Windows.Forms.Form parent)
+        public void scanControllers()
         {
             int availableCount = 0;
             this.controllers = new List<ControllerData>();
@@ -459,7 +459,7 @@ namespace CrewChiefV4
                         {
                             try
                             {
-                                addControllerFromScan(parent, deviceType, joystickGuid, false);
+                                addControllerFromScan(deviceType, joystickGuid, false);
                                 availableCount++;
                             }
                             catch (Exception e)
@@ -474,7 +474,7 @@ namespace CrewChiefV4
                 {
                     try
                     {
-                        addControllerFromScan(parent, DeviceType.Joystick, customControllerGuid, true);
+                        addControllerFromScan(DeviceType.Joystick, customControllerGuid, true);
                         availableCount++;
                     }
                     catch (Exception e)
@@ -504,18 +504,14 @@ namespace CrewChiefV4
             // add controllers not in our saved list
             controllerConfigurationData.devices = dataToSave;
             saveControllerConfigurationDataFile(controllerConfigurationData);
-            foreach (ButtonAssignment assignment in buttonAssignments)
+            foreach (ButtonAssignment assignment in buttonAssignments.Where(ba => ba.controller == null && ba.buttonIndex != -1 && !string.IsNullOrEmpty(ba.deviceGuid)))
             {
-                ControllerData controller = controllers.FirstOrDefault(c => c.guid.ToString() == assignment.deviceGuid);
-                if (assignment.controller == null && controller != null)
-                {
-                    assignment.Initialize(controller);
-                }                
+                assignment.controller = controllers.FirstOrDefault(c => c.guid.ToString() == assignment.deviceGuid);             
             }
             Console.WriteLine("Refreshed controllers, there are " + availableCount + " available controllers and " + activeDevices.Count + " active controllers");
         }
 
-        private void addControllerFromScan(System.Windows.Forms.Form parent, DeviceType deviceType, Guid joystickGuid, Boolean isCustomDevice)
+        private void addControllerFromScan(DeviceType deviceType, Guid joystickGuid, Boolean isCustomDevice)
         {
             Boolean isMappedToAction = false;
             var joystick = new Joystick(directInput, joystickGuid);
@@ -533,7 +529,7 @@ namespace CrewChiefV4
                 // if we have a button assigned to this device and it's not active, acquire it here:
                 if (!activeDevices.ContainsKey(joystickGuid))
                 {
-                    joystick.SetCooperativeLevel(parent.Handle, (CooperativeLevel.NonExclusive | CooperativeLevel.Background));
+                    joystick.SetCooperativeLevel(mainWindow.Handle, (CooperativeLevel.NonExclusive | CooperativeLevel.Background));
                     joystick.Properties.BufferSize = 128;
                     joystick.Acquire();
                     activeDevices.Add(joystickGuid, joystick);
@@ -610,7 +606,7 @@ namespace CrewChiefV4
                     {                        
                         joystick = new Joystick(directInput, controllerData.guid);
                         // Acquire the joystick
-                        joystick.SetCooperativeLevel(parent.Handle, (CooperativeLevel.NonExclusive | CooperativeLevel.Background));
+                        joystick.SetCooperativeLevel(mainWindow.Handle, (CooperativeLevel.NonExclusive | CooperativeLevel.Background));
                         joystick.Properties.BufferSize = 128;
                         joystick.Acquire();
                         activeDevices.Add(controllerData.guid, joystick);
@@ -736,9 +732,8 @@ namespace CrewChiefV4
             public Boolean hasUnprocessedClick = false;
             [JsonIgnore]
             public AbstractEvent actionEvent = null;
-            public void Initialize(ControllerData controller)
+            public void Initialize()
             {
-                this.controller = controller;
                 findEvent();
                 findUiText();
             }
