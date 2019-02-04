@@ -976,6 +976,7 @@ namespace CrewChiefV4
             crewChief = new CrewChief();
             controllerConfiguration = new ControllerConfiguration(this);
             GlobalResources.controllerConfiguration = controllerConfiguration;
+            updateSelectedGameDefinition(null, null);
 
             this.personalisationBox.Items.AddRange(this.crewChief.audioPlayer.personalisationsArray);
             this.chiefNameBox.Items.AddRange(AudioPlayer.availableChiefVoices.ToArray());
@@ -2039,13 +2040,16 @@ namespace CrewChiefV4
 
         private void updateSelectedGameDefinition(object sender, EventArgs e)
         {
-            if (this.gameDefinitionList.Text.Equals(GameDefinition.pCarsNetwork.friendlyName) || this.gameDefinitionList.Text.Equals(GameDefinition.pCars2Network.friendlyName))
+            if (controllerConfiguration != null)
             {
-                controllerConfiguration.addNetworkControllerToList();
-            }
-            else
-            {
-                controllerConfiguration.removeNetworkControllerFromList();
+                if (this.gameDefinitionList.Text.Equals(GameDefinition.pCarsNetwork.friendlyName) || this.gameDefinitionList.Text.Equals(GameDefinition.pCars2Network.friendlyName))
+                {
+                    controllerConfiguration.addNetworkControllerToList();
+                }
+                else
+                {
+                    controllerConfiguration.removeNetworkControllerFromList();
+                }
             }
             if (this.gameDefinitionList.Text.Length > 0)
             {
@@ -2055,7 +2059,10 @@ namespace CrewChiefV4
                 }
                 catch (Exception) { }
             }
-            getControllers();
+            if (controllerConfiguration != null)
+            {
+                getControllers();
+            }
         }
 
         private enum DownloadType
