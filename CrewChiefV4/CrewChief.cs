@@ -91,7 +91,7 @@ namespace CrewChiefV4
 
         private SessionEndMessages sessionEndMessages;
 
-        public AlarmClock alarmClock;
+        public static AlarmClock alarmClock;
         // used for the pace notes recorder - need to separate out from the currentGameState so we can
         // set these even when viewing replays
         public static String trackName = "";
