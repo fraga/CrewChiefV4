@@ -284,7 +284,7 @@ namespace CrewChiefV4
             }            
             foreach (ButtonAssignment assignment in buttonAssignments)
             {
-                ControllerData controller = controllers.SingleOrDefault(c => c.guid.ToString() == assignment.deviceGuid);
+                ControllerData controller = controllers.FirstOrDefault(c => c.guid.ToString() == assignment.deviceGuid);
                 assignment.Initialize(controller);
             }
         }
@@ -403,7 +403,9 @@ namespace CrewChiefV4
         
         public void saveSettings()
         {
-            saveControllerConfigurationDataFile(new ControllerConfigurationData() { buttonAssignments = buttonAssignments, devices = controllers });
+            ControllerConfigurationData controllerConfigurationData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
+            controllerConfigurationData.buttonAssignments = buttonAssignments;
+            saveControllerConfigurationDataFile(controllerConfigurationData);
         }
 
         public Boolean isChannelOpen()
@@ -482,9 +484,34 @@ namespace CrewChiefV4
                 }
             }
             ControllerConfigurationData controllerConfigurationData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
+            List<ControllerData> dataToSave = new List<ControllerData>();
+            foreach (var cd in controllerConfigurationData.devices)
+            {
+                ButtonAssignment ba = buttonAssignments.FirstOrDefault(ba1 => ba1.deviceGuid == cd.guid.ToString());
+                if(ba != null)
+                {
+                    dataToSave.Add(cd);
+                }
+            }
+            foreach (var cd in controllers)
+            {
+                ControllerData cd1 = dataToSave.FirstOrDefault(cd2 => cd2.guid == cd.guid);
+                if (cd1 == null)
+                {
+                    dataToSave.Add(cd);
+                }
+            }
             // add controllers not in our saved list
-            controllerConfigurationData.devices = controllers;
+            controllerConfigurationData.devices = dataToSave;
             saveControllerConfigurationDataFile(controllerConfigurationData);
+            foreach (ButtonAssignment assignment in buttonAssignments)
+            {
+                ControllerData controller = controllers.FirstOrDefault(c => c.guid.ToString() == assignment.deviceGuid);
+                if (assignment.controller == null && controller != null)
+                {
+                    assignment.Initialize(controller);
+                }                
+            }
             Console.WriteLine("Refreshed controllers, there are " + availableCount + " available controllers and " + activeDevices.Count + " active controllers");
         }
 
