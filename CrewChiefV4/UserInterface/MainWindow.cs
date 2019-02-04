@@ -119,7 +119,7 @@ namespace CrewChiefV4
 
         protected override void WndProc(ref Message m)
         {
-            base.WndProc(ref m);
+            Debug.Assert(!this.InvokeRequired);
             if (!disableDeviceScan && completedStartupControllerScan)
             {
                 if (m.Msg == WM_DEVICECHANGE)
@@ -130,6 +130,7 @@ namespace CrewChiefV4
                     }
                 }
             }
+            base.WndProc(ref m);
         }
 
         private void FormMain_Load(object sender, EventArgs e)
@@ -1098,6 +1099,11 @@ namespace CrewChiefV4
             while (consoleUpdateThreadRunning)
             {
                 consoleUpdateThreadWakeUpEvent.WaitOne();
+                if (constructingWindow)
+                {
+                    continue;
+                }
+
                 if (!consoleUpdateThreadRunning)
                 {
                     Debug.WriteLine("Exiting console update thread.");
