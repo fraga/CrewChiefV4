@@ -1333,11 +1333,14 @@ namespace CrewChiefV4
                                 Console.WriteLine("Cancelling...");
                                 SpeechRecogniser.waitingForSpeech = false;
                                 crewChief.speechRecogniser.recognizeAsyncCancel();
+                                nextPollWait = 1000;
                             }
-                            Console.WriteLine("Listening...");
-                            crewChief.audioPlayer.playStartListeningBeep();
-                            crewChief.speechRecogniser.recognizeAsync();
-                            nextPollWait = 1000;
+                            else
+                            {
+                                Console.WriteLine("Listening...");
+                                crewChief.audioPlayer.playStartListeningBeep();
+                                crewChief.speechRecogniser.recognizeAsync();
+                            }
                         }
                     }
                     else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_SPOTTER_FUNCTION))
