@@ -101,7 +101,6 @@ namespace CrewChiefV4.Events
         private String folderMoveToChooseLane = "flags/move_to_choose_lane";
         private String folderWaveAroundCatchEndOfField = "flags/wave_around_catch_end_of_field";
         private String folderRemindLuckyDog = "flags/remind_lucky_dog";
-        private String folderPenaltyEOLL = "flags/penalty_eoll";
         private String folderTwoToGreen = "flags/two_to_green";
         private String folderTwoToGreenRemindLuckyDog = "flags/two_to_green_remind_lucky_dog";
 
@@ -469,7 +468,7 @@ namespace CrewChiefV4.Events
                         }
                         else if (currentGameState.StockCarRulesData.stockCarRuleApplicable == StockCarRule.PENALTY_EOLL)
                         {
-                            audioPlayer.playMessage(new QueuedMessage(folderPenaltyEOLL, delay + 10, secondsDelay: delay, abstractEvent: this, priority: 10));
+                            audioPlayer.playMessage(new QueuedMessage(folderEOLLPenalty, delay + 10, secondsDelay: delay, abstractEvent: this, priority: 10));
                         }
                         else if (currentGameState.StockCarRulesData.stockCarRuleApplicable == StockCarRule.REMIND_LUCKY_DOG)
                         {
