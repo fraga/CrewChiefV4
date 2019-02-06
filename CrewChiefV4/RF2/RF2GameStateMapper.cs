@@ -2004,7 +2004,25 @@ namespace CrewChiefV4.rFactor2
                 return scrData;
 
             var consumed = true;
-            if (msg == "Lucky Dog: Pass Field On Left")
+            // New SCR plugin:
+            if (msg == "Lucky Dog: Pass Field On Outside")
+                scrData.stockCarRuleApplicable = StockCarRule.LUCKY_DOG_PASS_ON_OUTSIDE;
+            else if (msg == "Allow Lucky Dog To Pass On Outside")
+                scrData.stockCarRuleApplicable = StockCarRule.LUCKY_DOG_ALLOW_TO_PASS_ON_OUTSIDE;
+            else if (msg == "Move to the Left Or Right to Choose a Lane")
+                scrData.stockCarRuleApplicable = StockCarRule.MOVE_CHOOSE_LANE;
+            else if (msg == "Wave Around: Catch Rear of Field")
+                scrData.stockCarRuleApplicable = StockCarRule.WAVE_AROUND_CATCH_END_OF_FIELD;
+            else if (msg == "Two To Green")
+                scrData.stockCarRuleApplicable = StockCarRule.TWO_TO_GREEN;
+            else if (msg == "Two To Green (You Were Lucky Dog)")
+                scrData.stockCarRuleApplicable = StockCarRule.TWO_TO_GREEN_REMIND_LUCKY_DOG;
+            else if (msg == "PENALTY: End Of Longest Line")
+                scrData.stockCarRuleApplicable = StockCarRule.PENALTY_EOLL;
+            else if (msg == "(You Were Lucky Dog)")
+                scrData.stockCarRuleApplicable = StockCarRule.REMIND_LUCKY_DOG;
+            // Old SCR plugin:
+            else if (msg == "Lucky Dog: Pass Field On Left")
                 scrData.stockCarRuleApplicable = StockCarRule.LUCKY_DOG_PASS_ON_LEFT;
             else if (msg.Length > this.scrLuckyDogIsPrefix.Length
                 && msg.StartsWith(this.scrLuckyDogIsPrefix))
