@@ -1204,7 +1204,7 @@ namespace CrewChiefV4.GameState
             LapData lapData = PlayerLapData[PlayerLapData.Count - 1];
 
             float sessionTimeAtEndOfLastLap = -1;
-            if (SessionTimesAtEndOfSectors.TryGetValue(numberOfSectors - 1, out sessionTimeAtEndOfLastLap) && sessionTimeAtEndOfLastLap > 0)
+            if (SessionTimesAtEndOfSectors.TryGetValue(numberOfSectors, out sessionTimeAtEndOfLastLap) && sessionTimeAtEndOfLastLap > 0)
             {
                 LapTimePreviousEstimateForInvalidLap = SessionRunningTime - sessionTimeAtEndOfLastLap;
             }
@@ -1250,7 +1250,14 @@ namespace CrewChiefV4.GameState
         public void playerAddCumulativeSectorData(int sectorNumberJustCompleted, int overallPosition, float cumulativeSectorTime,
             float gameTimeAtSectorEnd, Boolean lapIsValid, Boolean isRaining, float trackTemp, float airTemp)
         {
-            SessionTimesAtEndOfSectors[sectorNumberJustCompleted] = gameTimeAtSectorEnd;
+            if (SessionTimesAtEndOfSectors.ContainsKey(sectorNumberJustCompleted))
+            {
+                SessionTimesAtEndOfSectors[sectorNumberJustCompleted] = gameTimeAtSectorEnd;
+            }
+            else
+            {
+                SessionTimesAtEndOfSectors.Add(sectorNumberJustCompleted, gameTimeAtSectorEnd);
+            }
             LapData lapData;
             if (PlayerLapData.Count == 0)
             {
