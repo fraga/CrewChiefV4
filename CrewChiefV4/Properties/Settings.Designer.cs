@@ -3622,5 +3622,17 @@ namespace CrewChiefV4.Properties {
                 this["TOGGLE_ENABLE_CUT_TRACK_WARNINGS_button_index"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("3000")]
+        public int controller_scan_timeout_per_device_type {
+            get {
+                return ((int)(this["controller_scan_timeout_per_device_type"]));
+            }
+            set {
+                this["controller_scan_timeout_per_device_type"] = value;
+            }
+        }
     }
 }
