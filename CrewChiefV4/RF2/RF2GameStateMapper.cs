@@ -132,7 +132,7 @@ namespace CrewChiefV4.rFactor2
             this.suspensionDamageThresholds.Add(new CornerData.EnumWithThresholds(DamageLevel.DESTROYED, 1.0f, 2.0f));
         }
 
-        private int[] minimumSupportedVersionParts = new int[] { 3, 4, 0, 4 };
+        private int[] minimumSupportedVersionParts = new int[] { 3, 4, 0, 6 };
         public static bool pluginVerified = false;
         public override void versionCheck(Object memoryMappedFileStruct)
         {
@@ -501,11 +501,6 @@ namespace CrewChiefV4.rFactor2
             // If any difference between current and previous states suggests it is a new session
             if (pgs == null
                 || csd.SessionType != psd.SessionType
-                // TODO: make sure we don't need this.
-                /*|| !string.Equals(cgs.carClass.getClassIdentifier(), pgs.carClass.getClassIdentifier())
-                || csd.DriverRawName != psd.DriverRawName
-                || csd.TrackDefinition.name != psd.TrackDefinition.name  // TODO: this is empty sometimes, investigate 
-                || csd.TrackDefinition.trackLength != psd.TrackDefinition.trackLength*/
                 || csd.EventIndex != psd.EventIndex
                 || csd.SessionIteration != psd.SessionIteration)
             {
@@ -1823,7 +1818,7 @@ namespace CrewChiefV4.rFactor2
                 Console.WriteLine("Leader has finished race, player has done " + csd.CompletedLaps + " laps, session time = " + csd.SessionRunningTime);
 
             CrewChief.trackName = csd.TrackDefinition.name;
-            CrewChief.carClass = cgs.carClass.carClassEnum;  // TODO: Why is this an enum and not a CarClass?
+            CrewChief.carClass = cgs.carClass.carClassEnum;
             CrewChief.distanceRoundTrack = cgs.PositionAndMotionData.DistanceRoundTrack;
             CrewChief.viewingReplay = false;
 
@@ -2047,7 +2042,6 @@ namespace CrewChiefV4.rFactor2
                 consumed = false;
             }
 
-            // "Two to Green"
             if (consumed)
                 Console.WriteLine("Rule instruction messages: processed message - \"" + msg + "\"");
 
