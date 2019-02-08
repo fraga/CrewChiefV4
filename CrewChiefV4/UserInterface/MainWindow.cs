@@ -130,10 +130,10 @@ namespace CrewChiefV4
                 {
                     if ((int)m.WParam == DBT_DEVNODES_CHANGED)
                     {
-                        if (this.controllerRescanThreadRunning == true)
+                        /*if (this.controllerRescanThreadRunning == true)
                         {
                             this.controllerRescanThreadWakeUpEvent.Set();
-                        }
+                        }*/
                     }
                 }
             }
@@ -166,7 +166,8 @@ namespace CrewChiefV4
             // TODO: Remove if optional?
             if (!MainWindow.disableDeviceScan)
             {
-                controllerRescanThreadWakeUpEvent.Set();  // Do a controller rescan.
+                // controllerRescanThreadWakeUpEvent.Set();  // Do a controller rescan.
+                this.reAcquireControllerList();
             }
             if (UserSettings.GetUserSettings().getBoolean("run_immediately") &&
                 GameDefinition.getGameDefinitionForFriendlyName(gameDefinitionList.Text) != null)
@@ -1844,6 +1845,32 @@ namespace CrewChiefV4
             catch (Exception ex)
             {
                 Console.WriteLine("Unable to save console output, message = " + ex.Message);
+            }
+        }
+
+        private void reAcquireControllerList()
+        {
+            Debug.Assert(!this.InvokeRequired);
+            this.controllerConfiguration.reAcquireControllers();
+
+            if (MainWindow.instance != null)
+            {
+                this.controllersList.Items.Clear();
+
+                if (this.gameDefinitionList.Text.Equals(GameDefinition.pCarsNetwork.friendlyName) || this.gameDefinitionList.Text.Equals(GameDefinition.pCars2Network.friendlyName))
+                {
+                    controllerConfiguration.addNetworkControllerToList();
+                }
+
+                foreach (ControllerConfiguration.ControllerData configData in controllerConfiguration.controllers)
+                {
+                    this.controllersList.Items.Add(configData.deviceName);
+                }
+
+                runListenForChannelOpenThread = controllerConfiguration.listenForChannelOpen()
+                    && voiceOption == VoiceOptionEnum.HOLD && crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised;
+
+                updateActions();
             }
         }
 

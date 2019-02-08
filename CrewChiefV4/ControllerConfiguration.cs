@@ -24,13 +24,9 @@ namespace CrewChiefV4
             DeviceType.Keyboard, DeviceType.ControlDevice, DeviceType.FirstPerson, DeviceType.Flight, 
             DeviceType.Supplemental, DeviceType.Remote};
 
-        private int maxScanTimeForDeviceType = UserSettings.GetUserSettings().getInt("controller_scan_timeout_per_device_type");
-        private ConcurrentDictionary<DeviceType, long> deviceTypeScanTime = new ConcurrentDictionary<DeviceType, long>();
-
         // Note: Below two collections are accessed from the multiple threads, but not yet synchronized.
         public List<ButtonAssignment> buttonAssignments = new List<ButtonAssignment>();
         public List<ControllerData> controllers;
-        private HashSet<DeviceType> deviceTypeBlacklist = new HashSet<DeviceType>();
 
         private static Boolean usersConfigFileIsBroken = false;
 
@@ -113,25 +109,11 @@ namespace CrewChiefV4
             {
                 devices = new List<ControllerData>();
                 buttonAssignments = new List<ButtonAssignment>();
-                blacklistedDeviceTypeNames = "";
                 supportedDeviceTypeNames = String.Join(", ", ControllerConfiguration.supportedDeviceTypes);
             }
             public List<ControllerData> devices { get; set; }
-            public String blacklistedDeviceTypeNames { get; set; }
             public String supportedDeviceTypeNames { get; set; }
             public List<ButtonAssignment> buttonAssignments { get; set; }
-            public HashSet<DeviceType> getBlacklist()
-            {
-                HashSet<DeviceType> types = new HashSet<DeviceType>();
-                foreach (String name in blacklistedDeviceTypeNames.Split(','))
-                {
-                    DeviceType type;
-                    if (Enum.TryParse(name.Trim(), out type)) {
-                        types.Add(type);
-                    }
-                }
-                return types;
-            }
         }
 
         private static String getDefaultControllerConfigurationDataFileLocation()
@@ -300,7 +282,6 @@ namespace CrewChiefV4
             // update actions and add assignments            
             buttonAssignments = controllerConfigurationData.buttonAssignments;
             controllers = controllerConfigurationData.devices;
-            deviceTypeBlacklist = controllerConfigurationData.getBlacklist();
             ButtonAssignment networkAssignment = buttonAssignments.SingleOrDefault(ba => ba.deviceGuid == UDP_NETWORK_CONTROLLER_GUID.ToString());
             if(networkAssignment != null)
             {
@@ -465,49 +446,45 @@ namespace CrewChiefV4
         private List<DeviceInstance> getDevices(DeviceType type)
         {
             List<DeviceInstance> instancesToReturn = new List<DeviceInstance>();
-            long lastScanTime;
-            if (!deviceTypeScanTime.TryGetValue(type, out lastScanTime) || lastScanTime < maxScanTimeForDeviceType)
+            Thread worker = new Thread(() =>
             {
-                Thread worker = new Thread(() =>
+                var watch = System.Diagnostics.Stopwatch.StartNew();
+                try
                 {
-                    var watch = System.Diagnostics.Stopwatch.StartNew();
-                    try
+                    // iterate the received devices list explicitly so we can track what's going on
+                    IList<DeviceInstance> instances = directInput.GetDevices(type, DeviceEnumerationFlags.AllDevices);
+                    for (int i=0; i<instances.Count(); i++)
                     {
-                        // iterate the received devices list explicitly so we can track what's going on
-                        IList<DeviceInstance> instances = directInput.GetDevices(type, DeviceEnumerationFlags.AllDevices);
-                        for (int i=0; i<instances.Count(); i++)
-                        {
-                            DeviceInstance instance = instances[i];
-                            Console.WriteLine("Adding \"" + type + "\" device instance " + (i+1) + " of " + instances.Count + " (\"" + instance.InstanceName + "\")");
-                            instancesToReturn.Add(instance);
-                        }
+                        DeviceInstance instance = instances[i];
+                        Console.WriteLine("Adding \"" + type + "\" device instance " + (i+1) + " of " + instances.Count + " (\"" + instance.InstanceName + "\")");
+                        instancesToReturn.Add(instance);
                     }
-                    catch (ThreadAbortException)
-                    {
-                        Console.WriteLine("Timeout waiting for " + type + " controllers");
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("Error looking for " + type + " controllers: " + e.StackTrace);
-                    }
-                    finally
-                    {
-                        watch.Stop();
-                        deviceTypeScanTime[type] = watch.ElapsedMilliseconds;
-                    }
-                });
-                worker.Start();
-                // now we wait a while...
-                worker.Join(maxScanTimeForDeviceType + 500);
-                worker.Abort();
-            }
-            else
+                }
+                catch (ThreadAbortException)
+                {
+                    Console.WriteLine("Timeout waiting for " + type + " controllers");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error looking for " + type + " controllers: " + e.StackTrace);
+                }
+                finally
+                {
+                    watch.Stop();
+                }
+            });
+            worker.Start();
+
+            worker.Join(1000);
+            while (worker.IsAlive)
             {
-                Console.WriteLine("Device type " + type + " has taken too long to scan and is being ignored for this session");
+                Console.WriteLine("Refreshing controller devices...");
+                Thread.Sleep(5000);
             }
+
             return instancesToReturn;
         }
-        
+
         public void scanControllers()
         {
             int availableCount = 0;
@@ -522,26 +499,20 @@ namespace CrewChiefV4
                 // Iterate the list available, as reported by sharpDX
                 foreach (DeviceType deviceType in supportedDeviceTypes)
                 {
-                    if (deviceTypeBlacklist.Contains(deviceType))
+                    // TODO: do in single thread.
+                    foreach (var deviceInstance in getDevices(deviceType))
                     {
-                        Console.WriteLine("Devices of type " + deviceType + " are blacklisted and will be ignored");
-                    }
-                    else
-                    {
-                        foreach (var deviceInstance in getDevices(deviceType))
+                        Guid joystickGuid = deviceInstance.InstanceGuid;
+                        if (joystickGuid != Guid.Empty)
                         {
-                            Guid joystickGuid = deviceInstance.InstanceGuid;
-                            if (joystickGuid != Guid.Empty)
+                            try
                             {
-                                try
-                                {
-                                    addControllerFromScan(deviceType, joystickGuid, false);
-                                    availableCount++;
-                                }
-                                catch (Exception e)
-                                {
-                                    Console.WriteLine("Failed to get device info: " + e.Message);
-                                }
+                                addControllerFromScan(deviceType, joystickGuid, false);
+                                availableCount++;
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine("Failed to get device info: " + e.Message);
                             }
                         }
                     }
@@ -627,7 +598,83 @@ namespace CrewChiefV4
                 }
             }
         }
-        
+
+        public void reAcquireControllers()
+        {
+            int availableCount = 0;
+            this.controllers = new List<ControllerData>();
+
+            // TODO: review
+            // This method is called from the controller refresh thread, either by the device-changed event handler or explicitly on app start.
+            // The poll for button clicks call is from a helper thread and accesses the activeDevices list - potentially concurrently
+            /*lock (activeDevices)
+            {
+                // dispose all of our active devices:
+                unacquireAndDisposeActiveJoysticks();
+                // Iterate the list available, as reported by sharpDX
+                foreach (DeviceType deviceType in supportedDeviceTypes)
+                {
+                    // TODO: do in single thread.
+                    foreach (var deviceInstance in getDevices(deviceType))
+                    {
+                        Guid joystickGuid = deviceInstance.InstanceGuid;
+                        if (joystickGuid != Guid.Empty)
+                        {
+                            try
+                            {
+                                addControllerFromScan(deviceType, joystickGuid, false);
+                                availableCount++;
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine("Failed to get device info: " + e.Message);
+                            }
+                        }
+                    }
+                }
+                // add the custom device if it's set
+                if (customControllerGuid != Guid.Empty)
+                {
+                    try
+                    {
+                        addControllerFromScan(DeviceType.Joystick, customControllerGuid, true);
+                        availableCount++;
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Failed to get custom device info: " + e.Message);
+                    }
+                }
+            }*/
+            this.unacquireAndDisposeActiveJoysticks();
+            ControllerConfigurationData controllerConfigurationData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
+            List<ControllerData> dataToSave = new List<ControllerData>();
+            foreach (var cd in controllerConfigurationData.devices)
+            {
+                ButtonAssignment ba = buttonAssignments.FirstOrDefault(ba1 => ba1.deviceGuid == cd.guid.ToString());
+                if (ba != null)
+                {
+                    dataToSave.Add(cd);
+                }
+            }
+            foreach (var cd in controllers)
+            {
+                ControllerData cd1 = dataToSave.FirstOrDefault(cd2 => cd2.guid == cd.guid);
+                if (cd1 == null)
+                {
+                    dataToSave.Add(cd);
+                }
+            }
+            // add controllers not in our saved list
+            controllerConfigurationData.devices = dataToSave;
+            saveControllerConfigurationDataFile(controllerConfigurationData);
+            foreach (ButtonAssignment assignment in buttonAssignments.Where(ba => ba.controller == null && ba.buttonIndex != -1 && !string.IsNullOrEmpty(ba.deviceGuid)))
+            {
+                assignment.controller = controllers.FirstOrDefault(c => c.guid.ToString() == assignment.deviceGuid);
+            }
+            Console.WriteLine("Re-acquired controllers, there are " + availableCount + " available controllers and " + activeDevices.Count + " active controllers");
+        }
+
         public void addNetworkControllerToList()
         {
             if (controllers != null && !controllers.Contains(networkGamePad))
