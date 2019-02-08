@@ -1624,14 +1624,16 @@ namespace CrewChiefV4.rFactor2
                         && shared.scoring.mScoringInfo.mYellowFlagState == (sbyte)rFactor2Constants.rF2YellowFlagState.PitClosed)
                     {
                         var allowedToPit = shared.rules.mParticipants[playerRulesIdx].mPitsOpen;
-                        // Core rules: always open, pit state == 3
-                        if (shared.extended.mDirectMemoryAccessEnabled == 0 || shared.extended.mSCRPluginEnabled == 0)
-                            cgs.FlagData.fcyPhase = FullCourseYellowPhase.PITS_OPEN;
-                        else
+                        if (shared.extended.mDirectMemoryAccessEnabled == 1 && shared.extended.mSCRPluginEnabled == 1)
                         {
                             // Apparently, 0 and 2 means not allowed with SCR plugin.
                             var pitsClosedForPlayer = allowedToPit == 2 || allowedToPit == 0;
                             cgs.FlagData.fcyPhase = pitsClosedForPlayer ? FullCourseYellowPhase.PITS_CLOSED : FullCourseYellowPhase.PITS_OPEN;
+                        }
+                        else
+                        {
+                            // Core rules: always open, pit state == 3
+                            cgs.FlagData.fcyPhase = FullCourseYellowPhase.PITS_OPEN;
                         }
                     }
                     else
