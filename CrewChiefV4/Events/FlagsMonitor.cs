@@ -94,8 +94,6 @@ namespace CrewChiefV4.Events
         private String folderPassDriverForLuckyDogPositionOutro = "flags/pass_drivername_for_lucky_dog_position_outro";
         private String folderPassCarAheadForLuckyPositionDog = "flags/pass_this_guy_to_get_lucky_dog_position";
         private String folderWeAreInLuckyDogPosition = "flags/we_are_in_lucky_dog_position";
-
-        // MISSING:
         private String folderLuckyDogPassOnOutside = "flags/lucky_dog_pass_on_outside";
         private String folderLuckyDogAllowPassOnOutside = "flags/lucky_dog_allow_pass_on_outside";
         private String folderMoveToChooseLane = "flags/move_to_choose_lane";
