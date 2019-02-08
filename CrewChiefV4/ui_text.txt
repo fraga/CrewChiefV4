@@ -1207,3 +1207,7 @@ persist_pitstop_benchmark_times_category = PIT_STOPS_AND_MULTICLASS
 controller_mappings_file_error_title = Error reading controller mappings
 controller_mappings_file_error_details_1 = Controller mapping file 
 controller_mappings_file_error_details_2 = is invalid - no button mappings will be available. Error message from JSON parsers is:
+
+controller_scan_timeout_per_device_type = Timeout for each device type scan (ms)
+controller_scan_timeout_per_device_type_help = Time to wait for each device type to be listed before ignoring these devices
+controller_scan_timeout_per_device_type_category = AUDIO_VOICE_AND_CONTROLLERS

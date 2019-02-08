@@ -186,9 +186,6 @@
     <Compile Include="iRacing\Track.cs" />
     <Compile Include="NumberReaderIt2.cs" />
     <Compile Include="ThreadManager.cs" />
-    <Compile Include="UserInterface\ExRichText.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="UserInterface\PropertyFilter.cs" />
     <Compile Include="UserInterface\ListPropertyControl.cs">
       <SubType>UserControl</SubType>

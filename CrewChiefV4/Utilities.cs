@@ -231,18 +231,5 @@ namespace CrewChiefV4
 
             return true;
         }
-
-        [DllImport("kernel32.dll", EntryPoint = "LoadLibraryW", CharSet = CharSet.Unicode, SetLastError = true)]
-        private static extern IntPtr LoadLibraryW(string file);
-
-        public static IntPtr LoadLibrary(string file)
-        {
-            var module = Utilities.LoadLibraryW(file);
-            if (module != IntPtr.Zero)
-                return module;
-
-            var error = Marshal.GetLastWin32Error();
-            throw new Win32Exception(error);
-        }
     }
 }

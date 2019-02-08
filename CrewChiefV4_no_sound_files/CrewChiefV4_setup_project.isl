@@ -4480,7 +4480,7 @@ RABWAEQALQA1AAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>PROGMSG_IIS_ROLLBACKVROOTS</td><td>##IDS_PROGMSG_IIS_ROLLBACKVROOTS##</td><td/></row>
 		<row><td>PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS</td><td>##IDS_PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS##</td><td/></row>
 		<row><td>PROGRAMFILETOLAUNCHATEND</td><td>[INSTALLDIR]CrewChiefV4.Primary output</td><td/></row>
-		<row><td>ProductCode</td><td>{9C4716B7-5FB5-43AF-B3E2-C689DEA81357}</td><td/></row>
+		<row><td>ProductCode</td><td>{5B3E476C-D326-4583-AE72-E3937575FF93}</td><td/></row>
 		<row><td>ProductName</td><td>CrewChiefV4</td><td/></row>
 		<row><td>ProductVersion</td><td>4.9.6.5</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>

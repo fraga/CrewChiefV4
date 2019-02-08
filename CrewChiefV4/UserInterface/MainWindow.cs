@@ -106,7 +106,12 @@ namespace CrewChiefV4
         private AutoResetEvent consoleUpdateThreadWakeUpEvent = new AutoResetEvent(false);
         private bool consoleUpdateThreadRunning = false;
 
-        private bool completedStartupControllerScan = false;
+        private AutoResetEvent controllerRescanThreadWakeUpEvent = new AutoResetEvent(false);
+        private bool controllerRescanThreadRunning = false;
+
+        // This lock must be held while we are updating controller devices or updating assignments.
+        private object controllerWriteLock = new object();
+
         public static bool disableDeviceScan = false;
 
         private const int WM_DEVICECHANGE = 0x219;
@@ -119,17 +124,20 @@ namespace CrewChiefV4
 
         protected override void WndProc(ref Message m)
         {
-            base.WndProc(ref m);
-            if (!disableDeviceScan && completedStartupControllerScan)
+            if (!MainWindow.disableDeviceScan && this.controllerRescanThreadRunning)
             {
                 if (m.Msg == WM_DEVICECHANGE)
                 {
                     if ((int)m.WParam == DBT_DEVNODES_CHANGED)
                     {
-                        refreshControllerList();
+                        if (this.controllerRescanThreadRunning == true)
+                        {
+                            this.controllerRescanThreadWakeUpEvent.Set();
+                        }
                     }
                 }
             }
+            base.WndProc(ref m);
         }
 
         private void FormMain_Load(object sender, EventArgs e)
@@ -142,13 +150,24 @@ namespace CrewChiefV4
             ThreadManager.RegisterResourceThread(consoleUpdateThread);
             consoleUpdateThread.Start();
 
+            // Set up Controller Rescan thread
+            ts = controllerRescanThreadWorker;
+            var controllerRescanThread = new Thread(ts);
+            controllerRescanThread.Name = "MainWindow.controllerRescanThreadWorker";
+            controllerRescanThreadRunning = true;
+            ThreadManager.RegisterResourceThread(controllerRescanThread);
+            controllerRescanThread.Start();
+
             // Run immediately if requested.
             // Note that it is not safe to run immidiately from the constructor, becasue form handle
             // is created on a message pump, at undefined moment, which prevents Invoke from
             // working while constructor is running.
             Debug.Assert(this.IsHandleCreated);
-            refreshControllerList();
-            completedStartupControllerScan = true;
+            // TODO: Remove if optional?
+            if (!MainWindow.disableDeviceScan)
+            {
+                controllerRescanThreadWakeUpEvent.Set();  // Do a controller rescan.
+            }
             if (UserSettings.GetUserSettings().getBoolean("run_immediately") &&
                 GameDefinition.getGameDefinitionForFriendlyName(gameDefinitionList.Text) != null)
             {
@@ -689,6 +708,9 @@ namespace CrewChiefV4
             MacroManager.stop();
             saveConsoleOutputText();
 
+            controllerRescanThreadRunning = false;
+            controllerRescanThreadWakeUpEvent.Set();
+
             consoleUpdateThreadRunning = false;
             consoleUpdateThreadWakeUpEvent.Set();
 
@@ -974,6 +996,9 @@ namespace CrewChiefV4
             }
 
             crewChief = new CrewChief();
+
+            // NOTE: if you ever move this construction, please make sure controller rescan thread is not running yet.
+            Debug.Assert(!this.controllerRescanThreadRunning);
             controllerConfiguration = new ControllerConfiguration(this);
             GlobalResources.controllerConfiguration = controllerConfiguration;
             populateControlListUI();
@@ -1147,6 +1172,35 @@ namespace CrewChiefV4
                                 }
                             }
                         });
+                    }
+                    catch (Exception)
+                    {
+                        // Possible shutdown.
+                    }
+                }
+            }
+        }
+
+        private void controllerRescanThreadWorker()
+        {
+            while (controllerRescanThreadRunning && !disableDeviceScan)
+            {
+                controllerRescanThreadWakeUpEvent.WaitOne();
+                if (!controllerRescanThreadRunning)
+                {
+                    Debug.WriteLine("Exiting controller rescan thread.");
+                    return;
+                }
+
+                if (MainWindow.instance != null
+)               {
+                    try
+                    {
+                        lock (this.controllerWriteLock)
+                        {
+                            Console.WriteLine("Refreshing controllers...");
+                            this.refreshControllerList();
+                        }
                     }
                     catch (Exception)
                     {
@@ -1333,11 +1387,14 @@ namespace CrewChiefV4
                                 Console.WriteLine("Cancelling...");
                                 SpeechRecogniser.waitingForSpeech = false;
                                 crewChief.speechRecogniser.recognizeAsyncCancel();
+                                nextPollWait = 1000;
                             }
-                            Console.WriteLine("Listening...");
-                            crewChief.audioPlayer.playStartListeningBeep();
-                            crewChief.speechRecogniser.recognizeAsync();
-                            nextPollWait = 1000;
+                            else
+                            {
+                                Console.WriteLine("Listening...");
+                                crewChief.audioPlayer.playStartListeningBeep();
+                                crewChief.speechRecogniser.recognizeAsync();
+                            }
                         }
                     }
                     else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_SPOTTER_FUNCTION))
@@ -1605,6 +1662,7 @@ namespace CrewChiefV4
 
         private void updateActions()
         {
+            Debug.Assert(!this.InvokeRequired);
             this.buttonActionSelect.Items.Clear();
             foreach (ControllerConfiguration.ButtonAssignment assignment in controllerConfiguration.buttonAssignments)
             {
@@ -1673,23 +1731,25 @@ namespace CrewChiefV4
 
         private void assignButton()
         {
-            if (controllerConfiguration.assignButton(this, this.controllersList.SelectedIndex, this.buttonActionSelect.SelectedIndex))
+            lock (this.controllerWriteLock)
             {
-                updateActions();
-                isAssigningButton = false;
-                controllerConfiguration.saveSettings();
-                runListenForChannelOpenThread = controllerConfiguration.listenForChannelOpen() && voiceOption != VoiceOptionEnum.DISABLED;
-                if (runListenForChannelOpenThread)
+                if (controllerConfiguration.assignButton(this, this.controllersList.SelectedIndex, this.buttonActionSelect.SelectedIndex))
                 {
-                    if(initialiseSpeechEngine())
+                    isAssigningButton = false;
+                    controllerConfiguration.saveSettings();
+                    runListenForChannelOpenThread = controllerConfiguration.listenForChannelOpen() && voiceOption != VoiceOptionEnum.DISABLED;
+                    if (runListenForChannelOpenThread)
                     {
-                        runListenForButtonPressesThread = controllerConfiguration.listenForButtons(voiceOption == VoiceOptionEnum.TOGGLE);
+                        if (initialiseSpeechEngine())
+                        {
+                            runListenForButtonPressesThread = controllerConfiguration.listenForButtons(voiceOption == VoiceOptionEnum.TOGGLE);
+                        }
                     }
                 }
-            }
-            else
-            {
-                isAssigningButton = false;
+                else
+                {
+                    isAssigningButton = false;
+                }
             }
 
             // Check if form is shut down while we're listening.
@@ -1697,6 +1757,7 @@ namespace CrewChiefV4
             {
                 if (MainWindow.instance != null)
                 {
+                    this.updateActions();
                     this.assignButtonToAction.Text = Configuration.getUIString("assign");
                 }
             }
@@ -1788,20 +1849,32 @@ namespace CrewChiefV4
 
         private void refreshControllerList()
         {
+            Debug.Assert(this.InvokeRequired);
             this.controllerConfiguration.scanControllers();
-            this.controllersList.Items.Clear();
-            if (this.gameDefinitionList.Text.Equals(GameDefinition.pCarsNetwork.friendlyName) || this.gameDefinitionList.Text.Equals(GameDefinition.pCars2Network.friendlyName))
+
+            // VL: I can't come up with a deadlock scenario, but if this dealocks we could move it out of this.controllerWriteLock.
+            this.Invoke((MethodInvoker)delegate
             {
-                controllerConfiguration.addNetworkControllerToList();
-            }
-            foreach (ControllerConfiguration.ControllerData configData in controllerConfiguration.controllers)
-            {
-                this.controllersList.Items.Add(configData.deviceName);
-            }
-            runListenForChannelOpenThread = controllerConfiguration.listenForChannelOpen()
+                if (MainWindow.instance != null)
+                {
+                    this.controllersList.Items.Clear();
+
+                    if (this.gameDefinitionList.Text.Equals(GameDefinition.pCarsNetwork.friendlyName) || this.gameDefinitionList.Text.Equals(GameDefinition.pCars2Network.friendlyName))
+                    {
+                        controllerConfiguration.addNetworkControllerToList();
+                    }
+
+                    foreach (ControllerConfiguration.ControllerData configData in controllerConfiguration.controllers)
+                    {
+                        this.controllersList.Items.Add(configData.deviceName);
+                    }
+
+                    runListenForChannelOpenThread = controllerConfiguration.listenForChannelOpen()
                         && voiceOption == VoiceOptionEnum.HOLD && crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised;
 
-            updateActions();
+                    updateActions();
+                }
+            });
         }
 
         private void voiceDisableButton_CheckedChanged(object sender, EventArgs e)
