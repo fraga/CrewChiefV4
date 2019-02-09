@@ -483,7 +483,6 @@ namespace CrewChiefV4
                 {
                     lock (activeDevices)
                     {
-
                         foreach (DeviceType deviceType in supportedDeviceTypes)
                         {
                             foreach (var deviceInstance in getDevices(deviceType))
@@ -528,6 +527,8 @@ namespace CrewChiefV4
             if (scanCancelled)
             {
                 Console.WriteLine("Controller scan cancelled.");
+                // On failure, try re-acquire.
+                this.reAcquireControllers();
                 return;
             }
             else
