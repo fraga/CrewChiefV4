@@ -1205,8 +1205,8 @@ namespace CrewChiefV4
                     return;
                 }
 
-                if (MainWindow.instance != null
-)               {
+                if (MainWindow.instance != null)
+                {
                     try
                     {
                         lock (this.controllerWriteLock)

@@ -587,7 +587,16 @@ namespace CrewChiefV4
             lock (activeDevices)
             {
                 Boolean isMappedToAction = false;
-                var joystick = new Joystick(directInput, joystickGuid);
+                Joystick joystick;
+                try
+                {
+                    joystick = new Joystick(directInput, joystickGuid);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Unable to create a Joystick device with guid " + joystickGuid + ": " + e.Message);
+                    return;
+                }
                 String productName = isCustomDevice ? Configuration.getUIString("custom_device") : deviceType.ToString();
                 try
                 {
@@ -624,8 +633,6 @@ namespace CrewChiefV4
 
         public void reacquireControllers(Boolean saveResults)
         {
-            int availableCount = 0;
-
             // TODO: review
             // This method is called from the controller refresh thread, either by the device-changed event handler or explicitly on app start.
             // The poll for button clicks call is from a helper thread and accesses the activeDevices list - potentially concurrently
@@ -647,7 +654,8 @@ namespace CrewChiefV4
                         Console.WriteLine("Failed to get custom device info: " + e.Message);
                     }
                 }
-                foreach (var ba in buttonAssignments)
+                // JB: this code only adds assigned devices to the controller json:
+                /*foreach (var ba in buttonAssignments)
                 {
                     if (ba.controller != null
                         && ba.controller.guid != null
@@ -656,15 +664,16 @@ namespace CrewChiefV4
                         assignedDevices.Add(ba.controller.guid);
                         try
                         {
-                            this.addControllerFromScan(ba.controller.deviceType, ba.controller.guid, false /*WTF?*/);
+                            this.addControllerFromScan(ba.controller.deviceType, ba.controller.guid, false);
                         }
                         catch (Exception)
                         {
                             // Disconnected;
                         }
                     }
-                }
-
+                }*/
+                // JB: instead, add all the devices back to the json
+                controllerConfigurationData.devices.ForEach(controller => addControllerFromScan(controller.deviceType, controller.guid, false /*WTF?*/));
                 foreach (ButtonAssignment assignment in buttonAssignments.Where(ba => ba.controller == null && ba.buttonIndex != -1 && !string.IsNullOrEmpty(ba.deviceGuid)))
                 {
                     assignment.controller = controllers.FirstOrDefault(c => c.guid.ToString() == assignment.deviceGuid);
@@ -696,7 +705,7 @@ namespace CrewChiefV4
                     saveControllerConfigurationDataFile(controllerConfigurationData);
                 }
             }
-            Console.WriteLine("Re-acquired controllers, there are " + availableCount + " available controllers and " + activeDevices.Count + " active controllers");
+            Console.WriteLine("Re-acquired controllers, there are " + controllers.Count() + " available controllers and " + activeDevices.Count + " active controllers");
         }
 
         public void addNetworkControllerToList()
