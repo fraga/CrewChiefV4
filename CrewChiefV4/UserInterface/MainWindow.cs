@@ -136,7 +136,7 @@ namespace CrewChiefV4
 #if DEBUG
                             var watch = System.Diagnostics.Stopwatch.StartNew();
 #endif
-                            this.reacquireControllerList(false);
+                            this.reacquireControllerList();
 #if DEBUG
                             watch.Stop();
                             Debug.WriteLine("Controller re-acquisition took: " + watch.ElapsedTicks * 1000 / System.Diagnostics.Stopwatch.Frequency + "ms to shutdown");
@@ -177,7 +177,7 @@ namespace CrewChiefV4
             Debug.Assert(this.IsHandleCreated);
             if (!MainWindow.disableControllerReacquire)
             {
-                this.reacquireControllerList(true);
+                this.reacquireControllerList();
             }
             if (UserSettings.GetUserSettings().getBoolean("run_immediately") &&
                 GameDefinition.getGameDefinitionForFriendlyName(gameDefinitionList.Text) != null)
@@ -1767,14 +1767,20 @@ namespace CrewChiefV4
                 }
             }
 
-            // Check if form is shut down while we're listening.
-            lock (MainWindow.instanceLock)
+            try
             {
-                if (MainWindow.instance != null)
+                this.Invoke((MethodInvoker)delegate
                 {
-                    this.updateActions();
-                    this.assignButtonToAction.Text = Configuration.getUIString("assign");
-                }
+                    if (MainWindow.instance != null)
+                    {
+                        this.updateActions();
+                        this.assignButtonToAction.Text = Configuration.getUIString("assign");
+                    }
+                });
+            }
+            catch (Exception)
+            {
+                // Shutdown.
             }
         }
 
@@ -1862,10 +1868,10 @@ namespace CrewChiefV4
             }
         }
 
-        private void reacquireControllerList(Boolean saveResults)
+        private void reacquireControllerList()
         {
             Debug.Assert(!this.InvokeRequired);
-            this.controllerConfiguration.reacquireControllers(saveResults);
+            this.controllerConfiguration.reacquireControllers();
 
             if (MainWindow.instance != null)
             {
@@ -1876,7 +1882,7 @@ namespace CrewChiefV4
                     controllerConfiguration.addNetworkControllerToList();
                 }
 
-                foreach (ControllerConfiguration.ControllerData configData in controllerConfiguration.controllers)
+                foreach (ControllerConfiguration.ControllerData configData in controllerConfiguration.knownControllers)
                 {
                     this.controllersList.Items.Add(configData.deviceName);
                 }

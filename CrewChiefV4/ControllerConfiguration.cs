@@ -11,6 +11,8 @@ using System.Threading;
 using CrewChiefV4.Events;
 using System.Windows.Forms;
 using System.Collections.Concurrent;
+using System.Diagnostics;
+
 namespace CrewChiefV4
 {
     public class ControllerConfiguration : IDisposable
@@ -27,6 +29,9 @@ namespace CrewChiefV4
         // Note: Below two collections are accessed from the multiple threads, but not yet synchronized.
         public List<ButtonAssignment> buttonAssignments = new List<ButtonAssignment>();
         public List<ControllerData> controllers;
+
+        // Controllers we found during last device scan, not necessarily all connected.
+        public List<ControllerData> knownControllers;
 
         private static Boolean usersConfigFileIsBroken = false;
 
@@ -530,7 +535,7 @@ namespace CrewChiefV4
             {
                 Console.WriteLine("Controller scan cancelled.");
                 // On failure, try re-acquire.
-                this.reacquireControllers(false);
+                this.reacquireControllers();
                 return;
             }
             else
@@ -554,32 +559,14 @@ namespace CrewChiefV4
                     }
                 }
                 ControllerConfigurationData controllerConfigurationData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
-                List<ControllerData> dataToSave = new List<ControllerData>();
-                foreach (var cd in controllerConfigurationData.devices)
-                {
-                    ButtonAssignment ba = buttonAssignments.FirstOrDefault(ba1 => ba1.deviceGuid == cd.guid.ToString());
-                    if (ba != null)
-                    {
-                        dataToSave.Add(cd);
-                    }
-                }
-                foreach (var cd in controllers)
-                {
-                    ControllerData cd1 = dataToSave.FirstOrDefault(cd2 => cd2.guid == cd.guid);
-                    if (cd1 == null)
-                    {
-                        dataToSave.Add(cd);
-                    }
-                }
-                // add controllers not in our saved list
-                controllerConfigurationData.devices = dataToSave;
+                controllerConfigurationData.devices = this.controllers;
                 saveControllerConfigurationDataFile(controllerConfigurationData);
                 foreach (ButtonAssignment assignment in buttonAssignments.Where(ba => ba.controller == null && ba.buttonIndex != -1 && !string.IsNullOrEmpty(ba.deviceGuid)))
                 {
                     assignment.controller = controllers.FirstOrDefault(c => c.guid.ToString() == assignment.deviceGuid);
                 }
             }
-            Console.WriteLine("Refreshed controllers, there are " + availableCount + " available controllers and " + activeDevices.Count + " active controllers");
+            Console.WriteLine("Re-scanned controllers, there are " + availableCount + " available controllers and " + activeDevices.Count + " active controllers");
         }
 
         private void addControllerFromScan(DeviceType deviceType, Guid joystickGuid, Boolean isCustomDevice)
@@ -631,10 +618,10 @@ namespace CrewChiefV4
             }
         }
 
-        public void reacquireControllers(Boolean saveResults)
+        public void reacquireControllers()
         {
-            // TODO: review
-            // This method is called from the controller refresh thread, either by the device-changed event handler or explicitly on app start.
+            Debug.Assert(MainWindow.instance != null && !MainWindow.instance.InvokeRequired);
+            // This method is called from the UI thread, either by the device-changed event handler or explicitly on app start.
             // The poll for button clicks call is from a helper thread and accesses the activeDevices list - potentially concurrently
             lock (activeDevices)
             {
@@ -642,6 +629,9 @@ namespace CrewChiefV4
                 this.unacquireAndDisposeActiveJoysticks();
                 ControllerConfigurationData controllerConfigurationData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
                 var assignedDevices = new HashSet<Guid>();
+
+                this.knownControllers = controllerConfigurationData.devices.ToList();
+
                 // add the custom device if it's set
                 if (customControllerGuid != Guid.Empty)
                 {
@@ -654,55 +644,12 @@ namespace CrewChiefV4
                         Console.WriteLine("Failed to get custom device info: " + e.Message);
                     }
                 }
-                // JB: this code only adds assigned devices to the controller json:
-                /*foreach (var ba in buttonAssignments)
-                {
-                    if (ba.controller != null
-                        && ba.controller.guid != null
-                        && !assignedDevices.Contains(ba.controller.guid))
-                    {
-                        assignedDevices.Add(ba.controller.guid);
-                        try
-                        {
-                            this.addControllerFromScan(ba.controller.deviceType, ba.controller.guid, false);
-                        }
-                        catch (Exception)
-                        {
-                            // Disconnected;
-                        }
-                    }
-                }*/
-                // JB: instead, add all the devices back to the json
-                controllerConfigurationData.devices.ForEach(controller => addControllerFromScan(controller.deviceType, controller.guid, false /*WTF?*/));
+
+                // Update assignments.
+                controllerConfigurationData.devices.ForEach(controller => addControllerFromScan(controller.deviceType, controller.guid, false));
                 foreach (ButtonAssignment assignment in buttonAssignments.Where(ba => ba.controller == null && ba.buttonIndex != -1 && !string.IsNullOrEmpty(ba.deviceGuid)))
                 {
                     assignment.controller = controllers.FirstOrDefault(c => c.guid.ToString() == assignment.deviceGuid);
-                }
-
-                // don't save the results when the scan is initiated automatically
-                if (saveResults)
-                {
-                    List<ControllerData> dataToSave = new List<ControllerData>();
-                    // Save assigned, but not necessarily active devices.
-                    foreach (var cd in controllerConfigurationData.devices)
-                    {
-                        ButtonAssignment ba = buttonAssignments.FirstOrDefault(ba1 => ba1.deviceGuid == cd.guid.ToString());
-                        if (ba != null)
-                        {
-                            dataToSave.Add(cd);
-                        }
-                    }
-                    foreach (var cd in controllers)
-                    {
-                        ControllerData cd1 = dataToSave.FirstOrDefault(cd2 => cd2.guid == cd.guid);
-                        if (cd1 == null)
-                        {
-                            dataToSave.Add(cd);
-                        }
-                    }
-                    // add controllers not in our saved list
-                    controllerConfigurationData.devices = dataToSave;
-                    saveControllerConfigurationDataFile(controllerConfigurationData);
                 }
             }
             Console.WriteLine("Re-acquired controllers, there are " + controllers.Count() + " available controllers and " + activeDevices.Count + " active controllers");
@@ -726,7 +673,8 @@ namespace CrewChiefV4
 
         public Boolean assignButton(System.Windows.Forms.Form parent, int controllerIndex, int actionIndex)
         {
-            return getFirstPressedButton(parent, controllers[controllerIndex], buttonAssignments[actionIndex]);
+            return controllerIndex < controllers.Count // Make sure device is connected.
+                && getFirstPressedButton(parent, controllers[controllerIndex], buttonAssignments[actionIndex]);
         }
 
         private Boolean getFirstPressedButton(System.Windows.Forms.Form parent, ControllerData controllerData, ButtonAssignment buttonAssignment)
