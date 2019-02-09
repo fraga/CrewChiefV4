@@ -3073,18 +3073,6 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool allow_macros_to_trigger_automatically {
-            get {
-                return ((bool)(this["allow_macros_to_trigger_automatically"]));
-            }
-            set {
-                this["allow_macros_to_trigger_automatically"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("15")]
         public int target_warning_time_for_faster_class_car {
             get {
