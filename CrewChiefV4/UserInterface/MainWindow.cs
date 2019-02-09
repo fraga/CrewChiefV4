@@ -172,7 +172,7 @@ namespace CrewChiefV4
             // is created on a message pump, at undefined moment, which prevents Invoke from
             // working while constructor is running.
             Debug.Assert(this.IsHandleCreated);
-            // TODO: Remove if optional?
+            // TODO: Remove
             if (!MainWindow.disableDeviceScan)
             {
                 this.reAcquireControllerList(true);

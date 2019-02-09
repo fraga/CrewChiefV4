@@ -444,17 +444,22 @@ namespace CrewChiefV4
             return false;
         }
 
-        private List<DeviceInstance> getDevices(DeviceType type)
+        private List<DeviceInstance> getDevices()
         {
             List<DeviceInstance> instancesToReturn = new List<DeviceInstance>();
             try
             {
                 // iterate the received devices list explicitly so we can track what's going on
-                IList<DeviceInstance> instances = directInput.GetDevices(type, DeviceEnumerationFlags.AllDevices);
+                IList<DeviceInstance> instances = directInput.GetDevices();
                 for (int i = 0; i < instances.Count(); i++)
                 {
                     DeviceInstance instance = instances[i];
-                    Console.WriteLine("Adding \"" + type + "\" device instance " + (i + 1) + " of " + instances.Count + " (\"" + instance.InstanceName + "\")");
+                    if (!supportedDeviceTypes.Contains(instance.Type))
+                    {
+                        continue;
+                    }
+                    
+                    Console.WriteLine("Adding \"" + instance.Type + "\" device instance " + (i + 1) + " of " + instances.Count + " (\"" + instance.InstanceName + "\")");
                     instancesToReturn.Add(instance);
                 }
             }
@@ -483,22 +488,19 @@ namespace CrewChiefV4
                         // dispose all of our active devices:
                         unacquireAndDisposeActiveJoysticks();
 
-                        foreach (DeviceType deviceType in supportedDeviceTypes)
+                        foreach (var deviceInstance in this.getDevices())
                         {
-                            foreach (var deviceInstance in getDevices(deviceType))
+                            Guid joystickGuid = deviceInstance.InstanceGuid;
+                            if (joystickGuid != Guid.Empty)
                             {
-                                Guid joystickGuid = deviceInstance.InstanceGuid;
-                                if (joystickGuid != Guid.Empty)
+                                try
                                 {
-                                    try
-                                    {
-                                        addControllerFromScan(deviceType, joystickGuid, false);
-                                        availableCount++;
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        Console.WriteLine("Failed to get device info: " + e.Message);
-                                    }
+                                    addControllerFromScan(deviceInstance.Type, joystickGuid, false);
+                                    availableCount++;
+                                }
+                                catch (Exception e)
+                                {
+                                    Console.WriteLine("Failed to get device info: " + e.Message);
                                 }
                             }
                         }
