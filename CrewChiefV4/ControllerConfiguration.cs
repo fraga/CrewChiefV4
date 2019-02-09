@@ -112,10 +112,8 @@ namespace CrewChiefV4
             {
                 devices = new List<ControllerData>();
                 buttonAssignments = new List<ButtonAssignment>();
-                supportedDeviceTypeNames = String.Join(", ", ControllerConfiguration.supportedDeviceTypes);
             }
             public List<ControllerData> devices { get; set; }
-            public String supportedDeviceTypeNames { get; set; }
             public List<ButtonAssignment> buttonAssignments { get; set; }
         }
 
@@ -799,7 +797,6 @@ namespace CrewChiefV4
 
             public String deviceName;
             public DeviceType deviceType;
-            public String deviceTypeName;
             public Guid guid;
 
             public static List<ControllerData> parse(String propValue)
@@ -834,7 +831,6 @@ namespace CrewChiefV4
             {
                 this.deviceName = deviceName;
                 this.deviceType = deviceType;
-                this.deviceTypeName = deviceType.ToString();
                 this.guid = guid;
             }
         }
