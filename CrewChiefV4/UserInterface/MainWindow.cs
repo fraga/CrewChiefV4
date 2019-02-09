@@ -130,10 +130,19 @@ namespace CrewChiefV4
                 {
                     if ((int)m.WParam == DBT_DEVNODES_CHANGED)
                     {
-                        /*if (this.controllerRescanThreadRunning == true)
+                        if (!this.controllerConfiguration.scanInProgress)
                         {
-                            this.controllerRescanThreadWakeUpEvent.Set();
-                        }*/
+                            this.scanControllers.Enabled = false;
+#if DEBUG
+                            var watch = System.Diagnostics.Stopwatch.StartNew();
+#endif
+                            this.reAcquireControllerList();
+#if DEBUG
+                            watch.Stop();
+                            Debug.WriteLine("Controller re-acquisition took: " + watch.ElapsedTicks * 1000 / System.Diagnostics.Stopwatch.Frequency + "ms to shutdown");
+#endif
+                            this.scanControllers.Enabled = true;
+                        }
                     }
                 }
             }
@@ -166,7 +175,6 @@ namespace CrewChiefV4
             // TODO: Remove if optional?
             if (!MainWindow.disableDeviceScan)
             {
-                // controllerRescanThreadWakeUpEvent.Set();  // Do a controller rescan.
                 this.reAcquireControllerList();
             }
             if (UserSettings.GetUserSettings().getBoolean("run_immediately") &&
@@ -709,11 +717,12 @@ namespace CrewChiefV4
             MacroManager.stop();
             saveConsoleOutputText();
 
-            controllerRescanThreadRunning = false;
-            controllerRescanThreadWakeUpEvent.Set();
-
             consoleUpdateThreadRunning = false;
             consoleUpdateThreadWakeUpEvent.Set();
+
+            controllerRescanThreadRunning = false;
+            this.controllerConfiguration.cancelScan();
+            controllerRescanThreadWakeUpEvent.Set();
 
             lock (consoleWriter)
             {
@@ -1149,7 +1158,8 @@ namespace CrewChiefV4
                 if (MainWindow.instance != null
                     && consoleTextBox != null
                     && !consoleTextBox.IsDisposed
-                    && !string.IsNullOrWhiteSpace(messages))
+                    && !string.IsNullOrWhiteSpace(messages)
+                    && consoleUpdateThreadRunning)
                 {
                     try
                     {
@@ -1879,29 +1889,39 @@ namespace CrewChiefV4
             Debug.Assert(this.InvokeRequired);
             this.controllerConfiguration.scanControllers();
 
-            // VL: I can't come up with a deadlock scenario, but if this dealocks we could move it out of this.controllerWriteLock.
-            this.Invoke((MethodInvoker)delegate
+            try
             {
-                if (MainWindow.instance != null)
+                // VL: I can't come up with a deadlock scenario, but if this dealocks we could move it out of this.controllerWriteLock.
+                this.Invoke((MethodInvoker)delegate
                 {
-                    this.controllersList.Items.Clear();
-
-                    if (this.gameDefinitionList.Text.Equals(GameDefinition.pCarsNetwork.friendlyName) || this.gameDefinitionList.Text.Equals(GameDefinition.pCars2Network.friendlyName))
+                    if (MainWindow.instance != null)
                     {
-                        controllerConfiguration.addNetworkControllerToList();
+                        this.controllersList.Items.Clear();
+
+                        if (this.gameDefinitionList.Text.Equals(GameDefinition.pCarsNetwork.friendlyName) || this.gameDefinitionList.Text.Equals(GameDefinition.pCars2Network.friendlyName))
+                        {
+                            controllerConfiguration.addNetworkControllerToList();
+                        }
+
+                        foreach (ControllerConfiguration.ControllerData configData in controllerConfiguration.controllers)
+                        {
+                            this.controllersList.Items.Add(configData.deviceName);
+                        }
+
+                        runListenForChannelOpenThread = controllerConfiguration.listenForChannelOpen()
+                            && voiceOption == VoiceOptionEnum.HOLD && crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised;
+
+                        updateActions();
+
+                        this.controllerConfiguration.scanInProgress = false;
+                        this.scanControllers.Text = Configuration.getUIString("scan_for_controllers");
                     }
-
-                    foreach (ControllerConfiguration.ControllerData configData in controllerConfiguration.controllers)
-                    {
-                        this.controllersList.Items.Add(configData.deviceName);
-                    }
-
-                    runListenForChannelOpenThread = controllerConfiguration.listenForChannelOpen()
-                        && voiceOption == VoiceOptionEnum.HOLD && crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised;
-
-                    updateActions();
-                }
-            });
+                });
+            }
+            catch (Exception)
+            {
+                // Shutdown.
+            }
         }
 
         private void voiceDisableButton_CheckedChanged(object sender, EventArgs e)
@@ -2792,7 +2812,20 @@ namespace CrewChiefV4
             {
                 new SmokeTest(crewChief.audioPlayer).soundTestPlay(this.smokeTestTextBox.Lines);
             }
-            
+        }
+
+        private void ScanControllers_Click(object sender, System.EventArgs e)
+        {
+            if (!this.controllerConfiguration.scanInProgress)
+            {
+                this.controllerConfiguration.scanInProgress = true;
+                this.controllerRescanThreadWakeUpEvent.Set();
+                this.scanControllers.Text = Configuration.getUIString("cancel_scan");
+            }
+            else
+            {
+                this.controllerConfiguration.cancelScan();
+            }
         }
     }
 

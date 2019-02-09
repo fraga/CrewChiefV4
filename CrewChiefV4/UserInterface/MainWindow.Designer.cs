@@ -85,6 +85,7 @@ namespace CrewChiefV4
             this.myNameBoxTooltip = new System.Windows.Forms.ToolTip();
             this.chiefNameBoxTooltip = new System.Windows.Forms.ToolTip();
             this.spotterNameBoxTooltip = new System.Windows.Forms.ToolTip();
+            this.scanControllers = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.messagesVolumeSlider)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.backgroundVolumeSlider)).BeginInit();
@@ -135,6 +136,15 @@ namespace CrewChiefV4
             this.controllersList.Size = new System.Drawing.Size(248, 115);
             this.controllersList.TabIndex = 210;
             this.controllersList.SelectedIndexChanged += new System.EventHandler(this.controllersList_SelectedIndexChanged);
+            //
+            // scanControllers
+            //
+            this.scanControllers.Location = new System.Drawing.Point(41, 630);
+            this.scanControllers.Name = "scanControllers";
+            this.scanControllers.Text = Configuration.getUIString("scan_for_controllers");
+            this.scanControllers.TabIndex = 215;
+            this.scanControllers.Size = new System.Drawing.Size(120, 20);
+            this.scanControllers.Click += ScanControllers_Click;
             // 
             // assignButtonToAction
             // 
@@ -522,7 +532,7 @@ namespace CrewChiefV4
             this.spotterNameBox.TabIndex = 100;
             this.spotterNameBoxTooltip.SetToolTip(this.spotterNameBox, Configuration.getUIString("spotter_name_tooltip"));
 
-            this.donateLink.Location = new System.Drawing.Point(35, 650);
+            this.donateLink.Location = new System.Drawing.Point(35, 660);
             this.donateLink.Size = new System.Drawing.Size(250, 15);
             this.donateLink.Text = Configuration.getUIString("donate_link_text");
             this.donateLink.Click += new System.EventHandler(this.internetPanHandler);
@@ -658,6 +668,7 @@ namespace CrewChiefV4
             this.Controls.Add(this.smokeTestTextBox);
             this.Controls.Add(this.chiefNameLabel);
             this.Controls.Add(this.chiefNameBox);
+            this.Controls.Add(this.scanControllers);
             this.Name = "MainWindow";
             this.Text = "Crew Chief V4";
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -728,5 +739,6 @@ namespace CrewChiefV4
         private System.Windows.Forms.ToolTip myNameBoxTooltip;
         private System.Windows.Forms.ToolTip chiefNameBoxTooltip;
         private System.Windows.Forms.ToolTip spotterNameBoxTooltip;
+        private System.Windows.Forms.Button scanControllers;
     }
 }

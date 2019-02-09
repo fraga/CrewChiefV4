@@ -210,6 +210,9 @@ toggle_enable_cut_track_warnings = Toggle cut track warnings on / off
 
 category_filter_label = Ca&tegory filter:
 
+scan_for_controllers = Scan &for Controllers
+cancel_scan = Cancel &scan
+
 ###################################### Preferences ######################################################
 # to change the name of the property title in the properties screen, just use the property name like this:
 # enable_spotter = Enable spotter
