@@ -313,14 +313,14 @@ namespace CrewChiefV4
         {
             if (ba != null && ba.buttonIndex != -1 && ba.controller != null && ba.controller.guid != Guid.Empty)
             {
-                if (CrewChief.gameDefinition.gameEnum == GameEnum.PCARS_NETWORK)
+                if (ba.controller.guid == UDP_NETWORK_CONTROLLER_GUID && CrewChief.gameDefinition.gameEnum == GameEnum.PCARS_NETWORK)
                 {
                     if (PCarsUDPreader.getButtonState(ba.buttonIndex))
                     {
                         ba.hasUnprocessedClick = true;
                     }
                 }
-                else if (CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2_NETWORK)
+                else if (ba.controller.guid == UDP_NETWORK_CONTROLLER_GUID && CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2_NETWORK)
                 {
                     if (PCars2UDPreader.getButtonState(ba.buttonIndex))
                     {
@@ -528,7 +528,7 @@ namespace CrewChiefV4
             {
                 Console.WriteLine("Controller scan cancelled.");
                 // On failure, try re-acquire.
-                this.reAcquireControllers();
+                this.reAcquireControllers(false);
                 return;
             }
             else
@@ -620,7 +620,7 @@ namespace CrewChiefV4
             }
         }
 
-        public void reAcquireControllers()
+        public void reAcquireControllers(Boolean saveResults)
         {
             int availableCount = 0;
 
@@ -650,31 +650,47 @@ namespace CrewChiefV4
                         }
                     }
                 }
-
-                List<ControllerData> dataToSave = new List<ControllerData>();
-                // Save assigned, but not necessarily active devices.
-                foreach (var cd in controllerConfigurationData.devices)
+                // add the custom device if it's set
+                if (customControllerGuid != Guid.Empty)
                 {
-                    ButtonAssignment ba = buttonAssignments.FirstOrDefault(ba1 => ba1.deviceGuid == cd.guid.ToString());
-                    if (ba != null)
+                    try
                     {
-                        dataToSave.Add(cd);
+                        addControllerFromScan(DeviceType.Joystick, customControllerGuid, true);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Failed to get custom device info: " + e.Message);
                     }
                 }
-                foreach (var cd in controllers)
-                {
-                    ControllerData cd1 = dataToSave.FirstOrDefault(cd2 => cd2.guid == cd.guid);
-                    if (cd1 == null)
-                    {
-                        dataToSave.Add(cd);
-                    }
-                }
-                // add controllers not in our saved list
-                controllerConfigurationData.devices = dataToSave;
-                saveControllerConfigurationDataFile(controllerConfigurationData);
                 foreach (ButtonAssignment assignment in buttonAssignments.Where(ba => ba.controller == null && ba.buttonIndex != -1 && !string.IsNullOrEmpty(ba.deviceGuid)))
                 {
                     assignment.controller = controllers.FirstOrDefault(c => c.guid.ToString() == assignment.deviceGuid);
+                }
+
+                // don't save the results when the scan is initiated automatically
+                if (saveResults)
+                {
+                    List<ControllerData> dataToSave = new List<ControllerData>();
+                    // Save assigned, but not necessarily active devices.
+                    foreach (var cd in controllerConfigurationData.devices)
+                    {
+                        ButtonAssignment ba = buttonAssignments.FirstOrDefault(ba1 => ba1.deviceGuid == cd.guid.ToString());
+                        if (ba != null)
+                        {
+                            dataToSave.Add(cd);
+                        }
+                    }
+                    foreach (var cd in controllers)
+                    {
+                        ControllerData cd1 = dataToSave.FirstOrDefault(cd2 => cd2.guid == cd.guid);
+                        if (cd1 == null)
+                        {
+                            dataToSave.Add(cd);
+                        }
+                    }
+                    // add controllers not in our saved list
+                    controllerConfigurationData.devices = dataToSave;
+                    saveControllerConfigurationDataFile(controllerConfigurationData);
                 }
             }
             Console.WriteLine("Re-acquired controllers, there are " + availableCount + " available controllers and " + activeDevices.Count + " active controllers");

@@ -136,7 +136,7 @@ namespace CrewChiefV4
 #if DEBUG
                             var watch = System.Diagnostics.Stopwatch.StartNew();
 #endif
-                            this.reAcquireControllerList();
+                            this.reAcquireControllerList(false);
 #if DEBUG
                             watch.Stop();
                             Debug.WriteLine("Controller re-acquisition took: " + watch.ElapsedTicks * 1000 / System.Diagnostics.Stopwatch.Frequency + "ms to shutdown");
@@ -175,7 +175,7 @@ namespace CrewChiefV4
             // TODO: Remove if optional?
             if (!MainWindow.disableDeviceScan)
             {
-                this.reAcquireControllerList();
+                this.reAcquireControllerList(true);
             }
             if (UserSettings.GetUserSettings().getBoolean("run_immediately") &&
                 GameDefinition.getGameDefinitionForFriendlyName(gameDefinitionList.Text) != null)
@@ -1858,10 +1858,10 @@ namespace CrewChiefV4
             }
         }
 
-        private void reAcquireControllerList()
+        private void reAcquireControllerList(Boolean saveResults)
         {
             Debug.Assert(!this.InvokeRequired);
-            this.controllerConfiguration.reAcquireControllers();
+            this.controllerConfiguration.reAcquireControllers(saveResults);
 
             if (MainWindow.instance != null)
             {
