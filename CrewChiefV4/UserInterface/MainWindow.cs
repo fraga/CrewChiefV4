@@ -141,7 +141,10 @@ namespace CrewChiefV4
                             watch.Stop();
                             Debug.WriteLine("Controller re-acquisition took: " + watch.ElapsedTicks * 1000 / System.Diagnostics.Stopwatch.Frequency + "ms to shutdown");
 #endif
-                            this.scanControllers.Enabled = true;
+                            if (!this.IsAppRunning)
+                            {
+                                this.scanControllers.Enabled = true;
+                            }
                         }
                     }
                 }
@@ -1458,6 +1461,7 @@ namespace CrewChiefV4
             this.gameDefinitionList.Enabled = false;
             this.contextMenuPreferencesItem.Enabled = false;
             this.notificationTrayIcon.Text = string.Format(Configuration.getUIString("running_context_menu"), this.gameDefinitionList.Text);
+            this.scanControllers.Enabled = false;
         }
 
         public void uiSyncAppStop()
@@ -1475,6 +1479,7 @@ namespace CrewChiefV4
             this.gameDefinitionList.Enabled = true;
             this.contextMenuPreferencesItem.Enabled = true;
             this.notificationTrayIcon.Text = Configuration.getUIString("idling_context_menu");
+            this.scanControllers.Enabled = true;
         }
 
         private void doStartAppStuff()
