@@ -470,10 +470,7 @@ namespace CrewChiefV4
 
             // This method is called from the controller refresh thread, either by the device-changed event handler or explicitly on app start.
             // The poll for button clicks call is from a helper thread and accesses the activeDevices list - potentially concurrently
-            this.controllers = new List<ControllerData>();
 
-            // dispose all of our active devices:
-            unacquireAndDisposeActiveJoysticks();
             var scanCancelled = false;
             // Iterate the list available, as reported by sharpDX
             ThreadManager.UnregisterTemporaryThread(this.controllerScanThread);
@@ -483,6 +480,11 @@ namespace CrewChiefV4
                 {
                     lock (activeDevices)
                     {
+                        this.controllers = new List<ControllerData>();
+
+                        // dispose all of our active devices:
+                        unacquireAndDisposeActiveJoysticks();
+
                         foreach (DeviceType deviceType in supportedDeviceTypes)
                         {
                             foreach (var deviceInstance in getDevices(deviceType))

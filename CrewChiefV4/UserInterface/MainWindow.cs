@@ -1915,6 +1915,7 @@ namespace CrewChiefV4
 
                         this.controllerConfiguration.scanInProgress = false;
                         this.scanControllers.Text = Configuration.getUIString("scan_for_controllers");
+                        this.scanControllers.Enabled = true;
                     }
                 });
             }
@@ -2824,6 +2825,7 @@ namespace CrewChiefV4
             }
             else
             {
+                this.scanControllers.Enabled = false;
                 this.controllerConfiguration.cancelScan();
             }
         }
