@@ -210,6 +210,40 @@ toggle_enable_cut_track_warnings = Toggle cut track warnings on / off
 
 category_filter_label = Ca&tegory filter:
 
+edit_macro_commands = Command macro editor
+
+###################################### Macro Editor ######################################################
+global_macro_settings = Global Settings
+available_macros = Available macros
+regular_macro_voice_command = Regular Type
+integer_macro_voice_command = Integer Type
+macro_voice_trigger = Voice command
+new_macro_name = Macro name
+confirmation_message = Confirmation message
+add_or_edit_macro = Add/Edit macro
+delete_selected_macro = Delete selected macro
+select_confirmation_message = Select confirmation message
+macro_description = Description
+macro_voice_trigger = Voice Command
+
+game_specific_settings = Game specific settings
+action_sequence = Action sequence
+new_action = New action name
+keypress_time = Key hold down time
+keypress_wait_time = Time between key presses
+save_action_key = Add/Edit action
+add_action_to_sequence = Add action to sequence
+add_key_to_sequence = Add key to sequence
+add_action_sequence = Add action sequence 
+load_user_macro_settings = Load user macros file
+load_default_macro_settings = Load default macros file
+save_macro_settings = Save settings to file
+macro_please_download_soundpack = Please download sound packs before adding confirmation message
+empty_name_or_voicetrigger = Name and voice trigger must NOT be empty
+macro_voicetrigger_already_exists = Voice trigger allready exist for another macro please select a different
+
+
+
 ###################################### Preferences ######################################################
 # to change the name of the property title in the properties screen, just use the property name like this:
 # enable_spotter = Enable spotter
@@ -1087,10 +1121,6 @@ pit_box_position_countdown_in_feet_category = PIT_STOPS_AND_MULTICLASS
 enable_multiclass_messages = Enable multi-class messages
 enable_multiclass_messages_help = Play warnings when slower or faster class cars are approaching
 enable_multiclass_messages_category = PIT_STOPS_AND_MULTICLASS
-
-allow_macros_to_trigger_automatically = Allow automatic macro triggering
-allow_macros_to_trigger_automatically_help = Enable some macros to execute automatically (e.g. R3E pit auto-confirm)
-allow_macros_to_trigger_automatically_category = PIT_STOPS_AND_MULTICLASS
 
 target_warning_time_for_slower_class_car = Multi-class slower car warning time
 target_warning_time_for_slower_class_car_help = Try and warn this many seconds in advance when passing slower class cars

@@ -1,5 +1,6 @@
 ﻿using CrewChiefV4.Audio;
 using CrewChiefV4.Events;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -19,19 +20,14 @@ namespace CrewChiefV4.commands
         AudioPlayer audioPlayer;
         public Macro macro;
         Dictionary<String, KeyBinding[]> assignmentsByGame;
-        public Boolean allowAutomaticTriggering;
         private Thread executableCommandMacroThread = null;
 
-        public ExecutableCommandMacro(AudioPlayer audioPlayer, Macro macro, Dictionary<String, KeyBinding[]> assignmentsByGame, Boolean allowAutomaticTriggering)
+        public ExecutableCommandMacro(AudioPlayer audioPlayer, Macro macro, Dictionary<String, KeyBinding[]> assignmentsByGame)
         {
             this.audioPlayer = audioPlayer;
             this.macro = macro;
             this.assignmentsByGame = assignmentsByGame;
-            this.allowAutomaticTriggering = allowAutomaticTriggering && MacroManager.enableAutoTriggering;
-            if (allowAutomaticTriggering)
-            {
-                Console.WriteLine("Macro \"" + macro.name + "\" can be triggered automatically");
-            }
+
         }
         [DllImport("user32.dll")]
         static extern bool SetForegroundWindow(IntPtr hWnd);
@@ -81,14 +77,13 @@ namespace CrewChiefV4.commands
             Boolean isValid = true;
             String macroConfirmationMessage = macro.confirmationMessage != null && macro.confirmationMessage.Length > 0 && !supressConfirmationMessage ? 
                 macro.confirmationMessage : null;
-            String commandConfirmationMessage = commandSet.confirmationMessage != null && commandSet.confirmationMessage.Length > 0 && !supressConfirmationMessage ? 
-                commandSet.confirmationMessage : null;
+
 
             // special case for 'request pit' macro - check we've not already requested a stop, and we might want to play the pitstop strategy estimate
             if (macro.name == MacroManager.REQUEST_PIT_IDENTIFIER)
             {
                 // if there's a confirmation message set up here, suppress the PitStops event from triggering the same message when the pit request changes in the gamestate
-                PitStops.playedRequestPitOnThisLap = macroConfirmationMessage != null || commandConfirmationMessage != null;
+                PitStops.playedRequestPitOnThisLap = macroConfirmationMessage != null;
                 if ((CrewChief.gameDefinition == GameDefinition.pCars2 || CrewChief.gameDefinition == GameDefinition.rfactor2_64bit) &&
                      CrewChief.currentGameState != null && CrewChief.currentGameState.PitData.HasRequestedPitStop)
                 {
@@ -96,10 +91,6 @@ namespace CrewChiefV4.commands
                     if (macroConfirmationMessage != null)
                     {
                         macroConfirmationMessage = PitStops.folderPitAlreadyRequested;
-                    }
-                    else if (commandConfirmationMessage != null)
-                    {
-                        commandConfirmationMessage = PitStops.folderPitAlreadyRequested;
                     }
                     isValid = false;
                 }
@@ -112,7 +103,7 @@ namespace CrewChiefV4.commands
             else if (macro.name == MacroManager.CANCEL_REQUEST_PIT_IDENTIFIER)
             {
                 // if there's a confirmation message set up here, suppress the PitStops event from triggering the same message when the pit request changes in the gamestate
-                PitStops.playedPitRequestCancelledOnThisLap = macroConfirmationMessage != null || commandConfirmationMessage != null;
+                PitStops.playedPitRequestCancelledOnThisLap = macroConfirmationMessage != null;
                 if ((CrewChief.gameDefinition == GameDefinition.pCars2 || CrewChief.gameDefinition == GameDefinition.rfactor2_64bit) &&
                      CrewChief.currentGameState != null && !CrewChief.currentGameState.PitData.HasRequestedPitStop)
                 {
@@ -121,20 +112,12 @@ namespace CrewChiefV4.commands
                     {
                         macroConfirmationMessage = PitStops.folderPitNotRequested;
                     }
-                    else if (commandConfirmationMessage != null)
-                    {
-                        commandConfirmationMessage = PitStops.folderPitNotRequested;
-                    }
                     isValid = false;
                 } 
             }
             if (macroConfirmationMessage != null)
             {
                 audioPlayer.playMessageImmediately(new QueuedMessage(macroConfirmationMessage, 0));
-            }
-            else if (commandConfirmationMessage != null)
-            {
-                audioPlayer.playMessageImmediately(new QueuedMessage(commandConfirmationMessage, 0));
             }
             return isValid;
         }
@@ -258,6 +241,7 @@ namespace CrewChiefV4.commands
 
     public class Assignment
     {
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public String description { get; set; }
         public String gameDefinition { get; set; }
         public KeyBinding[] keyBindings { get; set; }
@@ -265,6 +249,7 @@ namespace CrewChiefV4.commands
 
     public class KeyBinding
     {
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public String description { get; set; }
         public String action { get; set; }
         public String key { get; set; }
@@ -272,14 +257,23 @@ namespace CrewChiefV4.commands
 
     public class Macro
     {
-        public String name { get; set; }
-		public String description { get; set; }
+        public String name { get; set; }        
+        public String description { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public String confirmationMessage { get; set; }
-		public String[] voiceTriggers { get; set; }
+		
+        public String[] voiceTriggers { get; set; }
+        
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public ButtonTrigger[] buttonTriggers { get; set; }
+        
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public CommandSet[] commandSets { get; set; }
 
+        [JsonProperty("integerVariableVoiceTrigger", NullValueHandling = NullValueHandling.Ignore)]
         private String _integerVariableVoiceTrigger;
+
+        [JsonIgnore]
         public String integerVariableVoiceTrigger
         {
             get { return _integerVariableVoiceTrigger; }
@@ -289,8 +283,11 @@ namespace CrewChiefV4.commands
                 parseIntRangeAndPhrase();
             }
         }
+        [JsonIgnore]
         public Tuple<int, int> intRange;
+        [JsonIgnore]
         public String startPhrase;
+        [JsonIgnore]
         public String endPhrase;
 
         public String getIntegerVariableVoiceTrigger()
@@ -345,14 +342,13 @@ namespace CrewChiefV4.commands
 
     public class CommandSet
     {
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public String description { get; set; }
         public String gameDefinition { get; set; }
 		public String[] actionSequence { get; set; }
 		public int keyPressTime { get; set; }
         public int waitBetweenEachCommand { get; set; }
-        public Boolean allowAutomaticTriggering { get; set; }
-        public String confirmationMessage { get; set; }
-
+        [JsonIgnore]
         private List<ActionItem> actionItems = null;
 
         public Boolean loadActionItems(KeyBinding[] keyBindings)

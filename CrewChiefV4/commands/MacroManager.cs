@@ -22,7 +22,6 @@ namespace CrewChiefV4.commands
         public static Boolean enablePitExitPositionEstimates = UserSettings.GetUserSettings().getBoolean("enable_pit_exit_position_estimates");
 
         public static Boolean bringGameWindowToFrontForMacros = UserSettings.GetUserSettings().getBoolean("bring_game_window_to_front_for_macros");
-        public static Boolean enableAutoTriggering = UserSettings.GetUserSettings().getBoolean("allow_macros_to_trigger_automatically");
 
         public static Boolean stopped = false;
 
@@ -45,7 +44,7 @@ namespace CrewChiefV4.commands
             if (UserSettings.GetUserSettings().getBoolean("enable_command_macros"))
             {
                 // load the json:
-                MacroContainer macroContainer = loadCommands(getUserMacrosFileLocation());
+                MacroContainer macroContainer = loadCommands(getMacrosFileLocation());
                 // if it's valid, load the command sets:
                 if (macroContainer.assignments != null && macroContainer.assignments.Length > 0 && macroContainer.macros != null)
                 {
@@ -63,7 +62,6 @@ namespace CrewChiefV4.commands
                     foreach (Macro macro in macroContainer.macros)
                     {
                         Boolean hasCommandForCurrentGame = false;
-                        Boolean allowAutomaticTriggering = false;
                         // eagerly load the key bindings for each macro:
                         foreach (CommandSet commandSet in macro.commandSets)
                         {
@@ -76,7 +74,6 @@ namespace CrewChiefV4.commands
                                 }
                                 else
                                 {
-                                    allowAutomaticTriggering = commandSet.allowAutomaticTriggering;
                                     hasCommandForCurrentGame = true;
                                 }
                                 break;
@@ -85,7 +82,7 @@ namespace CrewChiefV4.commands
                         if (hasCommandForCurrentGame)
                         {
                             // make this macro globally visible:
-                            ExecutableCommandMacro commandMacro = new ExecutableCommandMacro(audioPlayer, macro, assignmentsByGame, allowAutomaticTriggering);
+                            ExecutableCommandMacro commandMacro = new ExecutableCommandMacro(audioPlayer, macro, assignmentsByGame);
                             macros.Add(macro.name, commandMacro);
                             // if there's a voice command, load it into the recogniser:
                             if (macro.voiceTriggers != null && macro.voiceTriggers.Length > 0)
@@ -132,7 +129,7 @@ namespace CrewChiefV4.commands
         }
 
         // file loading boilerplate - needs refactoring
-        private static MacroContainer loadCommands(String filename)
+        public static MacroContainer loadCommands(String filename)
         {
             if (filename != null)
             {
@@ -146,6 +143,39 @@ namespace CrewChiefV4.commands
                 }
             }
             return new MacroContainer();
+        }
+
+        public static void saveCommands(MacroContainer macroContainer)
+        {
+            String fileName = "saved_command_macros.json";
+            String path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4");
+            if (!Directory.Exists(path))
+            {
+                try
+                {
+                    Directory.CreateDirectory(path);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error creating " + path + ": " + e.Message);
+                }
+            }
+            if (fileName != null)
+            {
+                try
+                {
+                    using (StreamWriter file = File.CreateText(System.IO.Path.Combine(path, fileName)))
+                    {
+                        JsonSerializer serializer = new JsonSerializer();
+                        serializer.Formatting = Newtonsoft.Json.Formatting.Indented;
+                        serializer.Serialize(file, macroContainer);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error parsing " + fileName + ": " + e.Message);
+                }
+            }         
         }
 
         private static String getFileContents(String fullFilePath)
@@ -179,12 +209,12 @@ namespace CrewChiefV4.commands
             return null;
         }
 
-        private static String getUserMacrosFileLocation()
+        public static String getMacrosFileLocation(bool forceDefault = false)
         {
             String path = System.IO.Path.Combine(Environment.GetFolderPath(
                 Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "saved_command_macros.json");
 
-            if (File.Exists(path))
+            if (File.Exists(path) && !forceDefault)
             {
                 Console.WriteLine("Loading user-configured command macros from Documents/CrewChiefV4/ folder");
                 return path;
