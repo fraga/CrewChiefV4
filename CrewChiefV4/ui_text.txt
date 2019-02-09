@@ -210,7 +210,9 @@ toggle_enable_cut_track_warnings = Toggle cut track warnings on / off
 
 category_filter_label = Ca&tegory filter:
 
-edit_macro_commands = Command macro editor
+scan_for_controllers = Scan &for Controllers
+cancel_scan = Canc&el scan
+edit_macro_commands = Command macro &editor
 
 ###################################### Macro Editor ######################################################
 global_macro_settings = Global Settings
@@ -241,7 +243,6 @@ save_macro_settings = Save settings to file
 macro_please_download_soundpack = Please download sound packs before adding confirmation message
 empty_name_or_voicetrigger = Name and voice trigger must NOT be empty
 macro_voicetrigger_already_exists = Voice trigger allready exist for another macro please select a different
-
 
 
 ###################################### Preferences ######################################################
@@ -1237,7 +1238,3 @@ persist_pitstop_benchmark_times_category = PIT_STOPS_AND_MULTICLASS
 controller_mappings_file_error_title = Error reading controller mappings
 controller_mappings_file_error_details_1 = Controller mapping file 
 controller_mappings_file_error_details_2 = is invalid - no button mappings will be available. Error message from JSON parsers is:
-
-controller_scan_timeout_per_device_type = Timeout for each device type scan (ms)
-controller_scan_timeout_per_device_type_help = Time to wait for each device type to be listed before ignoring these devices
-controller_scan_timeout_per_device_type_category = AUDIO_VOICE_AND_CONTROLLERS
