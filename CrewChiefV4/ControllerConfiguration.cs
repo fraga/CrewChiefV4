@@ -530,7 +530,7 @@ namespace CrewChiefV4
             {
                 Console.WriteLine("Controller scan cancelled.");
                 // On failure, try re-acquire.
-                this.reAcquireControllers(false);
+                this.reacquireControllers(false);
                 return;
             }
             else
@@ -622,7 +622,7 @@ namespace CrewChiefV4
             }
         }
 
-        public void reAcquireControllers(Boolean saveResults)
+        public void reacquireControllers(Boolean saveResults)
         {
             int availableCount = 0;
 

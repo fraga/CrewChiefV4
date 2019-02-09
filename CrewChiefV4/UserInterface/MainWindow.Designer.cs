@@ -162,11 +162,21 @@ namespace CrewChiefV4
             // 
             this.deleteAssigmentButton.Location = new System.Drawing.Point(830, 564);
             this.deleteAssigmentButton.Name = "deleteAssigmentButton";
-            this.deleteAssigmentButton.Size = new System.Drawing.Size(130, 40);
+            this.deleteAssigmentButton.Size = new System.Drawing.Size(130, 39);
             this.deleteAssigmentButton.TabIndex = 250;
             this.deleteAssigmentButton.Text = Configuration.getUIString("delete_assignment");
             this.deleteAssigmentButton.UseVisualStyleBackColor = true;
             this.deleteAssigmentButton.Click += new System.EventHandler(this.deleteAssignmentButtonClicked);
+            // 
+            // buttonEditCommandMacros
+            // 
+            this.buttonEditCommandMacros.Location = new System.Drawing.Point(830, 608);
+            this.buttonEditCommandMacros.Name = "buttonEditCommandMacros";
+            this.buttonEditCommandMacros.Size = new System.Drawing.Size(130, 39);
+            this.buttonEditCommandMacros.TabIndex = 252;
+            this.buttonEditCommandMacros.Text = Configuration.getUIString("edit_macro_commands");
+            this.buttonEditCommandMacros.UseVisualStyleBackColor = true;
+            this.buttonEditCommandMacros.Click += new System.EventHandler(this.editCommandMacroButtonClicked);
             // 
             // label1
             // 
@@ -616,16 +626,6 @@ namespace CrewChiefV4
             this.buttonSmokeTest.UseVisualStyleBackColor = true;
             this.buttonSmokeTest.Click += new System.EventHandler(this.playSmokeTestSounds);
             this.buttonSmokeTest.Visible = false;
-            // 
-            // buttonSmokeTest
-            // 
-            this.buttonEditCommandMacros.Location = new System.Drawing.Point(830, 610);
-            this.buttonEditCommandMacros.Name = "buttonEditCommandMacros";
-            this.buttonEditCommandMacros.Size = new System.Drawing.Size(130, 33);
-            this.buttonEditCommandMacros.TabIndex = 503;
-            this.buttonEditCommandMacros.Text = Configuration.getUIString("edit_macro_commands");
-            this.buttonEditCommandMacros.UseVisualStyleBackColor = true;
-            this.buttonEditCommandMacros.Click += new System.EventHandler(this.editCommandMacroButtonClicked);
             // 
             // MainWindow
             // 

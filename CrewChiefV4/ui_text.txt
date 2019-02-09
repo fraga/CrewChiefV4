@@ -211,8 +211,8 @@ toggle_enable_cut_track_warnings = Toggle cut track warnings on / off
 category_filter_label = Ca&tegory filter:
 
 scan_for_controllers = Scan &for Controllers
-cancel_scan = Cancel &scan
-edit_macro_commands = Command macro editor
+cancel_scan = Canc&el scan
+edit_macro_commands = Command macro &editor
 
 ###################################### Macro Editor ######################################################
 global_macro_settings = Global Settings

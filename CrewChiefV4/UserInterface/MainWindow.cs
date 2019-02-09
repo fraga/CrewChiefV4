@@ -112,7 +112,7 @@ namespace CrewChiefV4
         // This lock must be held while we are updating controller devices or updating assignments.
         private object controllerWriteLock = new object();
 
-        public static bool disableDeviceScan = false;
+        public static bool disableControllerReacquire = false;
 
         private const int WM_DEVICECHANGE = 0x219;
         private const int DBT_DEVNODES_CHANGED = 0x0007;
@@ -124,7 +124,7 @@ namespace CrewChiefV4
 
         protected override void WndProc(ref Message m)
         {
-            if (!MainWindow.disableDeviceScan && this.controllerRescanThreadRunning)
+            if (!MainWindow.disableControllerReacquire && this.controllerRescanThreadRunning)
             {
                 if (m.Msg == WM_DEVICECHANGE)
                 {
@@ -136,7 +136,7 @@ namespace CrewChiefV4
 #if DEBUG
                             var watch = System.Diagnostics.Stopwatch.StartNew();
 #endif
-                            this.reAcquireControllerList(false);
+                            this.reacquireControllerList(false);
 #if DEBUG
                             watch.Stop();
                             Debug.WriteLine("Controller re-acquisition took: " + watch.ElapsedTicks * 1000 / System.Diagnostics.Stopwatch.Frequency + "ms to shutdown");
@@ -172,10 +172,9 @@ namespace CrewChiefV4
             // is created on a message pump, at undefined moment, which prevents Invoke from
             // working while constructor is running.
             Debug.Assert(this.IsHandleCreated);
-            // TODO: Remove
-            if (!MainWindow.disableDeviceScan)
+            if (!MainWindow.disableControllerReacquire)
             {
-                this.reAcquireControllerList(true);
+                this.reacquireControllerList(true);
             }
             if (UserSettings.GetUserSettings().getBoolean("run_immediately") &&
                 GameDefinition.getGameDefinitionForFriendlyName(gameDefinitionList.Text) != null)
@@ -1194,7 +1193,7 @@ namespace CrewChiefV4
 
         private void controllerRescanThreadWorker()
         {
-            while (controllerRescanThreadRunning && !disableDeviceScan)
+            while (controllerRescanThreadRunning && !disableControllerReacquire)
             {
                 controllerRescanThreadWakeUpEvent.WaitOne();
                 if (!controllerRescanThreadRunning)
@@ -1858,10 +1857,10 @@ namespace CrewChiefV4
             }
         }
 
-        private void reAcquireControllerList(Boolean saveResults)
+        private void reacquireControllerList(Boolean saveResults)
         {
             Debug.Assert(!this.InvokeRequired);
-            this.controllerConfiguration.reAcquireControllers(saveResults);
+            this.controllerConfiguration.reacquireControllers(saveResults);
 
             if (MainWindow.instance != null)
             {
