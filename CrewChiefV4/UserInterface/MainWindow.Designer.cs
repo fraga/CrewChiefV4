@@ -86,7 +86,9 @@ namespace CrewChiefV4
             this.chiefNameBoxTooltip = new System.Windows.Forms.ToolTip();
             this.spotterNameBoxTooltip = new System.Windows.Forms.ToolTip();
             this.scanControllers = new System.Windows.Forms.Button();
+            this.buttonEditCommandMacros = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
+            
             ((System.ComponentModel.ISupportInitialize)(this.messagesVolumeSlider)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.backgroundVolumeSlider)).BeginInit();
             this.SuspendLayout();
@@ -614,7 +616,16 @@ namespace CrewChiefV4
             this.buttonSmokeTest.UseVisualStyleBackColor = true;
             this.buttonSmokeTest.Click += new System.EventHandler(this.playSmokeTestSounds);
             this.buttonSmokeTest.Visible = false;
-
+            // 
+            // buttonSmokeTest
+            // 
+            this.buttonEditCommandMacros.Location = new System.Drawing.Point(830, 610);
+            this.buttonEditCommandMacros.Name = "buttonEditCommandMacros";
+            this.buttonEditCommandMacros.Size = new System.Drawing.Size(130, 33);
+            this.buttonEditCommandMacros.TabIndex = 503;
+            this.buttonEditCommandMacros.Text = Configuration.getUIString("edit_macro_commands");
+            this.buttonEditCommandMacros.UseVisualStyleBackColor = true;
+            this.buttonEditCommandMacros.Click += new System.EventHandler(this.editCommandMacroButtonClicked);
             // 
             // MainWindow
             // 
@@ -669,6 +680,7 @@ namespace CrewChiefV4
             this.Controls.Add(this.chiefNameLabel);
             this.Controls.Add(this.chiefNameBox);
             this.Controls.Add(this.scanControllers);
+            this.Controls.Add(this.buttonEditCommandMacros);
             this.Name = "MainWindow";
             this.Text = "Crew Chief V4";
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -740,5 +752,6 @@ namespace CrewChiefV4
         private System.Windows.Forms.ToolTip chiefNameBoxTooltip;
         private System.Windows.Forms.ToolTip spotterNameBoxTooltip;
         private System.Windows.Forms.Button scanControllers;
+        private System.Windows.Forms.Button buttonEditCommandMacros;
     }
 }

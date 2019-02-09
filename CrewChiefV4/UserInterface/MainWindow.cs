@@ -2829,7 +2829,13 @@ namespace CrewChiefV4
                 this.controllerConfiguration.cancelScan();
             }
         }
+        private void editCommandMacroButtonClicked(object sender, EventArgs e)
+        {
+            var form = new MacroEditor();
+            form.ShowDialog(this);
+        }
     }
+
 
     public class ControlWriter : TextWriter
     {
