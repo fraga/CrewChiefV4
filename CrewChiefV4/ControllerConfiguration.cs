@@ -633,6 +633,18 @@ namespace CrewChiefV4
                 this.unacquireAndDisposeActiveJoysticks();
                 ControllerConfigurationData controllerConfigurationData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
                 var assignedDevices = new HashSet<Guid>();
+                // add the custom device if it's set
+                if (customControllerGuid != Guid.Empty)
+                {
+                    try
+                    {
+                        addControllerFromScan(DeviceType.Joystick, customControllerGuid, true);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Failed to get custom device info: " + e.Message);
+                    }
+                }
                 foreach (var ba in buttonAssignments)
                 {
                     if (ba.controller != null
@@ -650,18 +662,7 @@ namespace CrewChiefV4
                         }
                     }
                 }
-                // add the custom device if it's set
-                if (customControllerGuid != Guid.Empty)
-                {
-                    try
-                    {
-                        addControllerFromScan(DeviceType.Joystick, customControllerGuid, true);
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("Failed to get custom device info: " + e.Message);
-                    }
-                }
+
                 foreach (ButtonAssignment assignment in buttonAssignments.Where(ba => ba.controller == null && ba.buttonIndex != -1 && !string.IsNullOrEmpty(ba.deviceGuid)))
                 {
                     assignment.controller = controllers.FirstOrDefault(c => c.guid.ToString() == assignment.deviceGuid);
