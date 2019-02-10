@@ -270,10 +270,10 @@ namespace CrewChiefV4.commands
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public CommandSet[] commandSets { get; set; }
 
-        [JsonProperty("integerVariableVoiceTrigger", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonIgnore]
         private String _integerVariableVoiceTrigger;
 
-        [JsonIgnore]
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public String integerVariableVoiceTrigger
         {
             get { return _integerVariableVoiceTrigger; }
@@ -283,17 +283,13 @@ namespace CrewChiefV4.commands
                 parseIntRangeAndPhrase();
             }
         }
+
         [JsonIgnore]
         public Tuple<int, int> intRange;
         [JsonIgnore]
         public String startPhrase;
         [JsonIgnore]
         public String endPhrase;
-
-        public String getIntegerVariableVoiceTrigger()
-        {
-            return this._integerVariableVoiceTrigger;
-        }
 
         public int extractInt(String recognisedVoiceCommand, String start, String end)
         {
