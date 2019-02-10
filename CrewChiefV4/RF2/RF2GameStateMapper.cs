@@ -52,6 +52,11 @@ namespace CrewChiefV4.rFactor2
         // If we're running only against AI, force the pit window to open
         private bool isOfflineSession = true;
 
+        // Private practice detection hacks.
+        private int lastPracticeNumVehicles = -1;
+        private int lastPracticeNumNonGhostVehicles = -1;
+        private double lastPracticeNumVehiclesCapturedET = -1.0;
+
         // Keep track of opponents processed this time
         private List<string> opponentKeysProcessed = new List<string>();
 
@@ -73,10 +78,6 @@ namespace CrewChiefV4.rFactor2
 
         // True if it looks like track has no DRS zones defined.
         private bool detectedTrackNoDRSZones = false;
-
-        // Stock Car Rules debug messages
-        private string lastUnknownGlobalRuleMessage = null;
-        private string lastUnknownPlayerRuleMessage = null;
 
         // Track landmarks cache.
         private string lastSessionTrackName = null;
@@ -199,6 +200,7 @@ namespace CrewChiefV4.rFactor2
 
         private Int64 lastSessionEndTicks = -1;
         private bool lastInRealTimeState = false;
+        
 
         private void ClearState()
         {
@@ -207,13 +209,14 @@ namespace CrewChiefV4.rFactor2
 
             this.waitingToTerminateSession = false;
             this.isOfflineSession = true;
+            this.lastPracticeNumVehicles = -1;
+            this.lastPracticeNumNonGhostVehicles = -1;
+            this.lastPracticeNumVehiclesCapturedET = -1.0f;
             this.distanceOffTrack = 0;
             this.detectedTrackNoDRSZones = false;
             this.minTrackWidth = -1.0;
             this.timePitStopRequested = DateTime.MinValue;
             this.isApproachingPitEntry = false;
-            this.lastUnknownGlobalRuleMessage = null;
-            this.lastUnknownPlayerRuleMessage = null;
             this.lastTimeEngineWasRunning = DateTime.MaxValue;
             this.compoundNameToTyreType.Clear();
             this.idToCarInfoMap.Clear();
@@ -486,8 +489,8 @@ namespace CrewChiefV4.rFactor2
                 shared.scoring.mScoringInfo.mSession >= 5 && shared.scoring.mScoringInfo.mSession <= 8 ? shared.scoring.mScoringInfo.mSession - 5 :
                 shared.scoring.mScoringInfo.mSession >= 10 && shared.scoring.mScoringInfo.mSession <= 13 ? shared.scoring.mScoringInfo.mSession - 10 : 0;
 
-            csd.SessionType = MapToSessionType(shared);
-            csd.SessionPhase = mapToSessionPhase((rFactor2Constants.rF2GamePhase)shared.scoring.mScoringInfo.mGamePhase, csd.SessionType, ref playerScoring);
+            csd.SessionType = this.MapToSessionType(shared);
+            csd.SessionPhase = this.mapToSessionPhase((rFactor2Constants.rF2GamePhase)shared.scoring.mScoringInfo.mGamePhase, csd.SessionType, ref playerScoring);
 
             csd.SessionNumberOfLaps = shared.scoring.mScoringInfo.mMaxLaps > 0 && shared.scoring.mScoringInfo.mMaxLaps < 1000 ? shared.scoring.mScoringInfo.mMaxLaps : 0;
 
@@ -2376,7 +2379,29 @@ namespace CrewChiefV4.rFactor2
                 // test day and pre-race warm-up sessions are 'Practice' as well
                 case 0:
                 case 9:
-                    return SessionType.Practice;
+                    if (this.lastPracticeNumVehicles < shared.scoring.mScoringInfo.mNumVehicles
+                        // Do not change this.lastPracticeNumNonGhostVehicles unless it appears like this is the new session.
+                        && (this.lastPracticeNumVehiclesCapturedET == -1.0 || shared.scoring.mScoringInfo.mCurrentET < this.lastPracticeNumVehiclesCapturedET))
+                    {
+                        this.lastPracticeNumVehicles = shared.scoring.mScoringInfo.mNumVehicles;
+                        this.lastPracticeNumVehiclesCapturedET = shared.scoring.mScoringInfo.mCurrentET;
+                        this.lastPracticeNumNonGhostVehicles = 0;
+                        // Populate cached car info.
+                        for (int i = 0; i < shared.scoring.mScoringInfo.mNumVehicles; ++i)
+                        {
+                            var vehicleScoring = shared.scoring.mVehicles[i];
+
+                            var cci = this.GetCachedCarInfo(ref vehicleScoring);
+                            if (cci.isGhost)
+                                continue;  // Skip trainer.
+
+                            ++this.lastPracticeNumNonGhostVehicles;
+                        }
+                    }
+
+                    return this.lastPracticeNumNonGhostVehicles > 1 // Player only.
+                        ? SessionType.Practice 
+                        : SessionType.LonePractice;
                 // up to four possible qualifying sessions
                 case 5:
                 case 6:
