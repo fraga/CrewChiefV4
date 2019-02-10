@@ -569,35 +569,36 @@ namespace CrewChiefV4.Audio
                     Thread.CurrentThread.IsBackground = true;
                     var watch = System.Diagnostics.Stopwatch.StartNew();
                     int purgeCount = 0;
-                    LinkedListNode<String> soundToPurge;
-                    lock (SoundCache.dynamicLoadedSounds)
+                    lock (this)
                     {
-                        soundToPurge = SoundCache.dynamicLoadedSounds.First;
-                    }
-                    // No need to support cancellation of this thread, as it is not slow enough and we can wait for it.
-                    while (soundToPurge != null && purgeCount <= soundPlayerPurgeBlockSize)
-                    {
-                        String soundToPurgeValue = soundToPurge.Value;
-                        SoundSet soundSet = null;
-                        SingleSound singleSound = null;
-                        if (soundSets.TryGetValue(soundToPurgeValue, out soundSet))
-                        {
-                            purgeCount += soundSet.UnLoadAll();
-                        }
-                        else if (singleSounds.TryGetValue(soundToPurgeValue, out singleSound))
-                        {
-                            if (singleSound.UnLoad())
-                            {
-                                purgeCount++;
-                            }
-                        }
                         lock (SoundCache.dynamicLoadedSounds)
                         {
-                            var nextSoundToPurge = soundToPurge.Next;
-                            SoundCache.dynamicLoadedSounds.Remove(soundToPurge);
-                            soundToPurge = nextSoundToPurge;
+                            var soundToPurge = SoundCache.dynamicLoadedSounds.First;
+
+                            // No need to support cancellation of this thread, as it is not slow enough and we can wait for it.
+                            while (soundToPurge != null && purgeCount <= soundPlayerPurgeBlockSize)
+                            {
+                                String soundToPurgeValue = soundToPurge.Value;
+                                SoundSet soundSet = null;
+                                SingleSound singleSound = null;
+                                if (soundSets.TryGetValue(soundToPurgeValue, out soundSet))
+                                {
+                                    purgeCount += soundSet.UnLoadAll();
+                                }
+                                else if (singleSounds.TryGetValue(soundToPurgeValue, out singleSound))
+                                {
+                                    if (singleSound.UnLoad())
+                                    {
+                                        purgeCount++;
+                                    }
+                                }
+                                var nextSoundToPurge = soundToPurge.Next;
+                                SoundCache.dynamicLoadedSounds.Remove(soundToPurge);
+                                soundToPurge = nextSoundToPurge;
+                            }
                         }
                     }
+
                     watch.Stop();
                     var elapsedMs = watch.ElapsedMilliseconds;
                     Console.WriteLine("Purged " + purgeCount + " sounds in " + elapsedMs + "ms, there are now " + SoundCache.activeSoundPlayerObjects + " active SoundPlayer objects");
@@ -1245,7 +1246,7 @@ namespace CrewChiefV4.Audio
         }
 
         public void LoadAndCacheSound()
-        {            
+        {
             lock (this)
             {
                 if (!loadedFile)
@@ -1529,7 +1530,7 @@ namespace CrewChiefV4.Audio
         public Boolean UnLoad()
         {
             Boolean unloaded = false;
-            lock(this)
+            lock (this)
             {
                 if (this.soundPlayer != null)
                 {
