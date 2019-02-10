@@ -68,7 +68,7 @@ namespace CrewChiefV4
                     }
                     if (commandLineArg.Equals("NODEVICESCAN"))
                     {
-                        MainWindow.disableDeviceScan = true;
+                        MainWindow.disableControllerReacquire = true;
                     }
                 }
                 if (!allowMultipleInst)

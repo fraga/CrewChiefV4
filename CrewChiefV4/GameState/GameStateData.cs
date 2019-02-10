@@ -75,9 +75,18 @@ namespace CrewChiefV4.GameState
     public enum StockCarRule
     {
         NONE,
+        LUCKY_DOG_PASS_ON_OUTSIDE,
+        LUCKY_DOG_ALLOW_TO_PASS_ON_OUTSIDE,
+        MOVE_CHOOSE_LANE,
+        WAVE_AROUND_CATCH_END_OF_FIELD,
+        TWO_TO_GREEN,
+        TWO_TO_GREEN_REMIND_LUCKY_DOG,
+        PENALTY_EOLL,
+        REMIND_LUCKY_DOG,
         LEADER_CHOOSE_LANE,
         LUCKY_DOG_PASS_ON_LEFT,  // Player's LD
         LUCKY_DOG_ALLOW_TO_PASS_ON_LEFT,  // Opponent's LD
+        NEW_LUCKY_DOG,
         MOVE_TO_EOLL,
         WAVE_AROUND_PASS_ON_RIGHT  // Or left??
     }
@@ -1204,7 +1213,7 @@ namespace CrewChiefV4.GameState
             LapData lapData = PlayerLapData[PlayerLapData.Count - 1];
 
             float sessionTimeAtEndOfLastLap = -1;
-            if (SessionTimesAtEndOfSectors.TryGetValue(numberOfSectors - 1, out sessionTimeAtEndOfLastLap) && sessionTimeAtEndOfLastLap > 0)
+            if (SessionTimesAtEndOfSectors.TryGetValue(numberOfSectors, out sessionTimeAtEndOfLastLap) && sessionTimeAtEndOfLastLap > 0)
             {
                 LapTimePreviousEstimateForInvalidLap = SessionRunningTime - sessionTimeAtEndOfLastLap;
             }
@@ -1250,7 +1259,14 @@ namespace CrewChiefV4.GameState
         public void playerAddCumulativeSectorData(int sectorNumberJustCompleted, int overallPosition, float cumulativeSectorTime,
             float gameTimeAtSectorEnd, Boolean lapIsValid, Boolean isRaining, float trackTemp, float airTemp)
         {
-            SessionTimesAtEndOfSectors[sectorNumberJustCompleted] = gameTimeAtSectorEnd;
+            if (SessionTimesAtEndOfSectors.ContainsKey(sectorNumberJustCompleted))
+            {
+                SessionTimesAtEndOfSectors[sectorNumberJustCompleted] = gameTimeAtSectorEnd;
+            }
+            else
+            {
+                SessionTimesAtEndOfSectors.Add(sectorNumberJustCompleted, gameTimeAtSectorEnd);
+            }
             LapData lapData;
             if (PlayerLapData.Count == 0)
             {
@@ -2713,7 +2729,9 @@ namespace CrewChiefV4.GameState
             HEADLIGHTS_REQUIRED,
             ENTER_PITS_TO_AVOID_EXCEEDING_LAPS, // Prac/Quali.
             DISQUALIFIED_DRIVING_WITHOUT_HEADLIGHTS,
-            DISQUALIFIED_EXCEEDING_ALLOWED_LAP_COUNT // Prac/Quali.
+            DISQUALIFIED_EXCEEDING_ALLOWED_LAP_COUNT, // Prac/Quali.
+            ONE_LAP_TO_SERVE_DRIVE_THROUGH,
+            ONE_LAP_TO_SERVE_STOP_AND_GO
         }
         public WarningMessage Warning = WarningMessage.NONE;
     }

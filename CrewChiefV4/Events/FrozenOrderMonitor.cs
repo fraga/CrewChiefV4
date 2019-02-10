@@ -188,13 +188,11 @@ namespace CrewChiefV4.Events
                 && cfod.AssignedColumn == pfod.AssignedColumn)
                 ++this.numUpdatesActionSame;
             else
-            {
-                this.newFrozenOrderAction = cfod.Action;
-                this.newDriverToFollow = cfod.DriverToFollowRaw;
-                this.newFrozenOrderColumn = cfod.AssignedColumn;
-
                 this.numUpdatesActionSame = 0;
-            }
+
+            this.newFrozenOrderAction = cfod.Action;
+            this.newDriverToFollow = cfod.DriverToFollowRaw;
+            this.newFrozenOrderColumn = cfod.AssignedColumn;
 
             var isActionUpdateStable = this.numUpdatesActionSame >= FrozenOrderMonitor.ACTION_STABLE_THRESHOLD;
 
@@ -209,7 +207,7 @@ namespace CrewChiefV4.Events
                 driverToFollow = shouldFollowSafetyCar ? (useAmericanTerms ? folderThePaceCar : folderTheSafetyCar) : cfod.DriverToFollowRaw;
             }
 
-            if (cfodp == FrozenOrderPhase.Rolling)
+            if (cfodp == FrozenOrderPhase.Rolling && cfod.Action != FrozenOrderAction.None)
             {
                 var prevDriverToFollow = this.currDriverToFollow;
                 var prevFrozenOrderAction = this.currFrozenOrderAction;
@@ -316,7 +314,7 @@ namespace CrewChiefV4.Events
                     }
                 }
             }
-            else if (cfodp == FrozenOrderPhase.FullCourseYellow)
+            else if (cfodp == FrozenOrderPhase.FullCourseYellow && cfod.Action != FrozenOrderAction.None)
             {
                 var prevDriverToFollow = this.currDriverToFollow;
                 var prevFrozenOrderColumn = this.currFrozenOrderColumn;

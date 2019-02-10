@@ -22,16 +22,7 @@ namespace CrewChiefV4.rFactor2
         private readonly bool enableFCYPitStateMessages = UserSettings.GetUserSettings().getBoolean("enable_rf2_pit_state_during_fcy");
         private readonly bool forceRollingStart = UserSettings.GetUserSettings().getBoolean("force_rf2_rolling_start");
 
-        // Stock Car Rules plugin message constants.
-        private readonly string scrLuckyDogPassOnLeftUpper = "Lucky Dog: Pass Field On Left".ToUpperInvariant();
-        private readonly string scrAllowLuckyDogPassOnLeftUpper = "Allow Lucky Dog To Pass On Left".ToUpperInvariant();
-        private readonly string scrLuckyDogIsUpperPrefix = "Lucky Dog: ".ToUpperInvariant();
-        private readonly string scrLeaderChooseLaneUpper = "Choose A Lane By Staying Left Or Right".ToUpperInvariant();
-
-        // Note: "wave around" is a prefix message, because apparently ISI plugin says "on left",
-        // but custom plugin leagues use says "on right".
-        private readonly string scrWaveArroundPassOnUpperPrefix = "Wave Around: Pass Field On".ToUpperInvariant();
-        private readonly string scrMoveToEOLLUpper = "Move To End Of Longest Line".ToUpperInvariant();
+        private readonly string scrLuckyDogIsPrefix = "Lucky Dog: ";
 
         public static string playerName = null;
 
@@ -117,6 +108,7 @@ namespace CrewChiefV4.rFactor2
         // Message center stuff
         private Int64 lastHistoryMessageUpdatedTicks = 0;
         private Int64 statusMessageUpdatedTicks = 0;
+        private Int64 rulesInstructionMessageUpdatedTicks = 0;
 
         // Since some of MC messages disapper (Player Control: N, for example), we need to remember last message that
         // mattered from CC's standpoint, otherwise, same message could get applied multiple times.
@@ -140,7 +132,7 @@ namespace CrewChiefV4.rFactor2
             this.suspensionDamageThresholds.Add(new CornerData.EnumWithThresholds(DamageLevel.DESTROYED, 1.0f, 2.0f));
         }
 
-        private int[] minimumSupportedVersionParts = new int[] { 3, 3, 0, 6 };
+        private int[] minimumSupportedVersionParts = new int[] { 3, 4, 0, 6 };
         public static bool pluginVerified = false;
         public override void versionCheck(Object memoryMappedFileStruct)
         {
@@ -189,7 +181,7 @@ namespace CrewChiefV4.rFactor2
             else
             {
                 var msg = "rFactor 2 Shared Memory version: " + versionStr + " 64bit."
-                    + (shared.extended.mHostedPluginVars.StockCarRules_IsHosted != 0 ? ("  Stock Car Rules plugin hosted. (DFT:" + shared.extended.mHostedPluginVars.StockCarRules_DoubleFileType + ")")  : "")
+                    + (shared.extended.mDirectMemoryAccessEnabled != 0 && shared.extended.mSCRPluginEnabled != 0 ? ("  Stock Car Rules plugin enabled. (DFT:" + shared.extended.mSCRPluginDoubleFileType + ")")  : "")
                     + (shared.extended.mDirectMemoryAccessEnabled != 0 ? "  DMA enabled." : "");
                 Console.WriteLine(msg);
             }
@@ -509,11 +501,6 @@ namespace CrewChiefV4.rFactor2
             // If any difference between current and previous states suggests it is a new session
             if (pgs == null
                 || csd.SessionType != psd.SessionType
-                // TODO: make sure we don't need this.
-                /*|| !string.Equals(cgs.carClass.getClassIdentifier(), pgs.carClass.getClassIdentifier())
-                || csd.DriverRawName != psd.DriverRawName
-                || csd.TrackDefinition.name != psd.TrackDefinition.name  // TODO: this is empty sometimes, investigate 
-                || csd.TrackDefinition.trackLength != psd.TrackDefinition.trackLength*/
                 || csd.EventIndex != psd.EventIndex
                 || csd.SessionIteration != psd.SessionIteration)
             {
@@ -1637,14 +1624,16 @@ namespace CrewChiefV4.rFactor2
                         && shared.scoring.mScoringInfo.mYellowFlagState == (sbyte)rFactor2Constants.rF2YellowFlagState.PitClosed)
                     {
                         var allowedToPit = shared.rules.mParticipants[playerRulesIdx].mPitsOpen;
-                        // Core rules: always open, pit state == 3
-                        if (shared.extended.mHostedPluginVars.StockCarRules_IsHosted == 0)
-                            cgs.FlagData.fcyPhase = FullCourseYellowPhase.PITS_OPEN;
-                        else
+                        if (shared.extended.mDirectMemoryAccessEnabled == 1 && shared.extended.mSCRPluginEnabled == 1)
                         {
                             // Apparently, 0 and 2 means not allowed with SCR plugin.
                             var pitsClosedForPlayer = allowedToPit == 2 || allowedToPit == 0;
                             cgs.FlagData.fcyPhase = pitsClosedForPlayer ? FullCourseYellowPhase.PITS_CLOSED : FullCourseYellowPhase.PITS_OPEN;
+                        }
+                        else
+                        {
+                            // Core rules: always open, pit state == 3
+                            cgs.FlagData.fcyPhase = FullCourseYellowPhase.PITS_OPEN;
                         }
                     }
                     else
@@ -1831,7 +1820,7 @@ namespace CrewChiefV4.rFactor2
                 Console.WriteLine("Leader has finished race, player has done " + csd.CompletedLaps + " laps, session time = " + csd.SessionRunningTime);
 
             CrewChief.trackName = csd.TrackDefinition.name;
-            CrewChief.carClass = cgs.carClass.carClassEnum;  // TODO: Why is this an enum and not a CarClass?
+            CrewChief.carClass = cgs.carClass.carClassEnum;
             CrewChief.distanceRoundTrack = cgs.PositionAndMotionData.DistanceRoundTrack;
             CrewChief.viewingReplay = false;
 
@@ -1881,7 +1870,6 @@ namespace CrewChiefV4.rFactor2
             if (msg != this.lastEffectiveHistoryMessage
                 || (cgs.Now - this.timeEffectiveMessageProcessed).TotalSeconds > this.effectiveMessageExpirySeconds)
             {
-                // TODO: micro optimization, group messages by StartsWith.
                 var messageConsumed = true;
                 if (msg == "Crew Is Ready For Pitstop")
                 {
@@ -1891,82 +1879,81 @@ namespace CrewChiefV4.rFactor2
                         cgs.PitData.IsPitCrewReady = true;
                 }
                 else if (msg == "Headlights Are Now Required")
-                {
                     cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.HEADLIGHTS_REQUIRED;
-                }
-                else if (msg == "Stop/Go Penalty: Cut Track")
+                else if (msg.StartsWith("Stop/Go Penalty: "))
                 {
-                    cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
-                    cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.CUT_TRACK;
+                    if (msg.EndsWith("Cut Track"))  // "Stop/Go Penalty: Cut Track"
+                    {
+                        cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
+                        cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.CUT_TRACK;
+                    }
+                    else if (msg.EndsWith("Speeding In Pitlane"))  // "Stop/Go Penalty: Speeding In Pitlane"
+                    {
+                        cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
+                        cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.SPEEDING_IN_PITLANE;
+                    }
+                    else if (msg.EndsWith("False Start"))  // "Stop/Go Penalty: False Start"
+                    {
+                        cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
+                        cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.FALSE_START;
+                    }
+                    else if (msg.EndsWith("Exiting Pits Under Red"))  // "Stop/Go Penalty: Exiting Pits Under Red"
+                    {
+                        cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
+                        cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.EXITING_PITS_UNDER_RED;
+                    }
+                    else if (msg.EndsWith("Illegally Passed Before Green"))  // "Stop/Go Penalty: Illegally Passed Before Green"
+                    {
+                        // TODO: test
+                        cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
+                        cgs.PenaltiesData.PenaltyCause = cgs.FlagData.previousLapWasFCY
+                            ? PenatiesData.DetailedPenaltyCause.ILLEGAL_PASS_FCY_BEFORE_GREEN
+                            : PenatiesData.DetailedPenaltyCause.ILLEGAL_PASS_ROLLING_BEFORE_GREEN;
+                    }
+                    else
+                        messageConsumed = false;
                 }
-                else if (msg == "Stop/Go Penalty: Speeding In Pitlane")
+                else if (msg.StartsWith("Warning: "))
                 {
-                    cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
-                    cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.SPEEDING_IN_PITLANE;
+                    if (msg.EndsWith("Driving Too Slow"))  // "Warning: Driving Too Slow"
+                        cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.DRIVING_TOO_SLOW;
+                    else if (msg.EndsWith("One Lap To Serve Drive-Thru Penalty"))  // "Warning: One Lap To Serve Drive-Thru Penalty"
+                        cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.ONE_LAP_TO_SERVE_DRIVE_THROUGH;
+                    else if (msg.EndsWith("One Lap To Serve Stop/Go Penalty"))  // "Warning: One Lap To Serve Stop/Go Penalty"
+                        cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.ONE_LAP_TO_SERVE_STOP_AND_GO;
+                    else
+                        messageConsumed = false;
+                }
+                else if (msg.StartsWith("Disqualified: "))
+                {
+                    if (msg.EndsWith(" Laps"))  // "Disqualified: 4 Laps"
+                        cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.DISQUALIFIED_EXCEEDING_ALLOWED_LAP_COUNT;
+                    else if (msg.EndsWith("Driving In Dark Without Headlights"))  // "Disqualified: Driving In Dark Without Headlights"
+                        cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.DISQUALIFIED_DRIVING_WITHOUT_HEADLIGHTS;
+                    else
+                        messageConsumed = false;
                 }
                 else if (msg == "Drive-Thru Penalty: Speeding In Pitlane")
                 {
                     cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.DRIVE_THROUGH;
                     cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.SPEEDING_IN_PITLANE;
                 }
-                else if (msg == "Stop/Go Penalty: False Start")
-                {
-                    cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
-                    cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.FALSE_START;
-                }
-                else if (msg == "Stop/Go Penalty: Exiting Pits Under Red")
-                {
-                    cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
-                    cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.EXITING_PITS_UNDER_RED;
-                }
-                else if (msg == "Stop/Go Penalty: Illegally Passed Before Green")
-                {
-                    // TODO: test
-                    cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
-                    cgs.PenaltiesData.PenaltyCause = cgs.FlagData.previousLapWasFCY
-                        ? PenatiesData.DetailedPenaltyCause.ILLEGAL_PASS_FCY_BEFORE_GREEN
-                        : PenatiesData.DetailedPenaltyCause.ILLEGAL_PASS_ROLLING_BEFORE_GREEN;
-                }
-                else if (msg == "Disqualified: Driving In Dark Without Headlights")
-                {
-                    cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.DISQUALIFIED_DRIVING_WITHOUT_HEADLIGHTS;
-                }
-                // msg == "Disqualified: 4 Laps"
-                else if (msg.StartsWith("Disqualified: ") && msg.EndsWith(" Laps"))
-                {
-                    cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.DISQUALIFIED_EXCEEDING_ALLOWED_LAP_COUNT;
-                }
                 else if (msg == "Enter Pits To Avoid Exceeding Lap Allowance")
-                {
                     cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.ENTER_PITS_TO_AVOID_EXCEEDING_LAPS;
-                }
-                else if (msg == "Wrong Way")  // Might be too idiotic to announce
-                {
+                else if (msg == "Wrong Way")
                     cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.WRONG_WAY;
-                }
-                else if (msg == "Warning: Driving Too Slow")
-                {
-                    cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.DRIVING_TOO_SLOW;
-                }
-                else if (msg == "Warning: One Lap To Serve Drive-Thru Penalty")
-                {
-                    // TODO: implement
-                    messageConsumed = false;
-                }
-                else if (msg == "Warning: One Lap To Serve Stop/Go Penalty")
-                {
-                    // TODO: implement
-                    messageConsumed = false;
-                }
                 else
                 {
+#if !DEBUG
                     // Avoid spamming console too aggressively.
                     if ((cgs.Now - this.timeHistoryMessageIgnored).TotalSeconds > 10)
                     {
                         this.timeHistoryMessageIgnored = cgs.Now;
                         Console.WriteLine("MC Message: ignored - \"" + msg + "\"");
                     }
-
+#else
+                    Console.WriteLine("MC Message: ignored - \"" + msg + "\"");
+#endif
                     messageConsumed = false;
                 }
 
@@ -1979,18 +1966,22 @@ namespace CrewChiefV4.rFactor2
             }
             else
             {
+#if !DEBUG
                 if ((cgs.Now - this.timeHistoryMessageIgnored).TotalSeconds > 5)
                 {
                     this.timeHistoryMessageIgnored = cgs.Now;
                     Console.WriteLine("MC Messages: message was already processed - \"" + msg + "\"    Elapsed seconds: " + (cgs.Now - this.timeEffectiveMessageProcessed).TotalSeconds.ToString("0.00"));
                 }
+#else
+                Console.WriteLine("MC Messages: message was already processed - \"" + msg + "\"    Elapsed seconds: " + (cgs.Now - this.timeEffectiveMessageProcessed).TotalSeconds.ToString("0.00"));
+#endif
             }
         }
 
         private StockCarRulesData GetStockCarRulesData(GameStateData currentGameState, ref rF2TrackRulesParticipant playerRules, ref rF2Rules rules, ref CrewChiefV4.rFactor2.RF2SharedMemoryReader.RF2StructWrapper shared)
         {
             var scrData = new StockCarRulesData();
-            scrData.stockCarRulesEnabled = shared.extended.mHostedPluginVars.StockCarRules_IsHosted != 0;
+            scrData.stockCarRulesEnabled = shared.extended.mDirectMemoryAccessEnabled != 0 && shared.extended.mSCRPluginEnabled != 0;
 
             var cgs = currentGameState;
 
@@ -2000,46 +1991,61 @@ namespace CrewChiefV4.rFactor2
                 || cgs.SessionData.SessionType != SessionType.Race)
                 return scrData;
 
-            // When saving session to file, mMessage strings might be null if empty.
-            var globalMsgUpper = rules.mTrackRules.mMessage != null ? RF2GameStateMapper.GetStringFromBytes(rules.mTrackRules.mMessage).ToUpperInvariant() : null;
-            var playerMsgUpper = playerRules.mMessage != null ? RF2GameStateMapper.GetStringFromBytes(playerRules.mMessage).ToUpperInvariant() : null;
+            if (this.rulesInstructionMessageUpdatedTicks == shared.extended.mTicksRulesInstructionMessageUpdated)
+                return scrData;
 
-            if (!string.IsNullOrWhiteSpace(globalMsgUpper))
+            this.rulesInstructionMessageUpdatedTicks = shared.extended.mTicksRulesInstructionMessageUpdated;
+
+            var msg = RF2GameStateMapper.GetStringFromBytes(shared.extended.mRulesInstructionMessage);
+            if (string.IsNullOrWhiteSpace(msg))
+                return scrData;
+
+            var consumed = true;
+            // New SCR plugin:
+            if (msg == "Lucky Dog: Pass Field On Outside")
+                scrData.stockCarRuleApplicable = StockCarRule.LUCKY_DOG_PASS_ON_OUTSIDE;
+            else if (msg == "Allow Lucky Dog To Pass On Outside")
+                scrData.stockCarRuleApplicable = StockCarRule.LUCKY_DOG_ALLOW_TO_PASS_ON_OUTSIDE;
+            else if (msg == "Move to the Left Or Right to Choose a Lane")
+                scrData.stockCarRuleApplicable = StockCarRule.MOVE_CHOOSE_LANE;
+            else if (msg == "Wave Around: Catch Rear of Field")
+                scrData.stockCarRuleApplicable = StockCarRule.WAVE_AROUND_CATCH_END_OF_FIELD;
+            else if (msg == "Two To Green")
+                scrData.stockCarRuleApplicable = StockCarRule.TWO_TO_GREEN;
+            else if (msg == "Two To Green (You Were Lucky Dog)")
+                scrData.stockCarRuleApplicable = StockCarRule.TWO_TO_GREEN_REMIND_LUCKY_DOG;
+            else if (msg == "PENALTY: End Of Longest Line")
+                scrData.stockCarRuleApplicable = StockCarRule.PENALTY_EOLL;
+            else if (msg == "(You Were Lucky Dog)")
+                scrData.stockCarRuleApplicable = StockCarRule.REMIND_LUCKY_DOG;
+            // Old SCR plugin:
+            else if (msg == "Lucky Dog: Pass Field On Left")
+                scrData.stockCarRuleApplicable = StockCarRule.LUCKY_DOG_PASS_ON_LEFT;
+            else if (msg.Length > this.scrLuckyDogIsPrefix.Length
+                && msg.StartsWith(this.scrLuckyDogIsPrefix))
             {
-                if (globalMsgUpper.Length > this.scrLuckyDogIsUpperPrefix.Length
-                    && globalMsgUpper.StartsWith(this.scrLuckyDogIsUpperPrefix))
-                {
-                    scrData.luckyDogNameRaw = globalMsgUpper.Substring(this.scrLuckyDogIsUpperPrefix.Length).ToLowerInvariant();
-                    scrData.luckyDogNameRaw = RF2GameStateMapper.GetSanitizedDriverName(scrData.luckyDogNameRaw);
-                }
-                else
-                {
-                    if (this.lastUnknownGlobalRuleMessage != globalMsgUpper)
-                    {
-                        this.lastUnknownGlobalRuleMessage = globalMsgUpper;
-                        Console.WriteLine("Unrecognized global rule message: " + globalMsgUpper);
-                    }
-                }
+                scrData.luckyDogNameRaw = msg.Substring(this.scrLuckyDogIsPrefix.Length).ToLowerInvariant();
+                scrData.luckyDogNameRaw = RF2GameStateMapper.GetSanitizedDriverName(scrData.luckyDogNameRaw);
+                scrData.stockCarRuleApplicable = StockCarRule.NEW_LUCKY_DOG;
+            }
+            else if (msg == "Allow Lucky Dog To Pass On Left")
+                scrData.stockCarRuleApplicable = StockCarRule.LUCKY_DOG_ALLOW_TO_PASS_ON_LEFT;
+            else if (msg == "Choose A Lane By Staying Left Or Right")
+                scrData.stockCarRuleApplicable = StockCarRule.LEADER_CHOOSE_LANE;
+            else if (msg == "Move To End Of Longest Line")
+                scrData.stockCarRuleApplicable = StockCarRule.MOVE_TO_EOLL;
+            // Note: "wave around" is a prefix message, because apparently ISI plugin says "on left",
+            // but custom plugin leagues use says "on right".
+            else if (msg.StartsWith("Wave Around: Pass Field On"))
+                scrData.stockCarRuleApplicable = StockCarRule.WAVE_AROUND_PASS_ON_RIGHT;
+            else
+            {
+                Console.WriteLine("Rule instruction messages: unrecognized message - " + msg);
+                consumed = false;
             }
 
-            if (!string.IsNullOrWhiteSpace(playerMsgUpper))
-            {
-                if (playerMsgUpper == this.scrAllowLuckyDogPassOnLeftUpper)
-                    scrData.stockCarRuleApplicable = StockCarRule.LUCKY_DOG_ALLOW_TO_PASS_ON_LEFT;
-                else if (playerMsgUpper == this.scrLuckyDogPassOnLeftUpper)
-                    scrData.stockCarRuleApplicable = StockCarRule.LUCKY_DOG_PASS_ON_LEFT;
-                else if (playerMsgUpper == this.scrLeaderChooseLaneUpper)
-                    scrData.stockCarRuleApplicable = StockCarRule.LEADER_CHOOSE_LANE;
-                else if (playerMsgUpper == this.scrMoveToEOLLUpper)
-                    scrData.stockCarRuleApplicable = StockCarRule.MOVE_TO_EOLL;
-                else if (playerMsgUpper.StartsWith(this.scrWaveArroundPassOnUpperPrefix))
-                    scrData.stockCarRuleApplicable = StockCarRule.WAVE_AROUND_PASS_ON_RIGHT;
-                else if (this.lastUnknownPlayerRuleMessage != playerMsgUpper)
-                {
-                    this.lastUnknownPlayerRuleMessage = playerMsgUpper;
-                    Console.WriteLine("Unrecognized player rule message: " + playerMsgUpper);
-                }
-            }
+            if (consumed)
+                Console.WriteLine("Rule instruction messages: processed message - \"" + msg + "\"");
 
             return scrData;
         }
@@ -2566,13 +2572,13 @@ namespace CrewChiefV4.rFactor2
 
             Debug.Assert(fod.Phase != FrozenOrderPhase.None);
 
-            var useSCRules = GlobalBehaviourSettings.useAmericanTerms && extended.mHostedPluginVars.StockCarRules_IsHosted != 0;
+            var useSCRules = GlobalBehaviourSettings.useAmericanTerms && extended.mDirectMemoryAccessEnabled != 0 && extended.mSCRPluginEnabled != 0;
             if (vehicleRules.mPositionAssignment != -1)
             {
                 var gridOrder = false;
                 var scrLastLapDoubleFile = useSCRules
                     && fod.Phase == FrozenOrderPhase.FullCourseYellow
-                    && (extended.mHostedPluginVars.StockCarRules_DoubleFileType == 1 || extended.mHostedPluginVars.StockCarRules_DoubleFileType == 2)
+                    && (extended.mSCRPluginDoubleFileType == 1 || extended.mSCRPluginDoubleFileType == 2)
                     && scoring.mScoringInfo.mYellowFlagState == (sbyte)rFactor2Constants.rF2YellowFlagState.LastLap;
 
                 if (fod.Phase == FrozenOrderPhase.FullCourseYellow  // Core FCY does not use grid order. 

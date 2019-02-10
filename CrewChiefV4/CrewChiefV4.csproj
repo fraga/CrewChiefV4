@@ -185,6 +185,12 @@
     <Compile Include="iRacing\Track.cs" />
     <Compile Include="NumberReaderIt2.cs" />
     <Compile Include="ThreadManager.cs" />
+    <Compile Include="UserInterface\MacroEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UserInterface\MacroEditor.Designer.cs">
+      <DependentUpon>MacroEditor.cs</DependentUpon>
+    </Compile>
     <Compile Include="UserInterface\PropertyFilter.cs" />
     <Compile Include="UserInterface\ListPropertyControl.cs" />
     <Compile Include="UserInterface\ListPropertyControl.Designer.cs">
@@ -334,6 +340,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UserInterface\IntPropertycontrol.resx">
       <DependentUpon>IntPropertyControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UserInterface\MacroEditor.resx">
+      <DependentUpon>MacroEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UserInterface\PropertiesForm.resx">
       <DependentUpon>PropertiesForm.cs</DependentUpon>

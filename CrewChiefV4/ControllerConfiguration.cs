@@ -10,6 +10,9 @@ using System.Text;
 using System.Threading;
 using CrewChiefV4.Events;
 using System.Windows.Forms;
+using System.Collections.Concurrent;
+using System.Diagnostics;
+
 namespace CrewChiefV4
 {
     public class ControllerConfiguration : IDisposable
@@ -19,11 +22,16 @@ namespace CrewChiefV4
         private MainWindow mainWindow;
         public Boolean listenForAssignment = false;
         DirectInput directInput = new DirectInput();
-        DeviceType[] supportedDeviceTypes = new DeviceType[] {DeviceType.Driving, DeviceType.Joystick, DeviceType.Gamepad, 
+        public static DeviceType[] supportedDeviceTypes = new DeviceType[] {DeviceType.Driving, DeviceType.Joystick, DeviceType.Gamepad, 
             DeviceType.Keyboard, DeviceType.ControlDevice, DeviceType.FirstPerson, DeviceType.Flight, 
             DeviceType.Supplemental, DeviceType.Remote};
+
+        // Note: Below two collections are accessed from the multiple threads, but not yet synchronized.
         public List<ButtonAssignment> buttonAssignments = new List<ButtonAssignment>();
         public List<ControllerData> controllers;
+
+        // Controllers we found during last device scan, not necessarily all connected.
+        public List<ControllerData> knownControllers;
 
         private static Boolean usersConfigFileIsBroken = false;
 
@@ -100,6 +108,9 @@ namespace CrewChiefV4
             { GetParameterName(new { TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS }), TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS }
         };
 
+        public bool scanInProgress = false;
+        private Thread controllerScanThread = null;
+
         public class ControllerConfigurationData
         {
             public ControllerConfigurationData()
@@ -130,7 +141,6 @@ namespace CrewChiefV4
 
             if (File.Exists(path))
             {
-                
                 return path;
             }
             else
@@ -195,7 +205,7 @@ namespace CrewChiefV4
                         JsonSerializer serializer = new JsonSerializer();
                         serializer.Formatting = Newtonsoft.Json.Formatting.Indented;
                         serializer.Serialize(file, buttonsActions);
-                    }                  
+                    }
                 }
                 catch (Exception e)
                 {
@@ -307,14 +317,14 @@ namespace CrewChiefV4
         {
             if (ba != null && ba.buttonIndex != -1 && ba.controller != null && ba.controller.guid != Guid.Empty)
             {
-                if (CrewChief.gameDefinition.gameEnum == GameEnum.PCARS_NETWORK)
+                if (ba.controller.guid == UDP_NETWORK_CONTROLLER_GUID && CrewChief.gameDefinition.gameEnum == GameEnum.PCARS_NETWORK)
                 {
                     if (PCarsUDPreader.getButtonState(ba.buttonIndex))
                     {
                         ba.hasUnprocessedClick = true;
                     }
                 }
-                else if (CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2_NETWORK)
+                else if (ba.controller.guid == UDP_NETWORK_CONTROLLER_GUID && CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2_NETWORK)
                 {
                     if (PCars2UDPreader.getButtonState(ba.buttonIndex))
                     {
@@ -437,38 +447,103 @@ namespace CrewChiefV4
             }
             return false;
         }
-        
+
+        private List<DeviceInstance> getDevices()
+        {
+            List<DeviceInstance> instancesToReturn = new List<DeviceInstance>();
+            try
+            {
+                // iterate the received devices list explicitly so we can track what's going on
+                IList<DeviceInstance> instances = directInput.GetDevices();
+                for (int i = 0; i < instances.Count(); i++)
+                {
+                    DeviceInstance instance = instances[i];
+                    if (!supportedDeviceTypes.Contains(instance.Type))
+                    {
+                        continue;
+                    }
+                    
+                    Console.WriteLine("Adding \"" + instance.Type + "\" device instance " + (i + 1) + " of " + instances.Count + " (\"" + instance.InstanceName + "\")");
+                    instancesToReturn.Add(instance);
+                }
+            }
+            catch (Exception) { }
+            return instancesToReturn;
+        }
+
         public void scanControllers()
         {
             int availableCount = 0;
-            this.controllers = new List<ControllerData>();
 
-            // this method is called from the UI thread, either by the device-changed event handler or explicitly on app start.
-            // The poll for button clicks call is from a different thread and accesses the activeDevices list - potentially concurrently
-            lock (activeDevices)
+            // This method is called from the controller refresh thread, either by the device-changed event handler or explicitly on app start.
+            // The poll for button clicks call is from a helper thread and accesses the activeDevices list - potentially concurrently
+
+            var scanCancelled = false;
+            // Iterate the list available, as reported by sharpDX
+            ThreadManager.UnregisterTemporaryThread(this.controllerScanThread);
+            this.controllerScanThread = new Thread(() =>
             {
-                // dispose all of our active devices:
-                unacquireAndDisposeActiveJoysticks();
-                // Iterate the list available, as reported by sharpDX
-                foreach (DeviceType deviceType in supportedDeviceTypes)
+                try
                 {
-                    foreach (var deviceInstance in directInput.GetDevices(deviceType, DeviceEnumerationFlags.AllDevices))
+                    lock (activeDevices)
                     {
-                        Guid joystickGuid = deviceInstance.InstanceGuid;
-                        if (joystickGuid != Guid.Empty)
+                        this.controllers = new List<ControllerData>();
+
+                        // dispose all of our active devices:
+                        unacquireAndDisposeActiveJoysticks();
+
+                        foreach (var deviceInstance in this.getDevices())
                         {
-                            try
+                            Guid joystickGuid = deviceInstance.InstanceGuid;
+                            if (joystickGuid != Guid.Empty)
                             {
-                                addControllerFromScan(deviceType, joystickGuid, false);
-                                availableCount++;
-                            }
-                            catch (Exception e)
-                            {
-                                Console.WriteLine("Failed to get device info: " + e.Message);
+                                try
+                                {
+                                    addControllerFromScan(deviceInstance.Type, joystickGuid, false);
+                                    availableCount++;
+                                }
+                                catch (Exception e)
+                                {
+                                    Console.WriteLine("Failed to get device info: " + e.Message);
+                                }
                             }
                         }
                     }
                 }
+                catch (ThreadAbortException)
+                {
+                    scanCancelled = true;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error looking for controllers: " + e.StackTrace);
+                }
+            });
+            this.controllerScanThread.Start();
+            this.controllerScanThread.Name = "ControllerConfiguration.scanControllers";
+            ThreadManager.RegisterTemporaryThread(this.controllerScanThread);
+
+            controllerScanThread.Join(1000);
+            while (controllerScanThread.IsAlive)
+            {
+                Thread.Sleep(5000);
+                Console.WriteLine("Refreshing controller devices (this may take a while depending on your configuration)...");
+            }
+
+            if (scanCancelled)
+            {
+                Console.WriteLine("Controller scan cancelled.");
+                // On failure, try re-acquire.
+                this.reacquireControllers();
+                return;
+            }
+            else
+            {
+                Console.WriteLine("Controller scan finished.");
+            }
+
+            lock (activeDevices)
+            {
                 // add the custom device if it's set
                 if (customControllerGuid != Guid.Empty)
                 {
@@ -482,72 +557,103 @@ namespace CrewChiefV4
                         Console.WriteLine("Failed to get custom device info: " + e.Message);
                     }
                 }
-            }
-            ControllerConfigurationData controllerConfigurationData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
-            List<ControllerData> dataToSave = new List<ControllerData>();
-            foreach (var cd in controllerConfigurationData.devices)
-            {
-                ButtonAssignment ba = buttonAssignments.FirstOrDefault(ba1 => ba1.deviceGuid == cd.guid.ToString());
-                if(ba != null)
+                ControllerConfigurationData controllerConfigurationData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
+                controllerConfigurationData.devices = this.controllers;
+                saveControllerConfigurationDataFile(controllerConfigurationData);
+                foreach (ButtonAssignment assignment in buttonAssignments.Where(ba => ba.controller == null && ba.buttonIndex != -1 && !string.IsNullOrEmpty(ba.deviceGuid)))
                 {
-                    dataToSave.Add(cd);
+                    assignment.controller = controllers.FirstOrDefault(c => c.guid.ToString() == assignment.deviceGuid);
                 }
             }
-            foreach (var cd in controllers)
-            {
-                ControllerData cd1 = dataToSave.FirstOrDefault(cd2 => cd2.guid == cd.guid);
-                if (cd1 == null)
-                {
-                    dataToSave.Add(cd);
-                }
-            }
-            // add controllers not in our saved list
-            controllerConfigurationData.devices = dataToSave;
-            saveControllerConfigurationDataFile(controllerConfigurationData);
-            foreach (ButtonAssignment assignment in buttonAssignments.Where(ba => ba.controller == null && ba.buttonIndex != -1 && !string.IsNullOrEmpty(ba.deviceGuid)))
-            {
-                assignment.controller = controllers.FirstOrDefault(c => c.guid.ToString() == assignment.deviceGuid);             
-            }
-            Console.WriteLine("Refreshed controllers, there are " + availableCount + " available controllers and " + activeDevices.Count + " active controllers");
+            Console.WriteLine("Re-scanned controllers, there are " + availableCount + " available controllers and " + activeDevices.Count + " active controllers");
         }
 
         private void addControllerFromScan(DeviceType deviceType, Guid joystickGuid, Boolean isCustomDevice)
         {
-            Boolean isMappedToAction = false;
-            var joystick = new Joystick(directInput, joystickGuid);
-            String productName = isCustomDevice ? Configuration.getUIString("custom_device") : deviceType.ToString();
-            try
+            lock (activeDevices)
             {
-                productName += ": " + joystick.Properties.ProductName;
-            }
-            catch (Exception)
-            {
-                // ignore - some devices don't have a product name
-            }
-            foreach (var ba in buttonAssignments.Where(b => b.controller != null && b.controller.guid == joystickGuid && b.buttonIndex != -1))
-            {
-                // if we have a button assigned to this device and it's not active, acquire it here:
-                if (!activeDevices.ContainsKey(joystickGuid))
-                {
-                    joystick.SetCooperativeLevel(mainWindow.Handle, (CooperativeLevel.NonExclusive | CooperativeLevel.Background));
-                    joystick.Properties.BufferSize = 128;
-                    joystick.Acquire();
-                    activeDevices.Add(joystickGuid, joystick);
-                }
-                isMappedToAction = true;
-            }
-            controllers.Add(new ControllerData(productName, deviceType, joystickGuid));
-            if (!isMappedToAction)
-            {
-                // we're not using this device so dispose the temporary handle we used to get its name
+                Boolean isMappedToAction = false;
+                Joystick joystick;
                 try
                 {
-                    joystick.Dispose();
+                    joystick = new Joystick(directInput, joystickGuid);
                 }
-                catch (Exception) { }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Unable to create a Joystick device with guid " + joystickGuid + ": " + e.Message);
+                    return;
+                }
+                String productName = isCustomDevice ? Configuration.getUIString("custom_device") : deviceType.ToString();
+                try
+                {
+                    productName += ": " + joystick.Properties.ProductName;
+                }
+                catch (Exception)
+                {
+                    // ignore - some devices don't have a product name
+                }
+                foreach (var ba in buttonAssignments.Where(b => b.controller != null && b.controller.guid == joystickGuid && b.buttonIndex != -1))
+                {
+                    // if we have a button assigned to this device and it's not active, acquire it here:
+                    if (!activeDevices.ContainsKey(joystickGuid))
+                    {
+                        joystick.SetCooperativeLevel(mainWindow.Handle, (CooperativeLevel.NonExclusive | CooperativeLevel.Background));
+                        joystick.Properties.BufferSize = 128;
+                        joystick.Acquire();
+                        activeDevices.Add(joystickGuid, joystick);
+                    }
+                    isMappedToAction = true;
+                }
+                controllers.Add(new ControllerData(productName, deviceType, joystickGuid));
+                if (!isMappedToAction)
+                {
+                    // we're not using this device so dispose the temporary handle we used to get its name
+                    try
+                    {
+                        joystick.Dispose();
+                    }
+                    catch (Exception) { }
+                }
             }
         }
-        
+
+        public void reacquireControllers()
+        {
+            Debug.Assert(MainWindow.instance != null && !MainWindow.instance.InvokeRequired);
+            // This method is called from the UI thread, either by the device-changed event handler or explicitly on app start.
+            // The poll for button clicks call is from a helper thread and accesses the activeDevices list - potentially concurrently
+            lock (activeDevices)
+            {
+                this.controllers = new List<ControllerData>();
+                this.unacquireAndDisposeActiveJoysticks();
+                ControllerConfigurationData controllerConfigurationData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
+                var assignedDevices = new HashSet<Guid>();
+
+                this.knownControllers = controllerConfigurationData.devices.ToList();
+
+                // add the custom device if it's set
+                if (customControllerGuid != Guid.Empty)
+                {
+                    try
+                    {
+                        addControllerFromScan(DeviceType.Joystick, customControllerGuid, true);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Failed to get custom device info: " + e.Message);
+                    }
+                }
+
+                // Update assignments.
+                controllerConfigurationData.devices.ForEach(controller => addControllerFromScan(controller.deviceType, controller.guid, false));
+                foreach (ButtonAssignment assignment in buttonAssignments.Where(ba => ba.controller == null && ba.buttonIndex != -1 && !string.IsNullOrEmpty(ba.deviceGuid)))
+                {
+                    assignment.controller = controllers.FirstOrDefault(c => c.guid.ToString() == assignment.deviceGuid);
+                }
+            }
+            Console.WriteLine("Re-acquired controllers, there are " + controllers.Count() + " available controllers and " + activeDevices.Count + " active controllers");
+        }
+
         public void addNetworkControllerToList()
         {
             if (controllers != null && !controllers.Contains(networkGamePad))
@@ -566,7 +672,8 @@ namespace CrewChiefV4
 
         public Boolean assignButton(System.Windows.Forms.Form parent, int controllerIndex, int actionIndex)
         {
-            return getFirstPressedButton(parent, controllers[controllerIndex], buttonAssignments[actionIndex]);
+            return controllerIndex < controllers.Count // Make sure device is connected.
+                && getFirstPressedButton(parent, controllers[controllerIndex], buttonAssignments[actionIndex]);
         }
 
         private Boolean getFirstPressedButton(System.Windows.Forms.Form parent, ControllerData controllerData, ButtonAssignment buttonAssignment)
@@ -602,14 +709,17 @@ namespace CrewChiefV4
                 try
                 {
                     Joystick joystick;
-                    if (!activeDevices.TryGetValue(controllerData.guid, out joystick))                    
-                    {                        
-                        joystick = new Joystick(directInput, controllerData.guid);
-                        // Acquire the joystick
-                        joystick.SetCooperativeLevel(mainWindow.Handle, (CooperativeLevel.NonExclusive | CooperativeLevel.Background));
-                        joystick.Properties.BufferSize = 128;
-                        joystick.Acquire();
-                        activeDevices.Add(controllerData.guid, joystick);
+                    lock (activeDevices)
+                    {
+                        if (!activeDevices.TryGetValue(controllerData.guid, out joystick))
+                        {
+                            joystick = new Joystick(directInput, controllerData.guid);
+                            // Acquire the joystick
+                            joystick.SetCooperativeLevel(mainWindow.Handle, (CooperativeLevel.NonExclusive | CooperativeLevel.Background));
+                            joystick.Properties.BufferSize = 128;
+                            joystick.Acquire();
+                            activeDevices.Add(controllerData.guid, joystick);
+                        }
                     }
                     while (listenForAssignment)
                     {
@@ -813,6 +923,14 @@ namespace CrewChiefV4
                 this.controller = null;
                 this.buttonIndex = -1;
                 this.deviceGuid = string.Empty;
+            }
+        }
+
+        public void cancelScan()
+        {
+            if (this.controllerScanThread != null)
+            {
+                this.controllerScanThread.Abort();
             }
         }
     }
