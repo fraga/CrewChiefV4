@@ -243,7 +243,10 @@ namespace CrewChiefV4
                         soundPackLocation = soundPackLocationOverride;
                     }
                 }
-                catch(Exception) {}
+                catch(Exception ex)
+                {
+                    
+                }
             }
             try
             {
@@ -268,7 +271,7 @@ namespace CrewChiefV4
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return;
             }
