@@ -899,8 +899,5 @@
     <Setting Name="TOGGLE_ENABLE_CUT_TRACK_WARNINGS_button_index" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">-1</Value>
     </Setting>
-    <Setting Name="controller_scan_timeout_per_device_type" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">3000</Value>
-    </Setting>
   </Settings>
 </SettingsFile>

@@ -85,6 +85,7 @@ namespace CrewChiefV4
             this.myNameBoxTooltip = new System.Windows.Forms.ToolTip();
             this.chiefNameBoxTooltip = new System.Windows.Forms.ToolTip();
             this.spotterNameBoxTooltip = new System.Windows.Forms.ToolTip();
+            this.scanControllers = new System.Windows.Forms.Button();
             this.buttonEditCommandMacros = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             
@@ -137,6 +138,15 @@ namespace CrewChiefV4
             this.controllersList.Size = new System.Drawing.Size(248, 115);
             this.controllersList.TabIndex = 210;
             this.controllersList.SelectedIndexChanged += new System.EventHandler(this.controllersList_SelectedIndexChanged);
+            //
+            // scanControllers
+            //
+            this.scanControllers.Location = new System.Drawing.Point(41, 630);
+            this.scanControllers.Name = "scanControllers";
+            this.scanControllers.Text = Configuration.getUIString("scan_for_controllers");
+            this.scanControllers.TabIndex = 215;
+            this.scanControllers.Size = new System.Drawing.Size(120, 20);
+            this.scanControllers.Click += ScanControllers_Click;
             // 
             // assignButtonToAction
             // 
@@ -152,11 +162,21 @@ namespace CrewChiefV4
             // 
             this.deleteAssigmentButton.Location = new System.Drawing.Point(830, 564);
             this.deleteAssigmentButton.Name = "deleteAssigmentButton";
-            this.deleteAssigmentButton.Size = new System.Drawing.Size(130, 40);
+            this.deleteAssigmentButton.Size = new System.Drawing.Size(130, 39);
             this.deleteAssigmentButton.TabIndex = 250;
             this.deleteAssigmentButton.Text = Configuration.getUIString("delete_assignment");
             this.deleteAssigmentButton.UseVisualStyleBackColor = true;
             this.deleteAssigmentButton.Click += new System.EventHandler(this.deleteAssignmentButtonClicked);
+            // 
+            // buttonEditCommandMacros
+            // 
+            this.buttonEditCommandMacros.Location = new System.Drawing.Point(830, 608);
+            this.buttonEditCommandMacros.Name = "buttonEditCommandMacros";
+            this.buttonEditCommandMacros.Size = new System.Drawing.Size(130, 39);
+            this.buttonEditCommandMacros.TabIndex = 252;
+            this.buttonEditCommandMacros.Text = Configuration.getUIString("edit_macro_commands");
+            this.buttonEditCommandMacros.UseVisualStyleBackColor = true;
+            this.buttonEditCommandMacros.Click += new System.EventHandler(this.editCommandMacroButtonClicked);
             // 
             // label1
             // 
@@ -524,7 +544,7 @@ namespace CrewChiefV4
             this.spotterNameBox.TabIndex = 100;
             this.spotterNameBoxTooltip.SetToolTip(this.spotterNameBox, Configuration.getUIString("spotter_name_tooltip"));
 
-            this.donateLink.Location = new System.Drawing.Point(35, 650);
+            this.donateLink.Location = new System.Drawing.Point(35, 660);
             this.donateLink.Size = new System.Drawing.Size(250, 15);
             this.donateLink.Text = Configuration.getUIString("donate_link_text");
             this.donateLink.Click += new System.EventHandler(this.internetPanHandler);
@@ -607,16 +627,6 @@ namespace CrewChiefV4
             this.buttonSmokeTest.Click += new System.EventHandler(this.playSmokeTestSounds);
             this.buttonSmokeTest.Visible = false;
             // 
-            // buttonSmokeTest
-            // 
-            this.buttonEditCommandMacros.Location = new System.Drawing.Point(830, 610);
-            this.buttonEditCommandMacros.Name = "buttonEditCommandMacros";
-            this.buttonEditCommandMacros.Size = new System.Drawing.Size(130, 33);
-            this.buttonEditCommandMacros.TabIndex = 503;
-            this.buttonEditCommandMacros.Text = Configuration.getUIString("edit_macro_commands");
-            this.buttonEditCommandMacros.UseVisualStyleBackColor = true;
-            this.buttonEditCommandMacros.Click += new System.EventHandler(this.editCommandMacroButtonClicked);
-            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -669,6 +679,7 @@ namespace CrewChiefV4
             this.Controls.Add(this.smokeTestTextBox);
             this.Controls.Add(this.chiefNameLabel);
             this.Controls.Add(this.chiefNameBox);
+            this.Controls.Add(this.scanControllers);
             this.Controls.Add(this.buttonEditCommandMacros);
             this.Name = "MainWindow";
             this.Text = "Crew Chief V4";
@@ -740,6 +751,7 @@ namespace CrewChiefV4
         private System.Windows.Forms.ToolTip myNameBoxTooltip;
         private System.Windows.Forms.ToolTip chiefNameBoxTooltip;
         private System.Windows.Forms.ToolTip spotterNameBoxTooltip;
+        private System.Windows.Forms.Button scanControllers;
         private System.Windows.Forms.Button buttonEditCommandMacros;
     }
 }
