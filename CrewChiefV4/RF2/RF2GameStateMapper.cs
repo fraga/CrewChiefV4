@@ -55,7 +55,6 @@ namespace CrewChiefV4.rFactor2
         // Private practice detection hacks.
         private int lastPracticeNumVehicles = -1;
         private int lastPracticeNumNonGhostVehicles = -1;
-        private double lastPracticeNumVehiclesCapturedET = -1.0;
 
         // Keep track of opponents processed this time
         private List<string> opponentKeysProcessed = new List<string>();
@@ -211,7 +210,6 @@ namespace CrewChiefV4.rFactor2
             this.isOfflineSession = true;
             this.lastPracticeNumVehicles = -1;
             this.lastPracticeNumNonGhostVehicles = -1;
-            this.lastPracticeNumVehiclesCapturedET = -1.0f;
             this.distanceOffTrack = 0;
             this.detectedTrackNoDRSZones = false;
             this.minTrackWidth = -1.0;
@@ -2379,12 +2377,11 @@ namespace CrewChiefV4.rFactor2
                 // test day and pre-race warm-up sessions are 'Practice' as well
                 case 0:
                 case 9:
-                    if (this.lastPracticeNumVehicles < shared.scoring.mScoringInfo.mNumVehicles
-                        // Do not change this.lastPracticeNumNonGhostVehicles unless it appears like this is the new session.
-                        && (this.lastPracticeNumVehiclesCapturedET == -1.0 || shared.scoring.mScoringInfo.mCurrentET < this.lastPracticeNumVehiclesCapturedET))
+                    // This might go from LonePractice to Practice without any nice state transition.  However,
+                    // I am not aware of any horrible side effects.
+                    if (this.lastPracticeNumVehicles < shared.scoring.mScoringInfo.mNumVehicles)
                     {
                         this.lastPracticeNumVehicles = shared.scoring.mScoringInfo.mNumVehicles;
-                        this.lastPracticeNumVehiclesCapturedET = shared.scoring.mScoringInfo.mCurrentET;
                         this.lastPracticeNumNonGhostVehicles = 0;
                         // Populate cached car info.
                         for (int i = 0; i < shared.scoring.mScoringInfo.mNumVehicles; ++i)
@@ -2399,7 +2396,7 @@ namespace CrewChiefV4.rFactor2
                         }
                     }
 
-                    return this.lastPracticeNumNonGhostVehicles > 1 // Player only.
+                    return this.lastPracticeNumNonGhostVehicles > 1 // 1 means player only session.
                         ? SessionType.Practice 
                         : SessionType.LonePractice;
                 // up to four possible qualifying sessions
