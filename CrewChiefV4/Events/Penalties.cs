@@ -52,6 +52,10 @@ namespace CrewChiefV4.Events
         // for voice requests
         private String folderYouStillHavePenalty = "penalties/you_still_have_a_penalty";
 
+        private String folderYouStillHaveToServeDriveThrough = "penalties/still_have_to_serve_drive_through";
+
+        private String folderYouStillHaveToServeStopGo = "penalties/still_have_to_serve_stop_go";
+
         private String folderYouHavePenalty = "penalties/you_have_a_penalty";
 
         private String folderPenaltyServed = "penalties/penalty_served";
@@ -86,6 +90,10 @@ namespace CrewChiefV4.Events
         private String folderWarningHeadlightsRequired = "penalties/warning_headlights_required";
 
         private String folderWarningEnterPitsToAvoidExceedingLaps = "penalties/warning_enter_pits_to_avoid_exceeding_laps";
+
+        private String folderWarningOneLapToServeDriveThrough = "penalties/one_lap_to_serve_drive_through";
+
+        private String folderWarningOneLapToServeStopAndGo = "penalties/one_lap_to_serve_stop_go";
 
         private Boolean hasHadAPenalty;
 
@@ -123,7 +131,7 @@ namespace CrewChiefV4.Events
 
         public override List<SessionPhase> applicableSessionPhases
         {
-            get { return new List<SessionPhase> { SessionPhase.Green, SessionPhase.Countdown, SessionPhase.Garage /*Apparently rF2 issues penalties in garage too :)*/}; }
+            get { return new List<SessionPhase> { SessionPhase.Green, SessionPhase.Countdown, SessionPhase.Garage /*Apparently rF2 issues penalties in garage too :)*/, SessionPhase.FullCourseYellow /*Some rF2 warnings come up under FCY*/}; }
         }
 
         public Penalties(AudioPlayer audioPlayer)
@@ -191,6 +199,12 @@ namespace CrewChiefV4.Events
                 {
                     return currentGameState.PenaltiesData.HasSlowDown;
                 }
+                else if (eventSubType == folderPenaltyServed &&
+                    (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT))
+                {
+                    // Don't validate "Penalty served" in rF1/rF2, hasOutstandingPenalty is false by the time we get here.
+                    return true;
+                }
                 else
                 {
                     return hasOutstandingPenalty && currentGameState.SessionData.SessionPhase != SessionPhase.Finished;
@@ -204,6 +218,60 @@ namespace CrewChiefV4.Events
 
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
+            // Play warning messages:
+            if (currentGameState.PenaltiesData.Warning != PenatiesData.WarningMessage.NONE)
+            {
+                string warningMsg = null;
+                switch (currentGameState.PenaltiesData.Warning)
+                {
+                    case PenatiesData.WarningMessage.WRONG_WAY:
+                        warningMsg = folderWarningWrongWay;
+                        break;
+                    case PenatiesData.WarningMessage.DRIVING_TOO_SLOW:
+                        warningMsg = folderWarningDrivingTooSlow;
+                        break;
+                    case PenatiesData.WarningMessage.HEADLIGHTS_REQUIRED:
+                        warningMsg = folderWarningHeadlightsRequired;
+                        break;
+                    case PenatiesData.WarningMessage.ENTER_PITS_TO_AVOID_EXCEEDING_LAPS:
+                        if (!currentGameState.PitData.HasRequestedPitStop)
+                        {
+                            warningMsg = folderWarningEnterPitsToAvoidExceedingLaps;
+                            playerMustPitThisLap = true;
+                        }
+                        break;
+                    case PenatiesData.WarningMessage.DISQUALIFIED_DRIVING_WITHOUT_HEADLIGHTS:
+                        warningMsg = folderDisqualifiedDrivingWithoutHeadlights;
+                        break;
+                    case PenatiesData.WarningMessage.DISQUALIFIED_EXCEEDING_ALLOWED_LAP_COUNT:
+                        warningMsg = folderDisqualifiedExceededAllowedLapCount;
+                        break;
+                    case PenatiesData.WarningMessage.ONE_LAP_TO_SERVE_DRIVE_THROUGH:
+                        warningMsg = folderWarningOneLapToServeDriveThrough;
+                        playerMustPitThisLap = true;
+                        break;
+                    case PenatiesData.WarningMessage.ONE_LAP_TO_SERVE_STOP_AND_GO:
+                        warningMsg = folderWarningOneLapToServeStopAndGo;
+                        playerMustPitThisLap = true;
+                        break;
+                    default:
+                        Debug.Assert(false, "Unhandled warning");
+                        Console.WriteLine("Penalties: unhandled warning: " + currentGameState.PenaltiesData.Warning);
+                        break;
+                }
+
+                if (!String.IsNullOrWhiteSpace(warningMsg))
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(warningMsg, 0, priority: 15));
+                }
+            }
+
+            if (currentGameState.SessionData.SessionPhase == SessionPhase.FullCourseYellow)
+            {
+                // For now, only allow warning messages under FCY.
+                return;
+            }
+
             if (currentGameState.SessionData.IsNewLap)
             {
                 warnedOfPossibleTrackLimitsViolationOnThisLap = false;
@@ -391,7 +459,19 @@ namespace CrewChiefV4.Events
                     if (lapsCompleted - penaltyLap >= 2 && !currentGameState.PitData.InPitlane)
                     {
                         // run out of laps, an not in the pitlane
-                        audioPlayer.playMessage(new QueuedMessage(folderYouStillHavePenalty, 0, secondsDelay: 5, abstractEvent: this, priority: 10));
+                        if (Utilities.random.NextDouble() < 0.2)
+                        {
+                            // For variety, sometimes just play basic reminder.
+                            audioPlayer.playMessage(new QueuedMessage(folderYouStillHavePenalty, 0, secondsDelay: 5, abstractEvent: this, priority: 10));
+                        }
+                        else
+                        {
+                            var message = getOutstandingPenaltyMessage();
+                            if (!String.IsNullOrWhiteSpace(message))
+                            {
+                                audioPlayer.playMessage(new QueuedMessage(message, 0, secondsDelay: 5, abstractEvent: this, priority: 10));
+                            }
+                        }
                     }
                     else if (lapsCompleted - penaltyLap == 1)
                     {
@@ -423,7 +503,9 @@ namespace CrewChiefV4.Events
             {
                 clearPenaltyState();
             }
-            if (currentGameState.SessionData.SessionType == SessionType.Race && previousGameState != null &&
+            if ((currentGameState.SessionData.SessionType == SessionType.Race ||
+                currentGameState.SessionData.SessionType == SessionType.Qualify ||
+                currentGameState.SessionData.SessionType == SessionType.Practice) && previousGameState != null &&
                 ((previousGameState.PenaltiesData.HasStopAndGo && !currentGameState.PenaltiesData.HasStopAndGo) ||
                 (previousGameState.PenaltiesData.HasDriveThrough && !currentGameState.PenaltiesData.HasDriveThrough) ||
                 // can't read penalty type in Automobilista (and presumably in rF2).
@@ -431,45 +513,6 @@ namespace CrewChiefV4.Events
                 (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT))))
             {
                 audioPlayer.playMessage(new QueuedMessage(folderPenaltyServed, 0, abstractEvent: this, priority: 10));
-            }
-
-            if (currentGameState.PenaltiesData.Warning != PenatiesData.WarningMessage.NONE)
-            {
-                string warningMsg = null;
-                switch (currentGameState.PenaltiesData.Warning)
-                {
-                    case PenatiesData.WarningMessage.WRONG_WAY:
-                        warningMsg = folderWarningWrongWay;
-                        break;
-                    case PenatiesData.WarningMessage.DRIVING_TOO_SLOW:
-                        warningMsg = folderWarningDrivingTooSlow;
-                        break;
-                    case PenatiesData.WarningMessage.HEADLIGHTS_REQUIRED:
-                        warningMsg = folderWarningHeadlightsRequired;
-                        break;
-                    case PenatiesData.WarningMessage.ENTER_PITS_TO_AVOID_EXCEEDING_LAPS:
-                        if (!currentGameState.PitData.HasRequestedPitStop)
-                        {
-                            warningMsg = folderWarningEnterPitsToAvoidExceedingLaps;
-                            playerMustPitThisLap = true;
-                        }
-                        break;
-                    case PenatiesData.WarningMessage.DISQUALIFIED_DRIVING_WITHOUT_HEADLIGHTS:
-                        warningMsg = folderDisqualifiedDrivingWithoutHeadlights;
-                        break;
-                    case PenatiesData.WarningMessage.DISQUALIFIED_EXCEEDING_ALLOWED_LAP_COUNT:
-                        warningMsg = folderDisqualifiedExceededAllowedLapCount;
-                        break;
-                    default:
-                        Debug.Assert(false, "Unhandled warning");
-                        Console.WriteLine("Penalties: unhandled warning: " + currentGameState.PenaltiesData.Warning);
-                        break;
-                }
-
-                if (!String.IsNullOrWhiteSpace(warningMsg))
-                {
-                    audioPlayer.playMessageImmediately(new QueuedMessage(warningMsg, 0, priority: 15));
-                }
             }
         }
 
@@ -525,7 +568,7 @@ namespace CrewChiefV4.Events
                     {
                         List<MessageFragment> messages = new List<MessageFragment>();
                         messages.Add(MessageFragment.Text(AudioPlayer.folderNo));
-                        messages.Add(MessageFragment.Text(folderYouStillHavePenalty));
+                        messages.Add(MessageFragment.Text(getOutstandingPenaltyMessage()));
                         if (lapsCompleted - penaltyLap == 2)
                         {
                             messages.Add(MessageFragment.Text(PitStops.folderMandatoryPitStopsPitThisLap));
@@ -544,7 +587,7 @@ namespace CrewChiefV4.Events
                     {
                         List<MessageFragment> messages = new List<MessageFragment>();
                         messages.Add(MessageFragment.Text(AudioPlayer.folderYes));
-                        messages.Add(MessageFragment.Text(folderYouStillHavePenalty));
+                        messages.Add(MessageFragment.Text(getOutstandingPenaltyMessage()));
                         if (lapsCompleted - penaltyLap == 2)
                         {
                             messages.Add(MessageFragment.Text(PitStops.folderMandatoryPitStopsPitThisLap));
@@ -605,6 +648,27 @@ namespace CrewChiefV4.Events
 
             // If no detailed message available, play basic message.
             return folderYouHavePenalty;
+        }
+
+        private String getOutstandingPenaltyMessage()
+        {
+            if (hasOutstandingPenalty)
+            {
+                switch (outstandingPenaltyType)
+                {
+                    case PenatiesData.DetailedPenaltyType.NONE:
+                        return folderYouStillHavePenalty;
+                    case PenatiesData.DetailedPenaltyType.STOP_AND_GO:
+                        return folderYouStillHaveToServeStopGo;
+                    case PenatiesData.DetailedPenaltyType.DRIVE_THROUGH:
+                        return folderYouStillHaveToServeDriveThrough;
+                    default:
+                        Debug.Assert(false, "Unhandled penalty cause");
+                        break;
+                }
+            }
+
+            return String.Empty;
         }
     }
 }
