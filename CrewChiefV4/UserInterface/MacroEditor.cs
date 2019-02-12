@@ -12,47 +12,68 @@ using System.IO;
 
 namespace CrewChiefV4
 {
-    
+
     public partial class MacroEditor : Form
     {
         public static List<String> builtInKeyMappings = new List<String>();
         MacroContainer macroContainer = null;
         List<GameDefinition> availableMacroGames = null;
-        Assignment curentSelectedGameAssignments = null;
         public MacroEditor()
         {
             InitializeComponent();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
             this.SuspendLayout();
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            //Global 
             groupBoxGlobalOptins.Text = Configuration.getUIString("global_macro_settings");
             labelGame.Text = Configuration.getUIString("game");
-            labelAvailableMacros.Text = Configuration.getUIString("available_macros");
-            labelGlobalMacroDescription.Text = Configuration.getUIString("macro_description");
-            labelNewMacroName.Text = Configuration.getUIString("new_macro_name");
-            labelConfirmationMessage.Text = Configuration.getUIString("confirmation_message");
+
+            groupBoxAvailableMacros.Text = Configuration.getUIString("available_macros");
             buttonAddNewMacro.Text = Configuration.getUIString("add_or_edit_macro");
             buttonDeleteSelectedMacro.Text = Configuration.getUIString("delete_selected_macro");
-            buttonSelectConfirmationMessage.Text = Configuration.getUIString("select_confirmation_message");
-            groupBoxGlobalMacroVoiceTrigger.Text = Configuration.getUIString("global_macro_voice_trigger");
-            groupBoxGameSettings.Text = Configuration.getUIString("game_specific_settings");            
-            labelAvailableActions.Text = Configuration.getUIString("available_actions");
-            labelActionSequence.Text = Configuration.getUIString("action_sequence");
-            labelNewActionName.Text = Configuration.getUIString("new_action");
-            labelKeyPressTime.Text = Configuration.getUIString("keypress_time");
-            labelWaitBetweenEachCommand.Text = Configuration.getUIString("keypress_wait_time");
-            buttonSaveSelectedKey.Text = Configuration.getUIString("save_action_key");
-            buttonAddActionSequence.Text = Configuration.getUIString("add_action_sequence");
-            buttonAddActionToSequence.Text = Configuration.getUIString("add_action_to_sequence");
-            buttonAddSelectedKeyToSequence.Text = Configuration.getUIString("add_key_to_sequence");
-            buttonLoadUserMacroSettings.Text = Configuration.getUIString("load_user_macro_settings");
-            buttonLoadDefaultMacroSettings.Text = Configuration.getUIString("load_default_macro_settings");
-            buttonSaveMacroSettings.Text = Configuration.getUIString("save_macro_settings");
-            labelGameMacroDescription.Text = Configuration.getUIString("macro_description");
+            radioButtonViewOnly.Text = Configuration.getUIString("macro_view_only");
+            radioButtonEditSelectedMacro.Text = Configuration.getUIString("edit_selected_macro");
+            radioButtonAddNewMacro.Text = Configuration.getUIString("create_new_macro");
 
+            groupBoxGlobalMacroVoiceTrigger.Text = Configuration.getUIString("macro_voice_trigger");
             radioButtonRegularVoiceTrigger.Text = Configuration.getUIString("regular_macro_voice_command");
             radioButtonIntegerVoiceTrigger.Text = Configuration.getUIString("integer_macro_voice_command");
-            groupBoxGlobalMacroVoiceTrigger.Text = Configuration.getUIString("macro_voice_trigger");
+            labelMacroEditMode.Text = Configuration.getUIString("macro_edit_mode");
+
+            labelConfirmationMessage.Text = Configuration.getUIString("confirmation_message");
+            buttonSelectConfirmationMessage.Text = Configuration.getUIString("select_confirmation_message");
+            labelGlobalMacroDescription.Text = Configuration.getUIString("macro_description");
+
+            //Game Specific 
+            groupBoxGameSettings.Text = Configuration.getUIString("game_specific_settings");
+
+            labelActionSequence.Text = Configuration.getUIString("action_sequence");
+            labelKeyPressTime.Text = Configuration.getUIString("keypress_time");
+            labelWaitBetweenEachCommand.Text = Configuration.getUIString("keypress_wait_time");
+            buttonAddActionSequence.Text = Configuration.getUIString("add_action_sequence");
+
+
+            labelGameMacroDescription.Text = Configuration.getUIString("macro_description");
+
+
+            groupAvailableActions.Text = Configuration.getUIString("available_actions");
+            radioButtonRegularKeyAction.Text = Configuration.getUIString("regular_key_action");
+            radioButtonMultipleKeyAction.Text = Configuration.getUIString("multiple_key_action");
+            radioButtonMultipleVoiceTrigger.Text = Configuration.getUIString("voice_trigger_action");
+            radioButtonMultipleFuelAction.Text = Configuration.getUIString("multiple_fuel_action");
+            radioButtonWaitAction.Text = Configuration.getUIString("wait_action");
+            radioButtonFreeTextAction.Text = Configuration.getUIString("free_text_action");
+            radioButtonAdvancedEditAction.Text = Configuration.getUIString("advanced_edit_action");
+            buttonAddSelectedKeyToSequence.Text = Configuration.getUIString("add_key_to_sequence");
+            buttonUndoLastAction.Text = Configuration.getUIString("undo_last_action");
+            labelActionKeys.Text = Configuration.getUIString("actions_keys");
+            // Load 
+            buttonLoadUserMacroSettings.Text = Configuration.getUIString("load_user_macro_settings");
+            buttonLoadDefaultMacroSettings.Text = Configuration.getUIString("load_default_macro_settings");
+
+            radioButtonRegularKeyAction.Checked = true;
+            radioButtonViewOnly.Checked = true;
+
             if (builtInKeyMappings.Count <= 0)
             {
                 foreach (KeyPresser.KeyCode value in Enum.GetValues(typeof(KeyPresser.KeyCode)))
@@ -65,86 +86,35 @@ namespace CrewChiefV4
                 comboBoxKeySelection.Items.AddRange(builtInKeyMappings.ToArray());
             }
             macroContainer = MacroManager.loadCommands(MacroManager.getMacrosFileLocation());
+
             availableMacroGames = GameDefinition.getAllGameDefinitions().Where(gd => gd.gameEnum != GameEnum.PCARS2_NETWORK).ToList();
             var items = from name in availableMacroGames orderby name.friendlyName ascending select name;
             availableMacroGames = items.ToList();
-            listBoxGames.Items.Clear();         
+            listBoxGames.Items.Clear();
             foreach (var mapping in availableMacroGames)
             {
-                listBoxGames.Items.Add(mapping.friendlyName);                
+                listBoxGames.Items.Add(mapping.friendlyName);
             }
-            listBoxGames.SetSelected(MainWindow.instance.gameDefinitionList.SelectedIndex, true);  
-            updateMacroList();                      
+            listBoxGames.SetSelected(MainWindow.instance.gameDefinitionList.SelectedIndex, true);
+            updateMacroList();
+            listBoxGames.Select();
             this.ResumeLayout(false);
             this.PerformLayout();
         }
 
         private void listBoxGames_SelectedIndexChanged(object sender, EventArgs e)
         {
-            listBoxAvailableActions.Items.Clear();
             textBoxActionSequence.Text = "";
             textBoxDescription.Text = "";
-
             comboBoxKeySelection.SelectedIndex = -1;
-
-            var actionsForGame = availableMacroGames[listBoxGames.SelectedIndex];
-            curentSelectedGameAssignments = macroContainer.assignments.FirstOrDefault(mc => mc.gameDefinition == actionsForGame.gameEnum.ToString());
-            
-            if (curentSelectedGameAssignments != null)
+            if (listBoxGames.SelectedIndex != -1)
             {
-                foreach (var binding in curentSelectedGameAssignments.keyBindings)
-                {
-                    listBoxAvailableActions.Items.Add(binding.action  + " " + Configuration.getUIString("assigned_to") + " " + binding.key);                
-                }            
+                buttonAddActionSequence.Text = Configuration.getUIString("add_action_sequence") + " " + listBoxGames.Items[listBoxGames.SelectedIndex].ToString();
             }
-            if(listBoxAvailableMacros.SelectedIndex != -1)
+            if (listBoxAvailableMacros.SelectedIndex != -1)
             {
-                listBoxAvailableMacros.SetSelected(listBoxAvailableMacros.SelectedIndex, true); 
+                listBoxAvailableMacros.SetSelected(listBoxAvailableMacros.SelectedIndex, true);
             }
-        }
-
-        private void listBoxAvailableActions_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (listBoxAvailableActions.SelectedIndex != -1 && curentSelectedGameAssignments != null)
-            {
-                comboBoxKeySelection.SelectedIndex = builtInKeyMappings.IndexOf(curentSelectedGameAssignments.keyBindings[listBoxAvailableActions.SelectedIndex].key); 
-            }
-        }
-
-        private void buttonSaveSelectedKey_Click(object sender, EventArgs e)
-        {
-            if (comboBoxKeySelection.SelectedIndex == -1 || listBoxGames.SelectedIndex == -1)
-                return;
-            string selectedKeyName = comboBoxKeySelection.Items[comboBoxKeySelection.SelectedIndex].ToString();
-            var currentSelectedGame = availableMacroGames[listBoxGames.SelectedIndex];
-            if (!string.IsNullOrEmpty(textBoxAddNewAction.Text) && curentSelectedGameAssignments != null)
-            {                    
-                List<KeyBinding> currentKeyBindings = curentSelectedGameAssignments.keyBindings.ToList();
-                
-                currentKeyBindings.Add(new KeyBinding() { action = textBoxAddNewAction.Text, key = selectedKeyName });
-                curentSelectedGameAssignments.keyBindings = currentKeyBindings.ToArray();
-                
-                listBoxAvailableActions.Items.Add(textBoxAddNewAction.Text + " " + Configuration.getUIString("assigned_to") + " " + selectedKeyName);
-                textBoxAddNewAction.Text = "";
-            }
-            else if (curentSelectedGameAssignments == null && !string.IsNullOrEmpty(textBoxAddNewAction.Text))
-            {
-                List<Assignment> currentAssignments = macroContainer.assignments.ToList();
-                List<KeyBinding> keyBindings = new List<KeyBinding>();
-                
-                keyBindings.Add(new KeyBinding(){action = textBoxAddNewAction.Text, key = selectedKeyName});
-                currentAssignments.Add(new Assignment() { gameDefinition = currentSelectedGame.gameEnum.ToString(), keyBindings = keyBindings.ToArray() });
-                macroContainer.assignments = currentAssignments.ToArray();
-                
-                listBoxAvailableActions.Items.Add(textBoxAddNewAction.Text + " " + Configuration.getUIString("assigned_to") + " " + selectedKeyName);
-                textBoxAddNewAction.Text = "";
-            }
-            else if (listBoxAvailableActions.SelectedIndex != -1 && curentSelectedGameAssignments != null)
-            {
-                listBoxAvailableActions.Items[listBoxAvailableActions.SelectedIndex] = (curentSelectedGameAssignments.keyBindings[listBoxAvailableActions.SelectedIndex].action + " " + Configuration.getUIString("assigned_to") + " " + selectedKeyName);                        
-                curentSelectedGameAssignments.keyBindings[listBoxAvailableActions.SelectedIndex].key = selectedKeyName;
-            }
-            listBoxAvailableActions_SelectedIndexChanged(sender, e);            
         }
 
         private void listBoxAvailableMacros_SelectedIndexChanged(object sender, EventArgs e)
@@ -152,17 +122,22 @@ namespace CrewChiefV4
             textBoxActionSequence.Text = "";
             textBoxDescription.Text = "";
             textBoxConfirmationMessage.Text = "";
-            textBoxKeyPressTime.Text = "";
-            textBoxWaitBetweenEachCommand.Text = "";
+            textBoxKeyPressTime.Text = "20";
+            textBoxWaitBetweenEachCommand.Text = "60";
             textBoxGameMacroDescription.Text = "";
-            if(listBoxGames.SelectedIndex == -1)
+            textBoxAddNewMacro.Text = "";
+            textBoxVoiceTriggers.Text = "";
+            if (listBoxGames.SelectedIndex == -1)
             {
                 listBoxGames.SelectedIndex = 0;
             }
-
+            if (listBoxAvailableMacros.SelectedIndex == -1)
+            {
+                return;
+            }
             var currentSelectedGame = availableMacroGames[listBoxGames.SelectedIndex];
             var macro = macroContainer.macros.FirstOrDefault(m => m.name == listBoxAvailableMacros.Items[listBoxAvailableMacros.SelectedIndex].ToString());
-            if(macro != null)
+            if (macro != null)
             {
                 textBoxDescription.Text = macro.description;
                 if (macro.integerVariableVoiceTrigger != null)
@@ -170,16 +145,18 @@ namespace CrewChiefV4
                     textBoxVoiceTriggers.Text = macro.integerVariableVoiceTrigger;
                     textBoxVoiceTriggers.Multiline = false;
                     radioButtonIntegerVoiceTrigger.Checked = true;
+                    radioButtonMultipleVoiceTrigger.Enabled = true;
                 }
                 else
-                {                    
+                {
                     textBoxVoiceTriggers.Lines = macro.voiceTriggers;
                     textBoxVoiceTriggers.Multiline = true;
                     radioButtonRegularVoiceTrigger.Checked = true;
+                    radioButtonMultipleVoiceTrigger.Enabled = false;
                 }
                 textBoxConfirmationMessage.Text = macro.confirmationMessage;
                 textBoxAddNewMacro.Text = macro.name;
-                if(macro.commandSets != null)
+                if (macro.commandSets != null)
                 {
                     var macroForGame = macro.commandSets.FirstOrDefault(cs => cs.gameDefinition == currentSelectedGame.gameEnum.ToString());
                     if (macroForGame != null)
@@ -188,17 +165,17 @@ namespace CrewChiefV4
                         textBoxKeyPressTime.Text = macroForGame.keyPressTime.ToString();
                         textBoxWaitBetweenEachCommand.Text = macroForGame.waitBetweenEachCommand.ToString();
                         textBoxGameMacroDescription.Text = macroForGame.description;
-                    } 
+                    }
                 }
-               
-            }            
+
+            }
         }
 
         private void textBoxKeyPressTime_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (!char.IsDigit(e.KeyChar)) 
+            if (!char.IsDigit(e.KeyChar))
                 e.Handled = true;         //Just Digits
-            if (e.KeyChar == (char)8) 
+            if (e.KeyChar == (char)8)
                 e.Handled = false;        //Allow Backspace          
         }
 
@@ -210,24 +187,52 @@ namespace CrewChiefV4
                 e.Handled = false;        //Allow Backspace      
         }
 
-        private void buttonAddActionToSequence_Click(object sender, EventArgs e)
+        private void buttonAddSelectedActionToSequence_Click(object sender, EventArgs e)
         {
-            if (listBoxAvailableActions.SelectedIndex != -1 && curentSelectedGameAssignments != null)
+            if (!radioButtonRegularKeyAction.Checked && string.IsNullOrWhiteSpace(textBoxSpecialActionParameter.Text))
             {
-                List<string> currentLines = textBoxActionSequence.Lines.ToList();
-                currentLines.Add(curentSelectedGameAssignments.keyBindings[listBoxAvailableActions.SelectedIndex].action);
-                textBoxActionSequence.Lines = currentLines.ToArray();
+                MessageBox.Show(labelSpecialActionParameter.Text + " " + Configuration.getUIString("special_action_text_cant_be_empty"));
+                
+                return;
             }
-        }
 
-        private void buttonAddSelectedKeyToSequence_Click(object sender, EventArgs e)
-        {
-            if (comboBoxKeySelection.SelectedIndex != -1 )
+            string formatedAction = "";
+            List<string> currentLines = textBoxActionSequence.Lines.ToList();
+
+            if (radioButtonWaitAction.Checked)
             {
-                List<string> currentLines = textBoxActionSequence.Lines.ToList();
-                currentLines.Add(comboBoxKeySelection.Items[comboBoxKeySelection.SelectedIndex].ToString());
-                textBoxActionSequence.Lines = currentLines.ToArray();
+                formatedAction = "{WAIT," + textBoxSpecialActionParameter.Text + "}";
             }
+            else if (radioButtonFreeTextAction.Checked)
+            {
+                formatedAction = "{FREE_TEXT}" + textBoxSpecialActionParameter.Text;
+            }
+            else if(comboBoxKeySelection.SelectedIndex != -1)
+            {
+                if (radioButtonMultipleKeyAction.Checked)
+                {
+                    formatedAction = "{MULTIPLE," + textBoxSpecialActionParameter.Text + "}" + comboBoxKeySelection.Items[comboBoxKeySelection.SelectedIndex].ToString();
+                }
+                else if (radioButtonMultipleFuelAction.Checked || radioButtonMultipleVoiceTrigger.Checked)
+                {
+                    formatedAction = textBoxSpecialActionParameter.Text + comboBoxKeySelection.Items[comboBoxKeySelection.SelectedIndex].ToString();
+                }
+                else if (radioButtonRegularKeyAction.Checked)
+                {
+                    formatedAction = comboBoxKeySelection.Items[comboBoxKeySelection.SelectedIndex].ToString();
+                }
+            }
+            else
+            {
+                MessageBox.Show(Configuration.getUIString("must_select_a_key"));
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(formatedAction))
+            {
+                currentLines.Add(formatedAction);
+            }
+            textBoxActionSequence.Lines = currentLines.ToArray();
         }
 
         private void buttonSelectConfirmationMessage_Click(object sender, EventArgs e)
@@ -235,7 +240,7 @@ namespace CrewChiefV4
             String soundPackLocationOverride = UserSettings.GetUserSettings().getString("override_default_sound_pack_location") + @"\voice";
             string soundPackLocation = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\CrewChiefV4\sounds\voice";
             if (soundPackLocationOverride != null && soundPackLocationOverride.Length > 0)
-            { 
+            {
                 try
                 {
                     if (Directory.Exists(soundPackLocationOverride))
@@ -243,9 +248,9 @@ namespace CrewChiefV4
                         soundPackLocation = soundPackLocationOverride;
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
-                    
+
                 }
             }
             try
@@ -253,7 +258,7 @@ namespace CrewChiefV4
                 if (!Directory.Exists(soundPackLocation))
                 {
                     MessageBox.Show(Configuration.getUIString("macro_please_download_soundpack"));
-                    return;    
+                    return;
                 }
                 else
                 {
@@ -283,37 +288,37 @@ namespace CrewChiefV4
                 MessageBox.Show(Configuration.getUIString("empty_name_or_voicetrigger"));
                 return;
             }
-            Macro currentMacro = macroContainer.macros.FirstOrDefault(mc => mc.name == textBoxAddNewMacro.Text);
 
-            if (canAddVoiceTrigger(currentMacro != null))
+            if (canAddVoiceTrigger(radioButtonEditSelectedMacro.Checked))
             {
                 List<Macro> currentMacros = macroContainer.macros.ToList();
-                if(currentMacro == null)
-                {                    
-                    currentMacro = new Macro();
-                    currentMacro.name = textBoxAddNewMacro.Text;
-                    currentMacro.description = textBoxDescription.Text;
-                    if(radioButtonRegularVoiceTrigger.Enabled)
+                if (radioButtonAddNewMacro.Checked)
+                {
+                    Macro macro = new Macro();
+                    macro.name = textBoxAddNewMacro.Text;
+                    macro.description = textBoxDescription.Text;
+                    if (radioButtonRegularVoiceTrigger.Enabled)
                     {
-                        currentMacro.voiceTriggers = textBoxVoiceTriggers.Lines;
+                        macro.voiceTriggers = textBoxVoiceTriggers.Lines;
                     }
                     else
                     {
-                        currentMacro.integerVariableVoiceTrigger = textBoxVoiceTriggers.Text;
+                        macro.integerVariableVoiceTrigger = textBoxVoiceTriggers.Text;
                     }
                     if (textBoxConfirmationMessage.Text.Length > 0)
                     {
-                        currentMacro.confirmationMessage = textBoxConfirmationMessage.Text;
-                    }                                   
-                    currentMacros.Add(currentMacro);
+                        macro.confirmationMessage = textBoxConfirmationMessage.Text.Replace('\\', '/');
+                    }
+                    currentMacros.Add(macro);
                     macroContainer.macros = currentMacros.ToArray();
-                    textBoxAddNewMacro.Text = "";
-                    textBoxDescription.Text = "";
-                    textBoxVoiceTriggers.Text = "";
+                    radioButtonViewOnly.Checked = true;
+                    saveMacroSettings();
                     updateMacroList(true);
+
                 }
-                else
+                else if (listBoxAvailableMacros.SelectedIndex != -1)
                 {
+                    Macro currentMacro = macroContainer.macros.FirstOrDefault(mc => mc.name == listBoxAvailableMacros.SelectedItem.ToString());
                     currentMacro.name = textBoxAddNewMacro.Text;
                     currentMacro.description = textBoxDescription.Text;
                     if (radioButtonRegularVoiceTrigger.Enabled)
@@ -326,14 +331,13 @@ namespace CrewChiefV4
                     }
                     if (textBoxConfirmationMessage.Text.Length > 0)
                     {
-                        currentMacro.confirmationMessage = textBoxConfirmationMessage.Text;
+                        currentMacro.confirmationMessage = textBoxConfirmationMessage.Text.Replace('\\', '/');
                     }
-                    textBoxAddNewMacro.Text = "";
-                    textBoxDescription.Text = "";
-                    textBoxVoiceTriggers.Text = "";
+                    radioButtonViewOnly.Checked = true;
+                    saveMacroSettings();
                     updateMacroList(false);
                 }
-            }                
+            }
         }
         private bool canAddVoiceTrigger(bool editExisting)
         {
@@ -373,23 +377,18 @@ namespace CrewChiefV4
                     }
                 }
             }
-            return true;   
+            return true;
         }
-        private void updateMacroList(bool setToEnd = false)
+        private void updateMacroList(bool setToEnd = false, bool retainIndex = true)
         {
-            int currentSelectedIndex = listBoxAvailableMacros.SelectedIndex;
             listBoxAvailableMacros.Items.Clear();
             foreach (var macro in macroContainer.macros)
             {
                 listBoxAvailableMacros.Items.Add(macro.name);
             }
-            if(setToEnd)
+            if (setToEnd)
             {
                 listBoxAvailableMacros.SetSelected(listBoxAvailableMacros.Items.Count - 1, true);
-            }
-            else if (currentSelectedIndex != -1 && currentSelectedIndex <= listBoxAvailableMacros.Items.Count)
-            {
-                listBoxAvailableMacros.SetSelected(currentSelectedIndex, true);
             }
             else
             {
@@ -399,60 +398,77 @@ namespace CrewChiefV4
 
         private void buttonAddActionSequence_Click(object sender, EventArgs e)
         {
-            if(!string.IsNullOrWhiteSpace(textBoxActionSequence.Text) && 
-                listBoxAvailableMacros.SelectedIndex != -1 &&
-                !string.IsNullOrWhiteSpace(textBoxKeyPressTime.Text) && 
-                !string.IsNullOrWhiteSpace(textBoxWaitBetweenEachCommand.Text))
+            if(listBoxAvailableMacros.SelectedIndex == -1)
             {
-                var currentSelectedGame = availableMacroGames[listBoxGames.SelectedIndex];
-                Macro currentMacro =  macroContainer.macros.FirstOrDefault(mc => mc.name == listBoxAvailableMacros.Items[listBoxAvailableMacros.SelectedIndex].ToString());
-                if(currentMacro == null)
+                MessageBox.Show(Configuration.getUIString("must_select_a_macro"));
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(textBoxActionSequence.Text))
+            {
+                MessageBox.Show(Configuration.getUIString("action_sequence_cant_be_empty"));
+                return;
+            }
+            if(string.IsNullOrWhiteSpace(textBoxKeyPressTime.Text) || string.IsNullOrWhiteSpace(textBoxWaitBetweenEachCommand.Text))
+            {
+                MessageBox.Show(Configuration.getUIString("empty_keypress_time_start") + " " +
+                    labelKeyPressTime.Text + " " + Configuration.getUIString("empty_keypress_time_middle") + " " +
+                    labelWaitBetweenEachCommand.Text + " " + Configuration.getUIString("empty_keypress_time_end"));
+                return;
+            }
+            int currentSelectedMacroIndex = listBoxAvailableMacros.SelectedIndex;
+            var currentSelectedGame = availableMacroGames[listBoxGames.SelectedIndex];
+            Macro currentMacro = macroContainer.macros.FirstOrDefault(mc => mc.name == listBoxAvailableMacros.Items[listBoxAvailableMacros.SelectedIndex].ToString());
+            if (currentMacro == null)
+            {
+                return;
+            }
+            List<CommandSet> currentCommandSets = new List<CommandSet>();
+            if (currentMacro.commandSets != null)
+            {
+                currentCommandSets = currentMacro.commandSets.ToList();
+            }
+            CommandSet currentCommandSet = currentCommandSets.FirstOrDefault(cs => cs.gameDefinition == currentSelectedGame.gameEnum.ToString());
+            List<string> actions = textBoxActionSequence.Lines.Where(s => !string.IsNullOrWhiteSpace(s)).ToList();
+            if (currentCommandSet == null)
+            {
+                currentCommandSet = new CommandSet();
+                currentCommandSet.gameDefinition = currentSelectedGame.gameEnum.ToString();
+                if (!string.IsNullOrWhiteSpace(textBoxGameMacroDescription.Text))
                 {
-                    return;
-                }
-                List<CommandSet> currentCommandSets = new List<CommandSet>();
-                if(currentMacro.commandSets != null)
-                {
-                    currentCommandSets = currentMacro.commandSets.ToList();
-                }                
-                CommandSet currentCommandSet = currentCommandSets.FirstOrDefault(cs => cs.gameDefinition == currentSelectedGame.gameEnum.ToString());
-                List<string> actions = textBoxActionSequence.Lines.Where(s => !string.IsNullOrWhiteSpace(s)).ToList();
-                if(currentCommandSet == null)
-                {
-                    currentCommandSet = new CommandSet();
-                    currentCommandSet.gameDefinition = currentSelectedGame.gameEnum.ToString();
-                    if(!string.IsNullOrWhiteSpace(textBoxGameMacroDescription.Text))
-                    {
-                        currentCommandSet.description = textBoxGameMacroDescription.Text;
-                    }
-                    else
-                    {
-                        currentCommandSet.description = currentSelectedGame.friendlyName + " version";
-                    }                    
-                    currentCommandSet.actionSequence = actions.ToArray();
-                    currentCommandSet.keyPressTime = int.Parse(textBoxKeyPressTime.Text);
-                    currentCommandSet.waitBetweenEachCommand = int.Parse(textBoxWaitBetweenEachCommand.Text);
-                    currentCommandSets.Add(currentCommandSet);
-                    currentMacro.commandSets = currentCommandSets.ToArray();
-                    //MacroManager.saveCommands(macroContainer);
+                    currentCommandSet.description = textBoxGameMacroDescription.Text;
                 }
                 else
                 {
-                    currentCommandSet.gameDefinition = currentSelectedGame.gameEnum.ToString();
-                    currentCommandSet.actionSequence = actions.ToArray();
-                    currentCommandSet.keyPressTime = int.Parse(textBoxKeyPressTime.Text);
-                    currentCommandSet.waitBetweenEachCommand = int.Parse(textBoxWaitBetweenEachCommand.Text);
-                    if (!string.IsNullOrWhiteSpace(textBoxGameMacroDescription.Text))
-                    {
-                        currentCommandSet.description = textBoxGameMacroDescription.Text;
-                    }
-                    else
-                    {
-                        currentCommandSet.description = currentSelectedGame.friendlyName + " version";
-                    }   
-                    //MacroManager.saveCommands(macroContainer);
+                    currentCommandSet.description = currentSelectedGame.friendlyName + " version";
                 }
+                currentCommandSet.actionSequence = actions.ToArray();
+                currentCommandSet.keyPressTime = int.Parse(textBoxKeyPressTime.Text);
+                currentCommandSet.waitBetweenEachCommand = int.Parse(textBoxWaitBetweenEachCommand.Text);
+                currentCommandSets.Add(currentCommandSet);
+                currentMacro.commandSets = currentCommandSets.ToArray();
+                saveMacroSettings();
+                updateMacroList(false);
+                listBoxAvailableMacros.SetSelected(currentSelectedMacroIndex, true);
+
             }
+            else
+            {
+                currentCommandSet.gameDefinition = currentSelectedGame.gameEnum.ToString();
+                currentCommandSet.actionSequence = actions.ToArray();
+                currentCommandSet.keyPressTime = int.Parse(textBoxKeyPressTime.Text);
+                currentCommandSet.waitBetweenEachCommand = int.Parse(textBoxWaitBetweenEachCommand.Text);
+                if (!string.IsNullOrWhiteSpace(textBoxGameMacroDescription.Text))
+                {
+                    currentCommandSet.description = textBoxGameMacroDescription.Text;
+                }
+                else
+                {
+                    currentCommandSet.description = currentSelectedGame.friendlyName + " version";
+                }
+                saveMacroSettings();
+                updateMacroList(false);
+                listBoxAvailableMacros.SetSelected(currentSelectedMacroIndex, true);
+            }            
         }
 
         private void buttonDeleteSelectedMacro_Click(object sender, EventArgs e)
@@ -461,14 +477,19 @@ namespace CrewChiefV4
             {
                 return;
             }
-            macroContainer.macros = macroContainer.macros.Where(val => val.name != listBoxAvailableMacros.Items[listBoxAvailableMacros.SelectedIndex].ToString()).ToArray();
-            updateMacroList(false);
+            if (MessageBox.Show(Configuration.getUIString("delete_selected_macro_confirmation"), Configuration.getUIString("delete_selected_macro_confirmation_title") + " " + listBoxAvailableMacros.SelectedItem.ToString(),
+                MessageBoxButtons.OKCancel) == System.Windows.Forms.DialogResult.OK)
+            {
+                macroContainer.macros = macroContainer.macros.Where(val => val.name != listBoxAvailableMacros.SelectedItem.ToString()).ToArray();
+                saveMacroSettings();
+                updateMacroList(false);
+            }
+
         }
 
-        private void buttonSaveMacroSettings_Click(object sender, EventArgs e)
+        private void saveMacroSettings()
         {
-            MacroManager.saveCommands(macroContainer);
-            updateMacroList(false);
+            MacroManager.saveCommands(macroContainer);            
         }
 
         private void buttonLoadUserMacroSettings_Click(object sender, EventArgs e)
@@ -481,6 +502,136 @@ namespace CrewChiefV4
         {
             macroContainer = MacroManager.loadCommands(MacroManager.getMacrosFileLocation(true));
             updateMacroList(false);
+        }
+
+        private void radioButtonAvailableActions_CheckedChanged(object sender, EventArgs e)
+        {
+            buttonAddSelectedKeyToSequence.Enabled = true;
+            textBoxDescription.ShortcutsEnabled = false;
+            comboBoxKeySelection.Enabled = true;
+            if (radioButtonRegularKeyAction.Checked)
+            {
+                textBoxSpecialActionParameter.Enabled = false;
+                textBoxSpecialActionParameter.Text = "";
+                labelSpecialActionParameter.Text = "";
+            }
+            else if (radioButtonMultipleKeyAction.Checked)
+            {
+                textBoxSpecialActionParameter.Enabled = true;
+                textBoxSpecialActionParameter.Text = "";
+                labelSpecialActionParameter.Text = Configuration.getUIString("action_repeated_key_presses");
+            }
+            else if (radioButtonMultipleFuelAction.Checked)
+            {
+                textBoxSpecialActionParameter.Enabled = false;
+                textBoxSpecialActionParameter.Text = "{MULTIPLE,Fuel}";
+                labelSpecialActionParameter.Text = "";
+            }
+            else if (radioButtonMultipleVoiceTrigger.Checked)
+            {
+                textBoxSpecialActionParameter.Enabled = false;
+                textBoxSpecialActionParameter.Text = "{MULTIPLE,VOICE_TRIGGER}";
+                labelSpecialActionParameter.Text = "";
+            }
+            else if (radioButtonWaitAction.Checked)
+            {
+                textBoxSpecialActionParameter.Enabled = true;
+                textBoxSpecialActionParameter.Text = "";
+                comboBoxKeySelection.Enabled = false;
+                labelSpecialActionParameter.Text = Configuration.getUIString("action_wait_time");
+            }
+            else if (radioButtonFreeTextAction.Checked)
+            {
+                textBoxSpecialActionParameter.Enabled = true;
+                textBoxSpecialActionParameter.Text = "";
+                comboBoxKeySelection.Enabled = false;
+                labelSpecialActionParameter.Text = Configuration.getUIString("action_free_text");
+            }
+            else if (radioButtonAdvancedEditAction.Checked)
+            {
+                textBoxSpecialActionParameter.Enabled = false;
+                comboBoxKeySelection.Enabled = false;
+                textBoxSpecialActionParameter.Text = "";
+                labelSpecialActionParameter.Text = "";
+                textBoxActionSequence.Enabled = true;
+                buttonAddSelectedKeyToSequence.Enabled = false;
+                textBoxDescription.ShortcutsEnabled = true;
+            }
+
+        }
+
+        private void textBoxSpecialActionParameter_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (radioButtonWaitAction.Checked || radioButtonMultipleKeyAction.Checked)
+            {
+                if (!char.IsDigit(e.KeyChar))
+                    e.Handled = true;         //Just Digits
+                if (e.KeyChar == (char)8)
+                    e.Handled = false;        //Allow Backspace      
+            }
+
+        }
+
+        private void radioButtonAvailableMacros_CheckedChanged(object sender, EventArgs e)
+        {
+            buttonDeleteSelectedMacro.Enabled = false;
+            groupBoxGameSettings.Enabled = false;
+            if (radioButtonViewOnly.Checked)
+            {
+                buttonAddNewMacro.Enabled = false;
+                textBoxAddNewMacro.Enabled = false;
+                groupBoxGlobalMacroVoiceTrigger.Enabled = false;
+                buttonSelectConfirmationMessage.Enabled = false;
+                textBoxDescription.ShortcutsEnabled = false;
+                groupBoxGameSettings.Enabled = true;
+            }
+            else
+            {
+                buttonAddNewMacro.Enabled = true;
+                textBoxAddNewMacro.Enabled = true;
+                groupBoxGlobalMacroVoiceTrigger.Enabled = true;
+                buttonSelectConfirmationMessage.Enabled = true;
+                textBoxDescription.ShortcutsEnabled = true;
+            }
+            if (radioButtonAddNewMacro.Checked)
+            {
+                listBoxAvailableMacros.ClearSelected();
+                listBoxAvailableMacros.Enabled = false;
+                textBoxConfirmationMessage.Text = "";
+            }
+            else
+            {
+                listBoxAvailableMacros.Enabled = true;
+            }
+            if(radioButtonEditSelectedMacro.Checked)
+            {
+                buttonDeleteSelectedMacro.Enabled = true;
+            }
+
+        }
+
+        private void textBoxDescription_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (radioButtonViewOnly.Checked)
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void textBoxActionSequence_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!radioButtonAdvancedEditAction.Checked)
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void buttonUndoLastAction_Click(object sender, EventArgs e)
+        {
+            if (!string.IsNullOrWhiteSpace(textBoxActionSequence.Text))
+            {
+                textBoxActionSequence.Lines = textBoxActionSequence.Lines.Take(textBoxActionSequence.Lines.Count() - 1).ToArray();
+            }
         }
     }
 }
