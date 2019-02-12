@@ -195,7 +195,8 @@ namespace CrewChiefV4
             // working while constructor is running.
             Debug.Assert(this.IsHandleCreated);
             this.controllersList.DrawItem += this.ControllersList_DrawItem;
-            this.controllersList.DrawMode = DrawMode.OwnerDrawFixed;
+            this.controllersList.MeasureItem += this.ControllersList_MeasureItem;
+            this.controllersList.DrawMode = DrawMode.OwnerDrawVariable;
             if (!MainWindow.disableControllerReacquire)
             {
                 this.reacquireControllerList();
@@ -487,6 +488,18 @@ namespace CrewChiefV4
             }
         }
 
+        private void ControllersList_MeasureItem(object sender, MeasureItemEventArgs e)
+        {
+            var entry = (MainWindow.ControllerUiEntry)this.controllersList.Items[e.Index];
+
+            // Measure the string.
+            var txtSize = e.Graphics.MeasureString(entry.uiText, this.Font);
+
+            // Set the required size.
+            e.ItemHeight = (int)txtSize.Height;
+            e.ItemWidth = (int)txtSize.Width;
+        }
+
         private void ControllersList_DrawItem(object sender, DrawItemEventArgs e)
         {
             // Draw the background of the ListBox control for each item.
@@ -496,8 +509,8 @@ namespace CrewChiefV4
 
             var brush = entry.isConnected ? Brushes.Black : Brushes.Gray;
 
-            // Draw the current item text based on the current Font 
-            // and the custom brush settings.
+            SizeF txt_size = e.Graphics.MeasureString(entry.uiText, e.Font);
+
             e.Graphics.DrawString(this.controllersList.Items[e.Index].ToString(),
                 e.Font, brush, e.Bounds, StringFormat.GenericDefault);
 
@@ -1507,7 +1520,7 @@ namespace CrewChiefV4
             this.deleteAssigmentButton.Enabled = this.buttonActionSelect.SelectedIndex > -1 &&
                 this.controllerConfiguration.buttonAssignments[this.buttonActionSelect.SelectedIndex].controller != null;
 
-            this.assignButtonToAction.Enabled = this.buttonActionSelect.SelectedIndex > -1 && this.controllersList.SelectedIndex > -1;
+            this.assignButtonToAction.Enabled = this.buttonActionSelect.SelectedIndex > -1 && this.controllersList.SelectedIndex > -1 && ((MainWindow.ControllerUiEntry)this.controllersList.Items[this.controllersList.SelectedIndex]).isConnected;
             this.propertiesButton.Enabled = true;
             this.groupBox1.Enabled = true;
             this.personalisationBox.Enabled = true;
@@ -1658,7 +1671,7 @@ namespace CrewChiefV4
             {
                 this.deleteAssigmentButton.Enabled = this.buttonActionSelect.SelectedIndex > -1 &&
                     this.controllerConfiguration.buttonAssignments[this.buttonActionSelect.SelectedIndex].controller != null;
-                this.assignButtonToAction.Enabled = this.buttonActionSelect.SelectedIndex > -1 && this.controllersList.SelectedIndex > -1;
+                this.assignButtonToAction.Enabled = this.buttonActionSelect.SelectedIndex > -1 && this.controllersList.SelectedIndex > -1 && ((MainWindow.ControllerUiEntry)this.controllersList.Items[this.controllersList.SelectedIndex]).isConnected;
                 stopApp();
                 this.propertiesButton.Enabled = true;
                 this.personalisationBox.Enabled = true;
@@ -1695,13 +1708,13 @@ namespace CrewChiefV4
         private void buttonActionSelect_SelectedIndexChanged(object sender, EventArgs e)
         {
             this.deleteAssigmentButton.Enabled = this.buttonActionSelect.SelectedIndex > -1 && !crewChief.running;
-            this.assignButtonToAction.Enabled = this.buttonActionSelect.SelectedIndex > -1 && this.controllersList.SelectedIndex > -1 && !crewChief.running;
+            this.assignButtonToAction.Enabled = this.buttonActionSelect.SelectedIndex > -1 && this.controllersList.SelectedIndex > -1 && !crewChief.running && ((MainWindow.ControllerUiEntry)this.controllersList.Items[this.controllersList.SelectedIndex]).isConnected;
         }
 
         private void controllersList_SelectedIndexChanged(object sender, EventArgs e)
         {
             this.deleteAssigmentButton.Enabled = this.buttonActionSelect.SelectedIndex > -1 && !crewChief.running;
-            this.assignButtonToAction.Enabled = this.buttonActionSelect.SelectedIndex > -1 && this.controllersList.SelectedIndex > -1 && !crewChief.running;
+            this.assignButtonToAction.Enabled = this.buttonActionSelect.SelectedIndex > -1 && this.controllersList.SelectedIndex > -1 && !crewChief.running && ((MainWindow.ControllerUiEntry)this.controllersList.Items[this.controllersList.SelectedIndex]).isConnected;
         }
 
         public void getControllers()
