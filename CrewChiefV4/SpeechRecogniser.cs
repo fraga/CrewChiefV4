@@ -125,6 +125,25 @@ namespace CrewChiefV4
         public static String[] ENABLE_CUT_TRACK_WARNINGS = Configuration.getSpeechRecognitionPhrases("ENABLE_CUT_TRACK_WARNINGS");
         public static String[] DISABLE_CUT_TRACK_WARNINGS = Configuration.getSpeechRecognitionPhrases("DISABLE_CUT_TRACK_WARNINGS");
 
+        public static String[] HOWS_MY_LEFT_FRONT_CAMBER = Configuration.getSpeechRecognitionPhrases("HOWS_MY_LEFT_FRONT_CAMBER");
+        public static String[] HOWS_MY_RIGHT_FRONT_CAMBER = Configuration.getSpeechRecognitionPhrases("HOWS_MY_RIGHT_FRONT_CAMBER");
+        public static String[] HOWS_MY_LEFT_REAR_CAMBER = Configuration.getSpeechRecognitionPhrases("HOWS_MY_LEFT_REAR_CAMBER");
+        public static String[] HOWS_MY_RIGHT_REAR_CAMBER = Configuration.getSpeechRecognitionPhrases("HOWS_MY_RIGHT_REAR_CAMBER");
+        public static String[] HOWS_MY_FRONT_CAMBER = Configuration.getSpeechRecognitionPhrases("HOWS_MY_FRONT_CAMBER");
+        public static String[] HOWS_MY_REAR_CAMBER = Configuration.getSpeechRecognitionPhrases("HOWS_MY_REAR_CAMBER");
+        public static String[] HOW_ARE_MY_TYRE_PRESSURES = Configuration.getSpeechRecognitionPhrases("HOW_ARE_MY_TYRE_PRESSURES");
+        public static String[] HOW_ARE_MY_FRONT_TYRE_PRESSURES = Configuration.getSpeechRecognitionPhrases("HOW_ARE_MY_FRONT_TYRE_PRESSURES");
+        public static String[] HOW_ARE_MY_REAR_TYRE_PRESSURES = Configuration.getSpeechRecognitionPhrases("HOW_ARE_MY_REAR_TYRE_PRESSURES");
+        public static String[] HOWS_MY_LEFT_FRONT_CAMBER_RIGHT_NOW = Configuration.getSpeechRecognitionPhrases("HOWS_MY_LEFT_FRONT_CAMBER_RIGHT_NOW");
+        public static String[] HOWS_MY_RIGHT_FRONT_CAMBER_RIGHT_NOW = Configuration.getSpeechRecognitionPhrases("HOWS_MY_RIGHT_FRONT_CAMBER_RIGHT_NOW");
+        public static String[] HOWS_MY_LEFT_REAR_CAMBER_RIGHT_NOW = Configuration.getSpeechRecognitionPhrases("HOWS_MY_LEFT_REAR_CAMBER_RIGHT_NOW");
+        public static String[] HOWS_MY_RIGHT_REAR_CAMBER_RIGHT_NOW = Configuration.getSpeechRecognitionPhrases("HOWS_MY_RIGHT_REAR_CAMBER_RIGHT_NOW");
+        public static String[] HOWS_MY_FRONT_CAMBER_RIGHT_NOW = Configuration.getSpeechRecognitionPhrases("HOWS_MY_FRONT_CAMBER_RIGHT_NOW");
+        public static String[] HOWS_MY_REAR_CAMBER_RIGHT_NOW = Configuration.getSpeechRecognitionPhrases("HOWS_MY_REAR_CAMBER_RIGHT_NOW");
+        public static String[] HOW_ARE_MY_TYRE_PRESSURES_RIGHT_NOW = Configuration.getSpeechRecognitionPhrases("HOW_ARE_MY_TYRE_PRESSURES_RIGHT_NOW");
+        public static String[] HOW_ARE_MY_FRONT_TYRE_PRESSURES_RIGHT_NOW = Configuration.getSpeechRecognitionPhrases("HOW_ARE_MY_FRONT_TYRE_PRESSURES_RIGHT_NOW");
+        public static String[] HOW_ARE_MY_REAR_TYRE_PRESSURES_RIGHT_NOW = Configuration.getSpeechRecognitionPhrases("HOW_ARE_MY_REAR_TYRE_PRESSURES_RIGHT_NOW");
+
         public static String ON = Configuration.getSpeechRecognitionConfigOption("ON");
         public static String POSSESSIVE = Configuration.getSpeechRecognitionConfigOption("POSSESSIVE");
         public static String WHERE_IS = Configuration.getSpeechRecognitionConfigOption("WHERE_IS");
@@ -735,6 +754,25 @@ namespace CrewChiefV4
 
                 validateAndAdd(START_PACE_NOTES_PLAYBACK, staticSpeechChoices);
                 validateAndAdd(STOP_PACE_NOTES_PLAYBACK, staticSpeechChoices);
+
+                validateAndAdd(HOWS_MY_LEFT_FRONT_CAMBER, staticSpeechChoices);
+                validateAndAdd(HOWS_MY_RIGHT_FRONT_CAMBER, staticSpeechChoices);
+                validateAndAdd(HOWS_MY_LEFT_REAR_CAMBER, staticSpeechChoices);
+                validateAndAdd(HOWS_MY_RIGHT_REAR_CAMBER, staticSpeechChoices);
+                validateAndAdd(HOWS_MY_FRONT_CAMBER, staticSpeechChoices);
+                validateAndAdd(HOWS_MY_REAR_CAMBER, staticSpeechChoices);
+                validateAndAdd(HOW_ARE_MY_TYRE_PRESSURES, staticSpeechChoices);
+                validateAndAdd(HOW_ARE_MY_FRONT_TYRE_PRESSURES, staticSpeechChoices);
+                validateAndAdd(HOW_ARE_MY_REAR_TYRE_PRESSURES, staticSpeechChoices);
+                validateAndAdd(HOWS_MY_LEFT_FRONT_CAMBER_RIGHT_NOW, staticSpeechChoices);
+                validateAndAdd(HOWS_MY_RIGHT_FRONT_CAMBER_RIGHT_NOW, staticSpeechChoices);
+                validateAndAdd(HOWS_MY_LEFT_REAR_CAMBER_RIGHT_NOW, staticSpeechChoices);
+                validateAndAdd(HOWS_MY_RIGHT_REAR_CAMBER_RIGHT_NOW, staticSpeechChoices);
+                validateAndAdd(HOWS_MY_FRONT_CAMBER_RIGHT_NOW, staticSpeechChoices);
+                validateAndAdd(HOWS_MY_REAR_CAMBER_RIGHT_NOW, staticSpeechChoices);
+                validateAndAdd(HOW_ARE_MY_TYRE_PRESSURES_RIGHT_NOW, staticSpeechChoices);
+                validateAndAdd(HOW_ARE_MY_FRONT_TYRE_PRESSURES_RIGHT_NOW, staticSpeechChoices);
+                validateAndAdd(HOW_ARE_MY_REAR_TYRE_PRESSURES_RIGHT_NOW, staticSpeechChoices);
 
                 if (!disableBehaviorAlteringVoiceCommands)
                 {
@@ -1700,7 +1738,25 @@ namespace CrewChiefV4
                 ResultContains(recognisedSpeech, HOW_ARE_MY_BRAKE_TEMPS, false) ||
                 ResultContains(recognisedSpeech, WHAT_ARE_MY_BRAKE_TEMPS, false) ||
                 ResultContains(recognisedSpeech, WHAT_ARE_THE_RELATIVE_TYRE_PERFORMANCES, false) ||
-                ResultContains(recognisedSpeech, HOW_LONG_WILL_THESE_TYRES_LAST, false))
+                ResultContains(recognisedSpeech, HOW_LONG_WILL_THESE_TYRES_LAST, false) ||
+                ResultContains(recognisedSpeech, HOWS_MY_LEFT_FRONT_CAMBER, false) ||
+                ResultContains(recognisedSpeech, HOWS_MY_RIGHT_FRONT_CAMBER, false) ||
+                ResultContains(recognisedSpeech, HOWS_MY_LEFT_REAR_CAMBER, false) ||
+                ResultContains(recognisedSpeech, HOWS_MY_RIGHT_REAR_CAMBER, false) ||
+                ResultContains(recognisedSpeech, HOWS_MY_FRONT_CAMBER, false) ||
+                ResultContains(recognisedSpeech, HOWS_MY_REAR_CAMBER, false) ||
+                ResultContains(recognisedSpeech, HOW_ARE_MY_TYRE_PRESSURES, false) ||
+                ResultContains(recognisedSpeech, HOW_ARE_MY_FRONT_TYRE_PRESSURES, false) ||
+                ResultContains(recognisedSpeech, HOW_ARE_MY_REAR_TYRE_PRESSURES, false) ||
+                ResultContains(recognisedSpeech, HOWS_MY_LEFT_FRONT_CAMBER_RIGHT_NOW, false) ||
+                ResultContains(recognisedSpeech, HOWS_MY_RIGHT_FRONT_CAMBER_RIGHT_NOW, false) ||
+                ResultContains(recognisedSpeech, HOWS_MY_LEFT_REAR_CAMBER_RIGHT_NOW, false) ||
+                ResultContains(recognisedSpeech, HOWS_MY_RIGHT_REAR_CAMBER_RIGHT_NOW, false) ||
+                ResultContains(recognisedSpeech, HOWS_MY_FRONT_CAMBER_RIGHT_NOW, false) ||
+                ResultContains(recognisedSpeech, HOWS_MY_REAR_CAMBER_RIGHT_NOW, false) ||
+                ResultContains(recognisedSpeech, HOW_ARE_MY_TYRE_PRESSURES_RIGHT_NOW, false) ||
+                ResultContains(recognisedSpeech, HOW_ARE_MY_FRONT_TYRE_PRESSURES_RIGHT_NOW, false) ||
+                ResultContains(recognisedSpeech, HOW_ARE_MY_REAR_TYRE_PRESSURES_RIGHT_NOW, false))
             {
                 return CrewChief.getEvent("TyreMonitor");
             }

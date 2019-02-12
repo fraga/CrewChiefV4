@@ -158,6 +158,100 @@ namespace CrewChiefV4.Events
         public static String folderAreAbout = "tyre_monitor/are_about";
         public static String folderFasterThan = "tyre_monitor/faster_than";
 
+        // camber stuff:
+        public static String folderAverageFrontsIMOSame = "tyre_monitor/average_front_inner_and_outer_same";
+        public static String folderAverageRearsIMOSame = "tyre_monitor/average_rear_inner_and_outer_same";
+        public static String folderAverageFrontInnerTempsIntro = "tyre_monitor/average_front_inner_temps_are";
+        public static String folderAverageRearInnerTempsIntro = "tyre_monitor/average_rear_inner_temps_are";
+        public static String folderCelsiusColderThanOuter = "tyre_monitor/celsius_colder_than_outer";
+        public static String folderCelsiusColderThanOuters = "tyre_monitor/celsius_colder_than_outers"; // different sound for plural
+        public static String folderCelsiusHotterThanOuter = "tyre_monitor/celsius_hotter_than_outer";
+        public static String folderCelsiusHotterThanOuters = "tyre_monitor/celsius_hotter_than_outers"; // different sound for plural
+        public static String folderLFIMOSame = "tyre_monitor/lf_inner_and_outer_are_same";
+        public static String folderRFIMOSame = "tyre_monitor/rf_inner_and_outer_are_same";
+        public static String folderLRIMOSame = "tyre_monitor/lr_inner_and_outer_are_same";
+        public static String folderRRIMOSame = "tyre_monitor/rr_inner_and_outer_are_same";
+        public static String folderLFInnerIsRunning = "tyre_monitor/lf_inner_is_running";
+        public static String folderRFInnerIsRunning = "tyre_monitor/rf_inner_is_running";
+        public static String folderLRInnerIsRunning = "tyre_monitor/lr_inner_is_running";
+        public static String folderRRInnerIsRunning = "tyre_monitor/rr_inner_is_running";
+        public static String folderNeedMoreNegativeCamber = "tyre_monitor/you_need_more_negative_camber";
+        public static String folderNeedMorePositiveCamber = "tyre_monitor/you_need_more_positive_camber";
+        public static String folderNeedMoreNegativeCamberOnFronts = "tyre_monitor/you_need_more_negative_camber_on_fronts";
+        public static String folderNeedMorePostiveCamberOnFronts = "tyre_monitor/you_need_more_positive_camber_on_fronts";
+        public static String folderNeedMoreNegativeCamberOnRears = "tyre_monitor/you_need_more_negative_camber_on_rears";
+        public static String folderNeedMorePostiveCamberOnRears = "tyre_monitor/you_need_more_positive_camber_on_rears";
+        public static String folderCamberOK = "tyre_monitor/camber_ok";
+
+        // pressure stuff
+        public static String folderLeftFrontPressureVeryHigh = "tyre_monitor/left_front_pressure_very_high";
+        public static String folderLeftFrontPressureHigh = "tyre_monitor/left_front_pressure_high";
+        public static String folderLeftFrontPressureOK = "tyre_monitor/left_front_pressure_ok";
+        public static String folderLeftFrontPressureLow = "tyre_monitor/left_front_pressure_low";
+        public static String folderLeftFrontPressureVeryLow = "tyre_monitor/left_front_pressure_very_low";
+        public static String folderRightFrontPressureVeryHigh = "tyre_monitor/right_front_pressure_very_high";
+        public static String folderRightFrontPressureHigh = "tyre_monitor/right_front_pressure_high";
+        public static String folderRightFrontPressureOK = "tyre_monitor/right_front_pressure_ok";
+        public static String folderRightFrontPressureLow = "tyre_monitor/right_front_pressure_low";
+        public static String folderRightFrontPressureVeryLow = "tyre_monitor/right_front_pressure_very_low";
+        public static String folderLeftRearPressureVeryHigh = "tyre_monitor/left_rear_pressure_very_high";
+        public static String folderLeftRearPressureHigh = "tyre_monitor/left_rear_pressure_high";
+        public static String folderLeftRearPressureOK = "tyre_monitor/left_rear_pressure_ok";
+        public static String folderLeftRearPressureLow = "tyre_monitor/left_rear_pressure_low";
+        public static String folderLeftRearPressureVeryLow = "tyre_monitor/left_rear_pressure_very_low";
+        public static String folderRightRearPressureVeryHigh = "tyre_monitor/right_rear_pressure_very_high";
+        public static String folderRightRearPressureHigh = "tyre_monitor/right_rear_pressure_high";
+        public static String folderRightRearPressureOK = "tyre_monitor/right_rear_pressure_ok";
+        public static String folderRightRearPressureLow = "tyre_monitor/right_rear_pressure_low";
+        public static String folderRightRearPressureVeryLow = "tyre_monitor/right_rear_pressure_very_low";
+        public static String folderFrontPressuresVeryHigh = "tyre_monitor/front_pressures_very_high";
+        public static String folderFrontPressuresHigh = "tyre_monitor/front_pressures_high";
+        public static String folderFrontPressuresOK = "tyre_monitor/front_pressures_ok";
+        public static String folderFrontPressuresLow = "tyre_monitor/front_pressures_low";
+        public static String folderFrontPressuresVeryLow = "tyre_monitor/front_pressures_very_low";
+        public static String folderRearPressuresVeryHigh = "tyre_monitor/rear_pressures_very_high";
+        public static String folderRearPressuresHigh = "tyre_monitor/rear_pressures_high";
+        public static String folderRearPressuresOK = "tyre_monitor/rear_pressures_ok";
+        public static String folderRearPressuresLow = "tyre_monitor/rear_pressures_low";
+        public static String folderRearPressuresVeryLow = "tyre_monitor/rear_pressures_very_low";
+
+
+        // some finger-in-air target inner-outer temps percentage increase from outer to inner - 
+        // if inner = 90 and outer = 85 then we have 100 * (90 - 85)/90 = 5.56
+        float[] defaultTargetIODifference = {3, 6}; // inners should be min 3%, max 6% hotter that outers
+        private static Dictionary<TyreType, float[]> idealCamberValues = new Dictionary<TyreType, float[]>() {
+            {TyreType.R3E_2016, new float[] {1, 3}}, // these are the old R3E tyre model with core temps that change very little
+            {TyreType.R3E_2016_HARD, new float[] {2, 4}}, // these are the old R3E tyre model with core temps that change very little
+            {TyreType.R3E_2016_MEDIUM, new float[] {2, 4}}, // these are the old R3E tyre model with core temps that change very little
+            {TyreType.R3E_2016_SOFT, new float[] {1, 3}}, // these are the old R3E tyre model with core temps that change very little
+            {TyreType.R3E_2017, new float[] {3, 6}},     // more recent tyre model
+            {TyreType.Hard, new float[] {4, 8}},
+            {TyreType.Medium, new float[] {4, 7}},
+            {TyreType.Soft, new float[] {3, 6}},
+            {TyreType.Super_Soft, new float[] {3, 5}},
+            {TyreType.Hyper_Soft, new float[] {2, 4}}
+        };
+
+        private int imoSampleFrequency = 1000;  // milliseconds, externalise?
+        private DateTime nextIMOSamplesDue = DateTime.MinValue;
+
+        private LinkedList<float> leftFrontInnerSamples = new LinkedList<float>();
+        private LinkedList<float> leftFrontMiddleSamples = new LinkedList<float>();
+        private LinkedList<float> leftFrontOuterSamples = new LinkedList<float>();
+        private LinkedList<float> rightFrontInnerSamples = new LinkedList<float>();
+        private LinkedList<float> rightFrontMiddleSamples = new LinkedList<float>();
+        private LinkedList<float> rightFrontOuterSamples = new LinkedList<float>();
+        private LinkedList<float> leftRearInnerSamples = new LinkedList<float>();
+        private LinkedList<float> leftRearMiddleSamples = new LinkedList<float>();
+        private LinkedList<float> leftRearOuterSamples = new LinkedList<float>();
+        private LinkedList<float> rightRearInnerSamples = new LinkedList<float>();
+        private LinkedList<float> rightRearMiddleSamples = new LinkedList<float>();
+        private LinkedList<float> rightRearOuterSamples = new LinkedList<float>(); 
+        private float[] leftFrontAverageIMOLastLap;
+        private float[] rightFrontAverageIMOLastLap;
+        private float[] leftRearAverageIMOLastLap;
+        private float[] rightRearAverageIMOLastLap;
+
         private int lapsIntoSessionBeforeTempMessage = 2;        
 
         // check at start of which sector (1=s/f line)
@@ -409,6 +503,23 @@ namespace CrewChiefV4.Events
             tyreLifeXPointsLRWearByTime.Clear();
             tyreLifeXPointsRRWearByTime.Clear();
             lastTyreLifeYPointTime = -1;
+
+            leftFrontInnerSamples.Clear();
+            leftFrontMiddleSamples.Clear();
+            leftFrontOuterSamples.Clear(); 
+            rightFrontInnerSamples.Clear();
+            rightFrontMiddleSamples.Clear();
+            rightFrontOuterSamples.Clear(); 
+            leftRearInnerSamples.Clear();
+            leftRearMiddleSamples.Clear();
+            leftRearOuterSamples.Clear(); 
+            rightRearInnerSamples.Clear();
+            rightRearMiddleSamples.Clear();
+            rightRearOuterSamples.Clear();
+            leftFrontAverageIMOLastLap = null;
+            rightFrontAverageIMOLastLap = null;
+            leftRearAverageIMOLastLap = null;
+            rightRearAverageIMOLastLap = null;
         }
 
         private Boolean isBrakeTempPeakForLap(float leftFront, float rightFront, float leftRear, float rightRear) 
@@ -465,6 +576,30 @@ namespace CrewChiefV4.Events
                 Console.WriteLine("Status: " + key);
             }
             Console.WriteLine("-------------------------");
+        }
+
+        private void getIMOAveragesForLap()
+        {
+            leftFrontAverageIMOLastLap = new float[] { leftFrontInnerSamples.Average(), leftFrontMiddleSamples.Average(), leftFrontOuterSamples.Average() };
+            rightFrontAverageIMOLastLap = new float[] { rightFrontInnerSamples.Average(), rightFrontMiddleSamples.Average(), rightFrontOuterSamples.Average() };
+            leftRearAverageIMOLastLap = new float[] { leftRearInnerSamples.Average(), leftRearMiddleSamples.Average(), leftRearOuterSamples.Average() };
+            rightRearAverageIMOLastLap = new float[] { rightRearInnerSamples.Average(), rightRearMiddleSamples.Average(), rightRearOuterSamples.Average() };
+        }
+
+        private void clearIMOData()
+        {
+            leftFrontInnerSamples.Clear();
+            leftFrontMiddleSamples.Clear();
+            leftFrontOuterSamples.Clear();
+            rightFrontInnerSamples.Clear();
+            rightFrontMiddleSamples.Clear();
+            rightFrontOuterSamples.Clear();
+            leftRearInnerSamples.Clear();
+            leftRearMiddleSamples.Clear();
+            leftRearOuterSamples.Clear();
+            rightRearInnerSamples.Clear();
+            rightRearMiddleSamples.Clear();
+            rightRearOuterSamples.Clear();
         }
 
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
@@ -537,6 +672,31 @@ namespace CrewChiefV4.Events
                     thisLapTyreConditionReportSector = 3;
                     thisLapTyreTempReportSector = 2;
                 }
+                // just finished a lap, get IMO data
+                getIMOAveragesForLap();
+                clearIMOData();
+            }
+            else if (previousGameState != null && previousGameState.PitData.InPitlane && !currentGameState.PitData.InPitlane)
+            {
+                // just exited the pit, clear the lap's IMO temp data
+                clearIMOData();
+            }
+            else if (!currentGameState.PitData.InPitlane && currentGameState.PositionAndMotionData.CarSpeed > 10 && currentGameState.Now > nextIMOSamplesDue)
+            {
+                // if we're not in the pitlane and a moving at a reasonable speed, collect IMO temp samples
+                nextIMOSamplesDue = currentGameState.Now.AddMilliseconds(imoSampleFrequency);
+                leftFrontInnerSamples.AddLast(currentGameState.TyreData.FrontLeft_RightTemp);
+                leftFrontMiddleSamples.AddLast(currentGameState.TyreData.FrontLeft_CenterTemp);
+                leftFrontOuterSamples.AddLast(currentGameState.TyreData.FrontLeft_LeftTemp);
+                rightFrontInnerSamples.AddLast(currentGameState.TyreData.FrontRight_LeftTemp);
+                rightFrontMiddleSamples.AddLast(currentGameState.TyreData.FrontRight_CenterTemp);
+                rightFrontOuterSamples.AddLast(currentGameState.TyreData.FrontRight_RightTemp);
+                leftRearInnerSamples.AddLast(currentGameState.TyreData.RearLeft_RightTemp);
+                leftRearMiddleSamples.AddLast(currentGameState.TyreData.RearLeft_CenterTemp);
+                leftRearOuterSamples.AddLast(currentGameState.TyreData.RearLeft_LeftTemp);
+                rightRearInnerSamples.AddLast(currentGameState.TyreData.RearRight_LeftTemp);
+                rightRearMiddleSamples.AddLast(currentGameState.TyreData.RearRight_CenterTemp);
+                rightRearOuterSamples.AddLast(currentGameState.TyreData.RearRight_RightTemp);
             }
 
             enableWheelSpinWarnings = enableWheelSpinWarnings && GlobalBehaviourSettings.enabledMessageTypes.Contains(MessageTypes.LOCKING_AND_SPINNING);
@@ -1342,8 +1502,507 @@ namespace CrewChiefV4.Events
                     }
                 }
             }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOWS_MY_LEFT_FRONT_CAMBER_RIGHT_NOW))
+            {
+                if (!hasUsableIMOTempData(false))
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                }
+                else
+                {
+                    float percentageDiff = getPercentageDiff(CrewChief.currentGameState.TyreData.FrontLeft_RightTemp, CrewChief.currentGameState.TyreData.FrontLeft_LeftTemp);
+                    int absoluteDiff = (int)Math.Round(CrewChief.currentGameState.TyreData.FrontLeft_RightTemp - CrewChief.currentGameState.TyreData.FrontLeft_LeftTemp);
+                    Console.WriteLine("camber diff is " + absoluteDiff + " (" + percentageDiff + ") %");
+                    playCamberMessage(percentageDiff, absoluteDiff, folderLFIMOSame, folderLFInnerIsRunning, folderCelsiusHotterThanOuter, folderCelsiusColderThanOuter, delayResponses);
+                }
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOWS_MY_LEFT_FRONT_CAMBER))
+            {
+                if (!hasUsableIMOTempData(true))
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                }
+                else
+                {
+                    float percentageDiff = getPercentageDiff(leftFrontAverageIMOLastLap[0], leftFrontAverageIMOLastLap[2]);
+                    int absoluteDiff = (int)Math.Round(leftFrontAverageIMOLastLap[0] - leftFrontAverageIMOLastLap[2]);
+                    Console.WriteLine("camber diff is " + absoluteDiff + " (" + percentageDiff + ") %");
+                    playCamberMessage(percentageDiff, absoluteDiff, folderLFIMOSame, folderLFInnerIsRunning, folderCelsiusHotterThanOuter, folderCelsiusColderThanOuter, delayResponses);                    
+                }
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOWS_MY_RIGHT_FRONT_CAMBER_RIGHT_NOW))
+            {
+                if (!hasUsableIMOTempData(false))
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                }
+                else
+                {
+                    float percentageDiff = getPercentageDiff(CrewChief.currentGameState.TyreData.FrontRight_LeftTemp, CrewChief.currentGameState.TyreData.FrontRight_RightTemp);
+                    int absoluteDiff = (int)Math.Round(CrewChief.currentGameState.TyreData.FrontRight_LeftTemp - CrewChief.currentGameState.TyreData.FrontRight_RightTemp);
+                    Console.WriteLine("camber diff is " + absoluteDiff + " (" + percentageDiff + ") %");
+                    playCamberMessage(percentageDiff, absoluteDiff, folderRFIMOSame, folderRFInnerIsRunning, folderCelsiusHotterThanOuter, folderCelsiusColderThanOuter, delayResponses);
+                }
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOWS_MY_RIGHT_FRONT_CAMBER))
+            {
+                if (!hasUsableIMOTempData(true))
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                }
+                else
+                {
+                    float percentageDiff = getPercentageDiff(rightFrontAverageIMOLastLap[0], rightFrontAverageIMOLastLap[2]);
+                    int absoluteDiff = (int)Math.Round(rightFrontAverageIMOLastLap[0] - rightFrontAverageIMOLastLap[2]);
+                    Console.WriteLine("camber diff is " + absoluteDiff + " (" + percentageDiff + ") %");
+                    playCamberMessage(percentageDiff, absoluteDiff, folderRFIMOSame, folderRFInnerIsRunning, folderCelsiusHotterThanOuter, folderCelsiusColderThanOuter, delayResponses);
+                }
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOWS_MY_LEFT_REAR_CAMBER_RIGHT_NOW))
+            {
+                if (!hasUsableIMOTempData(false))
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                }
+                else
+                {
+                    float percentageDiff = getPercentageDiff(CrewChief.currentGameState.TyreData.RearLeft_RightTemp, CrewChief.currentGameState.TyreData.RearLeft_LeftTemp);
+                    int absoluteDiff = (int)Math.Round(CrewChief.currentGameState.TyreData.RearLeft_RightTemp - CrewChief.currentGameState.TyreData.RearLeft_LeftTemp);
+                    Console.WriteLine("camber diff is " + absoluteDiff + " (" + percentageDiff + ") %");
+                    playCamberMessage(percentageDiff, absoluteDiff, folderLRIMOSame, folderLRInnerIsRunning, folderCelsiusHotterThanOuter, folderCelsiusColderThanOuter, delayResponses);
+                }
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOWS_MY_LEFT_REAR_CAMBER))
+            {
+                if (!hasUsableIMOTempData(true))
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                }
+                else
+                {
+                    float percentageDiff = getPercentageDiff(leftRearAverageIMOLastLap[0], leftRearAverageIMOLastLap[2]);
+                    int absoluteDiff = (int)Math.Round(leftRearAverageIMOLastLap[0] - leftRearAverageIMOLastLap[2]);
+                    Console.WriteLine("camber diff is " + absoluteDiff + " (" + percentageDiff + ") %");
+                    playCamberMessage(percentageDiff, absoluteDiff, folderLRIMOSame, folderLRInnerIsRunning, folderCelsiusHotterThanOuter, folderCelsiusColderThanOuter, delayResponses);
+                }
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOWS_MY_RIGHT_REAR_CAMBER_RIGHT_NOW))
+            {
+                if (!hasUsableIMOTempData(false))
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                }
+                else
+                {
+                    float percentageDiff = getPercentageDiff(CrewChief.currentGameState.TyreData.RearRight_LeftTemp, CrewChief.currentGameState.TyreData.RearRight_RightTemp);
+                    int absoluteDiff = (int)Math.Round(CrewChief.currentGameState.TyreData.RearRight_LeftTemp - CrewChief.currentGameState.TyreData.RearRight_RightTemp);
+                    Console.WriteLine("camber diff is " + absoluteDiff + " (" + percentageDiff + ") %");
+                    playCamberMessage(percentageDiff, absoluteDiff, folderRRIMOSame, folderRRInnerIsRunning, folderCelsiusHotterThanOuter, folderCelsiusColderThanOuter, delayResponses);
+                }
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOWS_MY_RIGHT_REAR_CAMBER))
+            {
+                if (!hasUsableIMOTempData(true))
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                }
+                else
+                {
+                    float percentageDiff = getPercentageDiff(rightRearAverageIMOLastLap[0], rightRearAverageIMOLastLap[2]);
+                    int absoluteDiff = (int)Math.Round(rightRearAverageIMOLastLap[0] - rightRearAverageIMOLastLap[2]);
+                    Console.WriteLine("camber diff is " + absoluteDiff + " (" + percentageDiff + ") %");
+                    playCamberMessage(percentageDiff, absoluteDiff, folderRRIMOSame, folderRRInnerIsRunning, folderCelsiusHotterThanOuter, folderCelsiusColderThanOuter, delayResponses);
+                }
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOWS_MY_FRONT_CAMBER_RIGHT_NOW))
+            {
+                if (!hasUsableIMOTempData(false))
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                }
+                else
+                {
+                    float averageInner = (CrewChief.currentGameState.TyreData.FrontLeft_RightTemp + CrewChief.currentGameState.TyreData.FrontRight_LeftTemp) / 2f;
+                    float averageOuter = (CrewChief.currentGameState.TyreData.FrontLeft_LeftTemp + CrewChief.currentGameState.TyreData.FrontRight_RightTemp) / 2f;
+                    float percentageDiff = getPercentageDiff(averageInner, averageOuter);
+                    int absoluteDiff = (int)Math.Round(averageInner - averageOuter);
+                    Console.WriteLine("camber diff is " + absoluteDiff + " (" + percentageDiff + ") %");
+                    playCamberMessage(percentageDiff, absoluteDiff, folderAverageFrontsIMOSame, folderAverageFrontInnerTempsIntro, folderCelsiusHotterThanOuters, folderCelsiusColderThanOuters, delayResponses);
+                }
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOWS_MY_FRONT_CAMBER))
+            {
+                if (!hasUsableIMOTempData(true))
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                }
+                else
+                {
+                    float averageInner = (leftFrontAverageIMOLastLap[0] + rightFrontAverageIMOLastLap[0]) / 2f;
+                    float averageOuter = (leftFrontAverageIMOLastLap[2] + leftFrontAverageIMOLastLap[2]) / 2f;
+                    float percentageDiff = getPercentageDiff(averageInner, averageOuter);
+                    int absoluteDiff = (int)Math.Round(averageInner - averageOuter);
+                    Console.WriteLine("camber diff from average is " + absoluteDiff + " (" + percentageDiff + ") %");
+                    playCamberMessage(percentageDiff, absoluteDiff, folderAverageFrontsIMOSame, folderAverageFrontInnerTempsIntro, folderCelsiusHotterThanOuters, folderCelsiusColderThanOuters, delayResponses);
+                }
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOWS_MY_REAR_CAMBER_RIGHT_NOW))
+            {
+                if (!hasUsableIMOTempData(false))
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                }
+                else
+                {
+                    float averageInner = (CrewChief.currentGameState.TyreData.RearLeft_RightTemp + CrewChief.currentGameState.TyreData.RearRight_LeftTemp) / 2f;
+                    float averageOuter = (CrewChief.currentGameState.TyreData.RearLeft_LeftTemp + CrewChief.currentGameState.TyreData.RearRight_RightTemp) / 2f;
+                    float percentageDiff = getPercentageDiff(averageInner, averageOuter);
+                    int absoluteDiff = (int)Math.Round(averageInner - averageOuter);
+                    Console.WriteLine("camber diff is " + absoluteDiff + " (" + percentageDiff + ") %");
+                    playCamberMessage(percentageDiff, absoluteDiff, folderAverageRearsIMOSame, folderAverageRearInnerTempsIntro, folderCelsiusHotterThanOuters, folderCelsiusColderThanOuters, delayResponses);
+                }
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOWS_MY_REAR_CAMBER))
+            {
+                if (!hasUsableIMOTempData(true))
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                }
+                else
+                {
+                    float averageInner = (leftRearAverageIMOLastLap[0] + rightRearAverageIMOLastLap[0]) / 2f;
+                    float averageOuter = (leftRearAverageIMOLastLap[2] + leftRearAverageIMOLastLap[2]) / 2f;
+                    float percentageDiff = getPercentageDiff(averageInner, averageOuter);
+                    int absoluteDiff = (int)Math.Round(averageInner - averageOuter);
+                    Console.WriteLine("camber diff is " + absoluteDiff + " (" + percentageDiff + ") %");
+                    playCamberMessage(percentageDiff, absoluteDiff, folderAverageRearsIMOSame, folderAverageRearInnerTempsIntro, folderCelsiusHotterThanOuters, folderCelsiusColderThanOuters, delayResponses);
+                }
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOW_ARE_MY_TYRE_PRESSURES_RIGHT_NOW))
+            {
+                if (!hasUsableIMOTempData(false))
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                }
+                else
+                {
+                    playPressureMessage(delayResponses,
+                        getPressureMessage(CornerData.Corners.FRONT_LEFT, false),
+                        getPressureMessage(CornerData.Corners.FRONT_RIGHT, false),
+                        getPressureMessage(CornerData.Corners.REAR_LEFT, false),
+                        getPressureMessage(CornerData.Corners.REAR_RIGHT, false));
+                }
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOW_ARE_MY_TYRE_PRESSURES))
+            {
+                if (!hasUsableIMOTempData(true))
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                }
+                else
+                {
+                    playPressureMessage(delayResponses,
+                        getPressureMessage(CornerData.Corners.FRONT_LEFT, true),
+                        getPressureMessage(CornerData.Corners.FRONT_RIGHT, true),
+                        getPressureMessage(CornerData.Corners.REAR_LEFT, true),
+                        getPressureMessage(CornerData.Corners.REAR_RIGHT, true));
+                }
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOW_ARE_MY_FRONT_TYRE_PRESSURES_RIGHT_NOW))
+            {
+                if (!hasUsableIMOTempData(false))
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                }
+                else
+                {
+                    playPressureMessage(delayResponses, getPressureMessage(CornerData.Corners.FRONTS, false));
+                }
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOW_ARE_MY_FRONT_TYRE_PRESSURES))
+            {
+                if (!hasUsableIMOTempData(true))
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                }
+                else
+                {
+                    playPressureMessage(delayResponses, getPressureMessage(CornerData.Corners.FRONTS, true));
+                }
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOW_ARE_MY_REAR_TYRE_PRESSURES_RIGHT_NOW))
+            {
+                if (!hasUsableIMOTempData(false))
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                }
+                else
+                {
+                    playPressureMessage(delayResponses, getPressureMessage(CornerData.Corners.REARS, false));
+                }
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOW_ARE_MY_REAR_TYRE_PRESSURES))
+            {
+                if (!hasUsableIMOTempData(true))
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                }
+                else
+                {
+                    playPressureMessage(delayResponses, getPressureMessage(CornerData.Corners.REARS, true));
+                }
+            }
         }
 
+        private void playPressureMessage(Boolean allowDelayedResponse, params String[] folders)
+        {
+            int secondsDelay = 0;
+            if (allowDelayedResponse && Utilities.random.Next(10) >= 2)
+            {
+                audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderStandBy, 0));
+                secondsDelay = Math.Max(8, Utilities.random.Next(12));
+                audioPlayer.pauseQueue(secondsDelay);
+            }
+            audioPlayer.playMessageImmediately(new QueuedMessage("pressures", 15,
+                    messageFragments: MessageContents(folders), abstractEvent: this, priority: 0, secondsDelay: secondsDelay));
+        }
+
+        private String getPressureMessage(CornerData.Corners corners, Boolean useAverageData)
+        {
+            float percentDiff;
+            float averageEdgeTemp;
+            float middleTemp;
+            switch (corners)
+            {
+                case CornerData.Corners.FRONT_LEFT:
+                    averageEdgeTemp = useAverageData ? leftFrontAverageIMOLastLap[0] + leftFrontAverageIMOLastLap[2] / 2 :
+                        (CrewChief.currentGameState.TyreData.FrontLeft_LeftTemp + CrewChief.currentGameState.TyreData.FrontLeft_RightTemp) / 2;
+                    middleTemp = useAverageData ? leftFrontAverageIMOLastLap[1] :
+                        CrewChief.currentGameState.TyreData.FrontLeft_CenterTemp;
+                    percentDiff = 100 * (middleTemp - averageEdgeTemp) / middleTemp;
+                    if (percentDiff > 10)
+                    {
+                        return folderLeftFrontPressureVeryHigh;
+                    }
+                    else if (percentDiff > 4)
+                    {
+                        return folderLeftFrontPressureHigh;
+                    }
+                    else if (percentDiff < 4)
+                    {
+                        return folderLeftFrontPressureLow;
+                    }
+                    else if (percentDiff < 10)
+                    {
+                        return folderLeftFrontPressureVeryLow;
+                    }
+                    else
+                    {
+                        return folderLeftFrontPressureOK;
+                    }
+                case CornerData.Corners.FRONT_RIGHT:
+                    averageEdgeTemp = useAverageData ? rightFrontAverageIMOLastLap[0] + rightFrontAverageIMOLastLap[2] / 2 :
+                        (CrewChief.currentGameState.TyreData.FrontRight_LeftTemp + CrewChief.currentGameState.TyreData.FrontRight_RightTemp) / 2;
+                    middleTemp = useAverageData ? leftFrontAverageIMOLastLap[1] :
+                        CrewChief.currentGameState.TyreData.FrontLeft_CenterTemp;
+                    percentDiff = 100 * (middleTemp - averageEdgeTemp) / middleTemp;
+                    if (percentDiff > 10)
+                    {
+                        return folderRightFrontPressureVeryHigh;
+                    }
+                    else if (percentDiff > 4)
+                    {
+                        return folderRightFrontPressureHigh;
+                    }
+                    else if (percentDiff < 4)
+                    {
+                        return folderRightFrontPressureLow;
+                    }
+                    else if (percentDiff < 10)
+                    {
+                        return folderRightFrontPressureVeryLow;
+                    }
+                    else
+                    {
+                        return folderRightFrontPressureOK;
+                    }
+                case CornerData.Corners.REAR_LEFT:
+                    averageEdgeTemp = useAverageData ? leftRearAverageIMOLastLap[0] + leftRearAverageIMOLastLap[2] / 2 :
+                        (CrewChief.currentGameState.TyreData.RearLeft_LeftTemp + CrewChief.currentGameState.TyreData.RearLeft_RightTemp) / 2;
+                    middleTemp = useAverageData ? leftFrontAverageIMOLastLap[1] :
+                        CrewChief.currentGameState.TyreData.FrontLeft_CenterTemp;
+                    percentDiff = 100 * (middleTemp - averageEdgeTemp) / middleTemp;
+                    if (percentDiff > 10)
+                    {
+                        return folderLeftRearPressureVeryHigh;
+                    }
+                    else if (percentDiff > 4)
+                    {
+                        return folderLeftRearPressureHigh;
+                    }
+                    else if (percentDiff < 4)
+                    {
+                        return folderLeftRearPressureLow;
+                    }
+                    else if (percentDiff < 10)
+                    {
+                        return folderLeftRearPressureVeryLow;
+                    }
+                    else
+                    {
+                        return folderLeftRearPressureOK;
+                    }
+                case CornerData.Corners.REAR_RIGHT:
+                    averageEdgeTemp = useAverageData ? rightRearAverageIMOLastLap[0] + rightRearAverageIMOLastLap[2] / 2 :
+                        (CrewChief.currentGameState.TyreData.RearRight_LeftTemp + CrewChief.currentGameState.TyreData.RearRight_RightTemp) / 2;
+                    middleTemp = useAverageData ? leftFrontAverageIMOLastLap[1] :
+                        CrewChief.currentGameState.TyreData.FrontLeft_CenterTemp;
+                    percentDiff = 100 * (middleTemp - averageEdgeTemp) / middleTemp;
+                    if (percentDiff > 10)
+                    {
+                        return folderRightRearPressureVeryHigh;
+                    }
+                    else if (percentDiff > 4)
+                    {
+                        return folderRightRearPressureHigh;
+                    }
+                    else if (percentDiff < 4)
+                    {
+                        return folderRightRearPressureLow;
+                    }
+                    else if (percentDiff < 10)
+                    {
+                        return folderRightRearPressureVeryLow;
+                    }
+                    else
+                    {
+                        return folderRightRearPressureOK;
+                    }
+                case CornerData.Corners.FRONTS:
+                    averageEdgeTemp = useAverageData ? leftFrontAverageIMOLastLap[0] + leftFrontAverageIMOLastLap[2] + rightFrontAverageIMOLastLap[0] + rightFrontAverageIMOLastLap[2] / 4 :
+                        (CrewChief.currentGameState.TyreData.FrontLeft_LeftTemp + CrewChief.currentGameState.TyreData.FrontLeft_RightTemp +
+                        CrewChief.currentGameState.TyreData.FrontRight_LeftTemp + CrewChief.currentGameState.TyreData.FrontRight_RightTemp) / 4;
+                    middleTemp = useAverageData ? (leftFrontAverageIMOLastLap[1] + rightFrontAverageIMOLastLap[1]) / 2: 
+                        (CrewChief.currentGameState.TyreData.FrontLeft_CenterTemp + CrewChief.currentGameState.TyreData.FrontRight_CenterTemp ) / 2;
+                    percentDiff = 100 * (middleTemp - averageEdgeTemp) / middleTemp;
+                    if (percentDiff > 10)
+                    {
+                        return folderFrontPressuresVeryHigh;
+                    }
+                    else if (percentDiff > 4)
+                    {
+                        return folderFrontPressuresHigh;
+                    }
+                    else if (percentDiff < 4)
+                    {
+                        return folderFrontPressuresLow;
+                    }
+                    else if (percentDiff < 10)
+                    {
+                        return folderFrontPressuresVeryLow;
+                    }
+                    else
+                    {
+                        return folderFrontPressuresOK;
+                    }
+                case CornerData.Corners.REARS:
+                    averageEdgeTemp = useAverageData ? leftRearAverageIMOLastLap[0] + leftRearAverageIMOLastLap[2] + rightRearAverageIMOLastLap[0] + rightRearAverageIMOLastLap[2] / 4 :
+                        (CrewChief.currentGameState.TyreData.RearLeft_LeftTemp + CrewChief.currentGameState.TyreData.RearLeft_RightTemp +
+                        CrewChief.currentGameState.TyreData.RearRight_LeftTemp + CrewChief.currentGameState.TyreData.RearRight_RightTemp) / 4;
+                    middleTemp = useAverageData ? (leftRearAverageIMOLastLap[1] + rightRearAverageIMOLastLap[1]) / 2: 
+                        (CrewChief.currentGameState.TyreData.RearLeft_CenterTemp + CrewChief.currentGameState.TyreData.RearRight_CenterTemp ) / 2;
+                    percentDiff = 100 * (middleTemp - averageEdgeTemp) / middleTemp;                    
+                    if (percentDiff > 10)
+                    {
+                        return folderRearPressuresVeryHigh;
+                    }
+                    else if (percentDiff > 4)
+                    {
+                        return folderRearPressuresHigh;
+                    }
+                    else if (percentDiff < 4)
+                    {
+                        return folderRearPressuresLow;
+                    }
+                    else if (percentDiff < 10)
+                    {
+                        return folderRearPressuresVeryLow;
+                    }
+                    else
+                    {
+                        return folderRearPressuresOK;
+                    }
+                default:
+                    return null;
+            }
+        }
+
+        private void playCamberMessage(float percentageDiff, int absoluteDiff, String folderSame, String folderDiffIntro, String folderHotterThanOutersOutro,
+            String folderColderThanOutersOutro, Boolean allowDelayedResponse)
+        {
+            int secondsDelay = 0;
+            if (allowDelayedResponse && Utilities.random.Next(10) >= 2)
+            {
+                audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderStandBy, 0));
+                secondsDelay = Math.Max(8, Utilities.random.Next(12));
+                audioPlayer.pauseQueue(secondsDelay);
+            }
+            float[] targets = getTargetCamberPercentDiff();
+            float minTarget = targets[0];
+            float maxTarget = targets[1];
+            if (Math.Abs(absoluteDiff) <= 1)
+            {
+                audioPlayer.playMessageImmediately(new QueuedMessage("imo_diff", 15,
+                    messageFragments: MessageContents(folderSame, folderNeedMoreNegativeCamber), abstractEvent: this, priority: 0, secondsDelay: secondsDelay));
+            }
+            else if (percentageDiff < -1)
+            {
+                audioPlayer.playMessageImmediately(new QueuedMessage("imo_diff", 15,
+                    messageFragments: MessageContents(folderDiffIntro, absoluteDiff * -1, folderColderThanOutersOutro, folderNeedMoreNegativeCamber), abstractEvent: this, priority: 0, secondsDelay: secondsDelay));
+            }
+            else if (percentageDiff > maxTarget)
+            {
+                audioPlayer.playMessageImmediately(new QueuedMessage("imo_diff", 15,
+                    messageFragments: MessageContents(folderDiffIntro, absoluteDiff, folderHotterThanOutersOutro, folderNeedMorePositiveCamber), abstractEvent: this, priority: 0, secondsDelay: secondsDelay));
+            }
+            else if (percentageDiff < minTarget)
+            {
+                audioPlayer.playMessageImmediately(new QueuedMessage("imo_diff", 15,
+                    messageFragments: MessageContents(folderDiffIntro, absoluteDiff, folderHotterThanOutersOutro, folderNeedMoreNegativeCamber), abstractEvent: this, priority: 0, secondsDelay: secondsDelay));
+            }
+            else
+            {
+                audioPlayer.playMessageImmediately(new QueuedMessage("imo_diff", 15,
+                    messageFragments: MessageContents(folderDiffIntro, absoluteDiff, folderHotterThanOutersOutro), abstractEvent: this, priority: 0, secondsDelay: secondsDelay));
+                audioPlayer.playMessageImmediately(new QueuedMessage(folderCamberOK, 15, secondsDelay: secondsDelay));
+            }
+        }
+
+        private float getPercentageDiff(float inner, float outer)
+        {
+            return 100 * (inner - outer) / outer;
+        }
+
+        private float[] getTargetCamberPercentDiff()
+        {
+            float[] target;
+            if (TyreMonitor.idealCamberValues.TryGetValue(CrewChief.currentGameState.TyreData.FrontLeftTyreType, out target))
+            {
+                return target;
+            }
+            else
+            {
+                return defaultTargetIODifference;
+            }
+        }
+
+        private Boolean hasUsableIMOTempData(Boolean useAverageData)
+        {
+            return CrewChief.gameDefinition.gameEnum != GameEnum.IRACING && CrewChief.gameDefinition.gameEnum != GameEnum.F1_2018 &&
+                ((useAverageData && leftFrontAverageIMOLastLap != null) ||
+                (!useAverageData && CrewChief.currentGameState != null && CrewChief.currentGameState.TyreData != null && CrewChief.currentGameState.TyreData.FrontLeft_LeftTemp > 30));
+        }
+        
         private void addTyreTempWarningMessages(CornerData.Corners corners, TyreTemp tyreTemp, List<MessageFragment> messageContents, Boolean includeRears)
         {
             switch (corners)
