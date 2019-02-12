@@ -1211,7 +1211,6 @@ namespace CrewChiefV4
                     {
                         lock (this.controllerWriteLock)
                         {
-                            Console.WriteLine("Refreshing controllers...");
                             this.refreshControllerList();
                         }
                     }
@@ -1882,6 +1881,7 @@ namespace CrewChiefV4
                     controllerConfiguration.addNetworkControllerToList();
                 }
 
+                // Note: according to MR index of device in UI matters for assignment, so when we sort this it has to be preserved somehow.
                 foreach (ControllerConfiguration.ControllerData configData in controllerConfiguration.knownControllers)
                 {
                     this.controllersList.Items.Add(configData.deviceName);

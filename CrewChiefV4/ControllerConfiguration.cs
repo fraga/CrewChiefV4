@@ -473,6 +473,8 @@ namespace CrewChiefV4
 
         public void scanControllers()
         {
+            Console.WriteLine("Re-scanning controllers...");
+
             int availableCount = 0;
 
             // This method is called from the controller refresh thread, either by the device-changed event handler or explicitly on app start.
@@ -527,7 +529,7 @@ namespace CrewChiefV4
             while (controllerScanThread.IsAlive)
             {
                 Thread.Sleep(5000);
-                Console.WriteLine("Refreshing controller devices (this may take a while depending on your configuration)...");
+                Console.WriteLine("Re-scanning controller devices (this may take a while depending on your configuration)...");
             }
 
             if (scanCancelled)
@@ -577,10 +579,11 @@ namespace CrewChiefV4
                 try
                 {
                     joystick = new Joystick(directInput, joystickGuid);
+                    Console.WriteLine("Device " + (string.IsNullOrWhiteSpace(deviceName) ? "" : (" Name: \"" + deviceName + "\"    ")) + "GUID: \"" + joystickGuid + "\" is connected.");
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("Device " + (string.IsNullOrWhiteSpace(deviceName) ? "" : (" name: " + deviceName)) + " GUID " + joystickGuid + " is not connected.");
+                    Console.WriteLine("Device " + (string.IsNullOrWhiteSpace(deviceName) ? "" : (" Name: \"" + deviceName + "\"    ")) + "GUID: \"" + joystickGuid + "\" is not connected.");
                     Debug.WriteLine("Unable to create a Joystick device with GUID " + joystickGuid + (string.IsNullOrWhiteSpace(deviceName) ? "" : (" name: " + deviceName)) + ": " + e.Message);
                     return;
                 }
@@ -620,7 +623,9 @@ namespace CrewChiefV4
 
         public void reacquireControllers()
         {
+            Console.WriteLine("Re-acquired controllers...");
             Debug.Assert(MainWindow.instance != null && !MainWindow.instance.InvokeRequired);
+
             // This method is called from the UI thread, either by the device-changed event handler or explicitly on app start.
             // The poll for button clicks call is from a helper thread and accesses the activeDevices list - potentially concurrently
             lock (activeDevices)
