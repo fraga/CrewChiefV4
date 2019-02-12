@@ -48,6 +48,25 @@ namespace CrewChiefV4
         private Boolean newDriverNamesAvailable = false;
         private Boolean newPersonalisationsAvailable = false;
 
+        public struct ControllerUiEntry
+        {
+            public string uiText;
+            public bool isConnected;
+            public int controllerIndex;
+
+            public ControllerUiEntry(string uiText, bool isConnected, int controllerIndex)
+            {
+                this.uiText = uiText;
+                this.isConnected = isConnected;
+                this.controllerIndex = controllerIndex;
+            }
+
+            public override string ToString()
+            {
+                return uiText;
+            }
+        }
+
         // Shared with worker thread.  This should be disposed after root threads stopped, in GlobalResources.Dispose.
         private ControllerConfiguration controllerConfiguration;
 
@@ -175,6 +194,8 @@ namespace CrewChiefV4
             // is created on a message pump, at undefined moment, which prevents Invoke from
             // working while constructor is running.
             Debug.Assert(this.IsHandleCreated);
+            this.controllersList.DrawItem += this.ControllersList_DrawItem;
+            this.controllersList.DrawMode = DrawMode.OwnerDrawFixed;
             if (!MainWindow.disableControllerReacquire)
             {
                 this.reacquireControllerList();
@@ -464,6 +485,24 @@ namespace CrewChiefV4
                 else
                     this.WindowState = FormWindowState.Minimized;
             }
+        }
+
+        private void ControllersList_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            // Draw the background of the ListBox control for each item.
+            e.DrawBackground();
+
+            var entry = (MainWindow.ControllerUiEntry)this.controllersList.Items[e.Index];
+
+            var brush = entry.isConnected ? Brushes.Black : Brushes.Gray;
+
+            // Draw the current item text based on the current Font 
+            // and the custom brush settings.
+            e.Graphics.DrawString(this.controllersList.Items[e.Index].ToString(),
+                e.Font, brush, e.Bounds, StringFormat.GenericDefault);
+
+            // If the ListBox has focus, draw a focus rectangle around the selected item.
+            e.DrawFocusRectangle();
         }
 
         private void HideToTray()
@@ -1668,9 +1707,10 @@ namespace CrewChiefV4
         public void getControllers()
         {
             this.controllersList.Items.Clear();
+            // TODO: looks like a bug :(
             foreach (ControllerConfiguration.ControllerData configData in controllerConfiguration.controllers)
             {
-                this.controllersList.Items.Add(configData.deviceType.ToString() + " " + configData.deviceName);
+                this.controllersList.Items.Add(new MainWindow.ControllerUiEntry(configData.deviceType.ToString() + " " + configData.deviceName, true /*connected*/, -1));
             }
         }
 
@@ -1884,7 +1924,8 @@ namespace CrewChiefV4
                 // Note: according to MR index of device in UI matters for assignment, so when we sort this it has to be preserved somehow.
                 foreach (ControllerConfiguration.ControllerData configData in controllerConfiguration.knownControllers)
                 {
-                    this.controllersList.Items.Add(configData.deviceName);
+                    var connected = controllerConfiguration.controllers.Exists(cc => cc.guid == configData.guid);
+                    this.controllersList.Items.Add(new MainWindow.ControllerUiEntry(configData.deviceName, connected, -1));
                 }
 
                 runListenForChannelOpenThread = controllerConfiguration.listenForChannelOpen()
@@ -1915,7 +1956,7 @@ namespace CrewChiefV4
 
                         foreach (ControllerConfiguration.ControllerData configData in controllerConfiguration.controllers)
                         {
-                            this.controllersList.Items.Add(configData.deviceName);
+                            this.controllersList.Items.Add(new MainWindow.ControllerUiEntry(configData.deviceName, true /*connected*/, -1));
                         }
 
                         runListenForChannelOpenThread = controllerConfiguration.listenForChannelOpen()
