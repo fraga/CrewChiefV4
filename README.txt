@@ -147,33 +147,12 @@ Crew Chief supports some rF2 specific features not exposed via official rF2 Inte
     "DebugISIInternals":0,
     "DebugOutputLevel":0,
     "DedicatedServerMapGlobally":0,
-    "EnableDirectMemoryAccess":1,
-    "EnableStockCarRulesPlugin":0
+    "EnableDirectMemoryAccess":1
   }
 
 Note: first space in " Enabled" above is required.
 
-See this post for more information: http://thecrewchief.org/showthread.php?1011-rFactor-2-Unofficial-Features
-
-
-rFactor2 Stock Car Rules (SCR) plugin
--------------------------------------
-rFactor 2 Stock Car Rules (SCR) are implemented as a plugin. The Shared Memory plugin which Crew Chief uses does not see the output of the SCR plugin, because rF2 (partially) isolates plugins from each other. In order to work around this issue the Shared Memory plugin has to load the SCR plugin and forward all rF2 calls to it.
-
-Steps to enable Stock Car Rules in the Crew Chief:
-
- - Let Crew Chief update the rF2 Shared Memory plugin to the latest version by starting rF2 and CC once, then exit the game.
- - Make sure StockCarRules.dll "Enabled" is set to 0 (yes, disabled) in UserData\player\CustomPluginVariables.json. Do NOT Delete the plugin.
- - In UserData\player\CustomPluginVariables.json make sure SM plugin configuration looks like this:
-
- "rFactor2SharedMemoryMapPlugin64.dll":{
-    " Enabled":1,
-    "DebugISIInternals":0,
-    "DebugOutputLevel":0,
-    "EnableStockCarRulesPlugin":1
-}
-
-The SCR plugin and the messages associated with stock car rules will be enabled automatically for vehicle classes which have useAmericanTerms = true in their definition (some built in classes will have this). You can also force it to be enabled for all classes by selecting the "Use American terms" option in the Preferences screen.
+See this thread for more information: http://thecrewchief.org/showthread.php?1011-rFactor-2-Unofficial-Features
 
 
 Pit exit position prediction

@@ -22,7 +22,6 @@ namespace CrewChiefV4.commands
         public static Boolean enablePitExitPositionEstimates = UserSettings.GetUserSettings().getBoolean("enable_pit_exit_position_estimates");
 
         public static Boolean bringGameWindowToFrontForMacros = UserSettings.GetUserSettings().getBoolean("bring_game_window_to_front_for_macros");
-        public static Boolean enableAutoTriggering = UserSettings.GetUserSettings().getBoolean("allow_macros_to_trigger_automatically");
 
         public static Boolean stopped = false;
 
@@ -37,6 +36,38 @@ namespace CrewChiefV4.commands
             KeyPresser.releasePressedKey();
         }
 
+        // converter 
+        public static MacroContainer convertAssignmentToKey(MacroContainer macroContainer)
+        {
+            foreach(var assignment in macroContainer.assignments)
+            {
+                foreach(var keyBinding in assignment.keyBindings)
+                {
+                    foreach(var macro in macroContainer.macros)
+                    {
+                        foreach(CommandSet cs in macro.commandSets)
+                        {
+                            List<string> convertedActions = new List<string>();
+                            foreach (var action in cs.actionSequence)
+                            {
+                                if(action.Contains(keyBinding.action))                                
+                                {
+                                    string convertesAction = action.Replace(keyBinding.action, keyBinding.key);
+                                    convertedActions.Add(convertesAction);
+                                }
+                                else
+                                {
+                                    convertedActions.Add(action);
+                                }
+                            }
+                            cs.actionSequence = convertedActions.ToArray();
+                        }
+                    }
+                }
+            }
+            macroContainer.assignments = null;
+            return macroContainer;
+        }
         // This is called immediately after initialising the speech recogniser in MainWindow
         public static void initialise(AudioPlayer audioPlayer, SpeechRecogniser speechRecogniser)
         {
@@ -45,84 +76,70 @@ namespace CrewChiefV4.commands
             if (UserSettings.GetUserSettings().getBoolean("enable_command_macros"))
             {
                 // load the json:
-                MacroContainer macroContainer = loadCommands(getUserMacrosFileLocation());
-                // if it's valid, load the command sets:
-                if (macroContainer.assignments != null && macroContainer.assignments.Length > 0 && macroContainer.macros != null)
-                {
-                    // get the assignments by game:
-                    Dictionary<String, KeyBinding[]> assignmentsByGame = new Dictionary<String, KeyBinding[]>();
-                    foreach (Assignment assignment in macroContainer.assignments)
-                    {
-                        if (!assignmentsByGame.ContainsKey(assignment.gameDefinition))
-                        {
-                            assignmentsByGame.Add(assignment.gameDefinition, assignment.keyBindings);
-                        }
-                    }
+                MacroContainer macroContainer = loadCommands(getMacrosFileLocation());
 
-                    Dictionary<string, ExecutableCommandMacro> voiceTriggeredMacros = new Dictionary<string, ExecutableCommandMacro>();
-                    foreach (Macro macro in macroContainer.macros)
+                // if it's valid, load the command sets:
+                Dictionary<string, ExecutableCommandMacro> voiceTriggeredMacros = new Dictionary<string, ExecutableCommandMacro>();
+                foreach (Macro macro in macroContainer.macros)
+                {
+                    Boolean hasCommandForCurrentGame = false;
+                    // eagerly load the key bindings for each macro:
+                    foreach (CommandSet commandSet in macro.commandSets)
                     {
-                        Boolean hasCommandForCurrentGame = false;
-                        Boolean allowAutomaticTriggering = false;
-                        // eagerly load the key bindings for each macro:
-                        foreach (CommandSet commandSet in macro.commandSets)
+                        if (commandSet.gameDefinition.Equals(CrewChief.gameDefinition.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase))
                         {
-                            if (commandSet.gameDefinition.Equals(CrewChief.gameDefinition.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase))
+                            // this does the conversion from key characters to key enums and stores the result to save us doing it every time
+                            if (!commandSet.loadActionItems())
                             {
-                                // this does the conversion from key characters to key enums and stores the result to save us doing it every time
-                                if (!commandSet.loadActionItems(assignmentsByGame[commandSet.gameDefinition]))
+                                Console.WriteLine("Macro \"" + macro.name + "\" failed to load - some actionItems didn't parse succesfully");
+                            }
+                            else
+                            {
+                                hasCommandForCurrentGame = true;
+                            }
+                            break;
+                        }
+                    }
+                    if (hasCommandForCurrentGame)
+                    {
+                        // make this macro globally visible:
+                        ExecutableCommandMacro commandMacro = new ExecutableCommandMacro(audioPlayer, macro);
+                        macros.Add(macro.name, commandMacro);
+                        // if there's a voice command, load it into the recogniser:
+                        if (macro.voiceTriggers != null && macro.voiceTriggers.Length > 0)
+                        {
+                            foreach (String voiceTrigger in macro.voiceTriggers)
+                            {
+                                if (voiceTriggeredMacros.ContainsKey(voiceTrigger))
                                 {
-                                    Console.WriteLine("Macro \"" + macro.name + "\" failed to load - some actionItems didn't parse succesfully");
+                                    Console.WriteLine("Voice trigger " + voiceTrigger + " has already been allocated to a different command");
                                 }
                                 else
                                 {
-                                    allowAutomaticTriggering = commandSet.allowAutomaticTriggering;
-                                    hasCommandForCurrentGame = true;
+                                    voiceTriggeredMacros.Add(voiceTrigger, commandMacro);
                                 }
-                                break;
                             }
                         }
-                        if (hasCommandForCurrentGame)
+                        else if (macro.integerVariableVoiceTrigger != null && macro.integerVariableVoiceTrigger.Length > 0)
                         {
-                            // make this macro globally visible:
-                            ExecutableCommandMacro commandMacro = new ExecutableCommandMacro(audioPlayer, macro, assignmentsByGame, allowAutomaticTriggering);
-                            macros.Add(macro.name, commandMacro);
-                            // if there's a voice command, load it into the recogniser:
-                            if (macro.voiceTriggers != null && macro.voiceTriggers.Length > 0)
+                            if (voiceTriggeredMacros.ContainsKey(macro.integerVariableVoiceTrigger))
                             {
-                                foreach (String voiceTrigger in macro.voiceTriggers)
-                                {
-                                    if (voiceTriggeredMacros.ContainsKey(voiceTrigger))
-                                    {
-                                        Console.WriteLine("Voice trigger " + voiceTrigger + " has already been allocated to a different command");
-                                    }
-                                    else
-                                    {
-                                        voiceTriggeredMacros.Add(voiceTrigger, commandMacro);
-                                    }
-                                }
+                                Console.WriteLine("Voice trigger " + macro.integerVariableVoiceTrigger + " has already been allocated to a different command");
                             }
-                            else if (macro.integerVariableVoiceTrigger != null && macro.integerVariableVoiceTrigger.Length > 0)
+                            else
                             {
-                                if (voiceTriggeredMacros.ContainsKey(macro.integerVariableVoiceTrigger))
-                                {
-                                    Console.WriteLine("Voice trigger " + macro.integerVariableVoiceTrigger + " has already been allocated to a different command");
-                                }
-                                else
-                                {
-                                    voiceTriggeredMacros.Add(macro.integerVariableVoiceTrigger, commandMacro);
-                                }
+                                voiceTriggeredMacros.Add(macro.integerVariableVoiceTrigger, commandMacro);
                             }
                         }
                     }
-                    try
-                    {
-                        speechRecogniser.loadMacroVoiceTriggers(voiceTriggeredMacros);
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("Failed to load command macros into speech recogniser: " + e.Message);
-                    }
+                }
+                try
+                {
+                    speechRecogniser.loadMacroVoiceTriggers(voiceTriggeredMacros);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Failed to load command macros into speech recogniser: " + e.Message);
                 }
             }
             else
@@ -132,13 +149,21 @@ namespace CrewChiefV4.commands
         }
 
         // file loading boilerplate - needs refactoring
-        private static MacroContainer loadCommands(String filename)
+        public static MacroContainer loadCommands(String filename)
         {
             if (filename != null)
             {
                 try
-                {
-                    return JsonConvert.DeserializeObject<MacroContainer>(getFileContents(filename));
+                {                    
+                    MacroContainer macroContainer = JsonConvert.DeserializeObject<MacroContainer>(getFileContents(filename));
+                    // Conver any existing user created command macros to new "assignment" format
+                    if (macroContainer.assignments != null)
+                    {
+                        macroContainer = convertAssignmentToKey(macroContainer);
+                        saveCommands(macroContainer);
+                    }
+                    
+                    return macroContainer;
                 }
                 catch (Exception e)
                 {
@@ -146,6 +171,39 @@ namespace CrewChiefV4.commands
                 }
             }
             return new MacroContainer();
+        }
+
+        public static void saveCommands(MacroContainer macroContainer)
+        {
+            String fileName = "saved_command_macros.json";
+            String path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4");
+            if (!Directory.Exists(path))
+            {
+                try
+                {
+                    Directory.CreateDirectory(path);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error creating " + path + ": " + e.Message);
+                }
+            }
+            if (fileName != null)
+            {
+                try
+                {
+                    using (StreamWriter file = File.CreateText(System.IO.Path.Combine(path, fileName)))
+                    {
+                        JsonSerializer serializer = new JsonSerializer();
+                        serializer.Formatting = Newtonsoft.Json.Formatting.Indented;
+                        serializer.Serialize(file, macroContainer);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error parsing " + fileName + ": " + e.Message);
+                }
+            }         
         }
 
         private static String getFileContents(String fullFilePath)
@@ -179,12 +237,12 @@ namespace CrewChiefV4.commands
             return null;
         }
 
-        private static String getUserMacrosFileLocation()
+        public static String getMacrosFileLocation(bool forceDefault = false)
         {
             String path = System.IO.Path.Combine(Environment.GetFolderPath(
                 Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "saved_command_macros.json");
 
-            if (File.Exists(path))
+            if (File.Exists(path) && !forceDefault)
             {
                 Console.WriteLine("Loading user-configured command macros from Documents/CrewChiefV4/ folder");
                 return path;

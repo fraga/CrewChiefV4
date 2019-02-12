@@ -362,7 +362,7 @@
 			"carClassEnum": "GROUPC",
 			"raceroomClassIds": [4121],
 			"pCarsClassNames": ["Group C1", "Group C"],
-			"rf2ClassNames": ["Mazda_787B"],
+			"rf2ClassNames": ["Sauber C11", "Porsche 962C", "Mazda 787B"],
 			"acClassNames": ["mazda_787b", "ks_mazda_787b", "ks_mercedes_c9", "ks_porsche_962c_*"],
 			"brakeType": "Ceramic",
 			"timesInHundredths": true,

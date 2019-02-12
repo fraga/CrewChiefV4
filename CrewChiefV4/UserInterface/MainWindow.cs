@@ -106,6 +106,14 @@ namespace CrewChiefV4
         private AutoResetEvent consoleUpdateThreadWakeUpEvent = new AutoResetEvent(false);
         private bool consoleUpdateThreadRunning = false;
 
+        private AutoResetEvent controllerRescanThreadWakeUpEvent = new AutoResetEvent(false);
+        private bool controllerRescanThreadRunning = false;
+
+        // This lock must be held while we are updating controller devices or updating assignments.
+        private object controllerWriteLock = new object();
+
+        public static bool disableControllerReacquire = false;
+
         private const int WM_DEVICECHANGE = 0x219;
         private const int DBT_DEVNODES_CHANGED = 0x0007;
 
@@ -116,17 +124,32 @@ namespace CrewChiefV4
 
         protected override void WndProc(ref Message m)
         {
-            base.WndProc(ref m);
-            if (!constructingWindow)
+            if (!MainWindow.disableControllerReacquire && this.controllerRescanThreadRunning)
             {
                 if (m.Msg == WM_DEVICECHANGE)
                 {
                     if ((int)m.WParam == DBT_DEVNODES_CHANGED)
                     {
-                        refreshControllerList();
+                        if (!this.controllerConfiguration.scanInProgress)
+                        {
+                            this.scanControllers.Enabled = false;
+#if DEBUG
+                            var watch = System.Diagnostics.Stopwatch.StartNew();
+#endif
+                            this.reacquireControllerList();
+#if DEBUG
+                            watch.Stop();
+                            Debug.WriteLine("Controller re-acquisition took: " + watch.ElapsedTicks * 1000 / System.Diagnostics.Stopwatch.Frequency + "ms to shutdown");
+#endif
+                            if (!this.IsAppRunning)
+                            {
+                                this.scanControllers.Enabled = true;
+                            }
+                        }
                     }
                 }
             }
+            base.WndProc(ref m);
         }
 
         private void FormMain_Load(object sender, EventArgs e)
@@ -139,12 +162,23 @@ namespace CrewChiefV4
             ThreadManager.RegisterResourceThread(consoleUpdateThread);
             consoleUpdateThread.Start();
 
+            // Set up Controller Rescan thread
+            ts = controllerRescanThreadWorker;
+            var controllerRescanThread = new Thread(ts);
+            controllerRescanThread.Name = "MainWindow.controllerRescanThreadWorker";
+            controllerRescanThreadRunning = true;
+            ThreadManager.RegisterResourceThread(controllerRescanThread);
+            controllerRescanThread.Start();
+
             // Run immediately if requested.
             // Note that it is not safe to run immidiately from the constructor, becasue form handle
             // is created on a message pump, at undefined moment, which prevents Invoke from
             // working while constructor is running.
             Debug.Assert(this.IsHandleCreated);
-            refreshControllerList();
+            if (!MainWindow.disableControllerReacquire)
+            {
+                this.reacquireControllerList();
+            }
             if (UserSettings.GetUserSettings().getBoolean("run_immediately") &&
                 GameDefinition.getGameDefinitionForFriendlyName(gameDefinitionList.Text) != null)
             {
@@ -688,6 +722,10 @@ namespace CrewChiefV4
             consoleUpdateThreadRunning = false;
             consoleUpdateThreadWakeUpEvent.Set();
 
+            controllerRescanThreadRunning = false;
+            this.controllerConfiguration.cancelScan();
+            controllerRescanThreadWakeUpEvent.Set();
+
             lock (consoleWriter)
             {
                 consoleWriter.Dispose();
@@ -831,9 +869,6 @@ namespace CrewChiefV4
                 }
             }
 
-            controllerConfiguration = new ControllerConfiguration(this);
-            GlobalResources.controllerConfiguration = controllerConfiguration;
-
             setSelectedGameType();
 
             this.app_version.Text = Configuration.getUIString("version") + ": " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
@@ -973,6 +1008,13 @@ namespace CrewChiefV4
             }
 
             crewChief = new CrewChief();
+
+            // NOTE: if you ever move this construction, please make sure controller rescan thread is not running yet.
+            Debug.Assert(!this.controllerRescanThreadRunning);
+            controllerConfiguration = new ControllerConfiguration(this);
+            GlobalResources.controllerConfiguration = controllerConfiguration;
+            populateControlListUI();
+
             this.personalisationBox.Items.AddRange(this.crewChief.audioPlayer.personalisationsArray);
             this.chiefNameBox.Items.AddRange(AudioPlayer.availableChiefVoices.ToArray());
             this.spotterNameBox.Items.AddRange(NoisyCartesianCoordinateSpotter.availableSpotters.ToArray());
@@ -1118,7 +1160,8 @@ namespace CrewChiefV4
                 if (MainWindow.instance != null
                     && consoleTextBox != null
                     && !consoleTextBox.IsDisposed
-                    && !string.IsNullOrWhiteSpace(messages))
+                    && !string.IsNullOrWhiteSpace(messages)
+                    && consoleUpdateThreadRunning)
                 {
                     try
                     {
@@ -1142,6 +1185,35 @@ namespace CrewChiefV4
                                 }
                             }
                         });
+                    }
+                    catch (Exception)
+                    {
+                        // Possible shutdown.
+                    }
+                }
+            }
+        }
+
+        private void controllerRescanThreadWorker()
+        {
+            while (controllerRescanThreadRunning && !disableControllerReacquire)
+            {
+                controllerRescanThreadWakeUpEvent.WaitOne();
+                if (!controllerRescanThreadRunning)
+                {
+                    Debug.WriteLine("Exiting controller rescan thread.");
+                    return;
+                }
+
+                if (MainWindow.instance != null)
+                {
+                    try
+                    {
+                        lock (this.controllerWriteLock)
+                        {
+                            Console.WriteLine("Refreshing controllers...");
+                            this.refreshControllerList();
+                        }
                     }
                     catch (Exception)
                     {
@@ -1284,160 +1356,7 @@ namespace CrewChiefV4
                 if (now > lastButtoncheck.Add(buttonCheckInterval))
                 {
                     lastButtoncheck = now;
-                    if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_RACE_UPDATES_FUNCTION))
-                    {
-                        Console.WriteLine("Toggling keep quiet mode");
-                        crewChief.toggleKeepQuietMode();
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_SPOTTER_FUNCTION))
-                    {
-                        Console.WriteLine("Toggling spotter mode");
-                        crewChief.toggleSpotterMode();
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_READ_OPPONENT_DELTAS))
-                    {
-                        Console.WriteLine("Toggling read opponent deltas mode");
-                        crewChief.toggleReadOpponentDeltasMode();
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_MANUAL_FORMATION_LAP))
-                    {
-                        Console.WriteLine("Toggling manual formation lap mode");
-                        crewChief.toggleManualFormationLapMode();
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.READ_CORNER_NAMES_FOR_LAP))
-                    {
-                        Console.WriteLine("Enabling corner name reading for current lap");
-                        crewChief.playCornerNamesForCurrentLap();
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.REPEAT_LAST_MESSAGE_BUTTON))
-                    {
-                        Console.WriteLine("Repeating last message");
-                        crewChief.audioPlayer.repeatLastMessage();
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_YELLOW_FLAG_MESSAGES))
-                    {
-                        Console.WriteLine("Toggling yellow flag messages to: " + (CrewChief.yellowFlagMessagesEnabled ? "disabled" : "enabled"));
-                        crewChief.toggleEnableYellowFlagsMode();
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS))
-                    {
-                        Console.WriteLine("Toggling delay-messages-in-hard-parts");
-                        crewChief.toggleDelayMessagesInHardParts();
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.GET_FUEL_STATUS))
-                    {
-                        Console.WriteLine("Getting fuel/battery status");
-                        crewChief.reportFuelStatus();
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.GET_STATUS))
-                    {
-                        Console.WriteLine("Getting full status");
-                        CrewChief.getStatus();
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.GET_SESSION_STATUS))
-                    {
-                        Console.WriteLine("Getting session status");
-                        CrewChief.getSessionStatus();
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.GET_DAMAGE_REPORT))
-                    {
-                        Console.WriteLine("Getting damage report");
-                        CrewChief.getDamageReport();
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.GET_CAR_STATUS))
-                    {
-                        Console.WriteLine("Getting car status");
-                        CrewChief.getCarStatus();
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_PACE_NOTES_RECORDING))
-                    {
-                        Console.WriteLine("Start / stop pace notes recording");
-                        crewChief.togglePaceNotesRecording();
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_PACE_NOTES_PLAYBACK))
-                    {
-                        Console.WriteLine("Start / stop pace notes playback");
-                        crewChief.togglePaceNotesPlayback();
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_TRACK_LANDMARKS_RECORDING))
-                    {
-                        Console.WriteLine("Start / stop track landmark recording");
-                        crewChief.toggleTrackLandmarkRecording();
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_ENABLE_CUT_TRACK_WARNINGS))
-                    {
-                        Console.WriteLine("Enable / disable cut track warnings");
-                        crewChief.toggleEnableCutTrackWarnings();
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.ADD_TRACK_LANDMARK))
-                    {
-                        //dont confirm press here we do that in addLandmark
-                        crewChief.toggleAddTrackLandmark();
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.PIT_PREDICTION))
-                    {
-                        Console.WriteLine("pit prediction");
-                        if (CrewChief.currentGameState != null)
-                        {
-                            Strategy strategy = (Strategy) CrewChief.getEvent("Strategy");
-                            if (CrewChief.currentGameState.SessionData.SessionType == SessionType.Race)
-                            {
-                                strategy.respondRace();
-                            }
-                            else if (CrewChief.currentGameState.SessionData.SessionType == SessionType.Practice)
-                            {
-                                strategy.respondPracticeStop();
-                            }
-                        }
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.PRINT_TRACK_DATA))
-                    {
-                        if (CrewChief.currentGameState != null && CrewChief.currentGameState.SessionData != null &&
-                            CrewChief.currentGameState.SessionData.TrackDefinition != null)
-                        {
-                            string posInfo = "";
-                            var worldPos = CrewChief.currentGameState.PositionAndMotionData.WorldPosition;
-                            if (worldPos != null && worldPos.Length > 2)
-                            {
-                                posInfo = string.Format(", position x: {0} y: {1} z:{2}", worldPos[0], worldPos[1], worldPos[2]);
-                            }
-                            if (CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM)
-                            {
-                                Console.WriteLine("RaceroomLayoutId: " + CrewChief.currentGameState.SessionData.TrackDefinition.id + ", distanceRoundLap = " +
-                                    CrewChief.currentGameState.PositionAndMotionData.DistanceRoundTrack + ", player's car ID: " + CrewChief.currentGameState.carClass.getClassIdentifier() + posInfo);
-                            }
-                            else
-                            {
-                                Console.WriteLine("TrackName: " + CrewChief.currentGameState.SessionData.TrackDefinition.name + ", distanceRoundLap = " +
-                                    CrewChief.currentGameState.PositionAndMotionData.DistanceRoundTrack + ", player's car ID: " + CrewChief.currentGameState.carClass.getClassIdentifier() + posInfo);
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine("No track data available");
-                        }
-                        nextPollWait = 1000;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.VOLUME_UP))
+                    if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.VOLUME_UP))
                     {
                         if (currentVolume == -1)
                         {
@@ -1481,13 +1400,32 @@ namespace CrewChiefV4
                                 Console.WriteLine("Cancelling...");
                                 SpeechRecogniser.waitingForSpeech = false;
                                 crewChief.speechRecogniser.recognizeAsyncCancel();
+                                nextPollWait = 1000;
                             }
-                            Console.WriteLine("Listening...");
-                            crewChief.audioPlayer.playStartListeningBeep();
-                            crewChief.speechRecogniser.recognizeAsync();
-                            nextPollWait = 1000;
+                            else
+                            {
+                                Console.WriteLine("Listening...");
+                                crewChief.audioPlayer.playStartListeningBeep();
+                                crewChief.speechRecogniser.recognizeAsync();
+                            }
                         }
                     }
+                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_SPOTTER_FUNCTION))
+                    {
+                        Console.WriteLine("Toggling spotter mode");
+                        crewChief.toggleSpotterMode();
+                        nextPollWait = 1000;
+                    }
+                    else if (controllerConfiguration.hasOutstandingClick())
+                    {
+                        //Console.WriteLine("Toggling keep quiet mode");
+                        //crewChief.toggleKeepQuietMode();
+                        nextPollWait = 1000;
+                    }
+
+                    /*
+*/
+
                 }
                 Thread.Sleep(nextPollWait);
             }
@@ -1523,6 +1461,7 @@ namespace CrewChiefV4
             this.gameDefinitionList.Enabled = false;
             this.contextMenuPreferencesItem.Enabled = false;
             this.notificationTrayIcon.Text = string.Format(Configuration.getUIString("running_context_menu"), this.gameDefinitionList.Text);
+            this.scanControllers.Enabled = false;
         }
 
         public void uiSyncAppStop()
@@ -1540,6 +1479,7 @@ namespace CrewChiefV4
             this.gameDefinitionList.Enabled = true;
             this.contextMenuPreferencesItem.Enabled = true;
             this.notificationTrayIcon.Text = Configuration.getUIString("idling_context_menu");
+            this.scanControllers.Enabled = true;
         }
 
         private void doStartAppStuff()
@@ -1737,6 +1677,7 @@ namespace CrewChiefV4
 
         private void updateActions()
         {
+            Debug.Assert(!this.InvokeRequired);
             this.buttonActionSelect.Items.Clear();
             foreach (ControllerConfiguration.ButtonAssignment assignment in controllerConfiguration.buttonAssignments)
             {
@@ -1805,32 +1746,41 @@ namespace CrewChiefV4
 
         private void assignButton()
         {
-            if (controllerConfiguration.assignButton(this, this.controllersList.SelectedIndex, this.buttonActionSelect.SelectedIndex))
+            lock (this.controllerWriteLock)
             {
-                updateActions();
-                isAssigningButton = false;
-                controllerConfiguration.saveSettings();
-                runListenForChannelOpenThread = controllerConfiguration.listenForChannelOpen() && voiceOption != VoiceOptionEnum.DISABLED;
-                if (runListenForChannelOpenThread)
+                if (controllerConfiguration.assignButton(this, this.controllersList.SelectedIndex, this.buttonActionSelect.SelectedIndex))
                 {
-                    if(initialiseSpeechEngine())
+                    isAssigningButton = false;
+                    controllerConfiguration.saveSettings();
+                    runListenForChannelOpenThread = controllerConfiguration.listenForChannelOpen() && voiceOption != VoiceOptionEnum.DISABLED;
+                    if (runListenForChannelOpenThread)
                     {
-                        runListenForButtonPressesThread = controllerConfiguration.listenForButtons(voiceOption == VoiceOptionEnum.TOGGLE);
+                        if (initialiseSpeechEngine())
+                        {
+                            runListenForButtonPressesThread = controllerConfiguration.listenForButtons(voiceOption == VoiceOptionEnum.TOGGLE);
+                        }
                     }
                 }
-            }
-            else
-            {
-                isAssigningButton = false;
+                else
+                {
+                    isAssigningButton = false;
+                }
             }
 
-            // Check if form is shut down while we're listening.
-            lock (MainWindow.instanceLock)
+            try
             {
-                if (MainWindow.instance != null)
+                this.Invoke((MethodInvoker)delegate
                 {
-                    this.assignButtonToAction.Text = Configuration.getUIString("assign");
-                }
+                    if (MainWindow.instance != null)
+                    {
+                        this.updateActions();
+                        this.assignButtonToAction.Text = Configuration.getUIString("assign");
+                    }
+                });
+            }
+            catch (Exception)
+            {
+                // Shutdown.
             }
         }
 
@@ -1918,22 +1868,71 @@ namespace CrewChiefV4
             }
         }
 
+        private void reacquireControllerList()
+        {
+            Debug.Assert(!this.InvokeRequired);
+            this.controllerConfiguration.reacquireControllers();
+
+            if (MainWindow.instance != null)
+            {
+                this.controllersList.Items.Clear();
+
+                if (this.gameDefinitionList.Text.Equals(GameDefinition.pCarsNetwork.friendlyName) || this.gameDefinitionList.Text.Equals(GameDefinition.pCars2Network.friendlyName))
+                {
+                    controllerConfiguration.addNetworkControllerToList();
+                }
+
+                foreach (ControllerConfiguration.ControllerData configData in controllerConfiguration.knownControllers)
+                {
+                    this.controllersList.Items.Add(configData.deviceName);
+                }
+
+                runListenForChannelOpenThread = controllerConfiguration.listenForChannelOpen()
+                    && voiceOption == VoiceOptionEnum.HOLD && crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised;
+
+                updateActions();
+            }
+        }
+
         private void refreshControllerList()
         {
-            this.controllerConfiguration.scanControllers(this);
-            this.controllersList.Items.Clear();
-            if (this.gameDefinitionList.Text.Equals(GameDefinition.pCarsNetwork.friendlyName) || this.gameDefinitionList.Text.Equals(GameDefinition.pCars2Network.friendlyName))
-            {
-                controllerConfiguration.addNetworkControllerToList();
-            }
-            foreach (ControllerConfiguration.ControllerData configData in controllerConfiguration.controllers)
-            {
-                this.controllersList.Items.Add(configData.deviceName);
-            }
-            runListenForChannelOpenThread = controllerConfiguration.listenForChannelOpen()
-                        && voiceOption == VoiceOptionEnum.HOLD && crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised;
+            Debug.Assert(this.InvokeRequired);
+            this.controllerConfiguration.scanControllers();
 
-            updateActions();
+            try
+            {
+                // VL: I can't come up with a deadlock scenario, but if this dealocks we could move it out of this.controllerWriteLock.
+                this.Invoke((MethodInvoker)delegate
+                {
+                    if (MainWindow.instance != null)
+                    {
+                        this.controllersList.Items.Clear();
+
+                        if (this.gameDefinitionList.Text.Equals(GameDefinition.pCarsNetwork.friendlyName) || this.gameDefinitionList.Text.Equals(GameDefinition.pCars2Network.friendlyName))
+                        {
+                            controllerConfiguration.addNetworkControllerToList();
+                        }
+
+                        foreach (ControllerConfiguration.ControllerData configData in controllerConfiguration.controllers)
+                        {
+                            this.controllersList.Items.Add(configData.deviceName);
+                        }
+
+                        runListenForChannelOpenThread = controllerConfiguration.listenForChannelOpen()
+                            && voiceOption == VoiceOptionEnum.HOLD && crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised;
+
+                        updateActions();
+
+                        this.controllerConfiguration.scanInProgress = false;
+                        this.scanControllers.Text = Configuration.getUIString("scan_for_controllers");
+                        this.scanControllers.Enabled = true;
+                    }
+                });
+            }
+            catch (Exception)
+            {
+                // Shutdown.
+            }
         }
 
         private void voiceDisableButton_CheckedChanged(object sender, EventArgs e)
@@ -2170,16 +2169,23 @@ namespace CrewChiefV4
             }
         }
 
+        private void populateControlListUI()
+        {
+            if (controllerConfiguration != null)
+            {
+                if (this.gameDefinitionList.Text.Equals(GameDefinition.pCarsNetwork.friendlyName) || this.gameDefinitionList.Text.Equals(GameDefinition.pCars2Network.friendlyName))
+                {
+                    controllerConfiguration.addNetworkControllerToList();
+                }
+                else
+                {
+                    controllerConfiguration.removeNetworkControllerFromList();
+                }
+                getControllers();
+            }
+        }
         private void updateSelectedGameDefinition(object sender, EventArgs e)
         {
-            if (this.gameDefinitionList.Text.Equals(GameDefinition.pCarsNetwork.friendlyName) || this.gameDefinitionList.Text.Equals(GameDefinition.pCars2Network.friendlyName))
-            {
-                controllerConfiguration.addNetworkControllerToList();
-            }
-            else
-            {
-                controllerConfiguration.removeNetworkControllerFromList();
-            }
             if (this.gameDefinitionList.Text.Length > 0)
             {
                 try
@@ -2188,7 +2194,7 @@ namespace CrewChiefV4
                 }
                 catch (Exception) { }
             }
-            getControllers();
+            populateControlListUI();
         }
 
         private enum DownloadType
@@ -2817,9 +2823,29 @@ namespace CrewChiefV4
             {
                 new SmokeTest(crewChief.audioPlayer).soundTestPlay(this.smokeTestTextBox.Lines);
             }
-            
+        }
+
+        private void ScanControllers_Click(object sender, System.EventArgs e)
+        {
+            if (!this.controllerConfiguration.scanInProgress)
+            {
+                this.controllerConfiguration.scanInProgress = true;
+                this.controllerRescanThreadWakeUpEvent.Set();
+                this.scanControllers.Text = Configuration.getUIString("cancel_scan");
+            }
+            else
+            {
+                this.scanControllers.Enabled = false;
+                this.controllerConfiguration.cancelScan();
+            }
+        }
+        private void editCommandMacroButtonClicked(object sender, EventArgs e)
+        {
+            var form = new MacroEditor();
+            form.ShowDialog(this);
         }
     }
+
 
     public class ControlWriter : TextWriter
     {

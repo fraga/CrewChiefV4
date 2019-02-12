@@ -210,6 +210,64 @@ toggle_enable_cut_track_warnings = Toggle cut track warnings on / off
 
 category_filter_label = Ca&tegory filter:
 
+scan_for_controllers = Scan &for Controllers
+cancel_scan = Canc&el scan
+edit_macro_commands = Command macro &editor
+
+###################################### Macro Editor ######################################################
+global_macro_settings = Global Settings
+available_macros = Available macros
+regular_macro_voice_command = Regular Type
+integer_macro_voice_command = Integer Type
+macro_voice_trigger = Voice command
+new_macro_name = Macro name
+confirmation_message = Confirmation message
+add_or_edit_macro = Add/Save changes
+delete_selected_macro = Delete macro
+select_confirmation_message = Select confirmation message
+macro_description = Description
+macro_voice_trigger = Voice Command
+macro_view_only = Action edit
+edit_selected_macro = Macro edit
+create_new_macro = Create new
+macro_edit_mode = Mode
+
+game_specific_settings = Game specific settings
+action_sequence = Action sequence
+new_action = New action name
+keypress_time = Key hold down time
+keypress_wait_time = Time between key presses
+add_action_to_sequence = Add action to sequence
+add_key_to_sequence = Add action to sequence
+add_action_sequence = Save sequence to macro for 
+load_user_macro_settings = Load user macros file
+load_default_macro_settings = Load default macros file
+macro_please_download_soundpack = Please download sound packs before adding confirmation message
+empty_name_or_voicetrigger = Name and voice trigger must NOT be empty
+macro_voicetrigger_already_exists = Voice trigger allready exist for another macro please select a different
+regular_key_action = Single key press
+multiple_key_action = Repeated key presses
+voice_trigger_action = Voice Trigger
+multiple_fuel_action = Fuel action
+wait_action = Wait action
+free_text_action = Free text
+advanced_edit_action = Advanced edit(no error checking!)
+action_repeated_key_presses = Repetition count(integer)
+action_wait_time = Wait time in milliseconds.
+action_free_text = Free Text
+undo_last_action = Undo last action
+actions_keys = Available keys
+must_select_a_key = You must select a key from the list of available keys
+special_action_text_cant_be_empty = must contain a value
+delete_selected_macro_confirmation = Are you sure you want to delete 
+delete_selected_macro_confirmation_title = Confirm delete
+must_select_a_macro = You must select a macro before trying to add a sequence
+action_sequence_cant_be_empty = You must add at least one action to Action sequence
+empty_keypress_time_start = Both
+empty_keypress_time_middle = and
+empty_keypress_time_end = must contain a value
+
+
 ###################################### Preferences ######################################################
 # to change the name of the property title in the properties screen, just use the property name like this:
 # enable_spotter = Enable spotter
@@ -1088,10 +1146,6 @@ enable_multiclass_messages = Enable multi-class messages
 enable_multiclass_messages_help = Play warnings when slower or faster class cars are approaching
 enable_multiclass_messages_category = PIT_STOPS_AND_MULTICLASS
 
-allow_macros_to_trigger_automatically = Allow automatic macro triggering
-allow_macros_to_trigger_automatically_help = Enable some macros to execute automatically (e.g. R3E pit auto-confirm)
-allow_macros_to_trigger_automatically_category = PIT_STOPS_AND_MULTICLASS
-
 target_warning_time_for_slower_class_car = Multi-class slower car warning time
 target_warning_time_for_slower_class_car_help = Try and warn this many seconds in advance when passing slower class cars
 target_warning_time_for_slower_class_car_category = PIT_STOPS_AND_MULTICLASS
@@ -1203,3 +1257,7 @@ record_sound_variety_data_category = AUDIO_VOICE_AND_CONTROLLERS
 persist_pitstop_benchmark_times = Save pitstop benchmark times to disk
 persist_pitstop_benchmark_times_help = Save benchmark times to Documents folder
 persist_pitstop_benchmark_times_category = PIT_STOPS_AND_MULTICLASS
+
+controller_mappings_file_error_title = Error reading controller mappings
+controller_mappings_file_error_details_1 = Controller mapping file 
+controller_mappings_file_error_details_2 = is invalid - no button mappings will be available. Error message from JSON parsers is:
