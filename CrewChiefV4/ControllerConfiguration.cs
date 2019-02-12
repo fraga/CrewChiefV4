@@ -499,7 +499,7 @@ namespace CrewChiefV4
                             {
                                 try
                                 {
-                                    addControllerFromScan(deviceInstance.Type, joystickGuid, false);
+                                    addControllerFromScan(deviceInstance.InstanceName, deviceInstance.Type, joystickGuid, false);
                                     availableCount++;
                                 }
                                 catch (Exception e)
@@ -549,7 +549,7 @@ namespace CrewChiefV4
                 {
                     try
                     {
-                        addControllerFromScan(DeviceType.Joystick, customControllerGuid, true);
+                        addControllerFromScan(null, DeviceType.Joystick, customControllerGuid, true);
                         availableCount++;
                     }
                     catch (Exception e)
@@ -568,7 +568,7 @@ namespace CrewChiefV4
             Console.WriteLine("Re-scanned controllers, there are " + availableCount + " available controllers and " + activeDevices.Count + " active controllers");
         }
 
-        private void addControllerFromScan(DeviceType deviceType, Guid joystickGuid, Boolean isCustomDevice)
+        private void addControllerFromScan(string deviceName, DeviceType deviceType, Guid joystickGuid, Boolean isCustomDevice)
         {
             lock (activeDevices)
             {
@@ -580,7 +580,8 @@ namespace CrewChiefV4
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("Unable to create a Joystick device with guid " + joystickGuid + ": " + e.Message);
+                    Console.WriteLine("Device " + (string.IsNullOrWhiteSpace(deviceName) ? "" : (" name: " + deviceName)) + " GUID " + joystickGuid + " is not connected.");
+                    Debug.WriteLine("Unable to create a Joystick device with GUID " + joystickGuid + (string.IsNullOrWhiteSpace(deviceName) ? "" : (" name: " + deviceName)) + ": " + e.Message);
                     return;
                 }
                 String productName = isCustomDevice ? Configuration.getUIString("custom_device") : deviceType.ToString();
@@ -636,7 +637,7 @@ namespace CrewChiefV4
                 {
                     try
                     {
-                        addControllerFromScan(DeviceType.Joystick, customControllerGuid, true);
+                        addControllerFromScan(null, DeviceType.Joystick, customControllerGuid, true);
                     }
                     catch (Exception e)
                     {
@@ -645,7 +646,7 @@ namespace CrewChiefV4
                 }
 
                 // Update assignments.
-                controllerConfigurationData.devices.ForEach(controller => addControllerFromScan(controller.deviceType, controller.guid, false));
+                controllerConfigurationData.devices.ForEach(controller => addControllerFromScan(controller.deviceName, controller.deviceType, controller.guid, false));
                 foreach (ButtonAssignment assignment in buttonAssignments.Where(ba => ba.controller == null && ba.buttonIndex != -1 && !string.IsNullOrEmpty(ba.deviceGuid)))
                 {
                     assignment.controller = controllers.FirstOrDefault(c => c.guid.ToString() == assignment.deviceGuid);
