@@ -1973,8 +1973,7 @@ namespace CrewChiefV4.Events
             else
             {
                 audioPlayer.playMessageImmediately(new QueuedMessage("imo_diff", 15,
-                    messageFragments: MessageContents(folderDiffIntro, absoluteDiff, folderHotterThanOutersOutro), abstractEvent: this, priority: 0, secondsDelay: secondsDelay));
-                audioPlayer.playMessageImmediately(new QueuedMessage(folderCamberOK, 15, secondsDelay: secondsDelay));
+                    messageFragments: MessageContents(folderDiffIntro, absoluteDiff, folderHotterThanOutersOutro, folderCamberOK), abstractEvent: this, priority: 0, secondsDelay: secondsDelay));
             }
         }
 
