@@ -481,6 +481,7 @@ namespace CrewChiefV4
                 MessageBoxButtons.OKCancel) == System.Windows.Forms.DialogResult.OK)
             {
                 macroContainer.macros = macroContainer.macros.Where(val => val.name != listBoxAvailableMacros.SelectedItem.ToString()).ToArray();
+                saveMacroSettings();
                 updateMacroList(false);
             }
 
