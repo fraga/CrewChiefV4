@@ -52,13 +52,11 @@ namespace CrewChiefV4
         {
             public string uiText;
             public bool isConnected;
-            public int activeControllerIndex;  // index into ControllerConfiguration.controllers
 
-            public ControllerUiEntry(string uiText, bool isConnected, int activeControllerIndex)
+            public ControllerUiEntry(string uiText, bool isConnected)
             {
                 this.uiText = uiText;
                 this.isConnected = isConnected;
-                this.activeControllerIndex = activeControllerIndex;
             }
 
             public override string ToString()
@@ -1732,9 +1730,10 @@ namespace CrewChiefV4
             Debug.Assert(controllerConfiguration.knownControllers != null);
 
             // First, add active controllers to the list:
-            for (int i = 0; i < controllerConfiguration.controllers.Count; ++i)
+            // NOTE: it is important that connected controllers go first, because their index in the UI list is used to access controllerConfiguration.controllers list.
+            foreach (ControllerConfiguration.ControllerData configData in controllerConfiguration.controllers)
             {
-                this.controllersList.Items.Add(new MainWindow.ControllerUiEntry(controllerConfiguration.controllers[i].deviceName, true /*connected*/, i /*index*/));
+                this.controllersList.Items.Add(new MainWindow.ControllerUiEntry(configData.deviceName, true /*connected*/));
             }
 
             // Now, add grayed out (inactive) controllers
@@ -1744,7 +1743,7 @@ namespace CrewChiefV4
                 {
                     continue;
                 }
-                this.controllersList.Items.Add(new MainWindow.ControllerUiEntry(configData.deviceName, false /*connected*/, -1));
+                this.controllersList.Items.Add(new MainWindow.ControllerUiEntry(configData.deviceName, false /*connected*/));
             }
         }
 
