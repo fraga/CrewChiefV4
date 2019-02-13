@@ -161,7 +161,7 @@ namespace CrewChiefV4
                         ControllerConfigurationData data = JsonConvert.DeserializeObject<ControllerConfigurationData>(json);
                         usersConfigFileIsBroken = false;
                         return data;
-                    }                    
+                    }
                 }
                 catch (Exception e)
                 {
@@ -560,6 +560,7 @@ namespace CrewChiefV4
                     }
                 }
                 ControllerConfigurationData controllerConfigurationData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
+                this.controllers = this.controllers.OrderBy(ctrl => ctrl.deviceName).ToList();
                 controllerConfigurationData.devices = this.controllers;
                 saveControllerConfigurationDataFile(controllerConfigurationData);
                 foreach (ButtonAssignment assignment in buttonAssignments.Where(ba => ba.controller == null && ba.buttonIndex != -1 && !string.IsNullOrEmpty(ba.deviceGuid)))
@@ -635,7 +636,7 @@ namespace CrewChiefV4
                 ControllerConfigurationData controllerConfigurationData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
                 var assignedDevices = new HashSet<Guid>();
 
-                this.knownControllers = controllerConfigurationData.devices.ToList();
+                this.knownControllers = controllerConfigurationData.devices.OrderBy(d => d.deviceName).ToList();
 
                 // add the custom device if it's set
                 if (customControllerGuid != Guid.Empty)
@@ -656,6 +657,8 @@ namespace CrewChiefV4
                 {
                     assignment.controller = controllers.FirstOrDefault(c => c.guid.ToString() == assignment.deviceGuid);
                 }
+                this.controllers = this.controllers.OrderBy(ctrl => ctrl.deviceName).ToList();
+
             }
             Console.WriteLine("Re-acquired controllers, there are " + controllers.Count() + " available controllers and " + activeDevices.Count + " active controllers");
         }
@@ -664,7 +667,8 @@ namespace CrewChiefV4
         {
             if (controllers != null && !controllers.Contains(networkGamePad))
             {
-                controllers.Add(networkGamePad);
+                this.controllers.Add(networkGamePad);
+                this.controllers = this.controllers.OrderBy(ctrl => ctrl.deviceName).ToList();
             }
         }
 
@@ -672,13 +676,14 @@ namespace CrewChiefV4
         {
             if (controllers != null)
             {
-                controllers.Remove(networkGamePad);
+                this.controllers.Remove(networkGamePad);
+                this.controllers = this.controllers.OrderBy(ctrl => ctrl.deviceName).ToList();
             }
         }
 
         public Boolean assignButton(System.Windows.Forms.Form parent, int controllerIndex, int actionIndex)
         {
-            return controllerIndex < controllers.Count // Make sure device is connected.
+            return controllerIndex != -1 && controllerIndex < controllers.Count // Make sure device is connected.
                 && getFirstPressedButton(parent, controllers[controllerIndex], buttonAssignments[actionIndex]);
         }
 

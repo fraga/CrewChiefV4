@@ -52,13 +52,13 @@ namespace CrewChiefV4
         {
             public string uiText;
             public bool isConnected;
-            public int controllerIndex;
+            public int activeControllerIndex;  // index into ControllerConfiguration.controllers
 
-            public ControllerUiEntry(string uiText, bool isConnected, int controllerIndex)
+            public ControllerUiEntry(string uiText, bool isConnected, int activeControllerIndex)
             {
                 this.uiText = uiText;
                 this.isConnected = isConnected;
-                this.controllerIndex = controllerIndex;
+                this.activeControllerIndex = activeControllerIndex;
             }
 
             public override string ToString()
@@ -490,6 +490,11 @@ namespace CrewChiefV4
 
         private void ControllersList_MeasureItem(object sender, MeasureItemEventArgs e)
         {
+            if (e.Index < 0 || e.Index >= this.controllersList.Items.Count)
+            {
+                // WTF?
+                return;
+            }
             var entry = (MainWindow.ControllerUiEntry)this.controllersList.Items[e.Index];
 
             // Measure the string.
@@ -502,6 +507,12 @@ namespace CrewChiefV4
 
         private void ControllersList_DrawItem(object sender, DrawItemEventArgs e)
         {
+            if (e.Index < 0 || e.Index >= this.controllersList.Items.Count)
+            {
+                // WTF?
+                return;
+            }
+
             // Draw the background of the ListBox control for each item.
             e.DrawBackground();
 
@@ -1065,7 +1076,6 @@ namespace CrewChiefV4
             Debug.Assert(!this.controllerRescanThreadRunning);
             controllerConfiguration = new ControllerConfiguration(this);
             GlobalResources.controllerConfiguration = controllerConfiguration;
-            populateControlListUI();
 
             this.personalisationBox.Items.AddRange(this.crewChief.audioPlayer.personalisationsArray);
             this.chiefNameBox.Items.AddRange(AudioPlayer.availableChiefVoices.ToArray());
@@ -1111,7 +1121,6 @@ namespace CrewChiefV4
             backgroundVolumeSlider.Value = (int)(backgroundVolume * 100f);
 
             Console.WriteLine("Loading controller settings");
-            getControllers();
             String customDeviceGuid = UserSettings.GetUserSettings().getString("custom_device_guid");
             if (customDeviceGuid != null && customDeviceGuid.Length > 0)
             {
@@ -1717,13 +1726,25 @@ namespace CrewChiefV4
             this.assignButtonToAction.Enabled = this.buttonActionSelect.SelectedIndex > -1 && this.controllersList.SelectedIndex > -1 && !crewChief.running && ((MainWindow.ControllerUiEntry)this.controllersList.Items[this.controllersList.SelectedIndex]).isConnected;
         }
 
-        public void getControllers()
+        public void updateControllersUi()
         {
             this.controllersList.Items.Clear();
-            // TODO: looks like a bug :(
-            foreach (ControllerConfiguration.ControllerData configData in controllerConfiguration.controllers)
+            Debug.Assert(controllerConfiguration.knownControllers != null);
+
+            // First, add active controllers to the list:
+            for (int i = 0; i < controllerConfiguration.controllers.Count; ++i)
             {
-                this.controllersList.Items.Add(new MainWindow.ControllerUiEntry(configData.deviceType.ToString() + " " + configData.deviceName, true /*connected*/, -1));
+                this.controllersList.Items.Add(new MainWindow.ControllerUiEntry(controllerConfiguration.controllers[i].deviceName, true /*connected*/, i /*index*/));
+            }
+
+            // Now, add grayed out (inactive) controllers
+            foreach (ControllerConfiguration.ControllerData configData in controllerConfiguration.knownControllers)
+            {
+                if (controllerConfiguration.controllers.Exists(c => c.guid == configData.guid))
+                {
+                    continue;
+                }
+                this.controllersList.Items.Add(new MainWindow.ControllerUiEntry(configData.deviceName, false /*connected*/, -1));
             }
         }
 
@@ -1927,19 +1948,12 @@ namespace CrewChiefV4
 
             if (MainWindow.instance != null)
             {
-                this.controllersList.Items.Clear();
-
                 if (this.gameDefinitionList.Text.Equals(GameDefinition.pCarsNetwork.friendlyName) || this.gameDefinitionList.Text.Equals(GameDefinition.pCars2Network.friendlyName))
                 {
                     controllerConfiguration.addNetworkControllerToList();
                 }
 
-                // Note: according to MR index of device in UI matters for assignment, so when we sort this it has to be preserved somehow.
-                foreach (ControllerConfiguration.ControllerData configData in controllerConfiguration.knownControllers)
-                {
-                    var connected = controllerConfiguration.controllers.Exists(cc => cc.guid == configData.guid);
-                    this.controllersList.Items.Add(new MainWindow.ControllerUiEntry(configData.deviceName, connected, -1));
-                }
+                this.updateControllersUi();
 
                 runListenForChannelOpenThread = controllerConfiguration.listenForChannelOpen()
                     && voiceOption == VoiceOptionEnum.HOLD && crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised;
@@ -1960,17 +1974,12 @@ namespace CrewChiefV4
                 {
                     if (MainWindow.instance != null)
                     {
-                        this.controllersList.Items.Clear();
-
                         if (this.gameDefinitionList.Text.Equals(GameDefinition.pCarsNetwork.friendlyName) || this.gameDefinitionList.Text.Equals(GameDefinition.pCars2Network.friendlyName))
                         {
                             controllerConfiguration.addNetworkControllerToList();
                         }
 
-                        foreach (ControllerConfiguration.ControllerData configData in controllerConfiguration.controllers)
-                        {
-                            this.controllersList.Items.Add(new MainWindow.ControllerUiEntry(configData.deviceName, true /*connected*/, -1));
-                        }
+                        this.updateControllersUi();
 
                         runListenForChannelOpenThread = controllerConfiguration.listenForChannelOpen()
                             && voiceOption == VoiceOptionEnum.HOLD && crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised;
@@ -2235,7 +2244,7 @@ namespace CrewChiefV4
                 {
                     controllerConfiguration.removeNetworkControllerFromList();
                 }
-                getControllers();
+                updateControllersUi();
             }
         }
         private void updateSelectedGameDefinition(object sender, EventArgs e)
