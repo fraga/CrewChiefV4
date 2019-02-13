@@ -1726,8 +1726,10 @@ namespace CrewChiefV4
 
         public void updateControllersUi()
         {
-            this.controllersList.Items.Clear();
             Debug.Assert(controllerConfiguration.knownControllers != null);
+            Debug.Assert(!this.InvokeRequired);
+
+            this.controllersList.Items.Clear();
 
             // First, add active controllers to the list:
             // NOTE: it is important that connected controllers go first, because their index in the UI list is used to access controllerConfiguration.controllers list.
