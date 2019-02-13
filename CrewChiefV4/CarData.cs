@@ -141,12 +141,13 @@ namespace CrewChiefV4
 
         // use different thresholds for R3E car classes - there are a few different tyre models in the game with different heating characteristics:
         public static CarClassEnum[] r3e2016TyreModelClasses = new CarClassEnum[] {
-            CarClassEnum.LMP1, CarClassEnum.LMP2, CarClassEnum.GROUP5, CarClassEnum.GROUP4, CarClassEnum.GTO, CarClassEnum.F2, CarClassEnum.F4,
-            CarClassEnum.FF, CarClassEnum.TC1, CarClassEnum.AUDI_TT_CUP, CarClassEnum.DTM_2013, CarClassEnum.DTM_2014, CarClassEnum.DTM_2015, CarClassEnum.DTM_2016, CarClassEnum.NSU_TT,
+            CarClassEnum.LMP1, CarClassEnum.LMP2, CarClassEnum.GROUP5, CarClassEnum.M1_PROCAR, CarClassEnum.GTO, CarClassEnum.F2, CarClassEnum.F4,
+            CarClassEnum.TC1, CarClassEnum.AUDI_TT_CUP, CarClassEnum.DTM_2013, CarClassEnum.DTM_2014, CarClassEnum.DTM_2015, CarClassEnum.DTM_2016, CarClassEnum.NSU_TT,
             CarClassEnum.F3, CarClassEnum.AUDI_TT_VLN, CarClassEnum.KTM_RR, CarClassEnum.TRACKDAY_A, CarClassEnum.R3E_SILHOUETTE, CarClassEnum.BMW_235I};
 
         public static CarClassEnum[] r3e2017TyreModelClasses = new CarClassEnum[] {
-            CarClassEnum.GT1, CarClassEnum.GT3, CarClassEnum.GT4, CarClassEnum.CARRERA_CUP, CarClassEnum.TCR, CarClassEnum.GT1X, CarClassEnum.CAYMAN_CLUBSPORT};
+            CarClassEnum.GT1, CarClassEnum.GT2, CarClassEnum.GT4, CarClassEnum.CARRERA_CUP, CarClassEnum.TCR, CarClassEnum.GT1X, CarClassEnum.CAYMAN_CLUBSPORT, 
+            CarClassEnum.GROUP4, CarClassEnum.FF };
 
         private static Dictionary<TyreType, List<CornerData.EnumWithThresholds>> tyreTempThresholds = new Dictionary<TyreType, List<CornerData.EnumWithThresholds>>();
         private static Dictionary<BrakeType, List<CornerData.EnumWithThresholds>> brakeTempThresholds = new Dictionary<BrakeType, List<CornerData.EnumWithThresholds>>();

@@ -1120,6 +1120,21 @@ namespace CrewChiefV4.GameState
             SessionTimesAtEndOfSectors.Add(1, -1);
             SessionTimesAtEndOfSectors.Add(2, -1);
             SessionTimesAtEndOfSectors.Add(3, -1);
+            // JB: i know this is hiding the underlying issue with the index-out-of-bounds exception that's occasionally thrown
+            // when inserting into this dictionary with the dict[newItem] = newValue syntax, but I can't be arsed to chase this 
+            // particular ghost
+            //
+            // TODO: fixme
+            SessionTimesAtEndOfSectors.Add(0, -1);
+            SessionTimesAtEndOfSectors.Add(4, -1);
+            SessionTimesAtEndOfSectors.Add(5, -1);
+            SessionTimesAtEndOfSectors.Add(6, -1); 
+            SessionTimesAtEndOfSectors.Add(7, -1);
+            SessionTimesAtEndOfSectors.Add(8, -1);
+            SessionTimesAtEndOfSectors.Add(9, -1); 
+            SessionTimesAtEndOfSectors.Add(10, -1);
+            SessionTimesAtEndOfSectors.Add(11, -1);
+            SessionTimesAtEndOfSectors.Add(12, -1);
         }
 
         public void restorePlayerTimings(SessionData restoreTo)

@@ -138,6 +138,29 @@ PM=pe m
 ENABLE_CUT_TRACK_WARNINGS = enable cut track warnings:play cut track warnings:warn about cuts
 DISABLE_CUT_TRACK_WARNINGS = no cut track warnings:no more cut warnings:no more cut track warnings
 
+HOWS_MY_LEFT_FRONT_CAMBER = how's my left front camber
+HOWS_MY_RIGHT_FRONT_CAMBER = how's my right front camber
+HOWS_MY_LEFT_REAR_CAMBER = how's my left rear camber
+HOWS_MY_RIGHT_REAR_CAMBER = how's my right rear camber
+HOWS_MY_FRONT_CAMBER = how's my front camber
+HOWS_MY_REAR_CAMBER = how's my rear camber
+
+HOW_ARE_MY_FRONT_TYRE_PRESSURES = how are my front pressures:how are my front tire pressures
+HOW_ARE_MY_REAR_TYRE_PRESSURES = how are my rear pressures:how are my rear tire pressures
+HOW_ARE_MY_TYRE_PRESSURES = how are my pressures: how are my tire pressures
+
+HOWS_MY_LEFT_FRONT_CAMBER_RIGHT_NOW = how's my left front camber right now
+HOWS_MY_RIGHT_FRONT_CAMBER_RIGHT_NOW = how's my right front camber right now
+HOWS_MY_LEFT_REAR_CAMBER_RIGHT_NOW = how's my left rear camber right now
+HOWS_MY_RIGHT_REAR_CAMBER_RIGHT_NOW = how's my right rear camber right now
+HOWS_MY_FRONT_CAMBER_RIGHT_NOW = how's my front camber right now
+HOWS_MY_REAR_CAMBER_RIGHT_NOW = how's my rear camber right now
+
+HOW_ARE_MY_FRONT_TYRE_PRESSURES_RIGHT_NOW = how are my front pressures right now:how are my front tire pressures right now
+HOW_ARE_MY_REAR_TYRE_PRESSURES_RIGHT_NOW = how are my rear pressures right now:how are my rear tire pressures right now
+HOW_ARE_MY_TYRE_PRESSURES_RIGHT_NOW = how are my pressures right now: how are my tire pressures right now
+
+
 #################################################
 # Dynamic recognition phrase fragments - these are used to build up recognition sentences for opponent information.
 # Multiple options are NOT supported here - each must be a single word or phrase. These are combined for each opponent
