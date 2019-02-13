@@ -473,6 +473,8 @@ namespace CrewChiefV4
 
         public void scanControllers()
         {
+            Console.WriteLine("Re-scanning controllers...");
+
             int availableCount = 0;
 
             // This method is called from the controller refresh thread, either by the device-changed event handler or explicitly on app start.
@@ -499,7 +501,7 @@ namespace CrewChiefV4
                             {
                                 try
                                 {
-                                    addControllerFromScan(deviceInstance.Type, joystickGuid, false);
+                                    addControllerFromScan(deviceInstance.InstanceName, deviceInstance.Type, joystickGuid, false);
                                     availableCount++;
                                 }
                                 catch (Exception e)
@@ -527,7 +529,7 @@ namespace CrewChiefV4
             while (controllerScanThread.IsAlive)
             {
                 Thread.Sleep(5000);
-                Console.WriteLine("Refreshing controller devices (this may take a while depending on your configuration)...");
+                Console.WriteLine("Re-scanning controller devices (this may take a while depending on your configuration)...");
             }
 
             if (scanCancelled)
@@ -549,7 +551,7 @@ namespace CrewChiefV4
                 {
                     try
                     {
-                        addControllerFromScan(DeviceType.Joystick, customControllerGuid, true);
+                        addControllerFromScan(null, DeviceType.Joystick, customControllerGuid, true);
                         availableCount++;
                     }
                     catch (Exception e)
@@ -568,7 +570,7 @@ namespace CrewChiefV4
             Console.WriteLine("Re-scanned controllers, there are " + availableCount + " available controllers and " + activeDevices.Count + " active controllers");
         }
 
-        private void addControllerFromScan(DeviceType deviceType, Guid joystickGuid, Boolean isCustomDevice)
+        private void addControllerFromScan(string deviceName, DeviceType deviceType, Guid joystickGuid, Boolean isCustomDevice)
         {
             lock (activeDevices)
             {
@@ -577,10 +579,12 @@ namespace CrewChiefV4
                 try
                 {
                     joystick = new Joystick(directInput, joystickGuid);
+                    Console.WriteLine("Device " + (string.IsNullOrWhiteSpace(deviceName) ? "" : (" Name: \"" + deviceName + "\"    ")) + "GUID: \"" + joystickGuid + "\" is connected.");
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("Unable to create a Joystick device with guid " + joystickGuid + ": " + e.Message);
+                    Console.WriteLine("Device " + (string.IsNullOrWhiteSpace(deviceName) ? "" : (" Name: \"" + deviceName + "\"    ")) + "GUID: \"" + joystickGuid + "\" is not connected.");
+                    Debug.WriteLine("Unable to create a Joystick device with GUID " + joystickGuid + (string.IsNullOrWhiteSpace(deviceName) ? "" : (" name: " + deviceName)) + ": " + e.Message);
                     return;
                 }
                 String productName = isCustomDevice ? Configuration.getUIString("custom_device") : deviceType.ToString();
@@ -619,7 +623,9 @@ namespace CrewChiefV4
 
         public void reacquireControllers()
         {
+            Console.WriteLine("Re-acquired controllers...");
             Debug.Assert(MainWindow.instance != null && !MainWindow.instance.InvokeRequired);
+
             // This method is called from the UI thread, either by the device-changed event handler or explicitly on app start.
             // The poll for button clicks call is from a helper thread and accesses the activeDevices list - potentially concurrently
             lock (activeDevices)
@@ -636,7 +642,7 @@ namespace CrewChiefV4
                 {
                     try
                     {
-                        addControllerFromScan(DeviceType.Joystick, customControllerGuid, true);
+                        addControllerFromScan(null, DeviceType.Joystick, customControllerGuid, true);
                     }
                     catch (Exception e)
                     {
@@ -645,7 +651,7 @@ namespace CrewChiefV4
                 }
 
                 // Update assignments.
-                controllerConfigurationData.devices.ForEach(controller => addControllerFromScan(controller.deviceType, controller.guid, false));
+                controllerConfigurationData.devices.ForEach(controller => addControllerFromScan(controller.deviceName, controller.deviceType, controller.guid, false));
                 foreach (ButtonAssignment assignment in buttonAssignments.Where(ba => ba.controller == null && ba.buttonIndex != -1 && !string.IsNullOrEmpty(ba.deviceGuid)))
                 {
                     assignment.controller = controllers.FirstOrDefault(c => c.guid.ToString() == assignment.deviceGuid);
