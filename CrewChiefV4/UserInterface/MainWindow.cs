@@ -195,10 +195,8 @@ namespace CrewChiefV4
             this.controllersList.DrawItem += this.ControllersList_DrawItem;
             this.controllersList.MeasureItem += this.ControllersList_MeasureItem;
             this.controllersList.DrawMode = DrawMode.OwnerDrawVariable;
-            if (!MainWindow.disableControllerReacquire)
-            {
-                this.reacquireControllerList();
-            }
+            this.reacquireControllerList();
+
             if (UserSettings.GetUserSettings().getBoolean("run_immediately") &&
                 GameDefinition.getGameDefinitionForFriendlyName(gameDefinitionList.Text) != null)
             {

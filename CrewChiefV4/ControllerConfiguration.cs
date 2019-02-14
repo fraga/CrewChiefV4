@@ -33,6 +33,8 @@ namespace CrewChiefV4
         // Controllers we found during last device scan, not necessarily all connected.
         public List<ControllerData> knownControllers;
 
+        private Dictionary<Guid, bool> knownControllerState = new Dictionary<Guid, bool>();
+
         private static Boolean usersConfigFileIsBroken = false;
 
         // keep track of all the Joystick devices we've 'acquired'
@@ -490,6 +492,8 @@ namespace CrewChiefV4
                     lock (activeDevices)
                     {
                         this.controllers = new List<ControllerData>();
+                        this.knownControllers.Clear();
+                        this.knownControllerState = new Dictionary<Guid, bool>();
 
                         // dispose all of our active devices:
                         unacquireAndDisposeActiveJoysticks();
@@ -580,11 +584,33 @@ namespace CrewChiefV4
                 try
                 {
                     joystick = new Joystick(directInput, joystickGuid);
-                    Console.WriteLine("Device " + (string.IsNullOrWhiteSpace(deviceName) ? "" : (" Name: \"" + deviceName + "\"    ")) + "GUID: \"" + joystickGuid + "\" is connected.");
+
+                    var previouslyConnected = false;
+                    if (!this.knownControllerState.TryGetValue(joystickGuid, out previouslyConnected))
+                    {
+                        this.knownControllerState.Add(joystickGuid, true /*connected*/);
+                    }
+
+                    if (!previouslyConnected)
+                    {
+                        this.knownControllerState[joystickGuid] = true;  // Connected
+                        Console.WriteLine("Device Connected - " + (string.IsNullOrWhiteSpace(deviceName) ? "" : (" Name: \"" + deviceName + "\"    ")) + "GUID: \"" + joystickGuid + "\"");
+                    }
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("Device " + (string.IsNullOrWhiteSpace(deviceName) ? "" : (" Name: \"" + deviceName + "\"    ")) + "GUID: \"" + joystickGuid + "\" is not connected.");
+                    var previouslyConnected = true;
+                    if (!this.knownControllerState.TryGetValue(joystickGuid, out previouslyConnected))
+                    {
+                        this.knownControllerState.Add(joystickGuid, false /*connected*/);
+                    }
+
+                    if (previouslyConnected)
+                    {
+                        this.knownControllerState[joystickGuid] = false;  // Connected
+                        Console.WriteLine("Device Disconnected - " + (string.IsNullOrWhiteSpace(deviceName) ? "" : (" Name: \"" + deviceName + "\"    ")) + "GUID: \"" + joystickGuid + "\"");
+                    }
+
                     Debug.WriteLine("Unable to create a Joystick device with GUID " + joystickGuid + (string.IsNullOrWhiteSpace(deviceName) ? "" : (" name: " + deviceName)) + ": " + e.Message);
                     return;
                 }
@@ -624,7 +650,6 @@ namespace CrewChiefV4
 
         public void reacquireControllers()
         {
-            Console.WriteLine("Re-acquired controllers...");
             Debug.Assert(MainWindow.instance != null && !MainWindow.instance.InvokeRequired);
 
             // This method is called from the UI thread, either by the device-changed event handler or explicitly on app start.
@@ -660,7 +685,6 @@ namespace CrewChiefV4
                 this.controllers = this.controllers.OrderBy(ctrl => ctrl.deviceName).ToList();
 
             }
-            Console.WriteLine("Re-acquired controllers, there are " + controllers.Count() + " available controllers and " + activeDevices.Count + " active controllers");
         }
 
         public void addNetworkControllerToList()
