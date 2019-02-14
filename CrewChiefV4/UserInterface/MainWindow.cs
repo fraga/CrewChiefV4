@@ -48,6 +48,23 @@ namespace CrewChiefV4
         private Boolean newDriverNamesAvailable = false;
         private Boolean newPersonalisationsAvailable = false;
 
+        public struct ControllerUiEntry
+        {
+            public string uiText;
+            public bool isConnected;
+
+            public ControllerUiEntry(string uiText, bool isConnected)
+            {
+                this.uiText = uiText;
+                this.isConnected = isConnected;
+            }
+
+            public override string ToString()
+            {
+                return uiText;
+            }
+        }
+
         // Shared with worker thread.  This should be disposed after root threads stopped, in GlobalResources.Dispose.
         private ControllerConfiguration controllerConfiguration;
 
@@ -175,10 +192,11 @@ namespace CrewChiefV4
             // is created on a message pump, at undefined moment, which prevents Invoke from
             // working while constructor is running.
             Debug.Assert(this.IsHandleCreated);
-            if (!MainWindow.disableControllerReacquire)
-            {
-                this.reacquireControllerList();
-            }
+            this.controllersList.DrawItem += this.ControllersList_DrawItem;
+            this.controllersList.MeasureItem += this.ControllersList_MeasureItem;
+            this.controllersList.DrawMode = DrawMode.OwnerDrawVariable;
+            this.reacquireControllerList();
+
             if (UserSettings.GetUserSettings().getBoolean("run_immediately") &&
                 GameDefinition.getGameDefinitionForFriendlyName(gameDefinitionList.Text) != null)
             {
@@ -464,6 +482,47 @@ namespace CrewChiefV4
                 else
                     this.WindowState = FormWindowState.Minimized;
             }
+        }
+
+        private void ControllersList_MeasureItem(object sender, MeasureItemEventArgs e)
+        {
+            if (e.Index < 0 || e.Index >= this.controllersList.Items.Count)
+            {
+                // WTF?
+                return;
+            }
+            var entry = (MainWindow.ControllerUiEntry)this.controllersList.Items[e.Index];
+
+            // Measure the string.
+            var txtSize = e.Graphics.MeasureString(entry.uiText, this.Font);
+
+            // Set the required size.
+            e.ItemHeight = (int)txtSize.Height;
+            e.ItemWidth = (int)txtSize.Width;
+        }
+
+        private void ControllersList_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            if (e.Index < 0 || e.Index >= this.controllersList.Items.Count)
+            {
+                // WTF?
+                return;
+            }
+
+            // Draw the background of the ListBox control for each item.
+            e.DrawBackground();
+
+            var entry = (MainWindow.ControllerUiEntry)this.controllersList.Items[e.Index];
+
+            var brush = entry.isConnected ? Brushes.Black : Brushes.Gray;
+
+            SizeF txt_size = e.Graphics.MeasureString(entry.uiText, e.Font);
+
+            e.Graphics.DrawString(this.controllersList.Items[e.Index].ToString(),
+                e.Font, brush, e.Bounds, StringFormat.GenericDefault);
+
+            // If the ListBox has focus, draw a focus rectangle around the selected item.
+            e.DrawFocusRectangle();
         }
 
         private void HideToTray()
@@ -1013,7 +1072,6 @@ namespace CrewChiefV4
             Debug.Assert(!this.controllerRescanThreadRunning);
             controllerConfiguration = new ControllerConfiguration(this);
             GlobalResources.controllerConfiguration = controllerConfiguration;
-            populateControlListUI();
 
             this.personalisationBox.Items.AddRange(this.crewChief.audioPlayer.personalisationsArray);
             this.chiefNameBox.Items.AddRange(AudioPlayer.availableChiefVoices.ToArray());
@@ -1059,7 +1117,6 @@ namespace CrewChiefV4
             backgroundVolumeSlider.Value = (int)(backgroundVolume * 100f);
 
             Console.WriteLine("Loading controller settings");
-            getControllers();
             String customDeviceGuid = UserSettings.GetUserSettings().getString("custom_device_guid");
             if (customDeviceGuid != null && customDeviceGuid.Length > 0)
             {
@@ -1468,7 +1525,7 @@ namespace CrewChiefV4
             this.deleteAssigmentButton.Enabled = this.buttonActionSelect.SelectedIndex > -1 &&
                 this.controllerConfiguration.buttonAssignments[this.buttonActionSelect.SelectedIndex].controller != null;
 
-            this.assignButtonToAction.Enabled = this.buttonActionSelect.SelectedIndex > -1 && this.controllersList.SelectedIndex > -1;
+            this.assignButtonToAction.Enabled = this.buttonActionSelect.SelectedIndex > -1 && this.controllersList.SelectedIndex > -1 && ((MainWindow.ControllerUiEntry)this.controllersList.Items[this.controllersList.SelectedIndex]).isConnected;
             this.propertiesButton.Enabled = true;
             this.groupBox1.Enabled = true;
             this.personalisationBox.Enabled = true;
@@ -1619,7 +1676,7 @@ namespace CrewChiefV4
             {
                 this.deleteAssigmentButton.Enabled = this.buttonActionSelect.SelectedIndex > -1 &&
                     this.controllerConfiguration.buttonAssignments[this.buttonActionSelect.SelectedIndex].controller != null;
-                this.assignButtonToAction.Enabled = this.buttonActionSelect.SelectedIndex > -1 && this.controllersList.SelectedIndex > -1;
+                this.assignButtonToAction.Enabled = this.buttonActionSelect.SelectedIndex > -1 && this.controllersList.SelectedIndex > -1 && ((MainWindow.ControllerUiEntry)this.controllersList.Items[this.controllersList.SelectedIndex]).isConnected;
                 stopApp();
                 this.propertiesButton.Enabled = true;
                 this.personalisationBox.Enabled = true;
@@ -1656,21 +1713,37 @@ namespace CrewChiefV4
         private void buttonActionSelect_SelectedIndexChanged(object sender, EventArgs e)
         {
             this.deleteAssigmentButton.Enabled = this.buttonActionSelect.SelectedIndex > -1 && !crewChief.running;
-            this.assignButtonToAction.Enabled = this.buttonActionSelect.SelectedIndex > -1 && this.controllersList.SelectedIndex > -1 && !crewChief.running;
+            this.assignButtonToAction.Enabled = this.buttonActionSelect.SelectedIndex > -1 && this.controllersList.SelectedIndex > -1 && !crewChief.running && ((MainWindow.ControllerUiEntry)this.controllersList.Items[this.controllersList.SelectedIndex]).isConnected;
         }
 
         private void controllersList_SelectedIndexChanged(object sender, EventArgs e)
         {
             this.deleteAssigmentButton.Enabled = this.buttonActionSelect.SelectedIndex > -1 && !crewChief.running;
-            this.assignButtonToAction.Enabled = this.buttonActionSelect.SelectedIndex > -1 && this.controllersList.SelectedIndex > -1 && !crewChief.running;
+            this.assignButtonToAction.Enabled = this.buttonActionSelect.SelectedIndex > -1 && this.controllersList.SelectedIndex > -1 && !crewChief.running && ((MainWindow.ControllerUiEntry)this.controllersList.Items[this.controllersList.SelectedIndex]).isConnected;
         }
 
-        public void getControllers()
+        public void updateControllersUi()
         {
+            Debug.Assert(controllerConfiguration.knownControllers != null);
+            Debug.Assert(!this.InvokeRequired);
+
             this.controllersList.Items.Clear();
+
+            // First, add active controllers to the list:
+            // NOTE: it is important that connected controllers go first, because their index in the UI list is used to access controllerConfiguration.controllers list.
             foreach (ControllerConfiguration.ControllerData configData in controllerConfiguration.controllers)
             {
-                this.controllersList.Items.Add(configData.deviceType.ToString() + " " + configData.deviceName);
+                this.controllersList.Items.Add(new MainWindow.ControllerUiEntry(configData.deviceName, true /*connected*/));
+            }
+
+            // Now, add grayed out (inactive) controllers
+            foreach (ControllerConfiguration.ControllerData configData in controllerConfiguration.knownControllers)
+            {
+                if (controllerConfiguration.controllers.Exists(c => c.guid == configData.guid))
+                {
+                    continue;
+                }
+                this.controllersList.Items.Add(new MainWindow.ControllerUiEntry(configData.deviceName, false /*connected*/));
             }
         }
 
@@ -1874,18 +1947,12 @@ namespace CrewChiefV4
 
             if (MainWindow.instance != null)
             {
-                this.controllersList.Items.Clear();
-
                 if (this.gameDefinitionList.Text.Equals(GameDefinition.pCarsNetwork.friendlyName) || this.gameDefinitionList.Text.Equals(GameDefinition.pCars2Network.friendlyName))
                 {
                     controllerConfiguration.addNetworkControllerToList();
                 }
 
-                // Note: according to MR index of device in UI matters for assignment, so when we sort this it has to be preserved somehow.
-                foreach (ControllerConfiguration.ControllerData configData in controllerConfiguration.knownControllers)
-                {
-                    this.controllersList.Items.Add(configData.deviceName);
-                }
+                this.updateControllersUi();
 
                 runListenForChannelOpenThread = controllerConfiguration.listenForChannelOpen()
                     && voiceOption == VoiceOptionEnum.HOLD && crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised;
@@ -1906,17 +1973,12 @@ namespace CrewChiefV4
                 {
                     if (MainWindow.instance != null)
                     {
-                        this.controllersList.Items.Clear();
-
                         if (this.gameDefinitionList.Text.Equals(GameDefinition.pCarsNetwork.friendlyName) || this.gameDefinitionList.Text.Equals(GameDefinition.pCars2Network.friendlyName))
                         {
                             controllerConfiguration.addNetworkControllerToList();
                         }
 
-                        foreach (ControllerConfiguration.ControllerData configData in controllerConfiguration.controllers)
-                        {
-                            this.controllersList.Items.Add(configData.deviceName);
-                        }
+                        this.updateControllersUi();
 
                         runListenForChannelOpenThread = controllerConfiguration.listenForChannelOpen()
                             && voiceOption == VoiceOptionEnum.HOLD && crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised;
@@ -2181,7 +2243,7 @@ namespace CrewChiefV4
                 {
                     controllerConfiguration.removeNetworkControllerFromList();
                 }
-                getControllers();
+                updateControllersUi();
             }
         }
         private void updateSelectedGameDefinition(object sender, EventArgs e)
