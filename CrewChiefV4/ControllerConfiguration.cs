@@ -33,6 +33,8 @@ namespace CrewChiefV4
         // Controllers we found during last device scan, not necessarily all connected.
         public List<ControllerData> knownControllers;
 
+        private Dictionary<Guid, bool> knownControllerState = new Dictionary<Guid, bool>();
+
         private static Boolean usersConfigFileIsBroken = false;
 
         // keep track of all the Joystick devices we've 'acquired'
@@ -161,7 +163,7 @@ namespace CrewChiefV4
                         ControllerConfigurationData data = JsonConvert.DeserializeObject<ControllerConfigurationData>(json);
                         usersConfigFileIsBroken = false;
                         return data;
-                    }                    
+                    }
                 }
                 catch (Exception e)
                 {
@@ -490,6 +492,8 @@ namespace CrewChiefV4
                     lock (activeDevices)
                     {
                         this.controllers = new List<ControllerData>();
+                        this.knownControllers.Clear();
+                        this.knownControllerState = new Dictionary<Guid, bool>();
 
                         // dispose all of our active devices:
                         unacquireAndDisposeActiveJoysticks();
@@ -560,6 +564,7 @@ namespace CrewChiefV4
                     }
                 }
                 ControllerConfigurationData controllerConfigurationData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
+                this.controllers = this.controllers.OrderBy(ctrl => ctrl.deviceName).ToList();
                 controllerConfigurationData.devices = this.controllers;
                 saveControllerConfigurationDataFile(controllerConfigurationData);
                 foreach (ButtonAssignment assignment in buttonAssignments.Where(ba => ba.controller == null && ba.buttonIndex != -1 && !string.IsNullOrEmpty(ba.deviceGuid)))
@@ -579,11 +584,33 @@ namespace CrewChiefV4
                 try
                 {
                     joystick = new Joystick(directInput, joystickGuid);
-                    Console.WriteLine("Device " + (string.IsNullOrWhiteSpace(deviceName) ? "" : (" Name: \"" + deviceName + "\"    ")) + "GUID: \"" + joystickGuid + "\" is connected.");
+
+                    var previouslyConnected = false;
+                    if (!this.knownControllerState.TryGetValue(joystickGuid, out previouslyConnected))
+                    {
+                        this.knownControllerState.Add(joystickGuid, true /*connected*/);
+                    }
+
+                    if (!previouslyConnected)
+                    {
+                        this.knownControllerState[joystickGuid] = true;  // Connected
+                        Console.WriteLine("Device Connected - " + (string.IsNullOrWhiteSpace(deviceName) ? "" : (" Name: \"" + deviceName + "\"    ")) + "GUID: \"" + joystickGuid + "\"");
+                    }
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("Device " + (string.IsNullOrWhiteSpace(deviceName) ? "" : (" Name: \"" + deviceName + "\"    ")) + "GUID: \"" + joystickGuid + "\" is not connected.");
+                    var previouslyConnected = true;
+                    if (!this.knownControllerState.TryGetValue(joystickGuid, out previouslyConnected))
+                    {
+                        this.knownControllerState.Add(joystickGuid, false /*connected*/);
+                    }
+
+                    if (previouslyConnected)
+                    {
+                        this.knownControllerState[joystickGuid] = false;  // Connected
+                        Console.WriteLine("Device Disconnected - " + (string.IsNullOrWhiteSpace(deviceName) ? "" : (" Name: \"" + deviceName + "\"    ")) + "GUID: \"" + joystickGuid + "\"");
+                    }
+
                     Debug.WriteLine("Unable to create a Joystick device with GUID " + joystickGuid + (string.IsNullOrWhiteSpace(deviceName) ? "" : (" name: " + deviceName)) + ": " + e.Message);
                     return;
                 }
@@ -623,7 +650,6 @@ namespace CrewChiefV4
 
         public void reacquireControllers()
         {
-            Console.WriteLine("Re-acquired controllers...");
             Debug.Assert(MainWindow.instance != null && !MainWindow.instance.InvokeRequired);
 
             // This method is called from the UI thread, either by the device-changed event handler or explicitly on app start.
@@ -635,7 +661,7 @@ namespace CrewChiefV4
                 ControllerConfigurationData controllerConfigurationData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
                 var assignedDevices = new HashSet<Guid>();
 
-                this.knownControllers = controllerConfigurationData.devices.ToList();
+                this.knownControllers = controllerConfigurationData.devices.OrderBy(d => d.deviceName).ToList();
 
                 // add the custom device if it's set
                 if (customControllerGuid != Guid.Empty)
@@ -656,15 +682,17 @@ namespace CrewChiefV4
                 {
                     assignment.controller = controllers.FirstOrDefault(c => c.guid.ToString() == assignment.deviceGuid);
                 }
+                this.controllers = this.controllers.OrderBy(ctrl => ctrl.deviceName).ToList();
+
             }
-            Console.WriteLine("Re-acquired controllers, there are " + controllers.Count() + " available controllers and " + activeDevices.Count + " active controllers");
         }
 
         public void addNetworkControllerToList()
         {
             if (controllers != null && !controllers.Contains(networkGamePad))
             {
-                controllers.Add(networkGamePad);
+                this.controllers.Add(networkGamePad);
+                this.controllers = this.controllers.OrderBy(ctrl => ctrl.deviceName).ToList();
             }
         }
 
@@ -672,13 +700,14 @@ namespace CrewChiefV4
         {
             if (controllers != null)
             {
-                controllers.Remove(networkGamePad);
+                this.controllers.Remove(networkGamePad);
+                this.controllers = this.controllers.OrderBy(ctrl => ctrl.deviceName).ToList();
             }
         }
 
         public Boolean assignButton(System.Windows.Forms.Form parent, int controllerIndex, int actionIndex)
         {
-            return controllerIndex < controllers.Count // Make sure device is connected.
+            return controllerIndex != -1 && controllerIndex < controllers.Count // Make sure device is connected.
                 && getFirstPressedButton(parent, controllers[controllerIndex], buttonAssignments[actionIndex]);
         }
 
