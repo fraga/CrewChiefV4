@@ -191,6 +191,14 @@ namespace CrewChiefV4
             return new Tuple<int, int>(wholePart, fractionalPart);
         }
 
+        public static string GetParameterName<T>(T item) where T : class
+        {
+            if (item == null)
+                return string.Empty;
+
+            return item.ToString().TrimStart('{').TrimEnd('}').Split('=')[0].Trim();
+        }
+
         internal static void ReportException(Exception e, string msg, bool needReport)
         {
             Console.WriteLine(
