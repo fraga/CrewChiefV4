@@ -795,7 +795,8 @@ namespace CrewChiefV4.Events
             {
                 if (currentGameState.SessionData.SessionType == SessionType.Race
                     || currentGameState.SessionData.SessionType == SessionType.Qualify
-                    || currentGameState.SessionData.SessionType == SessionType.Practice)
+                    || currentGameState.SessionData.SessionType == SessionType.Practice
+                    || currentGameState.SessionData.SessionType == SessionType.LonePractice)
                 {
                     if ((!previousGameState.PitData.IsApproachingPitlane
                         && currentGameState.PitData.IsApproachingPitlane && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)
@@ -904,8 +905,8 @@ namespace CrewChiefV4.Events
             }
 
             if (!pitLaneSpeedWarningAnnounced
-                && (currentGameState.SessionData.SessionType == SessionType.Practice || currentGameState.SessionData.SessionType == SessionType.Qualify)
-                && CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT  // VL: rF2 only for now, Morten, would you like this?
+                && (currentGameState.SessionData.SessionType == SessionType.LonePractice || currentGameState.SessionData.SessionType == SessionType.Practice || currentGameState.SessionData.SessionType == SessionType.Qualify)
+                && CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT
                 && currentGameState.PitData.InPitlane
                 && currentGameState.PositionAndMotionData.CarSpeed > 0.5f)
             {
