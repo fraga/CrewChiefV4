@@ -128,6 +128,11 @@ namespace CrewChiefV4.Events
                     togglePaceNotesPlayback();
                 }
             }
+            else if(SpeechRecogniser.ResultContains(voiceMessage, new string[] {ControllerConfiguration.TOGGLE_RACE_UPDATES_FUNCTION}))
+            {
+                Console.WriteLine("Toggling keep quiet mode");
+                toggleKeepQuietMode();
+            }
             else if (SpeechRecogniser.ResultContains(voiceMessage, new string[]{ ControllerConfiguration.TOGGLE_READ_OPPONENT_DELTAS}))
             {
                 Console.WriteLine("Toggling read opponent deltas mode");
@@ -231,7 +236,7 @@ namespace CrewChiefV4.Events
                     Console.WriteLine("No track data available");
                 }
             }
-            Console.WriteLine(voiceMessage);
+            //Console.WriteLine(voiceMessage);
         }
 
         public void enableKeepQuietMode()
