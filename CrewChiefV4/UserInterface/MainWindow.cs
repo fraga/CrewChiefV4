@@ -515,6 +515,10 @@ namespace CrewChiefV4
             var entry = (MainWindow.ControllerUiEntry)this.controllersList.Items[e.Index];
 
             var brush = entry.isConnected ? Brushes.Black : Brushes.Gray;
+            if (e.State.HasFlag(DrawItemState.Selected))
+            {
+                brush = Brushes.White;
+            }
 
             SizeF txt_size = e.Graphics.MeasureString(entry.uiText, e.Font);
 
