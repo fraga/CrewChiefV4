@@ -480,6 +480,12 @@ namespace CrewChiefV4
                 }
                 catch (Exception) { }
             }
+            // VL: do not dispose SRE engines.  It is not clear when, and if ever any stupid outstanding Async call will complete.
+            // Outstanding Async calls block Dispose on shutdown.
+            //
+            // Another option is not to call any Async calls from SpeechRecognizer.stop if MainWindow.instance is null.  However,
+            // since we are not continuously re-creating SRE instances, it is safest to simply not Dispose, as it is very unlikely
+            // to cause any system wide impact/leak.
             if (sre != null)
             {
                 try
@@ -489,9 +495,7 @@ namespace CrewChiefV4
                 catch (Exception) { }
                 try
                 {
-                    // VL: there's a bug with recognizeAsyncCancel racing with Dispose.  Current workaround is a bit of Sleep.
-                    // See GlobalResources.Dispose
-                    sre.Dispose();
+                    //sre.Dispose();
                 }
                 catch (Exception) { }
                 sre = null;
@@ -500,7 +504,7 @@ namespace CrewChiefV4
             {
                 try
                 {
-                    triggerSre.Dispose();
+                    //triggerSre.Dispose();
                 }
                 catch (Exception) { }
                 triggerSre = null;
