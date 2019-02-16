@@ -74,7 +74,7 @@ namespace CrewChiefV4
         {
             if (GlobalResources.speechRecogniserReference != null)
             {
-                GlobalResources.speechRecogniserReference.recognizeAsyncCancel();
+                GlobalResources.speechRecogniserReference.recognizeAsyncCancel(true);
                 GlobalResources.speechRecogniserReference.stopTriggerRecogniser();
 
                 // these stop calls return immediately but take a millisecond or so to complete their work. Don't

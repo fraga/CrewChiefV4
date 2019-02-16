@@ -484,6 +484,11 @@ namespace CrewChiefV4
             {
                 try
                 {
+                    sre.SetInputToNull();
+                }
+                catch (Exception) { }
+                try
+                {
                     // VL: there's a bug with recognizeAsyncCancel racing with Dispose.  Current workaround is a bit of Sleep.
                     // See GlobalResources.Dispose
                     sre.Dispose();
@@ -1576,7 +1581,7 @@ namespace CrewChiefV4
             }
         }
 
-        public void recognizeAsyncCancel()
+        public void recognizeAsyncCancel(Boolean isShuttingDown = false)
         {
             if (!initialised)
             {
@@ -1593,14 +1598,17 @@ namespace CrewChiefV4
                     StopNAudioWaveIn();
                     Microsoft.Speech.AudioFormat.SpeechAudioFormatInfo safi = new Microsoft.Speech.AudioFormat.SpeechAudioFormatInfo(
                         waveIn.WaveFormat.SampleRate, Microsoft.Speech.AudioFormat.AudioBitsPerSample.Sixteen, Microsoft.Speech.AudioFormat.AudioChannel.Mono);
-                    sre.SetInputToAudioStream(buffer, safi); // otherwise input gets unset
-                    try
+                    if (!isShuttingDown)
                     {
-                        sre.RecognizeAsync(RecognizeMode.Multiple); // before this call
-                    }
-                    catch (Exception e)
-                    {
-                        Utilities.ReportException(e, "Exception in SpeechRecognitionEngine.RecognizeAsync.", true /*needReport*/);
+                        sre.SetInputToAudioStream(buffer, safi); // otherwise input gets unset
+                        try
+                        {
+                            sre.RecognizeAsync(RecognizeMode.Multiple); // before this call
+                        }
+                        catch (Exception e)
+                        {
+                            Utilities.ReportException(e, "Exception in SpeechRecognitionEngine.RecognizeAsync.", true /*needReport*/);
+                        }
                     }
                 }
                 else if (MainWindow.voiceOption == MainWindow.VoiceOptionEnum.ALWAYS_ON)
