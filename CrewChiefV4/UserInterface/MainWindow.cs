@@ -1070,12 +1070,12 @@ namespace CrewChiefV4
                 this.speechRecognitionDeviceBox.SelectedValueChanged += new System.EventHandler(this.speechRecognitionDeviceSelected);
             }
 
-            crewChief = new CrewChief();
-
             // NOTE: if you ever move this construction, please make sure controller rescan thread is not running yet.
             Debug.Assert(!this.controllerRescanThreadRunning);
             controllerConfiguration = new ControllerConfiguration(this);
             GlobalResources.controllerConfiguration = controllerConfiguration;
+
+            crewChief = new CrewChief();
 
             this.personalisationBox.Items.AddRange(this.crewChief.audioPlayer.personalisationsArray);
             this.chiefNameBox.Items.AddRange(AudioPlayer.availableChiefVoices.ToArray());
