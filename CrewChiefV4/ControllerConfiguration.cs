@@ -257,7 +257,11 @@ namespace CrewChiefV4
         private bool initialized = false;
         public void initialize()
         {
-            Debug.Assert(!this.initialized);
+            if (this.initialized)
+            {
+                Debug.Assert(!this.initialized, "This method should be only called once.");
+                return;
+            }
 
             // update existing data to use new json - copies assignments from old properties data into new json data, used when there's
             // no user controllers config json file
