@@ -252,6 +252,13 @@ namespace CrewChiefV4
         {
             this.mainWindow = mainWindow;
             
+        }
+
+        private bool initialized = false;
+        public void initialize()
+        {
+            Debug.Assert(!this.initialized);
+
             // update existing data to use new json - copies assignments from old properties data into new json data, used when there's
             // no user controllers config json file
             if (getUserControllerConfigurationDataFileLocation() == null)
@@ -261,7 +268,7 @@ namespace CrewChiefV4
                 {
                     int buttonIndex = UserSettings.GetUserSettings().getInt(assignment.Key + "_button_index");
                     String deviceGuid = UserSettings.GetUserSettings().getString(assignment.Key + "_device_guid");
-                    oldUserData.buttonAssignments.Add(new ButtonAssignment() { deviceGuid = deviceGuid, buttonIndex = buttonIndex, action = assignment.Value });                               
+                    oldUserData.buttonAssignments.Add(new ButtonAssignment() { deviceGuid = deviceGuid, buttonIndex = buttonIndex, action = assignment.Value });
                 }
                 oldUserData.devices = ControllerData.parse(UserSettings.GetUserSettings().getString(ControllerData.PROPERTY_CONTAINER));
                 saveControllerConfigurationDataFile(oldUserData);
@@ -270,29 +277,30 @@ namespace CrewChiefV4
             ControllerConfigurationData defaultData = getControllerConfigurationDataFromFile(getDefaultControllerConfigurationDataFileLocation());
             ControllerConfigurationData controllerConfigurationData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
             if (defaultData.buttonAssignments.Count > 0) // app updated add, missing elements ?
-            {                
+            {
                 var missingItems = defaultData.buttonAssignments.Where(ba2 => !controllerConfigurationData.buttonAssignments.Any(ba1 => ba1.action == ba2.action));
-                if(missingItems.ToList().Count > 0)
+                if (missingItems.ToList().Count > 0)
                 {
                     controllerConfigurationData.buttonAssignments.AddRange(missingItems);
                     saveControllerConfigurationDataFile(controllerConfigurationData);
                 }
-            }                                   
+            }
             // update actions and add assignments            
             buttonAssignments = controllerConfigurationData.buttonAssignments;
             controllers = controllerConfigurationData.devices;
             ButtonAssignment networkAssignment = buttonAssignments.SingleOrDefault(ba => ba.deviceGuid == UDP_NETWORK_CONTROLLER_GUID.ToString());
-            if(networkAssignment != null)
+            if (networkAssignment != null)
             {
                 addNetworkControllerToList();
-            }            
+            }
             foreach (ButtonAssignment assignment in buttonAssignments)
             {
                 assignment.controller = controllers.FirstOrDefault(c => c.guid.ToString() == assignment.deviceGuid);
                 assignment.Initialize();
             }
-        }
 
+            this.initialized = true;
+        }
         // just sets the custom controller guid so the scan call will populate it later
         public void addCustomController(Guid guid)
         {
