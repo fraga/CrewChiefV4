@@ -318,6 +318,16 @@
 			"allMembersAreRWD": true
 		},
 		{
+			"carClassEnum": "SUPERKART",
+			"rf2ClassNames": ["RF2R SUPERKART"],
+			"minTyreCircumference": 0.72,
+			"maxTyreCircumference": 1.22,
+			"spotterVehicleLength": 2.0,
+			"spotterVehicleWidth": 1.5,
+			"enabledMessageTypes": "NONE",
+			"allMembersAreRWD": true
+		},
+		{
 			"carClassEnum": "LMP1",
 			"raceroomClassIds": [1714],
 			"pCarsClassNames": ["LMP1"],
