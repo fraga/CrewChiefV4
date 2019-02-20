@@ -580,10 +580,22 @@ namespace CrewChiefV4.Events
 
         private void getIMOAveragesForLap()
         {
-            leftFrontAverageIMOLastLap = new float[] { leftFrontInnerSamples.Average(), leftFrontMiddleSamples.Average(), leftFrontOuterSamples.Average() };
-            rightFrontAverageIMOLastLap = new float[] { rightFrontInnerSamples.Average(), rightFrontMiddleSamples.Average(), rightFrontOuterSamples.Average() };
-            leftRearAverageIMOLastLap = new float[] { leftRearInnerSamples.Average(), leftRearMiddleSamples.Average(), leftRearOuterSamples.Average() };
-            rightRearAverageIMOLastLap = new float[] { rightRearInnerSamples.Average(), rightRearMiddleSamples.Average(), rightRearOuterSamples.Average() };
+            if (leftFrontInnerSamples.Count > 0 && leftFrontMiddleSamples.Count > 0 && leftFrontOuterSamples.Count > 0)
+            {
+                leftFrontAverageIMOLastLap = new float[] { leftFrontInnerSamples.Average(), leftFrontMiddleSamples.Average(), leftFrontOuterSamples.Average() };
+            }
+            if (rightFrontInnerSamples.Count > 0 && rightFrontMiddleSamples.Count > 0 && rightFrontOuterSamples.Count > 0)
+            {
+                rightFrontAverageIMOLastLap = new float[] { rightFrontInnerSamples.Average(), rightFrontMiddleSamples.Average(), rightFrontOuterSamples.Average() };
+            }
+            if (leftRearInnerSamples.Count > 0 && leftRearMiddleSamples.Count > 0 && leftRearOuterSamples.Count > 0)
+            {
+                leftRearAverageIMOLastLap = new float[] { leftRearInnerSamples.Average(), leftRearMiddleSamples.Average(), leftRearOuterSamples.Average() };
+            }
+            if (rightRearInnerSamples.Count > 0 && rightRearMiddleSamples.Count > 0 && rightRearOuterSamples.Count > 0)
+            {
+                rightRearAverageIMOLastLap = new float[] { rightRearInnerSamples.Average(), rightRearMiddleSamples.Average(), rightRearOuterSamples.Average() };
+            }
         }
 
         private void clearIMOData()
@@ -1998,7 +2010,7 @@ namespace CrewChiefV4.Events
         private Boolean hasUsableIMOTempData(Boolean useAverageData)
         {
             return CrewChief.gameDefinition.gameEnum != GameEnum.IRACING && CrewChief.gameDefinition.gameEnum != GameEnum.F1_2018 &&
-                ((useAverageData && leftFrontAverageIMOLastLap != null) ||
+                ((useAverageData && leftFrontAverageIMOLastLap != null && rightFrontAverageIMOLastLap != null && leftRearAverageIMOLastLap != null && rightRearAverageIMOLastLap != null) ||
                 (!useAverageData && CrewChief.currentGameState != null && CrewChief.currentGameState.TyreData != null && CrewChief.currentGameState.TyreData.FrontLeft_LeftTemp > 30));
         }
         
