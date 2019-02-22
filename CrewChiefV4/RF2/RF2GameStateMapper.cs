@@ -1084,18 +1084,22 @@ namespace CrewChiefV4.rFactor2
             // some simple locking / spinning checks
             if (cgs.PositionAndMotionData.CarSpeed > 7.0f)
             {
-//                "minTyreCircumference": 0.72,
-	//		"maxTyreCircumference": 1.22,
+                //                "minTyreCircumference": 0.72,
+                //		"maxTyreCircumference": 1.22,
 
+
+                // Rotations per second - i think it is rad/s after all
+                // w = v/r 
+                // https://www.lucidar.me/en/unit-converter/rad-per-second-to-meters-per-second/
                 float minRotatingSpeed = (float)Math.PI * cgs.PositionAndMotionData.CarSpeed / cgs.carClass.maxTyreCircumference;
-                float minRotatingSpeed2 = (float)cgs.PositionAndMotionData.CarSpeed / 0.388f;
+                float minRotatingSpeed2 = (float)cgs.PositionAndMotionData.CarSpeed / 0.388f;  // Why bigger is taken here?  - Because when making a left turn, right wheel spins faster, as if it was smaller.
                 cgs.TyreData.LeftFrontIsLocked = Math.Abs(wheelFrontLeft.mRotation) < minRotatingSpeed;
                 cgs.TyreData.RightFrontIsLocked = Math.Abs(wheelFrontRight.mRotation) < minRotatingSpeed;
                 cgs.TyreData.LeftRearIsLocked = Math.Abs(wheelRearLeft.mRotation) < minRotatingSpeed;
                 cgs.TyreData.RightRearIsLocked = Math.Abs(wheelRearRight.mRotation) < minRotatingSpeed;
 
                 float maxRotatingSpeed = 3 * (float)Math.PI * cgs.PositionAndMotionData.CarSpeed / cgs.carClass.minTyreCircumference;
-                float maxRotatingSpeed2 = 3 * (float)cgs.PositionAndMotionData.CarSpeed / 0.23f;
+                float maxRotatingSpeed2 = 3 * (float)cgs.PositionAndMotionData.CarSpeed / 0.23f;  // Why smaller is taken here?   - Because when making a left turn, right wheel spins faster, as if it was smaller.
                 cgs.TyreData.LeftFrontIsSpinning = Math.Abs(wheelFrontLeft.mRotation) > maxRotatingSpeed;
                 cgs.TyreData.RightFrontIsSpinning = Math.Abs(wheelFrontRight.mRotation) > maxRotatingSpeed;
                 cgs.TyreData.LeftRearIsSpinning = Math.Abs(wheelRearLeft.mRotation) > maxRotatingSpeed;
