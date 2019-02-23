@@ -44,7 +44,7 @@ namespace CrewChiefV4.Audio
         public static int activeSoundPlayerObjects;
         public static int prefixesAndSuffixesCount = 0;
 
-        private Boolean purging = false;
+        private static Boolean purging = false;
         private Thread expireCachedSoundsThread = null;
         public static String OPTIONAL_PREFIX_IDENTIFIER = "op_prefix";
         public static String OPTIONAL_SUFFIX_IDENTIFIER = "op_suffix";
@@ -381,10 +381,20 @@ namespace CrewChiefV4.Audio
             if (isInAvailableNames)
             {
                 singleSounds[name].LoadAndCacheSound();
-                lock (SoundCache.dynamicLoadedSounds)
+                if (!purging)
                 {
-                    SoundCache.dynamicLoadedSounds.Remove(name);
-                    SoundCache.dynamicLoadedSounds.AddLast(name);
+                    lock (SoundCache.dynamicLoadedSounds)
+                    {
+                        try
+                        {
+                            SoundCache.dynamicLoadedSounds.Remove(name);
+                            SoundCache.dynamicLoadedSounds.AddLast(name);
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine("Error reordering sound cache while adding a driver name: " + e.StackTrace);
+                        }
+                    }
                 }
             }
             else
@@ -422,12 +432,19 @@ namespace CrewChiefV4.Audio
 
         private void moveToTopOfCache(String soundName)
         {
-            if (!AudioPlayer.playWithNAudio)
+            if (!AudioPlayer.playWithNAudio && !purging)
             {
                 lock (SoundCache.dynamicLoadedSounds)
                 {
-                    SoundCache.dynamicLoadedSounds.Remove(soundName);
-                    SoundCache.dynamicLoadedSounds.AddLast(soundName);
+                    try
+                    {
+                        SoundCache.dynamicLoadedSounds.Remove(soundName);
+                        SoundCache.dynamicLoadedSounds.AddLast(soundName);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Error reordering sound cache while playing a sound: " + e.StackTrace);
+                    }
                 }
             }
         }
@@ -569,40 +586,49 @@ namespace CrewChiefV4.Audio
                     Thread.CurrentThread.IsBackground = true;
                     var watch = System.Diagnostics.Stopwatch.StartNew();
                     int purgeCount = 0;
-                    lock (this)
+                    try
                     {
+                        LinkedListNode<String> soundToPurge;
                         lock (SoundCache.dynamicLoadedSounds)
                         {
-                            var soundToPurge = SoundCache.dynamicLoadedSounds.First;
-
-                            // No need to support cancellation of this thread, as it is not slow enough and we can wait for it.
-                            while (soundToPurge != null && purgeCount <= soundPlayerPurgeBlockSize)
+                            soundToPurge = SoundCache.dynamicLoadedSounds.First;
+                        }
+                        // No need to support cancellation of this thread, as it is not slow enough and we can wait for it.
+                        while (soundToPurge != null && purgeCount <= soundPlayerPurgeBlockSize)
+                        {
+                            String soundToPurgeValue = soundToPurge.Value;
+                            SoundSet soundSet = null;
+                            SingleSound singleSound = null;
+                            if (soundSets.TryGetValue(soundToPurgeValue, out soundSet))
                             {
-                                String soundToPurgeValue = soundToPurge.Value;
-                                SoundSet soundSet = null;
-                                SingleSound singleSound = null;
-                                if (soundSets.TryGetValue(soundToPurgeValue, out soundSet))
+                                purgeCount += soundSet.UnLoadAll();
+                            }
+                            else if (singleSounds.TryGetValue(soundToPurgeValue, out singleSound))
+                            {
+                                if (singleSound.UnLoad())
                                 {
-                                    purgeCount += soundSet.UnLoadAll();
+                                    purgeCount++;
                                 }
-                                else if (singleSounds.TryGetValue(soundToPurgeValue, out singleSound))
-                                {
-                                    if (singleSound.UnLoad())
-                                    {
-                                        purgeCount++;
-                                    }
-                                }
+                            }
+                            lock (SoundCache.dynamicLoadedSounds)
+                            {
                                 var nextSoundToPurge = soundToPurge.Next;
                                 SoundCache.dynamicLoadedSounds.Remove(soundToPurge);
                                 soundToPurge = nextSoundToPurge;
                             }
                         }
                     }
-
-                    watch.Stop();
-                    var elapsedMs = watch.ElapsedMilliseconds;
-                    Console.WriteLine("Purged " + purgeCount + " sounds in " + elapsedMs + "ms, there are now " + SoundCache.activeSoundPlayerObjects + " active SoundPlayer objects");
-                    purging = false;
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Error purging sounds from cache: " + e.StackTrace);
+                    }
+                    finally
+                    {
+                        watch.Stop();
+                        var elapsedMs = watch.ElapsedMilliseconds;
+                        Console.WriteLine("Purged " + purgeCount + " sounds in " + elapsedMs + "ms, there are now " + SoundCache.activeSoundPlayerObjects + " active SoundPlayer objects");
+                        purging = false;
+                    }
                 });
                 expireCachedSoundsThread.Name = "SoundCache.expireCachedSoundsThread";
                 ThreadManager.RegisterTemporaryThread(expireCachedSoundsThread);
@@ -1246,7 +1272,7 @@ namespace CrewChiefV4.Audio
         }
 
         public void LoadAndCacheSound()
-        {
+        {            
             lock (this)
             {
                 if (!loadedFile)
@@ -1530,7 +1556,7 @@ namespace CrewChiefV4.Audio
         public Boolean UnLoad()
         {
             Boolean unloaded = false;
-            lock (this)
+            lock(this)
             {
                 if (this.soundPlayer != null)
                 {
