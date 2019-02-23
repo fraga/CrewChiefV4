@@ -1768,15 +1768,20 @@ namespace CrewChiefV4.Events
 
         private void playPressureMessage(Boolean allowDelayedResponse, params String[] folders)
         {
-            int secondsDelay = 0;
-            if (allowDelayedResponse && Utilities.random.Next(10) >= 2)
+            QueuedMessage message = new QueuedMessage("pressures", 0, messageFragments: MessageContents(folders));
+            if (delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
             {
                 audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderStandBy, 0));
-                secondsDelay = Math.Max(8, Utilities.random.Next(12));
+                int secondsDelay = Math.Max(5, Utilities.random.Next(7));
                 audioPlayer.pauseQueue(secondsDelay);
+
+                message.secondsDelay = secondsDelay;
+                audioPlayer.playDelayedImmediateMessage(message);
             }
-            audioPlayer.playMessageImmediately(new QueuedMessage("pressures", 15,
-                    messageFragments: MessageContents(folders), abstractEvent: this, priority: 0, secondsDelay: secondsDelay));
+            else
+            {
+                audioPlayer.playMessageImmediately(message);
+            }
         }
 
         private String getPressureMessage(CornerData.Corners corners, Boolean useAverageData)
@@ -1952,40 +1957,41 @@ namespace CrewChiefV4.Events
         private void playCamberMessage(float percentageDiff, int absoluteDiff, String folderSame, String folderDiffIntro, String folderHotterThanOutersOutro,
             String folderColderThanOutersOutro, Boolean allowDelayedResponse)
         {
-            int secondsDelay = 0;
-            if (allowDelayedResponse && Utilities.random.Next(10) >= 2)
-            {
-                audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderStandBy, 0));
-                secondsDelay = Math.Max(8, Utilities.random.Next(12));
-                audioPlayer.pauseQueue(secondsDelay);
-            }
             float[] targets = getTargetCamberPercentDiff();
             float minTarget = targets[0];
             float maxTarget = targets[1];
+            QueuedMessage message;
             if (Math.Abs(absoluteDiff) <= 1)
             {
-                audioPlayer.playMessageImmediately(new QueuedMessage("imo_diff", 15,
-                    messageFragments: MessageContents(folderSame, folderNeedMoreNegativeCamber), abstractEvent: this, priority: 0, secondsDelay: secondsDelay));
+                message = new QueuedMessage("imo_diff", 0, messageFragments: MessageContents(folderSame, folderNeedMoreNegativeCamber));
             }
             else if (percentageDiff < -1)
             {
-                audioPlayer.playMessageImmediately(new QueuedMessage("imo_diff", 15,
-                    messageFragments: MessageContents(folderDiffIntro, absoluteDiff * -1, folderColderThanOutersOutro, folderNeedMoreNegativeCamber), abstractEvent: this, priority: 0, secondsDelay: secondsDelay));
+                message = new QueuedMessage("imo_diff", 0, messageFragments: MessageContents(folderDiffIntro, absoluteDiff * -1, folderColderThanOutersOutro, folderNeedMoreNegativeCamber));
             }
             else if (percentageDiff > maxTarget)
             {
-                audioPlayer.playMessageImmediately(new QueuedMessage("imo_diff", 15,
-                    messageFragments: MessageContents(folderDiffIntro, absoluteDiff, folderHotterThanOutersOutro, folderNeedMorePositiveCamber), abstractEvent: this, priority: 0, secondsDelay: secondsDelay));
+                message = new QueuedMessage("imo_diff", 0, messageFragments: MessageContents(folderDiffIntro, absoluteDiff, folderHotterThanOutersOutro, folderNeedMorePositiveCamber));
             }
             else if (percentageDiff < minTarget)
             {
-                audioPlayer.playMessageImmediately(new QueuedMessage("imo_diff", 15,
-                    messageFragments: MessageContents(folderDiffIntro, absoluteDiff, folderHotterThanOutersOutro, folderNeedMoreNegativeCamber), abstractEvent: this, priority: 0, secondsDelay: secondsDelay));
+                message = new QueuedMessage("imo_diff", 0, messageFragments: MessageContents(folderDiffIntro, absoluteDiff, folderHotterThanOutersOutro, folderNeedMoreNegativeCamber));
             }
             else
             {
-                audioPlayer.playMessageImmediately(new QueuedMessage("imo_diff", 15,
-                    messageFragments: MessageContents(folderDiffIntro, absoluteDiff, folderHotterThanOutersOutro, folderCamberOK), abstractEvent: this, priority: 0, secondsDelay: secondsDelay));
+                message = new QueuedMessage("imo_diff", 0, messageFragments: MessageContents(folderDiffIntro, absoluteDiff, folderHotterThanOutersOutro, folderCamberOK));
+            }
+            if (delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
+            {
+                audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderStandBy, 0));
+                int secondsDelay = Math.Max(5, Utilities.random.Next(7));
+                audioPlayer.pauseQueue(secondsDelay);
+                message.secondsDelay = secondsDelay;
+                audioPlayer.playDelayedImmediateMessage(message);
+            }
+            else
+            {
+                audioPlayer.playMessageImmediately(message);
             }
         }
 
