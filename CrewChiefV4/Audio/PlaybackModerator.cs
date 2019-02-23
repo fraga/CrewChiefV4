@@ -348,7 +348,7 @@ namespace CrewChiefV4.Audio
                 type = queuedMessage.metadata.type;
             }
 
-            var canPlay = priority >= PlaybackModerator.minPriorityForEachVerbosity[verbosity];
+            var canPlay = queuedMessage.playEvenWhenSilenced || priority >= PlaybackModerator.minPriorityForEachVerbosity[verbosity];
             if (canPlay)
             {
                 // not using this Dictionary of played messages so no point in adding data to it. Will leave this code
