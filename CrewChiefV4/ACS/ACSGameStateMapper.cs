@@ -908,13 +908,13 @@ namespace CrewChiefV4.assetto
             currentGameState.SessionData.IsDisqualified = currentFlag == AC_FLAG_TYPE.AC_BLACK_FLAG;
             bool isInPits = shared.acsGraphic.isInPit == 1;
             int lapsCompleted = shared.acsGraphic.completedLaps;
-            ACSGameStateMapper.numberOfSectorsOnTrack = shared.acsStatic.sectorCount;
 
             Boolean raceFinished = lapsCompleted == numberOfLapsInSession || (previousGameState != null && previousGameState.SessionData.LeaderHasFinishedRace && previousGameState.SessionData.IsNewLap);
             currentGameState.SessionData.SessionPhase = mapToSessionPhase(currentGameState.SessionData.SessionType, currentFlag, status, isCountDown, lastSessionPhase, sessionTimeRemaining, lastSessionTotalRunTime, isInPits, lapsCompleted, raceFinished);
 
             currentGameState.SessionData.TrackDefinition = TrackData.getTrackDefinition(shared.acsStatic.track
-                + ":" + shared.acsStatic.trackConfiguration, shared.acsStatic.trackSPlineLength, shared.acsStatic.sectorCount);            
+                + ":" + shared.acsStatic.trackConfiguration, shared.acsStatic.trackSPlineLength, shared.acsStatic.sectorCount);
+            ACSGameStateMapper.numberOfSectorsOnTrack = currentGameState.SessionData.TrackDefinition.sectorsOnTrack;
 
             Boolean sessionOfSameTypeRestarted = ((currentGameState.SessionData.SessionType == SessionType.Race && lastSessionType == SessionType.Race) ||
                 (currentGameState.SessionData.SessionType == SessionType.Practice && lastSessionType == SessionType.Practice) ||
@@ -1247,7 +1247,7 @@ namespace CrewChiefV4.assetto
                     currentGameState.SessionData.playerCompleteLapWithProvidedLapTime(currentGameState.SessionData.OverallPosition, currentGameState.SessionData.SessionRunningTime,
                         lastLapTime, currentGameState.SessionData.CurrentLapIsValid, currentGameState.PitData.InPitlane, false,
                         shared.acsPhysics.roadTemp, shared.acsPhysics.airTemp, currentGameState.SessionData.SessionHasFixedTime,
-                        currentGameState.SessionData.SessionTimeRemaining, numberOfSectorsOnTrack, currentGameState.TimingData);
+                        currentGameState.SessionData.SessionTimeRemaining, ACSGameStateMapper.numberOfSectorsOnTrack, currentGameState.TimingData);
                     currentGameState.SessionData.playerStartNewLap(currentGameState.SessionData.CompletedLaps + 1,
                         currentGameState.SessionData.OverallPosition, currentGameState.PitData.InPitlane, currentGameState.SessionData.SessionRunningTime);
                 }

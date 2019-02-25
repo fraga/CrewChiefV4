@@ -978,6 +978,11 @@ namespace CrewChiefV4
             {
                 sectorsOnTrack = 1;
             }
+            else if (sectorsOnTrack > 3)
+            {
+                // even though the game reports > 3 sectors on this track, weird stuff happens if we use more than 3
+                sectorsOnTrack = 3;
+            }
             float sectorSpacing = trackLength / sectorsOnTrack;
             sectorPoints[0] = sectorSpacing;
             sectorPoints[1] = sectorSpacing * 2;
