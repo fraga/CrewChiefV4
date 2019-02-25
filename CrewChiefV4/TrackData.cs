@@ -974,13 +974,10 @@ namespace CrewChiefV4
         }
         public void setSectorPointsForUnknownTracks()
         {
-            if (sectorsOnTrack == 0)
+            // tracks can be 2 or 3 sectors long, nothing else. If the game reports 2 sectors we assume that's correct,
+            // but for anything else we default to 3 sectors
+            if (sectorsOnTrack != 2)
             {
-                sectorsOnTrack = 1;
-            }
-            else if (sectorsOnTrack > 3)
-            {
-                // even though the game reports > 3 sectors on this track, weird stuff happens if we use more than 3
                 sectorsOnTrack = 3;
             }
             float sectorSpacing = trackLength / sectorsOnTrack;
