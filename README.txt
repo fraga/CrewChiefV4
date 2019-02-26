@@ -220,6 +220,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.9.6.9: Minor bug fixes; AC: ensure tracks always have 2 or 3 sectors - this *definitely* fixes long-standing issues with some longer add-on tracks that report 4 or more sectors
+
 Version 4.9.6.8: Some stability fixes
 
 Version 4.9.6.7: Fixed nAudio speech recognition; some more minor improvements to the controllers code
