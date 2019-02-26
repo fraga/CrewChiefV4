@@ -1063,6 +1063,11 @@ namespace CrewChiefV4.assetto
                         {
                             currentGameState.SessionData.TrackDefinition.setSectorPointsForUnknownTracks();
                         }
+                        if (currentGameState.SessionData.TrackDefinition.sectorsOnTrack < shared.acsStatic.sectorCount)
+                        {
+                            Console.WriteLine("Track definition has " + shared.acsStatic.sectorCount +
+                                " sectors - these will be combined into " + currentGameState.SessionData.TrackDefinition.sectorsOnTrack + " equal sectors");
+                        }
                         TrackDataContainer tdc = TrackData.TRACK_LANDMARKS_DATA.getTrackDataForTrackName(currentGameState.SessionData.TrackDefinition.name, shared.acsStatic.trackSPlineLength);
                         currentGameState.SessionData.TrackDefinition.trackLandmarks = tdc.trackLandmarks;
                         currentGameState.SessionData.TrackDefinition.isOval = tdc.isOval;                        
