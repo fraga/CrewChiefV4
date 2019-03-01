@@ -2252,7 +2252,6 @@ namespace CrewChiefV4.rFactor2
             return lastSectorTime;
         }
 
-#if DEBUG
         // NOTE: This can be made generic for all sims, but I am not sure if anyone needs this but me
         private static void writeDebugMsg(string msg)
         {
@@ -2280,7 +2279,6 @@ namespace CrewChiefV4.rFactor2
             if (cgs.TyreData.RightRearIsSpinning)
                 RF2GameStateMapper.writeDebugMsg(string.Format("Right Rear is spinning.  mRotation: {0}  maxRearRotatingSpeed: {1}  maxRotatingSpeedOld: {2}", rearRightRotation.ToString("0.000"), maxRearRotatingSpeed.ToString("0.000"), maxRotatingSpeedOld.ToString("0.000")));
         }
-#endif
 
         private PitWindow mapToPitWindow(rFactor2Constants.rF2YellowFlagState pitWindow)
         {
