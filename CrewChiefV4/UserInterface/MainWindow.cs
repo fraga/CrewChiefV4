@@ -1453,24 +1453,23 @@ namespace CrewChiefV4
                         }
                         nextPollWait = 200;
                     }
-                    else if (crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised && voiceOption == VoiceOptionEnum.TOGGLE)
+                    else if (crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised && voiceOption == VoiceOptionEnum.TOGGLE &&
+                             controllerConfiguration.hasOutstandingClick(ControllerConfiguration.CHANNEL_OPEN_FUNCTION))
                     {
-                        if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.CHANNEL_OPEN_FUNCTION))
+                        // JB: no idea why we're setting this enum option here. Will leave it in just in case
+                        crewChief.speechRecogniser.voiceOptionEnum = VoiceOptionEnum.TOGGLE;
+                        if (SpeechRecogniser.waitingForSpeech)
                         {
-                            crewChief.speechRecogniser.voiceOptionEnum = VoiceOptionEnum.TOGGLE;
-                            if (SpeechRecogniser.waitingForSpeech)
-                            {
-                                Console.WriteLine("Cancelling...");
-                                SpeechRecogniser.waitingForSpeech = false;
-                                crewChief.speechRecogniser.recognizeAsyncCancel();
-                                nextPollWait = 1000;
-                            }
-                            else
-                            {
-                                Console.WriteLine("Listening...");
-                                crewChief.audioPlayer.playStartListeningBeep();
-                                crewChief.speechRecogniser.recognizeAsync();
-                            }
+                            Console.WriteLine("Cancelling...");
+                            SpeechRecogniser.waitingForSpeech = false;
+                            crewChief.speechRecogniser.recognizeAsyncCancel();
+                            nextPollWait = 1000;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Listening...");
+                            crewChief.audioPlayer.playStartListeningBeep();
+                            crewChief.speechRecogniser.recognizeAsync();
                         }
                     }
                     else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_SPOTTER_FUNCTION))
@@ -1485,10 +1484,6 @@ namespace CrewChiefV4
                         //crewChief.toggleKeepQuietMode();
                         nextPollWait = 1000;
                     }
-
-                    /*
-*/
-
                 }
                 Thread.Sleep(nextPollWait);
             }

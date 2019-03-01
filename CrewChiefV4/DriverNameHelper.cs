@@ -124,7 +124,8 @@ namespace CrewChiefV4
             name = name.Replace('-', ' ');
             name = name.Replace('.', ' ');
             name = name.Replace("$", "s");
-            return name.Trim();
+            // trim the string and replace any multiple whitespace chars with a single space
+            return System.Text.RegularExpressions.Regex.Replace(name.Trim(), @"\s+", " ");
         }
 
         private static String cleanBrackets(String name)
