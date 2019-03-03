@@ -220,6 +220,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.9.7.0: Don't play lap time comparisons during full course yellow; fixed button assignments being ignored when Voice Recognition Mode is set to 'Press and release button'
+
 Version 4.9.6.9: Minor bug fixes; AC: ensure tracks always have 2 or 3 sectors - this *definitely* fixes long-standing issues with some longer add-on tracks that report 4 or more sectors
 
 Version 4.9.6.8: Some stability fixes
