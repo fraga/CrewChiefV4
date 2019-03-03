@@ -726,7 +726,7 @@ namespace CrewChiefV4
                         setFromCommandLine = true;
                         break;
                     }
-                    else if (arg.Equals("RF2"))
+                    else if (arg.Equals("RF2") || arg.Equals("RF2_64BIT"))
                     {
                         Console.WriteLine("Set RF2 mode from command line");
                         this.gameDefinitionList.Text = GameDefinition.rfactor2_64bit.friendlyName;

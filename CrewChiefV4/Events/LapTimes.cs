@@ -569,7 +569,7 @@ namespace CrewChiefV4.Events
                                     }
                                 }
                             }
-                            else if (currentGameState.SessionData.SessionType == SessionType.Race && !currentGameState.PitData.InPitlane)
+                            else if (currentGameState.SessionData.SessionType == SessionType.Race && !currentGameState.PitData.InPitlane && !currentGameState.FlagData.isFullCourseYellow)
                             {
                                 Boolean playedLapMessage = false;
                                 if (frequencyOfPlayerRaceLapTimeReports > Utilities.random.NextDouble() * 10)
@@ -688,7 +688,7 @@ namespace CrewChiefV4.Events
                     }
                 }
                 // report sector delta at the completion of a sector?
-                if (!sectorsReportedForLap && currentGameState.SessionData.IsNewSector && 
+                if (!sectorsReportedForLap && currentGameState.SessionData.IsNewSector && !currentGameState.FlagData.isFullCourseYellow &&
                     ((currentGameState.SessionData.SessionType == SessionType.Race && raceSectorReportsAtEachSector) ||
                      (currentGameState.SessionData.SessionType != SessionType.Race && practiceAndQualSectorReportsAtEachSector)))
                 {
