@@ -1113,10 +1113,11 @@ namespace CrewChiefV4.rFactor2
                     cgs.TyreData.LeftRearIsSpinning = Math.Abs(wheelRearLeft.mRotation) > maxRearRotatingSpeedRadSec;
                     cgs.TyreData.RightRearIsSpinning = Math.Abs(wheelRearRight.mRotation) > maxRearRotatingSpeedRadSec;
 
-                    // TODO: disable
+#if DEBUG
                     RF2GameStateMapper.writeSpinningLockingDebugMsg(cgs, wheelFrontLeft.mRotation, wheelFrontRight.mRotation,
                         wheelRearLeft.mRotation, wheelRearRight.mRotation, minRotatingSpeedOld, maxRotatingSpeedOld, minFrontRotatingSpeedRadSec,
                         minRearRotatingSpeedRadSec, maxFrontRotatingSpeedRadSec, maxRearRotatingSpeedRadSec);
+#endif
                 }
                 else
                 {
@@ -1654,7 +1655,7 @@ namespace CrewChiefV4.rFactor2
                 {
                     if (!this.enableFCYPitStateMessages)
                         cgs.FlagData.fcyPhase = FullCourseYellowPhase.IN_PROGRESS;
-                    else if (playerRulesIdx != -1
+                    else if (playerRulesIdx != -1  // Offline case  TODO: remove when/if we move to DMA messages.
                         && shared.scoring.mScoringInfo.mYellowFlagState == (sbyte)rFactor2Constants.rF2YellowFlagState.PitClosed)
                     {
                         var allowedToPit = shared.rules.mParticipants[playerRulesIdx].mPitsOpen;
@@ -1664,6 +1665,17 @@ namespace CrewChiefV4.rFactor2
                             var pitsClosedForPlayer = allowedToPit == 2 || allowedToPit == 0;
                             cgs.FlagData.fcyPhase = pitsClosedForPlayer ? FullCourseYellowPhase.PITS_CLOSED : FullCourseYellowPhase.PITS_OPEN;
                         }
+                        else
+                        {
+                            // Core rules: always open, pit state == 3
+                            cgs.FlagData.fcyPhase = FullCourseYellowPhase.PITS_OPEN;
+                        }
+                    }
+                    else if (playerRulesIdx == -1  // Online case. TODO: remove when/if we move to DMA messages.
+                        && shared.scoring.mScoringInfo.mYellowFlagState == (sbyte)rFactor2Constants.rF2YellowFlagState.PitClosed)
+                    {
+                        if (shared.extended.mDirectMemoryAccessEnabled == 1 && shared.extended.mSCRPluginEnabled == 1)
+                            cgs.FlagData.fcyPhase = FullCourseYellowPhase.PITS_CLOSED;
                         else
                         {
                             // Core rules: always open, pit state == 3
