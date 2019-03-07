@@ -59,6 +59,7 @@ namespace CrewChiefV4.iRacing
 			AirTemp = (System.Single)sdk.GetData("AirTemp");
 			WindVel = (System.Single)sdk.GetData("WindVel");
 			CarLeftRight = (CrewChiefV4.iRacing.CarLeftRight)sdk.GetData("CarLeftRight");
+            PitsOpen = (System.Boolean)sdk.GetData("PitsOpen");
 			IsInGarage = (System.Boolean)sdk.GetData("IsInGarage");
 			EngineWarnings = (CrewChiefV4.iRacing.EngineWarnings)sdk.GetData("EngineWarnings");
 			FuelLevel = (System.Single)sdk.GetData("FuelLevel");
@@ -281,6 +282,11 @@ namespace CrewChiefV4.iRacing
 		/// Notify if car is to the left or right of driver
 		/// <summary>
 		public CrewChiefV4.iRacing.CarLeftRight CarLeftRight;
+
+        /// <summary>
+        /// True if pit stop is allowed for the current player
+        /// <summary>
+        public System.Boolean PitsOpen;
 
 		/// <summary>
 		/// 1=Car in garage physics running
