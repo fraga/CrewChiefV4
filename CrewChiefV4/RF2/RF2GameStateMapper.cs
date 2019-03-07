@@ -21,6 +21,7 @@ namespace CrewChiefV4.rFactor2
         private readonly bool enablePitLaneApproachHeuristics = UserSettings.GetUserSettings().getBoolean("enable_rf2_pit_lane_approach_heuristics");
         private readonly bool enableFCYPitStateMessages = UserSettings.GetUserSettings().getBoolean("enable_rf2_pit_state_during_fcy");
         private readonly bool forceRollingStart = UserSettings.GetUserSettings().getBoolean("force_rf2_rolling_start");
+        private readonly bool useRealWheelSizeForLockingAndSpinning = UserSettings.GetUserSettings().getBoolean("use_rf2_wheel_size_for_locking_and_spinning");
 
         private readonly string scrLuckyDogIsPrefix = "Lucky Dog: ";
 
@@ -52,6 +53,10 @@ namespace CrewChiefV4.rFactor2
         // If we're running only against AI, force the pit window to open
         private bool isOfflineSession = true;
 
+        // Private practice detection hacks.
+        private int lastPracticeNumVehicles = -1;
+        private int lastPracticeNumNonGhostVehicles = -1;
+
         // Keep track of opponents processed this time
         private List<string> opponentKeysProcessed = new List<string>();
 
@@ -73,10 +78,6 @@ namespace CrewChiefV4.rFactor2
 
         // True if it looks like track has no DRS zones defined.
         private bool detectedTrackNoDRSZones = false;
-
-        // Stock Car Rules debug messages
-        private string lastUnknownGlobalRuleMessage = null;
-        private string lastUnknownPlayerRuleMessage = null;
 
         // Track landmarks cache.
         private string lastSessionTrackName = null;
@@ -199,6 +200,7 @@ namespace CrewChiefV4.rFactor2
 
         private Int64 lastSessionEndTicks = -1;
         private bool lastInRealTimeState = false;
+        
 
         private void ClearState()
         {
@@ -207,13 +209,13 @@ namespace CrewChiefV4.rFactor2
 
             this.waitingToTerminateSession = false;
             this.isOfflineSession = true;
+            this.lastPracticeNumVehicles = -1;
+            this.lastPracticeNumNonGhostVehicles = -1;
             this.distanceOffTrack = 0;
             this.detectedTrackNoDRSZones = false;
             this.minTrackWidth = -1.0;
             this.timePitStopRequested = DateTime.MinValue;
             this.isApproachingPitEntry = false;
-            this.lastUnknownGlobalRuleMessage = null;
-            this.lastUnknownPlayerRuleMessage = null;
             this.lastTimeEngineWasRunning = DateTime.MaxValue;
             this.compoundNameToTyreType.Clear();
             this.idToCarInfoMap.Clear();
@@ -486,8 +488,8 @@ namespace CrewChiefV4.rFactor2
                 shared.scoring.mScoringInfo.mSession >= 5 && shared.scoring.mScoringInfo.mSession <= 8 ? shared.scoring.mScoringInfo.mSession - 5 :
                 shared.scoring.mScoringInfo.mSession >= 10 && shared.scoring.mScoringInfo.mSession <= 13 ? shared.scoring.mScoringInfo.mSession - 10 : 0;
 
-            csd.SessionType = MapToSessionType(shared);
-            csd.SessionPhase = mapToSessionPhase((rFactor2Constants.rF2GamePhase)shared.scoring.mScoringInfo.mGamePhase, csd.SessionType, ref playerScoring);
+            csd.SessionType = this.MapToSessionType(shared);
+            csd.SessionPhase = this.mapToSessionPhase((rFactor2Constants.rF2GamePhase)shared.scoring.mScoringInfo.mGamePhase, csd.SessionType, ref playerScoring);
 
             csd.SessionNumberOfLaps = shared.scoring.mScoringInfo.mMaxLaps > 0 && shared.scoring.mScoringInfo.mMaxLaps < 1000 ? shared.scoring.mScoringInfo.mMaxLaps : 0;
 
@@ -1083,21 +1085,54 @@ namespace CrewChiefV4.rFactor2
             // some simple locking / spinning checks
             if (cgs.PositionAndMotionData.CarSpeed > 7.0f)
             {
-                float minRotatingSpeed = (float)Math.PI * cgs.PositionAndMotionData.CarSpeed / cgs.carClass.maxTyreCircumference;
-                cgs.TyreData.LeftFrontIsLocked = Math.Abs(wheelFrontLeft.mRotation) < minRotatingSpeed;
-                cgs.TyreData.RightFrontIsLocked = Math.Abs(wheelFrontRight.mRotation) < minRotatingSpeed;
-                cgs.TyreData.LeftRearIsLocked = Math.Abs(wheelRearLeft.mRotation) < minRotatingSpeed;
-                cgs.TyreData.RightRearIsLocked = Math.Abs(wheelRearRight.mRotation) < minRotatingSpeed;
+                //                "minTyreCircumference": 0.72,
+                //		"maxTyreCircumference": 1.22,
 
-                float maxRotatingSpeed = 3 * (float)Math.PI * cgs.PositionAndMotionData.CarSpeed / cgs.carClass.minTyreCircumference;
-                cgs.TyreData.LeftFrontIsSpinning = Math.Abs(wheelFrontLeft.mRotation) > maxRotatingSpeed;
-                cgs.TyreData.RightFrontIsSpinning = Math.Abs(wheelFrontRight.mRotation) > maxRotatingSpeed;
-                cgs.TyreData.LeftRearIsSpinning = Math.Abs(wheelRearLeft.mRotation) > maxRotatingSpeed;
-                cgs.TyreData.RightRearIsSpinning = Math.Abs(wheelRearRight.mRotation) > maxRotatingSpeed;
+                if (this.useRealWheelSizeForLockingAndSpinning && playerTelemetryAvailable)
+                {
+                    float minRotatingSpeedOld = (float)Math.PI * cgs.PositionAndMotionData.CarSpeed / cgs.carClass.maxTyreCircumference;
+                    float maxRotatingSpeedOld = 3 * (float)Math.PI * cgs.PositionAndMotionData.CarSpeed / cgs.carClass.minTyreCircumference;
+
+                    // w = v/r 
+                    // https://www.lucidar.me/en/unit-converter/rad-per-second-to-meters-per-second/
+                    float MAX_RADIUS = 3.6f;  // When making a left turn, right wheel spins faster, as if it was smaller.  Because of that, scale real radius up for lock detection.
+                    var minFrontRotatingSpeedRadSec = cgs.PositionAndMotionData.CarSpeed / (wheelFrontLeft.mStaticUndeflectedRadius * 0.01f * MAX_RADIUS);
+                    cgs.TyreData.LeftFrontIsLocked = Math.Abs(wheelFrontLeft.mRotation) < minFrontRotatingSpeedRadSec;
+                    cgs.TyreData.RightFrontIsLocked = Math.Abs(wheelFrontRight.mRotation) < minFrontRotatingSpeedRadSec;
+
+                    var minRearRotatingSpeedRadSec = cgs.PositionAndMotionData.CarSpeed / (wheelRearLeft.mStaticUndeflectedRadius * 0.01f * MAX_RADIUS);
+                    cgs.TyreData.LeftRearIsLocked = Math.Abs(wheelRearLeft.mRotation) < minRearRotatingSpeedRadSec;
+                    cgs.TyreData.RightRearIsLocked = Math.Abs(wheelRearRight.mRotation) < minRearRotatingSpeedRadSec;
+
+                    float MIN_RADIUS = 0.5f;  // When making a left turn, right wheel spins faster, as if it was smaller.  Because of that, scale real radius down for spin detection.
+                    var maxFrontRotatingSpeedRadSec = cgs.PositionAndMotionData.CarSpeed / (wheelFrontLeft.mStaticUndeflectedRadius * 0.01f * MIN_RADIUS);
+                    cgs.TyreData.LeftFrontIsSpinning = Math.Abs(wheelFrontLeft.mRotation) > maxFrontRotatingSpeedRadSec;
+                    cgs.TyreData.RightFrontIsSpinning = Math.Abs(wheelFrontRight.mRotation) > maxFrontRotatingSpeedRadSec;
+
+                    var maxRearRotatingSpeedRadSec = cgs.PositionAndMotionData.CarSpeed / (wheelRearLeft.mStaticUndeflectedRadius * 0.01f * MIN_RADIUS);
+                    cgs.TyreData.LeftRearIsSpinning = Math.Abs(wheelRearLeft.mRotation) > maxRearRotatingSpeedRadSec;
+                    cgs.TyreData.RightRearIsSpinning = Math.Abs(wheelRearRight.mRotation) > maxRearRotatingSpeedRadSec;
+
 #if DEBUG
-                //                RF2GameStateMapper.writeSpinningLockingDebugMsg(cgs, wheelFrontLeft.mRotation, wheelFrontRight.mRotation,
-                //                    wheelRearLeft.mRotation, wheelRearRight.mRotation, minRotatingSpeed, maxRotatingSpeed);
+                    RF2GameStateMapper.writeSpinningLockingDebugMsg(cgs, wheelFrontLeft.mRotation, wheelFrontRight.mRotation,
+                        wheelRearLeft.mRotation, wheelRearRight.mRotation, minRotatingSpeedOld, maxRotatingSpeedOld, minFrontRotatingSpeedRadSec,
+                        minRearRotatingSpeedRadSec, maxFrontRotatingSpeedRadSec, maxRearRotatingSpeedRadSec);
 #endif
+                }
+                else
+                {
+                    float minRotatingSpeed = (float)Math.PI * cgs.PositionAndMotionData.CarSpeed / cgs.carClass.maxTyreCircumference;
+                    cgs.TyreData.LeftFrontIsLocked = Math.Abs(wheelFrontLeft.mRotation) < minRotatingSpeed;
+                    cgs.TyreData.RightFrontIsLocked = Math.Abs(wheelFrontRight.mRotation) < minRotatingSpeed;
+                    cgs.TyreData.LeftRearIsLocked = Math.Abs(wheelRearLeft.mRotation) < minRotatingSpeed;
+                    cgs.TyreData.RightRearIsLocked = Math.Abs(wheelRearRight.mRotation) < minRotatingSpeed;
+
+                    float maxRotatingSpeed = 3 * (float)Math.PI * cgs.PositionAndMotionData.CarSpeed / cgs.carClass.minTyreCircumference;
+                    cgs.TyreData.LeftFrontIsSpinning = Math.Abs(wheelFrontLeft.mRotation) > maxRotatingSpeed;
+                    cgs.TyreData.RightFrontIsSpinning = Math.Abs(wheelFrontRight.mRotation) > maxRotatingSpeed;
+                    cgs.TyreData.LeftRearIsSpinning = Math.Abs(wheelRearLeft.mRotation) > maxRotatingSpeed;
+                    cgs.TyreData.RightRearIsSpinning = Math.Abs(wheelRearRight.mRotation) > maxRotatingSpeed;
+                }
             }
 
             // use detached wheel status for suspension damage
@@ -1620,7 +1655,7 @@ namespace CrewChiefV4.rFactor2
                 {
                     if (!this.enableFCYPitStateMessages)
                         cgs.FlagData.fcyPhase = FullCourseYellowPhase.IN_PROGRESS;
-                    else if (playerRulesIdx != -1
+                    else if (playerRulesIdx != -1  // Offline case  TODO: remove when/if we move to DMA messages.
                         && shared.scoring.mScoringInfo.mYellowFlagState == (sbyte)rFactor2Constants.rF2YellowFlagState.PitClosed)
                     {
                         var allowedToPit = shared.rules.mParticipants[playerRulesIdx].mPitsOpen;
@@ -1630,6 +1665,17 @@ namespace CrewChiefV4.rFactor2
                             var pitsClosedForPlayer = allowedToPit == 2 || allowedToPit == 0;
                             cgs.FlagData.fcyPhase = pitsClosedForPlayer ? FullCourseYellowPhase.PITS_CLOSED : FullCourseYellowPhase.PITS_OPEN;
                         }
+                        else
+                        {
+                            // Core rules: always open, pit state == 3
+                            cgs.FlagData.fcyPhase = FullCourseYellowPhase.PITS_OPEN;
+                        }
+                    }
+                    else if (playerRulesIdx == -1  // Online case. TODO: remove when/if we move to DMA messages.
+                        && shared.scoring.mScoringInfo.mYellowFlagState == (sbyte)rFactor2Constants.rF2YellowFlagState.PitClosed)
+                    {
+                        if (shared.extended.mDirectMemoryAccessEnabled == 1 && shared.extended.mSCRPluginEnabled == 1)
+                            cgs.FlagData.fcyPhase = FullCourseYellowPhase.PITS_CLOSED;
                         else
                         {
                             // Core rules: always open, pit state == 3
@@ -1695,8 +1741,9 @@ namespace CrewChiefV4.rFactor2
 
             // --------------------------------
             // Stock Car Rules data
-            if (playerRulesIdx != -1)
-                cgs.StockCarRulesData = this.GetStockCarRulesData(cgs, ref shared.rules.mParticipants[playerRulesIdx], ref shared.rules, ref shared);
+            if (shared.extended.mDirectMemoryAccessEnabled != 0
+                && shared.extended.mSCRPluginEnabled != 0)
+                cgs.StockCarRulesData = this.GetStockCarRulesData(cgs, ref shared);
 
             // --------------------------------
             // Frozen order data
@@ -1978,7 +2025,7 @@ namespace CrewChiefV4.rFactor2
             }
         }
 
-        private StockCarRulesData GetStockCarRulesData(GameStateData currentGameState, ref rF2TrackRulesParticipant playerRules, ref rF2Rules rules, ref CrewChiefV4.rFactor2.RF2SharedMemoryReader.RF2StructWrapper shared)
+        private StockCarRulesData GetStockCarRulesData(GameStateData currentGameState, ref CrewChiefV4.rFactor2.RF2SharedMemoryReader.RF2StructWrapper shared)
         {
             var scrData = new StockCarRulesData();
             scrData.stockCarRulesEnabled = shared.extended.mDirectMemoryAccessEnabled != 0 && shared.extended.mSCRPluginEnabled != 0;
@@ -2218,7 +2265,6 @@ namespace CrewChiefV4.rFactor2
             return lastSectorTime;
         }
 
-#if DEBUG
         // NOTE: This can be made generic for all sims, but I am not sure if anyone needs this but me
         private static void writeDebugMsg(string msg)
         {
@@ -2226,26 +2272,26 @@ namespace CrewChiefV4.rFactor2
         }
 
         private static void writeSpinningLockingDebugMsg(GameStateData cgs, double frontLeftRotation, double frontRightRotation,
-            double rearLeftRotation, double rearRightRotation, float minRotatingSpeed, float maxRotatingSpeed)
+            double rearLeftRotation, double rearRightRotation, float minRotatingSpeedOld, float maxRotatingSpeedOld, float minFrontRotatingSpeed, float minRearRotatingSpeed,
+            float maxFrontRotatingSpeed, float maxRearRotatingSpeed)
         {
             if (cgs.TyreData.LeftFrontIsLocked)
-                RF2GameStateMapper.writeDebugMsg(string.Format("Left Front is locked.  minRotatingSpeed: {0}  mRotation: {1}", minRotatingSpeed.ToString("0.000"), frontLeftRotation.ToString("0.000")));
+                RF2GameStateMapper.writeDebugMsg(string.Format("Left Front is locked.  mRotation: {0}  minFrontRotatingSpeed: {1}  minRotatingSpeedOld: {2}", frontLeftRotation.ToString("0.000"), minFrontRotatingSpeed.ToString("0.000"), minRotatingSpeedOld.ToString("0.000")));
             if (cgs.TyreData.RightFrontIsLocked)
-                RF2GameStateMapper.writeDebugMsg(string.Format("Right Front is locked.  minRotatingSpeed: {0}  mRotation: {1}", minRotatingSpeed.ToString("0.000"), frontRightRotation.ToString("0.000")));
+                RF2GameStateMapper.writeDebugMsg(string.Format("Right Front is locked.  mRotation: {0}  minFrontRotatingSpeed: {1}  minRotatingSpeedOld: {2}", frontRightRotation.ToString("0.000"), minFrontRotatingSpeed.ToString("0.000"), minRotatingSpeedOld.ToString("0.000")));
             if (cgs.TyreData.LeftRearIsLocked)
-                RF2GameStateMapper.writeDebugMsg(string.Format("Left Rear is locked.  minRotatingSpeed: {0}  mRotation: {1}", minRotatingSpeed.ToString("0.000"), rearLeftRotation.ToString("0.000")));
+                RF2GameStateMapper.writeDebugMsg(string.Format("Left Rear is locked.  mRotation: {0}  minRearRotatingSpeed: {1}  minRotatingSpeedOld: {2}", rearLeftRotation.ToString("0.000"), minRearRotatingSpeed.ToString("0.000"), minRotatingSpeedOld.ToString("0.000")));
             if (cgs.TyreData.RightRearIsLocked)
-                RF2GameStateMapper.writeDebugMsg(string.Format("Right Rear is locked.  minRotatingSpeed: {0}  mRotation: {1}", minRotatingSpeed.ToString("0.000"), rearRightRotation.ToString("0.000")));
+                RF2GameStateMapper.writeDebugMsg(string.Format("Right Rear is locked.  mRotation: {0}  minRearRotatingSpeed: {1}  minRotatingSpeedOld: {2}", rearRightRotation.ToString("0.000"), minRearRotatingSpeed.ToString("0.000"), minRotatingSpeedOld.ToString("0.000")));
             if (cgs.TyreData.LeftFrontIsSpinning)
-                RF2GameStateMapper.writeDebugMsg(string.Format("Left Front is spinning.  minRotatingSpeed: {0}  mRotation: {1}", minRotatingSpeed.ToString("0.000"), frontLeftRotation.ToString("0.000")));
+                RF2GameStateMapper.writeDebugMsg(string.Format("Left Front is spinning.  mRotation: {0}  maxFrontRotatingSpeed: {1}  maxRotatingSpeedOld: {2}", frontLeftRotation.ToString("0.000"), maxFrontRotatingSpeed.ToString("0.000"), maxRotatingSpeedOld.ToString("0.000")));
             if (cgs.TyreData.RightFrontIsSpinning)
-                RF2GameStateMapper.writeDebugMsg(string.Format("Right Front is spinning.  minRotatingSpeed: {0}  mRotation: {1}", minRotatingSpeed.ToString("0.000"), frontRightRotation.ToString("0.000")));
+                RF2GameStateMapper.writeDebugMsg(string.Format("Right Front is spinning.  mRotation: {0}  maxFrontRotatingSpeed: {1}  maxRotatingSpeedOld: {2}", frontRightRotation.ToString("0.000"), maxFrontRotatingSpeed.ToString("0.000"), maxRotatingSpeedOld.ToString("0.000")));
             if (cgs.TyreData.LeftRearIsSpinning)
-                RF2GameStateMapper.writeDebugMsg(string.Format("Left Rear is spinning.  minRotatingSpeed: {0}  mRotation: {1}", minRotatingSpeed.ToString("0.000"), rearLeftRotation.ToString("0.000")));
+                RF2GameStateMapper.writeDebugMsg(string.Format("Left Rear is spinning.  mRotation: {0}  maxFronRotatingSpeed: {1}  maxRotatingSpeedOld: {2}", rearLeftRotation.ToString("0.000"), maxRearRotatingSpeed.ToString("0.000"), maxRotatingSpeedOld.ToString("0.000")));
             if (cgs.TyreData.RightRearIsSpinning)
-                RF2GameStateMapper.writeDebugMsg(string.Format("Right Rear is spinning.  minRotatingSpeed: {0}  mRotation: {1}", minRotatingSpeed.ToString("0.000"), rearRightRotation.ToString("0.000")));
+                RF2GameStateMapper.writeDebugMsg(string.Format("Right Rear is spinning.  mRotation: {0}  maxRearRotatingSpeed: {1}  maxRotatingSpeedOld: {2}", rearRightRotation.ToString("0.000"), maxRearRotatingSpeed.ToString("0.000"), maxRotatingSpeedOld.ToString("0.000")));
         }
-#endif
 
         private PitWindow mapToPitWindow(rFactor2Constants.rF2YellowFlagState pitWindow)
         {
@@ -2376,7 +2422,28 @@ namespace CrewChiefV4.rFactor2
                 // test day and pre-race warm-up sessions are 'Practice' as well
                 case 0:
                 case 9:
-                    return SessionType.Practice;
+                    // This might go from LonePractice to Practice without any nice state transition.  However,
+                    // I am not aware of any horrible side effects.
+                    if (this.lastPracticeNumVehicles < shared.scoring.mScoringInfo.mNumVehicles)
+                    {
+                        this.lastPracticeNumVehicles = shared.scoring.mScoringInfo.mNumVehicles;
+                        this.lastPracticeNumNonGhostVehicles = 0;
+                        // Populate cached car info.
+                        for (int i = 0; i < shared.scoring.mScoringInfo.mNumVehicles; ++i)
+                        {
+                            var vehicleScoring = shared.scoring.mVehicles[i];
+
+                            var cci = this.GetCachedCarInfo(ref vehicleScoring);
+                            if (cci.isGhost)
+                                continue;  // Skip trainer.
+
+                            ++this.lastPracticeNumNonGhostVehicles;
+                        }
+                    }
+
+                    return this.lastPracticeNumNonGhostVehicles > 1 // 1 means player only session.
+                        ? SessionType.Practice 
+                        : SessionType.LonePractice;
                 // up to four possible qualifying sessions
                 case 5:
                 case 6:

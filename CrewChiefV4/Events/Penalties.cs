@@ -420,8 +420,10 @@ namespace CrewChiefV4.Events
                     clearPenaltyState();
                 }
             }
-            else if ((currentGameState.SessionData.SessionType == SessionType.Race || currentGameState.SessionData.SessionType == SessionType.Qualify || currentGameState.SessionData.SessionType == SessionType.Practice) && previousGameState != null &&
-                currentGameState.PenaltiesData.NumPenalties > 0 && (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT))
+            else if ((currentGameState.SessionData.SessionType == SessionType.Race || currentGameState.SessionData.SessionType == SessionType.Qualify
+                        || currentGameState.SessionData.SessionType == SessionType.Practice || currentGameState.SessionData.SessionType == SessionType.LonePractice)
+                    && previousGameState != null && currentGameState.PenaltiesData.NumPenalties > 0
+                    && (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT))
             {
                 if (currentGameState.PenaltiesData.NumPenalties > previousGameState.PenaltiesData.NumPenalties)
                 {
@@ -505,7 +507,8 @@ namespace CrewChiefV4.Events
             }
             if ((currentGameState.SessionData.SessionType == SessionType.Race ||
                 currentGameState.SessionData.SessionType == SessionType.Qualify ||
-                currentGameState.SessionData.SessionType == SessionType.Practice) && previousGameState != null &&
+                currentGameState.SessionData.SessionType == SessionType.Practice ||
+                currentGameState.SessionData.SessionType == SessionType.LonePractice) && previousGameState != null &&
                 ((previousGameState.PenaltiesData.HasStopAndGo && !currentGameState.PenaltiesData.HasStopAndGo) ||
                 (previousGameState.PenaltiesData.HasDriveThrough && !currentGameState.PenaltiesData.HasDriveThrough) ||
                 // can't read penalty type in Automobilista (and presumably in rF2).

@@ -50,7 +50,7 @@
 #    "defaultTyreType": "Unknown_Race"
 #    "maxSafeWaterTemp": 105
 #    "maxSafeOilTemp": 125
-#    "minTyreCircumference": 0.4 * pi (40cm diameter wheel)
+#    "minTyreCircumference": 0.5 * pi (50cm diameter wheel)
 #    "maxTyreCircumference": 1.2 * pi (120cm diameter wheel)
 #    "spotterVehicleLength": Defaults to *_car_length preference value (4.5 by default).
 #    "spotterVehicleWidth": 1.8 (meters)
@@ -310,6 +310,16 @@
 		{
 			"carClassEnum": "KART_X30_RENTAL",
 			"rf2ClassNames": ["Rental Kart"],
+			"minTyreCircumference": 0.72,
+			"maxTyreCircumference": 1.22,
+			"spotterVehicleLength": 2.0,
+			"spotterVehicleWidth": 1.5,
+			"enabledMessageTypes": "NONE",
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "SUPERKART",
+			"rf2ClassNames": ["RF2R SUPERKART"],
 			"minTyreCircumference": 0.72,
 			"maxTyreCircumference": 1.22,
 			"spotterVehicleLength": 2.0,

@@ -1261,3 +1261,8 @@ persist_pitstop_benchmark_times_category = PIT_STOPS_AND_MULTICLASS
 controller_mappings_file_error_title = Error reading controller mappings
 controller_mappings_file_error_details_1 = Controller mapping file 
 controller_mappings_file_error_details_2 = is invalid - no button mappings will be available. Error message from JSON parsers is:
+
+use_rf2_wheel_size_for_locking_and_spinning = Use rF2's real wheel size for lock/spin messages
+use_rf2_wheel_size_for_locking_and_spinning_help = Use rF2 provided wheel size (instead of car class data) for lock and spin messages calculations.
+use_rf2_wheel_size_for_locking_and_spinning_category = FUEL_TEMPS_AND_DAMAGES
+use_rf2_wheel_size_for_locking_and_spinning_filter = RF2_64BIT
