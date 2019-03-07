@@ -353,6 +353,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UserInterface\MainWindow.resx">
       <DependentUpon>MainWindow.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="UserInterface\ShowHelp.resx">
       <DependentUpon>ShowHelp.cs</DependentUpon>

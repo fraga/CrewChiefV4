@@ -880,6 +880,65 @@ namespace CrewChiefV4
             this.RestoreFromTray();
         }
 
+        private void InitializeUiTexts()
+        {
+            
+            this.startApplicationButton.Text = Configuration.getUIString("start_application");
+            this.scanControllers.Text = Configuration.getUIString("scan_for_controllers");
+            this.assignButtonToAction.Text = Configuration.getUIString("assign_control");
+            this.deleteAssigmentButton.Text = Configuration.getUIString("delete_assignment");
+            this.buttonEditCommandMacros.Text = Configuration.getUIString("edit_macro_commands");
+            this.label1.Text = Configuration.getUIString("available_controllers");
+            this.label2.Text = Configuration.getUIString("available_actions");
+            this.propertiesButton.Text = Configuration.getUIString("properties");
+            this.helpButton.Text = Configuration.getUIString("help");
+            this.aboutButton.Text = Configuration.getUIString("about");            
+            this.groupBox1.Text = Configuration.getUIString("voice_recognition_mode");
+            voiceRecognitionToolTip.SetToolTip(this.groupBox1, Configuration.getUIString("voice_recognition_mode_help"));             
+            this.alwaysOnButton.Text = Configuration.getUIString("always_on");
+            voiceRecognitionAlwaysOnToolTip.SetToolTip(this.alwaysOnButton, Configuration.getUIString("voice_recognition_always_on_help"));
+            this.toggleButton.Text = Configuration.getUIString("toggle_button");
+            voiceRecognitionToggleButtonToolTip.SetToolTip(this.toggleButton, Configuration.getUIString("voice_recognition_toggle_button_help"));
+            this.holdButton.Text = Configuration.getUIString("hold_button");
+            voiceRecognitionHoldButtonToolTip.SetToolTip(this.holdButton, Configuration.getUIString("voice_recognition_hold_button_help"));
+            this.voiceDisableButton.Text = Configuration.getUIString("disabled");
+            voiceRecognitionDisabledToolTip.SetToolTip(this.voiceDisableButton, Configuration.getUIString("voice_recognition_disabled_help"));
+            this.triggerWordButton.Text = Configuration.getUIString("trigger_word") + " (\"" + UserSettings.GetUserSettings().getString("trigger_word_for_always_on_sre") + "\")";
+            voiceRecognitionTriggerWordToolTip.SetToolTip(this.triggerWordButton, Configuration.getUIString("voice_recognition_trigger_word_help"));
+            this.button2.Text = Configuration.getUIString("clear_console");
+            this.label3.Text = Configuration.getUIString("messages_volume");
+            this.label4.Text = Configuration.getUIString("background_volume");
+            this.label5.Text = Configuration.getUIString("game");
+            this.filenameLabel.Text = "File &name to run";
+            this.app_version.Text = Configuration.getUIString("app_version");
+            this.forceVersionCheckButton.Text = Configuration.getUIString("check_for_updates");
+            this.downloadSoundPackButton.Text = Configuration.getUIString("sound_pack_is_up_to_date");
+            this.downloadDriverNamesButton.Text = Configuration.getUIString("driver_names_are_up_to_date");
+            this.downloadPersonalisationsButton.Text = Configuration.getUIString("personalisations_are_up_to_date");
+            this.personalisationLabel.Text = Configuration.getUIString("personalisation_label");
+            this.myNameBoxTooltip.SetToolTip(this.personalisationLabel, Configuration.getUIString("personalisation_tooltip"));
+            this.myNameBoxTooltip.SetToolTip(this.personalisationBox, Configuration.getUIString("personalisation_tooltip"));
+            this.chiefNameLabel.Text = Configuration.getUIString("chief_name_label");
+            this.chiefNameBoxTooltip.SetToolTip(this.chiefNameLabel, Configuration.getUIString("chief_name_tooltip"));            
+            this.chiefNameBoxTooltip.SetToolTip(this.chiefNameBox, Configuration.getUIString("chief_name_tooltip"));
+            this.spotterNameLabel.Text = Configuration.getUIString("spotter_name_label");
+            this.spotterNameBoxTooltip.SetToolTip(this.spotterNameLabel, Configuration.getUIString("spotter_name_tooltip"));
+            this.spotterNameBoxTooltip.SetToolTip(this.spotterNameBox, Configuration.getUIString("spotter_name_tooltip"));
+            this.donateLink.Text = Configuration.getUIString("donate_link_text");
+            this.speechRecognitionDeviceLabel.Text = Configuration.getUIString("speech_recognition_device_label");
+            this.messagesAudioDeviceLabel.Text = Configuration.getUIString("messages_audio_device_label");
+            this.backgroundAudioDeviceLabel.Text = Configuration.getUIString("background_audio_device_label");
+            
+            this.gameDefinitionList.Items.Clear();
+            this.gameDefinitionList.Items.AddRange(GameDefinition.getGameDefinitionFriendlyNames());
+            if (MainWindow.soundTestMode)
+            {
+                this.SuspendLayout();
+                this.consoleTextBoxBackgroundPanel.Size = new System.Drawing.Size(793, 285);
+                this.consoleTextBox.Size = new System.Drawing.Size(793, 285);
+                this.ResumeLayout(false);
+            }
+        }
         public MainWindow()
         {
             lock (MainWindow.instanceLock)
@@ -890,13 +949,9 @@ namespace CrewChiefV4
             this.constructingWindow = true;
 
             InitializeComponent();
+            InitializeUiTexts();
+            
             this.SuspendLayout();
-
-            if (MainWindow.soundTestMode)
-            {
-                this.consoleTextBoxBackgroundPanel.Size = new System.Drawing.Size(793, 285);
-                this.consoleTextBox.Size = new System.Drawing.Size(793, 285);
-            }
 
             SetupNotificationTrayIcon();
 
