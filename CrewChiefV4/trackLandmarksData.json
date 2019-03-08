@@ -15309,6 +15309,111 @@
                     "distanceRoundLapStart": 15238,
                     "distanceRoundLapEnd": 15417,
                     "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "hohe_acht",
+                    "distanceRoundLapStart": 16100.4648,
+                    "distanceRoundLapEnd": 16358.0049,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "hedwigshoehe",
+                    "distanceRoundLapStart": 16559.7324,
+                    "distanceRoundLapEnd": 16864.88,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "wippermann",
+                    "distanceRoundLapStart": 16987.4238,
+                    "distanceRoundLapEnd": 17199.7656,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "eschbach",
+                    "distanceRoundLapStart": 17241.1484,
+                    "distanceRoundLapEnd": 17450.5,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "bruennchen",
+                    "distanceRoundLapStart": 17578.625,
+                    "distanceRoundLapEnd": 17798.998,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "eiskurve",
+                    "distanceRoundLapStart": 17912.2031,
+                    "distanceRoundLapEnd": 18037.6582,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "pflanzgarten1",
+                    "distanceRoundLapStart": 18266.1348,
+                    "distanceRoundLapEnd": 18671.46,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "pflanzgarten2",
+                    "distanceRoundLapStart": 18917.88,
+                    "distanceRoundLapEnd": 19054.8535,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "stefan_bellof_s",
+                    "distanceRoundLapStart": 19206.873,
+                    "distanceRoundLapEnd": 19449.0742,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "schwalbenschwanz",
+                    "distanceRoundLapStart": 19910.08,
+                    "distanceRoundLapEnd": 20032.748,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "kleines_karussell",
+                    "distanceRoundLapStart": 20140.44,
+                    "distanceRoundLapEnd": 20273.4844,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "galgenkopf",
+                    "distanceRoundLapStart": 20515.3516,
+                    "distanceRoundLapEnd": 20943.9355,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "doettinger_hoehe",
+                    "distanceRoundLapStart": 21033.0488,
+                    "distanceRoundLapEnd": 22682.3516,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "antoniusbuchet",
+                    "distanceRoundLapStart": 22903.1133,
+                    "distanceRoundLapEnd": 23190.9082,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "tiergarten",
+                    "distanceRoundLapStart": 23330.6348,
+                    "distanceRoundLapEnd": 23593.8,
+                    "isCommonOvertakingSpot": false
                 }
             ],
             "isOval": false,
