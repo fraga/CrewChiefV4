@@ -15014,6 +15014,100 @@
                     "isCommonOvertakingSpot": false
                 }
             ]
+        },
+        {
+            "rf2TrackNames": [ "Sepang" ],
+            "acTrackNames": [ "Sepang" ],
+            "raceroomLayoutId": 6341,
+            "approximateTrackLength": 5528,
+            "trackLandmarks": [
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "turn1",
+                    "distanceRoundLapStart": 568.298,
+                    "distanceRoundLapEnd": 721.029236,
+                    "isCommonOvertakingSpot": true
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "turn2",
+                    "distanceRoundLapStart": 740.661743,
+                    "distanceRoundLapEnd": 848.07,
+                    "isCommonOvertakingSpot": true
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "turn4",
+                    "distanceRoundLapStart": 1542.84082,
+                    "distanceRoundLapEnd": 1655.86218,
+                    "isCommonOvertakingSpot": true
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "turn5",
+                    "distanceRoundLapStart": 1826.94336,
+                    "distanceRoundLapEnd": 2066.59814,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "turn6",
+                    "distanceRoundLapStart": 2102.09155,
+                    "distanceRoundLapEnd": 2304.217,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "turn7",
+                    "distanceRoundLapStart": 2520.03516,
+                    "distanceRoundLapEnd": 2740.28882,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "turn9",
+                    "distanceRoundLapStart": 3121.31543,
+                    "distanceRoundLapEnd": 3203.953,
+                    "isCommonOvertakingSpot": true
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "turn10",
+                    "distanceRoundLapStart": 3241.29517,
+                    "distanceRoundLapEnd": 3348.91772,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "turn11",
+                    "distanceRoundLapStart": 3455.616,
+                    "distanceRoundLapEnd": 3592.46777,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "turn12",
+                    "distanceRoundLapStart": 3772.08862,
+                    "distanceRoundLapEnd": 3920.61548,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "turn13",
+                    "distanceRoundLapStart": 3970.43726,
+                    "distanceRoundLapEnd": 4283.9917,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "turn15",
+                    "distanceRoundLapStart": 5062.19043,
+                    "distanceRoundLapEnd": 5249.48,
+                    "isCommonOvertakingSpot": true
+                }
+            ],
+            "isOval": false,
+            "raceroomRollingStartLapDistance": 5350
         }
     ]
 }
