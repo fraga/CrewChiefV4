@@ -15108,6 +15108,359 @@
             ],
             "isOval": false,
             "raceroomRollingStartLapDistance": 5350
+        },
+        {
+            "pcars2TrackName": "this is Raceroom's Nordschliefe VLN layout, complete only as far as Karussell",
+            "raceroomLayoutId": 4975,
+            "approximateTrackLength": 24321.31,
+            "trackLandmarks": [
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "turn1",
+                    "distanceRoundLapStart": 600.3771,
+                    "distanceRoundLapEnd": 686.836365,
+                    "isCommonOvertakingSpot": true
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "turn2",
+                    "distanceRoundLapStart": 751.712158,
+                    "distanceRoundLapEnd": 931.1704,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "turn3",
+                    "distanceRoundLapStart": 1031.52771,
+                    "distanceRoundLapEnd": 1100,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "turn4",
+                    "distanceRoundLapStart": 1150,
+                    "distanceRoundLapEnd": 1249.72437,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "turn5",
+                    "distanceRoundLapStart": 1536.1781,
+                    "distanceRoundLapEnd": 1678.93445,
+                    "isCommonOvertakingSpot": true
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "turn6",
+                    "distanceRoundLapStart": 1825.42163,
+                    "distanceRoundLapEnd": 1925.10266,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "warsteiner_kurve",
+                    "distanceRoundLapStart": 2001.02356,
+                    "distanceRoundLapEnd": 2175.14,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "the_chicane",
+                    "distanceRoundLapStart": 2951.92163,
+                    "distanceRoundLapEnd": 3109.06641,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "nordkehre",
+                    "distanceRoundLapStart": 3219.03662,
+                    "distanceRoundLapEnd": 3549.56445,
+                    "isCommonOvertakingSpot": true
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "the_boger",
+                    "distanceRoundLapStart": 3786,
+                    "distanceRoundLapEnd": 3927,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "hatzenbatch",
+                    "distanceRoundLapStart": 4170,
+                    "distanceRoundLapEnd": 4616,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "hocheichen",
+                    "distanceRoundLapStart": 4713,
+                    "distanceRoundLapEnd": 4916,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "quiddelbacher_hoehe",
+                    "distanceRoundLapStart": 5136,
+                    "distanceRoundLapEnd": 5289,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "flugplatz",
+                    "distanceRoundLapStart": 5371,
+                    "distanceRoundLapEnd": 5769,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "schwedenkreuz",
+                    "distanceRoundLapStart": 6720,
+                    "distanceRoundLapEnd": 6950,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "aremberg",
+                    "distanceRoundLapStart": 7069,
+                    "distanceRoundLapEnd": 7265,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "fuchsroehre",
+                    "distanceRoundLapStart": 7954,
+                    "distanceRoundLapEnd": 8240,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "adenauer_forst",
+                    "distanceRoundLapStart": 8309,
+                    "distanceRoundLapEnd": 8650,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "metzgesfeld",
+                    "distanceRoundLapStart": 9188,
+                    "distanceRoundLapEnd": 9533,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "kallenhard",
+                    "distanceRoundLapStart": 9689,
+                    "distanceRoundLapEnd": 9832,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "spiegelkurve",
+                    "distanceRoundLapStart": 10206,
+                    "distanceRoundLapEnd": 10456,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "wehrseifen",
+                    "distanceRoundLapStart": 10570,
+                    "distanceRoundLapEnd": 10745,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "breidscheid",
+                    "distanceRoundLapStart": 11147,
+                    "distanceRoundLapEnd": 11337,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "ex_muehle",
+                    "distanceRoundLapStart": 11373,
+                    "distanceRoundLapEnd": 11472,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "bergwerk",
+                    "distanceRoundLapStart": 12135,
+                    "distanceRoundLapEnd": 12353,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "kesselchen",
+                    "distanceRoundLapStart": 13549,
+                    "distanceRoundLapEnd": 13974,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "klostertal",
+                    "distanceRoundLapStart": 14074,
+                    "distanceRoundLapEnd": 14350,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "karussell",
+                    "distanceRoundLapStart": 15238,
+                    "distanceRoundLapEnd": 15417,
+                    "isCommonOvertakingSpot": false
+                }
+            ],
+            "isOval": false,
+            "raceroomRollingStartLapDistance": -1.0
+        },
+        {
+            "pcars2TrackName": "this is Raceroom's Nordschliefe layout, complete only as far as Karussell",
+            "raceroomLayoutId": 2813,
+            "approximateTrackLength": -1.0,
+            "trackLandmarks": [
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "nordkehre",
+                    "distanceRoundLapStart": 47.157,
+                    "distanceRoundLapEnd": 168.011,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "the_boger",
+                    "distanceRoundLapStart": 405.059,
+                    "distanceRoundLapEnd": 546.384,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "hatzenbatch",
+                    "distanceRoundLapStart": 789.485,
+                    "distanceRoundLapEnd": 1235.756,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "hocheichen",
+                    "distanceRoundLapStart": 1332.45,
+                    "distanceRoundLapEnd": 1535.789,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "quiddelbacher_hoehe",
+                    "distanceRoundLapStart": 1755.086,
+                    "distanceRoundLapEnd": 1908.719,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "flugplatz",
+                    "distanceRoundLapStart": 1990.17,
+                    "distanceRoundLapEnd": 2388.805,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "schwedenkreuz",
+                    "distanceRoundLapStart": 3339.396,
+                    "distanceRoundLapEnd": 3569.005,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "aremberg",
+                    "distanceRoundLapStart": 3688.826,
+                    "distanceRoundLapEnd": 3884.247,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "fuchsroehre",
+                    "distanceRoundLapStart": 4573.917,
+                    "distanceRoundLapEnd": 4859.427,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "adenauer_forst",
+                    "distanceRoundLapStart": 4928.462,
+                    "distanceRoundLapEnd": 5269.688,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "metzgesfeld",
+                    "distanceRoundLapStart": 5807.038,
+                    "distanceRoundLapEnd": 6152.348,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "kallenhard",
+                    "distanceRoundLapStart": 6308.945,
+                    "distanceRoundLapEnd": 6451.473,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "spiegelkurve",
+                    "distanceRoundLapStart": 6825.876,
+                    "distanceRoundLapEnd": 7075.874,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "wehrseifen",
+                    "distanceRoundLapStart": 7189.729,
+                    "distanceRoundLapEnd": 7364.968,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "breidscheid",
+                    "distanceRoundLapStart": 7766.572,
+                    "distanceRoundLapEnd": 7956.237,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "ex_muehle",
+                    "distanceRoundLapStart": 7992.432,
+                    "distanceRoundLapEnd": 8091.923,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "bergwerk",
+                    "distanceRoundLapStart": 8754.571,
+                    "distanceRoundLapEnd": 8972.099,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "kesselchen",
+                    "distanceRoundLapStart": 10168.3838,
+                    "distanceRoundLapEnd": 10593.374,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "klostertal",
+                    "distanceRoundLapStart": 10693.4941,
+                    "distanceRoundLapEnd": 10969.541,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "midPoint": -1.0,
+                    "landmarkName": "karussell",
+                    "distanceRoundLapStart": 11857.9639,
+                    "distanceRoundLapEnd": 12036.375,
+                    "isCommonOvertakingSpot": false
+                }
+            ],
+            "isOval": false
         }
     ]
 }
