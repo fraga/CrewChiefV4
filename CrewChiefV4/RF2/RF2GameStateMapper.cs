@@ -1957,6 +1957,14 @@ namespace CrewChiefV4.rFactor2
                             ? PenatiesData.DetailedPenaltyCause.ILLEGAL_PASS_FCY_BEFORE_GREEN
                             : PenatiesData.DetailedPenaltyCause.ILLEGAL_PASS_ROLLING_BEFORE_GREEN;
                     }
+                    else if (msg.EndsWith("Illegally Passed Before Start/Finish"))
+                    {
+                        // TODO: test, maybe need changing wording?
+                        cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
+                        cgs.PenaltiesData.PenaltyCause = cgs.FlagData.previousLapWasFCY
+                            ? PenatiesData.DetailedPenaltyCause.ILLEGAL_PASS_FCY_BEFORE_GREEN
+                            : PenatiesData.DetailedPenaltyCause.ILLEGAL_PASS_ROLLING_BEFORE_GREEN;
+                    }
                     else
                         messageConsumed = false;
                 }
