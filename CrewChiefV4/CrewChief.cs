@@ -25,7 +25,7 @@ namespace CrewChiefV4
         public SpeechRecogniser speechRecogniser;
         public AudioPlayer audioPlayer;
 
-        readonly int timeBetweenProcConnectCheckMillis = 500;
+        readonly int timeBetweenProcConnectCheckMillis = 1000;
         readonly int timeBetweenProcDisconnectCheckMillis = 2000;
         readonly int maxEventFailuresBeforeDisabling = 10;
         DateTime nextProcessStateCheck = DateTime.MinValue;
