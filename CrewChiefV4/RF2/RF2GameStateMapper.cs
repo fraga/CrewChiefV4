@@ -133,7 +133,7 @@ namespace CrewChiefV4.rFactor2
             this.suspensionDamageThresholds.Add(new CornerData.EnumWithThresholds(DamageLevel.DESTROYED, 1.0f, 2.0f));
         }
 
-        private int[] minimumSupportedVersionParts = new int[] { 3, 4, 0, 6 };
+        private int[] minimumSupportedVersionParts = new int[] { 3, 5, 0, 1 };
         public static bool pluginVerified = false;
         public override void versionCheck(Object memoryMappedFileStruct)
         {
@@ -2046,12 +2046,12 @@ namespace CrewChiefV4.rFactor2
                 || cgs.SessionData.SessionType != SessionType.Race)
                 return scrData;
 
-            if (this.rulesInstructionMessageUpdatedTicks == shared.extended.mTicksRulesInstructionMessageUpdated)
+            if (this.rulesInstructionMessageUpdatedTicks == shared.extended.mTicksLSIRulesInstructionMessageUpdated)
                 return scrData;
 
-            this.rulesInstructionMessageUpdatedTicks = shared.extended.mTicksRulesInstructionMessageUpdated;
+            this.rulesInstructionMessageUpdatedTicks = shared.extended.mTicksLSIRulesInstructionMessageUpdated;
 
-            var msg = RF2GameStateMapper.GetStringFromBytes(shared.extended.mRulesInstructionMessage);
+            var msg = RF2GameStateMapper.GetStringFromBytes(shared.extended.mLSIRulesInstructionMessage);
             if (string.IsNullOrWhiteSpace(msg))
                 return scrData;
 
