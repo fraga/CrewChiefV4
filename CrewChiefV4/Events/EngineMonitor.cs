@@ -73,6 +73,8 @@ namespace CrewChiefV4.Events
             if (currentGameState.SessionData.SessionRunningTime > 30)
             {
                 if (currentGameState.CarDamageData.OverallEngineDamage < DamageLevel.DESTROYED &&
+                    currentGameState.CarDamageData.OverallTransmissionDamage < DamageLevel.DESTROYED &&
+                    !currentGameState.CarDamageData.SuspensionDamageStatus.hasValueAtLevel(DamageLevel.DESTROYED) &&
                     !currentGameState.PitData.InPitlane &&
                     currentGameState.EngineData.EngineStalledWarning && 
                     currentGameState.Now > nextStalledCheck &&
