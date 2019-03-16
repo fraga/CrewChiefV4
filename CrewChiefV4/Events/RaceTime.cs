@@ -130,7 +130,8 @@ namespace CrewChiefV4.Events
                 }
 
                 if (currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.SessionData.IsNewLap &&
-                    currentGameState.SessionData.SessionRunningTime > 60 && !playedLastLap)
+                    currentGameState.SessionData.SessionRunningTime > 60 && !playedLastLap &&
+                    CrewChief.gameDefinition.gameEnum != GameEnum.RF2_64BIT && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)  // rF2 and iR implement SessionData.IsLastLap so last lap logic is handled in LapCounter.
                 {
                     Boolean timeWillBeZeroAtEndOfLeadersLap = false;
                     if (currentGameState.SessionData.OverallPosition == 1)
