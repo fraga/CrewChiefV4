@@ -466,7 +466,7 @@ namespace CrewChiefV4.Events
                     audioPlayer.disablePearlsOfWisdom = true;
                 }
                 int position = currentGameState.SessionData.ClassPosition;
-                if (currentGameState.SessionData.SessionLapsRemaining == 1)
+                if (currentGameState.SessionData.SessionLapsRemaining == 1 || currentGameState.SessionData.IsLastLap)  // Note: this might trigger in timed race.  Is this desired?
                 {
                     Console.WriteLine("1 lap remaining");
                     if (position == 1)
