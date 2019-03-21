@@ -1,3 +1,5 @@
+#define SIMULATE_ONLINE
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -110,7 +112,8 @@ namespace CrewChiefV4.rFactor2
 #if DEBUG
         private Int64 statusMessageUpdatedTicks = 0L;
 #endif
-        private Int64 rulesInstructionMessageUpdatedTicks = 0L;
+        private Int64 LSIPitStateMessageUpdatedTicks = 0L;
+        private Int64 LSIRulesInstructionMessageUpdatedTicks = 0L;
         private Int64 LSIOrderInstructionMessageUpdatedTicks = 0L;
 
         // Since some of MC messages disapper (Player Control: N, for example), we need to remember last message that
@@ -122,6 +125,7 @@ namespace CrewChiefV4.rFactor2
         private readonly int effectiveMessageExpirySeconds = 120;
         private DateTime timeEffectiveMessageProcessed = DateTime.MinValue;
         private DateTime timeHistoryMessageIgnored = DateTime.MinValue;
+        private DateTime timeLSIMessageIgnored = DateTime.MinValue;
 
         public RF2GameStateMapper()
         {
@@ -135,7 +139,7 @@ namespace CrewChiefV4.rFactor2
             this.suspensionDamageThresholds.Add(new CornerData.EnumWithThresholds(DamageLevel.DESTROYED, 1.0f, 2.0f));
         }
 
-        private int[] minimumSupportedVersionParts = new int[] { 3, 5, 0, 5 };
+        private int[] minimumSupportedVersionParts = new int[] { 3, 5, 0, 6 };
         public static bool pluginVerified = false;
         public override void versionCheck(Object memoryMappedFileStruct)
         {
@@ -202,7 +206,6 @@ namespace CrewChiefV4.rFactor2
 
         private Int64 lastSessionEndTicks = -1;
         private bool lastInRealTimeState = false;
-        
 
         private void ClearState()
         {
@@ -225,6 +228,7 @@ namespace CrewChiefV4.rFactor2
             this.lastEffectiveHistoryMessage = string.Empty;
             this.timeEffectiveMessageProcessed = DateTime.MinValue;
             this.timeHistoryMessageIgnored = DateTime.MinValue;
+            this.timeLSIMessageIgnored = DateTime.MinValue;
         }
 
     public override GameStateData mapToGameStateData(Object memoryMappedFileStruct, GameStateData previousGameState)
@@ -471,6 +475,7 @@ namespace CrewChiefV4.rFactor2
 
             // Get player vehicle track rules.
             var playerRulesIdx = -1;
+#if !SIMULATE_ONLINE
             for (int i = 0; i < shared.rules.mTrackRules.mNumParticipants; ++i)
             {
                 if (shared.rules.mParticipants[i].mID == playerScoring.mID)
@@ -479,6 +484,7 @@ namespace CrewChiefV4.rFactor2
                     break;
                 }
             }
+#endif
 
             // these things should remain constant during a session
             var csd = cgs.SessionData;
@@ -1655,7 +1661,7 @@ namespace CrewChiefV4.rFactor2
                 {
                     if (!this.enableFCYPitStateMessages)
                         cgs.FlagData.fcyPhase = FullCourseYellowPhase.IN_PROGRESS;
-                    else if (playerRulesIdx != -1  // Offline case  TODO: remove when/if we move to DMA messages.
+                    else if (playerRulesIdx != -1
                         && shared.scoring.mScoringInfo.mYellowFlagState == (sbyte)rFactor2Constants.rF2YellowFlagState.PitClosed)
                     {
                         var allowedToPit = shared.rules.mParticipants[playerRulesIdx].mPitsOpen;
@@ -1671,11 +1677,40 @@ namespace CrewChiefV4.rFactor2
                             cgs.FlagData.fcyPhase = FullCourseYellowPhase.PITS_OPEN;
                         }
                     }
-                    else if (playerRulesIdx == -1  // Online case. TODO: remove when/if we move to DMA messages.
+                    else if (playerRulesIdx == -1  // Online case
                         && shared.scoring.mScoringInfo.mYellowFlagState == (sbyte)rFactor2Constants.rF2YellowFlagState.PitClosed)
                     {
-                        if (shared.extended.mDirectMemoryAccessEnabled == 1 && shared.extended.mSCRPluginEnabled == 1)
-                            cgs.FlagData.fcyPhase = FullCourseYellowPhase.PITS_CLOSED;
+                        if (shared.extended.mDirectMemoryAccessEnabled == 1)
+                        {
+                            if (shared.extended.mTicksLSIPitStateMessageUpdated != this.LSIPitStateMessageUpdatedTicks)
+                            {
+                                this.LSIPitStateMessageUpdatedTicks = shared.extended.mTicksLSIPitStateMessageUpdated;
+                                var pitStateMsg = RF2GameStateMapper.GetStringFromBytes(shared.extended.mLSIPitStateMessage);
+                                if (pitStateMsg == "Pits Open")
+                                    cgs.FlagData.fcyPhase = FullCourseYellowPhase.PITS_OPEN;
+                                else if (pitStateMsg == "Pits Closed")
+                                    cgs.FlagData.fcyPhase = FullCourseYellowPhase.PITS_CLOSED;
+                                else
+                                {
+                                    if (pgs != null)
+                                        cgs.FlagData.fcyPhase = pgs.FlagData.fcyPhase;
+
+                                    if (!string.IsNullOrWhiteSpace(pitStateMsg))
+                                    {
+#if !DEBUG
+                                        // Avoid spamming console too aggressively.
+                                        if ((cgs.Now - this.timeLSIMessageIgnored).TotalSeconds > 10)
+                                        {
+                                            this.timeLSIMessageIgnored = cgs.Now;
+                                            Console.WriteLine("LSI Message: pit state ignored - \"" + pitStateMsg + "\"");
+                                        }
+#else
+                                        Console.WriteLine("LSI Message: pit state ignored - \"" + pitStateMsg + "\"");
+#endif
+                                    }
+                                }
+                            }
+                        }
                         else
                         {
                             // Core rules: always open, pit state == 3
@@ -1752,7 +1787,7 @@ namespace CrewChiefV4.rFactor2
             {
                 cgs.FrozenOrderData = playerRulesIdx != -1 
                     ? this.GetFrozenOrderData(pgs.FrozenOrderData, ref playerScoring, ref shared.scoring, ref shared.rules.mParticipants[playerRulesIdx], ref shared.rules, ref shared.extended, cgs.PositionAndMotionData.CarSpeed)
-                    : this.GetFrozenOrderOnlineData(pgs.FrozenOrderData, ref playerScoring, ref shared.scoring, ref shared.extended, cgs.PositionAndMotionData.CarSpeed);
+                    : this.GetFrozenOrderOnlineData(cgs, pgs.FrozenOrderData, ref playerScoring, ref shared.scoring, ref shared.extended, cgs.PositionAndMotionData.CarSpeed);
             }
 
             // --------------------------------
@@ -2049,10 +2084,10 @@ namespace CrewChiefV4.rFactor2
                 || cgs.SessionData.SessionType != SessionType.Race)
                 return scrData;
 
-            if (this.rulesInstructionMessageUpdatedTicks == shared.extended.mTicksLSIRulesInstructionMessageUpdated)
+            if (this.LSIRulesInstructionMessageUpdatedTicks == shared.extended.mTicksLSIRulesInstructionMessageUpdated)
                 return scrData;
 
-            this.rulesInstructionMessageUpdatedTicks = shared.extended.mTicksLSIRulesInstructionMessageUpdated;
+            this.LSIRulesInstructionMessageUpdatedTicks = shared.extended.mTicksLSIRulesInstructionMessageUpdated;
 
             var msg = RF2GameStateMapper.GetStringFromBytes(shared.extended.mLSIRulesInstructionMessage);
             if (string.IsNullOrWhiteSpace(msg))
@@ -2619,7 +2654,7 @@ namespace CrewChiefV4.rFactor2
                       && phase == "Formation Lap")
                         fod.Phase = RF2GameStateMapper.GetSector(vehicle.mSector) == 3 && vehicleSpeedMS > 10.0f ? FrozenOrderPhase.FastRolling : FrozenOrderPhase.Rolling;
                     else if (!string.IsNullOrWhiteSpace(phase)
-                      && phase == "Full-Course Yellow")
+                      && (phase == "Full-Course Yellow" || phase == "One Lap To Go"))
                         fod.Phase = FrozenOrderPhase.FullCourseYellow;
                     else if (string.IsNullOrWhiteSpace(phase))
                         fod.Phase = prevFrozenOrderData.Phase;
@@ -2675,7 +2710,8 @@ namespace CrewChiefV4.rFactor2
                 }
             }
 
-            Debug.Assert(fod.Phase != FrozenOrderPhase.None);
+            if (fod.Phase == FrozenOrderPhase.None)
+                return fod;  // Wait a bit, there's a delay for string based phases.
 
             var useSCRules = GlobalBehaviourSettings.useAmericanTerms && extended.mDirectMemoryAccessEnabled != 0 && extended.mSCRPluginEnabled != 0;
             if (vehicleRules.mPositionAssignment != -1)
@@ -2806,7 +2842,7 @@ namespace CrewChiefV4.rFactor2
             return fod;
         }
 
-        private FrozenOrderData GetFrozenOrderOnlineData(FrozenOrderData prevFrozenOrderData, ref rF2VehicleScoring vehicle,
+        private FrozenOrderData GetFrozenOrderOnlineData(GameStateData cgs, FrozenOrderData prevFrozenOrderData, ref rF2VehicleScoring vehicle,
             ref rF2Scoring scoring, ref rF2Extended extended, float vehicleSpeedMS)
         {
             if (extended.mDirectMemoryAccessEnabled == 0)
@@ -2843,13 +2879,16 @@ namespace CrewChiefV4.rFactor2
                   && phase == "Formation Lap")
                     fod.Phase = RF2GameStateMapper.GetSector(vehicle.mSector) == 3 && vehicleSpeedMS > 10.0f ? FrozenOrderPhase.FastRolling : FrozenOrderPhase.Rolling;
                 else if (!string.IsNullOrWhiteSpace(phase)
-                  && phase == "Full-Course Yellow")
+                  && (phase == "Full-Course Yellow" || phase == "One Lap To Go"))
                     fod.Phase = FrozenOrderPhase.FullCourseYellow;
                 else if (string.IsNullOrWhiteSpace(phase))
                     fod.Phase = prevFrozenOrderData.Phase;
                 else
                     Debug.Assert(false, "Unhandled FO phase");
             }
+
+            if (fod.Phase == FrozenOrderPhase.None)
+                return fod;  // Wait a bit, there's a delay for string based phases.
 
             // NOTE: for formation/standing capture order once.   For other phases, rely on LSI text.
             if ((fod.Phase == FrozenOrderPhase.FastRolling || fod.Phase == FrozenOrderPhase.Rolling || fod.Phase == FrozenOrderPhase.FullCourseYellow)
@@ -2862,7 +2901,8 @@ namespace CrewChiefV4.rFactor2
                 {
                     var followPrefix = @"Please Follow ";
                     var catchUpToPrefix = @"Please Catch Up To ";
-                    // TODO: ALLOW TO PASS
+                    var allowToPassPrefix = @"Please Allow ";
+
                     var action = FrozenOrderAction.None;
 
                     string prefix = null;
@@ -2876,10 +2916,25 @@ namespace CrewChiefV4.rFactor2
                         prefix = catchUpToPrefix;
                         action = FrozenOrderAction.CatchUp;
                     }
+                    else if (orderInstruction.StartsWith(allowToPassPrefix))
+                    {
+                        prefix = allowToPassPrefix;
+                        action = FrozenOrderAction.AllowToPass;
+                    }
                     else
                     {
                         Debug.Assert(false, "unhandled action");
-                        Console.WriteLine("Unrecognized Frozen Order action: " + orderInstruction);
+#if !DEBUG
+                        // Avoid spamming console too aggressively.
+                        if ((cgs.Now - this.timeLSIMessageIgnored).TotalSeconds > 10)
+                        {
+                            this.timeLSIMessageIgnored = cgs.Now;
+                            Console.WriteLine("LSI Message: unrecognized Frozen Order action - \"" + orderInstruction + "\"");
+                        }
+                        else
+
+                            Console.WriteLine("LSI Message: unrecognized Frozen Order action - \"" + orderInstruction + "\"");
+#endif
                     }
 
                     if (!string.IsNullOrWhiteSpace(prefix))
@@ -2915,10 +2970,19 @@ namespace CrewChiefV4.rFactor2
                             column = FrozenOrderColumn.Right;
                         else if (orderInstruction.EndsWith("(In Left Line)"))
                             column = FrozenOrderColumn.Left;
-                        else if (!orderInstruction.EndsWith("\""))
+                        else if (!orderInstruction.EndsWith("\"") && action != FrozenOrderAction.AllowToPass)
                         {
                             Debug.Assert(false, "unrecognized postfix");
-                            Console.WriteLine("Unrecognized Frozen Order message postfix: " + orderInstruction);
+#if !DEBUG
+                            // Avoid spamming console too aggressively.
+                            if ((cgs.Now - this.timeLSIMessageIgnored).TotalSeconds > 10)
+                            {
+                                this.timeLSIMessageIgnored = cgs.Now;
+                                Console.WriteLine("LSI Message: unrecognized Frozen Order message postfix - \"" + orderInstruction + "\"");
+                            }
+                            else
+                                Console.WriteLine("LSI Message: unrecognized Frozen Order message postfix - \"" + orderInstruction + "\"");
+#endif
                         }
 
                         // Note: assigned Grid position only matters for Formation/Standing - don't bother figuring it out, just figure out assigned position (starting position).
