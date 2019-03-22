@@ -1,4 +1,4 @@
-#define SIMULATE_ONLINE
+//#define SIMULATE_ONLINE
 
 using System;
 using System.Collections.Generic;
@@ -126,6 +126,7 @@ namespace CrewChiefV4.rFactor2
         private DateTime timeEffectiveMessageProcessed = DateTime.MinValue;
         private DateTime timeHistoryMessageIgnored = DateTime.MinValue;
         private DateTime timeLSIMessageIgnored = DateTime.MinValue;
+        private int numFODetectPhaseAttempts = 0;
 
         public RF2GameStateMapper()
         {
@@ -139,7 +140,7 @@ namespace CrewChiefV4.rFactor2
             this.suspensionDamageThresholds.Add(new CornerData.EnumWithThresholds(DamageLevel.DESTROYED, 1.0f, 2.0f));
         }
 
-        private int[] minimumSupportedVersionParts = new int[] { 3, 5, 0, 6 };
+        private int[] minimumSupportedVersionParts = new int[] { 3, 5, 0, 7 };
         public static bool pluginVerified = false;
         public override void versionCheck(Object memoryMappedFileStruct)
         {
@@ -229,6 +230,7 @@ namespace CrewChiefV4.rFactor2
             this.timeEffectiveMessageProcessed = DateTime.MinValue;
             this.timeHistoryMessageIgnored = DateTime.MinValue;
             this.timeLSIMessageIgnored = DateTime.MinValue;
+            this.numFODetectPhaseAttempts = 0;
         }
 
     public override GameStateData mapToGameStateData(Object memoryMappedFileStruct, GameStateData previousGameState)
@@ -1686,6 +1688,9 @@ namespace CrewChiefV4.rFactor2
                             {
                                 this.LSIPitStateMessageUpdatedTicks = shared.extended.mTicksLSIPitStateMessageUpdated;
                                 var pitStateMsg = RF2GameStateMapper.GetStringFromBytes(shared.extended.mLSIPitStateMessage);
+                                if (!string.IsNullOrWhiteSpace(pitStateMsg))
+                                    Console.WriteLine("LSI Message: pit state message updated - \"" + pitStateMsg + "\"");
+
                                 if (pitStateMsg == "Pits Open")
                                     cgs.FlagData.fcyPhase = FullCourseYellowPhase.PITS_OPEN;
                                 else if (pitStateMsg == "Pits Closed")
@@ -2633,7 +2638,10 @@ namespace CrewChiefV4.rFactor2
             // Only applies to formation laps and FCY.
             if (scoring.mScoringInfo.mGamePhase != (int)rFactor2Constants.rF2GamePhase.Formation
                 && scoring.mScoringInfo.mGamePhase != (int)rFactor2Constants.rF2GamePhase.FullCourseYellow)
+            {
+                this.numFODetectPhaseAttempts = 0;
                 return fod;
+            }
 
             var foStage = rules.mTrackRules.mStage;
             if (foStage == rF2TrackRulesStage.Normal)
@@ -2649,7 +2657,12 @@ namespace CrewChiefV4.rFactor2
 
                     if (scoring.mScoringInfo.mGamePhase == (int)rFactor2Constants.rF2GamePhase.Formation
                       && string.IsNullOrWhiteSpace(phase))
-                        fod.Phase = FrozenOrderPhase.FormationStanding;
+                    {
+                        if (this.numFODetectPhaseAttempts > 0)
+                            fod.Phase = FrozenOrderPhase.FormationStanding;
+
+                        ++this.numFODetectPhaseAttempts;
+                    }
                     else if (!string.IsNullOrWhiteSpace(phase)
                       && phase == "Formation Lap")
                         fod.Phase = RF2GameStateMapper.GetSector(vehicle.mSector) == 3 && vehicleSpeedMS > 10.0f ? FrozenOrderPhase.FastRolling : FrozenOrderPhase.Rolling;
@@ -2853,7 +2866,10 @@ namespace CrewChiefV4.rFactor2
             // Only applies to formation laps and FCY.
             if (scoring.mScoringInfo.mGamePhase != (int)rFactor2Constants.rF2GamePhase.Formation
               && scoring.mScoringInfo.mGamePhase != (int)rFactor2Constants.rF2GamePhase.FullCourseYellow)
+            {
+                this.numFODetectPhaseAttempts = 0;
                 return fod;
+            }
 
             if (prevFrozenOrderData != null)
             {
@@ -2874,7 +2890,12 @@ namespace CrewChiefV4.rFactor2
 
                 if (scoring.mScoringInfo.mGamePhase == (int)rFactor2Constants.rF2GamePhase.Formation
                   && string.IsNullOrWhiteSpace(phase))
-                    fod.Phase = FrozenOrderPhase.FormationStanding;
+                {
+                    if (this.numFODetectPhaseAttempts > 0)
+                        fod.Phase = FrozenOrderPhase.FormationStanding;
+
+                    ++this.numFODetectPhaseAttempts;
+                }
                 else if (!string.IsNullOrWhiteSpace(phase)
                   && phase == "Formation Lap")
                     fod.Phase = RF2GameStateMapper.GetSector(vehicle.mSector) == 3 && vehicleSpeedMS > 10.0f ? FrozenOrderPhase.FastRolling : FrozenOrderPhase.Rolling;
@@ -2899,6 +2920,8 @@ namespace CrewChiefV4.rFactor2
                 var orderInstruction = RF2GameStateMapper.GetStringFromBytes(extended.mLSIOrderInstructionMessage);
                 if (!string.IsNullOrWhiteSpace(orderInstruction))
                 {
+                    Console.WriteLine("LSI Message: order instruction updated - \"" + orderInstruction + "\"");
+
                     var followPrefix = @"Please Follow ";
                     var catchUpToPrefix = @"Please Catch Up To ";
                     var allowToPassPrefix = @"Please Allow ";
@@ -2931,9 +2954,8 @@ namespace CrewChiefV4.rFactor2
                             this.timeLSIMessageIgnored = cgs.Now;
                             Console.WriteLine("LSI Message: unrecognized Frozen Order action - \"" + orderInstruction + "\"");
                         }
-                        else
-
-                            Console.WriteLine("LSI Message: unrecognized Frozen Order action - \"" + orderInstruction + "\"");
+#else
+                        Console.WriteLine("LSI Message: unrecognized Frozen Order action - \"" + orderInstruction + "\"");
 #endif
                     }
 
@@ -2980,8 +3002,8 @@ namespace CrewChiefV4.rFactor2
                                 this.timeLSIMessageIgnored = cgs.Now;
                                 Console.WriteLine("LSI Message: unrecognized Frozen Order message postfix - \"" + orderInstruction + "\"");
                             }
-                            else
-                                Console.WriteLine("LSI Message: unrecognized Frozen Order message postfix - \"" + orderInstruction + "\"");
+#else
+                            Console.WriteLine("LSI Message: unrecognized Frozen Order message postfix - \"" + orderInstruction + "\"");
 #endif
                         }
 
