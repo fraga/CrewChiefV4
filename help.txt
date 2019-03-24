@@ -50,6 +50,9 @@ iRacing:
 
 To use Crew Chief with iRacing simply select iRacing from Crew Chief's Game menu and click the Start button.
 
+For the best experience Crew Chief needs at least as many cars enabled in iRacing graphics settings(Max Cars) as the session allows, if this value is lower then the app is more likely to give wrong realtime position messages. Also to make sure iRacing is sending enough data, goto https://members.iracing.com/membersite/account/Home.do half way down the page is a setting called "Connection Type" this needs to be as high as you internet connection allows.      
+
+
 Startup issues
 ------------------
 If the app refuses to start, or starts then closes itself, try deleting the app's configuration files. To do this go to C:\Users\[user name]\AppData\Local\Britton_IT_Ltd\ and delete all the subfolders in there. This will reset all the app's settings to default. Note that the 'AppData' folder is hidden by default on Windows - you may need to change the View settings in the File Explorer Options from Windows Control Panel - look for a setting called "Show hidden files and folders".
