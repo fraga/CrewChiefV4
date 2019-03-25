@@ -1023,7 +1023,7 @@
 			"maxSafeWaterTemp": 102,
 			"maxSafeOilTemp": 115,
 			"timesInHundredths": true,
-			"enabledMessageTypes": "TYRE_TEMPS, FUEL, LOCKING_AND_SPINNING",
+			"enabledMessageTypes": "ALL",
 			"allMembersAreRWD": true
 		},
 		{
@@ -1032,7 +1032,7 @@
 			"maxSafeWaterTemp": 102,
 			"maxSafeOilTemp": 115,
 			"timesInHundredths": true,
-			"enabledMessageTypes": "TYRE_TEMPS, FUEL, LOCKING_AND_SPINNING",
+			"enabledMessageTypes": "ALL",
 			"allMembersAreRWD": true
 		},
 		{
@@ -1041,7 +1041,7 @@
 			"maxSafeWaterTemp": 102,
 			"maxSafeOilTemp": 115,
 			"timesInHundredths": true,
-			"enabledMessageTypes": "TYRE_TEMPS, FUEL, LOCKING_AND_SPINNING",
+			"enabledMessageTypes": "ALL",
 			"allMembersAreRWD": true
 		}
 	]
