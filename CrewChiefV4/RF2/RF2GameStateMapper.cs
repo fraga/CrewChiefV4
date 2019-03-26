@@ -127,6 +127,7 @@ namespace CrewChiefV4.rFactor2
         private DateTime timeHistoryMessageIgnored = DateTime.MinValue;
         private DateTime timeLSIMessageIgnored = DateTime.MinValue;
         private int numFODetectPhaseAttempts = 0;
+        private const int maxFormationStandingCheckAttempts = 5;
 
         public RF2GameStateMapper()
         {
@@ -140,7 +141,7 @@ namespace CrewChiefV4.rFactor2
             this.suspensionDamageThresholds.Add(new CornerData.EnumWithThresholds(DamageLevel.DESTROYED, 1.0f, 2.0f));
         }
 
-        private int[] minimumSupportedVersionParts = new int[] { 3, 5, 0, 7 };
+        private int[] minimumSupportedVersionParts = new int[] { 3, 5, 0, 8 };
         public static bool pluginVerified = false;
         public override void versionCheck(Object memoryMappedFileStruct)
         {
@@ -2658,7 +2659,7 @@ namespace CrewChiefV4.rFactor2
                     if (scoring.mScoringInfo.mGamePhase == (int)rFactor2Constants.rF2GamePhase.Formation
                       && string.IsNullOrWhiteSpace(phase))
                     {
-                        if (this.numFODetectPhaseAttempts > 0)
+                        if (this.numFODetectPhaseAttempts > RF2GameStateMapper.maxFormationStandingCheckAttempts)
                             fod.Phase = FrozenOrderPhase.FormationStanding;
 
                         ++this.numFODetectPhaseAttempts;
@@ -2891,7 +2892,7 @@ namespace CrewChiefV4.rFactor2
                 if (scoring.mScoringInfo.mGamePhase == (int)rFactor2Constants.rF2GamePhase.Formation
                   && string.IsNullOrWhiteSpace(phase))
                 {
-                    if (this.numFODetectPhaseAttempts > 0)
+                    if (this.numFODetectPhaseAttempts > RF2GameStateMapper.maxFormationStandingCheckAttempts)
                         fod.Phase = FrozenOrderPhase.FormationStanding;
 
                     ++this.numFODetectPhaseAttempts;
@@ -2959,6 +2960,7 @@ namespace CrewChiefV4.rFactor2
 #endif
                     }
 
+                    var SCassignedAhead = false;
                     if (!string.IsNullOrWhiteSpace(prefix))
                     {
                         var closingQuoteIdx = orderInstruction.LastIndexOf("\"");
@@ -2972,6 +2974,7 @@ namespace CrewChiefV4.rFactor2
                             else
                             {
                                 driverName = "Safety Car";
+                                SCassignedAhead = true;
                             }
                         }
                         catch (Exception) { }
@@ -2988,11 +2991,11 @@ namespace CrewChiefV4.rFactor2
                         }
 
                         var column = FrozenOrderColumn.None;
-                        if (orderInstruction.EndsWith("(In Right Line)"))
+                        if (orderInstruction.EndsWith("(In Right Line)") || orderInstruction.EndsWith("(In Outside Line)"))
                             column = FrozenOrderColumn.Right;
-                        else if (orderInstruction.EndsWith("(In Left Line)"))
+                        else if (orderInstruction.EndsWith("(In Left Line)") || orderInstruction.EndsWith("(In Inside Line)"))
                             column = FrozenOrderColumn.Left;
-                        else if (!orderInstruction.EndsWith("\"") && action != FrozenOrderAction.AllowToPass)
+                        else if (!orderInstruction.EndsWith("\"") && action == FrozenOrderAction.Follow && !SCassignedAhead)
                         {
                             Debug.Assert(false, "unrecognized postfix");
 #if !DEBUG
@@ -3011,7 +3014,7 @@ namespace CrewChiefV4.rFactor2
                         var assignedPos = -1;
                         if (!string.IsNullOrWhiteSpace(driverName))
                         {
-                            if (driverName != "Safety Car")
+                            if (!SCassignedAhead)
                             {
                                 for (int i = 0; i < scoring.mScoringInfo.mNumVehicles; ++i)
                                 {
