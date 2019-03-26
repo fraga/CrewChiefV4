@@ -1551,7 +1551,7 @@ namespace CrewChiefV4.Events
                 audioPlayer.playMessage(new QueuedMessage(folderWillNeedToStopAgain, 0, secondsDelay: 4, abstractEvent: this, priority: 10));
             }
             int maxPresses = fuelCapacityInt > 0 ? fuelCapacityInt : 200;
-            return litresToEnd == -1 ? 0 : litresToEnd > maxPresses ? maxPresses : litresToEnd;
+            return litresToEnd < 0 ? 0 : litresToEnd > maxPresses ? maxPresses : litresToEnd;
         }
 
         private float convertLitersToGallons(float liters, Boolean roundTo1dp = false)
