@@ -1716,6 +1716,8 @@ namespace CrewChiefV4.rFactor2
                                     }
                                 }
                             }
+                            else if (pgs != null)
+                                cgs.FlagData.fcyPhase = pgs.FlagData.fcyPhase;
                         }
                         else
                         {
