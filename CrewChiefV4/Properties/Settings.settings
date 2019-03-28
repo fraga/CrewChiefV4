@@ -899,5 +899,8 @@
     <Setting Name="use_rf2_wheel_size_for_locking_and_spinning" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="enable_rf2_wrong_way_message" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

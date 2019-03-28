@@ -1261,3 +1261,8 @@ use_rf2_wheel_size_for_locking_and_spinning = Use rF2's real wheel size for lock
 use_rf2_wheel_size_for_locking_and_spinning_help = Use rF2 provided wheel size (instead of car class data) for lock and spin messages calculations.
 use_rf2_wheel_size_for_locking_and_spinning_category = FUEL_TEMPS_AND_DAMAGES
 use_rf2_wheel_size_for_locking_and_spinning_filter = RF2_64BIT
+
+enable_rf2_wrong_way_message = Enable rF2 'Wrong Way' message
+enable_rf2_wrong_way_message_help = Announce Message Center 'Wrong Way' messsage.  Requires DMA enabled in plugin.
+enable_rf2_wrong_way_message_filter = RF2_64BIT
+enable_rf2_wrong_way_message_category = FLAGS_AND_RULES

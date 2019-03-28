@@ -23,6 +23,7 @@ namespace CrewChiefV4.rFactor2
         private readonly bool enablePitLaneApproachHeuristics = UserSettings.GetUserSettings().getBoolean("enable_rf2_pit_lane_approach_heuristics");
         private readonly bool enableFCYPitStateMessages = UserSettings.GetUserSettings().getBoolean("enable_rf2_pit_state_during_fcy");
         private readonly bool useRealWheelSizeForLockingAndSpinning = UserSettings.GetUserSettings().getBoolean("use_rf2_wheel_size_for_locking_and_spinning");
+        private readonly bool enableWrongWayMessage = UserSettings.GetUserSettings().getBoolean("enable_rf2_wrong_way_message");
 
         private readonly string scrLuckyDogIsPrefix = "Lucky Dog: ";
 
@@ -141,7 +142,7 @@ namespace CrewChiefV4.rFactor2
             this.suspensionDamageThresholds.Add(new CornerData.EnumWithThresholds(DamageLevel.DESTROYED, 1.0f, 2.0f));
         }
 
-        private int[] minimumSupportedVersionParts = new int[] { 3, 5, 0, 7 };
+        private int[] minimumSupportedVersionParts = new int[] { 3, 5, 0, 9 };
         public static bool pluginVerified = false;
         public override void versionCheck(Object memoryMappedFileStruct)
         {
@@ -2042,7 +2043,8 @@ namespace CrewChiefV4.rFactor2
                 else if (msg == "Enter Pits To Avoid Exceeding Lap Allowance")
                     cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.ENTER_PITS_TO_AVOID_EXCEEDING_LAPS;
                 else if (msg == "Wrong Way")
-                    cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.WRONG_WAY;
+                    if (this.enableWrongWayMessage)
+                        cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.WRONG_WAY;
                 else
                 {
 #if !DEBUG

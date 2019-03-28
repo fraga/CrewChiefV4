@@ -3610,5 +3610,17 @@ namespace CrewChiefV4.Properties {
                 this["use_rf2_wheel_size_for_locking_and_spinning"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool enable_rf2_wrong_way_message {
+            get {
+                return ((bool)(this["enable_rf2_wrong_way_message"]));
+            }
+            set {
+                this["enable_rf2_wrong_way_message"] = value;
+            }
+        }
     }
 }
