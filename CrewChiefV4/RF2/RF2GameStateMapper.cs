@@ -2949,6 +2949,11 @@ namespace CrewChiefV4.rFactor2
                         prefix = allowToPassPrefix;
                         action = FrozenOrderAction.AllowToPass;
                     }
+                    else if (orderInstruction == "Please Pass The Safety Car")
+                    {
+                        // Special case - set action only.
+                        fod.Action = FrozenOrderAction.PassSafetyCar;
+                    }
                     else
                     {
                         Debug.Assert(false, "unhandled action");
