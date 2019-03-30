@@ -2035,16 +2035,28 @@ namespace CrewChiefV4.rFactor2
                     else
                         messageConsumed = false;
                 }
-                else if (msg == "Drive-Thru Penalty: Speeding In Pitlane")
+                else if (msg.StartsWith("Drive-Thru Penalty: "))
                 {
-                    cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.DRIVE_THROUGH;
-                    cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.SPEEDING_IN_PITLANE;
+                    if (msg.EndsWith("Speeding In Pitlane"))
+                    {
+                        cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.DRIVE_THROUGH;
+                        cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.SPEEDING_IN_PITLANE;
+                    }
+                    else if (msg.EndsWith(" False Start"))
+                    {
+                        cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.DRIVE_THROUGH;
+                        cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.FALSE_START;
+                    }
+                    else
+                        messageConsumed = false;
                 }
                 else if (msg == "Enter Pits To Avoid Exceeding Lap Allowance")
                     cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.ENTER_PITS_TO_AVOID_EXCEEDING_LAPS;
                 else if (msg == "Wrong Way")
+                {
                     if (this.enableWrongWayMessage)
                         cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.WRONG_WAY;
+                }
                 else
                 {
 #if !DEBUG
