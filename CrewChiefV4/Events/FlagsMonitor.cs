@@ -23,10 +23,10 @@ namespace CrewChiefV4.Events
         private DateTime disableWhiteFlagUntil = DateTime.MinValue;
         private DateTime disableBlueFlagUntil = DateTime.MinValue;
 
-        private TimeSpan timeBetweenYellowFlagMessages = TimeSpan.FromSeconds(30);
-        private TimeSpan timeBetweenBlueFlagMessages = TimeSpan.FromSeconds(20);
-        private TimeSpan timeBetweenBlackFlagMessages = TimeSpan.FromSeconds(20);
-        private TimeSpan timeBetweenWhiteFlagMessages = TimeSpan.FromSeconds(20);
+        private TimeSpan timeBetweenYellowFlagMessages = TimeSpan.FromSeconds(25);
+        private TimeSpan timeBetweenBlueFlagMessages = TimeSpan.FromSeconds(15);
+        private TimeSpan timeBetweenBlackFlagMessages = TimeSpan.FromSeconds(15);
+        private TimeSpan timeBetweenWhiteFlagMessages = TimeSpan.FromSeconds(15);
 
         private String folderFCYellowStartEU = "flags/fc_yellow_start_eu";
         private String folderFCYellowPitsClosedEU = "flags/fc_yellow_pits_closed_eu";
@@ -342,7 +342,7 @@ namespace CrewChiefV4.Events
             if (currentGameState.SessionData.JustGoneGreen)
             {
                 // ensure blue & white flags aren't enabled immediately:
-                disableBlueFlagUntil = currentGameState.Now.Add(timeBetweenYellowFlagMessages);
+                disableBlueFlagUntil = currentGameState.Now.Add(timeBetweenYellowFlagMessages + TimeSpan.FromSeconds(Utilities.random.Next(0, 11)));
             }
             if (currentGameState.FlagData.useImprovisedIncidentCalling)
             {
@@ -361,7 +361,7 @@ namespace CrewChiefV4.Events
             {
                 if (currentGameState.Now > disableBlackFlagUntil)
                 {
-                    disableBlackFlagUntil = currentGameState.Now.Add(timeBetweenBlackFlagMessages);
+                    disableBlackFlagUntil = currentGameState.Now.Add(timeBetweenBlackFlagMessages + TimeSpan.FromSeconds(Utilities.random.Next(0, 8)));
                     audioPlayer.playMessage(new QueuedMessage(folderBlackFlag, 0, abstractEvent: this, priority: 10));
                 }
             }
@@ -369,7 +369,7 @@ namespace CrewChiefV4.Events
             {
                 if (currentGameState.Now > disableBlueFlagUntil)
                 {
-                    disableBlueFlagUntil = currentGameState.Now.Add(timeBetweenBlueFlagMessages);
+                    disableBlueFlagUntil = currentGameState.Now.Add(timeBetweenBlueFlagMessages + TimeSpan.FromSeconds(Utilities.random.Next(0, 8)));
                     String opponentKeyBehind = currentGameState.getOpponentKeyBehindOnTrack(true);
                     // if the last 3 warnings are for this same driver, don't call the blue flag. Note that it's unsafe to 
                     // assume opponentKeyBehind is never null
@@ -387,11 +387,13 @@ namespace CrewChiefV4.Events
                 }
             }
             // In iRacing White flag is set on last lap if "useAmericanTerms" is enabled, this causes white flag to be announched every 40 sec on last lap.
-            else if (currentGameState.SessionData.Flag == FlagEnum.WHITE && !(GlobalBehaviourSettings.useAmericanTerms && CrewChief.gameDefinition.gameEnum == GameEnum.IRACING))
+            else if (currentGameState.SessionData.Flag == FlagEnum.WHITE
+                && !(GlobalBehaviourSettings.useAmericanTerms && CrewChief.gameDefinition.gameEnum == GameEnum.IRACING)
+                && !LapCounter.whiteFlagLastLapAnnounced)
             {
                 if (currentGameState.Now > disableWhiteFlagUntil)
                 {
-                    disableWhiteFlagUntil = currentGameState.Now.Add(timeBetweenWhiteFlagMessages);
+                    disableWhiteFlagUntil = currentGameState.Now.Add(timeBetweenWhiteFlagMessages + TimeSpan.FromSeconds(Utilities.random.Next(0, 11)));
                     audioPlayer.playMessageImmediately(new QueuedMessage(folderWhiteFlagEU, 2, abstractEvent: this, type: SoundType.IMPORTANT_MESSAGE, priority: 0));
                 }
             }
@@ -1054,7 +1056,7 @@ namespace CrewChiefV4.Events
             {
                 if (currentGameState.Now > disableYellowFlagUntil)
                 {
-                    disableYellowFlagUntil = currentGameState.Now.Add(timeBetweenYellowFlagMessages);
+                    disableYellowFlagUntil = currentGameState.Now.Add(timeBetweenYellowFlagMessages + TimeSpan.FromSeconds(Utilities.random.Next(0, 11)));
                     if (CrewChief.yellowFlagMessagesEnabled)
                     {
                         audioPlayer.playMessageImmediately(new QueuedMessage(folderYellowFlag, 3, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 10));
@@ -1067,7 +1069,7 @@ namespace CrewChiefV4.Events
                     // AMS specific hack until RF2 FCY stuff is ported - don't spam the double yellow during caution periods, just report it once per lap
                     (CrewChief.gameDefinition.gameEnum != GameEnum.RF1 || currentGameState.SessionData.IsNewLap))
                 {
-                    disableYellowFlagUntil = currentGameState.Now.Add(timeBetweenYellowFlagMessages);
+                    disableYellowFlagUntil = currentGameState.Now.Add(timeBetweenYellowFlagMessages + TimeSpan.FromSeconds(Utilities.random.Next(0, 11)));
                     if (CrewChief.yellowFlagMessagesEnabled)
                     {
                         audioPlayer.playMessageImmediately(new QueuedMessage(folderDoubleYellowFlag, 3, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 10));

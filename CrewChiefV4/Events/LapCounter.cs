@@ -103,6 +103,7 @@ namespace CrewChiefV4.Events
         private Boolean playedRejoinAtBackMessage = false;
 
         private Boolean playedPreLightsRollingStartWarning = false;
+        public static bool whiteFlagLastLapAnnounced = false;
 
         public override List<SessionPhase> applicableSessionPhases
         {
@@ -157,6 +158,7 @@ namespace CrewChiefV4.Events
             leaderSpeedAtAccelerationCheckStart = -1;
             poleSitter = null;
             leaderHasGone = false;
+            LapCounter.whiteFlagLastLapAnnounced = false;
         }
 
         private OpponentData getOpponent(GameStateData currentGameState, String opponentName)
@@ -479,6 +481,7 @@ namespace CrewChiefV4.Events
                     }
                     else if (position > 4)
                     {
+                        LapCounter.whiteFlagLastLapAnnounced = GlobalBehaviourSettings.useAmericanTerms;
                         audioPlayer.playMessage(new QueuedMessage(GlobalBehaviourSettings.useAmericanTerms ? folderLastLapUS : folderLastLapEU, 10, abstractEvent: this, priority: 10));
                     }
                     else
