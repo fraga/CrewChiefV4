@@ -101,7 +101,7 @@
 # VINTAGE_F1_C, VINTAGE_STOCK_CAR,
 # F1, F2, F3, F4, FF, FORMULA_E, F1_70S, TC1, TC2, TCR, TC1_2014, AUDI_TT_CUP, AUDI_TT_VLN, CLIO_CUP, DTM, DTM_2013, V8_SUPERCAR, DTM_2014, DTM_2015, DTM_2016, TRANS_AM, HILL_CLIMB_ICONS, FORMULA_RENAULT,
 # MEGANE_TROPHY, NSU_TT, KTM_RR, INDYCAR, HYPER_CAR, HYPER_CAR_RACE, UNKNOWN_RACE, STOCK_V8, BOXER_CUP, NASCAR_2016, ISI_STOCKCAR_2015, RADICAL_SR3,
-# RS01_TROPHY, TRACKDAY_A, TRACKDAY_B, BMW_235I, CARRERA_CUP, CAYMAN_CLUBSPORT, CAN_AM, M1_PROCAR, PORSCHE_964_CUP
+# RS01_TROPHY, TRACKDAY_A, TRACKDAY_B, BMW_235I, CARRERA_CUP, CAYMAN_CLUBSPORT, CAN_AM, M1_PROCAR, PORSCHE_964_CUP, PALATOV_D4_TRACKDAY, PALATOV_D4_HILLCLIMB, PALATOV_D4_CUSTOM
 # 
 # Car classes can skip an entry if they're using the default - e.g. most cars
 # skip defaultTyreType so they use Unknown_Race - this is only overridden in
@@ -415,15 +415,15 @@
 			"enabledMessageTypes": "FUEL, LOCKING_AND_SPINNING",
 			"allMembersAreRWD": true
 		},
-        {
-            "carClassEnum": "GROUPA",
-            "raceroomClassIds": [ 1712, 3499 ],
-            "pCarsClassNames": [ "Group A" ],
-            "timesInHundredths": true,
-            "enabledMessageTypes": "TYRE_TEMPS, BRAKE_TEMPS, FUEL, LOCKING_AND_SPINNING",
-            "allMembersAreRWD": true
-        },
-        {
+		{
+			"carClassEnum": "GROUPA",
+			"raceroomClassIds": [1712, 3499],
+			"pCarsClassNames": ["Group A"],
+			"timesInHundredths": true,
+			"enabledMessageTypes": "TYRE_TEMPS, BRAKE_TEMPS, FUEL, LOCKING_AND_SPINNING",
+			"allMembersAreRWD": true
+		},
+		{
 			"carClassEnum": "M1_PROCAR",
 			"raceroomClassIds": [2378],
 			"timesInHundredths": false,
@@ -548,8 +548,8 @@
 		},
 		{
 			"carClassEnum": "VINTAGE_F1_A",
-            "pCarsClassNames": [ "Vintage F1 A" ],
-            "acClassNames": [ "gpl67_*", "lotus_49", "ks_ferrari_312_67" ],
+			"pCarsClassNames": ["Vintage F1 A"],
+			"acClassNames": ["gpl67_*", "lotus_49", "ks_ferrari_312_67"],
 			"defaultTyreType": "Bias_Ply",
 			"timesInHundredths": false,
 			"enabledMessageTypes": "FUEL, LOCKING_AND_SPINNING",
@@ -859,8 +859,8 @@
 		},
 		{
 			"carClassEnum": "KTM_RR",
-            "raceroomClassIds": [ 5385 ],
-            "acClassNames": ["ktm_xbow_r"],
+			"raceroomClassIds": [5385],
+			"acClassNames": ["ktm_xbow_r"],
 			"maxSafeWaterTemp": 102,
 			"maxSafeOilTemp": 115,
 			"timesInHundredths": true,
@@ -983,18 +983,18 @@
 			"enabledMessageTypes": "FUEL",
 			"allMembersAreRWD": true
 		},
-        {
-            "carClassEnum": "F1_90S",
-            "rf2ClassNames": [ "F1_1996_SL1DE" ],
-            "raceroomClassIds": [7214],
-            "brakeType": "Carbon",
-            "maxSafeWaterTemp": 105,
-            "maxSafeOilTemp": 140,
-            "timesInHundredths": true,
-            "enabledMessageTypes": "ALL",
-            "pitCrewPreparationTime": 17,
-            "allMembersAreRWD": true
-        },
+		{
+			"carClassEnum": "F1_90S",
+			"rf2ClassNames": ["F1_1996_SL1DE"],
+			"raceroomClassIds": [7214],
+			"brakeType": "Carbon",
+			"maxSafeWaterTemp": 105,
+			"maxSafeOilTemp": 140,
+			"timesInHundredths": true,
+			"enabledMessageTypes": "ALL",
+			"pitCrewPreparationTime": 17,
+			"allMembersAreRWD": true
+		},
 		{
 			"carClassEnum": "INDYCAR_DALLARA_2011",
 			"iracingCarIds": [29],
@@ -1014,8 +1014,35 @@
 		{
 			"carClassEnum": "PORSCHE_964_CUP",
 			"raceroomClassIds": [7287],
-            "enabledMessageTypes": "ALL",
-            "allMembersAreRWD": true
+			"enabledMessageTypes": "ALL",
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "PALATOV_D4_TRACKDAY",
+			"rf2ClassNames": ["D4_TrackDay", "D4_2018TrackDay", "D4_TrackDay_SE", "D4_2018TrackDay_SE"],
+			"maxSafeWaterTemp": 102,
+			"maxSafeOilTemp": 115,
+			"timesInHundredths": true,
+			"enabledMessageTypes": "ALL",
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "PALATOV_D4_HILLCLIMB",
+			"rf2ClassNames": ["D4_HillClimb", "D4_2018HillClimb"],
+			"maxSafeWaterTemp": 102,
+			"maxSafeOilTemp": 115,
+			"timesInHundredths": true,
+			"enabledMessageTypes": "ALL",
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "PALATOV_D4_CUSTOM",
+			"rf2ClassNames": ["D4_Custom", "D4_2018Custom"],
+			"maxSafeWaterTemp": 102,
+			"maxSafeOilTemp": 115,
+			"timesInHundredths": true,
+			"enabledMessageTypes": "ALL",
+			"allMembersAreRWD": true
 		}
 	]
 }

@@ -3157,18 +3157,6 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool force_rf2_rolling_start {
-            get {
-                return ((bool)(this["force_rf2_rolling_start"]));
-            }
-            set {
-                this["force_rf2_rolling_start"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool enable_pit_exit_position_estimates {
             get {
@@ -3620,6 +3608,18 @@ namespace CrewChiefV4.Properties {
             }
             set {
                 this["use_rf2_wheel_size_for_locking_and_spinning"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool enable_rf2_wrong_way_message {
+            get {
+                return ((bool)(this["enable_rf2_wrong_way_message"]));
+            }
+            set {
+                this["enable_rf2_wrong_way_message"] = value;
             }
         }
     }

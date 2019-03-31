@@ -83,6 +83,8 @@ namespace CrewChiefV4.Events
 
         private String folderDriveThroughSpeedingInPitlane = "penalties/drive_through_speeding_in_pit_lane";
 
+        private String folderDriveThroughFalseStart = "penalties/drive_through_penalty_false_start";
+
         private String folderWarningDrivingTooSlow = "penalties/warning_driving_too_slow";
 
         private String folderWarningWrongWay = "penalties/warning_wrong_way";
@@ -642,6 +644,8 @@ namespace CrewChiefV4.Events
                         break;
                     case PenatiesData.DetailedPenaltyCause.SPEEDING_IN_PITLANE:
                         return folderDriveThroughSpeedingInPitlane;
+                    case PenatiesData.DetailedPenaltyCause.FALSE_START:
+                        return folderDriveThroughFalseStart;
                     default:
                         Debug.Assert(false, "Unhandled penalty cause");
                         Console.WriteLine("Penalties: unhandled stop/go penalty cause: " + penaltyCause);

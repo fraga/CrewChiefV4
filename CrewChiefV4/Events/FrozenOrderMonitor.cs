@@ -79,6 +79,8 @@ namespace CrewChiefV4.Events
         public const string folderStayInPoleInRightColumn = "frozen_order/stay_in_pole_in_right_column";
         public const string folderMoveToPole = "frozen_order/move_to_pole";
         public const string folderMoveToPoleRow = "frozen_order/move_to_pole_row";
+        public const string folderPassThePaceCar = "frozen_order/pass_the_pace_car";
+        public const string folderPassTheSafetyCar = "frozen_order/pass_the_safety_car";
 
         // Validation stuff:
         private const string validateMessageTypeKey = "validateMessageTypeKey";
@@ -394,6 +396,12 @@ namespace CrewChiefV4.Events
                         else
                             audioPlayer.playMessage(new QueuedMessage(folderYouNeedToCatchUpToTheGuyAhead, delay + 6, secondsDelay: delay, abstractEvent: this,
                                 validationData: validationData, priority: 10));
+                    }
+                    else if (this.newFrozenOrderAction == FrozenOrderAction.PassSafetyCar)
+                    {
+                        int delay = Utilities.random.Next(1, 4);
+                        audioPlayer.playMessage(new QueuedMessage(useAmericanTerms ? folderPassThePaceCar : folderPassTheSafetyCar, delay + 6, secondsDelay: delay, abstractEvent: this,
+                            validationData: validationData, priority: 10));
                     }
                 }
             }

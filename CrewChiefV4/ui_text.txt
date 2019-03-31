@@ -1177,11 +1177,6 @@ iracing_invalidate_cut_track_laps_help = Disable this if you don't want the app 
 iracing_invalidate_cut_track_laps_filter = IRACING
 iracing_invalidate_cut_track_laps_category = FLAGS_AND_RULES
 
-force_rf2_rolling_start = Force rF2 'Rolling Start' as a race start type
-force_rf2_rolling_start_help = Due to game limitations, CC can only guess what type of start race has.  Sometimes, 'Rolling' is detected as 'Formation/Standing', mostly on some Kart tracks.  You can force 'Rolling' start by enabling this option.
-force_rf2_rolling_start_filter = RF2_64BIT
-force_rf2_rolling_start_category = FLAGS_AND_RULES
-
 enable_pit_exit_position_estimates = Enable pit exit position estimates
 enable_pit_exit_position_estimates_help = Play pit exit position estimates
 enable_pit_exit_position_estimates_category = PIT_STOPS_AND_MULTICLASS
@@ -1266,3 +1261,8 @@ use_rf2_wheel_size_for_locking_and_spinning = Use rF2's real wheel size for lock
 use_rf2_wheel_size_for_locking_and_spinning_help = Use rF2 provided wheel size (instead of car class data) for lock and spin messages calculations.
 use_rf2_wheel_size_for_locking_and_spinning_category = FUEL_TEMPS_AND_DAMAGES
 use_rf2_wheel_size_for_locking_and_spinning_filter = RF2_64BIT
+
+enable_rf2_wrong_way_message = Enable rF2 'Wrong Way' message
+enable_rf2_wrong_way_message_help = Announce Message Center 'Wrong Way' messsage.  Requires DMA enabled in plugin.
+enable_rf2_wrong_way_message_filter = RF2_64BIT
+enable_rf2_wrong_way_message_category = FLAGS_AND_RULES
