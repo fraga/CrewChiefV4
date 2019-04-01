@@ -156,6 +156,8 @@ install_plugin_select_directory_start = Please select
 install_plugin_select_directory_end = installation directory
 install_plugin_popup_enable_text = Crew Chief can automatically enable the plugin for you, if you select Cancel you will have to enable it manually in the game ui. Click OK to enable or Cancel to Return
 install_plugin_popup_enable_title = Enable Plugin
+install_plugin_popup_error_text = Failed to Install or Update the Plugin.  Please make sure the game is not running. Error:
+install_plugin_popup_error_title = Plugin Install or Update failed
 
 install_speechplatform_popup_title = Missing dependency
 install_speechplatform_popup_text = It appears that your system is missing a dependency for speech recogniser to work. Press OK to get redirected to the download location, Or Cancel to return
