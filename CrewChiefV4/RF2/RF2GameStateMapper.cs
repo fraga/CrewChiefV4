@@ -233,7 +233,8 @@ namespace CrewChiefV4.rFactor2
             this.timeHistoryMessageIgnored = DateTime.MinValue;
             this.timeLSIMessageIgnored = DateTime.MinValue;
             this.numFODetectPhaseAttempts = 0;
-        }
+            this.lastHistoryMessageUpdatedTicks = 0L;
+    }
 
     public override GameStateData mapToGameStateData(Object memoryMappedFileStruct, GameStateData previousGameState)
         {
@@ -313,11 +314,17 @@ namespace CrewChiefV4.rFactor2
                     // Wait is over.  Terminate the abrupt session.
                     this.waitingToTerminateSession = false;
 
+                    // TODO: make into an option.
+                    var suppressAbandonedSessions = true;
                     if (this.lastInRealTimeState && pgs.SessionData.SessionType == SessionType.Race)
                     {
                         // Looks like race restart without exiting to monitor.  We can't reliably detect session end
                         // here, because it is timing affected (we might miss this between updates).  So better not do it.
                         Console.WriteLine("Abrupt Session End: suppressed due to restart during real time.");
+                    }
+                    else if (suppressAbandonedSessions)
+                    {
+                        Console.WriteLine("Abrupt Session End: suppressed due to session abandoned.");
                     }
                     else
                     {
@@ -1879,7 +1886,8 @@ namespace CrewChiefV4.rFactor2
 
             // --------------------------------
             // MC warnings
-            this.ProcessMCMessages(cgs, pgs, shared);
+            if (!csd.IsNewSession)  // Skip the very first session tick as events are not processed at this time.
+                this.ProcessMCMessages(cgs, pgs, shared);
 
             // --------------------------------
             // console output
