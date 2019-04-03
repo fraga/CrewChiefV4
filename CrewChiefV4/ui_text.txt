@@ -1268,3 +1268,8 @@ enable_rf2_wrong_way_message = Enable rF2 'Wrong Way' message
 enable_rf2_wrong_way_message_help = Announce Message Center 'Wrong Way' messsage.  Requires DMA enabled in plugin.
 enable_rf2_wrong_way_message_filter = RF2_64BIT
 enable_rf2_wrong_way_message_category = FLAGS_AND_RULES
+
+disable_rf2_race_end_messages_on_abandoned_sessions = Disable rF2 race end msg. for abandoned events
+disable_rf2_race_end_messages_on_abandoned_sessions_help = Enable this preference if you would like to turn off race end messages for times when you quit race without finishing it.
+disable_rf2_race_end_messages_on_abandoned_sessions_filter = RF2_64BIT
+disable_rf2_race_end_messages_on_abandoned_sessions_category = MESSAGE_FREQUENCES

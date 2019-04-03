@@ -24,6 +24,7 @@ namespace CrewChiefV4.rFactor2
         private readonly bool enableFCYPitStateMessages = UserSettings.GetUserSettings().getBoolean("enable_rf2_pit_state_during_fcy");
         private readonly bool useRealWheelSizeForLockingAndSpinning = UserSettings.GetUserSettings().getBoolean("use_rf2_wheel_size_for_locking_and_spinning");
         private readonly bool enableWrongWayMessage = UserSettings.GetUserSettings().getBoolean("enable_rf2_wrong_way_message");
+        private readonly bool disableRaceEndMessagesOnAbandon = UserSettings.GetUserSettings().getBoolean("disable_rf2_race_end_messages_on_abandoned_sessions");
 
         private readonly string scrLuckyDogIsPrefix = "Lucky Dog: ";
 
@@ -293,6 +294,7 @@ namespace CrewChiefV4.rFactor2
                         return pgs;
                     }
 
+                    var sessionEndWaitTimedOut = false;
                     if (!sessionStarted)
                     {
                         var timeSinceWaitStarted = TimeSpan.FromTicks(DateTime.UtcNow.Ticks - this.ticksWhenSessionEnded);
@@ -306,7 +308,10 @@ namespace CrewChiefV4.rFactor2
                             return pgs;
                         }
                         else
+                        {
                             Console.WriteLine("Abrupt Session End: session end wait timed out.");
+                            sessionEndWaitTimedOut = true;
+                        }
                     }
                     else
                         Console.WriteLine("Abrupt Session End: new session just started, terminate previous session.");
@@ -314,18 +319,17 @@ namespace CrewChiefV4.rFactor2
                     // Wait is over.  Terminate the abrupt session.
                     this.waitingToTerminateSession = false;
 
-                    // TODO: make into an option.
-                    var suppressAbandonedSessions = true;
                     if (this.lastInRealTimeState && pgs.SessionData.SessionType == SessionType.Race)
                     {
                         // Looks like race restart without exiting to monitor.  We can't reliably detect session end
                         // here, because it is timing affected (we might miss this between updates).  So better not do it.
                         Console.WriteLine("Abrupt Session End: suppressed due to restart during real time.");
                     }
-                    else if (suppressAbandonedSessions)
-                    {
+                    else if (this.disableRaceEndMessagesOnAbandon && sessionEndWaitTimedOut)
                         Console.WriteLine("Abrupt Session End: suppressed due to session abandoned.");
-                    }
+                    else if (this.disableRaceEndMessagesOnAbandon
+                        && !this.lastInRealTimeState && pgs.SessionData.SessionType == SessionType.Race)
+                        Console.WriteLine("Abrupt Session End: suppressed due to race restart in the monitor.");
                     else
                     {
                         if (pgs.SessionData.PlayerLapTimeSessionBest < 0.0f && !pgs.SessionData.IsDisqualified)

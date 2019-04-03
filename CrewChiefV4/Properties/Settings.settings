@@ -902,5 +902,8 @@
     <Setting Name="enable_rf2_wrong_way_message" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="disable_rf2_race_end_messages_on_abandoned_sessions" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

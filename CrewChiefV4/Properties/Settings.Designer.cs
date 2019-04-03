@@ -3622,5 +3622,17 @@ namespace CrewChiefV4.Properties {
                 this["enable_rf2_wrong_way_message"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool disable_rf2_race_end_messages_on_abandoned_sessions {
+            get {
+                return ((bool)(this["disable_rf2_race_end_messages_on_abandoned_sessions"]));
+            }
+            set {
+                this["disable_rf2_race_end_messages_on_abandoned_sessions"] = value;
+            }
+        }
     }
 }
