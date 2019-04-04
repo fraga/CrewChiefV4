@@ -229,7 +229,6 @@ namespace CrewChiefV4
         public static String[] AM = Configuration.getSpeechRecognitionPhrases("AM");
         public static String[] PM = Configuration.getSpeechRecognitionPhrases("PM");
 
-
         private String lastRecognisedText = null;
 
         private CrewChief crewChief;
@@ -275,6 +274,8 @@ namespace CrewChiefV4
 
         private EventWaitHandle triggerTimeoutWaitHandle = new EventWaitHandle(false, EventResetMode.ManualReset);
         private Thread restartWaitTimeoutThreadReference = null;
+
+        public static DateTime recognitionStartedTime = DateTime.MinValue;
 
         static SpeechRecogniser()
         {
@@ -1316,7 +1317,7 @@ namespace CrewChiefV4
             SpeechRecogniser.waitingForSpeech = false;
             SpeechRecogniser.gotRecognitionResult = true;
             Boolean youWot = false;
-            Console.WriteLine("Recognised : " + e.Result.Text + " confidence = " + e.Result.Confidence.ToString("0.000"));
+            Console.WriteLine("Recognised : " + e.Result.Text + "  Confidence = " + e.Result.Confidence.ToString("0.000") + "  Time Elapsed (ms) = " + (DateTime.Now - SpeechRecogniser.recognitionStartedTime).TotalMilliseconds);
             try
             {
                 // special case when we're waiting for a message after a heavy crash:

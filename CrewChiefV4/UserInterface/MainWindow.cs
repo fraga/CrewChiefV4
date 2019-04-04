@@ -1385,7 +1385,7 @@ namespace CrewChiefV4
                 crewChief.speechRecogniser.voiceOptionEnum = VoiceOptionEnum.HOLD;
                 while (runListenForChannelOpenThread)
                 {
-                    Thread.Sleep(100);
+                    Thread.Sleep(50);  // TODO: Make an option?  100 default
                     if (!channelOpen && controllerConfiguration.isChannelOpen())
                     {
                         channelOpen = true;
@@ -1405,6 +1405,7 @@ namespace CrewChiefV4
                         else
                         {
                             Console.WriteLine("Listening for voice command...");
+                            SpeechRecogniser.recognitionStartedTime = DateTime.Now;
                             crewChief.speechRecogniser.recognizeAsync();
                         }
 
@@ -1437,7 +1438,7 @@ namespace CrewChiefV4
                                 ThreadManager.UnregisterTemporaryThread(youWotThread);
                                 youWotThread = new Thread(() =>
                                 {
-                                    Utilities.InterruptedSleep(2000 /*totalWaitMillis*/, 500 /*waitWindowMillis*/, () => crewChief.running /*keepWaitingPredicate*/);
+                                    Utilities.InterruptedSleep(300 /*totalWaitMillis*/, 50 /*waitWindowMillis*/, () => crewChief.running /*keepWaitingPredicate*/);  // TODO: option, 2000 default
                                     if (!channelOpen && !SpeechRecogniser.gotRecognitionResult)
                                     {
                                         crewChief.youWot(false);
@@ -1524,6 +1525,7 @@ namespace CrewChiefV4
                         {
                             Console.WriteLine("Listening...");
                             crewChief.audioPlayer.playStartListeningBeep();
+                            SpeechRecogniser.recognitionStartedTime = DateTime.Now;
                             crewChief.speechRecogniser.recognizeAsync();
                         }
                     }
