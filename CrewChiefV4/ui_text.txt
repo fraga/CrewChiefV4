@@ -1262,6 +1262,14 @@ use_rf2_wheel_size_for_locking_and_spinning_help = Use rF2 provided wheel size (
 use_rf2_wheel_size_for_locking_and_spinning_category = FUEL_TEMPS_AND_DAMAGES
 use_rf2_wheel_size_for_locking_and_spinning_filter = RF2_64BIT
 
+enable_websocket = Enable Websocket integration
+enable_websocket_help = Send some Crew Chief data over a Websocket
+enable_websocket_category = AUDIO_VOICE_AND_CONTROLLERS
+
+websocket_port = Websocket port
+websocket_port_help = Port to use for Websocket data
+websocket_port_category = AUDIO_VOICE_AND_CONTROLLERS
+
 enable_rf2_wrong_way_message = Enable rF2 'Wrong Way' message
 enable_rf2_wrong_way_message_help = Announce Message Center 'Wrong Way' messsage.  Requires DMA enabled in plugin.
 enable_rf2_wrong_way_message_filter = RF2_64BIT
