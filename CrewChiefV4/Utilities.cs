@@ -1,4 +1,5 @@
-﻿using CrewChiefV4.GameState;
+﻿using CrewChiefV4.Audio;
+using CrewChiefV4.GameState;
 using MathNet.Numerics;
 using System;
 using System.Collections.Generic;
@@ -8,12 +9,62 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
+using WebSocketSharp;
+using WebSocketSharp.Server;
 
 namespace CrewChiefV4
 {
     public static class Utilities
     {
         public static Random random = new Random();
+
+        private static WebSocketServer webSocketServer;
+
+        private static object websocketServerLock = new object();
+
+        public static AudioPlayer audioPlayer;
+
+        private static int websocketPort = UserSettings.GetUserSettings().getInt("websocket_port");
+
+        public static void startWebsocketServer(AudioPlayer audioPlayer)
+        {
+            Utilities.audioPlayer = audioPlayer;
+            stopWebsocketServer();
+            try
+            {
+                lock (websocketServerLock)
+                {
+                    webSocketServer = new WebSocketServer(websocketPort);
+                    webSocketServer.AddWebSocketService<WebsocketData>("/crewchief");
+                    webSocketServer.Start();
+                    Console.WriteLine("Successfully started WebSocket server");
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Unable to start websocket: " + e.Message + ", " + e.StackTrace);
+            }
+        }
+
+        public static void stopWebsocketServer()
+        {
+            try
+            {
+                lock (websocketServerLock)
+                {
+                    if (webSocketServer != null)
+                    {
+                        webSocketServer.Stop();
+                        webSocketServer = null;
+                        Console.WriteLine("Stopped WebSocket server");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Unable to stop websocket: " + e.Message + ", " + e.StackTrace);
+            }
+        }
 
         public static bool IsGameRunning(String processName, String[] alternateProcessNames)
         {
@@ -238,6 +289,16 @@ namespace CrewChiefV4
             }
 
             return true;
+        }
+    }
+
+    public class WebsocketData : WebSocketBehavior
+    {
+        private String channelOpenStringResponse = "{\"channelOpen\": true}";
+        private String channelClosedStringResponse = "{\"channelOpen\": false}";
+        protected override void OnMessage(MessageEventArgs e)
+        {
+            Send(Utilities.audioPlayer.isChannelOpen() ? channelOpenStringResponse : channelClosedStringResponse);
         }
     }
 }

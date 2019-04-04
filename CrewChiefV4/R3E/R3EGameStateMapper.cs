@@ -6,6 +6,7 @@ using CrewChiefV4.GameState;
 using CrewChiefV4.Events;
 using CrewChiefV4.RaceRoom.RaceRoomData;
 using System.Diagnostics;
+using CrewChiefV4.R3E;
 
 /**
  * Maps memory mapped file to a local game-agnostic representation.
@@ -50,6 +51,12 @@ namespace CrewChiefV4.RaceRoom
         private float destroyedTransmissionThreshold = 0.1f;
         private float destroyedEngineThreshold = 0.1f;
         private float destroyedAeroThreshold = 0.8f;
+
+        private float trivialSuspensionDamageThresholdPercent = 2f;
+        private float minorSuspensionDamageThresholdPercent = 8f;
+        private float severeSuspensionDamageThresholdPercent = 15f;
+        private float destroyedSuspensionThresholdPercent = 30f;
+
 
         private List<CornerData.EnumWithThresholds> brakeTempThresholdsForPlayersCar = null;
 
@@ -96,6 +103,8 @@ namespace CrewChiefV4.RaceRoom
 
         private bool chequeredFlagShownInThisSession = false;
 
+        private R3EPitMenuManager pitMenuManager = new R3EPitMenuManager();
+
         class PendingRacePositionChange
         {
             public int newPosition;
@@ -114,6 +123,17 @@ namespace CrewChiefV4.RaceRoom
             tyreWearThresholds.Add(new CornerData.EnumWithThresholds(TyreCondition.MINOR_WEAR, minorTyreWearPercent, majorTyreWearPercent));
             tyreWearThresholds.Add(new CornerData.EnumWithThresholds(TyreCondition.MAJOR_WEAR, majorTyreWearPercent, wornOutTyreWearPercent));
             tyreWearThresholds.Add(new CornerData.EnumWithThresholds(TyreCondition.WORN_OUT, wornOutTyreWearPercent, 10000));
+
+            CornerData.EnumWithThresholds suspensionDamageNone = new CornerData.EnumWithThresholds(DamageLevel.NONE, -10000, trivialSuspensionDamageThresholdPercent);
+            CornerData.EnumWithThresholds suspensionDamageTrivial = new CornerData.EnumWithThresholds(DamageLevel.TRIVIAL, trivialSuspensionDamageThresholdPercent, minorSuspensionDamageThresholdPercent);
+            CornerData.EnumWithThresholds suspensionDamageMinor = new CornerData.EnumWithThresholds(DamageLevel.MINOR, trivialSuspensionDamageThresholdPercent, severeSuspensionDamageThresholdPercent);
+            CornerData.EnumWithThresholds suspensionDamageMajor = new CornerData.EnumWithThresholds(DamageLevel.MAJOR, severeSuspensionDamageThresholdPercent, destroyedSuspensionThresholdPercent);
+            CornerData.EnumWithThresholds suspensionDamageDestroyed = new CornerData.EnumWithThresholds(DamageLevel.DESTROYED, destroyedSuspensionThresholdPercent, 10000);
+            suspensionDamageThresholds.Add(suspensionDamageNone);
+            suspensionDamageThresholds.Add(suspensionDamageTrivial);
+            suspensionDamageThresholds.Add(suspensionDamageMinor);
+            suspensionDamageThresholds.Add(suspensionDamageMajor);
+            suspensionDamageThresholds.Add(suspensionDamageDestroyed);
         }
 
         public override void versionCheck(Object memoryMappedFileStruct)
@@ -215,7 +235,7 @@ namespace CrewChiefV4.RaceRoom
             int previousLapsCompleted = previousGameState == null ? 0 : previousGameState.SessionData.CompletedLaps;
             currentGameState.SessionData.SessionPhase = mapToSessionPhase(lastSessionPhase, currentGameState.SessionData.SessionType, lastSessionRunningTime,
                 currentGameState.SessionData.SessionRunningTime, shared.SessionPhase, currentGameState.ControlData.ControlType,
-                previousLapsCompleted, shared.CompletedLaps, isCarRunning, chequeredFlagShownInThisSession);
+                previousLapsCompleted, shared.CompletedLaps, isCarRunning, chequeredFlagShownInThisSession, shared.StartLights);
 
             if ((lastSessionPhase != currentGameState.SessionData.SessionPhase && (lastSessionPhase == SessionPhase.Unavailable || lastSessionPhase == SessionPhase.Finished)) ||
                 ((lastSessionPhase == SessionPhase.Checkered || lastSessionPhase == SessionPhase.Finished || lastSessionPhase == SessionPhase.Green || lastSessionPhase == SessionPhase.FullCourseYellow) && 
@@ -259,7 +279,8 @@ namespace CrewChiefV4.RaceRoom
 
                 currentGameState.SessionData.NumCarsOverallAtStartOfSession = shared.NumCars;
                 currentGameState.SessionData.EventIndex = shared.EventIndex;
-                currentGameState.SessionData.SessionIteration = shared.SessionIteration;
+                // correct session iteration - it starts at 1 in the game data but we expect it to be zero-indexed
+                currentGameState.SessionData.SessionIteration = shared.SessionIteration <= 0 ? 0 : shared.SessionIteration - 1;
                 currentGameState.SessionData.SessionStartTime = currentGameState.Now;
                 currentGameState.OpponentData.Clear();
                 ghostOpponents.Clear();
@@ -285,7 +306,7 @@ namespace CrewChiefV4.RaceRoom
                 lastActiveTimeForOpponents.Clear();
                 nextOpponentCleanupTime = currentGameState.Now + opponentCleanupInterval;
 
-                if (shared.sessionLengthFormat == 0 || shared.sessionLengthFormat == 2 || shared.SessionTimeRemaining > 0)
+                if (shared.SessionLengthFormat == 0 || shared.SessionLengthFormat == 2 || shared.SessionTimeRemaining > 0)
                 {
                     currentGameState.SessionData.SessionTotalRunTime = shared.SessionTimeRemaining;
                     currentGameState.SessionData.SessionHasFixedTime = true;
@@ -352,10 +373,10 @@ namespace CrewChiefV4.RaceRoom
                         currentGameState.SessionData.JustGoneGreen = true;
                         chequeredFlagShownInThisSession = false;
                         // just gone green, so get the session data
-                        if (shared.sessionLengthFormat == 0 || shared.sessionLengthFormat == 2 || shared.SessionTimeRemaining > 0)
+                        if (shared.SessionLengthFormat == 0 || shared.SessionLengthFormat == 2 || shared.SessionTimeRemaining > 0)
                         {
                             currentGameState.SessionData.SessionTotalRunTime = shared.SessionTimeRemaining;
-                            if (shared.sessionLengthFormat == 2) 
+                            if (shared.SessionLengthFormat == 2) 
                             {
                                 currentGameState.SessionData.HasExtraLap = true;
                             }
@@ -402,7 +423,7 @@ namespace CrewChiefV4.RaceRoom
                                 if (currentGameState.carClass.carClassEnum == CarData.CarClassEnum.DTM_2014)
                                 {
                                     double halfRaceDistance = currentGameState.SessionData.SessionNumberOfLaps / 2d;
-                                    if (mapToTyreType(shared.TireTypeFront, shared.TireSubTypeFront, shared.TireTypeRear, shared.TireSubTypeFront, 
+                                    if (mapToTyreType(shared.TireTypeFront, shared.TireSubtypeFront, shared.TireTypeRear, shared.TireSubtypeFront, 
                                         currentGameState.carClass.carClassEnum) == TyreType.Option)
                                     {
                                         currentGameState.PitData.MandatoryTyreChangeRequiredTyreType = TyreType.Prime;
@@ -530,9 +551,9 @@ namespace CrewChiefV4.RaceRoom
                 }
             }
 
-            currentGameState.ControlData.ThrottlePedal = shared.ThrottlePedal;
-            currentGameState.ControlData.ClutchPedal = shared.ClutchPedal;
-            currentGameState.ControlData.BrakePedal = shared.BrakePedal;
+            currentGameState.ControlData.ThrottlePedal = shared.Throttle;
+            currentGameState.ControlData.ClutchPedal = shared.Clutch;
+            currentGameState.ControlData.BrakePedal = shared.Brake;
             currentGameState.ControlData.BrakeBias = shared.BrakeBias;
             currentGameState.TransmissionData.Gear = shared.Gear;
 
@@ -540,27 +561,21 @@ namespace CrewChiefV4.RaceRoom
             currentGameState.SessionData.Flag = FlagEnum.UNKNOWN;
             // Mark Yellow sectors.
             // note that any yellow flag info will switch off improvised incident calling for the remainder of the session
-            if (shared.sector1Yellow == 1) {
+            if (shared.Flags.SectorYellow.Sector1 == 1)
+            {
                 currentGameState.FlagData.sectorFlags[0] = FlagEnum.YELLOW;
                 currentGameState.FlagData.useImprovisedIncidentCalling = false;
-            } else if (shared.sector1Yellow == 2) {
-                currentGameState.FlagData.sectorFlags[0] = FlagEnum.DOUBLE_YELLOW;
-                currentGameState.FlagData.useImprovisedIncidentCalling = false;
             }
-            if (shared.sector2Yellow == 1) {
+            if (shared.Flags.SectorYellow.Sector2 == 1)
+            {
                 currentGameState.FlagData.sectorFlags[1] = FlagEnum.YELLOW;
                 currentGameState.FlagData.useImprovisedIncidentCalling = false;
-            } else if (shared.sector2Yellow == 2) {
-                currentGameState.FlagData.sectorFlags[1] = FlagEnum.DOUBLE_YELLOW;
-                currentGameState.FlagData.useImprovisedIncidentCalling = false;
             }
-            if (shared.sector3Yellow == 1) {
+            if (shared.Flags.SectorYellow.Sector3 == 1)
+            {
                 currentGameState.FlagData.sectorFlags[2] = FlagEnum.YELLOW;
                 currentGameState.FlagData.useImprovisedIncidentCalling = false;
-            } else if (shared.sector3Yellow == 2) {
-                currentGameState.FlagData.sectorFlags[2] = FlagEnum.DOUBLE_YELLOW;
-                currentGameState.FlagData.useImprovisedIncidentCalling = false;
-            }
+            } 
             currentGameState.FlagData.isLocalYellow = shared.Flags.Yellow == 1;
             if (currentGameState.FlagData.isLocalYellow)
             {
@@ -573,7 +588,7 @@ namespace CrewChiefV4.RaceRoom
                 useImprovisedBlueFlagDetection = false;
             }
 
-            if (shared.FlagsExtended2.white == 1 && !currentGameState.FlagData.isLocalYellow)
+            if (shared.Flags.White == 1 && !currentGameState.FlagData.isLocalYellow)
             {
                 currentGameState.SessionData.Flag = FlagEnum.WHITE;
             }
@@ -582,26 +597,26 @@ namespace CrewChiefV4.RaceRoom
                 currentGameState.SessionData.Flag = FlagEnum.BLACK;
             }
 
-            if (shared.FlagsExtended.checkered == 1 && currentGameState.SessionData.SessionPhase == SessionPhase.Green)
+            if (shared.Flags.Checkered == 1 && currentGameState.SessionData.SessionPhase == SessionPhase.Green)
             {
                 chequeredFlagShownInThisSession = true;
             }
 
-            currentGameState.FlagData.numCarsPassedIllegally = shared.FlagsExtended2.yellowPositionsGained;
-            if (shared.FlagsExtended2.yellowOvertake == 1)
+            currentGameState.FlagData.numCarsPassedIllegally = shared.Flags.YellowPositionsGained;
+            if (shared.Flags.YellowOvertake == 1)
             {
                 currentGameState.FlagData.canOvertakeCarInFront = PassAllowedUnderYellow.YES;
                 currentGameState.FlagData.useImprovisedIncidentCalling = false;
             }
-            else if (shared.FlagsExtended2.yellowOvertake == 0)
+            else if (shared.Flags.YellowOvertake == 0)
             {
                 currentGameState.FlagData.canOvertakeCarInFront = PassAllowedUnderYellow.NO;
             }
 
             // closestYellowLapDistance is the distance roundn the lap from the player to the incident
-            if (shared.closestYellowLapDistance > 0)
+            if (shared.Flags.ClosestYellowDistanceIntoTrack > 0)
             {
-                currentGameState.FlagData.distanceToNearestIncident = shared.closestYellowLapDistance;
+                currentGameState.FlagData.distanceToNearestIncident = shared.Flags.ClosestYellowDistanceIntoTrack;
                 currentGameState.FlagData.useImprovisedIncidentCalling = false;
             }
 
@@ -780,12 +795,12 @@ namespace CrewChiefV4.RaceRoom
                 }*/
                 String driverName = driverNames[i];
                 if (driverName.Length == 0 || driverName == currentGameState.SessionData.DriverRawName || opponentDriverNamesProcessedForThisTick.Contains(driverName) ||
-                    participantStruct.Place < 1 || participantStruct.FinishStatus == (int)CrewChiefV4.RaceRoom.RaceRoomConstant.FinishStatus.R3E_FINISH_STATUS_DNS)
+                    participantStruct.Place < 1 || participantStruct.FinishStatus == (int)CrewChiefV4.RaceRoom.RaceRoomConstant.FinishStatus.DNS)
                 {
                     // allow these drivers be pruned from the set if we continue to receive no data for them
                     continue;
                 }
-                else if (participantStruct.FinishStatus == (int)CrewChiefV4.RaceRoom.RaceRoomConstant.FinishStatus.R3E_FINISH_STATUS_DNF)
+                else if (participantStruct.FinishStatus == (int)CrewChiefV4.RaceRoom.RaceRoomConstant.FinishStatus.DNF)
                 {
                     // remove this driver from the set immediately
                     if (!currentGameState.retriedDriverNames.Contains(driverName))
@@ -796,7 +811,7 @@ namespace CrewChiefV4.RaceRoom
                     currentGameState.OpponentData.Remove(driverName);
                     continue;
                 }
-                else if (participantStruct.FinishStatus == (int)CrewChiefV4.RaceRoom.RaceRoomConstant.FinishStatus.R3E_FINISH_STATUS_DQ)
+                else if (participantStruct.FinishStatus == (int)CrewChiefV4.RaceRoom.RaceRoomConstant.FinishStatus.DQ)
                 {
                     // remove this driver from the set immediately
                     if (!currentGameState.disqualifiedDriverNames.Contains(driverName))
@@ -913,8 +928,8 @@ namespace CrewChiefV4.RaceRoom
                                 participantStruct.InPitlane == 1, !lapInvalidated,
                                 currentGameState.SessionData.SessionRunningTime, secondsSinceLastUpdate,
                                 new float[] { participantStruct.Position.X, participantStruct.Position.Z }, previousOpponentWorldPosition,
-                                participantStruct.LapDistance, participantStruct.TireTypeFront, participantStruct.TireSubTypeFront,
-                                participantStruct.TireTypeRear, participantStruct.TireSubTypeRear,
+                                participantStruct.LapDistance, participantStruct.TireTypeFront, participantStruct.TireSubtypeFront,
+                                participantStruct.TireTypeRear, participantStruct.TireSubtypeRear,
                                 currentGameState.SessionData.SessionHasFixedTime, currentGameState.SessionData.SessionTimeRemaining,
                                 currentGameState.SessionData.SessionType == SessionType.Race,
                                 currentGameState.SessionData.TrackDefinition.distanceForNearPitEntryChecks,
@@ -1098,6 +1113,7 @@ namespace CrewChiefV4.RaceRoom
                 {
                     currentGameState.CarDamageData.OverallAeroDamage = DamageLevel.NONE;
                 }
+
                 if (shared.CarDamage.Engine < destroyedEngineThreshold)
                 {
                     currentGameState.CarDamageData.OverallEngineDamage = DamageLevel.DESTROYED;
@@ -1118,6 +1134,7 @@ namespace CrewChiefV4.RaceRoom
                 {
                     currentGameState.CarDamageData.OverallEngineDamage = DamageLevel.NONE;
                 }
+
                 if (shared.CarDamage.Transmission < destroyedTransmissionThreshold)
                 {
                     currentGameState.CarDamageData.OverallTransmissionDamage = DamageLevel.DESTROYED;
@@ -1138,6 +1155,9 @@ namespace CrewChiefV4.RaceRoom
                 {
                     currentGameState.CarDamageData.OverallTransmissionDamage = DamageLevel.NONE;
                 }
+                float suspensionDamageLevel = shared.CarDamage.Suspension == -1 ? 0 : (1 - shared.CarDamage.Suspension) * 100;
+                currentGameState.CarDamageData.SuspensionDamageStatus = CornerData.getCornerData(suspensionDamageThresholds,
+                    suspensionDamageLevel, suspensionDamageLevel, suspensionDamageLevel, suspensionDamageLevel);
             }
             
             //------------------------ Engine data -----------------------            
@@ -1156,14 +1176,19 @@ namespace CrewChiefV4.RaceRoom
             currentGameState.FuelData.FuelLeft = shared.FuelLeft;
 
 
-            //------------------------ Penalties data -----------------------
+            //------------------------ Penalties data -----------------------     
+            // these two are deprecated:
+            //currentGameState.PenaltiesData.HasDriveThrough = shared.Penalties.DriveThrough > 0;
+            //currentGameState.PenaltiesData.HasStopAndGo = shared.Penalties.StopAndGo > 0;
             currentGameState.PenaltiesData.CutTrackWarnings = shared.CutTrackWarnings;
-            currentGameState.PenaltiesData.HasDriveThrough = shared.Penalties.DriveThrough > 0;
             currentGameState.PenaltiesData.HasSlowDown = shared.Penalties.SlowDown > 0;
             currentGameState.PenaltiesData.HasPitStop = shared.Penalties.PitStop > 0;
-            currentGameState.PenaltiesData.HasStopAndGo = shared.Penalties.StopAndGo > 0;
             currentGameState.PenaltiesData.HasTimeDeduction = shared.Penalties.TimeDeduction > 0;
             currentGameState.PenaltiesData.NumPenalties = shared.NumPenalties;
+
+            // new penalties data, incomplete mapping using same event logic as RF2
+            currentGameState.PenaltiesData.PenaltyType = getDetailedPenaltyType(playerDriverData.PenaltyType);
+            currentGameState.PenaltiesData.PenaltyCause = getDetailedPenaltyCause(currentGameState.PenaltiesData.PenaltyType, playerDriverData.PenaltyReason);
 
 
             //------------------------ Pit stop data -----------------------            
@@ -1175,6 +1200,9 @@ namespace CrewChiefV4.RaceRoom
                 currentGameState.PitData.MandatoryPitStopCompleted = previousGameState.PitData.MandatoryPitStopCompleted || shared.PitWindowStatus == (int)PitWindow.Completed;
             }
             currentGameState.PitData.limiterStatus = (PitData.LimiterStatus)shared.PitLimiter;
+
+            //------------------------ Pit menu -----------------------------
+            this.pitMenuManager.map(shared.PitMenuSelection, shared.PitMenuState);
 
             //------------------------ Car position / motion data -----------------------
             currentGameState.PositionAndMotionData.CarSpeed = shared.CarSpeed;
@@ -1188,10 +1216,10 @@ namespace CrewChiefV4.RaceRoom
             // no way to have unmatched tyre types in R3E
             currentGameState.TyreData.HasMatchedTyreTypes = true;
             currentGameState.TyreData.TyreWearActive = shared.TireWearActive == 1;
-            TyreType tyreType = mapToTyreType(shared.TireTypeFront, shared.TireSubTypeFront, shared.TireTypeRear, shared.TireSubTypeFront, currentGameState.carClass.carClassEnum);
-            currentGameState.TyreData.FrontLeft_CenterTemp = shared.TireTemp.FrontLeft_Center;
-            currentGameState.TyreData.FrontLeft_LeftTemp = shared.TireTemp.FrontLeft_Left;
-            currentGameState.TyreData.FrontLeft_RightTemp = shared.TireTemp.FrontLeft_Right;
+            TyreType tyreType = mapToTyreType(shared.TireTypeFront, shared.TireSubtypeFront, shared.TireTypeRear, shared.TireSubtypeFront, currentGameState.carClass.carClassEnum);
+            currentGameState.TyreData.FrontLeft_CenterTemp = shared.TireTemp.FrontLeft.CurrentTemp.Center;
+            currentGameState.TyreData.FrontLeft_LeftTemp = shared.TireTemp.FrontLeft.CurrentTemp.Left;
+            currentGameState.TyreData.FrontLeft_RightTemp = shared.TireTemp.FrontLeft.CurrentTemp.Right;
             float frontLeftTemp = (currentGameState.TyreData.FrontLeft_CenterTemp + currentGameState.TyreData.FrontLeft_LeftTemp + currentGameState.TyreData.FrontLeft_RightTemp) / 3;
             currentGameState.TyreData.FrontLeftTyreType = tyreType;
             currentGameState.TyreData.FrontLeftPressure = shared.TirePressure.FrontLeft;
@@ -1205,9 +1233,9 @@ namespace CrewChiefV4.RaceRoom
                 currentGameState.TyreData.PeakFrontLeftTemperatureForLap = frontLeftTemp;
             }
 
-            currentGameState.TyreData.FrontRight_CenterTemp = shared.TireTemp.FrontRight_Center;
-            currentGameState.TyreData.FrontRight_LeftTemp = shared.TireTemp.FrontRight_Left;
-            currentGameState.TyreData.FrontRight_RightTemp = shared.TireTemp.FrontRight_Right;
+            currentGameState.TyreData.FrontRight_CenterTemp = shared.TireTemp.FrontRight.CurrentTemp.Center;
+            currentGameState.TyreData.FrontRight_LeftTemp = shared.TireTemp.FrontRight.CurrentTemp.Left;
+            currentGameState.TyreData.FrontRight_RightTemp = shared.TireTemp.FrontRight.CurrentTemp.Right;
             float frontRightTemp = (currentGameState.TyreData.FrontRight_CenterTemp + currentGameState.TyreData.FrontRight_LeftTemp + currentGameState.TyreData.FrontRight_RightTemp) / 3;
             currentGameState.TyreData.FrontRightTyreType = tyreType;
             currentGameState.TyreData.FrontRightPressure = shared.TirePressure.FrontRight;
@@ -1221,9 +1249,9 @@ namespace CrewChiefV4.RaceRoom
                 currentGameState.TyreData.PeakFrontRightTemperatureForLap = frontRightTemp;
             }
 
-            currentGameState.TyreData.RearLeft_CenterTemp = shared.TireTemp.RearLeft_Center;
-            currentGameState.TyreData.RearLeft_LeftTemp = shared.TireTemp.RearLeft_Left;
-            currentGameState.TyreData.RearLeft_RightTemp = shared.TireTemp.RearLeft_Right;
+            currentGameState.TyreData.RearLeft_CenterTemp = shared.TireTemp.RearLeft.CurrentTemp.Center;
+            currentGameState.TyreData.RearLeft_LeftTemp = shared.TireTemp.RearLeft.CurrentTemp.Left;
+            currentGameState.TyreData.RearLeft_RightTemp = shared.TireTemp.RearLeft.CurrentTemp.Right;
             float rearLeftTemp = (currentGameState.TyreData.RearLeft_CenterTemp + currentGameState.TyreData.RearLeft_LeftTemp + currentGameState.TyreData.RearLeft_RightTemp) / 3;
             currentGameState.TyreData.RearLeftTyreType = tyreType;
             currentGameState.TyreData.RearLeftPressure = shared.TirePressure.RearLeft;
@@ -1237,9 +1265,9 @@ namespace CrewChiefV4.RaceRoom
                 currentGameState.TyreData.PeakRearLeftTemperatureForLap = rearLeftTemp;
             }
 
-            currentGameState.TyreData.RearRight_CenterTemp = shared.TireTemp.RearRight_Center;
-            currentGameState.TyreData.RearRight_LeftTemp = shared.TireTemp.RearRight_Left;
-            currentGameState.TyreData.RearRight_RightTemp = shared.TireTemp.RearRight_Right;
+            currentGameState.TyreData.RearRight_CenterTemp = shared.TireTemp.RearRight.CurrentTemp.Center;
+            currentGameState.TyreData.RearRight_LeftTemp = shared.TireTemp.RearRight.CurrentTemp.Left;
+            currentGameState.TyreData.RearRight_RightTemp = shared.TireTemp.RearRight.CurrentTemp.Right;
             float rearRightTemp = (currentGameState.TyreData.RearRight_CenterTemp + currentGameState.TyreData.RearRight_LeftTemp + currentGameState.TyreData.RearRight_RightTemp) / 3;
             currentGameState.TyreData.RearRightTyreType = tyreType;
             currentGameState.TyreData.RearRightPressure = shared.TirePressure.RearRight;
@@ -1263,14 +1291,14 @@ namespace CrewChiefV4.RaceRoom
 
             if (brakeTempThresholdsForPlayersCar != null)
             {
-                currentGameState.TyreData.BrakeTempStatus = CornerData.getCornerData(brakeTempThresholdsForPlayersCar, shared.BrakeTemp.FrontLeft,
-                    shared.BrakeTemp.FrontRight, shared.BrakeTemp.RearLeft, shared.BrakeTemp.RearRight);
+                currentGameState.TyreData.BrakeTempStatus = CornerData.getCornerData(brakeTempThresholdsForPlayersCar, shared.BrakeTemp.FrontLeft.CurrentTemp,
+                    shared.BrakeTemp.FrontRight.CurrentTemp, shared.BrakeTemp.RearLeft.CurrentTemp, shared.BrakeTemp.RearRight.CurrentTemp);
             }
 
-            currentGameState.TyreData.LeftFrontBrakeTemp = shared.BrakeTemp.FrontLeft;
-            currentGameState.TyreData.RightFrontBrakeTemp = shared.BrakeTemp.FrontRight;
-            currentGameState.TyreData.LeftRearBrakeTemp = shared.BrakeTemp.RearLeft;
-            currentGameState.TyreData.RightRearBrakeTemp = shared.BrakeTemp.RearRight;
+            currentGameState.TyreData.LeftFrontBrakeTemp = shared.BrakeTemp.FrontLeft.CurrentTemp;
+            currentGameState.TyreData.RightFrontBrakeTemp = shared.BrakeTemp.FrontRight.CurrentTemp;
+            currentGameState.TyreData.LeftRearBrakeTemp = shared.BrakeTemp.RearLeft.CurrentTemp;
+            currentGameState.TyreData.RightRearBrakeTemp = shared.BrakeTemp.RearRight.CurrentTemp;
 
             // some simple locking / spinning checks
             if (shared.CarSpeed > 7)
@@ -1336,20 +1364,30 @@ namespace CrewChiefV4.RaceRoom
                 }
             }
 
-             if (currentGameState.SessionData.IsNewLap)
+            if (currentGameState.SessionData.IsNewLap)
             {
                 if (currentGameState.hardPartsOnTrackData.updateHardPartsForNewLap(currentGameState.SessionData.LapTimePrevious))
                 {
                     currentGameState.SessionData.TrackDefinition.adjustGapPoints(currentGameState.hardPartsOnTrackData.processedHardPartsForBestLap);
                 }
             }
-             else if (!currentGameState.PitData.OnOutLap &&
+            else if (!currentGameState.PitData.OnOutLap &&
                  !(currentGameState.SessionData.SessionType == SessionType.Race &&
                    (currentGameState.SessionData.CompletedLaps < 1 || (GameStateData.useManualFormationLap && currentGameState.SessionData.CompletedLaps < 2))))
             {
                 currentGameState.hardPartsOnTrackData.mapHardPartsOnTrack(currentGameState.ControlData.BrakePedal, currentGameState.ControlData.ThrottlePedal,
                     currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.SessionData.CurrentLapIsValid, currentGameState.SessionData.TrackDefinition.trackLength);
             }
+
+            // race sessions length
+            currentGameState.SessionData.RaceSessionsLengthLaps[0] = shared.RaceSessionLaps.Race1;
+            currentGameState.SessionData.RaceSessionsLengthLaps[1] = shared.RaceSessionLaps.Race2;
+            currentGameState.SessionData.RaceSessionsLengthLaps[2] = shared.RaceSessionLaps.Race3;
+
+            currentGameState.SessionData.RaceSessionsLengthMinutes[0] = shared.RaceSessionMinutes.Race1;
+            currentGameState.SessionData.RaceSessionsLengthMinutes[1] = shared.RaceSessionMinutes.Race2;
+            currentGameState.SessionData.RaceSessionsLengthMinutes[2] = shared.RaceSessionMinutes.Race3;
+
             return currentGameState;
         }
 
@@ -1360,28 +1398,28 @@ namespace CrewChiefV4.RaceRoom
             {
                 return TyreType.R3E_2017;
             } 
-            else if (carClass == CarData.CarClassEnum. F1 && (int)RaceRoomConstant.TireSubType.Hard == tire_sub_type_front)
+            else if (carClass == CarData.CarClassEnum. F1 && (int)RaceRoomConstant.TireSubtype.Hard == tire_sub_type_front)
             {
                 return TyreType.R3E_2016_HARD;
             }
-            else if (carClass == CarData.CarClassEnum.F1 && (int)RaceRoomConstant.TireSubType.Medium == tire_sub_type_front)
+            else if (carClass == CarData.CarClassEnum.F1 && (int)RaceRoomConstant.TireSubtype.Medium == tire_sub_type_front)
             {
                 return TyreType.R3E_2016_MEDIUM;
             }
-            else if (carClass == CarData.CarClassEnum.F1 && (int)RaceRoomConstant.TireSubType.Soft == tire_sub_type_front)
+            else if (carClass == CarData.CarClassEnum.F1 && (int)RaceRoomConstant.TireSubtype.Soft == tire_sub_type_front)
             {
                 return TyreType.R3E_2016_SOFT;
             }
-            else if ((int)RaceRoomConstant.TireSubType.Alternate == tire_sub_type_front)
+            else if ((int)RaceRoomConstant.TireSubtype.Alternate == tire_sub_type_front)
             {
                 return TyreType.Alternate;
             }
-            else if ((int)RaceRoomConstant.TireSubType.Primary == tire_sub_type_front)
+            else if ((int)RaceRoomConstant.TireSubtype.Primary == tire_sub_type_front)
             {
                 return TyreType.Primary;
             }
             else if ((carClass == CarData.CarClassEnum.DTM_2014 || carClass == CarData.CarClassEnum.DTM_2015 || carClass == CarData.CarClassEnum.DTM_2016) &&
-                (int)RaceRoomConstant.TireType.DTM_Option == tire_type_front)
+                (int)RaceRoomConstant.TireType.Option == tire_type_front)
             {
                 return TyreType.Option;
             }
@@ -1418,7 +1456,7 @@ namespace CrewChiefV4.RaceRoom
             {
                 return PitWindow.Open;
             }
-            else if ((int)RaceRoomConstant.PitWindow.StopInProgress == r3ePitWindow)
+            else if ((int)RaceRoomConstant.PitWindow.Stopped == r3ePitWindow)
             {
                 return PitWindow.StopInProgress;
             }
@@ -1433,7 +1471,8 @@ namespace CrewChiefV4.RaceRoom
          * previous phase is returned
          */
         private SessionPhase mapToSessionPhase(SessionPhase lastSessionPhase, SessionType currentSessionType, float lastSessionRunningTime, float thisSessionRunningTime,
-            int r3eSessionPhase, ControlType controlType, int previousLapsCompleted, int currentLapsCompleted, Boolean isCarRunning, Boolean chequeredFlagShownInThisSession)
+            int r3eSessionPhase, ControlType controlType, int previousLapsCompleted, int currentLapsCompleted, Boolean isCarRunning, Boolean chequeredFlagShownInThisSession,
+            int lights)
         {
             /* prac and qual sessions go chequered after the allotted time. They never go 'finished'. If we complete a lap
              * during this period we can detect the session end and trigger the finish message. Otherwise we just can't detect
@@ -1460,8 +1499,11 @@ namespace CrewChiefV4.RaceRoom
             }
             else if ((int)RaceRoomConstant.SessionPhase.Countdown == r3eSessionPhase)
             {
-                // don't allow a transition to Countdown if the game time has increased
-                if (lastSessionRunningTime < thisSessionRunningTime)
+                if (lights == 0)
+                {
+                    return SessionPhase.Gridwalk;
+                }
+                else
                 {
                     return SessionPhase.Countdown;
                 }
@@ -1602,6 +1644,47 @@ namespace CrewChiefV4.RaceRoom
             {
                 return TyreCondition.NEW;
             }
+        }
+
+        private PenatiesData.DetailedPenaltyType getDetailedPenaltyType(Int32 penaltyType)
+        {
+            // note that Pitstop, Time, Slowdown and DQ aren't mapped here
+            switch (penaltyType)
+            {
+                case 0:
+                    return PenatiesData.DetailedPenaltyType.DRIVE_THROUGH;
+                case 1:
+                    return PenatiesData.DetailedPenaltyType.STOP_AND_GO;
+                default:
+                    return PenatiesData.DetailedPenaltyType.NONE;
+            }
+        }
+
+        private PenatiesData.DetailedPenaltyCause getDetailedPenaltyCause(PenatiesData.DetailedPenaltyType penaltyType, Int32 penaltyReason)
+        {
+            // note this is very incomplete
+            if (penaltyType == PenatiesData.DetailedPenaltyType.DRIVE_THROUGH)
+            {
+                switch (penaltyReason)
+                {
+                    case 1:
+                        return PenatiesData.DetailedPenaltyCause.CUT_TRACK;
+                    case 2:
+                        return PenatiesData.DetailedPenaltyCause.SPEEDING_IN_PITLANE;
+                    case 3:
+                        return PenatiesData.DetailedPenaltyCause.FALSE_START;
+                }
+            }
+            else if (penaltyType == PenatiesData.DetailedPenaltyType.STOP_AND_GO)
+            {
+                switch (penaltyReason)
+                {
+                    case 1:
+                    case 2:
+                        return PenatiesData.DetailedPenaltyCause.CUT_TRACK;
+                }
+            }
+            return PenatiesData.DetailedPenaltyCause.NONE;
         }
 
         private OvertakingAids getOvertakingAids(RaceRoomShared shared, CarData.CarClassEnum carClassEnum, 
@@ -1752,8 +1835,8 @@ namespace CrewChiefV4.RaceRoom
             opponentData.DistanceRoundTrack = participantStruct.LapDistance;
             opponentData.DeltaTime = new DeltaTime(trackLength, opponentData.DistanceRoundTrack, DateTime.UtcNow);
             opponentData.CarClass = CarData.getCarClassForRaceRoomId(participantStruct.DriverInfo.ClassId);
-            opponentData.CurrentTyres = mapToTyreType(participantStruct.TireTypeFront, participantStruct.TireSubTypeFront,
-                participantStruct.TireTypeRear, participantStruct.TireSubTypeRear, playerCarClass);
+            opponentData.CurrentTyres = mapToTyreType(participantStruct.TireTypeFront, participantStruct.TireSubtypeFront,
+                participantStruct.TireTypeRear, participantStruct.TireSubtypeRear, playerCarClass);
             Console.WriteLine("New driver " + driverName + " is using car class " +
                 opponentData.CarClass.getClassIdentifier() + " (class ID " + participantStruct.DriverInfo.ClassId + ") with tyres " + opponentData.CurrentTyres);
             opponentData.TyreChangesByLap[0] = opponentData.CurrentTyres;

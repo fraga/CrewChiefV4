@@ -839,7 +839,7 @@ namespace CrewChiefV4.GameState
 
         public DateTime SessionStartTime;
 
-        // in minutes, 0 if this session is a fixed number of laps rather than a fixed time.
+        // in seconds, 0 if this session is a fixed number of laps rather than a fixed time.
         public float SessionTotalRunTime;
 
         public int SessionNumberOfLaps;
@@ -1115,6 +1115,12 @@ namespace CrewChiefV4.GameState
         public StartType StartType = StartType.None;
 
         public Boolean HasCompletedSector2ThisLap;
+
+        // race length in whole minutes. -1 => no session, 0 => fixed lap length
+        public int[] RaceSessionsLengthMinutes = new int[]{-1, -1, -1, -1};
+
+        // -1 => no session, 0 => session length is time only. Note it's possible to have minutes + laps in a session
+        public int[] RaceSessionsLengthLaps = new int[] { -1, -1, -1, -1};
 
         public SessionData()
         {

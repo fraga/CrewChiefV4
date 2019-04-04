@@ -899,6 +899,12 @@
     <Setting Name="use_rf2_wheel_size_for_locking_and_spinning" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="enable_websocket" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="websocket_port" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">8071</Value>
+    </Setting>
     <Setting Name="enable_rf2_wrong_way_message" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
