@@ -83,6 +83,8 @@ namespace CrewChiefV4.Events
 
         private String folderDriveThroughSpeedingInPitlane = "penalties/drive_through_speeding_in_pit_lane";
 
+        private String folderDriveThroughCutTrack = "penalties/drive_through_cutting_track";
+
         private String folderDriveThroughFalseStart = "penalties/drive_through_penalty_false_start";
 
         private String folderWarningDrivingTooSlow = "penalties/warning_driving_too_slow";
@@ -425,7 +427,8 @@ namespace CrewChiefV4.Events
             else if ((currentGameState.SessionData.SessionType == SessionType.Race || currentGameState.SessionData.SessionType == SessionType.Qualify
                         || currentGameState.SessionData.SessionType == SessionType.Practice || currentGameState.SessionData.SessionType == SessionType.LonePractice)
                     && previousGameState != null && currentGameState.PenaltiesData.NumPenalties > 0
-                    && (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT))
+                    && (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT ||
+                (CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM && currentGameState.PenaltiesData.PenaltyType != PenatiesData.DetailedPenaltyType.NONE)))
             {
                 if (currentGameState.PenaltiesData.NumPenalties > previousGameState.PenaltiesData.NumPenalties)
                 {
@@ -447,6 +450,7 @@ namespace CrewChiefV4.Events
                     {
                         penaltyLap = currentGameState.SessionData.CompletedLaps;
                     }
+                    
                     hasOutstandingPenalty = true;
                     hasHadAPenalty = true;
                 }
@@ -646,6 +650,8 @@ namespace CrewChiefV4.Events
                         return folderDriveThroughSpeedingInPitlane;
                     case PenatiesData.DetailedPenaltyCause.FALSE_START:
                         return folderDriveThroughFalseStart;
+                    case PenatiesData.DetailedPenaltyCause.CUT_TRACK:
+                        return folderDriveThroughCutTrack;
                     default:
                         Debug.Assert(false, "Unhandled penalty cause");
                         Console.WriteLine("Penalties: unhandled stop/go penalty cause: " + penaltyCause);

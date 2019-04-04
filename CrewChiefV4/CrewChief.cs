@@ -13,6 +13,7 @@ using CrewChiefV4.PCars;
 using CrewChiefV4.RaceRoom.RaceRoomData;
 using CrewChiefV4.Audio;
 using CrewChiefV4.NumberProcessing;
+using WebSocketSharp.Server;
 
 
 namespace CrewChiefV4
@@ -48,6 +49,8 @@ namespace CrewChiefV4
 
         public static Boolean forceSingleClass = UserSettings.GetUserSettings().getBoolean("force_single_class");
         public static int maxUnknownClassesForAC = UserSettings.GetUserSettings().getInt("max_unknown_car_classes_for_assetto");
+
+        private Boolean enableWebsocket = UserSettings.GetUserSettings().getBoolean("enable_websocket");
 
         private static Dictionary<String, AbstractEvent> eventsList = new Dictionary<String, AbstractEvent>();
 
@@ -332,6 +335,11 @@ namespace CrewChiefV4
         {
             try
             {
+                if (enableWebsocket)
+                {
+                    Utilities.startWebsocketServer(audioPlayer);
+                }
+
                 PlaybackModerator.SetCrewChief(this);
 
                 loadDataFromFile = false;
@@ -706,6 +714,10 @@ namespace CrewChiefV4
                 if (spotter != null)
                 {
                     spotter.clearState();
+                }
+                if (enableWebsocket)
+                {
+                    Utilities.stopWebsocketServer();
                 }
                 stateCleared = true;
                 currentGameState = null;

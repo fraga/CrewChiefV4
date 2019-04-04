@@ -220,6 +220,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.9.7.3: R3E - added support for new shared memory layout introduced in latest game update
+
 Version 4.9.7.2: RF2 - incorporated more stock car rules and added some additional car class mappings; RF2 - fixed some issues introduced in last RF2 game update; some minor bug fixes
 
 Version 4.9.7.1: iRacing - map the 'pits are open' flag and added BMW M8 car data and a couple of Okayama layout corner mappings (still some missing recordings here); RF2 - various tweaks including lone practice support and stock car improvements; R3E - mapped Sepang and Nordschleife corners (VLN and Nords layouts only) - might not be very accurate (it's a big track and the available maps aren't great)
