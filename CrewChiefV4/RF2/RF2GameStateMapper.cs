@@ -325,9 +325,9 @@ namespace CrewChiefV4.rFactor2
                         // here, because it is timing affected (we might miss this between updates).  So better not do it.
                         Console.WriteLine("Abrupt Session End: suppressed due to restart during real time.");
                     }
-                    else if (this.disableRaceEndMessagesOnAbandon && sessionEndWaitTimedOut)
+                    else if (this.disableRaceEndMessagesOnAbandon && this.isOfflineSession && sessionEndWaitTimedOut)
                         Console.WriteLine("Abrupt Session End: suppressed due to session abandoned.");
-                    else if (this.disableRaceEndMessagesOnAbandon
+                    else if (this.disableRaceEndMessagesOnAbandon && this.isOfflineSession
                         && !this.lastInRealTimeState && pgs.SessionData.SessionType == SessionType.Race)
                         Console.WriteLine("Abrupt Session End: suppressed due to race restart in the monitor.");
                     else
@@ -697,7 +697,6 @@ namespace CrewChiefV4.rFactor2
             csd.DeltaTime.SetNextDeltaPoint(cgs.PositionAndMotionData.DistanceRoundTrack, csd.CompletedLaps, cgs.PositionAndMotionData.CarSpeed, cgs.Now);
 
             // Is online session?
-            this.isOfflineSession = true;
             for (int i = 0; i < shared.scoring.mScoringInfo.mNumVehicles; ++i)
             {
                 if ((rFactor2Constants.rF2Control)shared.scoring.mVehicles[i].mControl == rFactor2Constants.rF2Control.Remote)
@@ -776,7 +775,7 @@ namespace CrewChiefV4.rFactor2
                 && csd.CompletedLaps > cgs.PitData.PitWindowStart;
 
             cgs.PitData.PitWindow = cgs.PitData.IsMakingMandatoryPitStop
-                ? PitWindow.StopInProgress : mapToPitWindow((rFactor2Constants.rF2YellowFlagState)shared.scoring.mScoringInfo.mYellowFlagState);
+                ? PitWindow.StopInProgress : this.mapToPitWindow((rFactor2Constants.rF2YellowFlagState)shared.scoring.mScoringInfo.mYellowFlagState);
 
             if (pgs != null)
                 cgs.PitData.MandatoryPitStopCompleted = pgs.PitData.MandatoryPitStopCompleted || cgs.PitData.IsMakingMandatoryPitStop;
@@ -1306,7 +1305,7 @@ namespace CrewChiefV4.rFactor2
                 string opponentKey = null;
                 if (duplicatesCount > 1)
                 {
-                    if (!isOfflineSession)
+                    if (!this.isOfflineSession)
                     {
                         // there shouldn't be duplicate driver names in online sessions. This is probably a temporary glitch in the shared memory data - 
                         // don't panic and drop the existing opponentData for this key - just copy it across to the current state. This prevents us losing
