@@ -643,7 +643,7 @@
 		{
 			"carClassEnum": "DTM",
 			"pCarsClassNames": ["TC3"],
-			"rf2ClassNames": ["Abt Sportsline", "DHL Paket", "EURONICS Mercedes AMG", "Junge Sterne", "Mercedes AMG DTM-Team", "Mercedes AMG", "STIHL Mercedes AMG", "THOMAS SABO Mercedes AMG", "THOMAS SABO", "TV Spielfilm", "Team ABT", "Team Abt Sportsline", "Team Abt", "Team MTEK", "Team Phoenix", "Team RBM", "Team RMG", "Team Rosberg", "Team Schnitzer", "stern Mercedes AMG", "stern", "HWA Team", "Mücke Motorsport", "Team HWA", "Team Mücke", "Persson Motorsport", "Petronas", "Silberpfeil Energy", "gooix/Original-Teile", "Euronics/BWT", "Team ART", "Team HWA I", "Team HWA II"],
+			"rf2ClassNames": ["Abt Sportsline", "DHL Paket", "EURONICS Mercedes AMG", "Junge Sterne", "Mercedes AMG DTM-Team", "Mercedes AMG", "STIHL Mercedes AMG", "THOMAS SABO Mercedes AMG", "THOMAS SABO", "TV Spielfilm", "Team ABT", "Team Abt Sportsline", "Team Abt", "Team MTEK", "Team Phoenix", "Team RBM", "Team RMG", "Team Rosberg", "Team Schnitzer", "stern Mercedes AMG", "stern", "HWA Team", "Mücke Motorsport", "Team HWA", "Team Mücke", "Persson Motorsport", "Petronas", "Silberpfeil Energy", "gooix/Original-Teile", "Euronics/BWT", "Team ART", "Team HWA I", "Team HWA II", "T5"],
 			"brakeType": "Carbon",
 			"maxSafeWaterTemp": 105,
 			"maxSafeOilTemp": 140,
