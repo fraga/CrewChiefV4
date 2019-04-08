@@ -232,6 +232,14 @@ namespace CrewChiefV4.Events
             nextPitDistanceIndex = 0;
             getPitCountdownTimingPoints = false;
             pitLaneSpeedWarningAnnounced = false;
+
+            // AMS (RF1) uses the pit window calculations to make 'box now' calls for scheduled stops, but we don't want 
+            // the pit window opening / closing warnings.
+            // Try also applying the same approach to rF2.
+            if (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT)
+            {
+                enableWindowWarnings = false;
+            }
         }
 
         public override bool isMessageStillValid(String eventSubType, GameStateData currentGameState, Dictionary<String, Object> validationData)
@@ -288,18 +296,11 @@ namespace CrewChiefV4.Events
                 playedRequestPitOnThisLap = false;
                 playedPitRequestCancelledOnThisLap = false;
             }
-            // AMS (RF1) uses the pit window calculations to make 'box now' calls for scheduled stops, but we don't want 
-            // the pit window opening / closing warnings.
-            // Try also applying the same approach to rF2.
-            if (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT)
-            {
-                enableWindowWarnings = false;
-            }
-
             if (previousGameState != null && (pitBoxPositionCountdownEnabled || pitBoxTimeCountdownEnabled) && 
                 currentGameState.PositionAndMotionData.CarSpeed > 2 &&
                 currentGameState.PitData.PitBoxPositionEstimate > 0 && 
-                !currentGameState.PenaltiesData.HasDriveThrough)
+                !currentGameState.PenaltiesData.HasDriveThrough &&
+                !(CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT && currentGameState.PitData.OnOutLap && currentGameState.SessionData.SessionType != SessionType.Race))  // In rF2 countdown pit countdown messages get triggered on exit from the garage.
             {
                 if (previousGameState.PitData.InPitlane && !currentGameState.PitData.InPitlane)
                 {

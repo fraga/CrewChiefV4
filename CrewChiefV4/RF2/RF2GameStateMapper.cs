@@ -749,7 +749,7 @@ namespace CrewChiefV4.rFactor2
             }
 
             cgs.PitData.IsAtPitExit = pgs != null && pgs.PitData.InPitlane && !cgs.PitData.InPitlane;
-            cgs.PitData.OnOutLap = cgs.PitData.IsAtPitExit;
+            cgs.PitData.OnOutLap = cgs.PitData.IsAtPitExit || playerScoring.mInGarageStall == 1;
 
             if (shared.extended.mInRealtimeFC == 0  // Mark pit limiter as unavailable if in Monitor (not real time).
                 || shared.scoring.mScoringInfo.mInRealtime == 0
