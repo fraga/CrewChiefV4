@@ -58,6 +58,7 @@ OverwriteFile $releaseBinPath\"NAudio.dll" $ccLayoutMainPath
 OverwriteFile $releaseBinPath\"Newtonsoft.Json.dll" $ccLayoutMainPath
 OverwriteFile $releaseBinPath\"SharpDX.dll" $ccLayoutMainPath
 OverwriteFile $releaseBinPath\"SharpDX.DirectInput.dll" $ccLayoutMainPath
+OverwriteFile $releaseBinPath\"websocket-sharp.dll" $ccLayoutMainPath
 
 echo "Press any key to finish..."
 

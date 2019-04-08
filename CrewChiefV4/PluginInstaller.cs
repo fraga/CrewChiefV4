@@ -25,6 +25,7 @@ namespace CrewChiefV4
             string value, string filePath);
 
         Boolean messageBoxPresented;
+        Boolean errorMessageBoxPresented;
         Boolean messageBoxResult;
         private readonly String rf2PluginFileName = "rFactor2SharedMemoryMapPlugin64.dll";
 
@@ -121,6 +122,7 @@ namespace CrewChiefV4
             }
             return messageBoxResult;
         }
+
         private Boolean presentEnableMessagebox()
         {
             if (DialogResult.OK == MessageBox.Show(Configuration.getUIString("install_plugin_popup_enable_text"), Configuration.getUIString("install_plugin_popup_enable_title"),
@@ -130,6 +132,16 @@ namespace CrewChiefV4
             }
             return false;
         }
+
+        private void presentInstallUpdateErrorMessagebox(string errorText)
+        {
+            MessageBox.Show(Configuration.getUIString("install_plugin_popup_error_text") + Environment.NewLine + errorText, Configuration.getUIString("install_plugin_popup_error_title"),
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+            // Make sure we wil retry again if user does not restart CC.
+            messageBoxPresented = false;
+        }
+
         //I stole this from the internetz(http://stackoverflow.com/questions/3201598/how-do-i-create-a-file-and-any-folders-if-the-folders-dont-exist)
         private bool installOrUpdatePlugin(string source, string destination)
         {
@@ -170,7 +182,6 @@ namespace CrewChiefV4
                                     File.Copy(element, destinationFile, true);
                                     Console.WriteLine("Updated plugin file: " + destinationFile);    
                                 }
-
                             }
                         }
                         else
@@ -187,6 +198,7 @@ namespace CrewChiefV4
             catch (Exception e)
             {
                 Console.WriteLine("Failed to Copy plugin files: " + e.Message);
+                presentInstallUpdateErrorMessagebox(e.Message);
                 return false;
             }
             return true;

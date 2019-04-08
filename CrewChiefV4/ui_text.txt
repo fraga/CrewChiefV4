@@ -156,6 +156,8 @@ install_plugin_select_directory_start = Please select
 install_plugin_select_directory_end = installation directory
 install_plugin_popup_enable_text = Crew Chief can automatically enable the plugin for you, if you select Cancel you will have to enable it manually in the game ui. Click OK to enable or Cancel to Return
 install_plugin_popup_enable_title = Enable Plugin
+install_plugin_popup_error_text = Failed to Install or Update the Plugin.  Please make sure the game is not running. Error:
+install_plugin_popup_error_title = Plugin Install or Update failed
 
 install_speechplatform_popup_title = Missing dependency
 install_speechplatform_popup_text = It appears that your system is missing a dependency for speech recogniser to work. Press OK to get redirected to the download location, Or Cancel to return
@@ -1274,3 +1276,16 @@ enable_rf2_wrong_way_message = Enable rF2 'Wrong Way' message
 enable_rf2_wrong_way_message_help = Announce Message Center 'Wrong Way' messsage.  Requires DMA enabled in plugin.
 enable_rf2_wrong_way_message_filter = RF2_64BIT
 enable_rf2_wrong_way_message_category = FLAGS_AND_RULES
+
+disable_rf2_race_end_messages_on_abandoned_sessions = Disable rF2 race end msg. for abandoned events
+disable_rf2_race_end_messages_on_abandoned_sessions_help = Enable this preference if you would like to turn off race end messages for times when you quit Single Player race without finishing it.
+disable_rf2_race_end_messages_on_abandoned_sessions_filter = RF2_64BIT
+disable_rf2_race_end_messages_on_abandoned_sessions_category = MESSAGE_FREQUENCES
+
+hold_button_poll_frequency = Hold button poll frequency
+hold_button_poll_frequency_help = Time between checks if "Talk to Chief" button is pressed.  The lower the value the higher the CPU usage is.
+hold_button_poll_frequency_category = AUDIO_VOICE_AND_CONTROLLERS
+
+sre_wait_time = How long to wait for speech recognition
+sre_wait_time_help = Time (milliseconds) to wait until giving up on recognizing the phrase and saying 'I didn't catch that'.
+sre_wait_time_category = AUDIO_VOICE_AND_CONTROLLERS

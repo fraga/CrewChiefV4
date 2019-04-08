@@ -12,7 +12,7 @@ namespace CrewChiefV4.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "12.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.9.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -3632,9 +3632,9 @@ namespace CrewChiefV4.Properties {
             }
             set {
                 this["websocket_port"] = value;
-	    }
-	}
-
+            }
+        }
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
@@ -3644,6 +3644,42 @@ namespace CrewChiefV4.Properties {
             }
             set {
                 this["enable_rf2_wrong_way_message"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool disable_rf2_race_end_messages_on_abandoned_sessions {
+            get {
+                return ((bool)(this["disable_rf2_race_end_messages_on_abandoned_sessions"]));
+            }
+            set {
+                this["disable_rf2_race_end_messages_on_abandoned_sessions"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("100")]
+        public int hold_button_poll_frequency {
+            get {
+                return ((int)(this["hold_button_poll_frequency"]));
+            }
+            set {
+                this["hold_button_poll_frequency"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2000")]
+        public int sre_wait_time {
+            get {
+                return ((int)(this["sre_wait_time"]));
+            }
+            set {
+                this["sre_wait_time"] = value;
             }
         }
     }

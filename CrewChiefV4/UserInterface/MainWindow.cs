@@ -95,6 +95,8 @@ namespace CrewChiefV4
         private Boolean minimizeToTray = UserSettings.GetUserSettings().getBoolean("minimize_to_tray");
         private Boolean rejectMessagesWhenTalking = UserSettings.GetUserSettings().getBoolean("reject_message_when_talking");
         public static Boolean forceMinWindowSize = UserSettings.GetUserSettings().getBoolean("force_min_window_size");
+        private readonly int holdButtonPollFrequency = UserSettings.GetUserSettings().getInt("hold_button_poll_frequency");
+        private readonly int sreWaitTime = UserSettings.GetUserSettings().getInt("sre_wait_time");
 
         public ControlWriter consoleWriter = null;
 
@@ -1385,7 +1387,7 @@ namespace CrewChiefV4
                 crewChief.speechRecogniser.voiceOptionEnum = VoiceOptionEnum.HOLD;
                 while (runListenForChannelOpenThread)
                 {
-                    Thread.Sleep(100);
+                    Thread.Sleep(this.holdButtonPollFrequency);
                     if (!channelOpen && controllerConfiguration.isChannelOpen())
                     {
                         channelOpen = true;
@@ -1430,6 +1432,7 @@ namespace CrewChiefV4
                         else
                         {
                             Console.WriteLine("Invoking speech recognition...");
+                            SpeechRecogniser.recognitionStartedTime = DateTime.Now;
                             crewChief.speechRecogniser.recognizeAsyncCancel();
                             if (youWotThread == null
                                 || !youWotThread.IsAlive)
@@ -1437,7 +1440,7 @@ namespace CrewChiefV4
                                 ThreadManager.UnregisterTemporaryThread(youWotThread);
                                 youWotThread = new Thread(() =>
                                 {
-                                    Utilities.InterruptedSleep(2000 /*totalWaitMillis*/, 500 /*waitWindowMillis*/, () => crewChief.running /*keepWaitingPredicate*/);
+                                    Utilities.InterruptedSleep(this.sreWaitTime /*totalWaitMillis*/, 50 /*waitWindowMillis*/, () => crewChief.running /*keepWaitingPredicate*/);  // TODO: option, 2000 default
                                     if (!channelOpen && !SpeechRecogniser.gotRecognitionResult)
                                     {
                                         crewChief.youWot(false);
@@ -1517,6 +1520,7 @@ namespace CrewChiefV4
                         {
                             Console.WriteLine("Cancelling...");
                             SpeechRecogniser.waitingForSpeech = false;
+                            SpeechRecogniser.recognitionStartedTime = DateTime.Now;
                             crewChief.speechRecogniser.recognizeAsyncCancel();
                             nextPollWait = 1000;
                         }

@@ -24,6 +24,7 @@ namespace CrewChiefV4.rFactor2
         private readonly bool enableFCYPitStateMessages = UserSettings.GetUserSettings().getBoolean("enable_rf2_pit_state_during_fcy");
         private readonly bool useRealWheelSizeForLockingAndSpinning = UserSettings.GetUserSettings().getBoolean("use_rf2_wheel_size_for_locking_and_spinning");
         private readonly bool enableWrongWayMessage = UserSettings.GetUserSettings().getBoolean("enable_rf2_wrong_way_message");
+        private readonly bool disableRaceEndMessagesOnAbandon = UserSettings.GetUserSettings().getBoolean("disable_rf2_race_end_messages_on_abandoned_sessions");
 
         private readonly string scrLuckyDogIsPrefix = "Lucky Dog: ";
 
@@ -233,7 +234,8 @@ namespace CrewChiefV4.rFactor2
             this.timeHistoryMessageIgnored = DateTime.MinValue;
             this.timeLSIMessageIgnored = DateTime.MinValue;
             this.numFODetectPhaseAttempts = 0;
-        }
+            this.lastHistoryMessageUpdatedTicks = 0L;
+    }
 
     public override GameStateData mapToGameStateData(Object memoryMappedFileStruct, GameStateData previousGameState)
         {
@@ -292,6 +294,7 @@ namespace CrewChiefV4.rFactor2
                         return pgs;
                     }
 
+                    var sessionEndWaitTimedOut = false;
                     if (!sessionStarted)
                     {
                         var timeSinceWaitStarted = TimeSpan.FromTicks(DateTime.UtcNow.Ticks - this.ticksWhenSessionEnded);
@@ -305,7 +308,10 @@ namespace CrewChiefV4.rFactor2
                             return pgs;
                         }
                         else
+                        {
                             Console.WriteLine("Abrupt Session End: session end wait timed out.");
+                            sessionEndWaitTimedOut = true;
+                        }
                     }
                     else
                         Console.WriteLine("Abrupt Session End: new session just started, terminate previous session.");
@@ -319,6 +325,11 @@ namespace CrewChiefV4.rFactor2
                         // here, because it is timing affected (we might miss this between updates).  So better not do it.
                         Console.WriteLine("Abrupt Session End: suppressed due to restart during real time.");
                     }
+                    else if (this.disableRaceEndMessagesOnAbandon && this.isOfflineSession && sessionEndWaitTimedOut)
+                        Console.WriteLine("Abrupt Session End: suppressed due to session abandoned.");
+                    else if (this.disableRaceEndMessagesOnAbandon && this.isOfflineSession
+                        && !this.lastInRealTimeState && pgs.SessionData.SessionType == SessionType.Race)
+                        Console.WriteLine("Abrupt Session End: suppressed due to race restart in the monitor.");
                     else
                     {
                         if (pgs.SessionData.PlayerLapTimeSessionBest < 0.0f && !pgs.SessionData.IsDisqualified)
@@ -686,7 +697,6 @@ namespace CrewChiefV4.rFactor2
             csd.DeltaTime.SetNextDeltaPoint(cgs.PositionAndMotionData.DistanceRoundTrack, csd.CompletedLaps, cgs.PositionAndMotionData.CarSpeed, cgs.Now);
 
             // Is online session?
-            this.isOfflineSession = true;
             for (int i = 0; i < shared.scoring.mScoringInfo.mNumVehicles; ++i)
             {
                 if ((rFactor2Constants.rF2Control)shared.scoring.mVehicles[i].mControl == rFactor2Constants.rF2Control.Remote)
@@ -765,7 +775,7 @@ namespace CrewChiefV4.rFactor2
                 && csd.CompletedLaps > cgs.PitData.PitWindowStart;
 
             cgs.PitData.PitWindow = cgs.PitData.IsMakingMandatoryPitStop
-                ? PitWindow.StopInProgress : mapToPitWindow((rFactor2Constants.rF2YellowFlagState)shared.scoring.mScoringInfo.mYellowFlagState);
+                ? PitWindow.StopInProgress : this.mapToPitWindow((rFactor2Constants.rF2YellowFlagState)shared.scoring.mScoringInfo.mYellowFlagState);
 
             if (pgs != null)
                 cgs.PitData.MandatoryPitStopCompleted = pgs.PitData.MandatoryPitStopCompleted || cgs.PitData.IsMakingMandatoryPitStop;
@@ -1295,7 +1305,7 @@ namespace CrewChiefV4.rFactor2
                 string opponentKey = null;
                 if (duplicatesCount > 1)
                 {
-                    if (!isOfflineSession)
+                    if (!this.isOfflineSession)
                     {
                         // there shouldn't be duplicate driver names in online sessions. This is probably a temporary glitch in the shared memory data - 
                         // don't panic and drop the existing opponentData for this key - just copy it across to the current state. This prevents us losing
@@ -1879,7 +1889,8 @@ namespace CrewChiefV4.rFactor2
 
             // --------------------------------
             // MC warnings
-            this.ProcessMCMessages(cgs, pgs, shared);
+            if (!csd.IsNewSession)  // Skip the very first session tick as events are not processed at this time.
+                this.ProcessMCMessages(cgs, pgs, shared);
 
             // --------------------------------
             // console output
