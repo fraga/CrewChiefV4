@@ -1770,7 +1770,9 @@ namespace CrewChiefV4.Events
 
         private void playPressureMessage(Boolean allowDelayedResponse, params String[] folders)
         {
-            QueuedMessage message = new QueuedMessage("pressures", 0, messageFragments: MessageContents(folders));
+            List<MessageFragment> fragments = new List<MessageFragment>();
+            Array.ForEach(folders, f => fragments.Add(MessageFragment.Text(f)));
+            QueuedMessage message = new QueuedMessage("pressures", 0, fragments);
             if (delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
             {
                 audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderStandBy, 0));
