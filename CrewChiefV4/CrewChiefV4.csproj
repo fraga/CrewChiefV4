@@ -197,7 +197,9 @@
       <DependentUpon>MacroEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="UserInterface\PropertyFilter.cs" />
-    <Compile Include="UserInterface\ListPropertyControl.cs" />
+    <Compile Include="UserInterface\ListPropertyControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="UserInterface\ListPropertyControl.Designer.cs">
       <DependentUpon>ListPropertyControl.cs</DependentUpon>
     </Compile>

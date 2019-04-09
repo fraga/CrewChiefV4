@@ -185,6 +185,14 @@ namespace CrewChiefV4.Events
 
         private int ClassPositionAtStartOfCurrentLap = -1;
 
+        Dictionary<TrackData.TrackLengthClass, float> outlierPaceLimits = new Dictionary<TrackData.TrackLengthClass, float> {
+            { TrackData.TrackLengthClass.VERY_LONG, 15 },
+            { TrackData.TrackLengthClass.LONG, 8 },
+            { TrackData.TrackLengthClass.MEDIUM, 5 },
+            { TrackData.TrackLengthClass.SHORT, 3 },
+            { TrackData.TrackLengthClass.VERY_SHORT, 2}
+        };
+
         public LapTimes(AudioPlayer audioPlayer)
         {
             this.audioPlayer = audioPlayer;
@@ -431,7 +439,7 @@ namespace CrewChiefV4.Events
                     lastLapRating = getLastLapRating(currentGameState, lapAndSectorsComparisonData, false /*selfPace*/);
                     lastLapSelfRating = getLastLapRating(currentGameState, lapAndSectorsSelfComparisonData, true /*selfPace*/);
 
-                    if (currentGameState.SessionData.PreviousLapWasValid)
+                    if (currentGameState.SessionData.PreviousLapWasValid && lastLapRating != LastLapRating.OUTLIER)
                     {
                         lapTimesWindow.Insert(0, currentGameState.SessionData.LapTimePrevious);
                         Conditions.ConditionsSample conditionsSample = currentGameState.Conditions.getMostRecentConditions();
@@ -919,6 +927,12 @@ namespace CrewChiefV4.Events
                     {
                         return LastLapRating.CLOSE_TO_PERSONAL_BEST;
                     }
+                    else if (bestLapComparisonData[0] > 0 &&
+                        bestLapComparisonData[0] < currentGameState.SessionData.LapTimePrevious - this.outlierPaceLimits[currentGameState.SessionData.TrackDefinition.trackLengthClass])
+                    {
+                        // this is an outlier
+                        return LastLapRating.OUTLIER;
+                    }
                     else if (bestLapComparisonData[0] > 0 && bestLapComparisonData[0] < currentGameState.SessionData.LapTimePrevious - 3)
                     {
                         // 3 seconds off the pace
@@ -1322,7 +1336,7 @@ namespace CrewChiefV4.Events
         {
             BEST_OVERALL, BEST_IN_CLASS, SETTING_CURRENT_PACE, CLOSE_TO_CURRENT_PACE, PERSONAL_BEST, PERSONAL_BEST_CLOSE_TO_OVERALL_LEADER,
             PERSONAL_BEST_CLOSE_TO_CLASS_LEADER, PERSONAL_BEST_STILL_SLOW, CLOSE_TO_OVERALL_LEADER, CLOSE_TO_CLASS_LEADER,
-            CLOSE_TO_PERSONAL_BEST, MEH, BAD, NO_DATA
+            CLOSE_TO_PERSONAL_BEST, MEH, BAD, NO_DATA, OUTLIER
         }
 
         public enum SectorSet
