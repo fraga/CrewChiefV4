@@ -220,6 +220,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.9.7.4: R3E - added support for WebHud so Crew Chief can export data to WebHud in place of dash.exe. Enable this with the 'Enable WebHud integration (R3E only)' property.
+
 Version 4.9.7.3: R3E - added support for new shared memory layout introduced in latest game update
 
 Version 4.9.7.2: RF2 - incorporated more stock car rules and added some additional car class mappings; RF2 - fixed some issues introduced in last RF2 game update; some minor bug fixes

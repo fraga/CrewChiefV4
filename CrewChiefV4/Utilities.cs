@@ -18,51 +18,106 @@ namespace CrewChiefV4
     {
         public static Random random = new Random();
 
-        private static WebSocketServer webSocketServer;
+        private static WebSocketServer ccDataWebSocketServer;
+
+        private static WebSocketServer gameDataWebSocketServer;
 
         private static object websocketServerLock = new object();
 
         public static AudioPlayer audioPlayer;
 
-        private static int websocketPort = UserSettings.GetUserSettings().getInt("websocket_port");
+        private static int ccDataWebsocketPort = UserSettings.GetUserSettings().getInt("websocket_port");
 
-        public static void startWebsocketServer(AudioPlayer audioPlayer)
+        private static int gameDataWebsocketPort = UserSettings.GetUserSettings().getInt("game_data_websocket_port");
+
+        public static GameDataReader gameDataReader;
+
+        public static GameDataSerializer gameDataSerializer;
+
+        public static void startCCDataWebsocketServer(AudioPlayer audioPlayer)
         {
             Utilities.audioPlayer = audioPlayer;
-            stopWebsocketServer();
+            stopCCWebsocketServer();
             try
             {
                 lock (websocketServerLock)
                 {
-                    webSocketServer = new WebSocketServer(websocketPort);
-                    webSocketServer.AddWebSocketService<WebsocketData>("/crewchief");
-                    webSocketServer.Start();
-                    Console.WriteLine("Successfully started WebSocket server");
+                    ccDataWebSocketServer = new WebSocketServer(ccDataWebsocketPort);
+                    ccDataWebSocketServer.AddWebSocketService<WebsocketData>("/crewchief");
+                    ccDataWebSocketServer.Start();
+                    Console.WriteLine("Successfully started Crew Chief data WebSocket server");
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine("Unable to start websocket: " + e.Message + ", " + e.StackTrace);
+                Console.WriteLine("Unable to start Crew Chief websocket: " + e.Message + ", " + e.StackTrace);
             }
         }
 
-        public static void stopWebsocketServer()
+        public static void startGameDataWebsocketServer(String endpoint, GameDataReader gameDataReader, GameDataSerializer serializer)
+        {
+            stopGameDataWebsocketServer();
+            GameDataWebsocketData.init(gameDataReader, serializer);
+            try
+            {
+                lock (websocketServerLock)
+                {
+                    gameDataWebSocketServer = new WebSocketServer(gameDataWebsocketPort);
+                    gameDataWebSocketServer.AddWebSocketService<GameDataWebsocketData>(endpoint);
+                    gameDataWebSocketServer.Start();
+                    Console.WriteLine("Successfully started game data WebSocket server");
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Unable to start game data websocket: " + e.Message + ", " + e.StackTrace);
+            }
+        }
+
+        public static void stopWebsocketServers()
+        {
+            stopCCWebsocketServer();
+            stopGameDataWebsocketServer();
+        }
+
+        private static void stopCCWebsocketServer()
         {
             try
             {
                 lock (websocketServerLock)
                 {
-                    if (webSocketServer != null)
+                    if (ccDataWebSocketServer != null)
                     {
-                        webSocketServer.Stop();
-                        webSocketServer = null;
-                        Console.WriteLine("Stopped WebSocket server");
+                        ccDataWebSocketServer.Stop();
+                        ccDataWebSocketServer = null;
+                        Console.WriteLine("Stopped CC data WebSocket server");
                     }
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine("Unable to stop websocket: " + e.Message + ", " + e.StackTrace);
+                Console.WriteLine("Unable to stop CC data websocket: " + e.Message + ", " + e.StackTrace);
+            }
+        }
+
+        private static void stopGameDataWebsocketServer() 
+        {
+            GameDataWebsocketData.reset();
+            try
+            {
+                lock (websocketServerLock)
+                {
+                    if (gameDataWebSocketServer != null)
+                    {
+                        gameDataWebSocketServer.Stop();
+                        gameDataWebSocketServer = null;
+                        Console.WriteLine("Stopped game data WebSocket server");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Unable to stop game data websocket: " + e.Message + ", " + e.StackTrace);
             }
         }
 
@@ -299,6 +354,29 @@ namespace CrewChiefV4
         protected override void OnMessage(MessageEventArgs e)
         {
             Send(Utilities.audioPlayer.isChannelOpen() ? channelOpenStringResponse : channelClosedStringResponse);
+        }
+    }
+
+    public class GameDataWebsocketData : WebSocketBehavior
+    {
+        private static GameDataReader gameDataReader;
+        private static GameDataSerializer gameDataSerializer;
+
+        public static void init(GameDataReader gameDataReader, GameDataSerializer gameDataSerializer)
+        {
+            GameDataWebsocketData.gameDataReader = gameDataReader;
+            GameDataWebsocketData.gameDataSerializer = gameDataSerializer;
+        }
+
+        public static void reset()
+        {
+            GameDataWebsocketData.gameDataReader = null;
+            GameDataWebsocketData.gameDataSerializer = null;
+        }
+
+        protected override void OnMessage(MessageEventArgs e)
+        {
+            Send(GameDataWebsocketData.gameDataSerializer.Serialize(GameDataWebsocketData.gameDataReader.getLatestGameData(), e.Data));
         }
     }
 }

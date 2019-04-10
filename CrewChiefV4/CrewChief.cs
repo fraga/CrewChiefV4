@@ -51,6 +51,7 @@ namespace CrewChiefV4
         public static int maxUnknownClassesForAC = UserSettings.GetUserSettings().getInt("max_unknown_car_classes_for_assetto");
 
         private Boolean enableWebsocket = UserSettings.GetUserSettings().getBoolean("enable_websocket");
+        private Boolean enableGameDataWebsocket = UserSettings.GetUserSettings().getBoolean("enable_game_data_websocket");
 
         private static Dictionary<String, AbstractEvent> eventsList = new Dictionary<String, AbstractEvent>();
 
@@ -337,8 +338,8 @@ namespace CrewChiefV4
             {
                 if (enableWebsocket)
                 {
-                    Utilities.startWebsocketServer(audioPlayer);
-                }
+                    Utilities.startCCDataWebsocketServer(audioPlayer);
+                }                
 
                 PlaybackModerator.SetCrewChief(this);
 
@@ -363,6 +364,15 @@ namespace CrewChiefV4
                 gameDataReader.ResetGameDataFromFile();
 
                 gameDataReader.dumpToFile = dumpToFile;
+
+                if (enableGameDataWebsocket)
+                {
+                    if (gameDefinition.gameEnum == GameEnum.RACE_ROOM)
+                    {
+                        Utilities.startGameDataWebsocketServer("/r3e", gameDataReader, new R3ESerializer(true, 3, 2, 7));
+                    }
+                }
+
                 if (gameDefinition.spotterName != null)
                 {
                     spotter = (Spotter)Activator.CreateInstance(Type.GetType(gameDefinition.spotterName),
@@ -715,9 +725,9 @@ namespace CrewChiefV4
                 {
                     spotter.clearState();
                 }
-                if (enableWebsocket)
+                if (enableWebsocket || enableGameDataWebsocket)
                 {
-                    Utilities.stopWebsocketServer();
+                    Utilities.stopWebsocketServers();
                 }
                 stateCleared = true;
                 currentGameState = null;

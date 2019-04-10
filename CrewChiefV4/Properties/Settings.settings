@@ -908,6 +908,12 @@
     <Setting Name="enable_rf2_wrong_way_message" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="game_data_websocket_port" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">8070</Value>
+    </Setting>
+    <Setting Name="enable_game_data_websocket" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
     <Setting Name="disable_rf2_race_end_messages_on_abandoned_sessions" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>

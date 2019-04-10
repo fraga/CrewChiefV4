@@ -180,6 +180,11 @@ namespace CrewChiefV4
             return true;
         }
 
+        public virtual Object getLatestGameData()
+        {
+            return null;
+        }
+
         public virtual void stop()
         {
             // no op - only implemented by UDP reader
