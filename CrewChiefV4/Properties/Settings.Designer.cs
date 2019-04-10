@@ -3649,6 +3649,18 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("8070")]
+        public int game_data_websocket_port {
+            get {
+                return ((int)(this["game_data_websocket_port"]));
+            }
+            set {
+                this["game_data_websocket_port"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool disable_rf2_race_end_messages_on_abandoned_sessions {
             get {
@@ -3658,7 +3670,19 @@ namespace CrewChiefV4.Properties {
                 this["disable_rf2_race_end_messages_on_abandoned_sessions"] = value;
             }
         }
-        
+ 
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool enable_game_data_websocket {
+            get {
+                return ((bool)(this["enable_game_data_websocket"]));
+            }
+            set {
+                this["enable_game_data_websocket"] = value;
+            }
+        }
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("100")]
