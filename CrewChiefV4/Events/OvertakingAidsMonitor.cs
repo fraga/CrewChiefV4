@@ -30,6 +30,11 @@ namespace CrewChiefV4.Events
         private Boolean drsMessagesEnabled = UserSettings.GetUserSettings().getBoolean("enable_drs_messages");
         private Boolean ptpMessagesEnabled = UserSettings.GetUserSettings().getBoolean("enable_push_to_pass_messages");
 
+        public override List<SessionType> applicableSessionTypes
+        {
+            get { return new List<SessionType> { SessionType.Race }; }
+        }
+
         public OvertakingAidsMonitor(AudioPlayer audioPlayer)
         {
             this.audioPlayer = audioPlayer;
