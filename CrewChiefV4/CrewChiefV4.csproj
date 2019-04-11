@@ -158,6 +158,7 @@
     <Compile Include="F1_2018\longtomjr\Structs\PacketStructs\PacketParticipantsData.cs" />
     <Compile Include="F1_2018\longtomjr\Structs\PacketStructs\PacketSessionData.cs" />
     <Compile Include="F1_2018\longtomjr\Structs\ParticipantData.cs" />
+    <Compile Include="GameDataSerializer.cs" />
     <Compile Include="GameDefinition.cs" />
     <Compile Include="GameStateReaderFactory.cs" />
     <Compile Include="GameState\GlobalBehaviourSettings.cs" />
@@ -189,6 +190,7 @@
     <Compile Include="iRacing\Track.cs" />
     <Compile Include="NumberReaderIt2.cs" />
     <Compile Include="R3E\R3EPitMenuManager.cs" />
+    <Compile Include="R3E\R3ESerializer.cs" />
     <Compile Include="ThreadManager.cs" />
     <Compile Include="UserInterface\MacroEditor.cs">
       <SubType>Form</SubType>

@@ -1267,15 +1267,27 @@ use_rf2_wheel_size_for_locking_and_spinning_filter = RF2_64BIT
 enable_websocket = Enable Websocket integration
 enable_websocket_help = Send some Crew Chief data over a Websocket
 enable_websocket_category = AUDIO_VOICE_AND_CONTROLLERS
+enable_websocket_filter = RACE_ROOM
 
-websocket_port = Websocket port
-websocket_port_help = Port to use for Websocket data
+websocket_port = Crew Chief data Websocket port
+websocket_port_help = Port to use for Crew Chief specific Websocket data (currently only a radio flag for R3E WebHud)
 websocket_port_category = AUDIO_VOICE_AND_CONTROLLERS
+websocket_port_filter = RACE_ROOM
 
 enable_rf2_wrong_way_message = Enable rF2 'Wrong Way' message
 enable_rf2_wrong_way_message_help = Announce Message Center 'Wrong Way' messsage.  Requires DMA enabled in plugin.
 enable_rf2_wrong_way_message_filter = RF2_64BIT
 enable_rf2_wrong_way_message_category = FLAGS_AND_RULES
+
+enable_game_data_websocket = Enable WebHud integration (R3E only)
+enable_game_data_websocket_help = Send shared memory data to a socket in exactly the same way that 'dash.exe' would
+enable_game_data_websocket_filter = RACE_ROOM
+enable_game_data_websocket_category = AUDIO_VOICE_AND_CONTROLLERS
+
+game_data_websocket_port = Game data Websocket port
+game_data_websocket_port_help = Port to use for R3E WebHud Websocket data
+game_data_websocket_port_filter = RACE_ROOM
+game_data_websocket_port_category = AUDIO_VOICE_AND_CONTROLLERS
 
 disable_rf2_race_end_messages_on_abandoned_sessions = Disable rF2 race end msg. for abandoned events
 disable_rf2_race_end_messages_on_abandoned_sessions_help = Enable this preference if you would like to turn off race end messages for times when you quit Single Player race without finishing it.
