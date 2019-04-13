@@ -347,7 +347,6 @@ namespace CrewChiefV4.Events
                 }
                 else if (previousGameState.PitData.InPitlane && currentGameState.PitData.InPitlane && previousDistanceToBox > -1)
                 {
-                    
                     if (pitBoxTimeCountdownEnabled)
                     {
                         // first get the timing point positions
