@@ -17,6 +17,8 @@ namespace CrewChiefV4.Events
         public static String folderDontForgetDRS = "overtaking_aids/dont_forget_drs"; 
         public static String folderGuyBehindHasDRS = "overtaking_aids/guy_behind_has_drs";
         public static String folderPushToPassNowAvailable = "overtaking_aids/push_to_pass_now_available";
+        public static String folderDRSEnabled = "overtaking_aids/drs_enabled";
+        public static String folderDRSDisabled = "overtaking_aids/drs_disabled";
 
         private Boolean hasUsedDrsOnThisLap = false;    // Note that DTM 2015 experience has 3 DRS activations per lap - only moans if we've used none of them
         private Boolean drsAvailableOnThisLap = false;
@@ -58,6 +60,19 @@ namespace CrewChiefV4.Events
             {
                 return;
             }
+
+            if (drsMessagesEnabled && previousGameState != null)
+            {
+                if (!previousGameState.OvertakingAids.DrsEnabled && currentGameState.OvertakingAids.DrsEnabled)
+                {
+                    audioPlayer.playMessage(new QueuedMessage(folderDRSEnabled, 3, abstractEvent: this, priority: 10));
+                }
+                else if (previousGameState.OvertakingAids.DrsEnabled && !currentGameState.OvertakingAids.DrsEnabled)
+                {
+                    audioPlayer.playMessage(new QueuedMessage(folderDRSDisabled, 3, abstractEvent: this, priority: 10));
+                }
+            }
+
             // DRS:
             if (drsMessagesEnabled && currentGameState.OvertakingAids.DrsEnabled)
             {
