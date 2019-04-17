@@ -48,7 +48,7 @@ will be pulled from the thecrewchief.org ftp server. -->
 		<update-pack url="http://crewchief.isnais.de/update_4_personalisations.zip" updates-from-version="130"/>
 		<update-pack url="http://crewchief.isnais.de/update_5_personalisations.zip" updates-from-version="132"/>
 		<update-pack url="http://crewchief.isnais.de/update_6_personalisations.zip" updates-from-version="133"/>
-		<update-pack url="http://crewchief.isnais.de/update_67_personalisations.zip" updates-from-version="134"/>
+		<update-pack url="http://crewchief.isnais.de/update_7_personalisations.zip" updates-from-version="134"/>
 	</personalisations>
 </sounds>
 
