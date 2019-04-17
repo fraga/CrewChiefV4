@@ -289,7 +289,7 @@ namespace CrewChiefV4.PCars2
                 shared.mSessionState, shared.mRaceState, shared.mNumParticipants, leaderHasFinished, lastSessionPhase, lastSessionTimeRemaining,
                 lastSessionRunningTime, shared.mPitModes[playerIndex], (eGameState)shared.mGameState, previousGameState == null ? null : previousGameState.OpponentData,
                 shared.mSpeed, currentGameState.Now);
-                        
+            //Console.WriteLine("SESSION = " + currentGameState.SessionData.SessionType + " PHASE = " + currentGameState.SessionData.SessionPhase);
             currentGameState.SessionData.TrackDefinition = TrackData.getTrackDefinition(StructHelper.getNameFromBytes(shared.mTrackLocation)
                 + ":" + StructHelper.getNameFromBytes(shared.mTrackVariation), -1, shared.mTrackLength);
             // now check if this is a new session...
