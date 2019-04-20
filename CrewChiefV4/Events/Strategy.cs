@@ -330,10 +330,13 @@ namespace CrewChiefV4.Events
                                 {
                                     // this guy has just entered the pit and we predict he'll exit just in front of us
                                     Console.WriteLine("Opponent " + entry.Value.DriverRawName + " will exit the pit close in front of us");
-                                    audioPlayer.playMessage(new QueuedMessage("opponent_exiting_in_front", 10,
-                                        messageFragments: MessageContents(entry.Value, folderIsPittingFromPosition, entry.Value.ClassPosition, folderHeWillComeOutJustInFront),
-                                        abstractEvent: this, priority: 10));
+                                    if (entry.Value.ClassPosition >= 1)
+                                    {
+                                        audioPlayer.playMessage(new QueuedMessage("opponent_exiting_in_front", 10,
+                                            messageFragments: MessageContents(entry.Value, folderIsPittingFromPosition, entry.Value.ClassPosition, folderHeWillComeOutJustInFront),
+                                            abstractEvent: this, priority: 10));
 
+                                    }
                                     // only allow one of these every 10 seconds. When an opponent crosses the start line he's 
                                     // removed from this set anyway
                                     nextOpponentPitExitWarningDue = currentGameState.Now.AddSeconds(10);
@@ -343,9 +346,12 @@ namespace CrewChiefV4.Events
                                 {
                                     // this guy has just entered the pit and we predict he'll exit just behind us
                                     Console.WriteLine("Opponent " + entry.Value.DriverRawName + " will exit the pit close behind us");
-                                    audioPlayer.playMessage(new QueuedMessage("opponent_exiting_behind", 10,
-                                        messageFragments: MessageContents(entry.Value, folderIsPittingFromPosition, entry.Value.ClassPosition, folderHeWillComeOutJustBehind),
-                                        abstractEvent: this, priority: 10));
+                                    if (entry.Value.ClassPosition >= 1)
+                                    {
+                                        audioPlayer.playMessage(new QueuedMessage("opponent_exiting_behind", 10,
+                                            messageFragments: MessageContents(entry.Value, folderIsPittingFromPosition, entry.Value.ClassPosition, folderHeWillComeOutJustBehind),
+                                            abstractEvent: this, priority: 10));
+                                    }
                                     // only allow one of these every 10 seconds. When an opponent crosses the start line he's 
                                     // removed from this set anyway
                                     nextOpponentPitExitWarningDue = currentGameState.Now.AddSeconds(10);
