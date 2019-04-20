@@ -185,7 +185,7 @@ namespace CrewChiefV4.Events
 
         private int ClassPositionAtStartOfCurrentLap = -1;
 
-        Dictionary<TrackData.TrackLengthClass, float> outlierPaceLimits = new Dictionary<TrackData.TrackLengthClass, float> {
+        public static Dictionary<TrackData.TrackLengthClass, float> outlierPaceLimits = new Dictionary<TrackData.TrackLengthClass, float> {
             { TrackData.TrackLengthClass.VERY_LONG, 15 },
             { TrackData.TrackLengthClass.LONG, 8 },
             { TrackData.TrackLengthClass.MEDIUM, 5 },
@@ -928,7 +928,7 @@ namespace CrewChiefV4.Events
                         return LastLapRating.CLOSE_TO_PERSONAL_BEST;
                     }
                     else if (bestLapComparisonData[0] > 0 &&
-                        bestLapComparisonData[0] < currentGameState.SessionData.LapTimePrevious - this.outlierPaceLimits[currentGameState.SessionData.TrackDefinition.trackLengthClass])
+                        bestLapComparisonData[0] < currentGameState.SessionData.LapTimePrevious - LapTimes.outlierPaceLimits[currentGameState.SessionData.TrackDefinition.trackLengthClass])
                     {
                         // this is an outlier
                         return LastLapRating.OUTLIER;

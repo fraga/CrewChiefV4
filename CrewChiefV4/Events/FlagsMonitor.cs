@@ -1162,7 +1162,7 @@ namespace CrewChiefV4.Events
                                 {
                                     opponentNamesToRead.Add(opponent);
                                 }
-                                else if (opponent.ClassPosition <= folderPositionHasGoneOff.Length && positionToRead == -1)
+                                else if (opponent.ClassPosition <= folderPositionHasGoneOff.Length && positionToRead == -1 && opponent.ClassPosition > 0)
                                 {
                                     positionToRead = opponent.ClassPosition;
                                 }
@@ -1224,9 +1224,12 @@ namespace CrewChiefV4.Events
             {
                 string opponentKey = entry.Key;
                 OpponentData opponentData = entry.Value;
-                if (opponentData.DistanceRoundTrack == 0)
+                if (opponentData.DistanceRoundTrack == 0 || opponentData.ClassPosition <= 0 || opponentData.ClassPosition >= 1000)
                 {
-                    // fuck's sake... pCARS2's data is so shit. This value will be 0 when a car enters the pitlane.
+                    // fuck's sake... pCARS2's data *and iRacing* data is so shit. 
+                    // for pCars2, DistanceRoundTrack value will be 0 when a car enters the pitlane.
+                    // for iRacing ClassPosition can be 0 or -1 or 1000 in some edge cases where the position logic screws up,
+                    // hopefully this will never happen but this check is harmless
                     continue;
                 }
                 if ((flagSector == -1 || opponentData.CurrentSectorNumber == flagSector) && !opponentData.InPits)

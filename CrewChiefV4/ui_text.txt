@@ -1301,3 +1301,7 @@ hold_button_poll_frequency_category = AUDIO_VOICE_AND_CONTROLLERS
 sre_wait_time = How long to wait for speech recognition
 sre_wait_time_help = Time (milliseconds) to wait until giving up on recognizing the phrase and saying 'I didn't catch that'.
 sre_wait_time_category = AUDIO_VOICE_AND_CONTROLLERS
+
+prefer_max_consumption_in_fuel_calculations = Base fuel calculations on max fuel consumption
+prefer_max_consumption_in_fuel_calculations_help = Use max per-lap fuel consumption when calculating fuel on all track types
+prefer_max_consumption_in_fuel_calculations_category = FUEL_TEMPS_AND_DAMAGES
