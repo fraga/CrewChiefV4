@@ -12,7 +12,7 @@ namespace CrewChiefV4.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.9.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "12.0.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -3658,19 +3658,7 @@ namespace CrewChiefV4.Properties {
                 this["game_data_websocket_port"] = value;
             }
         }
-
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool disable_rf2_race_end_messages_on_abandoned_sessions {
-            get {
-                return ((bool)(this["disable_rf2_race_end_messages_on_abandoned_sessions"]));
-            }
-            set {
-                this["disable_rf2_race_end_messages_on_abandoned_sessions"] = value;
-            }
-        }
- 
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
@@ -3682,7 +3670,19 @@ namespace CrewChiefV4.Properties {
                 this["enable_game_data_websocket"] = value;
             }
         }
-
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool disable_rf2_race_end_messages_on_abandoned_sessions {
+            get {
+                return ((bool)(this["disable_rf2_race_end_messages_on_abandoned_sessions"]));
+            }
+            set {
+                this["disable_rf2_race_end_messages_on_abandoned_sessions"] = value;
+            }
+        }
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("100")]
@@ -3704,6 +3704,18 @@ namespace CrewChiefV4.Properties {
             }
             set {
                 this["sre_wait_time"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool prefer_max_consumption_in_fuel_calculations {
+            get {
+                return ((bool)(this["prefer_max_consumption_in_fuel_calculations"]));
+            }
+            set {
+                this["prefer_max_consumption_in_fuel_calculations"] = value;
             }
         }
     }
