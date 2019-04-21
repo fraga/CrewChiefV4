@@ -13,6 +13,7 @@ namespace CrewChiefV4.iRacing
             this.IsEmpty = true;
             this.LastTime = -1;
             this.QualifyingPosition = -1;
+            this.ClassQualifyingPosition = -1;
 
         }
         public bool IsEmpty { get; set; }
@@ -20,6 +21,7 @@ namespace CrewChiefV4.iRacing
         public int Position { get; set; }
         public int ClassPosition { get; set; }
         public int QualifyingPosition { get; set; }
+        public int ClassQualifyingPosition { get; set; }
         public float  LastTime { get; set; }        
         public int Incidents { get; set; }
         public string OutReason { get; set; }

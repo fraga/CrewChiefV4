@@ -29,6 +29,7 @@ namespace CrewChiefV4.Events
         private TimeSpan timeBetweenWhiteFlagMessages = TimeSpan.FromSeconds(15);
 
         private String folderFCYellowStartEU = "flags/fc_yellow_start_eu";
+        private String folderFCYellowStartNoSafetyCarEU = "flags/fc_yellow_start_eu_no_safetycar";
         private String folderFCYellowPitsClosedEU = "flags/fc_yellow_pits_closed_eu";
         private String folderFCYellowPitsOpenLeadLapCarsEU = "flags/fc_yellow_pits_open_lead_lap_cars_eu";
         private String folderFCYellowPitsOpenEU = "flags/fc_yellow_pits_open_eu";
@@ -37,6 +38,7 @@ namespace CrewChiefV4.Events
         private String folderFCYellowPrepareForGreenEU = "flags/fc_yellow_prepare_for_green_eu";
         private String folderFCYellowInProgressEU = "flags/fc_yellow_in_progress_eu";
         private String folderFCYellowStartUS = "flags/fc_yellow_start_usa";
+        private String folderFCYellowStartNoSafetyCarUS = "flags/fc_yellow_start_usa_no_safetycar";
         private String folderFCYellowPitsClosedUS = "flags/fc_yellow_pits_closed_usa";
         private String folderFCYellowPitsOpenLeadLapCarsUS = "flags/fc_yellow_pits_open_lead_lap_cars_usa";
         private String folderFCYellowPitsOpenUS = "flags/fc_yellow_pits_open_usa";
@@ -678,8 +680,17 @@ namespace CrewChiefV4.Events
                             // don't allow any other message to override this one:
                             if (CrewChief.yellowFlagMessagesEnabled)
                             {
-                                audioPlayer.playMessageImmediately(new QueuedMessage(GlobalBehaviourSettings.useAmericanTerms ? folderFCYellowStartUS : folderFCYellowStartEU, 0,
-                                    abstractEvent: this, type: SoundType.IMPORTANT_MESSAGE, priority: 0));
+                                // if we have info about the safety car we want to use it else we will skip to default and call out safetycar along with FCY
+                                if (CrewChief.gameDefinition.gameEnum == GameEnum.IRACING && currentGameState.SafetyCarData.fcySafetyCarCallsEnabled)
+                                {
+                                    audioPlayer.playMessageImmediately(new QueuedMessage(GlobalBehaviourSettings.useAmericanTerms ? folderFCYellowStartNoSafetyCarUS : folderFCYellowStartNoSafetyCarEU, 0,
+                                        abstractEvent: this, type: SoundType.IMPORTANT_MESSAGE, priority: 0));
+                                }
+                                else
+                                {
+                                    audioPlayer.playMessageImmediately(new QueuedMessage(GlobalBehaviourSettings.useAmericanTerms ? folderFCYellowStartUS : folderFCYellowStartEU, 0,
+                                        abstractEvent: this, type: SoundType.IMPORTANT_MESSAGE, priority: 0));
+                                }
                             }
                             // start working out who's gone off
                             if (enableOpponentCrashMessages)
@@ -744,7 +755,9 @@ namespace CrewChiefV4.Events
                             break;
                     }
                 }
-                else if (currentGameState.FlagData.fcyPhase == FullCourseYellowPhase.LAST_LAP_CURRENT && leaderStartedSector3)
+                else if ((currentGameState.FlagData.fcyPhase == FullCourseYellowPhase.LAST_LAP_CURRENT && leaderStartedSector3 && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING) ||
+                    (CrewChief.gameDefinition.gameEnum == GameEnum.IRACING && !currentGameState.SafetyCarData.fcySafetyCarCallsEnabled && 
+                    currentGameState.FlagData.fcyPhase == FullCourseYellowPhase.LAST_LAP_CURRENT && leaderStartedSector3))
                 {
                     // last sector, safety car coming in
                     // don't allow any other message to override this one:
@@ -1387,12 +1400,12 @@ namespace CrewChiefV4.Events
                     }
                 }
             }
-            else if (landmark != null && position <= folderPositionHasGoneOffIn.Length)
+            else if (landmark != null && position <= folderPositionHasGoneOffIn.Length/* && position >= 1*/)
             {
                 messageContents.AddRange(MessageContents(folderPositionHasGoneOffIn[position - 1]));
                 messageContents.AddRange(MessageContents("corners/" + landmark));
             }
-            else if (position <= folderPositionHasGoneOffIn.Length)
+            else if (position <= folderPositionHasGoneOffIn.Length/* && position >= 1*/)
             {
                 messageContents.AddRange(MessageContents(folderPositionHasGoneOff[position - 1]));
             }

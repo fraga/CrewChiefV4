@@ -11,6 +11,7 @@ namespace CrewChiefV4.GameState
 
         // in race sessions, delay position changes to allow things to settle. This is game-dependent
         private Dictionary<string, PendingRacePositionChange> PendingRacePositionChanges = new Dictionary<string, PendingRacePositionChange>();
+        private Dictionary<string, PendingRacePositionChange> PendingRaceClassPositionChanges = new Dictionary<string, PendingRacePositionChange>();
         private TimeSpan PositionChangeLag = TimeSpan.FromMilliseconds(1000);
         class PendingRacePositionChange
         {
@@ -85,9 +86,10 @@ namespace CrewChiefV4.GameState
                     int minSecondsBetweenOpponentPitMessages = CrewChief.gameDefinition.gameEnum == GameEnum.IRACING ? 40 : 20;
                     // don't care about other classes
                     numCarsInPlayerClass++;
-                    if (PitApproachPosition != -1
+                    if ((PitApproachPosition != -1
                         && opponent.DistanceRoundTrack < PitApproachPosition + 20
-                        && opponent.DistanceRoundTrack > PitApproachPosition - 20)
+                        && opponent.DistanceRoundTrack > PitApproachPosition - 20 && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING) ||
+                        CrewChief.gameDefinition.gameEnum == GameEnum.IRACING && opponent.isApporchingPits)
                     {
                         opponent.PositionOnApproachToPitEntry = opponent.ClassPosition;
                     }
@@ -241,8 +243,9 @@ namespace CrewChiefV4.GameState
         }
 
         // filters race position changes by delaying them a short time to prevent bouncing and noise interferring with event logic
-        protected int getRacePosition(String driverName, int oldPosition, int newPosition, DateTime now)
+        protected int getRacePosition(String driverName, int oldPosition, int newPosition, DateTime now, bool isClassPosition = false)
         {
+            var pendingRaceClassPositionChanges = isClassPosition ? PendingRaceClassPositionChanges : PendingRacePositionChanges;
             if (driverName == null || oldPosition < 1)
             {
                 return newPosition;
@@ -256,10 +259,10 @@ namespace CrewChiefV4.GameState
             if (oldPosition == newPosition)
             {
                 // clear any pending position change
-                PendingRacePositionChanges.Remove(driverName);
+                pendingRaceClassPositionChanges.Remove(driverName);
                 return oldPosition;
             }
-            else if (PendingRacePositionChanges.TryGetValue(driverName, out pendingRacePositionChange))
+            else if (pendingRaceClassPositionChanges.TryGetValue(driverName, out pendingRacePositionChange))
             {
                 if (newPosition == pendingRacePositionChange.newPosition)
                 {
@@ -267,7 +270,7 @@ namespace CrewChiefV4.GameState
                     if (now > pendingRacePositionChange.positionSettledTime)
                     {
                         int positionToReturn = newPosition;
-                        PendingRacePositionChanges.Remove(driverName);
+                        pendingRaceClassPositionChanges.Remove(driverName);
                         return positionToReturn;
                     }
                     else
@@ -285,7 +288,7 @@ namespace CrewChiefV4.GameState
             }
             else
             {
-                PendingRacePositionChanges.Add(driverName, new PendingRacePositionChange(newPosition, now + PositionChangeLag));
+                pendingRaceClassPositionChanges.Add(driverName, new PendingRacePositionChange(newPosition, now + PositionChangeLag));
                 return oldPosition;
             }
         }

@@ -154,7 +154,7 @@ namespace iRSDKSharp
                     }
                     else
                     {
-                        file.WriteLine("\t\t\t" + header.Name + " = " + "(" + GetData(header.Name).GetType().ToString() + ")" + "sdk.TryGetData(\"" + header.Name + "\");");   
+                        file.WriteLine("\t\t\t" + header.Name + " = " + "(" + GetData(header.Name).GetType().ToString() + ")" + "sdk.GetData(\"" + header.Name + "\");");   
                     }                                 
                 }
                 file.WriteLine("\t\t}");
@@ -176,7 +176,7 @@ namespace iRSDKSharp
                     {
                         file.WriteLine("\t\t[MarshalAs(UnmanagedType.ByValArray, SizeConst = " + header.Count + ")]");
                     }
-                    file.WriteLine("\t\tpublic " + GetData(header.Name).GetType().ToString() + "? " + header.Name + ";");
+                    file.WriteLine("\t\tpublic " + GetData(header.Name).GetType().ToString() + " " + header.Name + ";");
                 
                 }
                 file.WriteLine("\t}");

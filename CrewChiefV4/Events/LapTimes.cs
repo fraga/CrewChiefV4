@@ -662,7 +662,7 @@ namespace CrewChiefV4.Events
                                     lapTimesWindow.Count >= lapTimesWindowSize)
                                 {
                                     int delay = Utilities.random.Next(0, 8);
-                                    ConsistencyResult consistency = checkAgainstPreviousLaps();
+                                    ConsistencyResult consistency = checkAgainstPreviousLaps(currentGameState.SessionData.TrackDefinition.isOval);
                                     if (consistency == ConsistencyResult.CONSISTENT)
                                     {
                                         lastConsistencyUpdate = currentGameState.SessionData.CompletedLaps;
@@ -761,7 +761,7 @@ namespace CrewChiefV4.Events
             }
         }
 
-        private ConsistencyResult checkAgainstPreviousLaps()
+        private ConsistencyResult checkAgainstPreviousLaps(Boolean isOval)
         {
             if (conditionsWindow.Count() >= lapTimesWindowSize && ConditionsHaveChanged(conditionsWindow[0], conditionsWindow[lapTimesWindowSize - 1]))
             {
@@ -826,6 +826,11 @@ namespace CrewChiefV4.Events
             }
             if (isWorsening)
             {
+                // disable this for ovals
+                if (isOval)
+                {
+                    return ConsistencyResult.NOT_APPLICABLE;
+                }
                 if (lastConsistencyMessage == ConsistencyResult.WORSENING)
                 {
                     // don't play the same worsening message - see if the consistent message might apply
