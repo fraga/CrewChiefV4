@@ -32,6 +32,8 @@ namespace CrewChiefV4
 
         protected String dataFilesPath;
 
+        private Boolean wroteConsoleDebugLog = false;
+
         public GameDataReader()
         {
             if (CrewChief.Debugging)
@@ -94,15 +96,19 @@ namespace CrewChiefV4
                         }
                     }
                 }
-
-                lock (MainWindow.instanceLock)
+                if (!wroteConsoleDebugLog) //prevent more then one console dump in case of split traces
                 {
-                    if (MainWindow.instance != null)
+                    lock (MainWindow.instanceLock)
                     {
-                        File.WriteAllText(Path.ChangeExtension(fileName, "txt"), MainWindow.instance.consoleWriter.enable ?
-                            MainWindow.instance.consoleTextBox.Text : MainWindow.instance.consoleWriter.builder.ToString());
+                        if (MainWindow.instance != null)
+                        {
+                            File.WriteAllText(Path.ChangeExtension(fileName, "txt"), MainWindow.instance.consoleWriter.enable ?
+                                MainWindow.instance.consoleTextBox.Text : MainWindow.instance.consoleWriter.builder.ToString());
+                            wroteConsoleDebugLog = true;
+                        }
                     }
                 }
+
 
                 Console.WriteLine("Done writing session data log to: " + fileName);
                 Console.WriteLine("PLEASE RESTART THE APPLICATION BEFORE ATTEMPTING TO RECORD ANOTHER SESSION");

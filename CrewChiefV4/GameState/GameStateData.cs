@@ -128,7 +128,19 @@ namespace CrewChiefV4.GameState
         public String luckyDogNameRaw;
         public Boolean stockCarRulesEnabled;
     }
-
+    public class SafetyCarData
+    {        
+        //we need to monitor when the safetycar crosses the line in iRacing as its laps will only switch to 1 for a few frames and then go back to 0.
+        //we might want to have more info like steering angle so we might be able to detect when it pulls off track.
+        public int Lap = 0;
+        public double Speed = -1;
+        public int CurrentSector = 0;
+        public bool isOnTrack = false;
+        public int TrackSurface = -1;
+        public float DistanceRoundTrack;
+        public float PitEntranceDistanceRoundTrack = -1.0f;
+        public Boolean fcySafetyCarCallsEnabled = false;
+    }
     public class TransmissionData
     {
         // -2 = no data
@@ -283,15 +295,10 @@ namespace CrewChiefV4.GameState
 
         public string DriverToFollowRaw = "";
 
+        public string CarNumberToFollowRaw = "";
+
         // Meters/s.  If -1, SC either left or not present.
         public float SafetyCarSpeed = -1.0f;
-    }
-
-    public enum StartType
-    {
-        None,
-        Standing,
-        Rolling
     }
 
     public class TimingData
@@ -980,6 +987,7 @@ namespace CrewChiefV4.GameState
         public float SessionFastestLapTimeFromGame = -1;
         public float SessionFastestLapTimeFromGamePlayerClass = -1;
 
+        public int TrackSurface = -1;
         private TrackLandmarksTiming _trackLandmarksTiming;
         public TrackLandmarksTiming trackLandmarksTiming
         {
@@ -1111,8 +1119,6 @@ namespace CrewChiefV4.GameState
 
         // TODO: this is only being set in the iRacing and RF2 mappers, but it's checked in fuel and LapCounter events. Which is odd.
         public Boolean IsLastLap;
-
-        public StartType StartType = StartType.None;
 
         public Boolean HasCompletedSector2ThisLap;
 
@@ -1605,7 +1611,7 @@ namespace CrewChiefV4.GameState
 
         public bool isApporchingPits;
 
-        public int CarNr = -1;
+        public String CarNumber = "-1";
 
         private Tuple<String, float> _LicensLevel;
         public Tuple<String, float> LicensLevel
@@ -1626,6 +1632,7 @@ namespace CrewChiefV4.GameState
 
         public int iRating = -1;
 
+        public int trackSurface = -1;
         // hack for assetto corsa only. Lap count may be delayed so we capture it at the end of sector1 and use this at lap end
         public int lapCountAtSector1End = -1;
 
@@ -3732,7 +3739,23 @@ namespace CrewChiefV4.GameState
                 _FrozenOrderData = value;
             }
         }
-
+        private SafetyCarData _SafetyCarData;
+        public SafetyCarData SafetyCarData
+        {
+            get
+            {
+                if (_SafetyCarData == null)
+                {
+                    _SafetyCarData = new SafetyCarData();
+                }
+                return _SafetyCarData;
+            }
+            set
+            {
+                _SafetyCarData = value;
+            }
+        }
+        
         private HashSet<String> _retriedDriverNames;
         public HashSet<String> retriedDriverNames
         {

@@ -3586,7 +3586,7 @@ namespace CrewChiefV4.Properties {
                 this["TOGGLE_ENABLE_CUT_TRACK_WARNINGS_device_type"] = value;
             }
         }
-        
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("-1")]
@@ -3598,7 +3598,7 @@ namespace CrewChiefV4.Properties {
                 this["TOGGLE_ENABLE_CUT_TRACK_WARNINGS_button_index"] = value;
             }
         }
-        
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
@@ -3610,7 +3610,19 @@ namespace CrewChiefV4.Properties {
                 this["use_rf2_wheel_size_for_locking_and_spinning"] = value;
             }
         }
-        
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool iracing_fcy_formation_use_drivername {
+            get {
+                return ((bool)(this["iracing_fcy_formation_use_drivername"]));
+            }
+            set {
+                this["iracing_fcy_formation_use_drivername"] = value;
+            }
+        }
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
@@ -3622,7 +3634,7 @@ namespace CrewChiefV4.Properties {
                 this["enable_websocket"] = value;
             }
         }
-        
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("8071")]
@@ -3634,7 +3646,19 @@ namespace CrewChiefV4.Properties {
                 this["websocket_port"] = value;
             }
         }
-        
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool enable_iracing_pit_state_during_fcy {
+            get {
+                return ((bool)(this["enable_iracing_pit_state_during_fcy"]));
+            }
+            set {
+                this["enable_iracing_pit_state_during_fcy"] = value;
+            }
+        }
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
@@ -3646,7 +3670,7 @@ namespace CrewChiefV4.Properties {
                 this["enable_rf2_wrong_way_message"] = value;
             }
         }
-        
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("8070")]
@@ -3671,7 +3695,7 @@ namespace CrewChiefV4.Properties {
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+	[global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool disable_rf2_race_end_messages_on_abandoned_sessions {
@@ -3694,7 +3718,7 @@ namespace CrewChiefV4.Properties {
                 this["hold_button_poll_frequency"] = value;
             }
         }
-        
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("2000")]

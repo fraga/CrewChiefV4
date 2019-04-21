@@ -32,6 +32,7 @@ namespace CrewChiefV4.iRacing
         
         public float SessionTime { get; set; }
         public int Position { get; set; }
+        public int PositionRaw { get; set; }
         public int ClassPosition { get; set; }
         public int Lap { get; private set; }
         public float LapDistance { get; private set; }
@@ -58,6 +59,7 @@ namespace CrewChiefV4.iRacing
         public bool PreviousLapWasValid { get; set; }
         public float LapTimePrevious { get; set; }
         public bool HasCrossedSFLine { get; set; }
+        public bool IsInPilLane { get; set; }
 
         private double _prevSpeedUpdateTime;
         private double _prevSpeedUpdateDist;
@@ -79,7 +81,7 @@ namespace CrewChiefV4.iRacing
             
             CurrentSector = GetCurrentSector();
             IsNewLap = false;
-
+            IsInPilLane = e.CarIdxOnPitRoad[Driver.Id];
             if (_prevSector == 3 && (CurrentSector == 1) ||
                 (LapsCompleted < _driver.CurrentResults.LapsComplete && !_driver.IsCurrentDriver && TrackSurface == TrackSurfaces.NotInWorld) || (insertStartLap && !Driver.IsCurrentDriver && !hasCrossedSFLineToStartRace))
             {
@@ -110,7 +112,7 @@ namespace CrewChiefV4.iRacing
                   
             Gear = e.CarIdxGear[Driver.Id];
             Rpm = e.CarIdxRPM[Driver.Id];
-
+            
             //for local player we use data from telemetry as its updated faster then session info,
             //we do not have lastlaptime from opponents available in telemetry so we use data from sessioninfo.
             if(Driver.Id == e.PlayerCarIdx)
@@ -123,6 +125,7 @@ namespace CrewChiefV4.iRacing
             }
             PreviousLapWasValid = LapTimePrevious > 1;
             TotalLapDistanceCorrected = TotalLapDistance;
+            PositionRaw = e.CarIdxPosition[Driver.Id];
         }
 
         private float FixPercentagesOnLapChange(float carIdxLapDistPct)

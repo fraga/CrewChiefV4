@@ -1264,6 +1264,16 @@ use_rf2_wheel_size_for_locking_and_spinning_help = Use rF2 provided wheel size (
 use_rf2_wheel_size_for_locking_and_spinning_category = FUEL_TEMPS_AND_DAMAGES
 use_rf2_wheel_size_for_locking_and_spinning_filter = RF2_64BIT
 
+enable_iracing_pit_state_during_fcy = Enable iRacing FCY pit state messages
+enable_iracing_pit_state_during_fcy_help = Announce pit state during Safety Car/Pace Car phase
+enable_iracing_pit_state_during_fcy_filter = IRACING
+enable_iracing_pit_state_during_fcy_category = FLAGS_AND_RULES;PIT_STOPS_AND_MULTICLASS
+		
+iracing_fcy_formation_use_drivername = iRacing fcy/formation use driver names
+iracing_fcy_formation_use_drivername_help = Use driver names instead of car number if available doing fcy and formation laps
+iracing_fcy_formation_use_drivername_filter = IRACING
+iracing_fcy_formation_use_drivername_category = FLAGS_AND_RULES;PIT_STOPS_AND_MULTICLASS
+
 enable_websocket = Enable Websocket integration
 enable_websocket_help = Send some Crew Chief data over a Websocket
 enable_websocket_category = AUDIO_VOICE_AND_CONTROLLERS

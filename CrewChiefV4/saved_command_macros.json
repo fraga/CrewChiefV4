@@ -31,9 +31,13 @@
 					"action": "Pit Request Toggle",
 					"key": "KEY_R"
 				},
+                {
+                    "action": "Real-time Chat",
+                    "key": "KEY_C"
+                },
 				{
-					"action": "Real-time Chat",
-					"key": "KEY_C"
+					"action": "Get Out Of Car",
+					"key": "ESC"
 				}
 			]
 		},
@@ -669,15 +673,29 @@
 				"waitBetweenEachCommand": 200
 			}]
 		},
-		{
+        {
+            "name": "Get Out Of Car",
+            "description": "Presses ESC key for 2 sec.",
+            "voiceTriggers": [ "get out", "fuck this shit" ],
+            "commandSets": [
+                {
+                    "description": "iRacing version",
+                    "gameDefinition": "IRACING",
+                    "actionSequence": [ "Get Out Of Car" ],
+                    "keyPressTime": 2000,
+                    "waitBetweenEachCommand": 200
+                }
+            ]
+        },
+        {
 			"name": "Get Out Of Car",
-			"description": "Presses ESC key for 2 sec.",
-			"voiceTriggers": ["get out"],
+			"description": "Presses ESC key for 1.1 sec.",
+			"voiceTriggers": ["get out", "fuck this shit"],
 			"commandSets": [{
-				"description": "iRacing only",
-				"gameDefinition": "IRACING",
+				"description": "Race Room version",
+				"gameDefinition": "RACE_ROOM",
 				"actionSequence": ["Get Out Of Car"],
-				"keyPressTime": 2000,
+				"keyPressTime": 1100,
 				"waitBetweenEachCommand": 200
 			}]
 		}

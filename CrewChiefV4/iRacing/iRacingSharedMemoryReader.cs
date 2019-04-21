@@ -47,13 +47,74 @@ namespace CrewChiefV4.iRacing
             public iRacingData data;
         }
         public override void DumpRawGameData()
-        {
+        {            
             if (dumpToFile && dataToDump != null && dataToDump.Count > 0 && filenameToDump != null)
-            {
-                SerializeObject(dataToDump.ToArray<iRacingStructDumpWrapper>(), filenameToDump);
+            {                
+                bool firstSession = true;
+                List<iRacingStructDumpWrapper> currentSession = new List<iRacingStructDumpWrapper>();
+                string sessionType = YamlParser.Parse(dataToDump[0].data.SessionInfo, string.Format(SessionData.sessionInfoYamlPath, dataToDump[0].data.SessionNum, "SessionType"));
+                string track = YamlParser.Parse(dataToDump[0].data.SessionInfo, "WeekendInfo:TrackName:");
+                string filename = System.IO.Path.GetFileNameWithoutExtension(filenameToDump);
+                string directory = System.IO.Path.GetDirectoryName(filenameToDump);
+                string extension = System.IO.Path.GetExtension(filenameToDump);
+                string filenameToDumpRenamed = System.IO.Path.Combine(directory, filename + "-" + track + "-" + sessionType) + extension;
+                                
+                foreach (iRacingStructDumpWrapper wr in dataToDump)
+                {
+                    if (firstSession || !wr.data.IsNewSession)
+                    {
+                        firstSession = false;
+                        currentSession.Add(wr);
+                        continue;
+                    }
+                    else
+                    {
+                        SerializeObject(currentSession.ToArray<iRacingStructDumpWrapper>(), filenameToDumpRenamed);
+                        currentSession.Clear();
+                        currentSession.Add(wr);
+                        track = YamlParser.Parse(wr.data.SessionInfo, "WeekendInfo:TrackName:");
+                        sessionType = YamlParser.Parse(wr.data.SessionInfo, string.Format(SessionData.sessionInfoYamlPath, wr.data.SessionNum, "SessionType"));
+                        filenameToDumpRenamed = System.IO.Path.Combine(directory, filename + "-" + track + "-" + sessionType) + extension;
+                    }
+                }
+                SerializeObject(currentSession.ToArray<iRacingStructDumpWrapper>(), filenameToDumpRenamed);
             }
         }
 
+        public void SplitTraceData(String newFilename)
+        {
+            if (dataToDump != null && dataToDump.Count > 0)
+            {
+                bool firstSession = true;
+                List<iRacingStructDumpWrapper> currentSession = new List<iRacingStructDumpWrapper>();
+                string sessionType = YamlParser.Parse(dataToDump[0].data.SessionInfo, string.Format(SessionData.sessionInfoYamlPath, dataToDump[0].data.SessionNum, "SessionType"));
+                string track = YamlParser.Parse(dataToDump[0].data.SessionInfo, "WeekendInfo:TrackName:");
+                string filename = System.IO.Path.GetFileNameWithoutExtension(newFilename);
+                string directory = System.IO.Path.GetDirectoryName(newFilename);
+                string extension = System.IO.Path.GetExtension(newFilename);
+                string filenameToDumpRenamed = System.IO.Path.Combine(directory, filename + "-" + track + "-" + sessionType) + extension;
+
+                foreach (iRacingStructDumpWrapper wr in dataToDump)
+                {
+                    if (firstSession || !wr.data.IsNewSession)
+                    {
+                        firstSession = false;
+                        currentSession.Add(wr);
+                        continue;
+                    }
+                    else
+                    {
+                        SerializeObject(currentSession.ToArray<iRacingStructDumpWrapper>(), filenameToDumpRenamed);
+                        currentSession.Clear();
+                        currentSession.Add(wr);
+                        track = YamlParser.Parse(wr.data.SessionInfo, "WeekendInfo:TrackName:");
+                        sessionType = YamlParser.Parse(wr.data.SessionInfo, string.Format(SessionData.sessionInfoYamlPath, wr.data.SessionNum, "SessionType"));
+                        filenameToDumpRenamed = System.IO.Path.Combine(directory, filename + "-" + track + "-" + sessionType) + extension;
+                    }
+                }
+                SerializeObject(currentSession.ToArray<iRacingStructDumpWrapper>(), filenameToDumpRenamed);
+            }
+        }
         public override void ResetGameDataFromFile()
         {
             dataReadFromFileIndex = 0;
@@ -70,6 +131,8 @@ namespace CrewChiefV4.iRacing
                 dataReadFromFileIndex = 0;
                 var filePathResolved = Utilities.ResolveDataFile(this.dataFilesPath, filename);
                 dataReadFromFile = DeSerializeObject<iRacingStructDumpWrapper[]>(filePathResolved);
+                //dataToDump = dataReadFromFile.ToList<iRacingStructDumpWrapper>();
+                //SplitTraceData(filePathResolved);
                 lastReadFileName = filename;
                 Thread.Sleep(pauseBeforeStart);
             }
@@ -82,11 +145,14 @@ namespace CrewChiefV4.iRacing
                     IsNewSession = sim.SdkOnSessionInfoUpdated(structDumpWrapperData.data.SessionInfo, structDumpWrapperData.data.SessionNum, structDumpWrapperData.data.PlayerCarIdx);
                     lastUpdate = structDumpWrapperData.data.SessionInfoUpdate;
                 }
+                /*if (IsNewSession)
+                {
+                    Console.WriteLine(structDumpWrapperData.data.SessionInfo);
+                }*/
                 sim.SdkOnTelemetryUpdated(structDumpWrapperData.data);
                 iRacingStructWrapper structWrapperData = new iRacingStructWrapper() { data = sim, ticksWhenRead = structDumpWrapperData.ticksWhenRead };
                 structWrapperData.data.Telemetry.IsNewSession = IsNewSession;
                 dataReadFromFileIndex++;
-
                 return structWrapperData;
             }
             else
