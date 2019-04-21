@@ -899,6 +899,12 @@
     <Setting Name="use_rf2_wheel_size_for_locking_and_spinning" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="iracing_fcy_formation_use_drivername" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="enable_iracing_pit_state_during_fcy" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
     <Setting Name="enable_websocket" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>

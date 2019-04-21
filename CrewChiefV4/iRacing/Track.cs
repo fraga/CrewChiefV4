@@ -8,8 +8,21 @@ namespace CrewChiefV4.iRacing
         public Track()
         {
             IsOval = false;
+            TrackType = TrackTypes.Unknown;
+            FormationLapCount = 0; // green first time round
         }
-
+        public enum TrackTypes : int
+        {
+            Unknown = 0,
+            RoadCourse,
+            DirtRoad,
+            ShortOval,
+            MileOval,
+            MediumOval,
+            SuperSpeedWay,
+            Oval,
+            DirtOval, 
+        }
         public int Id { get; set; }
         public string Name { get; set; }
         public string CodeName { get; set; }
@@ -17,6 +30,10 @@ namespace CrewChiefV4.iRacing
         public bool NightMode { get; set; }
         public bool IsOval { get; set; }
         public string Category { get; set; }
+        public string TrackTypeString { get; set; }
+        public TrackTypes TrackType { get; set; }
+        public string TrackPitSpeedLimit { get; set; }
+        public int FormationLapCount { get; set; }
         public static Track FromSessionInfo(string sessionString)
         {
             var track = new Track();
@@ -26,11 +43,58 @@ namespace CrewChiefV4.iRacing
             track.Length = Parser.ParseTrackLength(YamlParser.Parse(sessionString, "WeekendInfo:TrackLength:"));            
             track.NightMode = YamlParser.Parse(sessionString, "WeekendInfo:NightMode:") == "1";
             track.Category = YamlParser.Parse(sessionString, "WeekendInfo:Category:");
-            track.IsOval = track.Category.ToLower().Contains("oval");
-
+            track.TrackTypeString = YamlParser.Parse(sessionString, "WeekendInfo:TrackType:");
+            track.TrackPitSpeedLimit = YamlParser.Parse(sessionString, "WeekendInfo:TrackPitSpeedLimit:");
+            if (track.TrackTypeString.Equals("road course"))
+            {
+                track.TrackType = TrackTypes.RoadCourse;
+            }
+            else if (track.TrackTypeString.Equals("dirt road"))
+            {
+                track.TrackType = TrackTypes.DirtRoad;
+            }
+            else if (track.TrackTypeString.Equals("dirt oval"))
+            {
+                track.TrackType = TrackTypes.DirtOval;
+                track.IsOval = true;
+            }
+            else if (track.TrackTypeString.Equals("short oval"))
+            {
+                track.TrackType = TrackTypes.ShortOval;
+                track.FormationLapCount = 1;
+                track.IsOval = true;
+            }
+            else if (track.TrackTypeString.Equals("mile oval"))
+            {
+                track.TrackType = TrackTypes.MileOval;
+                track.IsOval = true;
+            }
+            else if (track.TrackTypeString.Equals("medium oval"))
+            {
+                track.TrackType = TrackTypes.MediumOval;
+                track.IsOval = true;
+            }
+            else if (track.TrackTypeString.Equals("super speedway"))
+            {
+                track.TrackType = TrackTypes.SuperSpeedWay;
+                track.IsOval = true;
+            }
+            // this is here to insure we set a type if none of the above reads true, so hopefully we can catch it this way.
+            else if (track.TrackTypeString.Contains("oval"))
+            {
+                track.TrackType = TrackTypes.Oval;
+                track.IsOval = true;
+            }
+            else if (track.TrackTypeString.Contains("road"))
+            {
+                track.TrackType = TrackTypes.RoadCourse;
+            }
+            else
+            {
+                track.TrackType = TrackTypes.Unknown;
+            }
             return track;
         }
-
-
+        
     }
 }
