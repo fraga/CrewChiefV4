@@ -522,7 +522,7 @@
 		},
 		{
 			"carClassEnum": "FORMULA_E",
-			"rf2ClassNames": ["Formula E 2018", "Formula E Showcar"],
+			"rf2ClassNames": ["Formula E 2018", "Formula E Showcar", "Formula E 2019"],
 			"brakeType": "Carbon",
 			"maxSafeWaterTemp": 105,
 			"maxSafeOilTemp": 140,
