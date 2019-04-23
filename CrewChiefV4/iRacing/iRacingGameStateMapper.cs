@@ -679,10 +679,10 @@ namespace CrewChiefV4.iRacing
             
             }
             currentGameState.PitData.JumpedToPits = previousGameState != null && !previousGameState.PitData.IsApproachingPitlane && !previousGameState.PitData.JumpedToPits && currentGameState.PitData.InPitlane && !previousGameState.PitData.InPitlane;
-            if (currentGameState.PitData.JumpedToPits)
+            /*if (currentGameState.PitData.JumpedToPits)
             {
                 Console.WriteLine("currentGameState.PitData.JumpedToPits = " + currentGameState.PitData.JumpedToPits);
-            }
+            }*/
             //currentGameState.PitData.IsApproachingPitlane = playerCar.Live.TrackSurface == TrackSurfaces.AproachingPits && !currentGameState.PitData.InPitlane && currentGameState.SessionData.HasCompletedSector2ThisLap;
                         
             currentGameState.PitData.IsInGarage = shared.Telemetry.IsInGarage;
@@ -1310,7 +1310,7 @@ namespace CrewChiefV4.iRacing
             int previousLapsCompleted, int laps, SessionFlags sessionFlags, bool IsFullCourseCautions, SafetyCarData currentSafetyCarData, SafetyCarData previousSafetyCarData, 
             int formationLapCount, float pitEntranceDistanceRoundTrack)
         {
-            if (previousSessionFlags != sessionFlags)
+            /*if (previousSessionFlags != sessionFlags)
             {
                 Console.WriteLine("Previous sessionFlags: " + previousSessionFlags);
                 Console.WriteLine("Current sessionFlags: " + sessionFlags);
@@ -1321,7 +1321,7 @@ namespace CrewChiefV4.iRacing
                 Console.WriteLine("Previous sessionState: " + previousSessionState);
                 Console.WriteLine("Current sessionState: " + sessionState);
                 previousSessionState = sessionState;
-            }
+            }*/
             if (currentSessionType == SessionType.Practice)
             {
                 if (sessionState == SessionStates.CoolDown)
@@ -1602,7 +1602,7 @@ namespace CrewChiefV4.iRacing
                     && (TrackSurfaces)currentSafetyCarData.TrackSurface == TrackSurfaces.AproachingPits)
                 {
                     currentSafetyCarData.PitEntranceDistanceRoundTrack = safetyCar.Live.LapDistance * trackLength;
-                    Console.WriteLine("currentSafetyCarData.PitEntranceDistanceRoundTrack = " + currentSafetyCarData.PitEntranceDistanceRoundTrack);
+                    //Console.WriteLine("currentSafetyCarData.PitEntranceDistanceRoundTrack = " + currentSafetyCarData.PitEntranceDistanceRoundTrack);
                 }
             }
             else
@@ -1612,17 +1612,17 @@ namespace CrewChiefV4.iRacing
                 currentSafetyCarData.DistanceRoundTrack = safetyCar.Live.LapDistance * trackLength;
             }
             currentSafetyCarData.isOnTrack = (TrackSurfaces)currentSafetyCarData.TrackSurface == TrackSurfaces.OnTrack;
-            if (prevTrackSurface != (TrackSurfaces)currentSafetyCarData.TrackSurface)
+            /*if (prevTrackSurface != (TrackSurfaces)currentSafetyCarData.TrackSurface)
             {
                 Console.WriteLine("shared.PaceCar.Live.TrackSurface = " + (TrackSurfaces)currentSafetyCarData.TrackSurface);
                 prevTrackSurface = (TrackSurfaces)currentSafetyCarData.TrackSurface;
-            }
+            }*/
             if (currentSafetyCarData.isOnTrack)
             {
                 if (previousSafetyCarData != null && previousSafetyCarData.CurrentSector == 3 && currentSafetyCarData.CurrentSector == 1)
                 {
                     currentSafetyCarData.Lap++;
-                    Console.WriteLine("currentGameState.SafetyCarData.Lap = " + currentSafetyCarData.Lap);
+                    //Console.WriteLine("currentGameState.SafetyCarData.Lap = " + currentSafetyCarData.Lap);
                 }
             }
             else

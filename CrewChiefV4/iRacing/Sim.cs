@@ -65,8 +65,8 @@ namespace CrewChiefV4.iRacing
         private const double SECONDS_OFF_WORLD_TILL_RETIRED = 20.0;
         private Boolean _isRaceOrQualifying = false;
         private DateTime _lastLogTime = default(DateTime);
-        private int _numberOfStarters = -1;
-        private int _numberOfDriversOut = 0;
+        //private int _numberOfStarters = -1;
+        //private int _numberOfDriversOut = 0;
         private void UpdateDriverList(string sessionInfo, bool reloadDrivers)
         {
             this.GetDrivers(sessionInfo, reloadDrivers);
@@ -158,7 +158,7 @@ namespace CrewChiefV4.iRacing
             }
         }
 
-        private void GetNumberOfStarters(string sessionInfo)
+        /*private void GetNumberOfStarters(string sessionInfo)
         {
             var numStartersString = "-1";
             if (!YamlParser.TryGetValue(sessionInfo, "WeekendInfo:WeekendOptions:NumStarters:", out numStartersString))
@@ -166,16 +166,16 @@ namespace CrewChiefV4.iRacing
                 return;
             }
             _numberOfStarters = int.Parse(numStartersString);
-        }
+        }*/
 
         private void GetRaceResults(string sessionInfo)
         {
-            var numberOut = 0;
+            //var numberOut = 0;
             for (int position = 1; position <= _drivers.Count; position++)
             {                
                 string idValue = "0";
                 string reasonOutString = "0";
-                if(YamlParser.TryGetValue(sessionInfo, string.Format("SessionInfo:Sessions:SessionNum:{{{0}}}ResultsPositions:Position:{{{1}}}ReasonOutId:",
+                /*if(YamlParser.TryGetValue(sessionInfo, string.Format("SessionInfo:Sessions:SessionNum:{{{0}}}ResultsPositions:Position:{{{1}}}ReasonOutId:",
                     _currentSessionNumber, position), out reasonOutString))
                 {
                     var reasonOut = (ReasonOutId)int.Parse(reasonOutString);
@@ -183,7 +183,7 @@ namespace CrewChiefV4.iRacing
                     {
                         numberOut++;
                     }
-                }
+                }*/
                 if (!YamlParser.TryGetValue(sessionInfo, string.Format("SessionInfo:Sessions:SessionNum:{{{0}}}ResultsPositions:Position:{{{1}}}CarIdx:",
                     _currentSessionNumber, position), out idValue))
                 {
@@ -201,7 +201,7 @@ namespace CrewChiefV4.iRacing
                     driver.UpdateResultsInfo(sessionInfo, _currentSessionNumber.Value, position);
                 }
             }
-            _numberOfDriversOut = numberOut;
+            //_numberOfDriversOut = numberOut;
         }
         private void UpdateDriverTelemetry(iRacingData info)
         {
@@ -491,7 +491,7 @@ namespace CrewChiefV4.iRacing
             // Update drivers
             this.UpdateDriverList(sessionInfo, reloadDrivers);
 
-            GetNumberOfStarters(sessionInfo);
+            //GetNumberOfStarters(sessionInfo);
             
             return reloadDrivers;         
         }
