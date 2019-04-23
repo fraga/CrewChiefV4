@@ -833,7 +833,8 @@ namespace CrewChiefV4.iRacing
                 OpponentData currentOpponentData = null;
                 if (currentGameState.OpponentData.TryGetValue(opponentDataKey, out currentOpponentData))
                 {
-                    if (shared.SessionData.IsTeamRacing || driver.CustId == currentOpponentData.CostId)
+                    // if we're team racing or the custId matches, update this driver. Don't remove him if the name matches and the custId from iRacing is zero
+                    if (shared.SessionData.IsTeamRacing || (driver.CustId == currentOpponentData.CostId) || (driver.CustId == 0 && currentOpponentData.DriverRawName.Equals(driverName)))
                     {
                         createNewDriver = false;
                         if (previousGameState != null)
@@ -1008,7 +1009,8 @@ namespace CrewChiefV4.iRacing
                     }
                     else
                     {
-                        Console.WriteLine("Removing driver " + currentOpponentData.DriverRawName + " and replacing with " + driverName);
+                        Console.WriteLine("Removing driver " + currentOpponentData.DriverRawName + " (custId " + currentOpponentData.CostId +
+                            ") and replacing with " + driverName + " (custId " + driver.CustId +")");
                         currentGameState.OpponentData.Remove(opponentDataKey);
                     }
                 }
