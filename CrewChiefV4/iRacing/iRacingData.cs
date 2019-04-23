@@ -72,9 +72,9 @@ namespace CrewChiefV4.iRacing
 			LRcoldPressure = (System.Single)sdk.GetData("LRcoldPressure");
 			RFcoldPressure = (System.Single)sdk.GetData("RFcoldPressure");
 			LFcoldPressure = (System.Single)sdk.GetData("LFcoldPressure");
-            VertAccel = (System.Single)sdk.GetData("VertAccel");
-            LatAccel = (System.Single)sdk.GetData("LatAccel");
-            LongAccel = (System.Single)sdk.GetData("LongAccel");
+            //VertAccel = (System.Single)sdk.GetData("VertAccel");
+            ///LatAccel = (System.Single)sdk.GetData("LatAccel");
+            //LongAccel = (System.Single)sdk.GetData("LongAccel");
 		}
 		public iRacingData() {}
 		public System.Boolean IsNewSession;
@@ -354,17 +354,17 @@ namespace CrewChiefV4.iRacing
         /// <summary>
         /// Vertical acceleration (including gravity)
         /// <summary>
-        public System.Single VertAccel;
+        //public System.Single VertAccel;
 
         /// <summary>
         /// Lateral acceleration (including gravity)
         /// <summary>
-        public System.Single LatAccel;
+        //public System.Single LatAccel;
 
         /// <summary>
         /// Longitudinal acceleration (including gravity)
         /// <summary>
-        public System.Single LongAccel;
+        //public System.Single LongAccel;
 
 	}
 }
