@@ -4157,7 +4157,7 @@ namespace CrewChiefV4.GameState
                         classIds.Add(opponentClassId);
                         if (CrewChief.gameDefinition.allowsUserCreatedCars && opponentData.CarClass.carClassEnum == CarData.CarClassEnum.UNKNOWN_RACE)
                         {
-                            unknownClassIds.Add(playerClassId);
+                            unknownClassIds.Add(opponentClassId);
                         }
                     }
                     numberOfClasses = classIds.Count;
