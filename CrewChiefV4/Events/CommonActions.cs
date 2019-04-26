@@ -436,11 +436,11 @@ namespace CrewChiefV4.Events
         }
         public void playCornerNamesForCurrentLap()
         {
-            if (currentGameState != null)
-            {
-                audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
+            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
+            if (currentGameState == null)
+                CrewChief.currentGameState.readLandmarksForThisLap = true;
+            else 
                 currentGameState.readLandmarksForThisLap = true;
-            }
         }
         public void togglePaceNotesPlayback()
         {
