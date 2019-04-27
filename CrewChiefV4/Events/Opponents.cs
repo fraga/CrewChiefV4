@@ -623,11 +623,11 @@ namespace CrewChiefV4.Events
                     }
                 }
                 else if (voiceMessage.StartsWith(SpeechRecogniser.WHATS) &&
-                    (voiceMessage.EndsWith(SpeechRecogniser.LAST_LAP) || voiceMessage.EndsWith(SpeechRecogniser.BEST_LAP) ||
+                    (voiceMessage.EndsWith(SpeechRecogniser.LAST_LAP) || voiceMessage.EndsWith(SpeechRecogniser.BEST_LAP) || voiceMessage.EndsWith(SpeechRecogniser.LAST_LAP_TIME) || voiceMessage.EndsWith(SpeechRecogniser.BEST_LAP_TIME) ||
                     voiceMessage.EndsWith(SpeechRecogniser.LICENSE_CLASS) ||
                     voiceMessage.EndsWith(SpeechRecogniser.IRATING)))
                 {
-                    if (voiceMessage.EndsWith(SpeechRecogniser.LAST_LAP))
+                    if (voiceMessage.EndsWith(SpeechRecogniser.LAST_LAP) || voiceMessage.EndsWith(SpeechRecogniser.LAST_LAP_TIME))
                     {
                         float lastLap = getOpponentLastLap(getOpponentKey(voiceMessage, SpeechRecogniser.POSSESSIVE + " ").Item1);
                         if (lastLap != -1)
@@ -638,7 +638,7 @@ namespace CrewChiefV4.Events
 
                         }
                     }
-                    else if (voiceMessage.EndsWith(SpeechRecogniser.BEST_LAP))
+                    else if (voiceMessage.EndsWith(SpeechRecogniser.BEST_LAP) || voiceMessage.EndsWith(SpeechRecogniser.BEST_LAP_TIME))
                     {
                         float bestLap = getOpponentBestLap(getOpponentKey(voiceMessage, SpeechRecogniser.POSSESSIVE + " ").Item1);
                         if (bestLap != -1)

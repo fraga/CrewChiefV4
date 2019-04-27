@@ -353,7 +353,6 @@ namespace CrewChiefV4
                                     if (click)
                                     {
                                         ba.hasUnprocessedClick = true;
-                                        
                                     }
                                 }
                             }
@@ -772,6 +771,7 @@ namespace CrewChiefV4
                                 buttonAssignment.controller = controllerData;
                                 buttonAssignment.deviceGuid = controllerData.guid.ToString();
                                 buttonAssignment.buttonIndex = i;
+                                buttonAssignment.findEvent();
                                 listenForAssignment = false;
                                 gotAssignment = true;
                             }
@@ -864,6 +864,7 @@ namespace CrewChiefV4
             public String action { get; set; }
             public String deviceGuid { get; set; }
             public int buttonIndex { get; set; }
+            public bool opponentDataCommand { get; set; }
             
             // used to override the default ui text for an action - is optional and generally not used much
             [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
@@ -887,7 +888,7 @@ namespace CrewChiefV4
                 findUiText();
             }
 
-            private void findEvent()
+            public void findEvent()
             {
                 if (this.action != null && !specialActions.Contains(this.action))
                 {
@@ -896,6 +897,11 @@ namespace CrewChiefV4
                     {
                         this.actionEvent = SpeechRecogniser.getEventForAction(srePhrases[0]);
                         this.resolvedSRECommand = srePhrases[0];
+                    }
+                    else if (opponentDataCommand)
+                    {
+                        this.actionEvent = CrewChief.getEvent("Opponents");
+                        this.resolvedSRECommand = this.action;
                     }
                     else
                     {
