@@ -242,6 +242,10 @@ namespace CrewChiefV4
                     Console.WriteLine("\t\"" + carClass.Key + "\" "
                         + Utilities.GetCarClassMappingHint(carClass.Value));
                 }
+                if (!GameStateData.Multiclass)
+                {
+                    Console.WriteLine("Insufficient car class data, so dropping back to single class racing");
+                }
             }
         }
 

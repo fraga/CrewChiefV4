@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html>
 <body>
+<h2>Version 4.9.7.6</h2>
+<ul>
+	<li>Prevent fuel estimates playing too close together</li>
+	<li>fixed cases where the app switches to multi-class mode when it shouldn't - when there are too many unknown car classes in a session the app now reverts to single-class mode as intended</li>
+	<li>AMS / RF1 - update race start positions shortly after the green light - should fix cases where the 'bad start' message was playing when it shouldn't</li>
+</ul>
+<h2>Version 4.9.7.5</h2>
+<ul>
+	<li>Hotfix for iRacing crash bug</li>
+</ul>
 <h2>Version 4.9.7.4</h2>
 <ul>
 	<li>Allow fuel consumption calculations to be based on the lap with the highest representative fuel usage - this should produce more accurate fuel calculations on ovals and in cases where there's just been a full-course-yellow / caution period or other event that can significantly reduce fuel consumption. By default the app will use max per-lap consumption on oval courses and a windowed average consumption on road courses. Enable 'Base fuel calculations on max fuel consumption' property to use max per-lap consumption on all tracks</li>

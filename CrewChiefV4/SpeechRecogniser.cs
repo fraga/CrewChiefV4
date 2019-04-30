@@ -1044,9 +1044,11 @@ namespace CrewChiefV4
             if (!disable_alternative_voice_commands)
             {
                 opponentNameOrPositionChoices.Add(THE_GUY_AHEAD);
+                opponentNameOrPositionChoices.Add(THE_CAR_IN_FRONT);
                 opponentNameOrPositionChoices.Add(THE_GUY_IN_FRONT);
                 opponentNameOrPositionChoices.Add(THE_GUY_BEHIND);
                 opponentNameOrPositionPossessiveChoices.Add(THE_GUY_AHEAD);
+                opponentNameOrPositionPossessiveChoices.Add(THE_CAR_IN_FRONT);
                 opponentNameOrPositionPossessiveChoices.Add(THE_GUY_IN_FRONT);
                 opponentNameOrPositionPossessiveChoices.Add(THE_GUY_BEHIND);
             }
@@ -1054,7 +1056,7 @@ namespace CrewChiefV4
             opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHERE_IS, WHERES }, false, opponentNameOrPositionChoices, null, true));
             opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHOS_IN }, false, opponentPositionChoices, null, true));
             opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHAT_TYRE_IS, WHAT_TYRES_IS }, false, opponentNameOrPositionChoices, new String[] { ON }, true));
-            opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHATS }, false, opponentNameOrPositionPossessiveChoices, new String[] { LAST_LAP, BEST_LAP, IRATING, LICENSE_CLASS }, true));
+            opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHATS }, false, opponentNameOrPositionPossessiveChoices, new String[] { LAST_LAP, LAST_LAP_TIME, BEST_LAP, BEST_LAP_TIME, IRATING, LICENSE_CLASS }, true));
 
             driverNamesInUse.AddRange(names);
         }
@@ -1736,7 +1738,8 @@ namespace CrewChiefV4
                 ResultContains(recognisedSpeech, STATUS, false) ||
                 ResultContains(recognisedSpeech, SESSION_STATUS, false) ||
                 ResultContains(recognisedSpeech, START_PACE_NOTES_PLAYBACK, false) ||
-                ResultContains(recognisedSpeech, STOP_PACE_NOTES_PLAYBACK, false) ||
+                ResultContains(recognisedSpeech, STOP_PACE_NOTES_PLAYBACK, false) || 
+                ResultContains(recognisedSpeech, PLAY_CORNER_NAMES, false) ||
                 ControllerConfiguration.builtInActionMappings.ContainsValue(recognisedSpeech))
             {
                 return CrewChief.getEvent("CommonActions");

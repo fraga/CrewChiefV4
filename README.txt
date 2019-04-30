@@ -220,6 +220,10 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.9.7.6: Prevent fuel estimates playing too close together; fixed cases where the app switches to multi-class mode when it shouldn't - when there are too many unknown car classes in a session the app now reverts to single-class mode as intended; AMS / RF1 - update race start positions shortly after the green light - should fix cases where the 'bad start' message was playing when it shouldn't
+
+Version 4.9.7.5: Hotfix for iRacing crash bug
+
 Version 4.9.7.4: R3E - added support for WebHud so Crew Chief can send data to WebHud in place of dash.exe. Enable this with the 'Enable WebHud integration (R3E only)' property. This should also be slightly more efficient that the old dash.exe program; don't play laptime or pace report for laps which are several seconds slower than your pace; allow fuel consumption calculations to be based on the lap with the highest representative fuel usage - this should produce more accurate fuel calculations on ovals and in cases where there's just been a full-course-yellow / caution period or other event that can significantly reduce fuel consumption. By default the app will use max per-lap consumption on oval courses and a windowed average consumption on road courses. Enable 'Base fuel calculations on max fuel consumption' property to use max per-lap consumption on all tracks; iRacing - reworked session position logic to reduce inaccurate position calls; iRacing - additional messages for formation laps and full course yellows; a few assorted fixes
 
 Version 4.9.7.3: R3E - added support for new shared memory layout introduced in latest game update

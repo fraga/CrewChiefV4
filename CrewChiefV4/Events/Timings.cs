@@ -207,8 +207,8 @@ namespace CrewChiefV4.Events
                 object timingValidationDataValue = null;
                 if (validationData != null && validationData.TryGetValue("position", out timingValidationDataValue) &&
                     ((int)timingValidationDataValue != currentGameState.SessionData.ClassPosition ||
-                    currentGameState.SessionData.TimeDeltaFront * currentGameState.PositionAndMotionData.CarSpeed < 3 ||
-                    currentGameState.SessionData.TimeDeltaBehind * currentGameState.PositionAndMotionData.CarSpeed < 3))
+                     (eventSubType.Contains("Timings/gap_in_front") && currentGameState.SessionData.TimeDeltaFront * currentGameState.PositionAndMotionData.CarSpeed < 3) ||
+                     (eventSubType.Contains("Timings/gap_behind") && currentGameState.SessionData.TimeDeltaBehind * currentGameState.PositionAndMotionData.CarSpeed < 3)))
                 {
                     // if our race position has changed since we queued the message, assume we've actually passed this car or been passed.
                     // if our gap ahead or behind is < 1 car length, assume we're in the process of passing or being passed
@@ -625,7 +625,7 @@ namespace CrewChiefV4.Events
                                 DelayedMessageEvent delayedMessageEvent = new DelayedMessageEvent("resolveGapAmount", new Object[] {
                                             true, primaryPartialMessageContents, primaryGapIndex, alternatePartialMessageContents, alternateGapIndex }, this);
 
-                                QueuedMessage message = new QueuedMessage("Timings/gap_ahead", 0, delayedMessageEvent: delayedMessageEvent, abstractEvent: this,
+                                QueuedMessage message = new QueuedMessage("Timings/gap_in_front", 0, delayedMessageEvent: delayedMessageEvent, abstractEvent: this,
                                     validationData: new Dictionary<string, object> { { "position", currentGameState.SessionData.ClassPosition } }, priority: 10);
                                 message.playEvenWhenSilenced = true;
                                 audioPlayer.playMessage(message);

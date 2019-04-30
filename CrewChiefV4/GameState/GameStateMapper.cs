@@ -32,6 +32,7 @@ namespace CrewChiefV4.GameState
         private DateTime nextOpponentBehindPitMessageDue = DateTime.MinValue;
         private DateTime nextOpponentAheadPitMessageDue = DateTime.MinValue;
         private DateTime nextLeaderPitMessageDue = DateTime.MinValue;
+        private Boolean resetClassStartPos = false; // an AMS hack - class start pos is incorrect until 1 tick after 'just gone green'
 
         public virtual void setSpeechRecogniser(SpeechRecogniser speechRecogniser)
         {
@@ -45,8 +46,20 @@ namespace CrewChiefV4.GameState
         {
             Boolean singleClass = GameStateData.NumberOfClasses == 1 || CrewChief.forceSingleClass;
             // always set the session start class position and lap start class position:
-            if (currentGameState.SessionData.JustGoneGreen || currentGameState.SessionData.IsNewSession)
+            if (currentGameState.SessionData.JustGoneGreen || currentGameState.SessionData.IsNewSession || resetClassStartPos)
             {
+                // for RF1 the class start pos only appears to be correct on the tick after JustGoneGreen, so allow it to be updated on this tick.
+                // for now we'll apply this same hack to RF2 - it shouldn't break anything and the bug may be common to both games
+                if (resetClassStartPos)
+                {
+                    Console.WriteLine("Resetting class start pos from " + currentGameState.SessionData.SessionStartClassPosition + " to " + currentGameState.SessionData.ClassPosition);
+                    resetClassStartPos = false;
+                }
+                else if ((CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT) && currentGameState.SessionData.JustGoneGreen)
+                {
+                    resetClassStartPos = true;
+                }
+
                 // NOTE: on new session, ClassPosition in rF2 is not correct.  It is updated with a bit of a delay.
                 // Since this code triggers on JustGoneGreen as well, this is corrected at that point, but I am not yet sure
                 // there are no bad side effects.
