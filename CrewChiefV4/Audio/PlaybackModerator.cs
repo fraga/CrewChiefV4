@@ -414,13 +414,17 @@ namespace CrewChiefV4.Audio
 
                 PlaybackModerator.Trace(string.Format("Injecting: {0} and {1} messages. {2}", keyBleepOut, keyBleepIn, traceMsgPostfix));
 
-                // insert bleep out/in
-                if (PlaybackModerator.insertBeepOutBetweenSpotterAndChief)
-                    PlaybackModerator.audioPlayer.getSoundCache().Play(keyBleepOut, soundMetadata);
+                // don't insert a beep if we're in oval-spotter mode
+                if (!GlobalBehaviourSettings.enableOvalSpotterBehaviours)
+                {
+                    // insert bleep out/in
+                    if (PlaybackModerator.insertBeepOutBetweenSpotterAndChief)
+                        PlaybackModerator.audioPlayer.getSoundCache().Play(keyBleepOut, soundMetadata);
 
-                // would be nice to have some slight random silence here
-                if (PlaybackModerator.insertBeepInBetweenSpotterAndChief)
-                    PlaybackModerator.audioPlayer.getSoundCache().Play(keyBleepIn, soundMetadata);
+                    // would be nice to have some slight random silence here
+                    if (PlaybackModerator.insertBeepInBetweenSpotterAndChief)
+                        PlaybackModerator.audioPlayer.getSoundCache().Play(keyBleepIn, soundMetadata);
+                }
             }
 
             PlaybackModerator.lastSoundWasSpotter = isSpotterSound;

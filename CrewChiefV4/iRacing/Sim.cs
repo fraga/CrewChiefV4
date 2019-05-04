@@ -458,12 +458,13 @@ namespace CrewChiefV4.iRacing
             var currentTime = DateTime.Now;
             if(lastLogged.AddMinutes(1) < currentTime)
             {
-                Console.WriteLine($"available positions: {string.Join("|", validPositions.OrderBy(p => p))}");
+                Console.WriteLine(string.Format("available positions: {0}", string.Join("|", validPositions.OrderBy(p => p))));
                 foreach (var key in classPositions.Keys)
                 {
-                    Console.WriteLine($"available positions for class id {key}: {string.Join("|", classPositions[key].OrderBy(p => p))}");
+                    Console.WriteLine(string.Format("available positions for class id {0}: {1}", key, string.Join("|", classPositions[key].OrderBy(p => p))));
                 }
-                Console.WriteLine($"positions: {string.Join("|", validDrivers.OrderBy(d => d.Live.Position).Select(d => $"{d.Live.Position},{d.Live.ClassPosition}"))}");
+                Console.WriteLine("positions: {0}", string.Join("|", validDrivers.OrderBy(d => d.Live.Position).Select(
+                    d => string.Format("pos: {0}, classPos {1}", d.Live.Position, d.Live.ClassPosition))));
                 lastLogged = currentTime;
             }
 #endif

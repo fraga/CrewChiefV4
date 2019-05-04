@@ -462,6 +462,14 @@ spotter_hold_repeat_frequency = Spotter hold repeat frequency
 spotter_hold_repeat_frequency_help = Time between the Spotter repeating "hold your line" when along side a car
 spotter_hold_repeat_frequency_category = SPOTTER;MESSAGE_FREQUENCES
 
+spotter_hold_repeat_frequency_ovals = Spotter hold repeat frequency (ovals)
+spotter_hold_repeat_frequency_ovals_help = Time between the Spotter repeating "hold your line" when along side a car on an oval track
+spotter_hold_repeat_frequency_ovals_category = SPOTTER;MESSAGE_FREQUENCES
+
+enable_oval_spotter_enhancements = Enable enhanced spotter on ovals
+enable_oval_spotter_enhancements_help = Allow radio calls between spotter messages and disable beeps on ovals
+enable_oval_spotter_enhancements_category = SPOTTER;MESSAGE_FREQUENCES
+
 spotter_update_interval = Spotter update interval
 spotter_update_interval_category = SPOTTER
 
