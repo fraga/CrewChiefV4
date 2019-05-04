@@ -133,6 +133,9 @@ namespace CrewChiefV4
 
         public static bool disableControllerReacquire = false;
 
+        private Boolean isMuted = false;
+        private float messageVolumeToRestore = -1;
+
         private const int WM_DEVICECHANGE = 0x219;
         private const int DBT_DEVNODES_CHANGED = 0x0007;
 
@@ -1536,6 +1539,22 @@ namespace CrewChiefV4
                         Console.WriteLine("Toggling spotter mode");
                         crewChief.toggleSpotterMode();
                         nextPollWait = 1000;
+                    }
+                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_MUTE))
+                    {
+                        if (!isMuted)
+                        {
+                            // save the volume levels to restore later
+                            messageVolumeToRestore = currentVolume;
+                            updateMessagesVolume(0);
+                            crewChief.audioPlayer.muteBackgroundPlayer(true);
+                        }
+                        else
+                        {
+                            crewChief.audioPlayer.muteBackgroundPlayer(false);
+                            updateMessagesVolume(messageVolumeToRestore);
+                        }
+                        isMuted = !isMuted;
                     }
                     else if (controllerConfiguration.hasOutstandingClick())
                     {
