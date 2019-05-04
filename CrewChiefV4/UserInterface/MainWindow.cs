@@ -1544,15 +1544,11 @@ namespace CrewChiefV4
                     {
                         if (!isMuted)
                         {
-                            // save the volume levels to restore later
-                            messageVolumeToRestore = currentVolume;
-                            updateMessagesVolume(0);
-                            crewChief.audioPlayer.muteBackgroundPlayer(true);
+                            muteVolumes();
                         }
                         else
                         {
-                            crewChief.audioPlayer.muteBackgroundPlayer(false);
-                            updateMessagesVolume(messageVolumeToRestore);
+                            unmuteVolumes();
                         }
                         isMuted = !isMuted;
                     }
@@ -1565,6 +1561,20 @@ namespace CrewChiefV4
                 }
                 Thread.Sleep(nextPollWait);
             }
+        }
+
+        private void unmuteVolumes()
+        {
+            crewChief.audioPlayer.muteBackgroundPlayer(false);
+            updateMessagesVolume(messageVolumeToRestore);
+        }
+
+        private void muteVolumes()
+        {
+            // save the volume levels to restore later
+            messageVolumeToRestore = currentVolume;
+            updateMessagesVolume(0);
+            crewChief.audioPlayer.muteBackgroundPlayer(true);
         }
 
         private void startApplicationButton_Click(object sender, EventArgs e)
@@ -1766,6 +1776,10 @@ namespace CrewChiefV4
 
         private void stopApp()
         {
+            if (isMuted)
+            {
+                unmuteVolumes();
+            }
             runListenForChannelOpenThread = false;
             runListenForButtonPressesThread = false;
             crewChief.stop();
