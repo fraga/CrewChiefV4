@@ -932,5 +932,11 @@
     <Setting Name="prefer_max_consumption_in_fuel_calculations" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="spotter_hold_repeat_frequency_ovals" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">3</Value>
+    </Setting>
+    <Setting Name="enable_oval_spotter_enhancements" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

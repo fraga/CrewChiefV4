@@ -73,7 +73,7 @@ namespace CrewChiefV4.rFactor2
             rF2VehicleScoring previousPlayerScoring;
 
             if (!this.enabled 
-                || currentState.scoring.mScoringInfo.mCurrentET < this.timeAfterRaceStartToActivate
+                || (!GlobalBehaviourSettings.enableOvalSpotterBehaviours && currentState.scoring.mScoringInfo.mCurrentET < this.timeAfterRaceStartToActivate)
                 || currentGameState.OpponentData.Count == 0
                 || currentState.scoring.mScoringInfo.mInRealtime == 0
                 || lastState.scoring.mScoringInfo.mInRealtime == 0
