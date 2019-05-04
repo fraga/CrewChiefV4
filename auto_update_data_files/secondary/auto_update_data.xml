@@ -3,8 +3,8 @@
 Note that the filename has to remain 'auto_update_data.xml' so legacy installs (which have no concept of the primary / 
 secondary update sources) can still be updated. All downloads from this source will be pulled from the isnais ftp server. -->
 <item>
-<title>Crew Chief 4.9.7.6 updated 26 April 2019</title>
-<version>4.9.7.6</version>
+<title>Crew Chief 4.9.7.7 updated 04 May 2019</title>
+<version>4.9.7.7</version>
 <url>http://crewchief.isnais.de/CrewChiefV4.msi</url>
 <changelog>http://crewchief.isnais.de/change_log_for_auto_updated.html</changelog>
 
@@ -40,7 +40,7 @@ secondary update sources) can still be updated. All downloads from this source w
 		<update-pack url="http://thecrewchief.org/downloads/update_4_driver_names.zip" updates-from-version="133"/>
 		<update-pack url="http://thecrewchief.org/downloads/update_5_driver_names.zip" updates-from-version="134"/>
 	</driver-names>
-	<personalisations latest-version="136">
+	<personalisations latest-version="137">
 		<update-pack url="http://thecrewchief.org/downloads/personalisations.zip" updates-from-version="-1"/>
 		<update-pack url="http://thecrewchief.org/downloads/update_personalisations.zip" updates-from-version="0"/>
 		<update-pack url="http://thecrewchief.org/downloads/update_2_personalisations.zip" updates-from-version="121"/>
@@ -49,6 +49,7 @@ secondary update sources) can still be updated. All downloads from this source w
 		<update-pack url="http://thecrewchief.org/downloads/update_5_personalisations.zip" updates-from-version="132"/>
 		<update-pack url="http://thecrewchief.org/downloads/update_6_personalisations.zip" updates-from-version="133"/>
 		<update-pack url="http://thecrewchief.org/downloads/update_7_personalisations.zip" updates-from-version="134"/>
+		<update-pack url="http://thecrewchief.org/downloads/update_8_personalisations.zip" updates-from-version="136"/>
 	</personalisations>
 </sounds>
 

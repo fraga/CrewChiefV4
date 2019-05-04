@@ -976,13 +976,17 @@ namespace CrewChiefV4.Audio
                         // ignore
                     }
                 }
-                if (useShortBeepWhenOpeningChannel)
+                // beeps don't play in oval spotter mode
+                if (!GlobalBehaviourSettings.enableOvalSpotterBehaviours)
                 {
-                    playShortStartSpeakingBeep();
-                }
-                else
-                {
-                    playStartSpeakingBeep();
+                    if (useShortBeepWhenOpeningChannel)
+                    {
+                        playShortStartSpeakingBeep();
+                    }
+                    else
+                    {
+                        playStartSpeakingBeep();
+                    }
                 }
             }
         }
@@ -991,7 +995,11 @@ namespace CrewChiefV4.Audio
         {
             if (channelOpen)
             {
-                playEndSpeakingBeep();
+                // beeps don't play in oval spotter mode
+                if (!GlobalBehaviourSettings.enableOvalSpotterBehaviours)
+                {
+                    playEndSpeakingBeep();
+                }
                 if (!mute)
                 {
                     try

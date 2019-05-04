@@ -269,7 +269,7 @@ namespace CrewChiefV4.Events
 
         private void getPitCountdownTriggerPoints(float pitlaneSpeed)
         {
-            float secondsBetweenEachCall = 1.5f;
+            float secondsBetweenEachCall = 1f;
             // we want the 0 (or 'BOX!') call to come at, say 20metres, so the last element is at 20 metres from the box
             float distance = pitCountdownEndDistance;
             for (int i = pitCountdownTriggerPoints.Length - 1; i >= 0; i--)
@@ -316,7 +316,7 @@ namespace CrewChiefV4.Events
                 {
                     // just entered the pitlane
                     pitEntryTime = currentGameState.Now;
-                    getPitCountdownTimingPoints = pitBoxPositionCountdownEnabled;
+                    getPitCountdownTimingPoints = pitBoxTimeCountdownEnabled;
 
                     previousDistanceToBox = 0;
                     played100MetreOr300FeetWarning = false;
