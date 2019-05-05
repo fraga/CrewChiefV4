@@ -220,6 +220,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.9.7.8: Hotfix for spotter being always set to 'ovals' mode on road courses (missing beeps, some other changes - sorry guys); fixed nAudio beeps not responding to volume changes; added button binding for 'mute toggle'
+
 Version 4.9.7.7: Change spotter behaviour on ovals to prevent the spotter monopolising the radio channel (non-spotter messages aren't blocked all the time). This disables the radio beeps on ovals and starts spotting immediately on race start. Note this affects oval tracks only. You can revert to the old spotter behaviour by disabling the 'Enable enhanced spotter on ovals' property; fixed some button assignments not working until the app was restarted; fixed broken pit stall count down; fixed some broken validation that was preventing gap ahead and gap behind messages playing in some circumstances; fixed broken 'play corner names' command; allow voice commands that refer to opponent cars (e.g. "what's the car ahead's last lap time") to be assigned to buttons - you need to add opponentDataCommand: true to the buttonAssignment element in controllerConfigurationData.json in these cases
 
 Version 4.9.7.6: Prevent fuel estimates playing too close together; fixed cases where the app switches to multi-class mode when it shouldn't - when there are too many unknown car classes in a session the app now reverts to single-class mode as intended; AMS / RF1 - update race start positions shortly after the green light - should fix cases where the 'bad start' message was playing when it shouldn't
