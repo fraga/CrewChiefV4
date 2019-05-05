@@ -1198,8 +1198,11 @@ namespace CrewChiefV4.Audio
 
         private NAudio.Wave.WaveOut waveOut;
         private NAudio.Wave.WaveFileReader reader;
+
         // only used for bleeps
         private int deviceIdWhenCached = 0;
+        // note the volume level when the beep was cached so we can reload the sound if the volume has changed
+        private float beepVolumeWhenCached = 0;
 
         AutoResetEvent playWaitHandle = new AutoResetEvent(false);
 
@@ -1282,9 +1285,10 @@ namespace CrewChiefV4.Audio
                 // only beeps are cached when using nAudio
                 if (AudioPlayer.playWithNAudio && isBleep)
                 {
-                    if (loadedSoundPlayer && AudioPlayer.naudioMessagesPlaybackDeviceId != deviceIdWhenCached)
+                    if (loadedSoundPlayer && 
+                        (AudioPlayer.naudioMessagesPlaybackDeviceId != deviceIdWhenCached || this.getVolume(1f) != beepVolumeWhenCached))
                     {
-                        // naudio device ID has changed since the beep was cached, so unload and re-cache it
+                        // naudio device ID or volume has changed since the beep was cached, so unload and re-cache it
                         try
                         {
                             this.reader.Dispose();
@@ -1301,6 +1305,7 @@ namespace CrewChiefV4.Audio
                     }
                     if (!loadedSoundPlayer)
                     {
+                        beepVolumeWhenCached = getVolume(1f);
                         LoadNAudioWaveOut();
                         loadedSoundPlayer = true;
                         deviceIdWhenCached = AudioPlayer.naudioMessagesPlaybackDeviceId;

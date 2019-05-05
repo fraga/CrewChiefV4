@@ -50,7 +50,8 @@ namespace CrewChiefV4
         public static String REPEAT_LAST_MESSAGE_BUTTON = "press_to_replay_the_last_message";
         public static String VOLUME_UP = "volume_up";
         public static String VOLUME_DOWN = "volume_down";
-        public static String PRINT_TRACK_DATA ="print_track_data";
+        public static String TOGGLE_MUTE = "toggle_mute";
+        public static String PRINT_TRACK_DATA = "print_track_data";
         public static String TOGGLE_YELLOW_FLAG_MESSAGES = "toggle_yellow_flag_messages";
         public static String GET_FUEL_STATUS = "get_fuel_status";
         public static String TOGGLE_MANUAL_FORMATION_LAP = "toggle_manual_formation_lap";
@@ -78,7 +79,7 @@ namespace CrewChiefV4
         // these are actions *not* handled by an AbstractEvent instance because of some batshit internal wiring that's impossible to unpick
         private static List<String> specialActions = new List<String>()
         {
-            CHANNEL_OPEN_FUNCTION, TOGGLE_SPOTTER_FUNCTION, VOLUME_UP, VOLUME_DOWN
+            CHANNEL_OPEN_FUNCTION, TOGGLE_SPOTTER_FUNCTION, VOLUME_UP, VOLUME_DOWN, TOGGLE_MUTE
         };
 
         // this is a map of legacy action name (stuff like "CHANNEL_OPEN_FUNCTION") to new action name (stuff like "talk_to_crew_chief")
@@ -89,6 +90,7 @@ namespace CrewChiefV4
             { Utilities.GetParameterName(new { TOGGLE_SPOTTER_FUNCTION }), TOGGLE_SPOTTER_FUNCTION },
             { Utilities.GetParameterName(new { VOLUME_UP }), VOLUME_UP },
             { Utilities.GetParameterName(new { VOLUME_DOWN }), VOLUME_DOWN },
+            { Utilities.GetParameterName(new { TOGGLE_MUTE }), TOGGLE_MUTE },
             { Utilities.GetParameterName(new { TOGGLE_RACE_UPDATES_FUNCTION }), TOGGLE_RACE_UPDATES_FUNCTION },
             { Utilities.GetParameterName(new { TOGGLE_READ_OPPONENT_DELTAS }), TOGGLE_READ_OPPONENT_DELTAS },
             { Utilities.GetParameterName(new { REPEAT_LAST_MESSAGE_BUTTON }), REPEAT_LAST_MESSAGE_BUTTON },
@@ -280,12 +282,26 @@ namespace CrewChiefV4
             // if there is something in the default data file we want to add it, this is in case we want to add default button actions later on  
             ControllerConfigurationData defaultData = getControllerConfigurationDataFromFile(getDefaultControllerConfigurationDataFileLocation());
             ControllerConfigurationData controllerConfigurationData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
-            if (defaultData.buttonAssignments.Count > 0) // app updated add, missing elements ?
+            var missingNewButtonMappings = builtInActionMappings.Where(builtIn => !controllerConfigurationData.buttonAssignments.Any(ba => ba.action == builtIn.Value));
+
+            if (defaultData.buttonAssignments.Count > 0 || missingNewButtonMappings.Count() > 0) // app updated add, missing elements ?
             {
+                Boolean save = false;
                 var missingItems = defaultData.buttonAssignments.Where(ba2 => !controllerConfigurationData.buttonAssignments.Any(ba1 => ba1.action == ba2.action));
                 if (missingItems.ToList().Count > 0)
                 {
+                    save = true;
                     controllerConfigurationData.buttonAssignments.AddRange(missingItems);
+                }
+                foreach (KeyValuePair<string, string> missingNewButtonMapping in missingNewButtonMappings)
+                {
+                    save = true;
+                    ButtonAssignment newAssignment = new ButtonAssignment();
+                    newAssignment.action = missingNewButtonMapping.Value;
+                    controllerConfigurationData.buttonAssignments.Add(newAssignment);
+                }
+                if (save) 
+                {
                     saveControllerConfigurationDataFile(controllerConfigurationData);
                 }
             }

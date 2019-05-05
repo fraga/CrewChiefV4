@@ -3766,5 +3766,41 @@ namespace CrewChiefV4.Properties {
                 this["enable_oval_spotter_enhancements"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
+        public int TOGGLE_MUTE_button_index {
+            get {
+                return ((int)(this["TOGGLE_MUTE_button_index"]));
+            }
+            set {
+                this["TOGGLE_MUTE_button_index"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string TOGGLE_MUTE_device_guid {
+            get {
+                return ((string)(this["TOGGLE_MUTE_device_guid"]));
+            }
+            set {
+                this["TOGGLE_MUTE_device_guid"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string TOGGLE_MUTE_device_type {
+            get {
+                return ((string)(this["TOGGLE_MUTE_device_type"]));
+            }
+            set {
+                this["TOGGLE_MUTE_device_type"] = value;
+            }
+        }
     }
 }

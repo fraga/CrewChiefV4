@@ -752,7 +752,7 @@ namespace CrewChiefV4
 
         private Boolean keepChannelOpenAfterSpotter()
         {
-            return !GlobalBehaviourSettings.enableOvalSpotterBehaviours;
+            return !GlobalBehaviourSettings.ovalSpotterMode;
         }
 
         private void playNextMessage(int carsOnLeftCount, int carsOnRightCount, DateTime now)
@@ -978,7 +978,7 @@ namespace CrewChiefV4
                                 nextMessageType = NextMessageType.stillThere;
                                 // experimental... if we're in deprioritize spotter calls mode (ovals only) don't queue the 'hold your line' message if the channel is open.
                                 // this prevents ongoing chief messages being left half-finished by a 'still there' from the spotter
-                                if (GlobalBehaviourSettings.enableOvalSpotterBehaviours && audioPlayer.isChannelOpen())
+                                if (GlobalBehaviourSettings.ovalSpotterMode && audioPlayer.isChannelOpen())
                                 {
                                     // make the next message due soon, so we'll retry this 'still there' message in a second
                                     nextMessageDue = now.Add(blockedStillThereRetryDelay);

@@ -977,7 +977,7 @@ namespace CrewChiefV4.Audio
                     }
                 }
                 // beeps don't play in oval spotter mode
-                if (!GlobalBehaviourSettings.enableOvalSpotterBehaviours)
+                if (!GlobalBehaviourSettings.ovalSpotterMode)
                 {
                     if (useShortBeepWhenOpeningChannel)
                     {
@@ -996,7 +996,7 @@ namespace CrewChiefV4.Audio
             if (channelOpen)
             {
                 // beeps don't play in oval spotter mode
-                if (!GlobalBehaviourSettings.enableOvalSpotterBehaviours)
+                if (!GlobalBehaviourSettings.ovalSpotterMode)
                 {
                     playEndSpeakingBeep();
                 }

@@ -133,6 +133,9 @@ namespace CrewChiefV4
 
         public static bool disableControllerReacquire = false;
 
+        private Boolean isMuted = false;
+        private float messageVolumeToRestore = -1;
+
         private const int WM_DEVICECHANGE = 0x219;
         private const int DBT_DEVNODES_CHANGED = 0x0007;
 
@@ -570,29 +573,27 @@ namespace CrewChiefV4
             {
                 currentVolume = messagesVolume;
             }
-            setMessagesVolume(currentVolume, false);
+            setMessagesVolume(currentVolume);
             messagesVolumeSlider.Value = (int)(currentVolume * 100f);
         }
 
         private void messagesVolumeSlider_Scroll(object sender, EventArgs e)
         {
             float volFloat = (float)messagesVolumeSlider.Value / 100;
-            setMessagesVolume(volFloat, false);
+            setMessagesVolume(volFloat);
             currentVolume = volFloat;
             UserSettings.GetUserSettings().setProperty("messages_volume", volFloat);
             UserSettings.GetUserSettings().saveUserSettings();
         }
 
-        private void setMessagesVolume(float vol, Boolean changeEvenIfUsingNaudio)
+        private void setMessagesVolume(float vol)
         {
-            if (changeEvenIfUsingNaudio || !UserSettings.GetUserSettings().getBoolean("use_naudio"))
-            {
-                int NewVolume = (int)(((float)ushort.MaxValue) * vol);
-                // Set the same volume for both the left and the right channels
-                uint NewVolumeAllChannels = (((uint)NewVolume & 0x0000ffff) | ((uint)NewVolume << 16));
-                // Set the volume
-                NativeMethods.waveOutSetVolume(IntPtr.Zero, NewVolumeAllChannels);
-            }
+            int NewVolume = (int)(((float)ushort.MaxValue) * vol);
+            // Set the same volume for both the left and the right channels
+            uint NewVolumeAllChannels = (((uint)NewVolume & 0x0000ffff) | ((uint)NewVolume << 16));
+            // Set the volume
+            NativeMethods.waveOutSetVolume(IntPtr.Zero, NewVolumeAllChannels);
+            
         }
 
         private void backgroundVolumeSlider_Scroll(object sender, EventArgs e)
@@ -1411,7 +1412,7 @@ namespace CrewChiefV4
                         }
 
                         if (rejectMessagesWhenTalking)
-                            setMessagesVolume(0.0f, true);
+                            setMessagesVolume(0.0f);
                     }
                     else if (channelOpen && !controllerConfiguration.isChannelOpen())
                     {
@@ -1420,7 +1421,7 @@ namespace CrewChiefV4
                             // Drop any outstanding messages queued while user was talking, this should prevent weird half phrases.
                             crewChief.audioPlayer.purgeQueues();
 
-                            setMessagesVolume(currentVolume, true);
+                            setMessagesVolume(currentVolume);
                             crewChief.audioPlayer.muteBackgroundPlayer(false /*mute*/);
                         }
 
@@ -1537,6 +1538,18 @@ namespace CrewChiefV4
                         crewChief.toggleSpotterMode();
                         nextPollWait = 1000;
                     }
+                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_MUTE))
+                    {
+                        if (!isMuted)
+                        {
+                            muteVolumes();
+                        }
+                        else
+                        {
+                            unmuteVolumes();
+                        }
+                        isMuted = !isMuted;
+                    }
                     else if (controllerConfiguration.hasOutstandingClick())
                     {
                         //Console.WriteLine("Toggling keep quiet mode");
@@ -1546,6 +1559,20 @@ namespace CrewChiefV4
                 }
                 Thread.Sleep(nextPollWait);
             }
+        }
+
+        private void unmuteVolumes()
+        {
+            crewChief.audioPlayer.muteBackgroundPlayer(false);
+            updateMessagesVolume(messageVolumeToRestore);
+        }
+
+        private void muteVolumes()
+        {
+            // save the volume levels to restore later
+            messageVolumeToRestore = currentVolume;
+            updateMessagesVolume(0);
+            crewChief.audioPlayer.muteBackgroundPlayer(true);
         }
 
         private void startApplicationButton_Click(object sender, EventArgs e)
@@ -1747,6 +1774,10 @@ namespace CrewChiefV4
 
         private void stopApp()
         {
+            if (isMuted)
+            {
+                unmuteVolumes();
+            }
             runListenForChannelOpenThread = false;
             runListenForButtonPressesThread = false;
             crewChief.stop();
