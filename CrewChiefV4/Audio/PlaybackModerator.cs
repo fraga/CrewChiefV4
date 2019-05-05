@@ -415,7 +415,7 @@ namespace CrewChiefV4.Audio
                 PlaybackModerator.Trace(string.Format("Injecting: {0} and {1} messages. {2}", keyBleepOut, keyBleepIn, traceMsgPostfix));
 
                 // don't insert a beep if we're in oval-spotter mode
-                if (!GlobalBehaviourSettings.enableOvalSpotterBehaviours)
+                if (!GlobalBehaviourSettings.ovalSpotterMode)
                 {
                     // insert bleep out/in
                     if (PlaybackModerator.insertBeepOutBetweenSpotterAndChief)

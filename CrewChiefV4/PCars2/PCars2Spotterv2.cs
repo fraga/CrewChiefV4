@@ -122,7 +122,7 @@ namespace CrewChiefV4.PCars2
             if (currentState.mRaceState == (int)eRaceState.RACESTATE_RACING &&
                 lastState.mRaceState != (int)eRaceState.RACESTATE_RACING)
             {
-                if (GlobalBehaviourSettings.enableOvalSpotterBehaviours)
+                if (GlobalBehaviourSettings.ovalSpotterMode)
                 {
                     timeToStartSpotting = now.Add(TimeSpan.FromSeconds(2));
                 }
