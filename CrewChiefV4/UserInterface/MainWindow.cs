@@ -100,7 +100,7 @@ namespace CrewChiefV4
 
         public ControlWriter consoleWriter = null;
 
-        private float currentVolume = -1;
+        public static float currentMessageVolume = -1;
         private NotifyIcon notificationTrayIcon;
         private ToolStripItem contextMenuStartItem;
         private ToolStripItem contextMenuStopItem;
@@ -559,41 +559,61 @@ namespace CrewChiefV4
             this.WindowState = FormWindowState.Normal;
         }
 
-        public void updateMessagesVolume(float messagesVolume)
+        /*
+         changes the current message playback volume. If saveChange is true the change is written to the properties file,
+         if updateSlider is true the slider is moved to reflect the new volume
+         */
+        public void updateMessagesVolume(float messagesVolume, Boolean saveChange, Boolean updateSlider)
         {
             if (messagesVolume < 0)
             {
-                currentVolume = 0;
+                currentMessageVolume = 0;
             }
             else if (messagesVolume > 1)
             {
-                currentVolume = 1;
+                currentMessageVolume = 1;
             }
             else
             {
-                currentVolume = messagesVolume;
+                currentMessageVolume = messagesVolume;
             }
-            setMessagesVolume(currentVolume);
-            messagesVolumeSlider.Value = (int)(currentVolume * 100f);
+            // no point in setting output channel volume with nAudio - the sound file volumes are scaled separately
+            if (!UserSettings.GetUserSettings().getBoolean("use_naudio"))
+            {
+                setOuputChannelVolume(currentMessageVolume);
+            }
+            if (saveChange)
+            {                
+                UserSettings.GetUserSettings().setProperty("messages_volume", currentMessageVolume);
+                UserSettings.GetUserSettings().saveUserSettings();
+            }
+            if (updateSlider)
+            {
+                messagesVolumeSlider.Value = (int)(currentMessageVolume * 100f);
+            }
         }
 
         private void messagesVolumeSlider_Scroll(object sender, EventArgs e)
         {
             float volFloat = (float)messagesVolumeSlider.Value / 100;
-            setMessagesVolume(volFloat);
-            currentVolume = volFloat;
+            // no point in setting output channel volume with nAudio - the sound file volumes are scaled separately
+            if (!UserSettings.GetUserSettings().getBoolean("use_naudio"))
+            {
+                setOuputChannelVolume(volFloat);
+            }
+            currentMessageVolume = volFloat;
             UserSettings.GetUserSettings().setProperty("messages_volume", volFloat);
             UserSettings.GetUserSettings().saveUserSettings();
         }
 
-        private void setMessagesVolume(float vol)
+        // update the output channel volume - not used for nAudio
+        private void setOuputChannelVolume(float vol)
         {
             int NewVolume = (int)(((float)ushort.MaxValue) * vol);
             // Set the same volume for both the left and the right channels
             uint NewVolumeAllChannels = (((uint)NewVolume & 0x0000ffff) | ((uint)NewVolume << 16));
             // Set the volume
-            NativeMethods.waveOutSetVolume(IntPtr.Zero, NewVolumeAllChannels);
-            
+            NativeMethods.waveOutSetVolume(IntPtr.Zero, NewVolumeAllChannels);            
         }
 
         private void backgroundVolumeSlider_Scroll(object sender, EventArgs e)
@@ -1178,7 +1198,7 @@ namespace CrewChiefV4
 
             float messagesVolume = UserSettings.GetUserSettings().getFloat("messages_volume");
             float backgroundVolume = UserSettings.GetUserSettings().getFloat("background_volume");
-            updateMessagesVolume(messagesVolume);
+            updateMessagesVolume(messagesVolume, false, true);
             backgroundVolumeSlider.Value = (int)(backgroundVolume * 100f);
 
             Console.WriteLine("Loading controller settings");
@@ -1394,8 +1414,11 @@ namespace CrewChiefV4
                         channelOpen = true;
 
                         crewChief.audioPlayer.playStartListeningBeep();
+
                         if (rejectMessagesWhenTalking)
-                            crewChief.audioPlayer.muteBackgroundPlayer(true /*mute*/);
+                        {
+                            muteVolumes();
+                        }
 
                         if (DriverTrainingService.isRecordingPaceNotes)
                         {
@@ -1410,9 +1433,6 @@ namespace CrewChiefV4
                             Console.WriteLine("Listening for voice command...");
                             crewChief.speechRecogniser.recognizeAsync();
                         }
-
-                        if (rejectMessagesWhenTalking)
-                            setMessagesVolume(0.0f);
                     }
                     else if (channelOpen && !controllerConfiguration.isChannelOpen())
                     {
@@ -1420,9 +1440,8 @@ namespace CrewChiefV4
                         {
                             // Drop any outstanding messages queued while user was talking, this should prevent weird half phrases.
                             crewChief.audioPlayer.purgeQueues();
-
-                            setMessagesVolume(currentVolume);
-                            crewChief.audioPlayer.muteBackgroundPlayer(false /*mute*/);
+                            // unmute
+                            unmuteVolumes();
                         }
 
                         if (DriverTrainingService.isRecordingPaceNotes)
@@ -1480,35 +1499,35 @@ namespace CrewChiefV4
                     lastButtoncheck = now;
                     if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.VOLUME_UP))
                     {
-                        if (currentVolume == -1)
+                        if (currentMessageVolume == -1)
                         {
                             Console.WriteLine("Initial volume not set, ignoring");
                         }
-                        else if (currentVolume >= 1)
+                        else if (currentMessageVolume >= 1)
                         {
                             Console.WriteLine("Volume at max");
                         }
                         else
                         {
                             Console.WriteLine("Increasing volume");
-                            updateMessagesVolume(currentVolume + 0.05f);
+                            updateMessagesVolume(currentMessageVolume + 0.05f, true, true);
                         }
                         nextPollWait = 200;
                     }
                     else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.VOLUME_DOWN))
                     {
-                        if (currentVolume == -1)
+                        if (currentMessageVolume == -1)
                         {
                             Console.WriteLine("Initial volume not set, ignoring");
                         }
-                        else if (currentVolume <= 0)
+                        else if (currentMessageVolume <= 0)
                         {
                             Console.WriteLine("Volume at min");
                         }
                         else
                         {
                             Console.WriteLine("Decreasing volume");
-                            updateMessagesVolume(currentVolume - 0.05f);
+                            updateMessagesVolume(currentMessageVolume - 0.05f, true, true);
                         }
                         nextPollWait = 200;
                     }
@@ -1549,6 +1568,7 @@ namespace CrewChiefV4
                             unmuteVolumes();
                         }
                         isMuted = !isMuted;
+                        nextPollWait = 200;
                     }
                     else if (controllerConfiguration.hasOutstandingClick())
                     {
@@ -1564,15 +1584,19 @@ namespace CrewChiefV4
         private void unmuteVolumes()
         {
             crewChief.audioPlayer.muteBackgroundPlayer(false);
-            updateMessagesVolume(messageVolumeToRestore);
+            updateMessagesVolume(messageVolumeToRestore, false, false);
+            messagesVolumeSlider.Enabled = true;
+            backgroundVolumeSlider.Enabled = true;
         }
 
         private void muteVolumes()
         {
-            // save the volume levels to restore later
-            messageVolumeToRestore = currentVolume;
-            updateMessagesVolume(0);
+            // save the volume level to restore later
+            messageVolumeToRestore = currentMessageVolume;
+            updateMessagesVolume(0, false, false);
             crewChief.audioPlayer.muteBackgroundPlayer(true);
+            messagesVolumeSlider.Enabled = false;
+            backgroundVolumeSlider.Enabled = false;
         }
 
         private void startApplicationButton_Click(object sender, EventArgs e)
