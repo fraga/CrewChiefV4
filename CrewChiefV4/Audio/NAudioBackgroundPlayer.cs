@@ -29,6 +29,10 @@ namespace CrewChiefV4.Audio
         public override void mute(bool doMute)
         {
             this.muted = doMute;
+            if (playing && doMute)
+            {
+                stop();
+            }
         }
 
         public override void play()
@@ -45,6 +49,7 @@ namespace CrewChiefV4.Audio
                     initialised = false;
                     initialise(this.defaultBackgroundSound);
                 }
+                playing = true;
                 int backgroundOffset = Utilities.random.Next(0, (int)backgroundLength.TotalSeconds - backgroundLeadout);
                 this.reader.CurrentTime = TimeSpan.FromSeconds(backgroundOffset);
                 this.waveOut.Play();
@@ -59,6 +64,7 @@ namespace CrewChiefV4.Audio
                 {
                     this.waveOut.Pause();
                 }
+                playing = false;
             }
         }
 
