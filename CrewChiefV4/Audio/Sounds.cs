@@ -1545,7 +1545,7 @@ namespace CrewChiefV4.Audio
 
         private float getVolume(float boost)
         {
-            float volume = UserSettings.GetUserSettings().getFloat("messages_volume") * boost;
+            float volume = MainWindow.currentMessageVolume * boost;
             // volume can be higher than 1, it seems. Not sure if this is device dependent
             /*if (volume > 1)
             {
