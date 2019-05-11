@@ -163,6 +163,10 @@ namespace CrewChiefV4
                     {
                         string json = r.ReadToEnd();
                         ControllerConfigurationData data = JsonConvert.DeserializeObject<ControllerConfigurationData>(json);
+                        if (data == null)
+                        {
+                            return new ControllerConfigurationData();
+                        }
                         usersConfigFileIsBroken = false;
                         return data;
                     }
