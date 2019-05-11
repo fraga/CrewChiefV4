@@ -2569,7 +2569,7 @@ namespace CrewChiefV4.rFactor2
                 else
                     tyreType = TyreType.Soft;
             }
-            else if (frontCompound.Contains("WET"))
+            else if (frontCompound.Contains("WET") || frontCompound.Contains("RAIN"))
                 tyreType = TyreType.Wet;
             else if (frontCompound.Contains("INTERMEDIATE"))
                 tyreType = TyreType.Intermediate;
