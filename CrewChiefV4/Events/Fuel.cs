@@ -1495,7 +1495,9 @@ namespace CrewChiefV4.Events
                 {
                     if (addReserve && historicAverageUsagePerMinute.Count > 0)
                     {
-                        averageUsagePerMinuteForCalculation = historicAverageUsagePerMinute.Average();
+                        // if we're team racing, use the max consumption as we might not get consumption data for laps when we're not driving
+                        averageUsagePerMinuteForCalculation = CrewChief.currentGameState.PitData.IsTeamRacing ?
+                            maxConsumptionPerMinute : historicAverageUsagePerMinute.Average();
                     }
                     else
                     {
@@ -1503,8 +1505,9 @@ namespace CrewChiefV4.Events
                     }
                     if (addReserve && historicAverageUsagePerLap.Count > 0)
                     {
-                        // for per-lap consumption, get the biggest if we don't have much data
-                        averageUsagePerLapForCalculation = historicAverageUsagePerLap.Count() > 5 ? historicAverageUsagePerLap.Average() : historicAverageUsagePerLap.Max();
+                        // for per-lap consumption, get the biggest if we don't have much data or we're team racing
+                        averageUsagePerLapForCalculation = CrewChief.currentGameState.PitData.IsTeamRacing || historicAverageUsagePerLap.Count() <= 5 ?
+                            maxConsumptionPerLap : historicAverageUsagePerLap.Average();
                     }
                     else
                     {
