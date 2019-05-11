@@ -1,0 +1,10 @@
+{
+  "buttonAssignments": [
+    {
+      "action": "what's the car ahead's last lap time",
+      "deviceGuid": "",
+      "buttonIndex": -1,
+	  "opponentDataCommand": true
+    }
+  ]
+}

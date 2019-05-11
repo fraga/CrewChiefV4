@@ -272,7 +272,7 @@ namespace CrewChiefV4
                             {
                                 AutoUpdater.Start(firstUpdate);
                             }
-                            if (firstUpdate == autoUpdateXMLURL1)
+                            if (firstUpdate == autoUpdateXMLURL1 && CrewChief.gameDefinition != null)
                             {
                                 firstUpdate += "&lastplayed=" + (appRestarted ? "app_restart" : CrewChief.gameDefinition.gameEnum.ToString());
                             }
@@ -297,7 +297,7 @@ namespace CrewChiefV4
                                 {
                                     AutoUpdater.Start(secondUpdate);
                                 }
-                                if (secondUpdate == autoUpdateXMLURL1)
+                                if (secondUpdate == autoUpdateXMLURL1 && CrewChief.gameDefinition != null)
                                 {
                                     secondUpdate += "&lastplayed=" + (appRestarted ? "app_restart" : CrewChief.gameDefinition.gameEnum.ToString());
                                 }

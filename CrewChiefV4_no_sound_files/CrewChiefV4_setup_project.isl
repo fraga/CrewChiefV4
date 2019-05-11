@@ -1953,6 +1953,7 @@
 		<row><td>acinternalmemoryreader.dll</td><td>ACInternalMemoryReader.dll</td><td>ACINTE~1.DLL|ACInternalMemoryReader.dll</td><td>0</td><td/><td/><td/><td>1</td><td>C:\projects\crewchief_c_sharp\CrewChiefV4\CrewChiefV4\plugins\assettocorsa\apps\python\CrewChiefEx\stdlib64\ACInternalMemoryReader.dll</td><td>1</td><td/></row>
 		<row><td>carclassdata.json</td><td>ISX_DEFAULTCOMPONENT</td><td>CARCLA~1.JSO|carClassData.json</td><td>0</td><td/><td/><td/><td>1</td><td>C:\projects\crewchief_c_sharp\CrewChiefV4\CrewChiefV4\carClassData.json</td><td>1</td><td/></row>
 		<row><td>config.txt</td><td>ISX_DEFAULTCOMPONENT5</td><td>config.txt</td><td>0</td><td/><td/><td/><td>1</td><td>C:\projects\crewchief_c_sharp\CrewChiefV4\CrewChiefV4\plugins\assettocorsa\apps\python\CrewChiefEx\config.txt</td><td>1</td><td/></row>
+		<row><td>controllerconfigurationdata.</td><td>ISX_DEFAULTCOMPONENT</td><td>CONTRO~1.JSO|controllerConfigurationData.json</td><td>0</td><td/><td/><td/><td>1</td><td>C:\projects\crewchief_c_sharp\CrewChiefV4\CrewChiefV4\controllerConfigurationData.json</td><td>1</td><td/></row>
 		<row><td>crewchiefex.py</td><td>ISX_DEFAULTCOMPONENT5</td><td>CREWCH~1.PY|CrewChiefEx.py</td><td>0</td><td/><td/><td/><td>1</td><td>C:\projects\crewchief_c_sharp\CrewChiefV4\CrewChiefV4\plugins\assettocorsa\apps\python\CrewChiefEx\CrewChiefEx.py</td><td>1</td><td/></row>
 		<row><td>crewchiefv4.debug_symbols</td><td>CrewChiefV4.Debug_Symbols</td><td>CrewChiefV4.Debug Symbols</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;CrewChiefV4&gt;|Symbols</td><td>3</td><td/></row>
 		<row><td>help.txt</td><td>ISX_DEFAULTCOMPONENT</td><td>help.txt</td><td>0</td><td/><td/><td/><td>1</td><td>C:\projects\crewchief_c_sharp\CrewChiefV4\help.txt</td><td>1</td><td/></row>
@@ -4480,9 +4481,9 @@ RABWAEQALQA1AAEARQB4AHAAcgBlAHMAcwA=
 		<row><td>PROGMSG_IIS_ROLLBACKVROOTS</td><td>##IDS_PROGMSG_IIS_ROLLBACKVROOTS##</td><td/></row>
 		<row><td>PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS</td><td>##IDS_PROGMSG_IIS_ROLLBACKWEBSERVICEEXTENSIONS##</td><td/></row>
 		<row><td>PROGRAMFILETOLAUNCHATEND</td><td>[INSTALLDIR]CrewChiefV4.Primary output</td><td/></row>
-		<row><td>ProductCode</td><td>{F357BC2B-8178-4B7F-93C8-3C2E1F801AB1}</td><td/></row>
+		<row><td>ProductCode</td><td>{93FFDA8A-232C-454B-97BD-A17DDE36DFFA}</td><td/></row>
 		<row><td>ProductName</td><td>CrewChiefV4</td><td/></row>
-		<row><td>ProductVersion</td><td>4.9.7.8</td><td/></row>
+		<row><td>ProductVersion</td><td>4.9.7.9</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
