@@ -23,8 +23,8 @@ namespace CrewChiefV4.Events
         private static String folderOvertaking = "position/overtaking";
         private static String folderBeingOvertaken = "position/being_overtaken";
 
-        private TimeSpan minTimeToWaitBeforeReportingPass = TimeSpan.FromSeconds(3);
-        public static int maxSecondsToWaitBeforeReportingPass = 6;
+        private TimeSpan minTimeToWaitBeforeReportingPass = TimeSpan.FromSeconds(4);
+        public static int maxSecondsToWaitBeforeReportingPass = 7;
         private TimeSpan maxTimeToWaitBeforeReportingPass = TimeSpan.FromSeconds(maxSecondsToWaitBeforeReportingPass);
 
         private String folderConsistentlyLast = "position/consistently_last";
