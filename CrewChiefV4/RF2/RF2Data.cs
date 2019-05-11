@@ -855,7 +855,7 @@ namespace CrewChiefV4.rFactor2
             [JsonIgnore] public uint mVersionUpdateBegin;          // Incremented right before buffer is written to.
             [JsonIgnore] public uint mVersionUpdateEnd;            // Incremented after buffer write is done.
 
-            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 8)]
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 12)]
             public byte[] mVersion;                            // API version
             public byte is64bit;                               // Is 64bit plugin?
 

@@ -143,7 +143,7 @@ namespace CrewChiefV4.rFactor2
             this.suspensionDamageThresholds.Add(new CornerData.EnumWithThresholds(DamageLevel.DESTROYED, 1.0f, 2.0f));
         }
 
-        private int[] minimumSupportedVersionParts = new int[] { 3, 5, 0, 9 };
+        private int[] minimumSupportedVersionParts = new int[] { 3, 6, 0, 0 };
         public static bool pluginVerified = false;
         public override void versionCheck(Object memoryMappedFileStruct)
         {
@@ -749,7 +749,7 @@ namespace CrewChiefV4.rFactor2
             }
 
             cgs.PitData.IsAtPitExit = pgs != null && pgs.PitData.InPitlane && !cgs.PitData.InPitlane;
-            cgs.PitData.OnOutLap = cgs.PitData.IsAtPitExit;
+            cgs.PitData.OnOutLap = cgs.PitData.IsAtPitExit || playerScoring.mInGarageStall == 1;
 
             if (shared.extended.mInRealtimeFC == 0  // Mark pit limiter as unavailable if in Monitor (not real time).
                 || shared.scoring.mScoringInfo.mInRealtime == 0
