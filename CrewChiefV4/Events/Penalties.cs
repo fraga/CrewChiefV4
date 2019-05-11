@@ -85,7 +85,7 @@ namespace CrewChiefV4.Events
 
         private String folderDriveThroughCutTrack = "penalties/drive_through_cutting_track";
 
-        private String folderDriveThroughFalseStart = "penalties/drive_through_penalty_false_start";
+        private String folderDriveThroughFalseStart = "penalties/drive_through_false_start";
 
         private String folderWarningDrivingTooSlow = "penalties/warning_driving_too_slow";
 
