@@ -1237,8 +1237,11 @@ namespace CrewChiefV4.Events
                 try
                 {
                     BenchmarkHelper.persistedBenchmarks = JsonConvert.DeserializeObject<List<PersistedBenchmark>>(File.ReadAllText(fullPath));
-                    Console.WriteLine("Loaded " + BenchmarkHelper.persistedBenchmarks.Count() + " saved pitstop time loss benchmarks");
-                    return;
+                    if (BenchmarkHelper.persistedBenchmarks != null)
+                    {
+                        Console.WriteLine("Loaded " + BenchmarkHelper.persistedBenchmarks.Count() + " saved pitstop time loss benchmarks");
+                        return;
+                    }
                 }
                 catch (Exception)
                 {

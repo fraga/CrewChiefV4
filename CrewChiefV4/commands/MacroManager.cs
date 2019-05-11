@@ -157,13 +157,15 @@ namespace CrewChiefV4.commands
                 {                    
                     MacroContainer macroContainer = JsonConvert.DeserializeObject<MacroContainer>(getFileContents(filename));
                     // Conver any existing user created command macros to new "assignment" format
-                    if (macroContainer.assignments != null)
+                    if (macroContainer != null)
                     {
-                        macroContainer = convertAssignmentToKey(macroContainer);
-                        saveCommands(macroContainer);
+                        if (macroContainer.assignments != null)
+                        {
+                            macroContainer = convertAssignmentToKey(macroContainer);
+                            saveCommands(macroContainer);
+                        }
+                        return macroContainer;
                     }
-                    
-                    return macroContainer;
                 }
                 catch (Exception e)
                 {
