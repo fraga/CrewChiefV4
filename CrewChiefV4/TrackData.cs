@@ -376,7 +376,11 @@ namespace CrewChiefV4
             {
                 try
                 {
-                    return JsonConvert.DeserializeObject<TrackLandmarksData>(getFileContents(filename));
+                    TrackLandmarksData data = JsonConvert.DeserializeObject<TrackLandmarksData>(getFileContents(filename));
+                    if (data != null)
+                    {
+                        return data;
+                    }
                 }
                 catch (Exception e)
                 {

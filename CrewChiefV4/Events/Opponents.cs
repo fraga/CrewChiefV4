@@ -80,6 +80,10 @@ namespace CrewChiefV4.Events
         private String lastNextCarAheadOpponentName = null;
 
         private String lastLeaderAnnounced = null;
+
+        private int minSecondsBetweenOpponentTyreChangeCalls = 10;
+        private int maxSecondsBetweenOpponentTyreChangeCalls = 20;
+        private DateTime suppressOpponentTyreChangeUntil = DateTime.MinValue;
         
         public Opponents(AudioPlayer audioPlayer)
         {
@@ -233,12 +237,13 @@ namespace CrewChiefV4.Events
 
                         // in race sessions, announce tyre type changes once the session is underway
                         if (currentGameState.SessionData.SessionType == SessionType.Race &&
-                            currentGameState.SessionData.SessionRunningTime > 30 && opponentData.hasJustChangedToDifferentTyreType)
+                            currentGameState.SessionData.SessionRunningTime > 30 && opponentData.hasJustChangedToDifferentTyreType && currentGameState.Now > suppressOpponentTyreChangeUntil)
                         {
                             // this may be a race position or an OpponentData object
                             Object opponentIdentifier = getOpponentIdentifierForTyreChange(opponentData, currentGameState.SessionData.ClassPosition);
                             if (opponentIdentifier != null)
                             {
+                                suppressOpponentTyreChangeUntil = currentGameState.Now.AddSeconds(Utilities.random.Next(minSecondsBetweenOpponentTyreChangeCalls, maxSecondsBetweenOpponentTyreChangeCalls));
                                 audioPlayer.playMessage(new QueuedMessage("opponent_tyre_change_" + opponentIdentifier.ToString(), 20,
                                     messageFragments: MessageContents(opponentIdentifier, folderIsNowOn, TyreMonitor.getFolderForTyreType(opponentData.CurrentTyres)),
                                     abstractEvent: this, priority: 5));

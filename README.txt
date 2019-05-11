@@ -220,7 +220,7 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
-Version 4.9.7.9: Fix for some potential start up issues; fixed toggle_mute button function not working properly
+Version 4.9.7.9: Fix for some potential start up issues; fixed toggle_mute button function not working properly; RF2 - new plugin version and some additional DRS messages
 
 Version 4.9.7.8: Hotfix for spotter being always set to 'ovals' mode on road courses (missing beeps, some other changes - sorry guys). Ovals mode will now only be enabled on ovals, as intended; fixed nAudio beeps not responding to volume changes; added new button binding for 'Toggle mute' - mutes all app sounds and unmutes when pressed again
 

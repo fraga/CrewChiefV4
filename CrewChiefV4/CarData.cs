@@ -697,7 +697,11 @@ namespace CrewChiefV4
             {
                 try
                 {
-                    return JsonConvert.DeserializeObject<CarClasses>(getFileContents(filename));
+                    CarClasses carClass = JsonConvert.DeserializeObject<CarClasses>(getFileContents(filename));
+                    if (carClass != null)
+                    {
+                        return carClass;
+                    }
                 }
                 catch (Exception e)
                 {
