@@ -150,6 +150,9 @@ namespace CrewChiefV4.rFactor2
             if (RF2GameStateMapper.pluginVerified)
                 return;
 
+            // Only verify once.
+            RF2GameStateMapper.pluginVerified = true;
+
             var shared = memoryMappedFileStruct as CrewChiefV4.rFactor2.RF2SharedMemoryReader.RF2StructWrapper;
             var versionStr = RF2GameStateMapper.GetStringFromBytes(shared.extended.mVersion);
 
@@ -196,9 +199,6 @@ namespace CrewChiefV4.rFactor2
                     + (shared.extended.mDirectMemoryAccessEnabled != 0 ? "  DMA enabled." : "");
                 Console.WriteLine(msg);
             }
-
-            // Only verify once.
-            RF2GameStateMapper.pluginVerified = true;
         }
         
         // Abrupt session detection variables.
