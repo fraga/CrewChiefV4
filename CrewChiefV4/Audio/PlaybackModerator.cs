@@ -297,6 +297,7 @@ namespace CrewChiefV4.Audio
             }
 
             if (PlaybackModerator.rejectMessagesWhenTalking
+                && !soundMetadata.isListenStartBeep
                 && soundMetadata.type != SoundType.VOICE_COMMAND_RESPONSE
                 && SpeechRecogniser.waitingForSpeech
                 && MainWindow.voiceOption != MainWindow.VoiceOptionEnum.ALWAYS_ON)
