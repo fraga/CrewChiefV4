@@ -1611,6 +1611,17 @@ namespace CrewChiefV4.rFactor2
                 // shouldn't have duplicates, but just in case
                 if (!cgs.OpponentData.ContainsKey(opponentKey))
                     cgs.OpponentData.Add(opponentKey, opponent);
+
+                if (cgs.PitData.HasRequestedPitStop
+                    && csd.SessionType == SessionType.Race)
+                {
+                    // Detect if opponent occupies player's stall.
+                    if (vehicleScoring.mPitState == (byte)rFactor2Constants.rF2PitState.Stopped)
+                    {
+                        if (Math.Abs(cgs.PitData.PitBoxPositionEstimate - opponent.DistanceRoundTrack) < 5.0)
+                            cgs.PitData.PitStallOccupied = true;
+                    }
+                }
             }
 
             cgs.sortClassPositions();
