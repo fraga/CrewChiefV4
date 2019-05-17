@@ -1324,3 +1324,15 @@ sre_wait_time_category = AUDIO_VOICE_AND_CONTROLLERS
 prefer_max_consumption_in_fuel_calculations = Base fuel calculations on max fuel consumption
 prefer_max_consumption_in_fuel_calculations_help = Use max per-lap fuel consumption when calculating fuel on all track types
 prefer_max_consumption_in_fuel_calculations_category = FUEL_TEMPS_AND_DAMAGES
+
+sre_enable_opponents_by_position = Identify opponents by race position
+sre_enable_opponents_by_position_help = Allow the app to recognise opponents in voice commands by their race position
+sre_enable_opponents_by_position_category = AUDIO_VOICE_AND_CONTROLLERS
+
+sre_enable_opponents_by_number = Identify opponents by car number
+sre_enable_opponents_by_number_help = Allow the app to recognise opponents in voice commands by their car numbers (iRacing and R3E only)
+sre_enable_opponents_by_number_category = AUDIO_VOICE_AND_CONTROLLERS
+
+sre_enable_opponents_by_name = Identify opponents by driver name
+sre_enable_opponents_by_name_help = Allow the app to recognise opponents in voice commands by their driver name
+sre_enable_opponents_by_name_category = AUDIO_VOICE_AND_CONTROLLERS

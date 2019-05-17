@@ -1217,7 +1217,7 @@ namespace CrewChiefV4.iRacing
                 Console.WriteLine("Driver " + opponentData.DriverRawName + " has been swapped for " + driverName);
                 opponentData.DriverRawName = driverName;
                 opponentData.CostId = CostId;
-                speechRecogniser.addNewOpponentName(driverName);
+                speechRecogniser.addNewOpponentName(driverName, opponentData.CarNumber);
             }
             Boolean validSpeed = true;
             if (speed > 500)
@@ -1452,7 +1452,7 @@ namespace CrewChiefV4.iRacing
             String driverName = driver.Name.ToLower();
             if (loadDriverName && CrewChief.enableDriverNames)
             {
-                speechRecogniser.addNewOpponentName(driverName);
+                speechRecogniser.addNewOpponentName(driverName, driver.CarNumber);
             }
             OpponentData opponentData = new OpponentData();
             opponentData.IsActive = true;

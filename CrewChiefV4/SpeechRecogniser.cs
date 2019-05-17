@@ -17,6 +17,10 @@ namespace CrewChiefV4
     {
         private SpeechRecognitionEngine sre;
 
+        private Boolean identifyOpponentsByPosition = UserSettings.GetUserSettings().getBoolean("sre_enable_opponents_by_position");
+        private Boolean identifyOpponentsByName = UserSettings.GetUserSettings().getBoolean("sre_enable_opponents_by_name");
+        private Boolean identifyOpponentsByNumber = UserSettings.GetUserSettings().getBoolean("sre_enable_opponents_by_number");
+
         // used in nAudio mode:
         public static Dictionary<string, Tuple<string, int>> speechRecognitionDevices = new Dictionary<string, Tuple<string, int>>();
         public static int initialSpeechInputDeviceIndex = 0;
@@ -164,6 +168,7 @@ namespace CrewChiefV4
         public static String THE_GUY_IN_FRONT = Configuration.getSpeechRecognitionConfigOption("THE_GUY_IN_FRONT");
         public static String THE_CAR_BEHIND = Configuration.getSpeechRecognitionConfigOption("THE_CAR_BEHIND");
         public static String THE_GUY_BEHIND = Configuration.getSpeechRecognitionConfigOption("THE_GUY_BEHIND");
+        public static String CAR_NUMBER = Configuration.getSpeechRecognitionConfigOption("CAR_NUMBER");
 
         public static String WHAT_TYRES_IS = Configuration.getSpeechRecognitionConfigOption("WHAT_TYRES_IS");
         public static String WHAT_TYRE_IS = Configuration.getSpeechRecognitionConfigOption("WHAT_TYRE_IS");
@@ -229,6 +234,12 @@ namespace CrewChiefV4
         public static String[] AM = Configuration.getSpeechRecognitionPhrases("AM");
         public static String[] PM = Configuration.getSpeechRecognitionPhrases("PM");
 
+        private Dictionary<GameEnum, string[]> whatsOpponentChoices = new Dictionary<GameEnum, string[]> {
+            { GameEnum.IRACING, new String[] { LAST_LAP, LAST_LAP_TIME, BEST_LAP, BEST_LAP_TIME, IRATING, LICENSE_CLASS } },
+            // the array for UNKNOWN is what we'll use if there's no game-specific array
+            { GameEnum.UNKNOWN, new String[] { LAST_LAP, LAST_LAP_TIME, BEST_LAP, BEST_LAP_TIME } }
+        };
+
         private String lastRecognisedText = null;
 
         private CrewChief crewChief;
@@ -247,6 +258,8 @@ namespace CrewChiefV4
         private Dictionary<String, ExecutableCommandMacro> macroLookup = new Dictionary<string, ExecutableCommandMacro>();
 
         private System.Globalization.CultureInfo cultureInfo;
+
+        public static Dictionary<String[], int> carNumberToNumber = getNumberMappings(1, 999);
 
         public static Dictionary<String[], int> numberToNumber = getNumberMappings(1, 199);
 
@@ -952,45 +965,67 @@ namespace CrewChiefV4
             initialised = true;
         }
 
-        public void addNewOpponentName(String rawDriverName)
+        private String[] getWhatsPossessiveChoices()
         {
-            if (!initialised)
+            return CrewChief.gameDefinition != null && whatsOpponentChoices.ContainsKey(CrewChief.gameDefinition.gameEnum) ?
+                whatsOpponentChoices[CrewChief.gameDefinition.gameEnum] : whatsOpponentChoices[GameEnum.UNKNOWN];
+        }
+        
+        public void addNewOpponentName(String rawDriverName, String carNumberString)
+        {
+            if (!initialised || (!identifyOpponentsByName && !identifyOpponentsByNumber))
             {
                 return;
             }
             try
             {
-                String usableName = DriverNameHelper.getUsableDriverName(rawDriverName);
-                if (usableName != null && usableName.Length > 0)
+                if (initialised)
                 {
-                    if (driverNamesInUse.Contains(rawDriverName))
-                    {
-                        return;
-                    }
-                    if (initialised)
-                    {
-                        Console.WriteLine("Adding new (mid-session joined) opponent name to speech recogniser: " + Environment.NewLine + usableName);
-                        Choices opponentNameChoices = new Choices(usableName);
-                        Choices opponentNamePossessiveChoices = new Choices(usableName + POSSESSIVE);
-
-                        opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHERE_IS, WHERES }, false, opponentNameChoices, null, true));
-                        opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHAT_TYRE_IS, WHAT_TYRES_IS }, false, opponentNameChoices, new String[] { ON }, true));
-                        opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHATS }, true, opponentNamePossessiveChoices, new String[] { LAST_LAP, BEST_LAP, IRATING, LICENSE_CLASS }, true));
-                    }
+                    String usableName = DriverNameHelper.getUsableDriverName(rawDriverName);
+                    Console.WriteLine("Adding new (mid-session joined) opponent name to speech recogniser: " + Environment.NewLine + usableName);
                     // This method is called when a new driver appears mid-session. We need to load the sound file for this new driver
                     // so do it here - nasty nasty hack, need to refactor this. The alternative is to call
                     // SoundCache.loadDriverNameSound in each of mappers when a new driver is added.
                     SoundCache.loadDriverNameSound(usableName);
                     driverNamesInUse.Add(rawDriverName);
+
+                    HashSet<string> nameChoices = new HashSet<string>();
+                    HashSet<string> namePossessiveChoices = new HashSet<string>();
+                    if (identifyOpponentsByName && usableName != null && usableName.Length > 0 && !driverNamesInUse.Contains(rawDriverName))
+                    {
+                        nameChoices.Add(usableName);
+                        namePossessiveChoices.Add(usableName + POSSESSIVE);
+                    }
+                    int carNumber;
+                    if (int.TryParse(carNumberString, out carNumber) && identifyOpponentsByNumber && carNumber != -1 && carNumberToNumber.ContainsValue(carNumber))
+                    {
+                        String[] numberOptions = carNumberToNumber.FirstOrDefault(x => x.Value == carNumber).Key;
+                        foreach (String number in numberOptions)
+                        {
+                            nameChoices.Add(CAR_NUMBER + " " + number);
+                            namePossessiveChoices.Add(CAR_NUMBER + " " + number + POSSESSIVE);
+                        }
+                    }
+                    Choices opponentNameChoices = new Choices(nameChoices.ToArray<string>());
+                    Choices opponentNamePossessiveChoices = new Choices(namePossessiveChoices.ToArray<string>());
+
+                    opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHERE_IS, WHERES }, false, opponentNameChoices, null, true));
+                    // todo: iracing definitely has no opponent tyre type data, probably more games lack this info
+                    if (CrewChief.gameDefinition != null && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)
+                    {
+                        opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHAT_TYRE_IS, WHAT_TYRES_IS }, false, opponentNameChoices, new String[] { ON }, true));
+                    }
+                    opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHATS }, true, opponentNamePossessiveChoices, getWhatsPossessiveChoices(), true));     
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine("Unable to add new driver to speech recognition engine - " + e.Message);
             }
+            
         }
 
-        public void addOpponentSpeechRecognition(List<String> names, Boolean useNames)
+        public void addOpponentSpeechRecognition(List<String> names, HashSet<string> carNumbers)
         {
             if (!initialised)
             {
@@ -1009,7 +1044,7 @@ namespace CrewChiefV4
             Choices opponentPositionChoices = new Choices();
             Choices opponentNameOrPositionPossessiveChoices = new Choices();
 
-            if (useNames)
+            if (identifyOpponentsByName)
             {
                 Console.WriteLine("Adding " + names.Count + " new session opponent names to speech recogniser");
                 foreach (String name in names)
@@ -1019,18 +1054,37 @@ namespace CrewChiefV4
                 }
             }
 
-            foreach (KeyValuePair<String[], int> entry in racePositionNumberToNumber)
+            if (identifyOpponentsByPosition)
             {
-                foreach (String numberStr in entry.Key)
+                foreach (KeyValuePair<String[], int> entry in racePositionNumberToNumber)
                 {
-                    opponentNameOrPositionChoices.Add(POSITION_SHORT + " " + numberStr);
-                    opponentPositionChoices.Add(POSITION_SHORT + " " + numberStr);
-                    opponentNameOrPositionPossessiveChoices.Add(POSITION_SHORT + " " + numberStr + POSSESSIVE);
-                    if (!disable_alternative_voice_commands)
+                    foreach (String numberStr in entry.Key)
                     {
-                        opponentNameOrPositionChoices.Add(POSITION_LONG + " " + numberStr);
-                        opponentPositionChoices.Add(POSITION_LONG + " " + numberStr);
-                        opponentNameOrPositionPossessiveChoices.Add(POSITION_LONG + " " + numberStr + POSSESSIVE);
+                        opponentNameOrPositionChoices.Add(POSITION_SHORT + " " + numberStr);
+                        opponentPositionChoices.Add(POSITION_SHORT + " " + numberStr);
+                        opponentNameOrPositionPossessiveChoices.Add(POSITION_SHORT + " " + numberStr + POSSESSIVE);
+                        if (!disable_alternative_voice_commands)
+                        {
+                            opponentNameOrPositionChoices.Add(POSITION_LONG + " " + numberStr);
+                            opponentPositionChoices.Add(POSITION_LONG + " " + numberStr);
+                            opponentNameOrPositionPossessiveChoices.Add(POSITION_LONG + " " + numberStr + POSSESSIVE);
+                        }
+                    }
+                }
+            }
+            if (identifyOpponentsByNumber)
+            {
+                foreach (string carNumberString in carNumbers)
+                {
+                    int carNumber;
+                    if (int.TryParse(carNumberString, out carNumber) && carNumber != -1 && carNumberToNumber.ContainsValue(carNumber))
+                    {
+                        String[] numberOptions = carNumberToNumber.FirstOrDefault(x => x.Value == carNumber).Key;
+                        foreach (String number in numberOptions)
+                        {
+                            opponentNameOrPositionChoices.Add(CAR_NUMBER + " " + number);
+                            opponentNameOrPositionPossessiveChoices.Add(CAR_NUMBER + " " + number + POSSESSIVE);
+                        }
                     }
                 }
             }
@@ -1055,8 +1109,11 @@ namespace CrewChiefV4
 
             opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHERE_IS, WHERES }, false, opponentNameOrPositionChoices, null, true));
             opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHOS_IN }, false, opponentPositionChoices, null, true));
-            opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHAT_TYRE_IS, WHAT_TYRES_IS }, false, opponentNameOrPositionChoices, new String[] { ON }, true));
-            opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHATS }, false, opponentNameOrPositionPossessiveChoices, new String[] { LAST_LAP, LAST_LAP_TIME, BEST_LAP, BEST_LAP_TIME, IRATING, LICENSE_CLASS }, true));
+            if (CrewChief.gameDefinition != null && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)
+            {
+                opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHAT_TYRE_IS, WHAT_TYRES_IS }, false, opponentNameOrPositionChoices, new String[] { ON }, true));
+            }
+            opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHATS }, false, opponentNameOrPositionPossessiveChoices, getWhatsPossessiveChoices(), true));
 
             driverNamesInUse.AddRange(names);
         }

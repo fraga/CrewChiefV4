@@ -3896,6 +3896,16 @@ namespace CrewChiefV4.GameState
             return rawDriverNames;
         }
 
+        public HashSet<string> getCarNumbers()
+        {
+            HashSet<string> carNumbers = new HashSet<string>();
+            foreach (KeyValuePair<string, OpponentData> entry in OpponentData)
+            {
+                carNumbers.Add(entry.Value.CarNumber);
+            }
+            return carNumbers;
+        }
+
         public OpponentData getOpponentAtClassPosition(int position, CarData.CarClass carClass)
         {
             return getOpponentAtClassPosition(position, carClass, false);
@@ -4011,6 +4021,18 @@ namespace CrewChiefV4.GameState
             {
                 return null;
             }
+        }
+
+        public string getOpponentKeyForCarNumber(int carNumber)
+        {
+            foreach (KeyValuePair<string, OpponentData> entry in OpponentData)
+            {
+                if (entry.Value.CarNumber == carNumber.ToString())
+                {
+                    return entry.Key;
+                }
+            }
+            return null;
         }
 
         public string getOpponentKeyInFront(CarData.CarClass carClass)

@@ -1402,7 +1402,7 @@ namespace CrewChiefV4.rFactor2
                 if (opponent.DriverNameSet && opponentPrevious == null && CrewChief.enableDriverNames)
                 {
                     if (!csd.IsNewSession)
-                        this.speechRecogniser.addNewOpponentName(opponent.DriverRawName);
+                        this.speechRecogniser.addNewOpponentName(opponent.DriverRawName, "-1");
 
                     Console.WriteLine("New driver \"" + driverName +
                         "\" is using car class " + opponent.CarClass.getClassIdentifier() +

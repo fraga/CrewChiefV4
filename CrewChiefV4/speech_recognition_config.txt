@@ -247,6 +247,7 @@ THE_GUY_AHEAD = the guy ahead
 THE_GUY_IN_FRONT = the guy in front
 THE_CAR_BEHIND = the car behind
 THE_GUY_BEHIND = the guy behind
+CAR_NUMBER = car number
 
 WHAT_TYRES_IS = what tires is
 WHAT_TYRE_IS = what tire is

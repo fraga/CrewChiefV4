@@ -1824,10 +1824,11 @@ namespace CrewChiefV4.RaceRoom
         {
             if (loadDriverName && CrewChief.enableDriverNames)
             {
-                speechRecogniser.addNewOpponentName(driverName);
+                speechRecogniser.addNewOpponentName(driverName, participantStruct.DriverInfo.CarNumber.ToString());
             } 
             OpponentData opponentData = new OpponentData();
             opponentData.DriverRawName = driverName;
+            opponentData.CarNumber = participantStruct.DriverInfo.CarNumber.ToString();
             opponentData.OverallPosition = participantStruct.Place;
             opponentData.CompletedLaps = participantStruct.CompletedLaps;
             opponentData.CurrentSectorNumber = participantStruct.TrackSector;
