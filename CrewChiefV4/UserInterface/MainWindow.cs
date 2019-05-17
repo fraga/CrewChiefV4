@@ -1413,17 +1413,12 @@ namespace CrewChiefV4
                     {
                         channelOpen = true;
 
-                        crewChief.audioPlayer.playStartListeningBeep();
-
-                        if (rejectMessagesWhenTalking)
-                        {
-                            muteVolumes();
-                        }
-
+                        // for pace notes recording, start SRE *after* the beep. For voice commands, start SRE *before* the beep
                         if (DriverTrainingService.isRecordingPaceNotes)
                         {
                             if (CrewChief.distanceRoundTrack > 0)
                             {
+                                crewChief.audioPlayer.playStartListeningBeep();
                                 Console.WriteLine("Recording pace note...");
                                 DriverTrainingService.startRecordingMessage((int)CrewChief.distanceRoundTrack);
                             }
@@ -1432,6 +1427,11 @@ namespace CrewChiefV4
                         {
                             Console.WriteLine("Listening for voice command...");
                             crewChief.speechRecogniser.recognizeAsync();
+                            crewChief.audioPlayer.playStartListeningBeep();
+                        }
+                        if (rejectMessagesWhenTalking)
+                        {
+                            muteVolumes();
                         }
                     }
                     else if (channelOpen && !controllerConfiguration.isChannelOpen())
@@ -1547,8 +1547,8 @@ namespace CrewChiefV4
                         else
                         {
                             Console.WriteLine("Listening...");
-                            crewChief.audioPlayer.playStartListeningBeep();
                             crewChief.speechRecogniser.recognizeAsync();
+                            crewChief.audioPlayer.playStartListeningBeep();
                         }
                     }
                     else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_SPOTTER_FUNCTION))

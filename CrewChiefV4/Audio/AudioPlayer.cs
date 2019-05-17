@@ -1035,7 +1035,7 @@ namespace CrewChiefV4.Audio
             {
                 if (!mute)
                 {
-                    soundCache.Play("listen_start_sound", SoundMetadata.beep);
+                    soundCache.Play("listen_start_sound", SoundMetadata.listenStartBeep);
                 }
             }
         }
