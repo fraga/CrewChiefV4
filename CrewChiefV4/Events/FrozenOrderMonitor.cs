@@ -232,8 +232,8 @@ namespace CrewChiefV4.Events
                 shouldFollowSafetyCar = (cfod.AssignedColumn == FrozenOrderColumn.None && cfod.AssignedPosition == 1)  // Single file order.
                     || (cfod.AssignedColumn != FrozenOrderColumn.None && cfod.AssignedPosition <= 2);  // Double file (grid) order.
                 
-                useCarNumber = CrewChief.gameDefinition.gameEnum == GameEnum.IRACING && !shouldFollowSafetyCar && Int32.TryParse(cfod.CarNumberToFollowRaw, out carNumber) &&
-                        !(useDriverName && AudioPlayer.canReadName(cfod.DriverToFollowRaw));
+                useCarNumber = CrewChief.gameDefinition.gameEnum == GameEnum.IRACING && !shouldFollowSafetyCar && cfod.CarNumberToFollowRaw != "-1" &&
+                    Int32.TryParse(cfod.CarNumberToFollowRaw, out carNumber) && !(useDriverName && AudioPlayer.canReadName(cfod.DriverToFollowRaw));
                 if (useCarNumber && cfod.CarNumberToFollowRaw.StartsWith("00"))
                 {
                     leadingZerosKey = doubleZeroKey;
@@ -429,7 +429,9 @@ namespace CrewChiefV4.Events
                         {
                             audioPlayer.playMessage(new QueuedMessage("frozen_order/lineup_single_file_follow_car_number",
                                 delay + 6, secondsDelay: delay, messageFragments:
-                                leadingZeros ? MessageContents(useAmericanTerms ? folderPaceCarIsOut : folderSafetyCarIsOut, folderLineUpSingleFileBehindCarNumber, leadingZerosKey, carNumber) : MessageContents(useAmericanTerms ? folderPaceCarIsOut : folderSafetyCarIsOut, folderLineUpSingleFileBehindCarNumber, carNumber), 
+                                leadingZeros ? 
+                                    MessageContents(useAmericanTerms ? folderPaceCarIsOut : folderSafetyCarIsOut, folderLineUpSingleFileBehindCarNumber, leadingZerosKey, carNumber) :
+                                    MessageContents(useAmericanTerms ? folderPaceCarIsOut : folderSafetyCarIsOut, folderLineUpSingleFileBehindCarNumber, carNumber), 
                                 abstractEvent: this, validationData: validationData, priority: 10));
 
                         }
