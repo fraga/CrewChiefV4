@@ -266,7 +266,34 @@ namespace CrewChiefV4.Events
                     var canReadDriverToFollow = shouldFollowSafetyCar || useCarNumber || AudioPlayer.canReadName(driverToFollow);
 
                     var usableDriverNameToFollow = shouldFollowSafetyCar || useCarNumber ? driverToFollow : DriverNameHelper.getUsableDriverName(driverToFollow);
-                    
+
+                    // special case for a single leading zero - only play it if we have to - e.g. there is a car using number 023 and one using number 23
+                    if (useCarNumber && leadingZeros && leadingZerosKey == zeroKey)
+                    {
+                        // check to see if we want to add a leading zero - the 'correct' way to announce the car number is to always honour the leading
+                        // zeros, but in cases where there's only 1 leading zero and the number isn't ambiguous, we override this. This is because
+                        // "zero twenty three" sounds a bit weird if there's no car number 23 as well. We will always honour numbers with 2
+                        // leading zeros like 007
+
+                        // get a set of the int versions of all used numbers > 9
+                        HashSet<int> parsedNumbers = new HashSet<int>();
+                        int expectedCountForUnambiguousNumbers = 0;
+                        foreach (string carNumberString in currentGameState.getCarNumbers())
+                        {
+                            if (carNumberString != "-1")
+                            {
+                                int parsedNumber = int.Parse(carNumberString);
+                                if (parsedNumber > 9)
+                                {
+                                    parsedNumbers.Add(parsedNumber);
+                                    expectedCountForUnambiguousNumbers++;
+                                }
+                            }
+                        }
+                        // if there are less numbers in the parse set than we're expecting then one car is number 23 and another 023, for example.
+                        // So we allow leadingZeros to be false in this case (where there's only a single leading zero to read) only if we need it
+                        leadingZeros = expectedCountForUnambiguousNumbers > parsedNumbers.Count();
+                    }
                     
                     var validationData = new Dictionary<string, object>();
                     validationData.Add(FrozenOrderMonitor.validateMessageTypeKey, FrozenOrderMonitor.validateMessageTypeAction);

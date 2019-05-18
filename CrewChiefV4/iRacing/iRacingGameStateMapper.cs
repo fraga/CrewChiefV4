@@ -1537,6 +1537,10 @@ namespace CrewChiefV4.iRacing
                         frozenOrderData.Action = FrozenOrderAction.CatchUp;
                     }
                 }
+                frozenOrderData.AssignedGridPosition = 5;
+                frozenOrderData.AssignedPosition = 5;
+                frozenOrderData.CarNumberToFollowRaw = "049";
+                frozenOrderData.DriverToFollowRaw = "kjhk";
                 return frozenOrderData;
             }
             if (currentGamestate.SessionData.SessionPhase == SessionPhase.FullCourseYellow)
