@@ -1083,7 +1083,7 @@ namespace CrewChiefV4.GameState
             }
         }
 
-        public int PlayerCarNr = -1;
+        public String PlayerCarNr = "-1";
 
         // Currently only used in iRacing.
         public int MaxIncidentCount = -1;
@@ -4023,11 +4023,11 @@ namespace CrewChiefV4.GameState
             }
         }
 
-        public string getOpponentKeyForCarNumber(int carNumber)
+        public string getOpponentKeyForCarNumber(String carNumber)
         {
             foreach (KeyValuePair<string, OpponentData> entry in OpponentData)
             {
-                if (entry.Value.CarNumber == carNumber.ToString())
+                if (entry.Value.CarNumber == carNumber)
                 {
                     return entry.Key;
                 }

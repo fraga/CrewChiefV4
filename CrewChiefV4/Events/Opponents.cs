@@ -555,9 +555,9 @@ namespace CrewChiefV4.Events
             }
             else if (voiceMessage.Contains(SpeechRecogniser.CAR_NUMBER))
             {
-                int carNumber = -1;
+                String carNumber = "-1";
                 Boolean found = false;
-                foreach (KeyValuePair<String[], int> entry in SpeechRecogniser.carNumberToNumber)
+                foreach (KeyValuePair<String[], String> entry in SpeechRecogniser.carNumberToNumber)
                 {
                     foreach (String numberStr in entry.Key)
                     {
@@ -585,7 +585,7 @@ namespace CrewChiefV4.Events
                         break;
                     }
                 }
-                if (carNumber != -1 && carNumber != currentGameState.SessionData.PlayerCarNr)
+                if (carNumber != "-1" && carNumber != currentGameState.SessionData.PlayerCarNr)
                 {
                     opponentKey = currentGameState.getOpponentKeyForCarNumber(carNumber);
                 }

@@ -331,6 +331,7 @@ namespace CrewChiefV4.RaceRoom
                         currentGameState.PitData.InPitlane = participantStruct.InPitlane == 1;
                         currentGameState.PositionAndMotionData.DistanceRoundTrack = participantStruct.LapDistance;
                         currentGameState.carClass = CarData.getCarClassForRaceRoomId(participantStruct.DriverInfo.ClassId);
+                        currentGameState.SessionData.PlayerCarNr = participantStruct.DriverInfo.CarNumber.ToString();
                         CarData.RACEROOM_CLASS_ID = participantStruct.DriverInfo.ClassId;
                         GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass);
                         Console.WriteLine("Player is using car class " + currentGameState.carClass.getClassIdentifier() + " (class ID " + participantStruct.DriverInfo.ClassId + ")");

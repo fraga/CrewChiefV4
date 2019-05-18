@@ -259,7 +259,7 @@ namespace CrewChiefV4
 
         private System.Globalization.CultureInfo cultureInfo;
 
-        public static Dictionary<String[], int> carNumberToNumber = getNumberMappings(1, 999);
+        public static Dictionary<String[], String> carNumberToNumber = getCarNumberMappings();
 
         public static Dictionary<String[], int> numberToNumber = getNumberMappings(1, 199);
 
@@ -391,6 +391,29 @@ namespace CrewChiefV4
             for (int i = start; i <= end; i++)
             {
                 dict.Add(Configuration.getSpeechRecognitionPhrases(i.ToString()), i);
+            }
+            return dict;
+        }
+
+        private static Dictionary<String[], string> getCarNumberMappings()
+        {
+            Dictionary<String[], string> dict = new Dictionary<string[], string>();
+            for (int i = 0; i <= 999; i++)
+            {
+                String key = i.ToString();
+                dict.Add(Configuration.getSpeechRecognitionPhrases(key), key);
+                if (i < 100)
+                {
+                    // add a leading zero if 1 < 100
+                    key = "0" + key;
+                    dict.Add(Configuration.getSpeechRecognitionPhrases(key), key);
+                    if (i < 10)
+                    {
+                        // add another leading zero if i < 10
+                        key = "0" + key;
+                        dict.Add(Configuration.getSpeechRecognitionPhrases(key), key);
+                    }
+                }
             }
             return dict;
         }
@@ -996,10 +1019,9 @@ namespace CrewChiefV4
                         nameChoices.Add(usableName);
                         namePossessiveChoices.Add(usableName + POSSESSIVE);
                     }
-                    int carNumber;
-                    if (int.TryParse(carNumberString, out carNumber) && identifyOpponentsByNumber && carNumber != -1 && carNumberToNumber.ContainsValue(carNumber))
+                    if (identifyOpponentsByNumber && carNumberString != "-1" && carNumberToNumber.ContainsValue(carNumberString))
                     {
-                        String[] numberOptions = carNumberToNumber.FirstOrDefault(x => x.Value == carNumber).Key;
+                        String[] numberOptions = carNumberToNumber.FirstOrDefault(x => x.Value == carNumberString).Key;
                         foreach (String number in numberOptions)
                         {
                             nameChoices.Add(CAR_NUMBER + " " + number);
@@ -1076,10 +1098,9 @@ namespace CrewChiefV4
             {
                 foreach (string carNumberString in carNumbers)
                 {
-                    int carNumber;
-                    if (int.TryParse(carNumberString, out carNumber) && carNumber != -1 && carNumberToNumber.ContainsValue(carNumber))
+                    if (carNumberString != "-1" && carNumberToNumber.ContainsValue(carNumberString))
                     {
-                        String[] numberOptions = carNumberToNumber.FirstOrDefault(x => x.Value == carNumber).Key;
+                        String[] numberOptions = carNumberToNumber.FirstOrDefault(x => x.Value == carNumberString).Key;
                         foreach (String number in numberOptions)
                         {
                             opponentNameOrPositionChoices.Add(CAR_NUMBER + " " + number);

@@ -216,7 +216,7 @@ namespace CrewChiefV4.iRacing
                 CarData.IRACING_CLASS_ID = playerCar.Car.CarClassId;
                 GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass);
                 Console.WriteLine("Player is using car class " + currentGameState.carClass.getClassIdentifier() + " (car ID " + playerCar.Car.CarId + ")");
-                currentGameState.SessionData.PlayerCarNr = Parser.ParseInt(playerCar.CarNumber);
+                currentGameState.SessionData.PlayerCarNr = playerCar.CarNumber;
 
                 currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.Now);
                 currentGameState.SessionData.SectorNumber = playerCar.Live.CurrentSector;
@@ -297,7 +297,7 @@ namespace CrewChiefV4.iRacing
                         GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass);
                         currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.Now);
                         Console.WriteLine("Player is using car class " + currentGameState.carClass.getClassIdentifier() + " (car ID " + playerCar.Car.CarId + ")");
-                        currentGameState.SessionData.PlayerCarNr = Parser.ParseInt(playerCar.CarNumber);
+                        currentGameState.SessionData.PlayerCarNr = playerCar.CarNumber;
 
                         if (previousGameState != null)
                         {
