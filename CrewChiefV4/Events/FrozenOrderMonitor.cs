@@ -274,25 +274,24 @@ namespace CrewChiefV4.Events
                         // zeros, but in cases where there's only 1 leading zero and the number isn't ambiguous, we override this. This is because
                         // "zero twenty three" sounds a bit weird if there's no car number 23 as well. We will always honour numbers with 2
                         // leading zeros like 007
-
-                        // get a set of the int versions of all used numbers > 9
-                        HashSet<int> parsedNumbers = new HashSet<int>();
-                        int expectedCountForUnambiguousNumbers = 0;
+                        int copiesOfNumber = 0;
                         foreach (string carNumberString in currentGameState.getCarNumbers())
                         {
                             if (carNumberString != "-1")
                             {
                                 int parsedNumber = int.Parse(carNumberString);
-                                if (parsedNumber > 9)
+                                if (parsedNumber == carNumber)
                                 {
-                                    parsedNumbers.Add(parsedNumber);
-                                    expectedCountForUnambiguousNumbers++;
+                                    copiesOfNumber++;
+                                    if (copiesOfNumber > 1)
+                                    {
+                                        break;
+                                    }
                                 }
                             }
                         }
-                        // if there are less numbers in the parse set than we're expecting then one car is number 23 and another 023, for example.
-                        // So we allow leadingZeros to be false in this case (where there's only a single leading zero to read) only if we need it
-                        leadingZeros = expectedCountForUnambiguousNumbers > parsedNumbers.Count();
+                        // only allow the leadingZero to be used if there's >1 copy if this number
+                        leadingZeros = copiesOfNumber > 1;
                     }
                     
                     var validationData = new Dictionary<string, object>();
