@@ -171,7 +171,7 @@ namespace CrewChiefV4.Events
             this.currFrozenOrderColumn = FrozenOrderColumn.None;
             this.scrLastFCYLapLaneAnnounced = false;
         }
-
+        
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
             var cgs = currentGameState;
@@ -270,28 +270,7 @@ namespace CrewChiefV4.Events
                     // special case for a single leading zero - only play it if we have to - e.g. there is a car using number 023 and one using number 23
                     if (useCarNumber && leadingZeros && leadingZerosKey == zeroKey)
                     {
-                        // check to see if we want to add a leading zero - the 'correct' way to announce the car number is to always honour the leading
-                        // zeros, but in cases where there's only 1 leading zero and the number isn't ambiguous, we override this. This is because
-                        // "zero twenty three" sounds a bit weird if there's no car number 23 as well. We will always honour numbers with 2
-                        // leading zeros like 007
-                        int copiesOfNumber = 0;
-                        foreach (string carNumberString in currentGameState.getCarNumbers())
-                        {
-                            if (carNumberString != "-1")
-                            {
-                                int parsedNumber = int.Parse(carNumberString);
-                                if (parsedNumber == carNumber)
-                                {
-                                    copiesOfNumber++;
-                                    if (copiesOfNumber > 1)
-                                    {
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                        // only allow the leadingZero to be used if there's >1 copy if this number
-                        leadingZeros = copiesOfNumber > 1;
+                        leadingZeros = shouldUseLeadingZeros(carNumber, currentGameState.getCarNumbers());
                     }
                     
                     var validationData = new Dictionary<string, object>();
@@ -432,6 +411,12 @@ namespace CrewChiefV4.Events
                 var canReadDriverToFollow = shouldFollowSafetyCar || useCarNumber || AudioPlayer.canReadName(driverToFollow);
 
                 var usableDriverNameToFollow = shouldFollowSafetyCar || useCarNumber ? driverToFollow : DriverNameHelper.getUsableDriverName(driverToFollow);
+
+                // special case for a single leading zero - only play it if we have to - e.g. there is a car using number 023 and one using number 23
+                if (useCarNumber && leadingZeros && leadingZerosKey == zeroKey)
+                {
+                    leadingZeros = shouldUseLeadingZeros(carNumber, currentGameState.getCarNumbers());
+                }
 
                 var validationData = new Dictionary<string, object>();
                 validationData.Add(FrozenOrderMonitor.validateMessageTypeKey, FrozenOrderMonitor.validateMessageTypeAction);
@@ -692,5 +677,33 @@ namespace CrewChiefV4.Events
 
             // For fast rolling, do nothing for now.
         }
+
+        // double check if we can use leading zero(s)
+        private Boolean shouldUseLeadingZeros(int carNumber, HashSet<string> carNumbers)
+        {
+            // check to see if we want to add a leading zero - the 'correct' way to announce the car number is to always honour the leading
+            // zeros, but in cases where there's only 1 leading zero and the number isn't ambiguous, we override this. This is because
+            // "zero twenty three" sounds a bit weird if there's no car number 23 as well. We will always honour numbers with 2
+            // leading zeros like 007
+            int copiesOfNumber = 0;
+            foreach (string carNumberString in carNumbers)
+            {
+                if (carNumberString != "-1")
+                {
+                    int parsedNumber = int.Parse(carNumberString);
+                    if (parsedNumber == carNumber)
+                    {
+                        copiesOfNumber++;
+                        if (copiesOfNumber > 1)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+            // only allow the leadingZero to be used if there's >1 copy if this number
+            return copiesOfNumber > 1;
+        }
+
     }
 }
