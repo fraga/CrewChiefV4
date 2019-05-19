@@ -1336,3 +1336,11 @@ sre_enable_opponents_by_number_category = AUDIO_VOICE_AND_CONTROLLERS
 sre_enable_opponents_by_name = Identify opponents by driver name
 sre_enable_opponents_by_name_help = Allow the app to recognise opponents in voice commands by their driver name
 sre_enable_opponents_by_name_category = AUDIO_VOICE_AND_CONTROLLERS
+
+naudio_wave_in_sample_rate = Sample rate for nAudio wave-in device
+naudio_wave_in_sample_rate_help = Sample rate for voice recording device (Hz, nAudio only)
+naudio_wave_in_sample_rate_category = AUDIO_VOICE_AND_CONTROLLERS
+
+naudio_wave_in_channel_count = Channel count for nAudio wave-in device
+naudio_wave_in_channel_count_help = Channels (1: mono, 2: stereo) for recording device (nAudio only)
+naudio_wave_in_channel_count_category = AUDIO_VOICE_AND_CONTROLLERS

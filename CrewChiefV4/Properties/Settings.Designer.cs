@@ -3838,5 +3838,29 @@ namespace CrewChiefV4.Properties {
                 this["sre_enable_opponents_by_number"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("8000")]
+        public int naudio_wave_in_sample_rate {
+            get {
+                return ((int)(this["naudio_wave_in_sample_rate"]));
+            }
+            set {
+                this["naudio_wave_in_sample_rate"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public int naudio_wave_in_channel_count {
+            get {
+                return ((int)(this["naudio_wave_in_channel_count"]));
+            }
+            set {
+                this["naudio_wave_in_channel_count"] = value;
+            }
+        }
     }
 }

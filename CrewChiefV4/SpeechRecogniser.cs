@@ -17,6 +17,9 @@ namespace CrewChiefV4
     {
         private SpeechRecognitionEngine sre;
 
+        private int nAudioWaveInSampleRate = UserSettings.GetUserSettings().getInt("naudio_wave_in_sample_rate");
+        private int nAudioWaveInChannelCount = UserSettings.GetUserSettings().getInt("naudio_wave_in_channel_count");
+
         private Boolean identifyOpponentsByPosition = UserSettings.GetUserSettings().getBoolean("sre_enable_opponents_by_position");
         private Boolean identifyOpponentsByName = UserSettings.GetUserSettings().getBoolean("sre_enable_opponents_by_name");
         private Boolean identifyOpponentsByNumber = UserSettings.GetUserSettings().getBoolean("sre_enable_opponents_by_number");
@@ -805,7 +808,7 @@ namespace CrewChiefV4
             {
                 if (useNAudio)
                 {
-                    waveIn.WaveFormat = new NAudio.Wave.WaveFormat(8000, 1);
+                    waveIn.WaveFormat = new NAudio.Wave.WaveFormat(nAudioWaveInSampleRate, nAudioWaveInChannelCount);
                     waveIn.DataAvailable += new EventHandler<NAudio.Wave.WaveInEventArgs>(waveIn_DataAvailable);
                     waveIn.NumberOfBuffers = 3;
                 }
@@ -1709,7 +1712,8 @@ namespace CrewChiefV4
                                 }
                                 Microsoft.Speech.AudioFormat.SpeechAudioFormatInfo safi =
                                     new Microsoft.Speech.AudioFormat.SpeechAudioFormatInfo(
-                                        waveIn.WaveFormat.SampleRate, Microsoft.Speech.AudioFormat.AudioBitsPerSample.Sixteen, Microsoft.Speech.AudioFormat.AudioChannel.Mono);
+                                        waveIn.WaveFormat.SampleRate, Microsoft.Speech.AudioFormat.AudioBitsPerSample.Sixteen, 
+                                        waveIn.WaveFormat.Channels == 2 ? Microsoft.Speech.AudioFormat.AudioChannel.Stereo : Microsoft.Speech.AudioFormat.AudioChannel.Mono);
                                 sre.SetInputToAudioStream(buffer, safi); // otherwise input gets unset
                                 try
                                 {
