@@ -1078,6 +1078,7 @@ namespace CrewChiefV4
                 return;
             }
             driverNamesInUse.Clear();
+            carNumbersInUse.Clear();
             foreach (Grammar opponentGrammar in opponentGrammarList)
             {
                 sre.UnloadGrammar(opponentGrammar);
