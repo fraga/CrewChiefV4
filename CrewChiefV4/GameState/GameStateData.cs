@@ -4023,14 +4023,41 @@ namespace CrewChiefV4.GameState
             }
         }
 
-        public string getOpponentKeyForCarNumber(String carNumber)
+        public string getOpponentKeyForCarNumber(String requestedCarNumberString)
         {
+            int parsedRequestedCarNumber;
+            // assume that an alternate match (based on parsed number) is OK if we can parse the number, until we get >1 match
+            Boolean canUserAlternateMatch = int.TryParse(requestedCarNumberString, out parsedRequestedCarNumber);
+            string alternateMatch = null;
             foreach (KeyValuePair<string, OpponentData> entry in OpponentData)
             {
-                if (entry.Value.CarNumber == carNumber)
+                String opponentCarNumberString = entry.Value.CarNumber;
+                // if there's an exact match, use it immediately
+                if (opponentCarNumberString == requestedCarNumberString)
                 {
                     return entry.Key;
                 }
+                else if (canUserAlternateMatch)
+                {
+                    int parsedOpponentCarNumber;
+                    if (int.TryParse(opponentCarNumberString, out parsedOpponentCarNumber) && parsedRequestedCarNumber == parsedOpponentCarNumber)
+                    {
+                        // don't return this match immediately - there might be another match which makes any non-exact match ambiguous
+                        if (alternateMatch == null)
+                        {
+                            alternateMatch = entry.Key;
+                        }
+                        else
+                        {
+                            // we already had a match so any non-exact match must be ambiguous
+                            canUserAlternateMatch = false;
+                        }
+                    }
+                }
+            }
+            if (canUserAlternateMatch)
+            {
+                return alternateMatch;
             }
             return null;
         }
