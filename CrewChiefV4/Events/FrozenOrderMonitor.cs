@@ -106,6 +106,7 @@ namespace CrewChiefV4.Events
         private const string validationAssignedPositionKey = "validationAssignedPositionKey";
         private const string validationDriverToFollowKey = "validationDriverToFollowKey";
 
+        // TODO: will this break non-English sound packs?
         private const string doubleZeroKey = "numbers/zerozero";
         private const string zeroKey = "numbers/0";
 

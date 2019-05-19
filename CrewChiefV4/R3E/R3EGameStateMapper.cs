@@ -534,6 +534,7 @@ namespace CrewChiefV4.RaceRoom
                     currentGameState.SessionData.PlayerBestLapSector2Time = previousGameState.SessionData.PlayerBestLapSector2Time;
                     currentGameState.SessionData.PlayerBestLapSector3Time = previousGameState.SessionData.PlayerBestLapSector3Time;
                     currentGameState.SessionData.trackLandmarksTiming = previousGameState.SessionData.trackLandmarksTiming;
+                    currentGameState.SessionData.PlayerCarNr = previousGameState.SessionData.PlayerCarNr;
 
                     currentGameState.FlagData.useImprovisedIncidentCalling = previousGameState.FlagData.useImprovisedIncidentCalling;
 
