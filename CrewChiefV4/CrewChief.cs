@@ -619,7 +619,7 @@ namespace CrewChiefV4
                                         List<String> usableDriverNames = DriverNameHelper.getUsableDriverNames(rawDriverNames);
                                         if (speechRecogniser != null && speechRecogniser.initialised)
                                         {
-                                            speechRecogniser.addOpponentSpeechRecognition(usableDriverNames, enableDriverNames);
+                                            speechRecogniser.addOpponentSpeechRecognition(usableDriverNames, currentGameState.getCarNumbers());
                                         }
                                         // now load all the sound files for this set of driver names
                                         SoundCache.loadDriverNameSounds(usableDriverNames);

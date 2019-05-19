@@ -331,6 +331,7 @@ namespace CrewChiefV4.RaceRoom
                         currentGameState.PitData.InPitlane = participantStruct.InPitlane == 1;
                         currentGameState.PositionAndMotionData.DistanceRoundTrack = participantStruct.LapDistance;
                         currentGameState.carClass = CarData.getCarClassForRaceRoomId(participantStruct.DriverInfo.ClassId);
+                        currentGameState.SessionData.PlayerCarNr = participantStruct.DriverInfo.CarNumber.ToString();
                         CarData.RACEROOM_CLASS_ID = participantStruct.DriverInfo.ClassId;
                         GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass);
                         Console.WriteLine("Player is using car class " + currentGameState.carClass.getClassIdentifier() + " (class ID " + participantStruct.DriverInfo.ClassId + ")");
@@ -533,6 +534,7 @@ namespace CrewChiefV4.RaceRoom
                     currentGameState.SessionData.PlayerBestLapSector2Time = previousGameState.SessionData.PlayerBestLapSector2Time;
                     currentGameState.SessionData.PlayerBestLapSector3Time = previousGameState.SessionData.PlayerBestLapSector3Time;
                     currentGameState.SessionData.trackLandmarksTiming = previousGameState.SessionData.trackLandmarksTiming;
+                    currentGameState.SessionData.PlayerCarNr = previousGameState.SessionData.PlayerCarNr;
 
                     currentGameState.FlagData.useImprovisedIncidentCalling = previousGameState.FlagData.useImprovisedIncidentCalling;
 
@@ -1824,10 +1826,11 @@ namespace CrewChiefV4.RaceRoom
         {
             if (loadDriverName && CrewChief.enableDriverNames)
             {
-                speechRecogniser.addNewOpponentName(driverName);
+                speechRecogniser.addNewOpponentName(driverName, participantStruct.DriverInfo.CarNumber.ToString());
             } 
             OpponentData opponentData = new OpponentData();
             opponentData.DriverRawName = driverName;
+            opponentData.CarNumber = participantStruct.DriverInfo.CarNumber.ToString();
             opponentData.OverallPosition = participantStruct.Place;
             opponentData.CompletedLaps = participantStruct.CompletedLaps;
             opponentData.CurrentSectorNumber = participantStruct.TrackSector;

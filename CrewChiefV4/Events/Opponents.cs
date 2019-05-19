@@ -514,6 +514,7 @@ namespace CrewChiefV4.Events
             else if (voiceMessage.Contains(SpeechRecogniser.POSITION_LONG) || voiceMessage.Contains(SpeechRecogniser.POSITION_SHORT))
             {
                 int position = 0;
+                Boolean found = false;
                 foreach (KeyValuePair<String[], int> entry in SpeechRecogniser.racePositionNumberToNumber)
                 {
                     foreach (String numberStr in entry.Key)
@@ -523,6 +524,7 @@ namespace CrewChiefV4.Events
                             if (voiceMessage.Contains(" " + numberStr + expectedNumberSuffix))
                             {
                                 position = entry.Value;
+                                found = true;
                                 break;
                             }
                         }
@@ -531,9 +533,14 @@ namespace CrewChiefV4.Events
                             if (voiceMessage.EndsWith(" " + numberStr))
                             {
                                 position = entry.Value;
+                                found = true;
                                 break;
                             }
                         }
+                    }
+                    if (found)
+                    {
+                        break;
                     }
                 }
                 if (position != currentGameState.SessionData.ClassPosition)
@@ -545,6 +552,44 @@ namespace CrewChiefV4.Events
                     opponentKey = positionIsPlayerKey;
                 }
                 gotByPositionNumber = true;
+            }
+            else if (voiceMessage.Contains(SpeechRecogniser.CAR_NUMBER))
+            {
+                String carNumber = "-1";
+                Boolean found = false;
+                foreach (KeyValuePair<String[], String> entry in SpeechRecogniser.carNumberToNumber)
+                {
+                    foreach (String numberStr in entry.Key)
+                    {
+                        if (expectedNumberSuffix.Length > 0)
+                        {
+                            if (voiceMessage.Contains(" " + numberStr + expectedNumberSuffix))
+                            {
+                                carNumber = entry.Value;
+                                found = true;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            if (voiceMessage.EndsWith(" " + numberStr))
+                            {
+                                carNumber = entry.Value;
+                                found = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (found)
+                    {
+                        break;
+                    }
+                }
+                if (carNumber != "-1" && carNumber != currentGameState.SessionData.PlayerCarNr)
+                {
+                    opponentKey = currentGameState.getOpponentKeyForCarNumber(carNumber);
+                }
+                gotByPositionNumber = false;
             }
             else
             {

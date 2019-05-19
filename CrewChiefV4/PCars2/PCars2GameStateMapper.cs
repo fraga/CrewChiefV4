@@ -1371,7 +1371,7 @@ namespace CrewChiefV4.PCars2
             opponentData.DriverNameSet = true;
             if (participantName != null && participantName.Length > 0 && loadDriverName && CrewChief.enableDriverNames)
             {
-                speechRecogniser.addNewOpponentName(opponentData.DriverRawName);
+                speechRecogniser.addNewOpponentName(opponentData.DriverRawName, "-1");
             }
             opponentData.OverallPosition = (int)participantStruct.mRacePosition;
             opponentData.CompletedLaps = (int)participantStruct.mLapsCompleted;
@@ -1553,7 +1553,6 @@ namespace CrewChiefV4.PCars2
                     return SessionPhase.Green;
                 }
             }
-            Console.WriteLine("Unavailable");
             return SessionPhase.Unavailable;
         }
 

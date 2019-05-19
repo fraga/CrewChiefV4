@@ -1998,7 +1998,7 @@ namespace CrewChiefV4.assetto
             opponentData.DriverNameSet = true;
             if (participantName != null && participantName.Length > 0 && loadDriverName && CrewChief.enableDriverNames)
             {
-                speechRecogniser.addNewOpponentName(opponentData.DriverRawName);
+                speechRecogniser.addNewOpponentName(opponentData.DriverRawName, "-1");
             }
 
             opponentData.OverallPosition = (int)participantStruct.carLeaderboardPosition;

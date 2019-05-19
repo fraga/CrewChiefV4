@@ -3802,5 +3802,41 @@ namespace CrewChiefV4.Properties {
                 this["TOGGLE_MUTE_device_type"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool sre_enable_opponents_by_position {
+            get {
+                return ((bool)(this["sre_enable_opponents_by_position"]));
+            }
+            set {
+                this["sre_enable_opponents_by_position"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool sre_enable_opponents_by_name {
+            get {
+                return ((bool)(this["sre_enable_opponents_by_name"]));
+            }
+            set {
+                this["sre_enable_opponents_by_name"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool sre_enable_opponents_by_number {
+            get {
+                return ((bool)(this["sre_enable_opponents_by_number"]));
+            }
+            set {
+                this["sre_enable_opponents_by_number"] = value;
+            }
+        }
     }
 }
