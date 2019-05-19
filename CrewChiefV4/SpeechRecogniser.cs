@@ -248,7 +248,8 @@ namespace CrewChiefV4
 
         public MainWindow.VoiceOptionEnum voiceOptionEnum;
 
-        private List<String> driverNamesInUse = new List<string>();
+        private HashSet<string> driverNamesInUse = new HashSet<string>();
+        private HashSet<string> carNumbersInUse = new HashSet<string>();
 
         private List<Grammar> opponentGrammarList = new List<Grammar>();
         private List<Grammar> iracingPitstopGrammarList = new List<Grammar>();
@@ -1021,11 +1022,34 @@ namespace CrewChiefV4
                     }
                     if (identifyOpponentsByNumber && carNumberString != "-1" && carNumberToNumber.ContainsValue(carNumberString))
                     {
-                        String[] numberOptions = carNumberToNumber.FirstOrDefault(x => x.Value == carNumberString).Key;
-                        foreach (String number in numberOptions)
+                        if (!carNumbersInUse.Contains(carNumberString))
                         {
-                            nameChoices.Add(CAR_NUMBER + " " + number);
-                            namePossessiveChoices.Add(CAR_NUMBER + " " + number + POSSESSIVE);
+                            carNumbersInUse.Add(carNumberString);
+                            String[] numberOptions = carNumberToNumber.FirstOrDefault(x => x.Value == carNumberString).Key;
+                            foreach (String number in numberOptions)
+                            {
+                                nameChoices.Add(CAR_NUMBER + " " + number);
+                                namePossessiveChoices.Add(CAR_NUMBER + " " + number + POSSESSIVE);
+                            }
+                        }
+                        // if the car number has a 0 or 00 in front of it, also listen for the number without the leading zero(s)
+                        if (carNumberString.StartsWith("0"))
+                        {
+                            int parsed;
+                            if (int.TryParse(carNumberString, out parsed))
+                            {
+                                String carNumberStringAlternate = parsed.ToString();
+                                if (!carNumbersInUse.Contains(carNumberStringAlternate))
+                                {
+                                    carNumbersInUse.Add(carNumberStringAlternate);
+                                    String[] numberOptionsWithoutLeadingZeros = carNumberToNumber.FirstOrDefault(x => x.Value == parsed.ToString()).Key;
+                                    foreach (String number in numberOptionsWithoutLeadingZeros)
+                                    {
+                                        nameChoices.Add(CAR_NUMBER + " " + number);
+                                        namePossessiveChoices.Add(CAR_NUMBER + " " + number + POSSESSIVE);
+                                    }
+                                }
+                            }
                         }
                     }
                     Choices opponentNameChoices = new Choices(nameChoices.ToArray<string>());
@@ -1073,6 +1097,7 @@ namespace CrewChiefV4
                 {
                     opponentNameOrPositionChoices.Add(name);
                     opponentNameOrPositionPossessiveChoices.Add(name + POSSESSIVE);
+                    driverNamesInUse.Add(name);
                 }
             }
 
@@ -1100,11 +1125,34 @@ namespace CrewChiefV4
                 {
                     if (carNumberString != "-1" && carNumberToNumber.ContainsValue(carNumberString))
                     {
-                        String[] numberOptions = carNumberToNumber.FirstOrDefault(x => x.Value == carNumberString).Key;
-                        foreach (String number in numberOptions)
+                        if (!carNumbersInUse.Contains(carNumberString))
                         {
-                            opponentNameOrPositionChoices.Add(CAR_NUMBER + " " + number);
-                            opponentNameOrPositionPossessiveChoices.Add(CAR_NUMBER + " " + number + POSSESSIVE);
+                            carNumbersInUse.Add(carNumberString);
+                            String[] numberOptions = carNumberToNumber.FirstOrDefault(x => x.Value == carNumberString).Key;
+                            foreach (String number in numberOptions)
+                            {
+                                opponentNameOrPositionChoices.Add(CAR_NUMBER + " " + number);
+                                opponentNameOrPositionPossessiveChoices.Add(CAR_NUMBER + " " + number + POSSESSIVE);
+                            }
+                        }
+                        // if the car number has a 0 or 00 in front of it, also listen for the number without the leading zero(s)
+                        if (carNumberString.StartsWith("0"))
+                        {
+                            int parsed;
+                            if (int.TryParse(carNumberString, out parsed))
+                            {
+                                String carNumberStringAlternate = parsed.ToString();
+                                if (!carNumbersInUse.Contains(carNumberStringAlternate))
+                                {
+                                    carNumbersInUse.Add(carNumberStringAlternate);
+                                    String[] numberOptionsWithoutLeadingZeros = carNumberToNumber.FirstOrDefault(x => x.Value == carNumberStringAlternate).Key;
+                                    foreach (String number in numberOptionsWithoutLeadingZeros)
+                                    {
+                                        opponentNameOrPositionChoices.Add(CAR_NUMBER + " " + number);
+                                        opponentNameOrPositionPossessiveChoices.Add(CAR_NUMBER + " " + number + POSSESSIVE);
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -1135,8 +1183,6 @@ namespace CrewChiefV4
                 opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHAT_TYRE_IS, WHAT_TYRES_IS }, false, opponentNameOrPositionChoices, new String[] { ON }, true));
             }
             opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHATS }, false, opponentNameOrPositionPossessiveChoices, getWhatsPossessiveChoices(), true));
-
-            driverNamesInUse.AddRange(names);
         }
 
         public void addiRacingSpeechRecogniser()
