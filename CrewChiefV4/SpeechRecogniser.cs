@@ -439,7 +439,7 @@ namespace CrewChiefV4
                     string[] zeroPhrases = Configuration.getSpeechRecognitionPhrases("0");   //"zero", "oh", etc
                     foreach (string zeroPhrase in zeroPhrases)
                     {
-                        phrases.Add(leadingNumberPhrase + " " + zeroPhrase + " " + finalNumberPhrase);
+                        phrases.Add(leadingNumberPhrase + "-" + zeroPhrase + "-" + finalNumberPhrase);
                     }
                 }
                 else
@@ -448,8 +448,8 @@ namespace CrewChiefV4
                     string middleNumberPhrase = Configuration.getSpeechRecognitionPhrases(middleNumber)[0];   //"one" / "two" / etc
                     string finalNumberPhrase = Configuration.getSpeechRecognitionPhrases(finalNumber)[0];   //"one" / "two" / etc
                     string combinedFinalNumbersPhrase = Configuration.getSpeechRecognitionPhrases(middleNumber + finalNumber)[0];   //"twenty-one" / "twenty-two" / etc
-                    phrases.Add(leadingNumberPhrase + " " + middleNumberPhrase + " " + finalNumberPhrase);
-                    phrases.Add(leadingNumberPhrase + " " + combinedFinalNumbersPhrase);
+                    phrases.Add(leadingNumberPhrase + "-" + middleNumberPhrase + "-" + finalNumberPhrase);
+                    phrases.Add(leadingNumberPhrase + "-" + combinedFinalNumbersPhrase);
                 }
             }
             return phrases.ToArray();
