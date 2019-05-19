@@ -402,8 +402,7 @@ namespace CrewChiefV4
             Dictionary<String[], string> dict = new Dictionary<string[], string>();
             for (int i = 0; i <= 999; i++)
             {
-                String key = i.ToString();
-                dict.Add(getPossibleCarNumberPhrases(i), key);
+                dict.Add(getPossibleCarNumberPhrases(i), i.ToString());
             }
             return dict;
         }
@@ -425,8 +424,8 @@ namespace CrewChiefV4
                     phrases.AddRange(Configuration.getSpeechRecognitionPhrases(numberStr));
                 }
             }
-            // for numbers > 100 allow "one three one" and "one thirty one" forms
-            if (number > 100)
+            // for numbers >= 100 allow "one three one" and "one thirty one" forms
+            if (number >= 100)
             {
                 string leadingNumber = numberStr[0].ToString();
                 string middleNumber = numberStr[1].ToString();
