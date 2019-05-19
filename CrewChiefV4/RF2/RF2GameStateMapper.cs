@@ -150,6 +150,9 @@ namespace CrewChiefV4.rFactor2
             if (RF2GameStateMapper.pluginVerified)
                 return;
 
+            // Only verify once.
+            RF2GameStateMapper.pluginVerified = true;
+
             var shared = memoryMappedFileStruct as CrewChiefV4.rFactor2.RF2SharedMemoryReader.RF2StructWrapper;
             var versionStr = RF2GameStateMapper.GetStringFromBytes(shared.extended.mVersion);
 
@@ -196,9 +199,6 @@ namespace CrewChiefV4.rFactor2
                     + (shared.extended.mDirectMemoryAccessEnabled != 0 ? "  DMA enabled." : "");
                 Console.WriteLine(msg);
             }
-
-            // Only verify once.
-            RF2GameStateMapper.pluginVerified = true;
         }
         
         // Abrupt session detection variables.
@@ -1611,6 +1611,17 @@ namespace CrewChiefV4.rFactor2
                 // shouldn't have duplicates, but just in case
                 if (!cgs.OpponentData.ContainsKey(opponentKey))
                     cgs.OpponentData.Add(opponentKey, opponent);
+
+                if (cgs.PitData.HasRequestedPitStop
+                    && csd.SessionType == SessionType.Race)
+                {
+                    // Detect if opponent occupies player's stall.
+                    if (vehicleScoring.mPitState == (byte)rFactor2Constants.rF2PitState.Stopped)
+                    {
+                        if (Math.Abs(cgs.PitData.PitBoxPositionEstimate - opponent.DistanceRoundTrack) < 5.0)
+                            cgs.PitData.PitStallOccupied = true;
+                    }
+                }
             }
 
             cgs.sortClassPositions();
@@ -2569,7 +2580,7 @@ namespace CrewChiefV4.rFactor2
                 else
                     tyreType = TyreType.Soft;
             }
-            else if (frontCompound.Contains("WET"))
+            else if (frontCompound.Contains("WET") || frontCompound.Contains("RAIN"))
                 tyreType = TyreType.Wet;
             else if (frontCompound.Contains("INTERMEDIATE"))
                 tyreType = TyreType.Intermediate;

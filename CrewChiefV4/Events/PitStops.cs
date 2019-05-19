@@ -67,6 +67,7 @@ namespace CrewChiefV4.Events
         private String folderWatchYourPitSpeed = "mandatory_pit_stops/watch_your_pit_speed";
         private String folderPitCrewReady = "mandatory_pit_stops/pit_crew_ready";
         private String folderPitStallOccupied = "mandatory_pit_stops/pit_stall_occupied";
+        private String folderPitStallAvailable = "mandatory_pit_stops/pit_stall_available";  // TODO: vocalize
         private String folderStopCompleteGo = "mandatory_pit_stops/stop_complete_go";
         private String folderPitStopRequestReceived = "mandatory_pit_stops/pit_stop_requested";
         private String folderPitStopRequestCancelled = "mandatory_pit_stops/pit_request_cancelled";
@@ -904,16 +905,28 @@ namespace CrewChiefV4.Events
                 }
             }
 
-            if (!pitLaneSpeedWarningAnnounced
-                && (currentGameState.SessionData.SessionType == SessionType.LonePractice || currentGameState.SessionData.SessionType == SessionType.Practice || currentGameState.SessionData.SessionType == SessionType.Qualify)
-                && CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT
-                && currentGameState.PitData.InPitlane
-                && currentGameState.PositionAndMotionData.CarSpeed > 0.5f)
+            if (CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT)
             {
-                pitLaneSpeedWarningAnnounced = true;
-                if (currentGameState.PitData.PitSpeedLimit != -1.0f)
+                if (!pitLaneSpeedWarningAnnounced
+                    && (currentGameState.SessionData.SessionType == SessionType.LonePractice || currentGameState.SessionData.SessionType == SessionType.Practice || currentGameState.SessionData.SessionType == SessionType.Qualify)
+                    && currentGameState.PitData.InPitlane
+                    && currentGameState.PositionAndMotionData.CarSpeed > 0.5f)
                 {
-                    announcePitlaneSpeedLimit(currentGameState, false /*possiblyAnnounceIntro*/, false /*voiceResponse*/);
+                    pitLaneSpeedWarningAnnounced = true;
+                    if (currentGameState.PitData.PitSpeedLimit != -1.0f)
+                    {
+                        announcePitlaneSpeedLimit(currentGameState, false /*possiblyAnnounceIntro*/, false /*voiceResponse*/);
+                    }
+                }
+
+                if (previousGameState != null
+                    && currentGameState.SessionData.SessionType == SessionType.Race
+                    && currentGameState.PitData.HasRequestedPitStop)
+                {
+                    if (!previousGameState.PitData.PitStallOccupied && currentGameState.PitData.PitStallOccupied)
+                        audioPlayer.playMessageImmediately(new QueuedMessage(folderPitStallOccupied, 0));
+                    else if (previousGameState.PitData.PitStallOccupied && !currentGameState.PitData.PitStallOccupied)
+                        audioPlayer.playMessageImmediately(new QueuedMessage(folderPitStallAvailable, 0));
                 }
             }
         }
