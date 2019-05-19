@@ -1553,7 +1553,6 @@ namespace CrewChiefV4.PCars2
                     return SessionPhase.Green;
                 }
             }
-            Console.WriteLine("Unavailable");
             return SessionPhase.Unavailable;
         }
 

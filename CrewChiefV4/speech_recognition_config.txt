@@ -306,7 +306,7 @@ WHATS_THE_SOF = what's the sof:what is the strength of field
 # numbers - these are the text strings the voice recogniser will listen for (it's not good at listening for numeric characters)
 # These are used by the dynamic phrases, and are combined with the dynamic phrase fragments above
 #################################################
-0 = zero:oh clock:a clock
+0 = zero:oh:oh clock:a clock
 1 = one:oh one
 2 = two:oh two
 3 = three:oh three

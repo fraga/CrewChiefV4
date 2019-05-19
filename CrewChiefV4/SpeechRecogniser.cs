@@ -396,27 +396,63 @@ namespace CrewChiefV4
             return dict;
         }
 
+
         private static Dictionary<String[], string> getCarNumberMappings()
         {
             Dictionary<String[], string> dict = new Dictionary<string[], string>();
             for (int i = 0; i <= 999; i++)
             {
                 String key = i.ToString();
-                dict.Add(Configuration.getSpeechRecognitionPhrases(key), key);
-                if (i < 100)
-                {
-                    // add a leading zero if 1 < 100
-                    key = "0" + key;
-                    dict.Add(Configuration.getSpeechRecognitionPhrases(key), key);
-                    if (i < 10)
-                    {
-                        // add another leading zero if i < 10
-                        key = "0" + key;
-                        dict.Add(Configuration.getSpeechRecognitionPhrases(key), key);
-                    }
-                }
+                dict.Add(getPossibleCarNumberPhrases(i), key);
             }
             return dict;
+        }
+
+        private static string[] getPossibleCarNumberPhrases(int number)
+        {
+            List<string> phrases = new List<string>();
+            string numberStr = number.ToString();
+            phrases.AddRange(Configuration.getSpeechRecognitionPhrases(numberStr));
+            if (number < 100)
+            {
+                // add a leading zero if 1 < 100
+                numberStr = "0" + numberStr;
+                phrases.AddRange(Configuration.getSpeechRecognitionPhrases(numberStr));
+                if (number < 10)
+                {
+                    // add another leading zero if i < 10
+                    numberStr = "0" + numberStr;
+                    phrases.AddRange(Configuration.getSpeechRecognitionPhrases(numberStr));
+                }
+            }
+            // for numbers > 100 allow "one three one" and "one thirty one" forms
+            if (number > 100)
+            {
+                string leadingNumber = numberStr[0].ToString();
+                string middleNumber = numberStr[1].ToString();
+                string finalNumber = numberStr[2].ToString();
+                string leadingNumberPhrase = Configuration.getSpeechRecognitionPhrases(leadingNumber)[0];   //"one" / "two" / etc
+                if (middleNumber == "0")
+                {
+                    // need to add "one oh one", "five zero three", etc
+                    string finalNumberPhrase = Configuration.getSpeechRecognitionPhrases(finalNumber)[0];   //"one" / "two" / etc
+                    string[] zeroPhrases = Configuration.getSpeechRecognitionPhrases("0");   //"zero", "oh", etc
+                    foreach (string zeroPhrase in zeroPhrases)
+                    {
+                        phrases.Add(leadingNumberPhrase + " " + zeroPhrase + " " + finalNumberPhrase);
+                    }
+                }
+                else
+                {
+                    // need to add "one two three", "four sevent eight", etc
+                    string middleNumberPhrase = Configuration.getSpeechRecognitionPhrases(middleNumber)[0];   //"one" / "two" / etc
+                    string finalNumberPhrase = Configuration.getSpeechRecognitionPhrases(finalNumber)[0];   //"one" / "two" / etc
+                    string combinedFinalNumbersPhrase = Configuration.getSpeechRecognitionPhrases(middleNumber + finalNumber)[0];   //"twenty-one" / "twenty-two" / etc
+                    phrases.Add(leadingNumberPhrase + " " + middleNumberPhrase + " " + finalNumberPhrase);
+                    phrases.Add(leadingNumberPhrase + " " + combinedFinalNumbersPhrase);
+                }
+            }
+            return phrases.ToArray();
         }
 
         // if alwaysUseAllPhrases is true, we add all the phrase options to the recogniser even if the disable_alternative_voice_commands option is true.
