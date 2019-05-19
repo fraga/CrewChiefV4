@@ -106,6 +106,10 @@ namespace CrewChiefV4.Events
         private const string validationAssignedPositionKey = "validationAssignedPositionKey";
         private const string validationDriverToFollowKey = "validationDriverToFollowKey";
 
+        // TODO: will this break non-English sound packs?
+        private const string doubleZeroKey = "numbers/zerozero";
+        private const string zeroKey = "numbers/0";
+
         public FrozenOrderMonitor(AudioPlayer audioPlayer)
         {
             this.audioPlayer = audioPlayer;
@@ -168,7 +172,7 @@ namespace CrewChiefV4.Events
             this.currFrozenOrderColumn = FrozenOrderColumn.None;
             this.scrLastFCYLapLaneAnnounced = false;
         }
-
+        
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
             var cgs = currentGameState;
@@ -219,15 +223,28 @@ namespace CrewChiefV4.Events
             var shouldFollowSafetyCar = false;
             var driverToFollow = "";
             var carNumber = -1;
+            // add leading "zero" to announcment of car number?
+            var leadingZeros = false;
+            // this will be either "zero" or "zerozero" depending on the number
+            var leadingZerosKey = "";
             var useCarNumber = false;
             if (cfodp == FrozenOrderPhase.Rolling || cfodp == FrozenOrderPhase.FullCourseYellow)
             {
                 shouldFollowSafetyCar = (cfod.AssignedColumn == FrozenOrderColumn.None && cfod.AssignedPosition == 1)  // Single file order.
                     || (cfod.AssignedColumn != FrozenOrderColumn.None && cfod.AssignedPosition <= 2);  // Double file (grid) order.
                 
-                useCarNumber = CrewChief.gameDefinition.gameEnum == GameEnum.IRACING && !shouldFollowSafetyCar && Int32.TryParse(cfod.CarNumberToFollowRaw, out carNumber) &&
-                        !(useDriverName && AudioPlayer.canReadName(cfod.DriverToFollowRaw));
-               
+                useCarNumber = CrewChief.gameDefinition.gameEnum == GameEnum.IRACING && !shouldFollowSafetyCar && cfod.CarNumberToFollowRaw != "-1" &&
+                    Int32.TryParse(cfod.CarNumberToFollowRaw, out carNumber) && !(useDriverName && AudioPlayer.canReadName(cfod.DriverToFollowRaw));
+                if (useCarNumber && cfod.CarNumberToFollowRaw.StartsWith("00"))
+                {
+                    leadingZerosKey = doubleZeroKey;
+                    leadingZeros = true;
+                }
+                else if (useCarNumber && cfod.CarNumberToFollowRaw.StartsWith("0"))
+                {
+                    leadingZerosKey = zeroKey;
+                    leadingZeros = true;
+                }
                 driverToFollow = shouldFollowSafetyCar ? (useAmericanTerms ? folderThePaceCar : folderTheSafetyCar) : (useCarNumber ? cfod.CarNumberToFollowRaw : cfod.DriverToFollowRaw);
             }
 
@@ -250,7 +267,12 @@ namespace CrewChiefV4.Events
                     var canReadDriverToFollow = shouldFollowSafetyCar || useCarNumber || AudioPlayer.canReadName(driverToFollow);
 
                     var usableDriverNameToFollow = shouldFollowSafetyCar || useCarNumber ? driverToFollow : DriverNameHelper.getUsableDriverName(driverToFollow);
-                    
+
+                    // special case for a single leading zero - only play it if we have to - e.g. there is a car using number 023 and one using number 23
+                    if (useCarNumber && leadingZeros && leadingZerosKey == zeroKey)
+                    {
+                        leadingZeros = shouldUseLeadingZeros(carNumber, currentGameState.getCarNumbers());
+                    }
                     
                     var validationData = new Dictionary<string, object>();
                     validationData.Add(FrozenOrderMonitor.validateMessageTypeKey, FrozenOrderMonitor.validateMessageTypeAction);
@@ -273,7 +295,8 @@ namespace CrewChiefV4.Events
                                         validationData: validationData, priority: 10));
                                 else
                                     audioPlayer.playMessage(new QueuedMessage(!shouldFollowSafetyCar ? "frozen_order/follow_driver" : "frozen_order/follow_safety_car", 0,
-                                        secondsDelay: 0, messageFragments: MessageContents(folderFollowCarNumber, carNumber), abstractEvent: this,
+                                        secondsDelay: 0, messageFragments:
+                                        leadingZeros ? MessageContents(folderFollowCarNumber, leadingZerosKey, carNumber) : MessageContents(folderFollowCarNumber, carNumber), abstractEvent: this,
                                         validationData: validationData, priority: 10));
 
                             else
@@ -289,7 +312,8 @@ namespace CrewChiefV4.Events
                                         validationData: validationData, priority: 10));
                                 else
                                     audioPlayer.playMessage(new QueuedMessage(!shouldFollowSafetyCar ? "frozen_order/follow_driver_in_col" : "frozen_order/follow_safecy_car_in_col", 0,
-                                        secondsDelay: 0, messageFragments: MessageContents(folderFollowCarNumber, carNumber, columnName), abstractEvent: this,
+                                        secondsDelay: 0, messageFragments:
+                                        leadingZeros ? MessageContents(folderFollowCarNumber, leadingZerosKey, carNumber, columnName) : MessageContents(folderFollowCarNumber, carNumber, columnName), abstractEvent: this,
                                         validationData: validationData, priority: 10));
                             }
                         }
@@ -306,7 +330,8 @@ namespace CrewChiefV4.Events
                                     validationData: validationData, priority: 10));
                             else
                                 audioPlayer.playMessage(new QueuedMessage(!shouldFollowSafetyCar ? "frozen_order/allow_driver_to_pass" : "frozen_order/allow_safety_car_to_pass", delay + 6,
-                                    secondsDelay: delay, messageFragments: MessageContents(folderAllowCarNumber, carNumber, folderToPass), abstractEvent: this,
+                                    secondsDelay: delay, messageFragments:
+                                    leadingZeros ? MessageContents(folderAllowCarNumber, leadingZerosKey, carNumber, folderToPass) : MessageContents(folderAllowCarNumber, carNumber, folderToPass), abstractEvent: this,
                                     validationData: validationData, priority: 10));
 
                         }
@@ -325,7 +350,8 @@ namespace CrewChiefV4.Events
                                     validationData: validationData, priority: 10));
                             else
                                 audioPlayer.playMessage(new QueuedMessage(!shouldFollowSafetyCar ? "frozen_order/catch_up_to_driver" : "frozen_order/catch_up_to_safety_car", delay + 6,
-                                    secondsDelay: delay, messageFragments: MessageContents(folderCatchUpToCarNumber, carNumber), abstractEvent: this,
+                                    secondsDelay: delay, messageFragments:
+                                    leadingZeros ? MessageContents(folderCatchUpToCarNumber, leadingZerosKey, carNumber) : MessageContents(folderCatchUpToCarNumber, carNumber), abstractEvent: this,
                                     validationData: validationData, priority: 10));
                         }
                         else
@@ -387,6 +413,12 @@ namespace CrewChiefV4.Events
 
                 var usableDriverNameToFollow = shouldFollowSafetyCar || useCarNumber ? driverToFollow : DriverNameHelper.getUsableDriverName(driverToFollow);
 
+                // special case for a single leading zero - only play it if we have to - e.g. there is a car using number 023 and one using number 23
+                if (useCarNumber && leadingZeros && leadingZerosKey == zeroKey)
+                {
+                    leadingZeros = shouldUseLeadingZeros(carNumber, currentGameState.getCarNumbers());
+                }
+
                 var validationData = new Dictionary<string, object>();
                 validationData.Add(FrozenOrderMonitor.validateMessageTypeKey, FrozenOrderMonitor.validateMessageTypeAction);
                 validationData.Add(FrozenOrderMonitor.validationActionKey, cfod.Action);
@@ -408,7 +440,10 @@ namespace CrewChiefV4.Events
                         else if (useCarNumber)
                         {
                             audioPlayer.playMessage(new QueuedMessage("frozen_order/lineup_single_file_follow_car_number",
-                                delay + 6, secondsDelay: delay, messageFragments: MessageContents(useAmericanTerms ? folderPaceCarIsOut : folderSafetyCarIsOut, folderLineUpSingleFileBehindCarNumber, carNumber), 
+                                delay + 6, secondsDelay: delay, messageFragments:
+                                leadingZeros ? 
+                                    MessageContents(useAmericanTerms ? folderPaceCarIsOut : folderSafetyCarIsOut, folderLineUpSingleFileBehindCarNumber, leadingZerosKey, carNumber) :
+                                    MessageContents(useAmericanTerms ? folderPaceCarIsOut : folderSafetyCarIsOut, folderLineUpSingleFileBehindCarNumber, carNumber), 
                                 abstractEvent: this, validationData: validationData, priority: 10));
 
                         }
@@ -433,7 +468,8 @@ namespace CrewChiefV4.Events
                         else if (useCarNumber)
                         {
                             audioPlayer.playMessage(new QueuedMessage("frozen_order/lineup_single_file_follow_car_number",
-                                delay + 6, secondsDelay: delay, messageFragments: MessageContents(folderLineUpSingleFileBehindCarNumber, carNumber), 
+                                delay + 6, secondsDelay: delay, messageFragments: 
+                                leadingZeros ? MessageContents(folderLineUpSingleFileBehindCarNumber, leadingZerosKey, carNumber) : MessageContents(folderLineUpSingleFileBehindCarNumber, carNumber), 
                                 abstractEvent: this, validationData: validationData, priority: 10));
 
                         }
@@ -642,5 +678,33 @@ namespace CrewChiefV4.Events
 
             // For fast rolling, do nothing for now.
         }
+
+        // double check if we can use leading zero(s)
+        private Boolean shouldUseLeadingZeros(int carNumber, HashSet<string> carNumbers)
+        {
+            // check to see if we want to add a leading zero - the 'correct' way to announce the car number is to always honour the leading
+            // zeros, but in cases where there's only 1 leading zero and the number isn't ambiguous, we override this. This is because
+            // "zero twenty three" sounds a bit weird if there's no car number 23 as well. We will always honour numbers with 2
+            // leading zeros like 007
+            int copiesOfNumber = 0;
+            foreach (string carNumberString in carNumbers)
+            {
+                if (carNumberString != "-1")
+                {
+                    int parsedNumber = int.Parse(carNumberString);
+                    if (parsedNumber == carNumber)
+                    {
+                        copiesOfNumber++;
+                        if (copiesOfNumber > 1)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+            // only allow the leadingZero to be used if there's >1 copy if this number
+            return copiesOfNumber > 1;
+        }
+
     }
 }

@@ -1083,7 +1083,7 @@ namespace CrewChiefV4.GameState
             }
         }
 
-        public int PlayerCarNr = -1;
+        public String PlayerCarNr = "-1";
 
         // Currently only used in iRacing.
         public int MaxIncidentCount = -1;
@@ -3896,6 +3896,16 @@ namespace CrewChiefV4.GameState
             return rawDriverNames;
         }
 
+        public HashSet<string> getCarNumbers()
+        {
+            HashSet<string> carNumbers = new HashSet<string>();
+            foreach (KeyValuePair<string, OpponentData> entry in OpponentData)
+            {
+                carNumbers.Add(entry.Value.CarNumber);
+            }
+            return carNumbers;
+        }
+
         public OpponentData getOpponentAtClassPosition(int position, CarData.CarClass carClass)
         {
             return getOpponentAtClassPosition(position, carClass, false);
@@ -4011,6 +4021,45 @@ namespace CrewChiefV4.GameState
             {
                 return null;
             }
+        }
+
+        public string getOpponentKeyForCarNumber(String requestedCarNumberString)
+        {
+            int parsedRequestedCarNumber;
+            // assume that an alternate match (based on parsed number) is OK if we can parse the number, until we get >1 match
+            Boolean canUserAlternateMatch = int.TryParse(requestedCarNumberString, out parsedRequestedCarNumber);
+            string alternateMatch = null;
+            foreach (KeyValuePair<string, OpponentData> entry in OpponentData)
+            {
+                String opponentCarNumberString = entry.Value.CarNumber;
+                // if there's an exact match, use it immediately
+                if (opponentCarNumberString == requestedCarNumberString)
+                {
+                    return entry.Key;
+                }
+                else if (canUserAlternateMatch)
+                {
+                    int parsedOpponentCarNumber;
+                    if (int.TryParse(opponentCarNumberString, out parsedOpponentCarNumber) && parsedRequestedCarNumber == parsedOpponentCarNumber)
+                    {
+                        // don't return this match immediately - there might be another match which makes any non-exact match ambiguous
+                        if (alternateMatch == null)
+                        {
+                            alternateMatch = entry.Key;
+                        }
+                        else
+                        {
+                            // we already had a match so any non-exact match must be ambiguous
+                            canUserAlternateMatch = false;
+                        }
+                    }
+                }
+            }
+            if (canUserAlternateMatch)
+            {
+                return alternateMatch;
+            }
+            return null;
         }
 
         public string getOpponentKeyInFront(CarData.CarClass carClass)

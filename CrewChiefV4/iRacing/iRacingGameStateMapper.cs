@@ -216,7 +216,7 @@ namespace CrewChiefV4.iRacing
                 CarData.IRACING_CLASS_ID = playerCar.Car.CarClassId;
                 GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass);
                 Console.WriteLine("Player is using car class " + currentGameState.carClass.getClassIdentifier() + " (car ID " + playerCar.Car.CarId + ")");
-                currentGameState.SessionData.PlayerCarNr = Parser.ParseInt(playerCar.CarNumber);
+                currentGameState.SessionData.PlayerCarNr = playerCar.CarNumber;
 
                 currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.Now);
                 currentGameState.SessionData.SectorNumber = playerCar.Live.CurrentSector;
@@ -297,7 +297,7 @@ namespace CrewChiefV4.iRacing
                         GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass);
                         currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.Now);
                         Console.WriteLine("Player is using car class " + currentGameState.carClass.getClassIdentifier() + " (car ID " + playerCar.Car.CarId + ")");
-                        currentGameState.SessionData.PlayerCarNr = Parser.ParseInt(playerCar.CarNumber);
+                        currentGameState.SessionData.PlayerCarNr = playerCar.CarNumber;
 
                         if (previousGameState != null)
                         {
@@ -393,6 +393,7 @@ namespace CrewChiefV4.iRacing
                     currentGameState.SessionData.PlayerLapData = previousGameState.SessionData.PlayerLapData;
                     currentGameState.SessionData.trackLandmarksTiming = previousGameState.SessionData.trackLandmarksTiming;
                     currentGameState.SessionData.CompletedLaps = previousGameState.SessionData.CompletedLaps;
+                    currentGameState.SessionData.PlayerCarNr = previousGameState.SessionData.PlayerCarNr;
 
                     currentGameState.OpponentData = previousGameState.OpponentData;
                     currentGameState.SessionData.SectorNumber = previousGameState.SessionData.SectorNumber;
@@ -1217,7 +1218,7 @@ namespace CrewChiefV4.iRacing
                 Console.WriteLine("Driver " + opponentData.DriverRawName + " has been swapped for " + driverName);
                 opponentData.DriverRawName = driverName;
                 opponentData.CostId = CostId;
-                speechRecogniser.addNewOpponentName(driverName);
+                speechRecogniser.addNewOpponentName(driverName, opponentData.CarNumber);
             }
             Boolean validSpeed = true;
             if (speed > 500)
@@ -1452,7 +1453,7 @@ namespace CrewChiefV4.iRacing
             String driverName = driver.Name.ToLower();
             if (loadDriverName && CrewChief.enableDriverNames)
             {
-                speechRecogniser.addNewOpponentName(driverName);
+                speechRecogniser.addNewOpponentName(driverName, driver.CarNumber);
             }
             OpponentData opponentData = new OpponentData();
             opponentData.IsActive = true;
