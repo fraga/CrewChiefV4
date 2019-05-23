@@ -962,5 +962,8 @@
     <Setting Name="naudio_wave_in_channel_count" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">1</Value>
     </Setting>
+    <Setting Name="naudio_wave_in_sample_depth" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">16</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

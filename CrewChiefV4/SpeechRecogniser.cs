@@ -19,6 +19,7 @@ namespace CrewChiefV4
 
         private int nAudioWaveInSampleRate = UserSettings.GetUserSettings().getInt("naudio_wave_in_sample_rate");
         private int nAudioWaveInChannelCount = UserSettings.GetUserSettings().getInt("naudio_wave_in_channel_count");
+        private int nAudioWaveInSampleDepth = UserSettings.GetUserSettings().getInt("naudio_wave_in_sample_depth");
 
         private Boolean identifyOpponentsByPosition = UserSettings.GetUserSettings().getBoolean("sre_enable_opponents_by_position");
         private Boolean identifyOpponentsByName = UserSettings.GetUserSettings().getBoolean("sre_enable_opponents_by_name");
@@ -1712,8 +1713,9 @@ namespace CrewChiefV4
                                 }
                                 Microsoft.Speech.AudioFormat.SpeechAudioFormatInfo safi =
                                     new Microsoft.Speech.AudioFormat.SpeechAudioFormatInfo(
-                                        waveIn.WaveFormat.SampleRate, Microsoft.Speech.AudioFormat.AudioBitsPerSample.Sixteen, 
-                                        waveIn.WaveFormat.Channels == 2 ? Microsoft.Speech.AudioFormat.AudioChannel.Stereo : Microsoft.Speech.AudioFormat.AudioChannel.Mono);
+                                        nAudioWaveInSampleRate,
+                                        nAudioWaveInSampleDepth == 16 ? Microsoft.Speech.AudioFormat.AudioBitsPerSample.Sixteen : Microsoft.Speech.AudioFormat.AudioBitsPerSample.Eight, 
+                                        nAudioWaveInChannelCount == 2 ? Microsoft.Speech.AudioFormat.AudioChannel.Stereo : Microsoft.Speech.AudioFormat.AudioChannel.Mono);
                                 sre.SetInputToAudioStream(buffer, safi); // otherwise input gets unset
                                 try
                                 {

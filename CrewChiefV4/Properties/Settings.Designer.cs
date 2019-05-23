@@ -3862,5 +3862,17 @@ namespace CrewChiefV4.Properties {
                 this["naudio_wave_in_channel_count"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("16")]
+        public int naudio_wave_in_sample_depth {
+            get {
+                return ((int)(this["naudio_wave_in_sample_depth"]));
+            }
+            set {
+                this["naudio_wave_in_sample_depth"] = value;
+            }
+        }
     }
 }

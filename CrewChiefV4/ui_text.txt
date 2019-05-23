@@ -1344,3 +1344,7 @@ naudio_wave_in_sample_rate_category = AUDIO_VOICE_AND_CONTROLLERS
 naudio_wave_in_channel_count = Channel count for nAudio wave-in device
 naudio_wave_in_channel_count_help = Channels (1: mono, 2: stereo) for recording device (nAudio only)
 naudio_wave_in_channel_count_category = AUDIO_VOICE_AND_CONTROLLERS
+
+naudio_wave_in_sample_depth = Sample depth for nAudio wave-in device (8 or 16)
+naudio_wave_in_sample_depth_help = Sample depth, 8 or 16 bits per sample, for recording device (nAudio only)
+naudio_wave_in_sample_depth_category = AUDIO_VOICE_AND_CONTROLLERS
