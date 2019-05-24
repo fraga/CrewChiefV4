@@ -1003,7 +1003,7 @@ namespace CrewChiefV4.assetto
                         if (i != 0 && participantName != null && participantName.Length > 0)
                         {
                             CarData.CarClass opponentCarClass = CarData.getCarClassForClassName(getNameFromBytes(participantStruct.carModel));
-                            addOpponentForName(participantName, createOpponentData(participantStruct, false, opponentCarClass, shared.acsStatic.trackSPlineLength), currentGameState);
+                            addOpponentForName(participantName, createOpponentData(participantStruct, false, opponentCarClass, shared.acsStatic.trackSPlineLength, false), currentGameState);
                         }
                     }
                 }
@@ -1521,7 +1521,7 @@ namespace CrewChiefV4.assetto
                             if (participantStruct.isConnected == 1 && participantName != null && participantName.Length > 0)
                             {
                                 addOpponentForName(participantName, createOpponentData(participantStruct, true, CarData.getCarClassForClassName(getNameFromBytes(participantStruct.carModel)),
-                                    shared.acsStatic.trackSPlineLength), currentGameState);
+                                    shared.acsStatic.trackSPlineLength, currentGameState.SessionData.SessionType == SessionType.Race), currentGameState);
                             }
                         }
                     }
@@ -1990,13 +1990,15 @@ namespace CrewChiefV4.assetto
             }
         }
 
-        private OpponentData createOpponentData(acsVehicleInfo participantStruct, Boolean loadDriverName, CarData.CarClass carClass, float trackSplineLength)
+        private OpponentData createOpponentData(acsVehicleInfo participantStruct, Boolean loadDriverName, CarData.CarClass carClass, float trackSplineLength, 
+            Boolean raceSessionIsUnderway)
         {
             OpponentData opponentData = new OpponentData();
             String participantName = getNameFromBytes(participantStruct.driverName).ToLower();
             opponentData.DriverRawName = participantName;
             opponentData.DriverNameSet = true;
-            if (participantName != null && participantName.Length > 0 && loadDriverName && CrewChief.enableDriverNames)
+            // note that in AC, drivers may be added to the session during the race - we don't want to load these driver names
+            if (participantName != null && participantName.Length > 0 && loadDriverName && CrewChief.enableDriverNames && !raceSessionIsUnderway)
             {
                 speechRecogniser.addNewOpponentName(opponentData.DriverRawName, "-1");
             }
