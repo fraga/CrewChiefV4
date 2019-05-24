@@ -1965,9 +1965,8 @@ namespace CrewChiefV4.assetto
                     opponentData.CompletedLaps = correctedLapCount;
                     // recheck the car class here?
                 }
-                else if (opponentData.OpponentLapData.Count > 0 &&
-                    ((opponentData.CurrentSectorNumber == 1 && sector == 2) || 
-                     (opponentData.CurrentSectorNumber == 2 && sector == 3)))
+                else if ((opponentData.CurrentSectorNumber == 1 && sector == 2) || 
+                         (opponentData.CurrentSectorNumber == 2 && sector == 3))
                 {
                     opponentData.AddCumulativeSectorData(opponentData.CurrentSectorNumber, racePosition, completedLapTime, sessionRunningTime,
                         lapIsValid && validSpeed, false, trackTempreture, airTemperature);
