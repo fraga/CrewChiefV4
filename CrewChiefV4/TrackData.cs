@@ -920,7 +920,12 @@ namespace CrewChiefV4
 
         public void setGapPoints()
         {
-            if (trackLength > TrackData.gapPointsThreshold)
+            // special case for 2 sector tracks
+            if (sectorsOnTrack == 2)
+            {
+                gapPoints = new float[] {(float)Math.Round(trackLength / 2f), trackLength - 50};
+            }
+            else if (trackLength > TrackData.gapPointsThreshold)
             {
                 float totalGaps = 0;
                 List<float> gaps = new List<float>();
