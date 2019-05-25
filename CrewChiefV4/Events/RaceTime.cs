@@ -80,6 +80,16 @@ namespace CrewChiefV4.Events
         
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
+            if (CrewChief.gameDefinition.gameEnum == GameEnum.IRACING
+                && currentGameState.SessionData.SessionType == SessionType.Race
+                && previousGameState != null
+                && currentGameState.SessionData.SessionHasFixedTime
+                && previousGameState.SessionData.SessionTimeRemaining == -1
+                && currentGameState.SessionData.SessionTimeRemaining > 0)
+            {
+                played0mins = false; played2mins = false; played5mins = false; played10mins = false; played15mins = false;
+                played20mins = false; playedHalfWayHome = false; playedLastLap = false; gotHalfTime = false;
+            }
             // store this in a local var so it's available for vocie command responses
             addExtraLap = currentGameState.SessionData.HasExtraLap;
             leaderHasFinishedRace = currentGameState.SessionData.LeaderHasFinishedRace;

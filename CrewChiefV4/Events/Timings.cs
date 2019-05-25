@@ -240,7 +240,7 @@ namespace CrewChiefV4.Events
                     return true;
                 }
             }
-            else if (currentGameState.SessionData.SessionTimeRemaining < 120)
+            else if (currentGameState.SessionData.SessionTimeRemaining > -1 && currentGameState.SessionData.SessionTimeRemaining < 120)
             {
                 return true;
             }
