@@ -1197,7 +1197,8 @@ namespace CrewChiefV4.Events
                 if (CrewChief.currentGameState.SessionData.SessionHasFixedTime)
                 {
                     isSufficientTimeToSaveFuel = CrewChief.currentGameState.SessionData.SessionTimeRemaining > 500;
-                    isCloseToRaceEnd = CrewChief.currentGameState.SessionData.SessionTimeRemaining < 120 || CrewChief.currentGameState.SessionData.IsLastLap;
+                    isCloseToRaceEnd = (CrewChief.currentGameState.SessionData.SessionTimeRemaining < 120 && CrewChief.currentGameState.SessionData.SessionTimeRemaining > -1)
+                        || CrewChief.currentGameState.SessionData.IsLastLap;
                 }
                 else
                 {
