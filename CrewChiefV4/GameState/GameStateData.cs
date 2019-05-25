@@ -1427,7 +1427,12 @@ namespace CrewChiefV4.GameState
             public float Roll = 0.0f;
             public float Yaw = 0.0f;
         }
-
+        public class Acceleration
+        {
+            public float? LatAccel = null;
+            public float? VertAccel = null;
+            public float? LongAccel = null;
+        }
         // Unit: Meter per second (m/s).
         public Single CarSpeed = 0;
 
@@ -1442,6 +1447,8 @@ namespace CrewChiefV4.GameState
         // presumably it's relative to the world rather than the track orientation under the car. Is yaw relative to the track spline or 'north'?).
         // This is only set for R3E currently, and is only used to detect the car rolling over.
         public Rotation Orientation = new Rotation();
+
+        public Acceleration AccelerationVector = new Acceleration();
     }
     
     public class OpponentData
