@@ -52,6 +52,7 @@ namespace CrewChiefV4.Events
         {
             public float timeDelta = -1.0f;
             public int lapDelta = -1;
+            public String opponentKey = null;
         }
 
         private List<Gap> gapsInFront;
@@ -204,11 +205,17 @@ namespace CrewChiefV4.Events
         {
             if (base.isMessageStillValid(eventSubType, currentGameState, validationData))
             {
+                Boolean isInvalidGapAhead = eventSubType.Contains("Timings/gap_in_front")
+                        && (currentGameState.SessionData.TimeDeltaFront * currentGameState.PositionAndMotionData.CarSpeed < 3   /* gap is too small */
+                            || currentGameState.SessionData.GameTimeAtLastPositionFrontChange + 10 > currentGameState.SessionData.SessionRunningTime); /* overtake <10 seconds ago */
+                Boolean isInvalidGapBehind = eventSubType.Contains("Timings/gap_behind")
+                        && (currentGameState.SessionData.TimeDeltaBehind * currentGameState.PositionAndMotionData.CarSpeed < 3
+                            || currentGameState.SessionData.GameTimeAtLastPositionBehindChange + 10 > currentGameState.SessionData.SessionRunningTime);
+
                 object timingValidationDataValue = null;
                 if (validationData != null && validationData.TryGetValue("position", out timingValidationDataValue) &&
-                    ((int)timingValidationDataValue != currentGameState.SessionData.ClassPosition ||
-                     (eventSubType.Contains("Timings/gap_in_front") && currentGameState.SessionData.TimeDeltaFront * currentGameState.PositionAndMotionData.CarSpeed < 3) ||
-                     (eventSubType.Contains("Timings/gap_behind") && currentGameState.SessionData.TimeDeltaBehind * currentGameState.PositionAndMotionData.CarSpeed < 3)))
+                    ((int)timingValidationDataValue != currentGameState.SessionData.ClassPosition || currentGameState.SessionData.ClassPosition < 1 || currentGameState.SessionData.ClassPosition >= 1000 ||
+                     isInvalidGapAhead || isInvalidGapBehind))
                 {
                     // if our race position has changed since we queued the message, assume we've actually passed this car or been passed.
                     // if our gap ahead or behind is < 1 car length, assume we're in the process of passing or being passed
@@ -315,7 +322,8 @@ namespace CrewChiefV4.Events
                             gapsInFront.Insert(0, new Gap()
                             {
                                 timeDelta = currentGameState.SessionData.TimeDeltaFront,
-                                lapDelta = currentGameState.SessionData.LapsDeltaFront
+                                lapDelta = currentGameState.SessionData.LapsDeltaFront,
+                                opponentKey = currentGameState.getOpponentKeyInFront(currentGameState.carClass)
                             });
                             gapInFrontStatus = getGapStatus(gapsInFront, gapInFrontAtLastReport);
                         }
@@ -328,7 +336,8 @@ namespace CrewChiefV4.Events
                             gapsBehind.Insert(0, new Gap()
                             {
                                 timeDelta = currentGameState.SessionData.TimeDeltaBehind,
-                                lapDelta = currentGameState.SessionData.LapsDeltaBehind
+                                lapDelta = currentGameState.SessionData.LapsDeltaBehind,
+                                opponentKey = currentGameState.getOpponentKeyBehind(currentGameState.carClass)
                             });
                             gapBehindStatus = getGapStatus(gapsBehind, gapBehindAtLastReport);
                         }
@@ -672,32 +681,62 @@ namespace CrewChiefV4.Events
             {
                 return GapStatus.NONE;
             }
-            else if ((gaps[0].timeDelta < 0.5 && gaps[1].timeDelta < 0.5) ||
-                     (gaps.Count > 2 && gaps[0].timeDelta < 0.7 && gaps[1].timeDelta < 0.7 && gaps[2].timeDelta < 0.7) ||
-                     (gaps.Count > 3 && gaps[0].timeDelta < 0.8 && gaps[1].timeDelta < 0.8 && gaps[2].timeDelta < 0.8 && gaps[3].timeDelta < 0.8))
-            {
-                // this car has been very close for 2 sectors, pretty close for 3 or fairly close for 4 sectors
-                return GapStatus.CLOSE;
-            }
-            else if ((lastReportedGap == -1 || Math.Round(gaps[0].timeDelta, 1) > Math.Round(lastReportedGap)) &&
-                Math.Round(gaps[0].timeDelta, 1) > Math.Round(gaps[1].timeDelta, 1) && Math.Round(gaps[1].timeDelta, 1) > Math.Round(gaps[2].timeDelta, 1))
-            {
-                return GapStatus.INCREASING;
-            }
-            else if ((lastReportedGap == -1 || Math.Round(gaps[0].timeDelta, 1) < Math.Round(lastReportedGap)) &&
-                Math.Round(gaps[0].timeDelta, 1) < Math.Round(gaps[1].timeDelta, 1) && Math.Round(gaps[1].timeDelta, 1) < Math.Round(gaps[2].timeDelta, 1))
-            {
-                return GapStatus.DECREASING;
-            }
-            else if (Math.Abs(gaps[0].timeDelta - gaps[1].timeDelta) < 1 && Math.Abs(gaps[0].timeDelta - gaps[1].timeDelta) < 1 && Math.Abs(gaps[0].timeDelta - gaps[2].timeDelta) < 1)
-            {
-                // If the gap hasn't changed by more than a second we can report it with no 'increasing' or 'decreasing' prefix
-                return GapStatus.OTHER;
-            }
             else
             {
-                return GapStatus.NONE;
+                if (!isSameCar(gaps, 3))
+                {
+                    // the gaps we're looking at don't all refer to the same car
+                    return GapStatus.NONE;
+                }
+                if ((gaps[0].timeDelta < 0.5 && gaps[1].timeDelta < 0.5) ||
+                         (gaps.Count > 2 && gaps[0].timeDelta < 0.7 && gaps[1].timeDelta < 0.7 && gaps[2].timeDelta < 0.7) ||
+                         (gaps.Count > 3 && gaps[0].timeDelta < 0.8 && gaps[1].timeDelta < 0.8 && gaps[2].timeDelta < 0.8 && gaps[3].timeDelta < 0.8))
+                {
+                    // this car has been very close for 2 sectors, pretty close for 3 or fairly close for 4 sectors
+                    return GapStatus.CLOSE;
+                }
+                else if ((lastReportedGap == -1 || Math.Round(gaps[0].timeDelta, 1) > Math.Round(lastReportedGap)) &&
+                    Math.Round(gaps[0].timeDelta, 1) > Math.Round(gaps[1].timeDelta, 1) && Math.Round(gaps[1].timeDelta, 1) > Math.Round(gaps[2].timeDelta, 1))
+                {
+                    return GapStatus.INCREASING;
+                }
+                else if ((lastReportedGap == -1 || Math.Round(gaps[0].timeDelta, 1) < Math.Round(lastReportedGap)) &&
+                    Math.Round(gaps[0].timeDelta, 1) < Math.Round(gaps[1].timeDelta, 1) && Math.Round(gaps[1].timeDelta, 1) < Math.Round(gaps[2].timeDelta, 1))
+                {
+                    return GapStatus.DECREASING;
+                }
+                else if (Math.Abs(gaps[0].timeDelta - gaps[1].timeDelta) < 1 && Math.Abs(gaps[0].timeDelta - gaps[1].timeDelta) < 1 && Math.Abs(gaps[0].timeDelta - gaps[2].timeDelta) < 1)
+                {
+                    // If the gap hasn't changed by more than a second we can report it with no 'increasing' or 'decreasing' prefix
+                    return GapStatus.OTHER;
+                }
+                else
+                {
+                    return GapStatus.NONE;
+                }
             }
+        }
+
+        private Boolean isSameCar(List<Gap> gaps, int gapsToCheck)
+        {
+            String mostRecentOpponentKey = null;
+            for (int i = 0; i < gapsToCheck; i++)
+            {
+                String thisOpponentKey = gaps[0].opponentKey;
+                if (thisOpponentKey == null)
+                {
+                    return false;
+                }
+                if (i == 0)
+                {
+                    mostRecentOpponentKey = thisOpponentKey;
+                }
+                else if (thisOpponentKey != mostRecentOpponentKey)
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         public override void respond(String voiceMessage)
