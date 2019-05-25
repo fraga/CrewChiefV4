@@ -10,7 +10,7 @@ namespace CrewChiefV4.iRacing
 	[Serializable]
 	public class iRacingData
 	{
-		public iRacingData( iRacingSDK sdk, bool hasNewSessionData, bool isNewSession)
+        public iRacingData(iRacingSDK sdk, bool hasNewSessionData, bool isNewSession, int numberOfCarsEnabled, bool is360HzTelemetry)
 		{
 			if(hasNewSessionData)
 			{
@@ -20,6 +20,8 @@ namespace CrewChiefV4.iRacing
 			{
 				SessionInfo = "";
 			}
+            NumberOfCarsEnabled = numberOfCarsEnabled;
+            Is360HzTelemetry = is360HzTelemetry;
 			SessionInfoUpdate = sdk.Header.SessionInfoUpdate;
 			IsNewSession = isNewSession;
 			SessionTime = (System.Double)sdk.GetData("SessionTime");
@@ -72,15 +74,29 @@ namespace CrewChiefV4.iRacing
 			LRcoldPressure = (System.Single)sdk.GetData("LRcoldPressure");
 			RFcoldPressure = (System.Single)sdk.GetData("RFcoldPressure");
 			LFcoldPressure = (System.Single)sdk.GetData("LFcoldPressure");
-            //VertAccel = (System.Single)sdk.GetData("VertAccel");
-            ///LatAccel = (System.Single)sdk.GetData("LatAccel");
-            //LongAccel = (System.Single)sdk.GetData("LongAccel");
+            if (Is360HzTelemetry)
+            {
+                _VertAccel = (System.Single[])sdk.GetData("VertAccel");
+                _LatAccel = (System.Single[])sdk.GetData("LatAccel");
+                _LongAccel = (System.Single[])sdk.GetData("LongAccel");
+            }
+            else
+            {
+                _VertAccel = new System.Single[1];
+                _VertAccel[0] =  (System.Single)sdk.GetData("VertAccel");
+                _LatAccel = new System.Single[1];
+                _LatAccel[0] = (System.Single)sdk.GetData("LatAccel");
+                _LongAccel = new System.Single[1];
+                _LongAccel[0] = (System.Single)sdk.GetData("LongAccel");
+            }
+
 		}
 		public iRacingData() {}
 		public System.Boolean IsNewSession;
 		public System.Int32 SessionInfoUpdate;
 		public System.String SessionInfo;
-
+        public System.Int32 NumberOfCarsEnabled;
+        public System.Boolean Is360HzTelemetry; 
 		/// <summary>
 		/// Seconds since session start
 		/// <summary>
@@ -149,49 +165,41 @@ namespace CrewChiefV4.iRacing
 		/// <summary>
 		/// Laps started by car index
 		/// <summary>
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 64)]
 		public System.Int32[] CarIdxLap;
 
 		/// <summary>
 		/// Laps completed by car index
 		/// <summary>
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 64)]
 		public System.Int32[] CarIdxLapCompleted;
 
 		/// <summary>
 		/// Percentage distance around lap by car index
 		/// <summary>
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 64)]
 		public System.Single[] CarIdxLapDistPct;
 
 		/// <summary>
 		/// Track surface type by car index
 		/// <summary>
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 64)]
 		public CrewChiefV4.iRacing.TrackSurfaces[] CarIdxTrackSurface;
 
 		/// <summary>
 		/// Track surface material type by car index
 		/// <summary>
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 64)]
 		public CrewChiefV4.iRacing.TrackSurfaceMaterial[] CarIdxTrackSurfaceMaterial;
 
 		/// <summary>
 		/// On pit road between the cones by car index
 		/// <summary>
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 64)]
 		public System.Boolean[] CarIdxOnPitRoad;
 
 		/// <summary>
 		/// Cars position in race by car index
 		/// <summary>
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 64)]
 		public System.Int32[] CarIdxPosition;
 
 		/// <summary>
 		/// Cars class position in race by car index
 		/// <summary>
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 64)]
 		public System.Int32[] CarIdxClassPosition;
 
 		/// <summary>
@@ -202,13 +210,11 @@ namespace CrewChiefV4.iRacing
 		/// <summary>
 		/// Engine rpm by car index
 		/// <summary>
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 64)]
 		public System.Single[] CarIdxRPM;
 
 		/// <summary>
 		/// -1=reverse  0=neutral  1..n=current gear by car index
 		/// <summary>
-		[MarshalAs(UnmanagedType.ByValArray, SizeConst = 64)]
 		public System.Int32[] CarIdxGear;
 
 		/// <summary>
@@ -353,18 +359,38 @@ namespace CrewChiefV4.iRacing
 
         /// <summary>
         /// Vertical acceleration (including gravity)
-        /// <summary>
-        //public System.Single VertAccel;
+        private System.Single[] _VertAccel;
+        public System.Single VertAccel
+        {
+            get
+            {
+                return _VertAccel.Average();
+            }                                
+        }
 
         /// <summary>
         /// Lateral acceleration (including gravity)
         /// <summary>
-        //public System.Single LatAccel;
-
+        private System.Single[] _LatAccel;
+        public System.Single LatAccel
+        {
+            get
+            {
+                return _LatAccel.Average();             
+            }
+        }
         /// <summary>
         /// Longitudinal acceleration (including gravity)
         /// <summary>
-        //public System.Single LongAccel;
+        private System.Single[] _LongAccel;
+        public System.Single LongAccel
+        {
+            get
+            {
+                return _LongAccel.Average();
+            }
+        }
+
 
 	}
 }

@@ -321,6 +321,27 @@ namespace CrewChiefV4.Events
                     }
                 }
             }
+            else if(CrewChief.gameDefinition.gameEnum == GameEnum.IRACING &&
+                enableCrashMessages && !playedAreYouOKInThisSession && !currentGameState.PitData.InPitlane && 
+                currentGameState.PositionAndMotionData.AccelerationVector.LongAccel < -300.00)
+            {
+
+                Console.WriteLine("Massive impact. Current CarSpeed = " + currentGameState.PositionAndMotionData.CarSpeed.ToString("0.000") +
+                    " acceleration = " + (currentGameState.PositionAndMotionData.AccelerationVector.LongAccel / 9.8f).ToString() + "g");
+                if (currentGameState.PositionAndMotionData.CarSpeed < 3)
+                {
+                    timeOfDangerousAcceleration = currentGameState.Now;
+                    // special case for iRacing: no damage data so we can't hang this off 'destroyed' components
+                    triggerCheckDriverIsOKForIRacingAfter = currentGameState.Now.Add(TimeSpan.FromSeconds(4));
+                }
+                else
+                {
+                    // massive acceleration but we're still moving
+                    timeToRecheckAfterPotentiallyDangerousAcceleration = currentGameState.Now.Add(TimeSpan.FromSeconds(3));
+                    waitingAfterPotentiallyDangerousAcceleration = true;
+                    speedAfterPotentiallyDangerousAcceleration = currentGameState.PositionAndMotionData.CarSpeed;
+                }
+            }
 
             Boolean orientationSamplesFull = orientationSamples.Count > orientationSamplesCount;
             if (orientationSamplesFull)

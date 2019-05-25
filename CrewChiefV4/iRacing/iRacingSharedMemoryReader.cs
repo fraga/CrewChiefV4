@@ -19,9 +19,28 @@ namespace CrewChiefV4.iRacing
         private iRacingStructDumpWrapper[] dataReadFromFile = null;
         private int dataReadFromFileIndex = 0;
         private String lastReadFileName = null;
+        private int numberOfCarsEnabled = 0;
+        private bool is360HzTelemetry = false;
         int lastUpdate = -1;
         private int _DriverId = -1;
         public int DriverId { get { return _DriverId; } }
+        
+        public iRacingSharedMemoryReader()
+        {
+            string dataFilesPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "iRacing", "app.ini");
+            if(System.IO.File.Exists(dataFilesPath))
+            {
+                string serverTransmitMaxCars = PluginInstaller.ReadValue("Graphics", "serverTransmitMaxCars", dataFilesPath, "0");
+                Int32.TryParse(serverTransmitMaxCars.Substring(0, 2), out numberOfCarsEnabled);
+                Console.WriteLine("serverTransmitMaxCars = " + numberOfCarsEnabled);
+                string irsdkLog360Hz = PluginInstaller.ReadValue("Misc", "irsdkLog360Hz", dataFilesPath, "0");
+                int Is360HzTelemetry = 0;
+                Int32.TryParse(irsdkLog360Hz.Substring(0, 1), out Is360HzTelemetry);
+                if (Is360HzTelemetry == 1)
+                    is360HzTelemetry = true;
+                Console.WriteLine("is360HzTelemetry = " + is360HzTelemetry);
+            }
+        }
 
         private object TryGetSessionNum()
         {
@@ -262,7 +281,7 @@ namespace CrewChiefV4.iRacing
                                 return null;
                             }
                         }
-                        iRacingData irData = new iRacingData(sdk, hasNewSessionData && dumpToFile, isNewSession);
+                        iRacingData irData = new iRacingData(sdk, hasNewSessionData && dumpToFile, isNewSession, numberOfCarsEnabled, is360HzTelemetry);
 
                         sim.SdkOnTelemetryUpdated(irData);
 

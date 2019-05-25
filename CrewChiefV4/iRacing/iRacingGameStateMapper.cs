@@ -14,17 +14,8 @@ namespace CrewChiefV4.iRacing
         public static String playerName = null;
         public Driver playerCar = null;
         public Driver leaderCar = null;
-        public int numberOfCarsEnabled = 0;
         public iRacingGameStateMapper()
         {
-            //serverTransmitMaxCars
-            string dataFilesPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "iRacing", "app.ini");
-            if(System.IO.File.Exists(dataFilesPath))
-            {
-                string serverTransmitMaxCars = PluginInstaller.ReadValue("Graphics", "serverTransmitMaxCars", dataFilesPath, "0");
-                Int32.TryParse(serverTransmitMaxCars.Substring(0, 2), out numberOfCarsEnabled);
-                Console.WriteLine("serverTransmitMaxCars = " + numberOfCarsEnabled);
-            }
         }
 
         public override void versionCheck(Object memoryMappedFileStruct)
@@ -118,7 +109,7 @@ namespace CrewChiefV4.iRacing
             Validator.validate(playerName);
 
             currentGameState.SafetyCarData = GetSafetyCarData(previousGameState == null ? null : previousGameState.SafetyCarData, shared.PaceCar, 
-                (float)(shared.SessionData.Track.Length * 1000), shared.PaceCarPresent && shared.Drivers.Count <= numberOfCarsEnabled);                      
+                (float)(shared.SessionData.Track.Length * 1000), shared.PaceCarPresent && shared.Drivers.Count <= shared.Telemetry.NumberOfCarsEnabled);                      
            
             currentGameState.SessionData.SessionPhase = mapToSessionPhase(lastSessionPhase, shared.Telemetry.SessionState, currentGameState.SessionData.SessionType, 
                 shared.Telemetry.IsReplayPlaying, (float)shared.Telemetry.SessionTime, previousLapsCompleted, playerCar.Live.LiveLapsCompleted,
@@ -148,7 +139,7 @@ namespace CrewChiefV4.iRacing
                 Console.WriteLine("TrackPitSpeedLimit = " + shared.SessionData.Track.TrackPitSpeedLimit);
                 Console.WriteLine("CourseCautions = " + shared.SessionData.CourseCautions);
                 Console.WriteLine("Restarts = " + shared.SessionData.Restarts);
-                if(numberOfCarsEnabled < shared.Drivers.Count && shared.PaceCarPresent)
+                if(shared.Telemetry.NumberOfCarsEnabled < shared.Drivers.Count && shared.PaceCarPresent)
                 {
                     Console.WriteLine("Advanced Safety/Pace Car calls has been disable for this session, to enable increase the Max Cars in iRacing graphics settings to " + shared.Drivers.Count + ". And restart the app");
                 }                
@@ -655,9 +646,7 @@ namespace CrewChiefV4.iRacing
                     Console.WriteLine("Pit box position = " + currentGameState.PitData.PitBoxPositionEstimate.ToString("0.000"));
                 }
             }
-            //Console.WriteLine("LatAccel = " + shared.Telemetry.LatAccel.ToString("0.000"));
-            //Console.WriteLine("VertAccel = " + shared.Telemetry.VertAccel.ToString("0.000"));
-            //Console.WriteLine("LongAccel = " + shared.Telemetry.LongAccel.ToString("0.000"));
+
             if (previousGameState != null)
             {
                 if (previousGameState.SessionData.SectorNumber == 2 && currentSector == 3)
@@ -680,10 +669,10 @@ namespace CrewChiefV4.iRacing
             
             }
             currentGameState.PitData.JumpedToPits = previousGameState != null && !previousGameState.PitData.IsApproachingPitlane && !previousGameState.PitData.JumpedToPits && currentGameState.PitData.InPitlane && !previousGameState.PitData.InPitlane;
-            /*if (currentGameState.PitData.JumpedToPits)
+            if (currentGameState.PitData.JumpedToPits)
             {
                 Console.WriteLine("currentGameState.PitData.JumpedToPits = " + currentGameState.PitData.JumpedToPits);
-            }*/
+            }
             //currentGameState.PitData.IsApproachingPitlane = playerCar.Live.TrackSurface == TrackSurfaces.AproachingPits && !currentGameState.PitData.InPitlane && currentGameState.SessionData.HasCompletedSector2ThisLap;
                         
             currentGameState.PitData.IsInGarage = shared.Telemetry.IsInGarage;
@@ -738,6 +727,14 @@ namespace CrewChiefV4.iRacing
             currentGameState.PositionAndMotionData.Orientation.Pitch = shared.Telemetry.Pitch;
             currentGameState.PositionAndMotionData.Orientation.Roll = shared.Telemetry.Roll;
             currentGameState.PositionAndMotionData.Orientation.Yaw = shared.Telemetry.Yaw;
+
+            currentGameState.PositionAndMotionData.AccelerationVector.VertAccel = shared.Telemetry.VertAccel;
+            currentGameState.PositionAndMotionData.AccelerationVector.LatAccel = shared.Telemetry.LatAccel;
+            currentGameState.PositionAndMotionData.AccelerationVector.LongAccel = shared.Telemetry.LongAccel;
+
+            //Console.WriteLine("LatAccel = " + shared.Telemetry.LatAccel.ToString());
+            //Console.WriteLine("VertAccel = " + shared.Telemetry.VertAccel.ToString());
+            //Console.WriteLine("LongAccel = " + shared.Telemetry.LongAccel.ToString());
 
             currentGameState.SessionData.DeltaTime.SetNextDeltaPoint(currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.SessionData.CompletedLaps,
                 (float)playerCar.Live.Speed, currentGameState.Now);
