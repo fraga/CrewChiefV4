@@ -323,7 +323,7 @@ namespace CrewChiefV4.Events
             }
             else if(CrewChief.gameDefinition.gameEnum == GameEnum.IRACING &&
                 enableCrashMessages && !playedAreYouOKInThisSession && !currentGameState.PitData.InPitlane && 
-                currentGameState.PositionAndMotionData.AccelerationVector.LongAccel < -300.00)
+                currentGameState.PositionAndMotionData.AccelerationVector.LongAccel < -400.00)
             {
 
                 Console.WriteLine("Massive impact. Current CarSpeed = " + currentGameState.PositionAndMotionData.CarSpeed.ToString("0.000") +
