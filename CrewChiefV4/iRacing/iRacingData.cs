@@ -364,7 +364,7 @@ namespace CrewChiefV4.iRacing
         {
             get
             {
-                return _VertAccel.Average();
+                return _VertAccel == null ? 0 : _VertAccel.Average();
             }                                
         }
 
@@ -376,7 +376,7 @@ namespace CrewChiefV4.iRacing
         {
             get
             {
-                return _LatAccel.Average();             
+                return _LatAccel == null ? 0 : _LatAccel.Average();
             }
         }
         /// <summary>
@@ -387,7 +387,7 @@ namespace CrewChiefV4.iRacing
         {
             get
             {
-                return _LongAccel.Average();
+                return _LongAccel == null ? 0 : _LongAccel.Average();
             }
         }
 
