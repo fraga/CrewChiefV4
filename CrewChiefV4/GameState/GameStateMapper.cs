@@ -191,6 +191,8 @@ namespace CrewChiefV4.GameState
                     }
                 }
             }
+            // sanity check the leaderLapsCompleted data
+            leaderLapsCompleted = Math.Max(leaderLapsCompleted, currentGameState.SessionData.CompletedLaps);
             if (!currentGameState.SessionData.SessionHasFixedTime)
             {
                 // work out the laps remaining
