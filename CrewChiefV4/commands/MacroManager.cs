@@ -243,11 +243,27 @@ namespace CrewChiefV4.commands
         {
             String path = System.IO.Path.Combine(Environment.GetFolderPath(
                 Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "saved_command_macros.json");
-
-            if (File.Exists(path) && !forceDefault)
+           
+            if (File.Exists(path) && !forceDefault) // forceDefault can/should only be true when called from the macro editor
             {
                 Console.WriteLine("Loading user-configured command macros from Documents/CrewChiefV4/ folder");
                 return path;
+            }
+            // make sure we save a copy to the user config directory
+            // no need to worry about forceDefault as content of the file will be same.
+            else if (!File.Exists(path))
+            {
+                try 
+                {                    
+                    File.Copy(Configuration.getDefaultFileLocation("saved_command_macros.json"), path);                    
+                    return path;
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine("Error copying default macro configuration file to user dir : " + e.Message);
+                    Console.WriteLine("Loading default command macros from installation folder");
+                    return Configuration.getDefaultFileLocation("saved_command_macros.json");
+                }                
             }
             else
             {
