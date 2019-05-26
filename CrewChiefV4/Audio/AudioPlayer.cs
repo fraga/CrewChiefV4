@@ -1209,6 +1209,18 @@ namespace CrewChiefV4.Audio
 
         public void playMessageImmediately(QueuedMessage queuedMessage, Boolean keepChannelOpen = false)
         {
+            if (CrewChief.Debugging && queuedMessage.messageName != null)
+            {
+                int count;
+                if (Utilities.queuedMessageIds.TryGetValue(queuedMessage.messageName, out count))
+                {
+                    Utilities.queuedMessageIds[queuedMessage.messageName] = count++;
+                }
+                else
+                {
+                    Utilities.queuedMessageIds.Add(queuedMessage.messageName, 1);
+                }
+            }
             if (queuedMessage.canBePlayed)
             {
                 if (queuedMessage.metadata.type == SoundType.AUTO)
@@ -1299,6 +1311,18 @@ namespace CrewChiefV4.Audio
 
         public void playMessage(QueuedMessage queuedMessage, PearlsOfWisdom.PearlType pearlType, double pearlMessageProbability)
         {
+            if (CrewChief.Debugging && queuedMessage.messageName != null)
+            {
+                int count;
+                if (Utilities.queuedMessageIds.TryGetValue(queuedMessage.messageName, out count))
+                {
+                    Utilities.queuedMessageIds[queuedMessage.messageName] = count++;
+                }
+                else
+                {
+                    Utilities.queuedMessageIds.Add(queuedMessage.messageName, 1);
+                }
+            }
             if (queuedMessage.canBePlayed)
             {
                 if (queuedMessage.metadata.type == SoundType.AUTO)
