@@ -237,7 +237,7 @@ namespace CrewChiefV4.Events
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
             // if we've crashed hard and are waiting for the player to say they're OK, don't process anything else in this event:
-            if (waitingForDriverIsOKResponse)
+            if (waitingForDriverIsOKResponse && !currentGameState.PitData.InPitlane && !currentGameState.PitData.IsInGarage)
             {
                 if (timeWhenAskedIfDriverIsOK.Add(TimeSpan.FromSeconds(8)) < currentGameState.Now)
                 {
@@ -494,7 +494,8 @@ namespace CrewChiefV4.Events
                         }
                         if (enableDamageMessages)
                         {
-                            playDamageToReport(currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.SessionData.NumCarsOverall > 2, currentGameState.Now);
+                            playDamageToReport(currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.SessionData.NumCarsOverall > 2,
+                                currentGameState.Now, currentGameState.PitData.InPitlane || currentGameState.PitData.IsInGarage);
                         }
                     }
                 }
@@ -502,7 +503,7 @@ namespace CrewChiefV4.Events
             else if (CrewChief.gameDefinition.gameEnum == GameEnum.IRACING && currentGameState.Now > triggerCheckDriverIsOKForIRacingAfter)
             {
                 triggerCheckDriverIsOKForIRacingAfter = DateTime.MaxValue;
-                checkIfDriverIsOK(currentGameState.Now);
+                checkIfDriverIsOK(currentGameState.Now, currentGameState.PitData.InPitlane || currentGameState.PitData.IsInGarage);
             }
         }
 
@@ -788,7 +789,7 @@ namespace CrewChiefV4.Events
             }
         }
 
-        private void playDamageToReport(Boolean allowRants, DateTime now)
+        private void playDamageToReport(Boolean allowRants, DateTime now, Boolean inPitLane)
         {
             if (isMissingWheel || damageToReportNext.Item2 > DamageLevel.MINOR)
             {
@@ -812,7 +813,7 @@ namespace CrewChiefV4.Events
             {
                 if (damageToReportNext.Item2 == DamageLevel.DESTROYED)
                 {
-                    if (!checkIfDriverIsOK(now))
+                    if (!checkIfDriverIsOK(now, inPitLane))
                     {
                         audioPlayer.playMessage(new QueuedMessage(folderBustedEngine, 0, abstractEvent: this, priority: 10));
                         if (allowRants)
@@ -834,7 +835,7 @@ namespace CrewChiefV4.Events
             {
                 if (damageToReportNext.Item2 == DamageLevel.DESTROYED)
                 {
-                    if (!checkIfDriverIsOK(now))
+                    if (!checkIfDriverIsOK(now, inPitLane))
                     {
                         audioPlayer.playMessage(new QueuedMessage(folderBustedTransmission, 0, abstractEvent: this, priority: 10));
                         if (allowRants)
@@ -856,7 +857,7 @@ namespace CrewChiefV4.Events
             {
                 if (damageToReportNext.Item2 == DamageLevel.DESTROYED)
                 {
-                    if (!checkIfDriverIsOK(now))
+                    if (!checkIfDriverIsOK(now, inPitLane))
                     {
                         audioPlayer.playMessage(new QueuedMessage(folderBustedSuspension, 0, abstractEvent: this, priority: 10));
                         if (allowRants)
@@ -897,7 +898,7 @@ namespace CrewChiefV4.Events
             {
                 if (damageToReportNext.Item2 == DamageLevel.DESTROYED)
                 {
-                    if (!checkIfDriverIsOK(now))
+                    if (!checkIfDriverIsOK(now, inPitLane))
                     {
                         audioPlayer.playMessage(new QueuedMessage(folderSevereAeroDamage, 0, abstractEvent: this, priority: 10));
                     }
@@ -957,12 +958,12 @@ namespace CrewChiefV4.Events
         }
 
         // returns whether we've decided to check if the driver is OK
-        private Boolean checkIfDriverIsOK(DateTime now)
+        private Boolean checkIfDriverIsOK(DateTime now, Boolean inPitLane)
         {
             // if we don't have the updated sounds, just return false here
             // note that this check will be 3 seconds *after* the acceleration event because we've waited for
             // the damage to settle
-            if (!playedAreYouOKInThisSession &&
+            if (!playedAreYouOKInThisSession && !inPitLane &&
                 SoundCache.availableSounds.Contains(folderAreYouOKFirstTry) && 
                 now.Subtract(timeOfDangerousAcceleration) < TimeSpan.FromSeconds(5))
             {
