@@ -14,8 +14,92 @@ using WebSocketSharp.Server;
 
 namespace CrewChiefV4
 {
+    /// <summary>
+    /// value object for message expectations
+    /// </summary>
+    public class ExpectedMessage
+    {
+        string[] messageNames;
+        public int minCount;
+        public int maxCount;
+
+        // expect a specific message to be played the range of times - note that the DELAYED_ and COMPOUND_ prefixes are also considered here
+        public ExpectedMessage(string messageName, int minCount, int maxCount)
+        {
+            this.messageNames = new string[] { messageName };
+            this.minCount = minCount;
+            this.maxCount = maxCount;
+        }
+
+        // expect one of the messageNames to be played the range of times - note that the DELAYED_ and COMPOUND_ prefixes are also considered here
+        public ExpectedMessage(string[] messageNames, int minCount, int maxCount)
+        {
+            this.messageNames = messageNames;
+            this.minCount = minCount;
+            this.maxCount = maxCount;            
+        }
+        // expect a specific message to be played the exact number of times - note that the DELAYED_ and COMPOUND_ prefixes are also considered here
+        public ExpectedMessage(string messageName, int exactCount)
+        {
+            this.messageNames = new string[] { messageName };
+            this.minCount = exactCount;
+            this.maxCount = exactCount;
+        }
+
+        // expect one of the messageNames to be played the exact number of times - note that the DELAYED_ and COMPOUND_ prefixes are also considered here
+        public ExpectedMessage(string[] messageNames, int exactCount)
+        {
+            this.messageNames = messageNames;
+            this.minCount = exactCount;
+            this.maxCount = exactCount;
+        }
+        override public string ToString()
+        {
+            return string.Join(", ", messageNames) + " expected >= " + minCount + " and <= " + maxCount;
+        }
+        // check that this expectation is met - i.e. a message was queued with one of the expected names >= min and <= max times
+        public int getMatchCount()
+        {
+            int matchCount = 0;
+            foreach (KeyValuePair<string, int> entry in Utilities.queuedMessageIds)
+            {
+                foreach (string messageName in messageNames)
+                {
+                    if (messageName == entry.Key || ("DELAYED_" + messageName) == entry.Key || ("COMPOUND_" + messageName) == entry.Key)
+                    {
+                        matchCount += entry.Value;
+                    }
+                }
+            }
+            return matchCount;
+        }
+    }
+
     public static class Utilities
     {
+        public static Boolean includesRaceSession = false;
+
+        public static Dictionary<string, int> queuedMessageIds = new Dictionary<string, int>();
+
+        // some noddy hard-coded expectations for race session trace playback
+        // TODO make this something that can be saved with the trace so each trace can define its own set of expectations
+
+        // TODO: move the hard-coded Strings to a messageNames class and reference these in all the events instead of using random
+        // magic Strings everywhere
+        private static ExpectedMessage[] defaultExpectedMessagesForRaceSessions = new ExpectedMessage[]
+        {        
+            new ExpectedMessage("lap_counter/get_ready", 1),
+            new ExpectedMessage("lap_counter/green_green_green", 1),
+            new ExpectedMessage("position", 1, 1000), // expect at least *some* position messages
+            new ExpectedMessage(new string[] {"Timings/gap_behind", "Timings/gap_in_front"}, 1, 1000), // expect at least *some* gap messages
+            new ExpectedMessage(new string[] {"fuel/half_distance_good_fuel", "fuel/half_distance_low_fuel"}, 0, 1),    // won't always get this, but should never have > 1
+            new ExpectedMessage(new string[] {"lap_counter/two_to_go", "lap_counter/two_to_go_top_three", "lap_counter/two_to_go_leading", 
+                "race_time/five_minutes_left_podium", "race_time/five_minutes_left_leading", "race_time/five_minutes_left"}, 1),    // should always get 1 2-to-go or 5-mins-to-go
+            new ExpectedMessage(new string[] {"lap_counter/last_lap", "lap_counter/white_flag_last_lap", "lap_counter/last_lap_leading", 
+                "lap_counter/last_lap_top_three", "race_time/last_lap", "race_time/last_lap_leading", "race_time/last_lap_top_three"}, 1),  // should always get 1 last-lap
+            new ExpectedMessage("SESSION_END", 1)   // should always get 1 session end
+        };
+
         public static Random random = new Random();
 
         private static WebSocketServer ccDataWebSocketServer;
@@ -33,6 +117,42 @@ namespace CrewChiefV4
         public static GameDataReader gameDataReader;
 
         public static GameDataSerializer gameDataSerializer;
+        
+        public static void checkPlaybackCounts()
+        {
+            if (includesRaceSession)
+            {
+                Console.WriteLine("Playback counts: \n" + string.Join("\n", queuedMessageIds.Select(x => x.Key + " : " + x.Value)));
+                checkMessageCounts();
+            }
+            else
+            {
+                Console.WriteLine("Skipping expectations as we've not had a race session");
+            }
+        }
+
+        private static Boolean checkMessageCounts()
+        {
+            Boolean pass = true;
+            foreach (ExpectedMessage expected in defaultExpectedMessagesForRaceSessions)
+            {
+                int matchCount = expected.getMatchCount();
+                if (matchCount < expected.minCount || matchCount > expected.maxCount)
+                {
+                    Console.WriteLine("***** match count check failed " + expected.ToString() + " got " + matchCount + " matches");
+                    pass = false;
+                }
+            }
+            if (pass)
+            {
+                Console.WriteLine("Message expectations passed");
+            }
+            else
+            {
+                Console.WriteLine("Message expectations failed");
+            }
+            return pass;
+        }
 
         public static void startCCDataWebsocketServer(AudioPlayer audioPlayer)
         {

@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.IO.MemoryMappedFiles;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
@@ -391,6 +392,11 @@ namespace CrewChiefV4
                 }
                 // mute the audio player for anything < 10ms
                 audioPlayer.mute = loadDataFromFile && CrewChief.playbackIntervalMilliseconds < 10;
+                if (loadDataFromFile)
+                {
+                    Utilities.queuedMessageIds.Clear();
+                    Utilities.includesRaceSession = false;
+                }
                 audioPlayer.startMonitor();
                 Boolean attemptedToRunGame = false;
 
@@ -514,6 +520,8 @@ namespace CrewChiefV4
                             if (currentGameState.SessionData.SessionType == SessionType.Race)
                             {
                                 gameStateMapper.populateDerivedRaceSessionData(currentGameState);
+                                // tell the utils class that we've had a race session - used when debugging traces to check expectations
+                                Utilities.includesRaceSession = true;
                             }
                             else
                             {
@@ -797,6 +805,10 @@ namespace CrewChiefV4
                 {
                     gameDataReader.Dispose();
                     gameDataReader = null;
+                }
+                if (Debugging)
+                {
+                    Utilities.checkPlaybackCounts();
                 }
             }
 
