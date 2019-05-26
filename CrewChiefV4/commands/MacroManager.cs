@@ -255,7 +255,8 @@ namespace CrewChiefV4.commands
             {
                 try 
                 {                    
-                    File.Copy(Configuration.getDefaultFileLocation("saved_command_macros.json"), path);                    
+                    File.Copy(Configuration.getDefaultFileLocation("saved_command_macros.json"), path);
+                    Console.WriteLine("Loading user-configured command macros from Documents/CrewChiefV4/ folder");
                     return path;
                 }
                 catch(Exception e)
