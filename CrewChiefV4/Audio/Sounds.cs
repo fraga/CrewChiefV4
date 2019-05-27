@@ -1206,6 +1206,8 @@ namespace CrewChiefV4.Audio
 
         AutoResetEvent playWaitHandle = new AutoResetEvent(false);
 
+        EventHandler<NAudio.Wave.StoppedEventArgs> eventHandler;
+
         public SingleSound(int pauseLength)
         {
             this.isPause = true;
@@ -1297,6 +1299,7 @@ namespace CrewChiefV4.Audio
                         { }
                         try
                         {
+                            this.waveOut.PlaybackStopped -= this.eventHandler;
                             this.waveOut.Stop();
                             this.waveOut.Dispose();
                         }
@@ -1400,7 +1403,8 @@ namespace CrewChiefV4.Audio
                 NAudio.Wave.WaveOutEvent uncachedWaveOut = new NAudio.Wave.WaveOutEvent();
                 uncachedWaveOut.DeviceNumber = AudioPlayer.naudioMessagesPlaybackDeviceId;
                 NAudio.Wave.WaveFileReader uncachedReader = new NAudio.Wave.WaveFileReader(fullPath);
-                uncachedWaveOut.PlaybackStopped += new EventHandler<NAudio.Wave.StoppedEventArgs>(playbackStopped);
+                this.eventHandler = new EventHandler<NAudio.Wave.StoppedEventArgs>(playbackStopped);
+                uncachedWaveOut.PlaybackStopped += this.eventHandler;
                 float volume = getVolume(isSpotter ? SoundCache.spotterVolumeBoost : 1f);
 
                 if (volume == 1f)
@@ -1411,6 +1415,7 @@ namespace CrewChiefV4.Audio
                         uncachedWaveOut.Play();
                         // stop waiting after 30 seconds
                         this.playWaitHandle.WaitOne(30000);
+                        uncachedWaveOut.PlaybackStopped -= this.playbackStopped;
                     }
                     catch (Exception e)
                     {
@@ -1461,7 +1466,7 @@ namespace CrewChiefV4.Audio
                             LoadAndCacheSound();
                             this.reader.CurrentTime = TimeSpan.Zero;
                             this.waveOut.Play();
-                            this.playWaitHandle.WaitOne(30000);
+                            this.playWaitHandle.WaitOne(1000);
                         }
                         else
                         {
@@ -1486,6 +1491,7 @@ namespace CrewChiefV4.Audio
                             { }
                             try
                             {
+                                this.waveOut.PlaybackStopped -= this.eventHandler;
                                 this.waveOut.Stop();
                                 this.waveOut.Dispose();
                             }
@@ -1523,7 +1529,8 @@ namespace CrewChiefV4.Audio
                 return;
             }
             this.reader = new NAudio.Wave.WaveFileReader(this.memoryStream);
-            this.waveOut.PlaybackStopped += new EventHandler<NAudio.Wave.StoppedEventArgs>(playbackStopped);
+            this.eventHandler = new EventHandler<NAudio.Wave.StoppedEventArgs>(playbackStopped);
+            this.waveOut.PlaybackStopped += this.eventHandler;
             float volume = getVolume(volumeBoost);
             if (volume == 1f)
             {
