@@ -293,7 +293,7 @@ namespace CrewChiefV4.Events
             // Disable these for iRacing, which has some spikes in car speed data that trigger false positives
             if (CrewChief.gameDefinition.gameEnum != GameEnum.IRACING &&
                 enableCrashMessages && !playedAreYouOKInThisSession && !currentGameState.PitData.InPitlane && 
-                currentGameState.PositionAndMotionData.CarSpeed > 0.001)
+                !currentGameState.PitData.IsInGarage && currentGameState.PositionAndMotionData.CarSpeed > 0.001)
             {
                 if (previousGameState != null)
                 {
@@ -331,8 +331,8 @@ namespace CrewChiefV4.Events
                 }
             }
             else if(CrewChief.gameDefinition.gameEnum == GameEnum.IRACING &&
-                enableCrashMessages && !playedAreYouOKInThisSession && !currentGameState.PitData.InPitlane && 
-                currentGameState.PositionAndMotionData.AccelerationVector.LongAccel < -400.00)
+                enableCrashMessages && !playedAreYouOKInThisSession && !currentGameState.PitData.InPitlane &&
+                !currentGameState.PitData.IsInGarage && currentGameState.PositionAndMotionData.AccelerationVector.LongAccel < -400.00)
             {
 
                 Console.WriteLine("Massive impact. Current CarSpeed = " + currentGameState.PositionAndMotionData.CarSpeed.ToString("0.000") +
