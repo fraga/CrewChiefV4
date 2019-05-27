@@ -237,22 +237,31 @@ namespace CrewChiefV4.Events
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
             // if we've crashed hard and are waiting for the player to say they're OK, don't process anything else in this event:
-            if (waitingForDriverIsOKResponse && !currentGameState.PitData.InPitlane && !currentGameState.PitData.IsInGarage)
+            if (waitingForDriverIsOKResponse)
             {
-                if (timeWhenAskedIfDriverIsOK.Add(TimeSpan.FromSeconds(8)) < currentGameState.Now)
+                if (!currentGameState.PitData.InPitlane && !currentGameState.PitData.IsInGarage)
                 {
-                    timeWhenAskedIfDriverIsOK = currentGameState.Now;
-                    if (driverIsOKRequestCount == 1)
+                    if (timeWhenAskedIfDriverIsOK.Add(TimeSpan.FromSeconds(8)) < currentGameState.Now)
                     {
-                        audioPlayer.playMessageImmediately(new QueuedMessage(folderAreYouOKSecondTry, 0, type: SoundType.CRITICAL_MESSAGE, priority: 15));
-                        driverIsOKRequestCount = 2;
+                        timeWhenAskedIfDriverIsOK = currentGameState.Now;
+                        if (driverIsOKRequestCount == 1)
+                        {
+                            audioPlayer.playMessageImmediately(new QueuedMessage(folderAreYouOKSecondTry, 0, type: SoundType.CRITICAL_MESSAGE, priority: 15));
+                            driverIsOKRequestCount = 2;
+                        }
+                        else if (driverIsOKRequestCount == 2)
+                        {
+                            // no response after 3 requests, he's dead, jim.
+                            audioPlayer.playMessageImmediately(new QueuedMessage(folderAreYouOKThirdTry, 0, type: SoundType.CRITICAL_MESSAGE, priority: 15));
+                            cancelWaitingForDriverIsOK(DriverOKResponseType.NONE);
+                        }
                     }
-                    else if (driverIsOKRequestCount == 2)
-                    {
-                        // no response after 3 requests, he's dead, jim.
-                        audioPlayer.playMessageImmediately(new QueuedMessage(folderAreYouOKThirdTry, 0, type: SoundType.CRITICAL_MESSAGE, priority: 15));
-                        cancelWaitingForDriverIsOK(DriverOKResponseType.NONE);
-                    }
+                }
+                else
+                {
+                    // we're in the pitlane so cancel all the dangerous acceleration stuff
+                    waitingForDriverIsOKResponse = false;
+                    waitingAfterPotentiallyDangerousAcceleration = false;
                 }
                 return;
             }
