@@ -1299,7 +1299,7 @@ namespace CrewChiefV4.Audio
                         { }
                         try
                         {
-                            this.waveOut.PlaybackStopped -= this.eventHandler;
+                            if (this.eventHandler != null) this.waveOut.PlaybackStopped -= this.eventHandler;
                             this.waveOut.Stop();
                             this.waveOut.Dispose();
                         }
@@ -1413,8 +1413,8 @@ namespace CrewChiefV4.Audio
                     {
                         uncachedWaveOut.Init(uncachedReader);
                         uncachedWaveOut.Play();
-                        // stop waiting after 30 seconds
-                        this.playWaitHandle.WaitOne(30000);
+                        // stop waiting after 30 seconds if it's not a beep
+                        this.playWaitHandle.WaitOne(this.isBleep ? 1000 : 30000);
                         uncachedWaveOut.PlaybackStopped -= this.playbackStopped;
                     }
                     catch (Exception e)
@@ -1430,8 +1430,9 @@ namespace CrewChiefV4.Audio
                     {
                         uncachedWaveOut.Init(new NAudio.Wave.SampleProviders.SampleToWaveProvider(sampleChannel));
                         uncachedWaveOut.Play();
-                        // stop waiting after 30 seconds
-                        this.playWaitHandle.WaitOne(30000);
+                        /// stop waiting after 30 seconds if it's not a beep
+                        this.playWaitHandle.WaitOne(this.isBleep ? 1000 : 30000);
+                        uncachedWaveOut.PlaybackStopped -= this.playbackStopped;
                     }
                     catch (Exception e)
                     {
@@ -1491,7 +1492,7 @@ namespace CrewChiefV4.Audio
                             { }
                             try
                             {
-                                this.waveOut.PlaybackStopped -= this.eventHandler;
+                                if (this.eventHandler != null) this.waveOut.PlaybackStopped -= this.eventHandler;
                                 this.waveOut.Stop();
                                 this.waveOut.Dispose();
                             }
