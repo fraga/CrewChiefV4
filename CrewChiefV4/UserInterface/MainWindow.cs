@@ -951,6 +951,7 @@ namespace CrewChiefV4
             this.speechRecognitionDeviceLabel.Text = Configuration.getUIString("speech_recognition_device_label");
             this.messagesAudioDeviceLabel.Text = Configuration.getUIString("messages_audio_device_label");
             this.backgroundAudioDeviceLabel.Text = Configuration.getUIString("background_audio_device_label");
+            this.AddRemoveActions.Text = Configuration.getUIString("add_remove_actions");
             
             this.gameDefinitionList.Items.Clear();
             this.gameDefinitionList.Items.AddRange(GameDefinition.getGameDefinitionFriendlyNames());
@@ -3020,6 +3021,12 @@ namespace CrewChiefV4
         private void editCommandMacroButtonClicked(object sender, EventArgs e)
         {
             var form = new MacroEditor();
+            form.ShowDialog(this);
+        }
+
+        private void AddRemoveActions_Click(object sender, EventArgs e)
+        {
+            var form = new ActionEditor();
             form.ShowDialog(this);
         }
     }
