@@ -230,6 +230,7 @@ namespace CrewChiefV4
             {
                 return;
             }
+            SpeechRecogniser.waitingForSpeech = false;
             if (detectedSomeSpeech)
             {
                 Console.WriteLine("Detected speech input but nothing was recognised");
