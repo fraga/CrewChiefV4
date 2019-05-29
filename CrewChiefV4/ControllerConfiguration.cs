@@ -183,7 +183,7 @@ namespace CrewChiefV4
             return new ControllerConfigurationData();
         }
 
-        private static void saveControllerConfigurationDataFile(ControllerConfigurationData buttonsActions)
+        public static void saveControllerConfigurationDataFile(ControllerConfigurationData buttonsActions)
         {
             if (usersConfigFileIsBroken)
             {
@@ -309,7 +309,7 @@ namespace CrewChiefV4
                 }
             }
             // update actions and add assignments            
-            buttonAssignments = controllerConfigurationData.buttonAssignments;
+            buttonAssignments = controllerConfigurationData.buttonAssignments.Where(ba => ba.availableAction).ToList();
             controllers = controllerConfigurationData.devices;
             ButtonAssignment networkAssignment = buttonAssignments.SingleOrDefault(ba => ba.deviceGuid == UDP_NETWORK_CONTROLLER_GUID.ToString());
             if (networkAssignment != null)
@@ -879,12 +879,13 @@ namespace CrewChiefV4
                 buttonIndex = -1;
                 // uiText is optional and will be resolved from the ui_text file or from the SRE config if it's not in the ui_text
                 uiText = null;
+                availableAction = true;
             }
             public String action { get; set; }
             public String deviceGuid { get; set; }
             public int buttonIndex { get; set; }
             public bool opponentDataCommand { get; set; }
-            
+            public bool availableAction { get; set; }
             // used to override the default ui text for an action - is optional and generally not used much
             [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
             public String uiText { get; set; }

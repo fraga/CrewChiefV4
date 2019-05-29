@@ -192,6 +192,12 @@
     <Compile Include="R3E\R3EPitMenuManager.cs" />
     <Compile Include="R3E\R3ESerializer.cs" />
     <Compile Include="ThreadManager.cs" />
+    <Compile Include="UserInterface\ActionEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UserInterface\ActionEditor.Designer.cs">
+      <DependentUpon>ActionEditor.cs</DependentUpon>
+    </Compile>
     <Compile Include="UserInterface\MacroEditor.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -344,6 +350,9 @@
     <Compile Include="Configuration.cs" />
     <Compile Include="UserSettings.cs" />
     <Compile Include="Utilities.cs" />
+    <EmbeddedResource Include="UserInterface\ActionEditor.resx">
+      <DependentUpon>ActionEditor.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UserInterface\FloatPropertyControl.resx">
       <DependentUpon>FloatPropertyControl.cs</DependentUpon>
     </EmbeddedResource>
