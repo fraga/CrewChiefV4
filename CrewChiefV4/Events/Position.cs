@@ -149,18 +149,34 @@ namespace CrewChiefV4.Events
 
         public override bool isMessageStillValid(string eventSubType, GameStateData currentGameState, Dictionary<String, Object> validationData)
         {
-            if (base.isMessageStillValid(eventSubType, currentGameState, validationData))
+            // drop any messages while we're in the pitlane
+            if (base.isMessageStillValid(eventSubType, currentGameState, validationData) && !currentGameState.PitData.InPitlane)
             {
-                Boolean isStillInThisPosition = true;
                 if (validationData != null)
                 {
                     object positionValidationData = null;
-                    if (validationData.TryGetValue(positionValidationKey, out positionValidationData) && (int)positionValidationData != currentGameState.SessionData.ClassPosition)
+                    if (validationData.TryGetValue(positionValidationKey, out positionValidationData))
                     {
-                        isStillInThisPosition = false;
+                        int positionWhenQueued = (int) positionValidationData;
+                        if (eventSubType == folderTerribleStart || eventSubType == folderBadStart)
+                        {
+                            // bad start message, so allow to play as long as we've not improved since we queued this message
+                            return positionWhenQueued <= currentGameState.SessionData.ClassPosition;
+                        }
+                        else if (eventSubType == folderGoodStart || eventSubType == folderOKStart)
+                        {
+                            // good start message, so allow to play as long as we've not lost position(s) since we queued this message
+                            return positionWhenQueued >= currentGameState.SessionData.ClassPosition;
+                        }
+                        else
+                        {
+                            // position message so we must be in the same position for it to still be valid
+                            return positionWhenQueued == currentGameState.SessionData.ClassPosition;
+                        }
                     }
                 }
-                return !currentGameState.PitData.InPitlane && isStillInThisPosition;
+                // no validation data so it's valid
+                return true;
             }
             else
             {
@@ -387,22 +403,24 @@ namespace CrewChiefV4.Events
                             !currentGameState.PenaltiesData.HasDriveThrough && !currentGameState.PenaltiesData.HasStopAndGo &&
                             !hasrFactorPenaltyPending)
                     {
+                        Dictionary<String, Object> validationData = new Dictionary<String, Object>();
+                        validationData.Add(positionValidationKey, currentGameState.SessionData.ClassPosition);
                         if (currentGameState.SessionData.ClassPosition > currentGameState.SessionData.SessionStartClassPosition + 5)
                         {
-                            audioPlayer.playMessage(new QueuedMessage(folderTerribleStart, 10, abstractEvent: this, priority: 5));
+                            audioPlayer.playMessage(new QueuedMessage(folderTerribleStart, 10, abstractEvent: this, priority: 5, validationData: validationData));
                         }
                         else if (currentGameState.SessionData.ClassPosition > currentGameState.SessionData.SessionStartClassPosition + 3)
                         {
-                            audioPlayer.playMessage(new QueuedMessage(folderBadStart, 10, abstractEvent: this, priority: 5));
+                            audioPlayer.playMessage(new QueuedMessage(folderBadStart, 10, abstractEvent: this, priority: 5, validationData: validationData));
                         }
                         else if (!isLast && (currentGameState.SessionData.ClassPosition == 1 || currentGameState.SessionData.ClassPosition < currentGameState.SessionData.SessionStartClassPosition - 1))
                         {
-                            audioPlayer.playMessage(new QueuedMessage(folderGoodStart, 10, abstractEvent: this, priority: 5));
+                            audioPlayer.playMessage(new QueuedMessage(folderGoodStart, 10, abstractEvent: this, priority: 5, validationData: validationData));
                         }
                         else if (!isLast && Utilities.random.NextDouble() > 0.6)
                         {
                             // only play the OK start message sometimes
-                            audioPlayer.playMessage(new QueuedMessage(folderOKStart, 10, abstractEvent: this, priority: 5));
+                            audioPlayer.playMessage(new QueuedMessage(folderOKStart, 10, abstractEvent: this, priority: 5, validationData: validationData));
                         }
                     }
                 }
