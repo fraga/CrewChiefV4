@@ -1412,8 +1412,9 @@ namespace CrewChiefV4
                 {
                     Console.WriteLine("Took " + attempts + " attempts to switch from trigger to regular SRE");
                 }
-                crewChief.audioPlayer.playStartListeningBeep();
+                recognitionStartedTime = DateTime.Now;
                 recognizeAsync();
+                crewChief.audioPlayer.playStartListeningBeep();
             }
             else
             {
