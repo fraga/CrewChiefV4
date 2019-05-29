@@ -22,8 +22,15 @@ namespace CrewChiefV4
             InitializeComponent();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
             this.SuspendLayout();
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));            
+            labelCurrentActions.Text = Configuration.getUIString("current_available_actions");
+            labelAdditionalActions.Text = Configuration.getUIString("additional_available_actions");
+            buttonSave.Text = Configuration.getUIString("save_and_restart");
+            exitButton.Text = Configuration.getUIString("exit_without_saving");
+            buttonReset.Text = Configuration.getUIString("reload_actions");
             reloadData();
+            this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
         private void reloadData()
@@ -54,24 +61,40 @@ namespace CrewChiefV4
         }
         private void buttonRemoveAction_Click(object sender, EventArgs e)
         {
-            foreach(var item in listBoxCurrentlyAvailableActions.SelectedItems)
+            bool hasChangedThisClick = false;
+            foreach (var item in listBoxCurrentlyAvailableActions.SelectedItems)
             {
                 ControllerConfiguration.ButtonAssignment ba = controllerConfigurationData.buttonAssignments.FirstOrDefault(ba1 => ba1.resolvedUiText == item.ToString());
-                ba.availableAction = false;
-                hasChanges = true;
+                if(ba != null)
+                {
+                    ba.availableAction = false;
+                    hasChanges = true;
+                    hasChangedThisClick = true;
+                }
             }
-            refreshLists();
+            if (hasChangedThisClick)
+            {
+                refreshLists();
+            }  
         }
 
         private void buttonAddAction_Click(object sender, EventArgs e)
         {
+            bool hasChangedThisClick = false;
             foreach (var item in listBoxAdditionalAvailableActions.SelectedItems)
             {
                 ControllerConfiguration.ButtonAssignment ba = controllerConfigurationData.buttonAssignments.FirstOrDefault(ba1 => ba1.resolvedUiText == item.ToString());
-                ba.availableAction = true;
-                hasChanges = true;
+                if (ba != null)
+                {
+                    ba.availableAction = false;
+                    hasChanges = true;
+                    hasChangedThisClick = true;
+                }
             }
-            refreshLists();
+            if (hasChangedThisClick)
+            {
+                refreshLists();
+            }  
         }
 
         private void buttonSave_Click(object sender, EventArgs e)
@@ -123,7 +146,6 @@ namespace CrewChiefV4
                     }
                 }
             }
-
         }
 
         private void exitButton_Click(object sender, EventArgs e)

@@ -34,8 +34,8 @@
             this.buttonAddAction = new System.Windows.Forms.Button();
             this.buttonSave = new System.Windows.Forms.Button();
             this.exitButton = new System.Windows.Forms.Button();
-            this.current_available_actions = new System.Windows.Forms.Label();
-            this.additional_available_actions = new System.Windows.Forms.Label();
+            this.labelCurrentActions = new System.Windows.Forms.Label();
+            this.labelAdditionalActions = new System.Windows.Forms.Label();
             this.buttonReset = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
@@ -97,23 +97,23 @@
             this.exitButton.UseVisualStyleBackColor = true;
             this.exitButton.Click += new System.EventHandler(this.exitButton_Click);
             // 
-            // current_available_actions
+            // labelCurrentActions
             // 
-            this.current_available_actions.AutoSize = true;
-            this.current_available_actions.Location = new System.Drawing.Point(334, 4);
-            this.current_available_actions.Name = "current_available_actions";
-            this.current_available_actions.Size = new System.Drawing.Size(128, 13);
-            this.current_available_actions.TabIndex = 6;
-            this.current_available_actions.Text = "current_available_actions";
+            this.labelCurrentActions.AutoSize = true;
+            this.labelCurrentActions.Location = new System.Drawing.Point(334, 4);
+            this.labelCurrentActions.Name = "labelCurrentActions";
+            this.labelCurrentActions.Size = new System.Drawing.Size(128, 13);
+            this.labelCurrentActions.TabIndex = 6;
+            this.labelCurrentActions.Text = "current_available_actions";
             // 
-            // additional_available_actions
+            // labelAdditionalActions
             // 
-            this.additional_available_actions.AutoSize = true;
-            this.additional_available_actions.Location = new System.Drawing.Point(5, 4);
-            this.additional_available_actions.Name = "additional_available_actions";
-            this.additional_available_actions.Size = new System.Drawing.Size(140, 13);
-            this.additional_available_actions.TabIndex = 7;
-            this.additional_available_actions.Text = "additional_available_actions";
+            this.labelAdditionalActions.AutoSize = true;
+            this.labelAdditionalActions.Location = new System.Drawing.Point(5, 4);
+            this.labelAdditionalActions.Name = "labelAdditionalActions";
+            this.labelAdditionalActions.Size = new System.Drawing.Size(140, 13);
+            this.labelAdditionalActions.TabIndex = 7;
+            this.labelAdditionalActions.Text = "additional_available_actions";
             // 
             // buttonReset
             // 
@@ -131,8 +131,8 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(624, 208);
             this.Controls.Add(this.buttonReset);
-            this.Controls.Add(this.additional_available_actions);
-            this.Controls.Add(this.current_available_actions);
+            this.Controls.Add(this.labelAdditionalActions);
+            this.Controls.Add(this.labelCurrentActions);
             this.Controls.Add(this.exitButton);
             this.Controls.Add(this.buttonSave);
             this.Controls.Add(this.buttonAddAction);
@@ -158,8 +158,8 @@
         private System.Windows.Forms.Button buttonAddAction;
         private System.Windows.Forms.Button buttonSave;
         private System.Windows.Forms.Button exitButton;
-        private System.Windows.Forms.Label current_available_actions;
-        private System.Windows.Forms.Label additional_available_actions;
+        private System.Windows.Forms.Label labelCurrentActions;
+        private System.Windows.Forms.Label labelAdditionalActions;
         private System.Windows.Forms.Button buttonReset;
     }
 }
