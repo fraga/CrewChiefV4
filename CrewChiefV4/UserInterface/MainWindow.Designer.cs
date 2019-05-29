@@ -94,6 +94,7 @@ namespace CrewChiefV4
             this.voiceRecognitionHoldButtonToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.voiceRecognitionDisabledToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.voiceRecognitionTriggerWordToolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.AddRemoveActions = new System.Windows.Forms.Button();
             this.consoleTextBoxBackgroundPanel.SuspendLayout();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.messagesVolumeSlider)).BeginInit();
@@ -660,7 +661,7 @@ namespace CrewChiefV4
             this.scanControllers.Size = new System.Drawing.Size(120, 20);
             this.scanControllers.TabIndex = 215;
             this.scanControllers.Text = "scan_for_controllers";
-            this.scanControllers.Click += new System.EventHandler(ScanControllers_Click);
+            this.scanControllers.Click += new System.EventHandler(this.ScanControllers_Click);
             // 
             // buttonEditCommandMacros
             // 
@@ -672,11 +673,22 @@ namespace CrewChiefV4
             this.buttonEditCommandMacros.UseVisualStyleBackColor = true;
             this.buttonEditCommandMacros.Click += new System.EventHandler(this.editCommandMacroButtonClicked);
             // 
+            // AddRemoveActions
+            // 
+            this.AddRemoveActions.Location = new System.Drawing.Point(295, 630);
+            this.AddRemoveActions.Name = "AddRemoveActions";
+            this.AddRemoveActions.Size = new System.Drawing.Size(529, 20);
+            this.AddRemoveActions.TabIndex = 503;
+            this.AddRemoveActions.Text = "add_remove_actions";
+            this.AddRemoveActions.UseVisualStyleBackColor = true;
+            this.AddRemoveActions.Click += new System.EventHandler(this.AddRemoveActions_Click);
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1146, 692);
+            this.Controls.Add(this.AddRemoveActions);
             this.Controls.Add(this.driverNamesProgressBar);
             this.Controls.Add(this.downloadDriverNamesButton);
             this.Controls.Add(this.downloadSoundPackButton);
@@ -806,5 +818,6 @@ namespace CrewChiefV4
         private ToolTip voiceRecognitionAlwaysOnToolTip;
         private ToolTip voiceRecognitionTriggerWordToolTip;
         private ToolTip voiceRecognitionToolTip;
+        private Button AddRemoveActions;
     }
 }

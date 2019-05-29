@@ -316,8 +316,6 @@ namespace CrewChiefV4.Events
                             if (currentGameState.PositionAndMotionData.CarSpeed < 3)
                             {
                                 timeOfDangerousAcceleration = currentGameState.Now;
-                                // special case for iRacing: no damage data so we can't hang this off 'destroyed' components
-                                triggerCheckDriverIsOKForIRacingAfter = currentGameState.Now.Add(TimeSpan.FromSeconds(4));
                             }
                             else
                             {
