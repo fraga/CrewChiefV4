@@ -13,8 +13,6 @@ namespace CrewChiefV4
 {
     public partial class ActionEditor : Form
     {
-        private List<ControllerConfiguration.ButtonAssignment> currentAvailableButtonAssignments = new List<ControllerConfiguration.ButtonAssignment>();
-        private List<ControllerConfiguration.ButtonAssignment> additionalButtonAssignments = new List<ControllerConfiguration.ButtonAssignment>();
         ControllerConfiguration.ControllerConfigurationData controllerConfigurationData = new ControllerConfiguration.ControllerConfigurationData();
         private Boolean hasChanges = false;
         public ActionEditor()
@@ -48,13 +46,11 @@ namespace CrewChiefV4
         {
             listBoxCurrentlyAvailableActions.Items.Clear();
             listBoxAdditionalAvailableActions.Items.Clear();
-            currentAvailableButtonAssignments = controllerConfigurationData.buttonAssignments.Where(ba => ba.availableAction).ToList();
-            additionalButtonAssignments = controllerConfigurationData.buttonAssignments.Where(ba => !ba.availableAction).ToList();
-            foreach (ControllerConfiguration.ButtonAssignment ba in currentAvailableButtonAssignments)
+            foreach (ControllerConfiguration.ButtonAssignment ba in controllerConfigurationData.buttonAssignments.Where(ba => ba.availableAction))
             {
                 listBoxCurrentlyAvailableActions.Items.Add(ba.resolvedUiText);
             }
-            foreach (ControllerConfiguration.ButtonAssignment ba in additionalButtonAssignments)
+            foreach (ControllerConfiguration.ButtonAssignment ba in controllerConfigurationData.buttonAssignments.Where(ba => !ba.availableAction))
             {
                 listBoxAdditionalAvailableActions.Items.Add(ba.resolvedUiText);
             }
@@ -86,7 +82,7 @@ namespace CrewChiefV4
                 ControllerConfiguration.ButtonAssignment ba = controllerConfigurationData.buttonAssignments.FirstOrDefault(ba1 => ba1.resolvedUiText == item.ToString());
                 if (ba != null)
                 {
-                    ba.availableAction = false;
+                    ba.availableAction = true;
                     hasChanges = true;
                     hasChangedThisClick = true;
                 }
@@ -118,7 +114,7 @@ namespace CrewChiefV4
 
         private void ActionEditor_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if(hasChanges)
+            if (hasChanges)
             {
                 String warningMessage = Configuration.getUIString("save_prop_changes_warning");
                 if (CrewChief.Debugging)
