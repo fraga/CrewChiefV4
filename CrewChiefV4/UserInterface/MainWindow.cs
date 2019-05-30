@@ -3034,6 +3034,9 @@ namespace CrewChiefV4
 
     public class ControlWriter : TextWriter
     {
+        private int repetitionCount = 0;
+        private String previousMessage = null;
+
         public Boolean enable = true;
         public StringBuilder builder = new StringBuilder();
 
@@ -3049,40 +3052,58 @@ namespace CrewChiefV4
         {
             if (MainWindow.instance != null && (enable || MainWindow.instance.recordSession.Checked))
             {
-                Boolean gotDateStamp = false;
-                StringBuilder sb = new StringBuilder();
-                DateTime now = DateTime.Now;
-                if (CrewChief.loadDataFromFile)
+                if (value == previousMessage)
                 {
-                    if (CrewChief.currentGameState != null)
-                    {
-                        if (CrewChief.currentGameState.CurrentTimeStr == null || CrewChief.currentGameState.CurrentTimeStr == "")
-                        {
-                            CrewChief.currentGameState.CurrentTimeStr = GameStateData.CurrentTime.ToString("HH:mm:ss.fff");
-                        }
-                        sb.Append(now.ToString("HH:mm:ss.fff")).Append(" (").Append(CrewChief.currentGameState.CurrentTimeStr).Append(")");
-                        gotDateStamp = true;
-                    }
-                }
-                if (!gotDateStamp)
-                {
-                    sb.Append(now.ToString("HH:mm:ss.fff"));
-                }
-                sb.Append(" : ").Append(value).AppendLine();
-                if (enable)
-                {
-                    lock (ControlWriter.controlWriterLock)
-                    {
-                        newMessagesBuilder.Append(sb.ToString());
-                    }
-                    consoleUpdateThreadWakeUpEvent.Set();
+                    repetitionCount++;
                 }
                 else
                 {
-                    lock (ControlWriter.controlWriterLock)
+                    if (repetitionCount > 0)
                     {
-                        builder.Append(sb.ToString());
+                        writeMessage("Skipped " + repetitionCount + " copies of previous message\n");
                     }
+                    repetitionCount = 0;
+                    previousMessage = value;
+                    Boolean gotDateStamp = false;
+                    StringBuilder sb = new StringBuilder();
+                    DateTime now = DateTime.Now;
+                    if (CrewChief.loadDataFromFile)
+                    {
+                        if (CrewChief.currentGameState != null)
+                        {
+                            if (CrewChief.currentGameState.CurrentTimeStr == null || CrewChief.currentGameState.CurrentTimeStr == "")
+                            {
+                                CrewChief.currentGameState.CurrentTimeStr = GameStateData.CurrentTime.ToString("HH:mm:ss.fff");
+                            }
+                            sb.Append(now.ToString("HH:mm:ss.fff")).Append(" (").Append(CrewChief.currentGameState.CurrentTimeStr).Append(")");
+                            gotDateStamp = true;
+                        }
+                    }
+                    if (!gotDateStamp)
+                    {
+                        sb.Append(now.ToString("HH:mm:ss.fff"));
+                    }
+                    sb.Append(" : ").Append(value).AppendLine();
+                    writeMessage(sb.ToString());
+                }
+            }
+        }
+
+        private void writeMessage(String message)
+        {
+            if (enable)
+            {
+                lock (ControlWriter.controlWriterLock)
+                {
+                    newMessagesBuilder.Append(message);
+                }
+                consoleUpdateThreadWakeUpEvent.Set();
+            }
+            else
+            {
+                lock (ControlWriter.controlWriterLock)
+                {
+                    builder.Append(message);
                 }
             }
         }
