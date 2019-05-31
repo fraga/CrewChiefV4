@@ -965,5 +965,8 @@
     <Setting Name="naudio_wave_in_sample_depth" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">16</Value>
     </Setting>
+    <Setting Name="allow_important_messages_even_when_silenced" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

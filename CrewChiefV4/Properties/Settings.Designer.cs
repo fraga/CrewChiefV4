@@ -3874,5 +3874,17 @@ namespace CrewChiefV4.Properties {
                 this["naudio_wave_in_sample_depth"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool allow_important_messages_even_when_silenced {
+            get {
+                return ((bool)(this["allow_important_messages_even_when_silenced"]));
+            }
+            set {
+                this["allow_important_messages_even_when_silenced"] = value;
+            }
+        }
     }
 }

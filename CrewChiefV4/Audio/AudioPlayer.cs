@@ -25,6 +25,7 @@ namespace CrewChiefV4.Audio
         public static Boolean playWithNAudio = UserSettings.GetUserSettings().getBoolean("use_naudio");
 
         public static Boolean delayMessagesInHardParts = UserSettings.GetUserSettings().getBoolean("enable_delayed_messages_on_hardparts");
+        private Boolean allowImportantMessagesInKeepQuietMode = UserSettings.GetUserSettings().getBoolean("allow_important_messages_even_when_silenced");
 
         public enum TTS_OPTION { NEVER, ONLY_WHEN_NECESSARY, ANY_TIME }
         public static TTS_OPTION ttsOption = TTS_OPTION.ONLY_WHEN_NECESSARY;
@@ -674,12 +675,23 @@ namespace CrewChiefV4.Audio
                     QueuedMessage queuedMessage = (QueuedMessage)queueToPlay[key];
                     if (isImmediateMessages || queuedMessage.dueTime <= milliseconds)
                     {
+                        Boolean blockedByKeepQuietMode;
+                        if (allowImportantMessagesInKeepQuietMode)
+                        {
+                            blockedByKeepQuietMode = keepQuiet && !queuedMessage.playEvenWhenSilenced && !isImmediateMessages;
+                        }
+                        else
+                        {
+                            blockedByKeepQuietMode = keepQuiet && !queuedMessage.playEvenWhenSilenced &&
+                                (queuedMessage.metadata == null || 
+                                (queuedMessage.metadata.type != SoundType.SPOTTER && queuedMessage.metadata.type != SoundType.VOICE_COMMAND_RESPONSE));
+                        }
                         Boolean messageHasExpired = queuedMessage.expiryTime != 0 && queuedMessage.expiryTime < milliseconds;
                         Boolean messageIsStillValid = queuedMessage.isMessageStillValid(key, CrewChief.currentGameState);
                         Boolean queueTooLongForMessage = queuedMessage.maxPermittedQueueLengthForMessage != 0 && willBePlayedCount > queuedMessage.maxPermittedQueueLengthForMessage;
                         Boolean hasJustPlayedAsAnImmediateMessage = !isImmediateMessages && lastImmediateMessageName != null &&
                             key == lastImmediateMessageName && GameStateData.CurrentTime - lastImmediateMessageTime < TimeSpan.FromSeconds(5);
-                        if ((isImmediateMessages || !keepQuiet || queuedMessage.playEvenWhenSilenced) && queuedMessage.canBePlayed &&
+                        if (!blockedByKeepQuietMode && queuedMessage.canBePlayed &&
                             messageIsStillValid && !keysToPlay.Contains(key) && !queueTooLongForMessage && !messageHasExpired && !hasJustPlayedAsAnImmediateMessage)
                         {
                             // special case for 'get ready' event here - we don't want to move this to the top of the queue because 
@@ -695,7 +707,11 @@ namespace CrewChiefV4.Audio
                         }
                         else
                         {
-                            if (!messageIsStillValid)
+                            if (blockedByKeepQuietMode)
+                            {
+                                Console.WriteLine("Clip " + key + " will not be played because we're in 'keep quiet' mode");
+                            }
+                            else if (!messageIsStillValid)
                             {
                                 Console.WriteLine("Clip " + key + " is not valid");
                             }
