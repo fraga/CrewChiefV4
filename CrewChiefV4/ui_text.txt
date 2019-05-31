@@ -1353,3 +1353,7 @@ naudio_wave_in_channel_count_category = AUDIO_VOICE_AND_CONTROLLERS
 naudio_wave_in_sample_depth = Sample depth for nAudio wave-in device (8 or 16)
 naudio_wave_in_sample_depth_help = Sample depth, 8 or 16 bits per sample, for recording device (nAudio only)
 naudio_wave_in_sample_depth_category = AUDIO_VOICE_AND_CONTROLLERS
+
+allow_important_messages_even_when_silenced = Play important messages when silenced
+allow_important_messages_even_when_silenced_help = The Chief still gives high priority messages even when you ask him to keep quiet
+allow_important_messages_even_when_silenced_category = AUDIO_VOICE_AND_CONTROLLERS
