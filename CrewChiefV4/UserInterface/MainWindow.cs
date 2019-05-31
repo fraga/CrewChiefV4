@@ -3062,7 +3062,7 @@ namespace CrewChiefV4
                     {
                         writeMessage("Skipped 1 copy of previous message\n");
                     }
-                    else
+                    else if (repetitionCount > 0)
                     {
                         writeMessage("++++++++++++ Skipped " + repetitionCount + " copies of previous message. Please report this error to the CC dev team ++++++++++++\n");
                     }
