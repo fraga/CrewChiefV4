@@ -658,7 +658,7 @@ namespace CrewChiefV4
             // 
             this.scanControllers.Location = new System.Drawing.Point(41, 630);
             this.scanControllers.Name = "scanControllers";
-            this.scanControllers.Size = new System.Drawing.Size(120, 20);
+            this.scanControllers.Size = new System.Drawing.Size(248, 20);
             this.scanControllers.TabIndex = 215;
             this.scanControllers.Text = "scan_for_controllers";
             this.scanControllers.Click += new System.EventHandler(this.ScanControllers_Click);
@@ -678,7 +678,7 @@ namespace CrewChiefV4
             this.AddRemoveActions.Location = new System.Drawing.Point(295, 630);
             this.AddRemoveActions.Name = "AddRemoveActions";
             this.AddRemoveActions.Size = new System.Drawing.Size(529, 20);
-            this.AddRemoveActions.TabIndex = 503;
+            this.AddRemoveActions.TabIndex = 233;
             this.AddRemoveActions.Text = "add_remove_actions";
             this.AddRemoveActions.UseVisualStyleBackColor = true;
             this.AddRemoveActions.Click += new System.EventHandler(this.AddRemoveActions_Click);

@@ -216,7 +216,7 @@ category_filter_label = Ca&tegory filter:
 scan_for_controllers = Scan &for Controllers
 cancel_scan = Canc&el scan
 edit_macro_commands = Command macro &editor
-add_remove_actions = Add/Remove Actions
+add_remove_actions = Add/&Remove Actions
 
 ###################################### Macro Editor ######################################################
 global_macro_settings = Global Settings
@@ -272,9 +272,9 @@ empty_keypress_time_middle = and
 empty_keypress_time_end = must contain a value
 
 ###################################### Action Editor ######################################################
-current_available_actions = Current available actions
-additional_available_actions = Additional available actions
-reload_actions = Restore user defaults.
+current_available_actions = &Current available actions
+additional_available_actions = &Additional available actions
+reload_actions = &Restore user defaults.
 
 ###################################### Preferences ######################################################
 # to change the name of the property title in the properties screen, just use the property name like this:
