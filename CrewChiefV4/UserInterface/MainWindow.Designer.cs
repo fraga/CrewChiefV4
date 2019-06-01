@@ -165,7 +165,7 @@ namespace CrewChiefV4
             // 
             this.assignButtonToAction.Location = new System.Drawing.Point(830, 520);
             this.assignButtonToAction.Name = "assignButtonToAction";
-            this.assignButtonToAction.Size = new System.Drawing.Size(130, 39);
+            this.assignButtonToAction.Size = new System.Drawing.Size(130, 40);
             this.assignButtonToAction.TabIndex = 240;
             this.assignButtonToAction.Text = "assign_control";
             this.assignButtonToAction.UseVisualStyleBackColor = true;
@@ -173,13 +173,23 @@ namespace CrewChiefV4
             // 
             // deleteAssigmentButton
             // 
-            this.deleteAssigmentButton.Location = new System.Drawing.Point(830, 564);
+            this.deleteAssigmentButton.Location = new System.Drawing.Point(830, 565);
             this.deleteAssigmentButton.Name = "deleteAssigmentButton";
-            this.deleteAssigmentButton.Size = new System.Drawing.Size(130, 39);
+            this.deleteAssigmentButton.Size = new System.Drawing.Size(130, 40);
             this.deleteAssigmentButton.TabIndex = 250;
             this.deleteAssigmentButton.Text = "delete_assignment";
             this.deleteAssigmentButton.UseVisualStyleBackColor = true;
             this.deleteAssigmentButton.Click += new System.EventHandler(this.deleteAssignmentButtonClicked);
+            // 
+            // buttonEditCommandMacros
+            // 
+            this.buttonEditCommandMacros.Location = new System.Drawing.Point(830, 610);
+            this.buttonEditCommandMacros.Name = "buttonEditCommandMacros";
+            this.buttonEditCommandMacros.Size = new System.Drawing.Size(130, 40);
+            this.buttonEditCommandMacros.TabIndex = 255;
+            this.buttonEditCommandMacros.Text = "edit_macro_commands";
+            this.buttonEditCommandMacros.UseVisualStyleBackColor = true;
+            this.buttonEditCommandMacros.Click += new System.EventHandler(this.editCommandMacroButtonClicked);
             // 
             // label1
             // 
@@ -238,9 +248,9 @@ namespace CrewChiefV4
             this.groupBox1.Controls.Add(this.toggleButton);
             this.groupBox1.Controls.Add(this.alwaysOnButton);
             this.groupBox1.Controls.Add(this.triggerWordButton);
-            this.groupBox1.Location = new System.Drawing.Point(970, 519);
+            this.groupBox1.Location = new System.Drawing.Point(970, 515);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(164, 124);
+            this.groupBox1.Size = new System.Drawing.Size(164, 135);
             this.groupBox1.TabIndex = 260;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "voice_recognition_mode";
@@ -662,16 +672,6 @@ namespace CrewChiefV4
             this.scanControllers.TabIndex = 215;
             this.scanControllers.Text = "scan_for_controllers";
             this.scanControllers.Click += new System.EventHandler(this.ScanControllers_Click);
-            // 
-            // buttonEditCommandMacros
-            // 
-            this.buttonEditCommandMacros.Location = new System.Drawing.Point(830, 609);
-            this.buttonEditCommandMacros.Name = "buttonEditCommandMacros";
-            this.buttonEditCommandMacros.Size = new System.Drawing.Size(130, 39);
-            this.buttonEditCommandMacros.TabIndex = 252;
-            this.buttonEditCommandMacros.Text = "edit_macro_commands";
-            this.buttonEditCommandMacros.UseVisualStyleBackColor = true;
-            this.buttonEditCommandMacros.Click += new System.EventHandler(this.editCommandMacroButtonClicked);
             // 
             // AddRemoveActions
             // 
