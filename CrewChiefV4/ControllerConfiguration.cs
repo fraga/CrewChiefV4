@@ -794,7 +794,7 @@ namespace CrewChiefV4
                             }
                         }
                         
-                        // See if any button to got released:
+                        // See if any of the buttons got released:
                         foreach (var previouslyPressedButton in pressedButtons)
                         {
                             if (!gotAssignment
