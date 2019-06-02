@@ -2754,6 +2754,7 @@ namespace CrewChiefV4.GameState
             EXITING_PITS_UNDER_RED,
             ILLEGAL_PASS_ROLLING_BEFORE_GREEN,
             ILLEGAL_PASS_FCY_BEFORE_GREEN,
+            IGNORED_BLUE_FLAG,
         }
         public DetailedPenaltyCause PenaltyCause = DetailedPenaltyCause.NONE;
 
@@ -2767,7 +2768,8 @@ namespace CrewChiefV4.GameState
             DISQUALIFIED_DRIVING_WITHOUT_HEADLIGHTS,
             DISQUALIFIED_EXCEEDING_ALLOWED_LAP_COUNT, // Prac/Quali.
             ONE_LAP_TO_SERVE_DRIVE_THROUGH,
-            ONE_LAP_TO_SERVE_STOP_AND_GO
+            ONE_LAP_TO_SERVE_STOP_AND_GO,
+            BLUE_MOVE_OR_BE_PENALIZED
         }
         public WarningMessage Warning = WarningMessage.NONE;
     }
