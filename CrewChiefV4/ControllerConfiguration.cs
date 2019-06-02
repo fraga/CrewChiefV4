@@ -730,10 +730,10 @@ namespace CrewChiefV4
         public Boolean assignButton(System.Windows.Forms.Form parent, int controllerIndex, int actionIndex)
         {
             return controllerIndex != -1 && controllerIndex < controllers.Count // Make sure device is connected.
-                && getFirstPressedButton(parent, controllers[controllerIndex], buttonAssignments[actionIndex]);
+                && getFirstReleasedButton(parent, controllers[controllerIndex], buttonAssignments[actionIndex]);
         }
 
-        private Boolean getFirstPressedButton(System.Windows.Forms.Form parent, ControllerData controllerData, ButtonAssignment buttonAssignment)
+        private Boolean getFirstReleasedButton(System.Windows.Forms.Form parent, ControllerData controllerData, ButtonAssignment buttonAssignment)
         {
             Boolean gotAssignment = false;
             if (controllerData.guid == UDP_NETWORK_CONTROLLER_GUID)
@@ -778,23 +778,40 @@ namespace CrewChiefV4
                             activeDevices.Add(controllerData.guid, joystick);
                         }
                     }
+                    var pressedButtons = new List<int>();
                     while (listenForAssignment)
                     {
                         Boolean[] buttons = joystick.GetCurrentState().Buttons;
-                        for (int i = 0; i < buttons.Count(); i++)
+                        
+                        // Collect currently pressed buttons:
+                        for (int i = 0; i < buttons.Count(); ++i)
                         {
-                            if (buttons[i])
+                            if (buttons[i]
+                                && !pressedButtons.Contains(i))
                             {
-                                Console.WriteLine("Got button at index " + i);
-                                removeAssignmentsForControllerAndButton(controllerData.guid, i);
+                                Console.WriteLine("Button pressed at index: " + i);
+                                pressedButtons.Add(i);
+                            }
+                        }
+                        
+                        // See if any button to got released:
+                        foreach (var previouslyPressedButton in pressedButtons)
+                        {
+                            if (!gotAssignment
+                                && !buttons[previouslyPressedButton])
+                            {
+                                Console.WriteLine("Button released at index: " + previouslyPressedButton);
+                                removeAssignmentsForControllerAndButton(controllerData.guid, previouslyPressedButton);
                                 buttonAssignment.controller = controllerData;
                                 buttonAssignment.deviceGuid = controllerData.guid.ToString();
-                                buttonAssignment.buttonIndex = i;
+                                buttonAssignment.buttonIndex = previouslyPressedButton;
                                 buttonAssignment.findEvent();
                                 listenForAssignment = false;
+
                                 gotAssignment = true;
                             }
                         }
+
                         if (!gotAssignment)
                         {
                             Thread.Sleep(20);
