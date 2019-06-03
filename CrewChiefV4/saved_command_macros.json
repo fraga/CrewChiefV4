@@ -130,7 +130,7 @@
     },
     {
       "name": "cancel pit request",
-      "description": "cancels a pit request, if one is set - applies only to pCars2",
+      "description": "cancels a pit request, if one is set - applies only to pCars2 and R3E",
       "confirmationMessage": "mandatory_pit_stops/pit_request_cancelled",
       "voiceTriggers": [
         "cancel request pit",
@@ -140,13 +140,22 @@
       "buttonTriggers": [],
       "commandSets": [
         {
-          "description": "pcars2 version, keyPressTime longer",
-          "gameDefinition": "PCARS2",
+            "description": "pcars2 version, keyPressTime longer",
+            "gameDefinition": "PCARS2",
+            "actionSequence": [
+                "KEY_R"
+            ],
+            "keyPressTime": 100,
+            "waitBetweenEachCommand": 100
+        },
+        {
+          "description": "r3e version, keyPressTime quite short because of low key-repeat-delay. The action sequence item {WAIT,5000} tells the app to wait 5000 milliseconds before moving to the next command",
+          "gameDefinition": "RACE_ROOM",
           "actionSequence": [
             "KEY_R"
           ],
-          "keyPressTime": 100,
-          "waitBetweenEachCommand": 100
+          "keyPressTime": 10,
+          "waitBetweenEachCommand": 200
         }
       ]
     },
@@ -455,7 +464,7 @@
             "KEY_Q"
           ],
           "keyPressTime": 10,
-          "waitBetweenEachCommand": 200
+          "waitBetweenEachCommand": 60
         },
         {
           "description": "pcars2 version",
@@ -482,7 +491,7 @@
             "KEY_E"
           ],
           "keyPressTime": 10,
-          "waitBetweenEachCommand": 200
+          "waitBetweenEachCommand": 60
         }
       ]
     },
@@ -500,7 +509,7 @@
             "KEY_W"
           ],
           "keyPressTime": 10,
-          "waitBetweenEachCommand": 200
+          "waitBetweenEachCommand": 60
         },
         {
           "description": "pcars2 version",
@@ -527,7 +536,7 @@
             "KEY_S"
           ],
           "keyPressTime": 10,
-          "waitBetweenEachCommand": 200
+          "waitBetweenEachCommand": 60
         },
         {
           "description": "pcars2 version",
@@ -554,7 +563,7 @@
             "KEY_A"
           ],
           "keyPressTime": 10,
-          "waitBetweenEachCommand": 200
+          "waitBetweenEachCommand": 60
         },
         {
           "description": "pcars2 version",
@@ -581,7 +590,7 @@
             "KEY_D"
           ],
           "keyPressTime": 10,
-          "waitBetweenEachCommand": 200
+          "waitBetweenEachCommand": 60
         },
         {
           "description": "pcars2 version",

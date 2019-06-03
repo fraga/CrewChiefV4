@@ -103,8 +103,6 @@ namespace CrewChiefV4.RaceRoom
 
         private bool chequeredFlagShownInThisSession = false;
 
-        private R3EPitMenuManager pitMenuManager = new R3EPitMenuManager();
-
         class PendingRacePositionChange
         {
             public int newPosition;
@@ -139,6 +137,12 @@ namespace CrewChiefV4.RaceRoom
         public override void versionCheck(Object memoryMappedFileStruct)
         {
             // no version number in r3e shared data so this is a no-op
+        }
+
+        public override void setSpeechRecogniser(SpeechRecogniser speechRecogniser)
+        {
+            speechRecogniser.addR3ESpeechRecogniser();
+            this.speechRecogniser = speechRecogniser;
         }
 
         public override GameStateData mapToGameStateData(Object memoryMappedFileStruct, GameStateData previousGameState)
@@ -242,6 +246,7 @@ namespace CrewChiefV4.RaceRoom
                     currentGameState.SessionData.SessionPhase == SessionPhase.Countdown) ||
                 lastSessionRunningTime > currentGameState.SessionData.SessionRunningTime)
             {
+                R3EPitMenuManager.hasStateForCurrentSession = false;
                 currentGameState.SessionData.IsNewSession = true;
                 chequeredFlagShownInThisSession = false;
                 // if this is a new prac / qual session, we might have just joined a multiclass session so we need to keep
@@ -685,7 +690,8 @@ namespace CrewChiefV4.RaceRoom
 
                     // Note that the participantStruct.TrackSector does NOT get updated if the participant exits to the pits. If he does this,
                     // participantStruct.TrackSector will remain at whatever it was when he exited until he starts he next flying lap
-                    currentGameState.SessionData.IsNewSector = participantStruct.TrackSector != 0 && currentGameState.SessionData.SectorNumber != participantStruct.TrackSector;
+                    currentGameState.SessionData.IsNewSector = participantStruct.TrackSector != 0 && currentGameState.SessionData.SectorNumber > 0
+                        && currentGameState.SessionData.SectorNumber != participantStruct.TrackSector;
                     currentGameState.PitData.InPitlane = participantStruct.InPitlane == 1;
                     currentGameState.SessionData.IsNewLap = previousGameState != null && previousGameState.SessionData.IsNewLap == false &&
                         (shared.CompletedLaps == previousGameState.SessionData.CompletedLaps + 1 ||
@@ -743,6 +749,7 @@ namespace CrewChiefV4.RaceRoom
                             }
                             currentGameState.PitData.OnInLap = true;
                             currentGameState.PitData.OnOutLap = false;
+                            R3EPitMenuManager.outstandingPitstopRequest = false;
                         }
                         else if (currentGameState.SessionData.IsNewLap)
                         {
@@ -1204,7 +1211,7 @@ namespace CrewChiefV4.RaceRoom
             currentGameState.PitData.limiterStatus = (PitData.LimiterStatus)shared.PitLimiter;
 
             //------------------------ Pit menu -----------------------------
-            this.pitMenuManager.map(shared.PitMenuSelection, shared.PitMenuState);
+            R3EPitMenuManager.map(shared.PitMenuSelection, shared.PitMenuState);
 
             //------------------------ Car position / motion data -----------------------
             currentGameState.PositionAndMotionData.CarSpeed = shared.CarSpeed;
@@ -1400,17 +1407,24 @@ namespace CrewChiefV4.RaceRoom
             {
                 return TyreType.R3E_2017;
             } 
-            else if (carClass == CarData.CarClassEnum. F1 && (int)RaceRoomConstant.TireSubtype.Hard == tire_sub_type_front)
+            else if (carClass == CarData.CarClassEnum.F1 || carClass == CarData.CarClassEnum.F1_90S || carClass == CarData.CarClassEnum.GROUPC)
             {
-                return TyreType.R3E_2016_HARD;
-            }
-            else if (carClass == CarData.CarClassEnum.F1 && (int)RaceRoomConstant.TireSubtype.Medium == tire_sub_type_front)
-            {
-                return TyreType.R3E_2016_MEDIUM;
-            }
-            else if (carClass == CarData.CarClassEnum.F1 && (int)RaceRoomConstant.TireSubtype.Soft == tire_sub_type_front)
-            {
-                return TyreType.R3E_2016_SOFT;
+                if ((int)RaceRoomConstant.TireSubtype.Hard == tire_sub_type_front)
+                {
+                    return TyreType.R3E_2016_HARD;
+                }
+                else if ((int)RaceRoomConstant.TireSubtype.Medium == tire_sub_type_front)
+                {
+                    return TyreType.R3E_2016_MEDIUM;
+                }
+                else if ((int)RaceRoomConstant.TireSubtype.Soft == tire_sub_type_front)
+                {
+                    return TyreType.R3E_2016_SOFT;
+                }
+                else
+                {
+                    return TyreType.Unknown_Race;
+                }
             }
             else if ((int)RaceRoomConstant.TireSubtype.Alternate == tire_sub_type_front)
             {
