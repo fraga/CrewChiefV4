@@ -330,7 +330,7 @@ namespace CrewChiefV4.Events
                && currentGameState.PositionAndMotionData.DistanceRoundTrack < currentGameState.SessionData.TrackDefinition.trackLength - 200
                && currentGameState.Now > R3EPitMenuManager.timeWeCanAnnouncePitActions)
             {
-                announceR3EPitActions(currentGameState.PitData.InPitlane);
+                announceR3EPitActions(currentGameState.PitData.InPitlane, false);
             }
 
             if (previousGameState != null && (pitBoxPositionCountdownEnabled || pitBoxTimeCountdownEnabled) && 
@@ -967,9 +967,18 @@ namespace CrewChiefV4.Events
             }
         }
 
-        private void announceR3EPitActions(Boolean inPitLane)
+        private void announceR3EPitActions(Boolean inPitLane, Boolean fromVoiceRequest)
         {
-            R3EPitMenuManager.outstandingPitstopRequest = false;
+            if (fromVoiceRequest)
+            {
+                // block the automatic announcement for a while
+                R3EPitMenuManager.timeWeCanAnnouncePitActions = CrewChief.currentGameState.Now.AddSeconds(20);
+            }
+            else
+            {
+                // this is an automated announcement so block further announcements of this set of actions until pit-in is requested again
+                R3EPitMenuManager.outstandingPitstopRequest = false;
+            }
             if (!R3EPitMenuManager.hasStateForCurrentSession)
             {
                 // if the menu isn't open, pop it for a moment to get a snapshot of its state. This is an edge case - either we'll be invoking
@@ -983,12 +992,14 @@ namespace CrewChiefV4.Events
             }
             Boolean doneFuel = false;
             Boolean doneTyres = false;
+            Boolean haveData = false;
             if (R3EPitMenuManager.latestState[SelectedItem.Fronttires] == PitSelectionState.SELECTED 
                 && R3EPitMenuManager.latestState[SelectedItem.Reartires] == PitSelectionState.SELECTED)
             {
                 // "we're changing all 4 tyres"
                 doneFuel = true;
                 doneTyres = true;
+                haveData = true;
                 if (R3EPitMenuManager.latestState[SelectedItem.Fuel] == PitSelectionState.SELECTED)
                 {
                     audioPlayer.playMessage(new QueuedMessage(folderWillChangeAllFourTyresAndRefuel, 0));
@@ -1008,6 +1019,7 @@ namespace CrewChiefV4.Events
                 // "no tyres this time"
                 doneFuel = true;
                 doneTyres = true;
+                haveData = true;
                 if (R3EPitMenuManager.latestState[SelectedItem.Fuel] == PitSelectionState.SELECTED)
                 {
                     audioPlayer.playMessage(new QueuedMessage(folderWillPutFuelInNoTyresThisTime, 0));
@@ -1027,16 +1039,19 @@ namespace CrewChiefV4.Events
                 {
                     // "we're changing front tyres only"
                     audioPlayer.playMessage(new QueuedMessage(folderWillChangeFrontTyresOnly, 0));
+                    haveData = true;
                 }
                 else if (R3EPitMenuManager.latestState[SelectedItem.Fronttires] == PitSelectionState.AVAILABLE && R3EPitMenuManager.latestState[SelectedItem.Reartires] == PitSelectionState.SELECTED)
                 {
                     // "we're changing rear tyres only"
                     audioPlayer.playMessage(new QueuedMessage(folderWillChangeRearTyresOnly, 0));
+                    haveData = true;
                 }
                 else if (R3EPitMenuManager.latestState[SelectedItem.Fronttires] == PitSelectionState.AVAILABLE && R3EPitMenuManager.latestState[SelectedItem.Reartires] == PitSelectionState.AVAILABLE)
                 {
                     // "we're not changing tyres"
                     audioPlayer.playMessage(new QueuedMessage(folderNoTyresThisTime, 0));
+                    haveData = true;
                 }
             }
             if (!doneFuel)
@@ -1045,15 +1060,18 @@ namespace CrewChiefV4.Events
                 {
                     // "we're putting fuel in"
                     audioPlayer.playMessage(new QueuedMessage(folderWillPutFuelIn, 0));
+                    haveData = true;
                 }
                 else if (R3EPitMenuManager.latestState[SelectedItem.Fuel] == PitSelectionState.AVAILABLE)
                 {
                     // "no fuel this time"
                     audioPlayer.playMessage(new QueuedMessage(folderNoFuelThisTime, 0));
+                    haveData = true;
                 }
             }
             if (R3EPitMenuManager.latestState[SelectedItem.Frontwing] == PitSelectionState.SELECTED)
             {
+                haveData = true;
                 if (R3EPitMenuManager.latestState[SelectedItem.Rearwing] == PitSelectionState.SELECTED)
                 {
                     // "we'll fix the front and rear aero"
@@ -1072,6 +1090,7 @@ namespace CrewChiefV4.Events
             }
             else if (R3EPitMenuManager.latestState[SelectedItem.Rearwing] == PitSelectionState.SELECTED)
             {
+                haveData = true;
                 if (R3EPitMenuManager.latestState[SelectedItem.Frontwing] == PitSelectionState.AVAILABLE)
                 {
                     // "we'll fix the rear and leave the front"
@@ -1087,16 +1106,31 @@ namespace CrewChiefV4.Events
             {
                 // "we'll fix the suspension"
                 audioPlayer.playMessage(new QueuedMessage(folderWillFixSuspension, 0));
+                haveData = true;
             }
             else if (R3EPitMenuManager.latestState[SelectedItem.Suspension] == PitSelectionState.AVAILABLE)
             {
                 // "we'll leave the suspension"
                 audioPlayer.playMessage(new QueuedMessage(folderWillLeaveSuspension, 0));
+                haveData = true;
             }
             if (R3EPitMenuManager.latestState[SelectedItem.Penalty] == PitSelectionState.SELECTED)
             {
                 // "we'll be serving the penalty"
                 audioPlayer.playMessage(new QueuedMessage(folderWillBeServingPenalty, 0));
+                haveData = true;
+            }
+            if (fromVoiceRequest && !haveData)
+            {
+                audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+            }
+            else
+            {
+                // announced automatically and we have data. If we're not in the pitlane sometimes play a 'box now'
+                if (!inPitLane && Utilities.random.Next(10) >= 5)
+                {
+                    audioPlayer.playMessage(new QueuedMessage(folderBoxNow, 0));
+                }
             }
         }
 
@@ -1147,7 +1181,7 @@ namespace CrewChiefV4.Events
                 }
                 else
                 {
-                    announceR3EPitActions(CrewChief.currentGameState.PitData.InPitlane);
+                    announceR3EPitActions(CrewChief.currentGameState.PitData.InPitlane, true);
                 }
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.IS_MY_PIT_BOX_OCCUPIED))

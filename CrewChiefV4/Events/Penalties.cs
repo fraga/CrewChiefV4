@@ -363,7 +363,7 @@ namespace CrewChiefV4.Events
                     audioPlayer.playMessage(new QueuedMessage(folderTimePenalty, 0, abstractEvent: this, priority: 10));
                 }
             }
-            else if (currentGameState.PositionAndMotionData.CarSpeed > 1 && GlobalBehaviourSettings.cutTrackWarningsEnabled &&
+            else if (currentGameState.PositionAndMotionData.CarSpeed > 10 && GlobalBehaviourSettings.cutTrackWarningsEnabled &&
                 !currentGameState.PitData.OnOutLap &&
                 currentGameState.PenaltiesData.CutTrackWarnings > cutTrackWarningsCount &&
                 currentGameState.PenaltiesData.NumPenalties == previousGameState.PenaltiesData.NumPenalties)  // Make sure we've no new penalty for this cut.
@@ -399,7 +399,7 @@ namespace CrewChiefV4.Events
                     clearPenaltyState();
                 }
             }
-            else if (currentGameState.PositionAndMotionData.CarSpeed > 1 && GlobalBehaviourSettings.cutTrackWarningsEnabled && currentGameState.SessionData.SessionType != SessionType.Race &&
+            else if (currentGameState.PositionAndMotionData.CarSpeed > 10 && GlobalBehaviourSettings.cutTrackWarningsEnabled && currentGameState.SessionData.SessionType != SessionType.Race &&
               !currentGameState.SessionData.CurrentLapIsValid && previousGameState != null && previousGameState.SessionData.CurrentLapIsValid &&
                 CrewChief.gameDefinition.gameEnum != GameEnum.IRACING && !currentGameState.PitData.OnOutLap)
             {
