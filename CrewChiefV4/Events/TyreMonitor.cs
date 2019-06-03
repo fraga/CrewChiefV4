@@ -396,10 +396,13 @@ namespace CrewChiefV4.Events
                 case TyreType.Super_Soft:
                     return folderSuperSoftTyres;
                 case TyreType.Soft:
+                case TyreType.R3E_2016_SOFT:
                     return folderSoftTyres;
                 case TyreType.Medium:
+                case TyreType.R3E_2016_MEDIUM:
                     return folderMediumTyres;
                 case TyreType.Hard:
+                case TyreType.R3E_2016_HARD:
                     return folderHardTyres;
                 case TyreType.Primary:
                     return folderPrimaryTyres;
