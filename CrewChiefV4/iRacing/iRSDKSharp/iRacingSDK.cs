@@ -116,6 +116,7 @@ namespace iRSDKSharp
                 VarHeaders[nameStr] = new CVarHeader(type, offset, count, nameStr, descStr, unitStr);
             }
         }
+
         public void Generate_iRacingData_cs()
         {
             String dataFilesPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location), @"..\", @"..\dataFiles\iRacingData.cs");
@@ -133,7 +134,7 @@ namespace iRSDKSharp
                 file.WriteLine("\t[Serializable]");
                 file.WriteLine("\tpublic class iRacingData");
                 file.WriteLine("\t{");
-                file.WriteLine("\t\tpublic iRacingData( iRacingSDK sdk, bool hasNewSessionData, bool isNewSession)");
+                file.WriteLine("\t\tpublic iRacingData(iRacingSDK sdk, bool hasNewSessionData, bool isNewSession, int numberOfCarsEnabled, bool is360HzTelemetry)");
                 file.WriteLine("\t\t{");
                 file.WriteLine("\t\t\tif(hasNewSessionData)");
                 file.WriteLine("\t\t\t{");
@@ -143,8 +144,11 @@ namespace iRSDKSharp
                 file.WriteLine("\t\t\t{");
                 file.WriteLine("\t\t\t\tSessionInfo = \"\";");
                 file.WriteLine("\t\t\t}");
+                file.WriteLine("\t\t\tNumberOfCarsEnabled = numberOfCarsEnabled;");
+                file.WriteLine("\t\t\tIs360HzTelemetry = is360HzTelemetry;");  
                 file.WriteLine("\t\t\tSessionInfoUpdate = sdk.Header.SessionInfoUpdate;");
-                file.WriteLine("\t\t\tIsNewSession = isNewSession;");                           
+                file.WriteLine("\t\t\tIsNewSession = isNewSession;");
+
 
                 foreach (CVarHeader header in VarHeaders.Values)
                 {
@@ -183,6 +187,7 @@ namespace iRSDKSharp
                 file.WriteLine("}");
             }
         }
+
         public object TryGetData(string name)
         {
             try
@@ -195,6 +200,7 @@ namespace iRSDKSharp
                 return null;
             }
         }
+
         public object GetData(string name)
         {
             if(IsInitialized && Header != null)
@@ -355,6 +361,7 @@ namespace iRSDKSharp
             }
             return null;
         }
+
         public byte [] GetSessionInfo()
         {
             if (IsInitialized && Header != null)
@@ -365,6 +372,7 @@ namespace iRSDKSharp
             }
             return null;
         }
+
         public bool IsConnected()
         {
             if (IsInitialized && Header != null)
@@ -388,10 +396,12 @@ namespace iRSDKSharp
             }
             
         }
+
         IntPtr GetPadCarNumID()
         {
             return RegisterWindowMessage(Defines.PadCarNumName);
         }
+
         static IntPtr GetBroadcastMessageID()
         {
             return RegisterWindowMessage(Defines.BroadcastMessageName);
@@ -438,10 +448,7 @@ namespace iRSDKSharp
             return (short)dword;
         }
     }
-
-    
-
-
+  
     //144 bytes
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
     public struct VarHeader
