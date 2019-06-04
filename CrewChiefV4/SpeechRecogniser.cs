@@ -10,6 +10,7 @@ using CrewChiefV4.Audio;
 using CrewChiefV4.commands;
 using System.Windows.Forms;
 using System.Diagnostics;
+using CrewChiefV4.R3E;
 
 namespace CrewChiefV4
 {
@@ -152,6 +153,9 @@ namespace CrewChiefV4
         public static String[] HOW_ARE_MY_FRONT_TYRE_PRESSURES_RIGHT_NOW = Configuration.getSpeechRecognitionPhrases("HOW_ARE_MY_FRONT_TYRE_PRESSURES_RIGHT_NOW");
         public static String[] HOW_ARE_MY_REAR_TYRE_PRESSURES_RIGHT_NOW = Configuration.getSpeechRecognitionPhrases("HOW_ARE_MY_REAR_TYRE_PRESSURES_RIGHT_NOW");
 
+        // R3E only for now:
+        public static String[] WHAT_ARE_THE_PIT_ACTIONS = Configuration.getSpeechRecognitionPhrases("WHAT_ARE_THE_PIT_ACTIONS");
+
         public static String ON = Configuration.getSpeechRecognitionConfigOption("ON");
         public static String POSSESSIVE = Configuration.getSpeechRecognitionConfigOption("POSSESSIVE");
         public static String WHERE_IS = Configuration.getSpeechRecognitionConfigOption("WHERE_IS");
@@ -218,6 +222,19 @@ namespace CrewChiefV4
         public static String[] PIT_STOP_CHANGE_LEFT_SIDE_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CHANGE_LEFT_SIDE_TYRES");
         public static String[] PIT_STOP_CHANGE_RIGHT_SIDE_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CHANGE_RIGHT_SIDE_TYRES");
 
+        public static String[] PIT_STOP_CHANGE_FRONT_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CHANGE_FRONT_TYRES");
+        public static String[] PIT_STOP_CHANGE_REAR_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CHANGE_REAR_TYRES");
+        public static String[] PIT_STOP_FIX_FRONT_AERO = Configuration.getSpeechRecognitionPhrases("PIT_STOP_FIX_FRONT_AERO");
+        public static String[] PIT_STOP_FIX_REAR_AERO = Configuration.getSpeechRecognitionPhrases("PIT_STOP_FIX_REAR_AERO");
+        public static String[] PIT_STOP_FIX_ALL_AERO = Configuration.getSpeechRecognitionPhrases("PIT_STOP_FIX_ALL_AERO");
+        public static String[] PIT_STOP_FIX_NO_AERO = Configuration.getSpeechRecognitionPhrases("PIT_STOP_FIX_NO_AERO");
+        public static String[] PIT_STOP_FIX_SUSPENSION = Configuration.getSpeechRecognitionPhrases("PIT_STOP_FIX_SUSPENSION");
+        public static String[] PIT_STOP_DONT_FIX_SUSPENSION = Configuration.getSpeechRecognitionPhrases("PIT_STOP_DONT_FIX_SUSPENSION");
+        public static String[] PIT_STOP_SERVE_PENALTY = Configuration.getSpeechRecognitionPhrases("PIT_STOP_SERVE_PENALTY");
+        public static String[] PIT_STOP_DONT_SERVE_PENALTY = Configuration.getSpeechRecognitionPhrases("PIT_STOP_DONT_SERVE_PENALTY");
+        public static String[] PIT_STOP_REFUEL = Configuration.getSpeechRecognitionPhrases("PIT_STOP_REFUEL");
+        public static String[] PIT_STOP_DONT_REFUEL = Configuration.getSpeechRecognitionPhrases("PIT_STOP_DONT_REFUEL");
+
         public static String[] HOW_MANY_INCIDENT_POINTS = Configuration.getSpeechRecognitionPhrases("HOW_MANY_INCIDENT_POINTS");
         public static String[] WHATS_THE_INCIDENT_LIMIT = Configuration.getSpeechRecognitionPhrases("WHATS_THE_INCIDENT_LIMIT");
         public static String[] WHATS_THE_SOF = Configuration.getSpeechRecognitionPhrases("WHATS_THE_SOF");
@@ -257,6 +274,7 @@ namespace CrewChiefV4
 
         private List<Grammar> opponentGrammarList = new List<Grammar>();
         private List<Grammar> iracingPitstopGrammarList = new List<Grammar>();
+        private List<Grammar> r3ePitstopGrammarList = new List<Grammar>();
 
         private Grammar macroGrammar = null;
 
@@ -898,6 +916,7 @@ namespace CrewChiefV4
                 validateAndAdd(HOW_ARE_MY_TYRE_PRESSURES_RIGHT_NOW, staticSpeechChoices);
                 validateAndAdd(HOW_ARE_MY_FRONT_TYRE_PRESSURES_RIGHT_NOW, staticSpeechChoices);
                 validateAndAdd(HOW_ARE_MY_REAR_TYRE_PRESSURES_RIGHT_NOW, staticSpeechChoices);
+                validateAndAdd(WHAT_ARE_THE_PIT_ACTIONS, staticSpeechChoices);
 
                 if (!disableBehaviorAlteringVoiceCommands)
                 {
@@ -1049,13 +1068,13 @@ namespace CrewChiefV4
                     // This method is called when a new driver appears mid-session. We need to load the sound file for this new driver
                     // so do it here - nasty nasty hack, need to refactor this. The alternative is to call
                     // SoundCache.loadDriverNameSound in each of mappers when a new driver is added.
-                    SoundCache.loadDriverNameSound(usableName);
-                    driverNamesInUse.Add(rawDriverName);
+                    SoundCache.loadDriverNameSound(usableName);                    
 
                     HashSet<string> nameChoices = new HashSet<string>();
                     HashSet<string> namePossessiveChoices = new HashSet<string>();
                     if (identifyOpponentsByName && usableName != null && usableName.Length > 0 && !driverNamesInUse.Contains(rawDriverName))
                     {
+                        driverNamesInUse.Add(rawDriverName);
                         nameChoices.Add(usableName);
                         namePossessiveChoices.Add(usableName + POSSESSIVE);
                     }
@@ -1223,6 +1242,54 @@ namespace CrewChiefV4
                 opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHAT_TYRE_IS, WHAT_TYRES_IS }, false, opponentNameOrPositionChoices, new String[] { ON }, true));
             }
             opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHATS }, false, opponentNameOrPositionPossessiveChoices, getWhatsPossessiveChoices(), true));
+        }
+
+        public void addR3ESpeechRecogniser()
+        {
+            if (!initialised)
+            {
+                return;
+            }
+            foreach (Grammar r3eGrammar in r3ePitstopGrammarList)
+            {
+                try
+                {
+                    sre.UnloadGrammar(r3eGrammar);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Failed to unload R3E grammar: " + e.Message);
+                }
+            }
+            try
+            {
+                r3ePitstopGrammarList.Clear();
+                Choices r3eChoices = new Choices();
+                validateAndAdd(PIT_STOP_CHANGE_ALL_TYRES, r3eChoices);
+                validateAndAdd(PIT_STOP_CHANGE_FRONT_TYRES, r3eChoices);
+                validateAndAdd(PIT_STOP_CHANGE_REAR_TYRES, r3eChoices);
+                validateAndAdd(PIT_STOP_CLEAR_TYRES, r3eChoices);
+                validateAndAdd(PIT_STOP_FIX_FRONT_AERO, r3eChoices);
+                validateAndAdd(PIT_STOP_FIX_REAR_AERO, r3eChoices);
+                validateAndAdd(PIT_STOP_FIX_ALL_AERO, r3eChoices);
+                validateAndAdd(PIT_STOP_FIX_NO_AERO, r3eChoices);
+                validateAndAdd(PIT_STOP_FIX_SUSPENSION, r3eChoices);
+                validateAndAdd(PIT_STOP_DONT_FIX_SUSPENSION, r3eChoices);
+                validateAndAdd(PIT_STOP_SERVE_PENALTY, r3eChoices);
+                validateAndAdd(PIT_STOP_DONT_SERVE_PENALTY, r3eChoices);
+                validateAndAdd(PIT_STOP_REFUEL, r3eChoices);
+                validateAndAdd(PIT_STOP_DONT_REFUEL, r3eChoices);
+                
+                GrammarBuilder r3eGrammarBuilder = new GrammarBuilder(r3eChoices);
+                r3eGrammarBuilder.Culture = cultureInfo;
+                Grammar r3eGrammar = new Grammar(r3eGrammarBuilder);
+                r3ePitstopGrammarList.Add(r3eGrammar);
+                sre.LoadGrammar(r3eGrammar);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Unable to add R3E pit stop commands to speech recognition engine - " + e.Message);
+            }
         }
 
         public void addiRacingSpeechRecogniser()
@@ -1520,12 +1587,17 @@ namespace CrewChiefV4
                         if (macroGrammar == e.Result.Grammar && macroLookup.ContainsKey(e.Result.Text))
                         {
                             this.lastRecognisedText = e.Result.Text;
-                            macroLookup[e.Result.Text].execute(e.Result.Text);
+                            macroLookup[e.Result.Text].execute(e.Result.Text, false, true);
                         }
                         else if (iracingPitstopGrammarList.Contains(e.Result.Grammar))
                         {
                             this.lastRecognisedText = e.Result.Text;
                             CrewChief.getEvent("IRacingBroadcastMessageEvent").respond(e.Result.Text);
+                        }
+                        else if (r3ePitstopGrammarList.Contains(e.Result.Grammar))
+                        {
+                            this.lastRecognisedText = e.Result.Text;
+                            R3EPitMenuManager.processVoiceCommand(e.Result.Text, this.crewChief.audioPlayer);
                         }
                         else if (ResultContains(e.Result.Text, REPEAT_LAST_MESSAGE, false))
                         {
@@ -1994,7 +2066,8 @@ namespace CrewChiefV4
             }
             else if (ResultContains(recognisedSpeech, DO_I_HAVE_A_MANDATORY_PIT_STOP, false) ||
                 ResultContains(recognisedSpeech, IS_MY_PIT_BOX_OCCUPIED, false) ||
-                ResultContains(recognisedSpeech, WHATS_PITLANE_SPEED_LIMIT, false))
+                ResultContains(recognisedSpeech, WHATS_PITLANE_SPEED_LIMIT, false) ||
+                ResultContains(recognisedSpeech, WHAT_ARE_THE_PIT_ACTIONS))
             {
                 return CrewChief.getEvent("PitStops");
             }

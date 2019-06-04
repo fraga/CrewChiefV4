@@ -92,7 +92,7 @@ namespace CrewChiefV4
 
         public GameStateData previousGameState = null;
 
-        private Boolean mapped = false;
+        public Boolean mapped = false;
 
         private SessionEndMessages sessionEndMessages;
 

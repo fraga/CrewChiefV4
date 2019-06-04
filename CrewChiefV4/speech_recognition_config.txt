@@ -160,6 +160,8 @@ HOW_ARE_MY_FRONT_TYRE_PRESSURES_RIGHT_NOW = how are my front pressures right now
 HOW_ARE_MY_REAR_TYRE_PRESSURES_RIGHT_NOW = how are my rear pressures right now:how are my rear tire pressures right now
 HOW_ARE_MY_TYRE_PRESSURES_RIGHT_NOW = how are my pressures right now: how are my tire pressures right now
 
+WHAT_ARE_THE_PIT_ACTIONS = what are the pit actions:what's the pitstop plan
+
 #################################################
 # Dynamic recognition phrase fragments - these are used to build up recognition sentences for opponent information.
 # Multiple options are NOT supported here - each must be a single word or phrase. These are combined for each opponent
@@ -275,7 +277,7 @@ PIT_STOP_ADD = pitstop add
 PIT_STOP_TEAROFF = pitstop tearoff:pitstop windscreen
 PIT_STOP_FAST_REPAIR = pitstop fast repair:pitstop repair
 PIT_STOP_CLEAR_ALL = pitstop clear all
-PIT_STOP_CLEAR_TYRES = pitstop clear tyres
+PIT_STOP_CLEAR_TYRES = pitstop clear tyres:pitstop, don't change tyres:box, clear tyres:box, don't change tyres
 PIT_STOP_CLEAR_WIND_SCREEN = pitstop clear tearoff:pitstop clear windscreen
 PIT_STOP_CLEAR_FAST_REPAIR = pitstop clear fast repair
 PIT_STOP_CLEAR_FUEL = pitstop clear fuel
@@ -294,6 +296,21 @@ PIT_STOP_CHANGE_FRONT_RIGHT_TYRE_PRESSURE = pitstop change right front tyre pres
 PIT_STOP_CHANGE_REAR_LEFT_TYRE_PRESSURE = pitstop change left rear tyre pressure
 PIT_STOP_CHANGE_REAR_RIGHT_TYRE_PRESSURE = pitstop change right rear tyre pressure
 PIT_STOP_FUEL_TO_THE_END = pitstop fuel to the end:pitstop fuel to the end of the race
+
+
+// R3E-specific pit commands
+PIT_STOP_CHANGE_FRONT_TYRES = pitstop change front tyres only:box, change front tyres only
+PIT_STOP_CHANGE_REAR_TYRES = pitstop change rear tyres only:box, change rear tyres only
+PIT_STOP_FIX_FRONT_AERO = pitstop fix front aero only:box, fix front aero only
+PIT_STOP_FIX_REAR_AERO = pitstop fix rear aero only:box, fix rear aero only
+PIT_STOP_FIX_ALL_AERO = pitstop fix all aero:box, fix all aero
+PIT_STOP_FIX_NO_AERO = pitstop don't fix aero:box, don't fix aero
+PIT_STOP_FIX_SUSPENSION = pitstop fix suspension:box, fix suspension
+PIT_STOP_DONT_FIX_SUSPENSION = pitstop don't fix suspension:box, don't fix suspension
+PIT_STOP_SERVE_PENALTY = pitstop serve penalty:box, serve penalty
+PIT_STOP_DONT_SERVE_PENALTY = pitstop don't serve penalty:box, don't serve penalty
+PIT_STOP_REFUEL = pitstop refuel:box, refuel
+PIT_STOP_DONT_REFUEL = pitstop don't refuel:box, don't refuel
 
 LITERS = liters
 GALLONS = gallons

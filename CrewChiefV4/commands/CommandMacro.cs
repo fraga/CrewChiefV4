@@ -1,5 +1,6 @@
 ﻿using CrewChiefV4.Audio;
 using CrewChiefV4.Events;
+using CrewChiefV4.R3E;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -64,11 +65,6 @@ namespace CrewChiefV4.commands
             return false;
         }
 
-        public void execute(String recognitionResult)
-        {           
-            execute(recognitionResult, false);
-        }
-
         private Boolean checkValidAndPlayConfirmation(CommandSet commandSet, Boolean supressConfirmationMessage)
         {
             Boolean isValid = true;
@@ -81,8 +77,9 @@ namespace CrewChiefV4.commands
             {
                 // if there's a confirmation message set up here, suppress the PitStops event from triggering the same message when the pit request changes in the gamestate
                 PitStops.playedRequestPitOnThisLap = macroConfirmationMessage != null;
-                if ((CrewChief.gameDefinition == GameDefinition.pCars2 || CrewChief.gameDefinition == GameDefinition.rfactor2_64bit) &&
-                     CrewChief.currentGameState != null && CrewChief.currentGameState.PitData.HasRequestedPitStop)
+                if ((CrewChief.gameDefinition == GameDefinition.raceRoom && R3EPitMenuManager.hasRequestedPitStop()) ||
+                    ((CrewChief.gameDefinition == GameDefinition.pCars2 || CrewChief.gameDefinition == GameDefinition.rfactor2_64bit) &&
+                     CrewChief.currentGameState != null && CrewChief.currentGameState.PitData.HasRequestedPitStop))
                 {
                     // we've already requested a stop, so change the confirm message to 'yeah yeah, we know'
                     if (macroConfirmationMessage != null)
@@ -95,14 +92,20 @@ namespace CrewChiefV4.commands
                 {
                     Strategy.playPitPositionEstimates = true;
                 }
+                if (isValid && CrewChief.gameDefinition == GameDefinition.raceRoom)
+                {
+                    R3EPitMenuManager.outstandingPitstopRequest = true;
+                    R3EPitMenuManager.timeWeCanAnnouncePitActions = CrewChief.currentGameState.Now.AddSeconds(10);
+                }
             }
             // special case for 'cancel pit request' macro - check we've actually requested a stop
             else if (macro.name == MacroManager.CANCEL_REQUEST_PIT_IDENTIFIER)
             {
                 // if there's a confirmation message set up here, suppress the PitStops event from triggering the same message when the pit request changes in the gamestate
                 PitStops.playedPitRequestCancelledOnThisLap = macroConfirmationMessage != null;
-                if ((CrewChief.gameDefinition == GameDefinition.pCars2 || CrewChief.gameDefinition == GameDefinition.rfactor2_64bit) &&
-                     CrewChief.currentGameState != null && !CrewChief.currentGameState.PitData.HasRequestedPitStop)
+                if ((CrewChief.gameDefinition == GameDefinition.raceRoom && !R3EPitMenuManager.hasRequestedPitStop()) ||
+                    ((CrewChief.gameDefinition == GameDefinition.pCars2 || CrewChief.gameDefinition == GameDefinition.rfactor2_64bit) &&
+                     CrewChief.currentGameState != null && !CrewChief.currentGameState.PitData.HasRequestedPitStop))
                 {
                     // we don't have a stop requested, so change the confirm message to 'what? we weren't waiting anyway'
                     if (macroConfirmationMessage != null)
@@ -110,7 +113,8 @@ namespace CrewChiefV4.commands
                         macroConfirmationMessage = PitStops.folderPitNotRequested;
                     }
                     isValid = false;
-                } 
+                }
+                R3EPitMenuManager.outstandingPitstopRequest = false;
             }
             if (macroConfirmationMessage != null)
             {
@@ -119,7 +123,7 @@ namespace CrewChiefV4.commands
             return isValid;
         }
 
-        public void execute(String recognitionResult, Boolean supressConfirmationMessage)
+        public void execute(String recognitionResult, Boolean supressConfirmationMessage, Boolean useNewThread)
         {
             // blocking...
             Boolean isR3e = CrewChief.gameDefinition == GameDefinition.raceRoom;
@@ -134,70 +138,110 @@ namespace CrewChiefV4.commands
                 Boolean isValid = checkValidAndPlayConfirmation(commandSet, supressConfirmationMessage);
                 if (isValid)
                 {
-                    ThreadManager.UnregisterTemporaryThread(executableCommandMacroThread);
-                    executableCommandMacroThread = new Thread(() =>
+                    if (useNewThread)
                     {
-                        // only allow macros to excute one at a time
-                        lock (ExecutableCommandMacro.mutex)
+                        ThreadManager.UnregisterTemporaryThread(executableCommandMacroThread);
+                        executableCommandMacroThread = new Thread(() =>
                         {
-                            IntPtr currentForgroundWindow = GetForegroundWindow();
-                            bool hasChangedForgroundWindow = BringGameWindowToFront(CrewChief.gameDefinition.processName, CrewChief.gameDefinition.alternativeProcessNames, currentForgroundWindow);
-
-                            foreach (ActionItem actionItem in commandSet.getActionItems())
+                            // only allow macros to excute one at a time
+                            lock (ExecutableCommandMacro.mutex)
                             {
-                                if (MacroManager.stopped)
-                                {
-                                    break;
-                                }
-                                if (MacroManager.WAIT_IDENTIFIER.Equals(actionItem.extendedType))
-                                {
-                                    Thread.Sleep(actionItem.extendedTypeNumericParam);
-                                }
-                                else
-                                {
-                                    int count;
-                                    if (MacroManager.MULTIPLE_PRESS_IDENTIFIER.Equals(actionItem.extendedType))
-                                    {
-                                        if (actionItem.extendedTypeTextParam != null)
-                                        {
-                                            if (MacroManager.MULTIPLE_PRESS_FROM_VOICE_TRIGGER_IDENTIFIER.Equals(actionItem.extendedTypeTextParam))
-                                            {
-                                                count = multiplePressCountFromVoiceCommand;
-                                            }
-                                            else
-                                            {
-                                                count = CrewChief.getEvent(actionItem.extendedTypeTextParam).resolveMacroKeyPressCount(macro.name);
-                                            }
-                                            // hack for R3E: fuel menu needs 3 presses to get it from the start to 0
-                                            if (isR3e && macro.name.Contains("fuel"))
-                                            {
-                                                count = count + 3;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            count = actionItem.extendedTypeNumericParam;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        count = 1;
-                                    }
-                                    sendKeys(count, actionItem, commandSet.keyPressTime, commandSet.waitBetweenEachCommand);
-                                }                                    
+                                runMacro(commandSet, isR3e, multiplePressCountFromVoiceCommand);
                             }
-                            if (hasChangedForgroundWindow)
-                            {
-                                SetForegroundWindow(currentForgroundWindow);
-                            }
-                        }
-                    });
-                    executableCommandMacroThread.Name = "CommandMacro.executableCommandMacroThread";
-                    ThreadManager.RegisterTemporaryThread(executableCommandMacroThread);
-                    executableCommandMacroThread.Start();
+                        });
+                        executableCommandMacroThread.Name = "CommandMacro.executableCommandMacroThread";
+                        ThreadManager.RegisterTemporaryThread(executableCommandMacroThread);
+                        executableCommandMacroThread.Start();
+                    }
+                    else
+                    {
+                        runMacro(commandSet, isR3e, multiplePressCountFromVoiceCommand);
+                    }
                 }
                 break;
             }            
+        }
+
+        private void runMacro(CommandSet commandSet, Boolean isR3e, int multiplePressCountFromVoiceCommand)
+        {
+            IntPtr currentForgroundWindow = GetForegroundWindow();
+            bool hasChangedForgroundWindow = BringGameWindowToFront(CrewChief.gameDefinition.processName, CrewChief.gameDefinition.alternativeProcessNames, currentForgroundWindow);
+
+            List<ActionItem> actionItems = commandSet.getActionItems();
+            int actionItemsCount = actionItems.Count();
+            // R3E set fuel macro is a special case...
+            Boolean r3eResetFuelAmountMacroActionHasExecuted = false;
+            for (int actionItemIndex = 0; actionItemIndex < actionItemsCount; actionItemIndex++)
+            {
+                ActionItem actionItem = actionItems[actionItemIndex];
+                if (MacroManager.stopped)
+                {
+                    break;
+                }
+                if (MacroManager.WAIT_IDENTIFIER.Equals(actionItem.extendedType))
+                {
+                    Thread.Sleep(actionItem.extendedTypeNumericParam);
+                }
+                else
+                {
+                    int count;
+                    if (MacroManager.MULTIPLE_PRESS_IDENTIFIER.Equals(actionItem.extendedType))
+                    {
+                        // special case for R3E. Before issuing fuelling commands we can use the pit menu data to ensure we've landed
+                        // on the right item and that it's in the right state. As our first fuelling interaction is to set the fuel
+                        // load to 0, we need to inspect the next item to see if it's the set-amount action
+                        if (isR3e && macro.name.Contains("fuel") && !r3eResetFuelAmountMacroActionHasExecuted && actionItemIndex < actionItemsCount - 1)
+                        {
+                            // inspect the next action
+                            ActionItem nextAction = actionItems[actionItemIndex + 1];
+                            if (nextAction.extendedTypeTextParam != null)
+                            {
+                                // we know this is an R3E fuelling macro - maybe using a voice command for the amount, maybe using the event.
+                                // Either way we can ensure we're in the right place and in the right state here. The *current* action item is
+                                // many 'left' presses to reset the amount. Go to fuel and deselect it first - the macro should already have
+                                // done this but there may be cases where the pit menu behaviour isn't as expected
+                                Thread.Sleep(100);
+                                R3EPitMenuManager.goToMenuItem(SelectedItem.Fuel);
+                                R3EPitMenuManager.unselectFuel(false);
+                                Thread.Sleep(100);
+                                r3eResetFuelAmountMacroActionHasExecuted = true;
+                            }
+                        }
+
+                        if (actionItem.extendedTypeTextParam != null)
+                        {
+                            if (MacroManager.MULTIPLE_PRESS_FROM_VOICE_TRIGGER_IDENTIFIER.Equals(actionItem.extendedTypeTextParam))
+                            {
+                                count = multiplePressCountFromVoiceCommand;
+                            }
+                            else
+                            {
+                                count = CrewChief.getEvent(actionItem.extendedTypeTextParam).resolveMacroKeyPressCount(macro.name);
+                            }
+
+                            // eewwww... for the r3e fuel macro we want to ensure we're on 'fuel' and it's enabled before issuing the many
+                            // commands to set the amount. In this case, there'll be multiple other button presses to get us to fuel so
+                            // we need to catch the actual fuelling amount action and insert a crafty 'go to fuel item and deselect it' line
+                            if (isR3e && macro.name.Contains("fuel"))
+                            {
+                                // hack for R3E: fuel menu needs 3 presses to get it from the start to 0
+                                count = count + 3;
+                            }
+                        }
+                        else
+                        {
+                            count = actionItem.extendedTypeNumericParam;
+                        }
+                    }
+                    else
+                    {
+                        count = 1;
+                    }
+                    // only wait if there's another key press in the sequence
+                    int wait = actionItemIndex == actionItemsCount - 1 ? 0 : commandSet.waitBetweenEachCommand;
+                    sendKeys(count, actionItem, commandSet.keyPressTime, wait);
+                }
+            }
         }
 
         private void sendKeys(int count, ActionItem actionItem, int keyPressTime, int waitBetweenKeys)

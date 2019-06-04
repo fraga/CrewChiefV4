@@ -68,7 +68,7 @@ namespace CrewChiefV4
         // Shared with worker thread.  This should be disposed after root threads stopped, in GlobalResources.Dispose.
         private ControllerConfiguration controllerConfiguration;
 
-        private CrewChief crewChief;
+        public CrewChief crewChief;
 
         private Boolean isAssigningButton = false;
 
@@ -3062,7 +3062,7 @@ namespace CrewChiefV4
                     {
                         writeMessage("Skipped 1 copy of previous message\n");
                     }
-                    else if (repetitionCount > 0)
+                    else if (repetitionCount > 0 && MainWindow.instance.crewChief.mapped)
                     {
                         writeMessage("++++++++++++ Skipped " + repetitionCount + " copies of previous message. Please report this error to the CC dev team ++++++++++++\n");
                     }
