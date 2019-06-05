@@ -504,7 +504,7 @@ namespace CrewChiefV4.R3E
                 
         public static Boolean goToMenuItem(SelectedItem selectedItem)
         {
-            Console.WriteLine("attempting to go to menu item " + selectedItem);
+            Console.WriteLine("attempting to go to menu item " + selectedItem + " state for this item is " + R3EPitMenuManager.getStateForItem(selectedItem) + " current item = " + selectedItem);
             if (menuIsOpen() && R3EPitMenuManager.getStateForItem(selectedItem) != -1)
             {
                 ExecutableCommandMacro downMacro = getMenuDownMacro();
