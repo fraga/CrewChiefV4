@@ -86,16 +86,20 @@ I've not finished implementing this but currently the app understands and respon
 "talk to me anywhere" / "messages at any point": disable message delay in challenging parts of the track
 "set alarm to [hour] [minutes] [optional am/pm]" / "alarm me at [hour] [minutes] [optional am/pm]": sets the alarm clock at the given time, supports both 12 and 24 hour format
 "clear alarm clock" / "clear alarms": clears all the alarms set
+"enable cut track warnings" / "play cut track warnings:warn about cuts"
+"no cut track warnings" / "no more cut warnings:no more cut track warnings"
+
+iRacing-specific pit commands:
 
 "pitstop add [X liters]" (adds X amount of fuel next pitstop, this option is iRacing only)
 "pitstop tearoff / pitstop windscreen" (enable next pitstop, this option is iRacing only)
 "pitstop fast repair / pitstop repair" (enable fast repair next pitstop, this option is iRacing only)
 "pitstop clear all" (clears all selected pitstop options, this option is iRacing only)
-"pitstop clear tyres (clears all tyre selections" next pitstop, this option is iRacing only)
+"pitstop clear tyres" / "pitstop don't change tyres" / "box, clear tyres" / "box, don't change tyres" (clears all tyre selections next pitstop, this option is iRacing)
 "pitstop clear tearoff / pitstop clear windscreen" (clears tearoff selection next pitstop, this option is iRacing only)
 "pitstop clear fast repair" (clears fast repair selection next pitstop, this option is iRacing only)
 "pitstop clear fuel" (clears fuel refueling next pitstop, this option is iRacing only)
-"pitstop change all tyres" (change all tyres next pitstop, this option is iRacing only)
+"pitstop change all tyres" / "box, change all tyres" (change all tyres next pitstop, this option is iRacing)
 "pitstop change left front tyre" (change left front tyre next pitstop, this option is iRacing only)
 "pitstop change right front tyre" (change right front tyre next pitstop, this option is iRacing only)
 "pitstop change left rear tyre" (change left rear tyre next pitstop, this option is iRacing only)
@@ -108,6 +112,25 @@ I've not finished implementing this but currently the app understands and respon
 "pitstop change left rear tyre pressure [ new value ]" (change left rear tyre pressure next pitstop, this option is iRacing only)
 "pitstop change right rear tyre pressure [ new value ]" (change right rear tyre pressure next pitstop, this option is iRacing only)
 "pitstop fuel to the end" / "pitstop fuel to the end of the race" (add the fuel amount the app calculates you'll need to finish the race, this option is iRacing only)
+
+
+R3E-specific pit commands:
+
+"pitstop clear tyres" / "pitstop don't change tyres" / "box, clear tyres" / "box, don't change tyres"
+"pitstop change all tyres" / "box, change all tyres"
+"pitstop change front tyres only" / "box, change front tyres only"
+"pitstop change rear tyres only" / "box, change rear tyres only"
+"pitstop fix front aero only" / "box, fix front aero only"
+"pitstop fix rear aero only" / "box, fix rear aero only"
+"pitstop fix all aero" / "box, fix all aero"
+"pitstop don't fix aero" / "box, don't fix aero"
+"pitstop fix suspension" / "box, fix suspension"
+"pitstop don't fix suspension" / "box, don't fix suspension"
+"pitstop serve penalty" / "box, serve penalty"
+"pitstop don't serve penalty" / "box, don't serve penalty"
+"pitstop refuel" / "box, refuel"
+"pitstop don't refuel" / "box, don't refuel"
+"what are the pit actions" / "what's the pitstop plan" (reports the selected actions for the next pitstop)
 
 
 Speech recognition customisation
@@ -166,6 +189,29 @@ If the app has usable benchmark data and you request a pitstop *before you reach
 At the time of writing there's more work to be done here and some more features that may be added.
 
 
+R3E Pit Menu Interactions
+-------------------------
+R3E exposes some additional information describing the state of the popup pit menu. Using these, the app is able to navigate the menu by pressing sequences of key to make specific pit requests. This depends on the in-game key bindings matching the keys set up in the app's command macros. By default, these macros require the in-game pit menu actions to be bound to w (menu up), a (menu left / decrease), s (menu down), d (menu right / increase), q (menu toggle), e (menu select) and r (request pit). It uses the menu navigation command macros (single button presses to move the cursor) to locate and select the approprate commands for most actions like selecting / deselecting tyres and repairs. Choosing a refuelling amount is not possible with this new approach - it still relies on the auto fuelling macros. The commands which use this new approach are:
+
+"pitstop clear tyres" / "pitstop don't change tyres" / "box, clear tyres" / "box, don't change tyres"
+"pitstop change all tyres" / "box, change all tyres"
+"pitstop change front tyres only" / "box, change front tyres only"
+"pitstop change rear tyres only" / "box, change rear tyres only"
+"pitstop fix front aero only" / "box, fix front aero only"
+"pitstop fix rear aero only" / "box, fix rear aero only"
+"pitstop fix all aero" / "box, fix all aero"
+"pitstop don't fix aero" / "box, don't fix aero"
+"pitstop fix suspension" / "box, fix suspension"
+"pitstop don't fix suspension" / "box, don't fix suspension"
+"pitstop serve penalty" / "box, serve penalty"
+"pitstop don't serve penalty" / "box, don't serve penalty"
+"pitstop refuel" / "box, refuel"
+"pitstop don't refuel" / "box, don't refuel"
+"what are the pit actions" / "what's the pitstop plan" (reports the selected actions for the next pitstop)
+
+The app will also read out the planned pit actions automatially when you get near the pit entrance after requesting a stop.
+
+
 Known Issues Which Aren't Fixable
 ---------------------------------
 
@@ -220,7 +266,7 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
-Version 4.9.8.4: R3E - corrected opponent tyre mapping for F1 and GroupC cars; R3E - make use of pit menu data to provide more control over pit menu (documentation TBD) - voice commands like "box, change front tyres only", and "box, don't fix aero"
+Version 4.9.8.4: R3E - corrected opponent tyre mapping for F1 and GroupC cars; R3E - make use of pit menu data to provide more control over pit menu - added voice commands like "box, change front tyres only", and "box, don't fix aero". See R3E Pit Menu Interactions section here and in Help for more information; a few minor fixes
 
 Version 4.9.8.3: Prevent the app spamming the console window with errors when something fails on every tick (should prevent crashes when something goes wrong); in 'keep quiet' mode (e.g. after telling the app to "shut up") it really does keep quiet - even high priority messages are blocked - only the spotter messages continue to play (these can be blocked with the "don't spot" command). If you want the old behaviour back, where 'keep quiet' mode still allows high priority messages to play, enable the "Play important messages when silenced" option; added a UI to add voice messages to the list of available button actions so you can easily assign a button to what would have been a voice command - press the 'Add / remove actions' button on the main screen to access this; added some missing validation on the good / bad start messages
 
