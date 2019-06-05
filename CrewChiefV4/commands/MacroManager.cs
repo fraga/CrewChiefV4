@@ -164,7 +164,7 @@ namespace CrewChiefV4.commands
                 Boolean added = false;
                 HashSet<String> userMacroGameDefinitions = new HashSet<String>();
                 // temporary list to which we'll add missing command sets:
-                List<CommandSet> userMacroCommandSetsList = new ArrayList<CommandSet>();
+                List<CommandSet> userMacroCommandSetsList = new List<CommandSet>();
                 if (userMacro.commandSets != null)
                 {
                     foreach (var userMacroCommandSet in userMacro.commandSets)
