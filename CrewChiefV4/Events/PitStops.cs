@@ -972,7 +972,7 @@ namespace CrewChiefV4.Events
             if (fromVoiceRequest)
             {
                 // block the automatic announcement for a while
-                R3EPitMenuManager.timeWeCanAnnouncePitActions = CrewChief.currentGameState.Now.AddSeconds(20);
+                R3EPitMenuManager.timeWeCanAnnouncePitActions = CrewChief.currentGameState.Now.AddSeconds(10);
             }
             else
             {
