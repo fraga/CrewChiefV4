@@ -159,8 +159,27 @@ namespace CrewChiefV4.commands
         private static Boolean mergeNewCommandSetsFromDefault(MacroContainer userMacroContainer, MacroContainer defaultMacroContainer)
         {
             Boolean addedAny = false;
+
+            // before adding any missing command sets to the user macros, check for cases where multiple macros have the same name.
+            // There's currently only one of these ("Get out of car") - we don't want to modify these macros because they may have been
+            // configured to have a single command set per game. Not exactly what was intended but will work - if we add command sets to
+            // these it'll make the duplication much worse
+            HashSet<string> macroNames = new HashSet<string>();
+            HashSet<string> repeatedMacros = new HashSet<string>();
             foreach (var userMacro in userMacroContainer.macros)
             {
+                if (macroNames.Contains(userMacro.name))
+                {
+                    repeatedMacros.Add(userMacro.name);
+                }
+                macroNames.Add(userMacro.name);
+            }
+            foreach (var userMacro in userMacroContainer.macros)
+            {
+                if (repeatedMacros.Contains(userMacro.name))
+                {
+                    continue;
+                }
                 Boolean added = false;
                 HashSet<String> userMacroGameDefinitions = new HashSet<String>();
                 // temporary list to which we'll add missing command sets:
