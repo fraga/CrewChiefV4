@@ -1,4 +1,4 @@
-﻿using CrewChiefV4.Audio;
+using CrewChiefV4.Audio;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -77,6 +77,11 @@ namespace CrewChiefV4.commands
             {
                 // load the json:
                 MacroContainer macroContainer = loadCommands(getMacrosFileLocation());
+                MacroContainer defaultMacroContainer = loadCommands(getMacrosFileLocation(true));
+                if (mergeNewCommandSetsFromDefault(macroContainer, defaultMacroContainer))
+                {
+                    saveCommands(macroContainer);
+                }
 
                 // if it's valid, load the command sets:
                 Dictionary<string, ExecutableCommandMacro> voiceTriggeredMacros = new Dictionary<string, ExecutableCommandMacro>();
@@ -146,6 +151,75 @@ namespace CrewChiefV4.commands
             {
                 Console.WriteLine("Command macros are disabled");
             }
+        }
+
+        // users may remove a macro from their own macros file - at this point we don't want to copy missing macro
+        // from the default to the user's file. However, we may add a game-specific command set to a default macro.
+        // In this case we want to copy that command set to the user's version if he hasn't removed that macro.
+        private static Boolean mergeNewCommandSetsFromDefault(MacroContainer userMacroContainer, MacroContainer defaultMacroContainer)
+        {
+            Boolean addedAny = false;
+
+            // before adding any missing command sets to the user macros, check for cases where multiple macros have the same name.
+            // There's currently only one of these ("Get out of car") - we don't want to modify these macros because they may have been
+            // configured to have a single command set per game. Not exactly what was intended but will work - if we add command sets to
+            // these it'll make the duplication much worse
+            HashSet<string> macroNames = new HashSet<string>();
+            HashSet<string> repeatedMacros = new HashSet<string>();
+            foreach (var userMacro in userMacroContainer.macros)
+            {
+                if (macroNames.Contains(userMacro.name))
+                {
+                    repeatedMacros.Add(userMacro.name);
+                }
+                macroNames.Add(userMacro.name);
+            }
+            foreach (var userMacro in userMacroContainer.macros)
+            {
+                if (repeatedMacros.Contains(userMacro.name))
+                {
+                    continue;
+                }
+                Boolean added = false;
+                HashSet<String> userMacroGameDefinitions = new HashSet<String>();
+                // temporary list to which we'll add missing command sets:
+                List<CommandSet> userMacroCommandSetsList = new List<CommandSet>();
+                if (userMacro.commandSets != null)
+                {
+                    foreach (var userMacroCommandSet in userMacro.commandSets)
+                    {
+                        userMacroGameDefinitions.Add(userMacroCommandSet.gameDefinition);
+                        userMacroCommandSetsList.Add(userMacroCommandSet);
+                    }
+                }
+                foreach (var defaultMacro in defaultMacroContainer.macros)
+                {
+                    if (userMacro.name == defaultMacro.name) 
+                    {
+                        if (defaultMacro.commandSets != null)
+                        {
+                            foreach (var defaultMacroCommandSet in defaultMacro.commandSets)
+                            {
+                                if (!userMacroGameDefinitions.Contains(defaultMacroCommandSet.gameDefinition)) 
+                                {
+                                    // this macro exists in the user set and the default set, but the default set
+                                    // has a CommandSet for a game that's not in the user's set - add it
+                                    addedAny = true;
+                                    added = true;
+                                    userMacroCommandSetsList.Add(defaultMacroCommandSet);
+                                }
+                            }
+                        }
+                        break;
+                    }                
+                }
+                if (added)
+                {
+                    // we've added a command set from the default to this user macro (or temporary list)
+                    userMacro.commandSets = userMacroCommandSetsList.ToArray();
+                }                
+            }
+            return addedAny;
         }
 
         // file loading boilerplate - needs refactoring

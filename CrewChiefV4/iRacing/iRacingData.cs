@@ -89,7 +89,14 @@ namespace CrewChiefV4.iRacing
                 _LongAccel = new System.Single[1];
                 _LongAccel[0] = (System.Single)sdk.GetData("LongAccel");
             }
-
+            PitSvFlags = (CrewChiefV4.iRacing.PitServiceFlags)sdk.GetData("PitSvFlags");
+            PitSvLFP = (System.Single)sdk.GetData("PitSvLFP");
+            PitSvRFP = (System.Single)sdk.GetData("PitSvRFP");
+            PitSvLRP = (System.Single)sdk.GetData("PitSvLRP");
+            PitSvRRP = (System.Single)sdk.GetData("PitSvRRP");
+            PitSvFuel = (System.Single)sdk.GetData("PitSvFuel");
+            PitRepairLeft = (System.Single)sdk.GetData("PitRepairLeft");
+            PitOptRepairLeft = (System.Single)sdk.GetData("PitOptRepairLeft");
 		}
 		public iRacingData() {}
 		public System.Boolean IsNewSession;
@@ -379,10 +386,11 @@ namespace CrewChiefV4.iRacing
                 return _LatAccel == null ? 0 : _LatAccel.Average();
             }
         }
+
         /// <summary>
         /// Longitudinal acceleration (including gravity)
         /// <summary>
-        private System.Single[] _LongAccel;
+        private System.Single[] _LongAccel;       
         public System.Single LongAccel
         {
             get
@@ -391,6 +399,44 @@ namespace CrewChiefV4.iRacing
             }
         }
 
+        /// <summary>
+        /// Bitfield of pit service checkboxes
+        /// <summary>
+        public CrewChiefV4.iRacing.PitServiceFlags PitSvFlags;
 
+        /// <summary>
+        /// Pit service left front tire pressure
+        /// <summary>
+        public System.Single PitSvLFP;
+
+        /// <summary>
+        /// Pit service right front tire pressure
+        /// <summary>
+        public System.Single PitSvRFP;
+
+        /// <summary>
+        /// Pit service left rear tire pressure
+        /// <summary>
+        public System.Single PitSvLRP;
+
+        /// <summary>
+        /// Pit service right rear tire pressure
+        /// <summary>
+        public System.Single PitSvRRP;
+
+        /// <summary>
+        /// Pit service fuel add amount
+        /// <summary>
+        public System.Single PitSvFuel;
+        
+        /// <summary>
+        /// Time left for mandatory pit repairs if repairs are active
+        /// <summary>
+        public System.Single PitRepairLeft;
+
+        /// <summary>
+        /// Time left for optional repairs if repairs are active
+        /// <summary>
+        public System.Single PitOptRepairLeft;
 	}
 }

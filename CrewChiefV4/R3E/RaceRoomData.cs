@@ -1,6 +1,11 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
+
+// IMPORTANT: When updating this file to accommodate changes in shared memory you MUST ensure
+// the websocket data export is updated to match AND the hard-coded version data for the webhud output
+// (in CrewChief.cs) is also updated.
+
 namespace CrewChiefV4.RaceRoom
 {
     public class RaceRoomConstant
@@ -1044,7 +1049,9 @@ namespace CrewChiefV4.RaceRoom
             public Single TireUnused3;
             public Single TireUnused4;
             public TireData<Single> TireUnused5;
-            public TireData<Single> TireUnused6;
+            
+            // Tyre load (N).
+            public TireData<Single> TireLoad;
 
             //////////////////////////////////////////////////////////////////////////
             // Damage

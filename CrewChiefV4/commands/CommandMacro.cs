@@ -169,8 +169,24 @@ namespace CrewChiefV4.commands
 
             List<ActionItem> actionItems = commandSet.getActionItems();
             int actionItemsCount = actionItems.Count();
-            // R3E set fuel macro is a special case...
-            Boolean r3eResetFuelAmountMacroActionHasExecuted = false;
+
+            // R3E set fuel macro is a special case. There are some menu commands to move the cursor to fuel and deselect it. We want to skip
+            // all of these and simply move the cursor to fuel and deselect it (if necessary) using the new menu stuff. So skip all fuel key
+            // presses after the initial command (which opens the pit menu) but before the event or SRE driven fuelling amount:
+            int r3eFuelMacroSkipUntil = -1;
+            if (isR3e && macro.name.Contains("fuel"))
+            {
+                for (int actionItemIndex = 0; actionItemIndex < actionItemsCount; actionItemIndex++)
+                {
+                    if (actionItems[actionItemIndex].extendedTypeTextParam != null && actionItemIndex >= 2)
+                    {
+                        // this is the action item that actually adds the fuel. We want the action item before this one to trigger (this resets
+                        // fuel to 0) but action items before that reset will be skipped
+                        r3eFuelMacroSkipUntil = actionItemIndex - 1;
+                        break;
+                    }
+                }
+            }
             for (int actionItemIndex = 0; actionItemIndex < actionItemsCount; actionItemIndex++)
             {
                 ActionItem actionItem = actionItems[actionItemIndex];
@@ -185,29 +201,23 @@ namespace CrewChiefV4.commands
                 else
                 {
                     int count;
+                    if (actionItemIndex > 0 && r3eFuelMacroSkipUntil != -1)
+                    {
+                        // we're skipping all actions items until the actual fuelling action and replacing it with the proper menu navigation stuff
+                        if (actionItemIndex < r3eFuelMacroSkipUntil)
+                        {
+                            continue;
+                        }
+                        else if (actionItemIndex == r3eFuelMacroSkipUntil)
+                        {
+                            Thread.Sleep(100);
+                            R3EPitMenuManager.goToMenuItem(SelectedItem.Fuel);
+                            R3EPitMenuManager.unselectFuel(false);
+                            Thread.Sleep(100);
+                        }
+                    }
                     if (MacroManager.MULTIPLE_PRESS_IDENTIFIER.Equals(actionItem.extendedType))
                     {
-                        // special case for R3E. Before issuing fuelling commands we can use the pit menu data to ensure we've landed
-                        // on the right item and that it's in the right state. As our first fuelling interaction is to set the fuel
-                        // load to 0, we need to inspect the next item to see if it's the set-amount action
-                        if (isR3e && macro.name.Contains("fuel") && !r3eResetFuelAmountMacroActionHasExecuted && actionItemIndex < actionItemsCount - 1)
-                        {
-                            // inspect the next action
-                            ActionItem nextAction = actionItems[actionItemIndex + 1];
-                            if (nextAction.extendedTypeTextParam != null)
-                            {
-                                // we know this is an R3E fuelling macro - maybe using a voice command for the amount, maybe using the event.
-                                // Either way we can ensure we're in the right place and in the right state here. The *current* action item is
-                                // many 'left' presses to reset the amount. Go to fuel and deselect it first - the macro should already have
-                                // done this but there may be cases where the pit menu behaviour isn't as expected
-                                Thread.Sleep(100);
-                                R3EPitMenuManager.goToMenuItem(SelectedItem.Fuel);
-                                R3EPitMenuManager.unselectFuel(false);
-                                Thread.Sleep(100);
-                                r3eResetFuelAmountMacroActionHasExecuted = true;
-                            }
-                        }
-
                         if (actionItem.extendedTypeTextParam != null)
                         {
                             if (MacroManager.MULTIPLE_PRESS_FROM_VOICE_TRIGGER_IDENTIFIER.Equals(actionItem.extendedTypeTextParam))

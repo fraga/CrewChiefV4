@@ -972,7 +972,7 @@ namespace CrewChiefV4.Events
             if (fromVoiceRequest)
             {
                 // block the automatic announcement for a while
-                R3EPitMenuManager.timeWeCanAnnouncePitActions = CrewChief.currentGameState.Now.AddSeconds(20);
+                R3EPitMenuManager.timeWeCanAnnouncePitActions = CrewChief.currentGameState.Now.AddSeconds(10);
             }
             else
             {
@@ -1127,9 +1127,9 @@ namespace CrewChiefV4.Events
             else
             {
                 // announced automatically and we have data. If we're not in the pitlane sometimes play a 'box now'
-                if (!inPitLane && Utilities.random.Next(10) >= 5)
+                if (!inPitLane && !playBoxNowMessage && Utilities.random.Next(10) >= 5)
                 {
-                    audioPlayer.playMessage(new QueuedMessage(folderBoxNow, 0));
+                    audioPlayer.playMessage(new QueuedMessage(folderMandatoryPitStopsPitNow, 0));
                 }
             }
         }

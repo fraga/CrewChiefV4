@@ -188,7 +188,7 @@ namespace CrewChiefV4.Events
             {
                 if (eventSubType == folderPossibleTrackLimitsViolation)
                 {
-                    return true;
+                    return currentGameState.PositionAndMotionData.CarSpeed > 10;
                 }
                 // When a new penalty is given we queue a 'three laps left to serve' delayed message.
                 // If, the moment message is about to play, the player has started a new lap, this message is no longer valid so shouldn't be played
@@ -199,11 +199,16 @@ namespace CrewChiefV4.Events
                 }
                 else if (eventSubType == folderCutTrackInRace)
                 {
-                    return !hasOutstandingPenalty && currentGameState.SessionData.SessionPhase != SessionPhase.Finished && !currentGameState.PitData.InPitlane;
+                    return !hasOutstandingPenalty
+                        && currentGameState.SessionData.SessionPhase != SessionPhase.Finished
+                        && !currentGameState.PitData.InPitlane
+                        && currentGameState.PositionAndMotionData.CarSpeed > 10;
                 }
                 else if (eventSubType == folderCutTrackPracticeOrQual || eventSubType == folderCutTrackPracticeOrQualNextLapInvalid || eventSubType == folderLapDeleted)
                 {
-                    return currentGameState.SessionData.SessionPhase != SessionPhase.Finished && !currentGameState.PitData.InPitlane;
+                    return currentGameState.SessionData.SessionPhase != SessionPhase.Finished
+                        && !currentGameState.PitData.InPitlane
+                        && currentGameState.PositionAndMotionData.CarSpeed > 10;
                 }
                 else if (eventSubType == folderNewPenaltySlowDown)
                 {
@@ -496,7 +501,10 @@ namespace CrewChiefV4.Events
                     }
                 }
             }
-            else if (currentGameState.PenaltiesData.PossibleTrackLimitsViolation && GlobalBehaviourSettings.cutTrackWarningsEnabled && !warnedOfPossibleTrackLimitsViolationOnThisLap)
+            else if (currentGameState.PenaltiesData.PossibleTrackLimitsViolation
+                && GlobalBehaviourSettings.cutTrackWarningsEnabled
+                && !warnedOfPossibleTrackLimitsViolationOnThisLap
+                && currentGameState.PositionAndMotionData.CarSpeed > 10)
             {
                 warnedOfPossibleTrackLimitsViolationOnThisLap = true;
                 audioPlayer.playMessage(new QueuedMessage(folderPossibleTrackLimitsViolation, 4, secondsDelay: Utilities.random.Next(2, 4), abstractEvent: this, priority: 0));
