@@ -1051,7 +1051,7 @@ namespace CrewChiefV4.RaceRoom
             public TireData<Single> TireUnused5;
             
             // Tyre load (N).
-            public TireData<Single> TyreLoad;
+            public TireData<Single> TireLoad;
 
             //////////////////////////////////////////////////////////////////////////
             // Damage
