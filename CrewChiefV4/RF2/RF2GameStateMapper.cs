@@ -2069,6 +2069,11 @@ namespace CrewChiefV4.rFactor2
                         cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.DRIVE_THROUGH;
                         cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.FALSE_START;
                     }
+                    else if (msg.EndsWith(" Ignored Blue Flags"))
+                    {
+                        cgs.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.DRIVE_THROUGH;
+                        cgs.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.IGNORED_BLUE_FLAG;
+                    }
                     else
                         messageConsumed = false;
                 }
@@ -2078,6 +2083,21 @@ namespace CrewChiefV4.rFactor2
                 {
                     if (this.enableWrongWayMessage)
                         cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.WRONG_WAY;
+                }
+                else if (msg == "Blue Flag Warning: Move over soon or be penalized")
+                {
+                    cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.BLUE_MOVE_OR_BE_PENALIZED;
+                }
+                else
+                {
+                    messageConsumed = false;
+                }
+
+                if (messageConsumed)
+                {
+                    this.lastEffectiveHistoryMessage = msg;
+                    this.timeEffectiveMessageProcessed = cgs.Now;
+                    Console.WriteLine("MC Message: processed - \"" + msg + "\"");
                 }
                 else
                 {
@@ -2091,14 +2111,6 @@ namespace CrewChiefV4.rFactor2
 #else
                     Console.WriteLine("MC Message: ignored - \"" + msg + "\"");
 #endif
-                    messageConsumed = false;
-                }
-
-                if (messageConsumed)
-                {
-                    this.lastEffectiveHistoryMessage = msg;
-                    this.timeEffectiveMessageProcessed = cgs.Now;
-                    Console.WriteLine("MC Message: processed - \"" + msg + "\"");
                 }
             }
             else

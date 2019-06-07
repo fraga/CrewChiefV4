@@ -85,6 +85,8 @@ namespace CrewChiefV4.Events
 
         private String folderDriveThroughCutTrack = "penalties/drive_through_cutting_track";
 
+        private String folderDriveThroughIgnoredBlueFlag = "penalties/drive_through_ignored_blue";
+
         private String folderDriveThroughFalseStart = "penalties/drive_through_false_start";
 
         private String folderWarningDrivingTooSlow = "penalties/warning_driving_too_slow";
@@ -98,6 +100,8 @@ namespace CrewChiefV4.Events
         private String folderWarningOneLapToServeDriveThrough = "penalties/one_lap_to_serve_drive_through";
 
         private String folderWarningOneLapToServeStopAndGo = "penalties/one_lap_to_serve_stop_go";
+
+        private String folderWarningBlueFlagMoveOrBePenalized = "penalties/blue_move_now_or_be_penalized";
 
         private Boolean hasHadAPenalty;
 
@@ -262,6 +266,9 @@ namespace CrewChiefV4.Events
                     case PenatiesData.WarningMessage.ONE_LAP_TO_SERVE_STOP_AND_GO:
                         warningMsg = folderWarningOneLapToServeStopAndGo;
                         playerMustPitThisLap = true;
+                        break;
+                    case PenatiesData.WarningMessage.BLUE_MOVE_OR_BE_PENALIZED:
+                        warningMsg = folderWarningBlueFlagMoveOrBePenalized;
                         break;
                     default:
                         Debug.Assert(false, "Unhandled warning");
@@ -660,6 +667,8 @@ namespace CrewChiefV4.Events
                         return folderDriveThroughFalseStart;
                     case PenatiesData.DetailedPenaltyCause.CUT_TRACK:
                         return folderDriveThroughCutTrack;
+                    case PenatiesData.DetailedPenaltyCause.IGNORED_BLUE_FLAG:
+                        return folderDriveThroughIgnoredBlueFlag;
                     default:
                         Debug.Assert(false, "Unhandled penalty cause");
                         Console.WriteLine("Penalties: unhandled stop/go penalty cause: " + penaltyCause);
