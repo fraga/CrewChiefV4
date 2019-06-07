@@ -73,6 +73,7 @@ namespace CrewChiefV4.R3E
 
         // as we're not pressing loads of buttons here, sleep a while between key presses
         private const int DEFAULT_SLEEP_AFTER_BUTTON_PRESS = 400;
+        private const int SLEEP_AFTER_SEARCH_BUTTON_PRESS = 200;    // shorter sleep while we're whizzing through the menu looking for items
         private const int MENU_SCROLL_LIMIT = 8;
 
         private const String TOGGLE_PIT_MENU_MACRO_NAME = "open / close pit menu";
@@ -457,13 +458,16 @@ namespace CrewChiefV4.R3E
             {
                 setItemToOnOrOff(SelectedItem.Fronttires, false);
                 setItemToOnOrOff(SelectedItem.Reartires, false);
+                // here we're assuming that changing the rear compound wil also change the front. This is 
+                // probably OK at the moment - they're tied together for the classes with multiple compounds 
+                // and the menu enforces this.
                 ExecutableCommandMacro rightMacro = getMenuRightMacro();
                 if (rightMacro != null)
                 {
                     executeMacro(rightMacro);
                 }
-                setItemToOnOrOff(SelectedItem.Fronttires, true);
                 setItemToOnOrOff(SelectedItem.Reartires, true);
+                setItemToOnOrOff(SelectedItem.Fronttires, true);
             }
             if (closeAfterSetting)
             {
@@ -546,7 +550,7 @@ namespace CrewChiefV4.R3E
                     int count = 0;
                     while (R3EPitMenuManager.selectedItem != selectedItem && count < R3EPitMenuManager.MENU_SCROLL_LIMIT)
                     {
-                        executeMacro(downMacro);
+                        executeMacro(downMacro, R3EPitMenuManager.SLEEP_AFTER_SEARCH_BUTTON_PRESS);
                         count++;
                     }
                 }
@@ -562,7 +566,7 @@ namespace CrewChiefV4.R3E
                         int count = 0;
                         while (R3EPitMenuManager.selectedItem != selectedItem && count < R3EPitMenuManager.MENU_SCROLL_LIMIT)
                         {
-                            executeMacro(upMacro);
+                            executeMacro(upMacro, R3EPitMenuManager.SLEEP_AFTER_SEARCH_BUTTON_PRESS);
                             count++;
                         }
                     }
