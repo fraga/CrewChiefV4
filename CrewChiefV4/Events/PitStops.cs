@@ -323,11 +323,11 @@ namespace CrewChiefV4.Events
                 playedPitRequestCancelledOnThisLap = false;
             }
 
-            // in R3E, if we've requested a pitstop announce the expected actions when we're between 200 and 700 metres from the start line
+            // in R3E, if we've requested a pitstop announce the expected actions when we're between 200 and 300 metres from the start line
             // and haven't just made the request
             if (CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM && R3EPitMenuManager.outstandingPitstopRequest
                && currentGameState.PositionAndMotionData.DistanceRoundTrack > currentGameState.SessionData.TrackDefinition.trackLength - 700
-               && currentGameState.PositionAndMotionData.DistanceRoundTrack < currentGameState.SessionData.TrackDefinition.trackLength - 200
+               && currentGameState.PositionAndMotionData.DistanceRoundTrack < currentGameState.SessionData.TrackDefinition.trackLength - 300
                && currentGameState.Now > R3EPitMenuManager.timeWeCanAnnouncePitActions)
             {
                 announceR3EPitActions(currentGameState.PitData.InPitlane, false);

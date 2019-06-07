@@ -295,7 +295,7 @@ PIT_STOP_CHANGE_FRONT_LEFT_TYRE_PRESSURE = pitstop change left front tyre pressu
 PIT_STOP_CHANGE_FRONT_RIGHT_TYRE_PRESSURE = pitstop change right front tyre pressure
 PIT_STOP_CHANGE_REAR_LEFT_TYRE_PRESSURE = pitstop change left rear tyre pressure
 PIT_STOP_CHANGE_REAR_RIGHT_TYRE_PRESSURE = pitstop change right rear tyre pressure
-PIT_STOP_FUEL_TO_THE_END = pitstop fuel to the end:pitstop fuel to the end of the race
+PIT_STOP_FUEL_TO_THE_END = pitstop fuel to the end:pitstop fuel to the end of the race:box, fuel to the end
 
 
 // R3E-specific pit commands
@@ -311,6 +311,7 @@ PIT_STOP_SERVE_PENALTY = pitstop serve penalty:box, serve penalty
 PIT_STOP_DONT_SERVE_PENALTY = pitstop don't serve penalty:box, don't serve penalty
 PIT_STOP_REFUEL = pitstop refuel:box, refuel
 PIT_STOP_DONT_REFUEL = pitstop don't refuel:box, don't refuel
+PIT_STOP_NEXT_TYRE_COMPOUND = pitstop next tyre compound:box, next tyre compound
 
 LITERS = liters
 GALLONS = gallons

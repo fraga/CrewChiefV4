@@ -79,6 +79,8 @@ namespace CrewChiefV4.R3E
         private const String PIT_MENU_UP_MACRO_NAME = "pit menu up";
         private const String PIT_MENU_DOWN_MACRO_NAME = "pit menu down";
         private const String PIT_MENU_SELECT_MACRO_NAME = "pit menu select";
+        private const String PIT_MENU_RIGHT_MACRO_NAME = "pit menu right";
+        private const String PIT_MENU_LEFT_MACRO_NAME = "pit menu left";
 
         private const string folderConfirmAllTyres = "mandatory_pit_stops/confirm_change_all_tyres";
         private const string folderConfirmFrontTyres = "mandatory_pit_stops/confirm_change_front_tyres";
@@ -99,6 +101,8 @@ namespace CrewChiefV4.R3E
         private static ExecutableCommandMacro menuDownMacro;
         private static ExecutableCommandMacro menuUpMacro;
         private static ExecutableCommandMacro menuSelectMacro;
+        private static ExecutableCommandMacro menuRightMacro;
+        private static ExecutableCommandMacro menuLeftMacro;
 
         private static SelectedItem selectedItem;
         private static PitMenuState state;
@@ -220,6 +224,11 @@ namespace CrewChiefV4.R3E
                     {
                         audioPlayer.playMessageImmediately(new QueuedMessage(folderConfirmNoRefuelling, 0));
                         unselectFuel();
+                    }
+                    else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.PIT_STOP_NEXT_TYRE_COMPOUND))
+                    {
+                        audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
+                        selectNextTyreCompound();
                     }
                 });
                 executeThread.Name = "R3EPitMenuManager.executeThread";
@@ -441,6 +450,27 @@ namespace CrewChiefV4.R3E
             }
             return success;
         }
+        public static Boolean selectNextTyreCompound(Boolean closeAfterSetting = true)
+        {
+            Boolean success = false;
+            if (openPitMenuIfClosed())
+            {
+                setItemToOnOrOff(SelectedItem.Fronttires, false);
+                setItemToOnOrOff(SelectedItem.Reartires, false);
+                ExecutableCommandMacro rightMacro = getMenuRightMacro();
+                if (rightMacro != null)
+                {
+                    executeMacro(rightMacro);
+                }
+                setItemToOnOrOff(SelectedItem.Fronttires, true);
+                setItemToOnOrOff(SelectedItem.Reartires, true);
+            }
+            if (closeAfterSetting)
+            {
+                closePitMenuIfOpen();
+            }
+            return success;
+        }
 
         // opens the pit menu so we can get information. IMPORTANT: this executes the macro which (obviously) has to be wired up properly.
         // MORE IMPORTANT: This makes pit menu state avaiable ONLY ON THE NEXT TICK. 
@@ -489,7 +519,10 @@ namespace CrewChiefV4.R3E
                 // try and set the state
                 goToMenuItem(item);
                 ExecutableCommandMacro selectMacro = getMenuSelectMacro();
-                executeMacro(selectMacro);
+                if (selectMacro != null)
+                {
+                    executeMacro(selectMacro);
+                }
                 int newState = getStateForItem(item);         
                 return newState == requiredStateInt;            
             }
@@ -777,6 +810,24 @@ namespace CrewChiefV4.R3E
                 MacroManager.macros.TryGetValue(PIT_MENU_UP_MACRO_NAME, out R3EPitMenuManager.menuUpMacro);
             }
             return R3EPitMenuManager.menuUpMacro;
+        }
+
+        private static ExecutableCommandMacro getMenuRightMacro()
+        {
+            if (R3EPitMenuManager.menuRightMacro == null)
+            {
+                MacroManager.macros.TryGetValue(PIT_MENU_RIGHT_MACRO_NAME, out R3EPitMenuManager.menuRightMacro);
+            }
+            return R3EPitMenuManager.menuRightMacro;
+        }
+
+        private static ExecutableCommandMacro getMenuLeftMacro()
+        {
+            if (R3EPitMenuManager.menuLeftMacro == null)
+            {
+                MacroManager.macros.TryGetValue(PIT_MENU_LEFT_MACRO_NAME, out R3EPitMenuManager.menuLeftMacro);
+            }
+            return R3EPitMenuManager.menuLeftMacro;
         }
     }
 }
