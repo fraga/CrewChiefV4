@@ -301,6 +301,7 @@ namespace CrewChiefV4.RaceRoom
                     writeCorners(writer, "TireFlatspot", data.TireFlatspot.FrontLeft, data.TireFlatspot.FrontRight, data.TireFlatspot.RearLeft, data.TireFlatspot.RearRight, disabledProperties);
                     writeCorners(writer, "TirePressure", data.TirePressure.FrontLeft, data.TirePressure.FrontRight, data.TirePressure.RearLeft, data.TirePressure.RearRight, disabledProperties);
                     writeCorners(writer, "TireDirt", data.TireDirt.FrontLeft, data.TireDirt.FrontRight, data.TireDirt.RearLeft, data.TireDirt.RearRight, disabledProperties);
+                    writeCorners(writer, "Load", data.Load.FrontLeft, data.Load.FrontRight, data.Load.RearLeft, data.Load.RearRight, disabledProperties);
 
                     if (enabled("TireTemp", disabledProperties))
                     {
