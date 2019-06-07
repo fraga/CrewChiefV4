@@ -69,7 +69,7 @@ namespace CrewChiefV4.Events
         private String folderWatchYourPitSpeed = "mandatory_pit_stops/watch_your_pit_speed";
         private String folderPitCrewReady = "mandatory_pit_stops/pit_crew_ready";
         private String folderPitStallOccupied = "mandatory_pit_stops/pit_stall_occupied";
-        private String folderPitStallAvailable = "mandatory_pit_stops/pit_stall_available";  // TODO: vocalize
+        private String folderPitStallAvailable = "mandatory_pit_stops/pit_stall_available";
         private String folderStopCompleteGo = "mandatory_pit_stops/stop_complete_go";
         private String folderPitStopRequestReceived = "mandatory_pit_stops/pit_stop_requested";
         private String folderPitStopRequestCancelled = "mandatory_pit_stops/pit_request_cancelled";

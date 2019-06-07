@@ -85,7 +85,6 @@ namespace CrewChiefV4.Events
 
         private String folderDriveThroughCutTrack = "penalties/drive_through_cutting_track";
 
-        // TODO_SOUND:
         private String folderDriveThroughIgnoredBlueFlag = "penalties/drive_through_ignored_blue";
 
         private String folderDriveThroughFalseStart = "penalties/drive_through_false_start";
@@ -102,7 +101,6 @@ namespace CrewChiefV4.Events
 
         private String folderWarningOneLapToServeStopAndGo = "penalties/one_lap_to_serve_stop_go";
 
-        // TODO_SOUND:
         private String folderWarningBlueFlagMoveOrBePenalized = "penalties/blue_move_now_or_be_penalized";
 
         private Boolean hasHadAPenalty;

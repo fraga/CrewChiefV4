@@ -472,11 +472,11 @@ namespace CrewChiefV4.Events
             // looks like belt n braces but there's a bug in R3E DTM 2015 race 1 which has a number of laps and a time remaining
             if ((!currentGameState.SessionData.SessionHasFixedTime
                   || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT
-                  || CrewChief.gameDefinition.gameEnum == GameEnum.IRACING) &&  // VL: rF2 implements IsLastLap in timed race, and so does iRacing, but I'll let Morten decide if he wants this.
-                currentGameState.SessionData.SessionType == SessionType.Race &&
-                currentGameState.SessionData.IsNewLap &&
-                currentGameState.SessionData.CompletedLaps > 0 &&
-                currentGameState.SessionData.SessionPhase != SessionPhase.Finished)
+                  || CrewChief.gameDefinition.gameEnum == GameEnum.IRACING)
+                && currentGameState.SessionData.SessionType == SessionType.Race
+                && currentGameState.SessionData.IsNewLap
+                && currentGameState.SessionData.CompletedLaps > 0
+                && currentGameState.SessionData.SessionPhase != SessionPhase.Finished)
             {
                 // a new lap has been started in race mode
                 if (currentGameState.SessionData.SessionLapsRemaining == 2)
