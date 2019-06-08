@@ -266,6 +266,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.9.8.6: Assign buttons when the button is released, not pressed. Should fix issues where continuously pressed buttons prevent button assignment from working; RF2 - added ignore-blue-flags warnings; R3E - added 'box, next tyre compound' voice command to cycle through available tyre types in the pit menu (see R3E Pit Menu Interactions section); R3E - added TireLoad data to WebHud export
+
 Version 4.9.8.5: R3E - corrected opponent tyre mapping for F1 and GroupC cars; R3E - make use of pit menu data to provide more control over pit menu - added voice commands like "box, change front tyres only", and "box, don't fix aero". See R3E Pit Menu Interactions section here and in Help for more information; a few minor fixes
 
 Version 4.9.8.3: Prevent the app spamming the console window with errors when something fails on every tick (should prevent crashes when something goes wrong); in 'keep quiet' mode (e.g. after telling the app to "shut up") it really does keep quiet - even high priority messages are blocked - only the spotter messages continue to play (these can be blocked with the "don't spot" command). If you want the old behaviour back, where 'keep quiet' mode still allows high priority messages to play, enable the "Play important messages when silenced" option; added a UI to add voice messages to the list of available button actions so you can easily assign a button to what would have been a voice command - press the 'Add / remove actions' button on the main screen to access this; added some missing validation on the good / bad start messages
