@@ -194,9 +194,7 @@ namespace CrewChiefV4.Events
 
         // Announce pit speed limit once per session.  Voice command response also counts.
         private bool pitLaneSpeedWarningAnnounced = false;
-
-        private Thread getPitMenuSnapshotThread = null;
-
+        
         public PitStops(AudioPlayer audioPlayer)
         {
             this.audioPlayer = audioPlayer;
@@ -323,11 +321,11 @@ namespace CrewChiefV4.Events
                 playedPitRequestCancelledOnThisLap = false;
             }
 
-            // in R3E, if we've requested a pitstop announce the expected actions when we're between 200 and 700 metres from the start line
+            // in R3E, if we've requested a pitstop announce the expected actions when we're between 200 and 300 metres from the start line
             // and haven't just made the request
             if (CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM && R3EPitMenuManager.outstandingPitstopRequest
                && currentGameState.PositionAndMotionData.DistanceRoundTrack > currentGameState.SessionData.TrackDefinition.trackLength - 700
-               && currentGameState.PositionAndMotionData.DistanceRoundTrack < currentGameState.SessionData.TrackDefinition.trackLength - 200
+               && currentGameState.PositionAndMotionData.DistanceRoundTrack < currentGameState.SessionData.TrackDefinition.trackLength - 300
                && currentGameState.Now > R3EPitMenuManager.timeWeCanAnnouncePitActions)
             {
                 announceR3EPitActions(currentGameState.PitData.InPitlane, false);
@@ -444,11 +442,12 @@ namespace CrewChiefV4.Events
                     }
                     else
                     {
+                        float adjustment = pitBoxPositionCountdownInFeet ? 30 : 10; // as we're moving at like 20m/s, move the warnings back half a second
                         float distanceUpperFor100MetreOr300FeetWarning = pitBoxPositionCountdownInFeet ? 300 / metresToFeet : 100;
-                        float distanceLowerFor100MetreOr300FeetWarning = distanceUpperFor100MetreOr300FeetWarning - 5;
+                        float distanceLowerFor100MetreOr300FeetWarning = distanceUpperFor100MetreOr300FeetWarning - adjustment;
 
                         float distanceUpperFor50MetreOr100FeetWarning = pitBoxPositionCountdownInFeet ? 100 / metresToFeet : 50;
-                        float distanceLowerFor50MetreOr100FeetWarning = distanceUpperFor50MetreOr100FeetWarning - 5;
+                        float distanceLowerFor50MetreOr100FeetWarning = distanceUpperFor50MetreOr100FeetWarning - adjustment;
 
                         if (!played100MetreOr300FeetWarning && distanceToBox < distanceUpperFor100MetreOr300FeetWarning && previousDistanceToBox > distanceLowerFor100MetreOr300FeetWarning)
                         {

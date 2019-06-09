@@ -234,6 +234,7 @@ namespace CrewChiefV4
         public static String[] PIT_STOP_DONT_SERVE_PENALTY = Configuration.getSpeechRecognitionPhrases("PIT_STOP_DONT_SERVE_PENALTY");
         public static String[] PIT_STOP_REFUEL = Configuration.getSpeechRecognitionPhrases("PIT_STOP_REFUEL");
         public static String[] PIT_STOP_DONT_REFUEL = Configuration.getSpeechRecognitionPhrases("PIT_STOP_DONT_REFUEL");
+        public static String[] PIT_STOP_NEXT_TYRE_COMPOUND = Configuration.getSpeechRecognitionPhrases("PIT_STOP_NEXT_TYRE_COMPOUND");
 
         public static String[] HOW_MANY_INCIDENT_POINTS = Configuration.getSpeechRecognitionPhrases("HOW_MANY_INCIDENT_POINTS");
         public static String[] WHATS_THE_INCIDENT_LIMIT = Configuration.getSpeechRecognitionPhrases("WHATS_THE_INCIDENT_LIMIT");
@@ -1277,6 +1278,7 @@ namespace CrewChiefV4
                 validateAndAdd(PIT_STOP_DONT_FIX_SUSPENSION, r3eChoices);
                 validateAndAdd(PIT_STOP_SERVE_PENALTY, r3eChoices);
                 validateAndAdd(PIT_STOP_DONT_SERVE_PENALTY, r3eChoices);
+                validateAndAdd(PIT_STOP_NEXT_TYRE_COMPOUND, r3eChoices);
                 validateAndAdd(PIT_STOP_REFUEL, r3eChoices);
                 validateAndAdd(PIT_STOP_DONT_REFUEL, r3eChoices);
                 

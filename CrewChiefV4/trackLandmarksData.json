@@ -530,8 +530,6 @@
         {
             "acTrackNames": [ "spa:" ],
             "irTrackName": "spa up",
-            "raceroomLayoutId": 3870,
-            "raceroomRollingStartLapDistance": 6367,
             "pcars2TrackName": "Spa_Francorchamps:GP",
             "trackLandmarks": [
                 {
@@ -616,6 +614,96 @@
                     "landmarkName": "the_chicane",
                     "distanceRoundLapStart": 6670,
                     "distanceRoundLapEnd": 6800,
+                    "isCommonOvertakingSpot": true
+                }
+            ]
+        },
+        {
+            "raceroomLayoutId": 3870,
+            "raceroomRollingStartLapDistance": 6367,
+            "trackLandmarks": [
+                {
+                    "landmarkName": "la_source",
+                    "distanceRoundLapStart": 200,
+                    "distanceRoundLapEnd": 270,
+                    "isCommonOvertakingSpot": true
+                },
+                {
+                    "landmarkName": "eau_rouge",
+                    "distanceRoundLapStart": 840,
+                    "distanceRoundLapEnd": 1070,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "landmarkName": "radillion",
+                    "distanceRoundLapStart": 1095,
+                    "distanceRoundLapEnd": 1210,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "landmarkName": "kemmel",
+                    "distanceRoundLapStart": 1420,
+                    "distanceRoundLapEnd": 1550,
+                    "isCommonOvertakingSpot": true
+                },
+                {
+                    "landmarkName": "les_combes",
+                    "distanceRoundLapStart": 2210,
+                    "distanceRoundLapEnd": 2370,
+                    "isCommonOvertakingSpot": true
+                },
+                {
+                    "landmarkName": "turn9",
+                    "distanceRoundLapStart": 2440,
+                    "distanceRoundLapEnd": 2540,
+                    "isCommonOvertakingSpot": true
+                },
+                {
+                    "landmarkName": "bruxelles",
+                    "distanceRoundLapStart": 2780,
+                    "distanceRoundLapEnd": 2990,
+                    "isCommonOvertakingSpot": true
+                },
+                {
+                    "landmarkName": "turn11",
+                    "distanceRoundLapStart": 3070,
+                    "distanceRoundLapEnd": 3207,
+                    "isCommonOvertakingSpot": true
+                },
+                {
+                    "landmarkName": "pouhon",
+                    "distanceRoundLapStart": 3540,
+                    "distanceRoundLapEnd": 3980,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "landmarkName": "turn13",
+                    "distanceRoundLapStart": 4265,
+                    "distanceRoundLapEnd": 4400,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "landmarkName": "campus",
+                    "distanceRoundLapStart": 4428,
+                    "distanceRoundLapEnd": 4570,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "landmarkName": "stavlot",
+                    "distanceRoundLapStart": 4690,
+                    "distanceRoundLapEnd": 5080,
+                    "isCommonOvertakingSpot": true
+                },
+                {
+                    "landmarkName": "blanchimont",
+                    "distanceRoundLapStart": 5910,
+                    "distanceRoundLapEnd": 6070,
+                    "isCommonOvertakingSpot": false
+                },
+                {
+                    "landmarkName": "the_chicane",
+                    "distanceRoundLapStart": 6510,
+                    "distanceRoundLapEnd": 6640,
                     "isCommonOvertakingSpot": true
                 }
             ]
