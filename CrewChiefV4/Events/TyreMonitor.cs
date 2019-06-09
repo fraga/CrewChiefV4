@@ -372,7 +372,7 @@ namespace CrewChiefV4.Events
         // don't warn about cold brakes for these car classes. This is in addition to the 'oval' check - some car classes
         // (older stuff, road cars) will have brakes that never really get hot, resulting in lots of annoying messages.
         private CarData.CarClassEnum[] ignoreColdBrakesForClasses = new CarData.CarClassEnum[] {
-            CarData.CarClassEnum.FORMULA_E, CarData.CarClassEnum.HISTORIC_TOURING_1, CarData.CarClassEnum.HISTORIC_TOURING_2, 
+            CarData.CarClassEnum.FORMULA_E_2018, CarData.CarClassEnum.FORMULA_E_2019, CarData.CarClassEnum.HISTORIC_TOURING_1, CarData.CarClassEnum.HISTORIC_TOURING_2, 
             CarData.CarClassEnum.Kart_1, CarData.CarClassEnum.Kart_2, CarData.CarClassEnum.KART_F1, 
             CarData.CarClassEnum.KART_JUNIOR, CarData.CarClassEnum.KART_X30_RENTAL, CarData.CarClassEnum.KART_X30_SENIOR,
             CarData.CarClassEnum.NSU_TT, CarData.CarClassEnum.ROAD_G, CarData.CarClassEnum.ROAD_F,

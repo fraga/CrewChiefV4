@@ -705,7 +705,8 @@ namespace CrewChiefV4.rFactor2
 
             ///////////////////////////////////
             // Pit Data
-            cgs.PitData.IsRefuellingAllowed = cgs.PitData.IsElectricVehicleSwapAllowed = true;
+            cgs.PitData.IsRefuellingAllowed = true;
+            cgs.PitData.IsElectricVehicleSwapAllowed = cgs.carClass.isVehicleSwapAllowed;
 
             if (this.enablePitStopPrediction)
             {
