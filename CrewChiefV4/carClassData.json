@@ -42,6 +42,8 @@
 #    "DRSRange": gap to the opponent ahead in seconds  (floating point number) used to allow/disalllow DRS use in the DRS zone.  Defaults to -1.0, meaning not set seconds.
 #    "pitCrewPreparationTime": time (in seconds, integer number) pit crew needs for preparation before servicing the car.  Defaults to 25 seconds.
 #    "isBatteryPowered": if true, this is battery only powered vehicle class.
+#    "isVehicleSwapAllowed": if true, this battery series allows pitting to exchange for a car with fresh battery.
+#    "isRefuelingAllowed": if true, this series allows refueling.
 #}
 #
 # The default values are:

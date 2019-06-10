@@ -430,6 +430,7 @@ namespace CrewChiefV4
             public int pitCrewPreparationTime { get; set; }
             public bool isBatteryPowered { get; set; }
             public bool isVehicleSwapAllowed { get; set; }
+            public bool isRefuelingAllowed { get; set; }
             public bool limiterAvailable { get; set; }
             public bool allMembersAreFWD { get; set; }
             public bool allMembersAreRWD { get; set; }
@@ -474,6 +475,7 @@ namespace CrewChiefV4
                 this.pitCrewPreparationTime = 25;
                 this.isBatteryPowered = false;
                 this.isVehicleSwapAllowed = false;
+                this.isRefuelingAllowed = true;
                 this.limiterAvailable = true;
             }
 
