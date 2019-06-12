@@ -209,6 +209,7 @@ R3E-specific pit commands:
 "pitstop change all tyres" / "box, change all tyres"
 "pitstop change front tyres only" / "box, change front tyres only"
 "pitstop change rear tyres only" / "box, change rear tyres only"
+"pitstop next tyre compound" / "box, next tyre compound"
 "pitstop fix front aero only" / "box, fix front aero only"
 "pitstop fix rear aero only" / "box, fix rear aero only"
 "pitstop fix all aero" / "box, fix all aero"
