@@ -36,7 +36,7 @@
     <!--Display some additional info about the app in add/remove programs-->
     <Property Id ="ARPPRODUCTICON">icon.ico</Property>    
     <Property Id ="ARPHELPLINK">http://thecrewchief.org</Property>
-    <Property Id="ARPURLINFOABOUT">http://thecrewchief.org</Property>
+    <Property Id="ARPURLINFOABOUT">http://www.BrittonITLtd.com</Property>
     
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
 
