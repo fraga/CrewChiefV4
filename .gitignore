@@ -204,4 +204,4 @@ ModelManifest.xml
 .vs/
 
 # Auto Generated file for installer.
-/CrewChiefV4_installer/ComponentsGenerated.wxs
+ComponentsGenerated.wxs
