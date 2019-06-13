@@ -203,3 +203,4 @@ ModelManifest.xml
 # SQL journal temp files
 .vs/
 
+/CrewChiefV4_installer/ComponentsGenerated.wxs
