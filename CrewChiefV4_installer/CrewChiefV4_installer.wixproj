@@ -99,6 +99,6 @@
 
     <!-- Rename and move final MSI -->
     <Exec Command="if not exist Installs mkdir Installs" />
-    <Exec Command="xcopy /y bin\$(Configuration)\$(OutputName).msi Installs\$(OutputName)-%(AssemblyVersion.Version).msi" />
+    <Exec Command="copy /y bin\$(Configuration)\$(OutputName).msi Installs\$(OutputName)-%(AssemblyVersion.Version).msi" />
   </Target>
 </Project>
