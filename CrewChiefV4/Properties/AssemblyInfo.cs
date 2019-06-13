@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("CrewChiefV4")]
-[assembly: AssemblyDescription("RaceRoom, PCars, and rFactor race engineer")]
+[assembly: AssemblyDescription("RaceRoom, PCars, PCars2, rFactor, rFactor2, Assetto Corsa, and iRacing race engineer")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Britton IT Ltd")]
 [assembly: AssemblyProduct("CrewChiefV4")]
-[assembly: AssemblyCopyright("Copyright ©  2015")]
+[assembly: AssemblyCopyright("Copyright ©  2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -33,6 +33,6 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion("4.9.8.5")]
+[assembly: AssemblyVersion("4.9.8.6")]
 
 [assembly: AssemblyFileVersion("1.0.0.0")]

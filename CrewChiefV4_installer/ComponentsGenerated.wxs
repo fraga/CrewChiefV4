@@ -1,0 +1,155 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Fragment>
+        <DirectoryRef Id="INSTALLFOLDER">
+            <Component Id="cmp62A610FDDE92CF51D05322BEF0E226B2" Guid="{D63F3E3E-0327-4D17-AD2F-30F529A61043}">
+                <File Id="fil734562E1142DB06F0A4D7B4FFCE2E13D" KeyPath="yes" Source="$(var.BasePath)\AutoUpdater.NET.dll" />
+            </Component>
+            <Component Id="cmpB20988B84A19C683E32E168B9A8538AA" Guid="{2C6E3125-E16D-4BD9-AF60-C269A47A652C}">
+                <File Id="fil8445A4E0BD30184A6DC9FD199D3B927E" KeyPath="yes" Source="$(var.BasePath)\carClassData.json" />
+            </Component>
+            <Component Id="cmp1F0CC04201EE271289B6A5CE4212E736" Guid="{8A3DA89F-E6DD-4E19-94CE-7E1EA2B4017B}">
+                <File Id="fil44BC27E90B31D00BA0E49A5DD25E0B30" KeyPath="yes" Source="$(var.BasePath)\controllerConfigurationData.json" />
+            </Component>
+            <Component Id="cmpD7FE6A54B4EEFFFF324ED782BE470277" Guid="{18334568-4E6B-417B-B69E-4BBA7CE5B919}">
+                <File Id="fil8C73DABDDA571A5DD1354903B2D0A72F" KeyPath="yes" Source="$(var.BasePath)\CrewChiefV4.exe.config" />
+            </Component>
+            <Component Id="cmp371A9CD01B4F14F0E45D93783E746F92" Guid="{0683DC73-68BF-42F1-A463-A42EB7C31FDD}">
+                <File Id="fil20F71C91C6E604DD09630C8F21E3CF2E" KeyPath="yes" Source="$(var.BasePath)\CrewChiefV4.pdb" />
+            </Component>
+            <Component Id="cmp3BC7BCF4606CF98B980DE7D676DA6FEC" Guid="{D5B1EEF0-092C-4F47-A8FB-737C8CE7E9FD}">
+                <File Id="fil03B4F021681C3FE1382005AAA1D3B5BD" KeyPath="yes" Source="$(var.BasePath)\help.txt" />
+            </Component>
+            <Component Id="cmp3ED5A0A4D782A8BF371C8403342D615B" Guid="{6BF96FFE-7115-4CCF-B2B1-564B24C726D8}">
+                <File Id="fil7074B34CCDD7ABC6B6FDB40762FB4CF9" KeyPath="yes" Source="$(var.BasePath)\MathNet.Numerics.dll" />
+            </Component>
+            <Component Id="cmp979BB5B2297816EF2D91624FE967267D" Guid="{D8539D95-F889-4405-B807-08DF2157A8AD}">
+                <File Id="fil90ABFE40E18B3705156C760B3E7FFC87" KeyPath="yes" Source="$(var.BasePath)\NAudio.dll" />
+            </Component>
+            <Component Id="cmpBC4FC00A26E7D32479D42D3411317FC5" Guid="{AAAF6E76-CD7E-4111-94F9-58DB0AAA6B83}">
+                <File Id="fil90A8AAD9FC612906D405476D61CEA3F4" KeyPath="yes" Source="$(var.BasePath)\Newtonsoft.Json.dll" />
+            </Component>
+            <Component Id="cmp4A440E9A900E3F05309A6F4EF386A8A2" Guid="{535EAB98-851E-48DA-91C8-C75DF35900A6}">
+                <File Id="filC0AD7260A47EE3AF8C8514440A70E17D" KeyPath="yes" Source="$(var.BasePath)\Newtonsoft_Json_licence.txt" />
+            </Component>
+            <Component Id="cmp29D10A29C901FD5F6E777F07D5EAFD06" Guid="{2C59F828-52B0-4875-9816-FE7F2E7F7E89}">
+                <File Id="fil28CBA54BEDDEFF675C212A48276ED5B6" KeyPath="yes" Source="$(var.BasePath)\README.txt" />
+            </Component>
+            <Component Id="cmp4E16F2D1E96232C0BBAB7732BD91531B" Guid="{2F57DDC8-3708-486A-BB46-EF274FA64C82}">
+                <File Id="fil3AD6C8DABF52F94F56C8310A7660A39F" KeyPath="yes" Source="$(var.BasePath)\saved_command_macros.json" />
+            </Component>
+            <Component Id="cmpF6F5E6B6692B88AA60FE0F50ECE302B9" Guid="{E24BE331-FDC1-4E43-8824-9F2802CE3474}">
+                <File Id="fil18F26841A9DBF21FB216232C22D563CF" KeyPath="yes" Source="$(var.BasePath)\SharpDX.DirectInput.dll" />
+            </Component>
+            <Component Id="cmp9607F152871CB9C2659ED14722E13E44" Guid="{8AB610EF-E1A1-480B-8FDF-E36145881B0E}">
+                <File Id="filF5517F7734A13514A2CDF5F069816EE5" KeyPath="yes" Source="$(var.BasePath)\SharpDX.dll" />
+            </Component>
+            <Component Id="cmpE50260F9E5471B13F2C5FF9C757C8B24" Guid="{6B993922-D307-413F-92D2-D83231512195}">
+                <File Id="filC36E8C346DAC618BB2F8506A75D3BE7C" KeyPath="yes" Source="$(var.BasePath)\SharpDX_licence.txt" />
+            </Component>
+            <Component Id="cmpB454DD7F8A900A602106BF24BAAD2C89" Guid="{7E647C42-47E9-4CA4-92D1-B3E179EEA775}">
+                <File Id="filC27FDEF0BD5A14C01010198AC8AEEEA1" KeyPath="yes" Source="$(var.BasePath)\sounds_config.txt" />
+            </Component>
+            <Component Id="cmp8CDFB140D53EB9560742DDE96D363A42" Guid="{EC7661E1-9078-45DD-BB5F-FDF37010BB02}">
+                <File Id="fil81DA9BE31720755F116806800FEEE1EB" KeyPath="yes" Source="$(var.BasePath)\speech_recognition_config.txt" />
+            </Component>
+            <Component Id="cmp6DE95D0D67E6E92B9B016B8D6E4F01B0" Guid="{7F8687FC-3C03-4426-BC50-858204542C6B}">
+                <File Id="filCECE5C83DE2D23A1A7B733741836CFAE" KeyPath="yes" Source="$(var.BasePath)\trackLandmarksData.json" />
+            </Component>
+            <Component Id="cmp65D93F47169A94945DA96F13B7A8068F" Guid="{D3CFCCFB-B28C-4FF4-912A-BF4E36260F37}">
+                <File Id="fil7F2676FFE82081B40CB78A55B2EA6616" KeyPath="yes" Source="$(var.BasePath)\ui_text.txt" />
+            </Component>
+            <Component Id="cmp7D2A50E4143D4DA7283AF1D716615988" Guid="{910B43B4-458A-4535-B85E-CF869CE018C2}">
+                <File Id="fil33D44BE05BB2C3A696465AC1D98B7A34" KeyPath="yes" Source="$(var.BasePath)\websocket-sharp.dll" />
+            </Component>
+            <Directory Id="dir655E50E5ABDD0F7183A54CFA0F822CE2" Name="plugins">
+                <Directory Id="dirD8615923205FD196B46C888065298997" Name="assettocorsa">
+                    <Directory Id="dir68D4EA786C1E12CB30EC81F097EECB48" Name="apps">
+                        <Directory Id="dir2EFDF7F10938B8811FAF23E1E747FE11" Name="python">
+                            <Directory Id="dir6C4AE38D03F5F7B45E8E9A3D56D02DF4" Name="CrewChiefEx">
+                                <Component Id="cmp5BFEA6CE200095F5F4BE09B748038AFD" Guid="{3FE7A559-7709-4A23-AEF6-CC1EDF38C132}">
+                                    <File Id="filAF9AD138200540D919B7AAEFDF6759B7" KeyPath="yes" Source="$(var.BasePath)\plugins\assettocorsa\apps\python\CrewChiefEx\config.txt" />
+                                </Component>
+                                <Component Id="cmp9FFA8FF288AE1B126D3D2BE2FD243526" Guid="{347422CE-1F18-45B4-9EBC-46E7BC56FDFF}">
+                                    <File Id="filB3A32AF8D8260084DBCC6B84AB0A7D3A" KeyPath="yes" Source="$(var.BasePath)\plugins\assettocorsa\apps\python\CrewChiefEx\CrewChiefEx.py" />
+                                </Component>
+                                <Component Id="cmp97B3327A18B833F4D234266A9BC40157" Guid="{B23C8180-A5A6-47BF-830A-D7FEA4E1C6BA}">
+                                    <File Id="filDEF82736F9ECA73EDD0807FB2887BCAD" KeyPath="yes" Source="$(var.BasePath)\plugins\assettocorsa\apps\python\CrewChiefEx\shared_mem.py" />
+                                </Component>
+                                <Directory Id="dir84FF8F841F32CA3B8D1A8F6C3ACA11D4" Name="stdlib">
+                                    <Component Id="cmpAD90F4B0E3BA592795209EA8A9ABED38" Guid="{672DC679-4DA9-4AF3-818E-A6E1B8D67897}">
+                                        <File Id="fil27DA360EE11E25FA1E93E6DB393D5130" KeyPath="yes" Source="$(var.BasePath)\plugins\assettocorsa\apps\python\CrewChiefEx\stdlib\_ctypes.pyd" />
+                                    </Component>
+                                </Directory>
+                                <Directory Id="dir41294E267BAE44F7B0488E69973AD1E5" Name="stdlib64">
+                                    <Component Id="cmpEE982BC7D06B8B68FB34085AE6A45D36" Guid="{C9C9701E-8C4F-4F28-85FE-CA8E337B92E7}">
+                                        <File Id="fil8F228EB05FC1063C274EF43ECBBFD376" KeyPath="yes" Source="$(var.BasePath)\plugins\assettocorsa\apps\python\CrewChiefEx\stdlib64\ACInternalMemoryReader.dll" />
+                                    </Component>
+                                    <Component Id="cmpC142095EF1B21F1D0E4E4E10A95BE81E" Guid="{69F5B8C3-F970-4C51-9800-6D5A87C71A1E}">
+                                        <File Id="fil885971001EEADD9823BF3391DE23AFEB" KeyPath="yes" Source="$(var.BasePath)\plugins\assettocorsa\apps\python\CrewChiefEx\stdlib64\_ctypes.pyd" />
+                                    </Component>
+                                </Directory>
+                            </Directory>
+                        </Directory>
+                    </Directory>
+                </Directory>
+                <Directory Id="dirA9BDC36A8B422F72055AB2ED91F50BD9" Name="Automobilista">
+                    <Directory Id="dir366F1EDD3AD09D26EA59E3AAEC20AB81" Name="Plugins">
+                        <Component Id="cmpC633C3B8361E4BF52E97AFCD2631BA4F" Guid="{72C243B6-F610-4E48-9EEE-CACA57AA6DA8}">
+                            <File Id="fil03E429DF5982612934EB416C154CF1DF" KeyPath="yes" Source="$(var.BasePath)\plugins\Automobilista\Plugins\rFactorSharedMemoryMap.dll" />
+                        </Component>
+                    </Directory>
+                </Directory>
+                <Directory Id="dirBDEB45D16BC1F9F2B0A2D54471FE06C8" Name="rFactor">
+                    <Directory Id="dir49A19C35DF6297135459A05A6B5031D2" Name="Plugins">
+                        <Component Id="cmp711DA9D32E74DD00ADE7F9BE1B21D705" Guid="{D04E5694-9A66-4999-B937-51E165BA0279}">
+                            <File Id="filC554E927F52DB980849B9C1527FD10E3" KeyPath="yes" Source="$(var.BasePath)\plugins\rFactor\Plugins\rFactorSharedMemoryMap.dll" />
+                        </Component>
+                    </Directory>
+                </Directory>
+                <Directory Id="dirDC68D54AFE8B2728F70FF355BC0ED8A9" Name="rFactor 2">
+                    <Directory Id="dirD3502A03E8CC70757F53D923F9F4766F" Name="Bin64">
+                        <Directory Id="dir305CED19B17E772B36AF9D196E27486C" Name="Plugins">
+                            <Component Id="cmp259CB11B418581B30C936E49EE85FBFC" Guid="{08D6E934-DE6A-4D43-9747-2C8E8A6A3233}">
+                                <File Id="fil1964E1A09164B93FADE5F9EED68EE7C8" KeyPath="yes" Source="$(var.BasePath)\plugins\rFactor 2\Bin64\Plugins\rFactor2SharedMemoryMapPlugin64.dll" />
+                            </Component>
+                        </Directory>
+                    </Directory>
+                </Directory>
+            </Directory>
+        </DirectoryRef>
+    </Fragment>
+    <Fragment>
+        <ComponentGroup Id="PublishedComponents">
+            <ComponentRef Id="cmp62A610FDDE92CF51D05322BEF0E226B2" />
+            <ComponentRef Id="cmpB20988B84A19C683E32E168B9A8538AA" />
+            <ComponentRef Id="cmp1F0CC04201EE271289B6A5CE4212E736" />
+            <ComponentRef Id="cmpD7FE6A54B4EEFFFF324ED782BE470277" />
+            <ComponentRef Id="cmp371A9CD01B4F14F0E45D93783E746F92" />
+            <ComponentRef Id="cmp3BC7BCF4606CF98B980DE7D676DA6FEC" />
+            <ComponentRef Id="cmp3ED5A0A4D782A8BF371C8403342D615B" />
+            <ComponentRef Id="cmp979BB5B2297816EF2D91624FE967267D" />
+            <ComponentRef Id="cmpBC4FC00A26E7D32479D42D3411317FC5" />
+            <ComponentRef Id="cmp4A440E9A900E3F05309A6F4EF386A8A2" />
+            <ComponentRef Id="cmp29D10A29C901FD5F6E777F07D5EAFD06" />
+            <ComponentRef Id="cmp4E16F2D1E96232C0BBAB7732BD91531B" />
+            <ComponentRef Id="cmpF6F5E6B6692B88AA60FE0F50ECE302B9" />
+            <ComponentRef Id="cmp9607F152871CB9C2659ED14722E13E44" />
+            <ComponentRef Id="cmpE50260F9E5471B13F2C5FF9C757C8B24" />
+            <ComponentRef Id="cmpB454DD7F8A900A602106BF24BAAD2C89" />
+            <ComponentRef Id="cmp8CDFB140D53EB9560742DDE96D363A42" />
+            <ComponentRef Id="cmp6DE95D0D67E6E92B9B016B8D6E4F01B0" />
+            <ComponentRef Id="cmp65D93F47169A94945DA96F13B7A8068F" />
+            <ComponentRef Id="cmp7D2A50E4143D4DA7283AF1D716615988" />
+            <ComponentRef Id="cmp5BFEA6CE200095F5F4BE09B748038AFD" />
+            <ComponentRef Id="cmp9FFA8FF288AE1B126D3D2BE2FD243526" />
+            <ComponentRef Id="cmp97B3327A18B833F4D234266A9BC40157" />
+            <ComponentRef Id="cmpAD90F4B0E3BA592795209EA8A9ABED38" />
+            <ComponentRef Id="cmpEE982BC7D06B8B68FB34085AE6A45D36" />
+            <ComponentRef Id="cmpC142095EF1B21F1D0E4E4E10A95BE81E" />
+            <ComponentRef Id="cmpC633C3B8361E4BF52E97AFCD2631BA4F" />
+            <ComponentRef Id="cmp711DA9D32E74DD00ADE7F9BE1B21D705" />
+            <ComponentRef Id="cmp259CB11B418581B30C936E49EE85FBFC" />
+        </ComponentGroup>
+    </Fragment>
+</Wix>
