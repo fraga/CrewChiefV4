@@ -203,5 +203,3 @@ ModelManifest.xml
 # SQL journal temp files
 .vs/
 
-# Auto Generated file for installer.
-ComponentsGenerated.wxs
