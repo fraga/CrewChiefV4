@@ -120,6 +120,7 @@ R3E-specific pit commands:
 "pitstop change all tyres" / "box, change all tyres"
 "pitstop change front tyres only" / "box, change front tyres only"
 "pitstop change rear tyres only" / "box, change rear tyres only"
+"pitstop next tyre compound" / "box, next tyre compound"
 "pitstop fix front aero only" / "box, fix front aero only"
 "pitstop fix rear aero only" / "box, fix rear aero only"
 "pitstop fix all aero" / "box, fix all aero"
@@ -266,7 +267,7 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
-Version 4.9.8.6: Assign buttons when the button is released, not pressed. Should fix issues where continuously pressed buttons prevent button assignment from working; RF2 - added ignore-blue-flags warnings; R3E - added 'box, next tyre compound' voice command to cycle through available tyre types in the pit menu (see R3E Pit Menu Interactions section); R3E - added TireLoad data to WebHud export
+Version 4.9.8.6: Assign buttons when the button is released, not pressed. Should fix issues where continuously pressed buttons prevent button assignment from working; RF2 - added ignore-blue-flags warnings; R3E - added 'box, next tyre compound' voice command to cycle through available tyre types in the pit menu (see R3E Pit Menu Interactions section); R3E - added TireLoad data to WebHud export and incremented version number
 
 Version 4.9.8.5: R3E - corrected opponent tyre mapping for F1 and GroupC cars; R3E - make use of pit menu data to provide more control over pit menu - added voice commands like "box, change front tyres only", and "box, don't fix aero". See R3E Pit Menu Interactions section here and in Help for more information; a few minor fixes
 
