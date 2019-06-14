@@ -15617,6 +15617,120 @@
 			"isOval": false,
 			"raceroomRollingStartLapDistance": -1.0,
 			"iracingPitEntranceDistanceRoundTrack": -1.0
+		},
+		{
+			"rf1TrackNames": [],
+			"rf2TrackNames": [
+				"Le Mans 24h"
+			],
+			"acTrackNames": [],
+			"irTrackName": "",
+			"pcarsTrackName": "",
+			"pcars2TrackName": "",
+			"raceroomLayoutId": -1,
+			"approximateTrackLength": -1.0,
+			"trackLandmarks": [{
+					"midPoint": -1.0,
+					"landmarkName": "dunlop_curve",
+					"distanceRoundLapStart": 504.250916,
+					"distanceRoundLapEnd": 716.2687,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "dunlop_chicane",
+					"distanceRoundLapStart": 740.704041,
+					"distanceRoundLapEnd": 805.3842,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "the_esses",
+					"distanceRoundLapStart": 958.079346,
+					"distanceRoundLapEnd": 1171.68616,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "tetre_rouge",
+					"distanceRoundLapStart": 1698.60913,
+					"distanceRoundLapEnd": 1846.56226,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "chicane_one",
+					"distanceRoundLapStart": 3928.659,
+					"distanceRoundLapEnd": 4290.594,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "chicane_two",
+					"distanceRoundLapStart": 5882.84,
+					"distanceRoundLapEnd": 6319.968,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "the_kink",
+					"distanceRoundLapStart": 6408.807,
+					"distanceRoundLapEnd": 6557.184,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "mulsanne",
+					"distanceRoundLapStart": 7481.945,
+					"distanceRoundLapEnd": 7818.326,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "indianapolis",
+					"distanceRoundLapStart": 9685.556,
+					"distanceRoundLapEnd": 9945.769,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "arnage",
+					"distanceRoundLapStart": 10056.27,
+					"distanceRoundLapEnd": 10228.31,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "porsche_curves",
+					"distanceRoundLapStart": 11453.11,
+					"distanceRoundLapEnd": 12058.49,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "new_maison_blanche",
+					"distanceRoundLapStart": 12347.69,
+					"distanceRoundLapEnd": 12538.05,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "the_first_ford_chicane",
+					"distanceRoundLapStart": 13156.55,
+					"distanceRoundLapEnd": 13348.15,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "the_second_ford_chicane",
+					"distanceRoundLapStart": 13367.08,
+					"distanceRoundLapEnd": 13496.58,
+					"isCommonOvertakingSpot": false
+				}
+			],
+			"isOval": false,
+			"raceroomRollingStartLapDistance": -1.0,
+			"iracingPitEntranceDistanceRoundTrack": -1.0
 		}
 	]
 }
