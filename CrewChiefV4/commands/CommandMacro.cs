@@ -252,6 +252,11 @@ namespace CrewChiefV4.commands
                     sendKeys(count, actionItem, commandSet.keyPressTime, wait);
                 }
             }
+            // if we changed forground window we need to restore the old window again as the user could be running overlays or other apps they want to keep in forground.
+            if (hasChangedForgroundWindow)
+            {
+                SetForegroundWindow(currentForgroundWindow);
+            }
         }
 
         private void sendKeys(int count, ActionItem actionItem, int keyPressTime, int waitBetweenKeys)
