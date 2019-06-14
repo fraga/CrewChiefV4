@@ -8,7 +8,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <OutputName>CrewChiefV4</OutputName>
     <OutputType>Package</OutputType>
-	<Cultures>;</Cultures>
+    <Cultures>;</Cultures>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <OutputPath>bin\$(Configuration)\</OutputPath>
@@ -18,6 +18,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
+    <SuppressIces>ICE61</SuppressIces>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Components.wxs" />
@@ -50,11 +51,11 @@
     <Error Text="The WiX Toolset v3.11 (or newer) build tools must be installed to build this project. To download the WiX Toolset, see http://wixtoolset.org/releases/" />
   </Target>
   <Target Name="BeforeBuild">
-	<!--clean skeleton directory before copying files to skeleton dir --> 
+    <!--clean skeleton directory before copying files to skeleton dir -->
     <Exec Command="rd /s /q ..\CrewChiefV4\bin\PublishedComponents" />
-	<!-- copy all the files to skeleton directory before we run HeatDirectory, exclude the main executable as HeatDirectory 
+    <!-- copy all the files to skeleton directory before we run HeatDirectory, exclude the main executable as HeatDirectory 
 		generates new file ids every time so we include it in Components.wsx and we need an uniq id for auto launch.
-	-->  
+	-->
     <Exec Command="mkdir ..\CrewChiefV4\bin\PublishedComponents" />
     <Exec Command="mkdir ..\CrewChiefV4\bin\PublishedComponents\plugins" />
     <Exec Command="xcopy ..\CrewChiefV4\plugins ..\CrewChiefV4\bin\PublishedComponents\plugins /e /k" />
@@ -90,14 +91,13 @@
     <!-- Harvest file components from skeleton directory -->
     <HeatDirectory OutputFile="ComponentsGenerated.wxs" DirectoryRefId="INSTALLFOLDER" ComponentGroupName="PublishedComponents" SuppressCom="true" Directory="..\CrewChiefV4\bin\PublishedComponents" SuppressFragments="true" SuppressRegistry="true" SuppressRootDirectory="true" AutoGenerateGuids="false" GenerateGuidsNow="true" ToolPath="$(WixToolPath)" PreprocessorVariable="var.BasePath" />
     <!--finally copy main executable -->
-	<Exec Command="copy ..\CrewChiefV4\bin\$(Configuration)\CrewChiefV4.exe ..\CrewChiefV4\bin\PublishedComponents\CrewChiefV4.exe" />
+    <Exec Command="copy ..\CrewChiefV4\bin\$(Configuration)\CrewChiefV4.exe ..\CrewChiefV4\bin\PublishedComponents\CrewChiefV4.exe" />
   </Target>
   <Target Name="AfterBuild">
-      <!-- Get assembly version -->
+    <!-- Get assembly version -->
     <GetAssemblyIdentity AssemblyFiles="..\CrewChiefV4\bin\PublishedComponents\CrewChiefV4.exe">
       <Output TaskParameter="Assemblies" ItemName="AssemblyVersion" />
     </GetAssemblyIdentity>
-
     <!-- Rename and move final MSI -->
     <Exec Command="if not exist Installs mkdir Installs" />
     <Exec Command="copy /y bin\$(Configuration)\$(OutputName).msi Installs\$(OutputName)-%(AssemblyVersion.Version).msi" />
