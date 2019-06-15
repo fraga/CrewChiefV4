@@ -103,6 +103,13 @@ namespace CrewChiefV4.Events
 
         private String folderWarningBlueFlagMoveOrBePenalized = "penalties/blue_move_now_or_be_penalized";
 
+        // TODO_SOUNDS:
+        private String folderDisqualifiedIgnoredStopAndGo = "penalties/disqualified_ignored_stop_and_go";
+
+        private String folderDisqualifiedIgnoredDriveThrough = "penalties/disqualified_ignored_drive_through";
+
+        private String folderWarningEnterPitsNowToServePenalty = "penalties/warning_enter_pits_to_serve_penalty";
+
         private Boolean hasHadAPenalty;
 
         private int penaltyLap;
@@ -269,6 +276,15 @@ namespace CrewChiefV4.Events
                         break;
                     case PenatiesData.WarningMessage.BLUE_MOVE_OR_BE_PENALIZED:
                         warningMsg = folderWarningBlueFlagMoveOrBePenalized;
+                        break;
+                    case PenatiesData.WarningMessage.DISQUALIFIED_IGNORED_STOP_AND_GO:
+                        warningMsg = folderDisqualifiedIgnoredStopAndGo;
+                        break;
+                    case PenatiesData.WarningMessage.DISQUALIFIED_IGNORED_DRIVE_THROUGH:
+                        warningMsg = folderDisqualifiedIgnoredDriveThrough;
+                        break;
+                    case PenatiesData.WarningMessage.ENTER_PITS_TO_SERVE_PENALTY:
+                        warningMsg = folderWarningEnterPitsNowToServePenalty;
                         break;
                     default:
                         Debug.Assert(false, "Unhandled warning");

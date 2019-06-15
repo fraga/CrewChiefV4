@@ -78,7 +78,8 @@ namespace CrewChiefV4.Events
                     !currentGameState.PitData.InPitlane &&
                     currentGameState.EngineData.EngineStalledWarning && 
                     currentGameState.Now > nextStalledCheck &&
-                    currentGameState.PositionAndMotionData.CarSpeed < 5)
+                    currentGameState.PositionAndMotionData.CarSpeed < 5 &&
+                    !currentGameState.carClass.isBatteryPowered)  // VL: for now assume electrical cars don't stall (at least FE doesn't).
                 {
                     // Play stalled warning straight away
                     audioPlayer.playMessageImmediately(new QueuedMessage(folderStalled, 3));

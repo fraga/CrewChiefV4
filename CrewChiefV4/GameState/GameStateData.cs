@@ -2769,7 +2769,10 @@ namespace CrewChiefV4.GameState
             DISQUALIFIED_EXCEEDING_ALLOWED_LAP_COUNT, // Prac/Quali.
             ONE_LAP_TO_SERVE_DRIVE_THROUGH,
             ONE_LAP_TO_SERVE_STOP_AND_GO,
-            BLUE_MOVE_OR_BE_PENALIZED
+            BLUE_MOVE_OR_BE_PENALIZED,
+            DISQUALIFIED_IGNORED_STOP_AND_GO,
+            DISQUALIFIED_IGNORED_DRIVE_THROUGH,
+            ENTER_PITS_TO_SERVE_PENALTY
         }
         public WarningMessage Warning = WarningMessage.NONE;
     }

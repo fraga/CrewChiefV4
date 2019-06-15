@@ -78,6 +78,7 @@ namespace CrewChiefV4.rFactor2
         // Detect if there any changes in the the game data since the last update.
         private double lastPlayerTelemetryET = -1.0;
         private double lastScoringET = -1.0;
+        private double lastDisqualifiedET = -1.0;
 
         // True if it looks like track has no DRS zones defined.
         private bool detectedTrackNoDRSZones = false;
@@ -215,6 +216,7 @@ namespace CrewChiefV4.rFactor2
         {
             this.lastPlayerTelemetryET = -1.0;
             this.lastScoringET = -1.0;
+            this.lastDisqualifiedET = -1.0;
 
             this.waitingToTerminateSession = false;
             this.isOfflineSession = true;
@@ -1904,6 +1906,26 @@ namespace CrewChiefV4.rFactor2
             if (!csd.IsNewSession)  // Skip the very first session tick as events are not processed at this time.
                 this.ProcessMCMessages(cgs, pgs, shared);
 
+            // TODO: EXPLAIN
+            if (psd != null
+                && (psd.IsDisqualified || psd.IsDisqualified))
+            {
+                if (this.lastDisqualifiedET == -1.0)
+                {
+                    this.lastDisqualifiedET = this.lastPlayerTelemetryET;
+                    // Do not send updates if we are disqualified or DNF.
+                    csd.IsDisqualified = psd.IsDisqualified;
+                    csd.IsDNF = psd.IsDNF;
+                    cgs.SessionData.SessionPhase = SessionPhase.Finished;
+                    return cgs;
+                }
+                else
+                {
+                    Debug.Assert(pgs.SessionData.SessionPhase == SessionPhase.Finished);
+                    return pgs;
+                }
+            }
+
             // --------------------------------
             // console output
             if (csd.IsNewSession)
@@ -2055,6 +2077,10 @@ namespace CrewChiefV4.rFactor2
                         cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.DISQUALIFIED_EXCEEDING_ALLOWED_LAP_COUNT;
                     else if (msg.EndsWith("Driving In Dark Without Headlights"))  // "Disqualified: Driving In Dark Without Headlights"
                         cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.DISQUALIFIED_DRIVING_WITHOUT_HEADLIGHTS;
+                    else if (msg.EndsWith("Ignored Stop/Go Penalty"))
+                        cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.DISQUALIFIED_IGNORED_STOP_AND_GO;
+                    else if (msg.EndsWith("Ignored Drive-Thru Penalty"))
+                        cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.DISQUALIFIED_IGNORED_DRIVE_THROUGH;
                     else
                         messageConsumed = false;
                 }
@@ -2080,6 +2106,8 @@ namespace CrewChiefV4.rFactor2
                 }
                 else if (msg == "Enter Pits To Avoid Exceeding Lap Allowance")
                     cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.ENTER_PITS_TO_AVOID_EXCEEDING_LAPS;
+                else if (msg == "Enter Pits This Lap To Serve Penalty")
+                    cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.ENTER_PITS_TO_SERVE_PENALTY;
                 else if (msg == "Wrong Way")
                 {
                     if (this.enableWrongWayMessage)
