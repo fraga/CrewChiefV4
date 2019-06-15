@@ -231,8 +231,9 @@ namespace CrewChiefV4.rFactor2
             this.compoundNameToTyreType.Clear();
             this.idToCarInfoMap.Clear();
             this.lastPenaltyTime = DateTime.MinValue;
-            this.lastEffectiveHistoryMessage = string.Empty;
-            this.timeEffectiveMessageProcessed = DateTime.MinValue;
+            // TODO: test
+            //this.lastEffectiveHistoryMessage = string.Empty;
+            //this.timeEffectiveMessageProcessed = DateTime.MinValue;
             this.timeHistoryMessageIgnored = DateTime.MinValue;
             this.timeLSIMessageIgnored = DateTime.MinValue;
             this.numFODetectPhaseAttempts = 0;
@@ -1907,7 +1908,8 @@ namespace CrewChiefV4.rFactor2
                 this.ProcessMCMessages(cgs, pgs, shared);
 
             // TODO: EXPLAIN
-            if (psd != null
+            if (!csd.IsNewSession
+                && psd != null
                 && (psd.IsDisqualified || psd.IsDisqualified))
             {
                 if (this.lastDisqualifiedET == -1.0)
