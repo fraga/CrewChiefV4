@@ -831,8 +831,8 @@ namespace CrewChiefV4.iRacing
                 OpponentData currentOpponentData = null;
                 if (currentGameState.OpponentData.TryGetValue(opponentDataKey, out currentOpponentData))
                 {
-                    // if we're team racing or the custId matches, update this driver. Don't remove him if the name matches and the custId from iRacing is zero
-                    if (shared.SessionData.IsTeamRacing || (driver.CustId == currentOpponentData.CostId) || (driver.CustId == 0 && currentOpponentData.DriverRawName.Equals(driverName)))
+                    // if we're team racing or the car number matches, update this driver.
+                    if (shared.SessionData.IsTeamRacing || (driver.CarNumber.Equals(currentOpponentData.CarNumber)))
                     {
                         createNewDriver = false;
                         if (previousGameState != null)
@@ -940,7 +940,7 @@ namespace CrewChiefV4.iRacing
                                         currentGameState.SessionData.SessionHasFixedTime, currentGameState.SessionData.SessionTimeRemaining,
                                         currentGameState.SessionData.SessionType == SessionType.Race, shared.Telemetry.TrackTempCrew,
                                         shared.Telemetry.AirTemp,currentOpponentSpeed, driver.Live.GameTimeWhenLastCrossedSFLine, driver.Live.IsNewLap,
-                                        driver.Car.CarClassId, driver.Car.CarId, currentGameState.TimingData, currentGameState.carClass);
+                                        driver.Car.CarClassId, driver.Car.CarId, currentGameState.TimingData, currentGameState.carClass, shared.SessionData.IsTeamRacing);
 
                             //allow gaps in qual and prac, delta here is not on track delta but diff on fastest time 
                             if (currentGameState.SessionData.SessionType != SessionType.Race)
@@ -1208,9 +1208,9 @@ namespace CrewChiefV4.iRacing
             Boolean previousLapWasValid, Boolean currentLapValid, float sessionRunningTime,
             float distanceRoundTrack, Boolean sessionLengthIsTime, float sessionTimeRemaining,
             Boolean isRace, float airTemperature, float trackTempreture, float speed,
-            float GameTimeWhenLastCrossedStartFinishLine,bool isNewLap, int carClassId, int carId, TimingData timingData, CarData.CarClass playerCarClass)
+            float GameTimeWhenLastCrossedStartFinishLine,bool isNewLap, int carClassId, int carId, TimingData timingData, CarData.CarClass playerCarClass, Boolean IsTeamRacing)
         {
-            if (opponentData.CostId != CostId)
+            if (!opponentData.DriverRawName.Equals(driverName) && IsTeamRacing)
             {
                 Console.WriteLine("Driver " + opponentData.DriverRawName + " has been swapped for " + driverName);
                 opponentData.DriverRawName = driverName;
