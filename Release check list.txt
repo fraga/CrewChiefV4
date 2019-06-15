@@ -3,15 +3,15 @@ Update the Assembly Information Assembly Version in CrewChiefV4 -> project -> pr
 Go to General Information in Organize Your Setup (in the build project in Solution Explorer)
 
 Update the Product Version to match the Assembly Version
-CAREFULLY change Product Code in Organize Setup -> General Info -> product code, generate a new GUID (on right of UI). DO NOT CHANGE THE UPGRADE CODE GUID - IT MUST ALWAYS BE 731ED4D4-F49C-4844-8C4F-FDE17802FDA8
+CAREFULLY change ProductCode in CrewChiefV4_installer/Product.wxs, generate a new GUID (Tools -> Create GUID) and select "Registry Format". DO NOT CHANGE THE UPGRADE CODE GUID - IT MUST ALWAYS BE 731ED4D4-F49C-4844-8C4F-FDE17802FDA8
 
-Ensure the build type is 'SingleImage' (white box in top tool bar), then clean / build to create a .msi with all the goodies packaged into it.
+Ensure the build type is 'Release' 'x86'  (white box in top tool bar), then clean / build solution to create a .msi with all the goodies packaged into it.
 
 
 Update the contents of primary/auto_update_data.xml and secondary/auto_update_data.xml - the title, version and date elements, and if necessary the sound pack version stuff
 Update the readme and change_log_for_auto_updated.txt for the changes
 
-Push the newly built /.../SingleImage/DiskImages/DISK1/CrewChiefV4.msi, the change_log_for_auto_updated.xml and primary/auto_update_data.xml to the Crew Chief FTP server (thecrewchief.org). It's safest (but not essential) to rename the existing Crew.msi instead of deleting it. Push the newly built /.../SingleImage/DiskImages/DISK1/CrewChiefV4.msi and change_log_for_auto_updated.xml to the secondary FTP server (isnais.de). Push secondary/auto_update_data.xml to GoogleDrive, overwriting the existing one (and therefore keeping the same URL)
+Rename and push the newly built /.../CrewChiefV4_installer/Installs/CrewChiefV4-(version).msi, the change_log_for_auto_updated.xml and primary/auto_update_data.xml to the Crew Chief FTP server (thecrewchief.org). It's safest (but not essential) to rename the existing Crew.msi instead of deleting it. Push the newly built /.../SingleImage/DiskImages/DISK1/CrewChiefV4.msi and change_log_for_auto_updated.xml to the secondary FTP server (isnais.de). Push secondary/auto_update_data.xml to GoogleDrive, overwriting the existing one (and therefore keeping the same URL)
 
 
 The sound pack, personalisations and driver names pack each have a version info file - sound_pack_version_info.txt, personalisations_version_info.txt and driver_names_version_info.txt. These are in the root of the sounds folder, root of the personalisations folder and the root of the driver_names folder respectively. These start at 100.
