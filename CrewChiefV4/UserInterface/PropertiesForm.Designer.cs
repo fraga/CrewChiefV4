@@ -61,7 +61,7 @@ namespace CrewChiefV4
             this.saveButton.Location = new System.Drawing.Point(3, 3);
             this.saveButton.Name = "saveButton";
             this.saveButton.Size = new System.Drawing.Size(159, 40);
-            this.saveButton.Text = "save_and_restart";
+            this.saveButton.Text = Configuration.getUIString("save_and_restart");
             this.saveButton.UseVisualStyleBackColor = true;
             this.saveButton.Click += new System.EventHandler(this.saveButton_Click);
             this.saveButton.TabIndex = 1;
@@ -81,7 +81,7 @@ namespace CrewChiefV4
             // gameFilterLablel
             //
             this.gameFilterLabel.Name = "gameFilterLabel";
-            this.gameFilterLabel.Text = "game_filter_label";
+            this.gameFilterLabel.Text = Configuration.getUIString("game_filter_label");
             this.gameFilterLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.gameFilterLabel.Padding = new Padding(0, 2, 0, 0);
             this.gameFilterLabel.TabIndex = 9;
@@ -99,7 +99,7 @@ namespace CrewChiefV4
             // showCommonCheckbox
             //
             this.showCommonCheckbox.Name = "showCommonCheckbox";
-            this.showCommonCheckbox.Text = "show_common_props_label";
+            this.showCommonCheckbox.Text = Configuration.getUIString("show_common_props_label");
             this.showCommonCheckbox.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
             this.showCommonCheckbox.Margin = new System.Windows.Forms.Padding(10, 5, 3, 3);
             this.showCommonCheckbox.Checked = true;
@@ -108,7 +108,7 @@ namespace CrewChiefV4
             // categoriesLablel
             //
             this.categoriesLabel.Name = "categoriesLabel";
-            this.categoriesLabel.Text = "category_filter_label";
+            this.categoriesLabel.Text = Configuration.getUIString("category_filter_label");
             this.categoriesLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.categoriesLabel.Padding = new Padding(0, 2, 0, 0);
             this.categoriesLabel.TabIndex = 12;
@@ -126,12 +126,19 @@ namespace CrewChiefV4
             // 
             // searchTextBox
             // 
-
+            var tooltip = Configuration.getUIString("search_box_tooltip_line1") + Environment.NewLine
+                + Configuration.getUIString("search_box_tooltip_line2") + Environment.NewLine
+                + Configuration.getUIString("search_box_tooltip_line4") + Environment.NewLine
+                + Configuration.getUIString("search_box_tooltip_line5") + Environment.NewLine
+                + Configuration.getUIString("search_box_tooltip_line6") + Environment.NewLine
+                + Configuration.getUIString("search_box_tooltip_line7") + Environment.NewLine
+                + Configuration.getUIString("search_box_tooltip_line8") + Environment.NewLine;
             this.searchTextBox.Location = new System.Drawing.Point(780, 3);
             this.searchTextBox.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
             this.searchTextBox.Name = "searchTextBox";
             this.searchTextBox.Size = new System.Drawing.Size(189, 20);
             this.searchTextBox.TabIndex = 15;
+            this.searchBoxTooltip.SetToolTip(this.searchTextBox, tooltip);
             this.searchTextBox.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
             // mainTableLayoutPanel
@@ -174,7 +181,7 @@ namespace CrewChiefV4
             this.exitButton.Location = new System.Drawing.Point(168, 3);
             this.exitButton.Name = "exitButton";
             this.exitButton.Size = new System.Drawing.Size(159, 40);
-            this.exitButton.Text = "exit_without_saving";
+            this.exitButton.Text = Configuration.getUIString("exit_without_saving");
             this.exitButton.UseVisualStyleBackColor = true;
             this.exitButton.Click += new System.EventHandler(this.exitButton_Click);
             this.exitButton.TabIndex = 0;
@@ -185,7 +192,7 @@ namespace CrewChiefV4
             this.restoreButton.Location = new System.Drawing.Point(810, 3);
             this.restoreButton.Name = "restoreButton";
             this.restoreButton.Size = new System.Drawing.Size(162, 40);
-            this.restoreButton.Text = "restore_default_settings";
+            this.restoreButton.Text = Configuration.getUIString("restore_default_settings");
             this.restoreButton.UseVisualStyleBackColor = true;
             this.restoreButton.Click += new System.EventHandler(this.restoreButton_Click);
             this.restoreButton.TabIndex = 2;
@@ -230,7 +237,7 @@ namespace CrewChiefV4
             this.ClientSize = new System.Drawing.Size(975, 703);
             this.Controls.Add(this.mainTableLayoutPanel);
             this.Name = "PropertiesForm";
-            this.Text = "properties_form";
+            this.Text = Configuration.getUIString("properties_form");
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.properties_FormClosing);
             this.mainTableLayoutPanel.ResumeLayout(false);
             this.mainTableLayoutPanel.PerformLayout();
