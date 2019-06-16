@@ -62,6 +62,24 @@ namespace CrewChiefV4
                 return this.Label != null ? this.Label : string.Empty;
             }
         }
+        private void InitializeUiTexts()
+        {
+            this.saveButton.Text = Configuration.getUIString("save_and_restart");
+            this.gameFilterLabel.Text = Configuration.getUIString("game_filter_label");
+            this.showCommonCheckbox.Text = Configuration.getUIString("show_common_props_label");
+            this.categoriesLabel.Text = Configuration.getUIString("category_filter_label");
+            var tooltip = Configuration.getUIString("search_box_tooltip_line1") + Environment.NewLine
+                + Configuration.getUIString("search_box_tooltip_line2") + Environment.NewLine
+                + Configuration.getUIString("search_box_tooltip_line4") + Environment.NewLine
+                + Configuration.getUIString("search_box_tooltip_line5") + Environment.NewLine
+                + Configuration.getUIString("search_box_tooltip_line6") + Environment.NewLine
+                + Configuration.getUIString("search_box_tooltip_line7") + Environment.NewLine
+                + Configuration.getUIString("search_box_tooltip_line8") + Environment.NewLine;
+            this.searchBoxTooltip.SetToolTip(this.searchTextBox, tooltip);
+            this.exitButton.Text = Configuration.getUIString("exit_without_saving");
+            this.restoreButton.Text = Configuration.getUIString("restore_default_settings");
+            this.Text = Configuration.getUIString("properties_form");
+        }
 
         // Note: vast majority of startup time is in ShowDialog.  Looks like pretty much the only way to speed it up is by reducing
         // number of controls or splitting in tabs.
@@ -76,6 +94,7 @@ namespace CrewChiefV4
             this.parent = parent;
 
             InitializeComponent();
+            InitializeUiTexts();
             if (CrewChief.Debugging)
             {
                 this.saveButton.Text = "Save (manual restart required)";
