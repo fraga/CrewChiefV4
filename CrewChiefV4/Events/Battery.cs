@@ -986,7 +986,7 @@ namespace CrewChiefV4.Events
                         && this.windowedAverageChargeLeft > 70.0f;  // 70% or above charge.
                 }
 
-                var lapsToGo = midRaceReached && this.isVehicleSwapAllowed
+                var lapsToGo = (!this.isVehicleSwapAllowed || midRaceReached)
                     ? this.sessionNumberOfLaps - this.completedLaps
                     : this.halfDistance - this.completedLaps;
 
@@ -1027,7 +1027,7 @@ namespace CrewChiefV4.Events
                         && this.windowedAverageChargeLeft > 70.0f;  // 70% or above charge.
                 }
 
-                var minsToGo = (midRaceReached && this.isVehicleSwapAllowed
+                var minsToGo = ((!this.isVehicleSwapAllowed || midRaceReached)
                     ? this.sessionTotalRunTime - this.sessionRunningTime
                     : this.halfTime - this.sessionRunningTime) / 60.0f;
 
@@ -1054,16 +1054,16 @@ namespace CrewChiefV4.Events
 
             if (batteryAdvice == BatteryAdvice.BatteryUseSpotOn)
                 this.audioPlayer.playMessageImmediately(new QueuedMessage("Battery/advice", 0, 
-                    messageFragments: MessageContents(midRaceReached && this.isVehicleSwapAllowed ? Battery.folderShouldMakeEnd : Battery.folderShouldMakeHalfDistance)));
+                    messageFragments: MessageContents((!this.isVehicleSwapAllowed || midRaceReached) ? Battery.folderShouldMakeEnd : Battery.folderShouldMakeHalfDistance)));
             else if (batteryAdvice == BatteryAdvice.IncreaseBatteryUse)
                 this.audioPlayer.playMessageImmediately(new QueuedMessage("Battery/advice", 0,
-                    messageFragments: MessageContents(midRaceReached && this.isVehicleSwapAllowed ? Battery.folderIncreaseUseEasilyMakeEnd : Battery.folderIncreaseUseEasilyMakeHalfDistance)));
+                    messageFragments: MessageContents((!this.isVehicleSwapAllowed || midRaceReached) ? Battery.folderIncreaseUseEasilyMakeEnd : Battery.folderIncreaseUseEasilyMakeHalfDistance)));
             else if (batteryAdvice == BatteryAdvice.ReduceBatteryUse)
                 this.audioPlayer.playMessageImmediately(new QueuedMessage("Battery/advice", 0, 
-                    messageFragments: MessageContents(midRaceReached && this.isVehicleSwapAllowed ? Battery.folderReduceUseToMakeEnd : Battery.folderReduceUseHalfDistance)));
+                    messageFragments: MessageContents((!this.isVehicleSwapAllowed || midRaceReached) ? Battery.folderReduceUseToMakeEnd : Battery.folderReduceUseHalfDistance)));
             else if (batteryAdvice == BatteryAdvice.WontMakeItWithoutPitting)
                 this.audioPlayer.playMessageImmediately(new QueuedMessage("Battery/advice", 0,
-                    messageFragments: MessageContents(midRaceReached && this.isVehicleSwapAllowed ? Battery.folderWontMakeEndWoPit : Battery.folderWontMakeHalfDistanceWoPit)));
+                    messageFragments: MessageContents((!this.isVehicleSwapAllowed || midRaceReached) ? Battery.folderWontMakeEndWoPit : Battery.folderWontMakeHalfDistanceWoPit)));
         }
     }
 }
