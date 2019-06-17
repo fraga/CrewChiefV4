@@ -54,6 +54,8 @@ namespace CrewChiefV4
         private Boolean enableWebsocket = UserSettings.GetUserSettings().getBoolean("enable_websocket");
         private Boolean enableGameDataWebsocket = UserSettings.GetUserSettings().getBoolean("enable_game_data_websocket");
 
+        private Boolean turnSpotterOffImmediatelyOnFCY = UserSettings.GetUserSettings().getBoolean("fcy_stop_spotter_immediately");
+
         private static Dictionary<String, AbstractEvent> eventsList = new Dictionary<String, AbstractEvent>();
 
 
@@ -106,6 +108,17 @@ namespace CrewChiefV4
         public static float distanceRoundTrack = -1;
 
         public static int playbackIntervalMilliseconds = 0;
+
+        // when an FCY period starts, don't turn the spotter off immediately. Wait until the speed has reduced
+        // or we've crossed the line
+        // 10 seconds after the FCY we turn the spotter off as soon as the speed < 40m/s
+        private Boolean waitingToPauseSpotter = false;
+        private DateTime minTurnSpotterOffForFCYTime = DateTime.MaxValue;
+        private DateTime maxTurnSpotterOffForFCYTime = DateTime.MaxValue;
+        private TimeSpan minTimeToWaitToTurnSpotterOffInFCY = TimeSpan.FromSeconds(10);
+        private TimeSpan maxTimeToWaitToTurnSpotterOffInFCY = TimeSpan.FromSeconds(30);
+        private float fcySpeedToTurnSpotterOffOnOvals = 40;
+        private float fcySpeedToTurnSpotterOffOnRoadCourses = 50;
 
         private Object latestRawGameData;
 
@@ -654,9 +667,37 @@ namespace CrewChiefV4
                                 {
                                     if (spotter != null)
                                     {
-                                        if (currentGameState.FlagData.isFullCourseYellow || DamageReporting.waitingForDriverIsOKResponse)
+                                        if (DamageReporting.waitingForDriverIsOKResponse)
                                         {
                                             spotter.pause();
+                                        }
+                                        else if (currentGameState.FlagData.isFullCourseYellow)
+                                        {
+                                            if (turnSpotterOffImmediatelyOnFCY)
+                                            {
+                                                spotter.pause();
+                                            }
+                                            // in fcy, if the spotter's running wait a while before pausing it
+                                            else if (!spotter.isPaused())
+                                            {
+                                                float speedThreshold = GlobalBehaviourSettings.useOvalLogic ? fcySpeedToTurnSpotterOffOnOvals : fcySpeedToTurnSpotterOffOnRoadCourses;
+                                                if (!waitingToPauseSpotter)
+                                                {
+                                                    waitingToPauseSpotter = true;
+                                                    minTurnSpotterOffForFCYTime = currentGameState.Now.Add(minTimeToWaitToTurnSpotterOffInFCY);
+                                                    maxTurnSpotterOffForFCYTime = currentGameState.Now.Add(maxTimeToWaitToTurnSpotterOffInFCY);
+                                                }
+                                                // if we've started a new lap, turn off the spotter. 
+                                                // if we've passed the max time to wait until turning him off, just turn him off. If we're between min and max, turn him
+                                                // off but only if the speed is low *and* there's no overlap
+                                                else if (currentGameState.SessionData.IsNewLap
+                                                    || currentGameState.Now > maxTurnSpotterOffForFCYTime
+                                                    || (currentGameState.Now > minTurnSpotterOffForFCYTime && currentGameState.PositionAndMotionData.CarSpeed < speedThreshold && !spotter.hasOverlap()))
+                                                {
+                                                    waitingToPauseSpotter = false;
+                                                    spotter.pause();
+                                                }
+                                            }
                                         }
                                         else
                                         {
