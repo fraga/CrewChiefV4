@@ -151,7 +151,7 @@ namespace CrewChiefV4
                     {
                         foreach (var item in removedDefaultItems)
                         {
-                            userProfileSetting.userSettings.Add(item.Key, item.Value);
+                            userProfileSetting.userSettings.Remove(item.Key);
                         }
                         save = true;
                     }
