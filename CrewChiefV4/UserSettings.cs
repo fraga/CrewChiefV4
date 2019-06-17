@@ -46,37 +46,30 @@ namespace CrewChiefV4
         public Boolean initFailed = false;
 
         private static  String[] reservedNameStarts = new String[] { "CHANNEL_", "TOGGLE_", "VOICE_OPTION", "background_volume", 
-            "messages_volume", "last_game_definition", "REPEAT_LAST_MESSAGE_BUTTON", "UpdateSettings", "VOLUME_UP", "VOLUME_DOWN", "GET_FUEL_STATUS",
-            ControllerConfiguration.ControllerData.PROPERTY_CONTAINER, "PERSONALISATION_NAME", "app_version", "PRINT_TRACK_DATA", "spotter_name",
-            "update_notify_attempted", "last_trace_file_name", "READ_CORNER_NAMES_FOR_LAP", "GET_CAR_STATUS", "GET_SESSION_STATUS", "GET_DAMAGE_REPORT", "GET_STATUS",
-            "TOGGLE_PACE_NOTES_", "NAUDIO_DEVICE_GUID", "NAUDIO_RECORDING_DEVICE_GUID", "TOGGLE_TRACK_LANDMARKS_RECORDING", "ADD_TRACK_LANDMARK",
-            "PIT_PREDICTION", "TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS", "chief_name", "current_settings_profile"};
+            "messages_volume", "last_game_definition", "UpdateSettings",ControllerConfiguration.ControllerData.PROPERTY_CONTAINER,
+            "PERSONALISATION_NAME", "app_version", "spotter_name","update_notify_attempted", "last_trace_file_name",
+             "NAUDIO_DEVICE_GUID", "NAUDIO_RECORDING_DEVICE_GUID", "chief_name", "current_settings_profile"};
 
         private static String defaultUserSettingsfileName = "defaultSettings.json";
         private static String userProfilesPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "Profiles");
         private static String currentUserProfileFileName = "";
 
-        public class UserSetting
-        {
-            public string name { get; set; }
-            public object value { get; set; }
-            public Type type { get; set; }
-        }
         public class UserProfileSettings
         {
-            public string profileName { get; set; }
-            public List<UserSetting> userSettings { get; set; }
+            public Dictionary<string, object > userSettings { get; set; }
             public UserProfileSettings()
             {
-                userSettings = new List<UserSetting>();
+                userSettings = new Dictionary<string, object>();
             }
         }
-        UserProfileSettings currentProfile = new UserProfileSettings();
 
-        public static UserProfileSettings loadUserSettings(String fileName)
+        private UserProfileSettings currentProfile = new UserProfileSettings();
+
+        public  UserProfileSettings loadUserSettings(String fileName)
         {
             try
             {
+
                 using (StreamReader r = new StreamReader(fileName))
                 {
                     string json = r.ReadToEnd();
@@ -95,7 +88,7 @@ namespace CrewChiefV4
 
         }
 
-        public static void saveUserSettinsFile(UserProfileSettings profileSettings, String fileName)
+        public static void saveUserSettingsFile(UserProfileSettings profileSettings, String fileName)
         {                        
             if (!Directory.Exists(userProfilesPath))
             {
@@ -128,45 +121,61 @@ namespace CrewChiefV4
         // upgrade settings in all user profiles found in user profiles folder
         private void upgradeUserProfileSettings()
         {
-            string[] files = Directory.GetFiles(userProfilesPath, "*.json", SearchOption.TopDirectoryOnly);
-            UserProfileSettings defaultAppSettings = new UserProfileSettings();
-            //build a list of current user scope settings.
-            foreach (SettingsProperty prop in getProperties())
+            try
             {
-                defaultAppSettings.userSettings.Add(new UserSetting() { name = prop.Name, value = Properties.Settings.Default[prop.Name], type = prop.PropertyType });
-            }
+                string[] files = Directory.GetFiles(userProfilesPath, "*.json", SearchOption.TopDirectoryOnly);
+                UserProfileSettings defaultAppSettings = new UserProfileSettings();
+                //build a list of current user scope settings.
+                foreach (SettingsProperty prop in getProperties())
+                {
+                    defaultAppSettings.userSettings.Add(prop.Name, Properties.Settings.Default[prop.Name] );
+                }
 
-            foreach (var file in files)
-            {                
-                UserProfileSettings userProfileSetting = loadUserSettings(file);
-                Boolean save = false;
-                // add any missing items
-                var addedDefaultItems = defaultAppSettings.userSettings.Where(ups2 => !userProfileSetting.userSettings.Any(ups1 => ups1.name == ups2.name));
-                if (addedDefaultItems.ToList().Count > 0)
+                foreach (var file in files)
                 {
-                    save = true;
-                    userProfileSetting.userSettings.AddRange(addedDefaultItems);
-                }
-                // remove items no longer used
-                var removedDefaultItems = userProfileSetting.userSettings.Where(ups2 => !defaultAppSettings.userSettings.Any(ups1 => ups1.name == ups2.name));
-                if(removedDefaultItems.ToList().Count > 0)
-                {
-                    save = true;
-                    foreach (var item in removedDefaultItems)
+                    UserProfileSettings userProfileSetting = loadUserSettings(file);
+                    Boolean save = false;
+                    // add any missing items
+                    var addedDefaultItems = defaultAppSettings.userSettings.Where(ups2 => !userProfileSetting.userSettings.Any(ups1 => ups1.Key == ups2.Key));
+                    if (addedDefaultItems.ToList().Count > 0)
                     {
-                        userProfileSetting.userSettings.Remove(item);
-                    }                    
+                        foreach(var item in addedDefaultItems)
+                        {
+                            userProfileSetting.userSettings.Add(item.Key, item.Value);
+                        }
+                        save = true;                       
+                    }
+                    // remove items no longer used
+                    var removedDefaultItems = userProfileSetting.userSettings.Where(ups2 => !defaultAppSettings.userSettings.Any(ups1 => ups1.Key == ups2.Key));
+                    if (removedDefaultItems.ToList().Count > 0)
+                    {
+                        foreach (var item in removedDefaultItems)
+                        {
+                            userProfileSetting.userSettings.Add(item.Key, item.Value);
+                        }
+                        save = true;
+                    }
+                    if (save)
+                    {
+                        saveUserSettingsFile(userProfileSetting, file);
+                    }
                 }
-                if(save)
-                {
-                    saveUserSettinsFile(userProfileSetting, file);
-                }
-            }            
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+                initFailed = true;
+            }         
         }
+
         private UserSettings()
         {
             try
             {
+                List<string> nameList = reservedNameStarts.ToList();
+                nameList.AddRange(ControllerConfiguration.builtInActionMappings.Keys);
+                reservedNameStarts = nameList.ToArray();
+
                 // Copy user settings from previous application version if necessary
                 String savedAppVersion = getString("app_version");                
                 if (savedAppVersion == null || !savedAppVersion.Equals(System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString()))
@@ -184,13 +193,12 @@ namespace CrewChiefV4
                 {
                     foreach (SettingsProperty prop in getProperties())
                     {
-                        currentProfile.userSettings.Add(new UserSetting() { name = prop.Name, value = Properties.Settings.Default[prop.Name], type = prop.PropertyType });
+                        currentProfile.userSettings.Add(prop.Name, Properties.Settings.Default[prop.Name]);
                     }
-                    saveUserSettinsFile(currentProfile, Path.Combine(userProfilesPath, defaultUserSettingsfileName));
+                    saveUserSettingsFile(currentProfile, Path.Combine(userProfilesPath, defaultUserSettingsfileName));
                 }
                 else
                 {
-                    
                     if (File.Exists(Path.Combine(userProfilesPath, currentUserProfileFileName)))
                     {
                         currentProfile = loadUserSettings(Path.Combine(userProfilesPath, currentUserProfileFileName));
@@ -276,10 +284,9 @@ namespace CrewChiefV4
 
         public String getString(String name)
         {
-            UserSetting setting = currentProfile.userSettings.FirstOrDefault(s => s.name == name);
-            if (setting != null)
+            if (currentProfile.userSettings.TryGetValue(name, out object value))
             {
-                return (String)setting.value;
+                return (String)value;
             }
             else
             {
@@ -298,10 +305,9 @@ namespace CrewChiefV4
 
         public float getFloat(String name)
         {
-            UserSetting setting = currentProfile.userSettings.FirstOrDefault(s => s.name == name);
-            if (setting != null)
+            if (currentProfile.userSettings.TryGetValue(name, out object value))
             {
-                return Convert.ToSingle(setting.value);
+                return Convert.ToSingle(value);
             }
             else
             {
@@ -320,10 +326,9 @@ namespace CrewChiefV4
 
         public Boolean getBoolean(String name)
         {
-            UserSetting setting = currentProfile.userSettings.FirstOrDefault(s => s.name == name);
-            if (setting != null)
+            if (currentProfile.userSettings.TryGetValue(name, out object value))
             {
-                return Convert.ToBoolean(setting.value);
+                return Convert.ToBoolean(value);
             }
             else
             {
@@ -342,10 +347,9 @@ namespace CrewChiefV4
 
         public int getInt(String name)
         {
-            UserSetting setting = currentProfile.userSettings.FirstOrDefault(s => s.name == name);
-            if (setting != null)
+            if (currentProfile.userSettings.TryGetValue(name, out object value))
             {
-                return Convert.ToInt32(setting.value);
+                return Convert.ToInt32(value);
             }
             else
             {
@@ -365,13 +369,12 @@ namespace CrewChiefV4
         {
             if (!initFailed)
             {
-                UserSetting setting = currentProfile.userSettings.FirstOrDefault(s => s.name == name);
-                if (setting != null)
+                if (currentProfile.userSettings.ContainsKey(name))
                 {
-                    if (value != setting.value)
+                    if (value != currentProfile.userSettings[name])
                     {
                         propertiesUpdated = true;
-                        setting.value = value;                 
+                        currentProfile.userSettings[name] = value;                 
                     }
                 }
                 else if (value != Properties.Settings.Default[name])
@@ -390,7 +393,7 @@ namespace CrewChiefV4
                 if (!initFailed && propertiesUpdated)
                 {
                     Properties.Settings.Default.Save();
-                    saveUserSettinsFile(currentProfile, currentUserProfileFileName);
+                    saveUserSettingsFile(currentProfile, currentUserProfileFileName);
                 }
             }
         }
