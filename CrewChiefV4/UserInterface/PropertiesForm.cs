@@ -64,6 +64,9 @@ namespace CrewChiefV4
         }
         private void InitializeUiTexts()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+
             this.saveButton.Text = Configuration.getUIString("save_and_restart");
             this.gameFilterLabel.Text = Configuration.getUIString("game_filter_label");
             this.showCommonCheckbox.Text = Configuration.getUIString("show_common_props_label");
