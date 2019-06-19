@@ -2070,6 +2070,8 @@ namespace CrewChiefV4.rFactor2
                         cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.ONE_LAP_TO_SERVE_DRIVE_THROUGH;
                     else if (msg.EndsWith("One Lap To Serve Stop/Go Penalty"))  // "Warning: One Lap To Serve Stop/Go Penalty"
                         cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.ONE_LAP_TO_SERVE_STOP_AND_GO;
+                    else if (msg.EndsWith("Unsportsmanlike Driving"))  // // "Warning: Unsportsmanlike Driving"
+                        cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.UNSPORTSMANLIKE_DRIVING;
                     else
                         messageConsumed = false;
                 }

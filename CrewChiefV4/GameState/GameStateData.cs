@@ -2772,7 +2772,8 @@ namespace CrewChiefV4.GameState
             BLUE_MOVE_OR_BE_PENALIZED,
             DISQUALIFIED_IGNORED_STOP_AND_GO,
             DISQUALIFIED_IGNORED_DRIVE_THROUGH,
-            ENTER_PITS_TO_SERVE_PENALTY
+            ENTER_PITS_TO_SERVE_PENALTY,
+            UNSPORTSMANLIKE_DRIVING
         }
         public WarningMessage Warning = WarningMessage.NONE;
     }
