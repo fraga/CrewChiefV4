@@ -291,6 +291,24 @@ namespace CrewChiefV4.Events
             return true;
         }
 
+        private float getDistanceToBox(GameStateData currentGameState)
+        {
+            if (currentGameState.PitData.PitBoxLocationEstimate == null || currentGameState.PositionAndMotionData.WorldPosition == null)
+            {
+                float distanceToBox = currentGameState.PitData.PitBoxPositionEstimate - currentGameState.PositionAndMotionData.DistanceRoundTrack;
+                if (distanceToBox < 0)
+                {
+                    distanceToBox = currentGameState.SessionData.TrackDefinition.trackLength + distanceToBox;
+                }
+                return distanceToBox;
+            }
+            else
+            {
+                return (float) Math.Sqrt(Math.Pow(currentGameState.PitData.PitBoxLocationEstimate[0] - currentGameState.PositionAndMotionData.WorldPosition[0], 2)
+                    + Math.Pow(currentGameState.PitData.PitBoxLocationEstimate[2] - currentGameState.PositionAndMotionData.WorldPosition[2], 2));
+            }
+        }
+
         private void getPitCountdownTriggerPoints(float pitlaneSpeed)
         {
             float secondsBetweenEachCall = 1f;
@@ -333,7 +351,7 @@ namespace CrewChiefV4.Events
 
             if (previousGameState != null && (pitBoxPositionCountdownEnabled || pitBoxTimeCountdownEnabled) && 
                 currentGameState.PositionAndMotionData.CarSpeed > 2 &&
-                currentGameState.PitData.PitBoxPositionEstimate > 0 && 
+                (currentGameState.PitData.PitBoxPositionEstimate > 0 || currentGameState.PitData.PitBoxLocationEstimate != null ) && 
                 !currentGameState.PenaltiesData.HasDriveThrough &&
                 !(CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT && currentGameState.PitData.OnOutLap && currentGameState.SessionData.SessionType != SessionType.Race))  // In rF2 countdown pit countdown messages get triggered on exit from the garage.
             {
@@ -342,11 +360,7 @@ namespace CrewChiefV4.Events
                     playedLimiterLineToPitBoxDistanceWarning = false;
                 }
 
-                float distanceToBox = currentGameState.PitData.PitBoxPositionEstimate - currentGameState.PositionAndMotionData.DistanceRoundTrack;
-                if (distanceToBox < 0)
-                {
-                    distanceToBox = currentGameState.SessionData.TrackDefinition.trackLength + distanceToBox;
-                }
+                float distanceToBox = getDistanceToBox(currentGameState);
                 if (!previousGameState.PitData.InPitlane && currentGameState.PitData.InPitlane)
                 {
                     // just entered the pitlane
@@ -398,10 +412,10 @@ namespace CrewChiefV4.Events
                             if ((currentGameState.Now - pitEntryDistancePlayedTime).TotalSeconds > 3)
                             {
                                 // the first item takes longer to play because it's preceeded by "box in.."
-                                float pointAdjustment = playedBoxIn ? 0 : currentGameState.PositionAndMotionData.CarSpeed;
+                                float pointAdjustment = playedBoxIn ? 0 : currentGameState.PositionAndMotionData.CarSpeed * 1.3f;
                                 for (int i = nextPitDistanceIndex; i < pitCountdownTriggerPoints.Length; i++)
                                 {
-                                    if (distanceToBox < pitCountdownTriggerPoints[i] + pointAdjustment && distanceToBox > pitCountdownTriggerPoints[i] + pointAdjustment - 2)
+                                    if (distanceToBox < pitCountdownTriggerPoints[i] + pointAdjustment && distanceToBox > pitCountdownTriggerPoints[i] + pointAdjustment - 5)
                                     {
                                         // ensure an unplayed distance message isn't still hanging around in the queue                                        
                                         int purgeCount = audioPlayer.purgeQueues();
