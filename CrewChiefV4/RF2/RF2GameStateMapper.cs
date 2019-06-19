@@ -78,7 +78,6 @@ namespace CrewChiefV4.rFactor2
         // Detect if there any changes in the the game data since the last update.
         private double lastPlayerTelemetryET = -1.0;
         private double lastScoringET = -1.0;
-        private double lastDisqualifiedET = -1.0;
 
         // True if it looks like track has no DRS zones defined.
         private bool detectedTrackNoDRSZones = false;
@@ -216,7 +215,6 @@ namespace CrewChiefV4.rFactor2
         {
             this.lastPlayerTelemetryET = -1.0;
             this.lastScoringET = -1.0;
-            this.lastDisqualifiedET = -1.0;
 
             this.waitingToTerminateSession = false;
             this.isOfflineSession = true;
@@ -231,9 +229,11 @@ namespace CrewChiefV4.rFactor2
             this.compoundNameToTyreType.Clear();
             this.idToCarInfoMap.Clear();
             this.lastPenaltyTime = DateTime.MinValue;
-            // TODO: test
+            
+            // Do not reset MC tracking variables as "Disqualified" messages seem to stick for a bit on restart.
             //this.lastEffectiveHistoryMessage = string.Empty;
             //this.timeEffectiveMessageProcessed = DateTime.MinValue;
+
             this.timeHistoryMessageIgnored = DateTime.MinValue;
             this.timeLSIMessageIgnored = DateTime.MinValue;
             this.numFODetectPhaseAttempts = 0;
@@ -876,6 +876,33 @@ namespace CrewChiefV4.rFactor2
                 }
 
                 cgs.PitData.IsApproachingPitlane = this.isApproachingPitEntry;
+            }
+
+            // --------------------------------
+            // MC warnings
+            if (!csd.IsNewSession)  // Skip the very first session tick as events are not processed at this time.
+                this.ProcessMCMessages(cgs, pgs, shared);
+
+            // If player is DNF or DQ, do not send further updates.
+            if (!csd.IsNewSession
+                && psd != null
+                && (psd.IsDisqualified || psd.IsDisqualified))
+            {
+                if (psd.SessionPhase != SessionPhase.Finished)
+                {
+                    Debug.Assert(csd.IsDNF || csd.IsDisqualified);
+
+                    // Send one last update and finish the session.
+                    cgs.SessionData.SessionPhase = SessionPhase.Finished;
+                    return cgs;
+                }
+                else
+                {
+                    Debug.Assert(pgs.SessionData.SessionPhase == SessionPhase.Finished);
+
+                    // No more updates until new session kicks in.
+                    return pgs;
+                }
             }
 
             ////////////////////////////////////
@@ -1898,33 +1925,6 @@ namespace CrewChiefV4.rFactor2
                         Console.WriteLine("Player off track: by distance.");
                         cgs.PenaltiesData.CutTrackWarnings = pgs.PenaltiesData.CutTrackWarnings + 1;
                     }
-                }
-            }
-
-
-            // --------------------------------
-            // MC warnings
-            if (!csd.IsNewSession)  // Skip the very first session tick as events are not processed at this time.
-                this.ProcessMCMessages(cgs, pgs, shared);
-
-            // TODO: EXPLAIN
-            if (!csd.IsNewSession
-                && psd != null
-                && (psd.IsDisqualified || psd.IsDisqualified))
-            {
-                if (this.lastDisqualifiedET == -1.0)
-                {
-                    this.lastDisqualifiedET = this.lastPlayerTelemetryET;
-                    // Do not send updates if we are disqualified or DNF.
-                    csd.IsDisqualified = psd.IsDisqualified;
-                    csd.IsDNF = psd.IsDNF;
-                    cgs.SessionData.SessionPhase = SessionPhase.Finished;
-                    return cgs;
-                }
-                else
-                {
-                    Debug.Assert(pgs.SessionData.SessionPhase == SessionPhase.Finished);
-                    return pgs;
                 }
             }
 
