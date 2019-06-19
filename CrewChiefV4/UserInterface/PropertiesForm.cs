@@ -5,6 +5,7 @@ using System.Configuration;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -64,8 +65,8 @@ namespace CrewChiefV4
         }
         private void InitializeUiTexts()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
+            this.Icon = ((Icon)(resources.GetObject("$this.Icon")));
 
             this.saveButton.Text = Configuration.getUIString("save_and_restart");
             this.gameFilterLabel.Text = Configuration.getUIString("game_filter_label");
@@ -82,15 +83,21 @@ namespace CrewChiefV4
             this.exitButton.Text = Configuration.getUIString("exit_without_saving");
             this.restoreButton.Text = Configuration.getUIString("restore_default_settings");
             this.Text = Configuration.getUIString("properties_form");
+
+            string[] settingsProfileFiles = Directory.GetFiles(UserSettings.userProfilesPath, "*.json", SearchOption.TopDirectoryOnly);
+            foreach(var file in settingsProfileFiles)
+            {
+                profileSelectionComboBox.Items.Add(Path.GetFileNameWithoutExtension(file));
+            }
         }
 
         // Note: vast majority of startup time is in ShowDialog.  Looks like pretty much the only way to speed it up is by reducing
         // number of controls or splitting in tabs.
-        public PropertiesForm(System.Windows.Forms.Form parent)
+        public PropertiesForm(Form parent)
         {
             if (MainWindow.forceMinWindowSize)
             {
-                this.MinimumSize = new System.Drawing.Size(995, 745);
+                this.MinimumSize = new Size(1030, 860);
             }
 
             hasChanges = false;
@@ -196,9 +203,9 @@ namespace CrewChiefV4
 
             this.searchTextBox.Text = DEFAULT_SEARCH_TEXT;
             this.searchTextBox.ForeColor = Color.Gray;
-            this.searchTextBox.GotFocus += SearchTextBox_GotFocus;
-            this.searchTextBox.LostFocus += SearchTextBox_LostFocus;
-            this.searchTextBox.KeyDown += SearchTextBox_KeyDown;
+            //this.searchTextBox.GotFocus += SearchTextBox_GotFocus;
+            //this.searchTextBox.LostFocus += SearchTextBox_LostFocus;
+            //this.searchTextBox.KeyDown += SearchTextBox_KeyDown;
             this.exitButton.Select();
 
             this.KeyPreview = true;
@@ -312,7 +319,6 @@ namespace CrewChiefV4
 
             this.categoriesBox.SelectedIndex = 0;
 
-            this.categoriesBox.SelectedValueChanged += this.CategoriesBox_SelectedValueChanged;
 
             this.propertiesFlowLayoutPanel.ResumeLayout(false);
             this.ResumeLayout(false);
@@ -706,6 +712,25 @@ namespace CrewChiefV4
                     var fpc = ctrl as FloatPropertyControl;
                     fpc.button1_Click(sender, e);
                 }
+            }
+        }
+
+        private void createNewProfileButton_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog saveFileDialog1 = new SaveFileDialog
+            {
+                InitialDirectory = UserSettings.userProfilesPath,
+                Title = "Create new profile",
+                CheckFileExists = true,
+                CheckPathExists = true,
+                DefaultExt = "json",
+                Filter = "Json files (*.json)|*.json",
+                FilterIndex = 1,
+                RestoreDirectory = true
+            };
+            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                this.searchTextBox.Text = saveFileDialog1.FileName;
             }
         }
     }
