@@ -596,7 +596,6 @@ namespace CrewChiefV4.rFactor2
                 GlobalBehaviourSettings.UpdateFromTrackDefinition(csd.TrackDefinition);
 
                 cgs.PitData.PitBoxPositionEstimate = playerScoring.mPitLapDist;
-                cgs.PitData.PitBoxLocationEstimate = new float[] { (float)playerTelemetry.mPos.x, (float)playerTelemetry.mPos.y, (float)playerTelemetry.mPos.z };
                 Console.WriteLine("Pit box position = " + (cgs.PitData.PitBoxPositionEstimate < 0.0f ? "Unknown" : cgs.PitData.PitBoxPositionEstimate.ToString("0.000")));
             }
 
@@ -623,7 +622,6 @@ namespace CrewChiefV4.rFactor2
                 cgs.FlagData.previousLapWasFCY = pgs.FlagData.previousLapWasFCY;
 
                 cgs.Conditions.samples = pgs.Conditions.samples;
-                cgs.PitData.PitBoxLocationEstimate = pgs.PitData.PitBoxLocationEstimate;
                 cgs.PitData.PitBoxPositionEstimate = pgs.PitData.PitBoxPositionEstimate;
 
                 cgs.hardPartsOnTrackData = pgs.hardPartsOnTrackData;
