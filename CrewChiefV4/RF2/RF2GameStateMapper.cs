@@ -625,7 +625,6 @@ namespace CrewChiefV4.rFactor2
                 cgs.FlagData.previousLapWasFCY = pgs.FlagData.previousLapWasFCY;
 
                 cgs.Conditions.samples = pgs.Conditions.samples;
-
                 cgs.PitData.PitBoxPositionEstimate = pgs.PitData.PitBoxPositionEstimate;
 
                 cgs.hardPartsOnTrackData = pgs.hardPartsOnTrackData;

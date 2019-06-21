@@ -2700,6 +2700,9 @@ namespace CrewChiefV4.GameState
         // distance round track of pit box
         public float PitBoxPositionEstimate = -1.0f;
 
+        // x-y-z co-ordinate of pit box, only set for R3E
+        public float[] PitBoxLocationEstimate = null;
+
         public Boolean IsTeamRacing;
 
         public Boolean JumpedToPits;
