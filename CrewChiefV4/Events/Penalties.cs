@@ -303,8 +303,8 @@ namespace CrewChiefV4.Events
                 }
             }
 
-            if (currentGameState.SessionData.SessionPhase == SessionPhase.FullCourseYellow
-                && CrewChief.gameDefinition.gameEnum != GameEnum.RF2_64BIT)
+            if (CrewChief.gameDefinition.gameEnum != GameEnum.RF2_64BIT
+                && currentGameState.SessionData.SessionPhase == SessionPhase.FullCourseYellow)
             {
                 // Do not allow penalty/warning messagess under FCY unless this is rF2.
                 return;
