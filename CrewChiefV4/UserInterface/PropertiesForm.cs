@@ -865,13 +865,13 @@ namespace CrewChiefV4
             }
             userProfileSettingsGroupBox.Text = Configuration.getUIString("user_profile_settings") + " - " + profileSelectionComboBox.SelectedItem.ToString();
             Boolean isActiveProfile = profileSelectionComboBox.SelectedItem.ToString().Equals(Path.GetFileNameWithoutExtension(UserSettings.GetUserSettings().getString("current_settings_profile")));
-            if(isActiveProfile)
-            {
-                saveButton.Text = Configuration.getUIString("save_and_restart");
-            }
-            else if(CrewChief.Debugging && isActiveProfile)
+            if (CrewChief.Debugging && isActiveProfile)
             {
                 this.saveButton.Text = "Save (manual restart required)";
+            }
+            else if (isActiveProfile)
+            {
+                saveButton.Text = Configuration.getUIString("save_and_restart");
             }
             else
             {
