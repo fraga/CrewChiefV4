@@ -45,7 +45,12 @@ namespace CrewChiefV4
                 return originalValue;
             }
         }
-
+        public void setValue(float value)
+        {
+            this.originalValue = value;
+            this.textBox1.Text = value.ToString();
+            
+        }
         public void button1_Click(object sender, EventArgs e)
         {
             if (defaultValue != originalValue)

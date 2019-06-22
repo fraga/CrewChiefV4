@@ -35,6 +35,12 @@ namespace CrewChiefV4
             return this.checkBox1.Checked;
         }
 
+        public void setValue(Boolean value)
+        {
+            this.originalValue = value;
+            this.checkBox1.Checked = value;            
+        }
+
         public void button1_Click(object sender, EventArgs e)
         {
             this.checkBox1.Checked = defaultValue;

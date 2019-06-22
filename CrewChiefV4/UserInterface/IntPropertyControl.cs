@@ -46,6 +46,13 @@ namespace CrewChiefV4
             }
         }
 
+        public void setValue(int value)
+        {
+            this.originalValue = value;
+            this.textBox1.Text = value.ToString();
+            
+        }
+
         public void button1_Click(object sender, EventArgs e)
         {
             if (defaultValue != originalValue)

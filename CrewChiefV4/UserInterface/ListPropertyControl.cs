@@ -168,6 +168,13 @@ namespace CrewChiefV4
             return ListPropertyValues.getInvariantValueForLabel(propertyId, this.availableValues[this.comboBox1.SelectedIndex]);
         }
 
+        public void setValue(String value)
+        {
+            this.originalValue = ListPropertyValues.getLabelForInvariantItem(propertyId, value);
+            this.comboBox1.SelectedIndex = availableValues.IndexOf(ListPropertyValues.getLabelForInvariantItem(propertyId, value));
+            
+        }
+
         public void button1_Click(object sender, EventArgs e)
         {
             if (originalValue != defaultValue)

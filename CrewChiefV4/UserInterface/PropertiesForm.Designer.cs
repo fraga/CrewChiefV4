@@ -48,11 +48,11 @@ namespace CrewChiefV4
             this.searchBoxTooltip = new System.Windows.Forms.ToolTip(this.components);
             this.userProfileSettingsGroupBox = new System.Windows.Forms.GroupBox();
             this.userProfileGroupBox = new System.Windows.Forms.GroupBox();
-            this.profileSelectionComboBox = new System.Windows.Forms.ComboBox();
-            this.loadProfileButton = new System.Windows.Forms.Button();
-            this.profilesLabel = new System.Windows.Forms.Label();
-            this.createNewProfileButton = new System.Windows.Forms.Button();
             this.copySettingsFromCurrentSelectionCheckBox = new System.Windows.Forms.CheckBox();
+            this.createNewProfileButton = new System.Windows.Forms.Button();
+            this.profilesLabel = new System.Windows.Forms.Label();
+            this.loadProfileButton = new System.Windows.Forms.Button();
+            this.profileSelectionComboBox = new System.Windows.Forms.ComboBox();
             this.mainTableLayoutPanel.SuspendLayout();
             this.headerTableLayoutPanel.SuspendLayout();
             this.buttonsTableLayoutPanel.SuspendLayout();
@@ -133,7 +133,7 @@ namespace CrewChiefV4
             this.headerTableLayoutPanel.Name = "headerTableLayoutPanel";
             this.headerTableLayoutPanel.RowCount = 1;
             this.headerTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.headerTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 35F));
+            this.headerTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
             this.headerTableLayoutPanel.Size = new System.Drawing.Size(975, 32);
             this.headerTableLayoutPanel.TabIndex = 0;
             // 
@@ -265,32 +265,15 @@ namespace CrewChiefV4
             this.userProfileGroupBox.TabStop = false;
             this.userProfileGroupBox.Text = "user_profile";
             // 
-            // profileSelectionComboBox
+            // copySettingsFromCurrentSelectionCheckBox
             // 
-            this.profileSelectionComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.profileSelectionComboBox.FormattingEnabled = true;
-            this.profileSelectionComboBox.Location = new System.Drawing.Point(72, 19);
-            this.profileSelectionComboBox.Name = "profileSelectionComboBox";
-            this.profileSelectionComboBox.Size = new System.Drawing.Size(203, 21);
-            this.profileSelectionComboBox.TabIndex = 0;
-            // 
-            // loadProfileButton
-            // 
-            this.loadProfileButton.Location = new System.Drawing.Point(292, 19);
-            this.loadProfileButton.Name = "loadProfileButton";
-            this.loadProfileButton.Size = new System.Drawing.Size(101, 40);
-            this.loadProfileButton.TabIndex = 2;
-            this.loadProfileButton.Text = "load_profile";
-            this.loadProfileButton.UseVisualStyleBackColor = true;
-            // 
-            // profilesLabel
-            // 
-            this.profilesLabel.AutoSize = true;
-            this.profilesLabel.Location = new System.Drawing.Point(9, 19);
-            this.profilesLabel.Name = "profilesLabel";
-            this.profilesLabel.Size = new System.Drawing.Size(40, 13);
-            this.profilesLabel.TabIndex = 3;
-            this.profilesLabel.Text = "profiles";
+            this.copySettingsFromCurrentSelectionCheckBox.AutoSize = true;
+            this.copySettingsFromCurrentSelectionCheckBox.Location = new System.Drawing.Point(639, 19);
+            this.copySettingsFromCurrentSelectionCheckBox.Name = "copySettingsFromCurrentSelectionCheckBox";
+            this.copySettingsFromCurrentSelectionCheckBox.Size = new System.Drawing.Size(156, 17);
+            this.copySettingsFromCurrentSelectionCheckBox.TabIndex = 7;
+            this.copySettingsFromCurrentSelectionCheckBox.Text = "copy_settings_from_current";
+            this.copySettingsFromCurrentSelectionCheckBox.UseVisualStyleBackColor = true;
             // 
             // createNewProfileButton
             // 
@@ -302,15 +285,34 @@ namespace CrewChiefV4
             this.createNewProfileButton.UseVisualStyleBackColor = true;
             this.createNewProfileButton.Click += new System.EventHandler(this.createNewProfileButton_Click);
             // 
-            // copySettingsFromCurrentSelectionCheckBox
+            // profilesLabel
             // 
-            this.copySettingsFromCurrentSelectionCheckBox.AutoSize = true;
-            this.copySettingsFromCurrentSelectionCheckBox.Location = new System.Drawing.Point(639, 19);
-            this.copySettingsFromCurrentSelectionCheckBox.Name = "copySettingsFromCurrentSelectionCheckBox";
-            this.copySettingsFromCurrentSelectionCheckBox.Size = new System.Drawing.Size(156, 17);
-            this.copySettingsFromCurrentSelectionCheckBox.TabIndex = 7;
-            this.copySettingsFromCurrentSelectionCheckBox.Text = "copy_settings_from_current";
-            this.copySettingsFromCurrentSelectionCheckBox.UseVisualStyleBackColor = true;
+            this.profilesLabel.AutoSize = true;
+            this.profilesLabel.Location = new System.Drawing.Point(9, 19);
+            this.profilesLabel.Name = "profilesLabel";
+            this.profilesLabel.Size = new System.Drawing.Size(40, 13);
+            this.profilesLabel.TabIndex = 3;
+            this.profilesLabel.Text = "profiles";
+            // 
+            // loadProfileButton
+            // 
+            this.loadProfileButton.Location = new System.Drawing.Point(281, 19);
+            this.loadProfileButton.Name = "loadProfileButton";
+            this.loadProfileButton.Size = new System.Drawing.Size(159, 40);
+            this.loadProfileButton.TabIndex = 2;
+            this.loadProfileButton.Text = "load_profile";
+            this.loadProfileButton.UseVisualStyleBackColor = true;
+            this.loadProfileButton.Click += new System.EventHandler(this.loadProfileButton_Click);
+            // 
+            // profileSelectionComboBox
+            // 
+            this.profileSelectionComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.profileSelectionComboBox.FormattingEnabled = true;
+            this.profileSelectionComboBox.Location = new System.Drawing.Point(72, 19);
+            this.profileSelectionComboBox.Name = "profileSelectionComboBox";
+            this.profileSelectionComboBox.Size = new System.Drawing.Size(203, 21);
+            this.profileSelectionComboBox.TabIndex = 0;
+            this.profileSelectionComboBox.SelectedValueChanged += new System.EventHandler(this.profileSelectionComboBox_SelectedValueChanged);
             // 
             // PropertiesForm
             // 

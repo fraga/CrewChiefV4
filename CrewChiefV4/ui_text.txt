@@ -132,7 +132,8 @@ real_number_prop_type = (real number)
 
 save_prop_changes_warning = You have unsaved changes. Click 'Yes' to save these changes and restart the application. Click 'No' to discard these changes
 save_changes = &Save changes
-save_and_restart = S&ave and restart
+save_and_restart = S&ave profile settings and restart
+save_profile_settings = S&ave profile settings
 game_filter_label = &Game filter:
 show_common_props_label = Show &common properties
 all_preferences_label = All Properties
@@ -212,6 +213,13 @@ misc_category_label = Miscellaneous
 toggle_enable_cut_track_warnings = Toggle cut track warnings on / off
 
 category_filter_label = Ca&tegory filter:
+
+user_profile_settings = Profile settings
+user_profile = Profiles
+profile = Profile
+load_profile = Load profile and restart
+create_new_profile = Create profile
+copy_settings_from_current = Copy settings from current selected profile
 
 scan_for_controllers = Scan &for Controllers
 cancel_scan = Canc&el scan

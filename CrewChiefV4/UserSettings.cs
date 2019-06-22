@@ -350,8 +350,6 @@ namespace CrewChiefV4
 
         public String getString(String name)
         {
-
-
             try
             {
                 if (currentActiveProfile.userSettings.TryGetValue(name, out object value))
@@ -480,7 +478,6 @@ namespace CrewChiefV4
                 {
                     if(propertiesUpdated)
                     {
-
                         Properties.Settings.Default.Save();
                     }
                     if(userProfilePropertiesUpdated)
