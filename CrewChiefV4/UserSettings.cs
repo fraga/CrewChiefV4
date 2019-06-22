@@ -295,10 +295,13 @@ namespace CrewChiefV4
                 Boolean isReserved = false;
                 foreach (String reservedNameStart in reservedNameStarts)
                 {
-                    if (prop.Name.StartsWith(reservedNameStart) && applicationScopeOnly)
+                    if (prop.Name.StartsWith(reservedNameStart))
                     {
+                        if(applicationScopeOnly)
+                        {
+                            props.Add(prop);
+                        }
                         isReserved = true;
-                        props.Add(prop);
                         break;
                     }
                 }
