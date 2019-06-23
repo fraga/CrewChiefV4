@@ -88,6 +88,7 @@ namespace CrewChiefV4.Events
         private int sessionNumberOfLaps = -1;
         private float sessionTotalRunTime = -1.0f;
         private float sessionRunningTime = -1.0f;
+        private bool isVehicleSwapAllowed = false;
         private int completedLaps = -1;
         private int currLapBatteryUseSectorCheck = -1;
         private float initialBatteryChargePercentage = -1.0f;
@@ -152,6 +153,7 @@ namespace CrewChiefV4.Events
             this.sessionNumberOfLaps = -1;
             this.sessionTotalRunTime = -1.0f;
             this.sessionRunningTime = -1.0f;
+            this.isVehicleSwapAllowed = false;
             this.completedLaps = -1;
             this.currLapBatteryUseSectorCheck = -1;
             this.initialBatteryChargePercentage = -1.0f;
@@ -186,7 +188,7 @@ namespace CrewChiefV4.Events
 
         public override List<SessionType> applicableSessionTypes
         {
-            get { return new List<SessionType> { SessionType.Practice, SessionType.Qualify, SessionType.Race }; }
+            get { return new List<SessionType> { SessionType.Practice, SessionType.Qualify, SessionType.Race, SessionType.HotLap, SessionType.LonePractice }; }
         }
 
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
@@ -199,6 +201,8 @@ namespace CrewChiefV4.Events
 
             this.sessionRunningTime = currentGameState.SessionData.SessionRunningTime;
             this.completedLaps = currentGameState.SessionData.CompletedLaps;
+
+            this.isVehicleSwapAllowed = currentGameState.PitData.IsElectricVehicleSwapAllowed;
 
             // Only track battery data after the session has settled down
             if (this.batteryUseActive && currentGameState.SessionData.SessionRunningTime > 15 &&
@@ -217,7 +221,9 @@ namespace CrewChiefV4.Events
                     currentGameState.PositionAndMotionData.CarSpeed > 10)))
             {
                 if (!this.initialized
-                    || (previousGameState != null && previousGameState.PitData.InPitlane && !currentGameState.PitData.InPitlane))  // Vehicle swap or some magical recharge ?
+                    || (previousGameState != null 
+                        && this.isVehicleSwapAllowed 
+                        && previousGameState.PitData.InPitlane && !currentGameState.PitData.InPitlane))  // Vehicle swap or some magical recharge ?
                 {
                     this.batteryStats.Clear();
                     this.windowedBatteryStats.Clear();
@@ -960,9 +966,9 @@ namespace CrewChiefV4.Events
             var midRaceReached = false;
             var batteryAdvice = BatteryAdvice.Unknown;
 
-            // Predict if user will be able to make it to half distance (for a pit in) or to finish.
+            // Predict if user will be able to make it to the half distance (for a pit in _if_ vehicle swap is allowed) or to the finish.
             // Intention is to help user to adjust driving to more/less aggressive.
-            // Note: all this was done with FE bias, where you pit once.  If we need to support more than 1 pit nicely more work is necessary.
+            // Note: all this was done with FE bias, where you pit once or none at all.  If we need to support more than 1 pit nicely more work is necessary.
             if (this.sessionHasFixedNumberOfLaps && this.averageUsagePerLap > 0.0f)
             {
                 var lapsOfBatteryChargeLeft = (int)Math.Floor(this.windowedAverageChargeLeft / this.averageUsagePerLap);
@@ -980,7 +986,7 @@ namespace CrewChiefV4.Events
                         && this.windowedAverageChargeLeft > 70.0f;  // 70% or above charge.
                 }
 
-                var lapsToGo = midRaceReached
+                var lapsToGo = (!this.isVehicleSwapAllowed || midRaceReached)
                     ? this.sessionNumberOfLaps - this.completedLaps
                     : this.halfDistance - this.completedLaps;
 
@@ -1021,7 +1027,7 @@ namespace CrewChiefV4.Events
                         && this.windowedAverageChargeLeft > 70.0f;  // 70% or above charge.
                 }
 
-                var minsToGo = (midRaceReached
+                var minsToGo = ((!this.isVehicleSwapAllowed || midRaceReached)
                     ? this.sessionTotalRunTime - this.sessionRunningTime
                     : this.halfTime - this.sessionRunningTime) / 60.0f;
 
@@ -1048,16 +1054,16 @@ namespace CrewChiefV4.Events
 
             if (batteryAdvice == BatteryAdvice.BatteryUseSpotOn)
                 this.audioPlayer.playMessageImmediately(new QueuedMessage("Battery/advice", 0, 
-                    messageFragments: MessageContents(midRaceReached ? Battery.folderShouldMakeEnd : Battery.folderShouldMakeHalfDistance)));
+                    messageFragments: MessageContents((!this.isVehicleSwapAllowed || midRaceReached) ? Battery.folderShouldMakeEnd : Battery.folderShouldMakeHalfDistance)));
             else if (batteryAdvice == BatteryAdvice.IncreaseBatteryUse)
                 this.audioPlayer.playMessageImmediately(new QueuedMessage("Battery/advice", 0,
-                    messageFragments: MessageContents(midRaceReached ? Battery.folderIncreaseUseEasilyMakeEnd : Battery.folderIncreaseUseEasilyMakeHalfDistance)));
+                    messageFragments: MessageContents((!this.isVehicleSwapAllowed || midRaceReached) ? Battery.folderIncreaseUseEasilyMakeEnd : Battery.folderIncreaseUseEasilyMakeHalfDistance)));
             else if (batteryAdvice == BatteryAdvice.ReduceBatteryUse)
                 this.audioPlayer.playMessageImmediately(new QueuedMessage("Battery/advice", 0, 
-                    messageFragments: MessageContents(midRaceReached ? Battery.folderReduceUseToMakeEnd : Battery.folderReduceUseHalfDistance)));
+                    messageFragments: MessageContents((!this.isVehicleSwapAllowed || midRaceReached) ? Battery.folderReduceUseToMakeEnd : Battery.folderReduceUseHalfDistance)));
             else if (batteryAdvice == BatteryAdvice.WontMakeItWithoutPitting)
                 this.audioPlayer.playMessageImmediately(new QueuedMessage("Battery/advice", 0,
-                    messageFragments: MessageContents(midRaceReached ? Battery.folderWontMakeEndWoPit : Battery.folderWontMakeHalfDistanceWoPit)));
+                    messageFragments: MessageContents((!this.isVehicleSwapAllowed || midRaceReached) ? Battery.folderWontMakeEndWoPit : Battery.folderWontMakeHalfDistanceWoPit)));
         }
     }
 }

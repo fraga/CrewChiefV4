@@ -98,8 +98,18 @@ namespace CrewChiefV4
             listBoxGames.SetSelected(MainWindow.instance.gameDefinitionList.SelectedIndex, true);
             updateMacroList();
             listBoxGames.Select();
+
+            this.KeyPreview = true;
+            this.KeyDown += this.MacroEditor_KeyDown;
+
             this.ResumeLayout(false);
             this.PerformLayout();
+        }
+
+        private void MacroEditor_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape)
+                this.Close();
         }
 
         private void listBoxGames_SelectedIndexChanged(object sender, EventArgs e)
