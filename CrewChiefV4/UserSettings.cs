@@ -245,6 +245,25 @@ namespace CrewChiefV4
 
         private UserSettings()
         {
+            // Set profile from command line 'profile "file name.json" ...'
+            if (Environment.GetCommandLineArgs().ToList().Contains("profile"))
+            {
+                List<string> files = Directory.GetFiles(userProfilesPath, "*.json", SearchOption.TopDirectoryOnly).ToList();
+                List<string> fileNames = new List<string>();
+                foreach (var file in files)
+                {
+                    fileNames.Add(Path.GetFileName(file));
+                }
+                foreach (var fileName in fileNames)
+                {
+                    if (Environment.GetCommandLineArgs().ToList().Contains(fileName))
+                    {
+                        Properties.Settings.Default["current_settings_profile"] = fileName;
+                        // hmm not sure this will ever get displayed as this init happens before main window is initialilzed 
+                        Console.WriteLine($"Setting profile ({fileName}) from commandline");
+                    }
+                }
+            }
             try
             {
                 // Add build in action mappings to reserved name list.
