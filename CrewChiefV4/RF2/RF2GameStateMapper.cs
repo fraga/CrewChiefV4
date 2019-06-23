@@ -229,8 +229,11 @@ namespace CrewChiefV4.rFactor2
             this.compoundNameToTyreType.Clear();
             this.idToCarInfoMap.Clear();
             this.lastPenaltyTime = DateTime.MinValue;
-            this.lastEffectiveHistoryMessage = string.Empty;
-            this.timeEffectiveMessageProcessed = DateTime.MinValue;
+            
+            // Do not reset MC tracking variables as "Disqualified" messages seem to stick for a bit on restart.
+            //this.lastEffectiveHistoryMessage = string.Empty;
+            //this.timeEffectiveMessageProcessed = DateTime.MinValue;
+
             this.timeHistoryMessageIgnored = DateTime.MinValue;
             this.timeLSIMessageIgnored = DateTime.MinValue;
             this.numFODetectPhaseAttempts = 0;
@@ -704,7 +707,8 @@ namespace CrewChiefV4.rFactor2
 
             ///////////////////////////////////
             // Pit Data
-            cgs.PitData.IsRefuellingAllowed = cgs.PitData.IsElectricVehicleSwapAllowed = true;
+            cgs.PitData.IsRefuellingAllowed = cgs.carClass.isRefuelingAllowed;
+            cgs.PitData.IsElectricVehicleSwapAllowed = cgs.carClass.isVehicleSwapAllowed;
 
             if (this.enablePitStopPrediction)
             {
@@ -871,6 +875,33 @@ namespace CrewChiefV4.rFactor2
                 }
 
                 cgs.PitData.IsApproachingPitlane = this.isApproachingPitEntry;
+            }
+
+            // --------------------------------
+            // MC warnings
+            if (!csd.IsNewSession)  // Skip the very first session tick as events are not processed at this time.
+                this.ProcessMCMessages(cgs, pgs, shared);
+
+            // If player is DNF or DQ, do not send further updates.
+            if (!csd.IsNewSession
+                && psd != null
+                && (psd.IsDisqualified || psd.IsDisqualified))
+            {
+                if (psd.SessionPhase != SessionPhase.Finished)
+                {
+                    Debug.Assert(csd.IsDNF || csd.IsDisqualified);
+
+                    // Send one last update and finish the session.
+                    cgs.SessionData.SessionPhase = SessionPhase.Finished;
+                    return cgs;
+                }
+                else
+                {
+                    Debug.Assert(pgs.SessionData.SessionPhase == SessionPhase.Finished);
+
+                    // No more updates until new session kicks in.
+                    return pgs;
+                }
             }
 
             ////////////////////////////////////
@@ -1896,12 +1927,6 @@ namespace CrewChiefV4.rFactor2
                 }
             }
 
-
-            // --------------------------------
-            // MC warnings
-            if (!csd.IsNewSession)  // Skip the very first session tick as events are not processed at this time.
-                this.ProcessMCMessages(cgs, pgs, shared);
-
             // --------------------------------
             // console output
             if (csd.IsNewSession)
@@ -2044,6 +2069,8 @@ namespace CrewChiefV4.rFactor2
                         cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.ONE_LAP_TO_SERVE_DRIVE_THROUGH;
                     else if (msg.EndsWith("One Lap To Serve Stop/Go Penalty"))  // "Warning: One Lap To Serve Stop/Go Penalty"
                         cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.ONE_LAP_TO_SERVE_STOP_AND_GO;
+                    else if (msg.EndsWith("Unsportsmanlike Driving"))  // // "Warning: Unsportsmanlike Driving"
+                        cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.UNSPORTSMANLIKE_DRIVING;
                     else
                         messageConsumed = false;
                 }
@@ -2053,6 +2080,10 @@ namespace CrewChiefV4.rFactor2
                         cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.DISQUALIFIED_EXCEEDING_ALLOWED_LAP_COUNT;
                     else if (msg.EndsWith("Driving In Dark Without Headlights"))  // "Disqualified: Driving In Dark Without Headlights"
                         cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.DISQUALIFIED_DRIVING_WITHOUT_HEADLIGHTS;
+                    else if (msg.EndsWith("Ignored Stop/Go Penalty"))
+                        cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.DISQUALIFIED_IGNORED_STOP_AND_GO;
+                    else if (msg.EndsWith("Ignored Drive-Thru Penalty"))
+                        cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.DISQUALIFIED_IGNORED_DRIVE_THROUGH;
                     else
                         messageConsumed = false;
                 }
@@ -2078,6 +2109,8 @@ namespace CrewChiefV4.rFactor2
                 }
                 else if (msg == "Enter Pits To Avoid Exceeding Lap Allowance")
                     cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.ENTER_PITS_TO_AVOID_EXCEEDING_LAPS;
+                else if (msg == "Enter Pits This Lap To Serve Penalty")
+                    cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.ENTER_PITS_TO_SERVE_PENALTY;
                 else if (msg == "Wrong Way")
                 {
                     if (this.enableWrongWayMessage)

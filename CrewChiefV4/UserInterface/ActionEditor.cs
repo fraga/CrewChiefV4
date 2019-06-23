@@ -27,10 +27,20 @@ namespace CrewChiefV4
             exitButton.Text = Configuration.getUIString("exit_without_saving");
             buttonReset.Text = Configuration.getUIString("reload_actions");
             reloadData();
+
+            this.KeyPreview = true;
+            this.KeyDown += this.ActionEditor_KeyDown;
+
             this.ResumeLayout(false);
             this.PerformLayout();
-
         }
+
+        private void ActionEditor_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape)
+                this.Close();
+        }
+
         private void reloadData()
         {
             controllerConfigurationData = ControllerConfiguration.getControllerConfigurationDataFromFile(ControllerConfiguration.getUserControllerConfigurationDataFileLocation());

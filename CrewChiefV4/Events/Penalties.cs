@@ -103,6 +103,15 @@ namespace CrewChiefV4.Events
 
         private String folderWarningBlueFlagMoveOrBePenalized = "penalties/blue_move_now_or_be_penalized";
 
+        // TODO_SOUNDS:
+        private String folderDisqualifiedIgnoredStopAndGo = "penalties/disqualified_ignored_stop_and_go";
+
+        private String folderDisqualifiedIgnoredDriveThrough = "penalties/disqualified_ignored_drive_through";
+
+        private String folderWarningEnterPitsNowToServePenalty = "penalties/warning_enter_pits_to_serve_penalty";
+
+        private String folderWarningUnsportsmanlikeDriving = "penalties/warning_unsportsmanlike_driving";
+
         private Boolean hasHadAPenalty;
 
         private int penaltyLap;
@@ -270,6 +279,18 @@ namespace CrewChiefV4.Events
                     case PenatiesData.WarningMessage.BLUE_MOVE_OR_BE_PENALIZED:
                         warningMsg = folderWarningBlueFlagMoveOrBePenalized;
                         break;
+                    case PenatiesData.WarningMessage.DISQUALIFIED_IGNORED_STOP_AND_GO:
+                        warningMsg = folderDisqualifiedIgnoredStopAndGo;
+                        break;
+                    case PenatiesData.WarningMessage.DISQUALIFIED_IGNORED_DRIVE_THROUGH:
+                        warningMsg = folderDisqualifiedIgnoredDriveThrough;
+                        break;
+                    case PenatiesData.WarningMessage.ENTER_PITS_TO_SERVE_PENALTY:
+                        warningMsg = folderWarningEnterPitsNowToServePenalty;
+                        break;
+                    case PenatiesData.WarningMessage.UNSPORTSMANLIKE_DRIVING:
+                        warningMsg = folderWarningUnsportsmanlikeDriving;
+                        break;
                     default:
                         Debug.Assert(false, "Unhandled warning");
                         Console.WriteLine("Penalties: unhandled warning: " + currentGameState.PenaltiesData.Warning);
@@ -282,9 +303,10 @@ namespace CrewChiefV4.Events
                 }
             }
 
-            if (currentGameState.SessionData.SessionPhase == SessionPhase.FullCourseYellow)
+            if (CrewChief.gameDefinition.gameEnum != GameEnum.RF2_64BIT
+                && currentGameState.SessionData.SessionPhase == SessionPhase.FullCourseYellow)
             {
-                // For now, only allow warning messages under FCY.
+                // Do not allow penalty/warning messagess under FCY unless this is rF2.
                 return;
             }
 
