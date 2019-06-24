@@ -1366,3 +1366,7 @@ naudio_wave_in_sample_depth_category = AUDIO_VOICE_AND_CONTROLLERS
 allow_important_messages_even_when_silenced = Play important messages when silenced
 allow_important_messages_even_when_silenced_help = The Chief still gives high priority messages even when you ask him to keep quiet
 allow_important_messages_even_when_silenced_category = AUDIO_VOICE_AND_CONTROLLERS
+
+fcy_stop_spotter_immediately = Mute spotter immediately on full course yellow
+fcy_stop_spotter_immediately_help = Turn off spotter on FCY without waiting until you've slowed or start a new lap
+fcy_stop_spotter_immediately_category = SPOTTER

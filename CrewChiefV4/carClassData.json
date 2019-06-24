@@ -42,6 +42,8 @@
 #    "DRSRange": gap to the opponent ahead in seconds  (floating point number) used to allow/disalllow DRS use in the DRS zone.  Defaults to -1.0, meaning not set seconds.
 #    "pitCrewPreparationTime": time (in seconds, integer number) pit crew needs for preparation before servicing the car.  Defaults to 25 seconds.
 #    "isBatteryPowered": if true, this is battery only powered vehicle class.
+#    "isVehicleSwapAllowed": if true, this battery series allows pitting to exchange for a car with fresh battery.
+#    "isRefuelingAllowed": if true, this series allows refueling.
 #}
 #
 # The default values are:
@@ -99,7 +101,7 @@
 # ROAD_SUPERCAR, GROUPC, GROUPB, GROUPA, GROUP4, GROUP5, GROUP6, GTO,
 # VINTAGE_INDY_65, VINTAGE_F3_A, VINTAGE_F1_A, VINTAGE_F1_A1, VINTAGE_PROTOTYPE_B, VINTAGE_GT_D, VINTAGE_GT_C, HISTORIC_TOURING_1, HISTORIC_TOURING_2, VINTAGE_F1_B,
 # VINTAGE_F1_C, VINTAGE_STOCK_CAR,
-# F1, F2, F3, F4, FF, FORMULA_E, F1_70S, TC1, TC2, TCR, TC1_2014, AUDI_TT_CUP, AUDI_TT_VLN, CLIO_CUP, DTM, DTM_2013, V8_SUPERCAR, DTM_2014, DTM_2015, DTM_2016, TRANS_AM, HILL_CLIMB_ICONS, FORMULA_RENAULT,
+# F1, F2, F3, F4, FF, FORMULA_E_2018, FORMULA_E_2019, F1_70S, TC1, TC2, TCR, TC1_2014, AUDI_TT_CUP, AUDI_TT_VLN, CLIO_CUP, DTM, DTM_2013, V8_SUPERCAR, DTM_2014, DTM_2015, DTM_2016, TRANS_AM, HILL_CLIMB_ICONS, FORMULA_RENAULT,
 # MEGANE_TROPHY, NSU_TT, KTM_RR, INDYCAR, HYPER_CAR, HYPER_CAR_RACE, UNKNOWN_RACE, STOCK_V8, BOXER_CUP, NASCAR_2016, ISI_STOCKCAR_2015, RADICAL_SR3,
 # RS01_TROPHY, TRACKDAY_A, TRACKDAY_B, BMW_235I, CARRERA_CUP, CAYMAN_CLUBSPORT, CAN_AM, M1_PROCAR, PORSCHE_964_CUP, PALATOV_D4_TRACKDAY, PALATOV_D4_HILLCLIMB, PALATOV_D4_CUSTOM
 # 
@@ -521,13 +523,27 @@
 			"allMembersAreRWD": true
 		},
 		{
-			"carClassEnum": "FORMULA_E",
-			"rf2ClassNames": ["Formula E 2018", "Formula E Showcar", "Formula E 2019"],
+			"carClassEnum": "FORMULA_E_2018",
+			"rf2ClassNames": ["Formula E 2018", "Formula E Showcar"],
 			"brakeType": "Carbon",
 			"maxSafeWaterTemp": 105,
 			"maxSafeOilTemp": 140,
 			"timesInHundredths": true,
 			"isBatteryPowered": true,
+			"isVehicleSwapAllowed": true,
+			"enabledMessageTypes": "TYRE_TEMPS, BRAKE_TEMPS, BATTERY, LOCKING_AND_SPINNING",
+			"pitCrewPreparationTime": 17,
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "FORMULA_E_2019",
+			"rf2ClassNames": ["Formula E 2019"],
+			"brakeType": "Carbon",
+			"maxSafeWaterTemp": 105,
+			"maxSafeOilTemp": 140,
+			"timesInHundredths": true,
+			"isBatteryPowered": true,
+			"isVehicleSwapAllowed": false,
 			"enabledMessageTypes": "TYRE_TEMPS, BRAKE_TEMPS, BATTERY, LOCKING_AND_SPINNING",
 			"pitCrewPreparationTime": 17,
 			"allMembersAreRWD": true

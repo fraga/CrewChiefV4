@@ -3898,5 +3898,17 @@ namespace CrewChiefV4.Properties {
                 this["current_settings_profile"] = value;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool fcy_stop_spotter_immediately {
+            get {
+                return ((bool)(this["fcy_stop_spotter_immediately"]));
+            }
+            set {
+                this["fcy_stop_spotter_immediately"] = value;
+            }
+        }
     }
 }

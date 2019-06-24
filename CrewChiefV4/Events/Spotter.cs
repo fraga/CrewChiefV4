@@ -23,6 +23,11 @@ namespace CrewChiefV4.Events
 
         public abstract void trigger(Object lastState, Object currentState, GameStateData currentGameState);
 
+        public bool hasOverlap()
+        {
+            return internalSpotter.hasOverlap;
+        }
+
         public void enableSpotter()
         {
             enabled = true;
@@ -44,6 +49,11 @@ namespace CrewChiefV4.Events
             this.paused = false;
         }
 
+        public Boolean isPaused()
+        {
+            return this.paused;
+        }
+        
         protected virtual float[] getWorldPositionOfDriverAtPosition(Object currentStateObj, int position)
         {
             return null;

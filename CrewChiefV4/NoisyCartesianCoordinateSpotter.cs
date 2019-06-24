@@ -223,6 +223,8 @@ namespace CrewChiefV4
         private Boolean reportedDoubleOverlapRight = false;
 
         private Boolean wasInMiddle = false;
+
+        public bool hasOverlap = false;
         
         // 3 because this is the minimum number of cars we need to consider to be sure of a 3-wide-on-left / right.
         // 2 along side one behind the other, then another out wide. There's an edge case here where the extra length allowed
@@ -276,6 +278,7 @@ namespace CrewChiefV4
         {
             if (GameStateData.onManualFormationLap)
             {
+                hasOverlap = false;
                 return;
             }
             DateTime now = DateTime.UtcNow;
@@ -421,6 +424,8 @@ namespace CrewChiefV4
                 playNextMessage(carsOnLeft, carsOnRight, now);
                 carsOnLeftAtPreviousTick = carsOnLeft;
                 carsOnRightAtPreviousTick = carsOnRight;
+
+                hasOverlap = carsOnLeft > 0 || carsOnRight > 0;
             }
             else if (carsOnLeftAtPreviousTick > 0 || carsOnRightAtPreviousTick > 0)
             {
@@ -440,14 +445,16 @@ namespace CrewChiefV4
                     reportedSingleOverlapLeft = false;
                     reportedSingleOverlapRight = false;
                     channelLeftOpenTimerStarted = false;
+                    hasOverlap = false;
                 }
             }
         }
-        //For i racing spotter 
+        // For iracing spotter 
         public void triggerInternal(CarLeftRight carLeftRight)
         {
             if (GameStateData.onManualFormationLap)
             {
+                hasOverlap = false;
                 return;
             }
             DateTime now = DateTime.UtcNow;
@@ -483,6 +490,7 @@ namespace CrewChiefV4
                     }
                     break;                
             }
+            hasOverlap = carsOnLeft > 0 || carsOnRight > 0;
             getNextMessage(carsOnLeft, carsOnRight, now);
             playNextMessage(carsOnLeft, carsOnRight, now);
             carsOnLeftAtPreviousTick = carsOnLeft;
@@ -506,6 +514,7 @@ namespace CrewChiefV4
                     reportedSingleOverlapLeft = false;
                     reportedSingleOverlapRight = false;
                     channelLeftOpenTimerStarted = false;
+                    hasOverlap = false;
                 }
             }
         }
