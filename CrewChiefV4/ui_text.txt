@@ -217,9 +217,10 @@ category_filter_label = Ca&tegory filter:
 user_profile_settings = Profile settings
 user_profile = Profiles
 profile = Profile
-load_profile = Load profile and restart
+load_profile = Activate profile and restart
 create_new_profile = Create profile
 copy_settings_from_current = Copy settings from current selected profile
+activate_new_profile = Activate new profile and restart
 
 scan_for_controllers = Scan &for Controllers
 cancel_scan = Canc&el scan

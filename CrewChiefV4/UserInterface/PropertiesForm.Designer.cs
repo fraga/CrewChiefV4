@@ -53,6 +53,7 @@ namespace CrewChiefV4
             this.profilesLabel = new System.Windows.Forms.Label();
             this.loadProfileButton = new System.Windows.Forms.Button();
             this.profileSelectionComboBox = new System.Windows.Forms.ComboBox();
+            this.activateNewProfileCheckBox = new System.Windows.Forms.CheckBox();
             this.mainTableLayoutPanel.SuspendLayout();
             this.headerTableLayoutPanel.SuspendLayout();
             this.buttonsTableLayoutPanel.SuspendLayout();
@@ -253,6 +254,7 @@ namespace CrewChiefV4
             // 
             // userProfileGroupBox
             // 
+            this.userProfileGroupBox.Controls.Add(this.activateNewProfileCheckBox);
             this.userProfileGroupBox.Controls.Add(this.copySettingsFromCurrentSelectionCheckBox);
             this.userProfileGroupBox.Controls.Add(this.createNewProfileButton);
             this.userProfileGroupBox.Controls.Add(this.profilesLabel);
@@ -314,6 +316,16 @@ namespace CrewChiefV4
             this.profileSelectionComboBox.TabIndex = 0;
             this.profileSelectionComboBox.SelectedValueChanged += new System.EventHandler(this.profileSelectionComboBox_SelectedValueChanged);
             // 
+            // activateNewProfileCheckBox
+            // 
+            this.activateNewProfileCheckBox.AutoSize = true;
+            this.activateNewProfileCheckBox.Location = new System.Drawing.Point(639, 41);
+            this.activateNewProfileCheckBox.Name = "activateNewProfileCheckBox";
+            this.activateNewProfileCheckBox.Size = new System.Drawing.Size(124, 17);
+            this.activateNewProfileCheckBox.TabIndex = 8;
+            this.activateNewProfileCheckBox.Text = "activate_new_profile";
+            this.activateNewProfileCheckBox.UseVisualStyleBackColor = true;
+            // 
             // PropertiesForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -363,5 +375,6 @@ namespace CrewChiefV4
         private Button loadProfileButton;
         private CheckBox copySettingsFromCurrentSelectionCheckBox;
         private Button createNewProfileButton;
+        private CheckBox activateNewProfileCheckBox;
     }
 }

@@ -259,7 +259,7 @@ namespace CrewChiefV4
                     if (Environment.GetCommandLineArgs().ToList().Contains(fileName))
                     {
                         Properties.Settings.Default["current_settings_profile"] = fileName;
-                        // hmm not sure this will ever get displayed as this init happens before main window is initialilzed 
+                        // hmm not sure this will ever get displayed as this init happens before main window is initialized 
                         Console.WriteLine($"Setting profile ({fileName}) from commandline");
                     }
                 }

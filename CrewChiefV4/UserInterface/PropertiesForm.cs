@@ -88,7 +88,8 @@ namespace CrewChiefV4
             profilesLabel.Text = Configuration.getUIString("user_profile");
             loadProfileButton.Text = Configuration.getUIString("load_profile");
             createNewProfileButton.Text = Configuration.getUIString("create_new_profile");
-            copySettingsFromCurrentSelectionCheckBox.Text = Configuration.getUIString("copy_settings_from_current"); 
+            copySettingsFromCurrentSelectionCheckBox.Text = Configuration.getUIString("copy_settings_from_current");
+            activateNewProfileCheckBox.Text = Configuration.getUIString("activate_new_profile");
 
             List<string> settingsProfileFiles = Directory.GetFiles(UserSettings.userProfilesPath, "*.json", SearchOption.TopDirectoryOnly).ToList();         
             foreach (var file in settingsProfileFiles)
@@ -120,7 +121,9 @@ namespace CrewChiefV4
             if (CrewChief.Debugging)
             {
                 this.saveButton.Text = "Save (manual restart required)";
-                this.loadProfileButton.Text = "Load profile (manual restart required)";
+                this.loadProfileButton.Text = "Activate profile (manual restart required)";
+                this.activateNewProfileCheckBox.Text = "Activate new profile (Not possible in debug mode)";
+                this.activateNewProfileCheckBox.Enabled = false;
             }
 
             this.SuspendLayout();
@@ -810,6 +813,10 @@ namespace CrewChiefV4
                     profileSelectionComboBox.Items.Add(profile);
                 }
                 profileSelectionComboBox.SelectedIndex = profileNames.IndexOf(Path.GetFileNameWithoutExtension(saveFileDialog.FileName));
+                if(activateNewProfileCheckBox.Checked)
+                {
+                    loadProfileButton_Click(null, null);
+                }
                 //this.searchTextBox.Text = saveFileDialog1.FileName;
             }
         }
@@ -868,14 +875,17 @@ namespace CrewChiefV4
             if (CrewChief.Debugging && isActiveProfile)
             {
                 this.saveButton.Text = "Save (manual restart required)";
+                loadProfileButton.Enabled = false;
             }
             else if (isActiveProfile)
             {
                 saveButton.Text = Configuration.getUIString("save_and_restart");
+                loadProfileButton.Enabled = false;
             }
             else
             {
                 saveButton.Text = Configuration.getUIString("save_profile_settings");
+                loadProfileButton.Enabled = true;
             }
 
         }
