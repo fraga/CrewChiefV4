@@ -3058,7 +3058,7 @@ namespace CrewChiefV4
                 }
                 else
                 {
-                    if (repetitionCount < 20)
+                    if (repetitionCount > 0 && repetitionCount < 20)
                     {
                         writeMessage("Skipped " + repetitionCount + " copies of previous message\n");
                     }
