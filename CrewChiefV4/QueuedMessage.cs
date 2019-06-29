@@ -126,7 +126,7 @@ namespace CrewChiefV4
         // Note that even when queuing a message with 0 delay, we always wait 1 complete update interval. This is to 
         // (hopefully...) address issues where some data in the block get updated (like the lap count), but other data haven't 
         // get been updated (like the session phase)
-        private static readonly int updateInterval = UserSettings.GetUserSettings().getInt("update_interval");
+        private readonly int updateInterval = UserSettings.GetUserSettings().getInt("update_interval");
 
         private static readonly NumberReader numberReader = NumberReaderFactory.GetNumberReader();
 

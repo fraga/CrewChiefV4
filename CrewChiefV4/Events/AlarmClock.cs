@@ -18,7 +18,7 @@ namespace CrewChiefV4.Events
         public static String notifyYouAt = "alarm_clock/notify";
         public static String folderAM = "alarm_clock/am";
         public static String folderPM = "alarm_clock/pm";
-        private static String preSetAlarms = UserSettings.GetUserSettings().getString("alarm_clock_times");
+        private String preSetAlarms = UserSettings.GetUserSettings().getString("alarm_clock_times");
 
         private class Alarm
         {

@@ -157,11 +157,11 @@ namespace CrewChiefV4.Events
 
         private Boolean delayResponses = UserSettings.GetUserSettings().getBoolean("enable_delayed_responses");
 
-        public static Boolean fuelReportsInGallon = UserSettings.GetUserSettings().getBoolean("report_fuel_in_gallons");
+        public Boolean fuelReportsInGallon = UserSettings.GetUserSettings().getBoolean("report_fuel_in_gallons");
 
         private float addAdditionalFuelLaps = UserSettings.GetUserSettings().getFloat("add_additional_fuel");
 
-        public static Boolean baseCalculationsOnMaxConsumption = UserSettings.GetUserSettings().getBoolean("prefer_max_consumption_in_fuel_calculations");
+        public Boolean baseCalculationsOnMaxConsumption = UserSettings.GetUserSettings().getBoolean("prefer_max_consumption_in_fuel_calculations");
 
         private Boolean hasBeenRefuelled = false;
 

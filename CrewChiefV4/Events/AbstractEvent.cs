@@ -12,7 +12,7 @@ namespace CrewChiefV4.Events
     {
         private static String folderCelsius = "conditions/celsius";
         private static String folderFahrenheit = "conditions/fahrenheit";
-        private static Boolean useFahrenheit = UserSettings.GetUserSettings().getBoolean("use_fahrenheit");
+        private Boolean useFahrenheit = UserSettings.GetUserSettings().getBoolean("use_fahrenheit");
 
         protected AudioPlayer audioPlayer;
 

@@ -200,7 +200,7 @@ namespace CrewChiefV4
         private TimeSpan ovalClearMessageDelay = TimeSpan.FromMilliseconds(UserSettings.GetUserSettings().getInt("spotter_oval_clear_delay"));
 
         private TimeSpan overlapMessageDelay = TimeSpan.FromMilliseconds(UserSettings.GetUserSettings().getInt("spotter_overlap_delay"));
-        private static Boolean use3WideLeftAndRight = UserSettings.GetUserSettings().getBoolean("spotter_enable_three_wide_left_and_right");
+        private Boolean use3WideLeftAndRight = UserSettings.GetUserSettings().getBoolean("spotter_enable_three_wide_left_and_right");
 
         private DateTime nextMessageDue = DateTime.UtcNow;
         
@@ -225,12 +225,12 @@ namespace CrewChiefV4
         private Boolean wasInMiddle = false;
 
         public bool hasOverlap = false;
-        
+
         // 3 because this is the minimum number of cars we need to consider to be sure of a 3-wide-on-left / right.
         // 2 along side one behind the other, then another out wide. There's an edge case here where the extra length allowed
         // for overlap means we may have 3 cars the app considers to be along side, even though they're all lined up. But this
         // is rare enough to discount I think.
-        private static int maxOverlapsPerSide = use3WideLeftAndRight ? 3 : 1;
+        private int maxOverlapsPerSide;
 
         private enum Side {
             right, left, none
@@ -247,6 +247,7 @@ namespace CrewChiefV4
         {
             this.audioPlayer = audioPlayer;
             this.setCarDimensions(carLength, carWidth);
+            this.maxOverlapsPerSide = use3WideLeftAndRight ? 3 : 1;
         }
 
         internal void setCarDimensions(float carLength, float carWidth)

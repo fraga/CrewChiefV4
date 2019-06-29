@@ -131,6 +131,27 @@ namespace CrewChiefV4
             GlobalResources.audioPlayer = audioPlayer;
 
             audioPlayer.initialise();
+            
+            DriverNameHelper.readRawNamesToUsableNamesFiles(AudioPlayer.soundFilesPath);
+        }
+
+        private void reloadSettings()
+        {
+            this.enableWebsocket = UserSettings.GetUserSettings().getBoolean("enable_websocket");
+            this.enableGameDataWebsocket = UserSettings.GetUserSettings().getBoolean("enable_game_data_websocket");
+            this.displaySessionLapTimes = UserSettings.GetUserSettings().getBoolean("display_session_lap_times");
+            this.turnSpotterOffImmediatelyOnFCY = UserSettings.GetUserSettings().getBoolean("fcy_stop_spotter_immediately");
+            CrewChief.yellowFlagMessagesEnabled = UserSettings.GetUserSettings().getBoolean("enable_yellow_flag_messages");
+            CrewChief.enableDriverNames = UserSettings.GetUserSettings().getBoolean("enable_driver_names");
+            CrewChief.timeInterval = UserSettings.GetUserSettings().getInt("update_interval");
+            CrewChief.spotterInterval = UserSettings.GetUserSettings().getInt("spotter_update_interval");
+            CrewChief.forceSingleClass = UserSettings.GetUserSettings().getBoolean("force_single_class");
+            CrewChief.maxUnknownClassesForAC = UserSettings.GetUserSettings().getInt("max_unknown_car_classes_for_assetto");
+        }
+
+        private void loadEvents()
+        {
+            eventsList.Clear();
             eventsList.Add("Timings", new Timings(audioPlayer));
             eventsList.Add("Position", new Position(audioPlayer));
             eventsList.Add("LapCounter", new LapCounter(audioPlayer, this));
@@ -152,10 +173,9 @@ namespace CrewChiefV4
             eventsList.Add("FrozenOrderMonitor", new FrozenOrderMonitor(audioPlayer));
             eventsList.Add("IRacingBroadcastMessageEvent", new IRacingBroadcastMessageEvent(audioPlayer));
             eventsList.Add("MulticlassWarnings", new MulticlassWarnings(audioPlayer));
-            eventsList.Add("CommonActions", new CommonActions(audioPlayer));  
+            eventsList.Add("CommonActions", new CommonActions(audioPlayer));
             sessionEndMessages = new SessionEndMessages(audioPlayer);
             alarmClock = new AlarmClock(audioPlayer);
-            DriverNameHelper.readRawNamesToUsableNamesFiles(AudioPlayer.soundFilesPath);
         }
 
         public void setGameDefinition(GameDefinition gameDefinition)
@@ -349,6 +369,9 @@ namespace CrewChiefV4
 
         public Boolean Run(String filenameToRun, Boolean dumpToFile)
         {
+            loadEvents();
+            reloadSettings();
+            GlobalBehaviourSettings.reloadSettings();
             try
             {
                 if (enableWebsocket)

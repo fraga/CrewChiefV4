@@ -64,6 +64,19 @@ namespace CrewChiefV4.GameState
             enabledMessageTypes.AddRange(defaultEnabledMessageTypes);
         }
 
+        public static void reloadSettings()
+        {
+            GlobalBehaviourSettings.realisticMode = UserSettings.GetUserSettings().getBoolean("realistic_mode");
+            GlobalBehaviourSettings.alwaysUseHundredths = UserSettings.GetUserSettings().getBoolean("always_report_time_in_hundredths");
+            GlobalBehaviourSettings.defaultToAmericanTerms = UserSettings.GetUserSettings().getBoolean("use_american_terms");
+            GlobalBehaviourSettings.enableOvalSpotterBehaviours = UserSettings.GetUserSettings().getBoolean("enable_oval_spotter_enhancements");
+            GlobalBehaviourSettings.spotterEnabledInitialState = UserSettings.GetUserSettings().getBoolean("enable_spotter");
+            GlobalBehaviourSettings.spotterEnabled = spotterEnabledInitialState;
+            GlobalBehaviourSettings.cutTrackWarningsEnabledInitialState = UserSettings.GetUserSettings().getBoolean("play_cut_track_warnings");
+            GlobalBehaviourSettings.spotterVehicleLength = defaultSpotterVehicleLength;
+            GlobalBehaviourSettings.spotterVehicleWidth = defaultSpotterVehicleWidth;
+    }
+
         public static void UpdateFromCarClass(CarData.CarClass carClass) 
         {
             useAmericanTerms = carClass.useAmericanTerms || defaultToAmericanTerms;

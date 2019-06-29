@@ -84,7 +84,7 @@ namespace CrewChiefV4.Events
 
         private Boolean enableGreenLightMessages = UserSettings.GetUserSettings().getBoolean("enable_green_light_messages");
 
-        private static Boolean useFahrenheit = UserSettings.GetUserSettings().getBoolean("use_fahrenheit");
+        private Boolean useFahrenheit = UserSettings.GetUserSettings().getBoolean("use_fahrenheit");
 
         private DateTime nextManualFormationOvertakeWarning = DateTime.MinValue;
         
