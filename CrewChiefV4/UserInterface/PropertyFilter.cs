@@ -22,30 +22,32 @@ namespace CrewChiefV4
         internal bool includeFilter = true;
         internal string propertyLabelUpper = null;
 
-        internal PropertyFilter(string filter, string category, string propertyId, string propertyLabel)
+        public static List<PropertiesForm.PropertyCategory> parseCategories(string category)
         {
-            this.propertyLabelUpper = propertyLabel.ToUpperInvariant();
-
-            // Process category filter.
+            List<PropertiesForm.PropertyCategory> categoryList = new List<PropertiesForm.PropertyCategory>();
             if (!string.IsNullOrWhiteSpace(category))
             {
                 var categoryNames = category.Split(';');
-
-                this.categoryList = new List<PropertiesForm.PropertyCategory>();
                 foreach (var cat in categoryNames)
                 {
                     var catEnum = PropertiesForm.PropertyCategory.UNKNOWN;
-                    if (Enum.TryParse(cat, out catEnum) 
+                    if (Enum.TryParse(cat, out catEnum)
                         && Enum.IsDefined(typeof(PropertiesForm.PropertyCategory), catEnum))
-                        this.categoryList.Add(catEnum);
+                        categoryList.Add(catEnum);
                     else
                     {
-                        Console.WriteLine("Failed to parse category: \"" + cat + "\"  property: \"" + propertyId + "\"");
-                        this.categoryList = null;
+                        Console.WriteLine("Failed to parse category: \"" + cat);
+                        categoryList = null;
                     }
                 }
             }
+            return categoryList;
+        }
 
+        internal PropertyFilter(string filter, List<PropertiesForm.PropertyCategory> categoryList, string propertyId, string propertyLabel)
+        {
+            this.propertyLabelUpper = propertyLabel.ToUpperInvariant();
+            this.categoryList = categoryList;
             // Process game filter.
             if (string.IsNullOrWhiteSpace(filter))
                 return;

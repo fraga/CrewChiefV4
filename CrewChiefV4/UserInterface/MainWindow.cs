@@ -1154,7 +1154,7 @@ namespace CrewChiefV4
             controllerConfiguration = new ControllerConfiguration(this);
 
             // NOTE: important to keep this instantiation here to avoid race between DirectInput and WMP initialization.
-            crewChief = new CrewChief();
+            crewChief = new CrewChief(controllerConfiguration);
 
             controllerConfiguration.initialize();
             GlobalResources.controllerConfiguration = controllerConfiguration;
@@ -1256,10 +1256,6 @@ namespace CrewChiefV4
                 }
                 this.triggerWordButton.Enabled = false;
                 this.toggleButton.Enabled = false;
-            }
-            if (voiceOption != VoiceOptionEnum.DISABLED)
-            {
-                initialiseSpeechEngine();
             }
             this.assignButtonToAction.Enabled = false;
             this.deleteAssigmentButton.Enabled = false;

@@ -15,6 +15,8 @@ namespace CrewChiefV4
     public partial class PropertiesForm : Form
     {
         public static Boolean hasChanges;
+        public static Boolean requiresRestart;
+
         System.Windows.Forms.Form parent;
 
         private Timer searchTimer;
@@ -38,7 +40,7 @@ namespace CrewChiefV4
         private SpecialFilter specialFilterPrev = SpecialFilter.UNKNOWN;
         private bool includeCommonPreferencesPrev = true;
         
-        internal enum PropertyCategory
+        public enum PropertyCategory
         {
             ALL,  // Don't assign this to properties, this means no filtering applied.
             UI_STARTUP_AND_PATHS,
@@ -53,6 +55,14 @@ namespace CrewChiefV4
             UNKNOWN
         }
         private PropertyCategory categoryFilterPrev = PropertyCategory.UNKNOWN;
+
+        public static PropertyCategory[] propsRequiringRestart = {
+            PropertyCategory.ALL,
+            PropertyCategory.UI_STARTUP_AND_PATHS,
+            PropertyCategory.AUDIO_VOICE_AND_CONTROLLERS,
+            PropertyCategory.MISC,
+            PropertyCategory.UNKNOWN
+        };
 
         public class ComboBoxItem<T>
         {
@@ -399,7 +409,7 @@ namespace CrewChiefV4
         private void saveButton_Click(object sender, EventArgs e)
         {
             Boolean activeProfile = save();
-            if (!CrewChief.Debugging && activeProfile)
+            if (!CrewChief.Debugging && activeProfile && requiresRestart)
             {
                 // have to add "multi" to the start args so the app can restart
                 List<String> startArgs = new List<string>();
@@ -434,7 +444,7 @@ namespace CrewChiefV4
                 this.searchTimer = null;
             }
 
-            if (PropertiesForm.hasChanges)
+            if (PropertiesForm.hasChanges && PropertiesForm.requiresRestart)
             {
                 String warningMessage = Configuration.getUIString("save_prop_changes_warning");
                 if (CrewChief.Debugging)

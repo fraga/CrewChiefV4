@@ -126,6 +126,14 @@ namespace CrewChiefV4
             public List<ButtonAssignment> buttonAssignments { get; set; }
         }
 
+        public void assignButtonEventInstances()
+        {
+            foreach (ButtonAssignment ba in buttonAssignments)
+            {
+                ba.findEvent();
+            }
+        }
+
         private static String getDefaultControllerConfigurationDataFileLocation()
         {
             String path = Configuration.getDefaultFileLocation("controllerConfigurationData.json");

@@ -11,6 +11,7 @@ namespace CrewChiefV4
 {
     public partial class FloatPropertyControl : UserControl
     {
+        public bool changeRequiresRestart;
         public String propertyId;
         public float originalValue;
         public float defaultValue;
@@ -29,7 +30,9 @@ namespace CrewChiefV4
             this.toolTip1.SetToolTip(this.textBox1, helpText);
             this.toolTip1.SetToolTip(this.label1, helpText);
 
-            this.filter = new PropertyFilter(filterText, categoryText, propertyId, this.label);
+            List<PropertiesForm.PropertyCategory> categoryList = PropertyFilter.parseCategories(categoryText);
+            this.changeRequiresRestart = categoryList.Intersect(PropertiesForm.propsRequiringRestart).Count() > 0;
+            this.filter = new PropertyFilter(filterText, categoryList, propertyId, this.label);
         }
 
         public float getValue()
@@ -56,6 +59,7 @@ namespace CrewChiefV4
             if (defaultValue != originalValue)
             {
                 PropertiesForm.hasChanges = true;
+                PropertiesForm.requiresRestart = this.changeRequiresRestart;
             }
             this.textBox1.Text = defaultValue.ToString();
             this.originalValue = defaultValue;
@@ -66,6 +70,7 @@ namespace CrewChiefV4
             if (this.textBox1.Text != originalValue.ToString())
             {
                 PropertiesForm.hasChanges = true;
+                PropertiesForm.requiresRestart = this.changeRequiresRestart;
             }
         }
     }

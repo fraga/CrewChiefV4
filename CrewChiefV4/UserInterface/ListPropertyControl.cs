@@ -127,6 +127,7 @@ namespace CrewChiefV4
     }
     public partial class ListPropertyControl : UserControl
     {
+        public bool changeRequiresRestart;
         public String propertyId;
         public String defaultValue;
         public String originalValue;
@@ -159,7 +160,9 @@ namespace CrewChiefV4
             this.toolTip1.SetToolTip(this.comboBox1, helpText);
             this.toolTip1.SetToolTip(this.label1, helpText);
 
-            this.filter = new PropertyFilter(filterText, categoryText, propertyId, this.label);
+            List<PropertiesForm.PropertyCategory> categoryList = PropertyFilter.parseCategories(categoryText);
+            this.changeRequiresRestart = categoryList.Intersect(PropertiesForm.propsRequiringRestart).Count() > 0;
+            this.filter = new PropertyFilter(filterText, categoryList, propertyId, this.label);
             this.comboBox1.SelectedIndexChanged += textChanged;
         }
 
@@ -180,6 +183,7 @@ namespace CrewChiefV4
             if (originalValue != defaultValue)
             {
                 PropertiesForm.hasChanges = true;
+                PropertiesForm.requiresRestart = this.changeRequiresRestart;
             }
             this.comboBox1.SelectedIndex = availableValues.IndexOf(defaultValue);
         }
@@ -189,6 +193,7 @@ namespace CrewChiefV4
             if (this.availableValues[this.comboBox1.SelectedIndex] != originalValue)
             {
                 PropertiesForm.hasChanges = true;
+                PropertiesForm.requiresRestart = this.changeRequiresRestart;
             }
         }
     }
