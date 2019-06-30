@@ -16,11 +16,13 @@ namespace CrewChiefV4
         public String defaultValue;
         public String originalValue;
         public String label;
+        private PropertiesForm parent;
         internal PropertyFilter filter = null;
-        public StringPropertyControl(String propertyId, String label, String currentValue, String defaultValue, String helpText, String filterText, String categoryText)
+        public StringPropertyControl(String propertyId, String label, String currentValue, String defaultValue, String helpText, String filterText,
+            String categoryText, PropertiesForm parent)
         {
             InitializeComponent();
-
+            this.parent = parent;
             this.label = label;
             this.propertyId = propertyId;
             this.label1.Text = label;
@@ -51,9 +53,14 @@ namespace CrewChiefV4
         {
             if (originalValue != defaultValue)
             {
-                PropertiesForm.hasChanges = true;
-                PropertiesForm.requiresRestart = this.changeRequiresRestart;
+                parent.hasChanges = true;
+                if (this.changeRequiresRestart) parent.updatedPropertiesRequiringRestart.Add(this.propertyId);
             }
+            else
+            {
+                parent.updatedPropertiesRequiringRestart.Remove(this.propertyId);
+            }
+            if (this.changeRequiresRestart) parent.updateSaveButtonText();
             this.textBox1.Text = defaultValue;
         }
 
@@ -61,9 +68,14 @@ namespace CrewChiefV4
         {
             if (this.textBox1.Text != originalValue)
             {
-                PropertiesForm.hasChanges = true;
-                PropertiesForm.requiresRestart = this.changeRequiresRestart;
+                parent.hasChanges = true;
+                if (this.changeRequiresRestart) parent.updatedPropertiesRequiringRestart.Add(this.propertyId);
             }
+            else
+            {
+                parent.updatedPropertiesRequiringRestart.Remove(this.propertyId);
+            }
+            if (this.changeRequiresRestart) parent.updateSaveButtonText();
         }
     }
 }

@@ -16,11 +16,13 @@ namespace CrewChiefV4
         public float originalValue;
         public float defaultValue;
         public String label;
+        private PropertiesForm parent;
         internal PropertyFilter filter = null;
-        public FloatPropertyControl (String propertyId, String label, float value, float defaultValue, String helpText, String filterText, String categoryText)
+        public FloatPropertyControl (String propertyId, String label, float value, float defaultValue, String helpText, String filterText, 
+            String categoryText, PropertiesForm parent)
         {
             InitializeComponent();
-
+            this.parent = parent;
             this.label = label;
             this.propertyId = propertyId;
             this.label1.Text = label;
@@ -58,9 +60,14 @@ namespace CrewChiefV4
         {
             if (defaultValue != originalValue)
             {
-                PropertiesForm.hasChanges = true;
-                PropertiesForm.requiresRestart = this.changeRequiresRestart;
+                parent.hasChanges = true;
+                if (this.changeRequiresRestart) parent.updatedPropertiesRequiringRestart.Add(this.propertyId);
             }
+            else
+            {
+                parent.updatedPropertiesRequiringRestart.Remove(this.propertyId);
+            }
+            if (this.changeRequiresRestart) parent.updateSaveButtonText();
             this.textBox1.Text = defaultValue.ToString();
             this.originalValue = defaultValue;
         }
@@ -69,9 +76,15 @@ namespace CrewChiefV4
         {
             if (this.textBox1.Text != originalValue.ToString())
             {
-                PropertiesForm.hasChanges = true;
-                PropertiesForm.requiresRestart = this.changeRequiresRestart;
+                parent.hasChanges = true;
+                if (this.changeRequiresRestart) parent.updatedPropertiesRequiringRestart.Add(this.propertyId);
+                parent.updateSaveButtonText();
             }
+            else
+            {
+                parent.updatedPropertiesRequiringRestart.Remove(this.propertyId);
+            }
+            if (this.changeRequiresRestart) parent.updateSaveButtonText();
         }
     }
 }

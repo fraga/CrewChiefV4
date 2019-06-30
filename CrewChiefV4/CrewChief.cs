@@ -21,7 +21,7 @@ namespace CrewChiefV4
 {
     public class CrewChief : IDisposable
     {
-        public static Boolean Debugging = System.Diagnostics.Debugger.IsAttached;
+        public static Boolean Debugging = false;/* System.Diagnostics.Debugger.IsAttached;*/
         // these will generally be the same but in cases where we're checking the behaviour in debug, while pretending we're not in debug,
         // it's useful to have them separate
         public static Boolean UseDebugFilePaths = System.Diagnostics.Debugger.IsAttached;

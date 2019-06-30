@@ -14,8 +14,8 @@ namespace CrewChiefV4
 {
     public partial class PropertiesForm : Form
     {
-        public static Boolean hasChanges;
-        public static Boolean requiresRestart;
+        public Boolean hasChanges;
+        public HashSet<string> updatedPropertiesRequiringRestart = new HashSet<string>();
 
         System.Windows.Forms.Form parent;
 
@@ -39,7 +39,7 @@ namespace CrewChiefV4
         }
         private SpecialFilter specialFilterPrev = SpecialFilter.UNKNOWN;
         private bool includeCommonPreferencesPrev = true;
-        
+
         public enum PropertyCategory
         {
             ALL,  // Don't assign this to properties, this means no filtering applied.
@@ -79,7 +79,7 @@ namespace CrewChiefV4
             ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
             this.Icon = ((Icon)(resources.GetObject("$this.Icon")));
 
-            this.saveButton.Text = Configuration.getUIString("save_and_restart");
+            this.saveButton.Text = Configuration.getUIString("save_changes");
             this.gameFilterLabel.Text = Configuration.getUIString("game_filter_label");
             this.showCommonCheckbox.Text = Configuration.getUIString("show_common_props_label");
             this.categoriesLabel.Text = Configuration.getUIString("category_filter_label");
@@ -101,16 +101,16 @@ namespace CrewChiefV4
             copySettingsFromCurrentSelectionCheckBox.Text = Configuration.getUIString("copy_settings_from_current");
             activateNewProfileCheckBox.Text = Configuration.getUIString("activate_new_profile");
 
-            List<string> settingsProfileFiles = Directory.GetFiles(UserSettings.userProfilesPath, "*.json", SearchOption.TopDirectoryOnly).ToList();         
+            List<string> settingsProfileFiles = Directory.GetFiles(UserSettings.userProfilesPath, "*.json", SearchOption.TopDirectoryOnly).ToList();
             foreach (var file in settingsProfileFiles)
             {
-                profileNames.Add(Path.GetFileNameWithoutExtension(file));                
+                profileNames.Add(Path.GetFileNameWithoutExtension(file));
             }
-            foreach(var profile in profileNames)
+            foreach (var profile in profileNames)
             {
                 profileSelectionComboBox.Items.Add(profile);
             }
-
+            updateSaveButtonText();
         }
 
 
@@ -130,7 +130,6 @@ namespace CrewChiefV4
             InitializeUiTexts();
             if (CrewChief.Debugging)
             {
-                this.saveButton.Text = "Save (manual restart required)";
                 this.loadProfileButton.Text = "Activate profile (manual restart required)";
                 this.activateNewProfileCheckBox.Text = "Activate new profile (Not possible in debug mode)";
                 this.activateNewProfileCheckBox.Enabled = false;
@@ -147,14 +146,14 @@ namespace CrewChiefV4
                     this.propertiesFlowLayoutPanel.Controls.Add(new ListPropertyControl(strProp.Name, Configuration.getUIString(strProp.Name) + " " + Configuration.getUIString("text_prop_type"),
                        UserSettings.GetUserSettings().getString(strProp.Name), (String)strProp.DefaultValue,
                        Configuration.getUIString(strProp.Name + "_help"), Configuration.getUIStringStrict(strProp.Name + "_filter"),
-                       Configuration.getUIStringStrict(strProp.Name + "_category"), Configuration.getUIStringStrict(strProp.Name + "_type")));
+                       Configuration.getUIStringStrict(strProp.Name + "_category"), Configuration.getUIStringStrict(strProp.Name + "_type"), this));
                 }
                 else
                 {
                     this.propertiesFlowLayoutPanel.Controls.Add(new StringPropertyControl(strProp.Name, Configuration.getUIString(strProp.Name) + " " + Configuration.getUIString("text_prop_type"),
                        UserSettings.GetUserSettings().getString(strProp.Name), (String)strProp.DefaultValue,
                        Configuration.getUIString(strProp.Name + "_help"), Configuration.getUIStringStrict(strProp.Name + "_filter"),
-                       Configuration.getUIStringStrict(strProp.Name + "_category")));
+                       Configuration.getUIStringStrict(strProp.Name + "_category"), this));
                 }
                 widgetCount++;
             }
@@ -167,7 +166,7 @@ namespace CrewChiefV4
                 this.propertiesFlowLayoutPanel.Controls.Add(new BooleanPropertyControl(boolProp.Name, Configuration.getUIString(boolProp.Name) + " " + Configuration.getUIString("boolean_prop_type"),
                     UserSettings.GetUserSettings().getBoolean(boolProp.Name), defaultValue,
                     Configuration.getUIString(boolProp.Name + "_help"), Configuration.getUIStringStrict(boolProp.Name + "_filter"),
-                    Configuration.getUIStringStrict(boolProp.Name + "_category")));
+                    Configuration.getUIStringStrict(boolProp.Name + "_category"), this));
                 widgetCount++;
             }
             pad(widgetCount);
@@ -179,7 +178,7 @@ namespace CrewChiefV4
                 this.propertiesFlowLayoutPanel.Controls.Add(new IntPropertyControl(intProp.Name, Configuration.getUIString(intProp.Name) + " " + Configuration.getUIString("integer_prop_type"),
                     UserSettings.GetUserSettings().getInt(intProp.Name), defaultValue,
                     Configuration.getUIString(intProp.Name + "_help"), Configuration.getUIStringStrict(intProp.Name + "_filter"),
-                    Configuration.getUIStringStrict(intProp.Name + "_category")));
+                    Configuration.getUIStringStrict(intProp.Name + "_category"), this));
                 widgetCount++;
             }
             pad(widgetCount);
@@ -191,7 +190,7 @@ namespace CrewChiefV4
                 this.propertiesFlowLayoutPanel.Controls.Add(new BooleanPropertyControl(boolProp.Name, Configuration.getUIString(boolProp.Name) + " " + Configuration.getUIString("boolean_prop_type"),
                     UserSettings.GetUserSettings().getBoolean(boolProp.Name), defaultValue,
                     Configuration.getUIString(boolProp.Name + "_help"), Configuration.getUIStringStrict(boolProp.Name + "_filter"),
-                    Configuration.getUIStringStrict(boolProp.Name + "_category"))); 
+                    Configuration.getUIStringStrict(boolProp.Name + "_category"), this));
                 widgetCount++;
             }
             pad(widgetCount);
@@ -203,7 +202,7 @@ namespace CrewChiefV4
                 this.propertiesFlowLayoutPanel.Controls.Add(new IntPropertyControl(intProp.Name, Configuration.getUIString(intProp.Name) + " " + Configuration.getUIString("integer_prop_type"),
                     UserSettings.GetUserSettings().getInt(intProp.Name), defaultValue,
                     Configuration.getUIString(intProp.Name + "_help"), Configuration.getUIStringStrict(intProp.Name + "_filter"),
-                    Configuration.getUIStringStrict(intProp.Name + "_category")));
+                    Configuration.getUIStringStrict(intProp.Name + "_category"), this));
                 widgetCount++;
             }
             pad(widgetCount);
@@ -215,7 +214,7 @@ namespace CrewChiefV4
                 this.propertiesFlowLayoutPanel.Controls.Add(new FloatPropertyControl(floatProp.Name, Configuration.getUIString(floatProp.Name) + " " + Configuration.getUIString("real_number_prop_type"),
                     UserSettings.GetUserSettings().getFloat(floatProp.Name), defaultValue,
                     Configuration.getUIString(floatProp.Name + "_help"), Configuration.getUIStringStrict(floatProp.Name + "_filter"),
-                    Configuration.getUIStringStrict(floatProp.Name + "_category"))); 
+                    Configuration.getUIStringStrict(floatProp.Name + "_category"), this));
                 widgetCount++;
             }
             pad(widgetCount);
@@ -280,7 +279,7 @@ namespace CrewChiefV4
                 // No need to filter.
                 this.specialFilterPrev = SpecialFilter.ALL_PREFERENCES;
             }
-            
+
             // Category filter:
             this.categoriesBox.Items.Clear();
             this.categoriesBox.Items.Add(new ComboBoxItem<PropertyCategory>()
@@ -392,7 +391,7 @@ namespace CrewChiefV4
                     boolControl.getValue());
                     currentSelection.userSettings[boolControl.propertyId] = boolControl.getValue();
                 }
-                if(isActiveProfile)
+                if (isActiveProfile)
                 {
                     UserSettings.GetUserSettings().saveUserSettings();
                 }
@@ -403,13 +402,24 @@ namespace CrewChiefV4
                 hasChanges = false;
             }
             return isActiveProfile;
+        }
 
+        public void updateSaveButtonText()
+        {
+            if (CrewChief.Debugging)
+            {
+                saveButton.Text = updatedPropertiesRequiringRestart.Count > 0 ? "Save (manual restart required)" : Configuration.getUIString("save_changes");
+            }
+            else
+            {
+                saveButton.Text = updatedPropertiesRequiringRestart.Count > 0 ? Configuration.getUIString("save_and_restart") : Configuration.getUIString("save_changes");
+            }
         }
 
         private void saveButton_Click(object sender, EventArgs e)
         {
             Boolean activeProfile = save();
-            if (!CrewChief.Debugging && activeProfile && requiresRestart)
+            if (!CrewChief.Debugging && activeProfile && updatedPropertiesRequiringRestart.Count > 0)
             {
                 // have to add "multi" to the start args so the app can restart
                 List<String> startArgs = new List<string>();
@@ -444,7 +454,7 @@ namespace CrewChiefV4
                 this.searchTimer = null;
             }
 
-            if (PropertiesForm.hasChanges && PropertiesForm.requiresRestart)
+            if (this.hasChanges && this.updatedPropertiesRequiringRestart.Count > 0)
             {
                 String warningMessage = Configuration.getUIString("save_prop_changes_warning");
                 if (CrewChief.Debugging)
@@ -882,17 +892,7 @@ namespace CrewChiefV4
             }
             userProfileSettingsGroupBox.Text = Configuration.getUIString("user_profile_settings") + " - " + profileSelectionComboBox.SelectedItem.ToString();
             Boolean isActiveProfile = profileSelectionComboBox.SelectedItem.ToString().Equals(Path.GetFileNameWithoutExtension(UserSettings.GetUserSettings().getString("current_settings_profile")));
-            if (CrewChief.Debugging && isActiveProfile)
-            {
-                this.saveButton.Text = "Save (manual restart required)";
-                loadProfileButton.Enabled = false;
-            }
-            else if (isActiveProfile)
-            {
-                saveButton.Text = Configuration.getUIString("save_and_restart");
-                loadProfileButton.Enabled = false;
-            }
-            else
+            if (!isActiveProfile)
             {
                 saveButton.Text = Configuration.getUIString("save_profile_settings");
                 loadProfileButton.Enabled = true;

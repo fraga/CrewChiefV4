@@ -16,11 +16,13 @@ namespace CrewChiefV4
         public String label;
         public Boolean defaultValue;
         public Boolean originalValue;
+        private PropertiesForm parent;
         internal PropertyFilter filter = null;
-        public BooleanPropertyControl(String propertyId, String label, Boolean value, Boolean defaultValue, String helpText, String filterText, String categoryText)
+        public BooleanPropertyControl(String propertyId, String label, Boolean value, Boolean defaultValue, String helpText, String filterText, 
+            String categoryText, PropertiesForm parent)
         {
             InitializeComponent();
-
+            this.parent = parent;
             this.label = label;
             this.propertyId = propertyId;
             this.originalValue = value;
@@ -49,18 +51,28 @@ namespace CrewChiefV4
             this.checkBox1.Checked = defaultValue;
             if (this.originalValue != this.checkBox1.Checked)
             {
-                PropertiesForm.hasChanges = true;
-                PropertiesForm.requiresRestart = this.changeRequiresRestart;
+                parent.hasChanges = true;
+                if (this.changeRequiresRestart) parent.updatedPropertiesRequiringRestart.Add(this.propertyId);
             }
+            else
+            {
+                parent.updatedPropertiesRequiringRestart.Remove(this.propertyId);
+            }
+            if (this.changeRequiresRestart) parent.updateSaveButtonText();
         }
 
         private void checkedChanged(object sender, EventArgs e)
         {
             if (this.originalValue != this.checkBox1.Checked)
             {
-                PropertiesForm.hasChanges = true;
-                PropertiesForm.requiresRestart = this.changeRequiresRestart;
+                parent.hasChanges = true;
+                if (this.changeRequiresRestart) parent.updatedPropertiesRequiringRestart.Add(this.propertyId);
             }
+            else
+            {
+                parent.updatedPropertiesRequiringRestart.Remove(this.propertyId);
+            }
+            if (this.changeRequiresRestart) parent.updateSaveButtonText();
         }
     }
 }

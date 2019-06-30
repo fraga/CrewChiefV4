@@ -133,13 +133,15 @@ namespace CrewChiefV4
         public String originalValue;
         public List<String> availableValues;
         public String label;
+        private PropertiesForm parent;
         internal PropertyFilter filter = null;
 
+
         public ListPropertyControl(String propertyId, String label, String currentValue, 
-            String defaultValue, String helpText, String filterText, String categoryText, String propertyType)
+            String defaultValue, String helpText, String filterText, String categoryText, String propertyType, PropertiesForm parent)
         {
             InitializeComponent();
-
+            this.parent = parent;
             this.label = label;
             this.propertyId = propertyId;
             this.label1.Text = label;
@@ -174,17 +176,21 @@ namespace CrewChiefV4
         public void setValue(String value)
         {
             this.originalValue = ListPropertyValues.getLabelForInvariantItem(propertyId, value);
-            this.comboBox1.SelectedIndex = availableValues.IndexOf(ListPropertyValues.getLabelForInvariantItem(propertyId, value));
-            
+            this.comboBox1.SelectedIndex = availableValues.IndexOf(ListPropertyValues.getLabelForInvariantItem(propertyId, value));            
         }
 
         public void button1_Click(object sender, EventArgs e)
         {
             if (originalValue != defaultValue)
             {
-                PropertiesForm.hasChanges = true;
-                PropertiesForm.requiresRestart = this.changeRequiresRestart;
+                parent.hasChanges = true;
+                if (this.changeRequiresRestart) parent.updatedPropertiesRequiringRestart.Add(this.propertyId);
             }
+            else
+            {
+                parent.updatedPropertiesRequiringRestart.Remove(this.propertyId);
+            }
+            if (this.changeRequiresRestart) parent.updateSaveButtonText();
             this.comboBox1.SelectedIndex = availableValues.IndexOf(defaultValue);
         }
 
@@ -192,9 +198,14 @@ namespace CrewChiefV4
         {
             if (this.availableValues[this.comboBox1.SelectedIndex] != originalValue)
             {
-                PropertiesForm.hasChanges = true;
-                PropertiesForm.requiresRestart = this.changeRequiresRestart;
+                parent.hasChanges = true;
+                if (this.changeRequiresRestart) parent.updatedPropertiesRequiringRestart.Add(this.propertyId);
             }
+            else
+            {
+                parent.updatedPropertiesRequiringRestart.Remove(this.propertyId);
+            }
+            if (this.changeRequiresRestart) parent.updateSaveButtonText();
         }
     }
 }
