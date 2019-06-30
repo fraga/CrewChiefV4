@@ -406,13 +406,16 @@ namespace CrewChiefV4
 
         public void updateSaveButtonText()
         {
+            Boolean restart = updatedPropertiesRequiringRestart.Count() > 0;
             if (CrewChief.Debugging)
             {
-                saveButton.Text = updatedPropertiesRequiringRestart.Count > 0 ? "Save (manual restart required)" : Configuration.getUIString("save_changes");
+                saveButton.Text = restart ? "Save (manual restart required)" : Configuration.getUIString("save_changes");
+                loadProfileButton.Text = restart ? "Activate profile(manual restart required)" : Configuration.getUIString("load_profile");
             }
             else
             {
-                saveButton.Text = updatedPropertiesRequiringRestart.Count > 0 ? Configuration.getUIString("save_and_restart") : Configuration.getUIString("save_changes");
+                saveButton.Text = restart ? Configuration.getUIString("save_and_restart") : Configuration.getUIString("save_changes");
+                loadProfileButton.Text = restart ? Configuration.getUIString("load_profile_and_restart") : Configuration.getUIString("load_profile");
             }
         }
 
@@ -897,14 +900,13 @@ namespace CrewChiefV4
                 saveButton.Text = Configuration.getUIString("save_profile_settings");
                 loadProfileButton.Enabled = true;
             }
-
         }
 
         private void loadProfileButton_Click(object sender, EventArgs e)
         {
             UserSettings.GetUserSettings().setProperty("current_settings_profile", profileSelectionComboBox.SelectedItem.ToString() + ".json");
             UserSettings.GetUserSettings().saveUserSettings();
-            if (!CrewChief.Debugging)
+            if (!CrewChief.Debugging && updatedPropertiesRequiringRestart.Count() > 0)
             {
                 // have to add "multi" to the start args so the app can restart
                 List<String> startArgs = new List<string>();
@@ -914,7 +916,39 @@ namespace CrewChiefV4
                     startArgs.Add("multi");
                 }
                 System.Diagnostics.Process.Start(Application.ExecutablePath, String.Join(" ", startArgs.ToArray())); // to start new instance of application
+                hasChanges = false;
                 parent.Close(); //to turn off current app
+            }
+            else
+            {
+                foreach (var control in this.propertiesFlowLayoutPanel.Controls)
+                {
+                    if (control.GetType() == typeof(StringPropertyControl))
+                    {
+                        StringPropertyControl stringControl = (StringPropertyControl)control;
+                        UserSettings.GetUserSettings().setProperty(stringControl.propertyId, stringControl.getValue());
+                    }
+                    else if (control.GetType() == typeof(ListPropertyControl))
+                    {
+                        ListPropertyControl listControl = (ListPropertyControl)control;
+                        UserSettings.GetUserSettings().setProperty(listControl.propertyId, listControl.getValue());
+                    }
+                    else if (control.GetType() == typeof(IntPropertyControl))
+                    {
+                        IntPropertyControl intControl = (IntPropertyControl)control;
+                        UserSettings.GetUserSettings().setProperty(intControl.propertyId, intControl.getValue());
+                    }
+                    if (control.GetType() == typeof(FloatPropertyControl))
+                    {
+                        FloatPropertyControl floatControl = (FloatPropertyControl)control;
+                        UserSettings.GetUserSettings().setProperty(floatControl.propertyId, floatControl.getValue());
+                    }
+                    if (control.GetType() == typeof(BooleanPropertyControl))
+                    {
+                        BooleanPropertyControl boolControl = (BooleanPropertyControl)control;
+                        UserSettings.GetUserSettings().setProperty(boolControl.propertyId, boolControl.getValue());
+                    }
+                }
             }
         }
     }

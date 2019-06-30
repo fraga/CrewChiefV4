@@ -175,8 +175,8 @@ namespace CrewChiefV4
 
         public void setValue(String value)
         {
-            this.originalValue = ListPropertyValues.getLabelForInvariantItem(propertyId, value);
-            this.comboBox1.SelectedIndex = availableValues.IndexOf(ListPropertyValues.getLabelForInvariantItem(propertyId, value));            
+            this.comboBox1.SelectedIndex = availableValues.IndexOf(ListPropertyValues.getLabelForInvariantItem(propertyId, value));           
+            this.originalValue = ListPropertyValues.getLabelForInvariantItem(propertyId, value); 
         }
 
         public void button1_Click(object sender, EventArgs e)

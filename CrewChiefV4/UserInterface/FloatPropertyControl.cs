@@ -52,10 +52,10 @@ namespace CrewChiefV4
         }
         public void setValue(float value)
         {
-            this.originalValue = value;
-            this.textBox1.Text = value.ToString();
-            
+            this.textBox1.Text = value.ToString();           
+            this.originalValue = value; 
         }
+
         public void button1_Click(object sender, EventArgs e)
         {
             if (defaultValue != originalValue)

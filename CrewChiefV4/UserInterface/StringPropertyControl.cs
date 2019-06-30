@@ -45,8 +45,8 @@ namespace CrewChiefV4
 
         public void setValue(String value)
         {
-            this.originalValue = value;
             this.textBox1.Text = value;            
+            this.originalValue = value;
         }
 
         public void button1_Click(object sender, EventArgs e)
