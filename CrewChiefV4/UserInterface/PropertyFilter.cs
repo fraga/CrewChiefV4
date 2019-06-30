@@ -20,11 +20,23 @@ namespace CrewChiefV4
         internal List<GameEnum> filterList = null;
         internal List<PropertiesForm.PropertyCategory> categoryList = null;
         internal bool includeFilter = true;
+        internal bool metadataRestartRequired = false;
         internal string propertyLabelUpper = null;
 
-        internal PropertyFilter(string filter, string category, string propertyId, string propertyLabel)
+        internal PropertyFilter(string filter, string category, string metadata, string propertyId, string propertyLabel)
         {
             this.propertyLabelUpper = propertyLabel.ToUpperInvariant();
+
+            // Process metadata.
+            if (!string.IsNullOrWhiteSpace(metadata))
+            {
+                var metadataFlags = metadata.Split(';');
+                foreach (var metadataFlag in metadataFlags)
+                {
+                    if (metadataFlag == "RESTART_REQUIRED")
+                        this.metadataRestartRequired = true;
+                }
+            }
 
             // Process category filter.
             if (!string.IsNullOrWhiteSpace(category))

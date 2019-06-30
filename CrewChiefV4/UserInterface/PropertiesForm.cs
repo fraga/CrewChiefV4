@@ -137,14 +137,15 @@ namespace CrewChiefV4
                     this.propertiesFlowLayoutPanel.Controls.Add(new ListPropertyControl(strProp.Name, Configuration.getUIString(strProp.Name) + " " + Configuration.getUIString("text_prop_type"),
                        UserSettings.GetUserSettings().getString(strProp.Name), (String)strProp.DefaultValue,
                        Configuration.getUIString(strProp.Name + "_help"), Configuration.getUIStringStrict(strProp.Name + "_filter"),
-                       Configuration.getUIStringStrict(strProp.Name + "_category"), Configuration.getUIStringStrict(strProp.Name + "_type")));
+                       Configuration.getUIStringStrict(strProp.Name + "_category"), Configuration.getUIStringStrict(strProp.Name + "_metadata"),
+                       Configuration.getUIStringStrict(strProp.Name + "_type")));
                 }
                 else
                 {
                     this.propertiesFlowLayoutPanel.Controls.Add(new StringPropertyControl(strProp.Name, Configuration.getUIString(strProp.Name) + " " + Configuration.getUIString("text_prop_type"),
                        UserSettings.GetUserSettings().getString(strProp.Name), (String)strProp.DefaultValue,
                        Configuration.getUIString(strProp.Name + "_help"), Configuration.getUIStringStrict(strProp.Name + "_filter"),
-                       Configuration.getUIStringStrict(strProp.Name + "_category")));
+                       Configuration.getUIStringStrict(strProp.Name + "_category"), Configuration.getUIStringStrict(strProp.Name + "_metadata")));
                 }
                 widgetCount++;
             }
@@ -157,7 +158,7 @@ namespace CrewChiefV4
                 this.propertiesFlowLayoutPanel.Controls.Add(new BooleanPropertyControl(boolProp.Name, Configuration.getUIString(boolProp.Name) + " " + Configuration.getUIString("boolean_prop_type"),
                     UserSettings.GetUserSettings().getBoolean(boolProp.Name), defaultValue,
                     Configuration.getUIString(boolProp.Name + "_help"), Configuration.getUIStringStrict(boolProp.Name + "_filter"),
-                    Configuration.getUIStringStrict(boolProp.Name + "_category")));
+                    Configuration.getUIStringStrict(boolProp.Name + "_category"), Configuration.getUIStringStrict(boolProp.Name + "_metadata")));
                 widgetCount++;
             }
             pad(widgetCount);
@@ -169,7 +170,7 @@ namespace CrewChiefV4
                 this.propertiesFlowLayoutPanel.Controls.Add(new IntPropertyControl(intProp.Name, Configuration.getUIString(intProp.Name) + " " + Configuration.getUIString("integer_prop_type"),
                     UserSettings.GetUserSettings().getInt(intProp.Name), defaultValue,
                     Configuration.getUIString(intProp.Name + "_help"), Configuration.getUIStringStrict(intProp.Name + "_filter"),
-                    Configuration.getUIStringStrict(intProp.Name + "_category")));
+                    Configuration.getUIStringStrict(intProp.Name + "_category"), Configuration.getUIStringStrict(intProp.Name + "_metadata")));
                 widgetCount++;
             }
             pad(widgetCount);
@@ -181,7 +182,7 @@ namespace CrewChiefV4
                 this.propertiesFlowLayoutPanel.Controls.Add(new BooleanPropertyControl(boolProp.Name, Configuration.getUIString(boolProp.Name) + " " + Configuration.getUIString("boolean_prop_type"),
                     UserSettings.GetUserSettings().getBoolean(boolProp.Name), defaultValue,
                     Configuration.getUIString(boolProp.Name + "_help"), Configuration.getUIStringStrict(boolProp.Name + "_filter"),
-                    Configuration.getUIStringStrict(boolProp.Name + "_category"))); 
+                    Configuration.getUIStringStrict(boolProp.Name + "_category"), Configuration.getUIStringStrict(boolProp.Name + "_metadata"))); 
                 widgetCount++;
             }
             pad(widgetCount);
@@ -193,7 +194,7 @@ namespace CrewChiefV4
                 this.propertiesFlowLayoutPanel.Controls.Add(new IntPropertyControl(intProp.Name, Configuration.getUIString(intProp.Name) + " " + Configuration.getUIString("integer_prop_type"),
                     UserSettings.GetUserSettings().getInt(intProp.Name), defaultValue,
                     Configuration.getUIString(intProp.Name + "_help"), Configuration.getUIStringStrict(intProp.Name + "_filter"),
-                    Configuration.getUIStringStrict(intProp.Name + "_category")));
+                    Configuration.getUIStringStrict(intProp.Name + "_category"), Configuration.getUIStringStrict(intProp.Name + "_metadata")));
                 widgetCount++;
             }
             pad(widgetCount);
@@ -205,7 +206,7 @@ namespace CrewChiefV4
                 this.propertiesFlowLayoutPanel.Controls.Add(new FloatPropertyControl(floatProp.Name, Configuration.getUIString(floatProp.Name) + " " + Configuration.getUIString("real_number_prop_type"),
                     UserSettings.GetUserSettings().getFloat(floatProp.Name), defaultValue,
                     Configuration.getUIString(floatProp.Name + "_help"), Configuration.getUIStringStrict(floatProp.Name + "_filter"),
-                    Configuration.getUIStringStrict(floatProp.Name + "_category"))); 
+                    Configuration.getUIStringStrict(floatProp.Name + "_category"), Configuration.getUIStringStrict(floatProp.Name + "_metadata"))); 
                 widgetCount++;
             }
             pad(widgetCount);

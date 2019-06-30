@@ -135,7 +135,7 @@ namespace CrewChiefV4
         internal PropertyFilter filter = null;
 
         public ListPropertyControl(String propertyId, String label, String currentValue, 
-            String defaultValue, String helpText, String filterText, String categoryText, String propertyType)
+            String defaultValue, String helpText, String filterText, String categoryText, String metadataText, String propertyType)
         {
             InitializeComponent();
 
@@ -159,7 +159,7 @@ namespace CrewChiefV4
             this.toolTip1.SetToolTip(this.comboBox1, helpText);
             this.toolTip1.SetToolTip(this.label1, helpText);
 
-            this.filter = new PropertyFilter(filterText, categoryText, propertyId, this.label);
+            this.filter = new PropertyFilter(filterText, categoryText, metadataText, propertyId, this.label);
             this.comboBox1.SelectedIndexChanged += textChanged;
         }
 

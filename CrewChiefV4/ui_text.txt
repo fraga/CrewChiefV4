@@ -456,6 +456,7 @@ spotter_enable_three_wide_left_and_right_category = SPOTTER
 use_alternate_beeps = Use alternate beeps
 use_alternate_beeps_help = Use a different radio sound (just the click)
 use_alternate_beeps_category = AUDIO_VOICE_AND_CONTROLLERS
+use_alternate_beeps_metadata = RESTART_REQUIRED
 
 use_fahrenheit = Use Fahrenheit for temps
 use_fahrenheit_category = FUEL_TEMPS_AND_DAMAGES
