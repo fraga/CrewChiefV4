@@ -977,6 +977,7 @@
 		},
 		{
 			"rf1TrackNames": ["Imola 2016"],
+			"rf2TrackNames": ["Imola 2018"],
 			"acTrackNames": ["imola:"],
 			"pcarsTrackName": "Imola:Grand Prix",
 			"pcars2TrackName": "Imola:GP",
