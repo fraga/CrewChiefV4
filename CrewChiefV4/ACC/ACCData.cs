@@ -1,29 +1,57 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using CrewChiefV4.GameState;
 
 namespace CrewChiefV4.ACC
 {
-    class ACCConstant
+    class accConstant
     {
-        public const string SharedMemoryName = "Local\\CrewChief_ACC";
         public const string SharedMemoryNamePhysics = "Local\\acpmf_physics"; // Local\\acpmf_physics
-    }    
-    namespace Data
+        public const string SharedMemoryNameGraphic = "Local\\acpmf_graphics"; // Local\\acpmf_graphics
+        public const string SharedMemoryNameStatic = "Local\\acpmf_static"; // Local\\acpmf_static
+        public const string SharedMemoryNameCrewChief = "Local\\acpmf_static"; // Local\\acpmf_static
+
+        public const string SettingMachineIpAddress = "acc_machine_ip";
+    }
+
+    namespace accData
     {
+        public enum AC_STATUS
+        {
+            AC_OFF = 0,
+            AC_REPLAY = 1,
+            AC_LIVE = 2,
+            AC_PAUSE = 3
+        }
+
+        public enum AC_SESSION_TYPE
+        {
+            AC_UNKNOWN = -1,
+            AC_PRACTICE = 0,
+            AC_QUALIFY = 1,
+            AC_RACE = 2,
+            AC_HOTLAP = 3,
+            AC_TIME_ATTACK = 4,
+            AC_DRIFT = 5,
+            AC_DRAG = 6,
+        }
+
+        public enum AC_FLAG_TYPE
+        {
+            AC_NO_FLAG = 0,
+            AC_BLUE_FLAG = 1,
+            AC_YELLOW_FLAG = 2,
+            AC_BLACK_FLAG = 3,
+            AC_WHITE_FLAG = 4,
+            AC_CHECKERED_FLAG = 5,
+            AC_PENALTY_FLAG = 6,
+        }
         public enum AC_WHEELS
         {
             FL = 0,
             FR = 1,
             RL = 2,
             RR = 3,
-        }
-        [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Ansi)]
-        [Serializable]
-        public struct acsVec3
-        {
-            public float x;
-            public float y;
-            public float z;
         }
         [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Unicode)]
         [Serializable]
@@ -109,352 +137,181 @@ namespace CrewChiefV4.ACC
             public float[] tyreTempO;
             public int isAIControlled;
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
-            public acsVec3[] tyreContactPoint;
+            public accVec3[] tyreContactPoint;
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
-            public acsVec3[] tyreContactNormal;
+            public accVec3[] tyreContactNormal;
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
-            public acsVec3[] tyreContactHeading;
+            public accVec3[] tyreContactHeading;
             float brakeBias;
-            public acsVec3 localVelocity;
+            public accVec3 localVelocity;
         }
 
-        public enum CarLocation  : byte
-        {
-	        ECarLocation__Null = 0,
-	        ECarLocation__Track = 1,
-	        ECarLocation__PitLane = 2,
-	        ECarLocation__PitEntry = 3,
-	        ECarLocation__PitExit = 4,
-	        ECarLocation__ECarLocation_MAX = 5
-        };
-
-        public enum RaceSessionType : byte
-	    {
-		    FreePractice1 = 0,
-		    FreePractice2 = 1,
-		    PreQualifying = 2,
-		    WarmUp = 3,
-		    Qualifying = 4,
-		    Qualifying1 = 5,
-		    Qualifying2 = 6,
-		    Qualifying3 = 7,
-		    Qualifying4 = 8,
-		    Superpole = 9,
-		    Race = 10,
-		    Hotlap = 11,
-		    Hotstint = 12,
-		    HotlapSuperpole = 13,
-            RaceSessionType_Max = 14,
-	    };
-
-	    public enum  RaceSessionPhase  : byte
-	    {
-		    StartingUI = 0,
-		    PreFormationTime = 1,
-		    FormationTime = 2,
-		    PreSessionTime = 3,
-		    SessionTime = 4,
-		    SessionOverTime = 5,
-		    PostSessionTime = 6,
-		    ResultUI = 7,
-            RaceSessionPhase_Max = 8, 
-	    };
-
-	    public enum  DriverCategory  : byte
-	    {
-		    EDriverCategory__Platinum = 0,
-		    EDriverCategory__Gold = 1,
-		    EDriverCategory__Silver = 2,
-		    EDriverCategory__Bronze = 3,
-		    EDriverCategory__EDriverCategory_MAX = 4
-	    };
-
-	    public enum  Nationality  : short
-	    {
-		    ENationality__Any = 0,
-		    ENationality__Italy = 1,
-		    ENationality__Germany = 2,
-		    ENationality__France = 3,
-		    ENationality__Spain = 4,
-		    ENationality__GreatBritain = 5,
-		    ENationality__Hungary = 6,
-		    ENationality__Belgium = 7,
-		    ENationality__Switzerland = 8,
-		    ENationality__Austria = 9,
-		    ENationality__Russia = 10,
-		    ENationality__Thailand = 11,
-		    ENationality__Netherlands = 12,
-		    ENationality__Poland = 13,
-		    ENationality__Argentina = 14,
-		    ENationality__Monaco = 15,
-		    ENationality__Ireland = 16,
-		    ENationality__Brazil = 17,
-		    ENationality__SouthAfrica = 18,
-		    ENationality__PuertoRico = 19,
-		    ENationality__Slovakia = 20,
-		    ENationality__Oman = 21,
-		    ENationality__Greece = 22,
-		    ENationality__SaudiArabia = 23,
-		    ENationality__Norway = 24,
-		    ENationality__Turkey = 25,
-		    ENationality__SouthKorea = 26,
-		    ENationality__Lebanon = 27,
-		    ENationality__Armenia = 28,
-		    ENationality__Mexico = 29,
-		    ENationality__Sweden = 30,
-		    ENationality__Finland = 31,
-		    ENationality__Denmark = 32,
-		    ENationality__Croatia = 33,
-		    ENationality__Canada = 34,
-		    ENationality__China = 35,
-		    ENationality__Portugal = 36,
-		    ENationality__ENationality_MAX = 37
-	    };
-
-	    public enum  CarModelType  : byte
-	    {
-		    ECarModelType__Porsche_991_GT3_R = 0,
-		    ECarModelType__Mercedes_AMG_GT3 = 1,
-		    ECarModelType__Ferrari_488_GT3 = 2,
-		    ECarModelType__Audi_R8_LMS = 3,
-		    ECarModelType__Lamborghini_Huracan_GT3 = 4,
-		    ECarModelType__Mclaren_650s_GT3 = 5,
-		    ECarModelType__Nissan_GT_R_Nismo_GT3 = 6,
-		    ECarModelType__BMW_M6_GT3 = 7,
-		    ECarModelType__Bentley_Continental_GT3 = 8,
-		    ECarModelType__Porsche_991II_GT3_Cup = 9,
-		    ECarModelType__Nissan_GT_R_Nismo_GT301 = 10,
-		    ECarModelType__Bentley_Continental_GT301 = 11,
-		    ECarModelType__Aston_Martin_Vantage_V12_GT3 = 12,
-		    ECarModelType__Lamborghini_Gallardo_R_EX = 13,
-		    ECarModelType__Jaguar_G3 = 14,
-		    ECarModelType__Lexus_RC_F_GT3 = 15,
-		    ECarModelType__Lamborghini_Huracan_GT301 = 16,
-		    ECarModelType__ECarModelType_MAX = 17
-	    };
-
-	    public enum  MarshalFlagType  : byte
-	    {
-		    EMarshalFlagType__White = 0,
-		    EMarshalFlagType__Green = 1,
-		    EMarshalFlagType__Red = 2,
-		    EMarshalFlagType__Blue = 3,
-		    EMarshalFlagType__Yellow = 4,
-		    EMarshalFlagType__Black = 5,
-		    EMarshalFlagType__BlackWhite = 6,
-		    EMarshalFlagType__Checkered = 7,
-		    EMarshalFlagType__OrangeCircle = 8,
-		    EMarshalFlagType__RedYellowStipes = 9,
-		    EMarshalFlagType__None = 10,
-		    EMarshalFlagType__EMarshalFlagType_MAX = 11
-	    };
-
-	    public enum  CupCategory  : byte
-	    {
-		    ECupCategory__Overall = 0,
-		    ECupCategory__ProAm = 1,
-		    ECupCategory__Am = 2,
-		    ECupCategory__Silver = 3,
-		    ECupCategory__National = 4,
-		    ECupCategory__ECupCategory_MAX = 5
-	    };
-
-	    public enum RaceEventType  : byte
-	    {
-		    ERaceEventType__A_3H = 0,
-		    ERaceEventType__B_24H = 1,
-		    ERaceEventType__C_6H = 2,
-		    ERaceEventType__D_1H = 3,
-		    ERaceEventType__ERaceEventType_MAX = 4
-	    };
-        // i think this one is supposed to be a bitfield but IDA cant always tell the differance 
-        [Flags]
+        [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Unicode)]
         [Serializable]
-        public enum LapStateFlags : short
-	    {
-		    HasCut = 0x0001,
-            IsInvalidLap = 0x0002,
-            HasPenalty = 0x0004,
-            IsOutLap = 0x0008,
-            IsInLap = 0x0010,
-            IsFormationLap = 0x0020,
-            IsSafetyCarOnTrack = 0x0040,
-            IsFullCourseYellow = 0x0080,
-            IsRetired = 0x0100,
-            IsDisqualified = 0x0200,
-            IsOnPitWorkingZone = 0x0400,
-            DriverSwap = 0x0800,
-	    };
-
-	    public enum PitStopRepairType : byte
-	    {
-		    Chassis = 0x0,
-		    SuspensionLF = 0x1,
-		    SuspensionRF = 0x2,
-		    SuspensionLR = 0x3,
-		    SuspensionRR = 0x4,
-		    Brakes = 0x5,
-		    Radiator = 0x6,
-		    GearBox = 0x7,
-	    };
-
-        [StructLayout(LayoutKind.Sequential, Pack = 8)]
-        [Serializable]
-        public struct ACCMarshal
+        public struct SPageFileGraphic
         {
-            public float startPos;
-            public float endPos;
-            public MarshalFlagType flag;	
+
+            public int packetId;
+            public AC_STATUS status;
+            public AC_SESSION_TYPE session;
+            [MarshalAsAttribute(UnmanagedType.ByValTStr, SizeConst = 15)]
+            public String currentTime;
+            [MarshalAsAttribute(UnmanagedType.ByValTStr, SizeConst = 15)]
+            public String lastTime;
+            [MarshalAsAttribute(UnmanagedType.ByValTStr, SizeConst = 15)]
+            public String bestTime;
+            [MarshalAsAttribute(UnmanagedType.ByValTStr, SizeConst = 15)]
+            public String split;
+            public int completedLaps;
+            public int position;
+            public int iCurrentTime;
+            public int iLastTime;
+            public int iBestTime;
+            public float sessionTimeLeft;
+            public float distanceTraveled;
+            public int isInPit;
+            public int currentSectorIndex;
+            public int lastSectorTime;
+            public int numberOfLaps;
+            [MarshalAsAttribute(UnmanagedType.ByValTStr, SizeConst = 33)]
+            public String tyreCompound;
+
+            public float replayTimeMultiplier;
+            public float normalizedCarPosition;
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
+            public float[] carCoordinates;
+            public float penaltyTime;
+            public AC_FLAG_TYPE flag;
+            public int idealLineOn;
+            public int isInPitLane;
+
+            public float surfaceGrip;
+            public int MandatoryPitDone;
         }
 
-        [StructLayout(LayoutKind.Sequential, Pack = 8)]
+        [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Unicode)]
         [Serializable]
-        public struct Marshals
+        public struct SPageFileStatic
         {
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
-            public ACCMarshal[] marshals;
-            public int marshalCount;
-            public byte checkeredFlagMarshalIndex;
+            [MarshalAsAttribute(UnmanagedType.ByValTStr, SizeConst = 15)]
+            public String smVersion;
+            [MarshalAsAttribute(UnmanagedType.ByValTStr, SizeConst = 15)]
+            public String acVersion;
+
+            // session static info
+            public int numberOfSessions;
+            public int numCars;
+            [MarshalAsAttribute(UnmanagedType.ByValTStr, SizeConst = 33)]
+            public String carModel;
+            [MarshalAsAttribute(UnmanagedType.ByValTStr, SizeConst = 33)]
+            public String track;
+            [MarshalAsAttribute(UnmanagedType.ByValTStr, SizeConst = 33)]
+            public String playerName;
+            [MarshalAsAttribute(UnmanagedType.ByValTStr, SizeConst = 33)]
+            public String playerSurname;
+            [MarshalAsAttribute(UnmanagedType.ByValTStr, SizeConst = 33)]
+            public String playerNick;
+            public int sectorCount;
+
+            // car static info
+            public float maxTorque;
+            public float maxPower;
+            public int maxRpm;
+            public float maxFuel;
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+            public float[] suspensionMaxTravel;
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+            public float[] tyreRadius;
+            public float maxTurboBoost;
+
+            public float deprecated_1;
+            public float deprecated_2;
+
+            public int penaltiesEnabled;
+
+            public float aidFuelRate;
+            public float aidTireRate;
+            public float aidMechanicalDamage;
+            public int aidAllowTyreBlankets;
+            public float aidStability;
+            public int aidAutoClutch;
+            public int aidAutoBlip;
+
+            public int hasDRS;
+            public int hasERS;
+            public int hasKERS;
+            public float kersMaxJ;
+            public int engineBrakeSettingsCount;
+            public int ersPowerControllerCount;
+
+            public float trackSPlineLength;
+            [MarshalAsAttribute(UnmanagedType.ByValTStr, SizeConst = 33)]
+            public String trackConfiguration;
+            public float ersMaxJ;
+            public int isTimedRace;
+            public int hasExtraLap;
+            [MarshalAsAttribute(UnmanagedType.ByValTStr, SizeConst = 33)]
+            public String carSkin;
+            public int reversedGridPositions;
+            public int PitWindowStart;
+            public int PitWindowEnd;            
         }
 
-        [StructLayout(LayoutKind.Sequential, Pack = 8)]
+        [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Ansi)]
         [Serializable]
-        public struct Vec3
+        public struct accVec3
         {
             public float x;
             public float y;
             public float z;
         }
 
-        [StructLayout(LayoutKind.Sequential, Pack = 8)]
+        [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Ansi)]
         [Serializable]
-        public struct Rotation
+        public struct accVehicleInfo
         {
-            public float pitch;
-            public float yaw;
-            public float roll;
-        }
-        [StructLayout(LayoutKind.Sequential, Pack = 8)]
-        [Serializable]
-        public struct WeatherStatus
-        {
-            public float ambientTemperature;
-            public float roadTemperature;
-            public float wetLevel;
-            public float windSpeed;
-            public float windDirection;
-            public float rainLevel;
-            public float cloudLevel;
-        };
-        [StructLayout(LayoutKind.Sequential, Pack = 8, CharSet = CharSet.Ansi)]
-        [Serializable]
-        public struct Track
-        {
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
-            public String name;
-            public int Id;
-            public float length;
-            public int sectors;
-            public int corners;
-            public byte isPolesitterOnLeft;
-            public WeatherStatus weatherState;
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 6)]
-            public float[] normalizesSectorLimits;
-            
-        }
-        [StructLayout(LayoutKind.Sequential, Pack = 8)]
-        [Serializable]
-        public struct Lap 
-	    {
-            public UInt16 driverIndex;
-            public float timeStamp;
-            public int lapTime;
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 6)]
-            public int[] sectorTimes;
-            public LapStateFlags lapStates;
-	    };
-        [StructLayout(LayoutKind.Sequential, Pack = 8, CharSet = CharSet.Ansi)]
-        [Serializable]
-        public struct Driver
-        {
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
-	        public String name;
-            public Nationality nation;
-	        public Vec3 location;
-	        public Rotation rotation;
-            public float distanceRoundTrackNormalizes;
-            public float speedMS;
-            public float speedKMH;
-            public float lastSectorTimeStamp;
-            public int position;
-            public int realTimePosition;
+            public int carId; 
+            public string driverName; 
+            public string carModel; 
+            public float speedMS; 
+            public int bestLapMS; 
             public int lapCount;
-            public int totalTime;
-	        public int currentDelta;
-            public int currentSector;          //0 based index, when formation lap starts in last sector this value will be tracksector count 
-            public int currentlaptime;
-            public Lap currentLap;
-            public Lap lastLap;
-            public float trottle;
-            public float brake;
-            public float clutch;
-            public float rpm;
-	        public float fuel;
-            public float maxFuel;
-            public byte isBetweenSafetyCarLines;
-            public byte isSessionOver;
-            public byte isDisqualified;
-            public byte isRetired;
-            public byte isCarOutOfTrack;
-            public UInt16 driverIndex;
-            public byte formationLapCounter;
-            public CarLocation trackLocation;
-            public byte pitLimiterOn;
+            public int currentLapInvalid;
+            public int currentLapTimeMS;
+            public int lastLapTimeMS;
+            public accVec3 worldPosition;
+            public int isCarInPitline;
+            public int isCarInPit;
+            public int carLeaderboardPosition;
+            public int carRealTimeLeaderboardPosition;
+            public float spLineLength;
+            public int isConnected;
+            public float[] suspensionDamage;
+            public float[] tyreInflation;
         }
 
-        [StructLayout(LayoutKind.Sequential, Pack = 8)]
+        [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Ansi)]
         [Serializable]
-        public struct ACCSessionData
+        public struct SPageFileCrewChief
         {
-            public float physicsTime;           //total time session has been running
-            public float sessionStartTimeStamp; //this gets set on session change
-            public float receivedServerTime;
-            public float serverTimeOffset;      //Not 100 sure what this one does but i assume we will have to use it when online
-            public float sessionStartTime;      
-            public float sessionEndTime;
-            public int sessionDuration;
-            public UInt32 pitWindowOpenAtTime;
-            public UInt32 pitWindowCloseAtTime;
-            public UInt32 maxDrivingTime;
-            public byte isServer;
-            public byte isClient;
-            public byte areCarsInitializated;
-            public byte isTimeStopped;
-            public byte isEventInitializated;
-            public byte isSessionInitializated;        
-            public UInt16 currentEventIndex;
-            public UInt16 currentSessionIndex;
-            public RaceSessionType currentSessionType;
-            public RaceSessionPhase currentSessionPhase;
-            public byte mandatoryPitStopCount;
-            public byte pitlaneSpeedLimitKmh;
-            public byte isOnline;
+            public int numVehicles;
+            public int focusVehicle;
+            public string serverName;
+            public accVehicleInfo[] vehicle;
+            public byte[] acInstallPath;
+            public int isInternalMemoryModuleLoaded;
+            public byte[] pluginVersion;
+            public SessionPhase SessionPhase;
+            public float trackLength;
+            public bool isRaining;
         }
 
-        [StructLayout(LayoutKind.Sequential, Pack = 8)]
-        [Serializable]
-        public struct  ACCSharedMemoryData
+        public class AssettoCorsaShared
         {
-            public ACCSessionData sessionData;
-            public Track track;
-            public byte isReady;
-            public float update;            
-            public Driver playerDriver;         
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 64)]
-            public Driver[]drivers;             //Array of total drivers connected including player
-	        public int driverCount;
-            public Marshals marshals;
-
-        }        
-    }    
+            public SPageFilePhysics accPhysics;
+            public SPageFileGraphic accGraphic;
+            public SPageFileStatic accStatic;
+            public SPageFileCrewChief accChief;
+        }
+    }
 }

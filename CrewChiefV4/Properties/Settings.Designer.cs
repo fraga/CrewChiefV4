@@ -12,7 +12,7 @@ namespace CrewChiefV4.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "12.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.0.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -3494,14 +3494,11 @@ namespace CrewChiefV4.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("5")]
-        public float pcars2_spotter_car_length
-        {
-            get
-            {
+        public float pcars2_spotter_car_length {
+            get {
                 return ((float)(this["pcars2_spotter_car_length"]));
             }
-            set
-            {
+            set {
                 this["pcars2_spotter_car_length"] = value;
             }
         }
@@ -3520,18 +3517,6 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool pit_box_time_countdown {
-            get {
-                return ((bool)(this["pit_box_time_countdown"]));
-            }
-            set {
-                this["pit_box_time_countdown"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string acc_launch_params {
             get {
@@ -3539,6 +3524,42 @@ namespace CrewChiefV4.Properties {
             }
             set {
                 this["acc_launch_params"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool launch_acc {
+            get {
+                return ((bool)(this["launch_acc"]));
+            }
+            set {
+                this["launch_acc"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("4.5")]
+        public float acc_spotter_car_length {
+            get {
+                return ((float)(this["acc_spotter_car_length"]));
+            }
+            set {
+                this["acc_spotter_car_length"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool pit_box_time_countdown {
+            get {
+                return ((bool)(this["pit_box_time_countdown"]));
+            }
+            set {
+                this["pit_box_time_countdown"] = value;
             }
         }
         
@@ -3557,36 +3578,12 @@ namespace CrewChiefV4.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool launch_acc {
-            get {
-                return ((bool)(this["launch_acc"]));
-            }
-            set {
-                this["launch_acc"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool record_sound_variety_data {
             get {
                 return ((bool)(this["record_sound_variety_data"]));
             }
             set {
                 this["record_sound_variety_data"] = value;
-            }
-        }        
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("4.5")]
-        public float acc_spotter_car_length {
-            get {
-                return ((float)(this["acc_spotter_car_length"]));
-            }
-            set {
-                this["acc_spotter_car_length"] = value;
             }
         }
         
@@ -3599,6 +3596,54 @@ namespace CrewChiefV4.Properties {
             }
             set {
                 this["pit_box_time_countdown_end_position"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("127.0.0.1")]
+        public string acc_machine_ip {
+            get {
+                return ((string)(this["acc_machine_ip"]));
+            }
+            set {
+                this["acc_machine_ip"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool enable_acc_log_sectors_for_unknown_tracks {
+            get {
+                return ((bool)(this["enable_acc_log_sectors_for_unknown_tracks"]));
+            }
+            set {
+                this["enable_acc_log_sectors_for_unknown_tracks"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool disable_acc_yellow_flag_warnings {
+            get {
+                return ((bool)(this["disable_acc_yellow_flag_warnings"]));
+            }
+            set {
+                this["disable_acc_yellow_flag_warnings"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("60")]
+        public int acc_practice_time_minuts {
+            get {
+                return ((int)(this["acc_practice_time_minuts"]));
+            }
+            set {
+                this["acc_practice_time_minuts"] = value;
             }
         }
     }

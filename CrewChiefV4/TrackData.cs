@@ -351,7 +351,7 @@ namespace CrewChiefV4
                         }
                         break;
                     case GameEnum.ACC:
-                        if (trackLandmarksForTrack.accTrackName != null)
+                        if (trackLandmarksForTrack.accTrackName != null && trackLandmarksForTrack.accTrackName.Length > 0)
                         {
                             if (String.Equals(trackLandmarksForTrack.accTrackName, trackName, StringComparison.OrdinalIgnoreCase)
                                 && checkForAndMatchOnLength(lengthFromGame, trackLandmarksForTrack.approximateTrackLength))
@@ -617,6 +617,20 @@ namespace CrewChiefV4
             new TrackDefinition("Hockenheim:Classic", 3, 6763.425f, new float[] {-533f, -318.25f}, new float[] {-705.5f, -2f})
         };
 
+        public static List<TrackDefinition> accTracks = new List<TrackDefinition>()
+        {
+            new TrackDefinition("Spa:track config", 7004f, 3, new float[] { 2329.3f, 5032.354f}),
+            new TrackDefinition("monza:track config", 5793f, 3, new float[] {1952.014f, 3854.782f}), 
+            new TrackDefinition("Zolder:track config", 4011f, 3, new float[] {1464.437f, 2755.968f}), 
+            new TrackDefinition("brands_hatch:track config", 3908f, 3, new float[] {1136.084f, 2208.08f}),
+            new TrackDefinition("Silverstone:track config", 5891f, 3, new float[] {1874.756f, 4170.74f}),
+            new TrackDefinition("Paul_Ricard:track config", 5842f, 3, new float[] { 1540.441f, 3484.919f}),
+            new TrackDefinition("misano:track config", 4226f, 3, new float[] { 941.0679f, 2632.186f}),
+            new TrackDefinition("Hungaroring:track config", 4381f, 3, new float[] { 1743.39f, 3279.477f}),
+            new TrackDefinition("nurburgring:track config", 5137f, 3, new float[] { 2328.185f, 4422.274f}),
+            new TrackDefinition("Barcelona:track config", 4655f, 3, new float[] { 1620.319f, 3411.963f})
+        };
+
         public static List<TrackDefinition> assettoTracks = new List<TrackDefinition>()
         {
             new TrackDefinition("spa:", 6946.062f, 3, new float[] {2265f, 5036f}),
@@ -799,7 +813,23 @@ namespace CrewChiefV4
                 return new TrackDefinition("unknown track , length = " + trackLength, trackLength);
             }
         }
-        public static TrackDefinition getTrackDefinition(String trackName, float trackLength, int sectorsOnTrack)
+        public static TrackDefinition getACCTrackDefinition(String trackName, float trackLength, int sectorsOnTrack)
+        {
+            List<TrackDefinition> defsWhichMatchName = new List<TrackDefinition>();
+            foreach (TrackDefinition def in accTracks)
+            {
+                if (def.name.Equals(trackName))
+                {
+                    return def;
+                }
+            }
+            TrackDefinition unknownTrackDef = new TrackDefinition(trackName, trackLength, sectorsOnTrack, new float[] { 0f, 0f });
+            unknownTrackDef.unknownTrack = true;
+            unknownTrackDef.setSectorPointsForUnknownTracks();
+            return unknownTrackDef;
+        }
+
+        public static TrackDefinition getAssettoTrackDefinition(String trackName, float trackLength, int sectorsOnTrack)
         {
             List<TrackDefinition> defsWhichMatchName = new List<TrackDefinition>();
             foreach (TrackDefinition def in assettoTracks)

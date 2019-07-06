@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CrewChiefV4</RootNamespace>
     <AssemblyName>CrewChiefV4</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>b4e49d91</NuGetPackageImportStamp>
     <TargetFrameworkProfile />
@@ -63,10 +63,6 @@
     <Reference Include="MathNet.Numerics">
       <HintPath>..\packages\MathNet.Numerics.4.5.1\lib\net40\MathNet.Numerics.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Speech, Version=11.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\Program Files\Microsoft SDKs\Speech\v11.0\Assembly\Microsoft.Speech.dll</HintPath>
-    </Reference>
     <Reference Include="NAudio">
       <HintPath>..\packages\NAudio.1.8.3\lib\net35\NAudio.dll</HintPath>
     </Reference>
@@ -103,6 +99,27 @@
     <Compile Include="ACC\ACCGameStateMapper.cs" />
     <Compile Include="ACC\ACCSharedMemoryReader.cs" />
     <Compile Include="ACC\ACCSpotter.cs" />
+    <Compile Include="ACC\ksBroadcastingNetwork\ACCUdpRemoteClient.cs" />
+    <Compile Include="ACC\ksBroadcastingNetwork\BroadcastingEnums.cs" />
+    <Compile Include="ACC\ksBroadcastingNetwork\BroadcastingNetworkProtocol.cs" />
+    <Compile Include="ACC\ksBroadcastingNetwork\Structs\BroadcastingEvent.cs" />
+    <Compile Include="ACC\ksBroadcastingNetwork\Structs\CarInfo.cs" />
+    <Compile Include="ACC\ksBroadcastingNetwork\Structs\DriverInfo.cs" />
+    <Compile Include="ACC\ksBroadcastingNetwork\Structs\LapInfo.cs" />
+    <Compile Include="ACC\ksBroadcastingNetwork\Structs\RealtimeCarUpdate.cs" />
+    <Compile Include="ACC\ksBroadcastingNetwork\Structs\RealtimeUpdate.cs" />
+    <Compile Include="ACC\ksBroadcastingNetwork\Structs\TrackData.cs" />
+    <Compile Include="ACC\UDPHandler\KSObservableObject.cs" />
+    <Compile Include="ACC\UDPHandler\ViewModels\BroadcastingEventViewModel.cs" />
+    <Compile Include="ACC\UDPHandler\ViewModels\BroadcastingViewModel.cs" />
+    <Compile Include="ACC\UDPHandler\ViewModels\CarViewModel.cs" />
+    <Compile Include="ACC\UDPHandler\ViewModels\ClientConnectionViewModel.cs" />
+    <Compile Include="ACC\UDPHandler\ViewModels\ClientPanelViewModel.cs" />
+    <Compile Include="ACC\UDPHandler\ViewModels\DriverViewModel.cs" />
+    <Compile Include="ACC\UDPHandler\ViewModels\LapViewModel.cs" />
+    <Compile Include="ACC\UDPHandler\ViewModels\SessionInfoViewModel.cs" />
+    <Compile Include="ACC\UDPHandler\ViewModels\TrackViewModel.cs" />
+    <Compile Include="ACC\UDPHandler\ViewModels\UdpUpdateViewModel.cs" />
     <Compile Include="ACS\ACSData.cs" />
     <Compile Include="ACS\ACSGameStateMapper.cs" />
     <Compile Include="ACS\ACSSharedMemoryReader.cs" />
@@ -189,9 +206,7 @@
     <Compile Include="NumberReaderIt2.cs" />
     <Compile Include="ThreadManager.cs" />
     <Compile Include="UserInterface\PropertyFilter.cs" />
-    <Compile Include="UserInterface\ListPropertyControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
+    <Compile Include="UserInterface\ListPropertyControl.cs" />
     <Compile Include="UserInterface\ListPropertyControl.Designer.cs">
       <DependentUpon>ListPropertyControl.cs</DependentUpon>
     </Compile>
