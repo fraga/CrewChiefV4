@@ -1265,8 +1265,20 @@ namespace CrewChiefV4
                     Console.WriteLine("Failed to unload R3E grammar: " + e.Message);
                 }
             }
+            foreach (Grammar iracingGrammar in iracingPitstopGrammarList)
+            {
+                try
+                {
+                    sre.UnloadGrammar(iracingGrammar);
+                }
+                catch (Exception e)
+                {
+                    // ignore - we might be switching between games here
+                }
+            }
             try
             {
+                iracingPitstopGrammarList.Clear();
                 r3ePitstopGrammarList.Clear();
                 Choices r3eChoices = new Choices();
                 validateAndAdd(PIT_STOP_CHANGE_ALL_TYRES, r3eChoices);
@@ -1314,8 +1326,20 @@ namespace CrewChiefV4
                     Console.WriteLine("Failed to unload iRacing grammar: " + e.Message);
                 }
             }
+            foreach (Grammar r3eGrammar in r3ePitstopGrammarList)
+            {
+                try
+                {
+                    sre.UnloadGrammar(r3eGrammar);
+                }
+                catch (Exception e)
+                {
+                    // ignore - we might be switching between games here
+                }
+            }
             try
             {
+                r3ePitstopGrammarList.Clear();
                 iracingPitstopGrammarList.Clear();
                 Choices iRacingChoices = new Choices();
                 if (enable_iracing_pit_stop_commands)
