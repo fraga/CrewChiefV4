@@ -267,7 +267,7 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
-Version 4.9.8.8: Fix potential crash bug when assigning buttons or when testing button assignments / voice commands before the app receives any game data
+Version 4.9.8.8: Fix potential crash bug when assigning buttons or when testing button assignments / voice commands before the app receives any game data; removed some debug code that may have triggered in the previous release
 
 Version 4.9.8.7: Rewrote installer to use WIX rather than InstallShield - should help with the updating issues that some users encounter; added an optional delay before switching the spotter to be switched off on full course yellow (default is to silence spotter as soon as the full course yellow is shown - to use the new behaviour disable the 'Mute spotter immediately on full course yellow' property); fix crash bug when disabling 'Identify opponents by race position'; assign button to action when button is released, not pressed - should fix issues with devices which keep buttons pressed all the time; RF2 - added latest Formula E mappings and rules; R3E - improved accuracy of pit box countdown; 
 
