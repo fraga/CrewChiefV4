@@ -1103,7 +1103,8 @@ namespace CrewChiefV4.Events
                         audioPlayer.playMessageImmediately(new QueuedMessage("Fuel/estimate", 0, messageFragments: messageFragments));
                     }
                 }
-                lastFuelCall = CrewChief.currentGameState.Now;
+                if (CrewChief.currentGameState != null && CrewChief.currentGameState.Now != null)
+                    lastFuelCall = CrewChief.currentGameState.Now;
             }
             if (!haveData)
             {
@@ -1113,7 +1114,7 @@ namespace CrewChiefV4.Events
                     audioPlayer.playMessageImmediately(new QueuedMessage(folderPlentyOfFuel, 0));
                     return haveData;
                 }
-                if(fuelReportsInGallon)
+                if (fuelReportsInGallon)
                 {
                     if (convertLitersToGallons(currentFuel) >= 2)
                     {
@@ -1148,7 +1149,8 @@ namespace CrewChiefV4.Events
                         haveData = true;
                         audioPlayer.playMessageImmediately(new QueuedMessage("Fuel/level", 0, messageFragments: MessageContents(folderAboutToRunOut)));
                     }
-                    lastFuelCall = CrewChief.currentGameState.Now;
+                    if (CrewChief.currentGameState != null && CrewChief.currentGameState.Now != null)
+                        lastFuelCall = CrewChief.currentGameState.Now;
                 }
                 else
                 {
@@ -1170,7 +1172,8 @@ namespace CrewChiefV4.Events
                         haveData = true;
                         audioPlayer.playMessageImmediately(new QueuedMessage("Fuel/level", 0, messageFragments: MessageContents(folderAboutToRunOut)));
                     }
-                    lastFuelCall = CrewChief.currentGameState.Now;
+                    if (CrewChief.currentGameState != null && CrewChief.currentGameState.Now != null)
+                        lastFuelCall = CrewChief.currentGameState.Now;
                 }
             }
             return haveData;
@@ -1282,7 +1285,8 @@ namespace CrewChiefV4.Events
                     if (fuelMessage != null)
                     {
                         audioPlayer.playMessageImmediately(fuelMessage);
-                        lastFuelCall = CrewChief.currentGameState.Now;
+                        if (CrewChief.currentGameState != null && CrewChief.currentGameState.Now != null)
+                            lastFuelCall = CrewChief.currentGameState.Now;
                         reportedLitresNeeded = true;
                     }
                 }                
@@ -1710,7 +1714,9 @@ namespace CrewChiefV4.Events
         // don't allow some automatic fuel messages to play if the last fuel message was < 30 seconds ago
         private static Boolean canPlayFuelMessage()
         {
-            return CrewChief.currentGameState.Now > lastFuelCall.AddSeconds(30);
+            return CrewChief.currentGameState != null 
+                && CrewChief.currentGameState.Now != null 
+                && CrewChief.currentGameState.Now > lastFuelCall.AddSeconds(30);
         }
     }
 }

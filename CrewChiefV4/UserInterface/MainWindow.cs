@@ -3054,11 +3054,11 @@ namespace CrewChiefV4
                 }
                 else
                 {
-                    if (repetitionCount == 1)
+                    if (repetitionCount > 0 && repetitionCount < 20)
                     {
-                        writeMessage("Skipped 1 copy of previous message\n");
+                        writeMessage("Skipped " + repetitionCount + " copies of previous message\n");
                     }
-                    else if (repetitionCount > 0 && MainWindow.instance.crewChief.mapped)
+                    else if (repetitionCount >= 20 && MainWindow.instance.crewChief.mapped)
                     {
                         writeMessage("++++++++++++ Skipped " + repetitionCount + " copies of previous message. Please report this error to the CC dev team ++++++++++++\n");
                     }

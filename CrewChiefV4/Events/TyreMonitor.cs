@@ -1503,7 +1503,7 @@ namespace CrewChiefV4.Events
                 }
                 else
                 {
-                    int remaining = getRemainingTyreLife(CrewChief.currentGameState.SessionData.SessionRunningTime, maxWearPercent);
+                    int remaining = CrewChief.currentGameState == null ? -1 : getRemainingTyreLife(CrewChief.currentGameState.SessionData.SessionRunningTime, maxWearPercent);
                     if (remaining != -1)
                     {
                         if (lapsInSession > 0 || timeInSession == 0)
@@ -1523,7 +1523,7 @@ namespace CrewChiefV4.Events
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOWS_MY_LEFT_FRONT_CAMBER_RIGHT_NOW))
             {
-                if (!hasUsableIMOTempData(false))
+                if (!hasUsableIMOTempData(false) || CrewChief.currentGameState == null)
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
                 }
@@ -1551,7 +1551,7 @@ namespace CrewChiefV4.Events
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOWS_MY_RIGHT_FRONT_CAMBER_RIGHT_NOW))
             {
-                if (!hasUsableIMOTempData(false))
+                if (!hasUsableIMOTempData(false) || CrewChief.currentGameState == null)
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
                 }
@@ -1579,7 +1579,7 @@ namespace CrewChiefV4.Events
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOWS_MY_LEFT_REAR_CAMBER_RIGHT_NOW))
             {
-                if (!hasUsableIMOTempData(false))
+                if (!hasUsableIMOTempData(false) || CrewChief.currentGameState == null)
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
                 }
@@ -1607,7 +1607,7 @@ namespace CrewChiefV4.Events
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOWS_MY_RIGHT_REAR_CAMBER_RIGHT_NOW))
             {
-                if (!hasUsableIMOTempData(false))
+                if (!hasUsableIMOTempData(false) || CrewChief.currentGameState == null)
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
                 }
@@ -1635,7 +1635,7 @@ namespace CrewChiefV4.Events
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOWS_MY_FRONT_CAMBER_RIGHT_NOW))
             {
-                if (!hasUsableIMOTempData(false))
+                if (!hasUsableIMOTempData(false) || CrewChief.currentGameState == null)
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
                 }
@@ -1667,7 +1667,7 @@ namespace CrewChiefV4.Events
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOWS_MY_REAR_CAMBER_RIGHT_NOW))
             {
-                if (!hasUsableIMOTempData(false))
+                if (!hasUsableIMOTempData(false) || CrewChief.currentGameState == null)
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
                 }
@@ -1699,7 +1699,7 @@ namespace CrewChiefV4.Events
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOW_ARE_MY_TYRE_PRESSURES_RIGHT_NOW))
             {
-                if (!hasUsableIMOTempData(false))
+                if (!hasUsableIMOTempData(false) || CrewChief.currentGameState == null)
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
                 }
@@ -1712,7 +1712,7 @@ namespace CrewChiefV4.Events
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOW_ARE_MY_TYRE_PRESSURES))
             {
-                if (!hasUsableIMOTempData(true))
+                if (!hasUsableIMOTempData(true) || CrewChief.currentGameState == null)
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
                 }
@@ -1725,7 +1725,7 @@ namespace CrewChiefV4.Events
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOW_ARE_MY_FRONT_TYRE_PRESSURES_RIGHT_NOW))
             {
-                if (!hasUsableIMOTempData(false))
+                if (!hasUsableIMOTempData(false) || CrewChief.currentGameState == null)
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
                 }
@@ -1737,7 +1737,7 @@ namespace CrewChiefV4.Events
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOW_ARE_MY_FRONT_TYRE_PRESSURES))
             {
-                if (!hasUsableIMOTempData(true))
+                if (!hasUsableIMOTempData(true) || CrewChief.currentGameState == null)
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
                 }
@@ -1749,7 +1749,7 @@ namespace CrewChiefV4.Events
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOW_ARE_MY_REAR_TYRE_PRESSURES_RIGHT_NOW))
             {
-                if (!hasUsableIMOTempData(false))
+                if (!hasUsableIMOTempData(false) || CrewChief.currentGameState == null)
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
                 }
@@ -1761,7 +1761,7 @@ namespace CrewChiefV4.Events
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOW_ARE_MY_REAR_TYRE_PRESSURES))
             {
-                if (!hasUsableIMOTempData(true))
+                if (!hasUsableIMOTempData(true) || CrewChief.currentGameState == null)
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
                 }
@@ -1800,6 +1800,7 @@ namespace CrewChiefV4.Events
 
         private String getPressureMessage(CornerData.Corners corners, Boolean useAverageData)
         {
+
             float percentDiff;
             float averageEdgeTemp;
             float middleTemp;

@@ -95,7 +95,8 @@ namespace CrewChiefV4.commands
                 if (isValid && CrewChief.gameDefinition == GameDefinition.raceRoom)
                 {
                     R3EPitMenuManager.outstandingPitstopRequest = true;
-                    R3EPitMenuManager.timeWeCanAnnouncePitActions = CrewChief.currentGameState.Now.AddSeconds(10);
+                    if (CrewChief.currentGameState != null && CrewChief.currentGameState.Now != null)
+                        R3EPitMenuManager.timeWeCanAnnouncePitActions = CrewChief.currentGameState.Now.AddSeconds(10);
                 }
             }
             // special case for 'cancel pit request' macro - check we've actually requested a stop
