@@ -306,7 +306,7 @@ namespace CrewChiefV4.ACC
             public bool isRaining;
         }
 
-        public class AssettoCorsaShared
+        public class ACCShared
         {
             public SPageFilePhysics accPhysics;
             public SPageFileGraphic accGraphic;

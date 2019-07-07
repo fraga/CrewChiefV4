@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,8 +21,7 @@ namespace ksBroadcastingNetwork
         readonly static object udpLock = new object();
         readonly static SemaphoreSlim udpTaskSemaphore = new SemaphoreSlim(1, 1);
         bool allowRun;
-        bool serverConnected;
-
+        
         /// <summary>
         /// To get the events delivered inside the UI thread, just create this object from the UI thread/synchronization context.
         /// </summary>

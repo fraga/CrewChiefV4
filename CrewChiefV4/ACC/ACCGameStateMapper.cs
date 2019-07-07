@@ -46,8 +46,6 @@ namespace CrewChiefV4.ACC
         private float[] loggedSectorStart = new float[] { -1f, -1f };
 
         private List<CornerData.EnumWithThresholds> brakeTempThresholdsForPlayersCar = null;
-        private static string expectedVersion = "1.7";
-        private static string expectedPluginVersion = "1.0.0";
 
         private int lapCountAtSector1End = -1;
 
@@ -89,52 +87,6 @@ namespace CrewChiefV4.ACC
             suspensionDamageThresholds.Add(suspensionDamageDestroyed);
 
             //GTE Classes
-
-            List<CornerData.EnumWithThresholds> tyreWearThresholdsSlickSuperSoft = new List<CornerData.EnumWithThresholds>();
-            tyreWearThresholdsSlickSuperSoft.Add(new CornerData.EnumWithThresholds(TyreCondition.NEW, -10000f, 0.000f));
-            tyreWearThresholdsSlickSuperSoft.Add(new CornerData.EnumWithThresholds(TyreCondition.SCRUBBED, 0.000f, 3.685061f));
-            tyreWearThresholdsSlickSuperSoft.Add(new CornerData.EnumWithThresholds(TyreCondition.MINOR_WEAR, 3.685061f, 7.407379f));
-            tyreWearThresholdsSlickSuperSoft.Add(new CornerData.EnumWithThresholds(TyreCondition.MAJOR_WEAR, 7.407379f, 72.5275f));
-            tyreWearThresholdsSlickSuperSoft.Add(new CornerData.EnumWithThresholds(TyreCondition.WORN_OUT, 72.5275f, 1000f));
-
-            List<CornerData.EnumWithThresholds> tyreTempsThresholdsSlickSuperSoft = new List<CornerData.EnumWithThresholds>();
-            tyreTempsThresholdsSlickSuperSoft.Add(new CornerData.EnumWithThresholds(TyreTemp.COLD, -10000f, 50f));
-            tyreTempsThresholdsSlickSuperSoft.Add(new CornerData.EnumWithThresholds(TyreTemp.WARM, 50f, 80f));
-            tyreTempsThresholdsSlickSuperSoft.Add(new CornerData.EnumWithThresholds(TyreTemp.HOT, 80f, 140f));
-            tyreTempsThresholdsSlickSuperSoft.Add(new CornerData.EnumWithThresholds(TyreTemp.COOKING, 140f, 10000f));
-            acTyres.Add("Slick SuperSoft (SS)", new AcTyres(tyreWearThresholdsSlickSuperSoft, tyreTempsThresholdsSlickSuperSoft, 88f));
-
-
-            List<CornerData.EnumWithThresholds> tyreWearThresholdsSlickSoft = new List<CornerData.EnumWithThresholds>();
-            tyreWearThresholdsSlickSoft.Add(new CornerData.EnumWithThresholds(TyreCondition.NEW, -10000f, 0.000f));
-            tyreWearThresholdsSlickSoft.Add(new CornerData.EnumWithThresholds(TyreCondition.SCRUBBED, 0.000f, 3.685061f));
-            tyreWearThresholdsSlickSoft.Add(new CornerData.EnumWithThresholds(TyreCondition.MINOR_WEAR, 3.685061f, 14.96601f));
-            tyreWearThresholdsSlickSoft.Add(new CornerData.EnumWithThresholds(TyreCondition.MAJOR_WEAR, 14.96601f, 46.8085f));
-            tyreWearThresholdsSlickSoft.Add(new CornerData.EnumWithThresholds(TyreCondition.WORN_OUT, 46.8085f, 1000f));
-
-            List<CornerData.EnumWithThresholds> tyreTempsThresholdsSoftSlick = new List<CornerData.EnumWithThresholds>();
-            tyreTempsThresholdsSoftSlick.Add(new CornerData.EnumWithThresholds(TyreTemp.COLD, -10000f, 70f));
-            tyreTempsThresholdsSoftSlick.Add(new CornerData.EnumWithThresholds(TyreTemp.WARM, 70f, 85f));
-            tyreTempsThresholdsSoftSlick.Add(new CornerData.EnumWithThresholds(TyreTemp.HOT, 85f, 100f));
-            tyreTempsThresholdsSoftSlick.Add(new CornerData.EnumWithThresholds(TyreTemp.COOKING, 100f, 10000f));
-            acTyres.Add("Slick Soft (S)", new AcTyres(tyreWearThresholdsSlickSoft, tyreTempsThresholdsSoftSlick, 88f));
-
-
-            List<CornerData.EnumWithThresholds> tyreWearThresholdsSlickMedium = new List<CornerData.EnumWithThresholds>();
-            tyreWearThresholdsSlickMedium.Add(new CornerData.EnumWithThresholds(TyreCondition.NEW, -10000f, 0.000f));
-            tyreWearThresholdsSlickMedium.Add(new CornerData.EnumWithThresholds(TyreCondition.SCRUBBED, 0.000f, 3.685061f));
-            tyreWearThresholdsSlickMedium.Add(new CornerData.EnumWithThresholds(TyreCondition.MINOR_WEAR, 3.685061f, 14.96601f));
-            tyreWearThresholdsSlickMedium.Add(new CornerData.EnumWithThresholds(TyreCondition.MAJOR_WEAR, 14.96601f, 30.55553f));
-            tyreWearThresholdsSlickMedium.Add(new CornerData.EnumWithThresholds(TyreCondition.WORN_OUT, 30.55553f, 1000f));
-
-            List<CornerData.EnumWithThresholds> tyreTempsThresholdsMediumSlick = new List<CornerData.EnumWithThresholds>();
-            tyreTempsThresholdsMediumSlick.Add(new CornerData.EnumWithThresholds(TyreTemp.COLD, -10000f, 90f));
-            tyreTempsThresholdsMediumSlick.Add(new CornerData.EnumWithThresholds(TyreTemp.WARM, 90f, 115f));
-            tyreTempsThresholdsMediumSlick.Add(new CornerData.EnumWithThresholds(TyreTemp.HOT, 115f, 140f));
-            tyreTempsThresholdsMediumSlick.Add(new CornerData.EnumWithThresholds(TyreTemp.COOKING, 140f, 10000f));
-            acTyres.Add("Slick Medium (M)", new AcTyres(tyreWearThresholdsSlickMedium, tyreTempsThresholdsMediumSlick, 88f));
-
-
             List<CornerData.EnumWithThresholds> tyreWearThresholdsSlickHard = new List<CornerData.EnumWithThresholds>();
             tyreWearThresholdsSlickHard.Add(new CornerData.EnumWithThresholds(TyreCondition.NEW, -10000f, 0.000f));
             tyreWearThresholdsSlickHard.Add(new CornerData.EnumWithThresholds(TyreCondition.SCRUBBED, 0.000f, 14.96601f));
@@ -147,58 +99,7 @@ namespace CrewChiefV4.ACC
             tyreTempsThresholdsHardSlick.Add(new CornerData.EnumWithThresholds(TyreTemp.WARM, 75f, 100f));
             tyreTempsThresholdsHardSlick.Add(new CornerData.EnumWithThresholds(TyreTemp.HOT, 100f, 180f));
             tyreTempsThresholdsHardSlick.Add(new CornerData.EnumWithThresholds(TyreTemp.COOKING, 180f, 10000f));
-            acTyres.Add("Slick Hard (H)", new AcTyres(tyreWearThresholdsSlickHard, tyreTempsThresholdsHardSlick, 88f));
-
-
-            List<CornerData.EnumWithThresholds> tyreWearThresholdsSlickSuperHard = new List<CornerData.EnumWithThresholds>();
-            tyreWearThresholdsSlickSuperHard.Add(new CornerData.EnumWithThresholds(TyreCondition.NEW, -10000f, 0.000f));
-            tyreWearThresholdsSlickSuperHard.Add(new CornerData.EnumWithThresholds(TyreCondition.SCRUBBED, 0.000f, 1.469612f));
-            tyreWearThresholdsSlickSuperHard.Add(new CornerData.EnumWithThresholds(TyreCondition.MINOR_WEAR, 1.469612f, 22.68041f));
-            tyreWearThresholdsSlickSuperHard.Add(new CornerData.EnumWithThresholds(TyreCondition.MAJOR_WEAR, 22.68041f, 30.55553f));
-            tyreWearThresholdsSlickSuperHard.Add(new CornerData.EnumWithThresholds(TyreCondition.WORN_OUT, 30.55553f, 1000f));
-
-            List<CornerData.EnumWithThresholds> tyreTempsThresholdsSlickSuperHard = new List<CornerData.EnumWithThresholds>();
-            tyreTempsThresholdsSlickSuperHard.Add(new CornerData.EnumWithThresholds(TyreTemp.COLD, -10000f, 85f));
-            tyreTempsThresholdsSlickSuperHard.Add(new CornerData.EnumWithThresholds(TyreTemp.WARM, 85f, 110f));
-            tyreTempsThresholdsSlickSuperHard.Add(new CornerData.EnumWithThresholds(TyreTemp.HOT, 110f, 160f));
-            tyreTempsThresholdsSlickSuperHard.Add(new CornerData.EnumWithThresholds(TyreTemp.COOKING, 160f, 10000f));
-            acTyres.Add("Slick SuperHard (SH)", new AcTyres(tyreWearThresholdsSlickSuperHard, tyreTempsThresholdsSlickSuperHard, 88f));
-
-            List<CornerData.EnumWithThresholds> tyreWearThresholdsSemislick = new List<CornerData.EnumWithThresholds>();
-            tyreWearThresholdsSemislick.Add(new CornerData.EnumWithThresholds(TyreCondition.NEW, -10000f, 0.000f));
-            tyreWearThresholdsSemislick.Add(new CornerData.EnumWithThresholds(TyreCondition.SCRUBBED, 0.000f, 1.172536f));
-            tyreWearThresholdsSemislick.Add(new CornerData.EnumWithThresholds(TyreCondition.MINOR_WEAR, 1.172536f, 3.553289f));
-            tyreWearThresholdsSemislick.Add(new CornerData.EnumWithThresholds(TyreCondition.MAJOR_WEAR, 3.553289f, 4.761912f));
-            tyreWearThresholdsSemislick.Add(new CornerData.EnumWithThresholds(TyreCondition.WORN_OUT, 4.761912f, 1000f));
-
-            List<CornerData.EnumWithThresholds> tyreTempsThresholdsSemislick = new List<CornerData.EnumWithThresholds>();
-            tyreTempsThresholdsSemislick.Add(new CornerData.EnumWithThresholds(TyreTemp.COLD, -10000f, 75f));
-            tyreTempsThresholdsSemislick.Add(new CornerData.EnumWithThresholds(TyreTemp.WARM, 75f, 95f));
-            tyreTempsThresholdsSemislick.Add(new CornerData.EnumWithThresholds(TyreTemp.HOT, 95f, 140f));
-            tyreTempsThresholdsSemislick.Add(new CornerData.EnumWithThresholds(TyreTemp.COOKING, 140f, 10000f));
-            acTyres.Add("Semislick (SM)", new AcTyres(tyreWearThresholdsSemislick, tyreTempsThresholdsSemislick, 70f));
-
-
-            List<CornerData.EnumWithThresholds> tyreWearThresholdsSemislicks = new List<CornerData.EnumWithThresholds>();
-            tyreWearThresholdsSemislicks.Add(new CornerData.EnumWithThresholds(TyreCondition.NEW, -10000f, 0.000f));
-            tyreWearThresholdsSemislicks.Add(new CornerData.EnumWithThresholds(TyreCondition.SCRUBBED, 0.000f, 1.172536f));
-            tyreWearThresholdsSemislicks.Add(new CornerData.EnumWithThresholds(TyreCondition.MINOR_WEAR, 1.172536f, 3.553289f));
-            tyreWearThresholdsSemislicks.Add(new CornerData.EnumWithThresholds(TyreCondition.MAJOR_WEAR, 3.553289f, 4.761912f));
-            tyreWearThresholdsSemislicks.Add(new CornerData.EnumWithThresholds(TyreCondition.WORN_OUT, 4.761912f, 1000f));
-
-            List<CornerData.EnumWithThresholds> tyreTempsThresholdsSemislicks = new List<CornerData.EnumWithThresholds>();
-            tyreTempsThresholdsSemislicks.Add(new CornerData.EnumWithThresholds(TyreTemp.COLD, -10000f, 75f));
-            tyreTempsThresholdsSemislicks.Add(new CornerData.EnumWithThresholds(TyreTemp.WARM, 75f, 95f));
-            tyreTempsThresholdsSemislicks.Add(new CornerData.EnumWithThresholds(TyreTemp.HOT, 95f, 140f));
-            tyreTempsThresholdsSemislicks.Add(new CornerData.EnumWithThresholds(TyreTemp.COOKING, 140f, 10000f));
-            acTyres.Add("Semislicks (SM)", new AcTyres(tyreWearThresholdsSemislicks, tyreTempsThresholdsSemislicks, 70f));
-
-            List<CornerData.EnumWithThresholds> tyreWearThresholdsSlicksMedium = new List<CornerData.EnumWithThresholds>();
-            tyreWearThresholdsSlicksMedium.Add(new CornerData.EnumWithThresholds(TyreCondition.NEW, -10000f, 0.000f));
-            tyreWearThresholdsSlicksMedium.Add(new CornerData.EnumWithThresholds(TyreCondition.SCRUBBED, 0.000f, 3.685061f));
-            tyreWearThresholdsSlicksMedium.Add(new CornerData.EnumWithThresholds(TyreCondition.MINOR_WEAR, 3.685061f, 7.407379f));
-            tyreWearThresholdsSlicksMedium.Add(new CornerData.EnumWithThresholds(TyreCondition.MAJOR_WEAR, 7.407379f, 30.55553f));
-            tyreWearThresholdsSlicksMedium.Add(new CornerData.EnumWithThresholds(TyreCondition.WORN_OUT, 30.55553f, 1000f));
+            acTyres.Add("dry_compound", new AcTyres(tyreWearThresholdsSlickHard, tyreTempsThresholdsHardSlick, 88f));
         }
         #endregion
 
@@ -243,13 +144,14 @@ namespace CrewChiefV4.ACC
         {
             ACCSharedMemoryReader.ACCStructWrapper wrapper = (ACCSharedMemoryReader.ACCStructWrapper)memoryMappedFileStruct;
             GameStateData currentGameState = new GameStateData(wrapper.ticksWhenRead);
-            AssettoCorsaShared shared = wrapper.data;
-            AC_STATUS status = shared.accGraphic.status;
-            /*if (status == AC_STATUS.AC_OFF)
+            ACCShared shared = wrapper.data;
+
+            if (shared == null)
             {
                 return null;
-            }*/
+            }
 
+            AC_STATUS status = shared.accGraphic.status;
             if (status == AC_STATUS.AC_REPLAY)
             {
                 CrewChief.trackName = shared.accStatic.track + ":" + shared.accStatic.trackConfiguration;
@@ -267,7 +169,7 @@ namespace CrewChiefV4.ACC
             Boolean isOnline = shared.accChief.serverName.Length > 0;
             Boolean isSinglePlayerPracticeSession = shared.accChief.numVehicles == 1 && !isOnline && shared.accGraphic.session == AC_SESSION_TYPE.AC_PRACTICE;
             float distanceRoundTrack = spLineLengthToDistanceRoundTrack(shared.accChief.trackLength, playerVehicle.spLineLength);
-            Console.Write("Distance round track: " + distanceRoundTrack);
+            
             currentGameState.SessionData.TrackDefinition = new TrackDefinition(shared.accStatic.track, shared.accChief.trackLength);
             
             playerName = playerVehicle.driverName;
@@ -337,7 +239,7 @@ namespace CrewChiefV4.ACC
             }
 
             float sessionTimeRemaining = -1;
-            if (numberOfLapsInSession == 0 || shared.accStatic.isTimedRace == 1)
+            if (sessionType != AC_SESSION_TYPE.AC_PRACTICE && (numberOfLapsInSession == 0 || shared.accStatic.isTimedRace == 1))
             {
                 currentGameState.SessionData.SessionHasFixedTime = true;
                 sessionTimeRemaining = isSinglePlayerPracticeSession ? (float)TimeSpan.FromMinutes(singleplayerPracticTime).TotalSeconds - Math.Abs(gameSessionTimeLeft) : gameSessionTimeLeft;
@@ -687,10 +589,9 @@ namespace CrewChiefV4.ACC
                 }
                 currentGameState.SessionData.IsNewSector = previousGameState == null || currentGameState.SessionData.SectorNumber != previousGameState.SessionData.SectorNumber;
 
-                if(currentGameState.SessionData.IsNewSector)
-                    if (shared.accChief.vehicle != null && shared.accChief.vehicle.Length > 0)
-                        System.Diagnostics.Debug.WriteLine("Sector: " + currentGameState.SessionData.SectorNumber + " Track: " + shared.accChief.trackLength + " Pos: " + (shared.accChief.trackLength * shared.accChief.vehicle[0].spLineLength));
-
+                //if(currentGameState.SessionData.IsNewSector)
+                //    if (shared.accChief.vehicle != null && shared.accChief.vehicle.Length > 0)
+                //        System.Diagnostics.Debug.WriteLine("Sector: " + currentGameState.SessionData.SectorNumber + " Track: " + shared.accChief.trackLength + " Pos: " + (shared.accChief.trackLength * shared.accChief.vehicle[0].spLineLength));
 
                 if (previousGameState != null && currentGameState.SessionData.IsNewSector && previousGameState.SessionData.SectorNumber == 1)
                 {
@@ -1130,6 +1031,11 @@ namespace CrewChiefV4.ACC
                     shared.accPhysics.carDamage[1] +
                     shared.accPhysics.carDamage[2] +
                     shared.accPhysics.carDamage[3]);
+
+                playerVehicle.tyreInflation[0] = 1;
+                playerVehicle.tyreInflation[1] = 1;
+                playerVehicle.tyreInflation[2] = 1;
+                playerVehicle.tyreInflation[3] = 1;
             }
             else
             {
@@ -1150,79 +1056,78 @@ namespace CrewChiefV4.ACC
             currentGameState.TyreData.RearRightPressure = playerVehicle.tyreInflation[3] == 1.0f ? shared.accPhysics.wheelsPressure[3] * 6.894f : 0.0f;
 
             String currentTyreCompound = shared.accGraphic.tyreCompound;
-            if (previousGameState != null && !previousGameState.TyreData.TyreTypeName.Equals(currentTyreCompound))
-            {
-                tyreTempThresholds = getTyreTempThresholds(currentGameState.carClass, currentTyreCompound);
-                currentGameState.TyreData.TyreTypeName = currentTyreCompound;
-            }
-            //Front Left
-            currentGameState.TyreData.FrontLeft_CenterTemp = shared.accPhysics.tyreTempM[0];
-            currentGameState.TyreData.FrontLeft_LeftTemp = shared.accPhysics.tyreTempO[0];
-            currentGameState.TyreData.FrontLeft_RightTemp = shared.accPhysics.tyreTempI[0];
-            currentGameState.TyreData.FrontLeftTyreType = defaultTyreTypeForPlayersCar;
-            if (currentGameState.SessionData.IsNewLap || currentGameState.TyreData.PeakFrontLeftTemperatureForLap == 0)
-            {
-                currentGameState.TyreData.PeakFrontLeftTemperatureForLap = currentGameState.TyreData.FrontLeft_CenterTemp;
-            }
-            else if (previousGameState == null || currentGameState.TyreData.FrontLeft_CenterTemp > previousGameState.TyreData.PeakFrontLeftTemperatureForLap)
-            {
-                currentGameState.TyreData.PeakFrontLeftTemperatureForLap = currentGameState.TyreData.FrontLeft_CenterTemp;
-            }
-            //Front Right
-            currentGameState.TyreData.FrontRight_CenterTemp = shared.accPhysics.tyreTempM[1];
-            currentGameState.TyreData.FrontRight_LeftTemp = shared.accPhysics.tyreTempI[1];
-            currentGameState.TyreData.FrontRight_RightTemp = shared.accPhysics.tyreTempO[1];
-            currentGameState.TyreData.FrontRightTyreType = defaultTyreTypeForPlayersCar;
-            if (currentGameState.SessionData.IsNewLap || currentGameState.TyreData.PeakFrontRightTemperatureForLap == 0)
-            {
-                currentGameState.TyreData.PeakFrontRightTemperatureForLap = currentGameState.TyreData.FrontRight_CenterTemp;
-            }
-            else if (previousGameState == null || currentGameState.TyreData.FrontRight_CenterTemp > previousGameState.TyreData.PeakFrontRightTemperatureForLap)
-            {
-                currentGameState.TyreData.PeakFrontRightTemperatureForLap = currentGameState.TyreData.FrontRight_CenterTemp;
-            }
-            //Rear Left
-            currentGameState.TyreData.RearLeft_CenterTemp = shared.accPhysics.tyreTempM[2];
-            currentGameState.TyreData.RearLeft_LeftTemp = shared.accPhysics.tyreTempO[2];
-            currentGameState.TyreData.RearLeft_RightTemp = shared.accPhysics.tyreTempI[2];
-            currentGameState.TyreData.RearLeftTyreType = defaultTyreTypeForPlayersCar;
-            if (currentGameState.SessionData.IsNewLap || currentGameState.TyreData.PeakRearLeftTemperatureForLap == 0)
-            {
-                currentGameState.TyreData.PeakRearLeftTemperatureForLap = currentGameState.TyreData.RearLeft_CenterTemp;
-            }
-            else if (previousGameState == null || currentGameState.TyreData.RearLeft_CenterTemp > previousGameState.TyreData.PeakRearLeftTemperatureForLap)
-            {
-                currentGameState.TyreData.PeakRearLeftTemperatureForLap = currentGameState.TyreData.RearLeft_CenterTemp;
-            }
-            //Rear Right
-            currentGameState.TyreData.RearRight_CenterTemp = shared.accPhysics.tyreTempM[3];
-            currentGameState.TyreData.RearRight_LeftTemp = shared.accPhysics.tyreTempI[3];
-            currentGameState.TyreData.RearRight_RightTemp = shared.accPhysics.tyreTempO[3];
-            currentGameState.TyreData.RearRightTyreType = defaultTyreTypeForPlayersCar;
-            if (currentGameState.SessionData.IsNewLap || currentGameState.TyreData.PeakRearRightTemperatureForLap == 0)
-            {
-                currentGameState.TyreData.PeakRearRightTemperatureForLap = currentGameState.TyreData.RearRight_CenterTemp;
-            }
-            else if (previousGameState == null || currentGameState.TyreData.RearRight_CenterTemp > previousGameState.TyreData.PeakRearRightTemperatureForLap)
-            {
-                currentGameState.TyreData.PeakRearRightTemperatureForLap = currentGameState.TyreData.RearRight_CenterTemp;
-            }
+            //if (previousGameState != null && !previousGameState.TyreData.TyreTypeName.Equals(currentTyreCompound))
+            //{
+            //    tyreTempThresholds = getTyreTempThresholds(currentGameState.carClass, currentTyreCompound);
+            //    currentGameState.TyreData.TyreTypeName = currentTyreCompound;
+            //}
+            ////Front Left
+            //currentGameState.TyreData.FrontLeft_CenterTemp = shared.accPhysics.tyreTempM[0];
+            //currentGameState.TyreData.FrontLeft_LeftTemp = shared.accPhysics.tyreTempO[0];
+            //currentGameState.TyreData.FrontLeft_RightTemp = shared.accPhysics.tyreTempI[0];
+            //currentGameState.TyreData.FrontLeftTyreType = defaultTyreTypeForPlayersCar;
+            //if (currentGameState.SessionData.IsNewLap || currentGameState.TyreData.PeakFrontLeftTemperatureForLap == 0)
+            //{
+            //    currentGameState.TyreData.PeakFrontLeftTemperatureForLap = currentGameState.TyreData.FrontLeft_CenterTemp;
+            //}
+            //else if (previousGameState == null || currentGameState.TyreData.FrontLeft_CenterTemp > previousGameState.TyreData.PeakFrontLeftTemperatureForLap)
+            //{
+            //    currentGameState.TyreData.PeakFrontLeftTemperatureForLap = currentGameState.TyreData.FrontLeft_CenterTemp;
+            //}
+            ////Front Right
+            //currentGameState.TyreData.FrontRight_CenterTemp = shared.accPhysics.tyreTempM[1];
+            //currentGameState.TyreData.FrontRight_LeftTemp = shared.accPhysics.tyreTempI[1];
+            //currentGameState.TyreData.FrontRight_RightTemp = shared.accPhysics.tyreTempO[1];
+            //currentGameState.TyreData.FrontRightTyreType = defaultTyreTypeForPlayersCar;
+            //if (currentGameState.SessionData.IsNewLap || currentGameState.TyreData.PeakFrontRightTemperatureForLap == 0)
+            //{
+            //    currentGameState.TyreData.PeakFrontRightTemperatureForLap = currentGameState.TyreData.FrontRight_CenterTemp;
+            //}
+            //else if (previousGameState == null || currentGameState.TyreData.FrontRight_CenterTemp > previousGameState.TyreData.PeakFrontRightTemperatureForLap)
+            //{
+            //    currentGameState.TyreData.PeakFrontRightTemperatureForLap = currentGameState.TyreData.FrontRight_CenterTemp;
+            //}
+            ////Rear Left
+            //currentGameState.TyreData.RearLeft_CenterTemp = shared.accPhysics.tyreTempM[2];
+            //currentGameState.TyreData.RearLeft_LeftTemp = shared.accPhysics.tyreTempO[2];
+            //currentGameState.TyreData.RearLeft_RightTemp = shared.accPhysics.tyreTempI[2];
+            //currentGameState.TyreData.RearLeftTyreType = defaultTyreTypeForPlayersCar;
+            //if (currentGameState.SessionData.IsNewLap || currentGameState.TyreData.PeakRearLeftTemperatureForLap == 0)
+            //{
+            //    currentGameState.TyreData.PeakRearLeftTemperatureForLap = currentGameState.TyreData.RearLeft_CenterTemp;
+            //}
+            //else if (previousGameState == null || currentGameState.TyreData.RearLeft_CenterTemp > previousGameState.TyreData.PeakRearLeftTemperatureForLap)
+            //{
+            //    currentGameState.TyreData.PeakRearLeftTemperatureForLap = currentGameState.TyreData.RearLeft_CenterTemp;
+            //}
+            ////Rear Right
+            //currentGameState.TyreData.RearRight_CenterTemp = shared.accPhysics.tyreTempM[3];
+            //currentGameState.TyreData.RearRight_LeftTemp = shared.accPhysics.tyreTempI[3];
+            //currentGameState.TyreData.RearRight_RightTemp = shared.accPhysics.tyreTempO[3];
+            //currentGameState.TyreData.RearRightTyreType = defaultTyreTypeForPlayersCar;
+            //if (currentGameState.SessionData.IsNewLap || currentGameState.TyreData.PeakRearRightTemperatureForLap == 0)
+            //{
+            //    currentGameState.TyreData.PeakRearRightTemperatureForLap = currentGameState.TyreData.RearRight_CenterTemp;
+            //}
+            //else if (previousGameState == null || currentGameState.TyreData.RearRight_CenterTemp > previousGameState.TyreData.PeakRearRightTemperatureForLap)
+            //{
+            //    currentGameState.TyreData.PeakRearRightTemperatureForLap = currentGameState.TyreData.RearRight_CenterTemp;
+            //}
 
-            currentGameState.TyreData.TyreTempStatus = CornerData.getCornerData(tyreTempThresholds, currentGameState.TyreData.PeakFrontLeftTemperatureForLap,
-                    currentGameState.TyreData.PeakFrontRightTemperatureForLap, currentGameState.TyreData.PeakRearLeftTemperatureForLap,
-                    currentGameState.TyreData.PeakRearRightTemperatureForLap);
+            //currentGameState.TyreData.TyreTempStatus = CornerData.getCornerData(tyreTempThresholds, currentGameState.TyreData.PeakFrontLeftTemperatureForLap,
+            //        currentGameState.TyreData.PeakFrontRightTemperatureForLap, currentGameState.TyreData.PeakRearLeftTemperatureForLap,
+            //        currentGameState.TyreData.PeakRearRightTemperatureForLap);
 
             Boolean currentTyreValid = currentTyreCompound != null && currentTyreCompound.Length > 0 &&
                 acTyres.Count > 0 && acTyres.ContainsKey(currentTyreCompound);
 
             if (currentTyreValid)
             {
-
                 float currentTyreWearMinimumValue = acTyres[currentTyreCompound].tyreWearMinimumValue;
                 currentGameState.TyreData.FrontLeftPercentWear = getTyreWearPercentage(shared.accPhysics.tyreWear[0], currentTyreWearMinimumValue);
-                currentGameState.TyreData.FrontRightPercentWear = getTyreWearPercentage(shared.accPhysics.tyreWear[0], currentTyreWearMinimumValue);
-                currentGameState.TyreData.RearLeftPercentWear = getTyreWearPercentage(shared.accPhysics.tyreWear[0], currentTyreWearMinimumValue);
-                currentGameState.TyreData.RearRightPercentWear = getTyreWearPercentage(shared.accPhysics.tyreWear[0], currentTyreWearMinimumValue);
+                currentGameState.TyreData.FrontRightPercentWear = getTyreWearPercentage(shared.accPhysics.tyreWear[1], currentTyreWearMinimumValue);
+                currentGameState.TyreData.RearLeftPercentWear = getTyreWearPercentage(shared.accPhysics.tyreWear[2], currentTyreWearMinimumValue);
+                currentGameState.TyreData.RearRightPercentWear = getTyreWearPercentage(shared.accPhysics.tyreWear[3], currentTyreWearMinimumValue);
                 if (!currentGameState.PitData.OnOutLap)
                 {
                     currentGameState.TyreData.TyreConditionStatus = CornerData.getCornerData(acTyres[currentTyreCompound].tyreWearThresholdsForAC,

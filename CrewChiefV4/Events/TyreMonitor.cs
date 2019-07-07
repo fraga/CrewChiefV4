@@ -864,6 +864,10 @@ namespace CrewChiefV4.Events
 
         public void reportCurrentTyreTempStatus(Boolean playImmediately)
         {
+            // if all exactly zero then it is unlikely tire temps are supplied
+            if (leftFrontTyreTemp == 0 && rightFrontTyreTemp == 0 && leftRearTyreTemp == 0 && rightRearTyreTemp == 0)
+                return;
+
             List<MessageFragment> messageContents = new List<MessageFragment>();
             addTyreTempWarningMessages(currentTyreTempStatus.getCornersForStatus(TyreTemp.COLD), TyreTemp.COLD, messageContents);
             addTyreTempWarningMessages(currentTyreTempStatus.getCornersForStatus(TyreTemp.HOT), TyreTemp.HOT, messageContents);

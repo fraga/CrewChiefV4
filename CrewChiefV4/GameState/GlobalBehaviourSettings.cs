@@ -94,6 +94,9 @@ namespace CrewChiefV4.GameState
                     case GameEnum.ASSETTO_32BIT:
                         spotterVehicleLength = UserSettings.GetUserSettings().getFloat("acs_spotter_car_length");
                         break;
+                    case GameEnum.ACC:
+                        spotterVehicleLength = UserSettings.GetUserSettings().getFloat("acc_spotter_car_length");
+                        break;
                     case GameEnum.RF2_64BIT:
                         spotterVehicleLength = UserSettings.GetUserSettings().getFloat("rf2_spotter_car_length");
                         break;

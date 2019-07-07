@@ -11,7 +11,7 @@ namespace CrewChiefV4.ACC
     {
         // how long is a car? we use 3.5 meters by default here. Too long and we'll get 'hold your line' messages
         // when we're clearly directly behind the car
-        private float carLength = UserSettings.GetUserSettings().getFloat("acs_spotter_car_length");
+        private float carLength = UserSettings.GetUserSettings().getFloat("acc_spotter_car_length");
 
         private float carWidth = 1.8f;
 
@@ -41,7 +41,7 @@ namespace CrewChiefV4.ACC
         // when the game thinks the race has just started
         public override Tuple<GridSide, Dictionary<int, GridSide>> getGridSide(Object currentStateObj)
         {
-            AssettoCorsaShared latestRawData = ((ACCSharedMemoryReader.ACCStructWrapper)currentStateObj).data;
+            ACCShared latestRawData = ((ACCSharedMemoryReader.ACCStructWrapper)currentStateObj).data;
             accVehicleInfo playerData = latestRawData.accChief.vehicle[0];
             float playerRotation = latestRawData.accPhysics.heading;
             if (playerRotation < 0)
@@ -58,7 +58,7 @@ namespace CrewChiefV4.ACC
 
         protected override float[] getWorldPositionOfDriverAtPosition(Object currentStateObj, int position)
         {
-            AssettoCorsaShared latestRawData = (AssettoCorsaShared)currentStateObj;
+            ACCShared latestRawData = (ACCShared)currentStateObj;
             foreach (accVehicleInfo vehicleInfo in latestRawData.accChief.vehicle)
             {
                 if (vehicleInfo.carLeaderboardPosition == position)
@@ -80,8 +80,8 @@ namespace CrewChiefV4.ACC
             {
                 return;
             }
-            AssettoCorsaShared currentState = ((ACCSharedMemoryReader.ACCStructWrapper)currentStateObj).data;
-            AssettoCorsaShared lastState = ((ACCSharedMemoryReader.ACCStructWrapper)lastStateObj).data;
+            ACCShared currentState = ((ACCSharedMemoryReader.ACCStructWrapper)currentStateObj).data;
+            ACCShared lastState = ((ACCSharedMemoryReader.ACCStructWrapper)lastStateObj).data;
 
             if (!enabled || currentState.accChief.numVehicles <= 1 ||
                 currentState.accGraphic.status == AC_STATUS.AC_REPLAY || currentState.accGraphic.status == AC_STATUS.AC_OFF ||
