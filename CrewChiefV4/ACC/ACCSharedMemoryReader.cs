@@ -184,7 +184,7 @@ namespace CrewChiefV4.ACC
                         dataToDump.Add(structWrapper);
                     }
 
-                    structWrapper.data.accStatic.isTimedRace = udpUpdateViewModel.SessionInfoVM.RemainingTime == "∞" ? 0: 1; 
+                    structWrapper.data.accStatic.isTimedRace = udpUpdateViewModel.SessionInfoVM.RemainingTime == "∞" ? 0: 1;
 
                     // Populate data from the ACC UDP info. We have to lock it because data can be updated while we read it
                     udpUpdateViewModel.LockForReadingAsync(() =>

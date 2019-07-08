@@ -60,14 +60,6 @@ namespace ksBroadcastingTestClient.Broadcasting
 
         private void MessageHandler_OnRealtimeUpdate(string sender, RealtimeUpdate update)
         {
-            if (TrackVM != null)
-                TrackVM.Update(update);
-
-            foreach (var carVM in Cars)
-            {
-                carVM.SetFocused(update.FocusedCarIndex);
-            }
-
             try
             {
                 if (TrackVM?.TrackMeters > 0)

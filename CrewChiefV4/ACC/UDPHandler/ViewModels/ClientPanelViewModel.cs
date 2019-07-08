@@ -23,7 +23,7 @@ namespace ksBroadcastingTestClient.ClientConnections
             DisplayName = "Your name";
             ConnectionPw = "asd";
             CommandPw = "";
-            RealtimeUpdateIntervalMS = 100;
+            RealtimeUpdateIntervalMS = 250;
             OnClientConnectedCallback = onClientConnectedCallback;
 
             var c = new ACCUdpRemoteClient(IP, Port, DisplayName, ConnectionPw, CommandPw, RealtimeUpdateIntervalMS);

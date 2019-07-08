@@ -33,11 +33,6 @@ namespace CrewChiefV4.ACC
         List<CornerData.EnumWithThresholds> tyreTempThresholds = new List<CornerData.EnumWithThresholds>();
         private static Dictionary<string, AcTyres> acTyres = new Dictionary<string, AcTyres>();
 
-        private Boolean logUnknownTrackSectors = UserSettings.GetUserSettings().getBoolean("enable_acc_log_sectors_for_unknown_tracks");
-
-        private Boolean disableYellowFlag = UserSettings.GetUserSettings().getBoolean("disable_acc_yellow_flag_warnings");
-
-        private int singleplayerPracticTime = UserSettings.GetUserSettings().getInt("acc_practice_time_minuts");
         // these are set when we start a new session, from the car name / class
         private TyreType defaultTyreTypeForPlayersCar = TyreType.Unknown_Race;
 
@@ -239,7 +234,7 @@ namespace CrewChiefV4.ACC
             if (sessionType != AC_SESSION_TYPE.AC_PRACTICE && (numberOfLapsInSession == 0 || shared.accStatic.isTimedRace == 1))
             {
                 currentGameState.SessionData.SessionHasFixedTime = true;
-                sessionTimeRemaining = isSinglePlayerPracticeSession ? (float)TimeSpan.FromMinutes(singleplayerPracticTime).TotalSeconds - Math.Abs(gameSessionTimeLeft) : gameSessionTimeLeft;
+                sessionTimeRemaining = gameSessionTimeLeft;
             }
 
             Boolean isCountDown = false;
@@ -645,13 +640,6 @@ namespace CrewChiefV4.ACC
                     currentGameState.SessionData.IsNewSector = false;
                 }
 
-                //Sector Log
-                if (currentGameState.SessionData.TrackDefinition.unknownTrack && logUnknownTrackSectors && !isOnline && currentGameState.SessionData.IsNewSector &&
-                    (shared.accGraphic.currentSectorIndex + 1 == 2 || shared.accGraphic.currentSectorIndex + 1 == 3))
-                {
-                    logSectorsForUnknownTracks(currentGameState.SessionData.TrackDefinition, distanceRoundTrack, shared.accGraphic.currentSectorIndex + 1);
-                }
-
                 //Sector
                 if (previousGameState != null && currentGameState.SessionData.IsNewSector && !currentGameState.SessionData.IsNewLap &&
                     previousGameState.SessionData.SectorNumber != 0 && currentGameState.SessionData.SessionRunningTime > 10)
@@ -667,7 +655,7 @@ namespace CrewChiefV4.ACC
                         shared.accPhysics.airTemp);
                 }
 
-                currentGameState.SessionData.Flag = mapToFlagEnum(currentFlag, disableYellowFlag);
+                currentGameState.SessionData.Flag = mapToFlagEnum(currentFlag, false);
                 /*if (currentGameState.SessionData.Flag == FlagEnum.YELLOW && previousGameState != null && previousGameState.SessionData.Flag != FlagEnum.YELLOW)
                 {
                     currentGameState.SessionData.YellowFlagStartTime = currentGameState.Now;

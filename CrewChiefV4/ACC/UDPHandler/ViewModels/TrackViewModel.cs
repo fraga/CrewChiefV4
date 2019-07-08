@@ -21,9 +21,5 @@ namespace ksBroadcastingTestClient.Broadcasting
             TrackName = trackUpdate.TrackName;
             TrackMeters = trackUpdate.TrackMeters;
         }
-
-        internal void Update(RealtimeUpdate update)
-        {
-        }
     }
 }

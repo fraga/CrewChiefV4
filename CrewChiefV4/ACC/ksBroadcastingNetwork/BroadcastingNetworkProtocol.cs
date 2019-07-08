@@ -1,11 +1,9 @@
 ﻿using ksBroadcastingNetwork.Structs;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace ksBroadcastingNetwork
 {
@@ -74,7 +72,9 @@ namespace ksBroadcastingNetwork
 
         // To avoid huge UDP pakets for longer entry lists, we will first receive the indexes of cars and drivers,
         // cache the entries and wait for the detailled updates
-        List<CarInfo> _entryListCars = new List<CarInfo>();
+        private List<CarInfo> _entryListCars = new List<CarInfo>();
+        private bool _entryListCarsPending;
+        private readonly object _entryListCarsLock = new object();
 
         #endregion
 
@@ -96,15 +96,6 @@ namespace ksBroadcastingNetwork
             Send = sendMessageDelegate;
         }
 
-        string _LastEntryListJson;
-        string _LastEntryListCarJson;
-        string _LastRealTimeUpdateJson;
-        string _LastRealTimeCarUpdateJson;
-        string _LastTrackDataJson;
-        string _LastBroadcastEventJson;
-
-        string _FileName;
-
         internal void ProcessMessage(BinaryReader br)
         {
             // Any message starts with an 1-byte command type
@@ -113,8 +104,6 @@ namespace ksBroadcastingNetwork
             {
                 case InboundMessageTypes.REGISTRATION_RESULT:
                     {
-                        _FileName = $"E:\\ACC\\ACC_Data{DateTime.Now.ToString("yyyyMMdd HH_mm")}.json";
-
                         ConnectionId = br.ReadInt32();
                         var connectionSuccess = br.ReadByte() > 0;
                         var isReadonly = br.ReadByte() == 0;
@@ -129,63 +118,56 @@ namespace ksBroadcastingNetwork
                     break;
                 case InboundMessageTypes.ENTRY_LIST:
                     {
-                        _entryListCars.Clear();
-
-                        var connectionId = br.ReadInt32();
-                        var carEntryCount = br.ReadUInt16();
-                        for (int i = 0; i < carEntryCount; i++)
+                        lock (_entryListCarsLock)
                         {
-                            _entryListCars.Add(new CarInfo(br.ReadUInt16()));
-                        }
+                            _entryListCars.Clear();
 
-                        string json = JsonConvert.SerializeObject(_entryListCars, Formatting.Indented);
-                        if (_LastEntryListJson != json)
-                        {
-                            _LastEntryListJson = json;
-                            File.AppendAllText(_FileName, _LastEntryListJson + ",");
+                            var connectionId = br.ReadInt32();
+                            var carEntryCount = br.ReadUInt16();
+                            for (int i = 0; i < carEntryCount; i++)
+                            {
+                                _entryListCars.Add(new CarInfo(br.ReadUInt16()));
+                            }
+
+                            _entryListCarsPending = false;
                         }
                     }
                     break;
                 case InboundMessageTypes.ENTRY_LIST_CAR:
                     {
-                        
                         var carId = br.ReadUInt16();
 
-                        var carInfo = _entryListCars.SingleOrDefault(x => x.CarIndex == carId);
-                        if(carInfo == null)
+                        lock (_entryListCarsLock)
                         {
-                            System.Diagnostics.Debug.WriteLine($"Entry list update for unknown carIndex {carId}");
-                            break;
+                            var carInfo = _entryListCars.SingleOrDefault(x => x.CarIndex == carId);
+                            if (carInfo == null)
+                            {
+                                System.Diagnostics.Debug.WriteLine($"Entry list update for unknown carIndex {carId}");
+                                break;
+                            }
+
+                            carInfo.CarModelType = br.ReadByte(); // Byte sized car model
+                            carInfo.TeamName = ReadString(br);
+                            carInfo.RaceNumber = br.ReadInt32();
+                            carInfo.CupCategory = br.ReadByte(); // Cup: Overall/Pro = 0, ProAm = 1, Am = 2, Silver = 3, National = 4
+                            carInfo.CurrentDriverIndex = br.ReadByte();
+
+                            // Now the drivers on this car:
+                            var driversOnCarCount = br.ReadByte();
+                            for (int di = 0; di < driversOnCarCount; di++)
+                            {
+                                var driverInfo = new DriverInfo();
+
+                                driverInfo.FirstName = ReadString(br);
+                                driverInfo.LastName = ReadString(br);
+                                driverInfo.ShortName = ReadString(br);
+                                driverInfo.Category = (DriverCategory)br.ReadByte(); // Platinum = 3, Gold = 2, Silver = 1, Bronze = 0
+
+                                carInfo.AddDriver(driverInfo);
+                            }
+
+                            OnEntrylistUpdate?.Invoke(ConnectionIdentifier, carInfo);
                         }
-
-                        carInfo.CarModelType = br.ReadByte(); // Byte sized car model
-                        carInfo.TeamName = ReadString(br);
-                        carInfo.RaceNumber = br.ReadInt32();
-                        carInfo.CupCategory = br.ReadByte(); // Cup: Overall/Pro = 0, ProAm = 1, Am = 2, Silver = 3, National = 4
-                        carInfo.CurrentDriverIndex = br.ReadByte();
-
-                        // Now the drivers on this car:
-                        var driversOnCarCount = br.ReadByte();
-                        for (int di = 0; di < driversOnCarCount; di++)
-                        {
-                            var driverInfo = new DriverInfo();
-
-                            driverInfo.FirstName = ReadString(br);
-                            driverInfo.LastName = ReadString(br);
-                            driverInfo.ShortName = ReadString(br);
-                            driverInfo.Category = (DriverCategory)br.ReadByte(); // Platinum = 3, Gold = 2, Silver = 1, Bronze = 0
-
-                            carInfo.AddDriver(driverInfo);
-                        }
-
-                        string json = JsonConvert.SerializeObject(carInfo, Formatting.Indented);
-                        if (_LastEntryListCarJson != json)
-                        {
-                            _LastEntryListCarJson = json;
-                            File.AppendAllText(_FileName, _LastEntryListCarJson + ",");
-                        }
-
-                        OnEntrylistUpdate?.Invoke(ConnectionIdentifier, carInfo);
                     }
                     break;
                 case InboundMessageTypes.REALTIME_UPDATE:
@@ -221,15 +203,9 @@ namespace ksBroadcastingNetwork
 
                         update.BestSessionLap = ReadLap(br);
 
-                        string json = JsonConvert.SerializeObject(update, Formatting.Indented);
-                        if (_LastRealTimeUpdateJson != json)
-                        {
-                            _LastRealTimeUpdateJson = json;
-                            File.AppendAllText(_FileName, _LastRealTimeUpdateJson + ",");
-                        }
-
                         OnRealtimeUpdate?.Invoke(ConnectionIdentifier, update);
                     }
+
                     break;
                 case InboundMessageTypes.REALTIME_CAR_UPDATE:
                     {
@@ -255,28 +231,24 @@ namespace ksBroadcastingNetwork
                         carUpdate.LastLap = ReadLap(br);
                         carUpdate.CurrentLap = ReadLap(br);
 
-                        // the concept is: "don't know a car or driver? ask for an entry list update"
-                        var carEntry = _entryListCars.FirstOrDefault(x => x.CarIndex == carUpdate.CarIndex);
-                        if(carEntry == null || carEntry.Drivers.Count != carUpdate.DriverCount)
+                        lock (_entryListCarsLock)
                         {
-                            if ((DateTime.Now - lastEntrylistRequest).TotalSeconds > 1)
+                            // the concept is: "don't know a car or driver? ask for an entry list update"
+                            var carEntry = _entryListCars.FirstOrDefault(x => x.CarIndex == carUpdate.CarIndex);
+                            if (carEntry == null || carEntry.Drivers.Count != carUpdate.DriverCount)
                             {
-                                lastEntrylistRequest = DateTime.Now;
-                                RequestEntryList();
-                                System.Diagnostics.Debug.WriteLine($"CarUpdate {carUpdate.CarIndex}|{carUpdate.DriverIndex} not know, will ask for new EntryList");
+                                // Refectored this area because if the response to RequestEntryList was delayed for any reason 
+                                // then we can get multiple RequestEntryList calls that killed car updates
+                                if (!_entryListCarsPending && (DateTime.Now - lastEntrylistRequest).TotalSeconds > 1)
+                                {
+                                    lastEntrylistRequest = DateTime.Now;
+                                    RequestEntryList();
+                                    System.Diagnostics.Debug.WriteLine($"CarUpdate {carUpdate.CarIndex}|{carUpdate.DriverIndex} not known, will ask for new EntryList");
+                                }
                             }
                         }
-                        else
-                        {
-                            OnRealtimeCarUpdate?.Invoke(ConnectionIdentifier, carUpdate);
-                        }
 
-                        string json = JsonConvert.SerializeObject(carUpdate, Formatting.Indented);
-                        if (_LastRealTimeCarUpdateJson != json)
-                        {
-                            _LastRealTimeCarUpdateJson = json;
-                            File.AppendAllText(_FileName, _LastRealTimeCarUpdateJson + ",");
-                        }
+                        OnRealtimeCarUpdate?.Invoke(ConnectionIdentifier, carUpdate);
                     }
                     break;
                 case InboundMessageTypes.TRACK_DATA:
@@ -313,15 +285,9 @@ namespace ksBroadcastingNetwork
                         }
                         trackData.HUDPages = hudPages;
 
-                        string json = JsonConvert.SerializeObject(trackData, Formatting.Indented);
-                        if (_LastTrackDataJson != json)
-                        {
-                            _LastTrackDataJson = json;
-                            File.AppendAllText(_FileName, _LastTrackDataJson + ",");
-                        }
-
                         OnTrackDataUpdate?.Invoke(ConnectionIdentifier, trackData);
                     }
+
                     break;
                 case InboundMessageTypes.BROADCASTING_EVENT:
                     {
@@ -335,14 +301,9 @@ namespace ksBroadcastingNetwork
 
                         evt.CarData = _entryListCars.FirstOrDefault(x => x.CarIndex == evt.CarId);
 
-                        string json = JsonConvert.SerializeObject(evt, Formatting.Indented);
-                        if (_LastBroadcastEventJson != json)
-                        {
-                            _LastBroadcastEventJson = json;
-                            File.AppendAllText(_FileName, _LastBroadcastEventJson + ",");
-                        }
                         OnBroadcastingEvent?.Invoke(ConnectionIdentifier, evt);
                     }
+
                     break;
                 default:
                     break;

@@ -1,10 +1,8 @@
 ﻿using ksBroadcastingNetwork;
 using ksBroadcastingNetwork.Structs;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Windows.Media;
 
 namespace ksBroadcastingTestClient.Broadcasting
 {
@@ -22,8 +20,6 @@ namespace ksBroadcastingTestClient.Broadcasting
 
         public CarLocationEnum CarLocation { get => Get<CarLocationEnum>(); private set => Set(value); }
         public int Delta { get => Get<int>(); private set => Set(value); }
-        public string DeltaString { get => Get<string>(); private set => Set(value); }
-        public Brush DeltaColor { get => Get<Brush>(); private set => Set(value); }
         public int Gear { get => Get<int>(); private set => Set(value); }
         public int Kmh { get => Get<int>(); private set => Set(value); }
         public int Position { get => Get<int>(); private set => Set(value); }
@@ -37,40 +33,7 @@ namespace ksBroadcastingTestClient.Broadcasting
         public LapViewModel BestLap { get => Get<LapViewModel>(); private set => Set(value); }
         public LapViewModel LastLap { get => Get<LapViewModel>(); private set => Set(value); }
         public LapViewModel CurrentLap { get => Get<LapViewModel>(); private set => Set(value); }
-        public string LocationHint { get => Get<string>(); private set => Set(value); }
-
-        public Brush RowForeground { get => Get<Brush>(); private set => Set(value); }
-        public Brush RowBackground { get => Get<Brush>(); private set => Set(value); }
-        public float GapFrontMeters { get => Get<float>(); set
-            {
-                if(Set(value))
-                { 
-                    NotifyUpdate(nameof(GapText));
-                    NotifyUpdate(nameof(GapColor));
-                }
-            }
-        }
-
-        public string GapText {
-            get {
-                if (Kmh < 10)
-                    return "Gap: ---";
-                return $"Gap: {GapFrontMeters / Kmh * 3.6:F1}s ⇅";
-            }
-        }
-        public Brush GapColor {
-            get {
-                if (Kmh < 10)
-                    return Brushes.Gray;
-                var seconds = GapFrontMeters / Kmh * 3.6;
-                if (seconds < 0.5)
-                    return Brushes.Red;
-                if (seconds < 2.0)
-                    return Brushes.DarkOrange;
-
-                return Brushes.Black;
-            }
-        }
+        public float GapFrontMeters { get => Get<float>(); set => Set(value); }
 
         public CarViewModel(ushort carIndex)
         {
@@ -113,14 +76,6 @@ namespace ksBroadcastingTestClient.Broadcasting
 
             CarLocation = carUpdate.CarLocation;
             Delta = carUpdate.Delta;
-            DeltaString = $"{TimeSpan.FromMilliseconds(Delta):ss\\.f}";
-            if (Delta < -100)
-                DeltaColor = Brushes.Green;
-            else if (Delta > 100)
-                DeltaColor = Brushes.Red;
-            else
-                DeltaColor = null;
-
             Gear = carUpdate.Gear;
             Kmh = carUpdate.Kmh;
             Position = carUpdate.Position;
@@ -134,42 +89,21 @@ namespace ksBroadcastingTestClient.Broadcasting
 
             if(BestLap == null && carUpdate.BestSessionLap != null)
                 BestLap = new LapViewModel();
+
             if (carUpdate.BestSessionLap != null)
                 BestLap.Update(carUpdate.BestSessionLap);
 
             if (LastLap == null && carUpdate.LastLap != null)
                 LastLap = new LapViewModel();
+
             if (carUpdate.LastLap != null)
                 LastLap.Update(carUpdate.LastLap);
 
             if (CurrentLap == null && carUpdate.CurrentLap != null)
                 CurrentLap = new LapViewModel();
+
             if (carUpdate.CurrentLap != null)
                 CurrentLap.Update(carUpdate.CurrentLap);
-
-            // The location hint will combine stuff like pits, in/outlap
-            if (CarLocation == CarLocationEnum.PitEntry)
-                LocationHint = "IN";
-            else if (CarLocation == CarLocationEnum.Pitlane)
-                LocationHint = "PIT";
-            else if (CarLocation == CarLocationEnum.PitExit)
-                LocationHint = "OUT";
-            else
-                LocationHint = CurrentLap?.LapHint;
-        }
-
-        internal void SetFocused(int focusedCarIndex)
-        {
-            if (CarIndex == focusedCarIndex)
-            {
-                RowForeground = Brushes.Yellow;
-                RowBackground = Brushes.Black;
-            }
-            else
-            {
-                RowForeground = Brushes.Black;
-                RowBackground = null;
-            }
         }
     }
 }

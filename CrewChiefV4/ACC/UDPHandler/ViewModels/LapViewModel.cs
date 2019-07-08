@@ -2,7 +2,6 @@
 using ksBroadcastingNetwork.Structs;
 using System;
 using System.Linq;
-using System.Windows.Media;
 
 namespace ksBroadcastingTestClient.Broadcasting
 {
@@ -19,7 +18,6 @@ namespace ksBroadcastingTestClient.Broadcasting
 
         public LapType Type { get => Get<LapType>(); private set => Set(value); }
         public bool IsValid { get => Get<bool>(); private set => Set(value); }
-        public Brush LaptimeColor { get => Get<Brush>(); private set => Set(value); }
         public string LapHint { get => Get<string>(); private set => Set(value); }
 
         internal void Update(LapInfo lapUpdate)
@@ -53,11 +51,6 @@ namespace ksBroadcastingTestClient.Broadcasting
 
                 Type = lapUpdate.Type;
                 IsValid = lapUpdate.IsValidForBest;
-
-                if (!IsValid)
-                    LaptimeColor = Brushes.Red;
-                else
-                    LaptimeColor = null; // will use default
 
                 if (Type == LapType.Outlap)
                     LapHint = "OUT";

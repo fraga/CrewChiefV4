@@ -341,18 +341,6 @@ acc_install_path_category = UI_STARTUP_AND_PATHS
 acc_machine_ip = IP address for the machine ACC is running on
 acc_machine_ip_category = UI_STARTUP_AND_PATHS
 
-enable_acc_log_sectors_for_unknown_tracks = Enable ACC log sectors for unknown tracks
-enable_acc_log_sectors_for_unknown_tracks_filter = ACC
-enable_acc_log_sectors_for_unknown_tracks_category = TIMINGS;UI_STARTUP_AND_PATHS
-
-disable_acc_yellow_flag_warnings = Disable ACC yellow flag warnings
-disable_acc_yellow_flag_warnings_help = Prevents yellow flag message spamming in messy online races
-disable_acc_yellow_flag_warnings_filter = ACC
-disable_acc_yellow_flag_warnings_category = FLAGS_AND_RULES
-
-acc_practice_time_minuts = ACC practice time minutes
-acc_practice_time_minuts_filter = ACC
-
 override_default_sound_pack_location = Override default Sound Pack location
 override_default_sound_pack_location_help = Use an alternative folder for the Sound Pack
 override_default_sound_pack_location_category = AUDIO_VOICE_AND_CONTROLLERS
