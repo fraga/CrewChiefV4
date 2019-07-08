@@ -12,9 +12,7 @@ namespace CrewChiefV4.ACC
 {
     public class ACCGameStateMapper : GameStateMapper
     {
-        public static String playerName = null;
         public static Boolean versionChecked = false;
-        public static double lastCountDown = 10000.0;
         public static int numberOfSectorsOnTrack = 3;
 
         private class AcTyres
@@ -172,8 +170,7 @@ namespace CrewChiefV4.ACC
             
             currentGameState.SessionData.TrackDefinition = new TrackDefinition(shared.accStatic.track, shared.accChief.trackLength);
             
-            playerName = playerVehicle.driverName;
-            Validator.validate(playerName);
+            Validator.validate(playerVehicle.driverName);
             AC_SESSION_TYPE sessionType = shared.accGraphic.session;
 
             SessionPhase lastSessionPhase = SessionPhase.Unavailable;
@@ -214,7 +211,7 @@ namespace CrewChiefV4.ACC
             {
                 CarData.CarClass newClass = CarData.getCarClassForClassName(shared.accStatic.carModel);
                 CarData.CLASS_ID = shared.accStatic.carModel;
-                if (!CarData.IsCarClassEqual(newClass, currentGameState.carClass))
+                if (!CarData.IsCarClassEqual(newClass, currentGameState.carClass, true))
                 {
                     currentGameState.carClass = newClass;
                     GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass);
@@ -349,16 +346,13 @@ namespace CrewChiefV4.ACC
                     }
                     System.Diagnostics.Debug.WriteLine("Time in this new session = " + sessionTimeRemaining.ToString("0.000"));
                 }
-                currentGameState.SessionData.DriverRawName = playerName;
+                currentGameState.SessionData.DriverRawName = playerVehicle.driverName;
                 currentGameState.PitData.IsRefuellingAllowed = true;
 
                 //add carclasses for assetto corsa.
                 currentGameState.carClass = CarData.getCarClassForClassName(shared.accStatic.carModel);
                 GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass);
                 CarData.CLASS_ID = shared.accStatic.carModel;
-
-                System.Diagnostics.Debug.WriteLine("Player is using car class " + currentGameState.carClass.getClassIdentifier());
-                Utilities.TraceEventClass(currentGameState);
 
                 if (acTyres.Count > 0 && !acTyres.ContainsKey(shared.accGraphic.tyreCompound))
                 {
@@ -383,10 +377,13 @@ namespace CrewChiefV4.ACC
                         if (i != 0 && participantName != null && participantName.Length > 0)
                         {
                             CarData.CarClass opponentCarClass = CarData.getCarClassForClassName(participantStruct.carModel);
-                            addOpponentForName(participantName, createOpponentData(participantStruct, false, opponentCarClass, shared.accChief.trackLength), currentGameState);
+                            addOpponentForName(participantName, createOpponentData(participantStruct, false, opponentCarClass, shared.accChief.trackLength, false), currentGameState);
                         }
                     }
                 }
+
+                System.Diagnostics.Debug.WriteLine("Player is using car class " + currentGameState.carClass.getClassIdentifier());
+                Utilities.TraceEventClass(currentGameState);
 
                 currentGameState.SessionData.PlayerLapTimeSessionBest = -1;
                 currentGameState.SessionData.OpponentsLapTimeSessionBestOverall = -1;
@@ -440,6 +437,13 @@ namespace CrewChiefV4.ACC
                         {
                             currentGameState.SessionData.TrackDefinition.setSectorPointsForUnknownTracks();
                         }
+
+                        if (currentGameState.SessionData.TrackDefinition.sectorsOnTrack < shared.accStatic.sectorCount)
+                        {
+                            Console.WriteLine("Track definition has " + shared.accStatic.sectorCount +
+                                " sectors - these will be combined into " + currentGameState.SessionData.TrackDefinition.sectorsOnTrack + " equal sectors");
+                        }
+
                         TrackDataContainer tdc = TrackData.TRACK_LANDMARKS_DATA.getTrackDataForTrackName(currentGameState.SessionData.TrackDefinition.name, shared.accChief.trackLength);
                         currentGameState.SessionData.TrackDefinition.trackLandmarks = tdc.trackLandmarks;
                         currentGameState.SessionData.TrackDefinition.isOval = tdc.isOval;
@@ -628,8 +632,9 @@ namespace CrewChiefV4.ACC
                         shared.accPhysics.roadTemp, 
                         shared.accPhysics.airTemp, 
                         currentGameState.SessionData.SessionHasFixedTime,
-                        currentGameState.SessionData.SessionTimeRemaining, 
-                        numberOfSectorsOnTrack, currentGameState.TimingData);
+                        currentGameState.SessionData.SessionTimeRemaining,
+                        ACCGameStateMapper.numberOfSectorsOnTrack, 
+                        currentGameState.TimingData);
                     currentGameState.SessionData.playerStartNewLap(currentGameState.SessionData.CompletedLaps + 1,
                         currentGameState.SessionData.OverallPosition, currentGameState.PitData.InPitlane, currentGameState.SessionData.SessionRunningTime);
                 }
@@ -886,7 +891,7 @@ namespace CrewChiefV4.ACC
                                                     currentGameState.SessionData.OverallSessionBestLapTime = currentOpponentData.CurrentBestLapTime;
                                                 }
                                             }
-                                            if (CarData.IsCarClassEqual(currentOpponentData.CarClass, currentGameState.carClass))
+                                            if (CarData.IsCarClassEqual(currentOpponentData.CarClass, currentGameState.carClass, true))
                                             {
                                                 if (currentGameState.SessionData.OpponentsLapTimeSessionBestPlayerClass == -1 ||
                                                     currentOpponentData.CurrentBestLapTime < currentGameState.SessionData.OpponentsLapTimeSessionBestPlayerClass)
@@ -921,11 +926,15 @@ namespace CrewChiefV4.ACC
                         {
                             if (participantStruct.isConnected == 1 && participantName != null && participantName.Length > 0)
                             {
-                                addOpponentForName(participantName, createOpponentData(participantStruct, true, CarData.getCarClassForClassName(participantStruct.carModel), shared.accChief.trackLength), currentGameState);
+                                addOpponentForName(participantName, createOpponentData(participantStruct, 
+                                    true, 
+                                    CarData.getCarClassForClassName(participantStruct.carModel), 
+                                    shared.accChief.trackLength, 
+                                    currentGameState.SessionData.SessionType == SessionType.Race), 
+                                    currentGameState);
                             }
                         }
                     }
-
                 }
 
                 currentGameState.sortClassPositions();
@@ -1304,7 +1313,7 @@ namespace CrewChiefV4.ACC
                         {
                             opponentData.CompleteLapWithProvidedLapTime(leaderBoardPosition, sessionRunningTime, lastLapTime, isInPits,
                                 false, trackTempreture, airTemperature, sessionLengthIsTime, sessionTimeRemaining, ACCGameStateMapper.numberOfSectorsOnTrack,
-                                timingData, CarData.IsCarClassEqual(opponentData.CarClass, playerCarClass));
+                                timingData, CarData.IsCarClassEqual(opponentData.CarClass, playerCarClass, true));
                         }
                     }
 
@@ -1313,9 +1322,7 @@ namespace CrewChiefV4.ACC
                     opponentData.CompletedLaps = correctedLapCount;
                     // recheck the car class here?
                 }
-                else if (opponentData.OpponentLapData.Count > 0 &&
-                    ((opponentData.CurrentSectorNumber == 1 && sector == 2) ||
-                     (opponentData.CurrentSectorNumber == 2 && sector == 3)))
+                else if (((opponentData.CurrentSectorNumber == 1 && sector == 2) || (opponentData.CurrentSectorNumber == 2 && sector == 3)))
                 {
                     opponentData.AddCumulativeSectorData(opponentData.CurrentSectorNumber, racePosition, completedLapTime, sessionRunningTime,
                         lapIsValid && validSpeed, false, trackTempreture, airTemperature);
@@ -1338,15 +1345,16 @@ namespace CrewChiefV4.ACC
             }
         }
 
-        private OpponentData createOpponentData(accVehicleInfo participantStruct, Boolean loadDriverName, CarData.CarClass carClass, float trackLength)
+        private OpponentData createOpponentData(accVehicleInfo participantStruct, Boolean loadDriverName, CarData.CarClass carClass, float trackLength, bool raceSessionIsUnderway)
         {
             OpponentData opponentData = new OpponentData();
             String participantName = participantStruct.driverName.ToLower();
             opponentData.DriverRawName = participantName;
             opponentData.DriverNameSet = true;
-            if (participantName != null && participantName.Length > 0 && loadDriverName && CrewChief.enableDriverNames)
+            // note that in AC, drivers may be added to the session during the race - we don't want to load these driver names
+            if (participantName != null && participantName.Length > 0 && loadDriverName && CrewChief.enableDriverNames && !raceSessionIsUnderway)
             {
-                speechRecogniser.addNewOpponentName(opponentData.DriverRawName);
+                speechRecogniser.addNewOpponentName(opponentData.DriverRawName, "-1");
             }
 
             opponentData.OverallPosition = (int)participantStruct.carLeaderboardPosition;

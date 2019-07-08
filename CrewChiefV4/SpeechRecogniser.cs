@@ -1845,8 +1845,7 @@ namespace CrewChiefV4
                 {
                     SpeechRecogniser.keepRecognisingInHoldMode = false;
                     StopNAudioWaveIn();
-                    Microsoft.Speech.AudioFormat.SpeechAudioFormatInfo safi = new Microsoft.Speech.AudioFormat.SpeechAudioFormatInfo(
-                        waveIn.WaveFormat.SampleRate, Microsoft.Speech.AudioFormat.AudioBitsPerSample.Sixteen, Microsoft.Speech.AudioFormat.AudioChannel.Mono);
+                    SpeechAudioFormatInfo safi = new SpeechAudioFormatInfo(waveIn.WaveFormat.SampleRate, AudioBitsPerSample.Sixteen, AudioChannel.Mono);
                     if (!isShuttingDown)
                     {
                         sre.SetInputToAudioStream(buffer, safi); // otherwise input gets unset
