@@ -60,9 +60,9 @@ namespace CrewChiefV4.rFactor1
 
             rfShared lastState = ((CrewChiefV4.rFactor1.RF1SharedMemoryReader.RF1StructWrapper)lastStateObj).data;
             rfShared currentState = ((CrewChiefV4.rFactor1.RF1SharedMemoryReader.RF1StructWrapper)currentStateObj).data;
-            
-            if (!enabled || currentState.currentET < timeAfterRaceStartToActivate || currentState.inRealtime == 0 || 
-                (currentState.numVehicles <= 2))
+
+            if (!enabled || (!GlobalBehaviourSettings.ovalSpotterMode && currentState.currentET < timeAfterRaceStartToActivate) ||
+                currentState.inRealtime == 0 || (currentState.numVehicles <= 2))
             {
                 return;
             }

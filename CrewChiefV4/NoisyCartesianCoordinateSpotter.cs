@@ -8,7 +8,7 @@ using CrewChiefV4.Events;
 using CrewChiefV4.Audio;
 using CrewChiefV4.GameState;
 using System.IO;
-
+using CrewChiefV4.iRacing;
 namespace CrewChiefV4
 {
     class PreviousPositionAndVelocityData {
@@ -39,6 +39,10 @@ namespace CrewChiefV4
         private int holdMessageExpiresAfter = 1000;
         private int inTheMiddleMessageExpiresAfter = 1000;
 
+        // on ovals in 'deprioritize spotter' mode, "still there" messages aren't queue when the chief is already talking.
+        // they're retried after this deplay (note this only applies to ovals with deprioritize enabled)
+        private TimeSpan blockedStillThereRetryDelay = TimeSpan.FromSeconds(1);
+
         private float carLength;
 
         // before saying 'clear', we need to be carLength + this value from the other car
@@ -54,6 +58,10 @@ namespace CrewChiefV4
 
         // say "still there" every 3 seconds
         private TimeSpan repeatHoldFrequency = TimeSpan.FromSeconds(UserSettings.GetUserSettings().getInt("spotter_hold_repeat_frequency"));
+        
+        // say "still there" every 5 (?) seconds on ovals
+        private TimeSpan ovalRepeatHoldFrequency = TimeSpan.FromSeconds(UserSettings.GetUserSettings().getInt("spotter_hold_repeat_frequency_ovals"));
+
         // use half the 'still there' wait if we're bouncing between clear and overlap
         private TimeSpan bouncingWait = TimeSpan.FromSeconds(UserSettings.GetUserSettings().getInt("spotter_hold_repeat_frequency") / 2);
 
@@ -215,6 +223,8 @@ namespace CrewChiefV4
         private Boolean reportedDoubleOverlapRight = false;
 
         private Boolean wasInMiddle = false;
+
+        public bool hasOverlap = false;
         
         // 3 because this is the minimum number of cars we need to consider to be sure of a 3-wide-on-left / right.
         // 2 along side one behind the other, then another out wide. There's an edge case here where the extra length allowed
@@ -268,6 +278,7 @@ namespace CrewChiefV4
         {
             if (GameStateData.onManualFormationLap)
             {
+                hasOverlap = false;
                 return;
             }
             DateTime now = DateTime.UtcNow;
@@ -413,6 +424,8 @@ namespace CrewChiefV4
                 playNextMessage(carsOnLeft, carsOnRight, now);
                 carsOnLeftAtPreviousTick = carsOnLeft;
                 carsOnRightAtPreviousTick = carsOnRight;
+
+                hasOverlap = carsOnLeft > 0 || carsOnRight > 0;
             }
             else if (carsOnLeftAtPreviousTick > 0 || carsOnRightAtPreviousTick > 0)
             {
@@ -432,41 +445,52 @@ namespace CrewChiefV4
                     reportedSingleOverlapLeft = false;
                     reportedSingleOverlapRight = false;
                     channelLeftOpenTimerStarted = false;
+                    hasOverlap = false;
                 }
             }
         }
-        //For i racing spotter 
-        public void triggerInternal(int carLeftRight)
+        // For iracing spotter 
+        public void triggerInternal(CarLeftRight carLeftRight)
         {
             if (GameStateData.onManualFormationLap)
             {
+                hasOverlap = false;
                 return;
             }
             DateTime now = DateTime.UtcNow;
             channelLeftOpenTimerStarted = false;
             int carsOnLeft = 0;
             int carsOnRight = 0;
-            if (carLeftRight == 2)
+            switch(carLeftRight)
             {
-                carsOnLeft = 1;
+                case CarLeftRight.irsdk_LRCarLeft:
+                    {
+                        carsOnLeft = 1;
+                    }
+                    break;
+                case CarLeftRight.irsdk_LRCarRight:
+                    {
+                        carsOnRight = 1;
+                    }
+                    break;
+                case CarLeftRight.irsdk_LRCarLeftRight:
+                    {
+                        carsOnRight = 1;
+                        carsOnLeft = 1;
+                    }
+                    break;
+                case CarLeftRight.irsdk_LR2CarsLeft:
+                    {
+                        carsOnLeft = 2;
+                    }
+                    break;
+                case CarLeftRight.irsdk_LR2CarsRight:
+                    {
+                        carsOnRight = 2;
+                    }
+                    break;                
             }
-            else if (carLeftRight == 3)
-            {
-                carsOnRight = 1;
-            }
-            else if (carLeftRight == 4)
-            {
-                carsOnRight = 1;
-                carsOnLeft = 1;
-            }
-            else if (carLeftRight == 5)
-            {
-                carsOnLeft = 2;
-            }
-            else if (carLeftRight == 6)
-            {
-                carsOnRight = 2;
-            }
+            hasOverlap = carsOnLeft > 0 || carsOnRight > 0;
             getNextMessage(carsOnLeft, carsOnRight, now);
             playNextMessage(carsOnLeft, carsOnRight, now);
             carsOnLeftAtPreviousTick = carsOnLeft;
@@ -490,6 +514,7 @@ namespace CrewChiefV4
                     reportedSingleOverlapLeft = false;
                     reportedSingleOverlapRight = false;
                     channelLeftOpenTimerStarted = false;
+                    hasOverlap = false;
                 }
             }
         }
@@ -729,6 +754,16 @@ namespace CrewChiefV4
             return true;
         }
 
+        private TimeSpan getRepeatHoldFrequency()
+        {
+            return GlobalBehaviourSettings.useOvalLogic ? ovalRepeatHoldFrequency : repeatHoldFrequency;
+        }
+
+        private Boolean keepChannelOpenAfterSpotter()
+        {
+            return !GlobalBehaviourSettings.ovalSpotterMode;
+        }
+
         private void playNextMessage(int carsOnLeftCount, int carsOnRightCount, DateTime now)
         {
             if (nextMessageType != NextMessageType.none && now > nextMessageDue)
@@ -744,9 +779,9 @@ namespace CrewChiefV4
                                 folderClearLeft, folderClearRight, folderClearInside, folderClearOutside, folderThreeWideYoureOnRight, folderThreeWideYoureOnLeft,
                                 folderThreeWideYoureOnInside, folderThreeWideYoureOnOutside });
                             QueuedMessage inTheMiddleMessage = new QueuedMessage(folderInTheMiddle, inTheMiddleMessageExpiresAfter);
-                            audioPlayer.playSpotterMessage(inTheMiddleMessage, true);
+                            audioPlayer.playSpotterMessage(inTheMiddleMessage, keepChannelOpenAfterSpotter());
                             nextMessageType = NextMessageType.stillThere;
-                            nextMessageDue = now.Add(repeatHoldFrequency);
+                            nextMessageDue = now.Add(getRepeatHoldFrequency());
                             reportedSingleOverlapLeft = true;
                             reportedSingleOverlapRight = true;
                             reportedDoubleOverlapLeft = false;
@@ -765,9 +800,9 @@ namespace CrewChiefV4
                                 selectedMessage = folderThreeWideYoureOnLeft;
                             }
                             QueuedMessage threeWideOnLeftMessage = new QueuedMessage(selectedMessage, holdMessageExpiresAfter);
-                            audioPlayer.playSpotterMessage(threeWideOnLeftMessage, true);
+                            audioPlayer.playSpotterMessage(threeWideOnLeftMessage, keepChannelOpenAfterSpotter());
                             nextMessageType = NextMessageType.stillThere;
-                            nextMessageDue = now.Add(repeatHoldFrequency);
+                            nextMessageDue = now.Add(getRepeatHoldFrequency());
                             reportedDoubleOverlapRight = true;
                             reportedSingleOverlapRight = false;
                             break;
@@ -783,9 +818,9 @@ namespace CrewChiefV4
                                 selectedMessage = folderThreeWideYoureOnRight;
                             }
                             QueuedMessage threeWideOnRightMessage = new QueuedMessage(selectedMessage, holdMessageExpiresAfter);
-                            audioPlayer.playSpotterMessage(threeWideOnRightMessage, true);
+                            audioPlayer.playSpotterMessage(threeWideOnRightMessage, keepChannelOpenAfterSpotter());
                             nextMessageType = NextMessageType.stillThere;
-                            nextMessageDue = now.Add(repeatHoldFrequency);
+                            nextMessageDue = now.Add(getRepeatHoldFrequency());
                             reportedDoubleOverlapLeft = true;
                             reportedSingleOverlapLeft = false;
                             break;
@@ -802,9 +837,9 @@ namespace CrewChiefV4
                                 selectedMessage = folderCarLeft;
                             }
                             QueuedMessage carLeftMessage = new QueuedMessage(selectedMessage, holdMessageExpiresAfter);
-                            audioPlayer.playSpotterMessage(carLeftMessage, true);
+                            audioPlayer.playSpotterMessage(carLeftMessage, keepChannelOpenAfterSpotter());
                             nextMessageType = NextMessageType.stillThere;
-                            nextMessageDue = now.Add(repeatHoldFrequency);
+                            nextMessageDue = now.Add(getRepeatHoldFrequency());
                             reportedSingleOverlapLeft = true;
                             reportedDoubleOverlapLeft = false;
                             break;
@@ -821,9 +856,9 @@ namespace CrewChiefV4
                                 selectedMessage = folderCarRight;
                             }
                             QueuedMessage carRightMessage = new QueuedMessage(selectedMessage, holdMessageExpiresAfter);
-                            audioPlayer.playSpotterMessage(carRightMessage, true);
+                            audioPlayer.playSpotterMessage(carRightMessage, keepChannelOpenAfterSpotter());
                             nextMessageType = NextMessageType.stillThere;
-                            nextMessageDue = now.Add(repeatHoldFrequency);
+                            nextMessageDue = now.Add(getRepeatHoldFrequency());
                             reportedSingleOverlapRight = true;
                             reportedDoubleOverlapRight = false;
                             break;
@@ -876,9 +911,9 @@ namespace CrewChiefV4
                                     
                                     if (wasInMiddle)
                                     {
-                                        audioPlayer.playSpotterMessage(clearLeftMessage, true);
+                                        audioPlayer.playSpotterMessage(clearLeftMessage, keepChannelOpenAfterSpotter());
                                         nextMessageType = NextMessageType.carRight;
-                                        nextMessageDue = now.Add(repeatHoldFrequency);
+                                        nextMessageDue = now.Add(getRepeatHoldFrequency());
                                         
                                     }
                                     else
@@ -926,9 +961,9 @@ namespace CrewChiefV4
                                         folderThreeWideYoureOnInside, folderThreeWideYoureOnOutside});                                    
                                     if (wasInMiddle)
                                     {
-                                        audioPlayer.playSpotterMessage(clearRightMessage, true);
+                                        audioPlayer.playSpotterMessage(clearRightMessage, keepChannelOpenAfterSpotter());
                                         nextMessageType = NextMessageType.carLeft;
-                                        nextMessageDue = now.Add(repeatHoldFrequency);
+                                        nextMessageDue = now.Add(getRepeatHoldFrequency());
                                     }
                                     else
                                     {
@@ -949,9 +984,19 @@ namespace CrewChiefV4
                             {
                                 QueuedMessage holdYourLineMessage = new QueuedMessage(folderStillThere, holdMessageExpiresAfter);
                                 audioPlayer.removeImmediateMessages(new String[] { folderClearRight, folderClearLeft, folderClearInside, folderClearOutside, folderClearAllRound });
-                                audioPlayer.playSpotterMessage(holdYourLineMessage, true);
                                 nextMessageType = NextMessageType.stillThere;
-                                nextMessageDue = now.Add(repeatHoldFrequency);
+                                // experimental... if we're in deprioritize spotter calls mode (ovals only) don't queue the 'hold your line' message if the channel is open.
+                                // this prevents ongoing chief messages being left half-finished by a 'still there' from the spotter
+                                if (GlobalBehaviourSettings.ovalSpotterMode && audioPlayer.isChannelOpen())
+                                {
+                                    // make the next message due soon, so we'll retry this 'still there' message in a second
+                                    nextMessageDue = now.Add(blockedStillThereRetryDelay);
+                                }
+                                else
+                                {
+                                    audioPlayer.playSpotterMessage(holdYourLineMessage, keepChannelOpenAfterSpotter());
+                                    nextMessageDue = now.Add(getRepeatHoldFrequency());
+                                }
                             }
                             break;
                         case NextMessageType.none:

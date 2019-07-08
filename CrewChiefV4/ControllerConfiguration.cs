@@ -1,11 +1,17 @@
 ﻿using CrewChiefV4.PCars;
 using CrewChiefV4.PCars2;
+using Newtonsoft.Json;
 using SharpDX.DirectInput;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using CrewChiefV4.Events;
+using System.Windows.Forms;
+using System.Collections.Concurrent;
+using System.Diagnostics;
 
 namespace CrewChiefV4
 {
@@ -16,61 +22,209 @@ namespace CrewChiefV4
         private MainWindow mainWindow;
         public Boolean listenForAssignment = false;
         DirectInput directInput = new DirectInput();
-        DeviceType[] supportedDeviceTypes = new DeviceType[] {DeviceType.Driving, DeviceType.Joystick, DeviceType.Gamepad, 
+        public static DeviceType[] supportedDeviceTypes = new DeviceType[] {DeviceType.Driving, DeviceType.Joystick, DeviceType.Gamepad, 
             DeviceType.Keyboard, DeviceType.ControlDevice, DeviceType.FirstPerson, DeviceType.Flight, 
             DeviceType.Supplemental, DeviceType.Remote};
+
+        // Note: Below two collections are accessed from the multiple threads, but not yet synchronized.
         public List<ButtonAssignment> buttonAssignments = new List<ButtonAssignment>();
         public List<ControllerData> controllers;
 
-        public static String CHANNEL_OPEN_FUNCTION = Configuration.getUIString("talk_to_crew_chief");
-        public static String TOGGLE_RACE_UPDATES_FUNCTION = Configuration.getUIString("toggle_race_updates_on/off");
-        public static String TOGGLE_SPOTTER_FUNCTION = Configuration.getUIString("toggle_spotter_on/off");
-        public static String TOGGLE_READ_OPPONENT_DELTAS = Configuration.getUIString("toggle_opponent_deltas_on/off_for_each_lap");
-        public static String REPEAT_LAST_MESSAGE_BUTTON = Configuration.getUIString("press_to_replay_the_last_message");
-        public static String VOLUME_UP = Configuration.getUIString("volume_up");
-        public static String VOLUME_DOWN = Configuration.getUIString("volume_down");
-        public static String PRINT_TRACK_DATA = Configuration.getUIString("print_track_data");
-        public static String TOGGLE_YELLOW_FLAG_MESSAGES = Configuration.getUIString("toggle_yellow_flag_messages");
-        public static String GET_FUEL_STATUS = Configuration.getUIString("get_fuel_status");
-        public static String TOGGLE_MANUAL_FORMATION_LAP = Configuration.getUIString("toggle_manual_formation_lap");
-        public static String READ_CORNER_NAMES_FOR_LAP = Configuration.getUIString("read_corner_names_for_lap");
+        // Controllers we found during last device scan, not necessarily all connected.
+        public List<ControllerData> knownControllers;
 
-        public static String GET_CAR_STATUS = Configuration.getUIString("get_car_status");
-        public static String GET_STATUS = Configuration.getUIString("get_status");
-        public static String GET_SESSION_STATUS = Configuration.getUIString("get_session_status");
-        public static String GET_DAMAGE_REPORT = Configuration.getUIString("get_damage_report");
+        private Dictionary<Guid, bool> knownControllerState = new Dictionary<Guid, bool>();
+
+        private static Boolean usersConfigFileIsBroken = false;
+
+        // keep track of all the Joystick devices we've 'acquired'
+        private static Dictionary<Guid, Joystick> activeDevices = new Dictionary<Guid, Joystick>();
+        // separate var for added custom controller
+        private Guid customControllerGuid = Guid.Empty; 
+
+        // built in controller button functions:
+        public static String CHANNEL_OPEN_FUNCTION = "talk_to_crew_chief";
+        public static String TOGGLE_RACE_UPDATES_FUNCTION = "toggle_race_updates_on/off";
+        public static String TOGGLE_SPOTTER_FUNCTION = "toggle_spotter_on/off";
+        public static String TOGGLE_READ_OPPONENT_DELTAS = "toggle_opponent_deltas_on/off_for_each_lap";
+        public static String REPEAT_LAST_MESSAGE_BUTTON = "press_to_replay_the_last_message";
+        public static String VOLUME_UP = "volume_up";
+        public static String VOLUME_DOWN = "volume_down";
+        public static String TOGGLE_MUTE = "toggle_mute";
+        public static String PRINT_TRACK_DATA = "print_track_data";
+        public static String TOGGLE_YELLOW_FLAG_MESSAGES = "toggle_yellow_flag_messages";
+        public static String GET_FUEL_STATUS = "get_fuel_status";
+        public static String TOGGLE_MANUAL_FORMATION_LAP = "toggle_manual_formation_lap";
+        public static String READ_CORNER_NAMES_FOR_LAP = "read_corner_names_for_lap";
+
+        public static String GET_CAR_STATUS = "get_car_status";
+        public static String GET_STATUS = "get_status";
+        public static String GET_SESSION_STATUS = "get_session_status";
+        public static String GET_DAMAGE_REPORT = "get_damage_report";
                 
-        public static String TOGGLE_PACE_NOTES_RECORDING = Configuration.getUIString("toggle_pace_notes_recording");
-        public static String TOGGLE_PACE_NOTES_PLAYBACK = Configuration.getUIString("toggle_pace_notes_playback");
+        public static String TOGGLE_PACE_NOTES_RECORDING = "toggle_pace_notes_recording";
+        public static String TOGGLE_PACE_NOTES_PLAYBACK = "toggle_pace_notes_playback";
 
-        public static String TOGGLE_TRACK_LANDMARKS_RECORDING = Configuration.getUIString("toggle_track_landmarks_recording");
-        public static String ADD_TRACK_LANDMARK = Configuration.getUIString("add_track_landmark");
+        public static String TOGGLE_TRACK_LANDMARKS_RECORDING = "toggle_track_landmarks_recording";
+        public static String TOGGLE_ENABLE_CUT_TRACK_WARNINGS = "toggle_enable_cut_track_warnings";
+        
+        public static String ADD_TRACK_LANDMARK = "add_track_landmark";
 
-        public static String PIT_PREDICTION = Configuration.getUIString("activate_pit_prediction");
+        public static String PIT_PREDICTION = "activate_pit_prediction";
 
-        public static String TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS = Configuration.getUIString("toggle_delay_messages_in_hard_parts");
+        public static String TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS = "toggle_delay_messages_in_hard_parts";
 
         private ControllerData networkGamePad = new ControllerData(Configuration.getUIString("udp_network_data_buttons"), DeviceType.Gamepad, UDP_NETWORK_CONTROLLER_GUID);
-        
-        // yuk...
-        public Dictionary<String, int> buttonAssignmentIndexes = new Dictionary<String, int>();
-        private Thread asyncDisposeThread = null;
+
+        // these are actions *not* handled by an AbstractEvent instance because of some batshit internal wiring that's impossible to unpick
+        private static List<String> specialActions = new List<String>()
+        {
+            CHANNEL_OPEN_FUNCTION, TOGGLE_SPOTTER_FUNCTION, VOLUME_UP, VOLUME_DOWN, TOGGLE_MUTE
+        };
+
+        // this is a map of legacy action name (stuff like "CHANNEL_OPEN_FUNCTION") to new action name (stuff like "talk_to_crew_chief")
+        // and is used to move old properties values over to the new JSON format on app start (when there's no user file for mappings)
+        public static Dictionary<String, String> builtInActionMappings = new Dictionary<String, String>()
+        {
+            { Utilities.GetParameterName(new { CHANNEL_OPEN_FUNCTION }), CHANNEL_OPEN_FUNCTION },
+            { Utilities.GetParameterName(new { TOGGLE_SPOTTER_FUNCTION }), TOGGLE_SPOTTER_FUNCTION },
+            { Utilities.GetParameterName(new { VOLUME_UP }), VOLUME_UP },
+            { Utilities.GetParameterName(new { VOLUME_DOWN }), VOLUME_DOWN },
+            { Utilities.GetParameterName(new { TOGGLE_MUTE }), TOGGLE_MUTE },
+            { Utilities.GetParameterName(new { TOGGLE_RACE_UPDATES_FUNCTION }), TOGGLE_RACE_UPDATES_FUNCTION },
+            { Utilities.GetParameterName(new { TOGGLE_READ_OPPONENT_DELTAS }), TOGGLE_READ_OPPONENT_DELTAS },
+            { Utilities.GetParameterName(new { REPEAT_LAST_MESSAGE_BUTTON }), REPEAT_LAST_MESSAGE_BUTTON },
+            { Utilities.GetParameterName(new { PRINT_TRACK_DATA }), PRINT_TRACK_DATA },
+            { Utilities.GetParameterName(new { TOGGLE_YELLOW_FLAG_MESSAGES }), TOGGLE_YELLOW_FLAG_MESSAGES },
+            { Utilities.GetParameterName(new { GET_FUEL_STATUS }), GET_FUEL_STATUS },
+            { Utilities.GetParameterName(new { TOGGLE_MANUAL_FORMATION_LAP }), TOGGLE_MANUAL_FORMATION_LAP },
+            { Utilities.GetParameterName(new { READ_CORNER_NAMES_FOR_LAP }), READ_CORNER_NAMES_FOR_LAP },
+            { Utilities.GetParameterName(new { GET_CAR_STATUS }), GET_CAR_STATUS },
+            { Utilities.GetParameterName(new { GET_STATUS }), GET_STATUS },
+            { Utilities.GetParameterName(new { GET_SESSION_STATUS }), GET_SESSION_STATUS },
+            { Utilities.GetParameterName(new { GET_DAMAGE_REPORT }), GET_DAMAGE_REPORT },
+            { Utilities.GetParameterName(new { TOGGLE_PACE_NOTES_RECORDING }), TOGGLE_PACE_NOTES_RECORDING },
+            { Utilities.GetParameterName(new { TOGGLE_PACE_NOTES_PLAYBACK }), TOGGLE_PACE_NOTES_PLAYBACK },
+            { Utilities.GetParameterName(new { TOGGLE_TRACK_LANDMARKS_RECORDING }), TOGGLE_TRACK_LANDMARKS_RECORDING },
+            { Utilities.GetParameterName(new { TOGGLE_ENABLE_CUT_TRACK_WARNINGS }), TOGGLE_ENABLE_CUT_TRACK_WARNINGS },
+            { Utilities.GetParameterName(new { ADD_TRACK_LANDMARK }), ADD_TRACK_LANDMARK },
+            { Utilities.GetParameterName(new { PIT_PREDICTION }), PIT_PREDICTION },
+            { Utilities.GetParameterName(new { TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS }), TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS }
+        };
+
+        public bool scanInProgress = false;
+        private Thread controllerScanThread = null;
+
+        public class ControllerConfigurationData
+        {
+            public ControllerConfigurationData()
+            {
+                devices = new List<ControllerData>();
+                buttonAssignments = new List<ButtonAssignment>();
+            }
+            public List<ControllerData> devices { get; set; }
+            public List<ButtonAssignment> buttonAssignments { get; set; }
+        }
+
+        private static String getDefaultControllerConfigurationDataFileLocation()
+        {
+            String path = Configuration.getDefaultFileLocation("controllerConfigurationData.json");
+            if (File.Exists(path))
+            {
+                return path;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        public static String getUserControllerConfigurationDataFileLocation()
+        {
+            String path = System.IO.Path.Combine(Environment.GetFolderPath(
+                Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "controllerConfigurationData.json");
+
+            if (File.Exists(path))
+            {
+                return path;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public static ControllerConfigurationData getControllerConfigurationDataFromFile(String filename)
+        {
+            if (filename != null && !usersConfigFileIsBroken)
+            {
+                try
+                {
+                    using (StreamReader r = new StreamReader(filename))
+                    {
+                        string json = r.ReadToEnd();
+                        ControllerConfigurationData data = JsonConvert.DeserializeObject<ControllerConfigurationData>(json);
+                        if (data != null)
+                        {
+                            usersConfigFileIsBroken = false;
+                            return data;
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error parsing " + filename + ": " + e.Message);
+                    ControllerConfiguration.usersConfigFileIsBroken = true;
+                    MessageBox.Show(Configuration.getUIString("controller_mappings_file_error_details_1") + " " + filename + " " +
+                            Configuration.getUIString("controller_mappings_file_error_details_2") + " " + e.Message,
+                            Configuration.getUIString("controller_mappings_file_error_title"), 
+                        MessageBoxButtons.OK);
+                }
+            }
+            return new ControllerConfigurationData();
+        }
+
+        public static void saveControllerConfigurationDataFile(ControllerConfigurationData buttonsActions)
+        {
+            if (usersConfigFileIsBroken)
+            {
+                Console.WriteLine("Unable to update controller bindings because the file isn't valid JSON");
+                return;
+            }
+            String fileName = "controllerConfigurationData.json";
+            String path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4");
+            if (!Directory.Exists(path))
+            {
+                try
+                {
+                    Directory.CreateDirectory(path);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error creating " + path + ": " + e.Message);
+                }
+            }
+            if (fileName != null)
+            {
+                try
+                {
+                    using (StreamWriter file = File.CreateText(System.IO.Path.Combine(path, fileName)))
+                    {
+                        JsonSerializer serializer = new JsonSerializer();
+                        serializer.Formatting = Newtonsoft.Json.Formatting.Indented;
+                        serializer.Serialize(file, buttonsActions);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error parsing " + fileName + ": " + e.Message);
+                }
+            }
+        }
 
         public void Dispose()
         {
             mainWindow = null;
-            foreach (ButtonAssignment ba in buttonAssignments)
-            {
-                if (ba.joystick != null)
-                {
-                    try
-                    {
-                        ba.joystick.Unacquire();
-                        ba.joystick.Dispose();
-                    }
-                    catch (Exception) { }
-                }
-            }
+            unacquireAndDisposeActiveJoysticks();
             try
             {
                 directInput.Dispose();
@@ -78,129 +232,180 @@ namespace CrewChiefV4
             catch (Exception) { }
         }
 
+        private void unacquireAndDisposeActiveJoysticks()
+        {
+            lock (activeDevices)
+            {
+                foreach (Joystick joystick in activeDevices.Values)
+                {
+                    try
+                    {
+                        joystick.Unacquire();
+                    }
+                    catch (Exception) { }
+                    try
+                    {
+                        joystick.Dispose();
+                    }
+                    catch (Exception) { }
+                }
+                activeDevices.Clear();
+            }
+        }
+
         public ControllerConfiguration(MainWindow mainWindow)
         {
             this.mainWindow = mainWindow;
-            addButtonAssignment(CHANNEL_OPEN_FUNCTION);
-            addButtonAssignment(TOGGLE_RACE_UPDATES_FUNCTION);
-            addButtonAssignment(TOGGLE_SPOTTER_FUNCTION);
-            addButtonAssignment(TOGGLE_READ_OPPONENT_DELTAS);
-            addButtonAssignment(TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS);
-            addButtonAssignment(REPEAT_LAST_MESSAGE_BUTTON);
-            addButtonAssignment(VOLUME_UP);
-            addButtonAssignment(VOLUME_DOWN);
-            addButtonAssignment(TOGGLE_YELLOW_FLAG_MESSAGES);
-            addButtonAssignment(GET_FUEL_STATUS);
-            addButtonAssignment(TOGGLE_MANUAL_FORMATION_LAP);
-            addButtonAssignment(PRINT_TRACK_DATA);
-            addButtonAssignment(READ_CORNER_NAMES_FOR_LAP);
-            addButtonAssignment(GET_CAR_STATUS);
-            addButtonAssignment(GET_DAMAGE_REPORT);
-            addButtonAssignment(GET_SESSION_STATUS);
-            addButtonAssignment(GET_STATUS);
-            addButtonAssignment(TOGGLE_PACE_NOTES_PLAYBACK);
-            addButtonAssignment(TOGGLE_PACE_NOTES_RECORDING);
-            addButtonAssignment(TOGGLE_TRACK_LANDMARKS_RECORDING);
-            addButtonAssignment(ADD_TRACK_LANDMARK);
-            addButtonAssignment(PIT_PREDICTION);
-            controllers = loadControllers();
+            
         }
 
+        private bool initialized = false;
+        public void initialize()
+        {
+            if (this.initialized)
+            {
+                Debug.Assert(!this.initialized, "This method should be only called once.");
+                return;
+            }
+
+            // update existing data to use new json - copies assignments from old properties data into new json data, used when there's
+            // no user controllers config json file
+            if (getUserControllerConfigurationDataFileLocation() == null)
+            {
+                ControllerConfigurationData oldUserData = new ControllerConfigurationData();
+                foreach (KeyValuePair<String, String> assignment in builtInActionMappings)
+                {
+                    int buttonIndex = UserSettings.GetUserSettings().getInt(assignment.Key + "_button_index");
+                    String deviceGuid = UserSettings.GetUserSettings().getString(assignment.Key + "_device_guid");
+                    oldUserData.buttonAssignments.Add(new ButtonAssignment() { deviceGuid = deviceGuid, buttonIndex = buttonIndex, action = assignment.Value });
+                }
+                oldUserData.devices = ControllerData.parse(UserSettings.GetUserSettings().getString(ControllerData.PROPERTY_CONTAINER));
+                saveControllerConfigurationDataFile(oldUserData);
+            }
+            // if there is something in the default data file we want to add it, this is in case we want to add default button actions later on  
+            ControllerConfigurationData defaultData = getControllerConfigurationDataFromFile(getDefaultControllerConfigurationDataFileLocation());
+            ControllerConfigurationData controllerConfigurationData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
+            var missingNewButtonMappings = builtInActionMappings.Where(builtIn => !controllerConfigurationData.buttonAssignments.Any(ba => ba.action == builtIn.Value));
+
+            if (defaultData.buttonAssignments.Count > 0 || missingNewButtonMappings.Count() > 0) // app updated add, missing elements ?
+            {
+                Boolean save = false;
+                var missingItems = defaultData.buttonAssignments.Where(ba2 => !controllerConfigurationData.buttonAssignments.Any(ba1 => ba1.action == ba2.action));
+                if (missingItems.ToList().Count > 0)
+                {
+                    save = true;
+                    controllerConfigurationData.buttonAssignments.AddRange(missingItems);
+                }
+                foreach (KeyValuePair<string, string> missingNewButtonMapping in missingNewButtonMappings)
+                {
+                    save = true;
+                    ButtonAssignment newAssignment = new ButtonAssignment();
+                    newAssignment.action = missingNewButtonMapping.Value;
+                    controllerConfigurationData.buttonAssignments.Add(newAssignment);
+                }
+                if (save) 
+                {
+                    saveControllerConfigurationDataFile(controllerConfigurationData);
+                }
+            }
+            // update actions and add assignments            
+            buttonAssignments = controllerConfigurationData.buttonAssignments.Where(ba => ba.availableAction).ToList();
+            controllers = controllerConfigurationData.devices;
+            ButtonAssignment networkAssignment = buttonAssignments.SingleOrDefault(ba => ba.deviceGuid == UDP_NETWORK_CONTROLLER_GUID.ToString());
+            if (networkAssignment != null)
+            {
+                addNetworkControllerToList();
+            }
+            foreach (ButtonAssignment assignment in buttonAssignments)
+            {
+                assignment.controller = controllers.FirstOrDefault(c => c.guid.ToString() == assignment.deviceGuid);
+                assignment.Initialize();
+            }
+
+            this.initialized = true;
+        }
+        // just sets the custom controller guid so the scan call will populate it later
         public void addCustomController(Guid guid)
         {
-            var joystick = new Joystick(directInput, guid);
-            String productName = " " + Configuration.getUIString("custom_device");
-            try
-            {
-                productName = ": " + joystick.Properties.ProductName;
-            }
-            catch (Exception)
-            {
-            }
-            asyncDispose(DeviceType.ControlDevice, joystick);
-            controllers.Add(new ControllerData(productName, DeviceType.Joystick, guid));
+            customControllerGuid = guid;
         }
 
         public void pollForButtonClicks(Boolean channelOpenIsToggle)
         {
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[TOGGLE_RACE_UPDATES_FUNCTION]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[TOGGLE_SPOTTER_FUNCTION]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[TOGGLE_READ_OPPONENT_DELTAS]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[REPEAT_LAST_MESSAGE_BUTTON]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[VOLUME_UP]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[VOLUME_DOWN]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[TOGGLE_YELLOW_FLAG_MESSAGES]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[GET_FUEL_STATUS]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[TOGGLE_MANUAL_FORMATION_LAP]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[READ_CORNER_NAMES_FOR_LAP]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[PRINT_TRACK_DATA]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[CHANNEL_OPEN_FUNCTION]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[GET_STATUS]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[GET_SESSION_STATUS]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[GET_DAMAGE_REPORT]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[GET_CAR_STATUS]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[TOGGLE_PACE_NOTES_PLAYBACK]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[TOGGLE_PACE_NOTES_RECORDING]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[TOGGLE_TRACK_LANDMARKS_RECORDING]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[ADD_TRACK_LANDMARK]]);
-            pollForButtonClicks(buttonAssignments[buttonAssignmentIndexes[PIT_PREDICTION]]);
-            
+            foreach (var assignment in buttonAssignments)
+            {
+                pollForButtonClicks(assignment);
+            }
         }
 
         private void pollForButtonClicks(ButtonAssignment ba)
         {
-            if (ba != null && ba.buttonIndex != -1)
+            if (ba != null && ba.buttonIndex != -1 && ba.controller != null && ba.controller.guid != Guid.Empty)
             {
-                if (ba.joystick != null)
+                if (ba.controller.guid == UDP_NETWORK_CONTROLLER_GUID && CrewChief.gameDefinition.gameEnum == GameEnum.PCARS_NETWORK)
                 {
-                    try
+                    if (PCarsUDPreader.getButtonState(ba.buttonIndex))
                     {
-                        if (ba.joystick != null)
-                        {
-                            JoystickState state = ba.joystick.GetCurrentState();
-                            if (state != null)
-                            {
-                                Boolean click = state.Buttons[ba.buttonIndex];
-                                if (click)
-                                {
-                                    ba.hasUnprocessedClick = true;
-                                }
-                            }
-                        }
-                    }
-                    catch (Exception)
-                    {
-
+                        ba.hasUnprocessedClick = true;
                     }
                 }
-                else if (ba.controller.guid == UDP_NETWORK_CONTROLLER_GUID)
+                else if (ba.controller.guid == UDP_NETWORK_CONTROLLER_GUID && CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2_NETWORK)
                 {
-                    if (CrewChief.gameDefinition.gameEnum == GameEnum.PCARS_NETWORK)
+                    if (PCars2UDPreader.getButtonState(ba.buttonIndex))
                     {
-                        if (PCarsUDPreader.getButtonState(ba.buttonIndex))
-                        {
-                            ba.hasUnprocessedClick = true;
-                        }
+                        ba.hasUnprocessedClick = true;
                     }
-                    else if (CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2_NETWORK)
+                }
+                else
+                {
+                    lock (activeDevices)
                     {
-                        if (PCars2UDPreader.getButtonState(ba.buttonIndex))
+                        Joystick joystick;
+                        if (activeDevices.TryGetValue(ba.controller.guid, out joystick))
                         {
-                            ba.hasUnprocessedClick = true;
+                            try
+                            {
+                                JoystickState state = joystick.GetCurrentState();
+                                if (state != null)
+                                {
+                                    Boolean click = state.Buttons[ba.buttonIndex];
+                                    if (click)
+                                    {
+                                        ba.hasUnprocessedClick = true;
+                                    }
+                                }
+                            }
+                            catch (Exception)
+                            { }
                         }
                     }
                 }
             }
         }
 
-        public Boolean hasOutstandingClick(String action)
+        public Boolean hasOutstandingClick(String action = null)
         {
-            ButtonAssignment ba = buttonAssignments[buttonAssignmentIndexes[action]];
-            if (ba.hasUnprocessedClick)
+            if (specialActions.Contains(action))
             {
-                ba.hasUnprocessedClick = false;
-                return true;
+                ButtonAssignment ba = buttonAssignments.SingleOrDefault(ba1 => ba1.action == action);
+                if (ba != null && ba.hasUnprocessedClick)
+                {
+                    ba.hasUnprocessedClick = false;
+                    return true;
+                }
+                return false;                
+            }
+            else
+            {
+                foreach(var ba in buttonAssignments)
+                {
+                    if (ba.hasUnprocessedClick && ba.actionEvent != null)
+                    {
+                        ba.execute();
+                        ba.hasUnprocessedClick = false;
+                        return true;
+                    }                    
+                }
             }
             return false;
         }
@@ -209,8 +414,7 @@ namespace CrewChiefV4
         {
             foreach (ButtonAssignment buttonAssignment in buttonAssignments)
             {
-                if (buttonAssignment.action == CHANNEL_OPEN_FUNCTION && buttonAssignment.buttonIndex != -1
-                    && (buttonAssignment.joystick != null || (buttonAssignment.controller != null && buttonAssignment.controller.guid == UDP_NETWORK_CONTROLLER_GUID)))
+                if (buttonAssignment.action == CHANNEL_OPEN_FUNCTION && buttonAssignment.buttonIndex != -1)
                 {
                     return true;
                 }
@@ -223,8 +427,7 @@ namespace CrewChiefV4
             foreach (ButtonAssignment buttonAssignment in buttonAssignments)
             {
                 if ((channelOpenIsToggle || buttonAssignment.action != CHANNEL_OPEN_FUNCTION) &&
-                    (buttonAssignment.joystick != null || (buttonAssignment.controller != null && buttonAssignment.controller.guid == UDP_NETWORK_CONTROLLER_GUID)) 
-                    && buttonAssignment.buttonIndex != -1)
+                    buttonAssignment.controller != null && buttonAssignment.buttonIndex != -1)
                 {
                     return true;
                 }
@@ -234,408 +437,303 @@ namespace CrewChiefV4
         
         public void saveSettings()
         {
-            foreach (ButtonAssignment buttonAssignment in buttonAssignments)
-            {
-                String actionId = "";
-                if (buttonAssignment.action == CHANNEL_OPEN_FUNCTION)
-                {
-                    actionId = "CHANNEL_OPEN_FUNCTION";
-                }
-                else if (buttonAssignment.action == TOGGLE_RACE_UPDATES_FUNCTION)
-                {
-                    actionId = "TOGGLE_RACE_UPDATES_FUNCTION";
-                }
-                else if (buttonAssignment.action == TOGGLE_SPOTTER_FUNCTION)
-                {
-                    actionId = "TOGGLE_SPOTTER_FUNCTION";
-                }
-                else if (buttonAssignment.action == TOGGLE_READ_OPPONENT_DELTAS)
-                {
-                    actionId = "TOGGLE_READ_OPPONENT_DELTAS";
-                }
-                else if (buttonAssignment.action == TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS)
-                {
-                    actionId = "TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS";
-                }
-                else if (buttonAssignment.action == REPEAT_LAST_MESSAGE_BUTTON)
-                {
-                    actionId = "REPEAT_LAST_MESSAGE_BUTTON";
-                }
-                else if (buttonAssignment.action == VOLUME_UP)
-                {
-                    actionId = "VOLUME_UP";
-                }
-                else if (buttonAssignment.action == VOLUME_DOWN)
-                {
-                    actionId = "VOLUME_DOWN";
-                }
-                else if (buttonAssignment.action == PRINT_TRACK_DATA)
-                {
-                    actionId = "PRINT_TRACK_DATA";
-                }
-                else if (buttonAssignment.action == TOGGLE_YELLOW_FLAG_MESSAGES)
-                {
-                    actionId = "TOGGLE_YELLOW_FLAG_MESSAGES";
-                }
-                else if (buttonAssignment.action == GET_FUEL_STATUS)
-                {
-                    actionId = "GET_FUEL_STATUS";
-                }
-                else if (buttonAssignment.action == TOGGLE_MANUAL_FORMATION_LAP)
-                {
-                    actionId = "TOGGLE_MANUAL_FORMATION_LAP";
-                }
-                else if (buttonAssignment.action == READ_CORNER_NAMES_FOR_LAP)
-                {
-                    actionId = "READ_CORNER_NAMES_FOR_LAP";
-                }
-                else if (buttonAssignment.action == GET_CAR_STATUS)
-                {
-                    actionId = "GET_CAR_STATUS";
-                }
-                else if (buttonAssignment.action == GET_DAMAGE_REPORT)
-                {
-                    actionId = "GET_DAMAGE_REPORT";
-                }
-                else if (buttonAssignment.action == GET_SESSION_STATUS)
-                {
-                    actionId = "GET_SESSION_STATUS";
-                }
-                else if (buttonAssignment.action == GET_STATUS)
-                {
-                    actionId = "GET_STATUS";
-                }
-                else if (buttonAssignment.action == TOGGLE_PACE_NOTES_PLAYBACK)
-                {
-                    actionId = "TOGGLE_PACE_NOTES_PLAYBACK";
-                }
-                else if (buttonAssignment.action == TOGGLE_PACE_NOTES_RECORDING)
-                {
-                    actionId = "TOGGLE_PACE_NOTES_RECORDING";
-                }
-                else if (buttonAssignment.action == TOGGLE_TRACK_LANDMARKS_RECORDING)
-                {
-                    actionId = "TOGGLE_TRACK_LANDMARKS_RECORDING";
-                }
-                else if (buttonAssignment.action == ADD_TRACK_LANDMARK)
-                {
-                    actionId = "ADD_TRACK_LANDMARK";
-                }
-                else if (buttonAssignment.action == PIT_PREDICTION)
-                {
-                    actionId = "PIT_PREDICTION";
-                }
-                if (buttonAssignment.controller != null && (buttonAssignment.joystick != null || buttonAssignment.controller.guid == UDP_NETWORK_CONTROLLER_GUID) && buttonAssignment.buttonIndex != -1)
-                {
-                    UserSettings.GetUserSettings().setProperty(actionId + "_button_index", buttonAssignment.buttonIndex);
-                    UserSettings.GetUserSettings().setProperty(actionId + "_device_guid", buttonAssignment.controller.guid.ToString());
-                }
-                else
-                {
-                    UserSettings.GetUserSettings().setProperty(actionId + "_button_index", -1);
-                    UserSettings.GetUserSettings().setProperty(actionId + "_device_guid", "");
-                }
-            }
-            UserSettings.GetUserSettings().saveUserSettings();
-        }
-
-        public void loadSettings(System.Windows.Forms.Form parent)
-        {
-            int channelOpenButtonIndex = UserSettings.GetUserSettings().getInt("CHANNEL_OPEN_FUNCTION_button_index");
-            String channelOpenButtonDeviceGuid = UserSettings.GetUserSettings().getString("CHANNEL_OPEN_FUNCTION_device_guid");
-            if (channelOpenButtonIndex != -1 && channelOpenButtonDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, CHANNEL_OPEN_FUNCTION, channelOpenButtonIndex, channelOpenButtonDeviceGuid);
-            }
-
-            int toggleRaceUpdatesButtonIndex = UserSettings.GetUserSettings().getInt("TOGGLE_RACE_UPDATES_FUNCTION_button_index");
-            String toggleRaceUpdatesButtonDeviceGuid = UserSettings.GetUserSettings().getString("TOGGLE_RACE_UPDATES_FUNCTION_device_guid");
-            if (toggleRaceUpdatesButtonIndex != -1 && toggleRaceUpdatesButtonDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, TOGGLE_RACE_UPDATES_FUNCTION, toggleRaceUpdatesButtonIndex, toggleRaceUpdatesButtonDeviceGuid);
-            }
-
-            int toggleSpotterFunctionButtonIndex = UserSettings.GetUserSettings().getInt("TOGGLE_SPOTTER_FUNCTION_button_index");
-            String toggleSpotterFunctionDeviceGuid = UserSettings.GetUserSettings().getString("TOGGLE_SPOTTER_FUNCTION_device_guid");
-            if (toggleSpotterFunctionButtonIndex != -1 && toggleSpotterFunctionDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, TOGGLE_SPOTTER_FUNCTION, toggleSpotterFunctionButtonIndex, toggleSpotterFunctionDeviceGuid);
-            }
-
-            int toggleReadOpponentDeltasButtonIndex = UserSettings.GetUserSettings().getInt("TOGGLE_READ_OPPONENT_DELTAS_button_index");
-            String toggleReadOpponentDeltasDeviceGuid = UserSettings.GetUserSettings().getString("TOGGLE_READ_OPPONENT_DELTAS_device_guid");
-            if (toggleReadOpponentDeltasButtonIndex != -1 && toggleReadOpponentDeltasDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, TOGGLE_READ_OPPONENT_DELTAS, toggleReadOpponentDeltasButtonIndex, toggleReadOpponentDeltasDeviceGuid);
-            }
-
-            int toggleBlockMessagesInHardPartsButtonIndex = UserSettings.GetUserSettings().getInt("TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS_button_index");
-            String toggleBlockMessagesInHardPartsDeviceGuid = UserSettings.GetUserSettings().getString("TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS_device_guid");
-            if (toggleBlockMessagesInHardPartsButtonIndex != -1 && toggleBlockMessagesInHardPartsDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS, toggleBlockMessagesInHardPartsButtonIndex, toggleBlockMessagesInHardPartsDeviceGuid);
-            }
-
-            int repeatLastMessageButtonIndex = UserSettings.GetUserSettings().getInt("REPEAT_LAST_MESSAGE_BUTTON_button_index");
-            String repeatLastMessageDeviceGuid = UserSettings.GetUserSettings().getString("REPEAT_LAST_MESSAGE_BUTTON_device_guid");
-            if (repeatLastMessageButtonIndex != -1 && repeatLastMessageDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, REPEAT_LAST_MESSAGE_BUTTON, repeatLastMessageButtonIndex, repeatLastMessageDeviceGuid);
-            }
-
-            int volumeUpButtonIndex = UserSettings.GetUserSettings().getInt("VOLUME_UP_button_index");
-            String volumeUpDeviceGuid = UserSettings.GetUserSettings().getString("VOLUME_UP_device_guid");
-            if (volumeUpButtonIndex != -1 && volumeUpDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, VOLUME_UP, volumeUpButtonIndex, volumeUpDeviceGuid);
-            }
-
-            int volumeDownButtonIndex = UserSettings.GetUserSettings().getInt("VOLUME_DOWN_button_index");
-            String volumeDownDeviceGuid = UserSettings.GetUserSettings().getString("VOLUME_DOWN_device_guid");
-            if (volumeDownButtonIndex != -1 && volumeDownDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, VOLUME_DOWN, volumeDownButtonIndex, volumeDownDeviceGuid);
-            }
-
-            int printTrackDataButtonIndex = UserSettings.GetUserSettings().getInt("PRINT_TRACK_DATA_button_index");
-            String printTrackDataDeviceGuid = UserSettings.GetUserSettings().getString("PRINT_TRACK_DATA_device_guid");
-            if (printTrackDataButtonIndex != -1 && printTrackDataDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, PRINT_TRACK_DATA, printTrackDataButtonIndex, printTrackDataDeviceGuid);
-            }
-
-            int toggleYellowFlagMessagesButtonIndex = UserSettings.GetUserSettings().getInt("TOGGLE_YELLOW_FLAG_MESSAGES_button_index");
-            String toggleYellowFlagMessagesDeviceGuid = UserSettings.GetUserSettings().getString("TOGGLE_YELLOW_FLAG_MESSAGES_device_guid");
-            if (toggleYellowFlagMessagesButtonIndex != -1 && toggleYellowFlagMessagesDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, TOGGLE_YELLOW_FLAG_MESSAGES, toggleYellowFlagMessagesButtonIndex, toggleYellowFlagMessagesDeviceGuid);
-            }
-
-            int getFuelStatusButtonIndex = UserSettings.GetUserSettings().getInt("GET_FUEL_STATUS_button_index");
-            String getFuelStatusDeviceGuid = UserSettings.GetUserSettings().getString("GET_FUEL_STATUS_device_guid");
-            if (getFuelStatusButtonIndex != -1 && getFuelStatusDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, GET_FUEL_STATUS, getFuelStatusButtonIndex, getFuelStatusDeviceGuid);
-            }
-
-            int toggleManualFormationLapButtonIndex = UserSettings.GetUserSettings().getInt("TOGGLE_MANUAL_FORMATION_LAP_button_index");
-            String toggleManualFormationLapDeviceGuid = UserSettings.GetUserSettings().getString("TOGGLE_MANUAL_FORMATION_LAP_device_guid");
-            if (toggleManualFormationLapButtonIndex != -1 && toggleManualFormationLapDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, TOGGLE_MANUAL_FORMATION_LAP, toggleManualFormationLapButtonIndex, toggleManualFormationLapDeviceGuid);
-            }
-
-            int readCornerNamesForLapButtonIndex = UserSettings.GetUserSettings().getInt("READ_CORNER_NAMES_FOR_LAP_button_index");
-            String readCornerNamesForLapDeviceGuid = UserSettings.GetUserSettings().getString("READ_CORNER_NAMES_FOR_LAP_device_guid");
-            if (readCornerNamesForLapButtonIndex != -1 && readCornerNamesForLapDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, READ_CORNER_NAMES_FOR_LAP, readCornerNamesForLapButtonIndex, readCornerNamesForLapDeviceGuid);
-            }
-
-            int getStatusButtonIndex = UserSettings.GetUserSettings().getInt("GET_STATUS_button_index");
-            String getStatusDeviceGuid = UserSettings.GetUserSettings().getString("GET_STATUS_device_guid");
-            if (getStatusButtonIndex != -1 && getStatusDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, GET_STATUS, getStatusButtonIndex, getStatusDeviceGuid);
-            }
-
-            int getDamageReportButtonIndex = UserSettings.GetUserSettings().getInt("GET_DAMAGE_REPORT_button_index");
-            String getDamageReportDeviceGuid = UserSettings.GetUserSettings().getString("GET_DAMAGE_REPORT_device_guid");
-            if (getDamageReportButtonIndex != -1 && getDamageReportDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, GET_DAMAGE_REPORT, getDamageReportButtonIndex, getDamageReportDeviceGuid);
-            }
-
-            int getCarStatusButtonIndex = UserSettings.GetUserSettings().getInt("GET_CAR_STATUS_button_index");
-            String getCarStatusDeviceGuid = UserSettings.GetUserSettings().getString("GET_CAR_STATUS_device_guid");
-            if (getCarStatusButtonIndex != -1 && getCarStatusDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, GET_CAR_STATUS, getCarStatusButtonIndex, getCarStatusDeviceGuid);
-            }
-
-            int getSessionStatusButtonIndex = UserSettings.GetUserSettings().getInt("GET_SESSION_STATUS_button_index");
-            String getSessionStatusDeviceGuid = UserSettings.GetUserSettings().getString("GET_SESSION_STATUS_device_guid");
-            if (getSessionStatusButtonIndex != -1 && getSessionStatusDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, GET_SESSION_STATUS, getSessionStatusButtonIndex, getSessionStatusDeviceGuid);
-            }
-
-            int togglePaceNotesPlaybackButtonIndex = UserSettings.GetUserSettings().getInt("TOGGLE_PACE_NOTES_PLAYBACK_button_index");
-            String togglePaceNotesPlaybackDeviceGuid = UserSettings.GetUserSettings().getString("TOGGLE_PACE_NOTES_PLAYBACK_device_guid");
-            if (togglePaceNotesPlaybackButtonIndex != -1 && togglePaceNotesPlaybackDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, TOGGLE_PACE_NOTES_PLAYBACK, togglePaceNotesPlaybackButtonIndex, togglePaceNotesPlaybackDeviceGuid);
-            }
-
-            int togglePaceNotesRecordingButtonIndex = UserSettings.GetUserSettings().getInt("TOGGLE_PACE_NOTES_RECORDING_button_index");
-            String togglePaceNotesRecordingDeviceGuid = UserSettings.GetUserSettings().getString("TOGGLE_PACE_NOTES_RECORDING_device_guid");
-            if (togglePaceNotesRecordingButtonIndex != -1 && togglePaceNotesRecordingDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, TOGGLE_PACE_NOTES_RECORDING, togglePaceNotesRecordingButtonIndex, togglePaceNotesRecordingDeviceGuid);
-            }
-            int toggleTrackLandmarkButtonIndex = UserSettings.GetUserSettings().getInt("TOGGLE_TRACK_LANDMARKS_RECORDING_button_index");
-            String toggleTrackLandmarkRecordingDeviceGuid = UserSettings.GetUserSettings().getString("TOGGLE_TRACK_LANDMARKS_RECORDING_device_guid");
-            if (toggleTrackLandmarkButtonIndex != -1 && toggleTrackLandmarkRecordingDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, TOGGLE_TRACK_LANDMARKS_RECORDING, toggleTrackLandmarkButtonIndex, toggleTrackLandmarkRecordingDeviceGuid);
-            }
-            int addTracklandmarkButtonIndex = UserSettings.GetUserSettings().getInt("ADD_TRACK_LANDMARK_button_index");
-            String addTracklandmarkDeviceGuid = UserSettings.GetUserSettings().getString("ADD_TRACK_LANDMARK_device_guid");
-            if (addTracklandmarkButtonIndex != -1 && addTracklandmarkDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, ADD_TRACK_LANDMARK, addTracklandmarkButtonIndex, addTracklandmarkDeviceGuid);
-            }
-
-            int pitPredictionButtonIndex = UserSettings.GetUserSettings().getInt("PIT_PREDICTION_button_index");
-            String pitPredictionDeviceGuid = UserSettings.GetUserSettings().getString("PIT_PREDICTION_device_guid");
-            if (pitPredictionButtonIndex != -1 && pitPredictionDeviceGuid.Length > 0)
-            {
-                loadAssignment(parent, PIT_PREDICTION, pitPredictionButtonIndex, pitPredictionDeviceGuid);
-            }
-        }
-
-        private void loadAssignment(System.Windows.Forms.Form parent, String functionName, int buttonIndex, String deviceGuid)
-        {
-            if (deviceGuid == UDP_NETWORK_CONTROLLER_GUID.ToString())
-            {
-                addNetworkControllerToList();
-            }
-            List<ControllerData> missingControllers = new List<ControllerData>();
-            foreach (ControllerData controller in this.controllers)
-            {                
-                if (controller.guid.ToString() == deviceGuid)
-                {
-                    buttonAssignments[buttonAssignmentIndexes[functionName]].controller = controller;
-                    buttonAssignments[buttonAssignmentIndexes[functionName]].buttonIndex = buttonIndex;
-                    if (controller.guid != UDP_NETWORK_CONTROLLER_GUID)
-                    {
-                        try
-                        {
-                            var joystick = new Joystick(directInput, controller.guid);
-                            // Acquire the joystick
-                            joystick.SetCooperativeLevel(parent, (CooperativeLevel.NonExclusive | CooperativeLevel.Background));
-                            joystick.Properties.BufferSize = 128;
-                            joystick.Acquire();
-                            buttonAssignments[buttonAssignmentIndexes[functionName]].joystick = joystick;
-                        }
-                        catch (Exception e)
-                        {
-                            missingControllers.Add(controller);
-                            Console.WriteLine("Controller " + controller.deviceName + " is not available: " + e.Message);
-                        }
-                    }
-                }
-            }
-            Boolean removedMissingController = false;
-            foreach (ControllerData controllerData in missingControllers) {
-                if (missingControllers.Contains(controllerData))
-                {
-                    removedMissingController = true;
-                    this.controllers.Remove(controllerData);
-                }
-            }
-            if (removedMissingController)
-            {
-                this.mainWindow.getControllers();
-            }
-        }
-
-        private void addButtonAssignment(String action)
-        {
-            buttonAssignmentIndexes.Add(action, buttonAssignmentIndexes.Count());
-            buttonAssignments.Add(new ButtonAssignment(action));
+            ControllerConfigurationData controllerConfigurationData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
+            controllerConfigurationData.buttonAssignments = buttonAssignments;
+            saveControllerConfigurationDataFile(controllerConfigurationData);
         }
 
         public Boolean isChannelOpen()
         {
-            ButtonAssignment ba = buttonAssignments[buttonAssignmentIndexes[CHANNEL_OPEN_FUNCTION]];
-            if (ba != null && ba.buttonIndex != -1)
+            ButtonAssignment ba = buttonAssignments.SingleOrDefault(ba1 => ba1.action == CHANNEL_OPEN_FUNCTION);
+            if (ba != null && ba.buttonIndex != -1 && ba.controller != null && ba.controller.guid != Guid.Empty)
             {
-                if (ba.joystick != null)
+                if (ba.controller.guid == UDP_NETWORK_CONTROLLER_GUID)
                 {
-                    try
-                    {
-                        return ba.joystick.GetCurrentState().Buttons[ba.buttonIndex];
-                    }
-                    catch (Exception)
-                    {
-                        // ignore this exception
-                    }
+                    return CrewChief.gameDefinition.gameEnum == GameEnum.PCARS_NETWORK ? 
+                        PCarsUDPreader.getButtonState(ba.buttonIndex) : PCars2UDPreader.getButtonState(ba.buttonIndex);
                 }
-                else if (ba.controller.guid == UDP_NETWORK_CONTROLLER_GUID && CrewChief.gameDefinition.gameEnum == GameEnum.PCARS_NETWORK)
+                else
                 {
-                    return PCarsUDPreader.getButtonState(ba.buttonIndex);
-                }
-                else if (ba.controller.guid == UDP_NETWORK_CONTROLLER_GUID && CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2_NETWORK)
-                {
-                    return PCars2UDPreader.getButtonState(ba.buttonIndex);
+                    lock (activeDevices)
+                    {
+                        Joystick joystick;
+                        if (activeDevices.TryGetValue(ba.controller.guid, out joystick))
+                        {
+                            try
+                            {
+                                return joystick.GetCurrentState().Buttons[ba.buttonIndex];
+                            }
+                            catch
+                            { }
+                        }
+                    }
                 }
             }
             return false;
         }
 
-        public List<ControllerData> loadControllers()
+        private List<DeviceInstance> getDevices()
         {
-            return ControllerData.parse(UserSettings.GetUserSettings().getString(ControllerData.PROPERTY_CONTAINER));
-        }
-        
-        public List<ControllerData> scanControllers()
-        {
-            List<ControllerData> controllers = new List<ControllerData>(); 
-            foreach (DeviceType deviceType in supportedDeviceTypes)
+            List<DeviceInstance> instancesToReturn = new List<DeviceInstance>();
+            try
             {
-                foreach (var deviceInstance in directInput.GetDevices(deviceType, DeviceEnumerationFlags.AllDevices))
+                // iterate the received devices list explicitly so we can track what's going on
+                IList<DeviceInstance> instances = directInput.GetDevices();
+                for (int i = 0; i < instances.Count(); i++)
                 {
-                    Guid joystickGuid = deviceInstance.InstanceGuid;
-                    if (joystickGuid != Guid.Empty) 
+                    DeviceInstance instance = instances[i];
+                    if (!supportedDeviceTypes.Contains(instance.Type))
                     {
-                        try
+                        continue;
+                    }
+                    
+                    Console.WriteLine("Adding \"" + instance.Type + "\" device instance " + (i + 1) + " of " + instances.Count + " (\"" + instance.InstanceName + "\")");
+                    instancesToReturn.Add(instance);
+                }
+            }
+            catch (Exception) { }
+            return instancesToReturn;
+        }
+
+        public void scanControllers()
+        {
+            Console.WriteLine("Re-scanning controllers...");
+
+            int availableCount = 0;
+
+            // This method is called from the controller refresh thread, either by the device-changed event handler or explicitly on app start.
+            // The poll for button clicks call is from a helper thread and accesses the activeDevices list - potentially concurrently
+
+            var scanCancelled = false;
+            // Iterate the list available, as reported by sharpDX
+            ThreadManager.UnregisterTemporaryThread(this.controllerScanThread);
+            this.controllerScanThread = new Thread(() =>
+            {
+                try
+                {
+                    lock (activeDevices)
+                    {
+                        this.controllers = new List<ControllerData>();
+                        this.knownControllers.Clear();
+                        this.knownControllerState = new Dictionary<Guid, bool>();
+
+                        // dispose all of our active devices:
+                        unacquireAndDisposeActiveJoysticks();
+
+                        foreach (var deviceInstance in this.getDevices())
                         {
-                            var joystick = new Joystick(directInput, joystickGuid);
-                            String productName = "";
-                            try
+                            Guid joystickGuid = deviceInstance.InstanceGuid;
+                            if (joystickGuid != Guid.Empty)
                             {
-                                productName = ": " + joystick.Properties.ProductName;
+                                try
+                                {
+                                    addControllerFromScan(deviceInstance.InstanceName, deviceInstance.Type, joystickGuid, false);
+                                    availableCount++;
+                                }
+                                catch (Exception e)
+                                {
+                                    Console.WriteLine("Failed to get device info: " + e.Message);
+                                }
                             }
-                            catch (Exception)
-                            {
-                                // ignore - some devices don't have a product name
-                            }
-                            asyncDispose(deviceType, joystick);
-                            controllers.Add(new ControllerData(productName, deviceType, joystickGuid));
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine("Failed to get device info: " + e.Message);
                         }
                     }
                 }
+                catch (ThreadAbortException)
+                {
+                    scanCancelled = true;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error looking for controllers: " + e.StackTrace);
+                }
+            });
+            this.controllerScanThread.Start();
+            this.controllerScanThread.Name = "ControllerConfiguration.scanControllers";
+            ThreadManager.RegisterTemporaryThread(this.controllerScanThread);
+
+            controllerScanThread.Join(1000);
+            while (controllerScanThread.IsAlive)
+            {
+                Thread.Sleep(5000);
+                Console.WriteLine("Re-scanning controller devices (this may take a while depending on your configuration)...");
             }
-            String propVal = ControllerData.createPropValue(controllers);
-            UserSettings.GetUserSettings().setProperty(ControllerData.PROPERTY_CONTAINER, propVal);
-            UserSettings.GetUserSettings().saveUserSettings();
-            return controllers;
+
+            if (scanCancelled)
+            {
+                Console.WriteLine("Controller scan cancelled.");
+                // On failure, try re-acquire.
+                this.reacquireControllers();
+                return;
+            }
+            else
+            {
+                Console.WriteLine("Controller scan finished.");
+            }
+
+            lock (activeDevices)
+            {
+                // add the custom device if it's set
+                if (customControllerGuid != Guid.Empty)
+                {
+                    try
+                    {
+                        addControllerFromScan(null, DeviceType.Joystick, customControllerGuid, true);
+                        availableCount++;
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Failed to get custom device info: " + e.Message);
+                    }
+                }
+                ControllerConfigurationData controllerConfigurationData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
+                this.controllers = this.controllers.OrderBy(ctrl => ctrl.deviceName).ToList();
+                controllerConfigurationData.devices = this.controllers;
+                saveControllerConfigurationDataFile(controllerConfigurationData);
+                foreach (ButtonAssignment assignment in buttonAssignments.Where(ba => ba.controller == null && ba.buttonIndex != -1 && !string.IsNullOrEmpty(ba.deviceGuid)))
+                {
+                    assignment.controller = controllers.FirstOrDefault(c => c.guid.ToString() == assignment.deviceGuid);
+                }
+            }
+            Console.WriteLine("Re-scanned controllers, there are " + availableCount + " available controllers and " + activeDevices.Count + " active controllers");
+        }
+
+        private void addControllerFromScan(string deviceName, DeviceType deviceType, Guid joystickGuid, Boolean isCustomDevice)
+        {
+            lock (activeDevices)
+            {
+                Boolean isMappedToAction = false;
+                Joystick joystick;
+                try
+                {
+                    joystick = new Joystick(directInput, joystickGuid);
+
+                    var previouslyConnected = false;
+                    if (!this.knownControllerState.TryGetValue(joystickGuid, out previouslyConnected))
+                    {
+                        this.knownControllerState.Add(joystickGuid, true /*connected*/);
+                    }
+
+                    if (!previouslyConnected)
+                    {
+                        this.knownControllerState[joystickGuid] = true;  // Connected
+                        Console.WriteLine("Device Connected - " + (string.IsNullOrWhiteSpace(deviceName) ? "" : (" Name: \"" + deviceName + "\"    ")) + "GUID: \"" + joystickGuid + "\"");
+                    }
+                }
+                catch (Exception e)
+                {
+                    var previouslyConnected = true;
+                    if (!this.knownControllerState.TryGetValue(joystickGuid, out previouslyConnected))
+                    {
+                        this.knownControllerState.Add(joystickGuid, false /*connected*/);
+                    }
+
+                    if (previouslyConnected)
+                    {
+                        this.knownControllerState[joystickGuid] = false;  // Connected
+                        Console.WriteLine("Device Disconnected - " + (string.IsNullOrWhiteSpace(deviceName) ? "" : (" Name: \"" + deviceName + "\"    ")) + "GUID: \"" + joystickGuid + "\"");
+                    }
+
+                    Debug.WriteLine("Unable to create a Joystick device with GUID " + joystickGuid + (string.IsNullOrWhiteSpace(deviceName) ? "" : (" name: " + deviceName)) + ": " + e.Message);
+                    return;
+                }
+                String productName = isCustomDevice ? Configuration.getUIString("custom_device") : deviceType.ToString();
+                try
+                {
+                    productName += ": " + joystick.Properties.ProductName;
+                }
+                catch (Exception)
+                {
+                    // ignore - some devices don't have a product name
+                }
+                foreach (var ba in buttonAssignments.Where(b => b.controller != null && b.controller.guid == joystickGuid && b.buttonIndex != -1))
+                {
+                    // if we have a button assigned to this device and it's not active, acquire it here:
+                    if (!activeDevices.ContainsKey(joystickGuid))
+                    {
+                        joystick.SetCooperativeLevel(mainWindow.Handle, (CooperativeLevel.NonExclusive | CooperativeLevel.Background));
+                        joystick.Properties.BufferSize = 128;
+                        joystick.Acquire();
+                        activeDevices.Add(joystickGuid, joystick);
+                    }
+                    isMappedToAction = true;
+                }
+                controllers.Add(new ControllerData(productName, deviceType, joystickGuid));
+                if (!isMappedToAction)
+                {
+                    // we're not using this device so dispose the temporary handle we used to get its name
+                    try
+                    {
+                        joystick.Dispose();
+                    }
+                    catch (Exception) { }
+                }
+            }
+        }
+
+        public void reacquireControllers()
+        {
+            Debug.Assert(MainWindow.instance != null && !MainWindow.instance.InvokeRequired);
+
+            // This method is called from the UI thread, either by the device-changed event handler or explicitly on app start.
+            // The poll for button clicks call is from a helper thread and accesses the activeDevices list - potentially concurrently
+            lock (activeDevices)
+            {
+                this.controllers = new List<ControllerData>();
+                this.unacquireAndDisposeActiveJoysticks();
+                ControllerConfigurationData controllerConfigurationData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
+                var assignedDevices = new HashSet<Guid>();
+
+                this.knownControllers = controllerConfigurationData.devices.OrderBy(d => d.deviceName).ToList();
+
+                // add the custom device if it's set
+                if (customControllerGuid != Guid.Empty)
+                {
+                    try
+                    {
+                        addControllerFromScan(null, DeviceType.Joystick, customControllerGuid, true);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Failed to get custom device info: " + e.Message);
+                    }
+                }
+
+                // Update assignments.
+                controllerConfigurationData.devices.ForEach(controller => addControllerFromScan(controller.deviceName, controller.deviceType, controller.guid, false));
+                foreach (ButtonAssignment assignment in buttonAssignments.Where(ba => ba.controller == null && ba.buttonIndex != -1 && !string.IsNullOrEmpty(ba.deviceGuid)))
+                {
+                    assignment.controller = controllers.FirstOrDefault(c => c.guid.ToString() == assignment.deviceGuid);
+                }
+                this.controllers = this.controllers.OrderBy(ctrl => ctrl.deviceName).ToList();
+
+            }
         }
 
         public void addNetworkControllerToList()
         {
-            if (!controllers.Contains(networkGamePad))
+            if (controllers != null && !controllers.Contains(networkGamePad))
             {
-                controllers.Add(networkGamePad);
+                this.controllers.Add(networkGamePad);
+                this.controllers = this.controllers.OrderBy(ctrl => ctrl.deviceName).ToList();
             }
         }
 
         public void removeNetworkControllerFromList()
         {
-            controllers.Remove(networkGamePad);
+            if (controllers != null)
+            {
+                this.controllers.Remove(networkGamePad);
+                this.controllers = this.controllers.OrderBy(ctrl => ctrl.deviceName).ToList();
+            }
         }
 
         public Boolean assignButton(System.Windows.Forms.Form parent, int controllerIndex, int actionIndex)
         {
-            return getFirstPressedButton(parent, controllers[controllerIndex], buttonAssignments[actionIndex]);
+            return controllerIndex != -1 && controllerIndex < controllers.Count // Make sure device is connected.
+                && getFirstReleasedButton(parent, controllers[controllerIndex], buttonAssignments[actionIndex]);
         }
 
-        private Boolean getFirstPressedButton(System.Windows.Forms.Form parent, ControllerData controllerData, ButtonAssignment buttonAssignment)
+        private Boolean getFirstReleasedButton(System.Windows.Forms.Form parent, ControllerData controllerData, ButtonAssignment buttonAssignment)
         {
             Boolean gotAssignment = false;
             if (controllerData.guid == UDP_NETWORK_CONTROLLER_GUID)
@@ -655,6 +753,7 @@ namespace CrewChiefV4
                 {
                     removeAssignmentsForControllerAndButton(controllerData.guid, assignedButton);
                     buttonAssignment.controller = controllerData;
+                    buttonAssignment.deviceGuid = controllerData.guid.ToString();
                     buttonAssignment.buttonIndex = assignedButton;
                     listenForAssignment = false;
                     gotAssignment = true;
@@ -666,35 +765,57 @@ namespace CrewChiefV4
                 // Instantiate the joystick
                 try
                 {
-                    var joystick = new Joystick(directInput, controllerData.guid);
-                    // Acquire the joystick
-                    joystick.SetCooperativeLevel(parent, (CooperativeLevel.NonExclusive | CooperativeLevel.Background));
-                    joystick.Properties.BufferSize = 128;
-                    joystick.Acquire();
+                    Joystick joystick;
+                    lock (activeDevices)
+                    {
+                        if (!activeDevices.TryGetValue(controllerData.guid, out joystick))
+                        {
+                            joystick = new Joystick(directInput, controllerData.guid);
+                            // Acquire the joystick
+                            joystick.SetCooperativeLevel(mainWindow.Handle, (CooperativeLevel.NonExclusive | CooperativeLevel.Background));
+                            joystick.Properties.BufferSize = 128;
+                            joystick.Acquire();
+                            activeDevices.Add(controllerData.guid, joystick);
+                        }
+                    }
+                    var pressedButtons = new List<int>();
                     while (listenForAssignment)
                     {
                         Boolean[] buttons = joystick.GetCurrentState().Buttons;
-                        for (int i = 0; i < buttons.Count(); i++)
+                        
+                        // Collect currently pressed buttons:
+                        for (int i = 0; i < buttons.Count(); ++i)
                         {
-                            if (buttons[i])
+                            if (buttons[i]
+                                && !pressedButtons.Contains(i))
                             {
-                                Console.WriteLine("Got button at index " + i);
-                                removeAssignmentsForControllerAndButton(controllerData.guid, i);
+                                Console.WriteLine("Button pressed at index: " + i);
+                                pressedButtons.Add(i);
+                            }
+                        }
+                        
+                        // See if any of the buttons got released:
+                        foreach (var previouslyPressedButton in pressedButtons)
+                        {
+                            if (!gotAssignment
+                                && !buttons[previouslyPressedButton])
+                            {
+                                Console.WriteLine("Button released at index: " + previouslyPressedButton);
+                                removeAssignmentsForControllerAndButton(controllerData.guid, previouslyPressedButton);
                                 buttonAssignment.controller = controllerData;
-                                buttonAssignment.joystick = joystick;
-                                buttonAssignment.buttonIndex = i;
+                                buttonAssignment.deviceGuid = controllerData.guid.ToString();
+                                buttonAssignment.buttonIndex = previouslyPressedButton;
+                                buttonAssignment.findEvent();
                                 listenForAssignment = false;
+
                                 gotAssignment = true;
                             }
                         }
+
                         if (!gotAssignment)
                         {
                             Thread.Sleep(20);
                         }
-                    }
-                    if (!gotAssignment)
-                    {
-                        joystick.Unacquire();
                     }
                 }
                 catch (Exception e)
@@ -708,46 +829,20 @@ namespace CrewChiefV4
         }
 
         private void removeAssignmentsForControllerAndButton(Guid controllerGuid, int buttonIndex)
-        {
-            foreach (ButtonAssignment ba in buttonAssignments)
+        {            
+            foreach (ButtonAssignment ba in buttonAssignments.Where(ba => ba.controller != null && ba.controller.guid == controllerGuid && ba.buttonIndex == buttonIndex))
             {
-                if (ba.controller != null && ba.controller.guid == controllerGuid && ba.buttonIndex == buttonIndex)
-                {
-                    ba.controller = null;
-                    ba.joystick = null; // unacquire here?
-                    ba.buttonIndex = -1;
-                }
+                ba.unassign();
             }
-        }
-
-        private void asyncDispose(DeviceType deviceType, Joystick joystick)
-        {
-            ThreadManager.UnregisterTemporaryThread(asyncDisposeThread);
-            asyncDisposeThread = new Thread(() =>
-            {
-                DateTime now = DateTime.UtcNow;
-                Thread.CurrentThread.IsBackground = true;
-                String name = joystick.Information.InstanceName;
-                try
-                {                    
-                    joystick.Dispose();
-                    //Console.WriteLine("Disposed of temporary " + deviceType + " object " + name + " after " + (DateTime.UtcNow - now).TotalSeconds + " seconds");
-                }
-                catch (Exception e) { 
-                    //log and swallow 
-                    Console.WriteLine("Failed to dispose of temporary " + deviceType + " object " + name + "after " + (DateTime.UtcNow - now).TotalSeconds + " seconds: " + e.Message);
-                }
-            });
-            asyncDisposeThread.Name = "ControllerConfiguration.asyncDisposeThread";
-            ThreadManager.RegisterTemporaryThread(asyncDisposeThread);
-            asyncDisposeThread.Start();
         }
 
         public class ControllerData
         {
+            [JsonIgnore]
             public static String PROPERTY_CONTAINER = "CONTROLLER_DATA";
-
+            [JsonIgnore]
             public static String definitionSeparator = "CC_CD_SEPARATOR";
+            [JsonIgnore]
             public static String elementSeparator = "CC_CE_SEPARATOR";
 
             public String deviceName;
@@ -782,18 +877,6 @@ namespace CrewChiefV4
                 }
                 return definitionsList;
             }
-
-            public static String createPropValue(List<ControllerData> definitions)
-            {
-                StringBuilder propVal = new StringBuilder();
-                foreach (ControllerData def in definitions)
-                {
-                    propVal.Append(def.deviceName).Append(elementSeparator).Append(def.deviceType.ToString()).Append(elementSeparator).
-                            Append(def.guid.ToString()).Append(definitionSeparator);
-                }
-                return propVal.ToString();
-            }
-
             public ControllerData(String deviceName, DeviceType deviceType, Guid guid)
             {
                 this.deviceName = deviceName;
@@ -804,39 +887,132 @@ namespace CrewChiefV4
 
         public class ButtonAssignment
         {
-            public String action;
-            public ControllerData controller;
-            public int buttonIndex = -1;
-            public Joystick joystick;
-            public Boolean hasUnprocessedClick = false;
-            public ButtonAssignment(String action)
+            public ButtonAssignment()
             {
-                this.action = action;
+                // action is the built-in action name, the SRE action name (key in the SRE config file) or one of the SRE
+                // values from the SRE config file (e.g "get_session_status", "SESSION_STATUS", or "session status" will all do the same thing)
+                action = string.Empty;
+                deviceGuid = string.Empty; 
+                buttonIndex = -1;
+                // uiText is optional and will be resolved from the ui_text file or from the SRE config if it's not in the ui_text
+                uiText = null;
+                availableAction = true;
             }
-            
+            public String action { get; set; }
+            public String deviceGuid { get; set; }
+            public int buttonIndex { get; set; }
+            public bool opponentDataCommand { get; set; }
+            public bool availableAction { get; set; }
+            // used to override the default ui text for an action - is optional and generally not used much
+            [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+            public String uiText { get; set; }
+
+            // the ui text value that's been resolved for this action
+            [JsonIgnore]
+            public String resolvedUiText;
+            // the first element in the SRE text list for this command
+            [JsonIgnore]
+            public String resolvedSRECommand;
+            [JsonIgnore]
+            public ControllerData controller;
+            [JsonIgnore]
+            public Boolean hasUnprocessedClick = false;
+            [JsonIgnore]
+            public AbstractEvent actionEvent = null;
+            public void Initialize()
+            {
+                findEvent();
+                findUiText();
+            }
+
+            public void findEvent()
+            {
+                if (this.action != null && !specialActions.Contains(this.action))
+                {
+                    string[] srePhrases = Configuration.getSpeechRecognitionPhrases(this.action);
+                    if (srePhrases != null && srePhrases.Length > 0)
+                    {
+                        this.actionEvent = SpeechRecogniser.getEventForAction(srePhrases[0]);
+                        this.resolvedSRECommand = srePhrases[0];
+                    }
+                    else if (opponentDataCommand)
+                    {
+                        this.actionEvent = CrewChief.getEvent("Opponents");
+                        this.resolvedSRECommand = this.action;
+                    }
+                    else
+                    {
+                        // final possibility, the action value is an actual SRE command
+                        this.actionEvent = SpeechRecogniser.getEventForAction(action);
+                        if (this.actionEvent != null)
+                        {
+                            this.resolvedSRECommand = this.action;
+                        }
+                        else
+                        {
+                            Console.WriteLine("No SRE key or value item for action " + action);
+                        }
+                    }
+                }
+            }
+
+            private void findUiText()
+            {
+                if (string.IsNullOrEmpty(this.uiText))
+                {
+                    // no override for uitext so work out what it should be
+                    this.resolvedUiText = Configuration.getUIStringStrict(action);
+                    if (string.IsNullOrEmpty(this.resolvedUiText))
+                    {
+                        // nothing in the ui_text, use the resolved SRE command
+                        this.resolvedUiText = resolvedSRECommand;                        
+                    }
+                    if (string.IsNullOrEmpty(this.resolvedUiText))
+                    {
+                        // if we get no hits at this point we'll use the action for the UI text
+                        this.resolvedUiText = action;
+                    }
+                }
+                else
+                {
+                    this.resolvedUiText = this.uiText;
+                }
+            }
+
+            public void execute()
+            {
+                if (actionEvent != null)
+                {
+                    actionEvent.respond(resolvedSRECommand);
+                }
+            }
+
             public String getInfo()
             {
                 if (controller != null && buttonIndex > -1)
                 {
                     String name = controller.deviceName == null || controller.deviceName.Length == 0 ? controller.deviceType.ToString() : controller.deviceName;
-                    return action + " " + Configuration.getUIString("assigned_to") + " " + name + ", " + Configuration.getUIString("button") + ": " + buttonIndex;
+                    return resolvedUiText + " " + Configuration.getUIString("assigned_to") + " " + name + ", " + Configuration.getUIString("button") + ": " + buttonIndex;
                 }
                 else
                 {
-                    return action + " " + Configuration.getUIString("not_assigned");
+                    return resolvedUiText + " " + Configuration.getUIString("not_assigned");
                 }
             }
-            
+
             public void unassign()
             {
                 this.controller = null;
                 this.buttonIndex = -1;
-                if (this.joystick != null)
-                {
-                    this.joystick.Unacquire();
-                    this.joystick.SetNotification(null);
-                }
-                this.joystick = null;
+                this.deviceGuid = string.Empty;
+            }
+        }
+
+        public void cancelScan()
+        {
+            if (this.controllerScanThread != null)
+            {
+                this.controllerScanThread.Abort();
             }
         }
     }

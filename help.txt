@@ -50,6 +50,9 @@ iRacing:
 
 To use Crew Chief with iRacing simply select iRacing from Crew Chief's Game menu and click the Start button.
 
+For the best experience Crew Chief needs at least as many cars enabled in iRacing graphics settings(Max Cars) as the session allows, if this value is lower then the app is more likely to give wrong realtime position messages. Also to make sure iRacing is sending enough data, goto https://members.iracing.com/membersite/account/Home.do half way down the page is a setting called "Connection Type" this needs to be as high as you internet connection allows.      
+
+
 Startup issues
 ------------------
 If the app refuses to start, or starts then closes itself, try deleting the app's configuration files. To do this go to C:\Users\[user name]\AppData\Local\Britton_IT_Ltd\ and delete all the subfolders in there. This will reset all the app's settings to default. Note that the 'AppData' folder is hidden by default on Windows - you may need to change the View settings in the File Explorer Options from Windows Control Panel - look for a setting called "Show hidden files and folders".
@@ -171,16 +174,21 @@ The app understands lots of command including:
 "talk to me anywhere" / "messages at any point": disable message delay in challenging parts of the track
 "set alarm to [hour] [minutes] [optional am/pm]" / "alarm me at [hour] [minutes] [optional am/pm]": sets the alarm clock at the given time, supports both 12 and 24 hour format and multiple alarms
 "clear alarm clock" / "clear alarms": clears all the alarms set
+"enable cut track warnings" / "play cut track warnings:warn about cuts"
+"no cut track warnings" / "no more cut warnings:no more cut track warnings"
+
+
+iRacing-specific pit commands:
 
 "pitstop add [X liters]" (adds X amount of fuel next pitstop, this option is iRacing only)
 "pitstop tearoff / pitstop windscreen" (enable next pitstop, this option is iRacing only)
 "pitstop fast repair / pitstop repair" (enable fast repair next pitstop, this option is iRacing only)
 "pitstop clear all" (clears all selected pitstop options, this option is iRacing only)
-"pitstop clear tyres (clears all tyre selections" next pitstop, this option is iRacing only)
+"pitstop clear tyres" / "pitstop don't change tyres" / "box, clear tyres" / "box, don't change tyres" (clears all tyre selections next pitstop, this option is iRacing)
 "pitstop clear tearoff / pitstop clear windscreen" (clears tearoff selection next pitstop, this option is iRacing only)
 "pitstop clear fast repair" (clears fast repair selection next pitstop, this option is iRacing only)
 "pitstop clear fuel" (clears fuel refueling next pitstop, this option is iRacing only)
-"pitstop change all tyres" (change all tyres next pitstop, this option is iRacing only)
+"pitstop change all tyres" / "box, change all tyres" (change all tyres next pitstop, this option is iRacing)
 "pitstop change left front tyre" (change left front tyre next pitstop, this option is iRacing only)
 "pitstop change right front tyre" (change right front tyre next pitstop, this option is iRacing only)
 "pitstop change left rear tyre" (change left rear tyre next pitstop, this option is iRacing only)
@@ -195,6 +203,25 @@ The app understands lots of command including:
 "pitstop fuel to the end" / "pitstop fuel to the end of the race" (add the fuel amount the app calculates you'll need to finish the race, this option is iRacing only)
 
 
+R3E-specific pit commands:
+
+"pitstop clear tyres" / "pitstop don't change tyres" / "box, clear tyres" / "box, don't change tyres"
+"pitstop change all tyres" / "box, change all tyres"
+"pitstop change front tyres only" / "box, change front tyres only"
+"pitstop change rear tyres only" / "box, change rear tyres only"
+"pitstop next tyre compound" / "box, next tyre compound"
+"pitstop fix front aero only" / "box, fix front aero only"
+"pitstop fix rear aero only" / "box, fix rear aero only"
+"pitstop fix all aero" / "box, fix all aero"
+"pitstop don't fix aero" / "box, don't fix aero"
+"pitstop fix suspension" / "box, fix suspension"
+"pitstop don't fix suspension" / "box, don't fix suspension"
+"pitstop serve penalty" / "box, serve penalty"
+"pitstop don't serve penalty" / "box, don't serve penalty"
+"pitstop refuel" / "box, refuel"
+"pitstop don't refuel" / "box, don't refuel"
+"what are the pit actions" / "what's the pitstop plan" (reports the selected actions for the next pitstop)
+
 
 
 Text to speech
@@ -208,14 +235,13 @@ TTS sounds tend to be much quieter than the recorded sounds, and aren't filtered
 
 Command macros
 --------------
-The app can send sequences of key presses in response to voice command or some specific (hard-coded) in-game events. These can be used for anything you like, but their primary function is to ease the pain of navigating the awkward in-game pit menus. The app comes with a default set of command macros which (at the time of writing) are for PCars2 and Raceroom only. More will be added for other games. The default commands can be found in [install folder]/saved_command_macros.json. If you want to make your own, copy this file to a your Documents folder, in a subfolder called CrewChiefV4 (i.e. Documents/CrewChiefV4/saved_command_macros.json) and edit it as you like. 
+The app can send sequences of key presses in response to voice command. These can be used for anything you like, but their primary function is to ease the pain of navigating the awkward in-game pit menus. The app comes with a default set of command macros which (at the time of writing) are for PCars2 and Raceroom only. More will be added for other games. The default commands can be found in [install folder]/saved_command_macros.json. The app includes a macro edit function which allows existing macros to be customised and new ones created. This will create a file Documents/CrewChiefV4/save_commands_macros.json with the macros you've modified or created, and will override the default file.
 
-The first thing you need to do is to update your key assignments in-game so they match the keys that the command macro will send. 
-
+Because macros are pretty simple (sending a pre-defined sequence of keys) you need to ensure the in-game key bindings match what the macro is expecting.
 
 Raceroom
 
-default key bindings:
+expected in-game key bindings:
 "Pit Menu Toggle":		q
 "Pit Menu Select":		e
 "Pit Menu Up":			w
@@ -225,7 +251,7 @@ default key bindings:
 "Pit Request Toggle":	r
 "Real-time Chat":		c
 
-Ensure that there's a least one Pitstop Preset defined (from the in-game pit menu).
+Ensure that there are at least *two* Pitstop Presets defined (from the in-game pit menu). This is necessary because if there's only one preset (or zero) the game doesn't allow the 'Pit preset' menu item to be highlighted, which messes up the button press sequences.
 
 You can request a pit stop by saying "pit request", "in this lap" or "box this lap". This will open the pit menu, select 'pit request' and close it again after a few seconds' delay (so you can see what's selected).
 
@@ -233,10 +259,12 @@ You can also cycle pit presets with the voice commands "next strategy", "next pi
 
 If you want to manually navigate the pit menu with voice commands, use "pit menu toggle", "pit menu up", "pit menu down", "pit menu left", "pit menu right" and "pit menu select".
 
+There are more sophisticated macros that can handle refuelling ("fuel to the end" and "add fuel, X litres"). They work by moving the pit menu to the fuel item, de-selecting 'fuel' and then changing the amount to zero by pressing 'Pit menu Decrease' many (about 100) times. They then press 'Pit menu Increase' the correct number of times to set the required (or calculated) fuel amount. Because many key presses are sent in quick succession, some users my encounter issues with these macros (but I've not had any problems myself) - it takes a few seconds to complete these macros to ensure you do them in plenty of time, before you reach the pit lane.
+
 
 PCars2
 
-default key bindings:
+expected in-game key bindings:
 "Car Management":		e
 "ICM Menu Up":			w
 "ICM Menu Down":		s
@@ -253,7 +281,7 @@ If you want to manually navigate the pit menu with voice commands, use "pit menu
 
 iRacing
 
-default key bindings:
+expected in-game key bindings:
 "Lap Timing Black Box":				F1
 "Standings Black Box":				F2 
 "Relative Black Box":				F3
@@ -278,9 +306,9 @@ You can navigate the by saying one of the following commands: "menu next", "menu
 
 Advanced command macros
 --------------
-As you can see from the previous section, key press macros are complicated and a bit dumb - the app has no idea what state the pit menu is in so it has to either make lots of assumptions or work quite hard to put the menu into a known state. 
+As you can see from the previous section, key press macros are fiddly and a bit dumb - the app has only limited knowledge of what state the pit menu is in so it has to either make assumptions or work quite hard to put the menu into a known state. 
 
-There are 2 macros for adding fuel. In both cases, for them to work in R3E the selected pit preset must have fuel *selected* (i.e. highlighted green). One uses the logic of the app's 'Fuel' event to calculate how much fuel is needed to finish the race ("fuel to the end" voice command), the other uses the amount of fuel requested in the voice command ("add fuel, 100 litres" or whatever). These macros opens the pit menu, navigate to the fuel option and attempt to reset it to zero litres. Because they can't know how much fuel might already be set on this menu they have to press the 'decrease' button lots (150) times. This ensure it's at zero before they then add the calculated or requested amount of fuel.
+There are 2 macros for adding fuel. One uses the logic of the app's 'Fuel' event to calculate how much fuel is needed to finish the race ("fuel to the end" voice command), the other uses the amount of fuel requested in the voice command ("add fuel, 100 litres" or whatever). These macros opens the pit menu, navigate to the fuel option and attempt to reset it to zero litres. Because they can't know how much fuel might already be set on this menu they have to press the 'decrease' button lots (150) times. This ensure it's at zero before they then add the calculated or requested amount of fuel.
 
 *Note that these will only work correctly if you use Litres as your unit*.
 
@@ -288,14 +316,39 @@ Another point to note here is that these fuelling macros press 'decrease' 150 ti
 
 The macro feature can also be used to automate chat messages. There are examples for pCars2 and R3E. Again, these just send sequences of key presses.
 
-There are a few special key press commands in save_commands_macros.json to help ease the pain of wiring these things up. The "actionSequence" element is the list of key presses. These usually refer to action items in the keyBindings section at the top of the file. However, they can also be plain keys - e.g. [..., "a", "b", "c", ...].
+There are a few special key press commands in the macro editor screen to help ease the pain of wiring these things up: 
 
- - To send a fixed number of multiple key presses use "{MULTIPLE,153}Pit Menu Decrease" (presses the Pit Menu Decrease key 153 times).
- - To send a number of multiplekey presses based on some app logic, use "{MULTIPLE,Fuel}ICM Menu Right" (presses ICM Menu Right however many times the Fuel event told it to). This requires specific application code to work but i'm happy to take requests :).
- - To send a number of multiple presses based on the voice command that triggered the macro, the voice command needs to use a special format with the number range to recognise in curly braces - e.g. "add fuel, {1,150} litres" (recognises "add fuel 0 litres" up to "add fuel 150 litres", in steps of 1). Use "{MULTIPLE,VOICE_TRIGGER}Pit Menu Increase" to press (in this example) Pit Menu Increase the number of times recognised in the voice command.
+ - To send a fixed number of multiple key presses use "{MULTIPLE,153}KEY_A" (presses the A key 153 times).
+ - To send a number of multiple key presses based on some app logic for example, use "{MULTIPLE,fuel}KEY_D" (presses D however many times the Fuel event told it to). This requires specific application code to work but i'm happy to take requests :).
+ - To send a number of multiple presses based on the voice command that triggered the macro, the voice command needs to use a special format with the number range to recognise in curly braces - e.g. "add fuel, {1,150} litres" (recognises "add fuel 0 litres" up to "add fuel 150 litres", in steps of 1). Use "{MULTIPLE,VOICE_TRIGGER}KEY_D" to press (in this example) D the number of times recognised in the voice command.
  - To send a sequence of key presses from some free text, use "{FREE_TEXT}sorry, my bad". Each of the keys after {FREE_TEXT} will be pressed in sequence. Only letters, commas, hypens and full-stops are supported. This is to make chat macros more straightforward (e.g. ["Real-time Chat", "{FREE_TEXT}good pass", "ENTER"]).
 
 Hopefully the game devs will make these menus or the actions they trigger easier to use for 3rd party apps. But until they do, these complicated automated interactions are always going to be flaky.
+
+
+
+R3E Pit Menu Interactions
+-------------------------
+R3E exposes some additional information describing the state of the popup pit menu - I use this where I can to make the macros a little more reliable. The app is also able to navigate the menu by pressing sequences of key to make specific pit requests. This depends on the in-game key bindings matching the keys set up in the app's command macros. By default, these macros require the in-game pit menu actions to be bound to w (menu up), a (menu left / decrease), s (menu down), d (menu right / increase), q (menu toggle), e (menu select) and r (request pit). It uses the menu navigation command macros (single button presses to move the cursor) to locate and select the approprate commands for most actions like selecting / deselecting tyres and repairs. Choosing a refuelling amount is not possible with this new approach - it still relies on the auto fuelling macros. The commands which use this new approach are:
+
+"pitstop clear tyres" / "pitstop don't change tyres" / "box, clear tyres" / "box, don't change tyres"
+"pitstop change all tyres" / "box, change all tyres"
+"pitstop change front tyres only" / "box, change front tyres only"
+"pitstop change rear tyres only" / "box, change rear tyres only"
+"pitstop fix front aero only" / "box, fix front aero only"
+"pitstop fix rear aero only" / "box, fix rear aero only"
+"pitstop fix all aero" / "box, fix all aero"
+"pitstop don't fix aero" / "box, don't fix aero"
+"pitstop fix suspension" / "box, fix suspension"
+"pitstop don't fix suspension" / "box, don't fix suspension"
+"pitstop serve penalty" / "box, serve penalty"
+"pitstop don't serve penalty" / "box, don't serve penalty"
+"pitstop refuel" / "box, refuel"
+"pitstop don't refuel" / "box, don't refuel"
+"what are the pit actions" / "what's the pitstop plan" (reports the selected actions for the next pitstop)
+
+The app will also read out the planned pit actions automatially when you get near the pit entrance after requesting a stop.
+
 
 
 Pace notes
@@ -364,3 +417,65 @@ There are 2 additional options in the properties screen:
 If a car drops out of the pace lap or crashes, the app assumes that he'll rejoin at the back and start from the back. Things can get messy if there are formation lap incidents and the app can only do its best here :)
 
 Once the race starts at the end of the formation lap, the app will give its regular racing calls (so you don't need to switch this mode off during the race).
+
+
+rFactor2 Unofficial Features
+-------------------------------------
+Crew Chief supports some rF2 specific features not exposed via official rF2 Internals API.  Those features are turned off by default.  To enable those features, modify UserData\player\CustomPluginVariables.json by setting "EnableDirectMemoryAccess" to "1".  Plugin configuration should look like this:
+  "rFactor2SharedMemoryMapPlugin64.dll":{
+    " Enabled":1,
+    "DebugISIInternals":0,
+    "DebugOutputLevel":0,
+    "DedicatedServerMapGlobally":0,
+    "EnableDirectMemoryAccess":1
+  }
+
+Note: first space in " Enabled" above is required.
+
+See this thread for more information: http://thecrewchief.org/showthread.php?1011-rFactor-2-Unofficial-Features
+
+
+Advanced Controller Bindings
+------------------------------
+Controller bindings are saved in Documents/CrewChiefV4/controllerConfigurationData.json. The "devices" section contains the input devices the app detected when you last clicked the 'Scan for Controllers' button. The "buttonAssignments" section contains a list of which actions are assigned to which controllers. This is all managed by the app's UI. However, if you want to assign a button to an action that's not in the default available list of possible actions, you can also use speech recognition commands in the "action" element. For example, if you have a single controller like this in your controllerConfigurationData.json file:
+
+{
+  "devices": [
+    {
+      "deviceName": "Driving: Some Wheel",
+      "deviceType": 22,
+      "guid": "467d0260-c9a6-11e5-8003-xxxxxxxxxxxx"
+    }
+  ],
+  "buttonAssignments": [
+    {
+      "action": "talk_to_crew_chief",
+      "deviceGuid": "2bbfed03-a04f-4408-91cf-xxxxxxxxxxxx",
+      "buttonIndex": 10
+    }]
+}
+
+and you want map a button to the WHAT_WAS_MY_LAST_LAP_TIME action from the speech recogntion config file (found by default in C:\Program Files (x86)\Britton IT Ltd\CrewChiefV4\speech_recognition_config.txt) you can add a blank button assignment for it using either the speech recognition key ("WHAT_WAS_MY_LAST_LAP_TIME") or any of the speech recognition alternate phrases (for this example, "what's my last lap time", "last lap time", "lap time", or "what's my lap time"), like this:
+
+{
+  "devices": [
+    {
+      "deviceName": "Driving: Some Wheel",
+      "deviceType": 22,
+      "guid": "467d0260-c9a6-11e5-8003-xxxxxxxxxxxx"
+    }
+  ],
+  "buttonAssignments": [
+    {
+      "action": "talk_to_crew_chief",
+      "deviceGuid": "2bbfed03-a04f-4408-91cf-xxxxxxxxxxxx",
+      "buttonIndex": 10
+    },
+	{
+      "action": "WHAT_WAS_MY_LAST_LAP_TIME",
+      "deviceGuid": "",
+      "buttonIndex": -1
+    }]
+}
+
+When you next start the app, the Available Actions list will now include "what's my last lap time" (the 1st speech recognition phrase) and you can assign a button to it in the normal way.

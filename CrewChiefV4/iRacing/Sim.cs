@@ -64,6 +64,9 @@ namespace CrewChiefV4.iRacing
         private double _gameTimeWhenWhiteFlagTriggered = -1.0;
         private const double SECONDS_OFF_WORLD_TILL_RETIRED = 20.0;
         private Boolean _isRaceOrQualifying = false;
+        private DateTime _lastLogTime = default(DateTime);
+        //private int _numberOfStarters = -1;
+        //private int _numberOfDriversOut = 0;
         private void UpdateDriverList(string sessionInfo, bool reloadDrivers)
         {
             this.GetDrivers(sessionInfo, reloadDrivers);
@@ -135,26 +138,52 @@ namespace CrewChiefV4.iRacing
             for (int position = 0; position < _drivers.Count; position++)
             {
 
-                string idValue = "0";
-                if (!YamlParser.TryGetValue(sessionInfo, string.Format("QualifyResultsInfo:Results:Position:{{{0}}}CarIdx:", position ), out idValue))
+                string idValue = "-1";
+                string classPositionString = "-1";
+                if (!YamlParser.TryGetValue(sessionInfo, string.Format("QualifyResultsInfo:Results:Position:{{{0}}}CarIdx:", position ), out idValue) ||
+                    !YamlParser.TryGetValue(sessionInfo, string.Format("QualifyResultsInfo:Results:Position:{{{0}}}ClassPosition:", position), out classPositionString))
                 {
                     continue;
                 }
                 // Find driver and update results
                 int id = int.Parse(idValue);
+                int classPosition = -1;
+                Int32.TryParse(classPositionString, out classPosition);
                 var driver = _drivers.SingleOrDefault(d => d.Id == id);
                 if (driver != null && !driver.IsPaceCar)
                 {                   
                     driver.CurrentResults.QualifyingPosition = position + 1;
+                    driver.CurrentResults.ClassQualifyingPosition = classPosition + 1;
                 }
             }
         }
 
+        /*private void GetNumberOfStarters(string sessionInfo)
+        {
+            var numStartersString = "-1";
+            if (!YamlParser.TryGetValue(sessionInfo, "WeekendInfo:WeekendOptions:NumStarters:", out numStartersString))
+            {
+                return;
+            }
+            _numberOfStarters = int.Parse(numStartersString);
+        }*/
+
         private void GetRaceResults(string sessionInfo)
         {
+            //var numberOut = 0;
             for (int position = 1; position <= _drivers.Count; position++)
             {                
                 string idValue = "0";
+                string reasonOutString = "0";
+                /*if(YamlParser.TryGetValue(sessionInfo, string.Format("SessionInfo:Sessions:SessionNum:{{{0}}}ResultsPositions:Position:{{{1}}}ReasonOutId:",
+                    _currentSessionNumber, position), out reasonOutString))
+                {
+                    var reasonOut = (ReasonOutId)int.Parse(reasonOutString);
+                    if(reasonOut != ReasonOutId.IDS_REASON_OUT_NOT_OUT)
+                    {
+                        numberOut++;
+                    }
+                }*/
                 if (!YamlParser.TryGetValue(sessionInfo, string.Format("SessionInfo:Sessions:SessionNum:{{{0}}}ResultsPositions:Position:{{{1}}}CarIdx:",
                     _currentSessionNumber, position), out idValue))
                 {
@@ -165,12 +194,14 @@ namespace CrewChiefV4.iRacing
                 // Find driver and update results
                 int id = int.Parse(idValue);
 
+
                 var driver = _drivers.SingleOrDefault(d => d.Id == id);
                 if (driver != null && !driver.IsPaceCar)
                 {
                     driver.UpdateResultsInfo(sessionInfo, _currentSessionNumber.Value, position);
                 }
             }
+            //_numberOfDriversOut = numberOut;
         }
         private void UpdateDriverTelemetry(iRacingData info)
         {
@@ -181,6 +212,7 @@ namespace CrewChiefV4.iRacing
             }
             this.CalculateLivePositions(info);
         }
+
 
         private void CalculateLivePositions(iRacingData telemetry)
         {
@@ -220,7 +252,7 @@ namespace CrewChiefV4.iRacing
                 raceEndState = RaceEndState.NONE;
             }
             if (this.SessionData.SessionType == "Race" && raceEndState != RaceEndState.FINISHED
-                && (flag.HasFlag(SessionFlags.StartGo) || flag.HasFlag(SessionFlags.StartHidden /*yellow?*/))
+                && (flag.HasFlag(SessionFlags.StartGo) || flag.HasFlag(SessionFlags.StartHidden))
                 && telemetry.PlayerCarPosition > 0)
             {
                 this._raceSessionInProgress = true;
@@ -283,7 +315,7 @@ namespace CrewChiefV4.iRacing
                 // Now, detect lapped and retired finishers.
                 foreach (var driver in _drivers)
                 {
-                    if (_leaderFinished != null 
+                    if (_leaderFinished != null
                         && driver.Live.GameTimeWhenLastCrossedSFLine >= _leaderFinished.Live.GameTimeWhenLastCrossedSFLine)
                     {
                         if (driver.IsCurrentDriver || driver.IsPaceCar)
@@ -296,66 +328,18 @@ namespace CrewChiefV4.iRacing
                         // Everyone, who crosses s/f after leader finished, finishes too.
                         driver.FinishStatus = Driver.FinishState.Finished;
                     }
-
-                    // Try detecting disconnects.  Save last time seen off world, and mark as disconnect if
-                    // stays off world long enough.
-                    if (driver.FinishStatus == Driver.FinishState.Unknown)  // Don't do any processing for Finished and Retired.
-                    {
-                        if (driver.Live.TrackSurface == TrackSurfaces.NotInWorld)
-                        {
-                            var timeSinceOffWorld = -1.0;
-                            if (!this._carIdxToGameTimeOffTrack.TryGetValue(driver.Id, out timeSinceOffWorld))
-                            {
-                                this._carIdxToGameTimeOffTrack.Add(driver.Id, telemetry.SessionTime);
-                            }
-                            else if (telemetry.SessionTime - timeSinceOffWorld > SECONDS_OFF_WORLD_TILL_RETIRED)
-                            {
-                                driver.FinishStatus = Driver.FinishState.Retired;
-                                Console.WriteLine("Marking driver: " + driver.Name + " as retired.");
-                            }
-                        }
-                        else
-                        {
-                            this._carIdxToGameTimeOffTrack.Remove(driver.Id);
-                        }
-                    }
-
-                    if (driver.FinishStatus == Driver.FinishState.Retired
-                        && driver.Live.TrackSurface != TrackSurfaces.NotInWorld)
-                    {
-                        driver.FinishStatus = Driver.FinishState.Unknown;
-                        Console.WriteLine("Driver: " + driver.Name + " was previously marked as retired, shown up again.");
-                    }
                 }
 
                 // Determine live position from lap distance.
-                int pos = 1;
-                foreach (var driver in _drivers.OrderByDescending(d => d.Live.TotalLapDistanceCorrected))
+                // Non drivers are set to 1001
+                foreach (var driver in _drivers.Where(d => d.IsSpectator || d.IsPaceCar || d.CurrentResults.IsOut))
                 {
-                    if (driver.IsSpectator || driver.IsPaceCar || driver.CurrentResults.IsOut)
-                    {
-                        driver.Live.Position = 1001;  // Make it obvious those guys are not tracked.
-                        continue;
-                    }
-                    if (driver.FinishStatus == Driver.FinishState.Finished
-                        && driver.Live.TrackSurface == TrackSurfaces.NotInWorld)
-                    {
-                        // When finished driver disconnects, use game reported position.
-                        // This should not mess up order of drivers following, because all the
-                        // drivers are ordered by TotalLapDistanceCorrected.
-                        driver.Live.Position = driver.CurrentResults.Position;
-
-                        if (driver.Live.Position == 0)
-                        {
-                            driver.Live.Position = 1000;  // Game sends nonsense again.  Mark those so that they don't interfere with sorting anywhere.
-                        }
-                    }
-                    else
-                    {
-                        driver.Live.Position = pos;
-                    }
-                    pos++;
+                    driver.Live.Position = 1001;
+                    driver.Live.ClassPosition = 1001;
                 }
+                            
+                
+                SetPositionsByOrder(telemetry);
             }
             else  // Not Race or Finished.
             {
@@ -402,6 +386,91 @@ namespace CrewChiefV4.iRacing
             }
         }
 
+        private static void SetPositionsFromUserPosition(List<Driver> driversOrderedByPosition, int indexOfUser, int userPosition)
+        {
+            // Loop through all drivers, and calculate position from our position (which is known to be accurate.
+            // We should be getting only the closest drivers to us. May have some inaccurate positions, but they
+            // will likely be drivers a long way from us in the standings.
+            for (var i = 0; i < driversOrderedByPosition.Count; i++)
+            {
+                var driver = driversOrderedByPosition[i];
+                var differenceFromUser = i - indexOfUser;
+                var position = userPosition + differenceFromUser;
+                if (driver.FinishStatus == Driver.FinishState.Finished
+                    && driver.Live.TrackSurface == TrackSurfaces.NotInWorld)
+                {
+                    // When finished driver disconnects, use game reported position.
+                    // This should not mess up order of drivers following, because all the
+                    // drivers are ordered by TotalLapDistanceCorrected.
+                    driver.Live.Position = driver.CurrentResults.Position;
+
+                    if (driver.Live.Position == 0)
+                    {
+                        driver.Live.Position = 1000;  // Game sends nonsense again.  Mark those so that they don't interfere with sorting anywhere.
+                    }
+                }
+                else
+                {
+                    driver.Live.Position = position;
+                }
+            }
+        }
+
+        DateTime lastLogged = DateTime.Now;
+        private void SetPositionsByOrder(iRacingData telemetry)
+        {
+            // We use the list of positions that drivers have and set these in order. This will mean that we
+            // still correct for overtakes, but we limit ourselves to setting positions that we know about.
+            // Cars that are missing from the list of drivers won't mean positions get shifted.
+            // This can lead to some drivers having incorrect positions, but it's unlikely to be us, and
+            // all positions are still valid.
+            _drivers.Where(driver => driver.IsSpectator || driver.IsPaceCar).ToList().ForEach(d => { d.Live.Position = 1001; d.Live.ClassPosition = 1001; });
+            var validDrivers = _drivers.Where(driver => !(driver.IsSpectator || driver.IsPaceCar)).ToList();
+
+            var validPositions = validDrivers.Where(d => d.CurrentResults.Position != 0).Select(d => d.CurrentResults.Position).OrderBy(p => p).ToList();
+            var classPositions = validDrivers.Where(d => telemetry.CarIdxClassPosition[d.Id] != 0).Select(d => new { d.Car.CarClassId, ClassPosition = telemetry.CarIdxClassPosition[d.Id] }).GroupBy(p => p.CarClassId, p => p.ClassPosition).ToDictionary(p => p.Key, p => p.OrderBy(i => i).ToList());
+
+            var lastPositionSet = 0;
+            var lastClassPositionSet = validDrivers.Select(d => d.Car.CarClassId).Distinct().Select(c => new { CarClassId = c, ClassPosition = 0 }).ToDictionary(p => p.CarClassId, p => p.ClassPosition);
+
+            foreach (var driver in validDrivers.OrderByDescending(d => d.Live.TotalLapDistanceCorrected))
+            {
+                var currentPosition = lastPositionSet + 1;
+                if (validPositions.Any())
+                {
+                    // we use the next valid position instead
+                    currentPosition = validPositions[0];
+                    validPositions.RemoveAt(0);
+                }
+                lastPositionSet = currentPosition;
+                driver.Live.Position = currentPosition;                
+
+                var currentClassPosition =  lastClassPositionSet[driver.Car.CarClassId] + 1;
+                if(classPositions[driver.Car.CarClassId].Any())
+                {
+                    // we use the next valid position instead
+                    currentClassPosition = classPositions[driver.Car.CarClassId][0];
+                    classPositions[driver.Car.CarClassId].RemoveAt(0);
+                }
+                driver.Live.ClassPosition = currentClassPosition;                
+            }
+#if DEBUG
+            var currentTime = DateTime.Now;
+            if(lastLogged.AddMinutes(1) < currentTime)
+            {
+                Console.WriteLine(string.Format("available positions: {0}", string.Join("|", validPositions.OrderBy(p => p))));
+                foreach (var key in classPositions.Keys)
+                {
+                    Console.WriteLine(string.Format("available positions for class id {0}: {1}", key, string.Join("|", classPositions[key].OrderBy(p => p))));
+                }
+                Console.WriteLine("positions: {0}", string.Join("|", validDrivers.OrderBy(d => d.Live.Position).Select(
+                    d => string.Format("pos: {0}, classPos {1}", d.Live.Position, d.Live.ClassPosition))));
+                lastLogged = currentTime;
+            }
+#endif
+        }
+
+
         public bool SdkOnSessionInfoUpdated(string sessionInfo, int sessionNumber, int driverId)
         {
 
@@ -422,6 +491,8 @@ namespace CrewChiefV4.iRacing
             _currentSessionNumber = sessionNumber;
             // Update drivers
             this.UpdateDriverList(sessionInfo, reloadDrivers);
+
+            //GetNumberOfStarters(sessionInfo);
             
             return reloadDrivers;         
         }

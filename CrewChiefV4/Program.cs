@@ -51,6 +51,7 @@ namespace CrewChiefV4
                             var process = System.Diagnostics.Process.GetCurrentProcess();
                             // Set Core 
                             process.ProcessorAffinity = pArg;
+                            Console.WriteLine("Set process core affinity to " + commandLineArg);
                         }
                         catch (Exception)
                         {
@@ -64,6 +65,10 @@ namespace CrewChiefV4
                     if (commandLineArg.Equals("SOUND_TEST"))
                     {
                         MainWindow.soundTestMode = true;
+                    }
+                    if (commandLineArg.Equals("NODEVICESCAN"))
+                    {
+                        MainWindow.disableControllerReacquire = true;
                     }
                 }
                 if (!allowMultipleInst)
@@ -89,6 +94,7 @@ namespace CrewChiefV4
             var watch = System.Diagnostics.Stopwatch.StartNew();
             ThreadManager.WaitForRootThreadsShutdown();
             watch.Stop();
+
             Debug.WriteLine("Root threads took: " + watch.ElapsedTicks * 1000 / System.Diagnostics.Stopwatch.Frequency + "ms to shutdown");
 
             watch = System.Diagnostics.Stopwatch.StartNew();

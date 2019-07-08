@@ -62,6 +62,7 @@ WHAT_TYRES_AM_I_ON = what tires am i on:what tire am i on:what tire type am i on
 IS_MY_PIT_BOX_OCCUPIED = is my pit box occupied:is my pit stall occupied
 HOW_MUCH_FUEL_TO_END_OF_RACE = how much fuel to the end:how much fuel do we need
 HOW_LONG_WILL_THESE_TYRES_LAST = how long will the tires last:how long on these tires:how long will these tires last
+WHATS_PITLANE_SPEED_LIMIT = what's the pitlane speed limit:what's the pit speed limit:pit speed limit
 
 ### combined with a number of laps or a time to give a fuel load estimate (needs 3 or 4 laps of data)
 ### e.g. "how much fuel for 10 minutes", "how much fuel for 1 hour", "how much fuel for 30 laps"
@@ -133,6 +134,34 @@ SET_ALARM_CLOCK = set alarm to:alarm me at
 CLEAR_ALARM_CLOCK = clear alarm clock:clear alarms
 AM=a m
 PM=pe m
+
+ENABLE_CUT_TRACK_WARNINGS = enable cut track warnings:play cut track warnings:warn about cuts
+DISABLE_CUT_TRACK_WARNINGS = no cut track warnings:no more cut warnings:no more cut track warnings
+
+HOWS_MY_LEFT_FRONT_CAMBER = how's my left front camber
+HOWS_MY_RIGHT_FRONT_CAMBER = how's my right front camber
+HOWS_MY_LEFT_REAR_CAMBER = how's my left rear camber
+HOWS_MY_RIGHT_REAR_CAMBER = how's my right rear camber
+HOWS_MY_FRONT_CAMBER = how's my front camber
+HOWS_MY_REAR_CAMBER = how's my rear camber
+
+HOW_ARE_MY_FRONT_TYRE_PRESSURES = how are my front pressures:how are my front tire pressures
+HOW_ARE_MY_REAR_TYRE_PRESSURES = how are my rear pressures:how are my rear tire pressures
+HOW_ARE_MY_TYRE_PRESSURES = how are my pressures: how are my tire pressures
+
+HOWS_MY_LEFT_FRONT_CAMBER_RIGHT_NOW = how's my left front camber right now
+HOWS_MY_RIGHT_FRONT_CAMBER_RIGHT_NOW = how's my right front camber right now
+HOWS_MY_LEFT_REAR_CAMBER_RIGHT_NOW = how's my left rear camber right now
+HOWS_MY_RIGHT_REAR_CAMBER_RIGHT_NOW = how's my right rear camber right now
+HOWS_MY_FRONT_CAMBER_RIGHT_NOW = how's my front camber right now
+HOWS_MY_REAR_CAMBER_RIGHT_NOW = how's my rear camber right now
+
+HOW_ARE_MY_FRONT_TYRE_PRESSURES_RIGHT_NOW = how are my front pressures right now:how are my front tire pressures right now
+HOW_ARE_MY_REAR_TYRE_PRESSURES_RIGHT_NOW = how are my rear pressures right now:how are my rear tire pressures right now
+HOW_ARE_MY_TYRE_PRESSURES_RIGHT_NOW = how are my pressures right now: how are my tire pressures right now
+
+WHAT_ARE_THE_PIT_ACTIONS = what are the pit actions:what's the pitstop plan
+
 #################################################
 # Dynamic recognition phrase fragments - these are used to build up recognition sentences for opponent information.
 # Multiple options are NOT supported here - each must be a single word or phrase. These are combined for each opponent
@@ -220,6 +249,7 @@ THE_GUY_AHEAD = the guy ahead
 THE_GUY_IN_FRONT = the guy in front
 THE_CAR_BEHIND = the car behind
 THE_GUY_BEHIND = the guy behind
+CAR_NUMBER = car number
 
 WHAT_TYRES_IS = what tires is
 WHAT_TYRE_IS = what tire is
@@ -247,7 +277,7 @@ PIT_STOP_ADD = pitstop add
 PIT_STOP_TEAROFF = pitstop tearoff:pitstop windscreen
 PIT_STOP_FAST_REPAIR = pitstop fast repair:pitstop repair
 PIT_STOP_CLEAR_ALL = pitstop clear all
-PIT_STOP_CLEAR_TYRES = pitstop clear tyres
+PIT_STOP_CLEAR_TYRES = pitstop clear tyres:pitstop don't change tyres:box, clear tyres:box, don't change tyres
 PIT_STOP_CLEAR_WIND_SCREEN = pitstop clear tearoff:pitstop clear windscreen
 PIT_STOP_CLEAR_FAST_REPAIR = pitstop clear fast repair
 PIT_STOP_CLEAR_FUEL = pitstop clear fuel
@@ -265,7 +295,23 @@ PIT_STOP_CHANGE_FRONT_LEFT_TYRE_PRESSURE = pitstop change left front tyre pressu
 PIT_STOP_CHANGE_FRONT_RIGHT_TYRE_PRESSURE = pitstop change right front tyre pressure
 PIT_STOP_CHANGE_REAR_LEFT_TYRE_PRESSURE = pitstop change left rear tyre pressure
 PIT_STOP_CHANGE_REAR_RIGHT_TYRE_PRESSURE = pitstop change right rear tyre pressure
-PIT_STOP_FUEL_TO_THE_END = pitstop fuel to the end:pitstop fuel to the end of the race
+PIT_STOP_FUEL_TO_THE_END = pitstop fuel to the end:pitstop fuel to the end of the race:box, fuel to the end
+
+
+// R3E-specific pit commands
+PIT_STOP_CHANGE_FRONT_TYRES = pitstop change front tyres only:box, change front tyres only
+PIT_STOP_CHANGE_REAR_TYRES = pitstop change rear tyres only:box, change rear tyres only
+PIT_STOP_FIX_FRONT_AERO = pitstop fix front aero only:box, fix front aero only
+PIT_STOP_FIX_REAR_AERO = pitstop fix rear aero only:box, fix rear aero only
+PIT_STOP_FIX_ALL_AERO = pitstop fix all aero:box, fix all aero
+PIT_STOP_FIX_NO_AERO = pitstop don't fix aero:box, don't fix aero
+PIT_STOP_FIX_SUSPENSION = pitstop fix suspension:box, fix suspension
+PIT_STOP_DONT_FIX_SUSPENSION = pitstop don't fix suspension:box, don't fix suspension
+PIT_STOP_SERVE_PENALTY = pitstop serve penalty:box, serve penalty
+PIT_STOP_DONT_SERVE_PENALTY = pitstop don't serve penalty:box, don't serve penalty
+PIT_STOP_REFUEL = pitstop refuel:box, refuel
+PIT_STOP_DONT_REFUEL = pitstop don't refuel:box, don't refuel
+PIT_STOP_NEXT_TYRE_COMPOUND = pitstop next tyre compound:box, next tyre compound
 
 LITERS = liters
 GALLONS = gallons
@@ -278,16 +324,16 @@ WHATS_THE_SOF = what's the sof:what is the strength of field
 # numbers - these are the text strings the voice recogniser will listen for (it's not good at listening for numeric characters)
 # These are used by the dynamic phrases, and are combined with the dynamic phrase fragments above
 #################################################
-0 = zero:oh clock:a clock
-1 = one:oh one
-2 = two:oh two
-3 = three:oh three
-4 = four:oh four
-5 = five:oh five
-6 = six:oh six
-7 = seven:oh seven
-8 = eight:oh eight
-9 = nine:oh nine
+0 = zero:oh:oh clock:a clock
+1 = one:oh-one
+2 = two:oh-two
+3 = three:oh-three
+4 = four:oh-four
+5 = five:oh-five
+6 = six:oh-six
+7 = seven:oh-seven
+8 = eight:oh-eight
+9 = nine:oh-nine
 10 = ten
 11 = eleven
 12 = twelve
@@ -1278,3 +1324,105 @@ WHATS_THE_SOF = what's the sof:what is the strength of field
 997 = nine-hundred-and-ninety-seven
 998 = nine-hundred-and-ninety-eight
 999 = nine-hundred-and-ninety-nine
+
+
+# special case for opponent car number which can have leading zeros
+001 = zero-zero-one:oh-oh-one:double-oh-one
+002 = zero-zero-two:oh-oh-two:double-oh-two
+003 = zero-zero-three:oh-oh-three:double-oh-three
+004 = zero-zero-four:oh-oh-four:double-oh-four
+005 = zero-zero-five:oh-oh-five:double-oh-five
+006 = zero-zero-six:oh-oh-six:double-oh-six
+007 = zero-zero-seven:oh-oh-seven:double-oh-seven
+008 = zero-zero-eight:oh-oh-eight:double-oh-eight
+009 = zero-zero-nine:oh-oh-nine:double-oh-nine
+010 = zero-ten:zero-one-zero:oh-one-oh
+011 = zero-eleven:zero-one-one:oh-one-one:oh-eleven
+012 = zero-twelve:zero-one-two:oh-one-two:oh-twelve
+013 = zero-thirteen:zero-one-three:oh-one-three:oh-thirteen
+014 = zero-fourteen:zero-one-four:oh-one-four
+015 = zero-fifteen:zero-one-five:oh-one-five:oh-fifteen
+016 = zero-sixteen:zero-one-six:oh-one-six:oh-sixteen
+017 = zero-seventeen:zero-one-seven:oh-one-seven:oh-seventeen
+018 = zero-eighteen:zero-one-eight:oh-one-eight:oh-eighteen
+019 = zero-nineteen:zero-one-nine:oh-one-nine:oh-nineteen
+020 = zero-twenty:zero-two-zero:oh-two-oh:oh-twenty
+021 = zero-twenty-one:zero-two-one:oh-two-one:oh-twenty-one
+022 = zero-twenty-two:zero-two-two:oh-two-two:oh-twenty-two
+023 = zero-twenty-three:zero-two-three:oh-two-three:oh-twenty-three
+024 = zero-twenty-four:zero-two-four:oh-two-four:oh-twenty-four
+025 = zero-twenty-five:zero-two-five:oh-two-five:oh-twenty-five
+026 = zero-twenty-six:zero-two-six:oh-two-six:oh-twenty-six
+027 = zero-twenty-seven:zero-two-seven:oh-two-seven:oh-twenty-seven
+028 = zero-twenty-eight:zero-two-eight:oh-two-eight:oh-twenty-eight
+029 = zero-twenty-nine:zero-two-nine:oh-two-nine:oh-twenty-nine
+030 = zero-thirty:zero-three-zero:oh-three-oh:oh-thirty
+031 = zero-thirty-one:zero-three-one:oh-three-one:oh-thirty-one
+032 = zero-thirty-two:zero-three-two:oh-three-two:oh-thirty-two
+033 = zero-thirty-three:zero-three-three:oh-three-three:oh-thirty-three
+034 = zero-thirty-four:zero-three-four:oh-three-four:oh-thirty-four
+035 = zero-thirty-five:zero-three-five:oh-three-five:oh-thirty-five
+036 = zero-thirty-six:zero-three-six:oh-three-six:oh-thirty-six
+037 = zero-thirty-seven:zero-three-seven:oh-three-seven:oh-thirty-seven
+038 = zero-thirty-eight:zero-three-eight:oh-three-eight:oh-thirty-eight
+039 = zero-thirty-nine:zero-three-nine:oh-three-nine:oh-thirty-nine
+040 = zero-fourty:zero-four-zero:oh-four-oh:oh-fourty
+041 = zero-fourty-one:zero-four-one:oh-four-one:oh-fourty-one
+042 = zero-fourty-two:zero-four-two:oh-four-two:oh-fourty-two
+043 = zero-fourty-three:zero-four-three:oh-four-three:oh-fourty-three
+044 = zero-fourty-four:zero-four-four:oh-four-four:oh-fourty-four
+045 = zero-fourty-five:zero-four-five:oh-four-five:oh-fourty-five
+046 = zero-fourty-six:zero-four-six:oh-four-six:oh-fourty-six
+047 = zero-fourty-seven:zero-four-seven:oh-four-seven:oh-fourty-seven
+048 = zero-fourty-eight:zero-four-eight:oh-four-eight:oh-fourty-eight
+049 = zero-fourty-nine:zero-four-nine:oh-four-nine:oh-fourty-nine
+050 = zero-fifty:zero-five-zero:oh-five-oh:oh-fifty
+051 = zero-fifty-one:zero-five-one:oh-five-one:oh-fifty-one
+052 = zero-fifty-two:zero-five-two:oh-five-two:oh-fifty-two
+053 = zero-fifty-three:zero-five-three:oh-five-three:oh-fifty-three
+054 = zero-fifty-four:zero-five-four:oh-five-four:oh-fifty-four
+055 = zero-fifty-five:zero-five-five:oh-five-five:oh-fifty-five
+056 = zero-fifty-six:zero-five-six:oh-five-six:oh-fifty-six
+057 = zero-fifty-seven:zero-five-seven:oh-five-seven:oh-fifty-seven
+058 = zero-fifty-eight:zero-five-eight:oh-five-eight:oh-fifty-eight
+059 = zero-fifty-nine:zero-five-nine:oh-five-nine:oh-fifty-nine
+060 = zero-sixty:zero-six-zero:oh-six-oh:oh-sixty
+061 = zero-sixty-one:zero-six-one:oh-six-one:oh-sixty-one
+062 = zero-sixty-two:zero-six-two:oh-six-two:oh-sixty-two
+063 = zero-sixty-three:zero-six-three:oh-six-three:oh-sixty-three
+064 = zero-sixty-four:zero-six-four:oh-six-four:oh-sixty-four
+065 = zero-sixty-five:zero-six-five:oh-six-five:oh-sixty-five
+066 = zero-sixty-six:zero-six-six:oh-six-six:oh-sixty-six
+067 = zero-sixty-seven:zero-six-seven:oh-six-seven:oh-sixty-seven
+068 = zero-sixty-eight:zero-six-eight:oh-six-eight:oh-sixty-eight
+069 = zero-sixty-nine:zero-six-nine:oh-six-nine:oh-sixty-nine
+070 = zero-seventy:zero-seven-zero:oh-seven-oh:oh-seventy
+071 = zero-seventy-one:zero-seven-one:oh-seven-one:oh-seventy-one
+072 = zero-seventy-two:zero-seven-two:oh-seven-two:oh-seventy-two
+073 = zero-seventy-three:zero-seven-three:oh-seven-three:oh-seventy-three
+074 = zero-seventy-four:zero-seven-four:oh-seven-four:oh-seventy-four
+075 = zero-seventy-five:zero-seven-five:oh-seven-five:oh-seventy-five
+076 = zero-seventy-six:zero-seven-six:oh-seven-six:oh-seventy-six
+077 = zero-seventy-seven:zero-seven-seven:oh-seven-seven:oh-seventy-seven
+078 = zero-seventy-eight:zero-seven-eight:oh-seven-eight:oh-seventy-eight
+079 = zero-seventy-nine:zero-seven-nine:oh-seven-nine:oh-seventy-nine
+080 = zero-eighty:zero-eight-zero:oh-eight-oh:oh-eighty
+081 = zero-eighty-one:zero-eight-one:oh-eight-one:oh-eighty-one
+082 = zero-eighty-two:zero-eight-two:oh-eight-two:oh-eighty-two
+083 = zero-eighty-three:zero-eight-three:oh-eight-three:oh-eighty-three
+084 = zero-eighty-four:zero-eight-four:oh-eight-four:oh-eighty-four
+085 = zero-eighty-five:zero-eight-five:oh-eight-five:oh-eighty-five
+086 = zero-eighty-six:zero-eight-six:oh-eight-six:oh-eighty-six
+087 = zero-eighty-seven:zero-eight-seven:oh-eight-seven:oh-eighty-seven
+088 = zero-eighty-eight:zero-eight-eight:oh-eight-eight:oh-eighty-eight
+089 = zero-eighty-nine:zero-eight-nine:oh-eight-nine:oh-eighty-nine
+090 = zero-ninety:zero-nine-zero:oh-nine-oh:oh-ninety
+091 = zero-ninety-one:zero-nine-one:oh-nine-one:oh-ninety-one
+092 = zero-ninety-two:zero-nine-two:oh-nine-two:oh-ninety-two
+093 = zero-ninety-three:zero-nine-three:oh-nine-three:oh-ninety-three
+094 = zero-ninety-four:zero-nine-four:oh-nine-four:oh-ninety-four
+095 = zero-ninety-five:zero-nine-five:oh-nine-five:oh-ninety-five
+096 = zero-ninety-six:zero-nine-six:oh-nine-six:oh-ninety-six
+097 = zero-ninety-seven:zero-nine-seven:oh-nine-seven:oh-ninety-seven
+098 = zero-ninety-eight:zero-nine-eight:oh-nine-eight:oh-ninety-eight
+099 = zero-ninety-nine:zero-nine-nine:oh-nine-nine:oh-ninety-nine

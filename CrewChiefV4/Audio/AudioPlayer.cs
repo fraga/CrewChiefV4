@@ -25,6 +25,7 @@ namespace CrewChiefV4.Audio
         public static Boolean playWithNAudio = UserSettings.GetUserSettings().getBoolean("use_naudio");
 
         public static Boolean delayMessagesInHardParts = UserSettings.GetUserSettings().getBoolean("enable_delayed_messages_on_hardparts");
+        private Boolean allowImportantMessagesInKeepQuietMode = UserSettings.GetUserSettings().getBoolean("allow_important_messages_even_when_silenced");
 
         public enum TTS_OPTION { NEVER, ONLY_WHEN_NECESSARY, ANY_TIME }
         public static TTS_OPTION ttsOption = TTS_OPTION.ONLY_WHEN_NECESSARY;
@@ -48,6 +49,8 @@ namespace CrewChiefV4.Audio
         public static String folderRadioCheckResponse = "acknowledge/radio_check";
         public static String folderStandBy = "acknowledge/stand_by";
         public static String folderFuelToEnd = "acknowledge/fuel_to_end";
+        public static String folderCutWarningsDisabled = "acknowledge/cut_warnings_disabled";
+        public static String folderCutWarningsEnabled = "acknowledge/cut_warnings_enabled";
 
         public static String folderAcknowledgeEnableDelayInHardParts = "acknowledge/keep_quiet_in_corners_enabled";
         public static String folderAcknowledgeDisableDelayInHardParts = "acknowledge/keep_quiet_in_corners_disabled";
@@ -71,7 +74,8 @@ namespace CrewChiefV4.Audio
         private Boolean keepQuiet = false;
         private Boolean channelOpen = false;
 
-        private Boolean holdChannelOpen = false;
+        // hack... this is set to 'false' on session end to ensure a pending spotter message doesn't clog the audio player
+        public Boolean holdChannelOpen = false;
         private Boolean useShortBeepWhenOpeningChannel = false;
 
         private TimeSpan maxTimeToHoldEmptyChannelOpen = TimeSpan.FromSeconds(UserSettings.GetUserSettings().getInt("spotter_hold_repeat_frequency") + 1);
@@ -128,7 +132,6 @@ namespace CrewChiefV4.Audio
         public static List<String> availableChiefVoices = new List<String>();
         public static String folderChiefRadioCheck = null;
         private Thread monitorQueueThread = null;
-
 
         private AutoResetEvent monitorQueueWakeUpEvent = new AutoResetEvent(false);
         private AutoResetEvent hangingChannelCloseWakeUpEvent = new AutoResetEvent(false);
@@ -581,7 +584,7 @@ namespace CrewChiefV4.Audio
             {
                 int waitTimeout = -1;
                 DateTime now = CrewChief.currentGameState == null ? DateTime.UtcNow : CrewChief.currentGameState.Now;
-                if (channelOpen && (!holdChannelOpen || now > timeOfLastMessageEnd + maxTimeToHoldEmptyChannelOpen))
+                if (channelOpen && !SoundCache.IS_PLAYING && (!holdChannelOpen || now > timeOfLastMessageEnd + maxTimeToHoldEmptyChannelOpen))
                 {
                     if (!queueHasDueMessages(queuedClips, false) && !queueHasDueMessages(immediateClips, true))
                     {
@@ -672,12 +675,23 @@ namespace CrewChiefV4.Audio
                     QueuedMessage queuedMessage = (QueuedMessage)queueToPlay[key];
                     if (isImmediateMessages || queuedMessage.dueTime <= milliseconds)
                     {
+                        Boolean blockedByKeepQuietMode;
+                        if (allowImportantMessagesInKeepQuietMode)
+                        {
+                            blockedByKeepQuietMode = keepQuiet && !queuedMessage.playEvenWhenSilenced && !isImmediateMessages;
+                        }
+                        else
+                        {
+                            blockedByKeepQuietMode = keepQuiet && !queuedMessage.playEvenWhenSilenced &&
+                                (queuedMessage.metadata == null || 
+                                (queuedMessage.metadata.type != SoundType.SPOTTER && queuedMessage.metadata.type != SoundType.VOICE_COMMAND_RESPONSE));
+                        }
                         Boolean messageHasExpired = queuedMessage.expiryTime != 0 && queuedMessage.expiryTime < milliseconds;
                         Boolean messageIsStillValid = queuedMessage.isMessageStillValid(key, CrewChief.currentGameState);
                         Boolean queueTooLongForMessage = queuedMessage.maxPermittedQueueLengthForMessage != 0 && willBePlayedCount > queuedMessage.maxPermittedQueueLengthForMessage;
                         Boolean hasJustPlayedAsAnImmediateMessage = !isImmediateMessages && lastImmediateMessageName != null &&
                             key == lastImmediateMessageName && GameStateData.CurrentTime - lastImmediateMessageTime < TimeSpan.FromSeconds(5);
-                        if ((isImmediateMessages || !keepQuiet || queuedMessage.playEvenWhenSilenced) && queuedMessage.canBePlayed &&
+                        if (!blockedByKeepQuietMode && queuedMessage.canBePlayed &&
                             messageIsStillValid && !keysToPlay.Contains(key) && !queueTooLongForMessage && !messageHasExpired && !hasJustPlayedAsAnImmediateMessage)
                         {
                             // special case for 'get ready' event here - we don't want to move this to the top of the queue because 
@@ -693,7 +707,11 @@ namespace CrewChiefV4.Audio
                         }
                         else
                         {
-                            if (!messageIsStillValid)
+                            if (blockedByKeepQuietMode)
+                            {
+                                Console.WriteLine("Clip " + key + " will not be played because we're in 'keep quiet' mode");
+                            }
+                            else if (!messageIsStillValid)
                             {
                                 Console.WriteLine("Clip " + key + " is not valid");
                             }
@@ -974,13 +992,17 @@ namespace CrewChiefV4.Audio
                         // ignore
                     }
                 }
-                if (useShortBeepWhenOpeningChannel)
+                // beeps don't play in oval spotter mode
+                if (!GlobalBehaviourSettings.ovalSpotterMode)
                 {
-                    playShortStartSpeakingBeep();
-                }
-                else
-                {
-                    playStartSpeakingBeep();
+                    if (useShortBeepWhenOpeningChannel)
+                    {
+                        playShortStartSpeakingBeep();
+                    }
+                    else
+                    {
+                        playStartSpeakingBeep();
+                    }
                 }
             }
         }
@@ -989,7 +1011,11 @@ namespace CrewChiefV4.Audio
         {
             if (channelOpen)
             {
-                playEndSpeakingBeep();
+                // beeps don't play in oval spotter mode
+                if (!GlobalBehaviourSettings.ovalSpotterMode)
+                {
+                    playEndSpeakingBeep();
+                }
                 if (!mute)
                 {
                     try
@@ -1025,7 +1051,7 @@ namespace CrewChiefV4.Audio
             {
                 if (!mute)
                 {
-                    soundCache.Play("listen_start_sound", SoundMetadata.beep);
+                    soundCache.Play("listen_start_sound", SoundMetadata.listenStartBeep);
                 }
             }
         }
@@ -1159,7 +1185,7 @@ namespace CrewChiefV4.Audio
             hangingChannelCloseThread = new Thread(() =>
             {
                 Thread.CurrentThread.IsBackground = true;
-                if (!hangingChannelCloseWakeUpEvent.WaitOne(6000))
+                if (!hangingChannelCloseWakeUpEvent.WaitOne(6000) && !SoundCache.IS_PLAYING)
                 {
                     // if we timeout here it means the channel was left open, so close it
                     closeRadioInternalChannel();
@@ -1199,6 +1225,18 @@ namespace CrewChiefV4.Audio
 
         public void playMessageImmediately(QueuedMessage queuedMessage, Boolean keepChannelOpen = false)
         {
+            if (CrewChief.Debugging && queuedMessage.messageName != null)
+            {
+                int count;
+                if (Utilities.queuedMessageIds.TryGetValue(queuedMessage.messageName, out count))
+                {
+                    Utilities.queuedMessageIds[queuedMessage.messageName] = count++;
+                }
+                else
+                {
+                    Utilities.queuedMessageIds.Add(queuedMessage.messageName, 1);
+                }
+            }
             if (queuedMessage.canBePlayed)
             {
                 if (queuedMessage.metadata.type == SoundType.AUTO)
@@ -1289,6 +1327,18 @@ namespace CrewChiefV4.Audio
 
         public void playMessage(QueuedMessage queuedMessage, PearlsOfWisdom.PearlType pearlType, double pearlMessageProbability)
         {
+            if (CrewChief.Debugging && queuedMessage.messageName != null)
+            {
+                int count;
+                if (Utilities.queuedMessageIds.TryGetValue(queuedMessage.messageName, out count))
+                {
+                    Utilities.queuedMessageIds[queuedMessage.messageName] = count++;
+                }
+                else
+                {
+                    Utilities.queuedMessageIds.Add(queuedMessage.messageName, 1);
+                }
+            }
             if (queuedMessage.canBePlayed)
             {
                 if (queuedMessage.metadata.type == SoundType.AUTO)

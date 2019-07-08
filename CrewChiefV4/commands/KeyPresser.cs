@@ -95,13 +95,23 @@ namespace CrewChiefV4.commands
             }
         }
         
-        public static void SendScanCodeKeyPress(KeyCode keyCode, int holdTimeMillis)
+        public static void SendScanCodeKeyPress(KeyCode keyCode, Boolean holdShift, int holdTimeMillis)
         {
             ushort scanCode = (ushort)MapVirtualKey((ushort)keyCode, 0);
             Boolean extended = extendedKeys.Contains(keyCode);
+            if (holdShift)
+            {
+                press((ushort)MapVirtualKey((ushort)KeyCode.LSHIFT, 0), false);
+                Thread.Sleep(10);
+            }
             press(scanCode, extended);
             Thread.Sleep(holdTimeMillis);
             release(scanCode, extended);
+            if (holdShift)
+            {
+                Thread.Sleep(10);
+                release((ushort)MapVirtualKey((ushort)KeyCode.LSHIFT, 0), false);                
+            }
         }
         private static void press(ushort scanCode, Boolean extended)
         {
@@ -579,7 +589,7 @@ namespace CrewChiefV4.commands
             /// 
             /// </summary>
             KEY_Z = 90,
-
+            
             #endregion
 
             #region volume

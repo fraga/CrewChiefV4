@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization Culture="en-us" xmlns="http://schemas.microsoft.com/wix/2006/localization">
+	
+  <String Id="ProductName">CrewChiefV4</String>
+  <String Id="Company">Britton IT Ltd</String>
+  <String Id="Description">RaceRoom, PCars, PCars2, rFactor, rFactor2, Assetto Corsa, and iRacing race engineer</String>
+  <String Id="DowngradeErrorMessage">A newer version of CrewChiefV4 is already installed.</String>
+</WixLocalization>

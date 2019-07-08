@@ -11,6 +11,7 @@ namespace CrewChiefV4.GameState
 
         // in race sessions, delay position changes to allow things to settle. This is game-dependent
         private Dictionary<string, PendingRacePositionChange> PendingRacePositionChanges = new Dictionary<string, PendingRacePositionChange>();
+        private Dictionary<string, PendingRacePositionChange> PendingRaceClassPositionChanges = new Dictionary<string, PendingRacePositionChange>();
         private TimeSpan PositionChangeLag = TimeSpan.FromMilliseconds(1000);
         class PendingRacePositionChange
         {
@@ -31,6 +32,7 @@ namespace CrewChiefV4.GameState
         private DateTime nextOpponentBehindPitMessageDue = DateTime.MinValue;
         private DateTime nextOpponentAheadPitMessageDue = DateTime.MinValue;
         private DateTime nextLeaderPitMessageDue = DateTime.MinValue;
+        private Boolean resetClassStartPos = false; // an AMS hack - class start pos is incorrect until 1 tick after 'just gone green'
 
         public virtual void setSpeechRecogniser(SpeechRecogniser speechRecogniser)
         {
@@ -44,8 +46,20 @@ namespace CrewChiefV4.GameState
         {
             Boolean singleClass = GameStateData.NumberOfClasses == 1 || CrewChief.forceSingleClass;
             // always set the session start class position and lap start class position:
-            if (currentGameState.SessionData.JustGoneGreen || currentGameState.SessionData.IsNewSession)
+            if (currentGameState.SessionData.JustGoneGreen || currentGameState.SessionData.IsNewSession || resetClassStartPos)
             {
+                // for RF1 the class start pos only appears to be correct on the tick after JustGoneGreen, so allow it to be updated on this tick.
+                // for now we'll apply this same hack to RF2 - it shouldn't break anything and the bug may be common to both games
+                if (resetClassStartPos)
+                {
+                    Console.WriteLine("Resetting class start pos from " + currentGameState.SessionData.SessionStartClassPosition + " to " + currentGameState.SessionData.ClassPosition);
+                    resetClassStartPos = false;
+                }
+                else if ((CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT) && currentGameState.SessionData.JustGoneGreen)
+                {
+                    resetClassStartPos = true;
+                }
+
                 // NOTE: on new session, ClassPosition in rF2 is not correct.  It is updated with a bit of a delay.
                 // Since this code triggers on JustGoneGreen as well, this is corrected at that point, but I am not yet sure
                 // there are no bad side effects.
@@ -85,9 +99,10 @@ namespace CrewChiefV4.GameState
                     int minSecondsBetweenOpponentPitMessages = CrewChief.gameDefinition.gameEnum == GameEnum.IRACING ? 40 : 20;
                     // don't care about other classes
                     numCarsInPlayerClass++;
-                    if (PitApproachPosition != -1
+                    if ((PitApproachPosition != -1
                         && opponent.DistanceRoundTrack < PitApproachPosition + 20
-                        && opponent.DistanceRoundTrack > PitApproachPosition - 20)
+                        && opponent.DistanceRoundTrack > PitApproachPosition - 20 && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING) ||
+                        CrewChief.gameDefinition.gameEnum == GameEnum.IRACING && opponent.isApporchingPits)
                     {
                         opponent.PositionOnApproachToPitEntry = opponent.ClassPosition;
                     }
@@ -176,6 +191,8 @@ namespace CrewChiefV4.GameState
                     }
                 }
             }
+            // sanity check the leaderLapsCompleted data
+            leaderLapsCompleted = Math.Max(leaderLapsCompleted, currentGameState.SessionData.CompletedLaps);
             if (!currentGameState.SessionData.SessionHasFixedTime)
             {
                 // work out the laps remaining
@@ -241,8 +258,9 @@ namespace CrewChiefV4.GameState
         }
 
         // filters race position changes by delaying them a short time to prevent bouncing and noise interferring with event logic
-        protected int getRacePosition(String driverName, int oldPosition, int newPosition, DateTime now)
+        protected int getRacePosition(String driverName, int oldPosition, int newPosition, DateTime now, bool isClassPosition = false)
         {
+            var pendingRaceClassPositionChanges = isClassPosition ? PendingRaceClassPositionChanges : PendingRacePositionChanges;
             if (driverName == null || oldPosition < 1)
             {
                 return newPosition;
@@ -256,10 +274,10 @@ namespace CrewChiefV4.GameState
             if (oldPosition == newPosition)
             {
                 // clear any pending position change
-                PendingRacePositionChanges.Remove(driverName);
+                pendingRaceClassPositionChanges.Remove(driverName);
                 return oldPosition;
             }
-            else if (PendingRacePositionChanges.TryGetValue(driverName, out pendingRacePositionChange))
+            else if (pendingRaceClassPositionChanges.TryGetValue(driverName, out pendingRacePositionChange))
             {
                 if (newPosition == pendingRacePositionChange.newPosition)
                 {
@@ -267,7 +285,7 @@ namespace CrewChiefV4.GameState
                     if (now > pendingRacePositionChange.positionSettledTime)
                     {
                         int positionToReturn = newPosition;
-                        PendingRacePositionChanges.Remove(driverName);
+                        pendingRaceClassPositionChanges.Remove(driverName);
                         return positionToReturn;
                     }
                     else
@@ -285,7 +303,7 @@ namespace CrewChiefV4.GameState
             }
             else
             {
-                PendingRacePositionChanges.Add(driverName, new PendingRacePositionChange(newPosition, now + PositionChangeLag));
+                pendingRaceClassPositionChanges.Add(driverName, new PendingRacePositionChange(newPosition, now + PositionChangeLag));
                 return oldPosition;
             }
         }

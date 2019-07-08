@@ -12,9 +12,6 @@ namespace CrewChiefV4.iRacing
 {
     class iRacingSpotter : Spotter
     {
-        // don't activate the spotter unless this many seconds have elapsed (race starts are messy)
-        private int timeAfterRaceStartToActivate = UserSettings.GetUserSettings().getInt("time_after_race_start_for_spotter");
-
         private DateTime previousTime = DateTime.UtcNow;
 
         public iRacingSpotter(AudioPlayer audioPlayer, Boolean initialEnabledState)
@@ -35,8 +32,8 @@ namespace CrewChiefV4.iRacing
         {
             if(enabled && !paused)
             {
-                int currentState = (int)currentStateObj;
-                internalSpotter.triggerInternal((int)currentState);
+                CarLeftRight currentState = (CarLeftRight)currentStateObj;
+                internalSpotter.triggerInternal(currentState);
             }
             return;
         }

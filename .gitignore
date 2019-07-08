@@ -15,6 +15,7 @@ build/
 bld/
 [Bb]in/
 [Oo]bj/
+Installs/
 
 # Roslyn cache directories
 *.ide/
@@ -201,3 +202,5 @@ ModelManifest.xml
 
 # SQL journal temp files
 .vs/
+
+/CrewChiefV4_installer/ComponentsGenerated.wxs

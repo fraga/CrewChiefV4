@@ -1,6 +1,6 @@
 CrewChief version 4.9
 
-Written by Jim Britton, Morten Roslev, Vytautas Leonavičius, Dan Allongo (Automobilista and rFactor1 implementation), Daniel Nowak (nAudio speech recognition port) and Mike Schreiner (technical input on stock car rules). The application is the result of lots of lots of hard work and input from the guys above as well as some great advice and support from the community and the guys at Sector3 and SMS.
+Written by Jim Britton, Morten Roslev, Vytautas Leonavičius, Paul Burgess, Dan Allongo (Automobilista and rFactor1 implementation), Daniel Nowak (nAudio speech recognition port), Mike Schreiner and Brent Owen (technical input on stock car rules). The application is the result of lots of lots of hard work and input from the guys above as well as some great advice and support from the community and the guys at Sector3 and SMS.
 
 Additional material from Scoops (fantastic track layout mapping work) and Longtomjr (F1 2018 UDP data format structs). Fantastic alternate spotter sounds by Geoffrey Lessel, Matt Orr (aka EmptyBox), Clare Britton, Mike Schreiner, Phil Linden, Lee Taylor and Micha (last name?). Also a thank you to Nick Thissen for his work on iRacingSdkWrapper.
 
@@ -86,16 +86,20 @@ I've not finished implementing this but currently the app understands and respon
 "talk to me anywhere" / "messages at any point": disable message delay in challenging parts of the track
 "set alarm to [hour] [minutes] [optional am/pm]" / "alarm me at [hour] [minutes] [optional am/pm]": sets the alarm clock at the given time, supports both 12 and 24 hour format
 "clear alarm clock" / "clear alarms": clears all the alarms set
+"enable cut track warnings" / "play cut track warnings:warn about cuts"
+"no cut track warnings" / "no more cut warnings:no more cut track warnings"
+
+iRacing-specific pit commands:
 
 "pitstop add [X liters]" (adds X amount of fuel next pitstop, this option is iRacing only)
 "pitstop tearoff / pitstop windscreen" (enable next pitstop, this option is iRacing only)
 "pitstop fast repair / pitstop repair" (enable fast repair next pitstop, this option is iRacing only)
 "pitstop clear all" (clears all selected pitstop options, this option is iRacing only)
-"pitstop clear tyres (clears all tyre selections" next pitstop, this option is iRacing only)
+"pitstop clear tyres" / "pitstop don't change tyres" / "box, clear tyres" / "box, don't change tyres" (clears all tyre selections next pitstop, this option is iRacing)
 "pitstop clear tearoff / pitstop clear windscreen" (clears tearoff selection next pitstop, this option is iRacing only)
 "pitstop clear fast repair" (clears fast repair selection next pitstop, this option is iRacing only)
 "pitstop clear fuel" (clears fuel refueling next pitstop, this option is iRacing only)
-"pitstop change all tyres" (change all tyres next pitstop, this option is iRacing only)
+"pitstop change all tyres" / "box, change all tyres" (change all tyres next pitstop, this option is iRacing)
 "pitstop change left front tyre" (change left front tyre next pitstop, this option is iRacing only)
 "pitstop change right front tyre" (change right front tyre next pitstop, this option is iRacing only)
 "pitstop change left rear tyre" (change left rear tyre next pitstop, this option is iRacing only)
@@ -108,6 +112,26 @@ I've not finished implementing this but currently the app understands and respon
 "pitstop change left rear tyre pressure [ new value ]" (change left rear tyre pressure next pitstop, this option is iRacing only)
 "pitstop change right rear tyre pressure [ new value ]" (change right rear tyre pressure next pitstop, this option is iRacing only)
 "pitstop fuel to the end" / "pitstop fuel to the end of the race" (add the fuel amount the app calculates you'll need to finish the race, this option is iRacing only)
+
+
+R3E-specific pit commands:
+
+"pitstop clear tyres" / "pitstop don't change tyres" / "box, clear tyres" / "box, don't change tyres"
+"pitstop change all tyres" / "box, change all tyres"
+"pitstop change front tyres only" / "box, change front tyres only"
+"pitstop change rear tyres only" / "box, change rear tyres only"
+"pitstop next tyre compound" / "box, next tyre compound"
+"pitstop fix front aero only" / "box, fix front aero only"
+"pitstop fix rear aero only" / "box, fix rear aero only"
+"pitstop fix all aero" / "box, fix all aero"
+"pitstop don't fix aero" / "box, don't fix aero"
+"pitstop fix suspension" / "box, fix suspension"
+"pitstop don't fix suspension" / "box, don't fix suspension"
+"pitstop serve penalty" / "box, serve penalty"
+"pitstop don't serve penalty" / "box, don't serve penalty"
+"pitstop refuel" / "box, refuel"
+"pitstop don't refuel" / "box, don't refuel"
+"what are the pit actions" / "what's the pitstop plan" (reports the selected actions for the next pitstop)
 
 
 Speech recognition customisation
@@ -139,24 +163,20 @@ If you want to have the game pre-selected, start the app like this for PCars: [f
 This can be used in conjunction with the launch_pcars / launch_raceroom / [game]_launch_exe / [game]_launch_params and run_immediately options to set crew chief up to start the game selected in the app launch argument, and start its own process. I'll provide examples of this approach soon. 
 
 
-rFactor2 Stock Car Rules (SCR) plugin
+rFactor2 Unofficial Features
 -------------------------------------
-rFactor 2 Stock Car Rules (SCR) are implemented as a plugin. The Shared Memory plugin which Crew Chief uses does not see the output of the SCR plugin, because rF2 (partially) isolates plugins from each other. In order to work around this issue the Shared Memory plugin has to load the SCR plugin and forward all rF2 calls to it.
-
-Steps to enable Stock Car Rules in the Crew Chief:
-
- - Let Crew Chief update the rF2 Shared Memory plugin to the latest version by starting rF2 and CC once, then exit the game.
- - Make sure StockCarRules.dll "Enabled" is set to 0 (yes, disabled) in UserData\player\CustomPluginVariables.json. Do NOT Delete the plugin.
- - In UserData\player\CustomPluginVariables.json make sure SM plugin configuration looks like this:
-
- "rFactor2SharedMemoryMapPlugin64.dll":{
+Crew Chief supports some rF2 specific features not exposed via official rF2 Internals API.  Those features are turned off by default.  To enable those features, modify UserData\player\CustomPluginVariables.json by setting "EnableDirectMemoryAccess" to "1".  Plugin configuration should look like this:
+  "rFactor2SharedMemoryMapPlugin64.dll":{
     " Enabled":1,
     "DebugISIInternals":0,
     "DebugOutputLevel":0,
-    "EnableStockCarRulesPlugin":1
-}
+    "DedicatedServerMapGlobally":0,
+    "EnableDirectMemoryAccess":1
+  }
 
-The SCR plugin and the messages associated with stock car rules will be enabled automatically for vehicle classes which have useAmericanTerms = true in their definition (some built in classes will have this). You can also force it to be enabled for all classes by selecting the "Use American terms" option in the Preferences screen.
+Note: first space in " Enabled" above is required.
+
+See this thread for more information: http://thecrewchief.org/showthread.php?1011-rFactor-2-Unofficial-Features
 
 
 Pit exit position prediction
@@ -168,6 +188,29 @@ Benchmark pit times can be measured during a practice session with the 'time thi
 If the app has usable benchmark data and you request a pitstop *before you reach sector3*, it'll tell you where you should come out and what the traffic will be like when you hit sector3. You can also request this data at any time with the 'Where will be be after a stop?' / 'Estimate pit exit positions' / 'What will happen if I pit?', or by pressing the "Pitstop prediction" button during a race, even if you've not requested a pitstop (the app will derive its estimates on every lap regardless or whether you actually pit).
 
 At the time of writing there's more work to be done here and some more features that may be added.
+
+
+R3E Pit Menu Interactions
+-------------------------
+R3E exposes some additional information describing the state of the popup pit menu. Using these, the app is able to navigate the menu by pressing sequences of key to make specific pit requests. This depends on the in-game key bindings matching the keys set up in the app's command macros. By default, these macros require the in-game pit menu actions to be bound to w (menu up), a (menu left / decrease), s (menu down), d (menu right / increase), q (menu toggle), e (menu select) and r (request pit). It uses the menu navigation command macros (single button presses to move the cursor) to locate and select the approprate commands for most actions like selecting / deselecting tyres and repairs. Choosing a refuelling amount is not possible with this new approach - it still relies on the auto fuelling macros. The commands which use this new approach are:
+
+"pitstop clear tyres" / "pitstop don't change tyres" / "box, clear tyres" / "box, don't change tyres"
+"pitstop change all tyres" / "box, change all tyres"
+"pitstop change front tyres only" / "box, change front tyres only"
+"pitstop change rear tyres only" / "box, change rear tyres only"
+"pitstop fix front aero only" / "box, fix front aero only"
+"pitstop fix rear aero only" / "box, fix rear aero only"
+"pitstop fix all aero" / "box, fix all aero"
+"pitstop don't fix aero" / "box, don't fix aero"
+"pitstop fix suspension" / "box, fix suspension"
+"pitstop don't fix suspension" / "box, don't fix suspension"
+"pitstop serve penalty" / "box, serve penalty"
+"pitstop don't serve penalty" / "box, don't serve penalty"
+"pitstop refuel" / "box, refuel"
+"pitstop don't refuel" / "box, don't refuel"
+"what are the pit actions" / "what's the pitstop plan" (reports the selected actions for the next pitstop)
+
+The app will also read out the planned pit actions automatially when you get near the pit entrance after requesting a stop.
 
 
 Known Issues Which Aren't Fixable
@@ -224,6 +267,66 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.9.8.7: Rewrote installer to use WIX rather than InstallShield - should help with the updating issues that some users encounter; added an optional delay before switching the spotter to be switched off on full course yellow (default is to silence spotter as soon as the full course yellow is shown - to use the new behaviour disable the 'Mute spotter immediately on full course yellow' property); fix crash bug when disabling 'Identify opponents by race position'; assign button to action when button is released, not pressed - should fix issues with devices which keep buttons pressed all the time; RF2 - added latest Formula E mappings and rules; R3E - improved accuracy of pit box countdown; 
+
+Version 4.9.8.6: Assign buttons when the button is released, not pressed. Should fix issues where continuously pressed buttons prevent button assignment from working; RF2 - added ignore-blue-flags warnings; R3E - added 'box, next tyre compound' voice command to cycle through available tyre types in the pit menu (see R3E Pit Menu Interactions section); R3E - added TireLoad data to WebHud export and incremented version number
+
+Version 4.9.8.5: R3E - corrected opponent tyre mapping for F1 and GroupC cars; R3E - make use of pit menu data to provide more control over pit menu - added voice commands like "box, change front tyres only", and "box, don't fix aero". See R3E Pit Menu Interactions section here and in Help for more information; a few minor fixes
+
+Version 4.9.8.3: Prevent the app spamming the console window with errors when something fails on every tick (should prevent crashes when something goes wrong); in 'keep quiet' mode (e.g. after telling the app to "shut up") it really does keep quiet - even high priority messages are blocked - only the spotter messages continue to play (these can be blocked with the "don't spot" command). If you want the old behaviour back, where 'keep quiet' mode still allows high priority messages to play, enable the "Play important messages when silenced" option; added a UI to add voice messages to the list of available button actions so you can easily assign a button to what would have been a voice command - press the 'Add / remove actions' button on the main screen to access this; added some missing validation on the good / bad start messages
+
+Version 4.9.8.2: Fixed app hang when using Trigger Word speech recogntion with nAudio; Allow nAudio speech recognition input device sample rate, bit depth and channel count to be set in Properties; Added some additional checks to prevent gap messages being played immediately after an overtake; AC: don't load opponents into the speech recogniser once a race has started (should reduce CPU spikes in online races); AC: fixed inaccurate laps-remaining data; iRacing - fixed some missing messages; various bug fixes and some code tidying up
+
+Version 4.9.8.0: Start listening as soon as the radio channel button is pressed, instead of waiting for the beep to finish playing; iRacing - revised fuel calculations in races with driver swaps to use highest per-lap consumption - should fix refuelling being wildly inaccurate due to missing consumption data when your team mate is driving the car; iRacing & R3E - extended the speech recogniser to include opponent car numbers - you can now ask for opponent data using car number, e.g. "what's car number 10's best lap time", or "where is car number ninety nine". To use this, enable the "Identify opponents by car number" property. Note that for iRacing car numbers may have leading zeros - in cases where a given number appears more than once in the session (with and without leading zeros), the speech recogniser will expect the leading zeros to be used in the command (i.e. car number 021 can be referred to as "zero twenty one", "oh twenty one", "zero two one" or "zero twenty one" in all cases, and "twenty one" or "two one" only if there's no other car in the session with number 21); iRacing - Allow car numbers with leading zeros to be read by the full course yellow / formation lap code (e.g. car 009 will now be read as "zero zero nine"); Reduce the maximum frequency of opponent tyre change messages to prevent spamming when many cars pit for different tyres at the same time
+
+Version 4.9.7.9: Fix for some potential start up issues; fixed toggle_mute button function not working properly; RF2 - new plugin version and some additional DRS messages
+
+Version 4.9.7.8: Hotfix for spotter being always set to 'ovals' mode on road courses (missing beeps, some other changes - sorry guys). Ovals mode will now only be enabled on ovals, as intended; fixed nAudio beeps not responding to volume changes; added new button binding for 'Toggle mute' - mutes all app sounds and unmutes when pressed again
+
+Version 4.9.7.7: Change spotter behaviour on ovals to prevent the spotter monopolising the radio channel (non-spotter messages aren't blocked all the time). This disables the radio beeps on ovals and starts spotting immediately on race start. Note this affects oval tracks only. You can revert to the old spotter behaviour by disabling the 'Enable enhanced spotter on ovals' property; fixed some button assignments not working until the app was restarted; fixed broken pit stall count down; fixed some broken validation that was preventing gap ahead and gap behind messages playing in some circumstances; fixed broken 'play corner names' command; allow voice commands that refer to opponent cars (e.g. "what's the car ahead's last lap time") to be assigned to buttons - you need to add opponentDataCommand: true to the buttonAssignment element in controllerConfigurationData.json in these cases
+
+Version 4.9.7.6: Prevent fuel estimates playing too close together; fixed cases where the app switches to multi-class mode when it shouldn't - when there are too many unknown car classes in a session the app now reverts to single-class mode as intended; AMS / RF1 - update race start positions shortly after the green light - should fix cases where the 'bad start' message was playing when it shouldn't
+
+Version 4.9.7.5: Hotfix for iRacing crash bug
+
+Version 4.9.7.4: R3E - added support for WebHud so Crew Chief can send data to WebHud in place of dash.exe. Enable this with the 'Enable WebHud integration (R3E only)' property. This should also be slightly more efficient that the old dash.exe program; don't play laptime or pace report for laps which are several seconds slower than your pace; allow fuel consumption calculations to be based on the lap with the highest representative fuel usage - this should produce more accurate fuel calculations on ovals and in cases where there's just been a full-course-yellow / caution period or other event that can significantly reduce fuel consumption. By default the app will use max per-lap consumption on oval courses and a windowed average consumption on road courses. Enable 'Base fuel calculations on max fuel consumption' property to use max per-lap consumption on all tracks; iRacing - reworked session position logic to reduce inaccurate position calls; iRacing - additional messages for formation laps and full course yellows; a few assorted fixes
+
+Version 4.9.7.3: R3E - added support for new shared memory layout introduced in latest game update
+
+Version 4.9.7.2: RF2 - incorporated more stock car rules and added some additional car class mappings; RF2 - fixed some issues introduced in last RF2 game update; some minor bug fixes
+
+Version 4.9.7.1: iRacing - map the 'pits are open' flag and added BMW M8 car data and a couple of Okayama layout corner mappings (still some missing recordings here); RF2 - various tweaks including lone practice support and stock car improvements; R3E - mapped Sepang and Nordschleife corners (VLN and Nords layouts only) - might not be very accurate (it's a big track and the available maps aren't great)
+
+Version 4.9.7.0: Don't play lap time comparisons during full course yellow; fixed button assignments being ignored when Voice Recognition Mode is set to 'Press and release button'
+
+Version 4.9.6.9: Minor bug fixes; AC: ensure tracks always have 2 or 3 sectors - this *definitely* fixes long-standing issues with some longer add-on tracks that report 4 or more sectors
+
+Version 4.9.6.8: Some stability fixes
+
+Version 4.9.6.7: Fixed nAudio speech recognition; some more minor improvements to the controllers code
+
+Version 4.9.6.6: Simplified macros file format (removed the per-game key mappings) and added a UI to allow macros to be created and edited from the app. Important: if you've created your own macros or have been helping us test our recent beta releases, please rename Documents/CrewChiefV4/saved_command_macros.json before starting the app. See Command Macros section of help.txt for more info; re-wrote controllers code to cope with badly behaved devices (device scans that take many minutes and devices that disconnect and reconnect during play). Controllers are no longer scanned at start-up (press Scan for Controllers to initiate a device scan); moved saved button assignments to Documents/CrewChiefV4/controllerConfigurationData.json. This has been extended to allow any of the existing basic voice commands to be mapped to a button - see Button Mappings section in help.txt for more info; allow cut track warnings to be enabled / disabled with a voice command ("enable cut track warning" / "no cut track warnings") or a button binding ("Toggle cut track warnings on / off"); AC - another attempt to fix weird crash on tracks with > 3 sectors; RF2 - updated plugin to include stock car rules logic and added more stock car (oval) specific messages; RF2 - added more messages for various penalties and other conditions; some simple camber and pressure responses using average inner-middle-outer tyre temps recorded during the previous lap (voice commands "how are my [front / rear] cambers" / "how's my [left front / right front / etc] camber", and "how are my tyre pressures" / "how are my [front / rear] tyre pressures"). You can also add "...right now" to this voice command to get the current inner-middle-out temps (not averaged). Note this isn't well tested, might give bad advice, and doesn't work with iRacing
+
+Version 4.9.6.5: Speculative fix for startup error in previous version; added R3E GT Masters 2018 car class to GT3s; AC - fix crash on tracks with > 3 sectors
+
+Version 4.9.6.4: Automatically scan for controllers on app start; better handling of controllers; disable some irrelevant messages on in-laps; RF2 - better (more detailed) penalty messages; RF2 - updated plugin with more data and additional features not exposed via official rF2 Internals API. These are turned off by default - to enable them see 'rFactor2 Unofficial Features' section above
+
+Version 4.9.6.3: Tweaked manual rolling start logic for multiclass races, so each class has its own pole-sitter for determining when to start the race (can be disabled with the 'Manual formation lap separate classes' option); significantly reduced the size of debug traces; reworked console logging output to fix some potential crash bugs; iRacing - potential fix for incorrect race start position in multiclass races (this caused quite a few issues)
+
+Version 4.9.6.2: Hotfix for iRacing crash
+
+Version 4.9.6.1: Extended free-text macros a little (upper case characters and slash); prevent off-track messages expiring immediately in practice sessions; speech recognition fixes when running with 'disable alternate voice commands' switched on; automatically save console logs; iRacing - fixed debug logging on ovals; RF2 - some bug fixes
+
+Version 4.9.6.0: Corrected some car classes for AC and R3E; RF2 - updated plugin; RF2 - more accurate pit stall location detection
+
+Version 4.9.5.9: Notify when given slowdown penalty; AC - fix crash when restarting app; a few minor fixes
+
+Version 4.9.5.8: Some fuel calculation tweaks - near the start of the race, use the max per-lap consumption when calculating required fuel; Save pitstop benchmark times for each car / track / game combination so they persist between runs of the app (written to /Documents/CrewChiefV4/pit_benchmarks.json) - this is enabled by default but can be disabled with the 'Save pitstop benchmark times to disk' property; RF2 - workaround for missing spotter calls after driver swaps (thanks to kcr55 for this one); RF2 - use tyre compound name rather than index when deriving tyre types - should fix issues where mods declare different available tyre compound sets; pCars2 - make macro key presses a bit longer so they're less likely to be missed by the game (note this makes the refuelling macro execute quite slowly)
+
+Version 4.9.5.7: Fixed RF2 tyre type mapping and added Hyper-Soft tyre; use correct 'drizzling' sounds; added spotter 'Florian' (in latest sound pack update)
+
+Version 4.9.5.6: Don't allow some messages to be inserted into the space between spotter messages; some work to prevent stale messages being played (e.g. after a delay caused by the spotter); don't play fuel warnings when on a low-fuel run in qualifying or practice; prevent some position messages being played twice; reduce repetition of some messages; ignore rear tyre and brake temperatures in FWD classes; more internal threading fixes; a few other tweaks and fixes
+
 Version 4.9.5.5: Macro overhaul - more flexible system which should be easier to work with. Includes example chat macros and an 'add fuel, XXX litres' macro (where XXX is 0 - 150) (R3E and pCars2 only). See the 'Advanced command macros' section of the help.txt file or http://thecrewchief.org/showthread.php?263-Command-key-press-macros&p=2378&viewfull=1#post2378 for more info; fixed some shutdown delays that can happen when closing the app without pressing 'stop' first; fixed radio channel sometimes being left open after a spotter call; fixed brake and suspension damage not being reset after repairs; added option to play pit box distance messages in feet ('Pit box distance countdown in feet'); added option to play a 5-4-3-2-1 style pit box count down ('Pit box time countdown' property, disabled by default). Reaches zero 30 metres from the pit stall by default (configurable with 'Pit box time countdown end point (metres)' property) - note that this may be inaccurate if the pit box is close to the start line due to the way lap distances work when in the pit lane, especially on tracks where the pitlane is significantly longer or shorter than the racing surface; make volume control sliders more fine grained to allow better control over volume; RF1 / AMS: revised cut track logic - should reduce cut track warnings; pCars2 - 'request pit' macro now checks the pit request state from the game and responds accordingly; pCars2 - added "cancel pit request" macro; internal bug fixes
 
 Version 4.9.5.3: Internal overhaul for better performance and stability. Fixes some threading / resource issues that could cause instability on shutdown, changes to how the internal event processing works to make it faster and less resource-hungry, removed 'disable immediate messages' option as this is no longer needed, reduced CPU overhead in lots of other places; fixed app crash when failing to initialise nAudio background sounds player; pCars2 - added 'pCars 2 spotter car length' property, default 5 metres (app was using whatever had been set in the pCars1 version of this property)

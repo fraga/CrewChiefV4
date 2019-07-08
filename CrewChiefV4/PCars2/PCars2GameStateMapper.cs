@@ -255,7 +255,7 @@ namespace CrewChiefV4.PCars2
                 String carClassId = StructHelper.getNameFromBytes(shared.mCarClassName);
                 CarData.CarClass newClass = CarData.getCarClassForClassName(carClassId);
                 CarData.CLASS_ID = carClassId;
-                if (!CarData.IsCarClassEqual(newClass, currentGameState.carClass))
+                if (!CarData.IsCarClassEqual(newClass, currentGameState.carClass, false))
                 {
                     currentGameState.carClass = newClass;
                     GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass);
@@ -289,7 +289,7 @@ namespace CrewChiefV4.PCars2
                 shared.mSessionState, shared.mRaceState, shared.mNumParticipants, leaderHasFinished, lastSessionPhase, lastSessionTimeRemaining,
                 lastSessionRunningTime, shared.mPitModes[playerIndex], (eGameState)shared.mGameState, previousGameState == null ? null : previousGameState.OpponentData,
                 shared.mSpeed, currentGameState.Now);
-                        
+            //Console.WriteLine("SESSION = " + currentGameState.SessionData.SessionType + " PHASE = " + currentGameState.SessionData.SessionPhase);
             currentGameState.SessionData.TrackDefinition = TrackData.getTrackDefinition(StructHelper.getNameFromBytes(shared.mTrackLocation)
                 + ":" + StructHelper.getNameFromBytes(shared.mTrackVariation), -1, shared.mTrackLength);
             // now check if this is a new session...
@@ -1371,7 +1371,7 @@ namespace CrewChiefV4.PCars2
             opponentData.DriverNameSet = true;
             if (participantName != null && participantName.Length > 0 && loadDriverName && CrewChief.enableDriverNames)
             {
-                speechRecogniser.addNewOpponentName(opponentData.DriverRawName);
+                speechRecogniser.addNewOpponentName(opponentData.DriverRawName, "-1");
             }
             opponentData.OverallPosition = (int)participantStruct.mRacePosition;
             opponentData.CompletedLaps = (int)participantStruct.mLapsCompleted;
@@ -1553,7 +1553,6 @@ namespace CrewChiefV4.PCars2
                     return SessionPhase.Green;
                 }
             }
-            Console.WriteLine("Unavailable");
             return SessionPhase.Unavailable;
         }
 

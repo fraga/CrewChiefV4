@@ -46,6 +46,10 @@ namespace CrewChiefV4
         private static float maxWarmUltraSoftTyreTempPeak = 95;
         private static float maxHotUltraSoftTyreTempPeak = 107;
 
+        private static float maxColdHyperSoftTyreTempPeak = 60;
+        private static float maxWarmHyperSoftTyreTempPeak = 94;
+        private static float maxHotHyperSoftTyreTempPeak = 105;
+
         private static float maxColdWetTyreTempPeak = 40;
         private static float maxWarmWetTyreTempPeak = 80;
         private static float maxHotWetTyreTempPeak = 105;
@@ -125,23 +129,25 @@ namespace CrewChiefV4
 
         public enum CarClassEnum
         {
-            GT1X, GT1, GTE, GT2, GTC, GTLM, GT3, GT4, GT5, GT300, GT500, Kart_1, Kart_2, KART_JUNIOR, KART_F1, KART_X30_SENIOR, KART_X30_RENTAL, LMP1, LMP2, LMP3, LMP900, ROAD_B, ROAD_C1, ROAD_C2, ROAD_D,
+            GT1X, GT1, GTE, GT2, GTC, GTLM, GT3, GT4, GT5, GT300, GT500, Kart_1, Kart_2, KART_JUNIOR, KART_F1, KART_X30_SENIOR, KART_X30_RENTAL, SUPERKART, LMP1, LMP2, LMP3, LMP900, ROAD_B, ROAD_C1, ROAD_C2, ROAD_D,
             ROAD_E, ROAD_F, ROAD_G, ROAD_SUPERCAR, GROUPC, GROUPB, GROUPA, GROUP4, GROUP5, GROUP6, GTO,
             VINTAGE_INDY_65, VINTAGE_F3_A, VINTAGE_F1_A, VINTAGE_F1_A1, VINTAGE_PROTOTYPE_B, VINTAGE_GT_D, VINTAGE_GT_C, HISTORIC_TOURING_1, HISTORIC_TOURING_2, VINTAGE_F1_B,
             VINTAGE_F1_C, VINTAGE_STOCK_CAR,
-            F1, F2, F3, F4, FF, FORMULA_E, F1_70S, F1_90S, TC1, TC2, TCR, TC1_2014, AUDI_TT_CUP, AUDI_TT_VLN, CLIO_CUP, DTM, DTM_2013, V8_SUPERCAR, DTM_2014, DTM_2015, DTM_2016, TRANS_AM, HILL_CLIMB_ICONS, FORMULA_RENAULT,
+            F1, F2, F3, F4, FF, FORMULA_E_2018, FORMULA_E_2019, F1_70S, F1_90S, TC1, TC2, TCR, TC1_2014, AUDI_TT_CUP, AUDI_TT_VLN, CLIO_CUP, DTM, DTM_2013, V8_SUPERCAR, DTM_2014, DTM_2015, DTM_2016, TRANS_AM, HILL_CLIMB_ICONS, FORMULA_RENAULT,
             MEGANE_TROPHY, NSU_TT, KTM_RR, INDYCAR, HYPER_CAR, HYPER_CAR_RACE, UNKNOWN_RACE, STOCK_V8, BOXER_CUP, NASCAR_2016, ISI_STOCKCAR_2015, RADICAL_SR3, USER_CREATED,
-            RS01_TROPHY, TRACKDAY_A, TRACKDAY_B, BMW_235I, CARRERA_CUP, R3E_SILHOUETTE, SPEC_MIATA, SKIP_BARBER, CAYMAN_CLUBSPORT, CAN_AM, FORMULA_RENAULT20, INDYCAR_DALLARA_2011, INDYCAR_DALLARA_DW12
+            RS01_TROPHY, TRACKDAY_A, TRACKDAY_B, BMW_235I, CARRERA_CUP, R3E_SILHOUETTE, SPEC_MIATA, SKIP_BARBER, CAYMAN_CLUBSPORT, CAN_AM, FORMULA_RENAULT20, INDYCAR_DALLARA_2011, INDYCAR_DALLARA_DW12,
+            M1_PROCAR, PORSCHE_964_CUP, PALATOV_D4_TRACKDAY, PALATOV_D4_HILLCLIMB, PALATOV_D4_CUSTOM
         }
 
         // use different thresholds for R3E car classes - there are a few different tyre models in the game with different heating characteristics:
         public static CarClassEnum[] r3e2016TyreModelClasses = new CarClassEnum[] {
-            CarClassEnum.LMP1, CarClassEnum.LMP2, CarClassEnum.GROUP5, CarClassEnum.GROUP4, CarClassEnum.GTO, CarClassEnum.F2, CarClassEnum.F4,
-            CarClassEnum.FF, CarClassEnum.TC1, CarClassEnum.AUDI_TT_CUP, CarClassEnum.DTM_2013, CarClassEnum.DTM_2014, CarClassEnum.DTM_2015, CarClassEnum.DTM_2016, CarClassEnum.NSU_TT,
+            CarClassEnum.LMP1, CarClassEnum.LMP2, CarClassEnum.GROUP5, CarClassEnum.M1_PROCAR, CarClassEnum.GTO, CarClassEnum.F2, CarClassEnum.F4,
+            CarClassEnum.TC1, CarClassEnum.AUDI_TT_CUP, CarClassEnum.DTM_2013, CarClassEnum.DTM_2014, CarClassEnum.DTM_2015, CarClassEnum.DTM_2016, CarClassEnum.NSU_TT,
             CarClassEnum.F3, CarClassEnum.AUDI_TT_VLN, CarClassEnum.KTM_RR, CarClassEnum.TRACKDAY_A, CarClassEnum.R3E_SILHOUETTE, CarClassEnum.BMW_235I};
 
         public static CarClassEnum[] r3e2017TyreModelClasses = new CarClassEnum[] {
-            CarClassEnum.GT1, CarClassEnum.GT3, CarClassEnum.GT4, CarClassEnum.CARRERA_CUP, CarClassEnum.TCR, CarClassEnum.GT1X, CarClassEnum.CAYMAN_CLUBSPORT};
+            CarClassEnum.GT1, CarClassEnum.GT2, CarClassEnum.GT4, CarClassEnum.CARRERA_CUP, CarClassEnum.TCR, CarClassEnum.GT1X, CarClassEnum.CAYMAN_CLUBSPORT, 
+            CarClassEnum.GROUP4, CarClassEnum.FF };
 
         private static Dictionary<TyreType, List<CornerData.EnumWithThresholds>> tyreTempThresholds = new Dictionary<TyreType, List<CornerData.EnumWithThresholds>>();
         private static Dictionary<BrakeType, List<CornerData.EnumWithThresholds>> brakeTempThresholds = new Dictionary<BrakeType, List<CornerData.EnumWithThresholds>>();
@@ -164,6 +170,13 @@ namespace CrewChiefV4
             roadTyreTempsThresholds.Add(new CornerData.EnumWithThresholds(TyreTemp.HOT, maxWarmRoadTyreTempPeak, maxHotRoadTyreTempPeak));
             roadTyreTempsThresholds.Add(new CornerData.EnumWithThresholds(TyreTemp.COOKING, maxHotRoadTyreTempPeak, 10000));
             tyreTempThresholds.Add(TyreType.Road, roadTyreTempsThresholds);
+
+            List<CornerData.EnumWithThresholds> hyperSoftTyreTempsThresholds = new List<CornerData.EnumWithThresholds>();
+            hyperSoftTyreTempsThresholds.Add(new CornerData.EnumWithThresholds(TyreTemp.COLD, -10000, maxColdUltraSoftTyreTempPeak));
+            hyperSoftTyreTempsThresholds.Add(new CornerData.EnumWithThresholds(TyreTemp.WARM, maxColdHyperSoftTyreTempPeak, maxWarmHyperSoftTyreTempPeak));
+            hyperSoftTyreTempsThresholds.Add(new CornerData.EnumWithThresholds(TyreTemp.HOT, maxWarmHyperSoftTyreTempPeak, maxHotHyperSoftTyreTempPeak));
+            hyperSoftTyreTempsThresholds.Add(new CornerData.EnumWithThresholds(TyreTemp.COOKING, maxHotHyperSoftTyreTempPeak, 10000));
+            tyreTempThresholds.Add(TyreType.Hyper_Soft, hyperSoftTyreTempsThresholds);
 
             List<CornerData.EnumWithThresholds> ultraSoftTyreTempsThresholds = new List<CornerData.EnumWithThresholds>();
             ultraSoftTyreTempsThresholds.Add(new CornerData.EnumWithThresholds(TyreTemp.COLD, -10000, maxColdUltraSoftTyreTempPeak));
@@ -241,6 +254,9 @@ namespace CrewChiefV4
             unknownRaceTyreTempsThresholds.Add(new CornerData.EnumWithThresholds(TyreTemp.HOT, maxWarmUnknownRaceTyreTempPeak, maxHotUnknownRaceTyreTempPeak));
             unknownRaceTyreTempsThresholds.Add(new CornerData.EnumWithThresholds(TyreTemp.COOKING, maxHotUnknownRaceTyreTempPeak, 10000));
             tyreTempThresholds.Add(TyreType.Unknown_Race, unknownRaceTyreTempsThresholds);
+
+            // to ensure uninitialized tyres still have some thresholds associated with them
+            tyreTempThresholds.Add(TyreType.Uninitialized, unknownRaceTyreTempsThresholds);
 
             List<CornerData.EnumWithThresholds> biasPlyTyreTempsThresholds = new List<CornerData.EnumWithThresholds>();
             biasPlyTyreTempsThresholds.Add(new CornerData.EnumWithThresholds(TyreTemp.COLD, -10000, maxColdBiasPlyTyreTempPeak));
@@ -413,6 +429,8 @@ namespace CrewChiefV4
             public float DRSRange { get; set; }
             public int pitCrewPreparationTime { get; set; }
             public bool isBatteryPowered { get; set; }
+            public bool isVehicleSwapAllowed { get; set; }
+            public bool isRefuelingAllowed { get; set; }
             public bool limiterAvailable { get; set; }
             public bool allMembersAreFWD { get; set; }
             public bool allMembersAreRWD { get; set; }
@@ -456,6 +474,8 @@ namespace CrewChiefV4
                 this.DRSRange = -1.0f;
                 this.pitCrewPreparationTime = 25;
                 this.isBatteryPowered = false;
+                this.isVehicleSwapAllowed = false;
+                this.isRefuelingAllowed = true;
                 this.limiterAvailable = true;
             }
 
@@ -574,8 +594,15 @@ namespace CrewChiefV4
             }
         }
 
-        public static Boolean IsCarClassEqual(CarClass class1, CarClass class2)
+        public static Boolean IsCarClassEqual(CarClass class1, CarClass class2, Boolean assumeEqualIfSingleClass = true)
         {
+            // if multiclass is disabled (from UI setting or because of unusable car class data) then in *most*
+            // cases we can assume all car classes are equal. The exception here is when checking if the player's
+            // car class has changed (done as part of the new session logic).
+            if (assumeEqualIfSingleClass && (CrewChief.forceSingleClass || !GameStateData.Multiclass))
+            {
+                return true;
+            }
             if (class1 == class2)
             {
                 return true;
@@ -674,7 +701,11 @@ namespace CrewChiefV4
             {
                 try
                 {
-                    return JsonConvert.DeserializeObject<CarClasses>(getFileContents(filename));
+                    CarClasses carClass = JsonConvert.DeserializeObject<CarClasses>(getFileContents(filename));
+                    if (carClass != null)
+                    {
+                        return carClass;
+                    }
                 }
                 catch (Exception e)
                 {

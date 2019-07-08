@@ -185,6 +185,14 @@ namespace CrewChiefV4.Events
 
         private int ClassPositionAtStartOfCurrentLap = -1;
 
+        public static Dictionary<TrackData.TrackLengthClass, float> outlierPaceLimits = new Dictionary<TrackData.TrackLengthClass, float> {
+            { TrackData.TrackLengthClass.VERY_LONG, 15 },
+            { TrackData.TrackLengthClass.LONG, 8 },
+            { TrackData.TrackLengthClass.MEDIUM, 5 },
+            { TrackData.TrackLengthClass.SHORT, 3 },
+            { TrackData.TrackLengthClass.VERY_SHORT, 2}
+        };
+
         public LapTimes(AudioPlayer audioPlayer)
         {
             this.audioPlayer = audioPlayer;
@@ -234,6 +242,10 @@ namespace CrewChiefV4.Events
 
         public override bool isMessageStillValid(string eventSubType, GameStateData currentGameState, Dictionary<string, object> validationData)
         {
+            if (Penalties.playerMustPitThisLap)
+            {
+                return false;
+            }
             // not sure if we need this - validate that we're not in sector 2 by the time the lap consistency message is played
             if ((eventSubType == folderImprovingTimes || eventSubType == folderConsistentTimes || eventSubType == folderWorseningTimes) &&
                     currentGameState.SessionData.SectorNumber != 1)
@@ -427,7 +439,7 @@ namespace CrewChiefV4.Events
                     lastLapRating = getLastLapRating(currentGameState, lapAndSectorsComparisonData, false /*selfPace*/);
                     lastLapSelfRating = getLastLapRating(currentGameState, lapAndSectorsSelfComparisonData, true /*selfPace*/);
 
-                    if (currentGameState.SessionData.PreviousLapWasValid)
+                    if (currentGameState.SessionData.PreviousLapWasValid && lastLapRating != LastLapRating.OUTLIER)
                     {
                         lapTimesWindow.Insert(0, currentGameState.SessionData.LapTimePrevious);
                         Conditions.ConditionsSample conditionsSample = currentGameState.Conditions.getMostRecentConditions();
@@ -565,7 +577,7 @@ namespace CrewChiefV4.Events
                                     }
                                 }
                             }
-                            else if (currentGameState.SessionData.SessionType == SessionType.Race && !currentGameState.PitData.InPitlane)
+                            else if (currentGameState.SessionData.SessionType == SessionType.Race && !currentGameState.PitData.InPitlane && !currentGameState.FlagData.isFullCourseYellow)
                             {
                                 Boolean playedLapMessage = false;
                                 if (frequencyOfPlayerRaceLapTimeReports > Utilities.random.NextDouble() * 10)
@@ -617,7 +629,7 @@ namespace CrewChiefV4.Events
                                 }
 
                                 if (!GlobalBehaviourSettings.useOvalLogic && currentGameState.SessionData.ClassPosition == ClassPositionAtStartOfCurrentLap &&
-                                    raceSectorReportsAtLapEnd && frequencyOfRaceSectorDeltaReports > Utilities.random.NextDouble() * 10)
+                                    raceSectorReportsAtLapEnd && frequencyOfRaceSectorDeltaReports > Utilities.random.NextDouble() * 15)
                                 {
                                     double r = Utilities.random.NextDouble();
                                     SectorReportOption reportOption = SectorReportOption.ALL;
@@ -650,7 +662,7 @@ namespace CrewChiefV4.Events
                                     lapTimesWindow.Count >= lapTimesWindowSize)
                                 {
                                     int delay = Utilities.random.Next(0, 8);
-                                    ConsistencyResult consistency = checkAgainstPreviousLaps();
+                                    ConsistencyResult consistency = checkAgainstPreviousLaps(currentGameState.SessionData.TrackDefinition.isOval);
                                     if (consistency == ConsistencyResult.CONSISTENT)
                                     {
                                         lastConsistencyUpdate = currentGameState.SessionData.CompletedLaps;
@@ -684,12 +696,12 @@ namespace CrewChiefV4.Events
                     }
                 }
                 // report sector delta at the completion of a sector?
-                if (!sectorsReportedForLap && currentGameState.SessionData.IsNewSector && 
+                if (!sectorsReportedForLap && currentGameState.SessionData.IsNewSector && !currentGameState.FlagData.isFullCourseYellow &&
                     ((currentGameState.SessionData.SessionType == SessionType.Race && raceSectorReportsAtEachSector) ||
                      (currentGameState.SessionData.SessionType != SessionType.Race && practiceAndQualSectorReportsAtEachSector)))
                 {
                     double r = Utilities.random.NextDouble() * 10;
-                    Boolean canPlayForRace = frequencyOfRaceSectorDeltaReports > r;
+                    Boolean canPlayForRace = frequencyOfRaceSectorDeltaReports > r * 1.5;
                     Boolean canPlayForPracAndQual = frequencyOfPracticeAndQualSectorDeltaReports > r;
 
                     // only report sector time if this is a valid lap
@@ -749,7 +761,7 @@ namespace CrewChiefV4.Events
             }
         }
 
-        private ConsistencyResult checkAgainstPreviousLaps()
+        private ConsistencyResult checkAgainstPreviousLaps(Boolean isOval)
         {
             if (conditionsWindow.Count() >= lapTimesWindowSize && ConditionsHaveChanged(conditionsWindow[0], conditionsWindow[lapTimesWindowSize - 1]))
             {
@@ -814,6 +826,11 @@ namespace CrewChiefV4.Events
             }
             if (isWorsening)
             {
+                // disable this for ovals
+                if (isOval)
+                {
+                    return ConsistencyResult.NOT_APPLICABLE;
+                }
                 if (lastConsistencyMessage == ConsistencyResult.WORSENING)
                 {
                     // don't play the same worsening message - see if the consistent message might apply
@@ -914,6 +931,12 @@ namespace CrewChiefV4.Events
                         && currentGameState.SessionData.CompletedLaps > 1)
                     {
                         return LastLapRating.CLOSE_TO_PERSONAL_BEST;
+                    }
+                    else if (bestLapComparisonData[0] > 0 &&
+                        bestLapComparisonData[0] < currentGameState.SessionData.LapTimePrevious - LapTimes.outlierPaceLimits[currentGameState.SessionData.TrackDefinition.trackLengthClass])
+                    {
+                        // this is an outlier
+                        return LastLapRating.OUTLIER;
                     }
                     else if (bestLapComparisonData[0] > 0 && bestLapComparisonData[0] < currentGameState.SessionData.LapTimePrevious - 3)
                     {
@@ -1318,7 +1341,7 @@ namespace CrewChiefV4.Events
         {
             BEST_OVERALL, BEST_IN_CLASS, SETTING_CURRENT_PACE, CLOSE_TO_CURRENT_PACE, PERSONAL_BEST, PERSONAL_BEST_CLOSE_TO_OVERALL_LEADER,
             PERSONAL_BEST_CLOSE_TO_CLASS_LEADER, PERSONAL_BEST_STILL_SLOW, CLOSE_TO_OVERALL_LEADER, CLOSE_TO_CLASS_LEADER,
-            CLOSE_TO_PERSONAL_BEST, MEH, BAD, NO_DATA
+            CLOSE_TO_PERSONAL_BEST, MEH, BAD, NO_DATA, OUTLIER
         }
 
         public enum SectorSet

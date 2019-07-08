@@ -5,6 +5,8 @@ using System.Text;
 using CrewChiefV4.GameState;
 using CrewChiefV4.Audio;
 using CrewChiefV4.NumberProcessing;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace CrewChiefV4.Events
 {
@@ -16,6 +18,8 @@ namespace CrewChiefV4.Events
         // if this is enabled, don't play the pit position estimates on pit entry. This is only a fallback in case
         // we haven't made a pit request
         private Boolean pitBoxPositionCountdown = UserSettings.GetUserSettings().getBoolean("pit_box_position_countdown");
+
+        private Boolean persistBenchmarks = UserSettings.GetUserSettings().getBoolean("persist_pitstop_benchmark_times");
 
         // less than 70m => 'just ahead' or 'just behind'
         private static float distanceBehindToBeConsideredVeryClose = 70;
@@ -116,6 +120,10 @@ namespace CrewChiefV4.Events
         public Strategy(AudioPlayer audioPlayer)
         {
             this.audioPlayer = audioPlayer;
+            if (persistBenchmarks)
+            {
+                BenchmarkHelper.loadBenchmarks();
+            }
         }
 
         public override void clearState()
@@ -141,6 +149,10 @@ namespace CrewChiefV4.Events
             printS1Positions = false;
             opponentsInPitLane.Clear();
             hasPracticeLapForComparison = false;
+
+            // clear this on each session refresh to ensure we iterate the persisted data each time, 
+            // getting the data for the correct combo. This is reset for race sessions on JustGoneGreen
+            BenchmarkHelper.benchmarkForThisCombo = null;
         }
 
         private void setTimeLossFromBenchmark(GameStateData currentGameState)
@@ -152,6 +164,12 @@ namespace CrewChiefV4.Events
             else
             {
                 playerTimeLostForStop = lastAndFirstSectorTimesOnStop - (currentGameState.SessionData.PlayerBestLapSector3Time + currentGameState.SessionData.PlayerBestLapSector1Time);
+            }
+            // record the data
+            if (persistBenchmarks)
+            {
+                BenchmarkHelper.updatePersistedBenchmark(CrewChief.gameDefinition.gameEnum.ToString(), currentGameState.carClass.getClassIdentifier(),
+                    currentGameState.SessionData.TrackDefinition.name, playerTimeLostForStop);
             }
         }
 
@@ -312,10 +330,13 @@ namespace CrewChiefV4.Events
                                 {
                                     // this guy has just entered the pit and we predict he'll exit just in front of us
                                     Console.WriteLine("Opponent " + entry.Value.DriverRawName + " will exit the pit close in front of us");
-                                    audioPlayer.playMessage(new QueuedMessage("opponent_exiting_in_front", 10,
-                                        messageFragments: MessageContents(entry.Value, folderIsPittingFromPosition, entry.Value.ClassPosition, folderHeWillComeOutJustInFront),
-                                        abstractEvent: this, priority: 10));
+                                    if (entry.Value.ClassPosition >= 1)
+                                    {
+                                        audioPlayer.playMessage(new QueuedMessage("opponent_exiting_in_front", 10,
+                                            messageFragments: MessageContents(entry.Value, folderIsPittingFromPosition, entry.Value.ClassPosition, folderHeWillComeOutJustInFront),
+                                            abstractEvent: this, priority: 10));
 
+                                    }
                                     // only allow one of these every 10 seconds. When an opponent crosses the start line he's 
                                     // removed from this set anyway
                                     nextOpponentPitExitWarningDue = currentGameState.Now.AddSeconds(10);
@@ -325,9 +346,12 @@ namespace CrewChiefV4.Events
                                 {
                                     // this guy has just entered the pit and we predict he'll exit just behind us
                                     Console.WriteLine("Opponent " + entry.Value.DriverRawName + " will exit the pit close behind us");
-                                    audioPlayer.playMessage(new QueuedMessage("opponent_exiting_behind", 10,
-                                        messageFragments: MessageContents(entry.Value, folderIsPittingFromPosition, entry.Value.ClassPosition, folderHeWillComeOutJustBehind),
-                                        abstractEvent: this, priority: 10));
+                                    if (entry.Value.ClassPosition >= 1)
+                                    {
+                                        audioPlayer.playMessage(new QueuedMessage("opponent_exiting_behind", 10,
+                                            messageFragments: MessageContents(entry.Value, folderIsPittingFromPosition, entry.Value.ClassPosition, folderHeWillComeOutJustBehind),
+                                            abstractEvent: this, priority: 10));
+                                    }
                                     // only allow one of these every 10 seconds. When an opponent crosses the start line he's 
                                     // removed from this set anyway
                                     nextOpponentPitExitWarningDue = currentGameState.Now.AddSeconds(10);
@@ -362,6 +386,12 @@ namespace CrewChiefV4.Events
                 // if we've timed our pitstop in practice, don't search for opponent stop times
                 if (currentGameState.SessionData.JustGoneGreen)
                 {
+                    // find the persisted time loss data for the current combo - we'll use this if we haven't recorded a benchmark:
+                    if (persistBenchmarks)
+                    {
+                        BenchmarkHelper.findPersistedBenchmarkForCombo(CrewChief.gameDefinition.gameEnum.ToString(), currentGameState.carClass.getClassIdentifier(),
+                            currentGameState.SessionData.TrackDefinition.name);
+                    }
                     // don't time opponent stops for iracing because they are so variable - only make estimates for the player,
                     // and when he's done a benchmark stop.
                     timeOpponentStops = CrewChief.gameDefinition.gameEnum != GameEnum.IRACING &&
@@ -553,6 +583,11 @@ namespace CrewChiefV4.Events
             {
                 return playerTimeLostForStop;
             }
+            // no time loss recorded for this combo, so see if we have usable persisted data
+            if (persistBenchmarks && BenchmarkHelper.benchmarkForThisCombo != null && BenchmarkHelper.benchmarkForThisCombo.timeLoss > 0)
+            {
+                return BenchmarkHelper.benchmarkForThisCombo.timeLoss;
+            }            
             return -1;
         }
 
@@ -1151,6 +1186,106 @@ namespace CrewChiefV4.Events
             {
                 respondRace();
             }                
+        }
+    }
+
+
+    // code to persist and load benchmark data
+    class PersistedBenchmark
+    {
+        public String game { get; set; }
+        public String carClassId { get; set; }
+        public String trackName { get; set; }
+        public float timeLoss { get; set; }
+
+        public Boolean isForThisCombo(String game, String carClassId, String trackName)
+        {
+            return this.game != null && this.game.Equals(game) &&
+                this.carClassId != null && this.carClassId.Equals(carClassId) &&
+                this.trackName != null && this.trackName.Equals(trackName);
+        }
+
+        public String print()
+        {
+            return "game: " + this.game + ", carClassId: " + this.carClassId + ", track name name: " + this.trackName + ", time loss: " + this.timeLoss;
+        }
+    }
+
+    class BenchmarkHelper
+    {
+        private static String fullPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "pit_benchmarks.json");
+        private static List<PersistedBenchmark> persistedBenchmarks;
+        // convenience var to save us iterating list over and over again
+        public static PersistedBenchmark benchmarkForThisCombo = null;
+
+        private static void saveBenchmarks()
+        {
+            try
+            {
+                File.WriteAllText(fullPath, JsonConvert.SerializeObject(BenchmarkHelper.persistedBenchmarks, Formatting.Indented));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Unable to save pit benchmark : " + e.Message);
+            }
+        }
+
+        public static void loadBenchmarks()
+        {
+            if (File.Exists(fullPath))
+            {
+                try
+                {
+                    BenchmarkHelper.persistedBenchmarks = JsonConvert.DeserializeObject<List<PersistedBenchmark>>(File.ReadAllText(fullPath));
+                    if (BenchmarkHelper.persistedBenchmarks != null)
+                    {
+                        Console.WriteLine("Loaded " + BenchmarkHelper.persistedBenchmarks.Count() + " saved pitstop time loss benchmarks");
+                        return;
+                    }
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("Unable to load existing benchmarkdata");
+                }
+            }
+            BenchmarkHelper.persistedBenchmarks = new List<PersistedBenchmark>();
+        }
+
+        public static void findPersistedBenchmarkForCombo(String game, String carClassId, String trackName)
+        {
+            if (benchmarkForThisCombo == null || !benchmarkForThisCombo.isForThisCombo(game, carClassId, trackName))
+            {
+                foreach (PersistedBenchmark persistedBenchmark in BenchmarkHelper.persistedBenchmarks)
+                {
+                    if (persistedBenchmark.isForThisCombo(game, carClassId, trackName))
+                    {
+                        Console.WriteLine("Found persisted benchmark for car / track / game combo: " + persistedBenchmark.print());
+                        benchmarkForThisCombo = persistedBenchmark;
+                        break;
+                    }
+                }
+            }
+        }
+
+        public static void updatePersistedBenchmark(String game, String carClassId, String trackName, float timeLoss)
+        {
+            findPersistedBenchmarkForCombo(game, carClassId, trackName);
+            if (benchmarkForThisCombo != null)
+            {
+                Console.WriteLine("Updating persisted time loss benchmark to " + timeLoss);
+                benchmarkForThisCombo.timeLoss = timeLoss;
+            }
+            else
+            {
+                Console.WriteLine("Saving new time loss benchmark");
+                PersistedBenchmark newBenchmark = new PersistedBenchmark();
+                newBenchmark.game = game;
+                newBenchmark.carClassId = carClassId;
+                newBenchmark.trackName = trackName;
+                newBenchmark.timeLoss = timeLoss;
+                BenchmarkHelper.persistedBenchmarks.Add(newBenchmark);
+            }
+            saveBenchmarks();
         }
     }
 }

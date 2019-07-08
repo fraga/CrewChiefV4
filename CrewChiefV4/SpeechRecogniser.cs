@@ -9,12 +9,22 @@ using System.Speech.AudioFormat;
 using System.Speech.Recognition;
 using System.Threading;
 using System.Windows.Forms;
+using System.Diagnostics;
+using CrewChiefV4.R3E;
 
 namespace CrewChiefV4
 {
     public class SpeechRecogniser : IDisposable
     {
         private SpeechRecognitionEngine sre;
+
+        private int nAudioWaveInSampleRate = UserSettings.GetUserSettings().getInt("naudio_wave_in_sample_rate");
+        private int nAudioWaveInChannelCount = UserSettings.GetUserSettings().getInt("naudio_wave_in_channel_count");
+        private int nAudioWaveInSampleDepth = UserSettings.GetUserSettings().getInt("naudio_wave_in_sample_depth");
+
+        private Boolean identifyOpponentsByPosition = UserSettings.GetUserSettings().getBoolean("sre_enable_opponents_by_position");
+        private Boolean identifyOpponentsByName = UserSettings.GetUserSettings().getBoolean("sre_enable_opponents_by_name");
+        private Boolean identifyOpponentsByNumber = UserSettings.GetUserSettings().getBoolean("sre_enable_opponents_by_number");
 
         // used in nAudio mode:
         public static Dictionary<string, Tuple<string, int>> speechRecognitionDevices = new Dictionary<string, Tuple<string, int>>();
@@ -71,6 +81,7 @@ namespace CrewChiefV4
         public static String[] WHAT_TYRES_AM_I_ON = Configuration.getSpeechRecognitionPhrases("WHAT_TYRES_AM_I_ON");
         public static String[] WHAT_ARE_THE_RELATIVE_TYRE_PERFORMANCES = Configuration.getSpeechRecognitionPhrases("WHAT_ARE_THE_RELATIVE_TYRE_PERFORMANCES");
         public static String[] HOW_LONG_WILL_THESE_TYRES_LAST = Configuration.getSpeechRecognitionPhrases("HOW_LONG_WILL_THESE_TYRES_LAST");
+        public static String[] WHATS_PITLANE_SPEED_LIMIT = Configuration.getSpeechRecognitionPhrases("WHATS_PITLANE_SPEED_LIMIT");
 
         public static String[] HOW_MUCH_FUEL_TO_END_OF_RACE = Configuration.getSpeechRecognitionPhrases("HOW_MUCH_FUEL_TO_END_OF_RACE");
         public static String[] CALCULATE_FUEL_FOR = Configuration.getSpeechRecognitionPhrases("CALCULATE_FUEL_FOR");
@@ -120,6 +131,30 @@ namespace CrewChiefV4
         public static String[] PLAY_POST_PIT_POSITION_ESTIMATE = Configuration.getSpeechRecognitionPhrases("PLAY_POST_PIT_POSITION_ESTIMATE");
         public static String[] PRACTICE_PIT_STOP = Configuration.getSpeechRecognitionPhrases("PRACTICE_PIT_STOP");
 
+        public static String[] ENABLE_CUT_TRACK_WARNINGS = Configuration.getSpeechRecognitionPhrases("ENABLE_CUT_TRACK_WARNINGS");
+        public static String[] DISABLE_CUT_TRACK_WARNINGS = Configuration.getSpeechRecognitionPhrases("DISABLE_CUT_TRACK_WARNINGS");
+
+        public static String[] HOWS_MY_LEFT_FRONT_CAMBER = Configuration.getSpeechRecognitionPhrases("HOWS_MY_LEFT_FRONT_CAMBER");
+        public static String[] HOWS_MY_RIGHT_FRONT_CAMBER = Configuration.getSpeechRecognitionPhrases("HOWS_MY_RIGHT_FRONT_CAMBER");
+        public static String[] HOWS_MY_LEFT_REAR_CAMBER = Configuration.getSpeechRecognitionPhrases("HOWS_MY_LEFT_REAR_CAMBER");
+        public static String[] HOWS_MY_RIGHT_REAR_CAMBER = Configuration.getSpeechRecognitionPhrases("HOWS_MY_RIGHT_REAR_CAMBER");
+        public static String[] HOWS_MY_FRONT_CAMBER = Configuration.getSpeechRecognitionPhrases("HOWS_MY_FRONT_CAMBER");
+        public static String[] HOWS_MY_REAR_CAMBER = Configuration.getSpeechRecognitionPhrases("HOWS_MY_REAR_CAMBER");
+        public static String[] HOW_ARE_MY_TYRE_PRESSURES = Configuration.getSpeechRecognitionPhrases("HOW_ARE_MY_TYRE_PRESSURES");
+        public static String[] HOW_ARE_MY_FRONT_TYRE_PRESSURES = Configuration.getSpeechRecognitionPhrases("HOW_ARE_MY_FRONT_TYRE_PRESSURES");
+        public static String[] HOW_ARE_MY_REAR_TYRE_PRESSURES = Configuration.getSpeechRecognitionPhrases("HOW_ARE_MY_REAR_TYRE_PRESSURES");
+        public static String[] HOWS_MY_LEFT_FRONT_CAMBER_RIGHT_NOW = Configuration.getSpeechRecognitionPhrases("HOWS_MY_LEFT_FRONT_CAMBER_RIGHT_NOW");
+        public static String[] HOWS_MY_RIGHT_FRONT_CAMBER_RIGHT_NOW = Configuration.getSpeechRecognitionPhrases("HOWS_MY_RIGHT_FRONT_CAMBER_RIGHT_NOW");
+        public static String[] HOWS_MY_LEFT_REAR_CAMBER_RIGHT_NOW = Configuration.getSpeechRecognitionPhrases("HOWS_MY_LEFT_REAR_CAMBER_RIGHT_NOW");
+        public static String[] HOWS_MY_RIGHT_REAR_CAMBER_RIGHT_NOW = Configuration.getSpeechRecognitionPhrases("HOWS_MY_RIGHT_REAR_CAMBER_RIGHT_NOW");
+        public static String[] HOWS_MY_FRONT_CAMBER_RIGHT_NOW = Configuration.getSpeechRecognitionPhrases("HOWS_MY_FRONT_CAMBER_RIGHT_NOW");
+        public static String[] HOWS_MY_REAR_CAMBER_RIGHT_NOW = Configuration.getSpeechRecognitionPhrases("HOWS_MY_REAR_CAMBER_RIGHT_NOW");
+        public static String[] HOW_ARE_MY_TYRE_PRESSURES_RIGHT_NOW = Configuration.getSpeechRecognitionPhrases("HOW_ARE_MY_TYRE_PRESSURES_RIGHT_NOW");
+        public static String[] HOW_ARE_MY_FRONT_TYRE_PRESSURES_RIGHT_NOW = Configuration.getSpeechRecognitionPhrases("HOW_ARE_MY_FRONT_TYRE_PRESSURES_RIGHT_NOW");
+        public static String[] HOW_ARE_MY_REAR_TYRE_PRESSURES_RIGHT_NOW = Configuration.getSpeechRecognitionPhrases("HOW_ARE_MY_REAR_TYRE_PRESSURES_RIGHT_NOW");
+
+        // R3E only for now:
+        public static String[] WHAT_ARE_THE_PIT_ACTIONS = Configuration.getSpeechRecognitionPhrases("WHAT_ARE_THE_PIT_ACTIONS");
 
         public static String ON = Configuration.getSpeechRecognitionConfigOption("ON");
         public static String POSSESSIVE = Configuration.getSpeechRecognitionConfigOption("POSSESSIVE");
@@ -141,6 +176,7 @@ namespace CrewChiefV4
         public static String THE_GUY_IN_FRONT = Configuration.getSpeechRecognitionConfigOption("THE_GUY_IN_FRONT");
         public static String THE_CAR_BEHIND = Configuration.getSpeechRecognitionConfigOption("THE_CAR_BEHIND");
         public static String THE_GUY_BEHIND = Configuration.getSpeechRecognitionConfigOption("THE_GUY_BEHIND");
+        public static String CAR_NUMBER = Configuration.getSpeechRecognitionConfigOption("CAR_NUMBER");
 
         public static String WHAT_TYRES_IS = Configuration.getSpeechRecognitionConfigOption("WHAT_TYRES_IS");
         public static String WHAT_TYRE_IS = Configuration.getSpeechRecognitionConfigOption("WHAT_TYRE_IS");
@@ -186,10 +222,24 @@ namespace CrewChiefV4
         public static String[] PIT_STOP_CHANGE_LEFT_SIDE_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CHANGE_LEFT_SIDE_TYRES");
         public static String[] PIT_STOP_CHANGE_RIGHT_SIDE_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CHANGE_RIGHT_SIDE_TYRES");
 
+        public static String[] PIT_STOP_CHANGE_FRONT_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CHANGE_FRONT_TYRES");
+        public static String[] PIT_STOP_CHANGE_REAR_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CHANGE_REAR_TYRES");
+        public static String[] PIT_STOP_FIX_FRONT_AERO = Configuration.getSpeechRecognitionPhrases("PIT_STOP_FIX_FRONT_AERO");
+        public static String[] PIT_STOP_FIX_REAR_AERO = Configuration.getSpeechRecognitionPhrases("PIT_STOP_FIX_REAR_AERO");
+        public static String[] PIT_STOP_FIX_ALL_AERO = Configuration.getSpeechRecognitionPhrases("PIT_STOP_FIX_ALL_AERO");
+        public static String[] PIT_STOP_FIX_NO_AERO = Configuration.getSpeechRecognitionPhrases("PIT_STOP_FIX_NO_AERO");
+        public static String[] PIT_STOP_FIX_SUSPENSION = Configuration.getSpeechRecognitionPhrases("PIT_STOP_FIX_SUSPENSION");
+        public static String[] PIT_STOP_DONT_FIX_SUSPENSION = Configuration.getSpeechRecognitionPhrases("PIT_STOP_DONT_FIX_SUSPENSION");
+        public static String[] PIT_STOP_SERVE_PENALTY = Configuration.getSpeechRecognitionPhrases("PIT_STOP_SERVE_PENALTY");
+        public static String[] PIT_STOP_DONT_SERVE_PENALTY = Configuration.getSpeechRecognitionPhrases("PIT_STOP_DONT_SERVE_PENALTY");
+        public static String[] PIT_STOP_REFUEL = Configuration.getSpeechRecognitionPhrases("PIT_STOP_REFUEL");
+        public static String[] PIT_STOP_DONT_REFUEL = Configuration.getSpeechRecognitionPhrases("PIT_STOP_DONT_REFUEL");
+        public static String[] PIT_STOP_NEXT_TYRE_COMPOUND = Configuration.getSpeechRecognitionPhrases("PIT_STOP_NEXT_TYRE_COMPOUND");
+
         public static String[] HOW_MANY_INCIDENT_POINTS = Configuration.getSpeechRecognitionPhrases("HOW_MANY_INCIDENT_POINTS");
         public static String[] WHATS_THE_INCIDENT_LIMIT = Configuration.getSpeechRecognitionPhrases("WHATS_THE_INCIDENT_LIMIT");
         public static String[] WHATS_THE_SOF = Configuration.getSpeechRecognitionPhrases("WHATS_THE_SOF");
-        
+
         public static String[] PIT_STOP_FUEL_TO_THE_END = Configuration.getSpeechRecognitionPhrases("PIT_STOP_FUEL_TO_THE_END");
 
         public static String[] MORE_INFO = Configuration.getSpeechRecognitionPhrases("MORE_INFO");
@@ -206,6 +256,11 @@ namespace CrewChiefV4
         public static String[] AM = Configuration.getSpeechRecognitionPhrases("AM");
         public static String[] PM = Configuration.getSpeechRecognitionPhrases("PM");
 
+        private Dictionary<GameEnum, string[]> whatsOpponentChoices = new Dictionary<GameEnum, string[]> {
+            { GameEnum.IRACING, new String[] { LAST_LAP, LAST_LAP_TIME, BEST_LAP, BEST_LAP_TIME, IRATING, LICENSE_CLASS } },
+            // the array for UNKNOWN is what we'll use if there's no game-specific array
+            { GameEnum.UNKNOWN, new String[] { LAST_LAP, LAST_LAP_TIME, BEST_LAP, BEST_LAP_TIME } }
+        };
 
         private String lastRecognisedText = null;
 
@@ -215,16 +270,20 @@ namespace CrewChiefV4
 
         public MainWindow.VoiceOptionEnum voiceOptionEnum;
 
-        private List<String> driverNamesInUse = new List<string>();
+        private HashSet<string> driverNamesInUse = new HashSet<string>();
+        private HashSet<string> carNumbersInUse = new HashSet<string>();
 
         private List<Grammar> opponentGrammarList = new List<Grammar>();
         private List<Grammar> iracingPitstopGrammarList = new List<Grammar>();
+        private List<Grammar> r3ePitstopGrammarList = new List<Grammar>();
 
         private Grammar macroGrammar = null;
 
         private Dictionary<String, ExecutableCommandMacro> macroLookup = new Dictionary<string, ExecutableCommandMacro>();
 
         private System.Globalization.CultureInfo cultureInfo;
+
+        public static Dictionary<String[], String> carNumberToNumber = getCarNumberMappings();
 
         public static Dictionary<String[], int> numberToNumber = getNumberMappings(1, 199);
 
@@ -236,7 +295,7 @@ namespace CrewChiefV4
 
         private Choices digitsChoices;
 
-        private Choices hourChoices; 
+        private Choices hourChoices;
 
         public static Boolean waitingForSpeech = false;
 
@@ -253,7 +312,9 @@ namespace CrewChiefV4
         private EventWaitHandle triggerTimeoutWaitHandle = new EventWaitHandle(false, EventResetMode.ManualReset);
         private Thread restartWaitTimeoutThreadReference = null;
 
-        static SpeechRecogniser () 
+        public static DateTime recognitionStartedTime = DateTime.MinValue;
+
+        static SpeechRecogniser()
         {
             if (UserSettings.GetUserSettings().getBoolean("use_naudio_for_speech_recognition"))
             {
@@ -290,7 +351,7 @@ namespace CrewChiefV4
                 }
             }
         }
-        
+
         // load voice commands for triggering keyboard macros. The String key of the input Dictionary is the
         // command list key in speech_recognition_config.txt. When one of these phrases is heard the map value
         // CommandMacro is executed.
@@ -358,6 +419,64 @@ namespace CrewChiefV4
             return dict;
         }
 
+
+        private static Dictionary<String[], string> getCarNumberMappings()
+        {
+            Dictionary<String[], string> dict = new Dictionary<string[], string>();
+            for (int i = 0; i <= 999; i++)
+            {
+                dict.Add(getPossibleCarNumberPhrases(i), i.ToString());
+            }
+            return dict;
+        }
+
+        private static string[] getPossibleCarNumberPhrases(int number)
+        {
+            List<string> phrases = new List<string>();
+            string numberStr = number.ToString();
+            phrases.AddRange(Configuration.getSpeechRecognitionPhrases(numberStr));
+            if (number < 100)
+            {
+                // add a leading zero if 1 < 100
+                numberStr = "0" + numberStr;
+                phrases.AddRange(Configuration.getSpeechRecognitionPhrases(numberStr));
+                if (number < 10)
+                {
+                    // add another leading zero if i < 10
+                    numberStr = "0" + numberStr;
+                    phrases.AddRange(Configuration.getSpeechRecognitionPhrases(numberStr));
+                }
+            }
+            // for numbers >= 100 allow "one three one" and "one thirty one" forms
+            if (number >= 100)
+            {
+                string leadingNumber = numberStr[0].ToString();
+                string middleNumber = numberStr[1].ToString();
+                string finalNumber = numberStr[2].ToString();
+                string leadingNumberPhrase = Configuration.getSpeechRecognitionPhrases(leadingNumber)[0];   //"one" / "two" / etc
+                if (middleNumber == "0")
+                {
+                    // need to add "one oh one", "five zero three", etc
+                    string finalNumberPhrase = Configuration.getSpeechRecognitionPhrases(finalNumber)[0];   //"one" / "two" / etc
+                    string[] zeroPhrases = Configuration.getSpeechRecognitionPhrases("0");   //"zero", "oh", etc
+                    foreach (string zeroPhrase in zeroPhrases)
+                    {
+                        phrases.Add(leadingNumberPhrase + "-" + zeroPhrase + "-" + finalNumberPhrase);
+                    }
+                }
+                else
+                {
+                    // need to add "one two three", "four sevent eight", etc
+                    string middleNumberPhrase = Configuration.getSpeechRecognitionPhrases(middleNumber)[0];   //"one" / "two" / etc
+                    string finalNumberPhrase = Configuration.getSpeechRecognitionPhrases(finalNumber)[0];   //"one" / "two" / etc
+                    string combinedFinalNumbersPhrase = Configuration.getSpeechRecognitionPhrases(middleNumber + finalNumber)[0];   //"twenty-one" / "twenty-two" / etc
+                    phrases.Add(leadingNumberPhrase + "-" + middleNumberPhrase + "-" + finalNumberPhrase);
+                    phrases.Add(leadingNumberPhrase + "-" + combinedFinalNumbersPhrase);
+                }
+            }
+            return phrases.ToArray();
+        }
+
         // if alwaysUseAllPhrases is true, we add all the phrase options to the recogniser even if the disable_alternative_voice_commands option is true.
         // If alwaysUseAllAppends is true we do the same thing with the append options.
         //
@@ -398,13 +517,13 @@ namespace CrewChiefV4
                         gb.Append(appendChoices);
                     }
                 }
+                Grammar grammar = new Grammar(gb);
+                sre.LoadGrammar(grammar);
+                generatedGrammars.Add(grammar);
                 if (disable_alternative_voice_commands && !alwaysUseAllPhrases)
                 {
                     break;
                 }
-                Grammar grammar = new Grammar(gb);
-                sre.LoadGrammar(grammar);
-                generatedGrammars.Add(grammar);
             }
             return generatedGrammars;
         }
@@ -448,7 +567,7 @@ namespace CrewChiefV4
             {
                 return;
             }
-            
+
             if (waveIn != null)
             {
                 try
@@ -457,13 +576,22 @@ namespace CrewChiefV4
                 }
                 catch (Exception) { }
             }
+            // VL: do not dispose SRE engines.  It is not clear when, and if ever any stupid outstanding Async call will complete.
+            // Outstanding Async calls block Dispose on shutdown.
+            //
+            // Another option is not to call any Async calls from SpeechRecognizer.stop if MainWindow.instance is null.  However,
+            // since we are not continuously re-creating SRE instances, it is safest to simply not Dispose, as it is very unlikely
+            // to cause any system wide impact/leak.
             if (sre != null)
             {
                 try
                 {
-                    // VL: there's a bug with recognizeAsyncCancel racing with Dispose.  Current workaround is a bit of Sleep.
-                    // See GlobalResources.Dispose
-                    sre.Dispose();
+                    sre.SetInputToNull();
+                }
+                catch (Exception) { }
+                try
+                {
+                    //sre.Dispose();
                 }
                 catch (Exception) { }
                 sre = null;
@@ -472,7 +600,7 @@ namespace CrewChiefV4
             {
                 try
                 {
-                    triggerSre.Dispose();
+                    //triggerSre.Dispose();
                 }
                 catch (Exception) { }
                 triggerSre = null;
@@ -526,7 +654,7 @@ namespace CrewChiefV4
             }
 
             String overrideCountry = null;
-            if(localeCountryPropertySetting != null && localeCountryPropertySetting.Length == 2)
+            if (localeCountryPropertySetting != null && localeCountryPropertySetting.Length == 2)
             {
                 overrideCountry = localeCountryPropertySetting.ToUpper();
             }
@@ -539,7 +667,7 @@ namespace CrewChiefV4
             RecognizerInfo info = null;
 
             String langToUse = sreConfigLang;
-            String countryToUse = overrideCountry != null ? overrideCountry : sreConfigCountry;            
+            String countryToUse = overrideCountry != null ? overrideCountry : sreConfigCountry;
             String langAndCountryToUse = countryToUse != null ? langToUse + "-" + countryToUse : null;
 
             if (langAndCountryToUse != null)
@@ -593,7 +721,7 @@ namespace CrewChiefV4
                     "Check that at least one of MSSpeech_SR_en-GB_TELE.msi, MSSpeech_SR_en-US_TELE.msi, " +
                     "MSSpeech_SR_en-AU_TELE.msi, MSSpeech_SR_en-CA_TELE.msi or MSSpeech_SR_en-IN_TELE.msi are installed." +
                     " It can be downloaded from https://www.microsoft.com/en-us/download/details.aspx?id=27224");
-                } 
+                }
                 else
                 {
                     if (MessageBox.Show(Configuration.getUIString("install_single_speechlanguage_popup_text_start") + langToUse +
@@ -607,7 +735,7 @@ namespace CrewChiefV4
                     "Check that and appropriate language pack is installed." +
                     " They can be downloaded from https://www.microsoft.com/en-us/download/details.aspx?id=27224");
                 }
-                
+
                 return false;
             }
             else
@@ -622,15 +750,13 @@ namespace CrewChiefV4
                 Console.WriteLine("Unable to initialise speech engine with voice recognition pack for location " + langAndCountryToUse +
                     ". Check MSSpeech_SR_" + langAndCountryToUse + "_TELE.msi is installed." +
                     " It can be downloaded from https://www.microsoft.com/en-us/download/details.aspx?id=27224");
-                
+
                 return false;
             }
         }
 
         private void validateAndAdd(String[] speechPhrases, Choices choices)
         {
-            Debug.Assert(!initialised);  // Unless, we plan to add stuff dynamically, this should be false.
-
             if (speechPhrases != null && speechPhrases.Count() > 0)
             {
                 Boolean valid = true;
@@ -697,12 +823,12 @@ namespace CrewChiefV4
                 Console.WriteLine("Unable to initialise speech engine.");
                 Console.WriteLine("Exception message: " + e.Message);
             }
-           
+
             try
             {
                 if (useNAudio)
                 {
-                    waveIn.WaveFormat = new NAudio.Wave.WaveFormat(8000, 1);
+                    waveIn.WaveFormat = new NAudio.Wave.WaveFormat(nAudioWaveInSampleRate, nAudioWaveInChannelCount);
                     waveIn.DataAvailable += new EventHandler<NAudio.Wave.WaveInEventArgs>(waveIn_DataAvailable);
                     waveIn.NumberOfBuffers = 3;
                 }
@@ -763,6 +889,7 @@ namespace CrewChiefV4
                 validateAndAdd(WHAT_ARE_THE_RELATIVE_TYRE_PERFORMANCES, staticSpeechChoices);
                 validateAndAdd(PLAY_CORNER_NAMES, staticSpeechChoices);
                 validateAndAdd(HOW_LONG_WILL_THESE_TYRES_LAST, staticSpeechChoices);
+                validateAndAdd(WHATS_PITLANE_SPEED_LIMIT, staticSpeechChoices);
 
                 validateAndAdd(DAMAGE_REPORT, staticSpeechChoices);
                 validateAndAdd(CAR_STATUS, staticSpeechChoices);
@@ -771,6 +898,26 @@ namespace CrewChiefV4
 
                 validateAndAdd(START_PACE_NOTES_PLAYBACK, staticSpeechChoices);
                 validateAndAdd(STOP_PACE_NOTES_PLAYBACK, staticSpeechChoices);
+
+                validateAndAdd(HOWS_MY_LEFT_FRONT_CAMBER, staticSpeechChoices);
+                validateAndAdd(HOWS_MY_RIGHT_FRONT_CAMBER, staticSpeechChoices);
+                validateAndAdd(HOWS_MY_LEFT_REAR_CAMBER, staticSpeechChoices);
+                validateAndAdd(HOWS_MY_RIGHT_REAR_CAMBER, staticSpeechChoices);
+                validateAndAdd(HOWS_MY_FRONT_CAMBER, staticSpeechChoices);
+                validateAndAdd(HOWS_MY_REAR_CAMBER, staticSpeechChoices);
+                validateAndAdd(HOW_ARE_MY_TYRE_PRESSURES, staticSpeechChoices);
+                validateAndAdd(HOW_ARE_MY_FRONT_TYRE_PRESSURES, staticSpeechChoices);
+                validateAndAdd(HOW_ARE_MY_REAR_TYRE_PRESSURES, staticSpeechChoices);
+                validateAndAdd(HOWS_MY_LEFT_FRONT_CAMBER_RIGHT_NOW, staticSpeechChoices);
+                validateAndAdd(HOWS_MY_RIGHT_FRONT_CAMBER_RIGHT_NOW, staticSpeechChoices);
+                validateAndAdd(HOWS_MY_LEFT_REAR_CAMBER_RIGHT_NOW, staticSpeechChoices);
+                validateAndAdd(HOWS_MY_RIGHT_REAR_CAMBER_RIGHT_NOW, staticSpeechChoices);
+                validateAndAdd(HOWS_MY_FRONT_CAMBER_RIGHT_NOW, staticSpeechChoices);
+                validateAndAdd(HOWS_MY_REAR_CAMBER_RIGHT_NOW, staticSpeechChoices);
+                validateAndAdd(HOW_ARE_MY_TYRE_PRESSURES_RIGHT_NOW, staticSpeechChoices);
+                validateAndAdd(HOW_ARE_MY_FRONT_TYRE_PRESSURES_RIGHT_NOW, staticSpeechChoices);
+                validateAndAdd(HOW_ARE_MY_REAR_TYRE_PRESSURES_RIGHT_NOW, staticSpeechChoices);
+                validateAndAdd(WHAT_ARE_THE_PIT_ACTIONS, staticSpeechChoices);
 
                 if (!disableBehaviorAlteringVoiceCommands)
                 {
@@ -786,6 +933,8 @@ namespace CrewChiefV4
                     validateAndAdd(DONT_TALK_IN_THE_CORNERS, staticSpeechChoices);
                     validateAndAdd(SPOT, staticSpeechChoices);
                     validateAndAdd(DONT_SPOT, staticSpeechChoices);
+                    validateAndAdd(ENABLE_CUT_TRACK_WARNINGS, staticSpeechChoices);
+                    validateAndAdd(DISABLE_CUT_TRACK_WARNINGS, staticSpeechChoices);
                 }
 
                 validateAndAdd(WHATS_THE_FASTEST_LAP_TIME, staticSpeechChoices);
@@ -823,7 +972,7 @@ namespace CrewChiefV4
                 validateAndAdd(MORE_INFO, staticSpeechChoices);
 
                 validateAndAdd(I_AM_OK, staticSpeechChoices);
-                if(alarmClockVoiceRecognitionEnabled)
+                if (alarmClockVoiceRecognitionEnabled)
                 {
                     validateAndAdd(CLEAR_ALARM_CLOCK, staticSpeechChoices);
                 }
@@ -848,7 +997,7 @@ namespace CrewChiefV4
                     fuelTimeChoices.AddRange(HOURS);
                 }
                 addCompoundChoices(CALCULATE_FUEL_FOR, false, this.digitsChoices, fuelTimeChoices.ToArray(), true);
-                if(alarmClockVoiceRecognitionEnabled)
+                if (alarmClockVoiceRecognitionEnabled)
                 {
                     this.hourChoices = new Choices();
                     foreach (KeyValuePair<String[], int> entry in hourMappings)
@@ -864,7 +1013,7 @@ namespace CrewChiefV4
                         foreach (String numberStr in entry.Key)
                         {
                             minuteArray.Add(numberStr);
-                            foreach(String ams in AM)
+                            foreach (String ams in AM)
                             {
                                 minuteArray.Add(numberStr + " " + AM);
                             }
@@ -899,51 +1048,96 @@ namespace CrewChiefV4
             initialised = true;
         }
 
-        public void addNewOpponentName(String rawDriverName)
+        private String[] getWhatsPossessiveChoices()
         {
-            if (!initialised)
+            return CrewChief.gameDefinition != null && whatsOpponentChoices.ContainsKey(CrewChief.gameDefinition.gameEnum) ?
+                whatsOpponentChoices[CrewChief.gameDefinition.gameEnum] : whatsOpponentChoices[GameEnum.UNKNOWN];
+        }
+        
+        public void addNewOpponentName(String rawDriverName, String carNumberString)
+        {
+            if (!initialised || (!identifyOpponentsByName && !identifyOpponentsByNumber))
             {
                 return;
             }
             try
             {
-                String usableName = DriverNameHelper.getUsableDriverName(rawDriverName);
-                if (usableName != null && usableName.Length > 0)
+                if (initialised)
                 {
-                    if (driverNamesInUse.Contains(rawDriverName))
-                    {
-                        return;
-                    }
-                    if (initialised)
-                    {
-                        Console.WriteLine("Adding new (mid-session joined) opponent name to speech recogniser: " + Environment.NewLine + usableName);
-                        Choices opponentNameChoices = new Choices(usableName);
-                        Choices opponentNamePossessiveChoices = new Choices(usableName + POSSESSIVE);
-
-                        opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHERE_IS, WHERES }, false, opponentNameChoices, null, true));
-                        opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHAT_TYRE_IS, WHAT_TYRES_IS }, false, opponentNameChoices, new String[] { ON }, true));
-                        opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHATS }, true, opponentNamePossessiveChoices, new String[] { LAST_LAP, BEST_LAP, IRATING, LICENSE_CLASS }, true));
-                    }
+                    String usableName = DriverNameHelper.getUsableDriverName(rawDriverName);
+                    Console.WriteLine("Adding new (mid-session joined) opponent name to speech recogniser: " + Environment.NewLine + usableName);
                     // This method is called when a new driver appears mid-session. We need to load the sound file for this new driver
                     // so do it here - nasty nasty hack, need to refactor this. The alternative is to call
                     // SoundCache.loadDriverNameSound in each of mappers when a new driver is added.
-                    SoundCache.loadDriverNameSound(usableName);
-                    driverNamesInUse.Add(rawDriverName);
+                    SoundCache.loadDriverNameSound(usableName);                    
+
+                    HashSet<string> nameChoices = new HashSet<string>();
+                    HashSet<string> namePossessiveChoices = new HashSet<string>();
+                    if (identifyOpponentsByName && usableName != null && usableName.Length > 0 && !driverNamesInUse.Contains(rawDriverName))
+                    {
+                        driverNamesInUse.Add(rawDriverName);
+                        nameChoices.Add(usableName);
+                        namePossessiveChoices.Add(usableName + POSSESSIVE);
+                    }
+                    if (identifyOpponentsByNumber && carNumberString != "-1" && carNumberToNumber.ContainsValue(carNumberString))
+                    {
+                        if (!carNumbersInUse.Contains(carNumberString))
+                        {
+                            carNumbersInUse.Add(carNumberString);
+                            String[] numberOptions = carNumberToNumber.FirstOrDefault(x => x.Value == carNumberString).Key;
+                            foreach (String number in numberOptions)
+                            {
+                                nameChoices.Add(CAR_NUMBER + " " + number);
+                                namePossessiveChoices.Add(CAR_NUMBER + " " + number + POSSESSIVE);
+                            }
+                        }
+                        // if the car number has a 0 or 00 in front of it, also listen for the number without the leading zero(s)
+                        if (carNumberString.StartsWith("0"))
+                        {
+                            int parsed;
+                            if (int.TryParse(carNumberString, out parsed))
+                            {
+                                String carNumberStringAlternate = parsed.ToString();
+                                if (!carNumbersInUse.Contains(carNumberStringAlternate))
+                                {
+                                    carNumbersInUse.Add(carNumberStringAlternate);
+                                    String[] numberOptionsWithoutLeadingZeros = carNumberToNumber.FirstOrDefault(x => x.Value == parsed.ToString()).Key;
+                                    foreach (String number in numberOptionsWithoutLeadingZeros)
+                                    {
+                                        nameChoices.Add(CAR_NUMBER + " " + number);
+                                        namePossessiveChoices.Add(CAR_NUMBER + " " + number + POSSESSIVE);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    Choices opponentNameChoices = new Choices(nameChoices.ToArray<string>());
+                    Choices opponentNamePossessiveChoices = new Choices(namePossessiveChoices.ToArray<string>());
+
+                    opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHERE_IS, WHERES }, false, opponentNameChoices, null, true));
+                    // todo: iracing definitely has no opponent tyre type data, probably more games lack this info
+                    if (CrewChief.gameDefinition != null && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)
+                    {
+                        opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHAT_TYRE_IS, WHAT_TYRES_IS }, false, opponentNameChoices, new String[] { ON }, true));
+                    }
+                    opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHATS }, true, opponentNamePossessiveChoices, getWhatsPossessiveChoices(), true));     
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine("Unable to add new driver to speech recognition engine - " + e.Message);
             }
+            
         }
 
-        public void addOpponentSpeechRecognition(List<String> names, Boolean useNames)
+        public void addOpponentSpeechRecognition(List<String> names, HashSet<string> carNumbers)
         {
             if (!initialised)
             {
                 return;
             }
             driverNamesInUse.Clear();
+            carNumbersInUse.Clear();
             foreach (Grammar opponentGrammar in opponentGrammarList)
             {
                 sre.UnloadGrammar(opponentGrammar);
@@ -956,47 +1150,151 @@ namespace CrewChiefV4
             Choices opponentPositionChoices = new Choices();
             Choices opponentNameOrPositionPossessiveChoices = new Choices();
 
-            if (useNames)
+            if (identifyOpponentsByName)
             {
                 Console.WriteLine("Adding " + names.Count + " new session opponent names to speech recogniser");
                 foreach (String name in names)
                 {
                     opponentNameOrPositionChoices.Add(name);
                     opponentNameOrPositionPossessiveChoices.Add(name + POSSESSIVE);
+                    driverNamesInUse.Add(name);
                 }
             }
 
-            foreach (KeyValuePair<String[], int> entry in racePositionNumberToNumber)
+            if (identifyOpponentsByPosition)
             {
-                foreach (String numberStr in entry.Key)
+                foreach (KeyValuePair<String[], int> entry in racePositionNumberToNumber)
                 {
-                    opponentNameOrPositionChoices.Add(POSITION_LONG + " " + numberStr);
-                    opponentNameOrPositionChoices.Add(POSITION_SHORT + " " + numberStr);
-                    opponentPositionChoices.Add(POSITION_LONG + " " + numberStr);
-                    opponentPositionChoices.Add(POSITION_SHORT + " " + numberStr);
-                    opponentNameOrPositionPossessiveChoices.Add(POSITION_LONG + " " + numberStr + POSSESSIVE);
-                    opponentNameOrPositionPossessiveChoices.Add(POSITION_SHORT + " " + numberStr + POSSESSIVE);
+                    foreach (String numberStr in entry.Key)
+                    {
+                        opponentNameOrPositionChoices.Add(POSITION_SHORT + " " + numberStr);
+                        opponentPositionChoices.Add(POSITION_SHORT + " " + numberStr);
+                        opponentNameOrPositionPossessiveChoices.Add(POSITION_SHORT + " " + numberStr + POSSESSIVE);
+                        if (!disable_alternative_voice_commands)
+                        {
+                            opponentNameOrPositionChoices.Add(POSITION_LONG + " " + numberStr);
+                            opponentPositionChoices.Add(POSITION_LONG + " " + numberStr);
+                            opponentNameOrPositionPossessiveChoices.Add(POSITION_LONG + " " + numberStr + POSSESSIVE);
+                        }
+                    }
                 }
             }
-            opponentNameOrPositionChoices.Add(THE_GUY_AHEAD);
+            if (identifyOpponentsByNumber)
+            {
+                foreach (string carNumberString in carNumbers)
+                {
+                    if (carNumberString != "-1" && carNumberToNumber.ContainsValue(carNumberString))
+                    {
+                        if (!carNumbersInUse.Contains(carNumberString))
+                        {
+                            carNumbersInUse.Add(carNumberString);
+                            String[] numberOptions = carNumberToNumber.FirstOrDefault(x => x.Value == carNumberString).Key;
+                            foreach (String number in numberOptions)
+                            {
+                                opponentNameOrPositionChoices.Add(CAR_NUMBER + " " + number);
+                                opponentNameOrPositionPossessiveChoices.Add(CAR_NUMBER + " " + number + POSSESSIVE);
+                            }
+                        }
+                        // if the car number has a 0 or 00 in front of it, also listen for the number without the leading zero(s)
+                        if (carNumberString.StartsWith("0"))
+                        {
+                            int parsed;
+                            if (int.TryParse(carNumberString, out parsed))
+                            {
+                                String carNumberStringAlternate = parsed.ToString();
+                                if (!carNumbersInUse.Contains(carNumberStringAlternate))
+                                {
+                                    carNumbersInUse.Add(carNumberStringAlternate);
+                                    String[] numberOptionsWithoutLeadingZeros = carNumberToNumber.FirstOrDefault(x => x.Value == carNumberStringAlternate).Key;
+                                    foreach (String number in numberOptionsWithoutLeadingZeros)
+                                    {
+                                        opponentNameOrPositionChoices.Add(CAR_NUMBER + " " + number);
+                                        opponentNameOrPositionPossessiveChoices.Add(CAR_NUMBER + " " + number + POSSESSIVE);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             opponentNameOrPositionChoices.Add(THE_CAR_AHEAD);
-            opponentNameOrPositionChoices.Add(THE_GUY_IN_FRONT);
-            opponentNameOrPositionChoices.Add(THE_GUY_BEHIND);
             opponentNameOrPositionChoices.Add(THE_CAR_BEHIND);
             opponentNameOrPositionChoices.Add(THE_LEADER);
-            opponentNameOrPositionPossessiveChoices.Add(THE_GUY_AHEAD);
             opponentNameOrPositionPossessiveChoices.Add(THE_CAR_AHEAD);
-            opponentNameOrPositionPossessiveChoices.Add(THE_GUY_IN_FRONT);
-            opponentNameOrPositionPossessiveChoices.Add(THE_GUY_BEHIND);
             opponentNameOrPositionPossessiveChoices.Add(THE_CAR_BEHIND);
             opponentNameOrPositionPossessiveChoices.Add(THE_LEADER);
 
-            opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHERE_IS, WHERES }, false, opponentNameOrPositionChoices, null, true));
-            opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHOS_IN }, false, opponentPositionChoices, null, true));
-            opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHAT_TYRE_IS, WHAT_TYRES_IS }, false, opponentNameOrPositionChoices, new String[] { ON }, true));
-            opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHATS }, false, opponentNameOrPositionPossessiveChoices, new String[] { LAST_LAP, BEST_LAP, IRATING, LICENSE_CLASS }, true));
+            if (!disable_alternative_voice_commands)
+            {
+                opponentNameOrPositionChoices.Add(THE_GUY_AHEAD);
+                opponentNameOrPositionChoices.Add(THE_CAR_IN_FRONT);
+                opponentNameOrPositionChoices.Add(THE_GUY_IN_FRONT);
+                opponentNameOrPositionChoices.Add(THE_GUY_BEHIND);
+                opponentNameOrPositionPossessiveChoices.Add(THE_GUY_AHEAD);
+                opponentNameOrPositionPossessiveChoices.Add(THE_CAR_IN_FRONT);
+                opponentNameOrPositionPossessiveChoices.Add(THE_GUY_IN_FRONT);
+                opponentNameOrPositionPossessiveChoices.Add(THE_GUY_BEHIND);
+            }
 
-            driverNamesInUse.AddRange(names);
+            opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHERE_IS, WHERES }, false, opponentNameOrPositionChoices, null, true));
+            if (identifyOpponentsByPosition)
+            {
+                opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHOS_IN }, false, opponentPositionChoices, null, true));
+            }
+            if (CrewChief.gameDefinition != null && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)
+            {
+                opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHAT_TYRE_IS, WHAT_TYRES_IS }, false, opponentNameOrPositionChoices, new String[] { ON }, true));
+            }
+            opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHATS }, false, opponentNameOrPositionPossessiveChoices, getWhatsPossessiveChoices(), true));
+        }
+
+        public void addR3ESpeechRecogniser()
+        {
+            if (!initialised)
+            {
+                return;
+            }
+            foreach (Grammar r3eGrammar in r3ePitstopGrammarList)
+            {
+                try
+                {
+                    sre.UnloadGrammar(r3eGrammar);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Failed to unload R3E grammar: " + e.Message);
+                }
+            }
+            try
+            {
+                r3ePitstopGrammarList.Clear();
+                Choices r3eChoices = new Choices();
+                validateAndAdd(PIT_STOP_CHANGE_ALL_TYRES, r3eChoices);
+                validateAndAdd(PIT_STOP_CHANGE_FRONT_TYRES, r3eChoices);
+                validateAndAdd(PIT_STOP_CHANGE_REAR_TYRES, r3eChoices);
+                validateAndAdd(PIT_STOP_CLEAR_TYRES, r3eChoices);
+                validateAndAdd(PIT_STOP_FIX_FRONT_AERO, r3eChoices);
+                validateAndAdd(PIT_STOP_FIX_REAR_AERO, r3eChoices);
+                validateAndAdd(PIT_STOP_FIX_ALL_AERO, r3eChoices);
+                validateAndAdd(PIT_STOP_FIX_NO_AERO, r3eChoices);
+                validateAndAdd(PIT_STOP_FIX_SUSPENSION, r3eChoices);
+                validateAndAdd(PIT_STOP_DONT_FIX_SUSPENSION, r3eChoices);
+                validateAndAdd(PIT_STOP_SERVE_PENALTY, r3eChoices);
+                validateAndAdd(PIT_STOP_DONT_SERVE_PENALTY, r3eChoices);
+                validateAndAdd(PIT_STOP_NEXT_TYRE_COMPOUND, r3eChoices);
+                validateAndAdd(PIT_STOP_REFUEL, r3eChoices);
+                validateAndAdd(PIT_STOP_DONT_REFUEL, r3eChoices);
+                
+                GrammarBuilder r3eGrammarBuilder = new GrammarBuilder(r3eChoices);
+                r3eGrammarBuilder.Culture = cultureInfo;
+                Grammar r3eGrammar = new Grammar(r3eGrammarBuilder);
+                r3ePitstopGrammarList.Add(r3eGrammar);
+                sre.LoadGrammar(r3eGrammar);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Unable to add R3E pit stop commands to speech recognition engine - " + e.Message);
+            }
         }
 
         public void addiRacingSpeechRecogniser()
@@ -1186,8 +1484,9 @@ namespace CrewChiefV4
                 {
                     Console.WriteLine("Took " + attempts + " attempts to switch from trigger to regular SRE");
                 }
-                crewChief.audioPlayer.playStartListeningBeep();
+                recognitionStartedTime = DateTime.Now;
                 recognizeAsync();
+                crewChief.audioPlayer.playStartListeningBeep();
             }
             else
             {
@@ -1257,7 +1556,7 @@ namespace CrewChiefV4
             SpeechRecogniser.waitingForSpeech = false;
             SpeechRecogniser.gotRecognitionResult = true;
             Boolean youWot = false;
-            Console.WriteLine("Recognised : " + e.Result.Text + " confidence = " + e.Result.Confidence.ToString("0.000"));
+            Console.WriteLine("Recognised : " + e.Result.Text + "  Confidence = " + e.Result.Confidence.ToString("0.000") + "  Time Elapsed (ms) = " + (DateTime.Now - SpeechRecogniser.recognitionStartedTime).TotalMilliseconds);
             try
             {
                 // special case when we're waiting for a message after a heavy crash:
@@ -1293,12 +1592,17 @@ namespace CrewChiefV4
                         if (macroGrammar == e.Result.Grammar && macroLookup.ContainsKey(e.Result.Text))
                         {
                             this.lastRecognisedText = e.Result.Text;
-                            macroLookup[e.Result.Text].execute(e.Result.Text);
+                            macroLookup[e.Result.Text].execute(e.Result.Text, false, true);
                         }
                         else if (iracingPitstopGrammarList.Contains(e.Result.Grammar))
                         {
                             this.lastRecognisedText = e.Result.Text;
                             CrewChief.getEvent("IRacingBroadcastMessageEvent").respond(e.Result.Text);
+                        }
+                        else if (r3ePitstopGrammarList.Contains(e.Result.Grammar))
+                        {
+                            this.lastRecognisedText = e.Result.Text;
+                            R3EPitMenuManager.processVoiceCommand(e.Result.Text, this.crewChief.audioPlayer);
                         }
                         else if (ResultContains(e.Result.Text, REPEAT_LAST_MESSAGE, false))
                         {
@@ -1327,6 +1631,17 @@ namespace CrewChiefV4
                                 }
                             }
                         }
+                        /*if (buttonAssignments.Count > 0)
+                        {
+                            foreach (var buttonAssignment in buttonAssignments)
+                            {
+                                if(ResultContains(e.Result.Text, buttonAssignment.action, false))
+                                {
+                                    this.lastRecognisedText = e.Result.Text;
+                                    CrewChief.getEvent(buttonAssignment.eventName).respond(e.Result.Text);
+                                }
+                            }
+                        }*/
                     }
                     else
                     {
@@ -1412,7 +1727,7 @@ namespace CrewChiefV4
             }
 
             if (voiceOptionEnum == MainWindow.VoiceOptionEnum.TRIGGER_WORD)
-            {   
+            {
                 try
                 {
                     triggerSre.UnloadAllGrammars();
@@ -1456,7 +1771,7 @@ namespace CrewChiefV4
                     Console.WriteLine("Getting audio from nAudio input stream");
                     if (MainWindow.voiceOption == MainWindow.VoiceOptionEnum.HOLD)
                     {
-                         waveIn.StartRecording();
+                        waveIn.StartRecording();
                     }
                     else if (MainWindow.voiceOption == MainWindow.VoiceOptionEnum.ALWAYS_ON)
                     {
@@ -1515,7 +1830,7 @@ namespace CrewChiefV4
             }
         }
 
-        public void recognizeAsyncCancel()
+        public void recognizeAsyncCancel(Boolean isShuttingDown = false)
         {
             if (!initialised)
             {
@@ -1530,16 +1845,19 @@ namespace CrewChiefV4
                 {
                     SpeechRecogniser.keepRecognisingInHoldMode = false;
                     StopNAudioWaveIn();
-                    SpeechAudioFormatInfo safi = new SpeechAudioFormatInfo(
-                        waveIn.WaveFormat.SampleRate, AudioBitsPerSample.Sixteen, AudioChannel.Mono);
-                    sre.SetInputToAudioStream(buffer, safi); // otherwise input gets unset
-                    try
+                    Microsoft.Speech.AudioFormat.SpeechAudioFormatInfo safi = new Microsoft.Speech.AudioFormat.SpeechAudioFormatInfo(
+                        waveIn.WaveFormat.SampleRate, Microsoft.Speech.AudioFormat.AudioBitsPerSample.Sixteen, Microsoft.Speech.AudioFormat.AudioChannel.Mono);
+                    if (!isShuttingDown)
                     {
-                        sre.RecognizeAsync(RecognizeMode.Multiple); // before this call
-                    }
-                    catch (Exception e)
-                    {
-                        Utilities.ReportException(e, "Exception in SpeechRecognitionEngine.RecognizeAsync.", true /*needReport*/);
+                        sre.SetInputToAudioStream(buffer, safi); // otherwise input gets unset
+                        try
+                        {
+                            sre.RecognizeAsync(RecognizeMode.Multiple); // before this call
+                        }
+                        catch (Exception e)
+                        {
+                            Utilities.ReportException(e, "Exception in SpeechRecognitionEngine.RecognizeAsync.", true /*needReport*/);
+                        }
                     }
                 }
                 else if (MainWindow.voiceOption == MainWindow.VoiceOptionEnum.ALWAYS_ON)
@@ -1625,62 +1943,48 @@ namespace CrewChiefV4
             {
                 return null;
             }
-
-            if (ResultContains(recognisedSpeech, RADIO_CHECK, false))
-            {
-                crewChief.respondToRadioCheck();
-            }
-            else if (ResultContains(recognisedSpeech, DONT_SPOT, false))
+            if (ResultContains(recognisedSpeech, DONT_SPOT, false))
             {
                 crewChief.disableSpotter();
+                return null;
             }
             else if (ResultContains(recognisedSpeech, SPOT, false))
             {
                 crewChief.enableSpotter();
+                return null;
             }
-            else if (ResultContains(recognisedSpeech, KEEP_QUIET, false))
+            else
             {
-                crewChief.enableKeepQuietMode();
+                return getEventForAction(recognisedSpeech);
             }
-            else if (ResultContains(recognisedSpeech, PLAY_CORNER_NAMES, false))
+        }
+
+        public static AbstractEvent getEventForAction(String recognisedSpeech)
+        {
+            if (ResultContains(recognisedSpeech, RADIO_CHECK, false) ||
+                ResultContains(recognisedSpeech, KEEP_QUIET, false) ||
+                ResultContains(recognisedSpeech, DONT_TELL_ME_THE_GAPS, false) ||
+                ResultContains(recognisedSpeech, TELL_ME_THE_GAPS, false) ||
+                ResultContains(recognisedSpeech, ENABLE_YELLOW_FLAG_MESSAGES, false) ||
+                ResultContains(recognisedSpeech, DISABLE_YELLOW_FLAG_MESSAGES, false) ||
+                ResultContains(recognisedSpeech, ENABLE_CUT_TRACK_WARNINGS, false) ||
+                ResultContains(recognisedSpeech, DISABLE_CUT_TRACK_WARNINGS, false) ||
+                ResultContains(recognisedSpeech, ENABLE_MANUAL_FORMATION_LAP, false) ||
+                ResultContains(recognisedSpeech, DISABLE_MANUAL_FORMATION_LAP, false) ||
+                ResultContains(recognisedSpeech, WHATS_THE_TIME, false) ||
+                ResultContains(recognisedSpeech, TALK_TO_ME_ANYWHERE, false) ||
+                ResultContains(recognisedSpeech, DONT_TALK_IN_THE_CORNERS, false) ||
+                ResultContains(recognisedSpeech, KEEP_ME_INFORMED, false) ||
+                ResultContains(recognisedSpeech, DAMAGE_REPORT, false) ||
+                ResultContains(recognisedSpeech, CAR_STATUS, false) ||
+                ResultContains(recognisedSpeech, STATUS, false) ||
+                ResultContains(recognisedSpeech, SESSION_STATUS, false) ||
+                ResultContains(recognisedSpeech, START_PACE_NOTES_PLAYBACK, false) ||
+                ResultContains(recognisedSpeech, STOP_PACE_NOTES_PLAYBACK, false) || 
+                ResultContains(recognisedSpeech, PLAY_CORNER_NAMES, false) ||
+                ControllerConfiguration.builtInActionMappings.ContainsValue(recognisedSpeech))
             {
-                crewChief.playCornerNamesForCurrentLap();
-            }
-            else if (ResultContains(recognisedSpeech, DONT_TELL_ME_THE_GAPS, false))
-            {
-                crewChief.disableDeltasMode();
-            }
-            else if (ResultContains(recognisedSpeech, TELL_ME_THE_GAPS, false))
-            {
-                crewChief.enableDeltasMode();
-            }
-            else if (ResultContains(recognisedSpeech, ENABLE_YELLOW_FLAG_MESSAGES, false))
-            {
-                crewChief.enableYellowFlagMessages();
-            }
-            else if (ResultContains(recognisedSpeech, DISABLE_YELLOW_FLAG_MESSAGES, false))
-            {
-                crewChief.disableYellowFlagMessages();
-            }
-            else if (ResultContains(recognisedSpeech, ENABLE_MANUAL_FORMATION_LAP, false))
-            {
-                crewChief.enableManualFormationLapMode();
-            }
-            else if (ResultContains(recognisedSpeech, DISABLE_MANUAL_FORMATION_LAP, false))
-            {
-                crewChief.disableManualFormationLapMode();
-            }
-            else if (ResultContains(recognisedSpeech, WHATS_THE_TIME, false))
-            {
-                crewChief.reportCurrentTime();
-            }
-            else if (ResultContains(recognisedSpeech, TALK_TO_ME_ANYWHERE, false))
-            {
-                crewChief.disableDelayMessagesInHardParts();
-            }
-            else if (ResultContains(recognisedSpeech, DONT_TALK_IN_THE_CORNERS, false))
-            {
-                crewChief.enableDelayMessagesInHardParts();
+                return CrewChief.getEvent("CommonActions");
             }
             else if (ResultContains(recognisedSpeech, HOWS_MY_AERO, false) ||
                ResultContains(recognisedSpeech, HOWS_MY_TRANSMISSION, false) ||
@@ -1690,10 +1994,7 @@ namespace CrewChiefV4
             {
                 return CrewChief.getEvent("DamageReporting");
             }
-            else if (ResultContains(recognisedSpeech, KEEP_ME_INFORMED, false))
-            {
-                crewChief.disableKeepQuietMode();
-            }
+
             else if (ResultContains(recognisedSpeech, WHATS_MY_FUEL_LEVEL, false)
                 || ResultContains(recognisedSpeech, HOWS_MY_FUEL, false)
                 || ResultContains(recognisedSpeech, WHATS_MY_FUEL_USAGE, false)
@@ -1734,7 +2035,25 @@ namespace CrewChiefV4
                 ResultContains(recognisedSpeech, HOW_ARE_MY_BRAKE_TEMPS, false) ||
                 ResultContains(recognisedSpeech, WHAT_ARE_MY_BRAKE_TEMPS, false) ||
                 ResultContains(recognisedSpeech, WHAT_ARE_THE_RELATIVE_TYRE_PERFORMANCES, false) ||
-                ResultContains(recognisedSpeech, HOW_LONG_WILL_THESE_TYRES_LAST, false))
+                ResultContains(recognisedSpeech, HOW_LONG_WILL_THESE_TYRES_LAST, false) ||
+                ResultContains(recognisedSpeech, HOWS_MY_LEFT_FRONT_CAMBER, false) ||
+                ResultContains(recognisedSpeech, HOWS_MY_RIGHT_FRONT_CAMBER, false) ||
+                ResultContains(recognisedSpeech, HOWS_MY_LEFT_REAR_CAMBER, false) ||
+                ResultContains(recognisedSpeech, HOWS_MY_RIGHT_REAR_CAMBER, false) ||
+                ResultContains(recognisedSpeech, HOWS_MY_FRONT_CAMBER, false) ||
+                ResultContains(recognisedSpeech, HOWS_MY_REAR_CAMBER, false) ||
+                ResultContains(recognisedSpeech, HOW_ARE_MY_TYRE_PRESSURES, false) ||
+                ResultContains(recognisedSpeech, HOW_ARE_MY_FRONT_TYRE_PRESSURES, false) ||
+                ResultContains(recognisedSpeech, HOW_ARE_MY_REAR_TYRE_PRESSURES, false) ||
+                ResultContains(recognisedSpeech, HOWS_MY_LEFT_FRONT_CAMBER_RIGHT_NOW, false) ||
+                ResultContains(recognisedSpeech, HOWS_MY_RIGHT_FRONT_CAMBER_RIGHT_NOW, false) ||
+                ResultContains(recognisedSpeech, HOWS_MY_LEFT_REAR_CAMBER_RIGHT_NOW, false) ||
+                ResultContains(recognisedSpeech, HOWS_MY_RIGHT_REAR_CAMBER_RIGHT_NOW, false) ||
+                ResultContains(recognisedSpeech, HOWS_MY_FRONT_CAMBER_RIGHT_NOW, false) ||
+                ResultContains(recognisedSpeech, HOWS_MY_REAR_CAMBER_RIGHT_NOW, false) ||
+                ResultContains(recognisedSpeech, HOW_ARE_MY_TYRE_PRESSURES_RIGHT_NOW, false) ||
+                ResultContains(recognisedSpeech, HOW_ARE_MY_FRONT_TYRE_PRESSURES_RIGHT_NOW, false) ||
+                ResultContains(recognisedSpeech, HOW_ARE_MY_REAR_TYRE_PRESSURES_RIGHT_NOW, false))
             {
                 return CrewChief.getEvent("TyreMonitor");
             }
@@ -1749,7 +2068,9 @@ namespace CrewChiefV4
                 return CrewChief.getEvent("Penalties");
             }
             else if (ResultContains(recognisedSpeech, DO_I_HAVE_A_MANDATORY_PIT_STOP, false) ||
-                ResultContains(recognisedSpeech, IS_MY_PIT_BOX_OCCUPIED, false))
+                ResultContains(recognisedSpeech, IS_MY_PIT_BOX_OCCUPIED, false) ||
+                ResultContains(recognisedSpeech, WHATS_PITLANE_SPEED_LIMIT, false) ||
+                ResultContains(recognisedSpeech, WHAT_ARE_THE_PIT_ACTIONS))
             {
                 return CrewChief.getEvent("PitStops");
             }
@@ -1771,37 +2092,6 @@ namespace CrewChiefV4
             {
                 return CrewChief.getEvent("Opponents");
             }
-            // multiple events for status reporting:
-            else if (ResultContains(recognisedSpeech, DAMAGE_REPORT, false))
-            {
-                CrewChief.getDamageReport();
-            }
-            else if (ResultContains(recognisedSpeech, CAR_STATUS, false))
-            {
-                CrewChief.getCarStatus();
-            }
-            else if (ResultContains(recognisedSpeech, STATUS, false))
-            {
-                CrewChief.getStatus();
-            }
-            else if (ResultContains(recognisedSpeech, SESSION_STATUS, false))
-            {
-                CrewChief.getSessionStatus();
-            }
-            else if (ResultContains(recognisedSpeech, START_PACE_NOTES_PLAYBACK, false))
-            {
-                if (!DriverTrainingService.isPlayingPaceNotes)
-                {
-                    crewChief.togglePaceNotesPlayback();
-                }
-            }
-            else if (ResultContains(recognisedSpeech, STOP_PACE_NOTES_PLAYBACK, false))
-            {
-                if (DriverTrainingService.isPlayingPaceNotes)
-                {
-                    crewChief.togglePaceNotesPlayback();
-                }
-            }
             else if (ResultContains(recognisedSpeech, IS_CAR_AHEAD_MY_CLASS, false) ||
                 ResultContains(recognisedSpeech, IS_CAR_BEHIND_MY_CLASS, false) ||
                 ResultContains(recognisedSpeech, WHAT_CLASS_IS_CAR_AHEAD, false) ||
@@ -1814,10 +2104,33 @@ namespace CrewChiefV4
             {
                 return CrewChief.getEvent("Strategy");
             }
-            else if (alarmClockVoiceRecognitionEnabled && 
+            else if (ResultContains(recognisedSpeech, PIT_STOP_TEAROFF, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_FAST_REPAIR, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CLEAR_ALL, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CLEAR_TYRES, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CLEAR_WIND_SCREEN, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CLEAR_FAST_REPAIR, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CLEAR_FUEL, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CHANGE_ALL_TYRES, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CHANGE_FRONT_LEFT_TYRE, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CHANGE_FRONT_RIGHT_TYRE, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CHANGE_REAR_LEFT_TYRE, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CHANGE_REAR_RIGHT_TYRE, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CHANGE_LEFT_SIDE_TYRES, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CHANGE_RIGHT_SIDE_TYRES, false) ||
+                ResultContains(recognisedSpeech, HOW_MANY_INCIDENT_POINTS, false) ||
+                ResultContains(recognisedSpeech, WHATS_THE_INCIDENT_LIMIT, false) ||
+                ResultContains(recognisedSpeech, WHATS_MY_IRATING, false) ||
+                ResultContains(recognisedSpeech, WHATS_MY_LICENSE_CLASS, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_FUEL_TO_THE_END, false) ||
+                ResultContains(recognisedSpeech, WHATS_THE_SOF, false))
+            {
+                return CrewChief.getEvent("IRacingBroadcastMessageEvent");
+            }
+            else if (alarmClockVoiceRecognitionEnabled &&
                 (ResultContains(recognisedSpeech, SET_ALARM_CLOCK, false) || ResultContains(recognisedSpeech, CLEAR_ALARM_CLOCK, false)))
             {
-                return crewChief.alarmClock;
+                return CrewChief.alarmClock;
             }
             return null;
         }

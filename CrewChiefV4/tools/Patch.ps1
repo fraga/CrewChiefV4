@@ -37,7 +37,7 @@ $ccLayoutMainPath = ${env:ProgramFiles(x86)} + "\Britton IT Ltd\CrewChiefV4\"
 echo "Patching main CC install"
 echo ""
 
-MirrorDirectory $rootPath\"plugins" $ccLayoutMainPath"\plugins"
+# MirrorDirectory $rootPath\"plugins" $ccLayoutMainPath"\plugins"
 MirrorDirectory $rootPath\"sounds\background_sounds" $env:LOCALAPPDATA"\CrewChiefV4\sounds\background_sounds"
 MirrorDirectory $rootPath\"sounds\driver_names" $env:LOCALAPPDATA"\CrewChiefV4\sounds\driver_names"
 MirrorDirectory $rootPath\"sounds\fx" $env:LOCALAPPDATA"\CrewChiefV4\sounds\fx"
@@ -50,6 +50,15 @@ OverwriteFile $rootPath\"carClassData.json" $ccLayoutMainPath
 OverwriteFile $rootPath\"trackLandmarksData.json" $ccLayoutMainPath
 OverwriteFile $rootPath\"saved_command_macros.json" $ccLayoutMainPath
 OverwriteFile $rootPath\"speech_recognition_config.txt" $ccLayoutMainPath
+
+# Update binary dependencies.
+OverwriteFile $releaseBinPath\"AutoUpdater.NET.dll" $ccLayoutMainPath
+OverwriteFile $releaseBinPath\"MathNet.Numerics.dll" $ccLayoutMainPath
+OverwriteFile $releaseBinPath\"NAudio.dll" $ccLayoutMainPath
+OverwriteFile $releaseBinPath\"Newtonsoft.Json.dll" $ccLayoutMainPath
+OverwriteFile $releaseBinPath\"SharpDX.dll" $ccLayoutMainPath
+OverwriteFile $releaseBinPath\"SharpDX.DirectInput.dll" $ccLayoutMainPath
+OverwriteFile $releaseBinPath\"websocket-sharp.dll" $ccLayoutMainPath
 
 echo "Press any key to finish..."
 

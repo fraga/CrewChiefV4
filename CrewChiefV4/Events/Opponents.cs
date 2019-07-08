@@ -80,6 +80,10 @@ namespace CrewChiefV4.Events
         private String lastNextCarAheadOpponentName = null;
 
         private String lastLeaderAnnounced = null;
+
+        private int minSecondsBetweenOpponentTyreChangeCalls = 10;
+        private int maxSecondsBetweenOpponentTyreChangeCalls = 20;
+        private DateTime suppressOpponentTyreChangeUntil = DateTime.MinValue;
         
         public Opponents(AudioPlayer audioPlayer)
         {
@@ -233,12 +237,13 @@ namespace CrewChiefV4.Events
 
                         // in race sessions, announce tyre type changes once the session is underway
                         if (currentGameState.SessionData.SessionType == SessionType.Race &&
-                            currentGameState.SessionData.SessionRunningTime > 30 && opponentData.hasJustChangedToDifferentTyreType)
+                            currentGameState.SessionData.SessionRunningTime > 30 && opponentData.hasJustChangedToDifferentTyreType && currentGameState.Now > suppressOpponentTyreChangeUntil)
                         {
                             // this may be a race position or an OpponentData object
                             Object opponentIdentifier = getOpponentIdentifierForTyreChange(opponentData, currentGameState.SessionData.ClassPosition);
                             if (opponentIdentifier != null)
                             {
+                                suppressOpponentTyreChangeUntil = currentGameState.Now.AddSeconds(Utilities.random.Next(minSecondsBetweenOpponentTyreChangeCalls, maxSecondsBetweenOpponentTyreChangeCalls));
                                 audioPlayer.playMessage(new QueuedMessage("opponent_tyre_change_" + opponentIdentifier.ToString(), 20,
                                     messageFragments: MessageContents(opponentIdentifier, folderIsNowOn, TyreMonitor.getFolderForTyreType(opponentData.CurrentTyres)),
                                     abstractEvent: this, priority: 5));
@@ -509,6 +514,7 @@ namespace CrewChiefV4.Events
             else if (voiceMessage.Contains(SpeechRecogniser.POSITION_LONG) || voiceMessage.Contains(SpeechRecogniser.POSITION_SHORT))
             {
                 int position = 0;
+                Boolean found = false;
                 foreach (KeyValuePair<String[], int> entry in SpeechRecogniser.racePositionNumberToNumber)
                 {
                     foreach (String numberStr in entry.Key)
@@ -518,6 +524,7 @@ namespace CrewChiefV4.Events
                             if (voiceMessage.Contains(" " + numberStr + expectedNumberSuffix))
                             {
                                 position = entry.Value;
+                                found = true;
                                 break;
                             }
                         }
@@ -526,9 +533,14 @@ namespace CrewChiefV4.Events
                             if (voiceMessage.EndsWith(" " + numberStr))
                             {
                                 position = entry.Value;
+                                found = true;
                                 break;
                             }
                         }
+                    }
+                    if (found)
+                    {
+                        break;
                     }
                 }
                 if (position != currentGameState.SessionData.ClassPosition)
@@ -540,6 +552,44 @@ namespace CrewChiefV4.Events
                     opponentKey = positionIsPlayerKey;
                 }
                 gotByPositionNumber = true;
+            }
+            else if (voiceMessage.Contains(SpeechRecogniser.CAR_NUMBER))
+            {
+                String carNumber = "-1";
+                Boolean found = false;
+                foreach (KeyValuePair<String[], String> entry in SpeechRecogniser.carNumberToNumber)
+                {
+                    foreach (String numberStr in entry.Key)
+                    {
+                        if (expectedNumberSuffix.Length > 0)
+                        {
+                            if (voiceMessage.Contains(" " + numberStr + expectedNumberSuffix))
+                            {
+                                carNumber = entry.Value;
+                                found = true;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            if (voiceMessage.EndsWith(" " + numberStr))
+                            {
+                                carNumber = entry.Value;
+                                found = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (found)
+                    {
+                        break;
+                    }
+                }
+                if (carNumber != "-1" && carNumber != currentGameState.SessionData.PlayerCarNr)
+                {
+                    opponentKey = currentGameState.getOpponentKeyForCarNumber(carNumber);
+                }
+                gotByPositionNumber = false;
             }
             else
             {
@@ -623,11 +673,11 @@ namespace CrewChiefV4.Events
                     }
                 }
                 else if (voiceMessage.StartsWith(SpeechRecogniser.WHATS) &&
-                    (voiceMessage.EndsWith(SpeechRecogniser.LAST_LAP) || voiceMessage.EndsWith(SpeechRecogniser.BEST_LAP) ||
+                    (voiceMessage.EndsWith(SpeechRecogniser.LAST_LAP) || voiceMessage.EndsWith(SpeechRecogniser.BEST_LAP) || voiceMessage.EndsWith(SpeechRecogniser.LAST_LAP_TIME) || voiceMessage.EndsWith(SpeechRecogniser.BEST_LAP_TIME) ||
                     voiceMessage.EndsWith(SpeechRecogniser.LICENSE_CLASS) ||
                     voiceMessage.EndsWith(SpeechRecogniser.IRATING)))
                 {
-                    if (voiceMessage.EndsWith(SpeechRecogniser.LAST_LAP))
+                    if (voiceMessage.EndsWith(SpeechRecogniser.LAST_LAP) || voiceMessage.EndsWith(SpeechRecogniser.LAST_LAP_TIME))
                     {
                         float lastLap = getOpponentLastLap(getOpponentKey(voiceMessage, SpeechRecogniser.POSSESSIVE + " ").Item1);
                         if (lastLap != -1)
@@ -638,7 +688,7 @@ namespace CrewChiefV4.Events
 
                         }
                     }
-                    else if (voiceMessage.EndsWith(SpeechRecogniser.BEST_LAP))
+                    else if (voiceMessage.EndsWith(SpeechRecogniser.BEST_LAP) || voiceMessage.EndsWith(SpeechRecogniser.BEST_LAP_TIME))
                     {
                         float bestLap = getOpponentBestLap(getOpponentKey(voiceMessage, SpeechRecogniser.POSSESSIVE + " ").Item1);
                         if (bestLap != -1)

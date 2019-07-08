@@ -256,7 +256,7 @@ namespace CrewChiefV4.rFactor1
             // if previous state is null or any of the above change, this is a new session
             currentGameState.SessionData.IsNewSession = previousGameState == null ||
                 currentGameState.SessionData.SessionType != previousGameState.SessionData.SessionType ||
-                !CarData.IsCarClassEqual(currentGameState.carClass, previousGameState.carClass) ||
+                !CarData.IsCarClassEqual(currentGameState.carClass, previousGameState.carClass, false) ||
                 currentGameState.SessionData.DriverRawName != previousGameState.SessionData.DriverRawName || 
                 currentGameState.SessionData.TrackDefinition.name != previousGameState.SessionData.TrackDefinition.name ||
                 currentGameState.SessionData.TrackDefinition.trackLength != previousGameState.SessionData.TrackDefinition.trackLength ||
@@ -769,7 +769,7 @@ namespace CrewChiefV4.rFactor1
                 opponent.OverallPosition = vehicle.place;
                 if (opponent.DriverNameSet && opponentPrevious == null && CrewChief.enableDriverNames)
                 {
-                    speechRecogniser.addNewOpponentName(opponent.DriverRawName);
+                    speechRecogniser.addNewOpponentName(opponent.DriverRawName, "-1");
                     Console.WriteLine("New driver " + opponent.DriverRawName + 
                         " is using car class " + opponent.CarClass.getClassIdentifier() +
                         " at position " + opponent.OverallPosition.ToString());

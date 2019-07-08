@@ -73,10 +73,13 @@ namespace CrewChiefV4.Events
             if (currentGameState.SessionData.SessionRunningTime > 30)
             {
                 if (currentGameState.CarDamageData.OverallEngineDamage < DamageLevel.DESTROYED &&
+                    currentGameState.CarDamageData.OverallTransmissionDamage < DamageLevel.DESTROYED &&
+                    !currentGameState.CarDamageData.SuspensionDamageStatus.hasValueAtLevel(DamageLevel.DESTROYED) &&
                     !currentGameState.PitData.InPitlane &&
                     currentGameState.EngineData.EngineStalledWarning && 
                     currentGameState.Now > nextStalledCheck &&
-                    currentGameState.PositionAndMotionData.CarSpeed < 5)
+                    currentGameState.PositionAndMotionData.CarSpeed < 5 &&
+                    !currentGameState.carClass.isBatteryPowered)  // VL: for now assume electrical cars don't stall (at least FE doesn't).
                 {
                     // Play stalled warning straight away
                     audioPlayer.playMessageImmediately(new QueuedMessage(folderStalled, 3));

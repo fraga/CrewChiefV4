@@ -5,6 +5,8 @@ using System.Text;
 using CrewChiefV4.GameState;
 using CrewChiefV4.Audio;
 using CrewChiefV4.NumberProcessing;
+using CrewChiefV4.R3E;
+using System.Threading;
 
 namespace CrewChiefV4.Events
 {
@@ -67,6 +69,7 @@ namespace CrewChiefV4.Events
         private String folderWatchYourPitSpeed = "mandatory_pit_stops/watch_your_pit_speed";
         private String folderPitCrewReady = "mandatory_pit_stops/pit_crew_ready";
         private String folderPitStallOccupied = "mandatory_pit_stops/pit_stall_occupied";
+        private String folderPitStallAvailable = "mandatory_pit_stops/pit_stall_available";
         private String folderStopCompleteGo = "mandatory_pit_stops/stop_complete_go";
         private String folderPitStopRequestReceived = "mandatory_pit_stops/pit_stop_requested";
         private String folderPitStopRequestCancelled = "mandatory_pit_stops/pit_request_cancelled";
@@ -85,6 +88,30 @@ namespace CrewChiefV4.Events
         private String folderThreeHundredFeetWarning = "mandatory_pit_stops/three_hundred_feet";
         private String folderFiftyMetreWarning = "mandatory_pit_stops/fifty_metres";
         private String folderOneHundredFeetWarning = "mandatory_pit_stops/one_hundred_feet";
+
+        private String folderPitSpeedLimit = "mandatory_pit_stops/pit_speed_limit";
+        private String folderNoPitSpeedLimit = "mandatory_pit_stops/no_pit_speed_limit";
+
+        // R3E pit menu specials
+        private String folderWillChangeAllFourTyres = "mandatory_pit_stops/will_change_all_four_tyres"; // "we're changing all 4 tyres"
+        private String folderWillChangeFrontTyresOnly = "mandatory_pit_stops/will_change_front_tyres_only"; // "we're changing front tyres only"
+        private String folderWillChangeRearTyresOnly = "mandatory_pit_stops/will_change_rear_tyres_only"; // "we're changing rear tyres only"
+        private String folderNoTyresThisTime = "mandatory_pit_stops/no_tyres_this_time"; // "we're not changing tyres"
+        private String folderWillPutFuelIn = "mandatory_pit_stops/will_put_fuel_in"; // "we're putting fuel in"
+        private String folderNoFuelThisTime = "mandatory_pit_stops/no_fuel_this_time"; // "no fuel this time"
+        private String folderWillFixFrontAndRearAero = "mandatory_pit_stops/will_fix_front_and_rear_aero"; // "we'll fix the front and rear aero"
+        private String folderWillFixFrontAndLeaveRearAero = "mandatory_pit_stops/will_fix_front_and_leave_rear_aero"; // "we'll fix the front aero and leave the rear"
+        private String folderWillFixFrontAero = "mandatory_pit_stops/will_fix_front_aero"; // "we'll fix the front aero"
+        private String folderWillFixRearAndLeaveFrontAero = "mandatory_pit_stops/will_fix_rear_and_leave_front_aero";  // "we'll fix the rear and leave the front"
+        private String folderWillFixRearAero = "mandatory_pit_stops/will_fix_rear_aero";  // "we'll fix the rear aero"
+        private String folderWillFixSuspension = "mandatory_pit_stops/will_fix_suspension"; // "we'll fix the suspension"
+        private String folderWillLeaveSuspension = "mandatory_pit_stops/will_leave_suspension"; // "we'll leave the suspension"
+        private String folderWillBeServingPenalty = "mandatory_pit_stops/will_be_serving_penalty";  // "we'll be serving the penalty"
+        // combined fuel and tyres for common cases:
+        private String folderWillChangeAllFourTyresAndRefuel = "mandatory_pit_stops/will_change_all_four_tyre_and_refuel"; // "we're refuelling and will change all four tyres"
+        private String folderWillChangeAllFourTyresNoFuel = "mandatory_pit_stops/will_change_all_four_tyre_no_fuel"; // "we'll change all four tyres, no fuel this time"
+        private String folderWillPutFuelInNoTyresThisTime = "mandatory_pit_stops/will_put_fuel_in_no_tyres"; // "we're putting fuel in, no tyres this time"
+        private String folderNoTyresOrFuelThisTime = "mandatory_pit_stops/no_tyres_or_fuel"; // "no tyres or fuel this time"
 
         private int pitWindowOpenLap;
 
@@ -165,6 +192,9 @@ namespace CrewChiefV4.Events
 
         private DateTime timeStartedAppoachingPitsCheck = DateTime.MaxValue;
 
+        // Announce pit speed limit once per session.  Voice command response also counts.
+        private bool pitLaneSpeedWarningAnnounced = false;
+        
         public PitStops(AudioPlayer audioPlayer)
         {
             this.audioPlayer = audioPlayer;
@@ -177,7 +207,7 @@ namespace CrewChiefV4.Events
 
         public override List<SessionPhase> applicableSessionPhases
         {
-            get { return new List<SessionPhase> { SessionPhase.Green, SessionPhase.Countdown, SessionPhase.Finished, SessionPhase.Checkered, SessionPhase.FullCourseYellow }; }
+            get { return new List<SessionPhase> { SessionPhase.Green, SessionPhase.Countdown, SessionPhase.Finished, SessionPhase.Checkered, SessionPhase.FullCourseYellow, SessionPhase.Garage /*rF2 Garage phase sticks while exiting pits in practice/qualification, so we need to handle it*/ }; }
         }
 
         public override void clearState()
@@ -225,6 +255,15 @@ namespace CrewChiefV4.Events
             pitEntryTime = DateTime.MinValue;
             nextPitDistanceIndex = 0;
             getPitCountdownTimingPoints = false;
+            pitLaneSpeedWarningAnnounced = false;
+
+            // AMS (RF1) uses the pit window calculations to make 'box now' calls for scheduled stops, but we don't want 
+            // the pit window opening / closing warnings.
+            // Try also applying the same approach to rF2.
+            if (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT)
+            {
+                enableWindowWarnings = false;
+            }
         }
 
         public override bool isMessageStillValid(String eventSubType, GameStateData currentGameState, Dictionary<String, Object> validationData)
@@ -239,6 +278,10 @@ namespace CrewChiefV4.Events
                 {
                     return !currentGameState.PitData.HasRequestedPitStop;
                 }
+                else if (eventSubType == folderDisengageLimiter)
+                {
+                    return currentGameState.PitData.limiterStatus == PitData.LimiterStatus.ACTIVE;
+                }
             }
             else
             {
@@ -248,9 +291,27 @@ namespace CrewChiefV4.Events
             return true;
         }
 
+        private float getDistanceToBox(GameStateData currentGameState)
+        {
+            if (currentGameState.PitData.PitBoxLocationEstimate == null || currentGameState.PositionAndMotionData.WorldPosition == null)
+            {
+                float distanceToBox = currentGameState.PitData.PitBoxPositionEstimate - currentGameState.PositionAndMotionData.DistanceRoundTrack;
+                if (distanceToBox < 0)
+                {
+                    distanceToBox = currentGameState.SessionData.TrackDefinition.trackLength + distanceToBox;
+                }
+                return distanceToBox;
+            }
+            else
+            {
+                return (float) Math.Sqrt(Math.Pow(currentGameState.PitData.PitBoxLocationEstimate[0] - currentGameState.PositionAndMotionData.WorldPosition[0], 2)
+                    + Math.Pow(currentGameState.PitData.PitBoxLocationEstimate[2] - currentGameState.PositionAndMotionData.WorldPosition[2], 2));
+            }
+        }
+
         private void getPitCountdownTriggerPoints(float pitlaneSpeed)
         {
-            float secondsBetweenEachCall = 1.5f;
+            float secondsBetweenEachCall = 1f;
             // we want the 0 (or 'BOX!') call to come at, say 20metres, so the last element is at 20 metres from the box
             float distance = pitCountdownEndDistance;
             for (int i = pitCountdownTriggerPoints.Length - 1; i >= 0; i--)
@@ -277,34 +338,34 @@ namespace CrewChiefV4.Events
                 playedRequestPitOnThisLap = false;
                 playedPitRequestCancelledOnThisLap = false;
             }
-            // AMS (RF1) uses the pit window calculations to make 'box now' calls for scheduled stops, but we don't want 
-            // the pit window opening / closing warnings.
-            // Try also applying the same approach to rF2.
-            if (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT)
+
+            // in R3E, if we've requested a pitstop announce the expected actions when we're between 200 and 300 metres from the start line
+            // and haven't just made the request
+            if (CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM && R3EPitMenuManager.outstandingPitstopRequest
+               && currentGameState.PositionAndMotionData.DistanceRoundTrack > currentGameState.SessionData.TrackDefinition.trackLength - 700
+               && currentGameState.PositionAndMotionData.DistanceRoundTrack < currentGameState.SessionData.TrackDefinition.trackLength - 300
+               && currentGameState.Now > R3EPitMenuManager.timeWeCanAnnouncePitActions)
             {
-                enableWindowWarnings = false;
+                announceR3EPitActions(currentGameState.PitData.InPitlane, false);
             }
 
             if (previousGameState != null && (pitBoxPositionCountdownEnabled || pitBoxTimeCountdownEnabled) && 
                 currentGameState.PositionAndMotionData.CarSpeed > 2 &&
-                currentGameState.PitData.PitBoxPositionEstimate > 0 && 
-                !currentGameState.PenaltiesData.HasDriveThrough)
+                (currentGameState.PitData.PitBoxPositionEstimate > 0 || currentGameState.PitData.PitBoxLocationEstimate != null ) && 
+                !currentGameState.PenaltiesData.HasDriveThrough &&
+                !(CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT && currentGameState.PitData.OnOutLap && currentGameState.SessionData.SessionType != SessionType.Race))  // In rF2 countdown pit countdown messages get triggered on exit from the garage.
             {
                 if (previousGameState.PitData.InPitlane && !currentGameState.PitData.InPitlane)
                 {
                     playedLimiterLineToPitBoxDistanceWarning = false;
                 }
 
-                float distanceToBox = currentGameState.PitData.PitBoxPositionEstimate - currentGameState.PositionAndMotionData.DistanceRoundTrack;
-                if (distanceToBox < 0)
-                {
-                    distanceToBox = currentGameState.SessionData.TrackDefinition.trackLength + distanceToBox;
-                }
+                float distanceToBox = getDistanceToBox(currentGameState);
                 if (!previousGameState.PitData.InPitlane && currentGameState.PitData.InPitlane)
                 {
                     // just entered the pitlane
                     pitEntryTime = currentGameState.Now;
-                    getPitCountdownTimingPoints = pitBoxPositionCountdownEnabled;
+                    getPitCountdownTimingPoints = pitBoxTimeCountdownEnabled;
 
                     previousDistanceToBox = 0;
                     played100MetreOr300FeetWarning = false;
@@ -335,7 +396,6 @@ namespace CrewChiefV4.Events
                 }
                 else if (previousGameState.PitData.InPitlane && currentGameState.PitData.InPitlane && previousDistanceToBox > -1)
                 {
-                    
                     if (pitBoxTimeCountdownEnabled)
                     {
                         // first get the timing point positions
@@ -352,10 +412,10 @@ namespace CrewChiefV4.Events
                             if ((currentGameState.Now - pitEntryDistancePlayedTime).TotalSeconds > 3)
                             {
                                 // the first item takes longer to play because it's preceeded by "box in.."
-                                float pointAdjustment = playedBoxIn ? 0 : currentGameState.PositionAndMotionData.CarSpeed;
+                                float pointAdjustment = playedBoxIn ? 0 : currentGameState.PositionAndMotionData.CarSpeed * 1.3f;
                                 for (int i = nextPitDistanceIndex; i < pitCountdownTriggerPoints.Length; i++)
                                 {
-                                    if (distanceToBox < pitCountdownTriggerPoints[i] + pointAdjustment && distanceToBox > pitCountdownTriggerPoints[i] + pointAdjustment - 2)
+                                    if (distanceToBox < pitCountdownTriggerPoints[i] + pointAdjustment && distanceToBox > pitCountdownTriggerPoints[i] + pointAdjustment - 5)
                                     {
                                         // ensure an unplayed distance message isn't still hanging around in the queue                                        
                                         int purgeCount = audioPlayer.purgeQueues();
@@ -396,11 +456,12 @@ namespace CrewChiefV4.Events
                     }
                     else
                     {
+                        float adjustment = pitBoxPositionCountdownInFeet ? 30 : 10; // as we're moving at like 20m/s, move the warnings back half a second
                         float distanceUpperFor100MetreOr300FeetWarning = pitBoxPositionCountdownInFeet ? 300 / metresToFeet : 100;
-                        float distanceLowerFor100MetreOr300FeetWarning = distanceUpperFor100MetreOr300FeetWarning - 5;
+                        float distanceLowerFor100MetreOr300FeetWarning = distanceUpperFor100MetreOr300FeetWarning - adjustment;
 
                         float distanceUpperFor50MetreOr100FeetWarning = pitBoxPositionCountdownInFeet ? 100 / metresToFeet : 50;
-                        float distanceLowerFor50MetreOr100FeetWarning = distanceUpperFor50MetreOr100FeetWarning - 5;
+                        float distanceLowerFor50MetreOr100FeetWarning = distanceUpperFor50MetreOr100FeetWarning - adjustment;
 
                         if (!played100MetreOr300FeetWarning && distanceToBox < distanceUpperFor100MetreOr300FeetWarning && previousDistanceToBox > distanceLowerFor100MetreOr300FeetWarning)
                         {
@@ -433,21 +494,23 @@ namespace CrewChiefV4.Events
                 playBoxNowMessage = false;
                 mandatoryStopBoxThisLap = false;
             }
-            if (currentGameState.PitData.limiterStatus != -1 && currentGameState.Now > timeOfLastLimiterWarning + TimeSpan.FromSeconds(30))
+            if (currentGameState.PitData.limiterStatus != PitData.LimiterStatus.NOT_AVAILABLE && currentGameState.Now > timeOfLastLimiterWarning + TimeSpan.FromSeconds(30))
             {
-                if (((previousGameState != null && previousGameState.PitData.IsAtPitExit && !currentGameState.PitData.IsAtPitExit) || (currentGameState.SessionData.SectorNumber == 1)) && 
-                    currentGameState.Now > timeOfDisengageCheck && !currentGameState.PitData.InPitlane && currentGameState.PitData.limiterStatus == 1)
+                if (currentGameState.SessionData.SectorNumber == 1 && 
+                    currentGameState.Now > timeOfDisengageCheck && !currentGameState.PitData.InPitlane && currentGameState.PitData.limiterStatus == PitData.LimiterStatus.ACTIVE &&
+                    !(CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT && currentGameState.SessionData.SessionPhase == SessionPhase.Finished))  // In rF2, Sector number is not updated on cooldown lap, hence ignore disengage limiter logic.
                 {
                     // in S1 but have exited pits, and we're expecting the limit to have been turned off
                     timeOfDisengageCheck = DateTime.MaxValue;
                     timeOfLastLimiterWarning = currentGameState.Now;
-                    audioPlayer.playMessageImmediately(new QueuedMessage(folderDisengageLimiter, 2, abstractEvent: this, type: SoundType.IMPORTANT_MESSAGE, priority: 0));
+                    audioPlayer.playMessageImmediately(new QueuedMessage(folderDisengageLimiter, 5, abstractEvent: this, type: SoundType.IMPORTANT_MESSAGE, priority: 7));
                 }
                 else if (previousGameState != null)
                 {
                     if (!previousGameState.PitData.InPitlane && currentGameState.PitData.InPitlane)
                     {
-                        if (currentGameState.PitData.limiterStatus == 0 && currentGameState.PositionAndMotionData.CarSpeed > 1)
+                        if (currentGameState.PitData.limiterStatus == PitData.LimiterStatus.INACTIVE && currentGameState.PositionAndMotionData.CarSpeed > 1
+                            && (currentGameState.PitData.PitSpeedLimit == -1.0f || currentGameState.PitData.pitlaneHasSpeedLimit()))
                         {
                             // just entered the pit lane with no limiter active
                             audioPlayer.playMessageImmediately(new QueuedMessage(folderEngageLimiter, 1, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
@@ -455,34 +518,41 @@ namespace CrewChiefV4.Events
                         }
                     }
                     else if (currentGameState.SessionData.SectorNumber == 1 &&
-                        previousGameState.PitData.InPitlane && !currentGameState.PitData.InPitlane && currentGameState.PitData.limiterStatus == 1 && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)
+                        previousGameState.PitData.InPitlane && !currentGameState.PitData.InPitlane && currentGameState.PitData.limiterStatus == PitData.LimiterStatus.ACTIVE && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)
                     {
                         // just left the pitlane with the limiter active - wait 2 seconds then warn
                         timeOfDisengageCheck = currentGameState.Now + TimeSpan.FromSeconds(2);
                     }
-                    else if (currentGameState.PitData.IsAtPitExit && currentGameState.PitData.limiterStatus == 1 && (CrewChief.gameDefinition.gameEnum == GameEnum.IRACING))
+                    else if (currentGameState.PitData.IsAtPitExit && currentGameState.PitData.limiterStatus == PitData.LimiterStatus.ACTIVE && CrewChief.gameDefinition.gameEnum == GameEnum.IRACING)
                     {
-                        // TODO: this needs a bit more investigation. We have 2 separate blocks here because the time delay may need to be different for iRacing.
+                        // TODO: this needs a bit more investigation. We have 2 separate blocks here because the time delay may need to be different for iRacing. 
                         // I know this looks like a fucking retarded if-else statement but I don't care. It's all Morten's fault anyway. Just like the AccessViolationErrors
-                        
-                        // In iRacing we cant be sure our pit exit is in sector 1 that why we cant use currentGameState.SessionData.SectorNumber to id if we are at pit entry or pit exit.
-                        // also to add to this, in ACC sector wont change from sector 3 until we have started our first timed lap.
                         timeOfDisengageCheck = currentGameState.Now + TimeSpan.FromSeconds(2);
                     }
                 }
             }
             else if (previousGameState != null 
-                && currentGameState.PitData.limiterStatus == -1  // If limiter is not available
+                && currentGameState.PitData.limiterStatus == PitData.LimiterStatus.NOT_AVAILABLE
                 && !previousGameState.PitData.InPitlane && currentGameState.PitData.InPitlane  // Just entered the pits
                 && currentGameState.Now > timeSpeedInPitsWarning + TimeSpan.FromSeconds(120)  // We did not play this on pit approach
                 && previousGameState.PositionAndMotionData.CarSpeed > 2.0f && currentGameState.PositionAndMotionData.CarSpeed > 2.0f  // Guard against tow, teleport, returning to ISI game's Monitor and other bullshit
-                && currentGameState.SessionData.SessionRunningTime > 30.0f)  // Sanity check !inPts -> inPits flip on session start.
+                && currentGameState.SessionData.SessionRunningTime > 30.0f  // Sanity check !inPts -> inPits flip on session start.
+                && (currentGameState.PitData.PitSpeedLimit == -1.0f || currentGameState.PitData.pitlaneHasSpeedLimit()))  // If there's pit speed limit or if we have no idea.
             {
-                audioPlayer.playMessageImmediately(new QueuedMessage(folderWatchYourPitSpeed, 2, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
+                if (currentGameState.PitData.PitSpeedLimit == -1.0f
+                    || pitLaneSpeedWarningAnnounced)  // Announce pitlane speed limit automatically only once per session
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(folderWatchYourPitSpeed, 2, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
+                }
+                else
+                {
+                    announcePitlaneSpeedLimit(currentGameState, false /*possiblyPlayIntro*/, false /*voiceResponse*/);
+                    pitLaneSpeedWarningAnnounced = true;
+                }
             }
             if (currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.PitData.HasMandatoryPitStop &&
                 (currentGameState.SessionData.SessionPhase == SessionPhase.Green || currentGameState.SessionData.SessionPhase == SessionPhase.FullCourseYellow))
-            {                
+            {
                 // allow this data to be reinitialised during a race (hack for AMS)
                 if (!pitDataInitialised || currentGameState.PitData.ResetEvents)
                 {
@@ -775,7 +845,8 @@ namespace CrewChiefV4.Events
             {
                 if (currentGameState.SessionData.SessionType == SessionType.Race
                     || currentGameState.SessionData.SessionType == SessionType.Qualify
-                    || currentGameState.SessionData.SessionType == SessionType.Practice)
+                    || currentGameState.SessionData.SessionType == SessionType.Practice
+                    || currentGameState.SessionData.SessionType == SessionType.LonePractice)
                 {
                     if ((!previousGameState.PitData.IsApproachingPitlane
                         && currentGameState.PitData.IsApproachingPitlane && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)
@@ -786,7 +857,16 @@ namespace CrewChiefV4.Events
                         timeStartedAppoachingPitsCheck = DateTime.MaxValue;
                         timeSpeedInPitsWarning = currentGameState.Now;
 
-                        audioPlayer.playMessageImmediately(new QueuedMessage(folderWatchYourPitSpeed, 2, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
+                        if (currentGameState.PitData.PitSpeedLimit == -1.0f
+                            || pitLaneSpeedWarningAnnounced)  // Announce pitlane speed limit automatically only once per session
+                        {
+                            audioPlayer.playMessageImmediately(new QueuedMessage(folderWatchYourPitSpeed, 2, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
+                        }
+                        else
+                        {
+                            announcePitlaneSpeedLimit(currentGameState, true /*possiblyPlayIntro*/, false /*voiceResponse*/);
+                            pitLaneSpeedWarningAnnounced = true;
+                        }
                     }
                     if (!previousGameState.PitData.IsApproachingPitlane
                         && currentGameState.PitData.IsApproachingPitlane && timeStartedAppoachingPitsCheck == DateTime.MaxValue)
@@ -824,7 +904,7 @@ namespace CrewChiefV4.Events
                         && currentGameState.PitData.IsPitCrewReady)
                     {
                         int delay = Utilities.random.Next(1, 3);
-                        audioPlayer.playMessage(new QueuedMessage(folderPitCrewReady, delay + 6, secondsDelay: delay, abstractEvent: this, priority: 10));
+                        audioPlayer.playMessageImmediately(new QueuedMessage(folderPitCrewReady, delay + 6, secondsDelay: delay, abstractEvent: this, priority: 10));
                     }
                     if (!previousGameState.PitData.IsPitCrewDone
                         && currentGameState.PitData.IsPitCrewDone)
@@ -838,6 +918,8 @@ namespace CrewChiefV4.Events
                     {
                         timeOfPitRequestOrCancel = currentGameState.Now;
                         playedRequestPitOnThisLap = true;
+
+                        Penalties.playerMustPitThisLap = true;
                         // respond immediately to this request
                         audioPlayer.playMessageImmediately(new QueuedMessage(folderPitStopRequestReceived, 0));
                     }
@@ -854,6 +936,8 @@ namespace CrewChiefV4.Events
                         playedPitRequestCancelledOnThisLap = true;
                         int delay = Utilities.random.Next(1, 3);
                         audioPlayer.playMessage(new QueuedMessage(folderPitStopRequestCancelled, delay + 6, secondsDelay: delay, abstractEvent: this, priority: 10));
+
+                        Penalties.playerMustPitThisLap = false;
                     }
                 }
                 else if ((CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2 || CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2_NETWORK) &&
@@ -863,15 +947,257 @@ namespace CrewChiefV4.Events
                 {
                     timeOfPitRequestOrCancel = currentGameState.Now;
                     playedRequestPitOnThisLap = true;
+
+                    Penalties.playerMustPitThisLap = true;
                     // respond immediately to this request
                     audioPlayer.playMessageImmediately(new QueuedMessage(folderPitStopRequestReceived, 2, abstractEvent: this));
                 }
-            }            
+            }
+
+            if (CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT)
+            {
+                if (!pitLaneSpeedWarningAnnounced
+                    && (currentGameState.SessionData.SessionType == SessionType.LonePractice || currentGameState.SessionData.SessionType == SessionType.Practice || currentGameState.SessionData.SessionType == SessionType.Qualify)
+                    && currentGameState.PitData.InPitlane
+                    && currentGameState.PositionAndMotionData.CarSpeed > 0.5f)
+                {
+                    pitLaneSpeedWarningAnnounced = true;
+                    if (currentGameState.PitData.PitSpeedLimit != -1.0f)
+                    {
+                        announcePitlaneSpeedLimit(currentGameState, false /*possiblyAnnounceIntro*/, false /*voiceResponse*/);
+                    }
+                }
+
+                if (previousGameState != null
+                    && currentGameState.SessionData.SessionType == SessionType.Race
+                    && currentGameState.PitData.HasRequestedPitStop)
+                {
+                    if (!previousGameState.PitData.PitStallOccupied && currentGameState.PitData.PitStallOccupied)
+                        audioPlayer.playMessageImmediately(new QueuedMessage(folderPitStallOccupied, 0));
+                    else if (previousGameState.PitData.PitStallOccupied && !currentGameState.PitData.PitStallOccupied)
+                        audioPlayer.playMessageImmediately(new QueuedMessage(folderPitStallAvailable, 0));
+                }
+            }
+        }
+
+        private void announceR3EPitActions(Boolean inPitLane, Boolean fromVoiceRequest)
+        {
+            if (fromVoiceRequest)
+            {
+                // block the automatic announcement for a while
+                R3EPitMenuManager.timeWeCanAnnouncePitActions = CrewChief.currentGameState.Now.AddSeconds(10);
+            }
+            else
+            {
+                // this is an automated announcement so block further announcements of this set of actions until pit-in is requested again
+                R3EPitMenuManager.outstandingPitstopRequest = false;
+            }
+            if (!R3EPitMenuManager.hasStateForCurrentSession)
+            {
+                // if the menu isn't open, pop it for a moment to get a snapshot of its state. This is an edge case - either we'll be invoking
+                // this from the SRE (we asked "what's the pit stop plan" before we requested a pitstop) or something has gone rather wrong
+                R3EPitMenuManager.openPitMenuIfClosed();
+                Thread.Sleep(100);
+                if (!inPitLane)
+                {
+                    R3EPitMenuManager.closePitMenuIfOpen(0);
+                }
+            }
+            Boolean doneFuel = false;
+            Boolean doneTyres = false;
+            Boolean haveData = false;
+            if (R3EPitMenuManager.latestState[SelectedItem.Fronttires] == PitSelectionState.SELECTED 
+                && R3EPitMenuManager.latestState[SelectedItem.Reartires] == PitSelectionState.SELECTED)
+            {
+                // "we're changing all 4 tyres"
+                doneFuel = true;
+                doneTyres = true;
+                haveData = true;
+                if (R3EPitMenuManager.latestState[SelectedItem.Fuel] == PitSelectionState.SELECTED)
+                {
+                    audioPlayer.playMessage(new QueuedMessage(folderWillChangeAllFourTyresAndRefuel, 0));
+                }
+                else if (R3EPitMenuManager.latestState[SelectedItem.Fuel] == PitSelectionState.AVAILABLE)
+                {
+                    audioPlayer.playMessage(new QueuedMessage(folderWillChangeAllFourTyresNoFuel, 0));
+                }
+                else
+                {
+                    audioPlayer.playMessage(new QueuedMessage(folderWillChangeAllFourTyres, 0));
+                }
+            }
+            else if (R3EPitMenuManager.latestState[SelectedItem.Fronttires] == PitSelectionState.AVAILABLE 
+                && R3EPitMenuManager.latestState[SelectedItem.Reartires] == PitSelectionState.AVAILABLE)
+            {
+                // "no tyres this time"
+                doneFuel = true;
+                doneTyres = true;
+                haveData = true;
+                if (R3EPitMenuManager.latestState[SelectedItem.Fuel] == PitSelectionState.SELECTED)
+                {
+                    audioPlayer.playMessage(new QueuedMessage(folderWillPutFuelInNoTyresThisTime, 0));
+                }
+                else if (R3EPitMenuManager.latestState[SelectedItem.Fuel] == PitSelectionState.AVAILABLE)
+                {
+                    audioPlayer.playMessage(new QueuedMessage(folderNoTyresOrFuelThisTime, 0));
+                }
+                else
+                {
+                    audioPlayer.playMessage(new QueuedMessage(folderNoTyresThisTime, 0));
+                }
+            }
+            if (!doneTyres)
+            {
+                if (R3EPitMenuManager.latestState[SelectedItem.Fronttires] == PitSelectionState.SELECTED && R3EPitMenuManager.latestState[SelectedItem.Reartires] == PitSelectionState.AVAILABLE)
+                {
+                    // "we're changing front tyres only"
+                    audioPlayer.playMessage(new QueuedMessage(folderWillChangeFrontTyresOnly, 0));
+                    haveData = true;
+                }
+                else if (R3EPitMenuManager.latestState[SelectedItem.Fronttires] == PitSelectionState.AVAILABLE && R3EPitMenuManager.latestState[SelectedItem.Reartires] == PitSelectionState.SELECTED)
+                {
+                    // "we're changing rear tyres only"
+                    audioPlayer.playMessage(new QueuedMessage(folderWillChangeRearTyresOnly, 0));
+                    haveData = true;
+                }
+                else if (R3EPitMenuManager.latestState[SelectedItem.Fronttires] == PitSelectionState.AVAILABLE && R3EPitMenuManager.latestState[SelectedItem.Reartires] == PitSelectionState.AVAILABLE)
+                {
+                    // "we're not changing tyres"
+                    audioPlayer.playMessage(new QueuedMessage(folderNoTyresThisTime, 0));
+                    haveData = true;
+                }
+            }
+            if (!doneFuel)
+            {
+                if (R3EPitMenuManager.latestState[SelectedItem.Fuel] == PitSelectionState.SELECTED)
+                {
+                    // "we're putting fuel in"
+                    audioPlayer.playMessage(new QueuedMessage(folderWillPutFuelIn, 0));
+                    haveData = true;
+                }
+                else if (R3EPitMenuManager.latestState[SelectedItem.Fuel] == PitSelectionState.AVAILABLE)
+                {
+                    // "no fuel this time"
+                    audioPlayer.playMessage(new QueuedMessage(folderNoFuelThisTime, 0));
+                    haveData = true;
+                }
+            }
+            if (R3EPitMenuManager.latestState[SelectedItem.Frontwing] == PitSelectionState.SELECTED)
+            {
+                haveData = true;
+                if (R3EPitMenuManager.latestState[SelectedItem.Rearwing] == PitSelectionState.SELECTED)
+                {
+                    // "we'll fix the front and rear aero"
+                    audioPlayer.playMessage(new QueuedMessage(folderWillFixFrontAndRearAero, 0));
+                }
+                else if (R3EPitMenuManager.latestState[SelectedItem.Rearwing] == PitSelectionState.AVAILABLE)
+                {
+                    // "we'll fix the front aero and leave the rear"
+                    audioPlayer.playMessage(new QueuedMessage(folderWillFixFrontAndLeaveRearAero, 0));
+                }
+                else
+                {
+                    // "we'll fix the front aero"
+                    audioPlayer.playMessage(new QueuedMessage(folderWillFixFrontAero, 0));
+                }
+            }
+            else if (R3EPitMenuManager.latestState[SelectedItem.Rearwing] == PitSelectionState.SELECTED)
+            {
+                haveData = true;
+                if (R3EPitMenuManager.latestState[SelectedItem.Frontwing] == PitSelectionState.AVAILABLE)
+                {
+                    // "we'll fix the rear and leave the front"
+                    audioPlayer.playMessage(new QueuedMessage(folderWillFixRearAndLeaveFrontAero, 0));
+                }
+                else
+                {
+                    // "we'll fix the rear aero"
+                    audioPlayer.playMessage(new QueuedMessage(folderWillFixRearAero, 0));
+                }
+            }
+            if (R3EPitMenuManager.latestState[SelectedItem.Suspension] == PitSelectionState.SELECTED)
+            {
+                // "we'll fix the suspension"
+                audioPlayer.playMessage(new QueuedMessage(folderWillFixSuspension, 0));
+                haveData = true;
+            }
+            else if (R3EPitMenuManager.latestState[SelectedItem.Suspension] == PitSelectionState.AVAILABLE)
+            {
+                // "we'll leave the suspension"
+                audioPlayer.playMessage(new QueuedMessage(folderWillLeaveSuspension, 0));
+                haveData = true;
+            }
+            if (R3EPitMenuManager.latestState[SelectedItem.Penalty] == PitSelectionState.SELECTED)
+            {
+                // "we'll be serving the penalty"
+                audioPlayer.playMessage(new QueuedMessage(folderWillBeServingPenalty, 0));
+                haveData = true;
+            }
+            if (fromVoiceRequest && !haveData)
+            {
+                audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+            }
+            else
+            {
+                // announced automatically and we have data. If we're not in the pitlane sometimes play a 'box now'
+                if (!inPitLane && !playBoxNowMessage && Utilities.random.Next(10) >= 5)
+                {
+                    audioPlayer.playMessage(new QueuedMessage(folderMandatoryPitStopsPitNow, 0));
+                }
+            }
+        }
+
+        private void announcePitlaneSpeedLimit(GameStateData currentGameState, bool possiblyPlayIntro, bool voiceResponse)
+        {
+            if (currentGameState.PitData.pitlaneHasSpeedLimit())
+            {
+                if (possiblyPlayIntro && Utilities.random.NextDouble() < 0.66)
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(folderWatchYourPitSpeed, 2, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
+                }
+
+                var kmPerHour = currentGameState.PitData.PitSpeedLimit * 3.6f;
+                var messageFragments = new List<MessageFragment>();
+
+                if (!voiceResponse)
+                {
+                    messageFragments.Add(MessageFragment.Text(folderPitSpeedLimit));
+                }
+
+                if (GlobalBehaviourSettings.useAmericanTerms || GlobalBehaviourSettings.useOvalLogic)
+                {
+                    var milesPerHour = kmPerHour * 0.621371f;
+                    messageFragments.Add(MessageFragment.Integer((int)Math.Round(milesPerHour), false));
+                    messageFragments.Add(MessageFragment.Text(FrozenOrderMonitor.folderMilesPerHour));
+                }
+                else
+                {
+                    messageFragments.Add(MessageFragment.Integer((int)Math.Round(kmPerHour), false));
+                    messageFragments.Add(MessageFragment.Text(FrozenOrderMonitor.folderKilometresPerHour));
+                }
+
+                audioPlayer.playMessageImmediately(new QueuedMessage(folderPitSpeedLimit, 4, messageFragments: messageFragments, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
+            }
+            else
+            {
+                audioPlayer.playMessageImmediately(new QueuedMessage(folderNoPitSpeedLimit, 2, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
+            }
         }
 
         public override void respond(String voiceMessage)
         {
-            if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.IS_MY_PIT_BOX_OCCUPIED))
+            if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHAT_ARE_THE_PIT_ACTIONS))
+            {
+                if (CrewChief.gameDefinition.gameEnum != GameEnum.RACE_ROOM)
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                }
+                else
+                {
+                    announceR3EPitActions(CrewChief.currentGameState.PitData.InPitlane, true);
+                }
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.IS_MY_PIT_BOX_OCCUPIED))
             {
                 if (this.pitStallOccupied)
                 {
@@ -908,10 +1234,23 @@ namespace CrewChiefV4.Events
                         }
                         else
                         {
-                            audioPlayer.playMessageImmediately(new QueuedMessage("pit_window_open",  0,
+                            audioPlayer.playMessageImmediately(new QueuedMessage("pit_window_open", 0,
                                     messageFragments: MessageContents(folderMandatoryPitStopsPitWindowOpen, pitWindowOpenLap)));
                         }
                     }
+                }
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHATS_PITLANE_SPEED_LIMIT))
+            {
+                var currentGameState = CrewChief.currentGameState;
+                if (currentGameState == null || currentGameState.PitData.PitSpeedLimit == -1.0f)
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                }
+                else
+                {
+                    announcePitlaneSpeedLimit(currentGameState, false /*possiblyPlayIntro*/, true /*voiceResponse*/);
+                    pitLaneSpeedWarningAnnounced = true;
                 }
             }
             else
