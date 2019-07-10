@@ -2899,24 +2899,29 @@ namespace CrewChiefV4.rFactor2
                     && followSC
                     && rules.mTrackRules.mSafetyCarExists == 0)
                 {
-                    // Find distance to car next to us if we're in pole.
-                    var neighborDist = -1.0;
-                    for (int i = 0; i < scoring.mScoringInfo.mNumVehicles; ++i)
+                    // Don't assign any SC action if car is not active.  This is to handle case with long pitlane and
+                    // car leaving before the srace restart.
+                    if (rules.mTrackRules.mSafetyCarActive == 1)
                     {
-                        var veh = scoring.mVehicles[i];
-                        if (veh.mPlace == (vehicle.mPlace == 1 ? 2 : 1))
+                        // Find distance to car next to us if we're in pole.
+                        var neighborDist = -1.0;
+                        for (int i = 0; i < scoring.mScoringInfo.mNumVehicles; ++i)
                         {
-                            neighborDist = RF2GameStateMapper.GetDistanceCompleteded(ref scoring, ref veh);
-                            break;
+                            var veh = scoring.mVehicles[i];
+                            if (veh.mPlace == (vehicle.mPlace == 1 ? 2 : 1))
+                            {
+                                neighborDist = RF2GameStateMapper.GetDistanceCompleteded(ref scoring, ref veh);
+                                break;
+                            }
                         }
-                    }
 
-                    var distDelta = neighborDist - playerDist;
-                    // Special case if we have to stay in pole row, but there's no SC on this track.
-                    if (fod.AssignedColumn == FrozenOrderColumn.None)
-                        fod.Action = distDelta > 70.0 ? FrozenOrderAction.MoveToPole : FrozenOrderAction.StayInPole;
-                    else
-                        fod.Action = distDelta > 70.0 ? FrozenOrderAction.MoveToPole : FrozenOrderAction.StayInPole;
+                        var distDelta = neighborDist - playerDist;
+                        // Special case if we have to stay in pole row, but there's no SC on this track.
+                        if (fod.AssignedColumn == FrozenOrderColumn.None)
+                            fod.Action = distDelta > 70.0 ? FrozenOrderAction.MoveToPole : FrozenOrderAction.StayInPole;
+                        else
+                            fod.Action = distDelta > 70.0 ? FrozenOrderAction.MoveToPole : FrozenOrderAction.StayInPole;
+                    }
                 }
                 else
                 {
