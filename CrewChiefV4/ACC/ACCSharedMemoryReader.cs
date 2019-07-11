@@ -32,8 +32,7 @@ namespace CrewChiefV4.ACC
 
         private GCHandle handleStatic;
 
-        private UdpUpdateViewModel udpUpdateViewModel;
-
+        private static UdpUpdateViewModel udpUpdateViewModel;
 
         private Boolean initialised = false;
         private List<ACCStructWrapper> dataToDump;
@@ -46,6 +45,17 @@ namespace CrewChiefV4.ACC
         {
             public long ticksWhenRead;
             public ACCShared data;
+
+            public void ResetSession()
+            {
+                System.Diagnostics.Debug.WriteLine("RESET CALLED: " + DateTime.Now.ToString("HH:mm:ss.fff"));
+
+                if (udpUpdateViewModel != null)
+                {
+                    udpUpdateViewModel.Shutdown();
+                    udpUpdateViewModel = null;
+                }
+            }
         }
         public override void DumpRawGameData()
         {
@@ -110,8 +120,6 @@ namespace CrewChiefV4.ACC
                         sharedmemoryStaticsize = Marshal.SizeOf(typeof(SPageFileStatic));
                         sharedMemoryStaticReadBuffer = new byte[sharedmemoryStaticsize];
 
-                        udpUpdateViewModel = new UdpUpdateViewModel(UserSettings.GetUserSettings().getString(accConstant.SettingMachineIpAddress));
-
                         initialised = true;
                         Console.WriteLine("Initialised Assetto Corsa Competizione shared memory");
                     }
@@ -174,8 +182,21 @@ namespace CrewChiefV4.ACC
                     ACCStructWrapper structWrapper = new ACCStructWrapper();
                     structWrapper.ticksWhenRead = DateTime.UtcNow.Ticks;
 
+                    // Send the previous state if the game is paused to prevent bogus track temp and other warnings on unpausing
                     if (accShared.accPhysics.airTemp == 0 && accShared.accPhysics.roadTemp == 0 && accShared.accPhysics.fuel == 0 && accShared.accPhysics.heading == 0 && accShared.accPhysics.pitch == 0)
                         return previousAACStructWrapper ?? structWrapper;
+
+                    if (udpUpdateViewModel == null)
+                    {
+                        System.Diagnostics.Debug.WriteLine("INITIALISING: " + DateTime.Now.ToString("HH:mm:ss.fff"));
+                        udpUpdateViewModel = new UdpUpdateViewModel(UserSettings.GetUserSettings().getString(accConstant.SettingMachineIpAddress), () =>
+                        {
+                            accShared.accChief.numVehicles = 0;
+                            accShared.accChief.vehicle = new accVehicleInfo[0];
+                            System.Diagnostics.Debug.WriteLine("ONRESET INVOKED: " + DateTime.Now.ToString("HH:mm:ss.fff"));
+                        });
+                        System.Diagnostics.Debug.WriteLine("INITIALISED: " + DateTime.Now.ToString("HH:mm:ss.fff"));
+                    }
 
                     structWrapper.data = accShared;
 

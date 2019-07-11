@@ -14,7 +14,7 @@ namespace ksBroadcastingTestClient.ClientConnections
 
         public ClientConnectionViewModel ClientConnection { get => Get<ClientConnectionViewModel>(); set => Set(value); }
 
-    public Action<ACCUdpRemoteClient> OnClientConnectedCallback { get; }
+        public Action<ACCUdpRemoteClient> OnClientConnectedCallback { get; }
 
         public ClientPanelViewModel(string udpIpAddress, Action<ACCUdpRemoteClient> onClientConnectedCallback)
         {

@@ -300,6 +300,10 @@ namespace CrewChiefV4.ACC
                         lastSessionTrack == null || lastSessionTrack.name != currentGameState.SessionData.TrackDefinition.name ||
                             (currentGameState.SessionData.SessionHasFixedTime && sessionTimeRemaining > lastSessionTimeRemaining + 1))))
             {
+                // Seriously crappy but we can see how we can improve it when Kunos give me the extra data
+                // Prevents a opposition count mismaptch when te player changes racing opponents or selects a practice mode
+                wrapper.ResetSession();
+
                 System.Diagnostics.Debug.WriteLine("New session, trigger...");
                 if (sessionOfSameTypeRestarted)
                 {

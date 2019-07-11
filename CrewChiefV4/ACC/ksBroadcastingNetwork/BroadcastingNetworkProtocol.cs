@@ -73,9 +73,7 @@ namespace ksBroadcastingNetwork
         // To avoid huge UDP pakets for longer entry lists, we will first receive the indexes of cars and drivers,
         // cache the entries and wait for the detailled updates
         private List<CarInfo> _entryListCars = new List<CarInfo>();
-        private bool _entryListCarsPending;
-        private readonly object _entryListCarsLock = new object();
-
+        
         #endregion
 
         #region optional failsafety - detect when we have a desync and need a new entry list
@@ -109,8 +107,9 @@ namespace ksBroadcastingNetwork
                         var isReadonly = br.ReadByte() == 0;
                         var errMsg = ReadString(br);
 
-                        OnConnectionStateChanged?.Invoke(ConnectionId, connectionSuccess, isReadonly, errMsg);
+                        System.Diagnostics.Debug.WriteLine("REGISTRATION_RESULT: " + connectionSuccess  + " : " + errMsg + " : " + DateTime.Now.ToString("HH:mm:ss.fff"));
 
+                        OnConnectionStateChanged?.Invoke(ConnectionId, connectionSuccess, isReadonly, errMsg);
                         // In case this was successful, we will request the initial data
                         RequestEntryList();
                         RequestTrackData();
@@ -118,56 +117,50 @@ namespace ksBroadcastingNetwork
                     break;
                 case InboundMessageTypes.ENTRY_LIST:
                     {
-                        lock (_entryListCarsLock)
+                        System.Diagnostics.Debug.WriteLine("ENTRY_LIST: " + DateTime.Now.ToString("HH:mm:ss.fff"));
+                        _entryListCars.Clear();
+
+                        var connectionId = br.ReadInt32();
+                        var carEntryCount = br.ReadUInt16();
+                        for (int i = 0; i < carEntryCount; i++)
                         {
-                            _entryListCars.Clear();
-
-                            var connectionId = br.ReadInt32();
-                            var carEntryCount = br.ReadUInt16();
-                            for (int i = 0; i < carEntryCount; i++)
-                            {
-                                _entryListCars.Add(new CarInfo(br.ReadUInt16()));
-                            }
-
-                            _entryListCarsPending = false;
+                            _entryListCars.Add(new CarInfo(br.ReadUInt16()));
                         }
                     }
                     break;
                 case InboundMessageTypes.ENTRY_LIST_CAR:
                     {
+                        System.Diagnostics.Debug.WriteLine("ENTRY_LIST_CAR: " + DateTime.Now.ToString("HH:mm:ss.fff"));
                         var carId = br.ReadUInt16();
 
-                        lock (_entryListCarsLock)
+                        var carInfo = _entryListCars.SingleOrDefault(x => x.CarIndex == carId);
+                        if (carInfo == null)
                         {
-                            var carInfo = _entryListCars.SingleOrDefault(x => x.CarIndex == carId);
-                            if (carInfo == null)
-                            {
-                                System.Diagnostics.Debug.WriteLine($"Entry list update for unknown carIndex {carId}");
-                                break;
-                            }
-
-                            carInfo.CarModelType = br.ReadByte(); // Byte sized car model
-                            carInfo.TeamName = ReadString(br);
-                            carInfo.RaceNumber = br.ReadInt32();
-                            carInfo.CupCategory = br.ReadByte(); // Cup: Overall/Pro = 0, ProAm = 1, Am = 2, Silver = 3, National = 4
-                            carInfo.CurrentDriverIndex = br.ReadByte();
-
-                            // Now the drivers on this car:
-                            var driversOnCarCount = br.ReadByte();
-                            for (int di = 0; di < driversOnCarCount; di++)
-                            {
-                                var driverInfo = new DriverInfo();
-
-                                driverInfo.FirstName = ReadString(br);
-                                driverInfo.LastName = ReadString(br);
-                                driverInfo.ShortName = ReadString(br);
-                                driverInfo.Category = (DriverCategory)br.ReadByte(); // Platinum = 3, Gold = 2, Silver = 1, Bronze = 0
-
-                                carInfo.AddDriver(driverInfo);
-                            }
-
-                            OnEntrylistUpdate?.Invoke(ConnectionIdentifier, carInfo);
+                            System.Diagnostics.Debug.WriteLine($"Entry list update for unknown carIndex {carId}");
+                            break;
                         }
+
+                        carInfo.CarModelType = br.ReadByte(); // Byte sized car model
+                        carInfo.TeamName = ReadString(br);
+                        carInfo.RaceNumber = br.ReadInt32();
+                        carInfo.CupCategory = br.ReadByte(); // Cup: Overall/Pro = 0, ProAm = 1, Am = 2, Silver = 3, National = 4
+                        carInfo.CurrentDriverIndex = br.ReadByte();
+
+                        // Now the drivers on this car:
+                        var driversOnCarCount = br.ReadByte();
+                        for (int di = 0; di < driversOnCarCount; di++)
+                        {
+                            var driverInfo = new DriverInfo();
+
+                            driverInfo.FirstName = ReadString(br);
+                            driverInfo.LastName = ReadString(br);
+                            driverInfo.ShortName = ReadString(br);
+                            driverInfo.Category = (DriverCategory)br.ReadByte(); // Platinum = 3, Gold = 2, Silver = 1, Bronze = 0
+
+                            carInfo.AddDriver(driverInfo);
+                        }
+
+                        OnEntrylistUpdate.Invoke(ConnectionIdentifier, carInfo);
                     }
                     break;
                 case InboundMessageTypes.REALTIME_UPDATE:
@@ -231,20 +224,15 @@ namespace ksBroadcastingNetwork
                         carUpdate.LastLap = ReadLap(br);
                         carUpdate.CurrentLap = ReadLap(br);
 
-                        lock (_entryListCarsLock)
+                        // the concept is: "don't know a car or driver? ask for an entry list update"
+                        var carEntry = _entryListCars.FirstOrDefault(x => x.CarIndex == carUpdate.CarIndex);
+                        if (carEntry == null || carEntry.Drivers.Count != carUpdate.DriverCount)
                         {
-                            // the concept is: "don't know a car or driver? ask for an entry list update"
-                            var carEntry = _entryListCars.FirstOrDefault(x => x.CarIndex == carUpdate.CarIndex);
-                            if (carEntry == null || carEntry.Drivers.Count != carUpdate.DriverCount)
+                            if ((DateTime.Now - lastEntrylistRequest).TotalSeconds > 5)
                             {
-                                // Refectored this area because if the response to RequestEntryList was delayed for any reason 
-                                // then we can get multiple RequestEntryList calls that killed car updates
-                                if (!_entryListCarsPending && (DateTime.Now - lastEntrylistRequest).TotalSeconds > 1)
-                                {
-                                    lastEntrylistRequest = DateTime.Now;
-                                    RequestEntryList();
-                                    System.Diagnostics.Debug.WriteLine($"CarUpdate {carUpdate.CarIndex}|{carUpdate.DriverIndex} not known, will ask for new EntryList");
-                                }
+                                lastEntrylistRequest = DateTime.Now;
+                                RequestEntryList();
+                                System.Diagnostics.Debug.WriteLine($"CarUpdate {carUpdate.CarIndex}|{carUpdate.DriverIndex} not known, will ask for new EntryList");
                             }
                         }
 
@@ -401,6 +389,8 @@ namespace ksBroadcastingNetwork
         /// </summary>
         private void RequestEntryList()
         {
+            System.Diagnostics.Debug.WriteLine("RequestEntryList.");
+
             using (var ms = new MemoryStream())
             using (var br = new BinaryWriter(ms))
             {

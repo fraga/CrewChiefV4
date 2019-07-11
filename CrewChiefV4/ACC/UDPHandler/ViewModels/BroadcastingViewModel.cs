@@ -25,6 +25,7 @@ namespace ksBroadcastingTestClient.Broadcasting
             if (newClient.MsRealtimeUpdateInterval > 0)
             {
                 // This client will send realtime updates, we should listen
+                newClient.MessageHandler.OnConnectionStateChanged += MessageHandler_OnConnectionStateChanged; ;
                 newClient.MessageHandler.OnTrackDataUpdate += MessageHandler_OnTrackDataUpdate;
                 newClient.MessageHandler.OnEntrylistUpdate += MessageHandler_OnEntrylistUpdate;
                 newClient.MessageHandler.OnRealtimeUpdate += MessageHandler_OnRealtimeUpdate;
@@ -33,6 +34,13 @@ namespace ksBroadcastingTestClient.Broadcasting
             }
 
             _clients.Add(newClient.MessageHandler);
+        }
+
+        private void MessageHandler_OnConnectionStateChanged(int connectionId, bool connectionSuccess, bool isReadonly, string error)
+        {
+            System.Diagnostics.Debug.WriteLine("CARS CLEARED: " + DateTime.Now.ToString("HH:mm:ss.fff"));
+
+            Cars.Clear();
         }
 
         private void MessageHandler_OnTrackDataUpdate(string sender, TrackData trackUpdate)

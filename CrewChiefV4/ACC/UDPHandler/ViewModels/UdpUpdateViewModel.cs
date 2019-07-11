@@ -13,19 +13,24 @@ namespace ksBroadcastingTestClient
         public SessionInfoViewModel SessionInfoVM { get; }
 
         private ACCUdpRemoteClient udpClient;
+        private Action OnReset;
 
-        public UdpUpdateViewModel(string udpIpAddress)
+        public UdpUpdateViewModel(string udpIpAddress, Action onReset)
         {
+            OnReset = onReset;
+
             ClientPanelVM = new ClientPanelViewModel(udpIpAddress, OnClientConnected);
             BroadcastingVM = new BroadcastingViewModel();
             SessionInfoVM = new SessionInfoViewModel();            
         }
         public void OnClientConnected(ACCUdpRemoteClient newClient)
         {
+            OnReset?.Invoke();
+
             udpClient = newClient;
 
             BroadcastingVM.RegisterNewClient(newClient);
-            SessionInfoVM.RegisterNewClient(newClient);            
+            SessionInfoVM.RegisterNewClient(newClient);
         }
 
         public void Shutdown()
