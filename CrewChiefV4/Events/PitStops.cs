@@ -985,7 +985,8 @@ namespace CrewChiefV4.Events
             if (fromVoiceRequest)
             {
                 // block the automatic announcement for a while
-                R3EPitMenuManager.timeWeCanAnnouncePitActions = CrewChief.currentGameState.Now.AddSeconds(10);
+                if (CrewChief.currentGameState != null && CrewChief.currentGameState.Now != null)
+                    R3EPitMenuManager.timeWeCanAnnouncePitActions = CrewChief.currentGameState.Now.AddSeconds(10);
             }
             else
             {
@@ -1188,7 +1189,7 @@ namespace CrewChiefV4.Events
         {
             if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHAT_ARE_THE_PIT_ACTIONS))
             {
-                if (CrewChief.gameDefinition.gameEnum != GameEnum.RACE_ROOM)
+                if (CrewChief.gameDefinition.gameEnum != GameEnum.RACE_ROOM || CrewChief.currentGameState == null)
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
                 }

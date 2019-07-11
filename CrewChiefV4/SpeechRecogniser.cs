@@ -1,6 +1,7 @@
 ﻿using CrewChiefV4.Audio;
 using CrewChiefV4.commands;
 using CrewChiefV4.Events;
+using CrewChiefV4.R3E;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,8 +10,6 @@ using System.Speech.AudioFormat;
 using System.Speech.Recognition;
 using System.Threading;
 using System.Windows.Forms;
-using System.Diagnostics;
-using CrewChiefV4.R3E;
 
 namespace CrewChiefV4
 {
@@ -1265,8 +1264,20 @@ namespace CrewChiefV4
                     Console.WriteLine("Failed to unload R3E grammar: " + e.Message);
                 }
             }
+            foreach (Grammar iracingGrammar in iracingPitstopGrammarList)
+            {
+                try
+                {
+                    sre.UnloadGrammar(iracingGrammar);
+                }
+                catch (Exception e)
+                {
+                    // ignore - we might be switching between games here
+                }
+            }
             try
             {
+                iracingPitstopGrammarList.Clear();
                 r3ePitstopGrammarList.Clear();
                 Choices r3eChoices = new Choices();
                 validateAndAdd(PIT_STOP_CHANGE_ALL_TYRES, r3eChoices);
@@ -1314,8 +1325,20 @@ namespace CrewChiefV4
                     Console.WriteLine("Failed to unload iRacing grammar: " + e.Message);
                 }
             }
+            foreach (Grammar r3eGrammar in r3ePitstopGrammarList)
+            {
+                try
+                {
+                    sre.UnloadGrammar(r3eGrammar);
+                }
+                catch (Exception e)
+                {
+                    // ignore - we might be switching between games here
+                }
+            }
             try
             {
+                r3ePitstopGrammarList.Clear();
                 iracingPitstopGrammarList.Clear();
                 Choices iRacingChoices = new Choices();
                 if (enable_iracing_pit_stop_commands)
@@ -1791,7 +1814,9 @@ namespace CrewChiefV4
                                 }
                                 SpeechAudioFormatInfo safi =
                                     new SpeechAudioFormatInfo(
-                                        waveIn.WaveFormat.SampleRate, AudioBitsPerSample.Sixteen, AudioChannel.Mono);
+                                        nAudioWaveInSampleRate,
+                                        nAudioWaveInSampleDepth == 16 ? AudioBitsPerSample.Sixteen : AudioBitsPerSample.Eight, 
+                                        nAudioWaveInChannelCount == 2 ? AudioChannel.Stereo : AudioChannel.Mono);
                                 sre.SetInputToAudioStream(buffer, safi); // otherwise input gets unset
                                 try
                                 {
@@ -1845,7 +1870,8 @@ namespace CrewChiefV4
                 {
                     SpeechRecogniser.keepRecognisingInHoldMode = false;
                     StopNAudioWaveIn();
-                    SpeechAudioFormatInfo safi = new SpeechAudioFormatInfo(waveIn.WaveFormat.SampleRate, AudioBitsPerSample.Sixteen, AudioChannel.Mono);
+                    SpeechAudioFormatInfo safi = new SpeechAudioFormatInfo(
+                        waveIn.WaveFormat.SampleRate, AudioBitsPerSample.Sixteen, AudioChannel.Mono);
                     if (!isShuttingDown)
                     {
                         sre.SetInputToAudioStream(buffer, safi); // otherwise input gets unset
