@@ -286,7 +286,6 @@ namespace CrewChiefV4.ACC
             public int carRealTimeLeaderboardPosition;
             public float spLineLength;
             public int isConnected;
-            public float[] suspensionDamage;
             public float[] tyreInflation;
         }
 

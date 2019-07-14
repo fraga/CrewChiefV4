@@ -61,6 +61,10 @@ namespace CrewChiefV4.ACC
         private float minorAeroDamageThreshold = 100.0f;
         private float severeAeroDamageThreshold = 200.0f;
         private float destroyedAeroDamageThreshold = 400.0f;
+        private HashSet<int> msgHash = new HashSet<int>();
+
+        // ABS can trigger below 1.1 in the Ferrari 488
+        private float wheelSlipThreshold = 1.1f;
 
         #region WaYToManyTyres
         public ACCGameStateMapper()
@@ -162,9 +166,9 @@ namespace CrewChiefV4.ACC
             Boolean isOnline = shared.accChief.serverName.Length > 0;
             Boolean isSinglePlayerPracticeSession = shared.accChief.numVehicles == 1 && !isOnline && shared.accGraphic.session == AC_SESSION_TYPE.AC_PRACTICE;
             float distanceRoundTrack = spLineLengthToDistanceRoundTrack(shared.accChief.trackLength, playerVehicle.spLineLength);
-            
+
             currentGameState.SessionData.TrackDefinition = new TrackDefinition(shared.accStatic.track, shared.accChief.trackLength);
-            
+
             Validator.validate(playerVehicle.driverName);
             AC_SESSION_TYPE sessionType = shared.accGraphic.session;
 
@@ -249,7 +253,7 @@ namespace CrewChiefV4.ACC
                 }
                 else
                 {
-                    isCountDown = countDown.TotalMilliseconds >= 0.25;  
+                    isCountDown = countDown.TotalMilliseconds >= 0.25;
                 }
             }
 
@@ -481,7 +485,8 @@ namespace CrewChiefV4.ACC
                             currentGameState.PitData.PitWindowStart = shared.accStatic.PitWindowStart - 1;
                             currentGameState.PitData.PitWindowEnd = shared.accStatic.PitWindowEnd - 1;
                         }
-                        currentGameState.PitData.HasMandatoryPitStop = shared.accStatic.PitWindowStart > 0 || shared.accStatic.PitWindowEnd > 0;
+
+                        currentGameState.PitData.HasMandatoryPitStop = shared.accStatic.PitWindowStart != shared.accStatic.PitWindowEnd && (shared.accStatic.PitWindowStart > 0 || shared.accStatic.PitWindowEnd > 0);
 
                         if (previousGameState != null)
                         {
@@ -623,16 +628,16 @@ namespace CrewChiefV4.ACC
                     // if we have new lap data, update the lap count using the laps completed at sector1 end + 1, or the game provided data (whichever is bigger)
                     currentGameState.SessionData.CompletedLaps = Math.Max(lapCountAtSector1End + 1, shared.accGraphic.completedLaps);
 
-                    currentGameState.SessionData.playerCompleteLapWithProvidedLapTime(currentGameState.SessionData.OverallPosition, 
+                    currentGameState.SessionData.playerCompleteLapWithProvidedLapTime(currentGameState.SessionData.OverallPosition,
                         currentGameState.SessionData.SessionRunningTime,
-                        lastLapTime, currentGameState.SessionData.CurrentLapIsValid, 
+                        lastLapTime, currentGameState.SessionData.CurrentLapIsValid,
                         currentGameState.PitData.InPitlane,
                         shared.accChief.isRaining,
-                        shared.accPhysics.roadTemp, 
-                        shared.accPhysics.airTemp, 
+                        shared.accPhysics.roadTemp,
+                        shared.accPhysics.airTemp,
                         currentGameState.SessionData.SessionHasFixedTime,
                         currentGameState.SessionData.SessionTimeRemaining,
-                        ACCGameStateMapper.numberOfSectorsOnTrack, 
+                        ACCGameStateMapper.numberOfSectorsOnTrack,
                         currentGameState.TimingData);
                     currentGameState.SessionData.playerStartNewLap(currentGameState.SessionData.CompletedLaps + 1,
                         currentGameState.SessionData.OverallPosition, currentGameState.PitData.InPitlane, currentGameState.SessionData.SessionRunningTime);
@@ -649,13 +654,13 @@ namespace CrewChiefV4.ACC
                     previousGameState.SessionData.SectorNumber != 0 && currentGameState.SessionData.SessionRunningTime > 10)
                 {
                     currentGameState.SessionData.playerAddCumulativeSectorData(
-                        previousGameState.SessionData.SectorNumber, 
+                        previousGameState.SessionData.SectorNumber,
                         currentGameState.SessionData.OverallPosition,
-                        currentGameState.SessionData.LapTimeCurrent, 
-                        currentGameState.SessionData.SessionRunningTime, 
+                        currentGameState.SessionData.LapTimeCurrent,
+                        currentGameState.SessionData.SessionRunningTime,
                         currentGameState.SessionData.CurrentLapIsValid,
                         shared.accChief.isRaining,
-                        shared.accPhysics.roadTemp, 
+                        shared.accPhysics.roadTemp,
                         shared.accPhysics.airTemp);
                 }
 
@@ -820,35 +825,35 @@ namespace CrewChiefV4.ACC
 
                                     float secondsSinceLastUpdate = (float)new TimeSpan(currentGameState.Ticks - previousGameState.Ticks).TotalSeconds;
 
-                                    upateOpponentData(currentOpponentData, 
-                                        previousOpponentData, 
-                                        currentOpponentRacePosition, 
-                                        participantStruct.carLeaderboardPosition, 
+                                    upateOpponentData(currentOpponentData,
+                                        previousOpponentData,
+                                        currentOpponentRacePosition,
+                                        participantStruct.carLeaderboardPosition,
                                         currentOpponentLapsCompleted,
-                                        currentOpponentSector, 
-                                        mapToFloatTime(participantStruct.currentLapTimeMS), 
+                                        currentOpponentSector,
+                                        mapToFloatTime(participantStruct.currentLapTimeMS),
                                         mapToFloatTime(participantStruct.lastLapTimeMS),
-                                        participantStruct.isCarInPitline == 1, 
+                                        participantStruct.isCarInPitline == 1,
                                         participantStruct.currentLapInvalid == 0,
-                                        currentGameState.SessionData.SessionRunningTime, 
+                                        currentGameState.SessionData.SessionRunningTime,
                                         secondsSinceLastUpdate,
-                                        new float[] { participantStruct.worldPosition.x, participantStruct.worldPosition.z }, 
-                                        participantStruct.speedMS, 
+                                        new float[] { participantStruct.worldPosition.x, participantStruct.worldPosition.z },
+                                        participantStruct.speedMS,
                                         currentOpponentLapDistance,
-                                        currentGameState.SessionData.SessionHasFixedTime, 
+                                        currentGameState.SessionData.SessionHasFixedTime,
                                         currentGameState.SessionData.SessionTimeRemaining,
-                                        shared.accPhysics.airTemp, 
-                                        shared.accPhysics.roadTemp, 
+                                        shared.accPhysics.airTemp,
+                                        shared.accPhysics.roadTemp,
                                         currentGameState.SessionData.SessionType == SessionType.Race,
                                         currentGameState.SessionData.TrackDefinition.distanceForNearPitEntryChecks,
-                                        previousOpponentCompletedLaps, 
+                                        previousOpponentCompletedLaps,
                                         previousOpponentDataWaitingForNewLapData,
-                                        previousOpponentNewLapDataTimerExpiry, 
-                                        previousOpponentLastLapTime, 
-                                        previousOpponentLastLapValid, 
+                                        previousOpponentNewLapDataTimerExpiry,
+                                        previousOpponentLastLapTime,
+                                        previousOpponentLastLapValid,
                                         previousCompletedLapsWhenHasNewLapDataWasLastTrue,
                                         previousOpponentGameTimeWhenLastCrossedStartFinishLine,
-                                        currentGameState.TimingData, 
+                                        currentGameState.TimingData,
                                         currentGameState.carClass);
 
                                     if (previousOpponentData != null)
@@ -918,11 +923,11 @@ namespace CrewChiefV4.ACC
                         {
                             if (participantStruct.isConnected == 1 && participantName != null && participantName.Length > 0)
                             {
-                                addOpponentForName(participantName, createOpponentData(participantStruct, 
-                                    true, 
-                                    CarData.getCarClassForClassName(participantStruct.carModel), 
-                                    shared.accChief.trackLength, 
-                                    currentGameState.SessionData.SessionType == SessionType.Race), 
+                                addOpponentForName(participantName, createOpponentData(participantStruct,
+                                    true,
+                                    CarData.getCarClassForClassName(participantStruct.carModel),
+                                    shared.accChief.trackLength,
+                                    currentGameState.SessionData.SessionType == SessionType.Race),
                                     currentGameState);
                             }
                         }
@@ -996,16 +1001,16 @@ namespace CrewChiefV4.ACC
 
             if (currentGameState.PitData.HasMandatoryPitStop)
             {
-                int lapsOrMinutes;
+                int lapsOrMilliseconds;
                 if (currentGameState.SessionData.SessionHasFixedTime)
                 {
-                    lapsOrMinutes = (int)Math.Floor(currentGameState.SessionData.SessionRunningTime / 60f);
+                    lapsOrMilliseconds = (int)Math.Floor(currentGameState.SessionData.SessionRunningTime * 1000f);
                 }
                 else
                 {
-                    lapsOrMinutes = playerVehicle.lapCount;
+                    lapsOrMilliseconds = playerVehicle.lapCount;
                 }
-                currentGameState.PitData.PitWindow = mapToPitWindow(lapsOrMinutes, currentGameState.PitData.InPitlane,
+                currentGameState.PitData.PitWindow = mapToPitWindow(lapsOrMilliseconds, currentGameState.PitData.InPitlane,
                     currentGameState.PitData.PitWindowStart, currentGameState.PitData.PitWindowEnd, shared.accGraphic.MandatoryPitDone == 1);
             }
             else
@@ -1023,8 +1028,6 @@ namespace CrewChiefV4.ACC
             if (shared.accChief.isInternalMemoryModuleLoaded == 1)
             {
                 currentGameState.CarDamageData.DamageEnabled = true;
-                //currentGameState.CarDamageData.SuspensionDamageStatus = CornerData.getCornerData(suspensionDamageThresholds,
-                //    playerVehicle.suspensionDamage[0], playerVehicle.suspensionDamage[1], playerVehicle.suspensionDamage[2], playerVehicle.suspensionDamage[3]);
 
                 currentGameState.CarDamageData.OverallEngineDamage = DamageLevel.UNKNOWN; // mapToEngineDamageLevel(playerVehicle.engineLifeLeft);
 
@@ -1056,68 +1059,76 @@ namespace CrewChiefV4.ACC
             currentGameState.TyreData.RearLeftPressure = playerVehicle.tyreInflation[2] == 1.0f ? shared.accPhysics.wheelsPressure[2] * 6.894f : 0.0f;
             currentGameState.TyreData.RearRightPressure = playerVehicle.tyreInflation[3] == 1.0f ? shared.accPhysics.wheelsPressure[3] * 6.894f : 0.0f;
 
-            String currentTyreCompound = shared.accGraphic.tyreCompound;
-            //if (previousGameState != null && !previousGameState.TyreData.TyreTypeName.Equals(currentTyreCompound))
-            //{
-            //    tyreTempThresholds = getTyreTempThresholds(currentGameState.carClass, currentTyreCompound);
-            //    currentGameState.TyreData.TyreTypeName = currentTyreCompound;
-            //}
-            ////Front Left
-            //currentGameState.TyreData.FrontLeft_CenterTemp = shared.accPhysics.tyreTempM[0];
-            //currentGameState.TyreData.FrontLeft_LeftTemp = shared.accPhysics.tyreTempO[0];
-            //currentGameState.TyreData.FrontLeft_RightTemp = shared.accPhysics.tyreTempI[0];
-            //currentGameState.TyreData.FrontLeftTyreType = defaultTyreTypeForPlayersCar;
-            //if (currentGameState.SessionData.IsNewLap || currentGameState.TyreData.PeakFrontLeftTemperatureForLap == 0)
-            //{
-            //    currentGameState.TyreData.PeakFrontLeftTemperatureForLap = currentGameState.TyreData.FrontLeft_CenterTemp;
-            //}
-            //else if (previousGameState == null || currentGameState.TyreData.FrontLeft_CenterTemp > previousGameState.TyreData.PeakFrontLeftTemperatureForLap)
-            //{
-            //    currentGameState.TyreData.PeakFrontLeftTemperatureForLap = currentGameState.TyreData.FrontLeft_CenterTemp;
-            //}
-            ////Front Right
-            //currentGameState.TyreData.FrontRight_CenterTemp = shared.accPhysics.tyreTempM[1];
-            //currentGameState.TyreData.FrontRight_LeftTemp = shared.accPhysics.tyreTempI[1];
-            //currentGameState.TyreData.FrontRight_RightTemp = shared.accPhysics.tyreTempO[1];
-            //currentGameState.TyreData.FrontRightTyreType = defaultTyreTypeForPlayersCar;
-            //if (currentGameState.SessionData.IsNewLap || currentGameState.TyreData.PeakFrontRightTemperatureForLap == 0)
-            //{
-            //    currentGameState.TyreData.PeakFrontRightTemperatureForLap = currentGameState.TyreData.FrontRight_CenterTemp;
-            //}
-            //else if (previousGameState == null || currentGameState.TyreData.FrontRight_CenterTemp > previousGameState.TyreData.PeakFrontRightTemperatureForLap)
-            //{
-            //    currentGameState.TyreData.PeakFrontRightTemperatureForLap = currentGameState.TyreData.FrontRight_CenterTemp;
-            //}
-            ////Rear Left
-            //currentGameState.TyreData.RearLeft_CenterTemp = shared.accPhysics.tyreTempM[2];
-            //currentGameState.TyreData.RearLeft_LeftTemp = shared.accPhysics.tyreTempO[2];
-            //currentGameState.TyreData.RearLeft_RightTemp = shared.accPhysics.tyreTempI[2];
-            //currentGameState.TyreData.RearLeftTyreType = defaultTyreTypeForPlayersCar;
-            //if (currentGameState.SessionData.IsNewLap || currentGameState.TyreData.PeakRearLeftTemperatureForLap == 0)
-            //{
-            //    currentGameState.TyreData.PeakRearLeftTemperatureForLap = currentGameState.TyreData.RearLeft_CenterTemp;
-            //}
-            //else if (previousGameState == null || currentGameState.TyreData.RearLeft_CenterTemp > previousGameState.TyreData.PeakRearLeftTemperatureForLap)
-            //{
-            //    currentGameState.TyreData.PeakRearLeftTemperatureForLap = currentGameState.TyreData.RearLeft_CenterTemp;
-            //}
-            ////Rear Right
-            //currentGameState.TyreData.RearRight_CenterTemp = shared.accPhysics.tyreTempM[3];
-            //currentGameState.TyreData.RearRight_LeftTemp = shared.accPhysics.tyreTempI[3];
-            //currentGameState.TyreData.RearRight_RightTemp = shared.accPhysics.tyreTempO[3];
-            //currentGameState.TyreData.RearRightTyreType = defaultTyreTypeForPlayersCar;
-            //if (currentGameState.SessionData.IsNewLap || currentGameState.TyreData.PeakRearRightTemperatureForLap == 0)
-            //{
-            //    currentGameState.TyreData.PeakRearRightTemperatureForLap = currentGameState.TyreData.RearRight_CenterTemp;
-            //}
-            //else if (previousGameState == null || currentGameState.TyreData.RearRight_CenterTemp > previousGameState.TyreData.PeakRearRightTemperatureForLap)
-            //{
-            //    currentGameState.TyreData.PeakRearRightTemperatureForLap = currentGameState.TyreData.RearRight_CenterTemp;
-            //}
+            currentGameState.TyreData.BrakeTempStatus = CornerData.getCornerData(brakeTempThresholdsForPlayersCar, shared.accPhysics.brakeTemp[0], shared.accPhysics.brakeTemp[1], shared.accPhysics.brakeTemp[2], shared.accPhysics.brakeTemp[3]);
+            currentGameState.TyreData.LeftFrontBrakeTemp = shared.accPhysics.brakeTemp[0];
+            currentGameState.TyreData.RightFrontBrakeTemp = shared.accPhysics.brakeTemp[1];
+            currentGameState.TyreData.LeftRearBrakeTemp = shared.accPhysics.brakeTemp[2];
+            currentGameState.TyreData.RightRearBrakeTemp = shared.accPhysics.brakeTemp[3];
 
-            //currentGameState.TyreData.TyreTempStatus = CornerData.getCornerData(tyreTempThresholds, currentGameState.TyreData.PeakFrontLeftTemperatureForLap,
-            //        currentGameState.TyreData.PeakFrontRightTemperatureForLap, currentGameState.TyreData.PeakRearLeftTemperatureForLap,
-            //        currentGameState.TyreData.PeakRearRightTemperatureForLap);
+            String currentTyreCompound = shared.accGraphic.tyreCompound;
+
+            // Only middle tire temperature is available
+            if (previousGameState != null && !previousGameState.TyreData.TyreTypeName.Equals(currentTyreCompound))
+            {
+                tyreTempThresholds = getTyreTempThresholds(currentGameState.carClass, currentTyreCompound);
+                currentGameState.TyreData.TyreTypeName = currentTyreCompound;
+            }
+            //Front Left
+            currentGameState.TyreData.FrontLeft_CenterTemp = shared.accPhysics.tyreTempM[0];
+            currentGameState.TyreData.FrontLeft_LeftTemp = shared.accPhysics.tyreTempO[0];
+            currentGameState.TyreData.FrontLeft_RightTemp = shared.accPhysics.tyreTempI[0];
+            currentGameState.TyreData.FrontLeftTyreType = defaultTyreTypeForPlayersCar;
+            if (currentGameState.SessionData.IsNewLap || currentGameState.TyreData.PeakFrontLeftTemperatureForLap == 0)
+            {
+                currentGameState.TyreData.PeakFrontLeftTemperatureForLap = currentGameState.TyreData.FrontLeft_CenterTemp;
+            }
+            else if (previousGameState == null || currentGameState.TyreData.FrontLeft_CenterTemp > previousGameState.TyreData.PeakFrontLeftTemperatureForLap)
+            {
+                currentGameState.TyreData.PeakFrontLeftTemperatureForLap = currentGameState.TyreData.FrontLeft_CenterTemp;
+            }
+            //Front Right
+            currentGameState.TyreData.FrontRight_CenterTemp = shared.accPhysics.tyreTempM[1];
+            currentGameState.TyreData.FrontRight_LeftTemp = shared.accPhysics.tyreTempI[1];
+            currentGameState.TyreData.FrontRight_RightTemp = shared.accPhysics.tyreTempO[1];
+            currentGameState.TyreData.FrontRightTyreType = defaultTyreTypeForPlayersCar;
+            if (currentGameState.SessionData.IsNewLap || currentGameState.TyreData.PeakFrontRightTemperatureForLap == 0)
+            {
+                currentGameState.TyreData.PeakFrontRightTemperatureForLap = currentGameState.TyreData.FrontRight_CenterTemp;
+            }
+            else if (previousGameState == null || currentGameState.TyreData.FrontRight_CenterTemp > previousGameState.TyreData.PeakFrontRightTemperatureForLap)
+            {
+                currentGameState.TyreData.PeakFrontRightTemperatureForLap = currentGameState.TyreData.FrontRight_CenterTemp;
+            }
+            //Rear Left
+            currentGameState.TyreData.RearLeft_CenterTemp = shared.accPhysics.tyreTempM[2];
+            currentGameState.TyreData.RearLeft_LeftTemp = shared.accPhysics.tyreTempO[2];
+            currentGameState.TyreData.RearLeft_RightTemp = shared.accPhysics.tyreTempI[2];
+            currentGameState.TyreData.RearLeftTyreType = defaultTyreTypeForPlayersCar;
+            if (currentGameState.SessionData.IsNewLap || currentGameState.TyreData.PeakRearLeftTemperatureForLap == 0)
+            {
+                currentGameState.TyreData.PeakRearLeftTemperatureForLap = currentGameState.TyreData.RearLeft_CenterTemp;
+            }
+            else if (previousGameState == null || currentGameState.TyreData.RearLeft_CenterTemp > previousGameState.TyreData.PeakRearLeftTemperatureForLap)
+            {
+                currentGameState.TyreData.PeakRearLeftTemperatureForLap = currentGameState.TyreData.RearLeft_CenterTemp;
+            }
+            //Rear Right
+            currentGameState.TyreData.RearRight_CenterTemp = shared.accPhysics.tyreTempM[3];
+            currentGameState.TyreData.RearRight_LeftTemp = shared.accPhysics.tyreTempI[3];
+            currentGameState.TyreData.RearRight_RightTemp = shared.accPhysics.tyreTempO[3];
+            currentGameState.TyreData.RearRightTyreType = defaultTyreTypeForPlayersCar;
+            if (currentGameState.SessionData.IsNewLap || currentGameState.TyreData.PeakRearRightTemperatureForLap == 0)
+            {
+                currentGameState.TyreData.PeakRearRightTemperatureForLap = currentGameState.TyreData.RearRight_CenterTemp;
+            }
+            else if (previousGameState == null || currentGameState.TyreData.RearRight_CenterTemp > previousGameState.TyreData.PeakRearRightTemperatureForLap)
+            {
+                currentGameState.TyreData.PeakRearRightTemperatureForLap = currentGameState.TyreData.RearRight_CenterTemp;
+            }
+
+            currentGameState.TyreData.TyreTempStatus = CornerData.getCornerData(tyreTempThresholds, currentGameState.TyreData.PeakFrontLeftTemperatureForLap,
+                    currentGameState.TyreData.PeakFrontRightTemperatureForLap, currentGameState.TyreData.PeakRearLeftTemperatureForLap,
+                    currentGameState.TyreData.PeakRearRightTemperatureForLap);
 
             Boolean currentTyreValid = currentTyreCompound != null && currentTyreCompound.Length > 0 &&
                 acTyres.Count > 0 && acTyres.ContainsKey(currentTyreCompound);
@@ -1141,13 +1152,20 @@ namespace CrewChiefV4.ACC
                 }
             }
 
+            var msg = $"Wear: {shared.accPhysics.tyreWear[0].ToString("N2")} : {shared.accPhysics.tyreWear[1].ToString("N2")} : {shared.accPhysics.tyreWear[2].ToString("N2")} : { shared.accPhysics.tyreWear[3].ToString("N2")}";
+            if (msgHash.Add(msg.GetHashCode()))
+                System.Diagnostics.Debug.WriteLine(msg);
+
+            msg = $"Flag: {shared.accGraphic.flag} : {shared.accGraphic.penaltyTime}";
+            if (msgHash.Add(msg.GetHashCode()))
+                System.Diagnostics.Debug.WriteLine(msg);
+
             currentGameState.PenaltiesData.IsOffRacingSurface = shared.accPhysics.numberOfTyresOut > 2;
             if (!currentGameState.PitData.OnOutLap && previousGameState != null && !previousGameState.PenaltiesData.IsOffRacingSurface && currentGameState.PenaltiesData.IsOffRacingSurface &&
                 !(shared.accGraphic.session == AC_SESSION_TYPE.AC_RACE && isCountDown))
             {
                 currentGameState.PenaltiesData.CutTrackWarnings = previousGameState.PenaltiesData.CutTrackWarnings + 1;
             }
-
 
             if (playerVehicle.speedMS > 7 && currentGameState.carClass != null)
             {
@@ -1157,11 +1175,11 @@ namespace CrewChiefV4.ACC
                 currentGameState.TyreData.LeftRearIsLocked = Math.Abs(shared.accPhysics.wheelAngularSpeed[2]) < minRotatingSpeed;
                 currentGameState.TyreData.RightRearIsLocked = Math.Abs(shared.accPhysics.wheelAngularSpeed[3]) < minRotatingSpeed;
 
-                float maxRotatingSpeed = 3 * (float)Math.PI * playerVehicle.speedMS / currentGameState.carClass.minTyreCircumference;
-                currentGameState.TyreData.LeftFrontIsSpinning = Math.Abs(shared.accPhysics.wheelAngularSpeed[0]) > maxRotatingSpeed;
-                currentGameState.TyreData.RightFrontIsSpinning = Math.Abs(shared.accPhysics.wheelAngularSpeed[1]) > maxRotatingSpeed;
-                currentGameState.TyreData.LeftRearIsSpinning = Math.Abs(shared.accPhysics.wheelAngularSpeed[2]) > maxRotatingSpeed;
-                currentGameState.TyreData.RightRearIsSpinning = Math.Abs(shared.accPhysics.wheelAngularSpeed[3]) > maxRotatingSpeed;
+                // Is this better? Slip isn't just spinning
+                currentGameState.TyreData.LeftFrontIsSpinning = shared.accPhysics.wheelSlip[0] > wheelSlipThreshold;
+                currentGameState.TyreData.RightFrontIsSpinning = shared.accPhysics.wheelSlip[1] > wheelSlipThreshold;
+                currentGameState.TyreData.LeftRearIsSpinning = shared.accPhysics.wheelSlip[2] > wheelSlipThreshold;
+                currentGameState.TyreData.RightRearIsSpinning = shared.accPhysics.wheelSlip[3] > wheelSlipThreshold;
             }
 
             //conditions
@@ -1494,9 +1512,9 @@ namespace CrewChiefV4.ACC
             return DamageLevel.NONE;
         }
 
-        private PitWindow mapToPitWindow(int lapsOrMinutes, Boolean isInPits, int pitWindowStart, int pitWindowEnd, Boolean mandatoryPitDone)
+        private PitWindow mapToPitWindow(int lapsOrMilliseconds, Boolean isInPits, int pitWindowStart, int pitWindowEnd, Boolean mandatoryPitDone)
         {
-            if (lapsOrMinutes < pitWindowStart && lapsOrMinutes > pitWindowEnd)
+            if (lapsOrMilliseconds < pitWindowStart && lapsOrMilliseconds > pitWindowEnd)
             {
                 return PitWindow.Closed;
             }
@@ -1504,11 +1522,11 @@ namespace CrewChiefV4.ACC
             {
                 return PitWindow.Completed;
             }
-            else if (lapsOrMinutes >= pitWindowStart && lapsOrMinutes <= pitWindowEnd)
+            else if (lapsOrMilliseconds >= pitWindowStart && lapsOrMilliseconds <= pitWindowEnd)
             {
                 return PitWindow.Open;
             }
-            else if (isInPits && lapsOrMinutes >= pitWindowStart && lapsOrMinutes <= pitWindowEnd)
+            else if (isInPits && lapsOrMilliseconds >= pitWindowStart && lapsOrMilliseconds <= pitWindowEnd)
             {
                 return PitWindow.StopInProgress;
             }

@@ -40,6 +40,7 @@ namespace CrewChiefV4.ACC
         private int dataReadFromFileIndex = 0;
         private String lastReadFileName = null;
         private ACCStructWrapper previousAACStructWrapper; // Used when no data is comming in. EG: game is paused
+        private float ackPenalityTime;
 
         public class ACCStructWrapper
         {
@@ -186,6 +187,10 @@ namespace CrewChiefV4.ACC
                     if (accShared.accPhysics.airTemp == 0 && accShared.accPhysics.roadTemp == 0 && accShared.accPhysics.fuel == 0 && accShared.accPhysics.heading == 0 && accShared.accPhysics.pitch == 0)
                         return previousAACStructWrapper ?? structWrapper;
 
+                    // Tyre missing data fixups
+                    accShared.accPhysics.tyreTempI = accShared.accPhysics.tyreTempM;
+                    accShared.accPhysics.tyreTempO = accShared.accPhysics.tyreTempM;
+
                     if (udpUpdateViewModel == null)
                     {
                         System.Diagnostics.Debug.WriteLine("INITIALISING: " + DateTime.Now.ToString("HH:mm:ss.fff"));
@@ -206,6 +211,16 @@ namespace CrewChiefV4.ACC
                     }
 
                     structWrapper.data.accStatic.isTimedRace = udpUpdateViewModel.SessionInfoVM.RemainingTime == "∞" ? 0: 1;
+
+                    // New penality?
+                    if (structWrapper.data.accGraphic.penaltyTime != ackPenalityTime)
+                    {
+
+                        if (structWrapper.data.accGraphic.penaltyTime > ackPenalityTime && structWrapper.data.accGraphic.flag == AC_FLAG_TYPE.AC_NO_FLAG) // Penality flag not supported yet
+                            structWrapper.data.accGraphic.flag = AC_FLAG_TYPE.AC_PENALTY_FLAG;
+
+                        ackPenalityTime = structWrapper.data.accGraphic.penaltyTime;
+                    }
 
                     // Populate data from the ACC UDP info. We have to lock it because data can be updated while we read it
                     udpUpdateViewModel.LockForReadingAsync(() =>
@@ -303,7 +318,6 @@ namespace CrewChiefV4.ACC
                                 lastLapTimeMS = (lastLap?.IsValid ?? false) ? lastLap.LaptimeMS ?? 0 : 0,
                                 speedMS = car.Kmh * 0.277778f,
                                 spLineLength = car.SplinePosition,
-                                suspensionDamage = null,
                                 worldPosition = new accVec3 { x = car.WorldX, z = car.WorldY },
                                 tyreInflation = i == 0 ? accShared.accPhysics.wheelsPressure : new float[4]
                             };
