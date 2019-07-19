@@ -122,7 +122,14 @@ namespace CrewChiefV4.PCars2
             if (currentState.mRaceState == (int)eRaceState.RACESTATE_RACING &&
                 lastState.mRaceState != (int)eRaceState.RACESTATE_RACING)
             {
-                timeToStartSpotting = now.Add(TimeSpan.FromSeconds(timeAfterRaceStartToActivate));
+                if (GlobalBehaviourSettings.ovalSpotterMode)
+                {
+                    timeToStartSpotting = now.Add(TimeSpan.FromSeconds(2));
+                }
+                else
+                {
+                    timeToStartSpotting = now.Add(TimeSpan.FromSeconds(timeAfterRaceStartToActivate));
+                }
             }
             // this check looks a bit funky... whe we start a practice session, the raceState is not_started
             // until we cross the line for the first time. Which is retarded really.

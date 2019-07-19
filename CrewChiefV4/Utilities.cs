@@ -1,17 +1,245 @@
-﻿using CrewChiefV4.GameState;
+﻿using CrewChiefV4.Audio;
+using CrewChiefV4.GameState;
 using MathNet.Numerics;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
+using WebSocketSharp;
+using WebSocketSharp.Server;
 
 namespace CrewChiefV4
 {
+    /// <summary>
+    /// value object for message expectations
+    /// </summary>
+    public class ExpectedMessage
+    {
+        string[] messageNames;
+        public int minCount;
+        public int maxCount;
+
+        // expect a specific message to be played the range of times - note that the DELAYED_ and COMPOUND_ prefixes are also considered here
+        public ExpectedMessage(string messageName, int minCount, int maxCount)
+        {
+            this.messageNames = new string[] { messageName };
+            this.minCount = minCount;
+            this.maxCount = maxCount;
+        }
+
+        // expect one of the messageNames to be played the range of times - note that the DELAYED_ and COMPOUND_ prefixes are also considered here
+        public ExpectedMessage(string[] messageNames, int minCount, int maxCount)
+        {
+            this.messageNames = messageNames;
+            this.minCount = minCount;
+            this.maxCount = maxCount;            
+        }
+        // expect a specific message to be played the exact number of times - note that the DELAYED_ and COMPOUND_ prefixes are also considered here
+        public ExpectedMessage(string messageName, int exactCount)
+        {
+            this.messageNames = new string[] { messageName };
+            this.minCount = exactCount;
+            this.maxCount = exactCount;
+        }
+
+        // expect one of the messageNames to be played the exact number of times - note that the DELAYED_ and COMPOUND_ prefixes are also considered here
+        public ExpectedMessage(string[] messageNames, int exactCount)
+        {
+            this.messageNames = messageNames;
+            this.minCount = exactCount;
+            this.maxCount = exactCount;
+        }
+        override public string ToString()
+        {
+            return string.Join(", ", messageNames) + " expected >= " + minCount + " and <= " + maxCount;
+        }
+        // check that this expectation is met - i.e. a message was queued with one of the expected names >= min and <= max times
+        public int getMatchCount()
+        {
+            int matchCount = 0;
+            foreach (KeyValuePair<string, int> entry in Utilities.queuedMessageIds)
+            {
+                foreach (string messageName in messageNames)
+                {
+                    if (messageName == entry.Key || ("DELAYED_" + messageName) == entry.Key || ("COMPOUND_" + messageName) == entry.Key)
+                    {
+                        matchCount += entry.Value;
+                    }
+                }
+            }
+            return matchCount;
+        }
+    }
+
     public static class Utilities
     {
+        public static Boolean includesRaceSession = false;
+
+        public static Dictionary<string, int> queuedMessageIds = new Dictionary<string, int>();
+
+        // some noddy hard-coded expectations for race session trace playback
+        // TODO make this something that can be saved with the trace so each trace can define its own set of expectations
+
+        // TODO: move the hard-coded Strings to a messageNames class and reference these in all the events instead of using random
+        // magic Strings everywhere
+        private static ExpectedMessage[] defaultExpectedMessagesForRaceSessions = new ExpectedMessage[]
+        {        
+            new ExpectedMessage("lap_counter/get_ready", 1),
+            new ExpectedMessage("lap_counter/green_green_green", 1),
+            new ExpectedMessage("position", 1, 1000), // expect at least *some* position messages
+            new ExpectedMessage(new string[] {"Timings/gap_behind", "Timings/gap_in_front"}, 1, 1000), // expect at least *some* gap messages
+            new ExpectedMessage(new string[] {"fuel/half_distance_good_fuel", "fuel/half_distance_low_fuel"}, 0, 1),    // won't always get this, but should never have > 1
+            new ExpectedMessage(new string[] {"lap_counter/two_to_go", "lap_counter/two_to_go_top_three", "lap_counter/two_to_go_leading", 
+                "race_time/five_minutes_left_podium", "race_time/five_minutes_left_leading", "race_time/five_minutes_left"}, 1),    // should always get 1 2-to-go or 5-mins-to-go
+            new ExpectedMessage(new string[] {"lap_counter/last_lap", "lap_counter/white_flag_last_lap", "lap_counter/last_lap_leading", 
+                "lap_counter/last_lap_top_three", "race_time/last_lap", "race_time/last_lap_leading", "race_time/last_lap_top_three"}, 1),  // should always get 1 last-lap
+            new ExpectedMessage("SESSION_END", 1)   // should always get 1 session end
+        };
+
         public static Random random = new Random();
+
+        private static WebSocketServer ccDataWebSocketServer;
+
+        private static WebSocketServer gameDataWebSocketServer;
+
+        private static object websocketServerLock = new object();
+
+        public static AudioPlayer audioPlayer;
+
+        private static int ccDataWebsocketPort = UserSettings.GetUserSettings().getInt("websocket_port");
+
+        private static int gameDataWebsocketPort = UserSettings.GetUserSettings().getInt("game_data_websocket_port");
+
+        public static GameDataReader gameDataReader;
+
+        public static GameDataSerializer gameDataSerializer;
+        
+        public static void checkPlaybackCounts()
+        {
+            if (includesRaceSession)
+            {
+                Console.WriteLine("Playback counts: \n" + string.Join("\n", queuedMessageIds.Select(x => x.Key + " : " + x.Value)));
+                checkMessageCounts();
+            }
+            else
+            {
+                Console.WriteLine("Skipping expectations as we've not had a race session");
+            }
+        }
+
+        private static Boolean checkMessageCounts()
+        {
+            Boolean pass = true;
+            foreach (ExpectedMessage expected in defaultExpectedMessagesForRaceSessions)
+            {
+                int matchCount = expected.getMatchCount();
+                if (matchCount < expected.minCount || matchCount > expected.maxCount)
+                {
+                    Console.WriteLine("***** match count check failed " + expected.ToString() + " got " + matchCount + " matches");
+                    pass = false;
+                }
+            }
+            if (pass)
+            {
+                Console.WriteLine("Message expectations passed");
+            }
+            else
+            {
+                Console.WriteLine("Message expectations failed");
+            }
+            return pass;
+        }
+
+        public static void startCCDataWebsocketServer(AudioPlayer audioPlayer)
+        {
+            Utilities.audioPlayer = audioPlayer;
+            stopCCWebsocketServer();
+            try
+            {
+                lock (websocketServerLock)
+                {
+                    ccDataWebSocketServer = new WebSocketServer(ccDataWebsocketPort);
+                    ccDataWebSocketServer.AddWebSocketService<WebsocketData>("/crewchief");
+                    ccDataWebSocketServer.Start();
+                    Console.WriteLine("Successfully started Crew Chief data WebSocket server");
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Unable to start Crew Chief websocket: " + e.Message + ", " + e.StackTrace);
+            }
+        }
+
+        public static void startGameDataWebsocketServer(String endpoint, GameDataReader gameDataReader, GameDataSerializer serializer)
+        {
+            stopGameDataWebsocketServer();
+            GameDataWebsocketData.init(gameDataReader, serializer);
+            try
+            {
+                lock (websocketServerLock)
+                {
+                    gameDataWebSocketServer = new WebSocketServer(gameDataWebsocketPort);
+                    gameDataWebSocketServer.AddWebSocketService<GameDataWebsocketData>(endpoint);
+                    gameDataWebSocketServer.Start();
+                    Console.WriteLine("Successfully started game data WebSocket server");
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Unable to start game data websocket: " + e.Message + ", " + e.StackTrace);
+            }
+        }
+
+        public static void stopWebsocketServers()
+        {
+            stopCCWebsocketServer();
+            stopGameDataWebsocketServer();
+        }
+
+        private static void stopCCWebsocketServer()
+        {
+            try
+            {
+                lock (websocketServerLock)
+                {
+                    if (ccDataWebSocketServer != null)
+                    {
+                        ccDataWebSocketServer.Stop();
+                        ccDataWebSocketServer = null;
+                        Console.WriteLine("Stopped CC data WebSocket server");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Unable to stop CC data websocket: " + e.Message + ", " + e.StackTrace);
+            }
+        }
+
+        private static void stopGameDataWebsocketServer() 
+        {
+            GameDataWebsocketData.reset();
+            try
+            {
+                lock (websocketServerLock)
+                {
+                    if (gameDataWebSocketServer != null)
+                    {
+                        gameDataWebSocketServer.Stop();
+                        gameDataWebSocketServer = null;
+                        Console.WriteLine("Stopped game data WebSocket server");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Unable to stop game data websocket: " + e.Message + ", " + e.StackTrace);
+            }
+        }
 
         public static bool IsGameRunning(String processName, String[] alternateProcessNames)
         {
@@ -134,6 +362,10 @@ namespace CrewChiefV4
                     Console.WriteLine("\t\"" + carClass.Key + "\" "
                         + Utilities.GetCarClassMappingHint(carClass.Value));
                 }
+                if (!GameStateData.Multiclass)
+                {
+                    Console.WriteLine("Insufficient car class data, so dropping back to single class racing");
+                }
             }
         }
 
@@ -150,16 +382,19 @@ namespace CrewChiefV4
         public static string ResolveDataFile(string dataFilesPath, string fileNameToResolve)
         {
             // Search in dataFiles:
-            var resolvedFilePaths = Directory.GetFiles(dataFilesPath, fileNameToResolve, SearchOption.AllDirectories);
-            if (resolvedFilePaths.Length > 0)
-                return resolvedFilePaths[0];
+            if (Directory.Exists(dataFilesPath))
+            {
+                var resolvedFilePaths = Directory.GetFiles(dataFilesPath, fileNameToResolve, SearchOption.AllDirectories);
+                if (resolvedFilePaths.Length > 0)
+                    return resolvedFilePaths[0];
+            }
 
             // Search documents debugLogs:
-            resolvedFilePaths = Directory.GetFiles(System.IO.Path.Combine(Environment.GetFolderPath(
+            var resolvedFileUserPaths = Directory.GetFiles(System.IO.Path.Combine(Environment.GetFolderPath(
                 Environment.SpecialFolder.MyDocuments), @"CrewChiefV4\debugLogs"), fileNameToResolve, SearchOption.AllDirectories);
 
-            if (resolvedFilePaths.Length > 0)
-                return resolvedFilePaths[0];
+            if (resolvedFileUserPaths.Length > 0)
+                return resolvedFileUserPaths[0];
 
             Console.WriteLine("Failed to resolve trace file full path: " + fileNameToResolve);
             return null;
@@ -184,6 +419,14 @@ namespace CrewChiefV4
             }
 
             return new Tuple<int, int>(wholePart, fractionalPart);
+        }
+
+        public static string GetParameterName<T>(T item) where T : class
+        {
+            if (item == null)
+                return string.Empty;
+
+            return item.ToString().TrimStart('{').TrimEnd('}').Split('=')[0].Trim();
         }
 
         internal static void ReportException(Exception e, string msg, bool needReport)
@@ -225,6 +468,39 @@ namespace CrewChiefV4
             }
 
             return true;
+        }
+    }
+
+    public class WebsocketData : WebSocketBehavior
+    {
+        private String channelOpenStringResponse = "{\"channelOpen\": true}";
+        private String channelClosedStringResponse = "{\"channelOpen\": false}";
+        protected override void OnMessage(MessageEventArgs e)
+        {
+            Send(Utilities.audioPlayer.isChannelOpen() ? channelOpenStringResponse : channelClosedStringResponse);
+        }
+    }
+
+    public class GameDataWebsocketData : WebSocketBehavior
+    {
+        private static GameDataReader gameDataReader;
+        private static GameDataSerializer gameDataSerializer;
+
+        public static void init(GameDataReader gameDataReader, GameDataSerializer gameDataSerializer)
+        {
+            GameDataWebsocketData.gameDataReader = gameDataReader;
+            GameDataWebsocketData.gameDataSerializer = gameDataSerializer;
+        }
+
+        public static void reset()
+        {
+            GameDataWebsocketData.gameDataReader = null;
+            GameDataWebsocketData.gameDataSerializer = null;
+        }
+
+        protected override void OnMessage(MessageEventArgs e)
+        {
+            Send(GameDataWebsocketData.gameDataSerializer.Serialize(GameDataWebsocketData.gameDataReader.getLatestGameData(), e.Data));
         }
     }
 }

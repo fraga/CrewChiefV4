@@ -30,8 +30,8 @@ namespace CrewChiefV4.GameState
     public enum TyreType
     {
         // separate enum for compound & weather, and prime / option?
-        Hard, Medium, Soft, Super_Soft, Ultra_Soft, Wet, Intermediate, Road, Bias_Ply, Unknown_Race, R3E_2017, R3E_2016,
-        R3E_2016_SOFT, R3E_2016_MEDIUM, R3E_2016_HARD, Prime, Option, Alternate, Primary, Ice, Snow, AllTerrain
+        Hard, Medium, Soft, Super_Soft, Ultra_Soft, Hyper_Soft, Wet, Intermediate, Road, Bias_Ply, Unknown_Race, R3E_2017, R3E_2016,
+        R3E_2016_SOFT, R3E_2016_MEDIUM, R3E_2016_HARD, Prime, Option, Alternate, Primary, Ice, Snow, AllTerrain, Uninitialized
     }
 
     public enum BrakeType
@@ -75,9 +75,18 @@ namespace CrewChiefV4.GameState
     public enum StockCarRule
     {
         NONE,
+        LUCKY_DOG_PASS_ON_OUTSIDE,
+        LUCKY_DOG_ALLOW_TO_PASS_ON_OUTSIDE,
+        MOVE_CHOOSE_LANE,
+        WAVE_AROUND_CATCH_END_OF_FIELD,
+        TWO_TO_GREEN,
+        TWO_TO_GREEN_REMIND_LUCKY_DOG,
+        PENALTY_EOLL,
+        REMIND_LUCKY_DOG,
         LEADER_CHOOSE_LANE,
         LUCKY_DOG_PASS_ON_LEFT,  // Player's LD
         LUCKY_DOG_ALLOW_TO_PASS_ON_LEFT,  // Opponent's LD
+        NEW_LUCKY_DOG,
         MOVE_TO_EOLL,
         WAVE_AROUND_PASS_ON_RIGHT  // Or left??
     }
@@ -119,7 +128,19 @@ namespace CrewChiefV4.GameState
         public String luckyDogNameRaw;
         public Boolean stockCarRulesEnabled;
     }
-
+    public class SafetyCarData
+    {        
+        //we need to monitor when the safetycar crosses the line in iRacing as its laps will only switch to 1 for a few frames and then go back to 0.
+        //we might want to have more info like steering angle so we might be able to detect when it pulls off track.
+        public int Lap = 0;
+        public double Speed = -1;
+        public int CurrentSector = 0;
+        public bool isOnTrack = false;
+        public int TrackSurface = -1;
+        public float DistanceRoundTrack;
+        public float PitEntranceDistanceRoundTrack = -1.0f;
+        public Boolean fcySafetyCarCallsEnabled = false;
+    }
     public class TransmissionData
     {
         // -2 = no data
@@ -255,7 +276,8 @@ namespace CrewChiefV4.GameState
         CatchUp,
         AllowToPass,
         StayInPole,  // Case of being assigned pole/pole row with no SC present (Rolling start in rF2 Karts, for example).
-        MoveToPole  // Case of falling behind assigned pole/pole row with no SC present (Rolling start in rF2 Karts, for example).
+        MoveToPole,  // Case of falling behind assigned pole/pole row with no SC present (Rolling start in rF2 Karts, for example).
+        PassSafetyCar
     }
 
     public class FrozenOrderData
@@ -273,15 +295,10 @@ namespace CrewChiefV4.GameState
 
         public string DriverToFollowRaw = "";
 
+        public string CarNumberToFollowRaw = "";
+
         // Meters/s.  If -1, SC either left or not present.
         public float SafetyCarSpeed = -1.0f;
-    }
-
-    public enum StartType
-    {
-        None,
-        Standing,
-        Rolling
     }
 
     public class TimingData
@@ -829,7 +846,7 @@ namespace CrewChiefV4.GameState
 
         public DateTime SessionStartTime;
 
-        // in minutes, 0 if this session is a fixed number of laps rather than a fixed time.
+        // in seconds, 0 if this session is a fixed number of laps rather than a fixed time.
         public float SessionTotalRunTime;
 
         public int SessionNumberOfLaps;
@@ -970,6 +987,7 @@ namespace CrewChiefV4.GameState
         public float SessionFastestLapTimeFromGame = -1;
         public float SessionFastestLapTimeFromGamePlayerClass = -1;
 
+        public int TrackSurface = -1;
         private TrackLandmarksTiming _trackLandmarksTiming;
         public TrackLandmarksTiming trackLandmarksTiming
         {
@@ -1065,7 +1083,7 @@ namespace CrewChiefV4.GameState
             }
         }
 
-        public int PlayerCarNr = -1;
+        public String PlayerCarNr = "-1";
 
         // Currently only used in iRacing.
         public int MaxIncidentCount = -1;
@@ -1099,17 +1117,37 @@ namespace CrewChiefV4.GameState
 
         public int StrengthOfField;
 
+        // TODO: this is only being set in the iRacing and RF2 mappers, but it's checked in fuel and LapCounter events. Which is odd.
         public Boolean IsLastLap;
 
-        public StartType StartType = StartType.None;
-
         public Boolean HasCompletedSector2ThisLap;
+
+        // race length in whole minutes. -1 => no session, 0 => fixed lap length
+        public int[] RaceSessionsLengthMinutes = new int[]{-1, -1, -1, -1};
+
+        // -1 => no session, 0 => session length is time only. Note it's possible to have minutes + laps in a session
+        public int[] RaceSessionsLengthLaps = new int[] { -1, -1, -1, -1};
 
         public SessionData()
         {
             SessionTimesAtEndOfSectors.Add(1, -1);
             SessionTimesAtEndOfSectors.Add(2, -1);
             SessionTimesAtEndOfSectors.Add(3, -1);
+            // JB: i know this is hiding the underlying issue with the index-out-of-bounds exception that's occasionally thrown
+            // when inserting into this dictionary with the dict[newItem] = newValue syntax, but I can't be arsed to chase this 
+            // particular ghost
+            //
+            // TODO: fixme
+            SessionTimesAtEndOfSectors.Add(0, -1);
+            SessionTimesAtEndOfSectors.Add(4, -1);
+            SessionTimesAtEndOfSectors.Add(5, -1);
+            SessionTimesAtEndOfSectors.Add(6, -1); 
+            SessionTimesAtEndOfSectors.Add(7, -1);
+            SessionTimesAtEndOfSectors.Add(8, -1);
+            SessionTimesAtEndOfSectors.Add(9, -1); 
+            SessionTimesAtEndOfSectors.Add(10, -1);
+            SessionTimesAtEndOfSectors.Add(11, -1);
+            SessionTimesAtEndOfSectors.Add(12, -1);
         }
 
         public void restorePlayerTimings(SessionData restoreTo)
@@ -1201,8 +1239,12 @@ namespace CrewChiefV4.GameState
             PositionAtStartOfCurrentLap = overallPosition;
             
             LapData lapData = PlayerLapData[PlayerLapData.Count - 1];
-            
-            LapTimePreviousEstimateForInvalidLap = SessionRunningTime - SessionTimesAtEndOfSectors[numberOfSectors - 1];
+
+            float sessionTimeAtEndOfLastLap = -1;
+            if (SessionTimesAtEndOfSectors.TryGetValue(numberOfSectors, out sessionTimeAtEndOfLastLap) && sessionTimeAtEndOfLastLap > 0)
+            {
+                LapTimePreviousEstimateForInvalidLap = SessionRunningTime - sessionTimeAtEndOfLastLap;
+            }
             playerAddCumulativeSectorData(numberOfSectors, overallPosition, providedLapTime, gameTimeAtLapEnd, lapIsValid, isRaining, trackTemp, airTemp);
             lapData.LapTime = providedLapTime;
             lapData.InLap = inPitLane;
@@ -1245,7 +1287,14 @@ namespace CrewChiefV4.GameState
         public void playerAddCumulativeSectorData(int sectorNumberJustCompleted, int overallPosition, float cumulativeSectorTime,
             float gameTimeAtSectorEnd, Boolean lapIsValid, Boolean isRaining, float trackTemp, float airTemp)
         {
-            SessionTimesAtEndOfSectors[sectorNumberJustCompleted] = gameTimeAtSectorEnd;
+            if (SessionTimesAtEndOfSectors.ContainsKey(sectorNumberJustCompleted))
+            {
+                SessionTimesAtEndOfSectors[sectorNumberJustCompleted] = gameTimeAtSectorEnd;
+            }
+            else
+            {
+                SessionTimesAtEndOfSectors.Add(sectorNumberJustCompleted, gameTimeAtSectorEnd);
+            }
             LapData lapData;
             if (PlayerLapData.Count == 0)
             {
@@ -1378,7 +1427,12 @@ namespace CrewChiefV4.GameState
             public float Roll = 0.0f;
             public float Yaw = 0.0f;
         }
-
+        public class Acceleration
+        {
+            public float? LatAccel = null;
+            public float? VertAccel = null;
+            public float? LongAccel = null;
+        }
         // Unit: Meter per second (m/s).
         public Single CarSpeed = 0;
 
@@ -1393,6 +1447,8 @@ namespace CrewChiefV4.GameState
         // presumably it's relative to the world rather than the track orientation under the car. Is yaw relative to the track spline or 'north'?).
         // This is only set for R3E currently, and is only used to detect the car rolling over.
         public Rotation Orientation = new Rotation();
+
+        public Acceleration AccelerationVector = new Acceleration();
     }
     
     public class OpponentData
@@ -1562,7 +1618,7 @@ namespace CrewChiefV4.GameState
 
         public bool isApporchingPits;
 
-        public int CarNr = -1;
+        public String CarNumber = "-1";
 
         private Tuple<String, float> _LicensLevel;
         public Tuple<String, float> LicensLevel
@@ -1583,6 +1639,7 @@ namespace CrewChiefV4.GameState
 
         public int iRating = -1;
 
+        public int trackSurface = -1;
         // hack for assetto corsa only. Lap count may be delayed so we capture it at the end of sector1 and use this at lap end
         public int lapCountAtSector1End = -1;
 
@@ -2625,8 +2682,8 @@ namespace CrewChiefV4.GameState
         public int MaxPermittedDistanceOnCurrentTyre = -1;
         public int MinPermittedDistanceOnCurrentTyre = -1;
 
-        // -1 == n/a; 0 = inactive; 1 = active
-        public int limiterStatus = -1;
+        public enum LimiterStatus { NOT_AVAILABLE, INACTIVE, ACTIVE }
+        public LimiterStatus limiterStatus = LimiterStatus.NOT_AVAILABLE;
 
         // RF1/RF2 hack for mandatory pit stop windows, which are used to trigger 'box now' messages
         public Boolean ResetEvents;
@@ -2637,16 +2694,26 @@ namespace CrewChiefV4.GameState
 
         public Boolean IsPitCrewReady;
 
+        // m/s
         public float PitSpeedLimit = -1.0f;
 
         // distance round track of pit box
         public float PitBoxPositionEstimate = -1.0f;
+
+        // x-y-z co-ordinate of pit box, only set for R3E
+        public float[] PitBoxLocationEstimate = null;
 
         public Boolean IsTeamRacing;
 
         public Boolean JumpedToPits;
 
         public Boolean IsInGarage;
+
+        // Note that callers have to also check if PitSpeedLimit != -1.0f, which means no data.
+        public bool pitlaneHasSpeedLimit()
+        {
+            return PitSpeedLimit > 0.0f && PitSpeedLimit < 56.0f; // 200kph
+        }
     }
 
     public class PenatiesData
@@ -2671,6 +2738,47 @@ namespace CrewChiefV4.GameState
         public Boolean IsOffRacingSurface;
 
         public Boolean PossibleTrackLimitsViolation;
+
+        // Below fields are one tick triggers.
+        public enum DetailedPenaltyType
+        {
+           NONE,
+           STOP_AND_GO,
+           DRIVE_THROUGH
+        }
+        public DetailedPenaltyType PenaltyType = DetailedPenaltyType.NONE;
+
+        public enum DetailedPenaltyCause
+        {
+            NONE,
+            SPEEDING_IN_PITLANE,
+            FALSE_START,
+            CUT_TRACK,
+            EXITING_PITS_UNDER_RED,
+            ILLEGAL_PASS_ROLLING_BEFORE_GREEN,
+            ILLEGAL_PASS_FCY_BEFORE_GREEN,
+            IGNORED_BLUE_FLAG,
+        }
+        public DetailedPenaltyCause PenaltyCause = DetailedPenaltyCause.NONE;
+
+        public enum WarningMessage
+        {
+            NONE,
+            WRONG_WAY,
+            DRIVING_TOO_SLOW,
+            HEADLIGHTS_REQUIRED,
+            ENTER_PITS_TO_AVOID_EXCEEDING_LAPS, // Prac/Quali.
+            DISQUALIFIED_DRIVING_WITHOUT_HEADLIGHTS,
+            DISQUALIFIED_EXCEEDING_ALLOWED_LAP_COUNT, // Prac/Quali.
+            ONE_LAP_TO_SERVE_DRIVE_THROUGH,
+            ONE_LAP_TO_SERVE_STOP_AND_GO,
+            BLUE_MOVE_OR_BE_PENALIZED,
+            DISQUALIFIED_IGNORED_STOP_AND_GO,
+            DISQUALIFIED_IGNORED_DRIVE_THROUGH,
+            ENTER_PITS_TO_SERVE_PENALTY,
+            UNSPORTSMANLIKE_DRIVING
+        }
+        public WarningMessage Warning = WarningMessage.NONE;
     }
 
     public class TyreData
@@ -3647,7 +3755,23 @@ namespace CrewChiefV4.GameState
                 _FrozenOrderData = value;
             }
         }
-
+        private SafetyCarData _SafetyCarData;
+        public SafetyCarData SafetyCarData
+        {
+            get
+            {
+                if (_SafetyCarData == null)
+                {
+                    _SafetyCarData = new SafetyCarData();
+                }
+                return _SafetyCarData;
+            }
+            set
+            {
+                _SafetyCarData = value;
+            }
+        }
+        
         private HashSet<String> _retriedDriverNames;
         public HashSet<String> retriedDriverNames
         {
@@ -3788,6 +3912,16 @@ namespace CrewChiefV4.GameState
             return rawDriverNames;
         }
 
+        public HashSet<string> getCarNumbers()
+        {
+            HashSet<string> carNumbers = new HashSet<string>();
+            foreach (KeyValuePair<string, OpponentData> entry in OpponentData)
+            {
+                carNumbers.Add(entry.Value.CarNumber);
+            }
+            return carNumbers;
+        }
+
         public OpponentData getOpponentAtClassPosition(int position, CarData.CarClass carClass)
         {
             return getOpponentAtClassPosition(position, carClass, false);
@@ -3903,6 +4037,45 @@ namespace CrewChiefV4.GameState
             {
                 return null;
             }
+        }
+
+        public string getOpponentKeyForCarNumber(String requestedCarNumberString)
+        {
+            int parsedRequestedCarNumber;
+            // assume that an alternate match (based on parsed number) is OK if we can parse the number, until we get >1 match
+            Boolean canUserAlternateMatch = int.TryParse(requestedCarNumberString, out parsedRequestedCarNumber);
+            string alternateMatch = null;
+            foreach (KeyValuePair<string, OpponentData> entry in OpponentData)
+            {
+                String opponentCarNumberString = entry.Value.CarNumber;
+                // if there's an exact match, use it immediately
+                if (opponentCarNumberString == requestedCarNumberString)
+                {
+                    return entry.Key;
+                }
+                else if (canUserAlternateMatch)
+                {
+                    int parsedOpponentCarNumber;
+                    if (int.TryParse(opponentCarNumberString, out parsedOpponentCarNumber) && parsedRequestedCarNumber == parsedOpponentCarNumber)
+                    {
+                        // don't return this match immediately - there might be another match which makes any non-exact match ambiguous
+                        if (alternateMatch == null)
+                        {
+                            alternateMatch = entry.Key;
+                        }
+                        else
+                        {
+                            // we already had a match so any non-exact match must be ambiguous
+                            canUserAlternateMatch = false;
+                        }
+                    }
+                }
+            }
+            if (canUserAlternateMatch)
+            {
+                return alternateMatch;
+            }
+            return null;
         }
 
         public string getOpponentKeyInFront(CarData.CarClass carClass)
@@ -4049,7 +4222,7 @@ namespace CrewChiefV4.GameState
                         classIds.Add(opponentClassId);
                         if (CrewChief.gameDefinition.allowsUserCreatedCars && opponentData.CarClass.carClassEnum == CarData.CarClassEnum.UNKNOWN_RACE)
                         {
-                            unknownClassIds.Add(playerClassId);
+                            unknownClassIds.Add(opponentClassId);
                         }
                     }
                     numberOfClasses = classIds.Count;
@@ -4161,7 +4334,7 @@ namespace CrewChiefV4.GameState
         public void display()
         {
             Console.WriteLine("Laps completed = " + SessionData.CompletedLaps);
-            Console.WriteLine("Time elapsed = " + SessionData.SessionRunningTime.ToString("0.000"));
+            Console.WriteLine("Time elapsed = " + TimeSpan.FromSeconds(SessionData.SessionRunningTime).ToString(@"mm\:ss\.fff") + " (" + SessionData.SessionRunningTime.ToString("0.000") + ")");
             Console.WriteLine("Overall Position = " + SessionData.OverallPosition);
             Console.WriteLine("Class Position = " + SessionData.ClassPosition);
             Console.WriteLine("Session phase = " + SessionData.SessionPhase);
@@ -4185,8 +4358,7 @@ namespace CrewChiefV4.GameState
 
             foreach (KeyValuePair<string, OpponentData> entry in OpponentData)
             {
-                if (CrewChief.forceSingleClass
-                    || CarData.IsCarClassEqual(entry.Value.CarClass, carClassToCheck))
+                if (CarData.IsCarClassEqual(entry.Value.CarClass, carClassToCheck))
                 {
                     float[] thisOpponentsBest = entry.Value.getTimeAndSectorsForBestLapInWindow(lapsToCheck);
                     if (bestLapWithSectors[0] == -1 || (thisOpponentsBest[0] > 0 && thisOpponentsBest[0] < bestLapWithSectors[0]))

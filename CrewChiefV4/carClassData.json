@@ -42,6 +42,8 @@
 #    "DRSRange": gap to the opponent ahead in seconds  (floating point number) used to allow/disalllow DRS use in the DRS zone.  Defaults to -1.0, meaning not set seconds.
 #    "pitCrewPreparationTime": time (in seconds, integer number) pit crew needs for preparation before servicing the car.  Defaults to 25 seconds.
 #    "isBatteryPowered": if true, this is battery only powered vehicle class.
+#    "isVehicleSwapAllowed": if true, this battery series allows pitting to exchange for a car with fresh battery.
+#    "isRefuelingAllowed": if true, this series allows refueling.
 #}
 #
 # The default values are:
@@ -50,7 +52,7 @@
 #    "defaultTyreType": "Unknown_Race"
 #    "maxSafeWaterTemp": 105
 #    "maxSafeOilTemp": 125
-#    "minTyreCircumference": 0.4 * pi (40cm diameter wheel)
+#    "minTyreCircumference": 0.5 * pi (50cm diameter wheel)
 #    "maxTyreCircumference": 1.2 * pi (120cm diameter wheel)
 #    "spotterVehicleLength": Defaults to *_car_length preference value (4.5 by default).
 #    "spotterVehicleWidth": 1.8 (meters)
@@ -99,9 +101,9 @@
 # ROAD_SUPERCAR, GROUPC, GROUPB, GROUPA, GROUP4, GROUP5, GROUP6, GTO,
 # VINTAGE_INDY_65, VINTAGE_F3_A, VINTAGE_F1_A, VINTAGE_F1_A1, VINTAGE_PROTOTYPE_B, VINTAGE_GT_D, VINTAGE_GT_C, HISTORIC_TOURING_1, HISTORIC_TOURING_2, VINTAGE_F1_B,
 # VINTAGE_F1_C, VINTAGE_STOCK_CAR,
-# F1, F2, F3, F4, FF, FORMULA_E, F1_70S, TC1, TC2, TCR, TC1_2014, AUDI_TT_CUP, AUDI_TT_VLN, CLIO_CUP, DTM, DTM_2013, V8_SUPERCAR, DTM_2014, DTM_2015, DTM_2016, TRANS_AM, HILL_CLIMB_ICONS, FORMULA_RENAULT,
+# F1, F2, F3, F4, FF, FORMULA_E_2018, FORMULA_E_2019, F1_70S, TC1, TC2, TCR, TC1_2014, AUDI_TT_CUP, AUDI_TT_VLN, CLIO_CUP, DTM, DTM_2013, V8_SUPERCAR, DTM_2014, DTM_2015, DTM_2016, TRANS_AM, HILL_CLIMB_ICONS, FORMULA_RENAULT,
 # MEGANE_TROPHY, NSU_TT, KTM_RR, INDYCAR, HYPER_CAR, HYPER_CAR_RACE, UNKNOWN_RACE, STOCK_V8, BOXER_CUP, NASCAR_2016, ISI_STOCKCAR_2015, RADICAL_SR3,
-# RS01_TROPHY, TRACKDAY_A, TRACKDAY_B, BMW_235I, CARRERA_CUP, CAYMAN_CLUBSPORT, CAN_AM
+# RS01_TROPHY, TRACKDAY_A, TRACKDAY_B, BMW_235I, CARRERA_CUP, CAYMAN_CLUBSPORT, CAN_AM, M1_PROCAR, PORSCHE_964_CUP, PALATOV_D4_TRACKDAY, PALATOV_D4_HILLCLIMB, PALATOV_D4_CUSTOM
 # 
 # Car classes can skip an entry if they're using the default - e.g. most cars
 # skip defaultTyreType so they use Unknown_Race - this is only overridden in
@@ -153,7 +155,7 @@
 			"pCarsClassNames": ["*GTE*"],
 			"rf2ClassNames": ["*GTE*", "URD_EGT_Darche", "URD_EGT_AM", "URD_EGT_Bayro", "URD_EGT_Ferruccio", "URD_EGT_Venom", "URD_EGT_C7R"],
 			"acClassNames": ["ks_lamborghini_huracan_st", "ks_glickenhaus_scg003", "*GTE*"],
-			"iracingCarIds": [92, 93, 102],
+			"iracingCarIds": [92, 93, 102, 109],
 			"brakeType": "Ceramic",
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL",
@@ -170,7 +172,7 @@
 		},
 		{
 			"carClassEnum": "GT3",
-			"raceroomClassIds": [1703, 2922, 3375, 4516],
+			"raceroomClassIds": [1703, 2922, 3375, 4516, 7278],
 			"pCarsClassNames": ["GT3"],
 			"rf2ClassNames": ["*GT3*"],
 			"acClassNames": ["ks_audi_r8_lms", "*GT3*"],
@@ -206,7 +208,7 @@
 			"raceroomClassIds": [5825],
 			"pCarsClassNames": ["GT4"],
 			"rf2ClassNames": ["*GT4*"],
-			"acClassNames": ["*GT4*", "ks_bmw_m235i_racing", "lotus_evora_gx"],
+			"acClassNames": ["*GT4*", "ks_bmw_m235i_racing", "lotus_evora_gx", "ginetta_g55"],
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL",
 			"allMembersAreRWD": true,
@@ -318,11 +320,21 @@
 			"allMembersAreRWD": true
 		},
 		{
+			"carClassEnum": "SUPERKART",
+			"rf2ClassNames": ["RF2R SUPERKART"],
+			"minTyreCircumference": 0.72,
+			"maxTyreCircumference": 1.22,
+			"spotterVehicleLength": 2.0,
+			"spotterVehicleWidth": 1.5,
+			"enabledMessageTypes": "NONE",
+			"allMembersAreRWD": true
+		},
+		{
 			"carClassEnum": "LMP1",
 			"raceroomClassIds": [1714],
 			"pCarsClassNames": ["LMP1"],
 			"rf2ClassNames": ["LMP1"],
-			"acClassNames": ["ks_porsche_919_hybrid_2015", "ks_porsche_919_hybrid_2016"],
+			"acClassNames": ["ks_porsche_919_hybrid_2015", "ks_porsche_919_hybrid_2016", "ks_audi_r18_etron_quattro", "ks_toyota_ts040"],
 			"iracingCarIds": [98, 100],
 			"brakeType": "Carbon",
 			"maxSafeWaterTemp": 105,
@@ -362,8 +374,8 @@
 			"carClassEnum": "GROUPC",
 			"raceroomClassIds": [4121],
 			"pCarsClassNames": ["Group C1", "Group C"],
-			"rf2ClassNames": ["Mazda_787B"],
-			"acClassNames": ["mazda_787b", "ks_mazda_787b"],
+			"rf2ClassNames": ["Sauber C11", "Porsche 962C", "Mazda 787B"],
+			"acClassNames": ["mazda_787b", "ks_mazda_787b", "ks_mercedes_c9", "ks_porsche_962c_*"],
 			"brakeType": "Ceramic",
 			"timesInHundredths": true,
 			"enabledMessageTypes": "TYRE_TEMPS, BRAKE_TEMPS, FUEL, LOCKING_AND_SPINNING",
@@ -399,7 +411,7 @@
 		},
 		{
 			"carClassEnum": "GROUP4",
-			"raceroomClassIds": [2378],
+			"raceroomClassIds": [7304],
 			"pCarsClassNames": ["Group 4"],
 			"timesInHundredths": false,
 			"enabledMessageTypes": "FUEL, LOCKING_AND_SPINNING",
@@ -411,6 +423,13 @@
 			"pCarsClassNames": ["Group A"],
 			"timesInHundredths": true,
 			"enabledMessageTypes": "TYRE_TEMPS, BRAKE_TEMPS, FUEL, LOCKING_AND_SPINNING",
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "M1_PROCAR",
+			"raceroomClassIds": [2378],
+			"timesInHundredths": false,
+			"enabledMessageTypes": "FUEL, LOCKING_AND_SPINNING",
 			"allMembersAreRWD": true
 		},
 		{
@@ -504,13 +523,27 @@
 			"allMembersAreRWD": true
 		},
 		{
-			"carClassEnum": "FORMULA_E",
+			"carClassEnum": "FORMULA_E_2018",
 			"rf2ClassNames": ["Formula E 2018", "Formula E Showcar"],
 			"brakeType": "Carbon",
 			"maxSafeWaterTemp": 105,
 			"maxSafeOilTemp": 140,
 			"timesInHundredths": true,
 			"isBatteryPowered": true,
+			"isVehicleSwapAllowed": true,
+			"enabledMessageTypes": "TYRE_TEMPS, BRAKE_TEMPS, BATTERY, LOCKING_AND_SPINNING",
+			"pitCrewPreparationTime": 17,
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "FORMULA_E_2019",
+			"rf2ClassNames": ["Formula E 2019"],
+			"brakeType": "Carbon",
+			"maxSafeWaterTemp": 105,
+			"maxSafeOilTemp": 140,
+			"timesInHundredths": true,
+			"isBatteryPowered": true,
+			"isVehicleSwapAllowed": false,
 			"enabledMessageTypes": "TYRE_TEMPS, BRAKE_TEMPS, BATTERY, LOCKING_AND_SPINNING",
 			"pitCrewPreparationTime": 17,
 			"allMembersAreRWD": true
@@ -532,6 +565,7 @@
 		{
 			"carClassEnum": "VINTAGE_F1_A",
 			"pCarsClassNames": ["Vintage F1 A"],
+			"acClassNames": ["gpl67_*", "lotus_49", "ks_ferrari_312_67"],
 			"defaultTyreType": "Bias_Ply",
 			"timesInHundredths": false,
 			"enabledMessageTypes": "FUEL, LOCKING_AND_SPINNING",
@@ -625,7 +659,7 @@
 		{
 			"carClassEnum": "DTM",
 			"pCarsClassNames": ["TC3"],
-			"rf2ClassNames": ["Abt Sportsline", "DHL Paket", "EURONICS Mercedes AMG", "Junge Sterne", "Mercedes AMG DTM-Team", "Mercedes AMG", "STIHL Mercedes AMG", "THOMAS SABO Mercedes AMG", "THOMAS SABO", "TV Spielfilm", "Team ABT", "Team Abt Sportsline", "Team Abt", "Team MTEK", "Team Phoenix", "Team RBM", "Team RMG", "Team Rosberg", "Team Schnitzer", "stern Mercedes AMG", "stern", "HWA Team", "Mücke Motorsport", "Team HWA", "Team Mücke", "Persson Motorsport", "Petronas", "Silberpfeil Energy", "gooix/Original-Teile", "Euronics/BWT", "Team ART", "Team HWA I", "Team HWA II"],
+			"rf2ClassNames": ["Abt Sportsline", "DHL Paket", "EURONICS Mercedes AMG", "Junge Sterne", "Mercedes AMG DTM-Team", "Mercedes AMG", "STIHL Mercedes AMG", "THOMAS SABO Mercedes AMG", "THOMAS SABO", "TV Spielfilm", "Team ABT", "Team Abt Sportsline", "Team Abt", "Team MTEK", "Team Phoenix", "Team RBM", "Team RMG", "Team Rosberg", "Team Schnitzer", "stern Mercedes AMG", "stern", "HWA Team", "Mücke Motorsport", "Team HWA", "Team Mücke", "Persson Motorsport", "Petronas", "Silberpfeil Energy", "gooix/Original-Teile", "Euronics/BWT", "Team ART", "Team HWA I", "Team HWA II", "T5"],
 			"brakeType": "Carbon",
 			"maxSafeWaterTemp": 105,
 			"maxSafeOilTemp": 140,
@@ -842,6 +876,7 @@
 		{
 			"carClassEnum": "KTM_RR",
 			"raceroomClassIds": [5385],
+			"acClassNames": ["ktm_xbow_r"],
 			"maxSafeWaterTemp": 102,
 			"maxSafeOilTemp": 115,
 			"timesInHundredths": true,
@@ -964,17 +999,18 @@
 			"enabledMessageTypes": "FUEL",
 			"allMembersAreRWD": true
 		},
-        {
-            "carClassEnum": "F1_90S",
-            "rf2ClassNames": [ "F1_1996_SL1DE" ],
-            "brakeType": "Carbon",
-            "maxSafeWaterTemp": 105,
-            "maxSafeOilTemp": 140,
-            "timesInHundredths": true,
-            "enabledMessageTypes": "ALL",
-            "pitCrewPreparationTime": 17,
-            "allMembersAreRWD": true
-        },
+		{
+			"carClassEnum": "F1_90S",
+			"rf2ClassNames": ["F1_1996_SL1DE"],
+			"raceroomClassIds": [7214],
+			"brakeType": "Carbon",
+			"maxSafeWaterTemp": 105,
+			"maxSafeOilTemp": 140,
+			"timesInHundredths": true,
+			"enabledMessageTypes": "ALL",
+			"pitCrewPreparationTime": 17,
+			"allMembersAreRWD": true
+		},
 		{
 			"carClassEnum": "INDYCAR_DALLARA_2011",
 			"iracingCarIds": [29],
@@ -990,6 +1026,39 @@
 			"maxSafeOilTemp": 140,
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL"
+		},
+		{
+			"carClassEnum": "PORSCHE_964_CUP",
+			"raceroomClassIds": [7287],
+			"enabledMessageTypes": "ALL",
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "PALATOV_D4_TRACKDAY",
+			"rf2ClassNames": ["D4_TrackDay", "D4_2018TrackDay", "D4_TrackDay_SE", "D4_2018TrackDay_SE"],
+			"maxSafeWaterTemp": 102,
+			"maxSafeOilTemp": 115,
+			"timesInHundredths": true,
+			"enabledMessageTypes": "ALL",
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "PALATOV_D4_HILLCLIMB",
+			"rf2ClassNames": ["D4_HillClimb", "D4_2018HillClimb"],
+			"maxSafeWaterTemp": 102,
+			"maxSafeOilTemp": 115,
+			"timesInHundredths": true,
+			"enabledMessageTypes": "ALL",
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "PALATOV_D4_CUSTOM",
+			"rf2ClassNames": ["D4_Custom", "D4_2018Custom"],
+			"maxSafeWaterTemp": 102,
+			"maxSafeOilTemp": 115,
+			"timesInHundredths": true,
+			"enabledMessageTypes": "ALL",
+			"allMembersAreRWD": true
 		}
 	]
 }

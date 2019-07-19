@@ -19,16 +19,27 @@ namespace CrewChiefV4.iRacing
         private iRacingStructDumpWrapper[] dataReadFromFile = null;
         private int dataReadFromFileIndex = 0;
         private String lastReadFileName = null;
+        private int numberOfCarsEnabled = 0;
+        private bool is360HzTelemetry = false;
         int lastUpdate = -1;
         private int _DriverId = -1;
         public int DriverId { get { return _DriverId; } }
-
-        public object GetData(string headerName)
+        
+        public iRacingSharedMemoryReader()
         {
-            if (!sdk.IsConnected())
-                return null;
-
-            return sdk.GetData(headerName);
+            string dataFilesPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "iRacing", "app.ini");
+            if(System.IO.File.Exists(dataFilesPath))
+            {
+                string serverTransmitMaxCars = PluginInstaller.ReadValue("Graphics", "serverTransmitMaxCars", dataFilesPath, "0");
+                Int32.TryParse(serverTransmitMaxCars.Substring(0, 2), out numberOfCarsEnabled);
+                Console.WriteLine("serverTransmitMaxCars = " + numberOfCarsEnabled);
+                string irsdkLog360Hz = PluginInstaller.ReadValue("Misc", "irsdkLog360Hz", dataFilesPath, "0");
+                int Is360HzTelemetry = 0;
+                Int32.TryParse(irsdkLog360Hz.Substring(0, 1), out Is360HzTelemetry);
+                if (Is360HzTelemetry == 1)
+                    is360HzTelemetry = true;
+                Console.WriteLine("is360HzTelemetry = " + is360HzTelemetry);
+            }
         }
 
         private object TryGetSessionNum()
@@ -53,17 +64,76 @@ namespace CrewChiefV4.iRacing
         {
             public long ticksWhenRead;
             public iRacingData data;
-
-
         }
         public override void DumpRawGameData()
-        {
+        {            
             if (dumpToFile && dataToDump != null && dataToDump.Count > 0 && filenameToDump != null)
-            {
-                SerializeObject(dataToDump.ToArray<iRacingStructDumpWrapper>(), filenameToDump);
+            {                
+                bool firstSession = true;
+                List<iRacingStructDumpWrapper> currentSession = new List<iRacingStructDumpWrapper>();
+                string sessionType = YamlParser.Parse(dataToDump[0].data.SessionInfo, string.Format(SessionData.sessionInfoYamlPath, dataToDump[0].data.SessionNum, "SessionType"));
+                string track = YamlParser.Parse(dataToDump[0].data.SessionInfo, "WeekendInfo:TrackName:");
+                string filename = System.IO.Path.GetFileNameWithoutExtension(filenameToDump);
+                string directory = System.IO.Path.GetDirectoryName(filenameToDump);
+                string extension = System.IO.Path.GetExtension(filenameToDump);
+                string filenameToDumpRenamed = System.IO.Path.Combine(directory, filename + "-" + track + "-" + sessionType) + extension;
+                                
+                foreach (iRacingStructDumpWrapper wr in dataToDump)
+                {
+                    if (firstSession || !wr.data.IsNewSession)
+                    {
+                        firstSession = false;
+                        currentSession.Add(wr);
+                        continue;
+                    }
+                    else
+                    {
+                        SerializeObject(currentSession.ToArray<iRacingStructDumpWrapper>(), filenameToDumpRenamed);
+                        currentSession.Clear();
+                        currentSession.Add(wr);
+                        track = YamlParser.Parse(wr.data.SessionInfo, "WeekendInfo:TrackName:");
+                        sessionType = YamlParser.Parse(wr.data.SessionInfo, string.Format(SessionData.sessionInfoYamlPath, wr.data.SessionNum, "SessionType"));
+                        filenameToDumpRenamed = System.IO.Path.Combine(directory, filename + "-" + track + "-" + sessionType) + extension;
+                    }
+                }
+                SerializeObject(currentSession.ToArray<iRacingStructDumpWrapper>(), filenameToDumpRenamed);
             }
         }
 
+        public void SplitTraceData(String newFilename)
+        {
+            if (dataToDump != null && dataToDump.Count > 0)
+            {
+                bool firstSession = true;
+                List<iRacingStructDumpWrapper> currentSession = new List<iRacingStructDumpWrapper>();
+                string sessionType = YamlParser.Parse(dataToDump[0].data.SessionInfo, string.Format(SessionData.sessionInfoYamlPath, dataToDump[0].data.SessionNum, "SessionType"));
+                string track = YamlParser.Parse(dataToDump[0].data.SessionInfo, "WeekendInfo:TrackName:");
+                string filename = System.IO.Path.GetFileNameWithoutExtension(newFilename);
+                string directory = System.IO.Path.GetDirectoryName(newFilename);
+                string extension = System.IO.Path.GetExtension(newFilename);
+                string filenameToDumpRenamed = System.IO.Path.Combine(directory, filename + "-" + track + "-" + sessionType) + extension;
+
+                foreach (iRacingStructDumpWrapper wr in dataToDump)
+                {
+                    if (firstSession || !wr.data.IsNewSession)
+                    {
+                        firstSession = false;
+                        currentSession.Add(wr);
+                        continue;
+                    }
+                    else
+                    {
+                        SerializeObject(currentSession.ToArray<iRacingStructDumpWrapper>(), filenameToDumpRenamed);
+                        currentSession.Clear();
+                        currentSession.Add(wr);
+                        track = YamlParser.Parse(wr.data.SessionInfo, "WeekendInfo:TrackName:");
+                        sessionType = YamlParser.Parse(wr.data.SessionInfo, string.Format(SessionData.sessionInfoYamlPath, wr.data.SessionNum, "SessionType"));
+                        filenameToDumpRenamed = System.IO.Path.Combine(directory, filename + "-" + track + "-" + sessionType) + extension;
+                    }
+                }
+                SerializeObject(currentSession.ToArray<iRacingStructDumpWrapper>(), filenameToDumpRenamed);
+            }
+        }
         public override void ResetGameDataFromFile()
         {
             dataReadFromFileIndex = 0;
@@ -80,6 +150,8 @@ namespace CrewChiefV4.iRacing
                 dataReadFromFileIndex = 0;
                 var filePathResolved = Utilities.ResolveDataFile(this.dataFilesPath, filename);
                 dataReadFromFile = DeSerializeObject<iRacingStructDumpWrapper[]>(filePathResolved);
+                //dataToDump = dataReadFromFile.ToList<iRacingStructDumpWrapper>();
+                //SplitTraceData(filePathResolved);
                 lastReadFileName = filename;
                 Thread.Sleep(pauseBeforeStart);
             }
@@ -92,11 +164,14 @@ namespace CrewChiefV4.iRacing
                     IsNewSession = sim.SdkOnSessionInfoUpdated(structDumpWrapperData.data.SessionInfo, structDumpWrapperData.data.SessionNum, structDumpWrapperData.data.PlayerCarIdx);
                     lastUpdate = structDumpWrapperData.data.SessionInfoUpdate;
                 }
+                /*if (IsNewSession)
+                {
+                    Console.WriteLine(structDumpWrapperData.data.SessionInfo);
+                }*/
                 sim.SdkOnTelemetryUpdated(structDumpWrapperData.data);
                 iRacingStructWrapper structWrapperData = new iRacingStructWrapper() { data = sim, ticksWhenRead = structDumpWrapperData.ticksWhenRead };
                 structWrapperData.data.Telemetry.IsNewSession = IsNewSession;
                 dataReadFromFileIndex++;
-
                 return structWrapperData;
             }
             else
@@ -130,10 +205,9 @@ namespace CrewChiefV4.iRacing
                             {
                                 dataToDump = new List<iRacingStructDumpWrapper>();
                             }
-;
                             int attempts = 0;
                             const int maxAttempts = 99;
-
+                            //sdk.Generate_iRacingData_cs();
                             object sessionnum = this.TryGetSessionNum();
                             while (sessionnum == null && attempts <= maxAttempts)
                             {
@@ -207,7 +281,7 @@ namespace CrewChiefV4.iRacing
                                 return null;
                             }
                         }
-                        iRacingData irData = new iRacingData(sdk, hasNewSessionData && dumpToFile, isNewSession);
+                        iRacingData irData = new iRacingData(sdk, hasNewSessionData && dumpToFile, isNewSession, numberOfCarsEnabled, is360HzTelemetry);
 
                         sim.SdkOnTelemetryUpdated(irData);
 

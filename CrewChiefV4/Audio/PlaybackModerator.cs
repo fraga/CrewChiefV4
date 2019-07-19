@@ -297,6 +297,7 @@ namespace CrewChiefV4.Audio
             }
 
             if (PlaybackModerator.rejectMessagesWhenTalking
+                && !soundMetadata.isListenStartBeep
                 && soundMetadata.type != SoundType.VOICE_COMMAND_RESPONSE
                 && SpeechRecogniser.waitingForSpeech
                 && MainWindow.voiceOption != MainWindow.VoiceOptionEnum.ALWAYS_ON)
@@ -348,7 +349,7 @@ namespace CrewChiefV4.Audio
                 type = queuedMessage.metadata.type;
             }
 
-            var canPlay = priority >= PlaybackModerator.minPriorityForEachVerbosity[verbosity];
+            var canPlay = queuedMessage.playEvenWhenSilenced || priority >= PlaybackModerator.minPriorityForEachVerbosity[verbosity];
             if (canPlay)
             {
                 // not using this Dictionary of played messages so no point in adding data to it. Will leave this code
@@ -414,13 +415,17 @@ namespace CrewChiefV4.Audio
 
                 PlaybackModerator.Trace(string.Format("Injecting: {0} and {1} messages. {2}", keyBleepOut, keyBleepIn, traceMsgPostfix));
 
-                // insert bleep out/in
-                if (PlaybackModerator.insertBeepOutBetweenSpotterAndChief)
-                    PlaybackModerator.audioPlayer.getSoundCache().Play(keyBleepOut, soundMetadata);
+                // don't insert a beep if we're in oval-spotter mode
+                if (!GlobalBehaviourSettings.ovalSpotterMode)
+                {
+                    // insert bleep out/in
+                    if (PlaybackModerator.insertBeepOutBetweenSpotterAndChief)
+                        PlaybackModerator.audioPlayer.getSoundCache().Play(keyBleepOut, soundMetadata);
 
-                // would be nice to have some slight random silence here
-                if (PlaybackModerator.insertBeepInBetweenSpotterAndChief)
-                    PlaybackModerator.audioPlayer.getSoundCache().Play(keyBleepIn, soundMetadata);
+                    // would be nice to have some slight random silence here
+                    if (PlaybackModerator.insertBeepInBetweenSpotterAndChief)
+                        PlaybackModerator.audioPlayer.getSoundCache().Play(keyBleepIn, soundMetadata);
+                }
             }
 
             PlaybackModerator.lastSoundWasSpotter = isSpotterSound;

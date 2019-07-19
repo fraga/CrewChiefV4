@@ -131,7 +131,7 @@ namespace CrewChiefV4.Events
                     if (currentGameState.SessionData.SessionNumberOfLaps > 0)
                     {
                         // special case for iracing - AFAIK no other games have number-of-laps in qual sessions
-                        audioPlayer.playMessageImmediately(new QueuedMessage("qual_pit_exit", 5, 
+                        audioPlayer.playMessageImmediately(new QueuedMessage("qual_pit_exit", 10, 
                             messageFragments: MessageContents(folderQualExitIntro, currentGameState.SessionData.SessionNumberOfLaps, folderQualExitOutroLaps),
                             abstractEvent: this, type: SoundType.IMPORTANT_MESSAGE, priority: 0));
                     }
@@ -140,7 +140,7 @@ namespace CrewChiefV4.Events
                         int minutesLeft = (int)Math.Floor(currentGameState.SessionData.SessionTimeRemaining / 60f);
                         if (minutesLeft > 1)
                         {
-                            audioPlayer.playMessageImmediately(new QueuedMessage("qual_pit_exit", 5,
+                            audioPlayer.playMessageImmediately(new QueuedMessage("qual_pit_exit", 10,
                                 messageFragments: MessageContents(folderQualExitIntro, minutesLeft, folderQualExitOutroMinutes),
                                 abstractEvent: this, type: SoundType.IMPORTANT_MESSAGE, priority: 0));
                         }

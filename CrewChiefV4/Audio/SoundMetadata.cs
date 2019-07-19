@@ -33,20 +33,25 @@ namespace CrewChiefV4.Audio
         public int messageId = 0;  // 0 => unset
         public SoundType type;
 
+        public bool isListenStartBeep = false;  // special case here - don't block this if we're listening for a voice command
+
         // this affects the queue insertion order. Higher priority items are inserted at the head of the queue
         public int priority = DEFAULT_PRIORITY;  // 0 = lowest, 5 = default, 10 = spotter
 
         // this has no messageId or priority because they're only ever single sounds
-        public static SoundMetadata beep = new SoundMetadata(SoundType.OTHER);
+        public static SoundMetadata beep = new SoundMetadata(SoundType.OTHER, false);
+        // special case for listen start beep so the PlaybackModerator doesn't mute it
+        public static SoundMetadata listenStartBeep = new SoundMetadata(SoundType.OTHER, true);
 
         public SoundMetadata()
         {
 
         }
 
-        public SoundMetadata(SoundType type)
+        public SoundMetadata(SoundType type, bool isListenStartBeep)
         {
             this.type = type;
+            this.isListenStartBeep = isListenStartBeep;
         }
 
         public SoundMetadata(SoundType type, int priority)

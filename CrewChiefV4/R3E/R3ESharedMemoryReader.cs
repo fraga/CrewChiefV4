@@ -24,6 +24,8 @@ namespace CrewChiefV4.RaceRoom
         private int dataReadFromFileIndex = 0;
         private String lastReadFileName = null;
 
+        private RaceRoomData.RaceRoomShared latestData;
+
         public class R3EStructWrapper
         {
             public long ticksWhenRead;
@@ -45,6 +47,11 @@ namespace CrewChiefV4.RaceRoom
         public override void ResetGameDataFromFile()
         {
             dataReadFromFileIndex = 0;
+        }
+
+        public override object getLatestGameData()
+        {
+            return this.latestData;
         }
 
         public override Object ReadGameDataFromFile(String filename, int pauseBeforeStart)
@@ -126,6 +133,7 @@ namespace CrewChiefV4.RaceRoom
                     }
                     R3EStructWrapper structWrapper = new R3EStructWrapper();
                     structWrapper.ticksWhenRead = DateTime.UtcNow.Ticks;
+                    this.latestData = _raceroomapistruct;
                     structWrapper.data = _raceroomapistruct;
                     if (!forSpotter && dumpToFile && dataToDump != null)
                     {

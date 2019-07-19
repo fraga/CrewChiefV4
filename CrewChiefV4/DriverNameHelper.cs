@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CrewChiefV4.Audio;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -123,7 +124,8 @@ namespace CrewChiefV4
             name = name.Replace('-', ' ');
             name = name.Replace('.', ' ');
             name = name.Replace("$", "s");
-            return name.Trim();
+            // trim the string and replace any multiple whitespace chars with a single space
+            return System.Text.RegularExpressions.Regex.Replace(name.Trim(), @"\s+", " ");
         }
 
         private static String cleanBrackets(String name)
@@ -360,6 +362,7 @@ namespace CrewChiefV4
             HashSet<String> existingNamesInFile = getNamesAlreadyInFile(getUnvocalizedDriverNamesFileLocation());
             existingNamesInFile.UnionWith(unvocalizedNames);
             List<String> namesToAdd = new List<String>(existingNamesInFile);
+            namesToAdd.RemoveAll(alreadyRecorded => SoundCache.availableDriverNames.Contains(alreadyRecorded));
             namesToAdd.Sort();
             TextWriter tw = new StreamWriter(getUnvocalizedDriverNamesFileLocation(), false);
             foreach (String name in namesToAdd)

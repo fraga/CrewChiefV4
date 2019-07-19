@@ -381,7 +381,7 @@ namespace CrewChiefV4.ACC
                                    
             currentGameState.PitData.InPitlane = playerDriver.trackLocation.HasFlag(CarLocation.ECarLocation__PitLane);
             currentGameState.PitData.IsApproachingPitlane =  playerDriver.trackLocation.HasFlag(CarLocation.ECarLocation__PitEntry);
-            currentGameState.PitData.limiterStatus = playerDriver.pitLimiterOn;            
+            currentGameState.PitData.limiterStatus = playerDriver.pitLimiterOn == 1 ? PitData.LimiterStatus.ACTIVE : PitData.LimiterStatus.INACTIVE;            
             if (currentGameState.PitData.InPitlane)
             {
                 if (currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.SessionData.SessionRunningTime > 10 &&
@@ -546,7 +546,7 @@ namespace CrewChiefV4.ACC
             String driverName = driver.name.ToLower();
             if (loadDriverName && CrewChief.enableDriverNames)
             {
-                speechRecogniser.addNewOpponentName(driverName);
+                speechRecogniser.addNewOpponentName(driverName, "-1");
             }
             OpponentData opponentData = new OpponentData();
             opponentData.IsActive = true;

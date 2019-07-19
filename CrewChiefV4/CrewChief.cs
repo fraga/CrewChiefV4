@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.IO.MemoryMappedFiles;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
@@ -14,6 +15,8 @@ using CrewChiefV4.RaceRoom.RaceRoomData;
 using CrewChiefV4.Audio;
 using CrewChiefV4.NumberProcessing;
 using CrewChiefV4.ACC;
+using WebSocketSharp.Server;
+
 
 namespace CrewChiefV4
 {
@@ -25,7 +28,7 @@ namespace CrewChiefV4
         public SpeechRecogniser speechRecogniser;
         public AudioPlayer audioPlayer;
 
-        readonly int timeBetweenProcConnectCheckMillis = 500;
+        readonly int timeBetweenProcConnectCheckMillis = 1000;
         readonly int timeBetweenProcDisconnectCheckMillis = 2000;
         readonly int maxEventFailuresBeforeDisabling = 10;
         DateTime nextProcessStateCheck = DateTime.MinValue;
@@ -37,8 +40,6 @@ namespace CrewChiefV4
         public static Boolean readOpponentDeltasForEveryLap = false;
         // initial state from properties but can be overridden during a session:
         public static Boolean yellowFlagMessagesEnabled = UserSettings.GetUserSettings().getBoolean("enable_yellow_flag_messages");
-        private static Boolean useVerboseResponses = UserSettings.GetUserSettings().getBoolean("use_verbose_responses");
-        private Boolean keepQuietEnabled = false;
                 
         public static Boolean enableDriverNames = UserSettings.GetUserSettings().getBoolean("enable_driver_names");
 
@@ -50,6 +51,11 @@ namespace CrewChiefV4
 
         public static Boolean forceSingleClass = UserSettings.GetUserSettings().getBoolean("force_single_class");
         public static int maxUnknownClassesForAC = UserSettings.GetUserSettings().getInt("max_unknown_car_classes_for_assetto");
+
+        private Boolean enableWebsocket = UserSettings.GetUserSettings().getBoolean("enable_websocket");
+        private Boolean enableGameDataWebsocket = UserSettings.GetUserSettings().getBoolean("enable_game_data_websocket");
+
+        private Boolean turnSpotterOffImmediatelyOnFCY = UserSettings.GetUserSettings().getBoolean("fcy_stop_spotter_immediately");
 
         private static Dictionary<String, AbstractEvent> eventsList = new Dictionary<String, AbstractEvent>();
 
@@ -89,11 +95,11 @@ namespace CrewChiefV4
 
         public GameStateData previousGameState = null;
 
-        private Boolean mapped = false;
+        public Boolean mapped = false;
 
         private SessionEndMessages sessionEndMessages;
 
-        public AlarmClock alarmClock;
+        public static AlarmClock alarmClock;
         // used for the pace notes recorder - need to separate out from the currentGameState so we can
         // set these even when viewing replays
         public static String trackName = "";
@@ -103,6 +109,17 @@ namespace CrewChiefV4
         public static float distanceRoundTrack = -1;
 
         public static int playbackIntervalMilliseconds = 0;
+
+        // when an FCY period starts, don't turn the spotter off immediately. Wait until the speed has reduced
+        // or we've crossed the line
+        // 10 seconds after the FCY we turn the spotter off as soon as the speed < 40m/s
+        private Boolean waitingToPauseSpotter = false;
+        private DateTime minTurnSpotterOffForFCYTime = DateTime.MaxValue;
+        private DateTime maxTurnSpotterOffForFCYTime = DateTime.MaxValue;
+        private TimeSpan minTimeToWaitToTurnSpotterOffInFCY = TimeSpan.FromSeconds(10);
+        private TimeSpan maxTimeToWaitToTurnSpotterOffInFCY = TimeSpan.FromSeconds(30);
+        private float fcySpeedToTurnSpotterOffOnOvals = 40;
+        private float fcySpeedToTurnSpotterOffOnRoadCourses = 50;
 
         private Object latestRawGameData;
 
@@ -135,7 +152,8 @@ namespace CrewChiefV4
             eventsList.Add("OvertakingAidsMonitor", new OvertakingAidsMonitor(audioPlayer));
             eventsList.Add("FrozenOrderMonitor", new FrozenOrderMonitor(audioPlayer));
             eventsList.Add("IRacingBroadcastMessageEvent", new IRacingBroadcastMessageEvent(audioPlayer));
-            eventsList.Add("MulticlassWarnings", new MulticlassWarnings(audioPlayer));            
+            eventsList.Add("MulticlassWarnings", new MulticlassWarnings(audioPlayer));
+            eventsList.Add("CommonActions", new CommonActions(audioPlayer));  
             sessionEndMessages = new SessionEndMessages(audioPlayer);
             alarmClock = new AlarmClock(audioPlayer);
             DriverNameHelper.readRawNamesToUsableNamesFiles(AudioPlayer.soundFilesPath);
@@ -155,14 +173,17 @@ namespace CrewChiefV4
                 UserSettings.GetUserSettings().setProperty("last_game_definition", gameDefinition.gameEnum.ToString());
                 UserSettings.GetUserSettings().saveUserSettings();
                 CrewChief.gameDefinition = gameDefinition;
-                //I think we shuld add it here 
-                if (gameDefinition.gameEnum == GameEnum.ASSETTO_32BIT || 
-                    gameDefinition.gameEnum == GameEnum.ASSETTO_64BIT ||
-                    gameDefinition.gameEnum == GameEnum.RF1 ||
-                    gameDefinition.gameEnum == GameEnum.RF2_64BIT)
+                // I think we shuld add it here 
+                if (UserSettings.GetUserSettings().getBoolean("enable_automatic_plugin_update"))
                 {
-                    PluginInstaller pluginInstaller = new PluginInstaller();
-                    pluginInstaller.InstallOrUpdatePlugins(gameDefinition);
+                    if (gameDefinition.gameEnum == GameEnum.ASSETTO_32BIT ||
+                        gameDefinition.gameEnum == GameEnum.ASSETTO_64BIT ||
+                        gameDefinition.gameEnum == GameEnum.RF1 ||
+                        gameDefinition.gameEnum == GameEnum.RF2_64BIT)
+                    {
+                        PluginInstaller pluginInstaller = new PluginInstaller();
+                        pluginInstaller.InstallOrUpdatePlugins(gameDefinition);
+                    }
                 }
             }
         }
@@ -182,167 +203,6 @@ namespace CrewChiefV4
             return null;
         }
 
-        public void toggleKeepQuietMode()
-        {
-            if (keepQuietEnabled) 
-            {
-                disableKeepQuietMode();
-            }
-            else
-            {
-                enableKeepQuietMode();
-            }
-        }
-
-        public void toggleDelayMessagesInHardParts()
-        {
-            if (AudioPlayer.delayMessagesInHardParts)
-            {
-                disableDelayMessagesInHardParts();
-            }
-            else
-            {
-                enableDelayMessagesInHardParts();
-            }
-        }
-
-        public void enableDelayMessagesInHardParts()
-        {
-            if (!AudioPlayer.delayMessagesInHardParts)
-            {
-                AudioPlayer.delayMessagesInHardParts = true;
-            }
-            // switch the gap points to use the adjusted ones
-            if (currentGameState != null && currentGameState.SessionData.TrackDefinition != null && currentGameState.hardPartsOnTrackData.hardPartsMapped)
-            {
-                currentGameState.SessionData.TrackDefinition.adjustGapPoints(currentGameState.hardPartsOnTrackData.processedHardPartsForBestLap);
-            }
-            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowledgeEnableDelayInHardParts, 0));
-        }
-
-        public void disableDelayMessagesInHardParts()
-        {
-            if (AudioPlayer.delayMessagesInHardParts)
-            {
-                AudioPlayer.delayMessagesInHardParts = false;
-            }
-            // switch the gap points back to use the regular ones
-            if (currentGameState != null && currentGameState.SessionData.TrackDefinition != null && currentGameState.hardPartsOnTrackData.hardPartsMapped)
-            {
-                currentGameState.SessionData.TrackDefinition.setGapPoints();
-            }
-            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowledgeDisableDelayInHardParts, 0));
-        }
-
-        public void toggleReadOpponentDeltasMode()
-        {
-            if (readOpponentDeltasForEveryLap)
-            {
-                disableDeltasMode();
-            }
-            else
-            {
-                enableDeltasMode();
-            }
-        }
-
-        public void enableDeltasMode()
-        {
-            if (!readOpponentDeltasForEveryLap)
-            {
-                readOpponentDeltasForEveryLap = true;
-            }
-            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderDeltasEnabled, 0));
-        }
-
-        public void disableDeltasMode()
-        {
-            if (readOpponentDeltasForEveryLap)
-            {
-                readOpponentDeltasForEveryLap = false;
-            }
-            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderDeltasDisabled, 0));
-        }
-
-        public void toggleEnableYellowFlagsMode()
-        {
-            if (yellowFlagMessagesEnabled)
-            {
-                disableYellowFlagMessages();
-            }
-            else
-            {
-                enableYellowFlagMessages();
-            }
-        }
-
-        public void enableYellowFlagMessages()
-        {
-            yellowFlagMessagesEnabled = true;
-            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderYellowEnabled, 0));
-        }
-
-        public void disableYellowFlagMessages()
-        {
-            yellowFlagMessagesEnabled = false;
-            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderYellowDisabled, 0));
-        }
-
-        public void toggleManualFormationLapMode()
-        {
-            if (GameStateData.useManualFormationLap)
-            {
-                disableManualFormationLapMode();
-            }
-            else
-            {
-                enableManualFormationLapMode();
-            }
-        }
-
-        public void enableManualFormationLapMode()
-        {
-            // Prevent accidential trigger during the race.  Luckily, there's a handy hack available :)
-            if (currentGameState != null && currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.SessionData.CompletedLaps >=1)
-            {
-                Console.WriteLine("Rejecting manual formation lap request due to race already in progress");
-                return;
-            }
-            if (!GameStateData.useManualFormationLap)
-            {
-                GameStateData.useManualFormationLap = true;
-                GameStateData.onManualFormationLap = true;
-            }
-            Console.WriteLine("Manual formation lap mode is ACTIVE");
-            audioPlayer.playMessageImmediately(new QueuedMessage(LapCounter.folderManualFormationLapModeEnabled, 0));
-        }
-
-        public void disableManualFormationLapMode()
-        {
-            if (GameStateData.useManualFormationLap)
-            {
-                GameStateData.useManualFormationLap = false;
-                GameStateData.onManualFormationLap = false;
-            }
-            Console.WriteLine("Manual formation lap mode is DISABLED");
-            audioPlayer.playMessageImmediately(new QueuedMessage(LapCounter.folderManualFormationLapModeDisabled, 0));
-        }
-
-        public void reportFuelStatus()
-        {
-            if (GlobalBehaviourSettings.enabledMessageTypes.Contains(MessageTypes.BATTERY))
-            {
-                ((Battery)eventsList["Battery"]).reportBatteryStatus(true);
-                if (useVerboseResponses)
-                {
-                    ((Battery)eventsList["Battery"]).reportExtendedBatteryStatus(true, false);
-                }
-            }
-            else
-            {
-                ((Fuel)eventsList["Fuel"]).reportFuelStatus(true, (CrewChief.currentGameState != null && CrewChief.currentGameState.SessionData.SessionType == SessionType.Race));
-            }
-        }
 
         public void toggleSpotterMode()
         {
@@ -354,27 +214,6 @@ namespace CrewChiefV4
             {
                 enableSpotter();
             }
-        }
-
-        public void enableKeepQuietMode()
-        {
-            keepQuietEnabled = true;
-            audioPlayer.enableKeepQuietMode();
-        }
-
-        public void playCornerNamesForCurrentLap()
-        {
-            if (currentGameState != null)
-            {
-                audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
-                currentGameState.readLandmarksForThisLap = true;
-            }
-        }
-
-        public void disableKeepQuietMode()
-        {
-            keepQuietEnabled = false;
-            audioPlayer.disableKeepQuietMode();
         }
 
         public void enableSpotter()
@@ -399,17 +238,13 @@ namespace CrewChiefV4
             }
         }
 
-        public void respondToRadioCheck()
-        {
-            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderRadioCheckResponse, 0));
-        }
-
         public void youWot(Boolean detectedSomeSpeech)
         {
             if (!running)
             {
                 return;
             }
+            SpeechRecogniser.waitingForSpeech = false;
             if (detectedSomeSpeech)
             {
                 Console.WriteLine("Detected speech input but nothing was recognised");
@@ -428,180 +263,6 @@ namespace CrewChiefV4
             {
                 // TODO: separate responses for no input detected, and input not understood?
                 audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderDidntUnderstand, 0));
-            }
-        }
-
-        public void togglePaceNotesPlayback()
-        {
-            if (DriverTrainingService.isPlayingPaceNotes)
-            {
-                DriverTrainingService.stopPlayingPaceNotes();
-                audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
-            }
-            else
-            {
-                if (CrewChief.currentGameState != null && CrewChief.currentGameState.SessionData.TrackDefinition != null)
-                {
-                    if (!DriverTrainingService.isPlayingPaceNotes)
-                    {
-                        if (DriverTrainingService.loadPaceNotes(CrewChief.gameDefinition.gameEnum,
-                                CrewChief.currentGameState.SessionData.TrackDefinition.name, CrewChief.currentGameState.carClass.carClassEnum))
-                        {
-                            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
-                        }
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("No track or car has been loaded - start an on-track session before loading a pace notes");
-                }
-            }
-        }
-        
-        public void togglePaceNotesRecording()
-        {
-            if (DriverTrainingService.isRecordingPaceNotes)
-            {
-                DriverTrainingService.completeRecordingPaceNotes();
-            }
-            else
-            {
-                if (CrewChief.trackName == null || CrewChief.trackName.Equals(""))
-                {
-                    Console.WriteLine("No track has been loaded - start an on-track session before recording pace notes");
-                    return;
-                }
-                if (CrewChief.carClass == CarData.CarClassEnum.UNKNOWN_RACE || CrewChief.carClass == CarData.CarClassEnum.USER_CREATED)
-                {
-                    Console.WriteLine("No car class has been set - this pace notes session will not be class specific");
-                }
-                DriverTrainingService.startRecordingPaceNotes(CrewChief.gameDefinition.gameEnum,
-                    CrewChief.trackName, CrewChief.carClass);                
-            }
-        }
-        public void toggleTrackLandmarkRecording()
-        {
-            if(TrackLandMarksRecorder.isRecordingTrackLandmarks)
-            {
-                TrackLandMarksRecorder.completeRecordingTrackLandmarks();
-            }
-            else
-            {
-                if (CrewChief.trackName == null || CrewChief.trackName.Equals(""))
-                {
-                    Console.WriteLine("No track has been loaded - start an on-track session before recording landmarks");
-                    return;
-                }
-                else
-                {
-                    TrackLandMarksRecorder.startRecordingTrackLandmarks(CrewChief.gameDefinition.gameEnum,
-                    CrewChief.trackName, CrewChief.raceroomTrackId);
-                }
-                
-            }
-        }
-        public void toggleAddTrackLandmark()
-        {
-            if (TrackLandMarksRecorder.isRecordingTrackLandmarks)
-            {
-                TrackLandMarksRecorder.addLandmark(CrewChief.distanceRoundTrack);
-            }
-        }
-        // nasty... these triggers come from the speech recogniser or from button presses, and invoke speech
-        // recognition 'respond' methods in the events
-        public static void getStatus()
-        {
-            getEvent("Penalties").respond(SpeechRecogniser.STATUS[0]);
-            getEvent("RaceTime").respond(SpeechRecogniser.STATUS[0]);
-            getEvent("Position").respond(SpeechRecogniser.STATUS[0]);
-            getEvent("PitStops").respond(SpeechRecogniser.STATUS[0]);
-            getEvent("DamageReporting").respond(SpeechRecogniser.STATUS[0]);
-            if (GlobalBehaviourSettings.enabledMessageTypes.Contains(MessageTypes.BATTERY))
-            {
-                getEvent("Battery").respond(SpeechRecogniser.CAR_STATUS[0]);
-            }
-            else
-            {
-                getEvent("Fuel").respond(SpeechRecogniser.CAR_STATUS[0]);
-            }
-            getEvent("TyreMonitor").respond(SpeechRecogniser.STATUS[0]);
-            getEvent("EngineMonitor").respond(SpeechRecogniser.STATUS[0]);
-            getEvent("Timings").respond(SpeechRecogniser.STATUS[0]);
-        }
-
-        public static void getSessionStatus()
-       {
-            getEvent("Penalties").respond(SpeechRecogniser.SESSION_STATUS[0]);
-            getEvent("RaceTime").respond(SpeechRecogniser.SESSION_STATUS[0]);
-            getEvent("Position").respond(SpeechRecogniser.SESSION_STATUS[0]);
-            getEvent("PitStops").respond(SpeechRecogniser.SESSION_STATUS[0]);
-            getEvent("Timings").respond(SpeechRecogniser.SESSION_STATUS[0]);
-        }
-
-        public static void getCarStatus()
-        {
-            getEvent("DamageReporting").respond(SpeechRecogniser.CAR_STATUS[0]);
-            if (GlobalBehaviourSettings.enabledMessageTypes.Contains(MessageTypes.BATTERY))
-            {
-                getEvent("Battery").respond(SpeechRecogniser.CAR_STATUS[0]);
-            }
-            else
-            {
-                getEvent("Fuel").respond(SpeechRecogniser.CAR_STATUS[0]);
-            }
-            getEvent("TyreMonitor").respond(SpeechRecogniser.CAR_STATUS[0]);
-            getEvent("EngineMonitor").respond(SpeechRecogniser.CAR_STATUS[0]);
-        }
-
-        public static void getDamageReport()
-        {
-            getEvent("DamageReporting").respond(SpeechRecogniser.DAMAGE_REPORT[0]);
-        }
-        
-        public void reportCurrentTime()
-        {
-            DateTime now = DateTime.Now;
-            int hour = now.Hour;
-            int minute = now.Minute;
-            Boolean isPastMidDay = false;
-            if (hour >= 12)
-            {
-                isPastMidDay = true;
-            }
-            if (AudioPlayer.soundPackLanguage == "it")
-            {
-                audioPlayer.playMessageImmediately(new QueuedMessage("current_time", 0,
-                    messageFragments: AbstractEvent.MessageContents(hour, NumberReaderIt2.folderAnd, now.Minute)));
-            }
-            else
-            {
-                if (hour == 0)
-                {
-                    isPastMidDay = false;
-                    hour = 24;
-                }
-                if (hour > 12)
-                {
-                    hour = hour - 12;
-                }
-                if (minute < 10)
-                {
-                    if (minute == 0)
-                    {
-                        audioPlayer.playMessageImmediately(new QueuedMessage("current_time", 0,
-                           messageFragments: AbstractEvent.MessageContents(hour, isPastMidDay ? AlarmClock.folderPM : AlarmClock.folderAM)));
-                    }
-                    else
-                    {
-                        audioPlayer.playMessageImmediately(new QueuedMessage("current_time", 0,
-                            messageFragments: AbstractEvent.MessageContents(hour, NumberReader.folderOh, now.Minute, isPastMidDay ? AlarmClock.folderPM : AlarmClock.folderAM)));
-                    }
-                }
-                else
-                {
-                    audioPlayer.playMessageImmediately(new QueuedMessage("current_time", 0,
-                        messageFragments: AbstractEvent.MessageContents(hour, now.Minute, isPastMidDay ? AlarmClock.folderPM : AlarmClock.folderAM)));
-                }
             }
         }
 
@@ -691,6 +352,11 @@ namespace CrewChiefV4
         {
             try
             {
+                if (enableWebsocket)
+                {
+                    Utilities.startCCDataWebsocketServer(audioPlayer);
+                }                
+
                 PlaybackModerator.SetCrewChief(this);
 
                 loadDataFromFile = false;
@@ -714,6 +380,18 @@ namespace CrewChiefV4
                 gameDataReader.ResetGameDataFromFile();
 
                 gameDataReader.dumpToFile = dumpToFile;
+
+                if (enableGameDataWebsocket)
+                {
+                    if (gameDefinition.gameEnum == GameEnum.RACE_ROOM)
+                    {
+                        // TODO: version handling is a bit hooky here. The version data are in shared memory but if we just pass this
+                        // through to the JSON there's a risk the game version will advance (so the client expects new data) but CC isn't
+                        // actually sending this data. So we'll hard-code it here for now
+                        Utilities.startGameDataWebsocketServer("/r3e", gameDataReader, new R3ESerializer(true, 3, 2, 8));
+                    }
+                }
+
                 if (gameDefinition.spotterName != null)
                 {
                     spotter = (Spotter)Activator.CreateInstance(Type.GetType(gameDefinition.spotterName),
@@ -732,6 +410,11 @@ namespace CrewChiefV4
                 }
                 // mute the audio player for anything < 10ms
                 audioPlayer.mute = loadDataFromFile && CrewChief.playbackIntervalMilliseconds < 10;
+                if (loadDataFromFile)
+                {
+                    Utilities.queuedMessageIds.Clear();
+                    Utilities.includesRaceSession = false;
+                }
                 audioPlayer.startMonitor();
                 Boolean attemptedToRunGame = false;
 
@@ -855,6 +538,8 @@ namespace CrewChiefV4
                             if (currentGameState.SessionData.SessionType == SessionType.Race)
                             {
                                 gameStateMapper.populateDerivedRaceSessionData(currentGameState);
+                                // tell the utils class that we've had a race session - used when debugging traces to check expectations
+                                Utilities.includesRaceSession = true;
                             }
                             else
                             {
@@ -907,6 +592,7 @@ namespace CrewChiefV4
                                         previousGameState.SessionData.NumCarsInPlayerClassAtStartOfSession, previousGameState.SessionData.CompletedLaps,
                                         currentGameState.SessionData.IsDisqualified, currentGameState.SessionData.IsDNF, currentGameState.Now);
                                 }
+                                audioPlayer.holdChannelOpen = false;    // clear the 'hold open' state here before waking the monitor
                                 audioPlayer.wakeMonitorThreadForRegularMessages(currentGameState.Now);
                                 sessionFinished = true;
                                 audioPlayer.disablePearlsOfWisdom = false;
@@ -959,7 +645,7 @@ namespace CrewChiefV4
                                         List<String> usableDriverNames = DriverNameHelper.getUsableDriverNames(rawDriverNames);
                                         if (speechRecogniser != null && speechRecogniser.initialised)
                                         {
-                                            speechRecogniser.addOpponentSpeechRecognition(usableDriverNames, enableDriverNames);
+                                            speechRecogniser.addOpponentSpeechRecognition(usableDriverNames, currentGameState.getCarNumbers());
                                         }
                                         // now load all the sound files for this set of driver names
                                         SoundCache.loadDriverNameSounds(usableDriverNames);
@@ -971,7 +657,8 @@ namespace CrewChiefV4
                                         (gameDefinition.gameEnum == GameEnum.F1_2018 ||
                                         (((gameDefinition.gameEnum == GameEnum.PCARS2 && currentGameState.SessionData.SessionPhase == SessionPhase.Countdown) ||
                                             currentGameState.SessionData.SessionRunningTime > previousGameState.SessionData.SessionRunningTime) ||
-                                        (previousGameState.SessionData.SessionPhase != currentGameState.SessionData.SessionPhase)) ||
+                                        (previousGameState.SessionData.SessionPhase != currentGameState.SessionData.SessionPhase) || 
+                                        (gameDefinition.gameEnum == GameEnum.RF2_64BIT && currentGameState.SessionData.SessionPhase == SessionPhase.Gridwalk)) ||  // Need to process warnings during rF2's gridwalk
                                         ((gameDefinition.gameEnum == GameEnum.PCARS_32BIT || gameDefinition.gameEnum == GameEnum.PCARS_64BIT ||
                                                 gameDefinition.gameEnum == GameEnum.PCARS2 || gameDefinition.gameEnum == GameEnum.PCARS_NETWORK ||
                                                 gameDefinition.gameEnum == GameEnum.PCARS2_NETWORK) &&
@@ -981,9 +668,37 @@ namespace CrewChiefV4
                                 {
                                     if (spotter != null)
                                     {
-                                        if (currentGameState.FlagData.isFullCourseYellow || DamageReporting.waitingForDriverIsOKResponse)
+                                        if (DamageReporting.waitingForDriverIsOKResponse)
                                         {
                                             spotter.pause();
+                                        }
+                                        else if (currentGameState.FlagData.isFullCourseYellow)
+                                        {
+                                            if (turnSpotterOffImmediatelyOnFCY)
+                                            {
+                                                spotter.pause();
+                                            }
+                                            // in fcy, if the spotter's running wait a while before pausing it
+                                            else if (!spotter.isPaused())
+                                            {
+                                                float speedThreshold = GlobalBehaviourSettings.useOvalLogic ? fcySpeedToTurnSpotterOffOnOvals : fcySpeedToTurnSpotterOffOnRoadCourses;
+                                                if (!waitingToPauseSpotter)
+                                                {
+                                                    waitingToPauseSpotter = true;
+                                                    minTurnSpotterOffForFCYTime = currentGameState.Now.Add(minTimeToWaitToTurnSpotterOffInFCY);
+                                                    maxTurnSpotterOffForFCYTime = currentGameState.Now.Add(maxTimeToWaitToTurnSpotterOffInFCY);
+                                                }
+                                                // if we've started a new lap, turn off the spotter. 
+                                                // if we've passed the max time to wait until turning him off, just turn him off. If we're between min and max, turn him
+                                                // off but only if the speed is low *and* there's no overlap
+                                                else if (currentGameState.SessionData.IsNewLap
+                                                    || currentGameState.Now > maxTurnSpotterOffForFCYTime
+                                                    || (currentGameState.Now > minTurnSpotterOffForFCYTime && currentGameState.PositionAndMotionData.CarSpeed < speedThreshold && !spotter.hasOverlap()))
+                                                {
+                                                    waitingToPauseSpotter = false;
+                                                    spotter.pause();
+                                                }
+                                            }
                                         }
                                         else
                                         {
@@ -1064,6 +779,10 @@ namespace CrewChiefV4
                 {
                     spotter.clearState();
                 }
+                if (enableWebsocket || enableGameDataWebsocket)
+                {
+                    Utilities.stopWebsocketServers();
+                }
                 stateCleared = true;
                 currentGameState = null;
                 previousGameState = null;
@@ -1132,6 +851,10 @@ namespace CrewChiefV4
                 {
                     gameDataReader.Dispose();
                     gameDataReader = null;
+                }
+                if (Debugging)
+                {
+                    Utilities.checkPlaybackCounts();
                 }
             }
 

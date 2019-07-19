@@ -6,6 +6,10 @@ using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 using System.IO.Compression;
+using System.Windows.Forms;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
 namespace CrewChiefV4
 {
     public abstract class GameDataReader
@@ -27,6 +31,8 @@ namespace CrewChiefV4
         public abstract void ResetGameDataFromFile();
 
         protected String dataFilesPath;
+
+        private Boolean wroteConsoleDebugLog = false;
 
         public GameDataReader()
         {
@@ -61,37 +67,48 @@ namespace CrewChiefV4
             }
             if (initialised && dumpToFile)
             {
-                filenameToDump = dataFilesPath + "\\" + CrewChief.gameDefinition.gameEnum.ToString() + "_" + DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss") + ".gz";
+                filenameToDump = dataFilesPath + "\\" + CrewChief.gameDefinition.gameEnum.ToString() + "_" + DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss") + ".cct";
                 Console.WriteLine("Session recording will be dumped to file: " + filenameToDump);
             }
             return initialised;
         }
-
         protected void SerializeObject<T>(T serializableObject, string fileName)
         {
             if (serializableObject == null) { return; }
-
             try
             {
+                if (!MainWindow.shouldSaveTrace)
+                    return;
+
                 Console.WriteLine("About to dump game data - this may take a while");
-                XmlSerializer serializer = new XmlSerializer(serializableObject.GetType());
-                
+                JsonSerializer serializer = new JsonSerializer();
+                serializer.Formatting = Newtonsoft.Json.Formatting.Indented;
                 using (FileStream fileStream = new FileStream(fileName, FileMode.Create))
                 {
-                    using (GZipStream zipStream = new GZipStream(fileStream, CompressionLevel.Optimal) )
+                    using (GZipStream zipStream = new GZipStream(fileStream, CompressionLevel.Optimal))
                     {
-                        serializer.Serialize(zipStream, serializableObject);
+                        using (StreamWriter sw = new StreamWriter(zipStream, Encoding.UTF8))
+                        {
+                            using (JsonWriter writer = new JsonTextWriter(sw))
+                            {
+                                serializer.Serialize(writer, serializableObject);
+                            }
+                        }
+                    }
+                }
+                if (!wroteConsoleDebugLog) //prevent more then one console dump in case of split traces
+                {
+                    lock (MainWindow.instanceLock)
+                    {
+                        if (MainWindow.instance != null)
+                        {
+                            File.WriteAllText(Path.ChangeExtension(fileName, "txt"), MainWindow.instance.consoleWriter.enable ?
+                                MainWindow.instance.consoleTextBox.Text : MainWindow.instance.consoleWriter.builder.ToString());
+                            wroteConsoleDebugLog = true;
+                        }
                     }
                 }
 
-                lock (MainWindow.instanceLock)
-                {
-                    if (MainWindow.instance != null)
-                    {
-                        File.WriteAllText(Path.ChangeExtension(fileName, "txt"), MainWindow.instance.consoleWriter.enable ?
-                            MainWindow.instance.consoleTextBox.Text : MainWindow.instance.consoleWriter.builder.ToString());
-                    }
-                }
 
                 Console.WriteLine("Done writing session data log to: " + fileName);
                 Console.WriteLine("PLEASE RESTART THE APPLICATION BEFORE ATTEMPTING TO RECORD ANOTHER SESSION");
@@ -109,7 +126,6 @@ namespace CrewChiefV4
             if (string.IsNullOrEmpty(fileName)) { return default(T); }
 
             T objectOut = default(T);
-
             try
             {
                 if (Path.GetExtension(fileName) == ".gz")
@@ -119,11 +135,27 @@ namespace CrewChiefV4
                         using(GZipStream zipStream = new GZipStream(fileStream, CompressionMode.Decompress))
                         {
                             Type outType = typeof(T);
-
                             XmlSerializer serializer = new XmlSerializer(outType);
-                            using (XmlReader reader = new XmlTextReader(zipStream))
+                            using (XmlReader xmlReader = new XmlTextReader(zipStream))
                             {
-                                objectOut = (T)serializer.Deserialize(reader);
+                                objectOut = (T)serializer.Deserialize(xmlReader);
+                            }
+                        }
+                    }
+                }
+                else if (Path.GetExtension(fileName) == ".cct")
+                {
+                    using (FileStream fileStream = new FileStream(fileName, FileMode.Open))
+                    {
+                        using (GZipStream zipStream = new GZipStream(fileStream, CompressionMode.Decompress))
+                        {
+                            using (StreamReader reader = new StreamReader(zipStream))
+                            {
+                                using (JsonTextReader jsonReader = new JsonTextReader(reader))
+                                {
+                                    JsonSerializer ser = new JsonSerializer();
+                                    objectOut = ser.Deserialize<T>(jsonReader);
+                                }
                             }
                         }
                     }
@@ -133,13 +165,12 @@ namespace CrewChiefV4
                     using (FileStream fileStream = new FileStream(fileName, FileMode.Open))
                     {
                         Type outType = typeof(T);
-
                         XmlSerializer serializer = new XmlSerializer(outType);
                         using (XmlReader reader = new XmlTextReader(fileStream))
                         {
                             objectOut = (T)serializer.Deserialize(reader);
                         }
-                    }
+                    }                    
                 }
                 Console.WriteLine("Done reading session data from: " + fileName);
             }
@@ -153,6 +184,11 @@ namespace CrewChiefV4
         public virtual Boolean hasNewSpotterData()
         {
             return true;
+        }
+
+        public virtual Object getLatestGameData()
+        {
+            return null;
         }
 
         public virtual void stop()

@@ -23,12 +23,13 @@ namespace CrewChiefV4.Events
         private DateTime disableWhiteFlagUntil = DateTime.MinValue;
         private DateTime disableBlueFlagUntil = DateTime.MinValue;
 
-        private TimeSpan timeBetweenYellowFlagMessages = TimeSpan.FromSeconds(30);
-        private TimeSpan timeBetweenBlueFlagMessages = TimeSpan.FromSeconds(20);
-        private TimeSpan timeBetweenBlackFlagMessages = TimeSpan.FromSeconds(20);
-        private TimeSpan timeBetweenWhiteFlagMessages = TimeSpan.FromSeconds(20);
+        private TimeSpan timeBetweenYellowFlagMessages = TimeSpan.FromSeconds(25);
+        private TimeSpan timeBetweenBlueFlagMessages = TimeSpan.FromSeconds(15);
+        private TimeSpan timeBetweenBlackFlagMessages = TimeSpan.FromSeconds(15);
+        private TimeSpan timeBetweenWhiteFlagMessages = TimeSpan.FromSeconds(15);
 
         private String folderFCYellowStartEU = "flags/fc_yellow_start_eu";
+        private String folderFCYellowStartNoSafetyCarEU = "flags/fc_yellow_start_eu_no_safetycar";
         private String folderFCYellowPitsClosedEU = "flags/fc_yellow_pits_closed_eu";
         private String folderFCYellowPitsOpenLeadLapCarsEU = "flags/fc_yellow_pits_open_lead_lap_cars_eu";
         private String folderFCYellowPitsOpenEU = "flags/fc_yellow_pits_open_eu";
@@ -37,6 +38,7 @@ namespace CrewChiefV4.Events
         private String folderFCYellowPrepareForGreenEU = "flags/fc_yellow_prepare_for_green_eu";
         private String folderFCYellowInProgressEU = "flags/fc_yellow_in_progress_eu";
         private String folderFCYellowStartUS = "flags/fc_yellow_start_usa";
+        private String folderFCYellowStartNoSafetyCarUS = "flags/fc_yellow_start_usa_no_safetycar";
         private String folderFCYellowPitsClosedUS = "flags/fc_yellow_pits_closed_usa";
         private String folderFCYellowPitsOpenLeadLapCarsUS = "flags/fc_yellow_pits_open_lead_lap_cars_usa";
         private String folderFCYellowPitsOpenUS = "flags/fc_yellow_pits_open_usa";
@@ -94,6 +96,13 @@ namespace CrewChiefV4.Events
         private String folderPassDriverForLuckyDogPositionOutro = "flags/pass_drivername_for_lucky_dog_position_outro";
         private String folderPassCarAheadForLuckyPositionDog = "flags/pass_this_guy_to_get_lucky_dog_position";
         private String folderWeAreInLuckyDogPosition = "flags/we_are_in_lucky_dog_position";
+        private String folderLuckyDogPassOnOutside = "flags/lucky_dog_pass_on_outside";
+        private String folderLuckyDogAllowPassOnOutside = "flags/lucky_dog_allow_pass_on_outside";
+        private String folderMoveToChooseLane = "flags/move_to_choose_lane";
+        private String folderWaveAroundCatchEndOfField = "flags/wave_around_catch_end_of_field";
+        private String folderRemindLuckyDog = "flags/remind_lucky_dog";
+        private String folderTwoToGreen = "flags/two_to_green";
+        private String folderTwoToGreenRemindLuckyDog = "flags/two_to_green_remind_lucky_dog";
 
         // green flag lucky-dog tracking
         private enum GreenFlagLuckyDogStatus { NONE, PASS_FOR_LUCKY_DOG, WE_ARE_IN_LUCKY_DOG }
@@ -335,7 +344,7 @@ namespace CrewChiefV4.Events
             if (currentGameState.SessionData.JustGoneGreen)
             {
                 // ensure blue & white flags aren't enabled immediately:
-                disableBlueFlagUntil = currentGameState.Now.Add(timeBetweenYellowFlagMessages);
+                disableBlueFlagUntil = currentGameState.Now.Add(timeBetweenYellowFlagMessages + TimeSpan.FromSeconds(Utilities.random.Next(0, 11)));
             }
             if (currentGameState.FlagData.useImprovisedIncidentCalling)
             {
@@ -354,7 +363,7 @@ namespace CrewChiefV4.Events
             {
                 if (currentGameState.Now > disableBlackFlagUntil)
                 {
-                    disableBlackFlagUntil = currentGameState.Now.Add(timeBetweenBlackFlagMessages);
+                    disableBlackFlagUntil = currentGameState.Now.Add(timeBetweenBlackFlagMessages + TimeSpan.FromSeconds(Utilities.random.Next(0, 8)));
                     audioPlayer.playMessage(new QueuedMessage(folderBlackFlag, 0, abstractEvent: this, priority: 10));
                 }
             }
@@ -362,7 +371,7 @@ namespace CrewChiefV4.Events
             {
                 if (currentGameState.Now > disableBlueFlagUntil)
                 {
-                    disableBlueFlagUntil = currentGameState.Now.Add(timeBetweenBlueFlagMessages);
+                    disableBlueFlagUntil = currentGameState.Now.Add(timeBetweenBlueFlagMessages + TimeSpan.FromSeconds(Utilities.random.Next(0, 8)));
                     String opponentKeyBehind = currentGameState.getOpponentKeyBehindOnTrack(true);
                     // if the last 3 warnings are for this same driver, don't call the blue flag. Note that it's unsafe to 
                     // assume opponentKeyBehind is never null
@@ -380,11 +389,13 @@ namespace CrewChiefV4.Events
                 }
             }
             // In iRacing White flag is set on last lap if "useAmericanTerms" is enabled, this causes white flag to be announched every 40 sec on last lap.
-            else if (currentGameState.SessionData.Flag == FlagEnum.WHITE && !(GlobalBehaviourSettings.useAmericanTerms && CrewChief.gameDefinition.gameEnum == GameEnum.IRACING))
+            else if (currentGameState.SessionData.Flag == FlagEnum.WHITE
+                && !(GlobalBehaviourSettings.useAmericanTerms && CrewChief.gameDefinition.gameEnum == GameEnum.IRACING)
+                && !LapCounter.whiteFlagLastLapAnnounced)
             {
                 if (currentGameState.Now > disableWhiteFlagUntil)
                 {
-                    disableWhiteFlagUntil = currentGameState.Now.Add(timeBetweenWhiteFlagMessages);
+                    disableWhiteFlagUntil = currentGameState.Now.Add(timeBetweenWhiteFlagMessages + TimeSpan.FromSeconds(Utilities.random.Next(0, 11)));
                     audioPlayer.playMessageImmediately(new QueuedMessage(folderWhiteFlagEU, 2, abstractEvent: this, type: SoundType.IMPORTANT_MESSAGE, priority: 0));
                 }
             }
@@ -412,10 +423,11 @@ namespace CrewChiefV4.Events
                 {
                     if (!string.IsNullOrWhiteSpace(currentGameState.StockCarRulesData.luckyDogNameRaw)
                         && previousGameState.StockCarRulesData.luckyDogNameRaw != currentGameState.StockCarRulesData.luckyDogNameRaw
-                        && currentGameState.StockCarRulesData.stockCarRuleApplicable != StockCarRule.LUCKY_DOG_PASS_ON_LEFT)  // Make sure that's not player.
+                        && currentGameState.StockCarRulesData.stockCarRuleApplicable == StockCarRule.NEW_LUCKY_DOG)
                     {
                         if (currentGameState.StockCarRulesData.luckyDogNameRaw == currentGameState.SessionData.DriverRawName)
                         {
+                            // But maybe we should?
                             Console.WriteLine("Won't announce current lucky dog because it appears to be player");
                         }
                         else if (AudioPlayer.canReadName(currentGameState.StockCarRulesData.luckyDogNameRaw))
@@ -430,9 +442,41 @@ namespace CrewChiefV4.Events
                     // See if rule has changed.
                     if (previousGameState.StockCarRulesData.stockCarRuleApplicable != currentGameState.StockCarRulesData.stockCarRuleApplicable)
                     {
-                        int delay = Utilities.random.Next(3, 7);
+                        int delay = Utilities.random.Next(1, 4);
                         Console.WriteLine("Stock Car Rule triggered: " + currentGameState.StockCarRulesData.stockCarRuleApplicable);
-                        if (currentGameState.StockCarRulesData.stockCarRuleApplicable == StockCarRule.LUCKY_DOG_PASS_ON_LEFT)
+                        if (currentGameState.StockCarRulesData.stockCarRuleApplicable == StockCarRule.LUCKY_DOG_PASS_ON_OUTSIDE)
+                        {
+                            audioPlayer.playMessage(new QueuedMessage(folderLuckyDogPassOnOutside, delay + 10, secondsDelay: delay, abstractEvent: this, priority: 10));
+                        }
+                        else if (currentGameState.StockCarRulesData.stockCarRuleApplicable == StockCarRule.LUCKY_DOG_ALLOW_TO_PASS_ON_OUTSIDE)
+                        {
+                            audioPlayer.playMessage(new QueuedMessage(folderLuckyDogAllowPassOnOutside, delay + 10, secondsDelay: delay, abstractEvent: this, priority: 10));
+                        }
+                        else if (currentGameState.StockCarRulesData.stockCarRuleApplicable == StockCarRule.MOVE_CHOOSE_LANE)
+                        {
+                            audioPlayer.playMessage(new QueuedMessage(folderMoveToChooseLane, delay + 10, secondsDelay: delay, abstractEvent: this, priority: 10));
+                        }
+                        else if (currentGameState.StockCarRulesData.stockCarRuleApplicable == StockCarRule.WAVE_AROUND_CATCH_END_OF_FIELD)
+                        {
+                            audioPlayer.playMessage(new QueuedMessage(folderWaveAroundCatchEndOfField, delay + 10, secondsDelay: delay, abstractEvent: this, priority: 10));
+                        }
+                        else if (currentGameState.StockCarRulesData.stockCarRuleApplicable == StockCarRule.TWO_TO_GREEN)
+                        {
+                            audioPlayer.playMessage(new QueuedMessage(folderTwoToGreen, delay + 10, secondsDelay: delay, abstractEvent: this, priority: 10));
+                        }
+                        else if (currentGameState.StockCarRulesData.stockCarRuleApplicable == StockCarRule.TWO_TO_GREEN_REMIND_LUCKY_DOG)
+                        {
+                            audioPlayer.playMessage(new QueuedMessage(folderTwoToGreenRemindLuckyDog, delay + 10, secondsDelay: delay, abstractEvent: this, priority: 10));
+                        }
+                        else if (currentGameState.StockCarRulesData.stockCarRuleApplicable == StockCarRule.PENALTY_EOLL)
+                        {
+                            audioPlayer.playMessage(new QueuedMessage(folderEOLLPenalty, delay + 10, secondsDelay: delay, abstractEvent: this, priority: 10));
+                        }
+                        else if (currentGameState.StockCarRulesData.stockCarRuleApplicable == StockCarRule.REMIND_LUCKY_DOG)
+                        {
+                            audioPlayer.playMessage(new QueuedMessage(folderRemindLuckyDog, delay + 10, secondsDelay: delay, abstractEvent: this, priority: 10));
+                        }
+                        else if (currentGameState.StockCarRulesData.stockCarRuleApplicable == StockCarRule.LUCKY_DOG_PASS_ON_LEFT)
                         {
                             audioPlayer.playMessage(new QueuedMessage(folderWeAreLuckyDog, delay + 10, secondsDelay: delay, abstractEvent: this, priority: 10));
                         }
@@ -636,8 +680,17 @@ namespace CrewChiefV4.Events
                             // don't allow any other message to override this one:
                             if (CrewChief.yellowFlagMessagesEnabled)
                             {
-                                audioPlayer.playMessageImmediately(new QueuedMessage(GlobalBehaviourSettings.useAmericanTerms ? folderFCYellowStartUS : folderFCYellowStartEU, 0,
-                                    abstractEvent: this, type: SoundType.IMPORTANT_MESSAGE, priority: 0));
+                                // if we have info about the safety car we want to use it else we will skip to default and call out safetycar along with FCY
+                                if (CrewChief.gameDefinition.gameEnum == GameEnum.IRACING && currentGameState.SafetyCarData.fcySafetyCarCallsEnabled)
+                                {
+                                    audioPlayer.playMessageImmediately(new QueuedMessage(GlobalBehaviourSettings.useAmericanTerms ? folderFCYellowStartNoSafetyCarUS : folderFCYellowStartNoSafetyCarEU, 0,
+                                        abstractEvent: this, type: SoundType.IMPORTANT_MESSAGE, priority: 0));
+                                }
+                                else
+                                {
+                                    audioPlayer.playMessageImmediately(new QueuedMessage(GlobalBehaviourSettings.useAmericanTerms ? folderFCYellowStartUS : folderFCYellowStartEU, 0,
+                                        abstractEvent: this, type: SoundType.IMPORTANT_MESSAGE, priority: 0));
+                                }
                             }
                             // start working out who's gone off
                             if (enableOpponentCrashMessages)
@@ -702,7 +755,9 @@ namespace CrewChiefV4.Events
                             break;
                     }
                 }
-                else if (currentGameState.FlagData.fcyPhase == FullCourseYellowPhase.LAST_LAP_CURRENT && leaderStartedSector3)
+                else if ((currentGameState.FlagData.fcyPhase == FullCourseYellowPhase.LAST_LAP_CURRENT && leaderStartedSector3 && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING) ||
+                    (CrewChief.gameDefinition.gameEnum == GameEnum.IRACING && !currentGameState.SafetyCarData.fcySafetyCarCallsEnabled && 
+                    currentGameState.FlagData.fcyPhase == FullCourseYellowPhase.LAST_LAP_CURRENT && leaderStartedSector3))
                 {
                     // last sector, safety car coming in
                     // don't allow any other message to override this one:
@@ -925,7 +980,7 @@ namespace CrewChiefV4.Events
                                         // a duplicate clear for local sectors
                                         //Console.WriteLine("FLAG_DEBUG: queuing sector " + (i + 1) + " " + sectorFlag + " at " + currentGameState.Now.ToString("HH:mm:ss"));
                                         String messageKey = i == currentGameState.SessionData.SectorNumber - 1 ? localFlagChangeMessageKey+ "_clear" : sectorFlagChangeMessageKeyStart + (i + 1);
-                                        audioPlayer.playMessageImmediately(new QueuedMessage(messageKey, 5, secondsDelay: 3,
+                                        audioPlayer.playMessageImmediately(new QueuedMessage(messageKey, 5, secondsDelay: Utilities.random.Next(2, 4),
                                             messageFragments: MessageContents(folderGreenFlagSectors[i]), 
                                             abstractEvent: this, validationData: validationData, type: SoundType.IMPORTANT_MESSAGE, priority: 0));
                                     }
@@ -1014,7 +1069,7 @@ namespace CrewChiefV4.Events
             {
                 if (currentGameState.Now > disableYellowFlagUntil)
                 {
-                    disableYellowFlagUntil = currentGameState.Now.Add(timeBetweenYellowFlagMessages);
+                    disableYellowFlagUntil = currentGameState.Now.Add(timeBetweenYellowFlagMessages + TimeSpan.FromSeconds(Utilities.random.Next(0, 11)));
                     if (CrewChief.yellowFlagMessagesEnabled)
                     {
                         audioPlayer.playMessageImmediately(new QueuedMessage(folderYellowFlag, 3, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 10));
@@ -1027,7 +1082,7 @@ namespace CrewChiefV4.Events
                     // AMS specific hack until RF2 FCY stuff is ported - don't spam the double yellow during caution periods, just report it once per lap
                     (CrewChief.gameDefinition.gameEnum != GameEnum.RF1 || currentGameState.SessionData.IsNewLap))
                 {
-                    disableYellowFlagUntil = currentGameState.Now.Add(timeBetweenYellowFlagMessages);
+                    disableYellowFlagUntil = currentGameState.Now.Add(timeBetweenYellowFlagMessages + TimeSpan.FromSeconds(Utilities.random.Next(0, 11)));
                     if (CrewChief.yellowFlagMessagesEnabled)
                     {
                         audioPlayer.playMessageImmediately(new QueuedMessage(folderDoubleYellowFlag, 3, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 10));
@@ -1120,7 +1175,7 @@ namespace CrewChiefV4.Events
                                 {
                                     opponentNamesToRead.Add(opponent);
                                 }
-                                else if (opponent.ClassPosition <= folderPositionHasGoneOff.Length && positionToRead == -1)
+                                else if (opponent.ClassPosition <= folderPositionHasGoneOff.Length && positionToRead == -1 && opponent.ClassPosition > 0)
                                 {
                                     positionToRead = opponent.ClassPosition;
                                 }
@@ -1182,9 +1237,12 @@ namespace CrewChiefV4.Events
             {
                 string opponentKey = entry.Key;
                 OpponentData opponentData = entry.Value;
-                if (opponentData.DistanceRoundTrack == 0)
+                if (opponentData.DistanceRoundTrack == 0 || opponentData.ClassPosition <= 0 || opponentData.ClassPosition >= 1000)
                 {
-                    // fuck's sake... pCARS2's data is so shit. This value will be 0 when a car enters the pitlane.
+                    // fuck's sake... pCARS2's data *and iRacing* data is so shit. 
+                    // for pCars2, DistanceRoundTrack value will be 0 when a car enters the pitlane.
+                    // for iRacing ClassPosition can be 0 or -1 or 1000 in some edge cases where the position logic screws up,
+                    // hopefully this will never happen but this check is harmless
                     continue;
                 }
                 if ((flagSector == -1 || opponentData.CurrentSectorNumber == flagSector) && !opponentData.InPits)
@@ -1342,12 +1400,12 @@ namespace CrewChiefV4.Events
                     }
                 }
             }
-            else if (landmark != null && position <= folderPositionHasGoneOffIn.Length)
+            else if (landmark != null && position <= folderPositionHasGoneOffIn.Length/* && position >= 1*/)
             {
                 messageContents.AddRange(MessageContents(folderPositionHasGoneOffIn[position - 1]));
                 messageContents.AddRange(MessageContents("corners/" + landmark));
             }
-            else if (position <= folderPositionHasGoneOffIn.Length)
+            else if (position <= folderPositionHasGoneOffIn.Length/* && position >= 1*/)
             {
                 messageContents.AddRange(MessageContents(folderPositionHasGoneOff[position - 1]));
             }

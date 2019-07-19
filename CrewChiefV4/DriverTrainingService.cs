@@ -12,7 +12,6 @@ namespace CrewChiefV4
 {
     class DriverTrainingService
     {
-        private static long expireUnplayedMessagesAfter = 500;  // milliseconds
         private static int combineEntriesCloserThan = 20; // if a new entry's lap distance is within 20 metres of an existing entry's lap distance, combine them
         public static Boolean isPlayingPaceNotes = false;
         public static Boolean isRecordingPaceNotes = false;
@@ -68,6 +67,10 @@ namespace CrewChiefV4
                     try
                     {
                         DriverTrainingService.recordingMetaData = JsonConvert.DeserializeObject<MetaData>(File.ReadAllText(fileName));
+                        if (DriverTrainingService.recordingMetaData == null)
+                        {
+                            return false;
+                        }
                         if (DriverTrainingService.recordingMetaData.description != null && !DriverTrainingService.recordingMetaData.description.Equals(""))
                         {
                             Console.WriteLine("Playing pace notes with description " + DriverTrainingService.recordingMetaData.description);
@@ -177,8 +180,11 @@ namespace CrewChiefV4
                         try
                         {
                             DriverTrainingService.recordingMetaData = JsonConvert.DeserializeObject<MetaData>(File.ReadAllText(fileName));
-                            Console.WriteLine("Pace notes for this game / track / car combination already exists. This will be extended");
-                            createNewMetaData = false;
+                            if (DriverTrainingService.recordingMetaData != null)
+                            {
+                                Console.WriteLine("Pace notes for this game / track / car combination already exists. This will be extended");
+                                createNewMetaData = false;
+                            }
                         }
                         catch (Exception e)
                         {

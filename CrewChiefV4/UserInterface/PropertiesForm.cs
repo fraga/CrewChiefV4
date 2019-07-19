@@ -392,6 +392,10 @@ namespace CrewChiefV4
                         {
                             startArgs.Add("multi");
                         }
+                        if (!startArgs.Contains("app_restart"))
+                        {
+                            startArgs.Add("app_restart");
+                        }
                         System.Diagnostics.Process.Start(Application.ExecutablePath, String.Join(" ", startArgs.ToArray())); // to start new instance of application
                         parent.Close(); // To turn off current app
                     }

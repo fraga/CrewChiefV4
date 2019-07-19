@@ -5,7 +5,8 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.IO.MemoryMappedFiles;
-
+using CrewChiefV4;
+using CrewChiefV4.iRacing;
 namespace iRSDKSharp
 {
     public enum BroadcastMessageTypes { CamSwitchPos = 0, CamSwitchNum, CamSetState, ReplaySetPlaySpeed, ReplaySetPlayPosition, ReplaySearch, ReplaySetState, ReloadTextures, ChatCommand, PitCommand, TelemCommand };
@@ -116,6 +117,90 @@ namespace iRSDKSharp
             }
         }
 
+        public void Generate_iRacingData_cs()
+        {
+            String dataFilesPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location), @"..\", @"..\dataFiles\iRacingData.cs");
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(dataFilesPath))
+            {
+                file.WriteLine("using System;");
+                file.WriteLine("using System.Collections.Generic;");
+                file.WriteLine("using System.Linq;");
+                file.WriteLine("using System.Text;");
+                file.WriteLine("using System.Threading.Tasks;");
+                file.WriteLine("using System.Runtime.InteropServices;");
+                file.WriteLine("using iRSDKSharp;");
+                file.WriteLine("namespace CrewChiefV4.iRacing");
+                file.WriteLine("{");
+                file.WriteLine("\t[Serializable]");
+                file.WriteLine("\tpublic class iRacingData");
+                file.WriteLine("\t{");
+                file.WriteLine("\t\tpublic iRacingData(iRacingSDK sdk, bool hasNewSessionData, bool isNewSession, int numberOfCarsEnabled, bool is360HzTelemetry)");
+                file.WriteLine("\t\t{");
+                file.WriteLine("\t\t\tif(hasNewSessionData)");
+                file.WriteLine("\t\t\t{");
+                file.WriteLine("\t\t\t\tSessionInfo = new SessionInfo(sdk.GetSessionInfoString()).Yaml;");
+                file.WriteLine("\t\t\t}");
+                file.WriteLine("\t\t\telse");
+                file.WriteLine("\t\t\t{");
+                file.WriteLine("\t\t\t\tSessionInfo = \"\";");
+                file.WriteLine("\t\t\t}");
+                file.WriteLine("\t\t\tNumberOfCarsEnabled = numberOfCarsEnabled;");
+                file.WriteLine("\t\t\tIs360HzTelemetry = is360HzTelemetry;");  
+                file.WriteLine("\t\t\tSessionInfoUpdate = sdk.Header.SessionInfoUpdate;");
+                file.WriteLine("\t\t\tIsNewSession = isNewSession;");
+
+
+                foreach (CVarHeader header in VarHeaders.Values)
+                {
+                    if (header.Name.StartsWith("dp") || header.Name.StartsWith("dc") || header.Name.Contains("shockDefl") || header.Name.Contains("shockVel") || header.Name.Contains("_ST"))
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        file.WriteLine("\t\t\t" + header.Name + " = " + "(" + GetData(header.Name).GetType().ToString() + ")" + "sdk.GetData(\"" + header.Name + "\");");   
+                    }                                 
+                }
+                file.WriteLine("\t\t}");
+                file.WriteLine("\t\tpublic iRacingData() {}");
+                file.WriteLine("\t\tpublic System.Boolean IsNewSession;");
+                file.WriteLine("\t\tpublic System.Int32 SessionInfoUpdate;");
+                file.WriteLine("\t\tpublic System.String SessionInfo;");
+                foreach (CVarHeader header in VarHeaders.Values)
+                {
+                    if (header.Name.StartsWith("dp") || header.Name.StartsWith("dc") || header.Name.Contains("shockDefl") || header.Name.Contains("shockVel") || header.Name.Contains("_ST"))
+                    {
+                        continue;
+                    }
+                    file.WriteLine("");
+                    file.WriteLine("\t\t/// <summary>");
+                    file.WriteLine("\t\t/// " + header.Desc);
+                    file.WriteLine("\t\t/// <summary>");
+                    if (header.Count > 1)
+                    {
+                        file.WriteLine("\t\t[MarshalAs(UnmanagedType.ByValArray, SizeConst = " + header.Count + ")]");
+                    }
+                    file.WriteLine("\t\tpublic " + GetData(header.Name).GetType().ToString() + " " + header.Name + ";");
+                
+                }
+                file.WriteLine("\t}");
+                file.WriteLine("}");
+            }
+        }
+
+        public object TryGetData(string name)
+        {
+            try
+            {
+                var data = GetData(name);
+                return data;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         public object GetData(string name)
         {
             if(IsInitialized && Header != null)
@@ -124,8 +209,50 @@ namespace iRSDKSharp
                 if (VarHeaders.TryGetValue(name, out header))
                 {
                     int varOffset = header.Offset;
-                    int count = header.Count;
-                    if (header.Type == CVarHeader.VarType.irChar)
+                    int count = header.Count;                    
+                    if (header.Name == "PlayerTrackSurface" || header.Name == "CarIdxTrackSurface")
+                    {
+                        TrackSurfaces[] data = new TrackSurfaces[count];
+                        FileMapView.ReadArray<TrackSurfaces>(Header.Buffer + varOffset, data, 0, count);
+                        if (count > 1)
+                        {
+                            return data;
+                        }
+                        else
+                        {
+                            return data[0];
+                        }
+                    }
+                    else if (header.Name == "PlayerTrackSurfaceMaterial" || header.Name == "CarIdxTrackSurfaceMaterial")
+                    {
+                        TrackSurfaceMaterial[] data = new TrackSurfaceMaterial[count];
+                        FileMapView.ReadArray<TrackSurfaceMaterial>(Header.Buffer + varOffset, data, 0, count);
+                        if (count > 1)
+                        {
+                            return data;
+                        }
+                        else
+                        {
+                            return data[0];
+                        }
+                    }
+                    else if (header.Name == "SessionState")
+                    {
+                        return (SessionStates)FileMapView.ReadInt32(Header.Buffer + varOffset);
+                    }
+                    else if (header.Name == "DisplayUnits")
+                    {
+                        return (DisplayUnits)FileMapView.ReadInt32(Header.Buffer + varOffset);
+                    }
+                    else if (header.Name == "WeatherType")
+                    {
+                        return (WeatherType)FileMapView.ReadInt32(Header.Buffer + varOffset);
+                    }
+                    else if (header.Name == "Skies")
+                    {
+                        return (Skies)FileMapView.ReadInt32(Header.Buffer + varOffset);
+                    }
+                    else if (header.Type == CVarHeader.VarType.irChar)
                     {
                         byte[] data = new byte[count];
                         FileMapView.ReadArray<byte>(Header.Buffer + varOffset, data, 0, count);
@@ -144,7 +271,7 @@ namespace iRSDKSharp
                             return FileMapView.ReadBoolean(Header.Buffer + varOffset);
                         }
                     }
-                    else if (header.Type == CVarHeader.VarType.irInt || header.Type == CVarHeader.VarType.irBitField)
+                    else if (header.Type == CVarHeader.VarType.irInt)
                     {
                         if (count > 1)
                         {
@@ -155,6 +282,42 @@ namespace iRSDKSharp
                         else
                         {
                             return FileMapView.ReadInt32(Header.Buffer + varOffset);
+                        }
+                    }
+                    else if (header.Type == CVarHeader.VarType.irBitField)
+                    {
+                        if (header.Name == "SessionFlags")
+                        {
+                            return FileMapView.ReadUInt32(Header.Buffer + varOffset);
+                        }
+                        else if (header.Name == "EngineWarnings")
+                        {
+                            return (EngineWarnings)FileMapView.ReadUInt32(Header.Buffer + varOffset);
+                        }
+                        else if (header.Name == "CarLeftRight")
+                        {
+                            return (CarLeftRight)FileMapView.ReadInt32(Header.Buffer + varOffset);
+                        }
+                        else if (header.Name == "PitSvFlags")
+                        {
+                            return (PitServiceFlags)FileMapView.ReadUInt32(Header.Buffer + varOffset);
+                        }
+                        else if (header.Name == "CamCameraState")
+                        {
+                            return (CameraStates)FileMapView.ReadUInt32(Header.Buffer + varOffset);
+                        }                            
+                        else
+                        {
+                            if (count > 1)
+                            {
+                                int[] data = new int[count];
+                                FileMapView.ReadArray<int>(Header.Buffer + varOffset, data, 0, count);
+                                return data;
+                            }
+                            else
+                            {
+                                return FileMapView.ReadInt32(Header.Buffer + varOffset);
+                            }
                         }
                     }
                     else if (header.Type == CVarHeader.VarType.irFloat)
@@ -185,7 +348,7 @@ namespace iRSDKSharp
                     }
                 }
             }
-            return null;
+            return 0;
         }
 
         public string GetSessionInfoString()
@@ -198,6 +361,7 @@ namespace iRSDKSharp
             }
             return null;
         }
+
         public byte [] GetSessionInfo()
         {
             if (IsInitialized && Header != null)
@@ -208,6 +372,7 @@ namespace iRSDKSharp
             }
             return null;
         }
+
         public bool IsConnected()
         {
             if (IsInitialized && Header != null)
@@ -231,10 +396,12 @@ namespace iRSDKSharp
             }
             
         }
+
         IntPtr GetPadCarNumID()
         {
             return RegisterWindowMessage(Defines.PadCarNumName);
         }
+
         static IntPtr GetBroadcastMessageID()
         {
             return RegisterWindowMessage(Defines.BroadcastMessageName);
@@ -281,10 +448,7 @@ namespace iRSDKSharp
             return (short)dword;
         }
     }
-
-    
-
-
+  
     //144 bytes
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
     public struct VarHeader

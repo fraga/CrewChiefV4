@@ -1,6 +1,7 @@
 {
 	"TrackLandmarksData": [{
-			"rf1TrackNames": ["Bathurst Mount Panorama",
+			"rf1TrackNames": [
+				"Bathurst Mount Panorama",
 				"Bathurst 2010 - MAX Detail"
 			],
 			"rf2TrackNames": ["Bathurst"],
@@ -148,7 +149,8 @@
 			]
 		},
 		{
-			"rf1TrackNames": ["Brands Indy",
+			"rf1TrackNames": [
+				"Brands Indy",
 				"Brands Hatch Indy"
 			],
 			"acTrackNames": ["ks_brands_hatch:indy"],
@@ -189,7 +191,8 @@
 			]
 		},
 		{
-			"rf1TrackNames": ["Brands GP",
+			"rf1TrackNames": [
+				"Brands GP",
 				"Brands Hatch Grand Prix"
 			],
 			"acTrackNames": ["ks_brands_hatch:gp"],
@@ -347,7 +350,8 @@
 		},
 		{
 			"rf1TrackNames": ["Spielberg Grand Prix Circuit"],
-			"rf2TrackNames": ["RaceRfactor Austria 2014",
+			"rf2TrackNames": [
+				"RaceRfactor Austria 2014",
 				"Red Bull Ring GP"
 			],
 			"acTrackNames": [
@@ -409,10 +413,12 @@
 			]
 		},
 		{
-			"rf1TrackNames": ["HockenheimRing DTM",
+			"rf1TrackNames": [
+				"HockenheimRing DTM",
 				"HockenheimRing GP"
 			],
-			"rf2TrackNames": ["HockenheimRing DTM",
+			"rf2TrackNames": [
+				"HockenheimRing DTM",
 				"HockenheimRing GP",
 				"RaceRfactor Hockenheim 2014"
 			],
@@ -515,8 +521,6 @@
 		{
 			"acTrackNames": ["spa:"],
 			"irTrackName": "spa up",
-			"raceroomLayoutId": 3870,
-			"raceroomRollingStartLapDistance": 6367,
 			"pcars2TrackName": "Spa_Francorchamps:GP",
 			"trackLandmarks": [{
 					"landmarkName": "la_source",
@@ -605,7 +609,96 @@
 			]
 		},
 		{
-			"rf2TrackNames": ["RaceRfactor Spa 2013"],
+			"raceroomLayoutId": 3870,
+			"raceroomRollingStartLapDistance": 6367,
+			"trackLandmarks": [{
+					"landmarkName": "la_source",
+					"distanceRoundLapStart": 200,
+					"distanceRoundLapEnd": 270,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "eau_rouge",
+					"distanceRoundLapStart": 840,
+					"distanceRoundLapEnd": 1070,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "radillion",
+					"distanceRoundLapStart": 1095,
+					"distanceRoundLapEnd": 1210,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "kemmel",
+					"distanceRoundLapStart": 1420,
+					"distanceRoundLapEnd": 1550,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "les_combes",
+					"distanceRoundLapStart": 2210,
+					"distanceRoundLapEnd": 2370,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn9",
+					"distanceRoundLapStart": 2440,
+					"distanceRoundLapEnd": 2540,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "bruxelles",
+					"distanceRoundLapStart": 2780,
+					"distanceRoundLapEnd": 2990,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn11",
+					"distanceRoundLapStart": 3070,
+					"distanceRoundLapEnd": 3207,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "pouhon",
+					"distanceRoundLapStart": 3540,
+					"distanceRoundLapEnd": 3980,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn13",
+					"distanceRoundLapStart": 4265,
+					"distanceRoundLapEnd": 4400,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "campus",
+					"distanceRoundLapStart": 4428,
+					"distanceRoundLapEnd": 4570,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "stavlot",
+					"distanceRoundLapStart": 4690,
+					"distanceRoundLapEnd": 5080,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "blanchimont",
+					"distanceRoundLapStart": 5910,
+					"distanceRoundLapEnd": 6070,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "the_chicane",
+					"distanceRoundLapStart": 6510,
+					"distanceRoundLapEnd": 6640,
+					"isCommonOvertakingSpot": true
+				}
+			]
+		},
+		{
+			"rf2TrackNames": ["RaceRfactor Spa 2013", "Spa Francorchamps"],
 			"trackLandmarks": [{
 					"landmarkName": "la_source",
 					"distanceRoundLapStart": 290,
@@ -884,6 +977,7 @@
 		},
 		{
 			"rf1TrackNames": ["Imola 2016"],
+			"rf2TrackNames": ["Imola 2018"],
 			"acTrackNames": ["imola:"],
 			"pcarsTrackName": "Imola:Grand Prix",
 			"pcars2TrackName": "Imola:GP",
@@ -1699,10 +1793,12 @@
 			]
 		},
 		{
-			"rf1TrackNames": ["Mid-Ohio No Chicane",
+			"rf1TrackNames": [
+				"Mid-Ohio No Chicane",
 				"Mid-Ohio Miller 200"
 			],
-			"rf2TrackNames": ["Mid-Ohio No Chicane",
+			"rf2TrackNames": [
+				"Mid-Ohio No Chicane",
 				"Mid-Ohio Miller 200"
 			],
 			"raceroomLayoutId": 1674,
@@ -7473,7 +7569,8 @@
 					"isCommonOvertakingSpot": false
 				}
 			]
-		}, {
+		},
+		{
 			"pcarsTrackName": "Watkins Glen International:Grand Prix",
 			"pcars2TrackName": "Watkins_Glen_International:GP",
 			"trackLandmarks": [{
@@ -7549,7 +7646,8 @@
 					"isCommonOvertakingSpot": false
 				}
 			]
-		}, {
+		},
+		{
 			"pcarsTrackName": "Watkins Glen International:Short Circuit",
 			"pcars2TrackName": "Watkins_Glen_International:Short",
 			"trackLandmarks": [{
@@ -13913,7 +14011,8 @@
 					"isCommonOvertakingSpot": true
 				}
 			]
-		}, {
+		},
+		{
 			"rf2TrackNames": ["Palm Springs Road Course B"],
 			"trackLandmarks": [{
 					"landmarkName": "turn1",
@@ -14359,7 +14458,7 @@
 					"isCommonOvertakingSpot": false
 				},
 				{
-					"landmarkName": "village",
+					"landmarkName": "village_en",
 					"distanceRoundLapStart": 680,
 					"distanceRoundLapEnd": 800,
 					"isCommonOvertakingSpot": true
@@ -14454,7 +14553,7 @@
 					"isCommonOvertakingSpot": false
 				},
 				{
-					"landmarkName": "village",
+					"landmarkName": "village_en",
 					"distanceRoundLapStart": 680,
 					"distanceRoundLapEnd": 800,
 					"isCommonOvertakingSpot": true
@@ -14485,189 +14584,1155 @@
 				}
 			]
 		},
-        {
-            "rf2TrackNames": [ "Nuerburg Ring GP" ],
-            "approximateTrackLength": 5117,
-            "trackLandmarks": [
-                {
-                    "landmarkName": "haug_haken",
-                    "distanceRoundLapStart": 520,
-                    "distanceRoundLapEnd": 720,
-                    "isCommonOvertakingSpot": true
-                },
-                {
-                    "landmarkName": "mercedes_arena",
-                    "distanceRoundLapStart": 750,
-                    "distanceRoundLapEnd": 120,
-                    "isCommonOvertakingSpot": false
-                },
-                {
-                    "landmarkName": "valvoline_kurve",
-                    "distanceRoundLapStart": 1570,
-                    "distanceRoundLapEnd": 1730,
-                    "isCommonOvertakingSpot": true
-                },
-                {
-                    "landmarkName": "ford_kurve",
-                    "distanceRoundLapStart": 1760,
-                    "distanceRoundLapEnd": 1905,
-                    "isCommonOvertakingSpot": false
-                },
-                {
-                    "landmarkName": "dunlop_kehre",
-                    "distanceRoundLapStart": 2345,
-                    "distanceRoundLapEnd": 2550,
-                    "isCommonOvertakingSpot": true
-                },
-                {
-                    "landmarkName": "michael_schumacer_s",
-                    "distanceRoundLapStart": 2760,
-                    "distanceRoundLapEnd": 3060,
-                    "isCommonOvertakingSpot": false
-                },
-                {
-                    "landmarkName": "michelin_kurve",
-                    "distanceRoundLapStart": 3330,
-                    "distanceRoundLapEnd": 3450,
-                    "isCommonOvertakingSpot": false
-                },
-                {
-                    "landmarkName": "warsteiner_kurve",
-                    "distanceRoundLapStart": 3515,
-                    "distanceRoundLapEnd": 3710,
-                    "isCommonOvertakingSpot": false
-                },
-                {
-                    "landmarkName": "advan_bogen",
-                    "distanceRoundLapStart": 3965,
-                    "distanceRoundLapEnd": 4135,
-                    "isCommonOvertakingSpot": false
-                },
-                {
-                    "landmarkName": "ngk_shalken",
-                    "distanceRoundLapStart": 4465,
-                    "distanceRoundLapEnd": 4590,
-                    "isCommonOvertakingSpot": true
-                },
-                {
-                    "landmarkName": "coca_cola_kurve",
-                    "distanceRoundLapStart": 4735,
-                    "distanceRoundLapEnd": 4945,
-                    "isCommonOvertakingSpot": false
-                }
-            ]
-        },
-        {
-            "rf1TrackNames": [],
-            "rf2TrackNames": [],
-            "acTrackNames": [],
-            "irTrackName": "belleisle",
-            "pcarsTrackName": "",
-            "pcars2TrackName": "",
-            "raceroomLayoutId": -1,
-            "approximateTrackLength": -1.0,
-            "trackLandmarks": [
-            {
-                "midPoint": -1.0,
-                "landmarkName": "turn1",
-                "distanceRoundLapStart": 56.8324127,
-                "distanceRoundLapEnd": 209.7984,
-                "isCommonOvertakingSpot": false
-            },
-            {
-                "midPoint": -1.0,
-                "landmarkName": "turn2",
-                "distanceRoundLapStart": 241.218918,
-                "distanceRoundLapEnd": 385.602844,
-                "isCommonOvertakingSpot": false
-            },
-            {
-                "midPoint": -1.0,
-                "landmarkName": "turn3",
-                "distanceRoundLapStart": 901.30304,
-                "distanceRoundLapEnd": 1033.34631,
-                "isCommonOvertakingSpot": false
-            },
-            {
-                "midPoint": -1.0,
-                "landmarkName": "turn4",
-                "distanceRoundLapStart": 1170.72522,
-                "distanceRoundLapEnd": 1253.67432,
-                "isCommonOvertakingSpot": false
-            },
-            {
-                "midPoint": -1.0,
-                "landmarkName": "turn5",
-                "distanceRoundLapStart": 1369.17017,
-                "distanceRoundLapEnd": 1471.44849,
-                "isCommonOvertakingSpot": false
-            },
-            {
-                "midPoint": -1.0,
-                "landmarkName": "turn6",
-                "distanceRoundLapStart": 1544.447,
-                "distanceRoundLapEnd": 1656.931,
-                "isCommonOvertakingSpot": false
-            },
-            {
-                "midPoint": -1.0,
-                "landmarkName": "turn7",
-                "distanceRoundLapStart": 2311.69849,
-                "distanceRoundLapEnd": 2402.87427,
-                "isCommonOvertakingSpot": false
-            },
-            {
-                "midPoint": -1.0,
-                "landmarkName": "turn8",
-                "distanceRoundLapStart": 2485.29443,
-                "distanceRoundLapEnd": 2558.14526,
-                "isCommonOvertakingSpot": false
-            },
-            {
-                "midPoint": -1.0,
-                "landmarkName": "turn9",
-                "distanceRoundLapStart": 2611.17871,
-                "distanceRoundLapEnd": 2706.862,
-                "isCommonOvertakingSpot": false
-            },
-            {
-                "midPoint": -1.0,
-                "landmarkName": "turn10",
-                "distanceRoundLapStart": 2733.38843,
-                "distanceRoundLapEnd": 2790.15967,
-                "isCommonOvertakingSpot": false
-            },
-            {
-                "midPoint": -1.0,
-                "landmarkName": "turn11",
-                "distanceRoundLapStart": 2815.00366,
-                "distanceRoundLapEnd": 2862.04688,
-                "isCommonOvertakingSpot": false
-            },
-            {
-                "midPoint": -1.0,
-                "landmarkName": "turn12",
-                "distanceRoundLapStart": 3093.073,
-                "distanceRoundLapEnd": 3194.23,
-                "isCommonOvertakingSpot": false
-            },
-            {
-                "midPoint": -1.0,
-                "landmarkName": "turn13",
-                "distanceRoundLapStart": 3228.342,
-                "distanceRoundLapEnd": 3334.148,
-                "isCommonOvertakingSpot": false
-            },
-            {
-                "midPoint": -1.0,
-                "landmarkName": "turn14",
-                "distanceRoundLapStart": 3579.69824,
-                "distanceRoundLapEnd": 3715.51123,
-                "isCommonOvertakingSpot": false
-            }
-            ],
-            "isOval": false,
-            "raceroomRollingStartLapDistance": -1.0
-        }
+		{
+			"rf2TrackNames": ["Nuerburg Ring GP"],
+			"approximateTrackLength": 5117,
+			"trackLandmarks": [{
+					"landmarkName": "haug_haken",
+					"distanceRoundLapStart": 520,
+					"distanceRoundLapEnd": 720,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "mercedes_arena",
+					"distanceRoundLapStart": 750,
+					"distanceRoundLapEnd": 120,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "valvoline_kurve",
+					"distanceRoundLapStart": 1570,
+					"distanceRoundLapEnd": 1730,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "ford_kurve",
+					"distanceRoundLapStart": 1760,
+					"distanceRoundLapEnd": 1905,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "dunlop_kehre",
+					"distanceRoundLapStart": 2345,
+					"distanceRoundLapEnd": 2550,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "michael_schumacer_s",
+					"distanceRoundLapStart": 2760,
+					"distanceRoundLapEnd": 3060,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "michelin_kurve",
+					"distanceRoundLapStart": 3330,
+					"distanceRoundLapEnd": 3450,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "warsteiner_kurve",
+					"distanceRoundLapStart": 3515,
+					"distanceRoundLapEnd": 3710,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "advan_bogen",
+					"distanceRoundLapStart": 3965,
+					"distanceRoundLapEnd": 4135,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "ngk_shalken",
+					"distanceRoundLapStart": 4465,
+					"distanceRoundLapEnd": 4590,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "coca_cola_kurve",
+					"distanceRoundLapStart": 4735,
+					"distanceRoundLapEnd": 4945,
+					"isCommonOvertakingSpot": false
+				}
+			]
+		},
+		{
+			"rf1TrackNames": [],
+			"rf2TrackNames": [],
+			"acTrackNames": [],
+			"irTrackName": "belleisle",
+			"pcarsTrackName": "",
+			"pcars2TrackName": "",
+			"raceroomLayoutId": -1,
+			"approximateTrackLength": -1.0,
+			"trackLandmarks": [{
+					"midPoint": -1.0,
+					"landmarkName": "turn1",
+					"distanceRoundLapStart": 56.8324127,
+					"distanceRoundLapEnd": 209.7984,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn2",
+					"distanceRoundLapStart": 241.218918,
+					"distanceRoundLapEnd": 385.602844,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn3",
+					"distanceRoundLapStart": 901.30304,
+					"distanceRoundLapEnd": 1033.34631,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn4",
+					"distanceRoundLapStart": 1170.72522,
+					"distanceRoundLapEnd": 1253.67432,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn5",
+					"distanceRoundLapStart": 1369.17017,
+					"distanceRoundLapEnd": 1471.44849,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn6",
+					"distanceRoundLapStart": 1544.447,
+					"distanceRoundLapEnd": 1656.931,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn7",
+					"distanceRoundLapStart": 2311.69849,
+					"distanceRoundLapEnd": 2402.87427,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn8",
+					"distanceRoundLapStart": 2485.29443,
+					"distanceRoundLapEnd": 2558.14526,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn9",
+					"distanceRoundLapStart": 2611.17871,
+					"distanceRoundLapEnd": 2706.862,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn10",
+					"distanceRoundLapStart": 2733.38843,
+					"distanceRoundLapEnd": 2790.15967,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn11",
+					"distanceRoundLapStart": 2815.00366,
+					"distanceRoundLapEnd": 2862.04688,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn12",
+					"distanceRoundLapStart": 3093.073,
+					"distanceRoundLapEnd": 3194.23,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn13",
+					"distanceRoundLapStart": 3228.342,
+					"distanceRoundLapEnd": 3334.148,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn14",
+					"distanceRoundLapStart": 3579.69824,
+					"distanceRoundLapEnd": 3715.51123,
+					"isCommonOvertakingSpot": false
+				}
+			],
+			"isOval": false,
+			"raceroomRollingStartLapDistance": -1.0
+		},
+		{
+			"rf2TrackNames": ["Okayama 2017"],
+			"approximateTrackLength": 3700,
+			"trackLandmarks": [{
+					"landmarkName": "first_corner",
+					"distanceRoundLapStart": 170,
+					"distanceRoundLapEnd": 350,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "williams",
+					"distanceRoundLapStart": 430,
+					"distanceRoundLapEnd": 605,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "moss_s",
+					"distanceRoundLapStart": 700,
+					"distanceRoundLapEnd": 985,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "attwood_curve",
+					"distanceRoundLapStart": 1060,
+					"distanceRoundLapEnd": 1295,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "the_hairpin",
+					"distanceRoundLapStart": 1990,
+					"distanceRoundLapEnd": 2130,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "revolver",
+					"distanceRoundLapStart": 2170,
+					"distanceRoundLapEnd": 2270,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "piper",
+					"distanceRoundLapStart": 2310,
+					"distanceRoundLapEnd": 2445,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "redman_corner",
+					"distanceRoundLapStart": 2650,
+					"distanceRoundLapEnd": 3770,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "hobbs",
+					"distanceRoundLapStart": 2795,
+					"distanceRoundLapEnd": 2930,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "mike_knight_corner",
+					"distanceRoundLapStart": 3030,
+					"distanceRoundLapEnd": 3160,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "last_corner",
+					"distanceRoundLapStart": 3195,
+					"distanceRoundLapEnd": 345,
+					"isCommonOvertakingSpot": false
+				}
+			]
+		},
+		{
+			"rf2TrackNames": ["Okayama piper 2017"],
+			"approximateTrackLength": 1950,
+			"trackLandmarks": [{
+					"landmarkName": "first_corner",
+					"distanceRoundLapStart": 170,
+					"distanceRoundLapEnd": 350,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn2",
+					"distanceRoundLapStart": 420,
+					"distanceRoundLapEnd": 575,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "piper",
+					"distanceRoundLapStart": 580,
+					"distanceRoundLapEnd": 700,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "redman_corner",
+					"distanceRoundLapStart": 890,
+					"distanceRoundLapEnd": 1020,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "hobbs",
+					"distanceRoundLapStart": 1055,
+					"distanceRoundLapEnd": 1185,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "mike_knight_corner",
+					"distanceRoundLapStart": 1280,
+					"distanceRoundLapEnd": 1405,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "last_corner",
+					"distanceRoundLapStart": 1445,
+					"distanceRoundLapEnd": 1605,
+					"isCommonOvertakingSpot": false
+				}
+			]
+		},
+		{
+			"rf2TrackNames": ["Sepang"],
+			"acTrackNames": ["Sepang"],
+			"raceroomLayoutId": 6341,
+			"approximateTrackLength": 5528,
+			"trackLandmarks": [{
+					"midPoint": -1.0,
+					"landmarkName": "turn1",
+					"distanceRoundLapStart": 568.298,
+					"distanceRoundLapEnd": 721.029236,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn2",
+					"distanceRoundLapStart": 740.661743,
+					"distanceRoundLapEnd": 848.07,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn4",
+					"distanceRoundLapStart": 1542.84082,
+					"distanceRoundLapEnd": 1655.86218,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn5",
+					"distanceRoundLapStart": 1826.94336,
+					"distanceRoundLapEnd": 2066.59814,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn6",
+					"distanceRoundLapStart": 2102.09155,
+					"distanceRoundLapEnd": 2304.217,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn7",
+					"distanceRoundLapStart": 2520.03516,
+					"distanceRoundLapEnd": 2740.28882,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn9",
+					"distanceRoundLapStart": 3121.31543,
+					"distanceRoundLapEnd": 3203.953,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn10",
+					"distanceRoundLapStart": 3241.29517,
+					"distanceRoundLapEnd": 3348.91772,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn11",
+					"distanceRoundLapStart": 3455.616,
+					"distanceRoundLapEnd": 3592.46777,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn12",
+					"distanceRoundLapStart": 3772.08862,
+					"distanceRoundLapEnd": 3920.61548,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn13",
+					"distanceRoundLapStart": 3970.43726,
+					"distanceRoundLapEnd": 4283.9917,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn15",
+					"distanceRoundLapStart": 5062.19043,
+					"distanceRoundLapEnd": 5249.48,
+					"isCommonOvertakingSpot": true
+				}
+			],
+			"isOval": false,
+			"raceroomRollingStartLapDistance": 5350
+		},
+		{
+			"pcars2TrackName": "this is Raceroom's Nordschliefe VLN layout, complete only as far as Karussell",
+			"raceroomLayoutId": 4975,
+			"approximateTrackLength": 24321.31,
+			"trackLandmarks": [{
+					"midPoint": -1.0,
+					"landmarkName": "turn1",
+					"distanceRoundLapStart": 600.3771,
+					"distanceRoundLapEnd": 686.836365,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn2",
+					"distanceRoundLapStart": 751.712158,
+					"distanceRoundLapEnd": 931.1704,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn3",
+					"distanceRoundLapStart": 1031.52771,
+					"distanceRoundLapEnd": 1100,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn4",
+					"distanceRoundLapStart": 1150,
+					"distanceRoundLapEnd": 1249.72437,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn5",
+					"distanceRoundLapStart": 1536.1781,
+					"distanceRoundLapEnd": 1678.93445,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn6",
+					"distanceRoundLapStart": 1825.42163,
+					"distanceRoundLapEnd": 1925.10266,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "warsteiner_kurve",
+					"distanceRoundLapStart": 2001.02356,
+					"distanceRoundLapEnd": 2175.14,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "the_chicane",
+					"distanceRoundLapStart": 2951.92163,
+					"distanceRoundLapEnd": 3109.06641,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "nordkehre",
+					"distanceRoundLapStart": 3219.03662,
+					"distanceRoundLapEnd": 3549.56445,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "the_boger",
+					"distanceRoundLapStart": 3786,
+					"distanceRoundLapEnd": 3927,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "hatzenbatch",
+					"distanceRoundLapStart": 4170,
+					"distanceRoundLapEnd": 4616,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "hocheichen",
+					"distanceRoundLapStart": 4713,
+					"distanceRoundLapEnd": 4916,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "quiddelbacher_hoehe",
+					"distanceRoundLapStart": 5136,
+					"distanceRoundLapEnd": 5289,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "flugplatz",
+					"distanceRoundLapStart": 5371,
+					"distanceRoundLapEnd": 5769,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "schwedenkreuz",
+					"distanceRoundLapStart": 6720,
+					"distanceRoundLapEnd": 6950,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "aremberg",
+					"distanceRoundLapStart": 7069,
+					"distanceRoundLapEnd": 7265,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "fuchsroehre",
+					"distanceRoundLapStart": 7954,
+					"distanceRoundLapEnd": 8240,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "adenauer_forst",
+					"distanceRoundLapStart": 8309,
+					"distanceRoundLapEnd": 8650,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "metzgesfeld",
+					"distanceRoundLapStart": 9188,
+					"distanceRoundLapEnd": 9533,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "kallenhard",
+					"distanceRoundLapStart": 9689,
+					"distanceRoundLapEnd": 9832,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "spiegelkurve",
+					"distanceRoundLapStart": 10206,
+					"distanceRoundLapEnd": 10456,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "wehrseifen",
+					"distanceRoundLapStart": 10570,
+					"distanceRoundLapEnd": 10745,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "breidscheid",
+					"distanceRoundLapStart": 11147,
+					"distanceRoundLapEnd": 11337,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "ex_muehle",
+					"distanceRoundLapStart": 11373,
+					"distanceRoundLapEnd": 11472,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "bergwerk",
+					"distanceRoundLapStart": 12135,
+					"distanceRoundLapEnd": 12353,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "kesselchen",
+					"distanceRoundLapStart": 13549,
+					"distanceRoundLapEnd": 13974,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "klostertal",
+					"distanceRoundLapStart": 14074,
+					"distanceRoundLapEnd": 14350,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "karussell",
+					"distanceRoundLapStart": 15238,
+					"distanceRoundLapEnd": 15417,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "hohe_acht",
+					"distanceRoundLapStart": 16100.4648,
+					"distanceRoundLapEnd": 16358.0049,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "hedwigshoehe",
+					"distanceRoundLapStart": 16559.7324,
+					"distanceRoundLapEnd": 16864.88,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "wippermann",
+					"distanceRoundLapStart": 16987.4238,
+					"distanceRoundLapEnd": 17199.7656,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "eschbach",
+					"distanceRoundLapStart": 17241.1484,
+					"distanceRoundLapEnd": 17450.5,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "bruennchen",
+					"distanceRoundLapStart": 17578.625,
+					"distanceRoundLapEnd": 17798.998,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "eiskurve",
+					"distanceRoundLapStart": 17912.2031,
+					"distanceRoundLapEnd": 18037.6582,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "pflanzgarten1",
+					"distanceRoundLapStart": 18266.1348,
+					"distanceRoundLapEnd": 18671.46,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "pflanzgarten2",
+					"distanceRoundLapStart": 18917.88,
+					"distanceRoundLapEnd": 19054.8535,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "stefan_bellof_s",
+					"distanceRoundLapStart": 19206.873,
+					"distanceRoundLapEnd": 19449.0742,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "schwalbenschwanz",
+					"distanceRoundLapStart": 19910.08,
+					"distanceRoundLapEnd": 20032.748,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "kleines_karussell",
+					"distanceRoundLapStart": 20140.44,
+					"distanceRoundLapEnd": 20273.4844,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "galgenkopf",
+					"distanceRoundLapStart": 20515.3516,
+					"distanceRoundLapEnd": 20943.9355,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "doettinger_hoehe",
+					"distanceRoundLapStart": 21033.0488,
+					"distanceRoundLapEnd": 22682.3516,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "antoniusbuchet",
+					"distanceRoundLapStart": 22903.1133,
+					"distanceRoundLapEnd": 23190.9082,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "tiergarten",
+					"distanceRoundLapStart": 23330.6348,
+					"distanceRoundLapEnd": 23593.8,
+					"isCommonOvertakingSpot": false
+				}
+			],
+			"isOval": false,
+			"raceroomRollingStartLapDistance": -1.0
+		},
+		{
+			"pcars2TrackName": "this is Raceroom's Nordschliefe layout, complete only as far as Karussell",
+			"raceroomLayoutId": 2813,
+			"approximateTrackLength": -1.0,
+			"trackLandmarks": [{
+					"midPoint": -1.0,
+					"landmarkName": "nordkehre",
+					"distanceRoundLapStart": 47.157,
+					"distanceRoundLapEnd": 168.011,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "the_boger",
+					"distanceRoundLapStart": 405.059,
+					"distanceRoundLapEnd": 546.384,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "hatzenbatch",
+					"distanceRoundLapStart": 789.485,
+					"distanceRoundLapEnd": 1235.756,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "hocheichen",
+					"distanceRoundLapStart": 1332.45,
+					"distanceRoundLapEnd": 1535.789,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "quiddelbacher_hoehe",
+					"distanceRoundLapStart": 1755.086,
+					"distanceRoundLapEnd": 1908.719,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "flugplatz",
+					"distanceRoundLapStart": 1990.17,
+					"distanceRoundLapEnd": 2388.805,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "schwedenkreuz",
+					"distanceRoundLapStart": 3339.396,
+					"distanceRoundLapEnd": 3569.005,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "aremberg",
+					"distanceRoundLapStart": 3688.826,
+					"distanceRoundLapEnd": 3884.247,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "fuchsroehre",
+					"distanceRoundLapStart": 4573.917,
+					"distanceRoundLapEnd": 4859.427,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "adenauer_forst",
+					"distanceRoundLapStart": 4928.462,
+					"distanceRoundLapEnd": 5269.688,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "metzgesfeld",
+					"distanceRoundLapStart": 5807.038,
+					"distanceRoundLapEnd": 6152.348,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "kallenhard",
+					"distanceRoundLapStart": 6308.945,
+					"distanceRoundLapEnd": 6451.473,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "spiegelkurve",
+					"distanceRoundLapStart": 6825.876,
+					"distanceRoundLapEnd": 7075.874,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "wehrseifen",
+					"distanceRoundLapStart": 7189.729,
+					"distanceRoundLapEnd": 7364.968,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "breidscheid",
+					"distanceRoundLapStart": 7766.572,
+					"distanceRoundLapEnd": 7956.237,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "ex_muehle",
+					"distanceRoundLapStart": 7992.432,
+					"distanceRoundLapEnd": 8091.923,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "bergwerk",
+					"distanceRoundLapStart": 8754.571,
+					"distanceRoundLapEnd": 8972.099,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "kesselchen",
+					"distanceRoundLapStart": 10168.3838,
+					"distanceRoundLapEnd": 10593.374,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "klostertal",
+					"distanceRoundLapStart": 10693.4941,
+					"distanceRoundLapEnd": 10969.541,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "karussell",
+					"distanceRoundLapStart": 11857.9639,
+					"distanceRoundLapEnd": 12036.375,
+					"isCommonOvertakingSpot": false
+				}
+
+
+				,
+				{
+					"midPoint": -1.0,
+					"landmarkName": "hohe_acht",
+					"distanceRoundLapStart": 12719,
+					"distanceRoundLapEnd": 12997,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "hedwigshoehe",
+					"distanceRoundLapStart": 13178,
+					"distanceRoundLapEnd": 13483,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "wippermann",
+					"distanceRoundLapStart": 13606,
+					"distanceRoundLapEnd": 13818,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "eschbach",
+					"distanceRoundLapStart": 13860,
+					"distanceRoundLapEnd": 14069,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "bruennchen",
+					"distanceRoundLapStart": 14197,
+					"distanceRoundLapEnd": 14417,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "eiskurve",
+					"distanceRoundLapStart": 14531,
+					"distanceRoundLapEnd": 14656,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "pflanzgarten1",
+					"distanceRoundLapStart": 14885,
+					"distanceRoundLapEnd": 15290,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "pflanzgarten2",
+					"distanceRoundLapStart": 15536,
+					"distanceRoundLapEnd": 15673,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "stefan_bellof_s",
+					"distanceRoundLapStart": 15825,
+					"distanceRoundLapEnd": 16068,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "schwalbenschwanz",
+					"distanceRoundLapStart": 16529,
+					"distanceRoundLapEnd": 16651,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "kleines_karussell",
+					"distanceRoundLapStart": 16759,
+					"distanceRoundLapEnd": 16892,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "galgenkopf",
+					"distanceRoundLapStart": 17134,
+					"distanceRoundLapEnd": 17562,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "doettinger_hoehe",
+					"distanceRoundLapStart": 17652,
+					"distanceRoundLapEnd": 19301,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "antoniusbuchet",
+					"distanceRoundLapStart": 19522,
+					"distanceRoundLapEnd": 19809,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "tiergarten",
+					"distanceRoundLapStart": 19949,
+					"distanceRoundLapEnd": 20212,
+					"isCommonOvertakingSpot": false
+				}
+			],
+			"isOval": false
+		},
+		{
+			"rf1TrackNames": [],
+			"rf2TrackNames": [
+				"Monaco"
+			],
+			"acTrackNames": [],
+			"irTrackName": "",
+			"pcarsTrackName": "",
+			"pcars2TrackName": "",
+			"raceroomLayoutId": -1,
+			"approximateTrackLength": 1738.0,
+			"trackLandmarks": [{
+					"midPoint": -1.0,
+					"landmarkName": "turn1",
+					"distanceRoundLapStart": 127.443214,
+					"distanceRoundLapEnd": 223.256027,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn2",
+					"distanceRoundLapStart": 229.72113,
+					"distanceRoundLapEnd": 251.954041,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn3",
+					"distanceRoundLapStart": 479.22467,
+					"distanceRoundLapEnd": 554.592468,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn4",
+					"distanceRoundLapStart": 559.9596,
+					"distanceRoundLapEnd": 595.5173,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn5",
+					"distanceRoundLapStart": 771.2049,
+					"distanceRoundLapEnd": 839.987244,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn6",
+					"distanceRoundLapStart": 933.708557,
+					"distanceRoundLapEnd": 1018.76068,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn7",
+					"distanceRoundLapStart": 1087.37427,
+					"distanceRoundLapEnd": 1173.7865,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn8",
+					"distanceRoundLapStart": 1310.58215,
+					"distanceRoundLapEnd": 1360.185,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn9",
+					"distanceRoundLapStart": 1401.911,
+					"distanceRoundLapEnd": 1474.47449,
+					"isCommonOvertakingSpot": true
+				}
+			],
+			"isOval": false,
+			"raceroomRollingStartLapDistance": -1.0,
+			"iracingPitEntranceDistanceRoundTrack": -1.0
+		},
+		{
+			"rf1TrackNames": [],
+			"rf2TrackNames": [
+				"Le Mans 24h"
+			],
+			"acTrackNames": [],
+			"irTrackName": "",
+			"pcarsTrackName": "",
+			"pcars2TrackName": "",
+			"raceroomLayoutId": -1,
+			"approximateTrackLength": -1.0,
+			"trackLandmarks": [{
+					"midPoint": -1.0,
+					"landmarkName": "dunlop_curve",
+					"distanceRoundLapStart": 504.250916,
+					"distanceRoundLapEnd": 716.2687,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "dunlop_chicane",
+					"distanceRoundLapStart": 740.704041,
+					"distanceRoundLapEnd": 805.3842,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "the_esses",
+					"distanceRoundLapStart": 958.079346,
+					"distanceRoundLapEnd": 1171.68616,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "tetre_rouge",
+					"distanceRoundLapStart": 1698.60913,
+					"distanceRoundLapEnd": 1846.56226,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "chicane_one",
+					"distanceRoundLapStart": 3928.659,
+					"distanceRoundLapEnd": 4290.594,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "chicane_two",
+					"distanceRoundLapStart": 5882.84,
+					"distanceRoundLapEnd": 6319.968,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "the_kink",
+					"distanceRoundLapStart": 6408.807,
+					"distanceRoundLapEnd": 6557.184,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "mulsanne",
+					"distanceRoundLapStart": 7481.945,
+					"distanceRoundLapEnd": 7818.326,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "indianapolis",
+					"distanceRoundLapStart": 9685.556,
+					"distanceRoundLapEnd": 9945.769,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "arnage",
+					"distanceRoundLapStart": 10056.27,
+					"distanceRoundLapEnd": 10228.31,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "porsche_curves",
+					"distanceRoundLapStart": 11453.11,
+					"distanceRoundLapEnd": 12058.49,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "new_maison_blanche",
+					"distanceRoundLapStart": 12347.69,
+					"distanceRoundLapEnd": 12538.05,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "the_first_ford_chicane",
+					"distanceRoundLapStart": 13156.55,
+					"distanceRoundLapEnd": 13348.15,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "the_second_ford_chicane",
+					"distanceRoundLapStart": 13367.08,
+					"distanceRoundLapEnd": 13496.58,
+					"isCommonOvertakingSpot": false
+				}
+			],
+			"isOval": false,
+			"raceroomRollingStartLapDistance": -1.0,
+			"iracingPitEntranceDistanceRoundTrack": -1.0
+		}
 	]
 }

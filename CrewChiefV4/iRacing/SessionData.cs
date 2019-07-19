@@ -23,7 +23,11 @@ namespace CrewChiefV4.iRacing
         public bool IsTeamRacing { get; set; }
         public int NumCarClasses { get; set; }
         public bool StandingStart { get; set; }
-        const string sessionInfoYamlPath = "SessionInfo:Sessions:SessionNum:{{{0}}}{1}:";
+        public bool StartingGridPoleOnLeft { get; set; }
+        public string Restarts { get; set; }
+        public string CourseCautions { get; set; }
+        public bool hasFullCourseCautions { get; set; }
+        public const string sessionInfoYamlPath = "SessionInfo:Sessions:SessionNum:{{{0}}}{1}:";
         public void Update(string sessionString, int sessionNumber)
         {
             this.Track = Track.FromSessionInfo(sessionString);            
@@ -38,7 +42,10 @@ namespace CrewChiefV4.iRacing
             this.RaceTime = Parser.ParseSec(SessionTimeString);            
             this.IncidentLimitString = YamlParser.Parse(sessionString, "WeekendInfo:WeekendOptions:IncidentLimit:");
             this.StandingStart = Parser.ParseInt(YamlParser.Parse(sessionString, "WeekendInfo:WeekendOptions:StandingStart:")) == 1;
-
+            this.StartingGridPoleOnLeft = YamlParser.Parse(sessionString, "WeekendInfo:WeekendOptions:StartingGrid:").Contains("pole on left");
+            this.Restarts = YamlParser.Parse(sessionString, "WeekendInfo:WeekendOptions:Restarts:");
+            this.CourseCautions = YamlParser.Parse(sessionString, "WeekendInfo:WeekendOptions:CourseCautions:");
+            this.hasFullCourseCautions = CourseCautions.Equals("full");
             if(IsLimitedIncidents)
             {
                 IncidentLimit = Parser.ParseInt(IncidentLimitString);

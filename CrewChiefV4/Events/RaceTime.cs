@@ -80,6 +80,16 @@ namespace CrewChiefV4.Events
         
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
+            if (CrewChief.gameDefinition.gameEnum == GameEnum.IRACING
+                && currentGameState.SessionData.SessionType == SessionType.Race
+                && previousGameState != null
+                && currentGameState.SessionData.SessionHasFixedTime
+                && previousGameState.SessionData.SessionTimeRemaining == -1
+                && currentGameState.SessionData.SessionTimeRemaining > 0)
+            {
+                played0mins = false; played2mins = false; played5mins = false; played10mins = false; played15mins = false;
+                played20mins = false; playedHalfWayHome = false; playedLastLap = false; gotHalfTime = false;
+            }
             // store this in a local var so it's available for vocie command responses
             addExtraLap = currentGameState.SessionData.HasExtraLap;
             leaderHasFinishedRace = currentGameState.SessionData.LeaderHasFinishedRace;
@@ -153,19 +163,23 @@ namespace CrewChiefV4.Events
                         played15mins = true;
                         played20mins = true;
                         playedHalfWayHome = true;
-                        if (currentGameState.SessionData.ClassPosition == 1)
+                        // rF2 and iR implement SessionData.IsLastLap so last lap logic is handled in LapCounter.
+                        if (CrewChief.gameDefinition.gameEnum != GameEnum.RF2_64BIT && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)
                         {
-                            // don't add a pearl here - the audio clip already contains encouragement
-                            audioPlayer.playMessage(new QueuedMessage(folderLastLapLeading, 10, abstractEvent: this, priority: 5), pearlType, 0);
-                        }
-                        else if (currentGameState.SessionData.ClassPosition < 4)
-                        {
-                            // don't add a pearl here - the audio clip already contains encouragement
-                            audioPlayer.playMessage(new QueuedMessage(folderLastLapPodium, 10, abstractEvent: this, priority: 5), pearlType, 0);
-                        }
-                        else
-                        {
-                            audioPlayer.playMessage(new QueuedMessage(folderLastLap, 10, abstractEvent: this, priority: 5));
+                            if (currentGameState.SessionData.ClassPosition == 1)
+                            {
+                                // don't add a pearl here - the audio clip already contains encouragement
+                                audioPlayer.playMessage(new QueuedMessage(folderLastLapLeading, 10, abstractEvent: this, priority: 5), pearlType, 0);
+                            }
+                            else if (currentGameState.SessionData.ClassPosition < 4)
+                            {
+                                // don't add a pearl here - the audio clip already contains encouragement
+                                audioPlayer.playMessage(new QueuedMessage(folderLastLapPodium, 10, abstractEvent: this, priority: 5), pearlType, 0);
+                            }
+                            else
+                            {
+                                audioPlayer.playMessage(new QueuedMessage(folderLastLap, 10, abstractEvent: this, priority: 5));
+                            }
                         }
                     }
                 }

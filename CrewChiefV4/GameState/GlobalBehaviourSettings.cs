@@ -38,14 +38,20 @@ namespace CrewChiefV4.GameState
         public static Boolean realisticMode = UserSettings.GetUserSettings().getBoolean("realistic_mode");
         public static Boolean alwaysUseHundredths = UserSettings.GetUserSettings().getBoolean("always_report_time_in_hundredths");
         public static Boolean defaultToAmericanTerms = UserSettings.GetUserSettings().getBoolean("use_american_terms");
+        private static Boolean enableOvalSpotterBehaviours = UserSettings.GetUserSettings().getBoolean("enable_oval_spotter_enhancements");
+
         public static Boolean useAmericanTerms = false; // if true we use american phrasing where appropriate ("pace car" etc).
         public static Boolean useOvalLogic = false;    // if true, we don't care about cold brakes and cold left side tyres (?)
+        public static Boolean ovalSpotterMode = false;
         public static Boolean useHundredths = false;
         public static float spotterVehicleLength = defaultSpotterVehicleLength;
         public static float spotterVehicleWidth = defaultSpotterVehicleWidth;
 
         public static Boolean spotterEnabledInitialState = UserSettings.GetUserSettings().getBoolean("enable_spotter");
         public static Boolean spotterEnabled = spotterEnabledInitialState;
+
+        public static Boolean cutTrackWarningsEnabledInitialState = UserSettings.GetUserSettings().getBoolean("play_cut_track_warnings");
+        public static Boolean cutTrackWarningsEnabled = cutTrackWarningsEnabledInitialState;
 
         public static readonly List<MessageTypes> defaultEnabledMessageTypes = new List<MessageTypes> { 
             MessageTypes.TYRE_TEMPS, MessageTypes.TYRE_WEAR, MessageTypes.BRAKE_TEMPS, MessageTypes.BRAKE_DAMAGE, MessageTypes.FUEL, MessageTypes.LOCKING_AND_SPINNING };
@@ -130,6 +136,7 @@ namespace CrewChiefV4.GameState
             useOvalLogic = trackDefinition.isOval;
             // this is called when we start a session, so update the spotter enabled flag based on the initial state
             spotterEnabled = spotterEnabledInitialState && (useOvalLogic || !realisticMode);
+            ovalSpotterMode = useOvalLogic && enableOvalSpotterBehaviours;
             if (useOvalLogic)
             {
                 Console.WriteLine("Track is marked as oval");

@@ -23,6 +23,7 @@ no_personalisations_detected_press_to_download = No personalisations detected, p
 updated_personalisations_available_press_to_download = Updated personalisations available, press to do&wnload
 personalisations_are_up_to_date = Personalisations are up to date
 stop = &Stop
+stop_and_save = &Stop and Save trace
 start_application = &Start application
 
 pcars_64_bit = pCARS (64 bit)
@@ -110,6 +111,7 @@ press_to_replay_the_last_message = Press to replay the last message
 udp_network_data_buttons = UDP network data buttons
 volume_up = Increase messages volume
 volume_down = Decrease messages volume
+toggle_mute = Toggle mute
 print_track_data = Print track and position info
 toggle_yellow_flag_messages = Toggle yellow flag messages
 activate_pit_prediction = Pitstop prediction
@@ -156,6 +158,8 @@ install_plugin_select_directory_start = Please select
 install_plugin_select_directory_end = installation directory
 install_plugin_popup_enable_text = Crew Chief can automatically enable the plugin for you, if you select Cancel you will have to enable it manually in the game ui. Click OK to enable or Cancel to Return
 install_plugin_popup_enable_title = Enable Plugin
+install_plugin_popup_error_text = Failed to Install or Update the Plugin.  Please make sure the game is not running. Error:
+install_plugin_popup_error_title = Plugin Install or Update failed
 
 install_speechplatform_popup_title = Missing dependency
 install_speechplatform_popup_text = It appears that your system is missing a dependency for speech recogniser to work. Press OK to get redirected to the download location, Or Cancel to return
@@ -206,7 +210,72 @@ timings_category_label = Timings
 pit_stops_and_multiclass_category_label = Pit Stops & Multiclass
 misc_category_label = Miscellaneous
 
+toggle_enable_cut_track_warnings = Toggle cut track warnings on / off
+
 category_filter_label = Ca&tegory filter:
+
+scan_for_controllers = Scan &for Controllers
+cancel_scan = Canc&el scan
+edit_macro_commands = Command macro &editor
+add_remove_actions = Add/&Remove Actions
+
+###################################### Macro Editor ######################################################
+global_macro_settings = Global Settings
+available_macros = Available macros
+regular_macro_voice_command = Regular Type
+integer_macro_voice_command = Integer Type
+macro_voice_trigger = Voice command
+new_macro_name = Macro name
+confirmation_message = Confirmation message
+add_or_edit_macro = Add/Save changes
+delete_selected_macro = Delete macro
+select_confirmation_message = Select confirmation message
+macro_description = Description
+macro_voice_trigger = Voice Command
+macro_view_only = Action edit
+edit_selected_macro = Macro edit
+create_new_macro = Create new
+macro_edit_mode = Mode
+
+game_specific_settings = Game specific settings
+action_sequence = Action sequence
+new_action = New action name
+keypress_time = Key hold down time
+keypress_wait_time = Time between key presses
+add_action_to_sequence = Add action to sequence
+add_key_to_sequence = Add action to sequence
+add_action_sequence = Save sequence to macro for 
+load_user_macro_settings = Load user macros file
+load_default_macro_settings = Load default macros file
+macro_please_download_soundpack = Please download sound packs before adding confirmation message
+empty_name_or_voicetrigger = Name and voice trigger must NOT be empty
+macro_voicetrigger_already_exists = Voice trigger allready exist for another macro please select a different
+regular_key_action = Single key press
+multiple_key_action = Repeated key presses
+voice_trigger_action = Voice Trigger
+multiple_fuel_action = Fuel action
+wait_action = Wait action
+free_text_action = Free text
+advanced_edit_action = Advanced edit(no error checking!)
+action_repeated_key_presses = Repetition count(integer)
+action_wait_time = Wait time in milliseconds.
+action_free_text = Free Text
+undo_last_action = Undo last action
+actions_keys = Available keys
+must_select_a_key = You must select a key from the list of available keys
+special_action_text_cant_be_empty = must contain a value
+delete_selected_macro_confirmation = Are you sure you want to delete 
+delete_selected_macro_confirmation_title = Confirm delete
+must_select_a_macro = You must select a macro before trying to add a sequence
+action_sequence_cant_be_empty = You must add at least one action to Action sequence
+empty_keypress_time_start = Both
+empty_keypress_time_middle = and
+empty_keypress_time_end = must contain a value
+
+###################################### Action Editor ######################################################
+current_available_actions = &Current available actions
+additional_available_actions = &Additional available actions
+reload_actions = &Restore user defaults.
 
 ###################################### Preferences ######################################################
 # to change the name of the property title in the properties screen, just use the property name like this:
@@ -404,6 +473,14 @@ minimum_time_between_pearls_of_wisdom_category = MESSAGE_FREQUENCES
 spotter_hold_repeat_frequency = Spotter hold repeat frequency
 spotter_hold_repeat_frequency_help = Time between the Spotter repeating "hold your line" when along side a car
 spotter_hold_repeat_frequency_category = SPOTTER;MESSAGE_FREQUENCES
+
+spotter_hold_repeat_frequency_ovals = Spotter hold repeat frequency (ovals)
+spotter_hold_repeat_frequency_ovals_help = Time between the Spotter repeating "hold your line" when along side a car on an oval track
+spotter_hold_repeat_frequency_ovals_category = SPOTTER;MESSAGE_FREQUENCES
+
+enable_oval_spotter_enhancements = Enable enhanced spotter on ovals
+enable_oval_spotter_enhancements_help = Allow radio calls between spotter messages and disable beeps on ovals
+enable_oval_spotter_enhancements_category = SPOTTER;MESSAGE_FREQUENCES
 
 spotter_update_interval = Spotter update interval
 spotter_update_interval_category = SPOTTER
@@ -832,6 +909,10 @@ load_sound_files_on_startup = Load sound files on startup
 load_sound_files_on_startup_help = Load all the sounds when the app starts up. This may make app start times quite long, but prevents the app having to load stuff while you're racing.
 load_sound_files_on_startup_category = UI_STARTUP_AND_PATHS
 
+enable_automatic_plugin_update = Update game plugins on startup
+enable_automatic_plugin_update_help = If enabled, CC will check if latest plugin is installed and will prompt to install plugin if it is not found or out of date.
+enable_automatic_plugin_update_category = UI_STARTUP_AND_PATHS
+
 pcars_character_encoding = pCARS character encoding
 pcars_character_encoding_help = For PS4 always use UTF-8. For PC and XBox this will usually be windows-1252 (Windows Western European).
 pcars_character_encoding_filter = PCARS_64BIT;PCARS_32BIT;PCARS_NETWORK
@@ -1008,6 +1089,10 @@ manual_formation_double_file = Manual formation lap double-file start
 manual_formation_double_file_help = Assume manual formation lap starts use 2 lines of cars
 manual_formation_double_file_category = FLAGS_AND_RULES
 
+manual_formation_split_classes = Manual formation lap separate classes
+manual_formation_split_classes_help = Assume there's a gap between different classes during a rolling start
+manual_formation_split_classes_category = FLAGS_AND_RULES
+
 save_list_of_unvocalized_names = Save driver names with no sound
 save_list_of_unvocalized_names_help = Write unvocalized driver names to file
 save_list_of_unvocalized_names_category = AUDIO_VOICE_AND_CONTROLLERS
@@ -1083,10 +1168,6 @@ enable_multiclass_messages = Enable multi-class messages
 enable_multiclass_messages_help = Play warnings when slower or faster class cars are approaching
 enable_multiclass_messages_category = PIT_STOPS_AND_MULTICLASS
 
-allow_macros_to_trigger_automatically = Allow automatic macro triggering
-allow_macros_to_trigger_automatically_help = Enable some macros to execute automatically (e.g. R3E pit auto-confirm)
-allow_macros_to_trigger_automatically_category = PIT_STOPS_AND_MULTICLASS
-
 target_warning_time_for_slower_class_car = Multi-class slower car warning time
 target_warning_time_for_slower_class_car_help = Try and warn this many seconds in advance when passing slower class cars
 target_warning_time_for_slower_class_car_category = PIT_STOPS_AND_MULTICLASS
@@ -1117,11 +1198,6 @@ iracing_invalidate_cut_track_laps = iRacing Invalidate cut track Laps
 iracing_invalidate_cut_track_laps_help = Disable this if you don't want the app to invalidate laps where you cut the track.
 iracing_invalidate_cut_track_laps_filter = IRACING
 iracing_invalidate_cut_track_laps_category = FLAGS_AND_RULES
-
-force_rf2_rolling_start = Force rF2 'Rolling Start' as a race start type
-force_rf2_rolling_start_help = Due to game limitations, CC can only guess what type of start race has.  Sometimes, 'Rolling' is detected as 'Formation/Standing', mostly on some Kart tracks.  You can force 'Rolling' start by enabling this option.
-force_rf2_rolling_start_filter = RF2_64BIT
-force_rf2_rolling_start_category = FLAGS_AND_RULES
 
 enable_pit_exit_position_estimates = Enable pit exit position estimates
 enable_pit_exit_position_estimates_help = Play pit exit position estimates
@@ -1194,3 +1270,100 @@ slow_class_car_warnings_in_race_only_category = PIT_STOPS_AND_MULTICLASS
 record_sound_variety_data = Record sound variety data
 record_sound_variety_data_help = Log the number of times each sound is played and the number of versions of this sound. For sound pack developers
 record_sound_variety_data_category = AUDIO_VOICE_AND_CONTROLLERS
+
+persist_pitstop_benchmark_times = Save pitstop benchmark times to disk
+persist_pitstop_benchmark_times_help = Save benchmark times to Documents folder
+persist_pitstop_benchmark_times_category = PIT_STOPS_AND_MULTICLASS
+
+controller_mappings_file_error_title = Error reading controller mappings
+controller_mappings_file_error_details_1 = Controller mapping file 
+controller_mappings_file_error_details_2 = is invalid - no button mappings will be available. Error message from JSON parsers is:
+
+use_rf2_wheel_size_for_locking_and_spinning = Use rF2's real wheel size for lock/spin messages
+use_rf2_wheel_size_for_locking_and_spinning_help = Use rF2 provided wheel size (instead of car class data) for lock and spin messages calculations.
+use_rf2_wheel_size_for_locking_and_spinning_category = FUEL_TEMPS_AND_DAMAGES
+use_rf2_wheel_size_for_locking_and_spinning_filter = RF2_64BIT
+
+enable_iracing_pit_state_during_fcy = Enable iRacing FCY pit state messages
+enable_iracing_pit_state_during_fcy_help = Announce pit state during Safety Car/Pace Car phase
+enable_iracing_pit_state_during_fcy_filter = IRACING
+enable_iracing_pit_state_during_fcy_category = FLAGS_AND_RULES;PIT_STOPS_AND_MULTICLASS
+		
+iracing_fcy_formation_use_drivername = iRacing fcy/formation use driver names
+iracing_fcy_formation_use_drivername_help = Use driver names instead of car number if available doing fcy and formation laps
+iracing_fcy_formation_use_drivername_filter = IRACING
+iracing_fcy_formation_use_drivername_category = FLAGS_AND_RULES;PIT_STOPS_AND_MULTICLASS
+
+enable_websocket = Enable Websocket integration
+enable_websocket_help = Send some Crew Chief data over a Websocket
+enable_websocket_category = AUDIO_VOICE_AND_CONTROLLERS
+enable_websocket_filter = RACE_ROOM
+
+websocket_port = Crew Chief data Websocket port
+websocket_port_help = Port to use for Crew Chief specific Websocket data (currently only a radio flag for R3E WebHud)
+websocket_port_category = AUDIO_VOICE_AND_CONTROLLERS
+websocket_port_filter = RACE_ROOM
+
+enable_rf2_wrong_way_message = Enable rF2 'Wrong Way' message
+enable_rf2_wrong_way_message_help = Announce Message Center 'Wrong Way' messsage.  Requires DMA enabled in plugin.
+enable_rf2_wrong_way_message_filter = RF2_64BIT
+enable_rf2_wrong_way_message_category = FLAGS_AND_RULES
+
+enable_game_data_websocket = Enable WebHud integration (R3E only)
+enable_game_data_websocket_help = Send shared memory data to a socket in exactly the same way that 'dash.exe' would
+enable_game_data_websocket_filter = RACE_ROOM
+enable_game_data_websocket_category = AUDIO_VOICE_AND_CONTROLLERS
+
+game_data_websocket_port = Game data Websocket port
+game_data_websocket_port_help = Port to use for R3E WebHud Websocket data
+game_data_websocket_port_filter = RACE_ROOM
+game_data_websocket_port_category = AUDIO_VOICE_AND_CONTROLLERS
+
+disable_rf2_race_end_messages_on_abandoned_sessions = Disable rF2 race end msg. for abandoned events
+disable_rf2_race_end_messages_on_abandoned_sessions_help = Enable this preference if you would like to turn off race end messages for times when you quit Single Player race without finishing it.
+disable_rf2_race_end_messages_on_abandoned_sessions_filter = RF2_64BIT
+disable_rf2_race_end_messages_on_abandoned_sessions_category = MESSAGE_FREQUENCES
+
+hold_button_poll_frequency = Hold button poll frequency
+hold_button_poll_frequency_help = Time between checks if "Talk to Chief" button is pressed.  The lower the value the higher the CPU usage is.
+hold_button_poll_frequency_category = AUDIO_VOICE_AND_CONTROLLERS
+
+sre_wait_time = How long to wait for speech recognition
+sre_wait_time_help = Time (milliseconds) to wait until giving up on recognizing the phrase and saying 'I didn't catch that'.
+sre_wait_time_category = AUDIO_VOICE_AND_CONTROLLERS
+
+prefer_max_consumption_in_fuel_calculations = Base fuel calculations on max fuel consumption
+prefer_max_consumption_in_fuel_calculations_help = Use max per-lap fuel consumption when calculating fuel on all track types
+prefer_max_consumption_in_fuel_calculations_category = FUEL_TEMPS_AND_DAMAGES
+
+sre_enable_opponents_by_position = Identify opponents by race position
+sre_enable_opponents_by_position_help = Allow the app to recognise opponents in voice commands by their race position
+sre_enable_opponents_by_position_category = AUDIO_VOICE_AND_CONTROLLERS
+
+sre_enable_opponents_by_number = Identify opponents by car number
+sre_enable_opponents_by_number_help = Allow the app to recognise opponents in voice commands by their car numbers (iRacing and R3E only)
+sre_enable_opponents_by_number_category = AUDIO_VOICE_AND_CONTROLLERS
+
+sre_enable_opponents_by_name = Identify opponents by driver name
+sre_enable_opponents_by_name_help = Allow the app to recognise opponents in voice commands by their driver name
+sre_enable_opponents_by_name_category = AUDIO_VOICE_AND_CONTROLLERS
+
+naudio_wave_in_sample_rate = Sample rate for nAudio wave-in device
+naudio_wave_in_sample_rate_help = Sample rate for voice recording device (Hz, nAudio only)
+naudio_wave_in_sample_rate_category = AUDIO_VOICE_AND_CONTROLLERS
+
+naudio_wave_in_channel_count = Channel count for nAudio wave-in device
+naudio_wave_in_channel_count_help = Channels (1: mono, 2: stereo) for recording device (nAudio only)
+naudio_wave_in_channel_count_category = AUDIO_VOICE_AND_CONTROLLERS
+
+naudio_wave_in_sample_depth = Sample depth for nAudio wave-in device (8 or 16)
+naudio_wave_in_sample_depth_help = Sample depth, 8 or 16 bits per sample, for recording device (nAudio only)
+naudio_wave_in_sample_depth_category = AUDIO_VOICE_AND_CONTROLLERS
+
+allow_important_messages_even_when_silenced = Play important messages when silenced
+allow_important_messages_even_when_silenced_help = The Chief still gives high priority messages even when you ask him to keep quiet
+allow_important_messages_even_when_silenced_category = AUDIO_VOICE_AND_CONTROLLERS
+
+fcy_stop_spotter_immediately = Mute spotter immediately on full course yellow
+fcy_stop_spotter_immediately_help = Turn off spotter on FCY without waiting until you've slowed or start a new lap
+fcy_stop_spotter_immediately_category = SPOTTER

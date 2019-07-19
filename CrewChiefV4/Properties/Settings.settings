@@ -764,9 +764,6 @@
     <Setting Name="enable_multiclass_messages" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
-    <Setting Name="allow_macros_to_trigger_automatically" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
-    </Setting>
     <Setting Name="target_warning_time_for_faster_class_car" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">15</Value>
     </Setting>
@@ -787,9 +784,6 @@
     </Setting>
     <Setting Name="enable_iracing_pit_stop_commands" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
-    </Setting>
-    <Setting Name="force_rf2_rolling_start" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="enable_pit_exit_position_estimates" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
@@ -883,6 +877,7 @@
     </Setting>
     <Setting Name="acc_spotter_car_length" Type="System.Single" Scope="User">
       <Value Profile="(Default)">4.5</Value>
+    </Setting>
     <Setting Name="pit_box_time_countdown" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
@@ -894,6 +889,99 @@
     </Setting>
     <Setting Name="pit_box_time_countdown_end_position" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">30</Value>
+    </Setting>
+    <Setting Name="persist_pitstop_benchmark_times" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="enable_automatic_plugin_update" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="manual_formation_split_classes" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="TOGGLE_ENABLE_CUT_TRACK_WARNINGS_device_guid" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="TOGGLE_ENABLE_CUT_TRACK_WARNINGS_device_type" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="TOGGLE_ENABLE_CUT_TRACK_WARNINGS_button_index" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">-1</Value>
+    </Setting>
+    <Setting Name="use_rf2_wheel_size_for_locking_and_spinning" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="iracing_fcy_formation_use_drivername" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="enable_iracing_pit_state_during_fcy" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="enable_websocket" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="websocket_port" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">8071</Value>
+    </Setting>
+    <Setting Name="enable_rf2_wrong_way_message" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="game_data_websocket_port" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">8070</Value>
+    </Setting>
+    <Setting Name="enable_game_data_websocket" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="disable_rf2_race_end_messages_on_abandoned_sessions" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="hold_button_poll_frequency" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">100</Value>
+    </Setting>
+    <Setting Name="sre_wait_time" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">2000</Value>
+    </Setting>
+    <Setting Name="prefer_max_consumption_in_fuel_calculations" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="spotter_hold_repeat_frequency_ovals" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">3</Value>
+    </Setting>
+    <Setting Name="enable_oval_spotter_enhancements" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="TOGGLE_MUTE_button_index" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">-1</Value>
+    </Setting>
+    <Setting Name="TOGGLE_MUTE_device_guid" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="TOGGLE_MUTE_device_type" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="sre_enable_opponents_by_position" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="sre_enable_opponents_by_name" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="sre_enable_opponents_by_number" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="naudio_wave_in_sample_rate" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">8000</Value>
+    </Setting>
+    <Setting Name="naudio_wave_in_channel_count" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">1</Value>
+    </Setting>
+    <Setting Name="naudio_wave_in_sample_depth" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">16</Value>
+    </Setting>
+    <Setting Name="allow_important_messages_even_when_silenced" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="fcy_stop_spotter_immediately" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>
 </SettingsFile>

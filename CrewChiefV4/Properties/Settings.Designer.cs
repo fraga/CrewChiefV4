@@ -12,7 +12,7 @@ namespace CrewChiefV4.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "12.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.9.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -3073,18 +3073,6 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool allow_macros_to_trigger_automatically {
-            get {
-                return ((bool)(this["allow_macros_to_trigger_automatically"]));
-            }
-            set {
-                this["allow_macros_to_trigger_automatically"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("15")]
         public int target_warning_time_for_faster_class_car {
             get {
@@ -3164,18 +3152,6 @@ namespace CrewChiefV4.Properties {
             }
             set {
                 this["enable_iracing_pit_stop_commands"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool force_rf2_rolling_start {
-            get {
-                return ((bool)(this["force_rf2_rolling_start"]));
-            }
-            set {
-                this["force_rf2_rolling_start"] = value;
             }
         }
         
@@ -3599,6 +3575,378 @@ namespace CrewChiefV4.Properties {
             }
             set {
                 this["pit_box_time_countdown_end_position"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool persist_pitstop_benchmark_times {
+            get {
+                return ((bool)(this["persist_pitstop_benchmark_times"]));
+            }
+            set {
+                this["persist_pitstop_benchmark_times"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool enable_automatic_plugin_update {
+            get {
+                return ((bool)(this["enable_automatic_plugin_update"]));
+            }
+            set {
+                this["enable_automatic_plugin_update"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool manual_formation_split_classes {
+            get {
+                return ((bool)(this["manual_formation_split_classes"]));
+            }
+            set {
+                this["manual_formation_split_classes"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string TOGGLE_ENABLE_CUT_TRACK_WARNINGS_device_guid {
+            get {
+                return ((string)(this["TOGGLE_ENABLE_CUT_TRACK_WARNINGS_device_guid"]));
+            }
+            set {
+                this["TOGGLE_ENABLE_CUT_TRACK_WARNINGS_device_guid"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string TOGGLE_ENABLE_CUT_TRACK_WARNINGS_device_type {
+            get {
+                return ((string)(this["TOGGLE_ENABLE_CUT_TRACK_WARNINGS_device_type"]));
+            }
+            set {
+                this["TOGGLE_ENABLE_CUT_TRACK_WARNINGS_device_type"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
+        public int TOGGLE_ENABLE_CUT_TRACK_WARNINGS_button_index {
+            get {
+                return ((int)(this["TOGGLE_ENABLE_CUT_TRACK_WARNINGS_button_index"]));
+            }
+            set {
+                this["TOGGLE_ENABLE_CUT_TRACK_WARNINGS_button_index"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool use_rf2_wheel_size_for_locking_and_spinning {
+            get {
+                return ((bool)(this["use_rf2_wheel_size_for_locking_and_spinning"]));
+            }
+            set {
+                this["use_rf2_wheel_size_for_locking_and_spinning"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool iracing_fcy_formation_use_drivername {
+            get {
+                return ((bool)(this["iracing_fcy_formation_use_drivername"]));
+            }
+            set {
+                this["iracing_fcy_formation_use_drivername"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool enable_iracing_pit_state_during_fcy {
+            get {
+                return ((bool)(this["enable_iracing_pit_state_during_fcy"]));
+            }
+            set {
+                this["enable_iracing_pit_state_during_fcy"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool enable_websocket {
+            get {
+                return ((bool)(this["enable_websocket"]));
+            }
+            set {
+                this["enable_websocket"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("8071")]
+        public int websocket_port {
+            get {
+                return ((int)(this["websocket_port"]));
+            }
+            set {
+                this["websocket_port"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool enable_rf2_wrong_way_message {
+            get {
+                return ((bool)(this["enable_rf2_wrong_way_message"]));
+            }
+            set {
+                this["enable_rf2_wrong_way_message"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("8070")]
+        public int game_data_websocket_port {
+            get {
+                return ((int)(this["game_data_websocket_port"]));
+            }
+            set {
+                this["game_data_websocket_port"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool enable_game_data_websocket {
+            get {
+                return ((bool)(this["enable_game_data_websocket"]));
+            }
+            set {
+                this["enable_game_data_websocket"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool disable_rf2_race_end_messages_on_abandoned_sessions {
+            get {
+                return ((bool)(this["disable_rf2_race_end_messages_on_abandoned_sessions"]));
+            }
+            set {
+                this["disable_rf2_race_end_messages_on_abandoned_sessions"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("100")]
+        public int hold_button_poll_frequency {
+            get {
+                return ((int)(this["hold_button_poll_frequency"]));
+            }
+            set {
+                this["hold_button_poll_frequency"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2000")]
+        public int sre_wait_time {
+            get {
+                return ((int)(this["sre_wait_time"]));
+            }
+            set {
+                this["sre_wait_time"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool prefer_max_consumption_in_fuel_calculations {
+            get {
+                return ((bool)(this["prefer_max_consumption_in_fuel_calculations"]));
+            }
+            set {
+                this["prefer_max_consumption_in_fuel_calculations"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("3")]
+        public int spotter_hold_repeat_frequency_ovals {
+            get {
+                return ((int)(this["spotter_hold_repeat_frequency_ovals"]));
+            }
+            set {
+                this["spotter_hold_repeat_frequency_ovals"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool enable_oval_spotter_enhancements {
+            get {
+                return ((bool)(this["enable_oval_spotter_enhancements"]));
+            }
+            set {
+                this["enable_oval_spotter_enhancements"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
+        public int TOGGLE_MUTE_button_index {
+            get {
+                return ((int)(this["TOGGLE_MUTE_button_index"]));
+            }
+            set {
+                this["TOGGLE_MUTE_button_index"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string TOGGLE_MUTE_device_guid {
+            get {
+                return ((string)(this["TOGGLE_MUTE_device_guid"]));
+            }
+            set {
+                this["TOGGLE_MUTE_device_guid"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string TOGGLE_MUTE_device_type {
+            get {
+                return ((string)(this["TOGGLE_MUTE_device_type"]));
+            }
+            set {
+                this["TOGGLE_MUTE_device_type"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool sre_enable_opponents_by_position {
+            get {
+                return ((bool)(this["sre_enable_opponents_by_position"]));
+            }
+            set {
+                this["sre_enable_opponents_by_position"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool sre_enable_opponents_by_name {
+            get {
+                return ((bool)(this["sre_enable_opponents_by_name"]));
+            }
+            set {
+                this["sre_enable_opponents_by_name"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool sre_enable_opponents_by_number {
+            get {
+                return ((bool)(this["sre_enable_opponents_by_number"]));
+            }
+            set {
+                this["sre_enable_opponents_by_number"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("8000")]
+        public int naudio_wave_in_sample_rate {
+            get {
+                return ((int)(this["naudio_wave_in_sample_rate"]));
+            }
+            set {
+                this["naudio_wave_in_sample_rate"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public int naudio_wave_in_channel_count {
+            get {
+                return ((int)(this["naudio_wave_in_channel_count"]));
+            }
+            set {
+                this["naudio_wave_in_channel_count"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("16")]
+        public int naudio_wave_in_sample_depth {
+            get {
+                return ((int)(this["naudio_wave_in_sample_depth"]));
+            }
+            set {
+                this["naudio_wave_in_sample_depth"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool allow_important_messages_even_when_silenced {
+            get {
+                return ((bool)(this["allow_important_messages_even_when_silenced"]));
+            }
+            set {
+                this["allow_important_messages_even_when_silenced"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool fcy_stop_spotter_immediately {
+            get {
+                return ((bool)(this["fcy_stop_spotter_immediately"]));
+            }
+            set {
+                this["fcy_stop_spotter_immediately"] = value;
             }
         }
     }
