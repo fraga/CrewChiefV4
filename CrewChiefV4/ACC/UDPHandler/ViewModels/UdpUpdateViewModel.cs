@@ -1,0 +1,47 @@
+﻿using System;
+using System.Threading.Tasks;
+using ksBroadcastingNetwork;
+using ksBroadcastingTestClient.Broadcasting;
+using ksBroadcastingTestClient.ClientConnections;
+
+namespace ksBroadcastingTestClient
+{
+    public class UdpUpdateViewModel : KSObservableObject
+    {
+        public ClientPanelViewModel ClientPanelVM { get; }
+        public BroadcastingViewModel BroadcastingVM { get; }
+        public SessionInfoViewModel SessionInfoVM { get; }
+
+        private ACCUdpRemoteClient udpClient;
+        private Action OnReset;
+
+        public UdpUpdateViewModel(string udpIpAddress, Action onReset)
+        {
+            OnReset = onReset;
+
+            ClientPanelVM = new ClientPanelViewModel(udpIpAddress, OnClientConnected);
+            BroadcastingVM = new BroadcastingViewModel();
+            SessionInfoVM = new SessionInfoViewModel();            
+        }
+        public void OnClientConnected(ACCUdpRemoteClient newClient)
+        {
+            OnReset?.Invoke();
+
+            udpClient = newClient;
+
+            BroadcastingVM.RegisterNewClient(newClient);
+            SessionInfoVM.RegisterNewClient(newClient);
+        }
+
+        public void Shutdown()
+        {
+            ClientPanelVM.Shutdown();
+        }
+
+        public async Task LockForReadingAsync(Action action)
+        {
+            if(udpClient != null)
+                await udpClient.LockForReadingAsync(action);
+        }
+    }
+}

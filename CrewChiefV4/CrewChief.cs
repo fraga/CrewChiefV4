@@ -738,7 +738,7 @@ namespace CrewChiefV4
                                             currentGameState.PositionAndMotionData.DistanceRoundTrack, audioPlayer);
                                     }
                                     if (spotter != null && GlobalBehaviourSettings.spotterEnabled && !spotterIsRunning &&
-                                        (gameDefinition.gameEnum == GameEnum.F1_2018 || !loadDataFromFile))
+                                         (gameDefinition.gameEnum == GameEnum.F1_2018 || !loadDataFromFile))
                                     {
                                         Console.WriteLine("********** starting spotter***********");
                                         spotter.clearState();

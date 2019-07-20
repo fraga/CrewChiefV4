@@ -977,6 +977,7 @@
 		},
 		{
 			"rf1TrackNames": ["Imola 2016"],
+			"rf2TrackNames": ["Imola 2018"],
 			"acTrackNames": ["imola:"],
 			"pcarsTrackName": "Imola:Grand Prix",
 			"pcars2TrackName": "Imola:GP",
@@ -2112,7 +2113,8 @@
 			"pcars2TrackName": "Nurburgring:GP",
 			"raceroomLayoutId": 1691,
 			"raceroomRollingStartLapDistance": 4591,
-			"rf2TrackNames": ["Nuerburg GP"],
+            "rf2TrackNames": [ "Nuerburg GP" ],
+            "accTrackName":  "nurburgring" ,
 			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 600,

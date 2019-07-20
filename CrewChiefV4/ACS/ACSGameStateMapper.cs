@@ -1,10 +1,9 @@
+using CrewChiefV4.assetto.assettoData;
+using CrewChiefV4.Events;
+using CrewChiefV4.GameState;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using CrewChiefV4.GameState;
-using CrewChiefV4.Events;
-using CrewChiefV4.assetto.assettoData;
 
 /**
  * Maps memory mapped file to a local game-agnostic representation.
@@ -77,6 +76,7 @@ namespace CrewChiefV4.assetto
         public ACSGameStateMapper()
         {
             acTyres.Clear();
+            suspensionDamageThresholds.Clear();
 
             CornerData.EnumWithThresholds suspensionDamageNone = new CornerData.EnumWithThresholds(DamageLevel.NONE, -10000, trivialSuspensionDamageThreshold);
             CornerData.EnumWithThresholds suspensionDamageTrivial = new CornerData.EnumWithThresholds(DamageLevel.TRIVIAL, trivialSuspensionDamageThreshold, minorSuspensionDamageThreshold);
@@ -912,7 +912,7 @@ namespace CrewChiefV4.assetto
             Boolean raceFinished = lapsCompleted == numberOfLapsInSession || (previousGameState != null && previousGameState.SessionData.LeaderHasFinishedRace && previousGameState.SessionData.IsNewLap);
             currentGameState.SessionData.SessionPhase = mapToSessionPhase(currentGameState.SessionData.SessionType, currentFlag, status, isCountDown, lastSessionPhase, sessionTimeRemaining, lastSessionTotalRunTime, isInPits, lapsCompleted, raceFinished);
 
-            currentGameState.SessionData.TrackDefinition = TrackData.getTrackDefinition(shared.acsStatic.track
+            currentGameState.SessionData.TrackDefinition = TrackData.getAssettoTrackDefinition(shared.acsStatic.track
                 + ":" + shared.acsStatic.trackConfiguration, shared.acsStatic.trackSPlineLength, shared.acsStatic.sectorCount);
             ACSGameStateMapper.numberOfSectorsOnTrack = currentGameState.SessionData.TrackDefinition.sectorsOnTrack;
 
@@ -1058,7 +1058,7 @@ namespace CrewChiefV4.assetto
                         lapCountAtSector1End = -1;
                         currentGameState.SessionData.LeaderHasFinishedRace = false;
                         currentGameState.SessionData.NumCarsOverallAtStartOfSession = shared.acsChief.numVehicles;
-                        currentGameState.SessionData.TrackDefinition = TrackData.getTrackDefinition(shared.acsStatic.track + ":" + shared.acsStatic.trackConfiguration, shared.acsStatic.trackSPlineLength, shared.acsStatic.sectorCount);
+                        currentGameState.SessionData.TrackDefinition = TrackData.getAssettoTrackDefinition(shared.acsStatic.track + ":" + shared.acsStatic.trackConfiguration, shared.acsStatic.trackSPlineLength, shared.acsStatic.sectorCount);
                         if (currentGameState.SessionData.TrackDefinition.unknownTrack)
                         {
                             currentGameState.SessionData.TrackDefinition.setSectorPointsForUnknownTracks();

@@ -36,7 +36,8 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
@@ -47,7 +48,8 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
@@ -104,6 +106,31 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ACC\ACCData.cs" />
+    <Compile Include="ACC\ACCGameStateMapper.cs" />
+    <Compile Include="ACC\ACCSharedMemoryReader.cs" />
+    <Compile Include="ACC\ACCSpotter.cs" />
+    <Compile Include="ACC\ksBroadcastingNetwork\ACCUdpRemoteClient.cs" />
+    <Compile Include="ACC\ksBroadcastingNetwork\BroadcastingEnums.cs" />
+    <Compile Include="ACC\ksBroadcastingNetwork\BroadcastingNetworkProtocol.cs" />
+    <Compile Include="ACC\ksBroadcastingNetwork\Structs\BroadcastingEvent.cs" />
+    <Compile Include="ACC\ksBroadcastingNetwork\Structs\CarInfo.cs" />
+    <Compile Include="ACC\ksBroadcastingNetwork\Structs\DriverInfo.cs" />
+    <Compile Include="ACC\ksBroadcastingNetwork\Structs\LapInfo.cs" />
+    <Compile Include="ACC\ksBroadcastingNetwork\Structs\RealtimeCarUpdate.cs" />
+    <Compile Include="ACC\ksBroadcastingNetwork\Structs\RealtimeUpdate.cs" />
+    <Compile Include="ACC\ksBroadcastingNetwork\Structs\TrackData.cs" />
+    <Compile Include="ACC\UDPHandler\KSObservableObject.cs" />
+    <Compile Include="ACC\UDPHandler\ViewModels\BroadcastingEventViewModel.cs" />
+    <Compile Include="ACC\UDPHandler\ViewModels\BroadcastingViewModel.cs" />
+    <Compile Include="ACC\UDPHandler\ViewModels\CarViewModel.cs" />
+    <Compile Include="ACC\UDPHandler\ViewModels\ClientConnectionViewModel.cs" />
+    <Compile Include="ACC\UDPHandler\ViewModels\ClientPanelViewModel.cs" />
+    <Compile Include="ACC\UDPHandler\ViewModels\DriverViewModel.cs" />
+    <Compile Include="ACC\UDPHandler\ViewModels\LapViewModel.cs" />
+    <Compile Include="ACC\UDPHandler\ViewModels\SessionInfoViewModel.cs" />
+    <Compile Include="ACC\UDPHandler\ViewModels\TrackViewModel.cs" />
+    <Compile Include="ACC\UDPHandler\ViewModels\UdpUpdateViewModel.cs" />
     <Compile Include="ACS\ACSData.cs" />
     <Compile Include="ACS\ACSGameStateMapper.cs" />
     <Compile Include="ACS\ACSSharedMemoryReader.cs" />
@@ -206,9 +233,7 @@
       <DependentUpon>MacroEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="UserInterface\PropertyFilter.cs" />
-    <Compile Include="UserInterface\ListPropertyControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
+    <Compile Include="UserInterface\ListPropertyControl.cs" />
     <Compile Include="UserInterface\ListPropertyControl.Designer.cs">
       <DependentUpon>ListPropertyControl.cs</DependentUpon>
     </Compile>

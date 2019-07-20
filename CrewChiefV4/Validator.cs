@@ -16,7 +16,7 @@ namespace CrewChiefV4
              "paul hance", "aline senna", "giuseppe sangalli", "patrick förster", "chris iwaski", "gazman", "peter koch",
              "andreas christiansen", "greg metcalf", "Aditas H1Z1Cases.com.", /* TODO: remove bruno in a future update */"Bruno Bæ",
              "maciej bugno", "patrick schilhan" /*as reward for your "make r3e app free" campaign.*/,
-             "tim heinemann", "Josh Cassar", "Jesse Hoppo", "markus grönthal", "joan moreno", "N.Quinque" };
+             "tim heinemann", "Josh Cassar", "Jesse Hoppo", "markus grönthal", "joan moreno", "N.Quinque", "epsilon" };
  
           public static void validate(String str)
           {
