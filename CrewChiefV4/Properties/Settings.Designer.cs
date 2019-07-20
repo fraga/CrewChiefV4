@@ -3470,14 +3470,11 @@ namespace CrewChiefV4.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("5")]
-        public float pcars2_spotter_car_length
-        {
-            get
-            {
+        public float pcars2_spotter_car_length {
+            get {
                 return ((float)(this["pcars2_spotter_car_length"]));
             }
-            set
-            {
+            set {
                 this["pcars2_spotter_car_length"] = value;
             }
         }
@@ -3496,18 +3493,6 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool pit_box_time_countdown {
-            get {
-                return ((bool)(this["pit_box_time_countdown"]));
-            }
-            set {
-                this["pit_box_time_countdown"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string acc_launch_params {
             get {
@@ -3515,6 +3500,42 @@ namespace CrewChiefV4.Properties {
             }
             set {
                 this["acc_launch_params"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool launch_acc {
+            get {
+                return ((bool)(this["launch_acc"]));
+            }
+            set {
+                this["launch_acc"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("4.5")]
+        public float acc_spotter_car_length {
+            get {
+                return ((float)(this["acc_spotter_car_length"]));
+            }
+            set {
+                this["acc_spotter_car_length"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool pit_box_time_countdown {
+            get {
+                return ((bool)(this["pit_box_time_countdown"]));
+            }
+            set {
+                this["pit_box_time_countdown"] = value;
             }
         }
         
@@ -3533,36 +3554,12 @@ namespace CrewChiefV4.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool launch_acc {
-            get {
-                return ((bool)(this["launch_acc"]));
-            }
-            set {
-                this["launch_acc"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool record_sound_variety_data {
             get {
                 return ((bool)(this["record_sound_variety_data"]));
             }
             set {
                 this["record_sound_variety_data"] = value;
-            }
-        }        
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("4.5")]
-        public float acc_spotter_car_length {
-            get {
-                return ((float)(this["acc_spotter_car_length"]));
-            }
-            set {
-                this["acc_spotter_car_length"] = value;
             }
         }
         
@@ -3947,6 +3944,18 @@ namespace CrewChiefV4.Properties {
             }
             set {
                 this["fcy_stop_spotter_immediately"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("127.0.0.1")]
+        public string acc_machine_ip {
+            get {
+                return ((string)(this["acc_machine_ip"]));
+            }
+            set {
+                this["acc_machine_ip"] = value;
             }
         }
     }

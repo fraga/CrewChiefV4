@@ -1054,6 +1054,10 @@ namespace CrewChiefV4.Events
 
         public void reportCurrentTyreTempStatus(Boolean playImmediately)
         {
+            // if all exactly zero then it is unlikely tire temps are supplied
+            if (leftFrontTyreTemp == 0 && rightFrontTyreTemp == 0 && leftRearTyreTemp == 0 && rightRearTyreTemp == 0)
+                return;
+
             // for FWD classes we don't care about rear tyres
             Boolean includeRears = playImmediately || !CrewChief.currentGameState.carClass.allMembersAreFWD;
 

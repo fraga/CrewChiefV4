@@ -882,6 +882,10 @@ namespace CrewChiefV4
                             classNamesPropName = "rf2ClassNames";
                             regexsPropName = "rf2ClassNamesRegexs";
                             break;
+                        case GameEnum.ACC:
+                            classNamesPropName = "acClassNames";
+                            regexsPropName = "acClassNamesRegexs";
+                            break;
                         default:
                             // err....
                             return new CarClass();

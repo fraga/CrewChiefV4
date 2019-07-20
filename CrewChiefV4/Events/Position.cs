@@ -504,7 +504,8 @@ namespace CrewChiefV4.Events
         {
             int delaySeconds = CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT ||
                                 CrewChief.gameDefinition.gameEnum == GameEnum.ASSETTO_32BIT ||
-                                CrewChief.gameDefinition.gameEnum == GameEnum.ASSETTO_64BIT ? 1 : 0;
+                                CrewChief.gameDefinition.gameEnum == GameEnum.ASSETTO_64BIT ||
+                                CrewChief.gameDefinition.gameEnum == GameEnum.ACC ? 1 : 0;
             DelayedMessageEvent delayedMessageEvent = new DelayedMessageEvent("getPositionMessages", new Object[] { currentPosition, isReminder }, this);
             audioPlayer.playMessage(new QueuedMessage("position", 10, delayedMessageEvent: delayedMessageEvent, secondsDelay: delaySeconds, priority: 10), pearlType, pearlLikelihood);
         }
