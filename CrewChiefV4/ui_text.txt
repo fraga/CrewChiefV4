@@ -498,6 +498,10 @@ f1_2018_udp_data_port_help = F1 2018 network data UDP port (should usually be 20
 f1_2018_udp_data_port_filter = F1_2018
 f1_2018_udp_data_port_category = UI_STARTUP_AND_PATHS
 
+acs_spotter_car_length = ACS Spotter default car length
+acs_spotter_car_length_filter = ASSETTO_64BIT;ASSETTO_32BIT
+acs_spotter_car_length_category = SPOTTER
+
 acc_spotter_car_length = ACC Spotter default car length
 acc_spotter_car_length_filter = ACC
 acc_spotter_car_length_category = SPOTTER
