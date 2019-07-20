@@ -1,15 +1,16 @@
-﻿using CrewChiefV4.Audio;
-using CrewChiefV4.commands;
-using CrewChiefV4.Events;
-using CrewChiefV4.R3E;
+﻿using Microsoft.Speech.Recognition;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Speech.AudioFormat;
-using System.Speech.Recognition;
+using System.Text;
+using System.Threading.Tasks;
+using CrewChiefV4.Events;
 using System.Threading;
+using CrewChiefV4.Audio;
+using CrewChiefV4.commands;
 using System.Windows.Forms;
+using System.Diagnostics;
+using CrewChiefV4.R3E;
 
 namespace CrewChiefV4
 {
@@ -1812,11 +1813,11 @@ namespace CrewChiefV4
                                 {
                                     break;
                                 }
-                                SpeechAudioFormatInfo safi =
-                                    new SpeechAudioFormatInfo(
+                                Microsoft.Speech.AudioFormat.SpeechAudioFormatInfo safi =
+                                    new Microsoft.Speech.AudioFormat.SpeechAudioFormatInfo(
                                         nAudioWaveInSampleRate,
-                                        nAudioWaveInSampleDepth == 16 ? AudioBitsPerSample.Sixteen : AudioBitsPerSample.Eight, 
-                                        nAudioWaveInChannelCount == 2 ? AudioChannel.Stereo : AudioChannel.Mono);
+                                        nAudioWaveInSampleDepth == 16 ? Microsoft.Speech.AudioFormat.AudioBitsPerSample.Sixteen : Microsoft.Speech.AudioFormat.AudioBitsPerSample.Eight, 
+                                        nAudioWaveInChannelCount == 2 ? Microsoft.Speech.AudioFormat.AudioChannel.Stereo : Microsoft.Speech.AudioFormat.AudioChannel.Mono);
                                 sre.SetInputToAudioStream(buffer, safi); // otherwise input gets unset
                                 try
                                 {
@@ -1870,8 +1871,8 @@ namespace CrewChiefV4
                 {
                     SpeechRecogniser.keepRecognisingInHoldMode = false;
                     StopNAudioWaveIn();
-                    SpeechAudioFormatInfo safi = new SpeechAudioFormatInfo(
-                        waveIn.WaveFormat.SampleRate, AudioBitsPerSample.Sixteen, AudioChannel.Mono);
+                    Microsoft.Speech.AudioFormat.SpeechAudioFormatInfo safi = new Microsoft.Speech.AudioFormat.SpeechAudioFormatInfo(
+                        waveIn.WaveFormat.SampleRate, Microsoft.Speech.AudioFormat.AudioBitsPerSample.Sixteen, Microsoft.Speech.AudioFormat.AudioChannel.Mono);
                     if (!isShuttingDown)
                     {
                         sre.SetInputToAudioStream(buffer, safi); // otherwise input gets unset
