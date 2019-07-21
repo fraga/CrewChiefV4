@@ -11,15 +11,18 @@ namespace CrewChiefV4
 {
     public partial class FloatPropertyControl : UserControl
     {
+        public bool changeRequiresRestart;
         public String propertyId;
         public float originalValue;
         public float defaultValue;
         public String label;
+        private PropertiesForm parent;
         internal PropertyFilter filter = null;
-        public FloatPropertyControl (String propertyId, String label, float value, float defaultValue, String helpText, String filterText, String categoryText)
+        public FloatPropertyControl (String propertyId, String label, float value, float defaultValue, String helpText, String filterText, String categoryText,
+            bool changeRequiresRestart, PropertiesForm parent)
         {
             InitializeComponent();
-
+            this.parent = parent;
             this.label = label;
             this.propertyId = propertyId;
             this.label1.Text = label;
@@ -29,7 +32,9 @@ namespace CrewChiefV4
             this.toolTip1.SetToolTip(this.textBox1, helpText);
             this.toolTip1.SetToolTip(this.label1, helpText);
 
-            this.filter = new PropertyFilter(filterText, categoryText, propertyId, this.label);
+            this.changeRequiresRestart = changeRequiresRestart;
+       
+            this.filter = new PropertyFilter(filterText, categoryText, changeRequiresRestart, propertyId, this.label);
         }
 
         public float getValue()
@@ -47,16 +52,22 @@ namespace CrewChiefV4
         }
         public void setValue(float value)
         {
-            this.originalValue = value;
-            this.textBox1.Text = value.ToString();
-            
+            this.textBox1.Text = value.ToString();           
+            this.originalValue = value; 
         }
+
         public void button1_Click(object sender, EventArgs e)
         {
             if (defaultValue != originalValue)
             {
-                PropertiesForm.hasChanges = true;
+                parent.hasChanges = true;
+                if (this.changeRequiresRestart) parent.updatedPropertiesRequiringRestart.Add(this.propertyId);
             }
+            else
+            {
+                parent.updatedPropertiesRequiringRestart.Remove(this.propertyId);
+            }
+            if (this.changeRequiresRestart) parent.updateSaveButtonText();
             this.textBox1.Text = defaultValue.ToString();
             this.originalValue = defaultValue;
         }
@@ -65,8 +76,15 @@ namespace CrewChiefV4
         {
             if (this.textBox1.Text != originalValue.ToString())
             {
-                PropertiesForm.hasChanges = true;
+                parent.hasChanges = true;
+                if (this.changeRequiresRestart) parent.updatedPropertiesRequiringRestart.Add(this.propertyId);
+                parent.updateSaveButtonText();
             }
+            else
+            {
+                parent.updatedPropertiesRequiringRestart.Remove(this.propertyId);
+            }
+            if (this.changeRequiresRestart) parent.updateSaveButtonText();
         }
     }
 }

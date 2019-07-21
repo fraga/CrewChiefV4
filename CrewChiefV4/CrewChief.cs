@@ -21,7 +21,10 @@ namespace CrewChiefV4
 {
     public class CrewChief : IDisposable
     {
-        public static Boolean Debugging = System.Diagnostics.Debugger.IsAttached;
+        public static Boolean Debugging = false;/* System.Diagnostics.Debugger.IsAttached;*/
+        // these will generally be the same but in cases where we're checking the behaviour in debug, while pretending we're not in debug,
+        // it's useful to have them separate
+        public static Boolean UseDebugFilePaths = System.Diagnostics.Debugger.IsAttached;
 
         // speechRecognizer and audioPlayer are shared by many threads.  They should be disposed after root threads stopped, in GlobalResources.Dispose.
         public SpeechRecogniser speechRecogniser;
@@ -120,17 +123,42 @@ namespace CrewChiefV4
         private float fcySpeedToTurnSpotterOffOnOvals = 40;
         private float fcySpeedToTurnSpotterOffOnRoadCourses = 50;
 
+        private ControllerConfiguration controllerConfiguration;
+
         private Object latestRawGameData;
 
-        public CrewChief()
+        public CrewChief(ControllerConfiguration controllerConfiguration)
         {
             speechRecogniser = new SpeechRecogniser(this);
             audioPlayer = new AudioPlayer();
+            this.controllerConfiguration = controllerConfiguration;
 
             GlobalResources.speechRecogniser = speechRecogniser;
             GlobalResources.audioPlayer = audioPlayer;
 
             audioPlayer.initialise();
+            clearAndReloadEvents();
+            
+            DriverNameHelper.readRawNamesToUsableNamesFiles(AudioPlayer.soundFilesPath);
+        }
+
+        private void reloadSettings()
+        {
+            this.enableWebsocket = UserSettings.GetUserSettings().getBoolean("enable_websocket");
+            this.enableGameDataWebsocket = UserSettings.GetUserSettings().getBoolean("enable_game_data_websocket");
+            this.displaySessionLapTimes = UserSettings.GetUserSettings().getBoolean("display_session_lap_times");
+            this.turnSpotterOffImmediatelyOnFCY = UserSettings.GetUserSettings().getBoolean("fcy_stop_spotter_immediately");
+            CrewChief.yellowFlagMessagesEnabled = UserSettings.GetUserSettings().getBoolean("enable_yellow_flag_messages");
+            CrewChief.enableDriverNames = UserSettings.GetUserSettings().getBoolean("enable_driver_names");
+            CrewChief.timeInterval = UserSettings.GetUserSettings().getInt("update_interval");
+            CrewChief.spotterInterval = UserSettings.GetUserSettings().getInt("spotter_update_interval");
+            CrewChief.forceSingleClass = UserSettings.GetUserSettings().getBoolean("force_single_class");
+            CrewChief.maxUnknownClassesForAC = UserSettings.GetUserSettings().getInt("max_unknown_car_classes_for_assetto");
+        }
+
+        private void clearAndReloadEvents()
+        {
+            eventsList.Clear();
             eventsList.Add("Timings", new Timings(audioPlayer));
             eventsList.Add("Position", new Position(audioPlayer));
             eventsList.Add("LapCounter", new LapCounter(audioPlayer, this));
@@ -152,10 +180,9 @@ namespace CrewChiefV4
             eventsList.Add("FrozenOrderMonitor", new FrozenOrderMonitor(audioPlayer));
             eventsList.Add("IRacingBroadcastMessageEvent", new IRacingBroadcastMessageEvent(audioPlayer));
             eventsList.Add("MulticlassWarnings", new MulticlassWarnings(audioPlayer));
-            eventsList.Add("CommonActions", new CommonActions(audioPlayer));  
+            eventsList.Add("CommonActions", new CommonActions(audioPlayer));
             sessionEndMessages = new SessionEndMessages(audioPlayer);
             alarmClock = new AlarmClock(audioPlayer);
-            DriverNameHelper.readRawNamesToUsableNamesFiles(AudioPlayer.soundFilesPath);
         }
 
         public void setGameDefinition(GameDefinition gameDefinition)
@@ -349,6 +376,10 @@ namespace CrewChiefV4
 
         public Boolean Run(String filenameToRun, Boolean dumpToFile)
         {
+            clearAndReloadEvents();
+            reloadSettings();
+            GlobalBehaviourSettings.reloadSettings();
+            controllerConfiguration.assignButtonEventInstances();
             try
             {
                 if (enableWebsocket)

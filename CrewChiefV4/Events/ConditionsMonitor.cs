@@ -81,7 +81,7 @@ namespace CrewChiefV4.Events
         // this is used for RF2 and PCars
         public static String folderStoppedRaining = "conditions/stopped_raining";
 
-        private static Boolean useFahrenheit = UserSettings.GetUserSettings().getBoolean("use_fahrenheit");
+        private Boolean useFahrenheit = UserSettings.GetUserSettings().getBoolean("use_fahrenheit");
 
         private Conditions.ConditionsSample currentConditions;
         private Conditions.ConditionsSample conditionsAtStartOfThisLap;
