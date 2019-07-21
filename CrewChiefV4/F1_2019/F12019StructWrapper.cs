@@ -17,7 +17,7 @@ namespace CrewChiefV4.F1_2019
         public PacketCarSetupData packetCarSetupData;
         public PacketCarStatusData packetCarStatusData;
         public PacketCarTelemetryData packetCarTelemetryData;
-        public PacketEventData packetEventData;
+        public PacketEventDataWithDetails packetEventData;
         public PacketLapData packetLapData;
         public PacketMotionData packetMotionData;
         public PacketParticipantsData packetParticipantsData;
