@@ -11,6 +11,7 @@ using CrewChiefV4.rFactor2;
 using CrewChiefV4.iRacing;
 using CrewChiefV4.PCars2;
 using CrewChiefV4.F1_2018;
+using CrewChiefV4.F1_2019;
 
 namespace CrewChiefV4
 {
@@ -30,6 +31,7 @@ namespace CrewChiefV4
         private ACSSharedMemoryReader ascSharedMemoryReader;
         private iRacingSharedMemoryReader iracingSharedMemoryReader;
         private F12018UDPreader f12018UDPReader;
+        private F12019UDPreader f12019UDPReader;
 
         public static GameStateReaderFactory getInstance()
         {
@@ -104,6 +106,12 @@ namespace CrewChiefV4
                             f12018UDPReader = new F12018UDPreader();
                         }
                         return f12018UDPReader;
+                    case GameEnum.F1_2019:
+                        if (f12019UDPReader == null)
+                        {
+                            f12019UDPReader = new F12019UDPreader();
+                        }
+                        return f12019UDPReader;
                 }
             }
             return null;
@@ -133,6 +141,8 @@ namespace CrewChiefV4
                     return new iRacingGameStateMapper();
                 case GameEnum.F1_2018:
                     return new F12018GameStateMapper();
+                case GameEnum.F1_2019:
+                    return new F12019GameStateMapper();
                 default:
                     Console.WriteLine("No mapper is defined for GameDefinition " + gameDefinition.friendlyName);
                     return null;
