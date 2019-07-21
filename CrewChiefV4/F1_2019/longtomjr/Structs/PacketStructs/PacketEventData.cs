@@ -29,9 +29,15 @@ namespace F12019UdpNet
         /// Event string code:
         /// "SSTA" -> On session start
         /// "SEND" -> On session end
+        /// “FTLP” -> Fastest lap
+        /// "RTMT" -> Driver retired
+        /// "DRSE" -> DRS Enabled
+        /// "DRSD" -> DRS Disabled
+        /// "TMPT" -> Team mate entered pits
+        /// "CHQF" -> Chequered flag has been waved
+        /// "RCWN" -> Race winner announced
         /// </summary>
         [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 4)]
         public byte[] m_eventStringCode;
-
     }
 }

@@ -1,14 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.InteropServices;
 
 namespace F12019UdpNet
 {
+    [StructLayout(LayoutKind.Explicit, Pack = 1)]
     struct EventDataDetails
     {
-        public byte vehicleIdx;
-        public float lapTime;
+        [FieldOffset(0)]
+        public Retirement retirement;
+        [FieldOffset(0)]
+        public TeamMateInPits teamMateInPits;
+        [FieldOffset(0)]
+        public RaceWinner raceWinner;
+        [FieldOffset(0)]
+        public FastestLap fastestLap;
     }
 }

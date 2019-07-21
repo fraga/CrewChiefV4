@@ -216,7 +216,8 @@ namespace CrewChiefV4.F1_2019
                             buttonsState = ConvertBytesToBoolArray(workingData.packetCarTelemetryData.m_buttonStatus);
                             break;
                         case e_PacketId.Event:
-                            workingData.packetEventData = (PacketEventData)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(PacketEventData));
+                            var tempEventData = (PacketEventData)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(PacketEventData));
+                            workingData.packetEventData = MarshalEventData(tempEventData, IntPtr.Add(handle.AddrOfPinnedObject(), Marshal.SizeOf(tempEventData)));
                             break;
                         case e_PacketId.LapData:
                             workingData.packetLapData = (PacketLapData)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(PacketLapData));
@@ -239,6 +240,28 @@ namespace CrewChiefV4.F1_2019
                 }
             }
             return frameLength + offset;
+        }
+
+        private PacketEventDataWithDetails MarshalEventData(PacketEventData tempEventData, IntPtr pointer)
+        {
+            var eventTypeString = Encoding.UTF8.GetString(tempEventData.m_eventStringCode);
+            switch(eventTypeString)
+            {
+                case "FTLP":
+                    var fastestLapEvent = (FastestLap)Marshal.PtrToStructure(pointer, typeof(FastestLap));
+                    return new PacketEventDataWithDetails(tempEventData, fastestLapEvent);
+                case "RTMT":
+                    var retirementEvent = (Retirement)Marshal.PtrToStructure(pointer, typeof(Retirement));
+                    return new PacketEventDataWithDetails(tempEventData, retirementEvent);
+                case "TMPT":
+                    var teamMateInPitEvent = (TeamMateInPits)Marshal.PtrToStructure(pointer, typeof(TeamMateInPits));
+                    return new PacketEventDataWithDetails(tempEventData, teamMateInPitEvent);
+                case "RCWN":
+                    var raceWinnerEvent = (RaceWinner)Marshal.PtrToStructure(pointer, typeof(RaceWinner));
+                    return new PacketEventDataWithDetails(tempEventData, raceWinnerEvent);
+                default:
+                    return new PacketEventDataWithDetails(tempEventData, null);
+            }
         }
 
         public override void Dispose()

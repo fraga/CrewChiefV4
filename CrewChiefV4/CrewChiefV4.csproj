@@ -150,6 +150,7 @@
     <Compile Include="F1_2019\longtomjr\Structs\CarStatusData.cs" />
     <Compile Include="F1_2019\longtomjr\Structs\CarTelemetryData.cs" />
     <Compile Include="F1_2019\longtomjr\Structs\EventDataDetails.cs" />
+    <Compile Include="F1_2019\longtomjr\Structs\FastestLap.cs" />
     <Compile Include="F1_2019\longtomjr\Structs\LapData.cs" />
     <Compile Include="F1_2019\longtomjr\Structs\MarshalZone.cs" />
     <Compile Include="F1_2019\longtomjr\Structs\PacketHeader.cs" />
@@ -157,6 +158,7 @@
     <Compile Include="F1_2019\longtomjr\Structs\PacketStructs\PacketCarStatusData.cs" />
     <Compile Include="F1_2019\longtomjr\Structs\PacketStructs\PacketCarTelemetryData.cs" />
     <Compile Include="F1_2019\longtomjr\Structs\PacketStructs\PacketEventData.cs" />
+    <Compile Include="F1_2019\longtomjr\Structs\PacketStructs\PacketEventDataWithDetails.cs" />
     <Compile Include="F1_2019\longtomjr\Structs\PacketStructs\PacketLapData.cs" />
     <Compile Include="F1_2019\longtomjr\Structs\PacketStructs\PacketMotionData.cs" />
     <Compile Include="F1_2019\longtomjr\Structs\PacketStructs\PacketParticipantsData.cs" />
@@ -183,6 +185,9 @@
     <Compile Include="F1_2018\longtomjr\Structs\PacketStructs\PacketParticipantsData.cs" />
     <Compile Include="F1_2018\longtomjr\Structs\PacketStructs\PacketSessionData.cs" />
     <Compile Include="F1_2018\longtomjr\Structs\ParticipantData.cs" />
+    <Compile Include="F1_2019\longtomjr\Structs\RaceWinner.cs" />
+    <Compile Include="F1_2019\longtomjr\Structs\TeamMateInPits.cs" />
+    <Compile Include="F1_2019\longtomjr\Structs\Retirement.cs" />
     <Compile Include="GameDataSerializer.cs" />
     <Compile Include="GameDefinition.cs" />
     <Compile Include="GameStateReaderFactory.cs" />
