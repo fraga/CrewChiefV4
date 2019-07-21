@@ -863,6 +863,21 @@
     <Setting Name="f1_2018_spotter_car_length" Type="System.Single" Scope="User">
       <Value Profile="(Default)">5</Value>
     </Setting>
+    <Setting Name="f1_2019_launch_exe" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="f1_2019_launch_params" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="launch_f1_2019" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="f1_2019_udp_data_port" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">20777</Value>
+    </Setting>
+    <Setting Name="f1_2019_spotter_car_length" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">5</Value>
+    </Setting>
     <Setting Name="pcars2_spotter_car_length" Type="System.Single" Scope="User">
       <Value Profile="(Default)">5</Value>
     </Setting>
