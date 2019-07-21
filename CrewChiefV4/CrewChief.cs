@@ -363,7 +363,7 @@ namespace CrewChiefV4
                 if (filenameToRun != null)
                 {
                     loadDataFromFile = true;
-                    GlobalBehaviourSettings.spotterEnabled = gameDefinition.gameEnum == GameEnum.F1_2018;
+                    GlobalBehaviourSettings.spotterEnabled = gameDefinition.gameEnum == GameEnum.F1_2018 || gameDefinition.gameEnum == GameEnum.F1_2019;
                     dumpToFile = false;
                 }
                 else
@@ -653,7 +653,7 @@ namespace CrewChiefV4
                                 audioPlayer.wakeMonitorThreadForRegularMessages(currentGameState.Now);
                             }
                             else if (previousGameState != null &&
-                                        (gameDefinition.gameEnum == GameEnum.F1_2018 ||
+                                        (gameDefinition.gameEnum == GameEnum.F1_2018 || gameDefinition.gameEnum == GameEnum.F1_2019 ||
                                         (((gameDefinition.gameEnum == GameEnum.PCARS2 && currentGameState.SessionData.SessionPhase == SessionPhase.Countdown) ||
                                             currentGameState.SessionData.SessionRunningTime > previousGameState.SessionData.SessionRunningTime) ||
                                         (previousGameState.SessionData.SessionPhase != currentGameState.SessionData.SessionPhase) || 
@@ -714,8 +714,8 @@ namespace CrewChiefV4
                                 PlaybackModerator.UpdateAutoVerbosity(currentGameState);
 
                                 // Allow events to be processed after session finish.  Event should use applicableSessionPhases/applicableSessionTypes to opt in/out.
-                                // for now, don't trigger any events for F1 2018 as there's no game mapping
-                                if (gameDefinition.gameEnum != GameEnum.F1_2018)
+                                // for now, don't trigger any events for F1 2018 / 2019 as there's no game mapping
+                                if (gameDefinition.gameEnum != GameEnum.F1_2018 && gameDefinition.gameEnum != GameEnum.F1_2019)
                                 {
                                     foreach (KeyValuePair<String, AbstractEvent> entry in eventsList)
                                     {
@@ -738,7 +738,7 @@ namespace CrewChiefV4
                                             currentGameState.PositionAndMotionData.DistanceRoundTrack, audioPlayer);
                                     }
                                     if (spotter != null && GlobalBehaviourSettings.spotterEnabled && !spotterIsRunning &&
-                                        (gameDefinition.gameEnum == GameEnum.F1_2018 || !loadDataFromFile))
+                                        (gameDefinition.gameEnum == GameEnum.F1_2018 || gameDefinition.gameEnum == GameEnum.F1_2019 || !loadDataFromFile))
                                     {
                                         Console.WriteLine("********** starting spotter***********");
                                         spotter.clearState();
