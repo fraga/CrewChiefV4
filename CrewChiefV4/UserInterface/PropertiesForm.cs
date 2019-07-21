@@ -146,14 +146,15 @@ namespace CrewChiefV4
                     this.propertiesFlowLayoutPanel.Controls.Add(new ListPropertyControl(strProp.Name, Configuration.getUIString(strProp.Name) + " " + Configuration.getUIString("text_prop_type"),
                        UserSettings.GetUserSettings().getString(strProp.Name), (String)strProp.DefaultValue,
                        Configuration.getUIString(strProp.Name + "_help"), Configuration.getUIStringStrict(strProp.Name + "_filter"),
-                       Configuration.getUIStringStrict(strProp.Name + "_category"), Configuration.getUIStringStrict(strProp.Name + "_type"), this));
+                       Configuration.getUIStringStrict(strProp.Name + "_category"), changeRequiresRestart(Configuration.getUIStringStrict(strProp.Name + "_metadata")),
+                       Configuration.getUIStringStrict(strProp.Name + "_type"), this));
                 }
                 else
                 {
                     this.propertiesFlowLayoutPanel.Controls.Add(new StringPropertyControl(strProp.Name, Configuration.getUIString(strProp.Name) + " " + Configuration.getUIString("text_prop_type"),
                        UserSettings.GetUserSettings().getString(strProp.Name), (String)strProp.DefaultValue,
                        Configuration.getUIString(strProp.Name + "_help"), Configuration.getUIStringStrict(strProp.Name + "_filter"),
-                       Configuration.getUIStringStrict(strProp.Name + "_category"), this));
+                       Configuration.getUIStringStrict(strProp.Name + "_category"), changeRequiresRestart(Configuration.getUIStringStrict(strProp.Name + "_metadata")), this));
                 }
                 widgetCount++;
             }
@@ -166,7 +167,7 @@ namespace CrewChiefV4
                 this.propertiesFlowLayoutPanel.Controls.Add(new BooleanPropertyControl(boolProp.Name, Configuration.getUIString(boolProp.Name) + " " + Configuration.getUIString("boolean_prop_type"),
                     UserSettings.GetUserSettings().getBoolean(boolProp.Name), defaultValue,
                     Configuration.getUIString(boolProp.Name + "_help"), Configuration.getUIStringStrict(boolProp.Name + "_filter"),
-                    Configuration.getUIStringStrict(boolProp.Name + "_category"), this));
+                    Configuration.getUIStringStrict(boolProp.Name + "_category"), changeRequiresRestart(Configuration.getUIStringStrict(boolProp.Name + "_metadata")), this));
                 widgetCount++;
             }
             pad(widgetCount);
@@ -178,7 +179,7 @@ namespace CrewChiefV4
                 this.propertiesFlowLayoutPanel.Controls.Add(new IntPropertyControl(intProp.Name, Configuration.getUIString(intProp.Name) + " " + Configuration.getUIString("integer_prop_type"),
                     UserSettings.GetUserSettings().getInt(intProp.Name), defaultValue,
                     Configuration.getUIString(intProp.Name + "_help"), Configuration.getUIStringStrict(intProp.Name + "_filter"),
-                    Configuration.getUIStringStrict(intProp.Name + "_category"), this));
+                    Configuration.getUIStringStrict(intProp.Name + "_category"), changeRequiresRestart(Configuration.getUIStringStrict(intProp.Name + "_metadata")), this));
                 widgetCount++;
             }
             pad(widgetCount);
@@ -190,7 +191,7 @@ namespace CrewChiefV4
                 this.propertiesFlowLayoutPanel.Controls.Add(new BooleanPropertyControl(boolProp.Name, Configuration.getUIString(boolProp.Name) + " " + Configuration.getUIString("boolean_prop_type"),
                     UserSettings.GetUserSettings().getBoolean(boolProp.Name), defaultValue,
                     Configuration.getUIString(boolProp.Name + "_help"), Configuration.getUIStringStrict(boolProp.Name + "_filter"),
-                    Configuration.getUIStringStrict(boolProp.Name + "_category"), this));
+                    Configuration.getUIStringStrict(boolProp.Name + "_category"), changeRequiresRestart(Configuration.getUIStringStrict(boolProp.Name + "_metadata")), this));
                 widgetCount++;
             }
             pad(widgetCount);
@@ -202,7 +203,7 @@ namespace CrewChiefV4
                 this.propertiesFlowLayoutPanel.Controls.Add(new IntPropertyControl(intProp.Name, Configuration.getUIString(intProp.Name) + " " + Configuration.getUIString("integer_prop_type"),
                     UserSettings.GetUserSettings().getInt(intProp.Name), defaultValue,
                     Configuration.getUIString(intProp.Name + "_help"), Configuration.getUIStringStrict(intProp.Name + "_filter"),
-                    Configuration.getUIStringStrict(intProp.Name + "_category"), this));
+                    Configuration.getUIStringStrict(intProp.Name + "_category"), changeRequiresRestart(Configuration.getUIStringStrict(intProp.Name + "_metadata")), this));
                 widgetCount++;
             }
             pad(widgetCount);
@@ -214,7 +215,7 @@ namespace CrewChiefV4
                 this.propertiesFlowLayoutPanel.Controls.Add(new FloatPropertyControl(floatProp.Name, Configuration.getUIString(floatProp.Name) + " " + Configuration.getUIString("real_number_prop_type"),
                     UserSettings.GetUserSettings().getFloat(floatProp.Name), defaultValue,
                     Configuration.getUIString(floatProp.Name + "_help"), Configuration.getUIStringStrict(floatProp.Name + "_filter"),
-                    Configuration.getUIStringStrict(floatProp.Name + "_category"), this));
+                    Configuration.getUIStringStrict(floatProp.Name + "_category"), changeRequiresRestart(Configuration.getUIStringStrict(floatProp.Name + "_metadata")), this));
                 widgetCount++;
             }
             pad(widgetCount);
@@ -446,7 +447,7 @@ namespace CrewChiefV4
             for (int i = 0; i < paddedWidgetCount - widgetCount; i++)
             {
                 this.propertiesFlowLayoutPanel.Controls.Add(new Spacer());
-            }    
+            }
         }
 
         private void properties_FormClosing(object sender, FormClosingEventArgs e)
@@ -618,7 +619,7 @@ namespace CrewChiefV4
                 this.searchTextBox.Text = "";
                 this.exitButton.Select();
 
-                if (!string.IsNullOrWhiteSpace(this.searchTextPrev) && this.searchTextPrev != DEFAULT_SEARCH_TEXT) 
+                if (!string.IsNullOrWhiteSpace(this.searchTextPrev) && this.searchTextPrev != DEFAULT_SEARCH_TEXT)
                     this.PopulatePrefsFiltered(null, this.gameFilterPrev, this.specialFilterPrev, this.includeCommonPreferencesPrev, this.categoryFilterPrev);
             }
             else if (e.KeyCode == Keys.Enter)
@@ -628,7 +629,7 @@ namespace CrewChiefV4
             }
         }
 
-        
+
         private void PropertiesForm_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Control && e.KeyCode == Keys.E)
@@ -786,7 +787,7 @@ namespace CrewChiefV4
             };
             if (saveFileDialog.ShowDialog() == DialogResult.OK && !string.IsNullOrWhiteSpace(saveFileDialog.FileName))
             {
-                if(copySettingsFromCurrentSelectionCheckBox.Checked)
+                if (copySettingsFromCurrentSelectionCheckBox.Checked)
                 {
                     UserSettings.UserProfileSettings currentSelection = UserSettings.GetUserSettings().loadUserSettings(Path.Combine(UserSettings.userProfilesPath, profileSelectionComboBox.SelectedItem.ToString() + ".json"));
                     UserSettings.saveUserSettingsFile(currentSelection, Path.GetFileName(saveFileDialog.FileName));
@@ -826,7 +827,7 @@ namespace CrewChiefV4
                 }
                 profileSelectionComboBox.Items.Clear();
                 profileNames.Clear();
-                List<string> settingsProfileFiles = Directory.GetFiles(UserSettings.userProfilesPath, "*.json", SearchOption.TopDirectoryOnly).ToList();                
+                List<string> settingsProfileFiles = Directory.GetFiles(UserSettings.userProfilesPath, "*.json", SearchOption.TopDirectoryOnly).ToList();
                 foreach (var file in settingsProfileFiles)
                 {
                     profileNames.Add(Path.GetFileNameWithoutExtension(file));
@@ -836,7 +837,7 @@ namespace CrewChiefV4
                     profileSelectionComboBox.Items.Add(profile);
                 }
                 profileSelectionComboBox.SelectedIndex = profileNames.IndexOf(Path.GetFileNameWithoutExtension(saveFileDialog.FileName));
-                if(activateNewProfileCheckBox.Checked)
+                if (activateNewProfileCheckBox.Checked)
                 {
                     loadProfileButton_Click(null, null);
                 }
@@ -950,6 +951,20 @@ namespace CrewChiefV4
                     }
                 }
             }
+        }
+
+        private Boolean changeRequiresRestart(String metadata)
+        {
+            if (!string.IsNullOrWhiteSpace(metadata))
+            {
+                var metadataFlags = metadata.Split(';');
+                foreach (var metadataFlag in metadataFlags)
+                {
+                    if (metadataFlag == "RESTART_REQUIRED")
+                        return true;
+                }
+            }
+            return false;
         }
     }
 }

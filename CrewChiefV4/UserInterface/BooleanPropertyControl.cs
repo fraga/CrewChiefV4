@@ -18,8 +18,9 @@ namespace CrewChiefV4
         public Boolean originalValue;
         private PropertiesForm parent;
         internal PropertyFilter filter = null;
+
         public BooleanPropertyControl(String propertyId, String label, Boolean value, Boolean defaultValue, String helpText, String filterText, 
-            String categoryText, PropertiesForm parent)
+            String categoryText, bool changeRequiresRestart, PropertiesForm parent)
         {
             InitializeComponent();
             this.parent = parent;
@@ -30,10 +31,9 @@ namespace CrewChiefV4
             this.checkBox1.Checked = value;
             this.defaultValue = defaultValue;
             this.toolTip1.SetToolTip(this.checkBox1, helpText);
-
-            List<PropertiesForm.PropertyCategory> categoryList = PropertyFilter.parseCategories(categoryText);
-            this.changeRequiresRestart = categoryList.Intersect(PropertiesForm.propsRequiringRestart).Count() > 0;
-            this.filter = new PropertyFilter(filterText, categoryList, propertyId, this.label);
+            
+            this.changeRequiresRestart = changeRequiresRestart;
+            this.filter = new PropertyFilter(filterText, categoryText, changeRequiresRestart, propertyId, this.label);
         }
         public Boolean getValue()
         {

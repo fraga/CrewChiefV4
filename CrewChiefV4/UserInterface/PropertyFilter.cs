@@ -20,11 +20,16 @@ namespace CrewChiefV4
         internal List<GameEnum> filterList = null;
         internal List<PropertiesForm.PropertyCategory> categoryList = null;
         internal bool includeFilter = true;
+        internal bool metadataRestartRequired = false;
         internal string propertyLabelUpper = null;
-
-        public static List<PropertiesForm.PropertyCategory> parseCategories(string category)
+        
+        internal PropertyFilter(string filter, string category, bool changeRequiresRestart, string propertyId, string propertyLabel)
         {
-            List<PropertiesForm.PropertyCategory> categoryList = new List<PropertiesForm.PropertyCategory>();
+            this.propertyLabelUpper = propertyLabel.ToUpperInvariant();
+            this.metadataRestartRequired = changeRequiresRestart;
+
+            // Process category filter.
+
             if (!string.IsNullOrWhiteSpace(category))
             {
                 var categoryNames = category.Split(';');
@@ -41,7 +46,6 @@ namespace CrewChiefV4
                     }
                 }
             }
-            return categoryList;
         }
 
         internal PropertyFilter(string filter, List<PropertiesForm.PropertyCategory> categoryList, string propertyId, string propertyLabel)

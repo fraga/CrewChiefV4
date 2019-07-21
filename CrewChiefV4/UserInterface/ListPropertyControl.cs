@@ -136,9 +136,8 @@ namespace CrewChiefV4
         private PropertiesForm parent;
         internal PropertyFilter filter = null;
 
-
         public ListPropertyControl(String propertyId, String label, String currentValue, 
-            String defaultValue, String helpText, String filterText, String categoryText, String propertyType, PropertiesForm parent)
+            String defaultValue, String helpText, String filterText, String categoryText, bool changeRequiresRestart, String propertyType, PropertiesForm parent)
         {
             InitializeComponent();
             this.parent = parent;
@@ -161,10 +160,9 @@ namespace CrewChiefV4
             this.defaultValue = ListPropertyValues.getLabelForInvariantItem(propertyId, defaultValue);
             this.toolTip1.SetToolTip(this.comboBox1, helpText);
             this.toolTip1.SetToolTip(this.label1, helpText);
-
-            List<PropertiesForm.PropertyCategory> categoryList = PropertyFilter.parseCategories(categoryText);
-            this.changeRequiresRestart = categoryList.Intersect(PropertiesForm.propsRequiringRestart).Count() > 0;
-            this.filter = new PropertyFilter(filterText, categoryList, propertyId, this.label);
+            
+            this.changeRequiresRestart = changeRequiresRestart;
+            this.filter = new PropertyFilter(filterText, categoryText, changeRequiresRestart, propertyId, this.label);
             this.comboBox1.SelectedIndexChanged += textChanged;
         }
 

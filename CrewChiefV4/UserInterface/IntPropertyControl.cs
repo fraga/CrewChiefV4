@@ -18,8 +18,9 @@ namespace CrewChiefV4
         public String label;
         private PropertiesForm parent;
         internal PropertyFilter filter = null;
+
         public IntPropertyControl(String propertyId, String label, int value, int defaultValue, String helpText, String filterText,
-            String categoryText, PropertiesForm parent)
+            String categoryText, bool changeRequiresRestart, PropertiesForm parent)
         {
             InitializeComponent();
             this.parent = parent;
@@ -31,9 +32,9 @@ namespace CrewChiefV4
             this.defaultValue = defaultValue;
             this.toolTip1.SetToolTip(this.textBox1, helpText);
             this.toolTip1.SetToolTip(this.label1, helpText);
-            List<PropertiesForm.PropertyCategory> categoryList = PropertyFilter.parseCategories(categoryText);
-            this.changeRequiresRestart = categoryList.Intersect(PropertiesForm.propsRequiringRestart).Count() > 0;
-            this.filter = new PropertyFilter(filterText, categoryList, propertyId, this.label);
+
+            this.changeRequiresRestart = changeRequiresRestart;
+            this.filter = new PropertyFilter(filterText, categoryText, changeRequiresRestart, propertyId, this.label);
         }
 
         public int getValue()
