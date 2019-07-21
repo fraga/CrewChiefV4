@@ -352,9 +352,11 @@ acc_install_path = ACC install path
 acc_install_path_help = ACC installation path
 acc_install_path_filter = ACC
 acc_install_path_category = UI_STARTUP_AND_PATHS
+acc_install_path_metadata = RESTART_REQUIRED
 
 acc_machine_ip = IP address for the machine ACC is running on
 acc_machine_ip_category = UI_STARTUP_AND_PATHS
+acc_machine_ip_metadata = RESTART_REQUIRED
 
 override_default_sound_pack_location = Override default Sound Pack location
 override_default_sound_pack_location_help = Use an alternative folder for the Sound Pack
