@@ -912,7 +912,7 @@ namespace CrewChiefV4.assetto
             Boolean raceFinished = lapsCompleted == numberOfLapsInSession || (previousGameState != null && previousGameState.SessionData.LeaderHasFinishedRace && previousGameState.SessionData.IsNewLap);
             currentGameState.SessionData.SessionPhase = mapToSessionPhase(currentGameState.SessionData.SessionType, currentFlag, status, isCountDown, lastSessionPhase, sessionTimeRemaining, lastSessionTotalRunTime, isInPits, lapsCompleted, raceFinished);
 
-            currentGameState.SessionData.TrackDefinition = TrackData.getAssettoTrackDefinition(shared.acsStatic.track
+            currentGameState.SessionData.TrackDefinition = TrackData.getTrackDefinition(shared.acsStatic.track
                 + ":" + shared.acsStatic.trackConfiguration, shared.acsStatic.trackSPlineLength, shared.acsStatic.sectorCount);
             ACSGameStateMapper.numberOfSectorsOnTrack = currentGameState.SessionData.TrackDefinition.sectorsOnTrack;
 
@@ -1058,7 +1058,7 @@ namespace CrewChiefV4.assetto
                         lapCountAtSector1End = -1;
                         currentGameState.SessionData.LeaderHasFinishedRace = false;
                         currentGameState.SessionData.NumCarsOverallAtStartOfSession = shared.acsChief.numVehicles;
-                        currentGameState.SessionData.TrackDefinition = TrackData.getAssettoTrackDefinition(shared.acsStatic.track + ":" + shared.acsStatic.trackConfiguration, shared.acsStatic.trackSPlineLength, shared.acsStatic.sectorCount);
+                        currentGameState.SessionData.TrackDefinition = TrackData.getTrackDefinition(shared.acsStatic.track + ":" + shared.acsStatic.trackConfiguration, shared.acsStatic.trackSPlineLength, shared.acsStatic.sectorCount);
                         if (currentGameState.SessionData.TrackDefinition.unknownTrack)
                         {
                             currentGameState.SessionData.TrackDefinition.setSectorPointsForUnknownTracks();

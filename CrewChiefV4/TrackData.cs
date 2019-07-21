@@ -821,26 +821,26 @@ namespace CrewChiefV4
                 return new TrackDefinition("unknown track , length = " + trackLength, trackLength);
             }
         }
-        public static TrackDefinition getACCTrackDefinition(String trackName, float trackLength, int sectorsOnTrack)
-        {
-            List<TrackDefinition> defsWhichMatchName = new List<TrackDefinition>();
-            foreach (TrackDefinition def in accTracks)
-            {
-                if (def.name.Equals(trackName))
-                {
-                    return def;
-                }
-            }
-            TrackDefinition unknownTrackDef = new TrackDefinition(trackName, trackLength, sectorsOnTrack, new float[] { 0f, 0f });
-            unknownTrackDef.unknownTrack = true;
-            unknownTrackDef.setSectorPointsForUnknownTracks();
-            return unknownTrackDef;
-        }
 
-        public static TrackDefinition getAssettoTrackDefinition(String trackName, float trackLength, int sectorsOnTrack)
+        // get track definition for assetto or acc
+        public static TrackDefinition getTrackDefinition(String trackName, float trackLength, int sectorsOnTrack)
         {
             List<TrackDefinition> defsWhichMatchName = new List<TrackDefinition>();
-            foreach (TrackDefinition def in assettoTracks)
+            List<TrackDefinition> tracks;
+            switch (CrewChief.gameDefinition.gameEnum)
+            {
+                case GameEnum.ACC:
+                    tracks = accTracks;
+                    break;
+                case GameEnum.ASSETTO_32BIT:
+                case GameEnum.ASSETTO_64BIT:
+                    tracks = assettoTracks;
+                    break;
+                default:
+                    tracks = new List<TrackDefinition>();
+                    break;
+            }
+            foreach (TrackDefinition def in tracks)
             {
                 if (def.name.Equals(trackName))
                 {
@@ -852,6 +852,7 @@ namespace CrewChiefV4
             unknownTrackDef.setSectorPointsForUnknownTracks();
             return unknownTrackDef;
         }
+        
         private static TrackDefinition getDefinitionForLength(List<TrackDefinition> possibleDefinitions, float trackLength, int maxError)
         {
             TrackDefinition closestLengthDef = null;
