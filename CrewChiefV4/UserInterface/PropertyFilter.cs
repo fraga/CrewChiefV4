@@ -29,7 +29,7 @@ namespace CrewChiefV4
             this.metadataRestartRequired = changeRequiresRestart;
 
             // Process category filter.
-
+            this.categoryList = new List<PropertiesForm.PropertyCategory>();
             if (!string.IsNullOrWhiteSpace(category))
             {
                 var categoryNames = category.Split(';');
@@ -41,7 +41,7 @@ namespace CrewChiefV4
                         categoryList.Add(catEnum);
                     else
                     {
-                        Console.WriteLine("Failed to parse category: \"" + cat);
+                        Console.WriteLine("Failed to parse category: \"" + cat + "\"  property: \"" + propertyId + "\"");
                         categoryList = null;
                     }
                 }
