@@ -387,7 +387,7 @@ namespace ksBroadcastingNetwork
         /// The client will send this automatically when something changes; however if you detect a carIndex or driverIndex, this may cure the 
         /// problem for future updates
         /// </summary>
-        private void RequestEntryList()
+        public void RequestEntryList()
         {
             System.Diagnostics.Debug.WriteLine("RequestEntryList.");
 

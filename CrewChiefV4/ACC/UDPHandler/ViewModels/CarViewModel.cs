@@ -1,39 +1,38 @@
 ﻿using ksBroadcastingNetwork;
 using ksBroadcastingNetwork.Structs;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace ksBroadcastingTestClient.Broadcasting
 {
-    public class CarViewModel : KSObservableObject
+    public class CarViewModel
     {
         public int CarIndex { get; }
-        public int RaceNumber { get => Get<int>(); private set => Set(value); }
-        public int CarModelEnum { get => Get<int>(); private set => Set(value); }
-        public string TeamName { get => Get<string>(); private set => Set(value); }
-        public int CupCategoryEnum { get => Get<int>(); private set => Set(value); }
-        public DriverViewModel CurrentDriver { get => Get<DriverViewModel>(); private set => Set(value); }
+        public int RaceNumber { get; private set; }
+        public int CarModelEnum { get; private set; }
+        public string TeamName { get; private set; }
+        public int CupCategoryEnum { get; private set; }
+        public DriverViewModel CurrentDriver { get; private set; }
 
         public IEnumerable<DriverViewModel> InactiveDrivers { get { return Drivers.Where(x => x.DriverIndex != CurrentDriver?.DriverIndex); } }
-        public ObservableCollection<DriverViewModel> Drivers { get; } = new ObservableCollection<DriverViewModel>();
+        public IList<DriverViewModel> Drivers { get; } = new List<DriverViewModel>();
 
-        public CarLocationEnum CarLocation { get => Get<CarLocationEnum>(); private set => Set(value); }
-        public int Delta { get => Get<int>(); private set => Set(value); }
-        public int Gear { get => Get<int>(); private set => Set(value); }
-        public int Kmh { get => Get<int>(); private set => Set(value); }
-        public int Position { get => Get<int>(); private set => Set(value); }
-        public int CupPosition { get => Get<int>(); private set => Set(value); }
-        public int TrackPosition { get => Get<int>(); private set => Set(value); }
-        public float SplinePosition { get => Get<float>(); private set => Set(value); }
-        public float WorldX { get => Get<float>(); private set => Set(value); }
-        public float WorldY { get => Get<float>(); private set => Set(value); }
-        public float Yaw { get => Get<float>(); private set => Set(value); }
-        public int Laps { get => Get<int>(); private set => Set(value); }
-        public LapViewModel BestLap { get => Get<LapViewModel>(); private set => Set(value); }
-        public LapViewModel LastLap { get => Get<LapViewModel>(); private set => Set(value); }
-        public LapViewModel CurrentLap { get => Get<LapViewModel>(); private set => Set(value); }
-        public float GapFrontMeters { get => Get<float>(); set => Set(value); }
+        public CarLocationEnum CarLocation { get; private set; }
+        public int Delta { get; private set; }
+        public int Gear { get; private set; }
+        public int Kmh { get; private set; }
+        public int Position { get; private set; }
+        public int CupPosition { get; private set; }
+        public int TrackPosition { get; private set; }
+        public float SplinePosition { get; private set; }
+        public float WorldX { get; private set; }
+        public float WorldY { get; private set; }
+        public float Yaw { get; private set; }
+        public int Laps { get; private set; }
+        public LapTime BestLap { get; private set; }
+        public LapTime LastLap { get; private set; }
+        public LapTime CurrentLap { get; private set; }
+        public float GapFrontMeters { get; internal set; }
 
         public CarViewModel(ushort carIndex)
         {
@@ -47,15 +46,14 @@ namespace ksBroadcastingTestClient.Broadcasting
             TeamName = carUpdate.TeamName;
             CupCategoryEnum = carUpdate.CupCategory;
 
-            if(carUpdate.Drivers.Count != Drivers.Count)
+            if (carUpdate.Drivers.Count != Drivers.Count)
             {
                 Drivers.Clear();
                 int driverIndex = 0;
-                foreach(DriverInfo driver in carUpdate.Drivers)
+                foreach (DriverInfo driver in carUpdate.Drivers)
                 {
                     Drivers.Add(new DriverViewModel(driver, driverIndex++));
                 }
-                NotifyUpdate(nameof(InactiveDrivers));
             }
         }
 
@@ -71,7 +69,6 @@ namespace ksBroadcastingTestClient.Broadcasting
             {
                 // The driver has changed!
                 CurrentDriver = Drivers.SingleOrDefault(x => x.DriverIndex == carUpdate.DriverIndex);
-                NotifyUpdate(nameof(InactiveDrivers));
             }
 
             CarLocation = carUpdate.CarLocation;
@@ -87,20 +84,20 @@ namespace ksBroadcastingTestClient.Broadcasting
             Yaw = carUpdate.Yaw;
             Laps = carUpdate.Laps;
 
-            if(BestLap == null && carUpdate.BestSessionLap != null)
-                BestLap = new LapViewModel();
+            if (BestLap == null && carUpdate.BestSessionLap != null)
+                BestLap = new LapTime();
 
             if (carUpdate.BestSessionLap != null)
                 BestLap.Update(carUpdate.BestSessionLap);
 
             if (LastLap == null && carUpdate.LastLap != null)
-                LastLap = new LapViewModel();
+                LastLap = new LapTime();
 
             if (carUpdate.LastLap != null)
                 LastLap.Update(carUpdate.LastLap);
 
             if (CurrentLap == null && carUpdate.CurrentLap != null)
-                CurrentLap = new LapViewModel();
+                CurrentLap = new LapTime();
 
             if (carUpdate.CurrentLap != null)
                 CurrentLap.Update(carUpdate.CurrentLap);

@@ -254,7 +254,7 @@ namespace CrewChiefV4.ACC
             public String carSkin;
             public int reversedGridPositions;
             public int PitWindowStart;
-            public int PitWindowEnd;            
+            public int PitWindowEnd;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Ansi)]
@@ -270,11 +270,12 @@ namespace CrewChiefV4.ACC
         [Serializable]
         public struct accVehicleInfo
         {
-            public int carId; 
-            public string driverName; 
-            public string carModel; 
-            public float speedMS; 
-            public int bestLapMS; 
+            public int carId;
+            public int isPlayerVehicle;
+            public string driverName;
+            public string carModel;
+            public float speedMS;
+            public int bestLapMS;
             public int lapCount;
             public int currentLapInvalid;
             public int currentLapTimeMS;
@@ -289,14 +290,11 @@ namespace CrewChiefV4.ACC
             public float[] tyreInflation;
         }
 
-        [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Ansi)]
-        [Serializable]
-        public struct SPageFileCrewChief
+        public class SPageFileCrewChief
         {
-            public int numVehicles;
             public int focusVehicle;
             public string serverName;
-            public accVehicleInfo[] vehicle;
+            public accVehicleInfo[] vehicle = new accVehicleInfo[0];
             public byte[] acInstallPath;
             public int isInternalMemoryModuleLoaded;
             public byte[] pluginVersion;

@@ -3,17 +3,15 @@ using System;
 
 namespace ksBroadcastingTestClient.ClientConnections
 {
-    public class ClientPanelViewModel : KSObservableObject
+    internal class ClientPanelViewModel
     {
-        public string IP { get => Get<string>(); set => Set(value); }
-        public int Port { get => Get<int>(); set => Set(value); }
-        public string DisplayName { get => Get<string>(); set => Set(value); }
-        public string ConnectionPw { get => Get<string>(); set => Set(value); }
-        public string CommandPw { get => Get<string>(); set => Set(value); }
-        public int RealtimeUpdateIntervalMS { get => Get<int>(); set => Set(value); }
-
-        public ClientConnectionViewModel ClientConnection { get => Get<ClientConnectionViewModel>(); set => Set(value); }
-
+        public string IP { get; private set; }
+        public int Port { get; private set; }
+        public string DisplayName { get; private set; }
+        public string ConnectionPw { get; private set; }
+        public string CommandPw { get; private set; }
+        public int RealtimeUpdateIntervalMS { get; private set; }
+        public ClientConnectionViewModel ClientConnection { get; private set; }
         public Action<ACCUdpRemoteClient> OnClientConnectedCallback { get; }
 
         public ClientPanelViewModel(string udpIpAddress, Action<ACCUdpRemoteClient> onClientConnectedCallback)
@@ -29,6 +27,11 @@ namespace ksBroadcastingTestClient.ClientConnections
             var c = new ACCUdpRemoteClient(IP, Port, DisplayName, ConnectionPw, CommandPw, RealtimeUpdateIntervalMS);
 
             ClientConnection = new ClientConnectionViewModel(c, OnClientConnectedCallback);
+        }
+
+        internal void RequestEntryList()
+        {
+            ClientConnection.Client.RequestEntryList();
         }
 
         internal void Shutdown()

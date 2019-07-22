@@ -52,7 +52,7 @@ namespace CrewChiefV4.ACC
             float playerXPosition = playerData.worldPosition.x;
             float playerZPosition = playerData.worldPosition.y;
             int playerStartingPosition = playerData.carLeaderboardPosition;
-            int numCars = latestRawData.accChief.numVehicles;
+            int numCars = latestRawData.accChief.vehicle.Length;
             return getGridSideInternal(latestRawData, playerRotation, playerXPosition, playerZPosition, playerStartingPosition, numCars);
         }
 
@@ -83,7 +83,7 @@ namespace CrewChiefV4.ACC
             ACCShared currentState = ((ACCSharedMemoryReader.ACCStructWrapper)currentStateObj).data;
             ACCShared lastState = ((ACCSharedMemoryReader.ACCStructWrapper)lastStateObj).data;
 
-            if (!enabled || currentState.accChief.numVehicles <= 1 ||
+            if (!enabled || currentState.accChief.vehicle.Length <= 1 ||
                 currentState.accGraphic.status == AC_STATUS.AC_REPLAY || currentState.accGraphic.status == AC_STATUS.AC_OFF ||
                 (mapToFloatTime(currentState.accChief.vehicle[0].currentLapTimeMS) < timeAfterRaceStartToActivate &&
                 currentState.accChief.vehicle[0].lapCount <= 0))
@@ -129,7 +129,7 @@ namespace CrewChiefV4.ACC
                 playerVelocityData[1] = (currentPlayerData.worldPosition.x - previousPlayerData.worldPosition.x) / timeDiffSeconds;
                 playerVelocityData[2] = (currentPlayerData.worldPosition.z - previousPlayerData.worldPosition.z) / timeDiffSeconds;
 
-                for (int i = 0; i < currentState.accChief.numVehicles; i++)
+                for (int i = 0; i < currentState.accChief.vehicle.Length; i++)
                 {
                     accVehicleInfo vehicle = currentState.accChief.vehicle[i];
                     if (vehicle.carId == 0 || vehicle.isCarInPit == 1 || vehicle.isCarInPitline == 1 || vehicle.isConnected != 1)

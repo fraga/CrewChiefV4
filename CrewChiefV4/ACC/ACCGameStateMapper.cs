@@ -3,6 +3,7 @@ using CrewChiefV4.Events;
 using CrewChiefV4.GameState;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 /**
  * Maps memory mapped file to a local game-agnostic representation.
@@ -118,7 +119,7 @@ namespace CrewChiefV4.ACC
 
             //        throw new GameDataReadException("Expected python plugin version " + expectedPluginVersion + " but got version " + currentPluginVersion);
             //    }
-                versionChecked = true;
+            versionChecked = true;
             //}
         }
 
@@ -148,23 +149,28 @@ namespace CrewChiefV4.ACC
                 return null;
             }
 
+            // If this is empty then it is because we haven't loaded the players car yet
+            accVehicleInfo playerVehicle = shared.accChief.vehicle.FirstOrDefault(p => p.isPlayerVehicle == 1);
+
+            if (String.IsNullOrEmpty(playerVehicle.driverName))
+                return null;
+
             AC_STATUS status = shared.accGraphic.status;
             if (status == AC_STATUS.AC_REPLAY)
             {
                 CrewChief.trackName = shared.accStatic.track + ":" + shared.accStatic.trackConfiguration;
                 CrewChief.carClass = CarData.getCarClassForClassName(shared.accStatic.carModel).carClassEnum;
                 CrewChief.viewingReplay = true;
-                CrewChief.distanceRoundTrack = (shared.accChief.vehicle?.Length ?? 0) == 0 ? 0 : spLineLengthToDistanceRoundTrack(shared.accChief.trackLength, shared.accChief.vehicle[0].spLineLength);
+                CrewChief.distanceRoundTrack = (shared.accChief.vehicle?.Length ?? 0) == 0 ? 0 : spLineLengthToDistanceRoundTrack(shared.accChief.trackLength, playerVehicle.spLineLength);
             }
 
-            if (status == AC_STATUS.AC_REPLAY || status == AC_STATUS.AC_OFF || shared.accChief.numVehicles <= 0)
+            if (status == AC_STATUS.AC_REPLAY || status == AC_STATUS.AC_OFF || shared.accChief.vehicle.Length <= 0)
             {
                 return previousGameState;
             }
-            accVehicleInfo playerVehicle = shared.accChief.vehicle[0];
 
             Boolean isOnline = shared.accChief.serverName.Length > 0;
-            Boolean isSinglePlayerPracticeSession = shared.accChief.numVehicles == 1 && !isOnline && shared.accGraphic.session == AC_SESSION_TYPE.AC_PRACTICE;
+            Boolean isSinglePlayerPracticeSession = shared.accChief.vehicle.Length == 1 && !isOnline && shared.accGraphic.session == AC_SESSION_TYPE.AC_PRACTICE;
             float distanceRoundTrack = spLineLengthToDistanceRoundTrack(shared.accChief.trackLength, playerVehicle.spLineLength);
 
             currentGameState.SessionData.TrackDefinition = new TrackDefinition(shared.accStatic.track, shared.accChief.trackLength);
@@ -257,7 +263,7 @@ namespace CrewChiefV4.ACC
                 }
             }
 
-            int realTimeLeaderBoardValid = isCarRealTimeLeaderBoardValid(shared.accChief.vehicle, shared.accChief.numVehicles);
+            int realTimeLeaderBoardValid = isCarRealTimeLeaderBoardValid(shared.accChief.vehicle, shared.accChief.vehicle.Length);
             AC_FLAG_TYPE currentFlag = shared.accGraphic.flag;
             if (sessionType == AC_SESSION_TYPE.AC_PRACTICE || sessionType == AC_SESSION_TYPE.AC_QUALIFY)
             {
@@ -304,10 +310,6 @@ namespace CrewChiefV4.ACC
                         lastSessionTrack == null || lastSessionTrack.name != currentGameState.SessionData.TrackDefinition.name ||
                             (currentGameState.SessionData.SessionHasFixedTime && sessionTimeRemaining > lastSessionTimeRemaining + 1))))
             {
-                // Seriously crappy but we can see how we can improve it when Kunos give me the extra data
-                // Prevents a opposition count mismaptch when te player changes racing opponents or selects a practice mode
-                wrapper.ResetSession();
-
                 System.Diagnostics.Debug.WriteLine("New session, trigger...");
                 if (sessionOfSameTypeRestarted)
                 {
@@ -371,7 +373,7 @@ namespace CrewChiefV4.ACC
                 // no tyre data in the block so get the default tyre types for this car
                 defaultTyreTypeForPlayersCar = CarData.getDefaultTyreType(currentGameState.carClass);
 
-                for (int i = 0; i < shared.accChief.numVehicles; i++)
+                for (int i = 0; i < shared.accChief.vehicle.Length; i++)
                 {
                     accVehicleInfo participantStruct = shared.accChief.vehicle[i];
                     if (participantStruct.isConnected == 1)
@@ -434,7 +436,7 @@ namespace CrewChiefV4.ACC
                         }
                         lapCountAtSector1End = -1;
                         currentGameState.SessionData.LeaderHasFinishedRace = false;
-                        currentGameState.SessionData.NumCarsOverallAtStartOfSession = shared.accChief.numVehicles;
+                        currentGameState.SessionData.NumCarsOverallAtStartOfSession = shared.accChief.vehicle.Length;
                         currentGameState.SessionData.TrackDefinition = TrackData.getTrackDefinition(shared.accStatic.track + ":" + shared.accStatic.trackConfiguration, shared.accChief.trackLength, shared.accStatic.sectorCount);
                         if (currentGameState.SessionData.TrackDefinition.unknownTrack)
                         {
@@ -669,7 +671,7 @@ namespace CrewChiefV4.ACC
                 {
                     currentGameState.SessionData.YellowFlagStartTime = currentGameState.Now;
                 }*/
-                currentGameState.SessionData.NumCarsOverall = shared.accChief.numVehicles;
+                currentGameState.SessionData.NumCarsOverall = shared.accChief.vehicle.Length;
 
                 /*previousGameState != null && previousGameState.SessionData.IsNewLap == false &&
                     (shared.acsGraphic.completedLaps == previousGameState.SessionData.CompletedLaps + 1 || ((lastSessionPhase == SessionPhase.Countdown)
@@ -697,7 +699,7 @@ namespace CrewChiefV4.ACC
                 // get all the duplicate names
                 List<string> driversToBeProcessed = new List<string>();
                 List<string> duplicateNames = new List<string>();
-                for (int i = 0; i < shared.accChief.numVehicles; i++)
+                for (int i = 0; i < shared.accChief.vehicle.Length; i++)
                 {
                     String participantName = shared.accChief.vehicle[i].driverName.ToLower();
                     if (driversToBeProcessed.Contains(participantName))
@@ -713,7 +715,7 @@ namespace CrewChiefV4.ACC
                     }
                 }
 
-                for (int i = 0; i < shared.accChief.numVehicles; i++)
+                for (int i = 0; i < shared.accChief.vehicle.Length; i++)
                 {
                     accVehicleInfo participantStruct = shared.accChief.vehicle[i];
 

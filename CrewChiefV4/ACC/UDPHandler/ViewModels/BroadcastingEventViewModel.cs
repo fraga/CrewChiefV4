@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace ksBroadcastingTestClient.Broadcasting
 {
-    public class BroadcastingEventViewModel
+    internal class BroadcastingEventViewModel
     {
         private readonly object _Lock = new object();
         private readonly List<BroadcastingEvent> _Events = new List<BroadcastingEvent>();

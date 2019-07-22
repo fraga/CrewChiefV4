@@ -63,7 +63,7 @@ namespace ksBroadcastingNetwork
                 {
                     if (_client != null)
                     {
-                        /*try { _client.Dispose(); } catch { }*/
+                        try { _client.Close(); } catch { }
                     }
 
                     _client = new UdpClient();
@@ -84,9 +84,19 @@ namespace ksBroadcastingNetwork
             client.Send(payload, payload.Length);
         }
 
-        public void Shutdown()
+        internal void Shutdown()
         {
             allowRun = false;
+
+            if (_client != null)
+            {
+                try { _client.Close(); } catch { }
+            }
+        }
+
+        internal void RequestEntryList()
+        {
+            MessageHandler.RequestEntryList();
         }
 
         private void ConnectAndRun()
@@ -117,7 +127,7 @@ namespace ksBroadcastingNetwork
 
                         if (udpReceiveTask.Status == TaskStatus.WaitingForActivation)
                         {
-                            /*try { client.Dispose(); } catch { }*/
+                            try { client.Close(); } catch { }
                             _client = null;
                         }
                         else
@@ -148,42 +158,25 @@ namespace ksBroadcastingNetwork
         }
 
         #region IDisposable Support
-        private bool disposedValue = false; // To detect redundant calls
-
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposedValue)
+            if (disposing)
             {
-                if (disposing)
+                try
                 {
-                    try
+                    if (_client != null)
                     {
-                        if (_client != null)
-                        {
-                            _client.Close();
-                            //_client.Dispose();
-                            _client = null;
-                        }
+                        _client.Close();
+                        _client = null;
+                    }
 
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine(ex);
-                    }
                 }
-
-                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-                // TODO: set large fields to null.
-
-                disposedValue = true;
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex);
+                }
             }
         }
-
-        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-        // ~ACCUdpRemoteClient() {
-        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-        //   Dispose(false);
-        // }
 
         // This code added to correctly implement the disposable pattern.
         public void Dispose()

@@ -3,15 +3,15 @@ using ksBroadcastingNetwork;
 
 namespace ksBroadcastingTestClient.ClientConnections
 {
-    public class ClientConnectionViewModel : KSObservableObject
+    internal class ClientConnectionViewModel
     {
         public string IPort => Client.IpPort;
         public ACCUdpRemoteClient Client { get; }
         public Action<ACCUdpRemoteClient> OnClientConnectedCallback { get; }
-        public int ConnectionId { get => Get<int>(); set => Set(value); }
-        public bool Connected { get => Get<bool>(); set => Set(value); }
-        public bool IsReadonly { get => Get<bool>(); set => Set(value); }
-        public string ErrorMessage { get => Get<string>(); set => Set(value); }
+        public int ConnectionId { get; private set; }
+        public bool Connected { get; private set; }
+        public bool IsReadonly { get; private set; }
+        public string ErrorMessage { get; private set; }
 
         public ClientConnectionViewModel(ACCUdpRemoteClient c, Action<ACCUdpRemoteClient> onClientConnectedCallback)
         {

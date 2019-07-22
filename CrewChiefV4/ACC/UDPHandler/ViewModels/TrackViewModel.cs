@@ -2,7 +2,7 @@
 
 namespace ksBroadcastingTestClient.Broadcasting
 {
-    public class TrackViewModel : KSObservableObject
+    public class TrackViewModel
     {
         public int TrackId { get; private set; }
         public float TrackMeters { get; private set; }

@@ -2,16 +2,15 @@
 using ksBroadcastingNetwork.Structs;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 
 namespace ksBroadcastingTestClient.Broadcasting
 {
-    public class BroadcastingViewModel : KSObservableObject
+    internal class BroadcastingViewModel
     {
-        public ObservableCollection<CarViewModel> Cars { get; } = new ObservableCollection<CarViewModel>();
-        public TrackViewModel TrackVM { get => Get<TrackViewModel>(); private set => Set(value); }
+        public List<CarViewModel> Cars { get; set; } = new List<CarViewModel>();
+        public TrackViewModel TrackVM { get; set; }
         public BroadcastingEventViewModel EventVM { get; } = new BroadcastingEventViewModel();
 
         private List<BroadcastingNetworkProtocol> _clients = new List<BroadcastingNetworkProtocol>();
@@ -106,7 +105,7 @@ namespace ksBroadcastingTestClient.Broadcasting
 
         private void MessageHandler_OnBroadcastingEvent(string sender, BroadcastingEvent evt)
         {
-             EventVM.Add(evt);
+            EventVM.Add(evt);
         }
     }
 }

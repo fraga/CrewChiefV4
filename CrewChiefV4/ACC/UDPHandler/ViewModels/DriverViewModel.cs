@@ -4,17 +4,17 @@ using System.Linq;
 
 namespace ksBroadcastingTestClient.Broadcasting
 {
-    public class DriverViewModel : KSObservableObject
+    public class DriverViewModel
     {
         public int DriverIndex { get; }
-        public string FirstName { get => Get<string>(); private set => Set(value); }
-        public string LastName { get => Get<string>(); private set => Set(value); }
-        public string ShortName { get => Get<string>(); private set => Set(value); }
-        public string DisplayName { get => Get<string>(); private set => Set(value); }
-        public DriverCategory Category { get => Get<DriverCategory>(); private set => Set(value); }
+        public string FirstName { get; private set; }
+        public string LastName { get; private set; }
+        public string ShortName { get; private set; }
+        public string DisplayName { get; private set; }
+        public DriverCategory Category { get; private set; }
 
 
-        public DriverViewModel(DriverInfo driverUpdate, int driverIndex)
+        internal DriverViewModel(DriverInfo driverUpdate, int driverIndex)
         {
             DriverIndex = driverIndex;
             FirstName = driverUpdate.FirstName;

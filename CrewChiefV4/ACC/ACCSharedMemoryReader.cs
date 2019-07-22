@@ -2,6 +2,8 @@
 using ksBroadcastingNetwork;
 using ksBroadcastingNetwork.Structs;
 using ksBroadcastingTestClient;
+using ksBroadcastingTestClient.Broadcasting;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -41,23 +43,14 @@ namespace CrewChiefV4.ACC
         private String lastReadFileName = null;
         private ACCStructWrapper previousAACStructWrapper; // Used when no data is comming in. EG: game is paused
         private float ackPenalityTime;
+        private bool checkedUdpConfig;
 
         public class ACCStructWrapper
         {
             public long ticksWhenRead;
             public ACCShared data;
-
-            public void ResetSession()
-            {
-                System.Diagnostics.Debug.WriteLine("RESET CALLED: " + DateTime.Now.ToString("HH:mm:ss.fff"));
-
-                if (udpUpdateViewModel != null)
-                {
-                    udpUpdateViewModel.Shutdown();
-                    udpUpdateViewModel = null;
-                }
-            }
         }
+
         public override void DumpRawGameData()
         {
             if (dumpToFile && dataToDump != null && dataToDump.Count > 0 && filenameToDump != null)
@@ -109,6 +102,50 @@ namespace CrewChiefV4.ACC
                 {
                     try
                     {
+                        if (!checkedUdpConfig)
+                        {
+                            checkedUdpConfig = true;
+                            var broadcastJsonPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Assetto Corsa Competizione\Config\broadcasting.json");
+
+                            try
+                            {
+                                if (!File.Exists(broadcastJsonPath))
+                                    throw new ApplicationException();
+
+                                dynamic broadcastingJson = null;
+
+                                // My file was unicode. But it might change depending on what users edit it with. I think one of these should work.
+                                try { broadcastingJson = JObject.Parse(File.ReadAllText(broadcastJsonPath, Encoding.Unicode)); } catch { }
+
+                                if (broadcastingJson == null)
+                                    try { broadcastingJson = JObject.Parse(File.ReadAllText(broadcastJsonPath, Encoding.UTF8)); } catch { }
+
+                                if (broadcastingJson == null)
+                                    try { broadcastingJson = JObject.Parse(File.ReadAllText(broadcastJsonPath, Encoding.ASCII)); } catch { }
+
+                                if (broadcastingJson == null)
+                                    throw new ApplicationException();
+
+                                if (broadcastingJson.updListenerPort != 9000 ||
+                                    broadcastingJson.connectionPassword != "asd" ||
+                                    broadcastingJson.commandPassword != "")
+                                    throw new ApplicationException();
+                            }
+                            catch
+                            {
+                                Console.WriteLine("****************************************************");
+                                Console.WriteLine("The Broadcasting.json file is missing or not configured correctly.");
+                                Console.WriteLine($"The file is located at {broadcastJsonPath}.");
+                                Console.WriteLine("Crew Chief will not run correctly until the file contains the following (between and including the curly braces):\r\n" + 
+                                                  "{\n" +
+                                                  "    \"updListenerPort\": 9000,\n" + 
+                                                  "    \"connectionPassword\": \"asd\",\n" + 
+                                                  "    \"commandPassword\": \"\"\n" + 
+                                                  "}\n");
+                                Console.WriteLine("****************************************************");
+                            }
+                        }
+
                         memoryMappedPhysicsFile = MemoryMappedFile.OpenExisting(accConstant.SharedMemoryNamePhysics);
                         sharedmemoryPhysicssize = Marshal.SizeOf(typeof(SPageFilePhysics));
                         sharedMemoryPhysicsReadBuffer = new byte[sharedmemoryPhysicssize];
@@ -120,6 +157,8 @@ namespace CrewChiefV4.ACC
                         memoryMappedStaticFile = MemoryMappedFile.OpenExisting(accConstant.SharedMemoryNameStatic);
                         sharedmemoryStaticsize = Marshal.SizeOf(typeof(SPageFileStatic));
                         sharedMemoryStaticReadBuffer = new byte[sharedmemoryStaticsize];
+
+                        udpUpdateViewModel = new UdpUpdateViewModel(UserSettings.GetUserSettings().getString(accConstant.SettingMachineIpAddress));
 
                         initialised = true;
                         Console.WriteLine("Initialised Assetto Corsa Competizione shared memory");
@@ -151,16 +190,13 @@ namespace CrewChiefV4.ACC
                 }
                 try
                 {
-                    if (!forSpotter)
+                    using (var sharedMemoryStreamView = memoryMappedStaticFile.CreateViewStream())
                     {
-                        using (var sharedMemoryStreamView = memoryMappedStaticFile.CreateViewStream())
-                        {
-                            BinaryReader _SharedMemoryStream = new BinaryReader(sharedMemoryStreamView);
-                            sharedMemoryStaticReadBuffer = _SharedMemoryStream.ReadBytes(sharedmemoryStaticsize);
-                            handleStatic = GCHandle.Alloc(sharedMemoryStaticReadBuffer, GCHandleType.Pinned);
-                            accShared.accStatic = (SPageFileStatic)Marshal.PtrToStructure(handleStatic.AddrOfPinnedObject(), typeof(SPageFileStatic));
-                            handleStatic.Free();
-                        }
+                        BinaryReader _SharedMemoryStream = new BinaryReader(sharedMemoryStreamView);
+                        sharedMemoryStaticReadBuffer = _SharedMemoryStream.ReadBytes(sharedmemoryStaticsize);
+                        handleStatic = GCHandle.Alloc(sharedMemoryStaticReadBuffer, GCHandleType.Pinned);
+                        accShared.accStatic = (SPageFileStatic)Marshal.PtrToStructure(handleStatic.AddrOfPinnedObject(), typeof(SPageFileStatic));
+                        handleStatic.Free();
                     }
                     using (var sharedMemoryStreamView = memoryMappedGraphicFile.CreateViewStream())
                     {
@@ -180,28 +216,30 @@ namespace CrewChiefV4.ACC
                         handlePhysics.Free();
                     }
 
+                    accShared.accChief = new SPageFileCrewChief();
+
                     ACCStructWrapper structWrapper = new ACCStructWrapper();
                     structWrapper.ticksWhenRead = DateTime.UtcNow.Ticks;
 
+                    var isFetchingCars = udpUpdateViewModel.BroadcastingVM.Cars.Count == 0;
+
+                    if (!isFetchingCars && accShared.accStatic.numCars != udpUpdateViewModel.BroadcastingVM.Cars.Count)
+                    {
+                        if (udpUpdateViewModel.BroadcastingVM.Cars.Count != 0)
+                        {
+                            isFetchingCars = true;
+                            System.Diagnostics.Debug.WriteLine("Requesting new car list.");
+                            udpUpdateViewModel.ClientPanelVM.RequestEntryList();
+                        }
+                    }
+
                     // Send the previous state if the game is paused to prevent bogus track temp and other warnings on unpausing
-                    if (accShared.accPhysics.airTemp == 0 && accShared.accPhysics.roadTemp == 0 && accShared.accPhysics.fuel == 0 && accShared.accPhysics.heading == 0 && accShared.accPhysics.pitch == 0)
+                    if (isFetchingCars || accShared.accPhysics.airTemp == 0 && accShared.accPhysics.roadTemp == 0 && accShared.accPhysics.fuel == 0 && accShared.accPhysics.heading == 0 && accShared.accPhysics.pitch == 0)
                         return previousAACStructWrapper ?? structWrapper;
 
                     // Tyre missing data fixups
                     accShared.accPhysics.tyreTempI = accShared.accPhysics.tyreTempM;
                     accShared.accPhysics.tyreTempO = accShared.accPhysics.tyreTempM;
-
-                    if (udpUpdateViewModel == null)
-                    {
-                        System.Diagnostics.Debug.WriteLine("INITIALISING: " + DateTime.Now.ToString("HH:mm:ss.fff"));
-                        udpUpdateViewModel = new UdpUpdateViewModel(UserSettings.GetUserSettings().getString(accConstant.SettingMachineIpAddress), () =>
-                        {
-                            accShared.accChief.numVehicles = 0;
-                            accShared.accChief.vehicle = new accVehicleInfo[0];
-                            System.Diagnostics.Debug.WriteLine("ONRESET INVOKED: " + DateTime.Now.ToString("HH:mm:ss.fff"));
-                        });
-                        System.Diagnostics.Debug.WriteLine("INITIALISED: " + DateTime.Now.ToString("HH:mm:ss.fff"));
-                    }
 
                     structWrapper.data = accShared;
 
@@ -210,7 +248,7 @@ namespace CrewChiefV4.ACC
                         dataToDump.Add(structWrapper);
                     }
 
-                    structWrapper.data.accStatic.isTimedRace = udpUpdateViewModel.SessionInfoVM.RemainingTime == "∞" ? 0: 1;
+                    structWrapper.data.accStatic.isTimedRace = udpUpdateViewModel.SessionInfoVM.RemainingTime.TotalMilliseconds > 0 ? 1 : 0;
 
                     // New penality?
                     if (structWrapper.data.accGraphic.penaltyTime != ackPenalityTime)
@@ -229,15 +267,15 @@ namespace CrewChiefV4.ACC
 
                         foreach (var evt in events)
                         {
-                            //GreenFlag = 1,
-                            //SessionOver = 2,
-                            //PenaltyCommMsg = 3,
-                            //Accident = 4,
-                            //LapCompleted = 5,
-                            //BestSessionLap = 6,
-                            //BestPersonalLap = 7
+                        //GreenFlag = 1,
+                        //SessionOver = 2,
+                        //PenaltyCommMsg = 3,
+                        //Accident = 4,
+                        //LapCompleted = 5,
+                        //BestSessionLap = 6,
+                        //BestPersonalLap = 7
 
-                            Console.WriteLine($"Event: {evt.Type.ToString()} - {evt.Msg}");
+                        Console.WriteLine($"Event: {evt.Type.ToString()} - {evt.Msg}");
                         }
 
                         switch (udpUpdateViewModel.SessionInfoVM.SessionType)
@@ -261,13 +299,6 @@ namespace CrewChiefV4.ACC
                                 structWrapper.data.accGraphic.session = AC_SESSION_TYPE.AC_HOTLAP;
                                 break;
                         }
-                        structWrapper.data.accChief.serverName = ""; // udpUpdateViewModel.BroadcastingVM.EventVM.Evt.;
-
-                        structWrapper.data.accChief.numVehicles = udpUpdateViewModel.BroadcastingVM.Cars.Count;
-                        structWrapper.data.accChief.isInternalMemoryModuleLoaded = 1;
-                        structWrapper.data.accChief.vehicle = new accVehicleInfo[structWrapper.data.accChief.numVehicles];
-                        structWrapper.data.accChief.trackLength = udpUpdateViewModel.BroadcastingVM.TrackVM?.TrackMeters ?? 0;
-                        structWrapper.data.accChief.isRaining = udpUpdateViewModel.SessionInfoVM.RainInfo != "Clear";
 
                         switch (udpUpdateViewModel.SessionInfoVM.Phase)
                         {
@@ -293,6 +324,15 @@ namespace CrewChiefV4.ACC
                                 break;
                         }
 
+                        structWrapper.data.accChief.serverName = ""; // udpUpdateViewModel.BroadcastingVM.EventVM.Evt.;
+
+                    structWrapper.data.accChief.isInternalMemoryModuleLoaded = 1;
+                        structWrapper.data.accChief.trackLength = udpUpdateViewModel.BroadcastingVM.TrackVM?.TrackMeters ?? 0;
+                        structWrapper.data.accChief.isRaining = udpUpdateViewModel.SessionInfoVM.RainLevel < 0.1 && udpUpdateViewModel.SessionInfoVM.WetnessLevel < 0.1;
+                        structWrapper.data.accChief.vehicle = new accVehicleInfo[structWrapper.data.accStatic.numCars];
+
+                        var playerVehicle = getPlayerVehicle(udpUpdateViewModel.BroadcastingVM.Cars, accShared.accStatic);
+
                         for (var i = 0; i < udpUpdateViewModel.BroadcastingVM.Cars.Count; i++)
                         {
                             var car = udpUpdateViewModel.BroadcastingVM.Cars[i];
@@ -307,10 +347,11 @@ namespace CrewChiefV4.ACC
                                 carId = car.CarIndex,
                                 carLeaderboardPosition = car.Position,
                                 carModel = structWrapper.data.accStatic.carModel, //car.CarModelEnum?
-                                carRealTimeLeaderboardPosition = car.Position,
+                            carRealTimeLeaderboardPosition = car.Position,
                                 currentLapInvalid = (currentLap?.IsValid ?? false) ? 0 : 1,
                                 currentLapTimeMS = currentLap?.LaptimeMS ?? 0,
-                                driverName = car.CurrentDriver?.DisplayName ?? "",
+                                isPlayerVehicle = (playerVehicle != null && playerVehicle.CarIndex == car.CarIndex) ? 1 : 0,
+                                driverName = (playerVehicle.CurrentDriver ?? car.Drivers.First()).DisplayName,
                                 isCarInPit = (car.CarLocation == CarLocationEnum.PitEntry || car.CarLocation == CarLocationEnum.PitExit || car.CarLocation == CarLocationEnum.Pitlane) ? 1 : 0,
                                 isCarInPitline = (car.CarLocation == CarLocationEnum.Pitlane) ? 1 : 0,
                                 isConnected = 1,
@@ -333,6 +374,20 @@ namespace CrewChiefV4.ACC
                     throw new GameDataReadException(ex.Message, ex);
                 }
             }
+        }
+
+        private CarViewModel getPlayerVehicle(List<CarViewModel> cars, SPageFileStatic accStatic)
+        {
+            foreach (var car in cars)
+            {
+                foreach (var driver in car.Drivers)
+                {
+                    if (accStatic.playerName + " " + accStatic.playerSurname == driver.DisplayName)
+                        return car;
+                }
+            }
+
+            return null;
         }
 
         private accVehicleInfo[] getPopulatedDriverDataArray(accVehicleInfo[] raw)
