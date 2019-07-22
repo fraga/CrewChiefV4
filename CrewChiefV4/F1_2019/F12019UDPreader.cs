@@ -196,7 +196,7 @@ namespace CrewChiefV4.F1_2019
 
         private int readFromOffset(int offset, byte[] rawData)
         {
-            e_PacketId packetId = (e_PacketId) rawData[3];
+            e_PacketId packetId = (e_PacketId) rawData[5];
             int frameLength = getFrameLength(packetId);
             if (frameLength > 0)
             {
