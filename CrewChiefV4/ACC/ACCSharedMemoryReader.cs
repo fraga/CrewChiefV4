@@ -341,17 +341,21 @@ namespace CrewChiefV4.ACC
                             var lastLap = car.LastLap;
                             var bestLap = car.BestLap;
 
+                            int carIsPlayerVehicle = playerVehicle != null && playerVehicle.CarIndex == car.CarIndex ? 1 : 0;
+                            string carDriverName = car.Drivers.Count > 0 ? car.Drivers.First().DisplayName : "";
                             structWrapper.data.accChief.vehicle[i] = new accVehicleInfo
                             {
                                 bestLapMS = (bestLap?.IsValid ?? false) ? bestLap.LaptimeMS ?? 0 : 0,
                                 carId = car.CarIndex,
                                 carLeaderboardPosition = car.Position,
+                                // JB: we'll need to map the CarModelEnum here to something sensible. This code will mean the app assumes opponents
+                                // are all racing the same car as the player. This is OK for the time being as ACC is single-class only
                                 carModel = structWrapper.data.accStatic.carModel, //car.CarModelEnum?
-                            carRealTimeLeaderboardPosition = car.Position,
+                                carRealTimeLeaderboardPosition = car.Position,
                                 currentLapInvalid = (currentLap?.IsValid ?? false) ? 0 : 1,
                                 currentLapTimeMS = currentLap?.LaptimeMS ?? 0,
-                                isPlayerVehicle = (playerVehicle != null && playerVehicle.CarIndex == car.CarIndex) ? 1 : 0,
-                                driverName = (playerVehicle.CurrentDriver ?? car.Drivers.First()).DisplayName,
+                                isPlayerVehicle = carIsPlayerVehicle,
+                                driverName = carDriverName,
                                 isCarInPit = (car.CarLocation == CarLocationEnum.PitEntry || car.CarLocation == CarLocationEnum.PitExit || car.CarLocation == CarLocationEnum.Pitlane) ? 1 : 0,
                                 isCarInPitline = (car.CarLocation == CarLocationEnum.Pitlane) ? 1 : 0,
                                 isConnected = 1,
@@ -360,7 +364,7 @@ namespace CrewChiefV4.ACC
                                 speedMS = car.Kmh * 0.277778f,
                                 spLineLength = car.SplinePosition,
                                 worldPosition = new accVec3 { x = car.WorldX, z = car.WorldY },
-                                tyreInflation = i == 0 ? accShared.accPhysics.wheelsPressure : new float[4]
+                                tyreInflation = carIsPlayerVehicle == 1 ? accShared.accPhysics.wheelsPressure : new float[4]
                             };
                         }
                     }).Wait();
