@@ -393,16 +393,19 @@ namespace CrewChiefV4.ACC
         private accVehicleInfo[] getPopulatedDriverDataArray(accVehicleInfo[] raw)
         {
             List<accVehicleInfo> populated = new List<accVehicleInfo>();
-            foreach (accVehicleInfo rawData in raw)
+            if (raw != null && raw.Count() > 0)
             {
-                if (rawData.carLeaderboardPosition > 0)
+                foreach (accVehicleInfo rawData in raw)
                 {
-                    populated.Add(rawData);
+                    if (rawData.carLeaderboardPosition > 0)
+                    {
+                        populated.Add(rawData);
+                    }
                 }
-            }
-            if (populated.Count == 0)
-            {
-                populated.Add(raw[0]);
+                if (populated.Count == 0)
+                {
+                    populated.Add(raw[0]);
+                }
             }
             return populated.ToArray();
         }
