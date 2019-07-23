@@ -248,7 +248,8 @@ namespace CrewChiefV4.Events
                 driverToFollow = shouldFollowSafetyCar ? (useAmericanTerms ? folderThePaceCar : folderTheSafetyCar) : (useCarNumber ? cfod.CarNumberToFollowRaw : cfod.DriverToFollowRaw);
             }
 
-            if (cfodp == FrozenOrderPhase.Rolling)
+            if (cfodp == FrozenOrderPhase.Rolling
+                && cfod.Action != FrozenOrderAction.None)
             {
                 var prevDriverToFollow = this.currDriverToFollow;
                 var prevFrozenOrderAction = this.currFrozenOrderAction;
@@ -262,7 +263,6 @@ namespace CrewChiefV4.Events
                     this.currDriverToFollow = this.newDriverToFollow;
                     this.currFrozenOrderColumn = this.newFrozenOrderColumn;
 
-
                     // canReadDriverToFollow will be true if we're behind the safety car or we can read the driver's name:
                     var canReadDriverToFollow = shouldFollowSafetyCar || useCarNumber || AudioPlayer.canReadName(driverToFollow);
 
@@ -270,9 +270,7 @@ namespace CrewChiefV4.Events
 
                     // special case for a single leading zero - only play it if we have to - e.g. there is a car using number 023 and one using number 23
                     if (useCarNumber && leadingZeros && leadingZerosKey == zeroKey)
-                    {
-                        leadingZeros = shouldUseLeadingZeros(carNumber, currentGameState.getCarNumbers());
-                    }
+                        leadingZeros = this.ShouldUseLeadingZeros(carNumber, currentGameState.getCarNumbers());
                     
                     var validationData = new Dictionary<string, object>();
                     validationData.Add(FrozenOrderMonitor.validateMessageTypeKey, FrozenOrderMonitor.validateMessageTypeAction);
@@ -394,7 +392,6 @@ namespace CrewChiefV4.Events
             }
             else if (cfodp == FrozenOrderPhase.FullCourseYellow && CrewChief.gameDefinition.gameEnum == GameEnum.IRACING)
             {
-                                                               
                 var prevDriverToFollow = this.currDriverToFollow;
                 var prevFrozenOrderColumn = this.currFrozenOrderColumn;
 
@@ -415,19 +412,16 @@ namespace CrewChiefV4.Events
 
                 // special case for a single leading zero - only play it if we have to - e.g. there is a car using number 023 and one using number 23
                 if (useCarNumber && leadingZeros && leadingZerosKey == zeroKey)
-                {
-                    leadingZeros = shouldUseLeadingZeros(carNumber, currentGameState.getCarNumbers());
-                }
+                    leadingZeros = this.ShouldUseLeadingZeros(carNumber, currentGameState.getCarNumbers());
 
                 var validationData = new Dictionary<string, object>();
                 validationData.Add(FrozenOrderMonitor.validateMessageTypeKey, FrozenOrderMonitor.validateMessageTypeAction);
                 validationData.Add(FrozenOrderMonitor.validationActionKey, cfod.Action);
                 validationData.Add(FrozenOrderMonitor.validationAssignedPositionKey, cfod.AssignedPosition);
                 validationData.Add(FrozenOrderMonitor.validationDriverToFollowKey, cfod.DriverToFollowRaw);
-                //Console.WriteLine("this.newFrozenOrderAction = " + this.newFrozenOrderAction + " this.newDriverToFollow = " + this.newDriverToFollow);
+
                 if ((this.newFrozenOrderAction == FrozenOrderAction.Follow || this.newFrozenOrderAction == FrozenOrderAction.CatchUp) && prevDriverToFollow != this.newDriverToFollow)
                 {
-                    
                     int delay = Utilities.random.Next(0, 3);
                     if (cgs.SafetyCarData.fcySafetyCarCallsEnabled && !pgs.SafetyCarData.isOnTrack && cgs.SafetyCarData.isOnTrack)
                     {
@@ -482,7 +476,8 @@ namespace CrewChiefV4.Events
                     }
                 }
             }
-            else if (cfodp == FrozenOrderPhase.FullCourseYellow)
+            else if (cfodp == FrozenOrderPhase.FullCourseYellow
+                && cfod.Action != FrozenOrderAction.None)
             {
                 var prevDriverToFollow = this.currDriverToFollow;
                 var prevFrozenOrderColumn = this.currFrozenOrderColumn;
@@ -571,7 +566,8 @@ namespace CrewChiefV4.Events
                     }
                 }
             }
-            else if (cfodp == FrozenOrderPhase.FormationStanding)
+            else if (cfodp == FrozenOrderPhase.FormationStanding
+                && cfod.Action != FrozenOrderAction.None)
             {
                 string columnName = null;
                 if (cfod.AssignedColumn != FrozenOrderColumn.None)
@@ -680,7 +676,7 @@ namespace CrewChiefV4.Events
         }
 
         // double check if we can use leading zero(s)
-        private Boolean shouldUseLeadingZeros(int carNumber, HashSet<string> carNumbers)
+        private Boolean ShouldUseLeadingZeros(int carNumber, HashSet<string> carNumbers)
         {
             // check to see if we want to add a leading zero - the 'correct' way to announce the car number is to always honour the leading
             // zeros, but in cases where there's only 1 leading zero and the number isn't ambiguous, we override this. This is because

@@ -130,6 +130,7 @@ namespace CrewChiefV4.rFactor2
         private DateTime timeLSIMessageIgnored = DateTime.MinValue;
         private int numFODetectPhaseAttempts = 0;
         private const int maxFormationStandingCheckAttempts = 5;
+        private bool safetyCarLeft = false;
 
         public RF2GameStateMapper()
         {
@@ -237,6 +238,7 @@ namespace CrewChiefV4.rFactor2
             this.timeHistoryMessageIgnored = DateTime.MinValue;
             this.timeLSIMessageIgnored = DateTime.MinValue;
             this.numFODetectPhaseAttempts = 0;
+            this.safetyCarLeft = false;
             this.lastHistoryMessageUpdatedTicks = 0L;
     }
 
@@ -2713,7 +2715,7 @@ namespace CrewChiefV4.rFactor2
                 vehicleTelemetry.mWheels[i].mTemperature = new double[3];
         }
 
-        private FrozenOrderData GetFrozenOrderData(FrozenOrderData prevFrozenOrderData, ref rF2VehicleScoring vehicle, ref rF2Scoring scoring, 
+        private FrozenOrderData GetFrozenOrderData(FrozenOrderData prevFrozenOrderData, ref rF2VehicleScoring vehicle, ref rF2Scoring scoring,
             ref rF2TrackRulesParticipant vehicleRules, ref rF2Rules rules, ref rF2Extended extended, float vehicleSpeedMS)
         {
             var fod = new FrozenOrderData();
@@ -2723,6 +2725,7 @@ namespace CrewChiefV4.rFactor2
                 && scoring.mScoringInfo.mGamePhase != (int)rFactor2Constants.rF2GamePhase.FullCourseYellow)
             {
                 this.numFODetectPhaseAttempts = 0;
+                this.safetyCarLeft = false;
                 return fod;
             }
 
@@ -2809,6 +2812,14 @@ namespace CrewChiefV4.rFactor2
             if (fod.Phase == FrozenOrderPhase.None)
                 return fod;  // Wait a bit, there's a delay for string based phases.
 
+            if (this.safetyCarLeft)
+            {
+                // Afer SC left, disable order messages.  This is not perfect, because there might be useful data, but it is an attempt
+                // to suppress weird messages during Rolling start, when pit lane is long.  Still did not get exact repro, will have to revisit.
+                Debug.Assert(fod.Action == FrozenOrderAction.None);
+                return fod;
+            }
+
             var useSCRules = GlobalBehaviourSettings.useAmericanTerms && extended.mDirectMemoryAccessEnabled != 0 && extended.mSCRPluginEnabled != 0;
             if (vehicleRules.mPositionAssignment != -1)
             {
@@ -2893,35 +2904,30 @@ namespace CrewChiefV4.rFactor2
                     }
                 }
                 else
-                    toFollowDist = ((vehicle.mTotalLaps - vehicleRules.mRelativeLaps)  * scoring.mScoringInfo.mLapDist) + rules.mTrackRules.mSafetyCarLapDist;
+                    toFollowDist = ((vehicle.mTotalLaps - vehicleRules.mRelativeLaps) * scoring.mScoringInfo.mLapDist) + rules.mTrackRules.mSafetyCarLapDist;
 
                 if (fod.Phase == FrozenOrderPhase.Rolling
                     && followSC
                     && rules.mTrackRules.mSafetyCarExists == 0)
                 {
-                    // Don't assign any SC action if car is not active.  This is to handle case with long pitlane and
-                    // car leaving before the srace restart.
-                    if (rules.mTrackRules.mSafetyCarActive == 1)
+                    // Find distance to car next to us if we're in pole.
+                    var neighborDist = -1.0;
+                    for (int i = 0; i < scoring.mScoringInfo.mNumVehicles; ++i)
                     {
-                        // Find distance to car next to us if we're in pole.
-                        var neighborDist = -1.0;
-                        for (int i = 0; i < scoring.mScoringInfo.mNumVehicles; ++i)
+                        var veh = scoring.mVehicles[i];
+                        if (veh.mPlace == (vehicle.mPlace == 1 ? 2 : 1))
                         {
-                            var veh = scoring.mVehicles[i];
-                            if (veh.mPlace == (vehicle.mPlace == 1 ? 2 : 1))
-                            {
-                                neighborDist = RF2GameStateMapper.GetDistanceCompleteded(ref scoring, ref veh);
-                                break;
-                            }
+                            neighborDist = RF2GameStateMapper.GetDistanceCompleteded(ref scoring, ref veh);
+                            break;
                         }
-
-                        var distDelta = neighborDist - playerDist;
-                        // Special case if we have to stay in pole row, but there's no SC on this track.
-                        if (fod.AssignedColumn == FrozenOrderColumn.None)
-                            fod.Action = distDelta > 70.0 ? FrozenOrderAction.MoveToPole : FrozenOrderAction.StayInPole;
-                        else
-                            fod.Action = distDelta > 70.0 ? FrozenOrderAction.MoveToPole : FrozenOrderAction.StayInPole;
                     }
+
+                    var distDelta = neighborDist - playerDist;
+                    // Special case if we have to stay in pole row, but there's no SC on this track.
+                    if (fod.AssignedColumn == FrozenOrderColumn.None)
+                        fod.Action = distDelta > 70.0 ? FrozenOrderAction.MoveToPole : FrozenOrderAction.StayInPole;
+                    else
+                        fod.Action = distDelta > 70.0 ? FrozenOrderAction.MoveToPole : FrozenOrderAction.StayInPole;
                 }
                 else
                 {
@@ -2939,6 +2945,14 @@ namespace CrewChiefV4.rFactor2
 
             if (rules.mTrackRules.mSafetyCarActive == 1)
                 fod.SafetyCarSpeed = rules.mTrackRules.mSafetyCarSpeed;
+
+            if (prevFrozenOrderData != null
+                && prevFrozenOrderData.SafetyCarSpeed != -1.0f
+                && fod.SafetyCarSpeed == -1.0f)
+            {
+                fod.Action = FrozenOrderAction.None;
+                this.safetyCarLeft = true;
+            }
 
             return fod;
         }
