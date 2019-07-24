@@ -29,6 +29,8 @@ namespace CrewChiefV4
         Boolean messageBoxResult;
         private readonly String rf2PluginFileName = "rFactor2SharedMemoryMapPlugin64.dll";
 
+        private const string accBroadcastFileContents = "{\n    \"updListenerPort\": 9000,\n    \"connectionPassword\": \"asd\",\n    \"commandPassword\": \"\"\n}";
+
         public PluginInstaller()
         {
             messageBoxPresented = false;
@@ -208,8 +210,24 @@ namespace CrewChiefV4
         {
             //appInstallPath is also used to check if the user allready was asked to update
             string gameInstallPath = "";
-
-            if (gameDefinition.gameEnum == GameEnum.RF2_64BIT)
+            if (gameDefinition.gameEnum == GameEnum.ACC)
+            {
+               var broadcastPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), 
+                    "Assetto Corsa Competizione",
+                    "Config",
+                    "broadcasting.json");
+                if (File.Exists(broadcastPath) && File.ReadAllText(broadcastPath).Equals(accBroadcastFileContents))
+                {
+                    Console.WriteLine("ACC broadcast file has the correct content");
+                }
+                else
+                {
+                    Console.WriteLine("Updating ACC broadcast file");
+                    File.WriteAllText(broadcastPath, "{\n    \"updListenerPort\": 9000,\n    \"connectionPassword\": \"asd\",\n    \"commandPassword\": \"\"\n}");
+                }
+                return;
+            }
+            else if (gameDefinition.gameEnum == GameEnum.RF2_64BIT)
             {
                 gameInstallPath = UserSettings.GetUserSettings().getString("rf2_install_path");
             }

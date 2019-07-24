@@ -43,7 +43,6 @@ namespace CrewChiefV4.ACC
         private String lastReadFileName = null;
         private ACCStructWrapper previousAACStructWrapper; // Used when no data is comming in. EG: game is paused
         private float ackPenalityTime;
-        private bool checkedUdpConfig;
 
         public class ACCStructWrapper
         {
@@ -102,50 +101,6 @@ namespace CrewChiefV4.ACC
                 {
                     try
                     {
-                        if (!checkedUdpConfig)
-                        {
-                            checkedUdpConfig = true;
-                            var broadcastJsonPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Assetto Corsa Competizione\Config\broadcasting.json");
-
-                            try
-                            {
-                                if (!File.Exists(broadcastJsonPath))
-                                    throw new ApplicationException();
-
-                                dynamic broadcastingJson = null;
-
-                                // My file was unicode. But it might change depending on what users edit it with. I think one of these should work.
-                                try { broadcastingJson = JObject.Parse(File.ReadAllText(broadcastJsonPath, Encoding.Unicode)); } catch { }
-
-                                if (broadcastingJson == null)
-                                    try { broadcastingJson = JObject.Parse(File.ReadAllText(broadcastJsonPath, Encoding.UTF8)); } catch { }
-
-                                if (broadcastingJson == null)
-                                    try { broadcastingJson = JObject.Parse(File.ReadAllText(broadcastJsonPath, Encoding.ASCII)); } catch { }
-
-                                if (broadcastingJson == null)
-                                    throw new ApplicationException();
-
-                                if (broadcastingJson.updListenerPort != 9000 ||
-                                    broadcastingJson.connectionPassword != "asd" ||
-                                    broadcastingJson.commandPassword != "")
-                                    throw new ApplicationException();
-                            }
-                            catch
-                            {
-                                Console.WriteLine("****************************************************");
-                                Console.WriteLine("The Broadcasting.json file is missing or not configured correctly.");
-                                Console.WriteLine($"The file is located at {broadcastJsonPath}.");
-                                Console.WriteLine("Crew Chief will not run correctly until the file contains the following (between and including the curly braces):\r\n" + 
-                                                  "{\n" +
-                                                  "    \"updListenerPort\": 9000,\n" + 
-                                                  "    \"connectionPassword\": \"asd\",\n" + 
-                                                  "    \"commandPassword\": \"\"\n" + 
-                                                  "}\n");
-                                Console.WriteLine("****************************************************");
-                            }
-                        }
-
                         memoryMappedPhysicsFile = MemoryMappedFile.OpenExisting(accConstant.SharedMemoryNamePhysics);
                         sharedmemoryPhysicssize = Marshal.SizeOf(typeof(SPageFilePhysics));
                         sharedMemoryPhysicsReadBuffer = new byte[sharedmemoryPhysicssize];
