@@ -223,7 +223,7 @@ namespace CrewChiefV4
                 else
                 {
                     Console.WriteLine("Updating ACC broadcast file");
-                    File.WriteAllText(broadcastPath, "{\n    \"updListenerPort\": 9000,\n    \"connectionPassword\": \"asd\",\n    \"commandPassword\": \"\"\n}");
+                    File.WriteAllText(broadcastPath, accBroadcastFileContents);
                 }
                 return;
             }
