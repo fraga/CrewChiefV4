@@ -15,6 +15,7 @@ namespace CrewChiefV4
     public partial class PropertiesForm : Form
     {
         public Boolean hasChanges;
+        public Boolean isActiveProfile = true;
         public HashSet<string> updatedPropertiesRequiringRestart = new HashSet<string>();
 
         System.Windows.Forms.Form parent;
@@ -55,15 +56,7 @@ namespace CrewChiefV4
             UNKNOWN
         }
         private PropertyCategory categoryFilterPrev = PropertyCategory.UNKNOWN;
-
-        public static PropertyCategory[] propsRequiringRestart = {
-            PropertyCategory.ALL,
-            PropertyCategory.UI_STARTUP_AND_PATHS,
-            PropertyCategory.AUDIO_VOICE_AND_CONTROLLERS,
-            PropertyCategory.MISC,
-            PropertyCategory.UNKNOWN
-        };
-
+        
         public class ComboBoxItem<T>
         {
             public string Label { get; set; }
@@ -94,9 +87,12 @@ namespace CrewChiefV4
             this.exitButton.Text = Configuration.getUIString("exit_without_saving");
             this.restoreButton.Text = Configuration.getUIString("restore_default_settings");
             this.Text = Configuration.getUIString("properties_form");
-            userProfileGroupBox.Text = Configuration.getUIString("user_profile");
+            userProfileGroupBox.Text = Configuration.getUIString("user_profile")
+                + " (" + Configuration.getUIString("active_label") + " "
+                + Path.GetFileNameWithoutExtension(UserSettings.GetUserSettings().getString("current_settings_profile")) + ")";
             profilesLabel.Text = Configuration.getUIString("user_profile");
             loadProfileButton.Text = Configuration.getUIString("load_profile");
+            loadProfileButton.Enabled = false;
             createNewProfileButton.Text = Configuration.getUIString("create_new_profile");
             copySettingsFromCurrentSelectionCheckBox.Text = Configuration.getUIString("copy_settings_from_current");
             activateNewProfileCheckBox.Text = Configuration.getUIString("activate_new_profile");
@@ -410,12 +406,12 @@ namespace CrewChiefV4
             Boolean restart = updatedPropertiesRequiringRestart.Count() > 0;
             if (CrewChief.Debugging)
             {
-                saveButton.Text = restart ? "Save (manual restart required)" : Configuration.getUIString("save_changes");
-                loadProfileButton.Text = restart ? "Activate profile(manual restart required)" : Configuration.getUIString("load_profile");
+                saveButton.Text = restart && isActiveProfile ? "Save (manual restart required)" : Configuration.getUIString("save_changes");
+                loadProfileButton.Text = restart ? "Activate profile (manual restart required)" : Configuration.getUIString("load_profile");
             }
             else
             {
-                saveButton.Text = restart ? Configuration.getUIString("save_and_restart") : Configuration.getUIString("save_changes");
+                saveButton.Text = restart && isActiveProfile ? Configuration.getUIString("save_and_restart") : Configuration.getUIString("save_changes");
                 loadProfileButton.Text = restart ? Configuration.getUIString("load_profile_and_restart") : Configuration.getUIString("load_profile");
             }
         }
@@ -847,6 +843,7 @@ namespace CrewChiefV4
 
         private void profileSelectionComboBox_SelectedValueChanged(object sender, EventArgs e)
         {
+            updatedPropertiesRequiringRestart.Clear();
             UserSettings.UserProfileSettings currentSelection = UserSettings.GetUserSettings().loadUserSettings(Path.Combine(UserSettings.userProfilesPath, profileSelectionComboBox.SelectedItem.ToString() + ".json"));
             foreach (var setting in currentSelection.userSettings)
             {
@@ -894,12 +891,30 @@ namespace CrewChiefV4
                     }
                 }
             }
+            updateLabelsAfterChangingProfile();
+        }
+
+        private void updateLabelsAfterChangingProfile()
+        {
             userProfileSettingsGroupBox.Text = Configuration.getUIString("user_profile_settings") + " - " + profileSelectionComboBox.SelectedItem.ToString();
-            Boolean isActiveProfile = profileSelectionComboBox.SelectedItem.ToString().Equals(Path.GetFileNameWithoutExtension(UserSettings.GetUserSettings().getString("current_settings_profile")));
+            isActiveProfile = profileSelectionComboBox.SelectedItem.ToString().Equals(Path.GetFileNameWithoutExtension(UserSettings.GetUserSettings().getString("current_settings_profile")));
             if (!isActiveProfile)
             {
                 saveButton.Text = Configuration.getUIString("save_profile_settings");
                 loadProfileButton.Enabled = true;
+                if (updatedPropertiesRequiringRestart.Count() > 0)
+                {
+                    this.loadProfileButton.Text = CrewChief.Debugging ? "Activate profile (manual restart required)" :
+                        Configuration.getUIString("load_profile_and_restart");
+                }
+                else
+                {
+                    this.loadProfileButton.Text = Configuration.getUIString("load_profile");
+                }
+            }
+            else
+            {
+                loadProfileButton.Enabled = false;
             }
         }
 
@@ -922,6 +937,11 @@ namespace CrewChiefV4
             }
             else
             {
+                this.Text = Configuration.getUIString("properties_form");
+                userProfileGroupBox.Text = Configuration.getUIString("user_profile")
+                    + " (" + Configuration.getUIString("active_label") + " "
+                    + Path.GetFileNameWithoutExtension(UserSettings.GetUserSettings().getString("current_settings_profile")) + ")";
+                updateLabelsAfterChangingProfile();
                 foreach (var control in this.propertiesFlowLayoutPanel.Controls)
                 {
                     if (control.GetType() == typeof(StringPropertyControl))

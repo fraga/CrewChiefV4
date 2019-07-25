@@ -218,6 +218,7 @@ category_filter_label = Ca&tegory filter:
 
 user_profile_settings = Profile settings
 user_profile = Profiles
+active_label = currently active:
 profile = Profile
 load_profile_and_restart = Activate profile and restart
 load_profile = Activate profile
