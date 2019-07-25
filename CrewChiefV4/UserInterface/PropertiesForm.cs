@@ -942,6 +942,7 @@ namespace CrewChiefV4
                     + " (" + Configuration.getUIString("active_label") + " "
                     + Path.GetFileNameWithoutExtension(UserSettings.GetUserSettings().getString("current_settings_profile")) + ")";
                 updateLabelsAfterChangingProfile();
+                UserSettings.currentUserProfileFileName = profileSelectionComboBox.SelectedItem.ToString() + ".json";
                 foreach (var control in this.propertiesFlowLayoutPanel.Controls)
                 {
                     if (control.GetType() == typeof(StringPropertyControl))

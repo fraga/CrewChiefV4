@@ -52,7 +52,7 @@ namespace CrewChiefV4
 
         private static String defaultUserSettingsfileName = "defaultSettings.json";
         public static String userProfilesPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "Profiles");
-        private static String currentUserProfileFileName = "";
+        public static String currentUserProfileFileName = "";
 
         public class UserProfileSettings
         {
@@ -476,13 +476,13 @@ namespace CrewChiefV4
             {
                 if (currentActiveProfile.userSettings.ContainsKey(name))
                 {
-                    if (value != currentActiveProfile.userSettings[name])
+                    if (!value.Equals(currentActiveProfile.userSettings[name]))
                     {
                         userProfilePropertiesUpdated = true;
                         currentActiveProfile.userSettings[name] = value;                 
                     }
                 }
-                else if (value != Properties.Settings.Default[name])
+                else if (!value.Equals(Properties.Settings.Default[name]))
                 {
                     Properties.Settings.Default[name] = value;
                     currentApplicationSettings[name] = value;
