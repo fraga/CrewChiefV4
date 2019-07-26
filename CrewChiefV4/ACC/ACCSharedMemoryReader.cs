@@ -297,7 +297,15 @@ namespace CrewChiefV4.ACC
                             var bestLap = car.BestLap;
 
                             int carIsPlayerVehicle = playerVehicle != null && playerVehicle.CarIndex == car.CarIndex ? 1 : 0;
-                            string carDriverName = car.Drivers.Count > 0 ? car.Drivers.First().DisplayName : "";
+                            string carDriverName;
+                            if (car.CurrentDriver != null)
+                            {
+                                carDriverName = car.CurrentDriver.DisplayName;
+                            }
+                            else 
+                            {
+                                carDriverName = car.Drivers.Count > 0 ? car.Drivers.First().DisplayName : "";
+                            }
                             structWrapper.data.accChief.vehicle[i] = new accVehicleInfo
                             {
                                 bestLapMS = (bestLap?.IsValid ?? false) ? bestLap.LaptimeMS ?? 0 : 0,
