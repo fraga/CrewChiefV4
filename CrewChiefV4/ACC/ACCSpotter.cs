@@ -129,7 +129,7 @@ namespace CrewChiefV4.ACC
                 playerVelocityData[1] = (currentPlayerData.worldPosition.x - previousPlayerData.worldPosition.x) / timeDiffSeconds;
                 playerVelocityData[2] = (currentPlayerData.worldPosition.z - previousPlayerData.worldPosition.z) / timeDiffSeconds;
 
-                for (int i = 0; i < currentState.accChief.vehicle.Length; i++)
+                for (int i = 1; i < currentState.accChief.vehicle.Length; i++)
                 {
                     accVehicleInfo vehicle = currentState.accChief.vehicle[i];
                     if (vehicle.carId == 0 || vehicle.isCarInPit == 1 || vehicle.isCarInPitline == 1 || vehicle.isConnected != 1)
