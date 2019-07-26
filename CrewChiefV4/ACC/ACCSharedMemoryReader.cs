@@ -286,49 +286,18 @@ namespace CrewChiefV4.ACC
                         structWrapper.data.accChief.isRaining = udpUpdateViewModel.SessionInfoVM.RainLevel < 0.1 && udpUpdateViewModel.SessionInfoVM.WetnessLevel < 0.1;
                         structWrapper.data.accChief.vehicle = new accVehicleInfo[structWrapper.data.accStatic.numCars];
 
+                        // get the player vehicle first and put this at the front of the array
                         var playerVehicle = getPlayerVehicle(udpUpdateViewModel.BroadcastingVM.Cars, accShared.accStatic);
-
+                        int vehicleIndex = 0;
+                        addCar(playerVehicle, structWrapper.data.accChief.vehicle, vehicleIndex, structWrapper.data.accStatic.carModel, accShared.accPhysics.wheelsPressure);
                         for (var i = 0; i < udpUpdateViewModel.BroadcastingVM.Cars.Count; i++)
                         {
                             var car = udpUpdateViewModel.BroadcastingVM.Cars[i];
-
-                            var currentLap = car.CurrentLap;
-                            var lastLap = car.LastLap;
-                            var bestLap = car.BestLap;
-
-                            int carIsPlayerVehicle = playerVehicle != null && playerVehicle.CarIndex == car.CarIndex ? 1 : 0;
-                            string carDriverName;
-                            if (car.CurrentDriver != null)
+                            if (car != playerVehicle)
                             {
-                                carDriverName = car.CurrentDriver.DisplayName;
+                                vehicleIndex++;
+                                addCar(car, structWrapper.data.accChief.vehicle, vehicleIndex, structWrapper.data.accStatic.carModel, new float[4]);
                             }
-                            else 
-                            {
-                                carDriverName = car.Drivers.Count > 0 ? car.Drivers.First().DisplayName : "";
-                            }
-                            structWrapper.data.accChief.vehicle[i] = new accVehicleInfo
-                            {
-                                bestLapMS = (bestLap?.IsValid ?? false) ? bestLap.LaptimeMS ?? 0 : 0,
-                                carId = car.CarIndex,
-                                carLeaderboardPosition = car.Position,
-                                // JB: we'll need to map the CarModelEnum here to something sensible. This code will mean the app assumes opponents
-                                // are all racing the same car as the player. This is OK for the time being as ACC is single-class only
-                                carModel = structWrapper.data.accStatic.carModel, //car.CarModelEnum?
-                                carRealTimeLeaderboardPosition = car.Position,
-                                currentLapInvalid = (currentLap?.IsValid ?? false) ? 0 : 1,
-                                currentLapTimeMS = currentLap?.LaptimeMS ?? 0,
-                                isPlayerVehicle = carIsPlayerVehicle,
-                                driverName = carDriverName,
-                                isCarInPit = (car.CarLocation == CarLocationEnum.PitEntry || car.CarLocation == CarLocationEnum.PitExit || car.CarLocation == CarLocationEnum.Pitlane) ? 1 : 0,
-                                isCarInPitline = (car.CarLocation == CarLocationEnum.Pitlane) ? 1 : 0,
-                                isConnected = 1,
-                                lapCount = car.Laps,
-                                lastLapTimeMS = (lastLap?.IsValid ?? false) ? lastLap.LaptimeMS ?? 0 : 0,
-                                speedMS = car.Kmh * 0.277778f,
-                                spLineLength = car.SplinePosition,
-                                worldPosition = new accVec3 { x = car.WorldX, z = car.WorldY },
-                                tyreInflation = carIsPlayerVehicle == 1 ? accShared.accPhysics.wheelsPressure : new float[4]
-                            };
                         }
                     }).Wait();
 
@@ -341,6 +310,50 @@ namespace CrewChiefV4.ACC
                     throw new GameDataReadException(ex.Message, ex);
                 }
             }
+        }
+
+        // the carModel and tyreInflation aren't available for opponents, so these will always be the player's car model
+        // and either the player's tyre inflation or an array of zeros
+        private void addCar(CarViewModel car, accVehicleInfo[] arrayToPopulate, int index, string carModel, float[] tyreInflation)
+        {
+            var currentLap = car.CurrentLap;
+            var lastLap = car.LastLap;
+            var bestLap = car.BestLap;
+
+            // we only ever add the player to position 0:
+            int carIsPlayerVehicle = index == 0 ? 1 : 0;
+            string carDriverName;
+            if (car.CurrentDriver != null)
+            {
+                carDriverName = car.CurrentDriver.DisplayName;
+            }
+            else
+            {
+                carDriverName = car.Drivers.Count > 0 ? car.Drivers.First().DisplayName : "";
+            }
+            arrayToPopulate[index] = new accVehicleInfo
+            {
+                bestLapMS = (bestLap?.IsValid ?? false) ? bestLap.LaptimeMS ?? 0 : 0,
+                carId = car.CarIndex,
+                carLeaderboardPosition = car.Position,
+                // JB: we'll need to map the CarModelEnum here to something sensible. This code will mean the app assumes opponents
+                // are all racing the same car as the player. This is OK for the time being as ACC is single-class only
+                carModel = carModel,
+                carRealTimeLeaderboardPosition = car.Position,
+                currentLapInvalid = (currentLap?.IsValid ?? false) ? 0 : 1,
+                currentLapTimeMS = currentLap?.LaptimeMS ?? 0,
+                isPlayerVehicle = carIsPlayerVehicle,
+                driverName = carDriverName,
+                isCarInPit = (car.CarLocation == CarLocationEnum.PitEntry || car.CarLocation == CarLocationEnum.PitExit || car.CarLocation == CarLocationEnum.Pitlane) ? 1 : 0,
+                isCarInPitline = (car.CarLocation == CarLocationEnum.Pitlane) ? 1 : 0,
+                isConnected = 1,
+                lapCount = car.Laps,
+                lastLapTimeMS = (lastLap?.IsValid ?? false) ? lastLap.LaptimeMS ?? 0 : 0,
+                speedMS = car.Kmh * 0.277778f,
+                spLineLength = car.SplinePosition,
+                worldPosition = new accVec3 { x = car.WorldX, z = car.WorldY },
+                tyreInflation = tyreInflation
+            };
         }
 
         private CarViewModel getPlayerVehicle(List<CarViewModel> cars, SPageFileStatic accStatic)
@@ -364,7 +377,7 @@ namespace CrewChiefV4.ACC
             {
                 foreach (accVehicleInfo rawData in raw)
                 {
-                    if (rawData.carLeaderboardPosition > 0)
+                    if (rawData.carLeaderboardPosition > 0 || rawData.isPlayerVehicle == 1)
                     {
                         populated.Add(rawData);
                     }

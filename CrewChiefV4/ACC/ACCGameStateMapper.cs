@@ -150,7 +150,12 @@ namespace CrewChiefV4.ACC
             }
 
             // If this is empty then it is because we haven't loaded the players car yet
-            accVehicleInfo playerVehicle = shared.accChief.vehicle.FirstOrDefault(p => p.isPlayerVehicle == 1);
+            if (shared.accChief.vehicle.Length == 0)
+            {
+                // no participant data
+                return null;
+            }
+            accVehicleInfo playerVehicle = shared.accChief.vehicle[0];
 
             if (String.IsNullOrEmpty(playerVehicle.driverName))
                 return null;
@@ -373,7 +378,8 @@ namespace CrewChiefV4.ACC
                 // no tyre data in the block so get the default tyre types for this car
                 defaultTyreTypeForPlayersCar = CarData.getDefaultTyreType(currentGameState.carClass);
 
-                for (int i = 0; i < shared.accChief.vehicle.Length; i++)
+                // 0th element is always the player - this is set in the ACCSharedMemoryReader code
+                for (int i = 1; i < shared.accChief.vehicle.Length; i++)
                 {
                     accVehicleInfo participantStruct = shared.accChief.vehicle[i];
                     if (participantStruct.isConnected == 1)
@@ -699,7 +705,7 @@ namespace CrewChiefV4.ACC
                 // get all the duplicate names
                 List<string> driversToBeProcessed = new List<string>();
                 List<string> duplicateNames = new List<string>();
-                for (int i = 0; i < shared.accChief.vehicle.Length; i++)
+                for (int i = 1; i < shared.accChief.vehicle.Length; i++)
                 {
                     String participantName = shared.accChief.vehicle[i].driverName.ToLower();
                     if (driversToBeProcessed.Contains(participantName))
@@ -715,14 +721,14 @@ namespace CrewChiefV4.ACC
                     }
                 }
 
-                for (int i = 0; i < shared.accChief.vehicle.Length; i++)
+                for (int i = 1; i < shared.accChief.vehicle.Length; i++)
                 {
                     accVehicleInfo participantStruct = shared.accChief.vehicle[i];
 
                     String participantName = participantStruct.driverName.ToLower();
                     OpponentData currentOpponentData = getOpponentForName(currentGameState, participantName);
 
-                    if (i != 0 && participantName != null && participantName.Length > 0 && driversToBeProcessed.Contains(participantName))
+                    if (participantName != null && participantName.Length > 0 && driversToBeProcessed.Contains(participantName))
                     {
                         if (currentOpponentData != null)
                         {
@@ -918,13 +924,13 @@ namespace CrewChiefV4.ACC
                                     System.Diagnostics.Debug.WriteLine("Removing " + participantName + " -> " + currentOpponentData.DriverRawName);
                                     currentGameState.OpponentData.Remove(participantName);
                                 }
-
                             }
                         }
                         else
                         {
                             if (participantStruct.isConnected == 1 && participantName != null && participantName.Length > 0)
                             {
+                                driversToBeProcessed.Remove(participantName);
                                 addOpponentForName(participantName, createOpponentData(participantStruct,
                                     true,
                                     CarData.getCarClassForClassName(participantStruct.carModel),
