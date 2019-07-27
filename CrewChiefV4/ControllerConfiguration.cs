@@ -86,30 +86,30 @@ namespace CrewChiefV4
         // and is used to move old properties values over to the new JSON format on app start (when there's no user file for mappings)
         public static Dictionary<String, String> builtInActionMappings = new Dictionary<String, String>()
         {
-            { Utilities.GetParameterName(new { CHANNEL_OPEN_FUNCTION }), CHANNEL_OPEN_FUNCTION },
-            { Utilities.GetParameterName(new { TOGGLE_SPOTTER_FUNCTION }), TOGGLE_SPOTTER_FUNCTION },
-            { Utilities.GetParameterName(new { VOLUME_UP }), VOLUME_UP },
-            { Utilities.GetParameterName(new { VOLUME_DOWN }), VOLUME_DOWN },
-            { Utilities.GetParameterName(new { TOGGLE_MUTE }), TOGGLE_MUTE },
-            { Utilities.GetParameterName(new { TOGGLE_RACE_UPDATES_FUNCTION }), TOGGLE_RACE_UPDATES_FUNCTION },
-            { Utilities.GetParameterName(new { TOGGLE_READ_OPPONENT_DELTAS }), TOGGLE_READ_OPPONENT_DELTAS },
-            { Utilities.GetParameterName(new { REPEAT_LAST_MESSAGE_BUTTON }), REPEAT_LAST_MESSAGE_BUTTON },
-            { Utilities.GetParameterName(new { PRINT_TRACK_DATA }), PRINT_TRACK_DATA },
-            { Utilities.GetParameterName(new { TOGGLE_YELLOW_FLAG_MESSAGES }), TOGGLE_YELLOW_FLAG_MESSAGES },
-            { Utilities.GetParameterName(new { GET_FUEL_STATUS }), GET_FUEL_STATUS },
-            { Utilities.GetParameterName(new { TOGGLE_MANUAL_FORMATION_LAP }), TOGGLE_MANUAL_FORMATION_LAP },
-            { Utilities.GetParameterName(new { READ_CORNER_NAMES_FOR_LAP }), READ_CORNER_NAMES_FOR_LAP },
-            { Utilities.GetParameterName(new { GET_CAR_STATUS }), GET_CAR_STATUS },
-            { Utilities.GetParameterName(new { GET_STATUS }), GET_STATUS },
-            { Utilities.GetParameterName(new { GET_SESSION_STATUS }), GET_SESSION_STATUS },
-            { Utilities.GetParameterName(new { GET_DAMAGE_REPORT }), GET_DAMAGE_REPORT },
-            { Utilities.GetParameterName(new { TOGGLE_PACE_NOTES_RECORDING }), TOGGLE_PACE_NOTES_RECORDING },
-            { Utilities.GetParameterName(new { TOGGLE_PACE_NOTES_PLAYBACK }), TOGGLE_PACE_NOTES_PLAYBACK },
-            { Utilities.GetParameterName(new { TOGGLE_TRACK_LANDMARKS_RECORDING }), TOGGLE_TRACK_LANDMARKS_RECORDING },
-            { Utilities.GetParameterName(new { TOGGLE_ENABLE_CUT_TRACK_WARNINGS }), TOGGLE_ENABLE_CUT_TRACK_WARNINGS },
-            { Utilities.GetParameterName(new { ADD_TRACK_LANDMARK }), ADD_TRACK_LANDMARK },
-            { Utilities.GetParameterName(new { PIT_PREDICTION }), PIT_PREDICTION },
-            { Utilities.GetParameterName(new { TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS }), TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS }
+            { nameof(CHANNEL_OPEN_FUNCTION), CHANNEL_OPEN_FUNCTION },
+            { nameof(TOGGLE_SPOTTER_FUNCTION), TOGGLE_SPOTTER_FUNCTION },
+            { nameof(VOLUME_UP), VOLUME_UP },
+            { nameof(VOLUME_DOWN), VOLUME_DOWN },
+            { nameof(TOGGLE_MUTE), TOGGLE_MUTE },
+            { nameof(TOGGLE_RACE_UPDATES_FUNCTION), TOGGLE_RACE_UPDATES_FUNCTION },
+            { nameof(TOGGLE_READ_OPPONENT_DELTAS), TOGGLE_READ_OPPONENT_DELTAS },
+            { nameof(REPEAT_LAST_MESSAGE_BUTTON), REPEAT_LAST_MESSAGE_BUTTON },
+            { nameof(PRINT_TRACK_DATA), PRINT_TRACK_DATA },
+            { nameof(TOGGLE_YELLOW_FLAG_MESSAGES), TOGGLE_YELLOW_FLAG_MESSAGES },
+            { nameof(GET_FUEL_STATUS), GET_FUEL_STATUS },
+            { nameof(TOGGLE_MANUAL_FORMATION_LAP), TOGGLE_MANUAL_FORMATION_LAP },
+            { nameof(READ_CORNER_NAMES_FOR_LAP), READ_CORNER_NAMES_FOR_LAP },
+            { nameof(GET_CAR_STATUS), GET_CAR_STATUS },
+            { nameof(GET_STATUS), GET_STATUS },
+            { nameof(GET_SESSION_STATUS), GET_SESSION_STATUS },
+            { nameof(GET_DAMAGE_REPORT), GET_DAMAGE_REPORT },
+            { nameof(TOGGLE_PACE_NOTES_RECORDING), TOGGLE_PACE_NOTES_RECORDING },
+            { nameof(TOGGLE_PACE_NOTES_PLAYBACK), TOGGLE_PACE_NOTES_PLAYBACK },
+            { nameof(TOGGLE_TRACK_LANDMARKS_RECORDING), TOGGLE_TRACK_LANDMARKS_RECORDING },
+            { nameof(TOGGLE_ENABLE_CUT_TRACK_WARNINGS), TOGGLE_ENABLE_CUT_TRACK_WARNINGS },
+            { nameof(ADD_TRACK_LANDMARK), ADD_TRACK_LANDMARK },
+            { nameof(PIT_PREDICTION), PIT_PREDICTION },
+            { nameof(TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS), TOGGLE_BLOCK_MESSAGES_IN_HARD_PARTS }
         };
 
         public bool scanInProgress = false;
@@ -124,6 +124,14 @@ namespace CrewChiefV4
             }
             public List<ControllerData> devices { get; set; }
             public List<ButtonAssignment> buttonAssignments { get; set; }
+        }
+
+        public void assignButtonEventInstances()
+        {
+            foreach (ButtonAssignment ba in buttonAssignments)
+            {
+                ba.findEvent();
+            }
         }
 
         private static String getDefaultControllerConfigurationDataFileLocation()

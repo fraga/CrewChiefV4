@@ -20,32 +20,32 @@ namespace CrewChiefV4
         internal List<GameEnum> filterList = null;
         internal List<PropertiesForm.PropertyCategory> categoryList = null;
         internal bool includeFilter = true;
+        internal bool metadataRestartRequired = false;
         internal string propertyLabelUpper = null;
-
-        internal PropertyFilter(string filter, string category, string propertyId, string propertyLabel)
+        
+        internal PropertyFilter(string filter, string category, bool changeRequiresRestart, string propertyId, string propertyLabel)
         {
             this.propertyLabelUpper = propertyLabel.ToUpperInvariant();
+            this.metadataRestartRequired = changeRequiresRestart;
 
             // Process category filter.
+            this.categoryList = new List<PropertiesForm.PropertyCategory>();
             if (!string.IsNullOrWhiteSpace(category))
             {
                 var categoryNames = category.Split(';');
-
-                this.categoryList = new List<PropertiesForm.PropertyCategory>();
                 foreach (var cat in categoryNames)
                 {
                     var catEnum = PropertiesForm.PropertyCategory.UNKNOWN;
-                    if (Enum.TryParse(cat, out catEnum) 
+                    if (Enum.TryParse(cat, out catEnum)
                         && Enum.IsDefined(typeof(PropertiesForm.PropertyCategory), catEnum))
-                        this.categoryList.Add(catEnum);
+                        categoryList.Add(catEnum);
                     else
                     {
                         Console.WriteLine("Failed to parse category: \"" + cat + "\"  property: \"" + propertyId + "\"");
-                        this.categoryList = null;
+                        categoryList = null;
                     }
                 }
             }
-
             // Process game filter.
             if (string.IsNullOrWhiteSpace(filter))
                 return;

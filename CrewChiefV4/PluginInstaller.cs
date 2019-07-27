@@ -29,6 +29,8 @@ namespace CrewChiefV4
         Boolean messageBoxResult;
         private readonly String rf2PluginFileName = "rFactor2SharedMemoryMapPlugin64.dll";
 
+        private const string accBroadcastFileContents = "{\n    \"updListenerPort\": 9000,\n    \"connectionPassword\": \"asd\",\n    \"commandPassword\": \"\"\n}";
+
         public PluginInstaller()
         {
             messageBoxPresented = false;
@@ -203,13 +205,70 @@ namespace CrewChiefV4
             }
             return true;
         }
-
+        
         public void InstallOrUpdatePlugins(GameDefinition gameDefinition)
         {
             //appInstallPath is also used to check if the user allready was asked to update
             string gameInstallPath = "";
-
-            if (gameDefinition.gameEnum == GameEnum.RF2_64BIT)
+            if (gameDefinition.gameEnum == GameEnum.ACC)
+            {
+                string content = "[file not found]";
+                // treading as lightly as possible, use the same encoding that the game is using (unicode LE, no BOM)
+                Encoding LEunicodeWithoutBOM = new UnicodeEncoding(false, false);
+                Boolean writeBroadcastFile = true;
+                var broadcastPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                        "Assetto Corsa Competizione",
+                        "Config",
+                        "broadcasting.json");
+                if (File.Exists(broadcastPath))
+                {
+                    try
+                    {
+                        // again, treading as lightly as possible read the file content without locking allowing for the file being locked by the game
+                        using (FileStream fileStream = new FileStream(
+                            broadcastPath,
+                            FileMode.Open,
+                            FileAccess.Read,
+                            FileShare.ReadWrite))
+                        {
+                            using (StreamReader streamReader = new StreamReader(fileStream, LEunicodeWithoutBOM))
+                            {
+                                content = streamReader.ReadToEnd();
+                                if (accBroadcastFileContents.Equals(content))
+                                {
+                                    Console.WriteLine("ACC broadcast file has expected contents");
+                                    writeBroadcastFile = false;
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Exception getting broadcast.json: " + ex.Message);
+                    }
+                }
+                if (writeBroadcastFile)
+                {
+                    try
+                    {
+                        // if the game is running it'll need to be bounced to pick up this change
+                        if (Utilities.IsGameRunning(gameDefinition.processName, gameDefinition.alternativeProcessNames))
+                        {
+                            MessageBox.Show("broadcasting.json needs to be updated and the game restarted. Please exit the game then click 'OK'");
+                        }
+                        Console.WriteLine("Updating ACC broadcast file");
+                        Console.WriteLine("Expected content:");
+                        Console.WriteLine(accBroadcastFileContents);
+                        Console.WriteLine("Actual content:");
+                        Console.WriteLine(content);
+                        // again, write with the same encoding the game uses
+                        File.WriteAllText(broadcastPath, accBroadcastFileContents, LEunicodeWithoutBOM);
+                    }
+                    catch { }
+                }
+                return;
+            }
+            else if (gameDefinition.gameEnum == GameEnum.RF2_64BIT)
             {
                 gameInstallPath = UserSettings.GetUserSettings().getString("rf2_install_path");
             }

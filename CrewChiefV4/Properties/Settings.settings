@@ -863,8 +863,35 @@
     <Setting Name="f1_2018_spotter_car_length" Type="System.Single" Scope="User">
       <Value Profile="(Default)">5</Value>
     </Setting>
+    <Setting Name="f1_2019_launch_exe" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="f1_2019_launch_params" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="launch_f1_2019" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="f1_2019_udp_data_port" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">20777</Value>
+    </Setting>
+    <Setting Name="f1_2019_spotter_car_length" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">5</Value>
+    </Setting>
     <Setting Name="pcars2_spotter_car_length" Type="System.Single" Scope="User">
       <Value Profile="(Default)">5</Value>
+    </Setting>
+    <Setting Name="acc_launch_exe" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:/Program Files (x86)/Steam/Steam.exe</Value>
+    </Setting>
+    <Setting Name="acc_launch_params" Type="System.String" Scope="User">
+      <Value Profile="(Default)">-applaunch 805550</Value>
+    </Setting>
+    <Setting Name="launch_acc" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="acc_spotter_car_length" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">4.5</Value>
     </Setting>
     <Setting Name="pit_box_time_countdown" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
@@ -968,8 +995,14 @@
     <Setting Name="allow_important_messages_even_when_silenced" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="current_settings_profile" Type="System.String" Scope="User">
+      <Value Profile="(Default)">defaultSettings.json</Value>
+    </Setting>
     <Setting Name="fcy_stop_spotter_immediately" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="acc_machine_ip" Type="System.String" Scope="User">
+      <Value Profile="(Default)">127.0.0.1</Value>
     </Setting>
   </Settings>
 </SettingsFile>

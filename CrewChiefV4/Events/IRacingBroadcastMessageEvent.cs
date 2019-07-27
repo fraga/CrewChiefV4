@@ -199,8 +199,9 @@ namespace CrewChiefV4.Events
                 }
                 else
                 {
-                    Console.WriteLine("Got fuel request with no unit, assuming " + (Fuel.fuelReportsInGallon ? " gallons" : "litres"));
-                    if (!Fuel.fuelReportsInGallon)
+                    Fuel fuelEvent = (Fuel)CrewChief.getEvent("Fuel");
+                    Console.WriteLine("Got fuel request with no unit, assuming " + (fuelEvent.fuelReportsInGallon ? " gallons" : "litres"));
+                    if (!fuelEvent.fuelReportsInGallon)
                     {
                         AddFuel(amount);
                         audioPlayer.playMessageImmediately(new QueuedMessage("iracing_add_fuel", 0,

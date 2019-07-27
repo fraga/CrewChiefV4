@@ -1,10 +1,9 @@
+using CrewChiefV4.assetto.assettoData;
+using CrewChiefV4.Events;
+using CrewChiefV4.GameState;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using CrewChiefV4.GameState;
-using CrewChiefV4.Events;
-using CrewChiefV4.assetto.assettoData;
 
 /**
  * Maps memory mapped file to a local game-agnostic representation.
@@ -77,6 +76,7 @@ namespace CrewChiefV4.assetto
         public ACSGameStateMapper()
         {
             acTyres.Clear();
+            suspensionDamageThresholds.Clear();
 
             CornerData.EnumWithThresholds suspensionDamageNone = new CornerData.EnumWithThresholds(DamageLevel.NONE, -10000, trivialSuspensionDamageThreshold);
             CornerData.EnumWithThresholds suspensionDamageTrivial = new CornerData.EnumWithThresholds(DamageLevel.TRIVIAL, trivialSuspensionDamageThreshold, minorSuspensionDamageThreshold);
