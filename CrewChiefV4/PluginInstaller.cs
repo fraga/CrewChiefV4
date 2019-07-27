@@ -210,11 +210,11 @@ namespace CrewChiefV4
         {
             //appInstallPath is also used to check if the user allready was asked to update
             string gameInstallPath = "";
-            string content = "[file not found]";
-            // treading as lightly as possible, use the same encoding that the game is using (unicode LE, no BOM)
-            Encoding LEunicodeWithoutBOM = new UnicodeEncoding(false, false);
             if (gameDefinition.gameEnum == GameEnum.ACC)
             {
+                string content = "[file not found]";
+                // treading as lightly as possible, use the same encoding that the game is using (unicode LE, no BOM)
+                Encoding LEunicodeWithoutBOM = new UnicodeEncoding(false, false);
                 Boolean writeBroadcastFile = true;
                 var broadcastPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                         "Assetto Corsa Competizione",
