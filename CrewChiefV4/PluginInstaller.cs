@@ -205,25 +205,62 @@ namespace CrewChiefV4
             }
             return true;
         }
-
+        
         public void InstallOrUpdatePlugins(GameDefinition gameDefinition)
         {
             //appInstallPath is also used to check if the user allready was asked to update
             string gameInstallPath = "";
+            string content = "[file not found]";
+            // treading as lightly as possible, use the same encoding that the game is using (unicode LE, no BOM)
+            Encoding LEunicodeWithoutBOM = new UnicodeEncoding(false, false);
             if (gameDefinition.gameEnum == GameEnum.ACC)
             {
-               var broadcastPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), 
-                    "Assetto Corsa Competizione",
-                    "Config",
-                    "broadcasting.json");
-                if (File.Exists(broadcastPath) && File.ReadAllText(broadcastPath).Equals(accBroadcastFileContents))
+                Boolean writeBroadcastFile = true;
+                var broadcastPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                        "Assetto Corsa Competizione",
+                        "Config",
+                        "broadcasting.json");
+                if (File.Exists(broadcastPath))
                 {
-                    Console.WriteLine("ACC broadcast file has the correct content");
+                    try
+                    {
+                        // again, treading as lightly as possible read the file content without locking allowing for the file being locked by the game
+                        using (FileStream fileStream = new FileStream(
+                            broadcastPath,
+                            FileMode.Open,
+                            FileAccess.Read,
+                            FileShare.ReadWrite))
+                        {
+                            using (StreamReader streamReader = new StreamReader(fileStream, LEunicodeWithoutBOM))
+                            {
+                                content = streamReader.ReadToEnd();
+                                if (accBroadcastFileContents.Equals(content))
+                                {
+                                    Console.WriteLine("ACC broadcast file has expected contents");
+                                    writeBroadcastFile = false;
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Exception getting broadcast.json: " + ex.Message);
+                    }
                 }
-                else
+                if (writeBroadcastFile)
                 {
+                    // if the game is running it'll need to be bounced to pick up this change
+                    if (Utilities.IsGameRunning(gameDefinition.processName, gameDefinition.alternativeProcessNames))
+                    {
+                        MessageBox.Show("broadcasting.json needs to be updated and the game restarted. Please exit the game then click 'OK'");
+                    }
                     Console.WriteLine("Updating ACC broadcast file");
-                    File.WriteAllText(broadcastPath, accBroadcastFileContents);
+                    Console.WriteLine("Expected content:");
+                    Console.WriteLine(accBroadcastFileContents);
+                    Console.WriteLine("Actual content:");
+                    Console.WriteLine(content);
+                    // again, write with the same encoding the game uses
+                    File.WriteAllText(broadcastPath, accBroadcastFileContents, LEunicodeWithoutBOM);
                 }
                 return;
             }
