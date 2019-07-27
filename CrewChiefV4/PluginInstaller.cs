@@ -249,18 +249,22 @@ namespace CrewChiefV4
                 }
                 if (writeBroadcastFile)
                 {
-                    // if the game is running it'll need to be bounced to pick up this change
-                    if (Utilities.IsGameRunning(gameDefinition.processName, gameDefinition.alternativeProcessNames))
+                    try
                     {
-                        MessageBox.Show("broadcasting.json needs to be updated and the game restarted. Please exit the game then click 'OK'");
+                        // if the game is running it'll need to be bounced to pick up this change
+                        if (Utilities.IsGameRunning(gameDefinition.processName, gameDefinition.alternativeProcessNames))
+                        {
+                            MessageBox.Show("broadcasting.json needs to be updated and the game restarted. Please exit the game then click 'OK'");
+                        }
+                        Console.WriteLine("Updating ACC broadcast file");
+                        Console.WriteLine("Expected content:");
+                        Console.WriteLine(accBroadcastFileContents);
+                        Console.WriteLine("Actual content:");
+                        Console.WriteLine(content);
+                        // again, write with the same encoding the game uses
+                        File.WriteAllText(broadcastPath, accBroadcastFileContents, LEunicodeWithoutBOM);
                     }
-                    Console.WriteLine("Updating ACC broadcast file");
-                    Console.WriteLine("Expected content:");
-                    Console.WriteLine(accBroadcastFileContents);
-                    Console.WriteLine("Actual content:");
-                    Console.WriteLine(content);
-                    // again, write with the same encoding the game uses
-                    File.WriteAllText(broadcastPath, accBroadcastFileContents, LEunicodeWithoutBOM);
+                    catch { }
                 }
                 return;
             }

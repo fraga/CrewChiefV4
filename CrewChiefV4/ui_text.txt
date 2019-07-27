@@ -359,6 +359,7 @@ acc_install_path_metadata = RESTART_REQUIRED
 acc_machine_ip = IP address for the machine ACC is running on
 acc_machine_ip_category = UI_STARTUP_AND_PATHS
 acc_machine_ip_metadata = RESTART_REQUIRED
+acc_machine_ip_install_path_filter = ACC
 
 f1_2019_install_path = F1 2019 install path
 f1_2019_install_path_help = F1 2019 installation path
@@ -544,6 +545,7 @@ acs_spotter_car_length_category = SPOTTER
 acc_spotter_car_length = ACC Spotter default car length
 acc_spotter_car_length_filter = ACC
 acc_spotter_car_length_category = SPOTTER
+acc_spotter_car_length_category_filter = ACC
 
 ams_spotter_car_length = AMS Spotter default car length
 ams_spotter_car_length_filter = RF1
@@ -723,6 +725,12 @@ r3e_launch_exe_filter = RACE_ROOM
 r3e_launch_exe_category = UI_STARTUP_AND_PATHS
 r3e_launch_exe_metadata = RESTART_REQUIRED
 
+acc_launch_exe = ACC launch exe
+acc_launch_exe_help = This is the location of Steam.exe or the direct path to AC2-Win64-Shipping.exe. Use forward slashes to separate paths.
+acc_launch_exe_filter = ACC
+acc_launch_exe_category = UI_STARTUP_AND_PATHS
+acc_launch_exe_metadata = RESTART_REQUIRED
+
 rf1_launch_exe = rF1 launch exe
 rf1_launch_exe_help = This is the location of Steam.exe or the direct path to rFactor.exe. Use forward slashes to separate paths.
 rf1_launch_exe_filter = RF1
@@ -841,6 +849,12 @@ launch_pcars_filter = PCARS_64BIT;PCARS_32BIT;PCARS_NETWORK
 launch_pcars_category = UI_STARTUP_AND_PATHS
 launch_pcars_metadata = RESTART_REQUIRED
 
+launch_acc = Launch ACC
+launch_acc_help = If this is true the application will attempt to launch ACC when CrewChief starts (when you click 'Start application' or the app auto starts CrewChief if you set run_immediately to true)
+launch_acc_filter = ACC
+launch_acc_category = UI_STARTUP_AND_PATHS
+launch_acc_metadata = RESTART_REQUIRED
+
 pcars2_launch_exe = pCARS 2 launch exe
 pcars2_launch_exe_help = This is the location of Steam.exe or the direct path to pCARS2AVX.exe. Use forward slashes to separate paths.
 pcars2_launch_exe_filter = PCARS2
@@ -852,6 +866,12 @@ pcars2_launch_params_help = This is used to tell Steam what app to run - pCARS 2
 pcars2_launch_params_filter = PCARS2
 pcars2_launch_params_category = UI_STARTUP_AND_PATHS
 pcars2_launch_params_metadata = RESTART_REQUIRED
+
+acc_launch_params = ACC launch params
+acc_launch_params_help = This is used to tell Steam what app to run - ACC's Steam app ID is xxx. If you specified a path AC2-Win64-Shipping.exe you can leave this blank
+acc_launch_params_filter = ACC
+acc_launch_params_category = UI_STARTUP_AND_PATHS
+acc_launch_params_metadata = RESTART_REQUIRED
 
 launch_pcars2 = Launch pCARS 2
 launch_pcars2_help = If this is true the application will attempt to launch pCARS 2 when CrewChief starts (when you click 'Start application' or the app auto starts CrewChief if you set run_immediately to true)

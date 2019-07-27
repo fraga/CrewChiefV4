@@ -171,6 +171,7 @@ namespace CrewChiefV4
             this.showCommonCheckbox.Size = new System.Drawing.Size(101, 20);
             this.showCommonCheckbox.TabIndex = 11;
             this.showCommonCheckbox.Text = "show_common_props_label";
+            this.showCommonCheckbox.CheckedChanged += new System.EventHandler(this.ShowCommonCheckbox_CheckedChanged);
             // 
             // categoriesLabel
             // 

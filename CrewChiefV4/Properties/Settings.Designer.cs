@@ -3541,7 +3541,7 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:/Program Files (x86)/steam/steamapps/common/ACC/AC2-Win64-Shipping.exe")]
         public string acc_launch_exe {
             get {
                 return ((string)(this["acc_launch_exe"]));
@@ -4006,7 +4006,7 @@ namespace CrewChiefV4.Properties {
                 this["current_settings_profile"] = value;
             }
         }
-
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]

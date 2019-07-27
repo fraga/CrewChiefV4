@@ -46,12 +46,6 @@ namespace CrewChiefV4
                     }
                 }
             }
-        }
-
-        internal PropertyFilter(string filter, List<PropertiesForm.PropertyCategory> categoryList, string propertyId, string propertyLabel)
-        {
-            this.propertyLabelUpper = propertyLabel.ToUpperInvariant();
-            this.categoryList = categoryList;
             // Process game filter.
             if (string.IsNullOrWhiteSpace(filter))
                 return;
