@@ -882,10 +882,10 @@
       <Value Profile="(Default)">5</Value>
     </Setting>
     <Setting Name="acc_launch_exe" Type="System.String" Scope="User">
-      <Value Profile="(Default)">C:/Program Files (x86)/steam/steamapps/common/ACC/AC2-Win64-Shipping.exe</Value>
+      <Value Profile="(Default)">C:/Program Files (x86)/Steam/Steam.exe</Value>
     </Setting>
     <Setting Name="acc_launch_params" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">-applaunch 805550</Value>
     </Setting>
     <Setting Name="launch_acc" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
