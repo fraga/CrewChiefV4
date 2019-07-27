@@ -189,19 +189,15 @@ namespace CrewChiefV4.ACC
                     }
 
                     // Send the previous state if the game is paused to prevent bogus track temp and other warnings on unpausing
-                    if (isFetchingCars || accShared.accPhysics.airTemp == 0 && accShared.accPhysics.roadTemp == 0 && accShared.accPhysics.fuel == 0 && accShared.accPhysics.heading == 0 && accShared.accPhysics.pitch == 0)
+                    if (isFetchingCars || (accShared.accPhysics.airTemp == 0 && accShared.accPhysics.roadTemp == 0 && 
+                        accShared.accPhysics.fuel == 0 && accShared.accPhysics.heading == 0 && accShared.accPhysics.pitch == 0))
                         return previousAACStructWrapper ?? structWrapper;
-
-                    // Tyre missing data fixups
-                    accShared.accPhysics.tyreTempI = accShared.accPhysics.tyreTempM;
-                    accShared.accPhysics.tyreTempO = accShared.accPhysics.tyreTempM;
 
                     structWrapper.data = accShared;
 
-                    if (!forSpotter && dumpToFile && dataToDump != null)
-                    {
-                        dataToDump.Add(structWrapper);
-                    }
+                    // Tyre missing data fixups
+                    structWrapper.data.accPhysics.tyreTempI = structWrapper.data.accPhysics.tyreTempM;
+                    structWrapper.data.accPhysics.tyreTempO = structWrapper.data.accPhysics.tyreTempM; 
 
                     structWrapper.data.accStatic.isTimedRace = udpUpdateViewModel.SessionInfoVM.RemainingTime.TotalMilliseconds > 0 ? 1 : 0;
 
@@ -300,6 +296,11 @@ namespace CrewChiefV4.ACC
                             }
                         }
                     }).Wait();
+
+                    if (!forSpotter && dumpToFile && dataToDump != null)
+                    {
+                        dataToDump.Add(structWrapper);
+                    }
 
                     previousAACStructWrapper = structWrapper;
 

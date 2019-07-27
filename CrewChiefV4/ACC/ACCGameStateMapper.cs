@@ -621,7 +621,6 @@ namespace CrewChiefV4.ACC
                 {
                     currentGameState.SessionData.CurrentLapIsValid = shared.accPhysics.numberOfTyresOut < 3;
                 }
-
                 bool hasCrossedSFLine = currentGameState.SessionData.IsNewSector && currentGameState.SessionData.SectorNumber == 1;
                 float lastLapTime = mapToFloatTime(shared.accGraphic.iLastTime);
                 currentGameState.SessionData.IsNewLap = currentGameState.HasNewLapData(previousGameState, lastLapTime, hasCrossedSFLine)
