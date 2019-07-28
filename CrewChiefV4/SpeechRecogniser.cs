@@ -235,6 +235,12 @@ namespace CrewChiefV4
         public static String[] PIT_STOP_REFUEL = Configuration.getSpeechRecognitionPhrases("PIT_STOP_REFUEL");
         public static String[] PIT_STOP_DONT_REFUEL = Configuration.getSpeechRecognitionPhrases("PIT_STOP_DONT_REFUEL");
         public static String[] PIT_STOP_NEXT_TYRE_COMPOUND = Configuration.getSpeechRecognitionPhrases("PIT_STOP_NEXT_TYRE_COMPOUND");
+        public static String[] PIT_STOP_SOFT_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_SOFT_TYRES");
+        public static String[] PIT_STOP_MEDIUM_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_MEDIUM_TYRES");
+        public static String[] PIT_STOP_HARD_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_HARD_TYRES");
+        public static String[] PIT_STOP_OPTION_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_OPTION_TYRES");
+        public static String[] PIT_STOP_PRIME_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_PRIME_TYRES");
+        public static String[] PIT_STOP_ALTERNATE_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_ALTERNATE_TYRES");
 
         public static String[] HOW_MANY_INCIDENT_POINTS = Configuration.getSpeechRecognitionPhrases("HOW_MANY_INCIDENT_POINTS");
         public static String[] WHATS_THE_INCIDENT_LIMIT = Configuration.getSpeechRecognitionPhrases("WHATS_THE_INCIDENT_LIMIT");
@@ -1294,8 +1300,12 @@ namespace CrewChiefV4
                 validateAndAdd(PIT_STOP_SERVE_PENALTY, r3eChoices);
                 validateAndAdd(PIT_STOP_DONT_SERVE_PENALTY, r3eChoices);
                 validateAndAdd(PIT_STOP_NEXT_TYRE_COMPOUND, r3eChoices);
-                validateAndAdd(PIT_STOP_REFUEL, r3eChoices);
-                validateAndAdd(PIT_STOP_DONT_REFUEL, r3eChoices);
+                validateAndAdd(PIT_STOP_HARD_TYRES, r3eChoices);
+                validateAndAdd(PIT_STOP_MEDIUM_TYRES, r3eChoices);
+                validateAndAdd(PIT_STOP_SOFT_TYRES, r3eChoices);
+                validateAndAdd(PIT_STOP_PRIME_TYRES, r3eChoices);
+                validateAndAdd(PIT_STOP_ALTERNATE_TYRES, r3eChoices);
+                validateAndAdd(PIT_STOP_OPTION_TYRES, r3eChoices);
                 
                 GrammarBuilder r3eGrammarBuilder = new GrammarBuilder(r3eChoices);
                 r3eGrammarBuilder.Culture = cultureInfo;

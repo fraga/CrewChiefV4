@@ -1,5 +1,6 @@
 ﻿using CrewChiefV4.Audio;
 using CrewChiefV4.commands;
+using CrewChiefV4.GameState;
 using CrewChiefV4.RaceRoom.RaceRoomData;
 using System;
 using System.Collections.Generic;
@@ -96,6 +97,14 @@ namespace CrewChiefV4.R3E
         private const string folderConfirmRefuelling = "mandatory_pit_stops/confirm_refuelling";
         private const string folderConfirmNoRefuelling = "mandatory_pit_stops/confirm_no_refuelling";
 
+        // tyre compound responses
+        private const string folderConfirmSoftTyres = "mandatory_pit_stops/confirm_soft_tyres";
+        private const string folderConfirmMediumTyres = "mandatory_pit_stops/confirm_medium_tyres";
+        private const string folderConfirmHardTyres = "mandatory_pit_stops/confirm_hard_tyres";
+        private const string folderConfirmPrimeTyres = "mandatory_pit_stops/confirm_prime_tyres";
+        private const string folderConfirmOptionTyres = "mandatory_pit_stops/confirm_option_tyres";
+        private const string folderConfirmAlternateTyres = "mandatory_pit_stops/confirm_alternate_tyres";
+        private const string folderRequestedTyreNotAvailable = "mandatory_pit_stops/confirm_requested_tyre_not_available";
 
         // lazily initialised
         private static ExecutableCommandMacro menuToggleMacro;
@@ -115,6 +124,17 @@ namespace CrewChiefV4.R3E
         public static Dictionary<SelectedItem, PitSelectionState> latestState = new Dictionary<SelectedItem, PitSelectionState>();
 
         private static Thread executeThread = null;
+
+        // per-car tyre options, the array of TyreType is in the order it appears in the pit menu
+        private static Dictionary<CarData.CarClassEnum, TyreType[]> tyreOptions = new Dictionary<CarData.CarClassEnum, TyreType[]>
+        {
+            { CarData.CarClassEnum.F1_90S, new TyreType[]{ TyreType.Soft, TyreType.Hard} },
+            { CarData.CarClassEnum.F1, new TyreType[]{ TyreType.Soft, TyreType.Medium, TyreType.Hard} },
+            { CarData.CarClassEnum.DTM_2014, new TyreType[]{ TyreType.Prime, TyreType.Option} },
+            { CarData.CarClassEnum.INDYCAR, new TyreType[]{ TyreType.Alternate, TyreType.Prime} },  // note we use Prime here, not Primary - the SRE recognises either
+            { CarData.CarClassEnum.GROUPC, new TyreType[]{ TyreType.Soft, TyreType.Hard} },
+            { CarData.CarClassEnum.GT2, new TyreType[]{ TyreType.Soft, TyreType.Hard} }
+        };
 
         static R3EPitMenuManager()
         {
@@ -230,6 +250,37 @@ namespace CrewChiefV4.R3E
                     {
                         audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
                         selectNextTyreCompound();
+                    }
+                    else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.PIT_STOP_SOFT_TYRES))
+                    {
+                        // don't play the ack here - let the method call work it out
+                        selectTyreCompound(TyreType.Soft, audioPlayer);
+                    }
+                    else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.PIT_STOP_MEDIUM_TYRES))
+                    {
+                        // don't play the ack here - let the method call work it out
+                        selectTyreCompound(TyreType.Medium, audioPlayer);
+                    }
+                    else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.PIT_STOP_HARD_TYRES))
+                    {
+                        // don't play the ack here - let the method call work it out
+                        selectTyreCompound(TyreType.Hard, audioPlayer);
+                    }
+                    else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.PIT_STOP_ALTERNATE_TYRES))
+                    {
+                        // don't play the ack here - let the method call work it out
+                        selectTyreCompound(TyreType.Alternate, audioPlayer);
+                    }
+                    else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.PIT_STOP_PRIME_TYRES))
+                    {
+                        // special case for prime - this is primary (indycar) OR prime (dtm2014)
+                        // don't play the ack here - let the method call work it out
+                        selectTyreCompound(TyreType.Prime, audioPlayer);
+                    }
+                    else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.PIT_STOP_OPTION_TYRES))
+                    {
+                        // don't play the ack here - let the method call work it out
+                        selectTyreCompound(TyreType.Option, audioPlayer);
                     }
                 });
                 executeThread.Name = "R3EPitMenuManager.executeThread";
@@ -461,6 +512,7 @@ namespace CrewChiefV4.R3E
                 // here we're assuming that changing the rear compound wil also change the front. This is 
                 // probably OK at the moment - they're tied together for the classes with multiple compounds 
                 // and the menu enforces this.
+                goToMenuItem(SelectedItem.Reartires);
                 ExecutableCommandMacro rightMacro = getMenuRightMacro();
                 if (rightMacro != null)
                 {
@@ -474,6 +526,68 @@ namespace CrewChiefV4.R3E
                 closePitMenuIfOpen();
             }
             return success;
+        }
+
+        public static void selectTyreCompound(TyreType tyreType, AudioPlayer audioPlayer, Boolean closeAfterSetting = true)
+        {
+            if (!tyreOptions.Keys.Contains(CrewChief.carClass) || !tyreOptions[CrewChief.carClass].Contains(tyreType))
+            {
+                audioPlayer.playMessageImmediately(new QueuedMessage(folderRequestedTyreNotAvailable, 0));
+            }
+            else
+            {
+                switch (tyreType)
+                {
+                    case TyreType.Soft:
+                        audioPlayer.playMessageImmediately(new QueuedMessage(folderConfirmSoftTyres, 0));
+                        break;
+                    case TyreType.Medium:
+                        audioPlayer.playMessageImmediately(new QueuedMessage(folderConfirmMediumTyres, 0));
+                        break;
+                    case TyreType.Hard:
+                        audioPlayer.playMessageImmediately(new QueuedMessage(folderConfirmHardTyres, 0));
+                        break;
+                    case TyreType.Prime:
+                        audioPlayer.playMessageImmediately(new QueuedMessage(folderConfirmPrimeTyres, 0));
+                        break;
+                    case TyreType.Option:
+                        audioPlayer.playMessageImmediately(new QueuedMessage(folderConfirmOptionTyres, 0));
+                        break;
+                    case TyreType.Alternate:
+                        audioPlayer.playMessageImmediately(new QueuedMessage(folderConfirmAlternateTyres, 0));
+                        break;
+                    default:
+                        audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
+                        break;
+                }
+
+                if (openPitMenuIfClosed())
+                {
+                    setItemToOnOrOff(SelectedItem.Fronttires, false);
+                    setItemToOnOrOff(SelectedItem.Reartires, false);
+                    // here we're assuming that changing the rear compound wil also change the front. This is 
+                    // probably OK at the moment - they're tied together for the classes with multiple compounds 
+                    // and the menu enforces this.
+                    goToMenuItem(SelectedItem.Reartires);
+                    int resetCount = tyreOptions[CrewChief.carClass].Length - 1;
+                    int selectCount = Array.IndexOf(tyreOptions[CrewChief.carClass], tyreType);
+                    ExecutableCommandMacro leftMacro = getMenuLeftMacro();
+                    ExecutableCommandMacro rightMacro = getMenuRightMacro();
+                    if (leftMacro != null && rightMacro != null)
+                    {
+                        for (int i = 0; i < resetCount; i++)
+                            executeMacro(leftMacro);
+                        for (int i = 0; i < selectCount; i++)
+                            executeMacro(rightMacro);
+                    }
+                    setItemToOnOrOff(SelectedItem.Reartires, true);
+                    setItemToOnOrOff(SelectedItem.Fronttires, true);
+                }
+                if (closeAfterSetting)
+                {
+                    closePitMenuIfOpen();
+                }
+            }
         }
 
         // opens the pit menu so we can get information. IMPORTANT: this executes the macro which (obviously) has to be wired up properly.
