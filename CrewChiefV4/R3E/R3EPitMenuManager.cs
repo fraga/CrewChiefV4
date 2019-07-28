@@ -539,22 +539,40 @@ namespace CrewChiefV4.R3E
                 switch (tyreType)
                 {
                     case TyreType.Soft:
-                        audioPlayer.playMessageImmediately(new QueuedMessage(folderConfirmSoftTyres, 0));
+                        if (SoundCache.hasSingleSound(folderConfirmSoftTyres))
+                            audioPlayer.playMessageImmediately(new QueuedMessage(folderConfirmSoftTyres, 0));
+                        else
+                            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
                         break;
                     case TyreType.Medium:
-                        audioPlayer.playMessageImmediately(new QueuedMessage(folderConfirmMediumTyres, 0));
+                        if (SoundCache.hasSingleSound(folderConfirmMediumTyres))
+                            audioPlayer.playMessageImmediately(new QueuedMessage(folderConfirmMediumTyres, 0));
+                        else
+                            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
                         break;
                     case TyreType.Hard:
-                        audioPlayer.playMessageImmediately(new QueuedMessage(folderConfirmHardTyres, 0));
+                        if (SoundCache.hasSingleSound(folderConfirmHardTyres))
+                            audioPlayer.playMessageImmediately(new QueuedMessage(folderConfirmHardTyres, 0));
+                        else
+                            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
                         break;
                     case TyreType.Prime:
-                        audioPlayer.playMessageImmediately(new QueuedMessage(folderConfirmPrimeTyres, 0));
+                        if (SoundCache.hasSingleSound(folderConfirmPrimeTyres))
+                            audioPlayer.playMessageImmediately(new QueuedMessage(folderConfirmPrimeTyres, 0));
+                        else
+                            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
                         break;
                     case TyreType.Option:
-                        audioPlayer.playMessageImmediately(new QueuedMessage(folderConfirmOptionTyres, 0));
+                        if (SoundCache.hasSingleSound(folderConfirmOptionTyres))
+                            audioPlayer.playMessageImmediately(new QueuedMessage(folderConfirmOptionTyres, 0));
+                        else
+                            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
                         break;
                     case TyreType.Alternate:
-                        audioPlayer.playMessageImmediately(new QueuedMessage(folderConfirmAlternateTyres, 0));
+                        if (SoundCache.hasSingleSound(folderConfirmAlternateTyres))
+                            audioPlayer.playMessageImmediately(new QueuedMessage(folderConfirmAlternateTyres, 0));
+                        else
+                            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
                         break;
                     default:
                         audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
