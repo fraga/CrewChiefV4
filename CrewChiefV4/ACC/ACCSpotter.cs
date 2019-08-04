@@ -9,6 +9,8 @@ namespace CrewChiefV4.ACC
 {
     class ACCSpotter : Spotter
     {
+        private float twoPi = (float)(2 * Math.PI);
+
         // how long is a car? we use 3.5 meters by default here. Too long and we'll get 'hold your line' messages
         // when we're clearly directly behind the car
         private float carLength = UserSettings.GetUserSettings().getFloat("acc_spotter_car_length");
@@ -132,18 +134,19 @@ namespace CrewChiefV4.ACC
                 for (int i = 1; i < currentState.accChief.vehicle.Length; i++)
                 {
                     accVehicleInfo vehicle = currentState.accChief.vehicle[i];
-                    if (vehicle.carId == 0 || vehicle.isCarInPit == 1 || vehicle.isCarInPitline == 1 || vehicle.isConnected != 1)
+                    if (vehicle.isCarInPit == 1 || vehicle.isCarInPitline == 1 || vehicle.isConnected != 1)
                     {
                         continue;
                     }
                     currentOpponentPositions.Add(new float[] { vehicle.worldPosition.x, vehicle.worldPosition.z });
                 }
                 float playerRotation = currentState.accPhysics.heading;
-
+                
                 if (playerRotation < 0)
                 {
-                    playerRotation = (float)(2 * Math.PI) + playerRotation;
+                    playerRotation = twoPi + playerRotation;
                 }
+
                 internalSpotter.triggerInternal(playerRotation, currentPlayerPosition, playerVelocityData, currentOpponentPositions);
             }
         }
