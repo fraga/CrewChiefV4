@@ -1183,8 +1183,11 @@ namespace CrewChiefV4.ACC
                 currentGameState.TyreData.RightRearIsLocked = Math.Abs(shared.accPhysics.wheelAngularSpeed[3]) < minRotatingSpeed;
 
                 // Is this better? Slip isn't just spinning
-                currentGameState.TyreData.LeftFrontIsSpinning = shared.accPhysics.wheelSlip[0] > wheelSlipThreshold;
-                currentGameState.TyreData.RightFrontIsSpinning = shared.accPhysics.wheelSlip[1] > wheelSlipThreshold;
+
+                // all the cars are RWD (so far), so don't bother checking front wheelspin
+                /*currentGameState.TyreData.LeftFrontIsSpinning = shared.accPhysics.wheelSlip[0] > wheelSlipThreshold;
+                currentGameState.TyreData.RightFrontIsSpinning = shared.accPhysics.wheelSlip[1] > wheelSlipThreshold;*/
+
                 currentGameState.TyreData.LeftRearIsSpinning = shared.accPhysics.wheelSlip[2] > wheelSlipThreshold;
                 currentGameState.TyreData.RightRearIsSpinning = shared.accPhysics.wheelSlip[3] > wheelSlipThreshold;
             }
