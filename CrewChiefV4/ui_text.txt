@@ -1551,3 +1551,7 @@ allow_important_messages_even_when_silenced_metadata = RESTART_REQUIRED
 fcy_stop_spotter_immediately = Mute spotter immediately on full course yellow
 fcy_stop_spotter_immediately_help = Turn off spotter on FCY without waiting until you've slowed or start a new lap
 fcy_stop_spotter_immediately_category = SPOTTER
+
+enable_blue_flag_messages = Enable blue flag messages
+enable_blue_flag_messages_help = Enable blue flag calls
+enable_blue_flag_messages_category = FLAGS_AND_RULES

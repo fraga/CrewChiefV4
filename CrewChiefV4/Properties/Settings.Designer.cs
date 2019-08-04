@@ -4030,5 +4030,17 @@ namespace CrewChiefV4.Properties {
                 this["acc_machine_ip"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool enable_blue_flag_messages {
+            get {
+                return ((bool)(this["enable_blue_flag_messages"]));
+            }
+            set {
+                this["enable_blue_flag_messages"] = value;
+            }
+        }
     }
 }
