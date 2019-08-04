@@ -44,6 +44,8 @@ namespace CrewChiefV4.ACC
         private ACCStructWrapper previousAACStructWrapper; // Used when no data is comming in. EG: game is paused
         private float ackPenalityTime;
 
+        private DateTime nextScheduleRequestCars = DateTime.MinValue;
+
         public class ACCStructWrapper
         {
             public long ticksWhenRead;
@@ -174,18 +176,19 @@ namespace CrewChiefV4.ACC
                     accShared.accChief = new SPageFileCrewChief();
 
                     ACCStructWrapper structWrapper = new ACCStructWrapper();
-                    structWrapper.ticksWhenRead = DateTime.UtcNow.Ticks;
-
-                    var isFetchingCars = udpUpdateViewModel.BroadcastingVM.Cars.Count == 0;
-
-                    if (!isFetchingCars && accShared.accStatic.numCars != udpUpdateViewModel.BroadcastingVM.Cars.Count)
+                    DateTime now = DateTime.UtcNow;
+                    structWrapper.ticksWhenRead = now.Ticks;
+                    Boolean isFetchingCars = false;
+                    
+                    if (now > nextScheduleRequestCars)
                     {
-                        if (udpUpdateViewModel.BroadcastingVM.Cars.Count != 0)
-                        {
-                            isFetchingCars = true;
-                            System.Diagnostics.Debug.WriteLine("Requesting new car list.");
-                            udpUpdateViewModel.ClientPanelVM.RequestEntryList();
-                        }
+                        isFetchingCars = true;
+                        System.Diagnostics.Debug.WriteLine("Requesting new car list.");
+                    }
+                    if (isFetchingCars)
+                    {
+                        nextScheduleRequestCars = now.AddSeconds(10);
+                        udpUpdateViewModel.ClientPanelVM.RequestEntryList();
                     }
 
                     // Send the previous state if the game is paused to prevent bogus track temp and other warnings on unpausing
@@ -280,21 +283,26 @@ namespace CrewChiefV4.ACC
                     structWrapper.data.accChief.isInternalMemoryModuleLoaded = 1;
                         structWrapper.data.accChief.trackLength = udpUpdateViewModel.BroadcastingVM.TrackVM?.TrackMeters ?? 0;
                         structWrapper.data.accChief.isRaining = udpUpdateViewModel.SessionInfoVM.RainLevel < 0.1 && udpUpdateViewModel.SessionInfoVM.WetnessLevel < 0.1;
-                        structWrapper.data.accChief.vehicle = new accVehicleInfo[structWrapper.data.accStatic.numCars];
+                        structWrapper.data.accChief.vehicle = new accVehicleInfo[udpUpdateViewModel.BroadcastingVM.Cars.Count];
 
                         // get the player vehicle first and put this at the front of the array
                         var playerVehicle = getPlayerVehicle(udpUpdateViewModel.BroadcastingVM.Cars, accShared.accStatic);
-                        int vehicleIndex = 0;
-                        addCar(playerVehicle, structWrapper.data.accChief.vehicle, vehicleIndex, structWrapper.data.accStatic.carModel, accShared.accPhysics.wheelsPressure,
-                            structWrapper.data.accGraphic.carIDs, structWrapper.data.accGraphic.carCoordinates);
-                        for (var i = 0; i < udpUpdateViewModel.BroadcastingVM.Cars.Count; i++)
+                        if (playerVehicle != null)
                         {
-                            var car = udpUpdateViewModel.BroadcastingVM.Cars[i];
-                            if (car != playerVehicle)
+                            int vehicleIndex = 0;
+                            addCar(playerVehicle, structWrapper.data.accChief.vehicle, vehicleIndex, structWrapper.data.accStatic.carModel, accShared.accPhysics.wheelsPressure,
+                                structWrapper.data.accGraphic.carIDs, structWrapper.data.accGraphic.carCoordinates);
+
+                            // the shared mem carIDs and carCoordinates arrays don't actually contain all the car data
+                            for (var i = 0; i < udpUpdateViewModel.BroadcastingVM.Cars.Count; i++)
                             {
-                                vehicleIndex++;
-                                addCar(car, structWrapper.data.accChief.vehicle, vehicleIndex, structWrapper.data.accStatic.carModel, new float[4],
-                                    structWrapper.data.accGraphic.carIDs, structWrapper.data.accGraphic.carCoordinates);
+                                var car = udpUpdateViewModel.BroadcastingVM.Cars[i];
+                                if (car != playerVehicle)
+                                {
+                                    vehicleIndex++;
+                                    addCar(car, structWrapper.data.accChief.vehicle, vehicleIndex, structWrapper.data.accStatic.carModel, new float[4],
+                                        structWrapper.data.accGraphic.carIDs, structWrapper.data.accGraphic.carCoordinates);
+                                }
                             }
                         }
                     }).Wait();
@@ -308,9 +316,14 @@ namespace CrewChiefV4.ACC
 
                     return structWrapper;
                 }
-                catch (Exception ex)
+                catch (AggregateException e1)
                 {
-                    throw new GameDataReadException(ex.Message, ex);
+                    Console.WriteLine("Inner exception:" + e1.Message + " " + e1.InnerException.StackTrace);
+                    throw new GameDataReadException(e1.InnerException.Message, e1.InnerException);
+                }
+                catch (Exception e2)
+                {
+                    throw new GameDataReadException(e2.Message, e2);
                 }
             }
         }
@@ -336,8 +349,15 @@ namespace CrewChiefV4.ACC
             }
 
             // get the position in the CarIDs array
+            float x_coord = 0;
+            float z_coord = 0;
             int indexInCoordsArray = Array.IndexOf(carIds, car.CarIndex);
-            accVec3 carPosition = carPositions[indexInCoordsArray];
+            if (indexInCoordsArray > -1 && indexInCoordsArray < carPositions.Length)
+            {
+                accVec3 carPosition = carPositions[indexInCoordsArray];
+                x_coord = carPosition.x;
+                z_coord = carPosition.z;
+            }
             arrayToPopulate[index] = new accVehicleInfo
             {
                 bestLapMS = (bestLap?.IsValid ?? false) ? bestLap.LaptimeMS ?? 0 : 0,
@@ -358,9 +378,9 @@ namespace CrewChiefV4.ACC
                 lastLapTimeMS = (lastLap?.IsValid ?? false) ? lastLap.LaptimeMS ?? 0 : 0,
                 speedMS = car.Kmh * 0.277778f,
                 spLineLength = car.SplinePosition,
-                worldPosition = new accVec3 { x = carPosition.x, z = carPosition.z },
+                worldPosition = new accVec3 { x = x_coord, z = z_coord },
                 tyreInflation = tyreInflation
-            };
+            };            
         }
 
         private CarViewModel getPlayerVehicle(List<CarViewModel> cars, SPageFileStatic accStatic)

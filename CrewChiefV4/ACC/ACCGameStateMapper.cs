@@ -246,7 +246,8 @@ namespace CrewChiefV4.ACC
             }
 
             float sessionTimeRemaining = -1;
-            if (sessionType != AC_SESSION_TYPE.AC_PRACTICE && (numberOfLapsInSession == 0 || shared.accStatic.isTimedRace == 1))
+            //if (sessionType != AC_SESSION_TYPE.AC_PRACTICE && (numberOfLapsInSession == 0 || shared.accStatic.isTimedRace == 1))
+            if (numberOfLapsInSession == 0 || shared.accStatic.isTimedRace == 1)
             {
                 currentGameState.SessionData.SessionHasFixedTime = true;
                 sessionTimeRemaining = gameSessionTimeLeft;
