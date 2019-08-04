@@ -180,7 +180,7 @@ namespace CrewChiefV4.ACC
                     structWrapper.ticksWhenRead = now.Ticks;
                     Boolean isFetchingCars = false;
                     
-                    if (now > nextScheduleRequestCars)
+                    if (now > nextScheduleRequestCars && !forSpotter)
                     {
                         isFetchingCars = true;
                         System.Diagnostics.Debug.WriteLine("Requesting new car list.");
@@ -280,7 +280,7 @@ namespace CrewChiefV4.ACC
 
                         structWrapper.data.accChief.serverName = ""; // udpUpdateViewModel.BroadcastingVM.EventVM.Evt.;
 
-                    structWrapper.data.accChief.isInternalMemoryModuleLoaded = 1;
+                        structWrapper.data.accChief.isInternalMemoryModuleLoaded = 1;
                         structWrapper.data.accChief.trackLength = udpUpdateViewModel.BroadcastingVM.TrackVM?.TrackMeters ?? 0;
                         structWrapper.data.accChief.isRaining = udpUpdateViewModel.SessionInfoVM.RainLevel < 0.1 && udpUpdateViewModel.SessionInfoVM.WetnessLevel < 0.1;
                         structWrapper.data.accChief.vehicle = new accVehicleInfo[udpUpdateViewModel.BroadcastingVM.Cars.Count];
