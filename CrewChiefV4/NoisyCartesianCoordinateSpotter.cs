@@ -275,7 +275,7 @@ namespace CrewChiefV4
         // opponentVelocity data is optional. It should be list of 2 element arrays with x and z speed, ordered
         // the same as currentOpponentPositions
         public void triggerInternal(float playerRotationInRadians, float[] currentPlayerPosition,
-            float[] playerVelocityData, List<float[]> currentOpponentPositions, List<float[]> opponentVelocityData = null)
+            float[] playerVelocityData, List<float[]> currentOpponentPositions, List<float[]> opponentVelocityData = null, float[] opponentSpeedData = null)
         {
             if (GameStateData.onManualFormationLap)
             {
@@ -311,6 +311,10 @@ namespace CrewChiefV4
                             {
                                 isOpponentVelocityInRange = checkOpponentVelocityInRange(playerVelocityData[1], playerVelocityData[2],
                                     opponentVelocityData[i][0], opponentVelocityData[i][1]);
+                            }
+                            else if (opponentSpeedData != null)
+                            {
+                                isOpponentVelocityInRange = Math.Abs(playerVelocityData[0] - opponentSpeedData[i]) < maxClosingSpeed;
                             }
                             else
                             {

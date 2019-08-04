@@ -86,9 +86,10 @@ namespace CrewChiefV4.ACC
             ACCShared lastState = ((ACCSharedMemoryReader.ACCStructWrapper)lastStateObj).data;
 
             if (!enabled || currentState.accChief.vehicle.Length <= 1 ||
-                currentState.accGraphic.status == AC_STATUS.AC_REPLAY || currentState.accGraphic.status == AC_STATUS.AC_OFF ||
-                (mapToFloatTime(currentState.accChief.vehicle[0].currentLapTimeMS) < timeAfterRaceStartToActivate &&
-                currentState.accChief.vehicle[0].lapCount <= 0))
+                currentState.accGraphic.status == AC_STATUS.AC_REPLAY || currentState.accGraphic.status == AC_STATUS.AC_OFF
+                /* currentLapTime looks like it gets reset to 0 so don't check this
+                 * || (mapToFloatTime(currentState.accChief.vehicle[0].currentLapTimeMS) < timeAfterRaceStartToActivate &&
+                currentState.accChief.vehicle[0].lapCount <= 0)*/)
             {
                 return;
             }
@@ -127,6 +128,7 @@ namespace CrewChiefV4.ACC
             {
                 List<float[]> currentOpponentPositions = new List<float[]>();
                 float[] playerVelocityData = new float[3];
+                float[] opponentSpeedData = new float[currentState.accChief.vehicle.Length - 1];
                 playerVelocityData[0] = currentPlayerData.speedMS;
                 playerVelocityData[1] = (currentPlayerData.worldPosition.x - previousPlayerData.worldPosition.x) / timeDiffSeconds;
                 playerVelocityData[2] = (currentPlayerData.worldPosition.z - previousPlayerData.worldPosition.z) / timeDiffSeconds;
@@ -139,6 +141,7 @@ namespace CrewChiefV4.ACC
                         continue;
                     }
                     currentOpponentPositions.Add(new float[] { vehicle.worldPosition.x, vehicle.worldPosition.z });
+                    opponentSpeedData[i - 1] = vehicle.speedMS;
                 }
                 float playerRotation = currentState.accPhysics.heading;
                 
@@ -147,7 +150,7 @@ namespace CrewChiefV4.ACC
                     playerRotation = twoPi + playerRotation;
                 }
 
-                internalSpotter.triggerInternal(playerRotation, currentPlayerPosition, playerVelocityData, currentOpponentPositions);
+                internalSpotter.triggerInternal(playerRotation, currentPlayerPosition, playerVelocityData, currentOpponentPositions, null, opponentSpeedData);
             }
         }
     }
