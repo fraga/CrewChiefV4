@@ -1137,7 +1137,9 @@ namespace CrewChiefV4.ACC
                     currentGameState.TyreData.PeakFrontRightTemperatureForLap, currentGameState.TyreData.PeakRearLeftTemperatureForLap,
                     currentGameState.TyreData.PeakRearRightTemperatureForLap);
 
-            Boolean currentTyreValid = currentTyreCompound != null && currentTyreCompound.Length > 0 &&
+
+            // TODO: tyre wear is always 0.0 in the shared memory data
+            /*Boolean currentTyreValid = currentTyreCompound != null && currentTyreCompound.Length > 0 &&
                 acTyres.Count > 0 && acTyres.ContainsKey(currentTyreCompound);
 
             if (currentTyreValid)
@@ -1166,6 +1168,7 @@ namespace CrewChiefV4.ACC
             msg = $"Flag: {shared.accGraphic.flag} : {shared.accGraphic.penaltyTime}";
             if (msgHash.Add(msg.GetHashCode()))
                 System.Diagnostics.Debug.WriteLine(msg);
+            */
 
             currentGameState.PenaltiesData.IsOffRacingSurface = shared.accPhysics.numberOfTyresOut > 2;
             if (!currentGameState.PitData.OnOutLap && previousGameState != null && !previousGameState.PenaltiesData.IsOffRacingSurface && currentGameState.PenaltiesData.IsOffRacingSurface &&
