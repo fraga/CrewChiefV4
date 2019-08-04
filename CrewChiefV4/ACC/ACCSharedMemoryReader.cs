@@ -219,8 +219,8 @@ namespace CrewChiefV4.ACC
                     {
                         BroadcastingEvent[] events = udpUpdateViewModel.BroadcastingVM.EventVM.GetEvents();
 
-                        foreach (var evt in events)
-                        {
+                        //foreach (var evt in events)
+                        //{
                         //GreenFlag = 1,
                         //SessionOver = 2,
                         //PenaltyCommMsg = 3,
@@ -229,8 +229,8 @@ namespace CrewChiefV4.ACC
                         //BestSessionLap = 6,
                         //BestPersonalLap = 7
 
-                        Console.WriteLine($"Event: {evt.Type.ToString()} - {evt.Msg}");
-                        }
+                        //Console.WriteLine($"Event: {evt.Type.ToString()} - {evt.Msg}");
+                        //}
 
                         switch (udpUpdateViewModel.SessionInfoVM.SessionType)
                         {

@@ -65,7 +65,7 @@ namespace CrewChiefV4.ACC
         private HashSet<int> msgHash = new HashSet<int>();
 
         // ABS can trigger below 1.1 in the Ferrari 488
-        private float wheelSlipThreshold = 1.1f;
+        private float wheelSlipThreshold = 1.2f;
 
         #region WaYToManyTyres
         public ACCGameStateMapper()
