@@ -178,8 +178,17 @@ namespace CrewChiefV4.ACC
 
             public float replayTimeMultiplier;
             public float normalizedCarPosition;
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
-            public float[] carCoordinates;
+
+            // note that carCount frequently disagrees with the UDP data - looks like UDP data is more correct
+            public int carCount;
+
+            // new stuff still waiting for documentation from Kunos:
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 60)]
+            public accVec3[] carCoordinates;
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 60)]
+            public int[] carIDs;
+            // end of new stuff
+
             public float penaltyTime;
             public AC_FLAG_TYPE flag;
             public int idealLineOn;

@@ -285,14 +285,16 @@ namespace CrewChiefV4.ACC
                         // get the player vehicle first and put this at the front of the array
                         var playerVehicle = getPlayerVehicle(udpUpdateViewModel.BroadcastingVM.Cars, accShared.accStatic);
                         int vehicleIndex = 0;
-                        addCar(playerVehicle, structWrapper.data.accChief.vehicle, vehicleIndex, structWrapper.data.accStatic.carModel, accShared.accPhysics.wheelsPressure);
+                        addCar(playerVehicle, structWrapper.data.accChief.vehicle, vehicleIndex, structWrapper.data.accStatic.carModel, accShared.accPhysics.wheelsPressure,
+                            structWrapper.data.accGraphic.carIDs, structWrapper.data.accGraphic.carCoordinates);
                         for (var i = 0; i < udpUpdateViewModel.BroadcastingVM.Cars.Count; i++)
                         {
                             var car = udpUpdateViewModel.BroadcastingVM.Cars[i];
                             if (car != playerVehicle)
                             {
                                 vehicleIndex++;
-                                addCar(car, structWrapper.data.accChief.vehicle, vehicleIndex, structWrapper.data.accStatic.carModel, new float[4]);
+                                addCar(car, structWrapper.data.accChief.vehicle, vehicleIndex, structWrapper.data.accStatic.carModel, new float[4],
+                                    structWrapper.data.accGraphic.carIDs, structWrapper.data.accGraphic.carCoordinates);
                             }
                         }
                     }).Wait();
@@ -315,7 +317,7 @@ namespace CrewChiefV4.ACC
 
         // the carModel and tyreInflation aren't available for opponents, so these will always be the player's car model
         // and either the player's tyre inflation or an array of zeros
-        private void addCar(CarViewModel car, accVehicleInfo[] arrayToPopulate, int index, string carModel, float[] tyreInflation)
+        private void addCar(CarViewModel car, accVehicleInfo[] arrayToPopulate, int index, string carModel, float[] tyreInflation, int[] carIds, accVec3[] carPositions)
         {
             var currentLap = car.CurrentLap;
             var lastLap = car.LastLap;
@@ -332,6 +334,10 @@ namespace CrewChiefV4.ACC
             {
                 carDriverName = car.Drivers.Count > 0 ? car.Drivers.First().DisplayName : "";
             }
+
+            // get the position in the CarIDs array
+            int indexInCoordsArray = Array.IndexOf(carIds, car.CarIndex);
+            accVec3 carPosition = carPositions[indexInCoordsArray];
             arrayToPopulate[index] = new accVehicleInfo
             {
                 bestLapMS = (bestLap?.IsValid ?? false) ? bestLap.LaptimeMS ?? 0 : 0,
@@ -352,7 +358,7 @@ namespace CrewChiefV4.ACC
                 lastLapTimeMS = (lastLap?.IsValid ?? false) ? lastLap.LaptimeMS ?? 0 : 0,
                 speedMS = car.Kmh * 0.277778f,
                 spLineLength = car.SplinePosition,
-                worldPosition = new accVec3 { x = car.WorldX, z = car.WorldY },
+                worldPosition = new accVec3 { x = carPosition.x, z = carPosition.z },
                 tyreInflation = tyreInflation
             };
         }
