@@ -1306,6 +1306,8 @@ namespace CrewChiefV4
                 validateAndAdd(PIT_STOP_PRIME_TYRES, r3eChoices);
                 validateAndAdd(PIT_STOP_ALTERNATE_TYRES, r3eChoices);
                 validateAndAdd(PIT_STOP_OPTION_TYRES, r3eChoices);
+                validateAndAdd(PIT_STOP_DONT_REFUEL, r3eChoices);
+                validateAndAdd(PIT_STOP_REFUEL, r3eChoices);
                 
                 GrammarBuilder r3eGrammarBuilder = new GrammarBuilder(r3eChoices);
                 r3eGrammarBuilder.Culture = cultureInfo;
