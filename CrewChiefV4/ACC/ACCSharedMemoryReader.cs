@@ -46,7 +46,7 @@ namespace CrewChiefV4.ACC
 
         private DateTime nextScheduleRequestCars = DateTime.MinValue;
 
-        private accVehicleInfo[] mostRecentDriverData = null;
+        private SPageFileCrewChief mostRecentUDPData = null;
 
         public class ACCStructWrapper
         {
@@ -216,16 +216,17 @@ namespace CrewChiefV4.ACC
                         ackPenalityTime = structWrapper.data.accGraphic.penaltyTime;
                     }
 
-                    if (forSpotter && this.mostRecentDriverData != null && this.mostRecentDriverData.Length > 0)
+                    if (forSpotter && this.mostRecentUDPData != null && this.mostRecentUDPData.vehicle.Length > 0)
                     {
-                        for (int i = 0; i < this.mostRecentDriverData.Length; i++)
+                        for (int i = 0; i < this.mostRecentUDPData.vehicle.Length; i++)
                         {
-                            int indexInCoordsArray = Array.IndexOf(structWrapper.data.accGraphic.carIDs, this.mostRecentDriverData[i].carId);
+                            int indexInCoordsArray = Array.IndexOf(structWrapper.data.accGraphic.carIDs, this.mostRecentUDPData.vehicle[i].carId);
                             if (indexInCoordsArray > -1 && indexInCoordsArray < structWrapper.data.accGraphic.carCoordinates.Length)
                             {
-                                this.mostRecentDriverData[i].worldPosition = structWrapper.data.accGraphic.carCoordinates[indexInCoordsArray];
+                                this.mostRecentUDPData.vehicle[i].worldPosition = structWrapper.data.accGraphic.carCoordinates[indexInCoordsArray];
                             }
                         }
+                        structWrapper.data.accChief = this.mostRecentUDPData;
                     }
                     else
                     {
@@ -320,7 +321,7 @@ namespace CrewChiefV4.ACC
                                     }
                                 }
                                 // save the populated driver data so we can reuse it when reading for the spotter
-                                this.mostRecentDriverData = structWrapper.data.accChief.vehicle;
+                                this.mostRecentUDPData = structWrapper.data.accChief;
                             }
                         }).Wait();
                     }
@@ -400,22 +401,7 @@ namespace CrewChiefV4.ACC
                 tyreInflation = tyreInflation
             };            
         }
-
-        private void updateCarPosition(CarViewModel car, int index, int[] carIds, accVec3[] carPositions)
-        {
-            // get the position in the CarIDs array
-            float x_coord = 0;
-            float z_coord = 0;
-            int indexInCoordsArray = Array.IndexOf(carIds, car.CarIndex);
-            if (indexInCoordsArray > -1 && indexInCoordsArray < carPositions.Length)
-            {
-                accVec3 carPosition = carPositions[indexInCoordsArray];
-                x_coord = carPosition.x;
-                z_coord = carPosition.z;
-            }
-            this.mostRecentDriverData[index].worldPosition = new accVec3 { x = x_coord, z = z_coord };
-        }
-
+        
         private CarViewModel getPlayerVehicle(List<CarViewModel> cars, SPageFileStatic accStatic)
         {
             foreach (var car in cars)
