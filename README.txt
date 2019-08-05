@@ -274,7 +274,7 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
-Version 4.9.8.15: Added F1 2019 support (spotter only); Added Assetto Corsa Competizioni support (offline races only - won't work in multiplayer). This is a work-in-progress - the studio is still working on the API and there are issues with some of the data; Added properties profiles to allow sets of options to be saved and reloaded; Fixed an issue with missing opponent gap data when the player is running 2nd; Added option to enable blue-flag messages ("Enable blue flag messages", defaults to enabled); R3E: extended pit menu interactions - you can now ask for a specific tyre type in car classes that support it, for example "box, soft tyres" (see R3E Pit Menu Interactions)
+Version 4.9.8.15: Added F1 2019 support (spotter only); Added Assetto Corsa Competizioni support (requires ACC version 1.0.7, currently available as a public beta). This is a work-in-progress - the studio is still working on the API and there are issues with some of the data; Added properties profiles to allow sets of options to be saved and reloaded; Fixed an issue with missing opponent gap data when the player is running 2nd; Added option to enable blue-flag messages ("Enable blue flag messages", defaults to enabled); R3E: extended pit menu interactions - you can now ask for a specific tyre type in car classes that support it, for example "box, soft tyres" (see R3E Pit Menu Interactions)
 
 Version 4.9.8.8: Fix potential crash bug when assigning buttons or when testing button assignments / voice commands before the app receives any game data; removed some debug code that may have triggered in the previous release
 
