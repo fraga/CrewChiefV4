@@ -39,7 +39,7 @@ namespace CrewChiefV4.ACC
 
         private float[] loggedSectorStart = new float[] { -1f, -1f };
 
-        private List<CornerData.EnumWithThresholds> brakeTempThresholdsForPlayersCar = null;
+        private List<CornerData.EnumWithThresholds> brakeTempThresholdsForPlayersCar = CarData.getBrakeTempThresholds(CarData.getCarClassFromEnum(CarData.CarClassEnum.GT3));
 
         private int lapCountAtSector1End = -1;
 
@@ -66,6 +66,10 @@ namespace CrewChiefV4.ACC
 
         // ABS can trigger below 1.1 in the Ferrari 488
         private float wheelSlipThreshold = 1.3f;
+
+        private AC_SESSION_TYPE sessionTypeOnPreviousTick = AC_SESSION_TYPE.AC_UNKNOWN;
+        private DateTime ignoreUnknownSessionTypeUntil = DateTime.MinValue;
+        private Boolean waitingForUnknownSessionTypeToSettle = false;
 
         #region WaYToManyTyres
         public ACCGameStateMapper()
@@ -181,7 +185,7 @@ namespace CrewChiefV4.ACC
             currentGameState.SessionData.TrackDefinition = new TrackDefinition(shared.accStatic.track, shared.accChief.trackLength);
 
             Validator.validate(playerVehicle.driverName);
-            AC_SESSION_TYPE sessionType = shared.accGraphic.session;
+            AC_SESSION_TYPE sessionTypeAsSentByGame = shared.accGraphic.session;
 
             SessionPhase lastSessionPhase = SessionPhase.Unavailable;
             SessionType lastSessionType = SessionType.Unavailable;
@@ -229,6 +233,37 @@ namespace CrewChiefV4.ACC
                     brakeTempThresholdsForPlayersCar = CarData.getBrakeTempThresholds(currentGameState.carClass);
                     // no tyre data in the block so get the default tyre types for this car
                     defaultTyreTypeForPlayersCar = CarData.getDefaultTyreType(currentGameState.carClass);
+                }
+            }
+
+            // this is the corrected AC_SESSION_TYPE, ignoring occasional shit data. I wonder what else is set to "shit" in shared memory every few seconds?
+            AC_SESSION_TYPE sessionType;
+            if (sessionTypeAsSentByGame != AC_SESSION_TYPE.AC_UNKNOWN)
+            {
+                waitingForUnknownSessionTypeToSettle = false;
+                sessionTypeOnPreviousTick = sessionTypeAsSentByGame;
+                sessionType = sessionTypeAsSentByGame;
+            }
+            else
+            {
+                if (!waitingForUnknownSessionTypeToSettle)
+                {
+                    // transitioned to UNKNOWN session type. ACC sends this semi-randomly in shared memory during a running session, no idea why
+                    waitingForUnknownSessionTypeToSettle = true;
+                    ignoreUnknownSessionTypeUntil = currentGameState.Now.AddSeconds(1);
+                    sessionType = sessionTypeOnPreviousTick;
+                }
+                else if (currentGameState.Now > ignoreUnknownSessionTypeUntil)
+                {
+                    // transition to UNKNOWN has settled
+                    waitingForUnknownSessionTypeToSettle = false;
+                    sessionTypeOnPreviousTick = sessionTypeAsSentByGame;
+                    sessionType = sessionTypeAsSentByGame;
+                }
+                else
+                {
+                    // transition to UNKNOWN has not settled
+                    sessionType = sessionTypeOnPreviousTick;
                 }
             }
 
