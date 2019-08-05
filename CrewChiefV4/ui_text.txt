@@ -1555,3 +1555,8 @@ fcy_stop_spotter_immediately_category = SPOTTER
 enable_blue_flag_messages = Enable blue flag messages
 enable_blue_flag_messages_help = Enable blue flag calls
 enable_blue_flag_messages_category = FLAGS_AND_RULES
+
+limit_available_games = Limit available games
+limit_available_games_help = Comma separated list of games to show in the Games list (e.g. PCARS2, R3E)
+limit_available_games_category = UI_STARTUP_AND_PATHS
+limit_available_games_metadata = RESTART_REQUIRED

@@ -46,6 +46,8 @@ namespace CrewChiefV4.ACC
 
         private DateTime nextScheduleRequestCars = DateTime.MinValue;
 
+        private accVehicleInfo[] mostRecentDriverData = null;
+
         public class ACCStructWrapper
         {
             public long ticksWhenRead;
@@ -214,98 +216,114 @@ namespace CrewChiefV4.ACC
                         ackPenalityTime = structWrapper.data.accGraphic.penaltyTime;
                     }
 
-                    // Populate data from the ACC UDP info. We have to lock it because data can be updated while we read it
-                    udpUpdateViewModel.LockForReadingAsync(() =>
+                    if (forSpotter && this.mostRecentDriverData != null && this.mostRecentDriverData.Length > 0)
                     {
-                        BroadcastingEvent[] events = udpUpdateViewModel.BroadcastingVM.EventVM.GetEvents();
-
-                        //foreach (var evt in events)
-                        //{
-                        //GreenFlag = 1,
-                        //SessionOver = 2,
-                        //PenaltyCommMsg = 3,
-                        //Accident = 4,
-                        //LapCompleted = 5,
-                        //BestSessionLap = 6,
-                        //BestPersonalLap = 7
-
-                        //Console.WriteLine($"Event: {evt.Type.ToString()} - {evt.Msg}");
-                        //}
-
-                        switch (udpUpdateViewModel.SessionInfoVM.SessionType)
+                        for (int i = 0; i < this.mostRecentDriverData.Length; i++)
                         {
-                            case RaceSessionType.Practice:
-                                structWrapper.data.accGraphic.session = AC_SESSION_TYPE.AC_PRACTICE;
-                                break;
-                            case RaceSessionType.Qualifying:
-                                structWrapper.data.accGraphic.session = AC_SESSION_TYPE.AC_QUALIFY;
-                                break;
-                            case RaceSessionType.Race:
-                                structWrapper.data.accGraphic.session = AC_SESSION_TYPE.AC_RACE;
-                                break;
-                            case RaceSessionType.Hotlap:
-                            case RaceSessionType.HotlapSuperpole:
-                            case RaceSessionType.Hotstint:
-                            case RaceSessionType.Superpole:
-                                structWrapper.data.accGraphic.session = AC_SESSION_TYPE.AC_HOTLAP;
-                                break;
-                            default:
-                                structWrapper.data.accGraphic.session = AC_SESSION_TYPE.AC_HOTLAP;
-                                break;
-                        }
-
-                        switch (udpUpdateViewModel.SessionInfoVM.Phase)
-                        {
-                            case SessionPhase.SessionOver:
-                                structWrapper.data.accChief.SessionPhase = GameState.SessionPhase.Checkered;
-                                break;
-                            case SessionPhase.PreSession:
-                            case SessionPhase.Starting:
-                            case SessionPhase.PreFormation:
-                                structWrapper.data.accChief.SessionPhase = GameState.SessionPhase.Countdown;
-                                break;
-                            case SessionPhase.PostSession:
-                                structWrapper.data.accChief.SessionPhase = GameState.SessionPhase.Finished;
-                                break;
-                            case SessionPhase.FormationLap:
-                                structWrapper.data.accChief.SessionPhase = GameState.SessionPhase.Formation;
-                                break;
-                            case SessionPhase.Session:
-                                structWrapper.data.accChief.SessionPhase = GameState.SessionPhase.Green;
-                                break;
-                            default:
-                                structWrapper.data.accChief.SessionPhase = GameState.SessionPhase.Unavailable;
-                                break;
-                        }
-
-                        structWrapper.data.accChief.serverName = ""; // udpUpdateViewModel.BroadcastingVM.EventVM.Evt.;
-
-                        structWrapper.data.accChief.isInternalMemoryModuleLoaded = 1;
-                        structWrapper.data.accChief.trackLength = udpUpdateViewModel.BroadcastingVM.TrackVM?.TrackMeters ?? 0;
-                        structWrapper.data.accChief.isRaining = udpUpdateViewModel.SessionInfoVM.RainLevel < 0.1 && udpUpdateViewModel.SessionInfoVM.WetnessLevel < 0.1;
-                        structWrapper.data.accChief.vehicle = new accVehicleInfo[udpUpdateViewModel.BroadcastingVM.Cars.Count];
-
-                        // get the player vehicle first and put this at the front of the array
-                        var playerVehicle = getPlayerVehicle(udpUpdateViewModel.BroadcastingVM.Cars, accShared.accStatic);
-                        if (playerVehicle != null)
-                        {
-                            int vehicleIndex = 0;
-                            addCar(playerVehicle, structWrapper.data.accChief.vehicle, vehicleIndex, structWrapper.data.accStatic.carModel, accShared.accPhysics.wheelsPressure,
-                                structWrapper.data.accGraphic.carIDs, structWrapper.data.accGraphic.carCoordinates);
-
-                            // the shared mem carIDs and carCoordinates arrays don't actually contain all the car data
-                            for (var i = 0; i < udpUpdateViewModel.BroadcastingVM.Cars.Count; i++)
+                            int indexInCoordsArray = Array.IndexOf(structWrapper.data.accGraphic.carIDs, this.mostRecentDriverData[i].carId);
+                            if (indexInCoordsArray > -1 && indexInCoordsArray < structWrapper.data.accGraphic.carCoordinates.Length)
                             {
-                                var car = udpUpdateViewModel.BroadcastingVM.Cars[i];
-                                if (car != playerVehicle)
-                                {
-                                    vehicleIndex++;
-                                    addCar(car, structWrapper.data.accChief.vehicle, vehicleIndex, structWrapper.data.accStatic.carModel, new float[4],
-                                        structWrapper.data.accGraphic.carIDs, structWrapper.data.accGraphic.carCoordinates);
-                                }
+                                this.mostRecentDriverData[i].worldPosition = structWrapper.data.accGraphic.carCoordinates[indexInCoordsArray];
                             }
                         }
-                    }).Wait();
+                    }
+                    else
+                    {
+                        // Populate data from the ACC UDP info. We have to lock it because data can be updated while we read it
+                        udpUpdateViewModel.LockForReadingAsync(() =>
+                        {
+                            BroadcastingEvent[] events = udpUpdateViewModel.BroadcastingVM.EventVM.GetEvents();
+
+                            //foreach (var evt in events)
+                            //{
+                            //GreenFlag = 1,
+                            //SessionOver = 2,
+                            //PenaltyCommMsg = 3,
+                            //Accident = 4,
+                            //LapCompleted = 5,
+                            //BestSessionLap = 6,
+                            //BestPersonalLap = 7
+
+                            //Console.WriteLine($"Event: {evt.Type.ToString()} - {evt.Msg}");
+                            //}
+
+                            switch (udpUpdateViewModel.SessionInfoVM.SessionType)
+                            {
+                                case RaceSessionType.Practice:
+                                    structWrapper.data.accGraphic.session = AC_SESSION_TYPE.AC_PRACTICE;
+                                    break;
+                                case RaceSessionType.Qualifying:
+                                    structWrapper.data.accGraphic.session = AC_SESSION_TYPE.AC_QUALIFY;
+                                    break;
+                                case RaceSessionType.Race:
+                                    structWrapper.data.accGraphic.session = AC_SESSION_TYPE.AC_RACE;
+                                    break;
+                                case RaceSessionType.Hotlap:
+                                case RaceSessionType.HotlapSuperpole:
+                                case RaceSessionType.Hotstint:
+                                case RaceSessionType.Superpole:
+                                    structWrapper.data.accGraphic.session = AC_SESSION_TYPE.AC_HOTLAP;
+                                    break;
+                                default:
+                                    structWrapper.data.accGraphic.session = AC_SESSION_TYPE.AC_HOTLAP;
+                                    break;
+                            }
+
+                            switch (udpUpdateViewModel.SessionInfoVM.Phase)
+                            {
+                                case SessionPhase.SessionOver:
+                                    structWrapper.data.accChief.SessionPhase = GameState.SessionPhase.Checkered;
+                                    break;
+                                case SessionPhase.PreSession:
+                                case SessionPhase.Starting:
+                                case SessionPhase.PreFormation:
+                                    structWrapper.data.accChief.SessionPhase = GameState.SessionPhase.Countdown;
+                                    break;
+                                case SessionPhase.PostSession:
+                                    structWrapper.data.accChief.SessionPhase = GameState.SessionPhase.Finished;
+                                    break;
+                                case SessionPhase.FormationLap:
+                                    structWrapper.data.accChief.SessionPhase = GameState.SessionPhase.Formation;
+                                    break;
+                                case SessionPhase.Session:
+                                    structWrapper.data.accChief.SessionPhase = GameState.SessionPhase.Green;
+                                    break;
+                                default:
+                                    structWrapper.data.accChief.SessionPhase = GameState.SessionPhase.Unavailable;
+                                    break;
+                            }
+
+                            structWrapper.data.accChief.serverName = ""; // udpUpdateViewModel.BroadcastingVM.EventVM.Evt.;
+
+                            structWrapper.data.accChief.isInternalMemoryModuleLoaded = 1;
+                            structWrapper.data.accChief.trackLength = udpUpdateViewModel.BroadcastingVM.TrackVM?.TrackMeters ?? 0;
+                            structWrapper.data.accChief.isRaining = udpUpdateViewModel.SessionInfoVM.RainLevel < 0.1 && udpUpdateViewModel.SessionInfoVM.WetnessLevel < 0.1;
+                            structWrapper.data.accChief.vehicle = new accVehicleInfo[udpUpdateViewModel.BroadcastingVM.Cars.Count];
+
+                            // get the player vehicle first and put this at the front of the array
+                            var playerVehicle = getPlayerVehicle(udpUpdateViewModel.BroadcastingVM.Cars, accShared.accStatic);
+                            if (playerVehicle != null)
+                            {
+                                int vehicleIndex = 0;
+                                addCar(playerVehicle, structWrapper.data.accChief.vehicle, vehicleIndex, structWrapper.data.accStatic.carModel, accShared.accPhysics.wheelsPressure,
+                                    structWrapper.data.accGraphic.carIDs, structWrapper.data.accGraphic.carCoordinates);
+
+                                // the shared mem carIDs and carCoordinates arrays don't actually contain all the car data
+                                for (var i = 0; i < udpUpdateViewModel.BroadcastingVM.Cars.Count; i++)
+                                {
+                                    var car = udpUpdateViewModel.BroadcastingVM.Cars[i];
+                                    if (car != playerVehicle)
+                                    {
+                                        vehicleIndex++;
+                                        addCar(car, structWrapper.data.accChief.vehicle, vehicleIndex, structWrapper.data.accStatic.carModel, new float[4],
+                                            structWrapper.data.accGraphic.carIDs, structWrapper.data.accGraphic.carCoordinates);
+                                    }
+                                }
+                                // save the populated driver data so we can reuse it when reading for the spotter
+                                this.mostRecentDriverData = structWrapper.data.accChief.vehicle;
+                            }
+                        }).Wait();
+                    }
 
                     if (!forSpotter && dumpToFile && dataToDump != null)
                     {
@@ -381,6 +399,21 @@ namespace CrewChiefV4.ACC
                 worldPosition = new accVec3 { x = x_coord, z = z_coord },
                 tyreInflation = tyreInflation
             };            
+        }
+
+        private void updateCarPosition(CarViewModel car, int index, int[] carIds, accVec3[] carPositions)
+        {
+            // get the position in the CarIDs array
+            float x_coord = 0;
+            float z_coord = 0;
+            int indexInCoordsArray = Array.IndexOf(carIds, car.CarIndex);
+            if (indexInCoordsArray > -1 && indexInCoordsArray < carPositions.Length)
+            {
+                accVec3 carPosition = carPositions[indexInCoordsArray];
+                x_coord = carPosition.x;
+                z_coord = carPosition.z;
+            }
+            this.mostRecentDriverData[index].worldPosition = new accVec3 { x = x_coord, z = z_coord };
         }
 
         private CarViewModel getPlayerVehicle(List<CarViewModel> cars, SPageFileStatic accStatic)

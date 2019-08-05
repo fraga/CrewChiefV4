@@ -4042,5 +4042,17 @@ namespace CrewChiefV4.Properties {
                 this["enable_blue_flag_messages"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string limit_available_games {
+            get {
+                return ((string)(this["limit_available_games"]));
+            }
+            set {
+                this["limit_available_games"] = value;
+            }
+        }
     }
 }
