@@ -301,6 +301,7 @@ namespace CrewChiefV4.ACC
                             structWrapper.data.accChief.isRaining = udpUpdateViewModel.SessionInfoVM.RainLevel < 0.1 && udpUpdateViewModel.SessionInfoVM.WetnessLevel < 0.1;
                             structWrapper.data.accChief.vehicle = new accVehicleInfo[udpUpdateViewModel.BroadcastingVM.Cars.Count];
 
+                            List<float> distancesTravelled = new List<float>();
                             // get the player vehicle first and put this at the front of the array
                             var playerVehicle = getPlayerVehicle(udpUpdateViewModel.BroadcastingVM.Cars, accShared.accStatic);
                             if (playerVehicle != null)
@@ -308,6 +309,7 @@ namespace CrewChiefV4.ACC
                                 int vehicleIndex = 0;
                                 addCar(playerVehicle, structWrapper.data.accChief.vehicle, vehicleIndex, structWrapper.data.accStatic.carModel, accShared.accPhysics.wheelsPressure,
                                     structWrapper.data.accGraphic.carIDs, structWrapper.data.accGraphic.carCoordinates);
+                                distancesTravelled.Add(playerVehicle.Laps + playerVehicle.SplinePosition);
 
                                 // the shared mem carIDs and carCoordinates arrays don't actually contain all the car data
                                 for (var i = 0; i < udpUpdateViewModel.BroadcastingVM.Cars.Count; i++)
@@ -318,7 +320,20 @@ namespace CrewChiefV4.ACC
                                         vehicleIndex++;
                                         addCar(car, structWrapper.data.accChief.vehicle, vehicleIndex, structWrapper.data.accStatic.carModel, new float[4],
                                             structWrapper.data.accGraphic.carIDs, structWrapper.data.accGraphic.carCoordinates);
+                                        distancesTravelled.Add(car.Laps + car.SplinePosition);
                                     }
+                                }
+                                List<float> sortedDistances = new List<float>(distancesTravelled);
+                                sortedDistances.Sort();
+                                sortedDistances.Reverse();
+                                for (var i=0; i < distancesTravelled.Count; i++)
+                                {
+                                    int positionFromSpline = sortedDistances.IndexOf(distancesTravelled[i]) + 1;
+                                    /*if (structWrapper.data.accChief.vehicle[i].carRealTimeLeaderboardPosition != positionFromSpline)
+                                    {
+                                        Console.WriteLine("game says car is in p" + structWrapper.data.accChief.vehicle[i].carRealTimeLeaderboardPosition + " but we think it's in p" + positionFromSpline);
+                                    }*/
+                                    structWrapper.data.accChief.vehicle[i].carRealTimeLeaderboardPosition = positionFromSpline;
                                 }
                                 // save the populated driver data so we can reuse it when reading for the spotter
                                 this.mostRecentUDPData = structWrapper.data.accChief;

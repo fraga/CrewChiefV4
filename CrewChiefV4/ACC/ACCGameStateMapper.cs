@@ -304,7 +304,6 @@ namespace CrewChiefV4.ACC
                 }
             }
 
-            int realTimeLeaderBoardValid = isCarRealTimeLeaderBoardValid(shared.accChief.vehicle, shared.accChief.vehicle.Length);
             AC_FLAG_TYPE currentFlag = shared.accGraphic.flag;
             if (sessionType == AC_SESSION_TYPE.AC_PRACTICE || sessionType == AC_SESSION_TYPE.AC_QUALIFY)
             {
@@ -314,15 +313,13 @@ namespace CrewChiefV4.ACC
             {
                 // Prevent positsion change first 10 sec of race else we get invalid position report when crossing the start/finish line when the light turns green.
                 // carRealTimeLeaderboardPosition does not allways provide valid data doing this fase.
-                if ((previousGameState != null && previousGameState.SessionData.SessionRunningTime < 10 && shared.accGraphic.session == AC_SESSION_TYPE.AC_RACE) ||
-                    currentFlag == AC_FLAG_TYPE.AC_CHECKERED_FLAG)
+                if (previousGameState != null && previousGameState.SessionData.SessionRunningTime < 10 && shared.accGraphic.session == AC_SESSION_TYPE.AC_RACE)
                 {
-                    //System.Diagnostics.Debug.WriteLine("using carLeaderboardPosition");
                     currentGameState.SessionData.OverallPosition = playerVehicle.carLeaderboardPosition;
                 }
                 else
                 {
-                    currentGameState.SessionData.OverallPosition = playerVehicle.carRealTimeLeaderboardPosition + realTimeLeaderBoardValid;
+                    currentGameState.SessionData.OverallPosition = playerVehicle.carRealTimeLeaderboardPosition;
                 }
             }
 
@@ -332,7 +329,12 @@ namespace CrewChiefV4.ACC
             ACCGameStateMapper.numberOfSectorsOnTrack = shared.accStatic.sectorCount;
 
             Boolean raceFinished = lapsCompleted == numberOfLapsInSession || (previousGameState != null && previousGameState.SessionData.LeaderHasFinishedRace && previousGameState.SessionData.IsNewLap);
+            
             currentGameState.SessionData.SessionPhase = shared.accChief.SessionPhase;
+            if (raceFinished && shared.accChief.SessionPhase == SessionPhase.Checkered)
+            {
+                currentGameState.SessionData.SessionPhase = SessionPhase.Finished;
+            }
 
             currentGameState.SessionData.TrackDefinition = TrackData.getTrackDefinition(shared.accStatic.track + ":" + shared.accStatic.trackConfiguration, shared.accChief.trackLength, shared.accStatic.sectorCount);
 
@@ -625,7 +627,15 @@ namespace CrewChiefV4.ACC
 
                 if (currentGameState.SessionData.SessionHasFixedTime)
                 {
-                    currentGameState.SessionData.SessionRunningTime = currentGameState.SessionData.SessionTotalRunTime - sessionTimeRemaining;
+                    // when the race timer reaches zero, this will make SessionRunningTime 'stick' at the SessionTotalRunTime
+                    if (sessionTimeRemaining == 0)
+                    {
+                        currentGameState.SessionData.SessionRunningTime = (float)(currentGameState.Now - currentGameState.SessionData.SessionStartTime).TotalSeconds;
+                    }
+                    else
+                    {
+                        currentGameState.SessionData.SessionRunningTime = currentGameState.SessionData.SessionTotalRunTime - sessionTimeRemaining;
+                    }
                     currentGameState.SessionData.SessionTimeRemaining = sessionTimeRemaining;
                 }
                 else
@@ -829,7 +839,7 @@ namespace CrewChiefV4.ACC
                                     }
                                     else
                                     {
-                                        currentOpponentRacePosition = participantStruct.carRealTimeLeaderboardPosition + realTimeLeaderBoardValid;
+                                        currentOpponentRacePosition = participantStruct.carRealTimeLeaderboardPosition;
                                     }
                                     int currentOpponentLapsCompleted = participantStruct.lapCount;
 
@@ -1220,15 +1230,14 @@ namespace CrewChiefV4.ACC
                 currentGameState.TyreData.RightFrontIsLocked = Math.Abs(shared.accPhysics.wheelAngularSpeed[1]) < minRotatingSpeed;
                 currentGameState.TyreData.LeftRearIsLocked = Math.Abs(shared.accPhysics.wheelAngularSpeed[2]) < minRotatingSpeed;
                 currentGameState.TyreData.RightRearIsLocked = Math.Abs(shared.accPhysics.wheelAngularSpeed[3]) < minRotatingSpeed;
-
-                // Is this better? Slip isn't just spinning
-
+                
+                // '3' here is a magic number - we want to allow the wheel to spin significantly faster than the ideal we we're not always grumbling about it
+                float maxRotatingSpeed = 3 * (float)Math.PI * playerVehicle.speedMS / currentGameState.carClass.minTyreCircumference;
                 // all the cars are RWD (so far), so don't bother checking front wheelspin
-                /*currentGameState.TyreData.LeftFrontIsSpinning = shared.accPhysics.wheelSlip[0] > wheelSlipThreshold;
-                currentGameState.TyreData.RightFrontIsSpinning = shared.accPhysics.wheelSlip[1] > wheelSlipThreshold;*/
-
-                currentGameState.TyreData.LeftRearIsSpinning = shared.accPhysics.wheelSlip[2] > wheelSlipThreshold;
-                currentGameState.TyreData.RightRearIsSpinning = shared.accPhysics.wheelSlip[3] > wheelSlipThreshold;
+                //currentGameState.TyreData.LeftFrontIsSpinning = Math.Abs(shared.accPhysics.wheelAngularSpeed[0]) > maxRotatingSpeed;
+                //currentGameState.TyreData.RightFrontIsSpinning = Math.Abs(shared.accPhysics.wheelAngularSpeed[1]) > maxRotatingSpeed;
+                currentGameState.TyreData.LeftRearIsSpinning = Math.Abs(shared.accPhysics.wheelAngularSpeed[2]) > maxRotatingSpeed;
+                currentGameState.TyreData.RightRearIsSpinning = Math.Abs(shared.accPhysics.wheelAngularSpeed[3]) > maxRotatingSpeed;
             }
 
             //conditions
@@ -1268,7 +1277,7 @@ namespace CrewChiefV4.ACC
                 currentGameState.hardPartsOnTrackData.mapHardPartsOnTrack(currentGameState.ControlData.BrakePedal, currentGameState.ControlData.ThrottlePedal,
                     currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.SessionData.CurrentLapIsValid, currentGameState.SessionData.TrackDefinition.trackLength);
             }
-
+            
             return currentGameState;
         }
 
@@ -1666,18 +1675,5 @@ namespace CrewChiefV4.ACC
             }
             return spLine * trackLength;
         }
-
-        private int isCarRealTimeLeaderBoardValid(accVehicleInfo[] vehicles, int numVehicles)
-        {
-            for (int i = 0; i < numVehicles; i++)
-            {
-                if (vehicles[i].carRealTimeLeaderboardPosition == 0)
-                {
-                    return 1;
-                }
-            }
-            return 0;
-        }
-
     }
 }
