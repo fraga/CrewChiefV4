@@ -30,6 +30,9 @@ namespace CrewChiefV4.ACC
             }
         }
 
+        // lapCount and splinePosition disagree when we're near to the start line. Who knows why.
+        private const float startOfShitSplinePoint = 0.99f;
+        private const float endOfShitSplinePoint = 0.01f;
 
         List<CornerData.EnumWithThresholds> tyreTempThresholds = new List<CornerData.EnumWithThresholds>();
         private static Dictionary<string, AcTyres> acTyres = new Dictionary<string, AcTyres>();
@@ -310,7 +313,23 @@ namespace CrewChiefV4.ACC
             Boolean useLeaderboardPosition = (sessionType == AC_SESSION_TYPE.AC_PRACTICE || sessionType == AC_SESSION_TYPE.AC_QUALIFY)
                 || (previousGameState != null && previousGameState.SessionData.SessionRunningTime < 10 && shared.accGraphic.session == AC_SESSION_TYPE.AC_RACE);
 
-            currentGameState.SessionData.OverallPosition = useLeaderboardPosition ? playerVehicle.carLeaderboardPosition : playerVehicle.carRealTimeLeaderboardPosition;
+            if (useLeaderboardPosition)
+            {
+                currentGameState.SessionData.OverallPosition = playerVehicle.carLeaderboardPosition;
+            }
+            else
+            {
+                // sanity check for realtime position data - the lap start point and the spline zero point aren't in the same place. Here we assume they're quite close
+                // and if we're quite close to 0 on the spline, re-use the previous position data
+                if (previousGameState != null && (playerVehicle.spLineLength > ACCGameStateMapper.startOfShitSplinePoint || playerVehicle.spLineLength < ACCGameStateMapper.endOfShitSplinePoint))
+                {
+                    currentGameState.SessionData.OverallPosition = previousGameState.SessionData.OverallPosition;
+                }
+                else
+                {
+                    currentGameState.SessionData.OverallPosition = playerVehicle.carRealTimeLeaderboardPosition;
+                }
+            }
 
             currentGameState.SessionData.IsDisqualified = currentFlag == AC_FLAG_TYPE.AC_BLACK_FLAG;
             bool isInPits = shared.accGraphic.isInPit == 1;
@@ -664,8 +683,6 @@ namespace CrewChiefV4.ACC
 
                 if (currentGameState.SessionData.IsNewLap)
                 {
-                    // override the derived race position here - these should actually be the same but it's not going to hurt to use the leadboard position
-                    currentGameState.SessionData.OverallPosition = playerVehicle.carLeaderboardPosition;
                     currentGameState.readLandmarksForThisLap = false;
                     // correct IsNewSector so it's in sync with IsNewLap
                     currentGameState.SessionData.IsNewSector = true;
@@ -821,9 +838,23 @@ namespace CrewChiefV4.ACC
                                     currentOpponentData.DeltaTime.SetNextDeltaPoint(currentOpponentLapDistance, participantStruct.lapCount,
                                         participantStruct.speedMS, currentGameState.Now);
 
-                                    // this will actually be the leadboard position in non-race sessions and at the start of a race session, otherwise
-                                    // it's the (derived) realtime position
-                                    currentOpponentRacePosition = useLeaderboardPosition ? participantStruct.carLeaderboardPosition : participantStruct.carRealTimeLeaderboardPosition;
+                                    if (useLeaderboardPosition)
+                                    {
+                                        currentOpponentRacePosition = participantStruct.carLeaderboardPosition;
+                                    }
+                                    else
+                                    {
+                                        // realtime position in race sessions tends to be more accurate than leaderboard position so we always use it.
+                                        // However, if this car is close to the track spline zero point then we can't trust the calculation
+                                        if (previousOpponentPosition > 0 && (participantStruct.spLineLength > ACCGameStateMapper.startOfShitSplinePoint || participantStruct.spLineLength < ACCGameStateMapper.endOfShitSplinePoint))
+                                        {
+                                            currentOpponentRacePosition = previousOpponentPosition;
+                                        }
+                                        else
+                                        {
+                                            currentOpponentRacePosition = participantStruct.carRealTimeLeaderboardPosition;
+                                        }
+                                    }
 
                                     int currentOpponentLapsCompleted = participantStruct.lapCount;
 
@@ -865,7 +896,6 @@ namespace CrewChiefV4.ACC
                                     upateOpponentData(currentOpponentData,
                                         previousOpponentData,
                                         currentOpponentRacePosition,
-                                        participantStruct.carLeaderboardPosition,
                                         currentOpponentLapsCompleted,
                                         currentOpponentSector,
                                         mapToFloatTime(participantStruct.currentLapTimeMS),
@@ -1293,8 +1323,7 @@ namespace CrewChiefV4.ACC
             return tyreTempThresholds;
         }
 
-        // pass racePosition (realtime position) and leaderboard position here - use leaderboard position when completing a lap only
-        private void upateOpponentData(OpponentData opponentData, OpponentData previousOpponentData, int realtimeRacePosition, int leaderBoardPosition, int completedLaps, int sector,
+        private void upateOpponentData(OpponentData opponentData, OpponentData previousOpponentData, int realtimeRacePosition, int completedLaps, int sector,
             float completedLapTime, float lastLapTime, Boolean isInPits, Boolean lapIsValid, float sessionRunningTime, float secondsSinceLastUpdate,
             float[] currentWorldPosition, float speed, float distanceRoundTrack, Boolean sessionLengthIsTime, float sessionTimeRemaining,
             float airTemperature, float trackTempreture, Boolean isRace, float nearPitEntryPointDistance,
@@ -1364,13 +1393,13 @@ namespace CrewChiefV4.ACC
                         }
                         else
                         {
-                            opponentData.CompleteLapWithProvidedLapTime(leaderBoardPosition, sessionRunningTime, lastLapTime, isInPits,
+                            opponentData.CompleteLapWithProvidedLapTime(realtimeRacePosition, sessionRunningTime, lastLapTime, isInPits,
                                 false, trackTempreture, airTemperature, sessionLengthIsTime, sessionTimeRemaining, ACCGameStateMapper.numberOfSectorsOnTrack,
                                 timingData, CarData.IsCarClassEqual(opponentData.CarClass, playerCarClass, true));
                         }
                     }
 
-                    opponentData.StartNewLap(correctedLapCount + 1, leaderBoardPosition, isInPits, sessionRunningTime, false, trackTempreture, airTemperature);
+                    opponentData.StartNewLap(correctedLapCount + 1, realtimeRacePosition, isInPits, sessionRunningTime, false, trackTempreture, airTemperature);
                     opponentData.IsNewLap = true;
                     opponentData.CompletedLaps = correctedLapCount;
                     // recheck the car class here?
