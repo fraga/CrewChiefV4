@@ -31,8 +31,8 @@ namespace CrewChiefV4.ACC
         }
 
         // lapCount and splinePosition disagree when we're near to the start line. Who knows why.
-        private const float startOfShitSplinePoint = 0.99f;
-        private const float endOfShitSplinePoint = 0.01f;
+        private const float startOfShitSplinePoint = 0.993f;
+        private const float endOfShitSplinePoint = 0.007f;
 
         List<CornerData.EnumWithThresholds> tyreTempThresholds = new List<CornerData.EnumWithThresholds>();
         private static Dictionary<string, AcTyres> acTyres = new Dictionary<string, AcTyres>();
