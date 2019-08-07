@@ -299,40 +299,38 @@ namespace CrewChiefV4.ACC
                             structWrapper.data.accChief.isInternalMemoryModuleLoaded = 1;
                             structWrapper.data.accChief.trackLength = udpUpdateViewModel.BroadcastingVM.TrackVM?.TrackMeters ?? 0;
                             structWrapper.data.accChief.isRaining = udpUpdateViewModel.SessionInfoVM.RainLevel < 0.1 && udpUpdateViewModel.SessionInfoVM.WetnessLevel < 0.1;
+
+                            // until we check that a driver's carId is also in the accGraphic.carIDs array, we don't know how long this list will be:
+                            LinkedList<accVehicleInfo> activeVehicles = new LinkedList<accVehicleInfo>();
                             structWrapper.data.accChief.vehicle = new accVehicleInfo[udpUpdateViewModel.BroadcastingVM.Cars.Count];
 
                             List<float> distancesTravelled = new List<float>();
-                            // get the player vehicle first and put this at the front of the array
+                            // get the player vehicle first and put this at the front of the list
                             var playerVehicle = getPlayerVehicle(udpUpdateViewModel.BroadcastingVM.Cars, accShared.accStatic);
                             if (playerVehicle != null)
                             {
-                                int vehicleIndex = 0;
-                                addCar(playerVehicle, structWrapper.data.accChief.vehicle, vehicleIndex, structWrapper.data.accStatic.carModel, accShared.accPhysics.wheelsPressure,
-                                    structWrapper.data.accGraphic.carIDs, structWrapper.data.accGraphic.carCoordinates);
+                                activeVehicles.AddFirst(createCar(1, playerVehicle, structWrapper.data.accStatic.carModel, accShared.accPhysics.wheelsPressure,
+                                    structWrapper.data.accGraphic.carIDs, structWrapper.data.accGraphic.carCoordinates));
                                 distancesTravelled.Add(playerVehicle.Laps + playerVehicle.SplinePosition);
 
-                                // the shared mem carIDs and carCoordinates arrays don't actually contain all the car data
-                                for (var i = 0; i < udpUpdateViewModel.BroadcastingVM.Cars.Count; i++)
+                                // only add a car to our data set if it exists in the UDP data and the shared memory car IDs array
+                                foreach (CarViewModel car in udpUpdateViewModel.BroadcastingVM.Cars)
                                 {
-                                    var car = udpUpdateViewModel.BroadcastingVM.Cars[i];
-                                    if (car != playerVehicle)
+                                    if (car != playerVehicle && structWrapper.data.accGraphic.carIDs.Contains(car.CarIndex))
                                     {
-                                        vehicleIndex++;
-                                        addCar(car, structWrapper.data.accChief.vehicle, vehicleIndex, structWrapper.data.accStatic.carModel, new float[4],
-                                            structWrapper.data.accGraphic.carIDs, structWrapper.data.accGraphic.carCoordinates);
+                                        activeVehicles.AddLast(createCar(0, car, structWrapper.data.accStatic.carModel, new float[4],
+                                            structWrapper.data.accGraphic.carIDs, structWrapper.data.accGraphic.carCoordinates));
                                         distancesTravelled.Add(car.Laps + car.SplinePosition);
                                     }
                                 }
+                                // now set the accVehicle array from our list of vehicles that we've deemed to be 'active'
+                                structWrapper.data.accChief.vehicle = activeVehicles.ToArray();
                                 List<float> sortedDistances = new List<float>(distancesTravelled);
                                 sortedDistances.Sort();
                                 sortedDistances.Reverse();
                                 for (var i=0; i < distancesTravelled.Count; i++)
                                 {
                                     int positionFromSpline = sortedDistances.IndexOf(distancesTravelled[i]) + 1;
-                                    /*if (structWrapper.data.accChief.vehicle[i].carRealTimeLeaderboardPosition != positionFromSpline)
-                                    {
-                                        Console.WriteLine("game says car is in p" + structWrapper.data.accChief.vehicle[i].carRealTimeLeaderboardPosition + " but we think it's in p" + positionFromSpline);
-                                    }*/
                                     structWrapper.data.accChief.vehicle[i].carRealTimeLeaderboardPosition = positionFromSpline;
                                 }
                                 // save the populated driver data so we can reuse it when reading for the spotter
@@ -364,14 +362,13 @@ namespace CrewChiefV4.ACC
 
         // the carModel and tyreInflation aren't available for opponents, so these will always be the player's car model
         // and either the player's tyre inflation or an array of zeros
-        private void addCar(CarViewModel car, accVehicleInfo[] arrayToPopulate, int index, string carModel, float[] tyreInflation, int[] carIds, accVec3[] carPositions)
+        private accVehicleInfo createCar(int carIsPlayerVehicle, CarViewModel car, string carModel, float[] tyreInflation, int[] carIds, accVec3[] carPositions)
         {
             var currentLap = car.CurrentLap;
             var lastLap = car.LastLap;
             var bestLap = car.BestLap;
 
             // we only ever add the player to position 0:
-            int carIsPlayerVehicle = index == 0 ? 1 : 0;
             string carDriverName;
             if (car.CurrentDriver != null)
             {
@@ -392,7 +389,7 @@ namespace CrewChiefV4.ACC
                 x_coord = carPosition.x;
                 z_coord = carPosition.z;
             }
-            arrayToPopulate[index] = new accVehicleInfo
+            return new accVehicleInfo
             {
                 bestLapMS = (bestLap?.IsValid ?? false) ? bestLap.LaptimeMS ?? 0 : 0,
                 carId = car.CarIndex,
