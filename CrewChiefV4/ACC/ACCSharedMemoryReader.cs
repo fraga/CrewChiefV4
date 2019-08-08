@@ -306,7 +306,7 @@ namespace CrewChiefV4.ACC
 
                             List<float> distancesTravelled = new List<float>();
                             // get the player vehicle first and put this at the front of the list
-                            var playerVehicle = getPlayerVehicle(udpUpdateViewModel.BroadcastingVM.Cars, accShared.accStatic, accGraphic.position);
+                            var playerVehicle = getPlayerVehicle(udpUpdateViewModel.BroadcastingVM.Cars, accShared.accStatic, accShared.accGraphic.position);
                             if (playerVehicle != null)
                             {
                                 activeVehicles.AddFirst(createCar(1, playerVehicle, structWrapper.data.accStatic.carModel, accShared.accPhysics.wheelsPressure,
