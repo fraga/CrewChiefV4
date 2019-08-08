@@ -35,6 +35,7 @@ namespace CrewChiefV4.Events
         private TimeSpan TrackTemperatureReportMaxFrequency = TimeSpan.FromSeconds(UserSettings.GetUserSettings().getInt("track_temp_check_interval_seconds"));
 
         // don't report rain changes more that 2 minutes apart for RF2
+        // ACC using the pCars2 value here, needs to be tested
         private TimeSpan RainReportMaxFrequencyRF2 = TimeSpan.FromSeconds(120);
         private TimeSpan RainReportMaxFrequencyPCars = TimeSpan.FromSeconds(10);
 
@@ -279,7 +280,7 @@ namespace CrewChiefV4.Events
                                 audioPlayer.playMessage(new QueuedMessage(folderSeeingSomeRain, 10, abstractEvent: this, priority: 5));
                             }
                         }
-                        else if (CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT || CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2)
+                        else if (CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT || CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2 || CrewChief.gameDefinition.gameEnum == GameEnum.ACC)
                         {
                             if (rainDensityAtLastCheck != -1 && rainDensityAtLastCheck != currentConditions.RainDensity)
                             {

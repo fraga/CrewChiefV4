@@ -693,7 +693,7 @@ namespace CrewChiefV4.ACC
                         currentGameState.SessionData.SessionRunningTime,
                         lastLapTime, currentGameState.SessionData.CurrentLapIsValid,
                         currentGameState.PitData.InPitlane,
-                        shared.accChief.isRaining,
+                        shared.accChief.rainLevel > 0.05,
                         shared.accPhysics.roadTemp,
                         shared.accPhysics.airTemp,
                         currentGameState.SessionData.SessionHasFixedTime,
@@ -720,7 +720,7 @@ namespace CrewChiefV4.ACC
                         currentGameState.SessionData.LapTimeCurrent,
                         currentGameState.SessionData.SessionRunningTime,
                         currentGameState.SessionData.CurrentLapIsValid,
-                        shared.accChief.isRaining,
+                        shared.accChief.rainLevel > 0.05,
                         shared.accPhysics.roadTemp,
                         shared.accPhysics.airTemp);
                 }
@@ -921,7 +921,8 @@ namespace CrewChiefV4.ACC
                                         previousCompletedLapsWhenHasNewLapDataWasLastTrue,
                                         previousOpponentGameTimeWhenLastCrossedStartFinishLine,
                                         currentGameState.TimingData,
-                                        currentGameState.carClass);
+                                        currentGameState.carClass,
+                                        participantStruct.raceNumber);
 
                                     if (previousOpponentData != null)
                                     {
@@ -1027,6 +1028,8 @@ namespace CrewChiefV4.ACC
             // motion data
             currentGameState.PositionAndMotionData.CarSpeed = playerVehicle.speedMS;
             currentGameState.PositionAndMotionData.DistanceRoundTrack = distanceRoundTrack;
+
+            currentGameState.SessionData.PlayerCarNr = playerVehicle.raceNumber.ToString();
 
             //------------------------ Pit stop data -----------------------
             currentGameState.PitData.InPitlane = shared.accGraphic.isInPitLane == 1;
@@ -1259,7 +1262,7 @@ namespace CrewChiefV4.ACC
             {
                 nextConditionsSampleDue = currentGameState.Now.Add(ConditionsMonitor.ConditionsSampleFrequency);
                 currentGameState.Conditions.addSample(currentGameState.Now, currentGameState.SessionData.CompletedLaps, currentGameState.SessionData.SectorNumber,
-                    shared.accPhysics.airTemp, shared.accPhysics.roadTemp, 0, 0, 0, 0, 0, currentGameState.SessionData.IsNewLap);
+                    shared.accPhysics.airTemp, shared.accPhysics.roadTemp, shared.accChief.rainLevel, 0, 0, 0, 0, currentGameState.SessionData.IsNewLap);
             }
 
             if (currentGameState.SessionData.TrackDefinition != null)
@@ -1331,7 +1334,7 @@ namespace CrewChiefV4.ACC
             int previousOpponentDataLapsCompleted, Boolean previousOpponentDataWaitingForNewLapData,
             DateTime previousOpponentNewLapDataTimerExpiry, float previousOpponentLastLapTime, Boolean previousOpponentLastLapValid,
             int previousCompletedLapsWhenHasNewLapDataWasLastTrue, float previousOpponentGameTimeWhenLastCrossedStartFinishLine,
-            TimingData timingData, CarData.CarClass playerCarClass)
+            TimingData timingData, CarData.CarClass playerCarClass, int raceNumber)
         {
             if (opponentData.CurrentSectorNumber == 0)
             {
@@ -1339,6 +1342,7 @@ namespace CrewChiefV4.ACC
             }
             float previousDistanceRoundTrack = opponentData.DistanceRoundTrack;
             opponentData.DistanceRoundTrack = distanceRoundTrack;
+            opponentData.CarNumber = raceNumber.ToString();
             Boolean validSpeed = true;
             if (speed > 500)
             {
@@ -1448,6 +1452,7 @@ namespace CrewChiefV4.ACC
             opponentData.DeltaTime = new DeltaTime(trackLength, opponentData.DistanceRoundTrack, DateTime.UtcNow);
             opponentData.CarClass = carClass;
             opponentData.IsActive = true;
+            opponentData.CarNumber = participantStruct.raceNumber.ToString();
             String nameToLog = opponentData.DriverRawName == null ? "unknown" : opponentData.DriverRawName;
             System.Diagnostics.Debug.WriteLine("New driver " + nameToLog + " is using car class " + opponentData.CarClass.getClassIdentifier());
             return opponentData;

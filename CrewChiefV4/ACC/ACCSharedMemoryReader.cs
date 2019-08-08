@@ -298,7 +298,8 @@ namespace CrewChiefV4.ACC
 
                             structWrapper.data.accChief.isInternalMemoryModuleLoaded = 1;
                             structWrapper.data.accChief.trackLength = udpUpdateViewModel.BroadcastingVM.TrackVM?.TrackMeters ?? 0;
-                            structWrapper.data.accChief.isRaining = udpUpdateViewModel.SessionInfoVM.RainLevel < 0.1 && udpUpdateViewModel.SessionInfoVM.WetnessLevel < 0.1;
+                            structWrapper.data.accChief.rainLevel = udpUpdateViewModel.SessionInfoVM.RainLevel;
+                            structWrapper.data.accChief.cloudCoverPercent = udpUpdateViewModel.SessionInfoVM.CloudCoverPercent;
 
                             // until we check that a driver's carId is also in the accGraphic.carIDs array, we don't know how long this list will be:
                             LinkedList<accVehicleInfo> activeVehicles = new LinkedList<accVehicleInfo>();
@@ -410,7 +411,8 @@ namespace CrewChiefV4.ACC
                 speedMS = car.Kmh * 0.277778f,
                 spLineLength = car.SplinePosition,
                 worldPosition = new accVec3 { x = x_coord, z = z_coord },
-                tyreInflation = tyreInflation
+                tyreInflation = tyreInflation,
+                raceNumber = car.RaceNumber
             };            
         }
         

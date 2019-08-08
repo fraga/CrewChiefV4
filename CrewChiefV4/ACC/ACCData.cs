@@ -297,6 +297,7 @@ namespace CrewChiefV4.ACC
             public float spLineLength;
             public int isConnected;
             public float[] tyreInflation;
+            public int raceNumber;
         }
 
         public class SPageFileCrewChief
@@ -309,7 +310,8 @@ namespace CrewChiefV4.ACC
             public byte[] pluginVersion;
             public SessionPhase SessionPhase;
             public float trackLength;
-            public bool isRaining;
+            public float rainLevel;
+            public float cloudCoverPercent;
         }
 
         public class ACCShared
