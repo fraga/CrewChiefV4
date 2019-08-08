@@ -306,7 +306,7 @@ namespace CrewChiefV4.ACC
 
                             List<float> distancesTravelled = new List<float>();
                             // get the player vehicle first and put this at the front of the list
-                            var playerVehicle = getPlayerVehicle(udpUpdateViewModel.BroadcastingVM.Cars, accShared.accStatic);
+                            var playerVehicle = getPlayerVehicle(udpUpdateViewModel.BroadcastingVM.Cars, accShared.accStatic, accGraphic.position);
                             if (playerVehicle != null)
                             {
                                 activeVehicles.AddFirst(createCar(1, playerVehicle, structWrapper.data.accStatic.carModel, accShared.accPhysics.wheelsPressure,
@@ -414,18 +414,37 @@ namespace CrewChiefV4.ACC
             };            
         }
         
-        private CarViewModel getPlayerVehicle(List<CarViewModel> cars, SPageFileStatic accStatic)
+        private CarViewModel getPlayerVehicle(List<CarViewModel> cars, SPageFileStatic accStatic, int positionFromSharedMem)
         {
+            int positionDiff = int.MaxValue;
+            CarViewModel bestMatch = null;
             foreach (var car in cars)
             {
                 foreach (var driver in car.Drivers)
                 {
                     if (accStatic.playerName + " " + accStatic.playerSurname == driver.DisplayName)
-                        return car;
+                    {
+                        // check the positions match
+                        if (positionFromSharedMem == car.Position)
+                        {
+                            // yay, this is probably the player. Probably :(
+                            return car;
+                        }
+                        else 
+                        {
+                            // the names match but the position doesn't so we need to check the rest of the array
+                            int thisPositionDiff = Math.Abs(positionFromSharedMem - car.Position);
+                            if (thisPositionDiff < positionDiff)
+                            {
+                                positionDiff = thisPositionDiff;
+                                bestMatch = car;
+                            }
+                        }
+                    }
                 }
             }
 
-            return null;
+            return bestMatch;
         }
 
         private accVehicleInfo[] getPopulatedDriverDataArray(accVehicleInfo[] raw)
