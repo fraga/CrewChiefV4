@@ -359,7 +359,7 @@ acc_install_path_metadata = RESTART_REQUIRED
 acc_machine_ip = IP address for the machine ACC is running on
 acc_machine_ip_category = UI_STARTUP_AND_PATHS
 acc_machine_ip_metadata = RESTART_REQUIRED
-acc_machine_ip_install_path_filter = ACC
+acc_machine_ip_filter = ACC
 
 f1_2019_install_path = F1 2019 install path
 f1_2019_install_path_help = F1 2019 installation path
@@ -545,7 +545,6 @@ acs_spotter_car_length_category = SPOTTER
 acc_spotter_car_length = ACC Spotter default car length
 acc_spotter_car_length_filter = ACC
 acc_spotter_car_length_category = SPOTTER
-acc_spotter_car_length_category_filter = ACC
 
 ams_spotter_car_length = AMS Spotter default car length
 ams_spotter_car_length_filter = RF1
