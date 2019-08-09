@@ -76,7 +76,7 @@ namespace CrewChiefV4
                     }
                     return phrasesList.ToArray();
                 }
-                else
+                else if (options.Length > 0)
                 {
                     return new String[] {options};
                 }

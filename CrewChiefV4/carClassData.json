@@ -744,13 +744,14 @@
 			"raceroomClassIds": [1922],
 			"pCarsClassNames": ["TC2", "Touring Car"],
 			"rf1ClassNames": ["Marcas"],
-			"rf2ClassNames": ["BMW 125i", "Ford Focus", "Chevrolet Cruze", "Toyota Avensis", "Civic BTCC 2013"],
+			"rf2ClassNames": ["BMW 125i", "Ford Focus", "Chevrolet Cruze", "Toyota Avensis", "Civic BTCC 2013", "Vauxhall Astra", "Subaru Levorg", "BTCC_NTGC", "MG6 GT"],
 			"timesInHundredths": true,
 			"enabledMessageTypes": "TYRE_TEMPS, BRAKE_TEMPS, FUEL, LOCKING_AND_SPINNING"
 		},
 		{
 			"carClassEnum": "TCR",
 			"raceroomClassIds": [7009],
+			"rf2ClassNames": ["TCR SEAT", "Honda Civic TCR", "Opel Astra OPC", "TT Cup 2015", "TCR VW", "Ford Focus ST"],
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL",
 			"allMembersAreFWD": true

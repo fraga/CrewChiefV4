@@ -271,7 +271,7 @@ namespace CrewChiefV4
             // copySettingsFromCurrentSelectionCheckBox
             // 
             this.copySettingsFromCurrentSelectionCheckBox.AutoSize = true;
-            this.copySettingsFromCurrentSelectionCheckBox.Location = new System.Drawing.Point(639, 19);
+            this.copySettingsFromCurrentSelectionCheckBox.Location = new System.Drawing.Point(639, 17);
             this.copySettingsFromCurrentSelectionCheckBox.Name = "copySettingsFromCurrentSelectionCheckBox";
             this.copySettingsFromCurrentSelectionCheckBox.Size = new System.Drawing.Size(156, 17);
             this.copySettingsFromCurrentSelectionCheckBox.TabIndex = 7;
@@ -280,7 +280,7 @@ namespace CrewChiefV4
             // 
             // createNewProfileButton
             // 
-            this.createNewProfileButton.Location = new System.Drawing.Point(491, 19);
+            this.createNewProfileButton.Location = new System.Drawing.Point(491, 16);
             this.createNewProfileButton.Name = "createNewProfileButton";
             this.createNewProfileButton.Size = new System.Drawing.Size(142, 40);
             this.createNewProfileButton.TabIndex = 6;
@@ -291,15 +291,15 @@ namespace CrewChiefV4
             // profilesLabel
             // 
             this.profilesLabel.AutoSize = true;
-            this.profilesLabel.Location = new System.Drawing.Point(9, 19);
+            this.profilesLabel.Location = new System.Drawing.Point(15, 28);
             this.profilesLabel.Name = "profilesLabel";
             this.profilesLabel.Size = new System.Drawing.Size(40, 13);
-            this.profilesLabel.TabIndex = 3;
+            this.profilesLabel.TabIndex = 0;
             this.profilesLabel.Text = "profiles";
             // 
             // loadProfileButton
             // 
-            this.loadProfileButton.Location = new System.Drawing.Point(281, 19);
+            this.loadProfileButton.Location = new System.Drawing.Point(290, 16);
             this.loadProfileButton.Name = "loadProfileButton";
             this.loadProfileButton.Size = new System.Drawing.Size(159, 40);
             this.loadProfileButton.TabIndex = 2;
@@ -311,16 +311,16 @@ namespace CrewChiefV4
             // 
             this.profileSelectionComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.profileSelectionComboBox.FormattingEnabled = true;
-            this.profileSelectionComboBox.Location = new System.Drawing.Point(72, 19);
+            this.profileSelectionComboBox.Location = new System.Drawing.Point(72, 25);
             this.profileSelectionComboBox.Name = "profileSelectionComboBox";
             this.profileSelectionComboBox.Size = new System.Drawing.Size(203, 21);
-            this.profileSelectionComboBox.TabIndex = 0;
+            this.profileSelectionComboBox.TabIndex = 1;
             this.profileSelectionComboBox.SelectedValueChanged += new System.EventHandler(this.profileSelectionComboBox_SelectedValueChanged);
             // 
             // activateNewProfileCheckBox
             // 
             this.activateNewProfileCheckBox.AutoSize = true;
-            this.activateNewProfileCheckBox.Location = new System.Drawing.Point(639, 41);
+            this.activateNewProfileCheckBox.Location = new System.Drawing.Point(639, 40);
             this.activateNewProfileCheckBox.Name = "activateNewProfileCheckBox";
             this.activateNewProfileCheckBox.Size = new System.Drawing.Size(124, 17);
             this.activateNewProfileCheckBox.TabIndex = 8;
