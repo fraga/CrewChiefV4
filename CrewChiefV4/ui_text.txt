@@ -134,6 +134,7 @@ real_number_prop_type = (real number)
 
 save_prop_changes_warning = You have unsaved changes. Click 'Yes' to save these changes and restart the application. Click 'No' to discard these changes
 save_changes = &Save changes
+save_changes_title = Save changes?
 save_and_restart = S&ave profile settings and restart
 save_profile_settings = S&ave profile settings
 game_filter_label = &Game filter:
