@@ -90,7 +90,7 @@ namespace CrewChiefV4
             userProfileGroupBox.Text = Configuration.getUIString("user_profile")
                 + " (" + Configuration.getUIString("active_label") + " "
                 + Path.GetFileNameWithoutExtension(UserSettings.GetUserSettings().getString("current_settings_profile")) + ")";
-            profilesLabel.Text = Configuration.getUIString("user_profile");
+            profilesLabel.Text = Configuration.getUIString("user_profile_label");
             loadProfileButton.Text = Configuration.getUIString("load_profile");
             loadProfileButton.Enabled = false;
             createNewProfileButton.Text = Configuration.getUIString("create_new_profile");
@@ -461,7 +461,7 @@ namespace CrewChiefV4
                 {
                     warningMessage = "You have unsaved changes. Click 'Yes' to save these changes (you will need to manually restart the application). Click 'No' to discard these changes";
                 }
-                if (MessageBox.Show(warningMessage, Configuration.getUIString("save_changes"), MessageBoxButtons.YesNo) == DialogResult.Yes)
+                if (MessageBox.Show(warningMessage, Configuration.getUIString("save_changes_title"), MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
                     Boolean activeProfile = save();
                     if (!CrewChief.Debugging && activeProfile)

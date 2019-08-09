@@ -103,7 +103,6 @@ namespace CrewChiefV4.Events
 
         private String folderWarningBlueFlagMoveOrBePenalized = "penalties/blue_move_now_or_be_penalized";
 
-        // TODO_SOUNDS:
         private String folderDisqualifiedIgnoredStopAndGo = "penalties/disqualified_ignored_stop_and_go";
 
         private String folderDisqualifiedIgnoredDriveThrough = "penalties/disqualified_ignored_drive_through";
