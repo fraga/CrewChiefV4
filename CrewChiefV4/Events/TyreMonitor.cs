@@ -117,17 +117,17 @@ namespace CrewChiefV4.Events
         public static String folderSpinningLeftRearForLapWarning = "tyre_monitor/spinning_left_rear_lap_warning";
         public static String folderSpinningRightRearForLapWarning = "tyre_monitor/spinning_right_rear_lap_warning";
 
-        private static Boolean enableTyreTempWarnings = UserSettings.GetUserSettings().getBoolean("enable_tyre_temp_warnings");
-        private static Boolean enableBrakeTempWarnings = UserSettings.GetUserSettings().getBoolean("enable_brake_temp_warnings");
-        private static Boolean enableTyreWearWarnings = UserSettings.GetUserSettings().getBoolean("enable_tyre_wear_warnings");
+        private Boolean enableTyreTempWarnings = UserSettings.GetUserSettings().getBoolean("enable_tyre_temp_warnings");
+        private Boolean enableBrakeTempWarnings = UserSettings.GetUserSettings().getBoolean("enable_brake_temp_warnings");
+        private Boolean enableTyreWearWarnings = UserSettings.GetUserSettings().getBoolean("enable_tyre_wear_warnings");
 
-        private static Boolean useFahrenheit = UserSettings.GetUserSettings().getBoolean("use_fahrenheit");
+        private Boolean useFahrenheit = UserSettings.GetUserSettings().getBoolean("use_fahrenheit");
 
-        private static Boolean enableWheelSpinWarnings = UserSettings.GetUserSettings().getBoolean("enable_wheel_spin_warnings");
-        private static Boolean enableBrakeLockWarnings = UserSettings.GetUserSettings().getBoolean("enable_brake_lock_warnings");
+        private Boolean enableWheelSpinWarnings = UserSettings.GetUserSettings().getBoolean("enable_wheel_spin_warnings");
+        private Boolean enableBrakeLockWarnings = UserSettings.GetUserSettings().getBoolean("enable_brake_lock_warnings");
 
-        private static float initialTotalLapLockupThreshold = UserSettings.GetUserSettings().getFloat("cumulative_lap_lockup_warning_threshold");
-        private static float initialTotalWheelspinThreshold = UserSettings.GetUserSettings().getFloat("cumulative_lap_wheelspin_warning_threshold");
+        private float initialTotalLapLockupThreshold = UserSettings.GetUserSettings().getFloat("cumulative_lap_lockup_warning_threshold");
+        private float initialTotalWheelspinThreshold = UserSettings.GetUserSettings().getFloat("cumulative_lap_wheelspin_warning_threshold");
 
         private static String folderSpinningLeftFrontForCornerWarning = "tyre_monitor/spinning_left_front_corner_warning";
         private static String folderSpinningRightFrontForCornerWarning = "tyre_monitor/spinning_right_front_corner_warning";
@@ -339,8 +339,8 @@ namespace CrewChiefV4.Events
         private float leftRearBrakeTemp = 0;
         private float rightRearBrakeTemp = 0;
 
-        private float totalLockupThresholdForNextLap = initialTotalLapLockupThreshold;
-        private float totalWheelspinThresholdForNextLap = initialTotalWheelspinThreshold;
+        private float totalLockupThresholdForNextLap;
+        private float totalWheelspinThresholdForNextLap;
 
         private Boolean warnedOnLockingForLap = false;
         private Boolean warnedOnWheelspinForLap = false;
@@ -383,7 +383,9 @@ namespace CrewChiefV4.Events
         public TyreMonitor(AudioPlayer audioPlayer)
         {
             this.audioPlayer = audioPlayer;
-        }
+            this.totalLockupThresholdForNextLap = this.initialTotalLapLockupThreshold;
+            this.totalWheelspinThresholdForNextLap = this.initialTotalWheelspinThreshold;
+    }
 
         public static String getFolderForTyreType(TyreType tyreType)
         {
@@ -1054,6 +1056,10 @@ namespace CrewChiefV4.Events
 
         public void reportCurrentTyreTempStatus(Boolean playImmediately)
         {
+            // if all exactly zero then it is unlikely tire temps are supplied
+            if (leftFrontTyreTemp == 0 && rightFrontTyreTemp == 0 && leftRearTyreTemp == 0 && rightRearTyreTemp == 0)
+                return;
+
             // for FWD classes we don't care about rear tyres
             Boolean includeRears = playImmediately || !CrewChief.currentGameState.carClass.allMembersAreFWD;
 
@@ -1974,7 +1980,7 @@ namespace CrewChiefV4.Events
 
         private Boolean hasUsableIMOTempData(Boolean useAverageData)
         {
-            return CrewChief.gameDefinition.gameEnum != GameEnum.IRACING && CrewChief.gameDefinition.gameEnum != GameEnum.F1_2018 &&
+            return CrewChief.gameDefinition.gameEnum != GameEnum.IRACING && CrewChief.gameDefinition.gameEnum != GameEnum.F1_2018 && CrewChief.gameDefinition.gameEnum != GameEnum.F1_2019 &&
                 ((useAverageData && leftFrontAverageIMOLastLap != null && rightFrontAverageIMOLastLap != null && leftRearAverageIMOLastLap != null && rightRearAverageIMOLastLap != null) ||
                 (!useAverageData && CrewChief.currentGameState != null && CrewChief.currentGameState.TyreData != null && CrewChief.currentGameState.TyreData.FrontLeft_LeftTemp > 30));
         }

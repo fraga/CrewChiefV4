@@ -220,6 +220,13 @@ R3E-specific pit commands:
 "pitstop don't serve penalty" / "box, don't serve penalty"
 "pitstop refuel" / "box, refuel"
 "pitstop don't refuel" / "box, don't refuel"
+"pitstop next tyre compound" / "box, next tyre compound"
+"pitstop hard tyres" / "box, hard tyres"
+"pitstop medium tyres" / "box, medium tyres"
+"pitstop soft tyres" / "box, soft tyres"
+"pitstop prime tyres" / "box, prime tyres" / "pitstop primary tyres" / "box, primary tyres"
+"pitstop option tyres:" / "box, option tyres"
+"pitstop alternate tyres" / "box, alternate tyres"
 "what are the pit actions" / "what's the pitstop plan" (reports the selected actions for the next pitstop)
 
 

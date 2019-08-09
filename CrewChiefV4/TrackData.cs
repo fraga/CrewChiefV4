@@ -78,6 +78,9 @@ namespace CrewChiefV4
                     case GameEnum.RACE_ROOM:
                         currentRecording.raceroomLayoutId = trackId;
                         break;
+                    case GameEnum.ACC:
+                        currentRecording.accTrackName = trackName;
+                        break;
                     default:
                         break;
                 }
@@ -208,6 +211,7 @@ namespace CrewChiefV4
         public String irTrackName { get; set; }
         public String pcarsTrackName { get; set; }
         public String pcars2TrackName { get; set; }
+        public String accTrackName { get; set; }
         public int raceroomLayoutId { get; set; }
         public float approximateTrackLength { get; set; }   // this is optional and used to differentiate duplicated names
         public List<TrackLandmark> trackLandmarks { get; set; }
@@ -225,6 +229,7 @@ namespace CrewChiefV4
             this.pcarsTrackName = "";
             this.pcars2TrackName = "";
             this.irTrackName = "";
+            this.accTrackName = "";
             this.isOval = false;
             this.raceroomRollingStartLapDistance = -1.0f;
             this.iracingPitEntranceDistanceRoundTrack = -1.0f;
@@ -349,6 +354,17 @@ namespace CrewChiefV4
                             }
                         }
                         break;
+                    case GameEnum.ACC:
+                        if (trackLandmarksForTrack.accTrackName != null && trackLandmarksForTrack.accTrackName.Length > 0)
+                        {
+                            if (String.Equals(trackLandmarksForTrack.accTrackName, trackName, StringComparison.OrdinalIgnoreCase)
+                                && checkForAndMatchOnLength(lengthFromGame, trackLandmarksForTrack.approximateTrackLength))
+                            {
+                                Console.WriteLine(trackLandmarksForTrack.trackLandmarks.Count + " landmarks defined for this track");
+                                return new TrackDataContainer(trackLandmarksForTrack.trackLandmarks, trackLandmarksForTrack.isOval);
+                            }
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -430,7 +446,7 @@ namespace CrewChiefV4
             var rf1Tracks = new Dictionary<string, float>();
             var rf2Tracks = new Dictionary<string, float>();
             var irTracks = new Dictionary<string, float>();
-
+            var accTracks = new Dictionary<string, float>();
             foreach (var trackLandmarks in trackLandmarksData)
             {
                 if (CrewChief.gameDefinition.gameEnum == GameEnum.ASSETTO_32BIT || CrewChief.gameDefinition.gameEnum == GameEnum.ASSETTO_64BIT)
@@ -460,6 +476,10 @@ namespace CrewChiefV4
                 if (CrewChief.gameDefinition.gameEnum == GameEnum.IRACING)
                 {
                     checkForDuplicatesHelper(trackLandmarks.irTrackName, trackLandmarks.approximateTrackLength, "iRacing", irTracks);
+                }
+                if (CrewChief.gameDefinition.gameEnum == GameEnum.ACC)
+                {
+                    checkForDuplicatesHelper(trackLandmarks.accTrackName, trackLandmarks.approximateTrackLength, "ACC", irTracks);
                 }
             }
         }
@@ -603,6 +623,20 @@ namespace CrewChiefV4
             // this is the classic version. Which has *exactly* the same name as the non-classic version. Not cool.
             new TrackDefinition("Silverstone:Grand Prix", 3, 4697.72656f, new float[] {-347f, -165f}, new float[] {152.75f, -1.25f}),
             new TrackDefinition("Hockenheim:Classic", 3, 6763.425f, new float[] {-533f, -318.25f}, new float[] {-705.5f, -2f})
+        };
+
+        public static List<TrackDefinition> accTracks = new List<TrackDefinition>()
+        {
+            new TrackDefinition("Spa:track config", 7004f, 3, new float[] { 2329.3f, 5032.354f}),
+            new TrackDefinition("monza:track config", 5793f, 3, new float[] {1952.014f, 3854.782f}), 
+            new TrackDefinition("Zolder:track config", 4011f, 3, new float[] {1464.437f, 2755.968f}), 
+            new TrackDefinition("brands_hatch:track config", 3908f, 3, new float[] {1136.084f, 2208.08f}),
+            new TrackDefinition("Silverstone:track config", 5891f, 3, new float[] {1874.756f, 4170.74f}),
+            new TrackDefinition("Paul_Ricard:track config", 5842f, 3, new float[] { 1540.441f, 3484.919f}),
+            new TrackDefinition("misano:track config", 4226f, 3, new float[] { 941.0679f, 2632.186f}),
+            new TrackDefinition("Hungaroring:track config", 4381f, 3, new float[] { 1743.39f, 3279.477f}),
+            new TrackDefinition("nurburgring:track config", 5137f, 3, new float[] { 2328.185f, 4422.274f}),
+            new TrackDefinition("Barcelona:track config", 4655f, 3, new float[] { 1620.319f, 3411.963f})
         };
 
         public static List<TrackDefinition> assettoTracks = new List<TrackDefinition>()
@@ -787,10 +821,26 @@ namespace CrewChiefV4
                 return new TrackDefinition("unknown track , length = " + trackLength, trackLength);
             }
         }
+
+        // get track definition for assetto or acc
         public static TrackDefinition getTrackDefinition(String trackName, float trackLength, int sectorsOnTrack)
         {
             List<TrackDefinition> defsWhichMatchName = new List<TrackDefinition>();
-            foreach (TrackDefinition def in assettoTracks)
+            List<TrackDefinition> tracks;
+            switch (CrewChief.gameDefinition.gameEnum)
+            {
+                case GameEnum.ACC:
+                    tracks = accTracks;
+                    break;
+                case GameEnum.ASSETTO_32BIT:
+                case GameEnum.ASSETTO_64BIT:
+                    tracks = assettoTracks;
+                    break;
+                default:
+                    tracks = new List<TrackDefinition>();
+                    break;
+            }
+            foreach (TrackDefinition def in tracks)
             {
                 if (def.name.Equals(trackName))
                 {
@@ -802,6 +852,7 @@ namespace CrewChiefV4
             unknownTrackDef.setSectorPointsForUnknownTracks();
             return unknownTrackDef;
         }
+        
         private static TrackDefinition getDefinitionForLength(List<TrackDefinition> possibleDefinitions, float trackLength, int maxError)
         {
             TrackDefinition closestLengthDef = null;

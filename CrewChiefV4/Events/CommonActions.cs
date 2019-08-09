@@ -12,7 +12,7 @@ namespace CrewChiefV4.Events
     class CommonActions : AbstractEvent
     {
         private Boolean keepQuietEnabled = false;
-        private static Boolean useVerboseResponses = UserSettings.GetUserSettings().getBoolean("use_verbose_responses");
+        private Boolean useVerboseResponses = UserSettings.GetUserSettings().getBoolean("use_verbose_responses");
         GameStateData currentGameState = null;
         public CommonActions(AudioPlayer audioPlayer)
         {

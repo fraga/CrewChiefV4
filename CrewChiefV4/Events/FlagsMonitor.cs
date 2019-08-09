@@ -141,7 +141,9 @@ namespace CrewChiefV4.Events
         private Boolean reportYellowsInAllSectors = UserSettings.GetUserSettings().getBoolean("report_yellows_in_all_sectors");
         private Boolean enableSimpleIncidentDetection = UserSettings.GetUserSettings().getBoolean("enable_simple_incident_detection");
         private Boolean enableOpponentCrashMessages = UserSettings.GetUserSettings().getBoolean("enable_opponent_crash_messages");
-        
+
+        private Boolean enableBlueFlagMessages = UserSettings.GetUserSettings().getBoolean("enable_blue_flag_messages");
+
         private float maxDistanceToWarnOfLocalYellow = 300;    // metres - externalise? Is this sufficient? Make it speed-dependent?
         private float minDistanceToWarnOfLocalYellow = 50;    // metres - externalise? Is this sufficient? Make it speed-dependent?
 
@@ -367,7 +369,7 @@ namespace CrewChiefV4.Events
                     audioPlayer.playMessage(new QueuedMessage(folderBlackFlag, 0, abstractEvent: this, priority: 10));
                 }
             }
-            else if (!currentGameState.PitData.InPitlane && currentGameState.SessionData.Flag == FlagEnum.BLUE)
+            else if (!currentGameState.PitData.InPitlane && currentGameState.SessionData.Flag == FlagEnum.BLUE && enableBlueFlagMessages)
             {
                 if (currentGameState.Now > disableBlueFlagUntil)
                 {

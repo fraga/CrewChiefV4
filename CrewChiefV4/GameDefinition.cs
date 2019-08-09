@@ -8,7 +8,7 @@ namespace CrewChiefV4
 {
     public enum GameEnum
     {
-        RACE_ROOM, PCARS2, PCARS_64BIT, PCARS_32BIT, PCARS_NETWORK, PCARS2_NETWORK, RF1, ASSETTO_64BIT, ASSETTO_32BIT, RF2_64BIT, IRACING, F1_2018, UNKNOWN
+        RACE_ROOM, PCARS2, PCARS_64BIT, PCARS_32BIT, PCARS_NETWORK, PCARS2_NETWORK, RF1, ASSETTO_64BIT, ASSETTO_32BIT, RF2_64BIT, IRACING, F1_2018, F1_2019, ACC, UNKNOWN
     }
     public class GameDefinition
     {
@@ -44,7 +44,104 @@ namespace CrewChiefV4
             "iracing_launch_exe", "iracing_launch_params", "launch_iracing", false);
         public static GameDefinition f1_2018 = new GameDefinition(GameEnum.F1_2018, "f1_2018", null, "CrewChiefV4.F1_2018.F12018Spotter",
             "f1_2018_launch_exe", "f1_2018_launch_params", "launch_f1_2018", false);
+        public static GameDefinition acc = new GameDefinition(GameEnum.ACC, "acc", "AC2-Win64-Shipping", "CrewChiefV4.ACC.ACCSpotter",
+            "acc_launch_exe", "acc_launch_params", "launch_acc", false);
+        public static GameDefinition f1_2019 = new GameDefinition(GameEnum.F1_2019, "f1_2019", null, "CrewChiefV4.F1_2019.F12019Spotter",
+            "f1_2019_launch_exe", "f1_2019_launch_params", "launch_f1_2019", false);
+        
+        private static string showOnlyTheseGames = UserSettings.GetUserSettings().getString("limit_available_games");
+        
+        private static List<GameDefinition> filterAvailableGames(List<GameDefinition> gameDefinitions)
+        {
+            if (showOnlyTheseGames != null && showOnlyTheseGames.Length > 0)
+            {
+                try
+                {
+                    string[] filters = showOnlyTheseGames.Split(',');
+                    HashSet<GameDefinition> filtered = new HashSet<GameDefinition>();
 
+                    foreach (string filterItem in filters)
+                    {
+                        Boolean matched = false;
+                        String filter = filterItem.Trim();
+                        if (filter.Length > 0)
+                        {
+                            foreach (GameDefinition gameDefinition in gameDefinitions)
+                            {
+                                if (filterItem.Length > 0 && (
+                                    gameDefinition.friendlyName.Equals(filter) || gameDefinition.lookupName.Equals(filter) || gameDefinition.gameEnum.ToString().Equals(filter)))
+                                {
+                                    filtered.Add(gameDefinition);
+                                    matched = true;
+                                    break;
+                                }
+                            }
+                            if (!matched)
+                            {
+                                // no match for this filter, see if we can do an approx match
+                                string filterLower = filter.ToLower();
+                                if (filterLower.Contains("pcars2") || filterLower.Contains("pcars_2") || filterLower.Contains("pcars 2") || filterLower.Contains("pcars-2"))
+                                {
+                                    filtered.Add(GameDefinition.pCars2);
+                                }
+                                else if (filterLower.Contains("pcars_network") || filterLower.Contains("pcars network") || filterLower.Contains("pcars-network"))
+                                {
+                                    filtered.Add(GameDefinition.pCarsNetwork);
+                                }
+                                else if (filterLower.Contains("pcars"))
+                                {
+                                    filtered.Add(GameDefinition.pCars64Bit);
+                                }
+                                else if (filterLower.Contains("competizione") || filterLower.Contains("acc"))
+                                {
+                                    filtered.Add(GameDefinition.acc);
+                                }
+                                else if (filterLower.Contains("corsa") || filterLower.Contains("assetto"))
+                                {
+                                    filtered.Add(GameDefinition.assetto64Bit);
+                                }
+                                else if (filterLower.Contains("room") || filterLower.Contains("r3e") || filterLower.Contains("rrre"))
+                                {
+                                    filtered.Add(GameDefinition.raceRoom);
+                                }
+                                else if (filterLower.Contains("iracing") || filterLower.Contains("i racing") || filterLower.Contains("i_racing") || filterLower.Contains("i-racing"))
+                                {
+                                    filtered.Add(GameDefinition.iracing);
+                                }
+                                else if (filterLower.Contains("2018"))
+                                {
+                                    filtered.Add(GameDefinition.f1_2018);
+                                }
+                                else if (filterLower.Contains("2019"))
+                                {
+                                    filtered.Add(GameDefinition.f1_2019);
+                                }
+                                else if (filterLower.Contains("rf2") || filterLower.Contains("rf_2") || filterLower.Contains("rf 2") || filterLower.Contains("rf-2") || filterLower.Contains("factor2") || filterLower.Contains("factor 2") || filterLower.Contains("factor_2") || filterLower.Contains("factor-2"))
+                                {
+                                    filtered.Add(GameDefinition.rfactor2_64bit);
+                                }
+                                else if (filterLower.Contains("rf") || filterLower.Contains("factor1") || filterLower.Contains("factor 1") || filterLower.Contains("factor_1") || filterLower.Contains("factor-1"))
+                                {
+                                    filtered.Add(GameDefinition.rFactor1);
+                                }
+                                else if (filterLower.Contains("ams") || filterLower.Contains("automobilista"))
+                                {
+                                    filtered.Add(GameDefinition.automobilista);
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Game filter term \"" + filter + "\" not recognised");
+                                }
+                            }
+                        }
+                    }
+                    return filtered.ToList();
+                }
+                catch
+                { }
+            }
+            return gameDefinitions;
+        }
 
         public static List<GameDefinition> getAllGameDefinitions()
         {
@@ -60,7 +157,9 @@ namespace CrewChiefV4
             definitions.Add(assetto64Bit); definitions.Add(assetto32Bit); definitions.Add(rfactor2_64bit);
             definitions.Add(iracing);
             definitions.Add(f1_2018);
-            return definitions;
+            definitions.Add(acc);
+            definitions.Add(f1_2019);
+            return filterAvailableGames(definitions);
         }
 
         public static GameDefinition getGameDefinitionForFriendlyName(String friendlyName)

@@ -8,7 +8,7 @@ namespace CrewChiefV4
 {
     public class PearlsOfWisdom
     {
-        public static int pearlsFrequency = UserSettings.GetUserSettings().getInt("frequency_of_pearls_of_wisdom");
+        public int pearlsFrequency = UserSettings.GetUserSettings().getInt("frequency_of_pearls_of_wisdom");
         public static String folderMustDoBetter = "pearls_of_wisdom/must_do_better";
         public static String folderKeepItUp = "pearls_of_wisdom/keep_it_up";
         public static String folderNeutral = "pearls_of_wisdom/neutral";

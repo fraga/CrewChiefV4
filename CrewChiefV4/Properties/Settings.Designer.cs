@@ -3469,6 +3469,66 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string f1_2019_launch_exe {
+            get {
+                return ((string)(this["f1_2019_launch_exe"]));
+            }
+            set {
+                this["f1_2019_launch_exe"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string f1_2019_launch_params {
+            get {
+                return ((string)(this["f1_2019_launch_params"]));
+            }
+            set {
+                this["f1_2019_launch_params"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool launch_f1_2019 {
+            get {
+                return ((bool)(this["launch_f1_2019"]));
+            }
+            set {
+                this["launch_f1_2019"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("20777")]
+        public int f1_2019_udp_data_port {
+            get {
+                return ((int)(this["f1_2019_udp_data_port"]));
+            }
+            set {
+                this["f1_2019_udp_data_port"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("5")]
+        public float f1_2019_spotter_car_length {
+            get {
+                return ((float)(this["f1_2019_spotter_car_length"]));
+            }
+            set {
+                this["f1_2019_spotter_car_length"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("5")]
         public float pcars2_spotter_car_length {
             get {
@@ -3476,6 +3536,54 @@ namespace CrewChiefV4.Properties {
             }
             set {
                 this["pcars2_spotter_car_length"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:/Program Files (x86)/Steam/Steam.exe")]
+        public string acc_launch_exe {
+            get {
+                return ((string)(this["acc_launch_exe"]));
+            }
+            set {
+                this["acc_launch_exe"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-applaunch 805550")]
+        public string acc_launch_params {
+            get {
+                return ((string)(this["acc_launch_params"]));
+            }
+            set {
+                this["acc_launch_params"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool launch_acc {
+            get {
+                return ((bool)(this["launch_acc"]));
+            }
+            set {
+                this["launch_acc"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("5")]
+        public float acc_spotter_car_length {
+            get {
+                return ((float)(this["acc_spotter_car_length"]));
+            }
+            set {
+                this["acc_spotter_car_length"] = value;
             }
         }
         
@@ -3889,6 +3997,18 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("defaultSettings.json")]
+        public string current_settings_profile {
+            get {
+                return ((string)(this["current_settings_profile"]));
+            }
+            set {
+                this["current_settings_profile"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool fcy_stop_spotter_immediately {
             get {
@@ -3896,6 +4016,42 @@ namespace CrewChiefV4.Properties {
             }
             set {
                 this["fcy_stop_spotter_immediately"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("127.0.0.1")]
+        public string acc_machine_ip {
+            get {
+                return ((string)(this["acc_machine_ip"]));
+            }
+            set {
+                this["acc_machine_ip"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool enable_blue_flag_messages {
+            get {
+                return ((bool)(this["enable_blue_flag_messages"]));
+            }
+            set {
+                this["enable_blue_flag_messages"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string limit_available_games {
+            get {
+                return ((string)(this["limit_available_games"]));
+            }
+            set {
+                this["limit_available_games"] = value;
             }
         }
     }

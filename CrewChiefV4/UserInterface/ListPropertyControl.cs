@@ -127,18 +127,20 @@ namespace CrewChiefV4
     }
     public partial class ListPropertyControl : UserControl
     {
+        public bool changeRequiresRestart;
         public String propertyId;
         public String defaultValue;
         public String originalValue;
         public List<String> availableValues;
         public String label;
+        private PropertiesForm parent;
         internal PropertyFilter filter = null;
 
         public ListPropertyControl(String propertyId, String label, String currentValue, 
-            String defaultValue, String helpText, String filterText, String categoryText, String propertyType)
+            String defaultValue, String helpText, String filterText, String categoryText, bool changeRequiresRestart, String propertyType, PropertiesForm parent)
         {
             InitializeComponent();
-
+            this.parent = parent;
             this.label = label;
             this.propertyId = propertyId;
             this.label1.Text = label;
@@ -158,8 +160,9 @@ namespace CrewChiefV4
             this.defaultValue = ListPropertyValues.getLabelForInvariantItem(propertyId, defaultValue);
             this.toolTip1.SetToolTip(this.comboBox1, helpText);
             this.toolTip1.SetToolTip(this.label1, helpText);
-
-            this.filter = new PropertyFilter(filterText, categoryText, propertyId, this.label);
+            
+            this.changeRequiresRestart = changeRequiresRestart;
+            this.filter = new PropertyFilter(filterText, categoryText, changeRequiresRestart, propertyId, this.label);
             this.comboBox1.SelectedIndexChanged += textChanged;
         }
 
@@ -168,12 +171,24 @@ namespace CrewChiefV4
             return ListPropertyValues.getInvariantValueForLabel(propertyId, this.availableValues[this.comboBox1.SelectedIndex]);
         }
 
+        public void setValue(String value)
+        {
+            this.comboBox1.SelectedIndex = availableValues.IndexOf(ListPropertyValues.getLabelForInvariantItem(propertyId, value));           
+            this.originalValue = ListPropertyValues.getLabelForInvariantItem(propertyId, value); 
+        }
+
         public void button1_Click(object sender, EventArgs e)
         {
             if (originalValue != defaultValue)
             {
-                PropertiesForm.hasChanges = true;
+                parent.hasChanges = true;
+                if (this.changeRequiresRestart) parent.updatedPropertiesRequiringRestart.Add(this.propertyId);
             }
+            else
+            {
+                parent.updatedPropertiesRequiringRestart.Remove(this.propertyId);
+            }
+            if (this.changeRequiresRestart) parent.updateSaveButtonText();
             this.comboBox1.SelectedIndex = availableValues.IndexOf(defaultValue);
         }
 
@@ -181,8 +196,14 @@ namespace CrewChiefV4
         {
             if (this.availableValues[this.comboBox1.SelectedIndex] != originalValue)
             {
-                PropertiesForm.hasChanges = true;
+                parent.hasChanges = true;
+                if (this.changeRequiresRestart) parent.updatedPropertiesRequiringRestart.Add(this.propertyId);
             }
+            else
+            {
+                parent.updatedPropertiesRequiringRestart.Remove(this.propertyId);
+            }
+            if (this.changeRequiresRestart) parent.updateSaveButtonText();
         }
     }
 }

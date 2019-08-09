@@ -32,28 +32,34 @@ namespace CrewChiefV4
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.saveButton = new System.Windows.Forms.Button();
             this.propertiesFlowLayoutPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.searchTextBox = new System.Windows.Forms.TextBox();
             this.mainTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
-            this.buttonsTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
-            this.exitButton = new System.Windows.Forms.Button();
-            this.restoreButton = new System.Windows.Forms.Button();
             this.headerTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
-            this.searchBoxTooltip = new System.Windows.Forms.ToolTip(this.components);
             this.gameFilterLabel = new System.Windows.Forms.Label();
             this.filterBox = new System.Windows.Forms.ComboBox();
             this.showCommonCheckbox = new System.Windows.Forms.CheckBox();
             this.categoriesLabel = new System.Windows.Forms.Label();
             this.categoriesBox = new System.Windows.Forms.ComboBox();
+            this.buttonsTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+            this.exitButton = new System.Windows.Forms.Button();
+            this.restoreButton = new System.Windows.Forms.Button();
+            this.searchBoxTooltip = new System.Windows.Forms.ToolTip(this.components);
+            this.userProfileSettingsGroupBox = new System.Windows.Forms.GroupBox();
+            this.userProfileGroupBox = new System.Windows.Forms.GroupBox();
+            this.copySettingsFromCurrentSelectionCheckBox = new System.Windows.Forms.CheckBox();
+            this.createNewProfileButton = new System.Windows.Forms.Button();
+            this.profilesLabel = new System.Windows.Forms.Label();
+            this.loadProfileButton = new System.Windows.Forms.Button();
+            this.profileSelectionComboBox = new System.Windows.Forms.ComboBox();
+            this.activateNewProfileCheckBox = new System.Windows.Forms.CheckBox();
             this.mainTableLayoutPanel.SuspendLayout();
-            this.buttonsTableLayoutPanel.SuspendLayout();
             this.headerTableLayoutPanel.SuspendLayout();
+            this.buttonsTableLayoutPanel.SuspendLayout();
+            this.userProfileSettingsGroupBox.SuspendLayout();
+            this.userProfileGroupBox.SuspendLayout();
             this.SuspendLayout();
-            this.MinimizeBox = false;
-            this.MaximizeBox = false;
             // 
             // saveButton
             // 
@@ -61,85 +67,34 @@ namespace CrewChiefV4
             this.saveButton.Location = new System.Drawing.Point(3, 3);
             this.saveButton.Name = "saveButton";
             this.saveButton.Size = new System.Drawing.Size(159, 40);
-            this.saveButton.Text = Configuration.getUIString("save_and_restart");
+            this.saveButton.TabIndex = 1;
+            this.saveButton.Text = "save_and_restart";
             this.saveButton.UseVisualStyleBackColor = true;
             this.saveButton.Click += new System.EventHandler(this.saveButton_Click);
-            this.saveButton.TabIndex = 1;
             // 
-            // preferencesFlowLayoutPanel
+            // propertiesFlowLayoutPanel
             // 
             this.propertiesFlowLayoutPanel.AutoScroll = true;
             this.propertiesFlowLayoutPanel.AutoSize = true;
             this.propertiesFlowLayoutPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.propertiesFlowLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.propertiesFlowLayoutPanel.Location = new System.Drawing.Point(3, 31);
-            this.propertiesFlowLayoutPanel.Name = "preferencesFlowLayoutPanel";
-            this.propertiesFlowLayoutPanel.Size = new System.Drawing.Size(969, 612);
+            this.propertiesFlowLayoutPanel.Location = new System.Drawing.Point(3, 35);
+            this.propertiesFlowLayoutPanel.Name = "propertiesFlowLayoutPanel";
+            this.propertiesFlowLayoutPanel.Size = new System.Drawing.Size(969, 608);
             this.propertiesFlowLayoutPanel.TabIndex = 0;
             this.propertiesFlowLayoutPanel.TabStop = true;
-            //
-            // gameFilterLablel
-            //
-            this.gameFilterLabel.Name = "gameFilterLabel";
-            this.gameFilterLabel.Text = Configuration.getUIString("game_filter_label");
-            this.gameFilterLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.gameFilterLabel.Padding = new Padding(0, 2, 0, 0);
-            this.gameFilterLabel.TabIndex = 9;
-            //
-            // filterBox
-            //
-            this.filterBox.Name = "filterBox";
-            this.filterBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.filterBox.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
-            this.filterBox.MinimumSize = new System.Drawing.Size(203, -1);
-            this.filterBox.MaximumSize = new System.Drawing.Size(203, -1);
-            this.filterBox.SelectedValueChanged += FilterBox_SelectedValueChanged;
-            this.filterBox.TabIndex = 10;
-            //
-            // showCommonCheckbox
-            //
-            this.showCommonCheckbox.Name = "showCommonCheckbox";
-            this.showCommonCheckbox.Text = Configuration.getUIString("show_common_props_label");
-            this.showCommonCheckbox.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
-            this.showCommonCheckbox.Margin = new System.Windows.Forms.Padding(10, 5, 3, 3);
-            this.showCommonCheckbox.Checked = true;
-            this.showCommonCheckbox.CheckedChanged += ShowCommonCheckbox_CheckedChanged;
-            //
-            // categoriesLablel
-            //
-            this.categoriesLabel.Name = "categoriesLabel";
-            this.categoriesLabel.Text = Configuration.getUIString("category_filter_label");
-            this.categoriesLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.categoriesLabel.Padding = new Padding(0, 2, 0, 0);
-            this.categoriesLabel.TabIndex = 12;
-            //
-            // categoriesBox
-            //
-            this.filterBox.Name = "categoriesBox";
-            this.categoriesBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.categoriesBox.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
-            this.categoriesBox.MinimumSize = new System.Drawing.Size(203, -1);
-            this.categoriesBox.MaximumSize = new System.Drawing.Size(203, -1);
-            //this.categoriesBox.SelectedValueChanged += categoriesBox_SelectedValueChanged;
-            this.categoriesBox.TabIndex = 13;
-
             // 
             // searchTextBox
             // 
-            var tooltip = Configuration.getUIString("search_box_tooltip_line1") + Environment.NewLine
-                + Configuration.getUIString("search_box_tooltip_line2") + Environment.NewLine
-                + Configuration.getUIString("search_box_tooltip_line4") + Environment.NewLine
-                + Configuration.getUIString("search_box_tooltip_line5") + Environment.NewLine
-                + Configuration.getUIString("search_box_tooltip_line6") + Environment.NewLine
-                + Configuration.getUIString("search_box_tooltip_line7") + Environment.NewLine
-                + Configuration.getUIString("search_box_tooltip_line8") + Environment.NewLine;
-            this.searchTextBox.Location = new System.Drawing.Point(780, 3);
+            this.searchTextBox.Location = new System.Drawing.Point(781, 3);
             this.searchTextBox.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
             this.searchTextBox.Name = "searchTextBox";
             this.searchTextBox.Size = new System.Drawing.Size(189, 20);
             this.searchTextBox.TabIndex = 15;
-            this.searchBoxTooltip.SetToolTip(this.searchTextBox, tooltip);
             this.searchTextBox.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
+            this.searchTextBox.Enter += new System.EventHandler(this.SearchTextBox_GotFocus);
+            this.searchTextBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.SearchTextBox_KeyDown);
+            this.searchTextBox.Leave += new System.EventHandler(this.SearchTextBox_LostFocus);
             // 
             // mainTableLayoutPanel
             // 
@@ -148,13 +103,97 @@ namespace CrewChiefV4
             this.mainTableLayoutPanel.Controls.Add(this.headerTableLayoutPanel, 0, 0);
             this.mainTableLayoutPanel.Controls.Add(this.propertiesFlowLayoutPanel, 0, 1);
             this.mainTableLayoutPanel.Controls.Add(this.buttonsTableLayoutPanel, 0, 2);
-            this.mainTableLayoutPanel.Location = new System.Drawing.Point(0, 0);
+            this.mainTableLayoutPanel.Location = new System.Drawing.Point(6, 19);
             this.mainTableLayoutPanel.Name = "mainTableLayoutPanel";
             this.mainTableLayoutPanel.RowCount = 3;
-            this.mainTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 4F));
-            this.mainTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 88F));
+            this.mainTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 4.55192F));
+            this.mainTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 87.33997F));
             this.mainTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 8F));
             this.mainTableLayoutPanel.Size = new System.Drawing.Size(975, 703);
+            this.mainTableLayoutPanel.TabIndex = 0;
+            // 
+            // headerTableLayoutPanel
+            // 
+            this.headerTableLayoutPanel.ColumnCount = 7;
+            this.headerTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 7F));
+            this.headerTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 22F));
+            this.headerTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 12F));
+            this.headerTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 10F));
+            this.headerTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 22F));
+            this.headerTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 9F));
+            this.headerTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.headerTableLayoutPanel.Controls.Add(this.gameFilterLabel, 0, 0);
+            this.headerTableLayoutPanel.Controls.Add(this.filterBox, 1, 0);
+            this.headerTableLayoutPanel.Controls.Add(this.showCommonCheckbox, 2, 0);
+            this.headerTableLayoutPanel.Controls.Add(this.categoriesLabel, 3, 0);
+            this.headerTableLayoutPanel.Controls.Add(this.categoriesBox, 4, 0);
+            this.headerTableLayoutPanel.Controls.Add(this.searchTextBox, 6, 0);
+            this.headerTableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.headerTableLayoutPanel.Location = new System.Drawing.Point(0, 0);
+            this.headerTableLayoutPanel.Margin = new System.Windows.Forms.Padding(0);
+            this.headerTableLayoutPanel.Name = "headerTableLayoutPanel";
+            this.headerTableLayoutPanel.RowCount = 1;
+            this.headerTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.headerTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 32F));
+            this.headerTableLayoutPanel.Size = new System.Drawing.Size(975, 32);
+            this.headerTableLayoutPanel.TabIndex = 0;
+            // 
+            // gameFilterLabel
+            // 
+            this.gameFilterLabel.Location = new System.Drawing.Point(3, 0);
+            this.gameFilterLabel.Name = "gameFilterLabel";
+            this.gameFilterLabel.Padding = new System.Windows.Forms.Padding(0, 2, 0, 0);
+            this.gameFilterLabel.Size = new System.Drawing.Size(60, 23);
+            this.gameFilterLabel.TabIndex = 9;
+            this.gameFilterLabel.Text = "game_filter_label";
+            this.gameFilterLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // filterBox
+            // 
+            this.filterBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.filterBox.Location = new System.Drawing.Point(66, 3);
+            this.filterBox.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
+            this.filterBox.MaximumSize = new System.Drawing.Size(203, 0);
+            this.filterBox.MinimumSize = new System.Drawing.Size(203, 0);
+            this.filterBox.Name = "filterBox";
+            this.filterBox.Size = new System.Drawing.Size(203, 21);
+            this.filterBox.TabIndex = 10;
+            this.filterBox.SelectedValueChanged += new System.EventHandler(this.FilterBox_SelectedValueChanged);
+            // 
+            // showCommonCheckbox
+            // 
+            this.showCommonCheckbox.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
+            this.showCommonCheckbox.Checked = true;
+            this.showCommonCheckbox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.showCommonCheckbox.Location = new System.Drawing.Point(286, 5);
+            this.showCommonCheckbox.Margin = new System.Windows.Forms.Padding(10, 5, 3, 3);
+            this.showCommonCheckbox.Name = "showCommonCheckbox";
+            this.showCommonCheckbox.Size = new System.Drawing.Size(101, 20);
+            this.showCommonCheckbox.TabIndex = 11;
+            this.showCommonCheckbox.Text = "show_common_props_label";
+            this.showCommonCheckbox.CheckedChanged += new System.EventHandler(this.ShowCommonCheckbox_CheckedChanged);
+            // 
+            // categoriesLabel
+            // 
+            this.categoriesLabel.Location = new System.Drawing.Point(393, 0);
+            this.categoriesLabel.Name = "categoriesLabel";
+            this.categoriesLabel.Padding = new System.Windows.Forms.Padding(0, 2, 0, 0);
+            this.categoriesLabel.Size = new System.Drawing.Size(89, 23);
+            this.categoriesLabel.TabIndex = 12;
+            this.categoriesLabel.Text = "category_filter_label";
+            this.categoriesLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // categoriesBox
+            // 
+            this.categoriesBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.categoriesBox.Location = new System.Drawing.Point(485, 3);
+            this.categoriesBox.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
+            this.categoriesBox.MaximumSize = new System.Drawing.Size(203, 0);
+            this.categoriesBox.MinimumSize = new System.Drawing.Size(203, 0);
+            this.categoriesBox.Name = "categoriesBox";
+            this.categoriesBox.Size = new System.Drawing.Size(203, 21);
+            this.categoriesBox.TabIndex = 13;
+            this.categoriesBox.SelectedValueChanged += new System.EventHandler(this.CategoriesBox_SelectedValueChanged);
             // 
             // buttonsTableLayoutPanel
             // 
@@ -181,10 +220,10 @@ namespace CrewChiefV4
             this.exitButton.Location = new System.Drawing.Point(168, 3);
             this.exitButton.Name = "exitButton";
             this.exitButton.Size = new System.Drawing.Size(159, 40);
-            this.exitButton.Text = Configuration.getUIString("exit_without_saving");
+            this.exitButton.TabIndex = 0;
+            this.exitButton.Text = "exit_without_saving";
             this.exitButton.UseVisualStyleBackColor = true;
             this.exitButton.Click += new System.EventHandler(this.exitButton_Click);
-            this.exitButton.TabIndex = 0;
             // 
             // restoreButton
             // 
@@ -192,35 +231,10 @@ namespace CrewChiefV4
             this.restoreButton.Location = new System.Drawing.Point(810, 3);
             this.restoreButton.Name = "restoreButton";
             this.restoreButton.Size = new System.Drawing.Size(162, 40);
-            this.restoreButton.Text = Configuration.getUIString("restore_default_settings");
+            this.restoreButton.TabIndex = 2;
+            this.restoreButton.Text = "restore_default_settings";
             this.restoreButton.UseVisualStyleBackColor = true;
             this.restoreButton.Click += new System.EventHandler(this.restoreButton_Click);
-            this.restoreButton.TabIndex = 2;
-            // 
-            // headerTableLayoutPanel
-            // 
-            this.headerTableLayoutPanel.ColumnCount = 7;
-            this.headerTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 7F));
-            this.headerTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 22F));
-            this.headerTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 12F));
-            this.headerTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 10F));
-            this.headerTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 22F));
-            this.headerTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 9F)); // spacer
-            this.headerTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
-            this.headerTableLayoutPanel.Controls.Add(this.gameFilterLabel, 0, 0);
-            this.headerTableLayoutPanel.Controls.Add(this.filterBox, 1, 0);
-            this.headerTableLayoutPanel.Controls.Add(this.showCommonCheckbox, 2, 0);
-            this.headerTableLayoutPanel.Controls.Add(this.categoriesLabel, 3, 0);
-            this.headerTableLayoutPanel.Controls.Add(this.categoriesBox, 4, 0);
-            this.headerTableLayoutPanel.Controls.Add(this.searchTextBox, 6, 0);
-            this.headerTableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.headerTableLayoutPanel.Location = new System.Drawing.Point(0, 0);
-            this.headerTableLayoutPanel.Margin = new System.Windows.Forms.Padding(0);
-            this.headerTableLayoutPanel.Name = "headerTableLayoutPanel";
-            this.headerTableLayoutPanel.RowCount = 1;
-            this.headerTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.headerTableLayoutPanel.Size = new System.Drawing.Size(975, 28);
-            this.headerTableLayoutPanel.TabIndex = 0;
             // 
             // searchBoxTooltip
             // 
@@ -229,22 +243,114 @@ namespace CrewChiefV4
             this.searchBoxTooltip.IsBalloon = true;
             this.searchBoxTooltip.ReshowDelay = 100;
             // 
+            // userProfileSettingsGroupBox
+            // 
+            this.userProfileSettingsGroupBox.Controls.Add(this.mainTableLayoutPanel);
+            this.userProfileSettingsGroupBox.Location = new System.Drawing.Point(12, 84);
+            this.userProfileSettingsGroupBox.Name = "userProfileSettingsGroupBox";
+            this.userProfileSettingsGroupBox.Size = new System.Drawing.Size(991, 731);
+            this.userProfileSettingsGroupBox.TabIndex = 1;
+            this.userProfileSettingsGroupBox.TabStop = false;
+            this.userProfileSettingsGroupBox.Text = "user_profile_settings";
+            // 
+            // userProfileGroupBox
+            // 
+            this.userProfileGroupBox.Controls.Add(this.activateNewProfileCheckBox);
+            this.userProfileGroupBox.Controls.Add(this.copySettingsFromCurrentSelectionCheckBox);
+            this.userProfileGroupBox.Controls.Add(this.createNewProfileButton);
+            this.userProfileGroupBox.Controls.Add(this.profilesLabel);
+            this.userProfileGroupBox.Controls.Add(this.loadProfileButton);
+            this.userProfileGroupBox.Controls.Add(this.profileSelectionComboBox);
+            this.userProfileGroupBox.Location = new System.Drawing.Point(12, 13);
+            this.userProfileGroupBox.Name = "userProfileGroupBox";
+            this.userProfileGroupBox.Size = new System.Drawing.Size(991, 65);
+            this.userProfileGroupBox.TabIndex = 2;
+            this.userProfileGroupBox.TabStop = false;
+            this.userProfileGroupBox.Text = "user_profile";
+            // 
+            // copySettingsFromCurrentSelectionCheckBox
+            // 
+            this.copySettingsFromCurrentSelectionCheckBox.AutoSize = true;
+            this.copySettingsFromCurrentSelectionCheckBox.Location = new System.Drawing.Point(639, 19);
+            this.copySettingsFromCurrentSelectionCheckBox.Name = "copySettingsFromCurrentSelectionCheckBox";
+            this.copySettingsFromCurrentSelectionCheckBox.Size = new System.Drawing.Size(156, 17);
+            this.copySettingsFromCurrentSelectionCheckBox.TabIndex = 7;
+            this.copySettingsFromCurrentSelectionCheckBox.Text = "copy_settings_from_current";
+            this.copySettingsFromCurrentSelectionCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // createNewProfileButton
+            // 
+            this.createNewProfileButton.Location = new System.Drawing.Point(491, 19);
+            this.createNewProfileButton.Name = "createNewProfileButton";
+            this.createNewProfileButton.Size = new System.Drawing.Size(142, 40);
+            this.createNewProfileButton.TabIndex = 6;
+            this.createNewProfileButton.Text = "create_new_profile";
+            this.createNewProfileButton.UseVisualStyleBackColor = true;
+            this.createNewProfileButton.Click += new System.EventHandler(this.createNewProfileButton_Click);
+            // 
+            // profilesLabel
+            // 
+            this.profilesLabel.AutoSize = true;
+            this.profilesLabel.Location = new System.Drawing.Point(9, 19);
+            this.profilesLabel.Name = "profilesLabel";
+            this.profilesLabel.Size = new System.Drawing.Size(40, 13);
+            this.profilesLabel.TabIndex = 3;
+            this.profilesLabel.Text = "profiles";
+            // 
+            // loadProfileButton
+            // 
+            this.loadProfileButton.Location = new System.Drawing.Point(281, 19);
+            this.loadProfileButton.Name = "loadProfileButton";
+            this.loadProfileButton.Size = new System.Drawing.Size(159, 40);
+            this.loadProfileButton.TabIndex = 2;
+            this.loadProfileButton.Text = "load_profile";
+            this.loadProfileButton.UseVisualStyleBackColor = true;
+            this.loadProfileButton.Click += new System.EventHandler(this.loadProfileButton_Click);
+            // 
+            // profileSelectionComboBox
+            // 
+            this.profileSelectionComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.profileSelectionComboBox.FormattingEnabled = true;
+            this.profileSelectionComboBox.Location = new System.Drawing.Point(72, 19);
+            this.profileSelectionComboBox.Name = "profileSelectionComboBox";
+            this.profileSelectionComboBox.Size = new System.Drawing.Size(203, 21);
+            this.profileSelectionComboBox.TabIndex = 0;
+            this.profileSelectionComboBox.SelectedValueChanged += new System.EventHandler(this.profileSelectionComboBox_SelectedValueChanged);
+            // 
+            // activateNewProfileCheckBox
+            // 
+            this.activateNewProfileCheckBox.AutoSize = true;
+            this.activateNewProfileCheckBox.Location = new System.Drawing.Point(639, 41);
+            this.activateNewProfileCheckBox.Name = "activateNewProfileCheckBox";
+            this.activateNewProfileCheckBox.Size = new System.Drawing.Size(124, 17);
+            this.activateNewProfileCheckBox.TabIndex = 8;
+            this.activateNewProfileCheckBox.Text = "activate_new_profile";
+            this.activateNewProfileCheckBox.UseVisualStyleBackColor = true;
+            // 
             // PropertiesForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(975, 703);
-            this.Controls.Add(this.mainTableLayoutPanel);
+            this.ClientSize = new System.Drawing.Size(1014, 821);
+            this.Controls.Add(this.userProfileGroupBox);
+            this.Controls.Add(this.userProfileSettingsGroupBox);
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "PropertiesForm";
-            this.Text = Configuration.getUIString("properties_form");
+            this.Text = "properties_form";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.properties_FormClosing);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.PropertiesForm_KeyDown);
             this.mainTableLayoutPanel.ResumeLayout(false);
             this.mainTableLayoutPanel.PerformLayout();
-            this.buttonsTableLayoutPanel.ResumeLayout(false);
             this.headerTableLayoutPanel.ResumeLayout(false);
             this.headerTableLayoutPanel.PerformLayout();
+            this.buttonsTableLayoutPanel.ResumeLayout(false);
+            this.userProfileSettingsGroupBox.ResumeLayout(false);
+            this.userProfileGroupBox.ResumeLayout(false);
+            this.userProfileGroupBox.PerformLayout();
             this.ResumeLayout(false);
+
         }
 
         #endregion
@@ -263,5 +369,13 @@ namespace CrewChiefV4
         private System.Windows.Forms.CheckBox showCommonCheckbox;
         private System.Windows.Forms.Label categoriesLabel;
         private System.Windows.Forms.ComboBox categoriesBox;
+        private GroupBox userProfileSettingsGroupBox;
+        private GroupBox userProfileGroupBox;
+        private ComboBox profileSelectionComboBox;
+        private Label profilesLabel;
+        private Button loadProfileButton;
+        private CheckBox copySettingsFromCurrentSelectionCheckBox;
+        private Button createNewProfileButton;
+        private CheckBox activateNewProfileCheckBox;
     }
 }

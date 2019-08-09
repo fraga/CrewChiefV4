@@ -125,7 +125,7 @@ namespace CrewChiefV4.GameState
                             currentGameState.PitData.OpponentForLeaderPitting = null;
                         }
                     }
-                    else if (opponent.ClassPosition == currentGameState.SessionData.ClassPosition - 1)
+                    if (opponent.ClassPosition == currentGameState.SessionData.ClassPosition - 1)
                     {
                         var useDerivedDeltas = true;
                         if (CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2 || CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT || CrewChief.gameDefinition.gameEnum == GameEnum.RF1)

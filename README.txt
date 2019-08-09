@@ -208,6 +208,13 @@ R3E exposes some additional information describing the state of the popup pit me
 "pitstop don't serve penalty" / "box, don't serve penalty"
 "pitstop refuel" / "box, refuel"
 "pitstop don't refuel" / "box, don't refuel"
+"pitstop next tyre compound" / "box, next tyre compound"
+"pitstop hard tyres" / "box, hard tyres"
+"pitstop medium tyres" / "box, medium tyres"
+"pitstop soft tyres" / "box, soft tyres"
+"pitstop prime tyres" / "box, prime tyres" / "pitstop primary tyres" / "box, primary tyres"
+"pitstop option tyres:" / "box, option tyres"
+"pitstop alternate tyres" / "box, alternate tyres"
 "what are the pit actions" / "what's the pitstop plan" (reports the selected actions for the next pitstop)
 
 The app will also read out the planned pit actions automatially when you get near the pit entrance after requesting a stop.
@@ -267,6 +274,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.9.8.15: Added F1 2019 support (spotter only); Added Assetto Corsa Competizioni support (requires ACC version 1.0.7, currently available as a public beta). This is a work-in-progress - the studio is still working on the API and there are issues with some of the data; Added properties profiles to allow sets of options to be saved and reloaded; Fixed an issue with missing opponent gap data when the player is running 2nd; Added option to enable blue-flag messages ("Enable blue flag messages", defaults to enabled); Added option to limit the games show in the Crew Chief 'Games' list - to use this add a comma separated list of the games you want to be show to property 'Limit available games'. Most common versions and abbreviations of the game names should work here (e.g. "R3E, pCars2, Assetto, ACC, RF2"); R3E: extended pit menu interactions - you can now ask for a specific tyre type in car classes that support it, for example "box, soft tyres" (see R3E Pit Menu Interactions)
+
 Version 4.9.8.8: Fix potential crash bug when assigning buttons or when testing button assignments / voice commands before the app receives any game data; removed some debug code that may have triggered in the previous release
 
 Version 4.9.8.7: Rewrote installer to use WIX rather than InstallShield - should help with the updating issues that some users encounter; added an optional delay before switching the spotter to be switched off on full course yellow (default is to silence spotter as soon as the full course yellow is shown - to use the new behaviour disable the 'Mute spotter immediately on full course yellow' property); fix crash bug when disabling 'Identify opponents by race position'; assign button to action when button is released, not pressed - should fix issues with devices which keep buttons pressed all the time; RF2 - added latest Formula E mappings and rules; R3E - improved accuracy of pit box countdown; 

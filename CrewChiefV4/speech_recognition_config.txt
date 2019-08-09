@@ -312,6 +312,12 @@ PIT_STOP_DONT_SERVE_PENALTY = pitstop don't serve penalty:box, don't serve penal
 PIT_STOP_REFUEL = pitstop refuel:box, refuel
 PIT_STOP_DONT_REFUEL = pitstop don't refuel:box, don't refuel
 PIT_STOP_NEXT_TYRE_COMPOUND = pitstop next tyre compound:box, next tyre compound
+PIT_STOP_HARD_TYRES = pitstop hard tyres:box, hard tyres
+PIT_STOP_MEDIUM_TYRES = pitstop medium tyres:box, medium tyres
+PIT_STOP_SOFT_TYRES = pitstop soft tyres:box, soft tyres
+PIT_STOP_PRIME_TYRES = pitstop prime tyres:box, prime tyres:pitstop primary tyres:box, primary tyres
+PIT_STOP_OPTION_TYRES = pitstop option tyres:box, option tyres
+PIT_STOP_ALTERNATE_TYRES = pitstop alternate tyres:box, alternate tyres
 
 LITERS = liters
 GALLONS = gallons
