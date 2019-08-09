@@ -1,6 +1,18 @@
 <!DOCTYPE html>
 <html>
 <body>
+<h2>Version 4.9.8.20</h2>
+<ul>
+	<li>Added F1 2019 support (spotter only)</li>
+	<li>Added Assetto Corsa Competizioni support. This is a work-in-progress - the studio is still working on the API and there are issues with some of the data and some features of the app don't yet work</li>
+	<li>Added properties profiles to allow sets of options to be saved and reloaded - different profiles can be created with different app configurations. These can be created and loaded on the Properties screen, and can also be loaded at app start time with a command line argument by specifying 'profile profile_file_name.json' in the shortcut (e.g. short-cut Target: "C:\Program Files (x86)\Britton IT Ltd\CrewChiefV4\CrewChiefV4.exe" profile some_profile.json)</li>
+	<li>Allow some properties to be modified without needing to restart the app</li>
+	<li>Fixed an issue with missing opponent gap data when the player is running 2nd</li>
+	<li>Added option to enable blue-flag messages ("Enable blue flag messages", defaults to enabled)</li>
+	<li>Added option to limit the games show in the Crew Chief 'Games' list - to use this add a comma separated list of the games you want to be show to property 'Limit available games'. Most common versions and abbreviations of the game names should work here (e.g. "R3E, pCars2, Assetto, ACC, RF2")</li>
+	<li>Allow radio beeps when the Chief talks to be switched off ("Enable radio beeps" properrty, defaults to enabled)</li>
+	<li>R3E: extended pit menu interactions - you can now ask for a specific tyre type in car classes that support it, for example "box, soft tyres" (see R3E Pit Menu Interactions)</li>
+</ul>
 <h2>Version 4.9.8.8</h2>
 <ul>
 	<li>Fix potential crash bug when assigning buttons or when testing button assignments / voice commands before the app receives any game data</li>
