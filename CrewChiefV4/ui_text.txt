@@ -1561,3 +1561,8 @@ limit_available_games = Limit available games
 limit_available_games_help = Comma separated list of games to show in the Games list (e.g. PCARS2, R3E)
 limit_available_games_category = UI_STARTUP_AND_PATHS
 limit_available_games_metadata = RESTART_REQUIRED
+
+enable_radio_beeps = Enable radio beeps
+enable_radio_beeps_help = Play a beep before the Chief starts talking
+enable_radio_beeps_category = AUDIO_VOICE_AND_CONTROLLERS
+enable_radio_beeps_metadata = RESTART_REQUIRED

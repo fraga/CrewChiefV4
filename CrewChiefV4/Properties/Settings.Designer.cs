@@ -4054,5 +4054,17 @@ namespace CrewChiefV4.Properties {
                 this["limit_available_games"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool enable_radio_beeps {
+            get {
+                return ((bool)(this["enable_radio_beeps"]));
+            }
+            set {
+                this["enable_radio_beeps"] = value;
+            }
+        }
     }
 }

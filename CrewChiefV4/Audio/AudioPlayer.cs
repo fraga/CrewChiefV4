@@ -63,6 +63,7 @@ namespace CrewChiefV4.Audio
 
         public static Boolean useAlternateBeeps = UserSettings.GetUserSettings().getBoolean("use_alternate_beeps");
         public static float pauseBetweenMessages = UserSettings.GetUserSettings().getFloat("pause_between_messages");
+        public static Boolean enableRadioBeeps = UserSettings.GetUserSettings().getBoolean("enable_radio_beeps");
 
         private QueuedMessage lastMessagePlayed = null;
 
@@ -1038,7 +1039,7 @@ namespace CrewChiefV4.Audio
         
         public void playStartSpeakingBeep()
         {
-            if (!mute)
+            if (!mute && enableRadioBeeps)
             {
                 var soundToPlay = PlaybackModerator.GetSuggestedBleepStart();
                 soundCache.Play(soundToPlay, SoundMetadata.beep);
@@ -1058,7 +1059,7 @@ namespace CrewChiefV4.Audio
 
         public void playShortStartSpeakingBeep()
         {
-            if (!mute)
+            if (!mute && enableRadioBeeps)
             {
                 var soundToPlay = PlaybackModerator.GetSuggestedBleepShorStart();
                 soundCache.Play(soundToPlay, SoundMetadata.beep);
@@ -1067,7 +1068,7 @@ namespace CrewChiefV4.Audio
 
         public void playEndSpeakingBeep()
         {
-            if (!mute)
+            if (!mute && enableRadioBeeps)
             {
                 var soundToPlay = PlaybackModerator.GetSuggestedBleepEnd();
                 soundCache.Play(soundToPlay, SoundMetadata.beep);
