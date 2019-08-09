@@ -90,7 +90,7 @@ namespace CrewChiefV4
             userProfileGroupBox.Text = Configuration.getUIString("user_profile")
                 + " (" + Configuration.getUIString("active_label") + " "
                 + Path.GetFileNameWithoutExtension(UserSettings.GetUserSettings().getString("current_settings_profile")) + ")";
-            profilesLabel.Text = Configuration.getUIString("user_profile");
+            profilesLabel.Text = Configuration.getUIString("user_profile_label");
             loadProfileButton.Text = Configuration.getUIString("load_profile");
             loadProfileButton.Enabled = false;
             createNewProfileButton.Text = Configuration.getUIString("create_new_profile");

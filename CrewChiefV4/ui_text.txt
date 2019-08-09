@@ -138,7 +138,7 @@ save_changes_title = Save changes?
 save_and_restart = S&ave profile settings and restart
 save_profile_settings = S&ave profile settings
 game_filter_label = &Game filter:
-show_common_props_label = Show &common properties
+show_common_props_label = Show c&ommon properties
 all_preferences_label = All Properties
 common_preferences_label = Common Properties
 
@@ -219,13 +219,14 @@ category_filter_label = Ca&tegory filter:
 
 user_profile_settings = Profile settings
 user_profile = Profiles
+user_profile_label = &Profiles:
 active_label = currently active:
 profile = Profile
-load_profile_and_restart = Activate profile and restart
-load_profile = Activate profile
-create_new_profile = Create profile
-copy_settings_from_current = Copy settings from current selected profile
-activate_new_profile = Activate new profile and restart
+load_profile_and_restart = &Activate profile and restart
+load_profile = &Activate profile
+create_new_profile = &Create profile
+copy_settings_from_current = C&opy settings from current selected profile
+activate_new_profile = Activate &new profile and restart
 
 scan_for_controllers = Scan &for Controllers
 cancel_scan = Canc&el scan
