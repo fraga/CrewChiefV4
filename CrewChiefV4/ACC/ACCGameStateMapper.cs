@@ -309,8 +309,23 @@ namespace CrewChiefV4.ACC
 
             AC_FLAG_TYPE currentFlag = shared.accGraphic.flag;
 
+            currentGameState.SessionData.IsDisqualified = currentFlag == AC_FLAG_TYPE.AC_BLACK_FLAG;
+            bool isInPits = shared.accGraphic.isInPit == 1;
+            int lapsCompleted = shared.accGraphic.completedLaps;
+            ACCGameStateMapper.numberOfSectorsOnTrack = shared.accStatic.sectorCount;
+
+            Boolean raceFinished = lapsCompleted == numberOfLapsInSession || (previousGameState != null && previousGameState.SessionData.LeaderHasFinishedRace && previousGameState.SessionData.IsNewLap);
+            
+            currentGameState.SessionData.SessionPhase = shared.accChief.SessionPhase;
+            if (raceFinished && shared.accChief.SessionPhase == SessionPhase.Checkered)
+            {
+                currentGameState.SessionData.SessionPhase = SessionPhase.Finished;
+            }
+
             // use leaderboard position in non-race sessions, and for the first 10 seconds of a race
-            Boolean useLeaderboardPosition = (sessionType == AC_SESSION_TYPE.AC_PRACTICE || sessionType == AC_SESSION_TYPE.AC_QUALIFY)
+            Boolean useLeaderboardPosition = sessionType == AC_SESSION_TYPE.AC_PRACTICE
+                || sessionType == AC_SESSION_TYPE.AC_QUALIFY
+                || raceFinished
                 || (previousGameState != null && previousGameState.SessionData.SessionRunningTime < 10 && shared.accGraphic.session == AC_SESSION_TYPE.AC_RACE);
 
             if (useLeaderboardPosition)
@@ -331,18 +346,6 @@ namespace CrewChiefV4.ACC
                 }
             }
 
-            currentGameState.SessionData.IsDisqualified = currentFlag == AC_FLAG_TYPE.AC_BLACK_FLAG;
-            bool isInPits = shared.accGraphic.isInPit == 1;
-            int lapsCompleted = shared.accGraphic.completedLaps;
-            ACCGameStateMapper.numberOfSectorsOnTrack = shared.accStatic.sectorCount;
-
-            Boolean raceFinished = lapsCompleted == numberOfLapsInSession || (previousGameState != null && previousGameState.SessionData.LeaderHasFinishedRace && previousGameState.SessionData.IsNewLap);
-            
-            currentGameState.SessionData.SessionPhase = shared.accChief.SessionPhase;
-            if (raceFinished && shared.accChief.SessionPhase == SessionPhase.Checkered)
-            {
-                currentGameState.SessionData.SessionPhase = SessionPhase.Finished;
-            }
 
             currentGameState.SessionData.TrackDefinition = TrackData.getTrackDefinition(shared.accStatic.track + ":" + shared.accStatic.trackConfiguration, shared.accChief.trackLength, shared.accStatic.sectorCount);
 
@@ -1293,7 +1296,10 @@ namespace CrewChiefV4.ACC
                 currentGameState.hardPartsOnTrackData.mapHardPartsOnTrack(currentGameState.ControlData.BrakePedal, currentGameState.ControlData.ThrottlePedal,
                     currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.SessionData.CurrentLapIsValid, currentGameState.SessionData.TrackDefinition.trackLength);
             }
-            
+
+            // TODO: sanity check this
+            currentGameState.FlagData.useImprovisedIncidentCalling = true;
+
             return currentGameState;
         }
 
