@@ -276,18 +276,26 @@ namespace CrewChiefV4
                     currentApplicationSettings.Add(prop.Name, Properties.Settings.Default[prop.Name]);
                 }
 
-                // get the filename of the current active profile
-                currentUserProfileFileName = getString("current_settings_profile");
-
                 // Copy user settings from previous application version if necessary
-                String savedAppVersion = getString("app_version");                
+                String savedAppVersion = getString("app_version");
                 if (savedAppVersion == null || !savedAppVersion.Equals(System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString()))
                 {
                     Properties.Settings.Default.Upgrade();
                     setProperty("app_version", System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString());
                     Properties.Settings.Default.Save();
                     upgradeUserProfileSettings();
+
+                    // We need to reload Application settings if we've upgraded (otherwise we miss a lot of stuff set in the prev app version, including active profile).
+                    currentApplicationSettings.Clear();
+                    foreach (SettingsProperty prop in getProperties(true))
+                    {
+                        currentApplicationSettings.Add(prop.Name, Properties.Settings.Default[prop.Name]);
+                    }
                 }
+
+                // get the filename of the current active profile
+                currentUserProfileFileName = getString("current_settings_profile");
+
                 if (!string.IsNullOrWhiteSpace(currentUserProfileFileName))
                 {
                     loadActiveUserSettingsProfile(Path.Combine(userProfilesPath, currentUserProfileFileName));
