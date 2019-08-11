@@ -1595,10 +1595,10 @@ namespace CrewChiefV4.assetto
 
             if (currentGameState.PitData.HasMandatoryPitStop)
             {
-                int lapsOrMinutes;
+                float lapsOrMinutes;
                 if (currentGameState.SessionData.SessionHasFixedTime)
                 {
-                    lapsOrMinutes = (int)Math.Floor(currentGameState.SessionData.SessionRunningTime / 60f);
+                    lapsOrMinutes = (float) Math.Floor(currentGameState.SessionData.SessionRunningTime / 60f);
                 }
                 else
                 {
@@ -2147,7 +2147,7 @@ namespace CrewChiefV4.assetto
             return DamageLevel.NONE;
         }
 
-        private PitWindow mapToPitWindow(int lapsOrMinutes, Boolean isInPits, int pitWindowStart, int pitWindowEnd, Boolean mandatoryPitDone)
+        private PitWindow mapToPitWindow(float lapsOrMinutes, Boolean isInPits, float pitWindowStart, float pitWindowEnd, Boolean mandatoryPitDone)
         {
             if (lapsOrMinutes < pitWindowStart && lapsOrMinutes > pitWindowEnd)
             {

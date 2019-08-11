@@ -666,7 +666,7 @@ namespace CrewChiefV4.Events
         private Strategy.PostPitRacePosition getPostPitPositionData(Boolean fromVoiceCommand, int currentRacePosition, int lapsCompleted,
             CarData.CarClass playerClass, Dictionary<String, OpponentData> opponents, DeltaTime playerDeltaTime, DateTime now,
             String trackName, float trackLength, float currentDistanceRoundTrack, float bestLapTime, float sessionRunningTime,
-            Boolean hasMandatoryPitStop, int pitWindowEnd, Boolean fixedTimeSession)
+            Boolean hasMandatoryPitStop, float pitWindowEnd, Boolean fixedTimeSession)
         {
             float halfTrackLength = trackLength / 2;
             // check we have deltapoints first

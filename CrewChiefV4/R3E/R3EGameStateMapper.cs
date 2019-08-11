@@ -449,7 +449,7 @@ namespace CrewChiefV4.RaceRoom
                                 {
                                     currentGameState.PitData.MandatoryTyreChangeRequiredTyreType = TyreType.Prime;
                                     // the mandatory change must be completed by the end of the pit window
-                                    currentGameState.PitData.MaxPermittedDistanceOnCurrentTyre = currentGameState.PitData.PitWindowEnd;
+                                    currentGameState.PitData.MaxPermittedDistanceOnCurrentTyre = (int) currentGameState.PitData.PitWindowEnd;
                                 }
                             }
                         }

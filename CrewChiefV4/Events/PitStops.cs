@@ -119,9 +119,9 @@ namespace CrewChiefV4.Events
 
         private Boolean inPitWindow;
 
-        private int pitWindowOpenTime;
+        private float pitWindowOpenTime;
 
-        private int pitWindowClosedTime;
+        private float pitWindowClosedTime;
 
         private Boolean pitDataInitialised;
         
@@ -569,8 +569,8 @@ namespace CrewChiefV4.Events
 
                     if (currentGameState.SessionData.SessionNumberOfLaps > 0)
                     {
-                        pitWindowOpenLap = currentGameState.PitData.PitWindowStart;
-                        pitWindowClosedLap = currentGameState.PitData.PitWindowEnd;
+                        pitWindowOpenLap = (int) currentGameState.PitData.PitWindowStart;
+                        pitWindowClosedLap = (int) currentGameState.PitData.PitWindowEnd;
                         playPitThisLap = true;
                     }
                     else if (currentGameState.SessionData.SessionTimeRemaining > 0)

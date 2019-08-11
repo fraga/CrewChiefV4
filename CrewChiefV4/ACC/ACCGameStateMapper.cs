@@ -529,18 +529,17 @@ namespace CrewChiefV4.ACC
                         currentGameState.TyreData.TyreTypeName = shared.accGraphic.tyreCompound;
                         tyreTempThresholds = getTyreTempThresholds(currentGameState.carClass, currentGameState.TyreData.TyreTypeName);
 
+                        currentGameState.PitData.HasMandatoryPitStop = shared.accStatic.PitWindowStart < shared.accStatic.PitWindowEnd && (shared.accStatic.PitWindowStart > 0 || shared.accStatic.PitWindowEnd > 0);
                         if (currentGameState.SessionData.SessionHasFixedTime)
                         {
-                            currentGameState.PitData.PitWindowStart = shared.accStatic.PitWindowStart;
-                            currentGameState.PitData.PitWindowEnd = shared.accStatic.PitWindowEnd;
+                            currentGameState.PitData.PitWindowStart = shared.accStatic.PitWindowStart / 60000f;
+                            currentGameState.PitData.PitWindowEnd = shared.accStatic.PitWindowEnd / 60000f;
                         }
                         else
                         {
                             currentGameState.PitData.PitWindowStart = shared.accStatic.PitWindowStart - 1;
                             currentGameState.PitData.PitWindowEnd = shared.accStatic.PitWindowEnd - 1;
                         }
-
-                        currentGameState.PitData.HasMandatoryPitStop = shared.accStatic.PitWindowStart != shared.accStatic.PitWindowEnd && (shared.accStatic.PitWindowStart > 0 || shared.accStatic.PitWindowEnd > 0);
 
                         if (previousGameState != null)
                         {
@@ -1071,16 +1070,16 @@ namespace CrewChiefV4.ACC
 
             if (currentGameState.PitData.HasMandatoryPitStop)
             {
-                int lapsOrMilliseconds;
+                float lapsOrMinutes;
                 if (currentGameState.SessionData.SessionHasFixedTime)
                 {
-                    lapsOrMilliseconds = (int)Math.Floor(currentGameState.SessionData.SessionRunningTime * 1000f);
+                    lapsOrMinutes = (float) Math.Floor(currentGameState.SessionData.SessionRunningTime / 60f);
                 }
                 else
                 {
-                    lapsOrMilliseconds = playerVehicle.lapCount;
+                    lapsOrMinutes = playerVehicle.lapCount;
                 }
-                currentGameState.PitData.PitWindow = mapToPitWindow(lapsOrMilliseconds, currentGameState.PitData.InPitlane,
+                currentGameState.PitData.PitWindow = mapToPitWindow(lapsOrMinutes, currentGameState.PitData.InPitlane,
                     currentGameState.PitData.PitWindowStart, currentGameState.PitData.PitWindowEnd, shared.accGraphic.MandatoryPitDone == 1);
             }
             else
@@ -1590,9 +1589,9 @@ namespace CrewChiefV4.ACC
             return DamageLevel.NONE;
         }
 
-        private PitWindow mapToPitWindow(int lapsOrMilliseconds, Boolean isInPits, int pitWindowStart, int pitWindowEnd, Boolean mandatoryPitDone)
+        private PitWindow mapToPitWindow(float lapsOrMinutes, Boolean isInPits, float pitWindowStart, float pitWindowEnd, Boolean mandatoryPitDone)
         {
-            if (lapsOrMilliseconds < pitWindowStart && lapsOrMilliseconds > pitWindowEnd)
+            if (lapsOrMinutes < pitWindowStart && lapsOrMinutes > pitWindowEnd)
             {
                 return PitWindow.Closed;
             }
@@ -1600,11 +1599,11 @@ namespace CrewChiefV4.ACC
             {
                 return PitWindow.Completed;
             }
-            else if (lapsOrMilliseconds >= pitWindowStart && lapsOrMilliseconds <= pitWindowEnd)
+            else if (lapsOrMinutes >= pitWindowStart && lapsOrMinutes <= pitWindowEnd)
             {
                 return PitWindow.Open;
             }
-            else if (isInPits && lapsOrMilliseconds >= pitWindowStart && lapsOrMilliseconds <= pitWindowEnd)
+            else if (isInPits && lapsOrMinutes >= pitWindowStart && lapsOrMinutes <= pitWindowEnd)
             {
                 return PitWindow.StopInProgress;
             }

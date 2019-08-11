@@ -2664,11 +2664,12 @@ namespace CrewChiefV4.GameState
         public OpponentData OpponentForCarAheadPitting;
         public OpponentData OpponentForCarBehindPitting;
 
-        public int PitWindowStart;
+        public float PitWindowStart;
 
         // The minute/lap into which you can/should pit
-        // Unit: Minutes in time based sessions, otherwise lap
-        public int PitWindowEnd;
+        // Unit: Minutes in time based sessions, otherwise lap.
+        // use a float here because in some timed sessions it may be a non-integer number of minutes
+        public float PitWindowEnd;
 
         public Boolean HasMandatoryPitStop;
 
