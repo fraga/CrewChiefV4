@@ -222,7 +222,8 @@ namespace CrewChiefV4.Events
                     playedHalfWayHome = true;
                     audioPlayer.suspendPearlsOfWisdom();
                     audioPlayer.playMessage(new QueuedMessage(folder2mins, 15, abstractEvent: this, priority: 10));
-                } if (currentGameState.SessionData.SessionRunningTime > 60 && !played5mins && timeLeft / 60 < 5 && timeLeft / 60 > 4.9)
+                }
+                if (currentGameState.SessionData.SessionRunningTime > 120 && !played5mins && timeLeft / 60 < 5 && timeLeft / 60 > 4.9)
                 {
                     played5mins = true;
                     played10mins = true;
@@ -244,26 +245,26 @@ namespace CrewChiefV4.Events
                         audioPlayer.playMessage(new QueuedMessage(folder5mins, 20, abstractEvent: this, priority: 5), pearlType, 0.7);
                     }
                 }
-                if (currentGameState.SessionData.SessionRunningTime > 60 && !played10mins && timeLeft / 60 < 10 && timeLeft / 60 > 9.9)
+                if (currentGameState.SessionData.SessionRunningTime > 120 && !played10mins && timeLeft / 60 < 10 && timeLeft / 60 > 9.9)
                 {
                     played10mins = true;
                     played15mins = true;
                     played20mins = true;
                     audioPlayer.playMessage(new QueuedMessage(folder10mins, 20, abstractEvent: this, priority: 3), pearlType, 0.7);
                 }
-                if (currentGameState.SessionData.SessionRunningTime > 60 && !played15mins && timeLeft / 60 < 15 && timeLeft / 60 > 14.9)
+                if (currentGameState.SessionData.SessionRunningTime > 120 && !played15mins && timeLeft / 60 < 15 && timeLeft / 60 > 14.9)
                 {
                     played15mins = true;
                     played20mins = true;
                     audioPlayer.playMessage(new QueuedMessage(folder15mins, 20, abstractEvent: this, priority: 3), pearlType, 0.7);
                 }
-                if (currentGameState.SessionData.SessionRunningTime > 60 && !played20mins && timeLeft / 60 < 20 && timeLeft / 60 > 19.9)
+                if (currentGameState.SessionData.SessionRunningTime > 120 && !played20mins && timeLeft / 60 < 20 && timeLeft / 60 > 19.9)
                 {
                     played20mins = true;
                     audioPlayer.playMessage(new QueuedMessage(folder20mins, 20, abstractEvent: this, priority: 3), pearlType, 0.7);
                 }
                 else if (currentGameState.SessionData.SessionType == SessionType.Race &&
-                    currentGameState.SessionData.SessionRunningTime > 60 && !playedHalfWayHome && timeLeft > 0 && timeLeft < halfTime)
+                    currentGameState.SessionData.SessionRunningTime > 120 && !playedHalfWayHome && timeLeft > 0 && timeLeft < halfTime)
                 {
                     // this one sounds weird in practice and qual sessions, so skip it
                     playedHalfWayHome = true;
