@@ -840,7 +840,43 @@ namespace CrewChiefV4.ACC
                                     currentOpponentData.DeltaTime.SetNextDeltaPoint(currentOpponentLapDistance, participantStruct.lapCount,
                                         participantStruct.speedMS, currentGameState.Now);
 
-                                    if (useLeaderboardPosition)
+                                    int currentOpponentLapsCompleted = participantStruct.lapCount;
+
+                                    Boolean finishedAllottedRaceLaps = false;
+                                    Boolean finishedAllottedRaceTime = false;
+                                    if (currentGameState.SessionData.SessionType == SessionType.Race)
+                                    {
+                                        if (!currentGameState.SessionData.SessionHasFixedTime)
+                                        {
+                                            // Using same approach here as in R3E
+                                            finishedAllottedRaceLaps = currentGameState.SessionData.SessionNumberOfLaps > 0 && currentGameState.SessionData.SessionNumberOfLaps == currentOpponentLapsCompleted;
+                                        }
+                                        else
+                                        {
+                                            if (currentGameState.SessionData.HasExtraLap)
+                                            {
+                                                if (currentGameState.SessionData.SessionTotalRunTime > 0 && currentGameState.SessionData.SessionTimeRemaining <= 0 &&
+                                                    previousOpponentCompletedLaps < currentOpponentLapsCompleted)
+                                                {
+                                                    if (!currentOpponentData.HasStartedExtraLap)
+                                                    {
+                                                        currentOpponentData.HasStartedExtraLap = true;
+                                                    }
+                                                    else
+                                                    {
+                                                        finishedAllottedRaceTime = true;
+                                                    }
+                                                }
+                                            }
+                                            else if (currentGameState.SessionData.SessionTotalRunTime > 0 && currentGameState.SessionData.SessionTimeRemaining <= 0 &&
+                                                previousOpponentCompletedLaps < currentOpponentLapsCompleted)
+                                            {
+                                                finishedAllottedRaceTime = true;
+                                            }
+                                        }
+                                    }
+
+                                    if (useLeaderboardPosition || finishedAllottedRaceLaps || finishedAllottedRaceTime)
                                     {
                                         currentOpponentRacePosition = participantStruct.carLeaderboardPosition;
                                     }
@@ -858,32 +894,6 @@ namespace CrewChiefV4.ACC
                                         }
                                     }
 
-                                    int currentOpponentLapsCompleted = participantStruct.lapCount;
-
-                                    //Using same approach here as in R3E
-                                    Boolean finishedAllottedRaceLaps = currentGameState.SessionData.SessionNumberOfLaps > 0 && currentGameState.SessionData.SessionNumberOfLaps == currentOpponentLapsCompleted;
-                                    Boolean finishedAllottedRaceTime = false;
-                                    if (currentGameState.SessionData.HasExtraLap &&
-                                        currentGameState.SessionData.SessionType == SessionType.Race)
-                                    {
-                                        if (currentGameState.SessionData.SessionTotalRunTime > 0 && currentGameState.SessionData.SessionTimeRemaining <= 0 &&
-                                            previousOpponentCompletedLaps < currentOpponentLapsCompleted)
-                                        {
-                                            if (!currentOpponentData.HasStartedExtraLap)
-                                            {
-                                                currentOpponentData.HasStartedExtraLap = true;
-                                            }
-                                            else
-                                            {
-                                                finishedAllottedRaceTime = true;
-                                            }
-                                        }
-                                    }
-                                    else if (currentGameState.SessionData.SessionTotalRunTime > 0 && currentGameState.SessionData.SessionTimeRemaining <= 0 &&
-                                        previousOpponentCompletedLaps < currentOpponentLapsCompleted)
-                                    {
-                                        finishedAllottedRaceTime = true;
-                                    }
 
                                     if (currentOpponentRacePosition == 1 && (finishedAllottedRaceTime || finishedAllottedRaceLaps))
                                     {

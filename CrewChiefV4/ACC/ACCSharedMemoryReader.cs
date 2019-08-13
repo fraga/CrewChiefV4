@@ -307,7 +307,8 @@ namespace CrewChiefV4.ACC
 
                             List<float> distancesTravelled = new List<float>();
                             // get the player vehicle first and put this at the front of the list
-                            var playerVehicle = getPlayerVehicle(udpUpdateViewModel.BroadcastingVM.Cars, accShared.accStatic, accShared.accGraphic.position);
+                            int playerCarIndex = Array.IndexOf(accShared.accGraphic.carIDs, accShared.accGraphic.playerCarID);
+                            var playerVehicle = getPlayerVehicle(udpUpdateViewModel.BroadcastingVM.Cars, playerCarIndex, accShared.accStatic, accShared.accGraphic.position);
                             if (playerVehicle != null)
                             {
                                 activeVehicles.AddFirst(createCar(1, playerVehicle, structWrapper.data.accStatic.carModel, accShared.accPhysics.wheelsPressure,
@@ -416,8 +417,19 @@ namespace CrewChiefV4.ACC
             };            
         }
         
-        private CarViewModel getPlayerVehicle(List<CarViewModel> cars, SPageFileStatic accStatic, int positionFromSharedMem)
+        private CarViewModel getPlayerVehicle(List<CarViewModel> cars, int carIndex, SPageFileStatic accStatic, int positionFromSharedMem)
         {
+            if (carIndex != -1)
+            {
+                foreach (var car in cars)
+                {
+                    if (car.CarIndex == carIndex)
+                    {
+                        return car;
+                    }
+                }
+            }
+            // TODO: Check if we ever end up here - the carIndex from accGraphic should work so if we get here something is broken
             int positionDiff = int.MaxValue;
             CarViewModel bestMatch = null;
             foreach (var car in cars)

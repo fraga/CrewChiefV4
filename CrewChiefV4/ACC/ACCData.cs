@@ -181,21 +181,42 @@ namespace CrewChiefV4.ACC
 
             // note that carCount frequently disagrees with the UDP data - looks like UDP data is more correct
             public int carCount;
-
-            // new stuff still waiting for documentation from Kunos:
+            
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 60)]
             public accVec3[] carCoordinates;
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 60)]
             public int[] carIDs;
-            // end of new stuff
+            public int playerCarID;
 
             public float penaltyTime;
             public AC_FLAG_TYPE flag;
+
+            // i have no idea what this is - some kind of enum I expect
+            //ksRacing::PenaltyShortcut penalty = ksRacing::PenaltyShortcut::None;
+            public int penalty;
+
             public int idealLineOn;
             public int isInPitLane;
 
             public float surfaceGrip;
             public int MandatoryPitDone;
+            public float windSpeed;
+            public float windDirection;
+
+            public int isSetupMenuVisible;
+
+            public int mainDisplayIndex;
+            public int secondaryDisplayIndex;
+            public int TC;
+            public int TCCut;
+            public int EngineMap;
+            public int ABS;
+            public int fuelXLap;
+            public int rainLights;
+            public int flashingLights;
+            public int lightsStage;
+            public float exhaustTemperature;
+            public int wiperLV;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Unicode)]
