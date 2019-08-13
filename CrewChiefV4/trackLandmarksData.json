@@ -198,6 +198,7 @@
 			"acTrackNames": ["ks_brands_hatch:gp"],
 			"pcarsTrackName": "Brands Hatch:Grand Prix",
 			"pcars2TrackName": "Brands_Hatch:GP",
+			"accTrackName": "brands_hatch:track config",
 			"trackLandmarks": [{
 					"landmarkName": "paddock_hill",
 					"distanceRoundLapStart": 2000,
@@ -1242,6 +1243,7 @@
 			"rf2TrackNames": ["RaceRfactor Monza 2014"],
 			"irTrackName": "monza full",
 			"raceroomLayoutId": 1671,
+			"accTrackName": "monza:track config",
 			"raceroomRollingStartLapDistance": 4285,
 			"trackLandmarks": [{
 					"landmarkName": "the_first_chicane",
@@ -1365,6 +1367,7 @@
 			"raceroomRollingStartLapDistance": 3347,
 			"rf2TrackNames": ["Zolder"],
 			"irTrackName": "zolder gp",
+			"accTrackName": "Zolder:track config",
 			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 250,
@@ -2114,7 +2117,7 @@
 			"raceroomLayoutId": 1691,
 			"raceroomRollingStartLapDistance": 4591,
             "rf2TrackNames": [ "Nuerburg GP" ],
-            "accTrackName":  "nurburgring" ,
+            "accTrackName":  "nurburgring:track config" ,
 			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 600,
@@ -2206,6 +2209,7 @@
 			"raceroomLayoutId": 1866,
 			"raceroomRollingStartLapDistance": 3828,
 			"rf2TrackNames": ["RaceRfactor Hungaroring 2013"],
+			"accTrackName" : "Hungaroring:track config",
 			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 550,

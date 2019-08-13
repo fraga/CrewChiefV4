@@ -185,7 +185,7 @@ namespace CrewChiefV4.ACC
             Boolean isSinglePlayerPracticeSession = shared.accChief.vehicle.Length == 1 && !isOnline && shared.accGraphic.session == AC_SESSION_TYPE.AC_PRACTICE;
             float distanceRoundTrack = spLineLengthToDistanceRoundTrack(shared.accChief.trackLength, playerVehicle.spLineLength);
 
-            currentGameState.SessionData.TrackDefinition = new TrackDefinition(shared.accStatic.track, shared.accChief.trackLength);
+            currentGameState.SessionData.TrackDefinition = new TrackDefinition(shared.accStatic.track + ":" + shared.accStatic.trackConfiguration, shared.accChief.trackLength);
 
             Validator.validate(playerVehicle.driverName);
             AC_SESSION_TYPE sessionTypeAsSentByGame = shared.accGraphic.session;
@@ -345,7 +345,6 @@ namespace CrewChiefV4.ACC
                     currentGameState.SessionData.OverallPosition = playerVehicle.carRealTimeLeaderboardPosition;
                 }
             }
-
 
             currentGameState.SessionData.TrackDefinition = TrackData.getTrackDefinition(shared.accStatic.track + ":" + shared.accStatic.trackConfiguration, shared.accChief.trackLength, shared.accStatic.sectorCount);
 
@@ -1306,10 +1305,7 @@ namespace CrewChiefV4.ACC
                 currentGameState.hardPartsOnTrackData.mapHardPartsOnTrack(currentGameState.ControlData.BrakePedal, currentGameState.ControlData.ThrottlePedal,
                     currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.SessionData.CurrentLapIsValid, currentGameState.SessionData.TrackDefinition.trackLength);
             }
-
-            // TODO: sanity check this
-            currentGameState.FlagData.useImprovisedIncidentCalling = true;
-
+            
             return currentGameState;
         }
 
