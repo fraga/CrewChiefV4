@@ -424,8 +424,8 @@ namespace CrewChiefV4.iRacing
             // Cars that are missing from the list of drivers won't mean positions get shifted.
             // This can lead to some drivers having incorrect positions, but it's unlikely to be us, and
             // all positions are still valid.
-            _drivers.Where(driver => driver.IsSpectator || driver.IsPaceCar || telemetry.CarIdxClassPosition[driver.Id] == 0).ToList().ForEach(d => { d.Live.Position = 1001; d.Live.ClassPosition = 1001; });
-            var validDrivers = _drivers.Where(driver => !(driver.IsSpectator || driver.IsPaceCar || telemetry.CarIdxClassPosition[driver.Id] == 0)).ToList();
+            _drivers.Where(driver => driver.IsSpectator || driver.IsPaceCar).ToList().ForEach(d => { d.Live.Position = 1001; d.Live.ClassPosition = 1001; });
+            var validDrivers = _drivers.Where(driver => !(driver.IsSpectator || driver.IsPaceCar)).ToList();
 
             var validPositions = validDrivers.Where(d => d.CurrentResults.Position != 0).Select(d => d.CurrentResults.Position).OrderBy(p => p).ToList();
             var classPositions = validDrivers.Where(d => telemetry.CarIdxClassPosition[d.Id] != 0).Select(d => new { d.Car.CarClassId, ClassPosition = telemetry.CarIdxClassPosition[d.Id] }).GroupBy(p => p.CarClassId, p => p.ClassPosition).ToDictionary(p => p.Key, p => p.OrderBy(i => i).ToList());
@@ -446,7 +446,7 @@ namespace CrewChiefV4.iRacing
                 driver.Live.Position = currentPosition;                
 
                 var currentClassPosition =  lastClassPositionSet[driver.Car.CarClassId] + 1;
-                if(classPositions[driver.Car.CarClassId].Any())
+                if(classPositions.ContainsKey(driver.Car.CarClassId) && classPositions[driver.Car.CarClassId].Any())
                 {
                     // we use the next valid position instead
                     currentClassPosition = classPositions[driver.Car.CarClassId][0];
