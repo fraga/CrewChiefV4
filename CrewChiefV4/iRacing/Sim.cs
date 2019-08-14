@@ -452,6 +452,7 @@ namespace CrewChiefV4.iRacing
                     currentClassPosition = classPositions[driver.Car.CarClassId][0];
                     classPositions[driver.Car.CarClassId].RemoveAt(0);
                 }
+                lastClassPositionSet[driver.Car.CarClassId] = currentClassPosition;
                 driver.Live.ClassPosition = currentClassPosition;                
             }
 #if DEBUG
