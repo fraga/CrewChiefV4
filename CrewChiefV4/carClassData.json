@@ -866,7 +866,7 @@
 		{
 			"carClassEnum": "NSU_TT",
 			"raceroomClassIds": [4813],
-			"maxSafeWaterTemp": 1020,
+			"maxSafeWaterTemp": 102,
 			"maxSafeOilTemp": 115,
 			"minTyreCircumference": 1.25,
 			"maxTyreCircumference": 2.8,
