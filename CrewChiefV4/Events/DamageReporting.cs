@@ -375,16 +375,16 @@ namespace CrewChiefV4.Events
                     switch (puncture)
                     {
                         case CornerData.Corners.FRONT_LEFT:
-                            audioPlayer.playMessage(new QueuedMessage(folderLeftFrontPuncture, 0, abstractEvent: this, priority: 10));
+                            audioPlayer.playMessage(new QueuedMessage(folderLeftFrontPuncture, 0, secondsDelay: Utilities.random.Next(2, 10), abstractEvent: this, priority: 10));
                             break;
                         case CornerData.Corners.FRONT_RIGHT:
-                            audioPlayer.playMessage(new QueuedMessage(folderRightFrontPuncture, 0, abstractEvent: this, priority: 10));
+                            audioPlayer.playMessage(new QueuedMessage(folderRightFrontPuncture, 0, secondsDelay: Utilities.random.Next(2, 10), abstractEvent: this, priority: 10));
                             break;
                         case CornerData.Corners.REAR_LEFT:
-                            audioPlayer.playMessage(new QueuedMessage(folderLeftRearPuncture, 0, abstractEvent: this, priority: 10));
+                            audioPlayer.playMessage(new QueuedMessage(folderLeftRearPuncture, 0, secondsDelay: Utilities.random.Next(2, 10), abstractEvent: this, priority: 10));
                             break;
                         case CornerData.Corners.REAR_RIGHT:
-                            audioPlayer.playMessage(new QueuedMessage(folderRightRearPuncture, 0, abstractEvent: this, priority: 10));
+                            audioPlayer.playMessage(new QueuedMessage(folderRightRearPuncture, 0, secondsDelay: Utilities.random.Next(2, 10), abstractEvent: this, priority: 10));
                             break;
                     }
                 }
@@ -822,7 +822,7 @@ namespace CrewChiefV4.Events
                 {
                     if (!checkIfDriverIsOK(now, inPitLane))
                     {
-                        audioPlayer.playMessage(new QueuedMessage(folderBustedEngine, 0, abstractEvent: this, priority: 10));
+                        audioPlayer.playMessage(new QueuedMessage(folderBustedEngine, 0, secondsDelay: Utilities.random.Next(2, 7), abstractEvent: this, priority: 10));
                         if (allowRants)
                         {
                             audioPlayer.playRant("damage_rant", null);
@@ -831,11 +831,11 @@ namespace CrewChiefV4.Events
                 }
                 else if (damageToReportNext.Item2 == DamageLevel.MAJOR)
                 {
-                    audioPlayer.playMessage(new QueuedMessage(folderSevereEngineDamage, 0, abstractEvent: this, priority: 10));
+                    audioPlayer.playMessage(new QueuedMessage(folderSevereEngineDamage, 0, secondsDelay: Utilities.random.Next(2, 7), abstractEvent: this, priority: 10));
                 }
                 else if (damageToReportNext.Item2 == DamageLevel.MINOR)
                 {
-                    audioPlayer.playMessage(new QueuedMessage(folderMinorEngineDamage, 0, abstractEvent: this, priority: 10));
+                    audioPlayer.playMessage(new QueuedMessage(folderMinorEngineDamage, 0, secondsDelay: Utilities.random.Next(3, 10), abstractEvent: this, priority: 10));
                 }
             }
             else if (damageToReportNext.Item1 == Component.TRANNY)
@@ -844,7 +844,7 @@ namespace CrewChiefV4.Events
                 {
                     if (!checkIfDriverIsOK(now, inPitLane))
                     {
-                        audioPlayer.playMessage(new QueuedMessage(folderBustedTransmission, 0, abstractEvent: this, priority: 10));
+                        audioPlayer.playMessage(new QueuedMessage(folderBustedTransmission, 0, secondsDelay: Utilities.random.Next(2, 7), abstractEvent: this, priority: 10));
                         if (allowRants)
                         {
                             audioPlayer.playRant("damage_rant", null);
@@ -853,11 +853,11 @@ namespace CrewChiefV4.Events
                 }
                 else if (damageToReportNext.Item2 == DamageLevel.MAJOR)
                 {
-                    audioPlayer.playMessage(new QueuedMessage(folderSevereTransmissionDamage, 0, abstractEvent: this, priority: 10));
+                    audioPlayer.playMessage(new QueuedMessage(folderSevereTransmissionDamage, 0, secondsDelay: Utilities.random.Next(2, 7), abstractEvent: this, priority: 10));
                 }
                 else if (damageToReportNext.Item2 == DamageLevel.MINOR)
                 {
-                    audioPlayer.playMessage(new QueuedMessage(folderMinorTransmissionDamage, 0, abstractEvent: this, priority: 10));
+                    audioPlayer.playMessage(new QueuedMessage(folderMinorTransmissionDamage, 0, secondsDelay: Utilities.random.Next(3, 10), abstractEvent: this, priority: 10));
                 }
             }
             else if (damageToReportNext.Item1 == Component.SUSPENSION)
@@ -866,7 +866,7 @@ namespace CrewChiefV4.Events
                 {
                     if (!checkIfDriverIsOK(now, inPitLane))
                     {
-                        audioPlayer.playMessage(new QueuedMessage(folderBustedSuspension, 0, abstractEvent: this, priority: 10));
+                        audioPlayer.playMessage(new QueuedMessage(folderBustedSuspension, 0, secondsDelay: Utilities.random.Next(2, 7), abstractEvent: this, priority: 10));
                         if (allowRants)
                         {
                             audioPlayer.playRant("damage_rant", null);
@@ -877,28 +877,28 @@ namespace CrewChiefV4.Events
                 {
                     if (isMissingWheel)
                     {
-                        audioPlayer.playMessage(new QueuedMessage(folderMissingWheel, 0, abstractEvent: this, priority: 10));
+                        audioPlayer.playMessage(new QueuedMessage(folderMissingWheel, 0, secondsDelay: Utilities.random.Next(2, 7), abstractEvent: this, priority: 10));
                     }
-                    audioPlayer.playMessage(new QueuedMessage(folderSevereSuspensionDamage, 0, abstractEvent: this, priority: 10));
+                    audioPlayer.playMessage(new QueuedMessage(folderSevereSuspensionDamage, 0, secondsDelay: Utilities.random.Next(2, 7), abstractEvent: this, priority: 10));
                 }
                 else if (damageToReportNext.Item2 == DamageLevel.MINOR && !isMissingWheel)
                 {
-                    audioPlayer.playMessage(new QueuedMessage(folderMinorSuspensionDamage, 0, abstractEvent: this, priority: 10));
+                    audioPlayer.playMessage(new QueuedMessage(folderMinorSuspensionDamage, 0, secondsDelay: Utilities.random.Next(3, 10), abstractEvent: this, priority: 10));
                 }
             }
             else if (damageToReportNext.Item1 == Component.BRAKES)
             {
                 if (damageToReportNext.Item2 == DamageLevel.DESTROYED)
                 {
-                    audioPlayer.playMessage(new QueuedMessage(folderBustedBrakes, 0, abstractEvent: this, priority: 10));
+                    audioPlayer.playMessage(new QueuedMessage(folderBustedBrakes, 0, secondsDelay: Utilities.random.Next(2, 7), abstractEvent: this, priority: 10));
                 }
                 else if (damageToReportNext.Item2 == DamageLevel.MAJOR)
                 {
-                    audioPlayer.playMessage(new QueuedMessage(folderSevereBrakeDamage, 0, abstractEvent: this, priority: 10));
+                    audioPlayer.playMessage(new QueuedMessage(folderSevereBrakeDamage, 0, secondsDelay: Utilities.random.Next(2, 7), abstractEvent: this, priority: 10));
                 }
                 else if (damageToReportNext.Item2 == DamageLevel.MINOR)
                 {
-                    audioPlayer.playMessage(new QueuedMessage(folderMinorBrakeDamage, 0, abstractEvent: this, priority: 10));
+                    audioPlayer.playMessage(new QueuedMessage(folderMinorBrakeDamage, 0, secondsDelay: Utilities.random.Next(3, 10), abstractEvent: this, priority: 10));
                 }
             }
             else if (damageToReportNext.Item1 == Component.AERO)
@@ -907,20 +907,20 @@ namespace CrewChiefV4.Events
                 {
                     if (!checkIfDriverIsOK(now, inPitLane))
                     {
-                        audioPlayer.playMessage(new QueuedMessage(folderSevereAeroDamage, 0, abstractEvent: this, priority: 10));
+                        audioPlayer.playMessage(new QueuedMessage(folderSevereAeroDamage, 0, secondsDelay: Utilities.random.Next(2, 7), abstractEvent: this, priority: 10));
                     }
                 }
                 else if (damageToReportNext.Item2 == DamageLevel.MAJOR)
                 {
-                    audioPlayer.playMessage(new QueuedMessage(folderSevereAeroDamage, 0, abstractEvent: this, priority: 10));
+                    audioPlayer.playMessage(new QueuedMessage(folderSevereAeroDamage, 0, secondsDelay: Utilities.random.Next(2, 7), abstractEvent: this, priority: 10));
                 }
                 else if (damageToReportNext.Item2 == DamageLevel.MINOR)
                 {
-                    audioPlayer.playMessage(new QueuedMessage(folderMinorAeroDamage, 0, abstractEvent: this, priority: 10));
+                    audioPlayer.playMessage(new QueuedMessage(folderMinorAeroDamage, 0, secondsDelay: Utilities.random.Next(3, 10), abstractEvent: this, priority: 10));
                 }
                 else if (damageToReportNext.Item2 == DamageLevel.TRIVIAL)
                 {
-                    audioPlayer.playMessage(new QueuedMessage(folderJustAScratch, 0, abstractEvent: this, priority: 3));
+                    audioPlayer.playMessage(new QueuedMessage(folderJustAScratch, 0, secondsDelay: Utilities.random.Next(3, 10), abstractEvent: this, priority: 3));
                 }
             }
         }
