@@ -815,6 +815,7 @@ namespace CrewChiefV4.Events
                 && damageToReportNext.Item1 != componentDestroyed)  // And it is not the current component
             {
                 // Do not play any message, because it does not matter if Aero is minor after suspension is damaged.
+                // TODO_MSG_DELAY: this needs revisiting with delayed messages.
                 Console.WriteLine(string.Format("Not reporting damage {0} for {1} because {2} is already destroyed", damageToReportNext.Item2, damageToReportNext.Item1, componentDestroyed));
                 return;
             }
