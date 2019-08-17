@@ -1349,11 +1349,22 @@ namespace CrewChiefV4.Events
             {
                 if (!reportFuelConsumption())
                 {
-                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));                    
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
                 }
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHATS_MY_FUEL_LEVEL))
             {
+                // TODO_MSG_DELAY:
+                /*if (this.delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
+                {
+                    this.audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderStandBy, 0));
+                    int secondsDelay = Math.Max(5, Utilities.random.Next(11));
+                    this.audioPlayer.pauseQueue(secondsDelay);
+                    damageMessage.dueTime = (DateTime.UtcNow.Ticks / TimeSpan.TicksPerMillisecond) + (1000 * secondsDelay);
+                    audioPlayer.playDelayedImmediateMessage(damageMessage);
+                }*/
+
+
                 if (!fuelUseActive)
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
