@@ -932,11 +932,11 @@ namespace CrewChiefV4.Events
                 }
 
                 Debug.Assert(queuedMessage != null);
-                if (!tryDelayResponse
+                if (tryDelayResponse
                     && this.delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
                 {
                     this.audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderStandBy, 0));
-                    int secondsDelay = Math.Max(5, Utilities.random.Next(11));
+                    int secondsDelay = Utilities.random.Next(5, 12);
                     this.audioPlayer.pauseQueue(secondsDelay);
                     queuedMessage.dueTime = (DateTime.UtcNow.Ticks / TimeSpan.TicksPerMillisecond) + (1000 * secondsDelay);
                     this.audioPlayer.playDelayedImmediateMessage(queuedMessage);
@@ -1001,7 +1001,7 @@ namespace CrewChiefV4.Events
                     if (delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
                     {
                         audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderStandBy, 0));
-                        int secondsDelay = Math.Max(5, Utilities.random.Next(7));
+                        int secondsDelay = Utilities.random.Next(5, 8);
                         audioPlayer.pauseQueue(secondsDelay);
                         fuelEstimateMessage.secondsDelay = secondsDelay;
                         audioPlayer.playDelayedImmediateMessage(fuelEstimateMessage);
@@ -1067,7 +1067,7 @@ namespace CrewChiefV4.Events
                     if (delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
                     {
                         audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderStandBy, 0));
-                        int secondsDelay = Math.Max(5, Utilities.random.Next(7));
+                        int secondsDelay = Utilities.random.Next(5, 8);
                         audioPlayer.pauseQueue(secondsDelay);
                         fuelEstimateMessage.secondsDelay = secondsDelay;
                         audioPlayer.playDelayedImmediateMessage(fuelEstimateMessage);
@@ -1192,7 +1192,7 @@ namespace CrewChiefV4.Events
                     && this.delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
                 {
                     this.audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderStandBy, 0));
-                    int secondsDelay = Math.Max(5, Utilities.random.Next(11));
+                    int secondsDelay = Utilities.random.Next(3, 7);
                     this.audioPlayer.pauseQueue(secondsDelay);
                     var queuedMessage = new QueuedMessage("Fuel/estimate", 0, messageFragments: messageFragments);
                     queuedMessage.dueTime = (DateTime.UtcNow.Ticks / TimeSpan.TicksPerMillisecond) + (1000 * secondsDelay);
@@ -1397,7 +1397,7 @@ namespace CrewChiefV4.Events
                 if (queuedMessage != null && delayResponses && Utilities.random.Next(10) >= 4 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderStandBy, 0));
-                    int secondsDelay = Math.Max(5, Utilities.random.Next(7));
+                    int secondsDelay = Utilities.random.Next(2, 5);
                     audioPlayer.pauseQueue(secondsDelay);
                     queuedMessage.secondsDelay = secondsDelay;
                     audioPlayer.playDelayedImmediateMessage(queuedMessage);
@@ -1455,7 +1455,7 @@ namespace CrewChiefV4.Events
                 if (fuelMessage != null && delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderStandBy, 0));
-                    int secondsDelay = Math.Max(5, Utilities.random.Next(7));
+                    int secondsDelay = Utilities.random.Next(5, 8);
                     audioPlayer.pauseQueue(secondsDelay);
                     fuelMessage.secondsDelay = secondsDelay;
                     audioPlayer.playDelayedImmediateMessage(fuelMessage);

@@ -834,6 +834,7 @@ namespace CrewChiefV4.Events
                         audioPlayer.playMessage(new QueuedMessage(folderBustedEngine, majorDamageMsgExpiration, secondsDelay: majorDamageMsgDelay, abstractEvent: this, priority: 10));
                         if (allowRants)
                         {
+                            // TODO_MSG_DELAY: Rants need to follow main msg.
                             audioPlayer.playRant("damage_rant", null);
                         }
                     }
