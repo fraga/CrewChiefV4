@@ -760,11 +760,11 @@ namespace CrewChiefV4.ACC
                     currentGameState.SessionData.SessionFastestLapTimeFromGamePlayerClass = mapToFloatTime(playerVehicle.bestLapMS);
                 }
 
-                List<string> driversWhoMayHaveDisconnected = new List<string>();
+                HashSet<string> driversWhoMayHaveDisconnected = new HashSet<string>();
                 if (previousGameState != null)
                 {
                     // start with the entire opponent set on the previous tick:
-                    driversWhoMayHaveDisconnected.AddRange(previousGameState.OpponentData.Keys);
+                    driversWhoMayHaveDisconnected.UnionWith(previousGameState.OpponentData.Keys);
                 }
 
                 for (int i = 1; i < shared.accChief.vehicle.Length; i++)
@@ -1306,7 +1306,8 @@ namespace CrewChiefV4.ACC
             }
 
             // don't enable improvised incident calling until we can work out how to cull the disconnected drivers from the opponents set
-            currentGameState.FlagData.useImprovisedIncidentCalling = false;
+            // before we disable this lets see if it works better with proper purging of disconnected players (note that it defaults to true)
+            // currentGameState.FlagData.useImprovisedIncidentCalling = false;
             
             return currentGameState;
         }
