@@ -34,7 +34,7 @@ secondary update sources) can still be updated. All downloads from this source w
 		<update-pack url="http://thecrewchief.org/downloads/update_13_sound_pack.zip" updates-from-version="165"/>
 		<update-pack url="http://thecrewchief.org/downloads/update_14_sound_pack.zip" updates-from-version="167"/>
 	</voice-messages>
-	<driver-names latest-version="136">
+	<driver-names latest-version="137">
 		<update-pack url="http://thecrewchief.org/downloads/base_driver_names.zip" updates-from-version="-1"/>
 		<update-pack url="http://thecrewchief.org/downloads/update_driver_names.zip" updates-from-version="0"/>
 		<update-pack url="http://thecrewchief.org/downloads/update_2_driver_names.zip" updates-from-version="130"/>
@@ -42,6 +42,7 @@ secondary update sources) can still be updated. All downloads from this source w
 		<update-pack url="http://thecrewchief.org/downloads/update_4_driver_names.zip" updates-from-version="133"/>
 		<update-pack url="http://thecrewchief.org/downloads/update_5_driver_names.zip" updates-from-version="134"/>
 		<update-pack url="http://thecrewchief.org/downloads/update_6_driver_names.zip" updates-from-version="135"/>
+		<update-pack url="http://thecrewchief.org/downloads/update_7_driver_names.zip" updates-from-version="136"/>
 	</driver-names>
 	<personalisations latest-version="139">
 		<update-pack url="http://thecrewchief.org/downloads/personalisations.zip" updates-from-version="-1"/>
