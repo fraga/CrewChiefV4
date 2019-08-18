@@ -74,6 +74,8 @@ namespace CrewChiefV4.ACC
         private DateTime ignoreUnknownSessionTypeUntil = DateTime.MinValue;
         private Boolean waitingForUnknownSessionTypeToSettle = false;
 
+        private Dictionary<string, int> opponentDisconnectionCounter = new Dictionary<string, int>();
+
         #region WaYToManyTyres
         public ACCGameStateMapper()
         {
@@ -363,6 +365,7 @@ namespace CrewChiefV4.ACC
                         lastSessionTrack == null || lastSessionTrack.name != currentGameState.SessionData.TrackDefinition.name ||
                             (currentGameState.SessionData.SessionHasFixedTime && sessionTimeRemaining > lastSessionTimeRemaining + 1))))
             {
+                opponentDisconnectionCounter.Clear();
                 System.Diagnostics.Debug.WriteLine("New session, trigger...");
                 if (sessionOfSameTypeRestarted)
                 {
@@ -756,23 +759,12 @@ namespace CrewChiefV4.ACC
                 {
                     currentGameState.SessionData.SessionFastestLapTimeFromGamePlayerClass = mapToFloatTime(playerVehicle.bestLapMS);
                 }
-                // get all the duplicate names
-                List<string> driversToBeProcessed = new List<string>();
-                List<string> duplicateNames = new List<string>();
-                for (int i = 1; i < shared.accChief.vehicle.Length; i++)
+
+                List<string> driversWhoMayHaveDisconnected = new List<string>();
+                if (previousGameState != null)
                 {
-                    String participantName = shared.accChief.vehicle[i].driverName.ToLower();
-                    if (driversToBeProcessed.Contains(participantName))
-                    {
-                        if (!duplicateNames.Contains(participantName))
-                        {
-                            duplicateNames.Add(participantName);
-                        }
-                    }
-                    else
-                    {
-                        driversToBeProcessed.Add(participantName);
-                    }
+                    // start with the entire opponent set on the previous tick:
+                    driversWhoMayHaveDisconnected.AddRange(previousGameState.OpponentData.Keys);
                 }
 
                 for (int i = 1; i < shared.accChief.vehicle.Length; i++)
@@ -782,234 +774,241 @@ namespace CrewChiefV4.ACC
                     String participantName = participantStruct.driverName.ToLower();
                     OpponentData currentOpponentData = getOpponentForName(currentGameState, participantName);
 
-                    if (participantName != null && participantName.Length > 0 && driversToBeProcessed.Contains(participantName))
+                    if (participantName != null && participantName.Length > 0)
                     {
+                        // there's a driver in the game data so remove him from the set who may have left the game
+                        driversWhoMayHaveDisconnected.Remove(participantName);
+                        opponentDisconnectionCounter[participantName] = 0;
+
                         if (currentOpponentData != null)
                         {
-                            if (participantStruct.isConnected == 1)
+                            currentOpponentData.IsReallyDisconnectedCounter = 0;
+                            if (previousGameState != null)
                             {
-                                driversToBeProcessed.Remove(participantName);
-                                currentOpponentData.IsReallyDisconnectedCounter = 0;
-                                if (previousGameState != null)
+                                int previousOpponentSectorNumber = 1;
+                                int previousOpponentCompletedLaps = 0;
+                                int previousOpponentPosition = 0;
+                                int currentOpponentSector = 0;
+                                Boolean previousOpponentIsEnteringPits = false;
+                                Boolean previousOpponentIsExitingPits = false;
+                                /* previous tick data for hasNewLapData check*/
+                                Boolean previousOpponentDataWaitingForNewLapData = false;
+                                DateTime previousOpponentNewLapDataTimerExpiry = DateTime.MaxValue;
+                                float previousOpponentLastLapTime = -1;
+                                Boolean previousOpponentLastLapValid = false;
+
+                                float[] previousOpponentWorldPosition = new float[] { 0, 0, 0 };
+                                float previousOpponentSpeed = 0;
+                                float previousDistanceRoundTrack = 0;
+                                int currentOpponentRacePosition = 0;
+                                OpponentData previousOpponentData = getOpponentForName(previousGameState, participantName);
+                                int previousCompletedLapsWhenHasNewLapDataWasLastTrue = -2;
+                                float previousOpponentGameTimeWhenLastCrossedStartFinishLine = -1;
+                                // store some previous opponent data that we'll need later
+                                if (previousOpponentData != null)
                                 {
-                                    int previousOpponentSectorNumber = 1;
-                                    int previousOpponentCompletedLaps = 0;
-                                    int previousOpponentPosition = 0;
-                                    int currentOpponentSector = 0;
-                                    Boolean previousOpponentIsEnteringPits = false;
-                                    Boolean previousOpponentIsExitingPits = false;
-                                    /* previous tick data for hasNewLapData check*/
-                                    Boolean previousOpponentDataWaitingForNewLapData = false;
-                                    DateTime previousOpponentNewLapDataTimerExpiry = DateTime.MaxValue;
-                                    float previousOpponentLastLapTime = -1;
-                                    Boolean previousOpponentLastLapValid = false;
+                                    previousOpponentSectorNumber = previousOpponentData.CurrentSectorNumber;
+                                    previousOpponentCompletedLaps = previousOpponentData.CompletedLaps;
+                                    previousOpponentPosition = previousOpponentData.OverallPosition;
+                                    previousOpponentIsEnteringPits = previousOpponentData.isEnteringPits();
+                                    previousOpponentIsExitingPits = previousOpponentData.isExitingPits();
+                                    previousOpponentWorldPosition = previousOpponentData.WorldPosition;
+                                    previousOpponentSpeed = previousOpponentData.Speed;
+                                    previousDistanceRoundTrack = previousOpponentData.DistanceRoundTrack;
 
-                                    float[] previousOpponentWorldPosition = new float[] { 0, 0, 0 };
-                                    float previousOpponentSpeed = 0;
-                                    float previousDistanceRoundTrack = 0;
-                                    int currentOpponentRacePosition = 0;
-                                    OpponentData previousOpponentData = getOpponentForName(previousGameState, participantName);
-                                    int previousCompletedLapsWhenHasNewLapDataWasLastTrue = -2;
-                                    float previousOpponentGameTimeWhenLastCrossedStartFinishLine = -1;
-                                    // store some previous opponent data that we'll need later
-                                    if (previousOpponentData != null)
+                                    previousOpponentDataWaitingForNewLapData = previousOpponentData.WaitingForNewLapData;
+                                    previousOpponentNewLapDataTimerExpiry = previousOpponentData.NewLapDataTimerExpiry;
+                                    previousCompletedLapsWhenHasNewLapDataWasLastTrue = previousOpponentData.CompletedLapsWhenHasNewLapDataWasLastTrue;
+                                    previousOpponentGameTimeWhenLastCrossedStartFinishLine = previousOpponentData.GameTimeWhenLastCrossedStartFinishLine;
+
+                                    previousOpponentLastLapTime = previousOpponentData.LastLapTime;
+                                    previousOpponentLastLapValid = previousOpponentData.LastLapValid;
+                                    currentOpponentData.ClassPositionAtPreviousTick = previousOpponentData.ClassPosition;
+                                    currentOpponentData.OverallPositionAtPreviousTick = previousOpponentData.OverallPosition;
+                                }
+                                float currentOpponentLapDistance = spLineLengthToDistanceRoundTrack(shared.accChief.trackLength, participantStruct.spLineLength);
+                                currentOpponentSector = getCurrentSector(currentGameState.SessionData.TrackDefinition, currentOpponentLapDistance);
+
+                                currentOpponentData.DeltaTime.SetNextDeltaPoint(currentOpponentLapDistance, participantStruct.lapCount,
+                                    participantStruct.speedMS, currentGameState.Now);
+
+                                int currentOpponentLapsCompleted = participantStruct.lapCount;
+
+                                Boolean finishedAllottedRaceLaps = false;
+                                Boolean finishedAllottedRaceTime = false;
+                                if (currentGameState.SessionData.SessionType == SessionType.Race)
+                                {
+                                    if (!currentGameState.SessionData.SessionHasFixedTime)
                                     {
-                                        previousOpponentSectorNumber = previousOpponentData.CurrentSectorNumber;
-                                        previousOpponentCompletedLaps = previousOpponentData.CompletedLaps;
-                                        previousOpponentPosition = previousOpponentData.OverallPosition;
-                                        previousOpponentIsEnteringPits = previousOpponentData.isEnteringPits();
-                                        previousOpponentIsExitingPits = previousOpponentData.isExitingPits();
-                                        previousOpponentWorldPosition = previousOpponentData.WorldPosition;
-                                        previousOpponentSpeed = previousOpponentData.Speed;
-                                        previousDistanceRoundTrack = previousOpponentData.DistanceRoundTrack;
-
-                                        previousOpponentDataWaitingForNewLapData = previousOpponentData.WaitingForNewLapData;
-                                        previousOpponentNewLapDataTimerExpiry = previousOpponentData.NewLapDataTimerExpiry;
-                                        previousCompletedLapsWhenHasNewLapDataWasLastTrue = previousOpponentData.CompletedLapsWhenHasNewLapDataWasLastTrue;
-                                        previousOpponentGameTimeWhenLastCrossedStartFinishLine = previousOpponentData.GameTimeWhenLastCrossedStartFinishLine;
-
-                                        previousOpponentLastLapTime = previousOpponentData.LastLapTime;
-                                        previousOpponentLastLapValid = previousOpponentData.LastLapValid;
-                                        currentOpponentData.ClassPositionAtPreviousTick = previousOpponentData.ClassPosition;
-                                        currentOpponentData.OverallPositionAtPreviousTick = previousOpponentData.OverallPosition;
-                                    }
-                                    float currentOpponentLapDistance = spLineLengthToDistanceRoundTrack(shared.accChief.trackLength, participantStruct.spLineLength);
-                                    currentOpponentSector = getCurrentSector(currentGameState.SessionData.TrackDefinition, currentOpponentLapDistance);
-
-                                    currentOpponentData.DeltaTime.SetNextDeltaPoint(currentOpponentLapDistance, participantStruct.lapCount,
-                                        participantStruct.speedMS, currentGameState.Now);
-
-                                    int currentOpponentLapsCompleted = participantStruct.lapCount;
-
-                                    Boolean finishedAllottedRaceLaps = false;
-                                    Boolean finishedAllottedRaceTime = false;
-                                    if (currentGameState.SessionData.SessionType == SessionType.Race)
-                                    {
-                                        if (!currentGameState.SessionData.SessionHasFixedTime)
-                                        {
-                                            // Using same approach here as in R3E
-                                            finishedAllottedRaceLaps = currentGameState.SessionData.SessionNumberOfLaps > 0 && currentGameState.SessionData.SessionNumberOfLaps == currentOpponentLapsCompleted;
-                                        }
-                                        else
-                                        {
-                                            if (currentGameState.SessionData.HasExtraLap)
-                                            {
-                                                if (currentGameState.SessionData.SessionTotalRunTime > 0 && currentGameState.SessionData.SessionTimeRemaining <= 0 &&
-                                                    previousOpponentCompletedLaps < currentOpponentLapsCompleted)
-                                                {
-                                                    if (!currentOpponentData.HasStartedExtraLap)
-                                                    {
-                                                        currentOpponentData.HasStartedExtraLap = true;
-                                                    }
-                                                    else
-                                                    {
-                                                        finishedAllottedRaceTime = true;
-                                                    }
-                                                }
-                                            }
-                                            else if (currentGameState.SessionData.SessionTotalRunTime > 0 && currentGameState.SessionData.SessionTimeRemaining <= 0 &&
-                                                previousOpponentCompletedLaps < currentOpponentLapsCompleted)
-                                            {
-                                                finishedAllottedRaceTime = true;
-                                            }
-                                        }
-                                    }
-
-                                    if (useLeaderboardPosition || finishedAllottedRaceLaps || finishedAllottedRaceTime)
-                                    {
-                                        currentOpponentRacePosition = participantStruct.carLeaderboardPosition;
+                                        // Using same approach here as in R3E
+                                        finishedAllottedRaceLaps = currentGameState.SessionData.SessionNumberOfLaps > 0 && currentGameState.SessionData.SessionNumberOfLaps == currentOpponentLapsCompleted;
                                     }
                                     else
                                     {
-                                        // realtime position in race sessions tends to be more accurate than leaderboard position so we always use it.
-                                        // However, if this car is close to the track spline zero point then we can't trust the calculation
-                                        if (previousOpponentPosition > 0 && (participantStruct.spLineLength > ACCGameStateMapper.startOfShitSplinePoint || participantStruct.spLineLength < ACCGameStateMapper.endOfShitSplinePoint))
+                                        if (currentGameState.SessionData.HasExtraLap)
                                         {
-                                            currentOpponentRacePosition = previousOpponentPosition;
-                                        }
-                                        else
-                                        {
-                                            currentOpponentRacePosition = participantStruct.carRealTimeLeaderboardPosition;
-                                        }
-                                    }
-
-
-                                    if (currentOpponentRacePosition == 1 && (finishedAllottedRaceTime || finishedAllottedRaceLaps))
-                                    {
-                                        currentGameState.SessionData.LeaderHasFinishedRace = true;
-                                    }
-
-                                    Boolean isEnteringPits = participantStruct.isCarInPitline == 1 && currentOpponentSector == ACCGameStateMapper.numberOfSectorsOnTrack;
-                                    Boolean isLeavingPits = participantStruct.isCarInPitline == 1 && currentOpponentSector == 1;
-
-                                    float secondsSinceLastUpdate = (float)new TimeSpan(currentGameState.Ticks - previousGameState.Ticks).TotalSeconds;
-
-                                    upateOpponentData(currentOpponentData,
-                                        previousOpponentData,
-                                        currentOpponentRacePosition,
-                                        currentOpponentLapsCompleted,
-                                        currentOpponentSector,
-                                        mapToFloatTime(participantStruct.currentLapTimeMS),
-                                        mapToFloatTime(participantStruct.lastLapTimeMS),
-                                        participantStruct.isCarInPitline == 1,
-                                        participantStruct.currentLapInvalid == 0,
-                                        currentGameState.SessionData.SessionRunningTime,
-                                        secondsSinceLastUpdate,
-                                        new float[] { participantStruct.worldPosition.x, participantStruct.worldPosition.z },
-                                        participantStruct.speedMS,
-                                        currentOpponentLapDistance,
-                                        currentGameState.SessionData.SessionHasFixedTime,
-                                        currentGameState.SessionData.SessionTimeRemaining,
-                                        shared.accPhysics.airTemp,
-                                        shared.accPhysics.roadTemp,
-                                        currentGameState.SessionData.SessionType == SessionType.Race,
-                                        currentGameState.SessionData.TrackDefinition.distanceForNearPitEntryChecks,
-                                        previousOpponentCompletedLaps,
-                                        previousOpponentDataWaitingForNewLapData,
-                                        previousOpponentNewLapDataTimerExpiry,
-                                        previousOpponentLastLapTime,
-                                        previousOpponentLastLapValid,
-                                        previousCompletedLapsWhenHasNewLapDataWasLastTrue,
-                                        previousOpponentGameTimeWhenLastCrossedStartFinishLine,
-                                        currentGameState.TimingData,
-                                        currentGameState.carClass,
-                                        participantStruct.raceNumber);
-
-                                    if (previousOpponentData != null)
-                                    {
-                                        currentOpponentData.trackLandmarksTiming = previousOpponentData.trackLandmarksTiming;
-                                        String stoppedInLandmark = currentOpponentData.trackLandmarksTiming.updateLandmarkTiming(
-                                            currentGameState.SessionData.TrackDefinition, currentGameState.SessionData.SessionRunningTime,
-                                            previousDistanceRoundTrack, currentOpponentData.DistanceRoundTrack, currentOpponentData.Speed);
-                                        currentOpponentData.stoppedInLandmark = participantStruct.isCarInPitline == 1 ? null : stoppedInLandmark;
-                                    }
-                                    if (currentGameState.SessionData.JustGoneGreen)
-                                    {
-                                        currentOpponentData.trackLandmarksTiming = new TrackLandmarksTiming();
-                                    }
-                                    if (currentGameState.SessionData.SessionFastestLapTimeFromGamePlayerClass == -1 ||
-                                            currentGameState.SessionData.SessionFastestLapTimeFromGamePlayerClass > mapToFloatTime(participantStruct.bestLapMS))
-                                    {
-                                        currentGameState.SessionData.SessionFastestLapTimeFromGamePlayerClass = mapToFloatTime(participantStruct.bestLapMS);
-                                    }
-                                    if (currentOpponentData.IsNewLap)
-                                    {
-                                        currentOpponentData.trackLandmarksTiming.cancelWaitingForLandmarkEnd();
-                                        if (currentOpponentData.CurrentBestLapTime > 0)
-                                        {
-                                            if (currentGameState.SessionData.OpponentsLapTimeSessionBestOverall == -1 ||
-                                                currentOpponentData.CurrentBestLapTime < currentGameState.SessionData.OpponentsLapTimeSessionBestOverall)
+                                            if (currentGameState.SessionData.SessionTotalRunTime > 0 && currentGameState.SessionData.SessionTimeRemaining <= 0 &&
+                                                previousOpponentCompletedLaps < currentOpponentLapsCompleted)
                                             {
-                                                currentGameState.SessionData.OpponentsLapTimeSessionBestOverall = currentOpponentData.CurrentBestLapTime;
-                                                if (currentGameState.SessionData.OverallSessionBestLapTime == -1 ||
-                                                    currentGameState.SessionData.OverallSessionBestLapTime > currentOpponentData.CurrentBestLapTime)
+                                                if (!currentOpponentData.HasStartedExtraLap)
                                                 {
-                                                    currentGameState.SessionData.OverallSessionBestLapTime = currentOpponentData.CurrentBestLapTime;
+                                                    currentOpponentData.HasStartedExtraLap = true;
+                                                }
+                                                else
+                                                {
+                                                    finishedAllottedRaceTime = true;
                                                 }
                                             }
-                                            if (CarData.IsCarClassEqual(currentOpponentData.CarClass, currentGameState.carClass, true))
-                                            {
-                                                if (currentGameState.SessionData.OpponentsLapTimeSessionBestPlayerClass == -1 ||
-                                                    currentOpponentData.CurrentBestLapTime < currentGameState.SessionData.OpponentsLapTimeSessionBestPlayerClass)
-                                                {
-                                                    currentGameState.SessionData.OpponentsLapTimeSessionBestPlayerClass = currentOpponentData.CurrentBestLapTime;
-                                                    if (currentGameState.SessionData.PlayerClassSessionBestLapTime == -1 ||
-                                                        currentGameState.SessionData.PlayerClassSessionBestLapTime > currentOpponentData.CurrentBestLapTime)
-                                                    {
-                                                        currentGameState.SessionData.PlayerClassSessionBestLapTime = currentOpponentData.CurrentBestLapTime;
-                                                    }
-                                                }
-                                            }
+                                        }
+                                        else if (currentGameState.SessionData.SessionTotalRunTime > 0 && currentGameState.SessionData.SessionTimeRemaining <= 0 &&
+                                            previousOpponentCompletedLaps < currentOpponentLapsCompleted)
+                                        {
+                                            finishedAllottedRaceTime = true;
                                         }
                                     }
                                 }
-                            }
-                            else if (!duplicateNames.Contains(participantName))
-                            {
-                                // this drivers has disconnected, but only remove him from the OpponentData if he's not a duplicate
-                                driversToBeProcessed.Remove(participantName);
-                                currentOpponentData.IsActive = false;
-                                currentOpponentData.IsReallyDisconnectedCounter++;
-                                if (currentOpponentData.IsReallyDisconnectedCounter > 5)
+
+                                if (useLeaderboardPosition || finishedAllottedRaceLaps || finishedAllottedRaceTime)
                                 {
-                                    System.Diagnostics.Debug.WriteLine("Removing " + participantName + " -> " + currentOpponentData.DriverRawName);
-                                    currentGameState.OpponentData.Remove(participantName);
+                                    currentOpponentRacePosition = participantStruct.carLeaderboardPosition;
+                                }
+                                else
+                                {
+                                    // realtime position in race sessions tends to be more accurate than leaderboard position so we always use it.
+                                    // However, if this car is close to the track spline zero point then we can't trust the calculation
+                                    if (previousOpponentPosition > 0 && (participantStruct.spLineLength > ACCGameStateMapper.startOfShitSplinePoint || participantStruct.spLineLength < ACCGameStateMapper.endOfShitSplinePoint))
+                                    {
+                                        currentOpponentRacePosition = previousOpponentPosition;
+                                    }
+                                    else
+                                    {
+                                        currentOpponentRacePosition = participantStruct.carRealTimeLeaderboardPosition;
+                                    }
+                                }
+
+
+                                if (currentOpponentRacePosition == 1 && (finishedAllottedRaceTime || finishedAllottedRaceLaps))
+                                {
+                                    currentGameState.SessionData.LeaderHasFinishedRace = true;
+                                }
+
+                                Boolean isEnteringPits = participantStruct.isCarInPitline == 1 && currentOpponentSector == ACCGameStateMapper.numberOfSectorsOnTrack;
+                                Boolean isLeavingPits = participantStruct.isCarInPitline == 1 && currentOpponentSector == 1;
+
+                                float secondsSinceLastUpdate = (float)new TimeSpan(currentGameState.Ticks - previousGameState.Ticks).TotalSeconds;
+
+                                upateOpponentData(currentOpponentData,
+                                    previousOpponentData,
+                                    currentOpponentRacePosition,
+                                    currentOpponentLapsCompleted,
+                                    currentOpponentSector,
+                                    mapToFloatTime(participantStruct.currentLapTimeMS),
+                                    mapToFloatTime(participantStruct.lastLapTimeMS),
+                                    participantStruct.isCarInPitline == 1,
+                                    participantStruct.currentLapInvalid == 0,
+                                    currentGameState.SessionData.SessionRunningTime,
+                                    secondsSinceLastUpdate,
+                                    new float[] { participantStruct.worldPosition.x, participantStruct.worldPosition.z },
+                                    participantStruct.speedMS,
+                                    currentOpponentLapDistance,
+                                    currentGameState.SessionData.SessionHasFixedTime,
+                                    currentGameState.SessionData.SessionTimeRemaining,
+                                    shared.accPhysics.airTemp,
+                                    shared.accPhysics.roadTemp,
+                                    currentGameState.SessionData.SessionType == SessionType.Race,
+                                    currentGameState.SessionData.TrackDefinition.distanceForNearPitEntryChecks,
+                                    previousOpponentCompletedLaps,
+                                    previousOpponentDataWaitingForNewLapData,
+                                    previousOpponentNewLapDataTimerExpiry,
+                                    previousOpponentLastLapTime,
+                                    previousOpponentLastLapValid,
+                                    previousCompletedLapsWhenHasNewLapDataWasLastTrue,
+                                    previousOpponentGameTimeWhenLastCrossedStartFinishLine,
+                                    currentGameState.TimingData,
+                                    currentGameState.carClass,
+                                    participantStruct.raceNumber);
+
+                                if (previousOpponentData != null)
+                                {
+                                    currentOpponentData.trackLandmarksTiming = previousOpponentData.trackLandmarksTiming;
+                                    String stoppedInLandmark = currentOpponentData.trackLandmarksTiming.updateLandmarkTiming(
+                                        currentGameState.SessionData.TrackDefinition, currentGameState.SessionData.SessionRunningTime,
+                                        previousDistanceRoundTrack, currentOpponentData.DistanceRoundTrack, currentOpponentData.Speed);
+                                    currentOpponentData.stoppedInLandmark = participantStruct.isCarInPitline == 1 ? null : stoppedInLandmark;
+                                }
+                                if (currentGameState.SessionData.JustGoneGreen)
+                                {
+                                    currentOpponentData.trackLandmarksTiming = new TrackLandmarksTiming();
+                                }
+                                if (currentGameState.SessionData.SessionFastestLapTimeFromGamePlayerClass == -1 ||
+                                        currentGameState.SessionData.SessionFastestLapTimeFromGamePlayerClass > mapToFloatTime(participantStruct.bestLapMS))
+                                {
+                                    currentGameState.SessionData.SessionFastestLapTimeFromGamePlayerClass = mapToFloatTime(participantStruct.bestLapMS);
+                                }
+                                if (currentOpponentData.IsNewLap)
+                                {
+                                    currentOpponentData.trackLandmarksTiming.cancelWaitingForLandmarkEnd();
+                                    if (currentOpponentData.CurrentBestLapTime > 0)
+                                    {
+                                        if (currentGameState.SessionData.OpponentsLapTimeSessionBestOverall == -1 ||
+                                            currentOpponentData.CurrentBestLapTime < currentGameState.SessionData.OpponentsLapTimeSessionBestOverall)
+                                        {
+                                            currentGameState.SessionData.OpponentsLapTimeSessionBestOverall = currentOpponentData.CurrentBestLapTime;
+                                            if (currentGameState.SessionData.OverallSessionBestLapTime == -1 ||
+                                                currentGameState.SessionData.OverallSessionBestLapTime > currentOpponentData.CurrentBestLapTime)
+                                            {
+                                                currentGameState.SessionData.OverallSessionBestLapTime = currentOpponentData.CurrentBestLapTime;
+                                            }
+                                        }
+                                        if (CarData.IsCarClassEqual(currentOpponentData.CarClass, currentGameState.carClass, true))
+                                        {
+                                            if (currentGameState.SessionData.OpponentsLapTimeSessionBestPlayerClass == -1 ||
+                                                currentOpponentData.CurrentBestLapTime < currentGameState.SessionData.OpponentsLapTimeSessionBestPlayerClass)
+                                            {
+                                                currentGameState.SessionData.OpponentsLapTimeSessionBestPlayerClass = currentOpponentData.CurrentBestLapTime;
+                                                if (currentGameState.SessionData.PlayerClassSessionBestLapTime == -1 ||
+                                                    currentGameState.SessionData.PlayerClassSessionBestLapTime > currentOpponentData.CurrentBestLapTime)
+                                                {
+                                                    currentGameState.SessionData.PlayerClassSessionBestLapTime = currentOpponentData.CurrentBestLapTime;
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
+                        }
+                        else if (participantName != null && participantName.Length > 0)
+                        {
+                            addOpponentForName(participantName, createOpponentData(participantStruct,
+                                true,
+                                CarData.getCarClassForClassName(participantStruct.carModel),
+                                shared.accChief.trackLength,
+                                currentGameState.SessionData.SessionType == SessionType.Race),
+                                currentGameState);
+                        }                        
+                    }
+                }
+
+                // now process the disconnected drivers
+                foreach (String name in driversWhoMayHaveDisconnected)
+                {
+                    int disconnectionCount;
+                    if (opponentDisconnectionCounter.TryGetValue(name, out disconnectionCount))
+                    {
+                        if (disconnectionCount > 4)
+                        {
+                            // this guy has been missing for 5 or more ticks, so we assume he's gone and remove him
+                            currentGameState.OpponentData.Remove(name);
+                            opponentDisconnectionCounter.Remove(name);
                         }
                         else
                         {
-                            if (participantStruct.isConnected == 1 && participantName != null && participantName.Length > 0)
-                            {
-                                driversToBeProcessed.Remove(participantName);
-                                addOpponentForName(participantName, createOpponentData(participantStruct,
-                                    true,
-                                    CarData.getCarClassForClassName(participantStruct.carModel),
-                                    shared.accChief.trackLength,
-                                    currentGameState.SessionData.SessionType == SessionType.Race),
-                                    currentGameState);
-                            }
+                            opponentDisconnectionCounter[name] = disconnectionCount + 1;
                         }
+                    }
+                    else
+                    {
+                        opponentDisconnectionCounter.Add(name, 1);
                     }
                 }
 
