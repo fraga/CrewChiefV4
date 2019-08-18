@@ -1305,6 +1305,9 @@ namespace CrewChiefV4.ACC
                 currentGameState.hardPartsOnTrackData.mapHardPartsOnTrack(currentGameState.ControlData.BrakePedal, currentGameState.ControlData.ThrottlePedal,
                     currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.SessionData.CurrentLapIsValid, currentGameState.SessionData.TrackDefinition.trackLength);
             }
+
+            // don't enable improvised incident calling until we can work out how to cull the disconnected drivers from the opponents set
+            currentGameState.FlagData.useImprovisedIncidentCalling = false;
             
             return currentGameState;
         }
