@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using CrewChiefV4.Audio;
 using CrewChiefV4.GameState;
-using CrewChiefV4.Audio;
+using System;
+using System.Collections.Generic;
 
 namespace CrewChiefV4.Events
 {
@@ -735,9 +733,10 @@ namespace CrewChiefV4.Events
                     if (delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
                     {
                         audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderStandBy, 0));
-                        int secondsDelay = Math.Max(5, Utilities.random.Next(11));
+                        int secondsDelay = Utilities.random.Next(5, 11);
                         audioPlayer.pauseQueue(secondsDelay);
-                        damageMessage.dueTime = (DateTime.UtcNow.Ticks / TimeSpan.TicksPerMillisecond) + (1000 * secondsDelay);
+                        damageMessage.secondsDelay = secondsDelay;
+                        damageMessage.expiryTime = secondsDelay + 10;
                         audioPlayer.playDelayedImmediateMessage(damageMessage);
                     }
                     else
@@ -820,7 +819,7 @@ namespace CrewChiefV4.Events
                 return;
             }
 
-            var minorDamageMsgDelay = Utilities.random.Next(3, 10);
+            var minorDamageMsgDelay = Utilities.random.Next(3, 8);
             var minorDamageMsgExpiration = minorDamageMsgDelay + 10;
             var majorDamageMsgDelay = Utilities.random.Next(2, 7);
             var majorDamageMsgExpiration = majorDamageMsgDelay + 10;
