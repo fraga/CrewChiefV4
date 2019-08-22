@@ -34,7 +34,7 @@ namespace CrewChiefV4.commands
 
         bool BringGameWindowToFront(String processName, String[] alternateProcessNames, IntPtr currentForgroundWindow)
         {
-            if (!MacroManager.bringGameWindowToFrontForMacros)
+            if (!UserSettings.GetUserSettings().getBoolean("bring_game_window_to_front_for_macros"))
             {
                 return false;
             }
