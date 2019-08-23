@@ -21,8 +21,6 @@ namespace CrewChiefV4.commands
 
         public static Boolean enablePitExitPositionEstimates = UserSettings.GetUserSettings().getBoolean("enable_pit_exit_position_estimates");
 
-        public static Boolean bringGameWindowToFrontForMacros = UserSettings.GetUserSettings().getBoolean("bring_game_window_to_front_for_macros");
-
         public static Boolean stopped = false;
 
         // make all the macros available so the events can press buttons as they see fit:
