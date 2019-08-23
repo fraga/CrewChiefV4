@@ -118,9 +118,11 @@ namespace CrewChiefV4.Events
 
         // Validation stuff:
         private const string validateMessageTypeKey = "validateMessageTypeKey";
-        private const string validateMessageTypeAction = "validateMessageTypeAction";
+        private const string validateMessageTypeDamage = "validateMessageTypeDamage";
+        private const string validateMessageTypeFlatTire = "validateMessageTypeFlatTire";
         private const string validationComponentKey = "validationComponentKey";
         private const string validationDamageLevelKey = "validationDamageLevelKey";
+        private const string validationFlatTireKey = "validationDamageLevelKey";
 
         /*
          * IMPORTANT: This method is called twice - when the message becomes due, and immediately before playing it (which may have a 
@@ -410,6 +412,11 @@ namespace CrewChiefV4.Events
                 CornerData.Corners puncture = getPuncture(currentGameState.TyreData);
                 if (puncture != lastReportedPunctureCorner)
                 {
+                    // TODO_DELAY_MSG:
+                    var validationData = new Dictionary<string, object>();
+                    validationData.Add(DamageReporting.validateMessageTypeKey, DamageReporting.validateMessageTypeFlatTire);
+                    validationData.Add(DamageReporting.validationFlatTireKey, puncture);
+
                     lastReportedPunctureCorner = puncture;
                     var msgDelay = Utilities.random.Next(2, 10);
                     var msgExpiration = msgDelay + 10;
@@ -861,7 +868,7 @@ namespace CrewChiefV4.Events
             }*/
 
             var validationData = new Dictionary<string, object>();
-            validationData.Add(DamageReporting.validateMessageTypeKey, DamageReporting.validateMessageTypeAction);
+            validationData.Add(DamageReporting.validateMessageTypeKey, DamageReporting.validateMessageTypeDamage);
             validationData.Add(DamageReporting.validationComponentKey, damageToReportNext.Item1);
             validationData.Add(DamageReporting.validationDamageLevelKey, damageToReportNext.Item2);
 

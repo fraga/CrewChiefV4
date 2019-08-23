@@ -1399,10 +1399,14 @@ namespace CrewChiefV4.Events
                 if (queuedMessage != null && delayResponses && Utilities.random.Next(10) >= 4 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderStandBy, 0));
+
                     int secondsDelay = Utilities.random.Next(5, 10);
                     audioPlayer.pauseQueue(secondsDelay);
+
+                    queuedMessage.dueTime = queuedMessage.creationTime + (secondsDelay * 1000) + queuedMessage.updateInterval;
                     queuedMessage.secondsDelay = secondsDelay;
                     queuedMessage.expiryTime = secondsDelay + 10;
+
                     audioPlayer.playDelayedImmediateMessage(queuedMessage);
                 }
                 else
