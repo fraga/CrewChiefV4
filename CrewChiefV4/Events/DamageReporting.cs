@@ -116,6 +116,47 @@ namespace CrewChiefV4.Events
         private DateTime timeToRecheckAfterPotentiallyDangerousAcceleration = DateTime.MaxValue;
         private float speedAfterPotentiallyDangerousAcceleration = float.MaxValue;
 
+        // Validation stuff:
+        private const string validateMessageTypeKey = "validateMessageTypeKey";
+        private const string validateMessageTypeAction = "validateMessageTypeAction";
+        private const string validationComponentKey = "validationComponentKey";
+        private const string validationDamageLevelKey = "validationDamageLevelKey";
+
+        /*
+         * IMPORTANT: This method is called twice - when the message becomes due, and immediately before playing it (which may have a 
+         * delay caused by the length of the queue at the time). So be *very* careful when checking and updating local state in here.
+         */
+        public override bool isMessageStillValid(string eventSubType, GameStateData currentGameState, Dictionary<String, Object> validationData)
+        {
+            if (base.isMessageStillValid(eventSubType, currentGameState, validationData))
+            {
+                if (currentGameState.PitData.InPitlane)
+                    return false;
+
+                if (validationData == null)
+                    return true;
+
+                /*if ((string)validationData[FrozenOrderMonitor.validateMessageTypeKey] == FrozenOrderMonitor.validateMessageTypeAction)
+                {
+                    var queuedAction = (FrozenOrderAction)validationData[FrozenOrderMonitor.validationActionKey];
+                    var queuedAssignedPosition = (int)validationData[FrozenOrderMonitor.validationAssignedPositionKey];
+                    var queuedDriverToFollow = (string)validationData[FrozenOrderMonitor.validationDriverToFollowKey];
+                    if (queuedAction == currentGameState.FrozenOrderData.Action
+                        && queuedAssignedPosition == currentGameState.FrozenOrderData.AssignedPosition
+                        && queuedDriverToFollow == currentGameState.FrozenOrderData.DriverToFollowRaw)
+                        return true;
+                    else
+                    {
+                        Console.WriteLine(string.Format("Frozen Order: message invalidated.  Was {0} {1} {2} is {3} {4} {5}", queuedAction, queuedAssignedPosition, queuedDriverToFollow,
+                            currentGameState.FrozenOrderData.Action, currentGameState.FrozenOrderData.AssignedPosition, currentGameState.FrozenOrderData.DriverToFollowRaw));
+                        return false;
+                    }
+                }*/
+                return true;
+            }
+            return false;
+        }
+
         public void cancelWaitingForDriverIsOK(DriverOKResponseType responseType)
         {
             DamageReporting.waitingForDriverIsOKResponse = false;
@@ -375,16 +416,16 @@ namespace CrewChiefV4.Events
                     switch (puncture)
                     {
                         case CornerData.Corners.FRONT_LEFT:
-                            audioPlayer.playMessage(new QueuedMessage(folderLeftFrontPuncture, msgExpiration, secondsDelay: msgDelay, abstractEvent: this, priority: 10));
+                            audioPlayer.playMessage(new QueuedMessage(folderLeftFrontPuncture, msgExpiration, secondsDelay: msgDelay, abstractEvent: this, priority: 10, validationData: validationData));
                             break;
                         case CornerData.Corners.FRONT_RIGHT:
-                            audioPlayer.playMessage(new QueuedMessage(folderRightFrontPuncture, msgExpiration, secondsDelay: msgDelay, abstractEvent: this, priority: 10));
+                            audioPlayer.playMessage(new QueuedMessage(folderRightFrontPuncture, msgExpiration, secondsDelay: msgDelay, abstractEvent: this, priority: 10, validationData: validationData));
                             break;
                         case CornerData.Corners.REAR_LEFT:
-                            audioPlayer.playMessage(new QueuedMessage(folderLeftRearPuncture, msgExpiration, secondsDelay: msgDelay, abstractEvent: this, priority: 10));
+                            audioPlayer.playMessage(new QueuedMessage(folderLeftRearPuncture, msgExpiration, secondsDelay: msgDelay, abstractEvent: this, priority: 10, validationData: validationData));
                             break;
                         case CornerData.Corners.REAR_RIGHT:
-                            audioPlayer.playMessage(new QueuedMessage(folderRightRearPuncture, msgExpiration, secondsDelay: msgDelay, abstractEvent: this, priority: 10));
+                            audioPlayer.playMessage(new QueuedMessage(folderRightRearPuncture, msgExpiration, secondsDelay: msgDelay, abstractEvent: this, priority: 10, validationData: validationData));
                             break;
                     }
                 }
@@ -810,14 +851,19 @@ namespace CrewChiefV4.Events
                     audioPlayer.disablePearlsOfWisdom = true;
                 }
             }
-            if (componentDestroyed != Component.NONE  // If there is any component already destroyed
+            /*if (componentDestroyed != Component.NONE  // If there is any component already destroyed
                 && damageToReportNext.Item1 != componentDestroyed)  // And it is not the current component
             {
                 // Do not play any message, because it does not matter if Aero is minor after suspension is damaged.
                 // TODO_MSG_DELAY: this needs revisiting with delayed messages.
                 Console.WriteLine(string.Format("Not reporting damage {0} for {1} because {2} is already destroyed", damageToReportNext.Item2, damageToReportNext.Item1, componentDestroyed));
                 return;
-            }
+            }*/
+
+            var validationData = new Dictionary<string, object>();
+            validationData.Add(DamageReporting.validateMessageTypeKey, DamageReporting.validateMessageTypeAction);
+            validationData.Add(DamageReporting.validationComponentKey, damageToReportNext.Item1);
+            validationData.Add(DamageReporting.validationDamageLevelKey, damageToReportNext.Item2);
 
             var minorDamageMsgDelay = Utilities.random.Next(3, 8);
             var minorDamageMsgExpiration = minorDamageMsgDelay + 10;
@@ -830,7 +876,7 @@ namespace CrewChiefV4.Events
                 {
                     if (!checkIfDriverIsOK(now, inPitLane))
                     {
-                        audioPlayer.playMessage(new QueuedMessage(folderBustedEngine, majorDamageMsgExpiration, secondsDelay: majorDamageMsgDelay, abstractEvent: this, priority: 10));
+                        audioPlayer.playMessage(new QueuedMessage(folderBustedEngine, majorDamageMsgExpiration, secondsDelay: majorDamageMsgDelay, abstractEvent: this, priority: 10, validationData: validationData));
                         if (allowRants)
                         {
                             // TODO_MSG_DELAY: Rants need to follow main msg.
@@ -840,11 +886,11 @@ namespace CrewChiefV4.Events
                 }
                 else if (damageToReportNext.Item2 == DamageLevel.MAJOR)
                 {
-                    audioPlayer.playMessage(new QueuedMessage(folderSevereEngineDamage, majorDamageMsgExpiration, secondsDelay: majorDamageMsgDelay, abstractEvent: this, priority: 10));
+                    audioPlayer.playMessage(new QueuedMessage(folderSevereEngineDamage, majorDamageMsgExpiration, secondsDelay: majorDamageMsgDelay, abstractEvent: this, priority: 10, validationData: validationData));
                 }
                 else if (damageToReportNext.Item2 == DamageLevel.MINOR)
                 {
-                    audioPlayer.playMessage(new QueuedMessage(folderMinorEngineDamage, minorDamageMsgExpiration, secondsDelay: minorDamageMsgDelay, abstractEvent: this, priority: 10));
+                    audioPlayer.playMessage(new QueuedMessage(folderMinorEngineDamage, minorDamageMsgExpiration, secondsDelay: minorDamageMsgDelay, abstractEvent: this, priority: 10, validationData: validationData));
                 }
             }
             else if (damageToReportNext.Item1 == Component.TRANNY)
@@ -853,7 +899,7 @@ namespace CrewChiefV4.Events
                 {
                     if (!checkIfDriverIsOK(now, inPitLane))
                     {
-                        audioPlayer.playMessage(new QueuedMessage(folderBustedTransmission, majorDamageMsgExpiration, secondsDelay: majorDamageMsgDelay, abstractEvent: this, priority: 10));
+                        audioPlayer.playMessage(new QueuedMessage(folderBustedTransmission, majorDamageMsgExpiration, secondsDelay: majorDamageMsgDelay, abstractEvent: this, priority: 10, validationData: validationData));
                         if (allowRants)
                         {
                             audioPlayer.playRant("damage_rant", null);
@@ -862,11 +908,11 @@ namespace CrewChiefV4.Events
                 }
                 else if (damageToReportNext.Item2 == DamageLevel.MAJOR)
                 {
-                    audioPlayer.playMessage(new QueuedMessage(folderSevereTransmissionDamage, majorDamageMsgExpiration, secondsDelay: majorDamageMsgDelay, abstractEvent: this, priority: 10));
+                    audioPlayer.playMessage(new QueuedMessage(folderSevereTransmissionDamage, majorDamageMsgExpiration, secondsDelay: majorDamageMsgDelay, abstractEvent: this, priority: 10, validationData: validationData));
                 }
                 else if (damageToReportNext.Item2 == DamageLevel.MINOR)
                 {
-                    audioPlayer.playMessage(new QueuedMessage(folderMinorTransmissionDamage, minorDamageMsgExpiration, secondsDelay: minorDamageMsgDelay, abstractEvent: this, priority: 10));
+                    audioPlayer.playMessage(new QueuedMessage(folderMinorTransmissionDamage, minorDamageMsgExpiration, secondsDelay: minorDamageMsgDelay, abstractEvent: this, priority: 10, validationData: validationData));
                 }
             }
             else if (damageToReportNext.Item1 == Component.SUSPENSION)
@@ -875,7 +921,7 @@ namespace CrewChiefV4.Events
                 {
                     if (!checkIfDriverIsOK(now, inPitLane))
                     {
-                        audioPlayer.playMessage(new QueuedMessage(folderBustedSuspension, majorDamageMsgExpiration, secondsDelay: majorDamageMsgDelay, abstractEvent: this, priority: 10));
+                        audioPlayer.playMessage(new QueuedMessage(folderBustedSuspension, majorDamageMsgExpiration, secondsDelay: majorDamageMsgDelay, abstractEvent: this, priority: 10, validationData: validationData));
                         if (allowRants)
                         {
                             audioPlayer.playRant("damage_rant", null);
@@ -886,28 +932,28 @@ namespace CrewChiefV4.Events
                 {
                     if (isMissingWheel)
                     {
-                        audioPlayer.playMessage(new QueuedMessage(folderMissingWheel, majorDamageMsgExpiration, secondsDelay: majorDamageMsgDelay, abstractEvent: this, priority: 10));
+                        audioPlayer.playMessage(new QueuedMessage(folderMissingWheel, majorDamageMsgExpiration, secondsDelay: majorDamageMsgDelay, abstractEvent: this, priority: 10, validationData: validationData));
                     }
-                    audioPlayer.playMessage(new QueuedMessage(folderSevereSuspensionDamage, majorDamageMsgExpiration, secondsDelay: majorDamageMsgDelay, abstractEvent: this, priority: 10));
+                    audioPlayer.playMessage(new QueuedMessage(folderSevereSuspensionDamage, majorDamageMsgExpiration, secondsDelay: majorDamageMsgDelay, abstractEvent: this, priority: 10, validationData: validationData));
                 }
                 else if (damageToReportNext.Item2 == DamageLevel.MINOR && !isMissingWheel)
                 {
-                    audioPlayer.playMessage(new QueuedMessage(folderMinorSuspensionDamage, minorDamageMsgExpiration, secondsDelay: minorDamageMsgDelay, abstractEvent: this, priority: 10));
+                    audioPlayer.playMessage(new QueuedMessage(folderMinorSuspensionDamage, minorDamageMsgExpiration, secondsDelay: minorDamageMsgDelay, abstractEvent: this, priority: 10, validationData: validationData));
                 }
             }
             else if (damageToReportNext.Item1 == Component.BRAKES)
             {
                 if (damageToReportNext.Item2 == DamageLevel.DESTROYED)
                 {
-                    audioPlayer.playMessage(new QueuedMessage(folderBustedBrakes, majorDamageMsgExpiration, secondsDelay: majorDamageMsgDelay, abstractEvent: this, priority: 10));
+                    audioPlayer.playMessage(new QueuedMessage(folderBustedBrakes, majorDamageMsgExpiration, secondsDelay: majorDamageMsgDelay, abstractEvent: this, priority: 10, validationData: validationData));
                 }
                 else if (damageToReportNext.Item2 == DamageLevel.MAJOR)
                 {
-                    audioPlayer.playMessage(new QueuedMessage(folderSevereBrakeDamage, majorDamageMsgExpiration, secondsDelay: majorDamageMsgDelay, abstractEvent: this, priority: 10));
+                    audioPlayer.playMessage(new QueuedMessage(folderSevereBrakeDamage, majorDamageMsgExpiration, secondsDelay: majorDamageMsgDelay, abstractEvent: this, priority: 10, validationData: validationData));
                 }
                 else if (damageToReportNext.Item2 == DamageLevel.MINOR)
                 {
-                    audioPlayer.playMessage(new QueuedMessage(folderMinorBrakeDamage, minorDamageMsgExpiration, secondsDelay: minorDamageMsgDelay, abstractEvent: this, priority: 10));
+                    audioPlayer.playMessage(new QueuedMessage(folderMinorBrakeDamage, minorDamageMsgExpiration, secondsDelay: minorDamageMsgDelay, abstractEvent: this, priority: 10, validationData: validationData));
                 }
             }
             else if (damageToReportNext.Item1 == Component.AERO)
@@ -916,16 +962,16 @@ namespace CrewChiefV4.Events
                 {
                     if (!checkIfDriverIsOK(now, inPitLane))
                     {
-                        audioPlayer.playMessage(new QueuedMessage(folderSevereAeroDamage, majorDamageMsgExpiration, secondsDelay: majorDamageMsgDelay, abstractEvent: this, priority: 10));
+                        audioPlayer.playMessage(new QueuedMessage(folderSevereAeroDamage, majorDamageMsgExpiration, secondsDelay: majorDamageMsgDelay, abstractEvent: this, priority: 10, validationData: validationData));
                     }
                 }
                 else if (damageToReportNext.Item2 == DamageLevel.MAJOR)
                 {
-                    audioPlayer.playMessage(new QueuedMessage(folderSevereAeroDamage, majorDamageMsgExpiration, secondsDelay: majorDamageMsgDelay, abstractEvent: this, priority: 10));
+                    audioPlayer.playMessage(new QueuedMessage(folderSevereAeroDamage, majorDamageMsgExpiration, secondsDelay: majorDamageMsgDelay, abstractEvent: this, priority: 10, validationData: validationData));
                 }
                 else if (damageToReportNext.Item2 == DamageLevel.MINOR)
                 {
-                    audioPlayer.playMessage(new QueuedMessage(folderMinorAeroDamage, minorDamageMsgExpiration, secondsDelay: minorDamageMsgDelay, abstractEvent: this, priority: 10));
+                    audioPlayer.playMessage(new QueuedMessage(folderMinorAeroDamage, minorDamageMsgExpiration, secondsDelay: minorDamageMsgDelay, abstractEvent: this, priority: 10, validationData: validationData));
                 }
                 else if (damageToReportNext.Item2 == DamageLevel.TRIVIAL)
                 {
