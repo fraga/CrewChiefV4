@@ -1146,6 +1146,18 @@ namespace CrewChiefV4.Audio
             return false;
         }
 
+        public Boolean getDelayedRant(List<MessageFragment> messageFragments)
+        {
+            if (sweary && !playedRantInThisSession && Utilities.random.NextDouble() < rantLikelihood)
+            {
+                playedRantInThisSession = true;
+                AudioPlayer.rantWaitingToPlay = true;
+                messageFragments.Add(MessageFragment.Text(folderRants));
+                return true;
+            }
+            return false;
+        }
+
         // this should only be called in response to a voice message, following a 'standby' request. We want to play the 
         // message via the 'immediate' mechanism, but not until the secondsDelay has expired.
         public void playDelayedImmediateMessage(QueuedMessage queuedMessage)
@@ -1531,6 +1543,20 @@ namespace CrewChiefV4.Audio
 
             return !string.IsNullOrWhiteSpace(rawName) && CrewChief.enableDriverNames &&
                 ((SoundCache.hasSuitableTTSVoice && ttsOption != TTS_OPTION.NEVER) || SoundCache.availableDriverNames.Contains(DriverNameHelper.getUsableDriverName(rawName)));
+        }
+
+        internal void pauseQueueAndPlayDelayedImmediateMessage(QueuedMessage queuedMessage, int lowerDelayBoundInclusive, int upperDelayBound)
+        {
+            this.playMessageImmediately(new QueuedMessage(AudioPlayer.folderStandBy, 0));
+
+            var secondsDelay = Utilities.random.Next(lowerDelayBoundInclusive, upperDelayBound);
+            this.pauseQueue(secondsDelay);
+
+            queuedMessage.dueTime = queuedMessage.creationTime + (secondsDelay * 1000) + queuedMessage.updateInterval;
+            queuedMessage.secondsDelay = secondsDelay;
+            queuedMessage.expiryTime = queuedMessage.creationTime + (secondsDelay + 10) * 1000;
+
+            this.playDelayedImmediateMessage(queuedMessage);
         }
     }
 }
