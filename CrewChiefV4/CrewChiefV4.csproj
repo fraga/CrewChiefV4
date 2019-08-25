@@ -244,6 +244,19 @@
     <Compile Include="NumberReaderIt2.cs" />
     <Compile Include="R3E\R3EPitMenuManager.cs" />
     <Compile Include="R3E\R3ESerializer.cs" />
+    <Compile Include="SRE\ChoicesWrapper.cs" />
+    <Compile Include="SRE\GrammarBuilderWrapper.cs" />
+    <Compile Include="SRE\GrammarWrapper.cs" />
+    <Compile Include="SRE\MicrosoftChoicesWrapper.cs" />
+    <Compile Include="SRE\MicrosoftGrammarBuilderWrapper.cs" />
+    <Compile Include="SRE\MicrosoftGrammarWrapper.cs" />
+    <Compile Include="SRE\MicrosoftSREWrapper.cs" />
+    <Compile Include="SRE\SREWrapper.cs" />
+    <Compile Include="SRE\SREWrapperFactory.cs" />
+    <Compile Include="SRE\SystemChoicesWrapper.cs" />
+    <Compile Include="SRE\SystemGrammarBuilderWrapper.cs" />
+    <Compile Include="SRE\SystemGrammarWrapper.cs" />
+    <Compile Include="SRE\SystemSREWrapper.cs" />
     <Compile Include="ThreadManager.cs" />
     <Compile Include="UserInterface\ActionEditor.cs">
       <SubType>Form</SubType>

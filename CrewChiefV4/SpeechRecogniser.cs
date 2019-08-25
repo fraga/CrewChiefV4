@@ -1,5 +1,4 @@
-﻿using Microsoft.Speech.Recognition;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,12 +10,15 @@ using CrewChiefV4.commands;
 using System.Windows.Forms;
 using System.Diagnostics;
 using CrewChiefV4.R3E;
+using CrewChiefV4.SRE;
 
 namespace CrewChiefV4
 {
     public class SpeechRecogniser : IDisposable
     {
-        private SpeechRecognitionEngine sre;
+        //private SpeechRecognitionEngine sre;
+
+        private SREWrapper sreWrapper;
 
         private int nAudioWaveInSampleRate = UserSettings.GetUserSettings().getInt("naudio_wave_in_sample_rate");
         private int nAudioWaveInChannelCount = UserSettings.GetUserSettings().getInt("naudio_wave_in_channel_count");
@@ -279,11 +281,11 @@ namespace CrewChiefV4
         private HashSet<string> driverNamesInUse = new HashSet<string>();
         private HashSet<string> carNumbersInUse = new HashSet<string>();
 
-        private List<Grammar> opponentGrammarList = new List<Grammar>();
-        private List<Grammar> iracingPitstopGrammarList = new List<Grammar>();
-        private List<Grammar> r3ePitstopGrammarList = new List<Grammar>();
+        private List<GrammarWrapper> opponentGrammarList = new List<GrammarWrapper>();
+        private List<GrammarWrapper> iracingPitstopGrammarList = new List<GrammarWrapper>();
+        private List<GrammarWrapper> r3ePitstopGrammarList = new List<GrammarWrapper>();
 
-        private Grammar macroGrammar = null;
+        private GrammarWrapper macroGrammar = null;
 
         private Dictionary<String, ExecutableCommandMacro> macroLookup = new Dictionary<string, ExecutableCommandMacro>();
 
@@ -299,9 +301,9 @@ namespace CrewChiefV4
 
         public static Dictionary<String[], int> minuteMappings = getNumberMappings(0, 59);
 
-        private Choices digitsChoices;
+        private ChoicesWrapper digitsChoices;
 
-        private Choices hourChoices;
+        private ChoicesWrapper hourChoices;
 
         public static Boolean waitingForSpeech = false;
 
@@ -310,7 +312,7 @@ namespace CrewChiefV4
         // guard against race condition between closing channel and sre_SpeechRecognised event completing
         public static Boolean keepRecognisingInHoldMode = false;
 
-        private SpeechRecognitionEngine triggerSre;
+        private SREWrapper triggerSreWrapper;
 
         // This is the trigger phrase used to activate the 'full' SRE
         private String keyWord = UserSettings.GetUserSettings().getString("trigger_word_for_always_on_sre");
@@ -368,16 +370,16 @@ namespace CrewChiefV4
                 return;
             }
             macroLookup.Clear();
-            if (macroGrammar != null && macroGrammar.Loaded)
+            if (macroGrammar != null && macroGrammar.Loaded())
             {
-                sre.UnloadGrammar(macroGrammar);
+                sreWrapper.UnloadGrammar(macroGrammar);
             }
             if (voiceTriggeredMacros.Count == 0)
             {
                 Console.WriteLine("No macro voice triggers defined for the current game.");
                 return;
             }
-            Choices macroChoices = new Choices();
+            ChoicesWrapper macroChoices = SREWrapperFactory.createNewChoicesWrapper();
             foreach (KeyValuePair<String, ExecutableCommandMacro> entry in voiceTriggeredMacros)
             {
                 String triggerPhrase = entry.Key;
@@ -407,11 +409,11 @@ namespace CrewChiefV4
                     macroChoices.Add(triggerPhrase);
                 }
             }
-            GrammarBuilder macroGrammarBuilder = new GrammarBuilder();
-            macroGrammarBuilder.Culture = cultureInfo;
+            GrammarBuilderWrapper macroGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper();
+            macroGrammarBuilder.SetCulture(cultureInfo);
             macroGrammarBuilder.Append(macroChoices);
-            macroGrammar = new Grammar(macroGrammarBuilder);
-            sre.LoadGrammar(macroGrammar);
+            macroGrammar = SREWrapperFactory.createNewGrammarWrapper(macroGrammarBuilder);
+            sreWrapper.LoadGrammar(macroGrammar);
             Console.WriteLine("Loaded " + voiceTriggeredMacros.Count + " macro voice triggers into the speech recogniser");
         }
 
@@ -488,23 +490,23 @@ namespace CrewChiefV4
         //
         // The generatedGrammars are loaded by this method call, they're only returned to allow us to detect which grammar has been triggered - the
         // opponent grammar processing stuff needs this.
-        private List<Grammar> addCompoundChoices(String[] phrases, Boolean alwaysUseAllPhrases, Choices choices, String[] append, Boolean alwaysUseAllAppends)
+        private List<GrammarWrapper> addCompoundChoices(String[] phrases, Boolean alwaysUseAllPhrases, ChoicesWrapper choices, String[] append, Boolean alwaysUseAllAppends)
         {
-            List<Grammar> generatedGrammars = new List<Grammar>();
+            List<GrammarWrapper> generatedGrammars = new List<GrammarWrapper>();
             foreach (string s in phrases)
             {
                 if (s == null || s.Trim().Count() == 0)
                 {
                     continue;
                 }
-                GrammarBuilder gb = new GrammarBuilder();
-                gb.Culture = cultureInfo;
+                GrammarBuilderWrapper gb = SREWrapperFactory.createNewGrammarBuilderWrapper();
+                gb.SetCulture(cultureInfo);
                 gb.Append(s);
                 gb.Append(choices);
                 Boolean addAppendChoices = false;
                 if (append != null && append.Length > 0)
                 {
-                    Choices appendChoices = new Choices();
+                    ChoicesWrapper appendChoices = SREWrapperFactory.createNewChoicesWrapper();
                     foreach (string sa in append)
                     {
                         if (sa == null || sa.Trim().Count() == 0)
@@ -523,8 +525,8 @@ namespace CrewChiefV4
                         gb.Append(appendChoices);
                     }
                 }
-                Grammar grammar = new Grammar(gb);
-                sre.LoadGrammar(grammar);
+                GrammarWrapper grammar = SREWrapperFactory.createNewGrammarWrapper(gb);
+                sreWrapper.LoadGrammar(grammar);
                 generatedGrammars.Add(grammar);
                 if (disable_alternative_voice_commands && !alwaysUseAllPhrases)
                 {
@@ -545,19 +547,19 @@ namespace CrewChiefV4
 
             try
             {
-                if (sre != null)
+                if (sreWrapper != null)
                 {
-                    sre.RecognizeAsyncCancel();
+                    sreWrapper.RecognizeAsyncCancel();
                 }
                 if (voiceOptionEnum == MainWindow.VoiceOptionEnum.TRIGGER_WORD)
                 {
-                    if (triggerSre != null)
+                    if (triggerSreWrapper != null)
                     {
-                        triggerSre.RecognizeAsyncCancel();
+                        triggerSreWrapper.RecognizeAsyncCancel();
                     }
-                    if (sre != null)
+                    if (sreWrapper != null)
                     {
-                        sre.SetInputToDefaultAudioDevice();
+                        sreWrapper.SetInputToDefaultAudioDevice();
                     }
                 }
             }
@@ -588,11 +590,11 @@ namespace CrewChiefV4
             // Another option is not to call any Async calls from SpeechRecognizer.stop if MainWindow.instance is null.  However,
             // since we are not continuously re-creating SRE instances, it is safest to simply not Dispose, as it is very unlikely
             // to cause any system wide impact/leak.
-            if (sre != null)
+            if (sreWrapper != null)
             {
                 try
                 {
-                    sre.SetInputToNull();
+                    sreWrapper.SetInputToNull();
                 }
                 catch (Exception) { }
                 try
@@ -600,16 +602,16 @@ namespace CrewChiefV4
                     //sre.Dispose();
                 }
                 catch (Exception) { }
-                sre = null;
+                sreWrapper = null;
             }
-            if (triggerSre != null)
+            if (triggerSreWrapper != null)
             {
                 try
                 {
                     //triggerSre.Dispose();
                 }
                 catch (Exception) { }
-                triggerSre = null;
+                triggerSreWrapper = null;
             }
             initialised = false;
         }
@@ -670,7 +672,6 @@ namespace CrewChiefV4
             Tuple<String, String> sreConfigLangAndCountry = parseLocalePropertyValue(useDefaultLocaleInsteadOfLanguage ? sreConfigDefaultLocaleSetting : sreConfigLanguageSetting);
             String sreConfigLang = sreConfigLangAndCountry.Item1;
             String sreConfigCountry = sreConfigLangAndCountry.Item2;
-            RecognizerInfo info = null;
 
             String langToUse = sreConfigLang;
             String countryToUse = overrideCountry != null ? overrideCountry : sreConfigCountry;
@@ -679,40 +680,24 @@ namespace CrewChiefV4
             if (langAndCountryToUse != null)
             {
                 Console.WriteLine("Attempting to get recogniser for " + langAndCountryToUse);
-                foreach (RecognizerInfo ri in SpeechRecognitionEngine.InstalledRecognizers())
-                {
-                    if (ri.Culture.Name.Equals(langAndCountryToUse))
-                    {
-                        info = ri;
-                        cultureInfo = ri.Culture;
-                        break;
-                    }
-                }
+                cultureInfo = SREWrapperFactory.GetCultureInfo(langAndCountryToUse);
             }
-            if (info == null)
+            if (cultureInfo == null)
             {
                 if (langAndCountryToUse != null)
                 {
                     Console.WriteLine("Failed to get recogniser for " + langAndCountryToUse);
                 }
                 Console.WriteLine("Attempting to get recogniser for " + langToUse);
-                foreach (RecognizerInfo ri in SpeechRecognitionEngine.InstalledRecognizers())
-                {
-                    if (ri.Culture.TwoLetterISOLanguageName.Equals(langToUse))
-                    {
-                        info = ri;
-                        cultureInfo = ri.Culture;
-                        break;
-                    }
-                }
+                cultureInfo = SREWrapperFactory.GetCultureInfo(langToUse);
             }
 
-            if (info != null)
+            if (cultureInfo != null)
             {
-                Console.WriteLine(info.Culture.EnglishName + " - (" + info.Culture.Name + ")");
-                this.sre = new SpeechRecognitionEngine(info);
-                this.triggerSre = new SpeechRecognitionEngine(info);
-                return this.sre != null;
+                Console.WriteLine("Got SRE for " + cultureInfo);
+                this.sreWrapper = SREWrapperFactory.createNewSREWrapper();
+                this.triggerSreWrapper = SREWrapperFactory.createNewSREWrapper();
+                return this.sreWrapper != null;
             }
             if (countryToUse == null)
             {
@@ -761,7 +746,7 @@ namespace CrewChiefV4
             }
         }
 
-        private void validateAndAdd(String[] speechPhrases, Choices choices)
+        private void validateAndAdd(String[] speechPhrases, ChoicesWrapper choices)
         {
             if (speechPhrases != null && speechPhrases.Count() > 0)
             {
@@ -801,7 +786,7 @@ namespace CrewChiefV4
             // catch it and tell user to go download.
             try
             {
-                new SpeechRecognitionEngine();
+                SREWrapperFactory.createNewSREWrapper();
             }
             catch (Exception e)
             {
@@ -840,7 +825,7 @@ namespace CrewChiefV4
                 }
                 else
                 {
-                    sre.SetInputToDefaultAudioDevice();
+                    sreWrapper.SetInputToDefaultAudioDevice();
                 }
             }
             catch (Exception e)
@@ -858,7 +843,7 @@ namespace CrewChiefV4
                 {
                     Console.WriteLine("Loading all voice command alternatives from speech_recognition_config.txt");
                 }
-                this.digitsChoices = new Choices();
+                this.digitsChoices = SREWrapperFactory.createNewChoicesWrapper();
                 foreach (KeyValuePair<String[], int> entry in numberToNumber)
                 {
                     foreach (String numberStr in entry.Key)
@@ -867,7 +852,7 @@ namespace CrewChiefV4
                     }
                 }
 
-                Choices staticSpeechChoices = new Choices();
+                ChoicesWrapper staticSpeechChoices = SREWrapperFactory.createNewChoicesWrapper();
                 validateAndAdd(HOWS_MY_TYRE_WEAR, staticSpeechChoices);
                 validateAndAdd(HOWS_MY_TRANSMISSION, staticSpeechChoices);
                 validateAndAdd(HOWS_MY_AERO, staticSpeechChoices);
@@ -982,11 +967,11 @@ namespace CrewChiefV4
                 {
                     validateAndAdd(CLEAR_ALARM_CLOCK, staticSpeechChoices);
                 }
-                GrammarBuilder staticGrammarBuilder = new GrammarBuilder();
-                staticGrammarBuilder.Culture = cultureInfo;
+                GrammarBuilderWrapper staticGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper();
+                staticGrammarBuilder.SetCulture(cultureInfo);
                 staticGrammarBuilder.Append(staticSpeechChoices);
-                Grammar staticGrammar = new Grammar(staticGrammarBuilder);
-                sre.LoadGrammar(staticGrammar);
+                GrammarWrapper staticGrammar = SREWrapperFactory.createNewGrammarWrapper(staticGrammarBuilder);
+                sreWrapper.LoadGrammar(staticGrammar);
 
                 // now the fuel choices
                 List<string> fuelTimeChoices = new List<string>();
@@ -1005,7 +990,7 @@ namespace CrewChiefV4
                 addCompoundChoices(CALCULATE_FUEL_FOR, false, this.digitsChoices, fuelTimeChoices.ToArray(), true);
                 if (alarmClockVoiceRecognitionEnabled)
                 {
-                    this.hourChoices = new Choices();
+                    this.hourChoices = SREWrapperFactory.createNewChoicesWrapper();
                     foreach (KeyValuePair<String[], int> entry in hourMappings)
                     {
                         foreach (String numberStr in entry.Key)
@@ -1039,11 +1024,19 @@ namespace CrewChiefV4
                 Console.WriteLine("Exception message: " + e.Message);
                 return;
             }
-            sre.InitialSilenceTimeout = TimeSpan.Zero;
+            sreWrapper.SetInitialSilenceTimeout(TimeSpan.Zero);
             try
             {
-                sre.SpeechRecognized += new EventHandler<SpeechRecognizedEventArgs>(sre_SpeechRecognized);
-                triggerSre.SpeechRecognized += new EventHandler<SpeechRecognizedEventArgs>(trigger_SpeechRecognized);
+                if (SREWrapperFactory.useSystem)
+                {
+                    sreWrapper.AddSpeechRecognizedCallback(new EventHandler<System.Speech.Recognition.SpeechRecognizedEventArgs>(sre_SpeechRecognizedSystem));
+                    triggerSreWrapper.AddSpeechRecognizedCallback(new EventHandler<System.Speech.Recognition.SpeechRecognizedEventArgs>(trigger_SpeechRecognizedSystem));
+                }
+                else
+                {
+                    sreWrapper.AddSpeechRecognizedCallback(new EventHandler<Microsoft.Speech.Recognition.SpeechRecognizedEventArgs>(sre_SpeechRecognizedMicrosoft));
+                    triggerSreWrapper.AddSpeechRecognizedCallback(new EventHandler<Microsoft.Speech.Recognition.SpeechRecognizedEventArgs>(trigger_SpeechRecognizedMicrosoft));
+                }
             }
             catch (Exception e)
             {
@@ -1117,8 +1110,8 @@ namespace CrewChiefV4
                             }
                         }
                     }
-                    Choices opponentNameChoices = new Choices(nameChoices.ToArray<string>());
-                    Choices opponentNamePossessiveChoices = new Choices(namePossessiveChoices.ToArray<string>());
+                    ChoicesWrapper opponentNameChoices = SREWrapperFactory.createNewChoicesWrapper(nameChoices.ToArray<string>());
+                    ChoicesWrapper opponentNamePossessiveChoices = SREWrapperFactory.createNewChoicesWrapper(namePossessiveChoices.ToArray<string>());
 
                     opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHERE_IS, WHERES }, false, opponentNameChoices, null, true));
                     // todo: iracing definitely has no opponent tyre type data, probably more games lack this info
@@ -1144,17 +1137,17 @@ namespace CrewChiefV4
             }
             driverNamesInUse.Clear();
             carNumbersInUse.Clear();
-            foreach (Grammar opponentGrammar in opponentGrammarList)
+            foreach (GrammarWrapper opponentGrammar in opponentGrammarList)
             {
-                sre.UnloadGrammar(opponentGrammar);
+                sreWrapper.UnloadGrammar(opponentGrammar);
             }
             opponentGrammarList.Clear();
-            Choices opponentChoices = new Choices();
+            ChoicesWrapper opponentChoices = SREWrapperFactory.createNewChoicesWrapper();
 
             // need choice sets for names, possessive names, positions, possessive positions, and combined:
-            Choices opponentNameOrPositionChoices = new Choices();
-            Choices opponentPositionChoices = new Choices();
-            Choices opponentNameOrPositionPossessiveChoices = new Choices();
+            ChoicesWrapper opponentNameOrPositionChoices = SREWrapperFactory.createNewChoicesWrapper();
+            ChoicesWrapper opponentPositionChoices = SREWrapperFactory.createNewChoicesWrapper();
+            ChoicesWrapper opponentNameOrPositionPossessiveChoices = SREWrapperFactory.createNewChoicesWrapper();
 
             if (identifyOpponentsByName)
             {
@@ -1260,22 +1253,22 @@ namespace CrewChiefV4
             {
                 return;
             }
-            foreach (Grammar r3eGrammar in r3ePitstopGrammarList)
+            foreach (GrammarWrapper r3eGrammar in r3ePitstopGrammarList)
             {
                 try
                 {
-                    sre.UnloadGrammar(r3eGrammar);
+                    sreWrapper.UnloadGrammar(r3eGrammar);
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine("Failed to unload R3E grammar: " + e.Message);
                 }
             }
-            foreach (Grammar iracingGrammar in iracingPitstopGrammarList)
+            foreach (GrammarWrapper iracingGrammar in iracingPitstopGrammarList)
             {
                 try
                 {
-                    sre.UnloadGrammar(iracingGrammar);
+                    sreWrapper.UnloadGrammar(iracingGrammar);
                 }
                 catch (Exception e)
                 {
@@ -1286,7 +1279,7 @@ namespace CrewChiefV4
             {
                 iracingPitstopGrammarList.Clear();
                 r3ePitstopGrammarList.Clear();
-                Choices r3eChoices = new Choices();
+                ChoicesWrapper r3eChoices = SREWrapperFactory.createNewChoicesWrapper();
                 validateAndAdd(PIT_STOP_CHANGE_ALL_TYRES, r3eChoices);
                 validateAndAdd(PIT_STOP_CHANGE_FRONT_TYRES, r3eChoices);
                 validateAndAdd(PIT_STOP_CHANGE_REAR_TYRES, r3eChoices);
@@ -1309,11 +1302,11 @@ namespace CrewChiefV4
                 validateAndAdd(PIT_STOP_DONT_REFUEL, r3eChoices);
                 validateAndAdd(PIT_STOP_REFUEL, r3eChoices);
                 
-                GrammarBuilder r3eGrammarBuilder = new GrammarBuilder(r3eChoices);
-                r3eGrammarBuilder.Culture = cultureInfo;
-                Grammar r3eGrammar = new Grammar(r3eGrammarBuilder);
+                GrammarBuilderWrapper r3eGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper(r3eChoices);
+                r3eGrammarBuilder.SetCulture(cultureInfo);
+                GrammarWrapper r3eGrammar = SREWrapperFactory.createNewGrammarWrapper(r3eGrammarBuilder);
                 r3ePitstopGrammarList.Add(r3eGrammar);
-                sre.LoadGrammar(r3eGrammar);
+                sreWrapper.LoadGrammar(r3eGrammar);
             }
             catch (Exception e)
             {
@@ -1327,22 +1320,22 @@ namespace CrewChiefV4
             {
                 return;
             }
-            foreach (Grammar iracingGrammar in iracingPitstopGrammarList)
+            foreach (GrammarWrapper iracingGrammar in iracingPitstopGrammarList)
             {
                 try
                 {
-                    sre.UnloadGrammar(iracingGrammar);
+                    sreWrapper.UnloadGrammar(iracingGrammar);
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine("Failed to unload iRacing grammar: " + e.Message);
                 }
             }
-            foreach (Grammar r3eGrammar in r3ePitstopGrammarList)
+            foreach (GrammarWrapper r3eGrammar in r3ePitstopGrammarList)
             {
                 try
                 {
-                    sre.UnloadGrammar(r3eGrammar);
+                    sreWrapper.UnloadGrammar(r3eGrammar);
                 }
                 catch (Exception e)
                 {
@@ -1353,7 +1346,7 @@ namespace CrewChiefV4
             {
                 r3ePitstopGrammarList.Clear();
                 iracingPitstopGrammarList.Clear();
-                Choices iRacingChoices = new Choices();
+                ChoicesWrapper iRacingChoices = SREWrapperFactory.createNewChoicesWrapper();
                 if (enable_iracing_pit_stop_commands)
                 {
                     List<string> tyrePressureChangePhrases = new List<string>();
@@ -1405,11 +1398,11 @@ namespace CrewChiefV4
                 validateAndAdd(PIT_STOP_FUEL_TO_THE_END, iRacingChoices);
                 validateAndAdd(WHATS_THE_SOF, iRacingChoices);
 
-                GrammarBuilder iRacingGrammarBuilder = new GrammarBuilder(iRacingChoices);
-                iRacingGrammarBuilder.Culture = cultureInfo;
-                Grammar iRacingGrammar = new Grammar(iRacingGrammarBuilder);
+                GrammarBuilderWrapper iRacingGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper(iRacingChoices);
+                iRacingGrammarBuilder.SetCulture(cultureInfo);
+                GrammarWrapper iRacingGrammar = SREWrapperFactory.createNewGrammarWrapper(iRacingGrammarBuilder);
                 iracingPitstopGrammarList.Add(iRacingGrammar);
-                sre.LoadGrammar(iRacingGrammar);
+                sreWrapper.LoadGrammar(iRacingGrammar);
             }
             catch (Exception e)
             {
@@ -1461,11 +1454,11 @@ namespace CrewChiefV4
                 try
                 {
                     // the cancel call takes some time to complete but returns immediately, so wait a bit before switching inputs
-                    sre.RecognizeAsyncCancel();
+                    sreWrapper.RecognizeAsyncCancel();
                     Thread.Sleep(5);
-                    sre.SetInputToNull();
-                    triggerSre.SetInputToDefaultAudioDevice();
-                    triggerSre.RecognizeAsync(RecognizeMode.Multiple);
+                    sreWrapper.SetInputToNull();
+                    triggerSreWrapper.SetInputToDefaultAudioDevice();
+                    triggerSreWrapper.RecognizeAsync();
                     waitingForSpeech = false;
                     success = true;
                 }
@@ -1503,10 +1496,10 @@ namespace CrewChiefV4
                 try
                 {
                     // the cancel call takes some time to complete but returns immediately, so wait a bit before switching inputs
-                    triggerSre.RecognizeAsyncCancel();
+                    triggerSreWrapper.RecognizeAsyncCancel();
                     Thread.Sleep(5);
-                    triggerSre.SetInputToNull();
-                    sre.SetInputToDefaultAudioDevice();
+                    triggerSreWrapper.SetInputToNull();
+                    sreWrapper.SetInputToDefaultAudioDevice();
                     success = true;
                 }
                 catch (Exception)
@@ -1561,26 +1554,46 @@ namespace CrewChiefV4
             restartWaitTimeoutThreadReference.Start();
         }
 
-        void trigger_SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
+        void trigger_SpeechRecognizedSystem(object sender, System.Speech.Recognition.SpeechRecognizedEventArgs e)
+        {
+            trigger_SpeechRecognized(sender, e);
+        }
+
+        void trigger_SpeechRecognizedMicrosoft(object sender, Microsoft.Speech.Recognition.SpeechRecognizedEventArgs e)
+        {
+            trigger_SpeechRecognized(sender, e);
+        }
+
+        void trigger_SpeechRecognized(object sender, object e)
         {
             if (!initialised)
             {
                 return;
             }
-
-            if (e.Result.Confidence > minimum_trigger_voice_recognition_confidence)
+            float recognitionConfidence = SREWrapperFactory.GetCallbackConfidence(e);
+            if (recognitionConfidence > minimum_trigger_voice_recognition_confidence)
             {
-                Console.WriteLine("Heard keyword " + keyWord + ", waiting for command confidence " + e.Result.Confidence);
+                Console.WriteLine("Heard keyword " + keyWord + ", waiting for command confidence " + recognitionConfidence);
                 switchFromTriggerToRegularRecogniser();
                 restartWaitTimeoutThread(trigger_word_listen_timeout);
             }
             else
             {
-                Console.WriteLine("keyword detected but confidence (" + e.Result.Confidence + ") too low");
+                Console.WriteLine("keyword detected but confidence (" + recognitionConfidence + ") too low");
             }
         }
 
-        void sre_SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
+        void sre_SpeechRecognizedMicrosoft(object sender, Microsoft.Speech.Recognition.SpeechRecognizedEventArgs e)
+        {
+            sre_SpeechRecognized(sender, e);
+        }
+
+        void sre_SpeechRecognizedSystem(object sender, System.Speech.Recognition.SpeechRecognizedEventArgs e)
+        {
+            sre_SpeechRecognized(sender, e);
+        }
+
+        void sre_SpeechRecognized(object sender, object e)
         {
             if (!initialised)
             {
@@ -1592,14 +1605,17 @@ namespace CrewChiefV4
             SpeechRecogniser.waitingForSpeech = false;
             SpeechRecogniser.gotRecognitionResult = true;
             Boolean youWot = false;
-            Console.WriteLine("Recognised : " + e.Result.Text + "  Confidence = " + e.Result.Confidence.ToString("0.000") + "  Time Elapsed (ms) = " + (DateTime.Now - SpeechRecogniser.recognitionStartedTime).TotalMilliseconds);
+            String recognisedText = SREWrapperFactory.GetCallbackText(e);
+            float recognitionConfidence = SREWrapperFactory.GetCallbackConfidence(e);
+            object recognitionGrammar = SREWrapperFactory.GetCallbackGrammar(e);
+            Console.WriteLine("Recognised : " + recognisedText + "  Confidence = " + recognitionConfidence.ToString("0.000") + "  Time Elapsed (ms) = " + (DateTime.Now - SpeechRecogniser.recognitionStartedTime).TotalMilliseconds);
             try
             {
                 // special case when we're waiting for a message after a heavy crash:
                 if (DamageReporting.waitingForDriverIsOKResponse)
                 {
                     DamageReporting damageReportingEvent = (DamageReporting)CrewChief.getEvent("DamageReporting");
-                    if (e.Result.Confidence > minimum_voice_recognition_confidence && ResultContains(e.Result.Text, I_AM_OK, false))
+                    if (recognitionConfidence > minimum_voice_recognition_confidence && ResultContains(recognisedText, I_AM_OK, false))
                     {
                         damageReportingEvent.cancelWaitingForDriverIsOK(DamageReporting.DriverOKResponseType.CLEARLY_OK);
                     }
@@ -1610,12 +1626,12 @@ namespace CrewChiefV4
                 }
                 else
                 {
-                    if (opponentGrammarList.Contains(e.Result.Grammar))
+                    if (GrammarWrapperListContains(opponentGrammarList, recognitionGrammar))
                     {
-                        if (e.Result.Confidence > minimum_name_voice_recognition_confidence)
+                        if (recognitionConfidence > minimum_name_voice_recognition_confidence)
                         {
-                            this.lastRecognisedText = e.Result.Text;
-                            CrewChief.getEvent("Opponents").respond(e.Result.Text);
+                            this.lastRecognisedText = recognisedText;
+                            CrewChief.getEvent("Opponents").respond(recognisedText);
                         }
                         else
                         {
@@ -1623,28 +1639,28 @@ namespace CrewChiefV4
                             youWot = true;
                         }
                     }
-                    else if (e.Result.Confidence > minimum_voice_recognition_confidence)
+                    else if (recognitionConfidence > minimum_voice_recognition_confidence)
                     {
-                        if (macroGrammar == e.Result.Grammar && macroLookup.ContainsKey(e.Result.Text))
+                        if (macroGrammar.GetInternalGrammar() == recognitionGrammar && macroLookup.ContainsKey(recognisedText))
                         {
-                            this.lastRecognisedText = e.Result.Text;
-                            macroLookup[e.Result.Text].execute(e.Result.Text, false, true);
+                            this.lastRecognisedText = recognisedText;
+                            macroLookup[recognisedText].execute(recognisedText, false, true);
                         }
-                        else if (iracingPitstopGrammarList.Contains(e.Result.Grammar))
+                        else if (GrammarWrapperListContains(iracingPitstopGrammarList, recognitionGrammar))
                         {
-                            this.lastRecognisedText = e.Result.Text;
-                            CrewChief.getEvent("IRacingBroadcastMessageEvent").respond(e.Result.Text);
+                            this.lastRecognisedText = recognisedText;
+                            CrewChief.getEvent("IRacingBroadcastMessageEvent").respond(recognisedText);
                         }
-                        else if (r3ePitstopGrammarList.Contains(e.Result.Grammar))
+                        else if (GrammarWrapperListContains(r3ePitstopGrammarList, recognitionGrammar))
                         {
-                            this.lastRecognisedText = e.Result.Text;
-                            R3EPitMenuManager.processVoiceCommand(e.Result.Text, this.crewChief.audioPlayer);
+                            this.lastRecognisedText = recognisedText;
+                            R3EPitMenuManager.processVoiceCommand(recognisedText, this.crewChief.audioPlayer);
                         }
-                        else if (ResultContains(e.Result.Text, REPEAT_LAST_MESSAGE, false))
+                        else if (ResultContains(recognisedText, REPEAT_LAST_MESSAGE, false))
                         {
                             crewChief.audioPlayer.repeatLastMessage();
                         }
-                        else if (ResultContains(e.Result.Text, MORE_INFO, false) && this.lastRecognisedText != null && !use_verbose_responses)
+                        else if (ResultContains(recognisedText, MORE_INFO, false) && this.lastRecognisedText != null && !use_verbose_responses)
                         {
                             AbstractEvent abstractEvent = getEventForSpeech(this.lastRecognisedText);
                             if (abstractEvent != null)
@@ -1654,11 +1670,11 @@ namespace CrewChiefV4
                         }
                         else
                         {
-                            this.lastRecognisedText = e.Result.Text;
-                            AbstractEvent abstractEvent = getEventForSpeech(e.Result.Text);
+                            this.lastRecognisedText = recognisedText;
+                            AbstractEvent abstractEvent = getEventForSpeech(recognisedText);
                             if (abstractEvent != null)
                             {
-                                abstractEvent.respond(e.Result.Text);
+                                abstractEvent.respond(recognisedText);
 
                                 if (use_verbose_responses)
                                 {
@@ -1698,7 +1714,7 @@ namespace CrewChiefV4
             // RecogniseAsyncCancel
             if (voiceOptionEnum == MainWindow.VoiceOptionEnum.TOGGLE)
             {
-                sre.RecognizeAsyncStop();
+                sreWrapper.RecognizeAsyncStop();
                 Thread.Sleep(500);
                 Console.WriteLine("Stopping speech recognition");
             }
@@ -1706,7 +1722,7 @@ namespace CrewChiefV4
             {
                 if (!useNAudio)
                 {
-                    sre.RecognizeAsyncStop();
+                    sreWrapper.RecognizeAsyncStop();
                     Thread.Sleep(500);
                     Console.WriteLine("Restarting speech recognition");
                     recognizeAsync();
@@ -1749,9 +1765,9 @@ namespace CrewChiefV4
                 return;
             }
 
-            if (triggerSre != null)
+            if (triggerSreWrapper != null)
             {
-                triggerSre.RecognizeAsyncCancel();
+                triggerSreWrapper.RecognizeAsyncCancel();
             }
         }
 
@@ -1766,16 +1782,16 @@ namespace CrewChiefV4
             {
                 try
                 {
-                    triggerSre.UnloadAllGrammars();
-                    GrammarBuilder gb = new GrammarBuilder();
-                    Choices c = new Choices();
+                    triggerSreWrapper.UnloadAllGrammars();
+                    GrammarBuilderWrapper gb = SREWrapperFactory.createNewGrammarBuilderWrapper();
+                    ChoicesWrapper c = SREWrapperFactory.createNewChoicesWrapper();
                     c.Add(keyWord);
-                    gb.Culture = cultureInfo;
+                    gb.SetCulture(cultureInfo);
                     gb.Append(c);
-                    triggerSre.LoadGrammar(new Grammar(gb));
-                    sre.SetInputToNull();
-                    triggerSre.SetInputToDefaultAudioDevice();
-                    triggerSre.RecognizeAsync(RecognizeMode.Multiple);
+                    triggerSreWrapper.LoadGrammar(SREWrapperFactory.createNewGrammarWrapper(gb));
+                    sreWrapper.SetInputToNull();
+                    triggerSreWrapper.SetInputToDefaultAudioDevice();
+                    triggerSreWrapper.RecognizeAsync();
                     Console.WriteLine("waiting for trigger word " + keyWord);
                 }
                 catch (Exception)
@@ -1830,10 +1846,10 @@ namespace CrewChiefV4
                                         nAudioWaveInSampleRate,
                                         nAudioWaveInSampleDepth == 16 ? Microsoft.Speech.AudioFormat.AudioBitsPerSample.Sixteen : Microsoft.Speech.AudioFormat.AudioBitsPerSample.Eight, 
                                         nAudioWaveInChannelCount == 2 ? Microsoft.Speech.AudioFormat.AudioChannel.Stereo : Microsoft.Speech.AudioFormat.AudioChannel.Mono);
-                                sre.SetInputToAudioStream(buffer, safi); // otherwise input gets unset
+                                sreWrapper.SetInputToAudioStream(buffer, safi); // otherwise input gets unset
                                 try
                                 {
-                                    sre.RecognizeAsync(RecognizeMode.Multiple); // before this call
+                                    sreWrapper.RecognizeAsync(); // before this call
                                 }
                                 catch (Exception e)
                                 {
@@ -1853,7 +1869,7 @@ namespace CrewChiefV4
                     Console.WriteLine("Getting audio from default device");
                     try
                     {
-                        sre.RecognizeAsync(RecognizeMode.Multiple);
+                        sreWrapper.RecognizeAsync();
                     }
                     catch (Exception e)
                     {
@@ -1887,10 +1903,10 @@ namespace CrewChiefV4
                         waveIn.WaveFormat.SampleRate, Microsoft.Speech.AudioFormat.AudioBitsPerSample.Sixteen, Microsoft.Speech.AudioFormat.AudioChannel.Mono);
                     if (!isShuttingDown)
                     {
-                        sre.SetInputToAudioStream(buffer, safi); // otherwise input gets unset
+                        sreWrapper.SetInputToAudioStream(buffer, safi); // otherwise input gets unset
                         try
                         {
-                            sre.RecognizeAsync(RecognizeMode.Multiple); // before this call
+                            sreWrapper.RecognizeAsync(); // before this call
                         }
                         catch (Exception e)
                         {
@@ -1901,7 +1917,7 @@ namespace CrewChiefV4
                 else if (MainWindow.voiceOption == MainWindow.VoiceOptionEnum.ALWAYS_ON)
                 {
                     nAudioAlwaysOnkeepRecording = false;
-                    sre.RecognizeAsyncCancel();
+                    sreWrapper.RecognizeAsyncCancel();
 
                     // Wait for nAudioAlwaysOnListenerThread thread to exit.
                     if (nAudioAlwaysOnListenerThread != null)
@@ -1924,7 +1940,7 @@ namespace CrewChiefV4
             else
             {
                 SpeechRecogniser.keepRecognisingInHoldMode = false;
-                sre.RecognizeAsyncCancel();
+                sreWrapper.RecognizeAsyncCancel();
             }
         }
 
@@ -2171,6 +2187,18 @@ namespace CrewChiefV4
                 return CrewChief.alarmClock;
             }
             return null;
+        }
+
+        private Boolean GrammarWrapperListContains(List<GrammarWrapper> grammarWrapperList, object grammar)
+        {
+            foreach (GrammarWrapper grammarWrapper in grammarWrapperList)
+            {
+                if (grammarWrapper.GetInternalGrammar() == grammar)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }
