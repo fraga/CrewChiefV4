@@ -54,6 +54,21 @@ namespace CrewChiefV4.SRE
             return sreWrapper;
         }
 
+        public static GrammarWrapper CreateChatDictationGrammarWrapper()
+        {
+            System.Speech.Recognition.DictationGrammar dictationGrammar = new System.Speech.Recognition.DictationGrammar();
+            dictationGrammar.Name = "default dictation";
+            dictationGrammar.Enabled = true;
+            return new SystemGrammarWrapper(dictationGrammar);
+        }
+
+        public static void LoadChatDictationGrammar(SREWrapper sreWrapper, GrammarWrapper dictationGrammarWrapper, String dictationContextStart, String dictationContextEnd)
+        {
+            System.Speech.Recognition.DictationGrammar dictationGrammar = (System.Speech.Recognition.DictationGrammar)dictationGrammarWrapper.GetInternalGrammar();
+            ((System.Speech.Recognition.SpeechRecognitionEngine)sreWrapper.GetInternalSRE()).LoadGrammar(dictationGrammar);
+            dictationGrammar.SetDictationContext(dictationContextStart, dictationContextEnd);
+        }
+
         private static SREWrapper createMicrosoftSREWrapper()
         {
             try
@@ -185,6 +200,18 @@ namespace CrewChiefV4.SRE
             else
             {
                 return ((Microsoft.Speech.Recognition.SpeechRecognizedEventArgs)recognitionCallback).Result.Text;
+            }
+        }
+
+        public static string[] GetCallbackWordsList(object recognitionCallback)
+        {
+            if (useSystem)
+            {
+                return ((System.Speech.Recognition.SpeechRecognizedEventArgs)recognitionCallback).Result.Words.Select(x => x.Text).ToArray();
+            }
+            else
+            {
+                return ((Microsoft.Speech.Recognition.SpeechRecognizedEventArgs)recognitionCallback).Result.Words.Select(x => x.Text).ToArray();
             }
         }
 

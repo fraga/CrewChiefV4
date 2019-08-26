@@ -604,6 +604,74 @@
       ]
     },
     {
+      "name": "start chat message",
+      "description": "Starts a chat message (just presses the single 'chat' key)",
+      "voiceTriggers": [],
+      "commandSets": [
+        {
+          "description": "r3e version",
+          "gameDefinition": "RACE_ROOM",
+          "actionSequence": [
+            "KEY_C"
+          ],
+          "keyPressTime": 10,
+          "waitBetweenEachCommand": 60
+        },
+        {
+          "description": "pcars2 version",
+          "gameDefinition": "PCARS2",
+          "actionSequence": [
+            "KEY_T"
+          ],
+          "keyPressTime": 100,
+          "waitBetweenEachCommand": 100
+        },
+        {
+          "description": "iRacing version",
+          "gameDefinition": "IRACING",
+          "actionSequence": [
+            "KEY_T"
+          ],
+          "keyPressTime": 100,
+          "waitBetweenEachCommand": 100
+        }
+      ]
+    },
+	{
+      "name": "end chat message",
+      "description": "Ends a chat message (just presses the enter key)",
+      "voiceTriggers": [],
+      "commandSets": [
+        {
+          "description": "r3e version",
+          "gameDefinition": "RACE_ROOM",
+          "actionSequence": [
+            "ENTER"
+          ],
+          "keyPressTime": 10,
+          "waitBetweenEachCommand": 60
+        },
+        {
+          "description": "pcars2 version",
+          "gameDefinition": "PCARS2",
+          "actionSequence": [
+            "ENTER"
+          ],
+          "keyPressTime": 100,
+          "waitBetweenEachCommand": 100
+        },
+        {
+          "description": "iracing version",
+          "gameDefinition": "IRACING",
+          "actionSequence": [
+            "ENTER"
+          ],
+          "keyPressTime": 100,
+          "waitBetweenEachCommand": 100
+        }
+      ]
+    },
+    {
       "name": "Lap Timing Black Box",
       "description": "Displays Lap Timing Black Box",
       "voiceTriggers": [

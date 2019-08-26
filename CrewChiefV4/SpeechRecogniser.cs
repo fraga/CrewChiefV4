@@ -322,6 +322,17 @@ namespace CrewChiefV4
 
         public static DateTime recognitionStartedTime = DateTime.MinValue;
 
+
+        // experimental free-dictation grammar for chat messages
+        private Boolean useFreeDictationForChatMessages = UserSettings.GetUserSettings().getBoolean("use_free_dictation_for_chat");
+        private static string startChatMacroName = "start chat message";
+        private static string endChatMacroName = "end chat message";
+        private static string chatContextStart = "message";
+        private string chatContextEnd = null;
+        private GrammarWrapper chatDictationGrammar;
+        private static ExecutableCommandMacro startChatMacro = null;
+        private static ExecutableCommandMacro endChatMacro = null;
+
         static SpeechRecogniser()
         {
             if (UserSettings.GetUserSettings().getBoolean("use_naudio_for_speech_recognition"))
@@ -1017,6 +1028,11 @@ namespace CrewChiefV4
                     addCompoundChoices(SET_ALARM_CLOCK, false, this.hourChoices, minuteArray.ToArray(), true);
                 }
 
+                if (SREWrapperFactory.useSystem && useFreeDictationForChatMessages)
+                {
+                    this.chatDictationGrammar = SREWrapperFactory.CreateChatDictationGrammarWrapper();
+                    SREWrapperFactory.LoadChatDictationGrammar(this.sreWrapper, this.chatDictationGrammar, chatContextStart, chatContextEnd);
+                }
             }
             catch (Exception e)
             {
@@ -1588,6 +1604,7 @@ namespace CrewChiefV4
             SpeechRecogniser.gotRecognitionResult = true;
             Boolean youWot = false;
             String recognisedText = SREWrapperFactory.GetCallbackText(e);
+            String[] recognisedWords = SREWrapperFactory.GetCallbackWordsList(e);
             float recognitionConfidence = SREWrapperFactory.GetCallbackConfidence(e);
             object recognitionGrammar = SREWrapperFactory.GetCallbackGrammar(e);
             Console.WriteLine("Recognised : " + recognisedText + "  Confidence = " + recognitionConfidence.ToString("0.000") + "  Time Elapsed (ms) = " + (DateTime.Now - SpeechRecogniser.recognitionStartedTime).TotalMilliseconds);
@@ -1608,7 +1625,27 @@ namespace CrewChiefV4
                 }
                 else
                 {
-                    if (GrammarWrapperListContains(opponentGrammarList, recognitionGrammar))
+                    if (useFreeDictationForChatMessages && this.chatDictationGrammar != null && recognitionGrammar == this.chatDictationGrammar.GetInternalGrammar())
+                    {
+                        Console.WriteLine("chat recognised: " + recognisedText);
+                        if (recognisedText.StartsWith(chatContextStart))
+                        {
+                            string chatText = recognisedText.TrimStart(chatContextStart.ToCharArray());
+                            Console.WriteLine("Sending chat text " + chatText);
+                            getStartChatMacro().execute("", true, false);
+                            for (int charIndex = 0; charIndex < chatText.Length; charIndex++)
+                            {
+                                KeyPresser.KeyCode keyCode;
+                                Boolean forcedUpperCase;
+                                KeyPresser.parseKeycode(chatText[charIndex].ToString(), true, out keyCode, out forcedUpperCase);
+                                Console.WriteLine("key code = " + keyCode);
+                                KeyPresser.SendScanCodeKeyPress(keyCode, forcedUpperCase, 20);
+                                Thread.Sleep(20);
+                            }
+                            getEndChatMacro().execute("", true, false);
+                        }
+                    }
+                    else if (GrammarWrapperListContains(opponentGrammarList, recognitionGrammar))
                     {
                         if (recognitionConfidence > minimum_name_voice_recognition_confidence)
                         {
@@ -2182,5 +2219,24 @@ namespace CrewChiefV4
             }
             return false;
         }
+
+        private static ExecutableCommandMacro getStartChatMacro()
+        {
+            if (SpeechRecogniser.startChatMacro == null)
+            {
+                MacroManager.macros.TryGetValue(SpeechRecogniser.startChatMacroName, out SpeechRecogniser.startChatMacro);
+            }
+            return SpeechRecogniser.startChatMacro;
+        }
+
+        private static ExecutableCommandMacro getEndChatMacro()
+        {
+            if (SpeechRecogniser.endChatMacro == null)
+            {
+                MacroManager.macros.TryGetValue(SpeechRecogniser.endChatMacroName, out SpeechRecogniser.endChatMacro);
+            }
+            return SpeechRecogniser.endChatMacro;
+        }
+
     }
 }

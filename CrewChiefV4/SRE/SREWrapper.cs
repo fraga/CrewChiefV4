@@ -23,6 +23,7 @@ namespace CrewChiefV4.SRE
 
         void RecognizeAsyncStop();
         void UnloadAllGrammars();
-        
+
+        object GetInternalSRE();
     }
 }

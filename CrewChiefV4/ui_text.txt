@@ -1567,6 +1567,11 @@ enable_radio_beeps_category = AUDIO_VOICE_AND_CONTROLLERS
 enable_radio_beeps_metadata = RESTART_REQUIRED
 
 prefer_system_sre = Prefer Windows speech recogniser
-prefer_system_sre_help = Use the built-in Windows speech recogniser
+prefer_system_sre_help = Use Windows' built-in speech recogniser, can be trained to your voice
 prefer_system_sre_category = AUDIO_VOICE_AND_CONTROLLERS
 prefer_system_sre_metadata = RESTART_REQUIRED
+
+use_free_dictation_for_chat = Enable free dictation chat messages
+use_free_dictation_for_chat_help = Use free dictation for chat messages (Windows Speech recogniser only)
+use_free_dictation_for_chat_category = AUDIO_VOICE_AND_CONTROLLERS
+use_free_dictation_for_chat_metadata = RESTART_REQUIRED

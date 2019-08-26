@@ -65,5 +65,10 @@ namespace CrewChiefV4.SRE
         {
             internalSRE.UnloadGrammar((Grammar)grammarWrapper.GetInternalGrammar());
         }
+
+        public object GetInternalSRE()
+        {
+            return internalSRE;
+        }
     }
 }

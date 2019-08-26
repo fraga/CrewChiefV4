@@ -16,6 +16,11 @@ namespace CrewChiefV4.SRE
             this.grammar = new Grammar((GrammarBuilder) grammarBuilderWrapper.GetInternalGrammarBuilder());
         }
 
+        public SystemGrammarWrapper(Grammar grammar)
+        {
+            this.grammar = grammar;
+        }
+
         public object GetInternalGrammar()
         {
             return grammar;

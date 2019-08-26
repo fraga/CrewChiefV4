@@ -83,6 +83,47 @@ namespace CrewChiefV4.commands
         private static KeyCode[] extendedKeys = { KeyCode.UP, KeyCode.DOWN, KeyCode.LEFT, KeyCode.RIGHT, 
                                            KeyCode.INSERT, KeyCode.HOME, KeyCode.PAGE_UP, KeyCode.PAGEDOWN, KeyCode.DELETE, KeyCode.END };
 
+        public static Boolean parseKeycode(String keyString, Boolean freeText, out KeyPresser.KeyCode keyCode, out Boolean forcedUppercase)
+        {
+            // assume we don't need to hold shift for this press:
+            forcedUppercase = false;
+            // some character literal replacements, only applicable to free text macros:
+            if (freeText)
+            {
+                if (",".Equals(keyString))
+                {
+                    keyCode = KeyPresser.KeyCode.OEM_COMMA;
+                    return true;
+                }
+                if (" ".Equals(keyString))
+                {
+                    keyCode = KeyPresser.KeyCode.SPACE_BAR;
+                    return true;
+                }
+                if (".".Equals(keyString))
+                {
+                    keyCode = KeyPresser.KeyCode.OEM_PERIOD;
+                    return true;
+                }
+                if ("-".Equals(keyString))
+                {
+                    keyCode = KeyPresser.KeyCode.OEM_MINUS;
+                    return true;
+                }
+            }
+            if (Enum.TryParse(keyString, true, out keyCode))
+            {
+                return true;
+            }
+            if (Enum.TryParse("KEY_" + keyString, true, out keyCode))
+            {
+                // if we're parsing this as a raw key and we're in free-text mode, hold shift if it's upper case
+                forcedUppercase = freeText && Char.IsUpper(keyString[0]);
+                return true;
+            }
+            return false;
+        }
+
         public static void releasePressedKey()
         {
             if (keyBeingPressed != null)
