@@ -9,18 +9,72 @@ namespace CrewChiefV4.SRE
 {
     class SREWrapperFactory
     {
-        // TODO: make this an option:
-        public static Boolean useSystem = true;
+        public static Boolean useSystem = UserSettings.GetUserSettings().getBoolean("prefer_system_sre");
 
-        public static SREWrapper createNewSREWrapper()
+        // try to create the preferred SRE impl, fall back to the other type if this isn't available
+        public static SREWrapper createNewSREWrapper(Boolean log = false)
         {
+            SREWrapper sreWrapper = null;
             if (useSystem)
             {
-                return new SystemSREWrapper();
+                sreWrapper = createSystemSREWrapper();
+                if (sreWrapper == null)
+                {
+                    if (log) Console.WriteLine("Unable to create a System SRE, trying with Microsoft SRE");
+                    sreWrapper = createMicrosoftSREWrapper();
+                    if (sreWrapper != null)
+                    {
+                        useSystem = false;
+                        if (log) Console.WriteLine("Falling back to Microsoft SRE");
+                    }
+                }
+                else
+                {
+                    if (log) Console.WriteLine("Successfully initialised preferred System SRE");
+                }
             }
             else
             {
+                sreWrapper = createMicrosoftSREWrapper();
+                if (sreWrapper == null)
+                {
+                    if (log) Console.WriteLine("Unable to create a Microsoft SRE, trying with System SRE");
+                    sreWrapper = createSystemSREWrapper();
+                    if (sreWrapper != null)
+                    {
+                        useSystem = true;
+                        if (log) Console.WriteLine("Falling back to System SRE");
+                    }
+                }
+                else
+                {
+                    if (log) Console.WriteLine("Successfully initialised preferred Microsoft SRE");
+                }
+            }
+            return sreWrapper;
+        }
+
+        private static SREWrapper createMicrosoftSREWrapper()
+        {
+            try
+            {
                 return new MicrosoftSREWrapper();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        private static SREWrapper createSystemSREWrapper()
+        {
+            try
+            {
+                return new SystemSREWrapper();
+            }
+            catch (Exception)
+            {
+                return null;
             }
         }
 

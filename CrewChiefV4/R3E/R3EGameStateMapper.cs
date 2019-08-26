@@ -1845,7 +1845,7 @@ namespace CrewChiefV4.RaceRoom
         {
             if (loadDriverName && CrewChief.enableDriverNames)
             {
-                speechRecogniser.addNewOpponentName(driverName, participantStruct.DriverInfo.CarNumber.ToString());
+                if (speechRecogniser != null) speechRecogniser.addNewOpponentName(driverName, participantStruct.DriverInfo.CarNumber.ToString());
             } 
             OpponentData opponentData = new OpponentData();
             opponentData.DriverRawName = driverName;

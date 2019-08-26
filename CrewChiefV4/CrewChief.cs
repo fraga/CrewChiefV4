@@ -406,6 +406,7 @@ namespace CrewChiefV4
                 SpeechRecogniser.gotRecognitionResult = false;
                 SpeechRecogniser.keepRecognisingInHoldMode = false;
                 GameStateMapper gameStateMapper = GameStateReaderFactory.getInstance().getGameStateMapper(gameDefinition);
+                if (speechRecogniser != null) speechRecogniser.unloadGameSpecificGrammars();
                 gameStateMapper.setSpeechRecogniser(speechRecogniser);
                 gameDataReader = GameStateReaderFactory.getInstance().getGameStateReader(gameDefinition);
                 gameDataReader.ResetGameDataFromFile();

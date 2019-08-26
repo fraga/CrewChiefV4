@@ -786,7 +786,7 @@ namespace CrewChiefV4
             // catch it and tell user to go download.
             try
             {
-                SREWrapperFactory.createNewSREWrapper();
+                SREWrapperFactory.createNewSREWrapper(true);
             }
             catch (Exception e)
             {
@@ -1253,28 +1253,6 @@ namespace CrewChiefV4
             {
                 return;
             }
-            foreach (GrammarWrapper r3eGrammar in r3ePitstopGrammarList)
-            {
-                try
-                {
-                    sreWrapper.UnloadGrammar(r3eGrammar);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Failed to unload R3E grammar: " + e.Message);
-                }
-            }
-            foreach (GrammarWrapper iracingGrammar in iracingPitstopGrammarList)
-            {
-                try
-                {
-                    sreWrapper.UnloadGrammar(iracingGrammar);
-                }
-                catch (Exception e)
-                {
-                    // ignore - we might be switching between games here
-                }
-            }
             try
             {
                 iracingPitstopGrammarList.Clear();
@@ -1314,12 +1292,8 @@ namespace CrewChiefV4
             }
         }
 
-        public void addiRacingSpeechRecogniser()
+        public void unloadGameSpecificGrammars()
         {
-            if (!initialised)
-            {
-                return;
-            }
             foreach (GrammarWrapper iracingGrammar in iracingPitstopGrammarList)
             {
                 try
@@ -1341,6 +1315,14 @@ namespace CrewChiefV4
                 {
                     // ignore - we might be switching between games here
                 }
+            }
+        }
+
+        public void addiRacingSpeechRecogniser()
+        {
+            if (!initialised)
+            {
+                return;
             }
             try
             {

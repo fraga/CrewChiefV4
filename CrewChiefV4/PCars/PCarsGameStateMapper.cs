@@ -1284,7 +1284,7 @@ namespace CrewChiefV4.PCars
                 opponentData.DriverRawName = name;
                 if (CrewChief.enableDriverNames)
                 {
-                    speechRecogniser.addNewOpponentName(opponentData.DriverRawName, "-1");
+                    if (speechRecogniser != null) speechRecogniser.addNewOpponentName(opponentData.DriverRawName, "-1");
                 }
             }
             opponentData.DistanceRoundTrack = distanceRoundTrack;
@@ -1403,7 +1403,7 @@ namespace CrewChiefV4.PCars
             opponentData.DriverNameSet = true;
             if (participantName != null && participantName.Length > 0 && !participantName.StartsWith(NULL_CHAR_STAND_IN) && loadDriverName && CrewChief.enableDriverNames)
             {
-                speechRecogniser.addNewOpponentName(opponentData.DriverRawName, "-1");
+                if (speechRecogniser != null) speechRecogniser.addNewOpponentName(opponentData.DriverRawName, "-1");
             }
             opponentData.OverallPosition = (int)participantStruct.mRacePosition;
             opponentData.CompletedLaps = (int)participantStruct.mLapsCompleted;

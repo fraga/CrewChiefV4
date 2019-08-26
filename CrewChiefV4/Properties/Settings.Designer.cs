@@ -4066,5 +4066,17 @@ namespace CrewChiefV4.Properties {
                 this["enable_radio_beeps"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool prefer_system_sre {
+            get {
+                return ((bool)(this["prefer_system_sre"]));
+            }
+            set {
+                this["prefer_system_sre"] = value;
+            }
+        }
     }
 }

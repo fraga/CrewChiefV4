@@ -1454,7 +1454,7 @@ namespace CrewChiefV4.ACC
             // note that in AC, drivers may be added to the session during the race - we don't want to load these driver names
             if (participantName != null && participantName.Length > 0 && loadDriverName && CrewChief.enableDriverNames && !raceSessionIsUnderway)
             {
-                speechRecogniser.addNewOpponentName(opponentData.DriverRawName, "-1");
+                if (speechRecogniser != null) speechRecogniser.addNewOpponentName(opponentData.DriverRawName, "-1");
             }
 
             // when we first create an opponent use the game-provided leadboard position. Subsequent updates will use the realtime position
