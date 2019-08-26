@@ -138,22 +138,38 @@ namespace CrewChiefV4.Events
                 if (validationData == null)
                     return true;
 
-                /*if ((string)validationData[FrozenOrderMonitor.validateMessageTypeKey] == FrozenOrderMonitor.validateMessageTypeAction)
+                var vmt = validationData[DamageReporting.validateMessageTypeKey] as string;
+                if (vmt == DamageReporting.validateMessageTypeFlatTire)
                 {
-                    var queuedAction = (FrozenOrderAction)validationData[FrozenOrderMonitor.validationActionKey];
-                    var queuedAssignedPosition = (int)validationData[FrozenOrderMonitor.validationAssignedPositionKey];
-                    var queuedDriverToFollow = (string)validationData[FrozenOrderMonitor.validationDriverToFollowKey];
-                    if (queuedAction == currentGameState.FrozenOrderData.Action
-                        && queuedAssignedPosition == currentGameState.FrozenOrderData.AssignedPosition
-                        && queuedDriverToFollow == currentGameState.FrozenOrderData.DriverToFollowRaw)
-                        return true;
-                    else
+                    var puncture = (CornerData.Corners)validationData[DamageReporting.validationFlatTireKey];
+                    if (this.componentDestroyed != Component.NONE)  // If there is any component already destroyed
                     {
-                        Console.WriteLine(string.Format("Frozen Order: message invalidated.  Was {0} {1} {2} is {3} {4} {5}", queuedAction, queuedAssignedPosition, queuedDriverToFollow,
-                            currentGameState.FrozenOrderData.Action, currentGameState.FrozenOrderData.AssignedPosition, currentGameState.FrozenOrderData.DriverToFollowRaw));
+                        // Do not play any message, because it does not matter if tire is flat after suspension is damaged.
+                        Console.WriteLine(string.Format("Not reporting flat tire {0} because {1} is already destroyed", puncture, this.componentDestroyed));
                         return false;
                     }
-                }*/
+                }
+                else if (vmt == DamageReporting.validateMessageTypeDamage)
+                {
+                    var component = (Component)validationData[DamageReporting.validationComponentKey];
+                    var dmgLevel = (DamageLevel)validationData[DamageReporting.validationDamageLevelKey];
+                    if (this.componentDestroyed != Component.NONE   // If there is any component already destroyed
+                        && component != this.componentDestroyed)  // And it is not the current component
+                    {
+                        // Do not play any message, because it does not matter if Aero is minor after suspension is damaged.
+                        Console.WriteLine(string.Format("Not reporting damage {0} for {1} because {2} is already destroyed", dmgLevel, component, this.componentDestroyed));
+                        return false;
+                    }
+
+                    // Make sure that damage level is still valid.
+                    var lastReporteDmgLevel = this.getLastReportedDamageLevel(component);
+                    if (lastReporteDmgLevel > dmgLevel)  // triggerInternal() should prevent double messages for the same damage level.
+                    {
+                        Console.WriteLine(string.Format("Not reporting damage {0} for {1} because last reported damage level is {2}", dmgLevel, component, lastReporteDmgLevel));
+                        return false;
+                    }
+                }
+
                 return true;
             }
             return false;
@@ -445,7 +461,6 @@ namespace CrewChiefV4.Events
                 if (currentGameState.CarDamageData.BrakeDamageStatus.hasValueAtLevel(DamageLevel.DESTROYED))
                 {
                     maxBrakeDamage = DamageLevel.DESTROYED;
-                    componentDestroyed = Component.BRAKES;
                 }
                 else if (currentGameState.CarDamageData.BrakeDamageStatus.hasValueAtLevel(DamageLevel.MAJOR))
                 {
@@ -467,7 +482,6 @@ namespace CrewChiefV4.Events
                 if (currentGameState.CarDamageData.SuspensionDamageStatus.hasValueAtLevel(DamageLevel.DESTROYED))
                 {
                     maxSuspensionDamage = DamageLevel.DESTROYED;
-                    componentDestroyed = Component.SUSPENSION;
                 }
                 else if (currentGameState.CarDamageData.SuspensionDamageStatus.hasValueAtLevel(DamageLevel.MAJOR))
                 {
@@ -876,9 +890,10 @@ namespace CrewChiefV4.Events
             {
                 if (damageToReportNext.Item2 == DamageLevel.DESTROYED)
                 {
+                    componentDestroyed = Component.ENGINE;
                     if (!checkIfDriverIsOK(now, inPitLane))
                     {
-                        playBustedMessage("Damage/busted_engine", folderBustedEngine, majorDamageMsgDelay, majorDamageMsgExpiration, allowRants, validationData);
+                        playBustedComponentMessage("Damage/busted_engine", folderBustedEngine, majorDamageMsgDelay, majorDamageMsgExpiration, allowRants, validationData);
                     }
                 }
                 else if (damageToReportNext.Item2 == DamageLevel.MAJOR)
@@ -894,9 +909,10 @@ namespace CrewChiefV4.Events
             {
                 if (damageToReportNext.Item2 == DamageLevel.DESTROYED)
                 {
+                    componentDestroyed = Component.TRANNY;
                     if (!checkIfDriverIsOK(now, inPitLane))
                     {
-                        playBustedMessage("Damage/busted_transmission", folderBustedTransmission, majorDamageMsgDelay, majorDamageMsgExpiration, allowRants, validationData);
+                        playBustedComponentMessage("Damage/busted_transmission", folderBustedTransmission, majorDamageMsgDelay, majorDamageMsgExpiration, allowRants, validationData);
                     }
                 }
                 else if (damageToReportNext.Item2 == DamageLevel.MAJOR)
@@ -910,11 +926,12 @@ namespace CrewChiefV4.Events
             }
             else if (damageToReportNext.Item1 == Component.SUSPENSION)
             {
+                componentDestroyed = Component.SUSPENSION;
                 if (damageToReportNext.Item2 == DamageLevel.DESTROYED)
                 {
                     if (!checkIfDriverIsOK(now, inPitLane))
                     {
-                        playBustedMessage("Damage/busted_suspension", folderBustedSuspension, majorDamageMsgDelay, majorDamageMsgExpiration, allowRants, validationData);
+                        playBustedComponentMessage("Damage/busted_suspension", folderBustedSuspension, majorDamageMsgDelay, majorDamageMsgExpiration, allowRants, validationData);
                     }
                 }
                 else if (damageToReportNext.Item2 == DamageLevel.MAJOR || isMissingWheel)
@@ -934,6 +951,7 @@ namespace CrewChiefV4.Events
             {
                 if (damageToReportNext.Item2 == DamageLevel.DESTROYED)
                 {
+                    componentDestroyed = Component.BRAKES;
                     audioPlayer.playMessage(new QueuedMessage(folderBustedBrakes, majorDamageMsgExpiration, secondsDelay: majorDamageMsgDelay, abstractEvent: this, priority: 10, validationData: validationData));
                 }
                 else if (damageToReportNext.Item2 == DamageLevel.MAJOR)
@@ -951,6 +969,7 @@ namespace CrewChiefV4.Events
                 {
                     if (!checkIfDriverIsOK(now, inPitLane))
                     {
+                        componentDestroyed = Component.AERO;
                         audioPlayer.playMessage(new QueuedMessage(folderSevereAeroDamage, majorDamageMsgExpiration, secondsDelay: majorDamageMsgDelay, abstractEvent: this, priority: 10, validationData: validationData));
                     }
                 }
@@ -964,12 +983,12 @@ namespace CrewChiefV4.Events
                 }
                 else if (damageToReportNext.Item2 == DamageLevel.TRIVIAL)
                 {
-                    audioPlayer.playMessage(new QueuedMessage(folderJustAScratch, minorDamageMsgExpiration, secondsDelay: minorDamageMsgDelay, abstractEvent: this, priority: 3));
+                    audioPlayer.playMessage(new QueuedMessage(folderJustAScratch, minorDamageMsgExpiration, secondsDelay: minorDamageMsgDelay, abstractEvent: this, priority: 3, validationData: validationData));
                 }
             }
         }
 
-        private void playBustedMessage(string messageName, string messageFolder, int majorDamageMsgDelay, int majorDamageMsgExpiration, bool allowRants, Dictionary<string, object> validationData)
+        private void playBustedComponentMessage(string messageName, string messageFolder, int majorDamageMsgDelay, int majorDamageMsgExpiration, bool allowRants, Dictionary<string, object> validationData)
         {
             var messageFragments = new List<MessageFragment>();
             messageFragments.Add(MessageFragment.Text(messageFolder));
