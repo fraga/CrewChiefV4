@@ -1630,15 +1630,15 @@ namespace CrewChiefV4
                         Console.WriteLine("chat recognised: " + recognisedText);
                         if (recognisedText.StartsWith(chatContextStart))
                         {
-                            string chatText = recognisedText.TrimStart(chatContextStart.ToCharArray());
-                            Console.WriteLine("Sending chat text " + chatText);
+                            string chatText = recognisedText.TrimStart(chatContextStart.ToCharArray());                            
                             getStartChatMacro().execute("", true, false);
+                            Console.WriteLine("Sending chat text " + chatText);
                             for (int charIndex = 0; charIndex < chatText.Length; charIndex++)
                             {
                                 KeyPresser.KeyCode keyCode;
                                 Boolean forcedUpperCase;
                                 KeyPresser.parseKeycode(chatText[charIndex].ToString(), true, out keyCode, out forcedUpperCase);
-                                Console.WriteLine("key code = " + keyCode);
+                                // Console.WriteLine("key code = " + keyCode);
                                 KeyPresser.SendScanCodeKeyPress(keyCode, forcedUpperCase, 20);
                                 Thread.Sleep(20);
                             }
