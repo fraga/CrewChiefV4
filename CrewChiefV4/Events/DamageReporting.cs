@@ -145,7 +145,7 @@ namespace CrewChiefV4.Events
                     if (this.componentDestroyed != Component.NONE)  // If there is any component already destroyed
                     {
                         // Do not play any message, because it does not matter if tire is flat after suspension is damaged.
-                        Console.WriteLine(string.Format("Not reporting flat tire {0} because {1} is already destroyed", puncture, this.componentDestroyed));
+                        Console.WriteLine(string.Format("Message no longer valid: flat tire {0} because component {1} is already destroyed", puncture, this.componentDestroyed));
                         return false;
                     }
                 }
@@ -157,7 +157,7 @@ namespace CrewChiefV4.Events
                         && component != this.componentDestroyed)  // And it is not the current component
                     {
                         // Do not play any message, because it does not matter if Aero is minor after suspension is damaged.
-                        Console.WriteLine(string.Format("Not reporting damage {0} for {1} because {2} is already destroyed", dmgLevel, component, this.componentDestroyed));
+                        Console.WriteLine(string.Format("Message no longer valid: level {0} component {1} because {2} is already destroyed", dmgLevel, component, this.componentDestroyed));
                         return false;
                     }
 
@@ -165,7 +165,7 @@ namespace CrewChiefV4.Events
                     var lastReporteDmgLevel = this.getLastReportedDamageLevel(component);
                     if (lastReporteDmgLevel > dmgLevel)  // triggerInternal() should prevent double messages for the same damage level.
                     {
-                        Console.WriteLine(string.Format("Not reporting damage {0} for {1} because last reported damage level is {2}", dmgLevel, component, lastReporteDmgLevel));
+                        Console.WriteLine(string.Format("Message no longer valid: level {0} component {1} because last reported damage level is {2}", dmgLevel, component, lastReporteDmgLevel));
                         return false;
                     }
                 }
@@ -856,6 +856,14 @@ namespace CrewChiefV4.Events
 
         private void playDamageToReport(Boolean allowRants, DateTime now, Boolean inPitLane)
         {
+            if (componentDestroyed != Component.NONE  // If there is any component already destroyed
+                && damageToReportNext.Item1 != componentDestroyed)  // And it is not the current component
+            {
+                // Do not play any message, because it does not matter if Aero is minor after suspension is damaged.
+                Console.WriteLine(string.Format("Not reporting damage: level {0} component {1} because {2} is already destroyed", damageToReportNext.Item2, damageToReportNext.Item1, componentDestroyed));
+                return;
+            }
+
             if (isMissingWheel || damageToReportNext.Item2 > DamageLevel.MINOR)
             {
                 // missing wheel or major damage, so don't play other messages that might be queued - note this won't interrupt an
@@ -867,14 +875,6 @@ namespace CrewChiefV4.Events
                     audioPlayer.disablePearlsOfWisdom = true;
                 }
             }
-            /*if (componentDestroyed != Component.NONE  // If there is any component already destroyed
-                && damageToReportNext.Item1 != componentDestroyed)  // And it is not the current component
-            {
-                // Do not play any message, because it does not matter if Aero is minor after suspension is damaged.
-                // TODO_MSG_DELAY: this needs revisiting with delayed messages.
-                Console.WriteLine(string.Format("Not reporting damage {0} for {1} because {2} is already destroyed", damageToReportNext.Item2, damageToReportNext.Item1, componentDestroyed));
-                return;
-            }*/
 
             var validationData = new Dictionary<string, object>();
             validationData.Add(DamageReporting.validateMessageTypeKey, DamageReporting.validateMessageTypeDamage);
