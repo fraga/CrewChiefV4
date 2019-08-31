@@ -327,7 +327,7 @@ namespace CrewChiefV4
         private Boolean useFreeDictationForChatMessages = UserSettings.GetUserSettings().getBoolean("use_free_dictation_for_chat");
         private static string startChatMacroName = "start chat message";
         private static string endChatMacroName = "end chat message";
-        private static string chatContextStart = "message";
+        private static string chatContextStart = UserSettings.GetUserSettings().getString("free_dictation_chat_start_word");
         private string chatContextEnd = null;
         private GrammarWrapper chatDictationGrammar;
         private static ExecutableCommandMacro startChatMacro = null;

@@ -1014,10 +1014,13 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="prefer_system_sre" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
+      <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="use_free_dictation_for_chat" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="free_dictation_chat_start_word" Type="System.String" Scope="User">
+      <Value Profile="(Default)">chat</Value>
     </Setting>
   </Settings>
 </SettingsFile>

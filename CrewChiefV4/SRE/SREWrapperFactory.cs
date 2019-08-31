@@ -65,6 +65,7 @@ namespace CrewChiefV4.SRE
         public static void LoadChatDictationGrammar(SREWrapper sreWrapper, GrammarWrapper dictationGrammarWrapper, String dictationContextStart, String dictationContextEnd)
         {
             System.Speech.Recognition.DictationGrammar dictationGrammar = (System.Speech.Recognition.DictationGrammar)dictationGrammarWrapper.GetInternalGrammar();
+            dictationGrammar.Weight = 0.2f;
             ((System.Speech.Recognition.SpeechRecognitionEngine)sreWrapper.GetInternalSRE()).LoadGrammar(dictationGrammar);
             dictationGrammar.SetDictationContext(dictationContextStart, dictationContextEnd);
         }
