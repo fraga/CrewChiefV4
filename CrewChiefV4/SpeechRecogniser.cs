@@ -1664,7 +1664,7 @@ namespace CrewChiefV4
                     }
                     else if (recognitionConfidence > minimum_voice_recognition_confidence)
                     {
-                        if (macroGrammar.GetInternalGrammar() == recognitionGrammar && macroLookup.ContainsKey(recognisedText))
+                        if (macroGrammar != null && macroGrammar.GetInternalGrammar() == recognitionGrammar && macroLookup.ContainsKey(recognisedText))
                         {
                             this.lastRecognisedText = recognisedText;
                             macroLookup[recognisedText].execute(recognisedText, false, true);
