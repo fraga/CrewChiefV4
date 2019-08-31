@@ -1644,6 +1644,10 @@ namespace CrewChiefV4
                             }
                             getEndChatMacro().execute("", true, false);
                         }
+                        else
+                        {
+                            Console.WriteLine("Chat message doesn't appear to start with context " + chatContextStart + " so will not be executed");
+                        }
                     }
                     else if (GrammarWrapperListContains(opponentGrammarList, recognitionGrammar))
                     {
