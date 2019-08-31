@@ -17,7 +17,7 @@ namespace CrewChiefV4
              "andreas christiansen", "greg metcalf", "Aditas H1Z1Cases.com.", /* TODO: remove bruno in a future update */"Bruno Bæ",
              "maciej bugno", "patrick schilhan" /*as reward for your "make r3e app free" campaign.*/,
              "tim heinemann", "Josh Cassar", "Jesse Hoppo", "markus grönthal", "joan moreno", "N.Quinque", "epsilon",
-             "^1!^5c^3hrist ^5i^3n ^5a^3ction", "slightly mad", "dickovens", "Pyromaniac"};
+             "^1!^5c^3hrist ^5i^3n ^5a^3ction", "slightly mad", "dickovens", "Pyromaniac", "luismat112"};
 
 
           public static void validate(String str)
