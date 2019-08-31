@@ -1664,7 +1664,7 @@ namespace CrewChiefV4
                     }
                     else if (recognitionConfidence > minimum_voice_recognition_confidence)
                     {
-                        if (macroGrammar.GetInternalGrammar() == recognitionGrammar && macroLookup.ContainsKey(recognisedText))
+                        if (macroGrammar != null && macroGrammar.GetInternalGrammar() == recognitionGrammar && macroLookup.ContainsKey(recognisedText))
                         {
                             this.lastRecognisedText = recognisedText;
                             macroLookup[recognisedText].execute(recognisedText, false, true);
@@ -1727,7 +1727,7 @@ namespace CrewChiefV4
             }
             catch (Exception exception)
             {
-                Console.WriteLine("Unable to respond - error message: " + exception.Message);
+                Console.WriteLine("Unable to respond - error message: " + exception.Message + " stack "+ exception.StackTrace);
             }
 
             // 'stop' the recogniser if we're ALWAYS_ON (because we restart it below) or TOGGLE

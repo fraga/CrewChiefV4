@@ -85,13 +85,15 @@ namespace CrewChiefV4
         }
 
         public static String getDefaultFileLocation(String filename) {
+            String regularPath = Application.StartupPath + @"\" + filename;
+            String debugPath = Application.StartupPath + @"\..\..\" + filename;
             if (CrewChief.UseDebugFilePaths)
             {
-                return Application.StartupPath + @"\..\..\" + filename;
+                return File.Exists(debugPath) ? debugPath : regularPath;
             }
             else
             {
-                return Application.StartupPath + @"\" + filename;
+                return File.Exists(regularPath) ? regularPath : debugPath;
             }
         }
 
