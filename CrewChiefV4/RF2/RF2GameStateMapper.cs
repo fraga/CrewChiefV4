@@ -1433,7 +1433,7 @@ namespace CrewChiefV4.rFactor2
 
                 if (opponent.DriverNameSet && opponentPrevious == null && CrewChief.enableDriverNames)
                 {
-                    if (!csd.IsNewSession)
+                    if (!csd.IsNewSession && this.speechRecogniser != null)
                         this.speechRecogniser.addNewOpponentName(opponent.DriverRawName, "-1");
 
                     Console.WriteLine("New driver \"" + driverName +

@@ -1999,7 +1999,7 @@ namespace CrewChiefV4.assetto
             // note that in AC, drivers may be added to the session during the race - we don't want to load these driver names
             if (participantName != null && participantName.Length > 0 && loadDriverName && CrewChief.enableDriverNames && !raceSessionIsUnderway)
             {
-                speechRecogniser.addNewOpponentName(opponentData.DriverRawName, "-1");
+                if (speechRecogniser != null) speechRecogniser.addNewOpponentName(opponentData.DriverRawName, "-1");
             }
 
             opponentData.OverallPosition = (int)participantStruct.carLeaderboardPosition;

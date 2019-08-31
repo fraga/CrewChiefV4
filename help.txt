@@ -93,12 +93,18 @@ At the time of writing there's more work to be done here and some more features 
 
 Voice Recognition
 -------------------------
-You'll need to install the Microsoft Speech Recognition runtime which is here: https://www.microsoft.com/en-gb/download/details.aspx?id=27225
+There are two voice recognition systems which Crew Chief can use. The first of these is optimised for noisy environments and poor quality sound input. This is the default option. It requires no training and works with a wide range of microphone types and accents, but it requires a separate runtime installation and a language pack. This system is referred to as the "Microsoft speech recognition engine". The other system uses the speech recognition system built in to Windows. This requires a better quality voice input signal than the default system but can be trained to recognise a user's individual voice. It does not require the installation of any additional components. This system is referred to as the "Windows speech recognition engine".
+
+Which is best depends on the quality of your microphone, your voice, the amount of background noise, and countless other factors. It's worth trying both and seeing which gives the best results.
+
+If you want to use the Windows speech recognition engine simply ensure that the 'Prefer Windows speech recogniser' option is checked on the Properties screen. You will get better results if you work through the speech recognition training process in Windows.
+
+If you want to use the default Microsoft voice recognition system, you'll need to install the Microsoft Speech Recognition runtime which is here: https://www.microsoft.com/en-gb/download/details.aspx?id=27225
 From this page click 'Download' and select the right version - for most users this will be x64_SpeechPlatformRuntime\SpeechPlatformRuntime.msi
 Once you've installed this, you'll also need to install a language pack - https://www.microsoft.com/en-gb/download/details.aspx?id=27224 
 Again, from this page click 'Download' and select the right version - for most users this will be MSSpeech_SR_en-US_TELE.msi (US users) or MSSpeech_SR_en-GB_TELE.msi (UK users).
 
-This is not the same as the voice recognition technology built into Windows - it isn't installed with Windows by default.
+Note that the app will fall back to using the Windows speech recognition engine if it can't find a working installation of the Microsoft speech recognition engine.
 
 Crew Chief will use the "Default" recording device for voice recognition - this can be selected in the "Recording devices" section of the Window Sounds control panel.
 
@@ -228,6 +234,13 @@ R3E-specific pit commands:
 "pitstop option tyres:" / "box, option tyres"
 "pitstop alternate tyres" / "box, alternate tyres"
 "what are the pit actions" / "what's the pitstop plan" (reports the selected actions for the next pitstop)
+
+
+Free dictation chat messages (experimental, iRacing, pCars2 and R3E only)
+-------------------------------------------------------------------------
+The app can attempt to recognise a chat message if it's using the Windows speech recognition engine (the one built into Windows that requires training). This feature can be enabled with the 'Enable free dictation chat messages' property. The app will expect the message to start with the 'Chat free dictation start word' property value (default is "chat"). If this feature is enabled and you make a voice command that starts with this word, the app will attempt to recognise all the speech input after this word. It will execute the "start chat macro" macro (presses the chat key - 't' or 'c' depending on the game), then it'll type the characters of the recognised speech, then execute the "end chat macro" macro (presses the 'enter' key).
+
+For example, if you make a voice command "chat, good luck everyone" the app will press the key to activate the in-game chat, type 'good luck everyone' and press end. If it works. Note that this is heavily dependent on the accuracy of the free dictation speech recogniser and is just as likely to type 'good book ever known' or other such nonsense. I *strongly* recommend going through the speech recognition training process fully before using this feature. It's also a good idea to test it with Notepad or another text editor running in the foreground first so you can see what it would actually be typing when you make a command. 
 
 
 

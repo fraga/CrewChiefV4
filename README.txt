@@ -18,9 +18,17 @@ You need to install .net 4.5 or above to use the app. Download the CrewChiefV4.m
 
 Running with voice recognition
 ------------------------------
-If you want to use voice recognition, download the correct speech recognition installers for your system (speech_recognition_32bit.zip or speech_recognition_64bit.zip). Run SpeechPlatformRuntime.msi (this is the MS speech recognition engine), then run MSSpeech_SR_en-GB_TELE.msi or MSSpeech_SR_en-US_TELE.msi depending on your preferred accent (these are the 'cultural info' installers). If you want to use US speech recognition (MSSpeech_SR_en-US_TELE.msi) you must modify the "speech_recognition_location" property to "en-US". This can be done by editing CrewChiefV4.exe.config, or by modifying the property value in the application's Properties area. If you're happy with en-GB you don't need to do anything other than run the 2 speech recognition installers.
+There are two voice recognition systems which Crew Chief can use. The first of these is optimised for noisy environments and poor quality sound input. This is the default option. It requires no training and works with a wide range of microphone types and accents, but it requires a separate runtime installation and a language pack. This system is referred to as the "Microsoft speech recognition engine". The other system uses the speech recognition system built in to Windows. This requires a better quality voice input signal than the default system but can be trained to recognise a user's individual voice. It does not require the installation of any additional components. This system is referred to as the "Windows speech recognition engine".
 
-For speech recognition, you need a microphone configured as the default "Recording" device in Windows.
+Which is best depends on the quality of your microphone, your voice, the amount of background noise, and countless other factors. It's worth trying both and seeing which gives the best results.
+
+If you want to use the Windows speech recognition engine simply ensure that the 'Prefer Windows speech recogniser' option is checked on the Properties screen. You will get better results if you work through the speech recognition training process in Windows.
+
+If you want to use the default Microsoft voice recognition system, download the correct speech recognition installers for your system (speech_recognition_32bit.zip or speech_recognition_64bit.zip). Run SpeechPlatformRuntime.msi (this is the MS speech recognition engine), then run MSSpeech_SR_en-GB_TELE.msi or MSSpeech_SR_en-US_TELE.msi depending on your preferred accent (these are the 'cultural info' installers). If you want to use US speech recognition (MSSpeech_SR_en-US_TELE.msi) you must modify the "speech_recognition_location" property to "en-US". This can be done by editing CrewChiefV4.exe.config, or by modifying the property value in the application's Properties area. If you're happy with en-GB you don't need to do anything other than run the 2 speech recognition installers.
+
+Note that the app will fall back to using the Windows speech recognition engine if it can't find a working installation of the Microsoft speech recognition engine.
+
+For both speech recognition systems, you need a microphone configured as the default "Recording" device in Windows.
 
 To get started, run CrewChiefV4.exe and choose a "Voice recognition mode". There are 4 modes (the radio buttons at the bottom right). "Disabled" means that the app won't attempt any speech recognition. "Hold button" means you have to hold down a button while you speak, and release the button when you're finished. "Toggle button" means you press and release a button to start the speech recognition, and the app will listen until it hears a voice command. "Always on" means the app is always listening for and processing speech commands. "Trigger word" means the app is always listening for a particular word or phrase (default "Chief", can be changed). When it hears this trigger it'll start listening for a regular voice command - a bit like the approach taken with Alexa / OK Google. Selecting "Disabled", "Always on" or "Trigger word" from this list makes the app ignore the button assigned to "Talk to crew chief".
 
@@ -138,6 +146,12 @@ Speech recognition customisation
 --------------------------------
 If you want to change the phrases the app listens for (e.g. instead of asking "how's my tyre wear", perhaps you want to as "how's my boots looking"), create a file called "speech_recognition_config.txt" in [user]\AppData\Local\CrewChiefV4 and use this to override the defaults found in [installDir]\speech_recognition_config.txt
 
+
+Free dictation chat messages (experimental, iRacing, pCars2 and R3E only)
+-------------------------------------------------------------------------
+The app can attempt to recognise a chat message if it's using the Windows speech recognition engine (the one built into Windows that requires training). This feature can be enabled with the 'Enable free dictation chat messages' property. The app will expect the message to start with the 'Chat free dictation start word' property value (default is "chat"). If this feature is enabled and you make a voice command that starts with this word, the app will attempt to recognise all the speech input after this word. It will execute the "start chat macro" macro (presses the chat key - 't' or 'c' depending on the game), then it'll type the characters of the recognised speech, then execute the "end chat macro" macro (presses the 'enter' key).
+
+For example, if you make a voice command "chat, good luck everyone" the app will press the key to activate the in-game chat, type 'good luck everyone' and press end. If it works. Note that this is heavily dependent on the accuracy of the free dictation speech recogniser and is just as likely to type 'good book ever known' or other such nonsense. I *strongly* recommend going through the speech recognition training process fully before using this feature. It's also a good idea to test it with Notepad or another text editor running in the foreground first so you can see what it would actually be typing when you make a command. 
 
 
 Other button assignments
@@ -274,6 +288,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.9.9.0: Reworked speech recognisers to allow it to use the built-in Windows speech recognition, which may benefit from being trained to you voice. To enable this, enable the 'Prefer Windows speech recogniser' option in the Properties screen; Added experimental free-text chat feature for Raceroom, pCars2 and iRacing only - enable with 'Enable free dictation chat messages' property. To use this you must have Windows speech recognition enabled and you'll need to delete Documents\CrewChiefV4\saved_command_macros.json before launching the app (so the app can add a couple of new macro definitions). Read what out you want to say as you would with any other command, starting with "chat" - e.g. "chat, hello everyone" or "chat, this is a test chat message". The app will start the chat by executing the "start chat message" macro which presses C (raceroom) or T (iRacing / pCars2), type in the recognised text after "chat", then end the chat by executing the "end chat message" macro (which just presses enter). Note that this may produce some weird results if the speech recogniser doesn't accurately interpret what you're saying
+
 Version 4.9.8.24: ACC - fix stale opponents not being cleared from internal state (should fix incorrect incident calls when players disconnect); ACC - mapped corner positions for Spa and Barcelona, corrected Monza mapping; R3E - added missing WTCR 2019 class (this is now correctly grouped with WTCR 2018)
 
 Version 4.9.8.22: Fix for updates requiring 2 restarts in order to correctly load the user's settings; ACC - fix various issues including multipler bugs, missing pit exit / entry messages, incorrect mandatory pit stop window messages, missing flag messages, missing track landmark mappings (not every track yet) and a few other bits and bobs; iRacing - fixed a nasty bug where a particular set of unexpected car class data from the game could make the app unresponsive

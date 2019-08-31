@@ -1565,3 +1565,18 @@ enable_radio_beeps = Enable radio beeps
 enable_radio_beeps_help = Play a beep before the Chief starts talking
 enable_radio_beeps_category = AUDIO_VOICE_AND_CONTROLLERS
 enable_radio_beeps_metadata = RESTART_REQUIRED
+
+prefer_system_sre = Prefer Windows speech recogniser
+prefer_system_sre_help = Use Windows' built-in speech recogniser, can be trained to your voice
+prefer_system_sre_category = AUDIO_VOICE_AND_CONTROLLERS
+prefer_system_sre_metadata = RESTART_REQUIRED
+
+use_free_dictation_for_chat = Enable free dictation chat messages (experimental)
+use_free_dictation_for_chat_help = Use free dictation for chat messages (Windows Speech recogniser only)
+use_free_dictation_for_chat_category = AUDIO_VOICE_AND_CONTROLLERS
+use_free_dictation_for_chat_metadata = RESTART_REQUIRED
+
+free_dictation_chat_start_word = Chat free dictation start word
+free_dictation_chat_start_word_help = Say this word before dictating a chat message
+free_dictation_chat_start_word_category = AUDIO_VOICE_AND_CONTROLLERS
+free_dictation_chat_start_word_metadata = RESTART_REQUIRED

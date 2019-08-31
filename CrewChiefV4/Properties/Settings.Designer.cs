@@ -4066,5 +4066,41 @@ namespace CrewChiefV4.Properties {
                 this["enable_radio_beeps"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool prefer_system_sre {
+            get {
+                return ((bool)(this["prefer_system_sre"]));
+            }
+            set {
+                this["prefer_system_sre"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool use_free_dictation_for_chat {
+            get {
+                return ((bool)(this["use_free_dictation_for_chat"]));
+            }
+            set {
+                this["use_free_dictation_for_chat"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("chat")]
+        public string free_dictation_chat_start_word {
+            get {
+                return ((string)(this["free_dictation_chat_start_word"]));
+            }
+            set {
+                this["free_dictation_chat_start_word"] = value;
+            }
+        }
     }
 }

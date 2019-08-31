@@ -487,7 +487,7 @@ namespace CrewChiefV4.commands
                     this.keyCodes = new KeyPresser.KeyCode[1];
                     this.forcedUpperCases = new Boolean[] { false };
                     // try and get it directly without going through the key bindings
-                    parsedSuccessfully = parseKeycode(action, false, out this.keyCodes[0], out this.forcedUpperCases[0]);
+                    parsedSuccessfully = KeyPresser.parseKeycode(action, false, out this.keyCodes[0], out this.forcedUpperCases[0]);
                     if (!parsedSuccessfully)
                     {
                         if (allowFreeText)
@@ -498,7 +498,7 @@ namespace CrewChiefV4.commands
                             this.forcedUpperCases = new Boolean[action.Length];
                             for (int i = 0; i < action.Length; i++)
                             {
-                                parsedSuccessfully = parseKeycode(action[i].ToString(), true, out this.keyCodes[i], out this.forcedUpperCases[i]);
+                                parsedSuccessfully = KeyPresser.parseKeycode(action[i].ToString(), true, out this.keyCodes[i], out this.forcedUpperCases[i]);
                                 if (!parsedSuccessfully)
                                 {
                                     Console.WriteLine("Unable to convert character " + action[i] + " to a key press");
@@ -525,47 +525,6 @@ namespace CrewChiefV4.commands
             {
                 parsedSuccessfully = extendedType != null;
             }
-        }
-
-        private Boolean parseKeycode(String keyString, Boolean freeText, out KeyPresser.KeyCode keyCode, out Boolean forcedUppercase)
-        {
-            // assume we don't need to hold shift for this press:
-            forcedUppercase = false;
-            // some character literal replacements, only applicable to free text macros:
-            if (freeText)
-            {
-                if (",".Equals(keyString))
-                {
-                    keyCode = KeyPresser.KeyCode.OEM_COMMA;
-                    return true;
-                }
-                if (" ".Equals(keyString))
-                {
-                    keyCode = KeyPresser.KeyCode.SPACE_BAR;
-                    return true;
-                }
-                if (".".Equals(keyString))
-                {
-                    keyCode = KeyPresser.KeyCode.OEM_PERIOD;
-                    return true;
-                }
-                if ("-".Equals(keyString))
-                {
-                    keyCode = KeyPresser.KeyCode.OEM_MINUS;
-                    return true;
-                }
-            }
-            if (Enum.TryParse(keyString, true, out keyCode))
-            {
-                return true;
-            }
-            if (Enum.TryParse("KEY_" + keyString, true, out keyCode))
-            {
-                // if we're parsing this as a raw key and we're in free-text mode, hold shift if it's upper case
-                forcedUppercase = freeText && Char.IsUpper(keyString[0]);
-                return true;
-            }
-            return false;
         }
 
         public override String ToString()

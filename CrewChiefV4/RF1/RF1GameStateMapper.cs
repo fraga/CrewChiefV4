@@ -769,7 +769,7 @@ namespace CrewChiefV4.rFactor1
                 opponent.OverallPosition = vehicle.place;
                 if (opponent.DriverNameSet && opponentPrevious == null && CrewChief.enableDriverNames)
                 {
-                    speechRecogniser.addNewOpponentName(opponent.DriverRawName, "-1");
+                    if (speechRecogniser != null) speechRecogniser.addNewOpponentName(opponent.DriverRawName, "-1");
                     Console.WriteLine("New driver " + opponent.DriverRawName + 
                         " is using car class " + opponent.CarClass.getClassIdentifier() +
                         " at position " + opponent.OverallPosition.ToString());

@@ -1371,7 +1371,7 @@ namespace CrewChiefV4.PCars2
             opponentData.DriverNameSet = true;
             if (participantName != null && participantName.Length > 0 && loadDriverName && CrewChief.enableDriverNames)
             {
-                speechRecogniser.addNewOpponentName(opponentData.DriverRawName, "-1");
+                if (speechRecogniser != null) speechRecogniser.addNewOpponentName(opponentData.DriverRawName, "-1");
             }
             opponentData.OverallPosition = (int)participantStruct.mRacePosition;
             opponentData.CompletedLaps = (int)participantStruct.mLapsCompleted;
