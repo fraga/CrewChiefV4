@@ -162,7 +162,7 @@ HOW_ARE_MY_TYRE_PRESSURES_RIGHT_NOW = how are my pressures right now: how are my
 
 WHAT_ARE_THE_PIT_ACTIONS = what are the pit actions:what's the pitstop plan
 
-STOP_COMPLAINING = stop complaining; stop grumbling; fuck off
+STOP_COMPLAINING = stop complaining:stop grumbling:fuck off
 
 #################################################
 # Dynamic recognition phrase fragments - these are used to build up recognition sentences for opponent information.
