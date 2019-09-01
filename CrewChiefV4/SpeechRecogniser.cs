@@ -1650,6 +1650,8 @@ namespace CrewChiefV4
                         else
                         {
                             Console.WriteLine("Chat message doesn't appear to start with context " + chatContextStart + " so will not be executed");
+                            crewChief.youWot(true);
+                            youWot = true;
                         }
                     }
                     else if (GrammarWrapperListContains(opponentGrammarList, recognitionGrammar))
