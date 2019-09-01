@@ -91,6 +91,7 @@ namespace CrewChiefV4.Events
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.STOP_COMPLAINING, false))
             {
                 GlobalBehaviourSettings.complaintsDisabled = true;
+                Console.WriteLine("Disabling complaining messages for this session");
                 audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
             }
 
