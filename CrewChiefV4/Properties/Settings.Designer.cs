@@ -4102,5 +4102,17 @@ namespace CrewChiefV4.Properties {
                 this["free_dictation_chat_start_word"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        public int max_complaints_per_session {
+            get {
+                return ((int)(this["max_complaints_per_session"]));
+            }
+            set {
+                this["max_complaints_per_session"] = value;
+            }
+        }
     }
 }

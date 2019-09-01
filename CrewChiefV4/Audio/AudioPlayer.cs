@@ -140,7 +140,7 @@ namespace CrewChiefV4.Audio
         private Thread playDelayedImmediateMessageThread = null;
         private Thread pauseQueueThread = null;
         private Thread hangingChannelCloseThread = null;
-
+        
         static AudioPlayer()
         {
             // Inintialize sound file paths.  Handle user specified override, or pick default.
@@ -1425,6 +1425,13 @@ namespace CrewChiefV4.Audio
         // a 'keep it up' message in a block that contains a 'your lap times are worsening' message
         private Boolean checkPearlOfWisdomValid(PearlsOfWisdom.PearlType newPearlType)
         {
+            if (newPearlType == PearlsOfWisdom.PearlType.BAD)
+            {
+                if (GlobalBehaviourSettings.complaintsDisabled || GlobalBehaviourSettings.complaintsCountInThisSession > GlobalBehaviourSettings.maxComplaintsPerSession)
+                {
+                    return false;
+                }
+            }
             Boolean isValid = true;
             if (queuedClips != null && queuedClips.Count > 0)
             {
@@ -1446,6 +1453,10 @@ namespace CrewChiefV4.Audio
                     queuedClips.Remove(pearlToPurge);
                     Console.WriteLine("Queue contains a pearl " + pearlToPurge + " which conflicts with " + newPearlType);
                 }
+            }
+            if (isValid && newPearlType == PearlsOfWisdom.PearlType.BAD)
+            {
+                GlobalBehaviourSettings.complaintsCountInThisSession++;
             }
             return isValid;
         }
