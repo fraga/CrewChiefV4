@@ -1633,9 +1633,9 @@ namespace CrewChiefV4
                         Console.WriteLine("chat recognised: " + recognisedText);
                         if (recognisedText.StartsWith(chatContextStart))
                         {
-                            string chatText = recognisedText.TrimStart(chatContextStart.ToCharArray());                            
+                            string chatText = recognisedText.TrimStart(chatContextStart.ToCharArray()).Trim();
                             getStartChatMacro().execute("", true, false);
-                            Console.WriteLine("Sending chat text " + chatText);
+                            Console.WriteLine("Sending chat text \"" + chatText + "\"");
                             for (int charIndex = 0; charIndex < chatText.Length; charIndex++)
                             {
                                 KeyPresser.KeyCode keyCode;
