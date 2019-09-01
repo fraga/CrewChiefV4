@@ -319,7 +319,8 @@ namespace CrewChiefV4
             // update actions and add assignments            
             buttonAssignments = controllerConfigurationData.buttonAssignments.Where(ba => ba.availableAction).ToList();
             controllers = controllerConfigurationData.devices;
-            ButtonAssignment networkAssignment = buttonAssignments.SingleOrDefault(ba => ba.deviceGuid == UDP_NETWORK_CONTROLLER_GUID.ToString());
+            // check if any of the assignments use the network controller, and if so add it to the list
+            ButtonAssignment networkAssignment = buttonAssignments.FirstOrDefault(ba => ba.deviceGuid == UDP_NETWORK_CONTROLLER_GUID.ToString());
             if (networkAssignment != null)
             {
                 addNetworkControllerToList();
