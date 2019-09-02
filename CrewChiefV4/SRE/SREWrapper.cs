@@ -13,7 +13,7 @@ namespace CrewChiefV4.SRE
         void LoadGrammar(GrammarWrapper grammar);
         void AddSpeechRecognizedCallback(Object callback); // internalRealSRE += (CAST to EventHandler<SpeechRecognizedEventArgs>) new EventHandler<SpeechRecognizedEventArgs>(sre_SpeechRecognized);
         void RecognizeAsync();
-        void SetInputToAudioStream(RingBufferStream.RingBufferStream stream, Object format);     // cast format to [Microsoft].Speech.AudioFormat.SpeechAudioFormatInfo
+        void SetInputToAudioStream(RingBufferStream.RingBufferStream stream, int rate, int depth, int channelCount);
 
         void RecognizeAsyncCancel();
         void SetInputToDefaultAudioDevice();

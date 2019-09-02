@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using System.Diagnostics;
 using CrewChiefV4.R3E;
 using CrewChiefV4.SRE;
+using System.Globalization;
 
 namespace CrewChiefV4
 {
@@ -291,7 +292,7 @@ namespace CrewChiefV4
 
         private Dictionary<String, ExecutableCommandMacro> macroLookup = new Dictionary<string, ExecutableCommandMacro>();
 
-        private System.Globalization.CultureInfo cultureInfo;
+        private CultureInfo cultureInfo;
 
         public static Dictionary<String[], String> carNumberToNumber = getCarNumberMappings();
 
@@ -673,48 +674,19 @@ namespace CrewChiefV4
             {
                 return false;
             }
-
-            String overrideCountry = null;
-            if (localeCountryPropertySetting != null && localeCountryPropertySetting.Length == 2)
-            {
-                overrideCountry = localeCountryPropertySetting.ToUpper();
-            }
-            // for backwards compatibility
-            Boolean useDefaultLocaleInsteadOfLanguage = sreConfigDefaultLocaleSetting != null && sreConfigDefaultLocaleSetting.Length > 0;
-
-            Tuple<String, String> sreConfigLangAndCountry = parseLocalePropertyValue(useDefaultLocaleInsteadOfLanguage ? sreConfigDefaultLocaleSetting : sreConfigLanguageSetting);
-            String sreConfigLang = sreConfigLangAndCountry.Item1;
-            String sreConfigCountry = sreConfigLangAndCountry.Item2;
-
-            String langToUse = sreConfigLang;
-            String countryToUse = overrideCountry != null ? overrideCountry : sreConfigCountry;
-            String langAndCountryToUse = countryToUse != null ? langToUse + "-" + countryToUse : null;
-
-            if (langAndCountryToUse != null)
-            {
-                Console.WriteLine("Attempting to get recogniser for " + langAndCountryToUse);
-                cultureInfo = SREWrapperFactory.GetCultureInfo(langAndCountryToUse);
-            }
-            if (cultureInfo == null)
-            {
-                if (langAndCountryToUse != null)
-                {
-                    Console.WriteLine("Failed to get recogniser for " + langAndCountryToUse);
-                }
-                Console.WriteLine("Attempting to get recogniser for " + langToUse);
-                cultureInfo = SREWrapperFactory.GetCultureInfo(langToUse);
-            }
+            LangCodes langCodes = getLangCodes();
+            this.cultureInfo = getCultureInfo(langCodes, true);
 
             if (cultureInfo != null)
             {
                 Console.WriteLine("Got SRE for " + cultureInfo);
-                this.sreWrapper = SREWrapperFactory.createNewSREWrapper();
-                this.triggerSreWrapper = SREWrapperFactory.createNewSREWrapper();
+                this.sreWrapper = SREWrapperFactory.createNewSREWrapper(cultureInfo);
+                this.triggerSreWrapper = SREWrapperFactory.createNewSREWrapper(cultureInfo);
                 return this.sreWrapper != null;
             }
-            if (countryToUse == null)
+            if (langCodes.countryToUse == null)
             {
-                if (langToUse == "en")
+                if (langCodes.langToUse == "en")
                 {
                     if (MessageBox.Show(Configuration.getUIString("install_any_speechlanguage_popup_text"), Configuration.getUIString("install_speechplatform_popup_title"),
                     MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
@@ -728,14 +700,14 @@ namespace CrewChiefV4
                 }
                 else
                 {
-                    if (MessageBox.Show(Configuration.getUIString("install_single_speechlanguage_popup_text_start") + langToUse +
+                    if (MessageBox.Show(Configuration.getUIString("install_single_speechlanguage_popup_text_start") + langCodes.langToUse +
                     Configuration.getUIString("install_single_speechlanguage_popup_text_end"),
                     Configuration.getUIString("install_speechplatform_popup_title"),
                     MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
                     {
                         Process.Start("https://www.microsoft.com/en-us/download/details.aspx?id=27224");
                     }
-                    Console.WriteLine("Unable to initialise speech engine with '" + langToUse + "' voice recognition pack. " +
+                    Console.WriteLine("Unable to initialise speech engine with '" + langCodes.langToUse + "' voice recognition pack. " +
                     "Check that and appropriate language pack is installed." +
                     " They can be downloaded from https://www.microsoft.com/en-us/download/details.aspx?id=27224");
                 }
@@ -744,15 +716,15 @@ namespace CrewChiefV4
             }
             else
             {
-                if (MessageBox.Show(Configuration.getUIString("install_single_speechlanguage_popup_text_start") + langAndCountryToUse +
+                if (MessageBox.Show(Configuration.getUIString("install_single_speechlanguage_popup_text_start") + langCodes.langAndCountryToUse +
                     Configuration.getUIString("install_single_speechlanguage_popup_text_end"),
                     Configuration.getUIString("install_speechplatform_popup_title"),
                     MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
                 {
                     Process.Start("https://www.microsoft.com/en-us/download/details.aspx?id=27224");
                 }
-                Console.WriteLine("Unable to initialise speech engine with voice recognition pack for location " + langAndCountryToUse +
-                    ". Check MSSpeech_SR_" + langAndCountryToUse + "_TELE.msi is installed." +
+                Console.WriteLine("Unable to initialise speech engine with voice recognition pack for location " + langCodes.langAndCountryToUse +
+                    ". Check MSSpeech_SR_" + langCodes.langAndCountryToUse + "_TELE.msi is installed." +
                     " It can be downloaded from https://www.microsoft.com/en-us/download/details.aspx?id=27224");
 
                 return false;
@@ -799,7 +771,18 @@ namespace CrewChiefV4
             // catch it and tell user to go download.
             try
             {
-                SREWrapperFactory.createNewSREWrapper(true);
+                LangCodes langCodes = getLangCodes();
+                this.cultureInfo = getCultureInfo(langCodes, false);
+                // if we're using the system SRE, check we have the required language before proceeding
+                if (SREWrapperFactory.useSystem && this.cultureInfo == null)
+                {
+                    // if we have no culture info here we need to fall back to the MS SRE and get the culture again
+                    Console.WriteLine("Unable to get language for System SRE with lang " + langCodes.langToUse + " or " + langCodes.langAndCountryToUse +
+                        ", will fall back to Microsoft SRE");
+                    SREWrapperFactory.useSystem = false;
+                    this.cultureInfo = getCultureInfo(langCodes, false);
+                }
+                SREWrapperFactory.createNewSREWrapper(this.cultureInfo, true);
             }
             catch (Exception e)
             {
@@ -1071,7 +1054,7 @@ namespace CrewChiefV4
             return CrewChief.gameDefinition != null && whatsOpponentChoices.ContainsKey(CrewChief.gameDefinition.gameEnum) ?
                 whatsOpponentChoices[CrewChief.gameDefinition.gameEnum] : whatsOpponentChoices[GameEnum.UNKNOWN];
         }
-        
+
         public void addNewOpponentName(String rawDriverName, String carNumberString)
         {
             if (!initialised || (!identifyOpponentsByName && !identifyOpponentsByNumber))
@@ -1087,7 +1070,7 @@ namespace CrewChiefV4
                     // This method is called when a new driver appears mid-session. We need to load the sound file for this new driver
                     // so do it here - nasty nasty hack, need to refactor this. The alternative is to call
                     // SoundCache.loadDriverNameSound in each of mappers when a new driver is added.
-                    SoundCache.loadDriverNameSound(usableName);                    
+                    SoundCache.loadDriverNameSound(usableName);
 
                     HashSet<string> nameChoices = new HashSet<string>();
                     HashSet<string> namePossessiveChoices = new HashSet<string>();
@@ -1138,14 +1121,14 @@ namespace CrewChiefV4
                     {
                         opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHAT_TYRE_IS, WHAT_TYRES_IS }, false, opponentNameChoices, new String[] { ON }, true));
                     }
-                    opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHATS }, true, opponentNamePossessiveChoices, getWhatsPossessiveChoices(), true));     
+                    opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHATS }, true, opponentNamePossessiveChoices, getWhatsPossessiveChoices(), true));
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine("Unable to add new driver to speech recognition engine - " + e.Message);
             }
-            
+
         }
 
         public void addOpponentSpeechRecognition(List<String> names, HashSet<string> carNumbers)
@@ -1298,7 +1281,7 @@ namespace CrewChiefV4
                 validateAndAdd(PIT_STOP_OPTION_TYRES, r3eChoices);
                 validateAndAdd(PIT_STOP_DONT_REFUEL, r3eChoices);
                 validateAndAdd(PIT_STOP_REFUEL, r3eChoices);
-                
+
                 GrammarBuilderWrapper r3eGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper(r3eChoices);
                 r3eGrammarBuilder.SetCulture(cultureInfo);
                 GrammarWrapper r3eGrammar = SREWrapperFactory.createNewGrammarWrapper(r3eGrammarBuilder);
@@ -1732,7 +1715,7 @@ namespace CrewChiefV4
             }
             catch (Exception exception)
             {
-                Console.WriteLine("Unable to respond - error message: " + exception.Message + " stack "+ exception.StackTrace);
+                Console.WriteLine("Unable to respond - error message: " + exception.Message + " stack " + exception.StackTrace);
             }
 
             // 'stop' the recogniser if we're ALWAYS_ON (because we restart it below) or TOGGLE
@@ -1869,12 +1852,7 @@ namespace CrewChiefV4
                                 {
                                     break;
                                 }
-                                Microsoft.Speech.AudioFormat.SpeechAudioFormatInfo safi =
-                                    new Microsoft.Speech.AudioFormat.SpeechAudioFormatInfo(
-                                        nAudioWaveInSampleRate,
-                                        nAudioWaveInSampleDepth == 16 ? Microsoft.Speech.AudioFormat.AudioBitsPerSample.Sixteen : Microsoft.Speech.AudioFormat.AudioBitsPerSample.Eight, 
-                                        nAudioWaveInChannelCount == 2 ? Microsoft.Speech.AudioFormat.AudioChannel.Stereo : Microsoft.Speech.AudioFormat.AudioChannel.Mono);
-                                sreWrapper.SetInputToAudioStream(buffer, safi); // otherwise input gets unset
+                                sreWrapper.SetInputToAudioStream(buffer, nAudioWaveInSampleRate, nAudioWaveInSampleDepth, nAudioWaveInChannelCount); // otherwise input gets unset
                                 try
                                 {
                                     sreWrapper.RecognizeAsync(); // before this call
@@ -1927,11 +1905,9 @@ namespace CrewChiefV4
                 {
                     SpeechRecogniser.keepRecognisingInHoldMode = false;
                     StopNAudioWaveIn();
-                    Microsoft.Speech.AudioFormat.SpeechAudioFormatInfo safi = new Microsoft.Speech.AudioFormat.SpeechAudioFormatInfo(
-                        waveIn.WaveFormat.SampleRate, Microsoft.Speech.AudioFormat.AudioBitsPerSample.Sixteen, Microsoft.Speech.AudioFormat.AudioChannel.Mono);
                     if (!isShuttingDown)
                     {
-                        sreWrapper.SetInputToAudioStream(buffer, safi); // otherwise input gets unset
+                        sreWrapper.SetInputToAudioStream(buffer, nAudioWaveInSampleRate, nAudioWaveInSampleDepth, nAudioWaveInChannelCount); // otherwise input gets unset
                         try
                         {
                             sreWrapper.RecognizeAsync(); // before this call
@@ -2062,7 +2038,7 @@ namespace CrewChiefV4
                 ResultContains(recognisedSpeech, STATUS, false) ||
                 ResultContains(recognisedSpeech, SESSION_STATUS, false) ||
                 ResultContains(recognisedSpeech, START_PACE_NOTES_PLAYBACK, false) ||
-                ResultContains(recognisedSpeech, STOP_PACE_NOTES_PLAYBACK, false) || 
+                ResultContains(recognisedSpeech, STOP_PACE_NOTES_PLAYBACK, false) ||
                 ResultContains(recognisedSpeech, PLAY_CORNER_NAMES, false) ||
                 ResultContains(recognisedSpeech, STOP_COMPLAINING, false) ||
                 ControllerConfiguration.builtInActionMappings.ContainsValue(recognisedSpeech))
@@ -2248,5 +2224,55 @@ namespace CrewChiefV4
             return SpeechRecogniser.endChatMacro;
         }
 
+        private LangCodes getLangCodes()
+        {
+            LangCodes langCodes = new LangCodes();
+            String overrideCountry = null;
+            if (localeCountryPropertySetting != null && localeCountryPropertySetting.Length == 2)
+            {
+                overrideCountry = localeCountryPropertySetting.ToUpper();
+            }
+            // for backwards compatibility
+            Boolean useDefaultLocaleInsteadOfLanguage = sreConfigDefaultLocaleSetting != null && sreConfigDefaultLocaleSetting.Length > 0;
+
+            Tuple<String, String> sreConfigLangAndCountry = parseLocalePropertyValue(useDefaultLocaleInsteadOfLanguage ? sreConfigDefaultLocaleSetting : sreConfigLanguageSetting);
+            String sreConfigLang = sreConfigLangAndCountry.Item1;
+            String sreConfigCountry = sreConfigLangAndCountry.Item2;
+
+            langCodes.langToUse = sreConfigLang;
+            langCodes.countryToUse = overrideCountry != null ? overrideCountry : sreConfigCountry;
+            langCodes.langAndCountryToUse = langCodes.countryToUse != null ? langCodes.langToUse + "-" + langCodes.countryToUse : null;
+
+            return langCodes;
+        }
+
+        private CultureInfo getCultureInfo(LangCodes langCodes, Boolean log)
+        {
+            CultureInfo cultureInfoFromFactory = null;
+            if (langCodes.langAndCountryToUse != null)
+            {
+                if (log)
+                    Console.WriteLine("Attempting to get recogniser for " + langCodes.langAndCountryToUse);
+                cultureInfoFromFactory = SREWrapperFactory.GetCultureInfo(langCodes.langAndCountryToUse);
+            }
+            if (cultureInfoFromFactory == null)
+            {
+                if (log && langCodes.langAndCountryToUse != null)
+                {
+                    Console.WriteLine("Failed to get recogniser for " + langCodes.langAndCountryToUse);
+                }
+                if (log)
+                    Console.WriteLine("Attempting to get recogniser for " + langCodes.langToUse);
+                cultureInfoFromFactory = SREWrapperFactory.GetCultureInfo(langCodes.langToUse);
+            }
+            return cultureInfoFromFactory;
+        }
+
+        class LangCodes
+        {
+            public string countryToUse;
+            public string langToUse;
+            public string langAndCountryToUse;
+        }
     }
 }
