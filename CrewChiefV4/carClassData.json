@@ -1010,7 +1010,13 @@
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL",
 			"pitCrewPreparationTime": 17,
-			"allMembersAreRWD": true
+			"allMembersAreRWD": true,
+			"gameTyreToTyreType" : {
+				"GoodYear D": "Super_Soft",
+				"GoodYear C": "Soft",
+				"GoodYear B": "Medium",
+				"GoodYear A": "Hard"
+			}
 		},
 		{
 			"carClassEnum": "INDYCAR_DALLARA_2011",
