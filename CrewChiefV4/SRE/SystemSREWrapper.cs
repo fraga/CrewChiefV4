@@ -43,9 +43,12 @@ namespace CrewChiefV4.SRE
             internalSRE.InitialSilenceTimeout = timeSpan;
         }
 
-        public void SetInputToAudioStream(RingBufferStream.RingBufferStream stream, object format)
+        public void SetInputToAudioStream(RingBufferStream.RingBufferStream stream, int rate, int depth, int channelCount)
         {
-            internalSRE.SetInputToAudioStream(stream, (SpeechAudioFormatInfo)format);
+            SpeechAudioFormatInfo safi = new SpeechAudioFormatInfo(rate,
+                            depth == 16 ? AudioBitsPerSample.Sixteen : AudioBitsPerSample.Eight,
+                            channelCount == 2 ? AudioChannel.Stereo : AudioChannel.Mono);
+            internalSRE.SetInputToAudioStream(stream, safi);
         }
 
         public void SetInputToDefaultAudioDevice()

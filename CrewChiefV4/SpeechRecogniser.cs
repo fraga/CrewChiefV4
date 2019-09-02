@@ -1869,12 +1869,7 @@ namespace CrewChiefV4
                                 {
                                     break;
                                 }
-                                Microsoft.Speech.AudioFormat.SpeechAudioFormatInfo safi =
-                                    new Microsoft.Speech.AudioFormat.SpeechAudioFormatInfo(
-                                        nAudioWaveInSampleRate,
-                                        nAudioWaveInSampleDepth == 16 ? Microsoft.Speech.AudioFormat.AudioBitsPerSample.Sixteen : Microsoft.Speech.AudioFormat.AudioBitsPerSample.Eight, 
-                                        nAudioWaveInChannelCount == 2 ? Microsoft.Speech.AudioFormat.AudioChannel.Stereo : Microsoft.Speech.AudioFormat.AudioChannel.Mono);
-                                sreWrapper.SetInputToAudioStream(buffer, safi); // otherwise input gets unset
+                                sreWrapper.SetInputToAudioStream(buffer, nAudioWaveInSampleRate, nAudioWaveInSampleDepth, nAudioWaveInChannelCount); // otherwise input gets unset
                                 try
                                 {
                                     sreWrapper.RecognizeAsync(); // before this call
@@ -1927,11 +1922,9 @@ namespace CrewChiefV4
                 {
                     SpeechRecogniser.keepRecognisingInHoldMode = false;
                     StopNAudioWaveIn();
-                    Microsoft.Speech.AudioFormat.SpeechAudioFormatInfo safi = new Microsoft.Speech.AudioFormat.SpeechAudioFormatInfo(
-                        waveIn.WaveFormat.SampleRate, Microsoft.Speech.AudioFormat.AudioBitsPerSample.Sixteen, Microsoft.Speech.AudioFormat.AudioChannel.Mono);
                     if (!isShuttingDown)
                     {
-                        sreWrapper.SetInputToAudioStream(buffer, safi); // otherwise input gets unset
+                        sreWrapper.SetInputToAudioStream(buffer, nAudioWaveInSampleRate, nAudioWaveInSampleDepth, nAudioWaveInChannelCount); // otherwise input gets unset
                         try
                         {
                             sreWrapper.RecognizeAsync(); // before this call
