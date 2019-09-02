@@ -956,7 +956,7 @@ namespace CrewChiefV4.Events
                 { 
                     if (this.delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
                     {
-                        this.audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(queuedMessage, 5 /*lowerDelayBoundInclusive*/, 12 /*upperDelayBound*/);
+                        this.audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(queuedMessage, 5 /*lowerDelayBoundInclusive*/, 8 /*upperDelayBound*/);
                     }
                     else
                     {
@@ -1321,7 +1321,7 @@ namespace CrewChiefV4.Events
                     && fuelStatusMessageFragments.Count > 0
                     && this.delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
                 {
-                    this.audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(new QueuedMessage("Fuel/status", 0, messageFragments: fuelStatusMessageFragments), 3 /*lowerDelayBoundInclusive*/, 8 /*upperDelayBound*/);
+                    this.audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(new QueuedMessage("Fuel/status", 0, messageFragments: fuelStatusMessageFragments), 3 /*lowerDelayBoundInclusive*/, 6 /*upperDelayBound*/);
                 }
                 else
                 {
