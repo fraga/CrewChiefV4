@@ -407,11 +407,17 @@ namespace CrewChiefV4.Events
                         validationData.Add(positionValidationKey, currentGameState.SessionData.ClassPosition);
                         if (currentGameState.SessionData.ClassPosition > currentGameState.SessionData.SessionStartClassPosition + 5)
                         {
-                            audioPlayer.playMessage(new QueuedMessage(folderTerribleStart, 10, abstractEvent: this, priority: 5, validationData: validationData));
+                            if (!GlobalBehaviourSettings.complaintsDisabled && GlobalBehaviourSettings.complaintsCountInThisSession <= GlobalBehaviourSettings.maxComplaintsPerSession)
+                            {
+                                audioPlayer.playMessage(new QueuedMessage(folderTerribleStart, 10, abstractEvent: this, priority: 5, validationData: validationData));
+                            }
                         }
                         else if (currentGameState.SessionData.ClassPosition > currentGameState.SessionData.SessionStartClassPosition + 3)
                         {
-                            audioPlayer.playMessage(new QueuedMessage(folderBadStart, 10, abstractEvent: this, priority: 5, validationData: validationData));
+                            if (!GlobalBehaviourSettings.complaintsDisabled && GlobalBehaviourSettings.complaintsCountInThisSession <= GlobalBehaviourSettings.maxComplaintsPerSession)
+                            {
+                                audioPlayer.playMessage(new QueuedMessage(folderBadStart, 10, abstractEvent: this, priority: 5, validationData: validationData));
+                            }
                         }
                         else if (!isLast && (currentGameState.SessionData.ClassPosition == 1 || currentGameState.SessionData.ClassPosition < currentGameState.SessionData.SessionStartClassPosition - 1))
                         {
@@ -542,12 +548,13 @@ namespace CrewChiefV4.Events
                     return new Tuple<List<MessageFragment>, List<MessageFragment>>(MessageContents(folderQuickestOverall), null);                    
                 }
             }
-            else if (this.isLast)
+            else if (this.isLast && !GlobalBehaviourSettings.complaintsDisabled && GlobalBehaviourSettings.complaintsCountInThisSession <= GlobalBehaviourSettings.maxComplaintsPerSession)
             {
                 if (this.numberOfLapsInLastPlace > 5 &&
                     CrewChief.currentGameState.SessionData.LapTimePrevious > CrewChief.currentGameState.SessionData.PlayerLapTimeSessionBest &&
                     CrewChief.currentGameState.SessionData.ClassPosition > 3)
                 {
+                    GlobalBehaviourSettings.complaintsCountInThisSession++;
                     return new Tuple<List<MessageFragment>, List<MessageFragment>>(MessageContents(folderConsistentlyLast), null);
                 }
                 else
@@ -567,7 +574,7 @@ namespace CrewChiefV4.Events
 
         public override void respond(String voiceMessage)
         {            
-            if (isLast)
+            if (isLast && !GlobalBehaviourSettings.complaintsDisabled && GlobalBehaviourSettings.complaintsCountInThisSession <= GlobalBehaviourSettings.maxComplaintsPerSession)
             {
                 audioPlayer.playMessageImmediately(new QueuedMessage(folderLast, 0));
             }

@@ -1022,5 +1022,8 @@
     <Setting Name="free_dictation_chat_start_word" Type="System.String" Scope="User">
       <Value Profile="(Default)">chat</Value>
     </Setting>
+    <Setting Name="max_complaints_per_session" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">50</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

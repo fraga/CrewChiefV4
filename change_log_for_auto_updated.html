@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html>
 <body>
+<h2>Version 4.9.9.1</h2>
+<ul>
+	<li>Reworked speech recognisers to allow it to use the built-in Windows speech recognition, which may benefit from being trained to you voice. To enable this, enable the 'Prefer Windows speech recogniser' option in the Properties screen</li>
+	<li>Added experimental free-text chat feature for Raceroom, pCars2 and iRacing only - enable with 'Enable free dictation chat messages' property. To use this you must have Windows speech recognition enabled and you'll need to delete Documents\CrewChiefV4\saved_command_macros.json before launching the app (so the app can add a couple of new macro definitions). Read what out you want to say as you would with any other command, starting with "chat" - e.g. "chat, hello everyone" or "chat, this is a test chat message". The app will start the chat by executing the "start chat message" macro which presses C (raceroom) or T (iRacing / pCars2), type in the recognised text after "chat", then end the chat by executing the "end chat message" macro (which just presses enter). Note that this may produce some weird results if the speech recogniser doesn't accurately interpret what you're saying</li>
+	<li>Added a voice command to disable most of the complaining messages for the remainder of the current session - "stop complaining" / "stop grumbling" / "f*** off". This will prevent the app berating you when you're doing badly, which may be useful in long sessions</li>
+	<li>Limit the number of times the app will complain at the player during a session (default is 50 times, configurable with 'Max complaints per session' property)</li>
+	<li>Fixed app crash when using pCars network data button assignments</li>
+</ul>
 <h2>Version 4.9.8.24</h2>
 <ul>
 	<li>ACC - fix stale opponents not being cleared from internal state (should fix incorrect incident calls when players disconnect)</li>

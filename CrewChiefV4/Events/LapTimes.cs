@@ -685,9 +685,11 @@ namespace CrewChiefV4.Events
                                         {
                                             // only complain about worsening laptimes if we've not overtaken anyone on this lap
                                             lastConsistencyUpdate = currentGameState.SessionData.CompletedLaps;
-
-                                            audioPlayer.playMessage(new QueuedMessage(folderWorseningTimes, delay + 10, secondsDelay: delay, abstractEvent: this,
-                                                validationData: new Dictionary<String, Object>(), priority: 3));
+                                            if (!GlobalBehaviourSettings.complaintsDisabled && GlobalBehaviourSettings.complaintsCountInThisSession <= GlobalBehaviourSettings.maxComplaintsPerSession)
+                                            {
+                                                audioPlayer.playMessage(new QueuedMessage(folderWorseningTimes, delay + 10, secondsDelay: delay, abstractEvent: this,
+                                                    validationData: new Dictionary<String, Object>(), priority: 3));
+                                            }
                                         }
                                     }
                                 }
@@ -1167,12 +1169,17 @@ namespace CrewChiefV4.Events
                                     audioPlayer.playMessageImmediately(new QueuedMessage("lapTimeRacePaceReport", 0, messageFragments: messages));
                                     break;
                                 case LastLapRating.BAD:
-                                    messages.Add(MessageFragment.Text(folderPaceBad));
+                                    // don't play this if we've disabled complaints or have complained too much
+                                    if (!GlobalBehaviourSettings.complaintsDisabled && GlobalBehaviourSettings.complaintsCountInThisSession <= GlobalBehaviourSettings.maxComplaintsPerSession)
+                                    {
+                                        messages.Add(MessageFragment.Text(folderPaceBad));
+                                    }
                                     if (timeToFindFolder != null)
                                     {
                                         messages.Add(MessageFragment.Text(timeToFindFolder));
                                     }
                                     audioPlayer.playMessageImmediately(new QueuedMessage("lapTimeRacePaceReport", 0, messageFragments: messages));
+
                                     break;
                                 default:
                                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
@@ -1209,7 +1216,10 @@ namespace CrewChiefV4.Events
                                     }
                                     break;
                                 case LastLapRating.BAD:
-                                    messages.Add(MessageFragment.Text(folderPaceBad));
+                                    if (!GlobalBehaviourSettings.complaintsDisabled && GlobalBehaviourSettings.complaintsCountInThisSession <= GlobalBehaviourSettings.maxComplaintsPerSession)
+                                    {
+                                        messages.Add(MessageFragment.Text(folderPaceBad));
+                                    }
                                     if (timeToFindFolder != null)
                                     {
                                         messages.Add(MessageFragment.Text(timeToFindFolder));
@@ -1295,7 +1305,10 @@ namespace CrewChiefV4.Events
                                     break;
                                 case LastLapRating.MEH:
                                 case LastLapRating.BAD:
-                                    messages.Add(MessageFragment.Text(folderPaceBad));
+                                    if (!GlobalBehaviourSettings.complaintsDisabled && GlobalBehaviourSettings.complaintsCountInThisSession <= GlobalBehaviourSettings.maxComplaintsPerSession)
+                                    {
+                                        messages.Add(MessageFragment.Text(folderPaceBad));
+                                    }
                                     audioPlayer.playMessageImmediately(new QueuedMessage("lapTimeRacePaceReport", 0, messageFragments: messages));
                                     break;
                                 default:

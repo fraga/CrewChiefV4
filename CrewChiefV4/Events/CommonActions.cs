@@ -88,7 +88,13 @@ namespace CrewChiefV4.Events
             {
                 disableKeepQuietMode();
             }
-             
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.STOP_COMPLAINING, false))
+            {
+                GlobalBehaviourSettings.complaintsDisabled = true;
+                Console.WriteLine("Disabling complaining messages for this session");
+                audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
+            }
+
             // multiple events for status reporting:
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.DAMAGE_REPORT, false) ||
                 SpeechRecogniser.ResultContains(voiceMessage, new string[] { ControllerConfiguration.GET_DAMAGE_REPORT }))

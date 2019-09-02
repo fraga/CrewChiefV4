@@ -155,6 +155,8 @@ namespace CrewChiefV4
         public static String[] HOW_ARE_MY_FRONT_TYRE_PRESSURES_RIGHT_NOW = Configuration.getSpeechRecognitionPhrases("HOW_ARE_MY_FRONT_TYRE_PRESSURES_RIGHT_NOW");
         public static String[] HOW_ARE_MY_REAR_TYRE_PRESSURES_RIGHT_NOW = Configuration.getSpeechRecognitionPhrases("HOW_ARE_MY_REAR_TYRE_PRESSURES_RIGHT_NOW");
 
+        public static String[] STOP_COMPLAINING = Configuration.getSpeechRecognitionPhrases("STOP_COMPLAINING");
+
         // R3E only for now:
         public static String[] WHAT_ARE_THE_PIT_ACTIONS = Configuration.getSpeechRecognitionPhrases("WHAT_ARE_THE_PIT_ACTIONS");
 
@@ -937,6 +939,7 @@ namespace CrewChiefV4
                     validateAndAdd(DONT_SPOT, staticSpeechChoices);
                     validateAndAdd(ENABLE_CUT_TRACK_WARNINGS, staticSpeechChoices);
                     validateAndAdd(DISABLE_CUT_TRACK_WARNINGS, staticSpeechChoices);
+                    validateAndAdd(STOP_COMPLAINING, staticSpeechChoices);
                 }
 
                 validateAndAdd(WHATS_THE_FASTEST_LAP_TIME, staticSpeechChoices);
@@ -1630,9 +1633,9 @@ namespace CrewChiefV4
                         Console.WriteLine("chat recognised: " + recognisedText);
                         if (recognisedText.StartsWith(chatContextStart))
                         {
-                            string chatText = recognisedText.TrimStart(chatContextStart.ToCharArray());                            
+                            string chatText = recognisedText.TrimStart(chatContextStart.ToCharArray()).Trim();
                             getStartChatMacro().execute("", true, false);
-                            Console.WriteLine("Sending chat text " + chatText);
+                            Console.WriteLine("Sending chat text \"" + chatText + "\"");
                             for (int charIndex = 0; charIndex < chatText.Length; charIndex++)
                             {
                                 KeyPresser.KeyCode keyCode;
@@ -1647,6 +1650,8 @@ namespace CrewChiefV4
                         else
                         {
                             Console.WriteLine("Chat message doesn't appear to start with context " + chatContextStart + " so will not be executed");
+                            crewChief.youWot(true);
+                            youWot = true;
                         }
                     }
                     else if (GrammarWrapperListContains(opponentGrammarList, recognitionGrammar))
@@ -1727,7 +1732,7 @@ namespace CrewChiefV4
             }
             catch (Exception exception)
             {
-                Console.WriteLine("Unable to respond - error message: " + exception.Message);
+                Console.WriteLine("Unable to respond - error message: " + exception.Message + " stack "+ exception.StackTrace);
             }
 
             // 'stop' the recogniser if we're ALWAYS_ON (because we restart it below) or TOGGLE
@@ -2059,6 +2064,7 @@ namespace CrewChiefV4
                 ResultContains(recognisedSpeech, START_PACE_NOTES_PLAYBACK, false) ||
                 ResultContains(recognisedSpeech, STOP_PACE_NOTES_PLAYBACK, false) || 
                 ResultContains(recognisedSpeech, PLAY_CORNER_NAMES, false) ||
+                ResultContains(recognisedSpeech, STOP_COMPLAINING, false) ||
                 ControllerConfiguration.builtInActionMappings.ContainsValue(recognisedSpeech))
             {
                 return CrewChief.getEvent("CommonActions");
