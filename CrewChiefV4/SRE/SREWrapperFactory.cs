@@ -12,16 +12,16 @@ namespace CrewChiefV4.SRE
         public static Boolean useSystem = UserSettings.GetUserSettings().getBoolean("prefer_system_sre");
 
         // try to create the preferred SRE impl, fall back to the other type if this isn't available
-        public static SREWrapper createNewSREWrapper(Boolean log = false)
+        public static SREWrapper createNewSREWrapper(CultureInfo culture, Boolean log = false)
         {
             SREWrapper sreWrapper = null;
             if (useSystem)
             {
-                sreWrapper = createSystemSREWrapper();
+                sreWrapper = createSystemSREWrapper(culture);
                 if (sreWrapper == null)
                 {
                     if (log) Console.WriteLine("Unable to create a System SRE, trying with Microsoft SRE");
-                    sreWrapper = createMicrosoftSREWrapper();
+                    sreWrapper = createMicrosoftSREWrapper(culture);
                     if (sreWrapper != null)
                     {
                         useSystem = false;
@@ -35,11 +35,11 @@ namespace CrewChiefV4.SRE
             }
             else
             {
-                sreWrapper = createMicrosoftSREWrapper();
+                sreWrapper = createMicrosoftSREWrapper(culture);
                 if (sreWrapper == null)
                 {
                     if (log) Console.WriteLine("Unable to create a Microsoft SRE, trying with System SRE");
-                    sreWrapper = createSystemSREWrapper();
+                    sreWrapper = createSystemSREWrapper(culture);
                     if (sreWrapper != null)
                     {
                         useSystem = true;
@@ -70,11 +70,11 @@ namespace CrewChiefV4.SRE
             dictationGrammar.SetDictationContext(dictationContextStart, dictationContextEnd);
         }
 
-        private static SREWrapper createMicrosoftSREWrapper()
+        private static SREWrapper createMicrosoftSREWrapper(CultureInfo culture)
         {
             try
             {
-                return new MicrosoftSREWrapper();
+                return new MicrosoftSREWrapper(culture);
             }
             catch (Exception)
             {
@@ -82,11 +82,11 @@ namespace CrewChiefV4.SRE
             }
         }
 
-        private static SREWrapper createSystemSREWrapper()
+        private static SREWrapper createSystemSREWrapper(CultureInfo culture)
         {
             try
             {
-                return new SystemSREWrapper();
+                return new SystemSREWrapper(culture);
             }
             catch (Exception)
             {

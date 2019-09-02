@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Speech.AudioFormat;
 using System.Speech.Recognition;
 
@@ -8,9 +9,9 @@ namespace CrewChiefV4.SRE
     {
         private SpeechRecognitionEngine internalSRE;
 
-        public SystemSREWrapper()
+        public SystemSREWrapper(CultureInfo culture)
         {
-            this.internalSRE = new SpeechRecognitionEngine();
+            this.internalSRE = new SpeechRecognitionEngine(culture);
         }
 
         public void AddSpeechRecognizedCallback(object callback)

@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using System.Diagnostics;
 using CrewChiefV4.R3E;
 using CrewChiefV4.SRE;
+using System.Globalization;
 
 namespace CrewChiefV4
 {
@@ -291,7 +292,7 @@ namespace CrewChiefV4
 
         private Dictionary<String, ExecutableCommandMacro> macroLookup = new Dictionary<string, ExecutableCommandMacro>();
 
-        private System.Globalization.CultureInfo cultureInfo;
+        private CultureInfo cultureInfo;
 
         public static Dictionary<String[], String> carNumberToNumber = getCarNumberMappings();
 
@@ -674,26 +675,13 @@ namespace CrewChiefV4
                 return false;
             }
             LangCodes langCodes = getLangCodes();
-            if (langCodes.langAndCountryToUse != null)
-            {
-                Console.WriteLine("Attempting to get recogniser for " + langCodes.langAndCountryToUse);
-                cultureInfo = SREWrapperFactory.GetCultureInfo(langCodes.langAndCountryToUse);
-            }
-            if (cultureInfo == null)
-            {
-                if (langCodes.langAndCountryToUse != null)
-                {
-                    Console.WriteLine("Failed to get recogniser for " + langCodes.langAndCountryToUse);
-                }
-                Console.WriteLine("Attempting to get recogniser for " + langCodes.langToUse);
-                cultureInfo = SREWrapperFactory.GetCultureInfo(langCodes.langToUse);
-            }
+            this.cultureInfo = getCultureInfo(langCodes, true);
 
             if (cultureInfo != null)
             {
                 Console.WriteLine("Got SRE for " + cultureInfo);
-                this.sreWrapper = SREWrapperFactory.createNewSREWrapper();
-                this.triggerSreWrapper = SREWrapperFactory.createNewSREWrapper();
+                this.sreWrapper = SREWrapperFactory.createNewSREWrapper(cultureInfo);
+                this.triggerSreWrapper = SREWrapperFactory.createNewSREWrapper(cultureInfo);
                 return this.sreWrapper != null;
             }
             if (langCodes.countryToUse == null)
@@ -783,27 +771,18 @@ namespace CrewChiefV4
             // catch it and tell user to go download.
             try
             {
+                LangCodes langCodes = getLangCodes();
+                this.cultureInfo = getCultureInfo(langCodes, false);
                 // if we're using the system SRE, check we have the required language before proceeding
-                if (SREWrapperFactory.useSystem)
+                if (SREWrapperFactory.useSystem && this.cultureInfo == null)
                 {
-                    LangCodes langCodes = getLangCodes();
-                    if (langCodes.langAndCountryToUse != null)
-                    {
-                        cultureInfo = SREWrapperFactory.GetCultureInfo(langCodes.langAndCountryToUse);
-                    }
-                    if (cultureInfo == null)
-                    {
-                        cultureInfo = SREWrapperFactory.GetCultureInfo(langCodes.langToUse);
-                    }
-                    // if we have no culture info here we need to fall back to the MS SRE
-                    if (cultureInfo == null)
-                    {
-                        Console.WriteLine("Unable to get language for System SRE with lang " + langCodes.langToUse + " or " + langCodes.langAndCountryToUse + 
-                            ", will fall back to Microsoft SRE");
-                        SREWrapperFactory.useSystem = false;
-                    }
+                    // if we have no culture info here we need to fall back to the MS SRE and get the culture again
+                    Console.WriteLine("Unable to get language for System SRE with lang " + langCodes.langToUse + " or " + langCodes.langAndCountryToUse +
+                        ", will fall back to Microsoft SRE");
+                    SREWrapperFactory.useSystem = false;
+                    this.cultureInfo = getCultureInfo(langCodes, false);
                 }
-                SREWrapperFactory.createNewSREWrapper(true);
+                SREWrapperFactory.createNewSREWrapper(this.cultureInfo, true);
             }
             catch (Exception e)
             {
@@ -2265,6 +2244,28 @@ namespace CrewChiefV4
             langCodes.langAndCountryToUse = langCodes.countryToUse != null ? langCodes.langToUse + "-" + langCodes.countryToUse : null;
 
             return langCodes;
+        }
+
+        private CultureInfo getCultureInfo(LangCodes langCodes, Boolean log)
+        {
+            CultureInfo cultureInfoFromFactory = null;
+            if (langCodes.langAndCountryToUse != null)
+            {
+                if (log)
+                    Console.WriteLine("Attempting to get recogniser for " + langCodes.langAndCountryToUse);
+                cultureInfoFromFactory = SREWrapperFactory.GetCultureInfo(langCodes.langAndCountryToUse);
+            }
+            if (cultureInfoFromFactory == null)
+            {
+                if (log && langCodes.langAndCountryToUse != null)
+                {
+                    Console.WriteLine("Failed to get recogniser for " + langCodes.langAndCountryToUse);
+                }
+                if (log)
+                    Console.WriteLine("Attempting to get recogniser for " + langCodes.langToUse);
+                cultureInfoFromFactory = SREWrapperFactory.GetCultureInfo(langCodes.langToUse);
+            }
+            return cultureInfoFromFactory;
         }
 
         class LangCodes

@@ -1,15 +1,17 @@
 ﻿using Microsoft.Speech.Recognition;
 using Microsoft.Speech.AudioFormat;
 using System;
+using System.Globalization;
 
 namespace CrewChiefV4.SRE
 {
     public class MicrosoftSREWrapper : SREWrapper
     {
         private SpeechRecognitionEngine internalSRE;
-        public MicrosoftSREWrapper()
+
+        public MicrosoftSREWrapper(CultureInfo culture)
         {
-            this.internalSRE = new SpeechRecognitionEngine();
+            this.internalSRE = new SpeechRecognitionEngine(culture);
         }
         public void AddSpeechRecognizedCallback(object callback)
         {

@@ -80,11 +80,11 @@ namespace CrewChiefV4
                 }
                 saveUserSettingsFile(userProfileSettings, Path.Combine(userProfilesPath, defaultUserSettingsfileName));
             }
-            
+
             try
             {
                 // If the requested file does not exist load default settings profile
-                if(!File.Exists(fileName))
+                if (!File.Exists(fileName))
                 {
                     fileName = Path.Combine(userProfilesPath, defaultUserSettingsfileName);
                     setProperty("current_settings_profile", defaultUserSettingsfileName);
@@ -95,8 +95,18 @@ namespace CrewChiefV4
                 {
                     string json = r.ReadToEnd();
                     currentActiveProfile = JsonConvert.DeserializeObject<UserProfileSettings>(json);
-                    if (currentActiveProfile != null)
-                    {                       
+                    if (currentActiveProfile == null)
+                    {
+                        currentActiveProfile = new UserProfileSettings();
+                        settingsProfileBroken = true;
+                    }
+                    else if (currentActiveProfile.userSettings == null)
+                    {
+                        currentActiveProfile.userSettings = new Dictionary<string, object>();
+                        settingsProfileBroken = true;
+                    }
+                    else
+                    {
                         return;
                     }
                 }
@@ -104,13 +114,13 @@ namespace CrewChiefV4
             catch (Exception e)
             {
                 settingsProfileBroken = true;
-                Console.WriteLine("Broken user settings profile " + fileName + "renaming it to  "+ Path.ChangeExtension(fileName, "broken"));
-                File.Move(fileName, Path.ChangeExtension(fileName, "broken"));               
             }
             try
             {
                 if (settingsProfileBroken)
                 {
+                    Console.WriteLine("Broken user settings profile " + fileName + "renaming it to  " + Path.ChangeExtension(fileName, "broken"));
+                    File.Move(fileName, Path.ChangeExtension(fileName, "broken"));
                     // if the default settings file is broken we have to recreate it.
                     if (Path.Combine(userProfilesPath, defaultUserSettingsfileName).Equals(fileName))
                     {
