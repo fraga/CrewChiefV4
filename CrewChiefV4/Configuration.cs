@@ -84,16 +84,41 @@ namespace CrewChiefV4
             return new String[] {};
         }
 
-        public static String getDefaultFileLocation(String filename) {
-            String regularPath = Application.StartupPath + @"\" + filename;
-            String debugPath = Application.StartupPath + @"\..\..\" + filename;
+        public static String getDefaultFileLocation(String filename)
+        {
+            return getDefaultLocation(filename, true);
+        }
+
+        public static String getDefaultFolderLocation(String folderName)
+        {
+            return getDefaultLocation(folderName, false);
+        }
+
+        private static String getDefaultLocation(String name, Boolean isFile)
+        {
+            String regularPath = Application.StartupPath + @"\" + name;
+            String debugPath = Application.StartupPath + @"\..\..\" + name;
             if (CrewChief.UseDebugFilePaths)
             {
-                return File.Exists(debugPath) ? debugPath : regularPath;
+                if (isFile)
+                {
+                    return File.Exists(debugPath) ? debugPath : regularPath;
+                }
+                else
+                {
+                    return Directory.Exists(debugPath) ? debugPath : regularPath;
+                }
             }
             else
             {
-                return File.Exists(regularPath) ? regularPath : debugPath;
+                if (isFile)
+                {
+                    return File.Exists(regularPath) ? regularPath : debugPath;
+                }
+                else
+                {
+                    return Directory.Exists(regularPath) ? regularPath : debugPath;
+                }
             }
         }
 

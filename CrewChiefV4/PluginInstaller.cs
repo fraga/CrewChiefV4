@@ -349,7 +349,7 @@ namespace CrewChiefV4
             //we have a gameInstallPath so we can go on with installation/updating assuming that the user wants to enable the plugin.
             if (Directory.Exists(gameInstallPath))
             {
-                installOrUpdatePlugin(Path.Combine(Configuration.getDefaultFileLocation("plugins"), gameDefinition.gameInstallDirectory), gameInstallPath);
+                installOrUpdatePlugin(Path.Combine(Configuration.getDefaultFolderLocation("plugins"), gameDefinition.gameInstallDirectory), gameInstallPath);
                 if (gameDefinition.gameEnum == GameEnum.RF2_64BIT)
                 {
                     UserSettings.GetUserSettings().setProperty("rf2_install_path", gameInstallPath);
