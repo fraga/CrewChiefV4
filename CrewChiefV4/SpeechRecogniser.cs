@@ -772,6 +772,7 @@ namespace CrewChiefV4
             try
             {
                 LangCodes langCodes = getLangCodes();
+                Console.WriteLine("got language codes data " + langCodes.ToString());
                 this.cultureInfo = getCultureInfo(langCodes, false);
                 // if we're using the system SRE, check we have the required language before proceeding
                 if (SREWrapperFactory.useSystem && this.cultureInfo == null)
@@ -792,7 +793,7 @@ namespace CrewChiefV4
                     Process.Start("https://www.microsoft.com/en-us/download/details.aspx?id=27225");
                 }
                 Console.WriteLine("Unable to initialise speech engine. Check that SpeechPlatformRuntime.msi is installed. It can be downloaded from https://www.microsoft.com/en-us/download/details.aspx?id=27225");
-                Console.WriteLine("Exception message: " + e.Message);
+                Console.WriteLine("Exception message: " + e.Message + " stack: " + e.StackTrace);
                 return;
             }
 
@@ -2273,6 +2274,10 @@ namespace CrewChiefV4
             public string countryToUse;
             public string langToUse;
             public string langAndCountryToUse;
+            public override string ToString()
+            {
+                return "countryToUse = \"" + countryToUse + "\", langToUse = \"" + langToUse + "\" langAndCountryToUse = \"" + langAndCountryToUse + "\"";
+            }
         }
     }
 }
