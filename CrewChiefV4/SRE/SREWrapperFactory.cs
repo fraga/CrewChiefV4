@@ -158,22 +158,28 @@ namespace CrewChiefV4.SRE
         {
             if (useSystem)
             {
-                foreach (System.Speech.Recognition.RecognizerInfo ri in System.Speech.Recognition.SpeechRecognitionEngine.InstalledRecognizers())
+                if (System.Speech.Recognition.SpeechRecognitionEngine.InstalledRecognizers() != null)
                 {
-                    if (ri.Culture.TwoLetterISOLanguageName.Equals(langToUse))
+                    foreach (System.Speech.Recognition.RecognizerInfo ri in System.Speech.Recognition.SpeechRecognitionEngine.InstalledRecognizers())
                     {
-                        return ri.Culture;
+                        if (ri.Culture.TwoLetterISOLanguageName != null && ri.Culture.TwoLetterISOLanguageName.Equals(langToUse))
+                        {
+                            return ri.Culture;
+                        }
                     }
                 }
                 return null;
             }
             else
             {
-                foreach (Microsoft.Speech.Recognition.RecognizerInfo ri in Microsoft.Speech.Recognition.SpeechRecognitionEngine.InstalledRecognizers())
+                if (Microsoft.Speech.Recognition.SpeechRecognitionEngine.InstalledRecognizers() != null)
                 {
-                    if (ri.Culture.TwoLetterISOLanguageName.Equals(langToUse))
+                    foreach (Microsoft.Speech.Recognition.RecognizerInfo ri in Microsoft.Speech.Recognition.SpeechRecognitionEngine.InstalledRecognizers())
                     {
-                        return ri.Culture;
+                        if (ri.Culture.TwoLetterISOLanguageName != null && ri.Culture.TwoLetterISOLanguageName.Equals(langToUse))
+                        {
+                            return ri.Culture;
+                        }
                     }
                 }
                 return null;
