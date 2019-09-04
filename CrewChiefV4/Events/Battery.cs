@@ -11,6 +11,8 @@ namespace CrewChiefV4.Events
     class Battery : AbstractEvent
     {
         private readonly bool EnableBatteryMessages = UserSettings.GetUserSettings().getBoolean("enable_battery_messages");
+        private readonly bool UseVerboseResponses = UserSettings.GetUserSettings().getBoolean("use_verbose_responses");
+        private readonly bool DelayResponses = UserSettings.GetUserSettings().getBoolean("enable_delayed_responses");
 
         private const string folderOneLapEstimate = "battery/one_lap_battery";
         private const string folderTwoLapsEstimate = "battery/two_laps_battery";
@@ -124,6 +126,13 @@ namespace CrewChiefV4.Events
         private float firstFullLapInitialChargeLeft = -1.0f;
         private float firstFullLapGameTime = -1.0f;
         private BatteryUseTrend lastReportedTrend = BatteryUseTrend.Unknown;
+
+        // Delayed responses stuff:
+
+        // If UseVerboseResponses is set, respond() is immediately followed by respondMoreInformation() call.
+        // To delay both responses, store respond() fragments for delayed response in the respondMoreInformation() method.
+        // If UseVerboseResponses is not set, both methods will use this to assemble the message. 
+        private List<MessageFragment> respondMessageFragments = new List<MessageFragment>();
 
         public Battery(AudioPlayer audioPlayer)
         {
@@ -695,17 +704,45 @@ namespace CrewChiefV4.Events
                 return;
             }
 
+            this.respondMessageFragments.Clear();
+
             var batteryRunningLow = false;
-            var reportedRemaining = this.reportBatteryRemaining(allowNoDataMessage, out batteryRunningLow);
+            var reportedRemaining = this.reportBatteryRemaining(allowNoDataMessage, out batteryRunningLow, respondMessageFragments);
 
             var reportedUse = false;
 
             // Don't report usage stats if we're running low already, it sounds a bit weird.
             if (!batteryRunningLow)
-                reportedUse = this.reportBatteryUse(allowNoDataMessage);
+                reportedUse = this.reportBatteryUse(allowNoDataMessage, respondMessageFragments);
 
             if (!reportedUse && !reportedRemaining && allowNoDataMessage)
                 this.audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+            else
+            {
+                Debug.Assert(this.respondMessageFragments.Count > 0);
+
+                // If UseVerboseResponses is set, actual playback will be done in the this.reportExtendedBatteryStatus() method.
+                if (this.UseVerboseResponses)
+                {
+                    return;
+                }
+
+                if (allowNoDataMessage  // True if this is Battery specific command response, not a full status response.
+                    && this.respondMessageFragments.Count > 0
+                    && this.DelayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
+                {
+                    this.audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(new QueuedMessage("Battery/status", 0, messageFragments: this.respondMessageFragments), 3 /*lowerDelayBoundInclusive*/, 6 /*upperDelayBound*/);
+                }
+                else
+                {
+                    if (allowNoDataMessage)
+                        this.audioPlayer.playMessageImmediately(new QueuedMessage("Battery/status", 0, messageFragments: this.respondMessageFragments));
+                    else
+                        this.audioPlayer.playMessage(new QueuedMessage("Battery/status", 0, messageFragments: this.respondMessageFragments, abstractEvent: this, priority: 1));
+                }
+
+                this.respondMessageFragments.Clear();
+            }
         }
 
         public override void respond(String voiceMessage)
@@ -742,7 +779,7 @@ namespace CrewChiefV4.Events
             }
         }
 
-        private bool reportBatteryUse(Boolean useImmediateQueue)
+        private bool reportBatteryUse(Boolean useImmediateQueue, List<MessageFragment> messageFragments)
         {
             var haveData = false;
             if (!this.initialized || this.prevLapBatteryUse < 0.0f)
@@ -769,30 +806,17 @@ namespace CrewChiefV4.Events
 
                     if (fractionalPart > 0)
                     {
-                        var messageFragments = new List<MessageFragment>();
                         messageFragments.Add(MessageFragment.Text(Battery.folderOnLastLapYouUsed));
                         messageFragments.Add(MessageFragment.Integer(wholePart, false));
                         messageFragments.Add(MessageFragment.Text(NumberReader.folderPoint));
                         messageFragments.Add(MessageFragment.Integer(fractionalPart, false));
                         messageFragments.Add(MessageFragment.Text(Battery.folderPercentOfYourBattery));
-
-                        if (useImmediateQueue)
-                            this.audioPlayer.playMessageImmediately(new QueuedMessage("Battery/prev_lap_use", 0, messageFragments: messageFragments));
-                        else
-                            this.audioPlayer.playMessage(new QueuedMessage("Battery/prev_lap_use", 0, messageFragments: messageFragments, abstractEvent: this, priority: 1));
                     }
                     else
                     {
-                        var messageFragments = new List<MessageFragment>();
                         messageFragments.Add(MessageFragment.Text(Battery.folderOnLastLapYouUsed));
                         messageFragments.Add(MessageFragment.Integer(wholePart, false));
                         messageFragments.Add(MessageFragment.Text(Battery.folderPercentOfYourBattery));
-
-                        if (useImmediateQueue)
-                            this.audioPlayer.playMessageImmediately(new QueuedMessage("Battery/prev_lap_use", 0, messageFragments: messageFragments));
-                        else
-                            this.audioPlayer.playMessage(new QueuedMessage("Battery/prev_lap_use", 0, messageFragments: messageFragments, abstractEvent: this, priority: 1));
-
                     }
                 }
             }
@@ -800,7 +824,7 @@ namespace CrewChiefV4.Events
             return haveData;
         }
 
-        private bool reportBatteryRemaining(bool useImmediateQueue, out bool batteryRunningLow)
+        private bool reportBatteryRemaining(bool useImmediateQueue, out bool batteryRunningLow, List<MessageFragment> messageFragments)
         {
             var haveData = false;
             batteryRunningLow = false;
@@ -816,7 +840,7 @@ namespace CrewChiefV4.Events
             {
                 haveData = true;
                 batteryRunningLow = false;
-                this.audioPlayer.playMessageImmediately(new QueuedMessage(Battery.folderPlentyOfBattery, 0));
+                messageFragments.Add(MessageFragment.Text(Battery.folderPlentyOfBattery));
             }
             else if ((this.averageUsagePerLap > 0.0f  // If avg usage per lap available, calculate threshold dynamically.
                     && this.windowedAverageChargeLeft > (this.averageUsagePerLap * Battery.BatteryLowLapsFactor))
@@ -824,36 +848,21 @@ namespace CrewChiefV4.Events
             {
                 haveData = true;
                 batteryRunningLow = false;
-                var messageFragments = new List<MessageFragment>();
                 messageFragments.Add(MessageFragment.Integer((int)windowedAverageChargeLeft, false));
                 messageFragments.Add(MessageFragment.Text(Battery.folderPercentRemaining));
-
-                if (useImmediateQueue)
-                    this.audioPlayer.playMessageImmediately(new QueuedMessage("Battery/level", 0, messageFragments: messageFragments));
-                else
-                    this.audioPlayer.playMessage(new QueuedMessage("Battery/level", 0, messageFragments: messageFragments, priority: 5));
             }
             else if ((this.averageUsagePerLap > 0.0f  // If avg usage per lap available, calculate threshold dynamically.
                     && this.windowedAverageChargeLeft > (this.averageUsagePerLap * Battery.BatteryCriticaLapsFactor))
                 || (this.averageUsagePerLap < 0.0f && this.windowedAverageChargeLeft > Battery.BatteryCriticalThreshold))  // In a corner case of no avg use available, just use fixed threshold.
             {
                 haveData = true;
-                if (useImmediateQueue)
-                    this.audioPlayer.playMessageImmediately(new QueuedMessage("Battery/level", 0, messageFragments: MessageContents(Battery.folderLowBattery)));
-                else
-                    this.audioPlayer.playMessage(new QueuedMessage("Battery/level", 0, messageFragments: MessageContents(Battery.folderLowBattery), abstractEvent: this, priority: 5));
+                messageFragments.Add(MessageFragment.Text(Battery.folderLowBattery));
             }
             else if (this.windowedAverageChargeLeft > 0)
             {
                 haveData = true;
-                var messageFragments = new List<MessageFragment>();
                 messageFragments.Add(MessageFragment.Text(Battery.folderCriticalBattery));
                 messageFragments.Add(MessageFragment.Text(Battery.folderAboutToRunOut));
-                
-                if (useImmediateQueue)
-                    this.audioPlayer.playMessageImmediately(new QueuedMessage("Battery/level", 0, messageFragments: messageFragments));
-                else
-                    this.audioPlayer.playMessage(new QueuedMessage("Battery/level", 0, messageFragments: messageFragments, abstractEvent: this, priority: 5));
             }
 
             if (batteryRunningLow || !this.batteryUseActive)
@@ -874,20 +883,12 @@ namespace CrewChiefV4.Events
                     haveData = false;
                 }
                 else if (lapsOfBatteryChargeLeft <= 1)
-                    if (useImmediateQueue)
-                        this.audioPlayer.playMessageImmediately(new QueuedMessage("Battery/estimate", 0, messageFragments: MessageContents(Battery.folderAboutToRunOut)));
-                    else
-                        this.audioPlayer.playMessage(new QueuedMessage("Battery/estimate", 0, messageFragments: MessageContents(Battery.folderAboutToRunOut), abstractEvent: this, priority: 5));
+                    messageFragments.Add(MessageFragment.Text(Battery.folderAboutToRunOut));
                 else
                 {
-                    var messageFragments = new List<MessageFragment>();
                     messageFragments.Add(MessageFragment.Text(introSound));
                     messageFragments.Add(MessageFragment.Integer(lapsOfBatteryChargeLeft, false));
                     messageFragments.Add(MessageFragment.Text(outroSound));
-                    if (useImmediateQueue)
-                        this.audioPlayer.playMessageImmediately(new QueuedMessage("Battery/estimate", 0, messageFragments: messageFragments));
-                    else
-                        this.audioPlayer.playMessage(new QueuedMessage("Battery/estimate", 0, messageFragments: messageFragments, priority: 5));
                 }
             }
             else if (this.averageUsagePerMinute > 0.0f) // Timed race.
@@ -905,20 +906,12 @@ namespace CrewChiefV4.Events
                     haveData = false;
                 }
                 else if (minutesOfBatteryChargeLeft <= 1)
-                    if (useImmediateQueue)
-                        this.audioPlayer.playMessageImmediately(new QueuedMessage("Battery/estimate", 0, messageFragments: MessageContents(Battery.folderAboutToRunOut)));
-                    else
-                        this.audioPlayer.playMessage(new QueuedMessage("Battery/estimate", 0, messageFragments: MessageContents(Battery.folderAboutToRunOut), abstractEvent: this, priority: 10));
+                    messageFragments.Add(MessageFragment.Text(Battery.folderAboutToRunOut));
                 else
                 {
-                    var messageFragments = new List<MessageFragment>();
                     messageFragments.Add(MessageFragment.Text(introSound));
                     messageFragments.Add(MessageFragment.Integer(minutesOfBatteryChargeLeft, false));
                     messageFragments.Add(MessageFragment.Text(outroSound));
-                    if (useImmediateQueue)
-                        this.audioPlayer.playMessageImmediately(new QueuedMessage("Battery/estimate", 0, messageFragments: messageFragments));
-                    else
-                        this.audioPlayer.playMessage(new QueuedMessage("Battery/estimate", 0, messageFragments: messageFragments, abstractEvent: this, priority: 10));
                 }
             }
 
@@ -949,6 +942,7 @@ namespace CrewChiefV4.Events
                 || this.windowedAverageChargeLeft < 0.0f
                 || this.numBatteryStatsEntries < 3)
             {
+                // TODO_MSG_DELAY: get fragment.
                 // play the more-information equivalent of 'no data'
                 base.respondMoreInformation("", requestedExplicitly);
                 return;
