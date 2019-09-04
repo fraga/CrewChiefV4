@@ -156,57 +156,65 @@ namespace CrewChiefV4.SRE
 
         public static CultureInfo GetCultureInfo(String langAndCountryToUse, String langToUse, Boolean log = false)
         {
-            if (useSystem)
+            try
             {
-                if (langAndCountryToUse != null && langAndCountryToUse.Length == 5)
+                if (useSystem)
                 {
-                    if (log) Console.WriteLine("Attempting to get recogniser for " + langAndCountryToUse);
+                    if (langAndCountryToUse != null && langAndCountryToUse.Length == 5)
+                    {
+                        if (log) Console.WriteLine("Attempting to get recogniser for " + langAndCountryToUse);
+                        foreach (System.Speech.Recognition.RecognizerInfo ri in System.Speech.Recognition.SpeechRecognitionEngine.InstalledRecognizers())
+                        {
+                            if (ri.Culture.Name.Equals(langAndCountryToUse))
+                            {
+                                return ri.Culture;
+                            }
+                        }
+                    }
+                    if (log && langAndCountryToUse != null && langAndCountryToUse.Length == 5)
+                    {
+                        Console.WriteLine("Failed to get recogniser for " + langAndCountryToUse);
+                    }
+                    if (log) Console.WriteLine("Attempting to get recogniser for " + langToUse);
                     foreach (System.Speech.Recognition.RecognizerInfo ri in System.Speech.Recognition.SpeechRecognitionEngine.InstalledRecognizers())
                     {
-                        if (ri.Culture.Name.Equals(langAndCountryToUse))
+                        if (ri.Culture.TwoLetterISOLanguageName.Equals(langToUse))
                         {
                             return ri.Culture;
                         }
                     }
                 }
-                if (log && langAndCountryToUse != null && langAndCountryToUse.Length == 5)
+                else
                 {
-                    Console.WriteLine("Failed to get recogniser for " + langAndCountryToUse);
-                }
-                if (log) Console.WriteLine("Attempting to get recogniser for " + langToUse);
-                foreach (System.Speech.Recognition.RecognizerInfo ri in System.Speech.Recognition.SpeechRecognitionEngine.InstalledRecognizers())
-                {
-                    if (ri.Culture.TwoLetterISOLanguageName.Equals(langToUse))
+                    if (langAndCountryToUse != null && langAndCountryToUse.Length == 5)
                     {
-                        return ri.Culture;
+                        if (log) Console.WriteLine("Attempting to get recogniser for " + langAndCountryToUse);
+                        foreach (Microsoft.Speech.Recognition.RecognizerInfo ri in Microsoft.Speech.Recognition.SpeechRecognitionEngine.InstalledRecognizers())
+                        {
+                            if (ri.Culture.Name.Equals(langAndCountryToUse))
+                            {
+                                return ri.Culture;
+                            }
+                        }
+                    }
+                    if (log && langAndCountryToUse != null && langAndCountryToUse.Length == 5)
+                    {
+                        Console.WriteLine("Failed to get recogniser for " + langAndCountryToUse);
+                    }
+                    if (log) Console.WriteLine("Attempting to get recogniser for " + langToUse);
+                    foreach (Microsoft.Speech.Recognition.RecognizerInfo ri in Microsoft.Speech.Recognition.SpeechRecognitionEngine.InstalledRecognizers())
+                    {
+                        if (ri.Culture.TwoLetterISOLanguageName.Equals(langToUse))
+                        {
+                            return ri.Culture;
+                        }
                     }
                 }
             }
-            else
+            catch (Exception e)
             {
-                if (langAndCountryToUse != null && langAndCountryToUse.Length == 5)
-                {
-                    if (log) Console.WriteLine("Attempting to get recogniser for " + langAndCountryToUse);
-                    foreach (Microsoft.Speech.Recognition.RecognizerInfo ri in Microsoft.Speech.Recognition.SpeechRecognitionEngine.InstalledRecognizers())
-                    {
-                        if (ri.Culture.Name.Equals(langAndCountryToUse))
-                        {
-                            return ri.Culture;
-                        }
-                    }
-                }
-                if (log && langAndCountryToUse != null && langAndCountryToUse.Length == 5)
-                {
-                    Console.WriteLine("Failed to get recogniser for " + langAndCountryToUse);
-                }
-                if (log) Console.WriteLine("Attempting to get recogniser for " + langToUse);
-                foreach (Microsoft.Speech.Recognition.RecognizerInfo ri in Microsoft.Speech.Recognition.SpeechRecognitionEngine.InstalledRecognizers())
-                {
-                    if (ri.Culture.TwoLetterISOLanguageName.Equals(langToUse))
-                    {
-                        return ri.Culture;
-                    }
-                }
+                // the engine may return a null InstalledRecognizers List
+                Console.WriteLine("Unable to get a SRE CultureInfo object: " + e.Message);
             }
             return null;
         }
