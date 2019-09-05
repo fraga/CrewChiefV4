@@ -288,6 +288,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.9.9.5: Final hotfix (fingers crossed...) for the remaining speech recognition initialisation issues
+
 Version 4.9.9.3: Another hotfix (sorry guys) - fix broken speech recognition with non-English versions of Windows, added more sanity checking for user profiles
 
 Version 4.9.9.2: Hotfix - fall back to Microsoft speech recognition engine implementation if the System speech recognition engine doesn't have the required language support; Hotfix - fix a crash bug when initialising the speech recognition system for nAudio users; Hotfix - fix plugin location error

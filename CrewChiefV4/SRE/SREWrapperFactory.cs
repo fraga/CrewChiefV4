@@ -154,36 +154,69 @@ namespace CrewChiefV4.SRE
             }
         }
 
-        public static CultureInfo GetCultureInfo(String langToUse)
+        public static CultureInfo GetCultureInfo(String langAndCountryToUse, String langToUse, Boolean log = false)
         {
-            if (useSystem)
+            try
             {
-                if (System.Speech.Recognition.SpeechRecognitionEngine.InstalledRecognizers() != null)
+                if (useSystem)
                 {
+                    if (langAndCountryToUse != null && langAndCountryToUse.Length == 5)
+                    {
+                        if (log) Console.WriteLine("Attempting to get recogniser for " + langAndCountryToUse);
+                        foreach (System.Speech.Recognition.RecognizerInfo ri in System.Speech.Recognition.SpeechRecognitionEngine.InstalledRecognizers())
+                        {
+                            if (ri.Culture.Name.Equals(langAndCountryToUse))
+                            {
+                                return ri.Culture;
+                            }
+                        }
+                    }
+                    if (log && langAndCountryToUse != null && langAndCountryToUse.Length == 5)
+                    {
+                        Console.WriteLine("Failed to get recogniser for " + langAndCountryToUse);
+                    }
+                    if (log) Console.WriteLine("Attempting to get recogniser for " + langToUse);
                     foreach (System.Speech.Recognition.RecognizerInfo ri in System.Speech.Recognition.SpeechRecognitionEngine.InstalledRecognizers())
                     {
-                        if (ri.Culture.TwoLetterISOLanguageName != null && ri.Culture.TwoLetterISOLanguageName.Equals(langToUse))
+                        if (ri.Culture.TwoLetterISOLanguageName.Equals(langToUse))
                         {
                             return ri.Culture;
                         }
                     }
                 }
-                return null;
-            }
-            else
-            {
-                if (Microsoft.Speech.Recognition.SpeechRecognitionEngine.InstalledRecognizers() != null)
+                else
                 {
+                    if (langAndCountryToUse != null && langAndCountryToUse.Length == 5)
+                    {
+                        if (log) Console.WriteLine("Attempting to get recogniser for " + langAndCountryToUse);
+                        foreach (Microsoft.Speech.Recognition.RecognizerInfo ri in Microsoft.Speech.Recognition.SpeechRecognitionEngine.InstalledRecognizers())
+                        {
+                            if (ri.Culture.Name.Equals(langAndCountryToUse))
+                            {
+                                return ri.Culture;
+                            }
+                        }
+                    }
+                    if (log && langAndCountryToUse != null && langAndCountryToUse.Length == 5)
+                    {
+                        Console.WriteLine("Failed to get recogniser for " + langAndCountryToUse);
+                    }
+                    if (log) Console.WriteLine("Attempting to get recogniser for " + langToUse);
                     foreach (Microsoft.Speech.Recognition.RecognizerInfo ri in Microsoft.Speech.Recognition.SpeechRecognitionEngine.InstalledRecognizers())
                     {
-                        if (ri.Culture.TwoLetterISOLanguageName != null && ri.Culture.TwoLetterISOLanguageName.Equals(langToUse))
+                        if (ri.Culture.TwoLetterISOLanguageName.Equals(langToUse))
                         {
                             return ri.Culture;
                         }
                     }
                 }
-                return null;
             }
+            catch (Exception e)
+            {
+                // the engine may return a null InstalledRecognizers List
+                Console.WriteLine("Unable to get a SRE CultureInfo object: " + e.Message);
+            }
+            return null;
         }
 
         public static float GetCallbackConfidence(object recognitionCallback)

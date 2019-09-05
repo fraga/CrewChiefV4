@@ -675,7 +675,7 @@ namespace CrewChiefV4
                 return false;
             }
             LangCodes langCodes = getLangCodes();
-            this.cultureInfo = getCultureInfo(langCodes, true);
+            this.cultureInfo = SREWrapperFactory.GetCultureInfo(langCodes.langAndCountryToUse, langCodes.langToUse, true);
 
             if (cultureInfo != null)
             {
@@ -773,7 +773,7 @@ namespace CrewChiefV4
             {
                 LangCodes langCodes = getLangCodes();
                 Console.WriteLine("got language codes data " + langCodes.ToString());
-                this.cultureInfo = getCultureInfo(langCodes, false);
+                this.cultureInfo = SREWrapperFactory.GetCultureInfo(langCodes.langAndCountryToUse, langCodes.langToUse, false);
                 // if we're using the system SRE, check we have the required language before proceeding
                 if (SREWrapperFactory.useSystem && this.cultureInfo == null)
                 {
@@ -781,7 +781,7 @@ namespace CrewChiefV4
                     Console.WriteLine("Unable to get language for System SRE with lang " + langCodes.langToUse + " or " + langCodes.langAndCountryToUse +
                         ", will fall back to Microsoft SRE");
                     SREWrapperFactory.useSystem = false;
-                    this.cultureInfo = getCultureInfo(langCodes, false);
+                    this.cultureInfo = SREWrapperFactory.GetCultureInfo(langCodes.langAndCountryToUse, langCodes.langToUse, false);
                 }
                 SREWrapperFactory.createNewSREWrapper(this.cultureInfo, true);
             }
@@ -2245,28 +2245,6 @@ namespace CrewChiefV4
             langCodes.langAndCountryToUse = langCodes.countryToUse != null ? langCodes.langToUse + "-" + langCodes.countryToUse : null;
 
             return langCodes;
-        }
-
-        private CultureInfo getCultureInfo(LangCodes langCodes, Boolean log)
-        {
-            CultureInfo cultureInfoFromFactory = null;
-            if (langCodes.langAndCountryToUse != null)
-            {
-                if (log)
-                    Console.WriteLine("Attempting to get recogniser for " + langCodes.langAndCountryToUse);
-                cultureInfoFromFactory = SREWrapperFactory.GetCultureInfo(langCodes.langAndCountryToUse);
-            }
-            if (cultureInfoFromFactory == null)
-            {
-                if (log && langCodes.langAndCountryToUse != null)
-                {
-                    Console.WriteLine("Failed to get recogniser for " + langCodes.langAndCountryToUse);
-                }
-                if (log)
-                    Console.WriteLine("Attempting to get recogniser for " + langCodes.langToUse);
-                cultureInfoFromFactory = SREWrapperFactory.GetCultureInfo(langCodes.langToUse);
-            }
-            return cultureInfoFromFactory;
         }
 
         class LangCodes
