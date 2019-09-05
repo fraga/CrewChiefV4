@@ -131,7 +131,7 @@ namespace CrewChiefV4.Events
 
         // If UseVerboseResponses is set, respond() is immediately followed by respondMoreInformation() call.
         // To delay both responses, store respond() fragments for delayed response in the respondMoreInformation() method.
-        // If UseVerboseResponses is not set, both methods will use this to assemble the message. 
+        // If UseVerboseResponses is not set, both methods will use this to assemble the message and play it back normally.
         private List<MessageFragment> respondMessageFragments = new List<MessageFragment>();
 
         public Battery(AudioPlayer audioPlayer)
@@ -716,7 +716,10 @@ namespace CrewChiefV4.Events
                 reportedUse = this.reportBatteryUse(allowNoDataMessage, respondMessageFragments);
 
             if (!reportedUse && !reportedRemaining && allowNoDataMessage)
+            {
+                Debug.Assert(this.respondMessageFragments.Count == 0);
                 this.audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+            }
             else
             {
                 Debug.Assert(this.respondMessageFragments.Count > 0);
@@ -727,17 +730,18 @@ namespace CrewChiefV4.Events
                     return;
                 }
 
-                this.playResponseFragments(allowNoDataMessage, "Battery/status");
+                this.playResponseFragments(allowNoDataMessage, "Battery/status", allowDelayedResponse: true);
             }
         }
 
-        private void playResponseFragments(bool allowNoDataMessage, string messageName)
+        private void playResponseFragments(bool allowNoDataMessage, string messageName, bool allowDelayedResponse)
         {
-            if (allowNoDataMessage  // True if this is Battery specific command response, not a full status response.
+            if (allowDelayedResponse
+                && allowNoDataMessage  // True if this is Battery specific command response, not a full status response.
                 && this.respondMessageFragments.Count > 0
                 && this.DelayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
             {
-                this.audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(new QueuedMessage(messageName, 0, messageFragments: this.respondMessageFragments), 3 /*lowerDelayBoundInclusive*/, 6 /*upperDelayBound*/);
+                this.audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(new QueuedMessage(messageName, 0, messageFragments: this.respondMessageFragments), lowerDelayBoundInclusive: 3, upperDelayBound: 6);
             }
             else
             {
@@ -950,7 +954,7 @@ namespace CrewChiefV4.Events
                 // play the more-information equivalent of 'no data'
                 base.respondMoreInformationDelayed("", requestedExplicitly, this.respondMessageFragments);
 
-                this.playResponseFragments(allowNoDataMessage, "Battery/extended_status");
+                this.playResponseFragments(allowNoDataMessage, "Battery/extended_status", allowDelayedResponse: this.UseVerboseResponses);
 
                 return;
             }
@@ -1062,7 +1066,7 @@ namespace CrewChiefV4.Events
             else if (batteryAdvice == BatteryAdvice.WontMakeItWithoutPitting)
                 this.respondMessageFragments.Add(MessageFragment.Text((!this.isVehicleSwapAllowed || midRaceReached) ? Battery.folderWontMakeEndWoPit : Battery.folderWontMakeHalfDistanceWoPit));
 
-            this.playResponseFragments(allowNoDataMessage, "Battery/extended_status");
+            this.playResponseFragments(allowNoDataMessage, "Battery/extended_status", allowDelayedResponse: this.UseVerboseResponses);
         }
     }
 }
