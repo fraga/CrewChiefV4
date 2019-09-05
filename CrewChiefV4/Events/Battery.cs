@@ -721,28 +721,33 @@ namespace CrewChiefV4.Events
             {
                 Debug.Assert(this.respondMessageFragments.Count > 0);
 
-                // If UseVerboseResponses is set, actual playback will be done in the this.reportExtendedBatteryStatus() method.
-                if (this.UseVerboseResponses)
+                if (allowNoDataMessage  // True if this is Battery specific command response, not a full status response.
+                    && this.UseVerboseResponses) // If UseVerboseResponses is set, actual playback will be done in the this.reportExtendedBatteryStatus() method.
                 {
                     return;
                 }
 
-                if (allowNoDataMessage  // True if this is Battery specific command response, not a full status response.
-                    && this.respondMessageFragments.Count > 0
-                    && this.DelayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
-                {
-                    this.audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(new QueuedMessage("Battery/status", 0, messageFragments: this.respondMessageFragments), 3 /*lowerDelayBoundInclusive*/, 6 /*upperDelayBound*/);
-                }
-                else
-                {
-                    if (allowNoDataMessage)
-                        this.audioPlayer.playMessageImmediately(new QueuedMessage("Battery/status", 0, messageFragments: this.respondMessageFragments));
-                    else
-                        this.audioPlayer.playMessage(new QueuedMessage("Battery/status", 0, messageFragments: this.respondMessageFragments, abstractEvent: this, priority: 1));
-                }
-
-                this.respondMessageFragments.Clear();
+                this.playResponseFragments(allowNoDataMessage, "Battery/status");
             }
+        }
+
+        private void playResponseFragments(bool allowNoDataMessage, string messageName)
+        {
+            if (allowNoDataMessage  // True if this is Battery specific command response, not a full status response.
+                && this.respondMessageFragments.Count > 0
+                && this.DelayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
+            {
+                this.audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(new QueuedMessage(messageName, 0, messageFragments: this.respondMessageFragments), 3 /*lowerDelayBoundInclusive*/, 6 /*upperDelayBound*/);
+            }
+            else
+            {
+                if (allowNoDataMessage)
+                    this.audioPlayer.playMessageImmediately(new QueuedMessage(messageName, 0, messageFragments: this.respondMessageFragments));
+                else
+                    this.audioPlayer.playMessage(new QueuedMessage(messageName, 0, messageFragments: this.respondMessageFragments, abstractEvent: this, priority: 1));
+            }
+
+            this.respondMessageFragments.Clear();
         }
 
         public override void respond(String voiceMessage)
@@ -942,21 +947,23 @@ namespace CrewChiefV4.Events
                 || this.windowedAverageChargeLeft < 0.0f
                 || this.numBatteryStatsEntries < 3)
             {
-                // TODO_MSG_DELAY: get fragment.
                 // play the more-information equivalent of 'no data'
-                base.respondMoreInformation("", requestedExplicitly);
+                base.respondMoreInformationDelayed("", requestedExplicitly, this.respondMessageFragments);
+
+                this.playResponseFragments(allowNoDataMessage, "Battery/extended_status");
+
                 return;
             }
 
             // Report usage trend:
             var bu = this.EvaluateBatteryUse();
             if (bu == BatteryUseTrend.Decreasing)
-                this.audioPlayer.playMessageImmediately(new QueuedMessage("Battery/trend", 0, messageFragments: MessageContents(Battery.folderUseDecreasing)));
+                this.respondMessageFragments.Add(MessageFragment.Text(Battery.folderUseDecreasing));
             else if (bu == BatteryUseTrend.Increasing)
-                this.audioPlayer.playMessageImmediately(new QueuedMessage("Battery/trend", 0, messageFragments: MessageContents(Battery.folderUseIncreasing)));
+                this.respondMessageFragments.Add(MessageFragment.Text(Battery.folderUseIncreasing));
             else if (bu == BatteryUseTrend.Stable)
-                this.audioPlayer.playMessageImmediately(new QueuedMessage("Battery/trend", 0, messageFragments: MessageContents(Battery.folderUseStable)));
-
+                this.respondMessageFragments.Add(MessageFragment.Text(Battery.folderUseStable));
+            
             var midRaceReached = false;
             var batteryAdvice = BatteryAdvice.Unknown;
 
@@ -1047,17 +1054,15 @@ namespace CrewChiefV4.Events
             }
 
             if (batteryAdvice == BatteryAdvice.BatteryUseSpotOn)
-                this.audioPlayer.playMessageImmediately(new QueuedMessage("Battery/advice", 0, 
-                    messageFragments: MessageContents((!this.isVehicleSwapAllowed || midRaceReached) ? Battery.folderShouldMakeEnd : Battery.folderShouldMakeHalfDistance)));
+                this.respondMessageFragments.Add(MessageFragment.Text((!this.isVehicleSwapAllowed || midRaceReached) ? Battery.folderShouldMakeEnd : Battery.folderShouldMakeHalfDistance));
             else if (batteryAdvice == BatteryAdvice.IncreaseBatteryUse)
-                this.audioPlayer.playMessageImmediately(new QueuedMessage("Battery/advice", 0,
-                    messageFragments: MessageContents((!this.isVehicleSwapAllowed || midRaceReached) ? Battery.folderIncreaseUseEasilyMakeEnd : Battery.folderIncreaseUseEasilyMakeHalfDistance)));
+                this.respondMessageFragments.Add(MessageFragment.Text((!this.isVehicleSwapAllowed || midRaceReached) ? Battery.folderIncreaseUseEasilyMakeEnd : Battery.folderIncreaseUseEasilyMakeHalfDistance));
             else if (batteryAdvice == BatteryAdvice.ReduceBatteryUse)
-                this.audioPlayer.playMessageImmediately(new QueuedMessage("Battery/advice", 0, 
-                    messageFragments: MessageContents((!this.isVehicleSwapAllowed || midRaceReached) ? Battery.folderReduceUseToMakeEnd : Battery.folderReduceUseHalfDistance)));
+                this.respondMessageFragments.Add(MessageFragment.Text((!this.isVehicleSwapAllowed || midRaceReached) ? Battery.folderReduceUseToMakeEnd : Battery.folderReduceUseHalfDistance));
             else if (batteryAdvice == BatteryAdvice.WontMakeItWithoutPitting)
-                this.audioPlayer.playMessageImmediately(new QueuedMessage("Battery/advice", 0,
-                    messageFragments: MessageContents((!this.isVehicleSwapAllowed || midRaceReached) ? Battery.folderWontMakeEndWoPit : Battery.folderWontMakeHalfDistanceWoPit)));
+                this.respondMessageFragments.Add(MessageFragment.Text((!this.isVehicleSwapAllowed || midRaceReached) ? Battery.folderWontMakeEndWoPit : Battery.folderWontMakeHalfDistanceWoPit));
+
+            this.playResponseFragments(allowNoDataMessage, "Battery/extended_status");
         }
     }
 }

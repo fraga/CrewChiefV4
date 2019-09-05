@@ -194,6 +194,15 @@ namespace CrewChiefV4.Events
             // otherwise do nothing
         }
 
+        public virtual void respondMoreInformationDelayed(String voiceMessage, Boolean requestedExplicitly, List<MessageFragment> messageFragments)
+        {
+            if (requestedExplicitly)
+            {
+                messageFragments.Add(MessageFragment.Text(AudioPlayer.folderNoMoreData));
+            }
+            // otherwise do nothing
+        }
+
         public void setPearlsOfWisdom(PearlsOfWisdom pearlsOfWisdom)
         {
             this.pearlsOfWisdom = pearlsOfWisdom;
