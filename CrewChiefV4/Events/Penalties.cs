@@ -411,7 +411,7 @@ namespace CrewChiefV4.Events
                     {
                         if (currentGameState.SessionData.SessionType == SessionType.Race)
                         {
-                            audioPlayer.playMessage(new QueuedMessage(folderCutTrackInRace, 5, secondsDelay: Utilities.random.Next(2, 4), abstractEvent: this, priority: 3));
+                            audioPlayer.playMessage(new QueuedMessage(folderCutTrackInRace, 5, secondsDelay: Utilities.random.Next(2, 4), abstractEvent: this, priority: 10));
                         }
                         else if (!playedTrackCutWarningInPracticeOrQualOnThisLap)
                         {

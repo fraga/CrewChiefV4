@@ -1596,7 +1596,7 @@ namespace CrewChiefV4.Events
                     {
                         expectedLapTime = CrewChief.currentGameState.TimingData.getPlayerClassBestLapTime();
                     }
-                    float maxMinutesRemaining = (secondsRemaining + (hasExtraLap ? expectedLapTime * 2 : expectedLapTime)) / 60f;                    
+                    float maxMinutesRemaining = (secondsRemaining + (hasExtraLap ? expectedLapTime * 2 : expectedLapTime)) / 60f;
                     float totalLitresNeededToEnd = 0;
                     if (averageUsagePerLapForCalculation > 0)
                     {
