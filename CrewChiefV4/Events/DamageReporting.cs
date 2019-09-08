@@ -433,7 +433,7 @@ namespace CrewChiefV4.Events
                     validationData.Add(DamageReporting.validationFlatTireKey, puncture);
 
                     lastReportedPunctureCorner = puncture;
-                    var msgDelay = Utilities.random.Next(2, 5);
+                    var msgDelay = Utilities.random.Next(4, 7);
                     var msgExpiration = msgDelay + 10;
                     switch (puncture)
                     {
@@ -880,9 +880,9 @@ namespace CrewChiefV4.Events
             validationData.Add(DamageReporting.validationComponentKey, damageToReportNext.Item1);
             validationData.Add(DamageReporting.validationDamageLevelKey, damageToReportNext.Item2);
 
-            var minorDamageMsgDelay = Utilities.random.Next(2, 5);
+            var minorDamageMsgDelay = Utilities.random.Next(4, 7);
             var minorDamageMsgExpiration = minorDamageMsgDelay + 10;
-            var majorDamageMsgDelay = Utilities.random.Next(2, 5);
+            var majorDamageMsgDelay = Utilities.random.Next(3, 6);
             var majorDamageMsgExpiration = majorDamageMsgDelay + 10;
 
             if (damageToReportNext.Item1 == Component.ENGINE)
