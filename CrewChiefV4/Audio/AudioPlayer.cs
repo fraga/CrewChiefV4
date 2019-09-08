@@ -677,7 +677,6 @@ namespace CrewChiefV4.Audio
                 {
                     QueuedMessage queuedMessage = (QueuedMessage)queueToPlay[key];
                     if (isImmediateMessages || queuedMessage.dueTime <= milliseconds)
-
                     {
                         Boolean blockedByKeepQuietMode;
                         if (allowImportantMessagesInKeepQuietMode)
