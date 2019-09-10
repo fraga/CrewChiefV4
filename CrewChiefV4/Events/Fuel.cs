@@ -1530,7 +1530,7 @@ namespace CrewChiefV4.Events
                 // take the max per-lap consumption rather than the average
                 float averageUsagePerMinuteForCalculation;
                 float averageUsagePerLapForCalculation;
-                if ((baseCalculationsOnMaxConsumption || GlobalBehaviourSettings.useOvalLogic) && maxConsumptionPerLap > 0 && maxConsumptionPerMinute > 0)
+                if ((baseCalculationsOnMaxConsumption || GlobalBehaviourSettings.useOvalLogic || sessionHasHadFCY) && maxConsumptionPerLap > 0 && maxConsumptionPerMinute > 0)
                 {
                     averageUsagePerLapForCalculation = maxConsumptionPerLap;
                     averageUsagePerMinuteForCalculation = maxConsumptionPerMinute;
@@ -1742,12 +1742,12 @@ namespace CrewChiefV4.Events
 
         private float getConsumptionPerLap()
         {
-            return (baseCalculationsOnMaxConsumption || GlobalBehaviourSettings.useOvalLogic) && maxConsumptionPerLap > 0 ? maxConsumptionPerLap : averageUsagePerLap;
+            return (baseCalculationsOnMaxConsumption || GlobalBehaviourSettings.useOvalLogic || sessionHasHadFCY) && maxConsumptionPerLap > 0 ? maxConsumptionPerLap : averageUsagePerLap;
         }
 
         private float getConsumptionPerMinute()
         {
-            return (baseCalculationsOnMaxConsumption || GlobalBehaviourSettings.useOvalLogic) && maxConsumptionPerMinute > 0 ? maxConsumptionPerMinute : averageUsagePerMinute;
+            return (baseCalculationsOnMaxConsumption || GlobalBehaviourSettings.useOvalLogic || sessionHasHadFCY) && maxConsumptionPerMinute > 0 ? maxConsumptionPerMinute : averageUsagePerMinute;
         }
 
         // don't allow some automatic fuel messages to play if the last fuel message was < 30 seconds ago

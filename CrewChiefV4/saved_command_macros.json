@@ -943,41 +943,30 @@
     },
     {
       "name": "Get Out Of Car",
-      "description": "Presses ESC key for 2 sec.",
+      "description": "Presses ESC key X sec",
       "voiceTriggers": [
-        "get out",
-        "fuck this shit"
+        "get out"
       ],
-      "commandSets": [
-        {
-          "description": "iRacing version",
-          "gameDefinition": "IRACING",
-          "actionSequence": [
-            "ESC"
-          ],
-          "keyPressTime": 2000,
-          "waitBetweenEachCommand": 200
-        }
-      ]
-    },
-    {
-      "name": "Get Out Of Car",
-      "description": "Presses ESC key for 1.1 sec.",
-      "voiceTriggers": [
-        "get out",
-        "fuck this shit"
-      ],
-      "commandSets": [
-        {
-          "description": "Race Room version",
-          "gameDefinition": "RACE_ROOM",
-          "actionSequence": [
-            "ESC"
-          ],
-          "keyPressTime": 1100,
-          "waitBetweenEachCommand": 200
-        }
-      ]
+			"commandSets": [
+				{
+					"description": "iRacing version, Presses ESC key for 2 sec.",
+					"gameDefinition": "IRACING",
+					"actionSequence": [
+						"ESC"
+					],
+					"keyPressTime": 2000,
+					"waitBetweenEachCommand": 200
+				},
+				{
+					"description": "Race Room version, Presses ESC key for 1.1 sec.",
+					"gameDefinition": "RACE_ROOM",
+					"actionSequence": [
+						"ESC"
+					],
+					"keyPressTime": 1100,
+					"waitBetweenEachCommand": 200
+				}
+			]
     }
   ]
 }

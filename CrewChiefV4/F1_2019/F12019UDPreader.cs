@@ -28,7 +28,7 @@ namespace CrewChiefV4.F1_2019
         private F12019StructWrapper workingData = new F12019StructWrapper();
         private F12019StructWrapper[] dataReadFromFile = null;
         private int dataReadFromFileIndex = 0;
-        private int udpPort = UserSettings.GetUserSettings().getInt("f1_2018_udp_data_port");
+        private int udpPort = UserSettings.GetUserSettings().getInt("f1_2019_udp_data_port");
 
         private byte[] receivedDataBuffer;
 
