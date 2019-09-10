@@ -1585,8 +1585,27 @@ namespace CrewChiefV4.RaceRoom
             }
             else if (RaceRoomConstant.Session.Qualify == r3eSessionType)
             {
-                if (previousGameState != null && previousGameState.OpponentData.Count == 0)
+                if (previousGameState != null && previousGameState.SessionData.SessionType == SessionType.HotLap)
                 {
+                    // check if we need to revert to regular qual
+                    if (previousGameState.PitData.InPitlane && previousGameState.PositionAndMotionData.CarSpeed > 5 &&
+                        shared.InPitlane != 1 && shared.CarSpeed > 5)
+                    {
+                        // regular pit exit in this session, so revert to regular qual
+                        return SessionType.Qualify;
+                    }
+                    else
+                    {
+                        return SessionType.HotLap;
+                    }
+                }
+                
+                if (((previousGameState != null && previousGameState.PositionAndMotionData.CarSpeed < 1) || previousGameState == null)
+                    && shared.InPitlane != 1
+                    && shared.CarSpeed > 10)
+                {
+                    // we're in a qual session and we've gone from the pit to the racing surface in an instant, going from a standstill
+                    // to > 10 m/s. 
                     return SessionType.HotLap;
                 }
                 return SessionType.Qualify;
