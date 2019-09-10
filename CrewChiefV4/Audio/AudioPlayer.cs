@@ -693,6 +693,7 @@ namespace CrewChiefV4.Audio
                         Boolean blockedByDelayedHigherPriorityMessage = false;
                         if (higherPriorityDelayedMessage != null)
                         {
+                            Debug.Assert(!AudioPlayer.delayMessagesInHardParts);
                             if (higherPriorityDelayedMessage.metadata.priority > queuedMessage.metadata.priority)
                             {
                                 blockedByDelayedHigherPriorityMessage = true;
@@ -764,8 +765,9 @@ namespace CrewChiefV4.Audio
                     }
                     else if (queuedMessage.dueTime > milliseconds)
                     {
-                        if (higherPriorityDelayedMessage == null
-                            || higherPriorityDelayedMessage.metadata.priority < queuedMessage.metadata.priority)
+                        if (!AudioPlayer.delayMessagesInHardParts  // Do not delay messages based on priority if hard parts feature is in use.
+                            && (higherPriorityDelayedMessage == null
+                                || higherPriorityDelayedMessage.metadata.priority < queuedMessage.metadata.priority))
                         {
                             higherPriorityDelayedMessage = queuedMessage;
                         }
