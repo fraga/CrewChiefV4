@@ -434,6 +434,7 @@ namespace CrewChiefV4
             public bool limiterAvailable { get; set; }
             public bool allMembersAreFWD { get; set; }
             public bool allMembersAreRWD { get; set; }
+            public Dictionary<string, TyreType> gameTyreToTyreType { get; set; }
 
             public String placeholderClassId = "";
 
@@ -477,6 +478,7 @@ namespace CrewChiefV4
                 this.isVehicleSwapAllowed = false;
                 this.isRefuelingAllowed = true;
                 this.limiterAvailable = true;
+                this.gameTyreToTyreType = new Dictionary<string, TyreType>();
             }
 
 

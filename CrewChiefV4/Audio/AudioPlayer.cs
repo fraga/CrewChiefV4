@@ -667,6 +667,8 @@ namespace CrewChiefV4.Audio
 
             Boolean oneOrMoreEventsEnabled = false;
 
+            QueuedMessage higherPriorityDelayedMessage = null;
+
             lock (queueToPlay)
             {
                 int willBePlayedCount = queueToPlay.Count;
@@ -687,13 +689,24 @@ namespace CrewChiefV4.Audio
                                 (queuedMessage.metadata == null || 
                                 (queuedMessage.metadata.type != SoundType.SPOTTER && queuedMessage.metadata.type != SoundType.VOICE_COMMAND_RESPONSE));
                         }
+
+                        Boolean blockedByDelayedHigherPriorityMessage = false;
+                        if (higherPriorityDelayedMessage != null)
+                        {
+                            Debug.Assert(!AudioPlayer.delayMessagesInHardParts);
+                            if (higherPriorityDelayedMessage.metadata.priority > queuedMessage.metadata.priority)
+                            {
+                                blockedByDelayedHigherPriorityMessage = true;
+                            }
+                        }
+
                         Boolean messageHasExpired = queuedMessage.expiryTime != 0 && queuedMessage.expiryTime < milliseconds;
                         Boolean messageIsStillValid = queuedMessage.isMessageStillValid(key, CrewChief.currentGameState);
                         Boolean queueTooLongForMessage = queuedMessage.maxPermittedQueueLengthForMessage != 0 && willBePlayedCount > queuedMessage.maxPermittedQueueLengthForMessage;
                         Boolean hasJustPlayedAsAnImmediateMessage = !isImmediateMessages && lastImmediateMessageName != null &&
                             key == lastImmediateMessageName && GameStateData.CurrentTime - lastImmediateMessageTime < TimeSpan.FromSeconds(5);
-                        if (!blockedByKeepQuietMode && queuedMessage.canBePlayed &&
-                            messageIsStillValid && !keysToPlay.Contains(key) && !queueTooLongForMessage && !messageHasExpired && !hasJustPlayedAsAnImmediateMessage)
+                        if (!blockedByKeepQuietMode && queuedMessage.canBePlayed && !blockedByDelayedHigherPriorityMessage
+                            && messageIsStillValid && !keysToPlay.Contains(key) && !queueTooLongForMessage && !messageHasExpired && !hasJustPlayedAsAnImmediateMessage)
                         {
                             // special case for 'get ready' event here - we don't want to move this to the top of the queue because 
                             // it makes it sound shit. Bit of a hack, needs a better solution
@@ -738,6 +751,10 @@ namespace CrewChiefV4.Audio
                             {
                                 Console.WriteLine("Clip " + key + " has just been played in response to a voice command, skipping");
                             }
+                            else if (blockedByDelayedHigherPriorityMessage)
+                            {
+                                Console.WriteLine("Clip " + key + " because higher priority message is waiting to be played: " + higherPriorityDelayedMessage.messageName);
+                            }
                             else
                             {
                                 Console.WriteLine("Clip " + key + " will not be played");
@@ -746,6 +763,16 @@ namespace CrewChiefV4.Audio
                             willBePlayedCount--;
                         }
                     }
+                    else if (queuedMessage.dueTime > milliseconds)
+                    {
+                        if (!AudioPlayer.delayMessagesInHardParts  // Do not delay messages based on priority if hard parts feature is in use.
+                            && (higherPriorityDelayedMessage == null
+                                || higherPriorityDelayedMessage.metadata.priority < queuedMessage.metadata.priority))
+                        {
+                            higherPriorityDelayedMessage = queuedMessage;
+                        }
+                    }
+
                     // if we've just processed a 'rant' here, set the flag to false
                     if (queuedMessage.isRant)
                     {
@@ -1141,6 +1168,18 @@ namespace CrewChiefV4.Audio
                 QueuedMessage rant = new QueuedMessage(messageIdentifier, 0, messageFragments: messageContents);
                 rant.isRant = true;
                 playMessage(rant, PearlsOfWisdom.PearlType.NONE, 0);
+                return true;
+            }
+            return false;
+        }
+
+        public Boolean getDelayedRant(List<MessageFragment> messageFragments)
+        {
+            if (sweary && !playedRantInThisSession && Utilities.random.NextDouble() < rantLikelihood)
+            {
+                playedRantInThisSession = true;
+                AudioPlayer.rantWaitingToPlay = true;
+                messageFragments.Add(MessageFragment.Text(folderRants));
                 return true;
             }
             return false;
@@ -1542,6 +1581,20 @@ namespace CrewChiefV4.Audio
 
             return !string.IsNullOrWhiteSpace(rawName) && CrewChief.enableDriverNames &&
                 ((SoundCache.hasSuitableTTSVoice && ttsOption != TTS_OPTION.NEVER) || SoundCache.availableDriverNames.Contains(DriverNameHelper.getUsableDriverName(rawName)));
+        }
+
+        internal void pauseQueueAndPlayDelayedImmediateMessage(QueuedMessage queuedMessage, int lowerDelayBoundInclusive, int upperDelayBound)
+        {
+            this.playMessageImmediately(new QueuedMessage(AudioPlayer.folderStandBy, 0));
+
+            var secondsDelay = Utilities.random.Next(lowerDelayBoundInclusive, upperDelayBound);
+            this.pauseQueue(secondsDelay);
+
+            queuedMessage.dueTime = queuedMessage.creationTime + (secondsDelay * 1000) + queuedMessage.updateInterval;
+            queuedMessage.secondsDelay = secondsDelay;
+            queuedMessage.expiryTime = queuedMessage.creationTime + (secondsDelay + 10) * 1000;
+
+            this.playDelayedImmediateMessage(queuedMessage);
         }
     }
 }

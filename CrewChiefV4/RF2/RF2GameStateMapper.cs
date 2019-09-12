@@ -569,6 +569,8 @@ namespace CrewChiefV4.rFactor2
 
                 GlobalBehaviourSettings.UpdateFromCarClass(cgs.carClass);
 
+                this.ProcessTyreTypeClassMapping(cgs.carClass);
+
                 // Initialize track landmarks for this session.
                 TrackDataContainer tdc = null;
                 if (this.lastSessionTrackDataContainer != null
@@ -2595,6 +2597,20 @@ namespace CrewChiefV4.rFactor2
             }
         }
 
+        private void ProcessTyreTypeClassMapping(CarData.CarClass carClass)
+        {
+            if (carClass.gameTyreToTyreType.Count == 0)
+                return;
+
+            Debug.Assert(this.compoundNameToTyreType.Count == 0);
+            Console.WriteLine("Using custom tyre type mapping:");
+            foreach (var entry in carClass.gameTyreToTyreType)
+            {
+                Console.WriteLine($"Compound: \"{entry.Key}\" mapped to: \"{entry.Value}\"");
+                this.compoundNameToTyreType.Add(entry.Key.ToUpperInvariant(), entry.Value);
+            }
+        }
+
         private TyreType MapToTyreType(ref rF2VehicleTelemetry vehicleTelemetry)
         {
             // Do not cache tyre type if telemetry is not available yet.
@@ -2602,7 +2618,7 @@ namespace CrewChiefV4.rFactor2
                 return TyreType.Uninitialized;
 
             // For now, use fronts.
-            var frontCompound = RF2GameStateMapper.GetStringFromBytes(vehicleTelemetry.mFrontTireCompoundName).ToUpperInvariant();        
+            var frontCompound = RF2GameStateMapper.GetStringFromBytes(vehicleTelemetry.mFrontTireCompoundName).ToUpperInvariant();
             var tyreType = TyreType.Unknown_Race;
             if (this.compoundNameToTyreType.TryGetValue(frontCompound, out tyreType))
                 return tyreType;

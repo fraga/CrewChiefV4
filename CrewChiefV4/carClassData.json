@@ -109,6 +109,11 @@
 # skip defaultTyreType so they use Unknown_Race - this is only overridden in
 # road cars.
 #
+# For games with modding support, we added gameTyreToTyreType mapping field to map game tyre to CC built in tyre type (currently, implemented in rF2 only).  See F1_1996_SL1DE car class on how to use that mapping.
+# CC built-in tyre types are:
+# Hard, Medium, Soft, Super_Soft, Ultra_Soft, Hyper_Soft, Wet, Intermediate, Road, Bias_Ply, Unknown_Race, R3E_2017, R3E_2016,
+# R3E_2016_SOFT, R3E_2016_MEDIUM, R3E_2016_HARD, Prime, Option, Alternate, Primary, Ice, Snow, AllTerrain
+#
 # IMPORTANT....
 #
 # This file in [install_dir]/ will be *overwritten without warning* on update.
@@ -1010,7 +1015,13 @@
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL",
 			"pitCrewPreparationTime": 17,
-			"allMembersAreRWD": true
+			"allMembersAreRWD": true,
+			"gameTyreToTyreType" : {
+				"GoodYear D": "Super_Soft",
+				"GoodYear C": "Soft",
+				"GoodYear B": "Medium",
+				"GoodYear A": "Hard"
+			}
 		},
 		{
 			"carClassEnum": "INDYCAR_DALLARA_2011",
