@@ -542,7 +542,9 @@ namespace CrewChiefV4.Events
                 if (currentGameState.PitData.PitSpeedLimit == -1.0f
                     || pitLaneSpeedWarningAnnounced)  // Announce pitlane speed limit automatically only once per session
                 {
-                    audioPlayer.playMessageImmediately(new QueuedMessage(folderWatchYourPitSpeed, 2, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
+                    if (currentGameState.PitData.PitSpeedLimit == -1.0f  // Only announce "watch your speed" message if we have no pit speed data.
+                        || currentGameState.PitData.pitlaneHasSpeedLimit())  // Or, if we know for sure there's a speed limit.
+                        audioPlayer.playMessageImmediately(new QueuedMessage(folderWatchYourPitSpeed, 2, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
                 }
                 else
                 {
@@ -860,7 +862,9 @@ namespace CrewChiefV4.Events
                         if (currentGameState.PitData.PitSpeedLimit == -1.0f
                             || pitLaneSpeedWarningAnnounced)  // Announce pitlane speed limit automatically only once per session
                         {
-                            audioPlayer.playMessageImmediately(new QueuedMessage(folderWatchYourPitSpeed, 2, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
+                            if (currentGameState.PitData.PitSpeedLimit == -1.0f  // Only announce "watch your speed" message if we have no pit speed data.
+                                || currentGameState.PitData.pitlaneHasSpeedLimit())  // Or, if we know for sure there's a speed limit.
+                                audioPlayer.playMessageImmediately(new QueuedMessage(folderWatchYourPitSpeed, 2, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
                         }
                         else
                         {
