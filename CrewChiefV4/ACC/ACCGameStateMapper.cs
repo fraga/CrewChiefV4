@@ -1032,8 +1032,50 @@ namespace CrewChiefV4.ACC
             currentGameState.ControlData.ClutchPedal = shared.accPhysics.clutch;
 
             // penalty data
-            currentGameState.PenaltiesData.HasDriveThrough = currentFlag == AC_FLAG_TYPE.AC_PENALTY_FLAG && shared.accGraphic.penaltyTime <= 0;
-            currentGameState.PenaltiesData.HasSlowDown = currentFlag == AC_FLAG_TYPE.AC_PENALTY_FLAG && shared.accGraphic.penaltyTime > 0;
+            currentGameState.PenaltiesData.HasDriveThrough = shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_DriveThrough_Cutting
+                || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_DriveThrough_IgnoredDriverStint
+                || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_DriveThrough_PitSpeeding;
+            currentGameState.PenaltiesData.HasSlowDown = false;
+            currentGameState.PenaltiesData.HasStopAndGo = shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_StopAndGo_10_Cutting
+                || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_StopAndGo_10_PitSpeeding
+                || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_StopAndGo_20_Cutting
+                || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_StopAndGo_20_PitSpeeding
+                || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_StopAndGo_30_Cutting
+                || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_StopAndGo_30_PitSpeeding;
+            currentGameState.PenaltiesData.HasTimeDeduction = shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_PostRaceTime;
+            if (shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_DriveThrough_PitSpeeding
+                || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_Disqualified_PitSpeeding
+                || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_StopAndGo_10_PitSpeeding
+                || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_StopAndGo_20_PitSpeeding
+                || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_StopAndGo_30_PitSpeeding)
+            {
+                currentGameState.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.SPEEDING_IN_PITLANE;
+            }
+            else if (shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_Disqualified_Cutting
+                            || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_DriveThrough_Cutting
+                            || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_StopAndGo_10_Cutting
+                            || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_StopAndGo_20_Cutting
+                            || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_StopAndGo_30_Cutting)
+            {
+                currentGameState.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.CUT_TRACK;
+            }
+            else if (shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_Disqualified_ExceededDriverStintLimit)
+            {
+                currentGameState.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.EXCEEDED_TOTAL_DRIVER_STINT_LIMIT;
+            }
+            else if (shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_Disqualified_IgnoredDriverStint
+                || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_DriveThrough_IgnoredDriverStint)
+            {
+                currentGameState.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.EXCEEDED_SINGLE_DRIVER_STINT_LIMIT;
+            }
+            if (currentGameState.PenaltiesData.HasDriveThrough)
+            {
+                currentGameState.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.DRIVE_THROUGH;
+            }
+            else if (currentGameState.PenaltiesData.HasStopAndGo)
+            {
+                currentGameState.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
+            }
 
             // motion data
             currentGameState.PositionAndMotionData.CarSpeed = playerVehicle.speedMS;
@@ -1104,6 +1146,9 @@ namespace CrewChiefV4.ACC
                 currentGameState.PitData.MandatoryPitStopCompleted = previousGameState.PitData.MandatoryPitStopCompleted || shared.accGraphic.MandatoryPitDone == 1;
             }
 
+            currentGameState.PitData.DriverStintSecondsRemaining = shared.accGraphic.driverStintTimeLeft * 1000;
+            currentGameState.PitData.DriverStintTotalSecondsRemaining = shared.accGraphic.driverStintTotalTimeLeft * 1000;
+
             //damage data
             if (shared.accChief.isInternalMemoryModuleLoaded == 1)
             {
@@ -1157,7 +1202,7 @@ namespace CrewChiefV4.ACC
             currentGameState.TyreData.FrontLeft_CenterTemp = shared.accPhysics.tyreTempM[0];
             currentGameState.TyreData.FrontLeft_LeftTemp = shared.accPhysics.tyreTempO[0];
             currentGameState.TyreData.FrontLeft_RightTemp = shared.accPhysics.tyreTempI[0];
-            currentGameState.TyreData.FrontLeftTyreType = defaultTyreTypeForPlayersCar;
+            currentGameState.TyreData.FrontLeftTyreType = shared.accGraphic.rainTyres == 1 ? TyreType.Wet : defaultTyreTypeForPlayersCar;
             if (currentGameState.SessionData.IsNewLap || currentGameState.TyreData.PeakFrontLeftTemperatureForLap == 0)
             {
                 currentGameState.TyreData.PeakFrontLeftTemperatureForLap = currentGameState.TyreData.FrontLeft_CenterTemp;
@@ -1170,7 +1215,7 @@ namespace CrewChiefV4.ACC
             currentGameState.TyreData.FrontRight_CenterTemp = shared.accPhysics.tyreTempM[1];
             currentGameState.TyreData.FrontRight_LeftTemp = shared.accPhysics.tyreTempI[1];
             currentGameState.TyreData.FrontRight_RightTemp = shared.accPhysics.tyreTempO[1];
-            currentGameState.TyreData.FrontRightTyreType = defaultTyreTypeForPlayersCar;
+            currentGameState.TyreData.FrontRightTyreType = shared.accGraphic.rainTyres == 1 ? TyreType.Wet : defaultTyreTypeForPlayersCar;
             if (currentGameState.SessionData.IsNewLap || currentGameState.TyreData.PeakFrontRightTemperatureForLap == 0)
             {
                 currentGameState.TyreData.PeakFrontRightTemperatureForLap = currentGameState.TyreData.FrontRight_CenterTemp;
@@ -1183,7 +1228,7 @@ namespace CrewChiefV4.ACC
             currentGameState.TyreData.RearLeft_CenterTemp = shared.accPhysics.tyreTempM[2];
             currentGameState.TyreData.RearLeft_LeftTemp = shared.accPhysics.tyreTempO[2];
             currentGameState.TyreData.RearLeft_RightTemp = shared.accPhysics.tyreTempI[2];
-            currentGameState.TyreData.RearLeftTyreType = defaultTyreTypeForPlayersCar;
+            currentGameState.TyreData.RearLeftTyreType = shared.accGraphic.rainTyres == 1 ? TyreType.Wet : defaultTyreTypeForPlayersCar;
             if (currentGameState.SessionData.IsNewLap || currentGameState.TyreData.PeakRearLeftTemperatureForLap == 0)
             {
                 currentGameState.TyreData.PeakRearLeftTemperatureForLap = currentGameState.TyreData.RearLeft_CenterTemp;
@@ -1196,7 +1241,7 @@ namespace CrewChiefV4.ACC
             currentGameState.TyreData.RearRight_CenterTemp = shared.accPhysics.tyreTempM[3];
             currentGameState.TyreData.RearRight_LeftTemp = shared.accPhysics.tyreTempI[3];
             currentGameState.TyreData.RearRight_RightTemp = shared.accPhysics.tyreTempO[3];
-            currentGameState.TyreData.RearRightTyreType = defaultTyreTypeForPlayersCar;
+            currentGameState.TyreData.RearRightTyreType = shared.accGraphic.rainTyres == 1 ? TyreType.Wet : defaultTyreTypeForPlayersCar;
             if (currentGameState.SessionData.IsNewLap || currentGameState.TyreData.PeakRearRightTemperatureForLap == 0)
             {
                 currentGameState.TyreData.PeakRearRightTemperatureForLap = currentGameState.TyreData.RearRight_CenterTemp;

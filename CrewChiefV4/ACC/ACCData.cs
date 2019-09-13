@@ -34,6 +34,8 @@ namespace CrewChiefV4.ACC
             AC_TIME_ATTACK = 4,
             AC_DRIFT = 5,
             AC_DRAG = 6,
+            ACC_HOTSTINT = 7,
+            ACC_HOTSTINTSUPERPOLE = 8
         }
 
         public enum AC_FLAG_TYPE
@@ -52,6 +54,31 @@ namespace CrewChiefV4.ACC
             FR = 1,
             RL = 2,
             RR = 3,
+        }
+        public enum AC_PENALTY_TYPE
+        {
+            ACC_None = 0,
+            ACC_DriveThrough_Cutting = 1,
+            ACC_StopAndGo_10_Cutting = 2,
+            ACC_StopAndGo_20_Cutting = 3,
+            ACC_StopAndGo_30_Cutting = 4,
+            ACC_Disqualified_Cutting = 5,
+            ACC_RemoveBestLaptime_Cutting = 6,
+            ACC_DriveThrough_PitSpeeding = 7,
+            ACC_StopAndGo_10_PitSpeeding = 8,
+            ACC_StopAndGo_20_PitSpeeding = 9,
+            ACC_StopAndGo_30_PitSpeeding = 10,
+            ACC_Disqualified_PitSpeeding = 11,
+            ACC_RemoveBestLaptime_PitSpeeding = 12,
+            ACC_Disqualified_IgnoredMandatoryPit = 13,
+            ACC_PostRaceTime = 14,
+            ACC_Disqualified_Trolling = 15,
+            ACC_Disqualified_PitEntry = 16,
+            ACC_Disqualified_PitExit = 17,
+            ACC_Disqualified_Wrongway = 18,
+            ACC_DriveThrough_IgnoredDriverStint = 19,
+            ACC_Disqualified_IgnoredDriverStint = 20,
+            ACC_Disqualified_ExceededDriverStintLimit = 21
         }
         [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Unicode)]
         [Serializable]
@@ -144,6 +171,27 @@ namespace CrewChiefV4.ACC
             public accVec3[] tyreContactHeading;
             float brakeBias;
             public accVec3 localVelocity;
+
+            public int P2PActivation; // Not used in ACC
+            public int P2PStatus;     // Not used in ACC
+            public float[] currentMaxRpm;
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+            public float[] mz;       // Not shown in ACC
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+            public float[] fx;       // Not shown in ACC
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+            public float[] fy;       // Not shown in ACC
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+            public float[] slipRatio;// Tyre slip ratio[FL, FR, RL, RR]
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+            public float[] slipAngle;// Tyre slip angle[FL, FR, RL, RR]
+            public int tcinAction;
+            public int absInAction;
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+            public float[] suspensionDamage;// Suspensions damage levels[FL, FR, RL, RR]
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+            public float[] tyreTemp;// * Tyres core temperatures[FL, FR, RL, RR]
+            public float waterTemp;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Unicode)]
@@ -190,10 +238,8 @@ namespace CrewChiefV4.ACC
 
             public float penaltyTime;
             public AC_FLAG_TYPE flag;
-
-            // i have no idea what this is - some kind of enum I expect
-            //ksRacing::PenaltyShortcut penalty = ksRacing::PenaltyShortcut::None;
-            public int penalty;
+            
+            public AC_PENALTY_TYPE penalty;
 
             public int idealLineOn;
             public int isInPitLane;
@@ -217,6 +263,21 @@ namespace CrewChiefV4.ACC
             public int lightsStage;
             public float exhaustTemperature;
             public int wiperLV;
+
+            public int driverStintTimeLeft;// Time the driver is allowed to drive per stint in milliseconds
+            public int driverStintTotalTimeLeft;// Time is the driver is allowed to drive per race in milliseconds
+            public int rainTyres;// Are rain tyres equipped
+            public int sessionIndex;
+            public float usedFuel;// Used fuel since last time refueling
+            [MarshalAsAttribute(UnmanagedType.ByValTStr, SizeConst = 15)]
+            public String deltaLapTime;// Delta time in wide character
+            public int iDeltaLapTime;//Delta time time in milliseconds
+            [MarshalAsAttribute(UnmanagedType.ByValTStr, SizeConst = 15)]
+            public String estimatedLapTime;//Estimated lap time in milliseconds
+            public int iEstimatedLapTime;//Estimated lap time in wide character
+            public int isDeltaPositive;//Delta positive(1) or negative(0)
+            public int iSplit;// Last split time in milliseconds
+            public int isValidLap;// Check if Lap is valid for timing
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Unicode)]
@@ -285,6 +346,7 @@ namespace CrewChiefV4.ACC
             public int reversedGridPositions;
             public int PitWindowStart;
             public int PitWindowEnd;
+            public int isOnline; // If is a multiplayer session
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Ansi)]

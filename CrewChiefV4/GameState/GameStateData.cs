@@ -2710,6 +2710,10 @@ namespace CrewChiefV4.GameState
 
         public Boolean IsInGarage;
 
+        public float DriverStintSecondsRemaining;   // time remaining before this driver needs to hand over
+
+        public float DriverStintTotalSecondsRemaining;  // total time remaining that this driver is allowed to drive in the session
+
         // Note that callers have to also check if PitSpeedLimit != -1.0f, which means no data.
         public bool pitlaneHasSpeedLimit()
         {
@@ -2759,6 +2763,8 @@ namespace CrewChiefV4.GameState
             ILLEGAL_PASS_ROLLING_BEFORE_GREEN,
             ILLEGAL_PASS_FCY_BEFORE_GREEN,
             IGNORED_BLUE_FLAG,
+            EXCEEDED_SINGLE_DRIVER_STINT_LIMIT,
+            EXCEEDED_TOTAL_DRIVER_STINT_LIMIT
         }
         public DetailedPenaltyCause PenaltyCause = DetailedPenaltyCause.NONE;
 

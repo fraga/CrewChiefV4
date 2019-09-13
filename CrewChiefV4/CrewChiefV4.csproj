@@ -153,6 +153,7 @@
     <Compile Include="Events\Battery.cs" />
     <Compile Include="Events\CommonActions.cs" />
     <Compile Include="Events\CommonDataContainers.cs" />
+    <Compile Include="Events\DriverSwaps.cs" />
     <Compile Include="Events\Strategy.cs" />
     <Compile Include="Events\FrozenOrderMonitor.cs" />
     <Compile Include="Events\MulticlassWarnings.cs" />
