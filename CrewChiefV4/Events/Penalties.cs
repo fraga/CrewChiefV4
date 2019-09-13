@@ -111,6 +111,10 @@ namespace CrewChiefV4.Events
 
         private String folderWarningUnsportsmanlikeDriving = "penalties/warning_unsportsmanlike_driving";
 
+        private String folderDriveThroughExceedingSingleStintTime = "penalties/drive_through_exceeding_single_stint_time";
+
+        private String folderStopGoExceedingSingleStintTime = "penalties/stop_go_exceeding_single_stint_time";
+
         private Boolean hasHadAPenalty;
 
         private int penaltyLap;
@@ -460,7 +464,7 @@ namespace CrewChiefV4.Events
             else if ((currentGameState.SessionData.SessionType == SessionType.Race || currentGameState.SessionData.SessionType == SessionType.Qualify
                         || currentGameState.SessionData.SessionType == SessionType.Practice || currentGameState.SessionData.SessionType == SessionType.LonePractice)
                     && previousGameState != null && currentGameState.PenaltiesData.NumPenalties > 0
-                    && (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT ||
+                    && (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT || CrewChief.gameDefinition.gameEnum == GameEnum.ACC ||
                 (CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM && currentGameState.PenaltiesData.PenaltyType != PenatiesData.DetailedPenaltyType.NONE)))
             {
                 if (currentGameState.PenaltiesData.NumPenalties > previousGameState.PenaltiesData.NumPenalties)
@@ -669,6 +673,8 @@ namespace CrewChiefV4.Events
                         return folderStopGoRollingPassBeforeGreen;
                     case PenatiesData.DetailedPenaltyCause.ILLEGAL_PASS_FCY_BEFORE_GREEN:
                         return GlobalBehaviourSettings.useAmericanTerms ? folderStopGoFCYPassBeforeGreenUS : folderStopGoFCYPassBeforeGreenEU;
+                    case PenatiesData.DetailedPenaltyCause.EXCEEDED_SINGLE_DRIVER_STINT_LIMIT:
+                        return folderStopGoExceedingSingleStintTime;
                     default:
                         Debug.Assert(false, "Unhandled penalty cause");
                         Console.WriteLine("Penalties: unhandled stop/go penalty cause: " + penaltyCause);
@@ -690,6 +696,8 @@ namespace CrewChiefV4.Events
                         return folderDriveThroughCutTrack;
                     case PenatiesData.DetailedPenaltyCause.IGNORED_BLUE_FLAG:
                         return folderDriveThroughIgnoredBlueFlag;
+                    case PenatiesData.DetailedPenaltyCause.EXCEEDED_SINGLE_DRIVER_STINT_LIMIT:
+                        return folderDriveThroughExceedingSingleStintTime;
                     default:
                         Debug.Assert(false, "Unhandled penalty cause");
                         Console.WriteLine("Penalties: unhandled stop/go penalty cause: " + penaltyCause);

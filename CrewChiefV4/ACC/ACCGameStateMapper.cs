@@ -608,6 +608,7 @@ namespace CrewChiefV4.ACC
                     // the other properties of PitData are updated each tick, and shouldn't be copied over here. Nasty...
                     currentGameState.SessionData.SessionTimesAtEndOfSectors = previousGameState.SessionData.SessionTimesAtEndOfSectors;
                     currentGameState.PenaltiesData.CutTrackWarnings = previousGameState.PenaltiesData.CutTrackWarnings;
+                    currentGameState.PenaltiesData.NumPenalties = previousGameState.PenaltiesData.NumPenalties;
                     currentGameState.SessionData.formattedPlayerLapTimes = previousGameState.SessionData.formattedPlayerLapTimes;
                     currentGameState.SessionData.GameTimeAtLastPositionFrontChange = previousGameState.SessionData.GameTimeAtLastPositionFrontChange;
                     currentGameState.SessionData.GameTimeAtLastPositionBehindChange = previousGameState.SessionData.GameTimeAtLastPositionBehindChange;
@@ -1043,6 +1044,15 @@ namespace CrewChiefV4.ACC
                 || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_StopAndGo_30_Cutting
                 || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_StopAndGo_30_PitSpeeding;
             currentGameState.PenaltiesData.HasTimeDeduction = shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_PostRaceTime;
+            if (previousGameState != null)
+            {
+                if ((!previousGameState.PenaltiesData.HasDriveThrough && currentGameState.PenaltiesData.HasDriveThrough)
+                    || (!previousGameState.PenaltiesData.HasDriveThrough && currentGameState.PenaltiesData.HasDriveThrough)
+                    || (!previousGameState.PenaltiesData.HasDriveThrough && currentGameState.PenaltiesData.HasDriveThrough))
+                {
+                    currentGameState.PenaltiesData.NumPenalties++;
+                }
+            }
             if (shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_DriveThrough_PitSpeeding
                 || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_Disqualified_PitSpeeding
                 || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_StopAndGo_10_PitSpeeding

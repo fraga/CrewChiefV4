@@ -16,6 +16,14 @@ namespace CrewChiefV4.Events
         private Boolean played5MinutesLeftInStint = false;
         private Boolean played2MinutesLeftInStint = false;
 
+        private const String folder15MinutesLeftInStint = "driver_swaps/15_minutes_left_in_stint";
+        private const String folder10MinutesLeftInStint = "driver_swaps/10_minutes_left_in_stint";
+        private const String folder5MinutesLeftInStint = "driver_swaps/5_minutes_left_in_stint";
+        private const String folder2MinutesLeftInStint = "driver_swaps/2_minutes_left_in_stint";
+        private const String folderEndOfDriverStint = "driver_swaps/pit_this_lap_for_driver_change";
+        private const String folderEndOfDriverStintReminder = "driver_swaps/pit_now_for_driver_change";
+        private const String folderEndOfTotalDriverStint = "driver_swaps/pit_this_lap_driver_change_no_more_stints";
+
         public DriverSwaps(AudioPlayer audioPlayer)
         {
             this.audioPlayer = audioPlayer;
@@ -37,6 +45,10 @@ namespace CrewChiefV4.Events
                 Console.WriteLine("Driver stint time remaining has increased, clearing state");
                 clearState();
             }
+            else if (previousGameState != null && playedStintOverThisLap && previousGameState.SessionData.SectorNumber == 2 && currentGameState.SessionData.SectorNumber == 3)
+            {
+                audioPlayer.playMessage(new QueuedMessage(folderEndOfDriverStintReminder, 0));
+            }
             else if (!currentGameState.PitData.InPitlane && currentGameState.PitData.DriverStintSecondsRemaining > 0)
             {
                 if (currentGameState.SessionData.IsNewLap)
@@ -46,12 +58,14 @@ namespace CrewChiefV4.Events
                     {
                         playedStintOverThisLap = true;
                         Console.WriteLine("Current stint expiring - pit this lap");
+                        audioPlayer.playMessage(new QueuedMessage(folderEndOfDriverStint, 0));
                     }
                     // check if we'll have run out of total stint time at the end of this lap
                     else if (currentGameState.PitData.DriverStintTotalSecondsRemaining < currentGameState.SessionData.PlayerLapTimeSessionBest + 30)
                     {
                         playedStintOverThisLap = true;
                         Console.WriteLine("Total driver seat time expiring - pit this lap");
+                        audioPlayer.playMessage(new QueuedMessage(folderEndOfTotalDriverStint, 0));
                     }
                     else
                     {
@@ -64,6 +78,7 @@ namespace CrewChiefV4.Events
                 {
                     played15MinutesLeftInStint = true;
                     Console.WriteLine("15 mins left in this stint");
+                    audioPlayer.playMessage(new QueuedMessage(folder15MinutesLeftInStint, 0));
                 }
                 else if (!played10MinutesLeftInStint &&
                     currentGameState.PitData.DriverStintSecondsRemaining < 600 && currentGameState.PitData.DriverStintSecondsRemaining > 570)
@@ -71,6 +86,7 @@ namespace CrewChiefV4.Events
                     played15MinutesLeftInStint = true;
                     played10MinutesLeftInStint = true;
                     Console.WriteLine("10 mins left in this stint");
+                    audioPlayer.playMessage(new QueuedMessage(folder10MinutesLeftInStint, 0));
                 }
                 else if (!played5MinutesLeftInStint &&
                     currentGameState.PitData.DriverStintSecondsRemaining < 300 && currentGameState.PitData.DriverStintSecondsRemaining > 270)
@@ -79,6 +95,7 @@ namespace CrewChiefV4.Events
                     played10MinutesLeftInStint = true;
                     played5MinutesLeftInStint = true;
                     Console.WriteLine("5 mins left in this stint");
+                    audioPlayer.playMessage(new QueuedMessage(folder5MinutesLeftInStint, 0));
                 }
                 else if (!played2MinutesLeftInStint &&
                     currentGameState.PitData.DriverStintSecondsRemaining < 120 && currentGameState.PitData.DriverStintSecondsRemaining > 110)
@@ -88,6 +105,7 @@ namespace CrewChiefV4.Events
                     played5MinutesLeftInStint = true;
                     played2MinutesLeftInStint = true;
                     Console.WriteLine("2 mins left in this stint");
+                    audioPlayer.playMessage(new QueuedMessage(folder2MinutesLeftInStint, 0));
                 }
             }
         }
