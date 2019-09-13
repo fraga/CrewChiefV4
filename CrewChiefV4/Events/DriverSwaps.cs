@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CrewChiefV4.Audio;
 using CrewChiefV4.GameState;
 
 namespace CrewChiefV4.Events
@@ -14,6 +15,11 @@ namespace CrewChiefV4.Events
         private Boolean played10MinutesLeftInStint = false;
         private Boolean played5MinutesLeftInStint = false;
         private Boolean played2MinutesLeftInStint = false;
+
+        public DriverSwaps(AudioPlayer audioPlayer)
+        {
+            this.audioPlayer = audioPlayer;
+        }
 
         public override void clearState()
         {

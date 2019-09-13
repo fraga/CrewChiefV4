@@ -180,6 +180,7 @@ namespace CrewChiefV4
             eventsList.Add("FrozenOrderMonitor", new FrozenOrderMonitor(audioPlayer));
             eventsList.Add("IRacingBroadcastMessageEvent", new IRacingBroadcastMessageEvent(audioPlayer));
             eventsList.Add("MulticlassWarnings", new MulticlassWarnings(audioPlayer));
+            eventsList.Add("DriverSwaps", new DriverSwaps(audioPlayer));
             eventsList.Add("CommonActions", new CommonActions(audioPlayer));
             sessionEndMessages = new SessionEndMessages(audioPlayer);
             alarmClock = new AlarmClock(audioPlayer);
