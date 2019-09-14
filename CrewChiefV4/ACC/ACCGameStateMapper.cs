@@ -676,10 +676,7 @@ namespace CrewChiefV4.ACC
                 }
                 currentGameState.SessionData.LapTimeCurrent = mapToFloatTime(shared.accGraphic.iCurrentTime);
 
-                if (previousGameState != null && previousGameState.SessionData.CurrentLapIsValid /*&& shared.acsStatic.penaltiesEnabled == 1*/)
-                {
-                    currentGameState.SessionData.CurrentLapIsValid = shared.accPhysics.numberOfTyresOut < 3;
-                }
+                currentGameState.SessionData.CurrentLapIsValid = shared.accGraphic.isValidLap == 1;
                 bool hasCrossedSFLine = currentGameState.SessionData.IsNewSector && currentGameState.SessionData.SectorNumber == 1;
                 float lastLapTime = mapToFloatTime(shared.accGraphic.iLastTime);
                 currentGameState.SessionData.IsNewLap = currentGameState.HasNewLapData(previousGameState, lastLapTime, hasCrossedSFLine)
