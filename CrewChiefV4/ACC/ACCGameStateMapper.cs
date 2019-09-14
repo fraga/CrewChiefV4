@@ -675,16 +675,18 @@ namespace CrewChiefV4.ACC
                     currentGameState.SessionData.CompletedLaps = lapCountAtSector1End;
                 }
                 currentGameState.SessionData.LapTimeCurrent = mapToFloatTime(shared.accGraphic.iCurrentTime);
-
+                
                 currentGameState.SessionData.CurrentLapIsValid = shared.accGraphic.isValidLap == 1;
                 bool hasCrossedSFLine = currentGameState.SessionData.IsNewSector && currentGameState.SessionData.SectorNumber == 1;
                 float lastLapTime = mapToFloatTime(shared.accGraphic.iLastTime);
                 currentGameState.SessionData.IsNewLap = currentGameState.HasNewLapData(previousGameState, lastLapTime, hasCrossedSFLine)
                     || ((lastSessionPhase == SessionPhase.Countdown)
                     && (currentGameState.SessionData.SessionPhase == SessionPhase.Green || currentGameState.SessionData.SessionPhase == SessionPhase.FullCourseYellow));
-
+                
                 if (currentGameState.SessionData.IsNewLap)
                 {
+                    currentGameState.SessionData.CurrentLapIsValid = true;
+                    Boolean lapWasValid = previousGameState != null && previousGameState.SessionData.CurrentLapIsValid;
                     currentGameState.readLandmarksForThisLap = false;
                     // correct IsNewSector so it's in sync with IsNewLap
                     currentGameState.SessionData.IsNewSector = true;
@@ -693,7 +695,7 @@ namespace CrewChiefV4.ACC
 
                     currentGameState.SessionData.playerCompleteLapWithProvidedLapTime(currentGameState.SessionData.OverallPosition,
                         currentGameState.SessionData.SessionRunningTime,
-                        lastLapTime, currentGameState.SessionData.CurrentLapIsValid,
+                        lastLapTime, lapWasValid,
                         currentGameState.PitData.InPitlane,
                         shared.accChief.rainLevel > 0.05,
                         shared.accPhysics.roadTemp,
