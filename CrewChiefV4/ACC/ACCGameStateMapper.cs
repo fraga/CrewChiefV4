@@ -1155,8 +1155,14 @@ namespace CrewChiefV4.ACC
                 currentGameState.PitData.MandatoryPitStopCompleted = previousGameState.PitData.MandatoryPitStopCompleted || shared.accGraphic.MandatoryPitDone == 1;
             }
 
-            currentGameState.PitData.DriverStintSecondsRemaining = shared.accGraphic.driverStintTimeLeft * 1000;
-            currentGameState.PitData.DriverStintTotalSecondsRemaining = shared.accGraphic.driverStintTotalTimeLeft * 1000;
+            if (shared.accGraphic.driverStintTimeLeft > 0)
+            {
+                currentGameState.PitData.DriverStintSecondsRemaining = shared.accGraphic.driverStintTimeLeft * 1000;
+            }
+            if (shared.accGraphic.driverStintTotalTimeLeft > 0)
+            {
+                currentGameState.PitData.DriverStintTotalSecondsRemaining = shared.accGraphic.driverStintTotalTimeLeft * 1000;
+            }
 
             //damage data
             if (shared.accChief.isInternalMemoryModuleLoaded == 1)
@@ -1183,6 +1189,7 @@ namespace CrewChiefV4.ACC
                 playerVehicle.tyreInflation[2] = 1;
                 playerVehicle.tyreInflation[3] = 1;
             }
+            currentGameState.EngineData.EngineWaterTemp = shared.accPhysics.waterTemp;
 
             //tyre data
             currentGameState.TyreData.HasMatchedTyreTypes = true;

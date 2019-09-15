@@ -40,6 +40,10 @@ namespace CrewChiefV4.Events
 
         protected override void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
+            if (currentGameState.SessionData.SessionType != SessionType.Race)
+            {
+                return;
+            }
             if (previousGameState != null && previousGameState.PitData.DriverStintSecondsRemaining < currentGameState.PitData.DriverStintSecondsRemaining)
             {
                 Console.WriteLine("Driver stint time remaining has increased, clearing state");

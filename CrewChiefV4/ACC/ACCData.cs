@@ -174,7 +174,7 @@ namespace CrewChiefV4.ACC
 
             public int P2PActivation; // Not used in ACC
             public int P2PStatus;     // Not used in ACC
-            public float[] currentMaxRpm;
+            public float currentMaxRpm;
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
             public float[] mz;       // Not shown in ACC
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
