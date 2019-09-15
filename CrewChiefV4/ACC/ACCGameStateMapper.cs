@@ -396,6 +396,18 @@ namespace CrewChiefV4.ACC
                 currentGameState.SessionData.SessionNumberOfLaps = numberOfLapsInSession;
                 currentGameState.SessionData.LeaderHasFinishedRace = false;
                 currentGameState.SessionData.SessionStartTime = currentGameState.Now;
+                currentGameState.PitData.HasMandatoryPitStop = shared.accStatic.PitWindowStart < shared.accStatic.PitWindowEnd && (shared.accStatic.PitWindowStart > 0 || shared.accStatic.PitWindowEnd > 0);
+                if (currentGameState.SessionData.SessionHasFixedTime)
+                {
+                    currentGameState.PitData.PitWindowStart = shared.accStatic.PitWindowStart / 60000f;
+                    currentGameState.PitData.PitWindowEnd = shared.accStatic.PitWindowEnd / 60000f;
+                }
+                else
+                {
+                    currentGameState.PitData.PitWindowStart = shared.accStatic.PitWindowStart - 1;
+                    currentGameState.PitData.PitWindowEnd = shared.accStatic.PitWindowEnd - 1;
+                }
+
                 if (currentGameState.SessionData.SessionHasFixedTime)
                 {
                     currentGameState.SessionData.SessionTotalRunTime = sessionTimeRemaining;
@@ -1155,13 +1167,19 @@ namespace CrewChiefV4.ACC
                 currentGameState.PitData.MandatoryPitStopCompleted = previousGameState.PitData.MandatoryPitStopCompleted || shared.accGraphic.MandatoryPitDone == 1;
             }
 
-            if (shared.accGraphic.driverStintTimeLeft > 0)
+            if (shared.accGraphic.driverStintTimeLeft > 0 && shared.accGraphic.sessionTimeLeft > shared.accGraphic.driverStintTimeLeft)
             {
                 currentGameState.PitData.DriverStintSecondsRemaining = shared.accGraphic.driverStintTimeLeft / 1000;
+                currentGameState.PitData.PitWindow = PitWindow.Disabled;
+                currentGameState.PitData.PitWindowStart = 0;
+                currentGameState.PitData.PitWindowEnd = 0;
             }
-            if (shared.accGraphic.driverStintTotalTimeLeft > 0)
+            if (shared.accGraphic.driverStintTotalTimeLeft > 0 && shared.accGraphic.sessionTimeLeft > shared.accGraphic.driverStintTotalTimeLeft)
             {
                 currentGameState.PitData.DriverStintTotalSecondsRemaining = shared.accGraphic.driverStintTotalTimeLeft / 1000;
+                currentGameState.PitData.PitWindow = PitWindow.Disabled;
+                currentGameState.PitData.PitWindowStart = 0;
+                currentGameState.PitData.PitWindowEnd = 0;
             }
 
             //damage data

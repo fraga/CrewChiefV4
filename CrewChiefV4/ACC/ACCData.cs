@@ -264,8 +264,8 @@ namespace CrewChiefV4.ACC
             public float exhaustTemperature;
             public int wiperLV;
 
-            public int driverStintTimeLeft;// Time the driver is allowed to drive per stint in milliseconds
             public int driverStintTotalTimeLeft;// Time is the driver is allowed to drive per race in milliseconds
+            public int driverStintTimeLeft;// Time the driver is allowed to drive per stint in milliseconds
             public int rainTyres;// Are rain tyres equipped
             public int sessionIndex;
             public float usedFuel;// Used fuel since last time refueling
