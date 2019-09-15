@@ -1169,7 +1169,8 @@ namespace CrewChiefV4.ACC
 
             if (shared.accGraphic.driverStintTimeLeft > 0 && shared.accGraphic.sessionTimeLeft > shared.accGraphic.driverStintTimeLeft)
             {
-                currentGameState.PitData.DriverStintSecondsRemaining = shared.accGraphic.driverStintTimeLeft / 1000;
+                // the stint timer in-game seems to add 1 minute, no idea why, add it here to make them agree
+                currentGameState.PitData.DriverStintSecondsRemaining = 60 + (shared.accGraphic.driverStintTimeLeft / 1000);
                 currentGameState.PitData.PitWindow = PitWindow.Disabled;
                 currentGameState.PitData.PitWindowStart = 0;
                 currentGameState.PitData.PitWindowEnd = 0;
