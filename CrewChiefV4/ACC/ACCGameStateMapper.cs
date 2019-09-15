@@ -1157,11 +1157,11 @@ namespace CrewChiefV4.ACC
 
             if (shared.accGraphic.driverStintTimeLeft > 0)
             {
-                currentGameState.PitData.DriverStintSecondsRemaining = shared.accGraphic.driverStintTimeLeft * 1000;
+                currentGameState.PitData.DriverStintSecondsRemaining = shared.accGraphic.driverStintTimeLeft / 1000;
             }
             if (shared.accGraphic.driverStintTotalTimeLeft > 0)
             {
-                currentGameState.PitData.DriverStintTotalSecondsRemaining = shared.accGraphic.driverStintTotalTimeLeft * 1000;
+                currentGameState.PitData.DriverStintTotalSecondsRemaining = shared.accGraphic.driverStintTotalTimeLeft / 1000;
             }
 
             //damage data
