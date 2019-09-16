@@ -386,8 +386,11 @@ namespace CrewChiefV4
             {
                 if (enableWebsocket)
                 {
-                    Utilities.startCCDataWebsocketServer(audioPlayer);
-                }                
+                    if (gameDefinition.gameEnum == GameEnum.RACE_ROOM)
+                    {
+                        Utilities.startCCDataWebsocketServer(audioPlayer);
+                    }
+                }
 
                 PlaybackModerator.SetCrewChief(this);
 
@@ -814,7 +817,10 @@ namespace CrewChiefV4
                 }
                 if (enableWebsocket || enableGameDataWebsocket)
                 {
-                    Utilities.stopWebsocketServers();
+                    if (gameDefinition.gameEnum == GameEnum.RACE_ROOM)
+                    {
+                        Utilities.stopWebsocketServers();
+                    }
                 }
                 stateCleared = true;
                 currentGameState = null;
