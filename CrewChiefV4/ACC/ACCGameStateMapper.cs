@@ -1062,7 +1062,7 @@ namespace CrewChiefV4.ACC
             {
                 currentGameState.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
             }
-            if (currentGameState.PenaltiesData.PenaltyType != previousPenaltyType)
+            if (currentGameState.PenaltiesData.PenaltyType != PenatiesData.DetailedPenaltyType.NONE && currentGameState.PenaltiesData.PenaltyType != previousPenaltyType)
             {
                 currentGameState.PenaltiesData.NumPenalties = previousPenaltyCount + 1;
             }
