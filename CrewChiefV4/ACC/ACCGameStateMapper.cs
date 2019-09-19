@@ -1044,26 +1044,30 @@ namespace CrewChiefV4.ACC
             currentGameState.ControlData.ClutchPedal = shared.accPhysics.clutch;
 
             // penalty data
-            currentGameState.PenaltiesData.HasDriveThrough = shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_DriveThrough_Cutting
+            PenatiesData.DetailedPenaltyType previousPenaltyType = previousGameState == null ? PenatiesData.DetailedPenaltyType.NONE :
+                previousGameState.PenaltiesData.PenaltyType;
+            int previousPenaltyCount = previousGameState == null ? 0 : previousGameState.PenaltiesData.NumPenalties;
+            if (shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_DriveThrough_Cutting
                 || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_DriveThrough_IgnoredDriverStint
-                || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_DriveThrough_PitSpeeding;
-            currentGameState.PenaltiesData.HasSlowDown = false;
-            currentGameState.PenaltiesData.HasStopAndGo = shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_StopAndGo_10_Cutting
+                || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_DriveThrough_PitSpeeding)
+            {
+                currentGameState.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.DRIVE_THROUGH;
+            }
+            else if (shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_StopAndGo_10_Cutting
                 || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_StopAndGo_10_PitSpeeding
                 || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_StopAndGo_20_Cutting
                 || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_StopAndGo_20_PitSpeeding
                 || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_StopAndGo_30_Cutting
-                || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_StopAndGo_30_PitSpeeding;
-            currentGameState.PenaltiesData.HasTimeDeduction = shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_PostRaceTime;
-            if (previousGameState != null)
+                || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_StopAndGo_30_PitSpeeding)
             {
-                if ((!previousGameState.PenaltiesData.HasDriveThrough && currentGameState.PenaltiesData.HasDriveThrough)
-                    || (!previousGameState.PenaltiesData.HasDriveThrough && currentGameState.PenaltiesData.HasDriveThrough)
-                    || (!previousGameState.PenaltiesData.HasDriveThrough && currentGameState.PenaltiesData.HasDriveThrough))
-                {
-                    currentGameState.PenaltiesData.NumPenalties++;
-                }
+                currentGameState.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
             }
+            if (currentGameState.PenaltiesData.PenaltyType != previousPenaltyType)
+            {
+                currentGameState.PenaltiesData.NumPenalties = previousPenaltyCount + 1;
+            }
+            currentGameState.PenaltiesData.HasTimeDeduction = shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_PostRaceTime;
+            
             if (shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_DriveThrough_PitSpeeding
                 || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_Disqualified_PitSpeeding
                 || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_StopAndGo_10_PitSpeeding
@@ -1088,14 +1092,6 @@ namespace CrewChiefV4.ACC
                 || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_DriveThrough_IgnoredDriverStint)
             {
                 currentGameState.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.EXCEEDED_SINGLE_DRIVER_STINT_LIMIT;
-            }
-            if (currentGameState.PenaltiesData.HasDriveThrough)
-            {
-                currentGameState.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.DRIVE_THROUGH;
-            }
-            else if (currentGameState.PenaltiesData.HasStopAndGo)
-            {
-                currentGameState.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
             }
 
             // motion data
