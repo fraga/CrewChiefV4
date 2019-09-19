@@ -132,7 +132,7 @@ namespace CrewChiefV4.Events
         {
             if (base.isMessageStillValid(eventSubType, currentGameState, validationData))
             {
-                if (currentGameState.PitData.InPitlane)
+                if (currentGameState.PitData.InPitlane || currentGameState.PitData.IsInGarage)
                     return false;
 
                 if (validationData == null)
