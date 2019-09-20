@@ -1464,7 +1464,7 @@ namespace CrewChiefV4
                                 ThreadManager.UnregisterTemporaryThread(youWotThread);
                                 youWotThread = new Thread(() =>
                                 {
-                                    Utilities.InterruptedSleep(this.sreWaitTime /*totalWaitMillis*/, 50 /*waitWindowMillis*/, () => crewChief.running /*keepWaitingPredicate*/);  // TODO: option, 2000 default
+                                    Utilities.InterruptedSleep(totalWaitMillis: this.sreWaitTime, waitWindowMillis: 50, keepWaitingPredicate: () => crewChief.running);
                                     if (!channelOpen && !SpeechRecogniser.gotRecognitionResult)
                                     {
                                         crewChief.youWot(false);
@@ -1853,7 +1853,7 @@ namespace CrewChiefV4
             // NOTE: it is important that connected controllers go first, because their index in the UI list is used to access controllerConfiguration.controllers list.
             foreach (ControllerConfiguration.ControllerData configData in controllerConfiguration.controllers)
             {
-                this.controllersList.Items.Add(new MainWindow.ControllerUiEntry(configData.deviceName, true /*connected*/));
+                this.controllersList.Items.Add(new MainWindow.ControllerUiEntry(configData.deviceName, isConnected: true));
             }
 
             // Now, add grayed out (inactive) controllers
@@ -1863,7 +1863,7 @@ namespace CrewChiefV4
                 {
                     continue;
                 }
-                this.controllersList.Items.Add(new MainWindow.ControllerUiEntry(configData.deviceName, false /*connected*/));
+                this.controllersList.Items.Add(new MainWindow.ControllerUiEntry(configData.deviceName, isConnected: false));
             }
         }
 
