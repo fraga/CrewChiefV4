@@ -330,7 +330,8 @@ namespace CrewChiefV4.Events
                                 {
                                     // this guy has just entered the pit and we predict he'll exit just in front of us
                                     Console.WriteLine("Opponent " + entry.Value.DriverRawName + " will exit the pit close in front of us");
-                                    if (entry.Value.ClassPosition >= 1)
+                                    // suppress this message during FCY phase as it'll spam:
+                                    if (entry.Value.ClassPosition >= 1 && currentGameState.SessionData.SessionPhase != SessionPhase.FullCourseYellow)
                                     {
                                         audioPlayer.playMessage(new QueuedMessage("opponent_exiting_in_front", 10,
                                             messageFragments: MessageContents(entry.Value, folderIsPittingFromPosition, entry.Value.ClassPosition, folderHeWillComeOutJustInFront),
@@ -346,7 +347,8 @@ namespace CrewChiefV4.Events
                                 {
                                     // this guy has just entered the pit and we predict he'll exit just behind us
                                     Console.WriteLine("Opponent " + entry.Value.DriverRawName + " will exit the pit close behind us");
-                                    if (entry.Value.ClassPosition >= 1)
+                                    // suppress this message during FCY phase as it'll spam:
+                                    if (entry.Value.ClassPosition >= 1 && currentGameState.SessionData.SessionPhase != SessionPhase.FullCourseYellow)
                                     {
                                         audioPlayer.playMessage(new QueuedMessage("opponent_exiting_behind", 10,
                                             messageFragments: MessageContents(entry.Value, folderIsPittingFromPosition, entry.Value.ClassPosition, folderHeWillComeOutJustBehind),
