@@ -1789,16 +1789,11 @@ namespace CrewChiefV4.Events
             QueuedMessage message = new QueuedMessage("pressures", 0, fragments);
             if (delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
             {
-                audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderStandBy, 0));
-                int secondsDelay = Math.Max(5, Utilities.random.Next(7));
-                audioPlayer.pauseQueue(secondsDelay);
-
-                message.secondsDelay = secondsDelay;
-                audioPlayer.playDelayedImmediateMessage(message);
+                this.audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(message, 5 /*lowerDelayBoundInclusive*/, 7 /*upperDelayBound*/);
             }
             else
             {
-                audioPlayer.playMessageImmediately(message);
+                this.audioPlayer.playMessageImmediately(message);
             }
         }
 
@@ -1948,15 +1943,11 @@ namespace CrewChiefV4.Events
             }
             if (delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
             {
-                audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderStandBy, 0));
-                int secondsDelay = Math.Max(5, Utilities.random.Next(7));
-                audioPlayer.pauseQueue(secondsDelay);
-                message.secondsDelay = secondsDelay;
-                audioPlayer.playDelayedImmediateMessage(message);
+                this.audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(message, 5 /*lowerDelayBoundInclusive*/, 7 /*upperDelayBound*/);
             }
             else
             {
-                audioPlayer.playMessageImmediately(message);
+                this.audioPlayer.playMessageImmediately(message);
             }
         }
 
