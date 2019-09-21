@@ -1436,6 +1436,7 @@ namespace CrewChiefV4
                         }
                         if (rejectMessagesWhenTalking)
                         {
+                            Thread.Sleep(200);
                             muteVolumes();
                         }
                     }
@@ -1447,6 +1448,10 @@ namespace CrewChiefV4
                             crewChief.audioPlayer.purgeQueues();
                             // unmute
                             unmuteVolumes();
+
+                            PlaybackModerator.rejectMessagesWhenTalking = false;  // Hack to let this through moderator.
+                            crewChief.audioPlayer.playChiefEndSpeakingBeep();
+                            PlaybackModerator.rejectMessagesWhenTalking = true;
                         }
 
                         if (DriverTrainingService.isRecordingPaceNotes)
