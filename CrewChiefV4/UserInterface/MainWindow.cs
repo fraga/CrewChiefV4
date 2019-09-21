@@ -1436,7 +1436,6 @@ namespace CrewChiefV4
                         }
                         if (rejectMessagesWhenTalking)
                         {
-                            // Ideally, we need to know when intro beep is done playing to mute.
                             Thread.Sleep(200);
                             muteVolumes();
                         }
