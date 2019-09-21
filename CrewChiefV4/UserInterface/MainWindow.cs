@@ -1416,7 +1416,11 @@ namespace CrewChiefV4
                     if (!channelOpen && controllerConfiguration.isChannelOpen())
                     {
                         channelOpen = true;
-
+                        // if we reject messages while we're talking to the chief, attempt to interrupt any sound currently playing
+                        if (PlaybackModerator.rejectMessagesWhenTalking)
+                        {
+                            SoundCache.InterruptCurrentlyPlayingSound();
+                        }
                         // for pace notes recording, start SRE *after* the beep. For voice commands, start SRE *before* the beep
                         if (DriverTrainingService.isRecordingPaceNotes)
                         {

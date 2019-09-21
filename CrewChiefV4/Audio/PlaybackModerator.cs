@@ -46,7 +46,7 @@ namespace CrewChiefV4.Audio
         private static bool isSpotterAndChiefSameVoice = string.Equals(UserSettings.GetUserSettings().getString("spotter_name"), UserSettings.GetUserSettings().getString("chief_name"), StringComparison.InvariantCultureIgnoreCase);
         private static bool insertBeepOutBetweenSpotterAndChief = UserSettings.GetUserSettings().getBoolean("insert_beep_out_between_spotter_and_chief");
         private static bool insertBeepInBetweenSpotterAndChief = UserSettings.GetUserSettings().getBoolean("insert_beep_in_between_spotter_and_chief");
-        private static bool rejectMessagesWhenTalking = UserSettings.GetUserSettings().getBoolean("reject_message_when_talking");
+        public static bool rejectMessagesWhenTalking = UserSettings.GetUserSettings().getBoolean("reject_message_when_talking");
         private static bool autoVerbosity = UserSettings.GetUserSettings().getBoolean("priortise_messages_depending_on_situation");
 
         private static SoundType minPriorityForInterrupt = SoundType.SPOTTER;
@@ -404,6 +404,9 @@ namespace CrewChiefV4.Audio
                     keyBleepIn = "alternate_short_start_bleep";
 
                     traceMsgPostfix = "Spotter interrupted Chief.";
+
+                    // attempt to interrupt whatever sound is currently playing when the spotter interrupts the chief (only works with nAudio)
+                    SoundCache.InterruptCurrentlyPlayingSound();
                 }
                 else  // Chief comes in.
                 {
