@@ -26,6 +26,7 @@ namespace CrewChiefV4.Audio
 
         public static Boolean delayMessagesInHardParts = UserSettings.GetUserSettings().getBoolean("enable_delayed_messages_on_hardparts");
         private Boolean allowImportantMessagesInKeepQuietMode = UserSettings.GetUserSettings().getBoolean("allow_important_messages_even_when_silenced");
+        private Boolean channelCloseBeepEnabled = UserSettings.GetUserSettings().getBoolean("enable_on_hold_close_channel_beep");
 
         public enum TTS_OPTION { NEVER, ONLY_WHEN_NECESSARY, ANY_TIME }
         public static TTS_OPTION ttsOption = TTS_OPTION.ONLY_WHEN_NECESSARY;
@@ -1105,7 +1106,7 @@ namespace CrewChiefV4.Audio
 
         public void playChiefEndSpeakingBeep()
         {
-            if (!mute && enableRadioBeeps)
+            if (!mute && enableRadioBeeps && channelCloseBeepEnabled)
             {
                 var soundToPlay = PlaybackModerator.GetSuggestedBleepEnd(forceChief: true);
                 soundCache.Play(soundToPlay, SoundMetadata.beep);

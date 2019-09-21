@@ -4114,5 +4114,17 @@ namespace CrewChiefV4.Properties {
                 this["max_complaints_per_session"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool enable_on_hold_close_channel_beep {
+            get {
+                return ((bool)(this["enable_on_hold_close_channel_beep"]));
+            }
+            set {
+                this["enable_on_hold_close_channel_beep"] = value;
+            }
+        }
     }
 }
