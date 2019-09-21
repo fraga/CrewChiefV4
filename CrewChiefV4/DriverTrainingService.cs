@@ -145,6 +145,7 @@ namespace CrewChiefV4
                             Console.WriteLine("Playing entry at distance " + entry.distanceRoundTrack);
                         }
                         QueuedMessage message = new QueuedMessage(entry.getRandomRecordingName(), 1, type: SoundType.CRITICAL_MESSAGE, priority: 0);
+                        message.playEvenWhenSilenced = true;
                         audioPlayer.playMessageImmediately(message);
                     }
                 }
