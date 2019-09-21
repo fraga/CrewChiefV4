@@ -1411,6 +1411,12 @@ namespace CrewChiefV4.Audio
         // wait for the sound to finish playing before returning control to the caller.
         private void PlayNAudio(Boolean isListenStartBeep)
         {
+            float volume = getVolume(isSpotter ? SoundCache.spotterVolumeBoost : 1f);
+            if (volume == 0)
+            {
+                SoundCache.currentlyPlayingSound = null;
+                return;
+            }
             if (!cacheFileData)
             {
                 // if caching is switched off, load and play the file
@@ -1419,7 +1425,6 @@ namespace CrewChiefV4.Audio
                 NAudio.Wave.WaveFileReader uncachedReader = new NAudio.Wave.WaveFileReader(fullPath);
                 this.eventHandler = new EventHandler<NAudio.Wave.StoppedEventArgs>(playbackStopped);
                 uncachedWaveOut.PlaybackStopped += this.eventHandler;
-                float volume = getVolume(isSpotter ? SoundCache.spotterVolumeBoost : 1f);
 
                 if (volume == 1f)
                 {
