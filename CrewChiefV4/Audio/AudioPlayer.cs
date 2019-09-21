@@ -1102,6 +1102,16 @@ namespace CrewChiefV4.Audio
             }
         }
 
+
+        public void playChiefEndSpeakingBeep()
+        {
+            if (!mute && enableRadioBeeps)
+            {
+                var soundToPlay = PlaybackModerator.GetSuggestedBleepEnd(forceChief: true);
+                soundCache.Play(soundToPlay, SoundMetadata.beep);
+            }
+        }
+
         public int purgeQueues()
         {
             return purgeQueue(queuedClips, false) + purgeQueue(immediateClips, true);

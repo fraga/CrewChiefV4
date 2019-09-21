@@ -210,7 +210,7 @@ namespace CrewChiefV4.Audio
             return GetSuggestedStartBleep("short_start_bleep" /*chiefBleepSoundName*/, "alternate_short_start_bleep" /*spotterBleepSoundName*/);
         }
 
-        public static string GetSuggestedBleepEnd()
+        public static string GetSuggestedBleepEnd(bool forceChief = false)
         {
             var resolvedSoundName = "end_bleep";
 
@@ -218,7 +218,7 @@ namespace CrewChiefV4.Audio
             if (!PlaybackModerator.IsFakeBleepInjectionEnabled())
                 return resolvedSoundName;
 
-            if (PlaybackModerator.PrevLastKeyWasSpotter())
+            if (PlaybackModerator.PrevLastKeyWasSpotter() && !forceChief)
             {
                 // Spotter uses opposite bleeps.
                 resolvedSoundName = "alternate_end_bleep";
