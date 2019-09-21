@@ -51,7 +51,7 @@ namespace CrewChiefV4.Audio
 
         private static SoundType minPriorityForInterrupt = SoundType.SPOTTER;
 
-        private static bool lastSoundWasSpotter = false;
+        public static bool lastSoundWasSpotter = false;
         private static AudioPlayer audioPlayer = null;
 
         private static string prevFirstKey = "";

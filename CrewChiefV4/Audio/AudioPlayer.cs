@@ -1343,7 +1343,10 @@ namespace CrewChiefV4.Audio
                         immediateClips.Insert(getInsertionIndex(immediateClips, queuedMessage), queuedMessage.messageName, queuedMessage);
 
                         // attempt to interrupt whatever sound is currently playing when the spotter interrupts the chief (only works with nAudio)
-                        SoundCache.InterruptCurrentlyPlayingSound();
+                        if (!PlaybackModerator.lastSoundWasSpotter)
+                        {
+                            SoundCache.InterruptCurrentlyPlayingSound();
+                        }
 
                         // wake up the monitor thread immediately
                         monitorQueueWakeUpEvent.Set();
