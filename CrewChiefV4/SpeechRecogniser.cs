@@ -1500,6 +1500,11 @@ namespace CrewChiefV4
                 }
                 recognitionStartedTime = DateTime.Now;
                 recognizeAsync();
+                // if we reject messages while we're talking to the chief, attempt to interrupt any sound currently playing
+                if (PlaybackModerator.rejectMessagesWhenTalking)
+                {
+                    SoundCache.InterruptCurrentlyPlayingSound();
+                }
                 crewChief.audioPlayer.playStartListeningBeep();
             }
             else

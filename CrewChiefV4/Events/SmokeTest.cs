@@ -109,6 +109,8 @@ namespace CrewChiefV4.Events
                 && !String.Equals(UserSettings.GetUserSettings().getString("spotter_name"), UserSettings.GetUserSettings().getString("chief_name"), StringComparison.InvariantCultureIgnoreCase))  // Don't play this if spotter and chief are the same person.
             {
                 Thread.Sleep(800);
+                // hack to prevent the interrupting logic chopping the radio check sound:
+                PlaybackModerator.lastSoundWasSpotter = true;
                 audioPlayer.playSpotterMessage(new QueuedMessage(SMOKE_TEST_SPOTTER, 0,
                     messageFragments: MessageContents(NoisyCartesianCoordinateSpotter.folderSpotterRadioCheck)), false);
             }

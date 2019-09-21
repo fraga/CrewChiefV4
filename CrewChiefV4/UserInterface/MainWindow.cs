@@ -1416,7 +1416,11 @@ namespace CrewChiefV4
                     if (!channelOpen && controllerConfiguration.isChannelOpen())
                     {
                         channelOpen = true;
-
+                        // if we reject messages while we're talking to the chief, attempt to interrupt any sound currently playing
+                        if (PlaybackModerator.rejectMessagesWhenTalking)
+                        {
+                            SoundCache.InterruptCurrentlyPlayingSound();
+                        }
                         // for pace notes recording, start SRE *after* the beep. For voice commands, start SRE *before* the beep
                         if (DriverTrainingService.isRecordingPaceNotes)
                         {
@@ -1435,6 +1439,7 @@ namespace CrewChiefV4
                         }
                         if (rejectMessagesWhenTalking)
                         {
+                            Thread.Sleep(200);
                             muteVolumes();
                         }
                     }
@@ -1446,6 +1451,10 @@ namespace CrewChiefV4
                             crewChief.audioPlayer.purgeQueues();
                             // unmute
                             unmuteVolumes();
+
+                            PlaybackModerator.rejectMessagesWhenTalking = false;  // Hack to let this through moderator.
+                            crewChief.audioPlayer.playChiefEndSpeakingBeep();
+                            PlaybackModerator.rejectMessagesWhenTalking = true;
                         }
 
                         if (DriverTrainingService.isRecordingPaceNotes)
@@ -1550,6 +1559,11 @@ namespace CrewChiefV4
                         }
                         else
                         {
+                            // if we reject messages while we're talking to the chief, attempt to interrupt any sound currently playing
+                            if (PlaybackModerator.rejectMessagesWhenTalking)
+                            {
+                                SoundCache.InterruptCurrentlyPlayingSound();
+                            }
                             Console.WriteLine("Listening...");
                             crewChief.speechRecogniser.recognizeAsync();
                             crewChief.audioPlayer.playStartListeningBeep();

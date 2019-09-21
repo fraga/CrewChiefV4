@@ -46,12 +46,12 @@ namespace CrewChiefV4.Audio
         private static bool isSpotterAndChiefSameVoice = string.Equals(UserSettings.GetUserSettings().getString("spotter_name"), UserSettings.GetUserSettings().getString("chief_name"), StringComparison.InvariantCultureIgnoreCase);
         private static bool insertBeepOutBetweenSpotterAndChief = UserSettings.GetUserSettings().getBoolean("insert_beep_out_between_spotter_and_chief");
         private static bool insertBeepInBetweenSpotterAndChief = UserSettings.GetUserSettings().getBoolean("insert_beep_in_between_spotter_and_chief");
-        private static bool rejectMessagesWhenTalking = UserSettings.GetUserSettings().getBoolean("reject_message_when_talking");
+        public static bool rejectMessagesWhenTalking = UserSettings.GetUserSettings().getBoolean("reject_message_when_talking");
         private static bool autoVerbosity = UserSettings.GetUserSettings().getBoolean("priortise_messages_depending_on_situation");
 
         private static SoundType minPriorityForInterrupt = SoundType.SPOTTER;
 
-        private static bool lastSoundWasSpotter = false;
+        public static bool lastSoundWasSpotter = false;
         private static AudioPlayer audioPlayer = null;
 
         private static string prevFirstKey = "";
@@ -210,7 +210,7 @@ namespace CrewChiefV4.Audio
             return GetSuggestedStartBleep("short_start_bleep" /*chiefBleepSoundName*/, "alternate_short_start_bleep" /*spotterBleepSoundName*/);
         }
 
-        public static string GetSuggestedBleepEnd()
+        public static string GetSuggestedBleepEnd(bool forceChief = false)
         {
             var resolvedSoundName = "end_bleep";
 
@@ -218,7 +218,7 @@ namespace CrewChiefV4.Audio
             if (!PlaybackModerator.IsFakeBleepInjectionEnabled())
                 return resolvedSoundName;
 
-            if (PlaybackModerator.PrevLastKeyWasSpotter())
+            if (PlaybackModerator.PrevLastKeyWasSpotter() && !forceChief)
             {
                 // Spotter uses opposite bleeps.
                 resolvedSoundName = "alternate_end_bleep";
