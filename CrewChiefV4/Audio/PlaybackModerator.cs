@@ -404,9 +404,6 @@ namespace CrewChiefV4.Audio
                     keyBleepIn = "alternate_short_start_bleep";
 
                     traceMsgPostfix = "Spotter interrupted Chief.";
-
-                    // attempt to interrupt whatever sound is currently playing when the spotter interrupts the chief (only works with nAudio)
-                    SoundCache.InterruptCurrentlyPlayingSound();
                 }
                 else  // Chief comes in.
                 {

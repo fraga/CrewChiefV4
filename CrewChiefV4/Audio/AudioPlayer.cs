@@ -1342,6 +1342,9 @@ namespace CrewChiefV4.Audio
                         // default spotter priority is 10
                         immediateClips.Insert(getInsertionIndex(immediateClips, queuedMessage), queuedMessage.messageName, queuedMessage);
 
+                        // attempt to interrupt whatever sound is currently playing when the spotter interrupts the chief (only works with nAudio)
+                        SoundCache.InterruptCurrentlyPlayingSound();
+
                         // wake up the monitor thread immediately
                         monitorQueueWakeUpEvent.Set();
                     }
