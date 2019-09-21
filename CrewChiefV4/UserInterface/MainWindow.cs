@@ -563,7 +563,7 @@ namespace CrewChiefV4
          changes the current message playback volume. If saveChange is true the change is written to the properties file,
          if updateSlider is true the slider is moved to reflect the new volume
          */
-        public void updateMessagesVolume(float messagesVolume, Boolean saveChange, Boolean updateSlider, bool forceUpdate = false)
+        public void updateMessagesVolume(float messagesVolume, Boolean saveChange, Boolean updateSlider)
         {
             if (messagesVolume < 0)
             {
@@ -578,13 +578,12 @@ namespace CrewChiefV4
                 currentMessageVolume = messagesVolume;
             }
             // no point in setting output channel volume with nAudio - the sound file volumes are scaled separately
-            if (!UserSettings.GetUserSettings().getBoolean("use_naudio")
-                || forceUpdate)
+            if (!UserSettings.GetUserSettings().getBoolean("use_naudio"))
             {
                 setOuputChannelVolume(currentMessageVolume);
             }
             if (saveChange)
-            {
+            {                
                 UserSettings.GetUserSettings().setProperty("messages_volume", currentMessageVolume);
                 UserSettings.GetUserSettings().saveUserSettings();
             }
@@ -1589,7 +1588,7 @@ namespace CrewChiefV4
         private void unmuteVolumes()
         {
             crewChief.audioPlayer.muteBackgroundPlayer(false);
-            updateMessagesVolume(messageVolumeToRestore, saveChange: false, updateSlider: false, forceUpdate: true);
+            updateMessagesVolume(messageVolumeToRestore, false, false);
             messagesVolumeSlider.Enabled = true;
             backgroundVolumeSlider.Enabled = true;
         }
@@ -1598,7 +1597,7 @@ namespace CrewChiefV4
         {
             // save the volume level to restore later
             messageVolumeToRestore = currentMessageVolume;
-            updateMessagesVolume(0, saveChange: false, updateSlider: false, forceUpdate: true);
+            updateMessagesVolume(0, false, false);
             crewChief.audioPlayer.muteBackgroundPlayer(true);
             messagesVolumeSlider.Enabled = false;
             backgroundVolumeSlider.Enabled = false;
