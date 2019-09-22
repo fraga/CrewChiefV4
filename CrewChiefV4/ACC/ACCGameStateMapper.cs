@@ -397,15 +397,18 @@ namespace CrewChiefV4.ACC
                 currentGameState.SessionData.LeaderHasFinishedRace = false;
                 currentGameState.SessionData.SessionStartTime = currentGameState.Now;
                 currentGameState.PitData.HasMandatoryPitStop = shared.accStatic.PitWindowStart < shared.accStatic.PitWindowEnd && (shared.accStatic.PitWindowStart > 0 || shared.accStatic.PitWindowEnd > 0);
-                if (currentGameState.SessionData.SessionHasFixedTime)
+                if (currentGameState.PitData.HasMandatoryPitStop)
                 {
-                    currentGameState.PitData.PitWindowStart = shared.accStatic.PitWindowStart / 60000f;
-                    currentGameState.PitData.PitWindowEnd = shared.accStatic.PitWindowEnd / 60000f;
-                }
-                else
-                {
-                    currentGameState.PitData.PitWindowStart = shared.accStatic.PitWindowStart - 1;
-                    currentGameState.PitData.PitWindowEnd = shared.accStatic.PitWindowEnd - 1;
+                    if (currentGameState.SessionData.SessionHasFixedTime)
+                    {
+                        currentGameState.PitData.PitWindowStart = shared.accStatic.PitWindowStart / 60000f;
+                        currentGameState.PitData.PitWindowEnd = shared.accStatic.PitWindowEnd / 60000f;
+                    }
+                    else
+                    {
+                        currentGameState.PitData.PitWindowStart = shared.accStatic.PitWindowStart - 1;
+                        currentGameState.PitData.PitWindowEnd = shared.accStatic.PitWindowEnd - 1;
+                    }
                 }
 
                 if (currentGameState.SessionData.SessionHasFixedTime)
@@ -547,15 +550,18 @@ namespace CrewChiefV4.ACC
                         tyreTempThresholds = getTyreTempThresholds(currentGameState.carClass, currentGameState.TyreData.TyreTypeName);
 
                         currentGameState.PitData.HasMandatoryPitStop = shared.accStatic.PitWindowStart < shared.accStatic.PitWindowEnd && (shared.accStatic.PitWindowStart > 0 || shared.accStatic.PitWindowEnd > 0);
-                        if (currentGameState.SessionData.SessionHasFixedTime)
+                        if (currentGameState.PitData.HasMandatoryPitStop)
                         {
-                            currentGameState.PitData.PitWindowStart = shared.accStatic.PitWindowStart / 60000f;
-                            currentGameState.PitData.PitWindowEnd = shared.accStatic.PitWindowEnd / 60000f;
-                        }
-                        else
-                        {
-                            currentGameState.PitData.PitWindowStart = shared.accStatic.PitWindowStart - 1;
-                            currentGameState.PitData.PitWindowEnd = shared.accStatic.PitWindowEnd - 1;
+                            if (currentGameState.SessionData.SessionHasFixedTime)
+                            {
+                                currentGameState.PitData.PitWindowStart = shared.accStatic.PitWindowStart / 60000f;
+                                currentGameState.PitData.PitWindowEnd = shared.accStatic.PitWindowEnd / 60000f;
+                            }
+                            else
+                            {
+                                currentGameState.PitData.PitWindowStart = shared.accStatic.PitWindowStart - 1;
+                                currentGameState.PitData.PitWindowEnd = shared.accStatic.PitWindowEnd - 1;
+                            }
                         }
 
                         if (previousGameState != null)
