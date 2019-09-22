@@ -1567,6 +1567,7 @@ namespace CrewChiefV4
                             Console.WriteLine("Listening...");
                             crewChief.speechRecogniser.recognizeAsync();
                             crewChief.audioPlayer.playStartListeningBeep();
+                            nextPollWait = 500;
                         }
                     }
                     else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_SPOTTER_FUNCTION))
