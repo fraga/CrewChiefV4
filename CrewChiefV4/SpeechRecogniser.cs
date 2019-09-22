@@ -778,8 +778,9 @@ namespace CrewChiefV4
                 if (SREWrapperFactory.useSystem && this.cultureInfo == null)
                 {
                     // if we have no culture info here we need to fall back to the MS SRE and get the culture again
-                    Console.WriteLine("Unable to get language for System SRE with lang " + langCodes.langToUse + " or " + langCodes.langAndCountryToUse +
-                        ", will fall back to Microsoft SRE");
+                    Console.WriteLine("Unable to get language for System SRE with lang " + langCodes.langToUse + " or " + langCodes.langAndCountryToUse);
+                    Console.WriteLine("You may need to add an appropriate language from the Windows 'Time and language' control panel (go to Languages -> Add a language). " +
+                        "App will fall back to Microsoft SRE");
                     SREWrapperFactory.useSystem = false;
                     this.cultureInfo = SREWrapperFactory.GetCultureInfo(langCodes.langAndCountryToUse, langCodes.langToUse, false);
                 }
