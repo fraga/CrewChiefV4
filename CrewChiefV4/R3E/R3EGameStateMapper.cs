@@ -1184,7 +1184,7 @@ namespace CrewChiefV4.RaceRoom
             currentGameState.EngineData.EngineWaterTemp = shared.EngineWaterTemp;
 
             //------------------------ Fuel data -----------------------
-            currentGameState.FuelData.FuelUseActive = shared.FuelUseActive != 0;    // there seems to be some issue with this...
+            currentGameState.FuelData.FuelUseActive = shared.FuelUseActive > 0;    // there seems to be some issue with this...
             currentGameState.FuelData.FuelPressure = shared.FuelPressure;
             currentGameState.FuelData.FuelCapacity = shared.FuelCapacity;
             currentGameState.FuelData.FuelLeft = shared.FuelLeft;
@@ -1229,7 +1229,7 @@ namespace CrewChiefV4.RaceRoom
             //------------------------ Tyre data -----------------------
             // no way to have unmatched tyre types in R3E
             currentGameState.TyreData.HasMatchedTyreTypes = true;
-            currentGameState.TyreData.TyreWearActive = shared.TireWearActive == 1;
+            currentGameState.TyreData.TyreWearActive = shared.TireWearActive > 0;
             TyreType tyreType = mapToTyreType(shared.TireTypeFront, shared.TireSubtypeFront, shared.TireTypeRear, shared.TireSubtypeFront, currentGameState.carClass.carClassEnum);
             currentGameState.TyreData.FrontLeft_CenterTemp = shared.TireTemp.FrontLeft.CurrentTemp.Center;
             currentGameState.TyreData.FrontLeft_LeftTemp = shared.TireTemp.FrontLeft.CurrentTemp.Left;
@@ -1733,16 +1733,13 @@ namespace CrewChiefV4.RaceRoom
             OvertakingAids overtakingAids = new OvertakingAids();
             overtakingAids.DrsAvailable = shared.Drs.Available == 1;
             overtakingAids.DrsEngaged = shared.Drs.Engaged == 1;
-            if (carClassEnum == CarData.CarClassEnum.DTM_2014)
+            // DTM rule sets are kinda deprecated and not really that clear any more. Generally the DRS is enabled at the end of lap 1 and disabled near
+            // the end of the race (but I'm not sure exactly when). We can't inter the rule set from the selected car so have a one-size-fits-all hack
+            if (carClassEnum == CarData.CarClassEnum.DTM_2013 || carClassEnum == CarData.CarClassEnum.DTM_2014 
+                || carClassEnum == CarData.CarClassEnum.DTM_2015 || carClassEnum == CarData.CarClassEnum.DTM_2016)
             {
-                // is the race-end check correct here? I assume DRS is disabled for the last 2 laps, but I really am just guessing...
-                overtakingAids.DrsEnabled = sessionType == SessionType.Race && lapsCompleted > 2/* && (lapsInSession < 1 || lapsInSession > lapsCompleted + 2)*/;
-                overtakingAids.DrsRange = 2;
-            }
-            else if (carClassEnum == CarData.CarClassEnum.DTM_2015 || carClassEnum == CarData.CarClassEnum.DTM_2016)
-            {
-                // is the race-end check correct here? I assume DRS is disabled for the last 3 minutes, but I really am just guessing...
-                overtakingAids.DrsEnabled = sessionType == SessionType.Race && lapsCompleted > 3/* && (sessionTimeRemaining < 0 || sessionTimeRemaining > 180)*/;
+                // No race end check - TODO: find out if there's a predictable point where DRS is disabled near the race end
+                overtakingAids.DrsEnabled = sessionType == SessionType.Race && lapsCompleted > 0;
                 overtakingAids.DrsRange = 1;
             }
             overtakingAids.PushToPassActivationsRemaining = shared.PushToPass.AmountLeft;

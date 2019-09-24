@@ -1555,7 +1555,6 @@ namespace CrewChiefV4
                             SpeechRecogniser.waitingForSpeech = false;
                             SpeechRecogniser.recognitionStartedTime = DateTime.Now;
                             crewChief.speechRecogniser.recognizeAsyncCancel();
-                            nextPollWait = 1000;
                         }
                         else
                         {
@@ -1567,8 +1566,8 @@ namespace CrewChiefV4
                             Console.WriteLine("Listening...");
                             crewChief.speechRecogniser.recognizeAsync();
                             crewChief.audioPlayer.playStartListeningBeep();
-                            nextPollWait = 500;
                         }
+                        nextPollWait = 1000;
                     }
                     else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_SPOTTER_FUNCTION))
                     {
