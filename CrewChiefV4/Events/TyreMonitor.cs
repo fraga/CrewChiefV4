@@ -1493,6 +1493,8 @@ namespace CrewChiefV4.Events
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOW_LONG_WILL_THESE_TYRES_LAST))
             {
                 Tuple<CornerData.Corners, float> maxWearPercent = getMaxWearPercent();
+                Console.WriteLine("Tyre life estimate, wear active = " + CrewChief.currentGameState.TyreData.TyreWearActive);
+                Console.WriteLine("Max wear is " + maxWearPercent.Item2 + "% on " + maxWearPercent.Item1);
                 if (CrewChief.gameDefinition.gameEnum == GameEnum.IRACING)
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));

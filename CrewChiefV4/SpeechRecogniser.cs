@@ -21,6 +21,8 @@ namespace CrewChiefV4
 
         private SREWrapper sreWrapper;
 
+        public static int sreSessionId = 0;
+
         private int nAudioWaveInSampleRate = UserSettings.GetUserSettings().getInt("naudio_wave_in_sample_rate");
         private int nAudioWaveInChannelCount = UserSettings.GetUserSettings().getInt("naudio_wave_in_channel_count");
         private int nAudioWaveInSampleDepth = UserSettings.GetUserSettings().getInt("naudio_wave_in_sample_depth");
@@ -1829,7 +1831,7 @@ namespace CrewChiefV4
             {
                 return;
             }
-
+            SpeechRecogniser.sreSessionId++;
             Console.WriteLine("Opened channel - waiting for speech");
             SpeechRecogniser.waitingForSpeech = true;
             SpeechRecogniser.gotRecognitionResult = false;

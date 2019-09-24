@@ -12,7 +12,8 @@ using CrewChiefV4.GameState;
 using System.Collections;
 using System.Runtime.Remoting.Contexts;
 using System.Diagnostics;
-
+using NAudio.CoreAudioApi;
+using NAudio.CoreAudioApi.Interfaces;
 namespace CrewChiefV4.Audio
 {
     public class AudioPlayer
@@ -31,8 +32,8 @@ namespace CrewChiefV4.Audio
         public enum TTS_OPTION { NEVER, ONLY_WHEN_NECESSARY, ANY_TIME }
         public static TTS_OPTION ttsOption = TTS_OPTION.ONLY_WHEN_NECESSARY;
 
-        public static int naudioMessagesPlaybackDeviceId = 0;
-        public static int naudioBackgroundPlaybackDeviceId = 0;
+        public static int naudioMessagesPlaybackDeviceId = -1; 
+        public static int naudioBackgroundPlaybackDeviceId = -1;
         public static Dictionary<string, Tuple<string, int>> playbackDevices = new Dictionary<string, Tuple<string, int>>();
         
         public static String folderAcknowlegeOK = "acknowledge/OK";
@@ -141,15 +142,120 @@ namespace CrewChiefV4.Audio
         private Thread playDelayedImmediateMessageThread = null;
         private Thread pauseQueueThread = null;
         private Thread hangingChannelCloseThread = null;
-        
+
+        class NotificationClientImplementation : NAudio.CoreAudioApi.Interfaces.IMMNotificationClient
+        {
+            public void OnDefaultDeviceChanged(DataFlow dataFlow, Role deviceRole, string defaultDeviceId)
+            {
+                // Windows is stupid, if default device is changed the index in WaveOut devices changes, so we need to update the indecies(I think it's called) in playbackDevices
+                // Find our currently selected devices for both backgoundplayer and messageplayer 
+                string currentMessageDeviceGuid = "";
+                string currentBackgoundDeviceGuid = "";
+                foreach (var device in playbackDevices)
+                {
+                    if (string.IsNullOrWhiteSpace(currentMessageDeviceGuid) && naudioMessagesPlaybackDeviceId == device.Value.Item2)
+                    {
+                        currentMessageDeviceGuid = device.Value.Item1;
+                    }
+                    if(string.IsNullOrWhiteSpace(currentBackgoundDeviceGuid) && naudioBackgroundPlaybackDeviceId == device.Value.Item2)
+                    {
+                        currentBackgoundDeviceGuid = device.Value.Item1;
+                    }
+                    if(!string.IsNullOrWhiteSpace(currentMessageDeviceGuid) && !string.IsNullOrWhiteSpace(currentBackgoundDeviceGuid))
+                    {
+                        break;
+                    }
+                }
+                playbackDevices.Clear();
+                for (int deviceId = 0; deviceId < NAudio.Wave.WaveOut.DeviceCount; deviceId++)
+                {
+                    // the audio device stuff makes no guarantee as to the presence of sensible device and product guids,
+                    // so we have to do the best we can here
+                    NAudio.Wave.WaveOutCapabilities capabilities = NAudio.Wave.WaveOut.GetCapabilities(deviceId);
+                    Boolean hasNameGuid = capabilities.NameGuid != null && !capabilities.NameGuid.Equals(Guid.Empty);
+                    Boolean hasProductGuid = capabilities.ProductGuid != null && !capabilities.ProductGuid.Equals(Guid.Empty);
+                    String rawName = capabilities.ProductName;
+                    String name = rawName;
+                    int nameAddition = 0;
+                    while (playbackDevices.Keys.Contains(name))
+                    {
+                        nameAddition++;
+                        name = rawName += "(" + nameAddition + ")";
+                    }
+                    String guidToUse;
+                    if (hasNameGuid)
+                    {
+                        guidToUse = capabilities.NameGuid.ToString();
+                    }
+                    else if (hasProductGuid)
+                    {
+                        guidToUse = capabilities.ProductGuid.ToString() + "_" + name;
+                    }
+                    else
+                    {
+                        guidToUse = name;
+                    }
+                    // update our cached device id's 
+                    if (currentMessageDeviceGuid.Equals(guidToUse))
+                    {
+                        naudioMessagesPlaybackDeviceId = deviceId;
+                    }
+                    if (currentBackgoundDeviceGuid.Equals(guidToUse))
+                    {
+                        naudioBackgroundPlaybackDeviceId = deviceId;
+                    }
+
+                    playbackDevices.Add(name, new Tuple<string, int>(guidToUse, deviceId));
+                }
+            }
+
+            public void OnDeviceAdded(string deviceId)
+            {
+                //Console.WriteLine("OnDeviceAdded -->");
+            }
+
+            public void OnDeviceRemoved(string deviceId)
+            {
+
+                //Console.WriteLine("OnDeviceRemoved -->");
+            }
+
+            public void OnDeviceStateChanged(string deviceId, DeviceState newState)
+            {
+                //Console.WriteLine("OnDeviceStateChanged\n Device Id -->{0} : Device State {1}", deviceId, newState);
+            }
+
+            public NotificationClientImplementation()
+            {
+                if (System.Environment.OSVersion.Version.Major < 6)
+                {
+                    throw new NotSupportedException("This functionality is only supported on Windows Vista or newer.");
+                }
+            }
+
+            public void OnPropertyValueChanged(string deviceId, PropertyKey propertyKey)
+            {
+                //Do some Work
+                //fmtid & pid are changed to formatId and propertyId in the latest version NAudio
+                //Console.WriteLine("OnPropertyValueChanged: formatId --> {0}  propertyId --> {1}", propertyKey.formatId.ToString(), propertyKey.propertyId.ToString());
+            }
+
+        }
+
+        private static NAudio.CoreAudioApi.MMDeviceEnumerator deviceEnum = new NAudio.CoreAudioApi.MMDeviceEnumerator();
+        private static NotificationClientImplementation notificationClient = new NotificationClientImplementation();
+
         static AudioPlayer()
         {
+            
             // Inintialize sound file paths.  Handle user specified override, or pick default.
             String soundPackLocationOverride = UserSettings.GetUserSettings().getString("override_default_sound_pack_location");
             String defaultSoundFilesPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\CrewChiefV4\sounds";
             DirectoryInfo defaultSoundDirectory = new DirectoryInfo(defaultSoundFilesPath);
             DirectoryInfo overrideSoundDirectory = null;
             Boolean useOverride = false;
+
+
             if (soundPackLocationOverride != null && soundPackLocationOverride.Length > 0)
             {
                 try
@@ -245,11 +351,13 @@ namespace CrewChiefV4.Audio
 
             Enum.TryParse(UserSettings.GetUserSettings().getString("tts_setting_listprop"), out ttsOption);
             Debug.Assert(Enum.IsDefined(typeof(TTS_OPTION), ttsOption));
-
+            
             // Initialize optional nAudio playback.
             if (UserSettings.GetUserSettings().getBoolean("use_naudio"))
             {
+                deviceEnum.RegisterEndpointNotificationCallback(notificationClient);
                 playbackDevices.Clear();
+                
                 for (int deviceId = 0; deviceId < NAudio.Wave.WaveOut.DeviceCount; deviceId++)
                 {
                     // the audio device stuff makes no guarantee as to the presence of sensible device and product guids,
@@ -286,6 +394,7 @@ namespace CrewChiefV4.Audio
         public AudioPlayer()
         {
             this.mainThreadContext = SynchronizationContext.Current;
+
 
             // Only update main pack for now?
             DirectoryInfo soundDirectory = new DirectoryInfo(soundFilesPathNoChiefOverride);
@@ -597,16 +706,19 @@ namespace CrewChiefV4.Audio
                 }
                 if (immediateClips.Count > 0)
                 {
-                    try
+                    if (!SpeechRecogniser.waitingForSpeech || MainWindow.voiceOption != MainWindow.VoiceOptionEnum.HOLD)
                     {
-                        playQueueContents(immediateClips, true);
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("Exception processing immediate clips: " + e.Message + " stack " + e.StackTrace);
-                        lock (immediateClips)
+                        try
                         {
-                            immediateClips.Clear();
+                            playQueueContents(immediateClips, true);
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine("Exception processing immediate clips: " + e.Message + " stack " + e.StackTrace);
+                            lock (immediateClips)
+                            {
+                                immediateClips.Clear();
+                            }
                         }
                     }
                     waitTimeout = 10;
@@ -991,7 +1103,10 @@ namespace CrewChiefV4.Audio
                         Console.WriteLine("Event " + eventName + " is no longer in the queue");
                         if (CrewChief.Debugging)
                         {
-                            Console.WriteLine("The " + (isImmediateMessages ? "immediate" : "regular") + " queue contains " + String.Join(", ", thisQueue.Keys));
+                            string[] keysToDebug = new string[thisQueue.Keys.Count];
+                            thisQueue.Keys.CopyTo(keysToDebug, 0);
+                            Console.WriteLine("The " + (isImmediateMessages ? "immediate" : "regular") + " queue contains "
+                                + String.Join(", ", keysToDebug));
                         }
                     }
                 }
@@ -1113,12 +1228,12 @@ namespace CrewChiefV4.Audio
             }
         }
 
-        public int purgeQueues()
+        public int purgeQueues(int retainMessagesWithSreSessionId = -1)
         {
-            return purgeQueue(queuedClips, false) + purgeQueue(immediateClips, true);
+            return purgeQueue(queuedClips, false) + purgeQueue(immediateClips, true, retainMessagesWithSreSessionId);
         }
 
-        private int purgeQueue(OrderedDictionary queue, bool isImmediateQueue)
+        private int purgeQueue(OrderedDictionary queue, bool isImmediateQueue, int retainMessagesWithSreSessionId = -1)
         {
             Console.WriteLine("Purging " + (isImmediateQueue ? "immediate" : "regular") + " queue" );
             int purged = 0;
@@ -1129,6 +1244,16 @@ namespace CrewChiefV4.Audio
                 {
                     try
                     {
+                        if (retainMessagesWithSreSessionId != -1 && isImmediateQueue)
+                        {
+                            QueuedMessage message = (QueuedMessage)queue[keyStr];
+                            if (message.metadata != null && message.metadata.type == SoundType.VOICE_COMMAND_RESPONSE
+                                && retainMessagesWithSreSessionId == message.metadata.speechRecognitionSessionID)
+                            {
+                                continue;
+                            }
+                        }
+
                         if (!keyStr.Contains(SessionEndMessages.sessionEndMessageIdentifier) &&
                             !keyStr.Contains(SmokeTest.SMOKE_TEST) &&
                             !keyStr.Contains(SmokeTest.SMOKE_TEST_SPOTTER))
@@ -1293,6 +1418,7 @@ namespace CrewChiefV4.Audio
                 if (queuedMessage.metadata.type == SoundType.AUTO)
                 {
                     queuedMessage.metadata.type = SoundType.VOICE_COMMAND_RESPONSE;
+                    queuedMessage.metadata.speechRecognitionSessionID = SpeechRecogniser.sreSessionId;
                 }
                 lock (immediateClips)
                 {
@@ -1363,7 +1489,7 @@ namespace CrewChiefV4.Audio
                         monitorQueueWakeUpEvent.Set();
                     }
                 }
-            }            
+            }
         }
 
         private int getInsertionIndex(OrderedDictionary queue, QueuedMessage queuedMessage)

@@ -1439,7 +1439,7 @@ namespace CrewChiefV4
                         }
                         if (rejectMessagesWhenTalking)
                         {
-                            Thread.Sleep(200);
+                            crewChief.audioPlayer.purgeQueues();
                             muteVolumes();
                         }
                     }
@@ -1448,7 +1448,7 @@ namespace CrewChiefV4
                         if (rejectMessagesWhenTalking)
                         {
                             // Drop any outstanding messages queued while user was talking, this should prevent weird half phrases.
-                            crewChief.audioPlayer.purgeQueues();
+                            crewChief.audioPlayer.purgeQueues(SpeechRecogniser.sreSessionId);
                             // unmute
                             unmuteVolumes();
 
@@ -1555,7 +1555,6 @@ namespace CrewChiefV4
                             SpeechRecogniser.waitingForSpeech = false;
                             SpeechRecogniser.recognitionStartedTime = DateTime.Now;
                             crewChief.speechRecogniser.recognizeAsyncCancel();
-                            nextPollWait = 1000;
                         }
                         else
                         {
@@ -1567,8 +1566,8 @@ namespace CrewChiefV4
                             Console.WriteLine("Listening...");
                             crewChief.speechRecogniser.recognizeAsync();
                             crewChief.audioPlayer.playStartListeningBeep();
-                            nextPollWait = 500;
                         }
+                        nextPollWait = 1000;
                     }
                     else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_SPOTTER_FUNCTION))
                     {
