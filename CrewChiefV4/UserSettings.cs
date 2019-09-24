@@ -524,7 +524,6 @@ namespace CrewChiefV4
                     {
                         saveUserSettingsFile(currentActiveProfile, currentUserProfileFileName);
                     }
-                    
                 }
             }
         }

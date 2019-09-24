@@ -327,10 +327,14 @@ namespace CrewChiefV4.Audio
 
         public static void InterruptCurrentlyPlayingSound()
         {
-            // onlu works with nAudio
+            // only works with nAudio
             if (AudioPlayer.playWithNAudio && currentlyPlayingSound != null)
             {
-                currentlyPlayingSound.Stop();
+                Boolean blockedABeep = currentlyPlayingSound.Stop();
+                if (blockedABeep)
+                {
+                    PlaybackModerator.BlockNAudioPlaybackFor(500);
+                }
             }
         }
         
@@ -1431,8 +1435,8 @@ namespace CrewChiefV4.Audio
                     try
                     {
                         uncachedWaveOut.Init(uncachedReader);
-                        uncachedWaveOut.Play();
                         SoundCache.currentlyPlayingSound = this;
+                        uncachedWaveOut.Play();
                         // stop waiting after 30 seconds if it's not a beep. If it is a beep wait a few seconds
                         // just in case someone has done something weird like swap the beep sound for a personalisation
                         this.playWaitHandle.WaitOne(this.isBleep ? 4000 : 30000);
@@ -1450,8 +1454,8 @@ namespace CrewChiefV4.Audio
                     try
                     {
                         uncachedWaveOut.Init(new NAudio.Wave.SampleProviders.SampleToWaveProvider(sampleChannel));
-                        uncachedWaveOut.Play();
                         SoundCache.currentlyPlayingSound = this;
+                        uncachedWaveOut.Play();
                         // stop waiting after 30 seconds if it's not a beep. If it is a beep wait a few seconds
                         // just in case someone has done something weird like swap the beep sound for a personalisation
                         this.playWaitHandle.WaitOne(this.isBleep ? 4000 : 30000);
@@ -1489,8 +1493,8 @@ namespace CrewChiefV4.Audio
                         {
                             LoadAndCacheSound();
                             this.reader.CurrentTime = TimeSpan.Zero;
-                            this.waveOut.Play();
                             SoundCache.currentlyPlayingSound = this;
+                            this.waveOut.Play();
                             // It's a beep so wait a few seconds just in case someone has done something weird like swap the beep sound for a personalisation.
                             // Special case for the listen start beep - don't wait for it to finish playing before returning
                             if (!isListenStartBeep)
@@ -1501,8 +1505,8 @@ namespace CrewChiefV4.Audio
                         else
                         {
                             LoadNAudioWaveOut();
-                            this.waveOut.Play();
                             SoundCache.currentlyPlayingSound = this;
+                            this.waveOut.Play();
                             // in this case we know it's not a beep and we're going to dispose the memorystream and reader so we really
                             // do need to wait for it to finish
                             this.playWaitHandle.WaitOne(30000);
@@ -1643,16 +1647,23 @@ namespace CrewChiefV4.Audio
             return unloaded;
         }
 
-        public void Stop()
+        public Boolean Stop()
         {
+            Boolean blockedABeep = false;
             if (AudioPlayer.playWithNAudio && this.waveOut != null && this.waveOut.PlaybackState == NAudio.Wave.PlaybackState.Playing)
             {
+                if (this.isBleep)
+                {
+                    blockedABeep = true;
+                }
                 this.waveOut.Stop();
+                Console.WriteLine($"Stopping sound: {fullPath}");
             }
             else if (!AudioPlayer.playWithNAudio && this.soundPlayer != null)
             {
                 this.soundPlayer.Stop();
             }
+            return blockedABeep;
         }
 
         private byte[] ConvertTTSWaveStreamToBytes(MemoryStream inputStream, int startMillisecondsToTrim, int endMillisecondsToTrim)
