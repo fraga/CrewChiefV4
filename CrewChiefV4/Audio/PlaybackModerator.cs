@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using static CrewChiefV4.MainWindow;
 
 namespace CrewChiefV4.Audio
 {
@@ -63,6 +64,13 @@ namespace CrewChiefV4.Audio
         private static Verbosity verbosity = Verbosity.FULL;
         private static Dictionary<String, MessageQueueCounter> queuedMessageCounters = new Dictionary<string, MessageQueueCounter>();
         private static DateTime nextVerbosityUpdate = DateTime.MinValue;
+
+        //
+        // This field is here to deal with very, very corner case of SRE blocking.  If user hits hold button right whnen
+        // Chief tries to respond and opens the channel, we'd silence bleep, but not the phrase.  This hack is to help with
+        // blocking the response itself by blocking all playback until set time.
+        //
+        private static DateTime blockNAudioPlaybackUntil = DateTime.MinValue;
 
         static PlaybackModerator()
         {
@@ -289,6 +297,13 @@ namespace CrewChiefV4.Audio
                 return false;
             }
 
+            if (PlaybackModerator.rejectMessagesWhenTalking
+                && DateTime.UtcNow < PlaybackModerator.blockNAudioPlaybackUntil)
+            {
+                PlaybackModerator.Trace($"Sound {singleSound.fullPath} rejected because it is blocked by request to block nAudio sounds");
+                return false;
+            }
+
             int messageId = soundMetadata == null ? 0 : soundMetadata.messageId;
             if (PlaybackModerator.lastBlockedMessageId == messageId)
             {
@@ -371,6 +386,13 @@ namespace CrewChiefV4.Audio
                 PlaybackModerator.Trace(string.Format("Message {0} hasn't been queued because its priority is {1} and our verbosity is currently {2}", queuedMessage.messageName, priority, verbosity));
 
             return canPlay;
+        }
+
+        internal static void BlockNAudioPlaybackFor(int milliseconds)
+        {
+            if (PlaybackModerator.crewChief != null
+                && PlaybackModerator.crewChief.speechRecogniser.voiceOptionEnum == VoiceOptionEnum.HOLD)
+                PlaybackModerator.blockNAudioPlaybackUntil = DateTime.UtcNow.AddMilliseconds(500);
         }
 
         private static void InjectBeepOutIn(SingleSound sound, SoundMetadata soundMetadata)

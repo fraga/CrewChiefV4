@@ -1439,7 +1439,7 @@ namespace CrewChiefV4
                         }
                         if (rejectMessagesWhenTalking)
                         {
-                            Thread.Sleep(200);
+                            crewChief.audioPlayer.purgeQueues();
                             muteVolumes();
                         }
                     }
@@ -1448,7 +1448,7 @@ namespace CrewChiefV4
                         if (rejectMessagesWhenTalking)
                         {
                             // Drop any outstanding messages queued while user was talking, this should prevent weird half phrases.
-                            crewChief.audioPlayer.purgeQueues();
+                            crewChief.audioPlayer.purgeQueues(SpeechRecogniser.sreSessionId);
                             // unmute
                             unmuteVolumes();
 

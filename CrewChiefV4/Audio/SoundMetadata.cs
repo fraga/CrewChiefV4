@@ -32,6 +32,7 @@ namespace CrewChiefV4.Audio
         public const int DEFAULT_PRIORITY = 5;
         public int messageId = 0;  // 0 => unset
         public SoundType type;
+        public int speechRecognitionSessionID = 0;
 
         public bool isListenStartBeep = false;  // special case here - don't block this if we're listening for a voice command
 
