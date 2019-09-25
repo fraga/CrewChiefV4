@@ -130,10 +130,14 @@ namespace CrewChiefV4.Audio
                     {
                         reader.Dispose();
                     }
-                    if (waveOut != null)
+                    // JB: don't dispose this BG player. We don't reuse any of its resources
+                    // and there's a small risk of it hanging the app on shutdown if the audio
+                    // device associated with this WaveOut has been removed (e.g. you stop
+                    // SteamVR before closing the app)
+                    /*if (waveOut != null)
                     {
                         waveOut.Dispose();
-                    }
+                    }*/
                 }
                 catch (Exception) { }
                 base.dispose();
