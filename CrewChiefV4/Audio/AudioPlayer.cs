@@ -145,7 +145,7 @@ namespace CrewChiefV4.Audio
 
         class NotificationClientImplementation : NAudio.CoreAudioApi.Interfaces.IMMNotificationClient
         {
-            public void OnDefaultDeviceChanged(DataFlow dataFlow, Role deviceRole, string defaultDeviceId)
+            public void RefreshDeviceList()
             {
                 // Windows is stupid, if default device is changed the index in WaveOut devices changes, so we need to update the indecies(I think it's called) in playbackDevices
                 // Find our currently selected devices for both backgoundplayer and messageplayer 
@@ -157,11 +157,11 @@ namespace CrewChiefV4.Audio
                     {
                         currentMessageDeviceGuid = device.Value.Item1;
                     }
-                    if(string.IsNullOrWhiteSpace(currentBackgoundDeviceGuid) && naudioBackgroundPlaybackDeviceId == device.Value.Item2)
+                    if (string.IsNullOrWhiteSpace(currentBackgoundDeviceGuid) && naudioBackgroundPlaybackDeviceId == device.Value.Item2)
                     {
                         currentBackgoundDeviceGuid = device.Value.Item1;
                     }
-                    if(!string.IsNullOrWhiteSpace(currentMessageDeviceGuid) && !string.IsNullOrWhiteSpace(currentBackgoundDeviceGuid))
+                    if (!string.IsNullOrWhiteSpace(currentMessageDeviceGuid) && !string.IsNullOrWhiteSpace(currentBackgoundDeviceGuid))
                     {
                         break;
                     }
@@ -200,13 +200,26 @@ namespace CrewChiefV4.Audio
                     {
                         naudioMessagesPlaybackDeviceId = deviceId;
                     }
+                    else
+                    {
+                        Console.WriteLine($"Unable to find the selected playback device, reverting to default playback device");
+                        naudioMessagesPlaybackDeviceId = 0;
+                    }
                     if (currentBackgoundDeviceGuid.Equals(guidToUse))
                     {
                         naudioBackgroundPlaybackDeviceId = deviceId;
                     }
-
+                    else
+                    {
+                        Console.WriteLine($"Unable to find the selected playback device, reverting to default playback device");
+                        naudioBackgroundPlaybackDeviceId = 0;
+                    }
                     playbackDevices.Add(name, new Tuple<string, int>(guidToUse, deviceId));
                 }
+            }
+            public void OnDefaultDeviceChanged(DataFlow dataFlow, Role deviceRole, string defaultDeviceId)
+            {
+                RefreshDeviceList();
             }
 
             public void OnDeviceAdded(string deviceId)
@@ -216,12 +229,12 @@ namespace CrewChiefV4.Audio
 
             public void OnDeviceRemoved(string deviceId)
             {
-
                 //Console.WriteLine("OnDeviceRemoved -->");
             }
 
             public void OnDeviceStateChanged(string deviceId, DeviceState newState)
             {
+                RefreshDeviceList();
                 //Console.WriteLine("OnDeviceStateChanged\n Device Id -->{0} : Device State {1}", deviceId, newState);
             }
 
@@ -243,19 +256,16 @@ namespace CrewChiefV4.Audio
         }
 
         private static NAudio.CoreAudioApi.MMDeviceEnumerator deviceEnum = new NAudio.CoreAudioApi.MMDeviceEnumerator();
-        private static NotificationClientImplementation notificationClient = new NotificationClientImplementation();
+        private static readonly NotificationClientImplementation notificationClient = new NotificationClientImplementation();
 
         static AudioPlayer()
-        {
-            
+        {            
             // Inintialize sound file paths.  Handle user specified override, or pick default.
             String soundPackLocationOverride = UserSettings.GetUserSettings().getString("override_default_sound_pack_location");
             String defaultSoundFilesPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\CrewChiefV4\sounds";
             DirectoryInfo defaultSoundDirectory = new DirectoryInfo(defaultSoundFilesPath);
             DirectoryInfo overrideSoundDirectory = null;
             Boolean useOverride = false;
-
-
             if (soundPackLocationOverride != null && soundPackLocationOverride.Length > 0)
             {
                 try
@@ -356,8 +366,7 @@ namespace CrewChiefV4.Audio
             if (UserSettings.GetUserSettings().getBoolean("use_naudio"))
             {
                 deviceEnum.RegisterEndpointNotificationCallback(notificationClient);
-                playbackDevices.Clear();
-                
+                playbackDevices.Clear();                
                 for (int deviceId = 0; deviceId < NAudio.Wave.WaveOut.DeviceCount; deviceId++)
                 {
                     // the audio device stuff makes no guarantee as to the presence of sensible device and product guids,
@@ -394,7 +403,6 @@ namespace CrewChiefV4.Audio
         public AudioPlayer()
         {
             this.mainThreadContext = SynchronizationContext.Current;
-
 
             // Only update main pack for now?
             DirectoryInfo soundDirectory = new DirectoryInfo(soundFilesPathNoChiefOverride);
@@ -1678,6 +1686,11 @@ namespace CrewChiefV4.Audio
         public void Dispose()
         {
             backgroundPlayer.dispose();
+            if (UserSettings.GetUserSettings().getBoolean("use_naudio") && deviceEnum != null && notificationClient != null)
+            {
+                deviceEnum.UnregisterEndpointNotificationCallback(notificationClient);
+                deviceEnum.Dispose();
+            }
             if (soundCache != null)
             {
                 try
