@@ -47,7 +47,7 @@ namespace CrewChiefV4
 
         private static int timeInterval = UserSettings.GetUserSettings().getInt("update_interval");
 
-        private const int IRACING_SPOTTER_INTERVAL = 60;    // always use 60Hz for iracing spotter
+        private const int IRACING_SPOTTER_INTERVAL = 16;    // always use 60Hz for iracing spotter
         private static int spotterInterval = UserSettings.GetUserSettings().getInt("spotter_update_interval");
 
         private Boolean displaySessionLapTimes = UserSettings.GetUserSettings().getBoolean("display_session_lap_times");
