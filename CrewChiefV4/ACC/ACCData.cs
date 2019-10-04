@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using CrewChiefV4.GameState;
 
@@ -80,6 +81,7 @@ namespace CrewChiefV4.ACC
             ACC_Disqualified_IgnoredDriverStint = 20,
             ACC_Disqualified_ExceededDriverStintLimit = 21
         }
+
         [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Unicode)]
         [Serializable]
         public struct SPageFilePhysics

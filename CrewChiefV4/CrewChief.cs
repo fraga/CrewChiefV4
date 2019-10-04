@@ -880,6 +880,7 @@ namespace CrewChiefV4
                 if (audioPlayer != null)
                 {
                     audioPlayer.stopMonitor();
+                    PlaybackModerator.SetCrewChief(null);
                     audioPlayer.disablePearlsOfWisdom = false;
                 }
                 SoundCache.saveVarietyData();

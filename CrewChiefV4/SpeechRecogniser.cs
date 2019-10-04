@@ -12,6 +12,8 @@ using System.Diagnostics;
 using CrewChiefV4.R3E;
 using CrewChiefV4.SRE;
 using System.Globalization;
+using System.Runtime.InteropServices;
+using NAudio.CoreAudioApi;
 
 namespace CrewChiefV4
 {
@@ -33,7 +35,8 @@ namespace CrewChiefV4
 
         // used in nAudio mode:
         public static Dictionary<string, Tuple<string, int>> speechRecognitionDevices = new Dictionary<string, Tuple<string, int>>();
-        public static int initialSpeechInputDeviceIndex = 0;
+        public static int speechInputDeviceIndex = 0;
+        public static int cachedSpeechInputDeviceIndex = 0;
         private Boolean useNAudio = UserSettings.GetUserSettings().getBoolean("use_naudio_for_speech_recognition");
         private Boolean disableBehaviorAlteringVoiceCommands = UserSettings.GetUserSettings().getBoolean("disable_behavior_altering_voice_commands");
         private RingBufferStream.RingBufferStream buffer;
@@ -338,40 +341,82 @@ namespace CrewChiefV4
         private static ExecutableCommandMacro startChatMacro = null;
         private static ExecutableCommandMacro endChatMacro = null;
 
+        [DllImport("winmm.dll", SetLastError = true)]
+        public static extern uint waveInGetNumDevs();
+        [DllImport("winmm.dll", SetLastError = true)]
+        static extern Int32 waveInMessage(IntPtr hWaveOut, int uMsg, out int dwParam1, IntPtr dwParam2);
+        [DllImport("winmm.dll", SetLastError = true)]
+        static extern Int32 waveInMessage(IntPtr hWaveOut, int uMsg, IntPtr dwParam1, int dwParam2);
+
+        public static string GetWaveInEndpointId(int devNumber)
+        {
+            int cbEndpointId;
+            string result = string.Empty;
+            waveInMessage((IntPtr)devNumber, AudioPlayer.DRV_QUERYFUNCTIONINSTANCEIDSIZE, out cbEndpointId, IntPtr.Zero);
+            IntPtr strPtr = Marshal.AllocHGlobal(cbEndpointId);
+            waveInMessage((IntPtr)devNumber, AudioPlayer.DRV_QUERYFUNCTIONINSTANCEID, strPtr, cbEndpointId);
+            result = Marshal.PtrToStringAuto(strPtr);
+            Marshal.FreeHGlobal(strPtr);
+            return result;
+        }
+
+        public static List<AudioPlayer.WaveDevice> GetWaveInDevices()
+        {
+            List<AudioPlayer.WaveDevice> retVal = new List<AudioPlayer.WaveDevice>();
+            foreach (var dev in new MMDeviceEnumerator().EnumerateAudioEndPoints(DataFlow.Capture, DeviceState.Active))
+            {
+                AudioPlayer.WaveDevice di = new AudioPlayer.WaveDevice()
+                {
+                    EndpointGuid = dev.ID,
+                    FullName = dev.FriendlyName,
+                    WaveDeviceId = -1,
+                };
+
+                for (int waveOutIdx = 0; waveOutIdx < waveInGetNumDevs(); waveOutIdx++)
+                {
+                    string guid = GetWaveInEndpointId(waveOutIdx);
+                    if (guid == di.EndpointGuid)
+                    {
+                        di.WaveDeviceId = waveOutIdx;
+                        break;
+                    }
+                }
+                retVal.Add(di);
+            }
+            return retVal;
+        }
+
         static SpeechRecogniser()
         {
             if (UserSettings.GetUserSettings().getBoolean("use_naudio_for_speech_recognition"))
             {
+                String speechRecognitionDeviceGuid = UserSettings.GetUserSettings().getString("NAUDIO_RECORDING_DEVICE_GUID");
+                bool foundSpeechRecognitionDevice = false;
                 speechRecognitionDevices.Clear();
-                for (int deviceId = 0; deviceId < NAudio.Wave.WaveIn.DeviceCount; deviceId++)
+                List<AudioPlayer.WaveDevice> devices = GetWaveInDevices();
+                foreach (var dev in devices)
                 {
-                    // the audio device stuff makes no guarantee as to the presence of sensible device and product guids,
-                    // so we have to do the best we can here
-                    NAudio.Wave.WaveInCapabilities capabilities = NAudio.Wave.WaveIn.GetCapabilities(deviceId);
-                    Boolean hasNameGuid = capabilities.NameGuid != null && !capabilities.NameGuid.Equals(Guid.Empty);
-                    Boolean hasProductGuid = capabilities.ProductGuid != null && !capabilities.ProductGuid.Equals(Guid.Empty);
-                    String rawName = capabilities.ProductName;
-                    String name = rawName;
-                    int nameAddition = 0;
-                    while (speechRecognitionDevices.Keys.Contains(name))
+                    NAudio.Wave.WaveInCapabilities capabilities = NAudio.Wave.WaveIn.GetCapabilities(dev.WaveDeviceId);
+                    // Update legacy audio device "GUID" to MMdevice guid which does does contain a unique GUID 
+                    if (speechRecognitionDeviceGuid.Contains(capabilities.ProductName))
                     {
-                        nameAddition++;
-                        name = rawName += "(" + nameAddition + ")";
+                        UserSettings.GetUserSettings().setProperty("NAUDIO_RECORDING_DEVICE_GUID", dev.EndpointGuid);
+                        UserSettings.GetUserSettings().saveUserSettings();
                     }
-                    String guidToUse;
-                    if (hasNameGuid)
+                    Console.WriteLine($"Device name: {dev.FullName} Guid: {dev.EndpointGuid} DeviceWaveId {dev.WaveDeviceId}");
+                    speechRecognitionDevices.Add(dev.FullName, new Tuple<string, int>(dev.EndpointGuid, dev.WaveDeviceId));
+                }
+                foreach (var dev in speechRecognitionDevices)
+                {
+                    if (dev.Value.Item1 == speechRecognitionDeviceGuid)
                     {
-                        guidToUse = capabilities.NameGuid.ToString();
+                        Console.WriteLine($"Detected saved audio input device: {dev.Key}");
+                        foundSpeechRecognitionDevice = true;
                     }
-                    else if (hasProductGuid)
-                    {
-                        guidToUse = capabilities.ProductGuid.ToString() + "_" + name;
-                    }
-                    else
-                    {
-                        guidToUse = name;
-                    }
-                    speechRecognitionDevices.Add(name, new Tuple<string, int>(guidToUse, deviceId));
+                }
+                if (!foundSpeechRecognitionDevice)
+                {
+                    Console.WriteLine($"Unable to find saved audio input device, using default: {AudioPlayer.GetDefaultInputDeviceName()}");
                 }
             }
         }
@@ -767,7 +812,7 @@ namespace CrewChiefV4
             {
                 buffer = new RingBufferStream.RingBufferStream(48000);
                 waveIn = new NAudio.Wave.WaveInEvent();
-                waveIn.DeviceNumber = SpeechRecogniser.initialSpeechInputDeviceIndex;
+                waveIn.DeviceNumber = SpeechRecogniser.speechInputDeviceIndex;
             }
             // try to initialize SpeechRecognitionEngine if it trows user is most likely missing SpeechPlatformRuntime.msi from the system
             // catch it and tell user to go download.
