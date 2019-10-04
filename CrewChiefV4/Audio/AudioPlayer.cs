@@ -14,6 +14,9 @@ using System.Runtime.Remoting.Contexts;
 using System.Diagnostics;
 using NAudio.CoreAudioApi;
 using NAudio.CoreAudioApi.Interfaces;
+using NAudio.Wave;
+using System.Runtime.InteropServices;
+
 namespace CrewChiefV4.Audio
 {
     public class AudioPlayer
@@ -32,8 +35,8 @@ namespace CrewChiefV4.Audio
         public enum TTS_OPTION { NEVER, ONLY_WHEN_NECESSARY, ANY_TIME }
         public static TTS_OPTION ttsOption = TTS_OPTION.ONLY_WHEN_NECESSARY;
 
-        public static int naudioMessagesPlaybackDeviceId = -1; 
-        public static int naudioBackgroundPlaybackDeviceId = -1;
+        public static int naudioMessagesPlaybackDeviceId = 0;
+        public static int naudioBackgroundPlaybackDeviceId = 0;
         public static Dictionary<string, Tuple<string, int>> playbackDevices = new Dictionary<string, Tuple<string, int>>();
         
         public static String folderAcknowlegeOK = "acknowledge/OK";
@@ -143,103 +146,337 @@ namespace CrewChiefV4.Audio
         private Thread pauseQueueThread = null;
         private Thread hangingChannelCloseThread = null;
 
-        class NotificationClientImplementation : NAudio.CoreAudioApi.Interfaces.IMMNotificationClient
+        private MMDeviceEnumerator deviceEnum = null;
+        private NotificationClientImplementation notificationClient = null;
+
+
+        public struct WaveDevice
         {
-            public void RefreshDeviceList()
+            public int WaveDeviceId;
+            public string FullName;
+            public string EndpointGuid;
+        }
+
+        public const int DRV_QUERYFUNCTIONINSTANCEID = (0x0800 + 17);
+        public const int DRV_QUERYFUNCTIONINSTANCEIDSIZE = (0x0800 + 18);
+
+        [DllImport("winmm.dll")]
+        static extern Int32 waveOutGetNumDevs();
+        [DllImport("winmm.dll")]
+        static extern Int32 waveOutMessage(IntPtr hWaveOut, int uMsg, out int dwParam1, IntPtr dwParam2);
+        [DllImport("winmm.dll")]
+        static extern Int32 waveOutMessage(IntPtr hWaveOut, int uMsg, IntPtr dwParam1, int dwParam2);
+
+        public static string GetWaveOutEndpointId(int devNumber)
+        {
+            int cbEndpointId;
+            string result = string.Empty;
+            waveOutMessage((IntPtr)devNumber, DRV_QUERYFUNCTIONINSTANCEIDSIZE, out cbEndpointId, IntPtr.Zero);
+            IntPtr strPtr = Marshal.AllocHGlobal(cbEndpointId);
+            waveOutMessage((IntPtr)devNumber, DRV_QUERYFUNCTIONINSTANCEID, strPtr, cbEndpointId);
+            result = Marshal.PtrToStringAuto(strPtr);
+            Marshal.FreeHGlobal(strPtr);
+            return result;
+        }
+
+        public static List<WaveDevice> GetWaveOutDevices()
+        {
+            List<WaveDevice> retVal = new List<WaveDevice>();
+            var devEnum = new MMDeviceEnumerator().EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active);
+            foreach (var dev in devEnum)
             {
-                // Windows is stupid, if default device is changed the index in WaveOut devices changes, so we need to update the indecies(I think it's called) in playbackDevices
-                // Find our currently selected devices for both backgoundplayer and messageplayer 
-                string currentMessageDeviceGuid = "";
-                string currentBackgoundDeviceGuid = "";
-                foreach (var device in playbackDevices)
+                WaveDevice di = new WaveDevice()
                 {
-                    if (string.IsNullOrWhiteSpace(currentMessageDeviceGuid) && naudioMessagesPlaybackDeviceId == device.Value.Item2)
+                    EndpointGuid = dev.ID,
+                    FullName = dev.FriendlyName,
+                    WaveDeviceId = -1,
+                };
+
+                for (int waveOutIdx = 0; waveOutIdx < devEnum.Count; waveOutIdx++)
+                {
+                    string guid = GetWaveOutEndpointId(waveOutIdx);
+                    if (guid == di.EndpointGuid)
                     {
-                        currentMessageDeviceGuid = device.Value.Item1;
-                    }
-                    if (string.IsNullOrWhiteSpace(currentBackgoundDeviceGuid) && naudioBackgroundPlaybackDeviceId == device.Value.Item2)
-                    {
-                        currentBackgoundDeviceGuid = device.Value.Item1;
-                    }
-                    if (!string.IsNullOrWhiteSpace(currentMessageDeviceGuid) && !string.IsNullOrWhiteSpace(currentBackgoundDeviceGuid))
-                    {
+                        di.WaveDeviceId = waveOutIdx;
                         break;
                     }
                 }
-                playbackDevices.Clear();
-                for (int deviceId = 0; deviceId < NAudio.Wave.WaveOut.DeviceCount; deviceId++)
+                retVal.Add(di);
+            }
+           
+            return retVal;
+        }
+        public static string GetDefaultOutputDeviceName()
+        {
+            Debug.Assert(!MainWindow.instance.InvokeRequired);
+            foreach (var device in playbackDevices)
+            {
+                if (device.Value.Item2 == 0)
                 {
-                    // the audio device stuff makes no guarantee as to the presence of sensible device and product guids,
-                    // so we have to do the best we can here
-                    NAudio.Wave.WaveOutCapabilities capabilities = NAudio.Wave.WaveOut.GetCapabilities(deviceId);
-                    Boolean hasNameGuid = capabilities.NameGuid != null && !capabilities.NameGuid.Equals(Guid.Empty);
-                    Boolean hasProductGuid = capabilities.ProductGuid != null && !capabilities.ProductGuid.Equals(Guid.Empty);
-                    String rawName = capabilities.ProductName;
-                    String name = rawName;
-                    int nameAddition = 0;
-                    while (playbackDevices.Keys.Contains(name))
-                    {
-                        nameAddition++;
-                        name = rawName += "(" + nameAddition + ")";
-                    }
-                    String guidToUse;
-                    if (hasNameGuid)
-                    {
-                        guidToUse = capabilities.NameGuid.ToString();
-                    }
-                    else if (hasProductGuid)
-                    {
-                        guidToUse = capabilities.ProductGuid.ToString() + "_" + name;
-                    }
-                    else
-                    {
-                        guidToUse = name;
-                    }
-                    // update our cached device id's 
-                    if (currentMessageDeviceGuid.Equals(guidToUse))
-                    {
-                        naudioMessagesPlaybackDeviceId = deviceId;
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Unable to find the selected playback device, reverting to default playback device");
-                        naudioMessagesPlaybackDeviceId = 0;
-                    }
-                    if (currentBackgoundDeviceGuid.Equals(guidToUse))
-                    {
-                        naudioBackgroundPlaybackDeviceId = deviceId;
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Unable to find the selected playback device, reverting to default playback device");
-                        naudioBackgroundPlaybackDeviceId = 0;
-                    }
-                    playbackDevices.Add(name, new Tuple<string, int>(guidToUse, deviceId));
+                    return device.Key;
                 }
             }
+            return null;
+        }
+
+        public static string GetDefaultInputDeviceName()
+        {
+            Debug.Assert(!MainWindow.instance.InvokeRequired);
+            foreach (var device in SpeechRecogniser.speechRecognitionDevices)
+            {
+                if (device.Value.Item2 == 0)
+                {
+                    return device.Key;
+                }
+            }
+            return null;
+        }
+        class NotificationClientImplementation : IMMNotificationClient
+        {
+            private AudioPlayer audioPlayer;
+            private bool playbackEnabled = false;
+            private bool speechEnabled = false;
+            // Windows is stupid, if default device is changed the index in WaveOut devices changes, so we need to update the indecies(I think it's called) in playbackDevices
+            // Find our currently selected devices for both backgoundplayer and messageplayer.
+            private void ReloadBackgroundPlayer()
+            {
+                Debug.Assert(!MainWindow.instance.InvokeRequired);
+                audioPlayer.backgroundPlayer = new NAudioBackgroundPlayer(audioPlayer.mainThreadContext, audioPlayer.backgroundFilesPath, dtmPitWindowClosedBackground);
+                try
+                {
+                    audioPlayer.backgroundPlayer.initialise(dtmPitWindowClosedBackground);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Unable to initialise nAudio background player: " + e.Message);
+                    Console.WriteLine("Using WindowsMediaPlayer for background sounds");
+                    audioPlayer.backgroundPlayer = new MediaPlayerBackgroundPlayer(audioPlayer.mainThreadContext, audioPlayer.backgroundFilesPath, dtmPitWindowClosedBackground);
+                    audioPlayer.backgroundPlayer.initialise(dtmPitWindowClosedBackground);
+                }
+            }
+
+            void ReIndexAudioOutputDevices(bool stopMonitor = false)
+            {
+                Debug.Assert(MainWindow.instance.InvokeRequired);
+                Console.WriteLine("Re-indexing audio output devices...");
+                lock (MainWindow.instanceLock)
+                {
+                    if (MainWindow.instance != null)
+                    {
+                        audioPlayer.mainThreadContext.Post(delegate
+                        {
+                            string messageDeviceGuid = UserSettings.GetUserSettings().getString("NAUDIO_DEVICE_GUID_MESSAGES");
+                            string backgroundDeviceGuid = UserSettings.GetUserSettings().getString("NAUDIO_DEVICE_GUID_BACKGROUND");
+
+                            // stopMonitor is true when this is a response to device state change.  Give nAudio time to correctly clean up.
+                            if (stopMonitor && MainWindow.instance.crewChief.running)
+                                audioPlayer.stopMonitor();
+
+                            playbackDevices.Clear();
+                            foreach (var dev in GetWaveOutDevices())
+                            {
+                                playbackDevices[dev.FullName] = new Tuple<string, int>(dev.EndpointGuid, dev.WaveDeviceId);
+                                if (dev.EndpointGuid == messageDeviceGuid)
+                                {
+                                    naudioMessagesPlaybackDeviceId = dev.WaveDeviceId;
+                                }
+                                if (dev.EndpointGuid == backgroundDeviceGuid)
+                                {
+                                    naudioBackgroundPlaybackDeviceId = dev.WaveDeviceId;
+                                }
+                            }
+                            UpdateUI();
+                        }, null);
+                    }
+                }
+            }
+
+            void ReIndexAudioInputDevices()
+            {
+                Debug.Assert(MainWindow.instance.InvokeRequired);
+                Console.WriteLine("Re-indexing audio input devices...");
+                lock (MainWindow.instanceLock)
+                {
+                    if (MainWindow.instance != null)
+                    {
+                        audioPlayer.mainThreadContext.Post(delegate
+                        {
+                            string recordingDeviceGuid = UserSettings.GetUserSettings().getString("NAUDIO_RECORDING_DEVICE_GUID");
+
+                            SpeechRecogniser.speechRecognitionDevices.Clear();
+                            foreach (var dev in SpeechRecogniser.GetWaveInDevices())
+                            {
+                                SpeechRecogniser.speechRecognitionDevices[dev.FullName] = new Tuple<string, int>(dev.EndpointGuid, dev.WaveDeviceId);
+                                if (dev.EndpointGuid == recordingDeviceGuid)
+                                {
+                                    MainWindow.instance.crewChief.speechRecogniser.changeInputDevice(dev.WaveDeviceId);
+                                    SpeechRecogniser.speechInputDeviceIndex = dev.WaveDeviceId;
+                                }
+                            }
+                            UpdateUI();
+                        }, null);
+                    }
+                }
+            }
+
+            void UpdateUI()
+            {
+                Debug.Assert(!MainWindow.instance.InvokeRequired);
+                if (playbackEnabled)
+                {
+                    MainWindow.instance.refreshMessageAudioDeviceBox();
+                    MainWindow.instance.refreshBackgroundAudioDeviceBox();
+                }
+                if (speechEnabled)
+                {
+                    MainWindow.instance.refreshSpeechRecognitionDeviceBox();
+                }
+            }
+
             public void OnDefaultDeviceChanged(DataFlow dataFlow, Role deviceRole, string defaultDeviceId)
             {
-                RefreshDeviceList();
+                if (dataFlow == DataFlow.Render && playbackEnabled)
+                {
+                    ReIndexAudioOutputDevices();
+                }
+                else if(dataFlow == DataFlow.Capture && speechEnabled)
+                {
+                    ReIndexAudioInputDevices();
+                }                
             }
 
             public void OnDeviceAdded(string deviceId)
             {
-                //Console.WriteLine("OnDeviceAdded -->");
+                Console.WriteLine("OnDeviceAdded -->");
             }
 
             public void OnDeviceRemoved(string deviceId)
             {
-                //Console.WriteLine("OnDeviceRemoved -->");
+                Console.WriteLine("OnDeviceRemoved -->");
             }
 
             public void OnDeviceStateChanged(string deviceId, DeviceState newState)
             {
-                RefreshDeviceList();
-                //Console.WriteLine("OnDeviceStateChanged\n Device Id -->{0} : Device State {1}", deviceId, newState);
+                Debug.Assert(MainWindow.instance.InvokeRequired);
+                Console.WriteLine($"Processing audio device state changes...");
+                if (speechEnabled)
+                {
+                    ReIndexAudioInputDevices();
+                    lock (MainWindow.instanceLock)
+                    {
+                        if (MainWindow.instance != null)
+                        {
+                            audioPlayer.mainThreadContext.Post(delegate
+                            {
+                                string recordingDeviceGuid = UserSettings.GetUserSettings().getString("NAUDIO_RECORDING_DEVICE_GUID");
+
+                                if (recordingDeviceGuid == deviceId)
+                                {
+                                    if (newState == DeviceState.Disabled || newState == DeviceState.Unplugged || newState == DeviceState.NotPresent)
+                                    {
+                                        MainWindow.instance.crewChief.speechRecogniser.changeInputDevice(0);
+                                        SpeechRecogniser.speechInputDeviceIndex = 0;
+                                        Console.WriteLine($"Selected speech input device removed, setting sound input to default device--> {GetDefaultInputDeviceName()}");
+                                    }
+                                    else if (newState == DeviceState.Active)
+                                    {
+                                        foreach (var device in SpeechRecogniser.speechRecognitionDevices)
+                                        {
+                                            if (recordingDeviceGuid == device.Value.Item1)
+                                            {
+                                                MainWindow.instance.crewChief.speechRecogniser.changeInputDevice(device.Value.Item2);
+                                                SpeechRecogniser.speechInputDeviceIndex = device.Value.Item2;
+                                                Console.WriteLine($"Saved speech input device added, setting sound input to saved device--> {device.Key}");
+                                            }
+                                        }
+                                    }
+                                    UpdateUI();
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Input audio device state change is ignored.");
+                                }
+                            }, null);
+                        }
+                    }
+                }
+
+                if (playbackEnabled)
+                {
+                    ReIndexAudioOutputDevices(stopMonitor: true);
+                    lock (MainWindow.instanceLock)
+                    {
+                        if (MainWindow.instance != null)
+                        {
+                            audioPlayer.mainThreadContext.Post(delegate
+                            {
+                                string messageDeviceGuid = UserSettings.GetUserSettings().getString("NAUDIO_DEVICE_GUID_MESSAGES");
+                                string backgroundDeviceGuid = UserSettings.GetUserSettings().getString("NAUDIO_DEVICE_GUID_BACKGROUND");
+
+                                if (backgroundDeviceGuid == deviceId || deviceId == messageDeviceGuid)
+                                {
+                                    if (audioPlayer.backgroundPlayer != null)
+                                        audioPlayer.backgroundPlayer.dispose();
+
+                                    audioPlayer.disposeSoundCache();
+
+                                    if (newState == DeviceState.Disabled || newState == DeviceState.Unplugged || newState == DeviceState.NotPresent)
+                                    {
+                                        if (backgroundDeviceGuid == deviceId)
+                                        {
+                                            naudioBackgroundPlaybackDeviceId = 0;
+                                            Console.WriteLine($"Selected background audio device removed, setting background playback to default device--> {GetDefaultOutputDeviceName()}");
+                                        }
+                                        if (messageDeviceGuid == deviceId)
+                                        {
+                                            naudioMessagesPlaybackDeviceId = 0;
+                                            Console.WriteLine($"Selected message audio device removed, setting voice playback to default device--> {GetDefaultOutputDeviceName()}");
+                                        }
+                                    }
+                                    else if (newState == DeviceState.Active)
+                                    {
+                                        foreach (var device in playbackDevices)
+                                        {
+                                            if (backgroundDeviceGuid == device.Value.Item1)
+                                            {
+                                                Console.WriteLine($"Saved background audio device added, setting sound playback to saved device--> {device.Key}");
+                                                naudioBackgroundPlaybackDeviceId = device.Value.Item2;
+                                            }
+                                            if (messageDeviceGuid == device.Value.Item1)
+                                            {
+                                                Console.WriteLine($"Saved message audio device added, setting sound playback to saved device--> {device.Key}");
+                                                naudioMessagesPlaybackDeviceId = device.Value.Item2;
+                                            }
+                                        }
+                                    }
+
+                                    audioPlayer.soundCache = new SoundCache(new DirectoryInfo(soundFilesPath), new DirectoryInfo(soundFilesPathNoChiefOverride),
+                                        new String[] { "spotter", "acknowledge" }, audioPlayer.sweary, audioPlayer.allowCaching, audioPlayer.selectedPersonalisation, false);
+
+                                    ReloadBackgroundPlayer();
+
+                                    UpdateUI();
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Output audio device state change is ignored.");
+                                }
+
+                                // We stopped monitor during device ReIndexAudioOutputDevices, so make sure to re-start it.
+                                if (MainWindow.instance.crewChief.running)
+                                    audioPlayer.startMonitor(smokeTest: false);
+                            }, null);
+                        }
+                    }
+                }
+
             }
 
-            public NotificationClientImplementation()
+            public NotificationClientImplementation(AudioPlayer audioPlayer, bool playbackEnabled, bool speechEnabled)
             {
+                this.audioPlayer = audioPlayer;
+                this.playbackEnabled = playbackEnabled;
+                this.speechEnabled = speechEnabled;
                 if (System.Environment.OSVersion.Version.Major < 6)
                 {
                     throw new NotSupportedException("This functionality is only supported on Windows Vista or newer.");
@@ -247,19 +484,11 @@ namespace CrewChiefV4.Audio
             }
 
             public void OnPropertyValueChanged(string deviceId, PropertyKey propertyKey)
-            {
-                //Do some Work
-                //fmtid & pid are changed to formatId and propertyId in the latest version NAudio
-                //Console.WriteLine("OnPropertyValueChanged: formatId --> {0}  propertyId --> {1}", propertyKey.formatId.ToString(), propertyKey.propertyId.ToString());
-            }
-
+            {}
         }
 
-        private static NAudio.CoreAudioApi.MMDeviceEnumerator deviceEnum = new NAudio.CoreAudioApi.MMDeviceEnumerator();
-        private static readonly NotificationClientImplementation notificationClient = new NotificationClientImplementation();
-
         static AudioPlayer()
-        {            
+        {
             // Inintialize sound file paths.  Handle user specified override, or pick default.
             String soundPackLocationOverride = UserSettings.GetUserSettings().getString("override_default_sound_pack_location");
             String defaultSoundFilesPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\CrewChiefV4\sounds";
@@ -365,37 +594,50 @@ namespace CrewChiefV4.Audio
             // Initialize optional nAudio playback.
             if (UserSettings.GetUserSettings().getBoolean("use_naudio"))
             {
-                deviceEnum.RegisterEndpointNotificationCallback(notificationClient);
-                playbackDevices.Clear();                
-                for (int deviceId = 0; deviceId < NAudio.Wave.WaveOut.DeviceCount; deviceId++)
+                string messageDeviceGuid = UserSettings.GetUserSettings().getString("NAUDIO_DEVICE_GUID_MESSAGES");
+                string backgroundDeviceGuid = UserSettings.GetUserSettings().getString("NAUDIO_DEVICE_GUID_BACKGROUND");
+                bool foundMessagePlayBackDevice = false;
+                bool foundBackgroundAudioDevice = false;
+                Debug.Assert(!MainWindow.instance.InvokeRequired);
+                playbackDevices.Clear();
+                List<WaveDevice> devices = GetWaveOutDevices();
+                foreach (var dev in devices)
                 {
-                    // the audio device stuff makes no guarantee as to the presence of sensible device and product guids,
-                    // so we have to do the best we can here
-                    NAudio.Wave.WaveOutCapabilities capabilities = NAudio.Wave.WaveOut.GetCapabilities(deviceId);
-                    Boolean hasNameGuid = capabilities.NameGuid != null && !capabilities.NameGuid.Equals(Guid.Empty);
-                    Boolean hasProductGuid = capabilities.ProductGuid != null && !capabilities.ProductGuid.Equals(Guid.Empty);
-                    String rawName = capabilities.ProductName;
-                    String name = rawName;
-                    int nameAddition = 0;
-                    while (playbackDevices.Keys.Contains(name))
+                    NAudio.Wave.WaveOutCapabilities capabilities = NAudio.Wave.WaveOut.GetCapabilities(dev.WaveDeviceId);
+                    // Update legacy audio device "GUID" to MMdevice guid which does does contain a unique GUID 
+                    if (messageDeviceGuid.Contains(capabilities.ProductName))
                     {
-                        nameAddition++;
-                        name = rawName += "(" + nameAddition + ")";
+                        UserSettings.GetUserSettings().setProperty("NAUDIO_DEVICE_GUID_MESSAGES", dev.EndpointGuid);
+                        UserSettings.GetUserSettings().saveUserSettings();
                     }
-                    String guidToUse;
-                    if (hasNameGuid)
+                    if (backgroundDeviceGuid.Contains(capabilities.ProductName))
                     {
-                        guidToUse = capabilities.NameGuid.ToString();
+                        UserSettings.GetUserSettings().setProperty("NAUDIO_DEVICE_GUID_BACKGROUND", dev.EndpointGuid);
+                        UserSettings.GetUserSettings().saveUserSettings();
                     }
-                    else if (hasProductGuid)
+                    Console.WriteLine($"Device name: {dev.FullName} Guid: {dev.EndpointGuid} DeviceWaveId {dev.WaveDeviceId}");
+                    playbackDevices.Add(dev.FullName, new Tuple<string, int>(dev.EndpointGuid, dev.WaveDeviceId));
+                }
+                foreach (var dev in playbackDevices)
+                {
+                    if (dev.Value.Item1 == messageDeviceGuid)
                     {
-                        guidToUse = capabilities.ProductGuid.ToString() + "_" + name;
+                        Console.WriteLine($"Detected saved message audio output device: {dev.Key}");
+                        foundMessagePlayBackDevice = true;
                     }
-                    else
+                    if (dev.Value.Item1 == backgroundDeviceGuid)
                     {
-                        guidToUse = name;
+                        foundBackgroundAudioDevice = true;
+                        Console.WriteLine($"Detected saved background audio output device: {dev.Key}");
                     }
-                    playbackDevices.Add(name, new Tuple<string, int>(guidToUse, deviceId));
+                }
+                if (!foundMessagePlayBackDevice)
+                {
+                    Console.WriteLine($"Unable to find saved message audio output device, using default: {GetDefaultOutputDeviceName()}");
+                }
+                if (!foundBackgroundAudioDevice)
+                {
+                    Console.WriteLine($"Unable to find saved background audio output device, using default: {GetDefaultOutputDeviceName()}");
                 }
             }
         }
@@ -403,7 +645,13 @@ namespace CrewChiefV4.Audio
         public AudioPlayer()
         {
             this.mainThreadContext = SynchronizationContext.Current;
+            if (UserSettings.GetUserSettings().getBoolean("use_naudio") || UserSettings.GetUserSettings().getBoolean("use_naudio_for_speech_recognition"))
+            {
 
+                deviceEnum = new MMDeviceEnumerator();
+                notificationClient = new NotificationClientImplementation(this, UserSettings.GetUserSettings().getBoolean("use_naudio"), UserSettings.GetUserSettings().getBoolean("use_naudio_for_speech_recognition"));
+                deviceEnum.RegisterEndpointNotificationCallback(notificationClient);
+            }
             // Only update main pack for now?
             DirectoryInfo soundDirectory = new DirectoryInfo(soundFilesPathNoChiefOverride);
             if (soundDirectory.Exists)
@@ -416,7 +664,6 @@ namespace CrewChiefV4.Audio
             {
                 soundDirectory.Create();
             }
-
             soundDirectory = new DirectoryInfo(soundFilesPath);
             if (soundDirectory.Exists)
             {
@@ -491,7 +738,7 @@ namespace CrewChiefV4.Audio
 
             if (UserSettings.GetUserSettings().getBoolean("use_naudio"))
             {
-                this.backgroundPlayer = new NAudioBackgroundPlayer(backgroundFilesPath, dtmPitWindowClosedBackground);
+                this.backgroundPlayer = new NAudioBackgroundPlayer(mainThreadContext, backgroundFilesPath, dtmPitWindowClosedBackground);
                 try
                 {
                     this.backgroundPlayer.initialise(dtmPitWindowClosedBackground);
@@ -528,7 +775,7 @@ namespace CrewChiefV4.Audio
             if (this.soundCache == null)
             {
                 soundCache = new SoundCache(new DirectoryInfo(soundFilesPath), new DirectoryInfo(soundFilesPathNoChiefOverride),
-                    new String[] { "spotter", "acknowledge" }, sweary, allowCaching, selectedPersonalisation);
+                    new String[] { "spotter", "acknowledge" }, sweary, allowCaching, selectedPersonalisation, true);
             }
             initialised = true;
             PlaybackModerator.SetAudioPlayer(this);
@@ -539,7 +786,7 @@ namespace CrewChiefV4.Audio
             return soundCache;
         }
 
-        public void startMonitor()
+        public void startMonitor(bool smokeTest = true)
         {
             if (monitorRunning)
             {
@@ -548,7 +795,7 @@ namespace CrewChiefV4.Audio
             else
             {
                 Console.WriteLine("Starting queue monitor");
-                monitorRunning = true;
+                this.monitorRunning = true;
                 // spawn a Thread to monitor the queue
                 Debug.Assert(monitorQueueThread == null);
 
@@ -557,7 +804,12 @@ namespace CrewChiefV4.Audio
                 monitorQueueThread.Name = "AudioPlayer.monitorQueueThread";
                 monitorQueueThread.Start();
             }
-            new SmokeTest(this).trigger(new GameStateData(DateTime.UtcNow.Ticks), new GameStateData(DateTime.UtcNow.Ticks));
+
+            if (smokeTest)
+            {
+                new SmokeTest(this).trigger(new GameStateData(DateTime.UtcNow.Ticks), new GameStateData(DateTime.UtcNow.Ticks));
+            }
+            
         }
 
         public void stopMonitor()
@@ -573,7 +825,9 @@ namespace CrewChiefV4.Audio
                     Console.WriteLine("Waiting for queue monitor to stop...");
                     if (!monitorQueueThread.Join(5000))
                     {
-                        Console.WriteLine("Warning: Timed out waiting for queue monitor to stop");
+                        var msg = "Warning: Timed out waiting for queue monitor to stop";
+                        Console.WriteLine(msg);
+                        Debug.WriteLine(msg);
                     }
                 }
                 monitorQueueThread = null;
@@ -697,8 +951,6 @@ namespace CrewChiefV4.Audio
         private void monitorQueue()
         {
             Console.WriteLine("Monitor starting");
-            // ensure the BGP is initialised:
-            this.backgroundPlayer.initialise(dtmPitWindowClosedBackground);
             while (monitorRunning)
             {
                 int waitTimeout = -1;
@@ -756,7 +1008,13 @@ namespace CrewChiefV4.Audio
             //writeMessagePlayedStats();
             playedMessagesCount.Clear();
 
-            this.backgroundPlayer.stop();
+            try
+            {
+                // This can throw on device disconnect.
+                this.backgroundPlayer.stop();
+            }
+            catch (Exception)
+            {}
         }
 
         private void writeMessagePlayedStats()
@@ -1685,12 +1943,24 @@ namespace CrewChiefV4.Audio
 
         public void Dispose()
         {
-            backgroundPlayer.dispose();
             if (UserSettings.GetUserSettings().getBoolean("use_naudio") && deviceEnum != null && notificationClient != null)
             {
-                deviceEnum.UnregisterEndpointNotificationCallback(notificationClient);
-                deviceEnum.Dispose();
+                try
+                {
+                    deviceEnum.UnregisterEndpointNotificationCallback(notificationClient);
+                    deviceEnum.Dispose();
+                }
+                catch (Exception) { }
+                deviceEnum = null;
+                notificationClient = null;
             }
+            backgroundPlayer.dispose();
+
+            disposeSoundCache();
+        }
+
+        private void disposeSoundCache()
+        {
             if (soundCache != null)
             {
                 try

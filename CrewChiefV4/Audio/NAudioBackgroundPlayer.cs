@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CrewChiefV4.Audio
 {
     class NAudioBackgroundPlayer : BackgroundPlayer
     {
+        private SynchronizationContext mainThreadContext = null;
+
         private Boolean playing = false;
 
         // will be re-used and only disposed when we stop the app or switch background sounds
@@ -20,8 +23,9 @@ namespace CrewChiefV4.Audio
 
         private TimeSpan backgroundLength = TimeSpan.Zero;
 
-        public NAudioBackgroundPlayer(String backgroundFilesPath, String defaultBackgroundSound)
+        public NAudioBackgroundPlayer(SynchronizationContext mainThreadContext, String backgroundFilesPath, String defaultBackgroundSound)
         {
+            this.mainThreadContext = mainThreadContext;
             this.backgroundFilesPath = backgroundFilesPath;
             this.defaultBackgroundSound = defaultBackgroundSound;
         }
@@ -130,14 +134,19 @@ namespace CrewChiefV4.Audio
                     {
                         reader.Dispose();
                     }
-                    // JB: don't dispose this BG player. We don't reuse any of its resources
-                    // and there's a small risk of it hanging the app on shutdown if the audio
-                    // device associated with this WaveOut has been removed (e.g. you stop
-                    // SteamVR before closing the app)
-                    /*if (waveOut != null)
+                    if (waveOut != null)
                     {
-                        waveOut.Dispose();
-                    }*/
+                        lock (MainWindow.instanceLock)
+                        {
+                            if (MainWindow.instance != null)
+                            {
+                                this.mainThreadContext.Post(delegate
+                                {
+                                    waveOut.Dispose();
+                                }, null);
+                           }
+                        }
+                    }
                 }
                 catch (Exception) { }
                 base.dispose();
