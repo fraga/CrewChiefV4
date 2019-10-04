@@ -139,6 +139,10 @@ namespace CrewChiefV4
         private const int WM_DEVICECHANGE = 0x219;
         private const int DBT_DEVNODES_CHANGED = 0x0007;
 
+        private bool internalMessageAudioRefresh = false;
+        private bool internalBackgroundAudioRefresh = false;
+        private bool internalSpeechRecognitionRefresh = false;
+
         public void killChief()
         {
             crewChief.stop();
@@ -1095,7 +1099,13 @@ namespace CrewChiefV4
                 }
                 if (!foundMessagesDeviceGuid && AudioPlayer.playbackDevices.Count > 0)
                 {
-                    this.messagesAudioDeviceBox.Text = AudioPlayer.playbackDevices.First().Key;
+                    foreach (KeyValuePair<string, Tuple<string, int>> entry in AudioPlayer.playbackDevices)
+                    {
+                        if(entry.Value.Item2 == 0) //Default device
+                        {
+                            this.messagesAudioDeviceBox.Text = entry.Key;
+                        }
+                    }                        
                 }
                 this.messagesAudioDeviceBox.SelectedValueChanged += new System.EventHandler(this.messagesAudioDeviceSelected);
 
@@ -1121,9 +1131,14 @@ namespace CrewChiefV4
                 }
                 if (!foundBackgroundDeviceGuid && AudioPlayer.playbackDevices.Count > 0)
                 {
-                    this.backgroundAudioDeviceBox.Text = AudioPlayer.playbackDevices.First().Key;
+                    foreach (KeyValuePair<string, Tuple<string, int>> entry in AudioPlayer.playbackDevices)
+                    {
+                        if (entry.Value.Item2 == 0) //Default device
+                        {
+                            this.backgroundAudioDeviceBox.Text = entry.Key;
+                        }
+                    }
                 }
-                this.messagesAudioDeviceBox.SelectedValueChanged += new System.EventHandler(this.messagesAudioDeviceSelected);
                 this.backgroundAudioDeviceBox.SelectedValueChanged += new System.EventHandler(this.backgroundAudioDeviceSelected);
             }
 
@@ -1143,7 +1158,7 @@ namespace CrewChiefV4
                         if (speechRecognitionDeviceGuid.Equals(entry.Value.Item1))
                         {
                             this.speechRecognitionDeviceBox.Text = entry.Key;
-                            SpeechRecogniser.initialSpeechInputDeviceIndex = entry.Value.Item2;
+                            SpeechRecogniser.speechInputDeviceIndex = entry.Value.Item2;
                             foundspeechRecognitionDeviceGuid = true;
                             break;
                         }
@@ -1151,7 +1166,13 @@ namespace CrewChiefV4
                 }
                 if (!foundspeechRecognitionDeviceGuid && SpeechRecogniser.speechRecognitionDevices.Count > 0)
                 {
-                    this.speechRecognitionDeviceBox.Text = SpeechRecogniser.speechRecognitionDevices.First().Key;
+                    foreach (KeyValuePair<string, Tuple<string, int>> entry in SpeechRecogniser.speechRecognitionDevices)
+                    {
+                        if (entry.Value.Item2 == 0) //Default device
+                        {
+                            this.speechRecognitionDeviceBox.Text = entry.Key;
+                        }
+                    }
                 }
                 this.speechRecognitionDeviceBox.SelectedValueChanged += new System.EventHandler(this.speechRecognitionDeviceSelected);
             }
@@ -2269,6 +2290,10 @@ namespace CrewChiefV4
 
         private void messagesAudioDeviceSelected(object sender, EventArgs e)
         {
+            if(internalMessageAudioRefresh)
+            {
+                return;
+            }
             Tuple<string, int> device = null;
             if (AudioPlayer.playbackDevices.TryGetValue(this.messagesAudioDeviceBox.Text, out device))
             {
@@ -2280,8 +2305,27 @@ namespace CrewChiefV4
             }
         }
 
+        public void refreshMessageAudioDeviceBox()
+        {
+            internalMessageAudioRefresh = true;
+            this.messagesAudioDeviceBox.Items.Clear();
+            this.messagesAudioDeviceBox.Items.AddRange(AudioPlayer.playbackDevices.Keys.ToArray());
+            foreach (var dev in AudioPlayer.playbackDevices)
+            {
+                if (dev.Value.Item2 == AudioPlayer.naudioMessagesPlaybackDeviceId)
+                {
+                    this.messagesAudioDeviceBox.Text = dev.Key;
+                }
+            }
+            internalMessageAudioRefresh = false;
+        }
+
         private void speechRecognitionDeviceSelected(object sender, EventArgs e)
         {
+            if(internalSpeechRecognitionRefresh)
+            {
+                return;
+            }
             Tuple<string, int> device = null;
             if (SpeechRecogniser.speechRecognitionDevices.TryGetValue(this.speechRecognitionDeviceBox.Text, out device))
             {
@@ -2293,8 +2337,27 @@ namespace CrewChiefV4
             }
         }
 
+        public void refreshSpeechRecognitionDeviceBox()
+        {
+            internalSpeechRecognitionRefresh = true;
+            this.speechRecognitionDeviceBox.Items.Clear();
+            this.speechRecognitionDeviceBox.Items.AddRange(SpeechRecogniser.speechRecognitionDevices.Keys.ToArray());
+            foreach (var dev in SpeechRecogniser.speechRecognitionDevices)
+            {
+                if (dev.Value.Item2 == SpeechRecogniser.speechInputDeviceIndex)
+                {
+                    this.speechRecognitionDeviceBox.Text = dev.Key;
+                }
+            }
+            internalSpeechRecognitionRefresh = false;
+        }
+
         private void backgroundAudioDeviceSelected(object sender, EventArgs e)
         {
+            if (internalBackgroundAudioRefresh)
+            {
+                return;
+            }
             Tuple<string, int> device = null;
             if (AudioPlayer.playbackDevices.TryGetValue(this.backgroundAudioDeviceBox.Text, out device))
             {
@@ -2306,6 +2369,20 @@ namespace CrewChiefV4
             }
         }
 
+        public void refreshBackgroundAudioDeviceBox()
+        {
+            internalBackgroundAudioRefresh = true;
+            this.backgroundAudioDeviceBox.Items.Clear();
+            this.backgroundAudioDeviceBox.Items.AddRange(AudioPlayer.playbackDevices.Keys.ToArray());
+            foreach (var dev in AudioPlayer.playbackDevices)
+            {
+                if (dev.Value.Item2 == AudioPlayer.naudioBackgroundPlaybackDeviceId)
+                {
+                    this.backgroundAudioDeviceBox.Text = dev.Key;
+                }
+            }
+            internalBackgroundAudioRefresh = false;
+        }
         private void chiefNameSelected(object sender, EventArgs e)
         {
             if (!UserSettings.GetUserSettings().getString("chief_name").Equals(this.chiefNameBox.Text))

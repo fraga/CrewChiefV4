@@ -1068,6 +1068,10 @@ namespace CrewChiefV4.ACC
             {
                 currentGameState.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
             }
+            else
+            {
+                currentGameState.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.NONE;
+            }
             if (currentGameState.PenaltiesData.PenaltyType != PenatiesData.DetailedPenaltyType.NONE && currentGameState.PenaltiesData.PenaltyType != previousPenaltyType)
             {
                 currentGameState.PenaltiesData.NumPenalties = previousPenaltyCount + 1;
@@ -1098,6 +1102,10 @@ namespace CrewChiefV4.ACC
                 || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_DriveThrough_IgnoredDriverStint)
             {
                 currentGameState.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.EXCEEDED_SINGLE_DRIVER_STINT_LIMIT;
+            }
+            else
+            {
+                currentGameState.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.NONE;
             }
 
             // motion data
