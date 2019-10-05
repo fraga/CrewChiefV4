@@ -4129,6 +4129,30 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("WAVEOUT")]
+        public string naudio_output_interface_listprop {
+            get {
+                return ((string)(this["naudio_output_interface_listprop"]));
+            }
+            set {
+                this["naudio_output_interface_listprop"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("20")]
+        public int naudio_wasapi_latency {
+            get {
+                return ((int)(this["naudio_wasapi_latency"]));
+            }
+            set {
+                this["naudio_wasapi_latency"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool sre_respond_while_channel_still_open {
             get {

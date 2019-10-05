@@ -1409,6 +1409,19 @@ tts_setting_listprop_value_1 = Use TTS only when necessary
 tts_setting_listprop_value_2 = Use TTS for all missing names
 tts_setting_listprop_metadata = RESTART_REQUIRED
 
+naudio_output_interface_listprop = nAudio Output Interface Type
+naudio_output_interface_listprop_help = Select nAudio Output Interface Type.  WaveOut is more compatible, but WASAPI is more responsive/direct playback.
+naudio_output_interface_listprop_category = AUDIO_VOICE_AND_CONTROLLERS
+naudio_output_interface_listprop_type = CrewChiefV4.Audio.AudioPlayer+NAUDIO_OUTPUT_INTERFACE
+naudio_output_interface_listprop_value_0 = WaveOut
+naudio_output_interface_listprop_value_1 = WASAPI
+naudio_output_interface_listprop_metadata = RESTART_REQUIRED
+
+naudio_wasapi_latency = nAudio WASAPI latency (ms)
+naudio_wasapi_latency_help = Set WASAPI output latency in milliseconds.  Lower value reduces latency, but increases CPU usage.
+naudio_wasapi_latency_category = AUDIO_VOICE_AND_CONTROLLERS
+naudio_wasapi_latency_metadata = RESTART_REQUIRED
+
 trigger_word_sre_min_confidence = Minimum trigger word confidence
 trigger_word_sre_min_confidence_help = When listening for the voice command trigger word, the app must be at least this confident it understood before starting speech recognition (0.0 - 1.0, default 0.6)
 trigger_word_sre_min_confidence_category = AUDIO_VOICE_AND_CONTROLLERS

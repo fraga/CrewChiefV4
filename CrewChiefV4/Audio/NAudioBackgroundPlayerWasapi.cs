@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NAudio.CoreAudioApi;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CrewChiefV4.Audio
 {
-    class NAudioBackgroundPlayer : BackgroundPlayer
+    class NAudioBackgroundPlayerWasapi : BackgroundPlayer
     {
         private SynchronizationContext mainThreadContext = null;
 
@@ -16,14 +17,15 @@ namespace CrewChiefV4.Audio
 
         // will be re-used and only disposed when we stop the app or switch background sounds
         private NAudio.Wave.WaveFileReader reader = null;
-        private NAudio.Wave.WaveOutEvent waveOut = null;
-
+        private NAudio.Wave.WasapiOut waveOut = null;
+        AutoResetEvent playWaitHandle = new AutoResetEvent(false);
         private int deviceIdWhenCached = 0;
         private float volumeWhenCached = 0;
 
         private TimeSpan backgroundLength = TimeSpan.Zero;
+        EventHandler<NAudio.Wave.StoppedEventArgs> eventHandler;
 
-        public NAudioBackgroundPlayer(SynchronizationContext mainThreadContext, String backgroundFilesPath, String defaultBackgroundSound)
+        public NAudioBackgroundPlayerWasapi(SynchronizationContext mainThreadContext, String backgroundFilesPath, String defaultBackgroundSound)
         {
             this.mainThreadContext = mainThreadContext;
             this.backgroundFilesPath = backgroundFilesPath;
@@ -52,11 +54,14 @@ namespace CrewChiefV4.Audio
                 {
                     initialised = false;
                     initialise(this.defaultBackgroundSound);
-                }
+                }               
+                //waveOut.PlaybackStopped += this.eventHandler;
                 playing = true;
                 int backgroundOffset = Utilities.random.Next(0, (int)backgroundLength.TotalSeconds - backgroundLeadout);
                 this.reader.CurrentTime = TimeSpan.FromSeconds(backgroundOffset);
                 this.waveOut.Play();
+                //this.playWaitHandle.WaitOne(30);
+                //waveOut.PlaybackStopped -= this.playbackStopped;
             }
         }
 
@@ -65,8 +70,9 @@ namespace CrewChiefV4.Audio
             lock (this)
             {
                 if (initialised && this.waveOut != null)
-                {
+                {                    
                     this.waveOut.Pause();
+                    //this.playWaitHandle.Set();
                 }
                 playing = false;
             }
@@ -88,10 +94,11 @@ namespace CrewChiefV4.Audio
             {
                 this.waveOut.Dispose();
             }
+            //this.eventHandler = new EventHandler<NAudio.Wave.StoppedEventArgs>(playbackStopped);
             this.volumeWhenCached = getBackgroundVolume();
             this.deviceIdWhenCached = AudioPlayer.naudioBackgroundPlaybackDeviceId;
-            this.waveOut = new NAudio.Wave.WaveOutEvent();
-            this.waveOut.DeviceNumber = this.deviceIdWhenCached;
+            this.waveOut = new NAudio.Wave.WasapiOut(new MMDeviceEnumerator().GetDevice(AudioPlayer.naudioBackgroundPlaybackDeviceGuid), AudioClientShareMode.Shared, false, 10);
+            //this.waveOut.DeviceNumber = this.deviceIdWhenCached;
             NAudio.Wave.SampleProviders.SampleChannel sampleChannel = new NAudio.Wave.SampleProviders.SampleChannel(reader);                
             sampleChannel.Volume = this.volumeWhenCached;
             this.waveOut.Init(new NAudio.Wave.SampleProviders.SampleToWaveProvider(sampleChannel));
@@ -124,6 +131,11 @@ namespace CrewChiefV4.Audio
             }
         }
 
+        private void playbackStopped(object sender, NAudio.Wave.StoppedEventArgs e)
+        {
+            this.playWaitHandle.Set();
+        }
+
         public override void dispose()
         {
             lock (this)
@@ -136,6 +148,8 @@ namespace CrewChiefV4.Audio
                     }
                     if (waveOut != null)
                     {
+                        waveOut.Stop();
+
                         lock (MainWindow.instanceLock)
                         {
                             if (MainWindow.instance != null)

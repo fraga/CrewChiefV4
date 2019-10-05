@@ -1092,6 +1092,7 @@ namespace CrewChiefV4
                         {
                             this.messagesAudioDeviceBox.Text = entry.Key;
                             AudioPlayer.naudioMessagesPlaybackDeviceId = entry.Value.Item2;
+                            AudioPlayer.naudioMessagesPlaybackDeviceGuid = entry.Value.Item1;
                             foundMessagesDeviceGuid = true;
                             break;
                         }
@@ -1124,6 +1125,7 @@ namespace CrewChiefV4
                         {
                             this.backgroundAudioDeviceBox.Text = entry.Key;
                             AudioPlayer.naudioBackgroundPlaybackDeviceId = entry.Value.Item2;
+                            AudioPlayer.naudioBackgroundPlaybackDeviceGuid = entry.Value.Item1;
                             foundBackgroundDeviceGuid = true;
                             break;
                         }
@@ -2297,6 +2299,8 @@ namespace CrewChiefV4
             {
                 int deviceId = device.Item2;
                 AudioPlayer.naudioMessagesPlaybackDeviceId = deviceId;
+                AudioPlayer.naudioMessagesPlaybackDeviceGuid = device.Item1;
+
                 UserSettings.GetUserSettings().setProperty("NAUDIO_DEVICE_GUID_MESSAGES",
                     AudioPlayer.playbackDevices[this.messagesAudioDeviceBox.Text].Item1);
                 UserSettings.GetUserSettings().saveUserSettings();
@@ -2361,6 +2365,7 @@ namespace CrewChiefV4
             {
                 int deviceId = device.Item2; 
                 AudioPlayer.naudioBackgroundPlaybackDeviceId = deviceId;
+                AudioPlayer.naudioBackgroundPlaybackDeviceGuid = device.Item1;
                 UserSettings.GetUserSettings().setProperty("NAUDIO_DEVICE_GUID_BACKGROUND",
                     AudioPlayer.playbackDevices[this.backgroundAudioDeviceBox.Text].Item1);
                 UserSettings.GetUserSettings().saveUserSettings();

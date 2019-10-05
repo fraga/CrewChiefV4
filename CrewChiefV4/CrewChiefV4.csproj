@@ -134,7 +134,9 @@
     <Compile Include="ACS\ACSSpotter.cs" />
     <Compile Include="Audio\BackgroundPlayer.cs" />
     <Compile Include="Audio\MediaPlayerBackgroundPlayer.cs" />
-    <Compile Include="Audio\NAudioBackgroundPlayer.cs" />
+    <Compile Include="Audio\NAudioBackgroundPlayerWasapi.cs" />
+    <Compile Include="Audio\NAudioBackgroundPlayerWaveOut.cs" />
+    <Compile Include="Audio\NAudioOut.cs" />
     <Compile Include="Audio\PlaybackModerator.cs" />
     <Compile Include="Audio\SoundPackVersionsHelper.cs" />
     <Compile Include="Audio\Sounds.cs" />
