@@ -315,6 +315,8 @@ namespace CrewChiefV4
 
         public static Boolean waitingForSpeech = false;
 
+        public static Boolean respondWhileChannelIsStillOpen = UserSettings.GetUserSettings().getBoolean("sre_respond_while_channel_still_open");
+
         public static Boolean gotRecognitionResult = false;
 
         // guard against race condition between closing channel and sre_SpeechRecognised event completing
@@ -327,10 +329,7 @@ namespace CrewChiefV4
 
         private EventWaitHandle triggerTimeoutWaitHandle = new EventWaitHandle(false, EventResetMode.ManualReset);
         private Thread restartWaitTimeoutThreadReference = null;
-
-        public static DateTime recognitionStartedTime = DateTime.MinValue;
-
-
+        
         // experimental free-dictation grammar for chat messages
         private Boolean useFreeDictationForChatMessages = UserSettings.GetUserSettings().getBoolean("use_free_dictation_for_chat");
         private static string startChatMacroName = "start chat message";
@@ -1546,12 +1545,11 @@ namespace CrewChiefV4
                 {
                     Console.WriteLine("Took " + attempts + " attempts to switch from trigger to regular SRE");
                 }
-                recognitionStartedTime = DateTime.Now;
                 recognizeAsync();
                 // if we reject messages while we're talking to the chief, attempt to interrupt any sound currently playing
                 if (PlaybackModerator.rejectMessagesWhenTalking)
                 {
-                    SoundCache.InterruptCurrentlyPlayingSound();
+                    SoundCache.InterruptCurrentlyPlayingSound(true);
                 }
                 crewChief.audioPlayer.playStartListeningBeep();
             }
@@ -1647,7 +1645,7 @@ namespace CrewChiefV4
             String[] recognisedWords = SREWrapperFactory.GetCallbackWordsList(e);
             float recognitionConfidence = SREWrapperFactory.GetCallbackConfidence(e);
             object recognitionGrammar = SREWrapperFactory.GetCallbackGrammar(e);
-            Console.WriteLine("Recognised : " + recognisedText + "  Confidence = " + recognitionConfidence.ToString("0.000") + "  Time Elapsed (ms) = " + (DateTime.Now - SpeechRecogniser.recognitionStartedTime).TotalMilliseconds);
+            Console.WriteLine("Recognised : " + recognisedText + "  Confidence = " + recognitionConfidence.ToString("0.000"));
             try
             {
                 // special case when we're waiting for a message after a heavy crash:

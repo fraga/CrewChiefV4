@@ -4126,5 +4126,17 @@ namespace CrewChiefV4.Properties {
                 this["enable_on_hold_close_channel_beep"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool sre_respond_while_channel_still_open {
+            get {
+                return ((bool)(this["sre_respond_while_channel_still_open"]));
+            }
+            set {
+                this["sre_respond_while_channel_still_open"] = value;
+            }
+        }
     }
 }

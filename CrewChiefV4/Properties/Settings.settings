@@ -1028,5 +1028,8 @@
     <Setting Name="enable_on_hold_close_channel_beep" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="sre_respond_while_channel_still_open" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

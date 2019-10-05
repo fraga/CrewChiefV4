@@ -1589,3 +1589,8 @@ enable_on_hold_close_channel_beep = Enable close channel beep ("Hold button" mod
 enable_on_hold_close_channel_beep_help = Play close channel sound on button release in "Hold button" speech mode
 enable_on_hold_close_channel_beep_category = AUDIO_VOICE_AND_CONTROLLERS
 enable_on_hold_close_channel_beep_metadata = RESTART_REQUIRED
+
+sre_respond_while_channel_still_open = Respond to voice commands immediately
+sre_respond_while_channel_still_open_help = Don't wait for the radio channel to be closed before responding to commands ("Hold button" mode)
+sre_respond_while_channel_still_open_category = AUDIO_VOICE_AND_CONTROLLERS
+sre_respond_while_channel_still_open_metadata = RESTART_REQUIRED

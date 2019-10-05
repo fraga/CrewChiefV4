@@ -1440,7 +1440,7 @@ namespace CrewChiefV4
                         // if we reject messages while we're talking to the chief, attempt to interrupt any sound currently playing
                         if (PlaybackModerator.rejectMessagesWhenTalking)
                         {
-                            SoundCache.InterruptCurrentlyPlayingSound();
+                            SoundCache.InterruptCurrentlyPlayingSound(true);
                         }
                         // for pace notes recording, start SRE *after* the beep. For voice commands, start SRE *before* the beep
                         if (DriverTrainingService.isRecordingPaceNotes)
@@ -1486,7 +1486,6 @@ namespace CrewChiefV4
                         else
                         {
                             Console.WriteLine("Invoking speech recognition...");
-                            SpeechRecogniser.recognitionStartedTime = DateTime.Now;
                             crewChief.speechRecogniser.recognizeAsyncCancel();
                             if (youWotThread == null
                                 || !youWotThread.IsAlive)
@@ -1574,7 +1573,6 @@ namespace CrewChiefV4
                         {
                             Console.WriteLine("Cancelling...");
                             SpeechRecogniser.waitingForSpeech = false;
-                            SpeechRecogniser.recognitionStartedTime = DateTime.Now;
                             crewChief.speechRecogniser.recognizeAsyncCancel();
                         }
                         else
@@ -1582,7 +1580,7 @@ namespace CrewChiefV4
                             // if we reject messages while we're talking to the chief, attempt to interrupt any sound currently playing
                             if (PlaybackModerator.rejectMessagesWhenTalking)
                             {
-                                SoundCache.InterruptCurrentlyPlayingSound();
+                                SoundCache.InterruptCurrentlyPlayingSound(true);
                             }
                             Console.WriteLine("Listening...");
                             crewChief.speechRecogniser.recognizeAsync();

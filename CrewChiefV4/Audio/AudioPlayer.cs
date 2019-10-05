@@ -966,7 +966,7 @@ namespace CrewChiefV4.Audio
                 }
                 if (immediateClips.Count > 0)
                 {
-                    if (!SpeechRecogniser.waitingForSpeech || MainWindow.voiceOption != MainWindow.VoiceOptionEnum.HOLD)
+                    if (!SpeechRecogniser.waitingForSpeech || SpeechRecogniser.respondWhileChannelIsStillOpen || MainWindow.voiceOption != MainWindow.VoiceOptionEnum.HOLD)
                     {
                         try
                         {
@@ -1745,10 +1745,11 @@ namespace CrewChiefV4.Audio
                         // default spotter priority is 10
                         immediateClips.Insert(getInsertionIndex(immediateClips, queuedMessage), queuedMessage.messageName, queuedMessage);
 
-                        // attempt to interrupt whatever sound is currently playing when the spotter interrupts the chief (only works with nAudio)
+                        // attempt to interrupt whatever sound is currently playing when the spotter interrupts the chief (only works with nAudio) 
+                        // don't interrupt if the currently playing sound is a beep
                         if (!PlaybackModerator.lastSoundWasSpotter)
                         {
-                            SoundCache.InterruptCurrentlyPlayingSound();
+                            SoundCache.InterruptCurrentlyPlayingSound(false);
                         }
 
                         // wake up the monitor thread immediately

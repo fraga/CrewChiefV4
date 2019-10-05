@@ -336,15 +336,18 @@ namespace CrewChiefV4.Audio
             }
         }
 
-        public static void InterruptCurrentlyPlayingSound()
+        public static void InterruptCurrentlyPlayingSound(Boolean blockBeeps)
         {
             // only works with nAudio
             if (AudioPlayer.playWithNAudio && currentlyPlayingSound != null)
             {
-                Boolean blockedABeep = currentlyPlayingSound.Stop();
-                if (blockedABeep)
+                if (blockBeeps || !currentlyPlayingSound.isBleep)
                 {
-                    PlaybackModerator.BlockNAudioPlaybackFor(500);
+                    Boolean blockedABeep = currentlyPlayingSound.Stop();
+                    if (blockedABeep)
+                    {
+                        PlaybackModerator.BlockNAudioPlaybackFor(500);
+                    }
                 }
             }
         }
