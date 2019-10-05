@@ -1028,6 +1028,12 @@
     <Setting Name="enable_on_hold_close_channel_beep" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="naudio_output_interface_listprop" Type="System.String" Scope="User">
+      <Value Profile="(Default)">WAVEOUT</Value>
+    </Setting>
+    <Setting Name="naudio_wasapi_latency" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">20</Value>
+    </Setting>
     <Setting Name="sre_respond_while_channel_still_open" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>

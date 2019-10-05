@@ -8,7 +8,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using CrewChiefV4.GameState;
-
+using NAudio.CoreAudioApi;
+using NAudio.Wave;
 namespace CrewChiefV4.Audio
 {
     public class SoundCache
@@ -1255,8 +1256,8 @@ namespace CrewChiefV4.Audio
         public SoundSet prefixSoundSet = null;
         public SoundSet suffixSoundSet = null;
 
-        private NAudio.Wave.WaveOutEvent waveOut;
-        private NAudio.Wave.WaveFileReader reader;
+        private NAudioOut nAudioOut = null;
+        private NAudio.Wave.WaveFileReader reader = null;
 
         // only used for bleeps
         private int deviceIdWhenCached = 0;
@@ -1358,9 +1359,9 @@ namespace CrewChiefV4.Audio
                         { }
                         try
                         {
-                            if (this.eventHandler != null) this.waveOut.PlaybackStopped -= this.eventHandler;
-                            this.waveOut.Stop();
-                            this.waveOut.Dispose();
+                            if (this.eventHandler != null) this.nAudioOut.SubscribePlaybackStopped(this.eventHandler);
+                            this.nAudioOut.Stop();
+                            this.nAudioOut.Dispose();
                         }
                         catch (Exception) { }
                         loadedSoundPlayer = false;
@@ -1467,23 +1468,22 @@ namespace CrewChiefV4.Audio
             if (!cacheFileData)
             {
                 // if caching is switched off, load and play the file
-                NAudio.Wave.WaveOutEvent uncachedWaveOut = new NAudio.Wave.WaveOutEvent();
-                uncachedWaveOut.DeviceNumber = AudioPlayer.naudioMessagesPlaybackDeviceId;
-                NAudio.Wave.WaveFileReader uncachedReader = new NAudio.Wave.WaveFileReader(fullPath);
-                this.eventHandler = new EventHandler<NAudio.Wave.StoppedEventArgs>(playbackStopped);
-                uncachedWaveOut.PlaybackStopped += this.eventHandler;
+                NAudioOut uncachedNAudioOut = NAudioOut.CreateOutput();
+                WaveFileReader uncachedReader = new WaveFileReader(fullPath);
+                this.eventHandler = new EventHandler<StoppedEventArgs>(playbackStopped);
+                uncachedNAudioOut.SubscribePlaybackStopped(this.eventHandler);
 
                 if (volume == 1f)
                 {
                     try
                     {
-                        uncachedWaveOut.Init(uncachedReader);
+                        uncachedNAudioOut.Init(uncachedReader);
                         SoundCache.currentlyPlayingSound = this;
-                        uncachedWaveOut.Play();
+                        uncachedNAudioOut.Play();
                         // stop waiting after 30 seconds if it's not a beep. If it is a beep wait a few seconds
                         // just in case someone has done something weird like swap the beep sound for a personalisation
                         this.playWaitHandle.WaitOne(this.isBleep ? 4000 : 30000);
-                        uncachedWaveOut.PlaybackStopped -= this.playbackStopped;
+                        uncachedNAudioOut.UnsubscribePlaybackStopped(this.playbackStopped);
                     }
                     catch (Exception e)
                     {
@@ -1496,13 +1496,13 @@ namespace CrewChiefV4.Audio
                     sampleChannel.Volume = volume;
                     try
                     {
-                        uncachedWaveOut.Init(new NAudio.Wave.SampleProviders.SampleToWaveProvider(sampleChannel));
+                        uncachedNAudioOut.Init(new NAudio.Wave.SampleProviders.SampleToWaveProvider(sampleChannel));
                         SoundCache.currentlyPlayingSound = this;
-                        uncachedWaveOut.Play();
+                        uncachedNAudioOut.Play();
                         // stop waiting after 30 seconds if it's not a beep. If it is a beep wait a few seconds
                         // just in case someone has done something weird like swap the beep sound for a personalisation
                         this.playWaitHandle.WaitOne(this.isBleep ? 4000 : 30000);
-                        uncachedWaveOut.PlaybackStopped -= this.playbackStopped;
+                        uncachedNAudioOut.UnsubscribePlaybackStopped(this.playbackStopped);
                     }
                     catch (Exception e)
                     {
@@ -1516,7 +1516,7 @@ namespace CrewChiefV4.Audio
                 catch (Exception) { }
                 try
                 {
-                    uncachedWaveOut.Dispose();
+                    uncachedNAudioOut.Dispose();
                 }
                 catch (Exception) { }
             }
@@ -1537,7 +1537,7 @@ namespace CrewChiefV4.Audio
                             LoadAndCacheSound();
                             this.reader.CurrentTime = TimeSpan.Zero;
                             SoundCache.currentlyPlayingSound = this;
-                            this.waveOut.Play();
+                            this.nAudioOut.Play();
                             // It's a beep so wait a few seconds just in case someone has done something weird like swap the beep sound for a personalisation.
                             // Special case for the listen start beep - don't wait for it to finish playing before returning
                             if (!isListenStartBeep)
@@ -1549,7 +1549,7 @@ namespace CrewChiefV4.Audio
                         {
                             LoadNAudioWaveOut();
                             SoundCache.currentlyPlayingSound = this;
-                            this.waveOut.Play();
+                            this.nAudioOut.Play();
                             // in this case we know it's not a beep and we're going to dispose the memorystream and reader so we really
                             // do need to wait for it to finish
                             this.playWaitHandle.WaitOne(30000);
@@ -1571,11 +1571,11 @@ namespace CrewChiefV4.Audio
                             { }
                             try
                             {
-                                if (this.eventHandler != null) this.waveOut.PlaybackStopped -= this.eventHandler;
+                                if (this.eventHandler != null) this.nAudioOut.UnsubscribePlaybackStopped(this.eventHandler);
 
-                                this.waveOut.Stop();
+                                this.nAudioOut.Stop();
 
-                                this.waveOut.Dispose();
+                                this.nAudioOut.Dispose();
                             }
                             catch (Exception) { }
                         }
@@ -1590,9 +1590,7 @@ namespace CrewChiefV4.Audio
 
         private void LoadNAudioWaveOut()
         {
-            this.waveOut = new NAudio.Wave.WaveOutEvent();
-            this.waveOut.DeviceNumber = AudioPlayer.naudioMessagesPlaybackDeviceId;
-
+            this.nAudioOut = NAudioOut.CreateOutput();
             float volumeBoost = isSpotter ? SoundCache.spotterVolumeBoost : 1f;
             // if we have file bytes, load them
             if (this.fileBytes != null)
@@ -1612,17 +1610,17 @@ namespace CrewChiefV4.Audio
             }
             this.reader = new NAudio.Wave.WaveFileReader(this.memoryStream);
             this.eventHandler = new EventHandler<NAudio.Wave.StoppedEventArgs>(playbackStopped);
-            this.waveOut.PlaybackStopped += this.eventHandler;
+            this.nAudioOut.SubscribePlaybackStopped(this.eventHandler);
             float volume = getVolume(volumeBoost);
             if (volume == 1f)
             {
-                this.waveOut.Init(this.reader);
+                this.nAudioOut.Init(this.reader);
             }
             else
             {
                 NAudio.Wave.SampleProviders.SampleChannel sampleChannel = new NAudio.Wave.SampleProviders.SampleChannel(this.reader);
                 sampleChannel.Volume = getVolume(volumeBoost);
-                this.waveOut.Init(new NAudio.Wave.SampleProviders.SampleToWaveProvider(sampleChannel));
+                this.nAudioOut.Init(new NAudio.Wave.SampleProviders.SampleToWaveProvider(sampleChannel));
             }
             this.reader.CurrentTime = TimeSpan.Zero;
         }
@@ -1657,9 +1655,9 @@ namespace CrewChiefV4.Audio
                 {
                     this.soundPlayer.Stop();
                 }
-                if (this.waveOut != null && this.waveOut.PlaybackState != NAudio.Wave.PlaybackState.Stopped)
+                if (this.nAudioOut != null && this.nAudioOut.PlaybackState != NAudio.Wave.PlaybackState.Stopped)
                 {
-                    this.waveOut.Stop();
+                    this.nAudioOut.Stop();
                 }
                 if (this.memoryStream != null)
                 {
@@ -1680,11 +1678,11 @@ namespace CrewChiefV4.Audio
                     unloaded = true;
                     SoundCache.activeSoundPlayerObjects--;
                 }
-                if (this.waveOut != null)
+                if (this.nAudioOut != null)
                 {
                     try
                     {
-                        this.waveOut.Dispose();
+                        this.nAudioOut.Dispose();
                     }
                     catch (Exception) { }
                 }
@@ -1695,13 +1693,13 @@ namespace CrewChiefV4.Audio
         public Boolean Stop()
         {
             Boolean blockedABeep = false;
-            if (AudioPlayer.playWithNAudio && this.waveOut != null && this.waveOut.PlaybackState == NAudio.Wave.PlaybackState.Playing)
+            if (AudioPlayer.playWithNAudio && this.nAudioOut != null && this.nAudioOut.PlaybackState == NAudio.Wave.PlaybackState.Playing)
             {
                 if (this.isBleep)
                 {
                     blockedABeep = true;
                 }
-                this.waveOut.Stop();
+                this.nAudioOut.Stop();
                 Console.WriteLine($"Stopping sound: {fullPath}");
             }
             else if (!AudioPlayer.playWithNAudio && this.soundPlayer != null)

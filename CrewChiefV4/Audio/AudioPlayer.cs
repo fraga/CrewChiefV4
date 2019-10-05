@@ -35,8 +35,14 @@ namespace CrewChiefV4.Audio
         public enum TTS_OPTION { NEVER, ONLY_WHEN_NECESSARY, ANY_TIME }
         public static TTS_OPTION ttsOption = TTS_OPTION.ONLY_WHEN_NECESSARY;
 
+        public enum NAUDIO_OUTPUT_INTERFACE { WAVEOUT, WASAPI };
+
         public static int naudioMessagesPlaybackDeviceId = 0;
         public static int naudioBackgroundPlaybackDeviceId = 0;
+
+        public static string naudioMessagesPlaybackDeviceGuid = "";
+        public static string naudioBackgroundPlaybackDeviceGuid = "";
+
         public static Dictionary<string, Tuple<string, int>> playbackDevices = new Dictionary<string, Tuple<string, int>>();
         
         public static String folderAcknowlegeOK = "acknowledge/OK";
@@ -148,7 +154,7 @@ namespace CrewChiefV4.Audio
 
         private MMDeviceEnumerator deviceEnum = null;
         private NotificationClientImplementation notificationClient = null;
-
+        public static NAUDIO_OUTPUT_INTERFACE nAudioOutputInterface = NAUDIO_OUTPUT_INTERFACE.WAVEOUT;
 
         public struct WaveDevice
         {
@@ -219,6 +225,19 @@ namespace CrewChiefV4.Audio
             return null;
         }
 
+        public static string GetDefaultOutputDeviceID()
+        {
+            Debug.Assert(!MainWindow.instance.InvokeRequired);
+            foreach (var device in playbackDevices)
+            {
+                if (device.Value.Item2 == 0)
+                {
+                    return device.Value.Item1;
+                }
+            }
+            return null;
+        }
+
         public static string GetDefaultInputDeviceName()
         {
             Debug.Assert(!MainWindow.instance.InvokeRequired);
@@ -231,6 +250,7 @@ namespace CrewChiefV4.Audio
             }
             return null;
         }
+
         class NotificationClientImplementation : IMMNotificationClient
         {
             private AudioPlayer audioPlayer;
@@ -241,7 +261,14 @@ namespace CrewChiefV4.Audio
             private void ReloadBackgroundPlayer()
             {
                 Debug.Assert(!MainWindow.instance.InvokeRequired);
-                audioPlayer.backgroundPlayer = new NAudioBackgroundPlayer(audioPlayer.mainThreadContext, audioPlayer.backgroundFilesPath, dtmPitWindowClosedBackground);
+
+                if (nAudioOutputInterface == NAUDIO_OUTPUT_INTERFACE.WAVEOUT)
+                    audioPlayer.backgroundPlayer = new NAudioBackgroundPlayerWaveOut(audioPlayer.mainThreadContext, audioPlayer.backgroundFilesPath, dtmPitWindowClosedBackground);
+                else if (nAudioOutputInterface == NAUDIO_OUTPUT_INTERFACE.WASAPI)
+                    audioPlayer.backgroundPlayer = new NAudioBackgroundPlayerWasapi(audioPlayer.mainThreadContext, audioPlayer.backgroundFilesPath, dtmPitWindowClosedBackground);
+                else
+                    Debug.Assert(false);
+
                 try
                 {
                     audioPlayer.backgroundPlayer.initialise(dtmPitWindowClosedBackground);
@@ -279,10 +306,12 @@ namespace CrewChiefV4.Audio
                                 if (dev.EndpointGuid == messageDeviceGuid)
                                 {
                                     naudioMessagesPlaybackDeviceId = dev.WaveDeviceId;
+                                    naudioMessagesPlaybackDeviceGuid = dev.EndpointGuid;
                                 }
                                 if (dev.EndpointGuid == backgroundDeviceGuid)
                                 {
                                     naudioBackgroundPlaybackDeviceId = dev.WaveDeviceId;
+                                    naudioBackgroundPlaybackDeviceGuid = dev.EndpointGuid;
                                 }
                             }
                             UpdateUI();
@@ -425,11 +454,13 @@ namespace CrewChiefV4.Audio
                                         if (backgroundDeviceGuid == deviceId)
                                         {
                                             naudioBackgroundPlaybackDeviceId = 0;
+                                            naudioBackgroundPlaybackDeviceGuid = GetDefaultOutputDeviceID();
                                             Console.WriteLine($"Selected background audio device removed, setting background playback to default device--> {GetDefaultOutputDeviceName()}");
                                         }
                                         if (messageDeviceGuid == deviceId)
                                         {
                                             naudioMessagesPlaybackDeviceId = 0;
+                                            naudioMessagesPlaybackDeviceGuid = GetDefaultOutputDeviceID();
                                             Console.WriteLine($"Selected message audio device removed, setting voice playback to default device--> {GetDefaultOutputDeviceName()}");
                                         }
                                     }
@@ -441,11 +472,13 @@ namespace CrewChiefV4.Audio
                                             {
                                                 Console.WriteLine($"Saved background audio device added, setting sound playback to saved device--> {device.Key}");
                                                 naudioBackgroundPlaybackDeviceId = device.Value.Item2;
+                                                naudioBackgroundPlaybackDeviceGuid = device.Value.Item1;
                                             }
                                             if (messageDeviceGuid == device.Value.Item1)
                                             {
                                                 Console.WriteLine($"Saved message audio device added, setting sound playback to saved device--> {device.Key}");
                                                 naudioMessagesPlaybackDeviceId = device.Value.Item2;
+                                                naudioMessagesPlaybackDeviceGuid = device.Value.Item1;
                                             }
                                         }
                                     }
@@ -594,6 +627,8 @@ namespace CrewChiefV4.Audio
             // Initialize optional nAudio playback.
             if (UserSettings.GetUserSettings().getBoolean("use_naudio"))
             {
+                Enum.TryParse(UserSettings.GetUserSettings().getString("naudio_output_interface_listprop"), out nAudioOutputInterface);
+
                 string messageDeviceGuid = UserSettings.GetUserSettings().getString("NAUDIO_DEVICE_GUID_MESSAGES");
                 string backgroundDeviceGuid = UserSettings.GetUserSettings().getString("NAUDIO_DEVICE_GUID_BACKGROUND");
                 bool foundMessagePlayBackDevice = false;
@@ -738,7 +773,14 @@ namespace CrewChiefV4.Audio
 
             if (UserSettings.GetUserSettings().getBoolean("use_naudio"))
             {
-                this.backgroundPlayer = new NAudioBackgroundPlayer(mainThreadContext, backgroundFilesPath, dtmPitWindowClosedBackground);
+                Console.WriteLine($"nAudio output interface: {nAudioOutputInterface}");
+                if (nAudioOutputInterface == NAUDIO_OUTPUT_INTERFACE.WAVEOUT)
+                    this.backgroundPlayer = new NAudioBackgroundPlayerWaveOut(mainThreadContext, backgroundFilesPath, dtmPitWindowClosedBackground);
+                else if (nAudioOutputInterface == NAUDIO_OUTPUT_INTERFACE.WASAPI)
+                    this.backgroundPlayer = new NAudioBackgroundPlayerWasapi(mainThreadContext, backgroundFilesPath, dtmPitWindowClosedBackground);
+                else
+                    Debug.Assert(false);
+
                 try
                 {
                     this.backgroundPlayer.initialise(dtmPitWindowClosedBackground);
