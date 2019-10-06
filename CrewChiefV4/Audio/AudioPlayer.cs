@@ -773,7 +773,7 @@ namespace CrewChiefV4.Audio
 
             if (UserSettings.GetUserSettings().getBoolean("use_naudio"))
             {
-                Console.WriteLine($"nAudio output interface: {nAudioOutputInterface}");
+                Console.WriteLine($"nAudio output interface: {nAudioOutputInterface}" + (nAudioOutputInterface == NAUDIO_OUTPUT_INTERFACE.WASAPI ? $"  Latency: {NAudioOutWasapi.wasapiLatency}ms" : ""));
                 if (nAudioOutputInterface == NAUDIO_OUTPUT_INTERFACE.WAVEOUT)
                     this.backgroundPlayer = new NAudioBackgroundPlayerWaveOut(mainThreadContext, backgroundFilesPath, dtmPitWindowClosedBackground);
                 else if (nAudioOutputInterface == NAUDIO_OUTPUT_INTERFACE.WASAPI)

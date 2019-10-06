@@ -52,13 +52,14 @@ namespace CrewChiefV4.Audio
 
     internal class NAudioOutWasapi : NAudioOut
     {
-        private readonly int wasapiLatency = UserSettings.GetUserSettings().getInt("naudio_wasapi_latency");
+        public static readonly int wasapiLatency = UserSettings.GetUserSettings().getInt("naudio_wasapi_latency");
 
         private NAudio.Wave.WasapiOut wasapiOut = null;
 
         public NAudioOutWasapi()
         {
-            this.wasapiOut = new WasapiOut(new MMDeviceEnumerator().GetDevice(AudioPlayer.naudioMessagesPlaybackDeviceGuid), AudioClientShareMode.Shared, true, this.wasapiLatency);
+            // Don't allow latency of 0 as it causes CPU spike.  Probably because such low latency is achieved via busy wait.
+            this.wasapiOut = new WasapiOut(new MMDeviceEnumerator().GetDevice(AudioPlayer.naudioMessagesPlaybackDeviceGuid), AudioClientShareMode.Shared, true, Math.Max(NAudioOutWasapi.wasapiLatency, 1));
         }
 
         internal override PlaybackState PlaybackState => this.wasapiOut.PlaybackState;
