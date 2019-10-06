@@ -1105,6 +1105,8 @@ namespace CrewChiefV4
                         if(entry.Value.Item2 == 0) //Default device
                         {
                             this.messagesAudioDeviceBox.Text = entry.Key;
+                            AudioPlayer.naudioMessagesPlaybackDeviceId = entry.Value.Item2;
+                            AudioPlayer.naudioMessagesPlaybackDeviceGuid = entry.Value.Item1;
                         }
                     }                        
                 }
@@ -1138,6 +1140,8 @@ namespace CrewChiefV4
                         if (entry.Value.Item2 == 0) //Default device
                         {
                             this.backgroundAudioDeviceBox.Text = entry.Key;
+                            AudioPlayer.naudioBackgroundPlaybackDeviceId = entry.Value.Item2;
+                            AudioPlayer.naudioBackgroundPlaybackDeviceGuid = entry.Value.Item1;
                         }
                     }
                 }
