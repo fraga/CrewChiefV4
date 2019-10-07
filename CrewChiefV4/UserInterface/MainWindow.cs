@@ -188,6 +188,8 @@ namespace CrewChiefV4
             ThreadManager.RegisterResourceThread(consoleUpdateThread);
             consoleUpdateThread.Start();
 
+            startCommandListeners();
+
             // Set up Controller Rescan thread
             ts = controllerRescanThreadWorker;
             var controllerRescanThread = new Thread(ts);
@@ -491,6 +493,31 @@ namespace CrewChiefV4
                 else
                     this.WindowState = FormWindowState.Minimized;
             }
+        }
+
+        private void startCommandListeners()
+        {
+            // c_exit - Exit process command
+            ThreadStart ts = commandExitThreadWorker;
+            var commandExitThread = new Thread(ts);
+            commandExitThread.Name = "MainWindow.commandExitThreadWorker";
+            ThreadManager.RegisterResourceThread(commandExitThread);
+            commandExitThread.Start();
+        }
+
+        private void commandExitThreadWorker()
+        {
+            var eventName = @"Global\CrewChiefCommand_Exit";
+            if (EventWaitHandle.TryOpenExisting(eventName, out var exitEvent))
+            {
+                Console.WriteLine("Exit command event already exists, this is not expected.");
+                return;
+            }
+
+            exitEvent = new EventWaitHandle(false, EventResetMode.ManualReset, @"Global\CrewChiefCommand_Exit");
+            exitEvent.WaitOne();
+
+
         }
 
         private void ControllersList_MeasureItem(object sender, MeasureItemEventArgs e)
