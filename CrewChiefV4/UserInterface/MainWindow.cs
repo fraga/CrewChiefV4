@@ -142,6 +142,7 @@ namespace CrewChiefV4
         private bool internalMessageAudioRefresh = false;
         private bool internalBackgroundAudioRefresh = false;
         private bool internalSpeechRecognitionRefresh = false;
+        public bool closedByCmdLineCommand = false;
 
         public void killChief()
         {
@@ -188,7 +189,7 @@ namespace CrewChiefV4
             ThreadManager.RegisterResourceThread(consoleUpdateThread);
             consoleUpdateThread.Start();
 
-            startCommandListeners();
+            CommandManager.StartCommandListeners();
 
             // Set up Controller Rescan thread
             ts = controllerRescanThreadWorker;
@@ -493,31 +494,6 @@ namespace CrewChiefV4
                 else
                     this.WindowState = FormWindowState.Minimized;
             }
-        }
-
-        private void startCommandListeners()
-        {
-            // c_exit - Exit process command
-            ThreadStart ts = commandExitThreadWorker;
-            var commandExitThread = new Thread(ts);
-            commandExitThread.Name = "MainWindow.commandExitThreadWorker";
-            ThreadManager.RegisterResourceThread(commandExitThread);
-            commandExitThread.Start();
-        }
-
-        private void commandExitThreadWorker()
-        {
-            var eventName = @"Global\CrewChiefCommand_Exit";
-            if (EventWaitHandle.TryOpenExisting(eventName, out var exitEvent))
-            {
-                Console.WriteLine("Exit command event already exists, this is not expected.");
-                return;
-            }
-
-            exitEvent = new EventWaitHandle(false, EventResetMode.ManualReset, @"Global\CrewChiefCommand_Exit");
-            exitEvent.WaitOne();
-
-
         }
 
         private void ControllersList_MeasureItem(object sender, MeasureItemEventArgs e)
@@ -829,7 +805,8 @@ namespace CrewChiefV4
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             if (!MainWindow.shouldSaveTrace
-                && this.recordSession.Checked)
+                && this.recordSession.Checked
+                && !this.closedByCmdLineCommand)  // Don't save trace if we're closed by script.
             {
                 // Message box with y/n to save?
                 var dialogResult = MessageBox.Show("A trace was enabled, would you like to save this trace?", "Save trace?", MessageBoxButtons.YesNo,
@@ -1828,6 +1805,7 @@ namespace CrewChiefV4
             }
 
             // Shutdown long running threads:
+            CommandManager.SetAllCommandEvents();
 
             // SoundCache spawns a Thread to lazy-load the sound data. Cancel this:
             SoundCache.cancelLazyLoading = true;
