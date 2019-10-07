@@ -1805,7 +1805,7 @@ namespace CrewChiefV4
             }
 
             // Shutdown long running threads:
-            CommandManager.StopCommandListeners()
+            CommandManager.StopCommandListeners();
 
             // SoundCache spawns a Thread to lazy-load the sound data. Cancel this:
             SoundCache.cancelLazyLoading = true;
