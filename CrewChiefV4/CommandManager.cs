@@ -33,7 +33,7 @@ namespace CrewChiefV4
             commandExitThread.Start();
         }
 
-        internal static void SetAllCommandEvents()
+        internal static void StopCommandListeners()
         {
             commandEvents.ForEach(evt => evt.Set());
         }
