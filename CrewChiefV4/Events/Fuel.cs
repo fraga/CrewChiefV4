@@ -1454,13 +1454,16 @@ namespace CrewChiefV4.Events
                     }
                 }
 
-                if (fuelMessage != null && delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
+                if (fuelMessage != null)
                 {
-                    this.audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(fuelMessage, 5 /*lowerDelayBoundInclusive*/, 8 /*upperDelayBound*/);
-                }
-                else
-                {
-                    this.audioPlayer.playMessageImmediately(fuelMessage);
+                    if (delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
+                    {
+                        this.audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(fuelMessage, 5 /*lowerDelayBoundInclusive*/, 8 /*upperDelayBound*/);
+                    }
+                    else
+                    {
+                        this.audioPlayer.playMessageImmediately(fuelMessage);
+                    }
                 }
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.CALCULATE_FUEL_FOR))
