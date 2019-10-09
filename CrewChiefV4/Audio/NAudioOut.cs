@@ -54,12 +54,25 @@ namespace CrewChiefV4.Audio
     {
         public static readonly int wasapiLatency = UserSettings.GetUserSettings().getInt("naudio_wasapi_latency");
 
+        private static MMDevice mMDevice = null;
         private NAudio.Wave.WasapiOut wasapiOut = null;
+        private static string naudioDeviceGuidWhenCached = "";
 
         public NAudioOutWasapi()
         {
-            // Don't allow latency of 0 as it causes CPU spike.  Probably because such low latency is achieved via busy wait.
-            this.wasapiOut = new WasapiOut(new MMDeviceEnumerator().GetDevice(AudioPlayer.naudioMessagesPlaybackDeviceGuid), AudioClientShareMode.Shared, true, Math.Max(NAudioOutWasapi.wasapiLatency, 1));
+            if (!naudioDeviceGuidWhenCached.Equals(AudioPlayer.naudioMessagesPlaybackDeviceGuid))
+            {
+                if (mMDevice != null)
+                {
+                    mMDevice.Dispose();
+                }
+                naudioDeviceGuidWhenCached = AudioPlayer.naudioMessagesPlaybackDeviceGuid;
+                mMDevice = new MMDeviceEnumerator().GetDevice(AudioPlayer.naudioMessagesPlaybackDeviceGuid);
+                if (mMDevice != null)
+                    Console.WriteLine($"Creating new output device {mMDevice.FriendlyName}");
+            }
+            // Don't allow latency of 0 as it causes CPU spike.  Probably because such low latency is achieved via busy wait. 
+            this.wasapiOut = new WasapiOut(mMDevice, AudioClientShareMode.Shared, true, Math.Max(NAudioOutWasapi.wasapiLatency, 1));
         }
 
         internal override PlaybackState PlaybackState => this.wasapiOut.PlaybackState;

@@ -63,6 +63,8 @@ namespace CrewChiefV4.Audio
         public static String folderCutWarningsDisabled = "acknowledge/cut_warnings_disabled";
         public static String folderCutWarningsEnabled = "acknowledge/cut_warnings_enabled";
 
+        public static String folderBreathIn = "acknowledge/breath_in";
+
         public static String folderAcknowledgeEnableDelayInHardParts = "acknowledge/keep_quiet_in_corners_enabled";
         public static String folderAcknowledgeDisableDelayInHardParts = "acknowledge/keep_quiet_in_corners_disabled";
 
@@ -155,6 +157,10 @@ namespace CrewChiefV4.Audio
         private MMDeviceEnumerator deviceEnum = null;
         private NotificationClientImplementation notificationClient = null;
         public static NAUDIO_OUTPUT_INTERFACE nAudioOutputInterface = NAUDIO_OUTPUT_INTERFACE.WAVEOUT;
+
+        // this is used to determine whether we need to take a breath.
+        private DateTime breathDueAt = DateTime.MaxValue;
+        private int maxSecondsBeforeTakingABreath = 3;
 
         public struct WaveDevice
         {
@@ -1386,6 +1392,28 @@ namespace CrewChiefV4.Audio
                                 {
                                     thisMessage.resolveDelayedContents();
                                 }
+                                if (GlobalBehaviourSettings.enableBreathIn)
+                                {
+                                    if (thisMessage.metadata.type == SoundType.SPOTTER)
+                                    {
+                                        // reset the breath timer
+                                        breathDueAt = DateTime.MaxValue;
+                                    }
+                                    else if (breathDueAt == DateTime.MaxValue)
+                                    {
+                                        breathDueAt = DateTime.UtcNow.AddSeconds(maxSecondsBeforeTakingABreath);
+                                    }
+                                    else
+                                    {
+                                        DateTime now = DateTime.UtcNow;
+                                        if (now > breathDueAt)
+                                        {
+                                            Console.WriteLine("Taking a breath");
+                                            soundCache.Play(folderBreathIn, thisMessage.metadata);
+                                            breathDueAt = now.AddSeconds(maxSecondsBeforeTakingABreath);
+                                        }
+                                    }
+                                }
                                 soundCache.Play(thisMessage.messageFolders, thisMessage.metadata);
                                 timeOfLastMessageEnd = GameStateData.CurrentTime;
                             }
@@ -1432,6 +1460,7 @@ namespace CrewChiefV4.Audio
         {
             if (!channelOpen)
             {
+                breathDueAt = DateTime.MaxValue;
                 channelOpen = true;
                 if (!mute)
                 {
@@ -1463,6 +1492,7 @@ namespace CrewChiefV4.Audio
         {
             if (channelOpen)
             {
+                breathDueAt = DateTime.MaxValue;
                 // beeps don't play in oval spotter mode
                 if (!GlobalBehaviourSettings.ovalSpotterMode)
                 {
