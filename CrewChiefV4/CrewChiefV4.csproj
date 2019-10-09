@@ -142,6 +142,7 @@
     <Compile Include="Audio\Sounds.cs" />
     <Compile Include="Audio\SoundMetadata.cs" />
     <Compile Include="CarData.cs" />
+    <Compile Include="CommandManager.cs" />
     <Compile Include="commands\KeyPresser.cs" />
     <Compile Include="commands\CommandMacro.cs" />
     <Compile Include="commands\MacroManager.cs" />

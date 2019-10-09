@@ -39,6 +39,7 @@ namespace CrewChiefV4
 
             String[] commandLineArgs = Environment.GetCommandLineArgs();
             Boolean allowMultipleInst = false;
+            String commandPassed = null;
             if (commandLineArgs != null)
             {
                 foreach (String commandLineArg in commandLineArgs)
@@ -70,9 +71,18 @@ namespace CrewChiefV4
                     {
                         MainWindow.disableControllerReacquire = true;
                     }
+                    if (commandLineArg.StartsWith("C_"))
+                    {
+                        commandPassed = commandLineArg;
+                    }
                 }
                 if (!allowMultipleInst)
                 {
+                    if (!string.IsNullOrWhiteSpace(commandPassed))
+                    {
+                        if (CommandManager.ProcesssCommand(commandPassed))
+                            return;  // This is execution to perform command, exit.
+                    }
                     try
                     {
                         if (System.Diagnostics.Process.GetProcessesByName(System.IO.Path.GetFileNameWithoutExtension(System.Reflection.Assembly.GetEntryAssembly().Location)).Count() > 1)
