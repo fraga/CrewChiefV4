@@ -4162,5 +4162,17 @@ namespace CrewChiefV4.Properties {
                 this["sre_respond_while_channel_still_open"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool enable_breath_in {
+            get {
+                return ((bool)(this["enable_breath_in"]));
+            }
+            set {
+                this["enable_breath_in"] = value;
+            }
+        }
     }
 }

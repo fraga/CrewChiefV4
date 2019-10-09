@@ -1607,3 +1607,7 @@ sre_respond_while_channel_still_open = Respond to voice commands immediately
 sre_respond_while_channel_still_open_help = Don't wait for the radio channel to be closed before responding to commands ("Hold button" mode)
 sre_respond_while_channel_still_open_category = AUDIO_VOICE_AND_CONTROLLERS
 sre_respond_while_channel_still_open_metadata = RESTART_REQUIRED
+
+enable_breath_in = Enable breath in pause
+enable_breath_in_help = Occasionally pause for breath when reading messages
+enable_breath_in_category = AUDIO_VOICE_AND_CONTROLLERS
