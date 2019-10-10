@@ -39,6 +39,7 @@ namespace CrewChiefV4.iRacing
         private DateTime lastTimeEngineWaterTempWarning = DateTime.MaxValue;
         private DateTime lastTimeEngineOilPressureWarning = DateTime.MaxValue;
         private DateTime lastTimeEngineFuelPressureWarning = DateTime.MaxValue;
+
         private readonly bool enableFCYPitStateMessages = UserSettings.GetUserSettings().getBoolean("enable_iracing_pit_state_during_fcy");
         private Boolean invalidateCutTrackLaps = UserSettings.GetUserSettings().getBoolean("iracing_invalidate_cut_track_laps");              
         class PendingRacePositionChange
@@ -660,15 +661,31 @@ namespace CrewChiefV4.iRacing
             }
             currentGameState.SessionData.TrackSurface = (int)playerCar.Live.TrackSurface;
             if (previousGameState != null && (playerCar.Live.TrackSurface == TrackSurfaces.AproachingPits ||
-                (TrackSurfaces)previousGameState.SessionData.TrackSurface == TrackSurfaces.OnTrack))
+                (TrackSurfaces)previousGameState.SessionData.TrackSurface == TrackSurfaces.OnTrack || 
+                (TrackSurfaces)previousGameState.SessionData.TrackSurface == TrackSurfaces.OffTrack))
             {
                 
-                currentGameState.PitData.IsApproachingPitlane = (playerCar.Live.TrackSurface == TrackSurfaces.AproachingPits && (TrackSurfaces)previousGameState.SessionData.TrackSurface == TrackSurfaces.OnTrack) || 
-                    (playerCar.Live.TrackSurface == TrackSurfaces.AproachingPits && !currentGameState.PitData.InPitlane && previousGameState.PitData.IsApproachingPitlane);
-                //Console.WriteLine("currentGameState.PitData.IsApproachingPitlane = " + currentGameState.PitData.IsApproachingPitlane);
-            
+                currentGameState.PitData.IsApproachingPitlane = (playerCar.Live.TrackSurface == TrackSurfaces.AproachingPits && 
+                    ((TrackSurfaces)previousGameState.SessionData.TrackSurface == TrackSurfaces.OnTrack || (TrackSurfaces)previousGameState.SessionData.TrackSurface == TrackSurfaces.OffTrack)) || 
+                    (playerCar.Live.TrackSurface == TrackSurfaces.AproachingPits && !currentGameState.PitData.InPitlane && previousGameState.PitData.IsApproachingPitlane);            
             }
-            currentGameState.PitData.JumpedToPits = previousGameState != null && !previousGameState.PitData.IsApproachingPitlane && !previousGameState.PitData.JumpedToPits && currentGameState.PitData.InPitlane && !previousGameState.PitData.InPitlane;
+            if (previousGameState != null)
+            {
+                if (previousGameState.PitData.TowedToPits == PitData.TowDetection.TowOnTrack && playerCar.Live.TrackSurface == TrackSurfaces.NotInWorld)
+                {
+                    currentGameState.PitData.TowedToPits = PitData.TowDetection.TowNotInWorld;
+                }
+                else if (previousGameState.PitData.TowedToPits == PitData.TowDetection.TowNotInWorld && playerCar.Live.TrackSurface == TrackSurfaces.InPitStall)
+                {
+                    currentGameState.PitData.TowedToPits = PitData.TowDetection.TowInPitStall;
+                }
+                else
+                {
+                    currentGameState.PitData.TowedToPits = PitData.TowDetection.TowOnTrack;
+                }               
+            }
+            currentGameState.PitData.JumpedToPits = previousGameState != null && currentGameState.PitData.TowedToPits == PitData.TowDetection.TowInPitStall && previousGameState.PitData.TowedToPits == PitData.TowDetection.TowNotInWorld;
+
             if (currentGameState.PitData.JumpedToPits)
             {
                 Console.WriteLine("currentGameState.PitData.JumpedToPits = " + currentGameState.PitData.JumpedToPits);
@@ -1238,10 +1255,7 @@ namespace CrewChiefV4.iRacing
             opponentData.DistanceRoundTrack = distanceRoundTrack;
             //Check that previous state was IsApporchingPits, this includes the zone befor the pitlane(striped lines on track)
             opponentData.JustEnteredPits = previousIsApporchingPits && isInPits;
-            if (opponentData.JustEnteredPits)
-            {
-                Console.WriteLine(opponentData.DriverRawName + " has entered the pitlane with sane flags");
-            }
+
             if (sessionRunningTime > 10 && isRace && !opponentData.InPits && isInPits)
             {
                 opponentData.NumPitStops++;

@@ -1032,7 +1032,7 @@
       <Value Profile="(Default)">WAVEOUT</Value>
     </Setting>
     <Setting Name="naudio_wasapi_latency" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">20</Value>
+      <Value Profile="(Default)">40</Value>
     </Setting>
     <Setting Name="sre_respond_while_channel_still_open" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>

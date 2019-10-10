@@ -45,9 +45,9 @@ namespace CrewChiefV4
                 
         public static Boolean enableDriverNames = UserSettings.GetUserSettings().getBoolean("enable_driver_names");
 
+        private const int IRACING_INTERVAL = 16;    // always use 60Hz for iracing
         private static int timeInterval = UserSettings.GetUserSettings().getInt("update_interval");
-
-        private const int IRACING_SPOTTER_INTERVAL = 16;    // always use 60Hz for iracing spotter
+      
         private static int spotterInterval = UserSettings.GetUserSettings().getInt("spotter_update_interval");
 
         private Boolean displaySessionLapTimes = UserSettings.GetUserSettings().getBoolean("display_session_lap_times");
@@ -151,8 +151,8 @@ namespace CrewChiefV4
             this.turnSpotterOffImmediatelyOnFCY = UserSettings.GetUserSettings().getBoolean("fcy_stop_spotter_immediately");
             CrewChief.yellowFlagMessagesEnabled = UserSettings.GetUserSettings().getBoolean("enable_yellow_flag_messages");
             CrewChief.enableDriverNames = UserSettings.GetUserSettings().getBoolean("enable_driver_names");
-            CrewChief.timeInterval = UserSettings.GetUserSettings().getInt("update_interval");
-            CrewChief.spotterInterval = gameDefinition.gameEnum == GameEnum.IRACING ? IRACING_SPOTTER_INTERVAL : UserSettings.GetUserSettings().getInt("spotter_update_interval");
+            CrewChief.timeInterval = gameDefinition.gameEnum == GameEnum.IRACING ? IRACING_INTERVAL : UserSettings.GetUserSettings().getInt("update_interval");
+            CrewChief.spotterInterval = gameDefinition.gameEnum == GameEnum.IRACING ? IRACING_INTERVAL : UserSettings.GetUserSettings().getInt("spotter_update_interval");
             CrewChief.forceSingleClass = UserSettings.GetUserSettings().getBoolean("force_single_class");
             CrewChief.maxUnknownClassesForAC = UserSettings.GetUserSettings().getInt("max_unknown_car_classes_for_assetto");
         }
