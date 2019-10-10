@@ -54,14 +54,12 @@ namespace CrewChiefV4.Audio
                 {
                     initialised = false;
                     initialise(this.defaultBackgroundSound);
-                }               
-                //waveOut.PlaybackStopped += this.eventHandler;
+                }
+
                 playing = true;
                 int backgroundOffset = Utilities.random.Next(0, (int)backgroundLength.TotalSeconds - backgroundLeadout);
                 this.reader.CurrentTime = TimeSpan.FromSeconds(backgroundOffset);
                 this.waveOut.Play();
-                //this.playWaitHandle.WaitOne(30);
-                //waveOut.PlaybackStopped -= this.playbackStopped;
             }
         }
 
@@ -72,7 +70,6 @@ namespace CrewChiefV4.Audio
                 if (initialised && this.waveOut != null)
                 {                    
                     this.waveOut.Pause();
-                    //this.playWaitHandle.Set();
                 }
                 playing = false;
             }
@@ -99,7 +96,7 @@ namespace CrewChiefV4.Audio
             this.deviceIdWhenCached = AudioPlayer.naudioBackgroundPlaybackDeviceId;
             this.waveOut = new NAudio.Wave.WasapiOut(new MMDeviceEnumerator().GetDevice(AudioPlayer.naudioBackgroundPlaybackDeviceGuid), AudioClientShareMode.Shared, false, 10);
             //this.waveOut.DeviceNumber = this.deviceIdWhenCached;
-            NAudio.Wave.SampleProviders.SampleChannel sampleChannel = new NAudio.Wave.SampleProviders.SampleChannel(reader);                
+            NAudio.Wave.SampleProviders.SampleChannel sampleChannel = new NAudio.Wave.SampleProviders.SampleChannel(new NAudioLoopStream(reader));
             sampleChannel.Volume = this.volumeWhenCached;
             this.waveOut.Init(new NAudio.Wave.SampleProviders.SampleToWaveProvider(sampleChannel));
         }

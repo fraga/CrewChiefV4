@@ -92,7 +92,7 @@ namespace CrewChiefV4.Audio
             this.deviceIdWhenCached = AudioPlayer.naudioBackgroundPlaybackDeviceId;
             this.waveOut = new NAudio.Wave.WaveOutEvent();
             this.waveOut.DeviceNumber = this.deviceIdWhenCached;
-            NAudio.Wave.SampleProviders.SampleChannel sampleChannel = new NAudio.Wave.SampleProviders.SampleChannel(reader);                
+            NAudio.Wave.SampleProviders.SampleChannel sampleChannel = new NAudio.Wave.SampleProviders.SampleChannel(new NAudioLoopStream(reader));
             sampleChannel.Volume = this.volumeWhenCached;
             this.waveOut.Init(new NAudio.Wave.SampleProviders.SampleToWaveProvider(sampleChannel));
         }
