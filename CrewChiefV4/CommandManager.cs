@@ -43,10 +43,10 @@ namespace CrewChiefV4
             if (commandPassed == "C_EXIT")
             {
                if (EventWaitHandle.TryOpenExisting(CommandManager.COMMAND_EVENT_EXIT, out var exitEvent))
-               {
                     exitEvent.Set();
-                    return true;
-                }
+
+                // For exit command, consider it handled even if there's no event.  This helps in avoiding undesired app instances.
+                return true;
             }
 
             return false;
