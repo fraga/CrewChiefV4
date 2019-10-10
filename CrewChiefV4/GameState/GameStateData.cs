@@ -2623,6 +2623,13 @@ namespace CrewChiefV4.GameState
 
     public class PitData
     {
+        public enum TowDetection : int
+        {
+            TowNotSet = -1,
+            TowOnTrack = 0,
+            TowNotInWorld = 1,
+            TowInPitStall = 2
+        };
         public PitWindow PitWindow = PitWindow.Unavailable;
 
         // The minute/lap into which you're allowed/obligated to pit
@@ -2707,6 +2714,8 @@ namespace CrewChiefV4.GameState
         public Boolean IsTeamRacing;
 
         public Boolean JumpedToPits;
+
+        public TowDetection TowedToPits = TowDetection.TowNotSet;
 
         public Boolean IsInGarage;
 
