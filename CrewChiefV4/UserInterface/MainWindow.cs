@@ -2587,6 +2587,8 @@ namespace CrewChiefV4
             }
             if (e.Error == null && !e.Cancelled)
             {
+                if (crewChief.audioPlayer != null)
+                    crewChief.audioPlayer.disposeBackgroundPlayer();
                 String extractingButtonText = Configuration.getUIString("extracting_sound_pack");
                 downloadSoundPackButton.Text = extractingButtonText;
                 var extractSoundPackThread = new Thread(() =>
@@ -2622,7 +2624,10 @@ namespace CrewChiefV4
                             }
                         }
                     }
-                    catch (Exception) { }
+                    catch (Exception unzipException)
+                    {
+                        Console.WriteLine("Error extracting sound pack update " + unzipException.Message + ", " + unzipException.StackTrace);
+                    }
                     finally
                     {
                         if (progressThread != null)

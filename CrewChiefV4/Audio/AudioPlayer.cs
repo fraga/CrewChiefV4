@@ -995,6 +995,13 @@ namespace CrewChiefV4.Audio
             this.backgroundPlayer.mute(doMute);
         }
 
+        public void disposeBackgroundPlayer()
+        {
+            if (this.backgroundPlayer != null)
+            {
+                backgroundPlayer.dispose();
+            }
+        }
 
         private void monitorQueue()
         {
