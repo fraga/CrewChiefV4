@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CrewChiefV4.Audio;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -82,7 +83,7 @@ namespace CrewChiefV4.GameState
             GlobalBehaviourSettings.maxComplaintsPerSession = UserSettings.GetUserSettings().getInt("max_complaints_per_session");
             GlobalBehaviourSettings.spotterVehicleLength = defaultSpotterVehicleLength;
             GlobalBehaviourSettings.spotterVehicleWidth = defaultSpotterVehicleWidth;
-            GlobalBehaviourSettings.enableBreathIn = UserSettings.GetUserSettings().getBoolean("enable_breath_in");
+            GlobalBehaviourSettings.enableBreathIn = UserSettings.GetUserSettings().getBoolean("enable_breath_in") && SoundCache.availableSounds.Contains(AudioPlayer.folderBreathIn);
         }
 
         public static void UpdateFromCarClass(CarData.CarClass carClass) 
