@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html>
 <body>
+<h2>Version 4.9.11.1</h2>
+<ul>
+	<li>Reworked nAudio playback path to improve stability and fix some app shutdown issues; added option to play sounds using WASAPI output device when using nAudio playback (set with the 'nAudio Output Interface Type' property). This has significantly lower playback latency and can make the app sound more natural and responsive - definitely worth trying (remember to enable nAudio playback first). If the audio pops or crackles with this enable try increasing the 'nAudio WASAPI latency' property a bit</li>
+	<li>Added option to make the app respond to voice commands as soon as it recognises them in 'Hold Button' mode, rather than waiting until the radio button is released (enable this behaviour with the 'Respond to voice commands immediately' property)</li>
+	<li>Allow closing CC from command line by passing C_EXIT command parameter</li>
+	<li>ACC - ensure penalties are cleared properly</li>
+	<li>AC - some car class tweaks to better map GTE and GT3</li>
+	<li>iRacing - more robust pit entry detection (should reduce the likelihood of the all not refuelling after a mess pit entry)</li>
+	<li>A few bug fixes</li>
+</ul>
 <h2>Version 4.9.10.1</h2>
 <ul>
 	<li>Prevent fuel consumption estimates being skewed by full course yellow flags</li>
