@@ -402,8 +402,15 @@ namespace CrewChiefV4
                         UserSettings.GetUserSettings().setProperty("NAUDIO_RECORDING_DEVICE_GUID", dev.EndpointGuid);
                         UserSettings.GetUserSettings().saveUserSettings();
                     }
-                    Console.WriteLine($"Device name: {dev.FullName} Guid: {dev.EndpointGuid} DeviceWaveId {dev.WaveDeviceId}");
-                    speechRecognitionDevices.Add(dev.FullName, new Tuple<string, int>(dev.EndpointGuid, dev.WaveDeviceId));
+                    int disambiguator = 2;
+                    string disambiguatedFullName = dev.FullName;
+                    while (speechRecognitionDevices.ContainsKey(disambiguatedFullName))
+                    {
+                        disambiguatedFullName = dev.FullName + "(" + disambiguator + ")";
+                        disambiguator++;
+                    }
+                    Console.WriteLine($"Device name: {disambiguatedFullName} Guid: {dev.EndpointGuid} DeviceWaveId {dev.WaveDeviceId}");
+                    speechRecognitionDevices.Add(disambiguatedFullName, new Tuple<string, int>(dev.EndpointGuid, dev.WaveDeviceId));
                 }
                 foreach (var dev in speechRecognitionDevices)
                 {
