@@ -308,7 +308,14 @@ namespace CrewChiefV4.Audio
                             playbackDevices.Clear();
                             foreach (var dev in GetWaveOutDevices())
                             {
-                                playbackDevices[dev.FullName] = new Tuple<string, int>(dev.EndpointGuid, dev.WaveDeviceId);
+                                int disambiguator = 2;
+                                string disambiguatedFullName = dev.FullName;
+                                while (playbackDevices.ContainsKey(disambiguatedFullName))
+                                {
+                                    disambiguatedFullName = dev.FullName + "(" + disambiguator + ")";
+                                    disambiguator++;
+                                }
+                                playbackDevices[disambiguatedFullName] = new Tuple<string, int>(dev.EndpointGuid, dev.WaveDeviceId);
                                 if (dev.EndpointGuid == messageDeviceGuid)
                                 {
                                     naudioMessagesPlaybackDeviceId = dev.WaveDeviceId;
@@ -341,7 +348,14 @@ namespace CrewChiefV4.Audio
                             SpeechRecogniser.speechRecognitionDevices.Clear();
                             foreach (var dev in SpeechRecogniser.GetWaveInDevices())
                             {
-                                SpeechRecogniser.speechRecognitionDevices[dev.FullName] = new Tuple<string, int>(dev.EndpointGuid, dev.WaveDeviceId);
+                                int disambiguator = 2;
+                                string disambiguatedFullName = dev.FullName;
+                                while (playbackDevices.ContainsKey(disambiguatedFullName))
+                                {
+                                    disambiguatedFullName = dev.FullName + "(" + disambiguator + ")";
+                                    disambiguator++;
+                                }
+                                SpeechRecogniser.speechRecognitionDevices[disambiguatedFullName] = new Tuple<string, int>(dev.EndpointGuid, dev.WaveDeviceId);
                                 if (dev.EndpointGuid == recordingDeviceGuid)
                                 {
                                     MainWindow.instance.crewChief.speechRecogniser.changeInputDevice(dev.WaveDeviceId);
@@ -656,8 +670,15 @@ namespace CrewChiefV4.Audio
                         UserSettings.GetUserSettings().setProperty("NAUDIO_DEVICE_GUID_BACKGROUND", dev.EndpointGuid);
                         UserSettings.GetUserSettings().saveUserSettings();
                     }
-                    Console.WriteLine($"Device name: {dev.FullName} Guid: {dev.EndpointGuid} DeviceWaveId {dev.WaveDeviceId}");
-                    playbackDevices[dev.FullName] = new Tuple<string, int>(dev.EndpointGuid, dev.WaveDeviceId);
+                    int disambiguator = 2;
+                    string disambiguatedFullName = dev.FullName;
+                    while(playbackDevices.ContainsKey(disambiguatedFullName))
+                    {
+                        disambiguatedFullName = dev.FullName + "(" + disambiguator + ")";
+                        disambiguator++;
+                    }
+                    Console.WriteLine($"Device name: {disambiguatedFullName} Guid: {dev.EndpointGuid} DeviceWaveId {dev.WaveDeviceId}");
+                    playbackDevices[disambiguatedFullName] = new Tuple<string, int>(dev.EndpointGuid, dev.WaveDeviceId);
                 }
                 foreach (var dev in playbackDevices)
                 {
