@@ -657,7 +657,7 @@ namespace CrewChiefV4.Audio
                         UserSettings.GetUserSettings().saveUserSettings();
                     }
                     Console.WriteLine($"Device name: {dev.FullName} Guid: {dev.EndpointGuid} DeviceWaveId {dev.WaveDeviceId}");
-                    playbackDevices.Add(dev.FullName, new Tuple<string, int>(dev.EndpointGuid, dev.WaveDeviceId));
+                    playbackDevices[dev.FullName] = new Tuple<string, int>(dev.EndpointGuid, dev.WaveDeviceId);
                 }
                 foreach (var dev in playbackDevices)
                 {
