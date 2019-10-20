@@ -37,52 +37,96 @@ namespace CrewChiefV4.Audio
         {
             this.waveOut = new NAudio.Wave.WaveOutEvent();
             this.waveOut.DeviceNumber = AudioPlayer.naudioMessagesPlaybackDeviceId;
+
+            SoundCache.activeSoundPlayerObjects++;
         }
 
-        internal override PlaybackState PlaybackState => this.waveOut.PlaybackState;
+        internal override PlaybackState PlaybackState => this.waveOut != null ? this.waveOut.PlaybackState : PlaybackState.Stopped;
 
-        internal override void Dispose() => this.waveOut.Dispose();
-        internal override void Init(IWaveProvider waveProvider) => waveOut.Init(waveProvider);
-        internal override void Init(ISampleProvider sampleProvider, bool convertTo16Bit = false) => this.waveOut.Init(sampleProvider, convertTo16Bit);
-        internal override void Play() => this.waveOut.Play();
-        internal override void Stop() => this.waveOut.Stop();
-        internal override void SubscribePlaybackStopped(EventHandler<StoppedEventArgs> eventHandler) => this.waveOut.PlaybackStopped += eventHandler;
-        internal override void UnsubscribePlaybackStopped(EventHandler<StoppedEventArgs> eventHandler) => this.waveOut.PlaybackStopped -= eventHandler;
+        internal override void Dispose()
+        {
+            if (this.waveOut != null)
+            {
+                SoundCache.activeSoundPlayerObjects--;
+                this.waveOut.Dispose();
+                this.waveOut = null;
+            }
+        }
+
+        internal override void Init(IWaveProvider waveProvider) => this.waveOut?.Init(waveProvider);
+        internal override void Init(ISampleProvider sampleProvider, bool convertTo16Bit = false) => this.waveOut?.Init(sampleProvider, convertTo16Bit);
+        internal override void Play() => this.waveOut?.Play();
+        internal override void Stop() => this.waveOut?.Stop();
+
+        internal override void SubscribePlaybackStopped(EventHandler<StoppedEventArgs> eventHandler)
+        {
+            if (this.waveOut != null)
+                this.waveOut.PlaybackStopped += eventHandler;
+        }
+
+        internal override void UnsubscribePlaybackStopped(EventHandler<StoppedEventArgs> eventHandler)
+        {
+            if (this.waveOut != null)
+                this.waveOut.PlaybackStopped -= eventHandler;
+        }
     }
 
     internal class NAudioOutWasapi : NAudioOut
     {
         public static readonly int wasapiLatency = UserSettings.GetUserSettings().getInt("naudio_wasapi_latency");
 
-        private static MMDevice mMDevice = null;
-        private NAudio.Wave.WasapiOut wasapiOut = null;
+        // Cache MMDevice as creating it over and over is costly.
+        private static MMDevice cachedDevice = null;
         private static string naudioDeviceGuidWhenCached = "";
+
+        private NAudio.Wave.WasapiOut wasapiOut = null;
 
         public NAudioOutWasapi()
         {
-            if (!naudioDeviceGuidWhenCached.Equals(AudioPlayer.naudioMessagesPlaybackDeviceGuid))
+            if (!NAudioOutWasapi.naudioDeviceGuidWhenCached.Equals(AudioPlayer.naudioMessagesPlaybackDeviceGuid))
             {
-                if (mMDevice != null)
-                {
-                    mMDevice.Dispose();
-                }
-                naudioDeviceGuidWhenCached = AudioPlayer.naudioMessagesPlaybackDeviceGuid;
-                mMDevice = new MMDeviceEnumerator().GetDevice(AudioPlayer.naudioMessagesPlaybackDeviceGuid);
-                if (mMDevice != null)
-                    Console.WriteLine($"Creating new output device {mMDevice.FriendlyName}");
+                NAudioOutWasapi.cachedDevice?.Dispose();
+
+                NAudioOutWasapi.naudioDeviceGuidWhenCached = AudioPlayer.naudioMessagesPlaybackDeviceGuid;
+                NAudioOutWasapi.cachedDevice = new MMDeviceEnumerator().GetDevice(AudioPlayer.naudioMessagesPlaybackDeviceGuid);
+
+                if (NAudioOutWasapi.cachedDevice != null)
+                    Console.WriteLine($"Creating new WASAPI output device: {NAudioOutWasapi.cachedDevice.FriendlyName}");
             }
+
             // Don't allow latency of 0 as it causes CPU spike.  Probably because such low latency is achieved via busy wait. 
-            this.wasapiOut = new WasapiOut(mMDevice, AudioClientShareMode.Shared, true, Math.Max(NAudioOutWasapi.wasapiLatency, 1));
+            this.wasapiOut = new WasapiOut(NAudioOutWasapi.cachedDevice, AudioClientShareMode.Shared, true, Math.Max(NAudioOutWasapi.wasapiLatency, 1));
+
+            SoundCache.activeSoundPlayerObjects++;
         }
 
-        internal override PlaybackState PlaybackState => this.wasapiOut.PlaybackState;
+        internal override PlaybackState PlaybackState => this.wasapiOut != null ? this.wasapiOut.PlaybackState : PlaybackState.Stopped;
 
-        internal override void Dispose() => this.wasapiOut.Dispose();
-        internal override void Init(IWaveProvider waveProvider) => wasapiOut.Init(waveProvider);
-        internal override void Init(ISampleProvider sampleProvider, bool convertTo16Bit = false) => this.wasapiOut.Init(sampleProvider, convertTo16Bit);
-        internal override void Play() => this.wasapiOut.Play();
-        internal override void Stop() => this.wasapiOut.Stop();
-        internal override void SubscribePlaybackStopped(EventHandler<StoppedEventArgs> eventHandler) => this.wasapiOut.PlaybackStopped += eventHandler;
-        internal override void UnsubscribePlaybackStopped(EventHandler<StoppedEventArgs> eventHandler) => this.wasapiOut.PlaybackStopped -= eventHandler;
+        internal override void Dispose()
+        {
+            if (this.wasapiOut != null)
+            {
+                SoundCache.activeSoundPlayerObjects--;
+                this.wasapiOut.Dispose();
+                this.wasapiOut = null;
+            }
+        }
+
+        internal override void Init(IWaveProvider waveProvider) => this.wasapiOut?.Init(waveProvider);
+        internal override void Init(ISampleProvider sampleProvider, bool convertTo16Bit = false) => this.wasapiOut?.Init(sampleProvider, convertTo16Bit);
+        internal override void Play() => this.wasapiOut?.Play();
+        internal override void Stop() => this.wasapiOut?.Stop();
+
+        internal override void SubscribePlaybackStopped(EventHandler<StoppedEventArgs> eventHandler)
+        {
+            if (this.wasapiOut != null)
+                this.wasapiOut.PlaybackStopped += eventHandler;
+        }
+
+        internal override void UnsubscribePlaybackStopped(EventHandler<StoppedEventArgs> eventHandler)
+        {
+            if (this.wasapiOut != null)
+                this.wasapiOut.PlaybackStopped -= eventHandler;
+        }
     }
 }

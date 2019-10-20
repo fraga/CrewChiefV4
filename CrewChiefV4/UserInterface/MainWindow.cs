@@ -144,6 +144,9 @@ namespace CrewChiefV4
         private bool internalSpeechRecognitionRefresh = false;
         public bool closedByCmdLineCommand = false;
 
+        // Allow trace playback on Release build.
+        internal static bool profileMode = false;
+
         public void killChief()
         {
             crewChief.stop();
@@ -994,7 +997,7 @@ namespace CrewChiefV4
 
             SetupNotificationTrayIcon();
 
-            if (CrewChief.Debugging)
+            if (CrewChief.Debugging || MainWindow.profileMode)
             {
                 // Restore last saved trace file name.
                 filenameTextbox.Text = UserSettings.GetUserSettings().getString("last_trace_file_name");
@@ -1030,9 +1033,9 @@ namespace CrewChiefV4
 
             this.app_version.Text = Configuration.getUIString("version") + ": " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
             Console.WriteLine("Starting app.  " + this.app_version.Text);
-            this.filenameLabel.Visible = CrewChief.Debugging;
-            this.filenameTextbox.Visible = CrewChief.Debugging;
-            this.playbackInterval.Visible = CrewChief.Debugging;
+            this.filenameLabel.Visible = CrewChief.Debugging || MainWindow.profileMode;
+            this.filenameTextbox.Visible = CrewChief.Debugging || MainWindow.profileMode;
+            this.playbackInterval.Visible = CrewChief.Debugging || MainWindow.profileMode;
            
             String[] commandLineArgs = Environment.GetCommandLineArgs();
             if (MainWindow.soundTestMode)
@@ -1704,11 +1707,12 @@ namespace CrewChiefV4
             {
                 startApplicationButton.Enabled = false;
                 uiSyncAppStart();
-                
-                // Don't disable auto scroll in Debug builds.
+
+
 #if !DEBUG
+                // Don't disable auto scroll in Debug builds and in Profile mode.
                 Console.WriteLine("Pausing console scrolling");
-                MainWindow.autoScrollConsole = false;
+                MainWindow.autoScrollConsole = MainWindow.profileMode;
 #endif
                 GameDefinition gameDefinition = GameDefinition.getGameDefinitionForFriendlyName(gameDefinitionList.Text);
                 if (gameDefinition != null)

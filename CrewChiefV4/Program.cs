@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CrewChiefV4.Audio;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -75,6 +76,10 @@ namespace CrewChiefV4
                     {
                         commandPassed = commandLineArg;
                     }
+                    if (commandLineArg.Equals("PROFILE_MODE"))
+                    {
+                        MainWindow.profileMode = true;
+                    }
                 }
                 if (!allowMultipleInst)
                 {
@@ -121,6 +126,9 @@ namespace CrewChiefV4
             GlobalResources.Dispose();
             watch.Stop();
             Debug.WriteLine("Resource Disposal took: " + watch.ElapsedTicks * 1000 / System.Diagnostics.Stopwatch.Frequency + "ms");
+
+            if (AudioPlayer.playWithNAudio)
+                Debug.Assert(SoundCache.activeSoundPlayerObjects == 0);
         }
     }
 }

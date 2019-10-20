@@ -99,6 +99,7 @@ namespace CrewChiefV4.Events
                 }
             }
         }
+
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
             if (AudioPlayer.folderChiefRadioCheck != null)
@@ -116,7 +117,7 @@ namespace CrewChiefV4.Events
             }
 
             PlaybackModerator.SetTracing(true /*enabled*/);
-
+            
             DirectoryInfo soundDirectory = new DirectoryInfo(AudioPlayer.soundFilesPath);
             FileInfo[] filesInSoundDirectory = soundDirectory.GetFiles();
             foreach (FileInfo fileInSoundDirectory in filesInSoundDirectory)
@@ -150,6 +151,14 @@ namespace CrewChiefV4.Events
                 }
             }
             testDriverNames();
+        }
+
+        private void runSoakTest()
+        {
+            for (float i = 0; i < 60f; i = i + 0.1f)
+            {
+                audioPlayer.playMessage(new QueuedMessage("float" + i, 0, messageFragments: MessageContents(TimeSpan.FromSeconds(i)), abstractEvent: this));
+            }
         }
 
         public bool soundTestPlay(String[] foldersOrStuff, int messageNumber = 1)

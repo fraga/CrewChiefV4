@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace CrewChiefV4.Audio
 {
+    // Based on: http://mark-dot-net.blogspot.com/2009/10/looped-playback-in-net-with-naudio.html
     public class NAudioLoopStream : WaveStream
     {
         WaveStream sourceStream = null;
@@ -21,18 +22,18 @@ namespace CrewChiefV4.Audio
 
         public override WaveFormat WaveFormat
         {
-            get { return sourceStream.WaveFormat; }
+            get { return this.sourceStream.WaveFormat; }
         }
 
         public override long Length
         {
-            get { return sourceStream.Length; }
+            get { return this.sourceStream.Length; }
         }
 
         public override long Position
         {
-            get { return sourceStream.Position; }
-            set { sourceStream.Position = value; }
+            get { return this.sourceStream.Position; }
+            set { this.sourceStream.Position = value; }
         }
 
         public override int Read(byte[] buffer, int offset, int count)
@@ -41,16 +42,16 @@ namespace CrewChiefV4.Audio
 
             while (totalBytesRead < count)
             {
-                var bytesRead = sourceStream.Read(buffer, offset + totalBytesRead, count - totalBytesRead);
+                var bytesRead = this.sourceStream.Read(buffer, offset + totalBytesRead, count - totalBytesRead);
                 if (bytesRead == 0)
                 {
-                    if (sourceStream.Position == 0 || !EnableLooping)
+                    if (this.sourceStream.Position == 0 || !this.EnableLooping)
                     {
                         // something wrong with the source stream
                         break;
                     }
                     // loop
-                    sourceStream.Position = 0;
+                    this.sourceStream.Position = 0;
                 }
                 totalBytesRead += bytesRead;
             }
