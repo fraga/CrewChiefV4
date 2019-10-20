@@ -17,7 +17,7 @@ namespace CrewChiefV4.Audio
 
         // will be re-used and only disposed when we stop the app or switch background sounds
         private NAudio.Wave.WaveFileReader reader = null;
-        private NAudio.Wave.WasapiOut waveOut = null;
+        private NAudio.Wave.WasapiOut wasapiOut = null;
         AutoResetEvent playWaitHandle = new AutoResetEvent(false);
         private int deviceIdWhenCached = 0;
         private float volumeWhenCached = 0;
@@ -59,7 +59,7 @@ namespace CrewChiefV4.Audio
                 playing = true;
                 int backgroundOffset = Utilities.random.Next(0, (int)backgroundLength.TotalSeconds - backgroundLeadout);
                 this.reader.CurrentTime = TimeSpan.FromSeconds(backgroundOffset);
-                this.waveOut.Play();
+                this.wasapiOut.Play();
             }
         }
 
@@ -67,9 +67,9 @@ namespace CrewChiefV4.Audio
         {
             lock (this)
             {
-                if (initialised && this.waveOut != null)
-                {                    
-                    this.waveOut.Pause();
+                if (initialised && this.wasapiOut != null)
+                {
+                    this.wasapiOut.Pause();
                 }
                 playing = false;
             }
@@ -85,20 +85,19 @@ namespace CrewChiefV4.Audio
             backgroundLength = reader.TotalTime;
         }
 
-        private void initWaveOut()
+        private void initWasapiOut()
         {
-            if (this.waveOut != null)
+            if (this.wasapiOut != null)
             {
-                this.waveOut.Dispose();
+                this.wasapiOut.Dispose();
             }
-            //this.eventHandler = new EventHandler<NAudio.Wave.StoppedEventArgs>(playbackStopped);
+
             this.volumeWhenCached = getBackgroundVolume();
             this.deviceIdWhenCached = AudioPlayer.naudioBackgroundPlaybackDeviceId;
-            this.waveOut = new NAudio.Wave.WasapiOut(new MMDeviceEnumerator().GetDevice(AudioPlayer.naudioBackgroundPlaybackDeviceGuid), AudioClientShareMode.Shared, false, 10);
-            //this.waveOut.DeviceNumber = this.deviceIdWhenCached;
+            this.wasapiOut = new NAudio.Wave.WasapiOut(new MMDeviceEnumerator().GetDevice(AudioPlayer.naudioBackgroundPlaybackDeviceGuid), AudioClientShareMode.Shared, false, 10);
             NAudio.Wave.SampleProviders.SampleChannel sampleChannel = new NAudio.Wave.SampleProviders.SampleChannel(new NAudioLoopStream(reader));
             sampleChannel.Volume = this.volumeWhenCached;
-            this.waveOut.Init(new NAudio.Wave.SampleProviders.SampleToWaveProvider(sampleChannel));
+            this.wasapiOut.Init(new NAudio.Wave.SampleProviders.SampleToWaveProvider(sampleChannel));
         }
 
         public override void initialise(String initialBackgroundSound)
@@ -108,7 +107,7 @@ namespace CrewChiefV4.Audio
                 lock (this)
                 {
                     initReader(initialBackgroundSound);
-                    initWaveOut();
+                    initWasapiOut();
                     initialised = true;
                 }
             }
@@ -118,12 +117,12 @@ namespace CrewChiefV4.Audio
         {
             lock (this)
             {
-                if (this.waveOut != null)
+                if (this.wasapiOut != null)
                 {
-                    this.waveOut.Stop();
+                    this.wasapiOut.Stop();
                 }
                 initReader(backgroundSoundName);
-                initWaveOut();
+                initWasapiOut();
                 initialised = true;
             }
         }
@@ -143,9 +142,9 @@ namespace CrewChiefV4.Audio
                     {
                         reader.Dispose();
                     }
-                    if (waveOut != null)
+                    if (wasapiOut != null)
                     {
-                        waveOut.Stop();
+                        wasapiOut.Stop();
 
                         lock (MainWindow.instanceLock)
                         {
@@ -153,7 +152,7 @@ namespace CrewChiefV4.Audio
                             {
                                 this.mainThreadContext.Post(delegate
                                 {
-                                    waveOut.Dispose();
+                                    wasapiOut.Dispose();
                                 }, null);
                            }
                         }

@@ -1081,7 +1081,16 @@ namespace CrewChiefV4.Audio
                 // we're back to a -1 timeout
                 monitorQueueWakeUpEvent.WaitOne(waitTimeout);
             }
-            //writeMessagePlayedStats();
+
+            lock (queuedClips)
+            {
+                queuedClips.Clear();
+            }
+            lock (immediateClips)
+            {
+                immediateClips.Clear();
+            }
+
             playedMessagesCount.Clear();
 
             try
@@ -1287,9 +1296,10 @@ namespace CrewChiefV4.Audio
                     }
                 }
             }
+
             // now we go back and play anything else that's been inserted into the queue since we started, but only if
             // we've not been interrupted
-            if (queueHasDueMessages(queueToPlay, isImmediateMessages) && (isImmediateMessages || !wasInterrupted))
+            if (queueHasDueMessages(queueToPlay, isImmediateMessages) && (isImmediateMessages || !wasInterrupted) && this.monitorRunning)
             {
                 Console.WriteLine("There are " + queueToPlay.Count + " more events in the queue, playing them...");
                 playQueueContents(queueToPlay, isImmediateMessages);
@@ -1334,6 +1344,11 @@ namespace CrewChiefV4.Audio
             int playedEventCount = 0;
             foreach (String eventName in eventNames)
             {
+                if (!this.monitorRunning)
+                {
+                    return soundsProcessed;
+                }
+
                 // if there's anything in the immediateClips queue, stop processing
                 if (isImmediateMessages || immediateClips.Count == 0)
                 {
