@@ -1015,6 +1015,8 @@ namespace CrewChiefV4
             // orbit (it's the only way to be sure) then restart the app. This shit is comically flakey but what else can we do here?
             if (UserSettings.GetUserSettings().initFailed)
             {
+                File.WriteAllText(Environment.SpecialFolder.MyDocuments + @"\CrewChiefV4\startupError.txt", "Message: " +
+                    UserSettings.GetUserSettings().initFailedMessage + "\nStack" + UserSettings.GetUserSettings().initFailedStack);
                 Console.WriteLine("Unable to upgrade properties from previous version, settings will be reset to default");
                 try
                 {

@@ -44,6 +44,8 @@ namespace CrewChiefV4
         }
 
         public Boolean initFailed = false;
+        public string initFailedStack = "";
+        public string initFailedMessage = "";
 
         private static  String[] reservedNameStarts = new String[] { "CHANNEL_", "TOGGLE_", "VOICE_OPTION", "background_volume", 
             "messages_volume", "last_game_definition", "UpdateSettings",ControllerConfiguration.ControllerData.PROPERTY_CONTAINER,
@@ -320,6 +322,8 @@ namespace CrewChiefV4
                 // if any of this initialisation fails, the app is in an unusable state.
                 Console.WriteLine(exception.Message);
                 initFailed = true;
+                initFailedMessage = exception.Message;
+                initFailedStack = exception.StackTrace;
             }
         }
 
