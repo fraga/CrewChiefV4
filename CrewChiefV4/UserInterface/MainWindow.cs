@@ -1319,11 +1319,7 @@ namespace CrewChiefV4
                 overlay = new CrewChiefV4.Overlay.CrewChiefOverlayWindow();
                 overlay.Run();
             }
-
-            //Thread.Sleep(1000);
-            //irsdk.Dispose();
         }
-        
 
         private void consoleUpdateThreadWorker()
         {
@@ -1821,8 +1817,6 @@ namespace CrewChiefV4
         // called from the close callback on the main form
         private void stopApp(object sender, FormClosedEventArgs e)
         {
-            overlay?.Dispose();
-
             lock (MainWindow.instanceLock)
             {
                 MainWindow.instance = null;
