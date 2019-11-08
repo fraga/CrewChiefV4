@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CrewChiefV4.Events;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -116,7 +117,7 @@ namespace CrewChiefV4.GameState
                             currentGameState.SessionData.HasLeadChanged = true;
                         }
                         currentGameState.SessionData.LeaderSectorNumber = opponent.CurrentSectorNumber;
-                        if (opponent.JustEnteredPits && currentGameState.Now > nextLeaderPitMessageDue)
+                        if (opponent.JustEnteredPits && currentGameState.Now > nextLeaderPitMessageDue && currentGameState.Now > Strategy.nextOpponentPitExitWarningDue)
                         {
                             nextLeaderPitMessageDue = currentGameState.Now.AddSeconds(minSecondsBetweenOpponentPitMessages);
                             currentGameState.PitData.LeaderIsPitting = true;
@@ -148,7 +149,7 @@ namespace CrewChiefV4.GameState
                             currentGameState.SessionData.LapsDeltaFront = timeDelta.Item1;
                             currentGameState.SessionData.TimeDeltaFront = timeDelta.Item2;
                         }
-                        if (opponent.JustEnteredPits && currentGameState.Now > nextOpponentAheadPitMessageDue)
+                        if (opponent.JustEnteredPits && currentGameState.Now > nextOpponentAheadPitMessageDue && currentGameState.Now > Strategy.nextOpponentPitExitWarningDue)
                         {
                             nextOpponentAheadPitMessageDue = currentGameState.Now.AddSeconds(minSecondsBetweenOpponentPitMessages);
                             currentGameState.PitData.CarInFrontIsPitting = true;
@@ -180,7 +181,7 @@ namespace CrewChiefV4.GameState
                             currentGameState.SessionData.LapsDeltaBehind = timeDelta.Item1;
                             currentGameState.SessionData.TimeDeltaBehind = timeDelta.Item2;
                         }
-                        if (opponent.JustEnteredPits && currentGameState.Now > nextOpponentBehindPitMessageDue)
+                        if (opponent.JustEnteredPits && currentGameState.Now > nextOpponentBehindPitMessageDue && currentGameState.Now > Strategy.nextOpponentPitExitWarningDue)
                         {
                             nextOpponentBehindPitMessageDue = currentGameState.Now.AddSeconds(minSecondsBetweenOpponentPitMessages);
                             currentGameState.PitData.CarBehindIsPitting = true;

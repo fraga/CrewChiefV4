@@ -144,7 +144,7 @@ namespace CrewChiefV4.rFactor2
             this.suspensionDamageThresholds.Add(new CornerData.EnumWithThresholds(DamageLevel.DESTROYED, 1.0f, 2.0f));
         }
 
-        private int[] minimumSupportedVersionParts = new int[] { 3, 6, 0, 0 };
+        private int[] minimumSupportedVersionParts = new int[] { 3, 7, 0, 0 };
         public static bool pluginVerified = false;
         public override void versionCheck(Object memoryMappedFileStruct)
         {
@@ -361,9 +361,13 @@ namespace CrewChiefV4.rFactor2
                             var playerVehCapture = shared.extended.mSessionTransitionCapture.mScoringVehicles[playerVehIdx];
                             if (pgs.SessionData.OverallPosition != playerVehCapture.mPlace)
                             {
-                                Console.WriteLine(string.Format("Abrupt Session End: player position was updated after session end, updating from pos {0} to: {1}.",
+                                Console.WriteLine(string.Format("Abrupt Session End: player position was updated after session end, updating overall pos {0} to: {1}.",
                                     pgs.SessionData.OverallPosition, playerVehCapture.mPlace));
                                 pgs.SessionData.OverallPosition = playerVehCapture.mPlace;
+
+                                var cpBefore = pgs.SessionData.ClassPosition;
+                                pgs.sortClassPositions();
+                                Console.WriteLine($"Abrupt Session End: updating class position from {cpBefore} to: {pgs.SessionData.ClassPosition}.");
                             }
                         }
                         else
