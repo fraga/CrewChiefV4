@@ -369,7 +369,7 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
-Version 4.10.0.0: Added overlays for console output and telemetry charts. See Overlays section for more info.
+Version 4.10.0.1: Added overlays for console output and telemetry charts. See Overlays section for more info; some audio caching improvments; some minor tweaks and fixes; RF2 - new plugin 
 
 Version 4.9.11.3: Hotfix for app startup issues using nAudio where device names aren't unique
 
