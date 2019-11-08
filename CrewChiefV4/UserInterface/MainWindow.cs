@@ -18,6 +18,8 @@ using System.Diagnostics;
 using CrewChiefV4.commands;
 using CrewChiefV4.GameState;
 using CrewChiefV4.Events;
+using CrewChiefV4.Overlay;
+using iRSDKSharp;
 
 namespace CrewChiefV4
 {
@@ -143,6 +145,8 @@ namespace CrewChiefV4
         private bool internalBackgroundAudioRefresh = false;
         private bool internalSpeechRecognitionRefresh = false;
         public bool closedByCmdLineCommand = false;
+
+        public CrewChiefOverlayWindow overlay = null;
 
         // Allow trace playback on Release build.
         internal static bool profileMode = false;
@@ -818,7 +822,7 @@ namespace CrewChiefV4
                 if (dialogResult == DialogResult.Yes)
                     MainWindow.shouldSaveTrace = true;
             }
-
+            overlay?.Dispose();
             base.OnFormClosing(e);
             MacroManager.stop();
             saveConsoleOutputText();
@@ -1310,7 +1314,16 @@ namespace CrewChiefV4
             this.KeyDown += MainWindow_KeyDown;
 
             this.constructingWindow = false;
+            if (UserSettings.GetUserSettings().getBoolean("enable_overlay_window"))
+            {
+                overlay = new CrewChiefV4.Overlay.CrewChiefOverlayWindow();
+                overlay.Run();
+            }
+
+            //Thread.Sleep(1000);
+            //irsdk.Dispose();
         }
+        
 
         private void consoleUpdateThreadWorker()
         {
@@ -1651,7 +1664,7 @@ namespace CrewChiefV4
             backgroundVolumeSlider.Enabled = false;
         }
 
-        private void startApplicationButton_Click(object sender, EventArgs e)
+        public void startApplicationButton_Click(object sender, EventArgs e)
         {
             MainWindow.shouldSaveTrace = IsAppRunning;
 
@@ -1664,6 +1677,10 @@ namespace CrewChiefV4
             else
             {
                 ThreadManager.DoWatchStop(crewChief);
+            }
+            if (overlay != null)
+            {
+                overlay.OnStartApplication(this, new OverlayElementClicked(null));
             }
         }
 
@@ -1804,6 +1821,8 @@ namespace CrewChiefV4
         // called from the close callback on the main form
         private void stopApp(object sender, FormClosedEventArgs e)
         {
+            overlay?.Dispose();
+
             lock (MainWindow.instanceLock)
             {
                 MainWindow.instance = null;

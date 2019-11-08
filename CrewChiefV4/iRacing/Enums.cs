@@ -125,5 +125,20 @@ namespace CrewChiefV4.iRacing
 	    IDS_REASON_OUT_LOST_CONNECTION,
 	    IDS_REASON_OUT_EJECTED,
     }
+    public enum PitSvStatus
+    {
+        // status
+        irsdk_PitSvNone = 0,
+        irsdk_PitSvInProgress,
+        irsdk_PitSvComplete,
+
+        // errors
+        irsdk_PitSvTooFarLeft = 100,
+        irsdk_PitSvTooFarRight,
+        irsdk_PitSvTooFarForward,
+        irsdk_PitSvTooFarBack,
+        irsdk_PitSvBadAngle,
+        irsdk_PitSvCantFixThat,
+    };
 
 }

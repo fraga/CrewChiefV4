@@ -940,7 +940,9 @@
 			"timesInHundredths": true,
 			"useAmericanTerms": true,
 			"enabledMessageTypes": "ALL",
-			"allMembersAreRWD": true
+			"allMembersAreRWD": true,
+			"maxSafeWaterTemp": 135,
+			"maxSafeOilTemp": 140,
 		},
 		{
 			"carClassEnum": "ISI_STOCKCAR_2015",
@@ -948,7 +950,9 @@
 			"timesInHundredths": true,
 			"useAmericanTerms": true,
 			"enabledMessageTypes": "ALL",
-			"allMembersAreRWD": true
+			"allMembersAreRWD": true,
+			"maxSafeWaterTemp": 135,
+			"maxSafeOilTemp": 140,
 		},
 		{
 			"carClassEnum": "RADICAL_SR3",

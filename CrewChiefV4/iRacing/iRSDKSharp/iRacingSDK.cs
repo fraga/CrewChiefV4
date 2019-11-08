@@ -236,6 +236,19 @@ namespace iRSDKSharp
                             return data[0];
                         }
                     }
+                    else if(header.Name == "PlayerCarPitSvStatus")
+                    {
+                        PitSvStatus[] data = new PitSvStatus[count];
+                        FileMapView.ReadArray<PitSvStatus>(Header.Buffer + varOffset, data, 0, count);
+                        if (count > 1)
+                        {
+                            return data;
+                        }
+                        else
+                        {
+                            return data[0];
+                        }
+                    }
                     else if (header.Name == "SessionState")
                     {
                         return (SessionStates)FileMapView.ReadInt32(Header.Buffer + varOffset);
@@ -473,6 +486,15 @@ namespace iRSDKSharp
         public string unit;
     }
 
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
+    struct iRDiskSubHeader
+    {
+        long sessionStartDate;
+        double sessionStartTime;
+        double sessionEndTime;
+        int sessionLapCount;
+        int sessionRecordCount;
+    };
     //32 bytes
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
     public struct VarBuf

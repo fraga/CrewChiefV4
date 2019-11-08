@@ -1492,38 +1492,45 @@ namespace CrewChiefV4.Events
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOW_LONG_WILL_THESE_TYRES_LAST))
             {
-                Tuple<CornerData.Corners, float> maxWearPercent = getMaxWearPercent();
-                Console.WriteLine("Tyre life estimate, wear active = " + CrewChief.currentGameState.TyreData.TyreWearActive);
-                Console.WriteLine("Max wear is " + maxWearPercent.Item2 + "% on " + maxWearPercent.Item1);
-                if (CrewChief.gameDefinition.gameEnum == GameEnum.IRACING)
-                {
-                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
-                }
-                else if (maxWearPercent.Item2 < 1)
-                {
-                    audioPlayer.playMessageImmediately(new QueuedMessage(folderGoodWear, 0));
-                }
-                else if (maxWearPercent.Item2 < 5)
+                if (CrewChief.currentGameState == null)
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
                 }
                 else
                 {
-                    int remaining = CrewChief.currentGameState == null ? -1 : getRemainingTyreLife(CrewChief.currentGameState.SessionData.SessionRunningTime, maxWearPercent);
-                    if (remaining != -1)
+                    Tuple<CornerData.Corners, float> maxWearPercent = getMaxWearPercent();
+                    Console.WriteLine("Tyre life estimate, wear active = " + CrewChief.currentGameState.TyreData.TyreWearActive);
+                    Console.WriteLine("Max wear is " + maxWearPercent.Item2 + "% on " + maxWearPercent.Item1);
+                    if (CrewChief.gameDefinition.gameEnum == GameEnum.IRACING)
                     {
-                        if (lapsInSession > 0 || timeInSession == 0)
-                        {
-                            playEstimatedTypeLifeLaps(remaining, true);
-                        }
-                        else
-                        {
-                            playEstimatedTyreLifeMinutes(remaining, true);
-                        }
+                        audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                    }
+                    else if (maxWearPercent.Item2 < 1)
+                    {
+                        audioPlayer.playMessageImmediately(new QueuedMessage(folderGoodWear, 0));
+                    }
+                    else if (maxWearPercent.Item2 < 5)
+                    {
+                        audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
                     }
                     else
                     {
-                        audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                        int remaining = CrewChief.currentGameState == null ? -1 : getRemainingTyreLife(CrewChief.currentGameState.SessionData.SessionRunningTime, maxWearPercent);
+                        if (remaining != -1)
+                        {
+                            if (lapsInSession > 0 || timeInSession == 0)
+                            {
+                                playEstimatedTypeLifeLaps(remaining, true);
+                            }
+                            else
+                            {
+                                playEstimatedTyreLifeMinutes(remaining, true);
+                            }
+                        }
+                        else
+                        {
+                            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                        }
                     }
                 }
             }

@@ -1,0 +1,467 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
+using System.Windows.Forms.DataVisualization.Charting;
+using System.Linq;
+using CrewChiefV4.Events;
+
+namespace CrewChiefV4.Overlay
+{
+    public class ChartContainer
+    {
+        public string subscriptionId;
+        public byte[] data;
+        public ChartContainer(string subscriptionId, byte[] data)
+        {
+            this.subscriptionId = subscriptionId;
+            this.data = data;
+        }
+    }
+
+    public class Charts
+    {
+        private static Color[] colours = new Color[] {
+            Color.Green, Color.Red, Color.Purple, Color.Blue, Color.Cyan, Color.Orange, Color.Yellow,
+            Color.BlueViolet, Color.Brown, Color.DarkGreen, Color.Magenta, Color.LimeGreen, Color.SlateGray,
+            Color.HotPink, Color.DarkViolet, Color.PeachPuff, Color.YellowGreen, Color.RosyBrown, Color.SandyBrown
+        };
+
+        private static HashSet<Tuple<OverlaySubscription, SeriesMode>> activeSubscriptions = new HashSet<Tuple<OverlaySubscription, SeriesMode>>();
+
+        private static float y_min;
+        private static float y_max;
+        private static float x_min;
+
+        public static List<ChartContainer> createCharts(int width, int height, Boolean antiAliasing)
+        {
+            Color ForeColor = Color.FromArgb(CrewChiefOverlayWindow.colorScheme.fontColor.ToARGB());
+            Color BackColor = Color.FromArgb(CrewChiefOverlayWindow.colorScheme.backgroundColor.ToARGB());
+            List<ChartContainer> charts = new List<ChartContainer>();
+            // Display a single empty chart if there are no data to display istead of just a blank screen.
+            if (activeSubscriptions.Count == 0)
+            {
+                charts.Add(createChart(width, height, antiAliasing));
+                return charts;
+
+            }
+            HashSet<Tuple<OverlaySubscription, SeriesMode>> addedSubscriptions = new HashSet<Tuple<OverlaySubscription, SeriesMode>>();
+            foreach (var subscription in activeSubscriptions)
+            {
+                if (addedSubscriptions.Contains(subscription))
+                {
+                    continue;
+                }
+                addedSubscriptions.Add(subscription);
+
+                Charts.y_min = float.MaxValue;
+                Charts.y_max = float.MinValue;
+                ChartArea chartArea1 = new ChartArea();
+                chartArea1.BackColor = ForeColor;
+                chartArea1.AxisX.LabelStyle.ForeColor = ForeColor;
+                chartArea1.AxisY.LabelStyle.ForeColor = ForeColor;
+                chartArea1.AxisX.MajorGrid.LineColor = BackColor;
+                chartArea1.AxisY.MajorGrid.LineColor = BackColor;
+                chartArea1.AxisX.Minimum = 0;
+
+                Legend legend1 = new Legend();
+                legend1.ForeColor = ForeColor;
+                legend1.BackColor = BackColor;
+                Chart chart1 = new Chart();
+                ((System.ComponentModel.ISupportInitialize)(chart1)).BeginInit();
+                chart1.BackColor = BackColor;
+                chart1.ForeColor = ForeColor;
+                chartArea1.Name = "ChartArea1";
+                chart1.ChartAreas.Add(chartArea1);
+                chart1.Dock = System.Windows.Forms.DockStyle.Fill;
+                legend1.Name = "Legend1";
+                chart1.Legends.Add(legend1);
+                chart1.Location = new Point(0, 50);
+                chart1.Name = "chart1";
+                chart1.Size = new Size(width, height);
+                chart1.TabIndex = 0;
+                chart1.Text = "chart1";
+                chart1.AntiAliasing = antiAliasing ? AntiAliasingStyles.All : AntiAliasingStyles.Text;
+                ((System.ComponentModel.ISupportInitialize)(chart1)).EndInit();
+                chart1.Series.Clear();
+
+                string yAxisFormat = null;
+                List<Series> seriesList = new List<Series>();
+                seriesList.AddRange(createSeriesSet(subscription));
+                yAxisFormat = subscription.Item1.yAxisFormat;
+
+                //find matching best/last lap subscription 
+                foreach (var sub in activeSubscriptions.Where(s => s.Item1.fieldName == subscription.Item1.fieldName && s.Item2 != subscription.Item2))
+                {
+                    if (addedSubscriptions.Contains(sub))
+                    {
+                        continue;
+                    }
+                    seriesList.AddRange(createSeriesSet(sub));
+                    addedSubscriptions.Add(sub);
+                }
+
+                if (yAxisFormat == null)
+                {
+                    yAxisFormat = getYAxisFormat();
+                }
+                chartArea1.AxisY.LabelStyle.Format = yAxisFormat;
+                chartArea1.AxisX.LabelStyle.Format = "F0";
+                chartArea1.AxisX.Title = OverlayDataSource.xAxisType == X_AXIS_TYPE.DISTANCE ? "Distance (m)" : "Time (s)";
+                chartArea1.AxisX.TitleForeColor = ForeColor;
+                if (y_max <= y_min)
+                {
+                    Console.WriteLine("Data series is incomplete");
+                    y_max = y_min + 1;
+                }
+                chartArea1.AxisY.Maximum = y_max;
+                chartArea1.AxisY.Minimum = y_min;
+                chartArea1.AxisX.Minimum = x_min;
+                int colourIndex = 0;
+                foreach (Series series in seriesList)
+                {
+                    try
+                    {
+                        if (!chart1.Series.Contains(series))
+                        {
+                            if (series.Color == Color.White)
+                            {
+                                series.Color = colours[colourIndex];
+                                colourIndex++;
+                            }
+                            chart1.Series.Add(series);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Unable to add series " + series.Name + ": " + e.Message);
+                    }
+                }
+                chartArea1.InnerPlotPosition = new ElementPosition(7, 10, 70, 60);
+                chart1.Legends[0].Position = new ElementPosition(80, 0, 20, 100);
+                if (OverlayDataSource.sector1End > 0)
+                    chart1.Annotations.Add(createSectorAnnotation(chartArea1, 1, OverlayDataSource.sector1End));
+                if (OverlayDataSource.sector2End > 0)
+                    chart1.Annotations.Add(createSectorAnnotation(chartArea1, 2, OverlayDataSource.sector2End));
+                chart1.Invalidate();
+                charts.Add(new ChartContainer(subscription.Item2.ToString() + " " + subscription.Item1.id, GetByteArrayForChart(chart1)));
+            }
+            return charts;
+        }
+        
+        private static VerticalLineAnnotation createSectorAnnotation(ChartArea chartArea, int sectorNumber, float sectorPoint)
+        {
+            var sectorAnnotation = new VerticalLineAnnotation();
+            sectorAnnotation.AxisX = chartArea.AxisX;
+            sectorAnnotation.Name = "S" + sectorNumber;
+            sectorAnnotation.X = sectorPoint;
+            sectorAnnotation.LineColor = Color.Gray;
+            sectorAnnotation.LineDashStyle = ChartDashStyle.Dash;
+            sectorAnnotation.LineWidth = 2;
+            sectorAnnotation.IsInfinitive = true;
+            sectorAnnotation.ClipToChartArea = chartArea.Name;
+            return sectorAnnotation;
+        }
+
+        public static ChartContainer createChart(int width, int height, Boolean antiAliasing)
+        {
+            // TODO: this needs to be extended to allow the user to add a new chart to the chartArea, as well as adding
+            // a new series to an existing chart so we can have stacked charts. To support this we'll probably need some
+            // way of navigating between rendered charts ("select next chart"?), which will highlight one of the charts
+            // and allow series to be added and removed from it.
+            // Still need to work out the relationship between a chart and a chart area here
+            Color ForeColor = Color.FromArgb(CrewChiefOverlayWindow.colorScheme.fontColor.ToARGB());
+            Color BackColor = Color.FromArgb(CrewChiefOverlayWindow.colorScheme.backgroundColor.ToARGB());
+            Charts.y_min = float.MaxValue;
+            Charts.y_max = float.MinValue;
+            ChartArea chartArea1 = new ChartArea();
+            chartArea1.BackColor = ForeColor;
+            chartArea1.AxisX.LabelStyle.ForeColor = ForeColor;
+            chartArea1.AxisY.LabelStyle.ForeColor = ForeColor;
+            chartArea1.AxisX.MajorGrid.LineColor = BackColor;
+            chartArea1.AxisY.MajorGrid.LineColor = BackColor;
+            chartArea1.AxisX.Minimum = 0;
+            Legend legend1 = new Legend();
+            legend1.ForeColor = ForeColor;
+            legend1.BackColor = BackColor;
+            Chart chart1 = new Chart();
+            ((System.ComponentModel.ISupportInitialize)(chart1)).BeginInit();
+            chart1.BackColor = BackColor;
+            chart1.ForeColor = ForeColor;
+            chartArea1.Name = "ChartArea1";
+            chart1.ChartAreas.Add(chartArea1);
+            chart1.Dock = System.Windows.Forms.DockStyle.Fill;
+            legend1.Name = "Legend1";
+            chart1.Legends.Add(legend1);
+            chart1.Location = new Point(0, 50);
+            chart1.Name = "chart1";
+            chart1.Size = new Size(width, height);
+            chart1.TabIndex = 0;
+            chart1.Text = "chart1";
+            chart1.AntiAliasing = antiAliasing ? AntiAliasingStyles.All : AntiAliasingStyles.Text;
+            ((System.ComponentModel.ISupportInitialize)(chart1)).EndInit();
+            chart1.Series.Clear();
+
+            List<Series> seriesList = new List<Series>();
+            string yAxisFormat = null;
+            string compoundId = "";
+            Boolean addedFirst = false;
+            foreach (Tuple<OverlaySubscription, SeriesMode> subscription in Charts.activeSubscriptions)
+            {
+                if (subscription != null)
+                {
+                    seriesList.AddRange(createSeriesSet(subscription));
+                    if (addedFirst)
+                    {
+                        compoundId += ":";
+                    }
+                    compoundId += subscription.Item2.ToString() + " " + subscription.Item1.id;
+                    yAxisFormat = subscription.Item1.yAxisFormat;
+                }
+            }
+            if (y_max <= y_min)
+            {
+                Console.WriteLine("Data series is incomplete");
+                y_max = y_min + 1;
+            }
+            chartArea1.AxisY.Maximum = y_max;
+            chartArea1.AxisY.Minimum = y_min;
+            chartArea1.AxisX.Minimum = x_min;
+            if (yAxisFormat == null)
+            {
+                yAxisFormat = getYAxisFormat();
+            }
+            chartArea1.AxisY.LabelStyle.Format = yAxisFormat;
+            chartArea1.AxisX.LabelStyle.Format = "F0";
+            chartArea1.AxisX.Title = OverlayDataSource.xAxisType == X_AXIS_TYPE.DISTANCE ? "Distance (m)" : "Time (s)";
+            chartArea1.AxisX.TitleForeColor = ForeColor;
+            int colourIndex = 0;
+            foreach (Series series in seriesList)
+            {
+                try
+                {
+                    if (!chart1.Series.Contains(series))
+                    {
+                        if (series.Color == Color.White)
+                        {
+                            series.Color = colours[colourIndex];
+                            colourIndex++;
+                        }
+                        chart1.Series.Add(series);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Unable to add series " + series.Name + ": " + e.Message);
+                }
+            }
+            chartArea1.InnerPlotPosition = new ElementPosition(7, 10, 70, 60);
+            chart1.Legends[0].Position = new ElementPosition(80, 0, 20, 100);
+            if (OverlayDataSource.sector1End > 0)
+                chart1.Annotations.Add(createSectorAnnotation(chartArea1, 1, OverlayDataSource.sector1End));
+            if (OverlayDataSource.sector2End > 0)
+                chart1.Annotations.Add(createSectorAnnotation(chartArea1, 2, OverlayDataSource.sector2End));
+            chart1.Invalidate();
+            return new ChartContainer(compoundId, GetByteArrayForChart(chart1));
+        }
+
+        private static string getYAxisFormat()
+        {
+            if (y_max > 1000)
+            {
+                return "F0";
+            }
+            else if (y_max > 100)
+            {
+                return "F1";
+            }
+            else if (y_max > 1)
+            {
+                return "F2";
+            }
+            else if (y_max > 0.1)
+            {
+                return "F3";
+            }
+            else if (y_max > 0.01)
+            {
+                return "F4";
+            }
+            else
+            {
+                return "F5";
+            }
+        }
+
+        public static void clearSeries()
+        {
+            Charts.activeSubscriptions.Clear();
+        }
+
+        public static void addSeries(Tuple<OverlaySubscription, SeriesMode> subscription)
+        {
+            Charts.activeSubscriptions.Add(subscription);
+        }
+
+        public static void removeSeries(Tuple<OverlaySubscription, SeriesMode> subscription)
+        {
+            Charts.activeSubscriptions.Remove(subscription);
+        }
+
+        private static List<Series> createSeriesSet(Tuple<OverlaySubscription, SeriesMode> overlaySubscription)
+        {
+            if (overlaySubscription.Item1.isGroup)
+            {
+                List<Series> groupSeries = new List<Series>();
+                foreach (string id in overlaySubscription.Item1.groupMemberIds)
+                {
+                    OverlaySubscription subscription = OverlayDataSource.getOverlaySubscriptionForId(id);
+                    if (subscription != null)
+                    {
+                        // the series IDs in this set might point to other sets. TODO: do we need to prevent users creating cyclic sets here?
+                        groupSeries.AddRange(createSeriesSet(new Tuple<OverlaySubscription, SeriesMode>(subscription, overlaySubscription.Item2)));
+                    }
+                }
+                return groupSeries;
+            }
+            else
+            {
+                return createSeries(overlaySubscription);
+            }
+        }
+
+        private static List<Series> createSeries(Tuple<OverlaySubscription, SeriesMode> overlaySubscription)
+        {
+            List<Series> seriesList = new List<Series>();
+            List<Tuple<float, float[]>> data = OverlayDataSource.getDataForLap(overlaySubscription, OverlayController.sectorToShow);
+
+            // set up the axes from the first data point if we have one
+            if (data.Count > 0)
+            {
+                int bestLapColourIndex = 0;
+                int lastLapColourIndex = 0;
+                int opponentBestLapColourIndex = 0;
+                String laptimeString = "--:--:---";
+                switch (overlaySubscription.Item2)
+                {
+                    case SeriesMode.LAST_LAP:
+                        laptimeString = OverlayDataSource.getLapTimeForLastLapString();
+                        break;
+                    case SeriesMode.BEST_LAP:
+                        laptimeString = OverlayDataSource.getLapTimeForBestLapString();
+                        break;
+                    case SeriesMode.OPPONENT_BEST_LAP:
+                        if (OverlayDataSource.bestOpponentLap > 0)
+                        {
+                            laptimeString = OverlayDataSource.bestOpponentLapDriverName + "\n" + TimeSpan.FromSeconds(OverlayDataSource.bestOpponentLap).ToString(@"mm\:ss\.fff");
+                        }
+                        break;
+                }
+                OverlayDataSource.getLapTimeForBestLapString();
+                Boolean addedLaptime = false;
+                for (int i = 0; i < data[0].Item2.Length; i++)
+                {
+                    string name;
+                    if (!addedLaptime)
+                    {
+                        name = overlaySubscription.Item1.labels[0] + " " + Configuration.getUIString("chart_label_" + overlaySubscription.Item2) + ",\n" + laptimeString;
+                        addedLaptime = true;
+                    }
+                    else
+                    {
+                        name = overlaySubscription.Item1.labels[0] + " " + Configuration.getUIString("chart_label_" + overlaySubscription.Item2);
+                    }
+                    var series = new Series
+                    {
+                        Name = name,
+                        IsVisibleInLegend = true,
+                        IsXValueIndexed = false,
+                        ChartType = SeriesChartType.Line,
+                        /* white ==> needs to be auto-set*/
+                        Color = Color.White,
+                    };
+                    if (overlaySubscription.Item2 == SeriesMode.LAST_LAP && overlaySubscription.Item1.coloursLastLap.Count() > i)
+                    {
+                        try
+                        {
+                            series.Color = Color.FromName(overlaySubscription.Item1.coloursLastLap[lastLapColourIndex]);
+                        }
+                        catch (Exception) { }
+                        lastLapColourIndex++;
+                    }
+                    else if (overlaySubscription.Item2 == SeriesMode.BEST_LAP && overlaySubscription.Item1.coloursBestLap.Count() > i)
+                    {
+                        try
+                        {
+                            series.Color = Color.FromName(overlaySubscription.Item1.coloursBestLap[bestLapColourIndex]);
+                        }
+                        catch (Exception) { }
+                        bestLapColourIndex++;
+                    }
+                    else if (overlaySubscription.Item2 == SeriesMode.OPPONENT_BEST_LAP && overlaySubscription.Item1.coloursOpponentBestLap.Count() > i)
+                    {
+                        try
+                        {
+                            series.Color = Color.FromName(overlaySubscription.Item1.coloursOpponentBestLap[opponentBestLapColourIndex]);
+                        }
+                        catch (Exception) { }
+                        opponentBestLapColourIndex++;
+                    }
+                    bool autoScaleMin = true;
+                    bool autoScaleMax = true;
+                    if (overlaySubscription.Item1.yAxisMinScaling == YAxisScaling.MANUAL)
+                    {
+                        if (overlaySubscription.Item1.yMin < y_min)
+                        {
+                            y_min = overlaySubscription.Item1.yMin;
+                        }
+                        autoScaleMin = false;
+                    }
+                    if (overlaySubscription.Item1.yAxisMaxScaling == YAxisScaling.MANUAL)
+                    {
+                        if (overlaySubscription.Item1.yMax > y_max)
+                        {
+                            y_max = overlaySubscription.Item1.yMax;
+                        }
+                        autoScaleMax = false;
+                    }
+                    bool gotXMin = false;
+                    foreach (Tuple<float, float[]> overlayDataPoint in data)
+                    {
+                        if (!gotXMin)
+                        {
+                            x_min = overlayDataPoint.Item1;
+                            // special case for when we're at the start of the range - ensure the first X point is actually 0
+                            if (x_min < 10)
+                            {
+                                x_min = 0;
+                            }
+                            gotXMin = true;
+                        }
+                        if (autoScaleMax && overlayDataPoint.Item2[i] > y_max)
+                        {
+                            y_max = overlayDataPoint.Item2[i];
+                        }
+                        if (autoScaleMin && overlayDataPoint.Item2[i] < y_min)
+                        {
+                            y_min = overlayDataPoint.Item2[i];
+                        }
+                        series.Points.AddXY((float)overlayDataPoint.Item1, overlayDataPoint.Item2[i]);
+                    }
+                    seriesList.Add(series);
+                }
+            }
+            return seriesList;
+        }
+
+        // convert the chart obj to a rendered BMP in a byte[]
+        private static byte[] GetByteArrayForChart(Chart chart)
+        {
+            MemoryStream stream = new MemoryStream();
+            chart.SaveImage(stream, ChartImageFormat.Bmp);
+            byte[] bytes = stream.ToArray();
+            stream.Dispose();
+            return bytes;
+        }
+    }
+}

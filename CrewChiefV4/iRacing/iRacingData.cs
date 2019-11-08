@@ -25,13 +25,16 @@ namespace CrewChiefV4.iRacing
 			SessionInfoUpdate = sdk.Header.SessionInfoUpdate;
 			IsNewSession = isNewSession;
 			SessionTime = (System.Double)sdk.GetData("SessionTime");
-			SessionNum = (System.Int32)sdk.GetData("SessionNum");
+            SessionTick = (System.Int32)sdk.GetData("SessionTick");
+            SessionNum = (System.Int32)sdk.GetData("SessionNum");
 			SessionState = (CrewChiefV4.iRacing.SessionStates)sdk.GetData("SessionState");
             SessionFlags = (System.UInt32)sdk.GetData("SessionFlags");
 			SessionTimeRemain = (System.Double)sdk.GetData("SessionTimeRemain");
 			IsOnTrack = (System.Boolean)sdk.GetData("IsOnTrack");
-			IsReplayPlaying = (System.Boolean)sdk.GetData("IsReplayPlaying");
-			PlayerCarPosition = (System.Int32)sdk.GetData("PlayerCarPosition");
+            IsReplayPlaying = (System.Boolean)sdk.GetData("IsReplayPlaying");
+            IsDiskLoggingEnabled = (System.Boolean)sdk.GetData("IsDiskLoggingEnabled");
+            IsDiskLoggingActive = (System.Boolean)sdk.GetData("IsDiskLoggingActive");
+            PlayerCarPosition = (System.Int32)sdk.GetData("PlayerCarPosition");
 			PlayerTrackSurface = (CrewChiefV4.iRacing.TrackSurfaces)sdk.GetData("PlayerTrackSurface");
 			PlayerCarIdx = (System.Int32)sdk.GetData("PlayerCarIdx");
 			PlayerCarTeamIncidentCount = (System.Int32)sdk.GetData("PlayerCarTeamIncidentCount");
@@ -45,13 +48,19 @@ namespace CrewChiefV4.iRacing
 			CarIdxPosition = (System.Int32[])sdk.GetData("CarIdxPosition");
 			CarIdxClassPosition = (System.Int32[])sdk.GetData("CarIdxClassPosition");
 			OnPitRoad = (System.Boolean)sdk.GetData("OnPitRoad");
-			CarIdxRPM = (System.Single[])sdk.GetData("CarIdxRPM");
+            CarIdxSteer = (System.Single[])sdk.GetData("CarIdxSteer");
+            CarIdxRPM = (System.Single[])sdk.GetData("CarIdxRPM");
 			CarIdxGear = (System.Int32[])sdk.GetData("CarIdxGear");
-			Throttle = (System.Single)sdk.GetData("Throttle");
+            SteeringWheelAngle = (System.Single)sdk.GetData("SteeringWheelAngle");
+            Throttle = (System.Single)sdk.GetData("Throttle");
 			Brake = (System.Single)sdk.GetData("Brake");
 			Clutch = (System.Single)sdk.GetData("Clutch");
 			Gear = (System.Int32)sdk.GetData("Gear");
-			LapLastLapTime = (System.Single)sdk.GetData("LapLastLapTime");
+            RPM = (System.Single)sdk.GetData("RPM");
+            Lap = (System.Int32)sdk.GetData("Lap");
+            LapBestLap = (System.Int32)sdk.GetData("LapBestLap");
+            LapBestLapTime = (System.Single)sdk.GetData("LapBestLapTime");
+            LapLastLapTime = (System.Single)sdk.GetData("LapLastLapTime");
 			LapCurrentLapTime = (System.Single)sdk.GetData("LapCurrentLapTime");
 			Speed = (System.Single)sdk.GetData("Speed");
 			Yaw = (System.Single)sdk.GetData("Yaw");
@@ -97,7 +106,10 @@ namespace CrewChiefV4.iRacing
             PitSvFuel = (System.Single)sdk.GetData("PitSvFuel");
             PitRepairLeft = (System.Single)sdk.GetData("PitRepairLeft");
             PitOptRepairLeft = (System.Single)sdk.GetData("PitOptRepairLeft");
-		}
+            PlayerCarTowTime = (System.Single)sdk.GetData("PlayerCarTowTime");
+            PlayerCarInPitStall = (System.Boolean)sdk.GetData("PlayerCarInPitStall");
+            PlayerCarPitSvStatus = (CrewChiefV4.iRacing.PitSvStatus)sdk.GetData("PlayerCarPitSvStatus");
+        }
 		public iRacingData() {}
 		public System.Boolean IsNewSession;
 		public System.Int32 SessionInfoUpdate;
@@ -108,11 +120,16 @@ namespace CrewChiefV4.iRacing
 		/// Seconds since session start
 		/// <summary>
 		public System.Double SessionTime;
+        
+        /// <summary>
+        /// Current update number
+        /// <summary>
+        public System.Int32 SessionTick;
 
-		/// <summary>
-		/// Session number
-		/// <summary>
-		public System.Int32 SessionNum;
+        /// <summary>
+        /// Session number
+        /// <summary>
+        public System.Int32 SessionNum;
 
 		/// <summary>
 		/// Session state
@@ -139,10 +156,19 @@ namespace CrewChiefV4.iRacing
 		/// <summary>
 		public System.Boolean IsReplayPlaying;
 
-		/// <summary>
-		/// Players position in race
-		/// <summary>
-		public System.Int32 PlayerCarPosition;
+        /// <summary>
+        /// 0=disk based telemetry turned off  1=turned on
+        /// <summary>
+        public System.Boolean IsDiskLoggingEnabled;
+
+        /// <summary>
+        /// 0=disk based telemetry file not being written  1=being written
+        /// <summary>
+        public System.Boolean IsDiskLoggingActive;
+        /// <summary>
+        /// Players position in race
+        /// <summary>
+        public System.Int32 PlayerCarPosition;
 
 		/// <summary>
 		/// Players car track surface type
@@ -214,20 +240,28 @@ namespace CrewChiefV4.iRacing
 		/// <summary>
 		public System.Boolean OnPitRoad;
 
-		/// <summary>
-		/// Engine rpm by car index
-		/// <summary>
-		public System.Single[] CarIdxRPM;
+        /// <summary>
+        /// Steering wheel angle by car index
+        /// <summary
+        public System.Single[] CarIdxSteer;
+        /// <summary>
+        /// Engine rpm by car index
+        /// <summary>
+        public System.Single[] CarIdxRPM;
 
 		/// <summary>
 		/// -1=reverse  0=neutral  1..n=current gear by car index
 		/// <summary>
 		public System.Int32[] CarIdxGear;
 
-		/// <summary>
-		/// 0=off throttle to 1=full throttle
-		/// <summary>
-		public System.Single Throttle;
+        /// <summary>
+        /// Steering wheel angle
+        /// <summary>
+        public System.Single SteeringWheelAngle;
+        /// <summary>
+        /// 0=off throttle to 1=full throttle
+        /// <summary>
+        public System.Single Throttle;
 
 		/// <summary>
 		/// 0=brake released to 1=max pedal force
@@ -244,20 +278,35 @@ namespace CrewChiefV4.iRacing
 		/// <summary>
 		public System.Int32 Gear;
 
-		/// <summary>
-		/// Players best lap time
-		/// <summary>
-		public System.Single LapBestLapTime;
+        /// <summary>
+        /// Engine rpm
+        /// <summary>
+        public System.Single RPM;
+
+        /// <summary>
+        /// Laps started count
+        /// <summary>
+        public System.Int32 Lap;
+
+        /// <summary>
+        /// Players best lap time
+        /// <summary>
+        public System.Single LapBestLapTime;
 
 		/// <summary>
 		/// Players last lap time
 		/// <summary>
 		public System.Single LapLastLapTime;
 
-		/// <summary>
-		/// Estimate of players current lap time as shown in F3 box
-		/// <summary>
-		public System.Single LapCurrentLapTime;
+        /// <summary>
+        /// Players best lap number
+        /// <summary>
+        public System.Int32 LapBestLap;
+
+        /// <summary>
+        /// Estimate of players current lap time as shown in F3 box
+        /// <summary>
+        public System.Single LapCurrentLapTime;
 
 		/// <summary>
 		/// GPS vehicle speed
@@ -438,5 +487,20 @@ namespace CrewChiefV4.iRacing
         /// Time left for optional repairs if repairs are active
         /// <summary>
         public System.Single PitOptRepairLeft;
-	}
+
+        /// <summary>
+        /// Players car is being towed if time is greater than zero
+        /// <summary>
+        public System.Single PlayerCarTowTime;
+
+        /// <summary>
+        /// Players car is properly in there pitstall
+        /// <summary>
+        public System.Boolean PlayerCarInPitStall;
+
+        /// <summary>
+        /// Players car pit service status bits
+        /// <summary>
+        public CrewChiefV4.iRacing.PitSvStatus PlayerCarPitSvStatus;
+    }
 }

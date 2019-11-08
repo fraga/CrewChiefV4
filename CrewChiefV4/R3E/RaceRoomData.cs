@@ -308,9 +308,11 @@ namespace CrewChiefV4.RaceRoom
             public Double RearRollAngle;
 
             // Reserved data
+            public Double thirdSpringSuspensionDeflectionFront;
+            public Double thirdSpringSuspensionVelocityFront;
+            public Double thirdSpringSuspensionDeflectionRear;
+            public Double thirdSpringSuspensionVelocityRear;
             public Double Unused1;
-            public Double Unused2;
-            public Vector3<Double> Unused3;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]

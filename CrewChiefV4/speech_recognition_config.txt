@@ -328,6 +328,71 @@ HOW_MANY_INCIDENT_POINTS = how many incidents do i have:what's my incident count
 WHATS_THE_INCIDENT_LIMIT = what's the incident limit
 WHATS_THE_SOF = what's the sof:what is the strength of field
 
+
+
+#################################################
+# Overlay controls common to all datasets.
+# 
+#################################################
+HIDE_OVERLAY = hide overlay:close overlay
+HIDE_CONSOLE = hide console:close console
+HIDE_CHART = hide chart:close chart
+SHOW_OVERLAY = show overlay
+SHOW_CONSOLE = show console
+SHOW_CHART = show chart
+SHOW_All_OVERLAYS = show all overlays
+CLEAR_CHART = new chart:clear chart
+CLEAR_DATA = clear data
+REFRESH_CHART = refresh chart
+SHOW_STACKED_CHARTS = show stacked charts
+SHOW_SINGLE_CHART = show single chart
+SHOW_TIME = show time
+SHOW_DISTANCE = show distance
+# these are combined with the fragment from the data subscription - e.g.
+# 'chart, add best lap car speed'
+CHART_COMMAND_ADD = show me
+CHART_COMMAND_REMOVE = chart, remove
+CHART_COMMAND_BEST_LAP = best lap
+CHART_COMMAND_LAST_LAP = last lap
+CHART_COMMAND_OPPONENT_BEST_LAP = opponent best lap:opponent
+CHART_COMMAND_SHOW_SECTOR_1 = show sector one
+CHART_COMMAND_SHOW_SECTOR_2 = show sector two
+CHART_COMMAND_SHOW_SECTOR_3 = show sector three
+CHART_COMMAND_SHOW_ALL_SECTORS = show all sectors
+CHART_COMMAND_ZOOM_IN = zoom in
+CHART_COMMAND_ZOOM_OUT = zoom out
+CHART_COMMAND_RESET_ZOOM = reset zoom
+CHART_COMMAND_PAN_LEFT = pan left
+CHART_COMMAND_PAN_RIGHT = pan right
+CHART_COMMAND_SHOW_NEXT_LAP = show last lap
+CHART_COMMAND_SHOW_NEXT_LAP = show next lap
+CHART_COMMAND_SHOW_PREVIOUS_LAP = show previous lap
+
+
+# these are hard-coded standard chart command fragments for channels available to all games
+CHART_FRAGMENT_CAR_SPEED = car speed:speed
+CHART_FRAGMENT_ENGINE_REVS = engine revs:revs
+CHART_FRAGMENT_GEAR = gear
+CHART_FRAGMENT_BRAKE = brake:brake pressure
+CHART_FRAGMENT_THROTTLE = throttle:throttle position
+CHART_FRAGMENT_THROTTLE_GEAR_AND_BRAKE = throttle, brake and gear
+CHART_FRAGMENT_LF_INNER_TEMP = left front inner tyre temp:left front inner temp
+CHART_FRAGMENT_LF_MIDDLE_TEMP = left front middle tyre temp:left front middle temp
+CHART_FRAGMENT_LF_OUTER_TEMP = left front outer tyre temp:left front outer temp
+CHART_FRAGMENT_RF_INNER_TEMP = right front inner tyre temp:right front inner temp
+CHART_FRAGMENT_RF_MIDDLE_TEMP = right front middle tyre temp:right front middle temp
+CHART_FRAGMENT_RF_OUTER_TEMP = right front outer tyre temp:right front outer temp
+CHART_FRAGMENT_LR_INNER_TEMP = left rear inner tyre temp:left rear inner temp
+CHART_FRAGMENT_LR_MIDDLE_TEMP = left rear middle tyre temp:left rear middle temp
+CHART_FRAGMENT_LR_OUTER_TEMP = left rear outer tyre temp:left rear outer temp
+CHART_FRAGMENT_RR_INNER_TEMP = right rear inner tyre temp:right rear front inner temp
+CHART_FRAGMENT_RR_MIDDLE_TEMP = right rear middle tyre temp:right rear middle temp
+CHART_FRAGMENT_RR_OUTER_TEMP = right rear outer tyre temp:right rear outer temp
+CHART_FRAGMENT_LF_TEMPS = left front surface temps:left front temps
+CHART_FRAGMENT_RF_TEMPS = right front surface temps:right front temps
+CHART_FRAGMENT_LR_TEMPS = left rear surface temps:left rear temps
+CHART_FRAGMENT_RR_TEMPS = right rear surface temps:right rear temps
+
 #################################################
 # numbers - these are the text strings the voice recogniser will listen for (it's not good at listening for numeric characters)
 # These are used by the dynamic phrases, and are combined with the dynamic phrase fragments above

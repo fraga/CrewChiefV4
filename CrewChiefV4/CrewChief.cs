@@ -15,7 +15,7 @@ using CrewChiefV4.RaceRoom.RaceRoomData;
 using CrewChiefV4.Audio;
 using CrewChiefV4.NumberProcessing;
 using WebSocketSharp.Server;
-
+using CrewChiefV4.Overlay;
 
 namespace CrewChiefV4
 {
@@ -59,6 +59,10 @@ namespace CrewChiefV4
         private Boolean enableGameDataWebsocket = UserSettings.GetUserSettings().getBoolean("enable_game_data_websocket");
 
         private Boolean turnSpotterOffImmediatelyOnFCY = UserSettings.GetUserSettings().getBoolean("fcy_stop_spotter_immediately");
+
+        public static bool switchOffChartTelemetryDuringRace = UserSettings.GetUserSettings().getBoolean("disable_chart_telemetry_in_race_session");
+
+        public static int intervalWhenCollectionTelemetry = UserSettings.GetUserSettings().getInt("update_interval_when_collecting_telemetry");
 
         private static Dictionary<String, AbstractEvent> eventsList = new Dictionary<String, AbstractEvent>();
 
@@ -155,6 +159,8 @@ namespace CrewChiefV4
             CrewChief.spotterInterval = gameDefinition.gameEnum == GameEnum.IRACING ? IRACING_INTERVAL : UserSettings.GetUserSettings().getInt("spotter_update_interval");
             CrewChief.forceSingleClass = UserSettings.GetUserSettings().getBoolean("force_single_class");
             CrewChief.maxUnknownClassesForAC = UserSettings.GetUserSettings().getInt("max_unknown_car_classes_for_assetto");
+            CrewChief.intervalWhenCollectionTelemetry = UserSettings.GetUserSettings().getInt("update_interval_when_collecting_telemetry");
+            CrewChief.switchOffChartTelemetryDuringRace = UserSettings.GetUserSettings().getBoolean("disable_chart_telemetry_in_race_session");
         }
 
         private void clearAndReloadEvents()
@@ -183,6 +189,7 @@ namespace CrewChiefV4
             eventsList.Add("MulticlassWarnings", new MulticlassWarnings(audioPlayer));
             eventsList.Add("DriverSwaps", new DriverSwaps(audioPlayer));
             eventsList.Add("CommonActions", new CommonActions(audioPlayer));
+            eventsList.Add("OverlayController", new OverlayController(audioPlayer));
             sessionEndMessages = new SessionEndMessages(audioPlayer);
             alarmClock = new AlarmClock(audioPlayer);
         }
@@ -411,7 +418,7 @@ namespace CrewChiefV4
                 SpeechRecogniser.gotRecognitionResult = false;
                 SpeechRecogniser.keepRecognisingInHoldMode = false;
                 GameStateMapper gameStateMapper = GameStateReaderFactory.getInstance().getGameStateMapper(gameDefinition);
-                if (speechRecogniser != null) speechRecogniser.unloadGameSpecificGrammars();
+                if (speechRecogniser != null) speechRecogniser.unloadAdditionalGrammars();
                 gameStateMapper.setSpeechRecogniser(speechRecogniser);
                 gameDataReader = GameStateReaderFactory.getInstance().getGameStateReader(gameDefinition);
                 gameDataReader.ResetGameDataFromFile();
@@ -455,6 +462,13 @@ namespace CrewChiefV4
                 audioPlayer.startMonitor();
                 Boolean attemptedToRunGame = false;
 
+                OverlayDataSource.loadChartSubscriptions();
+                if (speechRecogniser != null)
+                {
+                    speechRecogniser.addOverlayGrammar();
+                }
+                bool useTelemetryIntervalWhereApplicable = CrewChief.gameDefinition.gameEnum != GameEnum.IRACING
+                    && UserSettings.GetUserSettings().getBoolean("enable_overlay_window");
                 Console.WriteLine("Polling for shared data every " + timeInterval + "ms");
                 Boolean sessionFinished = false;
                 while (running)
@@ -805,12 +819,25 @@ namespace CrewChiefV4
                     }
                     else
                     {
+                        // iracing runs at 60Hz anyway, but for other games if we're collecting telemetry for charting, use the 
+                        // appropriate time interval
+                        int interval = timeInterval;
+                        if (useTelemetryIntervalWhereApplicable
+                            && CrewChief.currentGameState != null 
+                            && (!switchOffChartTelemetryDuringRace || CrewChief.currentGameState.SessionData.SessionType != SessionType.Race))
+                        {
+                            interval = CrewChief.intervalWhenCollectionTelemetry;
+                        }
                         Thread.Sleep(timeInterval);
                     }
                 }
                 foreach (KeyValuePair<String, AbstractEvent> entry in eventsList)
                 {
-                    entry.Value.clearState();
+                    // don't clear the overlay controller here - temporary hack
+                    if (entry.Key != "OverlayController")
+                    {
+                        entry.Value.clearState();
+                    }
                 }
                 if (spotter != null)
                 {

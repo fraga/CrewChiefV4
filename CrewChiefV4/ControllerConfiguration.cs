@@ -293,6 +293,7 @@ namespace CrewChiefV4
             // if there is something in the default data file we want to add it, this is in case we want to add default button actions later on  
             ControllerConfigurationData defaultData = getControllerConfigurationDataFromFile(getDefaultControllerConfigurationDataFileLocation());
             ControllerConfigurationData controllerConfigurationData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
+
             var missingNewButtonMappings = builtInActionMappings.Where(builtIn => !controllerConfigurationData.buttonAssignments.Any(ba => ba.action == builtIn.Value));
 
             if (defaultData.buttonAssignments.Count > 0 || missingNewButtonMappings.Count() > 0) // app updated add, missing elements ?

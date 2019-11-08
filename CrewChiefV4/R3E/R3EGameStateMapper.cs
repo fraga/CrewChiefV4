@@ -150,6 +150,7 @@ namespace CrewChiefV4.RaceRoom
             CrewChiefV4.RaceRoom.R3ESharedMemoryReader.R3EStructWrapper wrapper = (CrewChiefV4.RaceRoom.R3ESharedMemoryReader.R3EStructWrapper)memoryMappedFileStruct;
             GameStateData currentGameState = new GameStateData(wrapper.ticksWhenRead);
             RaceRoomData.RaceRoomShared shared = wrapper.data;
+            currentGameState.rawGameData = wrapper;
 
             if (shared.ControlType == (int)RaceRoomConstant.Control.Replay)
             {

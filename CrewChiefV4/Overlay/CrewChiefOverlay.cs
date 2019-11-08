@@ -1,0 +1,892 @@
+﻿using CrewChiefV4.Events;
+using GameOverlay.Drawing;
+using GameOverlay.Windows;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Windows;
+using System.Windows.Forms;
+namespace CrewChiefV4.Overlay
+{
+
+    // TODO: split this call into an Overlay, a ChartOverlay and a ConsoleOverlay?
+    public enum RenderMode
+    {
+        CONSOLE, CHART, ALL
+    }
+    public enum ChartRenderMode
+    {
+        SINGLE, STACKED
+    }
+    public enum SeriesMode
+    {
+        LAST_LAP, BEST_LAP, OPPONENT_BEST_LAP
+    }
+    public class CrewChiefOverlayWindow
+    {
+        #region overlay settings
+        public static Color mousePissYellow = new Color(204, 182, 97, 200);
+        public static Color runningBottomBrown = new Color(18, 10, 0, 200);
+        private Boolean iRacingDiskTelemetryLogginEnabled = UserSettings.GetUserSettings().getBoolean("iracing_enable_disk_based_telemetry");
+        public class OverlaySettings
+        {
+            public class ColorScheme
+            {
+                [JsonConstructor]
+                public ColorScheme(string name, Color backgroundColor, Color fontColor)
+                {
+                    this.name = name;
+                    this.backgroundColor = backgroundColor;
+                    this.fontColor = fontColor;
+                }
+                public string name;
+                public Color backgroundColor;
+                public Color fontColor;
+            }
+            public int windowWidth = 800;
+            [JsonIgnore]
+            public int windowHeight = 10;
+            public int chartHeight = 130;
+            public int windowX = 0;
+            public int windowY = 20;
+            public int windowFPS = 30;
+            public bool vSync = false;
+            public int fontSize = 12;
+            public string fontName = "Microsoft Sans Serif"; // same as UI
+            public bool fontBold = false;
+            public bool fontItalic = false;
+            public int maxDisplayLines = 22;
+            public bool textAntiAliasing = true;
+            public float chartAlpha = 0.784313738f;
+            public string activeColorScheme = "CrewChief";
+            public bool antiAliasCharts = false;
+            public List<ColorScheme> colorSchemes = new List<ColorScheme>() { defaultCrewChiefColorScheme, windowsGrayColorScheme };
+
+            [JsonIgnore]
+            static readonly string overlayFileName = "crewchief_overlay.json";
+            [JsonIgnore]
+            public static ColorScheme defaultCrewChiefColorScheme = new ColorScheme("CrewChief", runningBottomBrown, new Color(204, 182, 97));
+            [JsonIgnore]
+            public static ColorScheme windowsGrayColorScheme = new ColorScheme("WindowsGray", Color.FromARGB(System.Drawing.Color.FromArgb(200, System.Drawing.Color.LightGray).ToArgb()), new Color(0, 0, 0));
+
+            public static OverlaySettings loadOverlaySetttings(bool forceDefault = false)
+            {
+                String path = System.IO.Path.Combine(Environment.GetFolderPath(
+                    Environment.SpecialFolder.MyDocuments), "CrewChiefV4", overlayFileName);
+                if (!File.Exists(path))
+                {
+                    saveOverlaySetttings(new OverlaySettings());
+                }
+                if (path != null)
+                {
+                    try
+                    {
+                        using (StreamReader r = new StreamReader(path))
+                        {
+                            string json = r.ReadToEnd();
+                            OverlaySettings data = JsonConvert.DeserializeObject<OverlaySettings>(json);
+                            if (data != null)
+                            {
+                                return data;
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Error pasing " + path + ": " + e.Message);
+                    }
+                }
+                return new OverlaySettings();
+            }
+            public static void saveOverlaySetttings(OverlaySettings settings)
+            {
+                String path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4");
+                if (!Directory.Exists(path))
+                {
+                    try
+                    {
+                        Directory.CreateDirectory(path);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Error creating " + path + ": " + e.Message);
+                    }
+                }
+                if (overlayFileName != null)
+                {
+                    try
+                    {
+                        using (StreamWriter file = File.CreateText(System.IO.Path.Combine(path, overlayFileName)))
+                        {
+                            JsonSerializer serializer = new JsonSerializer();
+                            serializer.Formatting = Newtonsoft.Json.Formatting.Indented;
+                            serializer.Serialize(file, settings);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Error parsing " + overlayFileName + ": " + e.Message);
+                    }
+                }
+            }
+        }
+        #endregion
+
+        private readonly GraphicsWindow overlayWindow;
+        private Font font;
+        private Font fontBold;
+        private SolidBrush fontBrush;
+        private SolidBrush backgroundBrush;
+        private SolidBrush transparentBrush;
+        private int cachedFirstVisibleChar = -1;
+        private static List<string> cachedVisibleLines = new List<string>();
+        public static OverlaySettings settings = null;
+        public static OverlaySettings.ColorScheme colorScheme = null;
+        public static OverlaySettings.ColorScheme colorSchemeTransparent = null;
+        public static Boolean createNewImage = true;
+
+        private Boolean cleared = true;
+        public static bool inputsEnabled = false;
+        public static bool keepWindowActiveBackUpOnClose = false;
+        public static int windowHeightBackUpOnClose = -1;
+
+        Dictionary<string, OverlayElement> overlayElements = new Dictionary<string, OverlayElement>();
+
+        private string tileBarName = "overlay_titlebar";
+        private string displayModeBoxName = "display_mode";
+        private string chartModeBoxName = "chart_mode";
+        private string overlayChartBoxName = "chart_container";
+        private string subscriptionModeBoxName = "subscription_mode";
+        private string availableSubscriptionBoxName = "available_subscription";
+        private string consoleBoxName = "console";
+        private string zoomAndPanBoxName = "zoom_pan";
+
+        private OverlayElement titleBar = null;
+        private OverlayElement consoleControlBox = null;
+        private OverlayElement displayModeControlBox = null;
+        private OverlayElement chartModeControlBox = null;
+        private OverlayElement subscriptionModeControlBox = null;
+        private OverlayElement availableSubscriptionControlBox = null;
+        private OverlayElement chartBox = null;
+        private OverlayElement zoomAndPanControlBox = null;
+        private OverlayElement startAppButton = null;
+
+        private bool showBestLap = false;
+        private bool showLastLap = false;
+        private bool showOpponentBestLap = false;
+
+        private GameEnum cachedGameEnum = GameEnum.UNKNOWN;
+
+        private int maxDisplayLines = 0;
+        private float consoleBoxHeight = 0;
+        float messuredFontHeight = 0;
+
+        private SynchronizationContext mainThreadContext = null;
+        public CrewChiefOverlayWindow()
+        {
+            mainThreadContext = SynchronizationContext.Current;
+            // initialize a new Graphics object
+            // GraphicsWindow will do the remaining initialization            
+            settings = OverlaySettings.loadOverlaySetttings();
+            colorScheme = settings.colorSchemes.FirstOrDefault(s => s.name == settings.activeColorScheme);
+            colorSchemeTransparent = new OverlaySettings.ColorScheme("transparent", Color.Transparent, mousePissYellow);
+            if (colorScheme == null)
+            {
+                colorScheme = OverlaySettings.defaultCrewChiefColorScheme;
+            }
+            var graphics = new Graphics
+            {
+                PerPrimitiveAntiAliasing = true,
+                TextAntiAliasing = settings.textAntiAliasing,
+                UseMultiThreadedFactories = false,
+                VSync = settings.vSync,
+                WindowHandle = IntPtr.Zero
+            };
+
+            // it is important to set the window to visible (and topmost) if you want to see it!
+            overlayWindow = new GraphicsWindow(graphics)
+            {
+                IsTopmost = true,
+                IsVisible = true,
+                IsAppWindow = UserSettings.GetUserSettings().getBoolean("make_overlay_app_window"),
+                FPS = settings.windowFPS,
+                X = settings.windowX,
+                Y = settings.windowY,
+                Width = settings.windowWidth,
+                Height = settings.windowHeight,
+                Title = "CrewChief Overlay",
+                ClassName = "CrewChief_Overlay",
+            };
+
+            overlayWindow.SetupGraphics += overlayWindow_SetupGraphics;
+            overlayWindow.DestroyGraphics += overlayWindow_DestroyGraphics;
+            overlayWindow.DrawGraphics += overlayWindow_DrawGraphics;
+
+        }
+
+        public void Dispose()
+        {
+            // you do not need to dispose the Graphics surface
+            overlayWindow.Dispose();
+        }
+
+        public void Initialize() { }
+
+        public void Run()
+        {
+            // creates the window and setups the graphics
+            overlayWindow.StartThread();
+        }
+        #region overlayWindow events
+        private void overlayWindow_SetupGraphics(object sender, SetupGraphicsEventArgs e)
+        {
+            var gfx = e.Graphics;
+
+            // creates a simple font with no additional style
+            try
+            {
+                font = gfx.CreateFont(settings.fontName, settings.fontSize, settings.fontBold, settings.fontItalic);
+                if (font == null)
+                {
+                    font = gfx.CreateFont("Arial", 12);
+                }
+                fontBold = gfx.CreateFont(settings.fontName, settings.fontSize, true, false);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error parsing " + settings.fontName + ": " + ex.Message);
+            }
+            fontBrush = gfx.CreateSolidBrush(colorScheme.fontColor);
+            backgroundBrush = gfx.CreateSolidBrush(colorScheme.backgroundColor);
+            transparentBrush = gfx.CreateSolidBrush(Color.Transparent);
+
+            titleBar = overlayElements[tileBarName] = new OverlayHeader(gfx, "CrewChief Overlay", fontBold, new Rect(0, 0, overlayWindow.Width, 20), colorScheme, overlayWindow, OnEnableUserInput);
+            titleBar.AddChildElement(new ElementCheckBox(gfx, "Enable Input", font, new Rect(202, 3, 14, 14), colorScheme));
+
+            maxDisplayLines = settings.maxDisplayLines == -1 || settings.maxDisplayLines > 22 ? 22 : settings.maxDisplayLines;
+            messuredFontHeight = font.MeasureString("Hello World", font.FontSize).Height;
+            consoleBoxHeight = messuredFontHeight * (maxDisplayLines);
+            consoleControlBox = overlayElements[consoleBoxName] = new ElementTextBox(gfx, consoleBoxName, font, new Rect(0, 20, overlayWindow.Width, consoleBoxHeight),
+                colorScheme, OnUpdateConsole, initialEnableState: false);
+
+            displayModeControlBox = overlayElements[displayModeBoxName] = new ElementGroupBox(gfx, displayModeBoxName, font, new Rect(0, 20, overlayWindow.Width, 22),
+                colorScheme, initialEnableState: false);
+            int offsetX = (int)displayModeControlBox.rectangle.X + 2;
+            int offsetY = (int)displayModeControlBox.rectangle.Y + 2;
+
+            startAppButton = displayModeControlBox.AddChildElement(new ElementButton(gfx, "Start App", font, new Rect(4, 2, 150, 16), colorScheme,
+                OnStartApplication));
+
+            displayModeControlBox.AddChildElement(new ElementRadioButton(gfx, "Show Telemetry Chart(s)", font, new Rect(offsetX + 200, 4, 14, 14), colorScheme,
+                OnShowCharts, isChecked: OverlayController.mode == RenderMode.CHART));
+            displayModeControlBox.AddChildElement(new ElementRadioButton(gfx, "Show Console", font, new Rect(offsetX + 400, 4, 14, 14), colorScheme,
+                OnShowConsole, isChecked: OverlayController.mode == RenderMode.CONSOLE));
+            displayModeControlBox.AddChildElement(new ElementRadioButton(gfx, "Show Both", font, new Rect(offsetX + 600, 4, 14, 14), colorScheme,
+                OnShowAll, isChecked: OverlayController.mode == RenderMode.ALL));
+
+            chartModeControlBox = overlayElements[chartModeBoxName] = new ElementGroupBox(gfx, chartModeBoxName, font, new Rect(0, 0, overlayWindow.Width, 20),
+                colorScheme, initialEnableState: false);
+            offsetX = (int)chartModeControlBox.rectangle.Left + 2;
+            offsetY = (int)chartModeControlBox.rectangle.Top + 2;
+            chartModeControlBox.AddChildElement(new ElementRadioButton(gfx, "Single Telemetry Chart", font, new Rect(offsetX, 2, 14, 14), colorScheme, OnShowSingleChart,
+                isChecked: OverlayController.chartRenderMode == ChartRenderMode.SINGLE));
+            chartModeControlBox.AddChildElement(new ElementRadioButton(gfx, "Stacked Telemetry Charts", font, new Rect(offsetX + 200, 2, 14, 14), colorScheme, OnShowStackedCharts,
+                isChecked: OverlayController.chartRenderMode == ChartRenderMode.STACKED));
+
+            subscriptionModeControlBox = overlayElements[subscriptionModeBoxName] = new ElementGroupBox(gfx, subscriptionModeBoxName, font, new Rect(0, 0, overlayWindow.Width, 38),
+                colorScheme, initialEnableState: false);
+            offsetX = (int)subscriptionModeControlBox.rectangle.Left + 2;
+            offsetY = (int)subscriptionModeControlBox.rectangle.Top + 2;
+            subscriptionModeControlBox.AddChildElement(new ElementCheckBox(gfx, "Show Last Lap", font, new Rect(offsetX, 2, 14, 14), colorScheme, OnShowLastLap, initialEnabled: true));
+            subscriptionModeControlBox.AddChildElement(new ElementCheckBox(gfx, "Show Best Lap", font, new Rect(offsetX + 200, 2, 14, 14), colorScheme, OnShowBestLap));
+            subscriptionModeControlBox.AddChildElement(new ElementCheckBox(gfx, "Show Opponent Best Lap", font, new Rect(offsetX + 400, 2, 14, 14), colorScheme, OnShowOpponentBestLap));
+
+            subscriptionModeControlBox.AddChildElement(new ElementRadioButton(gfx, "Show Full Lap", font, new Rect(offsetX, 20, 14, 14), colorScheme, OnSetSectorOrLap, 
+                OverlayController.sectorToShow == SectorToShow.ALL, "0"));
+            subscriptionModeControlBox.AddChildElement(new ElementRadioButton(gfx, "Show Sector 1", font, new Rect(offsetX + 200, 20, 14, 14), colorScheme, OnSetSectorOrLap, 
+                OverlayController.sectorToShow == SectorToShow.SECTOR_1, "1"));
+            subscriptionModeControlBox.AddChildElement(new ElementRadioButton(gfx, "Show Sector 2", font, new Rect(offsetX + 400, 20, 14, 14), colorScheme, OnSetSectorOrLap, 
+                OverlayController.sectorToShow == SectorToShow.SECTOR_2, "2"));
+            subscriptionModeControlBox.AddChildElement(new ElementRadioButton(gfx, "Show Sector 3", font, new Rect(offsetX + 600, 20, 14, 14), colorScheme, OnSetSectorOrLap, 
+                OverlayController.sectorToShow == SectorToShow.SECTOR_3, "3"));
+
+            zoomAndPanControlBox  = overlayElements[zoomAndPanBoxName] = new ElementGroupBox(gfx, zoomAndPanBoxName, font, new Rect(0, 0, overlayWindow.Width, 22),
+                colorScheme, initialEnableState: false);
+            zoomAndPanControlBox.AddChildElement(new ElementButton(gfx, "<< Previous Lap", font, new Rect(4, 2, 110, 16), colorScheme, ShowPreviousLap));
+            zoomAndPanControlBox.AddChildElement(new ElementButton(gfx, "Next Lap >>", font, new Rect(118, 2, 110, 16), colorScheme, ShowNextLap));
+            zoomAndPanControlBox.AddChildElement(new ElementButton(gfx, "Zoom In", font, new Rect(232, 2, 110, 16), colorScheme, OnZoomIn));
+            zoomAndPanControlBox.AddChildElement(new ElementButton(gfx, "Zoom Out", font, new Rect(346, 2, 110, 16), colorScheme, OnZoomOut));
+            zoomAndPanControlBox.AddChildElement(new ElementButton(gfx, "<< Pan Left", font, new Rect(460, 2, 110, 16), colorScheme, OnPanLeft));
+            zoomAndPanControlBox.AddChildElement(new ElementButton(gfx, "Pan Right >>", font, new Rect(574, 2, 110, 16), colorScheme,OnPanRight));
+            zoomAndPanControlBox.AddChildElement(new ElementButton(gfx, "Reset", font, new Rect(688, 2, 108, 16), colorScheme, OnReset));
+
+            availableSubscriptionControlBox = overlayElements[availableSubscriptionBoxName] = new ElementGroupBox(gfx, availableSubscriptionBoxName, font, new Rect(0, 0, overlayWindow.Width, 0),
+                colorScheme, initialEnableState: false);
+
+            chartBox = overlayElements[overlayChartBoxName] = new ElementGroupBox(gfx, overlayChartBoxName, font, new Rect(0, 0, settings.windowWidth, 0),
+                colorSchemeTransparent, initialEnableState: true);
+            overlayWindow.Resize(settings.windowWidth, (int)titleBar.rectangle.Bottom);
+
+            foreach (var element in overlayElements)
+            {
+                element.Value.initialize();
+            }
+            overlayWindow.OnWindowMessage += overlayWindow_OnWindowMessage;
+        }
+
+
+        private void overlayWindow_OnWindowMessage(object sender, OverlayWindowsMessage e)
+        {
+            try
+            {
+                foreach (var element in overlayElements)
+                {
+                    element.Value.OnWindowMessage(e.WindowMessage, e.wParam, e.lParam);
+                }
+            }
+            catch
+            {
+                // Swollow
+            }
+
+        }
+        private void overlayWindow_DrawGraphics(object sender, DrawGraphicsEventArgs e)
+        {
+            if (!OverlayController.shown)
+            {
+                if (!cleared)
+                {
+                    // if we call this.overlayWindow.Hide() here, this method won't be called again so we can't
+                    // unhide in this callback
+                    keepWindowActiveBackUpOnClose = inputsEnabled;
+                    windowHeightBackUpOnClose = overlayWindow.Height;
+                    e.Graphics.ClearScene(Color.Transparent);
+                    overlayWindow.Resize(0, 0);
+                    cleared = true;
+                }
+                return;
+            }
+            else
+            {
+                if (windowHeightBackUpOnClose != -1)
+                {
+                    overlayWindow.Resize(settings.windowWidth, windowHeightBackUpOnClose);
+                    windowHeightBackUpOnClose = -1;
+                }
+            }
+            cleared = false;
+            var gfx = e.Graphics;
+            int thisFrameWindowHeight = 0;
+            if (keepWindowActiveBackUpOnClose)
+            {
+                inputsEnabled = keepWindowActiveBackUpOnClose;
+                overlayWindow.ActivateWindow();
+                keepWindowActiveBackUpOnClose = false;
+            }
+
+            populateControlBox(gfx, cachedGameEnum != CrewChief.gameDefinition.gameEnum);
+            cachedGameEnum = CrewChief.gameDefinition.gameEnum;
+
+            // you do not need to call BeginScene() or EndScene()
+
+            gfx.ClearScene(Color.Transparent);
+
+            titleBar.updateInputs(overlayWindow.X, overlayWindow.Y);
+
+            foreach (var elements in overlayElements.Where(el => el.Value.elementEnabled && el.Value != chartBox))
+            {
+                thisFrameWindowHeight += (int)elements.Value.rectangle.Height;
+            }
+
+            if (OverlayController.mode == RenderMode.CHART || OverlayController.mode == RenderMode.ALL)
+            {
+                if (CrewChiefOverlayWindow.createNewImage)
+                {
+                    CreateNewImages(gfx);
+                    CrewChiefOverlayWindow.createNewImage = false;
+                }
+                chartBox.rectangle = new Rect(0, thisFrameWindowHeight, settings.windowWidth, chartBox.children.Count * settings.chartHeight);
+            }
+            else
+            {
+                chartBox.rectangle = new Rect(0, 0, settings.windowWidth, 0);
+            }
+
+            thisFrameWindowHeight += (int)chartBox.rectangle.Height;
+            if (thisFrameWindowHeight != overlayWindow.Height)
+            {
+                overlayWindow.Resize(settings.windowWidth, thisFrameWindowHeight);
+            }
+            foreach (var elements in overlayElements.Where(el => el.Value.elementEnabled && el.Value != chartBox))
+            {
+                elements.Value.drawElement();
+            }
+
+            if (OverlayController.mode == RenderMode.CHART || OverlayController.mode == RenderMode.ALL)
+            {
+                chartBox.drawElement();
+            }
+            if (inputsEnabled)
+            {
+                gfx.DrawRectangle(fontBrush, 0, 0, overlayWindow.Width, overlayWindow.Height, 2);
+            }
+        }
+        private void overlayWindow_DestroyGraphics(object sender, DestroyGraphicsEventArgs e)
+        {
+            // you may want to dispose any brushes, fonts or images
+        }
+        #endregion
+        public void CreateNewImages(Graphics gfx)
+        { 
+            int combinedImageHeight = 0;
+            if (OverlayController.chartRenderMode == ChartRenderMode.SINGLE)
+            {
+                if (chartBox.children.Count > 1)
+                {
+                    foreach (ElementImage child in chartBox.children.Where(el => el.GetType() == typeof(ElementImage)))
+                    {
+                        child.DisposeImage();
+                    }
+                    chartBox.children.Clear();
+                }
+                ChartContainer chartContainer = Charts.createChart(settings.windowWidth, settings.chartHeight, settings.antiAliasCharts);
+                if (chartBox.children.Count == 0)
+                {
+                    chartBox.AddChildElement(new ElementImage(gfx, chartContainer.subscriptionId, font, new Rect(0, combinedImageHeight, settings.windowWidth, settings.chartHeight),
+                        colorSchemeTransparent, OnElementMWheel: MouseWheelOnImage, OnElementMMButtonClicked: MouseMButtonOnImage,
+                        chartContainer: chartContainer, imageAlpha: settings.chartAlpha, outlined: true));
+                }
+                else
+                {
+                    ((ElementImage)chartBox.children[0]).UpdateImage(chartContainer, new GameOverlay.Drawing.Point(0, combinedImageHeight));
+                }
+            }
+            else
+            {
+                List<ChartContainer> chartContainers = Charts.createCharts(settings.windowWidth, settings.chartHeight, settings.antiAliasCharts);
+                var removedImages = chartBox.children.Where(c => !chartContainers.Any(cc => cc.subscriptionId == c.title && c.GetType() == typeof(ElementImage))).ToList();
+                foreach (ElementImage img in removedImages)
+                {
+                    img.DisposeImage();
+                    chartBox.children.Remove(img);
+                }
+                foreach (var chartContainer in chartContainers)
+                {
+                    ElementImage child = (ElementImage)chartBox.children.FirstOrDefault(c => c.title == chartContainer.subscriptionId);
+                    if (child != null)
+                    {
+                        child.UpdateImage(chartContainer, new GameOverlay.Drawing.Point(0, combinedImageHeight));
+                        combinedImageHeight += (int)settings.chartHeight;
+                    }
+                    else
+                    {
+                        chartBox.AddChildElement(new ElementImage(gfx, chartContainer.subscriptionId, font, new Rect(0, combinedImageHeight, settings.windowWidth, settings.chartHeight),
+                            colorSchemeTransparent, OnElementMWheel: MouseWheelOnImage, OnElementMMButtonClicked: MouseMButtonOnImage,
+                            chartContainer: chartContainer, imageAlpha: settings.chartAlpha, outlined: true));
+                        combinedImageHeight += (int)settings.chartHeight;
+                    }
+                }
+            }
+            
+        }
+        private void populateControlBox(Graphics graphics, bool gamedefinitionChanged = false)
+        {
+            lock (availableSubscriptionControlBox.children)
+            {
+                if (gamedefinitionChanged)
+                {
+                    availableSubscriptionControlBox.children.Clear();
+                }
+                if (availableSubscriptionControlBox.children.Count <= 0)
+                {
+                    int elementHeight = 17;
+                    int offsetX = ((int)availableSubscriptionControlBox.rectangle.Left + 2);
+                    int offsetY = 2;
+                    foreach (OverlaySubscription overlaySubscription in OverlayDataSource.getOverlaySubscriptions())
+                    {
+                        if (overlaySubscription.isDiskData && !iRacingDiskTelemetryLogginEnabled)
+                        {
+                            continue;
+                        }
+                        availableSubscriptionControlBox.AddChildElement(new ElementCheckBox(graphics, overlaySubscription.voiceCommandFragment, font, 
+                            new Rect(offsetX, offsetY, 14, 14), colorScheme, OnSubscribe, overlaySubscription.id));
+                        int count = (int)Math.Floor((double)settings.windowWidth / 200);
+                        if (availableSubscriptionControlBox.children.Count % count == 0)
+                        {
+                            offsetY += (int)elementHeight;
+                            offsetX = (int)availableSubscriptionControlBox.rectangle.Left + 2;
+                        }
+                        else
+                        {
+                            offsetX += 200;
+                        }
+                    }
+                    if (availableSubscriptionControlBox.children.Count > 0)
+                    {
+                        availableSubscriptionControlBox.rectangle.Height = offsetY + elementHeight;
+                        availableSubscriptionControlBox.rectangle.Y = chartModeControlBox.rectangle.Bottom;
+                        subscriptionModeControlBox.rectangle.Y = availableSubscriptionControlBox.rectangle.Bottom;
+                        zoomAndPanControlBox.rectangle.Y = subscriptionModeControlBox.rectangle.Bottom;
+                    }                        
+                    else
+                    {
+                        availableSubscriptionControlBox.rectangle.Height = 0;
+                        subscriptionModeControlBox.rectangle.Y = chartModeControlBox.rectangle.Bottom;
+                        zoomAndPanControlBox.rectangle.Y = subscriptionModeControlBox.rectangle.Bottom;
+                    }
+                }
+            }
+        }
+
+        private void UpdateElementsPosition()
+        {
+            if (consoleControlBox.elementEnabled && inputsEnabled)
+            {
+                consoleControlBox.rectangle.Y = displayModeControlBox.rectangle.Bottom;
+            }
+            else
+            {
+                consoleControlBox.rectangle.Y = titleBar.rectangle.Bottom;
+            }
+            if (chartModeControlBox.elementEnabled && consoleControlBox.elementEnabled)
+            {
+                chartModeControlBox.rectangle.Y = consoleControlBox.rectangle.Bottom;
+            }
+            else
+            {
+                chartModeControlBox.rectangle.Y = displayModeControlBox.rectangle.Bottom;
+            }
+            if(availableSubscriptionControlBox.children.Count > 0)
+            {
+                availableSubscriptionControlBox.rectangle.Y = chartModeControlBox.rectangle.Bottom;
+                subscriptionModeControlBox.rectangle.Y = availableSubscriptionControlBox.rectangle.Bottom;
+                zoomAndPanControlBox.rectangle.Y = subscriptionModeControlBox.rectangle.Bottom;
+            }
+            else
+            {
+                subscriptionModeControlBox.rectangle.Y = chartModeControlBox.rectangle.Bottom;
+                zoomAndPanControlBox.rectangle.Y = subscriptionModeControlBox.rectangle.Bottom;
+                availableSubscriptionControlBox.rectangle.Y = zoomAndPanControlBox.rectangle.Bottom;
+            }
+        }
+
+        #region overlay element events
+        public void OnStartApplication(object sender, OverlayElementClicked e)
+        {
+            if (sender.GetType() == typeof(ElementButton))
+            {
+                lock (MainWindow.instanceLock)
+                {
+                    if (MainWindow.instance != null)
+                    {
+                        mainThreadContext.Post(delegate
+                        {
+                            MainWindow.instance.startApplicationButton_Click(this, new EventArgs());
+                        }, null);
+                    }
+                }
+            }
+            else
+            {
+                if (startAppButton.title == "Start App")
+                {
+                    startAppButton.title = "Stop App";
+                }
+                else
+                {
+                    startAppButton.title = "Start App";
+                }
+            }
+        }
+        private void OnUpdateConsole(object sender, OverlayElementDrawUpdate e)
+        {
+            lock (MainWindow.instance.consoleTextBox)
+            {
+                RichTextBox textBox = MainWindow.instance.consoleTextBox;
+                int firstVisibleChar = textBox.GetCharIndexFromPosition(new System.Drawing.Point(0, 0));
+                if (cachedFirstVisibleChar != firstVisibleChar)
+                {
+                    cachedFirstVisibleChar = firstVisibleChar;
+                    int firstVisibleLine = textBox.GetLineFromCharIndex(firstVisibleChar);
+                    int lastVisibleChar = textBox.GetCharIndexFromPosition(new System.Drawing.Point(0, textBox.ClientSize.Height - textBox.Font.Height)); // Skip Last line(Caret)
+                    int lastVisibleLine = textBox.GetLineFromCharIndex(lastVisibleChar) + 1;
+                    int count = (lastVisibleLine) - firstVisibleLine;
+                    try
+                    {
+                        if (count > 0 && (firstVisibleLine + count) <= textBox.Lines.Length - 1)
+                        {
+                            List<string> visibleLines = textBox.Lines.ToList().GetRange(firstVisibleLine, count);
+                            cachedVisibleLines = visibleLines.Skip((visibleLines.Count) - maxDisplayLines).ToList();
+                            //string lineLen = cachedVisibleLines.Aggregate("", (max, cur) => max.Length > cur.Length ? max : cur);                                                                                    
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error in ConsoleOverlay: {ex.Message}");
+                    }
+                }
+            }
+            var lineOffsetY = e.rect.Top;
+            foreach (var line in cachedVisibleLines)
+            {
+                e.graphics.DrawText(font, fontBrush, e.rect.Left, lineOffsetY, line);
+                lineOffsetY += messuredFontHeight;
+            }
+        }
+        private void OnShowSingleChart(object sender, OverlayElementClicked e)
+        {
+            OverlayController.chartRenderMode = ChartRenderMode.SINGLE;
+            CrewChiefOverlayWindow.createNewImage = true;
+        }
+        private void OnShowStackedCharts(object sender, OverlayElementClicked e)
+        {
+            OverlayController.chartRenderMode = ChartRenderMode.STACKED;
+            CrewChiefOverlayWindow.createNewImage = true;
+        }
+        private void OnShowCharts(object sender, OverlayElementClicked e)
+        {
+            OverlayController.mode = RenderMode.CHART;
+            consoleControlBox.elementEnabled = false;
+            if (inputsEnabled)
+            {
+                chartModeControlBox.elementEnabled = true;
+                subscriptionModeControlBox.elementEnabled = true;
+                availableSubscriptionControlBox.elementEnabled = true;
+                zoomAndPanControlBox.elementEnabled = true;
+            }
+            CrewChiefOverlayWindow.createNewImage = true;
+            UpdateElementsPosition();
+        }
+        private void OnShowConsole(object sender, OverlayElementClicked e)
+        {
+            OverlayController.mode = RenderMode.CONSOLE;
+            chartModeControlBox.elementEnabled = false;
+            subscriptionModeControlBox.elementEnabled = false;
+            availableSubscriptionControlBox.elementEnabled = false;
+            zoomAndPanControlBox.elementEnabled = false;
+            consoleControlBox.elementEnabled = true;
+            UpdateElementsPosition();
+        }
+        private void OnShowAll(object sender, OverlayElementClicked e)
+        {
+            OverlayController.mode = RenderMode.ALL;
+            consoleControlBox.elementEnabled = true;
+            if (inputsEnabled)
+            {
+                chartModeControlBox.elementEnabled = true;
+                subscriptionModeControlBox.elementEnabled = true;
+                availableSubscriptionControlBox.elementEnabled = true;
+                zoomAndPanControlBox.elementEnabled = true;
+            }
+            CrewChiefOverlayWindow.createNewImage = true;
+            UpdateElementsPosition();
+        }
+
+        private void OnSubscribe(object sender, OverlayElementClicked e)
+        {
+            foreach (OverlaySubscription overlaySubscription in OverlayDataSource.getOverlaySubscriptions())
+            {
+                if (overlaySubscription.id == e.subscriptionDataField)
+                {
+                    CrewChiefOverlayWindow.createNewImage = true;
+                    if (!OverlayController.shown)
+                    {
+                        OverlayController.mode = RenderMode.CHART;
+                        OverlayController.shown = true;
+                    }
+                    else if (OverlayController.mode == RenderMode.CONSOLE)
+                    {
+                        OverlayController.mode = RenderMode.ALL;
+                    }
+                    if (e.enabled)
+                    {
+                        if (showLastLap)
+                            Charts.addSeries(new Tuple<OverlaySubscription, SeriesMode>(overlaySubscription, SeriesMode.LAST_LAP));
+                        if (showBestLap)
+                            Charts.addSeries(new Tuple<OverlaySubscription, SeriesMode>(overlaySubscription, SeriesMode.BEST_LAP));
+                        if (showOpponentBestLap && overlaySubscription.opponentDataFieldname != null)
+                        {
+                            Charts.addSeries(new Tuple<OverlaySubscription, SeriesMode>(overlaySubscription, SeriesMode.OPPONENT_BEST_LAP));
+                        }
+                    }
+                    else
+                    {
+                        if (showLastLap)
+                            Charts.removeSeries(new Tuple<OverlaySubscription, SeriesMode>(overlaySubscription, SeriesMode.LAST_LAP));
+                        if (showBestLap)
+                            Charts.removeSeries(new Tuple<OverlaySubscription, SeriesMode>(overlaySubscription, SeriesMode.BEST_LAP));
+                        if (showOpponentBestLap && overlaySubscription.opponentDataFieldname != null)
+                        {
+                            Charts.removeSeries(new Tuple<OverlaySubscription, SeriesMode>(overlaySubscription, SeriesMode.OPPONENT_BEST_LAP));
+                        }
+                    }
+                }
+            }
+        }
+
+        // enable user inputs plan is to add the available subscriptins for the current selected/played game here.
+        private void OnEnableUserInput(object sender, OverlayElementClicked e)
+        {
+            CrewChiefOverlayWindow.inputsEnabled = e.enabled;
+            if (CrewChiefOverlayWindow.inputsEnabled)
+            {
+                populateControlBox(e.graphics);
+                displayModeControlBox.elementEnabled = true;
+                if (OverlayController.mode == RenderMode.CHART || OverlayController.mode == RenderMode.ALL)
+                {
+                    chartModeControlBox.elementEnabled = true;
+                    subscriptionModeControlBox.elementEnabled = true;
+                    availableSubscriptionControlBox.elementEnabled = true;
+                    zoomAndPanControlBox.elementEnabled = true;
+                }
+
+                this.overlayWindow.ActivateWindow();
+            }
+            else
+            {
+                displayModeControlBox.elementEnabled = false;
+                chartModeControlBox.elementEnabled = false;
+                subscriptionModeControlBox.elementEnabled = false;
+                availableSubscriptionControlBox.elementEnabled = false;
+                zoomAndPanControlBox.elementEnabled = false;
+                this.overlayWindow.DeActivateWindow();
+            }
+            UpdateElementsPosition();
+        }
+
+        private void OnShowBestLap(object sender, OverlayElementClicked e)
+        {
+            showBestLap = !showBestLap;
+            foreach (ElementCheckBox control in availableSubscriptionControlBox.children.Where(c => c.GetType() == typeof(ElementCheckBox)))
+            {
+                var overlaySubscription = OverlayDataSource.getOverlaySubscriptionForId(control.subscriptionDataField);
+                if (control.enabled && overlaySubscription != null && showBestLap)
+                {
+                    Charts.addSeries(new Tuple<OverlaySubscription, SeriesMode>(overlaySubscription, SeriesMode.BEST_LAP));
+                }
+                else if (overlaySubscription != null && !showBestLap && control.enabled)
+                {
+                    Charts.removeSeries(new Tuple<OverlaySubscription, SeriesMode>(overlaySubscription, SeriesMode.BEST_LAP));
+                }
+            }
+            CrewChiefOverlayWindow.createNewImage = true;
+        }
+        private void OnShowLastLap(object sender, OverlayElementClicked e)
+        {
+            showLastLap = !showLastLap;
+            foreach (ElementCheckBox control in availableSubscriptionControlBox.children.Where(c => c.GetType() == typeof(ElementCheckBox)))
+            {
+                var overlaySubscription = OverlayDataSource.getOverlaySubscriptionForId(control.subscriptionDataField);
+                if (control.enabled && overlaySubscription != null && showLastLap)
+                {
+                    Charts.addSeries(new Tuple<OverlaySubscription, SeriesMode>(overlaySubscription, SeriesMode.LAST_LAP));
+                }
+                else if (overlaySubscription != null && !showLastLap && control.enabled)
+                {
+                    Charts.removeSeries(new Tuple<OverlaySubscription, SeriesMode>(overlaySubscription, SeriesMode.LAST_LAP));
+                }
+            }
+            CrewChiefOverlayWindow.createNewImage = true;
+        }
+        private void OnShowOpponentBestLap(object sender, OverlayElementClicked e)
+        {
+            showOpponentBestLap = !showOpponentBestLap;
+            foreach (ElementCheckBox control in availableSubscriptionControlBox.children.Where(c => c.GetType() == typeof(ElementCheckBox)))
+            {
+                var overlaySubscription = OverlayDataSource.getOverlaySubscriptionForId(control.subscriptionDataField);
+                if (overlaySubscription == null || overlaySubscription.opponentDataFieldname == null)
+                {
+                    continue;
+                }
+                if (control.enabled && showOpponentBestLap)
+                {
+                    Charts.addSeries(new Tuple<OverlaySubscription, SeriesMode>(overlaySubscription, SeriesMode.OPPONENT_BEST_LAP));
+                }
+                else if (!showOpponentBestLap && control.enabled)
+                {
+                    Charts.removeSeries(new Tuple<OverlaySubscription, SeriesMode>(overlaySubscription, SeriesMode.OPPONENT_BEST_LAP));
+                }
+            }
+            CrewChiefOverlayWindow.createNewImage = true;
+        }
+        private void MouseWheelOnImage(object sender, OverlayElementMouseWheel e)
+        {
+            if (e.UpDown < 0)
+            {
+                OverlayController.zoomOut();
+            }
+            else
+            {
+                OverlayController.zoomIn();
+            }
+        }
+        private void OnZoomIn(object sender, OverlayElementClicked e)
+        {
+            OverlayController.zoomIn();
+        }
+        private void OnZoomOut(object sender, OverlayElementClicked e)
+        {
+            OverlayController.zoomOut();
+        }
+        private void OnPanLeft(object sender, OverlayElementClicked e)
+        {
+            OverlayController.panLeft();
+        }
+        private void OnPanRight(object sender, OverlayElementClicked e)
+        {
+            OverlayController.panRight();
+        }
+        private void ShowNextLap(object sender, OverlayElementClicked e)
+        {
+            OverlayController.showNextLap();
+        }
+        private void ShowPreviousLap(object sender, OverlayElementClicked e)
+        {
+            OverlayController.showPreviousLap();
+        }
+        private void OnReset(object sender, OverlayElementClicked e)
+        {
+            OverlayController.resetZoom();
+            foreach (ElementRadioButton rb in subscriptionModeControlBox.children.Where(dm => dm.GetType() == typeof(ElementRadioButton)))
+            {
+                if (rb.title == "Show Full Lap")
+                {
+                    rb.enabled = true;
+                }
+                else
+                {
+                    rb.enabled = false;
+                }
+            }
+        }
+        private void MouseMButtonOnImage(object sender, OverlayElementClicked e)
+        {
+            OnReset(sender, null);
+        }
+        private void OnSetSectorOrLap(object sender, OverlayElementClicked e)
+        {
+            if (e.subscriptionDataField == "0")
+            {
+                OverlayController.showSector(SectorToShow.ALL);
+            }
+            if (e.subscriptionDataField == "1")
+            {
+                OverlayController.showSector(SectorToShow.SECTOR_1);
+            }
+            if (e.subscriptionDataField == "2")
+            {
+                OverlayController.showSector(SectorToShow.SECTOR_2);
+            }
+            if (e.subscriptionDataField == "3")
+            {
+                OverlayController.showSector(SectorToShow.SECTOR_3);
+            }
+        }
+        #endregion
+    }
+
+}
+

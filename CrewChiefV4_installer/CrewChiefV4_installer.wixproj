@@ -69,10 +69,14 @@
     <Exec Command="copy ..\CrewChiefV4\bin\$(Configuration)\SharpDX.dll ..\CrewChiefV4\bin\PublishedComponents\SharpDX.dll" />
     <Exec Command="copy ..\CrewChiefV4\bin\$(Configuration)\websocket-sharp.dll ..\CrewChiefV4\bin\PublishedComponents\websocket-sharp.dll" />
     <Exec Command="copy ..\CrewChiefV4\bin\$(Configuration)\Microsoft.Speech.dll ..\CrewChiefV4\bin\PublishedComponents\Microsoft.Speech.dll" />
-    <Exec Command="copy ..\CrewChiefV4\carClassData.json ..\CrewChiefV4\bin\PublishedComponents\carClassData.json" />
+	<Exec Command="copy ..\CrewChiefV4\bin\$(Configuration)\GameOverlay.dll ..\CrewChiefV4\bin\PublishedComponents\GameOverlay.dll" />
+    <Exec Command="copy ..\CrewChiefV4\bin\$(Configuration)\SharpDX.Direct2D1.dll ..\CrewChiefV4\bin\PublishedComponents\SharpDX.Direct2D1.dll" />
+	<Exec Command="copy ..\CrewChiefV4\bin\$(Configuration)\SharpDX.DXGI.dll ..\CrewChiefV4\bin\PublishedComponents\SharpDX.DXGI.dll" />	
+	<Exec Command="copy ..\CrewChiefV4\carClassData.json ..\CrewChiefV4\bin\PublishedComponents\carClassData.json" />
     <Exec Command="copy ..\CrewChiefV4\controllerConfigurationData.json ..\CrewChiefV4\bin\PublishedComponents\controllerConfigurationData.json" />
     <Exec Command="copy ..\CrewChiefV4\saved_command_macros.json ..\CrewChiefV4\bin\PublishedComponents\saved_command_macros.json" />
-    <Exec Command="copy ..\CrewChiefV4\sounds_config.txt ..\CrewChiefV4\bin\PublishedComponents\sounds_config.txt" />
+	<Exec Command="copy ..\CrewChiefV4\chart_subscriptions.json ..\CrewChiefV4\bin\PublishedComponents\chart_subscriptions.json" />    
+	<Exec Command="copy ..\CrewChiefV4\sounds_config.txt ..\CrewChiefV4\bin\PublishedComponents\sounds_config.txt" />
     <Exec Command="copy ..\CrewChiefV4\speech_recognition_config.txt ..\CrewChiefV4\bin\PublishedComponents\speech_recognition_config.txt" />
     <Exec Command="copy ..\CrewChiefV4\trackLandmarksData.json ..\CrewChiefV4\bin\PublishedComponents\trackLandmarksData.json" />
     <Exec Command="copy ..\CrewChiefV4\ui_text.txt ..\CrewChiefV4\bin\PublishedComponents\ui_text.txt" />

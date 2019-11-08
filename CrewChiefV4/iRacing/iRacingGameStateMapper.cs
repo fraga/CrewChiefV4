@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CrewChiefV4.GameState;
 using CrewChiefV4.Events;
 using System.Diagnostics;
+using CrewChiefV4.Overlay;
 
 namespace CrewChiefV4.iRacing
 {
@@ -41,7 +42,8 @@ namespace CrewChiefV4.iRacing
         private DateTime lastTimeEngineFuelPressureWarning = DateTime.MaxValue;
 
         private readonly bool enableFCYPitStateMessages = UserSettings.GetUserSettings().getBoolean("enable_iracing_pit_state_during_fcy");
-        private Boolean invalidateCutTrackLaps = UserSettings.GetUserSettings().getBoolean("iracing_invalidate_cut_track_laps");              
+        private Boolean invalidateCutTrackLaps = UserSettings.GetUserSettings().getBoolean("iracing_invalidate_cut_track_laps");
+        
         class PendingRacePositionChange
         {
             public int newPosition;
@@ -61,6 +63,7 @@ namespace CrewChiefV4.iRacing
             } 
             CrewChiefV4.iRacing.iRacingSharedMemoryReader.iRacingStructWrapper wrapper = (CrewChiefV4.iRacing.iRacingSharedMemoryReader.iRacingStructWrapper)memoryMappedFileStruct;
             GameStateData currentGameState = new GameStateData(wrapper.ticksWhenRead);
+            currentGameState.rawGameData = wrapper;
             Sim shared = wrapper.data;
 
             if (shared.Telemetry.IsReplayPlaying)
@@ -696,8 +699,8 @@ namespace CrewChiefV4.iRacing
 
             currentGameState.PitData.IsTeamRacing = shared.SessionData.IsTeamRacing;
 
-            currentGameState.SessionData.IsNewLap = playerCar.Live.IsNewLap;
-            currentGameState.SessionData.IsNewSector = currentGameState.SessionData.SectorNumber != currentSector && currentSector != 1 || currentGameState.SessionData.IsNewLap;
+            currentGameState.SessionData.IsNewLap = playerCar.Live.IsNewLap && !(currentGameState.PitData.JumpedToPits || playerCar.Live.TrackSurface == TrackSurfaces.NotInWorld);
+            currentGameState.SessionData.IsNewSector = (currentGameState.SessionData.SectorNumber != currentSector && currentSector != 1 || currentGameState.SessionData.IsNewLap) && !(currentGameState.PitData.JumpedToPits || playerCar.Live.TrackSurface == TrackSurfaces.NotInWorld);
 
             if (previousGameState != null)
             {
@@ -720,7 +723,7 @@ namespace CrewChiefV4.iRacing
                         currentGameState.carClass = CarData.getCarClassForIRacingId(playerCar.Car.CarClassId, playerCar.Car.CarId);
                     }
                 }
-                else if ((currentSector == 2 || currentSector == 3) && playerCar.Live.Lap > 0)
+                else if ((currentSector == 2 || currentSector == 3) && playerCar.Live.Lap > 0 && !currentGameState.PitData.JumpedToPits)
                 {
                     currentGameState.SessionData.playerAddCumulativeSectorData(currentSector - 1, currentGameState.SessionData.OverallPosition, shared.Telemetry.LapCurrentLapTime,
                         currentGameState.SessionData.SessionRunningTime, currentGameState.SessionData.CurrentLapIsValid && !currentGameState.PitData.JumpedToPits, false, shared.Telemetry.TrackTempCrew, shared.Telemetry.AirTemp);
@@ -951,12 +954,12 @@ namespace CrewChiefV4.iRacing
                             currentOpponentData.iRating = driver.IRating;
 
                             updateOpponentData(currentOpponentData, driverName, driver.CustId, currentOpponentOverallPosition, currentOpponentLapsCompleted,
-                                        currentOpponentSector, (float)driver.Live.LapTimePrevious, hasCrossedSFLine,
+                                        currentOpponentSector, (float)driver.Live.LapTimePrevious, driver.Live.Gear,driver.Live.Rpm,
                                         shared.Telemetry.CarIdxOnPitRoad[driver.Id] || driver.Live.TrackSurface == TrackSurfaces.InPitStall, previousIsApporchingPits,
                                         previousOpponentLapValid, currentOpponentLapValid, currentGameState.SessionData.SessionRunningTime, currentOpponentLapDistance,
                                         currentGameState.SessionData.SessionHasFixedTime, currentGameState.SessionData.SessionTimeRemaining,
                                         currentGameState.SessionData.SessionType == SessionType.Race, shared.Telemetry.TrackTempCrew,
-                                        shared.Telemetry.AirTemp,currentOpponentSpeed, driver.Live.GameTimeWhenLastCrossedSFLine, driver.Live.IsNewLap,
+                                        shared.Telemetry.AirTemp, currentOpponentSpeed, previousOpponentSpeed, driver.Live.GameTimeWhenLastCrossedSFLine, driver.Live.IsNewLap,
                                         driver.Car.CarClassId, driver.Car.CarId, currentGameState.TimingData, currentGameState.carClass, shared.SessionData.IsTeamRacing);
 
                             //allow gaps in qual and prac, delta here is not on track delta but diff on fastest time 
@@ -1217,14 +1220,16 @@ namespace CrewChiefV4.iRacing
                     currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.SessionData.CurrentLapIsValid && !currentGameState.PitData.InPitlane,
                     currentGameState.SessionData.TrackDefinition.trackLength);
             }
+
+                                           
             return currentGameState;
         }
 
         private void updateOpponentData(OpponentData opponentData, String driverName, int CostId, int racePosition, int completedLaps,
-            int sector, float completedLapTime, Boolean hasCrossedSFLine, Boolean isInPits, bool previousIsApporchingPits,
+            int sector, float completedLapTime, int gear, float rpm, Boolean isInPits, bool previousIsApporchingPits,
             Boolean previousLapWasValid, Boolean currentLapValid, float sessionRunningTime,
             float distanceRoundTrack, Boolean sessionLengthIsTime, float sessionTimeRemaining,
-            Boolean isRace, float airTemperature, float trackTempreture, float speed,
+            Boolean isRace, float airTemperature, float trackTempreture, float speed, float previousSpeed,
             float GameTimeWhenLastCrossedStartFinishLine,bool isNewLap, int carClassId, int carId, TimingData timingData, CarData.CarClass playerCarClass, Boolean IsTeamRacing)
         {
             if (!opponentData.DriverRawName.Equals(driverName) && IsTeamRacing)
@@ -1242,9 +1247,13 @@ namespace CrewChiefV4.iRacing
                 opponentData.Speed = 0;
                 //Console.WriteLine(opponentData.DriverRawName + " invalidating lap based of car speed = " + speed + "m/s");
             }
+            else if(speed < -20f)
+            {
+                opponentData.Speed = previousSpeed;
+            }
             else
             {
-                opponentData.Speed = speed;
+                opponentData.Speed= speed;
             }
             if (opponentData.OverallPosition != racePosition)
             {
@@ -1253,6 +1262,9 @@ namespace CrewChiefV4.iRacing
             opponentData.IsNewLap = false;
             opponentData.OverallPosition = racePosition;
             opponentData.DistanceRoundTrack = distanceRoundTrack;
+            opponentData.Gear = gear;
+            opponentData.RPM = rpm;
+
             //Check that previous state was IsApporchingPits, this includes the zone befor the pitlane(striped lines on track)
             opponentData.JustEnteredPits = previousIsApporchingPits && isInPits;
 

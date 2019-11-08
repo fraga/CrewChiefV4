@@ -14,6 +14,7 @@ using CrewChiefV4.SRE;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using NAudio.CoreAudioApi;
+using CrewChiefV4.Overlay;
 
 namespace CrewChiefV4
 {
@@ -272,6 +273,40 @@ namespace CrewChiefV4
         public static String[] AM = Configuration.getSpeechRecognitionPhrases("AM");
         public static String[] PM = Configuration.getSpeechRecognitionPhrases("PM");
 
+        // overlay controls
+        public static String[] HIDE_OVERLAY = Configuration.getSpeechRecognitionPhrases("HIDE_OVERLAY");
+        public static String[] SHOW_OVERLAY = Configuration.getSpeechRecognitionPhrases("SHOW_OVERLAY");
+        public static String[] SHOW_CONSOLE = Configuration.getSpeechRecognitionPhrases("SHOW_CONSOLE");
+        public static String[] SHOW_All_OVERLAYS = Configuration.getSpeechRecognitionPhrases("SHOW_All_OVERLAYS");
+        public static String[] SHOW_CHART = Configuration.getSpeechRecognitionPhrases("SHOW_CHART");
+        public static String[] CLEAR_CHART = Configuration.getSpeechRecognitionPhrases("CLEAR_CHART");
+        public static String[] REFRESH_CHART = Configuration.getSpeechRecognitionPhrases("REFRESH_CHART");
+        public static String[] SHOW_STACKED_CHARTS = Configuration.getSpeechRecognitionPhrases("SHOW_STACKED_CHARTS");
+        public static String[] SHOW_SINGLE_CHART = Configuration.getSpeechRecognitionPhrases("SHOW_SINGLE_CHART");
+        public static String[] CLEAR_DATA = Configuration.getSpeechRecognitionPhrases("CLEAR_DATA");
+        public static String[] SHOW_TIME = Configuration.getSpeechRecognitionPhrases("SHOW_TIME");
+        public static String[] SHOW_DISTANCE = Configuration.getSpeechRecognitionPhrases("SHOW_DISTANCE");
+        public static String[] HIDE_CONSOLE = Configuration.getSpeechRecognitionPhrases("HIDE_CONSOLE");
+        public static String[] HIDE_CHART = Configuration.getSpeechRecognitionPhrases("HIDE_CHART");
+
+        public static String[] CHART_COMMAND_ADD = Configuration.getSpeechRecognitionPhrases("CHART_COMMAND_ADD");
+        public static String[] CHART_COMMAND_REMOVE = Configuration.getSpeechRecognitionPhrases("CHART_COMMAND_REMOVE");
+        public static String[] CHART_COMMAND_BEST_LAP = Configuration.getSpeechRecognitionPhrases("CHART_COMMAND_BEST_LAP");
+        public static String[] CHART_COMMAND_LAST_LAP = Configuration.getSpeechRecognitionPhrases("CHART_COMMAND_LAST_LAP");
+        public static String[] CHART_COMMAND_OPPONENT_BEST_LAP = Configuration.getSpeechRecognitionPhrases("CHART_COMMAND_OPPONENT_BEST_LAP");
+        public static String[] CHART_COMMAND_SHOW_SECTOR_1 = Configuration.getSpeechRecognitionPhrases("CHART_COMMAND_SHOW_SECTOR_1");
+        public static String[] CHART_COMMAND_SHOW_SECTOR_2 = Configuration.getSpeechRecognitionPhrases("CHART_COMMAND_SHOW_SECTOR_2");
+        public static String[] CHART_COMMAND_SHOW_SECTOR_3 = Configuration.getSpeechRecognitionPhrases("CHART_COMMAND_SHOW_SECTOR_3");
+        public static String[] CHART_COMMAND_SHOW_ALL_SECTORS = Configuration.getSpeechRecognitionPhrases("CHART_COMMAND_SHOW_ALL_SECTORS");
+        public static String[] CHART_COMMAND_ZOOM_IN = Configuration.getSpeechRecognitionPhrases("CHART_COMMAND_ZOOM_IN");
+        public static String[] CHART_COMMAND_ZOOM_OUT = Configuration.getSpeechRecognitionPhrases("CHART_COMMAND_ZOOM_OUT");
+        public static String[] CHART_COMMAND_RESET_ZOOM = Configuration.getSpeechRecognitionPhrases("CHART_COMMAND_RESET_ZOOM");
+        public static String[] CHART_COMMAND_PAN_LEFT = Configuration.getSpeechRecognitionPhrases("CHART_COMMAND_PAN_LEFT");
+        public static String[] CHART_COMMAND_PAN_RIGHT = Configuration.getSpeechRecognitionPhrases("CHART_COMMAND_PAN_RIGHT");
+        public static String[] CHART_COMMAND_SHOW_NEXT_LAP = Configuration.getSpeechRecognitionPhrases("CHART_COMMAND_NEXT_LAP");
+        public static String[] CHART_COMMAND_SHOW_PREVIOUS_LAP = Configuration.getSpeechRecognitionPhrases("CHART_COMMAND_PREVIOUS_LAP");
+        public static String[] CHART_COMMAND_SHOW_LAST_LAP = Configuration.getSpeechRecognitionPhrases("CHART_COMMAND_SHOW_LAST_LAP");
+
         private Dictionary<GameEnum, string[]> whatsOpponentChoices = new Dictionary<GameEnum, string[]> {
             { GameEnum.IRACING, new String[] { LAST_LAP, LAST_LAP_TIME, BEST_LAP, BEST_LAP_TIME, IRATING, LICENSE_CLASS } },
             // the array for UNKNOWN is what we'll use if there's no game-specific array
@@ -292,6 +327,7 @@ namespace CrewChiefV4
         private List<GrammarWrapper> opponentGrammarList = new List<GrammarWrapper>();
         private List<GrammarWrapper> iracingPitstopGrammarList = new List<GrammarWrapper>();
         private List<GrammarWrapper> r3ePitstopGrammarList = new List<GrammarWrapper>();
+        private List<GrammarWrapper> overlayGrammarList = new List<GrammarWrapper>();
 
         private GrammarWrapper macroGrammar = null;
 
@@ -1015,6 +1051,34 @@ namespace CrewChiefV4
                 validateAndAdd(MORE_INFO, staticSpeechChoices);
 
                 validateAndAdd(I_AM_OK, staticSpeechChoices);
+
+                validateAndAdd(HIDE_OVERLAY, staticSpeechChoices);
+                validateAndAdd(SHOW_OVERLAY, staticSpeechChoices);
+                validateAndAdd(SHOW_CONSOLE, staticSpeechChoices);
+                validateAndAdd(SHOW_All_OVERLAYS, staticSpeechChoices);
+                validateAndAdd(SHOW_CHART, staticSpeechChoices);
+                validateAndAdd(CLEAR_CHART, staticSpeechChoices);
+                validateAndAdd(REFRESH_CHART, staticSpeechChoices);
+                validateAndAdd(SHOW_STACKED_CHARTS, staticSpeechChoices);
+                validateAndAdd(SHOW_SINGLE_CHART, staticSpeechChoices);
+                validateAndAdd(CLEAR_DATA, staticSpeechChoices);
+                validateAndAdd(SHOW_TIME, staticSpeechChoices);
+                validateAndAdd(SHOW_DISTANCE, staticSpeechChoices);
+                validateAndAdd(HIDE_CONSOLE, staticSpeechChoices);
+                validateAndAdd(HIDE_CHART, staticSpeechChoices);
+                validateAndAdd(CHART_COMMAND_SHOW_SECTOR_1, staticSpeechChoices);
+                validateAndAdd(CHART_COMMAND_SHOW_SECTOR_2, staticSpeechChoices);
+                validateAndAdd(CHART_COMMAND_SHOW_SECTOR_3, staticSpeechChoices);
+                validateAndAdd(CHART_COMMAND_SHOW_ALL_SECTORS, staticSpeechChoices);
+                validateAndAdd(CHART_COMMAND_ZOOM_IN, staticSpeechChoices);
+                validateAndAdd(CHART_COMMAND_ZOOM_OUT, staticSpeechChoices);
+                validateAndAdd(CHART_COMMAND_RESET_ZOOM, staticSpeechChoices);
+                validateAndAdd(CHART_COMMAND_PAN_LEFT, staticSpeechChoices);
+                validateAndAdd(CHART_COMMAND_PAN_RIGHT, staticSpeechChoices);
+                validateAndAdd(CHART_COMMAND_SHOW_NEXT_LAP, staticSpeechChoices);
+                validateAndAdd(CHART_COMMAND_SHOW_PREVIOUS_LAP, staticSpeechChoices);
+                validateAndAdd(CHART_COMMAND_SHOW_LAST_LAP, staticSpeechChoices);
+
                 if (alarmClockVoiceRecognitionEnabled)
                 {
                     validateAndAdd(CLEAR_ALARM_CLOCK, staticSpeechChoices);
@@ -1304,6 +1368,33 @@ namespace CrewChiefV4
             opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHATS }, false, opponentNameOrPositionPossessiveChoices, getWhatsPossessiveChoices(), true));
         }
 
+        public void addOverlayGrammar()
+        {
+            if (!initialised)
+            {
+                return;
+            }
+            overlayGrammarList.Clear();
+            if (UserSettings.GetUserSettings().getBoolean("enable_overlay_window"))
+            {
+
+                ChoicesWrapper overlayChoices = SREWrapperFactory.createNewChoicesWrapper();
+                List<string> chartCommands = OverlayDataSource.getAllChartVoiceCommands();
+                if (chartCommands.Count > 0)
+                {
+                    foreach (string chartCommand in chartCommands)
+                    {
+                        validateAndAdd(new string[] { chartCommand }, overlayChoices);
+                    }
+                }
+                GrammarBuilderWrapper overlayGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper(overlayChoices);
+                overlayGrammarBuilder.SetCulture(cultureInfo);
+                GrammarWrapper overlayGrammar = SREWrapperFactory.createNewGrammarWrapper(overlayGrammarBuilder);
+                overlayGrammarList.Add(overlayGrammar);
+                sreWrapper.LoadGrammar(overlayGrammar);
+            }
+        }
+
         public void addR3ESpeechRecogniser()
         {
             if (!initialised)
@@ -1349,7 +1440,7 @@ namespace CrewChiefV4
             }
         }
 
-        public void unloadGameSpecificGrammars()
+        public void unloadAdditionalGrammars()
         {
             foreach (GrammarWrapper iracingGrammar in iracingPitstopGrammarList)
             {
@@ -1367,6 +1458,17 @@ namespace CrewChiefV4
                 try
                 {
                     sreWrapper.UnloadGrammar(r3eGrammar);
+                }
+                catch (Exception e)
+                {
+                    // ignore - we might be switching between games here
+                }
+            }
+            foreach (GrammarWrapper chartGrammar in overlayGrammarList)
+            {
+                try
+                {
+                    sreWrapper.UnloadGrammar(chartGrammar);
                 }
                 catch (Exception e)
                 {
@@ -1726,6 +1828,11 @@ namespace CrewChiefV4
                             this.lastRecognisedText = recognisedText;
                             R3EPitMenuManager.processVoiceCommand(recognisedText, this.crewChief.audioPlayer);
                         }
+                        else if (GrammarWrapperListContains(overlayGrammarList, recognitionGrammar))
+                        {
+                            this.lastRecognisedText = recognisedText;
+                            CrewChief.getEvent("OverlayController").respond(recognisedText);
+                        }
                         else if (ResultContains(recognisedText, REPEAT_LAST_MESSAGE, false))
                         {
                             crewChief.audioPlayer.repeatLastMessage();
@@ -2078,6 +2185,36 @@ namespace CrewChiefV4
 
         public static AbstractEvent getEventForAction(String recognisedSpeech)
         {
+            if (ResultContains(recognisedSpeech, CLEAR_CHART, false) ||
+                ResultContains(recognisedSpeech, SHOW_CHART, false) ||
+                ResultContains(recognisedSpeech, SHOW_CONSOLE, false) ||
+                ResultContains(recognisedSpeech, REFRESH_CHART, false) ||
+                ResultContains(recognisedSpeech, SHOW_All_OVERLAYS, false) ||
+                ResultContains(recognisedSpeech, SHOW_OVERLAY, false) ||
+                ResultContains(recognisedSpeech, HIDE_OVERLAY, false) ||
+                ResultContains(recognisedSpeech, SHOW_STACKED_CHARTS, false) ||
+                ResultContains(recognisedSpeech, SHOW_SINGLE_CHART, false) ||
+                ResultContains(recognisedSpeech, CLEAR_DATA, false) ||
+                ResultContains(recognisedSpeech, SHOW_TIME, false) ||
+                ResultContains(recognisedSpeech, SHOW_DISTANCE, false) ||
+                ResultContains(recognisedSpeech, HIDE_CHART, false) ||
+                ResultContains(recognisedSpeech, HIDE_CONSOLE, false) ||
+                ResultContains(recognisedSpeech, CHART_COMMAND_SHOW_SECTOR_1, false) ||
+                ResultContains(recognisedSpeech, CHART_COMMAND_SHOW_SECTOR_2, false) ||
+                ResultContains(recognisedSpeech, CHART_COMMAND_SHOW_SECTOR_3, false) ||
+                ResultContains(recognisedSpeech, CHART_COMMAND_SHOW_ALL_SECTORS, false) ||
+                ResultContains(recognisedSpeech, CHART_COMMAND_ZOOM_IN, false) ||
+                ResultContains(recognisedSpeech, CHART_COMMAND_ZOOM_OUT, false) ||
+                ResultContains(recognisedSpeech, CHART_COMMAND_RESET_ZOOM, false) ||
+                ResultContains(recognisedSpeech, CHART_COMMAND_PAN_LEFT, false) ||
+                ResultContains(recognisedSpeech, CHART_COMMAND_PAN_RIGHT, false) ||
+                ResultContains(recognisedSpeech, CHART_COMMAND_SHOW_LAST_LAP, false) ||
+                ResultContains(recognisedSpeech, CHART_COMMAND_SHOW_NEXT_LAP, false) ||
+                ResultContains(recognisedSpeech, CHART_COMMAND_SHOW_PREVIOUS_LAP, false))
+            {
+                return CrewChief.getEvent("OverlayController");
+            }
+
             if (ResultContains(recognisedSpeech, RADIO_CHECK, false) ||
                 ResultContains(recognisedSpeech, KEEP_QUIET, false) ||
                 ResultContains(recognisedSpeech, DONT_TELL_ME_THE_GAPS, false) ||

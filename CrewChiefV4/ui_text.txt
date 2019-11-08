@@ -1611,3 +1611,32 @@ sre_respond_while_channel_still_open_metadata = RESTART_REQUIRED
 enable_breath_in = Enable breath in pause
 enable_breath_in_help = Occasionally pause for breath when reading messages
 enable_breath_in_category = AUDIO_VOICE_AND_CONTROLLERS
+
+enable_overlay_window = Enable overlays (windowed / borderless window only)
+enable_overlay_window_help = Shows a transparent window showing the console output text and/or telemetry charts
+enable_overlay_window_category = UI_STARTUP_AND_PATHS
+enable_overlay_window_metadata = RESTART_REQUIRED
+
+iracing_enable_disk_based_telemetry = Enable disk based telemetry for overlay
+iracing_enable_disk_help = Enable disk based telemetry reading for overlay charts
+iracing_enable_disk_based_telemetry_filter = IRACING
+iracing_enable_disk_based_telemetry_category = UI_STARTUP_AND_PATHS
+iracing_enable_disk_metadata = RESTART_REQUIRED
+
+# charting stuff
+chart_label_BEST_LAP = (best lap)
+chart_label_LAST_LAP = (last lap)
+chart_label_OPPONENT_BEST_LAP = (opponent best lap)
+
+enable_chart_telemetry_in_race_session = Enable chart telemetry in race session
+enable_chart_telemetry_in_race_session_help = Record chart telemetry during races
+enable_chart_telemetry_in_race_session_category = UI_STARTUP_AND_PATHS
+
+update_interval_when_collecting_telemetry = Update interval when collecting telemetry
+update_interval_when_collecting_telemetry_help = Update interval for capturing chart data
+update_interval_when_collecting_telemetry_category = UI_STARTUP_AND_PATHS
+
+make_overlay_app_window = Enable overlay app window (Oculus mode)
+make_overlay_app_window_help = Make the overlay window appear on the taskbar as an app window
+make_overlay_app_window_category = UI_STARTUP_AND_PATHS
+make_overlay_app_window_metadata = RESTART_REQUIRED

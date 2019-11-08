@@ -7,13 +7,13 @@ using iRSDKSharp;
 using System.Xml;
 using System.Xml.Serialization;
 using System.Threading;
-
 namespace CrewChiefV4.iRacing
 {
     public class iRacingSharedMemoryReader : GameDataReader
     {
         private iRacingSDK sdk = null;
-        private Sim sim = null; 
+        private Sim sim = null;
+        
         private Boolean initialised = false;
         private List<iRacingStructDumpWrapper> dataToDump;
         private iRacingStructDumpWrapper[] dataReadFromFile = null;
@@ -24,7 +24,7 @@ namespace CrewChiefV4.iRacing
         int lastUpdate = -1;
         private int _DriverId = -1;
         public int DriverId { get { return _DriverId; } }
-        
+        private static bool enableDiskTelemetry = UserSettings.GetUserSettings().getBoolean("iracing_enable_disk_based_telemetry");
         public iRacingSharedMemoryReader()
         {
             string dataFilesPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "iRacing", "app.ini");
@@ -192,8 +192,8 @@ namespace CrewChiefV4.iRacing
                         {
                             sdk = new iRacingSDK();
                         }
-                        sdk.Shutdown();
 
+                        sdk.Shutdown();                       
                         if (!sdk.IsInitialized)
                         {
                             sdk.Startup();
@@ -218,6 +218,7 @@ namespace CrewChiefV4.iRacing
                             {
                                 Console.WriteLine("Session num too many attempts");
                             }
+
                             Console.WriteLine("Initialised iRacing shared memory");
                         }
                     }
@@ -293,6 +294,7 @@ namespace CrewChiefV4.iRacing
                         {
                             dataToDump.Add(new iRacingStructDumpWrapper() { ticksWhenRead = structWrapper.ticksWhenRead, data = irData });
                         }
+                        
                         return structWrapper;
                     }
                     else
