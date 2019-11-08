@@ -247,7 +247,7 @@ namespace CrewChiefV4.rFactor2
             var pgs = previousGameState;
             var shared = memoryMappedFileStruct as CrewChiefV4.rFactor2.RF2SharedMemoryReader.RF2StructWrapper;
             var cgs = new GameStateData(shared.ticksWhenRead);
-
+            cgs.rawGameData = shared;
             //
             // This block has two purposes:
             //
@@ -1975,6 +1975,7 @@ namespace CrewChiefV4.rFactor2
                     || pgs.SessionData.SessionPhase == SessionPhase.Countdown))
                 csd.JustGoneGreen = true;
 
+            // ------------------------
             // Map difficult track parts.
             if (csd.IsNewLap)
             {
@@ -1987,6 +1988,26 @@ namespace CrewChiefV4.rFactor2
                     cgs.PositionAndMotionData.DistanceRoundTrack, csd.CurrentLapIsValid, csd.TrackDefinition.trackLength);
 
             this.lastSessionHardPartsOnTrackData = cgs.hardPartsOnTrackData;
+
+            // ------------------------
+            // Chart telemetry data.
+            if (!(CrewChief.switchOffChartTelemetryDuringRace && csd.SessionType == SessionType.Race))
+            {
+                cgs.EngineData.Gear = playerTelemetry.mGear;
+
+                cgs.TelemetryData.FrontDownforce = playerTelemetry.mFrontDownforce;
+                cgs.TelemetryData.RearDownforce = playerTelemetry.mRearDownforce;
+
+                cgs.TelemetryData.FrontLeftData.SuspensionDeflection = wheelFrontLeft.mSuspensionDeflection;
+                cgs.TelemetryData.FrontRightData.SuspensionDeflection = wheelFrontRight.mSuspensionDeflection;
+                cgs.TelemetryData.RearLeftData.SuspensionDeflection = wheelRearLeft.mSuspensionDeflection;
+                cgs.TelemetryData.RearRightData.SuspensionDeflection = wheelRearRight.mSuspensionDeflection;
+
+                cgs.TelemetryData.FrontLeftData.RideHeight = wheelFrontLeft.mRideHeight;
+                cgs.TelemetryData.FrontRightData.RideHeight = wheelFrontRight.mRideHeight;
+                cgs.TelemetryData.RearLeftData.RideHeight = wheelRearLeft.mRideHeight;
+                cgs.TelemetryData.RearRightData.RideHeight = wheelRearRight.mRideHeight;
+            }
 
             return cgs;
         }

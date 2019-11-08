@@ -167,7 +167,8 @@ namespace CrewChiefV4.PCars2
 
         public override GameStateData mapToGameStateData(Object memoryMappedFileStruct, GameStateData previousGameState)
         {
-            pCars2APIStruct shared = ((CrewChiefV4.PCars2.PCars2SharedMemoryReader.PCars2StructWrapper)memoryMappedFileStruct).data;
+            CrewChiefV4.PCars2.PCars2SharedMemoryReader.PCars2StructWrapper wrapper = (CrewChiefV4.PCars2.PCars2SharedMemoryReader.PCars2StructWrapper)memoryMappedFileStruct;
+            pCars2APIStruct shared = wrapper.data;
             long ticks = ((CrewChiefV4.PCars2.PCars2SharedMemoryReader.PCars2StructWrapper)memoryMappedFileStruct).ticksWhenRead;
             eGameState gameState = (eGameState)shared.mGameState;
 
@@ -200,12 +201,13 @@ namespace CrewChiefV4.PCars2
             String playerName = StructHelper.getNameFromBytes(shared.mParticipantData[playerIndex].mName);
 
             GameStateData currentGameState = new GameStateData(ticks);
-            
+            currentGameState.rawGameData = wrapper;
+
             /*Console.WriteLine("SessionState: " + (eSessionState)shared.mSessionState + " RaceState: " + (eRaceState)shared.mRaceState + 
                 " GameState: " + (eGameState) shared.mGameState + " PitMode: " + (ePitMode) shared.mPitMode +
                 " EventTimeRemaining: " + shared.mEventTimeRemaining + " LapsInEvent: " + 
                 shared.mLapsInEvent + " SequenceNumber: " + shared.mSequenceNumber);*/
-            
+
             Validator.validate(playerName);
             currentGameState.SessionData.CompletedLaps = (int)playerData.mLapsCompleted;
             currentGameState.SessionData.SectorNumber = (int)playerData.mCurrentSector + 1; // zero indexed
@@ -576,7 +578,7 @@ namespace CrewChiefV4.PCars2
             currentGameState.ControlData.ThrottlePedal = shared.mThrottle;
             currentGameState.ControlData.ClutchPedal = shared.mClutch;
             currentGameState.TransmissionData.Gear = shared.mGear;
-            currentGameState.ControlData.BrakeBias = shared.mBrake;
+            currentGameState.ControlData.BrakePedal = shared.mBrake;
 
             //------------------- Variable session data ---------------------------
             if (currentGameState.SessionData.SessionHasFixedTime)

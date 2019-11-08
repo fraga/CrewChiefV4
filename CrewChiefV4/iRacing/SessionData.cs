@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using iRSDKSharp;
 namespace CrewChiefV4.iRacing
@@ -27,7 +28,9 @@ namespace CrewChiefV4.iRacing
         public string Restarts { get; set; }
         public string CourseCautions { get; set; }
         public bool hasFullCourseCautions { get; set; }
+        public string diskTelemetryFile { get; set; }
         public const string sessionInfoYamlPath = "SessionInfo:Sessions:SessionNum:{{{0}}}{1}:";
+        
         public void Update(string sessionString, int sessionNumber)
         {
             this.Track = Track.FromSessionInfo(sessionString);            
@@ -46,7 +49,8 @@ namespace CrewChiefV4.iRacing
             this.Restarts = YamlParser.Parse(sessionString, "WeekendInfo:WeekendOptions:Restarts:");
             this.CourseCautions = YamlParser.Parse(sessionString, "WeekendInfo:WeekendOptions:CourseCautions:");
             this.hasFullCourseCautions = CourseCautions.Equals("full");
-            if(IsLimitedIncidents)
+            this.diskTelemetryFile = YamlParser.Parse(sessionString, "WeekendInfo:TelemetryOptions:TelemetryDiskFile:");
+            if (IsLimitedIncidents)
             {
                 IncidentLimit = Parser.ParseInt(IncidentLimitString);
             }

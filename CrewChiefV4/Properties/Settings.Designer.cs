@@ -4174,5 +4174,65 @@ namespace CrewChiefV4.Properties {
                 this["enable_breath_in"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool enable_overlay_window {
+            get {
+                return ((bool)(this["enable_overlay_window"]));
+            }
+            set {
+                this["enable_overlay_window"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool iracing_enable_disk_based_telemetry {
+            get {
+                return ((bool)(this["iracing_enable_disk_based_telemetry"]));
+            }
+            set {
+                this["iracing_enable_disk_based_telemetry"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool enable_chart_telemetry_in_race_session {
+            get {
+                return ((bool)(this["enable_chart_telemetry_in_race_session"]));
+            }
+            set {
+                this["enable_chart_telemetry_in_race_session"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("16")]
+        public int update_interval_when_collecting_telemetry {
+            get {
+                return ((int)(this["update_interval_when_collecting_telemetry"]));
+            }
+            set {
+                this["update_interval_when_collecting_telemetry"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool make_overlay_app_window {
+            get {
+                return ((bool)(this["make_overlay_app_window"]));
+            }
+            set {
+                this["make_overlay_app_window"] = value;
+            }
+        }
     }
 }

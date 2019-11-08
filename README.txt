@@ -234,6 +234,87 @@ R3E exposes some additional information describing the state of the popup pit me
 The app will also read out the planned pit actions automatially when you get near the pit entrance after requesting a stop.
 
 
+
+Overlays
+--------
+Crew Chief can render in-game overlays to show the app's console output or user-configurable telemetry charts controlled by voice commands. This only works with the game running in windowed (or borderless windowed) mode.
+
+These can also be shown in VR and positioned in the game world using 3rd party apps like "OVR Overlay". Enable this functionality with the 'Enable overlay window' property. By default the app will record the telemetry data specified in Documents/CrewChiefV4/chart_subscriptions.json - this file can be edited to include new data channels but it requires some understanding of the internal game data format and / or the internal Crew Chief data format - we're still working in this. The telemetry recording is not active during race sessions - you can enable this by selecting with the 'Enable chart telemetry in race session' property.
+
+Telemetry is available for the previous completed lap (excluding out laps), the player's best lap in the session (excluding invalid or incomplete laps) and in some limited cases, the best opponent lap in the session (opponent data is limited to car speed, and is only available for some games at the moment). Typically, you'd drive a few laps in practice and pit, then ask the Chief "show me last lap car speed" or something like that.
+
+For iRacing some of the interesting data isn't available in the real-time telemetry feed. If you enable disk-based telemetry in-game, the app will use this telemetry data for some of the chart channels. If you don't enable disk base telemetry in-game, some chart types won't be available.
+
+The charts can be zoomed in to show a particular sector, or zoomed and panned with voice commands.
+
+General overlay commands:
+
+"hide overlay" / "close overlay"
+"show overlay"
+"show console"
+"hide console"
+"show chart"
+"hide chart"
+"show all overlays" - show console and chart(s)
+"new chart" / "clear chart" - removes all data from the currently rendered chart
+"clear data" - clears all in-memory telemetry data for the current session
+"refresh chart" - redraw the current chart with the latest data
+"show stacked charts" - show each different series on its own chart
+"show single chart" - show all active series on the same chart
+"show time" - change the x-axis to be time
+"show distance" - change the x-axis to be distance around the lap (this is the default)
+"Show sector [one / two / three]"
+"Show all sectors"
+"Zoom [in / out]"
+"Pan [left / right]"
+"Reset zoom" - reset zoom to show the entire lap's data
+"Next lap" - show the next lap (when showing 'last lap' chart)
+"Previous lap" - show the previous lap (when showing 'last lap' chart)
+"Show last lap" - move back to the last lap (when showing 'last lap' chart)
+
+
+Series specific overlay commands:
+
+"show me..." - add a series to the chart
+"chart, remove..." - remove a series from the chart
+"best lap..." - add player best lap to the chart
+"last lap..." - add player last lap to the chart (can be omitted - the app will assume you mean last lap if you don't specify it)
+"opponent best lap.." - add opponent best lap (over all opponents in the player's class) to the chart
+
+e.g. to show a single chart for car speed, with your best lap and your opponents's overall best lap overlaid on the same chart with x-axis as distance (metres):
+"show me best lap car speed"
+"show me opponent best lap car speed"
+
+e.g. to show 2 charts, one for speed and one for gear for your best and your last lap with x-axis as distance (metres):
+"show me best lap car speed"
+"show me last lap car speed"
+"show me best lap gear"
+"show me last lap gear"
+
+e.g. to show 3 charts, speed gear and RPM for your best and last laps with x-axis as time (seconds):
+"show me best lap car speed"
+"show me last lap car speed"
+"show me best lap gear"
+"show me last lap gear"
+"show me best lap engine revs"
+"show me last lap engine revs"
+"show time"
+
+e.g. to show a single chart with throttle position and gear for your last lap with x-axis as distance (metres):
+"show me throttle position"
+"show me gear"
+"show single chart"
+
+
+Note that data for the same series (e.g. car speed) will always be overlaid on the same chart. Stacked charts only applies to data from different series (speed / gear, for example).
+
+The definition of a "series" is held in Documents/CrewChiefV4/chart_subscriptions.json. You can add to this as you wish but bear in mind that opponent data is very limited - for some games no suitable data is available at all, for some only car speed is available. We'll add more here and documentation as we go along. The rawDataFieldName refers to a field in the raw game data (the shared memory block), use this to access unmapped data or use "mappedDataFieldName" to access data that CrewChief has mapped from the raw data. In both cases dot-notation is supported. For example, car speed can be obtained from R3E by using rawDataFieldName=CarSpeed, or from the mapped data (for all games) using mappedDataFieldName=PositionAndMotionData.CarSpeed. All opponent data comes from mapped data, and the only available fields are Speed, RPM and Gear.
+
+The voice command fragment for each series is also in this json file. The voice command is constructed by the app, prefixing "show me best lap..." / "show me last lap..." / "show me opponent best lap..." as appropriate (e.g. "show me last lap car speed").
+
+The overlay can also be controlled with the mouse. Enable the "Enable input" checkbox on the overlay to show controls for the various chart and overlay functions. The overlay can also be moved around by dragging the title bar when Enable input is checked.
+
+
 Known Issues Which Aren't Fixable
 ---------------------------------
 
@@ -288,6 +369,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.10.0.0: Added overlays for console output and telemetry charts. See Overlays section for more info.
+
 Version 4.9.11.3: Hotfix for app startup issues using nAudio where device names aren't unique
 
 Version 4.9.11.1: Reworked nAudio playback path to improve stability and fix some app shutdown issues; added option to play sounds using WASAPI output device when using nAudio playback (set with the 'nAudio Output Interface Type' property). This has significantly lower playback latency and can make the app sound more natural and responsive - definitely worth trying (remember to enable nAudio playback first). If the audio pops or crackles with this enable try increasing the 'nAudio WASAPI latency' property a bit; added option to make the app respond to voice commands as soon as it recognises them in 'Hold Button' mode, rather than waiting until the radio button is released (enable this behaviour with the 'Respond to voice commands immediately' property); Allow closing CC from command line by passing C_EXIT command; ACC - ensure penalties are cleared properly; AC - some car class tweaks to better map GTE and GT3; iRacing - more robust pit entry detection (should reduce the likelihood of the all not refuelling after a mess pit entry); A few bug fixes

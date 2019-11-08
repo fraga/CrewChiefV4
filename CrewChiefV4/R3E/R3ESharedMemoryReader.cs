@@ -66,7 +66,7 @@ namespace CrewChiefV4.RaceRoom
             }
             if (dataReadFromFile != null && dataReadFromFile.Length > dataReadFromFileIndex)
             {
-                R3EStructWrapper structWrapperData = dataReadFromFile[dataReadFromFileIndex];
+                R3EStructWrapper structWrapperData = dataReadFromFile[dataReadFromFileIndex];                
                 dataReadFromFileIndex++;
                 return structWrapperData;
             }

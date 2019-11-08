@@ -1,0 +1,1053 @@
+﻿using CrewChiefV4.Events;
+using CrewChiefV4.GameState;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace CrewChiefV4.Overlay
+{
+    // class containing raw game data which hasn't been through the mapper
+    public class OverlayDataSource
+    {
+        public static X_AXIS_TYPE xAxisType = X_AXIS_TYPE.DISTANCE;
+
+        private static int previousDataPointLapCompleted = int.MinValue;
+
+        private static Dictionary<GameEnum, List<OverlaySubscription>> subscribedData = new Dictionary<GameEnum, List<OverlaySubscription>>();
+
+        private static Dictionary<string, LinkedList<OverlayLapData>> data = new Dictionary<string, LinkedList<OverlayLapData>>();
+
+        // same data as above but for the player's fastest lap in the session
+        private static float lapTimeForBestLapData = -1;
+        private static Dictionary<string, OverlayLapData> bestLapData = new Dictionary<string, OverlayLapData>();
+
+        // opponent data stuff
+        public static Boolean mapOpponentData = false;
+        public static float bestOpponentLap = float.MaxValue;
+        public static string bestOpponentLapDriverName = "";
+        // the isNewLap flag can come later than the start of the lap so we need to copy over some data points from the previous lap
+        // when starting a new one. These dicts keep track of this data so we don't need to keep deriving it
+
+        // per-drivername dict of the previous point's lap distances
+        private static Dictionary<string, float> lastPointLapDistances = new Dictionary<string, float>();
+        // per-drivername dict of the of points where we want to start copying from the previous lap when we finally do start a new lap
+        private static Dictionary<string, int> startPointsForCopyFromPreviousLap = new Dictionary<string, int>();
+        private static Dictionary<string, Dictionary<string, OverlayLapData>> opponentsCurrentLapData = new Dictionary<string, Dictionary<string, OverlayLapData>>();
+        private static Dictionary<string, OverlayLapData> opponentBestLapData = new Dictionary<string, OverlayLapData>();
+        // TODO: sort out the initialisation of this and the other subscriptions
+        public static Dictionary<string, OverlayDataType> opponentDataFields = new Dictionary<string, OverlayDataType>();
+
+        // sector position stuff:
+        private static int prevSectorNumber = -1;
+        public static float sector1End = -1;
+        public static float sector2End = -1;
+
+        // need a better name for this - it's for "previous lap" and "next lap". By default we always want the last-1 lap (because the last
+        // lap in the data is the lap the player is currently on, so is incomplete
+        public static int countBack = 1;
+
+        public static void loadChartSubscriptions()
+        {
+            subscribedData.Clear();
+            clearData();
+            Dictionary<GameEnum, List<OverlaySubscription>> allSubscriptions = JsonConvert.DeserializeObject<Dictionary<GameEnum, List<OverlaySubscription>>>(
+                getFileContents(getSubscriptionsFileLocation()));
+            List<OverlaySubscription> subscriptions = new List<OverlaySubscription>();
+            List<OverlaySubscription> gameSpecificAndCommonSubscriptions;
+            if (allSubscriptions.TryGetValue(CrewChief.gameDefinition.gameEnum, out gameSpecificAndCommonSubscriptions))
+            {
+                subscriptions.AddRange(gameSpecificAndCommonSubscriptions);
+            }
+            subscriptions.AddRange(CommonSubscriptions.getApplicableCommonSubscriptions(subscriptions));
+            OverlayDataSource.setDataFieldsForGame(CrewChief.gameDefinition.gameEnum, subscriptions);
+        }
+        private static String getFileContents(String fullFilePath)
+        {
+            StringBuilder jsonString = new StringBuilder();
+            StreamReader file = null;
+            try
+            {
+                file = new StreamReader(fullFilePath);
+                String line;
+                while ((line = file.ReadLine()) != null)
+                {
+                    if (!line.Trim().StartsWith("#"))
+                    {
+                        jsonString.AppendLine(line);
+                    }
+                }
+                return jsonString.ToString();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error reading file " + fullFilePath + ": " + e.Message);
+            }
+            finally
+            {
+                if (file != null)
+                {
+                    file.Close();
+                }
+            }
+            return null;
+        }
+        private static void updateUserChartSubscriptionsFile()
+        {
+            String userFilePath = System.IO.Path.Combine(Environment.GetFolderPath(
+                Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "chart_subscriptions.json");
+
+            String defaultFilePath = Configuration.getDefaultFileLocation("chart_subscriptions.json");
+
+            Dictionary<GameEnum, List<OverlaySubscription>> allUserSubscriptions = JsonConvert.DeserializeObject<Dictionary<GameEnum, List<OverlaySubscription>>>(
+                getFileContents(userFilePath));
+
+            Dictionary<GameEnum, List<OverlaySubscription>> allDefaultSubscriptions = JsonConvert.DeserializeObject<Dictionary<GameEnum, List<OverlaySubscription>>>(
+                getFileContents(defaultFilePath));
+
+            bool addedNewSubscription = false;
+            foreach (var subscription in allDefaultSubscriptions)
+            {
+                List<OverlaySubscription> userSub = null;
+                // first check if this is a game we already have data for
+                if (allUserSubscriptions.TryGetValue(subscription.Key, out userSub))
+                {
+                    foreach (var overlay in subscription.Value)
+                    {
+                        // is it a new entry in the list
+                        if (userSub.FirstOrDefault(os => os.voiceCommandFragment == overlay.voiceCommandFragment) == null)
+                        {
+                            allUserSubscriptions[subscription.Key].Add(overlay);
+                            addedNewSubscription = true;
+                        }
+                    }
+                }
+                else // we add the entire list
+                {
+                    allUserSubscriptions[subscription.Key].AddRange(subscription.Value);
+                    addedNewSubscription = true;
+                }
+            }
+            if (addedNewSubscription)
+            {
+                Console.WriteLine("Saving new default chart subscriptions to user subscription file");
+                saveSubscriptionsSettingsFile(allDefaultSubscriptions, userFilePath);
+            }
+        }
+        public static void saveSubscriptionsSettingsFile(Dictionary<GameEnum, List<OverlaySubscription>> settings, String fileName)
+        {
+            if (fileName != null)
+            {
+                try
+                {
+                    using (StreamWriter file = File.CreateText(fileName))
+                    {
+                        JsonSerializer serializer = new JsonSerializer();
+                        serializer.Formatting = Newtonsoft.Json.Formatting.Indented;
+                        serializer.Serialize(file, settings);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error parsing " + fileName + ": " + e.Message);
+                }
+            }
+        }
+
+        public static String getSubscriptionsFileLocation()
+        {
+            String path = System.IO.Path.Combine(Environment.GetFolderPath(
+                Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "chart_subscriptions.json");
+
+            if (File.Exists(path))
+            {
+                // update the file if it exists.
+                updateUserChartSubscriptionsFile();
+                Console.WriteLine("Loading user-configured chart subscriptions from Documents/CrewChiefV4/ folder");
+                return path;
+            }
+            // make sure we save a copy to the user config directory
+            else if (!File.Exists(path))
+            {
+                try
+                {
+                    File.Copy(Configuration.getDefaultFileLocation("chart_subscriptions.json"), path);
+                    Console.WriteLine("Loading user-configured chart subscriptions from Documents/CrewChiefV4/ folder");
+                    return path;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error copying default chart subscriptions file to user dir : " + e.Message);
+                    Console.WriteLine("Loading default chart subscriptions from installation folder");
+                    return Configuration.getDefaultFileLocation("chart_subscriptions.json");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Loading default chart subscriptions from installation folder");
+                return Configuration.getDefaultFileLocation("chart_subscriptions.json");
+            }
+        }
+
+        public static void clearData()
+        {
+            foreach (var lapdata in data)
+            {
+                lapdata.Value.Clear();
+            }
+            bestLapData.Clear();
+            lapTimeForBestLapData = float.MaxValue;
+            bestOpponentLap = float.MaxValue;
+            bestOpponentLapDriverName = "";
+            lastPointLapDistances.Clear();
+            startPointsForCopyFromPreviousLap.Clear();
+            opponentBestLapData.Clear();
+            sector1End = -1;
+            sector2End = -1;
+        }
+
+        public static void setDataFieldsForGame(GameEnum gameEnum, List<OverlaySubscription> fields)
+        {
+            subscribedData[gameEnum] = new List<OverlaySubscription>();
+            HashSet<string> addedFields = new HashSet<string>();
+            foreach (OverlaySubscription subscription in fields)
+            {
+                string fieldName = subscription.isGroup ? subscription.groupMemberIds.ToString() : subscription.fieldName;
+                if (addedFields.Contains(subscription.fieldName))
+                {
+                    Console.WriteLine("Game specific chart data subscription for field " + fieldName + " has already been added");
+                    continue;
+                }
+                else
+                {
+                    addedFields.Add(fieldName);
+                    subscribedData[gameEnum].Add(subscription);
+                    if (!subscription.isGroup)
+                    {
+                        data[fieldName] = new LinkedList<OverlayLapData>();
+                    }
+                }
+            }
+        }
+
+        public static List<OverlaySubscription> getOverlaySubscriptions()
+        {
+            List<OverlaySubscription> overlaySubscriptions;
+            if (subscribedData.TryGetValue(CrewChief.gameDefinition.gameEnum, out overlaySubscriptions))
+            {
+                return overlaySubscriptions;
+            }
+            else
+            {
+                return new List<OverlaySubscription>();
+            }
+        }
+
+    public static List<string> getAllChartVoiceCommands()
+        {
+            List<string> commands = new List<string>();
+            List<OverlaySubscription> overlaySubscriptions;
+            if (subscribedData.TryGetValue(CrewChief.gameDefinition.gameEnum, out overlaySubscriptions))
+            {
+                foreach (OverlaySubscription subscription in overlaySubscriptions)
+                {
+                    commands.AddRange(subscription.getVoiceCommands());
+                }
+            }
+            return commands;
+        }
+        
+        public static OverlaySubscription getOverlaySubscriptionForId(string id)
+        {
+            if (subscribedData.ContainsKey(CrewChief.gameDefinition.gameEnum))
+            {
+                foreach (OverlaySubscription subscription in subscribedData[CrewChief.gameDefinition.gameEnum])
+                {
+                    if (subscription.id == id)
+                    {
+                        return subscription;
+                    }
+                }
+            }
+            return null;
+        }
+        public static string getLapTimeForBestLapString()
+        {
+            if (lapTimeForBestLapData > 0)
+            {
+                return TimeSpan.FromSeconds(lapTimeForBestLapData).ToString(@"mm\:ss\.fff");
+            }
+            return "--:--:---";
+        }
+        public static string getLapTimeForLastLapString()
+        {
+            try
+            {
+                var sub = data.FirstOrDefault();
+                if (sub.Value != null && sub.Value.Count > 1)
+                { 
+                    int count = 0;
+                    LinkedListNode<OverlayLapData> node = sub.Value.Last;
+                    while (count < OverlayDataSource.countBack)
+                    {
+                        if (node.Previous != null)
+                        {
+                            node = node.Previous;
+                            count++;
+                        }
+                        else
+                        {
+                            OverlayDataSource.countBack = count;
+                            break;
+                        }
+                    }
+                    return TimeSpan.FromSeconds(node.Value.lapTime).ToString(@"mm\:ss\.fff") + ", lap " + node.Value.lapNumber;
+                }
+            }
+            catch(Exception)
+            {
+                return "--:--:---";
+            }
+            return "--:--:---";
+        }
+        public static List<Tuple<float, float[]>> getDataForLap(Tuple<OverlaySubscription, SeriesMode> overlaySubscription, SectorToShow sectorToShow)
+        {
+            List<Tuple<float, float[]>> seriesData = new List<Tuple<float, float[]>>();
+            OverlayLapData overlayLapData = null;
+            if (overlaySubscription.Item2 == SeriesMode.LAST_LAP)
+            {
+                if (data.ContainsKey(overlaySubscription.Item1.fieldName))
+                {
+                    LinkedList<OverlayLapData> allLapData = data[overlaySubscription.Item1.fieldName];
+                    if (allLapData.Count > 1)
+                    {
+                        int count = 0;
+                        LinkedListNode<OverlayLapData> node = allLapData.Last;
+                        while (count < OverlayDataSource.countBack)
+                        {
+                            if (node.Previous != null)
+                            {
+                                node = node.Previous;
+                                count++;
+                            }
+                            else
+                            {
+                                OverlayDataSource.countBack = count;
+                                break;
+                            }
+                        }
+                        overlayLapData = node.Value;
+                        OverlayController.clampXMaxTo = overlayLapData.dataPoints.Max(point => point.distanceRoundTrack);
+                    }
+                }
+            }
+            else if (overlaySubscription.Item2 == SeriesMode.BEST_LAP)
+            {
+                if (OverlayDataSource.bestLapData.ContainsKey(overlaySubscription.Item1.fieldName))
+                {
+                    overlayLapData = OverlayDataSource.bestLapData[overlaySubscription.Item1.fieldName];
+                    OverlayController.clampXMaxTo = overlayLapData.dataPoints.Max(point => point.distanceRoundTrack);
+                }
+            }
+            else if (overlaySubscription.Item2 == SeriesMode.OPPONENT_BEST_LAP)
+            {
+                if (OverlayDataSource.opponentBestLapData.ContainsKey(overlaySubscription.Item1.opponentDataFieldname))
+                {
+                    overlayLapData = OverlayDataSource.opponentBestLapData[overlaySubscription.Item1.opponentDataFieldname];
+                    OverlayController.clampXMaxTo = overlayLapData.dataPoints.Max(point => point.distanceRoundTrack);
+                }
+            }
+            if (overlayLapData != null)
+            {
+                switch (overlaySubscription.Item1.overlayDataType)
+                {
+                    case OverlayDataType.DOUBLE:
+                    case OverlayDataType.FLOAT:
+                    case OverlayDataType.INT:
+                    case OverlayDataType.STRING:
+                        seriesData.AddRange(overlayLapData.convertLapDataToFloat(sectorToShow, OverlayController.x_min, OverlayController.x_max));
+                        break;
+                    case OverlayDataType.FLOAT_3:
+                        seriesData.AddRange(overlayLapData.convertLapDataToFloat_3(sectorToShow, OverlayController.x_min, OverlayController.x_max));
+                        break;
+                    case OverlayDataType.FLOAT_4:
+                    case OverlayDataType.INT_4:
+                    case OverlayDataType.DOUBLE_4:
+                        seriesData.AddRange(overlayLapData.convertLapDataToFloat_4(sectorToShow, OverlayController.x_min, OverlayController.x_max));
+                        break;
+                    default:
+                        break;
+                }
+            }
+            return seriesData;
+        }
+
+        public static void addIRacingData(GameStateData gameState)
+        {
+            if (CrewChief.switchOffChartTelemetryDuringRace && gameState.SessionData.SessionType == SessionType.Race)
+            {
+                return;
+            }
+            if (prevSectorNumber != gameState.SessionData.SectorNumber && !gameState.PitData.InPitlane)
+            {
+                if (sector1End == -1 && prevSectorNumber == 1 && gameState.SessionData.SectorNumber == 2)
+                {
+                    sector1End = gameState.PositionAndMotionData.DistanceRoundTrack;
+                }
+                else if (sector2End == -1 && prevSectorNumber == 2 && gameState.SessionData.SectorNumber == 3)
+                {
+                    sector2End = gameState.PositionAndMotionData.DistanceRoundTrack;
+                }
+                prevSectorNumber = gameState.SessionData.SectorNumber;
+            }
+            CrewChiefV4.iRacing.iRacingSharedMemoryReader.iRacingStructWrapper structWrapper = (CrewChiefV4.iRacing.iRacingSharedMemoryReader.iRacingStructWrapper)gameState.rawGameData;
+            int lapsCompleted = structWrapper.data.Driver.Live.Lap;
+            if (lapsCompleted == -1)
+            {
+                return;
+            }
+            if (lapsCompleted > previousDataPointLapCompleted)
+            {
+                foreach (OverlaySubscription field in subscribedData[GameEnum.IRACING])
+                {
+                    if (field.isGroup || field.isDiskData || !data.TryGetValue(field.fieldName, out var overlayData))
+                    {
+                        continue;
+                    }
+                    List<DataPoint> dataFromPrevious = new List<DataPoint>();
+                    if (overlayData.Count > 0)
+                    {
+                        dataFromPrevious = overlayData.Last.Value.dataPoints.Where(d => d.distanceRoundTrack < gameState.PositionAndMotionData.DistanceRoundTrack).ToList();
+                    }
+                    overlayData.AddLast(new OverlayLapData(lapsCompleted, dataFromPrevious, 0));
+                }
+                previousDataPointLapCompleted = lapsCompleted;
+            }
+
+            if (gameState.SessionData.IsNewLap && gameState.SessionData.LapTimePrevious > 1.0f)
+            {
+                // get the last lap time if it's valid                
+                Boolean copyBestLapData = false;
+                float lastLapTime = gameState.SessionData.LapTimePrevious;
+                if (previousDataPointLapCompleted != int.MinValue && (OverlayDataSource.lapTimeForBestLapData == -1 || lastLapTime < OverlayDataSource.lapTimeForBestLapData))
+                {
+                    copyBestLapData = true;
+                    OverlayDataSource.lapTimeForBestLapData = lastLapTime;
+                }
+                foreach (OverlaySubscription field in subscribedData[GameEnum.IRACING])
+                {
+                    if (field.isGroup || field.isDiskData || !data.TryGetValue(field.fieldName, out var overlayData))
+                    {
+                        continue;
+                    }
+                    if (overlayData.Count > 0)
+                    {
+                        if (copyBestLapData)
+                        {
+                            OverlayDataSource.bestLapData[field.fieldName] = overlayData.Last.Previous.Value;
+                        }
+                        overlayData.Last.Previous.Value.lapTime = lastLapTime;
+                    }
+                }
+
+            }
+            foreach (OverlaySubscription field in subscribedData[GameEnum.IRACING])
+            {
+                if (field.isGroup || field.isDiskData || !data.TryGetValue(field.fieldName, out var overlayData))
+                {
+                    continue;
+                }
+                if (overlayData.Count == 0)
+                {
+                    overlayData.AddLast(new OverlayLapData(lapsCompleted));
+                }
+                OverlayLapData lapData = overlayData.Last.Value;
+                previousDataPointLapCompleted = lapsCompleted;
+                float distanceRoundTrack = gameState == null ? 0 : gameState.PositionAndMotionData.DistanceRoundTrack;
+                object dataSource = field.isRawField ? (object)structWrapper.data.Telemetry : (object)gameState;
+                lapData.addDataPoint(new DataPoint(lapsCompleted, distanceRoundTrack,
+                        getPropertyValue(dataSource, field.fieldName), field.overlayDataType, structWrapper.ticksWhenRead, gameState.SessionData.SectorNumber));
+            }
+
+            if (mapOpponentData)
+            {
+                addOpponentData(gameState.carClass.carClassEnum, gameState.OpponentData, structWrapper.ticksWhenRead);
+            }
+        }
+
+        public static void addGameData(GameStateData gameState)
+        {
+            if (CrewChief.switchOffChartTelemetryDuringRace && gameState.SessionData.SessionType == SessionType.Race)
+            {
+                return;
+            }
+
+            if (prevSectorNumber != gameState.SessionData.SectorNumber && !gameState.PitData.InPitlane)
+            {
+                if (sector1End == -1 && prevSectorNumber == 1 && gameState.SessionData.SectorNumber == 2)
+                {
+                    sector1End = gameState.PositionAndMotionData.DistanceRoundTrack;
+                }
+                else if (sector2End == -1 && prevSectorNumber == 2 && gameState.SessionData.SectorNumber == 3)
+                {
+                    sector2End = gameState.PositionAndMotionData.DistanceRoundTrack;
+                }
+                prevSectorNumber = gameState.SessionData.SectorNumber;
+            }
+            int lapsCompleted = gameState.SessionData.CompletedLaps;
+            if (lapsCompleted > previousDataPointLapCompleted)
+            {                
+                // get the last lap time if it's valid
+                Boolean copyBestLapData = false;
+                float lastLapTime = gameState.SessionData.LapTimePrevious;
+                if (gameState.SessionData.PreviousLapWasValid)
+                {
+                    if (lastLapTime > 0 && (OverlayDataSource.lapTimeForBestLapData == -1 || lastLapTime < OverlayDataSource.lapTimeForBestLapData))
+                    {
+                        copyBestLapData = true;
+                        OverlayDataSource.lapTimeForBestLapData = lastLapTime;
+                    }
+                }
+                foreach (OverlaySubscription field in subscribedData[CrewChief.gameDefinition.gameEnum])
+                {
+                    if (field.isGroup || field.isDiskData || !data.TryGetValue(field.fieldName, out var overlayData))
+                    {
+                        continue;
+                    }
+                    if (copyBestLapData)
+                    {
+                        OverlayDataSource.bestLapData[field.fieldName] = overlayData.Last.Value;
+                    }
+                    if (overlayData.Count > 0)
+                    {
+                        overlayData.Last.Value.lapTime = lastLapTime;
+                    }                    
+                    overlayData.AddLast(new OverlayLapData(lapsCompleted));
+                    previousDataPointLapCompleted = lapsCompleted;
+                }
+            }
+
+            foreach (OverlaySubscription field in subscribedData[CrewChief.gameDefinition.gameEnum])
+            {
+                if (field.isGroup || field.isDiskData || !data.TryGetValue(field.fieldName, out var overlayData))
+                {
+                    continue;
+                }
+                if (overlayData.Count == 0)
+                {
+                    overlayData.AddLast(new OverlayLapData(0));
+                }
+                OverlayLapData lapData = overlayData.Last.Value;
+                previousDataPointLapCompleted = lapsCompleted;
+                float distanceRoundTrack = gameState == null ? 0 : gameState.PositionAndMotionData.DistanceRoundTrack;
+
+                if (field.isRawField)
+                {
+                    switch (CrewChief.gameDefinition.gameEnum)
+                    {
+                        case GameEnum.RACE_ROOM:
+                            lapData.addDataPoint(new DataPoint(lapsCompleted, distanceRoundTrack,
+                                getPropertyValue(((CrewChiefV4.RaceRoom.R3ESharedMemoryReader.R3EStructWrapper)gameState.rawGameData).data, field.fieldName), field.overlayDataType, gameState.Ticks, gameState.SessionData.SectorNumber));
+                            break;
+                        case GameEnum.PCARS2:
+                            lapData.addDataPoint(new DataPoint(lapsCompleted, distanceRoundTrack,
+                                getPropertyValue(((CrewChiefV4.PCars2.PCars2SharedMemoryReader.PCars2StructWrapper)gameState.rawGameData).data, field.fieldName), field.overlayDataType, gameState.Ticks, gameState.SessionData.SectorNumber));
+                            break;
+                        case GameEnum.PCARS_32BIT:
+                        case GameEnum.PCARS_64BIT:
+                        case GameEnum.PCARS2_NETWORK:
+                            lapData.addDataPoint(new DataPoint(lapsCompleted, distanceRoundTrack,
+                                getPropertyValue(((CrewChiefV4.PCars.PCarsSharedMemoryReader.PCarsStructWrapper)gameState.rawGameData).data, field.fieldName), field.overlayDataType, gameState.Ticks, gameState.SessionData.SectorNumber));
+                            break;
+                        case GameEnum.RF1:
+                            lapData.addDataPoint(new DataPoint(lapsCompleted, distanceRoundTrack,
+                                getPropertyValue(((CrewChiefV4.rFactor1.RF1SharedMemoryReader.RF1StructWrapper)gameState.rawGameData), field.fieldName), field.overlayDataType, gameState.Ticks, gameState.SessionData.SectorNumber));
+                            break;
+                        case GameEnum.RF2_64BIT:
+                            lapData.addDataPoint(new DataPoint(lapsCompleted, distanceRoundTrack,
+                                getPropertyValue(((CrewChiefV4.rFactor2.RF2SharedMemoryReader.RF2StructWrapper)gameState.rawGameData), field.fieldName), field.overlayDataType, gameState.Ticks, gameState.SessionData.SectorNumber));
+                            break;
+                        case GameEnum.ACC:
+                            lapData.addDataPoint(new DataPoint(lapsCompleted, distanceRoundTrack,
+                                getPropertyValue(((CrewChiefV4.ACC.ACCSharedMemoryReader.ACCStructWrapper)gameState.rawGameData).data, field.fieldName), field.overlayDataType, gameState.Ticks, gameState.SessionData.SectorNumber));
+                            break;
+                        case GameEnum.ASSETTO_32BIT:
+                        case GameEnum.ASSETTO_64BIT:
+                            lapData.addDataPoint(new DataPoint(lapsCompleted, distanceRoundTrack,
+                                getPropertyValue(((CrewChiefV4.assetto.ACSSharedMemoryReader.ACSStructWrapper)gameState.rawGameData).data, field.fieldName), field.overlayDataType, gameState.Ticks, gameState.SessionData.SectorNumber));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                else
+                {
+                    lapData.addDataPoint(new DataPoint(lapsCompleted, distanceRoundTrack,
+                        getPropertyValue(gameState, field.fieldName), field.overlayDataType, gameState.Ticks, gameState.SessionData.SectorNumber));
+                }
+            }
+
+            if (mapOpponentData)
+            {
+                addOpponentData(gameState.carClass.carClassEnum, gameState.OpponentData, gameState.Ticks);
+            }
+        }
+
+        public static void addIRacingDiskData(iRSDKSharp.iRacingDiskSDK diskTelemetry, GameStateData gameState)
+        {
+            float trackLength = 1f;
+            if(gameState != null && gameState.SessionData.TrackDefinition != null)
+            {
+                trackLength = gameState.SessionData.TrackDefinition.trackLength;
+            }
+            foreach(var carSpeedData in data["PositionAndMotionData.CarSpeed"])
+            {
+                int lapNumber = carSpeedData.lapNumber;
+                if (diskTelemetry.lapOffsets.TryGetValue(carSpeedData.lapNumber,out var offset))
+                {
+                    List<float> lapDistance = diskTelemetry.GetDataForLap("LapDistPct", lapNumber).ConvertAll(o => (float)o);
+                    List<int> sessionTick = diskTelemetry.GetDataForLap("SessionTick", lapNumber).ConvertAll(o => (int)o);
+                    foreach (OverlaySubscription field in subscribedData[GameEnum.IRACING])
+                    {
+                        if (field.isGroup || !field.isDiskData || !data.TryGetValue(field.fieldName, out var overlayData))
+                        {
+                            continue;
+                        }                        
+                        OverlayLapData lapData = overlayData.AddLast(new OverlayLapData(lapNumber)).Value;
+                        lapData.lapTime = carSpeedData.lapTime;
+                        List<object> telemetryLapData = diskTelemetry.GetDataForLap(field.fieldName, lapNumber);
+                        if (telemetryLapData.Count > 0)
+                        {
+                            for (int i = 0; i < telemetryLapData.Count; i++)
+                            {
+                                float lapDistanceMetres = lapDistance[i] * trackLength;
+                                int sectorNumber = -1;
+                                if (sector1End > 0 && sector2End > 0)
+                                {
+                                    sectorNumber = lapDistanceMetres < sector1End ? 1 : lapDistanceMetres < sector2End ? 2 : 3;
+                                }
+                                lapData.addDataPoint(new DataPoint(lapNumber, lapDistanceMetres, telemetryLapData[i], field.overlayDataType, sessionTick[i], sectorNumber));
+                            }
+                            if (lapData.lapTime > 0 && (OverlayDataSource.lapTimeForBestLapData == -1 || lapData.lapTime <= OverlayDataSource.lapTimeForBestLapData))
+                            {
+                                OverlayDataSource.lapTimeForBestLapData = lapData.lapTime;
+                                OverlayDataSource.bestLapData[field.fieldName] = lapData;
+                            }                            
+                        }
+                    }
+                }
+            }
+        }
+
+        private static void addOpponentData(CarData.CarClassEnum carClassEnum, Dictionary<string, OpponentData> allOpponentData, long ticks)
+        {
+            foreach (KeyValuePair<string, OpponentData> entry in allOpponentData)
+            {
+                string driverName = entry.Key;
+                OpponentData opponentData = entry.Value;
+                if (CrewChief.forceSingleClass || opponentData.CarClass.carClassEnum == carClassEnum)
+                {
+                    Dictionary<string, OverlayLapData> thisOpponentCurrentLapData;
+                    if (!opponentsCurrentLapData.TryGetValue(driverName, out thisOpponentCurrentLapData))
+                    {
+                        thisOpponentCurrentLapData = new Dictionary<string, OverlayLapData>();
+                        opponentsCurrentLapData.Add(driverName, thisOpponentCurrentLapData);
+                    }
+                    if (opponentData.IsNewLap)
+                    {
+                        if (opponentData.LastLapValid && opponentData.LastLapTime > 0 &&
+                            opponentData.LastLapTime < bestOpponentLap && thisOpponentCurrentLapData.Count > 0)
+                        {
+                            opponentBestLapData = cloneLapData(thisOpponentCurrentLapData);
+                            bestOpponentLap = opponentData.LastLapTime;
+                            bestOpponentLapDriverName = opponentData.DriverRawName;
+                        }
+                        int startPointForCopyFromPrevious;
+                        // get the point where we think we should be starting our previous lap copy from:
+                        OverlayDataSource.startPointsForCopyFromPreviousLap.TryGetValue(driverName, out startPointForCopyFromPrevious);
+                        foreach (KeyValuePair<string, OverlayDataType> field in OverlayDataSource.opponentDataFields)
+                        {
+                            int lapNumber = 0;
+                            List<DataPoint> previousData = null;
+                            if (thisOpponentCurrentLapData.ContainsKey(field.Key))
+                            {
+                                lapNumber = thisOpponentCurrentLapData[field.Key].lapNumber + 1;
+                                previousData = thisOpponentCurrentLapData[field.Key].dataPoints;
+                            }
+                            thisOpponentCurrentLapData[field.Key] = new OverlayLapData(lapNumber, previousData, startPointForCopyFromPrevious);
+                        }
+                    }
+                    else
+                    {
+                        float thisPointLapDistance = opponentData.DistanceRoundTrack;
+                        float lastPointLapDistance;
+                        Boolean isLapStartPoint = false;
+
+                        if (opponentData.CompletedLaps > 0 &&
+                            OverlayDataSource.lastPointLapDistances.TryGetValue(driverName, out lastPointLapDistance)
+                            && lastPointLapDistance - thisPointLapDistance > 300)
+                        {
+                            // this driver's lap distance has gone down by a lot, so assume this is the point where he crossed the line 
+                            // and we need to copy all the data after this point into the next lap
+                            isLapStartPoint = true;
+                        }
+                        OverlayDataSource.lastPointLapDistances[driverName] = thisPointLapDistance;
+                        foreach (KeyValuePair<string, OverlayDataType> field in OverlayDataSource.opponentDataFields)
+                        {
+                            OverlayLapData dataForThisField;
+                            if (!thisOpponentCurrentLapData.TryGetValue(field.Key, out dataForThisField))
+                            {
+                                dataForThisField = new OverlayLapData(0);
+                                thisOpponentCurrentLapData[field.Key] = dataForThisField;
+                            }
+                            dataForThisField.addDataPoint(new DataPoint(opponentData.CompletedLaps, opponentData.DistanceRoundTrack,
+                                getPropertyValue(opponentData, field.Key), field.Value, ticks, opponentData.CurrentSectorNumber));                  
+                            if (isLapStartPoint)
+                            {
+                                startPointsForCopyFromPreviousLap[driverName] = dataForThisField.dataPoints.Count;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private static Dictionary<string, OverlayLapData> cloneLapData(Dictionary<string, OverlayLapData> opponentLapData)
+        {
+            Dictionary<string, OverlayLapData> clone = new Dictionary<string, OverlayLapData>();
+            foreach (KeyValuePair<string, OverlayLapData> entry in opponentLapData)
+            {
+                OverlayLapData clonedOverlayLapData = new OverlayLapData(entry.Value.lapNumber);
+                clonedOverlayLapData.dataPoints = new List<DataPoint>(entry.Value.dataPoints);
+                clone.Add(entry.Key, clonedOverlayLapData);
+
+            }
+            return clone;
+        }
+
+        public static object getPropertyValue(object src, string propName)
+        {
+            if (src == null) throw new ArgumentException("Value cannot be null.", "src");
+            if (propName == null) throw new ArgumentException("Value cannot be null.", "propName");
+
+            if (propName.Contains("."))//complex type nested
+            {
+                var temp = propName.Split(new char[] { '.' }, 2);
+                return getPropertyValue(getPropertyValue(src, temp[0]), temp[1]);
+            }
+            else
+            {
+                FieldInfo field = src.GetType().GetField(propName);
+                if (field != null)
+                {
+                    return field.GetValue(src);
+                }
+                else
+                {
+                    PropertyInfo prop = src.GetType().GetProperty(propName);
+                    return prop != null ? prop.GetValue(src) : null;
+                }                
+            }
+        }
+    }
+    public enum OverlayDataType
+    {
+        FLOAT, DOUBLE, INT, STRING,
+        /* 4 element arrays for tyre data */
+        FLOAT_4, INT_4, DOUBLE_4,
+        /* 3 element array for IMO tyre data */
+        FLOAT_3
+    }
+    public enum YAxisScaling
+    {
+        AUTO, MANUAL
+    }
+    public enum X_AXIS_TYPE
+    {
+        DISTANCE, TIME
+    }
+    public enum SectorToShow
+    {
+        ALL = 0, SECTOR_1 = 1, SECTOR_2 = 2, SECTOR_3 = 3
+    }
+
+    class OverlayLapData
+    {
+        public int lapNumber;
+        public List<DataPoint> dataPoints = new List<DataPoint>();
+        public float lapTime = -1;
+        public OverlayLapData(int lapNumber)
+        {
+            this.lapNumber = lapNumber;
+        }
+        public OverlayLapData(int lapNumber, List<DataPoint> previousLapData, int previousLapCopyStartPoint)
+        {
+            this.lapNumber = lapNumber;
+            if (previousLapCopyStartPoint > 0)
+            {
+                dataPoints.AddRange(previousLapData.GetRange(previousLapCopyStartPoint, previousLapData.Count - previousLapCopyStartPoint));
+            }
+        }
+        public void addDataPoint(DataPoint dataPoint)
+        {
+            this.dataPoints.Add(dataPoint);
+        }
+        public List<DataPoint> getDataPoints()
+        {
+            return new List<DataPoint>(dataPoints);
+        }
+        public List<Tuple<float, float[]>> convertLapDataToFloat(SectorToShow sectorToShow, float startPoint = -1, float endPoint = -1)
+        {
+            List<Tuple<float, float[]>> data = new List<Tuple<float, float[]>>();
+            if (dataPoints.Count > 0)
+            {
+                long startTicks = dataPoints[0].ticksWhenRead;
+                Boolean foundStartOfLap = false;
+                float previousPointDistanceRoundTrack = float.MinValue;
+                bool gotFirstPoint = false;
+                foreach (DataPoint dataPoint in dataPoints)
+                {
+                    if (dataPoint.distanceRoundTrack < 100)
+                    {
+                        foundStartOfLap = true;
+                    }
+                    if (foundStartOfLap)
+                    {
+                        if (previousPointDistanceRoundTrack - dataPoint.distanceRoundTrack > 200)
+                        {
+                            // this is generally because a datapoint from the next lap has leaked into this lap's data
+                            break;
+                        }
+                        // if we have no distance range and the data point is in the required sector, add it. If we have a distance range, it must be in that range
+                        if ((startPoint == -1 && endPoint == -1 && (sectorToShow == SectorToShow.ALL || dataPoint.sector <= 0 || dataPoint.sector == (int)sectorToShow))
+                            || dataPoint.distanceRoundTrack >= startPoint && dataPoint.distanceRoundTrack <= endPoint)
+                        {
+                            float xPoint = OverlayDataSource.xAxisType == X_AXIS_TYPE.DISTANCE ?
+                               dataPoint.distanceRoundTrack : (float)TimeSpan.FromTicks(dataPoint.ticksWhenRead - startTicks).TotalSeconds;
+                            data.Add(new Tuple<float, float[]>(xPoint, new float[] { dataPoint.convertToFloat() }));
+                            if (startPoint == -1 && endPoint == -1)
+                            {
+                                if (!gotFirstPoint)
+                                {
+                                    OverlayController.x_min = dataPoint.distanceRoundTrack;
+                                    gotFirstPoint = true;
+                                }
+                                OverlayController.x_max = dataPoint.distanceRoundTrack;
+                            }
+                        }
+                        previousPointDistanceRoundTrack = dataPoint.distanceRoundTrack;
+                    }                    
+                }
+            }
+            return data;
+        }
+        public List<Tuple<float, float[]>> convertLapDataToFloat_4(SectorToShow sectorToShow, float startPoint = -1, float endPoint = -1)
+        {
+            List<Tuple<float, float[]>> data = new List<Tuple<float, float[]>>();
+            if (dataPoints.Count > 0)
+            {
+                Boolean foundStartOfLap = false;
+                float previousPointDistanceRoundTrack = float.MinValue;
+                long startTicks = dataPoints[0].ticksWhenRead;
+                bool gotFirstPoint = false;
+                foreach (DataPoint dataPoint in dataPoints)
+                {
+                    if (dataPoint.distanceRoundTrack < 100)
+                    {
+                        foundStartOfLap = true;
+                    }
+                    if (foundStartOfLap)
+                    {
+                        if (previousPointDistanceRoundTrack - dataPoint.distanceRoundTrack > 200)
+                        {
+                            // this is generally because a datapoint from the next lap has leaked into this lap's data
+                            break;
+                        }
+                        // if we have no distance range and the data point is in the required sector, add it. If we have a distance range, it must be in that range
+                        if ((startPoint == -1 && endPoint == -1 && (sectorToShow == SectorToShow.ALL || dataPoint.sector <= 0 || dataPoint.sector == (int)sectorToShow))
+                            || dataPoint.distanceRoundTrack >= startPoint && dataPoint.distanceRoundTrack <= endPoint)
+                        {
+                            float xPoint = OverlayDataSource.xAxisType == X_AXIS_TYPE.DISTANCE ?
+                                dataPoint.distanceRoundTrack : (float)TimeSpan.FromTicks(dataPoint.ticksWhenRead - startTicks).TotalSeconds;
+                            data.Add(new Tuple<float, float[]>(xPoint, dataPoint.convertToFloat_4()));
+                            if (startPoint == -1 && endPoint == -1)
+                            {
+                                if (!gotFirstPoint)
+                                {
+                                    OverlayController.x_min = dataPoint.distanceRoundTrack;
+                                    gotFirstPoint = true;
+                                }
+                                OverlayController.x_max = dataPoint.distanceRoundTrack;
+                            }
+                        }
+                        previousPointDistanceRoundTrack = dataPoint.distanceRoundTrack;
+                    }
+                }
+            }
+            return data;
+        }
+        public List<Tuple<float, float[]>> convertLapDataToFloat_3(SectorToShow sectorToShow, float startPoint = -1, float endPoint = -1)
+        {
+            List<Tuple<float, float[]>> data = new List<Tuple<float, float[]>>();
+            if (dataPoints.Count > 0)
+            {
+                Boolean foundStartOfLap = false;
+                float previousPointDistanceRoundTrack = float.MinValue;
+                long startTicks = dataPoints[0].ticksWhenRead;
+                bool gotFirstPoint = false;
+                foreach (DataPoint dataPoint in dataPoints)
+                {
+                    if (dataPoint.distanceRoundTrack < 100)
+                    {
+                        foundStartOfLap = true;
+                    }
+                    if (foundStartOfLap)
+                    {
+                        if (previousPointDistanceRoundTrack - dataPoint.distanceRoundTrack > 200)
+                        {
+                            // this is generally because a datapoint from the next lap has leaked into this lap's data
+                            break;
+                        }
+                        // if we have no distance range and the data point is in the required sector, add it. If we have a distance range, it must be in that range
+                        if ((startPoint == -1 && endPoint == -1 && (sectorToShow == SectorToShow.ALL || dataPoint.sector <= 0 || dataPoint.sector == (int)sectorToShow))
+                            || dataPoint.distanceRoundTrack >= startPoint && dataPoint.distanceRoundTrack <= endPoint)
+                        {
+                            float xPoint = OverlayDataSource.xAxisType == X_AXIS_TYPE.DISTANCE ?
+                                dataPoint.distanceRoundTrack : (float)TimeSpan.FromTicks(dataPoint.ticksWhenRead - startTicks).TotalSeconds;
+                            data.Add(new Tuple<float, float[]>(xPoint, dataPoint.convertToFloat_3()));
+                            if (startPoint == -1 && endPoint == -1)
+                            {
+                                if (!gotFirstPoint)
+                                {
+                                    OverlayController.x_min = dataPoint.distanceRoundTrack;
+                                    gotFirstPoint = true;
+                                }
+                                OverlayController.x_max = dataPoint.distanceRoundTrack;
+                            }
+                        }
+                        previousPointDistanceRoundTrack = dataPoint.distanceRoundTrack;
+                    }
+                }
+            }
+            return data;
+        }
+    }
+    class DataPoint
+    {
+        public int lapsCompleted;
+        public object datum;
+        public OverlayDataType dataType;
+        public long ticksWhenRead;
+        public float distanceRoundTrack;
+        public int sector;
+        public DataPoint(int lapsCompleted, float distanceRoundTrack, object datum, OverlayDataType dataType, long ticksWhenRead, int sector)
+        {
+            this.lapsCompleted = lapsCompleted;
+            this.distanceRoundTrack = distanceRoundTrack;
+            this.datum = datum;
+            this.dataType = dataType;
+            this.ticksWhenRead = ticksWhenRead;
+            this.sector = sector;
+        }
+
+        public float convertToFloat()
+        {
+            switch (dataType)
+            {
+                case OverlayDataType.DOUBLE:
+                case OverlayDataType.FLOAT:
+                case OverlayDataType.INT:
+                    return Convert.ToSingle(datum);
+                case OverlayDataType.STRING:
+                    return float.Parse((string)datum);
+                default:
+                    throw new Exception("Unable to convert " + dataType + " to float");
+            }
+        }
+
+        public int convertToInt()
+        {
+            switch (dataType)
+            {
+                case OverlayDataType.DOUBLE:
+                case OverlayDataType.FLOAT:
+                    return (int)Math.Round((double)datum);
+                case OverlayDataType.INT:
+                    return (int)datum;
+                case OverlayDataType.STRING:
+                    return int.Parse((string)datum);
+                default:
+                    throw new Exception("Unable to convert " + dataType + " to int");
+            }
+        }
+
+        public float[] convertToFloat_4()
+        {
+            float[] converted = new float[4];
+            switch (dataType)
+            {
+                case OverlayDataType.DOUBLE_4:
+                    double[] doubleDatum = (double[])datum;
+                    converted[0] = Convert.ToSingle(doubleDatum[0]);
+                    converted[1] = Convert.ToSingle(doubleDatum[1]);
+                    converted[2] = Convert.ToSingle(doubleDatum[2]);
+                    converted[3] = Convert.ToSingle(doubleDatum[3]);
+                    return converted;
+                case OverlayDataType.FLOAT_4:
+                    return (float[])datum;
+                case OverlayDataType.INT_4:
+                    int[] intDatum = (int[])datum;
+                    converted[0] = Convert.ToSingle(intDatum[0]);
+                    converted[1] = Convert.ToSingle(intDatum[1]);
+                    converted[2] = Convert.ToSingle(intDatum[2]);
+                    converted[3] = Convert.ToSingle(intDatum[3]);
+                    return converted;
+                default:
+                    throw new Exception("Unable to convert " + dataType + " to float_4");
+            }
+        }
+
+        public float[] convertToFloat_3()
+        {
+            float[] converted = new float[3];
+            switch (dataType)
+            {
+                case OverlayDataType.FLOAT_3:
+                    return (float[])datum;
+                default:
+                    throw new Exception("Unable to convert " + dataType + " to float_3");
+            }
+        }
+
+        public int[] convertToInt_4()
+        {
+            int[] converted = new int[4];
+            switch (dataType)
+            {
+                case OverlayDataType.DOUBLE_4:
+                    double[] doubleDatum = (double[])datum;
+                    converted[0] = (int)Math.Round(doubleDatum[0]);
+                    converted[1] = (int)Math.Round(doubleDatum[1]);
+                    converted[2] = (int)Math.Round(doubleDatum[2]);
+                    converted[3] = (int)Math.Round(doubleDatum[3]);
+                    return converted;
+                case OverlayDataType.FLOAT_4:
+                    float[] floatDatum = (float[])datum;
+                    converted[0] = (int)Math.Round(floatDatum[0]);
+                    converted[0] = (int)Math.Round(floatDatum[1]);
+                    converted[0] = (int)Math.Round(floatDatum[2]);
+                    converted[0] = (int)Math.Round(floatDatum[3]);
+                    return converted;
+                case OverlayDataType.INT_4:
+                    return (int[])datum;
+                default:
+                    throw new Exception("Unable to convert " + dataType + " to int_4");
+            }
+        }
+    }
+}

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.IO.MemoryMappedFiles;
 using System.Runtime.InteropServices;
+using System.IO;
 
 namespace iRSDKSharp
 {
@@ -27,7 +28,6 @@ namespace iRSDKSharp
             VarHeaderSize = Marshal.SizeOf(typeof(VarHeader));
             VarBufSize = Marshal.SizeOf(typeof(VarBuf));
         }
-
         public int OffsetLatest
         {
             get

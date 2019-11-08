@@ -117,7 +117,11 @@ namespace CrewChiefV4.iRacing
             //we do not have lastlaptime from opponents available in telemetry so we use data from sessioninfo.
             if(Driver.Id == e.PlayerCarIdx)
             {
-                LapTimePrevious = e.LapLastLapTime;                           
+                LapTimePrevious = e.LapLastLapTime;
+                if(e.RPM == 0)
+                {
+                    e.RPM = Rpm;
+                }
             }
             else
             {

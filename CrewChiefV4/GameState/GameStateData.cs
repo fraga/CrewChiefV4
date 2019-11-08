@@ -178,6 +178,7 @@ namespace CrewChiefV4.GameState
 
         public Boolean EngineStalledWarning;
 
+        public int Gear;
     }
 
     public class FuelData
@@ -1483,6 +1484,10 @@ namespace CrewChiefV4.GameState
         public int CurrentSectorNumber;
 
         public float Speed;
+
+        public float RPM;
+
+        public int Gear;
 
         public float[] WorldPosition;
 
@@ -3427,6 +3432,23 @@ namespace CrewChiefV4.GameState
         }
     }
 
+    public class TelemetryData
+    {
+        public class PerWheelData
+        {
+            public Double SuspensionDeflection = -1.0;
+            public Double RideHeight = -1.0;
+        }
+
+        public Double FrontDownforce = -1.0;
+        public Double RearDownforce = -1.0;
+
+        public PerWheelData FrontLeftData = new PerWheelData();
+        public PerWheelData FrontRightData = new PerWheelData();
+        public PerWheelData RearLeftData = new PerWheelData();
+        public PerWheelData RearRightData = new PerWheelData();
+    }
+
     public class GameStateData
     {
         // first some static crap to ensure the code is sufficiently badly factored
@@ -3446,6 +3468,8 @@ namespace CrewChiefV4.GameState
         public long Ticks;
 
         public DateTime Now;
+
+        public object rawGameData = null;
         // lazily initialised only when we're using trace playback:
         public String CurrentTimeStr;
 
@@ -4401,6 +4425,23 @@ namespace CrewChiefV4.GameState
                 }
             }
             return bestLapWithSectors;
+        }
+
+        private TelemetryData _TelemetryData;
+        public TelemetryData TelemetryData
+        {
+            get
+            {
+                if (_TelemetryData == null)
+                {
+                    _TelemetryData = new TelemetryData();
+                }
+                return _TelemetryData;
+            }
+            set
+            {
+                _TelemetryData = value;
+            }
         }
     }
 }
