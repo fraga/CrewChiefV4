@@ -104,7 +104,7 @@ namespace CrewChiefV4.Events
         public static String opponentFrontToWatchForPitting = null;
         public static String opponentBehindToWatchForPitting = null;
 
-        private DateTime nextOpponentPitExitWarningDue = DateTime.MinValue;
+        public static DateTime nextOpponentPitExitWarningDue = DateTime.MinValue;
 
         private Boolean printS1Positions = false;
 
@@ -336,7 +336,6 @@ namespace CrewChiefV4.Events
                                         audioPlayer.playMessage(new QueuedMessage("opponent_exiting_in_front", 10,
                                             messageFragments: MessageContents(entry.Value, folderIsPittingFromPosition, entry.Value.ClassPosition, folderHeWillComeOutJustInFront),
                                             abstractEvent: this, priority: 10));
-
                                     }
                                     // only allow one of these every 10 seconds. When an opponent crosses the start line he's 
                                     // removed from this set anyway
