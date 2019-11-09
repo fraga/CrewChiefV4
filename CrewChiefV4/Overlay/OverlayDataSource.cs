@@ -342,7 +342,14 @@ namespace CrewChiefV4.Overlay
                             }
                         }
                         overlayLapData = node.Value;
-                        OverlayController.clampXMaxTo = overlayLapData.dataPoints.Max(point => point.distanceRoundTrack);
+                        try
+                        {
+                            OverlayController.clampXMaxTo = overlayLapData.dataPoints.Max(point => point.distanceRoundTrack);
+                        }
+                        catch (Exception)
+                        {
+                            // ignore
+                        }
                     }
                 }
             }

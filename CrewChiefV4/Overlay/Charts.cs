@@ -333,123 +333,130 @@ namespace CrewChiefV4.Overlay
         private static List<Series> createSeries(Tuple<OverlaySubscription, SeriesMode> overlaySubscription)
         {
             List<Series> seriesList = new List<Series>();
-            List<Tuple<float, float[]>> data = OverlayDataSource.getDataForLap(overlaySubscription, OverlayController.sectorToShow);
-
-            // set up the axes from the first data point if we have one
-            if (data.Count > 0)
+            try
             {
-                int bestLapColourIndex = 0;
-                int lastLapColourIndex = 0;
-                int opponentBestLapColourIndex = 0;
-                String laptimeString = "--:--:---";
-                switch (overlaySubscription.Item2)
+                List<Tuple<float, float[]>> data = OverlayDataSource.getDataForLap(overlaySubscription, OverlayController.sectorToShow);
+
+                // set up the axes from the first data point if we have one
+                if (data.Count > 0)
                 {
-                    case SeriesMode.LAST_LAP:
-                        laptimeString = OverlayDataSource.getLapTimeForLastLapString();
-                        break;
-                    case SeriesMode.BEST_LAP:
-                        laptimeString = OverlayDataSource.getLapTimeForBestLapString();
-                        break;
-                    case SeriesMode.OPPONENT_BEST_LAP:
-                        if (OverlayDataSource.bestOpponentLap > 0)
-                        {
-                            laptimeString = OverlayDataSource.bestOpponentLapDriverName + "\n" + TimeSpan.FromSeconds(OverlayDataSource.bestOpponentLap).ToString(@"mm\:ss\.fff");
-                        }
-                        break;
-                }
-                OverlayDataSource.getLapTimeForBestLapString();
-                Boolean addedLaptime = false;
-                for (int i = 0; i < data[0].Item2.Length; i++)
-                {
-                    string name;
-                    if (!addedLaptime)
+                    int bestLapColourIndex = 0;
+                    int lastLapColourIndex = 0;
+                    int opponentBestLapColourIndex = 0;
+                    String laptimeString = "--:--:---";
+                    switch (overlaySubscription.Item2)
                     {
-                        name = overlaySubscription.Item1.labels[0] + " " + Configuration.getUIString("chart_label_" + overlaySubscription.Item2) + ",\n" + laptimeString;
-                        addedLaptime = true;
-                    }
-                    else
-                    {
-                        name = overlaySubscription.Item1.labels[0] + " " + Configuration.getUIString("chart_label_" + overlaySubscription.Item2);
-                    }
-                    var series = new Series
-                    {
-                        Name = name,
-                        IsVisibleInLegend = true,
-                        IsXValueIndexed = false,
-                        ChartType = SeriesChartType.Line,
-                        /* white ==> needs to be auto-set*/
-                        Color = Color.White,
-                    };
-                    if (overlaySubscription.Item2 == SeriesMode.LAST_LAP && overlaySubscription.Item1.coloursLastLap.Count() > i)
-                    {
-                        try
-                        {
-                            series.Color = Color.FromName(overlaySubscription.Item1.coloursLastLap[lastLapColourIndex]);
-                        }
-                        catch (Exception) { }
-                        lastLapColourIndex++;
-                    }
-                    else if (overlaySubscription.Item2 == SeriesMode.BEST_LAP && overlaySubscription.Item1.coloursBestLap.Count() > i)
-                    {
-                        try
-                        {
-                            series.Color = Color.FromName(overlaySubscription.Item1.coloursBestLap[bestLapColourIndex]);
-                        }
-                        catch (Exception) { }
-                        bestLapColourIndex++;
-                    }
-                    else if (overlaySubscription.Item2 == SeriesMode.OPPONENT_BEST_LAP && overlaySubscription.Item1.coloursOpponentBestLap.Count() > i)
-                    {
-                        try
-                        {
-                            series.Color = Color.FromName(overlaySubscription.Item1.coloursOpponentBestLap[opponentBestLapColourIndex]);
-                        }
-                        catch (Exception) { }
-                        opponentBestLapColourIndex++;
-                    }
-                    bool autoScaleMin = true;
-                    bool autoScaleMax = true;
-                    if (overlaySubscription.Item1.yAxisMinScaling == YAxisScaling.MANUAL)
-                    {
-                        if (overlaySubscription.Item1.yMin < y_min)
-                        {
-                            y_min = overlaySubscription.Item1.yMin;
-                        }
-                        autoScaleMin = false;
-                    }
-                    if (overlaySubscription.Item1.yAxisMaxScaling == YAxisScaling.MANUAL)
-                    {
-                        if (overlaySubscription.Item1.yMax > y_max)
-                        {
-                            y_max = overlaySubscription.Item1.yMax;
-                        }
-                        autoScaleMax = false;
-                    }
-                    bool gotXMin = false;
-                    foreach (Tuple<float, float[]> overlayDataPoint in data)
-                    {
-                        if (!gotXMin)
-                        {
-                            x_min = overlayDataPoint.Item1;
-                            // special case for when we're at the start of the range - ensure the first X point is actually 0
-                            if (x_min < 10)
+                        case SeriesMode.LAST_LAP:
+                            laptimeString = OverlayDataSource.getLapTimeForLastLapString();
+                            break;
+                        case SeriesMode.BEST_LAP:
+                            laptimeString = OverlayDataSource.getLapTimeForBestLapString();
+                            break;
+                        case SeriesMode.OPPONENT_BEST_LAP:
+                            if (OverlayDataSource.bestOpponentLap > 0)
                             {
-                                x_min = 0;
+                                laptimeString = OverlayDataSource.bestOpponentLapDriverName + "\n" + TimeSpan.FromSeconds(OverlayDataSource.bestOpponentLap).ToString(@"mm\:ss\.fff");
                             }
-                            gotXMin = true;
-                        }
-                        if (autoScaleMax && overlayDataPoint.Item2[i] > y_max)
-                        {
-                            y_max = overlayDataPoint.Item2[i];
-                        }
-                        if (autoScaleMin && overlayDataPoint.Item2[i] < y_min)
-                        {
-                            y_min = overlayDataPoint.Item2[i];
-                        }
-                        series.Points.AddXY((float)overlayDataPoint.Item1, overlayDataPoint.Item2[i]);
+                            break;
                     }
-                    seriesList.Add(series);
+                    OverlayDataSource.getLapTimeForBestLapString();
+                    Boolean addedLaptime = false;
+                    for (int i = 0; i < data[0].Item2.Length; i++)
+                    {
+                        string name;
+                        if (!addedLaptime)
+                        {
+                            name = overlaySubscription.Item1.labels[0] + " " + Configuration.getUIString("chart_label_" + overlaySubscription.Item2) + ",\n" + laptimeString;
+                            addedLaptime = true;
+                        }
+                        else
+                        {
+                            name = overlaySubscription.Item1.labels[0] + " " + Configuration.getUIString("chart_label_" + overlaySubscription.Item2);
+                        }
+                        var series = new Series
+                        {
+                            Name = name,
+                            IsVisibleInLegend = true,
+                            IsXValueIndexed = false,
+                            ChartType = SeriesChartType.Line,
+                            /* white ==> needs to be auto-set*/
+                            Color = Color.White,
+                        };
+                        if (overlaySubscription.Item2 == SeriesMode.LAST_LAP && overlaySubscription.Item1.coloursLastLap.Count() > i)
+                        {
+                            try
+                            {
+                                series.Color = Color.FromName(overlaySubscription.Item1.coloursLastLap[lastLapColourIndex]);
+                            }
+                            catch (Exception) { }
+                            lastLapColourIndex++;
+                        }
+                        else if (overlaySubscription.Item2 == SeriesMode.BEST_LAP && overlaySubscription.Item1.coloursBestLap.Count() > i)
+                        {
+                            try
+                            {
+                                series.Color = Color.FromName(overlaySubscription.Item1.coloursBestLap[bestLapColourIndex]);
+                            }
+                            catch (Exception) { }
+                            bestLapColourIndex++;
+                        }
+                        else if (overlaySubscription.Item2 == SeriesMode.OPPONENT_BEST_LAP && overlaySubscription.Item1.coloursOpponentBestLap.Count() > i)
+                        {
+                            try
+                            {
+                                series.Color = Color.FromName(overlaySubscription.Item1.coloursOpponentBestLap[opponentBestLapColourIndex]);
+                            }
+                            catch (Exception) { }
+                            opponentBestLapColourIndex++;
+                        }
+                        bool autoScaleMin = true;
+                        bool autoScaleMax = true;
+                        if (overlaySubscription.Item1.yAxisMinScaling == YAxisScaling.MANUAL)
+                        {
+                            if (overlaySubscription.Item1.yMin < y_min)
+                            {
+                                y_min = overlaySubscription.Item1.yMin;
+                            }
+                            autoScaleMin = false;
+                        }
+                        if (overlaySubscription.Item1.yAxisMaxScaling == YAxisScaling.MANUAL)
+                        {
+                            if (overlaySubscription.Item1.yMax > y_max)
+                            {
+                                y_max = overlaySubscription.Item1.yMax;
+                            }
+                            autoScaleMax = false;
+                        }
+                        bool gotXMin = false;
+                        foreach (Tuple<float, float[]> overlayDataPoint in data)
+                        {
+                            if (!gotXMin)
+                            {
+                                x_min = overlayDataPoint.Item1;
+                                // special case for when we're at the start of the range - ensure the first X point is actually 0
+                                if (x_min < 10)
+                                {
+                                    x_min = 0;
+                                }
+                                gotXMin = true;
+                            }
+                            if (autoScaleMax && overlayDataPoint.Item2[i] > y_max)
+                            {
+                                y_max = overlayDataPoint.Item2[i];
+                            }
+                            if (autoScaleMin && overlayDataPoint.Item2[i] < y_min)
+                            {
+                                y_min = overlayDataPoint.Item2[i];
+                            }
+                            series.Points.AddXY((float)overlayDataPoint.Item1, overlayDataPoint.Item2[i]);
+                        }
+                        seriesList.Add(series);
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error creating series for " + overlaySubscription.Item1.fieldName + ", " + overlaySubscription.Item2 + ": " + e.Message);
             }
             return seriesList;
         }
