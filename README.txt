@@ -314,6 +314,8 @@ The voice command fragment for each series is also in this json file. The voice 
 
 The overlay can also be controlled with the mouse. Enable the "Enable input" checkbox on the overlay to show controls for the various chart and overlay functions. The overlay can also be moved around by dragging the title bar when Enable input is checked.
 
+For Occulus users the overlay can be rendered as a separate application window, allowing it to be added to the VR world - enable the 'Enable overlay app window (Oculus mode)' checkbox in the Properties screen.
+
 
 Known Issues Which Aren't Fixable
 ---------------------------------
@@ -369,6 +371,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.10.0.2: Chart controls hotfix
+
 Version 4.10.0.1: Added overlays for console output and telemetry charts. See Overlays section for more info; some audio caching improvments; some minor tweaks and fixes; RF2 - new plugin 
 
 Version 4.9.11.3: Hotfix for app startup issues using nAudio where device names aren't unique
