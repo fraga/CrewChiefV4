@@ -1489,6 +1489,8 @@ namespace CrewChiefV4.GameState
 
         public int Gear;
 
+        public float SteeringWheelAngle;
+
         public float[] WorldPosition;
 
         public Boolean IsNewLap;

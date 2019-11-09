@@ -29,6 +29,11 @@ namespace CrewChiefV4.Overlay
             this.enabled = initialEnabled;
             this.includeFontRectInMouseOver = true;
         }
+        public override void initialize()
+        {
+            if(enabled)
+                this.OnElementLMButtonClicked?.Invoke(this, new OverlayElementClicked(gfx, enabled: enabled, subscriptionDataField: ""));
+        }
         public override void drawElement()
         {
             if (!this.elementEnabled)

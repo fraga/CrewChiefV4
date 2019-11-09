@@ -954,7 +954,7 @@ namespace CrewChiefV4.iRacing
                             currentOpponentData.iRating = driver.IRating;
 
                             updateOpponentData(currentOpponentData, driverName, driver.CustId, currentOpponentOverallPosition, currentOpponentLapsCompleted,
-                                        currentOpponentSector, (float)driver.Live.LapTimePrevious, driver.Live.Gear,driver.Live.Rpm,
+                                        currentOpponentSector, (float)driver.Live.LapTimePrevious, driver.Live.Gear,driver.Live.Rpm,driver.Live.SteeringAngle,
                                         shared.Telemetry.CarIdxOnPitRoad[driver.Id] || driver.Live.TrackSurface == TrackSurfaces.InPitStall, previousIsApporchingPits,
                                         previousOpponentLapValid, currentOpponentLapValid, currentGameState.SessionData.SessionRunningTime, currentOpponentLapDistance,
                                         currentGameState.SessionData.SessionHasFixedTime, currentGameState.SessionData.SessionTimeRemaining,
@@ -1226,7 +1226,7 @@ namespace CrewChiefV4.iRacing
         }
 
         private void updateOpponentData(OpponentData opponentData, String driverName, int CostId, int racePosition, int completedLaps,
-            int sector, float completedLapTime, int gear, float rpm, Boolean isInPits, bool previousIsApporchingPits,
+            int sector, float completedLapTime, int gear, float rpm,float steeringAngle, Boolean isInPits, bool previousIsApporchingPits,
             Boolean previousLapWasValid, Boolean currentLapValid, float sessionRunningTime,
             float distanceRoundTrack, Boolean sessionLengthIsTime, float sessionTimeRemaining,
             Boolean isRace, float airTemperature, float trackTempreture, float speed, float previousSpeed,
@@ -1264,7 +1264,7 @@ namespace CrewChiefV4.iRacing
             opponentData.DistanceRoundTrack = distanceRoundTrack;
             opponentData.Gear = gear;
             opponentData.RPM = rpm;
-
+            opponentData.SteeringWheelAngle = steeringAngle;
             //Check that previous state was IsApporchingPits, this includes the zone befor the pitlane(striped lines on track)
             opponentData.JustEnteredPits = previousIsApporchingPits && isInPits;
 

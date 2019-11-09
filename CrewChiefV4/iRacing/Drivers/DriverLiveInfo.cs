@@ -48,6 +48,7 @@ namespace CrewChiefV4.iRacing
         
         public int Gear { get; private set; }
         public float Rpm { get; private set; }
+        public float SteeringAngle { get; private set; }
 
         public double Speed { get; private set; }
         public double SpeedKph { get; private set; }
@@ -112,10 +113,10 @@ namespace CrewChiefV4.iRacing
                   
             Gear = e.CarIdxGear[Driver.Id];
             Rpm = e.CarIdxRPM[Driver.Id];
-            
+            SteeringAngle = e.CarIdxSteer[Driver.Id];
             //for local player we use data from telemetry as its updated faster then session info,
             //we do not have lastlaptime from opponents available in telemetry so we use data from sessioninfo.
-            if(Driver.Id == e.PlayerCarIdx)
+            if (Driver.Id == e.PlayerCarIdx)
             {
                 LapTimePrevious = e.LapLastLapTime;
                 if(e.RPM == 0)
