@@ -24,7 +24,7 @@ namespace CrewChiefV4.Overlay
         private static Dictionary<string, LinkedList<OverlayLapData>> data = new Dictionary<string, LinkedList<OverlayLapData>>();
 
         // same data as above but for the player's fastest lap in the session
-        private static float lapTimeForBestLapData = -1;
+        private static float lapTimeForBestLapData = float.MaxValue;
         private static Dictionary<string, OverlayLapData> bestLapData = new Dictionary<string, OverlayLapData>();
 
         // opponent data stuff
@@ -284,7 +284,7 @@ namespace CrewChiefV4.Overlay
 
         public static string getLapTimeForBestLapString()
         {
-            if (lapTimeForBestLapData > 0)
+            if (lapTimeForBestLapData > 0 && lapTimeForBestLapData < 10000)
             {
                 return TimeSpan.FromSeconds(lapTimeForBestLapData).ToString(@"mm\:ss\.fff");
             }

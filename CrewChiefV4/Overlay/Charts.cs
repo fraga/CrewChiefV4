@@ -436,7 +436,7 @@ namespace CrewChiefV4.Overlay
                             laptimeString = OverlayDataSource.getLapTimeForBestLapString();
                             break;
                         case SeriesMode.OPPONENT_BEST_LAP:
-                            if (OverlayDataSource.bestOpponentLap > 0)
+                            if (OverlayDataSource.bestOpponentLap > 0 && OverlayDataSource.bestOpponentLap < 10000)
                             {
                                 laptimeString = OverlayDataSource.bestOpponentLapDriverName + "\n" + TimeSpan.FromSeconds(OverlayDataSource.bestOpponentLap).ToString(@"mm\:ss\.fff");
                             }
