@@ -144,7 +144,7 @@ namespace CrewChiefV4.rFactor2
             this.suspensionDamageThresholds.Add(new CornerData.EnumWithThresholds(DamageLevel.DESTROYED, 1.0f, 2.0f));
         }
 
-        private int[] minimumSupportedVersionParts = new int[] { 3, 7, 0, 0 };
+        private int[] minimumSupportedVersionParts = new int[] { 3, 7, 1, 0 };
         public static bool pluginVerified = false;
         public override void versionCheck(Object memoryMappedFileStruct)
         {
@@ -197,7 +197,8 @@ namespace CrewChiefV4.rFactor2
             {
                 var msg = "rFactor 2 Shared Memory version: " + versionStr + " 64bit."
                     + (shared.extended.mDirectMemoryAccessEnabled != 0 && shared.extended.mSCRPluginEnabled != 0 ? ("  Stock Car Rules plugin enabled. (DFT:" + shared.extended.mSCRPluginDoubleFileType + ")")  : "")
-                    + (shared.extended.mDirectMemoryAccessEnabled != 0 ? "  DMA enabled." : "");
+                    + (shared.extended.mDirectMemoryAccessEnabled != 0 ? "  DMA enabled." : "")
+                    + "  UBM: " + shared.extended.mUnsubscribedBuffersMask;
                 Console.WriteLine(msg);
             }
         }
