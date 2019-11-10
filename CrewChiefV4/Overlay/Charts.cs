@@ -330,7 +330,7 @@ namespace CrewChiefV4.Overlay
             }
         }
 
-        public static ChartContainer createWorldPositionSeries(SeriesMode seriesMode, int width, int height)
+        public static ChartContainer createWorldPositionSeries(SeriesMode seriesMode, int height)
         {
             List<DataPoint> dataPoints = OverlayDataSource.getWorldPositions(seriesMode);
             if (dataPoints != null)
@@ -386,10 +386,11 @@ namespace CrewChiefV4.Overlay
 
                 float xrange = xmax - xmin;
                 float yrange = ymax - ymin;
-                chartArea.AxisY.Maximum = ymin + Math.Max(xrange, yrange) + 10;
+                OverlayController.mapXSizeScale = xrange / yrange;
+                chartArea.AxisY.Maximum = ymax + 10;
                 chartArea.AxisY.Minimum = ymin - 10;
                 chartArea.AxisX.Minimum = xmin - 10;
-                chartArea.AxisX.Maximum = xmin + Math.Max(xrange, yrange) + 10;
+                chartArea.AxisX.Maximum = xmax + 10;
                 chartArea.AxisY.Enabled = AxisEnabled.False;
                 chartArea.AxisX.Enabled = AxisEnabled.False;
 
@@ -401,7 +402,7 @@ namespace CrewChiefV4.Overlay
                 chart.ChartAreas.Add(chartArea);
                 chart.Dock = System.Windows.Forms.DockStyle.Fill;
                 chart.Name = "Map";
-                chart.Size = new Size(width, height);
+                chart.Size = new Size((int) (height * OverlayController.mapXSizeScale), height);
                 chart.TabIndex = 0;
                 chart.Text = "Map";
                 ((System.ComponentModel.ISupportInitialize)(chart)).EndInit();

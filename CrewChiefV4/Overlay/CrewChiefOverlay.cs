@@ -475,13 +475,14 @@ namespace CrewChiefV4.Overlay
                 }
                 if (OverlayController.showMap)
                 {
-                    ChartContainer mapContainer = Charts.createWorldPositionSeries(SeriesMode.LAST_LAP, settings.trackMapSize, settings.trackMapSize);
+                    ChartContainer mapContainer = Charts.createWorldPositionSeries(SeriesMode.LAST_LAP, settings.trackMapSize);
                     if (mapContainer != null)
                     {
                         ElementImage mapImage = (ElementImage)chartBox.children.FirstOrDefault(c => c.title == "Map");
                         if (mapImage == null)
                         {
-                            chartBox.AddChildElement(new ElementImage(gfx, mapContainer.subscriptionId, font, new Rect(0, (int)settings.chartHeight, settings.trackMapSize, settings.trackMapSize),
+                            chartBox.AddChildElement(new ElementImage(gfx, mapContainer.subscriptionId, font, new Rect(0, (int)settings.chartHeight, 
+                                OverlayController.mapXSizeScale * settings.trackMapSize, settings.trackMapSize), 
                                 colorSchemeTransparent, chartContainer: mapContainer, imageAlpha: settings.chartAlpha, outlined: true));
                         }
                         else
@@ -518,13 +519,14 @@ namespace CrewChiefV4.Overlay
                 }
                 if (OverlayController.showMap)
                 {
-                    ChartContainer mapContainer = Charts.createWorldPositionSeries(SeriesMode.LAST_LAP, settings.trackMapSize, settings.trackMapSize);
+                    ChartContainer mapContainer = Charts.createWorldPositionSeries(SeriesMode.LAST_LAP, settings.trackMapSize);
                     if (mapContainer != null)
                     {
                         ElementImage mapImage = (ElementImage)chartBox.children.FirstOrDefault(c => c.title == "Map");
                         if (mapImage == null)
                         {
-                            chartBox.AddChildElement(new ElementImage(gfx, mapContainer.subscriptionId, font, new Rect(0, combinedImageHeight, settings.trackMapSize, settings.trackMapSize),
+                            chartBox.AddChildElement(new ElementImage(gfx, mapContainer.subscriptionId, font, new Rect(0, combinedImageHeight,
+                                OverlayController.mapXSizeScale * settings.trackMapSize, settings.trackMapSize),
                                 colorSchemeTransparent, chartContainer: mapContainer, imageAlpha: settings.chartAlpha, outlined: true));
                         }
                         else

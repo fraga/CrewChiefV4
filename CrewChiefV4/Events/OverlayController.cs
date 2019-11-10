@@ -25,7 +25,9 @@ namespace CrewChiefV4.Events
         public static float x_min = -1;
         public static float x_max = -1;
         public static float clampXMaxTo = -1;
+
         public static Boolean showMap = false;
+        public static float mapXSizeScale = 1;
 
         public OverlayController(AudioPlayer audioPlayer)
         {
