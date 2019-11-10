@@ -371,6 +371,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.10.0.3: RF2 plugin hotfix; Added track map to charts when zoomed in (uses car position data) - visible area is hightlighted in red 
+
 Version 4.10.0.2: Chart controls hotfix
 
 Version 4.10.0.1: Added overlays for console output and telemetry charts. See Overlays section for more info; some audio caching improvments; some minor tweaks and fixes; RF2 - new plugin 

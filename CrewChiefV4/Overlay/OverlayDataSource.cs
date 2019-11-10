@@ -43,6 +43,9 @@ namespace CrewChiefV4.Overlay
         // TODO: sort out the initialisation of this and the other subscriptions
         public static Dictionary<string, OverlayDataType> opponentDataFields = new Dictionary<string, OverlayDataType>();
 
+        private static LinkedList<OverlayLapData> worldPositionData = new LinkedList<OverlayLapData>();
+        private static OverlayLapData bestLapWorldPositionData = null;
+
         // sector position stuff:
         private static int prevSectorNumber = -1;
         public static float sector1End = -1;
@@ -209,6 +212,8 @@ namespace CrewChiefV4.Overlay
             opponentBestLapData.Clear();
             sector1End = -1;
             sector2End = -1;
+            worldPositionData.Clear();
+            bestLapWorldPositionData = null;
         }
 
         public static void setDataFieldsForGame(GameEnum gameEnum, List<OverlaySubscription> fields)
@@ -248,7 +253,7 @@ namespace CrewChiefV4.Overlay
             }
         }
 
-    public static List<string> getAllChartVoiceCommands()
+        public static List<string> getAllChartVoiceCommands()
         {
             List<string> commands = new List<string>();
             List<OverlaySubscription> overlaySubscriptions;
@@ -276,6 +281,7 @@ namespace CrewChiefV4.Overlay
             }
             return null;
         }
+
         public static string getLapTimeForBestLapString()
         {
             if (lapTimeForBestLapData > 0)
@@ -284,32 +290,60 @@ namespace CrewChiefV4.Overlay
             }
             return "--:--:---";
         }
+
+        public static List<DataPoint> getWorldPositions(SeriesMode seriesMode)
+        {
+            if (seriesMode == SeriesMode.LAST_LAP && worldPositionData != null && worldPositionData.Last != null)
+            {
+                try
+                {
+                    LinkedListNode<OverlayLapData> node = getCorrectLastLapNode(worldPositionData);
+                    return node.Value.dataPoints;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error getting track map data: " + e.Message + ", " + e.StackTrace);
+                }
+            }
+            else if (seriesMode == SeriesMode.BEST_LAP && bestLapWorldPositionData != null)
+            {
+                return bestLapWorldPositionData.dataPoints;
+            }
+            return null;
+        }
+
+        private static LinkedListNode<OverlayLapData> getCorrectLastLapNode(LinkedList<OverlayLapData> data)
+        {
+            int count = 0;
+            LinkedListNode<OverlayLapData> node = data.Last;
+            while (count < OverlayDataSource.countBack)
+            {
+                if (node != null && node.Previous != null)
+                {
+                    node = node.Previous;
+                    count++;
+                }
+                else
+                {
+                    OverlayDataSource.countBack = count;
+                    break;
+                }
+            }
+            return node;
+        }
+
         public static string getLapTimeForLastLapString()
         {
             try
             {
                 var sub = data.FirstOrDefault();
                 if (sub.Value != null && sub.Value.Count > 1)
-                { 
-                    int count = 0;
-                    LinkedListNode<OverlayLapData> node = sub.Value.Last;
-                    while (count < OverlayDataSource.countBack)
-                    {
-                        if (node.Previous != null)
-                        {
-                            node = node.Previous;
-                            count++;
-                        }
-                        else
-                        {
-                            OverlayDataSource.countBack = count;
-                            break;
-                        }
-                    }
+                {
+                    LinkedListNode<OverlayLapData> node = getCorrectLastLapNode(sub.Value);
                     return TimeSpan.FromSeconds(node.Value.lapTime).ToString(@"mm\:ss\.fff") + ", lap " + node.Value.lapNumber;
                 }
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return "--:--:---";
             }
@@ -326,29 +360,15 @@ namespace CrewChiefV4.Overlay
                     LinkedList<OverlayLapData> allLapData = data[overlaySubscription.Item1.fieldName];
                     if (allLapData.Count > 1)
                     {
-                        int count = 0;
-                        LinkedListNode<OverlayLapData> node = allLapData.Last;
-                        while (count < OverlayDataSource.countBack)
-                        {
-                            if (node.Previous != null)
-                            {
-                                node = node.Previous;
-                                count++;
-                            }
-                            else
-                            {
-                                OverlayDataSource.countBack = count;
-                                break;
-                            }
-                        }
-                        overlayLapData = node.Value;
                         try
                         {
+                            LinkedListNode<OverlayLapData> node = getCorrectLastLapNode(allLapData);
+                            overlayLapData = node.Value;
                             OverlayController.clampXMaxTo = overlayLapData.dataPoints.Max(point => point.distanceRoundTrack);
                         }
-                        catch (Exception)
+                        catch (Exception e)
                         {
-                            // ignore
+                            Console.WriteLine("Error getting lap data: " + e.Message + ", " + e.StackTrace);
                         }
                     }
                 }
@@ -357,16 +377,30 @@ namespace CrewChiefV4.Overlay
             {
                 if (OverlayDataSource.bestLapData.ContainsKey(overlaySubscription.Item1.fieldName))
                 {
-                    overlayLapData = OverlayDataSource.bestLapData[overlaySubscription.Item1.fieldName];
-                    OverlayController.clampXMaxTo = overlayLapData.dataPoints.Max(point => point.distanceRoundTrack);
+                    try
+                    {
+                        overlayLapData = OverlayDataSource.bestLapData[overlaySubscription.Item1.fieldName];
+                        OverlayController.clampXMaxTo = overlayLapData.dataPoints.Max(point => point.distanceRoundTrack);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Error getting best lap data: " + e.Message + ", " + e.StackTrace);
+                    }
                 }
             }
             else if (overlaySubscription.Item2 == SeriesMode.OPPONENT_BEST_LAP)
             {
                 if (OverlayDataSource.opponentBestLapData.ContainsKey(overlaySubscription.Item1.opponentDataFieldname))
                 {
-                    overlayLapData = OverlayDataSource.opponentBestLapData[overlaySubscription.Item1.opponentDataFieldname];
-                    OverlayController.clampXMaxTo = overlayLapData.dataPoints.Max(point => point.distanceRoundTrack);
+                    try
+                    {
+                        overlayLapData = OverlayDataSource.opponentBestLapData[overlaySubscription.Item1.opponentDataFieldname];
+                        OverlayController.clampXMaxTo = overlayLapData.dataPoints.Max(point => point.distanceRoundTrack);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Error getting opponent lap data: " + e.Message + ", " + e.StackTrace);
+                    }
                 }
             }
             if (overlayLapData != null)
@@ -537,8 +571,21 @@ namespace CrewChiefV4.Overlay
                     overlayData.AddLast(new OverlayLapData(lapsCompleted));
                     previousDataPointLapCompleted = lapsCompleted;
                 }
+                if (copyBestLapData)
+                {
+                    bestLapWorldPositionData = worldPositionData.Last.Value;
+                }
+                worldPositionData.AddLast(new OverlayLapData(lapsCompleted));
             }
-
+            if (worldPositionData.Count == 0)
+            {
+                worldPositionData.AddLast(new OverlayLapData(0));
+            }
+            previousDataPointLapCompleted = lapsCompleted;
+            float distanceRoundTrack = gameState.PositionAndMotionData.DistanceRoundTrack;
+            float[] worldPosition = gameState.PositionAndMotionData.WorldPosition == null ? new float[] { 0, 0 } :
+                new float[] { gameState.PositionAndMotionData.WorldPosition[0], gameState.PositionAndMotionData.WorldPosition[1], gameState.PositionAndMotionData.WorldPosition[2] };
+            worldPositionData.Last.Value.addDataPoint(new DataPoint(lapsCompleted, distanceRoundTrack, worldPosition, OverlayDataType.FLOAT_3, gameState.Ticks, gameState.SessionData.SectorNumber));
             foreach (OverlaySubscription field in subscribedData[CrewChief.gameDefinition.gameEnum])
             {
                 if (field.isGroup || field.isDiskData || !data.TryGetValue(field.fieldName, out var overlayData))
@@ -548,11 +595,8 @@ namespace CrewChiefV4.Overlay
                 if (overlayData.Count == 0)
                 {
                     overlayData.AddLast(new OverlayLapData(0));
-                }
-                OverlayLapData lapData = overlayData.Last.Value;
-                previousDataPointLapCompleted = lapsCompleted;
-                float distanceRoundTrack = gameState == null ? 0 : gameState.PositionAndMotionData.DistanceRoundTrack;
-
+                }              
+                OverlayLapData lapData = overlayData.Last.Value;                
                 if (field.isRawField)
                 {
                     switch (CrewChief.gameDefinition.gameEnum)
@@ -619,6 +663,26 @@ namespace CrewChiefV4.Overlay
                 {
                     List<float> lapDistance = diskTelemetry.GetDataForLap("LapDistPct", lapNumber).ConvertAll(o => (float)o);
                     List<int> sessionTick = diskTelemetry.GetDataForLap("SessionTick", lapNumber).ConvertAll(o => (int)o);
+                    List<double> Lat = diskTelemetry.GetDataForLap("Lat", lapNumber).ConvertAll(o => (double)o);
+                    List<double> Lon = diskTelemetry.GetDataForLap("Lon", lapNumber).ConvertAll(o => (double)o);
+                    List<float> Alt = diskTelemetry.GetDataForLap("Alt", lapNumber).ConvertAll(o => (float)o);
+                    if (Lat.Count > 0 && Lon.Count > 0)
+                    {
+                        worldPositionData.AddLast(new OverlayLapData(lapNumber));
+                        for (int i = 0; i < Lat.Count; i++)
+                        {
+                            float lapDistanceMetres = lapDistance[i] * trackLength;
+                            int sectorNumber = -1;
+                            if (sector1End > 0 && sector2End > 0)
+                            {
+                                sectorNumber = lapDistanceMetres < sector1End ? 1 : lapDistanceMetres < sector2End ? 2 : 3;
+                            }
+                            double[] point = SomeNiceStuffFromDavidTuckerFromiRacing.LatLonCVToPoint(Lat[i], Lon[i], Lat[0], Lon[0], gameState.SessionData.TrackDefinition.iracingTrackNorthOffset);
+                            float[] worldPosition = new float[] {(float)point[1], (float)Alt[i], (float)point[0] };
+                            worldPositionData.Last.Value.addDataPoint(new DataPoint(lapNumber, lapDistanceMetres, worldPosition, OverlayDataType.FLOAT_3, sessionTick[i], sectorNumber));
+                        }
+                    }
+                           
                     foreach (OverlaySubscription field in subscribedData[GameEnum.IRACING])
                     {
                         if (field.isGroup || !field.isDiskData || !data.TryGetValue(field.fieldName, out var overlayData))
@@ -644,6 +708,7 @@ namespace CrewChiefV4.Overlay
                             {
                                 OverlayDataSource.lapTimeForBestLapData = lapData.lapTime;
                                 OverlayDataSource.bestLapData[field.fieldName] = lapData;
+                                bestLapWorldPositionData = worldPositionData.Last.Value;
                             }                            
                         }
                     }
@@ -795,7 +860,7 @@ namespace CrewChiefV4.Overlay
         public OverlayLapData(int lapNumber, List<DataPoint> previousLapData, int previousLapCopyStartPoint)
         {
             this.lapNumber = lapNumber;
-            if (previousLapCopyStartPoint > 0)
+            if (previousLapCopyStartPoint > 0 && previousLapData.Count > previousLapCopyStartPoint)
             {
                 dataPoints.AddRange(previousLapData.GetRange(previousLapCopyStartPoint, previousLapData.Count - previousLapCopyStartPoint));
             }
@@ -944,7 +1009,7 @@ namespace CrewChiefV4.Overlay
             return data;
         }
     }
-    class DataPoint
+    public class DataPoint
     {
         public int lapsCompleted;
         public object datum;
@@ -1055,6 +1120,33 @@ namespace CrewChiefV4.Overlay
                 default:
                     throw new Exception("Unable to convert " + dataType + " to int_4");
             }
+        }
+    }
+    public static class SomeNiceStuffFromDavidTuckerFromiRacing
+    {
+        public static double RAD_PER_DEG_DOUBLE = 0.0174532925;
+        public  static double[] LatLonCVToPoint(double lat, double lon, double baseLat, double baseLon, float trackAngle)
+        {
+            double[] xy = new double[]{ 0, 0 };
+            // calculate the meters per decimal deg for our base latitude
+            double rlat = baseLat * RAD_PER_DEG_DOUBLE;
+            double meterPerDegLon = 111415.13 * Math.Cos(rlat) - 94.55 * Math.Cos(3.0 * rlat);
+            double meterPerDegLat = 111132.09 - 566.05 * Math.Cos(2.0 * rlat) + 1.2 * Math.Cos(4.0 * rlat);
+
+            // for now just use linear interpolation to map too lat/lon
+            float ry = (float)((lat - baseLat) * meterPerDegLat); // lat
+            float rx = (float)((lon - baseLon) * meterPerDegLon); // lon
+
+            // rotate coordinates to point north
+            // trackAngle is counter clockwise angle from x axis
+            xy[0] = rx * (float)Math.Sin(trackAngle) + ry * (float)Math.Cos(trackAngle);
+            xy[1] = -rx * (float)Math.Cos(trackAngle) + ry * (float)Math.Sin(trackAngle);
+            return xy;
+        }
+
+        public static float altCVToPoint(float rz, float baseAlt)
+        {
+            return rz - baseAlt;
         }
     }
 }

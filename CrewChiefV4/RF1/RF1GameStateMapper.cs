@@ -1163,6 +1163,8 @@ namespace CrewChiefV4.rFactor1
             }
             this.lastSessionHardPartsOnTrackData = currentGameState.hardPartsOnTrackData;
 
+            currentGameState.PositionAndMotionData.WorldPosition = new float[] { (float)player.pos.x, (float)player.pos.y, (float)player.pos.z };
+
             return currentGameState;
         }
         

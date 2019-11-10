@@ -1221,6 +1221,7 @@ namespace CrewChiefV4.PCars
             currentGameState.ControlData.ThrottlePedal = shared.mThrottle;
             currentGameState.ControlData.ClutchPedal = shared.mClutch;
 
+            currentGameState.PositionAndMotionData.WorldPosition = new float[] { viewedParticipant.mWorldPosition[0], viewedParticipant.mWorldPosition[1], viewedParticipant.mWorldPosition[2] };
             return currentGameState;
         }
 

@@ -154,6 +154,7 @@ namespace CrewChiefV4.iRacing
                 currentGameState.SessionData.SessionStartTime = currentGameState.Now;
                 
                 currentGameState.SessionData.TrackDefinition = TrackData.getTrackDefinition(shared.SessionData.Track.CodeName, 0, (float)shared.SessionData.Track.Length * 1000);
+                currentGameState.SessionData.TrackDefinition.iracingTrackNorthOffset = shared.SessionData.Track.TrackNorthOffset;
                 if (previousGameState != null && previousGameState.SessionData.TrackDefinition != null)
                 {
                     if (previousGameState.SessionData.TrackDefinition.name.Equals(currentGameState.SessionData.TrackDefinition.name))
@@ -261,6 +262,7 @@ namespace CrewChiefV4.iRacing
                         currentGameState.SessionData.SessionNumberOfLaps = Parser.ParseInt(shared.SessionData.RaceLaps);
 
                         currentGameState.SessionData.TrackDefinition = TrackData.getTrackDefinition(shared.SessionData.Track.CodeName, 0, (float)shared.SessionData.Track.Length * 1000);
+                        currentGameState.SessionData.TrackDefinition.iracingTrackNorthOffset = shared.SessionData.Track.TrackNorthOffset;
                         if (previousGameState != null && previousGameState.SessionData.TrackDefinition != null)
                         {
                             if (previousGameState.SessionData.TrackDefinition.name.Equals(currentGameState.SessionData.TrackDefinition.name))

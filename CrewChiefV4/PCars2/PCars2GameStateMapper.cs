@@ -1253,6 +1253,7 @@ namespace CrewChiefV4.PCars2
                     currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.SessionData.CurrentLapIsValid, currentGameState.SessionData.TrackDefinition.trackLength);
             }
 
+            currentGameState.PositionAndMotionData.WorldPosition = new float[] { playerData.mWorldPosition[0], playerData.mWorldPosition[1], playerData.mWorldPosition[2] };
             return currentGameState;
         }
 

@@ -47,6 +47,7 @@ namespace CrewChiefV4.Overlay
                 public Color fontColor;
             }
             public int windowWidth = 800;
+            public int trackMapSize = 150;
             [JsonIgnore]
             public int windowHeight = 10;
             public int chartHeight = 130;
@@ -327,7 +328,7 @@ namespace CrewChiefV4.Overlay
                 colorScheme, initialEnableState: false);
 
             chartBox = overlayElements[overlayChartBoxName] = new ElementGroupBox(gfx, overlayChartBoxName, font, new Rect(0, 0, settings.windowWidth, 0),
-                colorSchemeTransparent, initialEnableState: true);
+                colorSchemeTransparent, initialEnableState: true, outlined: false);
             overlayWindow.Resize(settings.windowWidth, (int)titleBar.rectangle.Bottom);
 
             foreach (var element in overlayElements)
@@ -408,7 +409,16 @@ namespace CrewChiefV4.Overlay
                     CreateNewImages(gfx);
                     CrewChiefOverlayWindow.createNewImage = false;
                 }
-                chartBox.rectangle = new Rect(0, thisFrameWindowHeight, settings.windowWidth, chartBox.children.Count * settings.chartHeight);
+                int rectHeight;
+                if (OverlayController.showMap && chartBox.children.Count > 1)
+                {
+                    rectHeight = ((chartBox.children.Count - 1) * settings.chartHeight) + settings.trackMapSize;
+                }
+                else
+                {
+                    rectHeight = chartBox.children.Count * settings.chartHeight;
+                }
+                chartBox.rectangle = new Rect(0, thisFrameWindowHeight, settings.windowWidth, rectHeight);
             }
             else
             {
@@ -429,10 +439,10 @@ namespace CrewChiefV4.Overlay
             {
                 chartBox.drawElement();
             }
-            if (inputsEnabled)
+            /*if (inputsEnabled)
             {
                 gfx.DrawRectangle(fontBrush, 0, 0, overlayWindow.Width, overlayWindow.Height, 2);
-            }
+            }*/
         }
         private void overlayWindow_DestroyGraphics(object sender, DestroyGraphicsEventArgs e)
         {
@@ -444,7 +454,7 @@ namespace CrewChiefV4.Overlay
             int combinedImageHeight = 0;
             if (OverlayController.chartRenderMode == ChartRenderMode.SINGLE)
             {
-                if (chartBox.children.Count > 1)
+                if (chartBox.children.Count > 2)
                 {
                     foreach (ElementImage child in chartBox.children.Where(el => el.GetType() == typeof(ElementImage)))
                     {
@@ -462,6 +472,23 @@ namespace CrewChiefV4.Overlay
                 else
                 {
                     ((ElementImage)chartBox.children[0]).UpdateImage(chartContainer, new GameOverlay.Drawing.Point(0, combinedImageHeight));
+                }
+                if (OverlayController.showMap)
+                {
+                    ChartContainer mapContainer = Charts.createWorldPositionSeries(SeriesMode.LAST_LAP, settings.trackMapSize, settings.trackMapSize);
+                    if (mapContainer != null)
+                    {
+                        ElementImage mapImage = (ElementImage)chartBox.children.FirstOrDefault(c => c.title == "Map");
+                        if (mapImage == null)
+                        {
+                            chartBox.AddChildElement(new ElementImage(gfx, mapContainer.subscriptionId, font, new Rect(0, (int)settings.chartHeight, settings.trackMapSize, settings.trackMapSize),
+                                colorSchemeTransparent, chartContainer: mapContainer, imageAlpha: settings.chartAlpha, outlined: true));
+                        }
+                        else
+                        {
+                            mapImage.UpdateImage(mapContainer, new GameOverlay.Drawing.Point(0, (int)settings.chartHeight));
+                        }
+                    }
                 }
             }
             else
@@ -487,6 +514,23 @@ namespace CrewChiefV4.Overlay
                             colorSchemeTransparent, OnElementMWheel: MouseWheelOnImage, OnElementMMButtonClicked: MouseMButtonOnImage,
                             chartContainer: chartContainer, imageAlpha: settings.chartAlpha, outlined: true));
                         combinedImageHeight += (int)settings.chartHeight;
+                    }
+                }
+                if (OverlayController.showMap)
+                {
+                    ChartContainer mapContainer = Charts.createWorldPositionSeries(SeriesMode.LAST_LAP, settings.trackMapSize, settings.trackMapSize);
+                    if (mapContainer != null)
+                    {
+                        ElementImage mapImage = (ElementImage)chartBox.children.FirstOrDefault(c => c.title == "Map");
+                        if (mapImage == null)
+                        {
+                            chartBox.AddChildElement(new ElementImage(gfx, mapContainer.subscriptionId, font, new Rect(0, combinedImageHeight, settings.trackMapSize, settings.trackMapSize),
+                                colorSchemeTransparent, chartContainer: mapContainer, imageAlpha: settings.chartAlpha, outlined: true));
+                        }
+                        else
+                        {
+                            mapImage.UpdateImage(mapContainer, new GameOverlay.Drawing.Point(0, combinedImageHeight));
+                        }
                     }
                 }
             }
