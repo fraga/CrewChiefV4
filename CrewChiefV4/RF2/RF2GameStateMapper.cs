@@ -8,6 +8,7 @@ using CrewChiefV4.GameState;
 using CrewChiefV4.Events;
 using CrewChiefV4.rFactor2.rFactor2Data;
 using System.Diagnostics;
+using static CrewChiefV4.rFactor2.rFactor2Constants;
 
 /**
  * Maps memory mapped file to a local game-agnostic representation.
@@ -154,7 +155,7 @@ namespace CrewChiefV4.rFactor2
             // Only verify once.
             RF2GameStateMapper.pluginVerified = true;
 
-            var shared = memoryMappedFileStruct as CrewChiefV4.rFactor2.RF2SharedMemoryReader.RF2StructWrapper;
+            var shared = memoryMappedFileStruct as RF2SharedMemoryReader.RF2StructWrapper;
             var versionStr = RF2GameStateMapper.GetStringFromBytes(shared.extended.mVersion);
 
             var versionParts = versionStr.Split('.');
@@ -195,6 +196,24 @@ namespace CrewChiefV4.rFactor2
             }
             else
             {
+                if (Utilities.IsFlagOn(shared.extended.mUnsubscribedBuffersMask, SubscribedBuffer.Telemetry))
+                {
+                    Console.WriteLine($"Telemetry buffer updates are disabled, Crew Chief will not work correctly.  UnsubscribedBuffersMask: {shared.extended.mUnsubscribedBuffersMask}.");
+                    return;
+                }
+
+                if (Utilities.IsFlagOn(shared.extended.mUnsubscribedBuffersMask, SubscribedBuffer.Scoring))
+                {
+                    Console.WriteLine($"Scoring buffer updates are disabled, Crew Chief will not work correctly.  UnsubscribedBuffersMask: {shared.extended.mUnsubscribedBuffersMask}.");
+                    return;
+                }
+
+                if (Utilities.IsFlagOn(shared.extended.mUnsubscribedBuffersMask, SubscribedBuffer.Rules))
+                {
+                    Console.WriteLine($"Rules buffer updates are disabled, Crew Chief will not work correctly.  UnsubscribedBuffersMask: {shared.extended.mUnsubscribedBuffersMask}.");
+                    return;
+                }
+
                 var msg = "rFactor 2 Shared Memory version: " + versionStr + " 64bit."
                     + (shared.extended.mDirectMemoryAccessEnabled != 0 && shared.extended.mSCRPluginEnabled != 0 ? ("  Stock Car Rules plugin enabled. (DFT:" + shared.extended.mSCRPluginDoubleFileType + ")")  : "")
                     + (shared.extended.mDirectMemoryAccessEnabled != 0 ? "  DMA enabled." : "")
@@ -246,7 +265,7 @@ namespace CrewChiefV4.rFactor2
     public override GameStateData mapToGameStateData(Object memoryMappedFileStruct, GameStateData previousGameState)
         {
             var pgs = previousGameState;
-            var shared = memoryMappedFileStruct as CrewChiefV4.rFactor2.RF2SharedMemoryReader.RF2StructWrapper;
+            var shared = memoryMappedFileStruct as RF2SharedMemoryReader.RF2StructWrapper;
             var cgs = new GameStateData(shared.ticksWhenRead);
             cgs.rawGameData = shared;
             //
@@ -410,7 +429,7 @@ namespace CrewChiefV4.rFactor2
             for (int i = 0; i < shared.scoring.mScoringInfo.mNumVehicles; ++i)
             {
                 var vehicle = shared.scoring.mVehicles[i];
-                switch (this.MapToControlType((rFactor2Constants.rF2Control)vehicle.mControl))
+                switch (this.MapToControlType((rF2Control)vehicle.mControl))
                 {
                     case ControlType.AI:
                     case ControlType.Player:
@@ -522,7 +541,7 @@ namespace CrewChiefV4.rFactor2
                 shared.scoring.mScoringInfo.mSession >= 10 && shared.scoring.mScoringInfo.mSession <= 13 ? shared.scoring.mScoringInfo.mSession - 10 : 0;
 
             csd.SessionType = this.MapToSessionType(shared);
-            csd.SessionPhase = this.mapToSessionPhase((rFactor2Constants.rF2GamePhase)shared.scoring.mScoringInfo.mGamePhase, csd.SessionType, ref playerScoring);
+            csd.SessionPhase = this.mapToSessionPhase((rF2GamePhase)shared.scoring.mScoringInfo.mGamePhase, csd.SessionType, ref playerScoring);
 
             csd.SessionNumberOfLaps = shared.scoring.mScoringInfo.mMaxLaps > 0 && shared.scoring.mScoringInfo.mMaxLaps < 1000 ? shared.scoring.mScoringInfo.mMaxLaps : 0;
 
@@ -670,8 +689,8 @@ namespace CrewChiefV4.rFactor2
             }
 
             csd.PositionAtStartOfCurrentLap = csd.IsNewLap ? csd.OverallPosition : psd.PositionAtStartOfCurrentLap;
-            csd.IsDisqualified = (rFactor2Constants.rF2FinishStatus)playerScoring.mFinishStatus == rFactor2Constants.rF2FinishStatus.Dq;
-            csd.IsDNF = (rFactor2Constants.rF2FinishStatus)playerScoring.mFinishStatus == rFactor2Constants.rF2FinishStatus.Dnf;
+            csd.IsDisqualified = (rF2FinishStatus)playerScoring.mFinishStatus == rFactor2Constants.rF2FinishStatus.Dq;
+            csd.IsDNF = (rF2FinishStatus)playerScoring.mFinishStatus == rFactor2Constants.rF2FinishStatus.Dnf;
 
             // NOTE: Telemetry contains mLapNumber, which might be ahead of Scoring due to higher refresh rate.  However,
             // since we use Scoring fields for timing calculations, stick to Scoring here as well.
@@ -710,7 +729,7 @@ namespace CrewChiefV4.rFactor2
             // Is online session?
             for (int i = 0; i < shared.scoring.mScoringInfo.mNumVehicles; ++i)
             {
-                if ((rFactor2Constants.rF2Control)shared.scoring.mVehicles[i].mControl == rFactor2Constants.rF2Control.Remote)
+                if ((rF2Control)shared.scoring.mVehicles[i].mControl == rFactor2Constants.rF2Control.Remote)
                     this.isOfflineSession = false;
             }
 
@@ -787,12 +806,12 @@ namespace CrewChiefV4.rFactor2
                 && csd.CompletedLaps > cgs.PitData.PitWindowStart;
 
             cgs.PitData.PitWindow = cgs.PitData.IsMakingMandatoryPitStop
-                ? PitWindow.StopInProgress : this.mapToPitWindow((rFactor2Constants.rF2YellowFlagState)shared.scoring.mScoringInfo.mYellowFlagState);
+                ? PitWindow.StopInProgress : this.mapToPitWindow((rF2YellowFlagState)shared.scoring.mScoringInfo.mYellowFlagState);
 
             if (pgs != null)
                 cgs.PitData.MandatoryPitStopCompleted = pgs.PitData.MandatoryPitStopCompleted || cgs.PitData.IsMakingMandatoryPitStop;
 
-            cgs.PitData.HasRequestedPitStop = (rFactor2Constants.rF2PitState)playerScoring.mPitState == rFactor2Constants.rF2PitState.Request;
+            cgs.PitData.HasRequestedPitStop = (rF2PitState)playerScoring.mPitState == rFactor2Constants.rF2PitState.Request;
 
             // Is this new pit request?
             if (pgs != null && !pgs.PitData.HasRequestedPitStop && cgs.PitData.HasRequestedPitStop)
@@ -818,7 +837,7 @@ namespace CrewChiefV4.rFactor2
                 && shared.extended.mInRealtimeFC == 1 && shared.scoring.mScoringInfo.mInRealtime == 1  // Limit this to Realtime only.
                 && csd.SessionType == SessionType.Race)  // Also, limit to race only, this helps with back and forth between returing to pits via exit to monitor.  
             {                                            // There's also no real critical rush in quali or practice to stress about.
-                cgs.PitData.IsPitCrewDone = (rFactor2Constants.rF2PitState)playerScoring.mPitState == rFactor2Constants.rF2PitState.Exiting;
+                cgs.PitData.IsPitCrewDone = (rF2PitState)playerScoring.mPitState == rFactor2Constants.rF2PitState.Exiting;
             }
 
             if (csd.IsNewLap)
@@ -1044,7 +1063,7 @@ namespace CrewChiefV4.rFactor2
 
             // --------------------------------
             // control data
-            cgs.ControlData.ControlType = MapToControlType((rFactor2Constants.rF2Control)playerScoring.mControl);
+            cgs.ControlData.ControlType = MapToControlType((rF2Control)playerScoring.mControl);
 
             // --------------------------------
             // Tyre data
@@ -1309,7 +1328,7 @@ namespace CrewChiefV4.rFactor2
                     continue;
                 }
 
-                var ct = this.MapToControlType((rFactor2Constants.rF2Control)vehicleScoring.mControl);
+                var ct = this.MapToControlType((rF2Control)vehicleScoring.mControl);
                 if (ct == ControlType.Player || ct == ControlType.Replay || ct == ControlType.Unavailable)
                     continue;
 
@@ -1382,7 +1401,7 @@ namespace CrewChiefV4.rFactor2
                     opponentKey = driverName;
                 }
 
-                var ofs = (rFactor2Constants.rF2FinishStatus)vehicleScoring.mFinishStatus;
+                var ofs = (rF2FinishStatus)vehicleScoring.mFinishStatus;
                 if (ofs == rFactor2Constants.rF2FinishStatus.Dnf)
                 {
                     // Note driver DNF and don't tack him anymore.
@@ -2189,7 +2208,7 @@ namespace CrewChiefV4.rFactor2
             }
         }
 
-        private StockCarRulesData GetStockCarRulesData(GameStateData currentGameState, ref CrewChiefV4.rFactor2.RF2SharedMemoryReader.RF2StructWrapper shared)
+        private StockCarRulesData GetStockCarRulesData(GameStateData currentGameState, ref RF2SharedMemoryReader.RF2StructWrapper shared)
         {
             var scrData = new StockCarRulesData();
             scrData.stockCarRulesEnabled = shared.extended.mDirectMemoryAccessEnabled != 0 && shared.extended.mSCRPluginEnabled != 0;
@@ -2455,7 +2474,7 @@ namespace CrewChiefV4.rFactor2
                 RF2GameStateMapper.writeDebugMsg(string.Format("Right Rear is spinning.  mRotation: {0}  maxRearRotatingSpeed: {1}  maxRotatingSpeedOld: {2}", rearRightRotation.ToString("0.000"), maxRearRotatingSpeed.ToString("0.000"), maxRotatingSpeedOld.ToString("0.000")));
         }
 
-        private PitWindow mapToPitWindow(rFactor2Constants.rF2YellowFlagState pitWindow)
+        private PitWindow mapToPitWindow(rF2YellowFlagState pitWindow)
         {
             // it seems that the pit window is only truly open on multiplayer races?
             if (this.isOfflineSession)
@@ -2476,7 +2495,7 @@ namespace CrewChiefV4.rFactor2
 
 
         private SessionPhase mapToSessionPhase(
-            rFactor2Constants.rF2GamePhase sessionPhase,
+            rF2GamePhase sessionPhase,
             SessionType sessionType,
             ref rF2VehicleScoring player)
         {
@@ -2573,7 +2592,7 @@ namespace CrewChiefV4.rFactor2
 
         public SessionType MapToSessionType(Object wrapper)
         {
-            var shared = wrapper as CrewChiefV4.rFactor2.RF2SharedMemoryReader.RF2StructWrapper;
+            var shared = wrapper as RF2SharedMemoryReader.RF2StructWrapper;
             switch (shared.scoring.mScoringInfo.mSession)
             {
                 // up to four possible practice sessions
@@ -2689,7 +2708,7 @@ namespace CrewChiefV4.rFactor2
             return tyreType;
         }
 
-        private ControlType MapToControlType(rFactor2Constants.rF2Control controlType)
+        private ControlType MapToControlType(rF2Control controlType)
         {
             switch (controlType)
             {

@@ -461,6 +461,16 @@ namespace CrewChiefV4
 
             return true;
         }
+
+        internal static bool IsFlagOn<E, F>(E value, F flag)
+        {
+            return (Convert.ToInt32(value) & Convert.ToInt32(flag)) != 0;
+        }
+
+        internal static bool IsFlagOff<E, F>(E value, F flag)
+        {
+            return !Utilities.IsFlagOn(value, flag);
+        }
     }
 
     public class WebsocketData : WebSocketBehavior
