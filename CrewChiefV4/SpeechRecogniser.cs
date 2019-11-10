@@ -303,8 +303,8 @@ namespace CrewChiefV4
         public static String[] CHART_COMMAND_RESET_ZOOM = Configuration.getSpeechRecognitionPhrases("CHART_COMMAND_RESET_ZOOM");
         public static String[] CHART_COMMAND_PAN_LEFT = Configuration.getSpeechRecognitionPhrases("CHART_COMMAND_PAN_LEFT");
         public static String[] CHART_COMMAND_PAN_RIGHT = Configuration.getSpeechRecognitionPhrases("CHART_COMMAND_PAN_RIGHT");
-        public static String[] CHART_COMMAND_SHOW_NEXT_LAP = Configuration.getSpeechRecognitionPhrases("CHART_COMMAND_NEXT_LAP");
-        public static String[] CHART_COMMAND_SHOW_PREVIOUS_LAP = Configuration.getSpeechRecognitionPhrases("CHART_COMMAND_PREVIOUS_LAP");
+        public static String[] CHART_COMMAND_SHOW_NEXT_LAP = Configuration.getSpeechRecognitionPhrases("CHART_COMMAND_SHOW_NEXT_LAP");
+        public static String[] CHART_COMMAND_SHOW_PREVIOUS_LAP = Configuration.getSpeechRecognitionPhrases("CHART_COMMAND_SHOW_PREVIOUS_LAP");
         public static String[] CHART_COMMAND_SHOW_LAST_LAP = Configuration.getSpeechRecognitionPhrases("CHART_COMMAND_SHOW_LAST_LAP");
 
         private Dictionary<GameEnum, string[]> whatsOpponentChoices = new Dictionary<GameEnum, string[]> {
