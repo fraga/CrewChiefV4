@@ -439,6 +439,7 @@ namespace CrewChiefV4.Overlay
             {
                 chartBox.drawElement();
             }
+            consoleControlBox.elementEnabled = OverlayController.mode != RenderMode.CHART;
             /*if (inputsEnabled)
             {
                 gfx.DrawRectangle(fontBrush, 0, 0, overlayWindow.Width, overlayWindow.Height, 2);

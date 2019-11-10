@@ -196,7 +196,7 @@ namespace CrewChiefV4.Events
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HIDE_CHART))
             {
-                if (OverlayController.mode == RenderMode.ALL)
+                if (OverlayController.mode == RenderMode.ALL || OverlayController.mode == RenderMode.CONSOLE)
                 {
                     showConsole();
                 }
@@ -207,7 +207,7 @@ namespace CrewChiefV4.Events
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HIDE_CONSOLE))
             {
-                if (OverlayController.mode == RenderMode.ALL)
+                if (OverlayController.mode == RenderMode.ALL || OverlayController.mode == RenderMode.CHART)
                 {
                     showChart();
                 }
