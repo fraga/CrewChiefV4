@@ -44,6 +44,17 @@ namespace CrewChiefV4.rFactor2
         public const byte RowY = 1;
         public const byte RowZ = 2;
 
+        public enum SubscribedBuffer
+        {
+            Telemetry = 1,
+            Scoring = 2,
+            Rules = 4,
+            MultiRules = 8,
+            ForceFeedback = 16,
+            Graphics = 32,
+            All = 127
+        }
+
         // 0 Before session has begun
         // 1 Reconnaissance laps (race only)
         // 2 Grid walk-through (race only)
