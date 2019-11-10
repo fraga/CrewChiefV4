@@ -1398,7 +1398,8 @@ namespace CrewChiefV4.ACC
             // don't enable improvised incident calling until we can work out how to cull the disconnected drivers from the opponents set
             // before we disable this lets see if it works better with proper purging of disconnected players (note that it defaults to true)
             // currentGameState.FlagData.useImprovisedIncidentCalling = false;
-            
+
+            currentGameState.PositionAndMotionData.WorldPosition = new float[] { playerVehicle.worldPosition.x, playerVehicle.worldPosition.y, playerVehicle.worldPosition.z };
             return currentGameState;
         }
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using iRSDKSharp;
 namespace CrewChiefV4.iRacing
@@ -34,9 +35,12 @@ namespace CrewChiefV4.iRacing
         public TrackTypes TrackType { get; set; }
         public string TrackPitSpeedLimit { get; set; }
         public int FormationLapCount { get; set; }
+        public float TrackNorthOffset { get; set; }
         public static Track FromSessionInfo(string sessionString)
         {
             var track = new Track();
+            track.TrackNorthOffset = Parser.ParseTrackAngleRad(YamlParser.Parse(sessionString, "WeekendInfo:TrackNorthOffset:"));
+            track.TrackNorthOffset = (180 / (float)Math.PI) * track.TrackNorthOffset;
             track.Id = Parser.ParseInt(YamlParser.Parse(sessionString, "WeekendInfo:TrackID:"));
             track.Name = YamlParser.Parse(sessionString, "WeekendInfo:TrackDisplayName:");
             track.CodeName = YamlParser.Parse(sessionString, "WeekendInfo:TrackName:");

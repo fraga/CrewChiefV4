@@ -61,7 +61,8 @@ namespace iRSDKSharp
                 offset += sizeOfVarHeader;
                 VarHeaders[varHeader.name] = varHeader;
                 binaryReader.BaseStream.Seek(offset, SeekOrigin.Begin);
-                //Console.WriteLine($"{varHeader.name}");
+
+                //Console.WriteLine($"{(CVarHeader.VarType)varHeader.type}  {varHeader.name}");
                 //Console.WriteLine($"Variable description {varHeader.desc}");
             }
         }

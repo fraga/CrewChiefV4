@@ -54,7 +54,20 @@ namespace CrewChiefV4.iRacing
             }
             return 0;
         }
+        public static float ParseTrackAngleRad(string value)
+        {
+            // value = "4.6450 rad"
+            float length = 0;
 
+            var indexOfSec = value.IndexOf(" rad");
+            if (indexOfSec > 0) value = value.Substring(0, indexOfSec);
+
+            if (float.TryParse(value, NumberStyles.AllowDecimalPoint | NumberStyles.AllowTrailingWhite, CultureInfo.InvariantCulture, out length))
+            {
+                return length;
+            }
+            return 0;
+        }
         public static Tuple<String, float> ParseLicens(string value)
         {
             if (!String.IsNullOrEmpty(value))

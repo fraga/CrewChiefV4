@@ -25,6 +25,7 @@ namespace CrewChiefV4.Events
         public static float x_min = -1;
         public static float x_max = -1;
         public static float clampXMaxTo = -1;
+        public static Boolean showMap = false;
 
         public OverlayController(AudioPlayer audioPlayer)
         {
@@ -158,6 +159,7 @@ namespace CrewChiefV4.Events
                 x_max = -1;
                 x_min = -1;
                 sectorToShow = SectorToShow.ALL;
+                showMap = false;
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.SHOW_STACKED_CHARTS))
             {
@@ -178,6 +180,7 @@ namespace CrewChiefV4.Events
                 x_max = -1;
                 x_min = -1;
                 sectorToShow = SectorToShow.ALL;
+                showMap = false;
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.SHOW_TIME))
             {
@@ -214,18 +217,22 @@ namespace CrewChiefV4.Events
 
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.CHART_COMMAND_SHOW_ALL_SECTORS))
             {
+                showMap = false;
                 showSector(SectorToShow.ALL);
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.CHART_COMMAND_SHOW_SECTOR_1))
             {
+                showMap = true;
                 showSector(SectorToShow.SECTOR_1);
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.CHART_COMMAND_SHOW_SECTOR_2))
             {
+                showMap = true;
                 showSector(SectorToShow.SECTOR_2);
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.CHART_COMMAND_SHOW_SECTOR_3))
             {
+                showMap = true;
                 showSector(SectorToShow.SECTOR_3);
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.CHART_COMMAND_ZOOM_IN))
@@ -277,6 +284,7 @@ namespace CrewChiefV4.Events
             {
                 x_min = Math.Max(0, x_min + zoomAmount);
                 x_max = Math.Max(x_min, x_max - zoomAmount);
+                showMap = true;
                 refreshChart();
             }
         }
@@ -293,6 +301,10 @@ namespace CrewChiefV4.Events
             if (x_min < 10)
             {
                 x_min = 0;
+            }
+            if (x_min == 0 && x_max == clampXMaxTo)
+            {
+                showMap = false;
             }
             refreshChart();
         }
@@ -336,6 +348,7 @@ namespace CrewChiefV4.Events
             OverlayController.sectorToShow = SectorToShow.ALL;
             x_max = -1;
             x_min = -1;
+            showMap = false;
             refreshChart();
         }
 

@@ -145,7 +145,7 @@ namespace CrewChiefV4.Overlay
                     chart1.Annotations.Add(createSectorAnnotation(chartArea1, 2, OverlayDataSource.sector2End));
                 chart1.Invalidate();
                 charts.Add(new ChartContainer(subscription.Item2.ToString() + " " + subscription.Item1.id, GetByteArrayForChart(chart1)));
-            }
+            }            
             return charts;
         }
         
@@ -328,6 +328,88 @@ namespace CrewChiefV4.Overlay
             {
                 return createSeries(overlaySubscription);
             }
+        }
+
+        public static ChartContainer createWorldPositionSeries(SeriesMode seriesMode, int width, int height)
+        {
+            List<DataPoint> dataPoints = OverlayDataSource.getWorldPositions(seriesMode);
+            if (dataPoints != null)
+            {
+                var series = new Series
+                {
+                    Name = "Map",
+                    IsVisibleInLegend = false,
+                    IsXValueIndexed = false,
+                    ChartType = SeriesChartType.Spline,
+                    Color = Color.Red
+                };
+                float xmin = 0;
+                float xmax = 0;
+                float ymin = 0;
+                float ymax = 0;
+                foreach (DataPoint dataPoint in dataPoints)
+                {
+                    float[] coordinates = (float[]) dataPoint.datum;
+                    float x = coordinates[0];
+                    float y = coordinates[2];
+                    float distanceRoundTrack = dataPoint.distanceRoundTrack;
+                    series.Points.AddXY(x, y);
+                    if (x < xmin)
+                    {
+                        xmin = x;
+                    }
+                    if (y < ymin)
+                    {
+                        ymin = y;
+                    }
+                    if (x > xmax)
+                    {
+                        xmax = x;
+                    }
+                    if (y > ymax)
+                    {
+                        ymax = y;
+                    }
+                    if (distanceRoundTrack < OverlayController.x_min || distanceRoundTrack > OverlayController.x_max)
+                    {
+                        series.Points[series.Points.Count - 1].Color = Color.Gray;
+                    }
+                }
+                Color ForeColor = Color.FromArgb(CrewChiefOverlayWindow.colorScheme.fontColor.ToARGB());
+                Color BackColor = Color.FromArgb(CrewChiefOverlayWindow.colorScheme.backgroundColor.ToARGB());
+                ChartArea chartArea = new ChartArea();
+                chartArea.BackColor = ForeColor;
+                chartArea.AxisX.LabelStyle.ForeColor = ForeColor;
+                chartArea.AxisY.LabelStyle.ForeColor = ForeColor;
+                chartArea.AxisX.MajorGrid.LineColor = BackColor;
+                chartArea.AxisY.MajorGrid.LineColor = BackColor;
+
+                float xrange = xmax - xmin;
+                float yrange = ymax - ymin;
+                chartArea.AxisY.Maximum = ymin + Math.Max(xrange, yrange) + 10;
+                chartArea.AxisY.Minimum = ymin - 10;
+                chartArea.AxisX.Minimum = xmin - 10;
+                chartArea.AxisX.Maximum = xmin + Math.Max(xrange, yrange) + 10;
+                chartArea.AxisY.Enabled = AxisEnabled.False;
+                chartArea.AxisX.Enabled = AxisEnabled.False;
+
+                Chart chart = new Chart();
+                ((System.ComponentModel.ISupportInitialize)(chart)).BeginInit();
+                chart.BackColor = BackColor;
+                chart.ForeColor = ForeColor;
+                chartArea.Name = "Map";
+                chart.ChartAreas.Add(chartArea);
+                chart.Dock = System.Windows.Forms.DockStyle.Fill;
+                chart.Name = "Map";
+                chart.Size = new Size(width, height);
+                chart.TabIndex = 0;
+                chart.Text = "Map";
+                ((System.ComponentModel.ISupportInitialize)(chart)).EndInit();
+                chart.Series.Clear();
+                chart.Series.Add(series);
+                return new ChartContainer("Map", GetByteArrayForChart(chart));
+            }
+            return null;
         }
 
         private static List<Series> createSeries(Tuple<OverlaySubscription, SeriesMode> overlaySubscription)

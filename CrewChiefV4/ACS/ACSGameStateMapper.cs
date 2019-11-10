@@ -1796,7 +1796,8 @@ namespace CrewChiefV4.assetto
                 currentGameState.hardPartsOnTrackData.mapHardPartsOnTrack(currentGameState.ControlData.BrakePedal, currentGameState.ControlData.ThrottlePedal,
                     currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.SessionData.CurrentLapIsValid, currentGameState.SessionData.TrackDefinition.trackLength);
             }
-
+            
+            currentGameState.PositionAndMotionData.WorldPosition = new float[] { playerVehicle.worldPosition.x, playerVehicle.worldPosition.y, playerVehicle.worldPosition.z };
             return currentGameState;
         }
 

@@ -902,6 +902,7 @@ namespace CrewChiefV4
         public TrackData.TrackLengthClass trackLengthClass = TrackData.TrackLengthClass.MEDIUM;
         public float raceroomRollingStartLapDistance = -1.0f;
         public float iracingPitEntranceDistanceRoundTrack = -1;
+        public float iracingTrackNorthOffset = -1;
         public TrackDefinition(String name, float pitEntryExitPointsDiameter, float trackLength, float[] pitEntryPoint, float[] pitExitPoint)
         {
             this.name = name;
