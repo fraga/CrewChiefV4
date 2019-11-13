@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using CrewChiefV4.RaceRoom.RaceRoomData;
 using System;
 using System.Collections.Generic;
@@ -562,14 +562,22 @@ namespace CrewChiefV4.RaceRoom
                 {
                     // count back until we find the first non-null byte
                     int i = rawData.Length - 1;
-                    while (rawData[i] == 0)
+                    while (i >= 0 && rawData[i] == 0)
                     {
                         --i;
                     }
-                    // now rawData[i] is the last non-zero byte
-                    byte[] trimmed = new byte[i + 1];
-                    Array.Copy(rawData, trimmed, i + 1);
-                    writer.WriteValue(trimmed);
+                    if (i < 0)
+                    {
+                        // there are no non-null bytes in the array
+                        writer.WriteValue(new byte[] { 0 });
+                    }
+                    else
+                    {
+                        // now rawData[i] is the last non-zero byte
+                        byte[] trimmed = new byte[i + 1];
+                        Array.Copy(rawData, trimmed, i + 1);
+                        writer.WriteValue(trimmed);
+                    }
                 }
                 else
                 {
