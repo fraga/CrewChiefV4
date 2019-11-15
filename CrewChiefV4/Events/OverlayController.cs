@@ -20,6 +20,7 @@ namespace CrewChiefV4.Events
         public static SectorToShow sectorToShow = SectorToShow.ALL;
         private Boolean consoleOverlayEnabled = UserSettings.GetUserSettings().getBoolean("enable_overlay_window");
         private Boolean iRacingDiskTelemetryLogginEnabled = UserSettings.GetUserSettings().getBoolean("iracing_enable_disk_based_telemetry");
+        private Boolean automaticDiskTelemetryRecordingEnabled = UserSettings.GetUserSettings().getBoolean("enable_automatic_disk_telemetry_recording");
         iRSDKSharp.iRacingDiskSDK iRacingDiskTelemetry = null;
         private bool isLoggingDiskData = false;
         public static float x_min = -1;
@@ -57,6 +58,14 @@ namespace CrewChiefV4.Events
                     if (iRacingDiskTelemetry == null)
                     {
                         iRacingDiskTelemetry = new iRSDKSharp.iRacingDiskSDK();
+                        if(automaticDiskTelemetryRecordingEnabled)
+                        {
+                            iRSDKSharp.iRacingSDK.BroadcastMessage(iRSDKSharp.BroadcastMessageTypes.TelemCommand, (int)iRSDKSharp.TelemCommandModeTypes.Start, 0);
+                        }                        
+                    }
+                    if(currentGameState.PitData.JumpedToPits)
+                    {
+                        iRSDKSharp.iRacingSDK.BroadcastMessage(iRSDKSharp.BroadcastMessageTypes.TelemCommand, (int)iRSDKSharp.TelemCommandModeTypes.Stop, 0);
                     }
                     if (rawData.data.Telemetry.IsDiskLoggingActive && !isLoggingDiskData)
                     {
@@ -73,6 +82,10 @@ namespace CrewChiefV4.Events
                         {
                             OverlayDataSource.addIRacingDiskData(iRacingDiskTelemetry, currentGameState);
                             iRacingDiskTelemetry.ClearData();
+                            if (automaticDiskTelemetryRecordingEnabled)
+                            {
+                                iRSDKSharp.iRacingSDK.BroadcastMessage(iRSDKSharp.BroadcastMessageTypes.TelemCommand, (int)iRSDKSharp.TelemCommandModeTypes.Restart, 0);
+                            }
                         }
                     }
                 }

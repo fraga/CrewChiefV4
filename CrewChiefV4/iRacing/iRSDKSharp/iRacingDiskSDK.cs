@@ -27,7 +27,7 @@ namespace iRSDKSharp
         public bool hasNewLapData = false;
         public int SessionId { get; set; }
         public int SubsessionId { get; set; }
-
+        private bool deleteTelemetryFile = UserSettings.GetUserSettings().getBoolean("delete_iracing_telemetryfile");
         public void ReadFileData(int sessionId, int SubsessionId)
         {
             lapOffsets.Clear();
@@ -73,7 +73,7 @@ namespace iRSDKSharp
             this.memoryStream = new MemoryStream();
             String path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "iRacing", "telemetry");
             var directory = new DirectoryInfo(path);
-            var file = directory.GetFiles().OrderByDescending(f => f.LastWriteTime).First();
+            var file = directory.GetFiles("*.ibt").OrderByDescending(f => f.LastWriteTime).First();
             FileStream telemetryFileStream = null;
             try
             {
@@ -94,13 +94,14 @@ namespace iRSDKSharp
                     this.binaryReader = new BinaryReader(memoryStream);
                     this.binaryReader.BaseStream.Seek(0, SeekOrigin.Begin);
                     this.Header = ByteToType<iRSDKHeader>();
-                    //if(this.SessionId == Parser.ParseInt(YamlParser.Parse(sessionInfoString, "WeekendInfo:SessionID:")))
-                    //{
-                        Console.WriteLine("Reading iRacing telemetryfile:" + file);
-                        ReadVariableHeaders();
-                        GetOffsetsForLaps();
-                        hasNewLapData = true;
-                   // }                          
+                    Console.WriteLine("Reading iRacing telemetryfile:" + file);
+                    ReadVariableHeaders();
+                    GetOffsetsForLaps();
+                    hasNewLapData = true;
+                    if(deleteTelemetryFile)
+                    {
+                        File.Delete(file.FullName);
+                    }
                 }
             }
             catch (Exception ex)

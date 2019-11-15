@@ -1640,3 +1640,15 @@ make_overlay_app_window = Enable overlay app window (Oculus mode)
 make_overlay_app_window_help = Make the overlay window appear on the taskbar as an app window
 make_overlay_app_window_category = UI_STARTUP_AND_PATHS
 make_overlay_app_window_metadata = RESTART_REQUIRED
+
+delete_iracing_telemetryfile = Delete iRacing telemetry file after processing 
+delete_iracing_telemetryfile_help = Deletes the latest iRacing telemetry file after processing it, helps reducing diskspace used for telelmetry recordings. 
+delete_iracing_telemetryfile_filter = IRACING
+delete_iracing_telemetryfile_category = UI_STARTUP_AND_PATHS
+delete_iracing_telemetryfile_metadata = RESTART_REQUIRED
+
+enable_automatic_disk_telemetry_recording = Enable automatic telemetry disk recording   
+enable_automatic_disk_telemetry_recording_help = Let's Crew Chief handle the starting and stopping of iRacing telemetry recoding. 
+enable_automatic_disk_telemetry_recording_filter = IRACING
+enable_automatic_disk_telemetry_recording_category = UI_STARTUP_AND_PATHS
+enable_automatic_disk_telemetry_recording_metadata = RESTART_REQUIRED

@@ -4234,5 +4234,29 @@ namespace CrewChiefV4.Properties {
                 this["make_overlay_app_window"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool delete_iracing_telemetryfile {
+            get {
+                return ((bool)(this["delete_iracing_telemetryfile"]));
+            }
+            set {
+                this["delete_iracing_telemetryfile"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool enable_automatic_disk_telemetry_recording {
+            get {
+                return ((bool)(this["enable_automatic_disk_telemetry_recording"]));
+            }
+            set {
+                this["enable_automatic_disk_telemetry_recording"] = value;
+            }
+        }
     }
 }

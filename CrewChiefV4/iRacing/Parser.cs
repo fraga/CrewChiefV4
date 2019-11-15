@@ -59,8 +59,8 @@ namespace CrewChiefV4.iRacing
             // value = "4.6450 rad"
             float length = 0;
 
-            var indexOfSec = value.IndexOf(" rad");
-            if (indexOfSec > 0) value = value.Substring(0, indexOfSec);
+            var indexOfrad = value.IndexOf(" rad");
+            if (indexOfrad > 0) value = value.Substring(0, indexOfrad);
 
             if (float.TryParse(value, NumberStyles.AllowDecimalPoint | NumberStyles.AllowTrailingWhite, CultureInfo.InvariantCulture, out length))
             {

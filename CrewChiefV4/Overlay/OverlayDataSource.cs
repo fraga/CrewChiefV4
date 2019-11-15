@@ -678,7 +678,7 @@ namespace CrewChiefV4.Overlay
                                 sectorNumber = lapDistanceMetres < sector1End ? 1 : lapDistanceMetres < sector2End ? 2 : 3;
                             }
                             double[] point = SomeNiceStuffFromDavidTuckerFromiRacing.LatLonCVToPoint(Lat[i], Lon[i], Lat[0], Lon[0], gameState.SessionData.TrackDefinition.iracingTrackNorthOffset);
-                            float[] worldPosition = new float[] {(float)point[1], (float)Alt[i], (float)point[0] };
+                            float[] worldPosition = new float[] {(float)point[0], (float)Alt[i], (float)point[1] };
                             worldPositionData.Last.Value.addDataPoint(new DataPoint(lapNumber, lapDistanceMetres, worldPosition, OverlayDataType.FLOAT_3, sessionTick[i], sectorNumber));
                         }
                     }

@@ -36,11 +36,14 @@ namespace CrewChiefV4.iRacing
         public string TrackPitSpeedLimit { get; set; }
         public int FormationLapCount { get; set; }
         public float TrackNorthOffset { get; set; }
+        public static double ConvertToRadians(double angle)
+        {
+            return (Math.PI / 180) * angle;
+        }
         public static Track FromSessionInfo(string sessionString)
         {
             var track = new Track();
-            track.TrackNorthOffset = Parser.ParseTrackAngleRad(YamlParser.Parse(sessionString, "WeekendInfo:TrackNorthOffset:"));
-            track.TrackNorthOffset = (180 / (float)Math.PI) * track.TrackNorthOffset;
+            track.TrackNorthOffset = 1.57079632f; // + 90deg
             track.Id = Parser.ParseInt(YamlParser.Parse(sessionString, "WeekendInfo:TrackID:"));
             track.Name = YamlParser.Parse(sessionString, "WeekendInfo:TrackDisplayName:");
             track.CodeName = YamlParser.Parse(sessionString, "WeekendInfo:TrackName:");
