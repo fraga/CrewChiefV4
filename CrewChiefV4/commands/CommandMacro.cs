@@ -88,15 +88,26 @@ namespace CrewChiefV4.commands
                     }
                     isValid = false;
                 }
-                if (isValid && MacroManager.enablePitExitPositionEstimates)
+                if (isValid)
                 {
-                    Strategy.playPitPositionEstimates = true;
-                }
-                if (isValid && CrewChief.gameDefinition == GameDefinition.raceRoom)
-                {
-                    R3EPitMenuManager.outstandingPitstopRequest = true;
-                    if (CrewChief.currentGameState != null && CrewChief.currentGameState.Now != null)
-                        R3EPitMenuManager.timeWeCanAnnouncePitActions = CrewChief.currentGameState.Now.AddSeconds(10);
+                    if (CrewChief.gameDefinition == GameDefinition.raceRoom && CrewChief.currentGameState != null && 
+                        (CrewChief.currentGameState.PenaltiesData.PenaltyType == GameState.PenatiesData.DetailedPenaltyType.DRIVE_THROUGH 
+                         || CrewChief.currentGameState.PenaltiesData.PenaltyType == GameState.PenatiesData.DetailedPenaltyType.STOP_AND_GO))
+                    {
+                        // if we request a stop and we have a penalty, select the 'serve penalty' option in R3E
+                        macroConfirmationMessage = AudioPlayer.folderAcknowlegeOK;
+                        R3EPitMenuManager.selectServePenalty();
+                    }
+                    else if (MacroManager.enablePitExitPositionEstimates)
+                    {
+                        Strategy.playPitPositionEstimates = true;
+                    }
+                    if (CrewChief.gameDefinition == GameDefinition.raceRoom)
+                    {
+                        R3EPitMenuManager.outstandingPitstopRequest = true;
+                        if (CrewChief.currentGameState != null && CrewChief.currentGameState.Now != null)
+                            R3EPitMenuManager.timeWeCanAnnouncePitActions = CrewChief.currentGameState.Now.AddSeconds(10);
+                    }
                 }
             }
             // special case for 'cancel pit request' macro - check we've actually requested a stop

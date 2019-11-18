@@ -37,16 +37,8 @@ namespace CrewChiefV4.Events
 
         private String folderTimePenalty = "penalties/time_penalty";
 
-        public static String folderCutTrackInRace = "penalties/cut_track_in_race";
-
         private String folderPossibleTrackLimitsViolation = "penalties/possible_track_limits_warning";
-
-        public static String folderLapDeleted = "penalties/lap_deleted";
-
-        public static String folderCutTrackPracticeOrQual = "penalties/cut_track_in_prac_or_qual";
-
-        public static String folderCutTrackPracticeOrQualNextLapInvalid = "penalties/cut_track_in_prac_or_qual_next_invalid";
-
+       
         private String folderPenaltyNotServed = "penalties/penalty_not_served";
 
         // for voice requests
@@ -115,6 +107,29 @@ namespace CrewChiefV4.Events
 
         private String folderStopGoExceedingSingleStintTime = "penalties/stop_go_exceeding_single_stint_time";
 
+        // TODO: The this-lap-and-next-lap-deleted stuff probably needs re-recording or at least extending - the message should
+        // really be "this lap will be deleted and they'll probably delete the following lap" or words to that effect
+        public static String folderCutTrackPracticeOrQualNextLapInvalid = "penalties/cut_track_in_prac_or_qual_next_invalid";
+
+        // 1, 2, 3, 4 versions of race cut ("track limits...") and non-race cut ("lap deleted") messages. For non-race,
+        // "lap deleted" are combined with "track limits". 1, 2, 3, 4 are the taking-piss levels where 1 is few or zero cuts up to
+        // 4 which is taking-the-piss
+        private Dictionary<TrackLimitsMode, string> cutFoldersForRace = new Dictionary<TrackLimitsMode, string>
+        {
+            { TrackLimitsMode.OK, "penalties/cut_track_race_1" },
+            { TrackLimitsMode.MINOR_CUTTING, "penalties/cut_track_race_2" },
+            { TrackLimitsMode.EXCESSIVE_CUTTING, "penalties/cut_track_race_3" },
+            { TrackLimitsMode.TAKING_PISS, "penalties/cut_track_race_4" }
+        };
+
+        private Dictionary<TrackLimitsMode, string> cutFoldersForNonRace = new Dictionary<TrackLimitsMode, string>
+        {
+            { TrackLimitsMode.OK, "penalties/cut_track_prac_or_qual_1" },
+            { TrackLimitsMode.MINOR_CUTTING, "penalties/cut_track_prac_or_qual_2" },
+            { TrackLimitsMode.EXCESSIVE_CUTTING, "penalties/cut_track_prac_or_qual_3" },
+            { TrackLimitsMode.TAKING_PISS, "penalties/cut_track_prac_or_qual_4" }
+        };
+
         private Boolean hasHadAPenalty;
 
         private int penaltyLap;
@@ -149,6 +164,21 @@ namespace CrewChiefV4.Events
 
         public static Boolean playerMustPitThisLap = false;
 
+        private enum TrackLimitsMode
+        {
+            OK,                 // initial setting - no excessive or persistent cutting
+            MINOR_CUTTING,      // some repeated track limits violations, nothing too serious
+            EXCESSIVE_CUTTING,  // lots of violations, likely penalty
+            TAKING_PISS         // no regard of track limits
+        }
+
+        // this isn't necessarily the same as the announced warnings - in some cases we don't bother to announce
+        private int totalAnnouncableCutWarnings = 0;
+
+        private List<DateTime> cutTimesInSession = new List<DateTime>();
+
+        private TrackLimitsMode trackLimitsMode = TrackLimitsMode.OK;
+
         public override List<SessionPhase> applicableSessionPhases
         {
             get { return new List<SessionPhase> { SessionPhase.Green, SessionPhase.Countdown, SessionPhase.Garage /*Apparently rF2 issues penalties in garage too :)*/, SessionPhase.FullCourseYellow /*Some rF2 warnings come up under FCY*/, SessionPhase.Gridwalk /*Announce some rF2 warnings during gridwalk*/}; }
@@ -171,6 +201,10 @@ namespace CrewChiefV4.Events
             timeToNotifyOfSlowdown = DateTime.MinValue;
             playedSlowdownNotificationOnThisLap = false;
             playerMustPitThisLap = false;
+            trackLimitsMode = TrackLimitsMode.OK;
+            totalAnnouncableCutWarnings = 0;
+            // not used (yet) - might be helpful for establishing trends?
+            cutTimesInSession.Clear();
         }
 
         private void clearPenaltyState()
@@ -207,14 +241,14 @@ namespace CrewChiefV4.Events
                     Console.WriteLine("Checking penalty validity, pen lap = " + penaltyLap + ", completed =" + lapsCompleted);
                     return hasOutstandingPenalty && lapsCompleted == penaltyLap && currentGameState.SessionData.SessionPhase != SessionPhase.Finished;
                 }
-                else if (eventSubType == folderCutTrackInRace)
+                else if (cutFoldersForRace.Values.Contains(eventSubType))
                 {
                     return !hasOutstandingPenalty
                         && currentGameState.SessionData.SessionPhase != SessionPhase.Finished
                         && !currentGameState.PitData.InPitlane
                         && currentGameState.PositionAndMotionData.CarSpeed > 10;
                 }
-                else if (eventSubType == folderCutTrackPracticeOrQual || eventSubType == folderCutTrackPracticeOrQualNextLapInvalid || eventSubType == folderLapDeleted)
+                else if (eventSubType == folderCutTrackPracticeOrQualNextLapInvalid || cutFoldersForNonRace.Values.Contains(eventSubType))
                 {
                     return currentGameState.SessionData.SessionPhase != SessionPhase.Finished
                         && !currentGameState.PitData.InPitlane
@@ -337,6 +371,10 @@ namespace CrewChiefV4.Events
                     }
                     hasOutstandingPenalty = true;
                     hasHadAPenalty = true;
+                    // don't know if this is for cutting, just in case we reset the cutting data
+                    trackLimitsMode = TrackLimitsMode.OK;
+                    totalAnnouncableCutWarnings = 0;
+                    cutTimesInSession.Clear();
                 }
                 else if (currentGameState.PenaltiesData.HasStopAndGo && !previousGameState.PenaltiesData.HasStopAndGo)
                 {
@@ -352,6 +390,10 @@ namespace CrewChiefV4.Events
                     }
                     hasOutstandingPenalty = true;
                     hasHadAPenalty = true;
+                    // don't know if this is for cutting, just in case we reset the cutting data
+                    trackLimitsMode = TrackLimitsMode.OK;
+                    totalAnnouncableCutWarnings = 0;
+                    cutTimesInSession.Clear();
                 }
                 else if (currentGameState.PitData.InPitlane && currentGameState.PitData.OnOutLap && !playedNotServedPenalty &&
                     (currentGameState.PenaltiesData.HasStopAndGo || currentGameState.PenaltiesData.HasDriveThrough))
@@ -407,33 +449,14 @@ namespace CrewChiefV4.Events
             {
                 cutTrackWarningsCount = currentGameState.PenaltiesData.CutTrackWarnings;
                 if (currentGameState.ControlData.ControlType != ControlType.AI &&
-                    lastCutTrackWarningTime.Add(cutTrackWarningFrequency) < currentGameState.Now)
+                    lastCutTrackWarningTime.Add(cutTrackWarningFrequency) < currentGameState.Now &&
+                    currentGameState.SessionData.CompletedLaps > 0 /* don't warn on the first lap of the session*/)
                 {
-                    lastCutTrackWarningTime = currentGameState.Now;
-                    // don't warn on the first lap of the session
-                    if (currentGameState.SessionData.CompletedLaps > 0)
+                    string cutMessage = getCutTrackMessage(currentGameState);
+                    if (cutMessage != null)
                     {
-                        if (currentGameState.SessionData.SessionType == SessionType.Race)
-                        {
-                            audioPlayer.playMessage(new QueuedMessage(folderCutTrackInRace, 5, secondsDelay: Utilities.random.Next(2, 4), abstractEvent: this, priority: 10));
-                        }
-                        else if (!playedTrackCutWarningInPracticeOrQualOnThisLap)
-                        {
-                            // cut track in prac / qual is the same as lap deleted. Rather than dick about with the sound files, just allow either here
-                            if (CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM
-                                && currentGameState.SessionData.TrackDefinition.raceroomRollingStartLapDistance != -1.0f
-                                && currentGameState.PositionAndMotionData.DistanceRoundTrack > currentGameState.SessionData.TrackDefinition.raceroomRollingStartLapDistance)
-                            {
-                                audioPlayer.playMessage(new QueuedMessage(Utilities.random.NextDouble() < 0.3 ? folderLapDeleted : folderCutTrackPracticeOrQualNextLapInvalid, 5, secondsDelay: Utilities.random.Next(2, 4), abstractEvent: this, priority: 10));
-                            }
-                            else
-                            {
-                                audioPlayer.playMessage(new QueuedMessage(Utilities.random.NextDouble() < 0.3 ? folderLapDeleted : folderCutTrackPracticeOrQual, 5, secondsDelay: Utilities.random.Next(2, 4), abstractEvent: this, priority: 10));
-                            }
-                            playedTrackCutWarningInPracticeOrQualOnThisLap = true;
-                        }
-                    }
-                    clearPenaltyState();
+                        audioPlayer.playMessage(new QueuedMessage(cutMessage, 5, secondsDelay: Utilities.random.Next(2, 4), abstractEvent: this, priority: 10));
+                    }                    
                 }
             }
             else if (currentGameState.PositionAndMotionData.CarSpeed > 10 && GlobalBehaviourSettings.cutTrackWarningsEnabled && currentGameState.SessionData.SessionType != SessionType.Race &&
@@ -446,19 +469,11 @@ namespace CrewChiefV4.Events
                 if (currentGameState.ControlData.ControlType != ControlType.AI &&
                     lastCutTrackWarningTime.Add(cutTrackWarningFrequency) < currentGameState.Now)
                 {
-                    lastCutTrackWarningTime = currentGameState.Now;
-                    // cut track in prac / qual is the same as lap deleted. Rather than dick about with the sound files, just allow either here
-                    if (CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM
-                        && currentGameState.SessionData.TrackDefinition.raceroomRollingStartLapDistance != -1.0f
-                        && currentGameState.PositionAndMotionData.DistanceRoundTrack > currentGameState.SessionData.TrackDefinition.raceroomRollingStartLapDistance)
+                    string cutMessage = getCutTrackMessage(currentGameState);
+                    if (cutMessage != null)
                     {
-                        audioPlayer.playMessage(new QueuedMessage(Utilities.random.NextDouble() < 0.3 ? folderLapDeleted : folderCutTrackPracticeOrQualNextLapInvalid, 5, secondsDelay: Utilities.random.Next(2, 4), abstractEvent: this, priority: 10));
+                        audioPlayer.playMessage(new QueuedMessage(cutMessage, 5, secondsDelay: Utilities.random.Next(2, 4), abstractEvent: this, priority: 10));
                     }
-                    else
-                    {
-                        audioPlayer.playMessage(new QueuedMessage(Utilities.random.NextDouble() < 0.3 ? folderLapDeleted : folderCutTrackPracticeOrQual, 5, secondsDelay: Utilities.random.Next(2, 4), abstractEvent: this, priority: 10));
-                    }
-                    clearPenaltyState();
                 }
             }
             else if ((currentGameState.SessionData.SessionType == SessionType.Race || currentGameState.SessionData.SessionType == SessionType.Qualify
@@ -490,6 +505,8 @@ namespace CrewChiefV4.Events
                     
                     hasOutstandingPenalty = true;
                     hasHadAPenalty = true;
+                    // don't know if this is for cutting, just in case we reset the cutting enum
+                    trackLimitsMode = TrackLimitsMode.OK;
                 }
                 else if (currentGameState.PitData.InPitlane && currentGameState.PitData.OnOutLap && !playedNotServedPenalty &&
                     currentGameState.PenaltiesData.NumPenalties > 0)
@@ -562,6 +579,110 @@ namespace CrewChiefV4.Events
                 (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT))))
             {
                 audioPlayer.playMessage(new QueuedMessage(folderPenaltyServed, 0, abstractEvent: this, priority: 10));
+            }
+        }
+
+        private void updateCuttingEnum(GameStateData currentGameState)
+        {
+            if (currentGameState.SessionData.SessionRunningTime < 60)
+            {
+                return;
+            }
+            float cutsPerMinute = (60f * (float)totalAnnouncableCutWarnings) / currentGameState.SessionData.SessionRunningTime;
+            TrackLimitsMode newTrackLimitsMode = trackLimitsMode;
+            switch (trackLimitsMode)
+            {
+                case TrackLimitsMode.OK:
+                    if (totalAnnouncableCutWarnings > 1 && cutsPerMinute > 0.5)
+                    {
+                        newTrackLimitsMode = TrackLimitsMode.MINOR_CUTTING;
+                    }
+                    break;
+                case TrackLimitsMode.MINOR_CUTTING:
+                    if (cutsPerMinute < 0.3)
+                    {
+                        newTrackLimitsMode = TrackLimitsMode.OK;
+                    }
+                    else if (totalAnnouncableCutWarnings > 5 && cutsPerMinute > 0.5)
+                    {
+                        newTrackLimitsMode = TrackLimitsMode.EXCESSIVE_CUTTING;
+                    }
+                    break;
+                case TrackLimitsMode.EXCESSIVE_CUTTING:
+                    if (cutsPerMinute < 0.5)
+                    {
+                        newTrackLimitsMode = TrackLimitsMode.MINOR_CUTTING;
+                    }
+                    else if (totalAnnouncableCutWarnings > 7 && cutsPerMinute > 0.7)
+                    {
+                        newTrackLimitsMode = TrackLimitsMode.TAKING_PISS;
+                    }
+                    break;
+                case TrackLimitsMode.TAKING_PISS:
+                    if (cutsPerMinute < 0.4)
+                    {
+                        newTrackLimitsMode = TrackLimitsMode.MINOR_CUTTING;
+                    }
+                    else if (cutsPerMinute < 0.6)
+                    {
+                        newTrackLimitsMode = TrackLimitsMode.EXCESSIVE_CUTTING;
+                    }
+                    break;
+            }
+            if (trackLimitsMode != newTrackLimitsMode)
+            {
+                Console.WriteLine("Track limits mode changed from " + trackLimitsMode + " to " + newTrackLimitsMode + " total cuts = " + totalAnnouncableCutWarnings + " cuts-per-minute = " + cutsPerMinute);
+            }
+            trackLimitsMode = newTrackLimitsMode;
+        }
+
+        private string getCutTrackMessage(GameStateData currentGameState)
+        {
+            if (currentGameState.SessionData.SessionType == SessionType.Race)
+            {
+                totalAnnouncableCutWarnings++;                
+                cutTimesInSession.Add(currentGameState.Now);
+                updateCuttingEnum(currentGameState);
+                return getCutTrackMessage(true, currentGameState.Now);
+            }
+            else if (!playedTrackCutWarningInPracticeOrQualOnThisLap)
+            {
+                playedTrackCutWarningInPracticeOrQualOnThisLap = true;
+                lastCutTrackWarningTime = currentGameState.Now;
+                cutTimesInSession.Add(currentGameState.Now);
+                totalAnnouncableCutWarnings++;
+                updateCuttingEnum(currentGameState);
+                if (CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM
+                    && currentGameState.SessionData.TrackDefinition.raceroomRollingStartLapDistance != -1.0f
+                    && currentGameState.PositionAndMotionData.DistanceRoundTrack > currentGameState.SessionData.TrackDefinition.raceroomRollingStartLapDistance)
+                {
+                    return folderCutTrackPracticeOrQualNextLapInvalid;
+                }
+                else
+                {
+                    return getCutTrackMessage(false, currentGameState.Now);
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private string getCutTrackMessage(bool isRace, DateTime now)
+        {
+            string messageToPlay = isRace ? cutFoldersForRace[trackLimitsMode] : cutFoldersForNonRace[trackLimitsMode];
+            // whether we actually want to play this is down to the taking-the-piss-o-meter setting, the last cut message time
+            // and the total number of cuts in this session
+            if (totalAnnouncableCutWarnings > 20
+                || (trackLimitsMode == TrackLimitsMode.TAKING_PISS && (now - lastCutTrackWarningTime).TotalSeconds < 300)
+                || (trackLimitsMode == TrackLimitsMode.EXCESSIVE_CUTTING && (now - lastCutTrackWarningTime).TotalSeconds < 200))
+            {
+                return null;
+            }
+            else
+            {
+                return messageToPlay;
             }
         }
 
