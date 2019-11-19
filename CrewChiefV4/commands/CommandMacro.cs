@@ -416,6 +416,11 @@ namespace CrewChiefV4.commands
         public Boolean loadActionItems()
         {
             this.actionItems = new List<ActionItem>();
+            if (this.actionSequence == null)
+            {
+                Console.WriteLine("No action sequence for commandSet " + description);
+                return false;
+            }            
             foreach (String action in actionSequence)
             {
                 ActionItem actionItem = new ActionItem(action);
