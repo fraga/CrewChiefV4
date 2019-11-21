@@ -81,9 +81,9 @@ namespace CrewChiefV4.Events
                     currentGameState.PositionAndMotionData.CarSpeed < 5 &&
                     !currentGameState.carClass.isBatteryPowered)  // VL: for now assume electrical cars don't stall (at least FE doesn't).
                 {
-                    // Play stalled warning straight away - these messages only play in race sessions but the 
+                    // Play stalled warning straight away - these messages only play in race and qually sessions but the 
                     // rest of the logic still needs to trigger
-                    if (currentGameState.SessionData.SessionType == SessionType.Race)
+                    if (currentGameState.SessionData.SessionType == SessionType.Race || currentGameState.SessionData.SessionType == SessionType.Qualify)
                     {
                         audioPlayer.playMessageImmediately(new QueuedMessage(folderStalled, 3));
                     }
