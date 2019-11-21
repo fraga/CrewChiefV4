@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -81,8 +81,12 @@ namespace CrewChiefV4.Events
                     currentGameState.PositionAndMotionData.CarSpeed < 5 &&
                     !currentGameState.carClass.isBatteryPowered)  // VL: for now assume electrical cars don't stall (at least FE doesn't).
                 {
-                    // Play stalled warning straight away
-                    audioPlayer.playMessageImmediately(new QueuedMessage(folderStalled, 3));
+                    // Play stalled warning straight away - these messages only play in race sessions but the 
+                    // rest of the logic still needs to trigger
+                    if (currentGameState.SessionData.SessionType == SessionType.Race)
+                    {
+                        audioPlayer.playMessageImmediately(new QueuedMessage(folderStalled, 3));
+                    }
                     // don't re-check stalled warning for a couple of minutes.
                     nextStalledCheck = currentGameState.Now.Add(TimeSpan.FromMinutes(2));
                     // move the oil and fuel pressure checks out a bit to allow it to settle
