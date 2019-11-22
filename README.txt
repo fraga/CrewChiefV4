@@ -371,7 +371,7 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
-Version 4.10.0.4: Reworked cut track messages to make them more appropriate to how often you cut / violate track limits; R3E - auto-select 'serve penalty' in the pit menu when you issue the 'box this lap' command with an outstanding penalty (requires the R3E pit menu key bindings to match the ones the app is expecting); R3E - fix crash bug caused by null or empty driver names when sending WebHud data; iRacing - allow the app to manage disk telemetry handling (enable with 'Enable automatic telemetry disk recording' property); iRacing - fix some issues with the track map on chart overlays
+Version 4.10.0.4: Reworked cut track messages to make them more appropriate to how often you cut / violate track limits - note that if you cut persistently and frequently the app will (eventually) start to ignore these cuts; R3E - auto-select 'serve penalty' in the pit menu when you issue the 'box this lap' command with an outstanding penalty (requires the R3E pit menu key bindings to match the ones the app is expecting); R3E - fix crash bug caused by null or empty driver names when sending WebHud data; iRacing - allow the app to manage disk telemetry handling (enable with 'Enable automatic telemetry disk recording' property); iRacing - fix some issues with the track map on chart overlays; iRacing - improved cut track detection
 
 Version 4.10.0.3: RF2 plugin hotfix; Added track map to charts when zoomed in (uses car position data) - visible area is hightlighted in red 
 
