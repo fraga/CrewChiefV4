@@ -43,7 +43,10 @@ namespace CrewChiefV4.iRacing
 
         private readonly bool enableFCYPitStateMessages = UserSettings.GetUserSettings().getBoolean("enable_iracing_pit_state_during_fcy");
         private Boolean invalidateCutTrackLaps = UserSettings.GetUserSettings().getBoolean("iracing_invalidate_cut_track_laps");
-        
+        private DateTime lastCutTrackTime = DateTime.MaxValue;
+        TimeSpan cutTrackValidaitonTime = TimeSpan.FromSeconds(3);
+
+
         class PendingRacePositionChange
         {
             public int newPosition;
@@ -423,11 +426,7 @@ namespace CrewChiefV4.iRacing
             currentGameState.ControlData.BrakePedal = shared.Telemetry.Brake;
             currentGameState.TransmissionData.Gear = shared.Telemetry.Gear;
 
-            currentGameState.SessionData.CurrentIncidentCount = shared.Telemetry.PlayerCarMyIncidentCount;
-            currentGameState.SessionData.CurrentDriverIncidentCount = shared.Telemetry.PlayerCarDriverIncidentCount;
-            currentGameState.SessionData.CurrentTeamIncidentCount = shared.Telemetry.PlayerCarTeamIncidentCount;
-            currentGameState.SessionData.HasLimitedIncidents = shared.SessionData.IsLimitedIncidents;
-            currentGameState.SessionData.MaxIncidentCount = shared.SessionData.IncidentLimit;
+
             currentGameState.SessionData.LicenseLevel = playerCar.licensLevel;
             currentGameState.SessionData.iRating = playerCar.IRating;
 
@@ -1116,22 +1115,24 @@ namespace CrewChiefV4.iRacing
                 currentGameState.Conditions.addSample(currentGameState.Now, currentGameState.SessionData.CompletedLaps, currentGameState.SessionData.SectorNumber,
                     shared.Telemetry.AirTemp, shared.Telemetry.TrackTempCrew, 0, shared.Telemetry.WindVel, 0, 0, 0, currentGameState.SessionData.IsNewLap);
             }
-
             currentGameState.PenaltiesData.IsOffRacingSurface = shared.Telemetry.PlayerTrackSurface == TrackSurfaces.OffTrack;
-            if (invalidateCutTrackLaps && !currentGameState.PitData.OnOutLap && previousGameState != null && !previousGameState.PenaltiesData.IsOffRacingSurface && currentGameState.PenaltiesData.IsOffRacingSurface
-            && !(currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.SessionData.SessionPhase == SessionPhase.Countdown))
+
+
+
+            if(invalidateCutTrackLaps && !currentGameState.PitData.OnOutLap && previousGameState != null &&
+                !(currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.SessionData.SessionPhase == SessionPhase.Countdown) &&
+                currentGameState.SessionData.CurrentIncidentCount + 1 == shared.Telemetry.PlayerCarMyIncidentCount)
             {
                 currentGameState.PenaltiesData.CutTrackWarnings = previousGameState.PenaltiesData.CutTrackWarnings + 1;
                 currentGameState.SessionData.CurrentLapIsValid = false;
             }
-            //if(shared.SessionData.IsTeamRacing)
-            //{
-            //    currentGameState.PenaltiesData.NumPenalties = shared.Telemetry.PlayerCarTeamIncidentCount;
-            //}
-            //else
-            //{
+            currentGameState.SessionData.CurrentIncidentCount = shared.Telemetry.PlayerCarMyIncidentCount;
+            currentGameState.SessionData.CurrentDriverIncidentCount = shared.Telemetry.PlayerCarDriverIncidentCount;
+            currentGameState.SessionData.CurrentTeamIncidentCount = shared.Telemetry.PlayerCarTeamIncidentCount;
+            currentGameState.SessionData.HasLimitedIncidents = shared.SessionData.IsLimitedIncidents;
+            currentGameState.SessionData.MaxIncidentCount = shared.SessionData.IncidentLimit;
+
             currentGameState.PenaltiesData.NumPenalties = shared.Telemetry.PlayerCarMyIncidentCount;
-            //}
 
 
             currentGameState.TyreData.FrontLeftPressure = shared.Telemetry.LFcoldPressure;
@@ -1226,6 +1227,8 @@ namespace CrewChiefV4.iRacing
                                            
             return currentGameState;
         }
+
+
 
         private void updateOpponentData(OpponentData opponentData, String driverName, int CostId, int racePosition, int completedLaps,
             int sector, float completedLapTime, int gear, float rpm,float steeringAngle, Boolean isInPits, bool previousIsApporchingPits,
