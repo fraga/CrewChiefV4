@@ -354,7 +354,7 @@ namespace CrewChiefV4.Events
                 playedSlowdownNotificationOnThisLap = false;
                 playerMustPitThisLap = false;
             }
-            if (currentGameState.SessionData.SessionType == SessionType.Race && previousGameState != null &&
+            if ((currentGameState.SessionData.SessionType == SessionType.Race || CrewChief.gameDefinition.gameEnum == GameEnum.IRACING) && previousGameState != null &&
                 (currentGameState.PenaltiesData.HasDriveThrough || currentGameState.PenaltiesData.HasStopAndGo || currentGameState.PenaltiesData.HasTimeDeduction))
             {
                 if (currentGameState.PenaltiesData.HasDriveThrough && !previousGameState.PenaltiesData.HasDriveThrough)
@@ -461,7 +461,7 @@ namespace CrewChiefV4.Events
             }
             else if (currentGameState.PositionAndMotionData.CarSpeed > 10 && GlobalBehaviourSettings.cutTrackWarningsEnabled && currentGameState.SessionData.SessionType != SessionType.Race &&
               !currentGameState.SessionData.CurrentLapIsValid && previousGameState != null && previousGameState.SessionData.CurrentLapIsValid &&
-                CrewChief.gameDefinition.gameEnum != GameEnum.IRACING && !currentGameState.PitData.OnOutLap)
+                /*CrewChief.gameDefinition.gameEnum != GameEnum.IRACING &&*/ !currentGameState.PitData.OnOutLap)
             {
                 // JB: don't think we need this block - the previous block should always trigger in preference to this, but we'll leave it here just in case
                 cutTrackWarningsCount = currentGameState.PenaltiesData.CutTrackWarnings;
@@ -549,7 +549,7 @@ namespace CrewChiefV4.Events
                 warnedOfPossibleTrackLimitsViolationOnThisLap = true;
                 audioPlayer.playMessage(new QueuedMessage(folderPossibleTrackLimitsViolation, 4, secondsDelay: Utilities.random.Next(2, 4), abstractEvent: this, priority: 0));
             }
-            else if (currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.PenaltiesData.HasSlowDown && !playedSlowdownNotificationOnThisLap)
+            else if ((currentGameState.SessionData.SessionType == SessionType.Race || CrewChief.gameDefinition.gameEnum == GameEnum.IRACING) && currentGameState.PenaltiesData.HasSlowDown && !playedSlowdownNotificationOnThisLap)
             {
                 if (!waitingToNotifyOfSlowdown)
                 {

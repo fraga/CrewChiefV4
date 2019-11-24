@@ -178,10 +178,6 @@ namespace CrewChiefV4.iRacing
                     currentGameState.SessionData.TrackDefinition.iracingPitEntranceDistanceRoundTrack = tdc.iracingPitEntranceDistanceRoundTrack;
                 }
                 currentGameState.SessionData.TrackDefinition.isOval = shared.SessionData.Track.IsOval;
-                if (currentGameState.SessionData.TrackDefinition.isOval)
-                {
-                    currentGameState.carClass.limiterAvailable = false;
-                }
                 currentGameState.SessionData.TrackDefinition.setGapPoints();
                 GlobalBehaviourSettings.UpdateFromTrackDefinition(currentGameState.SessionData.TrackDefinition);
 
@@ -212,8 +208,13 @@ namespace CrewChiefV4.iRacing
 
                 //TODO update car classes
                 currentGameState.carClass = CarData.getCarClassForIRacingId(playerCar.Car.CarClassId, playerCar.Car.CarId);
+                if (currentGameState.SessionData.TrackDefinition.isOval)
+                {
+                    currentGameState.carClass.limiterAvailable = false;
+                }
                 CarData.IRACING_CLASS_ID = playerCar.Car.CarClassId;
                 GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass);
+
                 Console.WriteLine("Player is using car class " + currentGameState.carClass.getClassIdentifier() + " (car ID " + playerCar.Car.CarId + ")");
                 currentGameState.SessionData.PlayerCarNr = playerCar.CarNumber;
 
@@ -286,14 +287,14 @@ namespace CrewChiefV4.iRacing
                             currentGameState.SessionData.TrackDefinition.iracingPitEntranceDistanceRoundTrack = tdc.iracingPitEntranceDistanceRoundTrack;
                         }
                         currentGameState.SessionData.TrackDefinition.isOval = shared.SessionData.Track.IsOval;
-                        if (currentGameState.SessionData.TrackDefinition.isOval)
-                        {
-                            currentGameState.carClass.limiterAvailable = false;
-                        }
                         currentGameState.SessionData.TrackDefinition.setGapPoints();
                         GlobalBehaviourSettings.UpdateFromTrackDefinition(currentGameState.SessionData.TrackDefinition);
 
                         currentGameState.carClass = CarData.getCarClassForIRacingId(playerCar.Car.CarClassId, playerCar.Car.CarId);
+                        if (currentGameState.SessionData.TrackDefinition.isOval)
+                        {
+                            currentGameState.carClass.limiterAvailable = false;
+                        }
                         GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass);
                         currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.Now);
                         Console.WriteLine("Player is using car class " + currentGameState.carClass.getClassIdentifier() + " (car ID " + playerCar.Car.CarId + ")");
@@ -493,9 +494,13 @@ namespace CrewChiefV4.iRacing
             {
                 currentGameState.PenaltiesData.HasStopAndGo = true;
             }
-            if (flag.HasFlag(SessionFlags.Black) && flag.HasFlag(SessionFlags.Furled))
+            if (flag.HasFlag(SessionFlags.Furled))
             {
                 currentGameState.PenaltiesData.HasSlowDown = true;
+            }
+            if (flag.HasFlag(SessionFlags.Repair))
+            {
+                currentGameState.PenaltiesData.HasPitStop = true;
             }
             if (flag.HasFlag(SessionFlags.YellowWaving))
             {
@@ -699,6 +704,7 @@ namespace CrewChiefV4.iRacing
             currentGameState.PitData.IsInGarage = shared.Telemetry.IsInGarage;
 
             currentGameState.PitData.IsTeamRacing = shared.SessionData.IsTeamRacing;
+
 
             currentGameState.SessionData.IsNewLap = playerCar.Live.IsNewLap && !(currentGameState.PitData.JumpedToPits || playerCar.Live.TrackSurface == TrackSurfaces.NotInWorld);
             currentGameState.SessionData.IsNewSector = (currentGameState.SessionData.SectorNumber != currentSector && currentSector != 1 || currentGameState.SessionData.IsNewLap) && !(currentGameState.PitData.JumpedToPits || playerCar.Live.TrackSurface == TrackSurfaces.NotInWorld);
@@ -1131,10 +1137,14 @@ namespace CrewChiefV4.iRacing
             currentGameState.SessionData.CurrentTeamIncidentCount = shared.Telemetry.PlayerCarTeamIncidentCount;
             currentGameState.SessionData.HasLimitedIncidents = shared.SessionData.IsLimitedIncidents;
             currentGameState.SessionData.MaxIncidentCount = shared.SessionData.IncidentLimit;
-
-            currentGameState.PenaltiesData.NumPenalties = shared.Telemetry.PlayerCarMyIncidentCount;
-
-
+            if(currentGameState.PenaltiesData.HasSlowDown)
+            {
+                currentGameState.PenaltiesData.NumPenalties++;
+            }
+            if (currentGameState.PenaltiesData.HasStopAndGo)
+            {
+                currentGameState.PenaltiesData.NumPenalties++;
+            }
             currentGameState.TyreData.FrontLeftPressure = shared.Telemetry.LFcoldPressure;
             currentGameState.TyreData.FrontRightPressure = shared.Telemetry.RFcoldPressure;
             currentGameState.TyreData.RearLeftPressure = shared.Telemetry.LRcoldPressure;
