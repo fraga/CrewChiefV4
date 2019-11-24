@@ -107,6 +107,13 @@ namespace CrewChiefV4.Events
 
         private String folderStopGoExceedingSingleStintTime = "penalties/stop_go_exceeding_single_stint_time";
 
+        // deprecated cut track sounds, keeps these so the new cut stuff doesn't break unofficial sound packs
+        public static String folderCutTrackInRace = "penalties/cut_track_in_race";
+        public static String folderLapDeleted = "penalties/lap_deleted";
+        public static String folderCutTrackPracticeOrQual = "penalties/cut_track_in_prac_or_qual";
+        private static bool useNewCutTrackSounds = false;
+
+
         // TODO: The this-lap-and-next-lap-deleted stuff probably needs re-recording or at least extending - the message should
         // really be "this lap will be deleted and they'll probably delete the following lap" or words to that effect
         public static String folderCutTrackPracticeOrQualNextLapInvalid = "penalties/cut_track_in_prac_or_qual_next_invalid";
@@ -187,6 +194,7 @@ namespace CrewChiefV4.Events
         public Penalties(AudioPlayer audioPlayer)
         {
             this.audioPlayer = audioPlayer;
+            useNewCutTrackSounds = SoundCache.availableSounds.Contains("penalties/cut_track_race_1");
         }
 
         public override void clearState()
@@ -640,27 +648,52 @@ namespace CrewChiefV4.Events
         {
             if (currentGameState.SessionData.SessionType == SessionType.Race)
             {
-                totalAnnouncableCutWarnings++;                
-                cutTimesInSession.Add(currentGameState.Now);
-                updateCuttingEnum(currentGameState);
-                return getCutTrackMessage(true, currentGameState.Now);
+                if (!useNewCutTrackSounds)
+                {
+                    // old cut messages - just use the cutTrackInRace folder:
+                    return folderCutTrackInRace;
+                }
+                else
+                {
+                    totalAnnouncableCutWarnings++;
+                    cutTimesInSession.Add(currentGameState.Now);
+                    updateCuttingEnum(currentGameState);
+                    return getCutTrackMessage(true, currentGameState.Now);
+                }
             }
             else if (!playedTrackCutWarningInPracticeOrQualOnThisLap)
             {
                 playedTrackCutWarningInPracticeOrQualOnThisLap = true;
-                lastCutTrackWarningTime = currentGameState.Now;
-                cutTimesInSession.Add(currentGameState.Now);
-                totalAnnouncableCutWarnings++;
-                updateCuttingEnum(currentGameState);
-                if (CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM
-                    && currentGameState.SessionData.TrackDefinition.raceroomRollingStartLapDistance != -1.0f
-                    && currentGameState.PositionAndMotionData.DistanceRoundTrack > currentGameState.SessionData.TrackDefinition.raceroomRollingStartLapDistance)
+                if (!useNewCutTrackSounds)
                 {
-                    return folderCutTrackPracticeOrQualNextLapInvalid;
+                    // old cut track messages - copy-paste of old logic for choosing lapDeleted / cutInPracOrQual / cutInPracOrQualNextLapInvalid:
+                    if (CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM
+                                    && currentGameState.SessionData.TrackDefinition.raceroomRollingStartLapDistance != -1.0f
+                                    && currentGameState.PositionAndMotionData.DistanceRoundTrack > currentGameState.SessionData.TrackDefinition.raceroomRollingStartLapDistance)
+                    {
+                        return Utilities.random.NextDouble() < 0.3 ? folderLapDeleted : folderCutTrackPracticeOrQualNextLapInvalid;
+                    }
+                    else
+                    {
+                        return Utilities.random.NextDouble() < 0.3 ? folderLapDeleted : folderCutTrackPracticeOrQual;
+                    }
                 }
                 else
                 {
-                    return getCutTrackMessage(false, currentGameState.Now);
+                    lastCutTrackWarningTime = currentGameState.Now;
+                    cutTimesInSession.Add(currentGameState.Now);
+                    totalAnnouncableCutWarnings++;
+                    updateCuttingEnum(currentGameState);
+                    if (CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM
+                        && currentGameState.SessionData.TrackDefinition.raceroomRollingStartLapDistance != -1.0f
+                        && currentGameState.PositionAndMotionData.DistanceRoundTrack > currentGameState.SessionData.TrackDefinition.raceroomRollingStartLapDistance)
+                    {
+                        return folderCutTrackPracticeOrQualNextLapInvalid;
+                    }
+                    else
+                    {
+                        return getCutTrackMessage(false, currentGameState.Now);
+                    }
                 }
             }
             else
