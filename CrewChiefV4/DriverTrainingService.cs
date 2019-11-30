@@ -144,9 +144,22 @@ namespace CrewChiefV4
                         {
                             Console.WriteLine("Playing entry at distance " + entry.distanceRoundTrack);
                         }
-                        QueuedMessage message = new QueuedMessage(entry.getRandomRecordingName(), 1, type: SoundType.CRITICAL_MESSAGE, priority: 0);
-                        message.playEvenWhenSilenced = true;
-                        audioPlayer.playMessageImmediately(message);
+                        if (entry.playAllInOrder)
+                        {
+                            foreach (String recordingName in entry.recordingNames)
+                            {
+                                // don't allow these to expire
+                                QueuedMessage message = new QueuedMessage(recordingName, 0, type: SoundType.CRITICAL_MESSAGE, priority: 0);
+                                message.playEvenWhenSilenced = true;
+                                audioPlayer.playMessageImmediately(message);
+                            }
+                        }
+                        else
+                        {
+                            QueuedMessage message = new QueuedMessage(entry.getRandomRecordingName(), 1, type: SoundType.CRITICAL_MESSAGE, priority: 0);
+                            message.playEvenWhenSilenced = true;
+                            audioPlayer.playMessageImmediately(message);
+                        }
                     }
                 }
             }
@@ -422,12 +435,14 @@ namespace CrewChiefV4
         public int distanceRoundTrack { get; set; }
         public List<String> recordingNames { get; set; }
         public List<String> fileNames { get; set; }
+        public bool playAllInOrder { get; set; }
 
         public MetaDataEntry()
         {
             this.recordingNames = new List<string>();
             this.fileNames = new List<string>();
             this.description = "";
+            this.playAllInOrder = false;
         }
 
         public MetaDataEntry(int distanceRoundTrack)
@@ -436,6 +451,7 @@ namespace CrewChiefV4
             this.description = "";
             this.recordingNames = new List<string>();
             this.fileNames = new List<string>();
+            this.playAllInOrder = false;
         }
 
         public String getRandomRecordingName()
