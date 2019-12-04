@@ -122,6 +122,7 @@ namespace CrewChiefV4
                 if (settingsProfileBroken)
                 {
                     Console.WriteLine("Broken user settings profile " + fileName + "renaming it to  " + Path.ChangeExtension(fileName, "broken"));
+                    File.Delete(Path.ChangeExtension(fileName, "broken"));
                     File.Move(fileName, Path.ChangeExtension(fileName, "broken"));
                     // if the default settings file is broken we have to recreate it.
                     if (Path.Combine(userProfilesPath, defaultUserSettingsfileName).Equals(fileName))
