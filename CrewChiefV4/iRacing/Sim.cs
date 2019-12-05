@@ -24,6 +24,7 @@ namespace CrewChiefV4.iRacing
             _paceCarPresent = false;
             _isRaceOrQualifying = false;
             _sessionTimeRemain = Double.MinValue;
+            _sessionRunningTime = Double.MaxValue;
         }
 
         enum RaceEndState {NONE, WAITING_TO_CROSS_LINE, FINISHED}
@@ -36,6 +37,9 @@ namespace CrewChiefV4.iRacing
 
         private double _sessionTimeRemain;
         public double SessionTimeRemain { get { return _sessionTimeRemain; } }
+
+        private double _sessionRunningTime;
+        public double SessionRunningTime { get { return _sessionRunningTime; } }
 
         private int _subSessionId;
         public int SubSessionId { get { return _subSessionId; } }
@@ -477,7 +481,7 @@ namespace CrewChiefV4.iRacing
         }
 
 
-        public bool SdkOnSessionInfoUpdated(string sessionInfo, int sessionNumber, int driverId, double sessionTimeRemain)
+        public bool SdkOnSessionInfoUpdated(string sessionInfo, int sessionNumber, int driverId, double sessionTimeRemain, double sessionRunningTime)
         {
 
             _DriverId = driverId;
@@ -487,22 +491,22 @@ namespace CrewChiefV4.iRacing
             int subSessionId = Parser.ParseInt(YamlParser.Parse(sessionInfo, "WeekendInfo:SubSessionID:"));
             
             if (_currentSessionNumber == null || (_currentSessionNumber != sessionNumber) || sessionId != _sessionId || subSessionId != _subSessionId || 
-               sessionTimeRemain > _sessionTimeRemain) // session of same type restarted
+               ((sessionTimeRemain > _sessionTimeRemain || sessionRunningTime < _sessionRunningTime) && _currentSessionNumber == sessionNumber)) // session of same type restarted
             {
                 // Session changed, reset session info
                 reloadDrivers = true;
                 _sessionData.Update(sessionInfo, sessionNumber);
                 _sessionId = sessionId;
                 _subSessionId = subSessionId;
-                _sessionTimeRemain = sessionTimeRemain;
                 _isRaceOrQualifying = this.SessionData.SessionType == "Race" || this.SessionData.SessionType == "Open Qualify" || this.SessionData.SessionType == "Lone Qualify";
             }
             _currentSessionNumber = sessionNumber;
             // Update drivers
             this.UpdateDriverList(sessionInfo, reloadDrivers);
-
+            _sessionTimeRemain = sessionTimeRemain;
+            _sessionRunningTime = sessionRunningTime;
             //GetNumberOfStarters(sessionInfo);
-            
+
             return reloadDrivers;         
         }
 

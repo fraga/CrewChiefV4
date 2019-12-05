@@ -161,7 +161,7 @@ namespace CrewChiefV4.iRacing
                 iRacingStructDumpWrapper structDumpWrapperData = dataReadFromFile[dataReadFromFileIndex];
                 if (structDumpWrapperData.data.SessionInfoUpdate != lastUpdate && structDumpWrapperData.data.SessionInfo.Length > 0)
                 {
-                    IsNewSession = sim.SdkOnSessionInfoUpdated(structDumpWrapperData.data.SessionInfo, structDumpWrapperData.data.SessionNum, structDumpWrapperData.data.PlayerCarIdx, structDumpWrapperData.data.SessionTimeRemain);
+                    IsNewSession = sim.SdkOnSessionInfoUpdated(structDumpWrapperData.data.SessionInfo, structDumpWrapperData.data.SessionNum, structDumpWrapperData.data.PlayerCarIdx, structDumpWrapperData.data.SessionTimeRemain, structDumpWrapperData.data.SessionTime);
                     lastUpdate = structDumpWrapperData.data.SessionInfoUpdate;
                 }
                 /*if (IsNewSession)
@@ -273,8 +273,9 @@ namespace CrewChiefV4.iRacing
                                     return null;
                                 }
                                 System.Double SessionTimeRemain = (System.Double)sdk.GetData("SessionTimeRemain");
+                                System.Double SessionTime = (System.Double)sdk.GetData("SessionTime");
                                 string sessionInfoFiltred = new SessionInfo(sessionInfoUnFiltred).Yaml;
-                                isNewSession = sim.SdkOnSessionInfoUpdated(sessionInfoFiltred, (int)sessionNum, DriverId, SessionTimeRemain);
+                                isNewSession = sim.SdkOnSessionInfoUpdated(sessionInfoFiltred, (int)sessionNum, DriverId, SessionTimeRemain, SessionTime);
                                 lastUpdate = newUpdate;
                                 hasNewSessionData = true;
                             }
