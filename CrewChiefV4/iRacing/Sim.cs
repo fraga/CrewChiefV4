@@ -495,8 +495,6 @@ namespace CrewChiefV4.iRacing
                 _sessionId = sessionId;
                 _subSessionId = subSessionId;
                 _sessionTimeRemain = sessionTimeRemain;
-                String sessionInfoFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "debugLogs" , "sessionInfo.txt");
-                File.WriteAllText(sessionInfoFile, sessionInfo);
                 _isRaceOrQualifying = this.SessionData.SessionType == "Race" || this.SessionData.SessionType == "Open Qualify" || this.SessionData.SessionType == "Lone Qualify";
             }
             _currentSessionNumber = sessionNumber;
