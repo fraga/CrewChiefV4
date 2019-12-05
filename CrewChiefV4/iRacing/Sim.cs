@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,6 +23,7 @@ namespace CrewChiefV4.iRacing
             _gameTimeWhenWhiteFlagTriggered = -1.0;
             _paceCarPresent = false;
             _isRaceOrQualifying = false;
+            _sessionTimeRemain = Double.MinValue;
         }
 
         enum RaceEndState {NONE, WAITING_TO_CROSS_LINE, FINISHED}
@@ -31,6 +33,9 @@ namespace CrewChiefV4.iRacing
 
         private int _sessionId;
         public int SessionId { get { return _sessionId; } }
+
+        private double _sessionTimeRemain;
+        public double SessionTimeRemain { get { return _sessionTimeRemain; } }
 
         private int _subSessionId;
         public int SubSessionId { get { return _subSessionId; } }
@@ -472,7 +477,7 @@ namespace CrewChiefV4.iRacing
         }
 
 
-        public bool SdkOnSessionInfoUpdated(string sessionInfo, int sessionNumber, int driverId)
+        public bool SdkOnSessionInfoUpdated(string sessionInfo, int sessionNumber, int driverId, double sessionTimeRemain)
         {
 
             _DriverId = driverId;
@@ -480,13 +485,18 @@ namespace CrewChiefV4.iRacing
             //also need
             int sessionId = Parser.ParseInt(YamlParser.Parse(sessionInfo, "WeekendInfo:SessionID:"));
             int subSessionId = Parser.ParseInt(YamlParser.Parse(sessionInfo, "WeekendInfo:SubSessionID:"));
-            if (_currentSessionNumber == null || (_currentSessionNumber != sessionNumber) || sessionId != _sessionId || subSessionId != _subSessionId)
+            
+            if (_currentSessionNumber == null || (_currentSessionNumber != sessionNumber) || sessionId != _sessionId || subSessionId != _subSessionId || 
+               sessionTimeRemain > _sessionTimeRemain) // session of same type restarted
             {
                 // Session changed, reset session info
                 reloadDrivers = true;
                 _sessionData.Update(sessionInfo, sessionNumber);
                 _sessionId = sessionId;
                 _subSessionId = subSessionId;
+                _sessionTimeRemain = sessionTimeRemain;
+                String sessionInfoFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "debugLogs" , "sessionInfo.txt");
+                File.WriteAllText(sessionInfoFile, sessionInfo);
                 _isRaceOrQualifying = this.SessionData.SessionType == "Race" || this.SessionData.SessionType == "Open Qualify" || this.SessionData.SessionType == "Lone Qualify";
             }
             _currentSessionNumber = sessionNumber;

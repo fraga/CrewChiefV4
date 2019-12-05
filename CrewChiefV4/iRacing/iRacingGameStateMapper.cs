@@ -1351,7 +1351,7 @@ namespace CrewChiefV4.iRacing
             int previousLapsCompleted, int laps, SessionFlags sessionFlags, bool IsFullCourseCautions, SafetyCarData currentSafetyCarData, SafetyCarData previousSafetyCarData, 
             int formationLapCount, float pitEntranceDistanceRoundTrack)
         {
-            /*if (previousSessionFlags != sessionFlags)
+            if (previousSessionFlags != sessionFlags)
             {
                 Console.WriteLine("Previous sessionFlags: " + previousSessionFlags);
                 Console.WriteLine("Current sessionFlags: " + sessionFlags);
@@ -1362,7 +1362,7 @@ namespace CrewChiefV4.iRacing
                 Console.WriteLine("Previous sessionState: " + previousSessionState);
                 Console.WriteLine("Current sessionState: " + sessionState);
                 previousSessionState = sessionState;
-            }*/
+            }
             if (currentSessionType == SessionType.Practice)
             {
                 if (sessionState == SessionStates.CoolDown)
