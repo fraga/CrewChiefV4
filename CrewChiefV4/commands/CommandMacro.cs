@@ -81,10 +81,25 @@ namespace CrewChiefV4.commands
                     ((CrewChief.gameDefinition == GameDefinition.pCars2 || CrewChief.gameDefinition == GameDefinition.rfactor2_64bit) &&
                      CrewChief.currentGameState != null && CrewChief.currentGameState.PitData.HasRequestedPitStop))
                 {
-                    // we've already requested a stop, so change the confirm message to 'yeah yeah, we know'
-                    if (macroConfirmationMessage != null)
+                    // special case for R3E. Pit requested state doesn't clear after completing a stop, so we might need to execute the 
+                    // serve penalty macro even if we deem this request invalid (the pit request flag is already true)
+                    if (CrewChief.gameDefinition == GameDefinition.raceRoom && CrewChief.currentGameState != null &&
+                        (CrewChief.currentGameState.PenaltiesData.PenaltyType == GameState.PenatiesData.DetailedPenaltyType.DRIVE_THROUGH
+                         || CrewChief.currentGameState.PenaltiesData.PenaltyType == GameState.PenatiesData.DetailedPenaltyType.STOP_AND_GO))
                     {
-                        macroConfirmationMessage = PitStops.folderPitAlreadyRequested;
+                        macroConfirmationMessage = AudioPlayer.folderAcknowlegeOK;
+                        R3EPitMenuManager.selectServePenalty();
+                        // we don't want to allow the requested macro (request pit) to execute in this case because a stop is already
+                        // requested and doing so would actually cancel it - we just want to ensure the penalty is selected, so we're
+                        // overriding the acknowledge and kicking off the selectServePenalty process in the R3E pit menu manager.
+                    }
+                    else
+                    {
+                        // we've already requested a stop, so change the confirm message to 'yeah yeah, we know'
+                        if (macroConfirmationMessage != null)
+                        {
+                            macroConfirmationMessage = PitStops.folderPitAlreadyRequested;
+                        }
                     }
                     isValid = false;
                 }
