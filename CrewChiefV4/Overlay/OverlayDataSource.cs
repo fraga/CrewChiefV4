@@ -243,7 +243,7 @@ namespace CrewChiefV4.Overlay
         public static List<OverlaySubscription> getOverlaySubscriptions()
         {
             List<OverlaySubscription> overlaySubscriptions;
-            if (subscribedData.TryGetValue(CrewChief.gameDefinition.gameEnum, out overlaySubscriptions))
+            if (CrewChief.gameDefinition != null && subscribedData.TryGetValue(CrewChief.gameDefinition.gameEnum, out overlaySubscriptions))
             {
                 return overlaySubscriptions;
             }
@@ -257,7 +257,7 @@ namespace CrewChiefV4.Overlay
         {
             List<string> commands = new List<string>();
             List<OverlaySubscription> overlaySubscriptions;
-            if (subscribedData.TryGetValue(CrewChief.gameDefinition.gameEnum, out overlaySubscriptions))
+            if (CrewChief.gameDefinition != null && subscribedData.TryGetValue(CrewChief.gameDefinition.gameEnum, out overlaySubscriptions))
             {
                 foreach (OverlaySubscription subscription in overlaySubscriptions)
                 {
@@ -269,7 +269,7 @@ namespace CrewChiefV4.Overlay
         
         public static OverlaySubscription getOverlaySubscriptionForId(string id)
         {
-            if (subscribedData.ContainsKey(CrewChief.gameDefinition.gameEnum))
+            if (CrewChief.gameDefinition != null && subscribedData.ContainsKey(CrewChief.gameDefinition.gameEnum))
             {
                 foreach (OverlaySubscription subscription in subscribedData[CrewChief.gameDefinition.gameEnum])
                 {

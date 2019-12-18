@@ -387,9 +387,11 @@ namespace CrewChiefV4.Overlay
                 overlayWindow.ActivateWindow();
                 keepWindowActiveBackUpOnClose = false;
             }
-
-            populateControlBox(gfx, cachedGameEnum != CrewChief.gameDefinition.gameEnum);
-            cachedGameEnum = CrewChief.gameDefinition.gameEnum;
+            if(CrewChief.gameDefinition != null)
+            {
+                populateControlBox(gfx, cachedGameEnum != CrewChief.gameDefinition.gameEnum);
+                cachedGameEnum = CrewChief.gameDefinition.gameEnum;
+            }
 
             // you do not need to call BeginScene() or EndScene()
 
