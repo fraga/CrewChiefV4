@@ -18,8 +18,9 @@ namespace CrewChiefV4
         public static List<String> builtInKeyMappings = new List<String>();
         MacroContainer macroContainer = null;
         List<GameDefinition> availableMacroGames = null;
-        public MacroEditor()
+        public MacroEditor(Form parent)
         {
+            StartPosition = FormStartPosition.CenterParent;
             InitializeComponent();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
             this.SuspendLayout();

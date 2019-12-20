@@ -114,6 +114,7 @@ namespace CrewChiefV4
         // number of controls or splitting in tabs.
         public PropertiesForm(Form parent)
         {
+            StartPosition = FormStartPosition.CenterParent;
             if (MainWindow.forceMinWindowSize)
             {
                 this.MinimumSize = new Size(1030, 860);

@@ -4258,5 +4258,17 @@ namespace CrewChiefV4.Properties {
                 this["enable_automatic_disk_telemetry_recording"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("20, 20")]
+        public global::System.Drawing.Point main_window_position {
+            get {
+                return ((global::System.Drawing.Point)(this["main_window_position"]));
+            }
+            set {
+                this["main_window_position"] = value;
+            }
+        }
     }
 }

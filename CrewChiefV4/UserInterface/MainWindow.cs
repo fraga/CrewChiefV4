@@ -188,6 +188,15 @@ namespace CrewChiefV4
 
         private void FormMain_Load(object sender, EventArgs e)
         {
+            // Restore window position.
+            Rectangle windowRect = new Rectangle(Properties.Settings.Default.main_window_position.X, Properties.Settings.Default.main_window_position.Y, -1, -1); 
+            if (Screen.AllScreens.Any(screen => screen.WorkingArea.IntersectsWith(windowRect)))
+            {
+                StartPosition = FormStartPosition.Manual;
+                DesktopBounds = windowRect;
+                WindowState = FormWindowState.Normal;
+            }
+
             // Set up console update thread.  We need this because we call Console.WriteLine from random threads.
             ThreadStart ts = consoleUpdateThreadWorker;
             var consoleUpdateThread = new Thread(ts);
@@ -838,6 +847,8 @@ namespace CrewChiefV4
             {
                 consoleWriter.Dispose();
             }
+            Properties.Settings.Default["main_window_position"] = new Point(DesktopBounds.X, DesktopBounds.Y);
+            Properties.Settings.Default.Save();
         }
 
         private void SetupNotificationTrayIcon()
@@ -3150,13 +3161,13 @@ namespace CrewChiefV4
         }
         private void editCommandMacroButtonClicked(object sender, EventArgs e)
         {
-            var form = new MacroEditor();
+            var form = new MacroEditor(this);
             form.ShowDialog(this);
         }
 
         private void AddRemoveActions_Click(object sender, EventArgs e)
         {
-            var form = new ActionEditor();
+            var form = new ActionEditor(this);
             form.ShowDialog(this);
         }
     }

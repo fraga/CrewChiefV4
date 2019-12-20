@@ -16,6 +16,7 @@ namespace CrewChiefV4.UserInterface
     {
         public ShowAbout(System.Windows.Forms.Form parent)
         {
+            StartPosition = FormStartPosition.CenterParent;
             InitializeComponent();
             String path = Configuration.getDefaultFileLocation(CrewChief.Debugging ? "..\\readme.txt" : "readme.txt");
             textBox1.Text = File.ReadAllText(path);
