@@ -16,6 +16,8 @@ namespace CrewChiefV4.UserInterface
     {
         public ShowHelp(System.Windows.Forms.Form parent)
         {
+
+            StartPosition = FormStartPosition.CenterParent;
             InitializeComponent();
             String path = Configuration.getDefaultFileLocation(CrewChief.Debugging ? "..\\help.txt" : "help.txt");
             textBox1.Text = File.ReadAllText(path);

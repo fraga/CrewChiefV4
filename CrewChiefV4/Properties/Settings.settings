@@ -1061,5 +1061,8 @@
     <Setting Name="enable_automatic_disk_telemetry_recording" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="main_window_position" Type="System.Drawing.Point" Scope="User">
+      <Value Profile="(Default)">20, 20</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

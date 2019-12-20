@@ -15,8 +15,9 @@ namespace CrewChiefV4
     {
         ControllerConfiguration.ControllerConfigurationData controllerConfigurationData = new ControllerConfiguration.ControllerConfigurationData();
         private Boolean hasChanges = false;
-        public ActionEditor()
+        public ActionEditor(Form parent)
         {
+            StartPosition = FormStartPosition.CenterParent;
             InitializeComponent();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
             this.SuspendLayout();
