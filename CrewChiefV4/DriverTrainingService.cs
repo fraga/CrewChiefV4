@@ -146,13 +146,16 @@ namespace CrewChiefV4
                         }
                         if (entry.playAllInOrder)
                         {
+                            List<MessageFragment> messageFragments = new List<MessageFragment>();
                             foreach (String recordingName in entry.recordingNames)
                             {
-                                // don't allow these to expire
-                                QueuedMessage message = new QueuedMessage(recordingName, 0, type: SoundType.CRITICAL_MESSAGE, priority: 0);
-                                message.playEvenWhenSilenced = true;
-                                audioPlayer.playMessageImmediately(message);
+                                messageFragments.Add(MessageFragment.Text(recordingName));
                             }
+                            // don't allow these to expire, and ensure we always have a unique label for this message set so 
+                            // we can always queue the next set
+                            QueuedMessage message = new QueuedMessage("pace_notes_" + currentDistanceRoundTrack, 0, messageFragments: messageFragments, type: SoundType.CRITICAL_MESSAGE, priority: 0);
+                            message.playEvenWhenSilenced = true;
+                            audioPlayer.playMessageImmediately(message);
                         }
                         else
                         {
