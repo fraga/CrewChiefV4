@@ -189,7 +189,7 @@ namespace CrewChiefV4
         private void FormMain_Load(object sender, EventArgs e)
         {
             // Restore window position.
-            Rectangle windowRect = new Rectangle(Properties.Settings.Default.main_window_position.X, Properties.Settings.Default.main_window_position.Y, -1, -1); 
+            Rectangle windowRect = new Rectangle(Properties.Settings.Default.main_window_position.X, Properties.Settings.Default.main_window_position.Y, DesktopBounds.Width, DesktopBounds.Height);
             if (Screen.AllScreens.Any(screen => screen.WorkingArea.IntersectsWith(windowRect)))
             {
                 StartPosition = FormStartPosition.Manual;
