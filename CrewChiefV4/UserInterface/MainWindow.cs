@@ -1126,13 +1126,15 @@ namespace CrewChiefV4
                 {
                     foreach (KeyValuePair<string, Tuple<string, int>> entry in AudioPlayer.playbackDevices)
                     {
-                        if(entry.Value.Item2 == 0) //Default device
+                        if (entry.Value.Item2 == 0) //Default device
                         {
                             this.messagesAudioDeviceBox.Text = entry.Key;
                             AudioPlayer.naudioMessagesPlaybackDeviceId = entry.Value.Item2;
                             AudioPlayer.naudioMessagesPlaybackDeviceGuid = entry.Value.Item1;
+                            // Note: caching on device change won't work in this case because we check for saved device.  However, not saving device
+                            // here has advantage if user reconnects his preferred device eventually.
                         }
-                    }                        
+                    }
                 }
                 this.messagesAudioDeviceBox.SelectedValueChanged += new System.EventHandler(this.messagesAudioDeviceSelected);
 
@@ -1166,6 +1168,8 @@ namespace CrewChiefV4
                             this.backgroundAudioDeviceBox.Text = entry.Key;
                             AudioPlayer.naudioBackgroundPlaybackDeviceId = entry.Value.Item2;
                             AudioPlayer.naudioBackgroundPlaybackDeviceGuid = entry.Value.Item1;
+                            // Note: caching on device change won't work in this case because we check for saved device.  However, not saving device
+                            // here has advantage if user reconnects his preferred device eventually.
                         }
                     }
                 }
@@ -1839,7 +1843,7 @@ namespace CrewChiefV4
 
             // SoundCache spawns a Thread to lazy-load the sound data. Cancel this:
             SoundCache.cancelLazyLoading = true;
-            
+
             // Make sure we quit button assignment listener.
             controllerConfiguration.listenForAssignment = false;
 
