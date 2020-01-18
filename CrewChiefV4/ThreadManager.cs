@@ -58,7 +58,7 @@ namespace CrewChiefV4
 
         private static List<Thread> rootThreads = new List<Thread>();
         private static HashSet<Thread> temporaryThreads = new HashSet<Thread>();
-        private static List<Thread> resourceThreads = new List<Thread>();
+        private static HashSet<Thread> resourceThreads = new HashSet<Thread>();
 
         private static object rootThreadsLock = new object();
         private static object temporaryThreadsLock = new object();
@@ -129,7 +129,34 @@ namespace CrewChiefV4
         {
             lock (ThreadManager.resourceThreadsLock)
             {
-                ThreadManager.resourceThreads.Add(t);
+                if (!ThreadManager.resourceThreads.Contains(t))
+                    ThreadManager.resourceThreads.Add(t);
+                else
+                    Debug.Assert(false, "Resource thread already registered, this should not happen.");
+            }
+        }
+
+        // Some resource threads, like sound caching, can be restarted.  They are still Resource threads and should not block Start/Stop cycle.
+        public static void UnregisterResourceThread(Thread t)
+        {
+            if (t == null)
+                return;
+
+            lock (ThreadManager.resourceThreadsLock)
+            {
+                if (ThreadManager.resourceThreads.Contains(t))
+                {
+                    // This is not necessarily a problem, but this message is here to make thread author think about spammy threads.
+                    var warningMsg = "WARNING - Resource thread is still alive upon unregistering, we might need to investigate here.";
+                    Debug.Assert(!t.IsAlive, warningMsg);
+
+                    if (t.IsAlive)
+                        ThreadManager.Trace(warningMsg + "  Name - " + t.Name);
+                    else
+                        ThreadManager.resourceThreads.Remove(t);
+                }
+                else
+                    Debug.Assert(false, "Resource thread is not registered, this should not happen.");
             }
         }
 
@@ -156,7 +183,6 @@ namespace CrewChiefV4
                     Debug.Assert(false, "Temporary thread is not registered, this should not happen.");
             }
         }
-
 
         public static void DoWatchStartup(CrewChief cc)
         {
@@ -376,6 +402,24 @@ namespace CrewChiefV4
                 true /*isShutdown*/);
 
             Debug.Assert(tempThreadsStopped, "Shutdown - Wait for temporary threads stop failed, please investigate.");
+
+            return tempThreadsStopped;
+        }
+
+        public static bool WaitForTemporaryThreadsExit(int waitMillis)
+        {
+            if (ThreadManager.temporaryThreads.Count == 0)
+                return true;
+
+            var tempThreadsStopped = ThreadManager.ThreadWaitHelper(
+                ThreadManager.temporaryThreads,
+                ThreadManager.temporaryThreadsLock,
+                "Temporary",
+                waitIterations: Math.Max(1, waitMillis / 50),
+                waitMillis: 50,
+                isShutdown: false);
+
+            Debug.Assert(tempThreadsStopped, "Wait for temporary threads exit failed, please investigate.");
 
             return tempThreadsStopped;
         }

@@ -61,10 +61,16 @@ namespace CrewChiefV4.Audio
         public static Boolean hasSuitableTTSVoice = false;
 
         public static Boolean cancelLazyLoading = false;
+        public static Boolean cancelDriverNameLoading = false;
 
         private static Dictionary<String, Tuple<int, int>> varietyData = new Dictionary<string, Tuple<int, int>>();
 
         public static SingleSound currentlyPlayingSound;
+
+        // cacheSoundsThread is initialized on the main thread only, so it is safe to sync on the main thread.
+        public static Thread cacheSoundsThread;
+
+        private static Thread loadDriverNameSoundsThread;
 
         private static void loadExistingVarietyData()
         {
@@ -256,9 +262,11 @@ namespace CrewChiefV4.Audio
                     // this creates empty sound objects:
                     prepareVoiceWithoutLoading(soundFolder, new DirectoryInfo(sharedSoundsFolder.FullName + "/voice"), verbose);
                     // now spawn a Thread to load the sound files (and in some cases soundPlayers) in the background:
-                    if (allowCaching && eagerLoadSoundFiles)
+                    if (allowCaching && eagerLoadSoundFiles && !SoundCache.cancelLazyLoading)
                     {
-                        var cacheSoundsThread = new Thread(() =>
+                        // NOTE: this must be a UI thread.
+                        ThreadManager.UnregisterResourceThread(SoundCache.cacheSoundsThread);
+                        SoundCache.cacheSoundsThread = new Thread(() =>
                         {
                             DateTime start = DateTime.UtcNow;
                             Thread.CurrentThread.IsBackground = true;
@@ -291,7 +299,6 @@ namespace CrewChiefV4.Audio
                                 }
                                 // load the permanently cached sounds first, then the rest
 
-                                SoundCache.cancelLazyLoading = false;
                                 if (AudioPlayer.playWithNAudio && verbose)
                                 {
                                     Console.WriteLine("Took " + (DateTime.UtcNow - start).TotalSeconds.ToString("0.00") + "s to lazy load remaining message sounds, there are now " +
@@ -308,9 +315,9 @@ namespace CrewChiefV4.Audio
                                 Console.WriteLine("Error construction sounds cache: " + e.Message + ", " + e.StackTrace);
                             }
                         });
-                        cacheSoundsThread.Name = "SoundCache.cacheSoundsThread";
-                        ThreadManager.RegisterResourceThread(cacheSoundsThread);
-                        cacheSoundsThread.Start();
+                        SoundCache.cacheSoundsThread.Name = "SoundCache.cacheSoundsThread";
+                        ThreadManager.RegisterResourceThread(SoundCache.cacheSoundsThread);
+                        SoundCache.cacheSoundsThread.Start();
                     }
                 }
                 else if (soundFolder.Name == "driver_names")
@@ -369,33 +376,47 @@ namespace CrewChiefV4.Audio
 
         public static void loadDriverNameSounds(List<String> names)
         {
-            var loadDriverNameSoundsThread = new Thread(() =>
+            if (SoundCache.cancelDriverNameLoading)
+                return;
+
+            ThreadManager.UnregisterTemporaryThread(SoundCache.loadDriverNameSoundsThread);
+            SoundCache.loadDriverNameSoundsThread = new Thread(() =>
             {
-                int loadedCount = 0;
-                DateTime start = DateTime.UtcNow;
-                // No need to early terminate this thread on form close, because it only loads driver names in 
-                // a session, which isn't 1000's.
-                foreach (String name in names)
+                try
                 {
-                    loadedCount++;
-                    loadDriverNameSound(name);
+                    int loadedCount = 0;
+                    DateTime start = DateTime.UtcNow;
+                    // No need to early terminate this thread on form close, because it only loads driver names in 
+                    // a session, which isn't 1000's.
+                    foreach (String name in names)
+                    {
+                        if (SoundCache.cancelDriverNameLoading)
+                            return;
+
+                        loadedCount++;
+                        loadDriverNameSound(name);
+                    }
+                    if (AudioPlayer.playWithNAudio)
+                    {
+                        Console.WriteLine("Took " + (DateTime.UtcNow - start).TotalSeconds.ToString("0.00") + " seconds to load " +
+                            loadedCount + " driver name sounds. There are now " + SoundCache.currentSoundsLoaded +
+                            " sound files loaded");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Took " + (DateTime.UtcNow - start).TotalSeconds.ToString("0.00") + " seconds to load " +
+                            loadedCount + " driver name sounds. There are now " + SoundCache.currentSoundsLoaded +
+                            " sound files loaded with " + SoundCache.activeSoundPlayerObjects + " active SoundPlayer objects");
+                    }
                 }
-                if (AudioPlayer.playWithNAudio)
+                catch (Exception ex)
                 {
-                    Console.WriteLine("Took " + (DateTime.UtcNow - start).TotalSeconds.ToString("0.00") + " seconds to load " +
-                        loadedCount + " driver name sounds. There are now " + SoundCache.currentSoundsLoaded +
-                        " sound files loaded");
-                }
-                else
-                {
-                    Console.WriteLine("Took " + (DateTime.UtcNow - start).TotalSeconds.ToString("0.00") + " seconds to load " +
-                        loadedCount + " driver name sounds. There are now " + SoundCache.currentSoundsLoaded +
-                        " sound files loaded with " + SoundCache.activeSoundPlayerObjects + " active SoundPlayer objects");
+                    Utilities.ReportException(ex, "Error caching driver names", needReport: false);
                 }
             });
-            loadDriverNameSoundsThread.Name = "SoundCache.loadDriverNameSoundsThread";
-            ThreadManager.RegisterResourceThread(loadDriverNameSoundsThread);
-            loadDriverNameSoundsThread.Start();
+            SoundCache.loadDriverNameSoundsThread.Name = "SoundCache.loadDriverNameSoundsThread";
+            ThreadManager.RegisterTemporaryThread(SoundCache.loadDriverNameSoundsThread);
+            SoundCache.loadDriverNameSoundsThread.Start();
         }
 
         public static void loadDriverNameSound(String name)
