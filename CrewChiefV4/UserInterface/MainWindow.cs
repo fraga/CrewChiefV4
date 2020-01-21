@@ -189,12 +189,19 @@ namespace CrewChiefV4
         private void FormMain_Load(object sender, EventArgs e)
         {
             // Restore window position.
-            Rectangle windowRect = new Rectangle(Properties.Settings.Default.main_window_position.X, Properties.Settings.Default.main_window_position.Y, DesktopBounds.Width, DesktopBounds.Height);
-            if (Screen.AllScreens.Any(screen => screen.WorkingArea.IntersectsWith(windowRect)))
+            try
             {
-                StartPosition = FormStartPosition.Manual;
-                DesktopBounds = windowRect;
-                WindowState = FormWindowState.Normal;
+                Rectangle windowRect = new Rectangle(Properties.Settings.Default.main_window_position.X, Properties.Settings.Default.main_window_position.Y, DesktopBounds.Width, DesktopBounds.Height);
+                if (Screen.AllScreens.Any(screen => screen.WorkingArea.IntersectsWith(windowRect)))
+                {
+                    StartPosition = FormStartPosition.Manual;
+                    DesktopBounds = windowRect;
+                    WindowState = FormWindowState.Normal;
+                }
+            }
+            catch (Exception)
+            {
+                // ignore
             }
 
             // Set up console update thread.  We need this because we call Console.WriteLine from random threads.
@@ -847,8 +854,13 @@ namespace CrewChiefV4
             {
                 consoleWriter.Dispose();
             }
-            Properties.Settings.Default["main_window_position"] = new Point(DesktopBounds.X, DesktopBounds.Y);
-            Properties.Settings.Default.Save();
+            try
+            {
+                Properties.Settings.Default["main_window_position"] = new Point(DesktopBounds.X, DesktopBounds.Y);
+                Properties.Settings.Default.Save();
+            }
+            catch (Exception)
+            { }
         }
 
         private void SetupNotificationTrayIcon()
@@ -1354,7 +1366,12 @@ namespace CrewChiefV4
 
                 if (!consoleWriter.enable)
                 {
-                    Debug.WriteLine("Exiting console update thread, console output disabled.");
+                    try
+                    {
+                        Debug.WriteLine("Exiting console update thread, console output disabled.");
+                    }
+                    catch (Exception)
+                    { }
                     return;
                 }
 
