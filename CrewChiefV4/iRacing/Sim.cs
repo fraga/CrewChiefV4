@@ -489,15 +489,16 @@ namespace CrewChiefV4.iRacing
             //also need
             int sessionId = Parser.ParseInt(YamlParser.Parse(sessionInfo, "WeekendInfo:SessionID:"));
             int subSessionId = Parser.ParseInt(YamlParser.Parse(sessionInfo, "WeekendInfo:SubSessionID:"));
-            
-            if (_currentSessionNumber == null || (_currentSessionNumber != sessionNumber) || sessionId != _sessionId || subSessionId != _subSessionId || 
-               ((sessionTimeRemain > _sessionTimeRemain || sessionRunningTime < _sessionRunningTime) && _currentSessionNumber == sessionNumber)) // session of same type restarted
+
+            if (_currentSessionNumber == null || (_currentSessionNumber != sessionNumber) || sessionId != _sessionId || subSessionId != _subSessionId ||
+               ((sessionTimeRemain > _sessionTimeRemain || sessionRunningTime < _sessionRunningTime) && _currentSessionNumber == sessionNumber && sessionId == 0)) // session of same type restarted
             {
                 // Session changed, reset session info
                 reloadDrivers = true;
                 _sessionData.Update(sessionInfo, sessionNumber);
                 _sessionId = sessionId;
                 _subSessionId = subSessionId;
+
                 _isRaceOrQualifying = this.SessionData.SessionType == "Race" || this.SessionData.SessionType == "Open Qualify" || this.SessionData.SessionType == "Lone Qualify";
             }
             _currentSessionNumber = sessionNumber;
