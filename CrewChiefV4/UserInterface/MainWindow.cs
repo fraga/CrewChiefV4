@@ -1054,7 +1054,8 @@ namespace CrewChiefV4
                 {
                     UserSettings.ForceablyDeleteConfigDirectory();
                     // note we can't load these from the UI settings because loading stuff will be broken at this point
-                    doRestart("Failed to load user settings, app must be restarted to try again.", "Failed to load user settings");
+                    doRestart("Failed to load user settings. The app will automatically restart in order to recreate this file. " +
+                        "Once the app has restarted, please restart it again manually.", "Failed to load user settings");
                 }
                 catch (Exception)
                 {
