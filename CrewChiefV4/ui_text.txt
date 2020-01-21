@@ -1107,10 +1107,19 @@ enable_rf2_pit_stop_prediction_help = Play 'box now' messages when using offline
 enable_rf2_pit_stop_prediction_filter = RF2_64BIT
 enable_rf2_pit_stop_prediction_category = PIT_STOPS_AND_MULTICLASS
 
-enable_simple_incident_detection = Enable simple incident detection
-enable_simple_incident_detection_help = Watch for and report very slow cars as incidents (pCARS and AC only)
-enable_simple_incident_detection_filter = ASSETTO_64BIT;ASSETTO_32BIT;PCARS_64BIT;PCARS_32BIT;PCARS_NETWORK
-enable_simple_incident_detection_category = FUEL_TEMPS_AND_DAMAGES
+enable_simple_incident_detection_listprop = Enable simple incident detection
+enable_simple_incident_detection_listprop_help = Watch for and report very slow cars as incidents (iRacing, pCARS and AC only)
+enable_simple_incident_detection_listprop_filter = ASSETTO_64BIT;ASSETTO_32BIT;PCARS_64BIT;PCARS_32BIT;PCARS_NETWORK;IRACING
+enable_simple_incident_detection_listprop_category = FUEL_TEMPS_AND_DAMAGES
+enable_simple_incident_detection_listprop_type = CrewChiefV4.Events.AbstractEvent+SIMPLE_INCIDENT_DETECTION_SESSIONS
+enable_simple_incident_detection_listprop_value_0 = Disabled
+enable_simple_incident_detection_listprop_value_1 = Race Only
+enable_simple_incident_detection_listprop_value_2 = All Sessions
+
+simple_incident_detection_report_delay = simple incident detection delay(ms)
+simple_incident_detection_report_delay_help = Time to delay simple incident reports, to low a value might cause false reports (iRacing, pCARS and AC only)
+simple_incident_detection_report_delay_filter = ASSETTO_64BIT;ASSETTO_32BIT;PCARS_64BIT;PCARS_32BIT;PCARS_NETWORK;IRACING
+simple_incident_detection_report_delay_category = FUEL_TEMPS_AND_DAMAGES
 
 enable_yellow_flag_messages = Enable yellow flag messages
 enable_yellow_flag_messages_help = Enable yellow flag messages (can be overridden during a session with voice command or button assignment)

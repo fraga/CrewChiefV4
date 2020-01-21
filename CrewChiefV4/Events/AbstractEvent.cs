@@ -14,6 +14,8 @@ namespace CrewChiefV4.Events
         private static String folderFahrenheit = "conditions/fahrenheit";
         private Boolean useFahrenheit = UserSettings.GetUserSettings().getBoolean("use_fahrenheit");
 
+        public enum SIMPLE_INCIDENT_DETECTION_SESSIONS { DISABLED, RACE_ONLY, ALL_SESSIONS };
+        public static SIMPLE_INCIDENT_DETECTION_SESSIONS simpleIncidentDetectionSessions = SIMPLE_INCIDENT_DETECTION_SESSIONS.RACE_ONLY;
         protected AudioPlayer audioPlayer;
 
         protected PearlsOfWisdom pearlsOfWisdom;

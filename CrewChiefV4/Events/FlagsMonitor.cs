@@ -139,10 +139,11 @@ namespace CrewChiefV4.Events
         private TimeSpan fcyStatusReminderMinTime = TimeSpan.FromSeconds(UserSettings.GetUserSettings().getInt("time_between_caution_period_status_reminders"));
 
         private Boolean reportYellowsInAllSectors = UserSettings.GetUserSettings().getBoolean("report_yellows_in_all_sectors");
-        private Boolean enableSimpleIncidentDetection = UserSettings.GetUserSettings().getBoolean("enable_simple_incident_detection");
+              
         private Boolean enableOpponentCrashMessages = UserSettings.GetUserSettings().getBoolean("enable_opponent_crash_messages");
-
         private Boolean enableBlueFlagMessages = UserSettings.GetUserSettings().getBoolean("enable_blue_flag_messages");
+
+        private float simpleIncidentReportDelay = UserSettings.GetUserSettings().getFloat("simple_incident_detection_report_delay");
 
         private float maxDistanceToWarnOfLocalYellow = 300;    // metres - externalise? Is this sufficient? Make it speed-dependent?
         private float minDistanceToWarnOfLocalYellow = 50;    // metres - externalise? Is this sufficient? Make it speed-dependent?
@@ -202,6 +203,7 @@ namespace CrewChiefV4.Events
 
         public FlagsMonitor(AudioPlayer audioPlayer)
         {
+            Enum.TryParse(UserSettings.GetUserSettings().getString("enable_simple_incident_detection_listprop"), out simpleIncidentDetectionSessions);
             this.audioPlayer = audioPlayer;
         }
 
@@ -1092,7 +1094,8 @@ namespace CrewChiefV4.Events
                 }
             }
             // now check for stopped cars
-            if (currentGameState.SessionData.SessionType == SessionType.Race && enableSimpleIncidentDetection)
+            if (simpleIncidentDetectionSessions == SIMPLE_INCIDENT_DETECTION_SESSIONS.ALL_SESSIONS || 
+                (simpleIncidentDetectionSessions == SIMPLE_INCIDENT_DETECTION_SESSIONS.RACE_ONLY && currentGameState.SessionData.SessionType == SessionType.Race))
             {
                 if (waitingForCrashedDriverInCorner == null)
                 {
@@ -1124,7 +1127,7 @@ namespace CrewChiefV4.Events
                             {
                                 waitingForCrashedDriverInCorner = landmark;
                                 driversCrashedInCorner.Add(opponentId);
-                                waitingForCrashedDriverInCornerFinishTime = currentGameState.Now + TimeSpan.FromSeconds(4);
+                                waitingForCrashedDriverInCornerFinishTime = currentGameState.Now + TimeSpan.FromMilliseconds(simpleIncidentReportDelay);
                                 break;
                             }
                         }
@@ -1160,9 +1163,9 @@ namespace CrewChiefV4.Events
                         // report pileup
                         if (CrewChief.yellowFlagMessagesEnabled)
                         {
-                            audioPlayer.playMessageImmediately(new QueuedMessage("pileup_in_corner", 6, secondsDelay: 3,
+                            audioPlayer.playMessageImmediately(new QueuedMessage("pileup_in_corner", 6, secondsDelay: 0,
                                 messageFragments: MessageContents(folderPileupInCornerIntro, "corners/" +
-                                waitingForCrashedDriverInCorner), abstractEvent: this, type: SoundType.IMPORTANT_MESSAGE, priority: 0));
+                                waitingForCrashedDriverInCorner), abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 0));
                         }
                     }
                     else
@@ -1205,7 +1208,7 @@ namespace CrewChiefV4.Events
                             if (CrewChief.yellowFlagMessagesEnabled)
                             {
                                 audioPlayer.playMessageImmediately(new QueuedMessage("incident_corner_with_driver", 4,
-                                    messageFragments: messageContents, abstractEvent: this, type: SoundType.IMPORTANT_MESSAGE, priority: 0));
+                                    messageFragments: messageContents, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 0));
                             }
                         }
                         else if (positionToRead != -1)
@@ -1213,7 +1216,7 @@ namespace CrewChiefV4.Events
                             if (CrewChief.yellowFlagMessagesEnabled)
                             {
                                 audioPlayer.playMessageImmediately(new QueuedMessage("incident_corner_with_driver", 4,
-                                    messageFragments: MessageContents(folderPositionHasGoneOffIn[positionToRead - 1], "corners/" + waitingForCrashedDriverInCorner), abstractEvent: this, type: SoundType.IMPORTANT_MESSAGE, priority: 0));
+                                    messageFragments: MessageContents(folderPositionHasGoneOffIn[positionToRead - 1], "corners/" + waitingForCrashedDriverInCorner), abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 0));
                             }
                         }
                         else
@@ -1222,7 +1225,7 @@ namespace CrewChiefV4.Events
                             if (CrewChief.yellowFlagMessagesEnabled)
                             {
                                 audioPlayer.playMessageImmediately(new QueuedMessage("incident_corner", 5,
-                                    messageFragments: MessageContents(folderIncidentInCornerIntro, "corners/" + waitingForCrashedDriverInCorner), abstractEvent: this, type: SoundType.IMPORTANT_MESSAGE, priority: 0));
+                                    messageFragments: MessageContents(folderIncidentInCornerIntro, "corners/" + waitingForCrashedDriverInCorner), abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 0));
                             }
                         }
                     }
