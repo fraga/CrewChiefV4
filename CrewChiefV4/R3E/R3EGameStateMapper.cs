@@ -52,10 +52,10 @@ namespace CrewChiefV4.RaceRoom
         private float destroyedEngineThreshold = 0.1f;
         private float destroyedAeroThreshold = 0.8f;
 
-        private float trivialSuspensionDamageThresholdPercent = 2f;
-        private float minorSuspensionDamageThresholdPercent = 8f;
-        private float severeSuspensionDamageThresholdPercent = 15f;
-        private float destroyedSuspensionThresholdPercent = 30f;
+        private float trivialSuspensionDamageThresholdPercent = 4f;
+        private float minorSuspensionDamageThresholdPercent = 14f;
+        private float severeSuspensionDamageThresholdPercent = 20f;
+        private float destroyedSuspensionThresholdPercent = 50f;
 
 
         private List<CornerData.EnumWithThresholds> brakeTempThresholdsForPlayersCar = null;
