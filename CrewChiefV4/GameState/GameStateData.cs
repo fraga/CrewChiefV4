@@ -2245,7 +2245,7 @@ namespace CrewChiefV4.GameState
         private String landmarkNameStart ;
         private float landmarkStartTime = -1;
         private float landmarkStartSpeed = -1;
-        private int landmarkStoppedCount;
+        DateTime landMarkStoppedDelayTime = DateTime.MaxValue;
 
         // wonder if this'll work...
         private String nearLandmarkName;
@@ -2425,10 +2425,18 @@ namespace CrewChiefV4.GameState
                         if (currentDistanceRoundTrack >= trackLandmark.distanceRoundLapStart && currentDistanceRoundTrack < trackLandmark.distanceRoundLapEnd)
                         {
                             // we're in the landmark zone somewhere
-                            // if this car is very slow, increment the stopped counter
-                            if (speed < 5)
+                            // if this car is very slow, set the stopped car timer
+                            if (speed < 5 && landMarkStoppedDelayTime == DateTime.MaxValue)
+                            {                                
+                                landMarkStoppedDelayTime = CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT || 
+                                    CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || 
+                                    CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM || 
+                                    CrewChief.gameDefinition.gameEnum ==  GameEnum.IRACING ? 
+                                    CrewChief.currentGameState.Now + TimeSpan.FromMilliseconds(200) : CrewChief.currentGameState.Now + TimeSpan.FromMilliseconds(2000);
+                            }
+                            else if(speed > 5)
                             {
-                                landmarkStoppedCount++;
+                                landMarkStoppedDelayTime = DateTime.MaxValue;
                             }
                             if (previousDistanceRoundTrack < trackLandmark.getMidPoint() && currentDistanceRoundTrack >= trackLandmark.getMidPoint())
                             {
@@ -2461,8 +2469,8 @@ namespace CrewChiefV4.GameState
                             landmarkStartSpeed = -1;
                             // we've left the landmark but haven't crossed the end trigger. We could be anywhere - even in the pit (for PCars). We
                             // don't want the stopped count for this section to carry over as we might reappear in the middle of a different
-                            // section, so zero the counter
-                            landmarkStoppedCount = 0;
+                            // section, so 'zero' the timer
+                            landMarkStoppedDelayTime = DateTime.MaxValue;
                         }
                         break;
                     }
@@ -2482,28 +2490,35 @@ namespace CrewChiefV4.GameState
                     {
                         if (nearLandmarkName != trackLandmark.landmarkName)
                         {
-                            landmarkStoppedCount = 0;
+                            landMarkStoppedDelayTime = DateTime.MaxValue;
                         }
                         nearLandmarkName = trackLandmark.landmarkName;
                         nearLandmark = true;
-                        // if this car is very slow, increment the stopped counter
-                        if (speed < 5)
+                        // if this car is very slow, set the stopped car timer
+                        if (speed < 5 && landMarkStoppedDelayTime == DateTime.MaxValue)
                         {
-                            landmarkStoppedCount++;
+                            landMarkStoppedDelayTime = CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT ||
+                                CrewChief.gameDefinition.gameEnum == GameEnum.RF1 ||
+                                CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM ||
+                                CrewChief.gameDefinition.gameEnum == GameEnum.IRACING ?
+                                CrewChief.currentGameState.Now + TimeSpan.FromMilliseconds(200) : CrewChief.currentGameState.Now + TimeSpan.FromMilliseconds(2000);
+                        }
+                        else if (speed > 5)
+                        {
+                            landMarkStoppedDelayTime = DateTime.MaxValue;
                         }
                         break;
                     }
                 }
                 if (!nearLandmark)
                 {
-                    landmarkStoppedCount = 0;
+                    landMarkStoppedDelayTime = DateTime.MaxValue;
                     nearLandmarkName = null;
                 }
             }
 
-            if (landmarkStoppedCount >= 20)
+            if (landMarkStoppedDelayTime != DateTime.MaxValue && CrewChief.currentGameState.Now >= landMarkStoppedDelayTime)
             {
-                // slow for more than 2 seconds - this assumes 1 tick is 100ms, which isn't necessarily valid but it's close enough. 
                 return landmarkNameStart == null ? nearLandmarkName : landmarkNameStart;
             }
             else
