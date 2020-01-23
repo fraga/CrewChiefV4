@@ -1064,7 +1064,7 @@
     <Setting Name="main_window_position" Type="System.Drawing.Point" Scope="User">
       <Value Profile="(Default)">20, 20</Value>
     </Setting>
-    <Setting Name="simple_incident_detection_report_delay" Type="System.Single" Scope="User">
+    <Setting Name="simple_incident_detection_report_delay" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">4000</Value>
     </Setting>
   </Settings>

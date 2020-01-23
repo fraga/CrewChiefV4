@@ -4274,9 +4274,9 @@ namespace CrewChiefV4.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("4000")]
-        public float simple_incident_detection_report_delay {
+        public int simple_incident_detection_report_delay {
             get {
-                return ((float)(this["simple_incident_detection_report_delay"]));
+                return ((int)(this["simple_incident_detection_report_delay"]));
             }
             set {
                 this["simple_incident_detection_report_delay"] = value;

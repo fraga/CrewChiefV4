@@ -1116,8 +1116,8 @@ enable_simple_incident_detection_listprop_value_0 = Disabled
 enable_simple_incident_detection_listprop_value_1 = Race Only
 enable_simple_incident_detection_listprop_value_2 = All Sessions
 
-simple_incident_detection_report_delay = simple incident detection delay(ms)
-simple_incident_detection_report_delay_help = Time to delay simple incident reports, to low a value might cause false reports (iRacing, pCARS and AC only)
+simple_incident_detection_report_delay = simple incident detection delay (ms)
+simple_incident_detection_report_delay_help = Time too delay simple incident reports, to low a value might cause false reports (iRacing, pCARS and AC only)
 simple_incident_detection_report_delay_filter = ASSETTO_64BIT;ASSETTO_32BIT;PCARS_64BIT;PCARS_32BIT;PCARS_NETWORK;IRACING
 simple_incident_detection_report_delay_category = FUEL_TEMPS_AND_DAMAGES
 
