@@ -279,6 +279,10 @@ namespace CrewChiefV4
             }
             try
             {
+                // start by checked we can actually read a property value - this will throw an exception if the 
+                // user settings in AppData are broken
+                int x = Properties.Settings.Default.main_window_position.X;
+
                 // Add build in action mappings to reserved name list.
                 List<string> nameList = reservedNameStarts.ToList();
                 nameList.AddRange(ControllerConfiguration.builtInActionMappings.Keys);
