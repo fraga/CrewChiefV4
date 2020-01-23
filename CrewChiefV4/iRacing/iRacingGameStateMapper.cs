@@ -994,7 +994,7 @@ namespace CrewChiefV4.iRacing
                                 String stoppedInLandmark = currentOpponentData.trackLandmarksTiming.updateLandmarkTiming(
                                     currentGameState.SessionData.TrackDefinition, currentGameState.SessionData.SessionRunningTime,
                                     previousDistanceRoundTrack, currentOpponentData.DistanceRoundTrack, currentOpponentData.Speed);
-                                currentOpponentData.stoppedInLandmark = shared.Telemetry.CarIdxOnPitRoad[driver.Id] || !isInWorld || finishedAllottedRaceTime || finishedAllottedRaceLaps ? null : stoppedInLandmark;
+                                currentOpponentData.stoppedInLandmark = shared.Telemetry.CarIdxOnPitRoad[driver.Id] || !isInWorld || finishedAllottedRaceTime || finishedAllottedRaceLaps || driver.Live.TrackSurface == TrackSurfaces.AproachingPits ? null : stoppedInLandmark;
                             }
                             if (currentGameState.SessionData.JustGoneGreen)
                             {
