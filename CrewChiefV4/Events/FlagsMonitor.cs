@@ -143,7 +143,7 @@ namespace CrewChiefV4.Events
         private Boolean enableOpponentCrashMessages = UserSettings.GetUserSettings().getBoolean("enable_opponent_crash_messages");
         private Boolean enableBlueFlagMessages = UserSettings.GetUserSettings().getBoolean("enable_blue_flag_messages");
 
-        private float simpleIncidentReportDelay = UserSettings.GetUserSettings().getInt("simple_incident_detection_report_delay");
+        private int simpleIncidentReportDelay = UserSettings.GetUserSettings().getInt("simple_incident_detection_report_delay");
 
         private float maxDistanceToWarnOfLocalYellow = 300;    // metres - externalise? Is this sufficient? Make it speed-dependent?
         private float minDistanceToWarnOfLocalYellow = 50;    // metres - externalise? Is this sufficient? Make it speed-dependent?
