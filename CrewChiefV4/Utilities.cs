@@ -505,4 +505,32 @@ namespace CrewChiefV4
             Send(GameDataWebsocketData.gameDataSerializer.Serialize(GameDataWebsocketData.gameDataReader.getLatestGameData(), e.Data));
         }
     }
+    // stackoverflow...
+    public static class Extensions
+    {
+        public static int IndexOfMin<T>(this IList<T> list) where T : IComparable
+        {
+            if (list == null)
+                throw new ArgumentNullException("list");
+
+            IEnumerator<T> enumerator = list.GetEnumerator();
+            bool isEmptyList = !enumerator.MoveNext();
+
+            if (isEmptyList)
+                throw new ArgumentOutOfRangeException("list", "list is empty");
+
+            int minOffset = 0;
+            T minValue = enumerator.Current;
+            for (int i = 1; enumerator.MoveNext(); ++i)
+            {
+                if (enumerator.Current.CompareTo(minValue) >= 0)
+                    continue;
+
+                minValue = enumerator.Current;
+                minOffset = i;
+            }
+
+            return minOffset;
+        }
+    }
 }
