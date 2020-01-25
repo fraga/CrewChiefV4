@@ -3274,9 +3274,9 @@ namespace CrewChiefV4.GameState
                 int count = points.Count;
                 if (count > 0)
                 {
-                    foreach (var speed in points)
+                    for (int i=0; i<count; i++)
                     {
-                        avgSpeed += speed;
+                        avgSpeed += points[i];
                     }
                     avgSpeed = avgSpeed / count;
                 }
