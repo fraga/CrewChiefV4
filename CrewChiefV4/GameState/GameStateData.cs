@@ -3271,7 +3271,7 @@ namespace CrewChiefV4.GameState
         {
             float avgSpeed = 0;
             List<float> points = null;
-            if (avgSpeedTrapPoints.TryGetValue(currentDeltaPointOtherCar, out points) && avgSpeedForEachDeltapointSection.TryGetValue(currentDeltaPoint, out avgSpeed))
+            if (avgSpeedTrapPoints.TryGetValue(currentDeltaPointOtherCar, out points) && avgSpeedForEachDeltapointSection.TryGetValue(currentDeltaPointOtherCar, out avgSpeed))
             {
                 return new Tuple<int, float>(points.Count, avgSpeed);
             }
