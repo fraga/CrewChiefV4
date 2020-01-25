@@ -3063,6 +3063,7 @@ namespace CrewChiefV4.GameState
     {
         public Dictionary<float, DateTime> deltaPoints = new Dictionary<float, DateTime>();
         public Dictionary<float, List<float>> avgSpeedTrapPoints = new Dictionary<float, List<float>>();
+        public Dictionary<float, float> avgSpeedForEachDeltapointSection = new Dictionary<float, float>();
 
         // this array holds the keyset of the above dictionaries:
         private float[] deltaPointsKeysArray = new float[] { };
@@ -3159,6 +3160,7 @@ namespace CrewChiefV4.GameState
                                 points[index] = speed;
                             }
                         }
+                        avgSpeedForEachDeltapointSection[nextDeltaPoint] = points.Average();
                     }
                 }
                 currentDeltaPoint = nextDeltaPoint;
@@ -3269,18 +3271,9 @@ namespace CrewChiefV4.GameState
         {
             float avgSpeed = 0;
             List<float> points = null;
-            if (avgSpeedTrapPoints.TryGetValue(currentDeltaPointOtherCar, out points))
+            if (avgSpeedTrapPoints.TryGetValue(currentDeltaPointOtherCar, out points) && avgSpeedForEachDeltapointSection.TryGetValue(currentDeltaPoint, out avgSpeed))
             {
-                int count = points.Count;
-                if (count > 0)
-                {
-                    for (int i=0; i<count; i++)
-                    {
-                        avgSpeed += points[i];
-                    }
-                    avgSpeed = avgSpeed / count;
-                }
-                return new Tuple<int, float>(count, avgSpeed);
+                return new Tuple<int, float>(points.Count, avgSpeed);
             }
             else
             {
