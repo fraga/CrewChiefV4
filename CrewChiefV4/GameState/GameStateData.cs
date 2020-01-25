@@ -2247,6 +2247,7 @@ namespace CrewChiefV4.GameState
         private float landmarkStartSpeed = -1;
         DateTime landMarkStoppedDelayTime = DateTime.MaxValue;
 
+        private float percentageConsideredGoingSlow = 40f;
         // wonder if this'll work...
         private String nearLandmarkName;
 
@@ -2437,7 +2438,7 @@ namespace CrewChiefV4.GameState
                         {
                             // we're in the landmark zone somewhere
                             // if this car is very slow, set the stopped car timer
-                            if (((avgSpeedConsideredValid && ((speed / avgSpeedCurrentDeltaPoint.Average()) * 100f) <= 40f) || 
+                            if (((avgSpeedConsideredValid && ((speed / avgSpeedCurrentDeltaPoint.Average()) * 100f) <= percentageConsideredGoingSlow) || 
                                 (speed < 5 && !avgSpeedConsideredValid)) && landMarkStoppedDelayTime == DateTime.MaxValue)
                             {                             
                                 landMarkStoppedDelayTime = CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT || 
@@ -2448,7 +2449,7 @@ namespace CrewChiefV4.GameState
                                 Console.WriteLine("landMarkStoppedDelayTime based on avg speed = " + avgSpeedConsideredValid);
                             }
                             else if((speed > 5 && !avgSpeedConsideredValid) || 
-                                (avgSpeedConsideredValid && ((speed / avgSpeedCurrentDeltaPoint.Average()) * 100f) > 40f))
+                                (avgSpeedConsideredValid && ((speed / avgSpeedCurrentDeltaPoint.Average()) * 100f) > percentageConsideredGoingSlow))
                             {
                                 landMarkStoppedDelayTime = DateTime.MaxValue;
                             }
@@ -2509,7 +2510,7 @@ namespace CrewChiefV4.GameState
                         nearLandmarkName = trackLandmark.landmarkName;
                         nearLandmark = true;
                         // if this car is very slow, set the stopped car timer
-                        if (((avgSpeedConsideredValid && ((speed / avgSpeedCurrentDeltaPoint.Average()) * 100f) <= 40f) || 
+                        if (((avgSpeedConsideredValid && ((speed / avgSpeedCurrentDeltaPoint.Average()) * 100f) <= percentageConsideredGoingSlow) || 
                             (speed < 5  && !avgSpeedConsideredValid)) && landMarkStoppedDelayTime == DateTime.MaxValue)
                         {
                             landMarkStoppedDelayTime = CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT ||
@@ -2519,7 +2520,7 @@ namespace CrewChiefV4.GameState
                                 CrewChief.currentGameState.Now + TimeSpan.FromMilliseconds(200) : CrewChief.currentGameState.Now + TimeSpan.FromMilliseconds(2000);
                             Console.WriteLine("landMarkStoppedDelayTime based on avg speed = " + avgSpeedConsideredValid);
                         }
-                        else if ((speed > 5 && !avgSpeedConsideredValid) || (avgSpeedConsideredValid && ((speed / avgSpeedCurrentDeltaPoint.Average()) * 100f) > 40f))
+                        else if ((speed > 5 && !avgSpeedConsideredValid) || (avgSpeedConsideredValid && ((speed / avgSpeedCurrentDeltaPoint.Average()) * 100f) > percentageConsideredGoingSlow))
                         {
                             landMarkStoppedDelayTime = DateTime.MaxValue;
                         }
