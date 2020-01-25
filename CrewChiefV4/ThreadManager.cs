@@ -161,7 +161,7 @@ namespace CrewChiefV4
         }
 
         // It might be valuable to make this function optionally wait on thread.
-        public static void UnregisterTemporaryThread(Thread t)
+        public static void UnregisterTemporaryThread(Thread t, bool killIfAlive = false)
         {
             if (t == null)
                 return;
@@ -170,14 +170,28 @@ namespace CrewChiefV4
             {
                 if (ThreadManager.temporaryThreads.Contains(t))
                 {
-                    // This is not necessarily a problem, but this message is here to make thread author think about spammy threads.
-                    var warningMsg = "WARNING - Temporary thread is still alive upon unregistering, we might need to investigate here.";
-                    Debug.Assert(!t.IsAlive, warningMsg);
-
-                    if (t.IsAlive)
-                        ThreadManager.Trace(warningMsg + "  Name - " + t.Name);
+                    if (killIfAlive)
+                    {
+                        try
+                        {
+                            t.Abort();
+                        }
+                        catch (Exception ex)
+                        {
+                            Utilities.ReportException(ex, "Error while trying to stop temporary thread", needReport: true);
+                        }
+                    }
                     else
-                        ThreadManager.temporaryThreads.Remove(t);
+                    {
+                        // This is not necessarily a problem, but this message is here to make thread author think about spammy threads.
+                        var warningMsg = "WARNING - Temporary thread is still alive upon unregistering, we might need to investigate here.";
+                        Debug.Assert(!t.IsAlive, warningMsg);
+
+                        if (t.IsAlive)
+                            ThreadManager.Trace(warningMsg + "  Name - " + t.Name);
+                    }
+
+                    ThreadManager.temporaryThreads.Remove(t);
                 }
                 else
                     Debug.Assert(false, "Temporary thread is not registered, this should not happen.");
