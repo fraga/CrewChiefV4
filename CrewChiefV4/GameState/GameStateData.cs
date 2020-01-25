@@ -2386,7 +2386,7 @@ namespace CrewChiefV4.GameState
         // games so this might cause more problems than it solves.
         //
         // returns null or a landmark name this car is stopped in
-        public String updateLandmarkTiming(TrackDefinition trackDefinition, float gameTime, float previousDistanceRoundTrack, float currentDistanceRoundTrack, float speed, DeltaTime deltaTime, CarData.CarClass carClass) 
+        public String updateLandmarkTiming(TrackDefinition trackDefinition, float gameTime, float previousDistanceRoundTrack, float currentDistanceRoundTrack, float speed, float currentDeltaPoint, CarData.CarClass carClass) 
         {
             if (trackDefinition == null || trackDefinition.trackLandmarks == null || trackDefinition.trackLandmarks.Count == 0 ||
                 gameTime < 30 || 
@@ -2401,7 +2401,7 @@ namespace CrewChiefV4.GameState
             {
                 if(opponent.Value != null && CarData.IsCarClassEqual(opponent.Value.CarClass, carClass))
                 {
-                    avgSpeedCurrentDeltaPoint.AddRange(opponent.Value.DeltaTime.GetAvarageSpeedCurrentDeltaPoint(deltaTime));
+                    avgSpeedCurrentDeltaPoint.AddRange(opponent.Value.DeltaTime.GetAvarageSpeedCurrentDeltaPoint(currentDeltaPoint));
                 }
             }
             bool avgSpeedConsideredValid = avgSpeedCurrentDeltaPoint.Count >= 10;
@@ -3138,7 +3138,7 @@ namespace CrewChiefV4.GameState
                     // we only collect 5 samples for each speedTrap
                     else if (((speed / avgSpeedTrapPoints[nextDeltaPoint].Average()) * 100) >= percentageForGoingSlow)
                     {
-                        if (avgSpeedTrapPoints[nextDeltaPoint].Count < 4)
+                        if (avgSpeedTrapPoints[nextDeltaPoint].Count <= 4)
                             avgSpeedTrapPoints[nextDeltaPoint].Add(speed);
                         else if (avgSpeedTrapPoints[nextDeltaPoint].Count == 5)
                         {
@@ -3251,9 +3251,9 @@ namespace CrewChiefV4.GameState
             }
             return (float)splitTime.TotalSeconds;
         }
-        public List<float> GetAvarageSpeedCurrentDeltaPoint(DeltaTime otherCar)
+        public List<float> GetAvarageSpeedCurrentDeltaPoint(float currentDeltaPointOtherCar)
         {
-            return avgSpeedTrapPoints[otherCar.currentDeltaPoint];
+            return avgSpeedTrapPoints[currentDeltaPointOtherCar];
         }
     }
 

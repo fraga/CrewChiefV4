@@ -803,7 +803,7 @@ namespace CrewChiefV4.iRacing
             {
                 String stoppedInLandmark = currentGameState.SessionData.trackLandmarksTiming.updateLandmarkTiming(currentGameState.SessionData.TrackDefinition,
                     currentGameState.SessionData.SessionRunningTime, previousGameState.PositionAndMotionData.DistanceRoundTrack,
-                    currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.PositionAndMotionData.CarSpeed, currentGameState.SessionData.DeltaTime, currentGameState.carClass);
+                    currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.PositionAndMotionData.CarSpeed, currentGameState.SessionData.DeltaTime.currentDeltaPoint, currentGameState.carClass);
                 currentGameState.SessionData.stoppedInLandmark = currentGameState.PitData.InPitlane ? null : stoppedInLandmark;
             }
             if (playerCar.Live.HasCrossedSFLine)
@@ -995,7 +995,7 @@ namespace CrewChiefV4.iRacing
                                 currentOpponentData.trackLandmarksTiming = previousOpponentData.trackLandmarksTiming;
                                 String stoppedInLandmark = currentOpponentData.trackLandmarksTiming.updateLandmarkTiming(
                                     currentGameState.SessionData.TrackDefinition, currentGameState.SessionData.SessionRunningTime,
-                                    previousDistanceRoundTrack, currentOpponentData.DistanceRoundTrack, currentOpponentData.Speed, currentOpponentData.DeltaTime, currentOpponentData.CarClass);
+                                    previousDistanceRoundTrack, currentOpponentData.DistanceRoundTrack, currentOpponentData.Speed, currentOpponentData.DeltaTime.currentDeltaPoint, currentOpponentData.CarClass);
                                 currentOpponentData.stoppedInLandmark = shared.Telemetry.CarIdxOnPitRoad[driver.Id] || !isInWorld || finishedAllottedRaceTime || finishedAllottedRaceLaps || driver.Live.TrackSurface == TrackSurfaces.AproachingPits ? null : stoppedInLandmark;
                             }
                             if (currentGameState.SessionData.JustGoneGreen)
