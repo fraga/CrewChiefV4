@@ -3140,20 +3140,24 @@ namespace CrewChiefV4.GameState
                 deltaPoints[nextDeltaPoint] = now;
                 if (collectAvgSpeed && currentDeltaPoint != nextDeltaPoint)
                 {
-                    if (avgSpeedTrapPoints[nextDeltaPoint].Count == 0)
+                    List<float> points = null;
+                    if (avgSpeedTrapPoints.TryGetValue(nextDeltaPoint, out points))
                     {
-                        avgSpeedTrapPoints[nextDeltaPoint].Add(speed);
-                    }
-                    // only add avgspeed if its bigger or  xx % of current collected average else car is going 'slow'
-                    // we only collect 5 samples for each speedTrap
-                    else if (((speed / avgSpeedTrapPoints[nextDeltaPoint].Average()) * 100) >= percentageForGoingSlow)
-                    {
-                        if (avgSpeedTrapPoints[nextDeltaPoint].Count <= 4)
-                            avgSpeedTrapPoints[nextDeltaPoint].Add(speed);
-                        else if (avgSpeedTrapPoints[nextDeltaPoint].Count == 5)
+                        if (points.Count == 0)
                         {
-                            int index = avgSpeedTrapPoints[nextDeltaPoint].IndexOfMin();
-                            avgSpeedTrapPoints[nextDeltaPoint][index] = speed;
+                            points.Add(speed);
+                        }
+                        // only add avgspeed if its bigger or  xx % of current collected average else car is going 'slow'
+                        // we only collect 5 samples for each speedTrap
+                        else if (((speed / points.Average()) * 100) >= percentageForGoingSlow)
+                        {
+                            if (points.Count <= 4)
+                                points.Add(speed);
+                            else if (points.Count == 5)
+                            {
+                                int index = points.IndexOfMin();
+                                points[index] = speed;
+                            }
                         }
                     }
                 }
