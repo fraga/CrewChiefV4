@@ -2386,10 +2386,10 @@ namespace CrewChiefV4.GameState
         // games so this might cause more problems than it solves.
         //
         // returns null or a landmark name this car is stopped in
-        public String updateLandmarkTiming(TrackDefinition trackDefinition, float gameTime, float previousDistanceRoundTrack, float currentDistanceRoundTrack, float speed, float currentDeltaPoint, CarData.CarClass carClass) 
+        public String updateLandmarkTiming(TrackDefinition trackDefinition, float gameTime, float previousDistanceRoundTrack, float currentDistanceRoundTrack, float speed, float currentDeltaPoint, CarData.CarClass carClass)
         {
             if (trackDefinition == null || trackDefinition.trackLandmarks == null || trackDefinition.trackLandmarks.Count == 0 ||
-                gameTime < 30 || 
+                gameTime < 30 ||
                 (CrewChief.isPCars() && (currentDistanceRoundTrack == 0 || speed == 0)))
             {
                 // don't collect data if the session has been running < 30 seconds or we're PCars and the distanceRoundTrack or speed is exactly zero
@@ -2397,32 +2397,15 @@ namespace CrewChiefV4.GameState
             }
             // yuk...
             //List<float> avgSpeedCurrentDeltaPoint = new List<float>();
-            int opponentCount = 0;
-            float avgSpeedCurrentDeltaPoint = 0;
-            int sampleCount = 0;
-            foreach (var opponent in CrewChief.currentGameState.OpponentData)
-            {
-                if(opponent.Value != null && CarData.IsCarClassEqual(opponent.Value.CarClass, carClass))
-                {
-                    Tuple<int, float> avgSpeedAndSampleCount = opponent.Value.DeltaTime.GetAvarageSpeedCurrentDeltaPoint(currentDeltaPoint);
-                    if(avgSpeedAndSampleCount.Item1 > 0)
-                    {
-                        sampleCount += avgSpeedAndSampleCount.Item1;
-                        avgSpeedCurrentDeltaPoint += avgSpeedAndSampleCount.Item2;
-                        opponentCount++;
-                    }
-                }
-            }
-            avgSpeedCurrentDeltaPoint = avgSpeedCurrentDeltaPoint / opponentCount;
-            bool avgSpeedConsideredValid = sampleCount >= 10;
+
             // dbl yuk...
             atMidPointOfLandmark = null;
-            if (landmarkNameStart == null) 
+            if (landmarkNameStart == null)
             {
                 // looking for landmark start only
                 foreach (TrackLandmark trackLandmark in trackDefinition.trackLandmarks)
                 {
-                    if (previousDistanceRoundTrack < trackLandmark.distanceRoundLapStart && currentDistanceRoundTrack >= trackLandmark.distanceRoundLapStart) 
+                    if (previousDistanceRoundTrack < trackLandmark.distanceRoundLapStart && currentDistanceRoundTrack >= trackLandmark.distanceRoundLapStart)
                     {
                         if (currentDistanceRoundTrack - 20 < trackLandmark.distanceRoundLapStart && currentDistanceRoundTrack + 20 > trackLandmark.distanceRoundLapStart)
                         {
@@ -2430,36 +2413,40 @@ namespace CrewChiefV4.GameState
                             // adjust the landmarkStartTime a bit to accommodate position errors
                             float error = speed > 0 && speed < 120 ? (currentDistanceRoundTrack - trackLandmark.distanceRoundLapStart) / speed : 0;
                             landmarkStartTime = gameTime - error;
-                            landmarkStartSpeed = speed;                            
+                            landmarkStartSpeed = speed;
                         }
                         landmarkNameStart = trackLandmark.landmarkName;
                         // don't reset the landmarkStoppedCount when we enter the landmark - do this in the proximity check below
                         break;
-                    }		
+                    }
                 }
-            } else {
+            }
+            else
+            {
 
                 // looking for landmark end only
-                foreach (TrackLandmark trackLandmark in trackDefinition.trackLandmarks) 
+                foreach (TrackLandmark trackLandmark in trackDefinition.trackLandmarks)
                 {
-                    if (trackLandmark.landmarkName == landmarkNameStart) 
+                    if (trackLandmark.landmarkName == landmarkNameStart)
                     {
                         if (currentDistanceRoundTrack >= trackLandmark.distanceRoundLapStart && currentDistanceRoundTrack < trackLandmark.distanceRoundLapEnd)
                         {
                             // we're in the landmark zone somewhere
                             // if this car is very slow, set the stopped car timer
-                            if (((avgSpeedConsideredValid && ((speed / avgSpeedCurrentDeltaPoint) * 100f) <= percentageConsideredGoingSlow) || 
-                                (speed < 5 && !avgSpeedConsideredValid)) && landMarkStoppedDelayTime == DateTime.MaxValue)
-                            {                             
-                                landMarkStoppedDelayTime = CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT || 
-                                    CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || 
-                                    CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM || 
-                                    CrewChief.gameDefinition.gameEnum ==  GameEnum.IRACING ? 
+                            float avgSpeedCurrentDeltaPoint = CalculateAvgSpeedForCurentDelta(currentDeltaPoint, carClass);
+                            if (((avgSpeedCurrentDeltaPoint != -1f && ((speed / avgSpeedCurrentDeltaPoint) * 100f) <= percentageConsideredGoingSlow) ||
+                                (speed < 5 && avgSpeedCurrentDeltaPoint == -1f)) && landMarkStoppedDelayTime == DateTime.MaxValue)
+                            {
+                                landMarkStoppedDelayTime = CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT ||
+                                    CrewChief.gameDefinition.gameEnum == GameEnum.RF1 ||
+                                    CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM ||
+                                    CrewChief.gameDefinition.gameEnum == GameEnum.IRACING ?
                                     CrewChief.currentGameState.Now + TimeSpan.FromMilliseconds(200) : CrewChief.currentGameState.Now + TimeSpan.FromMilliseconds(2000);
-                                Console.WriteLine("landMarkStoppedDelayTime based on avg speed = " + avgSpeedConsideredValid);
+
+                                Console.WriteLine("car slow in = " + landmarkNameStart + " landMarkStoppedDelayTime based on avg speed = " + avgSpeedCurrentDeltaPoint != -1f + " average speed = " + avgSpeedCurrentDeltaPoint + "current speed =" + speed);
+
                             }
-                            else if((speed > 5 && !avgSpeedConsideredValid) || 
-                                (avgSpeedConsideredValid && ((speed / avgSpeedCurrentDeltaPoint) * 100f) > percentageConsideredGoingSlow))
+                            else if ((speed > 5 && avgSpeedCurrentDeltaPoint == -1f) || (avgSpeedCurrentDeltaPoint != -1 && ((speed / avgSpeedCurrentDeltaPoint) * 100f) > percentageConsideredGoingSlow))
                             {
                                 landMarkStoppedDelayTime = DateTime.MaxValue;
                             }
@@ -2473,7 +2460,7 @@ namespace CrewChiefV4.GameState
                             // we've reached the end of a landmark section
                             // update the timing if it's the landmark we're expecting, we're actually close to the endpoint and
                             // we collected some proper data when we entered the landmark
-                            if (currentDistanceRoundTrack - 20 < trackLandmark.distanceRoundLapEnd && currentDistanceRoundTrack + 20 > trackLandmark.distanceRoundLapEnd && 
+                            if (currentDistanceRoundTrack - 20 < trackLandmark.distanceRoundLapEnd && currentDistanceRoundTrack + 20 > trackLandmark.distanceRoundLapEnd &&
                                 landmarkStartTime != -1)
                             {
                                 // only save the timing if we're near the landmark end point
@@ -2506,9 +2493,9 @@ namespace CrewChiefV4.GameState
             if (landmarkNameStart == null)
             {
                 // again, we're waiting to enter a landmark zone - perhaps we've just left a zone so still check for stopped cars       
-  
+
                 // TODO: refactor this - there's already a method in TrackData to get a landmark for a given track distance, with a 70 metre 'near' zone
-                foreach (TrackLandmark trackLandmark in trackDefinition.trackLandmarks) 
+                foreach (TrackLandmark trackLandmark in trackDefinition.trackLandmarks)
                 {
                     if (currentDistanceRoundTrack > Math.Max(0, trackLandmark.distanceRoundLapStart - 70) &&
                         currentDistanceRoundTrack < Math.Min(trackDefinition.trackLength, trackLandmark.distanceRoundLapEnd + 70))
@@ -2520,17 +2507,20 @@ namespace CrewChiefV4.GameState
                         nearLandmarkName = trackLandmark.landmarkName;
                         nearLandmark = true;
                         // if this car is very slow, set the stopped car timer
-                        if (((avgSpeedConsideredValid && ((speed / avgSpeedCurrentDeltaPoint) * 100f) <= percentageConsideredGoingSlow) || 
-                            (speed < 5  && !avgSpeedConsideredValid)) && landMarkStoppedDelayTime == DateTime.MaxValue)
+                        float avgSpeedCurrentDeltaPoint = CalculateAvgSpeedForCurentDelta(currentDeltaPoint, carClass);
+                        if (((avgSpeedCurrentDeltaPoint != -1f && ((speed / avgSpeedCurrentDeltaPoint) * 100f) <= percentageConsideredGoingSlow) ||
+                            (speed < 5 && avgSpeedCurrentDeltaPoint == -1f)) && landMarkStoppedDelayTime == DateTime.MaxValue)
                         {
                             landMarkStoppedDelayTime = CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT ||
                                 CrewChief.gameDefinition.gameEnum == GameEnum.RF1 ||
                                 CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM ||
                                 CrewChief.gameDefinition.gameEnum == GameEnum.IRACING ?
                                 CrewChief.currentGameState.Now + TimeSpan.FromMilliseconds(200) : CrewChief.currentGameState.Now + TimeSpan.FromMilliseconds(2000);
-                            Console.WriteLine("landMarkStoppedDelayTime based on avg speed = " + avgSpeedConsideredValid);
+
+                            Console.WriteLine("car slow in = " + nearLandmarkName + " landMarkStoppedDelayTime based on avg speed = " + avgSpeedCurrentDeltaPoint != -1f + " average speed = " + avgSpeedCurrentDeltaPoint + "current speed =" + speed);
+
                         }
-                        else if ((speed > 5 && !avgSpeedConsideredValid) || (avgSpeedConsideredValid && ((speed / avgSpeedCurrentDeltaPoint) * 100f) > percentageConsideredGoingSlow))
+                        else if ((speed > 5 && avgSpeedCurrentDeltaPoint == -1f) || (avgSpeedCurrentDeltaPoint != -1 && ((speed / avgSpeedCurrentDeltaPoint) * 100f) > percentageConsideredGoingSlow))
                         {
                             landMarkStoppedDelayTime = DateTime.MaxValue;
                         }
@@ -2552,6 +2542,27 @@ namespace CrewChiefV4.GameState
             {
                 return null;
             }
+        }
+        public float CalculateAvgSpeedForCurentDelta(float currentDeltaPoint, CarData.CarClass carClass)
+        {
+            int opponentCount = 0;
+            float avgSpeedCurrentDeltaPoint = 0;
+            int sampleCount = 0;
+            foreach (var opponent in CrewChief.currentGameState.OpponentData)
+            {
+                if (opponent.Value != null && CarData.IsCarClassEqual(opponent.Value.CarClass, carClass))
+                {
+                    Tuple<int, float> avgSpeedAndSampleCount = opponent.Value.DeltaTime.GetAvarageSpeedCurrentDeltaPoint(currentDeltaPoint);
+                    if (avgSpeedAndSampleCount.Item1 > 0)
+                    {
+                        sampleCount += avgSpeedAndSampleCount.Item1;
+                        avgSpeedCurrentDeltaPoint += avgSpeedAndSampleCount.Item2;
+                        opponentCount++;
+                    }
+                }
+            }
+            avgSpeedCurrentDeltaPoint = avgSpeedCurrentDeltaPoint / opponentCount;
+            return sampleCount >= 10 ? avgSpeedCurrentDeltaPoint : -1f;
         }
 
         // call this at the start of every lap so we don't end up waiting for ever (or for 1lap + landmark time).
