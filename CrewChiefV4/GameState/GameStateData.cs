@@ -3073,7 +3073,7 @@ namespace CrewChiefV4.GameState
     public class DeltaTime
     {
         public Dictionary<float, DateTime> deltaPoints = new Dictionary<float, DateTime>();
-        public Dictionary<float, List<float>> avgSpeedTrapPoints = new Dictionary<float, List<float>>();
+        public Dictionary<float, float[]> avgSpeedTrapPoints = new Dictionary<float, float[]>();
         public Dictionary<float, float> avgSpeedForEachDeltapointSection = new Dictionary<float, float>();
 
         // this array holds the keyset of the above dictionaries:
@@ -3108,14 +3108,14 @@ namespace CrewChiefV4.GameState
                 if (totalSpacing == 0)
                 {
                     deltaPoints.Add(totalSpacing, now);
-                    avgSpeedTrapPoints.Add(totalSpacing, new List<float>());
+                    avgSpeedTrapPoints.Add(totalSpacing, new float[5] { -1, -1, -1, -1, -1 });
                 }
                 totalSpacing += spacing;
                 Boolean addedDeltaPoint = false;
                 if (totalSpacing < trackLength - spacing)
                 {
                     deltaPoints.Add(totalSpacing, now);
-                    avgSpeedTrapPoints.Add(totalSpacing, new List<float>());
+                    avgSpeedTrapPoints.Add(totalSpacing, new float[5] { -1, -1, -1, -1, -1 });
                     addedDeltaPoint = true;
                 }
                 if (distanceRoundTrackOnCurrentLap >= totalSpacing)
@@ -3152,26 +3152,32 @@ namespace CrewChiefV4.GameState
                 deltaPoints[nextDeltaPoint] = now;
                 if (collectAvgSpeed && currentDeltaPoint != nextDeltaPoint)
                 {
-                    List<float> points = null;
+                    float [] points = null;
                     if (avgSpeedTrapPoints.TryGetValue(nextDeltaPoint, out points))
                     {
-                        if (points.Count == 0)
+                        if (points.Average() == -1f)
                         {
-                            points.Add(speed);
+                            points[0] = speed;
                         }
                         // only add avgspeed if its bigger or  xx % of current collected average else car is going 'slow'
                         // we only collect 5 samples for each speedTrap
                         else if (((speed / points.Average()) * 100) >= percentageForGoingSlow)
                         {
-                            if (points.Count <= 4)
-                                points.Add(speed);
-                            else if (points.Count == 5)
-                            {
-                                int index = points.IndexOfMin();
-                                points[index] = speed;
-                            }
+                            int index = points.IndexOfMin();
+                            points[index] = speed;
                         }
-                        avgSpeedForEachDeltapointSection[nextDeltaPoint] = points.Average();
+                        float averageSpeedCurrentDelta = 0;
+                        int count = 0;
+                        foreach(var deltaSpeed in points)
+                        {
+                            // we dont want elements that have not yet been set with propper values
+                            if (deltaSpeed != -1f)
+                            {
+                                averageSpeedCurrentDelta += deltaSpeed;
+                                count++;
+                            }                            
+                        }                        
+                        avgSpeedForEachDeltapointSection[nextDeltaPoint] = averageSpeedCurrentDelta / count;
                     }
                 }
                 currentDeltaPoint = nextDeltaPoint;
@@ -3281,12 +3287,12 @@ namespace CrewChiefV4.GameState
         public Tuple<int, float> GetAvarageSpeedCurrentDeltaPoint(float currentDeltaPointOtherCar)
         {
             float avgSpeed = 0;
-            List<float> points = null;
+            float[] points = null;
             if (currentDeltaPointOtherCar != -1 &&
                 avgSpeedTrapPoints.TryGetValue(currentDeltaPointOtherCar, out points) &&
                 avgSpeedForEachDeltapointSection.TryGetValue(currentDeltaPointOtherCar, out avgSpeed))
             {
-                return new Tuple<int, float>(points.Count, avgSpeed);
+                return new Tuple<int, float>(points.Length, avgSpeed);
             }
             else
             {
