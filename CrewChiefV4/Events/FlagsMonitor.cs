@@ -1127,7 +1127,16 @@ namespace CrewChiefV4.Events
                             {
                                 waitingForCrashedDriverInCorner = landmark;
                                 driversCrashedInCorner.Add(opponentId);
-                                waitingForCrashedDriverInCornerFinishTime = currentGameState.Now + TimeSpan.FromMilliseconds(simpleIncidentReportDelay);
+                                float gapToIncident = currentGameState.SessionData.DeltaTime.GetSignedDeltaTimeOnly(opponent.DeltaTime);
+                                // if the gap to the incident is in front and the incident delay is set higher set the timer so we warn next update interval. 
+                                if (TimeSpan.FromMilliseconds(simpleIncidentReportDelay) > TimeSpan.FromSeconds(gapToIncident) && isApproaching)
+                                {
+                                    waitingForCrashedDriverInCornerFinishTime = currentGameState.Now;
+                                }
+                                else
+                                {
+                                    waitingForCrashedDriverInCornerFinishTime = currentGameState.Now + TimeSpan.FromMilliseconds(simpleIncidentReportDelay);
+                                }                                
                                 break;
                             }
                         }
