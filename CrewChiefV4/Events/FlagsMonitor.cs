@@ -1099,39 +1099,47 @@ namespace CrewChiefV4.Events
             {
                 if (waitingForCrashedDriverInCorner == null)
                 {
+
                     // get the first stopped car and his corner
                     foreach (KeyValuePair<String, OpponentData> entry in currentGameState.OpponentData)
                     {
                         String opponentId = entry.Key;
                         OpponentData opponent = entry.Value;
-                        String landmark = opponent.stoppedInLandmark;
-                        if (landmark != null && !landmark.Equals(currentGameState.SessionData.stoppedInLandmark))
+                        Boolean isApproaching = false;
+                        float distanceToIncident = float.MaxValue;
+                        if (opponent.DistanceRoundTrack > currentGameState.PositionAndMotionData.DistanceRoundTrack)
                         {
-                            // is this car in an interesting part of the track?
-                            Boolean isApproaching;
-                            if (opponent.DistanceRoundTrack > currentGameState.PositionAndMotionData.DistanceRoundTrack)
-                            {
-                                isApproaching = opponent.DistanceRoundTrack - currentGameState.PositionAndMotionData.DistanceRoundTrack < 1000;
-                            }
-                            else
-                            {
-                                isApproaching = opponent.DistanceRoundTrack -
-                                    (currentGameState.PositionAndMotionData.DistanceRoundTrack - currentGameState.SessionData.TrackDefinition.trackLength) < 1000;
-                            }
+                            distanceToIncident = opponent.DistanceRoundTrack - currentGameState.PositionAndMotionData.DistanceRoundTrack;
+                        }
+                        else
+                        {
+                            distanceToIncident = opponent.DistanceRoundTrack -
+                                (currentGameState.PositionAndMotionData.DistanceRoundTrack - currentGameState.SessionData.TrackDefinition.trackLength);
+
+                        }
+                        isApproaching = distanceToIncident < 1000;
+                        String landmark = opponent.stoppedInLandmark;
+                        // is this car in an interesting part of the track?     
+                        if (landmark != null && !landmark.Equals(currentGameState.SessionData.stoppedInLandmark))
+                        {                                                 
                             // are we fighting with him and can we call him by name?
-                            Boolean isInteresting = Math.Abs(currentGameState.SessionData.ClassPosition - opponent.ClassPosition) <= 2 &&
+                            Boolean isInteresting = false;
+                            if (CarData.IsCarClassEqual(currentGameState.carClass, opponent.CarClass) && currentGameState.SessionData.ClassPosition < 1000 && opponent.ClassPosition < 1000)
+                            {
+                                isInteresting = Math.Abs(currentGameState.SessionData.ClassPosition - opponent.ClassPosition) <= 2 &&
                                 (AudioPlayer.canReadName(opponent.DriverRawName) || opponent.ClassPosition <= folderPositionHasGoneOff.Length);
+                            }
                             DateTime incidentWarningTime = DateTime.MinValue;
                             if ((isApproaching || isInteresting) &&
                                 (!incidentWarnings.TryGetValue(landmark, out incidentWarningTime) || incidentWarningTime + incidentRepeatFrequency < currentGameState.Now))
                             {
                                 waitingForCrashedDriverInCorner = landmark;
                                 driversCrashedInCorner.Add(opponentId);
-                                float gapToIncident = currentGameState.SessionData.DeltaTime.GetSignedDeltaTimeOnly(opponent.DeltaTime);
                                 // if the gap to the incident is in front and the incident delay is set higher set the timer so we warn next update interval. 
-                                if (TimeSpan.FromMilliseconds(simpleIncidentReportDelay) > TimeSpan.FromSeconds(gapToIncident) && isApproaching)
+                                if (Math.Abs(distanceToIncident) < 200 && isApproaching)
                                 {
                                     waitingForCrashedDriverInCornerFinishTime = currentGameState.Now;
+                                    Console.WriteLine("incident ahead distance = " + Math.Abs(distanceToIncident));
                                 }
                                 else
                                 {
