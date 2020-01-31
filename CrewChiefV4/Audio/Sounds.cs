@@ -379,7 +379,8 @@ namespace CrewChiefV4.Audio
             if (SoundCache.cancelDriverNameLoading)
                 return;
 
-            ThreadManager.UnregisterTemporaryThread(SoundCache.loadDriverNameSoundsThread);
+            // Trace debugging only note: During trace playback session changes are very fast, so kill previous thread as it still being alive is not an indicator of a problem.
+            ThreadManager.UnregisterTemporaryThread(SoundCache.loadDriverNameSoundsThread, killIfAlive: MainWindow.playingBackTrace);
             SoundCache.loadDriverNameSoundsThread = new Thread(() =>
             {
                 try

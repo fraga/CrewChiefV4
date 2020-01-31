@@ -150,6 +150,7 @@ namespace CrewChiefV4
 
         // Allow trace playback on Release build.
         internal static bool profileMode = false;
+        internal static bool playingBackTrace = false;
 
         public void killChief()
         {
@@ -1711,6 +1712,7 @@ namespace CrewChiefV4
             else
             {
                 ThreadManager.DoWatchStop(crewChief);
+                MainWindow.playingBackTrace = false;
             }
             if (overlay != null)
             {
@@ -1880,10 +1882,15 @@ namespace CrewChiefV4
             if (!String.IsNullOrWhiteSpace(filenameTextbox.Text))
             {
                 filenameToRun = filenameTextbox.Text;
+                MainWindow.playingBackTrace = true;
                 if (this.playbackInterval.Text.Length > 0)
                 {
                     CrewChief.playbackIntervalMilliseconds = int.Parse(playbackInterval.Text);
                 }
+            }
+            else
+            {
+                MainWindow.playingBackTrace = false;
             }
             if (recordSession.Checked)
             {
