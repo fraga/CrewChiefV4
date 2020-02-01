@@ -1065,7 +1065,7 @@
       <Value Profile="(Default)">20, 20</Value>
     </Setting>
     <Setting Name="simple_incident_detection_report_delay" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">4000</Value>
+      <Value Profile="(Default)">2000</Value>
     </Setting>
   </Settings>
 </SettingsFile>

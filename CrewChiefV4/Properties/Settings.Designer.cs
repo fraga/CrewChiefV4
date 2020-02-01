@@ -4273,7 +4273,7 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("4000")]
+        [global::System.Configuration.DefaultSettingValueAttribute("2000")]
         public int simple_incident_detection_report_delay {
             get {
                 return ((int)(this["simple_incident_detection_report_delay"]));
