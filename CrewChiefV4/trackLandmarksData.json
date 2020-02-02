@@ -1245,10 +1245,10 @@
 			"irTrackName": "monza full",
 			"raceroomLayoutId": 1671,
 			"raceroomRollingStartLapDistance": 4285,
-			"raceroomPitApproachPoint": [
-				5545,
+			"pitApproachPoint": [
+				5345,
 				755.2,
-				384.5
+				-384.5
 			],
 			"trackLandmarks": [{
 					"landmarkName": "the_first_chicane",

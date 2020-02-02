@@ -186,7 +186,7 @@ namespace CrewChiefV4.RaceRoom
                     currentGameState.SessionData.TrackDefinition.trackLandmarks = tdc.trackLandmarks;
                     currentGameState.SessionData.TrackDefinition.isOval = tdc.isOval;
                     currentGameState.SessionData.TrackDefinition.raceroomRollingStartLapDistance = tdc.raceroomRollingStartLapDistance;
-                    currentGameState.SessionData.TrackDefinition.raceroomPitApproachPoint = tdc.raceroomPitApproachPoint;
+                    currentGameState.SessionData.TrackDefinition.pitApproachPoint = tdc.pitApproachPoint;
                     currentGameState.SessionData.TrackDefinition.setGapPoints();
                     GlobalBehaviourSettings.UpdateFromTrackDefinition(currentGameState.SessionData.TrackDefinition);
                 }
@@ -201,7 +201,7 @@ namespace CrewChiefV4.RaceRoom
                 currentGameState.SessionData.TrackDefinition.trackLandmarks = tdc.trackLandmarks;
                 currentGameState.SessionData.TrackDefinition.isOval = tdc.isOval;
                 currentGameState.SessionData.TrackDefinition.raceroomRollingStartLapDistance = tdc.raceroomRollingStartLapDistance;
-                currentGameState.SessionData.TrackDefinition.raceroomPitApproachPoint = tdc.raceroomPitApproachPoint;
+                currentGameState.SessionData.TrackDefinition.pitApproachPoint = tdc.pitApproachPoint;
                 currentGameState.SessionData.TrackDefinition.setGapPoints();
                 GlobalBehaviourSettings.UpdateFromTrackDefinition(currentGameState.SessionData.TrackDefinition);
 
@@ -302,7 +302,7 @@ namespace CrewChiefV4.RaceRoom
                 currentGameState.SessionData.TrackDefinition.trackLandmarks = tdc.trackLandmarks;
                 currentGameState.SessionData.TrackDefinition.isOval = tdc.isOval;
                 currentGameState.SessionData.TrackDefinition.raceroomRollingStartLapDistance = tdc.raceroomRollingStartLapDistance;
-                currentGameState.SessionData.TrackDefinition.raceroomPitApproachPoint = tdc.raceroomPitApproachPoint;
+                currentGameState.SessionData.TrackDefinition.pitApproachPoint = tdc.pitApproachPoint;
                 currentGameState.SessionData.TrackDefinition.setGapPoints();
                 GlobalBehaviourSettings.UpdateFromTrackDefinition(currentGameState.SessionData.TrackDefinition);
                 if (previousGameState != null && previousGameState.SessionData.TrackDefinition != null)
@@ -1230,15 +1230,18 @@ namespace CrewChiefV4.RaceRoom
                 currentGameState.PitData.IsPitCrewDone = shared.PitState == (Int32)RaceRoomConstant.PitStates.Exiting;
             }
 
-            // See if it looks like we're entering the pits.  TrackDefinition.raceroomPitApproachPoint if available.
-            var pitApproachPoint = currentGameState.SessionData.TrackDefinition.raceroomPitApproachPoint;
+            // See if it looks like we're entering the pits.  Use TrackDefinition.pitApproachPoint if available.
+            var pitApproachPoint = currentGameState.SessionData.TrackDefinition.pitApproachPoint;
             if (pitApproachPoint != null
                 && currentGameState.PitData.HasRequestedPitStop
                 && Math.Abs(currentGameState.PositionAndMotionData.DistanceRoundTrack - pitApproachPoint[0]) < 20.0f)  // Within 20 meters of anchor pt by lapdist.
             {
-                currentGameState.PitData.IsApproachingPitlane = Math.Abs(Math.Sqrt(
+                 var distToPitApproachPt = Math.Abs(Math.Sqrt(
                     (double)((currentGameState.PositionAndMotionData.WorldPosition[0] - pitApproachPoint[1]) * (currentGameState.PositionAndMotionData.WorldPosition[0] - pitApproachPoint[1])
-                    + (currentGameState.PositionAndMotionData.WorldPosition[2] - pitApproachPoint[2]) * (currentGameState.PositionAndMotionData.WorldPosition[2] - pitApproachPoint[2])))) < 3.0;  // Within 3 meters by world pos.
+                    + (currentGameState.PositionAndMotionData.WorldPosition[2] - pitApproachPoint[2]) * (currentGameState.PositionAndMotionData.WorldPosition[2] - pitApproachPoint[2]))));
+
+                currentGameState.PitData.IsApproachingPitlane = distToPitApproachPt < 4.0;  // Within 4 meters by world pos.
+                Console.WriteLine("PIT APPROACH " + currentGameState.PitData.IsApproachingPitlane + "   " + distToPitApproachPt);
             }
 
             //------------------------ Pit menu -----------------------------
