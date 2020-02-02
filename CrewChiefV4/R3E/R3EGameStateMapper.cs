@@ -285,8 +285,6 @@ namespace CrewChiefV4.RaceRoom
                     currentGameState.PitData.PitBoxLocationEstimate = previousGameState.PitData.PitBoxLocationEstimate;
                 }
 
-                currentGameState.PitData.PitSpeedLimit = shared.SessionPitSpeedLimit;
-
                 // reset the flag to allow the improvised blue flag calling
                 useImprovisedBlueFlagDetection = true;
 
@@ -509,7 +507,6 @@ namespace CrewChiefV4.RaceRoom
                     currentGameState.SessionData.SessionStartClassPosition = previousGameState.SessionData.SessionStartClassPosition;
 
                     currentGameState.SessionData.ClassPositionAtStartOfCurrentLap = previousGameState.SessionData.ClassPositionAtStartOfCurrentLap;
-                    currentGameState.PitData.PitSpeedLimit = previousGameState.PitData.PitSpeedLimit;
                     currentGameState.PitData.PitWindowStart = previousGameState.PitData.PitWindowStart;
                     currentGameState.PitData.PitWindowEnd = previousGameState.PitData.PitWindowEnd;
                     currentGameState.PitData.HasMandatoryPitStop = previousGameState.PitData.HasMandatoryPitStop;
@@ -1234,15 +1231,17 @@ namespace CrewChiefV4.RaceRoom
             var pitApproachPoint = currentGameState.SessionData.TrackDefinition.pitApproachPoint;
             if (pitApproachPoint != null
                 && currentGameState.PitData.HasRequestedPitStop
-                && Math.Abs(currentGameState.PositionAndMotionData.DistanceRoundTrack - pitApproachPoint[0]) < 20.0f)  // Within 20 meters of anchor pt by lapdist.
+                && Math.Abs(currentGameState.PositionAndMotionData.DistanceRoundTrack - pitApproachPoint[0]) < 30.0f)  // Within 30 meters of anchor pt by lapdist.
             {
-                 var distToPitApproachPt = Math.Abs(Math.Sqrt(
+                 var distToPitApproachPt = Math.Sqrt(
                     (double)((currentGameState.PositionAndMotionData.WorldPosition[0] - pitApproachPoint[1]) * (currentGameState.PositionAndMotionData.WorldPosition[0] - pitApproachPoint[1])
-                    + (currentGameState.PositionAndMotionData.WorldPosition[2] - pitApproachPoint[2]) * (currentGameState.PositionAndMotionData.WorldPosition[2] - pitApproachPoint[2]))));
+                    + (currentGameState.PositionAndMotionData.WorldPosition[2] - pitApproachPoint[2]) * (currentGameState.PositionAndMotionData.WorldPosition[2] - pitApproachPoint[2])));
 
                 currentGameState.PitData.IsApproachingPitlane = distToPitApproachPt < 4.0;  // Within 4 meters by world pos.
-                Console.WriteLine("PIT APPROACH " + currentGameState.PitData.IsApproachingPitlane + "   " + distToPitApproachPt);
+                Console.WriteLine($"Pit approach detection: approaching - {currentGameState.PitData.IsApproachingPitlane}    dist to point - {distToPitApproachPt.ToString("0.000")}");
             }
+
+            currentGameState.PitData.PitSpeedLimit = shared.SessionPitSpeedLimit;
 
             //------------------------ Pit menu -----------------------------
             R3EPitMenuManager.map(shared.PitMenuSelection, shared.PitMenuState);

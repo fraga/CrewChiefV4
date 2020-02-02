@@ -852,9 +852,9 @@ namespace CrewChiefV4.Events
                 {
                     if ((!previousGameState.PitData.IsApproachingPitlane
                         && currentGameState.PitData.IsApproachingPitlane && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)
-                        // Here we need to make sure that the player has intended to go into the pit's sometimes this trows if we are getting in this zone while overtaking or just defending the line  
-                        || currentGameState.PitData.IsApproachingPitlane && CrewChief.gameDefinition.gameEnum == GameEnum.IRACING
-                        && currentGameState.Now > timeStartedAppoachingPitsCheck && currentGameState.ControlData.BrakePedal <= 0 && !currentGameState.PitData.OnOutLap)
+                        // Here we need to make sure that the player has intended to go into the pit's sometimes this trows if we are getting in this zone while overtaking or just defending the line.
+                        || (currentGameState.PitData.IsApproachingPitlane && CrewChief.gameDefinition.gameEnum == GameEnum.IRACING
+                            && currentGameState.Now > timeStartedAppoachingPitsCheck && currentGameState.ControlData.BrakePedal <= 0 && !currentGameState.PitData.OnOutLap))
                     {
                         timeStartedAppoachingPitsCheck = DateTime.MaxValue;
                         timeSpeedInPitsWarning = currentGameState.Now;
