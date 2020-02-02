@@ -218,6 +218,7 @@ namespace CrewChiefV4
         public Boolean isOval { get; set; }
         public float raceroomRollingStartLapDistance { get; set; }   // this is optional and used to detect "this lap invalidated" vs "this and next lap invalidated" in R3E
         public float iracingPitEntranceDistanceRoundTrack { get; set; }
+        public float[] raceroomPitApproachPoint { get; set; }   // this is optional and used to detect "approaching pit state" in R3E.  Game {LapDist;X;Z} world values.
         public TrackLandmarksForTrack()
         {
             this.trackLandmarks = new List<TrackLandmark>();
@@ -233,6 +234,7 @@ namespace CrewChiefV4
             this.isOval = false;
             this.raceroomRollingStartLapDistance = -1.0f;
             this.iracingPitEntranceDistanceRoundTrack = -1.0f;
+            this.raceroomPitApproachPoint = null;
         }
     }
 
@@ -243,13 +245,15 @@ namespace CrewChiefV4
         public float raceroomRollingStartLapDistance = -1.0f;
         public Boolean isDefinedInTracklandmarksData = true;
         public float iracingPitEntranceDistanceRoundTrack = -1.0f;
-        public TrackDataContainer(List<TrackLandmark> trackLandmarks, Boolean isOval, Boolean isDefinedInTracklandmarksData = true, float raceroomRollingStartLapDistance = -1.0f, float iracingPitEntranceDistanceRoundTrack = -1.0f)
+        public float[] raceroomPitApproachPoint = null;
+        public TrackDataContainer(List<TrackLandmark> trackLandmarks, Boolean isOval, Boolean isDefinedInTracklandmarksData = true, float raceroomRollingStartLapDistance = -1.0f, float iracingPitEntranceDistanceRoundTrack = -1.0f, float[] raceroomPitApproachPoint = null)
         {
             this.trackLandmarks = trackLandmarks;
             this.isOval = isOval;
             this.raceroomRollingStartLapDistance = raceroomRollingStartLapDistance;
             this.isDefinedInTracklandmarksData = isDefinedInTracklandmarksData;
             this.iracingPitEntranceDistanceRoundTrack = iracingPitEntranceDistanceRoundTrack;
+            this.raceroomPitApproachPoint = raceroomPitApproachPoint;
         }
     }
 
@@ -380,7 +384,7 @@ namespace CrewChiefV4
                 if (trackLandmarksForTrack.raceroomLayoutId == raceroomLayoutId)
                 {
                     Console.WriteLine(trackLandmarksForTrack.trackLandmarks.Count + " landmarks defined for this track");
-                    return new TrackDataContainer(trackLandmarksForTrack.trackLandmarks, trackLandmarksForTrack.isOval, true, trackLandmarksForTrack.raceroomRollingStartLapDistance);
+                    return new TrackDataContainer(trackLandmarksForTrack.trackLandmarks, trackLandmarksForTrack.isOval, true, trackLandmarksForTrack.raceroomRollingStartLapDistance, -1.0f, trackLandmarksForTrack.raceroomPitApproachPoint);
                 }
             }
             return new TrackDataContainer(new List<TrackLandmark>(), false, false);
@@ -903,6 +907,7 @@ namespace CrewChiefV4
         public float raceroomRollingStartLapDistance = -1.0f;
         public float iracingPitEntranceDistanceRoundTrack = -1;
         public float iracingTrackNorthOffset = -1;
+        public float[] raceroomPitApproachPoint = null;
         public TrackDefinition(String name, float pitEntryExitPointsDiameter, float trackLength, float[] pitEntryPoint, float[] pitExitPoint)
         {
             this.name = name;

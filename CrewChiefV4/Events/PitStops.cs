@@ -958,7 +958,8 @@ namespace CrewChiefV4.Events
                 }
             }
 
-            if (CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT)
+            if (CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT
+                || CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM)
             {
                 if (!pitLaneSpeedWarningAnnounced
                     && (currentGameState.SessionData.SessionType == SessionType.LonePractice || currentGameState.SessionData.SessionType == SessionType.Practice || currentGameState.SessionData.SessionType == SessionType.Qualify)
@@ -968,7 +969,7 @@ namespace CrewChiefV4.Events
                     pitLaneSpeedWarningAnnounced = true;
                     if (currentGameState.PitData.PitSpeedLimit != -1.0f)
                     {
-                        announcePitlaneSpeedLimit(currentGameState, false /*possiblyAnnounceIntro*/, false /*voiceResponse*/);
+                        announcePitlaneSpeedLimit(currentGameState, false /*possiblyPlayIntro*/, false /*voiceResponse*/);
                     }
                 }
 

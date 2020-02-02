@@ -494,7 +494,15 @@ namespace CrewChiefV4.Events
                                     pearlType = PearlsOfWisdom.PearlType.NEUTRAL;
                                 }
                             }
-                            playCurrentPositionMessage(pearlType, pearlLikelihood, false);
+                            // Workaround for bad R3E data.  Do not play position message in Quali on completion of very first lap completed out of pits.
+                            if (!(CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM
+                                && currentGameState.SessionData.CompletedLaps == 1
+                                && currentGameState.SessionData.SessionType == SessionType.Qualify
+                                && previousGameState != null
+                                && previousGameState.PitData.OnOutLap))
+                            {
+                                playCurrentPositionMessage(pearlType, pearlLikelihood, false);
+                            }
                         }
                     }
                 }
