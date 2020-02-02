@@ -2437,7 +2437,7 @@ namespace CrewChiefV4.GameState
                             if (((avgSpeedCurrentDeltaPoint != -1f && ((speed / avgSpeedCurrentDeltaPoint) * 100f) <= percentageConsideredGoingSlow) ||
                                 (speed < 5 && avgSpeedCurrentDeltaPoint == -1f)) && landMarkStoppedDelayTime == DateTime.MaxValue)
                             {
-                                Console.WriteLine("car slow in = " + nearLandmarkName + " average speed = " + avgSpeedCurrentDeltaPoint + "current speed =" + speed);
+                                //Console.WriteLine("car slow in = " + nearLandmarkName + " average speed = " + avgSpeedCurrentDeltaPoint + "current speed =" + speed);
                                 landMarkStoppedDelayTime = CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT ||
                                     CrewChief.gameDefinition.gameEnum == GameEnum.RF1 ||
                                     CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM ||
@@ -2510,7 +2510,7 @@ namespace CrewChiefV4.GameState
                         if (((avgSpeedCurrentDeltaPoint != -1f && ((speed / avgSpeedCurrentDeltaPoint) * 100f) <= percentageConsideredGoingSlow) ||
                             (speed < 5 && avgSpeedCurrentDeltaPoint == -1f)) && landMarkStoppedDelayTime == DateTime.MaxValue)
                         {
-                            Console.WriteLine("car slow in = " + nearLandmarkName + " average speed = " + avgSpeedCurrentDeltaPoint + "current speed =" + speed);
+                            //Console.WriteLine("car slow in = " + nearLandmarkName + " average speed = " + avgSpeedCurrentDeltaPoint + "current speed =" + speed);
 
                             landMarkStoppedDelayTime = CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT ||
                                 CrewChief.gameDefinition.gameEnum == GameEnum.RF1 ||

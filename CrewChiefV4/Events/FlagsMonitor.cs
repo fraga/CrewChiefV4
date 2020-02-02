@@ -1127,7 +1127,8 @@ namespace CrewChiefV4.Events
                             if (CarData.IsCarClassEqual(currentGameState.carClass, opponent.CarClass) && currentGameState.SessionData.ClassPosition < 1000 && opponent.ClassPosition < 1000)
                             {
                                 isInteresting = Math.Abs(currentGameState.SessionData.ClassPosition - opponent.ClassPosition) <= 2 &&
-                                (AudioPlayer.canReadName(opponent.DriverRawName) || opponent.ClassPosition <= folderPositionHasGoneOff.Length);
+                                (AudioPlayer.canReadName(opponent.DriverRawName) || opponent.ClassPosition <= folderPositionHasGoneOff.Length) && 
+                                currentGameState.SessionData.SessionType == SessionType.Race; // only call out interesting incidents in race sessions 
                             }
                             DateTime incidentWarningTime = DateTime.MinValue;
                             if ((isApproaching || isInteresting) &&
@@ -1139,7 +1140,6 @@ namespace CrewChiefV4.Events
                                 if (Math.Abs(distanceToIncident) < 200 && isApproaching)
                                 {
                                     waitingForCrashedDriverInCornerFinishTime = currentGameState.Now;
-                                    Console.WriteLine("incident ahead distance = " + Math.Abs(distanceToIncident));
                                 }
                                 else
                                 {
