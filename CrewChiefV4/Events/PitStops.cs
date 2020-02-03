@@ -496,9 +496,13 @@ namespace CrewChiefV4.Events
             }
             if (currentGameState.PitData.limiterStatus != PitData.LimiterStatus.NOT_AVAILABLE && currentGameState.Now > timeOfLastLimiterWarning + TimeSpan.FromSeconds(30))
             {
-                if (currentGameState.SessionData.SectorNumber == 1 && 
+                if ((currentGameState.SessionData.SectorNumber == 1 &&
                     currentGameState.Now > timeOfDisengageCheck && !currentGameState.PitData.InPitlane && currentGameState.PitData.limiterStatus == PitData.LimiterStatus.ACTIVE &&
-                    !(CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT && currentGameState.SessionData.SessionPhase == SessionPhase.Finished))  // In rF2, Sector number is not updated on cooldown lap, hence ignore disengage limiter logic.
+                    !(CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT && currentGameState.SessionData.SessionPhase == SessionPhase.Finished) // In rF2, Sector number is not updated on cooldown lap, hence ignore disengage limiter logic.
+                    && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING) ||
+                    (CrewChief.gameDefinition.gameEnum == GameEnum.IRACING &&
+                    currentGameState.Now > timeOfDisengageCheck && currentGameState.PitData.OnOutLap && !currentGameState.PitData.InPitlane && 
+                    currentGameState.PitData.limiterStatus == PitData.LimiterStatus.ACTIVE && !currentGameState.PitData.IsApproachingPitlane))
                 {
                     // in S1 but have exited pits, and we're expecting the limit to have been turned off
                     timeOfDisengageCheck = DateTime.MaxValue;
@@ -517,16 +521,11 @@ namespace CrewChiefV4.Events
                             timeOfLastLimiterWarning = currentGameState.Now;
                         }
                     }
-                    else if (currentGameState.SessionData.SectorNumber == 1 &&
-                        previousGameState.PitData.InPitlane && !currentGameState.PitData.InPitlane && currentGameState.PitData.limiterStatus == PitData.LimiterStatus.ACTIVE && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)
+                    else if ((currentGameState.SessionData.SectorNumber == 1 &&
+                        previousGameState.PitData.InPitlane && !currentGameState.PitData.InPitlane && currentGameState.PitData.limiterStatus == PitData.LimiterStatus.ACTIVE && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING) 
+                        || (currentGameState.PitData.IsAtPitExit && currentGameState.PitData.limiterStatus == PitData.LimiterStatus.ACTIVE && CrewChief.gameDefinition.gameEnum == GameEnum.IRACING))
                     {
                         // just left the pitlane with the limiter active - wait 2 seconds then warn
-                        timeOfDisengageCheck = currentGameState.Now + TimeSpan.FromSeconds(2);
-                    }
-                    else if (currentGameState.PitData.IsAtPitExit && currentGameState.PitData.limiterStatus == PitData.LimiterStatus.ACTIVE && CrewChief.gameDefinition.gameEnum == GameEnum.IRACING)
-                    {
-                        // TODO: this needs a bit more investigation. We have 2 separate blocks here because the time delay may need to be different for iRacing. 
-                        // I know this looks like a fucking retarded if-else statement but I don't care. It's all Morten's fault anyway. Just like the AccessViolationErrors
                         timeOfDisengageCheck = currentGameState.Now + TimeSpan.FromSeconds(2);
                     }
                 }
@@ -852,9 +851,9 @@ namespace CrewChiefV4.Events
                 {
                     if ((!previousGameState.PitData.IsApproachingPitlane
                         && currentGameState.PitData.IsApproachingPitlane && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)
-                        // Here we need to make sure that the player has intended to go into the pit's sometimes this trows if we are getting in this zone while overtaking or just defending the line  
-                        || currentGameState.PitData.IsApproachingPitlane && CrewChief.gameDefinition.gameEnum == GameEnum.IRACING
-                        && currentGameState.Now > timeStartedAppoachingPitsCheck && currentGameState.ControlData.BrakePedal <= 0 && !currentGameState.PitData.OnOutLap)
+                        // Here we need to make sure that the player has intended to go into the pit's sometimes this trows if we are getting in this zone while overtaking or just defending the line.
+                        || (currentGameState.PitData.IsApproachingPitlane && CrewChief.gameDefinition.gameEnum == GameEnum.IRACING
+                        && currentGameState.Now > timeStartedAppoachingPitsCheck && currentGameState.ControlData.BrakePedal <= 0))
                     {
                         timeStartedAppoachingPitsCheck = DateTime.MaxValue;
                         timeSpeedInPitsWarning = currentGameState.Now;
@@ -875,7 +874,7 @@ namespace CrewChiefV4.Events
                     if (!previousGameState.PitData.IsApproachingPitlane
                         && currentGameState.PitData.IsApproachingPitlane && timeStartedAppoachingPitsCheck == DateTime.MaxValue)
                     {
-                        timeStartedAppoachingPitsCheck = currentGameState.Now + TimeSpan.FromSeconds(1);
+                        timeStartedAppoachingPitsCheck = currentGameState.Now + TimeSpan.FromSeconds(2);
                     }
                     // different logic for PCars2 pit-crew-ready checks
                     if (CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2 || CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2_NETWORK)

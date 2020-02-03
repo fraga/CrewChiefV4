@@ -762,17 +762,8 @@ namespace CrewChiefV4.iRacing
             //Console.WriteLine("LatAccel = " + shared.Telemetry.LatAccel.ToString());
             //Console.WriteLine("VertAccel = " + shared.Telemetry.VertAccel.ToString());
             //Console.WriteLine("LongAccel = " + shared.Telemetry.LongAccel.ToString());
+       
 
-            currentGameState.SessionData.DeltaTime.SetNextDeltaPoint(currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.SessionData.CompletedLaps,
-                (float)playerCar.Live.Speed, currentGameState.Now);
-
-            if (previousGameState != null)
-            {
-                String stoppedInLandmark = currentGameState.SessionData.trackLandmarksTiming.updateLandmarkTiming(currentGameState.SessionData.TrackDefinition,
-                    currentGameState.SessionData.SessionRunningTime, previousGameState.PositionAndMotionData.DistanceRoundTrack,
-                    currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.PositionAndMotionData.CarSpeed);
-                currentGameState.SessionData.stoppedInLandmark = currentGameState.PitData.InPitlane ? null : stoppedInLandmark;
-            }
 
             if (currentGameState.PitData.InPitlane)
             {
@@ -803,6 +794,19 @@ namespace CrewChiefV4.iRacing
             if (previousGameState != null && currentGameState.PitData.OnOutLap && previousGameState.PitData.InPitlane && !currentGameState.PitData.InPitlane)
             {
                 currentGameState.PitData.IsAtPitExit = true;
+            }
+
+            currentGameState.PitData.PitSpeedLimit = shared.SessionData.Track.TrackPitSpeedLimit;
+
+            currentGameState.SessionData.DeltaTime.SetNextDeltaPoint(currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.SessionData.CompletedLaps,
+                (float)playerCar.Live.Speed, currentGameState.Now, !currentGameState.PitData.InPitlane && !currentGameState.PitData.IsApproachingPitlane && !currentGameState.PitData.OnOutLap);
+
+            if (previousGameState != null)
+            {
+                String stoppedInLandmark = currentGameState.SessionData.trackLandmarksTiming.updateLandmarkTiming(currentGameState.SessionData.TrackDefinition,
+                    currentGameState.SessionData.SessionRunningTime, previousGameState.PositionAndMotionData.DistanceRoundTrack,
+                    currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.PositionAndMotionData.CarSpeed, currentGameState.SessionData.DeltaTime.currentDeltaPoint, currentGameState.carClass);
+                currentGameState.SessionData.stoppedInLandmark = currentGameState.PitData.InPitlane ? null : stoppedInLandmark;
             }
             if (playerCar.Live.HasCrossedSFLine)
             {
@@ -941,7 +945,7 @@ namespace CrewChiefV4.iRacing
                             float currentOpponentLapDistance = isInWorld && currentGameState.SessionData.TrackDefinition != null ? currentGameState.SessionData.TrackDefinition.trackLength * driver.Live.CorrectedLapDistance : 0;
                             float currentOpponentSpeed = isInWorld ? (float)driver.Live.Speed : 0;
                             //Console.WriteLine("lapdistance:" + currentOpponentLapDistance);
-                            currentOpponentData.DeltaTime.SetNextDeltaPoint(currentOpponentLapDistance, currentOpponentLapsCompleted, currentOpponentSpeed, currentGameState.Now);
+                            currentOpponentData.DeltaTime.SetNextDeltaPoint(currentOpponentLapDistance, currentOpponentLapsCompleted, currentOpponentSpeed, currentGameState.Now, driver.Live.TrackSurface != TrackSurfaces.AproachingPits && !shared.Telemetry.CarIdxOnPitRoad[driver.Id] && driver.Live.TrackSurface != TrackSurfaces.NotInWorld);
 
                             Boolean finishedAllottedRaceLaps = currentGameState.SessionData.SessionNumberOfLaps > 0 && currentGameState.SessionData.SessionNumberOfLaps == currentOpponentLapsCompleted;
                             Boolean finishedAllottedRaceTime = false;
@@ -993,8 +997,8 @@ namespace CrewChiefV4.iRacing
                                 currentOpponentData.trackLandmarksTiming = previousOpponentData.trackLandmarksTiming;
                                 String stoppedInLandmark = currentOpponentData.trackLandmarksTiming.updateLandmarkTiming(
                                     currentGameState.SessionData.TrackDefinition, currentGameState.SessionData.SessionRunningTime,
-                                    previousDistanceRoundTrack, currentOpponentData.DistanceRoundTrack, currentOpponentData.Speed);
-                                currentOpponentData.stoppedInLandmark = shared.Telemetry.CarIdxOnPitRoad[driver.Id] || !isInWorld || finishedAllottedRaceTime || finishedAllottedRaceLaps ? null : stoppedInLandmark;
+                                    previousDistanceRoundTrack, currentOpponentData.DistanceRoundTrack, currentOpponentData.Speed, currentOpponentData.DeltaTime.currentDeltaPoint, currentOpponentData.CarClass);
+                                currentOpponentData.stoppedInLandmark = shared.Telemetry.CarIdxOnPitRoad[driver.Id] || !isInWorld || finishedAllottedRaceTime || finishedAllottedRaceLaps || driver.Live.TrackSurface == TrackSurfaces.AproachingPits ? null : stoppedInLandmark;
                             }
                             if (currentGameState.SessionData.JustGoneGreen)
                             {
@@ -1064,7 +1068,7 @@ namespace CrewChiefV4.iRacing
                         entry.Value.Speed = 0;
                         entry.Value.stoppedInLandmark = null;
                         entry.Value.trackLandmarksTiming.cancelWaitingForLandmarkEnd();
-                        entry.Value.DeltaTime.SetNextDeltaPoint(0, entry.Value.CompletedLaps, 0, currentGameState.Now);
+                        entry.Value.DeltaTime.SetNextDeltaPoint(0, entry.Value.CompletedLaps, 0, currentGameState.Now, !entry.Value.InPits);
                         Console.WriteLine("Opponent " + entry.Value.DriverRawName + "(index " + entry.Key + ") has been inactive for " + opponentCleanupInterval + ", sending him back to pits");
                     }
                 }

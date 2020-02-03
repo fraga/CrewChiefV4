@@ -1969,13 +1969,13 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool enable_simple_incident_detection {
+        [global::System.Configuration.DefaultSettingValueAttribute("RACE_ONLY")]
+        public string enable_simple_incident_detection_listprop {
             get {
-                return ((bool)(this["enable_simple_incident_detection"]));
+                return ((string)(this["enable_simple_incident_detection_listprop"]));
             }
             set {
-                this["enable_simple_incident_detection"] = value;
+                this["enable_simple_incident_detection_listprop"] = value;
             }
         }
         
@@ -4268,6 +4268,18 @@ namespace CrewChiefV4.Properties {
             }
             set {
                 this["main_window_position"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2000")]
+        public int simple_incident_detection_report_delay {
+            get {
+                return ((int)(this["simple_incident_detection_report_delay"]));
+            }
+            set {
+                this["simple_incident_detection_report_delay"] = value;
             }
         }
     }

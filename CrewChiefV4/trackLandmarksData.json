@@ -5002,11 +5002,13 @@
 			]
 		},
 		{
-			"rf2TrackNames": ["RaceRfactor Barcelona 2013"],
+			"rf2TrackNames": [ "RaceRfactor Barcelona 2013" ],
 			"pcarsTrackName": "Circuit de Barcelona-Catalunya:Grand Prix",
 			"pcars2TrackName": "Barcelona_Catalunya:GP",
 			"accTrackName": "Barcelona:track config",
-			"trackLandmarks": [{
+			"irTrackName": "barcelona gp",
+			"trackLandmarks": [
+				{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 765,
 					"distanceRoundLapEnd": 875,
