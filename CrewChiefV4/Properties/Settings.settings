@@ -488,8 +488,8 @@
     <Setting Name="report_allowed_overtakes_under_yellow" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="enable_simple_incident_detection" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
+    <Setting Name="enable_simple_incident_detection_listprop" Type="System.String" Scope="User">
+      <Value Profile="(Default)">RACE_ONLY</Value>
     </Setting>
     <Setting Name="enable_yellow_flag_messages" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
@@ -1063,6 +1063,9 @@
     </Setting>
     <Setting Name="main_window_position" Type="System.Drawing.Point" Scope="User">
       <Value Profile="(Default)">20, 20</Value>
+    </Setting>
+    <Setting Name="simple_incident_detection_report_delay" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">2000</Value>
     </Setting>
   </Settings>
 </SettingsFile>

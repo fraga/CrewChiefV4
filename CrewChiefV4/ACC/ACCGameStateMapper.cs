@@ -758,20 +758,20 @@ namespace CrewChiefV4.ACC
                     (shared.acsGraphic.completedLaps == previousGameState.SessionData.CompletedLaps + 1 || ((lastSessionPhase == SessionPhase.Countdown)
                     && (currentGameState.SessionData.SessionPhase == SessionPhase.Green || currentGameState.SessionData.SessionPhase == SessionPhase.FullCourseYellow)));
                 */
+
+                currentGameState.SessionData.DeltaTime.SetNextDeltaPoint(distanceRoundTrack, currentGameState.SessionData.CompletedLaps, playerVehicle.speedMS, currentGameState.Now, !currentGameState.PitData.InPitlane);
+
                 if (previousGameState != null)
                 {
                     String stoppedInLandmark = currentGameState.SessionData.trackLandmarksTiming.updateLandmarkTiming(currentGameState.SessionData.TrackDefinition,
-                        currentGameState.SessionData.SessionRunningTime, previousGameState.PositionAndMotionData.DistanceRoundTrack, distanceRoundTrack, playerVehicle.speedMS);
+                        currentGameState.SessionData.SessionRunningTime, previousGameState.PositionAndMotionData.DistanceRoundTrack, distanceRoundTrack, playerVehicle.speedMS, currentGameState.SessionData.DeltaTime.currentDeltaPoint, currentGameState.carClass);
                     currentGameState.SessionData.stoppedInLandmark = shared.accGraphic.isInPitLane == 1 ? null : stoppedInLandmark;
                     if (currentGameState.SessionData.IsNewLap)
                     {
                         currentGameState.SessionData.trackLandmarksTiming.cancelWaitingForLandmarkEnd();
                     }
                 }
-
-                currentGameState.SessionData.DeltaTime.SetNextDeltaPoint(distanceRoundTrack, currentGameState.SessionData.CompletedLaps, playerVehicle.speedMS, currentGameState.Now);
-
-
+              
                 if (currentGameState.SessionData.SessionFastestLapTimeFromGamePlayerClass == -1 ||
                     currentGameState.SessionData.SessionFastestLapTimeFromGamePlayerClass > mapToFloatTime(playerVehicle.bestLapMS))
                 {
@@ -848,7 +848,7 @@ namespace CrewChiefV4.ACC
                                 currentOpponentSector = getCurrentSector(currentGameState.SessionData.TrackDefinition, currentOpponentLapDistance);
 
                                 currentOpponentData.DeltaTime.SetNextDeltaPoint(currentOpponentLapDistance, participantStruct.lapCount,
-                                    participantStruct.speedMS, currentGameState.Now);
+                                    participantStruct.speedMS, currentGameState.Now, participantStruct.isCarInPitline != 1);
 
                                 int currentOpponentLapsCompleted = participantStruct.lapCount;
 
@@ -951,7 +951,7 @@ namespace CrewChiefV4.ACC
                                     currentOpponentData.trackLandmarksTiming = previousOpponentData.trackLandmarksTiming;
                                     String stoppedInLandmark = currentOpponentData.trackLandmarksTiming.updateLandmarkTiming(
                                         currentGameState.SessionData.TrackDefinition, currentGameState.SessionData.SessionRunningTime,
-                                        previousDistanceRoundTrack, currentOpponentData.DistanceRoundTrack, currentOpponentData.Speed);
+                                        previousDistanceRoundTrack, currentOpponentData.DistanceRoundTrack, currentOpponentData.Speed, currentOpponentData.DeltaTime.currentDeltaPoint, currentOpponentData.CarClass);
                                     currentOpponentData.stoppedInLandmark = participantStruct.isCarInPitline == 1 ? null : stoppedInLandmark;
                                 }
                                 if (currentGameState.SessionData.JustGoneGreen)

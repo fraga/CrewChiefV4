@@ -139,10 +139,11 @@ namespace CrewChiefV4.Events
         private TimeSpan fcyStatusReminderMinTime = TimeSpan.FromSeconds(UserSettings.GetUserSettings().getInt("time_between_caution_period_status_reminders"));
 
         private Boolean reportYellowsInAllSectors = UserSettings.GetUserSettings().getBoolean("report_yellows_in_all_sectors");
-        private Boolean enableSimpleIncidentDetection = UserSettings.GetUserSettings().getBoolean("enable_simple_incident_detection");
+              
         private Boolean enableOpponentCrashMessages = UserSettings.GetUserSettings().getBoolean("enable_opponent_crash_messages");
-
         private Boolean enableBlueFlagMessages = UserSettings.GetUserSettings().getBoolean("enable_blue_flag_messages");
+
+        private int simpleIncidentReportDelay = UserSettings.GetUserSettings().getInt("simple_incident_detection_report_delay");
 
         private float maxDistanceToWarnOfLocalYellow = 300;    // metres - externalise? Is this sufficient? Make it speed-dependent?
         private float minDistanceToWarnOfLocalYellow = 50;    // metres - externalise? Is this sufficient? Make it speed-dependent?
@@ -202,6 +203,7 @@ namespace CrewChiefV4.Events
 
         public FlagsMonitor(AudioPlayer audioPlayer)
         {
+            Enum.TryParse(UserSettings.GetUserSettings().getString("enable_simple_incident_detection_listprop"), out simpleIncidentDetectionSessions);
             this.audioPlayer = audioPlayer;
         }
 
@@ -1092,39 +1094,57 @@ namespace CrewChiefV4.Events
                 }
             }
             // now check for stopped cars
-            if (currentGameState.SessionData.SessionType == SessionType.Race && enableSimpleIncidentDetection)
+            if (simpleIncidentDetectionSessions == SIMPLE_INCIDENT_DETECTION_SESSIONS.ALL_SESSIONS || 
+                (simpleIncidentDetectionSessions == SIMPLE_INCIDENT_DETECTION_SESSIONS.RACE_ONLY && currentGameState.SessionData.SessionType == SessionType.Race))
             {
                 if (waitingForCrashedDriverInCorner == null)
                 {
+
                     // get the first stopped car and his corner
                     foreach (KeyValuePair<String, OpponentData> entry in currentGameState.OpponentData)
                     {
                         String opponentId = entry.Key;
                         OpponentData opponent = entry.Value;
-                        String landmark = opponent.stoppedInLandmark;
-                        if (landmark != null && !landmark.Equals(currentGameState.SessionData.stoppedInLandmark))
+                        Boolean isApproaching = false;
+                        float distanceToIncident = float.MaxValue;
+                        if (opponent.DistanceRoundTrack > currentGameState.PositionAndMotionData.DistanceRoundTrack)
                         {
-                            // is this car in an interesting part of the track?
-                            Boolean isApproaching;
-                            if (opponent.DistanceRoundTrack > currentGameState.PositionAndMotionData.DistanceRoundTrack)
-                            {
-                                isApproaching = opponent.DistanceRoundTrack - currentGameState.PositionAndMotionData.DistanceRoundTrack < 1000;
-                            }
-                            else
-                            {
-                                isApproaching = opponent.DistanceRoundTrack -
-                                    (currentGameState.PositionAndMotionData.DistanceRoundTrack - currentGameState.SessionData.TrackDefinition.trackLength) < 1000;
-                            }
+                            distanceToIncident = opponent.DistanceRoundTrack - currentGameState.PositionAndMotionData.DistanceRoundTrack;
+                        }
+                        else
+                        {
+                            distanceToIncident = opponent.DistanceRoundTrack -
+                                (currentGameState.PositionAndMotionData.DistanceRoundTrack - currentGameState.SessionData.TrackDefinition.trackLength);
+
+                        }
+                        isApproaching = distanceToIncident < 1000;
+                        String landmark = opponent.stoppedInLandmark;
+                        // is this car in an interesting part of the track?     
+                        if (landmark != null && !landmark.Equals(currentGameState.SessionData.stoppedInLandmark))
+                        {                                                 
                             // are we fighting with him and can we call him by name?
-                            Boolean isInteresting = Math.Abs(currentGameState.SessionData.ClassPosition - opponent.ClassPosition) <= 2 &&
-                                (AudioPlayer.canReadName(opponent.DriverRawName) || opponent.ClassPosition <= folderPositionHasGoneOff.Length);
+                            Boolean isInteresting = false;
+                            if (CarData.IsCarClassEqual(currentGameState.carClass, opponent.CarClass) && currentGameState.SessionData.ClassPosition < 1000 && opponent.ClassPosition < 1000)
+                            {
+                                isInteresting = Math.Abs(currentGameState.SessionData.ClassPosition - opponent.ClassPosition) <= 2 &&
+                                (AudioPlayer.canReadName(opponent.DriverRawName) || opponent.ClassPosition <= folderPositionHasGoneOff.Length) && 
+                                currentGameState.SessionData.SessionType == SessionType.Race; // only call out interesting incidents in race sessions 
+                            }
                             DateTime incidentWarningTime = DateTime.MinValue;
                             if ((isApproaching || isInteresting) &&
                                 (!incidentWarnings.TryGetValue(landmark, out incidentWarningTime) || incidentWarningTime + incidentRepeatFrequency < currentGameState.Now))
                             {
                                 waitingForCrashedDriverInCorner = landmark;
                                 driversCrashedInCorner.Add(opponentId);
-                                waitingForCrashedDriverInCornerFinishTime = currentGameState.Now + TimeSpan.FromSeconds(4);
+                                // if the gap to the incident is in front and the incident delay is set higher set the timer so we warn next update interval. 
+                                if (Math.Abs(distanceToIncident) < 200 && isApproaching)
+                                {
+                                    waitingForCrashedDriverInCornerFinishTime = currentGameState.Now;
+                                }
+                                else
+                                {
+                                    waitingForCrashedDriverInCornerFinishTime = currentGameState.Now + TimeSpan.FromMilliseconds(simpleIncidentReportDelay);
+                                }                                
                                 break;
                             }
                         }
@@ -1160,9 +1180,9 @@ namespace CrewChiefV4.Events
                         // report pileup
                         if (CrewChief.yellowFlagMessagesEnabled)
                         {
-                            audioPlayer.playMessageImmediately(new QueuedMessage("pileup_in_corner", 6, secondsDelay: 3,
+                            audioPlayer.playMessageImmediately(new QueuedMessage("pileup_in_corner", 6, secondsDelay: 0,
                                 messageFragments: MessageContents(folderPileupInCornerIntro, "corners/" +
-                                waitingForCrashedDriverInCorner), abstractEvent: this, type: SoundType.IMPORTANT_MESSAGE, priority: 0));
+                                waitingForCrashedDriverInCorner), abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 0));
                         }
                     }
                     else
@@ -1205,7 +1225,7 @@ namespace CrewChiefV4.Events
                             if (CrewChief.yellowFlagMessagesEnabled)
                             {
                                 audioPlayer.playMessageImmediately(new QueuedMessage("incident_corner_with_driver", 4,
-                                    messageFragments: messageContents, abstractEvent: this, type: SoundType.IMPORTANT_MESSAGE, priority: 0));
+                                    messageFragments: messageContents, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 0));
                             }
                         }
                         else if (positionToRead != -1)
@@ -1213,7 +1233,7 @@ namespace CrewChiefV4.Events
                             if (CrewChief.yellowFlagMessagesEnabled)
                             {
                                 audioPlayer.playMessageImmediately(new QueuedMessage("incident_corner_with_driver", 4,
-                                    messageFragments: MessageContents(folderPositionHasGoneOffIn[positionToRead - 1], "corners/" + waitingForCrashedDriverInCorner), abstractEvent: this, type: SoundType.IMPORTANT_MESSAGE, priority: 0));
+                                    messageFragments: MessageContents(folderPositionHasGoneOffIn[positionToRead - 1], "corners/" + waitingForCrashedDriverInCorner), abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 0));
                             }
                         }
                         else
@@ -1222,7 +1242,7 @@ namespace CrewChiefV4.Events
                             if (CrewChief.yellowFlagMessagesEnabled)
                             {
                                 audioPlayer.playMessageImmediately(new QueuedMessage("incident_corner", 5,
-                                    messageFragments: MessageContents(folderIncidentInCornerIntro, "corners/" + waitingForCrashedDriverInCorner), abstractEvent: this, type: SoundType.IMPORTANT_MESSAGE, priority: 0));
+                                    messageFragments: MessageContents(folderIncidentInCornerIntro, "corners/" + waitingForCrashedDriverInCorner), abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 0));
                             }
                         }
                     }

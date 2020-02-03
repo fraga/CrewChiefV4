@@ -24,7 +24,20 @@ namespace CrewChiefV4.iRacing
             }
             return 0;
         }
+        public static float ParseTrackPitSpeedLimit(string value)
+        {
+            // value = "50 kph"
+            float length = 0;
 
+            var indexOfKph = value.IndexOf("kph");
+            if (indexOfKph > 0) value = value.Substring(0, indexOfKph);
+
+            if (float.TryParse(value, NumberStyles.AllowDecimalPoint | NumberStyles.AllowTrailingWhite, CultureInfo.InvariantCulture, out length))
+            {
+                return length;
+            }
+            return 0;
+        }
         public static int ParseInt(string value, int @default = 0)
         {
             int val;

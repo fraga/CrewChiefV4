@@ -33,7 +33,7 @@ namespace CrewChiefV4.iRacing
         public string Category { get; set; }
         public string TrackTypeString { get; set; }
         public TrackTypes TrackType { get; set; }
-        public string TrackPitSpeedLimit { get; set; }
+        public float TrackPitSpeedLimit { get; set; }
         public int FormationLapCount { get; set; }
         public float TrackNorthOffset { get; set; }
         public static double ConvertToRadians(double angle)
@@ -51,7 +51,7 @@ namespace CrewChiefV4.iRacing
             track.NightMode = YamlParser.Parse(sessionString, "WeekendInfo:NightMode:") == "1";
             track.Category = YamlParser.Parse(sessionString, "WeekendInfo:Category:");
             track.TrackTypeString = YamlParser.Parse(sessionString, "WeekendInfo:TrackType:");
-            track.TrackPitSpeedLimit = YamlParser.Parse(sessionString, "WeekendInfo:TrackPitSpeedLimit:");
+            track.TrackPitSpeedLimit = Parser.ParseTrackPitSpeedLimit(YamlParser.Parse(sessionString, "WeekendInfo:TrackPitSpeedLimit:")) / 3.6f;
             if (track.TrackTypeString.Equals("road course"))
             {
                 track.TrackType = TrackTypes.RoadCourse;
