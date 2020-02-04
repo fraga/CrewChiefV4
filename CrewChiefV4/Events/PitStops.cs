@@ -529,6 +529,11 @@ namespace CrewChiefV4.Events
                         timeOfDisengageCheck = currentGameState.Now + TimeSpan.FromSeconds(2);
                     }
                 }
+                // make sure we reset the disengage timer if we left the pits and disabled the limiter in time.
+                if (timeOfDisengageCheck != DateTime.MaxValue && currentGameState.PitData.limiterStatus == PitData.LimiterStatus.INACTIVE && !currentGameState.PitData.InPitlane)
+                {
+                    timeOfDisengageCheck = DateTime.MaxValue;
+                }
             }
             else if (previousGameState != null 
                 && currentGameState.PitData.limiterStatus == PitData.LimiterStatus.NOT_AVAILABLE
