@@ -5007,7 +5007,7 @@
 			]
 		},
 		{
-			"rf2TrackNames": ["RaceRfactor Barcelona 2013"],
+			"rf2TrackNames": [ "RaceRfactor Barcelona 2013" ],
 			"pcarsTrackName": "Circuit de Barcelona-Catalunya:Grand Prix",
 			"pcars2TrackName": "Barcelona_Catalunya:GP",
 			"accTrackName": "Barcelona:track config",

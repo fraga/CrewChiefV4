@@ -694,13 +694,7 @@ namespace CrewChiefV4.iRacing
                 }               
             }
             currentGameState.PitData.JumpedToPits = previousGameState != null && currentGameState.PitData.TowedToPits == PitData.TowDetection.TowInPitStall && previousGameState.PitData.TowedToPits == PitData.TowDetection.TowNotInWorld;
-
-            if (currentGameState.PitData.JumpedToPits)
-            {
-                Console.WriteLine("currentGameState.PitData.JumpedToPits = " + currentGameState.PitData.JumpedToPits);
-            }
-            //currentGameState.PitData.IsApproachingPitlane = playerCar.Live.TrackSurface == TrackSurfaces.AproachingPits && !currentGameState.PitData.InPitlane && currentGameState.SessionData.HasCompletedSector2ThisLap;
-                        
+      
             currentGameState.PitData.IsInGarage = shared.Telemetry.IsInGarage;
 
             currentGameState.PitData.IsTeamRacing = shared.SessionData.IsTeamRacing;
@@ -795,6 +789,8 @@ namespace CrewChiefV4.iRacing
             {
                 currentGameState.PitData.IsAtPitExit = true;
             }
+
+            currentGameState.PitData.PitSpeedLimit = shared.SessionData.Track.TrackPitSpeedLimit;
 
             currentGameState.SessionData.DeltaTime.SetNextDeltaPoint(currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.SessionData.CompletedLaps,
                 (float)playerCar.Live.Speed, currentGameState.Now, !currentGameState.PitData.InPitlane && !currentGameState.PitData.IsApproachingPitlane && !currentGameState.PitData.OnOutLap);
