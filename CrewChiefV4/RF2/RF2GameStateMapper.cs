@@ -2015,7 +2015,7 @@ namespace CrewChiefV4.rFactor2
 
             // ------------------------
             // Chart telemetry data.
-            if (CrewChief.recordChartTelemetryDuringRace || csd.SessionType != SessionType.Race))
+            if (CrewChief.recordChartTelemetryDuringRace || csd.SessionType != SessionType.Race)
             {
                 cgs.EngineData.Gear = playerTelemetry.mGear;
 
