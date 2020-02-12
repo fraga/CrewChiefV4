@@ -60,7 +60,7 @@ namespace CrewChiefV4
 
         private Boolean turnSpotterOffImmediatelyOnFCY = UserSettings.GetUserSettings().getBoolean("fcy_stop_spotter_immediately");
 
-        public static bool switchOffChartTelemetryDuringRace = UserSettings.GetUserSettings().getBoolean("disable_chart_telemetry_in_race_session");
+        public static bool recordChartTelemetryDuringRace = UserSettings.GetUserSettings().getBoolean("enable_chart_telemetry_in_race_session");
 
         public static int intervalWhenCollectionTelemetry = UserSettings.GetUserSettings().getInt("update_interval_when_collecting_telemetry");
 
@@ -160,7 +160,7 @@ namespace CrewChiefV4
             CrewChief.forceSingleClass = UserSettings.GetUserSettings().getBoolean("force_single_class");
             CrewChief.maxUnknownClassesForAC = UserSettings.GetUserSettings().getInt("max_unknown_car_classes_for_assetto");
             CrewChief.intervalWhenCollectionTelemetry = UserSettings.GetUserSettings().getInt("update_interval_when_collecting_telemetry");
-            CrewChief.switchOffChartTelemetryDuringRace = UserSettings.GetUserSettings().getBoolean("disable_chart_telemetry_in_race_session");
+            CrewChief.recordChartTelemetryDuringRace = UserSettings.GetUserSettings().getBoolean("enable_chart_telemetry_in_race_session");
         }
 
         private void clearAndReloadEvents()
@@ -824,7 +824,7 @@ namespace CrewChiefV4
                         int interval = timeInterval;
                         if (useTelemetryIntervalWhereApplicable
                             && CrewChief.currentGameState != null 
-                            && (!switchOffChartTelemetryDuringRace || CrewChief.currentGameState.SessionData.SessionType != SessionType.Race))
+                            && (recordChartTelemetryDuringRace || CrewChief.currentGameState.SessionData.SessionType != SessionType.Race))
                         {
                             interval = CrewChief.intervalWhenCollectionTelemetry;
                         }

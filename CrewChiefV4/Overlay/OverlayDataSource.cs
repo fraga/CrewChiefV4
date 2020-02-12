@@ -430,7 +430,7 @@ namespace CrewChiefV4.Overlay
 
         public static void addIRacingData(GameStateData gameState)
         {
-            if (CrewChief.switchOffChartTelemetryDuringRace && gameState.SessionData.SessionType == SessionType.Race)
+            if (!CrewChief.recordChartTelemetryDuringRace && gameState.SessionData.SessionType == SessionType.Race)
             {
                 return;
             }
@@ -523,7 +523,7 @@ namespace CrewChiefV4.Overlay
 
         public static void addGameData(GameStateData gameState)
         {
-            if (CrewChief.switchOffChartTelemetryDuringRace && gameState.SessionData.SessionType == SessionType.Race)
+            if (!CrewChief.recordChartTelemetryDuringRace && gameState.SessionData.SessionType == SessionType.Race)
             {
                 return;
             }
