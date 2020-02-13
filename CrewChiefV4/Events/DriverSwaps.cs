@@ -53,9 +53,9 @@ namespace CrewChiefV4.Events
             {
                 audioPlayer.playMessage(new QueuedMessage(folderEndOfDriverStintReminder, 0));
             }
-            else if (!currentGameState.PitData.InPitlane && currentGameState.PitData.DriverStintSecondsRemaining > 0)
+            else if (!playedStintOverThisLap && !currentGameState.PitData.InPitlane && currentGameState.PitData.DriverStintSecondsRemaining > 0)
             {
-                if (currentGameState.SessionData.IsNewLap)
+                if (currentGameState.SessionData.IsNewLap && currentGameState.SessionData.PlayerLapTimeSessionBest > 0)
                 {
                     // check if we'll need to swap at the end of this lap
                     if (currentGameState.PitData.DriverStintSecondsRemaining < currentGameState.SessionData.PlayerLapTimeSessionBest + 30)
@@ -71,13 +71,9 @@ namespace CrewChiefV4.Events
                         Console.WriteLine("Total driver seat time expiring - pit this lap");
                         audioPlayer.playMessage(new QueuedMessage(folderEndOfTotalDriverStint, 0));
                     }
-                    else
-                    {
-                        playedStintOverThisLap = false;
-                    }
                 }
                 // checks for intervals
-                if (! played15MinutesLeftInStint &&
+                if (!played15MinutesLeftInStint &&
                     currentGameState.PitData.DriverStintSecondsRemaining < 960 && currentGameState.PitData.DriverStintSecondsRemaining > 930)
                 {
                     played15MinutesLeftInStint = true;
