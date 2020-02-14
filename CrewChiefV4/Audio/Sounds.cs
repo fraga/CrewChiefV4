@@ -1149,11 +1149,16 @@ namespace CrewChiefV4.Audio
                         }
                     }
                 }
+                initialised = true;
             }
             catch (DirectoryNotFoundException)
             {
-            }            
-            initialised = true;
+                Console.WriteLine("Unable to find sounds folder for sound set " + this.soundFolder.FullName);
+            } 
+            catch (Exception e)
+            {
+                Console.WriteLine("Failed to load sounds for sound set " + this.soundFolder.FullName + " exception: " + e.Message);
+            }
         }
         
         public SingleSound getSingleSound(Boolean preferPersonalised)
