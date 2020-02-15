@@ -1762,7 +1762,7 @@ namespace CrewChiefV4
             {
                 if (CrewChief.gameDefinition.gameEnum == GameEnum.ACC)
                 {
-                    MessageBox.Show("The data exposed by ACC has synchronization issues and inaccuracies (bugs). These, along with the requirement to combine shared memory " +
+                    MessageBox.Show("The data exposed by ACC has numerous data synchronization issues and inaccuracies (bugs). These, along with the requirement to combine shared memory " +
                         "and UDP data, present significant technical challenges. \n\n" +
                         "The Crew Chief team have been unable (despite our best efforts) to " +
                         "implement effective work-arounds for these issues, resulting in misleading and inaccurate information from the app. " +
