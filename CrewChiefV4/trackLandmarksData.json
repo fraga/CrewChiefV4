@@ -3635,7 +3635,7 @@
 			]
 		},
 		{
-			"rf2TrackNames": ["RaceRfactor Monaco 2013"],
+			"rf2TrackNames": ["RaceRfactor Monaco 2013", "Circuit d'Azur"],
 			"trackLandmarks": [{
 					"landmarkName": "sainte_devote",
 					"distanceRoundLapStart": 150,
