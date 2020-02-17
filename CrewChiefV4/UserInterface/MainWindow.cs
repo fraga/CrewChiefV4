@@ -1760,6 +1760,16 @@ namespace CrewChiefV4
             IsAppRunning = !IsAppRunning;
             if (_IsAppRunning)
             {
+                if (CrewChief.gameDefinition.gameEnum == GameEnum.ACC)
+                {
+                    MessageBox.Show("The data exposed by ACC has numerous data synchronization issues and inaccuracies (bugs). These, along with the requirement to combine shared memory " +
+                        "and UDP data, present significant technical challenges. \n\n" +
+                        "Despite our best efforts the Crew Chief team have been unable to implement effective work-arounds for these issues, " +
+                        "resulting in misleading and inaccurate information from the app. " +
+                        "We aren't planning any further work to improve ACC integration and it's likely that ACC support will be removed entirely in a future version. \n\n" +
+                        "We advise using ACC's built in crew chief / spotter", "ACC Support deprecated");
+                }
+
                 startApplicationButton.Enabled = false;
                 uiSyncAppStart();
 

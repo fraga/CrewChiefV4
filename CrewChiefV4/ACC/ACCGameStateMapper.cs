@@ -396,21 +396,7 @@ namespace CrewChiefV4.ACC
                 currentGameState.SessionData.SessionNumberOfLaps = numberOfLapsInSession;
                 currentGameState.SessionData.LeaderHasFinishedRace = false;
                 currentGameState.SessionData.SessionStartTime = currentGameState.Now;
-                currentGameState.PitData.HasMandatoryPitStop = shared.accStatic.PitWindowStart < shared.accStatic.PitWindowEnd && (shared.accStatic.PitWindowStart > 0 || shared.accStatic.PitWindowEnd > 0);
-                if (currentGameState.PitData.HasMandatoryPitStop)
-                {
-                    if (currentGameState.SessionData.SessionHasFixedTime)
-                    {
-                        currentGameState.PitData.PitWindowStart = shared.accStatic.PitWindowStart / 60000f;
-                        currentGameState.PitData.PitWindowEnd = shared.accStatic.PitWindowEnd / 60000f;
-                    }
-                    else
-                    {
-                        currentGameState.PitData.PitWindowStart = shared.accStatic.PitWindowStart - 1;
-                        currentGameState.PitData.PitWindowEnd = shared.accStatic.PitWindowEnd - 1;
-                    }
-                }
-
+                
                 if (currentGameState.SessionData.SessionHasFixedTime)
                 {
                     currentGameState.SessionData.SessionTotalRunTime = sessionTimeRemaining;
@@ -549,20 +535,8 @@ namespace CrewChiefV4.ACC
                         currentGameState.TyreData.TyreTypeName = shared.accGraphic.tyreCompound;
                         tyreTempThresholds = getTyreTempThresholds(currentGameState.carClass, currentGameState.TyreData.TyreTypeName);
 
-                        currentGameState.PitData.HasMandatoryPitStop = shared.accStatic.PitWindowStart < shared.accStatic.PitWindowEnd && (shared.accStatic.PitWindowStart > 0 || shared.accStatic.PitWindowEnd > 0);
-                        if (currentGameState.PitData.HasMandatoryPitStop)
-                        {
-                            if (currentGameState.SessionData.SessionHasFixedTime)
-                            {
-                                currentGameState.PitData.PitWindowStart = shared.accStatic.PitWindowStart / 60000f;
-                                currentGameState.PitData.PitWindowEnd = shared.accStatic.PitWindowEnd / 60000f;
-                            }
-                            else
-                            {
-                                currentGameState.PitData.PitWindowStart = shared.accStatic.PitWindowStart - 1;
-                                currentGameState.PitData.PitWindowEnd = shared.accStatic.PitWindowEnd - 1;
-                            }
-                        }
+                        currentGameState.PitData.PitWindowStart = - 1;
+                        currentGameState.PitData.PitWindowEnd = - 1;
 
                         if (previousGameState != null)
                         {
@@ -586,9 +560,6 @@ namespace CrewChiefV4.ACC
                         }
                         System.Diagnostics.Debug.WriteLine("EventIndex " + currentGameState.SessionData.EventIndex);
                         System.Diagnostics.Debug.WriteLine("SessionIteration " + currentGameState.SessionData.SessionIteration);
-                        System.Diagnostics.Debug.WriteLine("HasMandatoryPitStop " + currentGameState.PitData.HasMandatoryPitStop);
-                        System.Diagnostics.Debug.WriteLine("PitWindowStart " + currentGameState.PitData.PitWindowStart);
-                        System.Diagnostics.Debug.WriteLine("PitWindowEnd " + currentGameState.PitData.PitWindowEnd);
                         System.Diagnostics.Debug.WriteLine("NumCarsAtStartOfSession " + currentGameState.SessionData.NumCarsOverallAtStartOfSession);
                         System.Diagnostics.Debug.WriteLine("SessionNumberOfLaps " + currentGameState.SessionData.SessionNumberOfLaps);
                         System.Diagnostics.Debug.WriteLine("SessionRunTime " + currentGameState.SessionData.SessionTotalRunTime.ToString("0.000"));
@@ -613,11 +584,6 @@ namespace CrewChiefV4.ACC
                     currentGameState.SessionData.CompletedLaps = previousGameState.SessionData.CompletedLaps;
 
                     currentGameState.OpponentData = previousGameState.OpponentData;
-                    currentGameState.PitData.PitWindowStart = previousGameState.PitData.PitWindowStart;
-                    currentGameState.PitData.PitWindowEnd = previousGameState.PitData.PitWindowEnd;
-                    currentGameState.PitData.HasMandatoryPitStop = previousGameState.PitData.HasMandatoryPitStop;
-                    currentGameState.PitData.HasMandatoryTyreChange = previousGameState.PitData.HasMandatoryTyreChange;
-                    currentGameState.PitData.MandatoryTyreChangeRequiredTyreType = previousGameState.PitData.MandatoryTyreChangeRequiredTyreType;
                     currentGameState.PitData.IsRefuellingAllowed = previousGameState.PitData.IsRefuellingAllowed;
                     currentGameState.PitData.MaxPermittedDistanceOnCurrentTyre = previousGameState.PitData.MaxPermittedDistanceOnCurrentTyre;
                     currentGameState.PitData.MinPermittedDistanceOnCurrentTyre = previousGameState.PitData.MinPermittedDistanceOnCurrentTyre;
@@ -1152,45 +1118,8 @@ namespace CrewChiefV4.ACC
                 currentGameState.PitData.IsAtPitExit = true;
             }
 
-            if (currentGameState.PitData.HasMandatoryPitStop)
-            {
-                float lapsOrMinutes;
-                if (currentGameState.SessionData.SessionHasFixedTime)
-                {
-                    lapsOrMinutes = (float) Math.Floor(currentGameState.SessionData.SessionRunningTime / 60f);
-                }
-                else
-                {
-                    lapsOrMinutes = playerVehicle.lapCount;
-                }
-                currentGameState.PitData.PitWindow = mapToPitWindow(lapsOrMinutes, currentGameState.PitData.InPitlane,
-                    currentGameState.PitData.PitWindowStart, currentGameState.PitData.PitWindowEnd, shared.accGraphic.MandatoryPitDone == 1);
-            }
-            else
-            {
-                currentGameState.PitData.PitWindow = PitWindow.Unavailable;
-            }
-
-            currentGameState.PitData.IsMakingMandatoryPitStop = (currentGameState.PitData.PitWindow == PitWindow.StopInProgress);
-            if (previousGameState != null)
-            {
-                currentGameState.PitData.MandatoryPitStopCompleted = previousGameState.PitData.MandatoryPitStopCompleted || shared.accGraphic.MandatoryPitDone == 1;
-            }
-
-            if (shared.accGraphic.driverStintTimeLeft > 0 && shared.accGraphic.sessionTimeLeft > shared.accGraphic.driverStintTimeLeft)
-            {
-                currentGameState.PitData.DriverStintSecondsRemaining = shared.accGraphic.driverStintTimeLeft / 1000;
-                currentGameState.PitData.PitWindow = PitWindow.Disabled;
-                currentGameState.PitData.PitWindowStart = 0;
-                currentGameState.PitData.PitWindowEnd = 0;
-            }
-            if (shared.accGraphic.driverStintTotalTimeLeft > 0 && shared.accGraphic.sessionTimeLeft > shared.accGraphic.driverStintTotalTimeLeft)
-            {
-                currentGameState.PitData.DriverStintTotalSecondsRemaining = shared.accGraphic.driverStintTotalTimeLeft / 1000;
-                currentGameState.PitData.PitWindow = PitWindow.Disabled;
-                currentGameState.PitData.PitWindowStart = 0;
-                currentGameState.PitData.PitWindowEnd = 0;
-            }
+            // always ignore pit window data as it's unreliable
+            currentGameState.PitData.PitWindow = PitWindow.Unavailable;
 
             //damage data
             if (shared.accChief.isInternalMemoryModuleLoaded == 1)
@@ -1692,30 +1621,6 @@ namespace CrewChiefV4.ACC
                 return DamageLevel.TRIVIAL;
             }
             return DamageLevel.NONE;
-        }
-
-        private PitWindow mapToPitWindow(float lapsOrMinutes, Boolean isInPits, float pitWindowStart, float pitWindowEnd, Boolean mandatoryPitDone)
-        {
-            if (lapsOrMinutes < pitWindowStart && lapsOrMinutes > pitWindowEnd)
-            {
-                return PitWindow.Closed;
-            }
-            if (mandatoryPitDone)
-            {
-                return PitWindow.Completed;
-            }
-            else if (lapsOrMinutes >= pitWindowStart && lapsOrMinutes <= pitWindowEnd)
-            {
-                return PitWindow.Open;
-            }
-            else if (isInPits && lapsOrMinutes >= pitWindowStart && lapsOrMinutes <= pitWindowEnd)
-            {
-                return PitWindow.StopInProgress;
-            }
-            else
-            {
-                return PitWindow.Unavailable;
-            }
         }
 
         private DamageLevel mapToAeroDamageLevel(float aeroDamage)
