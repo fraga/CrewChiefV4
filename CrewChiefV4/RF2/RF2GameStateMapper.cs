@@ -152,6 +152,10 @@ namespace CrewChiefV4.rFactor2
             if (RF2GameStateMapper.pluginVerified)
                 return;
 
+            var failureHelpMsg = ".\nMake sure you have \"Update game plugins on startup\" option enabled."
+                + "\nAlternatively, visit https://forum.studio-397.com/index.php?threads/crew-chief-v4-5-with-rfactor-2-support.54421/ "
+                + "to download and update plugin manually.";
+
             // Only verify once.
             RF2GameStateMapper.pluginVerified = true;
 
@@ -161,7 +165,7 @@ namespace CrewChiefV4.rFactor2
             var versionParts = versionStr.Split('.');
             if (versionParts.Length != 4)
             {
-                Console.WriteLine("Corrupt or leaked rFactor 2 Shared Memory.  Version string: " + versionStr);
+                Console.WriteLine("Corrupt or leaked rFactor 2 Shared Memory.  Version string: " + versionStr + failureHelpMsg);
                 return;
             }
 
@@ -173,7 +177,7 @@ namespace CrewChiefV4.rFactor2
                 int versionPart = 0;
                 if (!int.TryParse(versionParts[i], out versionPart))
                 {
-                    Console.WriteLine("Corrupt or leaked rFactor 2 Shared Memory version.  Version string: " + versionStr);
+                    Console.WriteLine("Corrupt or leaked rFactor 2 Shared Memory version.  Version string: " + versionStr + failureHelpMsg);
                     return;
                 }
 
@@ -183,7 +187,7 @@ namespace CrewChiefV4.rFactor2
             }
 
             if (shared.extended.is64bit == 0)
-                Console.WriteLine("Only 64bit version of rFactor 2 is supported.");
+                Console.WriteLine("Only 64bit version of rFactor 2 is supported.   Plugin version is:"  + versionStr + failureHelpMsg);
             else if (smVer < minVer)
             {
                 var minVerStr = string.Join(".", this.minimumSupportedVersionParts);
@@ -191,7 +195,7 @@ namespace CrewChiefV4.rFactor2
                     + versionStr
                     + "  Minimum supported version is: "
                     + minVerStr
-                    + "  Please update rFactor2SharedMemoryMapPlugin64.dll";
+                    + "  Please update rFactor2SharedMemoryMapPlugin64.dll" + failureHelpMsg;
                 Console.WriteLine(msg);
             }
             else
