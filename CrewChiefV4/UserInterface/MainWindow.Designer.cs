@@ -413,6 +413,7 @@ namespace CrewChiefV4
             "assetto_32_bit",
             "assetto_64_bit",
             "automobilista",
+            "AMS2",
             "f1_2018",
             "ftruck",
             "gamestockcar",

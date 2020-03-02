@@ -4282,5 +4282,53 @@ namespace CrewChiefV4.Properties {
                 this["simple_incident_detection_report_delay"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("4.4")]
+        public float ams2_spotter_car_length {
+            get {
+                return ((float)(this["ams2_spotter_car_length"]));
+            }
+            set {
+                this["ams2_spotter_car_length"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("ams2.exe")]
+        public string ams2_launch_exe {
+            get {
+                return ((string)(this["ams2_launch_exe"]));
+            }
+            set {
+                this["ams2_launch_exe"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ams2_launch_params {
+            get {
+                return ((string)(this["ams2_launch_params"]));
+            }
+            set {
+                this["ams2_launch_params"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool launch_ams2 {
+            get {
+                return ((bool)(this["launch_ams2"]));
+            }
+            set {
+                this["launch_ams2"] = value;
+            }
+        }
     }
 }

@@ -371,6 +371,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.11.0.0: Initial Automobilista 2 support (work in progress); ACC - removed pit window messages; ACC - added deprecation warning
+
 Version 4.10.0.9: Better handling of corrupted settings files on startup; improved detection of on-track incidents; R3E - tweaked suspension damage thresholds; iRacing - improved session state detection when racing against AI; iRacing - fix pit limiter warnings
 
 Version 4.10.0.8: Fixed a couple more start up crashes; fix some queuing issues in more complex rally-style pace notes; RF2 - added Nurburgring corner mappings; R3E - work around some odd behaviour in the pit menu for races with more than one pitstop; a few minor tweaks and fixes
