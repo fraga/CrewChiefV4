@@ -139,6 +139,13 @@
     <Compile Include="ACS\ACSGameStateMapper.cs" />
     <Compile Include="ACS\ACSSharedMemoryReader.cs" />
     <Compile Include="ACS\ACSSpotter.cs" />
+    <Compile Include="AMS2\enums.cs" />
+    <Compile Include="AMS2\AMS2GameStateMapper.cs" />
+    <Compile Include="AMS2\AMS2SharedMemoryReader.cs" />
+    <Compile Include="AMS2\AMS2Spotter.cs" />
+    <Compile Include="AMS2\AMS2Struct.cs" />
+    <Compile Include="AMS2\AMS2UDPreader.cs" />
+    <Compile Include="AMS2\AMS2UDPTelemetryDataStruct.cs" />
     <Compile Include="Audio\BackgroundPlayer.cs" />
     <Compile Include="Audio\MediaPlayerBackgroundPlayer.cs" />
     <Compile Include="Audio\NAudioBackgroundPlayerWasapi.cs" />

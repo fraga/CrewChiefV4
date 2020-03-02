@@ -1067,5 +1067,17 @@
     <Setting Name="simple_incident_detection_report_delay" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">2000</Value>
     </Setting>
+    <Setting Name="ams2_spotter_car_length" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">4.4</Value>
+    </Setting>
+    <Setting Name="ams2_launch_exe" Type="System.String" Scope="User">
+      <Value Profile="(Default)">ams2.exe</Value>
+    </Setting>
+    <Setting Name="ams2_launch_params" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="launch_ams2" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

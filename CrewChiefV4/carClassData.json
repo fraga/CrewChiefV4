@@ -531,6 +531,7 @@
 			"carClassEnum": "FF",
 			"raceroomClassIds": [253],
 			"pCarsClassNames": ["F5", "FF"],
+			"ams2ClassNames": ["F-Trainer"],
 			"timesInHundredths": true,
 			"enabledMessageTypes": "TYRE_TEMPS, FUEL, LOCKING_AND_SPINNING",
 			"allMembersAreRWD": true
@@ -786,6 +787,7 @@
 		{
 			"carClassEnum": "V8_SUPERCAR",
 			"pCarsClassNames": ["V8 Supercars"],
+			"ams2ClassNames": ["SuperV8"],
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL",
 			"allMembersAreRWD": true
@@ -934,6 +936,7 @@
 		{
 			"carClassEnum": "STOCK_V8",
 			"rf1ClassNames": ["SupV8"],
+			"ams2ClassNames": ["StockCarV8"],
 			"maxSafeWaterTemp": 120,
 			"maxSafeOilTemp": 125,
 			"timesInHundredths": true,

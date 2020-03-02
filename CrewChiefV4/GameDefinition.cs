@@ -8,12 +8,14 @@ namespace CrewChiefV4
 {
     public enum GameEnum
     {
-        RACE_ROOM, PCARS2, PCARS_64BIT, PCARS_32BIT, PCARS_NETWORK, PCARS2_NETWORK, RF1, ASSETTO_64BIT, ASSETTO_32BIT, RF2_64BIT, IRACING, F1_2018, F1_2019, ACC, UNKNOWN
+        RACE_ROOM, PCARS2, PCARS_64BIT, PCARS_32BIT, PCARS_NETWORK, PCARS2_NETWORK, RF1, ASSETTO_64BIT, ASSETTO_32BIT, RF2_64BIT, IRACING, F1_2018, F1_2019, ACC, AMS2, AMS2_NETWORK, UNKNOWN
     }
     public class GameDefinition
     {
         public static GameDefinition pCars64Bit = new GameDefinition(GameEnum.PCARS_64BIT, "pcars_64_bit", "pCARS64",
             "CrewChiefV4.PCars.PCarsSpotterv2", "pcars64_launch_exe", "pcars64_launch_params", "launch_pcars", new String[] { "pCARS2", "pCARS2Gld", "pCARS2QA", "pCARS2AVX" }, false);
+        public static GameDefinition AMS2 = new GameDefinition(GameEnum.AMS2, "ams2", "AMS2AVX",
+            "CrewChiefV4.AMS2.AMS2Spotter", "ams2_launch_exe", "ams2_launch_params", "launch_pcars", new String[] { "AMS2", "AMS2AVX"}, false);
         public static GameDefinition pCars32Bit = new GameDefinition(GameEnum.PCARS_32BIT, "pcars_32_bit", "pCARS",
             "CrewChiefV4.PCars.PCarsSpotterv2", "pcars32_launch_exe", "pcars32_launch_params", "launch_pcars", false);
         public static GameDefinition pCars2 = new GameDefinition(GameEnum.PCARS2, "pcars_2", "pCARS2AVX",
@@ -23,6 +25,8 @@ namespace CrewChiefV4
         public static GameDefinition pCarsNetwork = new GameDefinition(GameEnum.PCARS_NETWORK, "pcars_udp", null, "CrewChiefV4.PCars.PCarsSpotterv2",
             null, null, null, false);
         public static GameDefinition pCars2Network = new GameDefinition(GameEnum.PCARS2_NETWORK, "pcars2_udp", null, "CrewChiefV4.PCars2.PCars2Spotterv2",
+            null, null, null, false);
+        public static GameDefinition ams2Network = new GameDefinition(GameEnum.AMS2_NETWORK, "ams2_udp", null, "CrewChiefV4.AMS2.AMS2Spotter",
             null, null, null, false);
         public static GameDefinition rFactor1 = new GameDefinition(GameEnum.RF1, "rfactor1", "rFactor", "CrewChiefV4.rFactor1.RF1Spotter",
             "rf1_launch_exe", "rf1_launch_params", "launch_rfactor1", true, "rFactor");
@@ -83,6 +87,10 @@ namespace CrewChiefV4
                                 if (filterLower.Contains("pcars2") || filterLower.Contains("pcars_2") || filterLower.Contains("pcars 2") || filterLower.Contains("pcars-2"))
                                 {
                                     filtered.Add(GameDefinition.pCars2);
+                                }
+                                if (filterLower.Contains("ams2") || filterLower.Contains("ams_2") || filterLower.Contains("ams 2") || filterLower.Contains("ams-2"))
+                                {
+                                    filtered.Add(GameDefinition.AMS2);
                                 }
                                 else if (filterLower.Contains("pcars_network") || filterLower.Contains("pcars network") || filterLower.Contains("pcars-network"))
                                 {
@@ -146,7 +154,8 @@ namespace CrewChiefV4
         public static List<GameDefinition> getAllGameDefinitions()
         {
             List<GameDefinition> definitions = new List<GameDefinition>();
-            definitions.Add(automobilista); definitions.Add(gameStockCar); definitions.Add(marcas); definitions.Add(ftruck);
+            definitions.Add(automobilista); definitions.Add(AMS2);
+            definitions.Add(gameStockCar); definitions.Add(marcas); definitions.Add(ftruck);
             definitions.Add(pCars2); definitions.Add(pCars64Bit); definitions.Add(pCars32Bit);
             definitions.Add(raceRoom); definitions.Add(pCarsNetwork); 
             

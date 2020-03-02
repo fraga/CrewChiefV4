@@ -29,9 +29,12 @@ start_application = &Start application
 pcars_64_bit = pCARS (64 bit)
 pcars_32_bit = pCARS (32 bit)
 pcars_2 = pCARS 2
+ams2 = Automobilista 2
 race_room = RaceRoom
 pcars_udp = pCARS (network data)
+# TODO: decide on which AMS UDP stream we'll implement (if any)
 pcars2_udp = pCARS 2 (network data)
+ams2_udp = AMS 2 (network data)
 rfactor1 = rFactor
 gamestockcar = Stock Car Extreme
 automobilista = Automobilista
@@ -560,6 +563,10 @@ pcars2_spotter_car_length = pCARS2 Spotter default car length
 pcars2_spotter_car_length_filter = PCARS2
 pcars2_spotter_car_length_category = SPOTTER
 
+ams2_spotter_car_length = AMS2 Spotter default car length
+ams2_spotter_car_length_filter = AMS2
+ams2_spotter_car_length_category = SPOTTER
+
 r3e_spotter_car_length = R3E Spotter default car length
 r3e_spotter_car_length_filter = RACE_ROOM
 r3e_spotter_car_length_category = SPOTTER
@@ -868,6 +875,18 @@ pcars2_launch_params_filter = PCARS2
 pcars2_launch_params_category = UI_STARTUP_AND_PATHS
 pcars2_launch_params_metadata = RESTART_REQUIRED
 
+ams2_launch_exe = AMS 2 launch exe
+ams2_launch_exe_help = This is the location of Steam.exe or the direct path to AMS2.exe. Use forward slashes to separate paths.
+ams2_launch_exe_filter = AMS2
+ams2_launch_exe_category = UI_STARTUP_AND_PATHS
+ams2_launch_exe_metadata = RESTART_REQUIRED
+
+ams2_launch_params = AMS 2 launch params
+ams2_launch_params_help = This is used to tell Steam what app to run - AMS 2's Steam app ID is ??????. If you specified a path AMS2.exe you can leave this blank
+ams2_launch_params_filter = AMS2
+ams2_launch_params_category = UI_STARTUP_AND_PATHS
+ams2_launch_params_metadata = RESTART_REQUIRED
+
 acc_launch_params = ACC launch params
 acc_launch_params_help = This is used to tell Steam what app to run - ACC's Steam app ID is 805550. If you specified a path AC2-Win64-Shipping.exe you can leave this blank
 acc_launch_params_filter = ACC
@@ -879,6 +898,12 @@ launch_pcars2_help = If this is true the application will attempt to launch pCAR
 launch_pcars2_filter = PCARS2
 launch_pcars2_category = UI_STARTUP_AND_PATHS
 launch_pcars2_metadata = RESTART_REQUIRED
+
+launch_ams2 = Launch AMS 2
+launch_ams2_help = If this is true the application will attempt to launch AMS 2 when CrewChief starts (when you click 'Start application' or the app auto starts CrewChief if you set run_immediately to true)
+launch_ams2_filter = AMS2
+launch_ams2_category = UI_STARTUP_AND_PATHS
+launch_ams2_metadata = RESTART_REQUIRED
 
 iracing_launch_exe = iRacing launch exe
 iracing_launch_exe_help = This is the path to iRacingSim64DX11.exe. Use forward slashes to separate paths.

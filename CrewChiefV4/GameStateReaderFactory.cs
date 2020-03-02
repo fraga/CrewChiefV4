@@ -13,6 +13,7 @@ using CrewChiefV4.PCars2;
 using CrewChiefV4.F1_2018;
 using CrewChiefV4.ACC;
 using CrewChiefV4.F1_2019;
+using CrewChiefV4.AMS2;
 
 namespace CrewChiefV4
 {
@@ -34,6 +35,8 @@ namespace CrewChiefV4
         private F12018UDPreader f12018UDPReader;
         private ACCSharedMemoryReader accSharedMemoryReader;
         private F12019UDPreader f12019UDPReader;
+        private AMS2UDPreader ams2UDPReader;
+        private AMS2SharedMemoryReader ams2SharedMemoryReader;
 
         public static GameStateReaderFactory getInstance()
         {
@@ -120,6 +123,18 @@ namespace CrewChiefV4
                             f12019UDPReader = new F12019UDPreader();
                         }
                         return f12019UDPReader;
+                    case GameEnum.AMS2:
+                        if (ams2SharedMemoryReader == null)
+                        {
+                            ams2SharedMemoryReader = new AMS2SharedMemoryReader();
+                        }
+                        return ams2SharedMemoryReader;
+                    case GameEnum.AMS2_NETWORK:
+                        if (ams2UDPReader == null)
+                        {
+                            ams2UDPReader = new AMS2UDPreader();
+                        }
+                        return ams2UDPReader;
                 }
             }
             return null;
@@ -153,6 +168,9 @@ namespace CrewChiefV4
                     return new ACCGameStateMapper();
                 case GameEnum.F1_2019:
                     return new F12019GameStateMapper();
+                case GameEnum.AMS2:
+                case GameEnum.AMS2_NETWORK:
+                    return new AMS2GameStateMapper();
                 default:
                     Console.WriteLine("No mapper is defined for GameDefinition " + gameDefinition.friendlyName);
                     return null;

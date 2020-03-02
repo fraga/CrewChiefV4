@@ -399,6 +399,7 @@ namespace CrewChiefV4
             public List<int> iracingCarIds { get; set; }
             public List<string> pCarsClassNames { get; set; }
             public List<string> rf1ClassNames { get; set; }
+            public List<string> ams2ClassNames { get; set; }
             public List<string> rf2ClassNames { get; set; }
             public List<string> acClassNames { get; set; }
 
@@ -442,6 +443,7 @@ namespace CrewChiefV4
 
             public List<Regex> pCarsClassNamesRegexs = new List<Regex>();
             public List<Regex> rf1ClassNamesRegexs = new List<Regex>();
+            public List<Regex> ams2ClassNamesRegexs = new List<Regex>();
             public List<Regex> rf2ClassNamesRegexs = new List<Regex>();
             public List<Regex> acClassNamesRegexs = new List<Regex>();
 
@@ -455,6 +457,7 @@ namespace CrewChiefV4
                 this.iracingCarIds = new List<int>();
                 this.pCarsClassNames = new List<string>();
                 this.rf1ClassNames = new List<string>();
+                this.ams2ClassNames = new List<string>();
                 this.rf2ClassNames = new List<string>();
                 this.acClassNames = new List<string>();
                 this.brakeType = BrakeType.Iron_Race;
@@ -525,6 +528,7 @@ namespace CrewChiefV4
             public void setupRegexs()
             {
                 setupRegexs(rf1ClassNames, rf1ClassNamesRegexs);
+                setupRegexs(ams2ClassNames, ams2ClassNamesRegexs);
                 setupRegexs(rf2ClassNames, rf2ClassNamesRegexs);
                 setupRegexs(acClassNames, acClassNamesRegexs);
                 setupRegexsForPCars(pCarsClassNames, pCarsClassNamesRegexs);
@@ -887,6 +891,11 @@ namespace CrewChiefV4
                         case GameEnum.ACC:
                             classNamesPropName = "acClassNames";
                             regexsPropName = "acClassNamesRegexs";
+                            break;
+                        case GameEnum.AMS2:
+                        case GameEnum.AMS2_NETWORK:
+                            classNamesPropName = "ams2ClassNames";
+                            regexsPropName = "ams2ClassNamesRegexs";
                             break;
                         default:
                             // err....
