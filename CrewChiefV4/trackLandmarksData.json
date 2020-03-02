@@ -1245,6 +1245,11 @@
 			"irTrackName": "monza full",
 			"raceroomLayoutId": 1671,
 			"raceroomRollingStartLapDistance": 4285,
+			"pitApproachPoint": [
+				5345,
+				755.2,
+				-384.5
+			],
 			"trackLandmarks": [{
 					"landmarkName": "the_first_chicane",
 					"distanceRoundLapStart": 590,
@@ -3630,7 +3635,7 @@
 			]
 		},
 		{
-			"rf2TrackNames": ["RaceRfactor Monaco 2013"],
+			"rf2TrackNames": ["RaceRfactor Monaco 2013", "Circuit d'Azur"],
 			"trackLandmarks": [{
 					"landmarkName": "sainte_devote",
 					"distanceRoundLapStart": 150,
@@ -5007,8 +5012,7 @@
 			"pcars2TrackName": "Barcelona_Catalunya:GP",
 			"accTrackName": "Barcelona:track config",
 			"irTrackName": "barcelona gp",
-			"trackLandmarks": [
-				{
+			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 765,
 					"distanceRoundLapEnd": 875,
