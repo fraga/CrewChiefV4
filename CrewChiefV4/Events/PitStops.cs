@@ -858,7 +858,7 @@ namespace CrewChiefV4.Events
                         && currentGameState.PitData.IsApproachingPitlane && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)
                         // Here we need to make sure that the player has intended to go into the pit's sometimes this trows if we are getting in this zone while overtaking or just defending the line.
                         || (currentGameState.PitData.IsApproachingPitlane && CrewChief.gameDefinition.gameEnum == GameEnum.IRACING
-                        && currentGameState.Now > timeStartedAppoachingPitsCheck && currentGameState.ControlData.BrakePedal <= 0))
+                            && currentGameState.Now > timeStartedAppoachingPitsCheck && currentGameState.ControlData.BrakePedal <= 0))
                     {
                         timeStartedAppoachingPitsCheck = DateTime.MaxValue;
                         timeSpeedInPitsWarning = currentGameState.Now;
@@ -962,7 +962,8 @@ namespace CrewChiefV4.Events
                 }
             }
 
-            if (CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT)
+            if (CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT
+                || CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM)
             {
                 if (!pitLaneSpeedWarningAnnounced
                     && (currentGameState.SessionData.SessionType == SessionType.LonePractice || currentGameState.SessionData.SessionType == SessionType.Practice || currentGameState.SessionData.SessionType == SessionType.Qualify)
@@ -972,7 +973,7 @@ namespace CrewChiefV4.Events
                     pitLaneSpeedWarningAnnounced = true;
                     if (currentGameState.PitData.PitSpeedLimit != -1.0f)
                     {
-                        announcePitlaneSpeedLimit(currentGameState, false /*possiblyAnnounceIntro*/, false /*voiceResponse*/);
+                        announcePitlaneSpeedLimit(currentGameState, false /*possiblyPlayIntro*/, false /*voiceResponse*/);
                     }
                 }
 

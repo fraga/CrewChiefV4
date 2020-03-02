@@ -193,6 +193,17 @@ namespace CrewChiefV4.RaceRoom
             ELECTRIC = 1,
             HYBRID = 2,
         };
+
+        // Current vehicle pit state (-1 = N/A, 0 = None, 1 = Requested stop, 2 = Entered pitlane heading for pitspot, 3 = Stopped at pitspot, 4 = Exiting pitspot heading for pit exit)
+        public enum PitStates
+        {
+            Unknown = -1,
+            None = 0,
+            Requested = 1,
+            EnteredPitLane = 2,
+            StoppedInStall = 3,
+            Exiting = 4
+        }
     }
 
     namespace RaceRoomData

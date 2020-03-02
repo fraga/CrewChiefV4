@@ -224,17 +224,17 @@ namespace CrewChiefV4.Events
                     var worldPos = currentGameState.PositionAndMotionData.WorldPosition;
                     if (worldPos != null && worldPos.Length > 2)
                     {
-                        posInfo = string.Format(", position x: {0} y: {1} z:{2}", worldPos[0], worldPos[1], worldPos[2]);
+                        posInfo = string.Format(", position x:{0:0.000} y:{1:0.000} z:{2:0.000}", worldPos[0], worldPos[1], worldPos[2]);
                     }
                     if (CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM)
                     {
-                        Console.WriteLine("RaceroomLayoutId: " + currentGameState.SessionData.TrackDefinition.id + ", distanceRoundLap = " +
-                            currentGameState.PositionAndMotionData.DistanceRoundTrack + ", player's car ID: " + currentGameState.carClass.getClassIdentifier() + posInfo);
+                        Console.WriteLine("RaceroomLayoutId: " + currentGameState.SessionData.TrackDefinition.id + ", distanceRoundLap:" +
+                            currentGameState.PositionAndMotionData.DistanceRoundTrack.ToString("0.000") + ", player's car ID: " + currentGameState.carClass.getClassIdentifier() + posInfo);
                     }
                     else
                     {
-                        Console.WriteLine("TrackName: " + currentGameState.SessionData.TrackDefinition.name + ", distanceRoundLap = " +
-                            currentGameState.PositionAndMotionData.DistanceRoundTrack + ", player's car ID: " + currentGameState.carClass.getClassIdentifier() + posInfo);
+                        Console.WriteLine("TrackName: " + currentGameState.SessionData.TrackDefinition.name + ", distanceRoundLap:" +
+                            currentGameState.PositionAndMotionData.DistanceRoundTrack.ToString("0.000") + ", player's car ID: " + currentGameState.carClass.getClassIdentifier() + posInfo);
                     }
                 }
                 else

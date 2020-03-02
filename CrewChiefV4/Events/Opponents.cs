@@ -428,7 +428,8 @@ namespace CrewChiefV4.Events
 
                 if (currentGameState.PitData.CarInFrontIsPitting && currentGameState.SessionData.TimeDeltaFront > 3 &&
                     currentGameState.SessionData.SessionPhase != SessionPhase.Countdown && currentGameState.SessionData.SessionPhase != SessionPhase.Formation &&
-                    !Strategy.opponentsWhoWillExitCloseInFront.Contains(currentGameState.PitData.OpponentForCarAheadPitting.DriverRawName))
+                    !Strategy.opponentsWhoWillExitCloseInFront.Contains(currentGameState.PitData.OpponentForCarAheadPitting.DriverRawName) &&
+                    !announcedPitters.Contains(currentGameState.PitData.OpponentForCarAheadPitting.DriverRawName))
                 {
                     audioPlayer.playMessage(new QueuedMessage("car_in_front_is_pitting", 10,
                         messageFragments: MessageContents(currentGameState.PitData.OpponentForCarAheadPitting,
@@ -439,7 +440,8 @@ namespace CrewChiefV4.Events
 
                 if (currentGameState.PitData.CarBehindIsPitting && currentGameState.SessionData.TimeDeltaBehind > 3 &&
                     currentGameState.SessionData.SessionPhase != SessionPhase.Countdown && currentGameState.SessionData.SessionPhase != SessionPhase.Formation &&
-                    !Strategy.opponentsWhoWillExitCloseBehind.Contains(currentGameState.PitData.OpponentForCarBehindPitting.DriverRawName))
+                    !Strategy.opponentsWhoWillExitCloseBehind.Contains(currentGameState.PitData.OpponentForCarBehindPitting.DriverRawName) &&
+                    !announcedPitters.Contains(currentGameState.PitData.OpponentForCarBehindPitting.DriverRawName))
                 {
                     audioPlayer.playMessage(new QueuedMessage("car_behind_is_pitting", 10,
                         messageFragments: MessageContents(currentGameState.PitData.OpponentForCarBehindPitting,
