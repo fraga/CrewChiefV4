@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CrewChiefV4.NumberProcessing;
+using CrewChiefV4.Overlay;
 
 namespace CrewChiefV4.Events
 {
@@ -134,7 +135,15 @@ namespace CrewChiefV4.Events
                     togglePaceNotesPlayback();
                 }
             }
-            else if(SpeechRecogniser.ResultContains(voiceMessage, new string[] {ControllerConfiguration.TOGGLE_RACE_UPDATES_FUNCTION}))
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.SHOW_SUBTITLES, false))
+            {
+                SubtitleOverlay.shown = true;
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HIDE_SUBTITLES, false))
+            {
+                SubtitleOverlay.shown = false;
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, new string[] {ControllerConfiguration.TOGGLE_RACE_UPDATES_FUNCTION}))
             {
                 Console.WriteLine("Toggling keep quiet mode");
                 toggleKeepQuietMode();

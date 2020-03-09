@@ -1686,3 +1686,12 @@ enable_automatic_disk_telemetry_recording_help = Let's Crew Chief handle the sta
 enable_automatic_disk_telemetry_recording_filter = IRACING
 enable_automatic_disk_telemetry_recording_category = UI_STARTUP_AND_PATHS
 enable_automatic_disk_telemetry_recording_metadata = RESTART_REQUIRED
+
+enable_shared_memory = Enable Shared Memory
+enable_shared_memory_help = Allows other apps to read the curernt shared memory from CrewChief 
+enable_shared_memory_metadata = RESTART_REQUIRED
+
+enable_subtitle_overlay = Enable subtitle overlay
+enable_subtitle_overlay_help = Displays an overlay window with subtitles 
+enable_subtitle_overlay_category = AUDIO_VOICE_AND_CONTROLLERS
+enable_subtitle_overlay_metadata = RESTART_REQUIRED

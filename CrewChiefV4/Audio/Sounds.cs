@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using CrewChiefV4.GameState;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
+using Microsoft.VisualBasic.FileIO;
 namespace CrewChiefV4.Audio
 {
     public class SoundCache
@@ -29,7 +30,6 @@ namespace CrewChiefV4.Audio
         public static float spotterVolumeBoost = UserSettings.GetUserSettings().getFloat("spotter_volume_boost");
         public static int ttsTrimStartMilliseconds = UserSettings.GetUserSettings().getInt("tts_trim_start_milliseconds");
         public static int ttsTrimEndMilliseconds = UserSettings.GetUserSettings().getInt("tts_trim_end_milliseconds");
-               
         private static LinkedList<String> dynamicLoadedSounds = new LinkedList<String>();
         public static Dictionary<String, SoundSet> soundSets = new Dictionary<String, SoundSet>();
         private static Dictionary<String, SingleSound> singleSounds = new Dictionary<String, SingleSound>();
@@ -152,6 +152,7 @@ namespace CrewChiefV4.Audio
         public SoundCache(DirectoryInfo soundsFolder, DirectoryInfo sharedSoundsFolder, String[] eventTypesToKeepCached, Boolean useSwearyMessages, Boolean allowCaching, String selectedPersonalisation, bool verbose)
         {
             loadExistingVarietyData();
+
             // ensure the static state is nuked before we start updating it
             SoundCache.dynamicLoadedSounds.Clear();
             SoundCache.soundSets.Clear();
@@ -596,7 +597,13 @@ namespace CrewChiefV4.Audio
                     singleSoundsToPlay.Add(suffix.getSingleSound(false));
                     lastPersonalisedMessageTime = GameStateData.CurrentTime;
                 }
-                SoundCache.IS_PLAYING = true;
+                if(SubtitleManager.enableSubtitles)
+                {
+                    SubtitleManager.AddPhrase(singleSoundsToPlay, soundMetadata);
+                }
+                
+                                   
+                SoundCache.IS_PLAYING = true;                    
                 foreach (SingleSound singleSound in singleSoundsToPlay)
                 {
                     if (singleSound.isPause)
@@ -605,6 +612,7 @@ namespace CrewChiefV4.Audio
                     }
                     else
                     {
+                   
                         singleSound.Play(soundMetadata);
                     }
                 }
@@ -1286,6 +1294,7 @@ namespace CrewChiefV4.Audio
         public Boolean isPause = false;
         public Boolean isSpotter = false;
         public Boolean isBleep = false;
+        public Boolean isNumber = false;  // Currently only only set if subtitle processing is enabled.
         public int pauseLength = 0;
         public String fullPath;
         private byte[] fileBytes = null;
@@ -1313,6 +1322,8 @@ namespace CrewChiefV4.Audio
 
         EventHandler<NAudio.Wave.StoppedEventArgs> eventHandler;
 
+        public String subtitle = "";
+
         public SingleSound(int pauseLength)
         {
             this.isPause = true;
@@ -1326,6 +1337,8 @@ namespace CrewChiefV4.Audio
             cacheFileData = true;
             cacheSoundPlayer = true;
             LoadAndCacheFile();
+            this.subtitle = textToRender;
+            //Console.WriteLine("Loaded subtitle for sound = " + this.subtitle);
         }
 
         public SingleSound(String fullPath, Boolean cacheFileData, Boolean cacheSoundPlayer, Boolean cacheSoundPlayerPermanently)
@@ -1334,6 +1347,30 @@ namespace CrewChiefV4.Audio
             this.cacheFileData = cacheFileData || cacheSoundPlayer || cacheSoundPlayerPermanently;
             this.cacheSoundPlayer = cacheSoundPlayer || cacheSoundPlayerPermanently;
             this.cacheSoundPlayerPermanently = cacheSoundPlayerPermanently;
+            if (SubtitleManager.enableSubtitles)
+            {
+                if (fullPath.Contains("numbers"))
+                {
+                    this.subtitle = SubtitleManager.ParseSubtitleForNumber(fullPath, this);
+                }
+                else if (fullPath.Contains("driver_names"))
+                {
+                    this.subtitle = Path.GetFileNameWithoutExtension(fullPath);
+                    if (!string.IsNullOrWhiteSpace(this.subtitle))
+                        this.subtitle = SubtitleManager.FirstLetterToUpper(this.subtitle);
+                }
+                else if (fullPath.Contains("prefixes_and_suffixes"))
+                {
+                    this.subtitle = SubtitleManager.ParseSubtitleForPersonalisation(fullPath);
+                }
+                else
+                {
+                    this.subtitle = SubtitleManager.LoadSubtitleForSound(fullPath);
+                }
+            }
+
+            /*if(!string.IsNullOrEmpty(subtitle))
+                Console.WriteLine("Loaded subtitle for soundFile = " + this.subtitle); */             
         }
 
         public void LoadAndCacheFile()
@@ -1447,7 +1484,6 @@ namespace CrewChiefV4.Audio
                 }
             }
         }
-
         /*
          * canInterrupt will be true for regular messages triggered by the app's normal event logic. When a message
          * is played from the 'immediate' queue this will be false (spotter calls, command responses, some edge cases 

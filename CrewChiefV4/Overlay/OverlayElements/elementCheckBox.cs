@@ -7,7 +7,6 @@ using System.Windows;
 using GameOverlay.Drawing;
 using GameOverlay.PInvoke;
 using GameOverlay.Windows;
-using static CrewChiefV4.Overlay.CrewChiefOverlayWindow;
 
 namespace CrewChiefV4.Overlay
 {
@@ -18,7 +17,7 @@ namespace CrewChiefV4.Overlay
         public event EventHandler<OverlayElementClicked> OnElementLMButtonClicked;
 
         public ElementCheckBox(Graphics gfx, string elementTitle, Font font, Rect rectangle,
-            OverlaySettings.ColorScheme colorScheme, EventHandler<OverlayElementClicked> OnElementLMButtonClicked = null, string subscriptionDataField = "", bool initialEnabled = false) 
+            ColorScheme colorScheme, EventHandler<OverlayElementClicked> OnElementLMButtonClicked = null, string subscriptionDataField = "", bool initialEnabled = false) 
             : base(gfx, elementTitle, font, rectangle, colorScheme)
         {
             if(OnElementLMButtonClicked != null)

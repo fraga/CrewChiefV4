@@ -4330,5 +4330,29 @@ namespace CrewChiefV4.Properties {
                 this["launch_ams2"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool enable_shared_memory {
+            get {
+                return ((bool)(this["enable_shared_memory"]));
+            }
+            set {
+                this["enable_shared_memory"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool enable_subtitle_overlay {
+            get {
+                return ((bool)(this["enable_subtitle_overlay"]));
+            }
+            set {
+                this["enable_subtitle_overlay"] = value;
+            }
+        }
     }
 }

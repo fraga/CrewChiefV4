@@ -16,6 +16,7 @@ using CrewChiefV4.Audio;
 using CrewChiefV4.NumberProcessing;
 using WebSocketSharp.Server;
 using CrewChiefV4.Overlay;
+using CrewChiefV4.SharedMemory;
 
 namespace CrewChiefV4
 {
@@ -63,6 +64,8 @@ namespace CrewChiefV4
         public static bool recordChartTelemetryDuringRace = UserSettings.GetUserSettings().getBoolean("enable_chart_telemetry_in_race_session");
 
         public static int intervalWhenCollectionTelemetry = UserSettings.GetUserSettings().getInt("update_interval_when_collecting_telemetry");
+
+        public static bool enableSharedMemory = UserSettings.GetUserSettings().getBoolean("enable_shared_memory");
 
         private static Dictionary<String, AbstractEvent> eventsList = new Dictionary<String, AbstractEvent>();
 
@@ -130,12 +133,18 @@ namespace CrewChiefV4
 
         private ControllerConfiguration controllerConfiguration;
 
+        public static SharedMemory.SharedMemoryManager sharedMemoryManager = null;
+
         private Object latestRawGameData;
 
         public CrewChief(ControllerConfiguration controllerConfiguration)
         {
             speechRecogniser = new SpeechRecogniser(this);
             audioPlayer = new AudioPlayer();
+            if (enableSharedMemory)
+            {
+                sharedMemoryManager = new SharedMemoryManager();
+            }          
             this.controllerConfiguration = controllerConfiguration;
 
             GlobalResources.speechRecogniser = speechRecogniser;
@@ -224,8 +233,24 @@ namespace CrewChiefV4
             }
         }
 
+        protected virtual void Dispose(bool disposing)
+        {
+            if(enableSharedMemory)
+            {
+                CrewChief.sharedMemoryManager.Dispose();
+            }
+            
+        }
+
+        ~CrewChief()
+        {
+            Dispose(false);
+        }
+
         public void Dispose()
         {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         public static AbstractEvent getEvent(String eventName)
@@ -507,6 +532,7 @@ namespace CrewChiefV4
                                 // give a it a break.
                                 if (!mapped)
                                     Thread.Sleep(1000);
+                                    
                             }
                         }
                         else if (UserSettings.GetUserSettings().getBoolean(gameDefinition.gameStartEnabledProperty) && !attemptedToRunGame)
@@ -570,7 +596,7 @@ namespace CrewChiefV4
                             continue;
                         }
                         gameStateMapper.versionCheck(latestRawGameData);
-
+                        
                         GameStateData nextGameState = null;
                         try
                         {
@@ -806,15 +832,21 @@ namespace CrewChiefV4
                             {
                                 spotter.pause();
                             }
+                            
                         }
                     }
                     if (filenameToRun != null)
                     {
                         // mute the audio player for anything < 10ms
+                        
                         audioPlayer.mute = CrewChief.playbackIntervalMilliseconds < 10;
                         if (CrewChief.playbackIntervalMilliseconds > 0)
                         {
                             Thread.Sleep(CrewChief.playbackIntervalMilliseconds);
+                            if (enableSharedMemory)
+                            {
+                                sharedMemoryManager.Tick(playbackIntervalMilliseconds);
+                            }
                         }
                     }
                     else
@@ -826,11 +858,16 @@ namespace CrewChiefV4
                             && CrewChief.currentGameState != null 
                             && (recordChartTelemetryDuringRace || CrewChief.currentGameState.SessionData.SessionType != SessionType.Race))
                         {
-                            interval = CrewChief.intervalWhenCollectionTelemetry;
+                            interval = CrewChief.intervalWhenCollectionTelemetry;                            
                         }
+                        if (enableSharedMemory)
+                        {
+                            sharedMemoryManager.Tick(interval);
+                        }                        
                         Thread.Sleep(timeInterval);
+                        
                     }
-                }
+                } 
                 foreach (KeyValuePair<String, AbstractEvent> entry in eventsList)
                 {
                     // don't clear the overlay controller here - temporary hack
@@ -974,6 +1011,12 @@ namespace CrewChiefV4
             if (audioPlayer != null)
             {
                 audioPlayer.monitorRunning = false;
+            }
+            // set status of shared mem to connected
+            if(enableSharedMemory)
+            {
+                sharedMemoryManager.UpdateVariable("updateStatus", new int[1] { (int)UpdateStatus.connected });
+                sharedMemoryManager.Tick(0, UpdateStatus.connected);
             }
         }
 

@@ -4,7 +4,6 @@ using GameOverlay.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static CrewChiefV4.Overlay.CrewChiefOverlayWindow;
 
 namespace CrewChiefV4.Overlay
 {
@@ -12,7 +11,7 @@ namespace CrewChiefV4.Overlay
     {
         bool outlined;
         public ElementGroupBox(Graphics gfx, string elementTitle, Font font, System.Windows.Rect rectangle,
-            OverlaySettings.ColorScheme colorScheme, bool initialEnableState = true, bool outlined = true) :
+            ColorScheme colorScheme, bool initialEnableState = true, bool outlined = true) :
             base(gfx, elementTitle, font, rectangle, colorScheme, initialEnableState)
         {
             parent = this;

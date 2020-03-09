@@ -147,6 +147,7 @@ namespace CrewChiefV4
         public bool closedByCmdLineCommand = false;
 
         public CrewChiefOverlayWindow overlay = null;
+        public SubtitleOverlay subtitleOverlay = null;
 
         // Allow trace playback on Release build.
         internal static bool profileMode = false;
@@ -840,6 +841,7 @@ namespace CrewChiefV4
                     MainWindow.shouldSaveTrace = true;
             }
             overlay?.Dispose();
+            subtitleOverlay?.Dispose();
             base.OnFormClosing(e);
             MacroManager.stop();
             saveConsoleOutputText();
@@ -850,7 +852,7 @@ namespace CrewChiefV4
             controllerRescanThreadRunning = false;
             this.controllerConfiguration.cancelScan();
             controllerRescanThreadWakeUpEvent.Set();
-
+            
             lock (consoleWriter)
             {
                 consoleWriter.Dispose();
@@ -862,6 +864,7 @@ namespace CrewChiefV4
             }
             catch (Exception)
             { }
+            
         }
 
         private void SetupNotificationTrayIcon()
@@ -1350,9 +1353,15 @@ namespace CrewChiefV4
             this.constructingWindow = false;
             if (UserSettings.GetUserSettings().getBoolean("enable_overlay_window"))
             {
-                overlay = new CrewChiefV4.Overlay.CrewChiefOverlayWindow();
+                overlay = new CrewChiefOverlayWindow();
                 overlay.Run();
             }
+            if(UserSettings.GetUserSettings().getBoolean("enable_subtitle_overlay"))
+            {
+                subtitleOverlay = new SubtitleOverlay();
+                subtitleOverlay.Run();
+            }
+
         }
 
         private void consoleUpdateThreadWorker()
