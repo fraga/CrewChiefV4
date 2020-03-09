@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using GameOverlay.Drawing;
-using static CrewChiefV4.Overlay.CrewChiefOverlayWindow;
 using GameOverlay.PInvoke;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
@@ -22,7 +21,7 @@ namespace CrewChiefV4.Overlay
         public ChartContainer chartContainer;
         public event EventHandler<OverlayElementMouseWheel> OnElementMWheel;
         public event EventHandler<OverlayElementClicked> OnElementMMButtonClicked;
-        public ElementImage(Graphics gfx, string elementTitle, Font font, System.Windows.Rect rectangle,OverlaySettings.ColorScheme colorScheme, 
+        public ElementImage(Graphics gfx, string elementTitle, Font font, System.Windows.Rect rectangle,ColorScheme colorScheme, 
             EventHandler<OverlayElementMouseWheel> OnElementMWheel = null, EventHandler<OverlayElementClicked> OnElementMMButtonClicked = null,
             ChartContainer chartContainer = null, float imageAlpha = 1, bool outlined = false) :
             base(gfx, elementTitle, font, rectangle, colorScheme)

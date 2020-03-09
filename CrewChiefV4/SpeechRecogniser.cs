@@ -307,6 +307,10 @@ namespace CrewChiefV4
         public static String[] CHART_COMMAND_SHOW_PREVIOUS_LAP = Configuration.getSpeechRecognitionPhrases("CHART_COMMAND_SHOW_PREVIOUS_LAP");
         public static String[] CHART_COMMAND_SHOW_LAST_LAP = Configuration.getSpeechRecognitionPhrases("CHART_COMMAND_SHOW_LAST_LAP");
 
+        public static String[] SHOW_SUBTITLES = Configuration.getSpeechRecognitionPhrases("SHOW_SUBTITLES");
+        public static String[] HIDE_SUBTITLES = Configuration.getSpeechRecognitionPhrases("HIDE_SUBTITLES");
+
+
         private Dictionary<GameEnum, string[]> whatsOpponentChoices = new Dictionary<GameEnum, string[]> {
             { GameEnum.IRACING, new String[] { LAST_LAP, LAST_LAP_TIME, BEST_LAP, BEST_LAP_TIME, IRATING, LICENSE_CLASS } },
             // the array for UNKNOWN is what we'll use if there's no game-specific array
@@ -1078,6 +1082,8 @@ namespace CrewChiefV4
                 validateAndAdd(CHART_COMMAND_SHOW_NEXT_LAP, staticSpeechChoices);
                 validateAndAdd(CHART_COMMAND_SHOW_PREVIOUS_LAP, staticSpeechChoices);
                 validateAndAdd(CHART_COMMAND_SHOW_LAST_LAP, staticSpeechChoices);
+                validateAndAdd(SHOW_SUBTITLES, staticSpeechChoices);
+                validateAndAdd(HIDE_SUBTITLES, staticSpeechChoices);
 
                 if (alarmClockVoiceRecognitionEnabled)
                 {
@@ -2167,6 +2173,11 @@ namespace CrewChiefV4
             {
                 return null;
             }
+            if(SubtitleManager.enableSubtitles)
+            {
+                SubtitleManager.AddPhraseForSpeech(recognisedSpeech);
+            }
+                      
             if (ResultContains(recognisedSpeech, DONT_SPOT, false))
             {
                 crewChief.disableSpotter();
@@ -2237,6 +2248,8 @@ namespace CrewChiefV4
                 ResultContains(recognisedSpeech, STOP_PACE_NOTES_PLAYBACK, false) ||
                 ResultContains(recognisedSpeech, PLAY_CORNER_NAMES, false) ||
                 ResultContains(recognisedSpeech, STOP_COMPLAINING, false) ||
+                ResultContains(recognisedSpeech, SHOW_SUBTITLES, false) ||
+                ResultContains(recognisedSpeech, HIDE_SUBTITLES, false) ||
                 ControllerConfiguration.builtInActionMappings.ContainsValue(recognisedSpeech))
             {
                 return CrewChief.getEvent("CommonActions");

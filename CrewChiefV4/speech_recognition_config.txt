@@ -393,6 +393,10 @@ CHART_FRAGMENT_RF_TEMPS = right front surface temps:right front temps
 CHART_FRAGMENT_LR_TEMPS = left rear surface temps:left rear temps
 CHART_FRAGMENT_RR_TEMPS = right rear surface temps:right rear temps
 
+# subtitle overlay commands
+SHOW_SUBTITLES = show subtitles
+HIDE_SUBTITLES = hide subtitles:close subtitles
+
 #################################################
 # numbers - these are the text strings the voice recogniser will listen for (it's not good at listening for numeric characters)
 # These are used by the dynamic phrases, and are combined with the dynamic phrase fragments above

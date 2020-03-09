@@ -70,6 +70,7 @@
       <HintPath>..\..\..\..\Program Files\Microsoft SDKs\Speech\v11.0\Assembly\Microsoft.Speech.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="NAudio, Version=1.9.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\NAudio.1.9.0\lib\net35\NAudio.dll</HintPath>
     </Reference>
@@ -156,7 +157,9 @@
     <Compile Include="Audio\SoundPackVersionsHelper.cs" />
     <Compile Include="Audio\Sounds.cs" />
     <Compile Include="Audio\SoundMetadata.cs" />
+    <Compile Include="Audio\SubtitleManager.cs" />
     <Compile Include="CarData.cs" />
+    <Compile Include="CircularBuffer.cs" />
     <Compile Include="CommandManager.cs" />
     <Compile Include="commands\KeyPresser.cs" />
     <Compile Include="commands\CommandMacro.cs" />
@@ -274,8 +277,11 @@
     <Compile Include="Overlay\OverlayElements\ElementTextBox.cs" />
     <Compile Include="Overlay\OverlayElements\OverlayElemets.cs" />
     <Compile Include="Overlay\OverlayElements\OverlayHeader.cs" />
+    <Compile Include="Overlay\OverlaySettings.cs" />
+    <Compile Include="Overlay\SubtitleOverlay.cs" />
     <Compile Include="R3E\R3EPitMenuManager.cs" />
     <Compile Include="R3E\R3ESerializer.cs" />
+    <Compile Include="SharedMemory.cs" />
     <Compile Include="SRE\ChoicesWrapper.cs" />
     <Compile Include="SRE\GrammarBuilderWrapper.cs" />
     <Compile Include="SRE\GrammarWrapper.cs" />

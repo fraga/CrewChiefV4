@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using static CrewChiefV4.Overlay.CrewChiefOverlayWindow;
 
 namespace CrewChiefV4.Overlay
 {
@@ -14,7 +13,7 @@ namespace CrewChiefV4.Overlay
         EventHandler<OverlayElementDrawUpdate> OnElementUpdate = null;
 
         public ElementTextBox(Graphics gfx, string elementTitle, Font font, Rect rectangle,
-            OverlaySettings.ColorScheme colorScheme, EventHandler<OverlayElementDrawUpdate> OnElementUpdate = null, bool initialEnableState = true) :
+            ColorScheme colorScheme, EventHandler<OverlayElementDrawUpdate> OnElementUpdate = null, bool initialEnableState = true) :
             base(gfx, elementTitle, font, rectangle, colorScheme, initialEnableState)
         {
             if(OnElementUpdate != null)

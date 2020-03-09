@@ -353,7 +353,6 @@ namespace GameOverlay.Windows
 
             OnPositionChanged(x, y);
         }
-
         /// <summary>
         /// Changes the size of the window using the given width and height.
         /// </summary>
