@@ -355,7 +355,7 @@ the 32bit speech recognition installers can be downloaded here   : https://drive
 
 Crew Chief SDK/Shared Memory
 ----------------------------
-Crew Chief now exposes some of its internals via Shared Memory block. Currently, subtitle information is exposed, but we might be adding more data in the future. See CrewChiefV4\CrewChiefV4SDK\CrewChiefV4SDK\Program.cs to get started.
+Crew Chief now exposes some of its internals via Shared Memory block. Currently, subtitle information is exposed, but we might be adding more data in the future. See https://gitlab.com/mr_belowski/CrewChiefV4/-/blob/master/CrewChiefV4SDK/CrewChiefV4SDK/Program.cs to get started.
 
 
 Donations
