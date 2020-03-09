@@ -182,7 +182,7 @@ namespace CrewChiefV4.Overlay
             {
                 mousePosition.X = WindowNativeMethods.GET_X_LPARAM(lParam);
                 mousePosition.Y = WindowNativeMethods.GET_Y_LPARAM(lParam);
-                if(rectangle.Contains(mousePosition))
+                if(rectangle.Contains(mousePosition) || modifierPressed)
                 {
                     mouseOver = true;
                 }
