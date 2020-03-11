@@ -1367,10 +1367,17 @@ namespace CrewChiefV4.Audio
                 {
                     this.subtitle = SubtitleManager.LoadSubtitleForSound(fullPath);
                 }
+
+                if (string.IsNullOrWhiteSpace(this.subtitle)
+                    && !fullPath.Contains(@"\fx\")
+                    && !fullPath.Contains(@"\breath_in"))  // Shouldn't breaths be moved to fx?
+                {
+                    Console.WriteLine($"Warning: no subtitle found for \"{fullPath}\"");
+                }
             }
 
             /*if(!string.IsNullOrEmpty(subtitle))
-                Console.WriteLine("Loaded subtitle for soundFile = " + this.subtitle); */             
+                Console.WriteLine("Loaded subtitle for soundFile = " + this.subtitle); */
         }
 
         public void LoadAndCacheFile()
