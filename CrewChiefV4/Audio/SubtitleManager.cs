@@ -157,33 +157,41 @@ namespace CrewChiefV4.Audio
             // using the method 
             String[] strlist = rawPersonalisation.Split(sep, count, StringSplitOptions.RemoveEmptyEntries);
             // only sound i found that's not a direct translatioon of folder name.
-            if (fullPath.EndsWith("3.wav"))
+
+            // for more personalisations there's a predictable order to the sound file names, but this isn't always
+            // the case. Assume the order is as expected but only if the file appears in the expected folder. This 
+            // will catch most cases
+            if (fullPath.EndsWith("3.wav") && rawPersonalisation == "oh_dear")
             {
                 subtitle = "oh bad luck " + personalisationName;
             }
-            else if (fullPath.EndsWith("9.wav"))
+            else if (fullPath.EndsWith("9.wav") && rawPersonalisation == "oh_dear")
             {
                 subtitle = "oh no " + personalisationName;
             }
-            else if (fullPath.EndsWith("10.wav"))
+            else if (fullPath.EndsWith("10.wav") && rawPersonalisation == "oh_dear")
             {
                 subtitle = "oh " + personalisationName;
             }
-            else if (fullPath.EndsWith("sweary_11.wav"))
+            else if (fullPath.EndsWith("sweary_11.wav") && rawPersonalisation == "oh_dear")
             {
-                subtitle = "fuck sake " + personalisationName;
+                subtitle = "fuck's sake " + personalisationName;
             }
-            else if (fullPath.EndsWith("sweary_12.wav"))
+            else if (fullPath.EndsWith("sweary_12.wav") && rawPersonalisation == "oh_dear")
             {
                 subtitle = "shit " + personalisationName;
             }
-            else if (fullPath.EndsWith("22.wav"))
+            else if (fullPath.EndsWith("22.wav") && rawPersonalisation == "well_done")
             {
                 subtitle = "nice one " + personalisationName;
             }
-            else if (fullPath.EndsWith("16.wav"))
+            else if (fullPath.EndsWith("16.wav") && rawPersonalisation == "ok")
             {
                 subtitle = "alright " + personalisationName;
+            }
+            else if (fullPath.Contains("sweary") && rawPersonalisation == "oh_dear")
+            {
+                subtitle = "fuck's sake " + personalisationName;
             }
             else if (strlist.Length == 1)
             {
