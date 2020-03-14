@@ -13,6 +13,19 @@ namespace CrewChiefV4.Overlay
 {
 
     // TODO: split this call into an Overlay, a ChartOverlay and a ConsoleOverlay?
+    public class ColorScheme
+    {
+        [JsonConstructor]
+        public ColorScheme(string name, Color backgroundColor, Color fontColor)
+        {
+            this.name = name;
+            this.backgroundColor = backgroundColor;
+            this.fontColor = fontColor;
+        }
+        public string name;
+        public Color backgroundColor;
+        public Color fontColor;
+    }
     public enum RenderMode
     {
         CONSOLE, CHART, ALL
@@ -28,114 +41,21 @@ namespace CrewChiefV4.Overlay
     public class CrewChiefOverlayWindow
     {
         #region overlay settings
-        public static Color mousePissYellow = new Color(204, 182, 97, 200);
-        public static Color runningBottomBrown = new Color(18, 10, 0, 200);
+
         private Boolean iRacingDiskTelemetryLogginEnabled = UserSettings.GetUserSettings().getBoolean("iracing_enable_disk_based_telemetry");
-        public class OverlaySettings
+        public class CrewChiefOverlaySettings : OverlaySettings
         {
-            public class ColorScheme
-            {
-                [JsonConstructor]
-                public ColorScheme(string name, Color backgroundColor, Color fontColor)
-                {
-                    this.name = name;
-                    this.backgroundColor = backgroundColor;
-                    this.fontColor = fontColor;
-                }
-                public string name;
-                public Color backgroundColor;
-                public Color fontColor;
-            }
-            public int windowWidth = 800;
             public int trackMapSize = 150;
+            public int windowWidth = 800;
             [JsonIgnore]
-            public int windowHeight = 10;
             public int chartHeight = 130;
-            public int windowX = 0;
-            public int windowY = 20;
-            public int windowFPS = 30;
-            public bool vSync = false;
-            public int fontSize = 12;
-            public string fontName = "Microsoft Sans Serif"; // same as UI
-            public bool fontBold = false;
-            public bool fontItalic = false;
             public int maxDisplayLines = 22;
-            public bool textAntiAliasing = true;
             public float chartAlpha = 0.784313738f;
-            public string activeColorScheme = "CrewChief";
             public bool antiAliasCharts = false;
-            public List<ColorScheme> colorSchemes = new List<ColorScheme>() { defaultCrewChiefColorScheme, windowsGrayColorScheme };
 
-            [JsonIgnore]
-            static readonly string overlayFileName = "crewchief_overlay.json";
-            [JsonIgnore]
-            public static ColorScheme defaultCrewChiefColorScheme = new ColorScheme("CrewChief", runningBottomBrown, new Color(204, 182, 97));
-            [JsonIgnore]
-            public static ColorScheme windowsGrayColorScheme = new ColorScheme("WindowsGray", Color.FromARGB(System.Drawing.Color.FromArgb(200, System.Drawing.Color.LightGray).ToArgb()), new Color(0, 0, 0));
-
-            public static OverlaySettings loadOverlaySetttings(bool forceDefault = false)
-            {
-                String path = System.IO.Path.Combine(Environment.GetFolderPath(
-                    Environment.SpecialFolder.MyDocuments), "CrewChiefV4", overlayFileName);
-                if (!File.Exists(path))
-                {
-                    saveOverlaySetttings(new OverlaySettings());
-                }
-                if (path != null)
-                {
-                    try
-                    {
-                        using (StreamReader r = new StreamReader(path))
-                        {
-                            string json = r.ReadToEnd();
-                            OverlaySettings data = JsonConvert.DeserializeObject<OverlaySettings>(json);
-                            if (data != null)
-                            {
-                                return data;
-                            }
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("Error pasing " + path + ": " + e.Message);
-                    }
-                }
-                return new OverlaySettings();
-            }
-            public static void saveOverlaySetttings(OverlaySettings settings)
-            {
-                String path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4");
-                if (!Directory.Exists(path))
-                {
-                    try
-                    {
-                        Directory.CreateDirectory(path);
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("Error creating " + path + ": " + e.Message);
-                    }
-                }
-                if (overlayFileName != null)
-                {
-                    try
-                    {
-                        using (StreamWriter file = File.CreateText(System.IO.Path.Combine(path, overlayFileName)))
-                        {
-                            JsonSerializer serializer = new JsonSerializer();
-                            serializer.Formatting = Newtonsoft.Json.Formatting.Indented;
-                            serializer.Serialize(file, settings);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("Error parsing " + overlayFileName + ": " + e.Message);
-                    }
-                }
-            }
         }
         #endregion
-
+        static readonly string overlayFileName = "crewchief_overlay.json";
         private readonly GraphicsWindow overlayWindow;
         private Font font;
         private Font fontBold;
@@ -144,13 +64,13 @@ namespace CrewChiefV4.Overlay
         private SolidBrush transparentBrush;
         private int cachedFirstVisibleChar = -1;
         private static List<string> cachedVisibleLines = new List<string>();
-        public static OverlaySettings settings = null;
-        public static OverlaySettings.ColorScheme colorScheme = null;
-        public static OverlaySettings.ColorScheme colorSchemeTransparent = null;
+        public static CrewChiefOverlaySettings settings = null;
+        public static ColorScheme colorScheme = null;
+        public static ColorScheme colorSchemeTransparent = null;
         public static Boolean createNewImage = true;
 
         private Boolean cleared = true;
-        public static bool inputsEnabled = false;
+        public bool inputsEnabled = false;
         public static bool keepWindowActiveBackUpOnClose = false;
         public static int windowHeightBackUpOnClose = -1;
 
@@ -191,9 +111,13 @@ namespace CrewChiefV4.Overlay
             mainThreadContext = SynchronizationContext.Current;
             // initialize a new Graphics object
             // GraphicsWindow will do the remaining initialization            
-            settings = OverlaySettings.loadOverlaySetttings();
+            settings = OverlaySettings.loadOverlaySetttings<CrewChiefOverlaySettings>(overlayFileName);
+            if (settings.colorSchemes == null || settings.colorSchemes.Count == 0)
+            {
+                settings.colorSchemes = new List<ColorScheme>() { OverlaySettings.defaultCrewChiefColorScheme, OverlaySettings.windowsGrayColorScheme, OverlaySettings.transparentColorScheme };
+            }
             colorScheme = settings.colorSchemes.FirstOrDefault(s => s.name == settings.activeColorScheme);
-            colorSchemeTransparent = new OverlaySettings.ColorScheme("transparent", Color.Transparent, mousePissYellow);
+            colorSchemeTransparent = new ColorScheme("transparent", Color.Transparent, OverlaySettings.mousePissYellow);
             if (colorScheme == null)
             {
                 colorScheme = OverlaySettings.defaultCrewChiefColorScheme;
@@ -225,7 +149,6 @@ namespace CrewChiefV4.Overlay
             overlayWindow.SetupGraphics += overlayWindow_SetupGraphics;
             overlayWindow.DestroyGraphics += overlayWindow_DestroyGraphics;
             overlayWindow.DrawGraphics += overlayWindow_DrawGraphics;
-
         }
 
         public void Dispose()
@@ -264,8 +187,10 @@ namespace CrewChiefV4.Overlay
             backgroundBrush = gfx.CreateSolidBrush(colorScheme.backgroundColor);
             transparentBrush = gfx.CreateSolidBrush(Color.Transparent);
 
-            titleBar = overlayElements[tileBarName] = new OverlayHeader(gfx, "CrewChief Overlay", fontBold, new Rect(0, 0, overlayWindow.Width, 20), colorScheme, overlayWindow, OnEnableUserInput);
+            titleBar = overlayElements[tileBarName] = new OverlayHeader(gfx, "CrewChief Overlay", fontBold, new Rect(0, 0, overlayWindow.Width, 20), colorScheme, overlayWindow, OnEnableUserInput, OnButtonClosed, OnSavePosition);
             titleBar.AddChildElement(new ElementCheckBox(gfx, "Enable Input", font, new Rect(202, 3, 14, 14), colorScheme));
+            titleBar.AddChildElement(new ElementButton(gfx, "ButtonClose", font, new Rect(overlayWindow.Width - 18, 3, 14, 14), colorScheme));
+            titleBar.AddChildElement(new ElementButton(gfx, "Save window position", font, new Rect(overlayWindow.Width - 160, 3, 130, 14), colorScheme));
 
             maxDisplayLines = settings.maxDisplayLines == -1 || settings.maxDisplayLines > 22 ? 22 : settings.maxDisplayLines;
             messuredFontHeight = font.MeasureString("Hello World", font.FontSize).Height;
@@ -397,7 +322,7 @@ namespace CrewChiefV4.Overlay
 
             gfx.ClearScene(Color.Transparent);
 
-            titleBar.updateInputs(overlayWindow.X, overlayWindow.Y);
+            titleBar.updateInputs(overlayWindow.X, overlayWindow.Y, inputsEnabled);
 
             foreach (var elements in overlayElements.Where(el => el.Value.elementEnabled && el.Value != chartBox))
             {
@@ -650,6 +575,11 @@ namespace CrewChiefV4.Overlay
                 }
             }
         }
+        private void OnButtonClosed(object sender, OverlayElementClicked e)
+        {
+            this.overlayWindow.DeActivateWindow();            
+            Events.OverlayController.shown = false;
+        }
         private void OnUpdateConsole(object sender, OverlayElementDrawUpdate e)
         {
             lock (MainWindow.instance.consoleTextBox)
@@ -779,8 +709,8 @@ namespace CrewChiefV4.Overlay
         // enable user inputs plan is to add the available subscriptins for the current selected/played game here.
         private void OnEnableUserInput(object sender, OverlayElementClicked e)
         {
-            CrewChiefOverlayWindow.inputsEnabled = e.enabled;
-            if (CrewChiefOverlayWindow.inputsEnabled)
+            inputsEnabled = e.enabled;
+            if (inputsEnabled)
             {
                 populateControlBox(e.graphics);
                 displayModeControlBox.elementEnabled = true;
@@ -933,6 +863,12 @@ namespace CrewChiefV4.Overlay
             {
                 OverlayController.showSector(SectorToShow.SECTOR_3);
             }
+        }
+        private void OnSavePosition(object sender, OverlayElementClicked e)
+        {
+            settings.windowX = overlayWindow.X;
+            settings.windowY = overlayWindow.Y;
+            OverlaySettings.saveOverlaySetttings(overlayFileName, settings);
         }
         #endregion
     }

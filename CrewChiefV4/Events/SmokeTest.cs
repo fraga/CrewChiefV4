@@ -104,7 +104,7 @@ namespace CrewChiefV4.Events
         {
             if (AudioPlayer.folderChiefRadioCheck != null)
             {
-                audioPlayer.playSpotterMessage(new QueuedMessage(SMOKE_TEST, 0, messageFragments: MessageContents(AudioPlayer.folderChiefRadioCheck)), false);
+                audioPlayer.playMessageImmediately(new QueuedMessage(SMOKE_TEST, 0, messageFragments: MessageContents(AudioPlayer.folderChiefRadioCheck)), false);
             }
             if (NoisyCartesianCoordinateSpotter.folderSpotterRadioCheck != null
                 && !String.Equals(UserSettings.GetUserSettings().getString("spotter_name"), UserSettings.GetUserSettings().getString("chief_name"), StringComparison.InvariantCultureIgnoreCase))  // Don't play this if spotter and chief are the same person.

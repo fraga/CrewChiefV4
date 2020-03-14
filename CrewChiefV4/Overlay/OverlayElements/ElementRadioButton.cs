@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using GameOverlay.Drawing;
 using GameOverlay.PInvoke;
-using static CrewChiefV4.Overlay.CrewChiefOverlayWindow;
+
 
 namespace CrewChiefV4.Overlay
 {
@@ -16,7 +16,7 @@ namespace CrewChiefV4.Overlay
         private string costumCommand = null;
         public event EventHandler<OverlayElementClicked> OnElementLMButtonClicked;
         public ElementRadioButton(Graphics gfx, string elementTitle, Font font, System.Windows.Rect rectangle,
-            OverlaySettings.ColorScheme colorScheme, EventHandler<OverlayElementClicked> OnElementLMButtonClicked = null, bool isChecked = false, string costumCommand = null) :
+            ColorScheme colorScheme, EventHandler<OverlayElementClicked> OnElementLMButtonClicked = null, bool isChecked = false, string costumCommand = null) :
             base(gfx, elementTitle, font, rectangle, colorScheme)
         {
             if (OnElementLMButtonClicked != null)

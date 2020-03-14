@@ -123,11 +123,6 @@ namespace iRSDKSharp
             using (System.IO.StreamWriter file = new System.IO.StreamWriter(dataFilesPath))
             {
                 file.WriteLine("using System;");
-                file.WriteLine("using System.Collections.Generic;");
-                file.WriteLine("using System.Linq;");
-                file.WriteLine("using System.Text;");
-                file.WriteLine("using System.Threading.Tasks;");
-                file.WriteLine("using System.Runtime.InteropServices;");
                 file.WriteLine("using iRSDKSharp;");
                 file.WriteLine("namespace CrewChiefV4.iRacing");
                 file.WriteLine("{");

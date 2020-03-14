@@ -7,7 +7,6 @@ using System.Windows;
 using GameOverlay.Drawing;
 using GameOverlay.Windows;
 using GameOverlay.PInvoke;
-using static CrewChiefV4.Overlay.CrewChiefOverlayWindow;
 
 namespace CrewChiefV4.Overlay
 {
@@ -74,11 +73,11 @@ namespace CrewChiefV4.Overlay
         public Graphics gfx;
         public OverlayElement parent;
         public List<OverlayElement> children { get; private set; }
-        public OverlaySettings.ColorScheme colorScheme;
+        public ColorScheme colorScheme;
         public bool elementEnabled;
         public System.Windows.Point mousePosition = new System.Windows.Point(0, 0);
         public bool includeFontRectInMouseOver = false;
-        public OverlayElement(Graphics gfx, string elementTitle, Font font, Rect rectangle, OverlaySettings.ColorScheme colorScheme, bool initialState = true)
+        public OverlayElement(Graphics gfx, string elementTitle, Font font, Rect rectangle, ColorScheme colorScheme, bool initialState = true)
         {
             this.title = elementTitle;
             this.rectangle = rectangle;
@@ -99,7 +98,7 @@ namespace CrewChiefV4.Overlay
                 element.initialize();
             }
         }
-        public virtual void updateInputs(int overlayWindowX, int overlayWindowY)
+        public virtual void updateInputs(int overlayWindowX, int overlayWindowY, bool inputEnabled)
         {
         }
         public virtual void drawElement()

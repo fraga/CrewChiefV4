@@ -2,7 +2,7 @@ CrewChief version 4.9
 
 Written by Jim Britton, Morten Roslev, Vytautas Leonavičius, Paul Burgess, Dan Allongo (Automobilista and rFactor1 implementation), Daniel Nowak (nAudio speech recognition port), Mike Schreiner and Brent Owen (technical input on stock car rules). The application is the result of lots of lots of hard work and input from the guys above as well as some great advice and support from the community and the guys at Sector3 and SMS.
 
-Additional material from Scoops (fantastic track layout mapping work) and Longtomjr (F1 2018 UDP data format structs). Fantastic alternate spotter sounds by Geoffrey Lessel, Matt Orr (aka EmptyBox), Clare Britton, Mike Schreiner, Phil Linden, Lee Taylor and Micha (last name?). Also a thank you to Nick Thissen for his work on iRacingSdkWrapper.
+Additional material from Scoops (fantastic track layout mapping work), Nolan Bates (conversion of thousands of phrases from speech to text for subtitle support) and Longtomjr (F1 2018 UDP data format structs). Fantastic alternate spotter sounds by Geoffrey Lessel, Matt Orr (aka EmptyBox), Clare Britton, Mike Schreiner, Phil Linden, Lee Taylor and Micha (last name?). Also a thank you to Nick Thissen for his work on iRacingSdkWrapper.
 
 The source code for Crew Chief is available here: https://github.com/mrbelowski/CrewChiefV4
 
@@ -353,6 +353,11 @@ the 64bit speech recognition installers can be downloaded here 	 : https://drive
 the 32bit speech recognition installers can be downloaded here   : https://drive.google.com/file/d/0B4KQS820QNFbRVJrVjU4X1NxSEU/view?usp=sharing
 
 
+Crew Chief SDK/Shared Memory
+----------------------------
+Crew Chief now exposes some of its internals via Shared Memory block. Currently, subtitle information is exposed, but we might be adding more data in the future. See https://gitlab.com/mr_belowski/CrewChiefV4/-/blob/master/CrewChiefV4SDK/CrewChiefV4SDK/Program.cs to get started.
+
+
 Donations
 ---------
 We built and maintain this because we want to, we enjoy making stuff, and contributing to the Sim Racing community is awesome. Working with the various quirks, errors and omissions in the shared data which the games provide isn't much fun but it's all part of the challenge. Having said that, there are many many hours of hard work invested in this.
@@ -371,7 +376,7 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
-Version 4.11.0.0: Initial Automobilista 2 support (work in progress); ACC - removed pit window messages; ACC - added deprecation warning
+Version 4.11.0.2: Added subtitles. Subtitles can be shown as an overlay from Crew Chief (enable with the 'Enbable subtitle overlay' option in the Properties screen) or can be written to a shared memory file for use in 3rd party overlays or dashboards (enable with the 'Enable shared memory' option). See https://gitlab.com/mr_belowski/CrewChiefV4/-/blob/master/CrewChiefV4SDK/CrewChiefV4SDK/Program.cs for an example project which uses this shared memory file. Note this subtitles require the latest sound pack update. Massive thanks to Nolan Bates for a frankly astonishing amount of work transcribing all of Crew Chief's phrases; Initial Automobilista 2 support (work in progress). To use this set the Shared Memory mode to Project Cars2 in the in-game System menu; ACC - removed pit window messages; ACC - added deprecation warning. We're stopping work on ACC support and might remove support entirely in the future; various bug fixes and tweaks
 
 Version 4.10.0.9: Better handling of corrupted settings files on startup; improved detection of on-track incidents; R3E - tweaked suspension damage thresholds; iRacing - improved session state detection when racing against AI; iRacing - fix pit limiter warnings
 

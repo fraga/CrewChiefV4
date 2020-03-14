@@ -756,6 +756,20 @@
 			"buttonIndex": -1,
 			"opponentDataCommand": false,
 			"availableAction": false
+		},
+		{
+			"action": "SHOW_SUBTITLES",
+			"deviceGuid": "",
+			"buttonIndex": -1,
+			"opponentDataCommand": false,
+			"availableAction": false
+		},
+		{
+			"action": "HIDE_SUBTITLES",
+			"deviceGuid": "",
+			"buttonIndex": -1,
+			"opponentDataCommand": false,
+			"availableAction": false
 		}
 	]
 }
