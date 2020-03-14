@@ -161,26 +161,33 @@ namespace CrewChiefV4.Audio
             // for more personalisations there's a predictable order to the sound file names, but this isn't always
             // the case. Assume the order is as expected but only if the file appears in the expected folder. This 
             // will catch most cases
-            if (fullPath.EndsWith("3.wav") && rawPersonalisation == "oh_dear")
+            if (rawPersonalisation == "oh_dear")
             {
-                subtitle = "oh bad luck " + personalisationName;
-            }
-            else if (fullPath.EndsWith("9.wav") && rawPersonalisation == "oh_dear")
-            {
-                subtitle = "oh no " + personalisationName;
-            }
-            else if (fullPath.EndsWith("10.wav") && rawPersonalisation == "oh_dear")
-            {
-                subtitle = "oh " + personalisationName;
-            }
-            else if (fullPath.EndsWith("sweary_11.wav") && rawPersonalisation == "oh_dear")
-            {
-                subtitle = "fuck's sake " + personalisationName;
-            }
-            else if (fullPath.EndsWith("sweary_12.wav") && rawPersonalisation == "oh_dear")
-            {
-                subtitle = "shit " + personalisationName;
-            }
+                if (fullPath.EndsWith("3.wav"))
+                {
+                    subtitle = "oh bad luck " + personalisationName;
+                }
+                else if (fullPath.EndsWith("9.wav"))
+                {
+                    subtitle = "oh no " + personalisationName;
+                }
+                else if (fullPath.EndsWith("10.wav"))
+                {
+                    subtitle = "oh " + personalisationName;
+                }
+                else if (fullPath.EndsWith("sweary_11.wav"))
+                {
+                    subtitle = "fuck's sake " + personalisationName;
+                }
+                else if (fullPath.EndsWith("sweary_12.wav"))
+                {
+                    subtitle = "shit " + personalisationName;
+                }
+                else if (fullPath.Contains("sweary"))
+                {
+                    subtitle = "fuck's sake " + personalisationName;
+                }
+            }            
             else if (fullPath.EndsWith("22.wav") && rawPersonalisation == "well_done")
             {
                 subtitle = "nice one " + personalisationName;
@@ -188,10 +195,6 @@ namespace CrewChiefV4.Audio
             else if (fullPath.EndsWith("16.wav") && rawPersonalisation == "ok")
             {
                 subtitle = "alright " + personalisationName;
-            }
-            else if (fullPath.Contains("sweary") && rawPersonalisation == "oh_dear")
-            {
-                subtitle = "fuck's sake " + personalisationName;
             }
             else if (strlist.Length == 1)
             {
