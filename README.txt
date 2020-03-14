@@ -376,7 +376,7 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
-Version 4.11.0.0: Initial Automobilista 2 support (work in progress); ACC - removed pit window messages; ACC - added deprecation warning
+Version 4.11.0.2: Added subtitles - enable with the 'Enbable subtitle overlay' option in the Properties screen (note this will require the latest sound pack update). Massive thanks to Nolan Bates for a frankly astonishing amount of work transcribing all of Crew Chief's phrases; Initial Automobilista 2 support (work in progress). To use this set the Shared Memory mode to Project Cars2 in the in-game System menu; ACC - removed pit window messages; ACC - added deprecation warning. We're stopping work on ACC support and might remove support entirely in the future; various bug fixes and tweaks
 
 Version 4.10.0.9: Better handling of corrupted settings files on startup; improved detection of on-track incidents; R3E - tweaked suspension damage thresholds; iRacing - improved session state detection when racing against AI; iRacing - fix pit limiter warnings
 
