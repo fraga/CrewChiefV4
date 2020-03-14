@@ -24,7 +24,7 @@ namespace CrewChiefV4.Overlay
         public bool fontItalic = false;
         public bool textAntiAliasing = true;
         public string activeColorScheme = "CrewChief";
-        public List<ColorScheme> colorSchemes = new List<ColorScheme>() { defaultCrewChiefColorScheme, windowsGrayColorScheme, transparentColorScheme };
+        public List<ColorScheme> colorSchemes;
 
         [JsonIgnore]
         public static ColorScheme defaultCrewChiefColorScheme = new ColorScheme("CrewChief", runningBottomBrown, new Color(204, 182, 97));

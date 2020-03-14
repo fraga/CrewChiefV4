@@ -112,6 +112,10 @@ namespace CrewChiefV4.Overlay
             // initialize a new Graphics object
             // GraphicsWindow will do the remaining initialization            
             settings = OverlaySettings.loadOverlaySetttings<CrewChiefOverlaySettings>(overlayFileName);
+            if (settings.colorSchemes == null || settings.colorSchemes.Count == 0)
+            {
+                settings.colorSchemes = new List<ColorScheme>() { OverlaySettings.defaultCrewChiefColorScheme, OverlaySettings.windowsGrayColorScheme, OverlaySettings.transparentColorScheme };
+            }
             colorScheme = settings.colorSchemes.FirstOrDefault(s => s.name == settings.activeColorScheme);
             colorSchemeTransparent = new ColorScheme("transparent", Color.Transparent, OverlaySettings.mousePissYellow);
             if (colorScheme == null)
