@@ -1695,3 +1695,8 @@ enable_subtitle_overlay = Enable subtitle overlay
 enable_subtitle_overlay_help = Displays an overlay window with subtitles 
 enable_subtitle_overlay_category = AUDIO_VOICE_AND_CONTROLLERS
 enable_subtitle_overlay_metadata = RESTART_REQUIRED
+
+force_stereo = Play messages in stereo (nAudio only)
+force_stereo_help = Convert messages to stereo before playing (nAudio only)
+force_stereo_category = AUDIO_VOICE_AND_CONTROLLERS
+force_stereo_metadata = RESTART_REQUIRED

@@ -22,6 +22,7 @@ namespace CrewChiefV4.Audio
 
         public static String TTS_IDENTIFIER = "TTS_IDENTIFIER";
         private Boolean useAlternateBeeps = UserSettings.GetUserSettings().getBoolean("use_alternate_beeps");
+        public static Boolean forceStereoPlayback = UserSettings.GetUserSettings().getBoolean("force_stereo");
         public static Boolean recordVarietyData = UserSettings.GetUserSettings().getBoolean("record_sound_variety_data");
         public static Boolean dumpListOfUnvocalizedNames = UserSettings.GetUserSettings().getBoolean("save_list_of_unvocalized_names");
         private double minSecondsBetweenPersonalisedMessages = (double)UserSettings.GetUserSettings().getInt("min_time_between_personalised_messages");
@@ -1660,16 +1661,27 @@ namespace CrewChiefV4.Audio
             this.reader = new NAudio.Wave.WaveFileReader(this.memoryStream);
             this.eventHandler = new EventHandler<NAudio.Wave.StoppedEventArgs>(playbackStopped);
             this.nAudioOut.SubscribePlaybackStopped(this.eventHandler);
-            float volume = getVolume(volumeBoost);
-            if (volume == 1f)
+            float volume = getVolume(volumeBoost);   
+            
+            if (SoundCache.forceStereoPlayback)
             {
-                this.nAudioOut.Init(this.reader);
+                var sampleChannel = new NAudio.Wave.SampleProviders.SampleChannel(this.reader);
+                var monoToStereo = new NAudio.Wave.SampleProviders.MonoToStereoSampleProvider(sampleChannel);
+
+                monoToStereo.LeftVolume = volume;
+                monoToStereo.RightVolume = volume;
+
+                this.nAudioOut.Init(new NAudio.Wave.SampleProviders.SampleToWaveProvider(monoToStereo));
+            }
+            else if (volume != 1f)
+            {
+                var sampleChannel = new NAudio.Wave.SampleProviders.SampleChannel(this.reader);
+                sampleChannel.Volume = volume;
+                this.nAudioOut.Init(new NAudio.Wave.SampleProviders.SampleToWaveProvider(sampleChannel));
             }
             else
             {
-                NAudio.Wave.SampleProviders.SampleChannel sampleChannel = new NAudio.Wave.SampleProviders.SampleChannel(this.reader);
-                sampleChannel.Volume = getVolume(volumeBoost);
-                this.nAudioOut.Init(new NAudio.Wave.SampleProviders.SampleToWaveProvider(sampleChannel));
+                this.nAudioOut.Init(this.reader);
             }
             this.reader.CurrentTime = TimeSpan.Zero;
         }

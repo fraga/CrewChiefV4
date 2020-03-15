@@ -4354,5 +4354,17 @@ namespace CrewChiefV4.Properties {
                 this["enable_subtitle_overlay"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool force_stereo {
+            get {
+                return ((bool)(this["force_stereo"]));
+            }
+            set {
+                this["force_stereo"] = value;
+            }
+        }
     }
 }
