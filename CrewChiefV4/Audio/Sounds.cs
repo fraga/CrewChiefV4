@@ -1565,11 +1565,24 @@ namespace CrewChiefV4.Audio
                 this.eventHandler = new EventHandler<StoppedEventArgs>(playbackStopped);
                 uncachedNAudioOut.SubscribePlaybackStopped(this.eventHandler);
 
-                if (volume == 1f)
+                if (SoundCache.forceStereoPlayback || volume != 1f)
                 {
+                    var sampleChannel = new NAudio.Wave.SampleProviders.SampleChannel(uncachedReader);
+                    NAudio.Wave.SampleProviders.MonoToStereoSampleProvider monoToStereo = null;
+                    if (SoundCache.forceStereoPlayback)
+                    {
+                        monoToStereo = new NAudio.Wave.SampleProviders.MonoToStereoSampleProvider(sampleChannel);
+                        monoToStereo.LeftVolume = volume;
+                        monoToStereo.RightVolume = volume;
+                    }
+                    else
+                    {
+                        sampleChannel.Volume = volume;
+                    }
                     try
                     {
-                        uncachedNAudioOut.Init(uncachedReader);
+                        uncachedNAudioOut.Init(SoundCache.forceStereoPlayback ? 
+                            new NAudio.Wave.SampleProviders.SampleToWaveProvider(monoToStereo) : new NAudio.Wave.SampleProviders.SampleToWaveProvider(sampleChannel));
                         SoundCache.currentlyPlayingSound = this;
                         uncachedNAudioOut.Play();
                         // stop waiting after 30 seconds if it's not a beep. If it is a beep wait a few seconds
@@ -1584,7 +1597,7 @@ namespace CrewChiefV4.Audio
                 }
                 else
                 {
-                    NAudio.Wave.SampleProviders.SampleChannel sampleChannel = new NAudio.Wave.SampleProviders.SampleChannel(uncachedReader);
+                    var sampleChannel = new NAudio.Wave.SampleProviders.SampleChannel(uncachedReader);
                     sampleChannel.Volume = volume;
                     try
                     {
