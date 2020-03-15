@@ -7,6 +7,19 @@ using System.Collections.Generic;
 using System.IO;
 namespace CrewChiefV4.Overlay
 {
+    public class ColorScheme
+    {
+        [JsonConstructor]
+        public ColorScheme(string name, Color backgroundColor, Color fontColor)
+        {
+            this.name = name;
+            this.backgroundColor = backgroundColor;
+            this.fontColor = fontColor;
+        }
+        public string name;
+        public Color backgroundColor;
+        public Color fontColor;
+    }
     public class OverlaySettings
     {
         public static Color mousePissYellow = new Color(204, 182, 97, 200);
@@ -31,7 +44,7 @@ namespace CrewChiefV4.Overlay
         [JsonIgnore]
         public static ColorScheme windowsGrayColorScheme = new ColorScheme("WindowsGray", Color.FromARGB(System.Drawing.Color.FromArgb(200, System.Drawing.Color.LightGray).ToArgb()), new Color(0, 0, 0));
         [JsonIgnore]
-        public static ColorScheme transparentColorScheme = new ColorScheme("Transparent", Color.Transparent, OverlaySettings.runningBottomBrown);
+        public static ColorScheme transparentColorScheme = new ColorScheme("Transparent", Color.Transparent, OverlaySettings.mousePissYellow);
 
         public static T loadOverlaySetttings<T>(string overlayFileName) where T : class
         {

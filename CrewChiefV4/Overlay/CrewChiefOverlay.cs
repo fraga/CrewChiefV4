@@ -13,19 +13,7 @@ namespace CrewChiefV4.Overlay
 {
 
     // TODO: split this call into an Overlay, a ChartOverlay and a ConsoleOverlay?
-    public class ColorScheme
-    {
-        [JsonConstructor]
-        public ColorScheme(string name, Color backgroundColor, Color fontColor)
-        {
-            this.name = name;
-            this.backgroundColor = backgroundColor;
-            this.fontColor = fontColor;
-        }
-        public string name;
-        public Color backgroundColor;
-        public Color fontColor;
-    }
+
     public enum RenderMode
     {
         CONSOLE, CHART, ALL
@@ -117,6 +105,7 @@ namespace CrewChiefV4.Overlay
                 settings.colorSchemes = new List<ColorScheme>() { OverlaySettings.defaultCrewChiefColorScheme, OverlaySettings.windowsGrayColorScheme, OverlaySettings.transparentColorScheme };
             }
             colorScheme = settings.colorSchemes.FirstOrDefault(s => s.name == settings.activeColorScheme);
+            colorSchemeTransparent = OverlaySettings.transparentColorScheme;
             if (colorScheme == null)
             {
                 colorScheme = OverlaySettings.defaultCrewChiefColorScheme;

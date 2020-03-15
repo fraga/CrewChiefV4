@@ -139,6 +139,7 @@ namespace CrewChiefV4.Overlay
             fontBrush = gfx.CreateSolidBrush(colorScheme.fontColor);
             backgroundBrush = gfx.CreateSolidBrush(colorScheme.backgroundColor);
             transparentBrush = gfx.CreateSolidBrush(Color.Transparent);
+
             maxDisplayLines = settings.maxSubtitlehistory == -1 || settings.maxSubtitlehistory > 10 ? 10 : settings.maxSubtitlehistory;
             messuredFontHeight = font.MeasureString("H", font.FontSize).Height;
             messuredFontWidth = font.MeasureString("H", font.FontSize).Width;
