@@ -117,7 +117,6 @@ namespace CrewChiefV4.Overlay
                 settings.colorSchemes = new List<ColorScheme>() { OverlaySettings.defaultCrewChiefColorScheme, OverlaySettings.windowsGrayColorScheme, OverlaySettings.transparentColorScheme };
             }
             colorScheme = settings.colorSchemes.FirstOrDefault(s => s.name == settings.activeColorScheme);
-            colorSchemeTransparent = new ColorScheme("transparent", Color.Transparent, OverlaySettings.mousePissYellow);
             if (colorScheme == null)
             {
                 colorScheme = OverlaySettings.defaultCrewChiefColorScheme;

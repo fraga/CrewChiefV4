@@ -24,7 +24,7 @@ namespace CrewChiefV4.Overlay
             public new bool fontBold = true;
             public new int windowX = (Screen.PrimaryScreen.Bounds.Width / 2) - 350;
             public new int windowY = 50;
-            public new string activeColorScheme = "Transparent";
+            public new string activeColorScheme = "CrewChief";
 
         }
         #endregion
