@@ -147,7 +147,7 @@ namespace CrewChiefV4.Overlay
             
 
             titleBar = overlayElements[tileBarName] = new OverlayHeader(gfx, "CrewChief Subtitles", fontBold, new Rect(0, 0, overlayWindow.Width, 20), defaultColorScheme, overlayWindow, OnEnableUserInput, OnButtonClosed, OnSavePosition, initialEnabled: true);
-            titleBar.AddChildElement(new ElementCheckBox(gfx, "Enable Input", fontControls, new Rect(135, 3, 14, 14), defaultColorScheme, initialEnabled: true));
+            titleBar.AddChildElement(new ElementCheckBox(gfx, "Enable Input", fontControls, new Rect(135, 3, 14, 14), defaultColorScheme));
             titleBar.AddChildElement(new ElementButton(gfx, "ButtonClose", font, new Rect(overlayWindow.Width - 18, 3, 14, 14), defaultColorScheme));
             titleBar.AddChildElement(new ElementButton(gfx, "Save window position", fontControls, new Rect(overlayWindow.Width - 160, 3, 130, 14), defaultColorScheme));
 
@@ -182,11 +182,11 @@ namespace CrewChiefV4.Overlay
         bool shiftKeyReleased = false;
         private void overlayWindow_DrawGraphics(object sender, DrawGraphicsEventArgs e)
         {
-            if (Control.ModifierKeys != (Keys.Alt | Keys.Control))
+            if (Control.ModifierKeys != (Keys.Shift | Keys.Control))
             {
                 shiftKeyReleased = true;
             }
-            if (Control.ModifierKeys == (Keys.Alt | Keys.Control) && shiftKeyReleased)
+            if (Control.ModifierKeys == (Keys.Shift | Keys.Control) && shiftKeyReleased)
             {
                 titleBar.elementEnabled = !titleBar.elementEnabled;
                 shiftKeyReleased = false;
@@ -295,7 +295,7 @@ namespace CrewChiefV4.Overlay
             {
                 if(Audio.SubtitleManager.phraseBuffer.Size < 1)
                 {
-                    string subtitle = "Use CTRL + ALT to show/hide the title bar";
+                    string subtitle = "Use SHIFT + CTRL to show/hide the title bar";
                     if (subtitle.Length > maxCharInSubtitleString)
                     {
                         var phraseLines = SplitToLines(subtitle, maxCharInSubtitleString);

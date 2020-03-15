@@ -58,10 +58,7 @@ namespace CrewChiefV4.Overlay
 
                 if (child.title == "Enable Input")
                 {
-                    ((ElementCheckBox)child).enabled = elementEnabled;
                     OnCheckBoxEnableInputClicked?.Invoke(this, new OverlayElementClicked(child.gfx, ((ElementCheckBox)child).enabled));
-
-                    //OnButtonClosed();
                 }
             }
         }
