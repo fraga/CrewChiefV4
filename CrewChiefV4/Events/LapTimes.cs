@@ -1038,7 +1038,7 @@ namespace CrewChiefV4.Events
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHATS_THE_FASTEST_LAP_TIME))
             {
-                if (currentGameState.SessionData.PlayerClassSessionBestLapTime > 0)
+                if (currentGameState != null && currentGameState.SessionData.PlayerClassSessionBestLapTime > 0)
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage("sessionFastestLaptime", 0,
                         messageFragments: MessageContents(TimeSpanWrapper.FromSeconds(currentGameState.SessionData.PlayerClassSessionBestLapTime, Precision.AUTO_LAPTIMES))));
