@@ -15,6 +15,8 @@ namespace CrewChiefV4.Events
         private Boolean brakeTempWarningOnPitExit = UserSettings.GetUserSettings().getBoolean("enable_pit_exit_brake_temp_warning");
         private Boolean tyreTempWarningOnPitExit = UserSettings.GetUserSettings().getBoolean("enable_pit_exit_tyre_temp_warning");
 
+        private Boolean autoEnablePacenotesInPractice = UserSettings.GetUserSettings().getBoolean("auto_enable_pacenotes_in_practice");
+
         private String folderPushToImprove = "push_now/push_to_improve";
         private String folderPushToGetWin = "push_now/push_to_get_win";
         private String folderPushToGetSecond = "push_now/push_to_get_second";
@@ -145,6 +147,12 @@ namespace CrewChiefV4.Events
                                 abstractEvent: this, type: SoundType.IMPORTANT_MESSAGE, priority: 0));
                         }
                     }
+                }
+                if ((currentGameState.SessionData.SessionType == SessionType.Practice || currentGameState.SessionData.SessionType == SessionType.LonePractice) 
+                    && !DriverTrainingService.isPlayingPaceNotes && autoEnablePacenotesInPractice)
+                {
+                    DriverTrainingService.loadPaceNotes(CrewChief.gameDefinition.gameEnum,
+                                currentGameState.SessionData.TrackDefinition.name, currentGameState.carClass.carClassEnum);
                 }
             }
             if (previousGameState != null &&

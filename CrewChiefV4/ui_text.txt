@@ -1700,3 +1700,7 @@ force_stereo = Play messages in stereo (nAudio only)
 force_stereo_help = Convert messages to stereo before playing (nAudio only)
 force_stereo_category = AUDIO_VOICE_AND_CONTROLLERS
 force_stereo_metadata = RESTART_REQUIRED
+
+auto_enable_pacenotes_in_practice = Play pace notes automatically in practice
+auto_enable_pacenotes_in_practice_help = Always start with pace note playback enabled in practice where pace notes are avaialble
+auto_enable_pacenotes_in_practice_category = AUDIO_VOICE_AND_CONTROLLERS
