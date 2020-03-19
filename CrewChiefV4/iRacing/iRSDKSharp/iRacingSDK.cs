@@ -420,16 +420,16 @@ namespace iRSDKSharp
             BroadcastMessage(msg, var1, MakeLong((short)var2, (short)var3));
         }
 
-        public static int BroadcastMessage(BroadcastMessageTypes msg, int var1, int var2)
+        public static bool BroadcastMessage(BroadcastMessageTypes msg, int var1, int var2)
         {
             IntPtr msgId = GetBroadcastMessageID();
             IntPtr hwndBroadcast = IntPtr.Add(IntPtr.Zero, 0xffff);
-            IntPtr result = IntPtr.Zero;
+            bool result = false;
             if (msgId != IntPtr.Zero)
             {
-                result = PostMessage(hwndBroadcast, msgId.ToInt32(), MakeLong((short)msg, (short)var1), var2);
+                result = SendNotifyMessage(hwndBroadcast, msgId.ToInt32(), MakeLong((short)msg, (short)var1), var2);
             }
-            return result.ToInt32();
+            return result;
         }
 
         [DllImport("user32.dll")]
@@ -437,6 +437,9 @@ namespace iRSDKSharp
 
         [DllImport("user32.dll")]
         private static extern IntPtr PostMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
+
+        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        static extern bool SendNotifyMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
 
         [DllImport("Kernel32.dll", CharSet = CharSet.Auto)]
         private static extern IntPtr OpenEvent(UInt32 dwDesiredAccess, Boolean bInheritHandle, String lpName);
