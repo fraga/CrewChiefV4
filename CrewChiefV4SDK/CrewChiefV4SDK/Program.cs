@@ -16,7 +16,7 @@ namespace CrewChiefV4SharedMemory
             try
             {
                 while (true)
-                {
+                {                    
                     if(!sdk.IsConnected())
                     {
                         sdk.initialize();
@@ -25,7 +25,7 @@ namespace CrewChiefV4SharedMemory
                     }
                     if(sdk.IsUpdating()) // Read some data
                     {
-                        int? numTotalPhrases = (int?)sdk.GetData("numTotalPhrases");
+                        int? numTotalPhrases = (int?)sdk.GetData("numTotalPhrases");                       
                         if (numTotalPhrases != null)
                         {
                             Int64[] phraseFileTimes = (Int64[])sdk.GetData("phraseFileTimes");
@@ -42,7 +42,7 @@ namespace CrewChiefV4SharedMemory
                                 }
                             }
                         }
-                        sdk.Tick();
+                        sdk.Tick();                       
                     }
                     else
                     {

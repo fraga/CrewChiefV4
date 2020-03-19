@@ -1,15 +1,22 @@
 ﻿using CrewChiefV4.Events;
+using CrewChiefV4.SharedMemory;
 using GameOverlay.Drawing;
 using GameOverlay.PInvoke;
 using GameOverlay.Windows;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading;
 using System.Windows;
 using System.Windows.Forms;
+using System.Windows.Input;
+using Cursor = System.Windows.Forms.Cursor;
+using Point = System.Windows.Point;
 
 namespace CrewChiefV4.Overlay
 {
@@ -25,6 +32,13 @@ namespace CrewChiefV4.Overlay
             public new int windowX = (Screen.PrimaryScreen.Bounds.Width / 2) - 350;
             public new int windowY = 50;
             public new string activeColorScheme = "CrewChief";
+            public bool capitalLetter = false;
+            public bool hideControlsOnStartup = false;
+            [JsonConverter(typeof(StringEnumConverter))]
+            public DisplayVoices displayVoices = DisplayVoices.All;
+            [JsonConverter(typeof(StringEnumConverter))]
+            public DisplayMode displayMode = DisplayMode.AlwaysOn;
+            public int displayTime = 4;
 
         }
         #endregion
@@ -46,7 +60,7 @@ namespace CrewChiefV4.Overlay
         public bool keepWindowActiveBackUpOnClose = false;
         public int windowHeightBackUpOnClose = -1;
 
-        Dictionary<string, OverlayElement> overlayElements = new Dictionary<string, OverlayElement>();
+        private Dictionary<string, OverlayElement> overlayElements = new Dictionary<string, OverlayElement>();
         static readonly string overlayFileName = "subtitle_overlay.json";
 
         private string tileBarName = "overlay_titlebar";
@@ -58,10 +72,35 @@ namespace CrewChiefV4.Overlay
         private OverlayElement displayModeControlBox = null;
 
         private int maxDisplayLines = 0;
-        float messuredFontHeight = 0;
-        float messuredFontWidth = 0;
-        int maxCharInSubtitleString = 0;
+        private float messuredFontHeight = 0;
         private float subtitleTextBoxHeight = 0;
+        private bool shiftKeyReleased = false;
+        private IntPtr forgroundWindow = IntPtr.Zero;
+        private LinkedList<OverlayElement> linkedTabStopElements = new LinkedList<OverlayElement>();
+        private LinkedListNode<OverlayElement> listNodeTabStopElement;
+
+        public enum DisplayVoices : int { All = 0, ChiefOnly, SpotterOnly, YouOnly, ChiefAndSpotter, YouAndChief, YouAndSpotter }
+
+        public enum DisplayMode : int { AlwaysOn = 0, Movie }
+
+        [DllImport("user32.dll")]
+        public static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr GetForegroundWindow();
+
+        [DllImport("user32.dll")]
+        static extern bool GetKeyboardState(byte[] lpKeyState);
+
+        [DllImport("user32.dll")]
+        static extern uint MapVirtualKey(uint uCode, uint uMapType);
+
+        [DllImport("user32.dll")]
+        static extern IntPtr GetKeyboardLayout(int idThread);
+
+        [DllImport("user32.dll")]
+        static extern int ToUnicodeEx(uint wVirtKey, uint wScanCode, byte[] lpKeyState, [Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder pwszBuff, int cchBuff, uint wFlags, IntPtr dwhkl);
+        // enable user to move the window        
         public SubtitleOverlay()
         {
             // initialize a new Graphics object
@@ -73,6 +112,7 @@ namespace CrewChiefV4.Overlay
             }
             colorScheme = settings.colorSchemes.FirstOrDefault(s => s.name == settings.activeColorScheme);
             defaultColorScheme = OverlaySettings.defaultCrewChiefColorScheme;
+            colorSchemeTransparent = OverlaySettings.transparentColorScheme;
             if (colorScheme == null)
             {
                 colorScheme = defaultColorScheme;
@@ -104,7 +144,6 @@ namespace CrewChiefV4.Overlay
             overlayWindow.SetupGraphics += overlayWindow_SetupGraphics;
             overlayWindow.DestroyGraphics += overlayWindow_DestroyGraphics;
             overlayWindow.DrawGraphics += overlayWindow_DrawGraphics;
-
         }
         public void Dispose()
         {
@@ -141,20 +180,171 @@ namespace CrewChiefV4.Overlay
             transparentBrush = gfx.CreateSolidBrush(Color.Transparent);
 
             maxDisplayLines = settings.maxSubtitlehistory == -1 || settings.maxSubtitlehistory > 10 ? 10 : settings.maxSubtitlehistory;
-            messuredFontHeight = font.MeasureString("H", font.FontSize).Height;
-            messuredFontWidth = font.MeasureString("H", font.FontSize).Width;
+            messuredFontHeight = font.MeasureString("H").Height;
             subtitleTextBoxHeight = messuredFontHeight * (maxDisplayLines);
-            maxCharInSubtitleString = (int)Math.Floor((double)settings.windowWidth / ((double)messuredFontWidth) * 1.5);
             
+            titleBar = overlayElements[tileBarName] = new OverlayHeader(gfx, "CrewChief Subtitles", fontBold, new Rect(0, 0, overlayWindow.Width, 20), defaultColorScheme, overlayWindow, 
+                OnEnableUserInput, OnButtonClosed, initialEnabled: !settings.hideControlsOnStartup);
 
-            titleBar = overlayElements[tileBarName] = new OverlayHeader(gfx, "CrewChief Subtitles", fontBold, new Rect(0, 0, overlayWindow.Width, 20), defaultColorScheme, overlayWindow, OnEnableUserInput, OnButtonClosed, OnSavePosition, initialEnabled: true);
-            titleBar.AddChildElement(new ElementCheckBox(gfx, "Enable Input", fontControls, new Rect(135, 3, 14, 14), defaultColorScheme));
-            titleBar.AddChildElement(new ElementButton(gfx, "ButtonClose", font, new Rect(overlayWindow.Width - 18, 3, 14, 14), defaultColorScheme));
-            titleBar.AddChildElement(new ElementButton(gfx, "Save window position", fontControls, new Rect(overlayWindow.Width - 160, 3, 130, 14), defaultColorScheme));
+            linkedTabStopElements.AddLast(titleBar.AddChildElement(new ElementCheckBox(gfx, "Enable input", fontControls, new Rect(135, 3, 14, 14), defaultColorScheme, initialEnabled: false)));          
+            linkedTabStopElements.AddLast(titleBar.AddChildElement(new ElementButton(gfx, "ButtonClose", font, new Rect(overlayWindow.Width - 18, 3, 14, 14), defaultColorScheme)));
 
-            subtitleElement = overlayElements[subtitleOverlayName] = new ElementTextBox(gfx, subtitleOverlayName, font, new Rect(0, 20, overlayWindow.Width, subtitleTextBoxHeight),
-            colorScheme, OnPhraseUpdate, initialEnableState: true);
+            displayModeControlBox = overlayElements[displayModeBoxName] = new ElementGroupBox(gfx, displayModeBoxName, fontControls, new Rect(0, 20, overlayWindow.Width, 144),
+                defaultColorScheme, initialEnableState: !settings.hideControlsOnStartup);
 
+            //voicesBox.AddChildElement()
+
+            displayModeControlBox.AddChildElement(new ElementText(gfx, "Window width", fontControls, new Rect(0, 2, 90, 17), defaultColorScheme, textAlign: TextAlign.Left | TextAlign.Center));
+
+            var lastChild  = linkedTabStopElements.AddLast(displayModeControlBox.AddChildElement(new ElementTextBox(gfx, "window_width_textbox", fontControls, new Rect(122, 2, 30, 17),
+                defaultColorScheme, text: settings.windowWidth.ToString(), initialEnableState: true, acceptInput: true, maxTextLength: 4, digitsOnly: true, textAlign: TextAlign.Left | TextAlign.Center))).Value;
+            lastChild.OnKeyDown += OnKeyDown;
+            lastChild.OnElementDraw += OnDrawTextBox;
+
+            displayModeControlBox.AddChildElement(new ElementText(gfx, "Max history", fontControls, new Rect(0, 22, 90, 17), defaultColorScheme, textAlign: TextAlign.Left | TextAlign.Center));
+            lastChild = linkedTabStopElements.AddLast(displayModeControlBox.AddChildElement(new ElementTextBox(gfx, "max_history_textbox", fontControls, new Rect(122, 22, 30, 17),
+                defaultColorScheme, text: settings.maxSubtitlehistory.ToString(), initialEnableState: true, acceptInput: true, maxTextLength: 2, digitsOnly: true, textAlign: TextAlign.Left | TextAlign.Center))).Value;
+            lastChild.OnKeyDown += OnKeyDown;
+            lastChild.OnElementDraw += OnDrawTextBox;
+             
+            displayModeControlBox.AddChildElement(new ElementText(gfx, "Font size", fontControls, new Rect(0, 42, 90, 17), defaultColorScheme, textAlign: TextAlign.Left | TextAlign.Center));
+            lastChild = linkedTabStopElements.AddLast(displayModeControlBox.AddChildElement(new ElementTextBox(gfx, "font_size_textbox", fontControls, new Rect(122, 42, 30, 17),
+                defaultColorScheme, text: settings.fontSize.ToString(), initialEnableState: true, acceptInput: true, maxTextLength: 2, digitsOnly: true, textAlign: TextAlign.Left | TextAlign.Center))).Value;
+            lastChild.OnKeyDown += OnKeyDown;
+            lastChild.OnElementDraw += OnDrawTextBox;
+
+            displayModeControlBox.AddChildElement(new ElementText(gfx, "Display time (secunds)", fontControls, new Rect(0, 62, 90, 17), defaultColorScheme, textAlign: TextAlign.Left | TextAlign.Center));
+            lastChild = linkedTabStopElements.AddLast(displayModeControlBox.AddChildElement(new ElementTextBox(gfx, "display_time_textbox", fontControls, new Rect(122, 62, 30, 17),
+                defaultColorScheme, text: settings.displayTime.ToString(), initialEnableState: true, acceptInput: true, maxTextLength: 2, digitsOnly: true, textAlign: TextAlign.Left | TextAlign.Center))).Value;
+            lastChild.OnKeyDown += OnKeyDown;
+            lastChild.OnElementDraw += OnDrawTextBox;
+
+
+            lastChild = linkedTabStopElements.AddLast(displayModeControlBox.AddChildElement(new ElementCheckBox(gfx, "Bold font", fontControls, new Rect(2, 82, 14, 14), defaultColorScheme, initialEnabled: settings.fontBold))).Value;
+            lastChild.OnElementLMButtonClicked = OnBoldFontClicked;
+            lastChild.OnEnterKeyDown += OnBoldFontClicked;
+
+            lastChild = linkedTabStopElements.AddLast(displayModeControlBox.AddChildElement(new ElementCheckBox(gfx, "Capital Letter", fontControls, new Rect(2, 102, 14, 14), defaultColorScheme, initialEnabled: settings.capitalLetter))).Value;
+            lastChild.OnElementLMButtonClicked = OnCapitalLettersClicked;
+            lastChild.OnEnterKeyDown += OnCapitalLettersClicked;
+
+            lastChild = linkedTabStopElements.AddLast(displayModeControlBox.AddChildElement(new ElementCheckBox(gfx, "Hide controls on startup", fontControls, new Rect(2, 122, 14, 14), defaultColorScheme, initialEnabled: settings.hideControlsOnStartup))).Value;
+            lastChild.OnElementLMButtonClicked = OnHideControlsOnStartupClicked;
+            lastChild.OnEnterKeyDown += OnHideControlsOnStartupClicked;
+
+            var colorBox = displayModeControlBox.AddChildElement(new ElementGroupBox(gfx, "Color", fontControls, new Rect(160, 0, 120, 144),
+                colorSchemeTransparent, outlined: false));
+
+            lastChild = linkedTabStopElements.AddLast(colorBox.AddChildElement(new ElementRadioButton(gfx, "Font color", fontControls, new Rect(2, 2, 14, 14), defaultColorScheme,
+                isChecked: true))).Value;
+            lastChild.OnElementLMButtonClicked += OnSelectedColorCliked;
+            lastChild.OnEnterKeyDown += OnSelectedColorCliked;
+
+            lastChild = linkedTabStopElements.AddLast(colorBox.AddChildElement(new ElementRadioButton(gfx, "Background color", fontControls, new Rect(2, 22, 14, 14), defaultColorScheme,
+                isChecked: false))).Value;
+            lastChild.OnElementLMButtonClicked += OnSelectedColorCliked;
+            lastChild.OnEnterKeyDown += OnSelectedColorCliked;
+
+            System.Drawing.Color initialColor = System.Drawing.Color.FromArgb(colorScheme.fontColor.ToARGB());
+
+            colorBox.AddChildElement(new ElementText(gfx, "Red", fontControls, new Rect(2, 42, 90, 17), defaultColorScheme, textAlign: TextAlign.Left | TextAlign.Center));           
+            lastChild = linkedTabStopElements.AddLast(colorBox.AddChildElement(new ElementTextBox(gfx, "color_red_textbox", fontControls, new Rect(85, 42, 30, 17),
+                defaultColorScheme, text: initialColor.R.ToString(), initialEnableState: true, acceptInput: true, 
+                maxTextLength: 3, digitsOnly: true, textAlign: TextAlign.Left | TextAlign.Center))).Value;
+            lastChild.OnKeyDown += OnKeyDown;
+            lastChild.OnElementDraw += OnDrawTextBox;
+
+            colorBox.AddChildElement(new ElementText(gfx, "Green", fontControls, new Rect(2, 62, 90, 17), defaultColorScheme, textAlign: TextAlign.Left | TextAlign.Center));
+
+            lastChild = linkedTabStopElements.AddLast(colorBox.AddChildElement(new ElementTextBox(gfx, "color_green_textbox", fontControls, new Rect(85, 62, 30, 17),
+                defaultColorScheme, text: initialColor.G.ToString(), initialEnableState: true, acceptInput: true, 
+                maxTextLength: 3, digitsOnly: true, textAlign: TextAlign.Left | TextAlign.Center))).Value;
+            lastChild.OnKeyDown += OnKeyDown;
+            lastChild.OnElementDraw += OnDrawTextBox;
+
+            colorBox.AddChildElement(new ElementText(gfx, "Blue", fontControls, new Rect(2, 82, 90, 17), defaultColorScheme, textAlign: TextAlign.Left | TextAlign.Center));
+
+            lastChild = linkedTabStopElements.AddLast(colorBox.AddChildElement(new ElementTextBox(gfx, "color_blue_textbox", fontControls, new Rect(85, 82, 30, 17),
+                defaultColorScheme, text: initialColor.B.ToString(), initialEnableState: true, acceptInput: true, 
+                maxTextLength: 3, digitsOnly: true, textAlign: TextAlign.Left | TextAlign.Center))).Value;
+            lastChild.OnKeyDown += OnKeyDown;
+            lastChild.OnElementDraw += OnDrawTextBox;
+
+            colorBox.AddChildElement(new ElementText(gfx, "Alpha", fontControls, new Rect(2, 102, 90, 17), defaultColorScheme, textAlign: TextAlign.Left | TextAlign.Center));
+
+            lastChild = linkedTabStopElements.AddLast(colorBox.AddChildElement(new ElementTextBox(gfx, "color_alpha_textbox", fontControls, new Rect(85, 102, 30, 17),
+                defaultColorScheme, text: initialColor.A.ToString(), initialEnableState: true, acceptInput: true, 
+                maxTextLength: 3, digitsOnly: true, textAlign: TextAlign.Left | TextAlign.Center))).Value;
+            lastChild.OnKeyDown += OnKeyDown;
+            lastChild.OnElementDraw += OnDrawTextBox;
+
+            lastChild = linkedTabStopElements.AddLast(colorBox.AddChildElement(new ElementButton(gfx, "Set Color", fontControls, new Rect(3, 122, 112, 17), defaultColorScheme))).Value;
+            lastChild.OnElementLMButtonClicked += OnSetSelectedColorClicked;
+
+
+            var voicesBox = displayModeControlBox.AddChildElement(new ElementGroupBox(gfx, "Voices", fontControls, new Rect(280, 0, 120, 144),
+                colorSchemeTransparent, outlined: false));
+
+            lastChild = linkedTabStopElements.AddLast(voicesBox.AddChildElement(new ElementRadioButton(gfx, "All", fontControls, new Rect(2, 2, 14, 14), defaultColorScheme,
+                isChecked: settings.displayVoices == DisplayVoices.All, costumCommand: DisplayVoices.All.ToString()))).Value;
+            lastChild.OnElementLMButtonClicked += OnDisplayVoicesClicked;
+            lastChild.OnEnterKeyDown += OnDisplayVoicesClicked;
+
+            lastChild = linkedTabStopElements.AddLast(voicesBox.AddChildElement(new ElementRadioButton(gfx, "Chief only", fontControls, new Rect(2, 22, 14, 14), defaultColorScheme,
+                isChecked: settings.displayVoices == DisplayVoices.ChiefOnly, costumCommand: DisplayVoices.ChiefOnly.ToString()))).Value;
+            lastChild.OnElementLMButtonClicked += OnDisplayVoicesClicked;
+            lastChild.OnEnterKeyDown += OnDisplayVoicesClicked;
+
+            lastChild = linkedTabStopElements.AddLast(voicesBox.AddChildElement(new ElementRadioButton(gfx, "Spotter only", fontControls, new Rect(2, 42, 14, 14), defaultColorScheme,
+                isChecked: settings.displayVoices == DisplayVoices.SpotterOnly, costumCommand: DisplayVoices.SpotterOnly.ToString()))).Value;
+            lastChild.OnElementLMButtonClicked += OnDisplayVoicesClicked;
+            lastChild.OnEnterKeyDown += OnDisplayVoicesClicked;
+
+            lastChild = linkedTabStopElements.AddLast(voicesBox.AddChildElement(new ElementRadioButton(gfx, "Chief and Spotter", fontControls, new Rect(2, 62, 14, 14), defaultColorScheme,
+            isChecked: settings.displayVoices == DisplayVoices.ChiefAndSpotter, costumCommand: DisplayVoices.ChiefAndSpotter.ToString()))).Value;
+            lastChild.OnElementLMButtonClicked += OnDisplayVoicesClicked;
+            lastChild.OnEnterKeyDown += OnDisplayVoicesClicked;
+
+            lastChild = linkedTabStopElements.AddLast(voicesBox.AddChildElement(new ElementRadioButton(gfx, "You only", fontControls, new Rect(2, 82, 14, 14), defaultColorScheme,
+                isChecked: settings.displayVoices == DisplayVoices.YouOnly, costumCommand: DisplayVoices.YouOnly.ToString()))).Value;
+            lastChild.OnElementLMButtonClicked += OnDisplayVoicesClicked;
+            lastChild.OnEnterKeyDown += OnDisplayVoicesClicked;
+
+            lastChild = linkedTabStopElements.AddLast(voicesBox.AddChildElement(new ElementRadioButton(gfx, "You and Chief", fontControls, new Rect(2, 102, 14, 14), defaultColorScheme,
+                isChecked: settings.displayVoices == DisplayVoices.YouAndChief, costumCommand: DisplayVoices.YouAndChief.ToString()))).Value;
+            lastChild.OnElementLMButtonClicked += OnDisplayVoicesClicked;
+            lastChild.OnEnterKeyDown += OnDisplayVoicesClicked;
+
+            lastChild = linkedTabStopElements.AddLast(voicesBox.AddChildElement(new ElementRadioButton(gfx, "You and Spotter", fontControls, new Rect(2, 122, 14, 14), defaultColorScheme,
+                isChecked: settings.displayVoices == DisplayVoices.YouAndSpotter, costumCommand: DisplayVoices.YouAndSpotter.ToString()))).Value;
+            lastChild.OnElementLMButtonClicked += OnDisplayVoicesClicked;
+            lastChild.OnEnterKeyDown += OnDisplayVoicesClicked;
+
+            var modeBox = displayModeControlBox.AddChildElement(new ElementGroupBox(gfx, "Mode", fontControls, new Rect(400, 0, 120, 40),           
+                colorSchemeTransparent, outlined: false));
+
+            lastChild = linkedTabStopElements.AddLast(modeBox.AddChildElement(new ElementRadioButton(gfx, "Always on", fontControls, new Rect(2, 2, 14, 14), defaultColorScheme,
+                isChecked: settings.displayMode == DisplayMode.AlwaysOn, costumCommand: DisplayMode.AlwaysOn.ToString()))).Value;
+            lastChild.OnElementLMButtonClicked += OnDisplayModeClicked;
+            lastChild.OnEnterKeyDown += OnDisplayModeClicked;
+
+            lastChild = linkedTabStopElements.AddLast(modeBox.AddChildElement(new ElementRadioButton(gfx, "Movie mode", fontControls, new Rect(2, 22, 14, 14), defaultColorScheme,
+                isChecked: settings.displayMode == DisplayMode.Movie, costumCommand: DisplayMode.Movie.ToString()))).Value;
+            lastChild.OnElementLMButtonClicked += OnDisplayModeClicked;
+            lastChild.OnEnterKeyDown += OnDisplayModeClicked;
+
+
+            lastChild = linkedTabStopElements.AddLast(displayModeControlBox.AddChildElement(new ElementButton(gfx, "Save settings", fontControls, new Rect(overlayWindow.Width - 116, 122, 110, 17), defaultColorScheme))).Value;
+            lastChild.OnElementLMButtonClicked += OnSaveOverlaySettings;
+            lastChild.OnEnterKeyDown += OnSaveOverlaySettings;
+
+            listNodeTabStopElement = linkedTabStopElements.First;
+            listNodeTabStopElement.Value.selected = true;
+            subtitleElement = overlayElements[subtitleOverlayName] = new ElementTextBox(gfx, subtitleOverlayName, font, new Rect(0, displayModeControlBox.rectangle.Bottom, overlayWindow.Width, subtitleTextBoxHeight),
+            colorScheme, initialEnableState: true, internalDrawBox: false);
+
+            subtitleElement.OnElementDraw += OnPhraseUpdate;
+            
             overlayWindow.Resize(settings.windowWidth, (int)subtitleElement.rectangle.Bottom);
 
             foreach (var element in overlayElements)
@@ -162,27 +352,90 @@ namespace CrewChiefV4.Overlay
                 element.Value.initialize();
             }
             overlayWindow.OnWindowMessage += overlayWindow_OnWindowMessage;
+            //make sure overlay dont steal focus from main window.
+            Microsoft.VisualBasic.Interaction.AppActivate(System.Diagnostics.Process.GetCurrentProcess().Id);
         }
 
         private void overlayWindow_OnWindowMessage(object sender, OverlayWindowsMessage e)
         {
             try
-            {                
+            {
+                if (e.WindowMessage == WindowMessage.Keydown)
+                {
+                    bool shiftPressed = Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
+                    switch ((Keys)e.wParam)
+                    {                        
+                        case Keys.Tab:
+                            {
+                                if(shiftPressed)
+                                {
+                                    if (linkedTabStopElements.First == listNodeTabStopElement)
+                                    {
+                                        listNodeTabStopElement = linkedTabStopElements.Last;
+                                    }
+                                    else
+                                    {
+                                        listNodeTabStopElement = listNodeTabStopElement.Previous;
+                                    }
+                                }
+                                else
+                                {
+                                    if (linkedTabStopElements.Last == listNodeTabStopElement)
+                                    {
+                                        listNodeTabStopElement = linkedTabStopElements.First;
+                                    }
+                                    else
+                                    {
+                                        listNodeTabStopElement = listNodeTabStopElement.Next;
+                                    }
+                                }
+                                listNodeTabStopElement.Value.selected = true;
+                                foreach (var element in linkedTabStopElements)
+                                {
+                                    if (element != listNodeTabStopElement.Value)
+                                    {
+                                        element.selected = false;
+                                    }
+                                }
+                                return;
+                            }
+                    }
+                }
                 foreach (var element in overlayElements)
                 {
-                    element.Value.OnWindowMessage(e.WindowMessage, e.wParam, e.lParam);
+                    if (element.Value.OnWindowMessage(e.WindowMessage, e.wParam, e.lParam))
+                    {
+                        var linkedElement = linkedTabStopElements.FirstOrDefault(el => el.mousePressed);
+                        if (linkedElement != null)
+                        {
+                            linkedElement.selected = true;
+                            listNodeTabStopElement = linkedTabStopElements.Find(linkedElement);
+                            foreach (var elNode in linkedTabStopElements.Where(el => !el.mousePressed))
+                            {
+                                elNode.selected = false;
+                            }
+                        }
+                    }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                //Console.WriteLine(ex.Message);
                 // Swollow
             }
 
         }
-        bool shiftKeyReleased = false;
-        private void overlayWindow_DrawGraphics(object sender, DrawGraphicsEventArgs e)
+
+        private void DoInputHacks()
         {
+            Point cursor = new Point(Cursor.Position.X, Cursor.Position.Y);
+            Rect overlayRect = new Rect(overlayWindow.X, overlayWindow.Y, overlayWindow.Width, overlayWindow.Height);
+            if (overlayRect.Contains(cursor) && inputsEnabled && titleBar.elementEnabled && (Control.MouseButtons == MouseButtons.Left || 
+                Control.MouseButtons == MouseButtons.Right || Control.MouseButtons == MouseButtons.Middle))
+            {               
+                overlayWindow.ActivateWindow();
+                SetForegroundWindow(overlayWindow.Handle);
+            }
             if (Control.ModifierKeys != (Keys.Shift | Keys.Control))
             {
                 shiftKeyReleased = true;
@@ -190,8 +443,9 @@ namespace CrewChiefV4.Overlay
             if (Control.ModifierKeys == (Keys.Shift | Keys.Control) && shiftKeyReleased)
             {
                 titleBar.elementEnabled = !titleBar.elementEnabled;
+                displayModeControlBox.elementEnabled = !displayModeControlBox.elementEnabled;
                 shiftKeyReleased = false;
-                if(inputsEnabled && titleBar.elementEnabled)
+                if (inputsEnabled && titleBar.elementEnabled)
                 {
                     overlayWindow.ActivateWindow();
                 }
@@ -199,7 +453,21 @@ namespace CrewChiefV4.Overlay
                 {
                     overlayWindow.DeActivateWindow();
                 }
+                if (!titleBar.elementEnabled)
+                {
+                    subtitleElement.rectangle.Y = 0;
+                    overlayWindow.Resize(overlayWindow.X, overlayWindow.Y + (int)displayModeControlBox.rectangle.Bottom, settings.windowWidth, (int)subtitleElement.rectangle.Bottom);
+                }
+                else
+                {
+                    subtitleElement.rectangle.Y = displayModeControlBox.rectangle.Bottom;
+                    overlayWindow.Resize(overlayWindow.X, overlayWindow.Y - (int)displayModeControlBox.rectangle.Bottom, settings.windowWidth, (int)subtitleElement.rectangle.Bottom);
+                }
             }
+        }
+        private void overlayWindow_DrawGraphics(object sender, DrawGraphicsEventArgs e)
+        {
+            DoInputHacks();
             if (!shown)
             {
                 if (!cleared)
@@ -224,31 +492,18 @@ namespace CrewChiefV4.Overlay
             }
             cleared = false;
             var gfx = e.Graphics;
-            int thisFrameWindowHeight = 0;
+            
             if (keepWindowActiveBackUpOnClose)
             {
                 inputsEnabled = keepWindowActiveBackUpOnClose;
-                overlayWindow.ActivateWindow();
+                //overlayWindow.ActivateWindow();
                 keepWindowActiveBackUpOnClose = false;
             }
 
             gfx.ClearScene(Color.Transparent);
 
             titleBar.updateInputs(overlayWindow.X, overlayWindow.Y, inputsEnabled);
-            if(!titleBar.elementEnabled)
-            {
-                subtitleElement.rectangle.Y = 0;
-            }                
-            else
-            {
-                subtitleElement.rectangle.Y = titleBar.rectangle.Bottom;                
-            }
 
-            thisFrameWindowHeight += (int)subtitleElement.rectangle.Bottom;
-            if (thisFrameWindowHeight != overlayWindow.Height)
-            {
-                overlayWindow.Resize(settings.windowWidth, thisFrameWindowHeight);
-            }
             foreach (var elements in overlayElements)
             {
                 elements.Value.drawElement();
@@ -292,64 +547,172 @@ namespace CrewChiefV4.Overlay
         private void OnPhraseUpdate(object sender, OverlayElementDrawUpdate e)
         {
             var lineOffsetY = e.rect.Top;
-            lock(Audio.SubtitleManager.phraseBuffer)
+            ElementTextBox textBox = (ElementTextBox)sender;
+            //e.graphics.DrawBox2D(fontBrush, backgroundBrush, new Rectangle(textBox.rectangle),1);
+            List<string> phraseLines = new List<string>();
+            lock (Audio.SubtitleManager.phraseBuffer)
             {
                 if(Audio.SubtitleManager.phraseBuffer.Size < 1)
                 {
-                    string subtitle = "Use SHIFT + CTRL to show/hide the title bar";
-                    if (subtitle.Length > maxCharInSubtitleString)
+                    
+                    string subtitle = settings.capitalLetter ? "Use CTRL + SHIFT to show/hide settings and title bar".ToUpper() : 
+                        "Use CTRL + SHIFT to show/hide settings and title bar";
+                    if (textBox.font.MeasureString(subtitle).Width > textBox.rectangle.Width)
                     {
-                        var phraseLines = SplitToLines(subtitle, maxCharInSubtitleString);
+                        int maxStringLen = 0;
+                        string messureStr = "" + subtitle[0];
+                        for (; maxStringLen < subtitle.Length; maxStringLen++)
+                        {
+                            if (textBox.font.MeasureString(messureStr).Width < textBox.rectangle.Width)
+                            {
+                                messureStr += subtitle[maxStringLen];
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                        phraseLines = SplitToLines(subtitle, maxStringLen).ToList();
+                        textBox.rectangle.Height = (messuredFontHeight * phraseLines.Count);
+                        e.graphics.FillRectangle(backgroundBrush, new Rectangle(textBox.rectangle));
                         foreach (var line in phraseLines)
                         {
-                            e.graphics.DrawText(font, fontBrush, e.rect.Left, lineOffsetY, line);
+                            e.graphics.DrawText(textBox.font, fontBrush, e.rect.Left, lineOffsetY, line);
                             lineOffsetY += messuredFontHeight;
                         }
                     }
                     else
                     {
-                        e.graphics.DrawText(font, fontBrush, e.rect.Left, lineOffsetY, subtitle);
+                        textBox.rectangle.Height = messuredFontHeight;
+                        e.graphics.FillRectangle(backgroundBrush, new Rectangle(textBox.rectangle));
+                        e.graphics.DrawText(textBox.font, fontBrush, e.rect.Left, lineOffsetY, subtitle);
                         lineOffsetY += messuredFontHeight;
                     }
                     return;
                 }
+
                 var phrases = Audio.SubtitleManager.phraseBuffer.ToArray();
-                for (int i = 0; i < phrases.Length && i < maxDisplayLines && lineOffsetY < overlayWindow.Height; i++)
+                
+                //public enum PhraseVoiceType { chief = 0, spotter, you }
+                int elementCount = settings.displayMode == DisplayMode.AlwaysOn ? settings.maxSubtitlehistory : 1;
+                for (int i = 0; i < phrases.Length && i < elementCount; i++)
                 {
-                    string subtitle = phrases[i].voiceName + ": " + Audio.SubtitleManager.FirstLetterToUpper(phrases[i].phrase);
-                    if (subtitle.Length > maxCharInSubtitleString)
+                    bool showMovie = settings.displayMode == DisplayMode.Movie ? DateTime.Now < DateTime.FromFileTime(phrases[i].fileTime) + TimeSpan.FromSeconds(settings.displayTime) :
+                        true;
+
+                    bool shouldShowVoice = false;
+                    if ((PhraseVoiceType)phrases[i].voiceType == PhraseVoiceType.chief && (settings.displayVoices == DisplayVoices.All || 
+                        settings.displayVoices == DisplayVoices.ChiefOnly || settings.displayVoices == DisplayVoices.ChiefAndSpotter || 
+                        settings.displayVoices == DisplayVoices.YouAndChief))
                     {
-                        var phraseLines = SplitToLines(subtitle, maxCharInSubtitleString);
-                        foreach (var line in phraseLines)
+                        shouldShowVoice = true;
+                    }
+                    else if ((PhraseVoiceType)phrases[i].voiceType == PhraseVoiceType.spotter && (settings.displayVoices == DisplayVoices.All ||
+                        settings.displayVoices == DisplayVoices.SpotterOnly || settings.displayVoices == DisplayVoices.ChiefAndSpotter ||
+                        settings.displayVoices == DisplayVoices.YouAndSpotter))
+                    {
+                        shouldShowVoice = true;
+                    }
+                    else if ((PhraseVoiceType)phrases[i].voiceType == PhraseVoiceType.you && (settings.displayVoices == DisplayVoices.All ||
+                        settings.displayVoices == DisplayVoices.YouOnly || settings.displayVoices == DisplayVoices.YouAndSpotter ||
+                        settings.displayVoices == DisplayVoices.YouAndChief))
+                    {
+                        shouldShowVoice = true;
+                    }
+                    if(!shouldShowVoice || !showMovie)
+                    {
+                        continue;
+                    }
+
+                    string subtitle = settings.capitalLetter ? phrases[i].voiceName.ToUpper() + ": " + phrases[i].phrase.ToUpper() :
+                        phrases[i].voiceName + ": " + Audio.SubtitleManager.FirstLetterToUpper(phrases[i].phrase);
+
+                    if (textBox.font.MeasureString(subtitle).Width > textBox.rectangle.Width)
+                    {
+                        int maxStringLen = 0;
+                        string messureStr = "" + subtitle[0];
+                        for (; maxStringLen < subtitle.Length; maxStringLen++)
                         {
-                            e.graphics.DrawText(font, fontBrush, e.rect.Left, lineOffsetY, line);
-                            lineOffsetY += messuredFontHeight;
+                            if (textBox.font.MeasureString(messureStr).Width < textBox.rectangle.Width)
+                            {
+                                messureStr += subtitle[maxStringLen];
+                            }
+                            else
+                            {
+                                break;
+                            }
                         }
+                        phraseLines.AddRange(SplitToLines(subtitle, maxStringLen));
                     }
                     else
                     {
-                        e.graphics.DrawText(font, fontBrush, e.rect.Left, lineOffsetY, subtitle);
-                        lineOffsetY += messuredFontHeight;
+                        phraseLines.Add(subtitle);
                     }
                 }
+                textBox.rectangle.Height = (messuredFontHeight * phraseLines.Count);
+                if (textBox.rectangle.Bottom != overlayWindow.Height)
+                {
+                    overlayWindow.Resize(settings.windowWidth, (int)textBox.rectangle.Bottom);                    
+                }                    
+                foreach (var line in phraseLines)
+                {
+                    e.graphics.DrawTextWithBackground(textBox.font, fontBrush,backgroundBrush, e.rect.Left, lineOffsetY, line);
+                    lineOffsetY += messuredFontHeight;
+                }
+                
             }
+        }
+
+        private void OnDrawTextBox(object sender, OverlayElementDrawUpdate e)
+        {
+            ElementTextBox element = (ElementTextBox)sender;
+            float carretPos = 1;
+            if (element.text.Length > 0)
+            {
+                System.Drawing.SizeF fontRect = element.font.MeasureString(element.text);
+                carretPos = fontRect.Width + 2;
+
+                if (element.textAlign.HasFlag(TextAlign.Left) && element.textAlign.HasFlag(TextAlign.Top))
+                {
+                    e.graphics.DrawText(element.font, element.secondaryBrush, e.rect.Left + 1, e.rect.Top, element.text);
+                }
+                else if (element.textAlign.HasFlag(TextAlign.Left) && element.textAlign.HasFlag(TextAlign.Center))
+                {
+                    float textY = ((e.rect.Height - fontRect.Height) / 2) + e.rect.Top;
+                    e.graphics.DrawText(element.font, element.secondaryBrush, e.rect.Left + 1, textY, element.text);
+                }
+                /*else if (element.textAlign.HasFlag(TextAlign.CenterRect))
+                {
+                    e.graphics.DrawTextCenterInRect(font, element.secondaryBrush, e.rect, element.text);
+                }*/
+                //e.graphics.DrawText(element.font, fontBrush, e.rect.Left, e.rect.Top, element.text);
+            }
+            if(element.selected && DateTime.Now.Second % 2 == 0)
+            {               
+                e.graphics.DrawLine(element.secondaryBrush, (int)carretPos + e.rect.Left, e.rect.Top + 1, (int)carretPos + e.rect.Left, e.rect.Bottom - 2, 2);
+            }
+            return;
         }
         private void OnButtonClosed(object sender, OverlayElementClicked e)
         {
             this.overlayWindow.DeActivateWindow();
             shown = false;
+            //overlayWindow.Hide();
         }
-        // enable user to move the window
+
         private void OnEnableUserInput(object sender, OverlayElementClicked e)
         {
             inputsEnabled = e.enabled;
             if (inputsEnabled)
             {
+                forgroundWindow = GetForegroundWindow();
                 this.overlayWindow.ActivateWindow();
+                SetForegroundWindow(overlayWindow.Handle);
             }
             else
             {
                 this.overlayWindow.DeActivateWindow();
+                SetForegroundWindow(forgroundWindow);
             }
         }
         private void OnSavePosition(object sender, OverlayElementClicked e)
@@ -357,6 +720,197 @@ namespace CrewChiefV4.Overlay
             settings.windowX = overlayWindow.X;
             settings.windowY = overlayWindow.Y;
             OverlaySettings.saveOverlaySetttings(overlayFileName, settings);
+        }
+        public string KeyCodeToUnicode(Keys key)
+        {
+            byte[] keyboardState = new byte[255];
+            bool keyboardStateStatus = GetKeyboardState(keyboardState);
+
+            if (!keyboardStateStatus)
+            {
+                return "";
+            }
+
+            uint virtualKeyCode = (uint)key;
+            uint scanCode = MapVirtualKey(virtualKeyCode, 0);
+            IntPtr inputLocaleIdentifier = GetKeyboardLayout(Thread.CurrentThread.ManagedThreadId);
+
+            StringBuilder result = new StringBuilder();
+            ToUnicodeEx(virtualKeyCode, scanCode, keyboardState, result, 5, 0, inputLocaleIdentifier);
+
+            return result.ToString();
+        }
+
+        private void OnKeyDown(object sender, OverlayElementKeyDown e)
+        {           
+            ElementTextBox element = (ElementTextBox)sender;
+            string text = element.text;
+            if (e.key == Keys.Back)
+            {
+                if(text.Length > 0)
+                    element.text = text.Remove(text.Length - 1);
+                return;
+            }
+            string wChar = KeyCodeToUnicode(e.key);
+            if (element.digitsOnly && !int.TryParse(wChar, out _))
+            {
+                return;
+            }           
+            text = element.text + wChar;
+            if (element.maxTextLength != 0)
+            {
+                if(text.Length <= element.maxTextLength)
+                {
+                    element.text = text;
+                }               
+                return;
+            }
+            else if (element.font.MeasureString(text).Width < element.rectangle.Width)
+            {
+                element.text = text;
+            }
+
+        }
+        public void OnSaveOverlaySettings(object sender, OverlayElementClicked e)
+        {
+            var windowWidthElement = (ElementTextBox)displayModeControlBox.children.FirstOrDefault(c => c.title == "window_width_textbox");
+            if(int.TryParse(windowWidthElement.text, out int windowWidth))
+            {
+                // if smaller controls wont fit
+                if (windowWidth >= 520)
+                {
+                    settings.windowWidth = windowWidth;
+                }
+                else
+                {
+                    settings.windowWidth = 520;
+                }
+            }
+            var maxHistoryElement = (ElementTextBox)displayModeControlBox.children.FirstOrDefault(c => c.title == "max_history_textbox");
+            if (int.TryParse(maxHistoryElement.text, out int maxHistory))
+            {
+                // max cached size
+                if (maxHistory <= 10)
+                {
+                    settings.maxSubtitlehistory = maxHistory;
+                }
+                else
+                {
+                    settings.maxSubtitlehistory = 10;
+                }
+            }
+            var fontSizeElement = (ElementTextBox)displayModeControlBox.children.FirstOrDefault(c => c.title == "font_size_textbox");
+            if (int.TryParse(fontSizeElement.text, out int fontSize))
+            {
+                // max/min font size
+                if (fontSize <= 92 && fontSize >= 4)
+                {
+                    settings.fontSize = fontSize;
+                }
+                else // revert to default
+                {
+                    settings.fontSize = 16;
+                }
+            }
+            var displayTimeElement = (ElementTextBox)displayModeControlBox.children.FirstOrDefault(c => c.title == "display_time_textbox");
+            if (int.TryParse(displayTimeElement.text, out int displayTime))
+            {
+                settings.displayTime = displayTime;
+            }
+            settings.windowX = overlayWindow.X;
+            settings.windowY = overlayWindow.Y;
+            OverlaySettings.saveOverlaySetttings(overlayFileName, settings);
+        }
+        public void OnCapitalLettersClicked(object sender, OverlayElementClicked e)
+        {
+            settings.capitalLetter = e.enabled;
+        }
+        public void OnHideControlsOnStartupClicked(object sender, OverlayElementClicked e)
+        {
+            settings.hideControlsOnStartup = e.enabled;
+        }
+        public void OnBoldFontClicked(object sender, OverlayElementClicked e)
+        {
+            settings.fontBold = e.enabled;
+        }
+        public void OnDisplayVoicesClicked(object sender, OverlayElementClicked e)
+        {
+            if (Enum.TryParse(e.costumTextId, out DisplayVoices result))
+                settings.displayVoices = result;
+        }
+        public void OnDisplayModeClicked(object sender, OverlayElementClicked e)
+        {
+            if (Enum.TryParse(e.costumTextId, out DisplayMode result))
+                settings.displayMode = result;
+        }
+        public void OnSelectedColorCliked(object sender, OverlayElementClicked e)
+        {
+            ElementRadioButton element = (ElementRadioButton)sender;
+            var colorBox = displayModeControlBox.children.FirstOrDefault(el => el.title == "Color");
+            
+            if (element.title == "Font color")
+            {
+                System.Drawing.Color selectedColor = System.Drawing.Color.FromArgb(colorScheme.fontColor.ToARGB());
+                ((ElementTextBox)colorBox.children.FirstOrDefault(el => el.title == "color_red_textbox")).text = selectedColor.R.ToString();
+                ((ElementTextBox)colorBox.children.FirstOrDefault(el => el.title == "color_green_textbox")).text = selectedColor.G.ToString();
+                ((ElementTextBox)colorBox.children.FirstOrDefault(el => el.title == "color_blue_textbox")).text = selectedColor.B.ToString();
+                ((ElementTextBox)colorBox.children.FirstOrDefault(el => el.title == "color_alpha_textbox")).text = selectedColor.A.ToString();
+            }
+            else
+            {
+                System.Drawing.Color selectedColor = System.Drawing.Color.FromArgb(colorScheme.backgroundColor.ToARGB());
+                ((ElementTextBox)colorBox.children.FirstOrDefault(el => el.title == "color_red_textbox")).text = selectedColor.R.ToString();
+                ((ElementTextBox)colorBox.children.FirstOrDefault(el => el.title == "color_green_textbox")).text = selectedColor.G.ToString();
+                ((ElementTextBox)colorBox.children.FirstOrDefault(el => el.title == "color_blue_textbox")).text = selectedColor.B.ToString();
+                ((ElementTextBox)colorBox.children.FirstOrDefault(el => el.title == "color_alpha_textbox")).text = selectedColor.A.ToString();
+            }
+        }
+        public void OnSetSelectedColorClicked(object sender, OverlayElementClicked e)
+        {
+            var colorBox = displayModeControlBox.children.FirstOrDefault(el => el.title == "Color");
+            if(colorBox != null)
+            {
+                var selecteColor = colorBox.children.FirstOrDefault(el => el.GetType() == typeof(ElementRadioButton) && ((ElementRadioButton)el).enabled);                
+                if(selecteColor != null)
+                {
+                    var red = ((ElementTextBox)colorBox.children.FirstOrDefault(el => el.title == "color_red_textbox")).text;
+                    var green = ((ElementTextBox)colorBox.children.FirstOrDefault(el => el.title == "color_green_textbox")).text;
+                    var blue = ((ElementTextBox)colorBox.children.FirstOrDefault(el => el.title == "color_blue_textbox")).text;
+                    var alpha = ((ElementTextBox)colorBox.children.FirstOrDefault(el => el.title == "color_alpha_textbox")).text;
+                    if(int.TryParse(red, out int redValue) && int.TryParse(green, out int greenValue) && int.TryParse(blue, out int blueValue) && int.TryParse(alpha, out int alphaValue))
+                    {
+                        if (redValue < 0 && redValue > 255)
+                        {
+                            redValue = 255;
+                        }
+                        if (greenValue < 0 && greenValue > 255)
+                        {
+                            greenValue = 255;
+                        }
+                        if (blueValue < 0 && blueValue > 255)
+                        {
+                            blueValue = 255;
+                        }
+                        if (alphaValue < 0 && alphaValue > 255)
+                        {
+                            alphaValue = 255;
+                        }
+                        if (selecteColor.title == "Font color")
+                        {
+                            fontBrush = e.graphics.CreateSolidBrush(new Color(redValue, greenValue, blueValue, alphaValue));
+                            settings.colorSchemes.FirstOrDefault(cs => cs.name == settings.activeColorScheme).fontColor = new Color(redValue, greenValue, blueValue, alphaValue);
+
+                        }
+                        else
+                        {
+                            backgroundBrush = e.graphics.CreateSolidBrush(new Color(redValue, greenValue, blueValue, alphaValue));
+                            settings.colorSchemes.FirstOrDefault(cs => cs.name == settings.activeColorScheme).backgroundColor = new Color(redValue, greenValue, blueValue, alphaValue);
+                        }
+                    }
+
+                }
+                
+            }
         }
     }
 }

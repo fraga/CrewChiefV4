@@ -132,8 +132,8 @@ PRACTICE_PIT_STOP = time this stop:practice pitstop:time this pitstop:pitstop be
 
 SET_ALARM_CLOCK = set alarm to:alarm me at
 CLEAR_ALARM_CLOCK = clear alarm clock:clear alarms
-AM=a m
-PM=pe m
+AM = a m
+PM = pe m
 
 ENABLE_CUT_TRACK_WARNINGS = enable cut track warnings:play cut track warnings:warn about cuts
 DISABLE_CUT_TRACK_WARNINGS = no cut track warnings:no more cut warnings:no more cut track warnings

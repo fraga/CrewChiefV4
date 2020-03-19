@@ -9,7 +9,7 @@ namespace CrewChiefV4.Overlay
 {
     public class ColorScheme
     {
-        [JsonConstructor]
+        //[JsonConstructor]
         public ColorScheme(string name, Color backgroundColor, Color fontColor)
         {
             this.name = name;
@@ -20,6 +20,10 @@ namespace CrewChiefV4.Overlay
         public Color backgroundColor;
         public Color fontColor;
     }
+
+    [Flags]
+    public enum TextAlign : uint { Left = 0x00000001, Right = 0x00000002, Top = 0x00000004, Bottom = 0x00000008, Center = 0x00000010, CenterRect = 0x00000020, }
+
     public class OverlaySettings
     {
         public static Color mousePissYellow = new Color(204, 182, 97, 200);

@@ -4,6 +4,7 @@ using GameOverlay.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace CrewChiefV4.Overlay
 {
@@ -14,18 +15,23 @@ namespace CrewChiefV4.Overlay
             ColorScheme colorScheme, bool initialEnableState = true, bool outlined = true) :
             base(gfx, elementTitle, font, rectangle, colorScheme, initialEnableState)
         {
-            parent = this;
+            //parent = this;
             this.outlined = outlined;
         }
         public override void drawElement()
         {
             if (!this.elementEnabled)
                 return;
-                       
-            if(outlined)
-                gfx.DrawBox2D(base.secondaryBrush, base.primaryBrush, new Rectangle(base.rectangle), 1);
+            System.Windows.Rect rect = getAbsolutePosition();
+            /*if (parent != null && parent != this)
+            {
+                rect.Y += parent.rectangle.Y;
+                rect.X += parent.rectangle.X;
+            }*/
+            if (outlined)
+                gfx.DrawBox2D(base.secondaryBrush, base.primaryBrush, new Rectangle(rect), 1);
             else
-                gfx.FillRectangle(base.primaryBrush, new Rectangle(base.rectangle));
+                gfx.FillRectangle(base.primaryBrush, new Rectangle(rect));
 
             foreach (var child in children)
             {

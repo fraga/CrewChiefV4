@@ -34,7 +34,7 @@ namespace CrewChiefV4.Audio
             Console.WriteLine("[Subtitle] You: " + phrase);
             lock(phraseBuffer)
             {
-                phraseBuffer.PushFront(new Phrase(0, "You", phrase));
+                phraseBuffer.PushFront(new Phrase(0, "You", phrase, (int)PhraseVoiceType.you));
                 if (CrewChief.enableSharedMemory)
                 {
                     CrewChief.sharedMemoryManager.WritePhrases(phraseBuffer.ToArray());
@@ -103,7 +103,7 @@ namespace CrewChiefV4.Audio
                 Console.WriteLine("[Subtitle] " + voiceName + ": "+ subtitleFullString);
                 lock(phraseBuffer)
                 {
-                    phraseBuffer.PushFront(new Phrase(0, voiceName, subtitleFullString));
+                    phraseBuffer.PushFront(new Phrase(0, voiceName, subtitleFullString, soundMetadata.type == SoundType.SPOTTER ? (int)PhraseVoiceType.spotter : (int)PhraseVoiceType.chief));
                     if (CrewChief.enableSharedMemory)
                     {
                         CrewChief.sharedMemoryManager.WritePhrases(phraseBuffer.ToArray());

@@ -14,6 +14,8 @@ namespace CrewChiefV4.SharedMemory
     public enum VarType { ccChar, ccBool, ccWChar, ccInt, ccFloat, ccDouble, ccInt64, stringArray, wstringArray };
 
     public enum UpdateStatus { disconnected = 0, connected, updating };
+
+    public enum PhraseVoiceType { chief = 0, spotter, you }
     // fixed size of 400, not reflected!
     // the layout of this class should always stay the same so we need to make sure this is the layout we want going forward.
     public struct VarHeader
@@ -89,12 +91,15 @@ namespace CrewChiefV4.SharedMemory
         // 8192 (2x the longest rant).
         public string phrase;
 
-        public Phrase(Int32 phraseSequenceId, string voiceName, string phrase)
+        public int voiceType;
+
+        public Phrase(Int32 phraseSequenceId, string voiceName, string phrase, int voiceType)
         {
             this.phraseSequenceId = phraseSequenceId;
             this.fileTime = DateTime.Now.ToFileTime();
             this.voiceName = voiceName;
             this.phrase = phrase;
+            this.voiceType = voiceType;
         }
     }
     // Main header for shared memory 
@@ -159,6 +164,7 @@ namespace CrewChiefV4.SharedMemory
             offsetNextBuf = AddVarHeader((int)VarType.ccInt64, offsetNextBuf, 10, "phraseFileTimes", "Last update time" );
             offsetNextBuf = AddVarHeader((int)VarType.wstringArray, offsetNextBuf, 10, "phraseVoiceNames", "Phrase voice name", "" , 256);
             offsetNextBuf = AddVarHeader((int)VarType.wstringArray, offsetNextBuf, 10, "phrasePhrases", "phrases", "", 4096);
+            offsetNextBuf = AddVarHeader((int)VarType.ccInt, offsetNextBuf, 10, "phrasesVoiceType", "enum PhraseVoiceType { chief = 0, spotter, you }", "");
 
             header.ver = 1;
             header.varHeaderOffset = headerSize;
@@ -377,17 +383,20 @@ namespace CrewChiefV4.SharedMemory
                         Int64[] fileTimesArray = new Int64[phrases.Length];
                         string[] voiceNamesArray = new string[phrases.Length];
                         string[] phrasesArray = new string[phrases.Length];
+                        int[] voiceTypeArray = new int[phrases.Length];
                         for (int i = 0; i < phrases.Length; i++)
                         {
                             sequenceIdsArray[i] = phrases[i].phraseSequenceId;
                             fileTimesArray[i] = phrases[i].fileTime;
                             voiceNamesArray[i] = phrases[i].voiceName;
                             phrasesArray[i] = phrases[i].phrase;
+                            voiceTypeArray[i] = phrases[i].voiceType;
                         }
                         UpdateVariable("phraseSequenceIds", sequenceIdsArray);
                         UpdateVariable("phraseFileTimes", fileTimesArray);
                         UpdateVariable("phraseVoiceNames", voiceNamesArray);
                         UpdateVariable("phrasePhrases", phrasesArray);
+                        UpdateVariable("phrasesIsSpotter", voiceTypeArray);
                     }
                 }
                 catch (Exception e)
