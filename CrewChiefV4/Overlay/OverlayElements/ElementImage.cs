@@ -19,18 +19,14 @@ namespace CrewChiefV4.Overlay
         bool outlined = false;
         bool mmButton = false;
         public ChartContainer chartContainer;
-        public event EventHandler<OverlayElementMouseWheel> OnElementMWheel;
-        public event EventHandler<OverlayElementClicked> OnElementMMButtonClicked;
-        public ElementImage(Graphics gfx, string elementTitle, Font font, System.Windows.Rect rectangle,ColorScheme colorScheme, 
-            EventHandler<OverlayElementMouseWheel> OnElementMWheel = null, EventHandler<OverlayElementClicked> OnElementMMButtonClicked = null,
+
+        public ElementImage(Graphics gfx, string elementTitle, Font font, System.Windows.Rect rectangle,ColorScheme colorScheme,
             ChartContainer chartContainer = null, float imageAlpha = 1, bool outlined = false) :
             base(gfx, elementTitle, font, rectangle, colorScheme)
         {
             this.chartContainer = chartContainer;
             this.imageAlpha = imageAlpha;
             this.outlined = outlined;
-            this.OnElementMWheel += OnElementMWheel;
-            this.OnElementMMButtonClicked += OnElementMMButtonClicked;
             if(this.chartContainer != null)
             {
                 this.image = new Image(gfx, this.chartContainer.data);
@@ -48,12 +44,8 @@ namespace CrewChiefV4.Overlay
         {
             if (!this.elementEnabled)
                return;
-            System.Windows.Rect rect = base.rectangle;
-            if (parent != null)
-            {
-                rect.Y += parent.rectangle.Y;
-                rect.X += parent.rectangle.X;
-            }
+            System.Windows.Rect rect = getAbsolutePosition();
+
             if(image!= null)
                 gfx.DrawImage(image, new Point((float)rect.X, (float)rect.Y), imageAlpha);
             if(outlined)
@@ -74,7 +66,7 @@ namespace CrewChiefV4.Overlay
                 image = null;
             }
         }
-        public override void OnWindowMessage(WindowMessage message, IntPtr wParam, IntPtr lParam)
+        public override bool OnWindowMessage(WindowMessage message, IntPtr wParam, IntPtr lParam)
         {
             if(mouseOver)
             {
@@ -92,11 +84,13 @@ namespace CrewChiefV4.Overlay
                     mmButton = false;
                     OnElementMMButtonClicked?.Invoke(this, new OverlayElementClicked(gfx));
                 }
+                return true;
             }
             else
             {
                 mmButton = false;
             }
+            return false;
         }
     }
 

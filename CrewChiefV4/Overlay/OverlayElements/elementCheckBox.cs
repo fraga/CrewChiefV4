@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Forms;
 using GameOverlay.Drawing;
 using GameOverlay.PInvoke;
 using GameOverlay.Windows;
@@ -14,16 +15,11 @@ namespace CrewChiefV4.Overlay
     {
         public bool enabled = false;
         public string subscriptionDataField;
-        public event EventHandler<OverlayElementClicked> OnElementLMButtonClicked;
-
+        
         public ElementCheckBox(Graphics gfx, string elementTitle, Font font, Rect rectangle,
-            ColorScheme colorScheme, EventHandler<OverlayElementClicked> OnElementLMButtonClicked = null, string subscriptionDataField = "", bool initialEnabled = false) 
+            ColorScheme colorScheme, string subscriptionDataField = "", bool initialEnabled = false) 
             : base(gfx, elementTitle, font, rectangle, colorScheme)
         {
-            if(OnElementLMButtonClicked != null)
-            {
-                this.OnElementLMButtonClicked += OnElementLMButtonClicked;
-            }
             this.subscriptionDataField = subscriptionDataField;
             this.enabled = initialEnabled;
             this.includeFontRectInMouseOver = true;
@@ -31,20 +27,15 @@ namespace CrewChiefV4.Overlay
         public override void initialize()
         {
             if(enabled)
-                this.OnElementLMButtonClicked?.Invoke(this, new OverlayElementClicked(gfx, enabled: enabled, subscriptionDataField: ""));
+                this.OnElementLMButtonClicked?.Invoke(this, new OverlayElementClicked(gfx, enabled: enabled, costumTextId: ""));
         }
         public override void drawElement()
         {
             if (!this.elementEnabled)
                 return;
-            Rect rect = base.rectangle;
-            if (parent != null)
-            {
-                rect.Y += parent.rectangle.Y;
-                rect.X += parent.rectangle.X;
-            }
+            System.Windows.Rect rect = getAbsolutePosition();
 
-            gfx.DrawBox2D(base.secondaryBrush, base.primaryBrush, new Rectangle(rect), mouseOver ? 2 : 1);
+            gfx.DrawBox2D(base.secondaryBrush, base.primaryBrush, new Rectangle(rect), mouseOver || selected ? 2 : 1);
             gfx.DrawText(base.font, 12, base.secondaryBrush, (float)rect.Right + 4, (float)rect.Y, base.title);
 
             if (enabled)
@@ -55,9 +46,15 @@ namespace CrewChiefV4.Overlay
             }
             return;
         }
-        public override void OnWindowMessage(WindowMessage message, IntPtr wParam, IntPtr lParam)
+        public override bool OnWindowMessage(WindowMessage message, IntPtr wParam, IntPtr lParam)
         {
             //base.OnWindowMessage(message, wParam, lParam);
+            if (selected && message == WindowMessage.Keydown && ((Keys)wParam == Keys.Return || (Keys)wParam == Keys.Enter || (Keys)wParam == Keys.Space))
+            {
+                enabled = !enabled;
+                OnEnterKeyDown?.Invoke(this, new OverlayElementClicked(gfx, enabled: enabled, costumTextId: subscriptionDataField));
+                return true;
+            }
             if (mouseOver)
             {
                 if (message == WindowMessage.Lbuttondown)
@@ -68,14 +65,15 @@ namespace CrewChiefV4.Overlay
                 {
                     mousePressed = false;
                     enabled = !enabled;
-                    this.OnElementLMButtonClicked?.Invoke(this, new OverlayElementClicked(gfx, enabled: enabled, subscriptionDataField: subscriptionDataField));
+                    this.OnElementLMButtonClicked?.Invoke(this, new OverlayElementClicked(gfx, enabled: enabled, costumTextId: subscriptionDataField));
                 }
+                return true;
             }
             else
             {
                 mousePressed = false;
             }
-
+            return false;
         }
     }
 }

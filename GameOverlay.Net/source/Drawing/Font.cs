@@ -75,14 +75,22 @@ namespace GameOverlay.Drawing
                 WordWrapping = wordWrapping ? WordWrapping.Wrap : WordWrapping.NoWrap
             };
         }
-        public System.Drawing.SizeF MeasureString(string Message,float Width)
+        /// <summary>
+        /// Gets the width and height of string.
+        /// </summary>
+        /// <param name="Message">The string to messure.</param>
+        /// <param name="WidthIncludingTrailingWhitespace">include trailing whitepaces in result.</param>
+        public System.Drawing.SizeF MeasureString(string Message, bool WidthIncludingTrailingWhitespace = true)
         {
             FontFactory factory = new FontFactory();
-            SharpDX.DirectWrite.TextLayout layout = new SharpDX.DirectWrite.TextLayout(factory, Message, TextFormat, Width, TextFormat.FontSize);
-            factory.Dispose();
-           // textFormat.Dispose(); // IMPORTANT! If you don't dispose your SharpDX resources, your program will crash after a while.
 
-            return new System.Drawing.SizeF(layout.Metrics.Width, layout.Metrics.Height);
+            SharpDX.DirectWrite.TextLayout layout = new SharpDX.DirectWrite.TextLayout(factory, Message, TextFormat, TextFormat.FontSize, TextFormat.FontSize);
+            factory.Dispose();
+            //TextFormat.Dispose(); // IMPORTANT! If you don't dispose your SharpDX resources, your program will crash after a while.
+            float outWidth = WidthIncludingTrailingWhitespace ? layout.Metrics.WidthIncludingTrailingWhitespace : layout.Metrics.Width;
+            float outHeight = layout.Metrics.Height;
+            layout.Dispose();
+            return new System.Drawing.SizeF(outWidth, outHeight);
         }
         /// <summary>
         /// Allows an object to try to free resources and perform other cleanup operations before it is reclaimed by garbage collection.

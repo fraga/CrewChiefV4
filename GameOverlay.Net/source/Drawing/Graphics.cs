@@ -1784,7 +1784,7 @@ namespace GameOverlay.Drawing
         /// <param name="text">The string to be drawn.</param>
         public void DrawTextCenterInRect(Font font, IBrush brush, System.Windows.Rect rectangle, string text)
         {
-            System.Drawing.SizeF stringSize = font.MeasureString(text, font.FontSize);
+            System.Drawing.SizeF stringSize = font.MeasureString(text);
             float textX = (((float)rectangle.Width - stringSize.Width) / 2) + (float)rectangle.X;
             float textY = (((float)rectangle.Height - stringSize.Height) / 2) + (float)rectangle.Y;
 
@@ -1827,8 +1827,8 @@ namespace GameOverlay.Drawing
                 layout.SetFontSize(fontSize, new TextRange(0, text.Length));
             }
 
-            float modifier = layout.FontSize * 0.25f;
-            var rectangle = new RawRectangleF(x - modifier, y - modifier, x + layout.Metrics.Width + modifier, y + layout.Metrics.Height + modifier);
+            float modifier = layout.FontSize/* * 0.25f*/;
+            var rectangle = new RawRectangleF(x, y, x + layout.Metrics.Width, y + layout.Metrics.Height);
 
             _device.FillRectangle(rectangle, background.Brush);
 

@@ -13,7 +13,6 @@ namespace CrewChiefV4.Overlay
 {
 
     // TODO: split this call into an Overlay, a ChartOverlay and a ConsoleOverlay?
-
     public enum RenderMode
     {
         CONSOLE, CHART, ALL
@@ -176,66 +175,90 @@ namespace CrewChiefV4.Overlay
             transparentBrush = gfx.CreateSolidBrush(Color.Transparent);
 
             titleBar = overlayElements[tileBarName] = new OverlayHeader(gfx, "CrewChief Overlay", fontBold, new Rect(0, 0, overlayWindow.Width, 20), colorScheme, overlayWindow, OnEnableUserInput, OnButtonClosed, OnSavePosition);
-            titleBar.AddChildElement(new ElementCheckBox(gfx, "Enable Input", font, new Rect(202, 3, 14, 14), colorScheme));
+            titleBar.AddChildElement(new ElementCheckBox(gfx, "Enable input", font, new Rect(202, 3, 14, 14), colorScheme));
             titleBar.AddChildElement(new ElementButton(gfx, "ButtonClose", font, new Rect(overlayWindow.Width - 18, 3, 14, 14), colorScheme));
             titleBar.AddChildElement(new ElementButton(gfx, "Save window position", font, new Rect(overlayWindow.Width - 160, 3, 130, 14), colorScheme));
 
             maxDisplayLines = settings.maxDisplayLines == -1 || settings.maxDisplayLines > 22 ? 22 : settings.maxDisplayLines;
-            messuredFontHeight = font.MeasureString("Hello World", font.FontSize).Height;
+            messuredFontHeight = font.MeasureString("Hello World").Height;
             consoleBoxHeight = messuredFontHeight * (maxDisplayLines);
             consoleControlBox = overlayElements[consoleBoxName] = new ElementTextBox(gfx, consoleBoxName, font, new Rect(0, 20, overlayWindow.Width, consoleBoxHeight),
-                colorScheme, OnUpdateConsole, initialEnableState: false);
+                colorScheme, initialEnableState: false);
+            consoleControlBox.OnElementDraw += OnUpdateConsole;
 
             displayModeControlBox = overlayElements[displayModeBoxName] = new ElementGroupBox(gfx, displayModeBoxName, font, new Rect(0, 20, overlayWindow.Width, 22),
                 colorScheme, initialEnableState: false);
             int offsetX = (int)displayModeControlBox.rectangle.X + 2;
             int offsetY = (int)displayModeControlBox.rectangle.Y + 2;
 
-            startAppButton = displayModeControlBox.AddChildElement(new ElementButton(gfx, "Start App", font, new Rect(4, 2, 150, 16), colorScheme,
-                OnStartApplication));
+            startAppButton = displayModeControlBox.AddChildElement(new ElementButton(gfx, "Start App", font, new Rect(4, 2, 150, 16), colorScheme));
+            startAppButton.OnElementLMButtonClicked += OnStartApplication;
 
-            displayModeControlBox.AddChildElement(new ElementRadioButton(gfx, "Show Telemetry Chart(s)", font, new Rect(offsetX + 200, 4, 14, 14), colorScheme,
-                OnShowCharts, isChecked: OverlayController.mode == RenderMode.CHART));
-            displayModeControlBox.AddChildElement(new ElementRadioButton(gfx, "Show Console", font, new Rect(offsetX + 400, 4, 14, 14), colorScheme,
-                OnShowConsole, isChecked: OverlayController.mode == RenderMode.CONSOLE));
-            displayModeControlBox.AddChildElement(new ElementRadioButton(gfx, "Show Both", font, new Rect(offsetX + 600, 4, 14, 14), colorScheme,
-                OnShowAll, isChecked: OverlayController.mode == RenderMode.ALL));
+            var lastChild = displayModeControlBox.AddChildElement(new ElementRadioButton(gfx, "Show Telemetry Chart(s)", font, new Rect(offsetX + 200, 4, 14, 14), colorScheme,            
+                isChecked: OverlayController.mode == RenderMode.CHART));
+            lastChild.OnElementLMButtonClicked += OnShowCharts;
 
+            lastChild = displayModeControlBox.AddChildElement(new ElementRadioButton(gfx, "Show Console", font, new Rect(offsetX + 400, 4, 14, 14), colorScheme,
+                isChecked: OverlayController.mode == RenderMode.CONSOLE));
+            lastChild.OnElementLMButtonClicked += OnShowConsole;
+
+            lastChild = displayModeControlBox.AddChildElement(new ElementRadioButton(gfx, "Show Both", font, new Rect(offsetX + 600, 4, 14, 14), colorScheme,
+                isChecked: OverlayController.mode == RenderMode.ALL));
+            lastChild.OnElementLMButtonClicked += OnShowAll;
             chartModeControlBox = overlayElements[chartModeBoxName] = new ElementGroupBox(gfx, chartModeBoxName, font, new Rect(0, 0, overlayWindow.Width, 20),
                 colorScheme, initialEnableState: false);
             offsetX = (int)chartModeControlBox.rectangle.Left + 2;
             offsetY = (int)chartModeControlBox.rectangle.Top + 2;
-            chartModeControlBox.AddChildElement(new ElementRadioButton(gfx, "Single Telemetry Chart", font, new Rect(offsetX, 2, 14, 14), colorScheme, OnShowSingleChart,
+
+            lastChild = chartModeControlBox.AddChildElement(new ElementRadioButton(gfx, "Single Telemetry Chart", font, new Rect(offsetX, 2, 14, 14), colorScheme,
                 isChecked: OverlayController.chartRenderMode == ChartRenderMode.SINGLE));
-            chartModeControlBox.AddChildElement(new ElementRadioButton(gfx, "Stacked Telemetry Charts", font, new Rect(offsetX + 200, 2, 14, 14), colorScheme, OnShowStackedCharts,
+            lastChild.OnElementLMButtonClicked += OnShowSingleChart;
+
+            lastChild = chartModeControlBox.AddChildElement(new ElementRadioButton(gfx, "Stacked Telemetry Charts", font, new Rect(offsetX + 200, 2, 14, 14), colorScheme,
                 isChecked: OverlayController.chartRenderMode == ChartRenderMode.STACKED));
+            lastChild.OnElementLMButtonClicked += OnShowStackedCharts;
 
             subscriptionModeControlBox = overlayElements[subscriptionModeBoxName] = new ElementGroupBox(gfx, subscriptionModeBoxName, font, new Rect(0, 0, overlayWindow.Width, 38),
                 colorScheme, initialEnableState: false);
             offsetX = (int)subscriptionModeControlBox.rectangle.Left + 2;
             offsetY = (int)subscriptionModeControlBox.rectangle.Top + 2;
-            subscriptionModeControlBox.AddChildElement(new ElementCheckBox(gfx, "Show Last Lap", font, new Rect(offsetX, 2, 14, 14), colorScheme, OnShowLastLap, initialEnabled: true));
-            subscriptionModeControlBox.AddChildElement(new ElementCheckBox(gfx, "Show Best Lap", font, new Rect(offsetX + 200, 2, 14, 14), colorScheme, OnShowBestLap));
-            subscriptionModeControlBox.AddChildElement(new ElementCheckBox(gfx, "Show Opponent Best Lap", font, new Rect(offsetX + 400, 2, 14, 14), colorScheme, OnShowOpponentBestLap));
 
-            subscriptionModeControlBox.AddChildElement(new ElementRadioButton(gfx, "Show Full Lap", font, new Rect(offsetX, 20, 14, 14), colorScheme, OnSetSectorOrLap, 
+            lastChild = subscriptionModeControlBox.AddChildElement(new ElementCheckBox(gfx, "Show Last Lap", font, new Rect(offsetX, 2, 14, 14), colorScheme, initialEnabled: true));
+            lastChild.OnElementLMButtonClicked += OnShowLastLap;
+            lastChild = subscriptionModeControlBox.AddChildElement(new ElementCheckBox(gfx, "Show Best Lap", font, new Rect(offsetX + 200, 2, 14, 14), colorScheme));
+            lastChild.OnElementLMButtonClicked += OnShowBestLap;
+            lastChild = subscriptionModeControlBox.AddChildElement(new ElementCheckBox(gfx, "Show Opponent Best Lap", font, new Rect(offsetX + 400, 2, 14, 14), colorScheme));
+            lastChild.OnElementLMButtonClicked += OnShowOpponentBestLap;
+
+            lastChild = subscriptionModeControlBox.AddChildElement(new ElementRadioButton(gfx, "Show Full Lap", font, new Rect(offsetX, 20, 14, 14), colorScheme, 
                 OverlayController.sectorToShow == SectorToShow.ALL, "0"));
-            subscriptionModeControlBox.AddChildElement(new ElementRadioButton(gfx, "Show Sector 1", font, new Rect(offsetX + 200, 20, 14, 14), colorScheme, OnSetSectorOrLap, 
+            lastChild.OnElementLMButtonClicked += OnSetSectorOrLap;
+            lastChild = subscriptionModeControlBox.AddChildElement(new ElementRadioButton(gfx, "Show Sector 1", font, new Rect(offsetX + 200, 20, 14, 14), colorScheme,
                 OverlayController.sectorToShow == SectorToShow.SECTOR_1, "1"));
-            subscriptionModeControlBox.AddChildElement(new ElementRadioButton(gfx, "Show Sector 2", font, new Rect(offsetX + 400, 20, 14, 14), colorScheme, OnSetSectorOrLap, 
+            lastChild.OnElementLMButtonClicked += OnSetSectorOrLap;
+            lastChild = subscriptionModeControlBox.AddChildElement(new ElementRadioButton(gfx, "Show Sector 2", font, new Rect(offsetX + 400, 20, 14, 14), colorScheme,
                 OverlayController.sectorToShow == SectorToShow.SECTOR_2, "2"));
-            subscriptionModeControlBox.AddChildElement(new ElementRadioButton(gfx, "Show Sector 3", font, new Rect(offsetX + 600, 20, 14, 14), colorScheme, OnSetSectorOrLap, 
+            lastChild.OnElementLMButtonClicked += OnSetSectorOrLap;
+            lastChild = subscriptionModeControlBox.AddChildElement(new ElementRadioButton(gfx, "Show Sector 3", font, new Rect(offsetX + 600, 20, 14, 14), colorScheme, 
                 OverlayController.sectorToShow == SectorToShow.SECTOR_3, "3"));
+            lastChild.OnElementLMButtonClicked += OnShowOpponentBestLap;
 
             zoomAndPanControlBox  = overlayElements[zoomAndPanBoxName] = new ElementGroupBox(gfx, zoomAndPanBoxName, font, new Rect(0, 0, overlayWindow.Width, 22),
                 colorScheme, initialEnableState: false);
-            zoomAndPanControlBox.AddChildElement(new ElementButton(gfx, "<< Previous Lap", font, new Rect(4, 2, 110, 16), colorScheme, ShowPreviousLap));
-            zoomAndPanControlBox.AddChildElement(new ElementButton(gfx, "Next Lap >>", font, new Rect(118, 2, 110, 16), colorScheme, ShowNextLap));
-            zoomAndPanControlBox.AddChildElement(new ElementButton(gfx, "Zoom In", font, new Rect(232, 2, 110, 16), colorScheme, OnZoomIn));
-            zoomAndPanControlBox.AddChildElement(new ElementButton(gfx, "Zoom Out", font, new Rect(346, 2, 110, 16), colorScheme, OnZoomOut));
-            zoomAndPanControlBox.AddChildElement(new ElementButton(gfx, "<< Pan Left", font, new Rect(460, 2, 110, 16), colorScheme, OnPanLeft));
-            zoomAndPanControlBox.AddChildElement(new ElementButton(gfx, "Pan Right >>", font, new Rect(574, 2, 110, 16), colorScheme,OnPanRight));
-            zoomAndPanControlBox.AddChildElement(new ElementButton(gfx, "Reset", font, new Rect(688, 2, 108, 16), colorScheme, OnReset));
+            lastChild = zoomAndPanControlBox.AddChildElement(new ElementButton(gfx, "<< Previous Lap", font, new Rect(4, 2, 110, 16), colorScheme));
+            lastChild.OnElementLMButtonClicked += ShowPreviousLap;
+            lastChild = zoomAndPanControlBox.AddChildElement(new ElementButton(gfx, "Next Lap >>", font, new Rect(118, 2, 110, 16), colorScheme));
+            lastChild.OnElementLMButtonClicked += ShowNextLap;
+            lastChild = zoomAndPanControlBox.AddChildElement(new ElementButton(gfx, "Zoom In", font, new Rect(232, 2, 110, 16), colorScheme));
+            lastChild.OnElementLMButtonClicked += OnZoomIn;
+            lastChild = zoomAndPanControlBox.AddChildElement(new ElementButton(gfx, "Zoom Out", font, new Rect(346, 2, 110, 16), colorScheme));
+            lastChild.OnElementLMButtonClicked += OnZoomOut;
+            lastChild = zoomAndPanControlBox.AddChildElement(new ElementButton(gfx, "<< Pan Left", font, new Rect(460, 2, 110, 16), colorScheme));
+            lastChild.OnElementLMButtonClicked += OnPanLeft;
+            lastChild = zoomAndPanControlBox.AddChildElement(new ElementButton(gfx, "Pan Right >>", font, new Rect(574, 2, 110, 16), colorScheme));
+            lastChild.OnElementLMButtonClicked += OnPanRight;
+            lastChild = zoomAndPanControlBox.AddChildElement(new ElementButton(gfx, "Reset", font, new Rect(688, 2, 108, 16), colorScheme));
+            lastChild.OnElementLMButtonClicked += OnReset;
 
             availableSubscriptionControlBox = overlayElements[availableSubscriptionBoxName] = new ElementGroupBox(gfx, availableSubscriptionBoxName, font, new Rect(0, 0, overlayWindow.Width, 0),
                 colorScheme, initialEnableState: false);
@@ -249,6 +272,7 @@ namespace CrewChiefV4.Overlay
                 element.Value.initialize();
             }
             overlayWindow.OnWindowMessage += overlayWindow_OnWindowMessage;
+            Microsoft.VisualBasic.Interaction.AppActivate(System.Diagnostics.Process.GetCurrentProcess().Id);
         }
 
 
@@ -381,9 +405,10 @@ namespace CrewChiefV4.Overlay
                 ChartContainer chartContainer = Charts.createChart(settings.windowWidth, settings.chartHeight, settings.antiAliasCharts);
                 if (chartBox.children.Count == 0)
                 {
-                    chartBox.AddChildElement(new ElementImage(gfx, chartContainer.subscriptionId, font, new Rect(0, combinedImageHeight, settings.windowWidth, settings.chartHeight),
-                        colorSchemeTransparent, OnElementMWheel: MouseWheelOnImage, OnElementMMButtonClicked: MouseMButtonOnImage,
-                        chartContainer: chartContainer, imageAlpha: settings.chartAlpha, outlined: true));
+                    var child = chartBox.AddChildElement(new ElementImage(gfx, chartContainer.subscriptionId, font, new Rect(0, combinedImageHeight, settings.windowWidth, settings.chartHeight),
+                        colorSchemeTransparent, chartContainer: chartContainer, imageAlpha: settings.chartAlpha, outlined: true));
+                    child.OnElementMWheel += MouseWheelOnImage;
+                    child.OnElementMMButtonClicked += MouseMButtonOnImage;
                 }
                 else
                 {
@@ -427,9 +452,10 @@ namespace CrewChiefV4.Overlay
                     }
                     else
                     {
-                        chartBox.AddChildElement(new ElementImage(gfx, chartContainer.subscriptionId, font, new Rect(0, combinedImageHeight, settings.windowWidth, settings.chartHeight),
-                            colorSchemeTransparent, OnElementMWheel: MouseWheelOnImage, OnElementMMButtonClicked: MouseMButtonOnImage,
-                            chartContainer: chartContainer, imageAlpha: settings.chartAlpha, outlined: true));
+                        var child2 = chartBox.AddChildElement(new ElementImage(gfx, chartContainer.subscriptionId, font, new Rect(0, combinedImageHeight, settings.windowWidth, settings.chartHeight),
+                            colorSchemeTransparent, chartContainer: chartContainer, imageAlpha: settings.chartAlpha, outlined: true));
+                        child2.OnElementMWheel += MouseWheelOnImage;
+                        child2.OnElementMMButtonClicked += MouseMButtonOnImage;
                         combinedImageHeight += (int)settings.chartHeight;
                     }
                 }
@@ -473,8 +499,10 @@ namespace CrewChiefV4.Overlay
                         {
                             continue;
                         }
-                        availableSubscriptionControlBox.AddChildElement(new ElementCheckBox(graphics, overlaySubscription.voiceCommandFragment, font, 
-                            new Rect(offsetX, offsetY, 14, 14), colorScheme, OnSubscribe, overlaySubscription.id));
+                        var sub = availableSubscriptionControlBox.AddChildElement(new ElementCheckBox(graphics, overlaySubscription.voiceCommandFragment, font, 
+                            new Rect(offsetX, offsetY, 14, 14), colorScheme, overlaySubscription.id));
+                        sub.OnElementLMButtonClicked += OnSubscribe;
+
                         int count = (int)Math.Floor((double)settings.windowWidth / 200);
                         if (availableSubscriptionControlBox.children.Count % count == 0)
                         {
@@ -656,7 +684,7 @@ namespace CrewChiefV4.Overlay
         {
             foreach (OverlaySubscription overlaySubscription in OverlayDataSource.getOverlaySubscriptions())
             {
-                if (overlaySubscription.id == e.subscriptionDataField)
+                if (overlaySubscription.id == e.costumTextId)
                 {
                     CrewChiefOverlayWindow.createNewImage = true;
                     if (!OverlayController.shown)
@@ -835,19 +863,19 @@ namespace CrewChiefV4.Overlay
         }
         private void OnSetSectorOrLap(object sender, OverlayElementClicked e)
         {
-            if (e.subscriptionDataField == "0")
+            if (e.costumTextId == "0")
             {
                 OverlayController.showSector(SectorToShow.ALL);
             }
-            if (e.subscriptionDataField == "1")
+            if (e.costumTextId == "1")
             {
                 OverlayController.showSector(SectorToShow.SECTOR_1);
             }
-            if (e.subscriptionDataField == "2")
+            if (e.costumTextId == "2")
             {
                 OverlayController.showSector(SectorToShow.SECTOR_2);
             }
-            if (e.subscriptionDataField == "3")
+            if (e.costumTextId == "3")
             {
                 OverlayController.showSector(SectorToShow.SECTOR_3);
             }

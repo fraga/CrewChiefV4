@@ -7,6 +7,7 @@ using System.Windows;
 using GameOverlay.Drawing;
 using GameOverlay.Windows;
 using GameOverlay.PInvoke;
+using System.Windows.Forms;
 
 namespace CrewChiefV4.Overlay
 {
@@ -18,12 +19,12 @@ namespace CrewChiefV4.Overlay
         {
         }
         public bool enabled { get; private set; }
-        public string subscriptionDataField { get; private set; }
+        public string costumTextId { get; private set; }
         public Graphics graphics { get; private set; }
-        public OverlayElementClicked(Graphics graphics, bool enabled = false, string subscriptionDataField = null)
+        public OverlayElementClicked(Graphics graphics = null, bool enabled = false, string costumTextId = null)
         {
             this.enabled = enabled;
-            this.subscriptionDataField = subscriptionDataField;
+            this.costumTextId = costumTextId;
             this.graphics = graphics;
         }        
     }
@@ -58,6 +59,17 @@ namespace CrewChiefV4.Overlay
             this.rect = rect;
         }
     }
+    public class OverlayElementKeyDown : EventArgs
+    {
+
+        public OverlayElementKeyDown(Graphics gfx, Keys key)
+        {
+            this.graphics = graphics;
+            this.key = key;
+        }
+        public Graphics graphics { get; private set; }
+        public Keys key { get; private set; }
+    }
     #endregion
 
     public class OverlayElement
@@ -71,12 +83,21 @@ namespace CrewChiefV4.Overlay
         public bool mouseOver;
         public Font font;
         public Graphics gfx;
-        public OverlayElement parent;
+        public OverlayElement parent = null;
         public List<OverlayElement> children { get; private set; }
         public ColorScheme colorScheme;
         public bool elementEnabled;
         public System.Windows.Point mousePosition = new System.Windows.Point(0, 0);
         public bool includeFontRectInMouseOver = false;
+        public int tabIndex = -1;
+        public bool selected = false;
+        public EventHandler<OverlayElementClicked> OnElementLMButtonClicked;
+        public EventHandler<OverlayElementClicked> OnElementMMButtonClicked;
+        public EventHandler<OverlayElementMouseWheel> OnElementMWheel;
+        public EventHandler<OverlayElementDrawUpdate> OnElementDraw;
+        public EventHandler<OverlayElementKeyDown> OnKeyDown;
+        public EventHandler<OverlayElementClicked> OnEnterKeyDown;
+
         public OverlayElement(Graphics gfx, string elementTitle, Font font, Rect rectangle, ColorScheme colorScheme, bool initialState = true)
         {
             this.title = elementTitle;
@@ -88,7 +109,7 @@ namespace CrewChiefV4.Overlay
             this.gfx = gfx;
             this.children = new List<OverlayElement>();
             this.elementEnabled = initialState;
-            System.Drawing.SizeF fontSize = font.MeasureString(elementTitle, font.FontSize);
+            System.Drawing.SizeF fontSize = font.MeasureString(elementTitle);
             this.fontRectangle = new Rect(rectangle.Right, rectangle.Y, fontSize.Width + 4, fontSize.Height);
         }
         public virtual void initialize()
@@ -97,6 +118,44 @@ namespace CrewChiefV4.Overlay
             {
                 element.initialize();
             }
+        }
+        public Rect getAbsolutePosition()
+        {
+            Rect rect = rectangle;
+            var lastParent = parent;
+            while (lastParent != null)
+            {
+                rect.Y += lastParent.rectangle.Y;
+                rect.X += lastParent.rectangle.X;
+                if (lastParent != lastParent.parent)
+                {
+                    lastParent = lastParent.parent;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            return rect;
+        }
+        public Rect getTextAbsolutePosition()
+        {
+            Rect rect = fontRectangle;
+            var lastParent = parent;
+            while (lastParent != null)
+            {
+                rect.Y += lastParent.rectangle.Y;
+                rect.X += lastParent.rectangle.X;
+                if (lastParent != lastParent.parent)
+                {
+                    lastParent = lastParent.parent;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            return rect;
         }
         public virtual void updateInputs(int overlayWindowX, int overlayWindowY, bool inputEnabled)
         {
@@ -111,32 +170,21 @@ namespace CrewChiefV4.Overlay
             children.Add(child);
             return children.Last();
         }
-        public virtual void OnWindowMessage(WindowMessage message, IntPtr wParam, IntPtr lParam)
+        public virtual bool OnWindowMessage(WindowMessage message, IntPtr wParam, IntPtr lParam)
         {
             if (!elementEnabled)
-                return;
+                return false;
             bool mouseOverChild = false;
             if (message == WindowMessage.Mousemove)
             {                
                 mousePosition.X = WindowNativeMethods.GET_X_LPARAM(lParam);
                 mousePosition.Y = WindowNativeMethods.GET_Y_LPARAM(lParam);
+
                 foreach (var child in children)
                 {
-                    System.Windows.Rect rect = child.rectangle;
-                    System.Windows.Rect fontRect = child.fontRectangle;
-                    if (parent != null)
-                    {
-                        rect.Y += parent.rectangle.Y;
-                        rect.X += parent.rectangle.X;
-                        fontRect.Y += parent.rectangle.Y;
-                        fontRect.X += parent.rectangle.X;
-                    }
-                    if (rect.Contains(mousePosition))
-                    {
-                        child.mouseOver = true;
-                        mouseOverChild = true;
-                    }
-                    else if(child.includeFontRectInMouseOver && fontRect.Contains(mousePosition))
+                    Rect rectAbs = child.getAbsolutePosition();
+                    Rect fontAbs = child.getTextAbsolutePosition();
+                    if (rectAbs.Contains(mousePosition) || (child.includeFontRectInMouseOver && fontAbs.Contains(mousePosition)))
                     {
                         child.mouseOver = true;
                         mouseOverChild = true;
@@ -149,7 +197,7 @@ namespace CrewChiefV4.Overlay
             }
             if(!mouseOverChild)
             {
-                if (rectangle.Contains(mousePosition) || (includeFontRectInMouseOver && fontRectangle.Contains(mousePosition)))
+                if (getAbsolutePosition().Contains(mousePosition) || (includeFontRectInMouseOver && getTextAbsolutePosition().Contains(mousePosition)))
                 {
                     mouseOver = true;
                 }
@@ -164,8 +212,12 @@ namespace CrewChiefV4.Overlay
             }
             foreach (var child in children)
             {
-                child.OnWindowMessage(message, wParam, lParam);
+                if(child.OnWindowMessage(message, wParam, lParam))
+                {
+                    return true;
+                }
             }
+            return mouseOver;
         }
     }
 }

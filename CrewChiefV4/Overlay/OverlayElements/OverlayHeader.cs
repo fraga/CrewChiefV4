@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using GameOverlay.Windows;
 using CrewChiefV4.Events;
 using GameOverlay.PInvoke;
+using System.Windows.Forms;
 
 namespace CrewChiefV4.Overlay
 {
@@ -36,7 +37,9 @@ namespace CrewChiefV4.Overlay
             return byteArray;
         }
 
-        public OverlayHeader(Graphics gfx, string elementTitle, Font font, System.Windows.Rect rectangle, ColorScheme colorScheme, GraphicsWindow overlayWindow, EventHandler<OverlayElementClicked> OnCheckBoxEnableInputClicked, EventHandler<OverlayElementClicked> OnButtonClose, EventHandler<OverlayElementClicked> OnButtonSaveWindowPosition = null, bool initialEnabled = true) : 
+        public OverlayHeader(Graphics gfx, string elementTitle, Font font, System.Windows.Rect rectangle, ColorScheme colorScheme, GraphicsWindow overlayWindow, 
+            EventHandler<OverlayElementClicked> OnCheckBoxEnableInputClicked, EventHandler<OverlayElementClicked> OnButtonClose, 
+            EventHandler<OverlayElementClicked> OnButtonSaveWindowPosition = null, bool initialEnabled = true) : 
             base(gfx, elementTitle, font, rectangle, colorScheme, initialEnabled)
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
@@ -45,7 +48,7 @@ namespace CrewChiefV4.Overlay
             this.icon = new Image(gfx, ImageToByte(iconImage.ToBitmap()));                                         
             base.parent = this;
             this.overlayWindow = overlayWindow;
-            this.OnCheckBoxEnableInputClicked += OnCheckBoxEnableInputClicked;
+            this.OnCheckBoxEnableInputClicked += OnCheckBoxEnableInputClicked;            
             this.OnButtonClose += OnButtonClose;
             this.OnButtonSaveWindowPosition += OnButtonSaveWindowPosition;
             this.elementTitle = elementTitle;
@@ -55,10 +58,17 @@ namespace CrewChiefV4.Overlay
             //base.initialize();
             foreach (var child in children)
             {
-
-                if (child.title == "Enable Input")
+                if (child.title == "Enable input")
                 {
                     OnCheckBoxEnableInputClicked?.Invoke(this, new OverlayElementClicked(child.gfx, ((ElementCheckBox)child).enabled));
+
+                    child.OnEnterKeyDown += OnCheckBoxEnableInputClicked;
+                    child.OnElementLMButtonClicked += OnCheckBoxEnableInputClicked;
+                }
+                if (child.title == "ButtonClose")
+                {
+                    child.OnEnterKeyDown += OnButtonClose;
+                    child.OnElementLMButtonClicked += OnButtonClose;
                 }
             }
         }
@@ -66,9 +76,6 @@ namespace CrewChiefV4.Overlay
         {
             if (!this.elementEnabled)
                 return;
-            float width = (float)base.rectangle.Right - (float)base.rectangle.Left;
-            float height = (float)base.rectangle.Bottom - (float)base.rectangle.Top;
-            //gfx.FillRectangle(base.primaryBrush,0, 0, width, height);
            
             gfx.DrawBox2D(base.secondaryBrush, base.primaryBrush, new Rectangle(base.rectangle), 1);
             gfx.DrawText(base.font, 12, base.secondaryBrush, 20, 3, elementTitle);           
@@ -153,7 +160,7 @@ namespace CrewChiefV4.Overlay
                         windowActive = false;
                         //OnButtonClosed();
                     }
-                    if(child.title == "Enable Input")
+                    if(child.title == "Enable input")
                     {
                         ((ElementCheckBox)child).enabled = !((ElementCheckBox)child).enabled;
                         OnCheckBoxEnableInputClicked?.Invoke(this, new OverlayElementClicked(child.gfx, ((ElementCheckBox)child).enabled));
@@ -166,20 +173,21 @@ namespace CrewChiefV4.Overlay
                 }
             }
         }
-        public override void OnWindowMessage(WindowMessage message, IntPtr wParam, IntPtr lParam)
+        public override bool OnWindowMessage(WindowMessage message, IntPtr wParam, IntPtr lParam)
         {
             if (!this.elementEnabled)
-                return;
+                return false;
             foreach (var child in children)
             {
-                if (child.mouseOver)
-                    return;
+                if(child.OnWindowMessage(message, wParam, lParam))
+                    return false;
             }
+
             if (message == WindowMessage.Mousemove)
             {
                 mousePosition.X = WindowNativeMethods.GET_X_LPARAM(lParam);
                 mousePosition.Y = WindowNativeMethods.GET_Y_LPARAM(lParam);
-                if(rectangle.Contains(mousePosition) || modifierPressed)
+                if(rectangle.Contains(mousePosition))
                 {
                     mouseOver = true;
                 }
@@ -208,8 +216,8 @@ namespace CrewChiefV4.Overlay
             if (message == WindowMessage.Lbuttonup)
             {
                 modifierPressed = false;
-
-            }                        
+            }
+            return false;
         }
     }
 }

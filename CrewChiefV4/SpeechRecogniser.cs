@@ -1124,16 +1124,16 @@ namespace CrewChiefV4
                     foreach (KeyValuePair<String[], int> entry in minuteMappings)
                     {
                         foreach (String numberStr in entry.Key)
-                        {
-                            minuteArray.Add(numberStr);
+                        {                            
                             foreach (String ams in AM)
                             {
-                                minuteArray.Add(numberStr + " " + AM);
+                                minuteArray.Add(numberStr + " " + ams);
                             }
                             foreach (String pms in PM)
                             {
-                                minuteArray.Add(numberStr + " " + PM);
+                                minuteArray.Add(numberStr + " " + pms);
                             }
+                            minuteArray.Add(numberStr);
                         }
                     }
                     addCompoundChoices(SET_ALARM_CLOCK, false, this.hourChoices, minuteArray.ToArray(), true);

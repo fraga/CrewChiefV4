@@ -55,6 +55,11 @@ namespace GameOverlay.PInvoke
 
         public static readonly GetForegroundWindowDelegate GetForegroundWindow;
 
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public delegate bool SetForegroundWindowDelegate(IntPtr hwnd);
+
+        public static readonly SetForegroundWindowDelegate SetForegroundWindow;
+
         public delegate IntPtr GetWindowDelegate(IntPtr hwnd, uint cmd);
         public static readonly GetWindowDelegate GetWindow;
 
@@ -195,6 +200,7 @@ namespace GameOverlay.PInvoke
             WaitMessage = DynamicImport.Import<WaitMessageDelegate>(library, "WaitMessage");
             PostMessage = DynamicImport.Import<PostMessageWDelegate>(library, "PostMessageW");
             GetForegroundWindow = DynamicImport.Import<GetForegroundWindowDelegate>(library, "GetForegroundWindow");
+            SetForegroundWindow = DynamicImport.Import<SetForegroundWindowDelegate>(library, "SetForegroundWindow");
             try
             {
                 _setThreadDpiAwarenessContext = DynamicImport.Import<SetThreadDpiAwarenessContextDelegate>(library, "SetThreadDpiAwarenessContext");
