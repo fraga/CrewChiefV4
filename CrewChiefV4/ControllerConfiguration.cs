@@ -299,7 +299,7 @@ namespace CrewChiefV4
             if (defaultData.buttonAssignments.Count > 0 || missingNewButtonMappings.Count() > 0) // app updated add, missing elements ?
             {
                 Boolean save = false;
-                var missingItems = defaultData.buttonAssignments.Where(ba2 => !controllerConfigurationData.buttonAssignments.Any(ba1 => ba1.action == ba2.action));
+                var missingItems = defaultData.buttonAssignments.Where(ba2 => !controllerConfigurationData.buttonAssignments.Any(ba1 => ba1.action == ba2.action && ba2.availableAction));
                 if (missingItems.ToList().Count > 0)
                 {
                     save = true;

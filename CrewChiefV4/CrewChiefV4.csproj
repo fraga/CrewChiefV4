@@ -273,6 +273,7 @@
     <Compile Include="Overlay\OverlayElements\ElementCheckBox.cs" />
     <Compile Include="Overlay\OverlayElements\ElementGroupBox.cs" />
     <Compile Include="Overlay\OverlayElements\ElementImage.cs" />
+    <Compile Include="Overlay\OverlayElements\ElementListBox.cs" />
     <Compile Include="Overlay\OverlayElements\ElementRadioButton.cs" />
     <Compile Include="Overlay\OverlayElements\ElementText.cs" />
     <Compile Include="Overlay\OverlayElements\ElementTextBox.cs" />

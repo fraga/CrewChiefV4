@@ -1790,6 +1790,25 @@ namespace GameOverlay.Drawing
 
             DrawText(font, font.FontSize, brush, textX, textY, text);
         }
+        public void DrawTextClipped(Font font, IBrush brush, float x, float y, System.Windows.Rect rect, string text)
+        {
+            if (!IsDrawing) throw ThrowHelper.UseBeginScene();
+
+            if (text == null) throw new ArgumentNullException(nameof(text));
+            if (text.Length == 0) return;
+
+            var clippedWidth = rect.Right - x;
+            var clippedHeight = rect.Bottom - y;
+            if (clippedHeight <= 0 || clippedWidth <= 0)
+                return;
+            
+            var layout = new TextLayout(_fontFactory, text, font.TextFormat, (float)clippedWidth, (float)clippedHeight);
+
+            _device.DrawTextLayout(new RawVector2(x, y), layout, brush.Brush, DrawTextOptions.Clip);
+
+            layout.Dispose();
+        }
+
 
         /// <summary>
         /// Draws a string with a background box in behind using the given font, size and position.

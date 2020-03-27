@@ -180,13 +180,13 @@ namespace CrewChiefV4.Overlay
             transparentBrush = gfx.CreateSolidBrush(Color.Transparent);
 
             maxDisplayLines = settings.maxSubtitlehistory == -1 || settings.maxSubtitlehistory > 10 ? 10 : settings.maxSubtitlehistory;
-            messuredFontHeight = font.MeasureString("H").Height;
+            messuredFontHeight = font.MeasureString("Hj").Height;
             subtitleTextBoxHeight = messuredFontHeight * (maxDisplayLines);
-            
-            titleBar = overlayElements[tileBarName] = new OverlayHeader(gfx, "CrewChief Subtitles", fontBold, new Rect(0, 0, overlayWindow.Width, 20), defaultColorScheme, overlayWindow, 
+
+            titleBar = overlayElements[tileBarName] = new OverlayHeader(gfx, "CrewChief Subtitles", fontBold, new Rect(0, 0, overlayWindow.Width, 20), defaultColorScheme, overlayWindow,
                 OnEnableUserInput, OnButtonClosed, initialEnabled: !settings.hideControlsOnStartup);
 
-            linkedTabStopElements.AddLast(titleBar.AddChildElement(new ElementCheckBox(gfx, "Enable input", fontControls, new Rect(135, 3, 14, 14), defaultColorScheme, initialEnabled: false)));          
+            linkedTabStopElements.AddLast(titleBar.AddChildElement(new ElementCheckBox(gfx, "Enable input", fontControls, new Rect(135, 3, 14, 14), defaultColorScheme, initialEnabled: false)));
             linkedTabStopElements.AddLast(titleBar.AddChildElement(new ElementButton(gfx, "ButtonClose", font, new Rect(overlayWindow.Width - 18, 3, 14, 14), defaultColorScheme)));
 
             displayModeControlBox = overlayElements[displayModeBoxName] = new ElementGroupBox(gfx, displayModeBoxName, fontControls, new Rect(0, 20, overlayWindow.Width, 144),
@@ -196,7 +196,7 @@ namespace CrewChiefV4.Overlay
 
             displayModeControlBox.AddChildElement(new ElementText(gfx, "Window width", fontControls, new Rect(0, 2, 90, 17), defaultColorScheme, textAlign: TextAlign.Left | TextAlign.Center));
 
-            var lastChild  = linkedTabStopElements.AddLast(displayModeControlBox.AddChildElement(new ElementTextBox(gfx, "window_width_textbox", fontControls, new Rect(122, 2, 30, 17),
+            var lastChild = linkedTabStopElements.AddLast(displayModeControlBox.AddChildElement(new ElementTextBox(gfx, "window_width_textbox", fontControls, new Rect(122, 2, 30, 17),
                 defaultColorScheme, text: settings.windowWidth.ToString(), initialEnableState: true, acceptInput: true, maxTextLength: 4, digitsOnly: true, textAlign: TextAlign.Left | TextAlign.Center))).Value;
             lastChild.OnKeyDown += OnKeyDown;
             lastChild.OnElementDraw += OnDrawTextBox;
@@ -206,7 +206,7 @@ namespace CrewChiefV4.Overlay
                 defaultColorScheme, text: settings.maxSubtitlehistory.ToString(), initialEnableState: true, acceptInput: true, maxTextLength: 2, digitsOnly: true, textAlign: TextAlign.Left | TextAlign.Center))).Value;
             lastChild.OnKeyDown += OnKeyDown;
             lastChild.OnElementDraw += OnDrawTextBox;
-             
+
             displayModeControlBox.AddChildElement(new ElementText(gfx, "Font size", fontControls, new Rect(0, 42, 90, 17), defaultColorScheme, textAlign: TextAlign.Left | TextAlign.Center));
             lastChild = linkedTabStopElements.AddLast(displayModeControlBox.AddChildElement(new ElementTextBox(gfx, "font_size_textbox", fontControls, new Rect(122, 42, 30, 17),
                 defaultColorScheme, text: settings.fontSize.ToString(), initialEnableState: true, acceptInput: true, maxTextLength: 2, digitsOnly: true, textAlign: TextAlign.Left | TextAlign.Center))).Value;
@@ -237,19 +237,19 @@ namespace CrewChiefV4.Overlay
 
             lastChild = linkedTabStopElements.AddLast(colorBox.AddChildElement(new ElementRadioButton(gfx, "Font color", fontControls, new Rect(2, 2, 14, 14), defaultColorScheme,
                 isChecked: true))).Value;
-            lastChild.OnElementLMButtonClicked += OnSelectedColorCliked;
-            lastChild.OnEnterKeyDown += OnSelectedColorCliked;
+            lastChild.OnElementLMButtonClicked += OnSelectedColorClicked;
+            lastChild.OnEnterKeyDown += OnSelectedColorClicked;
 
             lastChild = linkedTabStopElements.AddLast(colorBox.AddChildElement(new ElementRadioButton(gfx, "Background color", fontControls, new Rect(2, 22, 14, 14), defaultColorScheme,
                 isChecked: false))).Value;
-            lastChild.OnElementLMButtonClicked += OnSelectedColorCliked;
-            lastChild.OnEnterKeyDown += OnSelectedColorCliked;
+            lastChild.OnElementLMButtonClicked += OnSelectedColorClicked;
+            lastChild.OnEnterKeyDown += OnSelectedColorClicked;
 
             System.Drawing.Color initialColor = System.Drawing.Color.FromArgb(colorScheme.fontColor.ToARGB());
 
-            colorBox.AddChildElement(new ElementText(gfx, "Red", fontControls, new Rect(2, 42, 90, 17), defaultColorScheme, textAlign: TextAlign.Left | TextAlign.Center));           
+            colorBox.AddChildElement(new ElementText(gfx, "Red", fontControls, new Rect(2, 42, 90, 17), defaultColorScheme, textAlign: TextAlign.Left | TextAlign.Center));
             lastChild = linkedTabStopElements.AddLast(colorBox.AddChildElement(new ElementTextBox(gfx, "color_red_textbox", fontControls, new Rect(85, 42, 30, 17),
-                defaultColorScheme, text: initialColor.R.ToString(), initialEnableState: true, acceptInput: true, 
+                defaultColorScheme, text: initialColor.R.ToString(), initialEnableState: true, acceptInput: true,
                 maxTextLength: 3, digitsOnly: true, textAlign: TextAlign.Left | TextAlign.Center))).Value;
             lastChild.OnKeyDown += OnKeyDown;
             lastChild.OnElementDraw += OnDrawTextBox;
@@ -257,7 +257,7 @@ namespace CrewChiefV4.Overlay
             colorBox.AddChildElement(new ElementText(gfx, "Green", fontControls, new Rect(2, 62, 90, 17), defaultColorScheme, textAlign: TextAlign.Left | TextAlign.Center));
 
             lastChild = linkedTabStopElements.AddLast(colorBox.AddChildElement(new ElementTextBox(gfx, "color_green_textbox", fontControls, new Rect(85, 62, 30, 17),
-                defaultColorScheme, text: initialColor.G.ToString(), initialEnableState: true, acceptInput: true, 
+                defaultColorScheme, text: initialColor.G.ToString(), initialEnableState: true, acceptInput: true,
                 maxTextLength: 3, digitsOnly: true, textAlign: TextAlign.Left | TextAlign.Center))).Value;
             lastChild.OnKeyDown += OnKeyDown;
             lastChild.OnElementDraw += OnDrawTextBox;
@@ -265,7 +265,7 @@ namespace CrewChiefV4.Overlay
             colorBox.AddChildElement(new ElementText(gfx, "Blue", fontControls, new Rect(2, 82, 90, 17), defaultColorScheme, textAlign: TextAlign.Left | TextAlign.Center));
 
             lastChild = linkedTabStopElements.AddLast(colorBox.AddChildElement(new ElementTextBox(gfx, "color_blue_textbox", fontControls, new Rect(85, 82, 30, 17),
-                defaultColorScheme, text: initialColor.B.ToString(), initialEnableState: true, acceptInput: true, 
+                defaultColorScheme, text: initialColor.B.ToString(), initialEnableState: true, acceptInput: true,
                 maxTextLength: 3, digitsOnly: true, textAlign: TextAlign.Left | TextAlign.Center))).Value;
             lastChild.OnKeyDown += OnKeyDown;
             lastChild.OnElementDraw += OnDrawTextBox;
@@ -273,7 +273,7 @@ namespace CrewChiefV4.Overlay
             colorBox.AddChildElement(new ElementText(gfx, "Alpha", fontControls, new Rect(2, 102, 90, 17), defaultColorScheme, textAlign: TextAlign.Left | TextAlign.Center));
 
             lastChild = linkedTabStopElements.AddLast(colorBox.AddChildElement(new ElementTextBox(gfx, "color_alpha_textbox", fontControls, new Rect(85, 102, 30, 17),
-                defaultColorScheme, text: initialColor.A.ToString(), initialEnableState: true, acceptInput: true, 
+                defaultColorScheme, text: initialColor.A.ToString(), initialEnableState: true, acceptInput: true,
                 maxTextLength: 3, digitsOnly: true, textAlign: TextAlign.Left | TextAlign.Center))).Value;
             lastChild.OnKeyDown += OnKeyDown;
             lastChild.OnElementDraw += OnDrawTextBox;
@@ -320,7 +320,7 @@ namespace CrewChiefV4.Overlay
             lastChild.OnElementLMButtonClicked += OnDisplayVoicesClicked;
             lastChild.OnEnterKeyDown += OnDisplayVoicesClicked;
 
-            var modeBox = displayModeControlBox.AddChildElement(new ElementGroupBox(gfx, "Mode", fontControls, new Rect(400, 0, 120, 40),           
+            var modeBox = displayModeControlBox.AddChildElement(new ElementGroupBox(gfx, "Mode", fontControls, new Rect(400, 0, 120, 40),
                 colorSchemeTransparent, outlined: false));
 
             lastChild = linkedTabStopElements.AddLast(modeBox.AddChildElement(new ElementRadioButton(gfx, "Always on", fontControls, new Rect(2, 2, 14, 14), defaultColorScheme,
@@ -333,6 +333,13 @@ namespace CrewChiefV4.Overlay
             lastChild.OnElementLMButtonClicked += OnDisplayModeClicked;
             lastChild.OnEnterKeyDown += OnDisplayModeClicked;
 
+            var listBox = displayModeControlBox.AddChildElement(new ElementGroupBox(gfx, "ColorSchemes", fontControls, new Rect(520, 3, 120, 90),
+                colorSchemeTransparent, outlined: false));
+
+            var colorSchemesNames = settings.colorSchemes.Select(item => item.name).ToArray();
+
+            lastChild = linkedTabStopElements.AddLast(listBox.AddChildElement(new ElementListBox(gfx, "ColorScheme", fontControls, new Rect(1, 1, 110, 42), defaultColorScheme, colorSchemesNames, settings.activeColorScheme))).Value;
+            ((ElementListBox)lastChild).OnSelectedObjectChanged += OnListBoxColorSchemeSelectedObjectChange;
 
             lastChild = linkedTabStopElements.AddLast(displayModeControlBox.AddChildElement(new ElementButton(gfx, "Save settings", fontControls, new Rect(overlayWindow.Width - 116, 122, 110, 17), defaultColorScheme))).Value;
             lastChild.OnElementLMButtonClicked += OnSaveOverlaySettings;
@@ -557,7 +564,8 @@ namespace CrewChiefV4.Overlay
                     
                     string subtitle = settings.capitalLetter ? "Use CTRL + SHIFT to show/hide settings and title bar".ToUpper() : 
                         "Use CTRL + SHIFT to show/hide settings and title bar";
-                    if (textBox.font.MeasureString(subtitle).Width > textBox.rectangle.Width)
+                    System.Drawing.SizeF textSize = textBox.font.MeasureString(subtitle);
+                    if (textSize.Width > textBox.rectangle.Width)
                     {
                         int maxStringLen = 0;
                         string messureStr = "" + subtitle[0];
@@ -573,20 +581,20 @@ namespace CrewChiefV4.Overlay
                             }
                         }
                         phraseLines = SplitToLines(subtitle, maxStringLen).ToList();
-                        textBox.rectangle.Height = (messuredFontHeight * phraseLines.Count);
+                        textBox.rectangle.Height = (textSize.Height + 1) * phraseLines.Count;
                         e.graphics.FillRectangle(backgroundBrush, new Rectangle(textBox.rectangle));
                         foreach (var line in phraseLines)
                         {
                             e.graphics.DrawText(textBox.font, fontBrush, e.rect.Left, lineOffsetY, line);
-                            lineOffsetY += messuredFontHeight;
+                            lineOffsetY += textSize.Height;
                         }
                     }
                     else
                     {
-                        textBox.rectangle.Height = messuredFontHeight;
+                        textBox.rectangle.Height = textSize.Height + 1;
                         e.graphics.FillRectangle(backgroundBrush, new Rectangle(textBox.rectangle));
                         e.graphics.DrawText(textBox.font, fontBrush, e.rect.Left, lineOffsetY, subtitle);
-                        lineOffsetY += messuredFontHeight;
+                        lineOffsetY += textSize.Height + 1;
                     }
                     return;
                 }
@@ -649,7 +657,7 @@ namespace CrewChiefV4.Overlay
                         phraseLines.Add(subtitle);
                     }
                 }
-                textBox.rectangle.Height = (messuredFontHeight * phraseLines.Count);
+                textBox.rectangle.Height = (messuredFontHeight + 1) * phraseLines.Count;
                 if (textBox.rectangle.Bottom != overlayWindow.Height)
                 {
                     overlayWindow.Resize(settings.windowWidth, (int)textBox.rectangle.Bottom);                    
@@ -657,9 +665,8 @@ namespace CrewChiefV4.Overlay
                 foreach (var line in phraseLines)
                 {
                     e.graphics.DrawTextWithBackground(textBox.font, fontBrush,backgroundBrush, e.rect.Left, lineOffsetY, line);
-                    lineOffsetY += messuredFontHeight;
-                }
-                
+                    lineOffsetY += (messuredFontHeight + 1);
+                }       
             }
         }
 
@@ -843,11 +850,14 @@ namespace CrewChiefV4.Overlay
             if (Enum.TryParse(e.costumTextId, out DisplayMode result))
                 settings.displayMode = result;
         }
-        public void OnSelectedColorCliked(object sender, OverlayElementClicked e)
+        public void OnSelectedColorClicked(object sender, OverlayElementClicked e)
         {
             ElementRadioButton element = (ElementRadioButton)sender;
             var colorBox = displayModeControlBox.children.FirstOrDefault(el => el.title == "Color");
-            
+            var colorSchemes = displayModeControlBox.children.FirstOrDefault(el => el.title == "ColorSchemes");
+            ElementListBox colorSchemesListBox = colorSchemes.children.FirstOrDefault(el => el.title == "ColorScheme") as ElementListBox;
+
+            ColorScheme colorScheme = settings.colorSchemes.FirstOrDefault(cs => cs.name == colorSchemesListBox.GetSelectedObject());
             if (element.title == "Font color")
             {
                 System.Drawing.Color selectedColor = System.Drawing.Color.FromArgb(colorScheme.fontColor.ToARGB());
@@ -868,7 +878,9 @@ namespace CrewChiefV4.Overlay
         public void OnSetSelectedColorClicked(object sender, OverlayElementClicked e)
         {
             var colorBox = displayModeControlBox.children.FirstOrDefault(el => el.title == "Color");
-            if(colorBox != null)
+            var colorSchemes = displayModeControlBox.children.FirstOrDefault(el => el.title == "ColorSchemes");
+            var colorSchemesListBox = colorSchemes.children.FirstOrDefault(el => el.title == "ColorScheme") as ElementListBox;
+            if (colorBox != null)
             {
                 var selecteColor = colorBox.children.FirstOrDefault(el => el.GetType() == typeof(ElementRadioButton) && ((ElementRadioButton)el).enabled);                
                 if(selecteColor != null)
@@ -898,19 +910,48 @@ namespace CrewChiefV4.Overlay
                         if (selecteColor.title == "Font color")
                         {
                             fontBrush = e.graphics.CreateSolidBrush(new Color(redValue, greenValue, blueValue, alphaValue));
-                            settings.colorSchemes.FirstOrDefault(cs => cs.name == settings.activeColorScheme).fontColor = new Color(redValue, greenValue, blueValue, alphaValue);
+                            settings.colorSchemes.FirstOrDefault(cs => cs.name == colorSchemesListBox.GetSelectedObject()).fontColor = new Color(redValue, greenValue, blueValue, alphaValue);
 
                         }
                         else
                         {
                             backgroundBrush = e.graphics.CreateSolidBrush(new Color(redValue, greenValue, blueValue, alphaValue));
-                            settings.colorSchemes.FirstOrDefault(cs => cs.name == settings.activeColorScheme).backgroundColor = new Color(redValue, greenValue, blueValue, alphaValue);
+                            settings.colorSchemes.FirstOrDefault(cs => cs.name == colorSchemesListBox.GetSelectedObject()).backgroundColor = new Color(redValue, greenValue, blueValue, alphaValue);
                         }
                     }
 
                 }
                 
             }
+        }
+        public void OnListBoxColorSchemeSelectedObjectChange(object sender, OverlayElementClicked e)
+        {
+            var colorBox = displayModeControlBox.children.FirstOrDefault(el => el.title == "Color");
+            var selecteColor = colorBox.children.FirstOrDefault(el => el.GetType() == typeof(ElementRadioButton) && ((ElementRadioButton)el).enabled);
+
+            ColorScheme colorScheme = settings.colorSchemes.FirstOrDefault(cs => cs.name == e.costumTextId);
+            if(colorScheme == null)
+            {
+                return;
+            } 
+            if (selecteColor.title == "Font color")
+            {
+                System.Drawing.Color selectedColor = System.Drawing.Color.FromArgb(colorScheme.fontColor.ToARGB());
+                ((ElementTextBox)colorBox.children.FirstOrDefault(el => el.title == "color_red_textbox")).text = selectedColor.R.ToString();
+                ((ElementTextBox)colorBox.children.FirstOrDefault(el => el.title == "color_green_textbox")).text = selectedColor.G.ToString();
+                ((ElementTextBox)colorBox.children.FirstOrDefault(el => el.title == "color_blue_textbox")).text = selectedColor.B.ToString();
+                ((ElementTextBox)colorBox.children.FirstOrDefault(el => el.title == "color_alpha_textbox")).text = selectedColor.A.ToString();                
+            }
+            else
+            {
+                System.Drawing.Color selectedColor = System.Drawing.Color.FromArgb(colorScheme.backgroundColor.ToARGB());
+                ((ElementTextBox)colorBox.children.FirstOrDefault(el => el.title == "color_red_textbox")).text = selectedColor.R.ToString();
+                ((ElementTextBox)colorBox.children.FirstOrDefault(el => el.title == "color_green_textbox")).text = selectedColor.G.ToString();
+                ((ElementTextBox)colorBox.children.FirstOrDefault(el => el.title == "color_blue_textbox")).text = selectedColor.B.ToString();
+                ((ElementTextBox)colorBox.children.FirstOrDefault(el => el.title == "color_alpha_textbox")).text = selectedColor.A.ToString();                
+            }
+            fontBrush = e.graphics.CreateSolidBrush(colorScheme.fontColor);
+            backgroundBrush = e.graphics.CreateSolidBrush(colorScheme.backgroundColor);
         }
     }
 }

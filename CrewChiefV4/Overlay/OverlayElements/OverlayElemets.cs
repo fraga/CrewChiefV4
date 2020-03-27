@@ -79,6 +79,7 @@ namespace CrewChiefV4.Overlay
         public Rect fontRectangle;
         public SolidBrush primaryBrush;
         public SolidBrush secondaryBrush;
+        public SolidBrush transparentBrush;
         public bool mousePressed;
         public bool mouseOver;
         public Font font;
@@ -105,6 +106,7 @@ namespace CrewChiefV4.Overlay
             this.colorScheme = colorScheme;
             this.primaryBrush = gfx.CreateSolidBrush(colorScheme.backgroundColor);
             this.secondaryBrush = gfx.CreateSolidBrush(colorScheme.fontColor);
+            this.transparentBrush = gfx.CreateSolidBrush(Color.Transparent);
             this.font = font;
             this.gfx = gfx;
             this.children = new List<OverlayElement>();
@@ -157,12 +159,8 @@ namespace CrewChiefV4.Overlay
             }
             return rect;
         }
-        public virtual void updateInputs(int overlayWindowX, int overlayWindowY, bool inputEnabled)
-        {
-        }
-        public virtual void drawElement()
-        {
-        }
+        public virtual void updateInputs(int overlayWindowX, int overlayWindowY, bool inputEnabled) { }
+        public virtual void drawElement() { }
         public virtual void Dispose() { }
         public virtual OverlayElement AddChildElement(OverlayElement child)
         {
@@ -184,6 +182,7 @@ namespace CrewChiefV4.Overlay
                 {
                     Rect rectAbs = child.getAbsolutePosition();
                     Rect fontAbs = child.getTextAbsolutePosition();
+                    child.mousePosition = mousePosition;
                     if (rectAbs.Contains(mousePosition) || (child.includeFontRectInMouseOver && fontAbs.Contains(mousePosition)))
                     {
                         child.mouseOver = true;
