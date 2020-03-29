@@ -26,27 +26,21 @@ namespace CrewChiefV4.Overlay
         Rect verticalScrollBarArrowUpRect = new Rect();
         Rect verticalScrollBarArrowDownRect = new Rect();
         Rect verticalScrollBarSliderRect = new Rect();
-        public System.Windows.Point mousePositionWhenFirstPresseed = new System.Windows.Point(0, 0);
         public EventHandler<OverlayElementClicked> OnSelectedObjectChanged;
         public ElementListBox(Graphics gfx, string elementTitle, Font font, Rect rectangle,
             ColorScheme colorScheme, string[]objects = null, string selectedObject = null, bool initialEnable = true) :
             base(gfx, elementTitle, font, rectangle, colorScheme, initialEnable)
         {
+            if (objects == null)
+                return;
+
             this.objects = objects;
             this.lineHeight = font.MeasureString(objects[0]).Height;
             
             elementsVisible = (int)Math.Floor(rectangle.Height / lineHeight);
 
             AddVerticalScrollBar();
-
-            if (selectedObject != null)
-            {
-                selectedObjectIndex = objects.ToList().IndexOf(selectedObject);
-                if (selectedObjectIndex == -1)
-                    selectedObjectIndex = 0;
-                if (selectedObjectIndex + 1 > elementsVisible)
-                    startObjectIndex = Math.Abs((selectedObjectIndex + 1) - elementsVisible);
-            }
+            MoveToSelection(selectedObject);
         }
         private void AddVerticalScrollBar()
         {     
@@ -80,15 +74,48 @@ namespace CrewChiefV4.Overlay
                 hasVerticalScrollBar = true;
             }
         }
+        private void MoveToSelection(string obj)
+        {
+            if (obj != null)
+            {
+                selectedObjectIndex = objects.ToList().IndexOf(obj);
+                if (selectedObjectIndex == -1)
+                    selectedObjectIndex = 0;
+                if (selectedObjectIndex + 1 > elementsVisible)
+                    startObjectIndex = Math.Abs((selectedObjectIndex + 1) - elementsVisible);
+            }
+        }
+        public void AddObject(string obj)
+        {
+            if(objects == null)
+            {
+                objects = new string[1] { obj };
+            }
+            else
+            {
+                List<string> objs = objects.ToList();
+                objs.Add(obj);
+                objects = objs.ToArray();
+            }
+
+            var sliderMaxHeight = verticalScrollBarRect.Height - (verticalScrollBarArrowUpRect.Height + verticalScrollBarArrowDownRect.Height);
+            sliderHeightSteps = (float)sliderMaxHeight / objects.Length;
+            verticalScrollBarSliderRect.Height = sliderHeightSteps * elementsVisible;
+            AddVerticalScrollBar();
+            MoveToSelection(obj);
+            OnSelectedObjectChanged?.Invoke(this, new OverlayElementClicked(gfx, costumTextId: objects[selectedObjectIndex]));
+        }
+
         public string GetSelectedObject()
         {
             return objects == null ? null : objects[selectedObjectIndex];
         }
+
         public override void drawElement()
         {
             if (!this.elementEnabled)
                 return;
-            System.Windows.Rect rect = getAbsolutePosition();                        
+            System.Windows.Rect rect = getAbsolutePosition();            
             gfx.DrawBox2D(base.secondaryBrush, base.primaryBrush, new Rectangle(rect), mouseOver || selected ? 1.5f : 1);
             if (hasVerticalScrollBar)
             {
@@ -270,14 +297,12 @@ namespace CrewChiefV4.Overlay
                         lineOffsetY += lineHeight;
                     }                   
                     mousePressed = false;
-                    mousePositionWhenFirstPresseed = new System.Windows.Point(0, 0);
                 }
                 return true;
             }
             else
             {
                 mousePressed = false;
-                mousePositionWhenFirstPresseed = new System.Windows.Point(0, 0);
             }
             return false;
         }

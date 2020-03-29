@@ -224,7 +224,7 @@ namespace CrewChiefV4.Overlay
             lastChild.OnElementLMButtonClicked = OnBoldFontClicked;
             lastChild.OnEnterKeyDown += OnBoldFontClicked;
 
-            lastChild = linkedTabStopElements.AddLast(displayModeControlBox.AddChildElement(new ElementCheckBox(gfx, "Capital Letter", fontControls, new Rect(2, 102, 14, 14), defaultColorScheme, initialEnabled: settings.capitalLetter))).Value;
+            lastChild = linkedTabStopElements.AddLast(displayModeControlBox.AddChildElement(new ElementCheckBox(gfx, "Capital letter", fontControls, new Rect(2, 102, 14, 14), defaultColorScheme, initialEnabled: settings.capitalLetter))).Value;
             lastChild.OnElementLMButtonClicked = OnCapitalLettersClicked;
             lastChild.OnEnterKeyDown += OnCapitalLettersClicked;
 
@@ -232,7 +232,26 @@ namespace CrewChiefV4.Overlay
             lastChild.OnElementLMButtonClicked = OnHideControlsOnStartupClicked;
             lastChild.OnEnterKeyDown += OnHideControlsOnStartupClicked;
 
-            var colorBox = displayModeControlBox.AddChildElement(new ElementGroupBox(gfx, "Color", fontControls, new Rect(160, 0, 120, 144),
+            var listBox = displayModeControlBox.AddChildElement(new ElementGroupBox(gfx, "ColorSchemes", fontControls, new Rect(160, 0, 120, 90),
+                    colorSchemeTransparent, outlined: false));
+
+            var colorSchemesNames = settings.colorSchemes.Select(item => item.name).ToArray();
+
+            lastChild = linkedTabStopElements.AddLast(listBox.AddChildElement(new ElementListBox(gfx, "ColorScheme", fontControls, new Rect(1, 2, 110, 77), defaultColorScheme, colorSchemesNames, settings.activeColorScheme))).Value;
+            ((ElementListBox)lastChild).OnSelectedObjectChanged += OnListBoxColorSchemeSelectedObjectChange;
+
+            listBox.AddChildElement(new ElementText(gfx, "New color name:", fontControls, new Rect(1, 82, 90, 17), defaultColorScheme, textAlign: TextAlign.Left | TextAlign.Center));
+            lastChild = linkedTabStopElements.AddLast(listBox.AddChildElement(new ElementTextBox(gfx, "add_new_color_textbox", fontControls, new Rect(1, 102, 110, 17),
+                defaultColorScheme, initialEnableState: true, acceptInput: true,
+                maxTextLength: 13, textAlign: TextAlign.Left | TextAlign.Center))).Value;
+            lastChild.OnKeyDown += OnKeyDown;
+            lastChild.OnElementDraw += OnDrawTextBox;
+
+            lastChild = linkedTabStopElements.AddLast(listBox.AddChildElement(new ElementButton(gfx, "Add new color", fontControls, new Rect(1, 122, 110, 17), defaultColorScheme))).Value;
+            lastChild.OnElementLMButtonClicked += OnAddNewColor;
+
+
+            var colorBox = displayModeControlBox.AddChildElement(new ElementGroupBox(gfx, "Color", fontControls, new Rect(280, 0, 120, 144),
                 colorSchemeTransparent, outlined: false));
 
             lastChild = linkedTabStopElements.AddLast(colorBox.AddChildElement(new ElementRadioButton(gfx, "Font color", fontControls, new Rect(2, 2, 14, 14), defaultColorScheme,
@@ -278,11 +297,11 @@ namespace CrewChiefV4.Overlay
             lastChild.OnKeyDown += OnKeyDown;
             lastChild.OnElementDraw += OnDrawTextBox;
 
-            lastChild = linkedTabStopElements.AddLast(colorBox.AddChildElement(new ElementButton(gfx, "Set Color", fontControls, new Rect(3, 122, 112, 17), defaultColorScheme))).Value;
+            lastChild = linkedTabStopElements.AddLast(colorBox.AddChildElement(new ElementButton(gfx, "Set color", fontControls, new Rect(3, 122, 112, 17), defaultColorScheme))).Value;
             lastChild.OnElementLMButtonClicked += OnSetSelectedColorClicked;
 
 
-            var voicesBox = displayModeControlBox.AddChildElement(new ElementGroupBox(gfx, "Voices", fontControls, new Rect(280, 0, 120, 144),
+            var voicesBox = displayModeControlBox.AddChildElement(new ElementGroupBox(gfx, "Voices", fontControls, new Rect(400, 0, 120, 144),
                 colorSchemeTransparent, outlined: false));
 
             lastChild = linkedTabStopElements.AddLast(voicesBox.AddChildElement(new ElementRadioButton(gfx, "All", fontControls, new Rect(2, 2, 14, 14), defaultColorScheme,
@@ -300,7 +319,7 @@ namespace CrewChiefV4.Overlay
             lastChild.OnElementLMButtonClicked += OnDisplayVoicesClicked;
             lastChild.OnEnterKeyDown += OnDisplayVoicesClicked;
 
-            lastChild = linkedTabStopElements.AddLast(voicesBox.AddChildElement(new ElementRadioButton(gfx, "Chief and Spotter", fontControls, new Rect(2, 62, 14, 14), defaultColorScheme,
+            lastChild = linkedTabStopElements.AddLast(voicesBox.AddChildElement(new ElementRadioButton(gfx, "Chief and spotter", fontControls, new Rect(2, 62, 14, 14), defaultColorScheme,
             isChecked: settings.displayVoices == DisplayVoices.ChiefAndSpotter, costumCommand: DisplayVoices.ChiefAndSpotter.ToString()))).Value;
             lastChild.OnElementLMButtonClicked += OnDisplayVoicesClicked;
             lastChild.OnEnterKeyDown += OnDisplayVoicesClicked;
@@ -310,17 +329,17 @@ namespace CrewChiefV4.Overlay
             lastChild.OnElementLMButtonClicked += OnDisplayVoicesClicked;
             lastChild.OnEnterKeyDown += OnDisplayVoicesClicked;
 
-            lastChild = linkedTabStopElements.AddLast(voicesBox.AddChildElement(new ElementRadioButton(gfx, "You and Chief", fontControls, new Rect(2, 102, 14, 14), defaultColorScheme,
+            lastChild = linkedTabStopElements.AddLast(voicesBox.AddChildElement(new ElementRadioButton(gfx, "You and chief", fontControls, new Rect(2, 102, 14, 14), defaultColorScheme,
                 isChecked: settings.displayVoices == DisplayVoices.YouAndChief, costumCommand: DisplayVoices.YouAndChief.ToString()))).Value;
             lastChild.OnElementLMButtonClicked += OnDisplayVoicesClicked;
             lastChild.OnEnterKeyDown += OnDisplayVoicesClicked;
 
-            lastChild = linkedTabStopElements.AddLast(voicesBox.AddChildElement(new ElementRadioButton(gfx, "You and Spotter", fontControls, new Rect(2, 122, 14, 14), defaultColorScheme,
+            lastChild = linkedTabStopElements.AddLast(voicesBox.AddChildElement(new ElementRadioButton(gfx, "You and spotter", fontControls, new Rect(2, 122, 14, 14), defaultColorScheme,
                 isChecked: settings.displayVoices == DisplayVoices.YouAndSpotter, costumCommand: DisplayVoices.YouAndSpotter.ToString()))).Value;
             lastChild.OnElementLMButtonClicked += OnDisplayVoicesClicked;
             lastChild.OnEnterKeyDown += OnDisplayVoicesClicked;
 
-            var modeBox = displayModeControlBox.AddChildElement(new ElementGroupBox(gfx, "Mode", fontControls, new Rect(400, 0, 120, 40),
+            var modeBox = displayModeControlBox.AddChildElement(new ElementGroupBox(gfx, "Mode", fontControls, new Rect(520, 0, 120, 40),
                 colorSchemeTransparent, outlined: false));
 
             lastChild = linkedTabStopElements.AddLast(modeBox.AddChildElement(new ElementRadioButton(gfx, "Always on", fontControls, new Rect(2, 2, 14, 14), defaultColorScheme,
@@ -332,14 +351,6 @@ namespace CrewChiefV4.Overlay
                 isChecked: settings.displayMode == DisplayMode.Movie, costumCommand: DisplayMode.Movie.ToString()))).Value;
             lastChild.OnElementLMButtonClicked += OnDisplayModeClicked;
             lastChild.OnEnterKeyDown += OnDisplayModeClicked;
-
-            var listBox = displayModeControlBox.AddChildElement(new ElementGroupBox(gfx, "ColorSchemes", fontControls, new Rect(520, 3, 120, 90),
-                colorSchemeTransparent, outlined: false));
-
-            var colorSchemesNames = settings.colorSchemes.Select(item => item.name).ToArray();
-
-            lastChild = linkedTabStopElements.AddLast(listBox.AddChildElement(new ElementListBox(gfx, "ColorScheme", fontControls, new Rect(1, 1, 110, 42), defaultColorScheme, colorSchemesNames, settings.activeColorScheme))).Value;
-            ((ElementListBox)lastChild).OnSelectedObjectChanged += OnListBoxColorSchemeSelectedObjectChange;
 
             lastChild = linkedTabStopElements.AddLast(displayModeControlBox.AddChildElement(new ElementButton(gfx, "Save settings", fontControls, new Rect(overlayWindow.Width - 116, 122, 110, 17), defaultColorScheme))).Value;
             lastChild.OnElementLMButtonClicked += OnSaveOverlaySettings;
@@ -560,8 +571,7 @@ namespace CrewChiefV4.Overlay
             lock (Audio.SubtitleManager.phraseBuffer)
             {
                 if(Audio.SubtitleManager.phraseBuffer.Size < 1)
-                {
-                    
+                {                    
                     string subtitle = settings.capitalLetter ? "Use CTRL + SHIFT to show/hide settings and title bar".ToUpper() : 
                         "Use CTRL + SHIFT to show/hide settings and title bar";
                     System.Drawing.SizeF textSize = textBox.font.MeasureString(subtitle);
@@ -784,13 +794,13 @@ namespace CrewChiefV4.Overlay
             if(int.TryParse(windowWidthElement.text, out int windowWidth))
             {
                 // if smaller controls wont fit
-                if (windowWidth >= 520)
+                if (windowWidth >= 640)
                 {
                     settings.windowWidth = windowWidth;
                 }
                 else
                 {
-                    settings.windowWidth = 520;
+                    settings.windowWidth = 640;
                 }
             }
             var maxHistoryElement = (ElementTextBox)displayModeControlBox.children.FirstOrDefault(c => c.title == "max_history_textbox");
@@ -952,6 +962,21 @@ namespace CrewChiefV4.Overlay
             }
             fontBrush = e.graphics.CreateSolidBrush(colorScheme.fontColor);
             backgroundBrush = e.graphics.CreateSolidBrush(colorScheme.backgroundColor);
+        }
+        public void OnAddNewColor(object sender, OverlayElementClicked e)
+        {
+            var colorSchemes = displayModeControlBox.children.FirstOrDefault(el => el.title == "ColorSchemes");
+            ElementTextBox colorSchemesTextBox = colorSchemes.children.FirstOrDefault(el => el.title == "add_new_color_textbox") as ElementTextBox;
+            ElementListBox colorSchemesListBox = colorSchemes.children.FirstOrDefault(el => el.title == "ColorScheme") as ElementListBox;
+
+            if (string.IsNullOrWhiteSpace(colorSchemesTextBox.text))
+                return;
+            if(colorSchemesListBox.objects.FirstOrDefault(colorSchemesTextBox.text.Contains) == null)
+            {
+                settings.colorSchemes.Add(new ColorScheme(colorSchemesTextBox.text, new Color(0, 0, 0), new Color(255, 255, 255)));
+                colorSchemesListBox.AddObject(colorSchemesTextBox.text);
+                colorSchemesTextBox.text = "";
+            }               
         }
     }
 }

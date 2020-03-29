@@ -38,6 +38,7 @@ namespace CrewChiefV4.Overlay
             float X = (float)rect.X + (float)(rect.Width / 2);
             float Y = (float)rect.Y + (float)(rect.Height / 2);
             gfx.DrawCircle(base.secondaryBrush, X, Y, (float)(rect.Width / 2), mouseOver || selected ? 2 : 1);
+            gfx.FillCircle(primaryBrush, X, Y, (float)(rect.Width / 2) - 1);
             if (enabled)
             {
                 gfx.DrawCircle(base.secondaryBrush, X, Y, 1, 5);
