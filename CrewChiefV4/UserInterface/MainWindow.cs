@@ -745,6 +745,20 @@ namespace CrewChiefV4
                         setFromCommandLine = true;
                         break;
                     }
+                    else if (arg.Equals(GameDefinition.AMS2.gameEnum.ToString()))
+                    {
+                        Console.WriteLine("Set Automobilista 2 mode from command line");
+                        this.gameDefinitionList.Text = GameDefinition.AMS2.friendlyName;
+                        setFromCommandLine = true;
+                        break;
+                    }
+                    else if (arg.Equals(GameDefinition.acc.gameEnum.ToString()))
+                    {
+                        Console.WriteLine("Set Assetto Corsa Competizionie mode from command line");
+                        this.gameDefinitionList.Text = GameDefinition.acc.friendlyName;
+                        setFromCommandLine = true;
+                        break;
+                    }
                     // special cases for RF1 versions
                     else if (arg.Equals("AMS"))
                     {
@@ -785,13 +799,6 @@ namespace CrewChiefV4
                     {
                         Console.WriteLine("Set RF2 mode from command line");
                         this.gameDefinitionList.Text = GameDefinition.rfactor2_64bit.friendlyName;
-                        setFromCommandLine = true;
-                        break;
-                    }
-                    else if (arg.Equals("ACC"))
-                    {
-                        Console.WriteLine("Set Assetto Corsa Competizione mode from command line");
-                        this.gameDefinitionList.Text = GameDefinition.acc.friendlyName;
                         setFromCommandLine = true;
                         break;
                     }
