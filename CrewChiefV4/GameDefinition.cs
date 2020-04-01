@@ -15,7 +15,7 @@ namespace CrewChiefV4
         public static GameDefinition pCars64Bit = new GameDefinition(GameEnum.PCARS_64BIT, "pcars_64_bit", "pCARS64",
             "CrewChiefV4.PCars.PCarsSpotterv2", "pcars64_launch_exe", "pcars64_launch_params", "launch_pcars", new String[] { "pCARS2", "pCARS2Gld", "pCARS2QA", "pCARS2AVX" }, false);
         public static GameDefinition AMS2 = new GameDefinition(GameEnum.AMS2, "ams2", "AMS2AVX",
-            "CrewChiefV4.AMS2.AMS2Spotter", "ams2_launch_exe", "ams2_launch_params", "launch_pcars", new String[] { "AMS2", "AMS2AVX"}, false);
+            "CrewChiefV4.AMS2.AMS2Spotter", "ams2_launch_exe", "ams2_launch_params", "launch_ams2", new String[] { "AMS2", "AMS2AVX"}, false);
         public static GameDefinition pCars32Bit = new GameDefinition(GameEnum.PCARS_32BIT, "pcars_32_bit", "pCARS",
             "CrewChiefV4.PCars.PCarsSpotterv2", "pcars32_launch_exe", "pcars32_launch_params", "launch_pcars", false);
         public static GameDefinition pCars2 = new GameDefinition(GameEnum.PCARS2, "pcars_2", "pCARS2AVX",

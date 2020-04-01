@@ -1071,10 +1071,10 @@
       <Value Profile="(Default)">4.4</Value>
     </Setting>
     <Setting Name="ams2_launch_exe" Type="System.String" Scope="User">
-      <Value Profile="(Default)">ams2.exe</Value>
+      <Value Profile="(Default)">C:/Program Files (x86)/Steam/Steam.exe</Value>
     </Setting>
     <Setting Name="ams2_launch_params" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">-applaunch 1066890</Value>
     </Setting>
     <Setting Name="launch_ams2" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>

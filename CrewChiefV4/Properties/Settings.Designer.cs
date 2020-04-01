@@ -4297,7 +4297,7 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("ams2.exe")]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:/Program Files (x86)/Steam/Steam.exe")]
         public string ams2_launch_exe {
             get {
                 return ((string)(this["ams2_launch_exe"]));
@@ -4309,7 +4309,7 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("-applaunch 1066890")]
         public string ams2_launch_params {
             get {
                 return ((string)(this["ams2_launch_params"]));
