@@ -769,17 +769,17 @@ namespace CrewChiefV4.RaceRoom
                         currentGameState.PitData.OnInLap = false;
                         currentGameState.PitData.OnOutLap = false;
                     }
-                    break;
-                }
-                currentGameState.SessionData.DeltaTime.SetNextDeltaPoint(currentGameState.PositionAndMotionData.DistanceRoundTrack,
-                    currentGameState.SessionData.CompletedLaps, shared.CarSpeed, currentGameState.Now, !currentGameState.PitData.InPitlane && !currentGameState.PitData.InPitlane);
+                    currentGameState.SessionData.DeltaTime.SetNextDeltaPoint(currentGameState.PositionAndMotionData.DistanceRoundTrack,
+                        currentGameState.SessionData.CompletedLaps, shared.CarSpeed, currentGameState.Now, !currentGameState.PitData.InPitlane && !currentGameState.PitData.InPitlane);
 
-                if (previousGameState != null)
-                {
-                    String stoppedInLandmark = currentGameState.SessionData.trackLandmarksTiming.updateLandmarkTiming(currentGameState.SessionData.TrackDefinition,
-                        currentGameState.SessionData.SessionRunningTime, previousGameState.PositionAndMotionData.DistanceRoundTrack,
-                        participantStruct.LapDistance, shared.CarSpeed, currentGameState.SessionData.DeltaTime.currentDeltaPoint, currentGameState.carClass);
-                    currentGameState.SessionData.stoppedInLandmark = participantStruct.InPitlane == 1 ? null : stoppedInLandmark;
+                    if (previousGameState != null)
+                    {
+                        String stoppedInLandmark = currentGameState.SessionData.trackLandmarksTiming.updateLandmarkTiming(currentGameState.SessionData.TrackDefinition,
+                            currentGameState.SessionData.SessionRunningTime, previousGameState.PositionAndMotionData.DistanceRoundTrack,
+                            participantStruct.LapDistance, shared.CarSpeed, currentGameState.SessionData.DeltaTime.currentDeltaPoint, currentGameState.carClass);
+                        currentGameState.SessionData.stoppedInLandmark = participantStruct.InPitlane == 1 ? null : stoppedInLandmark;
+                    }
+                    break;
                 }
             }
 

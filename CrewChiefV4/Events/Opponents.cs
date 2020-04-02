@@ -207,6 +207,10 @@ namespace CrewChiefV4.Events
 
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
+            if (currentGameState.SessionData.SectorNumber == 2 && previousGameState != null && previousGameState.SessionData.SectorNumber == 1)
+            {
+                respond("where is poole");
+            }
             if (GameStateData.onManualFormationLap)
             {
                 return;
