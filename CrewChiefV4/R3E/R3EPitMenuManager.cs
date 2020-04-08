@@ -128,11 +128,11 @@ namespace CrewChiefV4.R3E
         // per-car tyre options, the array of TyreType is in the order it appears in the pit menu
         private static Dictionary<CarData.CarClassEnum, TyreType[]> tyreOptions = new Dictionary<CarData.CarClassEnum, TyreType[]>
         {
-            { CarData.CarClassEnum.F1_90S, new TyreType[]{ TyreType.Soft, TyreType.Hard} },
+            { CarData.CarClassEnum.F1_90S, new TyreType[]{ TyreType.Soft, TyreType.Medium, TyreType.Hard} },
             { CarData.CarClassEnum.F1, new TyreType[]{ TyreType.Soft, TyreType.Medium, TyreType.Hard} },
             { CarData.CarClassEnum.DTM_2014, new TyreType[]{ TyreType.Prime, TyreType.Option} },
             { CarData.CarClassEnum.INDYCAR, new TyreType[]{ TyreType.Alternate, TyreType.Prime} },  // note we use Prime here, not Primary - the SRE recognises either
-            { CarData.CarClassEnum.GROUPC, new TyreType[]{ TyreType.Soft, TyreType.Hard} },
+            { CarData.CarClassEnum.GROUPC, new TyreType[]{ TyreType.Soft, TyreType.Medium, TyreType.Hard} },
             { CarData.CarClassEnum.GT2, new TyreType[]{ TyreType.Soft, TyreType.Hard} }
         };
 
