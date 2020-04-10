@@ -1541,27 +1541,34 @@ namespace CrewChiefV4.Audio
             {
                 breathDueAt = DateTime.MaxValue;
                 channelOpen = true;
-                if (!mute)
+                // only play the radio beep and background sound if we're not in driver training mode
+                if (CrewChief.currentGameState == null
+                    || !(CrewChief.currentGameState.SessionData.SessionType == SessionType.Practice || CrewChief.currentGameState.SessionData.SessionType == SessionType.LonePractice)
+                    || !PlaybackModerator.paceNotesMuteOtherMessages
+                    || !DriverTrainingService.isPlayingPaceNotes)
                 {
-                    try
+                    if (!mute)
                     {
-                        this.backgroundPlayer.play();
+                        try
+                        {
+                            this.backgroundPlayer.play();
+                        }
+                        catch (Exception)
+                        {
+                            // ignore
+                        }
                     }
-                    catch (Exception)
+                    // beeps don't play in oval spotter mode
+                    if (!GlobalBehaviourSettings.ovalSpotterMode)
                     {
-                        // ignore
-                    }
-                }
-                // beeps don't play in oval spotter mode
-                if (!GlobalBehaviourSettings.ovalSpotterMode)
-                {
-                    if (useShortBeepWhenOpeningChannel)
-                    {
-                        playShortStartSpeakingBeep();
-                    }
-                    else
-                    {
-                        playStartSpeakingBeep();
+                        if (useShortBeepWhenOpeningChannel)
+                        {
+                            playShortStartSpeakingBeep();
+                        }
+                        else
+                        {
+                            playStartSpeakingBeep();
+                        }
                     }
                 }
             }
@@ -1572,20 +1579,27 @@ namespace CrewChiefV4.Audio
             if (channelOpen)
             {
                 breathDueAt = DateTime.MaxValue;
-                // beeps don't play in oval spotter mode
-                if (!GlobalBehaviourSettings.ovalSpotterMode)
+                // only play the radio beep and background sound if we're not in driver training mode
+                if (CrewChief.currentGameState == null
+                    || !(CrewChief.currentGameState.SessionData.SessionType == SessionType.Practice || CrewChief.currentGameState.SessionData.SessionType == SessionType.LonePractice)
+                    || !PlaybackModerator.paceNotesMuteOtherMessages
+                    || !DriverTrainingService.isPlayingPaceNotes)
                 {
-                    playEndSpeakingBeep();
-                }
-                if (!mute)
-                {
-                    try
+                    // beeps don't play in oval spotter mode
+                    if (!GlobalBehaviourSettings.ovalSpotterMode)
                     {
-                        this.backgroundPlayer.stop();
+                        playEndSpeakingBeep();
                     }
-                    catch (Exception)
+                    if (!mute)
                     {
-                        // ignore
+                        try
+                        {
+                            this.backgroundPlayer.stop();
+                        }
+                        catch (Exception)
+                        {
+                            // ignore
+                        }
                     }
                 }
                 if (soundCache != null)
@@ -1634,7 +1648,6 @@ namespace CrewChiefV4.Audio
                 soundCache.Play(soundToPlay, SoundMetadata.beep);
             }
         }
-
 
         public void playChiefEndSpeakingBeep()
         {

@@ -11,6 +11,7 @@ namespace CrewChiefV4.Audio
     // regular queued messages from playing.
     public enum SoundType {
         SPOTTER = 0,    // most important
+        PACE_NOTE,
         CRITICAL_MESSAGE,
         VOICE_COMMAND_RESPONSE, 
         IMPORTANT_MESSAGE,

@@ -49,6 +49,7 @@ namespace CrewChiefV4.Audio
         private static bool insertBeepInBetweenSpotterAndChief = UserSettings.GetUserSettings().getBoolean("insert_beep_in_between_spotter_and_chief");
         public static bool rejectMessagesWhenTalking = UserSettings.GetUserSettings().getBoolean("reject_message_when_talking");
         private static bool autoVerbosity = UserSettings.GetUserSettings().getBoolean("priortise_messages_depending_on_situation");
+        public static bool paceNotesMuteOtherMessages = UserSettings.GetUserSettings().getBoolean("pace_notes_mute_all_messages");        
 
         private static SoundType minPriorityForInterrupt = SoundType.SPOTTER;
 
@@ -84,7 +85,7 @@ namespace CrewChiefV4.Audio
                         minPriorityForInterrupt = SoundType.SPOTTER;
                         break;
                     case MinPriorityForInterrupt.CRITICAL_MESSAGES:
-                        minPriorityForInterrupt = SoundType.CRITICAL_MESSAGE;
+                        minPriorityForInterrupt = SoundType.PACE_NOTE;
                         break;
                     case MinPriorityForInterrupt.IMPORTANT_MESSAGES:
                         minPriorityForInterrupt = SoundType.IMPORTANT_MESSAGE;
@@ -362,6 +363,12 @@ namespace CrewChiefV4.Audio
             {
                 priority = queuedMessage.metadata.priority;
                 type = queuedMessage.metadata.type;
+            }
+
+            if (paceNotesMuteOtherMessages && DriverTrainingService.isPlayingPaceNotes && type != SoundType.PACE_NOTE)
+            {
+                PlaybackModerator.Trace(string.Format("Message {0} hasn't been queued because its not a pace note", queuedMessage.messageName));
+                return false;
             }
 
             var canPlay = queuedMessage.playEvenWhenSilenced || priority >= PlaybackModerator.minPriorityForEachVerbosity[verbosity];

@@ -4369,13 +4369,37 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool auto_enable_pacenotes_in_practice {
             get {
                 return ((bool)(this["auto_enable_pacenotes_in_practice"]));
             }
             set {
                 this["auto_enable_pacenotes_in_practice"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool multi_lap_pace_notes {
+            get {
+                return ((bool)(this["multi_lap_pace_notes"]));
+            }
+            set {
+                this["multi_lap_pace_notes"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool pace_notes_mute_all_messages {
+            get {
+                return ((bool)(this["pace_notes_mute_all_messages"]));
+            }
+            set {
+                this["pace_notes_mute_all_messages"] = value;
             }
         }
     }

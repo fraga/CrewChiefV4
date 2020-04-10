@@ -178,6 +178,7 @@ namespace CrewChiefV4.PCars2
                 CrewChief.carClass = CarData.getCarClassForClassName(StructHelper.getNameFromBytes(shared.mCarClassName)).carClassEnum;
                 CrewChief.viewingReplay = true;
                 CrewChief.distanceRoundTrack = shared.mParticipantData[shared.mViewedParticipantIndex].mCurrentLapDistance;
+                CrewChief.lapNumberFromGame = (int)shared.mParticipantData[shared.mViewedParticipantIndex].mLapsCompleted;
             }
 
             if (gameState == eGameState.GAME_FRONT_END ||
@@ -1166,6 +1167,7 @@ namespace CrewChiefV4.PCars2
                 CrewChief.carClass = currentGameState.carClass.carClassEnum;
             }
             CrewChief.distanceRoundTrack = currentGameState.PositionAndMotionData.DistanceRoundTrack;
+            CrewChief.lapNumberFromGame = (int) playerData.mLapsCompleted;
             CrewChief.viewingReplay = false;
 
             if (currentGameState.PositionAndMotionData.DistanceRoundTrack > 0 && currentGameState.PositionAndMotionData.CarSpeed > 0 
@@ -1252,6 +1254,9 @@ namespace CrewChiefV4.PCars2
             }
 
             currentGameState.PositionAndMotionData.WorldPosition = new float[] { playerData.mWorldPosition[0], playerData.mWorldPosition[1], playerData.mWorldPosition[2] };
+            currentGameState.PositionAndMotionData.Orientation.Pitch = shared.mOrientation[0];
+            currentGameState.PositionAndMotionData.Orientation.Roll = shared.mOrientation[1];
+            currentGameState.PositionAndMotionData.Orientation.Yaw = shared.mOrientation[2];
             return currentGameState;
         }
 

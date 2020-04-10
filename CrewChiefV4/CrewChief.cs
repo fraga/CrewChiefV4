@@ -67,8 +67,9 @@ namespace CrewChiefV4
 
         public static bool enableSharedMemory = UserSettings.GetUserSettings().getBoolean("enable_shared_memory");
 
-        private static Dictionary<String, AbstractEvent> eventsList = new Dictionary<String, AbstractEvent>();
+        private Boolean autoEnablePacenotesInPractice = UserSettings.GetUserSettings().getBoolean("auto_enable_pacenotes_in_practice");
 
+        private static Dictionary<String, AbstractEvent> eventsList = new Dictionary<String, AbstractEvent>();
 
         Object lastSpotterState;
         Object currentSpotterState;
@@ -117,6 +118,9 @@ namespace CrewChiefV4
         public static CarData.CarClassEnum carClass = CarData.CarClassEnum.UNKNOWN_RACE;
         public static Boolean viewingReplay = false;
         public static float distanceRoundTrack = -1;
+        public static int lapNumberAtStartOfRecordingSession = -1;
+        public static int lapNumberAtStartOfPlaybackSession = -1;
+        public static int lapNumberFromGame = -1;
 
         public static int playbackIntervalMilliseconds = 0;
 
@@ -162,6 +166,7 @@ namespace CrewChiefV4
             this.enableGameDataWebsocket = UserSettings.GetUserSettings().getBoolean("enable_game_data_websocket");
             this.displaySessionLapTimes = UserSettings.GetUserSettings().getBoolean("display_session_lap_times");
             this.turnSpotterOffImmediatelyOnFCY = UserSettings.GetUserSettings().getBoolean("fcy_stop_spotter_immediately");
+            this.autoEnablePacenotesInPractice = UserSettings.GetUserSettings().getBoolean("auto_enable_pacenotes_in_practice");
             CrewChief.yellowFlagMessagesEnabled = UserSettings.GetUserSettings().getBoolean("enable_yellow_flag_messages");
             CrewChief.enableDriverNames = UserSettings.GetUserSettings().getBoolean("enable_driver_names");
             CrewChief.timeInterval = gameDefinition.gameEnum == GameEnum.IRACING ? IRACING_INTERVAL : UserSettings.GetUserSettings().getInt("update_interval");
@@ -448,6 +453,9 @@ namespace CrewChiefV4
                 gameDataReader = GameStateReaderFactory.getInstance().getGameStateReader(gameDefinition);
                 gameDataReader.ResetGameDataFromFile();
 
+                CrewChief.lapNumberAtStartOfPlaybackSession = -1;
+                CrewChief.lapNumberAtStartOfRecordingSession = -1;
+
                 gameDataReader.dumpToFile = dumpToFile;
 
                 if (enableGameDataWebsocket)
@@ -532,7 +540,6 @@ namespace CrewChiefV4
                                 // give a it a break.
                                 if (!mapped)
                                     Thread.Sleep(1000);
-                                    
                             }
                         }
                         else if (UserSettings.GetUserSettings().getBoolean(gameDefinition.gameStartEnabledProperty) && !attemptedToRunGame)
@@ -795,6 +802,29 @@ namespace CrewChiefV4
                                 // for now, don't trigger any events for F1 2018 / 2019 as there's no game mapping
                                 if (gameDefinition.gameEnum != GameEnum.F1_2018 && gameDefinition.gameEnum != GameEnum.F1_2019)
                                 {
+                                    Boolean isPractice = currentGameState.SessionData.SessionType == SessionType.Practice || currentGameState.SessionData.SessionType == SessionType.LonePractice;                                    
+                                    // before triggering events, see if we need to enable pace notes automatically. Enable as soon as we're moving
+                                    // if we're in the pitlane
+                                    if (this.autoEnablePacenotesInPractice && currentGameState != null
+                                        && !DriverTrainingService.isRecordingPaceNotes
+                                        && isPractice)
+                                    {
+                                        Boolean enteredPit = previousGameState != null &&
+                                            ((!previousGameState.PitData.IsInGarage && currentGameState.PitData.IsInGarage || !previousGameState.PitData.InPitlane && currentGameState.PitData.InPitlane));
+                                        if (enteredPit)
+                                        {
+                                            DriverTrainingService.stopPlayingPaceNotes();
+                                        }
+                                        else if (!DriverTrainingService.isPlayingPaceNotes
+                                            && ((previousGameState != null && previousGameState.PitData.IsInGarage && currentGameState.PitData.InPitlane)
+                                                || (previousGameState.ControlData.ControlType == ControlType.AI && currentGameState.ControlData.ControlType != ControlType.AI)
+                                                || (currentGameState.PositionAndMotionData.CarSpeed > 0.5 && currentGameState.PitData.InPitlane)))
+                                        {
+                                            DriverTrainingService.loadPaceNotes(CrewChief.gameDefinition.gameEnum,
+                                                currentGameState.SessionData.TrackDefinition.name, currentGameState.carClass.carClassEnum, audioPlayer, currentGameState.SessionData.CompletedLaps);
+                                        }
+                                    }
+
                                     foreach (KeyValuePair<String, AbstractEvent> entry in eventsList)
                                     {
                                         if (entry.Value.isApplicableForCurrentSessionAndPhase(currentGameState.SessionData.SessionType, currentGameState.SessionData.SessionPhase))
@@ -812,7 +842,9 @@ namespace CrewChiefV4
                                 {
                                     if (DriverTrainingService.isPlayingPaceNotes)
                                     {
-                                        DriverTrainingService.checkDistanceAndPlayIfNeeded(currentGameState.Now, previousGameState.PositionAndMotionData.DistanceRoundTrack,
+                                        DriverTrainingService.checkValidAndPlayIfNeeded(currentGameState.Now, currentGameState.SessionData.CompletedLaps + 1,
+                                            currentGameState.PositionAndMotionData.CarSpeed, currentGameState.PositionAndMotionData.Orientation.Yaw,
+                                            previousGameState.PositionAndMotionData.DistanceRoundTrack,
                                             currentGameState.PositionAndMotionData.DistanceRoundTrack, audioPlayer);
                                     }
                                     if (spotter != null && GlobalBehaviourSettings.spotterEnabled && !spotterIsRunning &&

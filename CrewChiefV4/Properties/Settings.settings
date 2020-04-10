@@ -1089,7 +1089,13 @@
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="auto_enable_pacenotes_in_practice" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="multi_lap_pace_notes" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="pace_notes_mute_all_messages" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>
 </SettingsFile>

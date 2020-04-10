@@ -342,6 +342,7 @@ namespace CrewChiefV4.PCars
                 CrewChief.carClass = CarData.getCarClassForClassName(StructHelper.getNameFromBytes(shared.mCarClassName)).carClassEnum;
                 CrewChief.viewingReplay = true;
                 CrewChief.distanceRoundTrack = shared.mParticipantData[shared.mViewedParticipantIndex].mCurrentLapDistance;
+                CrewChief.lapNumberFromGame = (int)shared.mParticipantData[shared.mViewedParticipantIndex].mLapsCompleted;
             }
 
             // game state is 3 for paused, 5 for replay. No idea what 4 is...
@@ -1199,6 +1200,7 @@ namespace CrewChiefV4.PCars
                 CrewChief.carClass = currentGameState.carClass.carClassEnum;
             }
             CrewChief.distanceRoundTrack = currentGameState.PositionAndMotionData.DistanceRoundTrack;
+            CrewChief.lapNumberFromGame = (int)viewedParticipant.mLapsCompleted;
             CrewChief.viewingReplay = false;
             
             if (currentGameState.SessionData.IsNewLap)
@@ -1221,6 +1223,10 @@ namespace CrewChiefV4.PCars
             currentGameState.ControlData.ClutchPedal = shared.mClutch;
 
             currentGameState.PositionAndMotionData.WorldPosition = new float[] { viewedParticipant.mWorldPosition[0], viewedParticipant.mWorldPosition[1], viewedParticipant.mWorldPosition[2] };
+            currentGameState.PositionAndMotionData.Orientation.Pitch = shared.mOrientation[0];
+            currentGameState.PositionAndMotionData.Orientation.Roll = shared.mOrientation[1];
+            currentGameState.PositionAndMotionData.Orientation.Yaw = shared.mOrientation[2];
+
             return currentGameState;
         }
 

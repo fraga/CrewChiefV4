@@ -1994,6 +1994,7 @@ namespace CrewChiefV4.rFactor2
             CrewChief.trackName = csd.TrackDefinition.name;
             CrewChief.carClass = cgs.carClass.carClassEnum;
             CrewChief.distanceRoundTrack = cgs.PositionAndMotionData.DistanceRoundTrack;
+            CrewChief.lapNumberFromGame = cgs.SessionData.CompletedLaps;
             CrewChief.viewingReplay = false;
 
             if (pgs != null

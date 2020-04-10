@@ -1704,3 +1704,11 @@ force_stereo_metadata = RESTART_REQUIRED
 auto_enable_pacenotes_in_practice = Play pace notes automatically in practice
 auto_enable_pacenotes_in_practice_help = Always start with pace note playback enabled in practice where pace notes are avaialble
 auto_enable_pacenotes_in_practice_category = AUDIO_VOICE_AND_CONTROLLERS
+
+multi_lap_pace_notes = Multi-lap pace notes
+multi_lap_pace_notes_help = Record pace notes over more than one lap
+multi_lap_pace_notes_category = AUDIO_VOICE_AND_CONTROLLERS
+
+pace_notes_mute_all_messages = Mute messages when playing pace notes
+pace_notes_mute_all_messages_help = Mute other messages when pace notes are playing
+pace_notes_mute_all_messages_category = AUDIO_VOICE_AND_CONTROLLERS

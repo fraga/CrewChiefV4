@@ -1528,7 +1528,7 @@ namespace CrewChiefV4
                             {
                                 crewChief.audioPlayer.playStartListeningBeep();
                                 Console.WriteLine("Recording pace note...");
-                                DriverTrainingService.startRecordingMessage((int)CrewChief.distanceRoundTrack);
+                                DriverTrainingService.startRecordingMessage( (int)CrewChief.distanceRoundTrack);
                             }
                         }
                         else

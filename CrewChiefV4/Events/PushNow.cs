@@ -15,8 +15,6 @@ namespace CrewChiefV4.Events
         private Boolean brakeTempWarningOnPitExit = UserSettings.GetUserSettings().getBoolean("enable_pit_exit_brake_temp_warning");
         private Boolean tyreTempWarningOnPitExit = UserSettings.GetUserSettings().getBoolean("enable_pit_exit_tyre_temp_warning");
 
-        private Boolean autoEnablePacenotesInPractice = UserSettings.GetUserSettings().getBoolean("auto_enable_pacenotes_in_practice");
-
         private String folderPushToImprove = "push_now/push_to_improve";
         private String folderPushToGetWin = "push_now/push_to_get_win";
         private String folderPushToGetSecond = "push_now/push_to_get_second";
@@ -100,13 +98,13 @@ namespace CrewChiefV4.Events
             if (currentGameState.PitData.IsAtPitExit && currentGameState.PositionAndMotionData.CarSpeed > 5)
             {
                 // we've just been handed control back after a pitstop
-                if (currentGameState.SessionData.SessionRunningTime > 30 && isOpponentApproachingPitExit(currentGameState))
+                if (currentGameState.SessionData.SessionRunningTime > 30 && isOpponentApproachingPitExit(currentGameState) && !DriverTrainingService.isPlayingPaceNotes)
                 {
                     // we've exited into clean air
                     audioPlayer.playMessageImmediately(new QueuedMessage(folderTrafficBehindExitingPits, 3, abstractEvent: this,
                         type: SoundType.IMPORTANT_MESSAGE, priority: 0));
                 }
-                else
+                else if (!DriverTrainingService.isPlayingPaceNotes)
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(folderPushExitingPits, 3, abstractEvent: this,
                         type: SoundType.IMPORTANT_MESSAGE, priority: 0));
@@ -148,19 +146,14 @@ namespace CrewChiefV4.Events
                         }
                     }
                 }
-                if ((currentGameState.SessionData.SessionType == SessionType.Practice || currentGameState.SessionData.SessionType == SessionType.LonePractice) 
-                    && !DriverTrainingService.isPlayingPaceNotes && autoEnablePacenotesInPractice)
-                {
-                    DriverTrainingService.loadPaceNotes(CrewChief.gameDefinition.gameEnum,
-                                currentGameState.SessionData.TrackDefinition.name, currentGameState.carClass.carClassEnum);
-                }
             }
             if (previousGameState != null &&
                 currentGameState.SessionData.SectorNumber == 3 &&
                 currentGameState.PositionAndMotionData.CarSpeed > 5 && 
                 !currentGameState.PitData.InPitlane && 
                 isApproachingStartLine(currentGameState.SessionData.TrackDefinition, previousGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.PositionAndMotionData.DistanceRoundTrack) &&
-                isOpponentLeavingPits(currentGameState))
+                isOpponentLeavingPits(currentGameState) &&
+                !(DriverTrainingService.isPlayingPaceNotes && PlaybackModerator.paceNotesMuteOtherMessages))
             {
                 audioPlayer.playMessageImmediately(new QueuedMessage(folderOpponentExitingPits, 2, abstractEvent: this, type: SoundType.IMPORTANT_MESSAGE, priority: 0));
             }
