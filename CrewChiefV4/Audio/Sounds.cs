@@ -362,11 +362,11 @@ namespace CrewChiefV4.Audio
             }
         }
         
-        public static void loadSingleSound(String soundName, String fullPath)
+        public static void loadSingleSound(String soundName, String fullPath, String subtitle = null)
         {
             if (!singleSounds.ContainsKey(soundName))
             {
-                SingleSound singleSound = new SingleSound(fullPath, true, true, false);
+                SingleSound singleSound = new SingleSound(fullPath, true, true, false, subtitle);
                 singleSounds.Add(soundName, singleSound);
             }
         }
@@ -1342,7 +1342,7 @@ namespace CrewChiefV4.Audio
             //Console.WriteLine("Loaded subtitle for sound = " + this.subtitle);
         }
 
-        public SingleSound(String fullPath, Boolean cacheFileData, Boolean cacheSoundPlayer, Boolean cacheSoundPlayerPermanently)
+        public SingleSound(String fullPath, Boolean cacheFileData, Boolean cacheSoundPlayer, Boolean cacheSoundPlayerPermanently, string subtitle = null)
         {
             this.fullPath = fullPath;
             this.cacheFileData = cacheFileData || cacheSoundPlayer || cacheSoundPlayerPermanently;
@@ -1350,7 +1350,11 @@ namespace CrewChiefV4.Audio
             this.cacheSoundPlayerPermanently = cacheSoundPlayerPermanently;
             if (SubtitleManager.enableSubtitles)
             {
-                if (fullPath.Contains("numbers"))
+                if (subtitle != null)
+                {
+                    this.subtitle = subtitle;
+                }
+                else if (fullPath.Contains("numbers"))
                 {
                     this.subtitle = SubtitleManager.ParseSubtitleForNumber(fullPath, this);
                 }

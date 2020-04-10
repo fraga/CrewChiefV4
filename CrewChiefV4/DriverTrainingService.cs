@@ -12,6 +12,8 @@ namespace CrewChiefV4
 {
     class DriverTrainingService
     {
+        public static Boolean multiLapPaceNotes = UserSettings.GetUserSettings().getBoolean("multi_lap_pace_notes");
+
         private static int combineEntriesCloserThan = 20; // if a new entry's lap distance is within 20 metres of an existing entry's lap distance, combine them
         public static Boolean isPlayingPaceNotes = false;
         public static Boolean isRecordingPaceNotes = false;
@@ -24,11 +26,11 @@ namespace CrewChiefV4
         private static String trackName;
         private static CarData.CarClassEnum carClass;
 
-        private static String folderPathForPaceNotes;
+        public static String folderPathForPaceNotes;
 
         private static Object _lock = new Object();
 
-        public static Boolean loadPaceNotes(GameEnum gameEnum, String trackName, CarData.CarClassEnum carClass)
+        public static Boolean loadPaceNotes(GameEnum gameEnum, String trackName, CarData.CarClassEnum carClass, AudioPlayer audioPlayer, int lapsCompleted)
         {
             if (!isRecordingPaceNotes && !isPlayingPaceNotes)
             {
@@ -83,20 +85,39 @@ namespace CrewChiefV4
                     }
                     foreach (MetaDataEntry entry in DriverTrainingService.recordingMetaData.entries)
                     {
-                        for (int i = 0; i < entry.recordingNames.Count; i++)
+                        if (!entry.loadSounds())
                         {
-                            try
-                            {
-                                SoundCache.loadSingleSound(entry.recordingNames[i], System.IO.Path.Combine(DriverTrainingService.folderPathForPaceNotes, entry.fileNames[i]));
-                            }
-                            catch (Exception e)
-                            {
-                                Console.WriteLine("Unable to load a sound from pace notes set " + DriverTrainingService.folderPathForPaceNotes + " : " + e.Message);
-                                return false;
-                            }
+                            Console.WriteLine("Entry " + entry.ToString() + " failed to load, pace notes will not be available");
+                            return false;
                         }
                     }
+                    CrewChief.lapNumberAtStartOfPlaybackSession = lapsCompleted < 0 ? 0 : lapsCompleted;
                     isPlayingPaceNotes = true;
+                    if (DriverTrainingService.recordingMetaData.welcomeMessage != null
+                        && DriverTrainingService.recordingMetaData.welcomeMessage.recordingNames != null
+                        && DriverTrainingService.recordingMetaData.welcomeMessage.recordingNames.Count > 0)
+                    {
+                        DriverTrainingService.recordingMetaData.welcomeMessage.loadSounds();
+                        if (DriverTrainingService.recordingMetaData.welcomeMessage.playAllInOrder)
+                        {
+                            List<MessageFragment> messageFragments = new List<MessageFragment>();
+                            foreach (String recordingName in DriverTrainingService.recordingMetaData.welcomeMessage.recordingNames)
+                            {
+                                messageFragments.Add(MessageFragment.Text(recordingName));
+                            }
+                            // don't allow these to expire, and ensure we always have a unique label for this message set so 
+                            // we can always queue the next set
+                            QueuedMessage message = new QueuedMessage("pace_notes_welcome", 0, messageFragments: messageFragments, type: SoundType.PACE_NOTE, priority: 0);
+                            message.playEvenWhenSilenced = true;
+                            audioPlayer.playMessageImmediately(message);
+                        }
+                        else
+                        {
+                            QueuedMessage message = new QueuedMessage(DriverTrainingService.recordingMetaData.welcomeMessage.getRandomRecordingName(), 1, type: SoundType.PACE_NOTE, priority: 0);
+                            message.playEvenWhenSilenced = true;
+                            audioPlayer.playMessageImmediately(message);
+                        }
+                    }
                 }
                 else
                 {
@@ -128,13 +149,14 @@ namespace CrewChiefV4
             isRecordingPaceNotes = false;
         }
 
-        public static void checkDistanceAndPlayIfNeeded(DateTime now, float previousDistanceRoundTrack, float currentDistanceRoundTrack, AudioPlayer audioPlayer)
+        public static void checkValidAndPlayIfNeeded(DateTime now, int lapNumber, float speed, float yawAngle,
+            float previousDistanceRoundTrack, float currentDistanceRoundTrack, AudioPlayer audioPlayer)
         {
             if (isPlayingPaceNotes && !isRecordingPaceNotes && DriverTrainingService.recordingMetaData != null)
             {
                 foreach (MetaDataEntry entry in DriverTrainingService.recordingMetaData.entries)
                 {
-                    if (previousDistanceRoundTrack < entry.distanceRoundTrack && currentDistanceRoundTrack > entry.distanceRoundTrack)
+                    if (entry.shouldPlay(lapNumber, speed, yawAngle, previousDistanceRoundTrack, currentDistanceRoundTrack))
                     {
                         if (entry.description != null && !entry.description.Equals(""))
                         {
@@ -153,13 +175,13 @@ namespace CrewChiefV4
                             }
                             // don't allow these to expire, and ensure we always have a unique label for this message set so 
                             // we can always queue the next set
-                            QueuedMessage message = new QueuedMessage("pace_notes_" + currentDistanceRoundTrack, 0, messageFragments: messageFragments, type: SoundType.CRITICAL_MESSAGE, priority: 0);
+                            QueuedMessage message = new QueuedMessage("pace_notes_" + currentDistanceRoundTrack, 0, messageFragments: messageFragments, type: SoundType.PACE_NOTE, priority: 0);
                             message.playEvenWhenSilenced = true;
                             audioPlayer.playMessageImmediately(message);
                         }
                         else
                         {
-                            QueuedMessage message = new QueuedMessage(entry.getRandomRecordingName(), 1, type: SoundType.CRITICAL_MESSAGE, priority: 0);
+                            QueuedMessage message = new QueuedMessage(entry.getRandomRecordingName(), 1, type: SoundType.PACE_NOTE, priority: 0);
                             message.playEvenWhenSilenced = true;
                             audioPlayer.playMessageImmediately(message);
                         }
@@ -168,7 +190,7 @@ namespace CrewChiefV4
             }
         }
 
-        public static void startRecordingPaceNotes(GameEnum gameEnum, String trackName, CarData.CarClassEnum carClass)
+        public static void startRecordingPaceNotes(GameEnum gameEnum, String trackName, CarData.CarClassEnum carClass, int currentLapCount)
         {
             if (!isPlayingPaceNotes && !isRecordingPaceNotes)
             {
@@ -176,6 +198,7 @@ namespace CrewChiefV4
                 DriverTrainingService.gameEnum = gameEnum;
                 DriverTrainingService.trackName = trackName;
                 DriverTrainingService.carClass = carClass;
+                CrewChief.lapNumberAtStartOfRecordingSession = currentLapCount < 0 ? 0 : currentLapCount;
                 if (carClass == CarData.CarClassEnum.UNKNOWN_RACE || carClass == CarData.CarClassEnum.USER_CREATED)
                 {
                     Console.WriteLine("Recording pace notes for any car class");
@@ -194,19 +217,31 @@ namespace CrewChiefV4
                     String fileName = System.IO.Path.Combine(folderPathForPaceNotes, "metadata.json");
                     if (File.Exists(fileName))
                     {
-                        try
+                        if (!multiLapPaceNotes)
                         {
-                            DriverTrainingService.recordingMetaData = JsonConvert.DeserializeObject<MetaData>(File.ReadAllText(fileName));
-                            if (DriverTrainingService.recordingMetaData != null)
+                            try
                             {
-                                Console.WriteLine("Pace notes for this game / track / car combination already exists. This will be extended");
-                                createNewMetaData = false;
+                                DriverTrainingService.recordingMetaData = JsonConvert.DeserializeObject<MetaData>(File.ReadAllText(fileName));
+                                if (DriverTrainingService.recordingMetaData != null)
+                                {
+                                    Console.WriteLine("Pace notes for this game / track / car combination already exists. This will be extended");
+                                    createNewMetaData = false;
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine("Unable to load existing metadata - renaming to 'broken_" + fileName + "', " + e.Message);
+                                File.Delete("broken_" + fileName);
+                                File.Move(fileName, "broken_" + fileName);
                             }
                         }
-                        catch (Exception e)
+                        else
                         {
-                            Console.WriteLine("Unable to load existing metadata - renaming to 'broken_" + fileName + "', " + e.Message);
-                            File.Move(fileName, "broken_" + fileName);
+                            String backupFilename = fileName + "_old";
+                            Console.WriteLine("Pace notes for this game / track / car combination exist but cannot be extended because we're in multi-lap mode.");
+                            Console.WriteLine("The old pacenotes file will be renamed " + backupFilename);
+                            File.Delete(backupFilename);
+                            File.Move(fileName, backupFilename);
                         }
                     }
                 }
@@ -294,14 +329,37 @@ namespace CrewChiefV4
                 else
                 {
                     Boolean addMetaDataEntry = false;
-                    MetaDataEntry entry = DriverTrainingService.recordingMetaData.getClosestEntryInRange(distanceRoundTrack, combineEntriesCloserThan);
+                    MetaDataEntry entry = multiLapPaceNotes ? null : DriverTrainingService.recordingMetaData.getClosestEntryInRange(distanceRoundTrack, combineEntriesCloserThan);
+                    int? lapNumber = null;
                     if (entry == null)
                     {
-                        addMetaDataEntry = true;
-                        entry = new MetaDataEntry(distanceRoundTrack);
+                        addMetaDataEntry = true;                        
+                        if (multiLapPaceNotes)
+                        {
+                            // always start at lap number 1
+                            lapNumber = CrewChief.lapNumberFromGame - CrewChief.lapNumberAtStartOfRecordingSession + 1;
+                        }
+                        entry = new MetaDataEntry(lapNumber, distanceRoundTrack);
                     }
+
+                    // update the speed and yaw in the entry we're creating / modifying
+                    float? yawWhenRecorded = null;
+                    float? speedWhenRecorded = null;
+                    if (CrewChief.currentGameState != null)
+                    {
+                        yawWhenRecorded = CrewChief.currentGameState.PositionAndMotionData.Orientation.Yaw;
+                        speedWhenRecorded = CrewChief.currentGameState.PositionAndMotionData.CarSpeed;
+                    }
+                    entry.speedWhenRecorded = speedWhenRecorded;
+                    entry.yawWhenRecorded = yawWhenRecorded;
+
                     int recordingIndex = entry.recordingNames.Count;
-                    String fileName = distanceRoundTrack + "_" + recordingIndex + ".wav";
+                    String fileNameStart = distanceRoundTrack + "_" + recordingIndex;
+                    if (multiLapPaceNotes && lapNumber != null)
+                    {
+                        fileNameStart += "_lap_" + lapNumber;
+                    }
+                    String fileName = fileNameStart + ".wav";
                     String recordingName = DriverTrainingService.trackName + "_" + DriverTrainingService.carClass.ToString() + "_" + fileName;
                     try
                     {
@@ -379,9 +437,10 @@ namespace CrewChiefV4
     public class MetaData
     {
         public String description { get; set; }
-        public String gameEnumName {get; set;}
+        public String gameEnumName { get; set; }
         public String carClassName { get; set; }
         public String trackName { get; set; }
+        public MetaDataEntry welcomeMessage {get; set;}
         public List<MetaDataEntry> entries { get; set; }
 
         public MetaData()
@@ -434,11 +493,46 @@ namespace CrewChiefV4
 
     public class MetaDataEntry
     {
+        // this is optional
         public String description { get; set; }
+        // this is the distanceRoundTrack where this pace note will trigger
         public int distanceRoundTrack { get; set; }
+
+        // if these are null they're ignored
+        // lap number (after starting pace notes playback) when this pace note will trigger. If this is
+        // null the pace note will trigger every lap
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? lapNumber { get; set; } = null;
+        // only trigger this pace note if we're exceeding this speed (optional)
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public float? minimumSpeed { get; set; } = null;
+        // only trigger this pace note if we're going at or slower than this speed (optional)
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public float? maximumSpeed { get; set; } = null;
+
+        // the yaw angle filters must both be present to work, I've not tested them
+        // only trigger this pace note if our yaw angle is greater than this value (option, experimental)
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public float? minimumYawAngle { get; set; } = null;
+        // only trigger this pace note if our yaw angle is less than or equal to this value (option, experimental)
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public float? maximumYawAngle { get; set; } = null;
+
+        // these are recorded for info only - they might be useful to base filter 
+        // values on, particularly the yaw data for early / late turn in.
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public float? speedWhenRecorded { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public float? yawWhenRecorded { get; set; }
+
+        // these are the recording names to be printed to the console - optional
         public List<String> recordingNames { get; set; }
+        // these are the filenames to be loaded from the folder where the metadata json file sits
         public List<String> fileNames { get; set; }
+        // if this is true each of the filenames for this pace note will play in order. If false we pick a random one
         public bool playAllInOrder { get; set; }
+        // list of subtitles, optional, should have same order as file names
+        public List<String> subtitles { get; set; }
 
         public MetaDataEntry()
         {
@@ -448,8 +542,9 @@ namespace CrewChiefV4
             this.playAllInOrder = false;
         }
 
-        public MetaDataEntry(int distanceRoundTrack)
+        public MetaDataEntry(int? lapNumber, int distanceRoundTrack)
         {
+            this.lapNumber = lapNumber;
             this.distanceRoundTrack = distanceRoundTrack;
             this.description = "";
             this.recordingNames = new List<string>();
@@ -461,6 +556,65 @@ namespace CrewChiefV4
         {
             int index = Utilities.random.Next(recordingNames.Count);
             return recordingNames[index];
+        }
+
+        public Boolean shouldPlay(int lapNumber, float speed, float yawAngle,
+            float previousDistanceRoundTrack, float currentDistanceRoundTrack)
+        {
+            // max speed is inclusive, min isn't. This is just so we can use the same speed filter number for a min and max filter and 
+            // there's no risk that being at the exact speed means neither trigger
+            return previousDistanceRoundTrack < this.distanceRoundTrack
+                && currentDistanceRoundTrack > this.distanceRoundTrack
+                && (this.lapNumber == null || this.lapNumber == lapNumber - CrewChief.lapNumberAtStartOfPlaybackSession)
+                && (this.minimumSpeed == null || speed >= this.minimumSpeed)
+                && (this.maximumSpeed == null || speed < this.maximumSpeed)
+                && (this.minimumYawAngle == null || this.maximumYawAngle == null || (yawAngle >= this.minimumYawAngle && yawAngle <= maximumYawAngle));
+        }
+
+        public Boolean loadSounds()
+        {
+            int fileNamesCount = fileNames.Count;
+            int recordingNamesCount = recordingNames.Count;
+            Boolean cachedSounds = false;
+            List<string> fileNamesToLoad = null;
+            List<string> recordingNamesToLoad = null;
+            if (fileNamesCount > 0 && fileNamesCount == recordingNamesCount)
+            {
+                fileNamesToLoad = this.fileNames;
+                recordingNamesToLoad = this.recordingNames;
+            }
+            else if (fileNamesCount > 0)
+            {
+                fileNamesToLoad = this.fileNames;
+                recordingNamesToLoad = this.fileNames;
+            }
+            else if (recordingNamesCount > 0)
+            {
+                fileNamesToLoad = this.recordingNames;
+                recordingNamesToLoad = this.recordingNames;
+            }
+
+            if (fileNamesToLoad != null && recordingNamesToLoad != null)
+            {
+                for (int i=0; i< fileNamesToLoad.Count; i++)
+                {
+                    try
+                    {
+                        string subtitle = null;
+                        if (subtitles != null && subtitles.Count > i)
+                        {
+                            subtitle = subtitles[i];
+                        }
+                        SoundCache.loadSingleSound(recordingNamesToLoad[i], System.IO.Path.Combine(DriverTrainingService.folderPathForPaceNotes, fileNamesToLoad[i]), subtitle);
+                        cachedSounds = true;
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Unable to load sound " + fileNamesToLoad[i] + " from pace notes set " + DriverTrainingService.folderPathForPaceNotes + " : " + e.Message);
+                    }
+                }
+            }
+            return cachedSounds;
         }
     }
 }

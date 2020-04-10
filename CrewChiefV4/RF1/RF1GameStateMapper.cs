@@ -1140,6 +1140,7 @@ namespace CrewChiefV4.rFactor1
                 CrewChief.carClass = currentGameState.carClass.carClassEnum;
             }
             CrewChief.distanceRoundTrack = currentGameState.PositionAndMotionData.DistanceRoundTrack;
+            CrewChief.lapNumberFromGame = currentGameState.SessionData.CompletedLaps;
             CrewChief.viewingReplay = false;
 
             if (previousGameState != null &&

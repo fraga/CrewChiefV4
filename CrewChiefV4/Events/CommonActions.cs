@@ -457,6 +457,7 @@ namespace CrewChiefV4.Events
             else if (currentGameState != null)
                 currentGameState.readLandmarksForThisLap = true;
         }
+
         public void togglePaceNotesPlayback()
         {
             if (DriverTrainingService.isPlayingPaceNotes)
@@ -471,7 +472,8 @@ namespace CrewChiefV4.Events
                     if (!DriverTrainingService.isPlayingPaceNotes)
                     {
                         if (DriverTrainingService.loadPaceNotes(CrewChief.gameDefinition.gameEnum,
-                                CrewChief.currentGameState.SessionData.TrackDefinition.name, CrewChief.currentGameState.carClass.carClassEnum))
+                                CrewChief.currentGameState.SessionData.TrackDefinition.name, CrewChief.currentGameState.carClass.carClassEnum, audioPlayer,
+                                currentGameState.SessionData.CompletedLaps))
                         {
                             audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
                         }
@@ -501,8 +503,9 @@ namespace CrewChiefV4.Events
                 {
                     Console.WriteLine("No car class has been set - this pace notes session will not be class specific");
                 }
+                int lapNumberAtStartOfRecordingSession = CrewChief.currentGameState == null ? 0 : CrewChief.currentGameState.SessionData.CompletedLaps;
                 DriverTrainingService.startRecordingPaceNotes(CrewChief.gameDefinition.gameEnum,
-                    CrewChief.trackName, CrewChief.carClass);
+                    CrewChief.trackName, CrewChief.carClass, lapNumberAtStartOfRecordingSession);
             }
         }
         public void toggleTrackLandmarkRecording()
