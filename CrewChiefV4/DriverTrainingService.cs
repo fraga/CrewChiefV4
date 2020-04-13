@@ -34,36 +34,45 @@ namespace CrewChiefV4
         {
             if (!isRecordingPaceNotes && !isPlayingPaceNotes)
             {
-                Console.WriteLine("Playing pace notes for circuit " + trackName + " with car class " + carClass.ToString());
-
                 isRecordingPaceNotes = false;
                 isRecordingSound = false;
                 if (carClass != CarData.CarClassEnum.USER_CREATED && carClass != CarData.CarClassEnum.UNKNOWN_RACE)
                 {
                     DriverTrainingService.folderPathForPaceNotes = getCarSpecificFolderPath(gameEnum, trackName, carClass);
-                    if (!Directory.Exists(DriverTrainingService.folderPathForPaceNotes))
+                    // check for car-specific pace notes first
+                    if (Directory.Exists(DriverTrainingService.folderPathForPaceNotes))
                     {
-                        Console.WriteLine("No pace notes folder exists for car class " + carClass + ", game " + gameEnum + ", track " + trackName +
-                            ". Checking for pace notes folder applicable to any car");
+                        Console.WriteLine("Playing pace notes for circuit " + trackName + " with car class " + carClass.ToString());
+                    }
+                    else
+                    { 
+                        // fall back to generic pace notes
                         DriverTrainingService.folderPathForPaceNotes = getAnyCarFolderPath(gameEnum, trackName);
-                        if (!Directory.Exists(DriverTrainingService.folderPathForPaceNotes))
+                        if (Directory.Exists(DriverTrainingService.folderPathForPaceNotes))
                         {
-                            Console.WriteLine("Unable to find any pace notes set for game " + gameEnum + ", track " + trackName);
+                            Console.WriteLine("Playing pace notes for circuit " + trackName + " for any car class");
+                        }
+                        else
+                        {
                             return false;
                         }
                     }
                 }
                 else
                 {
+                    // don't know this car, see if we can use 'any' car class pace notes
                     DriverTrainingService.folderPathForPaceNotes = getAnyCarFolderPath(gameEnum, trackName);
-                    if (!Directory.Exists(DriverTrainingService.folderPathForPaceNotes))
+                    if (Directory.Exists(DriverTrainingService.folderPathForPaceNotes))
                     {
-                        Console.WriteLine("Unable to find any pace notes set for game " + gameEnum + ", track " + trackName);
+                        Console.WriteLine("Playing pace notes for circuit " + trackName + " for any car class");
+                    }
+                    else
+                    {
                         return false;
                     }
                 }
 
-                String fileName = System.IO.Path.Combine(folderPathForPaceNotes, "metadata.json");
+                String fileName = System.IO.Path.Combine(DriverTrainingService.folderPathForPaceNotes, "metadata.json");
                 if (File.Exists(fileName))
                 {
                     try
@@ -118,12 +127,13 @@ namespace CrewChiefV4
                             audioPlayer.playMessageImmediately(message);
                         }
                     }
+                    return true;
                 }
                 else
                 {
                     Console.WriteLine("No metadata.json file exists in the pace notes folder " + DriverTrainingService.folderPathForPaceNotes);
+                    return false;
                 }
-                return true;
             }
             else
             {

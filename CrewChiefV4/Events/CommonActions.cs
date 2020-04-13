@@ -477,6 +477,11 @@ namespace CrewChiefV4.Events
                         {
                             audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
                         }
+                        else
+                        {
+                            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                            Console.WriteLine("Attempted to start pace notes, but none are available for this circuit");
+                        }
                     }
                 }
                 else

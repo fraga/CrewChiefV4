@@ -803,25 +803,32 @@ namespace CrewChiefV4
                                 if (gameDefinition.gameEnum != GameEnum.F1_2018 && gameDefinition.gameEnum != GameEnum.F1_2019)
                                 {
                                     Boolean isPractice = currentGameState.SessionData.SessionType == SessionType.Practice || currentGameState.SessionData.SessionType == SessionType.LonePractice;                                    
-                                    // before triggering events, see if we need to enable pace notes automatically. Enable as soon as we're moving
-                                    // if we're in the pitlane
-                                    if (this.autoEnablePacenotesInPractice && currentGameState != null
+                                    // before triggering events, see if we need to enable pace notes automatically. 
+                                    if (this.autoEnablePacenotesInPractice && currentGameState != null && previousGameState != null
                                         && !DriverTrainingService.isRecordingPaceNotes
                                         && isPractice)
                                     {
-                                        Boolean enteredPit = previousGameState != null &&
-                                            ((!previousGameState.PitData.IsInGarage && currentGameState.PitData.IsInGarage || !previousGameState.PitData.InPitlane && currentGameState.PitData.InPitlane));
-                                        if (enteredPit)
+                                        // trigger for stopping pace notes automatically - we've quit to pit or entered the pitlane
+                                        Boolean enteredPit = (!previousGameState.PitData.IsInGarage && currentGameState.PitData.IsInGarage)
+                                            || (!previousGameState.PitData.InPitlane && currentGameState.PitData.InPitlane);
+                                        // trigger for automatically enabling pace notes in practice. Triggers when we leave the garage, we're handed control from the AI
+                                        // or we're in the pits and our speed increases to 0.5 m/s. This is to (hopefully) catch cases where the game doesn't use AI
+                                        // control in the pit and doesn't have a transition from garage to pitlane.
+                                        Boolean exitedGarage = (previousGameState.PitData.IsInGarage && currentGameState.PitData.InPitlane)
+                                                || (previousGameState.ControlData.ControlType == ControlType.AI && currentGameState.ControlData.ControlType != ControlType.AI)
+                                                || (currentGameState.PitData.InPitlane && previousGameState.PositionAndMotionData.CarSpeed < 0.5 && currentGameState.PositionAndMotionData.CarSpeed >= 0.5);
+
+                                        if (DriverTrainingService.isPlayingPaceNotes && enteredPit)
                                         {
                                             DriverTrainingService.stopPlayingPaceNotes();
                                         }
-                                        else if (!DriverTrainingService.isPlayingPaceNotes
-                                            && ((previousGameState != null && previousGameState.PitData.IsInGarage && currentGameState.PitData.InPitlane)
-                                                || (previousGameState.ControlData.ControlType == ControlType.AI && currentGameState.ControlData.ControlType != ControlType.AI)
-                                                || (currentGameState.PositionAndMotionData.CarSpeed > 0.5 && currentGameState.PitData.InPitlane)))
+                                        else if (!DriverTrainingService.isPlayingPaceNotes && exitedGarage)
                                         {
-                                            DriverTrainingService.loadPaceNotes(CrewChief.gameDefinition.gameEnum,
-                                                currentGameState.SessionData.TrackDefinition.name, currentGameState.carClass.carClassEnum, audioPlayer, currentGameState.SessionData.CompletedLaps);
+                                            if (!DriverTrainingService.loadPaceNotes(CrewChief.gameDefinition.gameEnum,
+                                                currentGameState.SessionData.TrackDefinition.name, currentGameState.carClass.carClassEnum, audioPlayer, currentGameState.SessionData.CompletedLaps))
+                                            {
+                                                Console.WriteLine("Attempted to auto-start pace notes, but none are available for this circuit");
+                                            }
                                         }
                                     }
 
