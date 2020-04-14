@@ -315,6 +315,7 @@
     <Compile Include="UserInterface\ListPropertyControl.Designer.cs">
       <DependentUpon>ListPropertyControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="UserSettings.cs" />
     <Compile Include="Validator.cs" />
     <Compile Include="NoisyCartesianCoordinateSpotter.cs" />
     <Compile Include="NumberProcessing\TimeSpanWrapper.cs" />
@@ -452,7 +453,6 @@
       <DependentUpon>Spacer.cs</DependentUpon>
     </Compile>
     <Compile Include="Configuration.cs" />
-    <Compile Include="UserSettings.cs" />
     <Compile Include="Utilities.cs" />
     <EmbeddedResource Include="UserInterface\ActionEditor.resx">
       <DependentUpon>ActionEditor.cs</DependentUpon>

@@ -214,6 +214,7 @@ message_frequences_category_label = Message Frequences
 fuel_temps_and_damages_category_label = Fuel, Temperatures & Damage
 timings_category_label = Timings
 pit_stops_and_multiclass_category_label = Pit Stops & Multiclass
+internationalisation_label = Internationalisation
 misc_category_label = Miscellaneous
 
 toggle_enable_cut_track_warnings = Toggle cut track warnings on / off
@@ -493,7 +494,7 @@ use_alternate_beeps_category = AUDIO_VOICE_AND_CONTROLLERS
 use_alternate_beeps_metadata = RESTART_REQUIRED
 
 use_fahrenheit = Use Fahrenheit for temps
-use_fahrenheit_category = FUEL_TEMPS_AND_DAMAGES
+use_fahrenheit_category = INTERNATIONALISATION;FUEL_TEMPS_AND_DAMAGES
 
 use_listen_beep = Use listen beep
 use_listen_beep_help = Play a beep when you press the 'talk to Crew Chief' button
@@ -612,7 +613,7 @@ enable_spotter_category = SPOTTER
 
 speech_recognition_country = Speech recognition country
 speech_recognition_country_help = Optional - the localisation country to use for speech recognition. If this isn't set, the app will use which ever English pack you've installed (or the first it finds if you have more than one). If you set it, the value must be a country specifics value ex. GB, US, IT, DA, LT.
-speech_recognition_country_category = AUDIO_VOICE_AND_CONTROLLERS
+speech_recognition_country_category = INTERNATIONALISATION;AUDIO_VOICE_AND_CONTROLLERS
 speech_recognition_country_metadata = RESTART_REQUIRED
 
 spotter_car_length = Spotter car length
@@ -1160,7 +1161,11 @@ prefer_alternative_download_site_metadata = RESTART_REQUIRED
 
 use_american_terms = Use American terms
 use_american_terms_help = Assume unknown cars use American phrasing ("pace car", "white flag" for last lap etc)
-use_american_terms_category = FLAGS_AND_RULES
+use_american_terms_category = INTERNATIONALISATION;FLAGS_AND_RULES
+
+use_metric = Use metric
+use_metric_help = Use metric units (KPH, litres etc). If not set use MPH, gallons etc.
+use_metric_category = INTERNATIONALISATION;PIT_STOPS_AND_MULTICLASS
 
 realistic_mode = Realistic mode
 realistic_mode_help = Experimental: Restrict available message types based on the car and track in use
@@ -1263,16 +1268,12 @@ tts_trim_end_milliseconds_metadata = RESTART_REQUIRED
 iracing_pit_tyre_pressure_in_psi = iRacing tyre pressure adjustments in PSI
 iracing_pit_tyre_pressure_in_psi_help = Assume tyre adjust tyre pressure commands are in PSI (disable this to use kPa)
 iracing_pit_tyre_pressure_in_psi_filter = IRACING
-iracing_pit_tyre_pressure_in_psi_category = PIT_STOPS_AND_MULTICLASS
+iracing_pit_tyre_pressure_in_psi_category = INTERNATIONALISATION;PIT_STOPS_AND_MULTICLASS
 
 spotter_volume_boost = Spotter volume boost (scale)
 spotter_volume_boost_help = Scale (multiply) spotter volume by this amount (nAudio only)
 spotter_volume_boost_category = AUDIO_VOICE_AND_CONTROLLERS;SPOTTER
 spotter_volume_boost_metadata = RESTART_REQUIRED
-
-report_fuel_in_gallons = Fuel reports in gallons
-report_fuel_in_gallons_help = Reports fuel consumption in gallons instead of liters
-report_fuel_in_gallons_category = FUEL_TEMPS_AND_DAMAGES
 
 manual_formation_double_file = Manual formation lap double-file start
 manual_formation_double_file_help = Assume manual formation lap starts use 2 lines of cars

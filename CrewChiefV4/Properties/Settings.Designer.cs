@@ -2857,18 +2857,6 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool report_fuel_in_gallons {
-            get {
-                return ((bool)(this["report_fuel_in_gallons"]));
-            }
-            set {
-                this["report_fuel_in_gallons"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool manual_formation_double_file {
             get {
@@ -4400,6 +4388,18 @@ namespace CrewChiefV4.Properties {
             }
             set {
                 this["pace_notes_mute_all_messages"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool use_metric {
+            get {
+                return ((bool)(this["use_metric"]));
+            }
+            set {
+                this["use_metric"] = value;
             }
         }
     }

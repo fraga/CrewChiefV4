@@ -710,9 +710,6 @@
     <Setting Name="spotter_volume_boost" Type="System.Single" Scope="User">
       <Value Profile="(Default)">1</Value>
     </Setting>
-    <Setting Name="report_fuel_in_gallons" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
     <Setting Name="manual_formation_double_file" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
@@ -1095,6 +1092,9 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="pace_notes_mute_all_messages" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="use_metric" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>

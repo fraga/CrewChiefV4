@@ -1174,7 +1174,7 @@ namespace CrewChiefV4.Events
                     messageFragments.Add(MessageFragment.Text(folderPitSpeedLimit));
                 }
 
-                if (GlobalBehaviourSettings.useAmericanTerms || GlobalBehaviourSettings.useOvalLogic)
+                if (!GlobalBehaviourSettings.useMetric)
                 {
                     var milesPerHour = kmPerHour * 0.621371f;
                     messageFragments.Add(MessageFragment.Integer((int)Math.Round(milesPerHour), false));
