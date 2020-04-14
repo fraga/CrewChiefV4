@@ -637,7 +637,7 @@ namespace CrewChiefV4.Events
                 // TODO: may also need to announce basic "SC in" message.
                 var kmPerHour = cfod.SafetyCarSpeed * 3.6f;
                 var messageFragments = new List<MessageFragment>();
-                if (useAmericanTerms)
+                if (!GlobalBehaviourSettings.useMetric)
                 {
                     messageFragments.Add(MessageFragment.Text(FrozenOrderMonitor.folderPaceCarSpeedIs));
                     var milesPerHour = kmPerHour * 0.621371f;

@@ -52,11 +52,12 @@ namespace CrewChiefV4
             FUEL_TEMPS_AND_DAMAGES,
             TIMINGS,
             PIT_STOPS_AND_MULTICLASS,
+            INTERNATIONALISATION,
             MISC,  // Implied by default.
             UNKNOWN
         }
         private PropertyCategory categoryFilterPrev = PropertyCategory.UNKNOWN;
-        
+
         public class ComboBoxItem<T>
         {
             public string Label { get; set; }
@@ -332,6 +333,12 @@ namespace CrewChiefV4
             {
                 Label = Configuration.getUIString("pit_stops_and_multiclass_category_label"),
                 Value = PropertyCategory.PIT_STOPS_AND_MULTICLASS
+            });
+
+            this.categoriesBox.Items.Add(new ComboBoxItem<PropertyCategory>()
+            {
+                Label = Configuration.getUIString("internationalisation_label"),
+                Value = PropertyCategory.INTERNATIONALISATION
             });
 
             this.categoriesBox.Items.Add(new ComboBoxItem<PropertyCategory>()
