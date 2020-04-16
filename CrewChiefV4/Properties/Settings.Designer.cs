@@ -4402,5 +4402,17 @@ namespace CrewChiefV4.Properties {
                 this["use_metric"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool play_pit_speed_limit_warnings {
+            get {
+                return ((bool)(this["play_pit_speed_limit_warnings"]));
+            }
+            set {
+                this["play_pit_speed_limit_warnings"] = value;
+            }
+        }
     }
 }

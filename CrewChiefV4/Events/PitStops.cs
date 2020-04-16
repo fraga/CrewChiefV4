@@ -1159,38 +1159,41 @@ namespace CrewChiefV4.Events
 
         private void announcePitlaneSpeedLimit(GameStateData currentGameState, bool possiblyPlayIntro, bool voiceResponse)
         {
-            if (currentGameState.PitData.pitlaneHasSpeedLimit())
+            if (GlobalBehaviourSettings.playPitSpeedLimitWarnings)
             {
-                if (possiblyPlayIntro && Utilities.random.NextDouble() < 0.66)
+                if (currentGameState.PitData.pitlaneHasSpeedLimit())
                 {
-                    audioPlayer.playMessageImmediately(new QueuedMessage(folderWatchYourPitSpeed, 2, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
-                }
+                    if (possiblyPlayIntro && Utilities.random.NextDouble() < 0.66)
+                    {
+                        audioPlayer.playMessageImmediately(new QueuedMessage(folderWatchYourPitSpeed, 2, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
+                    }
 
-                var kmPerHour = currentGameState.PitData.PitSpeedLimit * 3.6f;
-                var messageFragments = new List<MessageFragment>();
+                    var kmPerHour = currentGameState.PitData.PitSpeedLimit * 3.6f;
+                    var messageFragments = new List<MessageFragment>();
 
-                if (!voiceResponse)
-                {
-                    messageFragments.Add(MessageFragment.Text(folderPitSpeedLimit));
-                }
+                    if (!voiceResponse)
+                    {
+                        messageFragments.Add(MessageFragment.Text(folderPitSpeedLimit));
+                    }
 
-                if (!GlobalBehaviourSettings.useMetric)
-                {
-                    var milesPerHour = kmPerHour * 0.621371f;
-                    messageFragments.Add(MessageFragment.Integer((int)Math.Round(milesPerHour), false));
-                    messageFragments.Add(MessageFragment.Text(FrozenOrderMonitor.folderMilesPerHour));
+                    if (!GlobalBehaviourSettings.useMetric)
+                    {
+                        var milesPerHour = kmPerHour * 0.621371f;
+                        messageFragments.Add(MessageFragment.Integer((int)Math.Round(milesPerHour), false));
+                        messageFragments.Add(MessageFragment.Text(FrozenOrderMonitor.folderMilesPerHour));
+                    }
+                    else
+                    {
+                        messageFragments.Add(MessageFragment.Integer((int)Math.Round(kmPerHour), false));
+                        messageFragments.Add(MessageFragment.Text(FrozenOrderMonitor.folderKilometresPerHour));
+                    }
+
+                    audioPlayer.playMessageImmediately(new QueuedMessage(folderPitSpeedLimit, 4, messageFragments: messageFragments, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
                 }
                 else
                 {
-                    messageFragments.Add(MessageFragment.Integer((int)Math.Round(kmPerHour), false));
-                    messageFragments.Add(MessageFragment.Text(FrozenOrderMonitor.folderKilometresPerHour));
+                    audioPlayer.playMessageImmediately(new QueuedMessage(folderNoPitSpeedLimit, 2, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
                 }
-
-                audioPlayer.playMessageImmediately(new QueuedMessage(folderPitSpeedLimit, 4, messageFragments: messageFragments, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
-            }
-            else
-            {
-                audioPlayer.playMessageImmediately(new QueuedMessage(folderNoPitSpeedLimit, 2, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
             }
         }
 
