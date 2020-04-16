@@ -1317,7 +1317,7 @@ namespace CrewChiefV4.Events
                         }
                     }
 
-                    // TODO: wrap this in a try-catch until I work out why the array indices are being screwed up in online races (yuk...)
+                    // wrap this in a try-catch until I work out why the array indices are being screwed up in online races (yuk...)
                     try
                     {
                         float[] bestComparisonLapData = selfPace

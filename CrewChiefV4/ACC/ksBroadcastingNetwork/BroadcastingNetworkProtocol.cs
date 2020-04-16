@@ -19,8 +19,8 @@ namespace ksBroadcastingNetwork
         CHANGE_FOCUS = 50,
         INSTANT_REPLAY_REQUEST = 51,
 
-        PLAY_MANUAL_REPLAY_HIGHLIGHT = 52, // TODO, but planned
-        SAVE_MANUAL_REPLAY_HIGHLIGHT = 60  // TODO, but planned: saving manual replays gives distributed clients the possibility to see the play the same replay
+        PLAY_MANUAL_REPLAY_HIGHLIGHT = 52,
+        SAVE_MANUAL_REPLAY_HIGHLIGHT = 60 
     }
 
     public enum InboundMessageTypes : byte

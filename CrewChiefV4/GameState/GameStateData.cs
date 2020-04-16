@@ -702,7 +702,6 @@ namespace CrewChiefV4.GameState
         {
             if (requestedConditionsEnum == ConditionsEnum.CURRENT)
             {
-                // TODO: need a better way to link the Conditions state with this TimingData state object, without needlessly invoking the ctor
                 if (CrewChief.currentGameState == null || CrewChief.currentGameState.Conditions == null || CrewChief.currentGameState.Conditions.samples == null)
                 {
                     return ConditionsEnum.WARM_DRY;
@@ -1138,7 +1137,6 @@ namespace CrewChiefV4.GameState
             // when inserting into this dictionary with the dict[newItem] = newValue syntax, but I can't be arsed to chase this 
             // particular ghost
             //
-            // TODO: fixme
             SessionTimesAtEndOfSectors.Add(0, -1);
             SessionTimesAtEndOfSectors.Add(4, -1);
             SessionTimesAtEndOfSectors.Add(5, -1);
@@ -2382,8 +2380,6 @@ namespace CrewChiefV4.GameState
         }
 
         // called for every opponent and the player for each tick
-        // TODO: does including current speed in this calculation really reduce the max error? The speed data can be noisy for some
-        // games so this might cause more problems than it solves.
         //
         // returns null or a landmark name this car is stopped in
         public String updateLandmarkTiming(TrackDefinition trackDefinition, float gameTime, float previousDistanceRoundTrack, float currentDistanceRoundTrack, float speed, float currentDeltaPoint, CarData.CarClass carClass)
@@ -2492,7 +2488,6 @@ namespace CrewChiefV4.GameState
             {
                 // again, we're waiting to enter a landmark zone - perhaps we've just left a zone so still check for stopped cars       
 
-                // TODO: refactor this - there's already a method in TrackData to get a landmark for a given track distance, with a 70 metre 'near' zone
                 foreach (TrackLandmark trackLandmark in trackDefinition.trackLandmarks)
                 {
                     if (currentDistanceRoundTrack > Math.Max(0, trackLandmark.distanceRoundLapStart - 70) &&

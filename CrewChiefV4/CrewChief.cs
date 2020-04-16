@@ -327,7 +327,6 @@ namespace CrewChiefV4
             }
             else
             {
-                // TODO: separate responses for no input detected, and input not understood?
                 audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderDidntUnderstand, 0));
             }
         }

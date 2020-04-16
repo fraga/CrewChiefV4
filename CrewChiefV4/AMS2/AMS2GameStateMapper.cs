@@ -1016,7 +1016,6 @@ namespace CrewChiefV4.AMS2
 
             //------------------------ Tyre data -----------------------          
             currentGameState.TyreData.HasMatchedTyreTypes = true;
-            // TODO: unmatched tyres
             currentGameState.TyreData.TyreWearActive = true;
 
             // only map to tyre type every sector or on pit exit

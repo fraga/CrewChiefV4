@@ -27,7 +27,6 @@ namespace CrewChiefV4.F1_2018
             F12018StructWrapper wrapper = (F12018StructWrapper)structWrapper;
             long ticks = wrapper.ticksWhenRead;
 
-            // TODO: one or two minor things here ;)
             return new GameStateData(ticks);
         }
 

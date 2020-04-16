@@ -12,7 +12,6 @@ using System.Windows.Forms;
 namespace CrewChiefV4.Overlay
 {
 
-    // TODO: split this call into an Overlay, a ChartOverlay and a ConsoleOverlay?
     public enum RenderMode
     {
         CONSOLE, CHART, ALL

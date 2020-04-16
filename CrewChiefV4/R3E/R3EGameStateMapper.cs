@@ -1086,7 +1086,6 @@ namespace CrewChiefV4.RaceRoom
             if (currentGameState.SessionData.IsNewLap && currentGameState.SessionData.PreviousLapWasValid &&
                 currentGameState.SessionData.LapTimePrevious > 0)
             {
-                // TODO: different tyre types on the same car
                 float playerClassBestTimeByTyre = -1.0f;
                 if (!currentGameState.SessionData.PlayerClassSessionBestLapTimeByTyre.TryGetValue(currentGameState.TyreData.FrontLeftTyreType, out playerClassBestTimeByTyre) ||
                     playerClassBestTimeByTyre > currentGameState.SessionData.LapTimePrevious)
@@ -1437,7 +1436,6 @@ namespace CrewChiefV4.RaceRoom
 
         private TyreType mapToTyreType(int tire_type_front, int tire_sub_type_front, int tire_type_rear, int tire_sub_type_rear, CarData.CarClassEnum carClass)
         {
-            // TODO: handle cases where the front and rears are different types or subtypes. Here we assume the rears are always the same as the fronts
             if (CarData.r3e2017TyreModelClasses.Contains(carClass))
             {
                 return TyreType.R3E_2017;

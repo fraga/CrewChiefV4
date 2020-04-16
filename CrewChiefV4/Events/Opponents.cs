@@ -654,7 +654,6 @@ namespace CrewChiefV4.Events
                 if (SpeechRecogniser.WHAT_TYRES_AM_I_ON.Contains(voiceMessage))
                 {
                     gotData = true;
-                    // TODO: mismatched tyre types...
                     audioPlayer.playMessageImmediately(new QueuedMessage(TyreMonitor.getFolderForTyreType(currentGameState.TyreData.FrontLeftTyreType), 0));
                 }
                 else if (voiceMessage.StartsWith(SpeechRecogniser.WHAT_TYRE_IS) || voiceMessage.StartsWith(SpeechRecogniser.WHAT_TYRES_IS))
@@ -774,7 +773,6 @@ namespace CrewChiefV4.Events
                             {
                                 // the delta is not usable - say the position if we didn't directly ask by position
 
-                                // TODO: we need a "right infront" or "right behind" type response here for when the delta is < 0.05 (< 1 tenth rounded)
                                 if (!gotByPositionNumber)
                                 {
                                     if (SoundCache.availableSounds.Contains(folderOpponentPositionIntro))

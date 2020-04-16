@@ -1268,7 +1268,7 @@ namespace CrewChiefV4.Events
 
         private int getRemainingTyreLife(float sessionRunningTime, Tuple<CornerData.Corners, float> maxWearPercent)
         {
-            // TODO: if the maxWear is quite low (<20%) the quadratic estimate is quite inaccurate - use linear in this case?
+            // if the maxWear is quite low (<20%) the quadratic estimate is quite inaccurate - use linear in this case?
             if (lapsInSession > 0 || timeInSession == 0)
             {
                 double[] x_data;

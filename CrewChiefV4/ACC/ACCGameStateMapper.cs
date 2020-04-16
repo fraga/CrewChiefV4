@@ -1230,7 +1230,7 @@ namespace CrewChiefV4.ACC
                     currentGameState.TyreData.PeakRearRightTemperatureForLap);
 
 
-            // TODO: tyre wear is always 0.0 in the shared memory data
+            // tyre wear is always 0.0 in the shared memory data
             /*Boolean currentTyreValid = currentTyreCompound != null && currentTyreCompound.Length > 0 &&
                 acTyres.Count > 0 && acTyres.ContainsKey(currentTyreCompound);
 

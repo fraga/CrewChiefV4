@@ -363,7 +363,7 @@ namespace CrewChiefV4.AMS2
             for (int i = 0; i < 60; i++)    // why 60 class names here? Who knows
             {
                 // we only have 20 bytes of data per name here
-                // TODO: understand this data and map it
+                // understand this data and map it
             }
             return existingState;
         }

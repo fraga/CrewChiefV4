@@ -543,7 +543,7 @@ namespace GameOverlay.Windows
                     switch (message.Msg)
                     {
                         //case WindowMessage.Quit:
-                        //    continue; // TODO: test
+                        //    continue; // TODO
                         case CustomDestroyWindowMessage:
                             User32.DestroyWindow(Handle);
                             break;

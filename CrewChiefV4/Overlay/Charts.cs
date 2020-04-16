@@ -165,11 +165,6 @@ namespace CrewChiefV4.Overlay
 
         public static ChartContainer createChart(int width, int height, Boolean antiAliasing)
         {
-            // TODO: this needs to be extended to allow the user to add a new chart to the chartArea, as well as adding
-            // a new series to an existing chart so we can have stacked charts. To support this we'll probably need some
-            // way of navigating between rendered charts ("select next chart"?), which will highlight one of the charts
-            // and allow series to be added and removed from it.
-            // Still need to work out the relationship between a chart and a chart area here
             Color ForeColor = Color.FromArgb(CrewChiefOverlayWindow.colorScheme.fontColor.ToARGB());
             Color BackColor = Color.FromArgb(CrewChiefOverlayWindow.colorScheme.backgroundColor.ToARGB());
             Charts.y_min = float.MaxValue;
@@ -318,7 +313,6 @@ namespace CrewChiefV4.Overlay
                     OverlaySubscription subscription = OverlayDataSource.getOverlaySubscriptionForId(id);
                     if (subscription != null)
                     {
-                        // the series IDs in this set might point to other sets. TODO: do we need to prevent users creating cyclic sets here?
                         groupSeries.AddRange(createSeriesSet(new Tuple<OverlaySubscription, SeriesMode>(subscription, overlaySubscription.Item2)));
                     }
                 }

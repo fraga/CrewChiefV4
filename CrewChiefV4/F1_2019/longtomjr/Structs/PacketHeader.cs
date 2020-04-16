@@ -54,7 +54,6 @@ namespace F12019UdpNet
         /// <summary>
         /// Session timestamp.
         /// [Unit = Seconds]
-        /// TODO: Confirm unit.
         /// </summary>
         public float m_sessionTime;
 
