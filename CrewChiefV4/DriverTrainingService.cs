@@ -14,6 +14,12 @@ namespace CrewChiefV4
     {
         public static Boolean multiLapPaceNotes = UserSettings.GetUserSettings().getBoolean("multi_lap_pace_notes");
 
+        // TODO: record these
+        public static String folderStartedRecording = "pace_notes/recording_started";
+        public static String folderEndedRecording = "pace_notes/recording_ended";
+        public static String folderStartedPlayback = "pace_notes/playback_started";
+        public static String folderEndedPlayback = "pace_notes/playback_ended";
+
         private static int combineEntriesCloserThan = 20; // if a new entry's lap distance is within 20 metres of an existing entry's lap distance, combine them
         public static Boolean isPlayingPaceNotes = false;
         public static Boolean isRecordingPaceNotes = false;
@@ -263,6 +269,7 @@ namespace CrewChiefV4
                 {
                     DriverTrainingService.recordingMetaData = new MetaData(gameEnum.ToString(), carClass.ToString(), trackName);
                 }
+                
                 isRecordingPaceNotes = true;
             }
         }
