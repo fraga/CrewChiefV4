@@ -1713,3 +1713,7 @@ multi_lap_pace_notes_category = AUDIO_VOICE_AND_CONTROLLERS
 pace_notes_mute_all_messages = Mute messages when playing pace notes
 pace_notes_mute_all_messages_help = Mute other messages when pace notes are playing
 pace_notes_mute_all_messages_category = AUDIO_VOICE_AND_CONTROLLERS
+
+play_pit_speed_limit_warnings = Enable pit speed limit warnings
+play_pit_speed_limit_warnings_help = Play pit speed limit when leaving garage or entering the pitlane
+play_pit_speed_limit_warnings_category = PIT_STOPS_AND_MULTICLASS
