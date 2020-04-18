@@ -15,13 +15,13 @@ namespace CrewChiefV4.RaceRoom
         public enum VersionMajor
         {
             // Major version number to test against
-            R3E_VERSION_MAJOR = 1
+            R3E_VERSION_MAJOR = 2
         };
 
         public enum VersionMinor
         {
             // Minor version number to test against
-            R3E_VERSION_MINOR = 7
+            R3E_VERSION_MINOR = 6
         };
 
         public enum Session
