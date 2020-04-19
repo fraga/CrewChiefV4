@@ -704,6 +704,11 @@ namespace CrewChiefV4.Events
             string messageToPlay = isRace ? cutFoldersForRace[trackLimitsMode] : cutFoldersForNonRace[trackLimitsMode];
             // whether we actually want to play this is down to the taking-the-piss-o-meter setting, the last cut message time
             // and the total number of cuts in this session
+            if (totalAnnouncableCutWarnings == 20)
+            {
+                // before giving up rant at least once
+                return cutFoldersForNonRace[TrackLimitsMode.TAKING_PISS];
+            }
             if (totalAnnouncableCutWarnings > 20
                 || (trackLimitsMode == TrackLimitsMode.TAKING_PISS && (now - lastCutTrackWarningTime).TotalSeconds < 300)
                 || (trackLimitsMode == TrackLimitsMode.EXCESSIVE_CUTTING && (now - lastCutTrackWarningTime).TotalSeconds < 200))
