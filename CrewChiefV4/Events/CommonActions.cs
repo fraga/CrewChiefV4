@@ -463,7 +463,14 @@ namespace CrewChiefV4.Events
             if (DriverTrainingService.isPlayingPaceNotes)
             {
                 DriverTrainingService.stopPlayingPaceNotes();
-                audioPlayer.playMessageImmediately(new QueuedMessage(DriverTrainingService.folderEndedPlayback, 0));
+                if (SoundCache.availableSounds.Contains(DriverTrainingService.folderEndedPlayback))
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(DriverTrainingService.folderEndedPlayback, 0));
+                }
+                else
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
+                }
             }
             else
             {
@@ -475,7 +482,14 @@ namespace CrewChiefV4.Events
                                 CrewChief.currentGameState.SessionData.TrackDefinition.name, CrewChief.currentGameState.carClass.carClassEnum, audioPlayer,
                                 currentGameState.SessionData.CompletedLaps))
                         {
-                            audioPlayer.playMessageImmediately(new QueuedMessage(DriverTrainingService.folderStartedPlayback, 0));
+                            if (SoundCache.availableSounds.Contains(DriverTrainingService.folderStartedPlayback))
+                            {
+                                audioPlayer.playMessageImmediately(new QueuedMessage(DriverTrainingService.folderStartedPlayback, 0));
+                            }
+                            else
+                            {
+                                audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
+                            }
                         }
                         else
                         {
@@ -496,7 +510,14 @@ namespace CrewChiefV4.Events
             if (DriverTrainingService.isRecordingPaceNotes)
             {
                 DriverTrainingService.completeRecordingPaceNotes();
-                audioPlayer.playMessageImmediately(new QueuedMessage(DriverTrainingService.folderEndedRecording, 0));
+                if (SoundCache.availableSounds.Contains(DriverTrainingService.folderEndedRecording))
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(DriverTrainingService.folderEndedRecording, 0));
+                }
+                else
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
+                }
             }
             else
             {
@@ -512,7 +533,14 @@ namespace CrewChiefV4.Events
                 int lapNumberAtStartOfRecordingSession = CrewChief.currentGameState == null ? 0 : CrewChief.currentGameState.SessionData.CompletedLaps;
                 DriverTrainingService.startRecordingPaceNotes(CrewChief.gameDefinition.gameEnum,
                     CrewChief.trackName, CrewChief.carClass, lapNumberAtStartOfRecordingSession);
-                audioPlayer.playMessageImmediately(new QueuedMessage(DriverTrainingService.folderStartedRecording, 0));
+                if (SoundCache.availableSounds.Contains(DriverTrainingService.folderStartedRecording))
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(DriverTrainingService.folderStartedRecording, 0));
+                }
+                else
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
+                }
             }
         }
         public void toggleTrackLandmarkRecording()

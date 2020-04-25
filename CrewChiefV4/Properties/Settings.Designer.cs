@@ -4357,7 +4357,7 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool auto_enable_pacenotes_in_practice {
             get {
                 return ((bool)(this["auto_enable_pacenotes_in_practice"]));
