@@ -1363,7 +1363,7 @@ namespace CrewChiefV4
                 overlay = new CrewChiefOverlayWindow();
                 overlay.Run();
             }
-            if(UserSettings.GetUserSettings().getBoolean("enable_subtitle_overlay"))
+            if (UserSettings.GetUserSettings().getBoolean("enable_subtitle_overlay"))
             {
                 subtitleOverlay = new SubtitleOverlay();
                 subtitleOverlay.Run();

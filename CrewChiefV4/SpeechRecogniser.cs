@@ -1056,34 +1056,41 @@ namespace CrewChiefV4
 
                 validateAndAdd(I_AM_OK, staticSpeechChoices);
 
-                validateAndAdd(HIDE_OVERLAY, staticSpeechChoices);
-                validateAndAdd(SHOW_OVERLAY, staticSpeechChoices);
-                validateAndAdd(SHOW_CONSOLE, staticSpeechChoices);
-                validateAndAdd(SHOW_All_OVERLAYS, staticSpeechChoices);
-                validateAndAdd(SHOW_CHART, staticSpeechChoices);
-                validateAndAdd(CLEAR_CHART, staticSpeechChoices);
-                validateAndAdd(REFRESH_CHART, staticSpeechChoices);
-                validateAndAdd(SHOW_STACKED_CHARTS, staticSpeechChoices);
-                validateAndAdd(SHOW_SINGLE_CHART, staticSpeechChoices);
-                validateAndAdd(CLEAR_DATA, staticSpeechChoices);
-                validateAndAdd(SHOW_TIME, staticSpeechChoices);
-                validateAndAdd(SHOW_DISTANCE, staticSpeechChoices);
-                validateAndAdd(HIDE_CONSOLE, staticSpeechChoices);
-                validateAndAdd(HIDE_CHART, staticSpeechChoices);
-                validateAndAdd(CHART_COMMAND_SHOW_SECTOR_1, staticSpeechChoices);
-                validateAndAdd(CHART_COMMAND_SHOW_SECTOR_2, staticSpeechChoices);
-                validateAndAdd(CHART_COMMAND_SHOW_SECTOR_3, staticSpeechChoices);
-                validateAndAdd(CHART_COMMAND_SHOW_ALL_SECTORS, staticSpeechChoices);
-                validateAndAdd(CHART_COMMAND_ZOOM_IN, staticSpeechChoices);
-                validateAndAdd(CHART_COMMAND_ZOOM_OUT, staticSpeechChoices);
-                validateAndAdd(CHART_COMMAND_RESET_ZOOM, staticSpeechChoices);
-                validateAndAdd(CHART_COMMAND_PAN_LEFT, staticSpeechChoices);
-                validateAndAdd(CHART_COMMAND_PAN_RIGHT, staticSpeechChoices);
-                validateAndAdd(CHART_COMMAND_SHOW_NEXT_LAP, staticSpeechChoices);
-                validateAndAdd(CHART_COMMAND_SHOW_PREVIOUS_LAP, staticSpeechChoices);
-                validateAndAdd(CHART_COMMAND_SHOW_LAST_LAP, staticSpeechChoices);
-                validateAndAdd(SHOW_SUBTITLES, staticSpeechChoices);
-                validateAndAdd(HIDE_SUBTITLES, staticSpeechChoices);
+                if (UserSettings.GetUserSettings().getBoolean("enable_overlay_window"))
+                {
+                    validateAndAdd(HIDE_OVERLAY, staticSpeechChoices);
+                    validateAndAdd(SHOW_OVERLAY, staticSpeechChoices);
+                    validateAndAdd(SHOW_CONSOLE, staticSpeechChoices);
+                    validateAndAdd(SHOW_All_OVERLAYS, staticSpeechChoices);
+                    validateAndAdd(SHOW_CHART, staticSpeechChoices);
+                    validateAndAdd(CLEAR_CHART, staticSpeechChoices);
+                    validateAndAdd(REFRESH_CHART, staticSpeechChoices);
+                    validateAndAdd(SHOW_STACKED_CHARTS, staticSpeechChoices);
+                    validateAndAdd(SHOW_SINGLE_CHART, staticSpeechChoices);
+                    validateAndAdd(CLEAR_DATA, staticSpeechChoices);
+                    validateAndAdd(SHOW_TIME, staticSpeechChoices);
+                    validateAndAdd(SHOW_DISTANCE, staticSpeechChoices);
+                    validateAndAdd(HIDE_CONSOLE, staticSpeechChoices);
+                    validateAndAdd(HIDE_CHART, staticSpeechChoices);
+                    validateAndAdd(CHART_COMMAND_SHOW_SECTOR_1, staticSpeechChoices);
+                    validateAndAdd(CHART_COMMAND_SHOW_SECTOR_2, staticSpeechChoices);
+                    validateAndAdd(CHART_COMMAND_SHOW_SECTOR_3, staticSpeechChoices);
+                    validateAndAdd(CHART_COMMAND_SHOW_ALL_SECTORS, staticSpeechChoices);
+                    validateAndAdd(CHART_COMMAND_ZOOM_IN, staticSpeechChoices);
+                    validateAndAdd(CHART_COMMAND_ZOOM_OUT, staticSpeechChoices);
+                    validateAndAdd(CHART_COMMAND_RESET_ZOOM, staticSpeechChoices);
+                    validateAndAdd(CHART_COMMAND_PAN_LEFT, staticSpeechChoices);
+                    validateAndAdd(CHART_COMMAND_PAN_RIGHT, staticSpeechChoices);
+                    validateAndAdd(CHART_COMMAND_SHOW_NEXT_LAP, staticSpeechChoices);
+                    validateAndAdd(CHART_COMMAND_SHOW_PREVIOUS_LAP, staticSpeechChoices);
+                    validateAndAdd(CHART_COMMAND_SHOW_LAST_LAP, staticSpeechChoices);
+                }
+
+                if (UserSettings.GetUserSettings().getBoolean("enable_subtitle_overlay"))
+                {
+                    validateAndAdd(SHOW_SUBTITLES, staticSpeechChoices);
+                    validateAndAdd(HIDE_SUBTITLES, staticSpeechChoices);
+                }
 
                 if (alarmClockVoiceRecognitionEnabled)
                 {

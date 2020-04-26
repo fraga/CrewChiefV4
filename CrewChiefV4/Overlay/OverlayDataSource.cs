@@ -339,7 +339,10 @@ namespace CrewChiefV4.Overlay
                 if (sub.Value != null && sub.Value.Count > 1)
                 {
                     LinkedListNode<OverlayLapData> node = getCorrectLastLapNode(sub.Value);
-                    return TimeSpan.FromSeconds(node.Value.lapTime).ToString(@"mm\:ss\.fff") + ", lap " + node.Value.lapNumber;
+                    if (node.Value.lapTime > 0)
+                    {
+                        return TimeSpan.FromSeconds(node.Value.lapTime).ToString(@"mm\:ss\.fff") + ", lap " + node.Value.lapNumber;
+                    }
                 }
             }
             catch (Exception)
