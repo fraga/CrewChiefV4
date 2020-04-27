@@ -221,8 +221,8 @@ namespace CrewChiefV4
                     {
                         Boolean save = false;
                         // add any missing items
-                        var addedDefaultItems = defaultAppSettings.userSettings.Where(ups2 => !userProfileSetting.userSettings.Any(ups1 => ups1.Key == ups2.Key));
-                        if (addedDefaultItems.ToList().Count > 0)
+                        var addedDefaultItems = defaultAppSettings.userSettings.Where(ups2 => !userProfileSetting.userSettings.Any(ups1 => ups1.Key == ups2.Key)).ToList();
+                        if (addedDefaultItems.Count > 0)
                         {
                             foreach (var item in addedDefaultItems)
                             {
@@ -231,8 +231,8 @@ namespace CrewChiefV4
                             save = true;
                         }
                         // remove items no longer used
-                        var removedDefaultItems = userProfileSetting.userSettings.Where(ups2 => !defaultAppSettings.userSettings.Any(ups1 => ups1.Key == ups2.Key));
-                        if (removedDefaultItems.ToList().Count > 0)
+                        var removedDefaultItems = userProfileSetting.userSettings.Where(ups2 => !defaultAppSettings.userSettings.Any(ups1 => ups1.Key == ups2.Key)).ToList();
+                        if (removedDefaultItems.Count > 0)
                         {
                             foreach (var item in removedDefaultItems)
                             {
