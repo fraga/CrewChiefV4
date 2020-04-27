@@ -1113,6 +1113,8 @@ namespace CrewChiefV4.GameState
             }
         }
 
+        public Boolean OverallLeaderIsOnLastLap = false;
+
         public int iRating;
 
         public int StrengthOfField;
@@ -1509,6 +1511,8 @@ namespace CrewChiefV4.GameState
         public float LastLapTime = -1;
 
         public Boolean LastLapValid = true;
+
+        public Boolean IsLastLap = false;
 
         private List<LapData> _OpponentLapData;
         public List<LapData> OpponentLapData
@@ -4032,6 +4036,24 @@ namespace CrewChiefV4.GameState
             {
                 return SessionData.ClassPosition == SessionData.NumCarsInPlayerClass;
             }
+        }
+
+        // During the race session, this method accounts for quitters in determining whether user is last.
+        public Boolean isLastInStandings()
+        {
+            if (SessionData.SessionType == SessionType.Race)
+            {
+                if (!GameStateData.Multiclass)
+                {
+                    return SessionData.OverallPosition == SessionData.NumCarsOverallAtStartOfSession;
+                }
+                else
+                {
+                    return SessionData.ClassPosition == SessionData.NumCarsInPlayerClassAtStartOfSession;
+                }
+            }
+
+            return this.isLast();
         }
 
         public List<String> getRawDriverNames()

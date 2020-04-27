@@ -35,7 +35,7 @@ namespace CrewChiefV4.Audio
         public SoundType type;
         public int speechRecognitionSessionID = 0;
 
-        public bool isListenStartBeep = false;  // special case here - don't block this if we're listening for a voice command
+        public bool isListenStartBeep = false;
 
         // this affects the queue insertion order. Higher priority items are inserted at the head of the queue
         public int priority = DEFAULT_PRIORITY;  // 0 = lowest, 5 = default, 10 = spotter

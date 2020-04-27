@@ -2431,6 +2431,35 @@ namespace CrewChiefV4.Events
                     currentState.TyreData.LeftRearAttached && currentState.TyreData.RightRearAttached &&
                     DamageReporting.getPuncture(currentState.TyreData) == CornerData.Corners.NONE);
         }
+        
+        private CornerData.Corners getMostLockedWheelForLap()
+        {
+            var wheelMostLocked = CornerData.Corners.NONE;
+            var timeMostLocked = 0.0f;
+
+            if (this.timeLeftFrontIsLockedForLap > timeMostLocked)
+            {
+                timeMostLocked = this.timeLeftFrontIsLockedForLap;
+                wheelMostLocked = CornerData.Corners.FRONT_LEFT;
+            }
+
+            if (this.timeRightFrontIsLockedForLap > timeMostLocked)
+            {
+                timeMostLocked = this.timeRightFrontIsLockedForLap;
+                wheelMostLocked = CornerData.Corners.FRONT_RIGHT;
+            }
+
+            if (this.timeLeftRearIsLockedForLap > timeMostLocked)
+            {
+                timeMostLocked = this.timeLeftRearIsLockedForLap;
+                wheelMostLocked = CornerData.Corners.REAR_LEFT;
+            }
+
+            if (this.timeRightRearIsLockedForLap > timeMostLocked)
+                wheelMostLocked = CornerData.Corners.REAR_RIGHT;
+
+            return wheelMostLocked;
+        }
 
         private Boolean checkLocking(Boolean isFWD)
         {
@@ -2438,7 +2467,9 @@ namespace CrewChiefV4.Events
             int messageDelay = Utilities.random.Next(0, 5);
             if (!warnedOnLockingForLap)
             {
-                if (timeLeftFrontIsLockedForLap > totalLockupThresholdForNextLap)
+                var mostLockedWheel = this.getMostLockedWheelForLap();
+                if (mostLockedWheel == CornerData.Corners.FRONT_LEFT
+                    && timeLeftFrontIsLockedForLap > totalLockupThresholdForNextLap)
                 {
                     warnedOnLockingForLap = true;
                     if (timeRightFrontIsLockedForLap > totalLockupThresholdForNextLap / 2)
@@ -2454,7 +2485,8 @@ namespace CrewChiefV4.Events
                         playedMessage = true;
                     }
                 }
-                else if (timeRightFrontIsLockedForLap > totalLockupThresholdForNextLap)
+                else if (mostLockedWheel == CornerData.Corners.FRONT_RIGHT
+                    && timeRightFrontIsLockedForLap > totalLockupThresholdForNextLap)
                 {
                     warnedOnLockingForLap = true;
                     if (timeLeftFrontIsLockedForLap > totalLockupThresholdForNextLap / 2)
@@ -2470,13 +2502,17 @@ namespace CrewChiefV4.Events
                         playedMessage = true;
                     }
                 }
-                else if (isFWD && timeBothRearsAreLockedForLap > totalLockupThresholdForNextLap)
+                else if ((mostLockedWheel == CornerData.Corners.REAR_LEFT || mostLockedWheel == CornerData.Corners.REAR_RIGHT)
+                    && isFWD
+                    && timeBothRearsAreLockedForLap > totalLockupThresholdForNextLap)
                 {
                     warnedOnLockingForLap = true;
                     audioPlayer.playMessage(new QueuedMessage(folderLockingRearsForLapWarning, messageDelay + 6, secondsDelay: messageDelay, abstractEvent: this, priority: 0));
                     playedMessage = true;
                 }
-                else if (!isFWD && timeLeftRearIsLockedForLap > totalLockupThresholdForNextLap)
+                else if (mostLockedWheel == CornerData.Corners.REAR_LEFT
+                    && !isFWD
+                    && timeLeftRearIsLockedForLap > totalLockupThresholdForNextLap)
                 {
                     warnedOnLockingForLap = true;
                     if (timeRightRearIsLockedForLap > totalLockupThresholdForNextLap / 2)
@@ -2492,7 +2528,9 @@ namespace CrewChiefV4.Events
                         playedMessage = true;
                     }
                 }
-                else if (!isFWD && timeRightRearIsLockedForLap > totalLockupThresholdForNextLap)
+                else if (mostLockedWheel == CornerData.Corners.REAR_RIGHT
+                    && !isFWD
+                    && timeRightRearIsLockedForLap > totalLockupThresholdForNextLap)
                 {
                     warnedOnLockingForLap = true;
                     if (timeLeftRearIsLockedForLap > totalLockupThresholdForNextLap / 2)
@@ -2512,13 +2550,45 @@ namespace CrewChiefV4.Events
             return playedMessage;
         }
 
+        private CornerData.Corners getMostSpinningWheelForLap()
+        {
+            var wheelMostSpinning = CornerData.Corners.NONE;
+            var timeMostSpinning = 0.0f;
+
+            if (this.timeLeftFrontIsSpinningForLap > timeMostSpinning)
+            {
+                timeMostSpinning = this.timeLeftFrontIsSpinningForLap;
+                wheelMostSpinning = CornerData.Corners.FRONT_LEFT;
+            }
+
+            if (this.timeRightFrontIsSpinningForLap > timeMostSpinning)
+            {
+                timeMostSpinning = this.timeRightFrontIsSpinningForLap;
+                wheelMostSpinning = CornerData.Corners.FRONT_RIGHT;
+            }
+
+            if (this.timeLeftRearIsSpinningForLap > timeMostSpinning)
+            {
+                timeMostSpinning = this.timeLeftRearIsSpinningForLap;
+                wheelMostSpinning = CornerData.Corners.REAR_LEFT;
+            }
+
+            if (this.timeRightRearIsSpinningForLap > timeMostSpinning)
+                wheelMostSpinning = CornerData.Corners.REAR_RIGHT;
+
+            return wheelMostSpinning;
+        }
+
         private Boolean checkWheelSpinning(Boolean isFWD, Boolean isRWD)
         {
             Boolean playedMessage = false;
             int messageDelay = Utilities.random.Next(0, 5);
             if (!warnedOnWheelspinForLap)
             {
-                if (!isRWD && timeLeftFrontIsSpinningForLap > totalWheelspinThresholdForNextLap)
+                var mostSpinningWheel = this.getMostSpinningWheelForLap();
+                if (mostSpinningWheel == CornerData.Corners.FRONT_LEFT
+                    && !isRWD
+                    && timeLeftFrontIsSpinningForLap > totalWheelspinThresholdForNextLap)
                 {
                     warnedOnWheelspinForLap = true;
                     if (timeRightFrontIsSpinningForLap > totalWheelspinThresholdForNextLap / 2)
@@ -2534,7 +2604,9 @@ namespace CrewChiefV4.Events
                         playedMessage = true;
                     }
                 }
-                else if (!isRWD && timeRightFrontIsSpinningForLap > totalWheelspinThresholdForNextLap)
+                else if (mostSpinningWheel == CornerData.Corners.FRONT_RIGHT
+                    && !isRWD 
+                    && timeRightFrontIsSpinningForLap > totalWheelspinThresholdForNextLap)
                 {
                     warnedOnWheelspinForLap = true;
                     if (timeLeftFrontIsSpinningForLap > totalWheelspinThresholdForNextLap / 2)
@@ -2550,7 +2622,9 @@ namespace CrewChiefV4.Events
                         playedMessage = true;
                     }
                 }
-                else if (!isFWD && timeLeftRearIsSpinningForLap > totalWheelspinThresholdForNextLap)
+                else if (mostSpinningWheel == CornerData.Corners.REAR_LEFT
+                    && !isFWD 
+                    && timeLeftRearIsSpinningForLap > totalWheelspinThresholdForNextLap)
                 {
                     warnedOnWheelspinForLap = true;
                     if (timeRightRearIsSpinningForLap > totalWheelspinThresholdForNextLap / 2)
@@ -2566,7 +2640,9 @@ namespace CrewChiefV4.Events
                         playedMessage = true;
                     }
                 }
-                else if (!isFWD && timeRightRearIsSpinningForLap > totalWheelspinThresholdForNextLap)
+                else if (mostSpinningWheel == CornerData.Corners.REAR_RIGHT
+                    && !isFWD
+                    && timeRightRearIsSpinningForLap > totalWheelspinThresholdForNextLap)
                 {
                     warnedOnWheelspinForLap = true;
                     if (timeLeftRearIsSpinningForLap > totalWheelspinThresholdForNextLap / 2)

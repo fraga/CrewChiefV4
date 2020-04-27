@@ -148,7 +148,16 @@ namespace CrewChiefV4
         }
         public static String getUserControllerConfigurationDataFileLocation()
         {
-            String path = System.IO.Path.Combine(Environment.GetFolderPath(
+            var currProfileName = UserSettings.GetUserSettings().getString("current_settings_profile");
+            var path = System.IO.Path.Combine(Environment.GetFolderPath(
+                Environment.SpecialFolder.MyDocuments), @"CrewChiefV4\Profiles\ControllerData", currProfileName);
+
+            if (File.Exists(path))
+            {
+                return path;
+            }
+
+            path = System.IO.Path.Combine(Environment.GetFolderPath(
                 Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "controllerConfigurationData.json");
 
             if (File.Exists(path))
@@ -198,8 +207,10 @@ namespace CrewChiefV4
                 Console.WriteLine("Unable to update controller bindings because the file isn't valid JSON");
                 return;
             }
-            String fileName = "controllerConfigurationData.json";
-            String path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4");
+
+            var fileName = UserSettings.GetUserSettings().getString("current_settings_profile");
+
+            String path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"CrewChiefV4\Profiles");
             if (!Directory.Exists(path))
             {
                 try
@@ -211,6 +222,20 @@ namespace CrewChiefV4
                     Console.WriteLine("Error creating " + path + ": " + e.Message);
                 }
             }
+
+            path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"CrewChiefV4\Profiles\ControllerData");
+            if (!Directory.Exists(path))
+            {
+                try
+                {
+                    Directory.CreateDirectory(path);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error creating " + path + ": " + e.Message);
+                }
+            }
+
             if (fileName != null)
             {
                 try
@@ -270,7 +295,8 @@ namespace CrewChiefV4
         private bool initialized = false;
         public void initialize()
         {
-            if (this.initialized)
+            if (this.initialized
+                && !CrewChief.Debugging)  // Allow re-initialization while debugging (Profile activation without restart).
             {
                 Debug.Assert(!this.initialized, "This method should be only called once.");
                 return;
@@ -317,7 +343,7 @@ namespace CrewChiefV4
                     saveControllerConfigurationDataFile(controllerConfigurationData);
                 }
             }
-            // update actions and add assignments            
+            // update actions and add assignments
             buttonAssignments = controllerConfigurationData.buttonAssignments.Where(ba => ba.availableAction).ToList();
             controllers = controllerConfigurationData.devices;
             // check if any of the assignments use the network controller, and if so add it to the list
@@ -334,6 +360,7 @@ namespace CrewChiefV4
 
             this.initialized = true;
         }
+
         // just sets the custom controller guid so the scan call will populate it later
         public void addCustomController(Guid guid)
         {
@@ -448,7 +475,24 @@ namespace CrewChiefV4
         public void saveSettings()
         {
             ControllerConfigurationData controllerConfigurationData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
-            controllerConfigurationData.buttonAssignments = buttonAssignments;
+
+            // User controller assignment profile contains hidden actions, so we need to merge assigments.
+            foreach (var userButtonAssignment in controllerConfigurationData.buttonAssignments)
+            {
+                if (userButtonAssignment.availableAction)
+                {
+                    foreach (var currButtonAssignment in this.buttonAssignments)
+                    {
+                        if (userButtonAssignment.action == currButtonAssignment.action)
+                        {
+                            userButtonAssignment.deviceGuid = currButtonAssignment.deviceGuid;
+                            userButtonAssignment.buttonIndex = currButtonAssignment.buttonIndex;
+                            userButtonAssignment.action = currButtonAssignment.action;
+                        }
+                    }
+                }
+            }
+
             saveControllerConfigurationDataFile(controllerConfigurationData);
         }
 

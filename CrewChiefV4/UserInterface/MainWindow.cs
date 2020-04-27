@@ -67,8 +67,8 @@ namespace CrewChiefV4
             }
         }
 
-        // Shared with worker thread.  This should be disposed after root threads stopped, in GlobalResources.Dispose.
-        private ControllerConfiguration controllerConfiguration;
+        // Shared with worker thread and Properties UI.  This should be disposed after root threads stopped, in GlobalResources.Dispose.
+        public ControllerConfiguration controllerConfiguration;
 
         public CrewChief crewChief;
 
@@ -280,13 +280,13 @@ namespace CrewChiefV4
                         {
                             foreach (String arg in commandLineArgs)
                             {
-                                if ("SKIP_UPDATES".Equals(arg))
+                                if ("-skip_updates".Equals(arg, StringComparison.InvariantCultureIgnoreCase))
                                 {
-                                    Console.WriteLine("Skipping application update check. To enable this check, run the app *without* the SKIP_UPDATES command line argument");
+                                    Console.WriteLine("Skipping application update check. To enable this check, run the app *without* the '-skip_updates' command line argument");
                                     skipUpdates = true;
                                     continue;
                                 }
-                                if ("app_restart".Equals(arg))
+                                if ("-app_restart".Equals(arg))
                                 {
                                     appRestarted = true;
                                     continue;
@@ -306,7 +306,7 @@ namespace CrewChiefV4
                             }
                             if (firstUpdate == autoUpdateXMLURL1 && CrewChief.gameDefinition != null)
                             {
-                                firstUpdate += "&lastplayed=" + (appRestarted ? "app_restart" : CrewChief.gameDefinition.gameEnum.ToString());
+                                firstUpdate += "&lastplayed=" + (appRestarted ? "-app_restart" : CrewChief.gameDefinition.gameEnum.ToString());
                             }
                             string xml = new WebClient().DownloadString(firstUpdate);
                             gotUpdateData = SoundPackVersionsHelper.parseUpdateData(xml);
@@ -323,7 +323,7 @@ namespace CrewChiefV4
                             {
                                 if (formClosed)
                                 {
-                                    return;                                
+                                    return;
                                 }
                                 if (!skipUpdates)
                                 {
@@ -331,7 +331,7 @@ namespace CrewChiefV4
                                 }
                                 if (secondUpdate == autoUpdateXMLURL1 && CrewChief.gameDefinition != null)
                                 {
-                                    secondUpdate += "&lastplayed=" + (appRestarted ? "app_restart" : CrewChief.gameDefinition.gameEnum.ToString());
+                                    secondUpdate += "&lastplayed=" + (appRestarted ? "-app_restart" : CrewChief.gameDefinition.gameEnum.ToString());
                                 }
                                 string xml = new WebClient().DownloadString(secondUpdate);
                                 gotUpdateData = SoundPackVersionsHelper.parseUpdateData(xml);
@@ -677,32 +677,47 @@ namespace CrewChiefV4
         {
             String[] commandLineArgs = Environment.GetCommandLineArgs();
             Boolean setFromCommandLine = false;
+            Boolean seenGameSwitch = false;
             if (commandLineArgs != null)
             {
-                foreach (String arg in commandLineArgs)
+                for (int argIdx = 1; argIdx < commandLineArgs.Length; ++argIdx)
                 {
-                    if (arg.Equals(GameDefinition.raceRoom.gameEnum.ToString()))
+                    if (seenGameSwitch)
+                        break;
+
+                    var arg = (string)commandLineArgs.GetValue(argIdx);
+                    if (!arg.Equals("-game", StringComparison.InvariantCultureIgnoreCase))
+                        continue;
+
+                    // Ok, found the "-game" switch, next value should be the game requested.
+                    seenGameSwitch = true;
+                    if (argIdx + 1 >= commandLineArgs.Length)
+                        break;  // No game specified.
+
+                    arg = (string)commandLineArgs.GetValue(argIdx + 1);
+
+                    if (arg.Equals(GameDefinition.raceRoom.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase))
                     {
                         Console.WriteLine("Set Raceroom mode from command line");
                         this.gameDefinitionList.Text = GameDefinition.raceRoom.friendlyName;
                         setFromCommandLine = true;
                         break;
                     }
-                    else if (arg.Equals(GameDefinition.pCars2.gameEnum.ToString()))
+                    else if (arg.Equals(GameDefinition.pCars2.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase))
                     {
                         Console.WriteLine("Set PCars 2 mode from command line");
                         this.gameDefinitionList.Text = GameDefinition.pCars2.friendlyName;
                         setFromCommandLine = true;
                         break;
                     }
-                    else if (arg.Equals(GameDefinition.pCars32Bit.gameEnum.ToString()))
+                    else if (arg.Equals(GameDefinition.pCars32Bit.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase))
                     {
                         Console.WriteLine("Set PCars 32bit mode from command line");
                         this.gameDefinitionList.Text = GameDefinition.pCars32Bit.friendlyName;
                         setFromCommandLine = true;
                         break;
                     }
-                    else if (arg.Equals(GameDefinition.pCars64Bit.gameEnum.ToString()))
+                    else if (arg.Equals(GameDefinition.pCars64Bit.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase))
                     {
                         Console.WriteLine("Set PCars 64bit mode from command line");
                         this.gameDefinitionList.Text = GameDefinition.pCars64Bit.friendlyName;
@@ -710,49 +725,49 @@ namespace CrewChiefV4
                         break;
                     }
 
-                    else if (arg.Equals(GameDefinition.pCarsNetwork.gameEnum.ToString()))
+                    else if (arg.Equals(GameDefinition.pCarsNetwork.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase))
                     {
                         Console.WriteLine("Set PCars network mode from command line");
                         this.gameDefinitionList.Text = GameDefinition.pCarsNetwork.friendlyName;
                         setFromCommandLine = true;
                         break;
                     }
-                    else if (arg.Equals(GameDefinition.pCars2Network.gameEnum.ToString()))
+                    else if (arg.Equals(GameDefinition.pCars2Network.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase))
                     {
                         Console.WriteLine("Set PCars2 network mode from command line");
                         this.gameDefinitionList.Text = GameDefinition.pCars2Network.friendlyName;
                         setFromCommandLine = true;
                         break;
                     }
-                    else if (arg.Equals(GameDefinition.assetto64Bit.gameEnum.ToString()))
+                    else if (arg.Equals(GameDefinition.assetto64Bit.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase))
                     {
                         Console.WriteLine("Set Assetto Corsa mode from command line");
                         this.gameDefinitionList.Text = GameDefinition.assetto64Bit.friendlyName;
                         setFromCommandLine = true;
                         break;
                     }
-                    else if (arg.Equals(GameDefinition.assetto32Bit.gameEnum.ToString()))
+                    else if (arg.Equals(GameDefinition.assetto32Bit.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase))
                     {
                         Console.WriteLine("Set Assetto Corsa mode from command line");
                         this.gameDefinitionList.Text = GameDefinition.assetto32Bit.friendlyName;
                         setFromCommandLine = true;
                         break;
                     }
-                    else if (arg.Equals(GameDefinition.iracing.gameEnum.ToString()))
+                    else if (arg.Equals(GameDefinition.iracing.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase))
                     {
                         Console.WriteLine("Set iRacing mode from command line");
                         this.gameDefinitionList.Text = GameDefinition.iracing.friendlyName;
                         setFromCommandLine = true;
                         break;
                     }
-                    else if (arg.Equals(GameDefinition.AMS2.gameEnum.ToString()))
+                    else if (arg.Equals(GameDefinition.AMS2.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase))
                     {
                         Console.WriteLine("Set Automobilista 2 mode from command line");
                         this.gameDefinitionList.Text = GameDefinition.AMS2.friendlyName;
                         setFromCommandLine = true;
                         break;
                     }
-                    else if (arg.Equals(GameDefinition.acc.gameEnum.ToString()))
+                    else if (arg.Equals(GameDefinition.acc.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase))
                     {
                         Console.WriteLine("Set Assetto Corsa Competizionie mode from command line");
                         this.gameDefinitionList.Text = GameDefinition.acc.friendlyName;
@@ -760,42 +775,42 @@ namespace CrewChiefV4
                         break;
                     }
                     // special cases for RF1 versions
-                    else if (arg.Equals("AMS"))
+                    else if (arg.Equals("AMS", StringComparison.InvariantCultureIgnoreCase))
                     {
                         Console.WriteLine("Set Autombilista mode from command line");
                         this.gameDefinitionList.Text = GameDefinition.automobilista.friendlyName;
                         setFromCommandLine = true;
                         break;
                     }
-                    else if (arg.Equals("FTRUCK"))
+                    else if (arg.Equals("FTRUCK", StringComparison.InvariantCultureIgnoreCase))
                     {
                         Console.WriteLine("Set FTruck mode from command line");
                         this.gameDefinitionList.Text = GameDefinition.ftruck.friendlyName;
                         setFromCommandLine = true;
                         break;
                     }
-                    else if (arg.Equals("RF1"))
+                    else if (arg.Equals("RF1", StringComparison.InvariantCultureIgnoreCase))
                     {
                         Console.WriteLine("Set RF1 mode from command line");
                         this.gameDefinitionList.Text = GameDefinition.rFactor1.friendlyName;
                         setFromCommandLine = true;
                         break;
                     }
-                    else if (arg.Equals("MARCAS"))
+                    else if (arg.Equals("MARCAS", StringComparison.InvariantCultureIgnoreCase))
                     {
                         Console.WriteLine("Set Copa de Marcas mode from command line");
                         this.gameDefinitionList.Text = GameDefinition.marcas.friendlyName;
                         setFromCommandLine = true;
                         break;
                     }
-                    else if (arg.Equals("GSC"))
+                    else if (arg.Equals("GSC", StringComparison.InvariantCultureIgnoreCase))
                     {
                         Console.WriteLine("Set GSC mode from command line");
                         this.gameDefinitionList.Text = GameDefinition.gameStockCar.friendlyName;
                         setFromCommandLine = true;
                         break;
                     }
-                    else if (arg.Equals("RF2") || arg.Equals("RF2_64BIT"))
+                    else if (arg.Equals("RF2", StringComparison.InvariantCultureIgnoreCase) || arg.Equals("RF2_64BIT", StringComparison.InvariantCultureIgnoreCase))
                     {
                         Console.WriteLine("Set RF2 mode from command line");
                         this.gameDefinitionList.Text = GameDefinition.rfactor2_64bit.friendlyName;
@@ -1032,6 +1047,11 @@ namespace CrewChiefV4
             InitializeUiTexts();
             
             this.SuspendLayout();
+            var currProfileName = UserSettings.currentUserProfileFileName;
+            if (currProfileName.EndsWith(".json", StringComparison.InvariantCultureIgnoreCase))
+                currProfileName = currProfileName.Substring(0, currProfileName.Length - ".json".Length);
+
+            this.Text = $"{Configuration.getUIString("main_window_title_prefix")} {currProfileName}";
 
             SetupNotificationTrayIcon();
 
@@ -1101,14 +1121,14 @@ namespace CrewChiefV4
                 {
                     foreach (String arg in commandLineArgs)
                     {
-                        if (arg.Equals("DEBUG"))
+                        if (arg.Equals("-debug", StringComparison.InvariantCultureIgnoreCase))
                         {
                             Console.WriteLine("Dump-to-file enabled");
                             this.recordSession.Visible = true;
                             this.recordSession.Checked = true;
                             break;
                         }
-                        if (arg.Equals("DEBUG_WITH_PLAYBACK"))
+                        if (arg.Equals("-debug_with_playback", StringComparison.InvariantCultureIgnoreCase))
                         {
                             Console.WriteLine("Dump-to-file and playback controls enabled");
                             this.recordSession.Visible = true;
@@ -1516,6 +1536,7 @@ namespace CrewChiefV4
                     if (!channelOpen && controllerConfiguration.isChannelOpen())
                     {
                         channelOpen = true;
+                        PlaybackModerator.holdModeTalkingToChief = true;
                         // if we reject messages while we're talking to the chief, attempt to interrupt any sound currently playing
                         if (PlaybackModerator.rejectMessagesWhenTalking)
                         {
@@ -1537,7 +1558,7 @@ namespace CrewChiefV4
                             crewChief.speechRecogniser.recognizeAsync();
                             crewChief.audioPlayer.playStartListeningBeep();
                         }
-                        if (rejectMessagesWhenTalking)
+                        if (this.rejectMessagesWhenTalking)
                         {
                             crewChief.audioPlayer.purgeQueues();
                             muteVolumes();
@@ -1545,16 +1566,14 @@ namespace CrewChiefV4
                     }
                     else if (channelOpen && !controllerConfiguration.isChannelOpen())
                     {
-                        if (rejectMessagesWhenTalking)
+                        if (this.rejectMessagesWhenTalking)
                         {
                             // Drop any outstanding messages queued while user was talking, this should prevent weird half phrases.
                             crewChief.audioPlayer.purgeQueues(SpeechRecogniser.sreSessionId);
                             // unmute
                             unmuteVolumes();
 
-                            PlaybackModerator.rejectMessagesWhenTalking = false;  // Hack to let this through moderator.
                             crewChief.audioPlayer.playChiefEndSpeakingBeep();
-                            PlaybackModerator.rejectMessagesWhenTalking = true;
                         }
 
                         if (DriverTrainingService.isRecordingPaceNotes)
@@ -1573,6 +1592,8 @@ namespace CrewChiefV4
                                 youWotThread = new Thread(() =>
                                 {
                                     Utilities.InterruptedSleep(totalWaitMillis: this.sreWaitTime, waitWindowMillis: 50, keepWaitingPredicate: () => crewChief.running);
+                                 
+                                    PlaybackModerator.holdModeTalkingToChief = false;
                                     if (!channelOpen && !SpeechRecogniser.gotRecognitionResult)
                                     {
                                         crewChief.youWot(false);
@@ -1699,8 +1720,8 @@ namespace CrewChiefV4
 
         private void unmuteVolumes()
         {
-            crewChief.audioPlayer.muteBackgroundPlayer(false);
             updateMessagesVolume(messageVolumeToRestore, false, false);
+            crewChief.audioPlayer.muteBackgroundPlayer(false);
             messagesVolumeSlider.Enabled = true;
             backgroundVolumeSlider.Enabled = true;
         }
@@ -1792,8 +1813,11 @@ namespace CrewChiefV4
 
 #if !DEBUG
                 // Don't disable auto scroll in Debug builds and in Profile mode.
-                Console.WriteLine("Pausing console scrolling");
-                MainWindow.autoScrollConsole = MainWindow.profileMode;
+                if (!UserSettings.GetUserSettings().getBoolean("enable_console_autoscroll"))
+                {
+                    Console.WriteLine("Pausing console scrolling");
+                    MainWindow.autoScrollConsole = MainWindow.profileMode;
+                }
 #endif
                 GameDefinition gameDefinition = GameDefinition.getGameDefinitionForFriendlyName(gameDefinitionList.Text);
                 if (gameDefinition != null)
@@ -2001,7 +2025,7 @@ namespace CrewChiefV4
             }
         }
 
-        private void updateActions()
+        public void updateActions()
         {
             Debug.Assert(!this.InvokeRequired);
             this.buttonActionSelect.Items.Clear();
@@ -3089,24 +3113,24 @@ namespace CrewChiefV4
             {
                 if (!CrewChief.Debugging)
                 {
-                    // have to add "multi" to the start args so the app can restart
+                    // have to add "-multi" to the start args so the app can restart
                     List<String> startArgs = new List<string>();
                     foreach (String startArg in Environment.GetCommandLineArgs())
                     {
-                        // if we're restarting because the 'force update check' was clicked, remove the SKIP_UPDATES arg
-                        if (removeSkipUpdates && "SKIP_UPDATES".Equals(startArg))
+                        // if we're restarting because the 'force update check' was clicked, remove the '-skip_updates' arg
+                        if (removeSkipUpdates && ("-skip_updates".Equals(startArg,StringComparison.InvariantCultureIgnoreCase) || "SKIP_UPDATES".Equals(startArg)))
                         {
                             continue;
                         }
                         startArgs.Add(startArg);
                     }
-                    if (!startArgs.Contains("multi"))
+                    if (!startArgs.Contains("-multi"))
                     {
-                        startArgs.Add("multi");
+                        startArgs.Add("-multi");
                     }
-                    if (!startArgs.Contains("app_restart"))
+                    if (!startArgs.Contains("-app_restart"))
                     {
-                        startArgs.Add("app_restart");
+                        startArgs.Add("-app_restart");
                     }
                     System.Diagnostics.Process.Start(Application.ExecutablePath, String.Join(" ", startArgs.ToArray())); // to start new instance of application
                     this.Close(); //to turn off current app

@@ -18,6 +18,7 @@ namespace CrewChiefV4
         public String label;
         private PropertiesForm parent;
         internal PropertyFilter filter = null;
+        public bool changed = false;
 
         public StringPropertyControl(String propertyId, String label, String currentValue, String defaultValue, String helpText, String filterText, 
             String categoryText, bool changeRequiresRestart, PropertiesForm parent)
@@ -35,6 +36,7 @@ namespace CrewChiefV4
 
             this.changeRequiresRestart = changeRequiresRestart;
 
+            // This has to be initialized last.
             this.filter = new PropertyFilter(filterText, categoryText, changeRequiresRestart, propertyId, this.label);
         }
 
@@ -43,24 +45,15 @@ namespace CrewChiefV4
             return this.textBox1.Text;
         }
 
-        public void setValue(String value)
+        public void initValue(String value)
         {
-            this.textBox1.Text = value;            
+            this.textBox1.Text = value;
             this.originalValue = value;
+            this.filter.propertyChanged = false;
         }
 
         public void button1_Click(object sender, EventArgs e)
         {
-            if (originalValue != defaultValue)
-            {
-                parent.hasChanges = true;
-                if (this.changeRequiresRestart) parent.updatedPropertiesRequiringRestart.Add(this.propertyId);
-            }
-            else
-            {
-                parent.updatedPropertiesRequiringRestart.Remove(this.propertyId);
-            }
-            if (this.changeRequiresRestart) parent.updateSaveButtonText();
             this.textBox1.Text = defaultValue;
         }
 
@@ -68,14 +61,23 @@ namespace CrewChiefV4
         {
             if (this.textBox1.Text != originalValue)
             {
-                parent.hasChanges = true;
-                if (this.changeRequiresRestart) parent.updatedPropertiesRequiringRestart.Add(this.propertyId);
+                if (this.filter != null)  // Filter is (conveniently) null during initialization.
+                    this.filter.propertyChanged = true;
             }
             else
             {
-                parent.updatedPropertiesRequiringRestart.Remove(this.propertyId);
+                if (this.filter != null)
+                    this.filter.propertyChanged = false;
             }
-            if (this.changeRequiresRestart) parent.updateSaveButtonText();
+
+            if (this.filter != null)
+                parent.updateChangedState(this.filter.propertyChanged, this.propertyId, this.changeRequiresRestart);
+        }
+
+        public void onSave()
+        {
+            this.filter.propertyChanged = false;
+            this.originalValue = this.getValue();
         }
     }
 }

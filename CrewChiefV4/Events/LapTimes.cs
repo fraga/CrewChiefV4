@@ -1428,7 +1428,7 @@ namespace CrewChiefV4.Events
                         messages.Add(MessageFragment.Text(selfPace ? folderSelfSector3ASecondOffThePace : folderSector3ASecondOffThePace));
                     }
                 }
-                else
+                else if (delta > 0 && delta < (4.0f + 2.0f * Utilities.random.NextDouble()) )
                 {
                     if (sector == SectorSet.ONE)
                     {
@@ -1444,6 +1444,10 @@ namespace CrewChiefV4.Events
                     }
                     messages.Add(MessageFragment.Time(TimeSpanWrapper.FromSeconds(delta, Precision.AUTO_GAPS)));
                     messages.Add(MessageFragment.Text(selfPace ? folderSelfOffThePace : folderOffThePace));
+                }
+                else
+                {
+                    Console.WriteLine("Skipping sector pace delta message:  Sector = " + sector + " delta (-ve = player faster) = " + (playerTime - comparisonTime).ToString("0.000"));
                 }
             }
             if (messages.Count > 0)

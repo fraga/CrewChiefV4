@@ -471,6 +471,24 @@ namespace CrewChiefV4
         {
             return !Utilities.IsFlagOn(value, flag);
         }
+
+        internal static bool TryBackupBrokenFile(string filePath, string backupExt, string msg)
+        {
+            try
+            {
+                var brokenFilePath = Path.ChangeExtension(filePath, backupExt);
+                Console.WriteLine($"{msg} - renaming \"{filePath}\" to \"{brokenFilePath}\"");
+                File.Delete(brokenFilePath);
+                File.Move(filePath, brokenFilePath);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"File.Move failed for {filePath} exception: {ex.Message}");
+                return false;
+            }
+
+            return true;
+        }
     }
 
     public class WebsocketData : WebSocketBehavior
@@ -505,6 +523,7 @@ namespace CrewChiefV4
             Send(GameDataWebsocketData.gameDataSerializer.Serialize(GameDataWebsocketData.gameDataReader.getLatestGameData(), e.Data));
         }
     }
+
     // stackoverflow...
     public static class Extensions
     {

@@ -1762,6 +1762,7 @@ namespace CrewChiefV4
             triggerTimeoutWaitHandle.Set();
             SpeechRecogniser.waitingForSpeech = false;
             SpeechRecogniser.gotRecognitionResult = true;
+            PlaybackModerator.holdModeTalkingToChief = false;
             Boolean youWot = false;
             String recognisedText = SREWrapperFactory.GetCallbackText(e);
             String[] recognisedWords = SREWrapperFactory.GetCallbackWordsList(e);

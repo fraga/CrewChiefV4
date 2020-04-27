@@ -40,6 +40,7 @@ namespace CrewChiefV4
             this.gameFilterLabel = new System.Windows.Forms.Label();
             this.filterBox = new System.Windows.Forms.ComboBox();
             this.showCommonCheckbox = new System.Windows.Forms.CheckBox();
+            this.showChangedCheckbox = new System.Windows.Forms.CheckBox();
             this.categoriesLabel = new System.Windows.Forms.Label();
             this.categoriesBox = new System.Windows.Forms.ComboBox();
             this.buttonsTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
@@ -51,9 +52,12 @@ namespace CrewChiefV4
             this.copySettingsFromCurrentSelectionCheckBox = new System.Windows.Forms.CheckBox();
             this.createNewProfileButton = new System.Windows.Forms.Button();
             this.profilesLabel = new System.Windows.Forms.Label();
-            this.loadProfileButton = new System.Windows.Forms.Button();
+            this.activateProfileButton = new System.Windows.Forms.Button();
             this.profileSelectionComboBox = new System.Windows.Forms.ComboBox();
             this.activateNewProfileCheckBox = new System.Windows.Forms.CheckBox();
+            this.activateProfileButtonTooltip = new System.Windows.Forms.ToolTip(this.components);
+            this.showCommonCheckboxTooltip = new System.Windows.Forms.ToolTip(this.components);
+            this.showChangedCheckboxTooltip = new System.Windows.Forms.ToolTip(this.components);
             this.mainTableLayoutPanel.SuspendLayout();
             this.headerTableLayoutPanel.SuspendLayout();
             this.buttonsTableLayoutPanel.SuspendLayout();
@@ -87,7 +91,7 @@ namespace CrewChiefV4
             // searchTextBox
             // 
             this.searchTextBox.Location = new System.Drawing.Point(781, 3);
-            this.searchTextBox.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
+            this.searchTextBox.Margin = new System.Windows.Forms.Padding(80, 3, 0, 3);
             this.searchTextBox.Name = "searchTextBox";
             this.searchTextBox.Size = new System.Drawing.Size(189, 20);
             this.searchTextBox.TabIndex = 15;
@@ -115,18 +119,12 @@ namespace CrewChiefV4
             // headerTableLayoutPanel
             // 
             this.headerTableLayoutPanel.ColumnCount = 7;
-            this.headerTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 7F));
-            this.headerTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 22F));
-            this.headerTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 12F));
-            this.headerTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 10F));
-            this.headerTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 22F));
-            this.headerTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 9F));
-            this.headerTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
             this.headerTableLayoutPanel.Controls.Add(this.gameFilterLabel, 0, 0);
             this.headerTableLayoutPanel.Controls.Add(this.filterBox, 1, 0);
             this.headerTableLayoutPanel.Controls.Add(this.showCommonCheckbox, 2, 0);
             this.headerTableLayoutPanel.Controls.Add(this.categoriesLabel, 3, 0);
             this.headerTableLayoutPanel.Controls.Add(this.categoriesBox, 4, 0);
+            this.headerTableLayoutPanel.Controls.Add(this.showChangedCheckbox, 5, 0);
             this.headerTableLayoutPanel.Controls.Add(this.searchTextBox, 6, 0);
             this.headerTableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.headerTableLayoutPanel.Location = new System.Drawing.Point(0, 0);
@@ -142,7 +140,7 @@ namespace CrewChiefV4
             // 
             this.gameFilterLabel.Location = new System.Drawing.Point(3, 0);
             this.gameFilterLabel.Name = "gameFilterLabel";
-            this.gameFilterLabel.Padding = new System.Windows.Forms.Padding(0, 2, 0, 0);
+            this.gameFilterLabel.Padding = new System.Windows.Forms.Padding(0, 4, 0, 0);
             this.gameFilterLabel.Size = new System.Drawing.Size(60, 23);
             this.gameFilterLabel.TabIndex = 9;
             this.gameFilterLabel.Text = "game_filter_label";
@@ -153,10 +151,10 @@ namespace CrewChiefV4
             this.filterBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.filterBox.Location = new System.Drawing.Point(66, 3);
             this.filterBox.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
-            this.filterBox.MaximumSize = new System.Drawing.Size(203, 0);
-            this.filterBox.MinimumSize = new System.Drawing.Size(203, 0);
+            this.filterBox.MaximumSize = new System.Drawing.Size(153, 0);
+            this.filterBox.MinimumSize = new System.Drawing.Size(153, 0);
             this.filterBox.Name = "filterBox";
-            this.filterBox.Size = new System.Drawing.Size(203, 21);
+            this.filterBox.Size = new System.Drawing.Size(153, 21);
             this.filterBox.TabIndex = 10;
             this.filterBox.SelectedValueChanged += new System.EventHandler(this.FilterBox_SelectedValueChanged);
             // 
@@ -166,9 +164,9 @@ namespace CrewChiefV4
             this.showCommonCheckbox.Checked = true;
             this.showCommonCheckbox.CheckState = System.Windows.Forms.CheckState.Checked;
             this.showCommonCheckbox.Location = new System.Drawing.Point(286, 5);
-            this.showCommonCheckbox.Margin = new System.Windows.Forms.Padding(10, 5, 3, 3);
+            this.showCommonCheckbox.Margin = new System.Windows.Forms.Padding(7, 4, 0, 0);
             this.showCommonCheckbox.Name = "showCommonCheckbox";
-            this.showCommonCheckbox.Size = new System.Drawing.Size(101, 20);
+            this.showCommonCheckbox.Size = new System.Drawing.Size(88, 20);
             this.showCommonCheckbox.TabIndex = 11;
             this.showCommonCheckbox.Text = "show_common_props_label";
             this.showCommonCheckbox.CheckedChanged += new System.EventHandler(this.ShowCommonCheckbox_CheckedChanged);
@@ -177,7 +175,7 @@ namespace CrewChiefV4
             // 
             this.categoriesLabel.Location = new System.Drawing.Point(393, 0);
             this.categoriesLabel.Name = "categoriesLabel";
-            this.categoriesLabel.Padding = new System.Windows.Forms.Padding(0, 2, 0, 0);
+            this.categoriesLabel.Padding = new System.Windows.Forms.Padding(0, 4, 0, 0);
             this.categoriesLabel.Size = new System.Drawing.Size(89, 23);
             this.categoriesLabel.TabIndex = 12;
             this.categoriesLabel.Text = "category_filter_label";
@@ -188,12 +186,25 @@ namespace CrewChiefV4
             this.categoriesBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.categoriesBox.Location = new System.Drawing.Point(485, 3);
             this.categoriesBox.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
-            this.categoriesBox.MaximumSize = new System.Drawing.Size(203, 0);
-            this.categoriesBox.MinimumSize = new System.Drawing.Size(203, 0);
+            this.categoriesBox.MaximumSize = new System.Drawing.Size(153, 0);
+            this.categoriesBox.MinimumSize = new System.Drawing.Size(153, 0);
             this.categoriesBox.Name = "categoriesBox";
-            this.categoriesBox.Size = new System.Drawing.Size(203, 21);
+            this.categoriesBox.Size = new System.Drawing.Size(153, 21);
             this.categoriesBox.TabIndex = 13;
             this.categoriesBox.SelectedValueChanged += new System.EventHandler(this.CategoriesBox_SelectedValueChanged);
+            // 
+            // showChangedCheckbox
+            // 
+            this.showChangedCheckbox.CheckAlign = System.Drawing.ContentAlignment.TopLeft;
+            this.showChangedCheckbox.Checked = false;
+            this.showChangedCheckbox.CheckState = System.Windows.Forms.CheckState.Unchecked;
+            this.showChangedCheckbox.Location = new System.Drawing.Point(286, 5);
+            this.showChangedCheckbox.Margin = new System.Windows.Forms.Padding(7, 4, 3, 0);
+            this.showChangedCheckbox.Name = "showChangedCheckbox";
+            this.showChangedCheckbox.Size = new System.Drawing.Size(101, 20);
+            this.showChangedCheckbox.TabIndex = 14;
+            this.showChangedCheckbox.Text = "show_changed_props_label";
+            this.showChangedCheckbox.CheckedChanged += new System.EventHandler(this.ShowChangedCheckbox_CheckedChanged);
             // 
             // buttonsTableLayoutPanel
             // 
@@ -259,7 +270,7 @@ namespace CrewChiefV4
             this.userProfileGroupBox.Controls.Add(this.copySettingsFromCurrentSelectionCheckBox);
             this.userProfileGroupBox.Controls.Add(this.createNewProfileButton);
             this.userProfileGroupBox.Controls.Add(this.profilesLabel);
-            this.userProfileGroupBox.Controls.Add(this.loadProfileButton);
+            this.userProfileGroupBox.Controls.Add(this.activateProfileButton);
             this.userProfileGroupBox.Controls.Add(this.profileSelectionComboBox);
             this.userProfileGroupBox.Location = new System.Drawing.Point(12, 13);
             this.userProfileGroupBox.Name = "userProfileGroupBox";
@@ -297,15 +308,15 @@ namespace CrewChiefV4
             this.profilesLabel.TabIndex = 0;
             this.profilesLabel.Text = "profiles";
             // 
-            // loadProfileButton
+            // activateProfileButton
             // 
-            this.loadProfileButton.Location = new System.Drawing.Point(290, 16);
-            this.loadProfileButton.Name = "loadProfileButton";
-            this.loadProfileButton.Size = new System.Drawing.Size(159, 40);
-            this.loadProfileButton.TabIndex = 2;
-            this.loadProfileButton.Text = "load_profile";
-            this.loadProfileButton.UseVisualStyleBackColor = true;
-            this.loadProfileButton.Click += new System.EventHandler(this.loadProfileButton_Click);
+            this.activateProfileButton.Location = new System.Drawing.Point(290, 16);
+            this.activateProfileButton.Name = "activateProfileButton";
+            this.activateProfileButton.Size = new System.Drawing.Size(159, 40);
+            this.activateProfileButton.TabIndex = 2;
+            this.activateProfileButton.Text = "activate_profile";
+            this.activateProfileButton.UseVisualStyleBackColor = true;
+            this.activateProfileButton.Click += new System.EventHandler(this.activateProfileButton_Click);
             // 
             // profileSelectionComboBox
             // 
@@ -326,6 +337,27 @@ namespace CrewChiefV4
             this.activateNewProfileCheckBox.TabIndex = 8;
             this.activateNewProfileCheckBox.Text = "activate_new_profile";
             this.activateNewProfileCheckBox.UseVisualStyleBackColor = true;
+            // 
+            // activateProfileButtonTooltip
+            // 
+            this.activateProfileButtonTooltip.AutoPopDelay = 5000;
+            this.activateProfileButtonTooltip.InitialDelay = 700;
+            this.activateProfileButtonTooltip.IsBalloon = true;
+            this.activateProfileButtonTooltip.ReshowDelay = 100;
+            // 
+            // showCommonCheckboxTooltip
+            // 
+            this.showCommonCheckboxTooltip.AutoPopDelay = 5000;
+            this.showCommonCheckboxTooltip.InitialDelay = 700;
+            this.showCommonCheckboxTooltip.IsBalloon = true;
+            this.showCommonCheckboxTooltip.ReshowDelay = 100;
+            // 
+            // showChangedCheckboxTooltip
+            // 
+            this.showChangedCheckboxTooltip.AutoPopDelay = 5000;
+            this.showChangedCheckboxTooltip.InitialDelay = 700;
+            this.showChangedCheckboxTooltip.IsBalloon = true;
+            this.showChangedCheckboxTooltip.ReshowDelay = 100;
             // 
             // PropertiesForm
             // 
@@ -367,15 +399,19 @@ namespace CrewChiefV4
         private System.Windows.Forms.Label gameFilterLabel;
         private System.Windows.Forms.ComboBox filterBox;
         private System.Windows.Forms.CheckBox showCommonCheckbox;
+        private System.Windows.Forms.CheckBox showChangedCheckbox;
         private System.Windows.Forms.Label categoriesLabel;
         private System.Windows.Forms.ComboBox categoriesBox;
         private GroupBox userProfileSettingsGroupBox;
         private GroupBox userProfileGroupBox;
         private ComboBox profileSelectionComboBox;
         private Label profilesLabel;
-        private Button loadProfileButton;
+        private Button activateProfileButton;
         private CheckBox copySettingsFromCurrentSelectionCheckBox;
         private Button createNewProfileButton;
         private CheckBox activateNewProfileCheckBox;
+        private System.Windows.Forms.ToolTip activateProfileButtonTooltip;
+        private System.Windows.Forms.ToolTip showCommonCheckboxTooltip;
+        private System.Windows.Forms.ToolTip showChangedCheckboxTooltip;
     }
 }

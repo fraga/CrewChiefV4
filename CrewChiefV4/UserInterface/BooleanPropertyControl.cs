@@ -33,6 +33,8 @@ namespace CrewChiefV4
             this.toolTip1.SetToolTip(this.checkBox1, helpText);
             
             this.changeRequiresRestart = changeRequiresRestart;
+
+            // This has to be initialized last.
             this.filter = new PropertyFilter(filterText, categoryText, changeRequiresRestart, propertyId, this.label);
         }
         public Boolean getValue()
@@ -40,39 +42,39 @@ namespace CrewChiefV4
             return this.checkBox1.Checked;
         }
 
-        public void setValue(Boolean value)
+        public void initValue(Boolean value)
         {
-            this.checkBox1.Checked = value;    
-            this.originalValue = value;        
+            this.checkBox1.Checked = value;
+            this.originalValue = value;
+            this.filter.propertyChanged = false;
         }
 
         public void button1_Click(object sender, EventArgs e)
         {
             this.checkBox1.Checked = defaultValue;
-            if (this.originalValue != this.checkBox1.Checked)
-            {
-                parent.hasChanges = true;
-                if (this.changeRequiresRestart) parent.updatedPropertiesRequiringRestart.Add(this.propertyId);
-            }
-            else
-            {
-                parent.updatedPropertiesRequiringRestart.Remove(this.propertyId);
-            }
-            if (this.changeRequiresRestart) parent.updateSaveButtonText();
         }
 
         private void checkedChanged(object sender, EventArgs e)
         {
             if (this.originalValue != this.checkBox1.Checked)
             {
-                parent.hasChanges = true;
-                if (this.changeRequiresRestart) parent.updatedPropertiesRequiringRestart.Add(this.propertyId);
+                if (this.filter != null)  // Filter is (conveniently) null during initialization.
+                    this.filter.propertyChanged = true;
             }
             else
             {
-                parent.updatedPropertiesRequiringRestart.Remove(this.propertyId);
+                if (this.filter != null)
+                    this.filter.propertyChanged = false;
             }
-            if (this.changeRequiresRestart) parent.updateSaveButtonText();
+
+            if (this.filter != null)
+                parent.updateChangedState(this.filter.propertyChanged, this.propertyId, this.changeRequiresRestart);
+        }
+
+        public void onSave()
+        {
+            this.filter.propertyChanged = false;
+            this.originalValue = this.getValue();
         }
     }
 }

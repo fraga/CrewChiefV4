@@ -246,18 +246,12 @@ namespace CrewChiefV4
                             }
                             catch (Exception e)
                             {
-                                Console.WriteLine("Unable to load existing metadata - renaming to 'broken_" + fileName + "', " + e.Message);
-                                File.Delete("broken_" + fileName);
-                                File.Move(fileName, "broken_" + fileName);
+                                Utilities.TryBackupBrokenFile(fileName, "_broken", "Unable to load existing metadata: " + e.Message);
                             }
                         }
                         else
                         {
-                            String backupFilename = fileName + "_old";
-                            Console.WriteLine("Pace notes for this game / track / car combination exist but cannot be extended because we're in multi-lap mode.");
-                            Console.WriteLine("The old pacenotes file will be renamed " + backupFilename);
-                            File.Delete(backupFilename);
-                            File.Move(fileName, backupFilename);
+                            Utilities.TryBackupBrokenFile(fileName, "_old", "Pace notes for this game / track / car combination exist but cannot be extended because we're in multi-lap mode.  The old pacenotes file will be renamed.");
                         }
                     }
                 }
