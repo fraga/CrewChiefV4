@@ -65,7 +65,7 @@ namespace CrewChiefV4
             }
         }
 
-        private static UserProfileSettings currentActiveProfile = new UserProfileSettings();
+        public static UserProfileSettings currentActiveProfile = new UserProfileSettings();
 
         public Dictionary<string, object> currentApplicationSettings = new Dictionary<string, object>();
 
@@ -121,9 +121,7 @@ namespace CrewChiefV4
             {
                 if (settingsProfileBroken)
                 {
-                    Console.WriteLine("Broken user settings profile " + fileName + "renaming it to  " + Path.ChangeExtension(fileName, "broken"));
-                    File.Delete(Path.ChangeExtension(fileName, "broken"));
-                    File.Move(fileName, Path.ChangeExtension(fileName, "broken"));
+                    Utilities.TryBackupBrokenFile(fileName, "broken", "Broken user settings profile " + fileName);
                     // if the default settings file is broken we have to recreate it.
                     if (Path.Combine(userProfilesPath, defaultUserSettingsfileName).Equals(fileName))
                     {
@@ -253,27 +251,43 @@ namespace CrewChiefV4
             catch(Exception e)
             {
                 Console.WriteLine(e.Message);
-            }         
+            }
         }
 
         private UserSettings()
         {
-            // Set profile from command line 'profile "file name.json" ...'
-            if (Environment.GetCommandLineArgs().ToList().Contains("profile"))
+            // Set profile from command line '-profile "file name without extension" ...'.  This needs to be
+            // done here, because this executes before Main.
+            var commandLineArgs = Environment.GetCommandLineArgs();
+            var profileRequestedFromCommandLine = "";
+            for (int argIdx = 1; argIdx < commandLineArgs.Length; ++argIdx)
             {
-                List<string> files = Directory.GetFiles(userProfilesPath, "*.json", SearchOption.TopDirectoryOnly).ToList();
-                List<string> fileNames = new List<string>();
+                var arg = (string)commandLineArgs.GetValue(argIdx);
+                if (arg.StartsWith("-profile", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    // Next argument should specify the desired profile name.
+                    if (argIdx + 1 < commandLineArgs.Length)
+                    {
+                        profileRequestedFromCommandLine = (string)commandLineArgs.GetValue(argIdx + 1);
+                    }
+
+                    break;
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(profileRequestedFromCommandLine))
+            {
+                var files = Directory.GetFiles(userProfilesPath, "*.json", SearchOption.TopDirectoryOnly).ToList();
                 foreach (var file in files)
                 {
-                    fileNames.Add(Path.GetFileName(file));
-                }
-                foreach (var fileName in fileNames)
-                {
-                    if (Environment.GetCommandLineArgs().ToList().Contains(fileName))
+                    var fileNameNoExt = Path.GetFileNameWithoutExtension(file);
+                    if (profileRequestedFromCommandLine.Equals(fileNameNoExt, StringComparison.InvariantCultureIgnoreCase))
                     {
+                        var fileName = Path.GetFileName(file);
                         Properties.Settings.Default["current_settings_profile"] = fileName;
                         // hmm not sure this will ever get displayed as this init happens before main window is initialized 
-                        Console.WriteLine($"Setting profile ({fileName}) from commandline");
+                        Console.WriteLine($"Setting profile ({fileName}.json) from the command line");
+                        break;
                     }
                 }
             }

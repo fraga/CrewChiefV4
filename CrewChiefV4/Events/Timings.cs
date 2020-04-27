@@ -91,6 +91,7 @@ namespace CrewChiefV4.Events
         private Boolean isLeading;
 
         private Boolean isLast;
+        private Boolean isLastInStandings;
 
         private Boolean isRace;
         private Boolean playedGapBehindForThisLap;
@@ -178,6 +179,7 @@ namespace CrewChiefV4.Events
             currentLapsDeltaBehind = -1;
             currentLapsDeltaInFront = -1;
             isLast = false;
+            isLastInStandings = false;
             isLeading = false;
             isRace = false;
             playedGapBehindForThisLap = false;
@@ -269,6 +271,7 @@ namespace CrewChiefV4.Events
             }
             isLeading = currentGameState.SessionData.ClassPosition == 1;
             isLast = currentGameState.isLast();
+            isLastInStandings = currentGameState.isLastInStandings();
             isRace = currentGameState.SessionData.SessionType == SessionType.Race;
             currentGapInFront = currentGameState.SessionData.TimeDeltaFront;
             currentGapBehind = currentGameState.SessionData.TimeDeltaBehind;
@@ -825,7 +828,7 @@ namespace CrewChiefV4.Events
                 else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHATS_MY_GAP_BEHIND) &&
                     currentGapBehind != -1)
                 {
-                    if (isLast && isRace)
+                    if (isLastInStandings && isRace)
                     {
                         audioPlayer.playMessageImmediately(new QueuedMessage(Position.folderLast, 0));
                         haveData = true;

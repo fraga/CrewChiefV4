@@ -9,6 +9,7 @@ using CrewChiefV4.Events;
 using CrewChiefV4.rFactor2.rFactor2Data;
 using System.Diagnostics;
 using static CrewChiefV4.rFactor2.rFactor2Constants;
+using System.Threading;
 
 /**
  * Maps memory mapped file to a local game-agnostic representation.
@@ -147,20 +148,31 @@ namespace CrewChiefV4.rFactor2
 
         private int[] minimumSupportedVersionParts = new int[] { 3, 7, 1, 0 };
         public static bool pluginVerified = false;
+        private static int reinitWaitAttempts = 0;
         public override void versionCheck(Object memoryMappedFileStruct)
         {
             if (RF2GameStateMapper.pluginVerified)
                 return;
 
-            var failureHelpMsg = ".\nMake sure you have \"Update game plugins on startup\" option enabled."
-                + "\nAlternatively, visit https://forum.studio-397.com/index.php?threads/crew-chief-v4-5-with-rfactor-2-support.54421/ "
-                + "to download and update plugin manually.";
+            var shared = memoryMappedFileStruct as RF2SharedMemoryReader.RF2StructWrapper;
+            var versionStr = RF2GameStateMapper.GetStringFromBytes(shared.extended.mVersion);
+            if (string.IsNullOrWhiteSpace(versionStr)
+                && RF2GameStateMapper.reinitWaitAttempts < 500)
+            {
+                // SimHub (and possibly other tools) leaks the shared memory block, making us read the empty one.
+                // Wait a bit before re-checking version string.
+                ++RF2GameStateMapper.reinitWaitAttempts;
+                Thread.Sleep(100);
+                return;
+            }
 
             // Only verify once.
             RF2GameStateMapper.pluginVerified = true;
+            RF2GameStateMapper.reinitWaitAttempts = 0;
 
-            var shared = memoryMappedFileStruct as RF2SharedMemoryReader.RF2StructWrapper;
-            var versionStr = RF2GameStateMapper.GetStringFromBytes(shared.extended.mVersion);
+            var failureHelpMsg = ".\nMake sure you have \"Update game plugins on startup\" option enabled."
+                + "\nAlternatively, visit https://forum.studio-397.com/index.php?threads/crew-chief-v4-5-with-rfactor-2-support.54421/ "
+                + "to download and update plugin manually.";
 
             var versionParts = versionStr.Split('.');
             if (versionParts.Length != 4)
@@ -264,7 +276,7 @@ namespace CrewChiefV4.rFactor2
             this.numFODetectPhaseAttempts = 0;
             this.safetyCarLeft = false;
             this.lastHistoryMessageUpdatedTicks = 0L;
-    }
+        }
 
     public override GameStateData mapToGameStateData(Object memoryMappedFileStruct, GameStateData previousGameState)
         {
@@ -665,7 +677,8 @@ namespace CrewChiefV4.rFactor2
                 cgs.TimingData = pgs.TimingData;
                 csd.JustGoneGreenTime = psd.JustGoneGreenTime;
 
-                cgs.SessionData.IsLastLap = pgs.SessionData.IsLastLap;
+                csd.IsLastLap = psd.IsLastLap;
+                csd.OverallLeaderIsOnLastLap = psd.OverallLeaderIsOnLastLap;
             }
 
             csd.SessionStartTime = csd.IsNewSession ? cgs.Now : psd.SessionStartTime;
@@ -1167,9 +1180,6 @@ namespace CrewChiefV4.rFactor2
             // some simple locking / spinning checks
             if (cgs.PositionAndMotionData.CarSpeed > 7.0f)
             {
-                //                "minTyreCircumference": 0.72,
-                //		"maxTyreCircumference": 1.22,
-
                 if (this.useRealWheelSizeForLockingAndSpinning && playerTelemetryAvailable)
                 {
                     float minRotatingSpeedOld = (float)Math.PI * cgs.PositionAndMotionData.CarSpeed / cgs.carClass.maxTyreCircumference;
@@ -1258,7 +1268,7 @@ namespace CrewChiefV4.rFactor2
             // Disallow DRS messages in such case.
             if (!this.detectedTrackNoDRSZones
                 && csd.CompletedLaps == 0
-                && csd.SessionRunningTime > 10
+                && csd.SessionRunningTime > 10.0f
                 && cgs.OvertakingAids.DrsAvailable)
             {
                 this.detectedTrackNoDRSZones = true;
@@ -1327,6 +1337,21 @@ namespace CrewChiefV4.rFactor2
                         if (!csd.PlayerBestLapTimeByTyre.TryGetValue(cgs.TyreData.FrontLeftTyreType, out playerBestTimeByTyre)
                             || playerBestTimeByTyre > csd.LapTimePrevious)
                             csd.PlayerBestLapTimeByTyre[cgs.TyreData.FrontLeftTyreType] = csd.LapTimePrevious;
+
+                        // See if this looks like the last lap of a timed race.
+                        if (cgs.SessionData.SessionType == SessionType.Race
+                            && cgs.SessionData.SessionPhase != SessionPhase.Finished
+                            && cgs.SessionData.SessionPhase != SessionPhase.Checkered
+                            && csd.SessionHasFixedTime)
+                        {
+                            if (csd.OverallLeaderIsOnLastLap)
+                                csd.IsLastLap = true;
+
+                            if (vehicleScoring.mPlace == 1
+                                && csd.PlayerLapTimeSessionBest > 0.0f
+                                && csd.SessionTimeRemaining < csd.PlayerLapTimeSessionBest * 0.90f)
+                                csd.IsLastLap = csd.OverallLeaderIsOnLastLap = true;
+                        }
                     }
 
                     continue;
@@ -1456,7 +1481,7 @@ namespace CrewChiefV4.rFactor2
                 opponent.OverallPosition = vehicleScoring.mPlace;
 
                 // Telemetry isn't always available, initialize first tyre set 10 secs or more into race.
-                if (csd.SessionType == SessionType.Race && csd.SessionRunningTime > 10
+                if (csd.SessionType == SessionType.Race && csd.SessionRunningTime > 10.0f
                     && opponentPrevious != null
                     && opponentPrevious.TyreChangesByLap.Count == 0)  // If tyre for initial lap was never set.
                     opponent.TyreChangesByLap[0] = opponent.CurrentTyres;
@@ -1484,6 +1509,7 @@ namespace CrewChiefV4.rFactor2
                     opponent.NumPitStops = opponentPrevious.NumPitStops;
                     opponent.OverallPositionAtPreviousTick = opponentPrevious.OverallPosition;
                     opponent.ClassPositionAtPreviousTick = opponentPrevious.ClassPosition;
+                    opponent.IsLastLap = opponentPrevious.IsLastLap;
                 }
 
                 opponent.SessionTimeAtLastPositionChange
@@ -1530,6 +1556,27 @@ namespace CrewChiefV4.rFactor2
                 opponent.DeltaTime.SetNextDeltaPoint(opponent.DistanceRoundTrack, opponent.CompletedLaps, opponent.Speed, cgs.Now, vehicleScoring.mInPits != 1);
 
                 opponent.CurrentBestLapTime = vehicleScoring.mBestLapTime > 0.0f ? (float)vehicleScoring.mBestLapTime : -1.0f;
+
+                if (opponent.IsNewLap)
+                {
+                    if (cgs.SessionData.SessionType == SessionType.Race
+                        && cgs.SessionData.SessionPhase != SessionPhase.Finished
+                        && cgs.SessionData.SessionPhase != SessionPhase.Checkered
+                        && csd.SessionHasFixedTime)
+                    {
+                        if (opponent.CurrentBestLapTime > 0.0f)
+                        {
+                            if (csd.OverallLeaderIsOnLastLap)
+                                opponent.IsLastLap = true;
+
+                            if (opponent.OverallPosition == 1
+                                && opponent.CurrentBestLapTime > 0.0f
+                                && csd.SessionTimeRemaining < opponent.CurrentBestLapTime * 0.90f)
+                                csd.OverallLeaderIsOnLastLap = opponent.IsLastLap = true;
+                        }
+                    }
+                }
+
                 opponent.PreviousBestLapTime = opponentPrevious != null && opponentPrevious.CurrentBestLapTime > 0.0f &&
                     opponentPrevious.CurrentBestLapTime > opponent.CurrentBestLapTime ? opponentPrevious.CurrentBestLapTime : -1.0f;
                 float previousDistanceRoundTrack = opponentPrevious != null ? opponentPrevious.DistanceRoundTrack : 0;
@@ -1540,7 +1587,7 @@ namespace CrewChiefV4.rFactor2
 
                 var isInPits = vehicleScoring.mInPits == 1;
 
-                if (csd.SessionType == SessionType.Race && csd.SessionRunningTime > 10
+                if (csd.SessionType == SessionType.Race && csd.SessionRunningTime > 10.0f
                     && opponentPrevious != null && !opponentPrevious.InPits && isInPits)
                 {
                     opponent.NumPitStops++;
@@ -1705,19 +1752,6 @@ namespace CrewChiefV4.rFactor2
                 csd.SessionStartClassPosition = pgs.SessionData.SessionStartClassPosition;
                 csd.ClassPositionAtStartOfCurrentLap = pgs.SessionData.ClassPositionAtStartOfCurrentLap;
                 csd.NumCarsInPlayerClassAtStartOfSession = pgs.SessionData.NumCarsInPlayerClassAtStartOfSession;
-            }
-
-            // See if this looks like the last lap of a timed race.
-            if (cgs.SessionData.IsNewLap)
-            {
-                if (cgs.SessionData.SessionType == SessionType.Race
-                    && cgs.SessionData.SessionPhase != SessionPhase.Finished
-                    && cgs.SessionData.SessionPhase != SessionPhase.Checkered
-                    && csd.SessionHasFixedTime)
-                {
-                    if (cgs.SessionData.PlayerLapTimeSessionBest > 0.0f)
-                        cgs.SessionData.IsLastLap = csd.SessionTimeRemaining < cgs.SessionData.PlayerLapTimeSessionBest * 0.90f;
-                }
             }
 
             // --------------------------------

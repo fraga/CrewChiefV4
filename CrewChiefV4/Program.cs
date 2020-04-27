@@ -15,14 +15,14 @@ namespace CrewChiefV4
     static class Program
     {
         private static Dictionary<String, IntPtr> processorAffinities = new Dictionary<String, IntPtr> {
-            { "cpu1", new IntPtr(0x0001) },
-            { "cpu2", new IntPtr(0x0002) },
-            { "cpu3", new IntPtr(0x0004) },
-            { "cpu4", new IntPtr(0x0008) },
-            { "cpu5", new IntPtr(0x0010) },
-            { "cpu6", new IntPtr(0x0020) },
-            { "cpu7", new IntPtr(0x0040) },
-            { "cpu8", new IntPtr(0x0080) }
+            { "-cpu1", new IntPtr(0x0001) },
+            { "-cpu2", new IntPtr(0x0002) },
+            { "-cpu3", new IntPtr(0x0004) },
+            { "-cpu4", new IntPtr(0x0008) },
+            { "-cpu5", new IntPtr(0x0010) },
+            { "-cpu6", new IntPtr(0x0020) },
+            { "-cpu7", new IntPtr(0x0040) },
+            { "-cpu8", new IntPtr(0x0080) }
         };
         /// <summary>
         /// The main entry point for the application.
@@ -43,10 +43,11 @@ namespace CrewChiefV4
             String commandPassed = null;
             if (commandLineArgs != null)
             {
+                var argIdx = 0;
                 foreach (String commandLineArg in commandLineArgs)
                 {
                     IntPtr pArg = IntPtr.Zero;
-                    if (processorAffinities.TryGetValue(commandLineArg, out pArg))
+                    if (processorAffinities.TryGetValue(commandLineArg.ToLowerInvariant(), out pArg))
                     {
                         try
                         {
@@ -60,26 +61,29 @@ namespace CrewChiefV4
                             Console.WriteLine("Failed to set process affinity");
                         }
                     }
-                    if (commandLineArg.Equals("multi"))
-                    {
-                        allowMultipleInst = true;
-                    }
-                    if (commandLineArg.Equals("SOUND_TEST"))
+                    if (commandLineArg.Equals("-sound_test", StringComparison.InvariantCultureIgnoreCase))
                     {
                         MainWindow.soundTestMode = true;
                     }
-                    if (commandLineArg.Equals("NODEVICESCAN"))
+                    if (commandLineArg.Equals("-nodevicescan", StringComparison.InvariantCultureIgnoreCase))
                     {
                         MainWindow.disableControllerReacquire = true;
                     }
-                    if (commandLineArg.StartsWith("C_"))
+                    if (commandLineArg.StartsWith("-c_", StringComparison.InvariantCultureIgnoreCase))
                     {
                         commandPassed = commandLineArg;
                     }
-                    if (commandLineArg.Equals("PROFILE_MODE"))
+                    // Internal.
+                    if (commandLineArg.Equals("-multi", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        allowMultipleInst = true;
+                    }
+                    if (commandLineArg.Equals("-profile_mode", StringComparison.InvariantCultureIgnoreCase))
                     {
                         MainWindow.profileMode = true;
                     }
+
+                    ++argIdx;
                 }
                 if (!allowMultipleInst)
                 {
@@ -99,7 +103,6 @@ namespace CrewChiefV4
                     {
                         //ignore
                     }
-
                 }
             }
             Application.EnableVisualStyles();

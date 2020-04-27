@@ -55,8 +55,8 @@ namespace CrewChiefV4.Events
 
         private int startMessageTime;
 
-        private Boolean isLast;
-        
+        private Boolean isLastInStandings;
+
         private List<float> gapsAhead = new List<float>();
         private List<float> gapsBehind = new List<float>();
         private TimeSpan passCheckInterval = TimeSpan.FromSeconds(1);
@@ -128,7 +128,7 @@ namespace CrewChiefV4.Events
             numberOfLapsInLastPlace = 0;
             playedRaceStartMessage = false;
             startMessageTime = Utilities.random.Next(30, 50);
-            isLast = false;
+            isLastInStandings = false;
             lastPassCheck = DateTime.MinValue;
             gapsAhead.Clear();
             gapsBehind.Clear();
@@ -382,7 +382,8 @@ namespace CrewChiefV4.Events
             checkCompletedOvertake(currentGameState);
             currentPosition = currentGameState.SessionData.ClassPosition;
             sessionType = currentGameState.SessionData.SessionType;
-            isLast = currentGameState.isLast();
+            isLastInStandings = currentGameState.isLastInStandings();
+
             if (previousPosition == 0)
             {
                 previousPosition = currentPosition;
@@ -396,7 +397,7 @@ namespace CrewChiefV4.Events
                     !currentGameState.FlagData.isLocalYellow)
                 {
                     playedRaceStartMessage = true;
-                    Console.WriteLine("Race start message... isLast = " + isLast +
+                    Console.WriteLine("Race start message... isLastInStandings = " + isLastInStandings +
                         " session start pos = " + currentGameState.SessionData.SessionStartClassPosition + " current pos = " + currentGameState.SessionData.ClassPosition);
                     bool hasrFactorPenaltyPending = (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT) && currentGameState.PenaltiesData.NumPenalties > 0;
                     if (currentGameState.SessionData.SessionStartClassPosition > 0 &&
@@ -419,11 +420,11 @@ namespace CrewChiefV4.Events
                                 audioPlayer.playMessage(new QueuedMessage(folderBadStart, 10, abstractEvent: this, priority: 5, validationData: validationData));
                             }
                         }
-                        else if (!isLast && (currentGameState.SessionData.ClassPosition == 1 || currentGameState.SessionData.ClassPosition < currentGameState.SessionData.SessionStartClassPosition - 1))
+                        else if (!isLastInStandings && (currentGameState.SessionData.ClassPosition == 1 || currentGameState.SessionData.ClassPosition < currentGameState.SessionData.SessionStartClassPosition - 1))
                         {
                             audioPlayer.playMessage(new QueuedMessage(folderGoodStart, 10, abstractEvent: this, priority: 5, validationData: validationData));
                         }
-                        else if (!isLast && Utilities.random.NextDouble() > 0.6)
+                        else if (!isLastInStandings && Utilities.random.NextDouble() > 0.6)
                         {
                             // only play the OK start message sometimes
                             audioPlayer.playMessage(new QueuedMessage(folderOKStart, 10, abstractEvent: this, priority: 5, validationData: validationData));
@@ -445,7 +446,7 @@ namespace CrewChiefV4.Events
                     {
                         playedRaceStartMessage = true;
                     }
-                    if (isLast)
+                    if (isLastInStandings)
                     {
                         numberOfLapsInLastPlace++;
                     }
@@ -471,13 +472,13 @@ namespace CrewChiefV4.Events
                             float pearlLikelihood = 0.2f;
                             if (currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.SessionData.ClassPosition > 0)
                             {
-                                if (!isLast && (previousPosition > currentGameState.SessionData.ClassPosition + 5 ||
+                                if (!isLastInStandings && (previousPosition > currentGameState.SessionData.ClassPosition + 5 ||
                                     (previousPosition > currentGameState.SessionData.ClassPosition && currentGameState.SessionData.ClassPosition <= 5)))
                                 {
                                     pearlType = PearlsOfWisdom.PearlType.GOOD;
                                     pearlLikelihood = 0.8f;
                                 }
-                                else if (!isLast && previousPosition < currentGameState.SessionData.ClassPosition &&
+                                else if (!isLastInStandings && previousPosition < currentGameState.SessionData.ClassPosition &&
                                     currentGameState.SessionData.ClassPosition > 5 && !previousGameState.PitData.OnOutLap &&
                                     !currentGameState.PitData.OnOutLap && !currentGameState.PitData.InPitlane &&
                                     currentGameState.SessionData.LapTimePrevious > currentGameState.SessionData.PlayerLapTimeSessionBest)
@@ -489,7 +490,7 @@ namespace CrewChiefV4.Events
                                     pearlType = PearlsOfWisdom.PearlType.BAD;
                                     pearlLikelihood = 0.5f;
                                 }
-                                else if (!isLast)
+                                else if (!isLastInStandings)
                                 {
                                     pearlType = PearlsOfWisdom.PearlType.NEUTRAL;
                                 }
@@ -532,7 +533,7 @@ namespace CrewChiefV4.Events
             previousPosition = currentPosition;
             // if the position has changed since we queued this message, prevent the pearls playing as they may be out of date
             // We also don't berate the player for being crap in message *and* any associated pearl
-            if (isLast || positionWhenQueued != this.currentPosition)
+            if (isLastInStandings || positionWhenQueued != this.currentPosition)
             {
                 audioPlayer.suspendPearlsOfWisdom();
                 if (isReminder)
@@ -556,7 +557,7 @@ namespace CrewChiefV4.Events
                     return new Tuple<List<MessageFragment>, List<MessageFragment>>(MessageContents(folderQuickestOverall), null);                    
                 }
             }
-            else if (this.isLast && !GlobalBehaviourSettings.complaintsDisabled && GlobalBehaviourSettings.complaintsCountInThisSession <= GlobalBehaviourSettings.maxComplaintsPerSession)
+            else if (this.isLastInStandings && !GlobalBehaviourSettings.complaintsDisabled && GlobalBehaviourSettings.complaintsCountInThisSession <= GlobalBehaviourSettings.maxComplaintsPerSession)
             {
                 if (this.numberOfLapsInLastPlace > 5 &&
                     CrewChief.currentGameState.SessionData.LapTimePrevious > CrewChief.currentGameState.SessionData.PlayerLapTimeSessionBest &&
@@ -582,7 +583,7 @@ namespace CrewChiefV4.Events
 
         public override void respond(String voiceMessage)
         {            
-            if (isLast && !GlobalBehaviourSettings.complaintsDisabled && GlobalBehaviourSettings.complaintsCountInThisSession <= GlobalBehaviourSettings.maxComplaintsPerSession)
+            if (isLastInStandings && !GlobalBehaviourSettings.complaintsDisabled && GlobalBehaviourSettings.complaintsCountInThisSession <= GlobalBehaviourSettings.maxComplaintsPerSession)
             {
                 audioPlayer.playMessageImmediately(new QueuedMessage(folderLast, 0));
             }

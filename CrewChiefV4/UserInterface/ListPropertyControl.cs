@@ -162,8 +162,10 @@ namespace CrewChiefV4
             this.toolTip1.SetToolTip(this.label1, helpText);
             
             this.changeRequiresRestart = changeRequiresRestart;
-            this.filter = new PropertyFilter(filterText, categoryText, changeRequiresRestart, propertyId, this.label);
             this.comboBox1.SelectedIndexChanged += textChanged;
+
+            // This has to be initialized last.
+            this.filter = new PropertyFilter(filterText, categoryText, changeRequiresRestart, propertyId, this.label);
         }
 
         public String getValue()
@@ -171,24 +173,15 @@ namespace CrewChiefV4
             return ListPropertyValues.getInvariantValueForLabel(propertyId, this.availableValues[this.comboBox1.SelectedIndex]);
         }
 
-        public void setValue(String value)
+        public void initValue(String value)
         {
             this.comboBox1.SelectedIndex = availableValues.IndexOf(ListPropertyValues.getLabelForInvariantItem(propertyId, value));           
-            this.originalValue = ListPropertyValues.getLabelForInvariantItem(propertyId, value); 
+            this.originalValue = ListPropertyValues.getLabelForInvariantItem(propertyId, value);
+            this.filter.propertyChanged = false;
         }
 
         public void button1_Click(object sender, EventArgs e)
         {
-            if (originalValue != defaultValue)
-            {
-                parent.hasChanges = true;
-                if (this.changeRequiresRestart) parent.updatedPropertiesRequiringRestart.Add(this.propertyId);
-            }
-            else
-            {
-                parent.updatedPropertiesRequiringRestart.Remove(this.propertyId);
-            }
-            if (this.changeRequiresRestart) parent.updateSaveButtonText();
             this.comboBox1.SelectedIndex = availableValues.IndexOf(defaultValue);
         }
 
@@ -196,14 +189,23 @@ namespace CrewChiefV4
         {
             if (this.availableValues[this.comboBox1.SelectedIndex] != originalValue)
             {
-                parent.hasChanges = true;
-                if (this.changeRequiresRestart) parent.updatedPropertiesRequiringRestart.Add(this.propertyId);
+                if (this.filter != null)  // Filter is (conveniently) null during initialization.
+                    this.filter.propertyChanged = true;
             }
             else
             {
-                parent.updatedPropertiesRequiringRestart.Remove(this.propertyId);
+                if (this.filter != null)
+                    this.filter.propertyChanged = false;
             }
-            if (this.changeRequiresRestart) parent.updateSaveButtonText();
+
+            if (this.filter != null)
+                parent.updateChangedState(this.filter.propertyChanged, this.propertyId, this.changeRequiresRestart);
+        }
+
+        public void onSave()
+        {
+            this.filter.propertyChanged = false;
+            this.originalValue = this.getValue();
         }
     }
 }

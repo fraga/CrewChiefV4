@@ -37,11 +37,10 @@ namespace CrewChiefV4
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine("Unable to load existing tracklandmarksdata - renaming to 'broken_" + fileName + "', " + e.Message);
-                        File.Move(fileName, "broken_" + fileName);
+                        Utilities.TryBackupBrokenFile(fileName, "json_broken", "Unable to load existing tracklandmarksdata: " + e.Message);
                         fileBroken = true;
                     }
-                }               
+                }
             }
             if (createDirectory || fileBroken)
             {

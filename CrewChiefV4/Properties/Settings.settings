@@ -1094,6 +1094,9 @@
     <Setting Name="pace_notes_mute_all_messages" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="enable_console_autoscroll" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
     <Setting Name="use_metric" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>

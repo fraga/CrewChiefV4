@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -110,12 +111,12 @@ namespace CrewChiefV4
             hasChanges = false;
             if (!CrewChief.Debugging)
             {
-                // have to add "multi" to the start args so the app can restart
+                // have to add "-multi" to the start args so the app can restart
                 List<String> startArgs = new List<string>();
                 startArgs.AddRange(Environment.GetCommandLineArgs());
-                if (!startArgs.Contains("multi"))
+                if (!startArgs.Contains("-multi"))
                 {
-                    startArgs.Add("multi");
+                    startArgs.Add("-multi");
                 }
                 
                 System.Diagnostics.Process.Start(Application.ExecutablePath, String.Join(" ", startArgs.ToArray())); // to start new instance of application
@@ -127,7 +128,7 @@ namespace CrewChiefV4
         {
             if (hasChanges)
             {
-                String warningMessage = Configuration.getUIString("save_prop_changes_warning");
+                var warningMessage = string.Format(Configuration.getUIString("save_prop_changes_warning"), Path.GetFileNameWithoutExtension(UserSettings.GetUserSettings().getString("current_settings_profile")));
                 if (CrewChief.Debugging)
                 {
                     warningMessage = "You have unsaved changes. Click 'Yes' to save these changes (you will need to manually restart the application). Click 'No' to discard these changes";
@@ -137,16 +138,16 @@ namespace CrewChiefV4
                     ControllerConfiguration.saveControllerConfigurationDataFile(controllerConfigurationData);
                     if (!CrewChief.Debugging)
                     {
-                        // have to add "multi" to the start args so the app can restart
+                        // have to add "-multi" to the start args so the app can restart
                         List<String> startArgs = new List<string>();
                         startArgs.AddRange(Environment.GetCommandLineArgs());
-                        if (!startArgs.Contains("multi"))
+                        if (!startArgs.Contains("-multi"))
                         {
-                            startArgs.Add("multi");
+                            startArgs.Add("-multi");
                         }
-                        if (!startArgs.Contains("app_restart"))
+                        if (!startArgs.Contains("-app_restart"))
                         {
-                            startArgs.Add("app_restart");
+                            startArgs.Add("-app_restart");
                         }
                         System.Diagnostics.Process.Start(Application.ExecutablePath, String.Join(" ", startArgs.ToArray())); // to start new instance of application
                         MainWindow.instance.Close(); //to turn off current app
