@@ -1254,8 +1254,8 @@ namespace CrewChiefV4.AMS2
 
             currentGameState.PositionAndMotionData.WorldPosition = new float[] { playerData.mWorldPosition[0], playerData.mWorldPosition[1], playerData.mWorldPosition[2] };
             currentGameState.PositionAndMotionData.Orientation.Pitch = shared.mOrientation[0];
-            currentGameState.PositionAndMotionData.Orientation.Roll = shared.mOrientation[1];
-            currentGameState.PositionAndMotionData.Orientation.Yaw = shared.mOrientation[2];
+            currentGameState.PositionAndMotionData.Orientation.Yaw = shared.mOrientation[1];
+            currentGameState.PositionAndMotionData.Orientation.Roll = shared.mOrientation[2];
             return currentGameState;
         }
 
