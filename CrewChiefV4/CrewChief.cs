@@ -1075,7 +1075,8 @@ namespace CrewChiefV4
                 CrewChief.gameDefinition.gameEnum == GameEnum.PCARS_64BIT ||
                 CrewChief.gameDefinition.gameEnum == GameEnum.PCARS_NETWORK ||
                 CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2 ||
-                CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2_NETWORK;
+                CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2_NETWORK ||
+                CrewChief.gameDefinition.gameEnum == GameEnum.AMS2;
         }
 
         // This has to be called before starting man Chief thread (runApp).

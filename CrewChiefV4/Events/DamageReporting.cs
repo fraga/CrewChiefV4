@@ -415,7 +415,8 @@ namespace CrewChiefV4.Events
             orientationSamples.AddLast(currentGameState.PositionAndMotionData.Orientation);
 
             // don't check for rolling if we've just had a dangerous acceleration as we don't want both messages to trigger
-            if (enableCrashMessages && currentGameState.Now > nextOrientationCheckDue && orientationSamplesFull &&
+            if (!CrewChief.isPCars()
+                && enableCrashMessages && currentGameState.Now > nextOrientationCheckDue && orientationSamplesFull &&
                 currentGameState.Now.Subtract(timeOfDangerousAcceleration) > TimeSpan.FromSeconds(10))
             {
                 nextOrientationCheckDue = currentGameState.Now.Add(orientationCheckEvery);
