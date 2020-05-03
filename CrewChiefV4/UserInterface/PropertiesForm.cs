@@ -458,17 +458,12 @@ namespace CrewChiefV4
         {
             var requiresRestart = updatedPropertiesRequiringRestart.Count > 0;
             this.saveActiveProfile();
-            if (!CrewChief.Debugging && requiresRestart)
+            if (requiresRestart)
             {
-                // have to add "-multi" to the start args so the app can restart
-                List<String> startArgs = new List<string>();
-                startArgs.AddRange(Environment.GetCommandLineArgs());
-                if (!startArgs.Contains("-multi"))
+                if (Utilities.RestartApp())
                 {
-                    startArgs.Add("-multi");
+                    parent.Close(); //to turn off current app
                 }
-                System.Diagnostics.Process.Start(Application.ExecutablePath, String.Join(" ", startArgs.ToArray())); // to start new instance of application
-                parent.Close(); //to turn off current app
             }
         }
 
@@ -508,21 +503,12 @@ namespace CrewChiefV4
                     MessageBoxIcon.Question) == DialogResult.Yes)
                 {
                     this.saveActiveProfile();
-                    if (requiresRestart && !CrewChief.Debugging)
+                    if (requiresRestart)
                     {
-                        // have to add "-multi" to the start args so the app can restart
-                        List<String> startArgs = new List<string>();
-                        startArgs.AddRange(Environment.GetCommandLineArgs());
-                        if (!startArgs.Contains("-multi"))
+                        if (Utilities.RestartApp(new List<string> { "-app_restart" }))
                         {
-                            startArgs.Add("-multi");
+                            parent.Close(); // To turn off current app
                         }
-                        if (!startArgs.Contains("-app_restart"))
-                        {
-                            startArgs.Add("-app_restart");
-                        }
-                        System.Diagnostics.Process.Start(Application.ExecutablePath, String.Join(" ", startArgs.ToArray())); // to start new instance of application
-                        parent.Close(); // To turn off current app
                     }
                 }
  
@@ -1000,16 +986,11 @@ namespace CrewChiefV4
             {
                 UserSettings.GetUserSettings().saveUserSettings();
 
-                // have to add "-multi" to the start args so the app can restart
-                List<String> startArgs = new List<string>();
-                startArgs.AddRange(Environment.GetCommandLineArgs());
-                if (!startArgs.Contains("-multi"))
+                if (Utilities.RestartApp(new List<string> { "-app_restart" }))
                 {
-                    startArgs.Add("-multi");
+                    this.clearChangedState();
+                    this.parent.Close(); //to turn off current app
                 }
-                System.Diagnostics.Process.Start(Application.ExecutablePath, String.Join(" ", startArgs.ToArray())); // to start new instance of application
-                this.clearChangedState();
-                this.parent.Close(); //to turn off current app
             }
             else
             {
