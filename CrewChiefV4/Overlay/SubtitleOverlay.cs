@@ -369,6 +369,16 @@ namespace CrewChiefV4.Overlay
             {
                 element.Value.initialize();
             }
+            if (!titleBar.elementEnabled)
+            {
+                subtitleElement.rectangle.Y = 0;
+                overlayWindow.Resize(overlayWindow.X, overlayWindow.Y + (int)displayModeControlBox.rectangle.Bottom, settings.windowWidth, (int)subtitleElement.rectangle.Bottom);
+            }
+            else
+            {
+                subtitleElement.rectangle.Y = displayModeControlBox.rectangle.Bottom;
+                overlayWindow.Resize(overlayWindow.X, overlayWindow.Y - (int)displayModeControlBox.rectangle.Bottom, settings.windowWidth, (int)subtitleElement.rectangle.Bottom);
+            }
             overlayWindow.OnWindowMessage += overlayWindow_OnWindowMessage;
             //make sure overlay dont steal focus from main window.
             Microsoft.VisualBasic.Interaction.AppActivate(System.Diagnostics.Process.GetCurrentProcess().Id);
