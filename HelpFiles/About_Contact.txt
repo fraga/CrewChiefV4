@@ -1,0 +1,8 @@
+ 
+ <a href="http://thecrewchief.org/forum.php">Crew Chief Forum</a>
+ <a style="text-indent: 40px" href="http://thecrewchief.org/showthread.php?28-F-a-q">FAQ</a>
+ 
+ <a href="https://discord.com/channels/322071247032942592/406527523455893504">Discord channel</a>
+ 
+ <a href="https://gitlab.com/mr_belowski/CrewChiefV4">Source code (Gitlab)</a>
+ 

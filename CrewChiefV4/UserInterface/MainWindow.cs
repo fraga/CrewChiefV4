@@ -13,7 +13,6 @@ using System.Net;
 using System.Xml.Linq;
 using System.IO.Compression;
 using CrewChiefV4.Audio;
-using CrewChiefV4.UserInterface;
 using System.Diagnostics;
 using CrewChiefV4.commands;
 using CrewChiefV4.GameState;
@@ -985,8 +984,6 @@ namespace CrewChiefV4
             this.label1.Text = Configuration.getUIString("available_controllers");
             this.label2.Text = Configuration.getUIString("available_actions");
             this.propertiesButton.Text = Configuration.getUIString("properties");
-            this.helpButton.Text = Configuration.getUIString("help");
-            this.aboutButton.Text = Configuration.getUIString("about");            
             this.groupBox1.Text = Configuration.getUIString("voice_recognition_mode");
             voiceRecognitionToolTip.SetToolTip(this.groupBox1, Configuration.getUIString("voice_recognition_mode_help"));             
             this.alwaysOnButton.Text = Configuration.getUIString("always_on");
@@ -1492,7 +1489,7 @@ namespace CrewChiefV4
         {
             if ( e.KeyCode == Keys.F1)
             {
-                this.helpButtonClicked(sender, e);
+                this.helpToolStripMenuItem_Click(sender, e);
                 e.Handled = true;
             }
         }
@@ -2165,18 +2162,6 @@ namespace CrewChiefV4
                 if (minimizedToTray)
                     this.notificationTrayIcon.Visible = true;
             }
-        }
-
-        private void helpButtonClicked(object sender, EventArgs e)
-        {
-            var form = new ShowHelp(this);
-            form.ShowDialog(this);
-        }
-
-        private void aboutButtonClicked(object sender, EventArgs e)
-        {
-            var form = new ShowAbout(this);
-            form.ShowDialog(this);
         }
 
         private void forceVersionCheckButtonClicked(object sender, EventArgs e)
@@ -3253,6 +3238,17 @@ namespace CrewChiefV4
         {
             var form = new ActionEditor(this);
             form.ShowDialog(this);
+        }
+
+        private void helpToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var form = new HelpWindow(this);
+            form.ShowDialog(this);
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 

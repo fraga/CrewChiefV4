@@ -1,0 +1,6 @@
+<h3>Choosing Audio method</h3>
+nAudio playback library allows playback device selection and higher volumes. As well it can play messages in stereo. It also allows speech recognition device selection.
+
+Voice recognition 'Trigger word' and 'Press and release button' not available with nAudio.
+
+nAudio offers two output interface types - WaveOut and WASAPI.  WaveOut is more compatible, but WASAPI is more responsive/direct playback.

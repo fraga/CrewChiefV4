@@ -42,8 +42,6 @@ namespace CrewChiefV4
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.propertiesButton = new System.Windows.Forms.Button();
-            this.aboutButton = new System.Windows.Forms.Button();
-            this.helpButton = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.voiceDisableButton = new System.Windows.Forms.RadioButton();
             this.holdButton = new System.Windows.Forms.RadioButton();
@@ -95,10 +93,15 @@ namespace CrewChiefV4
             this.voiceRecognitionDisabledToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.voiceRecognitionTriggerWordToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.AddRemoveActions = new System.Windows.Forms.Button();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.consoleTextBoxBackgroundPanel.SuspendLayout();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.messagesVolumeSlider)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.backgroundVolumeSlider)).BeginInit();
+            this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // consoleTextBox
@@ -106,10 +109,11 @@ namespace CrewChiefV4
             this.consoleTextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.consoleTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.consoleTextBox.Location = new System.Drawing.Point(0, 0);
+            this.consoleTextBox.Margin = new System.Windows.Forms.Padding(6);
             this.consoleTextBox.MaxLength = 99999999;
             this.consoleTextBox.Name = "consoleTextBox";
             this.consoleTextBox.ReadOnly = true;
-            this.consoleTextBox.Size = new System.Drawing.Size(1091, 283);
+            this.consoleTextBox.Size = new System.Drawing.Size(2000, 522);
             this.consoleTextBox.TabIndex = 200;
             this.consoleTextBox.Text = "";
             // 
@@ -117,16 +121,18 @@ namespace CrewChiefV4
             // 
             this.consoleTextBoxBackgroundPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.consoleTextBoxBackgroundPanel.Controls.Add(this.consoleTextBox);
-            this.consoleTextBoxBackgroundPanel.Location = new System.Drawing.Point(41, 215);
+            this.consoleTextBoxBackgroundPanel.Location = new System.Drawing.Point(75, 441);
+            this.consoleTextBoxBackgroundPanel.Margin = new System.Windows.Forms.Padding(6);
             this.consoleTextBoxBackgroundPanel.Name = "consoleTextBoxBackgroundPanel";
-            this.consoleTextBoxBackgroundPanel.Size = new System.Drawing.Size(1093, 285);
+            this.consoleTextBoxBackgroundPanel.Size = new System.Drawing.Size(2002, 524);
             this.consoleTextBoxBackgroundPanel.TabIndex = 291;
             // 
             // startApplicationButton
             // 
-            this.startApplicationButton.Location = new System.Drawing.Point(41, 28);
+            this.startApplicationButton.Location = new System.Drawing.Point(75, 96);
+            this.startApplicationButton.Margin = new System.Windows.Forms.Padding(6);
             this.startApplicationButton.Name = "startApplicationButton";
-            this.startApplicationButton.Size = new System.Drawing.Size(137, 38);
+            this.startApplicationButton.Size = new System.Drawing.Size(251, 70);
             this.startApplicationButton.TabIndex = 40;
             this.startApplicationButton.Text = "start_application";
             this.startApplicationButton.UseVisualStyleBackColor = true;
@@ -135,9 +141,10 @@ namespace CrewChiefV4
             // forceVersionCheckButton
             // 
             this.forceVersionCheckButton.AutoSize = true;
-            this.forceVersionCheckButton.Location = new System.Drawing.Point(1030, 665);
+            this.forceVersionCheckButton.Location = new System.Drawing.Point(1888, 1272);
+            this.forceVersionCheckButton.Margin = new System.Windows.Forms.Padding(6);
             this.forceVersionCheckButton.Name = "forceVersionCheckButton";
-            this.forceVersionCheckButton.Size = new System.Drawing.Size(109, 23);
+            this.forceVersionCheckButton.Size = new System.Drawing.Size(200, 42);
             this.forceVersionCheckButton.TabIndex = 290;
             this.forceVersionCheckButton.Text = "check_for_updates";
             this.forceVersionCheckButton.UseVisualStyleBackColor = true;
@@ -146,26 +153,31 @@ namespace CrewChiefV4
             // buttonActionSelect
             // 
             this.buttonActionSelect.FormattingEnabled = true;
-            this.buttonActionSelect.Location = new System.Drawing.Point(295, 520);
+            this.buttonActionSelect.ItemHeight = 24;
+            this.buttonActionSelect.Location = new System.Drawing.Point(541, 1004);
+            this.buttonActionSelect.Margin = new System.Windows.Forms.Padding(6);
             this.buttonActionSelect.Name = "buttonActionSelect";
-            this.buttonActionSelect.Size = new System.Drawing.Size(528, 108);
+            this.buttonActionSelect.Size = new System.Drawing.Size(965, 196);
             this.buttonActionSelect.TabIndex = 230;
             this.buttonActionSelect.SelectedIndexChanged += new System.EventHandler(this.buttonActionSelect_SelectedIndexChanged);
             // 
             // controllersList
             // 
             this.controllersList.FormattingEnabled = true;
-            this.controllersList.Location = new System.Drawing.Point(41, 520);
+            this.controllersList.ItemHeight = 24;
+            this.controllersList.Location = new System.Drawing.Point(75, 1004);
+            this.controllersList.Margin = new System.Windows.Forms.Padding(6);
             this.controllersList.Name = "controllersList";
-            this.controllersList.Size = new System.Drawing.Size(248, 108);
+            this.controllersList.Size = new System.Drawing.Size(451, 196);
             this.controllersList.TabIndex = 210;
             this.controllersList.SelectedIndexChanged += new System.EventHandler(this.controllersList_SelectedIndexChanged);
             // 
             // assignButtonToAction
             // 
-            this.assignButtonToAction.Location = new System.Drawing.Point(830, 520);
+            this.assignButtonToAction.Location = new System.Drawing.Point(1522, 1004);
+            this.assignButtonToAction.Margin = new System.Windows.Forms.Padding(6);
             this.assignButtonToAction.Name = "assignButtonToAction";
-            this.assignButtonToAction.Size = new System.Drawing.Size(130, 40);
+            this.assignButtonToAction.Size = new System.Drawing.Size(238, 74);
             this.assignButtonToAction.TabIndex = 240;
             this.assignButtonToAction.Text = "assign_control";
             this.assignButtonToAction.UseVisualStyleBackColor = true;
@@ -173,31 +185,23 @@ namespace CrewChiefV4
             // 
             // deleteAssigmentButton
             // 
-            this.deleteAssigmentButton.Location = new System.Drawing.Point(830, 565);
+            this.deleteAssigmentButton.Location = new System.Drawing.Point(1522, 1087);
+            this.deleteAssigmentButton.Margin = new System.Windows.Forms.Padding(6);
             this.deleteAssigmentButton.Name = "deleteAssigmentButton";
-            this.deleteAssigmentButton.Size = new System.Drawing.Size(130, 40);
+            this.deleteAssigmentButton.Size = new System.Drawing.Size(238, 74);
             this.deleteAssigmentButton.TabIndex = 250;
             this.deleteAssigmentButton.Text = "delete_assignment";
             this.deleteAssigmentButton.UseVisualStyleBackColor = true;
             this.deleteAssigmentButton.Click += new System.EventHandler(this.deleteAssignmentButtonClicked);
             // 
-            // buttonEditCommandMacros
-            // 
-            this.buttonEditCommandMacros.Location = new System.Drawing.Point(830, 610);
-            this.buttonEditCommandMacros.Name = "buttonEditCommandMacros";
-            this.buttonEditCommandMacros.Size = new System.Drawing.Size(130, 40);
-            this.buttonEditCommandMacros.TabIndex = 255;
-            this.buttonEditCommandMacros.Text = "edit_macro_commands";
-            this.buttonEditCommandMacros.UseVisualStyleBackColor = true;
-            this.buttonEditCommandMacros.Click += new System.EventHandler(this.editCommandMacroButtonClicked);
-            // 
             // label1
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(38, 500);
+            this.label1.Location = new System.Drawing.Point(70, 967);
+            this.label1.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(138, 17);
+            this.label1.Size = new System.Drawing.Size(235, 29);
             this.label1.TabIndex = 209;
             this.label1.Text = "available_controllers";
             // 
@@ -205,41 +209,23 @@ namespace CrewChiefV4
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(292, 500);
+            this.label2.Location = new System.Drawing.Point(535, 967);
+            this.label2.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(117, 17);
+            this.label2.Size = new System.Drawing.Size(198, 29);
             this.label2.TabIndex = 229;
             this.label2.Text = "available_actions";
             // 
             // propertiesButton
             // 
-            this.propertiesButton.Location = new System.Drawing.Point(961, 105);
+            this.propertiesButton.Location = new System.Drawing.Point(1762, 238);
+            this.propertiesButton.Margin = new System.Windows.Forms.Padding(6);
             this.propertiesButton.Name = "propertiesButton";
-            this.propertiesButton.Size = new System.Drawing.Size(173, 31);
+            this.propertiesButton.Size = new System.Drawing.Size(317, 57);
             this.propertiesButton.TabIndex = 110;
             this.propertiesButton.Text = "properties";
             this.propertiesButton.UseVisualStyleBackColor = true;
             this.propertiesButton.Click += new System.EventHandler(this.editPropertiesButtonClicked);
-            // 
-            // aboutButton
-            // 
-            this.aboutButton.Location = new System.Drawing.Point(961, 169);
-            this.aboutButton.Name = "aboutButton";
-            this.aboutButton.Size = new System.Drawing.Size(173, 31);
-            this.aboutButton.TabIndex = 130;
-            this.aboutButton.Text = "about";
-            this.aboutButton.UseVisualStyleBackColor = true;
-            this.aboutButton.Click += new System.EventHandler(this.aboutButtonClicked);
-            // 
-            // helpButton
-            // 
-            this.helpButton.Location = new System.Drawing.Point(961, 137);
-            this.helpButton.Name = "helpButton";
-            this.helpButton.Size = new System.Drawing.Size(173, 31);
-            this.helpButton.TabIndex = 120;
-            this.helpButton.Text = "help";
-            this.helpButton.UseVisualStyleBackColor = true;
-            this.helpButton.Click += new System.EventHandler(this.helpButtonClicked);
             // 
             // groupBox1
             // 
@@ -248,9 +234,11 @@ namespace CrewChiefV4
             this.groupBox1.Controls.Add(this.toggleButton);
             this.groupBox1.Controls.Add(this.alwaysOnButton);
             this.groupBox1.Controls.Add(this.triggerWordButton);
-            this.groupBox1.Location = new System.Drawing.Point(970, 515);
+            this.groupBox1.Location = new System.Drawing.Point(1778, 995);
+            this.groupBox1.Margin = new System.Windows.Forms.Padding(6);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(164, 135);
+            this.groupBox1.Padding = new System.Windows.Forms.Padding(6);
+            this.groupBox1.Size = new System.Drawing.Size(301, 249);
             this.groupBox1.TabIndex = 260;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "voice_recognition_mode";
@@ -259,9 +247,10 @@ namespace CrewChiefV4
             // voiceDisableButton
             // 
             this.voiceDisableButton.AutoSize = true;
-            this.voiceDisableButton.Location = new System.Drawing.Point(7, 16);
+            this.voiceDisableButton.Location = new System.Drawing.Point(13, 74);
+            this.voiceDisableButton.Margin = new System.Windows.Forms.Padding(6);
             this.voiceDisableButton.Name = "voiceDisableButton";
-            this.voiceDisableButton.Size = new System.Drawing.Size(64, 17);
+            this.voiceDisableButton.Size = new System.Drawing.Size(110, 29);
             this.voiceDisableButton.TabIndex = 0;
             this.voiceDisableButton.TabStop = true;
             this.voiceDisableButton.Text = "disabled";
@@ -272,9 +261,10 @@ namespace CrewChiefV4
             // holdButton
             // 
             this.holdButton.AutoSize = true;
-            this.holdButton.Location = new System.Drawing.Point(7, 39);
+            this.holdButton.Location = new System.Drawing.Point(13, 116);
+            this.holdButton.Margin = new System.Windows.Forms.Padding(6);
             this.holdButton.Name = "holdButton";
-            this.holdButton.Size = new System.Drawing.Size(81, 17);
+            this.holdButton.Size = new System.Drawing.Size(139, 29);
             this.holdButton.TabIndex = 1;
             this.holdButton.TabStop = true;
             this.holdButton.Text = "hold_button";
@@ -285,9 +275,10 @@ namespace CrewChiefV4
             // toggleButton
             // 
             this.toggleButton.AutoSize = true;
-            this.toggleButton.Location = new System.Drawing.Point(7, 60);
+            this.toggleButton.Location = new System.Drawing.Point(13, 155);
+            this.toggleButton.Margin = new System.Windows.Forms.Padding(6);
             this.toggleButton.Name = "toggleButton";
-            this.toggleButton.Size = new System.Drawing.Size(90, 17);
+            this.toggleButton.Size = new System.Drawing.Size(155, 29);
             this.toggleButton.TabIndex = 2;
             this.toggleButton.TabStop = true;
             this.toggleButton.Text = "toggle_button";
@@ -298,9 +289,10 @@ namespace CrewChiefV4
             // alwaysOnButton
             // 
             this.alwaysOnButton.AutoSize = true;
-            this.alwaysOnButton.Location = new System.Drawing.Point(7, 82);
+            this.alwaysOnButton.Location = new System.Drawing.Point(13, 195);
+            this.alwaysOnButton.Margin = new System.Windows.Forms.Padding(6);
             this.alwaysOnButton.Name = "alwaysOnButton";
-            this.alwaysOnButton.Size = new System.Drawing.Size(75, 17);
+            this.alwaysOnButton.Size = new System.Drawing.Size(130, 29);
             this.alwaysOnButton.TabIndex = 3;
             this.alwaysOnButton.TabStop = true;
             this.alwaysOnButton.Text = "always_on";
@@ -311,9 +303,10 @@ namespace CrewChiefV4
             // triggerWordButton
             // 
             this.triggerWordButton.AutoSize = true;
-            this.triggerWordButton.Location = new System.Drawing.Point(7, 104);
+            this.triggerWordButton.Location = new System.Drawing.Point(13, 236);
+            this.triggerWordButton.Margin = new System.Windows.Forms.Padding(6);
             this.triggerWordButton.Name = "triggerWordButton";
-            this.triggerWordButton.Size = new System.Drawing.Size(254, 17);
+            this.triggerWordButton.Size = new System.Drawing.Size(459, 29);
             this.triggerWordButton.TabIndex = 4;
             this.triggerWordButton.TabStop = true;
             this.triggerWordButton.Text = "trigger_word (\"trigger_word_for_always_on_sre\")";
@@ -323,9 +316,10 @@ namespace CrewChiefV4
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(184, 28);
+            this.button2.Location = new System.Drawing.Point(337, 96);
+            this.button2.Margin = new System.Windows.Forms.Padding(6);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(137, 38);
+            this.button2.Size = new System.Drawing.Size(251, 70);
             this.button2.TabIndex = 50;
             this.button2.Text = "clear_console";
             this.button2.UseVisualStyleBackColor = true;
@@ -333,10 +327,11 @@ namespace CrewChiefV4
             // 
             // messagesVolumeSlider
             // 
-            this.messagesVolumeSlider.Location = new System.Drawing.Point(327, 28);
+            this.messagesVolumeSlider.Location = new System.Drawing.Point(600, 96);
+            this.messagesVolumeSlider.Margin = new System.Windows.Forms.Padding(6);
             this.messagesVolumeSlider.Maximum = 100;
             this.messagesVolumeSlider.Name = "messagesVolumeSlider";
-            this.messagesVolumeSlider.Size = new System.Drawing.Size(176, 45);
+            this.messagesVolumeSlider.Size = new System.Drawing.Size(323, 80);
             this.messagesVolumeSlider.TabIndex = 60;
             this.messagesVolumeSlider.TickFrequency = 10;
             this.messagesVolumeSlider.Scroll += new System.EventHandler(this.messagesVolumeSlider_Scroll);
@@ -346,10 +341,11 @@ namespace CrewChiefV4
             this.messagesAudioDeviceBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.messagesAudioDeviceBox.Enabled = false;
             this.messagesAudioDeviceBox.IntegralHeight = false;
-            this.messagesAudioDeviceBox.Location = new System.Drawing.Point(330, 90);
+            this.messagesAudioDeviceBox.Location = new System.Drawing.Point(605, 210);
+            this.messagesAudioDeviceBox.Margin = new System.Windows.Forms.Padding(6);
             this.messagesAudioDeviceBox.MaxDropDownItems = 5;
             this.messagesAudioDeviceBox.Name = "messagesAudioDeviceBox";
-            this.messagesAudioDeviceBox.Size = new System.Drawing.Size(190, 21);
+            this.messagesAudioDeviceBox.Size = new System.Drawing.Size(345, 32);
             this.messagesAudioDeviceBox.TabIndex = 150;
             this.messagesAudioDeviceBox.Visible = false;
             // 
@@ -358,10 +354,11 @@ namespace CrewChiefV4
             this.speechRecognitionDeviceBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.speechRecognitionDeviceBox.Enabled = false;
             this.speechRecognitionDeviceBox.IntegralHeight = false;
-            this.speechRecognitionDeviceBox.Location = new System.Drawing.Point(115, 90);
+            this.speechRecognitionDeviceBox.Location = new System.Drawing.Point(211, 210);
+            this.speechRecognitionDeviceBox.Margin = new System.Windows.Forms.Padding(6);
             this.speechRecognitionDeviceBox.MaxDropDownItems = 5;
             this.speechRecognitionDeviceBox.Name = "speechRecognitionDeviceBox";
-            this.speechRecognitionDeviceBox.Size = new System.Drawing.Size(190, 21);
+            this.speechRecognitionDeviceBox.Size = new System.Drawing.Size(345, 32);
             this.speechRecognitionDeviceBox.TabIndex = 140;
             this.speechRecognitionDeviceBox.Visible = false;
             // 
@@ -370,28 +367,31 @@ namespace CrewChiefV4
             this.backgroundAudioDeviceBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.backgroundAudioDeviceBox.Enabled = false;
             this.backgroundAudioDeviceBox.IntegralHeight = false;
-            this.backgroundAudioDeviceBox.Location = new System.Drawing.Point(550, 90);
+            this.backgroundAudioDeviceBox.Location = new System.Drawing.Point(1008, 210);
+            this.backgroundAudioDeviceBox.Margin = new System.Windows.Forms.Padding(6);
             this.backgroundAudioDeviceBox.MaxDropDownItems = 5;
             this.backgroundAudioDeviceBox.Name = "backgroundAudioDeviceBox";
-            this.backgroundAudioDeviceBox.Size = new System.Drawing.Size(190, 21);
+            this.backgroundAudioDeviceBox.Size = new System.Drawing.Size(345, 32);
             this.backgroundAudioDeviceBox.TabIndex = 160;
             this.backgroundAudioDeviceBox.Visible = false;
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(367, 12);
+            this.label3.Location = new System.Drawing.Point(673, 66);
+            this.label3.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(94, 13);
+            this.label3.Size = new System.Drawing.Size(176, 25);
             this.label3.TabIndex = 59;
             this.label3.Text = "messages_volume";
             // 
             // backgroundVolumeSlider
             // 
-            this.backgroundVolumeSlider.Location = new System.Drawing.Point(558, 28);
+            this.backgroundVolumeSlider.Location = new System.Drawing.Point(1023, 96);
+            this.backgroundVolumeSlider.Margin = new System.Windows.Forms.Padding(6);
             this.backgroundVolumeSlider.Maximum = 100;
             this.backgroundVolumeSlider.Name = "backgroundVolumeSlider";
-            this.backgroundVolumeSlider.Size = new System.Drawing.Size(184, 45);
+            this.backgroundVolumeSlider.Size = new System.Drawing.Size(337, 80);
             this.backgroundVolumeSlider.TabIndex = 70;
             this.backgroundVolumeSlider.TickFrequency = 10;
             this.backgroundVolumeSlider.Scroll += new System.EventHandler(this.backgroundVolumeSlider_Scroll);
@@ -399,9 +399,10 @@ namespace CrewChiefV4
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(567, 11);
+            this.label4.Location = new System.Drawing.Point(1040, 64);
+            this.label4.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(104, 13);
+            this.label4.Size = new System.Drawing.Size(189, 25);
             this.label4.TabIndex = 69;
             this.label4.Text = "background_volume";
             // 
@@ -409,6 +410,7 @@ namespace CrewChiefV4
             // 
             this.gameDefinitionList.AllowDrop = true;
             this.gameDefinitionList.FormattingEnabled = true;
+            this.gameDefinitionList.ItemHeight = 24;
             this.gameDefinitionList.Items.AddRange(new object[] {
             "assetto_32_bit",
             "assetto_64_bit",
@@ -426,89 +428,99 @@ namespace CrewChiefV4
             "race_room",
             "rfactor1",
             "rfactor2_64_bit"});
-            this.gameDefinitionList.Location = new System.Drawing.Point(782, 28);
-            this.gameDefinitionList.MaximumSize = new System.Drawing.Size(170, 173);
-            this.gameDefinitionList.MinimumSize = new System.Drawing.Size(170, 173);
+            this.gameDefinitionList.Location = new System.Drawing.Point(1434, 96);
+            this.gameDefinitionList.Margin = new System.Windows.Forms.Padding(6);
+            this.gameDefinitionList.MaximumSize = new System.Drawing.Size(308, 316);
+            this.gameDefinitionList.MinimumSize = new System.Drawing.Size(308, 316);
             this.gameDefinitionList.Name = "gameDefinitionList";
-            this.gameDefinitionList.Size = new System.Drawing.Size(170, 173);
+            this.gameDefinitionList.Size = new System.Drawing.Size(308, 316);
             this.gameDefinitionList.TabIndex = 80;
             this.gameDefinitionList.SelectedValueChanged += new System.EventHandler(this.updateSelectedGameDefinition);
             // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(779, 9);
+            this.label5.Location = new System.Drawing.Point(1428, 61);
+            this.label5.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(33, 13);
+            this.label5.Size = new System.Drawing.Size(61, 25);
             this.label5.TabIndex = 79;
             this.label5.Text = "game";
             // 
             // personalisationLabel
             // 
             this.personalisationLabel.AutoSize = true;
-            this.personalisationLabel.Location = new System.Drawing.Point(961, 11);
+            this.personalisationLabel.Location = new System.Drawing.Point(1762, 64);
+            this.personalisationLabel.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.personalisationLabel.Name = "personalisationLabel";
-            this.personalisationLabel.Size = new System.Drawing.Size(105, 13);
+            this.personalisationLabel.Size = new System.Drawing.Size(195, 25);
             this.personalisationLabel.TabIndex = 89;
             this.personalisationLabel.Text = "personalisation_label";
             this.myNameBoxTooltip.SetToolTip(this.personalisationLabel, "personalisation_tooltip");
             // 
             // filenameTextbox
             // 
-            this.filenameTextbox.Location = new System.Drawing.Point(150, 2);
+            this.filenameTextbox.Location = new System.Drawing.Point(275, 48);
+            this.filenameTextbox.Margin = new System.Windows.Forms.Padding(6);
             this.filenameTextbox.Name = "filenameTextbox";
-            this.filenameTextbox.Size = new System.Drawing.Size(108, 20);
+            this.filenameTextbox.Size = new System.Drawing.Size(195, 29);
             this.filenameTextbox.TabIndex = 20;
             // 
             // filenameLabel
             // 
             this.filenameLabel.AutoSize = true;
-            this.filenameLabel.Location = new System.Drawing.Point(68, 5);
+            this.filenameLabel.Location = new System.Drawing.Point(125, 53);
+            this.filenameLabel.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.filenameLabel.Name = "filenameLabel";
-            this.filenameLabel.Size = new System.Drawing.Size(82, 13);
+            this.filenameLabel.Size = new System.Drawing.Size(151, 25);
             this.filenameLabel.TabIndex = 19;
             this.filenameLabel.Text = "File &name to run";
             // 
             // recordSession
             // 
             this.recordSession.AutoSize = true;
-            this.recordSession.Location = new System.Drawing.Point(7, 4);
+            this.recordSession.Location = new System.Drawing.Point(13, 51);
+            this.recordSession.Margin = new System.Windows.Forms.Padding(6);
             this.recordSession.Name = "recordSession";
-            this.recordSession.Size = new System.Drawing.Size(61, 17);
+            this.recordSession.Size = new System.Drawing.Size(100, 29);
             this.recordSession.TabIndex = 10;
             this.recordSession.Text = "&Record";
             this.recordSession.UseVisualStyleBackColor = true;
             // 
             // playbackInterval
             // 
-            this.playbackInterval.Location = new System.Drawing.Point(261, 2);
+            this.playbackInterval.Location = new System.Drawing.Point(479, 48);
+            this.playbackInterval.Margin = new System.Windows.Forms.Padding(6);
             this.playbackInterval.Name = "playbackInterval";
-            this.playbackInterval.Size = new System.Drawing.Size(100, 20);
+            this.playbackInterval.Size = new System.Drawing.Size(180, 29);
             this.playbackInterval.TabIndex = 30;
             this.playbackInterval.TextChanged += new System.EventHandler(this.playbackIntervalChanged);
             // 
             // app_version
             // 
             this.app_version.AutoSize = true;
-            this.app_version.Location = new System.Drawing.Point(1045, 650);
+            this.app_version.Location = new System.Drawing.Point(1916, 1244);
+            this.app_version.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.app_version.Name = "app_version";
-            this.app_version.Size = new System.Drawing.Size(65, 13);
+            this.app_version.Size = new System.Drawing.Size(119, 25);
             this.app_version.TabIndex = 193;
             this.app_version.Text = "app_version";
             // 
             // soundPackProgressBar
             // 
-            this.soundPackProgressBar.Location = new System.Drawing.Point(39, 176);
+            this.soundPackProgressBar.Location = new System.Drawing.Point(72, 369);
+            this.soundPackProgressBar.Margin = new System.Windows.Forms.Padding(6);
             this.soundPackProgressBar.Name = "soundPackProgressBar";
-            this.soundPackProgressBar.Size = new System.Drawing.Size(220, 23);
+            this.soundPackProgressBar.Size = new System.Drawing.Size(403, 42);
             this.soundPackProgressBar.TabIndex = 191;
             // 
             // downloadSoundPackButton
             // 
             this.downloadSoundPackButton.Enabled = false;
-            this.downloadSoundPackButton.Location = new System.Drawing.Point(39, 123);
+            this.downloadSoundPackButton.Location = new System.Drawing.Point(72, 271);
+            this.downloadSoundPackButton.Margin = new System.Windows.Forms.Padding(6);
             this.downloadSoundPackButton.Name = "downloadSoundPackButton";
-            this.downloadSoundPackButton.Size = new System.Drawing.Size(220, 37);
+            this.downloadSoundPackButton.Size = new System.Drawing.Size(403, 68);
             this.downloadSoundPackButton.TabIndex = 170;
             this.downloadSoundPackButton.Text = "sound_pack_is_up_to_date";
             this.downloadSoundPackButton.UseVisualStyleBackColor = true;
@@ -517,9 +529,10 @@ namespace CrewChiefV4
             // downloadDriverNamesButton
             // 
             this.downloadDriverNamesButton.Enabled = false;
-            this.downloadDriverNamesButton.Location = new System.Drawing.Point(295, 123);
+            this.downloadDriverNamesButton.Location = new System.Drawing.Point(541, 271);
+            this.downloadDriverNamesButton.Margin = new System.Windows.Forms.Padding(6);
             this.downloadDriverNamesButton.Name = "downloadDriverNamesButton";
-            this.downloadDriverNamesButton.Size = new System.Drawing.Size(220, 37);
+            this.downloadDriverNamesButton.Size = new System.Drawing.Size(403, 68);
             this.downloadDriverNamesButton.TabIndex = 180;
             this.downloadDriverNamesButton.Text = "driver_names_are_up_to_date";
             this.downloadDriverNamesButton.UseVisualStyleBackColor = true;
@@ -528,9 +541,10 @@ namespace CrewChiefV4
             // downloadPersonalisationsButton
             // 
             this.downloadPersonalisationsButton.Enabled = false;
-            this.downloadPersonalisationsButton.Location = new System.Drawing.Point(550, 123);
+            this.downloadPersonalisationsButton.Location = new System.Drawing.Point(1008, 271);
+            this.downloadPersonalisationsButton.Margin = new System.Windows.Forms.Padding(6);
             this.downloadPersonalisationsButton.Name = "downloadPersonalisationsButton";
-            this.downloadPersonalisationsButton.Size = new System.Drawing.Size(220, 37);
+            this.downloadPersonalisationsButton.Size = new System.Drawing.Size(403, 68);
             this.downloadPersonalisationsButton.TabIndex = 190;
             this.downloadPersonalisationsButton.Text = "personalisations_are_up_to_date";
             this.downloadPersonalisationsButton.UseVisualStyleBackColor = true;
@@ -538,35 +552,39 @@ namespace CrewChiefV4
             // 
             // driverNamesProgressBar
             // 
-            this.driverNamesProgressBar.Location = new System.Drawing.Point(295, 176);
+            this.driverNamesProgressBar.Location = new System.Drawing.Point(541, 369);
+            this.driverNamesProgressBar.Margin = new System.Windows.Forms.Padding(6);
             this.driverNamesProgressBar.Name = "driverNamesProgressBar";
-            this.driverNamesProgressBar.Size = new System.Drawing.Size(220, 23);
+            this.driverNamesProgressBar.Size = new System.Drawing.Size(403, 42);
             this.driverNamesProgressBar.TabIndex = 0;
             // 
             // personalisationsProgressBar
             // 
-            this.personalisationsProgressBar.Location = new System.Drawing.Point(550, 176);
+            this.personalisationsProgressBar.Location = new System.Drawing.Point(1008, 369);
+            this.personalisationsProgressBar.Margin = new System.Windows.Forms.Padding(6);
             this.personalisationsProgressBar.Name = "personalisationsProgressBar";
-            this.personalisationsProgressBar.Size = new System.Drawing.Size(220, 23);
+            this.personalisationsProgressBar.Size = new System.Drawing.Size(403, 42);
             this.personalisationsProgressBar.TabIndex = 192;
             // 
             // personalisationBox
             // 
             this.personalisationBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.personalisationBox.IntegralHeight = false;
-            this.personalisationBox.Location = new System.Drawing.Point(1027, 9);
+            this.personalisationBox.Location = new System.Drawing.Point(1883, 61);
+            this.personalisationBox.Margin = new System.Windows.Forms.Padding(6);
             this.personalisationBox.MaxDropDownItems = 5;
             this.personalisationBox.Name = "personalisationBox";
-            this.personalisationBox.Size = new System.Drawing.Size(106, 21);
+            this.personalisationBox.Size = new System.Drawing.Size(191, 32);
             this.personalisationBox.TabIndex = 90;
             this.myNameBoxTooltip.SetToolTip(this.personalisationBox, "personalisation_tooltip");
             // 
             // spotterNameLabel
             // 
             this.spotterNameLabel.AutoSize = true;
-            this.spotterNameLabel.Location = new System.Drawing.Point(961, 75);
+            this.spotterNameLabel.Location = new System.Drawing.Point(1762, 182);
+            this.spotterNameLabel.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.spotterNameLabel.Name = "spotterNameLabel";
-            this.spotterNameLabel.Size = new System.Drawing.Size(99, 13);
+            this.spotterNameLabel.Size = new System.Drawing.Size(183, 25);
             this.spotterNameLabel.TabIndex = 99;
             this.spotterNameLabel.Text = "spotter_name_label";
             this.spotterNameBoxTooltip.SetToolTip(this.spotterNameLabel, "spotter_name_tooltip");
@@ -574,9 +592,10 @@ namespace CrewChiefV4
             // messagesAudioDeviceLabel
             // 
             this.messagesAudioDeviceLabel.AutoSize = true;
-            this.messagesAudioDeviceLabel.Location = new System.Drawing.Point(330, 70);
+            this.messagesAudioDeviceLabel.Location = new System.Drawing.Point(605, 173);
+            this.messagesAudioDeviceLabel.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.messagesAudioDeviceLabel.Name = "messagesAudioDeviceLabel";
-            this.messagesAudioDeviceLabel.Size = new System.Drawing.Size(152, 13);
+            this.messagesAudioDeviceLabel.Size = new System.Drawing.Size(281, 25);
             this.messagesAudioDeviceLabel.TabIndex = 149;
             this.messagesAudioDeviceLabel.Text = "messages_audio_device_label";
             this.messagesAudioDeviceLabel.Visible = false;
@@ -584,9 +603,10 @@ namespace CrewChiefV4
             // speechRecognitionDeviceLabel
             // 
             this.speechRecognitionDeviceLabel.AutoSize = true;
-            this.speechRecognitionDeviceLabel.Location = new System.Drawing.Point(115, 70);
+            this.speechRecognitionDeviceLabel.Location = new System.Drawing.Point(211, 173);
+            this.speechRecognitionDeviceLabel.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.speechRecognitionDeviceLabel.Name = "speechRecognitionDeviceLabel";
-            this.speechRecognitionDeviceLabel.Size = new System.Drawing.Size(166, 13);
+            this.speechRecognitionDeviceLabel.Size = new System.Drawing.Size(302, 25);
             this.speechRecognitionDeviceLabel.TabIndex = 139;
             this.speechRecognitionDeviceLabel.Text = "speech_recognition_device_label";
             this.speechRecognitionDeviceLabel.Visible = false;
@@ -594,9 +614,10 @@ namespace CrewChiefV4
             // backgroundAudioDeviceLabel
             // 
             this.backgroundAudioDeviceLabel.AutoSize = true;
-            this.backgroundAudioDeviceLabel.Location = new System.Drawing.Point(550, 70);
+            this.backgroundAudioDeviceLabel.Location = new System.Drawing.Point(1008, 173);
+            this.backgroundAudioDeviceLabel.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.backgroundAudioDeviceLabel.Name = "backgroundAudioDeviceLabel";
-            this.backgroundAudioDeviceLabel.Size = new System.Drawing.Size(162, 13);
+            this.backgroundAudioDeviceLabel.Size = new System.Drawing.Size(294, 25);
             this.backgroundAudioDeviceLabel.TabIndex = 159;
             this.backgroundAudioDeviceLabel.Text = "background_audio_device_label";
             this.backgroundAudioDeviceLabel.Visible = false;
@@ -605,18 +626,20 @@ namespace CrewChiefV4
             // 
             this.spotterNameBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.spotterNameBox.IntegralHeight = false;
-            this.spotterNameBox.Location = new System.Drawing.Point(1027, 73);
+            this.spotterNameBox.Location = new System.Drawing.Point(1883, 179);
+            this.spotterNameBox.Margin = new System.Windows.Forms.Padding(6);
             this.spotterNameBox.MaxDropDownItems = 5;
             this.spotterNameBox.Name = "spotterNameBox";
-            this.spotterNameBox.Size = new System.Drawing.Size(106, 21);
+            this.spotterNameBox.Size = new System.Drawing.Size(191, 32);
             this.spotterNameBox.TabIndex = 100;
             this.spotterNameBoxTooltip.SetToolTip(this.spotterNameBox, "spotter_name_tooltip");
             // 
             // donateLink
             // 
-            this.donateLink.Location = new System.Drawing.Point(35, 660);
+            this.donateLink.Location = new System.Drawing.Point(64, 1262);
+            this.donateLink.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.donateLink.Name = "donateLink";
-            this.donateLink.Size = new System.Drawing.Size(250, 15);
+            this.donateLink.Size = new System.Drawing.Size(458, 28);
             this.donateLink.TabIndex = 270;
             this.donateLink.TabStop = true;
             this.donateLink.Text = "donate_link_text";
@@ -624,20 +647,22 @@ namespace CrewChiefV4
             // 
             // smokeTestTextBox
             // 
-            this.smokeTestTextBox.Location = new System.Drawing.Point(847, 215);
+            this.smokeTestTextBox.Location = new System.Drawing.Point(1553, 441);
+            this.smokeTestTextBox.Margin = new System.Windows.Forms.Padding(6);
             this.smokeTestTextBox.MaxLength = 99999999;
             this.smokeTestTextBox.Multiline = true;
             this.smokeTestTextBox.Name = "smokeTestTextBox";
             this.smokeTestTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.smokeTestTextBox.Size = new System.Drawing.Size(283, 270);
+            this.smokeTestTextBox.Size = new System.Drawing.Size(516, 495);
             this.smokeTestTextBox.TabIndex = 502;
             this.smokeTestTextBox.Visible = false;
             // 
             // buttonSmokeTest
             // 
-            this.buttonSmokeTest.Location = new System.Drawing.Point(847, 485);
+            this.buttonSmokeTest.Location = new System.Drawing.Point(1553, 939);
+            this.buttonSmokeTest.Margin = new System.Windows.Forms.Padding(6);
             this.buttonSmokeTest.Name = "buttonSmokeTest";
-            this.buttonSmokeTest.Size = new System.Drawing.Size(283, 23);
+            this.buttonSmokeTest.Size = new System.Drawing.Size(519, 42);
             this.buttonSmokeTest.TabIndex = 501;
             this.buttonSmokeTest.Text = "Test Sounds";
             this.buttonSmokeTest.UseVisualStyleBackColor = true;
@@ -647,9 +672,10 @@ namespace CrewChiefV4
             // chiefNameLabel
             // 
             this.chiefNameLabel.AutoSize = true;
-            this.chiefNameLabel.Location = new System.Drawing.Point(961, 43);
+            this.chiefNameLabel.Location = new System.Drawing.Point(1762, 123);
+            this.chiefNameLabel.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.chiefNameLabel.Name = "chiefNameLabel";
-            this.chiefNameLabel.Size = new System.Drawing.Size(90, 13);
+            this.chiefNameLabel.Size = new System.Drawing.Size(165, 25);
             this.chiefNameLabel.TabIndex = 94;
             this.chiefNameLabel.Text = "chief_name_label";
             this.chiefNameBoxTooltip.SetToolTip(this.chiefNameLabel, "chief_name_tooltip");
@@ -658,37 +684,90 @@ namespace CrewChiefV4
             // 
             this.chiefNameBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.chiefNameBox.IntegralHeight = false;
-            this.chiefNameBox.Location = new System.Drawing.Point(1027, 41);
+            this.chiefNameBox.Location = new System.Drawing.Point(1883, 120);
+            this.chiefNameBox.Margin = new System.Windows.Forms.Padding(6);
             this.chiefNameBox.MaxDropDownItems = 5;
             this.chiefNameBox.Name = "chiefNameBox";
-            this.chiefNameBox.Size = new System.Drawing.Size(106, 21);
+            this.chiefNameBox.Size = new System.Drawing.Size(191, 32);
             this.chiefNameBox.TabIndex = 95;
             this.chiefNameBoxTooltip.SetToolTip(this.chiefNameBox, "chief_name_tooltip");
             // 
             // scanControllers
             // 
-            this.scanControllers.Location = new System.Drawing.Point(41, 630);
+            this.scanControllers.Location = new System.Drawing.Point(75, 1207);
+            this.scanControllers.Margin = new System.Windows.Forms.Padding(6);
             this.scanControllers.Name = "scanControllers";
-            this.scanControllers.Size = new System.Drawing.Size(248, 20);
+            this.scanControllers.Size = new System.Drawing.Size(455, 37);
             this.scanControllers.TabIndex = 215;
             this.scanControllers.Text = "scan_for_controllers";
             this.scanControllers.Click += new System.EventHandler(this.ScanControllers_Click);
             // 
+            // buttonEditCommandMacros
+            // 
+            this.buttonEditCommandMacros.Location = new System.Drawing.Point(1522, 1170);
+            this.buttonEditCommandMacros.Margin = new System.Windows.Forms.Padding(6);
+            this.buttonEditCommandMacros.Name = "buttonEditCommandMacros";
+            this.buttonEditCommandMacros.Size = new System.Drawing.Size(238, 74);
+            this.buttonEditCommandMacros.TabIndex = 255;
+            this.buttonEditCommandMacros.Text = "edit_macro_commands";
+            this.buttonEditCommandMacros.UseVisualStyleBackColor = true;
+            this.buttonEditCommandMacros.Click += new System.EventHandler(this.editCommandMacroButtonClicked);
+            // 
             // AddRemoveActions
             // 
-            this.AddRemoveActions.Location = new System.Drawing.Point(295, 630);
+            this.AddRemoveActions.Location = new System.Drawing.Point(541, 1207);
+            this.AddRemoveActions.Margin = new System.Windows.Forms.Padding(6);
             this.AddRemoveActions.Name = "AddRemoveActions";
-            this.AddRemoveActions.Size = new System.Drawing.Size(529, 20);
+            this.AddRemoveActions.Size = new System.Drawing.Size(970, 37);
             this.AddRemoveActions.TabIndex = 233;
             this.AddRemoveActions.Text = "add_remove_actions";
             this.AddRemoveActions.UseVisualStyleBackColor = true;
             this.AddRemoveActions.Click += new System.EventHandler(this.AddRemoveActions_Click);
             // 
+            // menuStrip1
+            // 
+            this.menuStrip1.ImageScalingSize = new System.Drawing.Size(28, 28);
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.fileToolStripMenuItem,
+            this.helpToolStripMenuItem});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(2101, 38);
+            this.menuStrip1.TabIndex = 503;
+            this.menuStrip1.Text = "menuStrip1";
+            // 
+            // fileToolStripMenuItem
+            // 
+            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.exitToolStripMenuItem});
+            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            this.fileToolStripMenuItem.ShortcutKeyDisplayString = "";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(56, 34);
+            this.fileToolStripMenuItem.Text = "File";
+            // 
+            // exitToolStripMenuItem
+            // 
+            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+            this.exitToolStripMenuItem.ShortcutKeyDisplayString = "Alt+F4";
+            this.exitToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(288, 34);
+            this.exitToolStripMenuItem.Text = "Exit";
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+            // 
+            // helpToolStripMenuItem
+            // 
+            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            this.helpToolStripMenuItem.ShortcutKeyDisplayString = "F1";
+            this.helpToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F1;
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(68, 34);
+            this.helpToolStripMenuItem.Text = "Help";
+            this.helpToolStripMenuItem.Click += new System.EventHandler(this.helpToolStripMenuItem_Click);
+            // 
             // MainWindow
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1146, 692);
+            this.ClientSize = new System.Drawing.Size(2101, 1328);
             this.Controls.Add(this.AddRemoveActions);
             this.Controls.Add(this.driverNamesProgressBar);
             this.Controls.Add(this.downloadDriverNamesButton);
@@ -713,8 +792,6 @@ namespace CrewChiefV4
             this.Controls.Add(this.button2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.propertiesButton);
-            this.Controls.Add(this.helpButton);
-            this.Controls.Add(this.aboutButton);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.deleteAssigmentButton);
@@ -738,7 +815,10 @@ namespace CrewChiefV4
             this.Controls.Add(this.chiefNameBox);
             this.Controls.Add(this.scanControllers);
             this.Controls.Add(this.buttonEditCommandMacros);
+            this.Controls.Add(this.menuStrip1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MainMenuStrip = this.menuStrip1;
+            this.Margin = new System.Windows.Forms.Padding(6);
             this.MaximizeBox = false;
             this.Name = "MainWindow";
             this.Text = "Crew Chief V4";
@@ -749,6 +829,8 @@ namespace CrewChiefV4
             this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.messagesVolumeSlider)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.backgroundVolumeSlider)).EndInit();
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -768,8 +850,6 @@ namespace CrewChiefV4
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Button propertiesButton;
-        private System.Windows.Forms.Button helpButton;
-        private System.Windows.Forms.Button aboutButton;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.RadioButton alwaysOnButton;
         private System.Windows.Forms.RadioButton toggleButton;
@@ -820,5 +900,9 @@ namespace CrewChiefV4
         private ToolTip voiceRecognitionTriggerWordToolTip;
         private ToolTip voiceRecognitionToolTip;
         private Button AddRemoveActions;
+        private MenuStrip menuStrip1;
+        private ToolStripMenuItem fileToolStripMenuItem;
+        private ToolStripMenuItem exitToolStripMenuItem;
+        private ToolStripMenuItem helpToolStripMenuItem;
     }
 }

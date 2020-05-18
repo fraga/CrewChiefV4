@@ -204,3 +204,5 @@ ModelManifest.xml
 .vs/
 
 /CrewChiefV4_installer/ComponentsGenerated.wxs
+/CrewChiefV4/HelpFiles
+/public
