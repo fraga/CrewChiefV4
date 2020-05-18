@@ -47,6 +47,53 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="menu.ht" />
+    <None Include="menu.ml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="About_blurb.txt" />
+    <Content Include="About_ChangeLog.txt" />
+    <Content Include="About_Contact.txt" />
+    <Content Include="About_Credits.txt" />
+    <Content Include="About_Customising_NameRequests.txt" />
+    <Content Include="About_Customising_TrackLandmarks.txt" />
+    <Content Include="About_Customising_VoicePacks.txt" />
+    <Content Include="About_Donations.txt" />
+    <Content Include="About_KnownIssues.txt" />
+    <Content Include="About_Updating.txt" />
+    <Content Include="CrewChief.png" />
+    <Content Include="GameSpecific_CommandLineSwitches.txt" />
+    <Content Include="GameSpecific_ForEachGame_AssettoCorsa.txt" />
+    <Content Include="GameSpecific_ForEachGame_AssettoCorsaCompetizione.txt" />
+    <Content Include="GameSpecific_ForEachGame_ProjectCars.txt" />
+    <Content Include="GameSpecific_ForEachGame_ProjectCars2.txt" />
+    <Content Include="GameSpecific_ForEachGame_rFactor.txt" />
+    <Content Include="GameSpecific_ForEachGame_rFactor2.txt" />
+    <Content Include="GettingStarted_GameSpecific_AssettoCorsa.txt" />
+    <Content Include="GettingStarted_GameSpecific_AssettoCorsaCompetizione.txt" />
+    <Content Include="GettingStarted_GameSpecific_ProjectCars.txt" />
+    <Content Include="GettingStarted_GameSpecific_ProjectCars2.txt" />
+    <Content Include="GettingStarted_GameSpecific_rFactor.txt" />
+    <Content Include="GettingStarted_GameSpecific_rFactor2.txt" />
+    <Content Include="GettingStarted_General.txt" />
+    <Content Include="GettingStarted_nAudio.txt" />
+    <Content Include="index.txt" />
+    <Content Include="Overlays.txt" />
+    <Content Include="Properties_Profiles.txt" />
+    <Content Include="Properties_Properties.txt" />
+    <Content Include="ReadMe.txt" />
+    <Content Include="Speech_DriverNames.txt" />
+    <Content Include="Speech_PaceNotes.txt" />
+    <Content Include="Speech_PitExitPositionPrediction.txt" />
+    <Content Include="Speech_Swearing.txt" />
+    <Content Include="Speech_TextToSpeech.txt" />
+    <Content Include="styles.css" />
+    <Content Include="VoiceRecognition_CommandMacros.txt" />
+    <Content Include="VoiceRecognition_FreeDictationChatMessages.txt" />
+    <Content Include="VoiceRecognition_InstallationTraining.txt" />
+    <Content Include="VoiceRecognition_VoiceCommandsAll.txt" />
+    <Content Include="VoiceRecognition_VoiceCommandsCheatSheet.txt" />
+    <Content Include="VoiceRecognition_VoiceCommandsGrouped.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

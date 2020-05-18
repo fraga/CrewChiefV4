@@ -23,10 +23,10 @@ namespace CrewChiefV4
             InitializeComponent();
             string p = System.IO.Path.GetDirectoryName(Application.ExecutablePath);
             //this.Text = p;
-            Uri uri = new Uri(p+@"\..\..\..\Public\index.html");
+            //Uri uri = new Uri(p+@"\..\..\..\Public\index.html");
             //For now at least load the help directly from the Internet
             //so it can be changed without having to update CC
-            //Uri uri = new Uri(@"https://tonywhitley.github.io/Help/index.html");
+            Uri uri = new Uri(@"https://tonywhitley.github.io/Help/index.html");
             webBrowser1.Navigate(uri);
             webBrowser1.Navigating += webBrowser1_Navigating;
         }
