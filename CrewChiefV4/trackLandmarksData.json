@@ -7867,6 +7867,7 @@
 			"rf2TrackNames": ["Daytona International Speedway", "Daytona Road Course DX11"],
 			"pcars2TrackName": "Daytona_International_Speedway:Road_Course",
 			"irTrackName": "daytona 2011 road",
+			"raceroomLayoutId": 8367,
 			"approximateTrackLength": 5800,
 			"trackLandmarks": [{
 					"landmarkName": "turn1",
@@ -7929,6 +7930,7 @@
 			"rf2TrackNames": ["Daytona International Speedway"],
 			"pcars2TrackName": "Daytona_International_Speedway:Tri_Oval",
 			"approximateTrackLength": 4000,
+			"raceroomLayoutId": 8648,
 			"isOval": true,
 			"trackLandmarks": [{
 					"landmarkName": "the_tri_oval",
