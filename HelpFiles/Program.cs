@@ -35,7 +35,8 @@ namespace HelpFiles
                 "VoiceRecognition_VoiceCommandsCheatSheet",
                 "VoiceRecognition_FreeDictationChatMessages",
                 "VoiceRecognition_CommandMacros",
-                "Overlays",
+                "Overlays_InGame",
+                "Overlays_VR",
                 //"GameSpecific_ForEachGame",
                 "GameSpecific_CommandLineSwitches",
                 "Properties_Properties",
@@ -74,7 +75,7 @@ namespace HelpFiles
             // Finally copy the css and the image
             foreach (string file in new string[] { "styles.css", "CrewChief.png"})
             {
-                System.IO.File.Copy($"..\\..\\{file}", "..\\..\\..\\public\\{file}", true);
+                System.IO.File.Copy($"..\\..\\{file}", $"..\\..\\..\\public\\{file}", true);
             }
         }
         static void writeOnePage(string pageName)

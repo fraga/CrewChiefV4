@@ -78,7 +78,7 @@
     <Content Include="GettingStarted_General.txt" />
     <Content Include="GettingStarted_nAudio.txt" />
     <Content Include="index.txt" />
-    <Content Include="Overlays.txt" />
+    <Content Include="Overlays_InGame.txt" />
     <Content Include="Properties_Profiles.txt" />
     <Content Include="Properties_Properties.txt" />
     <Content Include="ReadMe.txt" />
