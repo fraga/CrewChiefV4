@@ -1,11 +1,11 @@
-image: ruby:2.6
-
 pages:
+  stage: deploy
   script:
-  - bundler install
-  - bundler exec jekyll build -d public
+    - mkdir .public
+    - cp -r * .public
+    - mv .public public
   artifacts:
     paths:
-    - public
+      - public
   only:
-  - HTMLhelp
+    - HTMLhelp
