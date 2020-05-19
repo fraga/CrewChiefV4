@@ -22,13 +22,6 @@
 			"availableAction": false
 		},
 		{
-			"action": "HOWS_MY_TYRE_WEAR",
-			"deviceGuid": "",
-			"buttonIndex": -1,
-			"opponentDataCommand": false,
-			"availableAction": false
-		},
-		{
 			"action": "HOWS_MY_TRANSMISSION",
 			"deviceGuid": "",
 			"buttonIndex": -1,
@@ -766,6 +759,27 @@
 		},
 		{
 			"action": "HIDE_SUBTITLES",
+			"deviceGuid": "",
+			"buttonIndex": -1,
+			"opponentDataCommand": false,
+			"availableAction": false
+		},
+		{
+			"action": "TOGGLE_VR_OVERLAYS",
+			"deviceGuid": "",
+			"buttonIndex": -1,
+			"opponentDataCommand": false,
+			"availableAction": false
+		},
+		{
+			"action": "SHOW_VR_SETTING",
+			"deviceGuid": "",
+			"buttonIndex": -1,
+			"opponentDataCommand": false,
+			"availableAction": false
+		},
+		{
+			"action": "HIDE_VR_SETTING",
 			"deviceGuid": "",
 			"buttonIndex": -1,
 			"opponentDataCommand": false,

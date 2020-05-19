@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -16,13 +17,31 @@ namespace CrewChiefV4
     {
         ControllerConfiguration.ControllerConfigurationData controllerConfigurationData = new ControllerConfiguration.ControllerConfigurationData();
         private Boolean hasChanges = false;
+
+        public struct ActionUiEntry
+        {
+            public string uiText;
+            public string resolvedUiText;
+
+            public ActionUiEntry(string uiText, string resolvedUiText)
+            {
+                this.uiText = uiText;
+                this.resolvedUiText = resolvedUiText;
+            }
+
+            public override string ToString()
+            {
+                return uiText;
+            }
+        }
+
         public ActionEditor(Form parent)
         {
             StartPosition = FormStartPosition.CenterParent;
             InitializeComponent();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
             this.SuspendLayout();
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));            
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             labelCurrentActions.Text = Configuration.getUIString("current_available_actions");
             labelAdditionalActions.Text = Configuration.getUIString("additional_available_actions");
             buttonSave.Text = Configuration.getUIString("save_and_restart");
@@ -58,13 +77,37 @@ namespace CrewChiefV4
         {
             listBoxCurrentlyAvailableActions.Items.Clear();
             listBoxAdditionalAvailableActions.Items.Clear();
+
+            var uiAvailableActionList = new List<ActionEditor.ActionUiEntry>();
             foreach (ControllerConfiguration.ButtonAssignment ba in controllerConfigurationData.buttonAssignments.Where(ba => ba.availableAction))
             {
-                listBoxCurrentlyAvailableActions.Items.Add(ba.resolvedUiText);
+#if DEBUG
+                // I know those asserts are annoying.  They are here to understand why do we have dupes.
+                Debug.Assert(!uiAvailableActionList.Contains(new ActionEditor.ActionUiEntry(Utilities.FirstLetterToUpper(ba.resolvedUiText), ba.resolvedUiText)));
+#endif
+                uiAvailableActionList.Add(new ActionEditor.ActionUiEntry(Utilities.FirstLetterToUpper(ba.resolvedUiText), ba.resolvedUiText));
             }
+
+            var uiAdditionalActionList = new List<ActionEditor.ActionUiEntry>();
             foreach (ControllerConfiguration.ButtonAssignment ba in controllerConfigurationData.buttonAssignments.Where(ba => !ba.availableAction))
             {
-                listBoxAdditionalAvailableActions.Items.Add(ba.resolvedUiText);
+#if DEBUG
+                Debug.Assert(!uiAdditionalActionList.Contains(new ActionEditor.ActionUiEntry(Utilities.FirstLetterToUpper(ba.resolvedUiText), ba.resolvedUiText)));
+#endif
+                uiAdditionalActionList.Add(new ActionEditor.ActionUiEntry(Utilities.FirstLetterToUpper(ba.resolvedUiText), ba.resolvedUiText));
+            }
+
+            uiAvailableActionList = uiAvailableActionList.OrderBy(x => x.uiText).ToList();
+            uiAdditionalActionList = uiAdditionalActionList.OrderBy(x => x.uiText).ToList();
+
+            foreach (var action in uiAvailableActionList)
+            {
+                listBoxCurrentlyAvailableActions.Items.Add(action);
+            }
+
+            foreach (var action in uiAdditionalActionList)
+            {
+                listBoxAdditionalAvailableActions.Items.Add(action);
             }
         }
         private void buttonRemoveAction_Click(object sender, EventArgs e)
@@ -72,7 +115,7 @@ namespace CrewChiefV4
             bool hasChangedThisClick = false;
             foreach (var item in listBoxCurrentlyAvailableActions.SelectedItems)
             {
-                ControllerConfiguration.ButtonAssignment ba = controllerConfigurationData.buttonAssignments.FirstOrDefault(ba1 => ba1.resolvedUiText == item.ToString());
+                ControllerConfiguration.ButtonAssignment ba = controllerConfigurationData.buttonAssignments.FirstOrDefault(ba1 => ba1.resolvedUiText == ((ActionEditor.ActionUiEntry)item).resolvedUiText);
                 if(ba != null)
                 {
                     ba.availableAction = false;
@@ -91,7 +134,7 @@ namespace CrewChiefV4
             bool hasChangedThisClick = false;
             foreach (var item in listBoxAdditionalAvailableActions.SelectedItems)
             {
-                ControllerConfiguration.ButtonAssignment ba = controllerConfigurationData.buttonAssignments.FirstOrDefault(ba1 => ba1.resolvedUiText == item.ToString());
+                ControllerConfiguration.ButtonAssignment ba = controllerConfigurationData.buttonAssignments.FirstOrDefault(ba1 => ba1.resolvedUiText == ((ActionEditor.ActionUiEntry)item).resolvedUiText);
                 if (ba != null)
                 {
                     ba.availableAction = true;

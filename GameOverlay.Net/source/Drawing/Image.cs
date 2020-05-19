@@ -14,7 +14,7 @@ namespace GameOverlay.Drawing
     /// </summary>
     public class Image : IDisposable
     {
-        private static readonly ImagingFactory ImageFactory = new ImagingFactory();
+        private static readonly ImagingFactory2 ImageFactory = new ImagingFactory2();
 
         /// <summary>
         /// The SharpDX Bitmap
@@ -191,7 +191,7 @@ namespace GameOverlay.Drawing
                 stream = new MemoryStream(bytes);
                 decoder = new BitmapDecoder(ImageFactory, stream, DecodeOptions.CacheOnDemand);
 
-                var pixelFormat = ImagePixelFormats.GetBestPixelFormat(decoder.DecoderInfo?.PixelFormats);
+                var pixelFormat = PixelFormat.Format32bppPRGBA;// ImagePixelFormats.GetBestPixelFormat(decoder.DecoderInfo?.PixelFormats);
 
                 frame = decoder.GetFrame(0);
 
@@ -207,7 +207,7 @@ namespace GameOverlay.Drawing
                     TryCatch(() => converter.Dispose());
 
                     converter = new FormatConverter(ImageFactory);
-                    converter.Initialize(frame, PixelFormat.Format32bppRGB);
+                    converter.Initialize(frame, PixelFormat.Format32bppPRGBA);
                     bmp = Bitmap.FromWicBitmap(device, converter);
                 }
 

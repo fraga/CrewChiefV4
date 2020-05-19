@@ -20,6 +20,10 @@ using CrewChiefV4.GameState;
 using CrewChiefV4.Events;
 using CrewChiefV4.Overlay;
 using iRSDKSharp;
+using Valve.VR;
+using CrewChiefV4.ScreenCapture;
+using CrewChiefV4.VirtualReality;
+using System.Security.Permissions;
 
 namespace CrewChiefV4
 {
@@ -80,7 +84,7 @@ namespace CrewChiefV4
 
         private Boolean runListenForButtonPressesThread = false;
 
-        private TimeSpan buttonCheckInterval = TimeSpan.FromMilliseconds(100);
+        private TimeSpan buttonCheckInterval = TimeSpan.FromMilliseconds(50);
 
         public static VoiceOptionEnum voiceOption;
 
@@ -111,6 +115,8 @@ namespace CrewChiefV4
 
         // instance 
         public static MainWindow instance = null;
+
+        // Do not .Invoke under this lock.  Either .Post, or .BeginInvoke only.
         public static object instanceLock = new object();
 
         // True, while we are in a constructor.
@@ -153,6 +159,11 @@ namespace CrewChiefV4
         internal static bool profileMode = false;
         internal static bool playingBackTrace = false;
 
+        public VROverlaySettings vrOverlayForm = null;
+
+        private DeviceManager deviceManager = null;
+        private Direct3D11CaptureSource captureSource = null;
+        private Thread vrUpdateThread = null;
         public void killChief()
         {
             crewChief.stop();
@@ -223,6 +234,24 @@ namespace CrewChiefV4
             controllerRescanThreadRunning = true;
             ThreadManager.RegisterResourceThread(controllerRescanThread);
             controllerRescanThread.Start();
+
+            if (OpenVR.IsRuntimeInstalled() && 
+                UserSettings.GetUserSettings().getBoolean("enable_vr_overlay_windows"))
+            {
+                ts = vrOverlaysUpdateThreadWorker;
+                vrUpdateThread = new Thread(ts);
+                vrUpdateThread.Name = "MainWindow.vrOverlaysUpdateThreadWorker";
+                VROverlayController.vrUpdateThreadRunning = true;
+
+                if (!UserSettings.GetUserSettings().getBoolean("vr_overlays_enabled_on_startup"))
+                {
+                    // Start suspended.
+                    VROverlayController.suspendVROverlayRenderThread();
+                }
+
+                ThreadManager.RegisterResourceThread(vrUpdateThread);
+                vrUpdateThread.Start();
+            }
 
             // Run immediately if requested.
             // Note that it is not safe to run immidiately from the constructor, becasue form handle
@@ -874,7 +903,14 @@ namespace CrewChiefV4
             controllerRescanThreadRunning = false;
             this.controllerConfiguration.cancelScan();
             controllerRescanThreadWakeUpEvent.Set();
-            
+
+            if(VROverlayController.vrUpdateThreadRunning)
+            {
+                VROverlayController.vrUpdateThreadRunning = false;
+                VROverlayController.resumeVROverlayRenderThread();
+                killVRThread();
+            }
+
             lock (consoleWriter)
             {
                 consoleWriter.Dispose();
@@ -1023,7 +1059,7 @@ namespace CrewChiefV4
             this.messagesAudioDeviceLabel.Text = Configuration.getUIString("messages_audio_device_label");
             this.backgroundAudioDeviceLabel.Text = Configuration.getUIString("background_audio_device_label");
             this.AddRemoveActions.Text = Configuration.getUIString("add_remove_actions");
-            
+            this.buttonVRWindowSettings.Text = Configuration.getUIString("vr_window_settings");
             this.gameDefinitionList.Items.Clear();
             this.gameDefinitionList.Items.AddRange(GameDefinition.getGameDefinitionFriendlyNames());
             if (MainWindow.soundTestMode)
@@ -1388,7 +1424,184 @@ namespace CrewChiefV4
                 subtitleOverlay = new SubtitleOverlay();
                 subtitleOverlay.Run();
             }
+        }
 
+        // SVR Thread methods
+        [SecurityPermission(SecurityAction.Demand, ControlThread = true)]
+        private void killVRThread()
+        {
+            vrUpdateThread.Abort();
+        }
+
+        private bool isSteamVrRunning()
+        {
+            return Win32Stuff.FindWindowsWithText("SteamVR Status").FirstOrDefault() != IntPtr.Zero;
+        }
+        private bool initSteamVR()
+        {
+            if (SteamVR.instance != null)
+            {
+                try
+                {
+                    this.Invoke((MethodInvoker)delegate
+                    {
+                        if (MainWindow.instance != null)
+                        {
+                            vrOverlayForm = new VROverlaySettings();
+                            buttonVRWindowSettings.Enabled = true;
+                        }
+                    });
+                    deviceManager = new DeviceManager();
+                    captureSource = new Direct3D11CaptureSource(deviceManager);
+                    OpenVR.Compositor.SetTrackingSpace(ETrackingUniverseOrigin.TrackingUniverseSeated);
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    VROverlayController.vrUpdateThreadRunning = false;
+                    Console.WriteLine("Failed to init Overlays = " + e.Message);
+                }
+            }
+            else
+            {
+                VROverlayController.vrUpdateThreadRunning = false;
+                return false;
+            }
+            return false;
+        }
+        private bool waitForSteamVR(int preSleep = 0)
+        {
+            Thread.Sleep(preSleep);
+            while (!isSteamVrRunning())
+            {
+                Thread.Sleep(1000);
+            }
+
+            if (!initSteamVR())
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }                      
+        }
+        
+        private void vrOverlaysUpdateThreadWorker()
+        {
+            bool vrOverlayForceDisabledDrawing = false;
+            uint vrEventSize = (uint)SharpDX.Utilities.SizeOf<VREvent_t>();
+            try
+            {
+                if (UserSettings.GetUserSettings().getBoolean("start_steam_vr_if_detected"))
+                {
+                    if (!initSteamVR())
+                        return;
+                }
+                else
+                {
+                    if (!waitForSteamVR())
+                        return;
+                }
+                
+                while (VROverlayController.vrUpdateThreadRunning)
+                {
+                    if (VROverlayController.vrOverlayRenderThreadSuspended && !vrOverlayForceDisabledDrawing)  // This is to avoid locking most of the time.
+                    {
+                        lock (VROverlayController.suspendStateLock)
+                        {
+                            if (VROverlayController.vrOverlayRenderThreadSuspended)
+                            {
+                                // Hide the layers.
+                                VROverlayWindow[] currentItemsToHide = null;
+                                lock (VROverlaySettings.instanceLock)
+                                {
+                                    currentItemsToHide = new VROverlayWindow[vrOverlayForm.listBoxWindows.Items.Count];
+                                    vrOverlayForm.listBoxWindows.Items.CopyTo(currentItemsToHide, 0);
+                                }
+                                currentItemsToHide.Where(wnd => wnd.enabled).ToList().ForEach(w => w.SetOverlayEnabled(false));
+                                vrOverlayForceDisabledDrawing = true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        vrOverlayForceDisabledDrawing = false;
+                    }
+
+                    if (!VROverlayController.vrUpdateThreadRunning)
+                        return;
+                    
+                    var vrEvent = new VREvent_t();
+                    bool reinitialize = false;
+                    while (OpenVR.System != null && OpenVR.System.PollNextEvent(ref vrEvent, vrEventSize))
+                    {
+                        switch ((EVREventType)vrEvent.eventType)
+                        {
+                            case EVREventType.VREvent_Quit:
+                                {
+                                    if (Application.OpenForms.OfType<VROverlaySettings>().Count() == 1)
+                                        Application.OpenForms.OfType<VROverlaySettings>().First().Close();
+
+                                    OpenVR.System.AcknowledgeQuit_Exiting();
+                                    captureSource?.Dispose();
+                                    deviceManager?.Dispose();
+                                    vrOverlayForm?.Dispose();
+                                    SteamVR.SafeDispose();
+
+                                    this.Invoke((MethodInvoker)delegate
+                                    {
+                                        if (MainWindow.instance != null)
+                                        {
+                                            buttonVRWindowSettings.Enabled = false;
+                                        }
+                                    });
+                                    reinitialize = true;
+                                    break;
+                                }
+                            default:
+                                break;
+                        }
+                    }
+                    if (reinitialize)
+                        waitForSteamVR(10000); // give svr process some time to shut down before we start monitoring again.
+
+                    if (!VROverlayController.vrUpdateThreadRunning)
+                        return;
+
+                    if (!vrOverlayForceDisabledDrawing && OpenVR.System != null)
+                    {
+                        // update poses(matix, velocity) for supported devices.
+                        TrackedDevices.UpdatePoses();
+                        TrackedDevices.GetHeadPose(out SharpDX.Matrix hmdMatrix, out _, out _);
+
+                        VROverlayWindow[] currentItems = null;
+                        lock (VROverlaySettings.instanceLock)
+                        {
+                            currentItems = new VROverlayWindow[vrOverlayForm.listBoxWindows.Items.Count];
+                            vrOverlayForm.listBoxWindows.Items.CopyTo(currentItems, 0);
+                        }
+                        var windowBatch = currentItems.Where(wnd => wnd.enabled).ToList();
+
+                        captureSource.Capture(ref windowBatch);
+                        foreach (var wnd in windowBatch)
+                        {
+                            wnd.hmdMatrix = hmdMatrix;
+                            wnd.Draw();
+                        }                        
+                    }
+                    Thread.Sleep(11);
+                }
+            }
+            finally
+            {
+                
+                captureSource?.Dispose();
+                deviceManager?.Dispose();
+                vrOverlayForm?.Dispose();
+                SteamVR.enabled = false;
+                Debug.WriteLine("Exiting VR Overlays Render thread.");
+            }
         }
 
         private void consoleUpdateThreadWorker()
@@ -1623,13 +1836,12 @@ namespace CrewChiefV4
             }
             while (runListenForButtonPressesThread)
             {
-                Thread.Sleep(100);
+                Thread.Sleep(50);
                 DateTime now = DateTime.UtcNow;
-                controllerConfiguration.pollForButtonClicks(voiceOption == VoiceOptionEnum.TOGGLE);
-                int nextPollWait = 0;
+                controllerConfiguration.pollForButtonClicks();
                 if (now > lastButtoncheck.Add(buttonCheckInterval))
                 {
-                    lastButtoncheck = now;
+                    lastButtoncheck = now;                    
                     if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.VOLUME_UP))
                     {
                         if (currentMessageVolume == -1)
@@ -1645,7 +1857,6 @@ namespace CrewChiefV4
                             Console.WriteLine("Increasing volume");
                             updateMessagesVolume(currentMessageVolume + 0.05f, true, true);
                         }
-                        nextPollWait = 200;
                     }
                     else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.VOLUME_DOWN))
                     {
@@ -1662,7 +1873,6 @@ namespace CrewChiefV4
                             Console.WriteLine("Decreasing volume");
                             updateMessagesVolume(currentMessageVolume - 0.05f, true, true);
                         }
-                        nextPollWait = 200;
                     }
                     else if (crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised && voiceOption == VoiceOptionEnum.TOGGLE &&
                              controllerConfiguration.hasOutstandingClick(ControllerConfiguration.CHANNEL_OPEN_FUNCTION))
@@ -1686,35 +1896,36 @@ namespace CrewChiefV4
                             crewChief.speechRecogniser.recognizeAsync();
                             crewChief.audioPlayer.playStartListeningBeep();
                         }
-                        nextPollWait = 1000;
                     }
                     else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_SPOTTER_FUNCTION))
                     {
                         Console.WriteLine("Toggling spotter mode");
                         crewChief.toggleSpotterMode();
-                        nextPollWait = 1000;
                     }
                     else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_MUTE))
                     {
                         if (!isMuted)
                         {
+                            //crewChief.audioPlayer.playMuteBeep();
                             muteVolumes();
                         }
                         else
                         {
+                            
                             unmuteVolumes();
+                            //crewChief.audioPlayer.playUnMuteBeep();
                         }
                         isMuted = !isMuted;
-                        nextPollWait = 200;
                     }
                     else if (controllerConfiguration.hasOutstandingClick())
                     {
                         //Console.WriteLine("Toggling keep quiet mode");
                         //crewChief.toggleKeepQuietMode();
-                        nextPollWait = 1000;
                     }
                 }
-                Thread.Sleep(nextPollWait);
+
+                //if (nextPollWait > 0)
+                    //Thread.Sleep(nextPollWait);
             }
         }
 
@@ -2031,7 +2242,7 @@ namespace CrewChiefV4
             this.buttonActionSelect.Items.Clear();
             foreach (ControllerConfiguration.ButtonAssignment assignment in controllerConfiguration.buttonAssignments)
             {
-                this.buttonActionSelect.Items.Add(assignment.getInfo());
+                this.buttonActionSelect.Items.Add(Utilities.FirstLetterToUpper(assignment.getInfo()));
             }
         }
 
@@ -3254,6 +3465,11 @@ namespace CrewChiefV4
             var form = new ActionEditor(this);
             form.ShowDialog(this);
         }
+
+        public void buttonVRWindowSettings_Click(object sender, EventArgs e)
+        {
+            vrOverlayForm.ShowDialog();
+        }
     }
 
 
@@ -3292,7 +3508,9 @@ namespace CrewChiefV4
                         writeMessage("++++++++++++ Skipped " + repetitionCount + " copies of previous message. Please report this error to the CC dev team ++++++++++++\n");
                     }
                     repetitionCount = 0;
+#if !DEBUG  // Do not swallow duplicates in the debug build.
                     previousMessage = value;
+#endif
                     Boolean gotDateStamp = false;
                     StringBuilder sb = new StringBuilder();
                     DateTime now = DateTime.Now;

@@ -53,6 +53,7 @@ namespace CrewChiefV4
             TIMINGS,
             PIT_STOPS_AND_MULTICLASS,
             INTERNATIONALISATION,
+            VR_SETTINGS,
             MISC,  // Implied by default.
             UNKNOWN
         }
@@ -295,6 +296,12 @@ namespace CrewChiefV4
             {
                 Label = Configuration.getUIString("ui_startup_and_paths_category_label"),
                 Value = PropertyCategory.UI_STARTUP_AND_PATHS
+            });
+
+            this.categoriesBox.Items.Add(new ComboBoxItem<PropertyCategory>()
+            {
+                Label = Configuration.getUIString("vr_settings_label"),
+                Value = PropertyCategory.VR_SETTINGS
             });
 
             this.categoriesBox.Items.Add(new ComboBoxItem<PropertyCategory>()

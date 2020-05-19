@@ -84,11 +84,17 @@
     <Reference Include="SharpDX.Direct2D1, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpDX.Direct2D1.4.2.0\lib\net45\SharpDX.Direct2D1.dll</HintPath>
     </Reference>
+    <Reference Include="SharpDX.Direct3D11, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpDX.Direct3D11.4.2.0\lib\net45\SharpDX.Direct3D11.dll</HintPath>
+    </Reference>
     <Reference Include="SharpDX.DirectInput, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpDX.DirectInput.4.2.0\lib\net45\SharpDX.DirectInput.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.DXGI, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpDX.DXGI.4.2.0\lib\net45\SharpDX.DXGI.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Mathematics, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpDX.Mathematics.4.2.0\lib\net45\SharpDX.Mathematics.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -184,6 +190,7 @@
     <Compile Include="Events\Opponents.cs" />
     <Compile Include="Events\FlagsMonitor.cs" />
     <Compile Include="Events\Spotter.cs" />
+    <Compile Include="Events\VROverlayController.cs" />
     <Compile Include="F1_2019\F12019GameStateMapper.cs" />
     <Compile Include="F1_2019\F12019Spotter.cs" />
     <Compile Include="F1_2019\F12019StructWrapper.cs" />
@@ -283,6 +290,22 @@
     <Compile Include="Overlay\SubtitleOverlay.cs" />
     <Compile Include="R3E\R3EPitMenuManager.cs" />
     <Compile Include="R3E\R3ESerializer.cs" />
+    <Compile Include="VROverlayWindow\CaptureScreen.cs" />
+    <Compile Include="VROverlayWindow\CursorInteraction.cs" />
+    <Compile Include="VROverlayWindow\DeviceManager.cs" />
+    <Compile Include="VROverlayWindow\DeviceState.cs" />
+    <Compile Include="VROverlayWindow\Extentions.cs" />
+    <Compile Include="VROverlayWindow\GDIStuff.cs" />
+    <Compile Include="VROverlayWindow\MathUtil.cs" />
+    <Compile Include="VROverlayWindow\openvr_api.cs" />
+    <Compile Include="VROverlayWindow\RECT.cs" />
+    <Compile Include="VROverlayWindow\SteamVR.cs" />
+    <Compile Include="VROverlayWindow\TouchController.cs" />
+    <Compile Include="VROverlayWindow\TouchControllerButton.cs" />
+    <Compile Include="VROverlayWindow\TouchControllerHand.cs" />
+    <Compile Include="VROverlayWindow\TrackedDevices.cs" />
+    <Compile Include="VROverlayWindow\Win32Stuff.cs" />
+    <Compile Include="VROverlayWindow\VROverlayWindow.cs" />
     <Compile Include="SharedMemory.cs" />
     <Compile Include="SRE\ChoicesWrapper.cs" />
     <Compile Include="SRE\GrammarBuilderWrapper.cs" />
@@ -314,6 +337,12 @@
     <Compile Include="UserInterface\ListPropertyControl.cs" />
     <Compile Include="UserInterface\ListPropertyControl.Designer.cs">
       <DependentUpon>ListPropertyControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserInterface\VROverlay.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UserInterface\VROverlay.Designer.cs">
+      <DependentUpon>VROverlay.cs</DependentUpon>
     </Compile>
     <Compile Include="UserSettings.cs" />
     <Compile Include="Validator.cs" />
@@ -495,6 +524,9 @@
     <EmbeddedResource Include="UserInterface\BooleanPropertyControl.resx">
       <DependentUpon>BooleanPropertyControl.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="UserInterface\VROverlay.resx">
+      <DependentUpon>VROverlay.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="carClassData.json" />
     <None Include="chart_subscriptions.json" />
     <None Include="controllerConfigurationData.json" />
@@ -539,6 +571,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="engineer_edited.ico" />
+    <Content Include="openvr_api.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\cursor.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="sounds_config.txt" />
     <Content Include="speech_recognition_config.txt" />
     <Content Include="ui_text.txt" />
@@ -551,6 +589,7 @@
       <Name>GameOverlay</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

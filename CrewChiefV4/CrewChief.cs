@@ -204,6 +204,7 @@ namespace CrewChiefV4
             eventsList.Add("DriverSwaps", new DriverSwaps(audioPlayer));
             eventsList.Add("CommonActions", new CommonActions(audioPlayer));
             eventsList.Add("OverlayController", new OverlayController(audioPlayer));
+            eventsList.Add("VROverlayController", new VROverlayController(audioPlayer));
             sessionEndMessages = new SessionEndMessages(audioPlayer);
             alarmClock = new AlarmClock(audioPlayer);
         }
