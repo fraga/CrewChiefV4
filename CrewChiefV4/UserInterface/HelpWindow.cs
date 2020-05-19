@@ -58,12 +58,12 @@ namespace CrewChiefV4
             this.webBrowser1.Location = new System.Drawing.Point(0, 0);
             this.webBrowser1.MinimumSize = new System.Drawing.Size(20, 20);
             this.webBrowser1.Name = "webBrowser1";
-            this.webBrowser1.Size = new System.Drawing.Size(735, 634);
+            this.webBrowser1.Size = new System.Drawing.Size(911, 634);
             this.webBrowser1.TabIndex = 0;
             // 
             // HelpWindow
             // 
-            this.ClientSize = new System.Drawing.Size(735, 634);
+            this.ClientSize = new System.Drawing.Size(911, 634);
             this.Controls.Add(this.webBrowser1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "HelpWindow";
