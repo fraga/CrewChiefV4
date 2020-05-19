@@ -219,6 +219,7 @@ fuel_temps_and_damages_category_label = Fuel, Temperatures & Damage
 timings_category_label = Timings
 pit_stops_and_multiclass_category_label = Pit Stops & Multiclass
 internationalisation_label = Internationalisation
+vr_settings_label = VR Settings
 misc_category_label = Miscellaneous
 
 toggle_enable_cut_track_warnings = Toggle cut track warnings on / off
@@ -240,6 +241,8 @@ scan_for_controllers = Scan &for Controllers
 cancel_scan = Canc&el scan
 edit_macro_commands = Command macro &editor
 add_remove_actions = Add/&Remove Actions
+vr_window_settings = Steam&VR overlay settings
+available_windows_label = Visible &windows:
 
 ###################################### Macro Editor ######################################################
 global_macro_settings = Global Settings
@@ -299,6 +302,23 @@ current_available_actions = &Current available actions
 additional_available_actions = &Additional available actions
 reload_actions = &Restore user defaults.
 
+###################################### SteamVR Overlay Settings ######################################################
+enable_in_vr = &Show in VR
+vr_overlay_position = Overlay &position
+vr_position_x = Left / Right (X)
+vr_position_y = Up / Down (Y)
+vr_position_z = Distance (Z)
+vr_overlay_rotation = Overlay &rotation
+vr_rotation_x = Rotation X axis
+vr_rotation_y = Rotation Y axis
+vr_rotation_z = Rotation Z axis
+vr_overlay_scale_trans_curve = S&cale / Transparency / Curvature
+vr_scale = Scale
+vr_transparency = Transparency
+vr_curvature = Curvature
+vr_enable_gazing = Enable gazing
+vr_gaze_scale = Gazing scale
+vr_gaze_transparency = Gazing transparency
 ###################################### Preferences ######################################################
 # to change the name of the property title in the properties screen, just use the property name like this:
 # enable_spotter = Enable spotter
@@ -1725,3 +1745,18 @@ pace_notes_mute_all_messages_category = AUDIO_VOICE_AND_CONTROLLERS
 play_pit_speed_limit_warnings = Enable pit speed limit warnings
 play_pit_speed_limit_warnings_help = Play pit speed limit when leaving garage or entering the pitlane
 play_pit_speed_limit_warnings_category = PIT_STOPS_AND_MULTICLASS
+
+start_steam_vr_if_detected = Start SteamVR if detected
+start_steam_vr_if_detected_help = Starts SteamVR if detected on the system (Needed for VR overlays)
+start_steam_vr_if_detected_category = VR_SETTINGS;UI_STARTUP_AND_PATHS
+start_steam_vr_if_detected_metadata = RESTART_REQUIRED
+
+enable_vr_overlay_windows = Enable VR overlays
+enable_vr_overlay_windows_help = Enables Steam VR overlay windows
+enable_vr_overlay_windows_category = VR_SETTINGS;UI_STARTUP_AND_PATHS
+enable_vr_overlay_windows_metadata = RESTART_REQUIRED
+
+vr_overlays_enabled_on_startup = Toggle VR overlays on start
+vr_overlays_enabled_on_startup_help = Toggles previously enabled Steam VR overlays on Crew Chief startup
+vr_overlays_enabled_on_startup_category = VR_SETTINGS;UI_STARTUP_AND_PATHS
+

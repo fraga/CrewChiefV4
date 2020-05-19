@@ -675,7 +675,11 @@ namespace GameOverlay.Windows
 
                 case WindowMessage.DpiChanged:
                     return (IntPtr)0; // block DPI changed message
-
+                /*case WindowMessage.Setcursor:
+                    {
+                        User32.ShowCursor(false);
+                        break;
+                    }*/
                 default: break;
             }
 

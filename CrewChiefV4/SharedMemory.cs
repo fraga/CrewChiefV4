@@ -396,7 +396,7 @@ namespace CrewChiefV4.SharedMemory
                         UpdateVariable("phraseFileTimes", fileTimesArray);
                         UpdateVariable("phraseVoiceNames", voiceNamesArray);
                         UpdateVariable("phrasePhrases", phrasesArray);
-                        UpdateVariable("phrasesIsSpotter", voiceTypeArray);
+                        UpdateVariable("phrasesVoiceType", voiceTypeArray);
                     }
                 }
                 catch (Exception e)

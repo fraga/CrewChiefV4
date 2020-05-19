@@ -367,7 +367,9 @@ CHART_COMMAND_PAN_RIGHT = pan right
 CHART_COMMAND_SHOW_LAST_LAP = show last lap
 CHART_COMMAND_SHOW_NEXT_LAP = show next lap
 CHART_COMMAND_SHOW_PREVIOUS_LAP = show previous lap
-
+TOGGLE_VR_OVERLAYS = toggle VR overlays
+SHOW_VR_SETTING = show VR settings
+HIDE_VR_SETTING = hide VR settings
 
 # these are hard-coded standard chart command fragments for channels available to all games
 CHART_FRAGMENT_CAR_SPEED = car speed:speed

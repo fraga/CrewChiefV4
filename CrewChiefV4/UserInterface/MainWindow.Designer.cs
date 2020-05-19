@@ -97,6 +97,7 @@ namespace CrewChiefV4
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.buttonVRWindowSettings = new System.Windows.Forms.Button();
             this.consoleTextBoxBackgroundPanel.SuspendLayout();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.messagesVolumeSlider)).BeginInit();
@@ -177,7 +178,7 @@ namespace CrewChiefV4
             this.assignButtonToAction.Location = new System.Drawing.Point(1522, 1004);
             this.assignButtonToAction.Margin = new System.Windows.Forms.Padding(6);
             this.assignButtonToAction.Name = "assignButtonToAction";
-            this.assignButtonToAction.Size = new System.Drawing.Size(238, 74);
+            this.assignButtonToAction.Size = new System.Drawing.Size(130, 33);
             this.assignButtonToAction.TabIndex = 240;
             this.assignButtonToAction.Text = "assign_control";
             this.assignButtonToAction.UseVisualStyleBackColor = true;
@@ -188,7 +189,7 @@ namespace CrewChiefV4
             this.deleteAssigmentButton.Location = new System.Drawing.Point(1522, 1087);
             this.deleteAssigmentButton.Margin = new System.Windows.Forms.Padding(6);
             this.deleteAssigmentButton.Name = "deleteAssigmentButton";
-            this.deleteAssigmentButton.Size = new System.Drawing.Size(238, 74);
+            this.deleteAssigmentButton.Size = new System.Drawing.Size(130, 33);
             this.deleteAssigmentButton.TabIndex = 250;
             this.deleteAssigmentButton.Text = "delete_assignment";
             this.deleteAssigmentButton.UseVisualStyleBackColor = true;
@@ -707,7 +708,7 @@ namespace CrewChiefV4
             this.buttonEditCommandMacros.Location = new System.Drawing.Point(1522, 1170);
             this.buttonEditCommandMacros.Margin = new System.Windows.Forms.Padding(6);
             this.buttonEditCommandMacros.Name = "buttonEditCommandMacros";
-            this.buttonEditCommandMacros.Size = new System.Drawing.Size(238, 74);
+            this.buttonEditCommandMacros.Size = new System.Drawing.Size(130, 33);
             this.buttonEditCommandMacros.TabIndex = 255;
             this.buttonEditCommandMacros.Text = "edit_macro_commands";
             this.buttonEditCommandMacros.UseVisualStyleBackColor = true;
@@ -762,12 +763,24 @@ namespace CrewChiefV4
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(68, 34);
             this.helpToolStripMenuItem.Text = "Help";
             this.helpToolStripMenuItem.Click += new System.EventHandler(this.helpToolStripMenuItem_Click);
+            //
+	    // buttonVRWindowSettings
+            // 
+            this.buttonVRWindowSettings.Enabled = false;
+            this.buttonVRWindowSettings.Location = new System.Drawing.Point(830, 634);
+            this.buttonVRWindowSettings.Name = "buttonVRWindowSettings";
+            this.buttonVRWindowSettings.Size = new System.Drawing.Size(130, 33);
+            this.buttonVRWindowSettings.TabIndex = 257;
+            this.buttonVRWindowSettings.Text = "vr_window_settings";
+            this.buttonVRWindowSettings.UseVisualStyleBackColor = true;
+            this.buttonVRWindowSettings.Click += new System.EventHandler(this.buttonVRWindowSettings_Click);
             // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(2101, 1328);
+            this.Controls.Add(this.buttonVRWindowSettings);
             this.Controls.Add(this.AddRemoveActions);
             this.Controls.Add(this.driverNamesProgressBar);
             this.Controls.Add(this.downloadDriverNamesButton);
@@ -904,5 +917,6 @@ namespace CrewChiefV4
         private ToolStripMenuItem fileToolStripMenuItem;
         private ToolStripMenuItem exitToolStripMenuItem;
         private ToolStripMenuItem helpToolStripMenuItem;
+        public Button buttonVRWindowSettings;
     }
 }

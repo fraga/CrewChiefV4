@@ -7,6 +7,7 @@ using System.Threading;
 using System.IO.MemoryMappedFiles;
 using CrewChiefV4;
 using CrewChiefV4.iRacing;
+using System.ComponentModel;
 namespace iRSDKSharp
 {
     public enum BroadcastMessageTypes { CamSwitchPos = 0, CamSwitchNum, CamSetState, ReplaySetPlaySpeed, ReplaySetPlayPosition, ReplaySearch, ReplaySetState, ReloadTextures, ChatCommand, PitCommand, TelemCommand };
@@ -415,9 +416,9 @@ namespace iRSDKSharp
             return RegisterWindowMessage(Defines.BroadcastMessageName);
         }
 
-        public static void BroadcastMessage(BroadcastMessageTypes msg, int var1, int var2, int var3)
+        public static bool BroadcastMessage(BroadcastMessageTypes msg, int var1, int var2, int var3)
         {
-            BroadcastMessage(msg, var1, MakeLong((short)var2, (short)var3));
+            return BroadcastMessage(msg, var1, MakeLong((short)var2, (short)var3));
         }
 
         public static bool BroadcastMessage(BroadcastMessageTypes msg, int var1, int var2)
@@ -428,6 +429,11 @@ namespace iRSDKSharp
             if (msgId != IntPtr.Zero)
             {
                 result = SendNotifyMessage(hwndBroadcast, msgId.ToInt32(), MakeLong((short)msg, (short)var1), var2);
+            }
+            if(!result)
+            {                
+                string errorMessage = new Win32Exception(Marshal.GetLastWin32Error()).Message;
+                Console.WriteLine(errorMessage);
             }
             return result;
         }
