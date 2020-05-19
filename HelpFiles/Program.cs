@@ -86,7 +86,9 @@ namespace HelpFiles
             // Add the text to the menu boilerplate
             foreach (string line in text)
             {
-                if (line.StartsWith("<"))
+                if (pageName == "About_Changelog" && line.StartsWith("Version"))
+                    lines.Add($"<h4>{line}</h4>");  // Version 4.11.1.2 -> <h4>Version 4.11.1.2</h4>
+                else if (line.StartsWith("<"))
                     lines.Add($"{line}");   // No <br> on HTML-tagged lines
                 else
                     lines.Add($"{line}<br>");
