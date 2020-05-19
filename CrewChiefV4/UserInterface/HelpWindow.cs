@@ -26,14 +26,14 @@ namespace CrewChiefV4
             //Uri uri = new Uri(p+@"\..\..\..\Public\index.html");
             //For now at least load the help directly from the Internet
             //so it can be changed without having to update CC
-            Uri uri = new Uri(@"https://tonywhitley.github.io/Help/index.html");
+            Uri uri = new Uri(@"https://mr_belowski.gitlab.io/CrewChiefV4/index.html");
             webBrowser1.Navigate(uri);
             webBrowser1.Navigating += webBrowser1_Navigating;
         }
 
         public void webBrowser1_Navigating(object sender, WebBrowserNavigatingEventArgs e)
         {
-            if (!e.Url.AbsolutePath.StartsWith("/Help/") &&
+            if (!e.Url.AbsolutePath.StartsWith("/CrewChiefV4/") &&
                 !e.Url.AbsolutePath.StartsWith("/Public/") &&
                 e.Url.Scheme != "file")
             {   // Browser loading external page (e.g. Paypal)
