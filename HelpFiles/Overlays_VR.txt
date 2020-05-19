@@ -8,6 +8,6 @@ The VR setting window will also show up in VR and you can control it using your 
 
 To enable a window in VR select a window from the list box and click "Show in VR". With this window selected you can now move it around in VR world with the controls in the settings window.
 
-While it is possible it is currently not recommended to display windows from more than 1 desktop at a time, you can enable as many windows as you like from 1 desktop without it having any noticeable performance impact.
+While it is possible it is currently not recommended to display windows from more than one desktop at a time, you can enable as many windows as you like from one desktop without it having any noticeable performance impact.
 
-The window cant not be minimized or hidden by other windows.
+The window cannot be minimized or hidden by other windows.
