@@ -367,30 +367,44 @@ namespace CrewChiefV4
             customControllerGuid = guid;
         }
 
-        public void pollForButtonClicks(Boolean channelOpenIsToggle)
+        public void pollForButtonClicks()
         {
             foreach (var assignment in buttonAssignments)
             {
-                pollForButtonClicks(assignment);
+                pollForButtonClicks(assignment, assignment.action == VOLUME_UP || assignment.action == VOLUME_DOWN ? 200 : 1000);
             }
         }
 
-        private void pollForButtonClicks(ButtonAssignment ba)
+        private void pollForButtonClicks(ButtonAssignment ba, int repeatRate)
         {
             if (ba != null && ba.buttonIndex != -1 && ba.controller != null && ba.controller.guid != Guid.Empty)
             {
                 if (ba.controller.guid == UDP_NETWORK_CONTROLLER_GUID && CrewChief.gameDefinition.gameEnum == GameEnum.PCARS_NETWORK)
                 {
-                    if (PCarsUDPreader.getButtonState(ba.buttonIndex))
+                    var udpButtonState = PCarsUDPreader.getButtonState(ba.buttonIndex);
+                    if (udpButtonState && !ba.wasPressedDown)
                     {
+                        ba.wasPressedDown = true;
                         ba.hasUnprocessedClick = true;
+                        ba.clickTime = DateTime.Now.AddMilliseconds(repeatRate);
+                    }
+                    else if((!udpButtonState || ba.clickTime < DateTime.Now) && ba.wasPressedDown)
+                    {
+                        ba.wasPressedDown = false;
                     }
                 }
                 else if (ba.controller.guid == UDP_NETWORK_CONTROLLER_GUID && CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2_NETWORK)
                 {
-                    if (PCars2UDPreader.getButtonState(ba.buttonIndex))
+                    var udpButtonState = PCars2UDPreader.getButtonState(ba.buttonIndex);
+                    if (udpButtonState && !ba.wasPressedDown)
                     {
+                        ba.wasPressedDown = true;
                         ba.hasUnprocessedClick = true;
+                        ba.clickTime = DateTime.Now.AddMilliseconds(repeatRate);
+                    }
+                    else if (!(udpButtonState || ba.clickTime < DateTime.Now) && ba.wasPressedDown)
+                    {                        
+                        ba.wasPressedDown = false;
                     }
                 }
                 else
@@ -406,9 +420,15 @@ namespace CrewChiefV4
                                 if (state != null)
                                 {
                                     Boolean click = state.Buttons[ba.buttonIndex];
-                                    if (click)
+                                    if (click && !ba.wasPressedDown)
                                     {
+                                        ba.wasPressedDown = true;
                                         ba.hasUnprocessedClick = true;
+                                        ba.clickTime = DateTime.Now.AddMilliseconds(repeatRate); 
+                                    }
+                                    else if ((!click || ba.clickTime < DateTime.Now) && ba.wasPressedDown)
+                                    {                                        
+                                        ba.wasPressedDown = false;
                                     }
                                 }
                             }
@@ -970,7 +990,11 @@ namespace CrewChiefV4
             [JsonIgnore]
             public ControllerData controller;
             [JsonIgnore]
-            public Boolean hasUnprocessedClick = false;
+            public Boolean hasUnprocessedClick = false;            
+            [JsonIgnore]
+            public Boolean wasPressedDown = false;
+            [JsonIgnore]
+            public DateTime clickTime = DateTime.MinValue;
             [JsonIgnore]
             public AbstractEvent actionEvent = null;
             public void Initialize()

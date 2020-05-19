@@ -310,6 +310,10 @@ namespace CrewChiefV4
         public static String[] SHOW_SUBTITLES = Configuration.getSpeechRecognitionPhrases("SHOW_SUBTITLES");
         public static String[] HIDE_SUBTITLES = Configuration.getSpeechRecognitionPhrases("HIDE_SUBTITLES");
 
+        // Steam VR stuff
+        public static String[] TOGGLE_VR_OVERLAYS = Configuration.getSpeechRecognitionPhrases("TOGGLE_VR_OVERLAYS");
+        public static String[] SHOW_VR_SETTING = Configuration.getSpeechRecognitionPhrases("SHOW_VR_SETTING");
+        public static String[] HIDE_VR_SETTING = Configuration.getSpeechRecognitionPhrases("HIDE_VR_SETTING");
 
         private Dictionary<GameEnum, string[]> whatsOpponentChoices = new Dictionary<GameEnum, string[]> {
             { GameEnum.IRACING, new String[] { LAST_LAP, LAST_LAP_TIME, BEST_LAP, BEST_LAP_TIME, IRATING, LICENSE_CLASS } },
@@ -1092,6 +1096,13 @@ namespace CrewChiefV4
                     validateAndAdd(HIDE_SUBTITLES, staticSpeechChoices);
                 }
 
+                if (UserSettings.GetUserSettings().getBoolean("enable_vr_overlay_windows"))
+                {
+                    validateAndAdd(TOGGLE_VR_OVERLAYS, staticSpeechChoices);
+                    validateAndAdd(SHOW_VR_SETTING, staticSpeechChoices);
+                    validateAndAdd(HIDE_VR_SETTING, staticSpeechChoices);
+                }
+
                 if (alarmClockVoiceRecognitionEnabled)
                 {
                     validateAndAdd(CLEAR_ALARM_CLOCK, staticSpeechChoices);
@@ -1572,7 +1583,7 @@ namespace CrewChiefV4
                 {
                     if (logMatch)
                     {
-                        Console.WriteLine("matching entire response " + result);
+                        Console.WriteLine("Matching entire response: \"" + alternative + "\"");
                     }
                     return true;
                 }
@@ -2232,6 +2243,13 @@ namespace CrewChiefV4
                 ResultContains(recognisedSpeech, CHART_COMMAND_SHOW_PREVIOUS_LAP, false))
             {
                 return CrewChief.getEvent("OverlayController");
+            }
+
+            if (ResultContains(recognisedSpeech, TOGGLE_VR_OVERLAYS, false) ||
+                ResultContains(recognisedSpeech, SHOW_VR_SETTING, false) ||
+                ResultContains(recognisedSpeech, HIDE_VR_SETTING, false))
+            {
+                return CrewChief.getEvent("VROverlayController");
             }
 
             if (ResultContains(recognisedSpeech, RADIO_CHECK, false) ||

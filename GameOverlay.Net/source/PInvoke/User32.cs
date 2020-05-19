@@ -143,6 +143,12 @@ namespace GameOverlay.PInvoke
 
         public delegate IntPtr LoadCursorDelegate(IntPtr hInstance, int lpCursorName);
 
+        public delegate int ShowCursorDelegate(bool bShow);
+        public static readonly ShowCursorDelegate ShowCursor;
+
+        //[DllImport("user32.dll")]
+        //static extern int ShowCursor(bool bShow);
+
         // i have no idea why this will not load using DynamicImport.Import<>()
         [DllImport("user32.dll")]
         public static extern IntPtr LoadCursor(IntPtr hInstance, int lpCursorName);
@@ -201,6 +207,7 @@ namespace GameOverlay.PInvoke
             PostMessage = DynamicImport.Import<PostMessageWDelegate>(library, "PostMessageW");
             GetForegroundWindow = DynamicImport.Import<GetForegroundWindowDelegate>(library, "GetForegroundWindow");
             SetForegroundWindow = DynamicImport.Import<SetForegroundWindowDelegate>(library, "SetForegroundWindow");
+            ShowCursor = DynamicImport.Import<ShowCursorDelegate>(library, "ShowCursor");
             try
             {
                 _setThreadDpiAwarenessContext = DynamicImport.Import<SetThreadDpiAwarenessContextDelegate>(library, "SetThreadDpiAwarenessContext");

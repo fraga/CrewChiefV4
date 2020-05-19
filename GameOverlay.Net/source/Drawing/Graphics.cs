@@ -1820,7 +1820,7 @@ namespace GameOverlay.Drawing
         /// <param name="x">The x-coordinate of the starting position.</param>
         /// <param name="y">The y-coordinate of the starting position.</param>
         /// <param name="text">The string to be drawn.</param>
-        public void DrawTextWithBackground(Font font, float fontSize, IBrush brush, IBrush background, float x, float y, string text)
+        public void DrawTextWithBackground(Font font, float fontSize, IBrush brush, IBrush background, float x, float y, string text, float minBackgroundWidth = -1, bool centerAlign = false, bool shownInVR = false)
         {
             if (!IsDrawing) throw ThrowHelper.UseBeginScene();
 
@@ -1847,11 +1847,17 @@ namespace GameOverlay.Drawing
             }
 
             float modifier = layout.FontSize/* * 0.25f*/;
-            var rectangle = new RawRectangleF(x, y, x + layout.Metrics.Width, y + layout.Metrics.Height);
+            float rectWidth = minBackgroundWidth == -1  || layout.Metrics.Width > minBackgroundWidth ? layout.Metrics.Width : minBackgroundWidth;
+            float textX = x;
+
+            if (centerAlign)
+                textX = (((float)rectWidth - layout.Metrics.Width) / 2);
+
+            var rectangle = new RawRectangleF(shownInVR ? x : textX, y, shownInVR ? x + rectWidth : textX + layout.Metrics.Width, y + layout.Metrics.Height);
 
             _device.FillRectangle(rectangle, background.Brush);
 
-            _device.DrawTextLayout(new RawVector2(x, y), layout, brush.Brush, DrawTextOptions.Clip);
+            _device.DrawTextLayout(new RawVector2(textX, y), layout, brush.Brush, DrawTextOptions.Clip);
 
             layout.Dispose();
         }
@@ -1877,8 +1883,8 @@ namespace GameOverlay.Drawing
         /// <param name="x">The x-coordinate of the starting position.</param>
         /// <param name="y">The y-coordinate of the starting position.</param>
         /// <param name="text">The string to be drawn.</param>
-        public void DrawTextWithBackground(Font font, IBrush brush, IBrush background, float x, float y, string text)
-            => DrawTextWithBackground(font, font.FontSize, brush, background, x, y, text);
+        public void DrawTextWithBackground(Font font, IBrush brush, IBrush background, float x, float y, string text, float minBackgroundWidth = -1, bool centerAlign = false, bool shownInVR = false)
+            => DrawTextWithBackground(font, font.FontSize, brush, background, x, y, text, minBackgroundWidth, centerAlign, shownInVR);
 
         /// <summary>
         /// Draws a string with a background box in behind using the given font, size and position.

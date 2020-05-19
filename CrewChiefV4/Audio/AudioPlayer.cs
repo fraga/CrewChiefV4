@@ -1658,6 +1658,24 @@ namespace CrewChiefV4.Audio
             }
         }
 
+        public void playMuteBeep()
+        {
+            if (enableRadioBeeps)
+            {
+                var soundToPlay = PlaybackModerator.GetSuggestedBleepEnd();
+                soundCache.Play(soundToPlay, SoundMetadata.beep);
+            }
+        }
+
+        public void playUnMuteBeep()
+        {
+            if (enableRadioBeeps)
+            {
+                var soundToPlay = PlaybackModerator.GetSuggestedBleepShorStart();
+                soundCache.Play(soundToPlay, SoundMetadata.beep);
+            }
+        }
+
         public int purgeQueues(int retainMessagesWithSreSessionId = -1)
         {
             return purgeQueue(queuedClips, false) + purgeQueue(immediateClips, true, retainMessagesWithSreSessionId);

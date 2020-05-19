@@ -90,6 +90,8 @@ namespace CrewChiefV4.Overlay
         private int maxDisplayLines = 0;
         private float consoleBoxHeight = 0;
         float messuredFontHeight = 0;
+        Image cursorImage;
+
 
         private SynchronizationContext mainThreadContext = null;
         public CrewChiefOverlayWindow()
@@ -172,6 +174,8 @@ namespace CrewChiefV4.Overlay
             fontBrush = gfx.CreateSolidBrush(colorScheme.fontColor);
             backgroundBrush = gfx.CreateSolidBrush(colorScheme.backgroundColor);
             transparentBrush = gfx.CreateSolidBrush(Color.Transparent);
+
+            cursorImage = new Image(gfx, @"Resources\cursor.png");
 
             titleBar = overlayElements[tileBarName] = new OverlayHeader(gfx, "CrewChief Overlay", fontBold, new Rect(0, 0, overlayWindow.Width, 20), colorScheme, overlayWindow, OnEnableUserInput, OnButtonClosed, OnSavePosition);
             titleBar.AddChildElement(new ElementCheckBox(gfx, "Enable input", font, new Rect(202, 3, 14, 14), colorScheme));
@@ -382,6 +386,7 @@ namespace CrewChiefV4.Overlay
             {
                 gfx.DrawRectangle(fontBrush, 0, 0, overlayWindow.Width, overlayWindow.Height, 2);
             }*/
+            //gfx.DrawImage(cursorImage, Cursor.Position.X - overlayWindow.X, Cursor.Position.Y - overlayWindow.Y);
         }
         private void overlayWindow_DestroyGraphics(object sender, DestroyGraphicsEventArgs e)
         {

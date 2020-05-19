@@ -39,15 +39,6 @@
             this.buttonReset = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
-            // listBoxCurrentlyAvailableActions
-            // 
-            this.listBoxCurrentlyAvailableActions.FormattingEnabled = true;
-            this.listBoxCurrentlyAvailableActions.Location = new System.Drawing.Point(337, 20);
-            this.listBoxCurrentlyAvailableActions.Name = "listBoxCurrentlyAvailableActions";
-            this.listBoxCurrentlyAvailableActions.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.listBoxCurrentlyAvailableActions.Size = new System.Drawing.Size(272, 134);
-            this.listBoxCurrentlyAvailableActions.TabIndex = 0;
-            // 
             // listBoxAdditionalAvailableActions
             // 
             this.listBoxAdditionalAvailableActions.FormattingEnabled = true;
@@ -55,14 +46,14 @@
             this.listBoxAdditionalAvailableActions.Name = "listBoxAdditionalAvailableActions";
             this.listBoxAdditionalAvailableActions.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
             this.listBoxAdditionalAvailableActions.Size = new System.Drawing.Size(272, 134);
-            this.listBoxAdditionalAvailableActions.TabIndex = 1;
+            this.listBoxAdditionalAvailableActions.TabIndex = 0;
             // 
             // buttonRemoveAction
             // 
             this.buttonRemoveAction.Location = new System.Drawing.Point(286, 95);
             this.buttonRemoveAction.Name = "buttonRemoveAction";
             this.buttonRemoveAction.Size = new System.Drawing.Size(45, 25);
-            this.buttonRemoveAction.TabIndex = 2;
+            this.buttonRemoveAction.TabIndex = 3;
             this.buttonRemoveAction.Text = "<<";
             this.buttonRemoveAction.UseVisualStyleBackColor = true;
             this.buttonRemoveAction.Click += new System.EventHandler(this.buttonRemoveAction_Click);
@@ -72,17 +63,26 @@
             this.buttonAddAction.Location = new System.Drawing.Point(286, 54);
             this.buttonAddAction.Name = "buttonAddAction";
             this.buttonAddAction.Size = new System.Drawing.Size(45, 23);
-            this.buttonAddAction.TabIndex = 3;
+            this.buttonAddAction.TabIndex = 2;
             this.buttonAddAction.Text = ">>";
             this.buttonAddAction.UseVisualStyleBackColor = true;
             this.buttonAddAction.Click += new System.EventHandler(this.buttonAddAction_Click);
+            // 
+            // listBoxCurrentlyAvailableActions
+            // 
+            this.listBoxCurrentlyAvailableActions.FormattingEnabled = true;
+            this.listBoxCurrentlyAvailableActions.Location = new System.Drawing.Point(337, 20);
+            this.listBoxCurrentlyAvailableActions.Name = "listBoxCurrentlyAvailableActions";
+            this.listBoxCurrentlyAvailableActions.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
+            this.listBoxCurrentlyAvailableActions.Size = new System.Drawing.Size(272, 134);
+            this.listBoxCurrentlyAvailableActions.TabIndex = 8;
             // 
             // buttonSave
             // 
             this.buttonSave.Location = new System.Drawing.Point(8, 161);
             this.buttonSave.Name = "buttonSave";
             this.buttonSave.Size = new System.Drawing.Size(133, 35);
-            this.buttonSave.TabIndex = 4;
+            this.buttonSave.TabIndex = 15;
             this.buttonSave.Text = "save_and_restart";
             this.buttonSave.UseVisualStyleBackColor = true;
             this.buttonSave.Click += new System.EventHandler(this.buttonSave_Click);
@@ -92,7 +92,7 @@
             this.exitButton.Location = new System.Drawing.Point(147, 161);
             this.exitButton.Name = "exitButton";
             this.exitButton.Size = new System.Drawing.Size(133, 35);
-            this.exitButton.TabIndex = 5;
+            this.exitButton.TabIndex = 10;
             this.exitButton.Text = "exit_without_saving";
             this.exitButton.UseVisualStyleBackColor = true;
             this.exitButton.Click += new System.EventHandler(this.exitButton_Click);
@@ -103,7 +103,6 @@
             this.labelCurrentActions.Location = new System.Drawing.Point(334, 4);
             this.labelCurrentActions.Name = "labelCurrentActions";
             this.labelCurrentActions.Size = new System.Drawing.Size(128, 13);
-            this.labelCurrentActions.TabIndex = 6;
             this.labelCurrentActions.Text = "current_available_actions";
             // 
             // labelAdditionalActions
@@ -112,7 +111,6 @@
             this.labelAdditionalActions.Location = new System.Drawing.Point(5, 4);
             this.labelAdditionalActions.Name = "labelAdditionalActions";
             this.labelAdditionalActions.Size = new System.Drawing.Size(140, 13);
-            this.labelAdditionalActions.TabIndex = 7;
             this.labelAdditionalActions.Text = "additional_available_actions";
             // 
             // buttonReset
@@ -120,7 +118,7 @@
             this.buttonReset.Location = new System.Drawing.Point(476, 161);
             this.buttonReset.Name = "buttonReset";
             this.buttonReset.Size = new System.Drawing.Size(133, 35);
-            this.buttonReset.TabIndex = 8;
+            this.buttonReset.TabIndex = 20;
             this.buttonReset.Text = "reload_actions";
             this.buttonReset.UseVisualStyleBackColor = true;
             this.buttonReset.Click += new System.EventHandler(this.buttonReset_Click);

@@ -4369,18 +4369,6 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool enable_console_autoscroll {
-            get {
-                return ((bool)(this["enable_console_autoscroll"]));
-            }
-            set {
-                this["enable_console_autoscroll"] = value;
-            }
-        }
-
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool multi_lap_pace_notes {
             get {
@@ -4405,6 +4393,18 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool enable_console_autoscroll {
+            get {
+                return ((bool)(this["enable_console_autoscroll"]));
+            }
+            set {
+                this["enable_console_autoscroll"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool use_metric {
             get {
@@ -4424,6 +4424,42 @@ namespace CrewChiefV4.Properties {
             }
             set {
                 this["play_pit_speed_limit_warnings"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool start_steam_vr_if_detected {
+            get {
+                return ((bool)(this["start_steam_vr_if_detected"]));
+            }
+            set {
+                this["start_steam_vr_if_detected"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool enable_vr_overlay_windows {
+            get {
+                return ((bool)(this["enable_vr_overlay_windows"]));
+            }
+            set {
+                this["enable_vr_overlay_windows"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool vr_overlays_enabled_on_startup {
+            get {
+                return ((bool)(this["vr_overlays_enabled_on_startup"]));
+            }
+            set {
+                this["vr_overlays_enabled_on_startup"] = value;
             }
         }
     }
