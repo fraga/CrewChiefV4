@@ -1020,6 +1020,9 @@ namespace CrewChiefV4
             this.label1.Text = Configuration.getUIString("available_controllers");
             this.label2.Text = Configuration.getUIString("available_actions");
             this.propertiesButton.Text = Configuration.getUIString("properties");
+            this.fileToolStripMenuItem.Text = Configuration.getUIString("file");
+            this.exitToolStripMenuItem.Text = Configuration.getUIString("exit");
+            this.helpToolStripMenuItem.Text = Configuration.getUIString("help");
             this.groupBox1.Text = Configuration.getUIString("voice_recognition_mode");
             voiceRecognitionToolTip.SetToolTip(this.groupBox1, Configuration.getUIString("voice_recognition_mode_help"));             
             this.alwaysOnButton.Text = Configuration.getUIString("always_on");
