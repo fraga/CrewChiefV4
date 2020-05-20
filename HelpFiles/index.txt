@@ -17,4 +17,53 @@ Crew Chief is a team radio engineer, originally developed by <b><a href="http://
 
 It is a human-like, highly responsive, open source spotter and much, much more including voice recognition, foul language and thousands of driver names.
 
+It works with the following games
+
+<table height="138" width="731" cellspacing="2" cellpadding="2" border="1">
+<tbody>
+<tr>
+<td width="33%" valign="top" align="center">Assetto Corsa<br>
+</td>
+<td width="33%" valign="top" align="center">F1 2018**<br>
+</td>
+<td width="33%" valign="top" align="center">Project Cars<br>
+</td>
+</tr>
+<tr>
+<td valign="top" align="center">Assetto Corsa Competizione*</td>
+<td valign="top" align="center">F1 2019**</td>
+<td valign="top" align="center">Project Cars 2<br>
+</td>
+</tr>
+<tr>
+<td valign="top" align="center">Automobilista<br>
+</td>
+<td valign="top" align="center">Formula Truck 2013<br>
+</td>
+<td valign="top" align="center">RaceRoom Racing Experience<br>
+</td>
+</tr>
+<tr>
+<td valign="top" align="center">Automobilista 2<br>
+</td>
+<td valign="top" align="center">Game Stockcar 2013<br>
+</td>
+<td valign="top" align="center">rFactor 1<br>
+</td>
+</tr>
+<tr>
+<td valign="top" align="center">Copa Petrobras de Marcas<br>
+</td>
+<td valign="top" align="center">iRacing<br>
+</td>
+<td valign="top" align="center">rFactor 2<br>
+</td>
+</tr>
+</tbody>
+</table>
+
+* Some Crew Chief features are not available with Assetto Corsa Competizione
+** F1 2018, F1 2019: Spotter only
+
+
 If you're not familiar with Crew Chief, check out these <a href="http://thecrewchief.org/forumdisplay.php?22-Crew-Chief-videos">videos</a>.

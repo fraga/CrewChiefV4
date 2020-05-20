@@ -55,8 +55,11 @@ namespace HelpFiles
             gameNames = new string[]{
                 "AssettoCorsa",
                 "AssettoCorsaCompetizione",
+                "iRacing",
+                "F1_2018",
                 "ProjectCars",
                 "ProjectCars2",
+                "RaceRoomRacingExperience",
                 "rFactor",
                 "rFactor2"
             };
