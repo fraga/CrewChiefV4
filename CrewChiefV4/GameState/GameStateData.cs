@@ -1513,6 +1513,8 @@ namespace CrewChiefV4.GameState
 
         public Boolean IsLastLap = false;
 
+        public int r3eUserId = -1;
+
         private List<LapData> _OpponentLapData;
         public List<LapData> OpponentLapData
         {

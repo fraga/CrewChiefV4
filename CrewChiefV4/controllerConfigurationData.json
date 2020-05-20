@@ -784,6 +784,27 @@
 			"buttonIndex": -1,
 			"opponentDataCommand": false,
 			"availableAction": false
+		},
+		{
+			"action": "WHATS_MY_RATING",
+			"deviceGuid": "",
+			"buttonIndex": -1,
+			"opponentDataCommand": false,
+			"availableAction": false
+		},
+		{
+			"action": "WHATS_MY_RANK",
+			"deviceGuid": "",
+			"buttonIndex": -1,
+			"opponentDataCommand": false,
+			"availableAction": false
+		},
+		{
+			"action": "WHATS_MY_REPUTATION",
+			"deviceGuid": "",
+			"buttonIndex": -1,
+			"opponentDataCommand": false,
+			"availableAction": false
 		}
 	]
 }

@@ -164,6 +164,11 @@ WHAT_ARE_THE_PIT_ACTIONS = what are the pit actions:what's the pitstop plan
 
 STOP_COMPLAINING = stop complaining:stop grumbling:fuck off
 
+WHATS_MY_RANK = what's my rank
+WHATS_MY_RATING = what's my rating
+WHATS_MY_REPUTATION = what's my reputation
+
+
 #################################################
 # Dynamic recognition phrase fragments - these are used to build up recognition sentences for opponent information.
 # Multiple options are NOT supported here - each must be a single word or phrase. These are combined for each opponent
@@ -258,6 +263,10 @@ WHAT_TYRE_IS = what tire is
 
 LICENSE_CLASS = license class
 IRATING = eye rating
+
+RATING = rating
+REPUTATION = reputation
+RANK = rank
 
 # this one is used for Raceroom tyre questions - "what tyres is Bob on". The "on" could be "using", or "running", or whatever, but can only be a single item (no lists)
 ON = on

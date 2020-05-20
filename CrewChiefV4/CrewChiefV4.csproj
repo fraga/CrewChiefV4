@@ -289,6 +289,7 @@
     <Compile Include="Overlay\OverlaySettings.cs" />
     <Compile Include="Overlay\SubtitleOverlay.cs" />
     <Compile Include="R3E\R3EPitMenuManager.cs" />
+    <Compile Include="R3E\R3ERatings.cs" />
     <Compile Include="R3E\R3ESerializer.cs" />
     <Compile Include="VROverlayWindow\CaptureScreen.cs" />
     <Compile Include="VROverlayWindow\CursorInteraction.cs" />
