@@ -1069,6 +1069,10 @@ namespace CrewChiefV4
 
                 validateAndAdd(I_AM_OK, staticSpeechChoices);
 
+                validateAndAdd(WHATS_MY_RATING, staticSpeechChoices);
+                validateAndAdd(WHATS_MY_RANK, staticSpeechChoices);
+                validateAndAdd(WHATS_MY_REPUTATION, staticSpeechChoices);
+
                 if (UserSettings.GetUserSettings().getBoolean("enable_overlay_window"))
                 {
                     validateAndAdd(HIDE_OVERLAY, staticSpeechChoices);
@@ -1460,10 +1464,6 @@ namespace CrewChiefV4
                 validateAndAdd(PIT_STOP_OPTION_TYRES, r3eChoices);
                 validateAndAdd(PIT_STOP_DONT_REFUEL, r3eChoices);
                 validateAndAdd(PIT_STOP_REFUEL, r3eChoices);
-                
-                validateAndAdd(WHATS_MY_RATING, r3eChoices);
-                validateAndAdd(WHATS_MY_RANK, r3eChoices);
-                validateAndAdd(WHATS_MY_REPUTATION, r3eChoices);
 
                 GrammarBuilderWrapper r3eGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper(r3eChoices);
                 r3eGrammarBuilder.SetCulture(cultureInfo);

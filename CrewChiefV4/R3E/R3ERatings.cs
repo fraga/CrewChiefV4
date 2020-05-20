@@ -20,11 +20,14 @@ namespace CrewChiefV4.R3E
 
         public static void getRatingForPlayer(int userId)
         {
-            playerRating = getRatingForUserId(userId);
-            gotPlayerRating = true;
-            if (playerRating != null)
+            if (userId > 0)
             {
-                Console.WriteLine("Got user rating data: " + playerRating.ToString());
+                playerRating = getRatingForUserId(userId);
+                gotPlayerRating = true;
+                if (playerRating != null)
+                {
+                    Console.WriteLine("Got user rating data: " + playerRating.ToString());
+                }
             }
         }
 
