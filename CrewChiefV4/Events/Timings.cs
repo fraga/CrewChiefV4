@@ -15,6 +15,7 @@ namespace CrewChiefV4.Events
         // R3E reputation thresholds, to be refined
         private float badReputationThreshold = 65;
         private float sketchyReputationThreshold = 75;
+        private int minRacesForReputationToBeInteresting = 12;
 
         public static String folderGapInFrontIncreasing = "timings/gap_in_front_increasing";
         public static String folderGapInFrontDecreasing = "timings/gap_in_front_decreasing";
@@ -706,19 +707,19 @@ namespace CrewChiefV4.Events
             {
                 driverReputationWarningChecksInThisSession.Add(opponent.DriverRawName);
                 R3ERatingData opponentRating = R3ERatings.getRatingForUserId(opponent.r3eUserId);
-                if (opponentRating != null && opponentRating.reputation > 0 && opponentRating.racesCompleted > 10)
+                if (opponentRating != null && opponentRating.reputation > 0 && opponentRating.racesCompleted > minRacesForReputationToBeInteresting)
                 {
                     if (opponentRating.reputation < badReputationThreshold)
                     {
                         Console.WriteLine("Warning about bad driver reputation for " + opponent.DriverRawName + " - " + opponentRating.ToString());
                         audioPlayer.playMessage(new QueuedMessage(opponentIsAhead ? folderOpponentAheadBadReputation : folderOpponentBehindBadReputation,
-                            7, abstractEvent: this, validationData: validationData, priority: 10));
+                            10, abstractEvent: this, validationData: validationData, priority: 10));
                     }
                     else if (opponentRating.reputation < sketchyReputationThreshold)
                     {
                         Console.WriteLine("Warning about sketchy driver reputation for " + opponent.DriverRawName + " - " + opponentRating.ToString());
                         audioPlayer.playMessage(new QueuedMessage(opponentIsAhead ? folderOpponentAheadSketchyReputation : folderOpponentBehindSketchyReputation,
-                            7, abstractEvent: this, validationData: validationData, priority: 10));
+                            10, abstractEvent: this, validationData: validationData, priority: 10));
                     }
                 }
             }
