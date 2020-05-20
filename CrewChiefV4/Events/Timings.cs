@@ -6,11 +6,16 @@ using CrewChiefV4.RaceRoom.RaceRoomData;
 using CrewChiefV4.GameState;
 using CrewChiefV4.Audio;
 using CrewChiefV4.NumberProcessing;
+using CrewChiefV4.R3E;
 
 namespace CrewChiefV4.Events
 {
     class Timings : AbstractEvent
     {
+        // R3E reputation thresholds, to be refined
+        private float badReputationThreshold = 65;
+        private float sketchyReputationThreshold = 75;
+
         public static String folderGapInFrontIncreasing = "timings/gap_in_front_increasing";
         public static String folderGapInFrontDecreasing = "timings/gap_in_front_decreasing";
         public static String folderGapInFrontIsNow = "timings/gap_in_front_is_now";
@@ -40,10 +45,19 @@ namespace CrewChiefV4.Events
         private String folderBeingHeldUp = "timings/being_held_up";
         private String folderBeingPressured = "timings/being_pressured";
 
+        // R3E online only messages for cases where an opponent has a poor reputation
+        // TODO: record these
+        private String folderOpponentAheadBadReputation = "timings/opponent_ahead_has_bad_reputation";
+        private String folderOpponentAheadSketchyReputation = "timings/opponent_ahead_has_below_average_reputation";
+        private String folderOpponentBehindBadReputation = "timings/opponent_behind_has_bad_reputation";
+        private String folderOpponentBehindSketchyReputation = "timings/opponent_behind_has_below_average_reputation";
+
         private int gapAheadReportFrequency = UserSettings.GetUserSettings().getInt("frequency_of_gap_ahead_reports");
         private int gapBehindReportFrequency = UserSettings.GetUserSettings().getInt("frequency_of_gap_behind_reports");
         private int carCloseAheadReportFrequency = UserSettings.GetUserSettings().getInt("frequency_of_car_close_ahead_reports");
         private int carCloseBehindReportFrequency = UserSettings.GetUserSettings().getInt("frequency_of_car_close_behind_reports");
+
+        private HashSet<string> driverReputationWarningChecksInThisSession = new HashSet<string>();
 
         // if true, don't give as many gap reports at the start/finish - stops the lap start getting too crowded with messages
         private Boolean preferGapReportsMidLap = true;
@@ -186,6 +200,7 @@ namespace CrewChiefV4.Events
 
             timeWeStartedBeingHeldUp = DateTime.MinValue;
             carHoldingUsUp = null;
+            driverReputationWarningChecksInThisSession.Clear();
         }
 
         // adds 0, 1, or 2 to the sectors to wait. This means there's a 2 in 3 chance that a gap report
@@ -207,10 +222,15 @@ namespace CrewChiefV4.Events
         {
             if (base.isMessageStillValid(eventSubType, currentGameState, validationData))
             {
-                Boolean isInvalidGapAhead = eventSubType.Contains("Timings/gap_in_front")
+                Boolean isInvalidGapAhead = (eventSubType.Contains("Timings/gap_in_front")
+                    || eventSubType.Contains(folderOpponentAheadBadReputation)
+                    || eventSubType.Contains(folderOpponentAheadSketchyReputation))
                         && (currentGameState.SessionData.TimeDeltaFront * currentGameState.PositionAndMotionData.CarSpeed < 3   /* gap is too small */
                             || currentGameState.SessionData.GameTimeAtLastPositionFrontChange + 10 > currentGameState.SessionData.SessionRunningTime); /* overtake <10 seconds ago */
-                Boolean isInvalidGapBehind = eventSubType.Contains("Timings/gap_behind")
+
+                Boolean isInvalidGapBehind = (eventSubType.Contains("Timings/gap_behind")
+                    || eventSubType.Contains(folderOpponentBehindBadReputation)
+                    || eventSubType.Contains(folderOpponentBehindSketchyReputation))
                         && (currentGameState.SessionData.TimeDeltaBehind * currentGameState.PositionAndMotionData.CarSpeed < 3
                             || currentGameState.SessionData.GameTimeAtLastPositionBehindChange + 10 > currentGameState.SessionData.SessionRunningTime);
 
@@ -399,6 +419,7 @@ namespace CrewChiefV4.Events
                                         }
                                     }
                                 }
+                                checkForAndAddReputationMessage(opponent, validationData, true);
                                 gapInFrontAtLastReport = gapsInFront[0].timeDelta;
                             }
                         }
@@ -468,6 +489,7 @@ namespace CrewChiefV4.Events
                                                 trackLandmarkAttackDriverNamesUsed[opponent.DriverRawName] = currentGameState.Now;
                                             }
                                         }
+                                        checkForAndAddReputationMessage(opponent, validationData, true);
                                     }
                                 }
                                 else if (gapInFrontStatus == GapStatus.OTHER)
@@ -529,6 +551,7 @@ namespace CrewChiefV4.Events
                                         }
                                     }
                                 }
+                                checkForAndAddReputationMessage(opponent, validationData, false);
                                 gapBehindAtLastReport = gapsBehind[0].timeDelta;
                             }
                         }
@@ -598,6 +621,7 @@ namespace CrewChiefV4.Events
                                                 trackLandmarkDefendDriverNamesUsed[opponent.DriverRawName] = currentGameState.Now;
                                             }
                                         }
+                                        checkForAndAddReputationMessage(opponent, validationData, false);
                                     }
                                 }
                                 else if (gapBehindStatus == GapStatus.OTHER)
@@ -668,6 +692,34 @@ namespace CrewChiefV4.Events
                                 audioPlayer.playMessage(message);
                             }
                         }
+                    }
+                }
+            }
+        }
+
+        // adds a "take care, this guy is a menace" type message for opponents with bad rep (R3E only). As this is appended
+        // to the closing / being closed down message we want to apply the same validation logic
+        private void checkForAndAddReputationMessage(OpponentData opponent, Dictionary<string, object> validationData, Boolean opponentIsAhead)
+        {
+            if (CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM 
+                && !driverReputationWarningChecksInThisSession.Contains(opponent.DriverRawName)
+                && opponent.r3eUserId != -1)
+            {
+                driverReputationWarningChecksInThisSession.Add(opponent.DriverRawName);
+                R3ERatingData opponentRating = R3ERatings.getRatingForUserId(opponent.r3eUserId);
+                if (opponentRating != null && opponentRating.reputation > 0 && opponentRating.racesCompleted > 10)
+                {
+                    if (opponentRating.reputation < badReputationThreshold)
+                    {
+                        Console.WriteLine("Warning about bad driver reputation for " + opponent.DriverRawName + " - " + opponentRating.ToString());
+                        audioPlayer.playMessage(new QueuedMessage(opponentIsAhead ? folderOpponentAheadBadReputation : folderOpponentBehindBadReputation,
+                            7, abstractEvent: this, validationData: validationData, priority: 10));
+                    }
+                    else if (opponentRating.reputation < sketchyReputationThreshold)
+                    {
+                        Console.WriteLine("Warning about sketchy driver reputation for " + opponent.DriverRawName + " - " + opponentRating.ToString());
+                        audioPlayer.playMessage(new QueuedMessage(opponentIsAhead ? folderOpponentAheadSketchyReputation : folderOpponentBehindSketchyReputation,
+                            7, abstractEvent: this, validationData: validationData, priority: 10));
                     }
                 }
             }

@@ -240,6 +240,10 @@ namespace CrewChiefV4.RaceRoom
                     playerDriverDataIndex = i;
                 }
             }
+            if (!R3ERatings.gotPlayerRating)
+            {
+                R3ERatings.getRatingForPlayer(playerDriverData.DriverInfo.UserId);
+            }
             currentGameState.PositionAndMotionData.WorldPosition = new float[] { (float)playerDriverData.Position.X, (float)playerDriverData.Position.Y, (float)playerDriverData.Position.Z };
             int previousLapsCompleted = previousGameState == null ? 0 : previousGameState.SessionData.CompletedLaps;
             currentGameState.SessionData.SessionPhase = mapToSessionPhase(lastSessionPhase, currentGameState.SessionData.SessionType, lastSessionRunningTime,
@@ -1906,6 +1910,7 @@ namespace CrewChiefV4.RaceRoom
             Console.WriteLine("New driver " + driverName + " is using car class " +
                 opponentData.CarClass.getClassIdentifier() + " (class ID " + participantStruct.DriverInfo.ClassId + ") with tyres " + opponentData.CurrentTyres);
             opponentData.TyreChangesByLap[0] = opponentData.CurrentTyres;
+            opponentData.r3eUserId = participantStruct.DriverInfo.UserId;
             return opponentData;
         }
 

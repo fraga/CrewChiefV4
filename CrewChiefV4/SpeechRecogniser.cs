@@ -195,6 +195,14 @@ namespace CrewChiefV4
         public static String IRATING = Configuration.getSpeechRecognitionConfigOption("IRATING");
         public static String LICENSE_CLASS = Configuration.getSpeechRecognitionConfigOption("LICENSE_CLASS");
 
+        // for R3E only
+        public static String[] WHATS_MY_RATING = Configuration.getSpeechRecognitionPhrases("WHATS_MY_RATING");
+        public static String[] WHATS_MY_RANK = Configuration.getSpeechRecognitionPhrases("WHATS_MY_RANK");
+        public static String[] WHATS_MY_REPUTATION = Configuration.getSpeechRecognitionPhrases("WHATS_MY_REPUTATION");
+        public static String RATING = Configuration.getSpeechRecognitionConfigOption("RATING");
+        public static String REPUTATION = Configuration.getSpeechRecognitionConfigOption("REPUTATION");
+        public static String RANK = Configuration.getSpeechRecognitionConfigOption("RANK");
+
         public static String[] PLAY_CORNER_NAMES = Configuration.getSpeechRecognitionPhrases("PLAY_CORNER_NAMES");
 
         public static String[] DAMAGE_REPORT = Configuration.getSpeechRecognitionPhrases("DAMAGE_REPORT");
@@ -317,6 +325,7 @@ namespace CrewChiefV4
 
         private Dictionary<GameEnum, string[]> whatsOpponentChoices = new Dictionary<GameEnum, string[]> {
             { GameEnum.IRACING, new String[] { LAST_LAP, LAST_LAP_TIME, BEST_LAP, BEST_LAP_TIME, IRATING, LICENSE_CLASS } },
+            { GameEnum.RACE_ROOM, new String[] { LAST_LAP, LAST_LAP_TIME, BEST_LAP, BEST_LAP_TIME, RATING, RANK, REPUTATION } },
             // the array for UNKNOWN is what we'll use if there's no game-specific array
             { GameEnum.UNKNOWN, new String[] { LAST_LAP, LAST_LAP_TIME, BEST_LAP, BEST_LAP_TIME } }
         };
@@ -1451,6 +1460,10 @@ namespace CrewChiefV4
                 validateAndAdd(PIT_STOP_OPTION_TYRES, r3eChoices);
                 validateAndAdd(PIT_STOP_DONT_REFUEL, r3eChoices);
                 validateAndAdd(PIT_STOP_REFUEL, r3eChoices);
+                
+                validateAndAdd(WHATS_MY_RATING, r3eChoices);
+                validateAndAdd(WHATS_MY_RANK, r3eChoices);
+                validateAndAdd(WHATS_MY_REPUTATION, r3eChoices);
 
                 GrammarBuilderWrapper r3eGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper(r3eChoices);
                 r3eGrammarBuilder.SetCulture(cultureInfo);
@@ -2276,6 +2289,9 @@ namespace CrewChiefV4
                 ResultContains(recognisedSpeech, STOP_COMPLAINING, false) ||
                 ResultContains(recognisedSpeech, SHOW_SUBTITLES, false) ||
                 ResultContains(recognisedSpeech, HIDE_SUBTITLES, false) ||
+                ResultContains(recognisedSpeech, WHATS_MY_RANK, false) ||
+                ResultContains(recognisedSpeech, WHATS_MY_RATING, false) ||
+                ResultContains(recognisedSpeech, WHATS_MY_REPUTATION, false) ||
                 ControllerConfiguration.builtInActionMappings.ContainsValue(recognisedSpeech))
             {
                 return CrewChief.getEvent("CommonActions");
