@@ -47,25 +47,32 @@ namespace CrewChiefV4.R3E
             string url = UserSettings.GetUserSettings().getString(urlPropName);
             if (url != null && url.Trim().Length > 0)
             {
-                var stopwatch = new Stopwatch();
-                stopwatch.Start();
-                WebClient client = new WebClient();
-                string ratingsJson = client.DownloadString(url);
-                stopwatch.Stop();
-                Console.WriteLine("Downloaded driver rating profiles from " + url + " in " + stopwatch.ElapsedMilliseconds + "ms");
-                stopwatch.Reset();
-                stopwatch.Start();
-                R3ERatingData[] rawData = Newtonsoft.Json.JsonConvert.DeserializeObject<R3ERatingData[]>(ratingsJson);
-                // use the ordering of the list to get the ranking
-                int rank = 1;
-                foreach (R3ERatingData data in rawData)
+                try
                 {
-                    data.rank = rank;
-                    ratingDataForUserId[data.userId] = data;
-                    rank++;
+                    var stopwatch = new Stopwatch();
+                    stopwatch.Start();
+                    WebClient client = new WebClient();
+                    string ratingsJson = client.DownloadString(url);
+                    stopwatch.Stop();
+                    Console.WriteLine("Downloaded driver rating profiles from " + url + " in " + stopwatch.ElapsedMilliseconds + "ms");
+                    stopwatch.Reset();
+                    stopwatch.Start();
+                    R3ERatingData[] rawData = Newtonsoft.Json.JsonConvert.DeserializeObject<R3ERatingData[]>(ratingsJson);
+                    // use the ordering of the list to get the ranking
+                    int rank = 1;
+                    foreach (R3ERatingData data in rawData)
+                    {
+                        data.rank = rank;
+                        ratingDataForUserId[data.userId] = data;
+                        rank++;
+                    }
+                    stopwatch.Stop();
+                    Console.WriteLine("Processed " + rawData.Length + " driver rating profiles in " + stopwatch.ElapsedMilliseconds + "ms");
                 }
-                stopwatch.Stop();
-                Console.WriteLine("Processed " + rawData.Length + " driver rating profiles in " + stopwatch.ElapsedMilliseconds + "ms");
+                catch (Exception e)
+                {
+                    Console.WriteLine("Unable to get R3E ranking data from " + url + " error: " + e.StackTrace);
+                }
             }
         }
     }
