@@ -1112,5 +1112,8 @@
     <Setting Name="vr_overlays_enabled_on_startup" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="r3e_ratings_url" Type="System.String" Scope="User">
+      <Value Profile="(Default)">http://game.raceroom.com/multiplayer-rating/ratings.json</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

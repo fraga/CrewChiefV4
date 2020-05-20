@@ -13,8 +13,7 @@ namespace CrewChiefV4.R3E
 {
     public class R3ERatings
     {
-        // externalise?
-        private static String url = "http://game.raceroom.com/multiplayer-rating/ratings.json";
+        private static String urlPropName = "r3e_ratings_url";
         private static Dictionary<int, R3ERatingData> ratingDataForUserId = new Dictionary<int, R3ERatingData>();
         public static bool gotPlayerRating = false;
         public static R3ERatingData playerRating = null;
@@ -45,21 +44,29 @@ namespace CrewChiefV4.R3E
         
         public static void init()
         {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-            WebClient client = new WebClient();
-            string ratingsJson = client.DownloadString(url);
-            R3ERatingData[] rawData = Newtonsoft.Json.JsonConvert.DeserializeObject<R3ERatingData[]>(ratingsJson);
-            // use the ordering of the list to get the ranking
-            int rank = 1;
-            foreach (R3ERatingData data in rawData)
+            string url = UserSettings.GetUserSettings().getString(urlPropName);
+            if (url != null && url.Trim().Length > 0)
             {
-                data.rank = rank;
-                ratingDataForUserId[data.userId] = data;
-                rank++;
+                var stopwatch = new Stopwatch();
+                stopwatch.Start();
+                WebClient client = new WebClient();
+                string ratingsJson = client.DownloadString(url);
+                stopwatch.Stop();
+                Console.WriteLine("Downloaded driver rating profiles from " + url + " in " + stopwatch.ElapsedMilliseconds + "ms");
+                stopwatch.Reset();
+                stopwatch.Start();
+                R3ERatingData[] rawData = Newtonsoft.Json.JsonConvert.DeserializeObject<R3ERatingData[]>(ratingsJson);
+                // use the ordering of the list to get the ranking
+                int rank = 1;
+                foreach (R3ERatingData data in rawData)
+                {
+                    data.rank = rank;
+                    ratingDataForUserId[data.userId] = data;
+                    rank++;
+                }
+                stopwatch.Stop();
+                Console.WriteLine("Processed " + rawData.Length + " driver rating profiles in " + stopwatch.ElapsedMilliseconds + "ms");
             }
-            stopwatch.Stop();
-            Console.WriteLine("Loaded " + rawData.Length + " driver rating profiles from " + url + " in " + stopwatch.ElapsedMilliseconds + "ms");
         }
     }
     
