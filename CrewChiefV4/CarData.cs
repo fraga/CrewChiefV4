@@ -150,7 +150,7 @@ namespace CrewChiefV4
             CarClassEnum.F3, CarClassEnum.AUDI_TT_VLN, CarClassEnum.KTM_RR, CarClassEnum.TRACKDAY_A, CarClassEnum.BMW_235I};
 
         public static CarClassEnum[] r3e2017TyreModelClasses = new CarClassEnum[] {
-            CarClassEnum.GROUPC, CarClassEnum.F1_90S, CarClassEnum.GROUPA, CarClassEnum.R3E_SILHOUETTE,
+            CarClassEnum.GROUPC, CarClassEnum.F1_90S, CarClassEnum.GROUPA, CarClassEnum.R3E_SILHOUETTE, CarClassEnum.PORSCHE_964_CUP, CarClassEnum.GTE,
             CarClassEnum.GT1, CarClassEnum.GT2, CarClassEnum.GT4, CarClassEnum.CARRERA_CUP, CarClassEnum.TCR, CarClassEnum.GT1X, CarClassEnum.CAYMAN_CLUBSPORT, 
             CarClassEnum.FF, CarClassEnum.M1_PROCAR, CarClassEnum.DTM_92, CarClassEnum.GROUPA, CarClassEnum.PORSCHE_GT2RS, CarClassEnum.HILL_CLIMB_ICONS };
 
