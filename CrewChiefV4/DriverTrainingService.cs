@@ -14,7 +14,6 @@ namespace CrewChiefV4
     {
         public static Boolean multiLapPaceNotes = UserSettings.GetUserSettings().getBoolean("multi_lap_pace_notes");
 
-        // TODO: record these
         public static String folderStartedRecording = "pace_notes/recording_started";
         public static String folderEndedRecording = "pace_notes/recording_ended";
         public static String folderStartedPlayback = "pace_notes/playback_started";

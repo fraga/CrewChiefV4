@@ -46,7 +46,6 @@ namespace CrewChiefV4.Events
         private String folderBeingPressured = "timings/being_pressured";
 
         // R3E online only messages for cases where an opponent has a poor reputation
-        // TODO: record these
         private String folderOpponentAheadBadReputation = "timings/opponent_ahead_has_bad_reputation";
         private String folderOpponentAheadSketchyReputation = "timings/opponent_ahead_has_below_average_reputation";
         private String folderOpponentBehindBadReputation = "timings/opponent_behind_has_bad_reputation";
