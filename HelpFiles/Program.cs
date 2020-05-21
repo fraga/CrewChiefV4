@@ -76,7 +76,11 @@ namespace HelpFiles
             }
 
             // Finally copy the css and the images
-            foreach (string file in new string[] { "styles.css", "CrewChief.png", "VoiceRecognition_InstallationTraining.png" })
+            foreach (string file in new string[] { "styles.css",
+                "CrewChief.png",
+                "VoiceRecognition_InstallationTraining.png",
+                "engineer_edited.ico"
+            })
             {
                 System.IO.File.Copy($"..\\..\\{file}", $"..\\..\\..\\public\\{file}", true);
             }
