@@ -27,3 +27,5 @@ A screen dump of that:
 <a target="_blank" href="VoiceRecognition_InstallationTraining.png">
 <img src="VoiceRecognition_InstallationTraining.png" alt="Control Panel">
 </a>
+
+If it's still not working read the words of wisdom in the <a href="http://thecrewchief.org/showthread.php?28-F-a-q&p=3238&viewfull=1#post3238">FAQ</a>.
