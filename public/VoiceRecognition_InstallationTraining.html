@@ -10,6 +10,20 @@
     <script src="script.js"></script>
     <title>Crew Chief Help</title>
   </head>
+  <!-- Thumbnail -->
+  <style>
+  img {
+    border: 1px solid #ddd; /* Gray border */
+    border-radius: 4px;  /* Rounded border */
+    padding: 5px; /* Some padding */
+    width: 150px; /* Set a small width */
+  }
+
+  /* Add a hover effect (blue shadow) */
+  img:hover {
+    box-shadow: 0 0 2px 1px rgba(0, 140, 186, 0.5);
+  }
+  </style>
   <body link="#0000EE" vlink="#551A8B" text="#000000" bgcolor="#dddddd"
     alink="#EE0000">
     <div id="cssmenu">
@@ -138,9 +152,15 @@ Voice recognition can be configured to be always-on (it listens continuously and
 <h4>Testing voice recognition</h4>
 Having set it all up press the <b>Start Application</b> button in Crew Chief, then press your voice recognition button and ask "Can you hear me?". If the app can understand you it'll respond with "Yes, I can hear you".<br>
 <br>
+Make sure you test this while the game is running as some games claim exclusive control, so if no app is running that is claiming control it will always work.<br>
+<br>
 If it doesn't work: right click on the speaker on the taskbar, select Open Sound Settings then Sound Control Panel. In the Playback tab, select your playback device, then in the Properties / Advanced tab <i>uncheck</i> "Allow applications to take exclusive control of this device" Do the same for your microphone.<br>
 Also in the Communications Tab  set "When Windows detects communication activity:" Do Nothing<br>
 <br>
+A screen dump of that:<br>
+<a target="_blank" href="VoiceRecognition_InstallationTraining.png">
+<img src="VoiceRecognition_InstallationTraining.png" alt="Control Panel">
+</a>
 </div>
 </font>
 </body>

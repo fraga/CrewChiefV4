@@ -75,8 +75,8 @@ namespace HelpFiles
                 writeOnePage($"GameSpecific_ForEachGame_{page}");
             }
 
-            // Finally copy the css and the image
-            foreach (string file in new string[] { "styles.css", "CrewChief.png"})
+            // Finally copy the css and the images
+            foreach (string file in new string[] { "styles.css", "CrewChief.png", "VoiceRecognition_InstallationTraining.png" })
             {
                 System.IO.File.Copy($"..\\..\\{file}", $"..\\..\\..\\public\\{file}", true);
             }

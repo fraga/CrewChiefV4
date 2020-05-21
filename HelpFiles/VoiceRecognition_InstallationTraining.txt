@@ -18,6 +18,12 @@ Voice recognition can be configured to be always-on (it listens continuously and
 <h4>Testing voice recognition</h4>
 Having set it all up press the <b>Start Application</b> button in Crew Chief, then press your voice recognition button and ask "Can you hear me?". If the app can understand you it'll respond with "Yes, I can hear you".
 
+Make sure you test this while the game is running as some games claim exclusive control, so if no app is running that is claiming control it will always work.
+
 If it doesn't work: right click on the speaker on the taskbar, select Open Sound Settings then Sound Control Panel. In the Playback tab, select your playback device, then in the Properties / Advanced tab <i>uncheck</i> "Allow applications to take exclusive control of this device" Do the same for your microphone.
 Also in the Communications Tab  set "When Windows detects communication activity:" Do Nothing
 
+A screen dump of that:
+<a target="_blank" href="VoiceRecognition_InstallationTraining.png">
+<img src="VoiceRecognition_InstallationTraining.png" alt="Control Panel">
+</a>
