@@ -15,5 +15,9 @@ Crew Chief will use the "Default" recording device for voice recognition - this 
 
 Voice recognition can be configured to be always-on (it listens continuously and responds when it recognises a command) or in response to a button press. To assign a button to a activate voice recognition, press the 'Scan for controllers' button at the bottom of Crew Chief UI. This will populate the 'Available controllers' list. Then select the controller you want to use from this list and select the 'Talk to crew chief' item from the 'Available actions' list. Then click the 'Assign control' button and press the wheel / controller / keyboard button you want to use for this action. By default you have to hold this button down while you talk - this can be changed by selecting a different 'Voice recognition mode'.
 
-If you want to test voice recognition, set it all up and press the Start button in Crew Chief, then press your voice recognition button and ask "Can you head me?". If the app can understand you it'll respond with "Yes, I can hear you".
+<h4>Testing voice recognition</h4>
+Having set it all up press the <b>Start Application</b> button in Crew Chief, then press your voice recognition button and ask "Can you hear me?". If the app can understand you it'll respond with "Yes, I can hear you".
+
+If it doesn't work: right click on the speaker on the taskbar, select Open Sound Settings then Sound Control Panel. In the Playback tab, select your playback device, then in the Properties / Advanced tab <i>uncheck</i> "Allow applications to take exclusive control of this device" Do the same for your microphone.
+Also in the Communications Tab  set "When Windows detects communication activity:" Do Nothing
 
