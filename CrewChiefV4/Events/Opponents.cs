@@ -7,6 +7,7 @@ using System.Threading;
 using CrewChiefV4.GameState;
 using CrewChiefV4.Audio;
 using CrewChiefV4.NumberProcessing;
+using CrewChiefV4.R3E;
 
 namespace CrewChiefV4.Events
 {
@@ -646,6 +647,15 @@ namespace CrewChiefV4.Events
             }
             return -1;
         }
+        private int getOpponentR3EUserId(string opponentKey)
+        {
+            OpponentData opponentData = null;
+            if (opponentKey != null && currentGameState.OpponentData.TryGetValue(opponentKey, out opponentData))
+            {
+                return opponentData.r3eUserId;
+            }
+            return -1;
+        }
         public override void respond(String voiceMessage)
         {
             Boolean gotData = false;
@@ -676,7 +686,10 @@ namespace CrewChiefV4.Events
                 else if (voiceMessage.StartsWith(SpeechRecogniser.WHATS) &&
                     (voiceMessage.EndsWith(SpeechRecogniser.LAST_LAP) || voiceMessage.EndsWith(SpeechRecogniser.BEST_LAP) || voiceMessage.EndsWith(SpeechRecogniser.LAST_LAP_TIME) || voiceMessage.EndsWith(SpeechRecogniser.BEST_LAP_TIME) ||
                     voiceMessage.EndsWith(SpeechRecogniser.LICENSE_CLASS) ||
-                    voiceMessage.EndsWith(SpeechRecogniser.IRATING)))
+                    voiceMessage.EndsWith(SpeechRecogniser.IRATING) ||
+                    voiceMessage.EndsWith(SpeechRecogniser.REPUTATION) ||
+                    voiceMessage.EndsWith(SpeechRecogniser.RATING) ||
+                    voiceMessage.EndsWith(SpeechRecogniser.RANK)))
                 {
                     if (voiceMessage.EndsWith(SpeechRecogniser.LAST_LAP) || voiceMessage.EndsWith(SpeechRecogniser.LAST_LAP_TIME))
                     {
@@ -745,13 +758,54 @@ namespace CrewChiefV4.Events
                             }
                         }
                     }
-                    else
+                    else if (voiceMessage.EndsWith(SpeechRecogniser.IRATING))
                     {
                         int rating = getOpponentIRating(getOpponentKey(voiceMessage, SpeechRecogniser.POSSESSIVE + " ").Item1);
                         if (rating != -1)
                         {
                             gotData = true;
                             audioPlayer.playMessageImmediately(new QueuedMessage("opponentiRating", 0, messageFragments:  MessageContents(rating)));
+                        }
+                    }
+                    else if (voiceMessage.EndsWith(SpeechRecogniser.RATING) && CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM)
+                    {
+                        R3ERatingData ratingData = R3ERatings.getRatingForUserId(getOpponentR3EUserId(getOpponentKey(voiceMessage, SpeechRecogniser.POSSESSIVE + " ").Item1));
+                        if (ratingData != null)
+                        {
+                            gotData = true;
+                            Console.WriteLine("got rating data for opponent:" + ratingData.ToString());
+                            // if we don't explicitly split the sound up here it'll be read as an int
+                            int intPart = (int)ratingData.rating;
+                            int decPart = (int)(10 * (ratingData.rating - (float)intPart));
+                            audioPlayer.playMessageImmediately(new QueuedMessage("opponentRating", 0,
+                                messageFragments: MessageContents(intPart, NumberReader.folderPoint, decPart)));
+                        }
+                    }
+                    else if (voiceMessage.EndsWith(SpeechRecogniser.REPUTATION) && CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM)
+                    {
+                        R3ERatingData ratingData = R3ERatings.getRatingForUserId(getOpponentR3EUserId(getOpponentKey(voiceMessage, SpeechRecogniser.POSSESSIVE + " ").Item1));
+                        if (ratingData != null)
+                        {
+                            gotData = true;
+                            Console.WriteLine("got rating data for opponent:" + ratingData.ToString());
+                            // if we don't explicitly split the sound up here it'll be read as an int
+                            int intPart = (int)ratingData.reputation;
+                            int decPart = (int)(10 * (ratingData.reputation - (float)intPart));
+                            audioPlayer.playMessageImmediately(new QueuedMessage("opponentReputation", 0,
+                                messageFragments: MessageContents(intPart, NumberReader.folderPoint, decPart)));
+                        }
+                    }
+                    else if (voiceMessage.EndsWith(SpeechRecogniser.RANK) && CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM)
+                    {
+                        R3ERatingData ratingData = R3ERatings.getRatingForUserId(getOpponentR3EUserId(getOpponentKey(voiceMessage, SpeechRecogniser.POSSESSIVE + " ").Item1));
+                        if (ratingData != null)
+                        {
+                            gotData = true;
+                            Console.WriteLine("got rating data for opponent:" + ratingData.ToString());
+                            List<MessageFragment> fragments = new List<MessageFragment>();
+                            // ensure hundreds don't get truncated
+                            fragments.Add(MessageFragment.Integer(ratingData.rank, false));
+                            audioPlayer.playMessageImmediately(new QueuedMessage("opponentRank", 0, messageFragments: fragments));
                         }
                     }
                 }

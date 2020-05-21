@@ -4462,5 +4462,17 @@ namespace CrewChiefV4.Properties {
                 this["vr_overlays_enabled_on_startup"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://game.raceroom.com/multiplayer-rating/ratings.json")]
+        public string r3e_ratings_url {
+            get {
+                return ((string)(this["r3e_ratings_url"]));
+            }
+            set {
+                this["r3e_ratings_url"] = value;
+            }
+        }
     }
 }

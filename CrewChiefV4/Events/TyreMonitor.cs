@@ -220,12 +220,12 @@ namespace CrewChiefV4.Events
         // if inner = 90 and outer = 85 then we have 100 * (90 - 85)/90 = 5.56
         float[] defaultTargetIODifference = { 3, 6 }; // inners should be min 3%, max 6% hotter that outers
         private static Dictionary<TyreType, float[]> idealCamberValues = new Dictionary<TyreType, float[]>() {
-            {TyreType.R3E_2016, new float[] {1, 3}}, // these are the old R3E tyre model with core temps that change very little
             {TyreType.R3E_2016_HARD, new float[] {2, 4}}, // these are the old R3E tyre model with core temps that change very little
             {TyreType.R3E_2016_MEDIUM, new float[] {2, 4}}, // these are the old R3E tyre model with core temps that change very little
             {TyreType.R3E_2016_SOFT, new float[] {1, 3}}, // these are the old R3E tyre model with core temps that change very little
-            {TyreType.R3E_2017, new float[] {3, 6}},     // more recent tyre model
-            {TyreType.Hard, new float[] {4, 8}},
+            {TyreType.R3E_2017_HARD, new float[] {4, 7}},     // more recent tyre model
+            {TyreType.R3E_2017_MEDIUM, new float[] {4, 7}},     // more recent tyre model
+            {TyreType.R3E_2017_SOFT, new float[] {3, 6}},     // more recent tyre model
             {TyreType.Medium, new float[] {4, 7}},
             {TyreType.Soft, new float[] {3, 6}},
             {TyreType.Super_Soft, new float[] {3, 5}},

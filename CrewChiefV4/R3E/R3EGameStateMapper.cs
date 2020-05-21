@@ -240,6 +240,10 @@ namespace CrewChiefV4.RaceRoom
                     playerDriverDataIndex = i;
                 }
             }
+            if (!R3ERatings.gotPlayerRating)
+            {
+                R3ERatings.getRatingForPlayer(playerDriverData.DriverInfo.UserId);
+            }
             currentGameState.PositionAndMotionData.WorldPosition = new float[] { (float)playerDriverData.Position.X, (float)playerDriverData.Position.Y, (float)playerDriverData.Position.Z };
             int previousLapsCompleted = previousGameState == null ? 0 : previousGameState.SessionData.CompletedLaps;
             currentGameState.SessionData.SessionPhase = mapToSessionPhase(lastSessionPhase, currentGameState.SessionData.SessionType, lastSessionRunningTime,
@@ -1436,29 +1440,12 @@ namespace CrewChiefV4.RaceRoom
 
         private TyreType mapToTyreType(int tire_type_front, int tire_sub_type_front, int tire_type_rear, int tire_sub_type_rear, CarData.CarClassEnum carClass)
         {
-            if (CarData.r3e2017TyreModelClasses.Contains(carClass))
+            // bias ply cars
+            if (carClass == CarData.CarClassEnum.GROUP4 || carClass == CarData.CarClassEnum.GROUP5 || carClass == CarData.CarClassEnum.M1_PROCAR)
             {
-                return TyreType.R3E_2017;
-            } 
-            else if (carClass == CarData.CarClassEnum.F1 || carClass == CarData.CarClassEnum.F1_90S || carClass == CarData.CarClassEnum.GROUPC)
-            {
-                if ((int)RaceRoomConstant.TireSubtype.Hard == tire_sub_type_front)
-                {
-                    return TyreType.R3E_2016_HARD;
-                }
-                else if ((int)RaceRoomConstant.TireSubtype.Medium == tire_sub_type_front)
-                {
-                    return TyreType.R3E_2016_MEDIUM;
-                }
-                else if ((int)RaceRoomConstant.TireSubtype.Soft == tire_sub_type_front)
-                {
-                    return TyreType.R3E_2016_SOFT;
-                }
-                else
-                {
-                    return TyreType.Unknown_Race;
-                }
+                return TyreType.Bias_Ply;
             }
+            // indycar
             else if ((int)RaceRoomConstant.TireSubtype.Alternate == tire_sub_type_front)
             {
                 return TyreType.Alternate;
@@ -1467,6 +1454,7 @@ namespace CrewChiefV4.RaceRoom
             {
                 return TyreType.Primary;
             }
+            // modern DTM
             else if ((carClass == CarData.CarClassEnum.DTM_2014 || carClass == CarData.CarClassEnum.DTM_2015 || carClass == CarData.CarClassEnum.DTM_2016) &&
                 (int)RaceRoomConstant.TireType.Option == tire_type_front)
             {
@@ -1477,14 +1465,29 @@ namespace CrewChiefV4.RaceRoom
             {
                 return TyreType.Prime;
             }
+            // older tyre model - should be very car classes using this now
             else if (CarData.r3e2016TyreModelClasses.Contains(carClass))
             {
-                return TyreType.R3E_2016;
+                if ((int)RaceRoomConstant.TireSubtype.Hard == tire_sub_type_front)
+                {
+                    return TyreType.R3E_2016_HARD;
+                }
+                else if ((int)RaceRoomConstant.TireSubtype.Soft == tire_sub_type_front)
+                {
+                    return TyreType.R3E_2016_SOFT;
+                }
+                return TyreType.R3E_2016_MEDIUM;
             }
-            else
+            // newer tyre model
+            else if ((int)RaceRoomConstant.TireSubtype.Hard == tire_sub_type_front)
             {
-                return TyreType.Unknown_Race;
+                return TyreType.R3E_2017_HARD;
             }
+            else if ((int)RaceRoomConstant.TireSubtype.Soft == tire_sub_type_front)
+            {
+                return TyreType.R3E_2017_SOFT;
+            }
+            return TyreType.R3E_2017_MEDIUM;
         }
 
         private PitWindow mapToPitWindow(int r3ePitWindow)
@@ -1906,6 +1909,7 @@ namespace CrewChiefV4.RaceRoom
             Console.WriteLine("New driver " + driverName + " is using car class " +
                 opponentData.CarClass.getClassIdentifier() + " (class ID " + participantStruct.DriverInfo.ClassId + ") with tyres " + opponentData.CurrentTyres);
             opponentData.TyreChangesByLap[0] = opponentData.CurrentTyres;
+            opponentData.r3eUserId = participantStruct.DriverInfo.UserId;
             return opponentData;
         }
 

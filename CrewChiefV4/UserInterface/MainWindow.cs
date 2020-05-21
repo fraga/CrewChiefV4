@@ -19,6 +19,7 @@ using CrewChiefV4.GameState;
 using CrewChiefV4.Events;
 using CrewChiefV4.Overlay;
 using iRSDKSharp;
+using CrewChiefV4.R3E;
 using Valve.VR;
 using CrewChiefV4.ScreenCapture;
 using CrewChiefV4.VirtualReality;
@@ -2034,6 +2035,11 @@ namespace CrewChiefV4
                 if (gameDefinition != null)
                 {
                     crewChief.setGameDefinition(gameDefinition);
+                    if (gameDefinition.gameEnum == GameEnum.RACE_ROOM)
+                    {
+                        R3ERatings.init();
+                        R3ERatings.gotPlayerRating = false;
+                    }
                     MacroManager.initialise(crewChief.audioPlayer, crewChief.speechRecogniser);
                     CarData.loadCarClassData();
                     TrackData.loadTrackLandmarksData();
