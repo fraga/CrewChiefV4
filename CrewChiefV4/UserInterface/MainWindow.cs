@@ -3328,28 +3328,8 @@ namespace CrewChiefV4
             if (MessageBox.Show(warningMessage, warningTitle,
                 CrewChief.Debugging ? MessageBoxButtons.OK : MessageBoxButtons.OKCancel) == DialogResult.OK)
             {
-                if (!CrewChief.Debugging)
-                {
-                    // have to add "-multi" to the start args so the app can restart
-                    List<String> startArgs = new List<string>();
-                    foreach (String startArg in Environment.GetCommandLineArgs())
-                    {
-                        // if we're restarting because the 'force update check' was clicked, remove the '-skip_updates' arg
-                        if (removeSkipUpdates && ("-skip_updates".Equals(startArg,StringComparison.InvariantCultureIgnoreCase) || "SKIP_UPDATES".Equals(startArg)))
-                        {
-                            continue;
-                        }
-                        startArgs.Add(startArg);
-                    }
-                    if (!startArgs.Contains("-multi"))
-                    {
-                        startArgs.Add("-multi");
-                    }
-                    if (!startArgs.Contains("-app_restart"))
-                    {
-                        startArgs.Add("-app_restart");
-                    }
-                    System.Diagnostics.Process.Start(Application.ExecutablePath, String.Join(" ", startArgs.ToArray())); // to start new instance of application
+                if (Utilities.RestartApp(new List<string> { "-app_restart" }, removeSkipUpdates))
+                { 
                     this.Close(); //to turn off current app
                 }
             }

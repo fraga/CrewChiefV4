@@ -152,17 +152,8 @@ namespace CrewChiefV4
         {
             ControllerConfiguration.saveControllerConfigurationDataFile(controllerConfigurationData);
             hasChanges = false;
-            if (!CrewChief.Debugging)
+            if (Utilities.RestartApp())
             {
-                // have to add "-multi" to the start args so the app can restart
-                List<String> startArgs = new List<string>();
-                startArgs.AddRange(Environment.GetCommandLineArgs());
-                if (!startArgs.Contains("-multi"))
-                {
-                    startArgs.Add("-multi");
-                }
-                
-                System.Diagnostics.Process.Start(Application.ExecutablePath, String.Join(" ", startArgs.ToArray())); // to start new instance of application
                 MainWindow.instance.Close(); //to turn off current app
             }
         }
@@ -179,20 +170,8 @@ namespace CrewChiefV4
                 if (MessageBox.Show(warningMessage, Configuration.getUIString("save_changes"), MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
                     ControllerConfiguration.saveControllerConfigurationDataFile(controllerConfigurationData);
-                    if (!CrewChief.Debugging)
+                    if (Utilities.RestartApp(new List<string> { "-app_restart" }))
                     {
-                        // have to add "-multi" to the start args so the app can restart
-                        List<String> startArgs = new List<string>();
-                        startArgs.AddRange(Environment.GetCommandLineArgs());
-                        if (!startArgs.Contains("-multi"))
-                        {
-                            startArgs.Add("-multi");
-                        }
-                        if (!startArgs.Contains("-app_restart"))
-                        {
-                            startArgs.Add("-app_restart");
-                        }
-                        System.Diagnostics.Process.Start(Application.ExecutablePath, String.Join(" ", startArgs.ToArray())); // to start new instance of application
                         MainWindow.instance.Close(); //to turn off current app
                     }
                 }

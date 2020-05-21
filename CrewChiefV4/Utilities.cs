@@ -421,6 +421,48 @@ namespace CrewChiefV4
             return new Tuple<int, int>(wholePart, fractionalPart);
         }
 
+        /// <summary>
+        /// Restart CC with new args
+        /// </summary>
+        /// <param name="newArgs"></param>
+        /// <param name="removeSkipUpdates"></param>
+        /// <returns>true if app restarted</returns>
+        public static bool RestartApp(List<String> newArgs=null, bool removeSkipUpdates = false)
+        {
+            if (!CrewChief.Debugging)
+            {
+                List<String> startArgs = new List<string>();
+                foreach (String startArg in Environment.GetCommandLineArgs())
+                {
+                    // if we're restarting because the 'force update check'
+                    // was clicked, remove the '-skip_updates' arg
+                    if (removeSkipUpdates && 
+                        ("-skip_updates".Equals(startArg, StringComparison.InvariantCultureIgnoreCase)
+                        || "SKIP_UPDATES".Equals(startArg)))
+                    {
+                        continue;
+                    }
+                    startArgs.Add(startArg);
+                }
+
+                // Always have to add "-multi" to the start args so the app can restart
+                newArgs.Add("-multi");
+                foreach (string arg in newArgs)
+                {
+                    if (!startArgs.Contains(arg))
+                    {
+                        startArgs.Add(arg);
+                    }
+                }
+                System.Diagnostics.Process.Start(    // to start new instance of application
+                    System.Windows.Forms.Application.ExecutablePath,
+                    String.Join(" ", startArgs.ToArray()));
+                return true;
+            }
+            // If debugging then carry on regardless
+            return false;
+        }
+
         internal static void ReportException(Exception e, string msg, bool needReport)
         {
             Console.WriteLine(
