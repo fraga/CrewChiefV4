@@ -51,6 +51,7 @@ namespace HelpFiles
                 "About_Credits",
                 "About_Donations",
                 "About_ChangeLog",
+                "About_Licenses"
                 };
             gameNames = new string[]{
                 "AssettoCorsa",
