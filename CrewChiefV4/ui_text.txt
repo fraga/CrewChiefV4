@@ -1757,8 +1757,8 @@ enable_vr_overlay_windows_help = Enables Steam VR overlay windows
 enable_vr_overlay_windows_category = VR_SETTINGS;UI_STARTUP_AND_PATHS
 enable_vr_overlay_windows_metadata = RESTART_REQUIRED
 
-vr_overlays_enabled_on_startup = Toggle VR overlays on start
-vr_overlays_enabled_on_startup_help = Toggles previously enabled Steam VR overlays on Crew Chief startup
+vr_overlays_enabled_on_startup = Enable VR overlays when app starts
+vr_overlays_enabled_on_startup_help = Draw previously enabled Steam VR overlays on Crew Chief startup
 vr_overlays_enabled_on_startup_category = VR_SETTINGS;UI_STARTUP_AND_PATHS
 
 r3e_ratings_url = R3E Ratings URL
