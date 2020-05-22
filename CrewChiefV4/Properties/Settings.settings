@@ -1115,5 +1115,8 @@
     <Setting Name="r3e_ratings_url" Type="System.String" Scope="User">
       <Value Profile="(Default)">http://game.raceroom.com/multiplayer-rating/ratings.json</Value>
     </Setting>
+    <Setting Name="watched_opponent_names" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
   </Settings>
 </SettingsFile>

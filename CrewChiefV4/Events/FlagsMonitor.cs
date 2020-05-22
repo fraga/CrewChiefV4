@@ -1123,8 +1123,8 @@ namespace CrewChiefV4.Events
                         if (landmark != null && !landmark.Equals(currentGameState.SessionData.stoppedInLandmark))
                         {                                                 
                             // are we fighting with him and can we call him by name?
-                            Boolean isInteresting = false;
-                            if (CarData.IsCarClassEqual(currentGameState.carClass, opponent.CarClass) && currentGameState.SessionData.ClassPosition < 1000 && opponent.ClassPosition < 1000)
+                            Boolean isInteresting = WatchedOpponents.watchedOpponentKeys.Contains(entry.Key);
+                            if (!isInteresting && CarData.IsCarClassEqual(currentGameState.carClass, opponent.CarClass) && currentGameState.SessionData.ClassPosition < 1000 && opponent.ClassPosition < 1000)
                             {
                                 isInteresting = Math.Abs(currentGameState.SessionData.ClassPosition - opponent.ClassPosition) <= 2 &&
                                 (AudioPlayer.canReadName(opponent.DriverRawName) || opponent.ClassPosition <= folderPositionHasGoneOff.Length) && 

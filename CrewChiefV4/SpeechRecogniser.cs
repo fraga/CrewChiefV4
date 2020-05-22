@@ -318,6 +318,16 @@ namespace CrewChiefV4
         public static String[] SHOW_SUBTITLES = Configuration.getSpeechRecognitionPhrases("SHOW_SUBTITLES");
         public static String[] HIDE_SUBTITLES = Configuration.getSpeechRecognitionPhrases("HIDE_SUBTITLES");
 
+        // for watching opponent - "watch [bob]", "tell me about [bob]"
+        public static String WATCH = Configuration.getSpeechRecognitionConfigOption("WATCH");
+        public static String STOP_WATCHING = Configuration.getSpeechRecognitionConfigOption("STOP_WATCHING");
+        // special cases so we can tell the app that a watched driver is team mate or rival
+        public static String TEAM_MATE = Configuration.getSpeechRecognitionConfigOption("TEAM_MATE");
+        public static String RIVAL = Configuration.getSpeechRecognitionConfigOption("RIVAL");
+        public static String[] STOP_WATCHING_ALL = Configuration.getSpeechRecognitionPhrases("STOP_WATCHING_ALL");
+        // TODO: team mate / rival status request?
+
+
         // Steam VR stuff
         public static String[] TOGGLE_VR_OVERLAYS = Configuration.getSpeechRecognitionPhrases("TOGGLE_VR_OVERLAYS");
         public static String[] SHOW_VR_SETTING = Configuration.getSpeechRecognitionPhrases("SHOW_VR_SETTING");
@@ -1072,7 +1082,7 @@ namespace CrewChiefV4
                 validateAndAdd(WHATS_MY_RATING, staticSpeechChoices);
                 validateAndAdd(WHATS_MY_RANK, staticSpeechChoices);
                 validateAndAdd(WHATS_MY_REPUTATION, staticSpeechChoices);
-
+                
                 if (UserSettings.GetUserSettings().getBoolean("enable_overlay_window"))
                 {
                     validateAndAdd(HIDE_OVERLAY, staticSpeechChoices);
@@ -1271,7 +1281,7 @@ namespace CrewChiefV4
                     ChoicesWrapper opponentNameChoices = SREWrapperFactory.createNewChoicesWrapper(nameChoices.ToArray<string>());
                     ChoicesWrapper opponentNamePossessiveChoices = SREWrapperFactory.createNewChoicesWrapper(namePossessiveChoices.ToArray<string>());
 
-                    opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHERE_IS, WHERES }, false, opponentNameChoices, null, true));
+                    opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHERE_IS, WHERES, WATCH, TEAM_MATE, RIVAL, STOP_WATCHING }, false, opponentNameChoices, null, true));
                     // todo: iracing definitely has no opponent tyre type data, probably more games lack this info
                     if (CrewChief.gameDefinition != null && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)
                     {
@@ -1393,7 +1403,7 @@ namespace CrewChiefV4
                 opponentNameOrPositionPossessiveChoices.Add(THE_GUY_BEHIND);
             }
 
-            opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHERE_IS, WHERES }, false, opponentNameOrPositionChoices, null, true));
+            opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHERE_IS, WHERES, WATCH, TEAM_MATE, RIVAL, STOP_WATCHING }, false, opponentNameOrPositionChoices, null, true));
             if (identifyOpponentsByPosition)
             {
                 opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHOS_IN }, false, opponentPositionChoices, null, true));
@@ -1841,7 +1851,14 @@ namespace CrewChiefV4
                         if (recognitionConfidence > minimum_name_voice_recognition_confidence)
                         {
                             this.lastRecognisedText = recognisedText;
-                            CrewChief.getEvent("Opponents").respond(recognisedText);
+                            if (recognisedText.StartsWith(WATCH) || recognisedText.StartsWith(RIVAL) || recognisedText.StartsWith(TEAM_MATE) || recognisedText.StartsWith(STOP_WATCHING))
+                            {
+                                CrewChief.getEvent("WatchedOpponents").respond(recognisedText);
+                            }
+                            else
+                            {
+                                CrewChief.getEvent("Opponents").respond(recognisedText);
+                            }
                         }
                         else
                         {
@@ -2441,6 +2458,10 @@ namespace CrewChiefV4
                 (ResultContains(recognisedSpeech, SET_ALARM_CLOCK, false) || ResultContains(recognisedSpeech, CLEAR_ALARM_CLOCK, false)))
             {
                 return CrewChief.alarmClock;
+            }
+            else if (ResultContains(recognisedSpeech, STOP_WATCHING_ALL, false))
+            {
+                return CrewChief.getEvent("WatchedOpponents");
             }
             return null;
         }

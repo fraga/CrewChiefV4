@@ -1764,3 +1764,6 @@ vr_overlays_enabled_on_startup_category = VR_SETTINGS;UI_STARTUP_AND_PATHS
 r3e_ratings_url = R3E Ratings URL
 r3e_ratings_url_help = URL to retrieve R3E rating data
 r3e_ratings_url_filter = RACE_ROOM
+
+watched_opponent_names = Watched opponent names
+watched_opponent_names_help = Comma separated list of opponent names to report on

@@ -324,6 +324,7 @@ namespace CrewChiefV4.Events
                         if (!opponentsInPitLane.ContainsKey(entry.Value.DriverRawName))
                         {
                             opponentsInPitLane.Add(entry.Value.DriverRawName, currentGameState.SessionData.SessionRunningTime);
+                            Boolean warnedAboutOpponent = false;
                             if (warnAboutOpponentsExitingCloseToPlayer && currentGameState.Now > nextOpponentPitExitWarningDue)
                             {
                                 if (Strategy.opponentsWhoWillExitCloseInFront.Contains(entry.Value.DriverRawName))
@@ -341,6 +342,7 @@ namespace CrewChiefV4.Events
                                     // removed from this set anyway
                                     nextOpponentPitExitWarningDue = currentGameState.Now.AddSeconds(10);
                                     Strategy.opponentsWhoWillExitCloseInFront.Remove(entry.Value.DriverRawName);
+                                    warnedAboutOpponent = true;
                                 }
                                 else if (Strategy.opponentsWhoWillExitCloseBehind.Contains(entry.Value.DriverRawName))
                                 {
@@ -357,7 +359,36 @@ namespace CrewChiefV4.Events
                                     // removed from this set anyway
                                     nextOpponentPitExitWarningDue = currentGameState.Now.AddSeconds(10);
                                     Strategy.opponentsWhoWillExitCloseBehind.Remove(entry.Value.DriverRawName);
+                                    warnedAboutOpponent = true;
                                 }                                
+                            }
+                            if (!warnedAboutOpponent && WatchedOpponents.watchedOpponentKeys.Contains(entry.Key))
+                            {
+                                // this guy has entered the pits but won't exit close to us, but he's on the watch list
+                                if (AudioPlayer.canReadName(entry.Value.DriverRawName))
+                                {
+                                    audioPlayer.playMessage(new QueuedMessage("watched_opponent_pitting", 10,
+                                            messageFragments: MessageContents(entry.Value, folderIsPittingFromPosition, entry.Value.ClassPosition),
+                                            abstractEvent: this, priority: 10));
+                                }
+                                else if (WatchedOpponents.teamMates.Contains(entry.Key))
+                                {
+                                    audioPlayer.playMessage(new QueuedMessage("watched_opponent_pitting", 10,
+                                            messageFragments: MessageContents(WatchedOpponents.folderTeamMateIsPittingFromPosition, entry.Value.ClassPosition),
+                                            abstractEvent: this, priority: 10));
+                                }
+                                else if (WatchedOpponents.rivals.Contains(entry.Key))
+                                {
+                                    audioPlayer.playMessage(new QueuedMessage("watched_opponent_pitting", 10,
+                                            messageFragments: MessageContents(WatchedOpponents.folderRivalIsPittingFromPosition, entry.Value.ClassPosition),
+                                            abstractEvent: this, priority: 10));
+                                }
+                                else if (entry.Value.CarNumber != "-1")
+                                {
+                                    audioPlayer.playMessage(new QueuedMessage("watched_opponent_pitting", 10,
+                                            messageFragments: MessageContents(Opponents.folderCarNumber, int.Parse(entry.Value.CarNumber), folderIsPittingFromPosition, entry.Value.ClassPosition),
+                                            abstractEvent: this, priority: 10));
+                                }
                             }
                         }
                     }

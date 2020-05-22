@@ -180,6 +180,7 @@
     <Compile Include="Events\CommonActions.cs" />
     <Compile Include="Events\CommonDataContainers.cs" />
     <Compile Include="Events\DriverSwaps.cs" />
+    <Compile Include="Events\WatchedOpponents.cs" />
     <Compile Include="Events\Strategy.cs" />
     <Compile Include="Events\FrozenOrderMonitor.cs" />
     <Compile Include="Events\MulticlassWarnings.cs" />
