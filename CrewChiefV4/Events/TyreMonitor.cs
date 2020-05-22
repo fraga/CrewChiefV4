@@ -229,7 +229,8 @@ namespace CrewChiefV4.Events
             {TyreType.Medium, new float[] {4, 7}},
             {TyreType.Soft, new float[] {3, 6}},
             {TyreType.Super_Soft, new float[] {3, 5}},
-            {TyreType.Hyper_Soft, new float[] {2, 4}}
+            {TyreType.Hyper_Soft, new float[] {2, 4}},
+            {TyreType.Bias_Ply, new float[] {2, 4}}
         };
 
         private int imoSampleFrequency = 1000;  // milliseconds, externalise?

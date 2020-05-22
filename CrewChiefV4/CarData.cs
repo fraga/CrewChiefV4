@@ -103,16 +103,16 @@ namespace CrewChiefV4
 
         // model late 2017:
         private static float maxColdR3E2017SoftTyreTempPeak = 60;
-        private static float maxWarmR3E2017SoftTyreTempPeak = 90;
-        private static float maxHotR3E2017SoftTyreTempPeak = 102;
+        private static float maxWarmR3E2017SoftTyreTempPeak = 94;
+        private static float maxHotR3E2017SoftTyreTempPeak = 106;
 
         private static float maxColdR3E2017MediumTyreTempPeak = 67;
-        private static float maxWarmR3E2017MediumTyreTempPeak = 95;
-        private static float maxHotR3E2017MediumTyreTempPeak = 106;
+        private static float maxWarmR3E2017MediumTyreTempPeak = 99;
+        private static float maxHotR3E2017MediumTyreTempPeak = 110;
 
         private static float maxColdR3E2017HardTyreTempPeak = 75;
-        private static float maxWarmR3E2017HardTyreTempPeak = 100;
-        private static float maxHotR3E2017HardTyreTempPeak = 110;
+        private static float maxWarmR3E2017HardTyreTempPeak = 105;
+        private static float maxHotR3E2017HardTyreTempPeak = 115;
 
         private static float maxColdIronRoadBrakeTemp = 80;
         private static float maxWarmIronRoadBrakeTemp = 500;
