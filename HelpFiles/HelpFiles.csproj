@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{FC7491A6-3A64-448B-A6A3-33C47F88D9EF}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>HelpFiles</RootNamespace>
+    <AssemblyName>HelpFiles</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="menu.ht" />
+    <None Include="menu.ml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="About_blurb.txt" />
+    <Content Include="About_ChangeLog.txt" />
+    <Content Include="About_Contact.txt" />
+    <Content Include="About_Credits.txt" />
+    <Content Include="About_Customising_NameRequests.txt" />
+    <Content Include="About_Customising_TrackLandmarks.txt" />
+    <Content Include="About_Customising_VoicePacks.txt" />
+    <Content Include="About_Donations.txt" />
+    <Content Include="About_KnownIssues.txt" />
+    <Content Include="About_Updating.txt" />
+    <Content Include="CrewChief.png" />
+    <Content Include="GameSpecific_CommandLineSwitches.txt" />
+    <Content Include="GameSpecific_ForEachGame_AssettoCorsa.txt" />
+    <Content Include="GameSpecific_ForEachGame_AssettoCorsaCompetizione.txt" />
+    <Content Include="GameSpecific_ForEachGame_ProjectCars.txt" />
+    <Content Include="GameSpecific_ForEachGame_ProjectCars2.txt" />
+    <Content Include="GameSpecific_ForEachGame_rFactor.txt" />
+    <Content Include="GameSpecific_ForEachGame_rFactor2.txt" />
+    <Content Include="GettingStarted_GameSpecific_AssettoCorsa.txt" />
+    <Content Include="GettingStarted_GameSpecific_AssettoCorsaCompetizione.txt" />
+    <Content Include="GettingStarted_GameSpecific_ProjectCars.txt" />
+    <Content Include="GettingStarted_GameSpecific_ProjectCars2.txt" />
+    <Content Include="GettingStarted_GameSpecific_rFactor.txt" />
+    <Content Include="GettingStarted_GameSpecific_rFactor2.txt" />
+    <Content Include="GettingStarted_General.txt" />
+    <Content Include="GettingStarted_nAudio.txt" />
+    <Content Include="index.txt" />
+    <Content Include="Overlays_InGame.txt" />
+    <Content Include="Properties_Profiles.txt" />
+    <Content Include="Properties_Properties.txt" />
+    <Content Include="ReadMe.txt" />
+    <Content Include="Speech_DriverNames.txt" />
+    <Content Include="Speech_PaceNotes.txt" />
+    <Content Include="Speech_PitExitPositionPrediction.txt" />
+    <Content Include="Speech_Swearing.txt" />
+    <Content Include="Speech_TextToSpeech.txt" />
+    <Content Include="styles.css" />
+    <Content Include="VoiceRecognition_CommandMacros.txt" />
+    <Content Include="VoiceRecognition_FreeDictationChatMessages.txt" />
+    <Content Include="VoiceRecognition_InstallationTraining.txt" />
+    <Content Include="VoiceRecognition_VoiceCommandsAll.txt" />
+    <Content Include="VoiceRecognition_VoiceCommandsCheatSheet.txt" />
+    <Content Include="VoiceRecognition_VoiceCommandsGrouped.txt" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

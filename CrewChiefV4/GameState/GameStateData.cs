@@ -30,7 +30,7 @@ namespace CrewChiefV4.GameState
     public enum TyreType
     {
         // separate enum for compound & weather, and prime / option?
-        Hard, Medium, Soft, Super_Soft, Ultra_Soft, Hyper_Soft, Wet, Intermediate, Road, Bias_Ply, Unknown_Race, R3E_2017, R3E_2016,
+        Hard, Medium, Soft, Super_Soft, Ultra_Soft, Hyper_Soft, Wet, Intermediate, Road, Bias_Ply, Unknown_Race, R3E_2017_SOFT, R3E_2017_MEDIUM, R3E_2017_HARD,
         R3E_2016_SOFT, R3E_2016_MEDIUM, R3E_2016_HARD, Prime, Option, Alternate, Primary, Ice, Snow, AllTerrain, Uninitialized
     }
 
@@ -702,7 +702,6 @@ namespace CrewChiefV4.GameState
         {
             if (requestedConditionsEnum == ConditionsEnum.CURRENT)
             {
-                // TODO: need a better way to link the Conditions state with this TimingData state object, without needlessly invoking the ctor
                 if (CrewChief.currentGameState == null || CrewChief.currentGameState.Conditions == null || CrewChief.currentGameState.Conditions.samples == null)
                 {
                     return ConditionsEnum.WARM_DRY;
@@ -1114,6 +1113,8 @@ namespace CrewChiefV4.GameState
             }
         }
 
+        public Boolean OverallLeaderIsOnLastLap = false;
+
         public int iRating;
 
         public int StrengthOfField;
@@ -1138,7 +1139,6 @@ namespace CrewChiefV4.GameState
             // when inserting into this dictionary with the dict[newItem] = newValue syntax, but I can't be arsed to chase this 
             // particular ghost
             //
-            // TODO: fixme
             SessionTimesAtEndOfSectors.Add(0, -1);
             SessionTimesAtEndOfSectors.Add(4, -1);
             SessionTimesAtEndOfSectors.Add(5, -1);
@@ -1447,7 +1447,6 @@ namespace CrewChiefV4.GameState
 
         // not set for all games. Pitch, roll, yaw (all in radians. Not sure what 0 means here - 
         // presumably it's relative to the world rather than the track orientation under the car. Is yaw relative to the track spline or 'north'?).
-        // This is only set for R3E currently, and is only used to detect the car rolling over.
         public Rotation Orientation = new Rotation();
 
         public Acceleration AccelerationVector = new Acceleration();
@@ -1511,6 +1510,10 @@ namespace CrewChiefV4.GameState
         public float LastLapTime = -1;
 
         public Boolean LastLapValid = true;
+
+        public Boolean IsLastLap = false;
+
+        public int r3eUserId = -1;
 
         private List<LapData> _OpponentLapData;
         public List<LapData> OpponentLapData
@@ -1721,6 +1724,10 @@ namespace CrewChiefV4.GameState
             return currentLap != null && currentLap.InLap;
         }
 
+        /// <summary>
+        /// be careful using this - it should actually be called 'isOnOutLap'
+        /// </summary>
+        /// <returns></returns>
         public Boolean isExitingPits()
         {
             LapData currentLap = getCurrentLapData();
@@ -2382,8 +2389,6 @@ namespace CrewChiefV4.GameState
         }
 
         // called for every opponent and the player for each tick
-        // TODO: does including current speed in this calculation really reduce the max error? The speed data can be noisy for some
-        // games so this might cause more problems than it solves.
         //
         // returns null or a landmark name this car is stopped in
         public String updateLandmarkTiming(TrackDefinition trackDefinition, float gameTime, float previousDistanceRoundTrack, float currentDistanceRoundTrack, float speed, float currentDeltaPoint, CarData.CarClass carClass)
@@ -2492,7 +2497,6 @@ namespace CrewChiefV4.GameState
             {
                 // again, we're waiting to enter a landmark zone - perhaps we've just left a zone so still check for stopped cars       
 
-                // TODO: refactor this - there's already a method in TrackData to get a landmark for a given track distance, with a 70 metre 'near' zone
                 foreach (TrackLandmark trackLandmark in trackDefinition.trackLandmarks)
                 {
                     if (currentDistanceRoundTrack > Math.Max(0, trackLandmark.distanceRoundLapStart - 70) &&
@@ -4037,6 +4041,24 @@ namespace CrewChiefV4.GameState
             {
                 return SessionData.ClassPosition == SessionData.NumCarsInPlayerClass;
             }
+        }
+
+        // During the race session, this method accounts for quitters in determining whether user is last.
+        public Boolean isLastInStandings()
+        {
+            if (SessionData.SessionType == SessionType.Race)
+            {
+                if (!GameStateData.Multiclass)
+                {
+                    return SessionData.OverallPosition == SessionData.NumCarsOverallAtStartOfSession;
+                }
+                else
+                {
+                    return SessionData.ClassPosition == SessionData.NumCarsInPlayerClassAtStartOfSession;
+                }
+            }
+
+            return this.isLast();
         }
 
         public List<String> getRawDriverNames()

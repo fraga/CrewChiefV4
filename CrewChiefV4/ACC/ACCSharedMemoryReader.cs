@@ -426,7 +426,6 @@ namespace CrewChiefV4.ACC
                     return car;
                 }
             }
-            // TODO: Check if we ever end up here - the carIndex from accGraphic should work so if we get here something is broken
             int positionDiff = int.MaxValue;
             CarViewModel bestMatch = null;
             foreach (var car in cars)

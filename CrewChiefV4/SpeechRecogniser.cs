@@ -195,6 +195,14 @@ namespace CrewChiefV4
         public static String IRATING = Configuration.getSpeechRecognitionConfigOption("IRATING");
         public static String LICENSE_CLASS = Configuration.getSpeechRecognitionConfigOption("LICENSE_CLASS");
 
+        // for R3E only
+        public static String[] WHATS_MY_RATING = Configuration.getSpeechRecognitionPhrases("WHATS_MY_RATING");
+        public static String[] WHATS_MY_RANK = Configuration.getSpeechRecognitionPhrases("WHATS_MY_RANK");
+        public static String[] WHATS_MY_REPUTATION = Configuration.getSpeechRecognitionPhrases("WHATS_MY_REPUTATION");
+        public static String RATING = Configuration.getSpeechRecognitionConfigOption("RATING");
+        public static String REPUTATION = Configuration.getSpeechRecognitionConfigOption("REPUTATION");
+        public static String RANK = Configuration.getSpeechRecognitionConfigOption("RANK");
+
         public static String[] PLAY_CORNER_NAMES = Configuration.getSpeechRecognitionPhrases("PLAY_CORNER_NAMES");
 
         public static String[] DAMAGE_REPORT = Configuration.getSpeechRecognitionPhrases("DAMAGE_REPORT");
@@ -310,9 +318,24 @@ namespace CrewChiefV4
         public static String[] SHOW_SUBTITLES = Configuration.getSpeechRecognitionPhrases("SHOW_SUBTITLES");
         public static String[] HIDE_SUBTITLES = Configuration.getSpeechRecognitionPhrases("HIDE_SUBTITLES");
 
+        // for watching opponent - "watch [bob]", "tell me about [bob]"
+        public static String WATCH = Configuration.getSpeechRecognitionConfigOption("WATCH");
+        public static String STOP_WATCHING = Configuration.getSpeechRecognitionConfigOption("STOP_WATCHING");
+        // special cases so we can tell the app that a watched driver is team mate or rival
+        public static String TEAM_MATE = Configuration.getSpeechRecognitionConfigOption("TEAM_MATE");
+        public static String RIVAL = Configuration.getSpeechRecognitionConfigOption("RIVAL");
+        public static String[] STOP_WATCHING_ALL = Configuration.getSpeechRecognitionPhrases("STOP_WATCHING_ALL");
+        // TODO: team mate / rival status request?
+
+
+        // Steam VR stuff
+        public static String[] TOGGLE_VR_OVERLAYS = Configuration.getSpeechRecognitionPhrases("TOGGLE_VR_OVERLAYS");
+        public static String[] SHOW_VR_SETTING = Configuration.getSpeechRecognitionPhrases("SHOW_VR_SETTING");
+        public static String[] HIDE_VR_SETTING = Configuration.getSpeechRecognitionPhrases("HIDE_VR_SETTING");
 
         private Dictionary<GameEnum, string[]> whatsOpponentChoices = new Dictionary<GameEnum, string[]> {
             { GameEnum.IRACING, new String[] { LAST_LAP, LAST_LAP_TIME, BEST_LAP, BEST_LAP_TIME, IRATING, LICENSE_CLASS } },
+            { GameEnum.RACE_ROOM, new String[] { LAST_LAP, LAST_LAP_TIME, BEST_LAP, BEST_LAP_TIME, RATING, RANK, REPUTATION } },
             // the array for UNKNOWN is what we'll use if there's no game-specific array
             { GameEnum.UNKNOWN, new String[] { LAST_LAP, LAST_LAP_TIME, BEST_LAP, BEST_LAP_TIME } }
         };
@@ -1056,34 +1079,52 @@ namespace CrewChiefV4
 
                 validateAndAdd(I_AM_OK, staticSpeechChoices);
 
-                validateAndAdd(HIDE_OVERLAY, staticSpeechChoices);
-                validateAndAdd(SHOW_OVERLAY, staticSpeechChoices);
-                validateAndAdd(SHOW_CONSOLE, staticSpeechChoices);
-                validateAndAdd(SHOW_All_OVERLAYS, staticSpeechChoices);
-                validateAndAdd(SHOW_CHART, staticSpeechChoices);
-                validateAndAdd(CLEAR_CHART, staticSpeechChoices);
-                validateAndAdd(REFRESH_CHART, staticSpeechChoices);
-                validateAndAdd(SHOW_STACKED_CHARTS, staticSpeechChoices);
-                validateAndAdd(SHOW_SINGLE_CHART, staticSpeechChoices);
-                validateAndAdd(CLEAR_DATA, staticSpeechChoices);
-                validateAndAdd(SHOW_TIME, staticSpeechChoices);
-                validateAndAdd(SHOW_DISTANCE, staticSpeechChoices);
-                validateAndAdd(HIDE_CONSOLE, staticSpeechChoices);
-                validateAndAdd(HIDE_CHART, staticSpeechChoices);
-                validateAndAdd(CHART_COMMAND_SHOW_SECTOR_1, staticSpeechChoices);
-                validateAndAdd(CHART_COMMAND_SHOW_SECTOR_2, staticSpeechChoices);
-                validateAndAdd(CHART_COMMAND_SHOW_SECTOR_3, staticSpeechChoices);
-                validateAndAdd(CHART_COMMAND_SHOW_ALL_SECTORS, staticSpeechChoices);
-                validateAndAdd(CHART_COMMAND_ZOOM_IN, staticSpeechChoices);
-                validateAndAdd(CHART_COMMAND_ZOOM_OUT, staticSpeechChoices);
-                validateAndAdd(CHART_COMMAND_RESET_ZOOM, staticSpeechChoices);
-                validateAndAdd(CHART_COMMAND_PAN_LEFT, staticSpeechChoices);
-                validateAndAdd(CHART_COMMAND_PAN_RIGHT, staticSpeechChoices);
-                validateAndAdd(CHART_COMMAND_SHOW_NEXT_LAP, staticSpeechChoices);
-                validateAndAdd(CHART_COMMAND_SHOW_PREVIOUS_LAP, staticSpeechChoices);
-                validateAndAdd(CHART_COMMAND_SHOW_LAST_LAP, staticSpeechChoices);
-                validateAndAdd(SHOW_SUBTITLES, staticSpeechChoices);
-                validateAndAdd(HIDE_SUBTITLES, staticSpeechChoices);
+                validateAndAdd(WHATS_MY_RATING, staticSpeechChoices);
+                validateAndAdd(WHATS_MY_RANK, staticSpeechChoices);
+                validateAndAdd(WHATS_MY_REPUTATION, staticSpeechChoices);
+                
+                if (UserSettings.GetUserSettings().getBoolean("enable_overlay_window"))
+                {
+                    validateAndAdd(HIDE_OVERLAY, staticSpeechChoices);
+                    validateAndAdd(SHOW_OVERLAY, staticSpeechChoices);
+                    validateAndAdd(SHOW_CONSOLE, staticSpeechChoices);
+                    validateAndAdd(SHOW_All_OVERLAYS, staticSpeechChoices);
+                    validateAndAdd(SHOW_CHART, staticSpeechChoices);
+                    validateAndAdd(CLEAR_CHART, staticSpeechChoices);
+                    validateAndAdd(REFRESH_CHART, staticSpeechChoices);
+                    validateAndAdd(SHOW_STACKED_CHARTS, staticSpeechChoices);
+                    validateAndAdd(SHOW_SINGLE_CHART, staticSpeechChoices);
+                    validateAndAdd(CLEAR_DATA, staticSpeechChoices);
+                    validateAndAdd(SHOW_TIME, staticSpeechChoices);
+                    validateAndAdd(SHOW_DISTANCE, staticSpeechChoices);
+                    validateAndAdd(HIDE_CONSOLE, staticSpeechChoices);
+                    validateAndAdd(HIDE_CHART, staticSpeechChoices);
+                    validateAndAdd(CHART_COMMAND_SHOW_SECTOR_1, staticSpeechChoices);
+                    validateAndAdd(CHART_COMMAND_SHOW_SECTOR_2, staticSpeechChoices);
+                    validateAndAdd(CHART_COMMAND_SHOW_SECTOR_3, staticSpeechChoices);
+                    validateAndAdd(CHART_COMMAND_SHOW_ALL_SECTORS, staticSpeechChoices);
+                    validateAndAdd(CHART_COMMAND_ZOOM_IN, staticSpeechChoices);
+                    validateAndAdd(CHART_COMMAND_ZOOM_OUT, staticSpeechChoices);
+                    validateAndAdd(CHART_COMMAND_RESET_ZOOM, staticSpeechChoices);
+                    validateAndAdd(CHART_COMMAND_PAN_LEFT, staticSpeechChoices);
+                    validateAndAdd(CHART_COMMAND_PAN_RIGHT, staticSpeechChoices);
+                    validateAndAdd(CHART_COMMAND_SHOW_NEXT_LAP, staticSpeechChoices);
+                    validateAndAdd(CHART_COMMAND_SHOW_PREVIOUS_LAP, staticSpeechChoices);
+                    validateAndAdd(CHART_COMMAND_SHOW_LAST_LAP, staticSpeechChoices);
+                }
+
+                if (UserSettings.GetUserSettings().getBoolean("enable_subtitle_overlay"))
+                {
+                    validateAndAdd(SHOW_SUBTITLES, staticSpeechChoices);
+                    validateAndAdd(HIDE_SUBTITLES, staticSpeechChoices);
+                }
+
+                if (UserSettings.GetUserSettings().getBoolean("enable_vr_overlay_windows"))
+                {
+                    validateAndAdd(TOGGLE_VR_OVERLAYS, staticSpeechChoices);
+                    validateAndAdd(SHOW_VR_SETTING, staticSpeechChoices);
+                    validateAndAdd(HIDE_VR_SETTING, staticSpeechChoices);
+                }
 
                 if (alarmClockVoiceRecognitionEnabled)
                 {
@@ -1240,7 +1281,7 @@ namespace CrewChiefV4
                     ChoicesWrapper opponentNameChoices = SREWrapperFactory.createNewChoicesWrapper(nameChoices.ToArray<string>());
                     ChoicesWrapper opponentNamePossessiveChoices = SREWrapperFactory.createNewChoicesWrapper(namePossessiveChoices.ToArray<string>());
 
-                    opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHERE_IS, WHERES }, false, opponentNameChoices, null, true));
+                    opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHERE_IS, WHERES, WATCH, TEAM_MATE, RIVAL, STOP_WATCHING }, false, opponentNameChoices, null, true));
                     // todo: iracing definitely has no opponent tyre type data, probably more games lack this info
                     if (CrewChief.gameDefinition != null && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)
                     {
@@ -1362,7 +1403,7 @@ namespace CrewChiefV4
                 opponentNameOrPositionPossessiveChoices.Add(THE_GUY_BEHIND);
             }
 
-            opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHERE_IS, WHERES }, false, opponentNameOrPositionChoices, null, true));
+            opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHERE_IS, WHERES, WATCH, TEAM_MATE, RIVAL, STOP_WATCHING }, false, opponentNameOrPositionChoices, null, true));
             if (identifyOpponentsByPosition)
             {
                 opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHOS_IN }, false, opponentPositionChoices, null, true));
@@ -1565,7 +1606,7 @@ namespace CrewChiefV4
                 {
                     if (logMatch)
                     {
-                        Console.WriteLine("matching entire response " + result);
+                        Console.WriteLine("Matching entire response: \"" + alternative + "\"");
                     }
                     return true;
                 }
@@ -1755,6 +1796,7 @@ namespace CrewChiefV4
             triggerTimeoutWaitHandle.Set();
             SpeechRecogniser.waitingForSpeech = false;
             SpeechRecogniser.gotRecognitionResult = true;
+            PlaybackModerator.holdModeTalkingToChief = false;
             Boolean youWot = false;
             String recognisedText = SREWrapperFactory.GetCallbackText(e);
             String[] recognisedWords = SREWrapperFactory.GetCallbackWordsList(e);
@@ -1809,7 +1851,14 @@ namespace CrewChiefV4
                         if (recognitionConfidence > minimum_name_voice_recognition_confidence)
                         {
                             this.lastRecognisedText = recognisedText;
-                            CrewChief.getEvent("Opponents").respond(recognisedText);
+                            if (recognisedText.StartsWith(WATCH) || recognisedText.StartsWith(RIVAL) || recognisedText.StartsWith(TEAM_MATE) || recognisedText.StartsWith(STOP_WATCHING))
+                            {
+                                CrewChief.getEvent("WatchedOpponents").respond(recognisedText);
+                            }
+                            else
+                            {
+                                CrewChief.getEvent("Opponents").respond(recognisedText);
+                            }
                         }
                         else
                         {
@@ -2226,6 +2275,13 @@ namespace CrewChiefV4
                 return CrewChief.getEvent("OverlayController");
             }
 
+            if (ResultContains(recognisedSpeech, TOGGLE_VR_OVERLAYS, false) ||
+                ResultContains(recognisedSpeech, SHOW_VR_SETTING, false) ||
+                ResultContains(recognisedSpeech, HIDE_VR_SETTING, false))
+            {
+                return CrewChief.getEvent("VROverlayController");
+            }
+
             if (ResultContains(recognisedSpeech, RADIO_CHECK, false) ||
                 ResultContains(recognisedSpeech, KEEP_QUIET, false) ||
                 ResultContains(recognisedSpeech, DONT_TELL_ME_THE_GAPS, false) ||
@@ -2250,6 +2306,9 @@ namespace CrewChiefV4
                 ResultContains(recognisedSpeech, STOP_COMPLAINING, false) ||
                 ResultContains(recognisedSpeech, SHOW_SUBTITLES, false) ||
                 ResultContains(recognisedSpeech, HIDE_SUBTITLES, false) ||
+                ResultContains(recognisedSpeech, WHATS_MY_RANK, false) ||
+                ResultContains(recognisedSpeech, WHATS_MY_RATING, false) ||
+                ResultContains(recognisedSpeech, WHATS_MY_REPUTATION, false) ||
                 ControllerConfiguration.builtInActionMappings.ContainsValue(recognisedSpeech))
             {
                 return CrewChief.getEvent("CommonActions");
@@ -2399,6 +2458,10 @@ namespace CrewChiefV4
                 (ResultContains(recognisedSpeech, SET_ALARM_CLOCK, false) || ResultContains(recognisedSpeech, CLEAR_ALARM_CLOCK, false)))
             {
                 return CrewChief.alarmClock;
+            }
+            else if (ResultContains(recognisedSpeech, STOP_WATCHING_ALL, false))
+            {
+                return CrewChief.getEvent("WatchedOpponents");
             }
             return null;
         }

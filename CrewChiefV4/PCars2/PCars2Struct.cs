@@ -582,7 +582,8 @@ namespace CrewChiefV4.PCars2
 
   // Motion & Device Related
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
-        public float[] mOrientation;                     // [ UNITS = Euler Angles ]
+        public float[] mOrientation;                     // [ UNITS = Euler Angles. The rotation order isn't known here. 
+                                                         // From the data it appears it's actually pitch-yaw-roll or close enough to use like that ]
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
         public float[] mLocalVelocity;                   // [ UNITS = Metres per-second ]
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]

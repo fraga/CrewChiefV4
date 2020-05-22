@@ -158,7 +158,7 @@ namespace CrewChiefV4.Events
 
         private Boolean delayResponses = UserSettings.GetUserSettings().getBoolean("enable_delayed_responses");
 
-        public Boolean fuelReportsInGallon = UserSettings.GetUserSettings().getBoolean("report_fuel_in_gallons");
+        public Boolean fuelReportsInGallon = !UserSettings.GetUserSettings().getBoolean("use_metric");
 
         private float addAdditionalFuelLaps = UserSettings.GetUserSettings().getFloat("add_additional_fuel");
 

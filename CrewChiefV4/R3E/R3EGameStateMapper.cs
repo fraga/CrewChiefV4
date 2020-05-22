@@ -32,9 +32,9 @@ namespace CrewChiefV4.RaceRoom
         private float wornOutTyreWearLevel = 0f;
 
         private float scrubbedTyreWearPercent = 2f;
-        private float minorTyreWearPercent = 20f;
-        private float majorTyreWearPercent = 45f;
-        private float wornOutTyreWearPercent = 70f;        
+        private float minorTyreWearPercent = 25f;
+        private float majorTyreWearPercent = 55f;
+        private float wornOutTyreWearPercent = 85f;        
 
         private float trivialAeroDamageThreshold = 0.99995f;
         private float trivialEngineDamageThreshold = 0.995f;
@@ -239,6 +239,10 @@ namespace CrewChiefV4.RaceRoom
                     playerDriverData = participantStruct;
                     playerDriverDataIndex = i;
                 }
+            }
+            if (!R3ERatings.gotPlayerRating)
+            {
+                R3ERatings.getRatingForPlayer(playerDriverData.DriverInfo.UserId);
             }
             currentGameState.PositionAndMotionData.WorldPosition = new float[] { (float)playerDriverData.Position.X, (float)playerDriverData.Position.Y, (float)playerDriverData.Position.Z };
             int previousLapsCompleted = previousGameState == null ? 0 : previousGameState.SessionData.CompletedLaps;
@@ -1086,7 +1090,6 @@ namespace CrewChiefV4.RaceRoom
             if (currentGameState.SessionData.IsNewLap && currentGameState.SessionData.PreviousLapWasValid &&
                 currentGameState.SessionData.LapTimePrevious > 0)
             {
-                // TODO: different tyre types on the same car
                 float playerClassBestTimeByTyre = -1.0f;
                 if (!currentGameState.SessionData.PlayerClassSessionBestLapTimeByTyre.TryGetValue(currentGameState.TyreData.FrontLeftTyreType, out playerClassBestTimeByTyre) ||
                     playerClassBestTimeByTyre > currentGameState.SessionData.LapTimePrevious)
@@ -1437,30 +1440,12 @@ namespace CrewChiefV4.RaceRoom
 
         private TyreType mapToTyreType(int tire_type_front, int tire_sub_type_front, int tire_type_rear, int tire_sub_type_rear, CarData.CarClassEnum carClass)
         {
-            // TODO: handle cases where the front and rears are different types or subtypes. Here we assume the rears are always the same as the fronts
-            if (CarData.r3e2017TyreModelClasses.Contains(carClass))
+            // bias ply cars
+            if (carClass == CarData.CarClassEnum.GROUP4 || carClass == CarData.CarClassEnum.GROUP5 || carClass == CarData.CarClassEnum.M1_PROCAR)
             {
-                return TyreType.R3E_2017;
-            } 
-            else if (carClass == CarData.CarClassEnum.F1 || carClass == CarData.CarClassEnum.F1_90S || carClass == CarData.CarClassEnum.GROUPC)
-            {
-                if ((int)RaceRoomConstant.TireSubtype.Hard == tire_sub_type_front)
-                {
-                    return TyreType.R3E_2016_HARD;
-                }
-                else if ((int)RaceRoomConstant.TireSubtype.Medium == tire_sub_type_front)
-                {
-                    return TyreType.R3E_2016_MEDIUM;
-                }
-                else if ((int)RaceRoomConstant.TireSubtype.Soft == tire_sub_type_front)
-                {
-                    return TyreType.R3E_2016_SOFT;
-                }
-                else
-                {
-                    return TyreType.Unknown_Race;
-                }
+                return TyreType.Bias_Ply;
             }
+            // indycar
             else if ((int)RaceRoomConstant.TireSubtype.Alternate == tire_sub_type_front)
             {
                 return TyreType.Alternate;
@@ -1469,6 +1454,7 @@ namespace CrewChiefV4.RaceRoom
             {
                 return TyreType.Primary;
             }
+            // modern DTM
             else if ((carClass == CarData.CarClassEnum.DTM_2014 || carClass == CarData.CarClassEnum.DTM_2015 || carClass == CarData.CarClassEnum.DTM_2016) &&
                 (int)RaceRoomConstant.TireType.Option == tire_type_front)
             {
@@ -1479,14 +1465,29 @@ namespace CrewChiefV4.RaceRoom
             {
                 return TyreType.Prime;
             }
+            // older tyre model - should be very car classes using this now
             else if (CarData.r3e2016TyreModelClasses.Contains(carClass))
             {
-                return TyreType.R3E_2016;
+                if ((int)RaceRoomConstant.TireSubtype.Hard == tire_sub_type_front)
+                {
+                    return TyreType.R3E_2016_HARD;
+                }
+                else if ((int)RaceRoomConstant.TireSubtype.Soft == tire_sub_type_front)
+                {
+                    return TyreType.R3E_2016_SOFT;
+                }
+                return TyreType.R3E_2016_MEDIUM;
             }
-            else
+            // newer tyre model
+            else if ((int)RaceRoomConstant.TireSubtype.Hard == tire_sub_type_front)
             {
-                return TyreType.Unknown_Race;
+                return TyreType.R3E_2017_HARD;
             }
+            else if ((int)RaceRoomConstant.TireSubtype.Soft == tire_sub_type_front)
+            {
+                return TyreType.R3E_2017_SOFT;
+            }
+            return TyreType.R3E_2017_MEDIUM;
         }
 
         private PitWindow mapToPitWindow(int r3ePitWindow)
@@ -1908,6 +1909,7 @@ namespace CrewChiefV4.RaceRoom
             Console.WriteLine("New driver " + driverName + " is using car class " +
                 opponentData.CarClass.getClassIdentifier() + " (class ID " + participantStruct.DriverInfo.ClassId + ") with tyres " + opponentData.CurrentTyres);
             opponentData.TyreChangesByLap[0] = opponentData.CurrentTyres;
+            opponentData.r3eUserId = participantStruct.DriverInfo.UserId;
             return opponentData;
         }
 

@@ -143,7 +143,6 @@ namespace CrewChiefV4.iRacing
 
         private void GetQualyResults(string sessionInfo)
         {
-            // TODO: stop if qualy is finished
             for (int position = 0; position < _drivers.Count; position++)
             {
 

@@ -2857,18 +2857,6 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool report_fuel_in_gallons {
-            get {
-                return ((bool)(this["report_fuel_in_gallons"]));
-            }
-            set {
-                this["report_fuel_in_gallons"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool manual_formation_double_file {
             get {
@@ -4369,7 +4357,7 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool auto_enable_pacenotes_in_practice {
             get {
                 return ((bool)(this["auto_enable_pacenotes_in_practice"]));
@@ -4400,6 +4388,102 @@ namespace CrewChiefV4.Properties {
             }
             set {
                 this["pace_notes_mute_all_messages"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool enable_console_autoscroll {
+            get {
+                return ((bool)(this["enable_console_autoscroll"]));
+            }
+            set {
+                this["enable_console_autoscroll"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool use_metric {
+            get {
+                return ((bool)(this["use_metric"]));
+            }
+            set {
+                this["use_metric"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool play_pit_speed_limit_warnings {
+            get {
+                return ((bool)(this["play_pit_speed_limit_warnings"]));
+            }
+            set {
+                this["play_pit_speed_limit_warnings"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool start_steam_vr_if_detected {
+            get {
+                return ((bool)(this["start_steam_vr_if_detected"]));
+            }
+            set {
+                this["start_steam_vr_if_detected"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool enable_vr_overlay_windows {
+            get {
+                return ((bool)(this["enable_vr_overlay_windows"]));
+            }
+            set {
+                this["enable_vr_overlay_windows"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool vr_overlays_enabled_on_startup {
+            get {
+                return ((bool)(this["vr_overlays_enabled_on_startup"]));
+            }
+            set {
+                this["vr_overlays_enabled_on_startup"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://game.raceroom.com/multiplayer-rating/ratings.json")]
+        public string r3e_ratings_url {
+            get {
+                return ((string)(this["r3e_ratings_url"]));
+            }
+            set {
+                this["r3e_ratings_url"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string watched_opponent_names {
+            get {
+                return ((string)(this["watched_opponent_names"]));
+            }
+            set {
+                this["watched_opponent_names"] = value;
             }
         }
     }

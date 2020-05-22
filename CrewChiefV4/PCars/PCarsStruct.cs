@@ -462,7 +462,8 @@ namespace CrewChiefV4.PCars
 
         // Motion & Device Related
         [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = (int)eVector.VEC_MAX)]
-        public float[] mOrientation;                     // [ UNITS = Euler Angles ]
+        public float[] mOrientation;                     // [ UNITS = Euler Angles. The rotation order isn't known here. 
+                                                         // From the data it appears it's actually pitch-yaw-roll or close enough to use like that ]
 
         [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = (int)eVector.VEC_MAX)]
         public float[] mLocalVelocity;                   // [ UNITS = Metres per-second ]

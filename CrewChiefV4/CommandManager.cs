@@ -40,7 +40,7 @@ namespace CrewChiefV4
 
         internal static bool ProcesssCommand(string commandPassed)
         {
-            if (commandPassed == "C_EXIT")
+            if (commandPassed.Equals("-c_exit", StringComparison.InvariantCultureIgnoreCase))
             {
                if (EventWaitHandle.TryOpenExisting(CommandManager.COMMAND_EVENT_EXIT, out var exitEvent))
                     exitEvent.Set();

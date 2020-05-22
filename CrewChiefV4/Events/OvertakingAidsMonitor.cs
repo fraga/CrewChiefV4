@@ -184,7 +184,7 @@ namespace CrewChiefV4.Events
 
         public override void respond(string voiceMessage)
         {
-            // TODO - "how many activations left?" response? Is this needed?
+            // not much demand for overtaking aids voice commands
         }
     }
 }

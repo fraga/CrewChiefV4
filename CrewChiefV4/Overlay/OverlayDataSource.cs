@@ -40,7 +40,6 @@ namespace CrewChiefV4.Overlay
         private static Dictionary<string, int> startPointsForCopyFromPreviousLap = new Dictionary<string, int>();
         private static Dictionary<string, Dictionary<string, OverlayLapData>> opponentsCurrentLapData = new Dictionary<string, Dictionary<string, OverlayLapData>>();
         private static Dictionary<string, OverlayLapData> opponentBestLapData = new Dictionary<string, OverlayLapData>();
-        // TODO: sort out the initialisation of this and the other subscriptions
         public static Dictionary<string, OverlayDataType> opponentDataFields = new Dictionary<string, OverlayDataType>();
 
         private static LinkedList<OverlayLapData> worldPositionData = new LinkedList<OverlayLapData>();
@@ -340,7 +339,10 @@ namespace CrewChiefV4.Overlay
                 if (sub.Value != null && sub.Value.Count > 1)
                 {
                     LinkedListNode<OverlayLapData> node = getCorrectLastLapNode(sub.Value);
-                    return TimeSpan.FromSeconds(node.Value.lapTime).ToString(@"mm\:ss\.fff") + ", lap " + node.Value.lapNumber;
+                    if (node.Value.lapTime > 0)
+                    {
+                        return TimeSpan.FromSeconds(node.Value.lapTime).ToString(@"mm\:ss\.fff") + ", lap " + node.Value.lapNumber;
+                    }
                 }
             }
             catch (Exception)

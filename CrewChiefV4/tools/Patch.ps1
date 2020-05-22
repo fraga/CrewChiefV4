@@ -48,6 +48,7 @@ OverwriteFile $releaseBinPath\"CrewChiefV4.exe.config" $ccLayoutMainPath
 OverwriteFile $rootPath\"ui_text.txt" $ccLayoutMainPath
 OverwriteFile $rootPath\"carClassData.json" $ccLayoutMainPath
 OverwriteFile $rootPath\"trackLandmarksData.json" $ccLayoutMainPath
+OverwriteFile $rootPath\"controllerConfigurationData.json" $ccLayoutMainPath
 OverwriteFile $rootPath\"saved_command_macros.json" $ccLayoutMainPath
 OverwriteFile $rootPath\"speech_recognition_config.txt" $ccLayoutMainPath
 OverwriteFile $rootPath\"chart_subscriptions.json" $ccLayoutMainPath
@@ -61,9 +62,12 @@ OverwriteFile $releaseBinPath\"Newtonsoft.Json.dll" $ccLayoutMainPath
 OverwriteFile $releaseBinPath\"SharpDX.dll" $ccLayoutMainPath
 OverwriteFile $releaseBinPath\"SharpDX.DirectInput.dll" $ccLayoutMainPath
 OverwriteFile $releaseBinPath\"SharpDX.Direct2D1.dll" $ccLayoutMainPath
+OverwriteFile $releaseBinPath\"SharpDX.Direct3D11.dll" $ccLayoutMainPath
 OverwriteFile $releaseBinPath\"SharpDX.DXGI.dll" $ccLayoutMainPath
+OverwriteFile $releaseBinPath\"SharpDX.Mathematics.dll" $ccLayoutMainPath
 OverwriteFile $releaseBinPath\"websocket-sharp.dll" $ccLayoutMainPath
 OverwriteFile $releaseBinPath\"GameOverlay.dll" $ccLayoutMainPath
+OverwriteFile $releaseBinPath\"openvr_api.dll" $ccLayoutMainPath
 
 echo "Press any key to finish..."
 

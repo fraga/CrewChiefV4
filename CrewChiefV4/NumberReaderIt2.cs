@@ -233,7 +233,6 @@ namespace CrewChiefV4.NumberProcessing
             if (minutes > 0)
             {
                 separateMinutesAndSecondsSoundFolders.Add(folderNumbersStub + minutes.ToString());
-                // TODO: are we using padded seconds here?
                 String paddedSeconds = seconds < 10 ? "_0" + seconds : "_" + seconds;
                 combinedMinutesAndSecondsSoundFolder = folderNumbersStub + minutes + paddedSeconds;
                 if (!messageHasContentAfterTime)

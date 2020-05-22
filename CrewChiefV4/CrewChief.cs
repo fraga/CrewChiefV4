@@ -188,6 +188,7 @@ namespace CrewChiefV4
             eventsList.Add("PitStops", new PitStops(audioPlayer));
             eventsList.Add("Fuel", new Fuel(audioPlayer));
             eventsList.Add("Battery", new Battery(audioPlayer));
+            eventsList.Add("WatchedOpponents", new WatchedOpponents(audioPlayer));
             eventsList.Add("Strategy", new Strategy(audioPlayer));
             eventsList.Add("Opponents", new Opponents(audioPlayer));
             eventsList.Add("RaceTime", new RaceTime(audioPlayer));
@@ -204,6 +205,7 @@ namespace CrewChiefV4
             eventsList.Add("DriverSwaps", new DriverSwaps(audioPlayer));
             eventsList.Add("CommonActions", new CommonActions(audioPlayer));
             eventsList.Add("OverlayController", new OverlayController(audioPlayer));
+            eventsList.Add("VROverlayController", new VROverlayController(audioPlayer));
             sessionEndMessages = new SessionEndMessages(audioPlayer);
             alarmClock = new AlarmClock(audioPlayer);
         }
@@ -327,7 +329,6 @@ namespace CrewChiefV4
             }
             else
             {
-                // TODO: separate responses for no input detected, and input not understood?
                 audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderDidntUnderstand, 0));
             }
         }
@@ -465,6 +466,7 @@ namespace CrewChiefV4
                         // TODO: version handling is a bit hooky here. The version data are in shared memory but if we just pass this
                         // through to the JSON there's a risk the game version will advance (so the client expects new data) but CC isn't
                         // actually sending this data. So we'll hard-code it here for now
+                        // TODO: the game is sending 2.6 (major.minor) - why are we sending 2.8 here?
                         Utilities.startGameDataWebsocketServer("/r3e", gameDataReader, new R3ESerializer(true, 3, 2, 8));
                     }
                 }
@@ -1075,7 +1077,8 @@ namespace CrewChiefV4
                 CrewChief.gameDefinition.gameEnum == GameEnum.PCARS_64BIT ||
                 CrewChief.gameDefinition.gameEnum == GameEnum.PCARS_NETWORK ||
                 CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2 ||
-                CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2_NETWORK;
+                CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2_NETWORK ||
+                CrewChief.gameDefinition.gameEnum == GameEnum.AMS2;
         }
 
         // This has to be called before starting man Chief thread (runApp).

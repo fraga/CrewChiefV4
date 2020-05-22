@@ -6,5 +6,6 @@
         public string LastName { get; internal set; }
         public string ShortName { get; internal set; }
         public DriverCategory Category { get; internal set; }
+        public ushort Nationality { get; internal set; }
     }
 }

@@ -7,6 +7,7 @@ using System.Threading;
 using CrewChiefV4.GameState;
 using CrewChiefV4.Audio;
 using CrewChiefV4.NumberProcessing;
+using CrewChiefV4.R3E;
 
 namespace CrewChiefV4.Events
 {
@@ -15,6 +16,8 @@ namespace CrewChiefV4.Events
         private static String validationDriverAheadKey = "validationDriverAheadKey";
         private static String validationNewLeaderKey = "validationNewLeaderKey";
 
+
+        public static String folderCarNumber = "opponents/car_number";
         public static String folderLeaderIsPitting = "opponents/the_leader_is_pitting";
         public static String folderCarAheadIsPitting = "opponents/the_car_ahead_is_pitting";
         public static String folderCarBehindIsPitting = "opponents/the_car_behind_is_pitting";
@@ -251,7 +254,7 @@ namespace CrewChiefV4.Events
                         }
 
                         if (opponentData.IsNewLap && opponentData.LastLapTime > 0 && opponentData.OpponentLapData.Count > 1 &&
-                            opponentData.LastLapValid && opponentData.CurrentBestLapTime > 0)
+                            opponentData.LastLapValid && opponentData.CurrentBestLapTime > 0 && !WatchedOpponents.watchedOpponentKeys.Contains(opponentKey) /* to avoid duplicate messages*/)
                         {
                             float currentFastestLap;
                             if (currentGameState.SessionData.PlayerLapTimeSessionBest == -1)
@@ -352,6 +355,10 @@ namespace CrewChiefV4.Events
                     }
                     foreach (String dqDriver in currentGameState.disqualifiedDriverNames)
                     {
+                        if (WatchedOpponents.watchedOpponentKeys.Contains(dqDriver))
+                        {
+                            continue;
+                        }
                         if (!announcedRetirementsAndDQs.Contains(dqDriver))
                         {
                             announcedRetirementsAndDQs.Add(dqDriver);
@@ -375,7 +382,8 @@ namespace CrewChiefV4.Events
                                 {
                                     String opponentName = opponentData.DriverRawName;
                                     DateTime announceAfterTime = DateTime.MinValue;
-                                    if (!opponentData.isEnteringPits() && !opponentData.InPits && (lastNextCarAheadOpponentName == null || !lastNextCarAheadOpponentName.Equals(opponentName)) &&
+                                    if (!WatchedOpponents.watchedOpponentKeys.Contains(opponentName) &&
+                                        !opponentData.isEnteringPits() && !opponentData.InPits && (lastNextCarAheadOpponentName == null || !lastNextCarAheadOpponentName.Equals(opponentName)) &&
                                         opponentData.CanUseName && AudioPlayer.canReadName(opponentName) &&
                                         (!onlyAnnounceOpponentAfter.TryGetValue(opponentName, out announceAfterTime) || currentGameState.Now > announceAfterTime))
                                     {
@@ -398,7 +406,8 @@ namespace CrewChiefV4.Events
                             if (leader != null)
                             {
                                 String name = leader.DriverRawName;
-                                if (currentGameState.SessionData.ClassPosition > 1 && previousGameState.SessionData.ClassPosition > 1 &&
+                                if (!WatchedOpponents.watchedOpponentKeys.Contains(name) &&
+                                    currentGameState.SessionData.ClassPosition > 1 && previousGameState.SessionData.ClassPosition > 1 &&
                                     !name.Equals(lastLeaderAnnounced) &&
                                     currentGameState.Now > nextLeadChangeMessage && leader.CanUseName && AudioPlayer.canReadName(name))
                                 {
@@ -415,8 +424,9 @@ namespace CrewChiefV4.Events
                 }
 
                 HashSet<String> announcedPitters = new HashSet<string>();
-                if (currentGameState.PitData.LeaderIsPitting &&
+                if (currentGameState.PitData.LeaderIsPitting &&                                  
                     currentGameState.SessionData.SessionPhase != SessionPhase.Countdown && currentGameState.SessionData.SessionPhase != SessionPhase.Formation &&
+                    !WatchedOpponents.watchedOpponentKeys.Contains(currentGameState.PitData.OpponentForLeaderPitting.DriverRawName) &&
                     !Strategy.opponentsWhoWillExitCloseInFront.Contains(currentGameState.PitData.OpponentForLeaderPitting.DriverRawName))
                 {
                     audioPlayer.playMessage(new QueuedMessage("leader_is_pitting", 10,
@@ -428,6 +438,7 @@ namespace CrewChiefV4.Events
 
                 if (currentGameState.PitData.CarInFrontIsPitting && currentGameState.SessionData.TimeDeltaFront > 3 &&
                     currentGameState.SessionData.SessionPhase != SessionPhase.Countdown && currentGameState.SessionData.SessionPhase != SessionPhase.Formation &&
+                    !WatchedOpponents.watchedOpponentKeys.Contains(currentGameState.PitData.OpponentForCarAheadPitting.DriverRawName) &&
                     !Strategy.opponentsWhoWillExitCloseInFront.Contains(currentGameState.PitData.OpponentForCarAheadPitting.DriverRawName) &&
                     !announcedPitters.Contains(currentGameState.PitData.OpponentForCarAheadPitting.DriverRawName))
                 {
@@ -440,6 +451,7 @@ namespace CrewChiefV4.Events
 
                 if (currentGameState.PitData.CarBehindIsPitting && currentGameState.SessionData.TimeDeltaBehind > 3 &&
                     currentGameState.SessionData.SessionPhase != SessionPhase.Countdown && currentGameState.SessionData.SessionPhase != SessionPhase.Formation &&
+                    !WatchedOpponents.watchedOpponentKeys.Contains(currentGameState.PitData.OpponentForCarBehindPitting.DriverRawName) &&
                     !Strategy.opponentsWhoWillExitCloseBehind.Contains(currentGameState.PitData.OpponentForCarBehindPitting.DriverRawName) &&
                     !announcedPitters.Contains(currentGameState.PitData.OpponentForCarBehindPitting.DriverRawName))
                 {
@@ -449,7 +461,9 @@ namespace CrewChiefV4.Events
                         alternateMessageFragments: MessageContents(folderCarBehindIsPitting), abstractEvent: this, priority: 3));
                     announcedPitters.Add(currentGameState.PitData.OpponentForCarBehindPitting.DriverRawName);
                 }
-                if (Strategy.opponentFrontToWatchForPitting != null && !announcedPitters.Contains(Strategy.opponentFrontToWatchForPitting))
+
+                if (Strategy.opponentFrontToWatchForPitting != null && !announcedPitters.Contains(Strategy.opponentFrontToWatchForPitting)
+                    && !WatchedOpponents.watchedOpponentKeys.Contains(Strategy.opponentFrontToWatchForPitting))
                 {
                     foreach (KeyValuePair<String, OpponentData> entry in currentGameState.OpponentData)
                     {
@@ -467,7 +481,8 @@ namespace CrewChiefV4.Events
                         }
                     }
                 }
-                if (Strategy.opponentBehindToWatchForPitting != null && !announcedPitters.Contains(Strategy.opponentBehindToWatchForPitting))
+                if (Strategy.opponentBehindToWatchForPitting != null && !announcedPitters.Contains(Strategy.opponentBehindToWatchForPitting)
+                    && !WatchedOpponents.watchedOpponentKeys.Contains(Strategy.opponentFrontToWatchForPitting))
                 {
                     foreach (KeyValuePair<String, OpponentData> entry in currentGameState.OpponentData)
                     {
@@ -646,6 +661,15 @@ namespace CrewChiefV4.Events
             }
             return -1;
         }
+        private int getOpponentR3EUserId(string opponentKey)
+        {
+            OpponentData opponentData = null;
+            if (opponentKey != null && currentGameState.OpponentData.TryGetValue(opponentKey, out opponentData))
+            {
+                return opponentData.r3eUserId;
+            }
+            return -1;
+        }
         public override void respond(String voiceMessage)
         {
             Boolean gotData = false;
@@ -654,7 +678,6 @@ namespace CrewChiefV4.Events
                 if (SpeechRecogniser.WHAT_TYRES_AM_I_ON.Contains(voiceMessage))
                 {
                     gotData = true;
-                    // TODO: mismatched tyre types...
                     audioPlayer.playMessageImmediately(new QueuedMessage(TyreMonitor.getFolderForTyreType(currentGameState.TyreData.FrontLeftTyreType), 0));
                 }
                 else if (voiceMessage.StartsWith(SpeechRecogniser.WHAT_TYRE_IS) || voiceMessage.StartsWith(SpeechRecogniser.WHAT_TYRES_IS))
@@ -677,7 +700,10 @@ namespace CrewChiefV4.Events
                 else if (voiceMessage.StartsWith(SpeechRecogniser.WHATS) &&
                     (voiceMessage.EndsWith(SpeechRecogniser.LAST_LAP) || voiceMessage.EndsWith(SpeechRecogniser.BEST_LAP) || voiceMessage.EndsWith(SpeechRecogniser.LAST_LAP_TIME) || voiceMessage.EndsWith(SpeechRecogniser.BEST_LAP_TIME) ||
                     voiceMessage.EndsWith(SpeechRecogniser.LICENSE_CLASS) ||
-                    voiceMessage.EndsWith(SpeechRecogniser.IRATING)))
+                    voiceMessage.EndsWith(SpeechRecogniser.IRATING) ||
+                    voiceMessage.EndsWith(SpeechRecogniser.REPUTATION) ||
+                    voiceMessage.EndsWith(SpeechRecogniser.RATING) ||
+                    voiceMessage.EndsWith(SpeechRecogniser.RANK)))
                 {
                     if (voiceMessage.EndsWith(SpeechRecogniser.LAST_LAP) || voiceMessage.EndsWith(SpeechRecogniser.LAST_LAP_TIME))
                     {
@@ -746,13 +772,54 @@ namespace CrewChiefV4.Events
                             }
                         }
                     }
-                    else
+                    else if (voiceMessage.EndsWith(SpeechRecogniser.IRATING))
                     {
                         int rating = getOpponentIRating(getOpponentKey(voiceMessage, SpeechRecogniser.POSSESSIVE + " ").Item1);
                         if (rating != -1)
                         {
                             gotData = true;
                             audioPlayer.playMessageImmediately(new QueuedMessage("opponentiRating", 0, messageFragments:  MessageContents(rating)));
+                        }
+                    }
+                    else if (voiceMessage.EndsWith(SpeechRecogniser.RATING) && CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM)
+                    {
+                        R3ERatingData ratingData = R3ERatings.getRatingForUserId(getOpponentR3EUserId(getOpponentKey(voiceMessage, SpeechRecogniser.POSSESSIVE + " ").Item1));
+                        if (ratingData != null)
+                        {
+                            gotData = true;
+                            Console.WriteLine("got rating data for opponent:" + ratingData.ToString());
+                            // if we don't explicitly split the sound up here it'll be read as an int
+                            int intPart = (int)ratingData.rating;
+                            int decPart = (int)(10 * (ratingData.rating - (float)intPart));
+                            audioPlayer.playMessageImmediately(new QueuedMessage("opponentRating", 0,
+                                messageFragments: MessageContents(intPart, NumberReader.folderPoint, decPart)));
+                        }
+                    }
+                    else if (voiceMessage.EndsWith(SpeechRecogniser.REPUTATION) && CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM)
+                    {
+                        R3ERatingData ratingData = R3ERatings.getRatingForUserId(getOpponentR3EUserId(getOpponentKey(voiceMessage, SpeechRecogniser.POSSESSIVE + " ").Item1));
+                        if (ratingData != null)
+                        {
+                            gotData = true;
+                            Console.WriteLine("got rating data for opponent:" + ratingData.ToString());
+                            // if we don't explicitly split the sound up here it'll be read as an int
+                            int intPart = (int)ratingData.reputation;
+                            int decPart = (int)(10 * (ratingData.reputation - (float)intPart));
+                            audioPlayer.playMessageImmediately(new QueuedMessage("opponentReputation", 0,
+                                messageFragments: MessageContents(intPart, NumberReader.folderPoint, decPart)));
+                        }
+                    }
+                    else if (voiceMessage.EndsWith(SpeechRecogniser.RANK) && CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM)
+                    {
+                        R3ERatingData ratingData = R3ERatings.getRatingForUserId(getOpponentR3EUserId(getOpponentKey(voiceMessage, SpeechRecogniser.POSSESSIVE + " ").Item1));
+                        if (ratingData != null)
+                        {
+                            gotData = true;
+                            Console.WriteLine("got rating data for opponent:" + ratingData.ToString());
+                            List<MessageFragment> fragments = new List<MessageFragment>();
+                            // ensure hundreds don't get truncated
+                            fragments.Add(MessageFragment.Integer(ratingData.rank, false));
+                            audioPlayer.playMessageImmediately(new QueuedMessage("opponentRank", 0, messageFragments: fragments));
                         }
                     }
                 }
@@ -774,7 +841,6 @@ namespace CrewChiefV4.Events
                             {
                                 // the delta is not usable - say the position if we didn't directly ask by position
 
-                                // TODO: we need a "right infront" or "right behind" type response here for when the delta is < 0.05 (< 1 tenth rounded)
                                 if (!gotByPositionNumber)
                                 {
                                     if (SoundCache.availableSounds.Contains(folderOpponentPositionIntro))

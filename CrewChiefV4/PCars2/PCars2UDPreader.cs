@@ -395,7 +395,7 @@ namespace CrewChiefV4.PCars2
 
         private Boolean telemIsOutOfSequence(sTelemetryData telem)
         {
-            // TODO: 
+            // this will never be completed because the pcars2 udp telem will always be shite
             return false;
         }
     

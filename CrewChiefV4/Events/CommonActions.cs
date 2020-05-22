@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CrewChiefV4.NumberProcessing;
 using CrewChiefV4.Overlay;
+using CrewChiefV4.R3E;
 
 namespace CrewChiefV4.Events
 {
@@ -94,6 +95,41 @@ namespace CrewChiefV4.Events
                 GlobalBehaviourSettings.complaintsDisabled = true;
                 Console.WriteLine("Disabling complaining messages for this session");
                 audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHATS_MY_RANK, false))
+            {
+                R3ERatingData playerRatings = R3ERatings.playerRating;
+                if (playerRatings != null)
+                {
+                    List<MessageFragment> fragments = new List<MessageFragment>();
+                    // ensure hundreds don't get truncated
+                    fragments.Add(MessageFragment.Integer(playerRatings.rank, false));
+                    audioPlayer.playMessageImmediately(new QueuedMessage("playerRank", 0, messageFragments: fragments));
+                }
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHATS_MY_REPUTATION, false))
+            {
+                R3ERatingData playerRatings = R3ERatings.playerRating;
+                if (playerRatings != null)
+                {
+                    // if we don't explicitly split the sound up here it'll be read as an int
+                    int intPart = (int) playerRatings.reputation;
+                    int decPart = (int)(10 * (playerRatings.reputation - (float)intPart));
+                    audioPlayer.playMessageImmediately(new QueuedMessage("playerReputation", 0, 
+                        messageFragments: MessageContents(intPart, NumberReader.folderPoint, decPart)));
+                }
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHATS_MY_RATING, false))
+            {
+                R3ERatingData playerRatings = R3ERatings.playerRating;
+                if (playerRatings != null)
+                {
+                    // if we don't explicitly split the sound up here it'll be read as an int
+                    int intPart = (int)playerRatings.rating;
+                    int decPart = (int)(10 * (playerRatings.rating - (float)intPart));
+                    audioPlayer.playMessageImmediately(new QueuedMessage("playerRating", 0,
+                        messageFragments: MessageContents(intPart, NumberReader.folderPoint, decPart)));
+                }
             }
 
             // multiple events for status reporting:
@@ -463,7 +499,14 @@ namespace CrewChiefV4.Events
             if (DriverTrainingService.isPlayingPaceNotes)
             {
                 DriverTrainingService.stopPlayingPaceNotes();
-                audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
+                if (SoundCache.availableSounds.Contains(DriverTrainingService.folderEndedPlayback))
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(DriverTrainingService.folderEndedPlayback, 0));
+                }
+                else
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
+                }
             }
             else
             {
@@ -475,7 +518,14 @@ namespace CrewChiefV4.Events
                                 CrewChief.currentGameState.SessionData.TrackDefinition.name, CrewChief.currentGameState.carClass.carClassEnum, audioPlayer,
                                 currentGameState.SessionData.CompletedLaps))
                         {
-                            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
+                            if (SoundCache.availableSounds.Contains(DriverTrainingService.folderStartedPlayback))
+                            {
+                                audioPlayer.playMessageImmediately(new QueuedMessage(DriverTrainingService.folderStartedPlayback, 0));
+                            }
+                            else
+                            {
+                                audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
+                            }
                         }
                         else
                         {
@@ -496,6 +546,14 @@ namespace CrewChiefV4.Events
             if (DriverTrainingService.isRecordingPaceNotes)
             {
                 DriverTrainingService.completeRecordingPaceNotes();
+                if (SoundCache.availableSounds.Contains(DriverTrainingService.folderEndedRecording))
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(DriverTrainingService.folderEndedRecording, 0));
+                }
+                else
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
+                }
             }
             else
             {
@@ -511,6 +569,14 @@ namespace CrewChiefV4.Events
                 int lapNumberAtStartOfRecordingSession = CrewChief.currentGameState == null ? 0 : CrewChief.currentGameState.SessionData.CompletedLaps;
                 DriverTrainingService.startRecordingPaceNotes(CrewChief.gameDefinition.gameEnum,
                     CrewChief.trackName, CrewChief.carClass, lapNumberAtStartOfRecordingSession);
+                if (SoundCache.availableSounds.Contains(DriverTrainingService.folderStartedRecording))
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(DriverTrainingService.folderStartedRecording, 0));
+                }
+                else
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
+                }
             }
         }
         public void toggleTrackLandmarkRecording()

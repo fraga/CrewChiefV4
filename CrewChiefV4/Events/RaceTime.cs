@@ -277,6 +277,20 @@ namespace CrewChiefV4.Events
         {
             if (sessionLengthIsTime)
             {
+                if (CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT
+                    && CrewChief.currentGameState != null
+                    && CrewChief.currentGameState.SessionData.SessionType == SessionType.Race
+                    && (CrewChief.currentGameState.FrozenOrderData.Phase == FrozenOrderPhase.FastRolling
+                        || CrewChief.currentGameState.FrozenOrderData.Phase == FrozenOrderPhase.Rolling
+                        || CrewChief.currentGameState.SessionData.SessionPhase == SessionPhase.Formation
+                        || CrewChief.currentGameState.SessionData.SessionPhase == SessionPhase.Garage
+                        || CrewChief.currentGameState.SessionData.SessionPhase == SessionPhase.Gridwalk))
+                {
+                    // rF2 data is shit for above cases.
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                    return;
+                }
+
                 if (leaderHasFinishedRace)
                 {
                     Console.WriteLine("Playing last lap message, timeleft = " + timeLeft);

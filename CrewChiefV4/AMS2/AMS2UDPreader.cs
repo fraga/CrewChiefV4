@@ -395,7 +395,7 @@ namespace CrewChiefV4.AMS2
 
         private Boolean telemIsOutOfSequence(sTelemetryData telem)
         {
-            // TODO: 
+            // not implemented (do we need this? Do we care? Will Reiza fix the pCars2 UDP stream?) 
             return false;
         }
     

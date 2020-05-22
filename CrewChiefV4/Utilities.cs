@@ -421,6 +421,48 @@ namespace CrewChiefV4
             return new Tuple<int, int>(wholePart, fractionalPart);
         }
 
+        /// <summary>
+        /// Restart CC with new args
+        /// </summary>
+        /// <param name="newArgs"></param>
+        /// <param name="removeSkipUpdates"></param>
+        /// <returns>true if app restarted</returns>
+        public static bool RestartApp(List<String> newArgs=null, bool removeSkipUpdates = false)
+        {
+            if (!CrewChief.Debugging)
+            {
+                List<String> startArgs = new List<string>();
+                foreach (String startArg in Environment.GetCommandLineArgs())
+                {
+                    // if we're restarting because the 'force update check'
+                    // was clicked, remove the '-skip_updates' arg
+                    if (removeSkipUpdates && 
+                        ("-skip_updates".Equals(startArg, StringComparison.InvariantCultureIgnoreCase)
+                        || "SKIP_UPDATES".Equals(startArg)))
+                    {
+                        continue;
+                    }
+                    startArgs.Add(startArg);
+                }
+
+                // Always have to add "-multi" to the start args so the app can restart
+                newArgs.Add("-multi");
+                foreach (string arg in newArgs)
+                {
+                    if (!startArgs.Contains(arg))
+                    {
+                        startArgs.Add(arg);
+                    }
+                }
+                System.Diagnostics.Process.Start(    // to start new instance of application
+                    System.Windows.Forms.Application.ExecutablePath,
+                    String.Join(" ", startArgs.ToArray()));
+                return true;
+            }
+            // If debugging then carry on regardless
+            return false;
+        }
+
         internal static void ReportException(Exception e, string msg, bool needReport)
         {
             Console.WriteLine(
@@ -471,6 +513,39 @@ namespace CrewChiefV4
         {
             return !Utilities.IsFlagOn(value, flag);
         }
+
+        internal static bool TryBackupBrokenFile(string filePath, string backupExt, string msg)
+        {
+            try
+            {
+                var brokenFilePath = Path.ChangeExtension(filePath, backupExt);
+                Console.WriteLine($"{msg} - renaming \"{filePath}\" to \"{brokenFilePath}\"");
+                File.Delete(brokenFilePath);
+                File.Move(filePath, brokenFilePath);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"File.Move failed for {filePath} exception: {ex.Message}");
+                return false;
+            }
+
+            return true;
+        }
+
+        internal static string FirstLetterToUpper(string str)
+        {
+            if (str == null)
+                return null;
+
+            if (str.Length > 1)
+                return char.ToUpper(str[0]) + str.Substring(1);
+
+            return str.ToUpper();
+        }
+        public static int SizeOf<T>()
+        {
+            return Marshal.SizeOf(typeof(T));
+        }
     }
 
     public class WebsocketData : WebSocketBehavior
@@ -505,9 +580,11 @@ namespace CrewChiefV4
             Send(GameDataWebsocketData.gameDataSerializer.Serialize(GameDataWebsocketData.gameDataReader.getLatestGameData(), e.Data));
         }
     }
+
     // stackoverflow...
     public static class Extensions
     {
+
         /*public static int IndexOfMin<T>(this IList<T> list) where T : IComparable
         {
             if (list == null)

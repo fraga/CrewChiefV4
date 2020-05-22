@@ -5007,7 +5007,7 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "RaceRfactor Barcelona 2013" ],
+			"rf2TrackNames": ["RaceRfactor Barcelona 2013"],
 			"pcarsTrackName": "Circuit de Barcelona-Catalunya:Grand Prix",
 			"pcars2TrackName": "Barcelona_Catalunya:GP",
 			"accTrackName": "Barcelona:track config",
@@ -6105,6 +6105,11 @@
 			"rf2TrackNames": ["Portimao Circuit"],
 			"raceroomLayoutId": 1778,
 			"raceroomRollingStartLapDistance": 3555,
+			"pitApproachPoint": [
+				4134,
+				-130.2,
+				-98.6
+			],
 			"trackLandmarks": [{
 					"landmarkName": "primeira",
 					"distanceRoundLapStart": 615,
@@ -6765,7 +6770,7 @@
 			]
 		},
 		{
-			"rf2TrackNames": ["Canadian Tire Motorsport Park (after 2013)", "Mosport Park"],
+			"rf2TrackNames": ["Canadian Tire Motorsport Park (after 2013)", "Mosport Park", "Canadian Tire Motorsport Park"],
 			"irTrackName": "mosport",
 			"trackLandmarks": [{
 					"landmarkName": "turn1",
@@ -7707,6 +7712,7 @@
 		{
 			"pcarsTrackName": "Watkins Glen International:Short Circuit",
 			"pcars2TrackName": "Watkins_Glen_International:Short",
+			"rf2TrackNames": ["Watkins Glen Short Endurance", "Watkins Glen Short"],
 			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 275,
@@ -7858,9 +7864,10 @@
 			]
 		},
 		{
-			"rf2TrackNames": ["Daytona International Speedway"],
+			"rf2TrackNames": ["Daytona International Speedway", "Daytona Road Course DX11"],
 			"pcars2TrackName": "Daytona_International_Speedway:Road_Course",
 			"irTrackName": "daytona 2011 road",
+			"raceroomLayoutId": 8367,
 			"approximateTrackLength": 5800,
 			"trackLandmarks": [{
 					"landmarkName": "turn1",
@@ -7923,6 +7930,7 @@
 			"rf2TrackNames": ["Daytona International Speedway"],
 			"pcars2TrackName": "Daytona_International_Speedway:Tri_Oval",
 			"approximateTrackLength": 4000,
+			"raceroomLayoutId": 8648,
 			"isOval": true,
 			"trackLandmarks": [{
 					"landmarkName": "the_tri_oval",
@@ -15790,6 +15798,314 @@
 			"isOval": false,
 			"raceroomRollingStartLapDistance": -1.0,
 			"iracingPitEntranceDistanceRoundTrack": -1.0
+		},
+		{
+			"rf1TrackNames": [],
+			"rf2TrackNames": [
+				"Road Atlanta 2017"
+			],
+			"acTrackNames": [],
+			"irTrackName": "",
+			"pcarsTrackName": "",
+			"pcars2TrackName": "",
+			"accTrackName": "",
+			"raceroomLayoutId": -1,
+			"approximateTrackLength": -1.0,
+			"trackLandmarks": [{
+					"midPoint": -1.0,
+					"landmarkName": "turn1",
+					"distanceRoundLapStart": 350.366821,
+					"distanceRoundLapEnd": 590.830261,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn2",
+					"distanceRoundLapStart": 632.075562,
+					"distanceRoundLapEnd": 786.67334,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn3",
+					"distanceRoundLapStart": 800.205139,
+					"distanceRoundLapEnd": 850.08362,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn4",
+					"distanceRoundLapStart": 875.549,
+					"distanceRoundLapEnd": 989.38855,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "the_esses",
+					"distanceRoundLapStart": 1095.016,
+					"distanceRoundLapEnd": 1360.48022,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn5",
+					"distanceRoundLapStart": 1380.80762,
+					"distanceRoundLapEnd": 1470.43115,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn6",
+					"distanceRoundLapStart": 1890.496,
+					"distanceRoundLapEnd": 2050.58838,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn7",
+					"distanceRoundLapStart": 2105.87036,
+					"distanceRoundLapEnd": 2226.51147,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn8",
+					"distanceRoundLapStart": 2291.98535,
+					"distanceRoundLapEnd": 2564.11084,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn9",
+					"distanceRoundLapStart": 2913.90967,
+					"distanceRoundLapEnd": 3257.33423,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn10_a",
+					"distanceRoundLapStart": 3439.66382,
+					"distanceRoundLapEnd": 3541.399,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn10_b",
+					"distanceRoundLapStart": 3560.727,
+					"distanceRoundLapEnd": 3643.10864,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn11",
+					"distanceRoundLapStart": 3722.64,
+					"distanceRoundLapEnd": 3865.40015,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn12",
+					"distanceRoundLapStart": 3921.36084,
+					"distanceRoundLapEnd": 4084.04126,
+					"isCommonOvertakingSpot": false
+				}
+			],
+			"isOval": false,
+			"raceroomRollingStartLapDistance": -1.0,
+			"iracingPitEntranceDistanceRoundTrack": -1.0,
+			"pitApproachPoint": null
+		},
+		{
+			"rf2TrackNames": ["Watkins Glen Boot", "Watkins Glen Boot Endurance"],
+			"trackLandmarks": [{
+					"landmarkName": "turn1",
+					"distanceRoundLapStart": 264,
+					"distanceRoundLapEnd": 424,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn2",
+					"distanceRoundLapStart": 592,
+					"distanceRoundLapEnd": 810,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn3",
+					"distanceRoundLapStart": 871,
+					"distanceRoundLapEnd": 1072,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn4",
+					"distanceRoundLapStart": 1100,
+					"distanceRoundLapEnd": 1344,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "the_inner_loop",
+					"distanceRoundLapStart": 1850,
+					"distanceRoundLapEnd": 2000,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "the_outer_loop",
+					"distanceRoundLapStart": 2020,
+					"distanceRoundLapEnd": 2493,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn6",
+					"distanceRoundLapStart": 2672,
+					"distanceRoundLapEnd": 2930,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "toe",
+					"distanceRoundLapStart": 3196,
+					"distanceRoundLapEnd": 3449,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "heel",
+					"distanceRoundLapStart": 3947,
+					"distanceRoundLapEnd": 4117,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn9",
+					"distanceRoundLapStart": 4262,
+					"distanceRoundLapEnd": 4444,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn10",
+					"distanceRoundLapStart": 4685,
+					"distanceRoundLapEnd": 4847,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn11",
+					"distanceRoundLapStart": 5000,
+					"distanceRoundLapEnd": 5178,
+					"isCommonOvertakingSpot": false
+				}
+			]
+		},
+		{
+			"rf1TrackNames": [],
+			"rf2TrackNames": [
+				"Miami_BP"
+			],
+			"acTrackNames": [],
+			"irTrackName": "",
+			"pcarsTrackName": "",
+			"pcars2TrackName": "",
+			"accTrackName": "",
+			"raceroomLayoutId": -1,
+			"approximateTrackLength": -1.0,
+			"trackLandmarks": [{
+					"midPoint": -1.0,
+					"landmarkName": "turn1",
+					"distanceRoundLapStart": 307,
+					"distanceRoundLapEnd": 375,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn2",
+					"distanceRoundLapStart": 431,
+					"distanceRoundLapEnd": 497,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn3",
+					"distanceRoundLapStart": 505,
+					"distanceRoundLapEnd": 548,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn4",
+					"distanceRoundLapStart": 563,
+					"distanceRoundLapEnd": 600,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn5",
+					"distanceRoundLapStart": 607,
+					"distanceRoundLapEnd": 672,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn6",
+					"distanceRoundLapStart": 683,
+					"distanceRoundLapEnd": 720,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn7",
+					"distanceRoundLapStart": 856,
+					"distanceRoundLapEnd": 942,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn8",
+					"distanceRoundLapStart": 996,
+					"distanceRoundLapEnd": 1062,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn9",
+					"distanceRoundLapStart": 1080,
+					"distanceRoundLapEnd": 1200,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn10",
+					"distanceRoundLapStart": 1210,
+					"distanceRoundLapEnd": 1267,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn11",
+					"distanceRoundLapStart": 1280,
+					"distanceRoundLapEnd": 1329,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn12",
+					"distanceRoundLapStart": 1372,
+					"distanceRoundLapEnd": 1464,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn13",
+					"distanceRoundLapStart": 1471,
+					"distanceRoundLapEnd": 1522,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"midPoint": -1.0,
+					"landmarkName": "turn14",
+					"distanceRoundLapStart": 1544,
+					"distanceRoundLapEnd": 1616,
+					"isCommonOvertakingSpot": false
+				}
+			],
+			"isOval": false,
+			"raceroomRollingStartLapDistance": -1.0,
+			"iracingPitEntranceDistanceRoundTrack": -1.0,
+			"pitApproachPoint": null
 		}
 	]
 }

@@ -49,7 +49,8 @@ namespace CrewChiefV4.Audio
         private static bool insertBeepInBetweenSpotterAndChief = UserSettings.GetUserSettings().getBoolean("insert_beep_in_between_spotter_and_chief");
         public static bool rejectMessagesWhenTalking = UserSettings.GetUserSettings().getBoolean("reject_message_when_talking");
         private static bool autoVerbosity = UserSettings.GetUserSettings().getBoolean("priortise_messages_depending_on_situation");
-        public static bool paceNotesMuteOtherMessages = UserSettings.GetUserSettings().getBoolean("pace_notes_mute_all_messages");        
+        private static bool respondWhileChannelIsStillOpen = UserSettings.GetUserSettings().getBoolean("sre_respond_while_channel_still_open");
+        public static bool paceNotesMuteOtherMessages = UserSettings.GetUserSettings().getBoolean("pace_notes_mute_all_messages");
 
         private static SoundType minPriorityForInterrupt = SoundType.SPOTTER;
 
@@ -72,6 +73,8 @@ namespace CrewChiefV4.Audio
         // blocking the response itself by blocking all playback until set time.
         //
         private static DateTime blockNAudioPlaybackUntil = DateTime.MinValue;
+
+        public static bool holdModeTalkingToChief = false;
 
         static PlaybackModerator()
         {
@@ -313,12 +316,12 @@ namespace CrewChiefV4.Audio
             }
 
             if (PlaybackModerator.rejectMessagesWhenTalking
-                && !soundMetadata.isListenStartBeep
-                && soundMetadata.type != SoundType.VOICE_COMMAND_RESPONSE
-                && SpeechRecogniser.waitingForSpeech
+                && !singleSound.isBleep
+                && !(PlaybackModerator.respondWhileChannelIsStillOpen && soundMetadata.type != SoundType.VOICE_COMMAND_RESPONSE)
+                && (SpeechRecogniser.waitingForSpeech || PlaybackModerator.holdModeTalkingToChief)
                 && MainWindow.voiceOption != MainWindow.VoiceOptionEnum.ALWAYS_ON)
             {
-                PlaybackModerator.Trace(string.Format("Sound {0} rejected because we're in the middle of a voice command", singleSound.fullPath));
+                PlaybackModerator.Trace($"Sound {singleSound.fullPath} rejected because we're in the middle of a voice command.  waitingForSpeech:{SpeechRecogniser.waitingForSpeech}  holdModeTalkingToChief:{PlaybackModerator.holdModeTalkingToChief}");
                 if (messageId != 0)
                     PlaybackModerator.lastBlockedMessageId = messageId;
 

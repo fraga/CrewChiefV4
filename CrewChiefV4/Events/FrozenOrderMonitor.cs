@@ -106,7 +106,6 @@ namespace CrewChiefV4.Events
         private const string validationAssignedPositionKey = "validationAssignedPositionKey";
         private const string validationDriverToFollowKey = "validationDriverToFollowKey";
 
-        // TODO: will this break non-English sound packs?
         private const string doubleZeroKey = "numbers/zerozero";
         private const string zeroKey = "numbers/0";
 
@@ -634,10 +633,9 @@ namespace CrewChiefV4.Events
             // Announce SC speed.
             if (pfod.SafetyCarSpeed == -1.0f && cfod.SafetyCarSpeed != -1.0f)
             {
-                // TODO: may also need to announce basic "SC in" message.
                 var kmPerHour = cfod.SafetyCarSpeed * 3.6f;
                 var messageFragments = new List<MessageFragment>();
-                if (useAmericanTerms)
+                if (!GlobalBehaviourSettings.useMetric)
                 {
                     messageFragments.Add(MessageFragment.Text(FrozenOrderMonitor.folderPaceCarSpeedIs));
                     var milesPerHour = kmPerHour * 0.621371f;

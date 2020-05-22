@@ -1224,8 +1224,8 @@ namespace CrewChiefV4.PCars
 
             currentGameState.PositionAndMotionData.WorldPosition = new float[] { viewedParticipant.mWorldPosition[0], viewedParticipant.mWorldPosition[1], viewedParticipant.mWorldPosition[2] };
             currentGameState.PositionAndMotionData.Orientation.Pitch = shared.mOrientation[0];
-            currentGameState.PositionAndMotionData.Orientation.Roll = shared.mOrientation[1];
-            currentGameState.PositionAndMotionData.Orientation.Yaw = shared.mOrientation[2];
+            currentGameState.PositionAndMotionData.Orientation.Yaw = shared.mOrientation[1];
+            currentGameState.PositionAndMotionData.Orientation.Roll = shared.mOrientation[2];
 
             return currentGameState;
         }

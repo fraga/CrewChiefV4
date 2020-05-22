@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,13 +17,31 @@ namespace CrewChiefV4
     {
         ControllerConfiguration.ControllerConfigurationData controllerConfigurationData = new ControllerConfiguration.ControllerConfigurationData();
         private Boolean hasChanges = false;
+
+        public struct ActionUiEntry
+        {
+            public string uiText;
+            public string resolvedUiText;
+
+            public ActionUiEntry(string uiText, string resolvedUiText)
+            {
+                this.uiText = uiText;
+                this.resolvedUiText = resolvedUiText;
+            }
+
+            public override string ToString()
+            {
+                return uiText;
+            }
+        }
+
         public ActionEditor(Form parent)
         {
             StartPosition = FormStartPosition.CenterParent;
             InitializeComponent();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
             this.SuspendLayout();
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));            
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             labelCurrentActions.Text = Configuration.getUIString("current_available_actions");
             labelAdditionalActions.Text = Configuration.getUIString("additional_available_actions");
             buttonSave.Text = Configuration.getUIString("save_and_restart");
@@ -57,13 +77,37 @@ namespace CrewChiefV4
         {
             listBoxCurrentlyAvailableActions.Items.Clear();
             listBoxAdditionalAvailableActions.Items.Clear();
+
+            var uiAvailableActionList = new List<ActionEditor.ActionUiEntry>();
             foreach (ControllerConfiguration.ButtonAssignment ba in controllerConfigurationData.buttonAssignments.Where(ba => ba.availableAction))
             {
-                listBoxCurrentlyAvailableActions.Items.Add(ba.resolvedUiText);
+#if DEBUG
+                // I know those asserts are annoying.  They are here to understand why do we have dupes.
+                Debug.Assert(!uiAvailableActionList.Contains(new ActionEditor.ActionUiEntry(Utilities.FirstLetterToUpper(ba.resolvedUiText), ba.resolvedUiText)));
+#endif
+                uiAvailableActionList.Add(new ActionEditor.ActionUiEntry(Utilities.FirstLetterToUpper(ba.resolvedUiText), ba.resolvedUiText));
             }
+
+            var uiAdditionalActionList = new List<ActionEditor.ActionUiEntry>();
             foreach (ControllerConfiguration.ButtonAssignment ba in controllerConfigurationData.buttonAssignments.Where(ba => !ba.availableAction))
             {
-                listBoxAdditionalAvailableActions.Items.Add(ba.resolvedUiText);
+#if DEBUG
+                Debug.Assert(!uiAdditionalActionList.Contains(new ActionEditor.ActionUiEntry(Utilities.FirstLetterToUpper(ba.resolvedUiText), ba.resolvedUiText)));
+#endif
+                uiAdditionalActionList.Add(new ActionEditor.ActionUiEntry(Utilities.FirstLetterToUpper(ba.resolvedUiText), ba.resolvedUiText));
+            }
+
+            uiAvailableActionList = uiAvailableActionList.OrderBy(x => x.uiText).ToList();
+            uiAdditionalActionList = uiAdditionalActionList.OrderBy(x => x.uiText).ToList();
+
+            foreach (var action in uiAvailableActionList)
+            {
+                listBoxCurrentlyAvailableActions.Items.Add(action);
+            }
+
+            foreach (var action in uiAdditionalActionList)
+            {
+                listBoxAdditionalAvailableActions.Items.Add(action);
             }
         }
         private void buttonRemoveAction_Click(object sender, EventArgs e)
@@ -71,7 +115,7 @@ namespace CrewChiefV4
             bool hasChangedThisClick = false;
             foreach (var item in listBoxCurrentlyAvailableActions.SelectedItems)
             {
-                ControllerConfiguration.ButtonAssignment ba = controllerConfigurationData.buttonAssignments.FirstOrDefault(ba1 => ba1.resolvedUiText == item.ToString());
+                ControllerConfiguration.ButtonAssignment ba = controllerConfigurationData.buttonAssignments.FirstOrDefault(ba1 => ba1.resolvedUiText == ((ActionEditor.ActionUiEntry)item).resolvedUiText);
                 if(ba != null)
                 {
                     ba.availableAction = false;
@@ -90,7 +134,7 @@ namespace CrewChiefV4
             bool hasChangedThisClick = false;
             foreach (var item in listBoxAdditionalAvailableActions.SelectedItems)
             {
-                ControllerConfiguration.ButtonAssignment ba = controllerConfigurationData.buttonAssignments.FirstOrDefault(ba1 => ba1.resolvedUiText == item.ToString());
+                ControllerConfiguration.ButtonAssignment ba = controllerConfigurationData.buttonAssignments.FirstOrDefault(ba1 => ba1.resolvedUiText == ((ActionEditor.ActionUiEntry)item).resolvedUiText);
                 if (ba != null)
                 {
                     ba.availableAction = true;
@@ -108,17 +152,8 @@ namespace CrewChiefV4
         {
             ControllerConfiguration.saveControllerConfigurationDataFile(controllerConfigurationData);
             hasChanges = false;
-            if (!CrewChief.Debugging)
+            if (Utilities.RestartApp())
             {
-                // have to add "multi" to the start args so the app can restart
-                List<String> startArgs = new List<string>();
-                startArgs.AddRange(Environment.GetCommandLineArgs());
-                if (!startArgs.Contains("multi"))
-                {
-                    startArgs.Add("multi");
-                }
-                
-                System.Diagnostics.Process.Start(Application.ExecutablePath, String.Join(" ", startArgs.ToArray())); // to start new instance of application
                 MainWindow.instance.Close(); //to turn off current app
             }
         }
@@ -127,7 +162,7 @@ namespace CrewChiefV4
         {
             if (hasChanges)
             {
-                String warningMessage = Configuration.getUIString("save_prop_changes_warning");
+                var warningMessage = string.Format(Configuration.getUIString("save_prop_changes_warning"), Path.GetFileNameWithoutExtension(UserSettings.GetUserSettings().getString("current_settings_profile")));
                 if (CrewChief.Debugging)
                 {
                     warningMessage = "You have unsaved changes. Click 'Yes' to save these changes (you will need to manually restart the application). Click 'No' to discard these changes";
@@ -135,20 +170,8 @@ namespace CrewChiefV4
                 if (MessageBox.Show(warningMessage, Configuration.getUIString("save_changes"), MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
                     ControllerConfiguration.saveControllerConfigurationDataFile(controllerConfigurationData);
-                    if (!CrewChief.Debugging)
+                    if (Utilities.RestartApp(new List<string> { "-app_restart" }))
                     {
-                        // have to add "multi" to the start args so the app can restart
-                        List<String> startArgs = new List<string>();
-                        startArgs.AddRange(Environment.GetCommandLineArgs());
-                        if (!startArgs.Contains("multi"))
-                        {
-                            startArgs.Add("multi");
-                        }
-                        if (!startArgs.Contains("app_restart"))
-                        {
-                            startArgs.Add("app_restart");
-                        }
-                        System.Diagnostics.Process.Start(Application.ExecutablePath, String.Join(" ", startArgs.ToArray())); // to start new instance of application
                         MainWindow.instance.Close(); //to turn off current app
                     }
                 }

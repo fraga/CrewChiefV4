@@ -113,9 +113,6 @@ namespace CrewChiefV4.Events
         public static String folderCutTrackPracticeOrQual = "penalties/cut_track_in_prac_or_qual";
         private static bool useNewCutTrackSounds = false;
 
-
-        // TODO: The this-lap-and-next-lap-deleted stuff probably needs re-recording or at least extending - the message should
-        // really be "this lap will be deleted and they'll probably delete the following lap" or words to that effect
         public static String folderCutTrackPracticeOrQualNextLapInvalid = "penalties/cut_track_in_prac_or_qual_next_invalid";
 
         // 1, 2, 3, 4 versions of race cut ("track limits...") and non-race cut ("lap deleted") messages. For non-race,
@@ -707,6 +704,11 @@ namespace CrewChiefV4.Events
             string messageToPlay = isRace ? cutFoldersForRace[trackLimitsMode] : cutFoldersForNonRace[trackLimitsMode];
             // whether we actually want to play this is down to the taking-the-piss-o-meter setting, the last cut message time
             // and the total number of cuts in this session
+            if (totalAnnouncableCutWarnings == 20)
+            {
+                // before giving up rant at least once
+                return cutFoldersForNonRace[TrackLimitsMode.TAKING_PISS];
+            }
             if (totalAnnouncableCutWarnings > 20
                 || (trackLimitsMode == TrackLimitsMode.TAKING_PISS && (now - lastCutTrackWarningTime).TotalSeconds < 300)
                 || (trackLimitsMode == TrackLimitsMode.EXCESSIVE_CUTTING && (now - lastCutTrackWarningTime).TotalSeconds < 200))

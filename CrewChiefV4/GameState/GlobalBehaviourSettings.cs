@@ -40,8 +40,10 @@ namespace CrewChiefV4.GameState
         public static Boolean alwaysUseHundredths = UserSettings.GetUserSettings().getBoolean("always_report_time_in_hundredths");
         public static Boolean defaultToAmericanTerms = UserSettings.GetUserSettings().getBoolean("use_american_terms");
         private static Boolean enableOvalSpotterBehaviours = UserSettings.GetUserSettings().getBoolean("enable_oval_spotter_enhancements");
+        public static Boolean playPitSpeedLimitWarnings = UserSettings.GetUserSettings().getBoolean("play_pit_speed_limit_warnings");
 
         public static Boolean useAmericanTerms = false; // if true we use american phrasing where appropriate ("pace car" etc).
+        public static Boolean useMetric = false; // if true we use metric units (KPH)
         public static Boolean useOvalLogic = false;    // if true, we don't care about cold brakes and cold left side tyres (?)
         public static Boolean ovalSpotterMode = false;
         public static Boolean useHundredths = false;
@@ -56,7 +58,7 @@ namespace CrewChiefV4.GameState
 
         public static Boolean enableBreathIn = UserSettings.GetUserSettings().getBoolean("enable_breath_in");
 
-        public static readonly List<MessageTypes> defaultEnabledMessageTypes = new List<MessageTypes> { 
+        public static readonly List<MessageTypes> defaultEnabledMessageTypes = new List<MessageTypes> {
             MessageTypes.TYRE_TEMPS, MessageTypes.TYRE_WEAR, MessageTypes.BRAKE_TEMPS, MessageTypes.BRAKE_DAMAGE, MessageTypes.FUEL, MessageTypes.LOCKING_AND_SPINNING };
         public static readonly List<MessageTypes> defaultBatteryPoweredEnabledMessageTypes = new List<MessageTypes> {
             MessageTypes.TYRE_TEMPS, MessageTypes.TYRE_WEAR, MessageTypes.BRAKE_TEMPS, MessageTypes.BRAKE_DAMAGE, MessageTypes.BATTERY, MessageTypes.LOCKING_AND_SPINNING };
@@ -84,9 +86,11 @@ namespace CrewChiefV4.GameState
             GlobalBehaviourSettings.spotterVehicleLength = defaultSpotterVehicleLength;
             GlobalBehaviourSettings.spotterVehicleWidth = defaultSpotterVehicleWidth;
             GlobalBehaviourSettings.enableBreathIn = UserSettings.GetUserSettings().getBoolean("enable_breath_in") && SoundCache.availableSounds.Contains(AudioPlayer.folderBreathIn);
+            GlobalBehaviourSettings.useMetric = UserSettings.GetUserSettings().getBoolean("use_metric");
+            GlobalBehaviourSettings.playPitSpeedLimitWarnings = UserSettings.GetUserSettings().getBoolean("play_pit_speed_limit_warnings");
         }
 
-        public static void UpdateFromCarClass(CarData.CarClass carClass) 
+        public static void UpdateFromCarClass(CarData.CarClass carClass)
         {
             useAmericanTerms = carClass.useAmericanTerms || defaultToAmericanTerms;
             useHundredths = carClass.timesInHundredths || alwaysUseHundredths;
@@ -154,6 +158,7 @@ namespace CrewChiefV4.GameState
             Console.WriteLine("Realistic mode: " + GlobalBehaviourSettings.realisticMode);
             Console.WriteLine("Oval logic enabled: " + GlobalBehaviourSettings.useOvalLogic);
             Console.WriteLine("Using American terms: " + GlobalBehaviourSettings.useAmericanTerms);
+            Console.WriteLine("Using metric: " + GlobalBehaviourSettings.useMetric);
         }
 
         public static void UpdateFromTrackDefinition(TrackDefinition trackDefinition)

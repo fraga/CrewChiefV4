@@ -164,6 +164,12 @@ WHAT_ARE_THE_PIT_ACTIONS = what are the pit actions:what's the pitstop plan
 
 STOP_COMPLAINING = stop complaining:stop grumbling:fuck off
 
+WHATS_MY_RANK = what's my rank
+WHATS_MY_RATING = what's my rating
+WHATS_MY_REPUTATION = what's my reputation
+
+STOP_WATCHING_ALL = cancel watched drivers:stop watching drivers
+
 #################################################
 # Dynamic recognition phrase fragments - these are used to build up recognition sentences for opponent information.
 # Multiple options are NOT supported here - each must be a single word or phrase. These are combined for each opponent
@@ -259,6 +265,15 @@ WHAT_TYRE_IS = what tire is
 LICENSE_CLASS = license class
 IRATING = eye rating
 
+RATING = rating
+REPUTATION = reputation
+RANK = rank
+
+WATCH = watch
+STOP_WATCHING = stop watching
+RIVAL = rival
+TEAM_MATE = team mate
+
 # this one is used for Raceroom tyre questions - "what tyres is Bob on". The "on" could be "using", or "running", or whatever, but can only be a single item (no lists)
 ON = on
 
@@ -329,7 +344,6 @@ WHATS_THE_INCIDENT_LIMIT = what's the incident limit
 WHATS_THE_SOF = what's the sof:what is the strength of field
 
 
-
 #################################################
 # Overlay controls common to all datasets.
 # 
@@ -367,7 +381,9 @@ CHART_COMMAND_PAN_RIGHT = pan right
 CHART_COMMAND_SHOW_LAST_LAP = show last lap
 CHART_COMMAND_SHOW_NEXT_LAP = show next lap
 CHART_COMMAND_SHOW_PREVIOUS_LAP = show previous lap
-
+TOGGLE_VR_OVERLAYS = toggle VR overlays
+SHOW_VR_SETTING = show VR settings
+HIDE_VR_SETTING = hide VR settings
 
 # these are hard-coded standard chart command fragments for channels available to all games
 CHART_FRAGMENT_CAR_SPEED = car speed:speed

@@ -1362,7 +1362,7 @@ namespace CrewChiefV4.Audio
                 {
                     this.subtitle = Path.GetFileNameWithoutExtension(fullPath);
                     if (!string.IsNullOrWhiteSpace(this.subtitle))
-                        this.subtitle = SubtitleManager.FirstLetterToUpper(this.subtitle);
+                        this.subtitle = Utilities.FirstLetterToUpper(this.subtitle);
                 }
                 else if (fullPath.Contains("prefixes_and_suffixes"))
                 {

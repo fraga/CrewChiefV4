@@ -10,6 +10,8 @@ namespace ksBroadcastingNetwork.Structs
         public int RaceNumber { get; internal set; }
         public byte CupCategory { get; internal set; }
         public int CurrentDriverIndex { get; internal set; }
+        public ushort Nationality { get; internal set; }
+
         public IList<DriverInfo> Drivers { get; } = new List<DriverInfo>();
 
         public CarInfo(ushort carIndex)

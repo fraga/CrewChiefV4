@@ -358,6 +358,45 @@ Crew Chief SDK/Shared Memory
 Crew Chief now exposes some of its internals via Shared Memory block. Currently, subtitle information is exposed, but we might be adding more data in the future. See https://gitlab.com/mr_belowski/CrewChiefV4/-/blob/master/CrewChiefV4SDK/CrewChiefV4SDK/Program.cs to get started.
 
 
+Crew Chief Command line parameters
+----------------------------------
+-game [GAME_NAME] - Specify game to select in the Crew Chief
+
+Example: [full path]\CrewChiefV4.exe -game RACE_ROOM
+this will make RaceRoom the selected game in the Crew Chief.
+
+Supported values:
+RACE_ROOM, PCARS2, PCARS_64BIT, PCARS_32BIT, PCARS_NETWORK, PCARS2_NETWORK, RF1, ASSETTO_64BIT, ASSETTO_32BIT, RF2, RF2_64BIT, IRACING, F1_2018, F1_2019, ACC, AMS2, AMS2_NETWORK, AMS, FTRUCK, MARCAS, GSC
+
+
+-profile [file name]- You can specify name of the profile to run at CC startup
+
+Example: [full path]\CrewChiefV4.exe -profile "my favorite game my awesome profile"
+this will load "my favorite game my awesome profile.json" profile at Crew Chief startup.
+
+
+-cpu[1-8] - You can set the processor affinity for Crew Chief in TaskManager, but this will have to be done each time you start the app. Alternatively, you can start the app with an addition argument "-cpu1", "-cpu2", ... "-cpu8", like this:
+
+Example: [full path]\CrewChiefV4.exe -cpu4
+this will set the processor affinity to the 4th CPU in your system (usually referred to as CPU3 - they're zero-indexed).
+
+
+-c_exit - Pass this switch to close running Crew Chief instance.
+
+
+-nodevicescan - Disable automatic active/disabled controller detection.  Use this if you have issues with CC rescanning controllers all the time (caused by buggy device drivers).
+
+
+-sound_test - Enables extra UI that helps sound pack creators testing sounds.
+
+
+-skip_updates - disables the check for CC updates.
+
+
+-debug - collects CC debug trace.  For more info see here: http://thecrewchief.org/showthread.php?142-How-to-collect-Crew-Chief-repro-traces
+
+
+
 Donations
 ---------
 We built and maintain this because we want to, we enjoy making stuff, and contributing to the Sim Racing community is awesome. Working with the various quirks, errors and omissions in the shared data which the games provide isn't much fun but it's all part of the challenge. Having said that, there are many many hours of hard work invested in this.
@@ -376,6 +415,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.11.1.2: Reworked pace notes functionality to allow pace notes to be recorded over multiple laps and to add some speed and direction filtering (e.g. you might want a particular pace note to only play when the car is going too fast) - full documentation still to be done; added option to make pace notes play automatically when starting a practice session (disabled by default, enable with 'Play pace notes automatically in practice' property); added option to mute other messages when pace notes are playing (enabled by default, disable with 'Mute messages when playing pace notes' property); improvements to the subtitle overlay; replaced existing 'fuel in gallons' property with more generic 'Use metric' property which applies to fuel and speed calls; added option to disable pit speed limit warnings ('Enable pit speed limit warnings', defaults to enabled); iRacing - fix some pitstop commands; AMS2 - fix command line wiring; R3E - fix broken opponent position messages when asking "where is [opponent name]"; R3E - added some missing tyre types to the pit menu code; R3E - tweaked tyre wear warning messages so the app isn't as conservative; ACC - fix for broadcast API change
+
 Version 4.11.0.3: Fix some subtitle issues when using personalisations for some users; allow sounds to be played back in stereo when using nAudio for playback (enable with the "Play messages in stereo" property) - should fix cases where the app's sound only plays through one speaker; ACC - changed deprecation warning so it's just a console message rather than a popup; changed default subtitle overlay colour scheme (this can be changed manually by editing the Documents/CrewChiefV4/subtitle_overlay.json file - the recommended value for the "activeColorScheme" property is "CrewChief")
 
 Version 4.11.0.2: Added subtitles. Subtitles can be shown as an overlay from Crew Chief (enable with the 'Enbable subtitle overlay' option in the Properties screen) or can be written to a shared memory file for use in 3rd party overlays or dashboards (enable with the 'Enable shared memory' option). See https://gitlab.com/mr_belowski/CrewChiefV4/-/blob/master/CrewChiefV4SDK/CrewChiefV4SDK/Program.cs for an example project which uses this shared memory file. Note this subtitles require the latest sound pack update. Massive thanks to Nolan Bates for a frankly astonishing amount of work transcribing all of Crew Chief's phrases; Initial Automobilista 2 support (work in progress). To use this set the Shared Memory mode to Project Cars2 in the in-game System menu; ACC - removed pit window messages; ACC - added deprecation warning. We're stopping work on ACC support and might remove support entirely in the future; various bug fixes and tweaks

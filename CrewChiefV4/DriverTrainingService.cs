@@ -14,6 +14,11 @@ namespace CrewChiefV4
     {
         public static Boolean multiLapPaceNotes = UserSettings.GetUserSettings().getBoolean("multi_lap_pace_notes");
 
+        public static String folderStartedRecording = "pace_notes/recording_started";
+        public static String folderEndedRecording = "pace_notes/recording_ended";
+        public static String folderStartedPlayback = "pace_notes/playback_started";
+        public static String folderEndedPlayback = "pace_notes/playback_ended";
+
         private static int combineEntriesCloserThan = 20; // if a new entry's lap distance is within 20 metres of an existing entry's lap distance, combine them
         public static Boolean isPlayingPaceNotes = false;
         public static Boolean isRecordingPaceNotes = false;
@@ -240,18 +245,12 @@ namespace CrewChiefV4
                             }
                             catch (Exception e)
                             {
-                                Console.WriteLine("Unable to load existing metadata - renaming to 'broken_" + fileName + "', " + e.Message);
-                                File.Delete("broken_" + fileName);
-                                File.Move(fileName, "broken_" + fileName);
+                                Utilities.TryBackupBrokenFile(fileName, "_broken", "Unable to load existing metadata: " + e.Message);
                             }
                         }
                         else
                         {
-                            String backupFilename = fileName + "_old";
-                            Console.WriteLine("Pace notes for this game / track / car combination exist but cannot be extended because we're in multi-lap mode.");
-                            Console.WriteLine("The old pacenotes file will be renamed " + backupFilename);
-                            File.Delete(backupFilename);
-                            File.Move(fileName, backupFilename);
+                            Utilities.TryBackupBrokenFile(fileName, "_old", "Pace notes for this game / track / car combination exist but cannot be extended because we're in multi-lap mode.  The old pacenotes file will be renamed.");
                         }
                     }
                 }
@@ -263,6 +262,7 @@ namespace CrewChiefV4
                 {
                     DriverTrainingService.recordingMetaData = new MetaData(gameEnum.ToString(), carClass.ToString(), trackName);
                 }
+                
                 isRecordingPaceNotes = true;
             }
         }

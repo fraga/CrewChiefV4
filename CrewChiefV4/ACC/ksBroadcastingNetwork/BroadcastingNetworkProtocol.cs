@@ -19,8 +19,8 @@ namespace ksBroadcastingNetwork
         CHANGE_FOCUS = 50,
         INSTANT_REPLAY_REQUEST = 51,
 
-        PLAY_MANUAL_REPLAY_HIGHLIGHT = 52, // TODO, but planned
-        SAVE_MANUAL_REPLAY_HIGHLIGHT = 60  // TODO, but planned: saving manual replays gives distributed clients the possibility to see the play the same replay
+        PLAY_MANUAL_REPLAY_HIGHLIGHT = 52,
+        SAVE_MANUAL_REPLAY_HIGHLIGHT = 60 
     }
 
     public enum InboundMessageTypes : byte
@@ -36,7 +36,7 @@ namespace ksBroadcastingNetwork
 
     public class BroadcastingNetworkProtocol
     {
-        public const int BROADCASTING_PROTOCOL_VERSION = 3;
+        public const int BROADCASTING_PROTOCOL_VERSION = 4;
         private string ConnectionIdentifier { get; }
         private SendMessageDelegate Send { get; }
         public int ConnectionId { get; private set; }
@@ -145,6 +145,7 @@ namespace ksBroadcastingNetwork
                         carInfo.RaceNumber = br.ReadInt32();
                         carInfo.CupCategory = br.ReadByte(); // Cup: Overall/Pro = 0, ProAm = 1, Am = 2, Silver = 3, National = 4
                         carInfo.CurrentDriverIndex = br.ReadByte();
+                        carInfo.Nationality = (ushort)br.ReadInt16();
 
                         // Now the drivers on this car:
                         var driversOnCarCount = br.ReadByte();
@@ -156,7 +157,7 @@ namespace ksBroadcastingNetwork
                             driverInfo.LastName = ReadString(br);
                             driverInfo.ShortName = ReadString(br);
                             driverInfo.Category = (DriverCategory)br.ReadByte(); // Platinum = 3, Gold = 2, Silver = 1, Bronze = 0
-
+                            driverInfo.Nationality = (ushort) br.ReadInt16();
                             carInfo.AddDriver(driverInfo);
                         }
 

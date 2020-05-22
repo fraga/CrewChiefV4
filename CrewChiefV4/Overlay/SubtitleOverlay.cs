@@ -55,6 +55,7 @@ namespace CrewChiefV4.Overlay
         public static ColorScheme colorSchemeTransparent = null;
 
         public static bool shown = UserSettings.GetUserSettings().getBoolean("enable_subtitle_overlay");
+        public static bool likelyShownInVR = UserSettings.GetUserSettings().getBoolean("enable_vr_overlay_windows");
         private Boolean cleared = true;
         public bool inputsEnabled = false;
         public bool keepWindowActiveBackUpOnClose = false;
@@ -76,8 +77,11 @@ namespace CrewChiefV4.Overlay
         private float subtitleTextBoxHeight = 0;
         private bool shiftKeyReleased = false;
         private IntPtr forgroundWindow = IntPtr.Zero;
+
         private LinkedList<OverlayElement> linkedTabStopElements = new LinkedList<OverlayElement>();
         private LinkedListNode<OverlayElement> listNodeTabStopElement;
+        private Image cursorImage;
+        private static string initialSubtitle = "";
 
         public enum DisplayVoices : int { All = 0, ChiefOnly, SpotterOnly, YouOnly, ChiefAndSpotter, YouAndChief, YouAndSpotter }
 
@@ -141,6 +145,9 @@ namespace CrewChiefV4.Overlay
                 ClassName = "CrewChief_Subtitles",
             };
 
+            initialSubtitle = settings.capitalLetter ? "Use CTRL + SHIFT to show/hide settings and title bar".ToUpper() :
+                        "Use CTRL + SHIFT to show/hide settings and title bar";
+
             overlayWindow.SetupGraphics += overlayWindow_SetupGraphics;
             overlayWindow.DestroyGraphics += overlayWindow_DestroyGraphics;
             overlayWindow.DrawGraphics += overlayWindow_DrawGraphics;
@@ -175,6 +182,11 @@ namespace CrewChiefV4.Overlay
             {
                 Console.WriteLine("Error parsing " + settings.fontName + ": " + ex.Message);
             }
+
+            cursorImage = new Image(gfx, @"Resources\cursor.png");
+
+
+
             fontBrush = gfx.CreateSolidBrush(colorScheme.fontColor);
             backgroundBrush = gfx.CreateSolidBrush(colorScheme.backgroundColor);
             transparentBrush = gfx.CreateSolidBrush(Color.Transparent);
@@ -369,6 +381,16 @@ namespace CrewChiefV4.Overlay
             {
                 element.Value.initialize();
             }
+            if (!titleBar.elementEnabled)
+            {
+                subtitleElement.rectangle.Y = 0;
+                overlayWindow.Resize(overlayWindow.X, overlayWindow.Y + (int)displayModeControlBox.rectangle.Bottom, settings.windowWidth, (int)subtitleElement.rectangle.Bottom);
+            }
+            else
+            {
+                subtitleElement.rectangle.Y = displayModeControlBox.rectangle.Bottom;
+                overlayWindow.Resize(overlayWindow.X, overlayWindow.Y - (int)displayModeControlBox.rectangle.Bottom, settings.windowWidth, (int)subtitleElement.rectangle.Bottom);
+            }
             overlayWindow.OnWindowMessage += overlayWindow_OnWindowMessage;
             //make sure overlay dont steal focus from main window.
             Microsoft.VisualBasic.Interaction.AppActivate(System.Diagnostics.Process.GetCurrentProcess().Id);
@@ -450,7 +472,7 @@ namespace CrewChiefV4.Overlay
             Rect overlayRect = new Rect(overlayWindow.X, overlayWindow.Y, overlayWindow.Width, overlayWindow.Height);
             if (overlayRect.Contains(cursor) && inputsEnabled && titleBar.elementEnabled && (Control.MouseButtons == MouseButtons.Left || 
                 Control.MouseButtons == MouseButtons.Right || Control.MouseButtons == MouseButtons.Middle))
-            {               
+            {
                 overlayWindow.ActivateWindow();
                 SetForegroundWindow(overlayWindow.Handle);
             }
@@ -483,6 +505,7 @@ namespace CrewChiefV4.Overlay
                 }
             }
         }
+
         private void overlayWindow_DrawGraphics(object sender, DrawGraphicsEventArgs e)
         {
             DoInputHacks();
@@ -526,6 +549,8 @@ namespace CrewChiefV4.Overlay
             {
                 elements.Value.drawElement();
             }
+
+            //gfx.DrawImage(cursorImage, Cursor.Position.X - overlayWindow.X, Cursor.Position.Y - overlayWindow.Y);
         }
 
         private void overlayWindow_DestroyGraphics(object sender, DestroyGraphicsEventArgs e)
@@ -572,8 +597,7 @@ namespace CrewChiefV4.Overlay
             {
                 if(Audio.SubtitleManager.phraseBuffer.Size < 1)
                 {                    
-                    string subtitle = settings.capitalLetter ? "Use CTRL + SHIFT to show/hide settings and title bar".ToUpper() : 
-                        "Use CTRL + SHIFT to show/hide settings and title bar";
+                    string subtitle = initialSubtitle;
                     System.Drawing.SizeF textSize = textBox.font.MeasureString(subtitle);
                     if (textSize.Width > textBox.rectangle.Width)
                     {
@@ -591,20 +615,27 @@ namespace CrewChiefV4.Overlay
                             }
                         }
                         phraseLines = SplitToLines(subtitle, maxStringLen).ToList();
-                        textBox.rectangle.Height = (textSize.Height + 1) * phraseLines.Count;
-                        e.graphics.FillRectangle(backgroundBrush, new Rectangle(textBox.rectangle));
+                        textBox.rectangle.Height = (textSize.Height) * phraseLines.Count;
+                        //e.graphics.FillRectangle(backgroundBrush, new Rectangle(textBox.rectangle));
+                        if (textBox.rectangle.Bottom != overlayWindow.Height)
+                        {
+                            overlayWindow.Resize((int)settings.windowWidth, (int)textBox.rectangle.Bottom);
+                        }
                         foreach (var line in phraseLines)
                         {
-                            e.graphics.DrawText(textBox.font, fontBrush, e.rect.Left, lineOffsetY, line);
-                            lineOffsetY += textSize.Height;
+                            e.graphics.DrawTextWithBackground(textBox.font, fontBrush, backgroundBrush, e.rect.Left, lineOffsetY, line, settings.windowWidth, true, likelyShownInVR || titleBar.elementEnabled);
+                            lineOffsetY += (textSize.Height);
                         }
                     }
                     else
                     {
-                        textBox.rectangle.Height = textSize.Height + 1;
-                        e.graphics.FillRectangle(backgroundBrush, new Rectangle(textBox.rectangle));
-                        e.graphics.DrawText(textBox.font, fontBrush, e.rect.Left, lineOffsetY, subtitle);
-                        lineOffsetY += textSize.Height + 1;
+                        textBox.rectangle.Height = (textSize.Height);
+                        if (textBox.rectangle.Bottom != overlayWindow.Height)
+                        {
+                            overlayWindow.Resize((int)settings.windowWidth, (int)textBox.rectangle.Bottom);
+                        }
+                        e.graphics.DrawTextWithBackground(textBox.font, fontBrush, backgroundBrush, e.rect.Left, lineOffsetY, subtitle, settings.windowWidth, true, likelyShownInVR || titleBar.elementEnabled);
+                        lineOffsetY += (textSize.Height);
                     }
                     return;
                 }
@@ -643,9 +674,9 @@ namespace CrewChiefV4.Overlay
                     }
 
                     string subtitle = settings.capitalLetter ? phrases[i].voiceName.ToUpper() + ": " + phrases[i].phrase.ToUpper() :
-                        phrases[i].voiceName + ": " + Audio.SubtitleManager.FirstLetterToUpper(phrases[i].phrase);
-
-                    if (textBox.font.MeasureString(subtitle).Width > textBox.rectangle.Width)
+                        phrases[i].voiceName + ": " + Utilities.FirstLetterToUpper(phrases[i].phrase);
+                    System.Drawing.SizeF textSize = textBox.font.MeasureString(subtitle);
+                    if (textSize.Width > textBox.rectangle.Width)
                     {
                         int maxStringLen = 0;
                         string messureStr = "" + subtitle[0];
@@ -667,15 +698,16 @@ namespace CrewChiefV4.Overlay
                         phraseLines.Add(subtitle);
                     }
                 }
-                textBox.rectangle.Height = (messuredFontHeight + 1) * phraseLines.Count;
+                textBox.rectangle.Height = (messuredFontHeight - 1) * phraseLines.Count;
+                // only resize the width of the window if we are not showing vr windows as it will screw with scaling.
                 if (textBox.rectangle.Bottom != overlayWindow.Height)
                 {
-                    overlayWindow.Resize(settings.windowWidth, (int)textBox.rectangle.Bottom);                    
-                }                    
+                    overlayWindow.Resize((int)settings.windowWidth, (int)textBox.rectangle.Bottom);                    
+                }     
                 foreach (var line in phraseLines)
                 {
-                    e.graphics.DrawTextWithBackground(textBox.font, fontBrush,backgroundBrush, e.rect.Left, lineOffsetY, line);
-                    lineOffsetY += (messuredFontHeight + 1);
+                    e.graphics.DrawTextWithBackground(textBox.font, fontBrush,backgroundBrush, e.rect.Left, lineOffsetY, line, settings.windowWidth, true, likelyShownInVR || titleBar.elementEnabled);
+                    lineOffsetY += (messuredFontHeight - 1);
                 }       
             }
         }
