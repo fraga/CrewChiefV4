@@ -168,6 +168,7 @@ WHATS_MY_RANK = what's my rank
 WHATS_MY_RATING = what's my rating
 WHATS_MY_REPUTATION = what's my reputation
 
+STOP_WATCHING_ALL = cancel watched drivers:stop watching drivers
 
 #################################################
 # Dynamic recognition phrase fragments - these are used to build up recognition sentences for opponent information.
@@ -268,6 +269,11 @@ RATING = rating
 REPUTATION = reputation
 RANK = rank
 
+WATCH = watch
+STOP_WATCHING = stop watching
+RIVAL = rival
+TEAM_MATE = team mate
+
 # this one is used for Raceroom tyre questions - "what tyres is Bob on". The "on" could be "using", or "running", or whatever, but can only be a single item (no lists)
 ON = on
 
@@ -336,7 +342,6 @@ GALLONS = gallons
 HOW_MANY_INCIDENT_POINTS = how many incidents do i have:what's my incident count
 WHATS_THE_INCIDENT_LIMIT = what's the incident limit
 WHATS_THE_SOF = what's the sof:what is the strength of field
-
 
 
 #################################################

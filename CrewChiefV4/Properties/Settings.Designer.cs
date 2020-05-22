@@ -4474,5 +4474,17 @@ namespace CrewChiefV4.Properties {
                 this["r3e_ratings_url"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string watched_opponent_names {
+            get {
+                return ((string)(this["watched_opponent_names"]));
+            }
+            set {
+                this["watched_opponent_names"] = value;
+            }
+        }
     }
 }

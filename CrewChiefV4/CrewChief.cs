@@ -188,6 +188,7 @@ namespace CrewChiefV4
             eventsList.Add("PitStops", new PitStops(audioPlayer));
             eventsList.Add("Fuel", new Fuel(audioPlayer));
             eventsList.Add("Battery", new Battery(audioPlayer));
+            eventsList.Add("WatchedOpponents", new WatchedOpponents(audioPlayer));
             eventsList.Add("Strategy", new Strategy(audioPlayer));
             eventsList.Add("Opponents", new Opponents(audioPlayer));
             eventsList.Add("RaceTime", new RaceTime(audioPlayer));

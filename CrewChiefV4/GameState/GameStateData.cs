@@ -1724,6 +1724,10 @@ namespace CrewChiefV4.GameState
             return currentLap != null && currentLap.InLap;
         }
 
+        /// <summary>
+        /// be careful using this - it should actually be called 'isOnOutLap'
+        /// </summary>
+        /// <returns></returns>
         public Boolean isExitingPits()
         {
             LapData currentLap = getCurrentLapData();
