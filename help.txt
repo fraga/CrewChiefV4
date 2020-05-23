@@ -510,7 +510,7 @@ These can also be shown in VR and positioned in the game world using 3rd party a
 
 Telemetry is available for the previous completed lap (excluding out laps), the player's best lap in the session (excluding invalid or incomplete laps) and in some limited cases, the best opponent lap in the session (opponent data is limited to car speed, and is only available for some games at the moment). Typically, you'd drive a few laps in practice and pit, then ask the Chief "show me last lap car speed" or something like that.
 
-To get the maximum out of telemetry charts in iRacing, iRacing disk telemetry must be enabled in iRacing app.ini 'irsdkEnableDisk', and in Crew Chief properties 'Enable disk based telemetry for overlay'. Crew Chief can not access the disk based telemetry while its recording but once your get out of the car or stop the recording manually (Alt-L) Crew Chief will read and process the file and you can get access the data on the overlay.
+To get the maximum out of telemetry charts in iRacing, iRacing disk telemetry must be enabled in iRacing app.ini 'irsdkEnableDisk', and in Crew Chief properties 'Enable disk based telemetry for overlay'. Crew Chief can not access the disk based telemetry while its recording but once your get out of the car or stop the recording manually (Alt-L) Crew Chief will read and process the file and you can get access to the data on the overlay.
 
 The charts can be zoomed in to show a particular sector, or zoomed and panned with voice commands.
 
