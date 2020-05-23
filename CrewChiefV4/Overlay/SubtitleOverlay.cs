@@ -80,7 +80,6 @@ namespace CrewChiefV4.Overlay
 
         private LinkedList<OverlayElement> linkedTabStopElements = new LinkedList<OverlayElement>();
         private LinkedListNode<OverlayElement> listNodeTabStopElement;
-        private Image cursorImage;
         private static string initialSubtitle = "";
 
         public enum DisplayVoices : int { All = 0, ChiefOnly, SpotterOnly, YouOnly, ChiefAndSpotter, YouAndChief, YouAndSpotter }
@@ -182,10 +181,6 @@ namespace CrewChiefV4.Overlay
             {
                 Console.WriteLine("Error parsing " + settings.fontName + ": " + ex.Message);
             }
-
-            cursorImage = new Image(gfx, @"Resources\cursor.png");
-
-
 
             fontBrush = gfx.CreateSolidBrush(colorScheme.fontColor);
             backgroundBrush = gfx.CreateSolidBrush(colorScheme.backgroundColor);
