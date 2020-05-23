@@ -90,11 +90,11 @@ namespace CrewChiefV4.Events
                     }
                 }
                 // special case for iRacing because of data alignment issues. Probably need a similar workaround for AC and ACC
-                OverlayDataSource.addIRacingData(currentGameState);
+                OverlayDataSource.addIRacingData(previousGameState, currentGameState);
             }
             else
             {
-                OverlayDataSource.addGameData(currentGameState);
+                OverlayDataSource.addGameData(previousGameState, currentGameState);
             }
         }
 

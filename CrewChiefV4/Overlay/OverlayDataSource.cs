@@ -17,6 +17,7 @@ namespace CrewChiefV4.Overlay
     {
         public static X_AXIS_TYPE xAxisType = X_AXIS_TYPE.DISTANCE;
 
+        // only used for iRacing now
         private static int previousDataPointLapCompleted = int.MinValue;
 
         private static Dictionary<GameEnum, List<OverlaySubscription>> subscribedData = new Dictionary<GameEnum, List<OverlaySubscription>>();
@@ -46,7 +47,6 @@ namespace CrewChiefV4.Overlay
         private static OverlayLapData bestLapWorldPositionData = null;
 
         // sector position stuff:
-        private static int prevSectorNumber = -1;
         public static float sector1End = -1;
         public static float sector2End = -1;
 
@@ -430,25 +430,25 @@ namespace CrewChiefV4.Overlay
             return seriesData;
         }
 
-        public static void addIRacingData(GameStateData gameState)
+        public static void addIRacingData(GameStateData previousGameState, GameStateData currentGameState)
         {
-            if (!CrewChief.recordChartTelemetryDuringRace && gameState.SessionData.SessionType == SessionType.Race)
+            if (previousGameState == null
+                || (!CrewChief.recordChartTelemetryDuringRace && currentGameState.SessionData.SessionType == SessionType.Race))
             {
                 return;
-            }
-            if (prevSectorNumber != gameState.SessionData.SectorNumber && !gameState.PitData.InPitlane)
+            }            
+            if (previousGameState.SessionData.SectorNumber != currentGameState.SessionData.SectorNumber && !currentGameState.PitData.InPitlane)
             {
-                if (sector1End == -1 && prevSectorNumber == 1 && gameState.SessionData.SectorNumber == 2)
+                if (sector1End == -1 && previousGameState.SessionData.SectorNumber == 1 && currentGameState.SessionData.SectorNumber == 2)
                 {
-                    sector1End = gameState.PositionAndMotionData.DistanceRoundTrack;
+                    sector1End = currentGameState.PositionAndMotionData.DistanceRoundTrack;
                 }
-                else if (sector2End == -1 && prevSectorNumber == 2 && gameState.SessionData.SectorNumber == 3)
+                else if (sector2End == -1 && previousGameState.SessionData.SectorNumber == 2 && currentGameState.SessionData.SectorNumber == 3)
                 {
-                    sector2End = gameState.PositionAndMotionData.DistanceRoundTrack;
+                    sector2End = currentGameState.PositionAndMotionData.DistanceRoundTrack;
                 }
-                prevSectorNumber = gameState.SessionData.SectorNumber;
             }
-            CrewChiefV4.iRacing.iRacingSharedMemoryReader.iRacingStructWrapper structWrapper = (CrewChiefV4.iRacing.iRacingSharedMemoryReader.iRacingStructWrapper)gameState.rawGameData;
+            CrewChiefV4.iRacing.iRacingSharedMemoryReader.iRacingStructWrapper structWrapper = (CrewChiefV4.iRacing.iRacingSharedMemoryReader.iRacingStructWrapper)currentGameState.rawGameData;
             int lapsCompleted = structWrapper.data.Driver.Live.Lap;
             if (lapsCompleted == -1)
             {
@@ -465,18 +465,18 @@ namespace CrewChiefV4.Overlay
                     List<DataPoint> dataFromPrevious = new List<DataPoint>();
                     if (overlayData.Count > 0)
                     {
-                        dataFromPrevious = overlayData.Last.Value.dataPoints.Where(d => d.distanceRoundTrack < gameState.PositionAndMotionData.DistanceRoundTrack).ToList();
+                        dataFromPrevious = overlayData.Last.Value.dataPoints.Where(d => d.distanceRoundTrack < currentGameState.PositionAndMotionData.DistanceRoundTrack).ToList();
                     }
                     overlayData.AddLast(new OverlayLapData(lapsCompleted, dataFromPrevious, 0));
                 }
                 previousDataPointLapCompleted = lapsCompleted;
             }
 
-            if (gameState.SessionData.IsNewLap && gameState.SessionData.LapTimePrevious > 1.0f)
+            if (currentGameState.SessionData.IsNewLap && currentGameState.SessionData.LapTimePrevious > 1.0f)
             {
                 // get the last lap time if it's valid                
                 Boolean copyBestLapData = false;
-                float lastLapTime = gameState.SessionData.LapTimePrevious;
+                float lastLapTime = currentGameState.SessionData.LapTimePrevious;
                 if (previousDataPointLapCompleted != int.MinValue && (OverlayDataSource.lapTimeForBestLapData == -1 || lastLapTime < OverlayDataSource.lapTimeForBestLapData))
                 {
                     copyBestLapData = true;
@@ -511,128 +511,121 @@ namespace CrewChiefV4.Overlay
                 }
                 OverlayLapData lapData = overlayData.Last.Value;
                 previousDataPointLapCompleted = lapsCompleted;
-                float distanceRoundTrack = gameState == null ? 0 : gameState.PositionAndMotionData.DistanceRoundTrack;
-                object dataSource = field.isRawField ? (object)structWrapper.data.Telemetry : (object)gameState;
+                float distanceRoundTrack = currentGameState == null ? 0 : currentGameState.PositionAndMotionData.DistanceRoundTrack;
+                object dataSource = field.isRawField ? (object)structWrapper.data.Telemetry : (object)currentGameState;
                 lapData.addDataPoint(new DataPoint(lapsCompleted, distanceRoundTrack,
-                        getPropertyValue(dataSource, field.fieldName), field.overlayDataType, structWrapper.ticksWhenRead, gameState.SessionData.SectorNumber));
+                        getPropertyValue(dataSource, field.fieldName), field.overlayDataType, structWrapper.ticksWhenRead, currentGameState.SessionData.SectorNumber));
             }
 
             if (mapOpponentData)
             {
-                addOpponentData(gameState.carClass.carClassEnum, gameState.OpponentData, structWrapper.ticksWhenRead);
+                addOpponentData(currentGameState.carClass.carClassEnum, currentGameState.OpponentData, structWrapper.ticksWhenRead);
             }
         }
 
-        public static void addGameData(GameStateData gameState)
+        public static void addGameData(GameStateData previousGameState, GameStateData currentGameState)
         {
-            if (!CrewChief.recordChartTelemetryDuringRace && gameState.SessionData.SessionType == SessionType.Race)
+            if (previousGameState == null ||
+                (!CrewChief.recordChartTelemetryDuringRace && currentGameState.SessionData.SessionType == SessionType.Race))
             {
                 return;
             }
-
-            if (prevSectorNumber != gameState.SessionData.SectorNumber && !gameState.PitData.InPitlane)
+            if (previousGameState.SessionData.SectorNumber != currentGameState.SessionData.SectorNumber && !currentGameState.PitData.InPitlane)
             {
-                if (sector1End == -1 && prevSectorNumber == 1 && gameState.SessionData.SectorNumber == 2)
+                if (sector1End == -1 && previousGameState.SessionData.SectorNumber == 1 && currentGameState.SessionData.SectorNumber == 2)
                 {
-                    sector1End = gameState.PositionAndMotionData.DistanceRoundTrack;
+                    sector1End = currentGameState.PositionAndMotionData.DistanceRoundTrack;
                 }
-                else if (sector2End == -1 && prevSectorNumber == 2 && gameState.SessionData.SectorNumber == 3)
+                else if (sector2End == -1 && previousGameState.SessionData.SectorNumber == 2 && currentGameState.SessionData.SectorNumber == 3)
                 {
-                    sector2End = gameState.PositionAndMotionData.DistanceRoundTrack;
+                    sector2End = currentGameState.PositionAndMotionData.DistanceRoundTrack;
                 }
-                prevSectorNumber = gameState.SessionData.SectorNumber;
             }
-            int lapsCompleted = gameState.SessionData.CompletedLaps;
-            if (lapsCompleted > previousDataPointLapCompleted)
-            {                
-                // get the last lap time if it's valid
-                Boolean copyBestLapData = false;
-                float lastLapTime = gameState.SessionData.LapTimePrevious;
-                if (gameState.SessionData.PreviousLapWasValid)
+            bool addNewDataContainer = worldPositionData.Last == null 
+                || currentGameState.SessionData.IsNewLap
+                || (previousGameState.PitData.IsInGarage && currentGameState.PitData.InPitlane)
+                || (previousGameState.ControlData.ControlType == ControlType.AI && currentGameState.ControlData.ControlType == ControlType.Player);
+            Boolean copyBestLapData = false;
+
+            // get the last lap time if it's valid        
+            if (currentGameState.SessionData.IsNewLap && currentGameState.SessionData.PreviousLapWasValid && !currentGameState.PitData.InPitlane 
+                && currentGameState.SessionData.LapTimePrevious > 0 &&
+                    (OverlayDataSource.lapTimeForBestLapData == -1 || currentGameState.SessionData.LapTimePrevious < OverlayDataSource.lapTimeForBestLapData))
                 {
-                    if (lastLapTime > 0 && (OverlayDataSource.lapTimeForBestLapData == -1 || lastLapTime < OverlayDataSource.lapTimeForBestLapData))
-                    {
-                        copyBestLapData = true;
-                        OverlayDataSource.lapTimeForBestLapData = lastLapTime;
-                    }
+                    copyBestLapData = true;
+                    OverlayDataSource.lapTimeForBestLapData = currentGameState.SessionData.LapTimePrevious;
                 }
+            
+            if (addNewDataContainer)
+            {
                 foreach (OverlaySubscription field in subscribedData[CrewChief.gameDefinition.gameEnum])
                 {
                     if (field.isGroup || field.isDiskData || !data.TryGetValue(field.fieldName, out var overlayData))
                     {
                         continue;
                     }
-                    if (copyBestLapData)
+                    if (overlayData.Last != null)
                     {
-                        OverlayDataSource.bestLapData[field.fieldName] = overlayData.Last.Value;
+                        if (copyBestLapData)
+                        {
+                            OverlayDataSource.bestLapData[field.fieldName] = overlayData.Last.Value;
+                        }
+                        overlayData.Last.Value.lapTime = currentGameState.SessionData.LapTimePrevious;
                     }
-                    if (overlayData.Count > 0)
-                    {
-                        overlayData.Last.Value.lapTime = lastLapTime;
-                    }                    
-                    overlayData.AddLast(new OverlayLapData(lapsCompleted));
-                    previousDataPointLapCompleted = lapsCompleted;
+                    overlayData.AddLast(new OverlayLapData(currentGameState.SessionData.CompletedLaps));
                 }
-                if (copyBestLapData)
+                if (copyBestLapData && worldPositionData.Last != null)
                 {
                     bestLapWorldPositionData = worldPositionData.Last.Value;
                 }
-                worldPositionData.AddLast(new OverlayLapData(lapsCompleted));
+                worldPositionData.AddLast(new OverlayLapData(currentGameState.SessionData.CompletedLaps));
             }
-            if (worldPositionData.Count == 0)
-            {
-                worldPositionData.AddLast(new OverlayLapData(0));
-            }
-            previousDataPointLapCompleted = lapsCompleted;
-            float distanceRoundTrack = gameState.PositionAndMotionData.DistanceRoundTrack;
-            float[] worldPosition = gameState.PositionAndMotionData.WorldPosition == null ? new float[] { 0, 0 } :
-                new float[] { gameState.PositionAndMotionData.WorldPosition[0], gameState.PositionAndMotionData.WorldPosition[1], gameState.PositionAndMotionData.WorldPosition[2] };
-            worldPositionData.Last.Value.addDataPoint(new DataPoint(lapsCompleted, distanceRoundTrack, worldPosition, OverlayDataType.FLOAT_3, gameState.Ticks, gameState.SessionData.SectorNumber));
+            float distanceRoundTrack = currentGameState.PositionAndMotionData.DistanceRoundTrack;
+            float[] worldPosition = currentGameState.PositionAndMotionData.WorldPosition == null ? new float[] { 0, 0 } :
+                new float[] { currentGameState.PositionAndMotionData.WorldPosition[0], currentGameState.PositionAndMotionData.WorldPosition[1], currentGameState.PositionAndMotionData.WorldPosition[2] };
+            worldPositionData.Last.Value.addDataPoint(new DataPoint(currentGameState.SessionData.CompletedLaps,
+                distanceRoundTrack, worldPosition, OverlayDataType.FLOAT_3, currentGameState.Ticks, currentGameState.SessionData.SectorNumber));
             foreach (OverlaySubscription field in subscribedData[CrewChief.gameDefinition.gameEnum])
             {
                 if (field.isGroup || field.isDiskData || !data.TryGetValue(field.fieldName, out var overlayData))
                 {
                     continue;
-                }
-                if (overlayData.Count == 0)
-                {
-                    overlayData.AddLast(new OverlayLapData(0));
-                }              
+                }         
                 OverlayLapData lapData = overlayData.Last.Value;                
                 if (field.isRawField)
                 {
                     switch (CrewChief.gameDefinition.gameEnum)
                     {
                         case GameEnum.RACE_ROOM:
-                            lapData.addDataPoint(new DataPoint(lapsCompleted, distanceRoundTrack,
-                                getPropertyValue(((CrewChiefV4.RaceRoom.R3ESharedMemoryReader.R3EStructWrapper)gameState.rawGameData).data, field.fieldName), field.overlayDataType, gameState.Ticks, gameState.SessionData.SectorNumber));
+                            lapData.addDataPoint(new DataPoint(currentGameState.SessionData.CompletedLaps, distanceRoundTrack,
+                                getPropertyValue(((CrewChiefV4.RaceRoom.R3ESharedMemoryReader.R3EStructWrapper)currentGameState.rawGameData).data, field.fieldName), field.overlayDataType, currentGameState.Ticks, currentGameState.SessionData.SectorNumber));
                             break;
                         case GameEnum.PCARS2:
-                            lapData.addDataPoint(new DataPoint(lapsCompleted, distanceRoundTrack,
-                                getPropertyValue(((CrewChiefV4.PCars2.PCars2SharedMemoryReader.PCars2StructWrapper)gameState.rawGameData).data, field.fieldName), field.overlayDataType, gameState.Ticks, gameState.SessionData.SectorNumber));
+                            lapData.addDataPoint(new DataPoint(currentGameState.SessionData.CompletedLaps, distanceRoundTrack,
+                                getPropertyValue(((CrewChiefV4.PCars2.PCars2SharedMemoryReader.PCars2StructWrapper)currentGameState.rawGameData).data, field.fieldName), field.overlayDataType, currentGameState.Ticks, currentGameState.SessionData.SectorNumber));
                             break;
                         case GameEnum.PCARS_32BIT:
                         case GameEnum.PCARS_64BIT:
                         case GameEnum.PCARS2_NETWORK:
-                            lapData.addDataPoint(new DataPoint(lapsCompleted, distanceRoundTrack,
-                                getPropertyValue(((CrewChiefV4.PCars.PCarsSharedMemoryReader.PCarsStructWrapper)gameState.rawGameData).data, field.fieldName), field.overlayDataType, gameState.Ticks, gameState.SessionData.SectorNumber));
+                            lapData.addDataPoint(new DataPoint(currentGameState.SessionData.CompletedLaps, distanceRoundTrack,
+                                getPropertyValue(((CrewChiefV4.PCars.PCarsSharedMemoryReader.PCarsStructWrapper)currentGameState.rawGameData).data, field.fieldName), field.overlayDataType, currentGameState.Ticks, currentGameState.SessionData.SectorNumber));
                             break;
                         case GameEnum.RF1:
-                            lapData.addDataPoint(new DataPoint(lapsCompleted, distanceRoundTrack,
-                                getPropertyValue(((CrewChiefV4.rFactor1.RF1SharedMemoryReader.RF1StructWrapper)gameState.rawGameData), field.fieldName), field.overlayDataType, gameState.Ticks, gameState.SessionData.SectorNumber));
+                            lapData.addDataPoint(new DataPoint(currentGameState.SessionData.CompletedLaps, distanceRoundTrack,
+                                getPropertyValue(((CrewChiefV4.rFactor1.RF1SharedMemoryReader.RF1StructWrapper)currentGameState.rawGameData), field.fieldName), field.overlayDataType, currentGameState.Ticks, currentGameState.SessionData.SectorNumber));
                             break;
                         case GameEnum.RF2_64BIT:
-                            lapData.addDataPoint(new DataPoint(lapsCompleted, distanceRoundTrack,
-                                getPropertyValue(((CrewChiefV4.rFactor2.RF2SharedMemoryReader.RF2StructWrapper)gameState.rawGameData), field.fieldName), field.overlayDataType, gameState.Ticks, gameState.SessionData.SectorNumber));
+                            lapData.addDataPoint(new DataPoint(currentGameState.SessionData.CompletedLaps, distanceRoundTrack,
+                                getPropertyValue(((CrewChiefV4.rFactor2.RF2SharedMemoryReader.RF2StructWrapper)currentGameState.rawGameData), field.fieldName), field.overlayDataType, currentGameState.Ticks, currentGameState.SessionData.SectorNumber));
                             break;
                         case GameEnum.ACC:
-                            lapData.addDataPoint(new DataPoint(lapsCompleted, distanceRoundTrack,
-                                getPropertyValue(((CrewChiefV4.ACC.ACCSharedMemoryReader.ACCStructWrapper)gameState.rawGameData).data, field.fieldName), field.overlayDataType, gameState.Ticks, gameState.SessionData.SectorNumber));
+                            lapData.addDataPoint(new DataPoint(currentGameState.SessionData.CompletedLaps, distanceRoundTrack,
+                                getPropertyValue(((CrewChiefV4.ACC.ACCSharedMemoryReader.ACCStructWrapper)currentGameState.rawGameData).data, field.fieldName), field.overlayDataType, currentGameState.Ticks, currentGameState.SessionData.SectorNumber));
                             break;
                         case GameEnum.ASSETTO_32BIT:
                         case GameEnum.ASSETTO_64BIT:
-                            lapData.addDataPoint(new DataPoint(lapsCompleted, distanceRoundTrack,
-                                getPropertyValue(((CrewChiefV4.assetto.ACSSharedMemoryReader.ACSStructWrapper)gameState.rawGameData).data, field.fieldName), field.overlayDataType, gameState.Ticks, gameState.SessionData.SectorNumber));
+                            lapData.addDataPoint(new DataPoint(currentGameState.SessionData.CompletedLaps, distanceRoundTrack,
+                                getPropertyValue(((CrewChiefV4.assetto.ACSSharedMemoryReader.ACSStructWrapper)currentGameState.rawGameData).data, field.fieldName), field.overlayDataType, currentGameState.Ticks, currentGameState.SessionData.SectorNumber));
                             break;
                         default:
                             break;
@@ -640,14 +633,13 @@ namespace CrewChiefV4.Overlay
                 }
                 else
                 {
-                    lapData.addDataPoint(new DataPoint(lapsCompleted, distanceRoundTrack,
-                        getPropertyValue(gameState, field.fieldName), field.overlayDataType, gameState.Ticks, gameState.SessionData.SectorNumber));
+                    lapData.addDataPoint(new DataPoint(currentGameState.SessionData.CompletedLaps, distanceRoundTrack,
+                        getPropertyValue(currentGameState, field.fieldName), field.overlayDataType, currentGameState.Ticks, currentGameState.SessionData.SectorNumber));
                 }
             }
-
             if (mapOpponentData)
             {
-                addOpponentData(gameState.carClass.carClassEnum, gameState.OpponentData, gameState.Ticks);
+                addOpponentData(currentGameState.carClass.carClassEnum, currentGameState.OpponentData, currentGameState.Ticks);
             }
         }
 
