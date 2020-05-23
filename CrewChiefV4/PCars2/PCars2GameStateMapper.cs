@@ -178,7 +178,6 @@ namespace CrewChiefV4.PCars2
                 CrewChief.carClass = CarData.getCarClassForClassName(StructHelper.getNameFromBytes(shared.mCarClassName)).carClassEnum;
                 CrewChief.viewingReplay = true;
                 CrewChief.distanceRoundTrack = shared.mParticipantData[shared.mViewedParticipantIndex].mCurrentLapDistance;
-                CrewChief.lapNumberFromGame = (int)shared.mParticipantData[shared.mViewedParticipantIndex].mLapsCompleted;
             }
 
             if (gameState == eGameState.GAME_FRONT_END ||
@@ -1166,7 +1165,6 @@ namespace CrewChiefV4.PCars2
                 CrewChief.carClass = currentGameState.carClass.carClassEnum;
             }
             CrewChief.distanceRoundTrack = currentGameState.PositionAndMotionData.DistanceRoundTrack;
-            CrewChief.lapNumberFromGame = (int) playerData.mLapsCompleted;
             CrewChief.viewingReplay = false;
 
             if (currentGameState.PositionAndMotionData.DistanceRoundTrack > 0 && currentGameState.PositionAndMotionData.CarSpeed > 0 

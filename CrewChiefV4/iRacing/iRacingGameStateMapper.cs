@@ -75,7 +75,6 @@ namespace CrewChiefV4.iRacing
                 CrewChief.carClass = CarData.getCarClassForIRacingId(shared.Driver.Car.CarClassId, shared.Driver.Car.CarId).carClassEnum;
                 CrewChief.viewingReplay = true;
                 CrewChief.distanceRoundTrack = shared.Driver.Live.CorrectedLapDistance * ((float)shared.SessionData.Track.Length * 1000);
-                CrewChief.lapNumberFromGame = shared.Driver.Live.LiveLapsCompleted;
             }
 
             SessionPhase lastSessionPhase = SessionPhase.Unavailable;
@@ -1215,7 +1214,6 @@ namespace CrewChiefV4.iRacing
                 CrewChief.carClass = currentGameState.carClass.carClassEnum;
             }
             CrewChief.distanceRoundTrack = currentGameState.PositionAndMotionData.DistanceRoundTrack;
-            CrewChief.lapNumberFromGame = playerCar.Live.LiveLapsCompleted;
             CrewChief.viewingReplay = false;
             if (currentGameState.SessionData.IsNewLap)
             {

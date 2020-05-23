@@ -780,7 +780,6 @@ namespace CrewChiefV4.assetto
                 CrewChief.carClass = CarData.getCarClassForClassName(shared.acsStatic.carModel).carClassEnum;
                 CrewChief.viewingReplay = true;
                 CrewChief.distanceRoundTrack = spLineLengthToDistanceRoundTrack(shared.acsChief.vehicle[0].spLineLength, shared.acsStatic.trackSPlineLength);
-                CrewChief.lapNumberFromGame = shared.acsGraphic.completedLaps;
             }
 
             if (status == AC_STATUS.AC_REPLAY || status == AC_STATUS.AC_OFF || shared.acsChief.numVehicles <= 0)
@@ -1778,7 +1777,6 @@ namespace CrewChiefV4.assetto
                 CrewChief.carClass = currentGameState.carClass.carClassEnum;
             }
             CrewChief.distanceRoundTrack = currentGameState.PositionAndMotionData.DistanceRoundTrack;
-            CrewChief.lapNumberFromGame = shared.acsGraphic.completedLaps;
             CrewChief.viewingReplay = false;
 
             currentGameState.PositionAndMotionData.Orientation.Pitch = shared.acsPhysics.pitch;

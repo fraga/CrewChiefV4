@@ -118,9 +118,6 @@ namespace CrewChiefV4
         public static CarData.CarClassEnum carClass = CarData.CarClassEnum.UNKNOWN_RACE;
         public static Boolean viewingReplay = false;
         public static float distanceRoundTrack = -1;
-        public static int lapNumberAtStartOfRecordingSession = -1;
-        public static int lapNumberAtStartOfPlaybackSession = -1;
-        public static int lapNumberFromGame = -1;
 
         public static int playbackIntervalMilliseconds = 0;
 
@@ -453,9 +450,6 @@ namespace CrewChiefV4
                 gameStateMapper.setSpeechRecogniser(speechRecogniser);
                 gameDataReader = GameStateReaderFactory.getInstance().getGameStateReader(gameDefinition);
                 gameDataReader.ResetGameDataFromFile();
-
-                CrewChief.lapNumberAtStartOfPlaybackSession = -1;
-                CrewChief.lapNumberAtStartOfRecordingSession = -1;
 
                 gameDataReader.dumpToFile = dumpToFile;
 
@@ -800,6 +794,17 @@ namespace CrewChiefV4
                                 // update the auto-verbosity
                                 PlaybackModerator.UpdateAutoVerbosity(currentGameState);
 
+                                // increment the driver training service recording lap counter when we're recording and we start a new lap
+                                if (currentGameState.SessionData.IsNewLap && DriverTrainingService.isRecordingPaceNotes && currentGameState.PositionAndMotionData.CarSpeed > 0.5)
+                                {
+                                    DriverTrainingService.incrementPaceNotesRecordingLapCounter();
+                                }
+                                // increment the driver training service lap playback counter when we're playing back and we start a new lap
+                                if (currentGameState.SessionData.IsNewLap && DriverTrainingService.isPlayingPaceNotes && currentGameState.PositionAndMotionData.CarSpeed > 0.5)
+                                {
+                                    DriverTrainingService.incrementPaceNotesPlaybackLapCounter();
+                                }
+
                                 // Allow events to be processed after session finish.  Event should use applicableSessionPhases/applicableSessionTypes to opt in/out.
                                 // for now, don't trigger any events for F1 2018 / 2019 as there's no game mapping
                                 if (gameDefinition.gameEnum != GameEnum.F1_2018 && gameDefinition.gameEnum != GameEnum.F1_2019)
@@ -827,7 +832,7 @@ namespace CrewChiefV4
                                         else if (!DriverTrainingService.isPlayingPaceNotes && exitedGarage)
                                         {
                                             if (!DriverTrainingService.loadPaceNotes(CrewChief.gameDefinition.gameEnum,
-                                                currentGameState.SessionData.TrackDefinition.name, currentGameState.carClass.carClassEnum, audioPlayer, currentGameState.SessionData.CompletedLaps))
+                                                currentGameState.SessionData.TrackDefinition.name, currentGameState.carClass.carClassEnum, audioPlayer))
                                             {
                                                 Console.WriteLine("Attempted to auto-start pace notes, but none are available for this circuit");
                                             }
@@ -851,10 +856,12 @@ namespace CrewChiefV4
                                 {
                                     if (DriverTrainingService.isPlayingPaceNotes)
                                     {
-                                        DriverTrainingService.checkValidAndPlayIfNeeded(currentGameState.Now, currentGameState.SessionData.CompletedLaps + 1,
+                                        DriverTrainingService.checkValidAndPlayIfNeeded(currentGameState.Now,
                                             currentGameState.PositionAndMotionData.CarSpeed, currentGameState.PositionAndMotionData.Orientation.Yaw,
                                             previousGameState.PositionAndMotionData.DistanceRoundTrack,
-                                            currentGameState.PositionAndMotionData.DistanceRoundTrack, audioPlayer);
+                                            currentGameState.PositionAndMotionData.DistanceRoundTrack, 
+                                            currentGameState.PitData.InPitlane,
+                                            audioPlayer);
                                     }
                                     if (spotter != null && GlobalBehaviourSettings.spotterEnabled && !spotterIsRunning &&
                                         (gameDefinition.gameEnum == GameEnum.F1_2018 || gameDefinition.gameEnum == GameEnum.F1_2019 || !loadDataFromFile))

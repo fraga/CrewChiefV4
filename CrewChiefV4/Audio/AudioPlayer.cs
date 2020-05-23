@@ -1471,7 +1471,7 @@ namespace CrewChiefV4.Audio
                                 {
                                     thisMessage.resolveDelayedContents();
                                 }
-                                if (GlobalBehaviourSettings.enableBreathIn)
+                                if (GlobalBehaviourSettings.enableBreathIn && !DriverTrainingService.isPlayingPaceNotes)
                                 {
                                     if (thisMessage.metadata.type == SoundType.SPOTTER)
                                     {

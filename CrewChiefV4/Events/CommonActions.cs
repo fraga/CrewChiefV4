@@ -515,8 +515,7 @@ namespace CrewChiefV4.Events
                     if (!DriverTrainingService.isPlayingPaceNotes)
                     {
                         if (DriverTrainingService.loadPaceNotes(CrewChief.gameDefinition.gameEnum,
-                                CrewChief.currentGameState.SessionData.TrackDefinition.name, CrewChief.currentGameState.carClass.carClassEnum, audioPlayer,
-                                currentGameState.SessionData.CompletedLaps))
+                                CrewChief.currentGameState.SessionData.TrackDefinition.name, CrewChief.currentGameState.carClass.carClassEnum, audioPlayer))
                         {
                             if (SoundCache.availableSounds.Contains(DriverTrainingService.folderStartedPlayback))
                             {
@@ -566,9 +565,7 @@ namespace CrewChiefV4.Events
                 {
                     Console.WriteLine("No car class has been set - this pace notes session will not be class specific");
                 }
-                int lapNumberAtStartOfRecordingSession = CrewChief.currentGameState == null ? 0 : CrewChief.currentGameState.SessionData.CompletedLaps;
-                DriverTrainingService.startRecordingPaceNotes(CrewChief.gameDefinition.gameEnum,
-                    CrewChief.trackName, CrewChief.carClass, lapNumberAtStartOfRecordingSession);
+                
                 if (SoundCache.availableSounds.Contains(DriverTrainingService.folderStartedRecording))
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(DriverTrainingService.folderStartedRecording, 0));
@@ -577,6 +574,8 @@ namespace CrewChiefV4.Events
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
                 }
+                DriverTrainingService.startRecordingPaceNotes(CrewChief.gameDefinition.gameEnum,
+                    CrewChief.trackName, CrewChief.carClass);
             }
         }
         public void toggleTrackLandmarkRecording()

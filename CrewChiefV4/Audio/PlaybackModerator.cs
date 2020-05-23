@@ -327,7 +327,7 @@ namespace CrewChiefV4.Audio
 
                 return false;
             }
-
+            
             if (PlaybackModerator.minPriorityForInterrupt != SoundType.OTHER && PlaybackModerator.CanInterrupt(soundMetadata))
             {
                 SoundType mostImportantTypeInImmediateQueue = PlaybackModerator.audioPlayer.getPriortyOfFirstWaitingImmediateMessage();
@@ -368,7 +368,9 @@ namespace CrewChiefV4.Audio
                 type = queuedMessage.metadata.type;
             }
 
-            if (paceNotesMuteOtherMessages && DriverTrainingService.isPlayingPaceNotes && type != SoundType.PACE_NOTE)
+            if (paceNotesMuteOtherMessages
+                && (DriverTrainingService.isPlayingPaceNotes || DriverTrainingService.isRecordingPaceNotes) 
+                && type != SoundType.PACE_NOTE)
             {
                 PlaybackModerator.Trace(string.Format("Message {0} hasn't been queued because its not a pace note", queuedMessage.messageName));
                 return false;

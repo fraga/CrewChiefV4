@@ -541,7 +541,7 @@ namespace CrewChiefV4.Events
                 && currentGameState.Now > timeSpeedInPitsWarning + TimeSpan.FromSeconds(120)  // We did not play this on pit approach
                 && previousGameState.PositionAndMotionData.CarSpeed > 2.0f && currentGameState.PositionAndMotionData.CarSpeed > 2.0f  // Guard against tow, teleport, returning to ISI game's Monitor and other bullshit
                 && currentGameState.SessionData.SessionRunningTime > 30.0f  // Sanity check !inPts -> inPits flip on session start.
-                && (currentGameState.PitData.PitSpeedLimit == -1.0f || currentGameState.PitData.pitlaneHasSpeedLimit()))  // If there's pit speed limit or if we have no idea.
+                && (currentGameState.PitData.PitSpeedLimit == -1.0f || currentGameState.PitData.pitlaneHasSpeedLimit()))  
             {
                 if (currentGameState.PitData.PitSpeedLimit == -1.0f
                     || pitLaneSpeedWarningAnnounced)  // Announce pitlane speed limit automatically only once per session
@@ -968,7 +968,9 @@ namespace CrewChiefV4.Events
                 if (!pitLaneSpeedWarningAnnounced
                     && (currentGameState.SessionData.SessionType == SessionType.LonePractice || currentGameState.SessionData.SessionType == SessionType.Practice || currentGameState.SessionData.SessionType == SessionType.Qualify)
                     && currentGameState.PitData.InPitlane
-                    && currentGameState.PositionAndMotionData.CarSpeed > 0.5f)
+                    && currentGameState.PositionAndMotionData.CarSpeed > 0.5f
+                    && !DriverTrainingService.isPlayingPaceNotes
+                    && !DriverTrainingService.isRecordingPaceNotes)
                 {
                     pitLaneSpeedWarningAnnounced = true;
                     if (currentGameState.PitData.PitSpeedLimit != -1.0f)

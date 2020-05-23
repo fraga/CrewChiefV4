@@ -33,14 +33,33 @@ namespace CrewChiefV4
 
         public static String folderPathForPaceNotes;
 
+        private static Boolean recordingHasStarted = false;
+        private static int lapCounterForRecordingMultiLapPaceNotes = 0;
+        private static int lapCounterForPlayingMultiLapPaceNotes = 0;
+
         private static Object _lock = new Object();
 
-        public static Boolean loadPaceNotes(GameEnum gameEnum, String trackName, CarData.CarClassEnum carClass, AudioPlayer audioPlayer, int lapsCompleted)
+        public static void incrementPaceNotesRecordingLapCounter()
+        {
+            // don't start incrementing this until there's at least 1 recording
+            if (recordingHasStarted)
+            {
+                DriverTrainingService.lapCounterForRecordingMultiLapPaceNotes++;
+            }
+        }
+
+        public static void incrementPaceNotesPlaybackLapCounter()
+        {
+            DriverTrainingService.lapCounterForPlayingMultiLapPaceNotes++;
+        }
+
+        public static Boolean loadPaceNotes(GameEnum gameEnum, String trackName, CarData.CarClassEnum carClass, AudioPlayer audioPlayer)
         {
             if (!isRecordingPaceNotes && !isPlayingPaceNotes)
             {
                 isRecordingPaceNotes = false;
                 isRecordingSound = false;
+                lapCounterForPlayingMultiLapPaceNotes = 0;
                 if (carClass != CarData.CarClassEnum.USER_CREATED && carClass != CarData.CarClassEnum.UNKNOWN_RACE)
                 {
                     DriverTrainingService.folderPathForPaceNotes = getCarSpecificFolderPath(gameEnum, trackName, carClass);
@@ -105,7 +124,6 @@ namespace CrewChiefV4
                             return false;
                         }
                     }
-                    CrewChief.lapNumberAtStartOfPlaybackSession = lapsCompleted < 0 ? 0 : lapsCompleted;
                     isPlayingPaceNotes = true;
                     if (DriverTrainingService.recordingMetaData.welcomeMessage != null
                         && DriverTrainingService.recordingMetaData.welcomeMessage.recordingNames != null
@@ -164,14 +182,20 @@ namespace CrewChiefV4
             isRecordingPaceNotes = false;
         }
 
-        public static void checkValidAndPlayIfNeeded(DateTime now, int lapNumber, float speed, float yawAngle,
-            float previousDistanceRoundTrack, float currentDistanceRoundTrack, AudioPlayer audioPlayer)
+        public static void checkValidAndPlayIfNeeded(DateTime now, float speed, float yawAngle,
+            float previousDistanceRoundTrack, float currentDistanceRoundTrack, Boolean isInPitLane, AudioPlayer audioPlayer)
         {
             if (isPlayingPaceNotes && !isRecordingPaceNotes && DriverTrainingService.recordingMetaData != null)
             {
+                // if we're not in the pitlane but our lap counter is 0, then ensure we start at lap 1. Lap 0 is only
+                // for pitlane messages
+                if (!isInPitLane && DriverTrainingService.lapCounterForPlayingMultiLapPaceNotes == 0)
+                {
+                    DriverTrainingService.lapCounterForPlayingMultiLapPaceNotes = 1;
+                }
                 foreach (MetaDataEntry entry in DriverTrainingService.recordingMetaData.entries)
                 {
-                    if (entry.shouldPlay(lapNumber, speed, yawAngle, previousDistanceRoundTrack, currentDistanceRoundTrack))
+                    if (entry.shouldPlay(DriverTrainingService.lapCounterForPlayingMultiLapPaceNotes, speed, yawAngle, previousDistanceRoundTrack, currentDistanceRoundTrack))
                     {
                         if (entry.description != null && !entry.description.Equals(""))
                         {
@@ -205,7 +229,7 @@ namespace CrewChiefV4
             }
         }
 
-        public static void startRecordingPaceNotes(GameEnum gameEnum, String trackName, CarData.CarClassEnum carClass, int currentLapCount)
+        public static void startRecordingPaceNotes(GameEnum gameEnum, String trackName, CarData.CarClassEnum carClass)
         {
             if (!isPlayingPaceNotes && !isRecordingPaceNotes)
             {
@@ -213,7 +237,10 @@ namespace CrewChiefV4
                 DriverTrainingService.gameEnum = gameEnum;
                 DriverTrainingService.trackName = trackName;
                 DriverTrainingService.carClass = carClass;
-                CrewChief.lapNumberAtStartOfRecordingSession = currentLapCount < 0 ? 0 : currentLapCount;
+                DriverTrainingService.recordingHasStarted = false;                  // this will be set to true when the first recording is made
+                DriverTrainingService.lapCounterForRecordingMultiLapPaceNotes = 0;  // this will be incremented to 1 if necessary. It starts at zero so
+                                                                                    // cases where we enable recording before crossing the line to start our
+                                                                                    // first lap don't screw up the counter
                 if (carClass == CarData.CarClassEnum.UNKNOWN_RACE || carClass == CarData.CarClassEnum.USER_CREATED)
                 {
                     Console.WriteLine("Recording pace notes for any car class");
@@ -330,7 +357,7 @@ namespace CrewChiefV4
 
         public static void startRecordingMessage(int distanceRoundTrack)
         {
-            if (isRecordingPaceNotes)
+            if (isRecordingPaceNotes && CrewChief.currentGameState != null)
             {
                 if (DriverTrainingService.isRecordingSound)
                 {
@@ -338,16 +365,47 @@ namespace CrewChiefV4
                 }
                 else
                 {
-                    Boolean addMetaDataEntry = false;
-                    MetaDataEntry entry = multiLapPaceNotes ? null : DriverTrainingService.recordingMetaData.getClosestEntryInRange(distanceRoundTrack, combineEntriesCloserThan);
+                    Boolean addMetaDataEntryToStandardList = false;
+                    Boolean addMetaDataEntryAsWelcomeMessage = false;
+                    DriverTrainingService.recordingHasStarted = true;
+                    MetaDataEntry entry;
+                    if (CrewChief.currentGameState.PitData.InPitlane)
+                    {
+                        if (CrewChief.currentGameState.PositionAndMotionData.CarSpeed < 0.1)
+                        {
+                            // if we're stationary in the pits, make this our welcome message
+                            addMetaDataEntryAsWelcomeMessage = true;
+                            Console.WriteLine("This message will be the welcome message");
+                            entry = new MetaDataEntry(0, 0);
+                        }
+                        else if (multiLapPaceNotes)
+                        {
+                            // we're rolling but we're in the pits, so make this a lap 0 message
+                            addMetaDataEntryToStandardList = true;
+                            entry = new MetaDataEntry(0, distanceRoundTrack);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Enable multilap pace notes support to record pit lane messages");
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        entry = multiLapPaceNotes ? null : DriverTrainingService.recordingMetaData.getClosestEntryInRange(distanceRoundTrack, combineEntriesCloserThan);
+                    }
                     int? lapNumber = null;
                     if (entry == null)
                     {
-                        addMetaDataEntry = true;                        
+                        addMetaDataEntryToStandardList = true;                        
                         if (multiLapPaceNotes)
                         {
-                            // always start at lap number 1
-                            lapNumber = CrewChief.lapNumberFromGame - CrewChief.lapNumberAtStartOfRecordingSession + 1;
+                            // always start at lap number 1 for standard pace notes once we're out of the pits
+                            if (DriverTrainingService.lapCounterForRecordingMultiLapPaceNotes == 0)
+                            {
+                                DriverTrainingService.lapCounterForRecordingMultiLapPaceNotes = 1;
+                            }
+                            lapNumber = DriverTrainingService.lapCounterForRecordingMultiLapPaceNotes;
                         }
                         entry = new MetaDataEntry(lapNumber, distanceRoundTrack);
                     }
@@ -369,7 +427,7 @@ namespace CrewChiefV4
                     {
                         fileNameStart += "_lap_" + lapNumber;
                     }
-                    String fileName = fileNameStart + ".wav";
+                    String fileName = addMetaDataEntryAsWelcomeMessage ? "welcome_message.wav" : fileNameStart + ".wav";
                     String recordingName = DriverTrainingService.trackName + "_" + DriverTrainingService.carClass.ToString() + "_" + fileName;
                     try
                     {
@@ -384,7 +442,11 @@ namespace CrewChiefV4
                         }
                         entry.recordingNames.Add(recordingName);
                         entry.fileNames.Add(fileName);
-                        if (addMetaDataEntry)
+                        if (addMetaDataEntryAsWelcomeMessage)
+                        {
+                            DriverTrainingService.recordingMetaData.welcomeMessage = entry;
+                        }
+                        else if (addMetaDataEntryToStandardList)
                         {
                             DriverTrainingService.recordingMetaData.entries.Add(entry);
                         }
@@ -575,7 +637,7 @@ namespace CrewChiefV4
             // there's no risk that being at the exact speed means neither trigger
             return previousDistanceRoundTrack < this.distanceRoundTrack
                 && currentDistanceRoundTrack > this.distanceRoundTrack
-                && (this.lapNumber == null || this.lapNumber == lapNumber - CrewChief.lapNumberAtStartOfPlaybackSession)
+                && (this.lapNumber == null || this.lapNumber == lapNumber)
                 && (this.minimumSpeed == null || speed >= this.minimumSpeed)
                 && (this.maximumSpeed == null || speed < this.maximumSpeed)
                 && (this.minimumYawAngle == null || this.maximumYawAngle == null || (yawAngle >= this.minimumYawAngle && yawAngle <= maximumYawAngle));
