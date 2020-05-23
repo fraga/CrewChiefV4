@@ -168,7 +168,7 @@ WHATS_MY_RANK = what's my rank
 WHATS_MY_RATING = what's my rating
 WHATS_MY_REPUTATION = what's my reputation
 
-STOP_WATCHING_ALL = cancel watched drivers:stop watching drivers
+STOP_WATCHING_ALL = cancel watched drivers:stop watching drivers:stop watching all
 
 #################################################
 # Dynamic recognition phrase fragments - these are used to build up recognition sentences for opponent information.

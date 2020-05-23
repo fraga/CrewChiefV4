@@ -1,6 +1,6 @@
 CrewChief version 4.9
 
-Written by Jim Britton, Morten Roslev, Vytautas Leonavičius, Paul Burgess, Dan Allongo (Automobilista and rFactor1 implementation), Daniel Nowak (nAudio speech recognition port), Mike Schreiner and Brent Owen (technical input on stock car rules). The application is the result of lots of lots of hard work and input from the guys above as well as some great advice and support from the community and the guys at Sector3 and SMS.
+Written by Jim Britton, Morten Roslev, Vytautas Leonavičius, Paul Burgess, Tony Whitely, Dan Allongo (Automobilista and rFactor1 implementation), Daniel Nowak (nAudio speech recognition port), Mike Schreiner and Brent Owen (technical input on stock car rules). The application is the result of lots of lots of hard work and input from the guys above as well as some great advice and support from the community and the guys at Sector3 and SMS.
 
 Additional material from Scoops (fantastic track layout mapping work), Nolan Bates (conversion of thousands of phrases from speech to text for subtitle support) and Longtomjr (F1 2018 UDP data format structs). Fantastic alternate spotter sounds by Geoffrey Lessel, Matt Orr (aka EmptyBox), Clare Britton, Mike Schreiner, Phil Linden, Lee Taylor and Micha (last name?). Also a thank you to Nick Thissen for his work on iRacingSdkWrapper.
 
@@ -96,6 +96,10 @@ I've not finished implementing this but currently the app understands and respon
 "clear alarm clock" / "clear alarms": clears all the alarms set
 "enable cut track warnings" / "play cut track warnings:warn about cuts"
 "no cut track warnings" / "no more cut warnings:no more cut track warnings"
+"watch [opponent driver last name]" (adds this driver to a list of drivers which the app will keep you informed about)
+"team mate [opponent driver last name]" (adds this driver to a list of drivers which the app will keep you informed about)
+"rival [opponent driver last name]" (adds this driver to a list of drivers which the app will keep you informed about)
+"cancel watched drivers" / "stop watching drivers" / "stop watching all" (clears all watched drivers)
 
 iRacing-specific pit commands:
 
@@ -122,7 +126,7 @@ iRacing-specific pit commands:
 "pitstop fuel to the end" / "pitstop fuel to the end of the race" (add the fuel amount the app calculates you'll need to finish the race, this option is iRacing only)
 
 
-R3E-specific pit commands:
+R3E-specific commands:
 
 "pitstop clear tyres" / "pitstop don't change tyres" / "box, clear tyres" / "box, don't change tyres"
 "pitstop change all tyres" / "box, change all tyres"
@@ -140,6 +144,18 @@ R3E-specific pit commands:
 "pitstop refuel" / "box, refuel"
 "pitstop don't refuel" / "box, don't refuel"
 "what are the pit actions" / "what's the pitstop plan" (reports the selected actions for the next pitstop)
+"what's [opponent driver last name]'s ranking" (reports the R3E ranking for this driver if available)
+"what's [opponent driver last name]'s reputation" (reports the R3E reputation for this driver if available) 
+"what's [opponent driver last name]'s rating" (reports the R3E rating for this driver if available)
+"what's [opponent race position]'s ranking" (reports the R3E ranking for this driver if available)
+"what's [opponent race position]'s reputation" (reports the R3E reputation for this driver if available) 
+"what's [opponent race position]'s rating" (reports the R3E rating for this driver if available)
+"what's [the car in front / the guy in front / the car ahead / the guy ahead]'s ranking" (reports the R3E ranking for this driver if available)
+"what's [the car in front / the guy in front / the car ahead / the guy ahead]'s reputation" (reports the R3E reputation for this driver if available) 
+"what's [the car in front / the guy in front / the car ahead / the guy ahead]'s rating" (reports the R3E rating for this driver if available)
+"what's [the car behind / the guy behind]'s ranking" (reports the R3E ranking for this driver if available)
+"what's [the car behind / the guy behind]'s reputation" (reports the R3E reputation for this driver if available) 
+"what's [the car behind / the guy behind]'s rating" (reports the R3E rating for this driver if available)
 
 
 Speech recognition customisation
@@ -415,6 +431,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.12.0.0: Added support for Steam VR overlays. Enable this with the 'Enable VR overlays' property (the app can also start SteamVR if necessary by enabling the 'Start SteamVR if detected' property). This will enable the 'VR Settings' button on the main screen which opens a popup window allowing you to select which of your desktop windows to be rendered in VR. You can also move them around, scale them and other stuff from this menu. This supports any desktop window as well as the Crew Chief overlays (charts, console and subtitles). The app will remember your window config and reapply them when you next start it. If you want the VR overlays to be started with the app, enable the 'Enable VR overlays when app starts' property; Reworked help and documentation into proper HTML pages accessed from the app's toolbar menu; Overhauled button handling to reduce delays and fix some issues; Added feature to 'watch' opponents - use the voice command 'watch [opponent last name]', 'team mate [opponent last name]' or 'rival [opponent last name]' to mark a driver as watched. The app will give updates on watched drivers. The watch list can be cleared with the 'cancel watched drivers' command (or 'stop watching [opponent name]' to remove a specific driver). Note that the watch list is cleared on session start so drivers watched in qualifying won't be on the watch list for the race (you need to re-add them); R3E - added support for R3E driver rating data. When approaching an opponent with low reputation you may get a warning about him. Opponents' ranking, rating and reputation can be accessed with the voice command 'whats [opponent last name]'s ranking / rating / reputation'; R3E - updated various vehicle classes and their tyre temperature thresholds and added Daytona track mapping (running on the oval should now activate the oval spotter and logic); Various bug fixes
+
 Version 4.11.1.2: Reworked pace notes functionality to allow pace notes to be recorded over multiple laps and to add some speed and direction filtering (e.g. you might want a particular pace note to only play when the car is going too fast) - full documentation still to be done; added option to make pace notes play automatically when starting a practice session (disabled by default, enable with 'Play pace notes automatically in practice' property); added option to mute other messages when pace notes are playing (enabled by default, disable with 'Mute messages when playing pace notes' property); improvements to the subtitle overlay; replaced existing 'fuel in gallons' property with more generic 'Use metric' property which applies to fuel and speed calls; added option to disable pit speed limit warnings ('Enable pit speed limit warnings', defaults to enabled); iRacing - fix some pitstop commands; AMS2 - fix command line wiring; R3E - fix broken opponent position messages when asking "where is [opponent name]"; R3E - added some missing tyre types to the pit menu code; R3E - tweaked tyre wear warning messages so the app isn't as conservative; ACC - fix for broadcast API change
 
 Version 4.11.0.3: Fix some subtitle issues when using personalisations for some users; allow sounds to be played back in stereo when using nAudio for playback (enable with the "Play messages in stereo" property) - should fix cases where the app's sound only plays through one speaker; ACC - changed deprecation warning so it's just a console message rather than a popup; changed default subtitle overlay colour scheme (this can be changed manually by editing the Documents/CrewChiefV4/subtitle_overlay.json file - the recommended value for the "activeColorScheme" property is "CrewChief")
