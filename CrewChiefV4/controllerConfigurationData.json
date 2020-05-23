@@ -805,6 +805,76 @@
 			"buttonIndex": -1,
 			"opponentDataCommand": false,
 			"availableAction": false
+		},
+		{
+			"action": "what's the car ahead's rank",
+			"deviceGuid": "",
+			"buttonIndex": -1,
+			"opponentDataCommand": true,
+			"availableAction": false
+		},
+		{
+			"action": "what's the car ahead's rating",
+			"deviceGuid": "",
+			"buttonIndex": -1,
+			"opponentDataCommand": true,
+			"availableAction": false
+		},
+		{
+			"action": "what's the car ahead's reputation",
+			"deviceGuid": "",
+			"buttonIndex": -1,
+			"opponentDataCommand": true,
+			"availableAction": false
+		},
+		{
+			"action": "what's the car behind's rank",
+			"deviceGuid": "",
+			"buttonIndex": -1,
+			"opponentDataCommand": true,
+			"availableAction": false
+		},
+		{
+			"action": "what's the car behind's rating",
+			"deviceGuid": "",
+			"buttonIndex": -1,
+			"opponentDataCommand": true,
+			"availableAction": false
+		},
+		{
+			"action": "what's the car behind's reputation",
+			"deviceGuid": "",
+			"buttonIndex": -1,
+			"opponentDataCommand": true,
+			"availableAction": false
+		},
+		{
+			"action": "watch the car ahead",
+			"deviceGuid": "",
+			"buttonIndex": -1,
+			"opponentDataCommand": true,
+			"availableAction": false
+		},
+		{
+			"action": "watch the car behind",
+			"deviceGuid": "",
+			"buttonIndex": -1,
+			"opponentDataCommand": true,
+			"availableAction": false
+		},
+		{
+			"action": "watch the car behind",
+			"deviceGuid": "",
+			"buttonIndex": -1,
+			"opponentDataCommand": true,
+			"availableAction": false
+		},
+		{
+			"action": "STOP_WATCHING_ALL",
+			"deviceGuid": "",
+			"buttonIndex": -1,
+			"opponentDataCommand": false,
+			"availableAction": false
 		}
 	]
 }
