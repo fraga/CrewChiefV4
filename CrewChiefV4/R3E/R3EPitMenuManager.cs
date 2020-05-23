@@ -135,7 +135,11 @@ namespace CrewChiefV4.R3E
             { CarData.CarClassEnum.INDYCAR, new TyreType[]{ TyreType.Alternate, TyreType.Prime} },  // note we use Prime here, not Primary - the SRE recognises either
             { CarData.CarClassEnum.GROUPC, new TyreType[]{ TyreType.Soft, TyreType.Medium, TyreType.Hard} },
             { CarData.CarClassEnum.GT2, new TyreType[]{ TyreType.Soft, TyreType.Hard} },
-            { CarData.CarClassEnum.GROUP5, new TyreType[]{ TyreType.Soft, TyreType.Hard} }
+            { CarData.CarClassEnum.GROUP5, new TyreType[]{ TyreType.Soft, TyreType.Hard} },
+            { CarData.CarClassEnum.M1_PROCAR, new TyreType[]{ TyreType.Soft, TyreType.Hard} },
+            { CarData.CarClassEnum.GTE, new TyreType[]{ TyreType.Soft, TyreType.Medium, TyreType.Hard} },
+            { CarData.CarClassEnum.HILL_CLIMB_ICONS, new TyreType[]{ TyreType.Soft, TyreType.Hard} },
+            { CarData.CarClassEnum.GROUPA, new TyreType[]{ TyreType.Soft, TyreType.Hard} }
         };
 
         static R3EPitMenuManager()
