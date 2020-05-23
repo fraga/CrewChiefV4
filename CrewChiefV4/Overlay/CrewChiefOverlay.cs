@@ -244,7 +244,7 @@ namespace CrewChiefV4.Overlay
             lastChild.OnElementLMButtonClicked += OnSetSectorOrLap;
             lastChild = subscriptionModeControlBox.AddChildElement(new ElementRadioButton(gfx, "Show Sector 3", font, new Rect(offsetX + 600, 20, 14, 14), colorScheme, 
                 OverlayController.sectorToShow == SectorToShow.SECTOR_3, "3"));
-            lastChild.OnElementLMButtonClicked += OnShowOpponentBestLap;
+            lastChild.OnElementLMButtonClicked += OnSetSectorOrLap;
 
             zoomAndPanControlBox  = overlayElements[zoomAndPanBoxName] = new ElementGroupBox(gfx, zoomAndPanBoxName, font, new Rect(0, 0, overlayWindow.Width, 22),
                 colorScheme, initialEnableState: false);
