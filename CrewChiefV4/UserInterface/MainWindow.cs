@@ -1761,9 +1761,8 @@ namespace CrewChiefV4
                         {
                             if (CrewChief.distanceRoundTrack > 0)
                             {
-                                crewChief.audioPlayer.playStartListeningBeep();
                                 Console.WriteLine("Recording pace note...");
-                                DriverTrainingService.startRecordingMessage( (int)CrewChief.distanceRoundTrack);
+                                DriverTrainingService.startRecordingMessage((int)CrewChief.distanceRoundTrack, crewChief.audioPlayer);
                             }
                         }
                         else
@@ -1793,7 +1792,7 @@ namespace CrewChiefV4
                         if (DriverTrainingService.isRecordingPaceNotes)
                         {
                             Console.WriteLine("Saving recorded pace note");
-                            DriverTrainingService.stopRecordingMessage();
+                            DriverTrainingService.stopRecordingMessage(crewChief.audioPlayer);
                         }
                         else
                         {

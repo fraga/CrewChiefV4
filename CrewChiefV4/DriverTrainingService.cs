@@ -312,7 +312,7 @@ namespace CrewChiefV4
         {
             if (isRecordingSound)
             {
-                stopRecordingMessage();
+                stopRecordingMessage(null);
             }
             System.IO.Directory.Delete(folderPathForPaceNotes, true);
             isRecordingPaceNotes = false;
@@ -322,7 +322,7 @@ namespace CrewChiefV4
         {
             if (isRecordingSound)
             {
-                stopRecordingMessage();
+                stopRecordingMessage(null);
             }
             if (isRecordingPaceNotes)
             {
@@ -339,13 +339,17 @@ namespace CrewChiefV4
             isRecordingPaceNotes = false;
         }
 
-        public static void stopRecordingMessage()
+        public static void stopRecordingMessage(AudioPlayer audioPlayer)
         {
             if (DriverTrainingService.isRecordingSound)
             {
                 try
                 {
                     DriverTrainingService.waveSource.StopRecording();
+                    if (audioPlayer != null)
+                    {
+                        audioPlayer.playPaceNoteRecordingStartStopBeep();
+                    }
                 }
                 catch (Exception e)
                 {
@@ -355,7 +359,7 @@ namespace CrewChiefV4
             }
         }
 
-        public static void startRecordingMessage(int distanceRoundTrack)
+        public static void startRecordingMessage(int distanceRoundTrack, AudioPlayer audioPlayer)
         {
             if (isRecordingPaceNotes && CrewChief.currentGameState != null)
             {
@@ -365,6 +369,7 @@ namespace CrewChiefV4
                 }
                 else
                 {
+                    audioPlayer.playPaceNoteRecordingStartStopBeep();
                     Boolean addMetaDataEntryToStandardList = false;
                     Boolean addMetaDataEntryAsWelcomeMessage = false;
                     DriverTrainingService.recordingHasStarted = true;

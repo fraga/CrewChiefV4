@@ -1620,6 +1620,14 @@ namespace CrewChiefV4.Audio
             }
         }
 
+        public void playPaceNoteRecordingStartStopBeep()
+        {
+            if (!mute)
+            {
+                soundCache.Play("pace_notes_recording_start_stop_bleep", SoundMetadata.beep);
+            }
+        }
+
         public void playStartListeningBeep()
         {
             if (useListenBeep)

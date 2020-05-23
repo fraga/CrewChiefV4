@@ -838,6 +838,17 @@ namespace CrewChiefV4.Audio
                         singleSounds.Add("alternate_short_start_bleep", sound);
                         availableSounds.Add("alternate_short_start_bleep");
                     }
+                    else if (bleepFile.Name.StartsWith("pace_notes_recording_start_stop_bleep") && !singleSounds.ContainsKey("pace_notes_recording_start_stop_bleep"))
+                    {
+                        SingleSound sound = new SingleSound(bleepFile.FullName, true, allowCaching, allowCaching);
+                        sound.isBleep = true;
+                        if (eagerLoadSoundFiles)
+                        {
+                            sound.LoadAndCacheFile();
+                        }
+                        singleSounds.Add("pace_notes_recording_start_stop_bleep", sound);
+                        availableSounds.Add("pace_notes_recording_start_stop_bleep");
+                    }
                 }
             }
             if(verbose)
