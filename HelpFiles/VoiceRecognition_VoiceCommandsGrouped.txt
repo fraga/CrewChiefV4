@@ -188,7 +188,7 @@ What's
 &nbsp;&nbsp;&nbsp;the guy behind 's best lap
 What tyre(s) is [opponent driver last name] on
 What tyre(s) is [opponent race position] on
-What's [opponent driver last name]'s ranking / rating / repuation (R3E only)
+What's [opponent driver last name]'s ranking / rating / reputation (R3E only)
 <h4>Start</h4>
 This is the formation lap 
 &nbsp;&nbsp;&nbsp;Formation lap 
