@@ -1459,7 +1459,6 @@ namespace CrewChiefV4.Audio
                                 // only cache the last message for repeat if it's an actual message
                                 lastMessagePlayed = thisMessage;
                             }
-                            lastMessagePlayed = thisMessage;
                             String messageStringContent = thisMessage.ToString();
                             if (messageStringContent != "")
                             {
