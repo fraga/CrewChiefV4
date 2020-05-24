@@ -963,7 +963,8 @@ namespace CrewChiefV4.Events
             }
 
             if (CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT
-                || CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM)
+                || CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM
+                || CrewChief.gameDefinition.gameEnum == GameEnum.IRACING)
             {
                 if (!pitLaneSpeedWarningAnnounced
                     && (currentGameState.SessionData.SessionType == SessionType.LonePractice || currentGameState.SessionData.SessionType == SessionType.Practice || currentGameState.SessionData.SessionType == SessionType.Qualify)
