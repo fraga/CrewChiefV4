@@ -446,15 +446,14 @@ namespace CrewChiefV4
                 }
 
                 // Always have to add "-multi" to the start args so the app can restart
-                startArgs.Add("-multi");
-                if (newArgs != null)
+                if (newArgs == null)
+                    newArgs = new List<string>();
+                newArgs.Add("-multi");
+                foreach (string arg in newArgs)
                 {
-                    foreach (string arg in newArgs)
+                    if (!startArgs.Contains(arg))
                     {
-                        if (!startArgs.Contains(arg))
-                        {
-                            startArgs.Add(arg);
-                        }
+                        startArgs.Add(arg);
                     }
                 }
                 System.Diagnostics.Process.Start(    // to start new instance of application
