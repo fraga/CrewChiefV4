@@ -53,7 +53,18 @@ namespace CrewChiefV4.Events
                     int hours = -1;
                     int minutes = -1;
                     int index = alarm.IndexOf(":");
+                    if (index == -1)
+                    {
+                        Console.WriteLine("Invalid alarm time value " + alarm);
+                        continue;
+                    }
                     String hourString = alarm.Substring(0, index);
+                    if (hourString.Length == 0)
+                    {
+                        // empty string succesfully parses to 0 but we don't want this
+                        Console.WriteLine("Invalid alarm time value " + alarm);
+                        continue;
+                    }
                     Int32.TryParse(hourString, out hours);
                     String minutesString = alarm.Substring(index + 1);
                     if (minutesString.ToLower().Contains("pm"))
@@ -65,7 +76,12 @@ namespace CrewChiefV4.Events
                     {
                         minutesString = minutesString.Substring(0, minutesString.Length - 2);
                     }
-
+                    if (minutesString.Length == 0)
+                    {
+                        // empty string succesfully parses to 0 but we don't want this
+                        Console.WriteLine("Invalid alarm time value " + alarm);
+                        continue;
+                    }
                     Int32.TryParse(minutesString, out minutes);
                     if (hours != -1 && minutes != -1)
                     {
