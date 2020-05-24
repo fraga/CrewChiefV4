@@ -215,6 +215,7 @@
 			"pCarsClassNames": ["GT4"],
 			"rf2ClassNames": ["*GT4*"],
 			"acClassNames": ["*GT4*", "ks_bmw_m235i_racing", "lotus_evora_gx", "ginetta_g55"],
+			"iracingCarIds": [119],
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL",
 			"allMembersAreRWD": true,
@@ -767,6 +768,7 @@
 			"carClassEnum": "TCR",
 			"raceroomClassIds": [7009, 7844],
 			"rf2ClassNames": ["TCR SEAT", "Honda Civic TCR", "Opel Astra OPC", "TT Cup 2015", "TCR VW", "Ford Focus ST"],
+			"iracingCarIds": [112],
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL",
 			"allMembersAreFWD": true
@@ -789,6 +791,7 @@
 			"carClassEnum": "V8_SUPERCAR",
 			"pCarsClassNames": ["V8 Supercars"],
 			"ams2ClassNames": ["SuperV8"],
+			"iracingCarIds": [118, 117],
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL",
 			"allMembersAreRWD": true
