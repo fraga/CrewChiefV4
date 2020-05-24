@@ -1,4 +1,4 @@
-CrewChief version 4.9
+CrewChief version 4.12
 
 Written by Jim Britton, Morten Roslev, Vytautas Leonavičius, Paul Burgess, Tony Whitley, Dan Allongo (Automobilista and rFactor1 implementation), Daniel Nowak (nAudio speech recognition port), Mike Schreiner and Brent Owen (technical input on stock car rules). The application is the result of lots of lots of hard work and input from the guys above as well as some great advice and support from the community and the guys at Sector3 and SMS.
 
