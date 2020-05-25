@@ -11,7 +11,16 @@ namespace CrewChiefV4.SRE
 
         public MicrosoftSREWrapper(CultureInfo culture)
         {
-            this.internalSRE = new SpeechRecognitionEngine(culture);
+            // if the culture is null we won't be able to use the SRE - this is checked later in the initialisation code.
+            // We still want to check if the engine is available so we know which warning to display to the user
+            if (culture == null)
+            {
+                this.internalSRE = new SpeechRecognitionEngine();
+            }
+            else
+            {
+                this.internalSRE = new SpeechRecognitionEngine(culture);
+            }
         }
         public void AddSpeechRecognizedCallback(object callback)
         {
