@@ -21,13 +21,20 @@ namespace CrewChiefV4
         {
             StartPosition = FormStartPosition.CenterParent;
             InitializeComponent();
-            string p = System.IO.Path.GetDirectoryName(Application.ExecutablePath);
-            //this.Text = p;
-            //Uri uri = new Uri(p+@"\..\..\..\Public\index.html");
-            //For now at least load the help directly from the Internet
-            //so it can be changed without having to update CC
-            Uri uri = new Uri(@"https://mr_belowski.gitlab.io/CrewChiefV4/index.html");
-            webBrowser1.Navigate(uri);
+            if (!CrewChief.Debugging)
+            {
+                //For now at least load the help directly from the Internet
+                //so it can be changed without having to update CC
+                Uri uri = new Uri(@"https://mr_belowski.gitlab.io/CrewChiefV4/index.html");
+                webBrowser1.Navigate(uri);
+            }
+            else
+            {
+                string p = System.IO.Path.GetDirectoryName(Application.ExecutablePath);
+                this.Text = p;
+                Uri uri = new Uri(p + @"\..\..\..\Public\index.html");
+                webBrowser1.Navigate(uri);
+            }
             webBrowser1.Navigating += webBrowser1_Navigating;
         }
 
@@ -48,7 +55,6 @@ namespace CrewChiefV4
 
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
             this.webBrowser1 = new System.Windows.Forms.WebBrowser();
             this.SuspendLayout();
             // 
@@ -58,14 +64,13 @@ namespace CrewChiefV4
             this.webBrowser1.Location = new System.Drawing.Point(0, 0);
             this.webBrowser1.MinimumSize = new System.Drawing.Size(20, 20);
             this.webBrowser1.Name = "webBrowser1";
-            this.webBrowser1.Size = new System.Drawing.Size(911, 634);
+            this.webBrowser1.Size = new System.Drawing.Size(922, 634);
             this.webBrowser1.TabIndex = 0;
             // 
             // HelpWindow
             // 
-            this.ClientSize = new System.Drawing.Size(911, 634);
+            this.ClientSize = new System.Drawing.Size(922, 634);
             this.Controls.Add(this.webBrowser1);
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "HelpWindow";
             this.Text = "Crew Chief Help";
             this.ResumeLayout(false);
