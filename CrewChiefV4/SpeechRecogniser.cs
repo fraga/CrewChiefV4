@@ -884,25 +884,22 @@ namespace CrewChiefV4
                 waveIn.DeviceNumber = SpeechRecogniser.speechInputDeviceIndex;
             }
             // try to initialize SpeechRecognitionEngine if it trows user is most likely missing SpeechPlatformRuntime.msi from the system
-            // catch it and tell user to go download.
-            try
+            LangCodes langCodes = getLangCodes();
+            Console.WriteLine("got language codes data " + langCodes.ToString());
+            this.cultureInfo = SREWrapperFactory.GetCultureInfo(langCodes.langAndCountryToUse, langCodes.langToUse, false);
+            // if we're using the system SRE, check we have the required language before proceeding
+            if (SREWrapperFactory.useSystem && this.cultureInfo == null)
             {
-                LangCodes langCodes = getLangCodes();
-                Console.WriteLine("got language codes data " + langCodes.ToString());
+                // if we have no culture info here we need to fall back to the MS SRE and get the culture again
+                Console.WriteLine("Unable to get language for System SRE with lang " + langCodes.langToUse + " or " + langCodes.langAndCountryToUse);
+                Console.WriteLine("You may need to add an appropriate language from the Windows 'Time and language' control panel (go to Languages -> Add a language). " +
+                    "App will fall back to Microsoft SRE");
+                SREWrapperFactory.useSystem = false;
                 this.cultureInfo = SREWrapperFactory.GetCultureInfo(langCodes.langAndCountryToUse, langCodes.langToUse, false);
-                // if we're using the system SRE, check we have the required language before proceeding
-                if (SREWrapperFactory.useSystem && this.cultureInfo == null)
-                {
-                    // if we have no culture info here we need to fall back to the MS SRE and get the culture again
-                    Console.WriteLine("Unable to get language for System SRE with lang " + langCodes.langToUse + " or " + langCodes.langAndCountryToUse);
-                    Console.WriteLine("You may need to add an appropriate language from the Windows 'Time and language' control panel (go to Languages -> Add a language). " +
-                        "App will fall back to Microsoft SRE");
-                    SREWrapperFactory.useSystem = false;
-                    this.cultureInfo = SREWrapperFactory.GetCultureInfo(langCodes.langAndCountryToUse, langCodes.langToUse, false);
-                }
-                SREWrapperFactory.createNewSREWrapper(this.cultureInfo, true);
             }
-            catch (Exception e)
+            var sre = SREWrapperFactory.createNewSREWrapper(this.cultureInfo, true);
+
+            if(sre == null)
             {
                 if (MessageBox.Show(Configuration.getUIString("install_speechplatform_popup_text"), Configuration.getUIString("install_speechplatform_popup_title"),
                     MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
@@ -910,7 +907,6 @@ namespace CrewChiefV4
                     Process.Start("https://www.microsoft.com/en-us/download/details.aspx?id=27225");
                 }
                 Console.WriteLine("Unable to initialise speech engine. Check that SpeechPlatformRuntime.msi is installed. It can be downloaded from https://www.microsoft.com/en-us/download/details.aspx?id=27225");
-                Console.WriteLine("Exception message: " + e.Message + " stack: " + e.StackTrace);
                 return;
             }
 
