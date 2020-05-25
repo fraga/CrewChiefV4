@@ -921,7 +921,7 @@ namespace CrewChiefV4.Events
                         }
 
                         FlagEnum sectorFlag = currentGameState.FlagData.sectorFlags[i];
-                        if (sectorFlag != lastSectorFlags[i])
+                        if (sectorFlag != lastSectorFlags[i] && (reportYellowsInAllSectors || isCurrentSector(currentGameState, i) || isNextSector(currentGameState, i)))
                         {
                             // Console.WriteLine("FLAG_DEBUG: sector " + (i + 1) + " " + sectorFlag + " at " + currentGameState.Now.ToString("HH:mm:ss"));
                             lastSectorFlags[i] = sectorFlag;
@@ -930,8 +930,7 @@ namespace CrewChiefV4.Events
                             validationData.Add(validationSectorFlagKey, sectorFlag);
                             validationData.Add(isValidatingSectorMessage, true);
                             if ((sectorFlag == FlagEnum.YELLOW || sectorFlag == FlagEnum.DOUBLE_YELLOW) && 
-                                currentGameState.Now > lastSectorFlagsReportedTime[i].Add(minTimeBetweenNewYellowFlagMessages) &&
-                                        (reportYellowsInAllSectors || isCurrentSector(currentGameState, i) || isNextSector(currentGameState, i)))
+                                currentGameState.Now > lastSectorFlagsReportedTime[i].Add(minTimeBetweenNewYellowFlagMessages))
                             {
                                 // Sector i changed to yellow - don't announce this if we're in a local yellow
                                 if (!currentGameState.FlagData.isLocalYellow && lastSectorFlagsReported[i] != sectorFlag && 
