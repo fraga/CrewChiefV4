@@ -1436,7 +1436,7 @@ namespace CrewChiefV4
 
         private bool isSteamVrRunning()
         {
-            return Win32Stuff.FindWindowsWithText("SteamVR Status").FirstOrDefault() != IntPtr.Zero;
+            return Win32Stuff.FindWindowsWithText("SteamVR").FirstOrDefault() != IntPtr.Zero;
         }
         private bool initSteamVR()
         {
