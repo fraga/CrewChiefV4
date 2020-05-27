@@ -76,6 +76,7 @@ namespace CrewChiefV4
             this.textBoxTransparency = new System.Windows.Forms.TextBox();
             this.textBoxScale = new System.Windows.Forms.TextBox();
             this.labelAvailableWindows = new System.Windows.Forms.Label();
+            this.checkBoxForceTopMostWindow = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarPositionX)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarPositionY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarPositionZ)).BeginInit();
@@ -547,11 +548,23 @@ namespace CrewChiefV4
             this.labelAvailableWindows.TabIndex = 10;
             this.labelAvailableWindows.Text = "available_windows";
             // 
+            // checkBoxForceTopMostWindow
+            // 
+            this.checkBoxForceTopMostWindow.AutoSize = true;
+            this.checkBoxForceTopMostWindow.Location = new System.Drawing.Point(347, 9);
+            this.checkBoxForceTopMostWindow.Name = "checkBoxForceTopMostWindow";
+            this.checkBoxForceTopMostWindow.Size = new System.Drawing.Size(150, 17);
+            this.checkBoxForceTopMostWindow.TabIndex = 11;
+            this.checkBoxForceTopMostWindow.Text = "vr_force_topmost_window";
+            this.checkBoxForceTopMostWindow.UseVisualStyleBackColor = true;
+            this.checkBoxForceTopMostWindow.CheckedChanged += new System.EventHandler(this.checkBoxForceTopMostWindow_CheckedChanged);
+            // 
             // VROverlaySettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(823, 469);
+            this.Controls.Add(this.checkBoxForceTopMostWindow);
             this.Controls.Add(this.labelAvailableWindows);
             this.Controls.Add(this.groupBoxScaleTransCurve);
             this.Controls.Add(this.groupBoxRotation);
@@ -629,5 +642,6 @@ namespace CrewChiefV4
         private System.Windows.Forms.TrackBar trackBarGazeTransparency;
         private System.Windows.Forms.TextBox textBoxGazeTransparency;
         private System.Windows.Forms.TextBox textBoxGazeScale;
+        private System.Windows.Forms.CheckBox checkBoxForceTopMostWindow;
     }
 }

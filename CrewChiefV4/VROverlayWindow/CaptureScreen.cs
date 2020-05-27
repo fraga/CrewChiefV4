@@ -82,9 +82,13 @@ namespace CrewChiefV4.ScreenCapture
 
                         if (!dub.Contains(info.rcClient))
                             continue;
+                        if (w.forceTopMost)
+                            Win32Stuff.SetWindowPos(w.hWnd, (IntPtr)Win32Stuff.SpecialWindowHandles.HWND_TOPMOST, 0, 0, 0, 0, Win32Stuff.SetWindowPosFlags.SWP_NOMOVE | Win32Stuff.SetWindowPosFlags.SWP_NOSIZE);
                     }
                     else if (w.Name != dub.deviceName)
                         continue;
+
+
 
                     SharpDX.Rectangle rect = w.isDisplay ? new SharpDX.Rectangle(0,0, dub.width, dub.height) : dub.convertToAbsScreenRect(info);
                     w.rectScreen = w.isDisplay ? new SharpDX.Rectangle(dub.rectangle.Left, dub.rectangle.Top, dub.rectangle.Width, dub.rectangle.Height) :  dub.convertToScreenRect(info);;

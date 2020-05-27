@@ -55,6 +55,7 @@ namespace CrewChiefV4.VirtualReality
         public float gazeTransparency { get; set; }
         public float curvature { get; set; }
         public bool gazeEnabled { get; set; }
+        public bool forceTopMost { get; set; }
         public ETrackingUniverseOrigin trackingUniverse { get; set; }
         public bool isDisplay { get; set; }
         [JsonIgnore]
@@ -79,7 +80,7 @@ namespace CrewChiefV4.VirtualReality
         }
         //[JsonConstructor]
         public VROverlayWindow(string Text, IntPtr hWnd, ulong vrOverlayCursorHandle = 0, string Name = "", bool enabled = false, bool wasEnabled = false, float positionX = 0, float positionY = 0, float positionZ = -1,
-            float rotationX = 0, float rotationY = 0, float rotationZ = 0, float scale = 1, float transparency = 1, float curvature = 0, ETrackingUniverseOrigin trackingUniverse = ETrackingUniverseOrigin.TrackingUniverseSeated, bool isDisplay = false, bool gazeEnabled = false, float gazeScale = 1f, float gazeTransparency = 1f)
+            float rotationX = 0, float rotationY = 0, float rotationZ = 0, float scale = 1, float transparency = 1, float curvature = 0, ETrackingUniverseOrigin trackingUniverse = ETrackingUniverseOrigin.TrackingUniverseSeated, bool isDisplay = false, bool gazeEnabled = false, float gazeScale = 1f, float gazeTransparency = 1f, bool forceTopMost = false)
         {
             this.Text = Text;
             if(string.IsNullOrWhiteSpace(Name))
@@ -106,7 +107,7 @@ namespace CrewChiefV4.VirtualReality
             this.wasEnabled = wasEnabled;
             this.rectAbs = new Rectangle();
             this.rectScreen = new Rectangle();
-            
+            this.forceTopMost = forceTopMost;
             shouldDraw = false;
             if (enabled)
             {
@@ -140,7 +141,8 @@ namespace CrewChiefV4.VirtualReality
             this.vrOverlayCursorHandle = vrOverlayCursorHandle;
             this.rectAbs = new Rectangle();
             this.rectScreen = new Rectangle();
-            
+            this.forceTopMost = other.forceTopMost;
+
             shouldDraw = false;
             if(enabled)
             {

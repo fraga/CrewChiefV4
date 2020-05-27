@@ -57,6 +57,8 @@ namespace CrewChiefV4
             labelGazeScale.Text = Configuration.getUIString("vr_gaze_scale");
             labelGazeTransparency.Text = Configuration.getUIString("vr_gaze_transparency");
 
+            checkBoxForceTopMostWindow.Text = Configuration.getUIString("vr_force_topmost_window");
+
             cursorOverlay = new VROverlayWindow("Cursor", IntPtr.Zero, Name: "Cursor", enabled: false);
             cursorOverlay.CreateOverlay(false);
             var path = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location), @"Resources\cursor.png");
@@ -490,6 +492,21 @@ namespace CrewChiefV4
                     var window = ((VROverlayWindow)listBoxWindows.SelectedItem);
                     window.gazeTransparency = (trackBarGazeTransparency.Value * 0.01f);
                     textBoxGazeTransparency.Text = window.gazeTransparency.ToString("0.00");
+                }
+            }
+        }
+
+        private void checkBoxForceTopMostWindow_CheckedChanged(object sender, EventArgs e)
+        {
+            lock (instanceLock)
+            {
+                if (listBoxWindows.SelectedIndex != -1)
+                {
+                    if (!this.loadingSettings)
+                        this.buttonSaveSettings.Enabled = true;
+
+                    var window = ((VROverlayWindow)listBoxWindows.SelectedItem);
+                    window.forceTopMost = checkBoxForceTopMostWindow.Checked;
                 }
             }
         }
