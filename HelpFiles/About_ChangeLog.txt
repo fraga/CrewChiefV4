@@ -1,3 +1,10 @@
+Version 4.12.0.1:
+  * Fixed SteamVR detection on non-English installs
+  * Fixed some issues in speech recognition initialisation error handling
+  * Fix a crash bug preventing the app from starting when user-defined macros are incomplete
+  * Allow existing driver name (opponent name) recordings to be used to generate personalisations (note that these may sound a bit robotic - some will probably be fine, some will be unusable, most will be somewhere in between). If you're waiting for your name to be added to the app check the My Name list again - it might be available
+  * Tweaked the My Name list box so you can now type into it (this is needed because there are now about 8000 entries in this list)
+  * A few minor bug fixes
 Version 4.12.0.0:
   * Added support for Steam VR overlays. Enable this with the 'Enable VR overlays' property (the app can also start SteamVR if necessary by enabling the 'Start SteamVR if detected' property). This will enable the 'VR Settings' button on the main screen which opens a popup window allowing you to select which of your desktop windows to be rendered in VR. You can also move them around, scale them and other stuff from this menu. This supports any desktop window as well as the Crew Chief overlays (charts, console and subtitles). The app will remember your window config and reapply them when you next start it. If you want the VR overlays to be started with the app, enable the 'Enable VR overlays when app starts' property
   * Reworked help and documentation into proper HTML pages accessed from the app's toolbar menu
