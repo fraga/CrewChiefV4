@@ -1307,12 +1307,15 @@ namespace CrewChiefV4
             controllerConfiguration.initialize();
             GlobalResources.controllerConfiguration = controllerConfiguration;
 
-            this.personalisationBox.Items.AddRange(this.crewChief.audioPlayer.personalisationsArray);
+            HashSet<string> availablePersonalisations = new HashSet<string>(this.crewChief.audioPlayer.personalisationsArray);
+            availablePersonalisations.UnionWith(new HashSet<string>(SoundCache.availableDriverNames));
+
+            this.personalisationBox.Items.AddRange(availablePersonalisations.ToArray<string>());
             this.chiefNameBox.Items.AddRange(AudioPlayer.availableChiefVoices.ToArray());
             this.spotterNameBox.Items.AddRange(NoisyCartesianCoordinateSpotter.availableSpotters.ToArray());
             if (crewChief.audioPlayer.selectedPersonalisation == null || crewChief.audioPlayer.selectedPersonalisation.Length == 0 ||
                 crewChief.audioPlayer.selectedPersonalisation.Equals(AudioPlayer.NO_PERSONALISATION_SELECTED) ||
-                !this.crewChief.audioPlayer.personalisationsArray.Contains(crewChief.audioPlayer.selectedPersonalisation))
+                !availablePersonalisations.Contains(crewChief.audioPlayer.selectedPersonalisation))
             {
                 this.personalisationBox.Text = AudioPlayer.NO_PERSONALISATION_SELECTED;
             }
@@ -1320,6 +1323,9 @@ namespace CrewChiefV4
             {
                 this.personalisationBox.Text = crewChief.audioPlayer.selectedPersonalisation;
             }
+            this.personalisationBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDown;
+            this.personalisationBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            this.personalisationBox.AutoCompleteSource = AutoCompleteSource.ListItems;
 
             String savedChief = UserSettings.GetUserSettings().getString("chief_name");
             if (!String.IsNullOrWhiteSpace(savedChief) && AudioPlayer.availableChiefVoices.Contains(savedChief))

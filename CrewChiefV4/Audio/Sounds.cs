@@ -150,7 +150,8 @@ namespace CrewChiefV4.Audio
             }
         }
 
-        public SoundCache(DirectoryInfo soundsFolder, DirectoryInfo sharedSoundsFolder, String[] eventTypesToKeepCached, Boolean useSwearyMessages, Boolean allowCaching, String selectedPersonalisation, bool verbose)
+        public SoundCache(DirectoryInfo soundsFolder, DirectoryInfo sharedSoundsFolder, String[] eventTypesToKeepCached,
+            Boolean useSwearyMessages, Boolean allowCaching, String selectedPersonalisation, bool verbose)
         {
             loadExistingVarietyData();
 
@@ -248,6 +249,18 @@ namespace CrewChiefV4.Audio
                         // If the number of prefixes and suffixes keeps growing this will need to be moved to a background thread but take care
                         // to ensure the objects which hold the sounds are all created on the main thread, with only the file reading and 
                         // SoundPlayer creation part done in the background (just like we do for voice messages).
+
+                        if (!Directory.Exists(soundFolder.FullName + "\\" + selectedPersonalisation) && availableDriverNames.Contains(selectedPersonalisation))
+                        {
+                            try
+                            {
+                                createCompositePrefixesAndSuffixes(soundsFolder, soundFolder, selectedPersonalisation);
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine("Failed to build personalisation set for " + selectedPersonalisation + ": " + e.StackTrace);
+                            }
+                        }
                         preparePrefixesAndSuffixes(soundFolder, selectedPersonalisation, verbose);
                     }
                     else
@@ -952,7 +965,7 @@ namespace CrewChiefV4.Audio
             {
                 Console.WriteLine("Preparing personalisations for selected name " + selectedPersonalisation);
             }
-            DirectoryInfo[] namesFolders = personalisationsDirectory.GetDirectories();
+            DirectoryInfo[] namesFolders = personalisationsDirectory.GetDirectories(selectedPersonalisation);
             foreach (DirectoryInfo namesFolder in namesFolders)
             {
                 if (namesFolder.Name.Equals(selectedPersonalisation, StringComparison.InvariantCultureIgnoreCase))
@@ -981,8 +994,77 @@ namespace CrewChiefV4.Audio
             if (verbose)
             {
                 Console.WriteLine("Prepare personalisations completed");
+            }            
+        }
+
+        private void createCompositePrefixesAndSuffixes(DirectoryInfo soundsRootDirectory,
+            DirectoryInfo personalisationsDirectory, String selectedPersonalisation)
+        {
+            Console.WriteLine("Creating a new personalisation set from driver name sound " + selectedPersonalisation);
+            String driverNameFile = soundsRootDirectory.FullName + "\\driver_names\\" + selectedPersonalisation + ".wav";
+            if (!File.Exists(driverNameFile))
+            {
+                return;
             }
-            
+            DirectoryInfo nameFolder = personalisationsDirectory.CreateSubdirectory(selectedPersonalisation);
+            DirectoryInfo prefixesAndSuffixesFolder = nameFolder.CreateSubdirectory("prefixes_and_suffixes");
+            // now get the generic sounds and concatenate the wav files
+            DirectoryInfo[] genericSoundsRoot = soundsRootDirectory.GetDirectories("composite_personalisation_stubs");
+            if (genericSoundsRoot.Length == 1)
+            {
+                foreach (DirectoryInfo stubDirectory in genericSoundsRoot[0].GetDirectories())
+                {
+                    DirectoryInfo compositeFolder = prefixesAndSuffixesFolder.CreateSubdirectory(stubDirectory.Name);
+                    foreach (FileInfo file in stubDirectory.GetFiles("*.wav"))
+                    {
+                        String outputFileName = compositeFolder.FullName + "\\" + file.Name;
+                        List<String> files = new List<string>();
+                        files.Add(file.FullName);
+                        files.Add(driverNameFile);
+                        concatenateWavFiles(outputFileName, files);
+                    }
+                }
+            }
+        }
+
+        // copyright stackoverflow :P
+        public void concatenateWavFiles(string outputFile, IEnumerable<string> sourceFiles)
+        {
+            byte[] buffer = new byte[1024];
+            WaveFileWriter waveFileWriter = null;
+            try
+            {
+                foreach (string sourceFile in sourceFiles)
+                {
+                    using (WaveFileReader reader = new WaveFileReader(sourceFile))
+                    {
+                        if (waveFileWriter == null)
+                        {
+                            // first time in create new Writer
+                            waveFileWriter = new WaveFileWriter(outputFile, reader.WaveFormat);
+                        }
+                        else
+                        {
+                            if (!reader.WaveFormat.Equals(waveFileWriter.WaveFormat))
+                            {
+                                throw new InvalidOperationException("Can't concatenate WAV Files that don't share the same format");
+                            }
+                        }
+                        int read;
+                        while ((read = reader.Read(buffer, 0, buffer.Length)) > 0)
+                        {
+                            waveFileWriter.WriteData(buffer, 0, read);
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                if (waveFileWriter != null)
+                {
+                    waveFileWriter.Dispose();
+                }
+            }
         }
     }
 
