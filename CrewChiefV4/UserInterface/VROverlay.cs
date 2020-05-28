@@ -220,6 +220,8 @@ namespace CrewChiefV4
                     checkBoxEnabled.Checked = window.enabled;
                     checkBoxEnableGazeing.Checked = window.gazeEnabled;
 
+                    checkBoxForceTopMostWindow.Checked = window.forceTopMost;
+
                     trackBarPositionX.Value = (int)(window.positionX * 100);
                     trackBarPositionY.Value = (int)(window.positionY * 100);
                     trackBarPositionZ.Value = (int)(window.positionZ * 100);

@@ -2045,14 +2045,7 @@ namespace CrewChiefV4
                         R3ERatings.init();
                         R3ERatings.gotPlayerRating = false;
                     }
-                    try
-                    {
-                        MacroManager.initialise(crewChief.audioPlayer, crewChief.speechRecogniser);
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("Macros failed to initialise: " + e.StackTrace);
-                    }
+                    MacroManager.initialise(crewChief.audioPlayer, crewChief.speechRecogniser);
                     CarData.loadCarClassData();
                     TrackData.loadTrackLandmarksData();
                     ThreadStart crewChiefWork = runApp;
