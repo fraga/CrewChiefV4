@@ -87,20 +87,24 @@ namespace CrewChiefV4.commands
                 {
                     Boolean hasCommandForCurrentGame = false;
                     // eagerly load the key bindings for each macro:
-                    foreach (CommandSet commandSet in macro.commandSets)
+                    if (macro.commandSets != null)
                     {
-                        if (commandSet.gameDefinition.Equals(CrewChief.gameDefinition.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase))
+                        foreach (CommandSet commandSet in macro.commandSets)
                         {
-                            // this does the conversion from key characters to key enums and stores the result to save us doing it every time
-                            if (!commandSet.loadActionItems())
+                            if (commandSet.gameDefinition != null &&
+                                commandSet.gameDefinition.Equals(CrewChief.gameDefinition.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase))
                             {
-                                Console.WriteLine("Macro \"" + macro.name + "\" failed to load - some actionItems didn't parse succesfully");
+                                // this does the conversion from key characters to key enums and stores the result to save us doing it every time
+                                if (!commandSet.loadActionItems())
+                                {
+                                    Console.WriteLine("Macro \"" + macro.name + "\" failed to load - some actionItems didn't parse succesfully");
+                                }
+                                else
+                                {
+                                    hasCommandForCurrentGame = true;
+                                }
+                                break;
                             }
-                            else
-                            {
-                                hasCommandForCurrentGame = true;
-                            }
-                            break;
                         }
                     }
                     if (hasCommandForCurrentGame)
