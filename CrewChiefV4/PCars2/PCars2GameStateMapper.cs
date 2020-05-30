@@ -175,7 +175,8 @@ namespace CrewChiefV4.PCars2
             if (gameState == eGameState.GAME_INGAME_REPLAY || gameState == eGameState.GAME_FRONT_END_REPLAY)
             {
                 CrewChief.trackName = StructHelper.getNameFromBytes(shared.mTrackLocation) + ":" + StructHelper.getNameFromBytes(shared.mTrackVariation);
-                CrewChief.carClass = CarData.getCarClassForClassName(StructHelper.getNameFromBytes(shared.mCarClassName)).carClassEnum;
+                CrewChief.carClass = CarData.getCarClassForClassNameOrCarName(StructHelper.getNameFromBytes(shared.mCarClassName),
+                    StructHelper.getNameFromBytes(shared.mCarName)).carClassEnum;
                 CrewChief.viewingReplay = true;
                 CrewChief.distanceRoundTrack = shared.mParticipantData[shared.mViewedParticipantIndex].mCurrentLapDistance;
             }
@@ -255,7 +256,8 @@ namespace CrewChiefV4.PCars2
             if (currentGameState.carClass.carClassEnum == CarData.CarClassEnum.UNKNOWN_RACE)
             {
                 String carClassId = StructHelper.getNameFromBytes(shared.mCarClassName);
-                CarData.CarClass newClass = CarData.getCarClassForClassName(carClassId);
+                String carName = StructHelper.getNameFromBytes(shared.mCarName);
+                CarData.CarClass newClass = CarData.getCarClassForClassNameOrCarName(carClassId, carName);
                 CarData.CLASS_ID = carClassId;
                 if (!CarData.IsCarClassEqual(newClass, currentGameState.carClass, false))
                 {
@@ -364,7 +366,8 @@ namespace CrewChiefV4.PCars2
                 currentGameState.PitData.IsRefuellingAllowed = true;
 
                 String carClassId = StructHelper.getNameFromBytes(shared.mCarClassName);
-                currentGameState.carClass = CarData.getCarClassForClassName(carClassId);
+                String carName = StructHelper.getNameFromBytes(shared.mCarName);
+                currentGameState.carClass = CarData.getCarClassForClassNameOrCarName(carClassId, carName);
                 GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass);
                 CarData.CLASS_ID = carClassId;
 
@@ -386,7 +389,8 @@ namespace CrewChiefV4.PCars2
                     if (i != playerIndex && participantStruct.mIsActive && participantName != null && participantName.Length > 0
                         && !opponentDriverNamesProcessedForThisTick.Contains(participantName) && !positionsFilledForThisTick.Contains(participantStruct.mRacePosition))
                     {
-                        CarData.CarClass opponentCarClass = CarData.getCarClassForClassName(StructHelper.getCarClassName(shared, i));
+                        CarData.CarClass opponentCarClass = CarData.getCarClassForClassNameOrCarName(StructHelper.getCarClassName(shared, i),
+                            StructHelper.getCarName(shared, i));
                         addOpponentForName(participantName, createOpponentData(participantStruct, false, opponentCarClass,
                             participantStruct.mName != null && participantStruct.mName[0] != 0, currentGameState.SessionData.TrackDefinition.trackLength), currentGameState);
                         opponentDriverNamesProcessedForThisTick.Add(participantName);
@@ -461,7 +465,8 @@ namespace CrewChiefV4.PCars2
                             }
                         }
                         String carClassId = StructHelper.getNameFromBytes(shared.mCarClassName);
-                        currentGameState.carClass = CarData.getCarClassForClassName(carClassId);
+                        String carName = StructHelper.getNameFromBytes(shared.mCarName);
+                        currentGameState.carClass = CarData.getCarClassForClassNameOrCarName(carClassId, carName);
                         GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass);
                         CarData.CLASS_ID = carClassId;
 
@@ -826,7 +831,8 @@ namespace CrewChiefV4.PCars2
                                     if (currentOpponentData.IsNewLap)
                                     {
                                         currentOpponentData.trackLandmarksTiming.cancelWaitingForLandmarkEnd();
-                                        currentOpponentData.CarClass = CarData.getCarClassForClassName(StructHelper.getCarClassName(shared, i));
+                                        currentOpponentData.CarClass = CarData.getCarClassForClassNameOrCarName(StructHelper.getCarClassName(shared, i),
+                                            StructHelper.getCarName(shared, i));
                                     }
                                     if (currentOpponentData.IsNewLap && currentOpponentData.CurrentBestLapTime > 0)
                                     {
@@ -865,7 +871,8 @@ namespace CrewChiefV4.PCars2
                         {
                             if (participantStruct.mIsActive && participantName != null && participantName.Length > 0)
                             {
-                                addOpponentForName(participantName, createOpponentData(participantStruct, true, CarData.getCarClassForClassName(StructHelper.getCarClassName(shared, i)),
+                                addOpponentForName(participantName, createOpponentData(participantStruct, true,
+                                    CarData.getCarClassForClassNameOrCarName(StructHelper.getCarClassName(shared, i), StructHelper.getCarName(shared, i)),
                                     participantStruct.mName != null && participantStruct.mName[0] != 0, currentGameState.SessionData.TrackDefinition.trackLength), currentGameState);
                             }
                         }

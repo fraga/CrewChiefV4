@@ -376,6 +376,15 @@ namespace CrewChiefV4.PCars2
             return getNameFromBytes(shared.mCarClassNames.Skip(participantIndex * 64).Take(64).ToArray());
         }
 
+        public static String getCarName(pCars2APIStruct shared, int participantIndex)
+        {
+            if (shared.mCarNames == null)
+            {
+                return "";
+            }
+            return getNameFromBytes(shared.mCarNames.Skip(participantIndex * 64).Take(64).ToArray());
+        }
+
         public static String getNameFromBytes(byte[] bytes)
         {
             byte zero = (byte)0;

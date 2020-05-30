@@ -173,7 +173,7 @@ namespace CrewChiefV4.ACC
             if (status == AC_STATUS.AC_REPLAY)
             {
                 CrewChief.trackName = shared.accStatic.track + ":" + shared.accStatic.trackConfiguration;
-                CrewChief.carClass = CarData.getCarClassForClassName(shared.accStatic.carModel).carClassEnum;
+                CrewChief.carClass = CarData.getCarClassForClassNameOrCarName(shared.accStatic.carModel).carClassEnum;
                 CrewChief.viewingReplay = true;
                 CrewChief.distanceRoundTrack = (shared.accChief.vehicle?.Length ?? 0) == 0 ? 0 : spLineLengthToDistanceRoundTrack(shared.accChief.trackLength, playerVehicle.spLineLength);
             }
@@ -228,7 +228,7 @@ namespace CrewChiefV4.ACC
 
             if (currentGameState.carClass.carClassEnum == CarData.CarClassEnum.UNKNOWN_RACE)
             {
-                CarData.CarClass newClass = CarData.getCarClassForClassName(shared.accStatic.carModel);
+                CarData.CarClass newClass = CarData.getCarClassForClassNameOrCarName(shared.accStatic.carModel);
                 CarData.CLASS_ID = shared.accStatic.carModel;
                 if (!CarData.IsCarClassEqual(newClass, currentGameState.carClass, true))
                 {
@@ -412,7 +412,7 @@ namespace CrewChiefV4.ACC
                 currentGameState.PitData.IsRefuellingAllowed = true;
 
                 //add carclasses for assetto corsa.
-                currentGameState.carClass = CarData.getCarClassForClassName(shared.accStatic.carModel);
+                currentGameState.carClass = CarData.getCarClassForClassNameOrCarName(shared.accStatic.carModel);
                 GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass);
                 CarData.CLASS_ID = shared.accStatic.carModel;
 
@@ -439,7 +439,7 @@ namespace CrewChiefV4.ACC
                         String participantName = participantStruct.driverName.ToLower();
                         if (i != 0 && participantName != null && participantName.Length > 0)
                         {
-                            CarData.CarClass opponentCarClass = CarData.getCarClassForClassName(participantStruct.carModel);
+                            CarData.CarClass opponentCarClass = CarData.getCarClassForClassNameOrCarName(participantStruct.carModel);
                             addOpponentForName(participantName, createOpponentData(participantStruct, false, opponentCarClass, shared.accChief.trackLength, false), currentGameState);
                         }
                     }
@@ -524,7 +524,7 @@ namespace CrewChiefV4.ACC
                         }
                         currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, distanceRoundTrack, currentGameState.Now);
 
-                        currentGameState.carClass = CarData.getCarClassForClassName(shared.accStatic.carModel);
+                        currentGameState.carClass = CarData.getCarClassForClassNameOrCarName(shared.accStatic.carModel);
                         CarData.CLASS_ID = shared.accStatic.carModel;
                         GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass);
                         System.Diagnostics.Debug.WriteLine("Player is using car class " + currentGameState.carClass.getClassIdentifier());
@@ -965,7 +965,7 @@ namespace CrewChiefV4.ACC
                         {
                             addOpponentForName(participantName, createOpponentData(participantStruct,
                                 true,
-                                CarData.getCarClassForClassName(participantStruct.carModel),
+                                CarData.getCarClassForClassNameOrCarName(participantStruct.carModel),
                                 shared.accChief.trackLength,
                                 currentGameState.SessionData.SessionType == SessionType.Race),
                                 currentGameState);

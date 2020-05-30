@@ -339,7 +339,8 @@ namespace CrewChiefV4.PCars
             if (shared.mGameState == (uint)eGameState.GAME_VIEWING_REPLAY)
             {
                 CrewChief.trackName = StructHelper.getNameFromBytes(shared.mTrackLocation) + ":" + StructHelper.getNameFromBytes(shared.mTrackVariation);
-                CrewChief.carClass = CarData.getCarClassForClassName(StructHelper.getNameFromBytes(shared.mCarClassName)).carClassEnum;
+                CrewChief.carClass = CarData.getCarClassForClassNameOrCarName(StructHelper.getNameFromBytes(shared.mCarClassName),
+                    StructHelper.getNameFromBytes(shared.mCarName)).carClassEnum;
                 CrewChief.viewingReplay = true;
                 CrewChief.distanceRoundTrack = shared.mParticipantData[shared.mViewedParticipantIndex].mCurrentLapDistance;
             }
@@ -419,7 +420,8 @@ namespace CrewChiefV4.PCars
             if (currentGameState.carClass.carClassEnum == CarData.CarClassEnum.UNKNOWN_RACE)
             {
                 String carClassId = StructHelper.getNameFromBytes(shared.mCarClassName);
-                CarData.CarClass newClass = CarData.getCarClassForClassName(carClassId);
+                String carName = StructHelper.getNameFromBytes(shared.mCarName);
+                CarData.CarClass newClass = CarData.getCarClassForClassNameOrCarName(carClassId, carName);
                 CarData.CLASS_ID = carClassId;
                 if (!CarData.IsCarClassEqual(newClass, currentGameState.carClass, false))
                 {
@@ -508,7 +510,8 @@ namespace CrewChiefV4.PCars
                 currentGameState.PitData.IsRefuellingAllowed = true;
 
                 String carClassId = StructHelper.getNameFromBytes(shared.mCarClassName);
-                currentGameState.carClass = CarData.getCarClassForClassName(carClassId);
+                String carName = StructHelper.getNameFromBytes(shared.mCarName);
+                currentGameState.carClass = CarData.getCarClassForClassNameOrCarName(carClassId, carName);
                 GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass);
                 CarData.CLASS_ID = carClassId;
 
@@ -597,7 +600,8 @@ namespace CrewChiefV4.PCars
                         nextOpponentCleanupTime = currentGameState.Now + opponentCleanupInterval;
 
                         String carClassId = StructHelper.getNameFromBytes(shared.mCarClassName);
-                        currentGameState.carClass = CarData.getCarClassForClassName(carClassId);
+                        String carName = StructHelper.getNameFromBytes(shared.mCarName);
+                        currentGameState.carClass = CarData.getCarClassForClassNameOrCarName(carClassId, carName);
                         GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass);
                         CarData.CLASS_ID = carClassId;
 

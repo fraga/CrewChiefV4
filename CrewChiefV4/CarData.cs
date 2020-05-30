@@ -380,7 +380,8 @@ namespace CrewChiefV4
         // used for PCars only, where we only know if the opponent is the same class as us or not
         public static CarClass DEFAULT_PCARS_OPPONENT_CLASS = new CarClass();
 
-        private static Dictionary<string, CarClass> nameToCarClass;
+        private static Dictionary<string, CarClass> classNameToCarClass;
+        private static Dictionary<string, CarClass> carNameToCarClass;
         private static Dictionary<int, CarClass> intToCarClass;
 
         private static Dictionary<int, CarClass> iracingCarIdToCarClass;
@@ -410,6 +411,7 @@ namespace CrewChiefV4
             public List<int> raceroomClassIds { get; set; }
             public List<int> iracingCarIds { get; set; }
             public List<string> pCarsClassNames { get; set; }
+            public List<string> pCarsCarNames { get; set; } // if this is set on a car class this is used instead of the class name
             public List<string> rf1ClassNames { get; set; }
             public List<string> ams2ClassNames { get; set; }
             public List<string> rf2ClassNames { get; set; }
@@ -468,6 +470,7 @@ namespace CrewChiefV4
                 this.raceroomClassIds = new List<int>();
                 this.iracingCarIds = new List<int>();
                 this.pCarsClassNames = new List<string>();
+                this.pCarsCarNames = new List<string>();
                 this.rf1ClassNames = new List<string>();
                 this.ams2ClassNames = new List<string>();
                 this.rf2ClassNames = new List<string>();
@@ -672,7 +675,8 @@ namespace CrewChiefV4
             CAR_CLASSES = userCarClassData;
 
             // reset session scoped cache of class name / ID to CarClass Dictionary.
-            nameToCarClass = new Dictionary<string, CarClass>();
+            classNameToCarClass = new Dictionary<string, CarClass>();
+            carNameToCarClass = new Dictionary<string, CarClass>();
             intToCarClass = new Dictionary<int, CarClass>();
             iracingCarIdToCarClass = new Dictionary<int, CarClass>();
             iracingCarClassIdToCarClass = new Dictionary<int, CarClass>();
@@ -857,7 +861,7 @@ namespace CrewChiefV4
             newCarClass.placeholderClassId = carClassId.ToString();
             return newCarClass;
         }
-        public static CarClass getCarClassForClassName(String className)
+        public static CarClass getCarClassForClassNameOrCarName(String className, String carName = null)
         {
             if (className == null)
             {
@@ -869,12 +873,17 @@ namespace CrewChiefV4
             {
                 // first check if it's in the cache
                 CarClass cachedCarClass = null;
-                if (nameToCarClass.TryGetValue(className, out cachedCarClass))
+                if (carName != null && carNameToCarClass.TryGetValue(carName, out cachedCarClass))
+                {
+                    return cachedCarClass;
+                }
+                if (classNameToCarClass.TryGetValue(className, out cachedCarClass))
                 {
                     return cachedCarClass;
                 }
                 else
                 {
+                    String carNamesPropName = null;
                     String classNamesPropName = null;
                     String regexsPropName = null;
                     switch (CrewChief.gameDefinition.gameEnum)
@@ -884,6 +893,7 @@ namespace CrewChiefV4
                         case GameEnum.PCARS2:
                         case GameEnum.PCARS_NETWORK:
                         case GameEnum.PCARS2_NETWORK:
+                            carNamesPropName = "pCarsCarNames";
                             classNamesPropName = "pCarsClassNames";
                             regexsPropName = "pCarsClassNamesRegexs";
                             break;
@@ -915,13 +925,37 @@ namespace CrewChiefV4
                     }
                     foreach (CarClass carClass in CAR_CLASSES.carClasses)
                     {
+                        if (carName != null && carNamesPropName != null)
+                        {
+                            List<String> carNames = (List<String>)carClass.GetType().GetProperty(carNamesPropName).GetValue(carClass, null);
+                            if (carNames != null)
+                            {
+                                foreach (String thisCarName in carNames)
+                                {
+                                    if (string.Compare(thisCarName, carName, StringComparison.InvariantCultureIgnoreCase) == 0)
+                                    {
+                                        Console.WriteLine("Mapped car class from car name:\"{0}\"  to:\"{1}\"", carName, carClass.getClassIdentifier());
+                                        carNameToCarClass.Add(carName, carClass);
+                                        return carClass;
+                                    }
+                                }
+                            }
+                        }
                         List<String> classNames = (List<String>)carClass.GetType().GetProperty(classNamesPropName).GetValue(carClass, null);
                         foreach (String thisClassName in classNames)
                         {
                             if (string.Compare(thisClassName, className, StringComparison.InvariantCultureIgnoreCase) == 0)
                             {
-                                Console.WriteLine("Mapped car class from ID:\"{0}\"  to:\"{1}\"", className, carClass.getClassIdentifier());
-                                nameToCarClass.Add(className, carClass);
+                                if (carName != null)
+                                {
+                                    Console.WriteLine("Mapped car class from ID:\"{0}\"  to:\"{1}\", ignoring carName: \"{2}\"",
+                                        className, carClass.getClassIdentifier(), carName);
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Mapped car class from ID:\"{0}\"  to:\"{1}\"", className, carClass.getClassIdentifier());
+                                }
+                                classNameToCarClass.Add(className, carClass);
                                 return carClass;
                             }
                         }
@@ -934,7 +968,7 @@ namespace CrewChiefV4
                             if (regex.IsMatch(className))
                             {
                                 Console.WriteLine("Mapped car class from ID:\"{0}\"  to:\"{1}\"", className, carClass.getClassIdentifier());
-                                nameToCarClass.Add(className, carClass);
+                                classNameToCarClass.Add(className, carClass);
                                 return carClass;
                             }
                         }
@@ -945,7 +979,7 @@ namespace CrewChiefV4
                     {
                         CarClass existingClass = CarData.getCarClassFromEnum(carClassID);
                         Console.WriteLine("Mapped car class from ID:\"{0}\"  to:\"{1}\"", className, existingClass.getClassIdentifier());
-                        nameToCarClass.Add(className, existingClass);
+                        classNameToCarClass.Add(className, existingClass);
                         return existingClass;
                     }
                     else
@@ -954,7 +988,7 @@ namespace CrewChiefV4
                         CarClass newCarClass = new CarClass();
                         newCarClass.placeholderClassId = className;
                         Console.WriteLine("Unmapped car class added:\"{0}\"", className);
-                        nameToCarClass.Add(className, newCarClass);
+                        classNameToCarClass.Add(className, newCarClass);
                         return newCarClass;
                     }
                 }

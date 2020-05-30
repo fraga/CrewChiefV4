@@ -3328,7 +3328,7 @@ namespace CrewChiefV4.rFactor2
             driverName = RF2GameStateMapper.GetSanitizedDriverName(driverName);
 
             var carClassId = RF2GameStateMapper.GetStringFromBytes(vehicleScoring.mVehicleClass);
-            var carClass = CarData.getCarClassForClassName(carClassId);
+            var carClass = CarData.getCarClassForClassNameOrCarName(carClassId);
 
             // Name does not appear to be localized in rF2, so hardcoding it is ok for now.
             var isGhost = string.Equals(driverName, "transparent trainer", StringComparison.InvariantCultureIgnoreCase);
