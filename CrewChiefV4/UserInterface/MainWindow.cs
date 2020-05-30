@@ -1010,9 +1010,8 @@ namespace CrewChiefV4
             this.RestoreFromTray();
         }
 
-        private void InitializeUiTexts()
+        private void InitializeUiText()
         {
-            
             this.startApplicationButton.Text = Configuration.getUIString("start_application");
             this.scanControllers.Text = Configuration.getUIString("scan_for_controllers");
             this.assignButtonToAction.Text = Configuration.getUIString("assign_control");
@@ -1021,9 +1020,9 @@ namespace CrewChiefV4
             this.label1.Text = Configuration.getUIString("available_controllers");
             this.label2.Text = Configuration.getUIString("available_actions");
             this.propertiesButton.Text = Configuration.getUIString("properties");
-            this.fileToolStripMenuItem.Text = Configuration.getUIString("file");
-            this.exitToolStripMenuItem.Text = Configuration.getUIString("exit");
-            this.helpToolStripMenuItem.Text = Configuration.getUIString("help");
+            this.fileToolStripMenuItem.Text = Configuration.getUIString("file_menu");
+            this.exitToolStripMenuItem.Text = Configuration.getUIString("exit_menu_item");
+            this.helpToolStripMenuItem.Text = Configuration.getUIString("help_menu");
             this.groupBox1.Text = Configuration.getUIString("voice_recognition_mode");
             voiceRecognitionToolTip.SetToolTip(this.groupBox1, Configuration.getUIString("voice_recognition_mode_help"));             
             this.alwaysOnButton.Text = Configuration.getUIString("always_on");
@@ -1081,7 +1080,7 @@ namespace CrewChiefV4
             this.constructingWindow = true;
 
             InitializeComponent();
-            InitializeUiTexts();
+            InitializeUiText();
             
             this.SuspendLayout();
             var currProfileName = UserSettings.currentUserProfileFileName;

@@ -43,7 +43,7 @@ If you want to manually navigate the pit menu with voice commands, use "pit menu
 <h3>iRacing</h3>
 expected in-game key bindings:
 "Lap Timing Black Box":				F1
-"Standings Black Box":				F2 
+"Standings Black Box":				F2
 "Relative Black Box":				F3
 "Fuel Black Box":					F4
 "Tires Black Box":					F5
@@ -65,7 +65,7 @@ You can navigate the by saying one of the following commands: "menu next", "menu
 
 
 <h3>Advanced command macros</h3>
-As you can see from the previous section, key press macros are fiddly and a bit dumb - the app has only limited knowledge of what state the pit menu is in so it has to either make assumptions or work quite hard to put the menu into a known state. 
+As you can see from the previous section, key press macros are fiddly and a bit dumb - the app has only limited knowledge of what state the pit menu is in so it has to either make assumptions or work quite hard to put the menu into a known state.
 
 There are 2 macros for adding fuel. One uses the logic of the app's 'Fuel' event to calculate how much fuel is needed to finish the race ("fuel to the end" voice command), the other uses the amount of fuel requested in the voice command ("add fuel, 100 litres" or whatever). These macros opens the pit menu, navigate to the fuel option and attempt to reset it to zero litres. Because they can't know how much fuel might already be set on this menu they have to press the 'decrease' button lots (150) times. This ensure it's at zero before they then add the calculated or requested amount of fuel.
 
@@ -75,7 +75,7 @@ Another point to note here is that these fuelling macros press 'decrease' 150 ti
 
 The macro feature can also be used to automate chat messages. There are examples for pCars2 and R3E. Again, these just send sequences of key presses.
 
-There are a few special key press commands in the macro editor screen to help ease the pain of wiring these things up: 
+There are a few special key press commands in the macro editor screen to help ease the pain of wiring these things up:
 
  - To send a fixed number of multiple key presses use "{MULTIPLE,153}KEY_A" (presses the A key 153 times).
  - To send a number of multiple key presses based on some app logic for example, use "{MULTIPLE,fuel}KEY_D" (presses D however many times the Fuel event told it to). This requires specific application code to work but i'm happy to take requests :).
@@ -108,4 +108,4 @@ R3E exposes some additional information describing the state of the popup pit me
 The app will also read out the planned pit actions automatially when you get near the pit entrance after requesting a stop.
 
 
- 
+

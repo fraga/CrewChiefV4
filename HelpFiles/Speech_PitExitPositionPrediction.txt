@@ -5,4 +5,4 @@ Benchmark pit times can be measured during a practice session with the 'time thi
 If the app has usable benchmark data and you request a pitstop <i>before you reach sector3</i>, it'll tell you where you should come out and what the traffic will be like when you hit sector3. You can also request this data at any time with the 'Where will be be after a stop?' / 'Estimate pit exit positions' / 'What will happen if I pit?', or by pressing the <b>Pitstop prediction</b> button during a race, even if you've not requested a pitstop (the app will derive its estimates on every lap regardless or whether you actually pit).
 
 At the time of writing there's more work to be done here and some more features that may be added.
- 
+

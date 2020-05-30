@@ -1,5 +1,5 @@
 To simplify creating the text for HTML help files HelpFiles.exe converts
-plain text files, automatically inserting <br> wherever there is an 
+plain text files, automatically inserting <br> wherever there is an
 end of line.  It also inserts the HTML for the menu before the text.
 
 After editing one of the .txt files (or the menu files) run HelpFiles.exe

@@ -128,7 +128,8 @@
           </li>
           <li><a href="About_Credits.html"><span>Credits</span></a></li>
           <li><a href="About_Donations.html"><span>Donations</span></a></li>
-          <li class="last"><a href="About_ChangeLog.html"><span>Change log</span></a></li>
+          <li><a href="About_ChangeLog.html"><span>Change log</span></a></li>
+          <li class="last"><a href="About_Licenses.html"><span>Licences</span></a></li>
         </ul>
       </li>
       </ul>
@@ -180,7 +181,7 @@ If you want to manually navigate the pit menu with voice commands, use "pit menu
 <h3>iRacing</h3>
 expected in-game key bindings:<br>
 "Lap Timing Black Box":				F1<br>
-"Standings Black Box":				F2 <br>
+"Standings Black Box":				F2<br>
 "Relative Black Box":				F3<br>
 "Fuel Black Box":					F4<br>
 "Tires Black Box":					F5<br>
@@ -202,7 +203,7 @@ You can navigate the by saying one of the following commands: "menu next", "menu
 <br>
 <br>
 <h3>Advanced command macros</h3>
-As you can see from the previous section, key press macros are fiddly and a bit dumb - the app has only limited knowledge of what state the pit menu is in so it has to either make assumptions or work quite hard to put the menu into a known state. <br>
+As you can see from the previous section, key press macros are fiddly and a bit dumb - the app has only limited knowledge of what state the pit menu is in so it has to either make assumptions or work quite hard to put the menu into a known state.<br>
 <br>
 There are 2 macros for adding fuel. One uses the logic of the app's 'Fuel' event to calculate how much fuel is needed to finish the race ("fuel to the end" voice command), the other uses the amount of fuel requested in the voice command ("add fuel, 100 litres" or whatever). These macros opens the pit menu, navigate to the fuel option and attempt to reset it to zero litres. Because they can't know how much fuel might already be set on this menu they have to press the 'decrease' button lots (150) times. This ensure it's at zero before they then add the calculated or requested amount of fuel.<br>
 <br>
@@ -212,12 +213,12 @@ Another point to note here is that these fuelling macros press 'decrease' 150 ti
 <br>
 The macro feature can also be used to automate chat messages. There are examples for pCars2 and R3E. Again, these just send sequences of key presses.<br>
 <br>
-There are a few special key press commands in the macro editor screen to help ease the pain of wiring these things up: <br>
+There are a few special key press commands in the macro editor screen to help ease the pain of wiring these things up:<br>
 <br>
- - To send a fixed number of multiple key presses use "{MULTIPLE,153}KEY_A" (presses the A key 153 times).<br>
- - To send a number of multiple key presses based on some app logic for example, use "{MULTIPLE,fuel}KEY_D" (presses D however many times the Fuel event told it to). This requires specific application code to work but i'm happy to take requests :).<br>
- - To send a number of multiple presses based on the voice command that triggered the macro, the voice command needs to use a special format with the number range to recognise in curly braces - e.g. "add fuel, {1,150} litres" (recognises "add fuel 0 litres" up to "add fuel 150 litres", in steps of 1). Use "{MULTIPLE,VOICE_TRIGGER}KEY_D" to press (in this example) D the number of times recognised in the voice command.<br>
- - To send a sequence of key presses from some free text, use "{FREE_TEXT}sorry, my bad". Each of the keys after {FREE_TEXT} will be pressed in sequence. Only letters, commas, hypens and full-stops are supported. This is to make chat macros more straightforward (e.g. ["Real-time Chat", "{FREE_TEXT}good pass", "ENTER"]).<br>
+&nbsp;- To send a fixed number of multiple key presses use "{MULTIPLE,153}KEY_A" (presses the A key 153 times).<br>
+&nbsp;- To send a number of multiple key presses based on some app logic for example, use "{MULTIPLE,fuel}KEY_D" (presses D however many times the Fuel event told it to). This requires specific application code to work but i'm happy to take requests :).<br>
+&nbsp;- To send a number of multiple presses based on the voice command that triggered the macro, the voice command needs to use a special format with the number range to recognise in curly braces - e.g. "add fuel, {1,150} litres" (recognises "add fuel 0 litres" up to "add fuel 150 litres", in steps of 1). Use "{MULTIPLE,VOICE_TRIGGER}KEY_D" to press (in this example) D the number of times recognised in the voice command.<br>
+&nbsp;- To send a sequence of key presses from some free text, use "{FREE_TEXT}sorry, my bad". Each of the keys after {FREE_TEXT} will be pressed in sequence. Only letters, commas, hypens and full-stops are supported. This is to make chat macros more straightforward (e.g. ["Real-time Chat", "{FREE_TEXT}good pass", "ENTER"]).<br>
 <br>
 Hopefully the game devs will make these menus or the actions they trigger easier to use for 3rd party apps. But until they do, these complicated automated interactions are always going to be flaky.<br>
 <br>
@@ -245,8 +246,24 @@ R3E exposes some additional information describing the state of the popup pit me
 The app will also read out the planned pit actions automatially when you get near the pit entrance after requesting a stop.<br>
 <br>
 <br>
- <br>
+<br>
 </div>
+    <hr width="100%" size="2">
+    <table width="100%" cellspacing="0" cellpadding="0" border="0"
+     style="font-family:'Lucida Sans Unicode';font-size:13px;" >
+      <tbody>
+        <tr>
+          <td width="20%" valign="top"><a
+              href="http://thecrewchief.org/forum.php">Crew Chief Forum</a><br>
+          </td>
+          <td valign="top"><br>
+          </td>
+          <td width="20%" valign="top" align="right"><a
+href="https://discord.com/channels/322071247032942592/406527523455893504">Discord channel</a><br>
+          </td>
+        </tr>
+      </tbody>
+    </table>
 </font>
 </body>
 </html>
