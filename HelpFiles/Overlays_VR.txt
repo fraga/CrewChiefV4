@@ -1,4 +1,4 @@
-CrewChief can display windows from the desktop in VR (SteamVR only). 
+CrewChief can display windows from the desktop in VR (SteamVR only).
 
 By default the app will monitor for the SteamVR process, this can be turned off by the Property <b>Enable VR overlays</b>. It is also possible for the app to launch SteamVR when starting the app by enabling <b>Start SteamVR if detected</b> in Properties.
 

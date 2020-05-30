@@ -1,21 +1,7 @@
-<table style="width:100%">
-<thead style='display:none;'>
-<tr>
-<th style="width:190px"></th>
-<th><img src="CrewChief.png" alt="Crew Chief" width="200" height="200"></th>
-<th></th>
-</tr>
-</thead>
-<tr>
-<td style="width:190px"></td>
-<td><img src="CrewChief.png" alt="Crew Chief" width="200" height="200"></td>
-<td></td>
-</tr>
-</table>
-
+<p align="center"><img src="engineer_edited_transparent.png"alt="" style="width:572px !important;height:100px !important;"width="161" height="39"></p>
 Crew Chief is a team radio engineer, originally developed by <b><a href="http://thecrewchief.org/member.php?2-mr_belowski">Mr Belowski</a></b>.
 
-It is a human-like, highly responsive, open source spotter and much, much more including voice recognition, foul language and thousands of driver names.
+It is a human-like, highly responsive, open source spotter and much, much more including voice recognition, (optional) foul language and thousands of driver names.
 
 It works with the following games
 

@@ -6,7 +6,7 @@ If you want to use the Windows speech recognition engine simply ensure that the 
 
 If you want to use the default Microsoft voice recognition system, you'll need to install <a href="https://www.microsoft.com/en-gb/download/details.aspx?id=27225">the Microsoft Speech Recognition runtime</a>
 From this page click 'Download' and select the right version - for most users this will be x64_SpeechPlatformRuntime\SpeechPlatformRuntime.msi
-Once you've installed this, you'll also need to install <a href="https://www.microsoft.com/en-gb/download/details.aspx?id=27224">a language pack</a> 
+Once you've installed this, you'll also need to install <a href="https://www.microsoft.com/en-gb/download/details.aspx?id=27224">a language pack</a>
 Again, from this page click 'Download' and select the right version - for most users this will be MSSpeech_SR_en-US_TELE.msi (US users) or MSSpeech_SR_en-GB_TELE.msi (UK users).
 
 Note that the app will fall back to using the Windows speech recognition engine if it can't find a working installation of the Microsoft speech recognition engine.
@@ -27,3 +27,5 @@ A screen dump of that:
 <a target="_blank" href="VoiceRecognition_InstallationTraining.png">
 <img src="VoiceRecognition_InstallationTraining.png" alt="Control Panel">
 </a>
+
+If it's still not working read the words of wisdom in the <a href="http://thecrewchief.org/showthread.php?28-F-a-q&p=3238&viewfull=1#post3238">FAQ</a>.

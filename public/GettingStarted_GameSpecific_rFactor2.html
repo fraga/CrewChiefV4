@@ -128,7 +128,8 @@
           </li>
           <li><a href="About_Credits.html"><span>Credits</span></a></li>
           <li><a href="About_Donations.html"><span>Donations</span></a></li>
-          <li class="last"><a href="About_ChangeLog.html"><span>Change log</span></a></li>
+          <li><a href="About_ChangeLog.html"><span>Change log</span></a></li>
+          <li class="last"><a href="About_Licenses.html"><span>Licences</span></a></li>
         </ul>
       </li>
       </ul>
@@ -141,24 +142,40 @@ If this process fails for any reason, copy the rFactor2SharedMemoryMapPlugin64.d
 <br>
 Note: 32 bit rFactor 2 is no longer supported.<br>
 <br>
- <br>
+<br>
 <h3>rFactor2 Unofficial Features</h3>
 Crew Chief supports some rF2 specific features not exposed via official rF2 Internals API.  Those features are turned off by default.  To enable those features, modify UserData\player\CustomPluginVariables.json by setting <code>"EnableDirectMemoryAccess"</code> to "1".  Plugin configuration should look like this:<br>
 <br>
 <code>
-  "rFactor2SharedMemoryMapPlugin64.dll":{<br>
-    " Enabled":1,<br>
-    "DebugISIInternals":0,<br>
-    "DebugOutputLevel":0,<br>
-    "DedicatedServerMapGlobally":0,<br>
-    "EnableDirectMemoryAccess":1<br>
-  }<br>
+&nbsp;&nbsp;"rFactor2SharedMemoryMapPlugin64.dll":{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;" Enabled":1,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"DebugISIInternals":0,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"DebugOutputLevel":0,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"DedicatedServerMapGlobally":0,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;"EnableDirectMemoryAccess":1<br>
+&nbsp;&nbsp;}<br>
 </code>
 <br>
 Note: first space in <code>" Enabled"</code> above is required.<br>
 <br>
 <a href="http://thecrewchief.org/showthread.php?1011-rFactor-2-Unofficial-Features">See this thread for more information</a>
 </div>
+    <hr width="100%" size="2">
+    <table width="100%" cellspacing="0" cellpadding="0" border="0"
+     style="font-family:'Lucida Sans Unicode';font-size:13px;" >
+      <tbody>
+        <tr>
+          <td width="20%" valign="top"><a
+              href="http://thecrewchief.org/forum.php">Crew Chief Forum</a><br>
+          </td>
+          <td valign="top"><br>
+          </td>
+          <td width="20%" valign="top" align="right"><a
+href="https://discord.com/channels/322071247032942592/406527523455893504">Discord channel</a><br>
+          </td>
+        </tr>
+      </tbody>
+    </table>
 </font>
 </body>
 </html>

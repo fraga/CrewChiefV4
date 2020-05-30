@@ -15,19 +15,19 @@ The app understands lots of command including:
 "what's [opponent driver last name]'s last lap"
 "what's [opponent driver last name]'s best lap"
 "what's [opponent driver last name]'s irating"
-"what's [opponent driver last name]'s licens class"
+"what's [opponent driver last name]'s license class"
 "what's [opponent race position]'s last lap" (for example, "what's p 4's best lap", or "what's position 4's last lap")
 "what's [opponent race position]'s best lap"
 "what's [opponent race position]'s irating"
-"what's [opponent race position]'s licens class"
+"what's [opponent race position]'s license class"
 "what's [the car in front / the guy in front / the car ahead / the guy ahead]'s last lap"
 "what's [the car in front / the guy in front / the car ahead / the guy ahead]'s best lap"
 "what's [the car in front / the guy in front / the car ahead / the guy ahead]'s irating"
-"what's [the car in front / the guy in front / the car ahead / the guy ahead]'s licens class"
+"what's [the car in front / the guy in front / the car ahead / the guy ahead]'s license class"
 "what's [the car behind / the guy behind]'s last lap"
 "what's [the car behind / the guy behind]'s best lap"
 "what's [the car behind / the guy behind]'s irating"
-"what's [the car behind / the guy behind]'s licens class"
+"what's [the car behind / the guy behind]'s license class"
 "what tyre(s) is [opponent driver last name / opponent race position] on"
 "what are my sector times"
 "what's my last sector time"
@@ -59,7 +59,7 @@ The app understands lots of command including:
 "what class is the car behind" / "what class is the guy behind"- reports class name, or "faster" / "slower" if the app doesn't have the class name
 "what's the sof" / "what is the strength of field" (iRacing only)
 "how many incidents do i have" / "what's my incident count" (iRacing only)
-"what's the incident limit" (iRacing only) 
+"what's the incident limit" (iRacing only)
 "time this stop" / "practice pitstop" / "time this pitstop" / "pitstop benchmark": time the next pitstop (sector 3 + sector 1 time) to work out home much tome overall a pitstop costs - practice session only
 "where will I be after a stop?" / "Estimate pit exit positions" / "What will happen if I pit?": play estimate of traffic and race positions on pit exit, if you were to pit on this lap
 "don't talk in the [corners / braking zones]" / "no messages in the [corners / braking zones]": delay non-critical messages if the player is in a challenging section of the track
@@ -72,6 +72,7 @@ The app understands lots of command including:
 "team mate [opponent driver last name]" (adds this driver to a list of drivers which the app will keep you informed about)
 "rival [opponent driver last name]" (adds this driver to a list of drivers which the app will keep you informed about)
 "cancel watched drivers" / "stop watching drivers" / "stop watching all" (clears all watched drivers)
+"stop watching [opponent driver last name]"
 <h3>iRacing-specific pit commands:</h3>
 "pitstop add [X liters]" (adds X amount of fuel next pitstop, this option is iRacing only)
 "pitstop tearoff / pitstop windscreen" (enable next pitstop, this option is iRacing only)
@@ -119,14 +120,14 @@ The app understands lots of command including:
 "pitstop alternate tyres" / "box, alternate tyres"
 "what are the pit actions" / "what's the pitstop plan" (reports the selected actions for the next pitstop)
 "what's [opponent driver last name]'s ranking" (reports the R3E ranking for this driver if available)
-"what's [opponent driver last name]'s reputation" (reports the R3E reputation for this driver if available) 
+"what's [opponent driver last name]'s reputation" (reports the R3E reputation for this driver if available)
 "what's [opponent driver last name]'s rating" (reports the R3E rating for this driver if available)
 "what's [opponent race position]'s ranking" (reports the R3E ranking for this driver if available)
-"what's [opponent race position]'s reputation" (reports the R3E reputation for this driver if available) 
+"what's [opponent race position]'s reputation" (reports the R3E reputation for this driver if available)
 "what's [opponent race position]'s rating" (reports the R3E rating for this driver if available)
 "what's [the car in front / the guy in front / the car ahead / the guy ahead]'s ranking" (reports the R3E ranking for this driver if available)
-"what's [the car in front / the guy in front / the car ahead / the guy ahead]'s reputation" (reports the R3E reputation for this driver if available) 
+"what's [the car in front / the guy in front / the car ahead / the guy ahead]'s reputation" (reports the R3E reputation for this driver if available)
 "what's [the car in front / the guy in front / the car ahead / the guy ahead]'s rating" (reports the R3E rating for this driver if available)
 "what's [the car behind / the guy behind]'s ranking" (reports the R3E ranking for this driver if available)
-"what's [the car behind / the guy behind]'s reputation" (reports the R3E reputation for this driver if available) 
+"what's [the car behind / the guy behind]'s reputation" (reports the R3E reputation for this driver if available)
 "what's [the car behind / the guy behind]'s rating" (reports the R3E rating for this driver if available)

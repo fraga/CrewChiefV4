@@ -51,6 +51,7 @@ namespace HelpFiles
                 "About_Credits",
                 "About_Donations",
                 "About_ChangeLog",
+                "About_Licenses"
                 };
             gameNames = new string[]{
                 "AssettoCorsa",
@@ -79,7 +80,8 @@ namespace HelpFiles
             foreach (string file in new string[] { "styles.css",
                 "CrewChief.png",
                 "VoiceRecognition_InstallationTraining.png",
-                "engineer_edited.ico"
+                "engineer_edited.ico",
+                "engineer_edited_transparent.png"
             })
             {
                 System.IO.File.Copy($"..\\..\\{file}", $"..\\..\\..\\public\\{file}", true);
@@ -98,8 +100,23 @@ namespace HelpFiles
                     lines.Add($"<h4>{line}</h4>");  // Version 4.11.1.2 -> <h4>Version 4.11.1.2</h4>
                 else if (line.StartsWith("<"))
                     lines.Add($"{line}");   // No <br> on HTML-tagged lines
-                else
-                    lines.Add($"{line}<br>");
+                else // replace leading spaces with &nbsp; then copy the rest plus <br>
+                {   // (Neater using regex substitution but tricky to work out)
+                    string _newLine = String.Empty;
+                    for (var i = 0; i < line.Length; i++)
+                    {
+                        if (line[i] == ' ')
+                        {
+                            _newLine += "&nbsp;";
+                        }
+                        else
+                        {
+                            _newLine += line.Substring(i);
+                            break;
+                        }
+                    }
+                    lines.Add($"{_newLine}<br>");
+                }
             }
 
             // Add the wrap up
