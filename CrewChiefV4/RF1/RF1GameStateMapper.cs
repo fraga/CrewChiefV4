@@ -1389,7 +1389,7 @@ namespace CrewChiefV4.rFactor1
                     {
                         CarData.CLASS_ID = vehicleName;
                     }
-                    return CarData.getCarClassForClassName(vehicleName);
+                    return CarData.getCarClassForClassNameOrCarName(vehicleName);
                 }
                 else
                 {
@@ -1397,10 +1397,10 @@ namespace CrewChiefV4.rFactor1
                     {
                         CarData.CLASS_ID = vehicleName;
                     }
-                    return CarData.getCarClassForClassName(vehicleName);
+                    return CarData.getCarClassForClassNameOrCarName(vehicleName);
                 }
             }
-            return CarData.getCarClassForClassName(vehicleName);
+            return CarData.getCarClassForClassNameOrCarName(vehicleName);
         }
     }
 }
