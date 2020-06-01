@@ -236,7 +236,8 @@ namespace CrewChiefV4.VirtualReality
             {
                 if(SetOverlayGazeing(transform))
                 {
-                    transform.ScaleVector = new Vector3(gazeScale);
+                    transform = Matrix.Scaling(this.gazeScale) * rotCenter * Matrix.Translation(positionX, positionY, positionZ);
+                    transform.Transpose();
                     SteamVR.instance.overlay.SetOverlayAlpha(vrOverlayHandle, gazeTransparency);
                 }
                 else

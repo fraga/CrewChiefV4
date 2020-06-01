@@ -153,12 +153,15 @@ namespace CrewChiefV4
         // Returns the angle in degrees between /from/ and /to/. This is always the smallest
         public static float Angle(this Vector3 from, Vector3 to)
         {
+            var normalFrom = Vector3.Normalize(from);
+            var normalTo = Vector3.Normalize(to);
             // sqrt(a) * sqrt(b) = sqrt(a * b) -- valid for real numbers
-            float denominator = (float)Math.Sqrt(from.sqrMagnitude() * to.sqrMagnitude());
+            float denominator = (float)Math.Sqrt(normalFrom.sqrMagnitude() * normalTo.sqrMagnitude());
             if (denominator < MathUtil.kEpsilonNormalSqrt)
                 return 0F;
+            
 
-            float dot = MathUtil.Clamp(Vector3.Dot(from, to) / denominator, -1F, 1F);
+            float dot = MathUtil.Clamp(Vector3.Dot(normalFrom, normalTo) / denominator, -1F, 1F);
             return (float)Math.Acos(dot) * MathUtil.Rad2Deg;
         }
     }
