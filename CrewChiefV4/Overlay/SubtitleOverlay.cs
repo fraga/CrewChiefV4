@@ -463,17 +463,20 @@ namespace CrewChiefV4.Overlay
 
         private void DoInputHacks()
         {
-            Point cursor = new Point(Cursor.Position.X, Cursor.Position.Y);
-            Rect overlayRect = new Rect(overlayWindow.X, overlayWindow.Y, overlayWindow.Width, overlayWindow.Height);
-            if (overlayRect.Contains(cursor) && inputsEnabled && titleBar.elementEnabled && (Control.MouseButtons == MouseButtons.Left || 
-                Control.MouseButtons == MouseButtons.Right || Control.MouseButtons == MouseButtons.Middle))
+            if(inputsEnabled)
             {
-                overlayWindow.ActivateWindow();
-                SetForegroundWindow(overlayWindow.Handle);
-            }
-            if (Control.ModifierKeys != (Keys.Shift | Keys.Control))
-            {
-                shiftKeyReleased = true;
+                Point cursor = new Point(Cursor.Position.X, Cursor.Position.Y);
+                Rect overlayRect = new Rect(overlayWindow.X, overlayWindow.Y, overlayWindow.Width, overlayWindow.Height);
+                if (overlayRect.Contains(cursor) && titleBar.elementEnabled && (Control.MouseButtons == MouseButtons.Left ||
+                    Control.MouseButtons == MouseButtons.Right || Control.MouseButtons == MouseButtons.Middle))
+                {
+                    overlayWindow.ActivateWindow();
+                    SetForegroundWindow(overlayWindow.Handle);
+                }
+                if (Control.ModifierKeys != (Keys.Shift | Keys.Control))
+                {
+                    shiftKeyReleased = true;
+                }
             }
             if (Control.ModifierKeys == (Keys.Shift | Keys.Control) && shiftKeyReleased)
             {
