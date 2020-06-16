@@ -287,6 +287,15 @@ namespace CrewChiefV4
                 {
                     gameInstallPath = UserSettings.GetUserSettings().getString("rf1_install_path");
                 }
+                else
+                {
+                    // this is an rFactor based game that's not rFactor or AMS (so it's fTruck, Marcas or GSC) - no automatic installation of
+                    // plugin for these old games
+                    Console.WriteLine("Auto-install of plugin not supported for " + gameDefinition.friendlyName);
+                    Console.WriteLine("Assuming that the plugin in install folder" +
+                        " (default location C:\\Program Files(x86)\\Britton IT Ltd\\CrewChiefV4\\plugins\\rFactor\\Plugins) has been copied to you game's install folder");
+                    return;
+                }
             }
             //try to get the install folder from steam common install folders.
             if (!Directory.Exists(gameInstallPath))
