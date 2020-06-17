@@ -473,10 +473,10 @@ namespace CrewChiefV4.Overlay
                     overlayWindow.ActivateWindow();
                     SetForegroundWindow(overlayWindow.Handle);
                 }
-                if (Control.ModifierKeys != (Keys.Shift | Keys.Control))
-                {
-                    shiftKeyReleased = true;
-                }
+            }
+            if (Control.ModifierKeys != (Keys.Shift | Keys.Control))
+            {
+                shiftKeyReleased = true;
             }
             if (Control.ModifierKeys == (Keys.Shift | Keys.Control) && shiftKeyReleased)
             {
