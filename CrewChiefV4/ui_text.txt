@@ -206,6 +206,7 @@ background_audio_device_label = Background playback &device
 version = Version
 the_application_must_be_restarted_to_check_for_updates = The application must be restarted to check for updates. Click OK to restart the application.
 check_for_updates = Force &update check
+check_for_updates_title = Force update check
 donate_link_text = Donate to Support Crew Chief development
 toggle_manual_formation_lap = Toggle manual formation lap mode
 read_corner_names_for_lap = Read corner names for current lap
@@ -1505,6 +1506,11 @@ disable_behavior_altering_voice_commands = Disable behavior voice commands
 disable_behavior_altering_voice_commands_help = When checked, will disable all voice commands that affect CC behavior, for example: "Spot", "Don't spot", "Keep quiet" etc.
 disable_behavior_altering_voice_commands_category = AUDIO_VOICE_AND_CONTROLLERS
 disable_behavior_altering_voice_commands_metadata = RESTART_REQUIRED
+
+disable_overlay_voice_commands = Disable overlay voice commands
+disable_overlay_voice_commands_help = When checked, will disable all voice commands that affect CC overlays, for example: "Show subtitles", "Toggle VR overlays" etc.
+disable_overlay_voice_commands_category = AUDIO_VOICE_AND_CONTROLLERS;UI_STARTUP_AND_PATHS;VR_SETTINGS
+disable_overlay_voice_commands_metadata = RESTART_REQUIRED
 
 slow_class_car_warnings_in_race_only = Slow car class warnings in race only
 slow_class_car_warnings_in_race_only_help = Only play 'slow car ahead' multiclass warnings in race sessions

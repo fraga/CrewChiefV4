@@ -10,7 +10,6 @@ using System.IO;
 using System.Runtime.InteropServices;
 using AutoUpdaterDotNET;
 using System.Net;
-using System.Xml.Linq;
 using System.IO.Compression;
 using CrewChiefV4.Audio;
 using System.Diagnostics;
@@ -18,8 +17,6 @@ using CrewChiefV4.commands;
 using CrewChiefV4.GameState;
 using CrewChiefV4.Events;
 using CrewChiefV4.Overlay;
-using iRSDKSharp;
-using CrewChiefV4.R3E;
 using Valve.VR;
 using CrewChiefV4.ScreenCapture;
 using CrewChiefV4.VirtualReality;
@@ -1307,7 +1304,7 @@ namespace CrewChiefV4
             GlobalResources.controllerConfiguration = controllerConfiguration;
 
             HashSet<string> availablePersonalisations = new HashSet<string>(this.crewChief.audioPlayer.personalisationsArray);
-            availablePersonalisations.UnionWith(new HashSet<string>(SoundCache.availableDriverNames));
+            availablePersonalisations.UnionWith(new HashSet<string>(SoundCache.availableDriverNamesForUI));
 
             this.personalisationBox.Items.AddRange(availablePersonalisations.ToArray<string>());
             this.chiefNameBox.Items.AddRange(AudioPlayer.availableChiefVoices.ToArray());
@@ -1490,7 +1487,7 @@ namespace CrewChiefV4
             else
             {
                 return true;
-            }                      
+            }
         }
         
         private void vrOverlaysUpdateThreadWorker()
@@ -1550,9 +1547,16 @@ namespace CrewChiefV4
                                         Application.OpenForms.OfType<VROverlaySettings>().First().Close();
 
                                     OpenVR.System.AcknowledgeQuit_Exiting();
+
                                     captureSource?.Dispose();
+                                    captureSource = null;
+
                                     deviceManager?.Dispose();
+                                    deviceManager = null;
+
                                     vrOverlayForm?.Dispose();
+                                    vrOverlayForm = null;
+
                                     SteamVR.SafeDispose();
 
                                     this.Invoke((MethodInvoker)delegate
@@ -1594,17 +1598,22 @@ namespace CrewChiefV4
                         {
                             wnd.hmdMatrix = hmdMatrix;
                             wnd.Draw();
-                        }                        
+                        }
                     }
                     Thread.Sleep(11);
                 }
             }
             finally
             {
-                
                 captureSource?.Dispose();
+                captureSource = null;
+
                 deviceManager?.Dispose();
+                deviceManager = null;
+
                 vrOverlayForm?.Dispose();
+                vrOverlayForm = null;
+
                 SteamVR.enabled = false;
                 Debug.WriteLine("Exiting VR Overlays Render thread.");
             }
@@ -2039,11 +2048,6 @@ namespace CrewChiefV4
                 if (gameDefinition != null)
                 {
                     crewChief.setGameDefinition(gameDefinition);
-                    if (gameDefinition.gameEnum == GameEnum.RACE_ROOM)
-                    {
-                        R3ERatings.init();
-                        R3ERatings.gotPlayerRating = false;
-                    }
                     MacroManager.initialise(crewChief.audioPlayer, crewChief.speechRecogniser);
                     CarData.loadCarClassData();
                     TrackData.loadTrackLandmarksData();
@@ -2397,7 +2401,7 @@ namespace CrewChiefV4
             catch
             {
             }
-            doRestart(Configuration.getUIString("the_application_must_be_restarted_to_check_for_updates"), Configuration.getUIString("check_for_updates"), true);
+            doRestart(Configuration.getUIString("the_application_must_be_restarted_to_check_for_updates"), Configuration.getUIString("check_for_updates_title"), true);
         }
 
         private void saveConsoleOutputText()
