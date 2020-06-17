@@ -167,9 +167,9 @@ namespace CrewChiefV4
             // 
             // assignButtonToAction
             // 
-            this.assignButtonToAction.Location = new System.Drawing.Point(830, 541);
+            this.assignButtonToAction.Location = new System.Drawing.Point(830, 544);
             this.assignButtonToAction.Name = "assignButtonToAction";
-            this.assignButtonToAction.Size = new System.Drawing.Size(146, 38);
+            this.assignButtonToAction.Size = new System.Drawing.Size(146, 49);
             this.assignButtonToAction.TabIndex = 240;
             this.assignButtonToAction.Text = "assign_control";
             this.assignButtonToAction.UseVisualStyleBackColor = true;
@@ -177,9 +177,9 @@ namespace CrewChiefV4
             // 
             // deleteAssigmentButton
             // 
-            this.deleteAssigmentButton.Location = new System.Drawing.Point(830, 584);
+            this.deleteAssigmentButton.Location = new System.Drawing.Point(830, 604);
             this.deleteAssigmentButton.Name = "deleteAssigmentButton";
-            this.deleteAssigmentButton.Size = new System.Drawing.Size(146, 29);
+            this.deleteAssigmentButton.Size = new System.Drawing.Size(146, 49);
             this.deleteAssigmentButton.TabIndex = 250;
             this.deleteAssigmentButton.Text = "delete_assignment";
             this.deleteAssigmentButton.UseVisualStyleBackColor = true;
@@ -207,13 +207,34 @@ namespace CrewChiefV4
             // 
             // propertiesButton
             // 
-            this.propertiesButton.Location = new System.Drawing.Point(961, 129);
+            this.propertiesButton.Location = new System.Drawing.Point(961, 124);
             this.propertiesButton.Name = "propertiesButton";
             this.propertiesButton.Size = new System.Drawing.Size(173, 31);
             this.propertiesButton.TabIndex = 110;
             this.propertiesButton.Text = "properties";
             this.propertiesButton.UseVisualStyleBackColor = true;
             this.propertiesButton.Click += new System.EventHandler(this.editPropertiesButtonClicked);
+            // 
+            // buttonVRWindowSettings
+            // 
+            this.buttonVRWindowSettings.Enabled = false;
+            this.buttonVRWindowSettings.Location = new System.Drawing.Point(961, 159);
+            this.buttonVRWindowSettings.Name = "buttonVRWindowSettings";
+            this.buttonVRWindowSettings.Size = new System.Drawing.Size(173, 31);
+            this.buttonVRWindowSettings.TabIndex = 112;
+            this.buttonVRWindowSettings.Text = "vr_window_settings";
+            this.buttonVRWindowSettings.UseVisualStyleBackColor = true;
+            this.buttonVRWindowSettings.Click += new System.EventHandler(this.buttonVRWindowSettings_Click);
+            // 
+            // buttonEditCommandMacros
+            // 
+            this.buttonEditCommandMacros.Location = new System.Drawing.Point(961, 194);
+            this.buttonEditCommandMacros.Name = "buttonEditCommandMacros";
+            this.buttonEditCommandMacros.Size = new System.Drawing.Size(173, 31);
+            this.buttonEditCommandMacros.TabIndex = 114;
+            this.buttonEditCommandMacros.Text = "edit_macro_commands";
+            this.buttonEditCommandMacros.UseVisualStyleBackColor = true;
+            this.buttonEditCommandMacros.Click += new System.EventHandler(this.editCommandMacroButtonClicked);
             // 
             // groupBox1
             // 
@@ -648,16 +669,6 @@ namespace CrewChiefV4
             this.scanControllers.Text = "scan_for_controllers";
             this.scanControllers.Click += new System.EventHandler(this.ScanControllers_Click);
             // 
-            // buttonEditCommandMacros
-            // 
-            this.buttonEditCommandMacros.Location = new System.Drawing.Point(830, 617);
-            this.buttonEditCommandMacros.Name = "buttonEditCommandMacros";
-            this.buttonEditCommandMacros.Size = new System.Drawing.Size(146, 31);
-            this.buttonEditCommandMacros.TabIndex = 255;
-            this.buttonEditCommandMacros.Text = "edit_macro_commands";
-            this.buttonEditCommandMacros.UseVisualStyleBackColor = true;
-            this.buttonEditCommandMacros.Click += new System.EventHandler(this.editCommandMacroButtonClicked);
-            // 
             // AddRemoveActions
             // 
             this.AddRemoveActions.Location = new System.Drawing.Point(295, 654);
@@ -707,18 +718,6 @@ namespace CrewChiefV4
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 22);
             this.helpToolStripMenuItem.Text = "Help";
             this.helpToolStripMenuItem.Click += new System.EventHandler(this.helpToolStripMenuItem_Click);
-            // 
-            // buttonVRWindowSettings
-            // 
-            this.buttonVRWindowSettings.Enabled = false;
-            this.buttonVRWindowSettings.Location = new System.Drawing.Point(830, 652);
-            this.buttonVRWindowSettings.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
-            this.buttonVRWindowSettings.Name = "buttonVRWindowSettings";
-            this.buttonVRWindowSettings.Size = new System.Drawing.Size(147, 28);
-            this.buttonVRWindowSettings.TabIndex = 257;
-            this.buttonVRWindowSettings.Text = "vr_window_settings";
-            this.buttonVRWindowSettings.UseVisualStyleBackColor = true;
-            this.buttonVRWindowSettings.Click += new System.EventHandler(this.buttonVRWindowSettings_Click);
             // 
             // MainWindow
             // 

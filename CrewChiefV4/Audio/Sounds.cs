@@ -35,6 +35,7 @@ namespace CrewChiefV4.Audio
         public static Dictionary<String, SoundSet> soundSets = new Dictionary<String, SoundSet>();
         private static Dictionary<String, SingleSound> singleSounds = new Dictionary<String, SingleSound>();
         public static HashSet<String> availableDriverNames = new HashSet<String>();
+        public static HashSet<String> availableDriverNamesForUI = new HashSet<String>();
         public static HashSet<String> availableSounds = new HashSet<String>();
         public static HashSet<String> availablePrefixesAndSuffixes = new HashSet<String>();
         private Boolean useSwearyMessages;
@@ -160,6 +161,7 @@ namespace CrewChiefV4.Audio
             SoundCache.soundSets.Clear();
             SoundCache.singleSounds.Clear();
             SoundCache.availableDriverNames.Clear();
+            SoundCache.availableDriverNamesForUI.Clear();
             SoundCache.availableSounds.Clear();
             SoundCache.availablePrefixesAndSuffixes.Clear();
 
@@ -250,7 +252,7 @@ namespace CrewChiefV4.Audio
                         // to ensure the objects which hold the sounds are all created on the main thread, with only the file reading and 
                         // SoundPlayer creation part done in the background (just like we do for voice messages).
 
-                        if (!Directory.Exists(soundFolder.FullName + "\\" + selectedPersonalisation) && availableDriverNames.Contains(selectedPersonalisation))
+                        if (!Directory.Exists(soundFolder.FullName + "\\" + selectedPersonalisation) && availableDriverNames.Contains(selectedPersonalisation.ToLower()))
                         {
                             try
                             {
@@ -951,6 +953,22 @@ namespace CrewChiefV4.Audio
                     String name = driverNameFile.Name.ToLower().Split(new[] { ".wav" }, StringSplitOptions.None)[0];
                     singleSounds.Add(name, new SingleSound(driverNameFile.FullName, allowCaching, allowCaching, false));
                     availableDriverNames.Add(name);
+
+                    var nameParts = name.Split(' ');
+                    if (nameParts.Length > 1)
+                    {
+                        var nameForUI = new StringBuilder();
+                        foreach (var part in nameParts)
+                        {
+                            nameForUI.Append($"{Utilities.FirstLetterToUpper(part)} ");
+                        }
+
+                        availableDriverNamesForUI.Add(nameForUI.ToString().TrimEnd());
+                    }
+                    else
+                    {
+                        availableDriverNamesForUI.Add(Utilities.FirstLetterToUpper(name));
+                    }
                 }
             }
             if (verbose)

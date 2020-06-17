@@ -44,6 +44,7 @@ MirrorDirectory $rootPath\"sounds\fx" $env:LOCALAPPDATA"\CrewChiefV4\sounds\fx"
 MirrorDirectory $rootPath\"sounds\voice" $env:LOCALAPPDATA"\CrewChiefV4\sounds\voice"
 
 OverwriteFile $releaseBinPath\"CrewChiefV4.exe" $ccLayoutMainPath
+OverwriteFile $releaseBinPath\"CrewChiefV4.pdb" $ccLayoutMainPath
 OverwriteFile $releaseBinPath\"CrewChiefV4.exe.config" $ccLayoutMainPath
 OverwriteFile $rootPath\"ui_text.txt" $ccLayoutMainPath
 OverwriteFile $rootPath\"carClassData.json" $ccLayoutMainPath
