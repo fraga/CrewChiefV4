@@ -40,6 +40,7 @@ namespace CrewChiefV4
         public static int cachedSpeechInputDeviceIndex = 0;
         private Boolean useNAudio = UserSettings.GetUserSettings().getBoolean("use_naudio_for_speech_recognition");
         private Boolean disableBehaviorAlteringVoiceCommands = UserSettings.GetUserSettings().getBoolean("disable_behavior_altering_voice_commands");
+        private Boolean disableOverlayVoiceCommands = UserSettings.GetUserSettings().getBoolean("disable_overlay_voice_commands");
         private RingBufferStream.RingBufferStream buffer;
         private NAudio.Wave.WaveInEvent waveIn;
 
@@ -1079,7 +1080,8 @@ namespace CrewChiefV4
                 validateAndAdd(WHATS_MY_RANK, staticSpeechChoices);
                 validateAndAdd(WHATS_MY_REPUTATION, staticSpeechChoices);
                 
-                if (UserSettings.GetUserSettings().getBoolean("enable_overlay_window"))
+                if (UserSettings.GetUserSettings().getBoolean("enable_overlay_window")
+                    && !this.disableOverlayVoiceCommands)
                 {
                     validateAndAdd(HIDE_OVERLAY, staticSpeechChoices);
                     validateAndAdd(SHOW_OVERLAY, staticSpeechChoices);
@@ -1109,13 +1111,15 @@ namespace CrewChiefV4
                     validateAndAdd(CHART_COMMAND_SHOW_LAST_LAP, staticSpeechChoices);
                 }
 
-                if (UserSettings.GetUserSettings().getBoolean("enable_subtitle_overlay"))
+                if (UserSettings.GetUserSettings().getBoolean("enable_subtitle_overlay")
+                    && !this.disableOverlayVoiceCommands)
                 {
                     validateAndAdd(SHOW_SUBTITLES, staticSpeechChoices);
                     validateAndAdd(HIDE_SUBTITLES, staticSpeechChoices);
                 }
 
-                if (UserSettings.GetUserSettings().getBoolean("enable_vr_overlay_windows"))
+                if (UserSettings.GetUserSettings().getBoolean("enable_vr_overlay_windows")
+                    && !this.disableOverlayVoiceCommands)
                 {
                     validateAndAdd(TOGGLE_VR_OVERLAYS, staticSpeechChoices);
                     validateAndAdd(SHOW_VR_SETTING, staticSpeechChoices);

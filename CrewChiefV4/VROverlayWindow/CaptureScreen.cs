@@ -185,6 +185,7 @@ namespace CrewChiefV4.ScreenCapture
                                             }
                                             device.ImmediateContext.CopyResource(gdiTexture, w1.copiedScreenTexture);
                                             gdiTexture.Dispose();
+                                            gdiTexture = null;
                                         }
                                         else
                                         {
@@ -221,6 +222,7 @@ namespace CrewChiefV4.ScreenCapture
                                             }
                                             device.ImmediateContext.CopyResource(gdiTexture, w1.copiedScreenTexture);
                                             gdiTexture.Dispose();
+                                            gdiTexture = null;
                                         }
                                         else
                                         {
@@ -233,6 +235,7 @@ namespace CrewChiefV4.ScreenCapture
                             }
                             captureDone = true;
                             screenResource?.Dispose();
+                            screenResource = null;
                             dub.outputDuplication.ReleaseFrame();
                         }
                         else if (result.Code != SharpDX.DXGI.ResultCode.WaitTimeout.Result.Code)
@@ -273,9 +276,18 @@ namespace CrewChiefV4.ScreenCapture
         }
         public void Dispose()
         {
-            foreach (var dub in outputDuplicationSource)
+            if (outputDuplicationSource != null)
             {
-                dub.outputDuplication?.Dispose();
+                foreach (var dub in outputDuplicationSource)
+                {
+                    if (dub.outputDuplication != null
+                        && dub.outputDuplication.NativePointer != IntPtr.Zero
+                        && !dub.outputDuplication.IsDisposed)
+                    {
+                        dub.outputDuplication.Dispose();
+                        dub.outputDuplication = null;
+                    }
+                }
             }
             //copiedScreenTexture.Dispose();
             //copiedScreenTexture = null;

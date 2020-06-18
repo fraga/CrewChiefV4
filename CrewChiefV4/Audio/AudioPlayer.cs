@@ -432,132 +432,157 @@ namespace CrewChiefV4.Audio
 
             public void OnDeviceStateChanged(string deviceId, DeviceState newState)
             {
+                // TODO_REMOVE: on first time we hit this and CC does not hang.
                 Debug.Assert(MainWindow.instance.InvokeRequired);
                 Console.WriteLine($"Processing audio device state changes...");
-                if (speechEnabled)
+                if (this.speechEnabled)
                 {
-                    ReIndexAudioInputDevices();
+                    this.ReIndexAudioInputDevices();
                     lock (MainWindow.instanceLock)
                     {
                         if (MainWindow.instance != null)
                         {
-                            audioPlayer.mainThreadContext.Post(delegate
+                            if (MainWindow.instance.InvokeRequired)
                             {
-                                string recordingDeviceGuid = UserSettings.GetUserSettings().getString("NAUDIO_RECORDING_DEVICE_GUID");
-
-                                if (recordingDeviceGuid == deviceId)
+                                this.audioPlayer.mainThreadContext.Post(delegate
                                 {
-                                    if (newState == DeviceState.Disabled || newState == DeviceState.Unplugged || newState == DeviceState.NotPresent)
-                                    {
-                                        MainWindow.instance.crewChief.speechRecogniser.changeInputDevice(0);
-                                        SpeechRecogniser.speechInputDeviceIndex = 0;
-                                        Console.WriteLine($"Selected speech input device removed, setting sound input to default device--> {GetDefaultInputDeviceName()}");
-                                    }
-                                    else if (newState == DeviceState.Active)
-                                    {
-                                        foreach (var device in SpeechRecogniser.speechRecognitionDevices)
-                                        {
-                                            if (recordingDeviceGuid == device.Value.Item1)
-                                            {
-                                                MainWindow.instance.crewChief.speechRecogniser.changeInputDevice(device.Value.Item2);
-                                                SpeechRecogniser.speechInputDeviceIndex = device.Value.Item2;
-                                                Console.WriteLine($"Saved speech input device added, setting sound input to saved device--> {device.Key}");
-                                            }
-                                        }
-                                    }
-                                    UpdateUI();
-                                }
-                                else
-                                {
-                                    Console.WriteLine("Input audio device state change is ignored.");
-                                }
-                            }, null);
+                                    this.ProcessInputDeviceStateChange(deviceId, newState);
+                                }, null);
+                            }
+                            else
+                            {
+                                this.ProcessInputDeviceStateChange(deviceId, newState);
+                            }
                         }
                     }
                 }
 
-                if (playbackEnabled)
+                if (this.playbackEnabled)
                 {
-                    ReIndexAudioOutputDevices(stopMonitorAndWaitOnThreads: true);
+                    this.ReIndexAudioOutputDevices(stopMonitorAndWaitOnThreads: true);
                     lock (MainWindow.instanceLock)
                     {
                         if (MainWindow.instance != null)
                         {
-                            audioPlayer.mainThreadContext.Post(delegate
+                            if (MainWindow.instance.InvokeRequired)
                             {
-                                try
+                                this.audioPlayer.mainThreadContext.Post(delegate
                                 {
-                                    string messageDeviceGuid = UserSettings.GetUserSettings().getString("NAUDIO_DEVICE_GUID_MESSAGES");
-                                    string backgroundDeviceGuid = UserSettings.GetUserSettings().getString("NAUDIO_DEVICE_GUID_BACKGROUND");
-
-                                    if (backgroundDeviceGuid == deviceId || deviceId == messageDeviceGuid)
-                                    {
-                                        if (audioPlayer.backgroundPlayer != null)
-                                            audioPlayer.backgroundPlayer.dispose();
-
-                                        audioPlayer.disposeSoundCache();
-
-                                        if (newState == DeviceState.Disabled || newState == DeviceState.Unplugged || newState == DeviceState.NotPresent)
-                                        {
-                                            if (backgroundDeviceGuid == deviceId)
-                                            {
-                                                naudioBackgroundPlaybackDeviceId = 0;
-                                                naudioBackgroundPlaybackDeviceGuid = GetDefaultOutputDeviceID();
-                                                Console.WriteLine($"Selected background audio device removed, setting background playback to default device--> {GetDefaultOutputDeviceName()}");
-                                            }
-                                            if (messageDeviceGuid == deviceId)
-                                            {
-                                                naudioMessagesPlaybackDeviceId = 0;
-                                                naudioMessagesPlaybackDeviceGuid = GetDefaultOutputDeviceID();
-                                                Console.WriteLine($"Selected message audio device removed, setting voice playback to default device--> {GetDefaultOutputDeviceName()}");
-                                            }
-                                        }
-                                        else if (newState == DeviceState.Active)
-                                        {
-                                            foreach (var device in playbackDevices)
-                                            {
-                                                if (backgroundDeviceGuid == device.Value.Item1)
-                                                {
-                                                    Console.WriteLine($"Saved background audio device added, setting sound playback to saved device--> {device.Key}");
-                                                    naudioBackgroundPlaybackDeviceId = device.Value.Item2;
-                                                    naudioBackgroundPlaybackDeviceGuid = device.Value.Item1;
-                                                }
-                                                if (messageDeviceGuid == device.Value.Item1)
-                                                {
-                                                    Console.WriteLine($"Saved message audio device added, setting sound playback to saved device--> {device.Key}");
-                                                    naudioMessagesPlaybackDeviceId = device.Value.Item2;
-                                                    naudioMessagesPlaybackDeviceGuid = device.Value.Item1;
-                                                }
-                                            }
-                                        }
-
-                                        SoundCache.cancelLazyLoading = false;
-                                        SoundCache.cancelDriverNameLoading = false;
-                                        Console.WriteLine("Recreating sound cache.");
-                                        audioPlayer.soundCache = new SoundCache(new DirectoryInfo(soundFilesPath), new DirectoryInfo(soundFilesPathNoChiefOverride),
-                                            new String[] { "spotter", "acknowledge" }, audioPlayer.sweary, audioPlayer.allowCaching, audioPlayer.selectedPersonalisation, false);
-
-                                        ReloadBackgroundPlayer();
-
-                                        UpdateUI();
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine("Output audio device state change is ignored.");
-                                    }
-
-                                    // We stopped monitor during device ReIndexAudioOutputDevices, so make sure to re-start it.
-                                    if (MainWindow.instance.crewChief.running)
-                                        audioPlayer.startMonitor(smokeTest: false);
-                                }
-                                finally
-                                {
-                                    SoundCache.cancelLazyLoading = false;
-                                    SoundCache.cancelDriverNameLoading = false;
-                                }
-                            }, null);
+                                    this.ProcessOutputDeviceStateChange(deviceId, newState);
+                                }, null);
+                            }
+                            else
+                            {
+                                this.ProcessOutputDeviceStateChange(deviceId, newState);
+                            }
                         }
                     }
+                }
+            }
+
+            private void ProcessOutputDeviceStateChange(string deviceId, DeviceState newState)
+            {
+                try
+                {
+                    string messageDeviceGuid = UserSettings.GetUserSettings().getString("NAUDIO_DEVICE_GUID_MESSAGES");
+                    string backgroundDeviceGuid = UserSettings.GetUserSettings().getString("NAUDIO_DEVICE_GUID_BACKGROUND");
+
+                    if (backgroundDeviceGuid == deviceId || deviceId == messageDeviceGuid)
+                    {
+                        if (audioPlayer.backgroundPlayer != null)
+                            audioPlayer.backgroundPlayer.dispose();
+
+                        audioPlayer.disposeSoundCache();
+
+                        if (newState == DeviceState.Disabled || newState == DeviceState.Unplugged || newState == DeviceState.NotPresent)
+                        {
+                            if (backgroundDeviceGuid == deviceId)
+                            {
+                                naudioBackgroundPlaybackDeviceId = 0;
+                                naudioBackgroundPlaybackDeviceGuid = GetDefaultOutputDeviceID();
+                                Console.WriteLine($"Selected background audio device removed, setting background playback to default device--> {GetDefaultOutputDeviceName()}");
+                            }
+                            if (messageDeviceGuid == deviceId)
+                            {
+                                naudioMessagesPlaybackDeviceId = 0;
+                                naudioMessagesPlaybackDeviceGuid = GetDefaultOutputDeviceID();
+                                Console.WriteLine($"Selected message audio device removed, setting voice playback to default device--> {GetDefaultOutputDeviceName()}");
+                            }
+                        }
+                        else if (newState == DeviceState.Active)
+                        {
+                            foreach (var device in playbackDevices)
+                            {
+                                if (backgroundDeviceGuid == device.Value.Item1)
+                                {
+                                    Console.WriteLine($"Saved background audio device added, setting sound playback to saved device--> {device.Key}");
+                                    naudioBackgroundPlaybackDeviceId = device.Value.Item2;
+                                    naudioBackgroundPlaybackDeviceGuid = device.Value.Item1;
+                                }
+                                if (messageDeviceGuid == device.Value.Item1)
+                                {
+                                    Console.WriteLine($"Saved message audio device added, setting sound playback to saved device--> {device.Key}");
+                                    naudioMessagesPlaybackDeviceId = device.Value.Item2;
+                                    naudioMessagesPlaybackDeviceGuid = device.Value.Item1;
+                                }
+                            }
+                        }
+
+                        SoundCache.cancelLazyLoading = false;
+                        SoundCache.cancelDriverNameLoading = false;
+                        Console.WriteLine("Recreating sound cache.");
+                        audioPlayer.soundCache = new SoundCache(new DirectoryInfo(soundFilesPath), new DirectoryInfo(soundFilesPathNoChiefOverride),
+                            new String[] { "spotter", "acknowledge" }, audioPlayer.sweary, audioPlayer.allowCaching, audioPlayer.selectedPersonalisation, false);
+
+                        ReloadBackgroundPlayer();
+
+                        UpdateUI();
+                    }
+                    else
+                    {
+                        Console.WriteLine("Output audio device state change is ignored.");
+                    }
+
+                    // We stopped monitor during device ReIndexAudioOutputDevices, so make sure to re-start it.
+                    if (MainWindow.instance.crewChief.running)
+                        audioPlayer.startMonitor(smokeTest: false);
+                }
+                finally
+                {
+                    SoundCache.cancelLazyLoading = false;
+                    SoundCache.cancelDriverNameLoading = false;
+                }
+            }
+
+            private void ProcessInputDeviceStateChange(string deviceId, DeviceState newState)
+            {
+                string recordingDeviceGuid = UserSettings.GetUserSettings().getString("NAUDIO_RECORDING_DEVICE_GUID");
+
+                if (recordingDeviceGuid == deviceId)
+                {
+                    if (newState == DeviceState.Disabled || newState == DeviceState.Unplugged || newState == DeviceState.NotPresent)
+                    {
+                        MainWindow.instance.crewChief.speechRecogniser.changeInputDevice(0);
+                        SpeechRecogniser.speechInputDeviceIndex = 0;
+                        Console.WriteLine($"Selected speech input device removed, setting sound input to default device--> {GetDefaultInputDeviceName()}");
+                    }
+                    else if (newState == DeviceState.Active)
+                    {
+                        foreach (var device in SpeechRecogniser.speechRecognitionDevices)
+                        {
+                            if (recordingDeviceGuid == device.Value.Item1)
+                            {
+                                MainWindow.instance.crewChief.speechRecogniser.changeInputDevice(device.Value.Item2);
+                                SpeechRecogniser.speechInputDeviceIndex = device.Value.Item2;
+                                Console.WriteLine($"Saved speech input device added, setting sound input to saved device--> {device.Key}");
+                            }
+                        }
+                    }
+                    UpdateUI();
+                }
+                else
+                {
+                    Console.WriteLine("Input audio device state change is ignored.");
                 }
             }
 
