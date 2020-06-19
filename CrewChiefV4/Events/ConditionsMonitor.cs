@@ -280,7 +280,10 @@ namespace CrewChiefV4.Events
                                 audioPlayer.playMessage(new QueuedMessage(folderSeeingSomeRain, 10, abstractEvent: this, priority: 5));
                             }
                         }
-                        else if (CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT || CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2 || CrewChief.gameDefinition.gameEnum == GameEnum.ACC)
+                        else if (CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT
+                            || CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2
+                            || CrewChief.gameDefinition.gameEnum == GameEnum.ACC
+                            || CrewChief.gameDefinition.gameEnum == GameEnum.AMS2)
                         {
                             if (rainDensityAtLastCheck != -1 && rainDensityAtLastCheck != currentConditions.RainDensity)
                             {

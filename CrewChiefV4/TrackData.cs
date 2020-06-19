@@ -63,6 +63,7 @@ namespace CrewChiefV4
                         break;
                     case GameEnum.PCARS2:
                     case GameEnum.PCARS2_NETWORK:
+                    case GameEnum.AMS2:
                         currentRecording.pcars2TrackName = trackName;
                         break;
                     case GameEnum.RF1:
@@ -311,6 +312,7 @@ namespace CrewChiefV4
                         break;
                     case GameEnum.PCARS2:
                     case GameEnum.PCARS2_NETWORK:
+                    case GameEnum.AMS2:
                         if (String.Equals(trackLandmarksForTrack.pcars2TrackName, trackName, StringComparison.OrdinalIgnoreCase)
                             && checkForAndMatchOnLength(lengthFromGame, trackLandmarksForTrack.approximateTrackLength))
                         {
@@ -460,7 +462,7 @@ namespace CrewChiefV4
                 {
                     checkForDuplicatesHelper(trackLandmarks.pcarsTrackName, trackLandmarks.approximateTrackLength, "pCars", pcarsTracks);
                 }
-                if (CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2 || CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2_NETWORK)
+                if (CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2 || CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2_NETWORK || CrewChief.gameDefinition.gameEnum == GameEnum.AMS2)
                 {
                     checkForDuplicatesHelper(trackLandmarks.pcars2TrackName, trackLandmarks.approximateTrackLength, "pCars2", pcars2Tracks);
                 }
