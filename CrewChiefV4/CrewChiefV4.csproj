@@ -289,6 +289,8 @@
     <Compile Include="Overlay\OverlayElements\OverlayHeader.cs" />
     <Compile Include="Overlay\OverlaySettings.cs" />
     <Compile Include="Overlay\SubtitleOverlay.cs" />
+    <Compile Include="PitManager\PitManager.cs" />
+    <Compile Include="PitManager\PitManagerEventHandlers_RF2.cs" />
     <Compile Include="R3E\R3EPitMenuManager.cs" />
     <Compile Include="R3E\R3ERatings.cs" />
     <Compile Include="R3E\R3ESerializer.cs" />
