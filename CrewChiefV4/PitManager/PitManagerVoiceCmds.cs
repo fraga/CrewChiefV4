@@ -8,10 +8,10 @@ namespace CrewChiefV4.PitManager
 {
     using PME = PitManagerEvent;  // shorthand
 
-    class PitManagerVoiceCmds
+    public class PitManagerVoiceCmds
     {
-        private PitManager pmh = new PitManager();
-        private readonly Dictionary<PitManagerEvent, String[]> voiceCmds =
+        private static PitManager pmh = new PitManager();
+        private static readonly Dictionary<PitManagerEvent, String[]> voiceCmds =
             new Dictionary<PitManagerEvent, String[]>
         {
             {PME.TyreChangeAll,     SpeechRecogniser.PIT_STOP_CHANGE_ALL_TYRES },
@@ -78,7 +78,7 @@ namespace CrewChiefV4.PitManager
             {PME.Tearoff,           SpeechRecogniser.PIT_STOP_TEAROFF },    // iRacing
             {PME.TearOffNone,       SpeechRecogniser.PIT_STOP_CLEAR_WIND_SCREEN },
             };
-        void respond(String voiceMessage)
+        public static void respond(String voiceMessage)
         {
             foreach (var cmd in voiceCmds)
             {

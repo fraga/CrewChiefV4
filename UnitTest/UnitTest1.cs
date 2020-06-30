@@ -3,12 +3,18 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using CrewChiefV4;
 using CrewChiefV4.PitManager;
 using System.Resources;
+using System.Windows.Forms;
 
 namespace UnitTest
 {
     [TestClass]
     public class TestPitManager
     {
+        [TestMethod]
+        public void CCobject()
+        {
+            var hwnd = new MainWindow();
+        }
 #if false
         [TestMethod]
         public void Test1()
@@ -36,6 +42,9 @@ namespace UnitTest
         {
             bool result;
             var pmh = new PitManager();
+
+            var hwnd = new MainWindow();
+
 #if false // attempt to fake a whole CC
             var wh = new DummyForm();
             var controllerConfiguration = new ControllerConfiguration();
@@ -47,5 +56,18 @@ namespace UnitTest
             result = pmh.EventHandler(PitManagerEvent.RepairFast);
             Assert.IsFalse(result);
         }
+
+        [TestMethod]
+        public void TestVoice()
+        {
+            bool result;
+            var pmh = new PitManager();
+
+            var hwnd = new MainWindow();
+
+            PitManagerVoiceCmds.respond("pitstop change all tyres");
+
+        }
+
     }
 }
