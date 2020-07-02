@@ -67,6 +67,8 @@ namespace CrewChiefV4.commands
             return macroContainer;
         }
 
+        // checks if the game definition selected matches the game definition from the command set. Note that we're allowing
+        // pCars2 macros to be used with AMS2 here
         public static bool isCommandSetForCurrentGame(string gameDefinitionFromCommandSet)
         {
             return gameDefinitionFromCommandSet != null &&
