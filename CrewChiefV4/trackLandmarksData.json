@@ -7,7 +7,7 @@
 			"rf2TrackNames": ["Bathurst"],
 			"pcarsTrackName": "Bathurst:",
 			"pcars2TrackName": "Bathurst:Mount_Panorama",
-			"ams2TrackName": "Bathurst_2020",
+			"ams2TrackName": "Bathurst:Bathurst_2020",
 			"irTrackName": "bathurst",
 			"raceroomLayoutId": 1846,
 			"raceroomRollingStartLapDistance": 5655,
@@ -157,7 +157,7 @@
 			"acTrackNames": ["ks_brands_hatch:indy"],
 			"pcarsTrackName": "Brands Hatch:Indy",
 			"pcars2TrackName": "Brands_Hatch:Indy",
-			"ams2TrackName": "BrandsHatch_Indy",
+			"ams2TrackName": "BrandsHatch:Indy",
 			"raceroomLayoutId": 2520,
 			"raceroomRollingStartLapDistance": 1063,
 			"trackLandmarks": [{
@@ -200,7 +200,7 @@
 			"acTrackNames": ["ks_brands_hatch:gp"],
 			"pcarsTrackName": "Brands Hatch:Grand Prix",
 			"pcars2TrackName": "Brands_Hatch:GP",
-			"ams2TrackName": "BrandsHatch_GP",
+			"ams2TrackName": "BrandsHatch:GrandPrix",
 			"accTrackName": "brands_hatch:track config",
 			"trackLandmarks": [{
 					"landmarkName": "paddock_hill",
@@ -364,7 +364,7 @@
 			],
 			"pcarsTrackName": "Red Bull Ring:Grand Prix",
 			"pcars2TrackName": "Red_Bull_Ring:GP",
-			"ams2TrackName": "Spielberg_Modern",
+			"ams2TrackName": "Spielberg:Modern",
 			"raceroomLayoutId": 2556,
 			"raceroomRollingStartLapDistance": 3476,
 			"trackLandmarks": [{
@@ -889,7 +889,7 @@
 			"acTrackNames": ["doningtonpark:national"],
 			"pcarsTrackName": "Donington Park:National",
 			"pcars2TrackName": "Donington_Park:National",
-			"ams2TrackName": "Donington_Nat",
+			"ams2TrackName": "Donington:Donington_Nat",
 			"trackLandmarks": [{
 					"landmarkName": "redgate",
 					"distanceRoundLapStart": 320,
@@ -932,7 +932,7 @@
 			"acTrackNames": ["doningtonpark:gp"],
 			"pcarsTrackName": "Donington Park:Grand Prix",
 			"pcars2TrackName": "Donington_Park:GP",
-			"ams2TrackName": "Donington_GP",
+			"ams2TrackName": "Donington:Donington_GP",
 			"trackLandmarks": [{
 					"landmarkName": "redgate",
 					"distanceRoundLapStart": 320,
@@ -989,7 +989,7 @@
 			"acTrackNames": ["imola:"],
 			"pcarsTrackName": "Imola:Grand Prix",
 			"pcars2TrackName": "Imola:GP",
-			"ams2TrackName": "Imola_GP_2018",
+			"ams2TrackName": "ImolaAMS2:Imola_GP_2018",
 			"irTrackName": "imola gp",
 			"raceroomLayoutId": 1850,
 			"trackLandmarks": [{
@@ -1350,7 +1350,7 @@
 		{
 			"pcarsTrackName": "Azure Circuit:Grand Prix",
 			"pcars2TrackName": "Azure_Circuit:GP",
-			"ams2TrackName": "Azure_Circuit",
+			"ams2TrackName": "Azure_Circuit:Azure_Circuit",
 			"trackLandmarks": [{
 					"landmarkName": "sainte_devote",
 					"distanceRoundLapStart": 180,
@@ -2572,7 +2572,7 @@
 			"rf2TrackNames": ["CadwellParkSRW"],
 			"pcarsTrackName": "Cadwell:Grand Prix",
 			"pcars2TrackName": "Cadwell:GP",
-			"ams2TrackName": "CadwellPark",
+			"ams2TrackName": "CadwellPark:CadwellPark",
 			"trackLandmarks": [{
 					"landmarkName": "coppice",
 					"distanceRoundLapStart": 275,
@@ -2727,7 +2727,7 @@
 			"rf2TrackNames": ["Oulton Park Fosters"],
 			"pcarsTrackName": "Oulton Park:Fosters",
 			"pcars2TrackName": "Oulton_Park:Fosters",
-			"ams2TrackName": "OultonPark_Fosters",
+			"ams2TrackName": "OultonPark:OultonPark_Fosters",
 			"irTrackName": "oulton fosters",
 			"trackLandmarks": [{
 					"landmarkName": "old_hall",
@@ -2783,7 +2783,7 @@
 			"rf2TrackNames": ["Oulton Park International"],
 			"pcarsTrackName": "Oulton Park:International",
 			"pcars2TrackName": "Oulton_Park:International",
-			"ams2TrackName": "OultonPark_International",
+			"ams2TrackName": "OultonPark:OultonPark_International",
 			"irTrackName": "oulton international",
 			"trackLandmarks": [{
 					"landmarkName": "old_hall",
@@ -2979,7 +2979,7 @@
 			"rf2TrackNames": ["Oulton Park Island"],
 			"pcarsTrackName": "Oulton Park:Island",
 			"pcars2TrackName": "Oulton_Park:Island",
-			"ams2TrackName": "OultonPark_Island",
+			"ams2TrackName": "OultonPark:OultonPark_Island",
 			"irTrackName": "oulton islandhistoric",
 			"trackLandmarks": [{
 					"landmarkName": "old_hall",
@@ -3577,7 +3577,7 @@
 		},
 		{
 			"rf2TrackNames": ["RaceRfactor Montreal 2013", "Montreal GP"],
-			"ams2TrackName": "Montreal_Modern",
+			"ams2TrackName": "Montreal:Modern",
 			"irTrackName": "montreal",
 			"trackLandmarks": [{
 					"landmarkName": "turn1",
@@ -5750,7 +5750,7 @@
 		},
 		{
 			"rf2TrackNames": ["Adelaide Street Circuit"],
-			"ams2TrackName": "Adelaide_Modern",
+			"ams2TrackName": "Adelaide:Modern",
 			"trackLandmarks": [{
 					"landmarkName": "senna_chicane",
 					"distanceRoundLapStart": 230,
@@ -8344,7 +8344,7 @@
 		},
 		{
 			"rf2TrackNames": ["Imola 1988"],
-			"ams2TrackName": "Imola_GP_1988",
+			"ams2TrackName": "ImolaAMS2:Imola_GP_1988",
 			"trackLandmarks": [{
 					"landmarkName": "tamburello",
 					"distanceRoundLapStart": 360,
@@ -8543,7 +8543,7 @@
 		},
 		{
 			"rf2TrackNames": ["Montreal  1988"],
-			"ams2TrackName": "Montreal_Historic",
+			"ams2TrackName": "Montreal:Historic",
 			"trackLandmarks": [{
 					"landmarkName": "casino",
 					"distanceRoundLapStart": 190,
