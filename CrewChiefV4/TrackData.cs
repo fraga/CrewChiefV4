@@ -63,8 +63,11 @@ namespace CrewChiefV4
                         break;
                     case GameEnum.PCARS2:
                     case GameEnum.PCARS2_NETWORK:
-                    case GameEnum.AMS2:
                         currentRecording.pcars2TrackName = trackName;
+                        break;
+                    case GameEnum.AMS2:
+                    case GameEnum.AMS2_NETWORK:
+                        currentRecording.ams2TrackName = trackName;
                         break;
                     case GameEnum.RF1:
                         currentRecording.rf1TrackNames = new string[] { trackName };
@@ -211,6 +214,7 @@ namespace CrewChiefV4
         public String irTrackName { get; set; }
         public String pcarsTrackName { get; set; }
         public String pcars2TrackName { get; set; }
+        public String ams2TrackName { get; set; }
         public String accTrackName { get; set; }
         public int raceroomLayoutId { get; set; }
         public float approximateTrackLength { get; set; }   // this is optional and used to differentiate duplicated names
@@ -229,6 +233,7 @@ namespace CrewChiefV4
             this.rf2TrackNames = new string[] { };
             this.pcarsTrackName = "";
             this.pcars2TrackName = "";
+            this.ams2TrackName = "";
             this.irTrackName = "";
             this.accTrackName = "";
             this.isOval = false;
@@ -312,8 +317,16 @@ namespace CrewChiefV4
                         break;
                     case GameEnum.PCARS2:
                     case GameEnum.PCARS2_NETWORK:
-                    case GameEnum.AMS2:
                         if (String.Equals(trackLandmarksForTrack.pcars2TrackName, trackName, StringComparison.OrdinalIgnoreCase)
+                            && checkForAndMatchOnLength(lengthFromGame, trackLandmarksForTrack.approximateTrackLength))
+                        {
+                            Console.WriteLine(trackLandmarksForTrack.trackLandmarks.Count + " landmarks defined for this track");
+                            return new TrackDataContainer(trackLandmarksForTrack.trackLandmarks, trackLandmarksForTrack.isOval);
+                        }
+                        break;
+                    case GameEnum.AMS2:
+                    case GameEnum.AMS2_NETWORK:
+                        if (String.Equals(trackLandmarksForTrack.ams2TrackName, trackName, StringComparison.OrdinalIgnoreCase)
                             && checkForAndMatchOnLength(lengthFromGame, trackLandmarksForTrack.approximateTrackLength))
                         {
                             Console.WriteLine(trackLandmarksForTrack.trackLandmarks.Count + " landmarks defined for this track");
@@ -447,6 +460,7 @@ namespace CrewChiefV4
             var acTracks = new Dictionary<string, float>();
             var pcarsTracks = new Dictionary<string, float>();
             var pcars2Tracks = new Dictionary<string, float>();
+            var ams2Tracks = new Dictionary<string, float>();
             var raceroomTracks = new Dictionary<int, float>();
             var rf1Tracks = new Dictionary<string, float>();
             var rf2Tracks = new Dictionary<string, float>();
@@ -454,37 +468,40 @@ namespace CrewChiefV4
             var accTracks = new Dictionary<string, float>();
             foreach (var trackLandmarks in trackLandmarksData)
             {
-                if (CrewChief.gameDefinition.gameEnum == GameEnum.ASSETTO_32BIT || CrewChief.gameDefinition.gameEnum == GameEnum.ASSETTO_64BIT)
+                switch (CrewChief.gameDefinition.gameEnum)
                 {
-                    checkForDuplicatesHelper(trackLandmarks.acTrackNames, trackLandmarks.approximateTrackLength, "AC", acTracks);
-                }
-                if (CrewChief.gameDefinition.gameEnum == GameEnum.PCARS_32BIT || CrewChief.gameDefinition.gameEnum == GameEnum.PCARS_64BIT || CrewChief.gameDefinition.gameEnum == GameEnum.PCARS_NETWORK)
-                {
-                    checkForDuplicatesHelper(trackLandmarks.pcarsTrackName, trackLandmarks.approximateTrackLength, "pCars", pcarsTracks);
-                }
-                if (CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2 || CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2_NETWORK || CrewChief.gameDefinition.gameEnum == GameEnum.AMS2)
-                {
-                    checkForDuplicatesHelper(trackLandmarks.pcars2TrackName, trackLandmarks.approximateTrackLength, "pCars2", pcars2Tracks);
-                }
-                if (CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM)
-                {
-                    checkForDuplicatesHelper(trackLandmarks.raceroomLayoutId, trackLandmarks.approximateTrackLength, "RaceRoom", raceroomTracks);
-                }
-                if (CrewChief.gameDefinition.gameEnum == GameEnum.RF1)
-                {
-                    checkForDuplicatesHelper(trackLandmarks.rf1TrackNames, trackLandmarks.approximateTrackLength, "rF1", rf1Tracks);
-                }
-                if (CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT)
-                {
-                    checkForDuplicatesHelper(trackLandmarks.rf2TrackNames, trackLandmarks.approximateTrackLength, "rF2", rf2Tracks);
-                }
-                if (CrewChief.gameDefinition.gameEnum == GameEnum.IRACING)
-                {
-                    checkForDuplicatesHelper(trackLandmarks.irTrackName, trackLandmarks.approximateTrackLength, "iRacing", irTracks);
-                }
-                if (CrewChief.gameDefinition.gameEnum == GameEnum.ACC)
-                {
-                    checkForDuplicatesHelper(trackLandmarks.accTrackName, trackLandmarks.approximateTrackLength, "ACC", irTracks);
+                    case GameEnum.ASSETTO_32BIT:
+                    case GameEnum.ASSETTO_64BIT:
+                        checkForDuplicatesHelper(trackLandmarks.acTrackNames, trackLandmarks.approximateTrackLength, "AC", acTracks);
+                        break;
+                    case GameEnum.PCARS_32BIT:
+                    case GameEnum.PCARS_64BIT:
+                    case GameEnum.PCARS_NETWORK:
+                        checkForDuplicatesHelper(trackLandmarks.pcarsTrackName, trackLandmarks.approximateTrackLength, "pCars", pcarsTracks);
+                        break;
+                    case GameEnum.PCARS2:
+                    case GameEnum.PCARS2_NETWORK:
+                        checkForDuplicatesHelper(trackLandmarks.pcars2TrackName, trackLandmarks.approximateTrackLength, "pCars2", pcars2Tracks);
+                        break;
+                    case GameEnum.AMS2:
+                    case GameEnum.AMS2_NETWORK:
+                        checkForDuplicatesHelper(trackLandmarks.ams2TrackName, trackLandmarks.approximateTrackLength, "ams2", ams2Tracks);
+                        break;
+                    case GameEnum.RACE_ROOM:
+                        checkForDuplicatesHelper(trackLandmarks.raceroomLayoutId, trackLandmarks.approximateTrackLength, "RaceRoom", raceroomTracks);
+                        break;
+                    case GameEnum.RF1:
+                        checkForDuplicatesHelper(trackLandmarks.rf1TrackNames, trackLandmarks.approximateTrackLength, "rF1", rf1Tracks);
+                        break;
+                    case GameEnum.RF2_64BIT:
+                        checkForDuplicatesHelper(trackLandmarks.rf2TrackNames, trackLandmarks.approximateTrackLength, "rF2", rf2Tracks);
+                        break;
+                    case GameEnum.IRACING:
+                        checkForDuplicatesHelper(trackLandmarks.irTrackName, trackLandmarks.approximateTrackLength, "iRacing", irTracks);
+                        break;
+                    case GameEnum.ACC:
+                        checkForDuplicatesHelper(trackLandmarks.accTrackName, trackLandmarks.approximateTrackLength, "ACC", accTracks);
+                        break;
                 }
             }
         }
