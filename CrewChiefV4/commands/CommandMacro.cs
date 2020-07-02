@@ -78,7 +78,7 @@ namespace CrewChiefV4.commands
                 // if there's a confirmation message set up here, suppress the PitStops event from triggering the same message when the pit request changes in the gamestate
                 PitStops.playedRequestPitOnThisLap = macroConfirmationMessage != null;
                 if ((CrewChief.gameDefinition == GameDefinition.raceRoom && R3EPitMenuManager.hasRequestedPitStop()) ||
-                    ((CrewChief.gameDefinition == GameDefinition.pCars2 || CrewChief.gameDefinition == GameDefinition.rfactor2_64bit) &&
+                    ((CrewChief.gameDefinition == GameDefinition.pCars2 || CrewChief.gameDefinition == GameDefinition.rfactor2_64bit || CrewChief.gameDefinition == GameDefinition.AMS2) &&
                      CrewChief.currentGameState != null && CrewChief.currentGameState.PitData.HasRequestedPitStop))
                 {
                     // special case for R3E. Pit requested state doesn't clear after completing a stop, so we might need to execute the 
@@ -131,7 +131,7 @@ namespace CrewChiefV4.commands
                 // if there's a confirmation message set up here, suppress the PitStops event from triggering the same message when the pit request changes in the gamestate
                 PitStops.playedPitRequestCancelledOnThisLap = macroConfirmationMessage != null;
                 if ((CrewChief.gameDefinition == GameDefinition.raceRoom && !R3EPitMenuManager.hasRequestedPitStop()) ||
-                    ((CrewChief.gameDefinition == GameDefinition.pCars2 || CrewChief.gameDefinition == GameDefinition.rfactor2_64bit) &&
+                    ((CrewChief.gameDefinition == GameDefinition.pCars2 || CrewChief.gameDefinition == GameDefinition.rfactor2_64bit || CrewChief.gameDefinition == GameDefinition.AMS2) &&
                      CrewChief.currentGameState != null && !CrewChief.currentGameState.PitData.HasRequestedPitStop))
                 {
                     // we don't have a stop requested, so change the confirm message to 'what? we weren't waiting anyway'
@@ -160,7 +160,7 @@ namespace CrewChiefV4.commands
                 multiplePressCountFromVoiceCommand = macro.extractInt(recognitionResult, macro.startPhrase, macro.endPhrase);
             }
             // only execute for the requested game - is this check sensible?
-            foreach (CommandSet commandSet in macro.commandSets.Where(cs => cs.gameDefinition == CrewChief.gameDefinition.gameEnum.ToString()))
+            foreach (CommandSet commandSet in macro.commandSets.Where(cs => MacroManager.isCommandSetForCurrentGame(cs.gameDefinition)))
             {                
                 Boolean isValid = checkValidAndPlayConfirmation(commandSet, supressConfirmationMessage);
                 if (isValid)
