@@ -783,6 +783,9 @@ namespace CrewChiefV4.RaceRoom
                             participantStruct.LapDistance, shared.CarSpeed, currentGameState.SessionData.DeltaTime.currentDeltaPoint, currentGameState.carClass);
                         currentGameState.SessionData.stoppedInLandmark = participantStruct.InPitlane == 1 ? null : stoppedInLandmark;
                     }
+
+                    // TODO: what to do with this data? Be careful here - it's populated for iRacing and R3E and will behave differently
+                    currentGameState.SessionData.CurrentIncidentCount = participantStruct.DriverInfo.IncidentPoints;
                     break;
                 }
             }
@@ -1433,8 +1436,6 @@ namespace CrewChiefV4.RaceRoom
             currentGameState.SessionData.RaceSessionsLengthMinutes[1] = shared.RaceSessionMinutes.Race2;
             currentGameState.SessionData.RaceSessionsLengthMinutes[2] = shared.RaceSessionMinutes.Race3;
 
-            // TODO: what to do with this data? Be careful here - it's populated for iRacing and R3E and will behave differently
-            currentGameState.SessionData.CurrentDriverIncidentCount = playerDriverData.DriverInfo.IncidentPoints;
             return currentGameState;
         }
 

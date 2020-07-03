@@ -925,9 +925,9 @@ namespace CrewChiefV4.Events
             }
             else if (damageToReportNext.Item1 == Component.SUSPENSION)
             {
-                componentDestroyed = Component.SUSPENSION;
                 if (damageToReportNext.Item2 == DamageLevel.DESTROYED)
                 {
+                    componentDestroyed = Component.SUSPENSION;
                     if (!checkIfDriverIsOK(now, inPitLane))
                     {
                         playBustedComponentMessage("Damage/busted_suspension", folderBustedSuspension, majorDamageMsgDelay, majorDamageMsgExpiration, allowRants, validationData);

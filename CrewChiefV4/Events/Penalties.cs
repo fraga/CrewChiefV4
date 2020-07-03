@@ -115,6 +115,10 @@ namespace CrewChiefV4.Events
 
         public static String folderCutTrackPracticeOrQualNextLapInvalid = "penalties/cut_track_in_prac_or_qual_next_invalid";
 
+        // TODO: record these, still not sure what to actually say
+        public static String folderCarToCarCollision = "penalties/car_to_car_collision";
+        public static String folderTooManyCarToCarCollisions = "penalties/too_many_car_to_car_collisions";
+
         // 1, 2, 3, 4 versions of race cut ("track limits...") and non-race cut ("lap deleted") messages. For non-race,
         // "lap deleted" are combined with "track limits". 1, 2, 3, 4 are the taking-piss levels where 1 is few or zero cuts up to
         // 4 which is taking-the-piss
@@ -168,6 +172,17 @@ namespace CrewChiefV4.Events
 
         public static Boolean playerMustPitThisLap = false;
 
+        private int r3eIncidentPointsForCarToCarCollision = 4;
+
+        private int tooManyCarToCarCollisionsThreshold = 3;   // get really cranky after this many significant car-to-car collisions
+
+        private double carToCarCollisionSpeedChangeThreshold = -0.3;    // a car to car collision resulting in this (or greater) speed change is considered significant
+        // note this is negative so we're only interested in collisions that slow the player down
+
+        private int carToCarCollisionCount = 0;
+
+        private DateTime nextCarToCarCollisionCallDue = DateTime.MinValue;
+
         private enum TrackLimitsMode
         {
             OK,                 // initial setting - no excessive or persistent cutting
@@ -210,6 +225,8 @@ namespace CrewChiefV4.Events
             totalAnnouncableCutWarnings = 0;
             // not used (yet) - might be helpful for establishing trends?
             cutTimesInSession.Clear();
+            carToCarCollisionCount = 0;
+            nextCarToCarCollisionCallDue = DateTime.MinValue;
         }
 
         private void clearPenaltyState()
@@ -282,6 +299,43 @@ namespace CrewChiefV4.Events
 
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
+            // some incident point testing
+            if (previousGameState != null && currentGameState.SessionData.CurrentIncidentCount > previousGameState.SessionData.CurrentIncidentCount)
+            {
+                Console.WriteLine("incident points increased from " + previousGameState.SessionData.CurrentIncidentCount + " to " + currentGameState.SessionData.CurrentIncidentCount);
+                // for R3E we have no idea what the incident point limits might be or even what type of incident has occurred - we know it's 
+                // 4 points for a car-to-car collision so we can, at least, do *something* with it
+                if (CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM
+                    && currentGameState.SessionData.CurrentIncidentCount - previousGameState.SessionData.CurrentIncidentCount >= r3eIncidentPointsForCarToCarCollision)
+                {
+                    // this isn't as reliable as it might be - there may be an edge case where multiple car-to-wall collisions occur in the same tick,
+                    // but this is unlikely.
+                    // if our speed has changed substantially in this tick, it's probably a severe collision - maybe wire up x/z velocity and check it properly but
+                    // this will do for now. Where our speed has increased as a result of the collision, we assume the player has been hit from behind so it's not
+                    // his fault - these collisions are ignored
+                    float speedChange = currentGameState.PositionAndMotionData.CarSpeed - previousGameState.PositionAndMotionData.CarSpeed;
+                    Console.WriteLine("car to car collision, speed change = " + speedChange);
+                    if (speedChange < carToCarCollisionSpeedChangeThreshold)
+                    {
+                        carToCarCollisionCount++;
+                        Console.WriteLine("we appear to have re-ended another car, collision count = " + carToCarCollisionCount);
+                        if (currentGameState.Now > nextCarToCarCollisionCallDue)
+                        {
+                            nextCarToCarCollisionCallDue = currentGameState.Now.AddSeconds(30);
+                            if (carToCarCollisionCount == tooManyCarToCarCollisionsThreshold)
+                            {
+                                // we've hit our 'stop crashing into people' threshold
+                                audioPlayer.playMessage(new QueuedMessage(folderTooManyCarToCarCollisions, 0, abstractEvent: this));
+                            }
+                            else
+                            {
+                                // we've not reached the threshold or have already grumbled about it
+                                audioPlayer.playMessage(new QueuedMessage(folderCarToCarCollision, 0, abstractEvent: this));
+                            }
+                        }
+                    }
+                }
+            }
             // Play warning messages:
             if (currentGameState.PenaltiesData.Warning != PenatiesData.WarningMessage.NONE)
             {
