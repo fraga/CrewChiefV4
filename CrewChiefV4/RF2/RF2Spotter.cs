@@ -4,11 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using CrewChiefV4.rFactor2.rFactor2Data;
 using System.Threading;
 using CrewChiefV4.Events;
 using CrewChiefV4.Audio;
 using CrewChiefV4.GameState;
+using rF2SharedMemory;
+using rF2SharedMemory.rFactor2Data;
 
 // When team moves to VS2015 or newer.
 //using static CrewChiefV4.rFactor2.rFactor2Constants;

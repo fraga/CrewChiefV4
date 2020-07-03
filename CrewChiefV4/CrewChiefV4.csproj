@@ -295,6 +295,9 @@
     <Compile Include="R3E\R3EPitMenuManager.cs" />
     <Compile Include="R3E\R3ERatings.cs" />
     <Compile Include="R3E\R3ESerializer.cs" />
+    <Compile Include="RF2\MappedBuffer.cs" />
+    <Compile Include="RF2\PitMenuController.cs" />
+    <Compile Include="RF2\rF2HWControl.cs" />
     <Compile Include="VROverlayWindow\CaptureScreen.cs" />
     <Compile Include="VROverlayWindow\CursorInteraction.cs" />
     <Compile Include="VROverlayWindow\DeviceManager.cs" />

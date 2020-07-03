@@ -48,7 +48,7 @@ namespace CrewChiefV4.PitManager
         TyreCompoundMedium,
         TyreCompoundSoft,
         TyreCompoundWet,
-        TyreCompoundPrimary,
+        TyreCompoundPrime,
         TyreCompoundAlternate,
         TyreCompoundNext,
 
@@ -99,7 +99,8 @@ namespace CrewChiefV4.PitManager
         // This gets very messy but you don't need to worry about it
         // It allows each game to set up a dictionary PM_event_dict containing
         // PitManagerEvent, actionHandler fn, responseHandler fn
-        // for all the events handled by the game
+        // for all the events handled by the game.
+        // There's probably a neater way of doing it but it's beyond my C# skills.
         public struct PitManagerEventTableEntry
         {
             public delegate bool PitManagerEventAction_Delegate();
@@ -121,6 +122,8 @@ namespace CrewChiefV4.PitManager
         ///////////////////////////////////////////////////////////////////////////
         /// <summary>
         /// The Event handler
+        /// The event may come from a voice command, a command macro or
+        /// internally (e.g."Fill to end" Property
         /// </summary>
         /// <param name="ev">PitManagerEvent</param>
         /// <returns>
@@ -131,8 +134,16 @@ namespace CrewChiefV4.PitManager
             bool result = false;
             GamePitManagerDict PM_event_dict;
             try
-            {
-                PM_event_dict = games_dict[CrewChief.gameDefinition.gameEnum];
+            {   // Use the event dict for the current game
+                if (games_dict.ContainsKey(CrewChief.gameDefinition.gameEnum))
+                {
+                    PM_event_dict = games_dict[CrewChief.gameDefinition.gameEnum];
+                }
+                else
+                {
+                    //TBD: default handler "Pit menu control is not available in this game"
+                    return result;
+                }
             }
             catch
             {   // Running in Unit test
@@ -149,17 +160,20 @@ namespace CrewChiefV4.PitManager
                 else
                 {
                     //TBD: default handler "Couldn't do event for this vehicle"
+                    // e.g. change aero on non-aero car, option not in menu
                 }
             }
             else
             {
                 //TBD: default handler "Not available in this game"
+                //Alternatively event dicts for all games have all events
+                //and the response handler does the warning.
             }
             return result;
         }
 
         //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        // More messy stuff
+        // More messy stuff to set up the dictionary
         static public PitManagerEventTableEntry _PM_event_tuple(PitManagerEventTableEntry existing,
               PitManagerEventTableEntry.PitManagerEventAction_Delegate actionHandler,
               PitManagerEventTableEntry.PitManagerEventResponse_Delegate responseHandler)
@@ -172,51 +186,6 @@ namespace CrewChiefV4.PitManager
         static public PitManagerEventTableEntry _PM_event_helper = new PitManagerEventTableEntry();
         //-------------------------------------------------------------------------
 
-        //tbd:override
-        protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
-        {
-            Boolean autoFuelToEnd = true;   // tbd: UserSettings.GetUserSettings().getBoolean("iracing_enable_auto_fuel_to_end_of_race");
-            float fuelCapacity = -1;
-            float currentFuel = -1;
-
-            fuelCapacity = currentGameState.FuelData.FuelCapacity;
-            currentFuel = currentGameState.FuelData.FuelLeft;
-            if (autoFuelToEnd)
-            {
-                if (previousGameState != null && !previousGameState.PitData.InPitlane && currentGameState.PitData.InPitlane
-                    && currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.SessionData.SessionRunningTime > 15
-                    && !previousGameState.PitData.IsInGarage && !currentGameState.PitData.JumpedToPits)
-                {
-                    Fuel fuelEvent = (Fuel)CrewChief.getEvent("Fuel");
-                    float litresNeeded = fuelEvent.getLitresToEndOfRace(true);
-
-                    if (litresNeeded == float.MaxValue)
-                    {
-                        //tbd: audioPlayer.playMessage(new QueuedMessage(AudioPlayer.folderNoData, 0));
-                    }
-                    else if (litresNeeded <= 0)
-                    {
-                        //tbd: audioPlayer.playMessage(new QueuedMessage(Fuel.folderPlentyOfFuel, 0));
-                    }
-                    else if (litresNeeded > 0)
-                    {
-                        int roundedLitresNeeded = (int)Math.Ceiling(litresNeeded);
-                        //tbd:  EventHandler(roundedLitresNeeded);
-                        // AddFuel(roundedLitresNeeded);
-                        Console.WriteLine("Auto refuel to the end of the race, adding " + roundedLitresNeeded + " liters of fuel");
-                        if (roundedLitresNeeded > fuelCapacity - currentFuel)
-                        {
-                            // if we have a known fuel capacity and this is less than the calculated amount of fuel we need, warn about it.
-                            //tbd: audioPlayer.playMessage(new QueuedMessage(Fuel.folderWillNeedToStopAgain, 0, secondsDelay: 4, abstractEvent: this));
-                        }
-                        else
-                        {
-                            //tbd: audioPlayer.playMessage(new QueuedMessage(AudioPlayer.folderFuelToEnd, 0));
-                        }
-                    }
-                }
-            }
-        }
 
         ///////////////////////////////////////////////////////////////////////////
         /// <summary>
@@ -224,6 +193,8 @@ namespace CrewChiefV4.PitManager
         /// </summary>
         static readonly GamePitManagerDict PM_event_dict_RF2 = new GamePitManagerDict
         {
+            //  The event                                               the fn that implements it  the fn that handles speech
+            //                                                          (changes the pit menu)     response and any other outcomes
             {PME.TyreChangeAll,     _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
             {PME.TyreChangeNone,    _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
             {PME.TyreChangeFront,   _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
@@ -244,13 +215,13 @@ namespace CrewChiefV4.PitManager
             {PME.TyreCompoundMedium, _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
             {PME.TyreCompoundSoft,  _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
             {PME.TyreCompoundWet,   _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.TyreCompoundPrimary, _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
+            {PME.TyreCompoundPrime, _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
             {PME.TyreCompoundAlternate, _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
             {PME.TyreCompoundNext,  _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
 
             {PME.FuelAddXlitres,    _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
             {PME.FuelFillToXlitres, _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.FuelFillToEnd,     _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
+            {PME.FuelFillToEnd,     _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_fuelToEnd) },
             {PME.FuelNone,          _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
 
             {PME.RepairAll,         _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },

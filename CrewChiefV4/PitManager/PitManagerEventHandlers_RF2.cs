@@ -44,7 +44,12 @@ namespace CrewChiefV4.PitManager
         /// </summary>
         static public bool responseHandler_example()
         {
-            //audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
+            CrewChief.audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
+            return true;
+        }
+        static public bool responseHandler_fuelToEnd()
+        {
+            CrewChief.audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderFuelToEnd, 0));
             return true;
         }
     }

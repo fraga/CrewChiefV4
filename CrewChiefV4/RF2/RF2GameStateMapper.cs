@@ -6,10 +6,11 @@ using System.Linq;
 using System.Text;
 using CrewChiefV4.GameState;
 using CrewChiefV4.Events;
-using CrewChiefV4.rFactor2.rFactor2Data;
 using System.Diagnostics;
-using static CrewChiefV4.rFactor2.rFactor2Constants;
 using System.Threading;
+using rF2SharedMemory;
+using static rF2SharedMemory.rFactor2Constants;
+using rF2SharedMemory.rFactor2Data;
 
 /**
  * Maps memory mapped file to a local game-agnostic representation.

@@ -591,7 +591,14 @@ namespace CrewChiefV4
                 string leadingNumber = numberStr[0].ToString();
                 string middleNumber = numberStr[1].ToString();
                 string finalNumber = numberStr[2].ToString();
-                string leadingNumberPhrase = Configuration.getSpeechRecognitionPhrases(leadingNumber)[0];   //"one" / "two" / etc
+                string leadingNumberPhrase = "";
+                try
+                {
+                    leadingNumberPhrase = Configuration.getSpeechRecognitionPhrases(leadingNumber)[0];   //"one" / "two" / etc
+                }
+                catch (TypeInitializationException e)
+                {
+                }
                 if (middleNumber == "0")
                 {
                     // need to add "one oh one", "five zero three", etc
@@ -1703,7 +1710,7 @@ namespace CrewChiefV4
                 {
                     SoundCache.InterruptCurrentlyPlayingSound(true);
                 }
-                crewChief.audioPlayer.playStartListeningBeep();
+                CrewChief.audioPlayer.playStartListeningBeep();
             }
             else
             {
@@ -1872,12 +1879,12 @@ namespace CrewChiefV4
                         else if (GrammarWrapperListContains(iracingPitstopGrammarList, recognitionGrammar))
                         {
                             this.lastRecognisedText = recognisedText;
-                            CrewChief.getEvent("IRacingBroadcastMessageEvent").respond(recognisedText);
+                            CrewChief.getEvent("PitManagerVoiceCmds").respond(recognisedText);
                         }
                         else if (GrammarWrapperListContains(r3ePitstopGrammarList, recognitionGrammar))
                         {
                             this.lastRecognisedText = recognisedText;
-                            R3EPitMenuManager.processVoiceCommand(recognisedText, this.crewChief.audioPlayer);
+                            R3EPitMenuManager.processVoiceCommand(recognisedText, CrewChief.audioPlayer);
                         }
                         else if (GrammarWrapperListContains(overlayGrammarList, recognitionGrammar))
                         {
@@ -1886,7 +1893,7 @@ namespace CrewChiefV4
                         }
                         else if (ResultContains(recognisedText, REPEAT_LAST_MESSAGE, false))
                         {
-                            crewChief.audioPlayer.repeatLastMessage();
+                            CrewChief.audioPlayer.repeatLastMessage();
                         }
                         else if (ResultContains(recognisedText, MORE_INFO, false) && this.lastRecognisedText != null && !use_verbose_responses)
                         {
@@ -2448,7 +2455,7 @@ namespace CrewChiefV4
                 ResultContains(recognisedSpeech, PIT_STOP_FUEL_TO_THE_END, false) ||
                 ResultContains(recognisedSpeech, WHATS_THE_SOF, false))
             {
-                return CrewChief.getEvent("IRacingBroadcastMessageEvent");
+                return CrewChief.getEvent("PitManagerVoiceCmds");
             }
             else if (alarmClockVoiceRecognitionEnabled &&
                 (ResultContains(recognisedSpeech, SET_ALARM_CLOCK, false) || ResultContains(recognisedSpeech, CLEAR_ALARM_CLOCK, false)))

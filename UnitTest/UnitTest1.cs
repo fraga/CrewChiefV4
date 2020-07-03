@@ -4,16 +4,36 @@ using CrewChiefV4;
 using CrewChiefV4.PitManager;
 using System.Resources;
 using System.Windows.Forms;
+using System.Globalization;
+using System.Threading;
 
 namespace UnitTest
 {
     [TestClass]
     public class TestPitManager
     {
+        private static MainWindow hwnd;
+        public CrewChief ccObj;
+        [ClassInitialize]
+        public static void TestFixtureSetup(TestContext context)
+        {
+            // Set Invariant Culture for all threads as default.
+            CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+            CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
+
+            // Set Invariant Culture for current thead.
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
+
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+
+            hwnd = new MainWindow();
+        }
         [TestMethod]
         public void CCobject()
         {
-            var hwnd = new MainWindow();
+            ; // Do nothing, just tests that CC MainWindow has been created
         }
 #if false
         [TestMethod]
@@ -43,8 +63,6 @@ namespace UnitTest
             bool result;
             var pmh = new PitManager();
 
-            var hwnd = new MainWindow();
-
 #if false // attempt to fake a whole CC
             var wh = new DummyForm();
             var controllerConfiguration = new ControllerConfiguration();
@@ -63,9 +81,7 @@ namespace UnitTest
             bool result;
             var pmh = new PitManager();
 
-            var hwnd = new MainWindow();
-
-            PitManagerVoiceCmds.respond("pitstop change all tyres");
+            //PitManagerVoiceCmds.respond("pitstop change all tyres");
 
         }
 

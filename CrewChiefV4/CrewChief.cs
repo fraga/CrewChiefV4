@@ -30,7 +30,7 @@ namespace CrewChiefV4
 
         // speechRecognizer and audioPlayer are shared by many threads.  They should be disposed after root threads stopped, in GlobalResources.Dispose.
         public SpeechRecogniser speechRecogniser;
-        public AudioPlayer audioPlayer;
+        public static AudioPlayer audioPlayer;
 
         readonly int timeBetweenProcConnectCheckMillis = 1000;
         readonly int timeBetweenProcDisconnectCheckMillis = 2000;
@@ -204,7 +204,7 @@ namespace CrewChiefV4
             eventsList.Add("CommonActions", new CommonActions(audioPlayer));
             eventsList.Add("OverlayController", new OverlayController(audioPlayer));
             eventsList.Add("VROverlayController", new VROverlayController(audioPlayer));
-            eventsList.Add("PitManagerEventHandlers_RF2", new PitManagerEventHandlers_RF2(audioPlayer));
+            eventsList.Add("PitManagerVoiceCmds", new PitManagerVoiceCmds(audioPlayer));
 
             sessionEndMessages = new SessionEndMessages(audioPlayer);
             alarmClock = new AlarmClock(audioPlayer);
