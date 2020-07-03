@@ -143,7 +143,6 @@ namespace CrewChiefV4
         }
 
         // use different thresholds for R3E car classes - there are a few different tyre models in the game with different heating characteristics:
-        // TODO: update this with the latest data
         public static CarClassEnum[] r3e2016TyreModelClasses = new CarClassEnum[] {
             CarClassEnum.LMP1, CarClassEnum.LMP2, CarClassEnum.GTO, CarClassEnum.F1, CarClassEnum.F2, CarClassEnum.F4,
             CarClassEnum.TC1, CarClassEnum.AUDI_TT_CUP, CarClassEnum.NSU_TT,

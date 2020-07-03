@@ -17,7 +17,6 @@ namespace CrewChiefV4.Events
     
     class WatchedOpponents : AbstractEvent
     {
-        // TODO: recordings
         public static String folderIsInPosition = "watched_opponents/is_in_position";  // for when we exit the pits
         public static String folderYourTeamMate = "watched_opponents/your_team_mate";
         public static String folderYourRival = "watched_opponents/your_rival";
@@ -401,7 +400,8 @@ namespace CrewChiefV4.Events
             float timeDelta = deltas.Item2;
             if (timeDelta == 0 || (lapDifference == 0 && Math.Abs(timeDelta) < 0.05))
             {
-                // the delta is not usable - TODO: what can we do here? Say "he's very close"?
+                // the delta is not usable
+                Console.WriteLine("Skipping watched opponent delta report as he's too close");
             }
             else
             {
