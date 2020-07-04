@@ -19,7 +19,8 @@ using CrewChiefV4.Events;
 namespace CrewChiefV4.PitManager
 {
     using PME = PitManagerEvent;  // shorthand
-    using PMEH = PitManagerEventHandlers_RF2;
+    using PMEHrF2 = PitManagerEventHandlers_RF2;
+    using PMER = PitManagerResponseHandlers;
 
     /// <summary>
     /// All the events that Pit Manager handles
@@ -48,6 +49,7 @@ namespace CrewChiefV4.PitManager
         TyreCompoundMedium,
         TyreCompoundSoft,
         TyreCompoundWet,
+        TyreCompoundOption,
         TyreCompoundPrime,
         TyreCompoundAlternate,
         TyreCompoundNext,
@@ -65,6 +67,7 @@ namespace CrewChiefV4.PitManager
         RepairRearAero,
         RepairSuspension,
         RepairSuspensionNone,
+        RepairBody,             // rF2
 
         PenaltyServe,
         PenaltyServeNone,
@@ -174,6 +177,7 @@ namespace CrewChiefV4.PitManager
 
         //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         // More messy stuff to set up the dictionary
+        // Again, there's probably a neater way of doing it but it's beyond my C# skills.
         static public PitManagerEventTableEntry _PM_event_tuple(PitManagerEventTableEntry existing,
               PitManagerEventTableEntry.PitManagerEventAction_Delegate actionHandler,
               PitManagerEventTableEntry.PitManagerEventResponse_Delegate responseHandler)
@@ -183,7 +187,7 @@ namespace CrewChiefV4.PitManager
             return existing;
         }
 
-        static public PitManagerEventTableEntry _PM_event_helper = new PitManagerEventTableEntry();
+        static private PitManagerEventTableEntry _PM_event_helper = new PitManagerEventTableEntry();
         //-------------------------------------------------------------------------
 
 
@@ -195,69 +199,71 @@ namespace CrewChiefV4.PitManager
         {
             //  The event                                               the fn that implements it  the fn that handles speech
             //                                                          (changes the pit menu)     response and any other outcomes
-            {PME.TyreChangeAll,     _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_changeAllTyres, PMEH.responseHandler_example) },
-            {PME.TyreChangeNone,    _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.TyreChangeFront,   _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.TyreChangeRear,    _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.TyreChangeLeft,    _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.TyreChangeRight,   _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.TyreChangeLF,      _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.TyreChangeRF,      _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.TyreChangeLR,      _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.TyreChangeRR,      _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
+            {PME.TyreChangeAll,     _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_changeAllTyres, PMER.responseHandler_example) },
+            {PME.TyreChangeNone,    _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            {PME.TyreChangeFront,   _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            {PME.TyreChangeRear,    _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            {PME.TyreChangeLeft,    _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            {PME.TyreChangeRight,   _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            {PME.TyreChangeLF,      _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            {PME.TyreChangeRF,      _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            {PME.TyreChangeLR,      _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            {PME.TyreChangeRR,      _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
 
-            {PME.TyrePressureLF,    _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.TyrePressureRF,    _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.TyrePressureLR,    _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.TyrePressureRR,    _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
+            {PME.TyrePressureLF,    _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            {PME.TyrePressureRF,    _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            {PME.TyrePressureLR,    _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            {PME.TyrePressureRR,    _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
 
-            {PME.TyreCompoundHard,  _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },    //tbd:
-            {PME.TyreCompoundMedium, _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.TyreCompoundSoft,  _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.TyreCompoundWet,   _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.TyreCompoundPrime, _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.TyreCompoundAlternate, _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.TyreCompoundNext,  _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
+            {PME.TyreCompoundHard,  _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_TyreCompoundHard, PMER.responseHandler_TyreCompoundHard) },
+            {PME.TyreCompoundMedium, _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_TyreCompoundMedium, PMER.responseHandler_TyreCompoundMedium) },
+            {PME.TyreCompoundSoft,  _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_TyreCompoundSoft, PMER.responseHandler_TyreCompoundSoft) },
+            {PME.TyreCompoundWet,   _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_TyreCompoundWet, PMER.responseHandler_TyreCompoundWet) },
+            {PME.TyreCompoundOption, _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_TyreCompoundOption, PMER.responseHandler_TyreCompoundOption) },
+            {PME.TyreCompoundPrime, _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_TyreCompoundPrime, PMER.responseHandler_TyreCompoundPrime) },
+            {PME.TyreCompoundAlternate, _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_TyreCompoundAlternate, PMER.responseHandler_TyreCompoundAlternate) },
+            {PME.TyreCompoundNext,  _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_TyreCompoundNext, PMER.responseHandler_TyreCompoundNext) },
 
-            {PME.FuelAddXlitres,    _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.FuelFillToXlitres, _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.FuelFillToEnd,     _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_fuelToEnd) },
-            {PME.FuelNone,          _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
+            {PME.FuelAddXlitres,    _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            {PME.FuelFillToXlitres, _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            {PME.FuelFillToEnd,     _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_fuelToEnd) },
+            {PME.FuelNone,          _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
 
-            {PME.RepairAll,         _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.RepairNone,        _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            //{PME.RepairFast,        _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },        // iRacing
-            //{PME.RepairAllAero,     _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },        // R3E
-            //{PME.RepairFrontAero,   _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            //{PME.RepairRearAero,    _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            //{PME.RepairSuspension,  _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            //{PME.RepairSuspensionNone, _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
+            {PME.RepairAll,         _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            {PME.RepairNone,        _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            //{PME.RepairFast,        _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },        // iRacing
+            //{PME.RepairAllAero,     _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },        // R3E
+            //{PME.RepairFrontAero,   _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            //{PME.RepairRearAero,    _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            //{PME.RepairSuspension,  _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            //{PME.RepairSuspensionNone, _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            {PME.RepairBody,        _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
 
-            {PME.PenaltyServe,      _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.PenaltyServeNone,  _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
+            {PME.PenaltyServe,      _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            {PME.PenaltyServeNone,  _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
 
-            {PME.AeroFrontPlusMinusX, _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.AeroRearPlusMinusX, _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.AeroFrontSetToX,   _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.AeroRearSetToX,    _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
+            {PME.AeroFrontPlusMinusX, _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            {PME.AeroRearPlusMinusX, _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            {PME.AeroFrontSetToX,   _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            {PME.AeroRearSetToX,    _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
 
-            {PME.GrillePlusMinusX,  _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },    // rF2
-            {PME.GrilleSetToX,      _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.WedgePlusMinusX,   _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.WedgeSetToX,       _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.TrackBarPlusMinusX, _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.TrackBarSetToX,    _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.RubberLF,          _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.RubberRF,          _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.RubberLR,          _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.RubberRR,          _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.FenderL,           _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.FenderR,           _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.FlipUpL,           _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
-            {PME.FlipUpR,           _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
+            {PME.GrillePlusMinusX,  _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },    // rF2
+            {PME.GrilleSetToX,      _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            {PME.WedgePlusMinusX,   _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            {PME.WedgeSetToX,       _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            {PME.TrackBarPlusMinusX, _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            {PME.TrackBarSetToX,    _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            {PME.RubberLF,          _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            {PME.RubberRF,          _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            {PME.RubberLR,          _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            {PME.RubberRR,          _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            {PME.FenderL,           _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            {PME.FenderR,           _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            {PME.FlipUpL,           _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            {PME.FlipUpR,           _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
 
-            //{PME.Tearoff,           _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },    // iRacing
-            //{PME.TearOffNone,       _PM_event_tuple(_PM_event_helper, PMEH.actionHandler_example, PMEH.responseHandler_example) },
+            //{PME.Tearoff,           _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },    // iRacing
+            //{PME.TearOffNone,       _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
         };
 
         ///////////////////////////////////////////////////////////////////////////

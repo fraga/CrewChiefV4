@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 namespace CrewChiefV4.PitManager
 {
     using PME = PitManagerEvent;  // shorthand
+    using SRE = SpeechRecogniser;
 
     public class PitManagerVoiceCmds : AbstractEvent
     {
@@ -21,69 +22,71 @@ namespace CrewChiefV4.PitManager
         private static readonly Dictionary<PitManagerEvent, String[]> voiceCmds =
             new Dictionary<PitManagerEvent, String[]>
         {
-            {PME.TyreChangeAll,     SpeechRecogniser.PIT_STOP_CHANGE_ALL_TYRES },
-            {PME.TyreChangeNone,    SpeechRecogniser.PIT_STOP_CLEAR_TYRES },
-            {PME.TyreChangeFront,   SpeechRecogniser.PIT_STOP_CHANGE_FRONT_TYRES },
-            {PME.TyreChangeRear,    SpeechRecogniser.PIT_STOP_CHANGE_REAR_TYRES },
-            {PME.TyreChangeLeft,    SpeechRecogniser.PIT_STOP_CHANGE_LEFT_SIDE_TYRES },
-            {PME.TyreChangeRight,   SpeechRecogniser.PIT_STOP_CHANGE_RIGHT_SIDE_TYRES},
-            {PME.TyreChangeLF,      SpeechRecogniser.PIT_STOP_CHANGE_FRONT_LEFT_TYRE },
-            {PME.TyreChangeRF,      SpeechRecogniser.PIT_STOP_CHANGE_FRONT_RIGHT_TYRE },
-            {PME.TyreChangeLR,      SpeechRecogniser.PIT_STOP_CHANGE_REAR_LEFT_TYRE },
-            {PME.TyreChangeRR,      SpeechRecogniser.PIT_STOP_CHANGE_REAR_RIGHT_TYRE },
+            {PME.TyreChangeAll,     SRE.PIT_STOP_CHANGE_ALL_TYRES },
+            {PME.TyreChangeNone,    SRE.PIT_STOP_CLEAR_TYRES },
+            {PME.TyreChangeFront,   SRE.PIT_STOP_CHANGE_FRONT_TYRES },
+            {PME.TyreChangeRear,    SRE.PIT_STOP_CHANGE_REAR_TYRES },
+            {PME.TyreChangeLeft,    SRE.PIT_STOP_CHANGE_LEFT_SIDE_TYRES },
+            {PME.TyreChangeRight,   SRE.PIT_STOP_CHANGE_RIGHT_SIDE_TYRES},
+            {PME.TyreChangeLF,      SRE.PIT_STOP_CHANGE_FRONT_LEFT_TYRE },
+            {PME.TyreChangeRF,      SRE.PIT_STOP_CHANGE_FRONT_RIGHT_TYRE },
+            {PME.TyreChangeLR,      SRE.PIT_STOP_CHANGE_REAR_LEFT_TYRE },
+            {PME.TyreChangeRR,      SRE.PIT_STOP_CHANGE_REAR_RIGHT_TYRE },
 
-            {PME.TyrePressureLF,    SpeechRecogniser.PIT_STOP_CHANGE_FRONT_LEFT_TYRE_PRESSURE },
-            {PME.TyrePressureRF,    SpeechRecogniser.PIT_STOP_CHANGE_FRONT_RIGHT_TYRE_PRESSURE },
-            {PME.TyrePressureLR,    SpeechRecogniser.PIT_STOP_CHANGE_REAR_LEFT_TYRE_PRESSURE },
-            {PME.TyrePressureRR,    SpeechRecogniser.PIT_STOP_CHANGE_REAR_RIGHT_TYRE_PRESSURE },
+            {PME.TyrePressureLF,    SRE.PIT_STOP_CHANGE_FRONT_LEFT_TYRE_PRESSURE },
+            {PME.TyrePressureRF,    SRE.PIT_STOP_CHANGE_FRONT_RIGHT_TYRE_PRESSURE },
+            {PME.TyrePressureLR,    SRE.PIT_STOP_CHANGE_REAR_LEFT_TYRE_PRESSURE },
+            {PME.TyrePressureRR,    SRE.PIT_STOP_CHANGE_REAR_RIGHT_TYRE_PRESSURE },
 
-            {PME.TyreCompoundHard,  SpeechRecogniser.PIT_STOP_HARD_TYRES },
-            {PME.TyreCompoundMedium, SpeechRecogniser.PIT_STOP_MEDIUM_TYRES },
-            {PME.TyreCompoundSoft,  SpeechRecogniser.PIT_STOP_SOFT_TYRES },
-            //{PME.TyreCompoundWet,   SpeechRecogniser.PIT_STOP },        // tbd:
-            {PME.TyreCompoundPrime, SpeechRecogniser.PIT_STOP_PRIME_TYRES },
-            {PME.TyreCompoundAlternate, SpeechRecogniser.PIT_STOP_ALTERNATE_TYRES },
-            {PME.TyreCompoundNext,  SpeechRecogniser.PIT_STOP_NEXT_TYRE_COMPOUND },
+            {PME.TyreCompoundHard,  SRE.PIT_STOP_HARD_TYRES },
+            {PME.TyreCompoundMedium, SRE.PIT_STOP_MEDIUM_TYRES },
+            {PME.TyreCompoundSoft,  SRE.PIT_STOP_SOFT_TYRES },
+            {PME.TyreCompoundWet,   SRE.PIT_STOP },        // tbd:
+            {PME.TyreCompoundOption, SRE.PIT_STOP_OPTION_TYRES },
+            {PME.TyreCompoundPrime, SRE.PIT_STOP_PRIME_TYRES },
+            {PME.TyreCompoundAlternate, SRE.PIT_STOP_ALTERNATE_TYRES },
+            {PME.TyreCompoundNext,  SRE.PIT_STOP_NEXT_TYRE_COMPOUND },
 
-            {PME.FuelAddXlitres,    SpeechRecogniser.PIT_STOP_ADD },
-            //{PME.FuelFillToXlitres, SpeechRecogniser.PIT_STOP },
-            {PME.FuelFillToEnd,     SpeechRecogniser.PIT_STOP_FUEL_TO_THE_END },
-            {PME.FuelNone,          SpeechRecogniser.PIT_STOP_DONT_REFUEL },
+            {PME.FuelAddXlitres,    SRE.PIT_STOP_ADD },
+            //{PME.FuelFillToXlitres, SRE.PIT_STOP },
+            {PME.FuelFillToEnd,     SRE.PIT_STOP_FUEL_TO_THE_END },
+            {PME.FuelNone,          SRE.PIT_STOP_DONT_REFUEL },
 
-            {PME.RepairAll,         SpeechRecogniser.PIT_STOP },
-            {PME.RepairNone,        SpeechRecogniser.PIT_STOP },
-            {PME.RepairFast,        SpeechRecogniser.PIT_STOP },        // iRacing
-            {PME.RepairAllAero,     SpeechRecogniser.PIT_STOP },        // R3E
-            {PME.RepairFrontAero,   SpeechRecogniser.PIT_STOP },
-            {PME.RepairRearAero,    SpeechRecogniser.PIT_STOP },
-            {PME.RepairSuspension,  SpeechRecogniser.PIT_STOP },
-            {PME.RepairSuspensionNone, SpeechRecogniser.PIT_STOP },
+            {PME.RepairAll,         SRE.PIT_STOP },
+            {PME.RepairNone,        SRE.PIT_STOP },
+            {PME.RepairFast,        SRE.PIT_STOP },        // iRacing
+            {PME.RepairAllAero,     SRE.PIT_STOP },        // R3E
+            {PME.RepairFrontAero,   SRE.PIT_STOP },
+            {PME.RepairRearAero,    SRE.PIT_STOP },
+            {PME.RepairSuspension,  SRE.PIT_STOP },
+            {PME.RepairSuspensionNone, SRE.PIT_STOP },
+            {PME.RepairBody,        SRE.PIT_STOP },         // tbd: rF2
 
-            {PME.PenaltyServe,      SpeechRecogniser.PIT_STOP },
-            {PME.PenaltyServeNone,  SpeechRecogniser.PIT_STOP },
+            {PME.PenaltyServe,      SRE.PIT_STOP },
+            {PME.PenaltyServeNone,  SRE.PIT_STOP },
 
-            {PME.AeroFrontPlusMinusX, SpeechRecogniser.PIT_STOP },
-            {PME.AeroRearPlusMinusX, SpeechRecogniser.PIT_STOP },
-            {PME.AeroFrontSetToX,   SpeechRecogniser.PIT_STOP },
-            {PME.AeroRearSetToX,    SpeechRecogniser.PIT_STOP },
+            {PME.AeroFrontPlusMinusX, SRE.PIT_STOP },
+            {PME.AeroRearPlusMinusX, SRE.PIT_STOP },
+            {PME.AeroFrontSetToX,   SRE.PIT_STOP },
+            {PME.AeroRearSetToX,    SRE.PIT_STOP },
 
-            {PME.GrillePlusMinusX,  SpeechRecogniser.PIT_STOP },        // tbd: rF2
-            {PME.GrilleSetToX,      SpeechRecogniser.PIT_STOP },
-            {PME.WedgePlusMinusX,   SpeechRecogniser.PIT_STOP },
-            {PME.WedgeSetToX,       SpeechRecogniser.PIT_STOP },
-            {PME.TrackBarPlusMinusX, SpeechRecogniser.PIT_STOP },
-            {PME.TrackBarSetToX,    SpeechRecogniser.PIT_STOP },
-            {PME.RubberLF,          SpeechRecogniser.PIT_STOP },
-            {PME.RubberRF,          SpeechRecogniser.PIT_STOP },
-            {PME.RubberLR,          SpeechRecogniser.PIT_STOP },
-            {PME.RubberRR,          SpeechRecogniser.PIT_STOP },
-            {PME.FenderL,           SpeechRecogniser.PIT_STOP },
-            {PME.FenderR,           SpeechRecogniser.PIT_STOP },
-            {PME.FlipUpL,           SpeechRecogniser.PIT_STOP },
-            {PME.FlipUpR,           SpeechRecogniser.PIT_STOP },
+            {PME.GrillePlusMinusX,  SRE.PIT_STOP },        // tbd: rF2
+            {PME.GrilleSetToX,      SRE.PIT_STOP },
+            {PME.WedgePlusMinusX,   SRE.PIT_STOP },
+            {PME.WedgeSetToX,       SRE.PIT_STOP },
+            {PME.TrackBarPlusMinusX, SRE.PIT_STOP },
+            {PME.TrackBarSetToX,    SRE.PIT_STOP },
+            {PME.RubberLF,          SRE.PIT_STOP },
+            {PME.RubberRF,          SRE.PIT_STOP },
+            {PME.RubberLR,          SRE.PIT_STOP },
+            {PME.RubberRR,          SRE.PIT_STOP },
+            {PME.FenderL,           SRE.PIT_STOP },
+            {PME.FenderR,           SRE.PIT_STOP },
+            {PME.FlipUpL,           SRE.PIT_STOP },
+            {PME.FlipUpR,           SRE.PIT_STOP },
 
-            {PME.Tearoff,           SpeechRecogniser.PIT_STOP_TEAROFF },    // iRacing
-            {PME.TearOffNone,       SpeechRecogniser.PIT_STOP_CLEAR_WIND_SCREEN },
+            {PME.Tearoff,           SRE.PIT_STOP_TEAROFF },    // iRacing
+            {PME.TearOffNone,       SRE.PIT_STOP_CLEAR_WIND_SCREEN },
             };
         public PitManagerVoiceCmds(AudioPlayer audioPlayer)
         {
@@ -100,7 +103,7 @@ namespace CrewChiefV4.PitManager
         {
             foreach (var cmd in voiceCmds)
             {
-                if (SpeechRecogniser.ResultContains(voiceMessage, cmd.Value))
+                if (SRE.ResultContains(voiceMessage, cmd.Value))
                 {
                     pmh.EventHandler(cmd.Key);
                     break;
