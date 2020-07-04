@@ -224,7 +224,7 @@ namespace CrewChiefV4.PitManager
             {PME.TyreCompoundAlternate, _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_TyreCompoundAlternate, PMER.responseHandler_TyreCompoundAlternate) },
             {PME.TyreCompoundNext,  _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_TyreCompoundNext, PMER.responseHandler_TyreCompoundNext) },
 
-            {PME.FuelAddXlitres,    _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            //{PME.FuelAddXlitres,    _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_FuelAddXlitres, PMER.responseHandler_FuelAddXlitres) },
             {PME.FuelFillToXlitres, _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
             {PME.FuelFillToEnd,     _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_fuelToEnd) },
             {PME.FuelNone,          _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },

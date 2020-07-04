@@ -2,11 +2,11 @@
 
 # This file contains default options and mappings for the speech recogniser, ***** and will be overwritten when the app is updated *****.
 #
-# The mappings in here can be overridden by creating another file called "speech_recognition_config.txt" and placing this in 
+# The mappings in here can be overridden by creating another file called "speech_recognition_config.txt" and placing this in
 # [user]/AppData/local/CrewChiefV4/
 #
-# Any mappings in that file will replace the corresponding default here - note that they won't be added, they're be replaced. 
-# So if you create this file with a single line: 
+# Any mappings in that file will replace the corresponding default here - note that they won't be added, they're be replaced.
+# So if you create this file with a single line:
 # HOWS_MY_TYRE_WEAR = tire wear
 # the existing mappings for HOWS_MY_TYRE_WEAR will be removed, so the app will only recognise this new phrase.
 # You only need to add mappings when you want to override the default - the app will gather up the defaults first,
@@ -14,17 +14,17 @@
 
 
 # These phrases are all in English so can be loaded by any of the English speech recognition language packs. If this
-# file is translated to a different language, this setting must match the ISO language code of the phrases in this file - 
+# file is translated to a different language, this setting must match the ISO language code of the phrases in this file -
 # e.g. 'en' for English, 'fr' for French, 'de' for German, etc. It *may* be possible to set a language code that doesn't
 # match the language of the phrases in this file but this doesn't usually work
 language = en
 
 # the original name of this property was defaultLocale. It's still here just for backwards compatibility
-defaultLocale = 
+defaultLocale =
 
 ######################################################
 # Static recognition phrases - these are recognised 'as-is' with no combining of phrases or sentences.
-# Each option is separated by a colon, so if you want the app to tell you the air temp, you can ask 
+# Each option is separated by a colon, so if you want the app to tell you the air temp, you can ask
 # any number of ways by creating a colon separated list for this request- e.g.
 # WHATS_THE_AIR_TEMP = ow 'ot is it:is it cowd:nice out:tell me the air temp or else
 #
@@ -280,7 +280,7 @@ ON = on
 # 's added to a name or number to indicate possession - "what is bob's best lap", "what's position 12's last lap"
 POSSESSIVE = 's
 
-# used for fuel calculations 
+# used for fuel calculations
 LAP = lap
 LAPS = laps
 MINUTE = minute
@@ -336,6 +336,10 @@ PIT_STOP_PRIME_TYRES = pitstop prime tyres:box, prime tyres:pitstop primary tyre
 PIT_STOP_OPTION_TYRES = pitstop option tyres:box, option tyres
 PIT_STOP_ALTERNATE_TYRES = pitstop alternate tyres:box, alternate tyres
 
+// rF2-specific pit commands
+PIT_STOP_FIX_BODY = pitstop fix body:box, fix body
+PIT_STOP_WET_TYRES = pitstop wet tyres:box, wet tyres
+
 LITERS = liters
 GALLONS = gallons
 
@@ -346,7 +350,7 @@ WHATS_THE_SOF = what's the sof:what is the strength of field
 
 #################################################
 # Overlay controls common to all datasets.
-# 
+#
 #################################################
 HIDE_OVERLAY = hide overlay:close overlay
 HIDE_CONSOLE = hide console:close console

@@ -17,6 +17,8 @@ namespace CrewChiefV4.PitManager
         private float fuelCapacity = -1;
         private float currentFuel = -1;
         private int roundedLitresNeeded = -1;
+        private const float litresPerGallon = 3.78541f;
+        private int amount = 0;
 
         private static readonly PitManager pmh = new PitManager();
         private static readonly Dictionary<PitManagerEvent, String[]> voiceCmds =
@@ -41,7 +43,7 @@ namespace CrewChiefV4.PitManager
             {PME.TyreCompoundHard,  SRE.PIT_STOP_HARD_TYRES },
             {PME.TyreCompoundMedium, SRE.PIT_STOP_MEDIUM_TYRES },
             {PME.TyreCompoundSoft,  SRE.PIT_STOP_SOFT_TYRES },
-            {PME.TyreCompoundWet,   SRE.PIT_STOP },        // tbd:
+            {PME.TyreCompoundWet,   SRE.PIT_STOP_WET_TYRES },        // tbd:
             {PME.TyreCompoundOption, SRE.PIT_STOP_OPTION_TYRES },
             {PME.TyreCompoundPrime, SRE.PIT_STOP_PRIME_TYRES },
             {PME.TyreCompoundAlternate, SRE.PIT_STOP_ALTERNATE_TYRES },
@@ -52,38 +54,38 @@ namespace CrewChiefV4.PitManager
             {PME.FuelFillToEnd,     SRE.PIT_STOP_FUEL_TO_THE_END },
             {PME.FuelNone,          SRE.PIT_STOP_DONT_REFUEL },
 
-            {PME.RepairAll,         SRE.PIT_STOP },
-            {PME.RepairNone,        SRE.PIT_STOP },
-            {PME.RepairFast,        SRE.PIT_STOP },        // iRacing
-            {PME.RepairAllAero,     SRE.PIT_STOP },        // R3E
-            {PME.RepairFrontAero,   SRE.PIT_STOP },
-            {PME.RepairRearAero,    SRE.PIT_STOP },
-            {PME.RepairSuspension,  SRE.PIT_STOP },
-            {PME.RepairSuspensionNone, SRE.PIT_STOP },
-            {PME.RepairBody,        SRE.PIT_STOP },         // tbd: rF2
+            // tbd {PME.RepairAll,         SRE.PIT_STOP },
+            {PME.RepairNone,        SRE.PIT_STOP_CLEAR_ALL },
+            {PME.RepairFast,        SRE.PIT_STOP_FAST_REPAIR },        // iRacing
+            {PME.RepairAllAero,     SRE.PIT_STOP_FIX_ALL_AERO },        // R3E
+            {PME.RepairFrontAero,   SRE.PIT_STOP_FIX_FRONT_AERO },
+            {PME.RepairRearAero,    SRE.PIT_STOP_FIX_REAR_AERO },
+            {PME.RepairSuspension,  SRE.PIT_STOP_FIX_SUSPENSION },
+            {PME.RepairSuspensionNone, SRE.PIT_STOP_DONT_FIX_SUSPENSION },
+            {PME.RepairBody,        SRE.PIT_STOP_FIX_BODY },         // rF2
 
-            {PME.PenaltyServe,      SRE.PIT_STOP },
-            {PME.PenaltyServeNone,  SRE.PIT_STOP },
+            {PME.PenaltyServe,      SRE.PIT_STOP_SERVE_PENALTY },
+            {PME.PenaltyServeNone,  SRE.PIT_STOP_DONT_SERVE_PENALTY },
 
-            {PME.AeroFrontPlusMinusX, SRE.PIT_STOP },
-            {PME.AeroRearPlusMinusX, SRE.PIT_STOP },
-            {PME.AeroFrontSetToX,   SRE.PIT_STOP },
-            {PME.AeroRearSetToX,    SRE.PIT_STOP },
+            // tbd {PME.AeroFrontPlusMinusX, SRE.PIT_STOP },
+            // tbd {PME.AeroRearPlusMinusX, SRE.PIT_STOP },
+            // tbd {PME.AeroFrontSetToX,   SRE.PIT_STOP },
+            // tbd {PME.AeroRearSetToX,    SRE.PIT_STOP },
 
-            {PME.GrillePlusMinusX,  SRE.PIT_STOP },        // tbd: rF2
-            {PME.GrilleSetToX,      SRE.PIT_STOP },
-            {PME.WedgePlusMinusX,   SRE.PIT_STOP },
-            {PME.WedgeSetToX,       SRE.PIT_STOP },
-            {PME.TrackBarPlusMinusX, SRE.PIT_STOP },
-            {PME.TrackBarSetToX,    SRE.PIT_STOP },
-            {PME.RubberLF,          SRE.PIT_STOP },
-            {PME.RubberRF,          SRE.PIT_STOP },
-            {PME.RubberLR,          SRE.PIT_STOP },
-            {PME.RubberRR,          SRE.PIT_STOP },
-            {PME.FenderL,           SRE.PIT_STOP },
-            {PME.FenderR,           SRE.PIT_STOP },
-            {PME.FlipUpL,           SRE.PIT_STOP },
-            {PME.FlipUpR,           SRE.PIT_STOP },
+            // tbd {PME.GrillePlusMinusX,  SRE.PIT_STOP },        // tbd: rF2
+            // tbd {PME.GrilleSetToX,      SRE.PIT_STOP },
+            // tbd {PME.WedgePlusMinusX,   SRE.PIT_STOP },
+            // tbd {PME.WedgeSetToX,       SRE.PIT_STOP },
+            // tbd {PME.TrackBarPlusMinusX, SRE.PIT_STOP },
+            // tbd {PME.TrackBarSetToX,    SRE.PIT_STOP },
+            // tbd {PME.RubberLF,          SRE.PIT_STOP },
+            // tbd {PME.RubberRF,          SRE.PIT_STOP },
+            // tbd {PME.RubberLR,          SRE.PIT_STOP },
+            // tbd {PME.RubberRR,          SRE.PIT_STOP },
+            // tbd {PME.FenderL,           SRE.PIT_STOP },
+            // tbd {PME.FenderR,           SRE.PIT_STOP },
+            // tbd {PME.FlipUpL,           SRE.PIT_STOP },
+            // tbd {PME.FlipUpR,           SRE.PIT_STOP },
 
             {PME.Tearoff,           SRE.PIT_STOP_TEAROFF },    // iRacing
             {PME.TearOffNone,       SRE.PIT_STOP_CLEAR_WIND_SCREEN },
@@ -99,21 +101,84 @@ namespace CrewChiefV4.PitManager
             get { return new List<SessionPhase> { SessionPhase.Garage, SessionPhase.Green, SessionPhase.Countdown, SessionPhase.FullCourseYellow }; }
         }
 
+        static private bool AddFuel(int amount)
+        {
+            // tbd  How to connect this with the game's pit stop event handler class?
+            return false; // Couldn't do it?
+        }
+
         public override void respond(String voiceMessage)
         {
-            foreach (var cmd in voiceCmds)
+            amount = 0;
+            // Check for "Add X... first
+            if (SRE.ResultContains(voiceMessage, SRE.PIT_STOP_ADD))
             {
-                if (SRE.ResultContains(voiceMessage, cmd.Value))
+                foreach (KeyValuePair<String[], int> entry in SpeechRecogniser.numberToNumber)
                 {
-                    pmh.EventHandler(cmd.Key);
-                    break;
+                    foreach (String numberStr in entry.Key)
+                    {
+                        if (voiceMessage.Contains(" " + numberStr + " "))
+                        {
+                            amount = entry.Value;
+                            if (CrewChief.Debugging)
+                                Console.WriteLine("Pit stop add " + amount.ToString());
+                            break;
+                        }
+                    }
                 }
-
+                if (amount == 0)
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderDidntUnderstand, 0));
+                    return;
+                }
+                if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.LITERS))
+                {
+                    AddFuel(amount);
+                    audioPlayer.playMessageImmediately(new QueuedMessage("iracing_add_fuel", 0,
+                        messageFragments: MessageContents(AudioPlayer.folderAcknowlegeOK, amount, amount == 1 ? Fuel.folderLitre : Fuel.folderLitres)));
+                }
+                else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.GALLONS))
+                {
+                    AddFuel(convertGallonsToLitres(amount));
+                    audioPlayer.playMessageImmediately(new QueuedMessage("iracing_add_fuel", 0,
+                        messageFragments: MessageContents(AudioPlayer.folderAcknowlegeOK, amount, amount == 1 ? Fuel.folderGallon : Fuel.folderGallons)));
+                }
+                else
+                {
+                    Fuel fuelEvent = (Fuel)CrewChief.getEvent("Fuel");
+                    Console.WriteLine("Got fuel request with no unit, assuming " + (fuelEvent.fuelReportsInGallon ? " gallons" : "litres"));
+                    if (!fuelEvent.fuelReportsInGallon)
+                    {
+                        AddFuel(amount);
+                        audioPlayer.playMessageImmediately(new QueuedMessage("iracing_add_fuel", 0,
+                            messageFragments: MessageContents(AudioPlayer.folderAcknowlegeOK, amount, amount == 1 ? Fuel.folderLitre : Fuel.folderLitres)));
+                    }
+                    else
+                    {
+                        AddFuel(convertGallonsToLitres(amount));
+                        audioPlayer.playMessageImmediately(new QueuedMessage("iracing_add_fuel", 0,
+                            messageFragments: MessageContents(AudioPlayer.folderAcknowlegeOK, amount, amount == 1 ? Fuel.folderGallon : Fuel.folderGallons)));
+                    }
+                }
+            }
+            else
+            {
+                // Check the Pit commands
+                foreach (var cmd in voiceCmds)
+                {
+                    if (SRE.ResultContains(voiceMessage, cmd.Value))
+                    {
+                        if (CrewChief.Debugging)
+                            Console.WriteLine(cmd.Value);
+                        pmh.EventHandler(cmd.Key);
+                        break;
+                    }
+                }
             }
         }
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
-            Boolean autoFuelToEnd = true;   // tbd: UserSettings.GetUserSettings().getBoolean("iracing_enable_auto_fuel_to_end_of_race");
+            Boolean autoFuelToEnd = UserSettings.GetUserSettings().getBoolean("iracing_enable_auto_fuel_to_end_of_race");
 
             fuelCapacity = currentGameState.FuelData.FuelCapacity;
             currentFuel = currentGameState.FuelData.FuelLeft;
@@ -137,9 +202,8 @@ namespace CrewChiefV4.PitManager
                     else if (litresNeeded > 0)
                     {
                         roundedLitresNeeded = (int)Math.Ceiling(litresNeeded);
-                        //tbd:  EventHandler(roundedLitresNeeded);
-                        // AddFuel(roundedLitresNeeded);
-                        Console.WriteLine("Auto refuel to the end of the race, adding " + roundedLitresNeeded + " liters of fuel");
+                        AddFuel(roundedLitresNeeded);
+                        Console.WriteLine("Auto refuel to the end of the race, adding " + roundedLitresNeeded + " litres of fuel");
                         if (roundedLitresNeeded > fuelCapacity - currentFuel)
                         {
                             // if we have a known fuel capacity and this is less than the calculated amount of fuel we need, warn about it.
@@ -163,6 +227,11 @@ namespace CrewChiefV4.PitManager
         {
             audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
             return true;
+        }
+
+        private int convertGallonsToLitres(int gallons)
+        {
+            return (int)Math.Ceiling(gallons * litresPerGallon);
         }
     }
 }

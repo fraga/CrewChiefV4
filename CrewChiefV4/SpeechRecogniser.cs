@@ -249,6 +249,7 @@ namespace CrewChiefV4
         public static String[] PIT_STOP_FIX_NO_AERO = Configuration.getSpeechRecognitionPhrases("PIT_STOP_FIX_NO_AERO");
         public static String[] PIT_STOP_FIX_SUSPENSION = Configuration.getSpeechRecognitionPhrases("PIT_STOP_FIX_SUSPENSION");
         public static String[] PIT_STOP_DONT_FIX_SUSPENSION = Configuration.getSpeechRecognitionPhrases("PIT_STOP_DONT_FIX_SUSPENSION");
+        public static String[] PIT_STOP_FIX_BODY = Configuration.getSpeechRecognitionPhrases("PIT_STOP_FIX_BODY");  // rF2
         public static String[] PIT_STOP_SERVE_PENALTY = Configuration.getSpeechRecognitionPhrases("PIT_STOP_SERVE_PENALTY");
         public static String[] PIT_STOP_DONT_SERVE_PENALTY = Configuration.getSpeechRecognitionPhrases("PIT_STOP_DONT_SERVE_PENALTY");
         public static String[] PIT_STOP_REFUEL = Configuration.getSpeechRecognitionPhrases("PIT_STOP_REFUEL");
@@ -257,6 +258,7 @@ namespace CrewChiefV4
         public static String[] PIT_STOP_SOFT_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_SOFT_TYRES");
         public static String[] PIT_STOP_MEDIUM_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_MEDIUM_TYRES");
         public static String[] PIT_STOP_HARD_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_HARD_TYRES");
+        public static String[] PIT_STOP_WET_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_WET_TYRES");
         public static String[] PIT_STOP_OPTION_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_OPTION_TYRES");
         public static String[] PIT_STOP_PRIME_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_PRIME_TYRES");
         public static String[] PIT_STOP_ALTERNATE_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_ALTERNATE_TYRES");
@@ -392,7 +394,7 @@ namespace CrewChiefV4
 
         private EventWaitHandle triggerTimeoutWaitHandle = new EventWaitHandle(false, EventResetMode.ManualReset);
         private Thread restartWaitTimeoutThreadReference = null;
-        
+
         // experimental free-dictation grammar for chat messages
         private Boolean useFreeDictationForChatMessages = UserSettings.GetUserSettings().getBoolean("use_free_dictation_for_chat");
         private static string startChatMacroName = "start chat message";
@@ -459,7 +461,7 @@ namespace CrewChiefV4
                 foreach (var dev in devices)
                 {
                     NAudio.Wave.WaveInCapabilities capabilities = NAudio.Wave.WaveIn.GetCapabilities(dev.WaveDeviceId);
-                    // Update legacy audio device "GUID" to MMdevice guid which does does contain a unique GUID 
+                    // Update legacy audio device "GUID" to MMdevice guid which does does contain a unique GUID
                     if (speechRecognitionDeviceGuid.Contains(capabilities.ProductName))
                     {
                         UserSettings.GetUserSettings().setProperty("NAUDIO_RECORDING_DEVICE_GUID", dev.EndpointGuid);
@@ -917,7 +919,7 @@ namespace CrewChiefV4
                 return;
             }
 
-            //this is not likely to throw but we try to catch it anyways. 
+            //this is not likely to throw but we try to catch it anyways.
             try
             {
                 if (!initWithLocale())
@@ -1085,7 +1087,7 @@ namespace CrewChiefV4
                 validateAndAdd(WHATS_MY_RATING, staticSpeechChoices);
                 validateAndAdd(WHATS_MY_RANK, staticSpeechChoices);
                 validateAndAdd(WHATS_MY_REPUTATION, staticSpeechChoices);
-                
+
                 if (UserSettings.GetUserSettings().getBoolean("enable_overlay_window"))
                 {
                     validateAndAdd(HIDE_OVERLAY, staticSpeechChoices);
@@ -1168,7 +1170,7 @@ namespace CrewChiefV4
                     foreach (KeyValuePair<String[], int> entry in minuteMappings)
                     {
                         foreach (String numberStr in entry.Key)
-                        {                            
+                        {
                             foreach (String ams in AM)
                             {
                                 minuteArray.Add(numberStr + " " + ams);
@@ -1944,7 +1946,7 @@ namespace CrewChiefV4
 
             // 'stop' the recogniser if we're ALWAYS_ON (because we restart it below) or TOGGLE
             // (because the user might have forgotten to press the button to close the channel).
-            // For HOLD mode, let the recogniser continue listening and executing commands (invoking this 
+            // For HOLD mode, let the recogniser continue listening and executing commands (invoking this
             // callback again from another thread) until the button is released, which will call
             // RecogniseAsyncCancel
             if (voiceOptionEnum == MainWindow.VoiceOptionEnum.TOGGLE)
@@ -2229,7 +2231,7 @@ namespace CrewChiefV4
             {
                 SubtitleManager.AddPhraseForSpeech(recognisedSpeech);
             }
-                      
+
             if (ResultContains(recognisedSpeech, DONT_SPOT, false))
             {
                 crewChief.disableSpotter();
