@@ -34,6 +34,17 @@ namespace CrewChiefV4
         }
     }
 
+    public class NumberGender
+    {
+        public string languageCode;
+        public NumberReader.ARTICLE_GENDER gender;
+        public NumberGender(string languageCode, NumberReader.ARTICLE_GENDER gender)
+        {
+            this.languageCode = languageCode;
+            this.gender = gender;
+        }
+    }
+
     public class MessageFragment
     {        
         public String text;
@@ -42,6 +53,7 @@ namespace CrewChiefV4
         public int integer;
         public FragmentType type;
         public Boolean allowShortHundreds = true;   // allow a number like 160 to be read as "one sixty" instead of "one hundred and sixty"
+        public NumberReader.ARTICLE_GENDER gender = NumberReader.ARTICLE_GENDER.NA;
 
         private MessageFragment(String text)
         {
@@ -61,18 +73,59 @@ namespace CrewChiefV4
             this.type = FragmentType.Opponent;
         }
 
-        private MessageFragment(int integer)
+        private MessageFragment(int integer, List<NumberGender> genders)
         {
             this.integer = integer;
             this.type = FragmentType.Integer;
             this.allowShortHundreds = true;
+            setGender(genders);
         }
 
-        private MessageFragment(int integer, Boolean allowShortHundreds)
+        private MessageFragment(int integer, Boolean allowShortHundreds, List<NumberGender> genders)
         {
             this.integer = integer;
             this.type = FragmentType.Integer;
             this.allowShortHundreds = allowShortHundreds;
+            setGender(genders);
+        }
+
+        private void setGender(List<NumberGender> genders)
+        {
+            if (genders != null)
+            {
+                foreach (NumberGender genderElement in genders)
+                {
+                    if (genderElement.languageCode.Equals(AudioPlayer.soundPackLanguage, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        this.gender = genderElement.gender;
+                        break;
+                    }
+                }
+            }
+        }
+
+        public static List<NumberGender> Genders(string language1, NumberReader.ARTICLE_GENDER gender1)
+        {
+            List<NumberGender> genders = new List<NumberGender>();
+            genders.Add(new NumberGender(language1, gender1));
+            return genders;
+        }
+
+        public static List<NumberGender> Genders(string language1, NumberReader.ARTICLE_GENDER gender1, string language2, NumberReader.ARTICLE_GENDER gender2)
+        {
+            List<NumberGender> genders = new List<NumberGender>();
+            genders.Add(new NumberGender(language1, gender1));
+            genders.Add(new NumberGender(language2, gender2));
+            return genders;
+        }
+
+        public static List<NumberGender> Genders(string language1, NumberReader.ARTICLE_GENDER gender1, string language2, NumberReader.ARTICLE_GENDER gender2, string language3, NumberReader.ARTICLE_GENDER gender3)
+        {
+            List<NumberGender> genders = new List<NumberGender>();
+            genders.Add(new NumberGender(language1, gender1));
+            genders.Add(new NumberGender(language2, gender2));
+            genders.Add(new NumberGender(language3, gender3));
+            return genders;
         }
 
         public static MessageFragment Text(String text)
@@ -89,14 +142,14 @@ namespace CrewChiefV4
             return new MessageFragment(opponent);
         }
 
-        public static MessageFragment Integer(int integer)
+        public static MessageFragment Integer(int integer, List<NumberGender> genders = null)
         {
-            return MessageFragment.Integer(integer, true);
+            return MessageFragment.Integer(integer, true, genders);
         }
 
-        public static MessageFragment Integer(int integer, Boolean allowShortHundreds)
+        public static MessageFragment Integer(int integer, Boolean allowShortHundreds, List<NumberGender> genders = null)
         {
-            return new MessageFragment(integer, allowShortHundreds);
+            return new MessageFragment(integer, allowShortHundreds, genders);
         }
 
         public override String ToString()
@@ -390,7 +443,7 @@ namespace CrewChiefV4
                         case FragmentType.Integer:
                             if (numberReader != null)
                             {
-                                List<String> integerFolders = numberReader.GetIntegerSounds(messageFragment.integer, messageFragment.allowShortHundreds, useMoreInflection);
+                                List<String> integerFolders = numberReader.GetIntegerSounds(messageFragment.integer, messageFragment.allowShortHundreds, useMoreInflection, messageFragment.gender);
                                 if (integerFolders.Count() == 0)
                                 {
                                     Console.WriteLine("Message " + this.messageName + " can't be played because the number reader found no sounds for number " + messageFragment.integer);

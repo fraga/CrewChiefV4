@@ -284,7 +284,8 @@ namespace CrewChiefV4.NumberProcessing
         /**
          * Get an English sound for an Integer from 0 to 99999.
          */
-        protected override List<String> GetIntegerSounds(char[] rawDigits, Boolean allowShortHundredsForThisNumber, Boolean messageHasContentAfterNumber)
+        protected override List<String> GetIntegerSounds(char[] rawDigits, Boolean allowShortHundredsForThisNumber,
+            Boolean messageHasContentAfterNumber, ARTICLE_GENDER gender = ARTICLE_GENDER.NA)
         {
             List<String> messages = new List<String>();
             char[] digits;
