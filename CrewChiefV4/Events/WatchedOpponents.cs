@@ -432,7 +432,7 @@ namespace CrewChiefV4.Events
                 }
                 else if (lapDifference > 1)
                 {
-                    messageFragments.Add(MessageFragment.Integer(lapDifference));
+                    messageFragments.Add(MessageFragment.Integer(lapDifference, MessageFragment.Genders("pt-br", NumberReader.ARTICLE_GENDER.FEMALE)));
                     messageFragments.Add(MessageFragment.Text(Position.folderLapsBehind));
                 }
                 else if (lapDifference == -1)
@@ -441,7 +441,7 @@ namespace CrewChiefV4.Events
                 }
                 else if (lapDifference < -1)
                 {
-                    messageFragments.Add(MessageFragment.Integer(Math.Abs(lapDifference)));
+                    messageFragments.Add(MessageFragment.Integer(Math.Abs(lapDifference), MessageFragment.Genders("pt-br", NumberReader.ARTICLE_GENDER.FEMALE)));
                     messageFragments.Add(MessageFragment.Text(Position.folderLapsAhead));
                 }
                 else

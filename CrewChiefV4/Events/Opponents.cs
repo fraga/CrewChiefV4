@@ -887,18 +887,20 @@ namespace CrewChiefV4.Events
                                         {
                                             audioPlayer.playMessageImmediately(new QueuedMessage("opponentTimeDelta", 0,
                                                 messageFragments: MessageContents(folderOpponentPositionIntro, Position.folderStub + position, Pause(200),
-                                                    lapDifference, Position.folderLapsBehind)));
+                                                    MessageFragment.Integer(lapDifference, MessageFragment.Genders("pt-br", NumberReader.ARTICLE_GENDER.FEMALE)), Position.folderLapsBehind)));
                                         }
                                         else
                                         {
                                             audioPlayer.playMessageImmediately(new QueuedMessage("opponentTimeDelta", 0, 
-                                               messageFragments: MessageContents(Position.folderStub + position, Pause(200), lapDifference, Position.folderLapsBehind)));
+                                               messageFragments: MessageContents(Position.folderStub + position, Pause(200), 
+                                               MessageFragment.Integer(lapDifference, MessageFragment.Genders("pt-br", NumberReader.ARTICLE_GENDER.FEMALE)), Position.folderLapsBehind)));
                                         }
                                     }
                                     else
                                     {
                                         audioPlayer.playMessageImmediately(new QueuedMessage("opponentTimeDelta", 0,
-                                            messageFragments: MessageContents(lapDifference, Position.folderLapsBehind)));
+                                            messageFragments: MessageContents(MessageFragment.Integer(lapDifference, MessageFragment.Genders("pt-br", NumberReader.ARTICLE_GENDER.FEMALE)),
+                                            Position.folderLapsBehind)));
                                     }
                                 }
                                 else if (lapDifference == -1)
@@ -930,18 +932,21 @@ namespace CrewChiefV4.Events
                                         {
                                             audioPlayer.playMessageImmediately(new QueuedMessage("opponentTimeDelta", 0,
                                                 messageFragments: MessageContents(folderOpponentPositionIntro, Position.folderStub + position, 
-                                                    Pause(200), Math.Abs(lapDifference), Position.folderLapsAhead)));
+                                                    Pause(200), MessageFragment.Integer(Math.Abs(lapDifference), MessageFragment.Genders("pt-br", NumberReader.ARTICLE_GENDER.FEMALE)),
+                                                    Position.folderLapsAhead)));
                                         }
                                         else
                                         {
                                             audioPlayer.playMessageImmediately(new QueuedMessage("opponentTimeDelta", 0,
-                                                messageFragments: MessageContents(Position.folderStub + position, Pause(200), Math.Abs(lapDifference), Position.folderLapsAhead)));
+                                                messageFragments: MessageContents(Position.folderStub + position, Pause(200), 
+                                                MessageFragment.Integer(Math.Abs(lapDifference), MessageFragment.Genders("pt-br", NumberReader.ARTICLE_GENDER.FEMALE)), Position.folderLapsAhead)));
                                         }
                                     }
                                     else
                                     {
                                         audioPlayer.playMessageImmediately(new QueuedMessage("opponentTimeDelta", 0,
-                                            messageFragments: MessageContents(Math.Abs(lapDifference), Position.folderLapsAhead)));
+                                            messageFragments: MessageContents(MessageFragment.Integer(Math.Abs(lapDifference), MessageFragment.Genders("pt-br", NumberReader.ARTICLE_GENDER.FEMALE)),
+                                            Position.folderLapsAhead)));
                                     }
                                 }
                                 else

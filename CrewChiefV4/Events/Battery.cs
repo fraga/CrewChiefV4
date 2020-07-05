@@ -452,7 +452,11 @@ namespace CrewChiefV4.Events
                                 if (currentGameState.PitData.IsElectricVehicleSwapAllowed)
                                 {
                                     this.audioPlayer.playMessage(new QueuedMessage("Battery/estimate", 0,
-                                        MessageContents(RaceTime.folderHalfWayHome, Battery.folderWeEstimate, estBattLapsLeft, Battery.folderLapsRemaining), abstractEvent: this, priority: 3));
+                                        MessageContents(RaceTime.folderHalfWayHome,
+                                        Battery.folderWeEstimate,
+                                        MessageFragment.Integer(estBattLapsLeft, MessageFragment.Genders("pt-br", NumberReader.ARTICLE_GENDER.FEMALE)),
+                                        Battery.folderLapsRemaining),
+                                        abstractEvent: this, priority: 3));
                                 }
                                 else
                                     this.audioPlayer.playMessage(new QueuedMessage(Battery.folderHalfDistanceLowBattery, 0, abstractEvent: this, priority: 8));

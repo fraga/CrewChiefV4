@@ -1257,13 +1257,20 @@ namespace CrewChiefV4.Events
                 else
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage("laps_on_current_tyres", 0,
-                        messageFragments: MessageContents(folderLapsOnCurrentTyresIntro, lapsRemainingOnTheseTyres, folderLapsOnCurrentTyresOutro)));
+                        messageFragments: MessageContents(
+                            folderLapsOnCurrentTyresIntro,
+                            MessageFragment.Integer(lapsRemainingOnTheseTyres, MessageFragment.Genders("pt-br", NumberReader.ARTICLE_GENDER.FEMALE)),
+                            folderLapsOnCurrentTyresOutro)));
                 }
             }
             else if (lapsRemainingOnTheseTyres > 1 && lapsRemainingOnTheseTyres <= 2 + lapsInSession - completedLaps)
             {
                 audioPlayer.playMessage(new QueuedMessage("laps_on_current_tyres", 0,
-                    messageFragments: MessageContents(folderLapsOnCurrentTyresIntro, lapsRemainingOnTheseTyres, folderLapsOnCurrentTyresOutro), abstractEvent: this, priority: 5));
+                    messageFragments: MessageContents(
+                        folderLapsOnCurrentTyresIntro,
+                        MessageFragment.Integer(lapsRemainingOnTheseTyres, MessageFragment.Genders("pt-br", NumberReader.ARTICLE_GENDER.FEMALE)),
+                        folderLapsOnCurrentTyresOutro),
+                    abstractEvent: this, priority: 5));
             }
         }
 

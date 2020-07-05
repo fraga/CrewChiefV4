@@ -132,7 +132,9 @@ namespace CrewChiefV4.Events
                     {
                         // special case for iracing - AFAIK no other games have number-of-laps in qual sessions
                         audioPlayer.playMessageImmediately(new QueuedMessage("qual_pit_exit", 10, 
-                            messageFragments: MessageContents(folderQualExitIntro, currentGameState.SessionData.SessionNumberOfLaps, folderQualExitOutroLaps),
+                            messageFragments: MessageContents(folderQualExitIntro, 
+                            MessageFragment.Integer(currentGameState.SessionData.SessionNumberOfLaps, MessageFragment.Genders("pt-br", NumberReader.ARTICLE_GENDER.FEMALE)),
+                            folderQualExitOutroLaps),
                             abstractEvent: this, type: SoundType.IMPORTANT_MESSAGE, priority: 0));
                     }
                     else if (currentGameState.SessionData.SessionHasFixedTime)
@@ -141,7 +143,10 @@ namespace CrewChiefV4.Events
                         if (minutesLeft > 1)
                         {
                             audioPlayer.playMessageImmediately(new QueuedMessage("qual_pit_exit", 10,
-                                messageFragments: MessageContents(folderQualExitIntro, minutesLeft, folderQualExitOutroMinutes),
+                                messageFragments: MessageContents(folderQualExitIntro,
+                                // TODO: I think minutes is male in pt-br
+                                MessageFragment.Integer(minutesLeft, MessageFragment.Genders("pt-br", NumberReader.ARTICLE_GENDER.MALE)),
+                                folderQualExitOutroMinutes),
                                 abstractEvent: this, type: SoundType.IMPORTANT_MESSAGE, priority: 0));
                         }
                     }

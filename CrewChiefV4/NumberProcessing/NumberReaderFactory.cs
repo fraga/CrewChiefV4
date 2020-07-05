@@ -32,6 +32,10 @@ namespace CrewChiefV4.NumberProcessing
                     numberReader = new NumberReaderIt();
                 }
             }
+            else if ("pt-br" == AudioPlayer.soundPackLanguage)
+            {
+                numberReader = new NumberReaderPtBr();
+            }
             else
             {
                 numberReader = new NumberReaderEn();
