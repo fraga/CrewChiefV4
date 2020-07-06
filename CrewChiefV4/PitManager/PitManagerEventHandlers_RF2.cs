@@ -15,6 +15,9 @@ namespace CrewChiefV4.PitManager
     {
         static private PitMenuController Pmc = new PitMenuController();
         static private bool xxx = Pmc.Connect();    // tbd
+        static private Dictionary<string, string> ttDict;
+        static private List<string> tyreCategories;
+
         static private string[] tyres = new string[] {
             "RR TIRE:",
             "RL TIRE:",
@@ -26,7 +29,7 @@ namespace CrewChiefV4.PitManager
             "LF TIRES:"
         };
         static private string[] compounds = new string[] {
-            "Hard",
+            "Hard",     // tbd: yet to find where this come from in rF2
             "Medium",
             "Soft",
             "Wet",
@@ -52,19 +55,30 @@ namespace CrewChiefV4.PitManager
         static private bool setTyreCompound(string compound)
         {
             bool response = false;
+            Pmc.startUsingPitMenu();
+            List<string> tyreTypes = Pmc.GetTyreTypeNames();
+            // Don't need to do these every time, just when track loaded but for now...
+            ttDict = Pmc.translateTyreTypes(tyreTypes);
+            tyreCategories = Pmc.GetTyreChangeCategories();
+
             foreach (string tyre in tyres)
             {
-                if (Pmc.SetCategory(tyre))
+                if (Pmc.SetCategory(tyre))  // tbd: should be tyreCategories
                 {
-                    response = Pmc.SetTyreType(compound);
+                    response = Pmc.SetTyreType(ttDict[compound]);
                     if (response)
                     {
-                        TyreCompound = compound;
+                        TyreCompound = ttDict[compound];
+                        if (CrewChief.Debugging)
+                        {
+                            Console.WriteLine("Pit Manager tyre compound set to (" + compound + ") " + TyreCompound);
+                        }
                     }
+                    else
                     {   // Compound is not available
                         PitManagerResponseHandlers.responseHandler_TyreCompoundNotAvailable();
+                        break;
                     }
-                    break;
                 }
             }
             return response;

@@ -2450,6 +2450,11 @@ namespace CrewChiefV4
                 ResultContains(recognisedSpeech, PIT_STOP_CHANGE_REAR_RIGHT_TYRE, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_CHANGE_LEFT_SIDE_TYRES, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_CHANGE_RIGHT_SIDE_TYRES, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_HARD_TYRES, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_MEDIUM_TYRES, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_SOFT_TYRES, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_WET_TYRES, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_NEXT_TYRE_COMPOUND, false) ||
                 ResultContains(recognisedSpeech, HOW_MANY_INCIDENT_POINTS, false) ||
                 ResultContains(recognisedSpeech, WHATS_THE_INCIDENT_LIMIT, false) ||
                 ResultContains(recognisedSpeech, WHATS_MY_IRATING, false) ||

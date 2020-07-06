@@ -169,7 +169,7 @@ namespace CrewChiefV4.PitManager
                     if (SRE.ResultContains(voiceMessage, cmd.Value))
                     {
                         if (CrewChief.Debugging)
-                            Console.WriteLine(cmd.Value);
+                            Console.WriteLine("Pit Manager voice command " + cmd.Value[0]);
                         pmh.EventHandler(cmd.Key);
                         break;
                     }
