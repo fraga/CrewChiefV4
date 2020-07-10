@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using CrewChiefV4.Audio;
 using CrewChiefV4.Events;
 using CrewChiefV4.GameState;
-using rF2SharedMemoryAPI;
+using PitMenuAPI;
 
 namespace CrewChiefV4.PitManager
 {

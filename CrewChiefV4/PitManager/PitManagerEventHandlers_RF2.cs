@@ -7,13 +7,16 @@ using System.Threading.Tasks;
 using CrewChiefV4.Audio;
 using CrewChiefV4.Events;
 using CrewChiefV4.GameState;
-using rF2SharedMemoryAPI;
+using PitMenuAPI;
 
 namespace CrewChiefV4.PitManager
 {
     class PitManagerEventHandlers_RF2
     {
         static private PitMenuController Pmc = new PitMenuController();
+        static private PitMenuAbstractionLayer Pmal = new PitMenuAbstractionLayer();
+        static private Dictionary<string, List<string>> tyreDict = 
+            PitMenuAbstractionLayer.SampleTyreDict;
         static private bool xxx = Pmc.Connect();    // tbd
         static private Dictionary<string, string> ttDict;
         static private List<string> tyreCategories;
@@ -67,7 +70,7 @@ namespace CrewChiefV4.PitManager
             Pmc.startUsingPitMenu();
             List<string> tyreTypes = Pmc.GetTyreTypeNames();
             // Don't need to do these every time, just when track loaded but for now...
-            ttDict = Pmc.translateTyreTypes(tyreTypes);
+            ttDict = Pmal.TranslateTyreTypes(tyreDict, tyreTypes);
             tyreCategories = Pmc.GetTyreChangeCategories();
 
             foreach (string tyre in tyreCategories)
@@ -125,12 +128,12 @@ namespace CrewChiefV4.PitManager
         {
             bool response = false;
             List<string> tyreTypes = Pmc.GetTyreTypeNames();
-            int currentTyreType = compounds.IndexOf(Pmc.GetGenericTyreType());
+            int currentTyreType = compounds.IndexOf(Pmal.GetGenericTyreType());
             for (var i = currentTyreType+1; i != currentTyreType; i++)
             {
                 if (i >= compounds.Count)
                     i = 0;
-                if (Pmc.SetGenericTyreType(compounds[i]))
+                if (Pmc.SetTyreType(compounds[i]))
                 { // Found one
                     response = true;
                     break;
@@ -151,6 +154,12 @@ namespace CrewChiefV4.PitManager
 
             return response;
         }
+
+        static public bool actionHandler_changeNoTyres()
+        {
+            return setTyreCompound("No Change");
+        }
+        
 
         static public bool actionHandler_FuelAddXlitres()
         {

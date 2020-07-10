@@ -204,7 +204,7 @@ namespace CrewChiefV4.PitManager
             //  The event                                               the fn that implements it  the fn that handles speech
             //                                                          (changes the pit menu)     response and any other outcomes
             {PME.TyreChangeAll,     _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_changeAllTyres, PMER.responseHandler_example) },
-            {PME.TyreChangeNone,    _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            {PME.TyreChangeNone,    _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_changeNoTyres, PMER.responseHandler_example) },
             {PME.TyreChangeFront,   _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
             {PME.TyreChangeRear,    _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
             {PME.TyreChangeLeft,    _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
