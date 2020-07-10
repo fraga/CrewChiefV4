@@ -50,14 +50,14 @@ namespace CrewChiefV4.PitManager
             {PME.TyreCompoundNext,  SRE.PIT_STOP_NEXT_TYRE_COMPOUND },
 
             {PME.FuelAddXlitres,    SRE.PIT_STOP_ADD },
-            //{PME.FuelFillToXlitres, SRE.PIT_STOP },
+            //{PME.FuelFillToXlitres, SRE.PIT_STOP },               // tbd: would require added speech handling
             {PME.FuelFillToEnd,     SRE.PIT_STOP_FUEL_TO_THE_END },
             {PME.FuelNone,          SRE.PIT_STOP_DONT_REFUEL },
 
             // tbd {PME.RepairAll,         SRE.PIT_STOP },
             {PME.RepairNone,        SRE.PIT_STOP_CLEAR_ALL },
             {PME.RepairFast,        SRE.PIT_STOP_FAST_REPAIR },        // iRacing
-            {PME.RepairAllAero,     SRE.PIT_STOP_FIX_ALL_AERO },        // R3E
+            {PME.RepairAllAero,     SRE.PIT_STOP_FIX_ALL_AERO },       // R3E
             {PME.RepairFrontAero,   SRE.PIT_STOP_FIX_FRONT_AERO },
             {PME.RepairRearAero,    SRE.PIT_STOP_FIX_REAR_AERO },
             {PME.RepairSuspension,  SRE.PIT_STOP_FIX_SUSPENSION },
@@ -67,7 +67,7 @@ namespace CrewChiefV4.PitManager
             {PME.PenaltyServe,      SRE.PIT_STOP_SERVE_PENALTY },
             {PME.PenaltyServeNone,  SRE.PIT_STOP_DONT_SERVE_PENALTY },
 
-            // tbd {PME.AeroFrontPlusMinusX, SRE.PIT_STOP },
+            // tbd {PME.AeroFrontPlusMinusX, SRE.PIT_STOP },     // tbd: would require added speech handling
             // tbd {PME.AeroRearPlusMinusX, SRE.PIT_STOP },
             // tbd {PME.AeroFrontSetToX,   SRE.PIT_STOP },
             // tbd {PME.AeroRearSetToX,    SRE.PIT_STOP },
@@ -103,7 +103,10 @@ namespace CrewChiefV4.PitManager
 
         static private bool AddFuel(int amount)
         {
-            // tbd  How to connect this with the game's pit stop event handler class?
+            if (CrewChief.Debugging)
+                Console.WriteLine("Pit Manager add fuel voice command +" +
+                    amount.ToString() + " litres");
+            pmh.EventHandler(PME.FuelAddXlitres);
             return false; // Couldn't do it?
         }
 

@@ -155,18 +155,24 @@ namespace rF2SharedMemoryAPI
     /// <returns>
     /// True: category found
     /// </returns>
-    public bool SoftMatchCategory(string category)
+    public bool SoftMatchCategory(List<string> categories)
     {
       string InitialCategory = GetCategory();
-      while (!GetCategory().Contains(category))
+      while (true)
       {
+        foreach (var category in categories)
+        {
+            if (GetCategory().Contains(category))
+            {
+                return true;
+            }
+        }
         UpDownOne(true);
         if (GetCategory() == InitialCategory)
         {  // Wrapped around, category not found
           return false;
         }
       }
-      return true;
     }
 
     //////////////////////////////////////////////////////////////////////////
@@ -357,7 +363,12 @@ namespace rF2SharedMemoryAPI
     public List<string> GetTyreTypeNames()
     {
       List<string> result = new List<string>();
-      if (this.SoftMatchCategory("TIRE"))
+      List<string> frontTyreCategoryList = new List<string>   {
+        "FL TIRE",
+        "F TIRES",
+        "LF TIRES"
+      };
+      if (this.SoftMatchCategory(frontTyreCategoryList ))
       {
         string current = GetChoice();
         while (result == null || !result.Contains(current))

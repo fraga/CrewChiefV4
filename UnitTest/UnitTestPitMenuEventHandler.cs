@@ -7,10 +7,30 @@ using System.Windows.Forms;
 using System.Globalization;
 using System.Threading;
 
+// NONE of these actually run, TestPitManager does allow stepping through the
+// Pit Menu event handler
 namespace UnitTest
 {
     [TestClass]
     public class TestPitManager
+    {
+        [TestMethod]
+        public void Test_EventHandler()
+        {
+            bool result;
+            var pmh = new PitManager();
+
+            result = pmh.EventHandler(PitManagerEvent.AeroFrontSetToX);
+            Assert.IsTrue(result);
+            result = pmh.EventHandler(PitManagerEvent.RepairFast);
+            Assert.IsFalse(result);
+            pmh.AmountHandler(12);
+            result = pmh.EventHandler(PitManagerEvent.FuelAddXlitres);
+        }
+
+    }
+    [TestClass]
+    public class TestPitManagerInCC
     {
         private static MainWindow hwnd;
         public CrewChief ccObj;
@@ -56,24 +76,6 @@ namespace UnitTest
             Assert.IsTrue(result);
         }
 #endif
-
-        [TestMethod]
-        public void Test3()
-        {
-            bool result;
-            var pmh = new PitManager();
-
-#if false // attempt to fake a whole CC
-            var wh = new DummyForm();
-            var controllerConfiguration = new ControllerConfiguration();
-            CrewChief cc = new CrewChief(controllerConfiguration);
-            //cc.gameDefinition =
-#endif
-            result = pmh.EventHandler(PitManagerEvent.AeroFrontSetToX);
-            Assert.IsTrue(result);
-            result = pmh.EventHandler(PitManagerEvent.RepairFast);
-            Assert.IsFalse(result);
-        }
 
         [TestMethod]
         public void TestVoice()

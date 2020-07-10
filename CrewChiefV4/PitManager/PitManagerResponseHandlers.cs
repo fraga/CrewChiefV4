@@ -90,5 +90,10 @@ namespace CrewChiefV4.PitManager
             playMessage(AudioPlayer.folderFuelToEnd);
             return true;
         }
+        static public bool responseHandler_FuelAddXlitres()
+        {
+            playMessage(AudioPlayer.folderFuelToEnd); // tbd:
+            return true;
+        }
     }
 }

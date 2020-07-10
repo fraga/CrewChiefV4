@@ -28,7 +28,7 @@ namespace CrewChiefV4.PitManager
             "RT TIRES:",
             "LF TIRES:"
         };
-        static private string[] compounds = new string[] {
+        static private List<string> compounds = new List<string> {
             "Hard",     // tbd: yet to find where this come from in rF2
             "Medium",
             "Soft",
@@ -37,8 +37,17 @@ namespace CrewChiefV4.PitManager
             "Prime",
             "Alternate" };
         static private string TyreCompound = "Medium";  // Initialise to *something*
+        static private int amountCache;
 
-
+        /// <summary>
+        /// Invoked by "Pitstop Add..." command, an event (e.g. fuel) will
+        /// come along and use this value later
+        /// </summary>
+        /// <param name="amount"></param>
+        static public void amountHandler(int amount)
+        {
+            amountCache = amount;
+        }
         /// <summary> responseHandler_TyreCompoundNotAvailable
         /// The event handlers for rF2
         /// </summary>
@@ -61,9 +70,9 @@ namespace CrewChiefV4.PitManager
             ttDict = Pmc.translateTyreTypes(tyreTypes);
             tyreCategories = Pmc.GetTyreChangeCategories();
 
-            foreach (string tyre in tyres)
+            foreach (string tyre in tyreCategories)
             {
-                if (Pmc.SetCategory(tyre))  // tbd: should be tyreCategories
+                if (Pmc.SetCategory(tyre))
                 {
                     response = Pmc.SetTyreType(ttDict[compound]);
                     if (response)
@@ -115,9 +124,13 @@ namespace CrewChiefV4.PitManager
         static public bool actionHandler_TyreCompoundNext()
         {
             bool response = false;
-            foreach (string compound in compounds)
+            List<string> tyreTypes = Pmc.GetTyreTypeNames();
+            int currentTyreType = compounds.IndexOf(Pmc.GetGenericTyreType());
+            for (var i = currentTyreType+1; i != currentTyreType; i++)
             {
-                if (setTyreCompound(compound))
+                if (i >= compounds.Count)
+                    i = 0;
+                if (Pmc.SetGenericTyreType(compounds[i]))
                 { // Found one
                     response = true;
                     break;
@@ -137,6 +150,11 @@ namespace CrewChiefV4.PitManager
             }
 
             return response;
+        }
+
+        static public bool actionHandler_FuelAddXlitres()
+        {
+            return Pmc.SetFuelLevel(amountCache);
         }
     }
 }
