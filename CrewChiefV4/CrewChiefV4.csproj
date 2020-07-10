@@ -530,6 +530,7 @@
     <None Include="controllerConfigurationData.json" />
     <Compile Include="Overlay\OverlaySubscription.cs" />
     <None Include="packages.config" />
+    <None Include="PitManager\Documentation\rF2_PitManager.graphml" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -572,6 +573,7 @@
     <Content Include="openvr_api.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="PitManager\Documentation\rF2_PitManager.jpg" />
     <Content Include="Resources\cursor.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
