@@ -106,6 +106,7 @@ namespace CrewChiefV4.PitManager
             if (CrewChief.Debugging)
                 Console.WriteLine("Pit Manager add fuel voice command +" +
                     amount.ToString() + " litres");
+            PitManagerEventHandlers_RF2.amountHandler(amount);
             pmh.EventHandler(PME.FuelAddXlitres);
             return false; // Couldn't do it?
         }

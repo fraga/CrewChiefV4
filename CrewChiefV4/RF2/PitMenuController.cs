@@ -110,6 +110,7 @@ namespace PitMenuAPI
     /// </returns>
     public bool SetFuelLevel(int requiredFuel)
     {
+      startUsingPitMenu();
       SetCategory("FUEL:");
       int current = GetFuelLevel();
       if (current < 0)

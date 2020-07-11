@@ -15,7 +15,7 @@ namespace CrewChiefV4.PitManager
     {
         static private PitMenuController Pmc = new PitMenuController();
         static private PitMenuAbstractionLayer Pmal = new PitMenuAbstractionLayer();
-        static private Dictionary<string, List<string>> tyreDict = 
+        static private Dictionary<string, List<string>> tyreDict =
             PitMenuAbstractionLayer.SampleTyreDict;
         static private bool xxx = Pmc.Connect();    // tbd
         static private Dictionary<string, string> ttDict;
@@ -39,7 +39,7 @@ namespace CrewChiefV4.PitManager
             "Option",
             "Prime",
             "Alternate" };
-        static private string TyreCompound = "Medium";  // Initialise to *something*
+        static private string GenericTyreCompound = "Medium";  // Initialise to *something*
         static private int amountCache;
 
         /// <summary>
@@ -80,10 +80,10 @@ namespace CrewChiefV4.PitManager
                     response = Pmc.SetTyreType(ttDict[compound]);
                     if (response)
                     {
-                        TyreCompound = ttDict[compound];
+                        GenericTyreCompound = ttDict[compound];
                         if (CrewChief.Debugging)
                         {
-                            Console.WriteLine("Pit Manager tyre compound set to (" + compound + ") " + TyreCompound);
+                            Console.WriteLine("Pit Manager tyre compound set to (" + compound + ") " + GenericTyreCompound);
                         }
                     }
                     else
@@ -143,23 +143,86 @@ namespace CrewChiefV4.PitManager
         }
         static public bool actionHandler_changeAllTyres()
         {
-            bool response = false;
-            foreach (string tyre in tyres)
-            {
-                if (Pmc.SetCategory(tyre))
-                {
-                    response = Pmc.SetTyreType(TyreCompound);
-                }
-            }
-
-            return response;
+            return setTyreCompound(GenericTyreCompound);
         }
 
         static public bool actionHandler_changeNoTyres()
         {
             return setTyreCompound("No Change");
         }
-        
+
+        static private bool changeCategoryOfTyre(string tyreCategory)
+        {
+            bool response = false;
+            Pmc.startUsingPitMenu();
+            List<string> tyreTypes = Pmc.GetTyreTypeNames();
+            // Don't need to do these every time, just when track loaded but for now...
+            ttDict = Pmal.TranslateTyreTypes(tyreDict, tyreTypes);
+            tyreCategories = Pmc.GetTyreChangeCategories();
+
+            if (tyreCategories.Contains(tyreCategory))
+            {
+                if (Pmc.SetCategory(tyreCategory))
+                {
+                    string tyreCompound = ttDict[GenericTyreCompound];
+                    response = Pmc.SetTyreType(tyreCompound);
+                    if (response)
+                    {
+                        if (CrewChief.Debugging)
+                        {
+                            Console.WriteLine("Pit Manager tyre compound set to (" + GenericTyreCompound + ") " + tyreCompound);
+                        }
+                    }
+                    else
+                    {   // Compound is not available
+                        PitManagerResponseHandlers.responseHandler_TyreCompoundNotAvailable();
+                    }
+                }
+            }
+            return response;
+        }
+
+        static public bool actionHandler_changeFrontTyres()
+        {
+            setTyreCompound("No Change");
+            return changeCategoryOfTyre("F TIRES:");
+        }
+        static public bool actionHandler_changeRearTyres()
+        {
+            setTyreCompound("No Change");
+            return changeCategoryOfTyre("R TIRES:");
+        }
+        static public bool actionHandler_changeLeftTyres()
+        {
+            setTyreCompound("No Change");
+            return changeCategoryOfTyre("LF TIRES:");
+        }
+        static public bool actionHandler_changeRightTyres()
+        {
+            setTyreCompound("No Change");
+            return changeCategoryOfTyre("RT TIRES:");
+        }
+        static public bool actionHandler_changeFLTyre()
+        {
+            setTyreCompound("No Change");
+            return changeCategoryOfTyre("FL TIRE:");
+        }
+        static public bool actionHandler_changeFRTyre()
+        {
+            setTyreCompound("No Change");
+            return changeCategoryOfTyre("FR TIRE:");
+        }
+        static public bool actionHandler_changeRLTyre()
+        {
+            setTyreCompound("No Change");
+            return changeCategoryOfTyre("RL TIRE:");
+        }
+        static public bool actionHandler_changeRRTyre()
+        {
+            setTyreCompound("No Change");
+            return changeCategoryOfTyre("RR TIRE:");
+        }
+
 
         static public bool actionHandler_FuelAddXlitres()
         {
