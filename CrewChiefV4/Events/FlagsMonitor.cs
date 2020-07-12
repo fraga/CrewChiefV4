@@ -1192,13 +1192,16 @@ namespace CrewChiefV4.Events
                         {
                             foreach (OpponentData opponent in crashedOpponents)
                             {
-                                if (AudioPlayer.canReadName(opponent.DriverRawName))
+                                if (CarData.IsCarClassEqual(opponent.CarClass, currentGameState.carClass))
                                 {
-                                    opponentNamesToRead.Add(opponent);
-                                }
-                                else if (opponent.ClassPosition <= folderPositionHasGoneOff.Length && positionToRead == -1 && opponent.ClassPosition > 0)
-                                {
-                                    positionToRead = opponent.ClassPosition;
+                                    if (AudioPlayer.canReadName(opponent.DriverRawName))
+                                    {
+                                        opponentNamesToRead.Add(opponent);
+                                    }
+                                    else if (opponent.ClassPosition <= folderPositionHasGoneOff.Length && positionToRead == -1 && opponent.ClassPosition > 0)
+                                    {
+                                        positionToRead = opponent.ClassPosition;
+                                    }
                                 }
                             }
                         }
