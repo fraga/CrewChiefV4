@@ -8,6 +8,7 @@ using System.Xml;
 using CrewChiefV4.GameState;
 using CrewChiefV4.Audio;
 using CrewChiefV4.Events;
+using System.Threading;
 
 /// <summary>
 /// A set of events that the driver or crew chief want
@@ -132,6 +133,8 @@ namespace CrewChiefV4.PitManager
         /// <returns>
         /// true if event was handled
         /// </returns>
+        private static Object myLock = new Object();
+        private static Thread executeThread = null;
         public bool EventHandler(PitManagerEvent ev)
         {
             bool result = false;
@@ -153,25 +156,36 @@ namespace CrewChiefV4.PitManager
                 PM_event_dict = games_dict[GameEnum.RF2_64BIT];
             }
 
-            if (PM_event_dict.ContainsKey(ev))
+            lock (myLock)
             {
-                result = PM_event_dict[ev].PitManagerEventAction.Invoke();
-                if (result)
+                // run this in a new thread as it may take a while to complete its work
+                ThreadManager.UnregisterTemporaryThread(executeThread);
+                executeThread = new Thread(() =>
                 {
-                    result = PM_event_dict[ev].PitManagerEventResponse.Invoke();
+                    if (PM_event_dict.ContainsKey(ev))
+                    {
+                        result = PM_event_dict[ev].PitManagerEventAction.Invoke();
+                        if (result)
+                        {
+                            result = PM_event_dict[ev].PitManagerEventResponse.Invoke();
+                        }
+                        else
+                        {
+                            //TBD: default handler "Couldn't do event for this vehicle"
+                            // e.g. change aero on non-aero car, option not in menu
+                        }
+                    }
+                    else
+                    {
+                        //TBD: default handler "Not available in this game"
+                        //Alternatively event dicts for all games have all events
+                        //and the response handler does the warning.
+                    }
+                });
+                executeThread.Name = "PitManager.executeThread";
+                ThreadManager.RegisterTemporaryThread(executeThread);
+                executeThread.Start();
                 }
-                else
-                {
-                    //TBD: default handler "Couldn't do event for this vehicle"
-                    // e.g. change aero on non-aero car, option not in menu
-                }
-            }
-            else
-            {
-                //TBD: default handler "Not available in this game"
-                //Alternatively event dicts for all games have all events
-                //and the response handler does the warning.
-            }
             return result;
         }
 
@@ -233,18 +247,18 @@ namespace CrewChiefV4.PitManager
             {PME.FuelFillToEnd,     _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_fuelToEnd) },
             {PME.FuelNone,          _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
 
-            {PME.RepairAll,         _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
-            {PME.RepairNone,        _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            {PME.RepairAll,         _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_RepairAll, PMER.responseHandler_example) },
+            {PME.RepairNone,        _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_RepairNone, PMER.responseHandler_example) },
             //{PME.RepairFast,        _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },        // iRacing
             //{PME.RepairAllAero,     _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },        // R3E
             //{PME.RepairFrontAero,   _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
             //{PME.RepairRearAero,    _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
             //{PME.RepairSuspension,  _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
             //{PME.RepairSuspensionNone, _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
-            {PME.RepairBody,        _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            {PME.RepairBody,        _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_RepairBody, PMER.responseHandler_example) },
 
-            {PME.PenaltyServe,      _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
-            {PME.PenaltyServeNone,  _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
+            {PME.PenaltyServe,      _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_PenaltyServe, PMER.responseHandler_example) },
+            {PME.PenaltyServeNone,  _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_PenaltyServeNone, PMER.responseHandler_example) },
 
             {PME.AeroFrontPlusMinusX, _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
             {PME.AeroRearPlusMinusX, _PM_event_tuple(_PM_event_helper, PMEHrF2.actionHandler_example, PMER.responseHandler_example) },
