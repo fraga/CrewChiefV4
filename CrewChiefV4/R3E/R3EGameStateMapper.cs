@@ -1224,7 +1224,7 @@ namespace CrewChiefV4.RaceRoom
             {
                 currentGameState.PitData.MandatoryPitStopCompleted = previousGameState.PitData.MandatoryPitStopCompleted || shared.PitWindowStatus == (int)PitWindow.Completed;
             }
-            currentGameState.PitData.limiterStatus = (PitData.LimiterStatus)shared.PitLimiter;
+            currentGameState.PitData.limiterStatus = (PitData.LimiterStatus)shared.PitLimiter + 1;
             currentGameState.PitData.HasRequestedPitStop = shared.PitState == (Int32)RaceRoomConstant.PitStates.Requested;
 
             if (shared.GameInMenus == 0  // BS data in menu.
