@@ -215,27 +215,6 @@ namespace CrewChiefV4
             this.propertiesButton.UseVisualStyleBackColor = true;
             this.propertiesButton.Click += new System.EventHandler(this.editPropertiesButtonClicked);
             // 
-            // buttonVRWindowSettings
-            // 
-            this.buttonVRWindowSettings.Enabled = false;
-            this.buttonVRWindowSettings.Location = new System.Drawing.Point(961, 159);
-            this.buttonVRWindowSettings.Name = "buttonVRWindowSettings";
-            this.buttonVRWindowSettings.Size = new System.Drawing.Size(173, 31);
-            this.buttonVRWindowSettings.TabIndex = 112;
-            this.buttonVRWindowSettings.Text = "vr_window_settings";
-            this.buttonVRWindowSettings.UseVisualStyleBackColor = true;
-            this.buttonVRWindowSettings.Click += new System.EventHandler(this.buttonVRWindowSettings_Click);
-            // 
-            // buttonEditCommandMacros
-            // 
-            this.buttonEditCommandMacros.Location = new System.Drawing.Point(961, 194);
-            this.buttonEditCommandMacros.Name = "buttonEditCommandMacros";
-            this.buttonEditCommandMacros.Size = new System.Drawing.Size(173, 31);
-            this.buttonEditCommandMacros.TabIndex = 114;
-            this.buttonEditCommandMacros.Text = "edit_macro_commands";
-            this.buttonEditCommandMacros.UseVisualStyleBackColor = true;
-            this.buttonEditCommandMacros.Click += new System.EventHandler(this.editCommandMacroButtonClicked);
-            // 
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.voiceDisableButton);
@@ -420,7 +399,8 @@ namespace CrewChiefV4
             "pcars_udp",
             "race_room",
             "rfactor1",
-            "rfactor2_64_bit"});
+            "rfactor2_64_bit",
+            "f1_2020"});
             this.gameDefinitionList.Location = new System.Drawing.Point(782, 52);
             this.gameDefinitionList.MaximumSize = new System.Drawing.Size(170, 173);
             this.gameDefinitionList.MinimumSize = new System.Drawing.Size(170, 173);
@@ -669,6 +649,16 @@ namespace CrewChiefV4
             this.scanControllers.Text = "scan_for_controllers";
             this.scanControllers.Click += new System.EventHandler(this.ScanControllers_Click);
             // 
+            // buttonEditCommandMacros
+            // 
+            this.buttonEditCommandMacros.Location = new System.Drawing.Point(961, 194);
+            this.buttonEditCommandMacros.Name = "buttonEditCommandMacros";
+            this.buttonEditCommandMacros.Size = new System.Drawing.Size(173, 31);
+            this.buttonEditCommandMacros.TabIndex = 114;
+            this.buttonEditCommandMacros.Text = "edit_macro_commands";
+            this.buttonEditCommandMacros.UseVisualStyleBackColor = true;
+            this.buttonEditCommandMacros.Click += new System.EventHandler(this.editCommandMacroButtonClicked);
+            // 
             // AddRemoveActions
             // 
             this.AddRemoveActions.Location = new System.Drawing.Point(295, 654);
@@ -718,6 +708,17 @@ namespace CrewChiefV4
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 22);
             this.helpToolStripMenuItem.Text = "Help";
             this.helpToolStripMenuItem.Click += new System.EventHandler(this.helpToolStripMenuItem_Click);
+            // 
+            // buttonVRWindowSettings
+            // 
+            this.buttonVRWindowSettings.Enabled = false;
+            this.buttonVRWindowSettings.Location = new System.Drawing.Point(961, 159);
+            this.buttonVRWindowSettings.Name = "buttonVRWindowSettings";
+            this.buttonVRWindowSettings.Size = new System.Drawing.Size(173, 31);
+            this.buttonVRWindowSettings.TabIndex = 112;
+            this.buttonVRWindowSettings.Text = "vr_window_settings";
+            this.buttonVRWindowSettings.UseVisualStyleBackColor = true;
+            this.buttonVRWindowSettings.Click += new System.EventHandler(this.buttonVRWindowSettings_Click);
             // 
             // MainWindow
             // 
