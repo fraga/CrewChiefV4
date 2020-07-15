@@ -12,15 +12,15 @@ namespace PitMenuAPI
     /// <summary>
     /// PitMenuAPI consists PitMenuAbstractionLayer : PitMenuController : PitMenu
     /// </summary>
-    public class PitMenuAbstractionLayer : PitMenuController
+    public static class PitMenuAbstractionLayer // : PitMenuController
     {
-        private Dictionary<string, List<string>> menuDict;
-        PitMenuController Pmc = new PitMenuController();
+        public static PitMenuController Pmc = new PitMenuController();
+        //static MenuLayout menuLayout = new MenuLayout();
 
         /// <summary>
         /// All the Pit Menu categories of tyres that rF2 selects from
         /// </summary>
-        private readonly string[] tyreCategories = {
+        private static readonly string[] tyreCategories = {
             "RR TIRE:",
             "RL TIRE:",
             "FR TIRE:",
@@ -34,7 +34,7 @@ namespace PitMenuAPI
         /// The Pit Menu categories of tyres that rF2 uses to select compounds,
         /// the remainder sometimes only choose this compound or NO CHANGE
         /// </summary>
-        private readonly string[] frontTyreCategories = {
+        private static readonly string[] frontTyreCategories = {
             "FR TIRE:",
             "FL TIRE:",
             "F TIRES:",
@@ -44,9 +44,54 @@ namespace PitMenuAPI
         };
 
         /// <summary>
+        /// Virtualisation of the menu layout for the current vehicle
+        /// </summary>
+        private static class MenuLayout
+        {
+            static Dictionary<string, List<string>> menuDict =
+                new Dictionary<string, List<string>>();
+            public static void NewCar()
+            {
+                menuDict = new Dictionary<string, List<string>> { };
+            }
+            public static List<string> get(string key)
+            {
+                List<string> value;
+                if (menuDict.Count == 0)
+                {
+                    menuDict = Pmc.GetMenuDict();
+                }
+                if (menuDict.TryGetValue(key, out value))
+                {
+                    return value;
+                }
+                return new List<string>();
+            }
+            public static List<string> getKeys()
+            {
+                if (menuDict.Count == 0)
+                {
+                    menuDict = Pmc.GetMenuDict();
+                }
+                return new List<string>(menuDict.Keys);
+            }
+            public static void set(Dictionary<string, List<string>> unitTestDict)
+            {
+                menuDict = unitTestDict;
+            }
+        }
+
+        /// <summary>
+        /// Connect to the Shared Memory running in rFactor
+        /// </summary>
+        public static bool Connect()
+        {
+            return Pmc.Connect();
+        }
+        /// <summary>
         /// Disconnect from the Shared Memory running in rFactor
         /// </summary>
-        public void Disconnect()
+        public static void Disconnect()
         {
             Pmc.Disconnect();
         }
@@ -57,14 +102,31 @@ namespace PitMenuAPI
         /// set of compounds available
         /// </summary>
         /// <returns>
-        /// A list of the front tyre changes provided for this vehicle
+        /// A sorted list of the front tyre changes provided for this vehicle
         /// </returns>
-        public List<string> GetFrontTyreCategories()
+        public static List<string> GetFrontTyreCategories()
         {
-            return frontTyreCategories.Intersect(menuDict.Keys).ToList();
+            List<string> result =
+                frontTyreCategories.Intersect(MenuLayout.getKeys()).ToList();
+            result.Sort();
+            return result;
         }
 
-        public string GetCurrentTyreType()
+        /// <summary>
+        /// Get a list of all the tyre changes provided for this vehicle.
+        /// </summary>
+        /// <returns>
+        /// A sorted list of all the tyre changes provided for this vehicle
+        /// </returns>
+        public static List<string> GetAllTyreCategories()
+        {
+            List<string> result =
+                tyreCategories.Intersect(MenuLayout.getKeys()).ToList();
+            result.Sort();
+            return result;
+        }
+
+        public static string GetCurrentTyreType()
         {
             string result;
             foreach (string category in GetFrontTyreCategories())
@@ -94,115 +156,22 @@ namespace PitMenuAPI
         /// <returns>
         /// A list of the rear tyre changes provided for this vehicle
         /// </returns>
-        public List<string> GetRearTyreCategories()
+        public static List<string> GetRearTyreCategories()
         {
             // There are simpler ways to do this but...
             return (List<string>)tyreCategories.Except(frontTyreCategories)
-              .Intersect(menuDict.Keys).ToList();
+              .Intersect(MenuLayout.getKeys()).ToList();
         }
-        public void GetMenuDict()
+        public static void GetMenuDict()
         {
             //Pmc.Connect();
-            menuDict = Pmc.GetMenuDict();
+            //menuDict = Pmc.GetMenuDict();
         }
 
-        /// <summary>
-        /// Get the type of tyre selected
-        /// </summary>
-        /// <returns>
-        /// Supersoft
-        /// Soft
-        /// Medium
-        /// Hard
-        /// Intermediate
-        /// Wet
-        /// Monsoon
-        /// No Change
-        /// </returns>
-        public string GetGenericTyreType()
+        public static List<string> GetTyreTypeNames()
         {
-            //if (this.GetCategory().Contains("TIRE"))
-            string current = GetChoice();
-            string result = "NO_TYRE";
-            foreach (var genericTyreType in SampleTyreDict)
-            {
-                if (genericTyreType.Value.Contains(current))
-                {
-                    result = genericTyreType.Key;
-                    break;
-                }
-            }
-            return result;
-        }
-
-        public List<string> GetTyreTypeNames()
-        {
-            //Pmc.SetCategory(GetFrontTyreCategories()[0]);
-            return Pmc.GetTyreTypeNames();
-        }
-
-        /// <summary>
-        /// Take a list of tyre types available in the menu and map them on to
-        /// the set of generic tyre types
-        /// Supersoft
-        /// Soft
-        /// Medium
-        /// Hard
-        /// Intermediate
-        /// Wet
-        /// Monsoon
-        /// (No Change) for completeness
-        /// </summary>
-        /// <param name="inMenu">
-        /// The list returned by GetTyreTypes()
-        /// </param>
-        /// <returns>
-        /// Dictionary mapping generic tyre types to names of those available
-        /// </returns>
-
-        // Complicated because rF2 has many names for tyres so use a dict of
-        // possible alternative names for each type
-        // Each entry has a list of possible matches in declining order
-        // Sample:
-        public static readonly Dictionary<string, List<string>> SampleTyreDict =
-          new Dictionary<string, List<string>>() {
-            { "Supersoft",    new List <string> {"supersoft", "soft",
-                        "s310", "slick", "dry", "all-weather", "medium" } },
-            { "Soft",         new List <string> {"soft",
-                        "s310", "slick", "dry", "all-weather", "medium" } },
-            { "Medium",       new List <string> { "medium", "default",
-                        "s310", "slick", "dry", "all-weather" } },
-            { "Hard",         new List <string> {"hard", "p310", "endur",
-                        "medium", "default",
-                                "slick", "dry", "all-weather" } },
-            { "Intermediate", new List <string> { "intermediate",
-                        "wet", "rain", "monsoon", "all-weather" } },
-            { "Wet",          new List <string> {
-                        "wet", "rain", "monsoon", "all-weather", "intermediate" } },
-            { "Monsoon",      new List <string> {"monsoon",
-                        "wet", "rain",  "all-weather", "intermediate" } },
-            { "No Change",    new List <string> {"no change"} }
-            };
-        public Dictionary<string, string> TranslateTyreTypes(
-          Dictionary<string, List<string>> tyreDict,
-          List<string> inMenu)
-        {
-            Dictionary<string, string> result = new Dictionary<string, string>();
-            foreach (var genericTyretype in tyreDict)
-            { // "Supersoft", "Soft"...
-                foreach (var availableTyretype in inMenu)
-                {  // Tyre type in the menu
-                    foreach (var tyreName in genericTyretype.Value)
-                    { // Type that generic type can match to
-                        if (availableTyretype.IndexOf(tyreName, StringComparison.OrdinalIgnoreCase) >= 0)
-                        {
-                            result[genericTyretype.Key] = availableTyretype;
-                            break;
-                        }
-                    }
-                }
-            }
-            return result;
+            string tyre = GetFrontTyreCategories()[0];
+            return MenuLayout.get(tyre);
         }
 
         /// <summary>
@@ -214,7 +183,7 @@ namespace PitMenuAPI
         /// </summary>
         /// <param name="tyreType">Name of actual tyre type or NO CHANGE</param>
         /// <returns>true all tyres changed</returns>
-        public bool SetAllTyreTypes(string tyreType)
+        public static bool SetAllTyreTypes(string tyreType)
         {
             bool response = true;
 
@@ -243,7 +212,7 @@ namespace PitMenuAPI
             return response;
         }
 
-        public bool setCategoryAndChoice(string category, string choice)
+        public static bool setCategoryAndChoice(string category, string choice)
         {
             int tryNo = 5;
             bool response;
@@ -264,9 +233,9 @@ namespace PitMenuAPI
         }
 
         // Unit Test
-        public void setMenuDict(Dictionary<string, List<string>> dict)
+        public static void setMenuDict(Dictionary<string, List<string>> dict)
         {
-            menuDict = dict;
+            MenuLayout.set(dict);
         }
     }
 }

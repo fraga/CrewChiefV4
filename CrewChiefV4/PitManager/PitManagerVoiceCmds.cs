@@ -111,6 +111,10 @@ namespace CrewChiefV4.PitManager
             return false; // Couldn't do it?
         }
 
+        /// <summary>
+        /// Respond to a voice command
+        /// </summary>
+        /// <param name="voiceMessage"></param>
         public override void respond(String voiceMessage)
         {
             amount = 0;
@@ -180,6 +184,13 @@ namespace CrewChiefV4.PitManager
                 }
             }
         }
+
+        /// <summary>
+        /// This is called on each 'tick' - the event subtype should
+        /// place its logic in here including calls to audioPlayer.queueClip
+        /// </summary>
+        /// <param name="previousGameState"></param>
+        /// <param name="currentGameState"></param>
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
             Boolean autoFuelToEnd = UserSettings.GetUserSettings().getBoolean("iracing_enable_auto_fuel_to_end_of_race");
@@ -221,6 +232,10 @@ namespace CrewChiefV4.PitManager
                 }
             }
         }
+
+        /// <summary>
+        /// reinitialise any state held by the event subtype
+        /// </summary>
         public override void clearState()
         {
             this.fuelCapacity = -1;

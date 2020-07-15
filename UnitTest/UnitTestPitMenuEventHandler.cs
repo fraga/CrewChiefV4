@@ -20,13 +20,14 @@ namespace UnitTest
             bool result;
             var pmh = new PitManager();
 
+            result = pmh.EventHandler(PitManagerEvent.TyreCompoundWet);
+            Thread.Sleep(100);
+
             result = pmh.EventHandler(PitManagerEvent.AeroFrontSetToX);
             Thread.Sleep(100);
             result = pmh.EventHandler(PitManagerEvent.RepairFast);
             Thread.Sleep(100);
 
-            result = pmh.EventHandler(PitManagerEvent.TyreCompoundWet);
-            Thread.Sleep(100);
 
             pmh.AmountHandler(32);
             result = pmh.EventHandler(PitManagerEvent.FuelAddXlitres);

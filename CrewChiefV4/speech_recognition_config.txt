@@ -1,4 +1,4 @@
-﻿# this is a comment - any blank line or line starting with # is ignored
+# this is a comment - any blank line or line starting with # is ignored
 
 # This file contains default options and mappings for the speech recogniser, ***** and will be overwritten when the app is updated *****.
 #
@@ -288,7 +288,7 @@ MINUTES = minutes
 HOUR = hour
 HOURS = hours
 
-# used for iracing pitstop's commands
+# used for iracing and rF2 pitstop commands
 PIT_STOP = pitstop
 PIT_STOP_ADD = pitstop add
 PIT_STOP_TEAROFF = pitstop tearoff:pitstop windscreen
@@ -300,10 +300,10 @@ PIT_STOP_CLEAR_FAST_REPAIR = pitstop clear fast repair
 PIT_STOP_CLEAR_FUEL = pitstop clear fuel
 
 PIT_STOP_CHANGE_ALL_TYRES = pitstop change all tyres:box, change all tyres
-PIT_STOP_CHANGE_FRONT_LEFT_TYRE = pitstop change left front tyre
-PIT_STOP_CHANGE_FRONT_RIGHT_TYRE = pitstop change right front tyre
-PIT_STOP_CHANGE_REAR_LEFT_TYRE = pitstop change left rear tyre
-PIT_STOP_CHANGE_REAR_RIGHT_TYRE = pitstop change right rear tyre
+PIT_STOP_CHANGE_FRONT_LEFT_TYRE = pitstop change left front tyre:pitstop change front left tyre
+PIT_STOP_CHANGE_FRONT_RIGHT_TYRE = pitstop change right front tyre:pitstop change front right tyre
+PIT_STOP_CHANGE_REAR_LEFT_TYRE = pitstop change left rear tyre:pitstop change rear left tyre
+PIT_STOP_CHANGE_REAR_RIGHT_TYRE = pitstop change right rear tyre:pitstop change rear right tyre
 PIT_STOP_CHANGE_LEFT_SIDE_TYRES = pitstop change left side tyres
 PIT_STOP_CHANGE_RIGHT_SIDE_TYRES = pitstop change right side tyres
 

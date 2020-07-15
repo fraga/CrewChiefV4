@@ -56,26 +56,60 @@ using PitMenuAPI;
 
 namespace CrewChiefV4.PitManager
 {
+    using Pmal = PitMenuAbstractionLayer;
+
     class PitManagerEventHandlers_RF2
     {
-        static private PitMenuController Pmc = new PitMenuController();
-        static private PitMenuAbstractionLayer Pmal = new PitMenuAbstractionLayer();
-        static private Dictionary<string, List<string>> tyreDict =
-            PitMenuAbstractionLayer.SampleTyreDict;
-        static private Dictionary<string, string> ttDict;
-        static private List<string> tyreCategories;
-        static List<string> tyreTypes;
+        /// <summary>
+        /// Take a list of tyre types available in the menu and map them on to
+        /// the set of generic tyre types
+        /// Supersoft
+        /// Soft
+        /// Medium
+        /// Hard
+        /// Intermediate
+        /// Wet
+        /// Monsoon
+        /// (No Change) for completeness
+        /// </summary>
+        /// <param name="inMenu">
+        /// The list returned by GetTyreTypes()
+        /// </param>
+        /// <returns>
+        /// Dictionary mapping generic tyre types to names of those available
+        /// </returns>
 
-        static private string[] tyres = new string[] {
-            "RR TIRE:",
-            "RL TIRE:",
-            "FR TIRE:",
-            "FL TIRE:",
-            "R TIRES:",
-            "F TIRES:",
-            "RT TIRES:",
-            "LF TIRES:"
-        };
+        // Complicated because rF2 has many names for tyres so use a dict of
+        // possible alternative names for each type
+        // Each entry has a list of possible matches in declining order
+        // Sample:
+        private static readonly Dictionary<string, List<string>> SampleTyreTranslationDict =
+          new Dictionary<string, List<string>>() {
+            { "Supersoft",    new List <string> {"supersoft", "soft",
+                        "s310", "slick", "dry", "all-weather", "medium" } },
+            { "Soft",         new List <string> {"soft",
+                        "s310", "slick", "dry", "all-weather", "medium" } },
+            { "Medium",       new List <string> { "medium", "default",
+                        "s310", "slick", "dry", "all-weather" } },
+            { "Hard",         new List <string> {"hard", "p310", "endur",
+                        "medium", "default",
+                                "slick", "dry", "all-weather" } },
+            { "Intermediate", new List <string> { "intermediate",
+                        "wet", "rain", "monsoon", "all-weather" } },
+            { "Wet",          new List <string> {
+                        "wet", "rain", "monsoon", "all-weather", "intermediate" } },
+            { "Monsoon",      new List <string> {"monsoon",
+                        "wet", "rain",  "all-weather", "intermediate" } },
+            { "No Change",    new List <string> {"no change"} }
+            };
+
+        static private Dictionary<string, List<string>> tyreTranslationDict =
+            SampleTyreTranslationDict;
+        static private Dictionary<string, string> ttDict =
+            TranslateTyreTypes(tyreTranslationDict, Pmal.GetTyreTypeNames());
+        static private List<string> tyreCategories;
+        static List<string> tyreTypes = Pmal.GetTyreTypeNames();
+
         static private readonly List<string> genericCompounds = new List<string> {
             "Hard",
             "Medium",
@@ -87,13 +121,8 @@ namespace CrewChiefV4.PitManager
             "Prime",
             "Alternate" };
         static private string currentGenericTyreCompound = "";
+        static private currentTyreType xx = new currentTyreType();
 
-        public PitManagerEventHandlers_RF2()
-        {
-            _ = Pmc.Connect();
-            _ = Pmc.GetMenuDict();
-            tyreTypes = Pmc.GetTyreTypeNames();
-        }
         private class currentTyreType
         {
             static string _currentTyreType = "";
@@ -108,7 +137,7 @@ namespace CrewChiefV4.PitManager
                     _currentTyreType = Pmal.GetCurrentTyreType();
                     if (_currentTyreType == "No Change")
                     {
-                        _currentTyreType = Pmal.TranslateTyreTypes(tyreDict, tyreTypes)["Medium"];
+                        _currentTyreType = TranslateTyreTypes(tyreTranslationDict, tyreTypes)["Medium"];
                     }
                 }
                 return _currentTyreType;
@@ -133,35 +162,66 @@ namespace CrewChiefV4.PitManager
             return true;
 
         }
-        static private bool setTyreCompound(string compound)
+        public static Dictionary<string, string> TranslateTyreTypes(
+          Dictionary<string, List<string>> tyreDict,
+          List<string> inMenu)
         {
-            bool response = false;
-            Pmc.startUsingPitMenu();
-            // Don't need to do these every time, just when track loaded but for now...
-            ttDict = Pmal.TranslateTyreTypes(tyreDict, tyreTypes);
-            tyreCategories = Pmc.GetTyreChangeCategories();
-
-            foreach (string tyre in tyreCategories)
-            {
-                if (Pmc.SetCategory(tyre))
-                {
-                    response = Pmc.SetTyreType(ttDict[compound]);
-                    if (response)
-                    {
-                        currentGenericTyreCompound = ttDict[compound];
-                        if (CrewChief.Debugging)
+            Dictionary<string, string> result = new Dictionary<string, string>();
+            foreach (var genericTyretype in tyreDict)
+            { // "Supersoft", "Soft"...
+                foreach (var availableTyretype in inMenu)
+                {  // Tyre type in the menu
+                    foreach (var tyreName in genericTyretype.Value)
+                    { // Type that generic type can match to
+                        if (availableTyretype.IndexOf(tyreName, StringComparison.OrdinalIgnoreCase) >= 0)
                         {
-                            Console.WriteLine("Pit Manager tyre compound set to (" + compound + ") " + currentGenericTyreCompound);
+                            result[genericTyretype.Key] = availableTyretype;
+                            break;
                         }
-                    }
-                    else
-                    {   // Compound is not available
-                        PitManagerResponseHandlers.responseHandler_TyreCompoundNotAvailable();
-                        break;
                     }
                 }
             }
+            return result;
+        }
+        static private bool setTyreCompound(string genericTyreType)
+        {
+            xx.Set(TranslateTyreTypes(tyreTranslationDict, Pmal.GetTyreTypeNames())[genericTyreType]);
+            return true;
+        }
+
+        static private bool changeTyre(string tyreCategory, bool noChange=false)
+        {
+            bool response = false;
+            string tyreType = noChange ? "No Change" : xx.Get();
+
+            response = Pmal.setCategoryAndChoice(tyreCategory, tyreType);
+            if (response)
+            {
+                // dict is the other direction currentGenericTyreCompound = ttDict[tyreType];
+                if (CrewChief.Debugging)
+                {
+                    Console.WriteLine("Pit Manager tyre compound set to (" +
+                        tyreCategory + ") " + tyreType);
+                }
+            }
+            else
+            {   // Compound is not available
+                PitManagerResponseHandlers.responseHandler_TyreCompoundNotAvailable();
+            }
             return response;
+        }
+
+        static private bool changeTyres(List<string> tyreCategories, bool noChange = false)
+        {
+            bool result = true;
+            foreach (string tyreCategory in tyreCategories)
+            {
+                if (result)
+                {
+                    result = changeTyre(tyreCategory, noChange);
+                }
+            }
+            return result;
         }
 
         static public bool actionHandler_TyreCompoundHard()
@@ -182,163 +242,122 @@ namespace CrewChiefV4.PitManager
         }
         static public bool actionHandler_TyreCompoundOption()
         {
-            return setTyreCompound("Option");
+            return setTyreCompound("Soft"); // tbd:
         }
         static public bool actionHandler_TyreCompoundPrime()
         {
-            return setTyreCompound("Prime");
+            return setTyreCompound("Soft"); // tbd:
         }
         static public bool actionHandler_TyreCompoundAlternate()
         {
-            return setTyreCompound("Alternate");
+            return setTyreCompound("Soft"); // tbd:
         }
+
         static public bool actionHandler_TyreCompoundNext()
         {
             // Select the next compound available for this car
             // Get the current tyre type
             // Get the list of tyre type, remove "No Change"
             bool response = false;
-            List<string> tyreTypes = Pmc.GetTyreTypeNames();
-            string currentTyreTypeStr = "what?";
-            int currentTyreType = genericCompounds.IndexOf(Pmal.GetGenericTyreType());
-            for (var i = currentTyreType+1; i != currentTyreType; i++)
-            {
-                if (i >= genericCompounds.Count)
-                    i = 0;
-                if (Pmc.SetTyreType(genericCompounds[i]))
-                { // Found one
-                    response = true;
-                    break;
-                }
-            }
-            return response;    // Failed to find any???
-        }
-        static public bool actionHandler_changeAllTyres()
-        {
-            return setTyreCompound(currentGenericTyreCompound);
-        }
+            List<string> tyreTypes = Pmal.Pmc.GetTyreTypeNames();
+            tyreTypes.Remove("No Change");
+            string currentTyreTypeStr = Pmal.GetCurrentTyreType();
 
-        static public bool actionHandler_changeNoTyres()
-        {
-            return setTyreCompound("No Change");
-        }
-
-        static private bool changeCategoryOfTyre(string tyreCategory)
-        {
-            bool response = false;
-            Pmc.startUsingPitMenu();
-            List<string> tyreTypes = Pmc.GetTyreTypeNames();
-            // Don't need to do these every time, just when track loaded but for now...
-            ttDict = Pmal.TranslateTyreTypes(tyreDict, tyreTypes);
-            tyreCategories = Pmc.GetTyreChangeCategories();
-
-            if (tyreCategories.Contains(tyreCategory))
-            {
-                if (Pmc.SetCategory(tyreCategory))
-                {
-                    string tyreCompound = ttDict[currentGenericTyreCompound];
-                    response = Pmc.SetTyreType(tyreCompound);
-                    if (response)
-                    {
-                        if (CrewChief.Debugging)
-                        {
-                            Console.WriteLine("Pit Manager tyre compound set to (" + currentGenericTyreCompound + ") " + tyreCompound);
-                        }
-                    }
-                    else
-                    {   // Compound is not available
-                        PitManagerResponseHandlers.responseHandler_TyreCompoundNotAvailable();
-                    }
-                }
-            }
+            int currentTyreType = tyreTypes.IndexOf(currentTyreTypeStr) + 1;
+            if (currentTyreType >= tyreTypes.Count)
+                currentTyreType = 0;
+            response = true;
+            xx.Set(tyreTypes[currentTyreType]);
             return response;
         }
 
+        static public bool actionHandler_changeAllTyres()
+        {
+            return changeTyres(Pmal.GetAllTyreCategories());
+        }
+        static public bool actionHandler_changeNoTyres()
+        {
+            return changeTyres(Pmal.GetAllTyreCategories(), true);
+        }
+
+
         static public bool actionHandler_changeFrontTyres()
         {
-            setTyreCompound("No Change");
-            return changeCategoryOfTyre("F TIRES:");
+            return changeTyre("F TIRES:");
         }
         static public bool actionHandler_changeRearTyres()
         {
-            setTyreCompound("No Change");
-            return changeCategoryOfTyre("R TIRES:");
+            return changeTyre("R TIRES:");
         }
         static public bool actionHandler_changeLeftTyres()
         {
-            setTyreCompound("No Change");
-            return changeCategoryOfTyre("LF TIRES:");
+            return changeTyre("LF TIRES:");
         }
         static public bool actionHandler_changeRightTyres()
         {
-            setTyreCompound("No Change");
-            return changeCategoryOfTyre("RT TIRES:");
+            return changeTyre("RT TIRES:");
         }
         static public bool actionHandler_changeFLTyre()
         {
-            setTyreCompound("No Change");
-            return changeCategoryOfTyre("FL TIRE:");
+            return changeTyre("FL TIRE:");
         }
         static public bool actionHandler_changeFRTyre()
         {
-            setTyreCompound("No Change");
-            return changeCategoryOfTyre("FR TIRE:");
+            return changeTyre("FR TIRE:");
         }
         static public bool actionHandler_changeRLTyre()
         {
-            setTyreCompound("No Change");
-            return changeCategoryOfTyre("RL TIRE:");
+            return changeTyre("RL TIRE:");
         }
         static public bool actionHandler_changeRRTyre()
         {
-            setTyreCompound("No Change");
-            return changeCategoryOfTyre("RR TIRE:");
+            return changeTyre("RR TIRE:");
         }
 
 
         static public bool actionHandler_FuelAddXlitres()
         {
-            return Pmc.SetFuelLevel(amountCache);
+            return Pmal.Pmc.SetFuelLevel(amountCache);
         }
 
         static public bool actionHandler_RepairAll()
         {
-            if (Pmc.SoftMatchCategory("DAMAGE:"))
+            if (Pmal.Pmc.SoftMatchCategory("DAMAGE:"))
             {
-                return Pmc.SetChoice("Repair All");
+                return Pmal.Pmc.SetChoice("Repair All");
             }
             return false;
         }
         static public bool actionHandler_RepairNone()
         {
-            if (Pmc.SoftMatchCategory("DAMAGE:"))
+            if (Pmal.Pmc.SoftMatchCategory("DAMAGE:"))
             {
-                return Pmc.SetChoice("Repair None");
+                return Pmal.Pmc.SetChoice("Repair None");
             }
             return false;
         }
         static public bool actionHandler_RepairBody()
         {
-            if (Pmc.SoftMatchCategory("DAMAGE:"))
+            if (Pmal.Pmc.SoftMatchCategory("DAMAGE:"))
             {
-                return Pmc.SetChoice("Repair Body");
+                return Pmal.Pmc.SetChoice("Repair Body");
             }
             return false;
         }
 
         static public bool actionHandler_PenaltyServe()
         {
-            if (Pmc.SoftMatchCategory("STOP/GO"))
+            if (Pmal.Pmc.SoftMatchCategory("STOP/GO"))
             {
-                return Pmc.SetChoice("YES");
+                return Pmal.Pmc.SetChoice("YES");
             }
             return false;
         }
         static public bool actionHandler_PenaltyServeNone()
         {
-            if (Pmc.SoftMatchCategory("STOP/GO"))
+            if (Pmal.Pmc.SoftMatchCategory("STOP/GO"))
             {
-                return Pmc.SetChoice("NO");
+                return Pmal.Pmc.SetChoice("NO");
             }
             return false;
         }
