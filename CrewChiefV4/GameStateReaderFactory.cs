@@ -14,6 +14,7 @@ using CrewChiefV4.F1_2018;
 using CrewChiefV4.ACC;
 using CrewChiefV4.F1_2019;
 using CrewChiefV4.AMS2;
+using CrewChiefV4.F1_2020;
 
 namespace CrewChiefV4
 {
@@ -34,9 +35,10 @@ namespace CrewChiefV4
         private iRacingSharedMemoryReader iracingSharedMemoryReader;
         private F12018UDPreader f12018UDPReader;
         private ACCSharedMemoryReader accSharedMemoryReader;
-        private F12019UDPreader f12019UDPReader;
+        private F12019UDPreader f12019UDPReader;        
         private AMS2UDPreader ams2UDPReader;
         private AMS2SharedMemoryReader ams2SharedMemoryReader;
+        private F12020UDPreader f12020UDPReader;
 
         public static GameStateReaderFactory getInstance()
         {
@@ -123,6 +125,12 @@ namespace CrewChiefV4
                             f12019UDPReader = new F12019UDPreader();
                         }
                         return f12019UDPReader;
+                    case GameEnum.F1_2020:
+                        if (f12020UDPReader == null)
+                        {
+                            f12020UDPReader = new F12020UDPreader();
+                        }
+                        return f12020UDPReader;
                     case GameEnum.AMS2:
                         if (ams2SharedMemoryReader == null)
                         {
@@ -168,6 +176,8 @@ namespace CrewChiefV4
                     return new ACCGameStateMapper();
                 case GameEnum.F1_2019:
                     return new F12019GameStateMapper();
+                case GameEnum.F1_2020:
+                    return new F12020GameStateMapper();
                 case GameEnum.AMS2:
                 case GameEnum.AMS2_NETWORK:
                     return new AMS2GameStateMapper();

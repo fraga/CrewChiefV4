@@ -4498,5 +4498,65 @@ namespace CrewChiefV4.Properties {
                 this["disable_overlay_voice_commands"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:/Program Files (x86)/Steam/Steam.exe")]
+        public string f1_2020_launch_exe {
+            get {
+                return ((string)(this["f1_2020_launch_exe"]));
+            }
+            set {
+                this["f1_2020_launch_exe"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string f1_2020_launch_params {
+            get {
+                return ((string)(this["f1_2020_launch_params"]));
+            }
+            set {
+                this["f1_2020_launch_params"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool launch_f1_2020 {
+            get {
+                return ((bool)(this["launch_f1_2020"]));
+            }
+            set {
+                this["launch_f1_2020"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("5")]
+        public float f1_2020_spotter_car_length {
+            get {
+                return ((float)(this["f1_2020_spotter_car_length"]));
+            }
+            set {
+                this["f1_2020_spotter_car_length"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("20777")]
+        public int f1_2020_udp_data_port {
+            get {
+                return ((int)(this["f1_2020_udp_data_port"]));
+            }
+            set {
+                this["f1_2020_udp_data_port"] = value;
+            }
+        }
     }
 }
