@@ -40,6 +40,7 @@ namespace CrewChiefV4
         public static int cachedSpeechInputDeviceIndex = 0;
         private Boolean useNAudio = UserSettings.GetUserSettings().getBoolean("use_naudio_for_speech_recognition");
         private Boolean disableBehaviorAlteringVoiceCommands = UserSettings.GetUserSettings().getBoolean("disable_behavior_altering_voice_commands");
+        private Boolean disableOverlayVoiceCommands = UserSettings.GetUserSettings().getBoolean("disable_overlay_voice_commands");
         private RingBufferStream.RingBufferStream buffer;
         private NAudio.Wave.WaveInEvent waveIn;
 
@@ -258,7 +259,9 @@ namespace CrewChiefV4
         public static String[] PIT_STOP_SOFT_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_SOFT_TYRES");
         public static String[] PIT_STOP_MEDIUM_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_MEDIUM_TYRES");
         public static String[] PIT_STOP_HARD_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_HARD_TYRES");
+        public static String[] PIT_STOP_INTERMEDIATE_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_INTERMEDIATE_TYRES");
         public static String[] PIT_STOP_WET_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_WET_TYRES");
+        public static String[] PIT_STOP_MONSOON_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_MONSOON_TYRES");
         public static String[] PIT_STOP_OPTION_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_OPTION_TYRES");
         public static String[] PIT_STOP_PRIME_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_PRIME_TYRES");
         public static String[] PIT_STOP_ALTERNATE_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_ALTERNATE_TYRES");
@@ -594,14 +597,7 @@ namespace CrewChiefV4
                 string leadingNumber = numberStr[0].ToString();
                 string middleNumber = numberStr[1].ToString();
                 string finalNumber = numberStr[2].ToString();
-                string leadingNumberPhrase = "";
-                try
-                {
-                    leadingNumberPhrase = Configuration.getSpeechRecognitionPhrases(leadingNumber)[0];   //"one" / "two" / etc
-                }
-                catch (TypeInitializationException e)
-                {
-                }
+                string leadingNumberPhrase = Configuration.getSpeechRecognitionPhrases(leadingNumber)[0];   //"one" / "two" / etc
                 if (middleNumber == "0")
                 {
                     // need to add "one oh one", "five zero three", etc
@@ -1089,7 +1085,8 @@ namespace CrewChiefV4
                 validateAndAdd(WHATS_MY_RANK, staticSpeechChoices);
                 validateAndAdd(WHATS_MY_REPUTATION, staticSpeechChoices);
 
-                if (UserSettings.GetUserSettings().getBoolean("enable_overlay_window"))
+                if (UserSettings.GetUserSettings().getBoolean("enable_overlay_window")
+                    && !this.disableOverlayVoiceCommands)
                 {
                     validateAndAdd(HIDE_OVERLAY, staticSpeechChoices);
                     validateAndAdd(SHOW_OVERLAY, staticSpeechChoices);
@@ -1119,13 +1116,15 @@ namespace CrewChiefV4
                     validateAndAdd(CHART_COMMAND_SHOW_LAST_LAP, staticSpeechChoices);
                 }
 
-                if (UserSettings.GetUserSettings().getBoolean("enable_subtitle_overlay"))
+                if (UserSettings.GetUserSettings().getBoolean("enable_subtitle_overlay")
+                    && !this.disableOverlayVoiceCommands)
                 {
                     validateAndAdd(SHOW_SUBTITLES, staticSpeechChoices);
                     validateAndAdd(HIDE_SUBTITLES, staticSpeechChoices);
                 }
 
-                if (UserSettings.GetUserSettings().getBoolean("enable_vr_overlay_windows"))
+                if (UserSettings.GetUserSettings().getBoolean("enable_vr_overlay_windows")
+                    && !this.disableOverlayVoiceCommands)
                 {
                     validateAndAdd(TOGGLE_VR_OVERLAYS, staticSpeechChoices);
                     validateAndAdd(SHOW_VR_SETTING, staticSpeechChoices);
@@ -1615,28 +1614,6 @@ namespace CrewChiefV4
                 r3ePitstopGrammarList.Clear();
                 PitManagerGrammarList.Clear();
                 ChoicesWrapper pitManagerChoices = SREWrapperFactory.createNewChoicesWrapper();
-                validateAndAdd(PIT_STOP_CHANGE_ALL_TYRES, pitManagerChoices);
-                validateAndAdd(PIT_STOP_CHANGE_FRONT_TYRES, pitManagerChoices);
-                validateAndAdd(PIT_STOP_CHANGE_REAR_TYRES, pitManagerChoices);
-                validateAndAdd(PIT_STOP_CLEAR_TYRES, pitManagerChoices);
-                validateAndAdd(PIT_STOP_FIX_FRONT_AERO, pitManagerChoices);
-                validateAndAdd(PIT_STOP_FIX_REAR_AERO, pitManagerChoices);
-                validateAndAdd(PIT_STOP_FIX_ALL_AERO, pitManagerChoices);
-                validateAndAdd(PIT_STOP_FIX_NO_AERO, pitManagerChoices);
-                validateAndAdd(PIT_STOP_FIX_SUSPENSION, pitManagerChoices);
-                validateAndAdd(PIT_STOP_DONT_FIX_SUSPENSION, pitManagerChoices);
-                validateAndAdd(PIT_STOP_SERVE_PENALTY, pitManagerChoices);
-                validateAndAdd(PIT_STOP_DONT_SERVE_PENALTY, pitManagerChoices);
-                validateAndAdd(PIT_STOP_NEXT_TYRE_COMPOUND, pitManagerChoices);
-                validateAndAdd(PIT_STOP_HARD_TYRES, pitManagerChoices);
-                validateAndAdd(PIT_STOP_MEDIUM_TYRES, pitManagerChoices);
-                validateAndAdd(PIT_STOP_SOFT_TYRES, pitManagerChoices);
-                validateAndAdd(PIT_STOP_PRIME_TYRES, pitManagerChoices);
-                validateAndAdd(PIT_STOP_ALTERNATE_TYRES, pitManagerChoices);
-                validateAndAdd(PIT_STOP_OPTION_TYRES, pitManagerChoices);
-                validateAndAdd(PIT_STOP_DONT_REFUEL, pitManagerChoices);
-                validateAndAdd(PIT_STOP_REFUEL, pitManagerChoices);
-
                 if (enable_iracing_pit_stop_commands)
                 {
                     List<string> tyrePressureChangePhrases = new List<string>();
@@ -1672,6 +1649,7 @@ namespace CrewChiefV4
                     validateAndAdd(PIT_STOP_CLEAR_WIND_SCREEN, pitManagerChoices);
                     validateAndAdd(PIT_STOP_CLEAR_FAST_REPAIR, pitManagerChoices);
                     validateAndAdd(PIT_STOP_CLEAR_FUEL, pitManagerChoices);
+
                     validateAndAdd(PIT_STOP_CHANGE_ALL_TYRES, pitManagerChoices);
                     validateAndAdd(PIT_STOP_CHANGE_FRONT_LEFT_TYRE, pitManagerChoices);
                     validateAndAdd(PIT_STOP_CHANGE_FRONT_RIGHT_TYRE, pitManagerChoices);
@@ -1679,6 +1657,29 @@ namespace CrewChiefV4
                     validateAndAdd(PIT_STOP_CHANGE_REAR_RIGHT_TYRE, pitManagerChoices);
                     validateAndAdd(PIT_STOP_CHANGE_LEFT_SIDE_TYRES, pitManagerChoices);
                     validateAndAdd(PIT_STOP_CHANGE_RIGHT_SIDE_TYRES, pitManagerChoices);
+                    validateAndAdd(PIT_STOP_CHANGE_FRONT_TYRES, pitManagerChoices);
+                    validateAndAdd(PIT_STOP_CHANGE_REAR_TYRES, pitManagerChoices);
+                    validateAndAdd(PIT_STOP_FIX_FRONT_AERO, pitManagerChoices);
+                    validateAndAdd(PIT_STOP_FIX_REAR_AERO, pitManagerChoices);
+                    validateAndAdd(PIT_STOP_FIX_ALL_AERO, pitManagerChoices);
+                    validateAndAdd(PIT_STOP_FIX_NO_AERO, pitManagerChoices);
+                    validateAndAdd(PIT_STOP_FIX_SUSPENSION, pitManagerChoices);
+                    validateAndAdd(PIT_STOP_DONT_FIX_SUSPENSION, pitManagerChoices);
+                    validateAndAdd(PIT_STOP_SERVE_PENALTY, pitManagerChoices);
+                    validateAndAdd(PIT_STOP_DONT_SERVE_PENALTY, pitManagerChoices);
+                    validateAndAdd(PIT_STOP_NEXT_TYRE_COMPOUND, pitManagerChoices);
+                    validateAndAdd(PIT_STOP_HARD_TYRES, pitManagerChoices);
+                    validateAndAdd(PIT_STOP_MEDIUM_TYRES, pitManagerChoices);
+                    validateAndAdd(PIT_STOP_SOFT_TYRES, pitManagerChoices);
+                    validateAndAdd(PIT_STOP_PRIME_TYRES, pitManagerChoices);
+                    validateAndAdd(PIT_STOP_ALTERNATE_TYRES, pitManagerChoices);
+                    validateAndAdd(PIT_STOP_OPTION_TYRES, pitManagerChoices);
+                    validateAndAdd(PIT_STOP_INTERMEDIATE_TYRES, pitManagerChoices);
+                    validateAndAdd(PIT_STOP_WET_TYRES, pitManagerChoices);
+                    validateAndAdd(PIT_STOP_MONSOON_TYRES, pitManagerChoices);
+                    validateAndAdd(PIT_STOP_DONT_REFUEL, pitManagerChoices);
+                    validateAndAdd(PIT_STOP_REFUEL, pitManagerChoices);
+
                 }
 
                 validateAndAdd(PIT_STOP_FUEL_TO_THE_END, pitManagerChoices);
@@ -2548,17 +2549,52 @@ namespace CrewChiefV4
                 ResultContains(recognisedSpeech, PIT_STOP_CHANGE_REAR_RIGHT_TYRE, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_CHANGE_LEFT_SIDE_TYRES, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_CHANGE_RIGHT_SIDE_TYRES, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_HARD_TYRES, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_MEDIUM_TYRES, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_SOFT_TYRES, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_WET_TYRES, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_NEXT_TYRE_COMPOUND, false) ||
                 ResultContains(recognisedSpeech, HOW_MANY_INCIDENT_POINTS, false) ||
                 ResultContains(recognisedSpeech, WHATS_THE_INCIDENT_LIMIT, false) ||
                 ResultContains(recognisedSpeech, WHATS_MY_IRATING, false) ||
                 ResultContains(recognisedSpeech, WHATS_MY_LICENSE_CLASS, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_FUEL_TO_THE_END, false) ||
                 ResultContains(recognisedSpeech, WHATS_THE_SOF, false))
+            {
+                return CrewChief.getEvent("IRacingBroadcastMessageEvent");
+            }
+            else if (ResultContains(recognisedSpeech, PIT_STOP_TEAROFF, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_FAST_REPAIR, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CLEAR_ALL, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CLEAR_TYRES, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CLEAR_WIND_SCREEN, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CLEAR_FAST_REPAIR, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CLEAR_FUEL, false) ||
+
+				ResultContains(recognisedSpeech, PIT_STOP_CHANGE_ALL_TYRES, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CHANGE_FRONT_LEFT_TYRE, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CHANGE_FRONT_RIGHT_TYRE, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CHANGE_REAR_LEFT_TYRE, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CHANGE_REAR_RIGHT_TYRE, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CHANGE_LEFT_SIDE_TYRES, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CHANGE_RIGHT_SIDE_TYRES, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CHANGE_FRONT_TYRES, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CHANGE_REAR_TYRES, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_FIX_FRONT_AERO, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_FIX_REAR_AERO, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_FIX_ALL_AERO, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_FIX_NO_AERO, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_FIX_SUSPENSION, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_DONT_FIX_SUSPENSION, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_SERVE_PENALTY, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_DONT_SERVE_PENALTY, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_NEXT_TYRE_COMPOUND, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_HARD_TYRES, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_MEDIUM_TYRES, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_SOFT_TYRES, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_PRIME_TYRES, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_ALTERNATE_TYRES, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_OPTION_TYRES, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_DONT_REFUEL, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_REFUEL, false) ||
+
+
+                ResultContains(recognisedSpeech, PIT_STOP_FUEL_TO_THE_END, false))
             {
                 return CrewChief.getEvent("PitManagerVoiceCmds");
             }

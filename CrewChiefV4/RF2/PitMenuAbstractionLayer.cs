@@ -43,6 +43,18 @@ namespace PitMenuAPI
             "TIRES:"
         };
 
+        private static readonly string[] leftTyreCategories = {
+            "FL TIRE:",
+            "RL TIRE:",
+            "LF TIRES:",
+        };
+
+        private static readonly string[] rightTyreCategories = {
+            "FR TIRE:",
+            "RR TIRE:",
+            "RT TIRES:",
+        };
+
         /// <summary>
         /// Virtualisation of the menu layout for the current vehicle
         /// </summary>
@@ -162,6 +174,16 @@ namespace PitMenuAPI
             return (List<string>)tyreCategories.Except(frontTyreCategories)
               .Intersect(MenuLayout.getKeys()).ToList();
         }
+        public static List<string> GetLeftTyreCategories()
+        {
+            return leftTyreCategories.Intersect(MenuLayout.getKeys()).ToList();
+        }
+
+        public static List<string> GetRightTyreCategories()
+        {
+            return rightTyreCategories.Intersect(MenuLayout.getKeys()).ToList();
+        }
+
         public static void GetMenuDict()
         {
             //Pmc.Connect();

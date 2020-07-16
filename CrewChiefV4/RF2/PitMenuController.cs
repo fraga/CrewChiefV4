@@ -128,7 +128,7 @@ namespace PitMenuAPI
         int newLevel = GetFuelLevel();
         if (newLevel == current)
         { // Can't adjust further
-          if (tryNo-- > 0)
+          if (tryNo-- < 0)
           {
             return false;
           }
@@ -147,7 +147,7 @@ namespace PitMenuAPI
         int newLevel = GetFuelLevel();
         if (newLevel == current)
         { // Can't adjust further
-          if (tryNo-- > 0)
+          if (tryNo-- < 0)
           {
             return false;
           }

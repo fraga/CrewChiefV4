@@ -203,10 +203,11 @@ namespace PitMenuAPI
         CategoryDown();
         if (GetCategory() == InitialCategory)
         {  // Wrapped around, category not found
-          if (tryNo-- > 0)
+          if (tryNo-- < 0)
           {
             return false;
           }
+          this.startUsingPitMenu();
         }
       }
       return true;

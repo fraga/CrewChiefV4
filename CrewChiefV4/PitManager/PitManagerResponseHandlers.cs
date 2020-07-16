@@ -32,6 +32,8 @@ namespace CrewChiefV4.PitManager
             {
                 CrewChief.audioPlayer.playMessageImmediately(new QueuedMessage(folder, 0));
             }
+            else
+                CrewChief.audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
 
         }
         static public bool responseHandler_example()
@@ -41,8 +43,7 @@ namespace CrewChiefV4.PitManager
         }
         static public bool responseHandler_TyreCompoundHard()
         {
-            // if (SoundCache.hasSingleSound(folderConfirmHardTyres))
-                playMessage(folderConfirmHardTyres);
+            playMessage(folderConfirmHardTyres);
             return true;
         }
         static public bool responseHandler_TyreCompoundMedium()

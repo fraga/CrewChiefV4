@@ -43,7 +43,9 @@ namespace CrewChiefV4.PitManager
             {PME.TyreCompoundHard,  SRE.PIT_STOP_HARD_TYRES },
             {PME.TyreCompoundMedium, SRE.PIT_STOP_MEDIUM_TYRES },
             {PME.TyreCompoundSoft,  SRE.PIT_STOP_SOFT_TYRES },
+            {PME.TyreCompoundIntermediate,   SRE.PIT_STOP_INTERMEDIATE_TYRES },        // tbd:
             {PME.TyreCompoundWet,   SRE.PIT_STOP_WET_TYRES },        // tbd:
+            {PME.TyreCompoundMonsoon,   SRE.PIT_STOP_MONSOON_TYRES },        // tbd:
             {PME.TyreCompoundOption, SRE.PIT_STOP_OPTION_TYRES },
             {PME.TyreCompoundPrime, SRE.PIT_STOP_PRIME_TYRES },
             {PME.TyreCompoundAlternate, SRE.PIT_STOP_ALTERNATE_TYRES },
@@ -53,6 +55,7 @@ namespace CrewChiefV4.PitManager
             //{PME.FuelFillToXlitres, SRE.PIT_STOP },               // tbd: would require added speech handling
             {PME.FuelFillToEnd,     SRE.PIT_STOP_FUEL_TO_THE_END },
             {PME.FuelNone,          SRE.PIT_STOP_DONT_REFUEL },
+            //{PME.FuelNone,          SRE.PIT_STOP_CLEAR_FUEL },
 
             // tbd {PME.RepairAll,         SRE.PIT_STOP },
             {PME.RepairNone,        SRE.PIT_STOP_CLEAR_ALL },

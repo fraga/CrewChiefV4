@@ -11,6 +11,7 @@ using System.Threading;
 using rF2SharedMemory;
 using static rF2SharedMemory.rFactor2Constants;
 using rF2SharedMemory.rFactor2Data;
+using System.Windows.Forms;
 
 /**
  * Maps memory mapped file to a local game-agnostic representation.
@@ -147,7 +148,7 @@ namespace CrewChiefV4.rFactor2
             this.suspensionDamageThresholds.Add(new CornerData.EnumWithThresholds(DamageLevel.DESTROYED, 1.0f, 2.0f));
         }
 
-        private int[] minimumSupportedVersionParts = new int[] { 3, 7, 1, 0 };
+        private int[] minimumSupportedVersionParts = new int[] { 3, 7, 14, 0 };
         public static bool pluginVerified = false;
         private static int reinitWaitAttempts = 0;
         public override void versionCheck(Object memoryMappedFileStruct)
@@ -204,12 +205,16 @@ namespace CrewChiefV4.rFactor2
             else if (smVer < minVer)
             {
                 var minVerStr = string.Join(".", this.minimumSupportedVersionParts);
-                var msg = "Unsupported rFactor 2 Shared Memory version: "
-                    + versionStr
-                    + "  Minimum supported version is: "
+                var msg1 = "Unsupported rFactor 2 Shared Memory version: " + versionStr;
+
+                var msg2 = "Minimum supported version is: "
                     + minVerStr
-                    + "  Please update rFactor2SharedMemoryMapPlugin64.dll" + failureHelpMsg;
-                Console.WriteLine(msg);
+                    + "\nPlease update rFactor2SharedMemoryMapPlugin64.dll" + failureHelpMsg;
+                Console.WriteLine(msg1 + " " + msg2);
+                MessageBox.Show(msg2, msg1,
+                    //Configuration.getUIString("install_plugin_popup_enable_text"),
+                    //Configuration.getUIString("install_plugin_popup_enable_title"),
+                    MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
             }
             else
             {
@@ -238,7 +243,7 @@ namespace CrewChiefV4.rFactor2
                 Console.WriteLine(msg);
             }
         }
-        
+
         // Abrupt session detection variables.
         private bool waitingToTerminateSession = false;
         private long ticksWhenSessionEnded = DateTime.MinValue.Ticks;
@@ -273,7 +278,7 @@ namespace CrewChiefV4.rFactor2
             this.compoundNameToTyreType.Clear();
             this.idToCarInfoMap.Clear();
             this.lastPenaltyTime = DateTime.MinValue;
-            
+
             // Do not reset MC tracking variables as "Disqualified" messages seem to stick for a bit on restart.
             //this.lastEffectiveHistoryMessage = string.Empty;
             //this.timeEffectiveMessageProcessed = DateTime.MinValue;
@@ -494,7 +499,7 @@ namespace CrewChiefV4.rFactor2
             var playerTelemetry = new rF2VehicleTelemetry();
 
             // This is shaky part of the mapping, but here goes:
-            // Telemetry and Scoring are updated separately by the game.  Therefore, one can be 
+            // Telemetry and Scoring are updated separately by the game.  Therefore, one can be
             // ahead of another, sometimes in a significant way.  Particularly, this is possible with
             // online races, where people quit/join the game.
             //
@@ -747,7 +752,7 @@ namespace CrewChiefV4.rFactor2
             // Initialize DeltaTime.
             if (csd.IsNewSession)
                 csd.DeltaTime = new DeltaTime(csd.TrackDefinition.trackLength, cgs.PositionAndMotionData.DistanceRoundTrack, cgs.Now);
-            
+
             // Is online session?
             for (int i = 0; i < shared.scoring.mScoringInfo.mNumVehicles; ++i)
             {
@@ -859,7 +864,7 @@ namespace CrewChiefV4.rFactor2
                     || csd.SessionPhase == SessionPhase.FullCourseYellow
                     || csd.SessionPhase == SessionPhase.Formation)
                 && shared.extended.mInRealtimeFC == 1 && shared.scoring.mScoringInfo.mInRealtime == 1  // Limit this to Realtime only.
-                && csd.SessionType == SessionType.Race)  // Also, limit to race only, this helps with back and forth between returing to pits via exit to monitor.  
+                && csd.SessionType == SessionType.Race)  // Also, limit to race only, this helps with back and forth between returing to pits via exit to monitor.
             {                                            // There's also no real critical rush in quali or practice to stress about.
                 cgs.PitData.IsPitCrewDone = (rF2PitState)playerScoring.mPitState == rFactor2Constants.rF2PitState.Exiting;
             }
@@ -1192,7 +1197,7 @@ namespace CrewChiefV4.rFactor2
                     float minRotatingSpeedOld = (float)Math.PI * cgs.PositionAndMotionData.CarSpeed / cgs.carClass.maxTyreCircumference;
                     float maxRotatingSpeedOld = 3 * (float)Math.PI * cgs.PositionAndMotionData.CarSpeed / cgs.carClass.minTyreCircumference;
 
-                    // w = v/r 
+                    // w = v/r
                     // https://www.lucidar.me/en/unit-converter/rad-per-second-to-meters-per-second/
                     float MAX_RADIUS = 3.6f;  // When making a left turn, right wheel spins faster, as if it was smaller.  Because of that, scale real radius up for lock detection.
                     var minFrontRotatingSpeedRadSec = cgs.PositionAndMotionData.CarSpeed / (wheelFrontLeft.mStaticUndeflectedRadius * 0.01f * MAX_RADIUS);
@@ -1401,7 +1406,7 @@ namespace CrewChiefV4.rFactor2
                 {
                     if (!this.isOfflineSession)
                     {
-                        // there shouldn't be duplicate driver names in online sessions. This is probably a temporary glitch in the shared memory data - 
+                        // there shouldn't be duplicate driver names in online sessions. This is probably a temporary glitch in the shared memory data -
                         // don't panic and drop the existing opponentData for this key - just copy it across to the current state. This prevents us losing
                         // the historical data and repeatedly re-adding this name to the SpeechRecogniser (which is expensive)
                         if (pgs != null && pgs.OpponentData.ContainsKey(driverName)
@@ -1918,7 +1923,7 @@ namespace CrewChiefV4.rFactor2
             if (this.enableFrozenOrderMessages
                 && pgs != null)
             {
-                cgs.FrozenOrderData = playerRulesIdx != -1 
+                cgs.FrozenOrderData = playerRulesIdx != -1
                     ? this.GetFrozenOrderData(pgs.FrozenOrderData, ref playerScoring, ref shared.scoring, ref shared.rules.mParticipants[playerRulesIdx], ref shared.rules, ref shared.extended, cgs.PositionAndMotionData.CarSpeed)
                     : this.GetFrozenOrderOnlineData(cgs, pgs.FrozenOrderData, ref playerScoring, ref shared.scoring, ref shared.extended, cgs.PositionAndMotionData.CarSpeed);
             }
@@ -2666,7 +2671,7 @@ namespace CrewChiefV4.rFactor2
                     }
 
                     return this.lastPracticeNumNonGhostVehicles > 1 // 1 means player only session.
-                        ? SessionType.Practice 
+                        ? SessionType.Practice
                         : SessionType.LonePractice;
                 // up to four possible qualifying sessions
                 case 5:
@@ -2933,7 +2938,7 @@ namespace CrewChiefV4.rFactor2
                     && (extended.mSCRPluginDoubleFileType == 1 || extended.mSCRPluginDoubleFileType == 2)
                     && scoring.mScoringInfo.mYellowFlagState == (sbyte)rFactor2Constants.rF2YellowFlagState.LastLap;
 
-                if (fod.Phase == FrozenOrderPhase.FullCourseYellow  // Core FCY does not use grid order. 
+                if (fod.Phase == FrozenOrderPhase.FullCourseYellow  // Core FCY does not use grid order.
                       && !scrLastLapDoubleFile)  // With SCR rules, however, last lap might be double file depending on DoubleFileType configuration var value.
                 {
                     gridOrder = false;

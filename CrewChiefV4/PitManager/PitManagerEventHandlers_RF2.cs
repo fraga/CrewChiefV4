@@ -216,7 +216,7 @@ namespace CrewChiefV4.PitManager
             bool result = true;
             foreach (string tyreCategory in tyreCategories)
             {
-                if (result)
+                if (result && Pmal.Pmc.SetCategory(tyreCategory))
                 {
                     result = changeTyre(tyreCategory, noChange);
                 }
@@ -283,41 +283,58 @@ namespace CrewChiefV4.PitManager
 
         static public bool actionHandler_changeFrontTyres()
         {
-            return changeTyre("F TIRES:");
+            changeTyres(Pmal.GetAllTyreCategories(), true);
+            return changeTyres(Pmal.GetFrontTyreCategories());
         }
         static public bool actionHandler_changeRearTyres()
         {
-            return changeTyre("R TIRES:");
+            changeTyres(Pmal.GetAllTyreCategories(), true);
+            return changeTyres(Pmal.GetRearTyreCategories());
         }
         static public bool actionHandler_changeLeftTyres()
         {
-            return changeTyre("LF TIRES:");
+            changeTyres(Pmal.GetAllTyreCategories(), true);
+            return changeTyres(Pmal.GetLeftTyreCategories());
         }
         static public bool actionHandler_changeRightTyres()
         {
-            return changeTyre("RT TIRES:");
+            changeTyres(Pmal.GetAllTyreCategories(), true);
+            return changeTyres(Pmal.GetRightTyreCategories());
         }
         static public bool actionHandler_changeFLTyre()
         {
+            changeTyres(Pmal.GetAllTyreCategories(), true);
             return changeTyre("FL TIRE:");
         }
         static public bool actionHandler_changeFRTyre()
         {
+            changeTyres(Pmal.GetAllTyreCategories(), true);
             return changeTyre("FR TIRE:");
         }
         static public bool actionHandler_changeRLTyre()
         {
+            changeTyres(Pmal.GetAllTyreCategories(), true);
             return changeTyre("RL TIRE:");
         }
         static public bool actionHandler_changeRRTyre()
         {
+            changeTyres(Pmal.GetAllTyreCategories(), true);
             return changeTyre("RR TIRE:");
         }
 
 
         static public bool actionHandler_FuelAddXlitres()
         {
+            var amount = Pmal.Pmc.GetFuelLevel();
+            return Pmal.Pmc.SetFuelLevel(amount + amountCache);
+        }
+        static public bool actionHandler_FuelToXlitres()
+        {
             return Pmal.Pmc.SetFuelLevel(amountCache);
+        }
+        static public bool actionHandler_FuelNone()
+        {
+            return Pmal.Pmc.SetFuelLevel(1);
         }
 
         static public bool actionHandler_RepairAll()
