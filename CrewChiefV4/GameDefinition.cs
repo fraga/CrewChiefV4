@@ -8,7 +8,7 @@ namespace CrewChiefV4
 {
     public enum GameEnum
     {
-        RACE_ROOM, PCARS2, PCARS_64BIT, PCARS_32BIT, PCARS_NETWORK, PCARS2_NETWORK, RF1, ASSETTO_64BIT, ASSETTO_32BIT, RF2_64BIT, IRACING, F1_2018, F1_2019, ACC, AMS2, AMS2_NETWORK, UNKNOWN
+        RACE_ROOM, PCARS2, PCARS_64BIT, PCARS_32BIT, PCARS_NETWORK, PCARS2_NETWORK, RF1, ASSETTO_64BIT, ASSETTO_32BIT, RF2_64BIT, IRACING, F1_2018, F1_2019, F1_2020, ACC, AMS2, AMS2_NETWORK, UNKNOWN
     }
     public class GameDefinition
     {
@@ -55,6 +55,8 @@ namespace CrewChiefV4
             "acc_launch_exe", "acc_launch_params", "launch_acc", false);
         public static GameDefinition f1_2019 = new GameDefinition(GameEnum.F1_2019, "f1_2019", null, "CrewChiefV4.F1_2019.F12019Spotter",
             "f1_2019_launch_exe", "f1_2019_launch_params", "launch_f1_2019", false);
+        public static GameDefinition f1_2020 = new GameDefinition(GameEnum.F1_2020, "f1_2020", null, "CrewChiefV4.F1_2020.F12020Spotter",
+            "f1_2020_launch_exe", "f1_2020_launch_params", "launch_f1_2020", false);
         
         private static string showOnlyTheseGames = UserSettings.GetUserSettings().getString("limit_available_games");
         
@@ -127,6 +129,10 @@ namespace CrewChiefV4
                                 {
                                     filtered.Add(GameDefinition.f1_2019);
                                 }
+                                else if (filterLower.Contains("2020"))
+                                {
+                                    filtered.Add(GameDefinition.f1_2020);
+                                }
                                 else if (filterLower.Contains("rf2") || filterLower.Contains("rf_2") || filterLower.Contains("rf 2") || filterLower.Contains("rf-2") || filterLower.Contains("factor2") || filterLower.Contains("factor 2") || filterLower.Contains("factor_2") || filterLower.Contains("factor-2"))
                                 {
                                     filtered.Add(GameDefinition.rfactor2_64bit);
@@ -171,6 +177,7 @@ namespace CrewChiefV4
             definitions.Add(f1_2018);
             definitions.Add(acc);
             definitions.Add(f1_2019);
+            definitions.Add(f1_2020);
             return filterAvailableGames(definitions);
         }
 

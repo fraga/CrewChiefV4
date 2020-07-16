@@ -10,7 +10,6 @@ using System.IO;
 using System.Runtime.InteropServices;
 using AutoUpdaterDotNET;
 using System.Net;
-using System.Xml.Linq;
 using System.IO.Compression;
 using CrewChiefV4.Audio;
 using System.Diagnostics;
@@ -18,8 +17,6 @@ using CrewChiefV4.commands;
 using CrewChiefV4.GameState;
 using CrewChiefV4.Events;
 using CrewChiefV4.Overlay;
-using iRSDKSharp;
-using CrewChiefV4.R3E;
 using Valve.VR;
 using CrewChiefV4.ScreenCapture;
 using CrewChiefV4.VirtualReality;
@@ -113,7 +110,7 @@ namespace CrewChiefV4
         private ToolStripMenuItem contextMenuGamesMenu;
         private ToolStripItem contextMenuPreferencesItem;
 
-        // instance 
+        // instance
         public static MainWindow instance = null;
 
         // Do not .Invoke under this lock.  Either .Post, or .BeginInvoke only.
@@ -235,7 +232,7 @@ namespace CrewChiefV4
             ThreadManager.RegisterResourceThread(controllerRescanThread);
             controllerRescanThread.Start();
 
-            if (OpenVR.IsRuntimeInstalled() && 
+            if (OpenVR.IsRuntimeInstalled() &&
                 UserSettings.GetUserSettings().getBoolean("enable_vr_overlay_windows"))
             {
                 ts = vrOverlaysUpdateThreadWorker;
@@ -281,7 +278,7 @@ namespace CrewChiefV4
             /*
             ZipFile.ExtractToDirectory(AudioPlayer.soundFilesPath + @"\" + soundPackTempFileName, AudioPlayer.soundFilesPath + @"\sounds_temp");
             UpdateHelper.ProcessFileUpdates(AudioPlayer.soundFilesPath + @"\sounds_temp");
-            UpdateHelper.MoveDirectory(AudioPlayer.soundFilesPath + @"\sounds_temp", AudioPlayer.soundFilesPath);                   
+            UpdateHelper.MoveDirectory(AudioPlayer.soundFilesPath + @"\sounds_temp", AudioPlayer.soundFilesPath);
             */
 
             // do the auto updating stuff in a separate Thread
@@ -644,7 +641,7 @@ namespace CrewChiefV4
                 setOuputChannelVolume(currentMessageVolume);
             }
             if (saveChange)
-            {                
+            {
                 UserSettings.GetUserSettings().setProperty("messages_volume", currentMessageVolume);
                 UserSettings.GetUserSettings().saveUserSettings();
             }
@@ -674,7 +671,7 @@ namespace CrewChiefV4
             // Set the same volume for both the left and the right channels
             uint NewVolumeAllChannels = (((uint)NewVolume & 0x0000ffff) | ((uint)NewVolume << 16));
             // Set the volume
-            NativeMethods.waveOutSetVolume(IntPtr.Zero, NewVolumeAllChannels);            
+            NativeMethods.waveOutSetVolume(IntPtr.Zero, NewVolumeAllChannels);
         }
 
         private void backgroundVolumeSlider_Scroll(object sender, EventArgs e)
@@ -693,7 +690,7 @@ namespace CrewChiefV4
             set
             {
                 _IsAppRunning = value;
-                startApplicationButton.Text = _IsAppRunning 
+                startApplicationButton.Text = _IsAppRunning
                     ? !this.recordSession.Checked ? Configuration.getUIString("stop") : Configuration.getUIString("stop_and_save")
                     : Configuration.getUIString("start_application");
                 downloadDriverNamesButton.Enabled = !value && newDriverNamesAvailable;
@@ -922,7 +919,7 @@ namespace CrewChiefV4
             }
             catch (Exception)
             { }
-            
+
         }
 
         private void SetupNotificationTrayIcon()
@@ -1024,7 +1021,7 @@ namespace CrewChiefV4
             this.exitToolStripMenuItem.Text = Configuration.getUIString("exit_menu_item");
             this.helpToolStripMenuItem.Text = Configuration.getUIString("help_menu");
             this.groupBox1.Text = Configuration.getUIString("voice_recognition_mode");
-            voiceRecognitionToolTip.SetToolTip(this.groupBox1, Configuration.getUIString("voice_recognition_mode_help"));             
+            voiceRecognitionToolTip.SetToolTip(this.groupBox1, Configuration.getUIString("voice_recognition_mode_help"));
             this.alwaysOnButton.Text = Configuration.getUIString("always_on");
             voiceRecognitionAlwaysOnToolTip.SetToolTip(this.alwaysOnButton, Configuration.getUIString("voice_recognition_always_on_help"));
             this.toggleButton.Text = Configuration.getUIString("toggle_button");
@@ -1049,7 +1046,7 @@ namespace CrewChiefV4
             this.myNameBoxTooltip.SetToolTip(this.personalisationLabel, Configuration.getUIString("personalisation_tooltip"));
             this.myNameBoxTooltip.SetToolTip(this.personalisationBox, Configuration.getUIString("personalisation_tooltip"));
             this.chiefNameLabel.Text = Configuration.getUIString("chief_name_label");
-            this.chiefNameBoxTooltip.SetToolTip(this.chiefNameLabel, Configuration.getUIString("chief_name_tooltip"));            
+            this.chiefNameBoxTooltip.SetToolTip(this.chiefNameLabel, Configuration.getUIString("chief_name_tooltip"));
             this.chiefNameBoxTooltip.SetToolTip(this.chiefNameBox, Configuration.getUIString("chief_name_tooltip"));
             this.spotterNameLabel.Text = Configuration.getUIString("spotter_name_label");
             this.spotterNameBoxTooltip.SetToolTip(this.spotterNameLabel, Configuration.getUIString("spotter_name_tooltip"));
@@ -1081,7 +1078,7 @@ namespace CrewChiefV4
 
             InitializeComponent();
             InitializeUiText();
-            
+
             this.SuspendLayout();
             var currProfileName = UserSettings.currentUserProfileFileName;
             if (currProfileName.EndsWith(".json", StringComparison.InvariantCultureIgnoreCase))
@@ -1138,7 +1135,7 @@ namespace CrewChiefV4
             this.filenameLabel.Visible = CrewChief.Debugging || MainWindow.profileMode;
             this.filenameTextbox.Visible = CrewChief.Debugging || MainWindow.profileMode;
             this.playbackInterval.Visible = CrewChief.Debugging || MainWindow.profileMode;
-           
+
             String[] commandLineArgs = Environment.GetCommandLineArgs();
             if (MainWindow.soundTestMode)
             {
@@ -1307,7 +1304,7 @@ namespace CrewChiefV4
             GlobalResources.controllerConfiguration = controllerConfiguration;
 
             HashSet<string> availablePersonalisations = new HashSet<string>(CrewChief.audioPlayer.personalisationsArray);
-            availablePersonalisations.UnionWith(new HashSet<string>(SoundCache.availableDriverNames));
+            availablePersonalisations.UnionWith(new HashSet<string>(SoundCache.availableDriverNamesForUI));
 
             this.personalisationBox.Items.AddRange(availablePersonalisations.ToArray<string>());
             this.chiefNameBox.Items.AddRange(AudioPlayer.availableChiefVoices.ToArray());
@@ -1490,9 +1487,9 @@ namespace CrewChiefV4
             else
             {
                 return true;
-            }                      
+            }
         }
-        
+
         private void vrOverlaysUpdateThreadWorker()
         {
             bool vrOverlayForceDisabledDrawing = false;
@@ -1509,7 +1506,7 @@ namespace CrewChiefV4
                     if (!waitForSteamVR())
                         return;
                 }
-                
+
                 while (VROverlayController.vrUpdateThreadRunning)
                 {
                     if (VROverlayController.vrOverlayRenderThreadSuspended && !vrOverlayForceDisabledDrawing)  // This is to avoid locking most of the time.
@@ -1537,7 +1534,7 @@ namespace CrewChiefV4
 
                     if (!VROverlayController.vrUpdateThreadRunning)
                         return;
-                    
+
                     var vrEvent = new VREvent_t();
                     bool reinitialize = false;
                     while (OpenVR.System != null && OpenVR.System.PollNextEvent(ref vrEvent, vrEventSize))
@@ -1550,9 +1547,16 @@ namespace CrewChiefV4
                                         Application.OpenForms.OfType<VROverlaySettings>().First().Close();
 
                                     OpenVR.System.AcknowledgeQuit_Exiting();
+
                                     captureSource?.Dispose();
+                                    captureSource = null;
+
                                     deviceManager?.Dispose();
+                                    deviceManager = null;
+
                                     vrOverlayForm?.Dispose();
+                                    vrOverlayForm = null;
+
                                     SteamVR.SafeDispose();
 
                                     this.Invoke((MethodInvoker)delegate
@@ -1594,17 +1598,21 @@ namespace CrewChiefV4
                         {
                             wnd.hmdMatrix = hmdMatrix;
                             wnd.Draw();
-                        }                        
+                        }
                     }
                     Thread.Sleep(11);
                 }
             }
             finally
             {
-                
                 captureSource?.Dispose();
+                captureSource = null;
+
                 deviceManager?.Dispose();
+                deviceManager = null;
+
                 vrOverlayForm?.Dispose();
+                vrOverlayForm = null;
                 SteamVR.enabled = false;
                 Debug.WriteLine("Exiting VR Overlays Render thread.");
             }
@@ -1810,7 +1818,7 @@ namespace CrewChiefV4
                                 youWotThread = new Thread(() =>
                                 {
                                     Utilities.InterruptedSleep(totalWaitMillis: this.sreWaitTime, waitWindowMillis: 50, keepWaitingPredicate: () => crewChief.running);
-                                 
+
                                     PlaybackModerator.holdModeTalkingToChief = false;
                                     if (!channelOpen && !SpeechRecogniser.gotRecognitionResult)
                                     {
@@ -1846,7 +1854,7 @@ namespace CrewChiefV4
                 controllerConfiguration.pollForButtonClicks();
                 if (now > lastButtoncheck.Add(buttonCheckInterval))
                 {
-                    lastButtoncheck = now;                    
+                    lastButtoncheck = now;
                     if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.VOLUME_UP))
                     {
                         if (currentMessageVolume == -1)
@@ -1916,7 +1924,7 @@ namespace CrewChiefV4
                         }
                         else
                         {
-                            
+
                             unmuteVolumes();
                             //CrewChief.audioPlayer.playUnMuteBeep();
                         }
@@ -2039,11 +2047,6 @@ namespace CrewChiefV4
                 if (gameDefinition != null)
                 {
                     crewChief.setGameDefinition(gameDefinition);
-                    if (gameDefinition.gameEnum == GameEnum.RACE_ROOM)
-                    {
-                        R3ERatings.init();
-                        R3ERatings.gotPlayerRating = false;
-                    }
                     MacroManager.initialise(CrewChief.audioPlayer, crewChief.speechRecogniser);
                     CarData.loadCarClassData();
                     TrackData.loadTrackLandmarksData();
@@ -2072,7 +2075,7 @@ namespace CrewChiefV4
 
                         channelOpenButtonListenerThread.Start();
                     }
-                    else if ((voiceOption == VoiceOptionEnum.ALWAYS_ON || voiceOption == VoiceOptionEnum.TRIGGER_WORD) && 
+                    else if ((voiceOption == VoiceOptionEnum.ALWAYS_ON || voiceOption == VoiceOptionEnum.TRIGGER_WORD) &&
                         crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised)
                     {
                         Console.WriteLine("Running speech recognition in 'always on' mode");
@@ -2090,7 +2093,7 @@ namespace CrewChiefV4
 
                         buttonPressesListenerThread.Start();
                     }
-                    
+
                 }
                 else
                 {
@@ -2298,7 +2301,7 @@ namespace CrewChiefV4
             //make sure we disable everything that might have been enabled in case speech engine fails
             if (!crewChief.speechRecogniser.initialised)
             {
-                
+
                 voiceDisableButton.Checked = true;
                 runListenForChannelOpenThread = false;
                 runListenForButtonPressesThread = controllerConfiguration.listenForButtons(false);
@@ -2366,7 +2369,7 @@ namespace CrewChiefV4
             }
             controllerConfiguration.saveSettings();
         }
-        
+
         private void editPropertiesButtonClicked(object sender, EventArgs e)
         {
             // If minized to tray, hide tray icon while properties dialog is shown,
@@ -2397,14 +2400,14 @@ namespace CrewChiefV4
             catch
             {
             }
-            doRestart(Configuration.getUIString("the_application_must_be_restarted_to_check_for_updates"), Configuration.getUIString("check_for_updates"), true);
+            doRestart(Configuration.getUIString("the_application_must_be_restarted_to_check_for_updates"), Configuration.getUIString("check_for_updates_title"), true);
         }
 
         private void saveConsoleOutputText()
         {
             try
             {
-                if (consoleTextBox.Text.Length > 0) 
+                if (consoleTextBox.Text.Length > 0)
                 {
                     String filename = "console_" + DateTime.Now.ToString("yyyy_MM_dd-HH-mm-ss") + ".txt";
                     String path = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "debugLogs");
@@ -2415,7 +2418,7 @@ namespace CrewChiefV4
                     foreach (var fi in new DirectoryInfo(path).GetFiles().Where(f => f.Extension == ".txt").OrderByDescending(x => x.LastWriteTime).Skip(25))
                     {
                         fi.Delete();
-                    }                        
+                    }
                     path = System.IO.Path.Combine(path, filename);
                     File.WriteAllText(path, consoleTextBox.Text);
                     Console.WriteLine("Console output saved to " + path);
@@ -2695,7 +2698,7 @@ namespace CrewChiefV4
             Tuple<string, int> device = null;
             if (AudioPlayer.playbackDevices.TryGetValue(this.backgroundAudioDeviceBox.Text, out device))
             {
-                int deviceId = device.Item2; 
+                int deviceId = device.Item2;
                 AudioPlayer.naudioBackgroundPlaybackDeviceId = deviceId;
                 AudioPlayer.naudioBackgroundPlaybackDeviceGuid = device.Item1;
                 UserSettings.GetUserSettings().setProperty("NAUDIO_DEVICE_GUID_BACKGROUND",
@@ -3016,7 +3019,7 @@ namespace CrewChiefV4
                             return;
                         }
                         progressThread = createProgressThread(downloadDriverNamesButton, extractingButtonText);
-                        progressThread.Start(); 
+                        progressThread.Start();
                         ZipFile.ExtractToDirectory(AudioPlayer.soundFilesPathNoChiefOverride + @"\" + driverNamesTempFileName, AudioPlayer.soundFilesPathNoChiefOverride + @"\driver_names_temp", Encoding.UTF8);
 
                         // If we made it here, block the shutdown to complete the move.
@@ -3100,7 +3103,7 @@ namespace CrewChiefV4
                             progressThread = createProgressThread(downloadPersonalisationsButton, extractingButtonText);
                             progressThread.Start();
                             ZipFile.ExtractToDirectory(AudioPlayer.soundFilesPathNoChiefOverride + @"\" + personalisationsTempFileName, AudioPlayer.soundFilesPathNoChiefOverride + @"\personalisations_temp", Encoding.UTF8);
-                        
+
                             // If we made it here, block the shutdown to complete the move.
                             lock (MainWindow.instanceLock)
                             {
@@ -3306,7 +3309,7 @@ namespace CrewChiefV4
                 }
             }
         }
-        
+
         private void doRestart(String warningMessage, String warningTitle, Boolean removeSkipUpdates = false)
         {
             if (CrewChief.Debugging)
@@ -3321,7 +3324,7 @@ namespace CrewChiefV4
                 CrewChief.Debugging ? MessageBoxButtons.OK : MessageBoxButtons.OKCancel) == DialogResult.OK)
             {
                 if (Utilities.RestartApp(new List<string> { "-app_restart" }, removeSkipUpdates))
-                { 
+                {
                     this.Close(); //to turn off current app
                 }
             }
