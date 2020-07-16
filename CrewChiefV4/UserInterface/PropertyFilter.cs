@@ -43,7 +43,7 @@ namespace CrewChiefV4
                     else
                     {
                         Console.WriteLine("Failed to parse category: \"" + cat + "\"  property: \"" + propertyId + "\"");
-                        categoryList = null;
+                        categoryList = new List<PropertiesForm.PropertyCategory>();
                     }
                 }
             }

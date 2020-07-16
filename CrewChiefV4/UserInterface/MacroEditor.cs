@@ -88,13 +88,14 @@ namespace CrewChiefV4
             }
             macroContainer = MacroManager.loadCommands(MacroManager.getMacrosFileLocation());
 
-            availableMacroGames = GameDefinition.getAllGameDefinitions().Where(gd => gd.gameEnum != GameEnum.PCARS2_NETWORK).ToList();
+            availableMacroGames = GameDefinition.getAllGameDefinitions().Where(
+                gd => gd.gameEnum != GameEnum.PCARS2_NETWORK && gd.gameEnum != GameEnum.AMS2 && gd.gameEnum != GameEnum.AMS2_NETWORK).ToList();
             var items = from name in availableMacroGames orderby name.friendlyName ascending select name;
             availableMacroGames = items.ToList();
             listBoxGames.Items.Clear();
             foreach (var mapping in availableMacroGames)
             {
-                listBoxGames.Items.Add(mapping.friendlyName);
+                listBoxGames.Items.Add(mapping.macroEditorName);
             }
             listBoxGames.SetSelected(MainWindow.instance.gameDefinitionList.SelectedIndex, true);
             updateMacroList();

@@ -463,8 +463,7 @@ namespace CrewChiefV4
                         // TODO: version handling is a bit hooky here. The version data are in shared memory but if we just pass this
                         // through to the JSON there's a risk the game version will advance (so the client expects new data) but CC isn't
                         // actually sending this data. So we'll hard-code it here for now
-                        // TODO: the game is sending 2.6 (major.minor) - why are we sending 2.8 here?
-                        Utilities.startGameDataWebsocketServer("/r3e", gameDataReader, new R3ESerializer(true, 3, 2, 8));
+                        Utilities.startGameDataWebsocketServer("/r3e", gameDataReader, new R3ESerializer(true, 3, 2, 7));
                     }
                 }
 
@@ -738,13 +737,13 @@ namespace CrewChiefV4
                             }
                             else if (previousGameState != null &&
                                         (gameDefinition.gameEnum == GameEnum.F1_2018 || gameDefinition.gameEnum == GameEnum.F1_2019 ||
-                                        (((gameDefinition.gameEnum == GameEnum.PCARS2 && currentGameState.SessionData.SessionPhase == SessionPhase.Countdown) ||
+                                        ((((gameDefinition.gameEnum == GameEnum.PCARS2 || gameDefinition.gameEnum == GameEnum.AMS2) && currentGameState.SessionData.SessionPhase == SessionPhase.Countdown) ||
                                             currentGameState.SessionData.SessionRunningTime > previousGameState.SessionData.SessionRunningTime) ||
                                         (previousGameState.SessionData.SessionPhase != currentGameState.SessionData.SessionPhase) ||
                                         (gameDefinition.gameEnum == GameEnum.RF2_64BIT && currentGameState.SessionData.SessionPhase == SessionPhase.Gridwalk)) ||  // Need to process warnings during rF2's gridwalk
                                         ((gameDefinition.gameEnum == GameEnum.PCARS_32BIT || gameDefinition.gameEnum == GameEnum.PCARS_64BIT ||
                                                 gameDefinition.gameEnum == GameEnum.PCARS2 || gameDefinition.gameEnum == GameEnum.PCARS_NETWORK ||
-                                                gameDefinition.gameEnum == GameEnum.PCARS2_NETWORK) &&
+                                                gameDefinition.gameEnum == GameEnum.PCARS2_NETWORK || gameDefinition.gameEnum == GameEnum.AMS2) &&
                                             currentGameState.SessionData.SessionHasFixedTime && currentGameState.SessionData.SessionTotalRunTime == -1)))
                             {
                                 if (!sessionFinished)

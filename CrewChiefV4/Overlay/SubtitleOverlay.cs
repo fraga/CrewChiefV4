@@ -26,7 +26,7 @@ namespace CrewChiefV4.Overlay
         public class SubtitleOverlaySettings : OverlaySettings
         {
             public int maxSubtitlehistory = 4;
-            public int windowWidth = 600;
+            public int windowWidth = 640;
             public new int fontSize = 16;
             public new bool fontBold = true;
             public new int windowX = (Screen.PrimaryScreen.Bounds.Width / 2) - 350;
@@ -376,16 +376,8 @@ namespace CrewChiefV4.Overlay
             {
                 element.Value.initialize();
             }
-            if (!titleBar.elementEnabled)
-            {
-                subtitleElement.rectangle.Y = 0;
-                overlayWindow.Resize(overlayWindow.X, overlayWindow.Y + (int)displayModeControlBox.rectangle.Bottom, settings.windowWidth, (int)subtitleElement.rectangle.Bottom);
-            }
-            else
-            {
-                subtitleElement.rectangle.Y = displayModeControlBox.rectangle.Bottom;
-                overlayWindow.Resize(overlayWindow.X, overlayWindow.Y - (int)displayModeControlBox.rectangle.Bottom, settings.windowWidth, (int)subtitleElement.rectangle.Bottom);
-            }
+            subtitleElement.rectangle.Y = titleBar.elementEnabled ? displayModeControlBox.rectangle.Bottom : 0;
+            overlayWindow.Resize(overlayWindow.X, overlayWindow.Y, settings.windowWidth, (int)subtitleElement.rectangle.Bottom);
             overlayWindow.OnWindowMessage += overlayWindow_OnWindowMessage;
             //make sure overlay dont steal focus from main window.
             Microsoft.VisualBasic.Interaction.AppActivate(System.Diagnostics.Process.GetCurrentProcess().Id);
@@ -463,13 +455,16 @@ namespace CrewChiefV4.Overlay
 
         private void DoInputHacks()
         {
-            Point cursor = new Point(Cursor.Position.X, Cursor.Position.Y);
-            Rect overlayRect = new Rect(overlayWindow.X, overlayWindow.Y, overlayWindow.Width, overlayWindow.Height);
-            if (overlayRect.Contains(cursor) && inputsEnabled && titleBar.elementEnabled && (Control.MouseButtons == MouseButtons.Left || 
-                Control.MouseButtons == MouseButtons.Right || Control.MouseButtons == MouseButtons.Middle))
+            if(inputsEnabled)
             {
-                overlayWindow.ActivateWindow();
-                SetForegroundWindow(overlayWindow.Handle);
+                Point cursor = new Point(Cursor.Position.X, Cursor.Position.Y);
+                Rect overlayRect = new Rect(overlayWindow.X, overlayWindow.Y, overlayWindow.Width, overlayWindow.Height);
+                if (overlayRect.Contains(cursor) && titleBar.elementEnabled && (Control.MouseButtons == MouseButtons.Left ||
+                    Control.MouseButtons == MouseButtons.Right || Control.MouseButtons == MouseButtons.Middle))
+                {
+                    overlayWindow.ActivateWindow();
+                    SetForegroundWindow(overlayWindow.Handle);
+                }
             }
             if (Control.ModifierKeys != (Keys.Shift | Keys.Control))
             {
@@ -488,16 +483,8 @@ namespace CrewChiefV4.Overlay
                 {
                     overlayWindow.DeActivateWindow();
                 }
-                if (!titleBar.elementEnabled)
-                {
-                    subtitleElement.rectangle.Y = 0;
-                    overlayWindow.Resize(overlayWindow.X, overlayWindow.Y + (int)displayModeControlBox.rectangle.Bottom, settings.windowWidth, (int)subtitleElement.rectangle.Bottom);
-                }
-                else
-                {
-                    subtitleElement.rectangle.Y = displayModeControlBox.rectangle.Bottom;
-                    overlayWindow.Resize(overlayWindow.X, overlayWindow.Y - (int)displayModeControlBox.rectangle.Bottom, settings.windowWidth, (int)subtitleElement.rectangle.Bottom);
-                }
+                subtitleElement.rectangle.Y = titleBar.elementEnabled ? displayModeControlBox.rectangle.Bottom : 0;
+                overlayWindow.Resize(overlayWindow.X, overlayWindow.Y, settings.windowWidth, (int)subtitleElement.rectangle.Bottom);
             }
         }
 

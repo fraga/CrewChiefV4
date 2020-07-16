@@ -11,12 +11,16 @@ namespace CrewChiefV4
         public static String folderMinute = "numbers/minute";
         public static String folderOh = "numbers/oh";
 
+        // used when we need a gender-specific sound for a number that depends on the article being counted
+        public enum ARTICLE_GENDER { NA, MALE, FEMALE };
+
         /**
          * Language specific implementation to speak an integer, using whatever rules and words this language requires.
          * Note this char array may contain only '0'. This will typically include words for "seconds", "tenths", "hundreds", etc
          * as well as the number sounds.
          */
-        protected abstract List<String> GetIntegerSounds(char[] digits, Boolean allowShortHundredsForThisNumber, Boolean messageHasContentAfterNumber);
+        protected abstract List<String> GetIntegerSounds(char[] digits, Boolean allowShortHundredsForThisNumber, Boolean messageHasContentAfterNumber,
+            ARTICLE_GENDER gender = ARTICLE_GENDER.NA);
 
         /**
          * Language specific implementation to speak a number of hours, using whatever rules and words this language requires.
@@ -168,11 +172,11 @@ namespace CrewChiefV4
         /**
          * Convert an integer to some sound files, using the current language's implementation.
          */
-        public List<String> GetIntegerSounds(int integer, Boolean allowShortHundredsForThisNumber, Boolean useMoreInflection)
+        public List<String> GetIntegerSounds(int integer, Boolean allowShortHundredsForThisNumber, Boolean useMoreInflection, ARTICLE_GENDER gender = ARTICLE_GENDER.NA)
         {
             if (integer >= -99999 && integer <= 99999)
             {
-                return GetIntegerSounds(integer.ToString().ToCharArray(), allowShortHundredsForThisNumber, useMoreInflection);
+                return GetIntegerSounds(integer.ToString().ToCharArray(), allowShortHundredsForThisNumber, useMoreInflection, gender);
             }
             else
             {

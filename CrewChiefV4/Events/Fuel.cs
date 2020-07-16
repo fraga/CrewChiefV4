@@ -579,7 +579,11 @@ namespace CrewChiefV4.Events
                                         if (canPlayFuelMessage())
                                         {
                                             audioPlayer.playMessage(new QueuedMessage("Fuel/estimate", 0,
-                                                messageFragments: MessageContents(RaceTime.folderHalfWayHome, folderWeEstimate, estimatedFuelLapsLeft, folderLapsRemaining), abstractEvent: this, priority: 7));
+                                                messageFragments: MessageContents(RaceTime.folderHalfWayHome,
+                                                folderWeEstimate,
+                                                MessageFragment.Integer(estimatedFuelLapsLeft, MessageFragment.Genders("pt-br", NumberReader.ARTICLE_GENDER.FEMALE)),
+                                                folderLapsRemaining),
+                                                abstractEvent: this, priority: 7));
                                             lastFuelCall = currentGameState.Now;
                                         }
                                         else
@@ -989,7 +993,7 @@ namespace CrewChiefV4.Events
                     // stuff like "one thirty two" - we always want "one hundred and thirty two"
                     List<MessageFragment> messageFragments = new List<MessageFragment>();
                     messageFragments.Add(MessageFragment.Text(folderFor));
-                    messageFragments.Add(MessageFragment.Integer(numberOfLaps, false));
+                    messageFragments.Add(MessageFragment.Integer(numberOfLaps, false, MessageFragment.Genders("pt-br", NumberReader.ARTICLE_GENDER.FEMALE)));
                     messageFragments.Add(MessageFragment.Text(Battery.folderLaps));
                     messageFragments.Add(MessageFragment.Text(folderWeEstimateWeWillNeed));
                     if(fuelReportsInGallon)
@@ -1107,7 +1111,7 @@ namespace CrewChiefV4.Events
                     else
                     {
                         messageFragments.Add(MessageFragment.Text(folderWeEstimate));
-                        messageFragments.Add(MessageFragment.Integer(lapsOfFuelLeft, false));
+                        messageFragments.Add(MessageFragment.Integer(lapsOfFuelLeft, false, MessageFragment.Genders("pt-br", NumberReader.ARTICLE_GENDER.FEMALE)));
                         messageFragments.Add(MessageFragment.Text(folderLapsRemaining));
                     }
                 }

@@ -13,13 +13,16 @@ namespace CrewChiefV4
     public class GameDefinition
     {
         public static GameDefinition pCars64Bit = new GameDefinition(GameEnum.PCARS_64BIT, "pcars_64_bit", "pCARS64",
-            "CrewChiefV4.PCars.PCarsSpotterv2", "pcars64_launch_exe", "pcars64_launch_params", "launch_pcars", new String[] { "pCARS2", "pCARS2Gld", "pCARS2QA", "pCARS2AVX" }, false);
+            "CrewChiefV4.PCars.PCarsSpotterv2", "pcars64_launch_exe", "pcars64_launch_params", "launch_pcars", 
+            new String[] { "pCARS2", "pCARS2Gld", "pCARS2QA", "pCARS2AVX" }, false);
         public static GameDefinition AMS2 = new GameDefinition(GameEnum.AMS2, "ams2", "AMS2AVX",
             "CrewChiefV4.AMS2.AMS2Spotter", "ams2_launch_exe", "ams2_launch_params", "launch_ams2", new String[] { "AMS2", "AMS2AVX"}, false);
         public static GameDefinition pCars32Bit = new GameDefinition(GameEnum.PCARS_32BIT, "pcars_32_bit", "pCARS",
             "CrewChiefV4.PCars.PCarsSpotterv2", "pcars32_launch_exe", "pcars32_launch_params", "launch_pcars", false);
+        // pCars2 defines its own macro manager friendly game name, as these macros can be used by AMS2 and pCars2. Other games
+        // just use the game friendly name
         public static GameDefinition pCars2 = new GameDefinition(GameEnum.PCARS2, "pcars_2", "pCARS2AVX",
-            "CrewChiefV4.PCars2.PCars2Spotterv2", "pcars2_launch_exe", "pcars2_launch_params", "launch_pcars2", new String[] { "pCARS2", "pCARS2Gld" }, false);
+            "CrewChiefV4.PCars2.PCars2Spotterv2", "pcars2_launch_exe", "pcars2_launch_params", "launch_pcars2", new String[] { "pCARS2", "pCARS2Gld" }, false, "", "pCARS2 / Automobilista 2");
         public static GameDefinition raceRoom = new GameDefinition(GameEnum.RACE_ROOM, "race_room", "RRRE64", "CrewChiefV4.RaceRoom.R3ESpotterv2",
             "r3e_launch_exe", "r3e_launch_params", "launch_raceroom", new String[] { "RRRE" }, false);
         public static GameDefinition pCarsNetwork = new GameDefinition(GameEnum.PCARS_NETWORK, "pcars_udp", null, "CrewChiefV4.PCars.PCarsSpotterv2",
@@ -210,6 +213,7 @@ namespace CrewChiefV4
 
         public GameEnum gameEnum;
         public String friendlyName;
+        public String macroEditorName;
         public String lookupName;
         public String processName;
         public String spotterName;
@@ -222,7 +226,7 @@ namespace CrewChiefV4
 
         public GameDefinition(GameEnum gameEnum, String lookupName, String processName,
             String spotterName, String gameStartCommandProperty, String gameStartCommandOptionsProperty, String gameStartEnabledProperty, Boolean allowsUserCreatedCars,
-            String gameInstallDirectory = "")
+            String gameInstallDirectory = "", String macroEditorName = null)
         {
             this.gameEnum = gameEnum;
             this.lookupName = lookupName;
@@ -234,11 +238,12 @@ namespace CrewChiefV4
             this.gameStartEnabledProperty = gameStartEnabledProperty;
             this.gameInstallDirectory = gameInstallDirectory;
             this.allowsUserCreatedCars = allowsUserCreatedCars;
+            this.macroEditorName = macroEditorName == null ? this.friendlyName : macroEditorName;
         }
 
         public GameDefinition(GameEnum gameEnum, String lookupName, String processName,
             String spotterName, String gameStartCommandProperty, String gameStartCommandOptionsProperty, String gameStartEnabledProperty, String[] alternativeProcessNames,
-            Boolean allowsUserCreatedCars, String gameInstallDirectory = "")
+            Boolean allowsUserCreatedCars, String gameInstallDirectory = "", String macroEditorName = null)
         {
             this.gameEnum = gameEnum;
             this.lookupName = lookupName;
@@ -251,6 +256,7 @@ namespace CrewChiefV4
             this.alternativeProcessNames = alternativeProcessNames;
             this.gameInstallDirectory = gameInstallDirectory;
             this.allowsUserCreatedCars = allowsUserCreatedCars;
+            this.macroEditorName = macroEditorName == null ? this.friendlyName : macroEditorName;
         }
 
         public bool HasAnyProcessNameAssociated()

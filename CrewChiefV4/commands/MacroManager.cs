@@ -66,6 +66,16 @@ namespace CrewChiefV4.commands
             macroContainer.assignments = null;
             return macroContainer;
         }
+
+        // checks if the game definition selected matches the game definition from the command set. Note that we're allowing
+        // pCars2 macros to be used with AMS2 here
+        public static bool isCommandSetForCurrentGame(string gameDefinitionFromCommandSet)
+        {
+            return gameDefinitionFromCommandSet != null &&
+                ((gameDefinitionFromCommandSet.Equals(CrewChief.gameDefinition.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase)) ||
+                  gameDefinitionFromCommandSet.Equals(GameEnum.PCARS2.ToString(), StringComparison.InvariantCultureIgnoreCase) && CrewChief.gameDefinition.gameEnum == GameEnum.AMS2);
+        }
+
         // This is called immediately after initialising the speech recogniser in MainWindow
         public static void initialise(AudioPlayer audioPlayer, SpeechRecogniser speechRecogniser)
         {
@@ -91,8 +101,7 @@ namespace CrewChiefV4.commands
                     {
                         foreach (CommandSet commandSet in macro.commandSets)
                         {
-                            if (commandSet.gameDefinition != null &&
-                                commandSet.gameDefinition.Equals(CrewChief.gameDefinition.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase))
+                            if (isCommandSetForCurrentGame(commandSet.gameDefinition))
                             {
                                 // this does the conversion from key characters to key enums and stores the result to save us doing it every time
                                 if (!commandSet.loadActionItems())

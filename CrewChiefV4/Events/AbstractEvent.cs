@@ -122,6 +122,10 @@ namespace CrewChiefV4.Events
             {
                 messageFragments.Add(null);
             }
+            else if (o.GetType() == typeof(MessageFragment))
+            {
+                messageFragments.Add((MessageFragment)o);
+            }
             else if (o.GetType() == typeof(String)) {
                 messageFragments.Add(MessageFragment.Text((String)o));
             }

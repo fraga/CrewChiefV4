@@ -882,7 +882,7 @@ namespace CrewChiefV4.Events
                         timeStartedAppoachingPitsCheck = currentGameState.Now + TimeSpan.FromSeconds(2);
                     }
                     // different logic for PCars2 pit-crew-ready checks
-                    if (CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2 || CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2_NETWORK)
+                    if (CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2 || CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2_NETWORK || CrewChief.gameDefinition.gameEnum == GameEnum.AMS2)
                     {
                         int delay = Utilities.random.Next(1, 3);
                         if (!previousGameState.PitData.PitStallOccupied && currentGameState.PitData.PitStallOccupied)
@@ -948,7 +948,7 @@ namespace CrewChiefV4.Events
                         Penalties.playerMustPitThisLap = false;
                     }
                 }
-                else if ((CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2 || CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2_NETWORK) &&
+                else if ((CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2 || CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2_NETWORK || CrewChief.gameDefinition.gameEnum == GameEnum.AMS2) &&
                     !playedRequestPitOnThisLap &&
                     !previousGameState.PitData.HasRequestedPitStop && currentGameState.PitData.HasRequestedPitStop && 
                       (currentGameState.Now - timeOfPitRequestOrCancel).TotalSeconds > minSecondsBetweenPitRequestCancel)

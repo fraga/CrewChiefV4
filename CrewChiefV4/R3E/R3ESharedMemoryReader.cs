@@ -1,4 +1,5 @@
-﻿using CrewChiefV4.RaceRoom;
+﻿using CrewChiefV4.R3E;
+using CrewChiefV4.RaceRoom;
 using CrewChiefV4.RaceRoom.RaceRoomData;
 using System;
 using System.Collections.Generic;
@@ -30,6 +31,11 @@ namespace CrewChiefV4.RaceRoom
         {
             public long ticksWhenRead;
             public RaceRoomShared data;
+        }
+
+        public R3ESharedMemoryReader()
+        {
+            R3ERatings.init();
         }
 
         public override void DumpRawGameData()

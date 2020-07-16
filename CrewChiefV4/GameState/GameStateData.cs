@@ -470,7 +470,9 @@ namespace CrewChiefV4.GameState
                 return ConditionsEnum.WARM_DRY;
             }
             ConditionsMonitor.RainLevel rainLevel = ConditionsMonitor.RainLevel.NONE;
-            if (CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT)
+            if (CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2
+                || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT
+                || CrewChief.gameDefinition.gameEnum == GameEnum.AMS2)
             {
                 rainLevel = ConditionsMonitor.getRainLevel(sample.RainDensity);
             }

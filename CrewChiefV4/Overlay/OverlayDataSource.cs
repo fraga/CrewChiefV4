@@ -604,6 +604,10 @@ namespace CrewChiefV4.Overlay
                             lapData.addDataPoint(new DataPoint(currentGameState.SessionData.CompletedLaps, distanceRoundTrack,
                                 getPropertyValue(((CrewChiefV4.PCars2.PCars2SharedMemoryReader.PCars2StructWrapper)currentGameState.rawGameData).data, field.fieldName), field.overlayDataType, currentGameState.Ticks, currentGameState.SessionData.SectorNumber));
                             break;
+                        case GameEnum.AMS2:
+                            lapData.addDataPoint(new DataPoint(currentGameState.SessionData.CompletedLaps, distanceRoundTrack,
+                                getPropertyValue(((CrewChiefV4.AMS2.AMS2SharedMemoryReader.AMS2StructWrapper)currentGameState.rawGameData).data, field.fieldName), field.overlayDataType, currentGameState.Ticks, currentGameState.SessionData.SectorNumber));
+                            break;
                         case GameEnum.PCARS_32BIT:
                         case GameEnum.PCARS_64BIT:
                         case GameEnum.PCARS2_NETWORK:

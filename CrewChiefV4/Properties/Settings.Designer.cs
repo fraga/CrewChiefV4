@@ -4486,5 +4486,17 @@ namespace CrewChiefV4.Properties {
                 this["watched_opponent_names"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool disable_overlay_voice_commands {
+            get {
+                return ((bool)(this["disable_overlay_voice_commands"]));
+            }
+            set {
+                this["disable_overlay_voice_commands"] = value;
+            }
+        }
     }
 }

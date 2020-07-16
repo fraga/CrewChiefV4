@@ -365,7 +365,8 @@ namespace CrewChiefV4.NumberProcessing
         /**
          * Get an Italian sound for an Integer from 0 to 99999.
          */
-        protected override List<String> GetIntegerSounds(char[] digits, Boolean allowShortHundredsForThisNumber, Boolean messageHasContentAfterNumber)
+        protected override List<String> GetIntegerSounds(char[] digits, Boolean allowShortHundredsForThisNumber, Boolean messageHasContentAfterNumber,
+            ARTICLE_GENDER gender = ARTICLE_GENDER.NA)
         {
             List<String> messages = new List<String>();
             // if this is just zero, return a list with just "zero"

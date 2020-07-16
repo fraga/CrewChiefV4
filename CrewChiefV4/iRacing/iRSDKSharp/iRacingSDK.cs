@@ -413,7 +413,13 @@ namespace iRSDKSharp
 
         static IntPtr GetBroadcastMessageID()
         {
-            return RegisterWindowMessage(Defines.BroadcastMessageName);
+            IntPtr regMsg = RegisterWindowMessage(Defines.BroadcastMessageName);
+            if (regMsg == IntPtr.Zero)
+            {
+                string errorMessage = new Win32Exception(Marshal.GetLastWin32Error()).Message;
+                Console.WriteLine($"GetLastWin32Error RegisterWindowMessage : {errorMessage}");
+            }
+            return regMsg;
         }
 
         public static bool BroadcastMessage(BroadcastMessageTypes msg, int var1, int var2, int var3)
@@ -430,22 +436,22 @@ namespace iRSDKSharp
             {
                 result = SendNotifyMessage(hwndBroadcast, msgId.ToInt32(), MakeLong((short)msg, (short)var1), var2);
             }
-            if(!result)
-            {                
+            if (!result && msgId != IntPtr.Zero)
+            {
                 string errorMessage = new Win32Exception(Marshal.GetLastWin32Error()).Message;
-                Console.WriteLine(errorMessage);
+                Console.WriteLine($"GetLastWin32Error SendNotifyMessage : {errorMessage}");
             }
             return result;
         }
 
-        [DllImport("user32.dll")]
+        [DllImport("user32.dll", SetLastError = true)]
         private static extern IntPtr RegisterWindowMessage(string lpProcName);
 
         [DllImport("user32.dll")]
         private static extern IntPtr PostMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
 
         [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-        static extern bool SendNotifyMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
+        private static extern bool SendNotifyMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
 
         [DllImport("Kernel32.dll", CharSet = CharSet.Auto)]
         private static extern IntPtr OpenEvent(UInt32 dwDesiredAccess, Boolean bInheritHandle, String lpName);

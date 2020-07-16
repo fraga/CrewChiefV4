@@ -487,6 +487,7 @@ namespace CrewChiefV4.RaceRoom
                 writeProperty(writer, "SlotId", driverData.DriverInfo.SlotId, disabledProperties);
                 writeProperty(writer, "ClassPerformanceIndex", driverData.DriverInfo.ClassPerformanceIndex, disabledProperties);
                 writeProperty(writer, "EngineType", driverData.DriverInfo.EngineType, disabledProperties);
+                writeProperty(writer, "IncidentPoints", driverData.DriverInfo.IncidentPoints, disabledProperties);
                 writer.WriteEndObject();
                 
             }

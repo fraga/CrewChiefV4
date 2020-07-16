@@ -407,7 +407,7 @@ namespace CrewChiefV4.Events
                     {
                         preLightsMessageCount = 1;
                     }
-                    else if (CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2)
+                    else if (CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2 || CrewChief.gameDefinition.gameEnum == GameEnum.AMS2)
                     {
                         preLightsMessageCount = 2 + Utilities.random.Next(6);
                     }

@@ -74,6 +74,7 @@ namespace CrewChiefV4.VirtualReality
         public float aspect { get; set; }
         [JsonIgnore]
         public Matrix hmdMatrix { get; set; }
+        private bool wasGazing = false;
         public VROverlayWindow()
         {
             positionZ = -1;
@@ -229,20 +230,23 @@ namespace CrewChiefV4.VirtualReality
             rotCenter *= Matrix.RotationX(rotationX);
             rotCenter *= Matrix.RotationY(rotationY);
             rotCenter *= Matrix.RotationZ(rotationZ);
-            var transform = Matrix.Scaling(this.scale) * rotCenter *  Matrix.Translation(positionX, positionY, positionZ);
+            var transform = Matrix.Scaling(wasGazing ? this.gazeScale : this.scale) * rotCenter *  Matrix.Translation(positionX, positionY, positionZ);
             transform.Transpose();
 
             if(gazeEnabled)
             {
                 if(SetOverlayGazeing(transform))
                 {
-                    transform.ScaleVector = new Vector3(gazeScale);
+                    transform = Matrix.Scaling(this.gazeScale) * rotCenter * Matrix.Translation(positionX, positionY, positionZ);
+                    transform.Transpose();
                     SteamVR.instance.overlay.SetOverlayAlpha(vrOverlayHandle, gazeTransparency);
+                    wasGazing = true;
                 }
                 else
                 {
                     SteamVR.instance.overlay.SetOverlayAlpha(vrOverlayHandle, transparency);
-                }
+                    wasGazing = false;
+                }                
             }
 
             if (followsHead)
