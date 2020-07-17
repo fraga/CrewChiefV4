@@ -41,6 +41,7 @@ namespace CrewChiefV4.PitManager
         TyreChangeLR,
         TyreChangeRR,
 
+        TyrePressure,
         TyrePressureLF,
         TyrePressureRF,
         TyrePressureLR,
@@ -109,7 +110,7 @@ namespace CrewChiefV4.PitManager
         // There's probably a neater way of doing it but it's beyond my C# skills.
         public struct PitManagerEventTableEntry
         {
-            public delegate bool PitManagerEventAction_Delegate();
+            public delegate bool PitManagerEventAction_Delegate(string voiceMessage);
             public delegate bool PitManagerEventResponse_Delegate();
 
             public PitManagerEventAction_Delegate PitManagerEventAction;
@@ -137,9 +138,10 @@ namespace CrewChiefV4.PitManager
         /// </returns>
         private static Object myLock = new Object();
         private static Thread executeThread = null;
-        public bool EventHandler(PitManagerEvent ev)
+        public bool EventHandler(PitManagerEvent ev, string voiceMessage)
         {
             bool result = false;
+            bool unitTest = false;
             GamePitManagerDict PM_event_dict;
             try
             {   // Use the event dict for the current game
@@ -156,39 +158,66 @@ namespace CrewChiefV4.PitManager
             catch
             {   // Running in Unit test
                 PM_event_dict = games_dict[GameEnum.RF2_64BIT];
+                unitTest = true;
             }
 
-            lock (myLock)
+            if (!unitTest)
             {
-                // run this in a new thread as it may take a while to complete its work
-                ThreadManager.UnregisterTemporaryThread(executeThread);
-                executeThread = new Thread(() =>
+                lock (myLock)
                 {
-                    if (PM_event_dict.ContainsKey(ev))
+                    // run this in a new thread as it may take a while to complete its work
+                    ThreadManager.UnregisterTemporaryThread(executeThread);
+                    executeThread = new Thread(() =>
                     {
-                        result = PM_event_dict[ev].PitManagerEventAction.Invoke();
-                        if (result)
+                        if (PM_event_dict.ContainsKey(ev))
                         {
-                            result = PM_event_dict[ev].PitManagerEventResponse.Invoke();
+                            result = PM_event_dict[ev].PitManagerEventAction.Invoke(voiceMessage);
+                            if (result)
+                            {
+                                result = PM_event_dict[ev].PitManagerEventResponse.Invoke();
+                            }
+                            else
+                            {
+                                //TBD: default handler "Couldn't do event for this vehicle"
+                                // e.g. change aero on non-aero car, option not in menu
+                            }
                         }
                         else
                         {
-                            //TBD: default handler "Couldn't do event for this vehicle"
-                            // e.g. change aero on non-aero car, option not in menu
+                            //TBD: default handler "Not available in this game"
+                            PitManagerResponseHandlers.PMrh_CantDoThat();
+                            //Alternatively event dicts for all games have all events
+                            //and the response handler does the warning.
                         }
+                    });
+                    executeThread.Name = "PitManager.executeThread";
+                    ThreadManager.RegisterTemporaryThread(executeThread);
+                    executeThread.Start();
+                }
+            }
+            else
+            {
+                if (PM_event_dict.ContainsKey(ev))
+                {
+                    result = PM_event_dict[ev].PitManagerEventAction.Invoke(voiceMessage);
+                    if (result)
+                    {
+                        result = PM_event_dict[ev].PitManagerEventResponse.Invoke();
                     }
                     else
                     {
-                        //TBD: default handler "Not available in this game"
-                        PitManagerResponseHandlers.PMrh_CantDoThat();
-                        //Alternatively event dicts for all games have all events
-                        //and the response handler does the warning.
+                        //TBD: default handler "Couldn't do event for this vehicle"
+                        // e.g. change aero on non-aero car, option not in menu
                     }
-                });
-                executeThread.Name = "PitManager.executeThread";
-                ThreadManager.RegisterTemporaryThread(executeThread);
-                executeThread.Start();
                 }
+                else
+                {
+                    //TBD: default handler "Not available in this game"
+                    PitManagerResponseHandlers.PMrh_CantDoThat();
+                    //Alternatively event dicts for all games have all events
+                    //and the response handler does the warning.
+                }
+            }
             return result;
         }
 
@@ -260,7 +289,7 @@ namespace CrewChiefV4.PitManager
 
             {PME.FuelAddXlitres,    _PMet(_PMeh, PMEHrF2.PMrF2eh_FuelAddXlitres, PMER.PMrh_FuelAddXlitres) },
             {PME.FuelFillToXlitres, _PMet(_PMeh, PMEHrF2.PMrF2eh_FuelToXlitres, PMER.PMrh_Acknowledge) },
-            {PME.FuelFillToEnd,     _PMet(_PMeh, PMEHrF2.PMrF2eh_example, PMER.PMrh_fuelToEnd) },
+            {PME.FuelFillToEnd,     _PMet(_PMeh, PMEHrF2.PMrF2eh_FuelToEnd, PMER.PMrh_fuelToEnd) },
             {PME.FuelNone,          _PMet(_PMeh, PMEHrF2.PMrF2eh_FuelNone, PMER.PMrh_noFuel) },
 
             {PME.RepairAll,         _PMet(_PMeh, PMEHrF2.PMrF2eh_RepairAll, PMER.PMrh_Acknowledge) },

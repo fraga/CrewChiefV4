@@ -20,17 +20,22 @@ namespace UnitTest
             bool result;
             var pmh = new PitManager();
 
-            result = pmh.EventHandler(PitManagerEvent.TyreCompoundWet);
+            result = pmh.EventHandler(PitManagerEvent.TyreCompoundWet, "");
             Thread.Sleep(100);
 
-            result = pmh.EventHandler(PitManagerEvent.AeroFrontSetToX);
+            result = pmh.EventHandler(PitManagerEvent.AeroFrontSetToX, "");
             Thread.Sleep(100);
-            result = pmh.EventHandler(PitManagerEvent.RepairFast);
+            result = pmh.EventHandler(PitManagerEvent.RepairFast, "");
             Thread.Sleep(100);
+        }
 
-
-            pmh.AmountHandler(32);
-            result = pmh.EventHandler(PitManagerEvent.FuelAddXlitres);
+        [TestMethod]
+        public void Test_EventHandlerFuel()
+        {
+            bool result;
+            var pmh = new PitManager();
+            //pmh.AmountHandler(32);
+            result = pmh.EventHandler(PitManagerEvent.FuelAddXlitres, "fifteen liters");
             Thread.Sleep(100);
         }
 
@@ -40,11 +45,11 @@ namespace UnitTest
             bool result;
             var pmh = new PitManager();
 
-            result = pmh.EventHandler(PitManagerEvent.TyreChangeNone);
+            result = pmh.EventHandler(PitManagerEvent.TyreChangeNone, "");
             Thread.Sleep(100);
 
             pmh.AmountHandler(0);
-            result = pmh.EventHandler(PitManagerEvent.FuelAddXlitres);
+            result = pmh.EventHandler(PitManagerEvent.FuelAddXlitres, "one gallon");
             Thread.Sleep(100);
         }
     }

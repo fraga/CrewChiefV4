@@ -1,6 +1,7 @@
 ﻿using CrewChiefV4.Audio;
 using CrewChiefV4.Events;
 using CrewChiefV4.GameState;
+using PitMenuAPI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,9 +17,6 @@ namespace CrewChiefV4.PitManager
     {
         private float fuelCapacity = -1;
         private float currentFuel = -1;
-        private int roundedLitresNeeded = -1;
-        private const float litresPerGallon = 3.78541f;
-        private int amount = 0;
 
         private static readonly PitManager pmh = new PitManager();
         private static readonly Dictionary<PitManagerEvent, String[]> voiceCmds =
@@ -35,6 +33,7 @@ namespace CrewChiefV4.PitManager
             {PME.TyreChangeLR,      SRE.PIT_STOP_CHANGE_REAR_LEFT_TYRE },
             {PME.TyreChangeRR,      SRE.PIT_STOP_CHANGE_REAR_RIGHT_TYRE },
 
+            {PME.TyrePressure,    SRE.PIT_STOP_CHANGE_TYRE_PRESSURE },
             {PME.TyrePressureLF,    SRE.PIT_STOP_CHANGE_FRONT_LEFT_TYRE_PRESSURE },
             {PME.TyrePressureRF,    SRE.PIT_STOP_CHANGE_FRONT_RIGHT_TYRE_PRESSURE },
             {PME.TyrePressureLR,    SRE.PIT_STOP_CHANGE_REAR_LEFT_TYRE_PRESSURE },
@@ -101,7 +100,10 @@ namespace CrewChiefV4.PitManager
         }
         public override List<SessionPhase> applicableSessionPhases
         {
-            get { return new List<SessionPhase> { SessionPhase.Garage, SessionPhase.Green, SessionPhase.Countdown, SessionPhase.FullCourseYellow }; }
+            get
+            {
+                return new List<SessionPhase> { SessionPhase.Garage, SessionPhase.Green, SessionPhase.Countdown, SessionPhase.FullCourseYellow };
+            }
         }
 
         static private bool AddFuel(int amount)
@@ -110,7 +112,7 @@ namespace CrewChiefV4.PitManager
                 Console.WriteLine("Pit Manager add fuel voice command +" +
                     amount.ToString() + " litres");
             PitManagerEventHandlers_RF2.amountHandler(amount);
-            pmh.EventHandler(PME.FuelAddXlitres);
+            pmh.EventHandler(PME.FuelAddXlitres, "");
             return false; // Couldn't do it?
         }
 
@@ -120,70 +122,15 @@ namespace CrewChiefV4.PitManager
         /// <param name="voiceMessage"></param>
         public override void respond(String voiceMessage)
         {
-            amount = 0;
-            // Check for "Add X... first
-            if (SRE.ResultContains(voiceMessage, SRE.PIT_STOP_ADD))
+            // Check the Pit commands
+            foreach (var cmd in voiceCmds)
             {
-                foreach (KeyValuePair<String[], int> entry in SpeechRecogniser.numberToNumber)
+                if (SRE.ResultContains(voiceMessage, cmd.Value))
                 {
-                    foreach (String numberStr in entry.Key)
-                    {
-                        if (voiceMessage.Contains(" " + numberStr + " "))
-                        {
-                            amount = entry.Value;
-                            if (CrewChief.Debugging)
-                                Console.WriteLine("Pit stop add " + amount.ToString());
-                            break;
-                        }
-                    }
-                }
-                if (amount == 0)
-                {
-                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderDidntUnderstand, 0));
-                    return;
-                }
-                if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.LITERS))
-                {
-                    AddFuel(amount);
-                    audioPlayer.playMessageImmediately(new QueuedMessage("iracing_add_fuel", 0,
-                        messageFragments: MessageContents(AudioPlayer.folderAcknowlegeOK, amount, amount == 1 ? Fuel.folderLitre : Fuel.folderLitres)));
-                }
-                else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.GALLONS))
-                {
-                    AddFuel(convertGallonsToLitres(amount));
-                    audioPlayer.playMessageImmediately(new QueuedMessage("iracing_add_fuel", 0,
-                        messageFragments: MessageContents(AudioPlayer.folderAcknowlegeOK, amount, amount == 1 ? Fuel.folderGallon : Fuel.folderGallons)));
-                }
-                else
-                {
-                    Fuel fuelEvent = (Fuel)CrewChief.getEvent("Fuel");
-                    Console.WriteLine("Got fuel request with no unit, assuming " + (fuelEvent.fuelReportsInGallon ? " gallons" : "litres"));
-                    if (!fuelEvent.fuelReportsInGallon)
-                    {
-                        AddFuel(amount);
-                        audioPlayer.playMessageImmediately(new QueuedMessage("iracing_add_fuel", 0,
-                            messageFragments: MessageContents(AudioPlayer.folderAcknowlegeOK, amount, amount == 1 ? Fuel.folderLitre : Fuel.folderLitres)));
-                    }
-                    else
-                    {
-                        AddFuel(convertGallonsToLitres(amount));
-                        audioPlayer.playMessageImmediately(new QueuedMessage("iracing_add_fuel", 0,
-                            messageFragments: MessageContents(AudioPlayer.folderAcknowlegeOK, amount, amount == 1 ? Fuel.folderGallon : Fuel.folderGallons)));
-                    }
-                }
-            }
-            else
-            {
-                // Check the Pit commands
-                foreach (var cmd in voiceCmds)
-                {
-                    if (SRE.ResultContains(voiceMessage, cmd.Value))
-                    {
-                        if (CrewChief.Debugging)
-                            Console.WriteLine("Pit Manager voice command " + cmd.Value[0]);
-                        pmh.EventHandler(cmd.Key);
-                        break;
-                    }
+                    if (CrewChief.Debugging)
+                        Console.WriteLine("Pit Manager voice command " + cmd.Value[0]);
+                    pmh.EventHandler(cmd.Key, voiceMessage);
+                    break;
                 }
             }
         }
@@ -206,32 +153,7 @@ namespace CrewChiefV4.PitManager
                     && currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.SessionData.SessionRunningTime > 15
                     && !previousGameState.PitData.IsInGarage && !currentGameState.PitData.JumpedToPits)
                 {
-                    Fuel fuelEvent = (Fuel)CrewChief.getEvent("Fuel");
-                    float litresNeeded = fuelEvent.getLitresToEndOfRace(true);
-
-                    if (litresNeeded == float.MaxValue)
-                    {
-                        audioPlayer.playMessage(new QueuedMessage(AudioPlayer.folderNoData, 0));
-                    }
-                    else if (litresNeeded <= 0)
-                    {
-                        audioPlayer.playMessage(new QueuedMessage(Fuel.folderPlentyOfFuel, 0));
-                    }
-                    else if (litresNeeded > 0)
-                    {
-                        roundedLitresNeeded = (int)Math.Ceiling(litresNeeded);
-                        AddFuel(roundedLitresNeeded);
-                        Console.WriteLine("Auto refuel to the end of the race, adding " + roundedLitresNeeded + " litres of fuel");
-                        if (roundedLitresNeeded > fuelCapacity - currentFuel)
-                        {
-                            // if we have a known fuel capacity and this is less than the calculated amount of fuel we need, warn about it.
-                            audioPlayer.playMessage(new QueuedMessage(Fuel.folderWillNeedToStopAgain, 0, secondsDelay: 4, abstractEvent: this));
-                        }
-                        else
-                        {
-                            audioPlayer.playMessage(new QueuedMessage(AudioPlayer.folderFuelToEnd, 0));
-                        }
-                    }
+                    FuelHandling.fuelToEnd(fuelCapacity, currentFuel);
                 }
             }
         }
@@ -250,8 +172,104 @@ namespace CrewChiefV4.PitManager
             audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
             return true;
         }
+    }
 
-        private int convertGallonsToLitres(int gallons)
+    /// <summary>
+    /// Utility class to handle pit refuelling
+    /// Should be somewhere else
+    /// </summary>
+    class FuelHandling
+    {
+        private const float litresPerGallon = 3.78541f;
+
+        static public int processNumber(string _voiceMessage)
+        {
+            int amount = 0;
+
+            foreach (KeyValuePair<String[], int> entry in SpeechRecogniser.numberToNumber)
+            {
+                foreach (String numberStr in entry.Key)
+                {
+                    if (_voiceMessage.Contains(" " + numberStr + " "))
+                    {
+                        amount = entry.Value;
+                        if (CrewChief.Debugging)
+                            Console.WriteLine("processed number " + amount.ToString());
+                        break;
+                    }
+                }
+            }
+            if (amount == 0)
+            {
+                CrewChief.audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderDidntUnderstand, 0));
+            }
+            return amount;
+        }
+
+        static public int processLitresGallons(int amount, string _voiceMessage)
+        {
+            bool litres = true;
+            if (SpeechRecogniser.ResultContains(_voiceMessage, SpeechRecogniser.LITERS))
+            {
+                litres = true;
+            }
+            else if (SpeechRecogniser.ResultContains(_voiceMessage, SpeechRecogniser.GALLONS))
+            {
+                litres = false;
+            }
+            else
+            {
+                Fuel fuelEvent = (Fuel)CrewChief.getEvent("Fuel");
+                Console.WriteLine("Got fuel request with no unit, assuming " + (fuelEvent.fuelReportsInGallon ? " gallons" : "litres"));
+                if (fuelEvent.fuelReportsInGallon)
+                {
+                    litres = false;
+                }
+            }
+            if (!litres)
+                amount = convertGallonsToLitres(amount);
+            return amount;
+        }
+
+        static public bool fuelToEnd(float fuelCapacity, float currentFuel)
+        {
+            int roundedLitresNeeded = -1;
+            bool result = false;
+            Fuel fuelEvent = (Fuel)CrewChief.getEvent("Fuel");
+            float additionaLitresNeeded = fuelEvent.getLitresToEndOfRace(true);
+
+            if (additionaLitresNeeded == float.MaxValue)
+            {
+                CrewChief.audioPlayer.playMessage(new QueuedMessage(AudioPlayer.folderNoData, 0));
+            }
+            else if (additionaLitresNeeded <= 0)
+            {
+                CrewChief.audioPlayer.playMessage(new QueuedMessage(Fuel.folderPlentyOfFuel, 0));
+                result = true;
+            }
+            else if (additionaLitresNeeded > 0)
+            {
+                roundedLitresNeeded = (int)Math.Ceiling(additionaLitresNeeded);
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                // tbd: this is specific to rF2
+                PitMenuAbstractionLayer.Pmc.SetFuelLevel(roundedLitresNeeded);
+                //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                Console.WriteLine("Auto refuel to the end of the race, adding " + roundedLitresNeeded + " litres of fuel");
+                if (roundedLitresNeeded > fuelCapacity - currentFuel)
+                {
+                    // if we have a known fuel capacity and this is less than the calculated amount of fuel we need, warn about it.
+                    CrewChief.audioPlayer.playMessage(new QueuedMessage(Fuel.folderWillNeedToStopAgain, 0, secondsDelay: 4));
+                }
+                else
+                {
+                    CrewChief.audioPlayer.playMessage(new QueuedMessage(AudioPlayer.folderFuelToEnd, 0));
+                    result = true;
+                }
+            }
+            return result;
+        }
+
+        static private int convertGallonsToLitres(int gallons)
         {
             return (int)Math.Ceiling(gallons * litresPerGallon);
         }
