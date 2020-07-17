@@ -224,6 +224,31 @@ namespace CrewChiefV4.PitManager
             return result;
         }
 
+        static private bool changeTyrePressure(string tyreCategory, int pressure)
+        {
+            bool response = false;
+
+            if (pressure > 0)
+            {
+                // tbd: response = Pmal.setCategoryAndChoice(tyreCategory, tyreType);
+                if (response)
+                {
+                    // dict is the other direction currentGenericTyreCompound = ttDict[tyreType];
+                    if (CrewChief.Debugging)
+                    {
+                        Console.WriteLine("Pit Manager tyre pressure set to (" +
+                            tyreCategory + ") " + pressure);
+                    }
+                }
+                else
+                {   // Compound is not available
+                    // tbd: PitManagerResponseHandlers.PMrh_TyreCompoundNotAvailable();
+                }
+            }
+            return response;
+        }
+
+
         static public bool PMrF2eh_TyreCompoundHard(string voiceMessage)
         {
             return setTyreCompound("Hard");
@@ -316,6 +341,12 @@ namespace CrewChiefV4.PitManager
         static public bool PMrF2eh_changeRRTyre(string voiceMessage)
         {
             return changeTyre("RR TIRE:");
+        }
+
+        static public bool PMrF2eh_changeFLpressure(string voiceMessage)
+        {
+            var pressure = FuelHandling.processNumber(voiceMessage);
+            return changeTyrePressure("FL PRESS:", pressure);
         }
 
 

@@ -271,7 +271,7 @@ namespace CrewChiefV4.PitManager
             {PME.TyreChangeLR,      _PMet(_PMeh, PMEHrF2.PMrF2eh_changeRLTyre, PMER.PMrh_Acknowledge) },
             {PME.TyreChangeRR,      _PMet(_PMeh, PMEHrF2.PMrF2eh_changeRRTyre, PMER.PMrh_Acknowledge) },
 
-            {PME.TyrePressureLF,    _PMet(_PMeh, PMEHrF2.PMrF2eh_example, PMER.PMrh_Acknowledge) },
+            {PME.TyrePressureLF,    _PMet(_PMeh, PMEHrF2.PMrF2eh_changeFLpressure, PMER.PMrh_Acknowledge) },
             {PME.TyrePressureRF,    _PMet(_PMeh, PMEHrF2.PMrF2eh_example, PMER.PMrh_Acknowledge) },
             {PME.TyrePressureLR,    _PMet(_PMeh, PMEHrF2.PMrF2eh_example, PMER.PMrh_Acknowledge) },
             {PME.TyrePressureRR,    _PMet(_PMeh, PMEHrF2.PMrF2eh_example, PMER.PMrh_Acknowledge) },
