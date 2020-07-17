@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -2565,8 +2565,7 @@ namespace CrewChiefV4
                 ResultContains(recognisedSpeech, PIT_STOP_CLEAR_WIND_SCREEN, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_CLEAR_FAST_REPAIR, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_CLEAR_FUEL, false) ||
-
-				ResultContains(recognisedSpeech, PIT_STOP_CHANGE_ALL_TYRES, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_CHANGE_ALL_TYRES, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_CHANGE_FRONT_LEFT_TYRE, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_CHANGE_FRONT_RIGHT_TYRE, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_CHANGE_REAR_LEFT_TYRE, false) ||
@@ -2587,7 +2586,10 @@ namespace CrewChiefV4
                 ResultContains(recognisedSpeech, PIT_STOP_HARD_TYRES, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_MEDIUM_TYRES, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_SOFT_TYRES, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_PRIME_TYRES, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_INTERMEDIATE_TYRES, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_WET_TYRES, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_MONSOON_TYRES, false) ||
+		ResultContains(recognisedSpeech, PIT_STOP_PRIME_TYRES, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_ALTERNATE_TYRES, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_OPTION_TYRES, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_DONT_REFUEL, false) ||

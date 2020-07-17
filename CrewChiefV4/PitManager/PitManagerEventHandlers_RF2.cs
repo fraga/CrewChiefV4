@@ -154,10 +154,10 @@ namespace CrewChiefV4.PitManager
         {
             amountCache = amount;
         }
-        /// <summary> responseHandler_TyreCompoundNotAvailable
-        /// The event handlers for rF2
+        /// <summary> PMrF2eh_example
+        /// Dummy action handler for rF2
         /// </summary>
-        static public bool actionHandler_example()
+        static public bool PMrF2eh_example()
         {
             return true;
 
@@ -206,7 +206,7 @@ namespace CrewChiefV4.PitManager
             }
             else
             {   // Compound is not available
-                PitManagerResponseHandlers.responseHandler_TyreCompoundNotAvailable();
+                PitManagerResponseHandlers.PMrh_TyreCompoundNotAvailable();
             }
             return response;
         }
@@ -224,36 +224,36 @@ namespace CrewChiefV4.PitManager
             return result;
         }
 
-        static public bool actionHandler_TyreCompoundHard()
+        static public bool PMrF2eh_TyreCompoundHard()
         {
             return setTyreCompound("Hard");
         }
-        static public bool actionHandler_TyreCompoundMedium()
+        static public bool PMrF2eh_TyreCompoundMedium()
         {
             return setTyreCompound("Medium");
         }
-        static public bool actionHandler_TyreCompoundSoft()
+        static public bool PMrF2eh_TyreCompoundSoft()
         {
             return setTyreCompound("Soft");
         }
-        static public bool actionHandler_TyreCompoundWet()
+        static public bool PMrF2eh_TyreCompoundWet()
         {
             return setTyreCompound("Wet");
         }
-        static public bool actionHandler_TyreCompoundOption()
+        static public bool PMrF2eh_TyreCompoundOption()
         {
             return setTyreCompound("Soft"); // tbd:
         }
-        static public bool actionHandler_TyreCompoundPrime()
+        static public bool PMrF2eh_TyreCompoundPrime()
         {
             return setTyreCompound("Soft"); // tbd:
         }
-        static public bool actionHandler_TyreCompoundAlternate()
+        static public bool PMrF2eh_TyreCompoundAlternate()
         {
             return setTyreCompound("Soft"); // tbd:
         }
 
-        static public bool actionHandler_TyreCompoundNext()
+        static public bool PMrF2eh_TyreCompoundNext()
         {
             // Select the next compound available for this car
             // Get the current tyre type
@@ -271,73 +271,69 @@ namespace CrewChiefV4.PitManager
             return response;
         }
 
-        static public bool actionHandler_changeAllTyres()
+        static public bool PMrF2eh_changeAllTyres()
         {
             return changeTyres(Pmal.GetAllTyreCategories());
         }
-        static public bool actionHandler_changeNoTyres()
+        static public bool PMrF2eh_changeNoTyres()
         {
             return changeTyres(Pmal.GetAllTyreCategories(), true);
         }
 
 
-        static public bool actionHandler_changeFrontTyres()
+        static public bool PMrF2eh_changeFrontTyres()
         {
             changeTyres(Pmal.GetAllTyreCategories(), true);
             return changeTyres(Pmal.GetFrontTyreCategories());
         }
-        static public bool actionHandler_changeRearTyres()
+        static public bool PMrF2eh_changeRearTyres()
         {
             changeTyres(Pmal.GetAllTyreCategories(), true);
             return changeTyres(Pmal.GetRearTyreCategories());
         }
-        static public bool actionHandler_changeLeftTyres()
+        static public bool PMrF2eh_changeLeftTyres()
         {
             changeTyres(Pmal.GetAllTyreCategories(), true);
             return changeTyres(Pmal.GetLeftTyreCategories());
         }
-        static public bool actionHandler_changeRightTyres()
+        static public bool PMrF2eh_changeRightTyres()
         {
             changeTyres(Pmal.GetAllTyreCategories(), true);
             return changeTyres(Pmal.GetRightTyreCategories());
         }
-        static public bool actionHandler_changeFLTyre()
+        static public bool PMrF2eh_changeFLTyre()
         {
-            changeTyres(Pmal.GetAllTyreCategories(), true);
             return changeTyre("FL TIRE:");
         }
-        static public bool actionHandler_changeFRTyre()
+        static public bool PMrF2eh_changeFRTyre()
         {
-            changeTyres(Pmal.GetAllTyreCategories(), true);
             return changeTyre("FR TIRE:");
         }
-        static public bool actionHandler_changeRLTyre()
+        static public bool PMrF2eh_changeRLTyre()
         {
-            changeTyres(Pmal.GetAllTyreCategories(), true);
             return changeTyre("RL TIRE:");
         }
-        static public bool actionHandler_changeRRTyre()
+        static public bool PMrF2eh_changeRRTyre()
         {
-            changeTyres(Pmal.GetAllTyreCategories(), true);
             return changeTyre("RR TIRE:");
         }
 
 
-        static public bool actionHandler_FuelAddXlitres()
+        static public bool PMrF2eh_FuelAddXlitres()
         {
             var amount = Pmal.Pmc.GetFuelLevel();
             return Pmal.Pmc.SetFuelLevel(amount + amountCache);
         }
-        static public bool actionHandler_FuelToXlitres()
+        static public bool PMrF2eh_FuelToXlitres()
         {
             return Pmal.Pmc.SetFuelLevel(amountCache);
         }
-        static public bool actionHandler_FuelNone()
+        static public bool PMrF2eh_FuelNone()
         {
             return Pmal.Pmc.SetFuelLevel(1);
         }
 
-        static public bool actionHandler_RepairAll()
+        static public bool PMrF2eh_RepairAll()
         {
             if (Pmal.Pmc.SoftMatchCategory("DAMAGE:"))
             {
@@ -345,7 +341,7 @@ namespace CrewChiefV4.PitManager
             }
             return false;
         }
-        static public bool actionHandler_RepairNone()
+        static public bool PMrF2eh_RepairNone()
         {
             if (Pmal.Pmc.SoftMatchCategory("DAMAGE:"))
             {
@@ -353,7 +349,7 @@ namespace CrewChiefV4.PitManager
             }
             return false;
         }
-        static public bool actionHandler_RepairBody()
+        static public bool PMrF2eh_RepairBody()
         {
             if (Pmal.Pmc.SoftMatchCategory("DAMAGE:"))
             {
@@ -362,7 +358,7 @@ namespace CrewChiefV4.PitManager
             return false;
         }
 
-        static public bool actionHandler_PenaltyServe()
+        static public bool PMrF2eh_PenaltyServe()
         {
             if (Pmal.Pmc.SoftMatchCategory("STOP/GO"))
             {
@@ -370,7 +366,7 @@ namespace CrewChiefV4.PitManager
             }
             return false;
         }
-        static public bool actionHandler_PenaltyServeNone()
+        static public bool PMrF2eh_PenaltyServeNone()
         {
             if (Pmal.Pmc.SoftMatchCategory("STOP/GO"))
             {
