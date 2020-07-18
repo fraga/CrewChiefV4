@@ -4,9 +4,6 @@ using CrewChiefV4.GameState;
 using PitMenuAPI;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CrewChiefV4.PitManager
 {
@@ -15,89 +12,102 @@ namespace CrewChiefV4.PitManager
 
     public class PitManagerVoiceCmds : AbstractEvent
     {
-        private float fuelCapacity = -1;
-        private float currentFuel = -1;
+        #region Private Fields
 
         private static readonly PitManager pmh = new PitManager();
+
         private static readonly Dictionary<PitManagerEvent, String[]> voiceCmds =
             new Dictionary<PitManagerEvent, String[]>
         {
-            {PME.TyreChangeAll,     SRE.PIT_STOP_CHANGE_ALL_TYRES },
-            {PME.TyreChangeNone,    SRE.PIT_STOP_CLEAR_TYRES },
-            {PME.TyreChangeFront,   SRE.PIT_STOP_CHANGE_FRONT_TYRES },
-            {PME.TyreChangeRear,    SRE.PIT_STOP_CHANGE_REAR_TYRES },
-            {PME.TyreChangeLeft,    SRE.PIT_STOP_CHANGE_LEFT_SIDE_TYRES },
-            {PME.TyreChangeRight,   SRE.PIT_STOP_CHANGE_RIGHT_SIDE_TYRES},
-            {PME.TyreChangeLF,      SRE.PIT_STOP_CHANGE_FRONT_LEFT_TYRE },
-            {PME.TyreChangeRF,      SRE.PIT_STOP_CHANGE_FRONT_RIGHT_TYRE },
-            {PME.TyreChangeLR,      SRE.PIT_STOP_CHANGE_REAR_LEFT_TYRE },
-            {PME.TyreChangeRR,      SRE.PIT_STOP_CHANGE_REAR_RIGHT_TYRE },
+            {PME.TyreChangeAll,           SRE.PIT_STOP_CHANGE_ALL_TYRES },
+            {PME.TyreChangeNone,          SRE.PIT_STOP_CLEAR_TYRES },
+            {PME.TyreChangeFront,         SRE.PIT_STOP_CHANGE_FRONT_TYRES },
+            {PME.TyreChangeRear,          SRE.PIT_STOP_CHANGE_REAR_TYRES },
+            {PME.TyreChangeLeft,          SRE.PIT_STOP_CHANGE_LEFT_SIDE_TYRES },
+            {PME.TyreChangeRight,         SRE.PIT_STOP_CHANGE_RIGHT_SIDE_TYRES},
+            {PME.TyreChangeLF,            SRE.PIT_STOP_CHANGE_FRONT_LEFT_TYRE },
+            {PME.TyreChangeRF,            SRE.PIT_STOP_CHANGE_FRONT_RIGHT_TYRE },
+            {PME.TyreChangeLR,            SRE.PIT_STOP_CHANGE_REAR_LEFT_TYRE },
+            {PME.TyreChangeRR,            SRE.PIT_STOP_CHANGE_REAR_RIGHT_TYRE },
 
-            {PME.TyrePressure,    SRE.PIT_STOP_CHANGE_TYRE_PRESSURE },
-            {PME.TyrePressureLF,    SRE.PIT_STOP_CHANGE_FRONT_LEFT_TYRE_PRESSURE },
-            {PME.TyrePressureRF,    SRE.PIT_STOP_CHANGE_FRONT_RIGHT_TYRE_PRESSURE },
-            {PME.TyrePressureLR,    SRE.PIT_STOP_CHANGE_REAR_LEFT_TYRE_PRESSURE },
-            {PME.TyrePressureRR,    SRE.PIT_STOP_CHANGE_REAR_RIGHT_TYRE_PRESSURE },
+            {PME.TyrePressure,            SRE.PIT_STOP_CHANGE_TYRE_PRESSURE },
+            {PME.TyrePressureLF,          SRE.PIT_STOP_CHANGE_FRONT_LEFT_TYRE_PRESSURE },
+            {PME.TyrePressureRF,          SRE.PIT_STOP_CHANGE_FRONT_RIGHT_TYRE_PRESSURE },
+            {PME.TyrePressureLR,          SRE.PIT_STOP_CHANGE_REAR_LEFT_TYRE_PRESSURE },
+            {PME.TyrePressureRR,          SRE.PIT_STOP_CHANGE_REAR_RIGHT_TYRE_PRESSURE },
 
-            {PME.TyreCompoundHard,  SRE.PIT_STOP_HARD_TYRES },
-            {PME.TyreCompoundMedium, SRE.PIT_STOP_MEDIUM_TYRES },
-            {PME.TyreCompoundSoft,  SRE.PIT_STOP_SOFT_TYRES },
-            {PME.TyreCompoundIntermediate,   SRE.PIT_STOP_INTERMEDIATE_TYRES },        // tbd:
-            {PME.TyreCompoundWet,   SRE.PIT_STOP_WET_TYRES },        // tbd:
-            {PME.TyreCompoundMonsoon,   SRE.PIT_STOP_MONSOON_TYRES },        // tbd:
-            {PME.TyreCompoundOption, SRE.PIT_STOP_OPTION_TYRES },
-            {PME.TyreCompoundPrime, SRE.PIT_STOP_PRIME_TYRES },
-            {PME.TyreCompoundAlternate, SRE.PIT_STOP_ALTERNATE_TYRES },
-            {PME.TyreCompoundNext,  SRE.PIT_STOP_NEXT_TYRE_COMPOUND },
+            {PME.TyreCompoundHard,        SRE.PIT_STOP_HARD_TYRES },
+            {PME.TyreCompoundMedium,      SRE.PIT_STOP_MEDIUM_TYRES },
+            {PME.TyreCompoundSoft,        SRE.PIT_STOP_SOFT_TYRES },
+            {PME.TyreCompoundIntermediate,SRE.PIT_STOP_INTERMEDIATE_TYRES },        // tbd:
+            {PME.TyreCompoundWet,         SRE.PIT_STOP_WET_TYRES },        // tbd:
+            {PME.TyreCompoundMonsoon,     SRE.PIT_STOP_MONSOON_TYRES },        // tbd:
+            {PME.TyreCompoundOption,      SRE.PIT_STOP_OPTION_TYRES },
+            {PME.TyreCompoundPrime,       SRE.PIT_STOP_PRIME_TYRES },
+            {PME.TyreCompoundAlternate,   SRE.PIT_STOP_ALTERNATE_TYRES },
+            {PME.TyreCompoundNext,        SRE.PIT_STOP_NEXT_TYRE_COMPOUND },
 
-            {PME.FuelAddXlitres,    SRE.PIT_STOP_ADD },
-            //{PME.FuelFillToXlitres, SRE.PIT_STOP },               // tbd: would require added speech handling
-            {PME.FuelFillToEnd,     SRE.PIT_STOP_FUEL_TO_THE_END },
-            {PME.FuelNone,          SRE.PIT_STOP_DONT_REFUEL },
-            //{PME.FuelNone,          SRE.PIT_STOP_CLEAR_FUEL },
+            {PME.FuelAddXlitres,          SRE.PIT_STOP_ADD },
+            //{PME.FuelFillToXlitres,     SRE.PIT_STOP },               // tbd: would require added speech handling
+            {PME.FuelFillToEnd,           SRE.PIT_STOP_FUEL_TO_THE_END },
+            {PME.FuelNone,                SRE.PIT_STOP_DONT_REFUEL },
+            //{PME.FuelNone,              SRE.PIT_STOP_CLEAR_FUEL },
 
-            // tbd {PME.RepairAll,         SRE.PIT_STOP },
-            {PME.RepairNone,        SRE.PIT_STOP_CLEAR_ALL },
-            {PME.RepairFast,        SRE.PIT_STOP_FAST_REPAIR },        // iRacing
-            {PME.RepairAllAero,     SRE.PIT_STOP_FIX_ALL_AERO },       // R3E
-            {PME.RepairFrontAero,   SRE.PIT_STOP_FIX_FRONT_AERO },
-            {PME.RepairRearAero,    SRE.PIT_STOP_FIX_REAR_AERO },
-            {PME.RepairSuspension,  SRE.PIT_STOP_FIX_SUSPENSION },
-            {PME.RepairSuspensionNone, SRE.PIT_STOP_DONT_FIX_SUSPENSION },
-            {PME.RepairBody,        SRE.PIT_STOP_FIX_BODY },         // rF2
+            // tbd {PME.RepairAll,        SRE.PIT_STOP },
+            {PME.RepairNone,              SRE.PIT_STOP_CLEAR_ALL },
+            {PME.RepairFast,              SRE.PIT_STOP_FAST_REPAIR },        // iRacing
+            {PME.RepairAllAero,           SRE.PIT_STOP_FIX_ALL_AERO },       // R3E
+            {PME.RepairFrontAero,         SRE.PIT_STOP_FIX_FRONT_AERO },
+            {PME.RepairRearAero,          SRE.PIT_STOP_FIX_REAR_AERO },
+            {PME.RepairSuspension,        SRE.PIT_STOP_FIX_SUSPENSION },
+            {PME.RepairSuspensionNone,    SRE.PIT_STOP_DONT_FIX_SUSPENSION },
+            {PME.RepairBody,              SRE.PIT_STOP_FIX_BODY },         // rF2
 
-            {PME.PenaltyServe,      SRE.PIT_STOP_SERVE_PENALTY },
-            {PME.PenaltyServeNone,  SRE.PIT_STOP_DONT_SERVE_PENALTY },
+            {PME.PenaltyServe,            SRE.PIT_STOP_SERVE_PENALTY },
+            {PME.PenaltyServeNone,        SRE.PIT_STOP_DONT_SERVE_PENALTY },
 
             // tbd {PME.AeroFrontPlusMinusX, SRE.PIT_STOP },     // tbd: would require added speech handling
-            // tbd {PME.AeroRearPlusMinusX, SRE.PIT_STOP },
-            // tbd {PME.AeroFrontSetToX,   SRE.PIT_STOP },
-            // tbd {PME.AeroRearSetToX,    SRE.PIT_STOP },
+            // tbd {PME.AeroRearPlusMinusX,  SRE.PIT_STOP },
+            // tbd {PME.AeroFrontSetToX,  SRE.PIT_STOP },
+            // tbd {PME.AeroRearSetToX,   SRE.PIT_STOP },
 
-            // tbd {PME.GrillePlusMinusX,  SRE.PIT_STOP },        // tbd: rF2
-            // tbd {PME.GrilleSetToX,      SRE.PIT_STOP },
-            // tbd {PME.WedgePlusMinusX,   SRE.PIT_STOP },
-            // tbd {PME.WedgeSetToX,       SRE.PIT_STOP },
-            // tbd {PME.TrackBarPlusMinusX, SRE.PIT_STOP },
-            // tbd {PME.TrackBarSetToX,    SRE.PIT_STOP },
-            // tbd {PME.RubberLF,          SRE.PIT_STOP },
-            // tbd {PME.RubberRF,          SRE.PIT_STOP },
-            // tbd {PME.RubberLR,          SRE.PIT_STOP },
-            // tbd {PME.RubberRR,          SRE.PIT_STOP },
-            // tbd {PME.FenderL,           SRE.PIT_STOP },
-            // tbd {PME.FenderR,           SRE.PIT_STOP },
-            // tbd {PME.FlipUpL,           SRE.PIT_STOP },
-            // tbd {PME.FlipUpR,           SRE.PIT_STOP },
+            // tbd {PME.GrillePlusMinusX, SRE.PIT_STOP },        // tbd: rF2
+            // tbd {PME.GrilleSetToX,     SRE.PIT_STOP },
+            // tbd {PME.WedgePlusMinusX,  SRE.PIT_STOP },
+            // tbd {PME.WedgeSetToX,      SRE.PIT_STOP },
+            // tbd {PME.TrackBarPlusMinusX,  SRE.PIT_STOP },
+            // tbd {PME.TrackBarSetToX,   SRE.PIT_STOP },
+            // tbd {PME.RubberLF,         SRE.PIT_STOP },
+            // tbd {PME.RubberRF,         SRE.PIT_STOP },
+            // tbd {PME.RubberLR,         SRE.PIT_STOP },
+            // tbd {PME.RubberRR,         SRE.PIT_STOP },
+            // tbd {PME.FenderL,          SRE.PIT_STOP },
+            // tbd {PME.FenderR,          SRE.PIT_STOP },
+            // tbd {PME.FlipUpL,          SRE.PIT_STOP },
+            // tbd {PME.FlipUpR,          SRE.PIT_STOP },
 
-            {PME.Tearoff,           SRE.PIT_STOP_TEAROFF },    // iRacing
-            {PME.TearOffNone,       SRE.PIT_STOP_CLEAR_WIND_SCREEN },
+            {PME.Tearoff,                 SRE.PIT_STOP_TEAROFF },    // iRacing
+            {PME.TearOffNone,             SRE.PIT_STOP_CLEAR_WIND_SCREEN },
             };
+
+        private float fuelCapacity = -1;
+        private float currentFuel = -1;
+
+        #endregion Private Fields
+
+        #region Public Constructors
+
         public PitManagerVoiceCmds(AudioPlayer audioPlayer)
         {
             this.audioPlayer = audioPlayer;
             this.fuelCapacity = -1;
             this.currentFuel = -1;
         }
+
+        #endregion Public Constructors
+
+        #region Public Properties
+
         public override List<SessionPhase> applicableSessionPhases
         {
             get
@@ -106,15 +116,9 @@ namespace CrewChiefV4.PitManager
             }
         }
 
-        static private bool AddFuel(int amount)
-        {
-            if (CrewChief.Debugging)
-                Console.WriteLine("Pit Manager add fuel voice command +" +
-                    amount.ToString() + " litres");
-            PitManagerEventHandlers_RF2.amountHandler(amount);
-            pmh.EventHandler(PME.FuelAddXlitres, "");
-            return false; // Couldn't do it?
-        }
+        #endregion Public Properties
+
+        #region Public Methods
 
         /// <summary>
         /// Respond to a voice command
@@ -134,6 +138,25 @@ namespace CrewChiefV4.PitManager
                 }
             }
         }
+
+        /// <summary>
+        /// reinitialise any state held by the event subtype
+        /// </summary>
+        public override void clearState()
+        {
+            this.fuelCapacity = -1;
+            this.currentFuel = -1;
+        }
+
+        public bool responseHandler_acknowledge()
+        {
+            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
+            return true;
+        }
+
+        #endregion Public Methods
+
+        #region Protected Methods
 
         /// <summary>
         /// This is called on each 'tick' - the event subtype should
@@ -158,29 +181,36 @@ namespace CrewChiefV4.PitManager
             }
         }
 
-        /// <summary>
-        /// reinitialise any state held by the event subtype
-        /// </summary>
-        public override void clearState()
+        #endregion Protected Methods
+
+        #region Private Methods
+
+        static private bool AddFuel(int amount)
         {
-            this.fuelCapacity = -1;
-            this.currentFuel = -1;
+            if (CrewChief.Debugging)
+                Console.WriteLine("Pit Manager add fuel voice command +" +
+                    amount.ToString() + " litres");
+            PitManagerEventHandlers_RF2.amountHandler(amount);
+            pmh.EventHandler(PME.FuelAddXlitres, "");
+            return false; // Couldn't do it?
         }
 
-        public bool responseHandler_acknowledge()
-        {
-            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
-            return true;
-        }
+        #endregion Private Methods
     }
 
     /// <summary>
     /// Utility class to handle pit refuelling
     /// Should be somewhere else
     /// </summary>
-    class FuelHandling
+    internal class FuelHandling
     {
+        #region Private Fields
+
         private const float litresPerGallon = 3.78541f;
+
+        #endregion Private Fields
+
+        #region Public Methods
 
         static public int processNumber(string _voiceMessage)
         {
@@ -269,9 +299,15 @@ namespace CrewChiefV4.PitManager
             return result;
         }
 
+        #endregion Public Methods
+
+        #region Private Methods
+
         static private int convertGallonsToLitres(int gallons)
         {
             return (int)Math.Ceiling(gallons * litresPerGallon);
         }
+
+        #endregion Private Methods
     }
 }

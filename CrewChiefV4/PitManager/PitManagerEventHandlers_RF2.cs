@@ -53,12 +53,11 @@ using PitMenuAPI;
 //"Smart Pitcrew":true,
 //"Smart Pitcrew#":"Pitcrew does things even if you mistakenly forgot to ask (one example is changing a damaged tire)",
 
-
 namespace CrewChiefV4.PitManager
 {
     using Pmal = PitMenuAbstractionLayer;
 
-    class PitManagerEventHandlers_RF2
+    internal class PitManagerEventHandlers_RF2
     {
         /// <summary>
         /// Take a list of tyre types available in the menu and map them on to
@@ -78,6 +77,8 @@ namespace CrewChiefV4.PitManager
         /// <returns>
         /// Dictionary mapping generic tyre types to names of those available
         /// </returns>
+
+        #region Private Fields
 
         // Complicated because rF2 has many names for tyres so use a dict of
         // possible alternative names for each type
@@ -103,13 +104,6 @@ namespace CrewChiefV4.PitManager
             { "No Change",    new List <string> {"no change"} }
             };
 
-        static private Dictionary<string, List<string>> tyreTranslationDict =
-            SampleTyreTranslationDict;
-        static private Dictionary<string, string> ttDict =
-            TranslateTyreTypes(tyreTranslationDict, Pmal.GetTyreTypeNames());
-        static private List<string> tyreCategories;
-        static List<string> tyreTypes = Pmal.GetTyreTypeNames();
-
         static private readonly List<string> genericCompounds = new List<string> {
             "Hard",
             "Medium",
@@ -120,30 +114,23 @@ namespace CrewChiefV4.PitManager
             "Option",
             "Prime",
             "Alternate" };
+
+        static private Dictionary<string, List<string>> tyreTranslationDict =
+                    SampleTyreTranslationDict;
+
+        static private Dictionary<string, string> ttDict =
+            TranslateTyreTypes(tyreTranslationDict, Pmal.GetTyreTypeNames());
+
+        static private List<string> tyreCategories;
+        private static List<string> tyreTypes = Pmal.GetTyreTypeNames();
         static private string currentGenericTyreCompound = "";
         static private currentTyreType xx = new currentTyreType();
 
-        private class currentTyreType
-        {
-            static string _currentTyreType = "";
-            public void Set(string tyreType)
-            {
-                _currentTyreType = tyreType;
-            }
-            public string Get()
-            {
-                if (_currentTyreType == "")
-                {
-                    _currentTyreType = Pmal.GetCurrentTyreType();
-                    if (_currentTyreType == "No Change")
-                    {
-                        _currentTyreType = TranslateTyreTypes(tyreTranslationDict, tyreTypes)["Medium"];
-                    }
-                }
-                return _currentTyreType;
-            }
-        }
         static private int amountCache;
+
+        #endregion Private Fields
+
+        #region Public Methods
 
         /// <summary>
         /// Invoked by "Pitstop Add..." command, an event (e.g. fuel) will
@@ -154,14 +141,15 @@ namespace CrewChiefV4.PitManager
         {
             amountCache = amount;
         }
+
         /// <summary> PMrF2eh_example
         /// Dummy action handler for rF2
         /// </summary>
         static public bool PMrF2eh_example(string voiceMessage)
         {
             return true;
-
         }
+
         public static Dictionary<string, string> TranslateTyreTypes(
           Dictionary<string, List<string>> tyreDict,
           List<string> inMenu)
@@ -183,6 +171,194 @@ namespace CrewChiefV4.PitManager
             }
             return result;
         }
+
+        static public bool PMrF2eh_TyreCompoundHard(string voiceMessage)
+        {
+            return setTyreCompound("Hard");
+        }
+
+        static public bool PMrF2eh_TyreCompoundMedium(string voiceMessage)
+        {
+            return setTyreCompound("Medium");
+        }
+
+        static public bool PMrF2eh_TyreCompoundSoft(string voiceMessage)
+        {
+            return setTyreCompound("Soft");
+        }
+
+        static public bool PMrF2eh_TyreCompoundWet(string voiceMessage)
+        {
+            return setTyreCompound("Wet");
+        }
+
+        static public bool PMrF2eh_TyreCompoundOption(string voiceMessage)
+        {
+            return setTyreCompound("Soft"); // tbd:
+        }
+
+        static public bool PMrF2eh_TyreCompoundPrime(string voiceMessage)
+        {
+            return setTyreCompound("Soft"); // tbd:
+        }
+
+        static public bool PMrF2eh_TyreCompoundAlternate(string voiceMessage)
+        {
+            return setTyreCompound("Soft"); // tbd:
+        }
+
+        static public bool PMrF2eh_TyreCompoundNext(string voiceMessage)
+        {
+            // Select the next compound available for this car
+            // Get the current tyre type
+            // Get the list of tyre type, remove "No Change"
+            bool response = false;
+            List<string> tyreTypes = Pmal.Pmc.GetTyreTypeNames();
+            tyreTypes.Remove("No Change");
+            string currentTyreTypeStr = Pmal.GetCurrentTyreType();
+
+            int currentTyreType = tyreTypes.IndexOf(currentTyreTypeStr) + 1;
+            if (currentTyreType >= tyreTypes.Count)
+                currentTyreType = 0;
+            response = true;
+            xx.Set(tyreTypes[currentTyreType]);
+            return response;
+        }
+
+        static public bool PMrF2eh_changeAllTyres(string voiceMessage)
+        {
+            return changeTyres(Pmal.GetAllTyreCategories());
+        }
+
+        static public bool PMrF2eh_changeNoTyres(string voiceMessage)
+        {
+            return changeTyres(Pmal.GetAllTyreCategories(), true);
+        }
+
+        static public bool PMrF2eh_changeFrontTyres(string voiceMessage)
+        {
+            changeTyres(Pmal.GetAllTyreCategories(), true);
+            return changeTyres(Pmal.GetFrontTyreCategories());
+        }
+
+        static public bool PMrF2eh_changeRearTyres(string voiceMessage)
+        {
+            changeTyres(Pmal.GetAllTyreCategories(), true);
+            return changeTyres(Pmal.GetRearTyreCategories());
+        }
+
+        static public bool PMrF2eh_changeLeftTyres(string voiceMessage)
+        {
+            changeTyres(Pmal.GetAllTyreCategories(), true);
+            return changeTyres(Pmal.GetLeftTyreCategories());
+        }
+
+        static public bool PMrF2eh_changeRightTyres(string voiceMessage)
+        {
+            changeTyres(Pmal.GetAllTyreCategories(), true);
+            return changeTyres(Pmal.GetRightTyreCategories());
+        }
+
+        static public bool PMrF2eh_changeFLTyre(string voiceMessage)
+        {
+            return changeTyre("FL TIRE:");
+        }
+
+        static public bool PMrF2eh_changeFRTyre(string voiceMessage)
+        {
+            return changeTyre("FR TIRE:");
+        }
+
+        static public bool PMrF2eh_changeRLTyre(string voiceMessage)
+        {
+            return changeTyre("RL TIRE:");
+        }
+
+        static public bool PMrF2eh_changeRRTyre(string voiceMessage)
+        {
+            return changeTyre("RR TIRE:");
+        }
+
+        static public bool PMrF2eh_changeFLpressure(string voiceMessage)
+        {
+            var pressure = FuelHandling.processNumber(voiceMessage);
+            return changeTyrePressure("FL PRESS:", pressure);
+        }
+
+        static public bool PMrF2eh_FuelAddXlitres(string voiceMessage)
+        {
+            var amount = Pmal.Pmc.GetFuelLevel();
+            var amountAdd = FuelHandling.processNumber(voiceMessage);
+            amountAdd = FuelHandling.processLitresGallons(amountAdd, voiceMessage);
+            return Pmal.Pmc.SetFuelLevel(amount + amountAdd);
+        }
+
+        static public bool PMrF2eh_FuelToXlitres(string voiceMessage)
+        {
+            var amount = FuelHandling.processNumber(voiceMessage);
+            amount = FuelHandling.processLitresGallons(amount, voiceMessage);
+            return Pmal.Pmc.SetFuelLevel(amount);
+        }
+
+        static public bool PMrF2eh_FuelToEnd(string voiceMessage)
+        {
+            return FuelHandling.fuelToEnd(100, 0); // tbd
+        }
+
+        static public bool PMrF2eh_FuelNone(string voiceMessage)
+        {
+            return Pmal.Pmc.SetFuelLevel(1);
+        }
+
+        static public bool PMrF2eh_RepairAll(string voiceMessage)
+        {
+            if (Pmal.Pmc.SoftMatchCategory("DAMAGE:"))
+            {
+                return Pmal.Pmc.SetChoice("Repair All");
+            }
+            return false;
+        }
+
+        static public bool PMrF2eh_RepairNone(string voiceMessage)
+        {
+            if (Pmal.Pmc.SoftMatchCategory("DAMAGE:"))
+            {
+                return Pmal.Pmc.SetChoice("Repair None");
+            }
+            return false;
+        }
+
+        static public bool PMrF2eh_RepairBody(string voiceMessage)
+        {
+            if (Pmal.Pmc.SoftMatchCategory("DAMAGE:"))
+            {
+                return Pmal.Pmc.SetChoice("Repair Body");
+            }
+            return false;
+        }
+
+        static public bool PMrF2eh_PenaltyServe(string voiceMessage)
+        {
+            if (Pmal.Pmc.SoftMatchCategory("STOP/GO"))
+            {
+                return Pmal.Pmc.SetChoice("YES");
+            }
+            return false;
+        }
+
+        static public bool PMrF2eh_PenaltyServeNone(string voiceMessage)
+        {
+            if (Pmal.Pmc.SoftMatchCategory("STOP/GO"))
+            {
+                return Pmal.Pmc.SetChoice("NO");
+            }
+            return false;
+        }
+
+        #endregion Public Methods
+
+        #region Private Methods
+
         static private bool setTyreCompound(string genericTyreType)
         {
             xx.Set(TranslateTyreTypes(tyreTranslationDict, Pmal.GetTyreTypeNames())[genericTyreType]);
@@ -248,170 +424,41 @@ namespace CrewChiefV4.PitManager
             return response;
         }
 
+        #endregion Private Methods
 
-        static public bool PMrF2eh_TyreCompoundHard(string voiceMessage)
-        {
-            return setTyreCompound("Hard");
-        }
-        static public bool PMrF2eh_TyreCompoundMedium(string voiceMessage)
-        {
-            return setTyreCompound("Medium");
-        }
-        static public bool PMrF2eh_TyreCompoundSoft(string voiceMessage)
-        {
-            return setTyreCompound("Soft");
-        }
-        static public bool PMrF2eh_TyreCompoundWet(string voiceMessage)
-        {
-            return setTyreCompound("Wet");
-        }
-        static public bool PMrF2eh_TyreCompoundOption(string voiceMessage)
-        {
-            return setTyreCompound("Soft"); // tbd:
-        }
-        static public bool PMrF2eh_TyreCompoundPrime(string voiceMessage)
-        {
-            return setTyreCompound("Soft"); // tbd:
-        }
-        static public bool PMrF2eh_TyreCompoundAlternate(string voiceMessage)
-        {
-            return setTyreCompound("Soft"); // tbd:
-        }
+        #region Private Classes
 
-        static public bool PMrF2eh_TyreCompoundNext(string voiceMessage)
+        private class currentTyreType
         {
-            // Select the next compound available for this car
-            // Get the current tyre type
-            // Get the list of tyre type, remove "No Change"
-            bool response = false;
-            List<string> tyreTypes = Pmal.Pmc.GetTyreTypeNames();
-            tyreTypes.Remove("No Change");
-            string currentTyreTypeStr = Pmal.GetCurrentTyreType();
+            #region Private Fields
 
-            int currentTyreType = tyreTypes.IndexOf(currentTyreTypeStr) + 1;
-            if (currentTyreType >= tyreTypes.Count)
-                currentTyreType = 0;
-            response = true;
-            xx.Set(tyreTypes[currentTyreType]);
-            return response;
-        }
+            private static string _currentTyreType = "";
 
-        static public bool PMrF2eh_changeAllTyres(string voiceMessage)
-        {
-            return changeTyres(Pmal.GetAllTyreCategories());
-        }
-        static public bool PMrF2eh_changeNoTyres(string voiceMessage)
-        {
-            return changeTyres(Pmal.GetAllTyreCategories(), true);
-        }
+            #endregion Private Fields
 
+            #region Public Methods
 
-        static public bool PMrF2eh_changeFrontTyres(string voiceMessage)
-        {
-            changeTyres(Pmal.GetAllTyreCategories(), true);
-            return changeTyres(Pmal.GetFrontTyreCategories());
-        }
-        static public bool PMrF2eh_changeRearTyres(string voiceMessage)
-        {
-            changeTyres(Pmal.GetAllTyreCategories(), true);
-            return changeTyres(Pmal.GetRearTyreCategories());
-        }
-        static public bool PMrF2eh_changeLeftTyres(string voiceMessage)
-        {
-            changeTyres(Pmal.GetAllTyreCategories(), true);
-            return changeTyres(Pmal.GetLeftTyreCategories());
-        }
-        static public bool PMrF2eh_changeRightTyres(string voiceMessage)
-        {
-            changeTyres(Pmal.GetAllTyreCategories(), true);
-            return changeTyres(Pmal.GetRightTyreCategories());
-        }
-        static public bool PMrF2eh_changeFLTyre(string voiceMessage)
-        {
-            return changeTyre("FL TIRE:");
-        }
-        static public bool PMrF2eh_changeFRTyre(string voiceMessage)
-        {
-            return changeTyre("FR TIRE:");
-        }
-        static public bool PMrF2eh_changeRLTyre(string voiceMessage)
-        {
-            return changeTyre("RL TIRE:");
-        }
-        static public bool PMrF2eh_changeRRTyre(string voiceMessage)
-        {
-            return changeTyre("RR TIRE:");
-        }
-
-        static public bool PMrF2eh_changeFLpressure(string voiceMessage)
-        {
-            var pressure = FuelHandling.processNumber(voiceMessage);
-            return changeTyrePressure("FL PRESS:", pressure);
-        }
-
-
-        static public bool PMrF2eh_FuelAddXlitres(string voiceMessage)
-        {
-            var amount = Pmal.Pmc.GetFuelLevel();
-            var amountAdd = FuelHandling.processNumber(voiceMessage);
-            amountAdd = FuelHandling.processLitresGallons(amountAdd, voiceMessage);
-            return Pmal.Pmc.SetFuelLevel(amount + amountAdd);
-        }
-        static public bool PMrF2eh_FuelToXlitres(string voiceMessage)
-        {
-            var amount = FuelHandling.processNumber(voiceMessage);
-            amount = FuelHandling.processLitresGallons(amount, voiceMessage);
-            return Pmal.Pmc.SetFuelLevel(amount);
-        }
-        static public bool PMrF2eh_FuelToEnd(string voiceMessage)
-        {
-            return FuelHandling.fuelToEnd(100, 0); // tbd
-        }
-        static public bool PMrF2eh_FuelNone(string voiceMessage)
-        {
-            return Pmal.Pmc.SetFuelLevel(1);
-        }
-
-        static public bool PMrF2eh_RepairAll(string voiceMessage)
-        {
-            if (Pmal.Pmc.SoftMatchCategory("DAMAGE:"))
+            public void Set(string tyreType)
             {
-                return Pmal.Pmc.SetChoice("Repair All");
+                _currentTyreType = tyreType;
             }
-            return false;
-        }
-        static public bool PMrF2eh_RepairNone(string voiceMessage)
-        {
-            if (Pmal.Pmc.SoftMatchCategory("DAMAGE:"))
+
+            public string Get()
             {
-                return Pmal.Pmc.SetChoice("Repair None");
+                if (_currentTyreType == "")
+                {
+                    _currentTyreType = Pmal.GetCurrentTyreType();
+                    if (_currentTyreType == "No Change")
+                    {
+                        _currentTyreType = TranslateTyreTypes(tyreTranslationDict, tyreTypes)["Medium"];
+                    }
+                }
+                return _currentTyreType;
             }
-            return false;
-        }
-        static public bool PMrF2eh_RepairBody(string voiceMessage)
-        {
-            if (Pmal.Pmc.SoftMatchCategory("DAMAGE:"))
-            {
-                return Pmal.Pmc.SetChoice("Repair Body");
-            }
-            return false;
+
+            #endregion Public Methods
         }
 
-        static public bool PMrF2eh_PenaltyServe(string voiceMessage)
-        {
-            if (Pmal.Pmc.SoftMatchCategory("STOP/GO"))
-            {
-                return Pmal.Pmc.SetChoice("YES");
-            }
-            return false;
-        }
-        static public bool PMrF2eh_PenaltyServeNone(string voiceMessage)
-        {
-            if (Pmal.Pmc.SoftMatchCategory("STOP/GO"))
-            {
-                return Pmal.Pmc.SetChoice("NO");
-            }
-            return false;
-        }
+        #endregion Private Classes
     }
 }

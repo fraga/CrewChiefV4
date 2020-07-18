@@ -111,12 +111,17 @@ namespace CrewChiefV4.PitManager
         public struct PitManagerEventTableEntry
         {
             public delegate bool PitManagerEventAction_Delegate(string voiceMessage);
+
             public delegate bool PitManagerEventResponse_Delegate();
 
             public PitManagerEventAction_Delegate PitManagerEventAction;
             public PitManagerEventResponse_Delegate PitManagerEventResponse;
         }
-        class GamePitManagerDict : Dictionary<PME, PitManagerEventTableEntry> { }
+
+        private class GamePitManagerDict : Dictionary<PME, PitManagerEventTableEntry>
+        {
+        }
+
         //-------------------------------------------------------------------------
 
         // Dictionary of games and their event dicts
@@ -137,7 +142,9 @@ namespace CrewChiefV4.PitManager
         /// true if event was handled
         /// </returns>
         private static Object myLock = new Object();
+
         private static Thread executeThread = null;
+
         public bool EventHandler(PitManagerEvent ev, string voiceMessage)
         {
             bool result = false;
@@ -225,6 +232,7 @@ namespace CrewChiefV4.PitManager
         {
             PMEHrF2.amountHandler(amount);  // tbd: do it for other games
         }
+
         //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         // More messy stuff to set up the dictionary
         // Again, there's probably a neater way of doing it but it's beyond my C# skills.
@@ -249,91 +257,89 @@ namespace CrewChiefV4.PitManager
         /// Shorthand
         /// </summary>
         static private PitManagerEventTableEntry _PMeh = new PitManagerEventTableEntry();
-        //-------------------------------------------------------------------------
 
+        //-------------------------------------------------------------------------
 
         ///////////////////////////////////////////////////////////////////////////
         /// <summary>
         /// The event dictionary for rF2
         /// </summary>
-        static readonly GamePitManagerDict PM_event_dict_RF2 = new GamePitManagerDict
+        private static readonly GamePitManagerDict PM_event_dict_RF2 = new GamePitManagerDict
         {
-            //  The event                                               the fn that implements it  the fn that handles speech
-            //                                                          (changes the pit menu)     response and any other outcomes
-            {PME.TyreChangeAll,     _PMet(_PMeh, PMEHrF2.PMrF2eh_changeAllTyres, PMER.PMrh_ChangeAllTyres) },
-            {PME.TyreChangeNone,    _PMet(_PMeh, PMEHrF2.PMrF2eh_changeNoTyres, PMER.PMrh_ChangeNoTyres) },
-            {PME.TyreChangeFront,   _PMet(_PMeh, PMEHrF2.PMrF2eh_changeFrontTyres, PMER.PMrh_ChangeFrontTyres) },
-            {PME.TyreChangeRear,    _PMet(_PMeh, PMEHrF2.PMrF2eh_changeRearTyres, PMER.PMrh_ChangeRearTyres) },
-            {PME.TyreChangeLeft,    _PMet(_PMeh, PMEHrF2.PMrF2eh_changeLeftTyres, PMER.PMrh_Acknowledge) },
-            {PME.TyreChangeRight,   _PMet(_PMeh, PMEHrF2.PMrF2eh_changeRightTyres, PMER.PMrh_Acknowledge) },
-            {PME.TyreChangeLF,      _PMet(_PMeh, PMEHrF2.PMrF2eh_changeFLTyre, PMER.PMrh_Acknowledge) },
-            {PME.TyreChangeRF,      _PMet(_PMeh, PMEHrF2.PMrF2eh_changeFRTyre, PMER.PMrh_Acknowledge) },
-            {PME.TyreChangeLR,      _PMet(_PMeh, PMEHrF2.PMrF2eh_changeRLTyre, PMER.PMrh_Acknowledge) },
-            {PME.TyreChangeRR,      _PMet(_PMeh, PMEHrF2.PMrF2eh_changeRRTyre, PMER.PMrh_Acknowledge) },
+            //  The event                                      the fn that implements it        the fn that handles speech
+            //                                                 (changes the pit menu)           response and any other outcomes
+            {PME.TyreChangeAll,           _PMet(_PMeh, PMEHrF2.PMrF2eh_changeAllTyres,     PMER.PMrh_ChangeAllTyres) },
+            {PME.TyreChangeNone,          _PMet(_PMeh, PMEHrF2.PMrF2eh_changeNoTyres,      PMER.PMrh_ChangeNoTyres) },
+            {PME.TyreChangeFront,         _PMet(_PMeh, PMEHrF2.PMrF2eh_changeFrontTyres,   PMER.PMrh_ChangeFrontTyres) },
+            {PME.TyreChangeRear,          _PMet(_PMeh, PMEHrF2.PMrF2eh_changeRearTyres,    PMER.PMrh_ChangeRearTyres) },
+            {PME.TyreChangeLeft,          _PMet(_PMeh, PMEHrF2.PMrF2eh_changeLeftTyres,    PMER.PMrh_Acknowledge) },
+            {PME.TyreChangeRight,         _PMet(_PMeh, PMEHrF2.PMrF2eh_changeRightTyres,   PMER.PMrh_Acknowledge) },
+            {PME.TyreChangeLF,            _PMet(_PMeh, PMEHrF2.PMrF2eh_changeFLTyre,       PMER.PMrh_Acknowledge) },
+            {PME.TyreChangeRF,            _PMet(_PMeh, PMEHrF2.PMrF2eh_changeFRTyre,       PMER.PMrh_Acknowledge) },
+            {PME.TyreChangeLR,            _PMet(_PMeh, PMEHrF2.PMrF2eh_changeRLTyre,       PMER.PMrh_Acknowledge) },
+            {PME.TyreChangeRR,            _PMet(_PMeh, PMEHrF2.PMrF2eh_changeRRTyre,       PMER.PMrh_Acknowledge) },
 
-            {PME.TyrePressureLF,    _PMet(_PMeh, PMEHrF2.PMrF2eh_changeFLpressure, PMER.PMrh_Acknowledge) },
-            {PME.TyrePressureRF,    _PMet(_PMeh, PMEHrF2.PMrF2eh_example, PMER.PMrh_Acknowledge) },
-            {PME.TyrePressureLR,    _PMet(_PMeh, PMEHrF2.PMrF2eh_example, PMER.PMrh_Acknowledge) },
-            {PME.TyrePressureRR,    _PMet(_PMeh, PMEHrF2.PMrF2eh_example, PMER.PMrh_Acknowledge) },
+            {PME.TyrePressureLF,          _PMet(_PMeh, PMEHrF2.PMrF2eh_changeFLpressure,   PMER.PMrh_Acknowledge) },
+            {PME.TyrePressureRF,          _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_Acknowledge) },
+            {PME.TyrePressureLR,          _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_Acknowledge) },
+            {PME.TyrePressureRR,          _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_Acknowledge) },
 
-            {PME.TyreCompoundHard,  _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundHard, PMER.PMrh_TyreCompoundHard) },
-            {PME.TyreCompoundMedium, _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundMedium, PMER.PMrh_TyreCompoundMedium) },
-            {PME.TyreCompoundSoft,  _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundSoft, PMER.PMrh_TyreCompoundSoft) },
-            {PME.TyreCompoundIntermediate,   _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundWet, PMER.PMrh_TyreCompoundWet) },
-            {PME.TyreCompoundWet,   _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundWet, PMER.PMrh_TyreCompoundWet) },
-            {PME.TyreCompoundMonsoon,   _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundWet, PMER.PMrh_TyreCompoundWet) },
-            {PME.TyreCompoundOption, _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundOption, PMER.PMrh_TyreCompoundOption) },
-            {PME.TyreCompoundPrime, _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundPrime, PMER.PMrh_TyreCompoundPrime) },
-            {PME.TyreCompoundAlternate, _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundAlternate, PMER.PMrh_TyreCompoundAlternate) },
-            {PME.TyreCompoundNext,  _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundNext, PMER.PMrh_TyreCompoundNext) },
+            {PME.TyreCompoundHard,        _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundHard,   PMER.PMrh_TyreCompoundHard) },
+            {PME.TyreCompoundMedium,      _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundMedium, PMER.PMrh_TyreCompoundMedium) },
+            {PME.TyreCompoundSoft,        _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundSoft,   PMER.PMrh_TyreCompoundSoft) },
+            {PME.TyreCompoundIntermediate,_PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundWet,    PMER.PMrh_TyreCompoundWet) },    // tbd
+            {PME.TyreCompoundWet,         _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundWet,    PMER.PMrh_TyreCompoundWet) },
+            {PME.TyreCompoundMonsoon,     _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundWet,    PMER.PMrh_TyreCompoundWet) },
+            {PME.TyreCompoundOption,      _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundOption, PMER.PMrh_TyreCompoundOption) },
+            {PME.TyreCompoundPrime,       _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundPrime,  PMER.PMrh_TyreCompoundPrime) },
+            {PME.TyreCompoundAlternate,   _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundAlternate, PMER.PMrh_TyreCompoundAlternate) },
+            {PME.TyreCompoundNext,        _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundNext,   PMER.PMrh_TyreCompoundNext) },
 
-            {PME.FuelAddXlitres,    _PMet(_PMeh, PMEHrF2.PMrF2eh_FuelAddXlitres, PMER.PMrh_FuelAddXlitres) },
-            {PME.FuelFillToXlitres, _PMet(_PMeh, PMEHrF2.PMrF2eh_FuelToXlitres, PMER.PMrh_Acknowledge) },
-            {PME.FuelFillToEnd,     _PMet(_PMeh, PMEHrF2.PMrF2eh_FuelToEnd, PMER.PMrh_fuelToEnd) },
-            {PME.FuelNone,          _PMet(_PMeh, PMEHrF2.PMrF2eh_FuelNone, PMER.PMrh_noFuel) },
+            {PME.FuelAddXlitres,          _PMet(_PMeh, PMEHrF2.PMrF2eh_FuelAddXlitres,     PMER.PMrh_FuelAddXlitres) },
+            {PME.FuelFillToXlitres,       _PMet(_PMeh, PMEHrF2.PMrF2eh_FuelToXlitres,      PMER.PMrh_Acknowledge) },
+            {PME.FuelFillToEnd,           _PMet(_PMeh, PMEHrF2.PMrF2eh_FuelToEnd,          PMER.PMrh_fuelToEnd) },
+            {PME.FuelNone,                _PMet(_PMeh, PMEHrF2.PMrF2eh_FuelNone,           PMER.PMrh_noFuel) },
 
-            {PME.RepairAll,         _PMet(_PMeh, PMEHrF2.PMrF2eh_RepairAll, PMER.PMrh_Acknowledge) },
-            {PME.RepairNone,        _PMet(_PMeh, PMEHrF2.PMrF2eh_RepairNone, PMER.PMrh_Acknowledge) },
-            //{PME.RepairFast,        _PMet(_PMeh, PMEHrF2.PMrF2eh_example, PMER.PMrh_Acknowledge) },        // iRacing
-            //{PME.RepairAllAero,     _PMet(_PMeh, PMEHrF2.PMrF2eh_example, PMER.PMrh_Acknowledge) },        // R3E
-            //{PME.RepairFrontAero,   _PMet(_PMeh, PMEHrF2.PMrF2eh_example, PMER.PMrh_Acknowledge) },
-            //{PME.RepairRearAero,    _PMet(_PMeh, PMEHrF2.PMrF2eh_example, PMER.PMrh_Acknowledge) },
-            //{PME.RepairSuspension,  _PMet(_PMeh, PMEHrF2.PMrF2eh_example, PMER.PMrh_Acknowledge) },
-            //{PME.RepairSuspensionNone, _PMet(_PMeh, PMEHrF2.PMrF2eh_example, PMER.PMrh_Acknowledge) },
-            {PME.RepairBody,        _PMet(_PMeh, PMEHrF2.PMrF2eh_RepairBody, PMER.PMrh_Acknowledge) },
+            {PME.RepairAll,               _PMet(_PMeh, PMEHrF2.PMrF2eh_RepairAll,          PMER.PMrh_Acknowledge) },
+            {PME.RepairNone,              _PMet(_PMeh, PMEHrF2.PMrF2eh_RepairNone,         PMER.PMrh_Acknowledge) },
+            //{PME.RepairFast,            _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_Acknowledge) },     // iRacing
+            //{PME.RepairAllAero,         _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_Acknowledge) },     // R3E
+            //{PME.RepairFrontAero,       _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_Acknowledge) },
+            //{PME.RepairRearAero,        _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_Acknowledge) },
+            //{PME.RepairSuspension,      _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_Acknowledge) },
+            //{PME.RepairSuspensionNone,  _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_Acknowledge) },
+            {PME.RepairBody,              _PMet(_PMeh, PMEHrF2.PMrF2eh_RepairBody,         PMER.PMrh_Acknowledge) },
 
-            {PME.PenaltyServe,      _PMet(_PMeh, PMEHrF2.PMrF2eh_PenaltyServe, PMER.PMrh_Acknowledge) },
-            {PME.PenaltyServeNone,  _PMet(_PMeh, PMEHrF2.PMrF2eh_PenaltyServeNone, PMER.PMrh_Acknowledge) },
+            {PME.PenaltyServe,            _PMet(_PMeh, PMEHrF2.PMrF2eh_PenaltyServe,       PMER.PMrh_Acknowledge) },
+            {PME.PenaltyServeNone,        _PMet(_PMeh, PMEHrF2.PMrF2eh_PenaltyServeNone,   PMER.PMrh_Acknowledge) },
 
-            {PME.AeroFrontPlusMinusX, _PMet(_PMeh, PMEHrF2.PMrF2eh_example, PMER.PMrh_CantDoThat) },
-            {PME.AeroRearPlusMinusX, _PMet(_PMeh, PMEHrF2.PMrF2eh_example, PMER.PMrh_CantDoThat) },
-            {PME.AeroFrontSetToX,   _PMet(_PMeh, PMEHrF2.PMrF2eh_example, PMER.PMrh_CantDoThat) },
-            {PME.AeroRearSetToX,    _PMet(_PMeh, PMEHrF2.PMrF2eh_example, PMER.PMrh_CantDoThat) },
+            {PME.AeroFrontPlusMinusX,     _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
+            {PME.AeroRearPlusMinusX,      _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
+            {PME.AeroFrontSetToX,         _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
+            {PME.AeroRearSetToX,          _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
 
-            {PME.GrillePlusMinusX,  _PMet(_PMeh, PMEHrF2.PMrF2eh_example, PMER.PMrh_CantDoThat) },    // rF2
-            {PME.GrilleSetToX,      _PMet(_PMeh, PMEHrF2.PMrF2eh_example, PMER.PMrh_CantDoThat) },
-            {PME.WedgePlusMinusX,   _PMet(_PMeh, PMEHrF2.PMrF2eh_example, PMER.PMrh_CantDoThat) },
-            {PME.WedgeSetToX,       _PMet(_PMeh, PMEHrF2.PMrF2eh_example, PMER.PMrh_CantDoThat) },
-            {PME.TrackBarPlusMinusX, _PMet(_PMeh, PMEHrF2.PMrF2eh_example, PMER.PMrh_CantDoThat) },
-            {PME.TrackBarSetToX,    _PMet(_PMeh, PMEHrF2.PMrF2eh_example, PMER.PMrh_CantDoThat) },
-            {PME.RubberLF,          _PMet(_PMeh, PMEHrF2.PMrF2eh_example, PMER.PMrh_CantDoThat) },
-            {PME.RubberRF,          _PMet(_PMeh, PMEHrF2.PMrF2eh_example, PMER.PMrh_CantDoThat) },
-            {PME.RubberLR,          _PMet(_PMeh, PMEHrF2.PMrF2eh_example, PMER.PMrh_CantDoThat) },
-            {PME.RubberRR,          _PMet(_PMeh, PMEHrF2.PMrF2eh_example, PMER.PMrh_CantDoThat) },
-            {PME.FenderL,           _PMet(_PMeh, PMEHrF2.PMrF2eh_example, PMER.PMrh_CantDoThat) },
-            {PME.FenderR,           _PMet(_PMeh, PMEHrF2.PMrF2eh_example, PMER.PMrh_CantDoThat) },
-            {PME.FlipUpL,           _PMet(_PMeh, PMEHrF2.PMrF2eh_example, PMER.PMrh_CantDoThat) },
-            {PME.FlipUpR,           _PMet(_PMeh, PMEHrF2.PMrF2eh_example, PMER.PMrh_CantDoThat) },
+            {PME.GrillePlusMinusX,        _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) }, // rF2
+            {PME.GrilleSetToX,            _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
+            {PME.WedgePlusMinusX,         _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
+            {PME.WedgeSetToX,             _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
+            {PME.TrackBarPlusMinusX,      _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
+            {PME.TrackBarSetToX,          _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
+            {PME.RubberLF,                _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
+            {PME.RubberRF,                _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
+            {PME.RubberLR,                _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
+            {PME.RubberRR,                _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
+            {PME.FenderL,                 _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
+            {PME.FenderR,                 _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
+            {PME.FlipUpL,                 _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
+            {PME.FlipUpR,                 _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
 
-            //{PME.Tearoff,           _PMet(_PMeh, PMEHrF2.PMrF2eh_example, PMER.PMrh_CantDoThat) },    // iRacing
-            //{PME.TearOffNone,       _PMet(_PMeh, PMEHrF2.PMrF2eh_example, PMER.PMrh_CantDoThat) },
+            //{PME.Tearoff,               _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) }, // iRacing
+            //{PME.TearOffNone,           _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
         };
 
         ///////////////////////////////////////////////////////////////////////////
         /// <summary>
         /// The event dictionary for...
         /// </summary>
-
-
     }
 }

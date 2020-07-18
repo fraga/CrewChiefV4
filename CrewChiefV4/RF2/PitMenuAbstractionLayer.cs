@@ -1,11 +1,15 @@
-﻿// Crew Chief wants to refer to tyres as Soft, Hard, Wet etc. but rFactor uses
-// names that are defined in the vehicle data files (the *.tbc file).
-// This handles the translation both ways
-using System;
+﻿/*
+Set the rFactor 2 Pit Menu using TheIronWolf's rF2 Shared Memory Map plugin
+https://github.com/TheIronWolfModding/rF2SharedMemoryMapPlugin
+
+Crew Chief wants to refer to tyres as Soft, Hard, Wet etc. but rFactor uses
+names that are defined in the vehicle data files (the *.tbc file).
+This handles the translation both ways
+
+Author: Tony Whitley (sven.smiles@gmail.com)
+*/
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PitMenuAPI
 {
@@ -14,8 +18,15 @@ namespace PitMenuAPI
     /// </summary>
     public static class PitMenuAbstractionLayer // : PitMenuController
     {
+        #region Public Fields
+
         public static PitMenuController Pmc = new PitMenuController();
+
+        #endregion Public Fields
+
         //static MenuLayout menuLayout = new MenuLayout();
+
+        #region Private Fields
 
         /// <summary>
         /// All the Pit Menu categories of tyres that rF2 selects from
@@ -30,6 +41,7 @@ namespace PitMenuAPI
             "RT TIRES:",
             "LF TIRES:"
         };
+
         /// <summary>
         /// The Pit Menu categories of tyres that rF2 uses to select compounds,
         /// the remainder sometimes only choose this compound or NO CHANGE
@@ -55,58 +67,9 @@ namespace PitMenuAPI
             "RT TIRES:",
         };
 
-        /// <summary>
-        /// Virtualisation of the menu layout for the current vehicle
-        /// </summary>
-        private static class MenuLayout
-        {
-            static Dictionary<string, List<string>> menuDict =
-                new Dictionary<string, List<string>>();
-            public static void NewCar()
-            {
-                menuDict = new Dictionary<string, List<string>> { };
-            }
-            public static List<string> get(string key)
-            {
-                List<string> value;
-                if (menuDict.Count == 0)
-                {
-                    menuDict = Pmc.GetMenuDict();
-                }
-                if (menuDict.TryGetValue(key, out value))
-                {
-                    return value;
-                }
-                return new List<string>();
-            }
-            public static List<string> getKeys()
-            {
-                if (menuDict.Count == 0)
-                {
-                    menuDict = Pmc.GetMenuDict();
-                }
-                return new List<string>(menuDict.Keys);
-            }
-            public static void set(Dictionary<string, List<string>> unitTestDict)
-            {
-                menuDict = unitTestDict;
-            }
-        }
+        #endregion Private Fields
 
-        /// <summary>
-        /// Connect to the Shared Memory running in rFactor
-        /// </summary>
-        public static bool Connect()
-        {
-            return Pmc.Connect();
-        }
-        /// <summary>
-        /// Disconnect from the Shared Memory running in rFactor
-        /// </summary>
-        public static void Disconnect()
-        {
-            Pmc.Disconnect();
-        }
+        #region Public Methods
 
         /// <summary>
         /// Get a list of the front tyre changes provided for this vehicle.  Fronts
@@ -174,6 +137,7 @@ namespace PitMenuAPI
             return (List<string>)tyreCategories.Except(frontTyreCategories)
               .Intersect(MenuLayout.getKeys()).ToList();
         }
+
         public static List<string> GetLeftTyreCategories()
         {
             return leftTyreCategories.Intersect(MenuLayout.getKeys()).ToList();
@@ -182,12 +146,6 @@ namespace PitMenuAPI
         public static List<string> GetRightTyreCategories()
         {
             return rightTyreCategories.Intersect(MenuLayout.getKeys()).ToList();
-        }
-
-        public static void GetMenuDict()
-        {
-            //Pmc.Connect();
-            //menuDict = Pmc.GetMenuDict();
         }
 
         public static List<string> GetTyreTypeNames()
@@ -259,5 +217,61 @@ namespace PitMenuAPI
         {
             MenuLayout.set(dict);
         }
+
+        #endregion Public Methods
+
+        #region Private Classes
+
+        /// <summary>
+        /// Virtualisation of the menu layout for the current vehicle
+        /// </summary>
+        private static class MenuLayout
+        {
+            #region Private Fields
+
+            private static Dictionary<string, List<string>> menuDict =
+                new Dictionary<string, List<string>>();
+
+            #endregion Private Fields
+
+            #region Public Methods
+
+            public static void NewCar()
+            {
+                menuDict = new Dictionary<string, List<string>> { };
+            }
+
+            public static List<string> get(string key)
+            {
+                List<string> value;
+                if (menuDict.Count == 0)
+                {
+                    menuDict = Pmc.GetMenuDict();
+                }
+                if (menuDict.TryGetValue(key, out value))
+                {
+                    return value;
+                }
+                return new List<string>();
+            }
+
+            public static List<string> getKeys()
+            {
+                if (menuDict.Count == 0)
+                {
+                    menuDict = Pmc.GetMenuDict();
+                }
+                return new List<string>(menuDict.Keys);
+            }
+
+            public static void set(Dictionary<string, List<string>> unitTestDict)
+            {
+                menuDict = unitTestDict;
+            }
+
+            #endregion Public Methods
+        }
+
+        #endregion Private Classes
     }
 }
