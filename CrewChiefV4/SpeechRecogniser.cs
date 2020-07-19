@@ -1836,6 +1836,7 @@ namespace CrewChiefV4
                     {
                         // no result
                         Console.WriteLine("Gave up waiting for voice command, now waiting for trigger word " + keyWord);
+                        CrewChief.audioPlayer.playEndListeningBeep();
                         switchFromRegularToTriggerRecogniser();
                     }
                 }
@@ -2589,7 +2590,7 @@ namespace CrewChiefV4
                 ResultContains(recognisedSpeech, PIT_STOP_INTERMEDIATE_TYRES, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_WET_TYRES, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_MONSOON_TYRES, false) ||
-		ResultContains(recognisedSpeech, PIT_STOP_PRIME_TYRES, false) ||
+		        ResultContains(recognisedSpeech, PIT_STOP_PRIME_TYRES, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_ALTERNATE_TYRES, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_OPTION_TYRES, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_DONT_REFUEL, false) ||

@@ -1663,6 +1663,17 @@ namespace CrewChiefV4.Audio
             }
         }
 
+        public void playEndListeningBeep()
+        {
+            if (useListenBeep)
+            {
+                if (!mute)
+                {
+                    soundCache.Play("listen_end_sound", SoundMetadata.listenStartBeep);
+                }
+            }
+        }
+
         public void playShortStartSpeakingBeep()
         {
             if (!mute && enableRadioBeeps)
