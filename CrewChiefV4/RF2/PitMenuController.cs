@@ -72,6 +72,10 @@ namespace PitMenuAPI
                 CategoryDown();
             } while (GetCategory() != initialCategory);
 
+            if (pitMenu.Count < 2)
+            {
+                pitMenu = new Dictionary<string, List<string>> {};
+            }
             return pitMenu;
         }
 

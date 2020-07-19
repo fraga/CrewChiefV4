@@ -55,10 +55,11 @@ using PitMenuAPI;
 
 namespace CrewChiefV4.PitManager
 {
-    using Pmal = PitMenuAbstractionLayer;
+    //using Pmal = PitMenuAbstractionLayer;
 
     internal class PitManagerEventHandlers_RF2
     {
+        private static PitMenuAbstractionLayer Pmal = new PitMenuAbstractionLayer();
         /// <summary>
         /// Take a list of tyre types available in the menu and map them on to
         /// the set of generic tyre types
@@ -118,11 +119,8 @@ namespace CrewChiefV4.PitManager
         static private Dictionary<string, List<string>> tyreTranslationDict =
                     SampleTyreTranslationDict;
 
-        static private Dictionary<string, string> ttDict =
-            TranslateTyreTypes(tyreTranslationDict, Pmal.GetTyreTypeNames());
-
         static private List<string> tyreCategories;
-        private static List<string> tyreTypes = Pmal.GetTyreTypeNames();
+        //private static List<string> tyreTypes = Pmal.GetTyreTypeNames();
         static private string currentGenericTyreCompound = "";
         static private currentTyreType xx = new currentTyreType();
 
@@ -140,14 +138,6 @@ namespace CrewChiefV4.PitManager
         static public void amountHandler(int amount)
         {
             amountCache = amount;
-        }
-
-        /// <summary> PMrF2eh_example
-        /// Dummy action handler for rF2
-        /// </summary>
-        static public bool PMrF2eh_example(string voiceMessage)
-        {
-            return true;
         }
 
         public static Dictionary<string, string> TranslateTyreTypes(
@@ -170,6 +160,29 @@ namespace CrewChiefV4.PitManager
                 }
             }
             return result;
+        }
+
+        ///////////////////////////////////////////////////////////////////////
+        // Event handlers
+
+        static public bool PMrF2eh_initialise(string defaultTyreType)
+        {
+            Pmal.Connect();
+            xx.Set("");
+            return true;
+        }
+        static public bool PMrF2eh_teardown(string voiceMessage)
+        {
+            Pmal.Disconnect();
+            return true;
+        }
+
+        /// <summary> PMrF2eh_example
+        /// Dummy action handler for rF2
+        /// </summary>
+        static public bool PMrF2eh_example(string voiceMessage)
+        {
+            return true;
         }
 
         static public bool PMrF2eh_TyreCompoundHard(string voiceMessage)
@@ -370,19 +383,26 @@ namespace CrewChiefV4.PitManager
             bool response = false;
             string tyreType = noChange ? "No Change" : xx.Get();
 
-            response = Pmal.setCategoryAndChoice(tyreCategory, tyreType);
-            if (response)
+            if (Pmal.GetAllTyreCategories().Contains(tyreCategory))
             {
-                // dict is the other direction currentGenericTyreCompound = ttDict[tyreType];
-                if (CrewChief.Debugging)
+                response = Pmal.setCategoryAndChoice(tyreCategory, tyreType);
+                if (response)
                 {
-                    Console.WriteLine("Pit Manager tyre compound set to (" +
-                        tyreCategory + ") " + tyreType);
+                    // dict is the other direction currentGenericTyreCompound = ttDict[tyreType];
+                    if (CrewChief.Debugging)
+                    {
+                        Console.WriteLine("Pit Manager tyre compound set to (" +
+                            tyreCategory + ") " + tyreType);
+                    }
+                }
+                else
+                {   // Compound is not available
+                    PitManagerResponseHandlers.PMrh_TyreCompoundNotAvailable();
                 }
             }
             else
-            {   // Compound is not available
-                PitManagerResponseHandlers.PMrh_TyreCompoundNotAvailable();
+            {   // Category is not available
+                PitManagerResponseHandlers.PMrh_CantDoThat();
             }
             return response;
         }
@@ -432,7 +452,7 @@ namespace CrewChiefV4.PitManager
         {
             #region Private Fields
 
-            private static string _currentTyreType = "";
+            private static string _currentTyreType = "No Change";
 
             #endregion Private Fields
 
@@ -445,12 +465,12 @@ namespace CrewChiefV4.PitManager
 
             public string Get()
             {
-                if (_currentTyreType == "")
+                if (_currentTyreType == "No Change")
                 {
                     _currentTyreType = Pmal.GetCurrentTyreType();
                     if (_currentTyreType == "No Change")
                     {
-                        _currentTyreType = TranslateTyreTypes(tyreTranslationDict, tyreTypes)["Medium"];
+                        // tbd: _currentTyreType = TranslateTyreTypes(tyreTranslationDict, tyreTypes)["Medium"];
                     }
                 }
                 return _currentTyreType;

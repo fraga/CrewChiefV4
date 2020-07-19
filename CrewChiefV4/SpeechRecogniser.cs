@@ -2538,7 +2538,7 @@ namespace CrewChiefV4
             }
             else if (ResultContains(recognisedSpeech, PIT_STOP_TEAROFF, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_FAST_REPAIR, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_CLEAR_ALL, false) ||
+                /*ResultContains(recognisedSpeech, PIT_STOP_CLEAR_ALL, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_CLEAR_TYRES, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_CLEAR_WIND_SCREEN, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_CLEAR_FAST_REPAIR, false) ||
@@ -2550,11 +2550,12 @@ namespace CrewChiefV4
                 ResultContains(recognisedSpeech, PIT_STOP_CHANGE_REAR_RIGHT_TYRE, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_CHANGE_LEFT_SIDE_TYRES, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_CHANGE_RIGHT_SIDE_TYRES, false) ||
+                ResultContains(recognisedSpeech, PIT_STOP_FUEL_TO_THE_END, false) ||
+                */
                 ResultContains(recognisedSpeech, HOW_MANY_INCIDENT_POINTS, false) ||
                 ResultContains(recognisedSpeech, WHATS_THE_INCIDENT_LIMIT, false) ||
                 ResultContains(recognisedSpeech, WHATS_MY_IRATING, false) ||
                 ResultContains(recognisedSpeech, WHATS_MY_LICENSE_CLASS, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_FUEL_TO_THE_END, false) ||
                 ResultContains(recognisedSpeech, WHATS_THE_SOF, false))
             {
                 return CrewChief.getEvent("IRacingBroadcastMessageEvent");
@@ -2595,8 +2596,6 @@ namespace CrewChiefV4
                 ResultContains(recognisedSpeech, PIT_STOP_OPTION_TYRES, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_DONT_REFUEL, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_REFUEL, false) ||
-
-
                 ResultContains(recognisedSpeech, PIT_STOP_FUEL_TO_THE_END, false))
             {
                 return CrewChief.getEvent("PitManagerVoiceCmds");

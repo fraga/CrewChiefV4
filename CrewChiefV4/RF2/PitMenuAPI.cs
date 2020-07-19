@@ -209,7 +209,7 @@ namespace PitMenuAPI
         public bool SetCategory(string category)
         {
             string InitialCategory = GetCategory();
-            int tryNo = 3;
+            int tryNo = 5;
             while (GetCategory() != category)
             {
                 CategoryDown();

@@ -917,13 +917,13 @@ namespace CrewChiefV4
                         Thread.Sleep(timeInterval);
 
                     }
-                }
+                } // end while(running)
                 foreach (KeyValuePair<String, AbstractEvent> entry in eventsList)
                 {
                     // don't clear the overlay controller here - temporary hack
                     if (entry.Key != "OverlayController")
                     {
-                        entry.Value.clearState();
+                        entry.Value.teardownState();
                     }
                 }
                 if (spotter != null)

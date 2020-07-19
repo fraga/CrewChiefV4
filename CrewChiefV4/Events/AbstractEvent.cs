@@ -165,6 +165,12 @@ namespace CrewChiefV4.Events
         // reinitialise any state held by the event subtype
         public abstract void clearState();
 
+        // Cleardown the event subtype, default is clearState()
+        public virtual void teardownState()
+        {
+            clearState();
+        }
+
         // generally the event subclass can just return true for this, but when a clip is played with
         // a non-zero delay it may be necessary to re-check that the clip is still valid against the current
         // state

@@ -10,17 +10,19 @@ Author: Tony Whitley (sven.smiles@gmail.com)
 */
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace PitMenuAPI
 {
     /// <summary>
     /// PitMenuAPI consists PitMenuAbstractionLayer : PitMenuController : PitMenu
     /// </summary>
-    public static class PitMenuAbstractionLayer // : PitMenuController
+    public class PitMenuAbstractionLayer // : PitMenuController
     {
         #region Public Fields
 
-        public static PitMenuController Pmc = new PitMenuController();
+        public PitMenuController Pmc = new PitMenuController();
+        private MenuLayout ml = new MenuLayout();
 
         #endregion Public Fields
 
@@ -39,7 +41,8 @@ namespace PitMenuAPI
             "R TIRES:",
             "F TIRES:",
             "RT TIRES:",
-            "LF TIRES:"
+            "LF TIRES:",
+            "TIRES:"
         };
 
         /// <summary>
@@ -72,6 +75,22 @@ namespace PitMenuAPI
         #region Public Methods
 
         /// <summary>
+        /// Connect to the Shared Memory running in rFactor
+        /// </summary>
+        public bool Connect()
+        {
+            MenuLayout.NewCar(Pmc);
+            return Pmc.Connect();
+        }
+        /// <summary>
+        /// Disconnect from the Shared Memory running in rFactor
+        /// </summary>
+        public void Disconnect()
+        {
+            Pmc.Disconnect();
+        }
+
+        /// <summary>
         /// Get a list of the front tyre changes provided for this vehicle.  Fronts
         /// sometimes have to be changed before the rears will be given the same
         /// set of compounds available
@@ -79,7 +98,7 @@ namespace PitMenuAPI
         /// <returns>
         /// A sorted list of the front tyre changes provided for this vehicle
         /// </returns>
-        public static List<string> GetFrontTyreCategories()
+        public List<string> GetFrontTyreCategories()
         {
             List<string> result =
                 frontTyreCategories.Intersect(MenuLayout.getKeys()).ToList();
@@ -93,7 +112,7 @@ namespace PitMenuAPI
         /// <returns>
         /// A sorted list of all the tyre changes provided for this vehicle
         /// </returns>
-        public static List<string> GetAllTyreCategories()
+        public List<string> GetAllTyreCategories()
         {
             List<string> result =
                 tyreCategories.Intersect(MenuLayout.getKeys()).ToList();
@@ -101,7 +120,7 @@ namespace PitMenuAPI
             return result;
         }
 
-        public static string GetCurrentTyreType()
+        public string GetCurrentTyreType()
         {
             string result;
             foreach (string category in GetFrontTyreCategories())
@@ -131,24 +150,24 @@ namespace PitMenuAPI
         /// <returns>
         /// A list of the rear tyre changes provided for this vehicle
         /// </returns>
-        public static List<string> GetRearTyreCategories()
+        public List<string> GetRearTyreCategories()
         {
             // There are simpler ways to do this but...
             return (List<string>)tyreCategories.Except(frontTyreCategories)
               .Intersect(MenuLayout.getKeys()).ToList();
         }
 
-        public static List<string> GetLeftTyreCategories()
+        public List<string> GetLeftTyreCategories()
         {
             return leftTyreCategories.Intersect(MenuLayout.getKeys()).ToList();
         }
 
-        public static List<string> GetRightTyreCategories()
+        public List<string> GetRightTyreCategories()
         {
             return rightTyreCategories.Intersect(MenuLayout.getKeys()).ToList();
         }
 
-        public static List<string> GetTyreTypeNames()
+        public List<string> GetTyreTypeNames()
         {
             string tyre = GetFrontTyreCategories()[0];
             return MenuLayout.get(tyre);
@@ -163,7 +182,7 @@ namespace PitMenuAPI
         /// </summary>
         /// <param name="tyreType">Name of actual tyre type or NO CHANGE</param>
         /// <returns>true all tyres changed</returns>
-        public static bool SetAllTyreTypes(string tyreType)
+        public bool SetAllTyreTypes(string tyreType)
         {
             bool response = true;
 
@@ -192,7 +211,7 @@ namespace PitMenuAPI
             return response;
         }
 
-        public static bool setCategoryAndChoice(string category, string choice)
+        public bool setCategoryAndChoice(string category, string choice)
         {
             int tryNo = 5;
             bool response;
@@ -213,7 +232,7 @@ namespace PitMenuAPI
         }
 
         // Unit Test
-        public static void setMenuDict(Dictionary<string, List<string>> dict)
+        public void setMenuDict(Dictionary<string, List<string>> dict)
         {
             MenuLayout.set(dict);
         }
@@ -225,20 +244,23 @@ namespace PitMenuAPI
         /// <summary>
         /// Virtualisation of the menu layout for the current vehicle
         /// </summary>
-        private static class MenuLayout
+        private class MenuLayout
         {
             #region Private Fields
 
             private static Dictionary<string, List<string>> menuDict =
                 new Dictionary<string, List<string>>();
+            private static PitMenuController Pmc;
 
             #endregion Private Fields
 
             #region Public Methods
 
-            public static void NewCar()
+            public static void NewCar(PitMenuController _pmc)
             {
                 menuDict = new Dictionary<string, List<string>> { };
+                Pmc = _pmc;
+
             }
 
             public static List<string> get(string key)

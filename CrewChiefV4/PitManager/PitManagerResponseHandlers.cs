@@ -20,6 +20,10 @@ namespace CrewChiefV4.PitManager
 
         #region Public Methods
 
+        static public bool PMrh_NoResponse()
+        {
+            return true;
+        }
         static public bool PMrh_Acknowledge()
         {
             playMessage(AudioPlayer.folderAcknowlegeOK);

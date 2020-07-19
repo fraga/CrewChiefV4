@@ -1115,7 +1115,13 @@ namespace CrewChiefV4.rFactor2
 
             // First time intialize.  Might stay like that until we get telemetry.
             if (tt == TyreType.Uninitialized)
+            {
                 tt = this.MapToTyreType(ref playerTelemetry);
+                if (playerTelemetry.mFrontTireCompoundName != null)
+                {
+                    cgs.TyreData.TyreTypeName = RF2GameStateMapper.GetStringFromBytes(playerTelemetry.mFrontTireCompoundName);
+                }
+            }
 
             var wheelFrontLeft = playerTelemetry.mWheels[(int)rFactor2Constants.rF2WheelIndex.FrontLeft];
             cgs.TyreData.FrontLeftTyreType = tt;

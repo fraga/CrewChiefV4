@@ -30,6 +30,8 @@ namespace CrewChiefV4.PitManager
 
     public enum PitManagerEvent
     {
+        Initialise,
+        Teardown,
         TyreChangeAll,
         TyreChangeNone,
         TyreChangeFront,
@@ -268,6 +270,8 @@ namespace CrewChiefV4.PitManager
         {
             //  The event                                      the fn that implements it        the fn that handles speech
             //                                                 (changes the pit menu)           response and any other outcomes
+            {PME.Initialise,              _PMet(_PMeh, PMEHrF2.PMrF2eh_initialise,         PMER.PMrh_NoResponse) },
+            {PME.Teardown,                _PMet(_PMeh, PMEHrF2.PMrF2eh_teardown,           PMER.PMrh_NoResponse) },
             {PME.TyreChangeAll,           _PMet(_PMeh, PMEHrF2.PMrF2eh_changeAllTyres,     PMER.PMrh_ChangeAllTyres) },
             {PME.TyreChangeNone,          _PMet(_PMeh, PMEHrF2.PMrF2eh_changeNoTyres,      PMER.PMrh_ChangeNoTyres) },
             {PME.TyreChangeFront,         _PMet(_PMeh, PMEHrF2.PMrF2eh_changeFrontTyres,   PMER.PMrh_ChangeFrontTyres) },

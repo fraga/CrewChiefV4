@@ -92,6 +92,7 @@ namespace CrewChiefV4.PitManager
 
         private float fuelCapacity = -1;
         private float currentFuel = -1;
+        private string defaultTyreType = "";
 
         #endregion Private Fields
 
@@ -108,11 +109,35 @@ namespace CrewChiefV4.PitManager
 
         #region Public Properties
 
+        /// <summary>
+        /// I think this is a list of the sessions when Pit Manager should be active.
+        /// Player may want to use it in practice and qually
+        /// </summary>
+        public override List<SessionType> applicableSessionTypes
+        {
+            get
+            {
+                return new List<SessionType> {
+                    SessionType.Practice,
+                    SessionType.Qualify,
+                    SessionType.Race,
+                    SessionType.LonePractice };
+            }
+        }
+        /// <summary>
+        /// I think this is a list of the subset of phases of sessions when
+        /// Pit Manager should be active.
+        /// </summary>
         public override List<SessionPhase> applicableSessionPhases
         {
             get
             {
-                return new List<SessionPhase> { SessionPhase.Garage, SessionPhase.Green, SessionPhase.Countdown, SessionPhase.FullCourseYellow };
+                return new List<SessionPhase> {
+                    SessionPhase.Garage,
+                    SessionPhase.Formation,
+                    SessionPhase.Green,
+                    SessionPhase.Countdown,
+                    SessionPhase.FullCourseYellow };
             }
         }
 
@@ -146,12 +171,17 @@ namespace CrewChiefV4.PitManager
         {
             this.fuelCapacity = -1;
             this.currentFuel = -1;
+            pmh.EventHandler(PME.Initialise, defaultTyreType);
         }
 
-        public bool responseHandler_acknowledge()
+        /// <summary>
+        /// Cleardown the event subtype
+        /// </summary>
+        public override void teardownState()
         {
-            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
-            return true;
+            this.fuelCapacity = -1;
+            this.currentFuel = -1;
+            pmh.EventHandler(PME.Teardown, "");
         }
 
         #endregion Public Methods
@@ -172,12 +202,20 @@ namespace CrewChiefV4.PitManager
             currentFuel = currentGameState.FuelData.FuelLeft;
             if (autoFuelToEnd)
             {
-                if (previousGameState != null && !previousGameState.PitData.InPitlane && currentGameState.PitData.InPitlane
-                    && currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.SessionData.SessionRunningTime > 15
-                    && !previousGameState.PitData.IsInGarage && !currentGameState.PitData.JumpedToPits)
+                if (previousGameState != null
+                    && !previousGameState.PitData.InPitlane
+                    && currentGameState.PitData.InPitlane
+                    && currentGameState.SessionData.SessionType == SessionType.Race
+                    && currentGameState.SessionData.SessionRunningTime > 15
+                    && !previousGameState.PitData.IsInGarage
+                    && !currentGameState.PitData.JumpedToPits)
                 {
                     FuelHandling.fuelToEnd(fuelCapacity, currentFuel);
                 }
+            }
+            if (currentGameState.TyreData.TyreTypeName != "")
+            {
+                defaultTyreType = currentGameState.TyreData.TyreTypeName;
             }
         }
 
@@ -282,7 +320,7 @@ namespace CrewChiefV4.PitManager
                 roundedLitresNeeded = (int)Math.Ceiling(additionaLitresNeeded);
                 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 // tbd: this is specific to rF2
-                PitMenuAbstractionLayer.Pmc.SetFuelLevel(roundedLitresNeeded);
+                // tbd PitMenuAbstractionLayer.Pmc.SetFuelLevel(roundedLitresNeeded);
                 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 Console.WriteLine("Auto refuel to the end of the race, adding " + roundedLitresNeeded + " litres of fuel");
                 if (roundedLitresNeeded > fuelCapacity - currentFuel)
