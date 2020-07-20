@@ -57,7 +57,7 @@ namespace CrewChiefV4
             "f1_2019_launch_exe", "f1_2019_launch_params", "launch_f1_2019", false);
         public static GameDefinition f1_2020 = new GameDefinition(GameEnum.F1_2020, "f1_2020", null, "CrewChiefV4.F1_2020.F12020Spotter",
             "f1_2020_launch_exe", "f1_2020_launch_params", "launch_f1_2020", false);
-        
+
         private static string showOnlyTheseGames = UserSettings.GetUserSettings().getString("limit_available_games");
         
         private static List<GameDefinition> filterAvailableGames(List<GameDefinition> gameDefinitions)

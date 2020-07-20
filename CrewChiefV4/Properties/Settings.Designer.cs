@@ -745,6 +745,18 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool use_listen_end_beep {
+            get {
+                return ((bool)(this["use_listen_end_beep"]));
+            }
+            set {
+                this["use_listen_end_beep"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string REPEAT_LAST_MESSAGE_BUTTON_device_guid {
             get {

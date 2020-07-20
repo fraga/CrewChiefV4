@@ -529,6 +529,11 @@ use_listen_beep_help = Play a beep when you press the 'talk to Crew Chief' butto
 use_listen_beep_category = AUDIO_VOICE_AND_CONTROLLERS
 use_listen_beep_metadata = RESTART_REQUIRED
 
+use_listen_end_beep = Use end of listening beep
+use_listen_end_beep_help = Play a beep when the 'talk to Crew Chief' button didn't get a reply
+use_listen_end_beep_category = AUDIO_VOICE_AND_CONTROLLERS
+use_listen_end_beep_metadata = RESTART_REQUIRED
+
 acs_practice_time_minuts = ACS practice time minutes
 acs_practice_time_minuts_filter = ASSETTO_64BIT;ASSETTO_32BIT
 
