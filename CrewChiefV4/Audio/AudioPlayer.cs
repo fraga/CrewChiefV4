@@ -44,7 +44,7 @@ namespace CrewChiefV4.Audio
         public static string naudioBackgroundPlaybackDeviceGuid = "";
 
         public static Dictionary<string, Tuple<string, int>> playbackDevices = new Dictionary<string, Tuple<string, int>>();
-        
+
         public static String folderAcknowlegeOK = "acknowledge/OK";
         public static String folderYellowEnabled = "acknowledge/yellowEnabled";
         public static String folderYellowDisabled = "acknowledge/yellowDisabled";
@@ -96,6 +96,7 @@ namespace CrewChiefV4.Audio
         private DateTime timeOfLastMessageEnd = DateTime.MinValue;
 
         private Boolean useListenBeep = UserSettings.GetUserSettings().getBoolean("use_listen_beep");
+        private Boolean useListenEndBeep = UserSettings.GetUserSettings().getBoolean("use_listen_end_beep");
 
         private readonly TimeSpan minTimeBetweenPearlsOfWisdom = TimeSpan.FromSeconds(UserSettings.GetUserSettings().getInt("minimum_time_between_pearls_of_wisdom"));
 
@@ -141,7 +142,7 @@ namespace CrewChiefV4.Audio
         public String selectedPersonalisation = NO_PERSONALISATION_SELECTED;
 
         private SynchronizationContext mainThreadContext = null;
-        
+
         public static String defaultChiefId = "Jim (default)";
         public static List<String> availableChiefVoices = new List<String>();
         public static String folderChiefRadioCheck = null;
@@ -215,7 +216,7 @@ namespace CrewChiefV4.Audio
                 }
                 retVal.Add(di);
             }
-           
+
             return retVal;
         }
         public static string GetDefaultOutputDeviceName()
@@ -417,7 +418,7 @@ namespace CrewChiefV4.Audio
                 else if(dataFlow == DataFlow.Capture && speechEnabled)
                 {
                     ReIndexAudioInputDevices();
-                }                
+                }
             }
 
             public void OnDeviceAdded(string deviceId)
@@ -704,7 +705,7 @@ namespace CrewChiefV4.Audio
 
             Enum.TryParse(UserSettings.GetUserSettings().getString("tts_setting_listprop"), out ttsOption);
             Debug.Assert(Enum.IsDefined(typeof(TTS_OPTION), ttsOption));
-            
+
             // Initialize optional nAudio playback.
             if (UserSettings.GetUserSettings().getBoolean("use_naudio"))
             {
@@ -720,7 +721,7 @@ namespace CrewChiefV4.Audio
                 foreach (var dev in devices)
                 {
                     NAudio.Wave.WaveOutCapabilities capabilities = NAudio.Wave.WaveOut.GetCapabilities(dev.WaveDeviceId);
-                    // Update legacy audio device "GUID" to MMdevice guid which does does contain a unique GUID 
+                    // Update legacy audio device "GUID" to MMdevice guid which does does contain a unique GUID
                     if (messageDeviceGuid.Contains(capabilities.ProductName))
                     {
                         UserSettings.GetUserSettings().setProperty("NAUDIO_DEVICE_GUID_MESSAGES", dev.EndpointGuid);
@@ -910,7 +911,7 @@ namespace CrewChiefV4.Audio
             initialised = true;
             PlaybackModerator.SetAudioPlayer(this);
         }
-        
+
         public SoundCache getSoundCache()
         {
             return soundCache;
@@ -939,7 +940,7 @@ namespace CrewChiefV4.Audio
             {
                 new SmokeTest(this).trigger(new GameStateData(DateTime.UtcNow.Ticks), new GameStateData(DateTime.UtcNow.Ticks));
             }
-            
+
         }
 
         public void stopMonitor()
@@ -1071,7 +1072,7 @@ namespace CrewChiefV4.Audio
         {
             this.backgroundPlayer.setBackgroundSound(backgroundSoundName);
         }
-        
+
         public void muteBackgroundPlayer(bool doMute)
         {
             this.backgroundPlayer.mute(doMute);
@@ -1211,7 +1212,7 @@ namespace CrewChiefV4.Audio
                         else
                         {
                             blockedByKeepQuietMode = keepQuiet && !queuedMessage.playEvenWhenSilenced &&
-                                (queuedMessage.metadata == null || 
+                                (queuedMessage.metadata == null ||
                                 (queuedMessage.metadata.type != SoundType.SPOTTER && queuedMessage.metadata.type != SoundType.VOICE_COMMAND_RESPONSE));
                         }
 
@@ -1233,7 +1234,7 @@ namespace CrewChiefV4.Audio
                         if (!blockedByKeepQuietMode && queuedMessage.canBePlayed && !blockedByDelayedHigherPriorityMessage
                             && messageIsStillValid && !keysToPlay.Contains(key) && !queueTooLongForMessage && !messageHasExpired && !hasJustPlayedAsAnImmediateMessage)
                         {
-                            // special case for 'get ready' event here - we don't want to move this to the top of the queue because 
+                            // special case for 'get ready' event here - we don't want to move this to the top of the queue because
                             // it makes it sound shit. Bit of a hack, needs a better solution
                             if (firstMovableEventWithPrefixOrSuffix == null && key != LapCounter.folderGetReady && soundCache.eventHasPersonalisedPrefixOrSuffix(key))
                             {
@@ -1634,7 +1635,7 @@ namespace CrewChiefV4.Audio
             useShortBeepWhenOpeningChannel = false;
             channelOpen = false;
         }
-        
+
         public void playStartSpeakingBeep()
         {
             if (!mute && enableRadioBeeps)
@@ -1659,6 +1660,17 @@ namespace CrewChiefV4.Audio
                 if (!mute)
                 {
                     soundCache.Play("listen_start_sound", SoundMetadata.listenStartBeep);
+                }
+            }
+        }
+
+        public void playListeningEndBeep()
+        {
+            if (useListenEndBeep)
+            {
+                if (!mute)
+                {
+                    soundCache.Play("listen_end_sound", SoundMetadata.listenStartBeep);
                 }
             }
         }
@@ -1761,7 +1773,7 @@ namespace CrewChiefV4.Audio
             if (GlobalBehaviourSettings.enabledMessageTypes.Contains(MessageTypes.NONE))
             {
                 Console.WriteLine("All messages disabled for this car class. Message " + queuedMessage.messageName + " will not be played");
-            } 
+            }
             else
             {
                 playMessage(queuedMessage, PearlsOfWisdom.PearlType.NONE, 0);
@@ -1801,7 +1813,7 @@ namespace CrewChiefV4.Audio
             return false;
         }
 
-        // this should only be called in response to a voice message, following a 'standby' request. We want to play the 
+        // this should only be called in response to a voice message, following a 'standby' request. We want to play the
         // message via the 'immediate' mechanism, but not until the secondsDelay has expired.
         public void playDelayedImmediateMessage(QueuedMessage queuedMessage)
         {
@@ -1821,8 +1833,8 @@ namespace CrewChiefV4.Audio
         }
 
         // when we keep the channel open for long running spotter repeat calls, there's a chance that
-        // it'll remain open indefinitely (if the last spotter call was an overlap and no clear was 
-        // received, e.g. the game was closed). So when openning the channel in 'hold' mode, we spawn 
+        // it'll remain open indefinitely (if the last spotter call was an overlap and no clear was
+        // received, e.g. the game was closed). So when openning the channel in 'hold' mode, we spawn
         // a Thread that waits for 6 seconds and cleans up if necessary
         private void startHangingChannelCloseThread()
         {
@@ -1931,7 +1943,7 @@ namespace CrewChiefV4.Audio
                         monitorQueueWakeUpEvent.Set();
                     }
                 }
-            }            
+            }
         }
 
         public void playSpotterMessage(QueuedMessage queuedMessage, Boolean keepChannelOpen)
@@ -1959,7 +1971,7 @@ namespace CrewChiefV4.Audio
                         // default spotter priority is 10
                         immediateClips.Insert(getInsertionIndex(immediateClips, queuedMessage), queuedMessage.messageName, queuedMessage);
 
-                        // attempt to interrupt whatever sound is currently playing when the spotter interrupts the chief (only works with nAudio) 
+                        // attempt to interrupt whatever sound is currently playing when the spotter interrupts the chief (only works with nAudio)
                         // don't interrupt if the currently playing sound is a beep
                         if (!PlaybackModerator.lastSoundWasSpotter)
                         {
@@ -1981,7 +1993,7 @@ namespace CrewChiefV4.Audio
                 int existingMessagePriority = ((QueuedMessage)value).metadata.priority;
                 if (queuedMessage.metadata.priority > existingMessagePriority)
                 {
-                    // the existing message is lower priorty than the one we're adding so we've found the index we want                 
+                    // the existing message is lower priorty than the one we're adding so we've found the index we want
                     break;
                 }
                 index++;
@@ -2051,7 +2063,7 @@ namespace CrewChiefV4.Audio
                         }
                     }
                 }
-            }            
+            }
         }
 
         public Boolean removeQueuedMessage(String eventName)
@@ -2081,10 +2093,10 @@ namespace CrewChiefV4.Audio
                 }
             }
         }
-        
+
         // checks that another pearl isn't already queued. If one of the same type is already
         // in the queue this method just returns false. If a conflicting pearl is in the queue
-        // this method removes it and returns false, so we don't end up with, for example, 
+        // this method removes it and returns false, so we don't end up with, for example,
         // a 'keep it up' message in a block that contains a 'your lap times are worsening' message
         private Boolean checkPearlOfWisdomValid(PearlsOfWisdom.PearlType newPearlType)
         {

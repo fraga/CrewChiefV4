@@ -820,6 +820,17 @@ namespace CrewChiefV4.Audio
                         singleSounds.Add("listen_start_sound", sound);
                         availableSounds.Add("listen_start_sound");
                     }
+                    else if (bleepFile.Name.StartsWith("listen_end") && !singleSounds.ContainsKey("listen_end_sound"))
+                    {
+                        SingleSound sound = new SingleSound(bleepFile.FullName, true, allowCaching, allowCaching);
+                        sound.isBleep = true;
+                        if (eagerLoadSoundFiles)
+                        {
+                            sound.LoadAndCacheFile();
+                        }
+                        singleSounds.Add("listen_end_sound", sound);
+                        availableSounds.Add("listen_end_sound");
+                    }
                     else if (bleepFile.Name.StartsWith(opposite_prefix + "start") && !singleSounds.ContainsKey("alternate_start_bleep"))
                     {
                         SingleSound sound = new SingleSound(bleepFile.FullName, true, allowCaching, allowCaching);
