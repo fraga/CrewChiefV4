@@ -258,7 +258,7 @@ namespace CrewChiefV4.PitManager
             {
                 foreach (String numberStr in entry.Key)
                 {
-                    if (_voiceMessage.Contains(" " + numberStr + " "))
+                    if (_voiceMessage.Contains(" " + numberStr))
                     {
                         amount = entry.Value;
                         if (CrewChief.Debugging)
@@ -294,8 +294,28 @@ namespace CrewChiefV4.PitManager
                     litres = false;
                 }
             }
-            if (!litres)
+            
+            if (litres)
+            {
+                CrewChief.audioPlayer.playMessageImmediately(new QueuedMessage(
+                    "iracing_add_fuel", 0,
+                    messageFragments: PitManagerVoiceCmds.MessageContents(
+                        AudioPlayer.folderAcknowlegeOK,
+                        amount,
+                        amount == 1 ? Fuel.folderLitre : Fuel.folderLitres)
+                    ));
+            }
+            else
+            {
+                CrewChief.audioPlayer.playMessageImmediately(new QueuedMessage(
+                    "iracing_add_fuel", 0,
+                    messageFragments: PitManagerVoiceCmds.MessageContents(
+                        AudioPlayer.folderAcknowlegeOK,
+                        amount,
+                        amount == 1 ? Fuel.folderGallon : Fuel.folderGallons)
+                    ));
                 amount = convertGallonsToLitres(amount);
+            }
             return amount;
         }
 

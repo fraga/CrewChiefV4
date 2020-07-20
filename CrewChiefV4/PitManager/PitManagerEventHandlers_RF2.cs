@@ -60,24 +60,6 @@ namespace CrewChiefV4.PitManager
     internal class PitManagerEventHandlers_RF2
     {
         private static PitMenuAbstractionLayer Pmal = new PitMenuAbstractionLayer();
-        /// <summary>
-        /// Take a list of tyre types available in the menu and map them on to
-        /// the set of generic tyre types
-        /// Supersoft
-        /// Soft
-        /// Medium
-        /// Hard
-        /// Intermediate
-        /// Wet
-        /// Monsoon
-        /// (No Change) for completeness
-        /// </summary>
-        /// <param name="inMenu">
-        /// The list returned by GetTyreTypes()
-        /// </param>
-        /// <returns>
-        /// Dictionary mapping generic tyre types to names of those available
-        /// </returns>
 
         #region Private Fields
 
@@ -140,6 +122,27 @@ namespace CrewChiefV4.PitManager
             amountCache = amount;
         }
 
+        /// <summary>
+        /// Take a list of tyre types available in the menu and map them on to
+        /// the set of generic tyre types
+        /// Supersoft
+        /// Soft
+        /// Medium
+        /// Hard
+        /// Intermediate
+        /// Wet
+        /// Monsoon
+        /// (No Change) for completeness
+        /// </summary>
+        /// <param name="tyreDict">
+        /// The dict used for translation
+        /// </param>
+        /// <param name="inMenu">
+        /// The list returned by GetTyreTypes()
+        /// </param>
+        /// <returns>
+        /// Dictionary mapping generic tyre types to names of those available
+        /// </returns>
         public static Dictionary<string, string> TranslateTyreTypes(
           Dictionary<string, List<string>> tyreDict,
           List<string> inMenu)
@@ -295,6 +298,10 @@ namespace CrewChiefV4.PitManager
         static public bool PMrF2eh_changeFLpressure(string voiceMessage)
         {
             var pressure = FuelHandling.processNumber(voiceMessage);
+            if (pressure == 0)
+            {
+                return false;
+            }
             return changeTyrePressure("FL PRESS:", pressure);
         }
 
@@ -302,6 +309,10 @@ namespace CrewChiefV4.PitManager
         {
             var amount = Pmal.Pmc.GetFuelLevel();
             var amountAdd = FuelHandling.processNumber(voiceMessage);
+            if (amountAdd == 0)
+            {
+                return false;
+            }
             amountAdd = FuelHandling.processLitresGallons(amountAdd, voiceMessage);
             return Pmal.Pmc.SetFuelLevel(amount + amountAdd);
         }
@@ -310,6 +321,10 @@ namespace CrewChiefV4.PitManager
         {
             var amount = FuelHandling.processNumber(voiceMessage);
             amount = FuelHandling.processLitresGallons(amount, voiceMessage);
+            if (amount == 0)
+            {
+                return false;
+            }
             return Pmal.Pmc.SetFuelLevel(amount);
         }
 
@@ -374,7 +389,15 @@ namespace CrewChiefV4.PitManager
 
         static private bool setTyreCompound(string genericTyreType)
         {
-            xx.Set(TranslateTyreTypes(tyreTranslationDict, Pmal.GetTyreTypeNames())[genericTyreType]);
+            var inMenu = Pmal.GetTyreTypeNames();
+            var result = TranslateTyreTypes(tyreTranslationDict, inMenu);
+            if (!result.ContainsKey(genericTyreType))
+            {   // Didn't find a match
+                PitManagerResponseHandlers.PMrh_TyreCompoundNotAvailable();
+                return false;
+            }
+
+            xx.Set(result[genericTyreType]);
             return true;
         }
 
