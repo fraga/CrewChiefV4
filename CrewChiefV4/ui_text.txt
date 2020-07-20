@@ -48,6 +48,7 @@ iracing = iRacing
 f1_2018 = F1 2018 (spotter only)
 acc = Assetto Corsa Competizione
 f1_2019 = F1 2019 (spotter only)
+f1_2020 = F1 2020 (spotter only)
 please_choose_a_game_option = Please choose a game option
 no_game_selected = No game selected
 
@@ -576,6 +577,11 @@ f1_2019_udp_data_port_help = F1 2019 network data UDP port (should usually be 20
 f1_2019_udp_data_port_filter = F1_2019
 f1_2019_udp_data_port_category = UI_STARTUP_AND_PATHS
 
+f1_2020_udp_data_port = F1 2020 UDP port
+f1_2020_udp_data_port_help = F1 2020 network data UDP port (should usually be 20777)
+f1_2020_udp_data_port_filter = F1_2020
+f1_2020_udp_data_port_category = UI_STARTUP_AND_PATHS
+
 acs_spotter_car_length = ACS Spotter default car length
 acs_spotter_car_length_filter = ASSETTO_64BIT;ASSETTO_32BIT
 acs_spotter_car_length_category = SPOTTER
@@ -619,6 +625,10 @@ f1_2018_spotter_car_length_category = SPOTTER
 f1_2019_spotter_car_length = F1 2019 Spotter default car length
 f1_2019_spotter_car_length_filter = F1_2019
 f1_2019_spotter_car_length_category = SPOTTER
+
+f1_2020_spotter_car_length = F1 2020 Spotter default car length
+f1_2020_spotter_car_length_filter = F1_2020
+f1_2020_spotter_car_length_category = SPOTTER
 
 spotter_gap_for_clear = Spotter gap for clear
 spotter_gap_for_clear_category = SPOTTER;MESSAGE_FREQUENCIES
@@ -836,6 +846,11 @@ f1_2019_launch_exe = F1 2019 launch exe
 f1_2019_launch_exe_help = This is the location of Steam.exe or the direct path to f1_2019.exe. Use forward slashes to separate paths.
 f1_2019_launch_exe_filter = F1_2019
 f1_2019_launch_exe_category = UI_STARTUP_AND_PATHS
+
+f1_2020_launch_exe = F1 2020 launch exe
+f1_2020_launch_exe_help = This is the location of Steam.exe or the direct path to f1_2020.exe. Use forward slashes to separate paths.
+f1_2020_launch_exe_filter = F1_2020
+f1_2020_launch_exe_category = UI_STARTUP_AND_PATHS
 
 launch_rfactor1 = Launch rFactor 1
 launch_rfactor1_help = If this is true the application will attempt to launch rFactor when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
