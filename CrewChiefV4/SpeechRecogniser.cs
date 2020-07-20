@@ -1836,7 +1836,7 @@ namespace CrewChiefV4
                     {
                         // no result
                         Console.WriteLine("Gave up waiting for voice command, now waiting for trigger word " + keyWord);
-                        CrewChief.audioPlayer.playEndListeningBeep();
+                        CrewChief.audioPlayer.playListeningEndBeep();
                         switchFromRegularToTriggerRecogniser();
                     }
                 }
