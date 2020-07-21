@@ -17,17 +17,8 @@ namespace PitMenuAPI
     /// <summary>
     /// PitMenuAPI consists PitMenuAbstractionLayer : PitMenuController : PitMenu
     /// </summary>
-    public class PitMenuAbstractionLayer // : PitMenuController
+    public class PitMenuAbstractionLayer : PitMenuController
     {
-        #region Public Fields
-
-        public PitMenuController Pmc = new PitMenuController();
-        private MenuLayout ml = new MenuLayout();
-
-        #endregion Public Fields
-
-        //static MenuLayout menuLayout = new MenuLayout();
-
         #region Private Fields
 
         /// <summary>
@@ -77,17 +68,10 @@ namespace PitMenuAPI
         /// <summary>
         /// Connect to the Shared Memory running in rFactor
         /// </summary>
-        public bool Connect()
+        public bool PmalConnect()  // tbd Naming
         {
-            MenuLayout.NewCar(Pmc);
-            return Pmc.Connect();
-        }
-        /// <summary>
-        /// Disconnect from the Shared Memory running in rFactor
-        /// </summary>
-        public void Disconnect()
-        {
-            Pmc.Disconnect();
+            MenuLayout.NewCar();
+            return Connect();
         }
 
         /// <summary>
@@ -125,8 +109,8 @@ namespace PitMenuAPI
             string result;
             foreach (string category in GetFrontTyreCategories())
             {
-                Pmc.SetCategory(category);
-                result = Pmc.GetChoice();
+                SetCategory(category);
+                result = GetChoice();
                 if (result != "No Change")
                 {
                     return result;
@@ -134,8 +118,8 @@ namespace PitMenuAPI
             }
             foreach (string category in GetRearTyreCategories())
             {
-                Pmc.SetCategory(category);
-                result = Pmc.GetChoice();
+                SetCategory(category);
+                result = GetChoice();
                 if (result != "No Change")
                 {
                     return result;
@@ -190,22 +174,22 @@ namespace PitMenuAPI
             {
                 if (response)
                 {
-                    response = Pmc.SetCategory(whichTyre);
+                    response = SetCategory(whichTyre);
                 }
                 if (response)
                 {
-                    response = Pmc.SetTyreType(tyreType);
+                    response = SetTyreType(tyreType);
                 }
             }
             foreach (string whichTyre in GetRearTyreCategories())
             {
                 if (response)
                 {
-                    response = Pmc.SetCategory(whichTyre);
+                    response = SetCategory(whichTyre);
                 }
                 if (response)
                 {
-                    response = Pmc.SetTyreType(tyreType);
+                    response = SetTyreType(tyreType);
                 }
             }
             return response;
@@ -217,15 +201,15 @@ namespace PitMenuAPI
             bool response;
             while (tryNo-- > 0)
             {
-                response = Pmc.SetCategory(category);
+                response = SetCategory(category);
                 if (response)
                 {
-                    response = Pmc.SetChoice(choice);
+                    response = SetChoice(choice);
                     if (response)
                     {
                         return true;
                     }
-                    Pmc.startUsingPitMenu();
+                    startUsingPitMenu();
                 }
             }
             return false;
@@ -244,7 +228,7 @@ namespace PitMenuAPI
         /// <summary>
         /// Virtualisation of the menu layout for the current vehicle
         /// </summary>
-        private class MenuLayout
+        public class MenuLayout
         {
             #region Private Fields
 
@@ -256,11 +240,9 @@ namespace PitMenuAPI
 
             #region Public Methods
 
-            public static void NewCar(PitMenuController _pmc)
+            public static void NewCar()
             {
                 menuDict = new Dictionary<string, List<string>> { };
-                Pmc = _pmc;
-
             }
 
             public static List<string> get(string key)
@@ -268,7 +250,7 @@ namespace PitMenuAPI
                 List<string> value;
                 if (menuDict.Count == 0)
                 {
-                    menuDict = Pmc.GetMenuDict();
+                    menuDict = GetMenuDict();
                 }
                 if (menuDict.TryGetValue(key, out value))
                 {
@@ -281,7 +263,7 @@ namespace PitMenuAPI
             {
                 if (menuDict.Count == 0)
                 {
-                    menuDict = Pmc.GetMenuDict();
+                    menuDict = GetMenuDict();
                 }
                 return new List<string>(menuDict.Keys);
             }

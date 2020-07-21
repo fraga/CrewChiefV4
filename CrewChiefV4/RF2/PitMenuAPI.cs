@@ -22,30 +22,30 @@ namespace PitMenuAPI
     {
         #region Public Fields
 
-        public
+        public static
             SendrF2HWControl sendHWControl = new SendrF2HWControl();
 
         #endregion Public Fields
 
         #region Private Fields
 
-        private
+        private static
                 MappedBuffer<rF2PitInfo> pitInfoBuffer = new MappedBuffer<rF2PitInfo>(
                     rFactor2Constants.MM_PITINFO_FILE_NAME,
                     false /*partial*/,
                     true /*skipUnchanged*/);
 
-        private rF2PitInfo pitInfo;
-        private bool Connected = false;
+        private static rF2PitInfo pitInfo;
+        private static bool Connected = false;
 
         // Shared memory scans slowly until the first control is received. It
         // returns to scanning slowly when it hasn't received a control for a while.
-        private int initialDelay = 230;
+        private static int initialDelay = 230;
 
         // Delay in mS after sending a HW control to rFactor before sending another,
         // set by experiment
         // 20 works for category selection and tyres but fuel needs it slower
-        private int delay = 30;
+        private static int delay = 30;
 
         #endregion Private Fields
 
@@ -60,17 +60,17 @@ namespace PitMenuAPI
         /// <returns>
         /// true if connected
         /// </returns>
-        public bool Connect()
+        public static bool Connect()
         {
-            if (!this.Connected)
+            if (!Connected)
             {
-                this.Connected = this.sendHWControl.Connect();
-                if (this.Connected)
+                Connected = sendHWControl.Connect();
+                if (Connected)
                 {
-                    this.pitInfoBuffer.Connect();
+                    pitInfoBuffer.Connect();
                 }
             }
-            return this.Connected;
+            return Connected;
         }
 
         /// <summary>
@@ -79,21 +79,21 @@ namespace PitMenuAPI
         /// </summary>
         public void Disconnect()
         {
-            this.pitInfoBuffer.Disconnect();
-            this.sendHWControl.Disconnect();
+            pitInfoBuffer.Disconnect();
+            sendHWControl.Disconnect();
         }
 
         /// <summary>
         /// Shared memory is normally scanning slowly until a control is received
         /// so send the first control (to select the Pit Menu) with a longer delay
         /// </summary>
-        public bool startUsingPitMenu()
+        public static bool startUsingPitMenu()
         {
-            if (!this.Connected)
+            if (!Connected)
             {
                 Connect();
             }
-            if (this.Connected)
+            if (Connected)
             {
                 // Need to select the Pit Menu
                 // If it is off ToggleMFDA will turn it on then ToggleMFDB will switch
@@ -104,18 +104,18 @@ namespace PitMenuAPI
                 // will show the Pit Menu
                 do
                 {
-                    this.sendHWControl.SendHWControl("ToggleMFDA", true);
+                    sendHWControl.SendHWControl("ToggleMFDA", true);
                     System.Threading.Thread.Sleep(initialDelay);
-                    this.sendHWControl.SendHWControl("ToggleMFDA", false);
+                    sendHWControl.SendHWControl("ToggleMFDA", false);
                     System.Threading.Thread.Sleep(delay);
-                    this.sendHWControl.SendHWControl("ToggleMFDB", true); // Select rFactor Pit Menu
+                    sendHWControl.SendHWControl("ToggleMFDB", true); // Select rFactor Pit Menu
                     System.Threading.Thread.Sleep(delay);
-                    this.sendHWControl.SendHWControl("ToggleMFDB", false); // Select rFactor Pit Menu
+                    sendHWControl.SendHWControl("ToggleMFDB", false); // Select rFactor Pit Menu
                     System.Threading.Thread.Sleep(delay);
                 }
-                while (!(SoftMatchCategory("TIRE") || SoftMatchCategory("FUEL")));
+                while (!(iSoftMatchCategory("TIRE") || iSoftMatchCategory("FUEL")));
             }
-            return this.Connected;
+            return Connected;
         }
 
         /// <summary>
@@ -128,8 +128,8 @@ namespace PitMenuAPI
         /// <param name="mS"></param>
         public void setDelay(int mS, int initialDelay)
         {
-            this.delay = mS;
-            this.initialDelay = initialDelay;
+            delay = mS;
+            initialDelay = initialDelay;
         }
 
         //////////////////////////////////////////////////////////////////////////
@@ -142,17 +142,17 @@ namespace PitMenuAPI
         /// <returns>
         /// Name of the category
         /// </returns>
-        public string GetCategory()
+        public static string GetCategory()
         {
             pitInfoBuffer.GetMappedData(ref pitInfo);
-            var catName = GetStringFromBytes(this.pitInfo.mPitMneu.mCategoryName);
+            var catName = GetStringFromBytes(pitInfo.mPitMneu.mCategoryName);
             return catName;
         }
 
         /// <summary>
         /// Move up to the next category
         /// </summary>
-        public void CategoryUp()
+        public static void CategoryUp()
         {
             sendControl("PitMenuUp");
         }
@@ -160,7 +160,7 @@ namespace PitMenuAPI
         /// <summary>
         /// Move down to the next category
         /// </summary>
-        public void CategoryDown()
+        public static void CategoryDown()
         {
             sendControl("PitMenuDown");
         }
@@ -170,7 +170,7 @@ namespace PitMenuAPI
         /// <summary>
         /// Increment the current choice
         /// </summary>
-        public void ChoiceInc()
+        public static void ChoiceInc()
         {
             sendControl("PitMenuIncrementValue");
         }
@@ -178,7 +178,7 @@ namespace PitMenuAPI
         /// <summary>
         /// Decrement the current choice
         /// </summary>
-        public void ChoiceDec()
+        public static void ChoiceDec()
         {
             sendControl("PitMenuDecrementValue");
         }
@@ -187,10 +187,10 @@ namespace PitMenuAPI
         /// Get the text of the current choice
         /// </summary>
         /// <returns>string</returns>
-        public string GetChoice()
+        public static string GetChoice()
         {
             pitInfoBuffer.GetMappedData(ref pitInfo);
-            var choiceStr = GetStringFromBytes(this.pitInfo.mPitMneu.mChoiceString);
+            var choiceStr = GetStringFromBytes(pitInfo.mPitMneu.mChoiceString);
             return choiceStr;
         }
 
@@ -219,7 +219,7 @@ namespace PitMenuAPI
                     {
                         return false;
                     }
-                    this.startUsingPitMenu();
+                    startUsingPitMenu();
                 }
             }
             return true;
@@ -250,6 +250,23 @@ namespace PitMenuAPI
             return true;
         }
 
+        public static bool iSoftMatchCategory(string category)  // tbd Can this be done more cleanly?
+        {
+            string InitialCategory = GetCategory();
+            int tryNo = 3;
+            while (!GetCategory().Contains(category))
+            {
+                CategoryDown();
+                if (GetCategory() == InitialCategory)
+                {  // Wrapped around, category not found
+                    if (tryNo-- > 0)
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
         /// <summary>
         /// Set the current choice
         /// </summary>
@@ -301,12 +318,12 @@ namespace PitMenuAPI
               : Encoding.Default.GetString(bytes);
         }
 
-        private void sendControl(string control)
+        private static void sendControl(string control)
         {
-            this.sendHWControl.SendHWControl(control, true);
+            sendHWControl.SendHWControl(control, true);
             System.Threading.Thread.Sleep(delay);
             // Doesn't seem to be necessary to do "retVal false" too
-            this.sendHWControl.SendHWControl(control, false);
+            sendHWControl.SendHWControl(control, false);
             System.Threading.Thread.Sleep(delay);
         }
 

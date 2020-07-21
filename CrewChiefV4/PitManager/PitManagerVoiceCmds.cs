@@ -350,6 +350,7 @@ namespace CrewChiefV4.PitManager
             if (additionaLitresNeeded == float.MaxValue)
             {
                 CrewChief.audioPlayer.playMessage(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                roundedLitresNeeded = 0;
             }
             else if (additionaLitresNeeded <= 0)
             {

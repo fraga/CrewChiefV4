@@ -170,7 +170,7 @@ namespace CrewChiefV4.PitManager
 
         static public bool PMrF2eh_initialise(string defaultTyreType)
         {
-            Pmal.Connect();
+            Pmal.PmalConnect();
             currentTyreType.Set("");
             return true;
         }
@@ -230,7 +230,7 @@ namespace CrewChiefV4.PitManager
             // Get the current tyre type
             // Get the list of tyre type, remove "No Change"
             bool response = false;
-            List<string> tyreTypes = Pmal.Pmc.GetTyreTypeNames();
+            List<string> tyreTypes = Pmal.GetTyreTypeNames();
             tyreTypes.Remove("No Change");
             string currentTyreTypeStr = Pmal.GetCurrentTyreType();
 
@@ -309,7 +309,7 @@ namespace CrewChiefV4.PitManager
         #region Fuel
         static public bool PMrF2eh_FuelAddXlitres(string voiceMessage)
         {
-            var amount = Pmal.Pmc.GetFuelLevel();
+            var amount = Pmal.GetFuelLevel();
             var amountAdd = PitNumberHandling.processNumber(voiceMessage);
             if (amountAdd == 0)
             {
@@ -349,51 +349,51 @@ namespace CrewChiefV4.PitManager
 
         static public bool rF2SetFuel(int amount)
         {
-            return Pmal.Pmc.SetFuelLevel(amount);
+            return Pmal.SetFuelLevel(amount);
         }
         #endregion Fuel
 
         static public bool PMrF2eh_RepairAll(string __)
         {
-            if (Pmal.Pmc.SoftMatchCategory("DAMAGE:"))
+            if (Pmal.SoftMatchCategory("DAMAGE:"))
             {
-                return Pmal.Pmc.SetChoice("Repair All");
+                return Pmal.SetChoice("Repair All");
             }
             return false;
         }
 
         static public bool PMrF2eh_RepairNone(string __)
         {
-            if (Pmal.Pmc.SoftMatchCategory("DAMAGE:"))
+            if (Pmal.SoftMatchCategory("DAMAGE:"))
             {
-                return Pmal.Pmc.SetChoice("Repair None");
+                return Pmal.SetChoice("Repair None");
             }
             return false;
         }
 
         static public bool PMrF2eh_RepairBody(string __)
         {
-            if (Pmal.Pmc.SoftMatchCategory("DAMAGE:"))
+            if (Pmal.SoftMatchCategory("DAMAGE:"))
             {
-                return Pmal.Pmc.SetChoice("Repair Body");
+                return Pmal.SetChoice("Repair Body");
             }
             return false;
         }
 
         static public bool PMrF2eh_PenaltyServe(string __)
         {
-            if (Pmal.Pmc.SoftMatchCategory("STOP/GO"))
+            if (Pmal.SoftMatchCategory("STOP/GO"))
             {
-                return Pmal.Pmc.SetChoice("YES");
+                return Pmal.SetChoice("YES");
             }
             return false;
         }
 
         static public bool PMrF2eh_PenaltyServeNone(string __)
         {
-            if (Pmal.Pmc.SoftMatchCategory("STOP/GO"))
+            if (Pmal.SoftMatchCategory("STOP/GO"))
             {
-                return Pmal.Pmc.SetChoice("NO");
+                return Pmal.SetChoice("NO");
             }
             return false;
         }
@@ -467,7 +467,7 @@ namespace CrewChiefV4.PitManager
             bool result = true;
             foreach (string tyreCategory in tyreCategories)
             {
-                if (result && Pmal.Pmc.SetCategory(tyreCategory))
+                if (result && Pmal.SetCategory(tyreCategory))
                 {
                     result = changeTyre(tyreCategory, noChange);
                 }

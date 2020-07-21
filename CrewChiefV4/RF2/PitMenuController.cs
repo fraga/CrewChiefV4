@@ -32,7 +32,7 @@ namespace PitMenuAPI
 
         #region Private Fields
 
-        private Dictionary<string, List<string>> pitMenu;
+        private static Dictionary<string, List<string>> pitMenu;
 
         #endregion Private Fields
 
@@ -46,7 +46,7 @@ namespace PitMenuAPI
         /// <returns>
         /// Dictionary of all choices for all tyre/tire menu categories
         /// </returns>
-        public Dictionary<string, List<string>> GetMenuDict()
+        public static Dictionary<string, List<string>> GetMenuDict()
         {
             pitMenu = new Dictionary<string, List<string>> { };
             string initialCategory;
@@ -101,7 +101,7 @@ namespace PitMenuAPI
             Int16 current = -1;
             Match match; // = Regex.Match(input, pattern);
             Regex reggie = new Regex(@"(.*)/(.*)");
-            // if (this.GetCategory() == "FUEL:")
+            // if (GetCategory() == "FUEL:")
             match = reggie.Match(GetChoice());
             if (match.Groups.Count == 3)
             {
@@ -148,7 +148,7 @@ namespace PitMenuAPI
                     {
                         return false;
                     }
-                    this.startUsingPitMenu();
+                    startUsingPitMenu();
                     SetCategory("FUEL:");
                 }
                 else
@@ -167,7 +167,7 @@ namespace PitMenuAPI
                     {
                         return false;
                     }
-                    this.startUsingPitMenu();
+                    startUsingPitMenu();
                     SetCategory("FUEL:");
                 }
                 else
@@ -190,7 +190,7 @@ namespace PitMenuAPI
         public List<string> GetTyreTypeNames()
         {
             List<string> result = new List<string> { "NO_TYRE" };
-            foreach (var category in this.pitMenu)
+            foreach (var category in pitMenu)
             {
                 if (category.Key.Contains("TIRE"))
                 {
@@ -214,7 +214,7 @@ namespace PitMenuAPI
             string InitialCategory = GetCategory();
             do
             {
-                if (this.GetCategory().Contains("TIRE"))
+                if (GetCategory().Contains("TIRE"))
                 {
                     result.Add(GetCategory());
                 }
@@ -234,7 +234,7 @@ namespace PitMenuAPI
 
         public bool SetTyreType(string requiredType)
         {
-            if (this.GetCategory().Contains("TIRE"))
+            if (GetCategory().Contains("TIRE"))
             {
                 string current = GetChoice();
 
