@@ -48,7 +48,7 @@ namespace UnitTest
             result = pmh.EventHandler(PitManagerEvent.TyreChangeNone, "");
             Thread.Sleep(100);
 
-            pmh.AmountHandler(0);
+            // tbd pmh.AmountHandler(0);
             result = pmh.EventHandler(PitManagerEvent.FuelAddXlitres, "one gallon");
             Thread.Sleep(100);
         }

@@ -137,9 +137,10 @@ namespace CrewChiefV4.PitManager
         /// <summary>
         /// The Event handler
         /// The event may come from a voice command, a command macro or
-        /// internally (e.g."Fill to end" Property
+        /// internally (e.g."Fill to end" Property)
         /// </summary>
         /// <param name="ev">PitManagerEvent</param>
+        /// <param name="voiceMessage"> The voice commenand</param>
         /// <returns>
         /// true if event was handled
         /// </returns>
@@ -228,11 +229,6 @@ namespace CrewChiefV4.PitManager
                 }
             }
             return result;
-        }
-
-        public void AmountHandler(int amount)
-        {
-            PMEHrF2.amountHandler(amount);  // tbd: do it for other games
         }
 
         //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
