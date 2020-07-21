@@ -1,8 +1,5 @@
 ﻿//#define TRACE_BUFFER_READ_ELAPSED_TIME
 
-using CrewChiefV4.rFactor2;
-using rF2SharedMemory;
-using rF2SharedMemory.rFactor2Data;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,6 +10,10 @@ using System.Text;
 using System.Threading;
 using System.Xml;
 using System.Xml.Serialization;
+
+using CrewChiefV4.rFactor2;
+using rF2SharedMemory;
+using rF2SharedMemory.rFactor2Data;
 
 namespace CrewChiefV4.rFactor2
 {

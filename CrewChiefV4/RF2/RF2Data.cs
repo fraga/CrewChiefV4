@@ -132,7 +132,8 @@ namespace rF2SharedMemory
     }
 
     // who's in control: -1=nobody (shouldn't get this), 0=local player, 1=local AI, 2=remote, 3=replay (shouldn't get this)
-    public enum rF2Control {
+    public enum rF2Control
+	{
       Nobody = -1,
       Player = 0,
       AI = 1,
@@ -141,7 +142,8 @@ namespace rF2SharedMemory
     }
 
     // wheel info (front left, front right, rear left, rear right)
-    public enum rF2WheelIndex {
+    public enum rF2WheelIndex
+	{
       FrontLeft = 0,
       FrontRight = 1,
       RearLeft = 2,
@@ -149,7 +151,8 @@ namespace rF2SharedMemory
     }
 
     // 0=none, 1=request, 2=entering, 3=stopped, 4=exiting
-    public enum rF2PitState {
+    public enum rF2PitState
+	{
       None = 0,
       Request = 1,
       Entering = 2,
@@ -158,34 +161,39 @@ namespace rF2SharedMemory
     }
 
     // primary flag being shown to vehicle (currently only 0=green or 6=blue)
-    public enum rF2PrimaryFlag {
+    public enum rF2PrimaryFlag
+	{
       Green = 0,
       Blue = 6
     }
 
     // 0 = do not count lap or time, 1 = count lap but not time, 2 = count lap and time
-    public enum rF2CountLapFlag {
+    public enum rF2CountLapFlag
+	{
       DoNotCountLap = 0,
       CountLapButNotTime = 1,
       CountLapAndTime = 2,
     }
 
     // 0=disallowed, 1=criteria detected but not allowed quite yet, 2=allowed
-    public enum rF2RearFlapLegalStatus {
+    public enum rF2RearFlapLegalStatus
+	{
       Disallowed = 0,
       DetectedButNotAllowedYet = 1,
       Alllowed = 2
     }
 
     // 0=off 1=ignition 2=ignition+starter
-    public enum rF2IgnitionStarterStatus {
+    public enum rF2IgnitionStarterStatus
+	{
       Off = 0,
       Ignition = 1,
       IgnitionAndStarter = 2
     }
 
     // 0=no change, 1=go active, 2=head for pits
-    public enum rF2SafetyCarInstruction {
+    public enum rF2SafetyCarInstruction
+	{
       NoChange = 0,
       GoActive = 1,
       HeadForPits = 2

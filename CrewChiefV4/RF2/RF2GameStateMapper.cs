@@ -4,14 +4,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using CrewChiefV4.GameState;
-using CrewChiefV4.Events;
 using System.Diagnostics;
 using System.Threading;
+using System.Windows.Forms;
+
+using CrewChiefV4.GameState;
+using CrewChiefV4.Events;
 using rF2SharedMemory;
 using static rF2SharedMemory.rFactor2Constants;
 using rF2SharedMemory.rFactor2Data;
-using System.Windows.Forms;
 
 /**
  * Maps memory mapped file to a local game-agnostic representation.
