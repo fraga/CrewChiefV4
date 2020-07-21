@@ -1,17 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using CrewChiefV4.Audio;
-using CrewChiefV4.Events;
-using CrewChiefV4.GameState;
-using PitMenuAPI;
+﻿using CrewChiefV4.Audio;
 
 namespace CrewChiefV4.PitManager
 {
-    internal class PitManagerResponseHandlers
+    static internal class PitManagerResponseHandlers
     {
         /// <summary>
         /// The common response handlers for all games.  Some games may have
@@ -20,7 +11,9 @@ namespace CrewChiefV4.PitManager
 
         #region Public Methods
 
+#pragma warning disable S3400 // Methods should not return constants
         static public bool PMrh_NoResponse()
+#pragma warning restore S3400 // Methods should not return constants
         {
             return true;
         }
@@ -78,7 +71,9 @@ namespace CrewChiefV4.PitManager
             return true;
         }
 
+#pragma warning disable S4144 // Methods should not have identical implementations
         static public bool PMrh_TyreCompoundWet()
+#pragma warning restore S4144 // Methods should not have identical implementations
         {
             playMessage(AudioPlayer.folderAcknowlegeOK);     // tbd
             return true;
@@ -102,7 +97,9 @@ namespace CrewChiefV4.PitManager
             return true;
         }
 
+#pragma warning disable S4144 // Methods should not have identical implementations
         static public bool PMrh_TyreCompoundNext()
+#pragma warning restore S4144 // Methods should not have identical implementations
         {
             playMessage(AudioPlayer.folderAcknowlegeOK);
             return true;
@@ -120,7 +117,9 @@ namespace CrewChiefV4.PitManager
             return true;
         }
 
+#pragma warning disable S4144 // Methods should not have identical implementations
         static public bool PMrh_FuelAddXlitres()
+#pragma warning restore S4144 // Methods should not have identical implementations
         {
             playMessage(AudioPlayer.folderFuelToEnd); // tbd:
             return true;

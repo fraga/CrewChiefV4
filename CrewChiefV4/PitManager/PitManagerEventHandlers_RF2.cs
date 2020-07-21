@@ -1,13 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Remoting.Messaging;
-using System.Text;
-using System.Threading.Tasks;
-
-using CrewChiefV4.Audio;
-using CrewChiefV4.Events;
-using CrewChiefV4.GameState;
 using PitMenuAPI;
 
 // Pit stop texts
@@ -55,11 +47,9 @@ using PitMenuAPI;
 
 namespace CrewChiefV4.PitManager
 {
-    //using Pmal = PitMenuAbstractionLayer;
-
     internal class PitManagerEventHandlers_RF2
     {
-        private static PitMenuAbstractionLayer Pmal = new PitMenuAbstractionLayer();
+        private static readonly PitMenuAbstractionLayer Pmal = new PitMenuAbstractionLayer();
 
         #region Private Fields
 
@@ -87,40 +77,14 @@ namespace CrewChiefV4.PitManager
             { "No Change",    new List <string> {"no change"} }
             };
 
-        static private readonly List<string> genericCompounds = new List<string> {
-            "Hard",
-            "Medium",
-            "Soft",
-            "Intermediate",
-            "Wet",
-            "Monsoon",
-            "Option",
-            "Prime",
-            "Alternate" };
-
         static private Dictionary<string, List<string>> tyreTranslationDict =
                     SampleTyreTranslationDict;
 
-        static private List<string> tyreCategories;
-        //private static List<string> tyreTypes = Pmal.GetTyreTypeNames();
-        static private string currentGenericTyreCompound = "";
         static private CurrentTyreType currentTyreType = new CurrentTyreType();
-
-        static private int amountCache;
 
         #endregion Private Fields
 
         #region Public Methods
-
-        /// <summary>
-        /// Invoked by "Pitstop Add..." command, an event (e.g. fuel) will
-        /// come along and use this value later
-        /// </summary>
-        /// <param name="amount"></param>
-        static public void amountHandler(int amount)
-        {
-            amountCache = amount;
-        }
 
         /// <summary>
         /// Take a list of tyre types available in the menu and map them on to
@@ -168,7 +132,7 @@ namespace CrewChiefV4.PitManager
         ///////////////////////////////////////////////////////////////////////
         // Event handlers
 
-        static public bool PMrF2eh_initialise(string defaultTyreType)
+        static public bool PMrF2eh_initialise(string __)
         {
             Pmal.PmalConnect();
             currentTyreType.Set("");

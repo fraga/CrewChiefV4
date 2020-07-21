@@ -10,7 +10,6 @@ Author: Tony Whitley (sven.smiles@gmail.com)
 */
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace PitMenuAPI
 {
@@ -137,7 +136,7 @@ namespace PitMenuAPI
         public List<string> GetRearTyreCategories()
         {
             // There are simpler ways to do this but...
-            return (List<string>)tyreCategories.Except(frontTyreCategories)
+            return tyreCategories.Except(frontTyreCategories)
               .Intersect(MenuLayout.getKeys()).ToList();
         }
 
@@ -228,13 +227,12 @@ namespace PitMenuAPI
         /// <summary>
         /// Virtualisation of the menu layout for the current vehicle
         /// </summary>
-        public class MenuLayout
+        static public class MenuLayout
         {
             #region Private Fields
 
             private static Dictionary<string, List<string>> menuDict =
                 new Dictionary<string, List<string>>();
-            private static PitMenuController Pmc;
 
             #endregion Private Fields
 

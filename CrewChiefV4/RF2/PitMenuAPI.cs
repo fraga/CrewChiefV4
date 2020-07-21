@@ -20,15 +20,10 @@ namespace PitMenuAPI
     /// </summary>
     public class PitMenu
     {
-        #region Public Fields
-
-        public static
-            SendrF2HWControl sendHWControl = new SendrF2HWControl();
-
-        #endregion Public Fields
-
         #region Private Fields
 
+        private static
+            SendrF2HWControl sendHWControl = new SendrF2HWControl();
         private static
                 MappedBuffer<rF2PitInfo> pitInfoBuffer = new MappedBuffer<rF2PitInfo>(
                     rFactor2Constants.MM_PITINFO_FILE_NAME,
@@ -126,10 +121,10 @@ namespace PitMenuAPI
         /// 200 mS update.
         /// </summary>
         /// <param name="mS"></param>
-        public void setDelay(int mS, int initialDelay)
+        public void setDelay(int mS, int _initialDelay)
         {
             delay = mS;
-            initialDelay = initialDelay;
+            initialDelay = _initialDelay;
         }
 
         //////////////////////////////////////////////////////////////////////////
@@ -250,7 +245,9 @@ namespace PitMenuAPI
             return true;
         }
 
+#pragma warning disable S4144 // Methods should not have identical implementations
         public static bool iSoftMatchCategory(string category)  // tbd Can this be done more cleanly?
+#pragma warning restore S4144 // Methods should not have identical implementations
         {
             string InitialCategory = GetCategory();
             int tryNo = 3;

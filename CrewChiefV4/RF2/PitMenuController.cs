@@ -99,7 +99,7 @@ namespace PitMenuAPI
         public int GetFuelLevel()
         {
             Int16 current = -1;
-            Match match; // = Regex.Match(input, pattern);
+            Match match;
             Regex reggie = new Regex(@"(.*)/(.*)");
             // if (GetCategory() == "FUEL:")
             match = reggie.Match(GetChoice());
