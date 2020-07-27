@@ -296,6 +296,10 @@ namespace CrewChiefV4.PitManager
 
         static public bool PMrF2eh_FuelToEnd(string __)
         {
+            if (UserSettings.GetUserSettings().getBoolean("iracing_enable_auto_fuel_to_end_of_race")) // tbd: duplicate or rename
+            {   // Ignore the voice command if we're going to do it automatically
+                return false;
+            }
             var litresNeeded = PitFuelling.fuelToEnd(
                 PitManagerVoiceCmds.getFuelCapacity(),
                 PitManagerVoiceCmds.getCurrentFuel());
