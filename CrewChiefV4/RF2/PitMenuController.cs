@@ -5,7 +5,6 @@ https://github.com/TheIronWolfModding/rF2SharedMemoryMapPlugin
 
 Author: Tony Whitley (sven.smiles@gmail.com)
 */
-using Microsoft.Speech.Synthesis;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
