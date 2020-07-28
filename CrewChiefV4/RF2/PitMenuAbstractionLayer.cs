@@ -73,6 +73,11 @@ namespace PitMenuAPI
             return Connect();
         }
 
+        public bool SmartSetCategory(string category)
+        {
+            return PitMenuController.SmartSetCategory(category);
+        }
+
         /// <summary>
         /// Get a list of the front tyre changes provided for this vehicle.  Fronts
         /// sometimes have to be changed before the rears will be given the same
@@ -108,7 +113,7 @@ namespace PitMenuAPI
             string result;
             foreach (string category in GetFrontTyreCategories())
             {
-                SetCategory(category);
+                SmartSetCategory(category);
                 result = GetChoice();
                 if (result != "No Change")
                 {
@@ -117,7 +122,7 @@ namespace PitMenuAPI
             }
             foreach (string category in GetRearTyreCategories())
             {
-                SetCategory(category);
+                SmartSetCategory(category);
                 result = GetChoice();
                 if (result != "No Change")
                 {
@@ -173,7 +178,7 @@ namespace PitMenuAPI
             {
                 if (response)
                 {
-                    response = SetCategory(whichTyre);
+                    response = SmartSetCategory(whichTyre);
                 }
                 if (response)
                 {
@@ -184,7 +189,7 @@ namespace PitMenuAPI
             {
                 if (response)
                 {
-                    response = SetCategory(whichTyre);
+                    response = SmartSetCategory(whichTyre);
                 }
                 if (response)
                 {
@@ -194,13 +199,13 @@ namespace PitMenuAPI
             return response;
         }
 
-        public bool setCategoryAndChoice(string category, string choice)
+        public bool SetCategoryAndChoice(string category, string choice)
         {
             int tryNo = 5;
             bool response;
             while (tryNo-- > 0)
             {
-                response = SetCategory(category);
+                response = SmartSetCategory(category);
                 if (response)
                 {
                     response = SetChoice(choice);
@@ -227,7 +232,7 @@ namespace PitMenuAPI
         /// <summary>
         /// Virtualisation of the menu layout for the current vehicle
         /// </summary>
-        static public class MenuLayout
+        private class MenuLayout
         {
             #region Private Fields
 

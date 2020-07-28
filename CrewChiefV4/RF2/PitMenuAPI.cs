@@ -76,6 +76,7 @@ namespace PitMenuAPI
         {
             pitInfoBuffer.Disconnect();
             sendHWControl.Disconnect();
+            Connected = false;
         }
 
         /// <summary>
@@ -229,25 +230,15 @@ namespace PitMenuAPI
         /// </returns>
         public bool SoftMatchCategory(string category)
         {
-            string InitialCategory = GetCategory();
-            int tryNo = 3;
-            while (!GetCategory().Contains(category))
-            {
-                CategoryDown();
-                if (GetCategory() == InitialCategory)
-                {  // Wrapped around, category not found
-                    if (tryNo-- > 0)
-                    {
-                        return false;
-                    }
-                }
-            }
-            return true;
+            return iSoftMatchCategory(category);
         }
 
-#pragma warning disable S4144 // Methods should not have identical implementations
-        public static bool iSoftMatchCategory(string category)  // tbd Can this be done more cleanly?
-#pragma warning restore S4144 // Methods should not have identical implementations
+        /// <summary>
+        /// Static version
+        /// </summary>
+        /// <param name="category"></param>
+        /// <returns></returns>
+        private static bool iSoftMatchCategory(string category)  // tbd Can this be done more cleanly?
         {
             string InitialCategory = GetCategory();
             int tryNo = 3;

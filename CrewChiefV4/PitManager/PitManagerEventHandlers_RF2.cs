@@ -402,7 +402,7 @@ namespace CrewChiefV4.PitManager
 
             if (Pmal.GetAllTyreCategories().Contains(tyreCategory))
             {
-                response = Pmal.setCategoryAndChoice(tyreCategory, tyreType);
+                response = Pmal.SetCategoryAndChoice(tyreCategory, tyreType);
                 if (response)
                 {
                     // dict is the other direction currentGenericTyreCompound = ttDict[tyreType];
@@ -435,7 +435,7 @@ namespace CrewChiefV4.PitManager
             bool result = true;
             foreach (string tyreCategory in tyreCategories)
             {
-                if (result && Pmal.SetCategory(tyreCategory))
+                if (result && Pmal.SmartSetCategory(tyreCategory))
                 {
                     result = changeTyre(tyreCategory, noChange);
                 }
@@ -450,7 +450,7 @@ namespace CrewChiefV4.PitManager
             var pressure = PitNumberHandling.processNumber(voiceMessage);
             if (pressure > 0)
             {
-                response = Pmal.setCategoryAndChoice(tyreCategory, pressure.ToString());
+                response = Pmal.SetCategoryAndChoice(tyreCategory, pressure.ToString());
                 if (response)
                 {
                     if (CrewChief.Debugging)

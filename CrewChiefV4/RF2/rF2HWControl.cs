@@ -67,6 +67,7 @@ namespace rF2SharedMemory
         public void Disconnect()
         {
             this.hwControlBuffer.Disconnect();
+            this.Connected = false;
         }
 
         /// <summary>

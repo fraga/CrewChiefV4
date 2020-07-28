@@ -5,6 +5,7 @@ https://github.com/TheIronWolfModding/rF2SharedMemoryMapPlugin
 
 Author: Tony Whitley (sven.smiles@gmail.com)
 */
+using Microsoft.Speech.Synthesis;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -32,8 +33,12 @@ namespace PitMenuAPI
 
         #region Private Fields
 
-        private static Dictionary<string, List<string>> pitMenu;
-
+        /// <summary>
+        /// Dictionary of all menu categories for the current vehicle
+        /// The tyre categories have a list of all the tyre choices
+        /// </summary>
+        private static Dictionary<string, List<string>> shadowPitMenu;
+        private static List<string> shadowPitMenuCats;
         #endregion Private Fields
 
         #region Public Methods
@@ -48,7 +53,8 @@ namespace PitMenuAPI
         /// </returns>
         public static Dictionary<string, List<string>> GetMenuDict()
         {
-            pitMenu = new Dictionary<string, List<string>> { };
+            shadowPitMenu = new Dictionary<string, List<string>> { };
+            shadowPitMenuCats = new List<string> { };
             string initialCategory;
             string category;
             string choice;
@@ -59,24 +65,94 @@ namespace PitMenuAPI
             do
             {
                 category = GetCategory();
-                pitMenu[category] = new List<string>();
+                shadowPitMenu[category] = new List<string>();
+                shadowPitMenuCats.Add(category);
                 if (category.Contains("TIRE"))
                 { // The only category that wraps round
                     do
                     {
                         choice = GetChoice();
-                        pitMenu[category].Add(choice);
+                        shadowPitMenu[category].Add(choice);
                         ChoiceInc();
-                    } while (!pitMenu[category].Contains(GetChoice()));
+                    } while (!shadowPitMenu[category].Contains(GetChoice()));
                 }
                 CategoryDown();
             } while (GetCategory() != initialCategory);
 
-            if (pitMenu.Count < 2)
+            if (shadowPitMenu.Count < 2)
             {
-                pitMenu = new Dictionary<string, List<string>> {};
+                shadowPitMenu = new Dictionary<string, List<string>> {};
             }
-            return pitMenu;
+            return shadowPitMenu;
+        }
+
+        /// <summary>
+        /// Take the shortest way to "category"
+        /// </summary>
+        /// <param name="category"> Pit Menu category</param>
+        public static bool SmartSetCategory(string category)
+        {
+            if (shadowPitMenuCats.Count == 0)
+            {
+                GetMenuDict();
+            }
+            string currentCategory = GetCategory();
+            if (category != currentCategory)
+            {
+                int origin = Array.IndexOf(shadowPitMenuCats.ToArray(), currentCategory);
+                int target = Array.IndexOf(shadowPitMenuCats.ToArray(), category);
+#if false
+            float signedDiff = 0.0f;
+            float raw_diff = origin > target ? origin - target : target - origin;
+            float mod_diff = raw_diff % pitMenuCats.Count;
+
+            if (mod_diff > (pitMenuCats.Count / 2))
+            {
+                //There is a shorter path in opposite direction
+                signedDiff = (pitMenuCats.Count - mod_diff);
+                if (target > origin)
+                    signedDiff = signedDiff * -1;
+            }
+            else
+            {
+                signedDiff = mod_diff;
+                if (origin > target)
+                    signedDiff = signedDiff * -1;
+            }
+            while (signedDiff > 0)
+            {
+                CategoryDown();
+                signedDiff -= 1;
+            }
+            while (signedDiff < 0)
+            {
+                CategoryUp();
+                signedDiff += 1;
+            }
+#endif
+                for (int i = 1; i < shadowPitMenuCats.Count; i++)
+                {
+                    if (((origin + i) % shadowPitMenuCats.Count) == target)
+                    {
+                        //down
+                        while (GetCategory() != category)
+                        {
+                            CategoryDown();
+                        }
+                        break;
+                    }
+                    if (((shadowPitMenuCats.Count + origin - i) % shadowPitMenuCats.Count) == target)
+                    {
+                        //up
+                        while (GetCategory() != category)
+                        {
+                            CategoryUp();
+                        }
+                        break;
+                    }
+                }
+            }
+            return GetCategory() == category;
         }
 
         //////////////////////////////////////////////////////////////////////////
@@ -130,7 +206,7 @@ namespace PitMenuAPI
         {
             int tryNo = 5;
 
-            SetCategory("FUEL:");
+            SmartSetCategory("FUEL:");
             int current = GetFuelLevel();
             if (current < 0)
             {
@@ -149,7 +225,7 @@ namespace PitMenuAPI
                         return false;
                     }
                     startUsingPitMenu();
-                    SetCategory("FUEL:");
+                    SmartSetCategory("FUEL:");
                 }
                 else
                 {
@@ -168,7 +244,7 @@ namespace PitMenuAPI
                         return false;
                     }
                     startUsingPitMenu();
-                    SetCategory("FUEL:");
+                    SmartSetCategory("FUEL:");
                 }
                 else
                 {
@@ -190,7 +266,7 @@ namespace PitMenuAPI
         public List<string> GetTyreTypeNames()
         {
             List<string> result = new List<string> { "NO_TYRE" };
-            foreach (var category in pitMenu)
+            foreach (var category in shadowPitMenu)
             {
                 if (category.Key.Contains("TIRE"))
                 {
@@ -210,17 +286,18 @@ namespace PitMenuAPI
         /// </returns>
         public List<string> GetTyreChangeCategories()
         {
-            List<string> result = new List<string>();
-            string InitialCategory = GetCategory();
-            do
+            if (shadowPitMenu.Count == 0)
             {
-                if (GetCategory().Contains("TIRE"))
-                {
-                    result.Add(GetCategory());
-                }
-                CategoryDown();
+                GetMenuDict();
             }
-            while (GetCategory() != InitialCategory);
+            List<string> result = new List<string>();
+            foreach (var category in shadowPitMenu.Keys)
+            {
+                if (category.Contains("TIRE"))
+                {
+                    result.Add(category);
+                }
+            }
             return result;
         }
 
@@ -253,6 +330,6 @@ namespace PitMenuAPI
             return false;
         }
 
-        #endregion Public Methods
+#endregion Public Methods
     }
 }
