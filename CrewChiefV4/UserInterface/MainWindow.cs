@@ -1613,6 +1613,7 @@ namespace CrewChiefV4
 
                 vrOverlayForm?.Dispose();
                 vrOverlayForm = null;
+
                 SteamVR.enabled = false;
                 Debug.WriteLine("Exiting VR Overlays Render thread.");
             }
