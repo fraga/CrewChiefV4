@@ -1806,7 +1806,7 @@ namespace CrewChiefV4
                 {
                     SoundCache.InterruptCurrentlyPlayingSound(true);
                 }
-                CrewChief.audioPlayer.playStartListeningBeep();
+                crewChief.audioPlayer.playStartListeningBeep();
             }
             else
             {
@@ -1836,7 +1836,7 @@ namespace CrewChiefV4
                     {
                         // no result
                         Console.WriteLine("Gave up waiting for voice command, now waiting for trigger word " + keyWord);
-                        CrewChief.audioPlayer.playListeningEndBeep();
+                        crewChief.audioPlayer.playListeningEndBeep();
                         switchFromRegularToTriggerRecogniser();
                     }
                 }
@@ -1981,7 +1981,7 @@ namespace CrewChiefV4
                         else if (GrammarWrapperListContains(r3ePitstopGrammarList, recognitionGrammar))
                         {
                             this.lastRecognisedText = recognisedText;
-                            R3EPitMenuManager.processVoiceCommand(recognisedText, CrewChief.audioPlayer);
+                            R3EPitMenuManager.processVoiceCommand(recognisedText, crewChief.audioPlayer);
                         }
                         else if (GrammarWrapperListContains(PitManagerGrammarList, recognitionGrammar))
                         {
@@ -1995,7 +1995,7 @@ namespace CrewChiefV4
                         }
                         else if (ResultContains(recognisedText, REPEAT_LAST_MESSAGE, false))
                         {
-                            CrewChief.audioPlayer.repeatLastMessage();
+                            crewChief.audioPlayer.repeatLastMessage();
                         }
                         else if (ResultContains(recognisedText, MORE_INFO, false) && this.lastRecognisedText != null && !use_verbose_responses)
                         {

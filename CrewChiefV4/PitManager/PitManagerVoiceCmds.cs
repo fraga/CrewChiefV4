@@ -3,6 +3,7 @@ using CrewChiefV4.Events;
 using CrewChiefV4.GameState;
 using System;
 using System.Collections.Generic;
+using System.Xml;
 
 namespace CrewChiefV4.PitManager
 {
@@ -235,6 +236,7 @@ namespace CrewChiefV4.PitManager
         #region Private Fields
 
         private const float litresPerGallon = 3.78541f;
+        private static readonly CrewChief crewChief = MainWindow.instance.crewChief;
 
         #endregion Private Fields
 
@@ -266,7 +268,7 @@ namespace CrewChiefV4.PitManager
             }
             if (amount == 0)
             {
-                CrewChief.audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderDidntUnderstand, 0));
+                crewChief.audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderDidntUnderstand, 0));
             }
             return amount;
         }
@@ -304,7 +306,7 @@ namespace CrewChiefV4.PitManager
 
             if (litres)
             {
-                CrewChief.audioPlayer.playMessageImmediately(new QueuedMessage(
+                crewChief.audioPlayer.playMessageImmediately(new QueuedMessage(
                     "iracing_add_fuel", 0,  // tbd: rename
                     messageFragments: PitManagerVoiceCmds.MessageContents(
                         AudioPlayer.folderAcknowlegeOK,
@@ -314,7 +316,7 @@ namespace CrewChiefV4.PitManager
             }
             else
             {
-                CrewChief.audioPlayer.playMessageImmediately(new QueuedMessage(
+                crewChief.audioPlayer.playMessageImmediately(new QueuedMessage(
                     "iracing_add_fuel", 0,
                     messageFragments: PitManagerVoiceCmds.MessageContents(
                         AudioPlayer.folderAcknowlegeOK,
@@ -340,6 +342,8 @@ namespace CrewChiefV4.PitManager
 
     static class PitFuelling
     {
+        private static readonly CrewChief crewChief = MainWindow.instance.crewChief;
+
         #region Public Methods
         static public int fuelToEnd(float fuelCapacity, float currentFuel)
         {
@@ -349,12 +353,12 @@ namespace CrewChiefV4.PitManager
 
             if (additionaLitresNeeded == float.MaxValue)
             {
-                CrewChief.audioPlayer.playMessage(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                crewChief.audioPlayer.playMessage(new QueuedMessage(AudioPlayer.folderNoData, 0));
                 roundedLitresNeeded = 0;
             }
             else if (additionaLitresNeeded <= 0)
             {
-                CrewChief.audioPlayer.playMessage(new QueuedMessage(Fuel.folderPlentyOfFuel, 0));
+                crewChief.audioPlayer.playMessage(new QueuedMessage(Fuel.folderPlentyOfFuel, 0));
                 roundedLitresNeeded = 0;
             }
             else if (additionaLitresNeeded > 0)
@@ -364,11 +368,11 @@ namespace CrewChiefV4.PitManager
                 if (roundedLitresNeeded > fuelCapacity - currentFuel)
                 {
                     // if we have a known fuel capacity and this is less than the calculated amount of fuel we need, warn about it.
-                    CrewChief.audioPlayer.playMessage(new QueuedMessage(Fuel.folderWillNeedToStopAgain, 0, secondsDelay: 4));
+                    crewChief.audioPlayer.playMessage(new QueuedMessage(Fuel.folderWillNeedToStopAgain, 0, secondsDelay: 4));
                 }
                 else
                 {
-                    CrewChief.audioPlayer.playMessage(new QueuedMessage(AudioPlayer.folderFuelToEnd, 0));
+                    crewChief.audioPlayer.playMessage(new QueuedMessage(AudioPlayer.folderFuelToEnd, 0));
                 }
             }
             return roundedLitresNeeded;

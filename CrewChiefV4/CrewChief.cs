@@ -30,7 +30,7 @@ namespace CrewChiefV4
 
         // speechRecognizer and audioPlayer are shared by many threads.  They should be disposed after root threads stopped, in GlobalResources.Dispose.
         public SpeechRecogniser speechRecogniser;
-        public static AudioPlayer audioPlayer;
+        public AudioPlayer audioPlayer;
 
         readonly int timeBetweenProcConnectCheckMillis = 1000;
         readonly int timeBetweenProcDisconnectCheckMillis = 2000;

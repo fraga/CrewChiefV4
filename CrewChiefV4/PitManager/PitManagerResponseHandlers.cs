@@ -8,6 +8,8 @@ namespace CrewChiefV4.PitManager
         /// The common response handlers for all games.  Some games may have
         /// their own special cases.
         /// </summary>
+        private static readonly CrewChief crewChief = MainWindow.instance.crewChief;
+
 
         #region Public Methods
 
@@ -140,10 +142,10 @@ namespace CrewChiefV4.PitManager
         {
             if (true) //SoundCache.hasSingleSound(folder))
             {
-                CrewChief.audioPlayer.playMessageImmediately(new QueuedMessage(folder, 0));
+                crewChief.audioPlayer.playMessageImmediately(new QueuedMessage(folder, 0));
             }
             else
-                CrewChief.audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
+                crewChief.audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
         }
 
         #endregion Private Methods

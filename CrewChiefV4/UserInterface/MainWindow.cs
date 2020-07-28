@@ -1303,21 +1303,21 @@ namespace CrewChiefV4
             controllerConfiguration.initialize();
             GlobalResources.controllerConfiguration = controllerConfiguration;
 
-            HashSet<string> availablePersonalisations = new HashSet<string>(CrewChief.audioPlayer.personalisationsArray);
+            HashSet<string> availablePersonalisations = new HashSet<string>(this.crewChief.audioPlayer.personalisationsArray);
             availablePersonalisations.UnionWith(new HashSet<string>(SoundCache.availableDriverNamesForUI));
 
             this.personalisationBox.Items.AddRange(availablePersonalisations.ToArray<string>());
             this.chiefNameBox.Items.AddRange(AudioPlayer.availableChiefVoices.ToArray());
             this.spotterNameBox.Items.AddRange(NoisyCartesianCoordinateSpotter.availableSpotters.ToArray());
-            if (CrewChief.audioPlayer.selectedPersonalisation == null || CrewChief.audioPlayer.selectedPersonalisation.Length == 0 ||
-                CrewChief.audioPlayer.selectedPersonalisation.Equals(AudioPlayer.NO_PERSONALISATION_SELECTED) ||
-                !availablePersonalisations.Contains(CrewChief.audioPlayer.selectedPersonalisation))
+            if (crewChief.audioPlayer.selectedPersonalisation == null || crewChief.audioPlayer.selectedPersonalisation.Length == 0 ||
+                crewChief.audioPlayer.selectedPersonalisation.Equals(AudioPlayer.NO_PERSONALISATION_SELECTED) ||
+                !availablePersonalisations.Contains(crewChief.audioPlayer.selectedPersonalisation))
             {
                 this.personalisationBox.Text = AudioPlayer.NO_PERSONALISATION_SELECTED;
             }
             else
             {
-                this.personalisationBox.Text = CrewChief.audioPlayer.selectedPersonalisation;
+                this.personalisationBox.Text = crewChief.audioPlayer.selectedPersonalisation;
             }
             this.personalisationBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDown;
             this.personalisationBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
@@ -1775,18 +1775,18 @@ namespace CrewChiefV4
                             if (CrewChief.distanceRoundTrack > 0)
                             {
                                 Console.WriteLine("Recording pace note...");
-                                DriverTrainingService.startRecordingMessage((int)CrewChief.distanceRoundTrack, CrewChief.audioPlayer);
+                                DriverTrainingService.startRecordingMessage((int)CrewChief.distanceRoundTrack, crewChief.audioPlayer);
                             }
                         }
                         else
                         {
                             Console.WriteLine("Listening for voice command...");
                             crewChief.speechRecogniser.recognizeAsync();
-                            CrewChief.audioPlayer.playStartListeningBeep();
+                            crewChief.audioPlayer.playStartListeningBeep();
                         }
                         if (this.rejectMessagesWhenTalking)
                         {
-                            CrewChief.audioPlayer.purgeQueues();
+                            crewChief.audioPlayer.purgeQueues();
                             muteVolumes();
                         }
                     }
@@ -1795,17 +1795,17 @@ namespace CrewChiefV4
                         if (this.rejectMessagesWhenTalking)
                         {
                             // Drop any outstanding messages queued while user was talking, this should prevent weird half phrases.
-                            CrewChief.audioPlayer.purgeQueues(SpeechRecogniser.sreSessionId);
+                            crewChief.audioPlayer.purgeQueues(SpeechRecogniser.sreSessionId);
                             // unmute
                             unmuteVolumes();
 
-                            CrewChief.audioPlayer.playChiefEndSpeakingBeep();
+                            crewChief.audioPlayer.playChiefEndSpeakingBeep();
                         }
 
                         if (DriverTrainingService.isRecordingPaceNotes)
                         {
                             Console.WriteLine("Saving recorded pace note");
-                            DriverTrainingService.stopRecordingMessage(CrewChief.audioPlayer);
+                            DriverTrainingService.stopRecordingMessage(crewChief.audioPlayer);
                         }
                         else
                         {
@@ -1907,7 +1907,7 @@ namespace CrewChiefV4
                             }
                             Console.WriteLine("Listening...");
                             crewChief.speechRecogniser.recognizeAsync();
-                            CrewChief.audioPlayer.playStartListeningBeep();
+                            crewChief.audioPlayer.playStartListeningBeep();
                         }
                     }
                     else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_SPOTTER_FUNCTION))
@@ -1919,14 +1919,14 @@ namespace CrewChiefV4
                     {
                         if (!isMuted)
                         {
-                            //CrewChief.audioPlayer.playMuteBeep();
+                            //crewChief.audioPlayer.playMuteBeep();
                             muteVolumes();
                         }
                         else
                         {
 
                             unmuteVolumes();
-                            //CrewChief.audioPlayer.playUnMuteBeep();
+                            //crewChief.audioPlayer.playUnMuteBeep();
                         }
                         isMuted = !isMuted;
                     }
@@ -1945,7 +1945,7 @@ namespace CrewChiefV4
         private void unmuteVolumes()
         {
             updateMessagesVolume(messageVolumeToRestore, false, false);
-            CrewChief.audioPlayer.muteBackgroundPlayer(false);
+            crewChief.audioPlayer.muteBackgroundPlayer(false);
             messagesVolumeSlider.Enabled = true;
             backgroundVolumeSlider.Enabled = true;
         }
@@ -1955,7 +1955,7 @@ namespace CrewChiefV4
             // save the volume level to restore later
             messageVolumeToRestore = currentMessageVolume;
             updateMessagesVolume(0, false, false);
-            CrewChief.audioPlayer.muteBackgroundPlayer(true);
+            crewChief.audioPlayer.muteBackgroundPlayer(true);
             messagesVolumeSlider.Enabled = false;
             backgroundVolumeSlider.Enabled = false;
         }
@@ -2047,7 +2047,7 @@ namespace CrewChiefV4
                 if (gameDefinition != null)
                 {
                     crewChief.setGameDefinition(gameDefinition);
-                    MacroManager.initialise(CrewChief.audioPlayer, crewChief.speechRecogniser);
+                    MacroManager.initialise(crewChief.audioPlayer, crewChief.speechRecogniser);
                     CarData.loadCarClassData();
                     TrackData.loadTrackLandmarksData();
                     ThreadStart crewChiefWork = runApp;
@@ -2913,8 +2913,8 @@ namespace CrewChiefV4
             }
             if (e.Error == null && !e.Cancelled)
             {
-                if (CrewChief.audioPlayer != null)
-                    CrewChief.audioPlayer.disposeBackgroundPlayer();
+                if (crewChief.audioPlayer != null)
+                    crewChief.audioPlayer.disposeBackgroundPlayer();
                 String extractingButtonText = Configuration.getUIString("extracting_sound_pack");
                 downloadSoundPackButton.Text = extractingButtonText;
                 var extractSoundPackThread = new Thread(() =>
@@ -3415,9 +3415,9 @@ namespace CrewChiefV4
 
         private void playSmokeTestSounds(object sender, EventArgs e)
         {
-            if (CrewChief.audioPlayer != null)
+            if (crewChief.audioPlayer != null)
             {
-                new SmokeTest(CrewChief.audioPlayer).soundTestPlay(this.smokeTestTextBox.Lines);
+                new SmokeTest(crewChief.audioPlayer).soundTestPlay(this.smokeTestTextBox.Lines);
             }
         }
 
