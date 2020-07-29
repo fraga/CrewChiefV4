@@ -255,7 +255,7 @@ namespace PitMenuAPI
                 {
                     menuDict = GetMenuDict();
                 }
-                if (menuDict.TryGetValue(key, out value))
+                if (menuDict.Count > 0 && menuDict.TryGetValue(key, out value))
                 {
                     return value;
                 }

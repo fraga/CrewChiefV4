@@ -181,15 +181,23 @@ namespace CrewChiefV4.PitManager
                     {
                         if (PM_event_dict.ContainsKey(ev))
                         {
-                            result = PM_event_dict[ev].PitManagerEventAction.Invoke(voiceMessage);
-                            if (result)
+                            try
                             {
-                                result = PM_event_dict[ev].PitManagerEventResponse.Invoke();
+                                result = PM_event_dict[ev].PitManagerEventAction.Invoke(voiceMessage);
+                                if (result)
+                                {
+                                    result = PM_event_dict[ev].PitManagerEventResponse.Invoke();
+                                }
+                                else
+                                {
+                                    //TBD: default handler "Couldn't do event for this vehicle"
+                                    // e.g. change aero on non-aero car, option not in menu
+                                    Console.WriteLine($"Pit Manager couldn't do {ev} for this vehicle");
+                                }
                             }
-                            else
+                            catch (Exception e)
                             {
-                                //TBD: default handler "Couldn't do event for this vehicle"
-                                // e.g. change aero on non-aero car, option not in menu
+                                Console.WriteLine("Pit Manager event error " + e.ToString());
                             }
                         }
                         else

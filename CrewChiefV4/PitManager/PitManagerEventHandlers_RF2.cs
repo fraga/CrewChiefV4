@@ -274,13 +274,17 @@ namespace CrewChiefV4.PitManager
         static public bool PMrF2eh_FuelAddXlitres(string voiceMessage)
         {
             var amount = Pmal.GetFuelLevel();
-            var amountAdd = PitNumberHandling.processNumber(voiceMessage);
-            if (amountAdd == 0)
+            if (amount > 0)
             {
-                return false;
+                var amountAdd = PitNumberHandling.processNumber(voiceMessage);
+                if (amountAdd == 0)
+                {
+                    return false;
+                }
+                amountAdd = PitNumberHandling.processLitresGallons(amountAdd, voiceMessage);
+                return rF2SetFuel(amount + amountAdd);
             }
-            amountAdd = PitNumberHandling.processLitresGallons(amountAdd, voiceMessage);
-            return rF2SetFuel(amount + amountAdd);
+            return false;
         }
 
         static public bool PMrF2eh_FuelToXlitres(string voiceMessage)

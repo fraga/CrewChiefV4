@@ -87,7 +87,7 @@ namespace PitMenuAPI
         {
             if (!Connected)
             {
-                Connect();
+                Connected = Connect();
             }
             if (Connected)
             {

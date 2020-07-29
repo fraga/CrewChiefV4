@@ -37,7 +37,7 @@ namespace PitMenuAPI
         /// The tyre categories have a list of all the tyre choices
         /// </summary>
         private static Dictionary<string, List<string>> shadowPitMenu;
-        private static List<string> shadowPitMenuCats;
+        private static List<string> shadowPitMenuCats = new List<string> { };
         #endregion Private Fields
 
         #region Public Methods
@@ -58,25 +58,27 @@ namespace PitMenuAPI
             string category;
             string choice;
 
-            startUsingPitMenu();
-            initialCategory = GetCategory();
+            if (startUsingPitMenu())
+                {
+                initialCategory = GetCategory();
 
-            do
-            {
-                category = GetCategory();
-                shadowPitMenu[category] = new List<string>();
-                shadowPitMenuCats.Add(category);
-                if (category.Contains("TIRE"))
-                { // The only category that wraps round
-                    do
-                    {
-                        choice = GetChoice();
-                        shadowPitMenu[category].Add(choice);
-                        ChoiceInc();
-                    } while (!shadowPitMenu[category].Contains(GetChoice()));
-                }
-                CategoryDown();
-            } while (GetCategory() != initialCategory);
+                do
+                {
+                    category = GetCategory();
+                    shadowPitMenu[category] = new List<string>();
+                    shadowPitMenuCats.Add(category);
+                    if (category.Contains("TIRE"))
+                    { // The only category that wraps round
+                        do
+                        {
+                            choice = GetChoice();
+                            shadowPitMenu[category].Add(choice);
+                            ChoiceInc();
+                        } while (!shadowPitMenu[category].Contains(GetChoice()));
+                    }
+                    CategoryDown();
+                } while (GetCategory() != initialCategory);
+            }
 
             if (shadowPitMenu.Count < 2)
             {
@@ -93,7 +95,10 @@ namespace PitMenuAPI
         {
             if (shadowPitMenuCats.Count == 0)
             {
-                GetMenuDict();
+                if (GetMenuDict().Count == 0)
+                {
+                    return false;
+                }
             }
             string currentCategory = GetCategory();
             if (category != currentCategory)
@@ -176,16 +181,18 @@ namespace PitMenuAPI
             Int16 current = -1;
             Match match;
             Regex reggie = new Regex(@"(.*)/(.*)");
-            // if (GetCategory() == "FUEL:")
-            match = reggie.Match(GetChoice());
-            if (match.Groups.Count == 3)
+            if (SmartSetCategory("FUEL:"))
             {
-                bool parsed = Int16.TryParse(match.Groups[1].Value, out current);
-                if (parsed)
+                match = reggie.Match(GetChoice());
+                if (match.Groups.Count == 3)
                 {
-                    if (match.Groups[1].Value.StartsWith("+"))
+                    bool parsed = Int16.TryParse(match.Groups[1].Value, out current);
+                    if (parsed)
                     {
-                        current = -2;
+                        if (match.Groups[1].Value.StartsWith("+"))
+                        {
+                            current = -2;
+                        }
                     }
                 }
             }
@@ -285,11 +292,14 @@ namespace PitMenuAPI
         /// </returns>
         public List<string> GetTyreChangeCategories()
         {
+            List<string> result = new List<string>();
             if (shadowPitMenu.Count == 0)
             {
-                GetMenuDict();
+                if (GetMenuDict().Count == 0)
+                {
+                    return result;
+                }
             }
-            List<string> result = new List<string>();
             foreach (var category in shadowPitMenu.Keys)
             {
                 if (category.Contains("TIRE"))

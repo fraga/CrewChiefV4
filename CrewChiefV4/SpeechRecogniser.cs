@@ -359,7 +359,7 @@ namespace CrewChiefV4
         private List<GrammarWrapper> opponentGrammarList = new List<GrammarWrapper>();
         private List<GrammarWrapper> iracingPitstopGrammarList = new List<GrammarWrapper>();
         private List<GrammarWrapper> r3ePitstopGrammarList = new List<GrammarWrapper>();
-        private List<GrammarWrapper> PitManagerGrammarList = new List<GrammarWrapper>();
+        private List<GrammarWrapper> pitManagerGrammarList = new List<GrammarWrapper>();
         private List<GrammarWrapper> overlayGrammarList = new List<GrammarWrapper>();
 
         private GrammarWrapper macroGrammar = null;
@@ -1457,6 +1457,7 @@ namespace CrewChiefV4
             {
                 iracingPitstopGrammarList.Clear();
                 r3ePitstopGrammarList.Clear();
+                pitManagerGrammarList.Clear();
                 ChoicesWrapper r3eChoices = SREWrapperFactory.createNewChoicesWrapper();
                 validateAndAdd(PIT_STOP_CHANGE_ALL_TYRES, r3eChoices);
                 validateAndAdd(PIT_STOP_CHANGE_FRONT_TYRES, r3eChoices);
@@ -1527,6 +1528,17 @@ namespace CrewChiefV4
                     // ignore - we might be switching between games here
                 }
             }
+            foreach (GrammarWrapper PitManagerGrammar in pitManagerGrammarList)
+            {
+                try
+                {
+                    sreWrapper.UnloadGrammar(PitManagerGrammar);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Failed to unload PitManager grammar: " + e.Message);
+                }
+            }
         }
 
         public void addiRacingSpeechRecogniser()
@@ -1539,6 +1551,7 @@ namespace CrewChiefV4
             {
                 r3ePitstopGrammarList.Clear();
                 iracingPitstopGrammarList.Clear();
+                pitManagerGrammarList.Clear();
                 ChoicesWrapper iRacingChoices = SREWrapperFactory.createNewChoicesWrapper();
                 if (enable_iracing_pit_stop_commands)
                 {
@@ -1612,7 +1625,7 @@ namespace CrewChiefV4
             {
                 iracingPitstopGrammarList.Clear();
                 r3ePitstopGrammarList.Clear();
-                PitManagerGrammarList.Clear();
+                pitManagerGrammarList.Clear();
                 ChoicesWrapper pitManagerChoices = SREWrapperFactory.createNewChoicesWrapper();
                 if (enable_iracing_pit_stop_commands)
                 {
@@ -1634,13 +1647,13 @@ namespace CrewChiefV4
                         tyrePressureChangePhrases.AddRange(PIT_STOP_CHANGE_REAR_RIGHT_TYRE_PRESSURE);
                     }
 
-                    PitManagerGrammarList.AddRange(addCompoundChoices(tyrePressureChangePhrases.ToArray(), true, this.digitsChoices, null, true));
+                    pitManagerGrammarList.AddRange(addCompoundChoices(tyrePressureChangePhrases.ToArray(), true, this.digitsChoices, null, true));
                     List<string> litresAndGallons = new List<string>();
                     litresAndGallons.AddRange(LITERS);
                     litresAndGallons.AddRange(GALLONS);
-                    PitManagerGrammarList.AddRange(addCompoundChoices(PIT_STOP_ADD, false, this.digitsChoices, litresAndGallons.ToArray(), true));
+                    pitManagerGrammarList.AddRange(addCompoundChoices(PIT_STOP_ADD, false, this.digitsChoices, litresAndGallons.ToArray(), true));
                     // add the fuel choices with no unit - these use the default / reported unit for fuel
-                    PitManagerGrammarList.AddRange(addCompoundChoices(PIT_STOP_ADD, false, this.digitsChoices, null, true));
+                    pitManagerGrammarList.AddRange(addCompoundChoices(PIT_STOP_ADD, false, this.digitsChoices, null, true));
 
                     validateAndAdd(PIT_STOP_TEAROFF, pitManagerChoices);
                     validateAndAdd(PIT_STOP_FAST_REPAIR, pitManagerChoices);
@@ -1687,7 +1700,7 @@ namespace CrewChiefV4
                 GrammarBuilderWrapper PitManagerGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper(pitManagerChoices);
                 PitManagerGrammarBuilder.SetCulture(cultureInfo);
                 GrammarWrapper PitManagerGrammar = SREWrapperFactory.createNewGrammarWrapper(PitManagerGrammarBuilder);
-                PitManagerGrammarList.Add(PitManagerGrammar);
+                pitManagerGrammarList.Add(PitManagerGrammar);
                 sreWrapper.LoadGrammar(PitManagerGrammar);
             }
             catch (Exception e)
@@ -1983,7 +1996,7 @@ namespace CrewChiefV4
                             this.lastRecognisedText = recognisedText;
                             R3EPitMenuManager.processVoiceCommand(recognisedText, crewChief.audioPlayer);
                         }
-                        else if (GrammarWrapperListContains(PitManagerGrammarList, recognitionGrammar))
+                        else if (GrammarWrapperListContains(pitManagerGrammarList, recognitionGrammar))
                         {
                             this.lastRecognisedText = recognisedText;
                             CrewChief.getEvent("PitManagerVoiceCmds").respond(recognisedText);
@@ -2536,9 +2549,9 @@ namespace CrewChiefV4
             {
                 return CrewChief.getEvent("Strategy");
             }
-            else if (ResultContains(recognisedSpeech, PIT_STOP_TEAROFF, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_FAST_REPAIR, false) ||
-                /*ResultContains(recognisedSpeech, PIT_STOP_CLEAR_ALL, false) ||
+            else if (ResultContains(recognisedSpeech, PIT_STOP_TEAROFF, false) ||   // tbd Does this actually do anything?
+                ResultContains(recognisedSpeech, PIT_STOP_FAST_REPAIR, false) ||    // already captured by 
+                ResultContains(recognisedSpeech, PIT_STOP_CLEAR_ALL, false) ||      // else if (GrammarWrapperListContains(iracingPitstopGrammarList, recognitionGrammar))
                 ResultContains(recognisedSpeech, PIT_STOP_CLEAR_TYRES, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_CLEAR_WIND_SCREEN, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_CLEAR_FAST_REPAIR, false) ||
@@ -2551,7 +2564,6 @@ namespace CrewChiefV4
                 ResultContains(recognisedSpeech, PIT_STOP_CHANGE_LEFT_SIDE_TYRES, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_CHANGE_RIGHT_SIDE_TYRES, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_FUEL_TO_THE_END, false) ||
-                */
                 ResultContains(recognisedSpeech, HOW_MANY_INCIDENT_POINTS, false) ||
                 ResultContains(recognisedSpeech, WHATS_THE_INCIDENT_LIMIT, false) ||
                 ResultContains(recognisedSpeech, WHATS_MY_IRATING, false) ||
@@ -2559,46 +2571,6 @@ namespace CrewChiefV4
                 ResultContains(recognisedSpeech, WHATS_THE_SOF, false))
             {
                 return CrewChief.getEvent("IRacingBroadcastMessageEvent");
-            }
-            else if (ResultContains(recognisedSpeech, PIT_STOP_TEAROFF, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_FAST_REPAIR, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_CLEAR_ALL, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_CLEAR_TYRES, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_CLEAR_WIND_SCREEN, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_CLEAR_FAST_REPAIR, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_CLEAR_FUEL, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_CHANGE_ALL_TYRES, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_CHANGE_FRONT_LEFT_TYRE, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_CHANGE_FRONT_RIGHT_TYRE, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_CHANGE_REAR_LEFT_TYRE, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_CHANGE_REAR_RIGHT_TYRE, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_CHANGE_LEFT_SIDE_TYRES, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_CHANGE_RIGHT_SIDE_TYRES, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_CHANGE_FRONT_TYRES, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_CHANGE_REAR_TYRES, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_FIX_FRONT_AERO, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_FIX_REAR_AERO, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_FIX_ALL_AERO, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_FIX_NO_AERO, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_FIX_SUSPENSION, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_DONT_FIX_SUSPENSION, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_SERVE_PENALTY, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_DONT_SERVE_PENALTY, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_NEXT_TYRE_COMPOUND, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_HARD_TYRES, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_MEDIUM_TYRES, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_SOFT_TYRES, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_INTERMEDIATE_TYRES, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_WET_TYRES, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_MONSOON_TYRES, false) ||
-		        ResultContains(recognisedSpeech, PIT_STOP_PRIME_TYRES, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_ALTERNATE_TYRES, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_OPTION_TYRES, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_DONT_REFUEL, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_REFUEL, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_FUEL_TO_THE_END, false))
-            {
-                return CrewChief.getEvent("PitManagerVoiceCmds");
             }
             else if (alarmClockVoiceRecognitionEnabled &&
                 (ResultContains(recognisedSpeech, SET_ALARM_CLOCK, false) || ResultContains(recognisedSpeech, CLEAR_ALARM_CLOCK, false)))
