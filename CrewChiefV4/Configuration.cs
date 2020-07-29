@@ -98,26 +98,31 @@ namespace CrewChiefV4
         {
             String regularPath = Application.StartupPath + @"\" + name;
             String debugPath = Application.StartupPath + @"\..\..\" + name;
+            String unitTestPath = Directory.GetCurrentDirectory() + @"\..\..\..\CrewChiefV4\" + name;
             if (CrewChief.UseDebugFilePaths)
             {
                 if (isFile)
                 {
-                    return File.Exists(debugPath) ? debugPath : regularPath;
+                    return File.Exists(debugPath) ? debugPath :
+                        File.Exists(regularPath) ? regularPath : unitTestPath;
                 }
                 else
                 {
-                    return Directory.Exists(debugPath) ? debugPath : regularPath;
+                    return Directory.Exists(debugPath) ? debugPath :
+                        Directory.Exists(regularPath) ? regularPath : unitTestPath;
                 }
             }
             else
             {
                 if (isFile)
                 {
-                    return File.Exists(regularPath) ? regularPath : debugPath;
+                    return File.Exists(regularPath) ? regularPath :
+                        File.Exists(debugPath) ? debugPath : unitTestPath;
                 }
                 else
                 {
-                    return Directory.Exists(regularPath) ? regularPath : debugPath;
+                    return Directory.Exists(regularPath) ? regularPath :
+                        Directory.Exists(debugPath) ? debugPath : unitTestPath;
                 }
             }
         }

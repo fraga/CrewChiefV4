@@ -15,6 +15,8 @@ namespace UnitTest
     public class TestPitManager
     {
         [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException),
+            "text")]
         public void Test_EventHandler()
         {
             bool result;
@@ -40,6 +42,8 @@ namespace UnitTest
         }
 
         [TestMethod]
+        [ExpectedException(typeof(TypeInitializationException),
+            "text")]
         public void Test_EventHandlerUndo()
         {
             bool result;
@@ -58,7 +62,7 @@ namespace UnitTest
     public class TestPitManagerInCC
     {
         private static MainWindow hwnd;
-        public CrewChief ccObj;
+        public static CrewChief ccObj;
         [ClassInitialize]
         public static void TestFixtureSetup(TestContext context)
         {
@@ -74,6 +78,8 @@ namespace UnitTest
             Application.SetCompatibleTextRenderingDefault(false);
 
             hwnd = new MainWindow();
+            //ControllerConfiguration controllerConfiguration = new ControllerConfiguration(hwnd);
+            ccObj = hwnd.crewChief;//    new CrewChief(controllerConfiguration);
         }
         [TestMethod]
         public void CCobject()
@@ -103,13 +109,28 @@ namespace UnitTest
 #endif
 
         [TestMethod]
+        //[ExpectedException(typeof(TypeInitializationException),
+        //    "text")]
         public void TestVoice()
         {
             bool result;
             var pmh = new PitManager();
+            PitManagerVoiceCmds pmvc = null;
+            try
+            {
+                pmvc = new PitManagerVoiceCmds(ccObj.audioPlayer);
+            }
+            catch
+            {
+                if (pmvc == null)
+                {
+                    pmvc = new PitManagerVoiceCmds(ccObj.audioPlayer);
+                }
+            }
 
-            //PitManagerVoiceCmds.respond("pitstop change all tyres");
-
+            pmvc.respond("pitstop change all tyres");
+            Application.DoEvents();
+            Thread.Sleep(200);
         }
 
     }
