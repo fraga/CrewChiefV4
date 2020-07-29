@@ -25,7 +25,7 @@ namespace CrewChiefV4
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
             this.SuspendLayout();
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            //Global 
+            //Global
             groupBoxGlobalOptins.Text = Configuration.getUIString("global_macro_settings");
             labelGame.Text = Configuration.getUIString("game");
 
@@ -45,7 +45,7 @@ namespace CrewChiefV4
             buttonSelectConfirmationMessage.Text = Configuration.getUIString("select_confirmation_message");
             labelGlobalMacroDescription.Text = Configuration.getUIString("macro_description");
 
-            //Game Specific 
+            //Game Specific
             groupBoxGameSettings.Text = Configuration.getUIString("game_specific_settings");
 
             labelActionSequence.Text = Configuration.getUIString("action_sequence");
@@ -68,7 +68,7 @@ namespace CrewChiefV4
             buttonAddSelectedKeyToSequence.Text = Configuration.getUIString("add_key_to_sequence");
             buttonUndoLastAction.Text = Configuration.getUIString("undo_last_action");
             labelActionKeys.Text = Configuration.getUIString("actions_keys");
-            // Load 
+            // Load
             buttonLoadUserMacroSettings.Text = Configuration.getUIString("load_user_macro_settings");
             buttonLoadDefaultMacroSettings.Text = Configuration.getUIString("load_default_macro_settings");
 
@@ -97,7 +97,10 @@ namespace CrewChiefV4
             {
                 listBoxGames.Items.Add(mapping.macroEditorName);
             }
-            listBoxGames.SetSelected(MainWindow.instance.gameDefinitionList.SelectedIndex, true);
+            // try to select the CME game matching the main window game
+            var selection = Math.Min(MainWindow.instance.gameDefinitionList.SelectedIndex,
+                listBoxGames.Items.Count-1);
+            listBoxGames.SetSelected(selection, true);
             updateMacroList();
             listBoxGames.Select();
 
@@ -188,7 +191,7 @@ namespace CrewChiefV4
             if (!char.IsDigit(e.KeyChar))
                 e.Handled = true;         //Just Digits
             if (e.KeyChar == (char)8)
-                e.Handled = false;        //Allow Backspace          
+                e.Handled = false;        //Allow Backspace
         }
 
         private void textBoxWaitBetweenEachCommand_KeyPress(object sender, KeyPressEventArgs e)
@@ -196,7 +199,7 @@ namespace CrewChiefV4
             if (!char.IsDigit(e.KeyChar))
                 e.Handled = true;         //Just Digits
             if (e.KeyChar == (char)8)
-                e.Handled = false;        //Allow Backspace      
+                e.Handled = false;        //Allow Backspace
         }
 
         private void buttonAddSelectedActionToSequence_Click(object sender, EventArgs e)
@@ -204,7 +207,7 @@ namespace CrewChiefV4
             if (!radioButtonRegularKeyAction.Checked && string.IsNullOrWhiteSpace(textBoxSpecialActionParameter.Text))
             {
                 MessageBox.Show(labelSpecialActionParameter.Text + " " + Configuration.getUIString("special_action_text_cant_be_empty"));
-                
+
                 return;
             }
 
@@ -477,7 +480,7 @@ namespace CrewChiefV4
                 saveMacroSettings();
                 updateMacroList(false);
                 listBoxAvailableMacros.SetSelected(currentSelectedMacroIndex, true);
-            }            
+            }
         }
 
         private void buttonDeleteSelectedMacro_Click(object sender, EventArgs e)
@@ -498,7 +501,7 @@ namespace CrewChiefV4
 
         private void saveMacroSettings()
         {
-            MacroManager.saveCommands(macroContainer);            
+            MacroManager.saveCommands(macroContainer);
         }
 
         private void buttonLoadUserMacroSettings_Click(object sender, EventArgs e)
@@ -576,7 +579,7 @@ namespace CrewChiefV4
                 if (!char.IsDigit(e.KeyChar))
                     e.Handled = true;         //Just Digits
                 if (e.KeyChar == (char)8)
-                    e.Handled = false;        //Allow Backspace      
+                    e.Handled = false;        //Allow Backspace
             }
 
         }
