@@ -25,6 +25,12 @@ namespace CrewChiefV4.PitManager
             return true;
         }
 
+        static public bool PMrh_CantChangeThose()
+        {
+            playMessage("mandatory_pit_stops/cant_change_those");
+            return true;
+        }
+
         static public bool PMrh_CantDoThat()
         {
             playMessage("mandatory_pit_stops/cant_do_that");

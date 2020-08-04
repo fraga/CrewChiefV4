@@ -166,6 +166,7 @@ namespace CrewChiefV4.PitManager
                     }
                     else
                     {
+                        PitManagerResponseHandlers.PMrh_CantDoThat(); // tbd
                         Console.WriteLine("Not in car received Pit Manager voice command " + cmd.Value[0]);
                     }
                 }
@@ -179,7 +180,6 @@ namespace CrewChiefV4.PitManager
         {
             fuelCapacity = -1;
             currentFuel = -1;
-            pmh.EventHandler(PME.Initialise, "");
         }
 
         /// <summary>
@@ -221,6 +221,10 @@ namespace CrewChiefV4.PitManager
             Boolean autoFuelToEnd = UserSettings.GetUserSettings().getBoolean("iracing_enable_auto_fuel_to_end_of_race"); // tbd: duplicate or rename
 
             inCar = currentGameState.inCar;
+            if (!previousGameState.inCar && currentGameState.inCar)
+            {
+                pmh.EventHandler(PME.Initialise, "");
+            }
 
             fuelCapacity = currentGameState.FuelData.FuelCapacity;
             currentFuel = currentGameState.FuelData.FuelLeft;

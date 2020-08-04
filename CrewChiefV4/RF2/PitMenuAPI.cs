@@ -10,6 +10,7 @@ Author: Tony Whitley (sven.smiles@gmail.com)
 
 using System;
 using System.Text;
+using CrewChiefV4;
 using rF2SharedMemory;
 using rF2SharedMemory.rFactor2Data;
 
@@ -142,7 +143,10 @@ namespace PitMenuAPI
         {
             pitInfoBuffer.GetMappedData(ref pitInfo);
             var catName = GetStringFromBytes(pitInfo.mPitMneu.mCategoryName);
-            Console.WriteLine($"Pit menu category '{catName}'");
+            if (CrewChief.Debugging)
+            {
+                Console.WriteLine($"Pit menu category '{catName}'");
+            }
             return catName;
         }
 
@@ -188,7 +192,10 @@ namespace PitMenuAPI
         {
             pitInfoBuffer.GetMappedData(ref pitInfo);
             var choiceStr = GetStringFromBytes(pitInfo.mPitMneu.mChoiceString);
-            Console.WriteLine($"Pit menu choice '{choiceStr}'");
+            if (CrewChief.Debugging)
+            {
+                Console.WriteLine($"Pit menu choice '{choiceStr}'");
+            }
             return choiceStr;
         }
 

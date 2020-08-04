@@ -281,8 +281,12 @@ namespace CrewChiefV4.PitManager
                 {
                     return false;
                 }
-                amountAdd = PitNumberHandling.processLitresGallons(amountAdd, voiceMessage);
-                return rF2SetFuel(amount + amountAdd);
+                amount += PitNumberHandling.processLitresGallons(amountAdd, voiceMessage);
+                if (amount > PitManagerVoiceCmds.getFuelCapacity())
+                {
+                    amount = (int)PitManagerVoiceCmds.getFuelCapacity();
+                }
+                return rF2SetFuel(amount);
             }
             return false;
         }
@@ -294,6 +298,10 @@ namespace CrewChiefV4.PitManager
             if (amount == 0)
             {
                 return false;
+            }
+            if (amount > PitManagerVoiceCmds.getFuelCapacity())
+            {
+                amount = (int)PitManagerVoiceCmds.getFuelCapacity();
             }
             return rF2SetFuel(amount);
         }
@@ -465,7 +473,7 @@ namespace CrewChiefV4.PitManager
                 }
                 else
                 {   // tbd: what failed? tyreCategory not available?
-                    PitManagerResponseHandlers.PMrh_CantDoThat();
+                    PitManagerResponseHandlers.PMrh_CantDoThat(); //tbd
                 }
             }
             return response;

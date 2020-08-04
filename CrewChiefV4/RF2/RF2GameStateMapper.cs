@@ -1778,6 +1778,7 @@ namespace CrewChiefV4.rFactor2
             // fuel/battery data
             cgs.FuelData.FuelUseActive = cgs.BatteryData.BatteryUseActive = shared.extended.mPhysics.mFuelMult > 0;
             cgs.FuelData.FuelLeft = cgs.BatteryData.BatteryPercentageLeft = (float)playerTelemetry.mFuel;
+            cgs.FuelData.FuelCapacity = (float)playerTelemetry.mFuelCapacity;
 
             // --------------------------------
             // flags data

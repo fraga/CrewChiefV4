@@ -5,6 +5,7 @@ https://github.com/TheIronWolfModding/rF2SharedMemoryMapPlugin
 
 Author: Tony Whitley (sven.smiles@gmail.com)
 */
+using CrewChiefV4;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -58,7 +59,10 @@ namespace PitMenuAPI
             string category;
             string choice;
 
-            Console.WriteLine("GetMenuDict");
+            if (CrewChief.Debugging)
+            {
+                Console.WriteLine("GetMenuDict");
+            }
             if (startUsingPitMenu())
                 {
                 initialCategory = GetCategory();
