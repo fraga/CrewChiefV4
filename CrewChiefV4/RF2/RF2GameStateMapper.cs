@@ -448,6 +448,7 @@ namespace CrewChiefV4.rFactor2
             }
 
             this.lastInRealTimeState = shared.extended.mInRealtimeFC == 1 || shared.scoring.mScoringInfo.mInRealtime == 1;
+            cgs.inCar = this.lastInRealTimeState;
 
             // --------------------------------
             // session data

@@ -92,7 +92,8 @@ namespace CrewChiefV4.PitManager
 
         private static float fuelCapacity = -1;
         private static float currentFuel = -1;
-        private static bool onTrack = false;
+        // In the car (in real time)
+        private static bool inCar = false;
 
         #endregion Private Fields
 
@@ -156,7 +157,7 @@ namespace CrewChiefV4.PitManager
             {
                 if (SRE.ResultContains(voiceMessage, cmd.Value))
                 {
-                    if (onTrack)
+                    if (inCar)
                     {
                         if (CrewChief.Debugging)
                             Console.WriteLine("Pit Manager voice command " + cmd.Value[0]);
@@ -202,7 +203,7 @@ namespace CrewChiefV4.PitManager
 
         public static bool isOnTrack()
         {
-            return onTrack;
+            return inCar;
         }
 
         #endregion Public Methods
@@ -219,12 +220,11 @@ namespace CrewChiefV4.PitManager
         {
             Boolean autoFuelToEnd = UserSettings.GetUserSettings().getBoolean("iracing_enable_auto_fuel_to_end_of_race"); // tbd: duplicate or rename
 
-            // rF2 Tyre temps are 0 degK if not in realtime.
-            onTrack = currentGameState.TyreData.FrontLeft_CenterTemp > -100.0f;
+            inCar = currentGameState.inCar;
 
             fuelCapacity = currentGameState.FuelData.FuelCapacity;
             currentFuel = currentGameState.FuelData.FuelLeft;
-            if (onTrack && autoFuelToEnd
+            if (inCar && autoFuelToEnd
                 && (previousGameState != null
                     && (!previousGameState.PitData.InPitlane
                     && currentGameState.PitData.InPitlane)
