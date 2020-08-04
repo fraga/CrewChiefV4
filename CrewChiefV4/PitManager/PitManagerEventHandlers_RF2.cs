@@ -80,7 +80,7 @@ namespace CrewChiefV4.PitManager
         static private Dictionary<string, List<string>> tyreTranslationDict =
                     SampleTyreTranslationDict;
 
-        static private CurrentTyreType currentTyreType = new CurrentTyreType();
+        static private CurrentRf2TyreType currentRf2TyreType = new CurrentRf2TyreType();
 
         #endregion Private Fields
 
@@ -135,7 +135,7 @@ namespace CrewChiefV4.PitManager
         static public bool PMrF2eh_initialise(string __)
         {
             Pmal.PmalConnect();
-            currentTyreType.Set("");
+            currentRf2TyreType.Set(Pmal.GetTyreTypeNames()[0]);
             return true;
         }
         static public bool PMrF2eh_teardown(string __)
@@ -202,7 +202,7 @@ namespace CrewChiefV4.PitManager
             if (currentTyreTypeIndex >= tyreTypes.Count)
                 currentTyreTypeIndex = 0;
             response = true;
-            currentTyreType.Set(tyreTypes[currentTyreTypeIndex]);
+            currentRf2TyreType.Set(tyreTypes[currentTyreTypeIndex]);
             return response;
         }
         #endregion Tyre compounds
@@ -389,7 +389,7 @@ namespace CrewChiefV4.PitManager
                 return false;
             }
 
-            currentTyreType.Set(result[genericTyreType]);
+            currentRf2TyreType.Set(result[genericTyreType]);
             return true;
         }
 
@@ -402,7 +402,7 @@ namespace CrewChiefV4.PitManager
         static private bool changeTyre(string tyreCategory, bool noChange = false)
         {
             bool response = false;
-            string tyreType = noChange ? "No Change" : currentTyreType.Get();
+            string tyreType = noChange ? "No Change" : currentRf2TyreType.Get();
 
             if (Pmal.GetAllTyreCategories().Contains(tyreCategory))
             {
@@ -475,11 +475,11 @@ namespace CrewChiefV4.PitManager
 
         #region Private Classes
 
-        private class CurrentTyreType
+        private class CurrentRf2TyreType
         {
             #region Private Fields
 
-            private static string _currentTyreType = "No Change";
+            private static string currentTyreType = "No Change";
 
             #endregion Private Fields
 
@@ -487,20 +487,20 @@ namespace CrewChiefV4.PitManager
 
             public void Set(string tyreType)
             {
-                _currentTyreType = tyreType;
+                currentTyreType = tyreType;
             }
 
             public string Get()
             {
-                if (_currentTyreType == "No Change")
+                if (currentTyreType == "No Change")
                 {
-                    _currentTyreType = Pmal.GetCurrentTyreType();
-                    if (_currentTyreType == "No Change")
+                    currentTyreType = Pmal.GetCurrentTyreType();
+                    if (currentTyreType == "No Change")
                     {
                         // tbd: _currentTyreType = TranslateTyreTypes(tyreTranslationDict, tyreTypes)["Medium"];
                     }
                 }
-                return _currentTyreType;
+                return currentTyreType;
             }
 
             #endregion Public Methods

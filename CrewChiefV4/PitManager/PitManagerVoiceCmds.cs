@@ -92,6 +92,7 @@ namespace CrewChiefV4.PitManager
 
         private static float fuelCapacity = -1;
         private static float currentFuel = -1;
+        private static bool onTrack = false;
 
         #endregion Private Fields
 
@@ -155,10 +156,17 @@ namespace CrewChiefV4.PitManager
             {
                 if (SRE.ResultContains(voiceMessage, cmd.Value))
                 {
-                    if (CrewChief.Debugging)
-                        Console.WriteLine("Pit Manager voice command " + cmd.Value[0]);
-                    pmh.EventHandler(cmd.Key, voiceMessage);
-                    break;
+                    if (onTrack)
+                    {
+                        if (CrewChief.Debugging)
+                            Console.WriteLine("Pit Manager voice command " + cmd.Value[0]);
+                        pmh.EventHandler(cmd.Key, voiceMessage);
+                        break;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Not in car received Pit Manager voice command " + cmd.Value[0]);
+                    }
                 }
             }
         }
@@ -192,6 +200,11 @@ namespace CrewChiefV4.PitManager
             return currentFuel;
         }
 
+        public static bool isOnTrack()
+        {
+            return onTrack;
+        }
+
         #endregion Public Methods
 
         #region Protected Methods
@@ -206,9 +219,12 @@ namespace CrewChiefV4.PitManager
         {
             Boolean autoFuelToEnd = UserSettings.GetUserSettings().getBoolean("iracing_enable_auto_fuel_to_end_of_race"); // tbd: duplicate or rename
 
+            // rF2 Tyre temps are 0 degK if not in realtime.
+            onTrack = currentGameState.TyreData.FrontLeft_CenterTemp > -100.0f;
+
             fuelCapacity = currentGameState.FuelData.FuelCapacity;
             currentFuel = currentGameState.FuelData.FuelLeft;
-            if (autoFuelToEnd
+            if (onTrack && autoFuelToEnd
                 && (previousGameState != null
                     && (!previousGameState.PitData.InPitlane
                     && currentGameState.PitData.InPitlane)

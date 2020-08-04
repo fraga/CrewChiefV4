@@ -58,6 +58,7 @@ namespace PitMenuAPI
             string category;
             string choice;
 
+            Console.WriteLine("GetMenuDict");
             if (startUsingPitMenu())
                 {
                 initialCategory = GetCategory();
@@ -73,7 +74,7 @@ namespace PitMenuAPI
                         {
                             choice = GetChoice();
                             shadowPitMenu[category].Add(choice);
-                            ChoiceInc();
+                            nextChoice();
                         } while (!shadowPitMenu[category].Contains(GetChoice()));
                     }
                     CategoryDown();
@@ -82,9 +83,30 @@ namespace PitMenuAPI
 
             if (shadowPitMenu.Count < 2)
             {
+                // return empty so this will be called again
                 shadowPitMenu = new Dictionary<string, List<string>> {};
             }
             return shadowPitMenu;
+        }
+        /// <summary>
+        /// Keep banging away until the menu choice changes
+        /// </summary>
+        /// <returns>the new choice</returns>
+        private static string nextChoice()
+        {
+            string newChoice;
+            string currentChoice = GetChoice();
+            do
+            {
+                ChoiceInc();
+                newChoice = GetChoice();
+                if (newChoice == currentChoice)
+                {
+                    startUsingPitMenu();
+                }
+            }
+            while (newChoice == currentChoice);
+            return newChoice;
         }
 
         /// <summary>
@@ -105,35 +127,7 @@ namespace PitMenuAPI
             {
                 int origin = Array.IndexOf(shadowPitMenuCats.ToArray(), currentCategory);
                 int target = Array.IndexOf(shadowPitMenuCats.ToArray(), category);
-#if false
-            float signedDiff = 0.0f;
-            float raw_diff = origin > target ? origin - target : target - origin;
-            float mod_diff = raw_diff % pitMenuCats.Count;
 
-            if (mod_diff > (pitMenuCats.Count / 2))
-            {
-                //There is a shorter path in opposite direction
-                signedDiff = (pitMenuCats.Count - mod_diff);
-                if (target > origin)
-                    signedDiff = signedDiff * -1;
-            }
-            else
-            {
-                signedDiff = mod_diff;
-                if (origin > target)
-                    signedDiff = signedDiff * -1;
-            }
-            while (signedDiff > 0)
-            {
-                CategoryDown();
-                signedDiff -= 1;
-            }
-            while (signedDiff < 0)
-            {
-                CategoryUp();
-                signedDiff += 1;
-            }
-#endif
                 for (int i = 1; i < shadowPitMenuCats.Count; i++)
                 {
                     if (((origin + i) % shadowPitMenuCats.Count) == target)
