@@ -923,7 +923,7 @@ namespace CrewChiefV4.rFactor2
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = rFactor2Constants.MAX_RULES_INSTRUCTION_MSG_LEN)]
             public byte[] mLSIRulesInstructionMessage;
 
-            [JsonIgnore] public long mUnsubscribedBuffersMask;                     // Currently active UnsbscribedBuffersMask value.  This will be allowed for clients to write to in the future, but not yet.
+            [JsonIgnore] public int mUnsubscribedBuffersMask;                     // Currently active UnsbscribedBuffersMask value.  This will be allowed for clients to write to in the future, but not yet.
         }
     }
 }

@@ -61,7 +61,7 @@ namespace CrewChiefV4.ScreenCapture
             {
                 return;
             }
-            
+
             foreach (var dub in outputDuplicationSource)
             {
                 bool captureDone = false;
@@ -90,8 +90,8 @@ namespace CrewChiefV4.ScreenCapture
 
 
 
-                    SharpDX.Rectangle rect = w.isDisplay ? new SharpDX.Rectangle(0,0, dub.width, dub.height) : dub.convertToAbsScreenRect(info);
-                    w.rectScreen = w.isDisplay ? new SharpDX.Rectangle(dub.rectangle.Left, dub.rectangle.Top, dub.rectangle.Width, dub.rectangle.Height) :  dub.convertToScreenRect(info);;
+                    SharpDX.Rectangle rect = w.isDisplay ? new SharpDX.Rectangle(0, 0, dub.width, dub.height) : dub.convertToAbsScreenRect(info);
+                    w.rectScreen = w.isDisplay ? new SharpDX.Rectangle(dub.rectangle.Left, dub.rectangle.Top, dub.rectangle.Width, dub.rectangle.Height) : dub.convertToScreenRect(info); ;
                     if ((rect.Width != w.rectAbs.Width || rect.Height != w.rectAbs.Height) && (rect.Width > 0 && rect.Height > 0))
                     {
                         w.rectAbs = rect;
@@ -101,7 +101,7 @@ namespace CrewChiefV4.ScreenCapture
                             w.copiedScreenTexture = null;
                             w.copiedScreenTexture = new Texture2D(device, new Texture2DDescription
                             {
-                                CpuAccessFlags = CpuAccessFlags.Read |CpuAccessFlags.Write,
+                                CpuAccessFlags = CpuAccessFlags.Read | CpuAccessFlags.Write,
                                 BindFlags = BindFlags.None,
                                 Format = dub.outputDuplication.Description.ModeDescription.Format,
                                 Width = w.rectAbs.Width,
@@ -109,7 +109,7 @@ namespace CrewChiefV4.ScreenCapture
                                 OptionFlags = ResourceOptionFlags.None,
                                 MipLevels = 1,
                                 ArraySize = 1,
-                                SampleDescription = { Count = 1, Quality = 0 },   
+                                SampleDescription = { Count = 1, Quality = 0 },
                                 Usage = ResourceUsage.Staging
                             });
                         }
@@ -118,7 +118,7 @@ namespace CrewChiefV4.ScreenCapture
                             Console.WriteLine("CaptureScreen.Capture: Screen capturing failed = " + e.Message);
                         }
                     }
-                    
+
                     w.rectAbs = rect;
                     w.aspect = Math.Abs(((float)w.rectAbs.Height / (float)w.rectAbs.Width));
                     currentBatch.Add(w);
@@ -127,7 +127,9 @@ namespace CrewChiefV4.ScreenCapture
                 if (currentBatch.Count < 1)
                     continue;
 
-                for (int i = 0; !captureDone; i++)
+                const int MAX_CAPTURE_RETRY_COUNT = 5;
+                int captureRetry = 0;
+                for (; !captureDone && captureRetry < MAX_CAPTURE_RETRY_COUNT; captureRetry++)
                 {
                     if (!VROverlayController.vrUpdateThreadRunning
                         || VROverlayController.vrOverlayRenderThreadSuspended)
@@ -194,7 +196,6 @@ namespace CrewChiefV4.ScreenCapture
                                     }
                                     else
                                     {
-
                                         Win32Stuff.CURSORINFO ci = new Win32Stuff.CURSORINFO();
                                         ci.cbSize = Marshal.SizeOf(ci);
                                         if (Win32Stuff.GetCursorInfo(out ci) && ci.flags == Win32Stuff.CURSOR_SHOWING)
@@ -228,7 +229,6 @@ namespace CrewChiefV4.ScreenCapture
                                         {
                                             device.ImmediateContext.CopyResource(screenTexture, w1.copiedScreenTexture);
                                         }
-
                                     }
                                     w1.shouldDraw = true;
                                 }
@@ -271,23 +271,51 @@ namespace CrewChiefV4.ScreenCapture
                         }
                     }
                 }
+
+                if (captureRetry == MAX_CAPTURE_RETRY_COUNT)
+                {
+                    // It turns out that depending on what is in the focus, TryAcquireNextFrame
+                    // can timeout getting the next frame, indefinitely.  Notably, if SimHub or other WPF window is in the focus,
+                    // it times out until something changes on the screen, for example, mouse cursor moves.  That means, that we won't process
+                    // toggle requests, indefinitely.  So as a workaround, return here if we exceeded
+                    // the retry threashold.
+                    //
+                    // Display all old overlays using old textures, until the next successful refresh.
+#if DEBUG
+                    Console.WriteLine("CaptureScreen.Capture: Capture retry count exceeded.");
+#endif
+                    foreach (var w in currentBatch)
+                    {
+                        // Pretend we fully succeeded, outherwise VROverlayWindow.Draw will hide the overlay.
+                        w.shouldDraw = true;
+                    }
+                }
             }
+
             return;
         }
         public void Dispose()
         {
-            if (outputDuplicationSource != null)
+            try
             {
-                foreach (var dub in outputDuplicationSource)
+                if (outputDuplicationSource != null)
                 {
-                    if (dub.outputDuplication != null
-                        && dub.outputDuplication.NativePointer != IntPtr.Zero
-                        && !dub.outputDuplication.IsDisposed)
+                    foreach (var dub in outputDuplicationSource)
                     {
-                        dub.outputDuplication.Dispose();
-                        dub.outputDuplication = null;
+                        if (dub.outputDuplication != null
+                            && dub.outputDuplication.NativePointer != IntPtr.Zero
+                            && !dub.outputDuplication.IsDisposed)
+                        {
+                            dub.outputDuplication.Dispose();
+                            dub.outputDuplication = null;
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                // This still crashes, wtf?
+                Utilities.ReportException(ex, "Direct3D11CaptureSource.Dispose crashed.", needReport: false);
             }
             //copiedScreenTexture.Dispose();
             //copiedScreenTexture = null;

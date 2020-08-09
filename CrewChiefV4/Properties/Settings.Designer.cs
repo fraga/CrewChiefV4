@@ -4570,5 +4570,17 @@ namespace CrewChiefV4.Properties {
                 this["f1_2020_udp_data_port"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool show_vr_settings_as_overlay {
+            get {
+                return ((bool)(this["show_vr_settings_as_overlay"]));
+            }
+            set {
+                this["show_vr_settings_as_overlay"] = value;
+            }
+        }
     }
 }
