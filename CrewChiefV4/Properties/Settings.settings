@@ -1139,5 +1139,8 @@
     <Setting Name="f1_2020_udp_data_port" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">20777</Value>
     </Setting>
+    <Setting Name="show_vr_settings_as_overlay" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

@@ -13,14 +13,13 @@ using SharpDX;
 using Valve.VR;
 using CrewChiefV4.VirtualReality;
 using System.Threading;
+using System.Diagnostics;
 
 namespace CrewChiefV4
 {
     public partial class VROverlaySettings : Form
     {
         List<VROverlayWindow> settings = VROverlayWindow.loadOverlaySetttings<List<VROverlayWindow>>("vr_overlay_windows.json");
-
-        public VROverlayWindow cursorOverlay;
 
         public static object instanceLock = new object();
 
@@ -59,13 +58,6 @@ namespace CrewChiefV4
 
             checkBoxForceTopMostWindow.Text = Configuration.getUIString("vr_force_topmost_window");
 
-            cursorOverlay = new VROverlayWindow("Cursor", IntPtr.Zero, Name: "Cursor", enabled: false);
-            cursorOverlay.CreateOverlay(false);
-            var path = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location), @"Resources\cursor.png");
-            var error = SteamVR.instance.overlay.SetOverlayFromFile(cursorOverlay.vrOverlayHandle, path);
-            SteamVR.instance.overlay.SetOverlayWidthInMeters(cursorOverlay.vrOverlayHandle, 0.05f);
-            var hotSpot = new HmdVector2_t() { v0 = 0, v1 = 0 };
-            SteamVR.instance.overlay.SetOverlayTransformCursor(cursorOverlay.vrOverlayHandle, ref hotSpot);
             updateWindowList();
 
             this.KeyPreview = true;
@@ -96,6 +88,7 @@ namespace CrewChiefV4
             listBoxWindows.Items.CopyTo(currentItems, 0);
             var newWindows = windows.Where(wnd => !currentItems.Any(cu => cu.hWnd == wnd));
             var removedWindows = currentItems.Where(ws => !windows.Any(wnd => wnd == ws.hWnd));
+            var showSettingsAsOverlay = UserSettings.GetUserSettings().getBoolean("show_vr_settings_as_overlay");
             foreach (var wnd in newWindows)
             {
                 bool added = false;
@@ -112,14 +105,14 @@ namespace CrewChiefV4
                     if(s.Name == windowName)
                     {
                         this.loadingSettings = true;
-                        // always enable this window in VR
+                        // always enable this window in VR, unless opted out.
                         VROverlayWindow savedWindow = null;
                         if (s.Text == this.Text)
                         {
-                            s.enabled = true;
+                            s.enabled = showSettingsAsOverlay;
                         }
 
-                        savedWindow = new VROverlayWindow(wnd, s, cursorOverlay.vrOverlayHandle);
+                        savedWindow = new VROverlayWindow(wnd, s);
                         savedWindow.isDisplay = isDisplay;
                         listBoxWindows.Items.Add(savedWindow);
                         
@@ -135,11 +128,11 @@ namespace CrewChiefV4
                         break;
                     }
                 }
-                if(!added)
+                if (!added)
                 {
                     if (!string.IsNullOrWhiteSpace(windowName))
                     {
-                        var scr = new VROverlayWindow(windowName, wnd, cursorOverlay.vrOverlayHandle, isDisplay: isDisplay, enabled: windowName == this.Text, wasEnabled: windowName == this.Text);
+                        var scr = new VROverlayWindow(windowName, wnd, isDisplay: isDisplay, enabled: windowName == this.Text && showSettingsAsOverlay, wasEnabled: windowName == this.Text && showSettingsAsOverlay);
                         listBoxWindows.Items.Add(scr);
                         if (windowName == this.Text)
                         {
@@ -238,11 +231,11 @@ namespace CrewChiefV4
                     textBoxRotationY.Text = trackBarRotationY.Value.ToString("0.0");
                     textBoxRotationZ.Text = trackBarRotationZ.Value.ToString("0.0");
 
-                    trackBarScale.Value = (int)(window.scale * 10);
+                    trackBarScale.Value = (int)(window.scale * 100);
                     trackBarTransparency.Value = (int)(window.transparency * 100);
                     trackBarCurvature.Value = (int)(window.curvature * 100);
 
-                    textBoxScale.Text = window.scale.ToString("0.0");
+                    textBoxScale.Text = window.scale.ToString("0.00");
                     textBoxTransparency.Text = window.transparency.ToString("0.00");
                     textBoxCurvature.Text = window.curvature.ToString("0.00");
 
@@ -314,7 +307,47 @@ namespace CrewChiefV4
                 VROverlayWindow[] currentItems = new VROverlayWindow[listBoxWindows.Items.Count];
                 listBoxWindows.Items.CopyTo(currentItems, 0);
 
-                settings = currentItems.Where(s => s.wasEnabled).ToList();
+                var currWasEnabled = currentItems.Where(s => s.wasEnabled).ToList();
+
+                // Merge with the existing settings.
+                foreach (var currWnd in currWasEnabled)
+                {
+                    bool newWindow = true;
+                    foreach (var s in settings)
+                    {
+                        if (s.Text == currWnd.Text)
+                        {
+                            newWindow = false;
+
+                            Debug.Assert(s.Name == currWnd.Name);
+                            s.enabled = currWnd.enabled;
+                            s.wasEnabled = currWnd.wasEnabled;
+                            s.positionX = currWnd.positionX;
+                            s.positionY = currWnd.positionY;
+                            s.positionY = currWnd.positionY;
+                            s.rotationX = currWnd.rotationX;
+                            s.rotationY = currWnd.rotationY;
+                            s.rotationZ = currWnd.rotationZ;
+                            s.scale = currWnd.scale;
+                            s.gazeScale = currWnd.gazeScale;
+                            s.transparency = currWnd.transparency;
+                            s.gazeTransparency = currWnd.gazeTransparency;
+                            s.curvature = currWnd.curvature;
+                            s.gazeEnabled = currWnd.gazeEnabled;
+                            s.forceTopMost = currWnd.forceTopMost;
+                            s.trackingUniverse = currWnd.trackingUniverse;
+                            s.isDisplay = currWnd.isDisplay;
+                            s.toggleVKeyCode = currWnd.toggleVKeyCode;
+                        }
+                    }
+
+                    // Add new Window into settings.
+                    if (newWindow)
+                    {
+                        settings.Add(currWnd);
+                    }
+                }
+
                 VROverlayWindow.saveOverlaySetttings("vr_overlay_windows.json", settings);
             }
         }
@@ -339,10 +372,8 @@ namespace CrewChiefV4
                     window.SetOverlayCurvature();
                     window.SetOverlayTransparency();
 
-                    //if (!window.wasEnabled)
-                    //
-                        window.wasEnabled = true;
-                    //}
+                    // If window was ever enabled, keep it in the settings.
+                    window.wasEnabled = window.wasEnabled || window.enabled;
                 }
             }
         }
@@ -405,7 +436,7 @@ namespace CrewChiefV4
                         this.buttonSaveSettings.Enabled = true;
 
                     var window = ((VROverlayWindow)listBoxWindows.SelectedItem);
-                    window.scale = (trackBarScale.Value * 0.1f);
+                    window.scale = (trackBarScale.Value * 0.01f);
                     textBoxScale.Text = window.scale.ToString("0.00");
                 }
             }

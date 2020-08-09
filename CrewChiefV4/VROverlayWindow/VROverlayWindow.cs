@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using CrewChiefV4.commands;
 using Newtonsoft.Json;
 using SharpDX;
 using SharpDX.Direct3D11;
@@ -35,7 +36,7 @@ namespace CrewChiefV4.VirtualReality
         Disabled = 3
     }
     [Serializable]
-    public class VROverlayWindow 
+    public class VROverlayWindow
     {
         public string Name { get; set; }
         public string Text { get; set; }
@@ -58,8 +59,9 @@ namespace CrewChiefV4.VirtualReality
         public bool forceTopMost { get; set; }
         public ETrackingUniverseOrigin trackingUniverse { get; set; }
         public bool isDisplay { get; set; }
+        public int toggleVKeyCode { get; set; }
         [JsonIgnore]
-        public Texture2D copiedScreenTexture { get; set; }       
+        public Texture2D copiedScreenTexture { get; set; }
         [JsonIgnore]
         public SharpDX.Rectangle rectAbs;
         [JsonIgnore]
@@ -67,24 +69,23 @@ namespace CrewChiefV4.VirtualReality
         [JsonIgnore]
         public ulong vrOverlayHandle;
         [JsonIgnore]
-        public ulong vrOverlayCursorHandle;
-        [JsonIgnore]
         public bool shouldDraw { get; set; }
         [JsonIgnore]
         public float aspect { get; set; }
         [JsonIgnore]
         public Matrix hmdMatrix { get; set; }
         private bool wasGazing = false;
+        private long lastKeyHandleTickCount = 0;
         public VROverlayWindow()
         {
             positionZ = -1;
         }
         //[JsonConstructor]
-        public VROverlayWindow(string Text, IntPtr hWnd, ulong vrOverlayCursorHandle = 0, string Name = "", bool enabled = false, bool wasEnabled = false, float positionX = 0, float positionY = 0, float positionZ = -1,
-            float rotationX = 0, float rotationY = 0, float rotationZ = 0, float scale = 1, float transparency = 1, float curvature = 0, ETrackingUniverseOrigin trackingUniverse = ETrackingUniverseOrigin.TrackingUniverseSeated, bool isDisplay = false, bool gazeEnabled = false, float gazeScale = 1f, float gazeTransparency = 1f, bool forceTopMost = false)
+        public VROverlayWindow(string Text, IntPtr hWnd, string Name = "", bool enabled = false, bool wasEnabled = false, float positionX = 0, float positionY = 0, float positionZ = -1,
+            float rotationX = 0, float rotationY = 0, float rotationZ = 0, float scale = 1, float transparency = 1, float curvature = 0, ETrackingUniverseOrigin trackingUniverse = ETrackingUniverseOrigin.TrackingUniverseSeated, bool isDisplay = false, int toggleVKeyCode = -1, bool gazeEnabled = false, float gazeScale = 1f, float gazeTransparency = 1f, bool forceTopMost = false)
         {
             this.Text = Text;
-            if(string.IsNullOrWhiteSpace(Name))
+            if (string.IsNullOrWhiteSpace(Name))
                 this.Name = Text;
             else
                 this.Name = Name;
@@ -103,7 +104,7 @@ namespace CrewChiefV4.VirtualReality
             this.trackingUniverse = trackingUniverse;
             this.curvature = curvature;
             this.isDisplay = isDisplay;
-            this.vrOverlayCursorHandle = vrOverlayCursorHandle;
+            this.toggleVKeyCode = toggleVKeyCode;
             this.gazeEnabled = gazeEnabled;
             this.wasEnabled = wasEnabled;
             this.rectAbs = new Rectangle();
@@ -122,7 +123,7 @@ namespace CrewChiefV4.VirtualReality
         {
             this.Text = other.Text;
             this.Name = other.Name;
-            this.enabled = other.enabled;            
+            this.enabled = other.enabled;
             this.hWnd = hWnd;
             this.positionX = other.positionX;
             this.positionY = other.positionY;
@@ -137,15 +138,15 @@ namespace CrewChiefV4.VirtualReality
             this.trackingUniverse = other.trackingUniverse;
             this.curvature = other.curvature;
             this.isDisplay = other.isDisplay;
+            this.toggleVKeyCode = other.toggleVKeyCode;
             this.gazeEnabled = other.gazeEnabled;
             this.wasEnabled = other.wasEnabled;
-            this.vrOverlayCursorHandle = vrOverlayCursorHandle;
             this.rectAbs = new Rectangle();
             this.rectScreen = new Rectangle();
             this.forceTopMost = other.forceTopMost;
-
+            this.lastKeyHandleTickCount = other.lastKeyHandleTickCount;
             shouldDraw = false;
-            if(enabled)
+            if (enabled)
             {
                 CreateOverlay();
                 SetOverlayCurvature();
@@ -158,11 +159,11 @@ namespace CrewChiefV4.VirtualReality
             if (string.IsNullOrWhiteSpace(Name))
                 Name = Guid.NewGuid().ToString();
             vrOverlayHandle = 0;
-            
+
             var error = SteamVR.instance.overlay.CreateOverlay(Name, Name, ref vrOverlayHandle);
-            if(error == EVROverlayError.None)
+            if (error == EVROverlayError.None)
             {
-                if(setFlags)
+                if (setFlags)
                 {
                     SteamVR.instance.overlay.SetOverlayFlag(vrOverlayHandle, VROverlayFlags.SortWithNonSceneOverlays, true);
                     // disable mouse input for not as it ned a propper handler
@@ -171,9 +172,9 @@ namespace CrewChiefV4.VirtualReality
 
                     //SteamVR.instance.overlay.SetOverlayInputMethod(vrOverlayHandle, VROverlayInputMethod.Mouse);
 
-                    
+
                 }
-                Console.WriteLine($"Created SVR overlay handle for: {Name} : {vrOverlayHandle}");
+                Console.WriteLine($"Created SVR overlay handle for: {Name} : 0x{vrOverlayHandle:X8}");
             }
             else
             {
@@ -230,12 +231,12 @@ namespace CrewChiefV4.VirtualReality
             rotCenter *= Matrix.RotationX(rotationX);
             rotCenter *= Matrix.RotationY(rotationY);
             rotCenter *= Matrix.RotationZ(rotationZ);
-            var transform = Matrix.Scaling(wasGazing ? this.gazeScale : this.scale) * rotCenter *  Matrix.Translation(positionX, positionY, positionZ);
+            var transform = Matrix.Scaling(wasGazing ? this.gazeScale : this.scale) * rotCenter * Matrix.Translation(positionX, positionY, positionZ);
             transform.Transpose();
 
-            if(gazeEnabled)
+            if (gazeEnabled)
             {
-                if(SetOverlayGazeing(transform))
+                if (SetOverlayGazeing(transform))
                 {
                     transform = Matrix.Scaling(this.gazeScale) * rotCenter * Matrix.Translation(positionX, positionY, positionZ);
                     transform.Transpose();
@@ -246,7 +247,7 @@ namespace CrewChiefV4.VirtualReality
                 {
                     SteamVR.instance.overlay.SetOverlayAlpha(vrOverlayHandle, transparency);
                     wasGazing = false;
-                }                
+                }
             }
 
             if (followsHead)
@@ -260,6 +261,33 @@ namespace CrewChiefV4.VirtualReality
                 SteamVR.instance.overlay.SetOverlayTransformAbsolute(vrOverlayHandle, trackingUniverse, ref pose);
             }
             shouldDraw = false;
+        }
+
+        public void HandleToggleKey()
+        {
+            if (toggleVKeyCode == -1)
+            {
+                return;
+            }
+
+            var ticksNow = Utilities.GetTickCount64();
+            if (ticksNow - lastKeyHandleTickCount > 150L)  // 150ms
+            {
+                lastKeyHandleTickCount = ticksNow;
+                if (KeyPresser.GetAsyncKeyState((System.Windows.Forms.Keys)toggleVKeyCode) != 0)
+                {
+                    enabled = !enabled;
+                    if (enabled && vrOverlayHandle == 0)
+                    {
+                        // First time toggle.
+                        CreateOverlay();
+                        SetOverlayCurvature();
+                        SetOverlayTransparency();
+                    }
+
+                    SetOverlayEnabled(enabled);
+                }
+            }
         }
 
         private bool SetOverlayGazeing(Matrix transform)
@@ -280,8 +308,8 @@ namespace CrewChiefV4.VirtualReality
         {
             SetOverlayEnabled(shouldDraw && enabled);
             if (shouldDraw)
-            {                
-                SubmitOverlay();                
+            {
+                SubmitOverlay();
                 SetOverlayParams(false);
             }
         }
