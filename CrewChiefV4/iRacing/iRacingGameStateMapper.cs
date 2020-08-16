@@ -1411,7 +1411,8 @@ namespace CrewChiefV4.iRacing
                 {
                     return SessionPhase.Countdown;
                 }
-                else if (sessionFlags.HasFlag(SessionFlags.Green))
+                else if (sessionFlags.HasFlag(SessionFlags.Green) || 
+                    sessionState.HasFlag(SessionStates.Racing) /* covers mid-session join in hosted racing */)
                 {
                     return SessionPhase.Green;
                 }
