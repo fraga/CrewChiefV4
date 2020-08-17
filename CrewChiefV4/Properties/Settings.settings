@@ -1121,6 +1121,9 @@
     <Setting Name="watched_opponent_names" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
+    <Setting Name="ui_language" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
     <Setting Name="disable_overlay_voice_commands" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>

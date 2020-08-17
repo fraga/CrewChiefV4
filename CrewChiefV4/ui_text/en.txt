@@ -658,6 +658,11 @@ speech_recognition_country_help = Optional - the localisation country to use for
 speech_recognition_country_category = INTERNATIONALISATION;AUDIO_VOICE_AND_CONTROLLERS
 speech_recognition_country_metadata = RESTART_REQUIRED
 
+ui_language = UI language
+ui_language_help = Optional - the localisation country to use for the ui. If this isn't set, the app will use OS system language. If you set it, the value must be a valid ISO 639-1 code for country, followed by a hyphen, then a valid two letter region code. For example en-GB. If no translation file is found, the app will default back to English.
+ui_language_category = INTERNATIONALISATION;AUDIO_VOICE_AND_CONTROLLERS
+ui_language_metadata = RESTART_REQUIRED
+
 spotter_car_length = Spotter car length
 spotter_car_length_help = The length of a car, used to check if there's an overlap. Decrease this if the Spotter calls 'hold your line' when you're not overlapping. Increase it if the Spotter doesn't call 'hold your line' when you clearly are overlapping.
 spotter_car_length_category = SPOTTER
