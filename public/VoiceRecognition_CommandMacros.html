@@ -215,10 +215,10 @@ The macro feature can also be used to automate chat messages. There are examples
 <br>
 There are a few special key press commands in the macro editor screen to help ease the pain of wiring these things up:<br>
 <br>
-&nbsp;- To send a fixed number of multiple key presses use "{MULTIPLE,153}KEY_A" (presses the A key 153 times).<br>
-&nbsp;- To send a number of multiple key presses based on some app logic for example, use "{MULTIPLE,fuel}KEY_D" (presses D however many times the Fuel event told it to). This requires specific application code to work but i'm happy to take requests :).<br>
-&nbsp;- To send a number of multiple presses based on the voice command that triggered the macro, the voice command needs to use a special format with the number range to recognise in curly braces - e.g. "add fuel, {1,150} litres" (recognises "add fuel 0 litres" up to "add fuel 150 litres", in steps of 1). Use "{MULTIPLE,VOICE_TRIGGER}KEY_D" to press (in this example) D the number of times recognised in the voice command.<br>
-&nbsp;- To send a sequence of key presses from some free text, use "{FREE_TEXT}sorry, my bad". Each of the keys after {FREE_TEXT} will be pressed in sequence. Only letters, commas, hypens and full-stops are supported. This is to make chat macros more straightforward (e.g. ["Real-time Chat", "{FREE_TEXT}good pass", "ENTER"]).<br>
+ - To send a fixed number of multiple key presses use "{MULTIPLE,153}KEY_A" (presses the A key 153 times).<br>
+ - To send a number of multiple key presses based on some app logic for example, use "{MULTIPLE,fuel}KEY_D" (presses D however many times the Fuel event told it to). This requires specific application code to work but i'm happy to take requests :).<br>
+ - To send a number of multiple presses based on the voice command that triggered the macro, the voice command needs to use a special format with the number range to recognise in curly braces - e.g. "add fuel, {1,150} litres" (recognises "add fuel 0 litres" up to "add fuel 150 litres", in steps of 1). Use "{MULTIPLE,VOICE_TRIGGER}KEY_D" to press (in this example) D the number of times recognised in the voice command.<br>
+ - To send a sequence of key presses from some free text, use "{FREE_TEXT}sorry, my bad". Each of the keys after {FREE_TEXT} will be pressed in sequence. Only letters, commas, hypens and full-stops are supported. This is to make chat macros more straightforward (e.g. ["Real-time Chat", "{FREE_TEXT}good pass", "ENTER"]).<br>
 <br>
 Hopefully the game devs will make these menus or the actions they trigger easier to use for 3rd party apps. But until they do, these complicated automated interactions are always going to be flaky.<br>
 <br>

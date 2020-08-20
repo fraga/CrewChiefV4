@@ -147,13 +147,13 @@ Note: 32 bit rFactor 2 is no longer supported.<br>
 Crew Chief supports some rF2 specific features not exposed via official rF2 Internals API.  Those features are turned off by default.  To enable those features, modify UserData\player\CustomPluginVariables.json by setting <code>"EnableDirectMemoryAccess"</code> to "1".  Plugin configuration should look like this:<br>
 <br>
 <code>
-&nbsp;&nbsp;"rFactor2SharedMemoryMapPlugin64.dll":{<br>
-&nbsp;&nbsp;&nbsp;&nbsp;" Enabled":1,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;"DebugISIInternals":0,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;"DebugOutputLevel":0,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;"DedicatedServerMapGlobally":0,<br>
-&nbsp;&nbsp;&nbsp;&nbsp;"EnableDirectMemoryAccess":1<br>
-&nbsp;&nbsp;}<br>
+  "rFactor2SharedMemoryMapPlugin64.dll":{<br>
+    " Enabled":1,<br>
+    "DebugISIInternals":0,<br>
+    "DebugOutputLevel":0,<br>
+    "DedicatedServerMapGlobally":0,<br>
+    "EnableDirectMemoryAccess":1<br>
+  }<br>
 </code>
 <br>
 Note: first space in <code>" Enabled"</code> above is required.<br>
