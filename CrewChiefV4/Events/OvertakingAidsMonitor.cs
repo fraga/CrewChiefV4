@@ -74,7 +74,7 @@ namespace CrewChiefV4.Events
             }
 
             // DRS:
-            if (drsMessagesEnabled && currentGameState.OvertakingAids.DrsEnabled)
+            if (drsMessagesEnabled && currentGameState.OvertakingAids.DrsEnabled && currentGameState.OvertakingAids.DrsRange != -1)
             {
                 if (trackDistanceToCheckDRSGapFrontAt == -1 && currentGameState.SessionData.TrackDefinition != null)
                 {
@@ -140,8 +140,8 @@ namespace CrewChiefV4.Events
                 }
             }
 
-            // push to pass - disable these messages for DTM_2020 in R3E because the activationsRemaining counter behaves differently
-            if (ptpMessagesEnabled && currentGameState.carClass.carClassEnum != CarData.CarClassEnum.DTM_2020)
+            // push to pass
+            if (ptpMessagesEnabled && currentGameState.OvertakingAids.PushToPassActivationsRemaining != -1)
             {
                 if (previousGameState.OvertakingAids.PushToPassEngaged && !currentGameState.OvertakingAids.PushToPassEngaged &&
                     currentGameState.OvertakingAids.PushToPassActivationsRemaining == 0)

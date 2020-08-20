@@ -1766,9 +1766,9 @@ namespace CrewChiefV4.RaceRoom
             overtakingAids.DrsAvailable = shared.Drs.Available == 1;
             overtakingAids.DrsEngaged = shared.Drs.Engaged == 1;
             // DTM rule sets are kinda deprecated and not really that clear any more. Generally the DRS is enabled at the end of lap 1 and disabled near
-            // the end of the race (but I'm not sure exactly when). We can't inter the rule set from the selected car so have a one-size-fits-all hack
+            // the end of the race (but I'm not sure exactly when). We can't infer the rule set from the selected car so have a one-size-fits-all hack
             if (carClassEnum == CarData.CarClassEnum.DTM_2013 || carClassEnum == CarData.CarClassEnum.DTM_2014 
-                || carClassEnum == CarData.CarClassEnum.DTM_2015 || carClassEnum == CarData.CarClassEnum.DTM_2016)
+                || carClassEnum == CarData.CarClassEnum.DTM_2015 || carClassEnum == CarData.CarClassEnum.DTM_2016 || carClassEnum == CarData.CarClassEnum.DTM_2020)
             {
                 // No race end check - TODO: find out if there's a predictable point where DRS is disabled near the race end
                 overtakingAids.DrsEnabled = sessionType == SessionType.Race && lapsCompleted > 0;
@@ -1779,6 +1779,14 @@ namespace CrewChiefV4.RaceRoom
             overtakingAids.PushToPassEngaged = shared.PushToPass.Engaged == 1;
             overtakingAids.PushToPassEngagedTimeLeft = shared.PushToPass.EngagedTimeLeft;
             overtakingAids.PushToPassWaitTimeLeft = shared.PushToPass.WaitTimeLeft;
+
+            // work-around for DTM 2020, which has unlimited PTP (1 use per lap) and a limited number of DRS activations (still to be implemented) which don't
+            // depend on opponent proximity. Setting these to -1 disables the PTP activations remaining calls and the DRS range-to-opponent calls / 'you missed DRS' calls.
+            if (carClassEnum == CarData.CarClassEnum.DTM_2020)
+            {
+                overtakingAids.DrsRange = -1;
+                overtakingAids.PushToPassActivationsRemaining = -1;
+            }
             return overtakingAids;
         }
 
