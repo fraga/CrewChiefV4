@@ -380,8 +380,9 @@ namespace CrewChiefV4.NumberProcessing
                 case Unit.MINUTE:
                     return NumberReaderPtBr.folderNumbersStub + (number == 1 ? "minute" : "minutes");
                 case Unit.SECOND:
-                case Unit.AND_TENTH:
                     return NumberReaderPtBr.folderNumbersStub + (number == 1 ? "second" : "seconds");
+                case Unit.AND_TENTH:
+                    return NumberReaderPtBr.folderNumbersStub + "seconds";
                 case Unit.JUST_TENTH:
                     return NumberReaderPtBr.folderNumbersStub + (number == 1 ? "tenth" : "tenths");
                 default:
