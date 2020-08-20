@@ -599,9 +599,9 @@
     </Content>
     <Content Include="sounds_config.txt" />
     <Content Include="speech_recognition_config.txt" />
-    <Content Include="ui_text.txt" />
     <Content Include="..\help.txt" />
     <Content Include="..\README.txt" />
+    <Content Include="ui_text\en.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\GameOverlay.Net\source\GameOverlay.csproj">
