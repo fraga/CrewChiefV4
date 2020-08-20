@@ -460,7 +460,7 @@ namespace CrewChiefV4
                         // TODO: version handling is a bit hooky here. The version data are in shared memory but if we just pass this
                         // through to the JSON there's a risk the game version will advance (so the client expects new data) but CC isn't
                         // actually sending this data. So we'll hard-code it here for now
-                        Utilities.startGameDataWebsocketServer("/r3e", gameDataReader, new R3ESerializer(true, 3, 2, 7));
+                        Utilities.startGameDataWebsocketServer("/r3e", gameDataReader, new R3ESerializer(true, 3, 2, 8));
                     }
                 }
 

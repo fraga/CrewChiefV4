@@ -431,6 +431,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.12.0.6: R3E - fixed OtterHud integration
+
 Version 4.12.0.5: Some UI tidying up and bug fixes; Stockcar Extreme - fix for app trying (and failing) to install plugin on every start (the plugin .dll must be install manually); R3E - download player rating data in background (should improve start up time); pCars / pCars2 - allow finer control over car class mapping using an optional pCarsCarNames field in the car classes JSON; AMS2 - wired up a bit more of the existing pCars2 logic (e.g. weather conditions); added F1 2020 to games list (spotter only); fixed some VR integration bugs
 
 Version 4.12.0.1: Fixed SteamVR detection on non-English installs; Fixed some issues in speech recognition initialisation error handling; Fix a crash bug preventing the app from starting when user-defined macros are incomplete; Allow existing driver name (opponent name) recordings to be used to generate personalisations (note that these may sound a bit robotic - some will probably be fine, some will be unusable, most will be somewhere in between). If you're waiting for your name to be added to the app check the My Name list again - it might be available; Tweaked the My Name list box so you can now type into it (this is needed because there are now about 8000 entries in this list); Added option to force VR overlay windows to be on top; A few minor bug fixes
