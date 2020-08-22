@@ -431,6 +431,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.12.0.7: Hotfix for issues with VR overlay windows; corrected time deltas in multiclass racing on pCars2 / AMS2; R3E - fixed some missing tyre type mappings
+
 Version 4.12.0.6: R3E - fixed OtterHud integration
 
 Version 4.12.0.5: Some UI tidying up and bug fixes; Stockcar Extreme - fix for app trying (and failing) to install plugin on every start (the plugin .dll must be install manually); R3E - download player rating data in background (should improve start up time); pCars / pCars2 - allow finer control over car class mapping using an optional pCarsCarNames field in the car classes JSON; AMS2 - wired up a bit more of the existing pCars2 logic (e.g. weather conditions); added F1 2020 to games list (spotter only); fixed some VR integration bugs
