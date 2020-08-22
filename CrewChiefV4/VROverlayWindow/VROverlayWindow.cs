@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -59,6 +60,8 @@ namespace CrewChiefV4.VirtualReality
         public bool forceTopMost { get; set; }
         public ETrackingUniverseOrigin trackingUniverse { get; set; }
         public bool isDisplay { get; set; }
+        [DefaultValue(-1)]
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
         public int toggleVKeyCode { get; set; }
         [JsonIgnore]
         public Texture2D copiedScreenTexture { get; set; }
