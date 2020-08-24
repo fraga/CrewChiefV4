@@ -1440,7 +1440,6 @@ namespace CrewChiefV4
                 {
                     deviceManager = new DeviceManager();
                     captureSource = new Direct3D11CaptureSource(deviceManager);
-                    OpenVR.Compositor.SetTrackingSpace(ETrackingUniverseOrigin.TrackingUniverseSeated);
 
                     this.Invoke((MethodInvoker)delegate
                     {
