@@ -1,8 +1,10 @@
-﻿using System;
+﻿//#define TextHelpFiles
+//#define FirstHTMLfiles
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using HtmlAgilityPack; // https://html-agility-pack.net/
 
 /// <summary>
 /// Create Help HTML files from
@@ -41,13 +43,13 @@ namespace HelpFiles
                 "GameSpecific_CommandLineSwitches",
                 "Properties_Properties",
                 "Properties_Profiles",
-                "About_blurb",
                 "About_Updating",
                 "About_Contact",
                 "About_KnownIssues",
                 "About_Customising_TrackLandmarks",
                 "About_Customising_VoicePacks",
                 "About_Customising_NameRequests",
+                "About_Customising_CarClasses",
                 "About_Credits",
                 "About_Donations",
                 "About_ChangeLog",
@@ -64,6 +66,8 @@ namespace HelpFiles
                 "rFactor",
                 "rFactor2"
             };
+
+            writeOnePage("index");
 
             foreach (string page in pageNames)
             {
@@ -87,6 +91,8 @@ namespace HelpFiles
                 System.IO.File.Copy($"..\\..\\{file}", $"..\\..\\..\\public\\{file}", true);
             }
         }
+
+#if TextHelpFiles
         static void writeOnePage(string pageName)
         {
             List<string> lines = System.IO.File.ReadAllLines("..\\..\\menu.ht").ToList();
@@ -129,5 +135,50 @@ namespace HelpFiles
             System.IO.File.WriteAllLines($"..\\..\\..\\public\\{pageName}.html", lines);
             Console.WriteLine($"{pageName}.html written");
         }
+#endif
+
+        /// <summary>
+        /// Insert the content in the HTML file between the menu and
+        /// the footer and save the result in \public
+        /// The content section is marked <div> </div>
+        /// </summary>
+        /// <param name="pageName"></param>
+        static void writeOnePage(string pageName)
+        {
+            var templateDoc = new HtmlDocument();
+            templateDoc.Load("..\\..\\menu.html");
+            var node = templateDoc.DocumentNode.SelectSingleNode("//div");
+            var nodes = templateDoc.DocumentNode.SelectNodes("//div");
+            var oldChild = nodes[1];
+
+            var contentDoc = new HtmlDocument();
+            contentDoc.Load($"..\\..\\{pageName}.html");
+            var insert = contentDoc.DocumentNode.SelectSingleNode("//div").InnerHtml;
+            oldChild.InnerHtml = insert;
+            templateDoc.Save($"..\\..\\..\\public\\{pageName}.html");
+        }
+
+#if FirstHTMLfiles
+        /// <summary>
+        /// ONLY USED ONCE TO CREATE *.HTML
+        /// Create a replacement for the .txt file by inserting the HTML
+        /// text section (<div>) from the original help file into a blank HTML
+        /// </summary>
+        /// <param name="pageName"></param>
+        static void writeOnePage(string pageName)
+        {
+            var templateDoc = new HtmlDocument();
+            templateDoc.Load("..\\..\\blank.html");
+            var node = templateDoc.DocumentNode.SelectSingleNode("//div");
+            var nodes = templateDoc.DocumentNode.SelectNodes("//div");
+            var oldChild = nodes[1];
+
+            var contentDoc = new HtmlDocument();
+            contentDoc.Load($"..\\..\\..\\public\\{pageName}.html");
+            var insert = contentDoc.DocumentNode.SelectSingleNode("//div").InnerHtml;
+            oldChild.InnerHtml = insert;
+            templateDoc.Save($"..\\..\\{pageName}.html");
+        }
+#endif
     }
 }
