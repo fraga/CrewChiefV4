@@ -1235,6 +1235,7 @@ namespace CrewChiefV4
                     String usableName = DriverNameHelper.getUsableDriverName(rawDriverName);
                     if (!opponentsAddedMidSession.Contains(usableName))
                     {
+                        opponentsAddedMidSession.Add(usableName);
                         Console.WriteLine("Adding new (mid-session joined) opponent name to speech recogniser: " + Environment.NewLine + usableName);
                         // This method is called when a new driver appears mid-session. We need to load the sound file for this new driver
                         // so do it here - nasty nasty hack, need to refactor this. The alternative is to call
@@ -1290,8 +1291,7 @@ namespace CrewChiefV4
                         {
                             opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHAT_TYRE_IS, WHAT_TYRES_IS }, false, opponentNameChoices, new String[] { ON }, true));
                         }
-                        opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHATS }, true, opponentNamePossessiveChoices, getWhatsPossessiveChoices(), true));
-                        opponentsAddedMidSession.Add(usableName);
+                        opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHATS }, true, opponentNamePossessiveChoices, getWhatsPossessiveChoices(), true));                        
                     }
                 }
             }
