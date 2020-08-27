@@ -78,6 +78,9 @@ namespace CrewChiefV4
         public static String[] HOW_ARE_MY_BRAKE_TEMPS = Configuration.getSpeechRecognitionPhrases("HOW_ARE_MY_BRAKE_TEMPS");
         public static String[] WHAT_ARE_MY_BRAKE_TEMPS = Configuration.getSpeechRecognitionPhrases("WHAT_ARE_MY_BRAKE_TEMPS");
         public static String[] HOW_ARE_MY_ENGINE_TEMPS = Configuration.getSpeechRecognitionPhrases("HOW_ARE_MY_ENGINE_TEMPS");
+        public static String[] WHAT_ARE_MY_ENGINE_TEMPS = Configuration.getSpeechRecognitionPhrases("WHAT_ARE_MY_ENGINE_TEMPS");
+        public static String[] WHAT_IS_MY_OIL_TEMP = Configuration.getSpeechRecognitionPhrases("WHAT_IS_MY_OIL_TEMP");
+        public static String[] WHAT_IS_MY_WATER_TEMP = Configuration.getSpeechRecognitionPhrases("WHAT_IS_MY_WATER_TEMP");
         public static String[] WHATS_MY_GAP_IN_FRONT = Configuration.getSpeechRecognitionPhrases("WHATS_MY_GAP_IN_FRONT");
         public static String[] WHATS_MY_GAP_BEHIND = Configuration.getSpeechRecognitionPhrases("WHATS_MY_GAP_BEHIND");
         public static String[] WHAT_WAS_MY_LAST_LAP_TIME = Configuration.getSpeechRecognitionPhrases("WHAT_WAS_MY_LAST_LAP_TIME");
@@ -2408,7 +2411,10 @@ namespace CrewChiefV4
             {
                 return CrewChief.getEvent("PitStops");
             }
-            else if (ResultContains(recognisedSpeech, HOW_ARE_MY_ENGINE_TEMPS, false))
+            else if (ResultContains(recognisedSpeech, HOW_ARE_MY_ENGINE_TEMPS, false) ||
+                ResultContains(recognisedSpeech, WHAT_IS_MY_WATER_TEMP, false) ||
+                ResultContains(recognisedSpeech, WHAT_IS_MY_OIL_TEMP, false) ||
+                ResultContains(recognisedSpeech, WHAT_ARE_MY_ENGINE_TEMPS, false))
             {
                 return CrewChief.getEvent("EngineMonitor");
             }
