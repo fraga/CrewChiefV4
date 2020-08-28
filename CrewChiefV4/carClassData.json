@@ -786,7 +786,7 @@
 		},
 		{
 			"carClassEnum": "TCR",
-			"raceroomClassIds": [7009, 7844],
+			"raceroomClassIds": [7009, 7844, 8660],
 			"rf2ClassNames": ["TCR SEAT", "Honda Civic TCR", "Opel Astra OPC", "TT Cup 2015", "TCR VW", "Ford Focus ST"],
 			"iracingCarIds": [112],
 			"timesInHundredths": true,
