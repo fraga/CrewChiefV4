@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("5")]
+[assembly: AssemblyTitle("CrewChiefV4")]
 [assembly: AssemblyDescription("RaceRoom, PCars, PCars2, rFactor, rFactor2, Assetto Corsa, and iRacing race engineer")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Britton IT Ltd")]
