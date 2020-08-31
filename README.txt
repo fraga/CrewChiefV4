@@ -431,6 +431,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.12.0.8: Corrected VR overlay default behaviour (should fix the remaining issues with the overlays); corrected app name being "5" on the Windows Sounds mixer (stupid fat-fingered typo, sorry); added "what's my oil temp" and "what's my water temp" voice commands; R3E - tweaked car class mapping for WTCR
+
 Version 4.12.0.7: Hotfix for issues with VR overlay windows; corrected time deltas in multiclass racing on pCars2 / AMS2; R3E - fixed some missing tyre type mappings
 
 Version 4.12.0.6: R3E - fixed OtterHud integration
