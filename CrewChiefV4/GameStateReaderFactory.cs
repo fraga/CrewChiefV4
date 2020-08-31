@@ -71,6 +71,7 @@ namespace CrewChiefV4
                         }
                         return pcarsSharedMemoryReader;
                     case GameEnum.PCARS2:
+                    case GameEnum.PCARS3:
                         if (pcars2SharedMemoryReader == null)
                         {
                             pcars2SharedMemoryReader = new PCars2SharedMemoryReader();
@@ -158,6 +159,7 @@ namespace CrewChiefV4
                     return new PCarsGameStateMapper();
                 case GameEnum.PCARS2_NETWORK:
                 case GameEnum.PCARS2:
+                case GameEnum.PCARS3:
                     return new PCars2GameStateMapper();
                 case GameEnum.RACE_ROOM:
                     return new R3EGameStateMapper();

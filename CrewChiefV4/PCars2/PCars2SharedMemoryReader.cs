@@ -89,15 +89,15 @@ namespace CrewChiefV4.PCars2
                 {
                     try
                     {
+                        // note that pCars3 also uses "$pcars2$" for its shared memory file
                         memoryMappedFile = MemoryMappedFile.OpenExisting("$pcars2$");
                         sharedmemorysize = Marshal.SizeOf(typeof(pCars2APIStruct));
                         sharedMemoryReadBuffer = new byte[sharedmemorysize];
                         initialised = true;
-                        Console.WriteLine("Initialised pcars2 shared memory");
+                        Console.WriteLine("Initialised " + CrewChief.gameDefinition.friendlyName + " shared memory");
                     }
                     catch (Exception)
                     {
-                        Console.WriteLine("Found PCars2 process, but can't find PCars2 shared memory - check the game isn't running in PCars1 mode");
                         initialised = false;
                     }
                 }

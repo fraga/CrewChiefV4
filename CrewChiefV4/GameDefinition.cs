@@ -8,7 +8,7 @@ namespace CrewChiefV4
 {
     public enum GameEnum
     {
-        RACE_ROOM, PCARS2, PCARS_64BIT, PCARS_32BIT, PCARS_NETWORK, PCARS2_NETWORK, RF1, ASSETTO_64BIT, ASSETTO_32BIT, RF2_64BIT, IRACING, F1_2018, F1_2019, F1_2020, ACC, AMS2, AMS2_NETWORK, UNKNOWN
+        RACE_ROOM, PCARS2, PCARS_64BIT, PCARS_32BIT, PCARS_NETWORK, PCARS2_NETWORK, RF1, ASSETTO_64BIT, ASSETTO_32BIT, RF2_64BIT, IRACING, F1_2018, F1_2019, F1_2020, ACC, AMS2, AMS2_NETWORK, PCARS3, UNKNOWN
     }
     public class GameDefinition
     {
@@ -23,6 +23,9 @@ namespace CrewChiefV4
         // just use the game friendly name
         public static GameDefinition pCars2 = new GameDefinition(GameEnum.PCARS2, "pcars_2", "pCARS2AVX",
             "CrewChiefV4.PCars2.PCars2Spotterv2", "pcars2_launch_exe", "pcars2_launch_params", "launch_pcars2", new String[] { "pCARS2", "pCARS2Gld" }, false, "", "pCARS2 / Automobilista 2");
+        // pCars3 - uses all the pCars2 classes
+        public static GameDefinition pCars3 = new GameDefinition(GameEnum.PCARS3, "pcars_3", "pCARS3",
+            "CrewChiefV4.PCars2.PCars2Spotterv2", "pcars3_launch_exe", "pcars3_launch_params", "launch_pcars3", new String[] { "pCARS3", "pCARS3Gld" }, false);
         public static GameDefinition raceRoom = new GameDefinition(GameEnum.RACE_ROOM, "race_room", "RRRE64", "CrewChiefV4.RaceRoom.R3ESpotterv2",
             "r3e_launch_exe", "r3e_launch_params", "launch_raceroom", new String[] { "RRRE" }, false);
         public static GameDefinition pCarsNetwork = new GameDefinition(GameEnum.PCARS_NETWORK, "pcars_udp", null, "CrewChiefV4.PCars.PCarsSpotterv2",
@@ -165,7 +168,7 @@ namespace CrewChiefV4
             List<GameDefinition> definitions = new List<GameDefinition>();
             definitions.Add(automobilista); definitions.Add(AMS2);
             definitions.Add(gameStockCar); definitions.Add(marcas); definitions.Add(ftruck);
-            definitions.Add(pCars2); definitions.Add(pCars64Bit); definitions.Add(pCars32Bit);
+            definitions.Add(pCars2); definitions.Add(pCars3); definitions.Add(pCars64Bit); definitions.Add(pCars32Bit);
             definitions.Add(raceRoom); definitions.Add(pCarsNetwork); 
             
             // TODO: reinstate this when it actually works:

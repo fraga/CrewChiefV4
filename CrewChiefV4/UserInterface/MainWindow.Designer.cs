@@ -394,6 +394,7 @@ namespace CrewChiefV4
             "iracing",
             "marcas",
             "pcars_2",
+            "pcars_3",
             "pcars_32_bit",
             "pcars_64_bit",
             "pcars_udp",

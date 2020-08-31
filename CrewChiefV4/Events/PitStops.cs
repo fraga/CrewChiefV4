@@ -330,7 +330,10 @@ namespace CrewChiefV4.Events
             {
                 return;
             }
-
+            if (CrewChief.gameDefinition.gameEnum == GameEnum.PCARS3)
+            {
+                return;
+            }
             this.pitStallOccupied = currentGameState.PitData.PitStallOccupied;
             if (currentGameState.SessionData.IsNewLap)
             {

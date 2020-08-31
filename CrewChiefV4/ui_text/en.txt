@@ -30,6 +30,7 @@ start_application = &Start application
 pcars_64_bit = pCARS (64 bit)
 pcars_32_bit = pCARS (32 bit)
 pcars_2 = pCARS 2
+pcars_3 = pCARS 3
 ams2 = Automobilista 2
 race_room = RaceRoom
 pcars_udp = pCARS (network data)
@@ -922,11 +923,23 @@ pcars2_launch_exe_filter = PCARS2
 pcars2_launch_exe_category = UI_STARTUP_AND_PATHS
 pcars2_launch_exe_metadata = RESTART_REQUIRED
 
+pcars3_launch_exe = pCARS 3 launch exe
+pcars3_launch_exe_help = This is the location of Steam.exe or the direct path to pCARS3.exe. Use forward slashes to separate paths.
+pcars3_launch_exe_filter = PCARS3
+pcars3_launch_exe_category = UI_STARTUP_AND_PATHS
+pcars3_launch_exe_metadata = RESTART_REQUIRED
+
 pcars2_launch_params = pCARS 2 launch params
 pcars2_launch_params_help = This is used to tell Steam what app to run - pCARS 2's Steam app ID is 378860. If you specified a path pCARS2AVX.exe you can leave this blank
 pcars2_launch_params_filter = PCARS2
 pcars2_launch_params_category = UI_STARTUP_AND_PATHS
 pcars2_launch_params_metadata = RESTART_REQUIRED
+
+pcars3_launch_params = pCARS 3 launch params
+pcars3_launch_params_help = This is used to tell Steam what app to run - pCARS 3's Steam app ID is 958400. If you specified a path pCARS3.exe you can leave this blank
+pcars3_launch_params_filter = PCARS3
+pcars3_launch_params_category = UI_STARTUP_AND_PATHS
+pcars3_launch_params_metadata = RESTART_REQUIRED
 
 ams2_launch_exe = AMS 2 launch exe
 ams2_launch_exe_help = This is the location of Steam.exe or the direct path to AMS2.exe. Use forward slashes to separate paths.
@@ -951,6 +964,12 @@ launch_pcars2_help = If this is true the application will attempt to launch pCAR
 launch_pcars2_filter = PCARS2
 launch_pcars2_category = UI_STARTUP_AND_PATHS
 launch_pcars2_metadata = RESTART_REQUIRED
+
+launch_pcars3 = Launch pCARS 
+launch_pcars3_help = If this is true the application will attempt to launch pCARS 3 when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
+launch_pcars3_filter = PCARS3
+launch_pcars3_category = UI_STARTUP_AND_PATHS
+launch_pcars3_metadata = RESTART_REQUIRED
 
 launch_ams2 = Launch AMS 2
 launch_ams2_help = If this is true the application will attempt to launch AMS 2 when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
