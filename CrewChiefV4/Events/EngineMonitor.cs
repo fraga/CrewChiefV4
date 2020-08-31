@@ -174,7 +174,10 @@ namespace CrewChiefV4.Events
                     if (temp > 0)
                     {
                         gotData = true;
-                        audioPlayer.playMessageImmediately(new QueuedMessage("oil temp", 0, MessageContents(folderOilTempIntro, temp, getTempUnit())));
+                        if (SoundCache.availableSounds.Contains(folderOilTempIntro))
+                            audioPlayer.playMessageImmediately(new QueuedMessage("oil temp", 0, MessageContents(folderOilTempIntro, temp, getTempUnit())));
+                        else
+                            audioPlayer.playMessageImmediately(new QueuedMessage("oil temp", 0, MessageContents(temp, getTempUnit())));
                     }
                 }
                 else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHAT_IS_MY_WATER_TEMP))
@@ -183,14 +186,17 @@ namespace CrewChiefV4.Events
                     if (temp > 0)
                     {
                         gotData = true;
-                        audioPlayer.playMessageImmediately(new QueuedMessage("water temp", 0, MessageContents(folderWaterTempIntro, temp, getTempUnit())));
+                        if (SoundCache.availableSounds.Contains(folderWaterTempIntro))
+                            audioPlayer.playMessageImmediately(new QueuedMessage("water temp", 0, MessageContents(folderWaterTempIntro, temp, getTempUnit())));
+                        else
+                            audioPlayer.playMessageImmediately(new QueuedMessage("water temp", 0, MessageContents(temp, getTempUnit())));
                     }
                 }
                 else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHAT_ARE_MY_ENGINE_TEMPS))
                 {
                     float oilTemp = convertTemp(engineData.getOilTemp(), 1);
                     float waterTemp = convertTemp(engineData.getWaterTemp(), 1);
-                    if (oilTemp > 0 && waterTemp > 0)
+                    if (oilTemp > 0 && waterTemp > 0 && SoundCache.availableSounds.Contains(folderWaterTempIntro))   // only allow this to play if we have the intro sounds
                     {
                         gotData = true;
                         audioPlayer.playMessageImmediately(new QueuedMessage("engine temps", 0,

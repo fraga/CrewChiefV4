@@ -996,6 +996,9 @@ namespace CrewChiefV4
                 validateAndAdd(PLAY_CORNER_NAMES, staticSpeechChoices);
                 validateAndAdd(HOW_LONG_WILL_THESE_TYRES_LAST, staticSpeechChoices);
                 validateAndAdd(WHATS_PITLANE_SPEED_LIMIT, staticSpeechChoices);
+                validateAndAdd(WHAT_ARE_MY_ENGINE_TEMPS, staticSpeechChoices);
+                validateAndAdd(WHAT_IS_MY_OIL_TEMP, staticSpeechChoices);
+                validateAndAdd(WHAT_IS_MY_WATER_TEMP, staticSpeechChoices);
 
                 validateAndAdd(DAMAGE_REPORT, staticSpeechChoices);
                 validateAndAdd(CAR_STATUS, staticSpeechChoices);
