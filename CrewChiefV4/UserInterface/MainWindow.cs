@@ -736,6 +736,13 @@ namespace CrewChiefV4
                         setFromCommandLine = true;
                         break;
                     }
+                    else if (arg.Equals(GameDefinition.pCars3.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        Console.WriteLine("Set PCars 3 mode from command line");
+                        this.gameDefinitionList.Text = GameDefinition.pCars3.friendlyName;
+                        setFromCommandLine = true;
+                        break;
+                    }
                     else if (arg.Equals(GameDefinition.pCars32Bit.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase))
                     {
                         Console.WriteLine("Set PCars 32bit mode from command line");

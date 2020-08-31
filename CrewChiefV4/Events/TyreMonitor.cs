@@ -626,7 +626,7 @@ namespace CrewChiefV4.Events
 
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
-            if (GameStateData.onManualFormationLap)
+            if (GameStateData.onManualFormationLap || CrewChief.gameDefinition.gameEnum == GameEnum.PCARS3 /* no tyre useage in pCars3*/)
             {
                 return;
             }

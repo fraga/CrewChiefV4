@@ -472,7 +472,8 @@ namespace CrewChiefV4.GameState
             ConditionsMonitor.RainLevel rainLevel = ConditionsMonitor.RainLevel.NONE;
             if (CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2
                 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT
-                || CrewChief.gameDefinition.gameEnum == GameEnum.AMS2)
+                || CrewChief.gameDefinition.gameEnum == GameEnum.AMS2
+                || CrewChief.gameDefinition.gameEnum == GameEnum.PCARS3)
             {
                 rainLevel = ConditionsMonitor.getRainLevel(sample.RainDensity);
             }

@@ -734,12 +734,12 @@ namespace CrewChiefV4
                             }
                             else if (previousGameState != null &&
                                         (gameDefinition.gameEnum == GameEnum.F1_2018 || gameDefinition.gameEnum == GameEnum.F1_2019 || gameDefinition.gameEnum == GameEnum.F1_2020 ||
-                                        ((((gameDefinition.gameEnum == GameEnum.PCARS2 || gameDefinition.gameEnum == GameEnum.AMS2) && currentGameState.SessionData.SessionPhase == SessionPhase.Countdown) ||
+                                        ((((gameDefinition.gameEnum == GameEnum.PCARS2 || gameDefinition.gameEnum == GameEnum.AMS2 || gameDefinition.gameEnum == GameEnum.PCARS3) && currentGameState.SessionData.SessionPhase == SessionPhase.Countdown) ||
                                             currentGameState.SessionData.SessionRunningTime > previousGameState.SessionData.SessionRunningTime) ||
                                         (previousGameState.SessionData.SessionPhase != currentGameState.SessionData.SessionPhase) || 
                                         (gameDefinition.gameEnum == GameEnum.RF2_64BIT && currentGameState.SessionData.SessionPhase == SessionPhase.Gridwalk)) ||  // Need to process warnings during rF2's gridwalk
                                         ((gameDefinition.gameEnum == GameEnum.PCARS_32BIT || gameDefinition.gameEnum == GameEnum.PCARS_64BIT ||
-                                                gameDefinition.gameEnum == GameEnum.PCARS2 || gameDefinition.gameEnum == GameEnum.PCARS_NETWORK ||
+                                                gameDefinition.gameEnum == GameEnum.PCARS2 || gameDefinition.gameEnum == GameEnum.PCARS_NETWORK || gameDefinition.gameEnum == GameEnum.PCARS3 ||
                                                 gameDefinition.gameEnum == GameEnum.PCARS2_NETWORK || gameDefinition.gameEnum == GameEnum.AMS2) &&
                                             currentGameState.SessionData.SessionHasFixedTime && currentGameState.SessionData.SessionTotalRunTime == -1)))
                             {
@@ -1083,6 +1083,7 @@ namespace CrewChiefV4
                 CrewChief.gameDefinition.gameEnum == GameEnum.PCARS_64BIT ||
                 CrewChief.gameDefinition.gameEnum == GameEnum.PCARS_NETWORK ||
                 CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2 ||
+                CrewChief.gameDefinition.gameEnum == GameEnum.PCARS3 ||
                 CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2_NETWORK ||
                 CrewChief.gameDefinition.gameEnum == GameEnum.AMS2;
         }
