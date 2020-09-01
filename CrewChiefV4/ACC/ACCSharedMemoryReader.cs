@@ -312,7 +312,7 @@ namespace CrewChiefV4.ACC
                             if (playerVehicle != null)
                             {
                                 activeVehicles.AddFirst(createCar(1, playerVehicle,accShared.accPhysics.wheelsPressure,
-                                    structWrapper.data.accGraphic.carIDs, structWrapper.data.accGraphic.carCoordinates, structWrapper.data.accStatic.carModel));
+                                    structWrapper.data.accGraphic.carIDs, structWrapper.data.accGraphic.carCoordinates));
                                 distancesTravelled.Add(playerVehicle.Laps + playerVehicle.SplinePosition);
 
                                 // only add a car to our data set if it exists in the UDP data and the shared memory car IDs array
@@ -363,7 +363,7 @@ namespace CrewChiefV4.ACC
         }
 
         // the tyreInflation data aren't available for opponents, so these will always be the player's tyre inflation or an array of zeros
-        private accVehicleInfo createCar(int carIsPlayerVehicle, CarViewModel car, float[] tyreInflation, int[] carIds, accVec3[] carPositions, string carModel = null)
+        private accVehicleInfo createCar(int carIsPlayerVehicle, CarViewModel car, float[] tyreInflation, int[] carIds, accVec3[] carPositions)
         {
             var currentLap = car.CurrentLap;
             var lastLap = car.LastLap;
@@ -390,12 +390,21 @@ namespace CrewChiefV4.ACC
                 x_coord = carPosition.x;
                 z_coord = carPosition.z;
             }
-            // I can't find documentation for what CarModelEnum maps to, other than a random forum post saying that the GT4 cars
-            // are enum values 50 - 61. So lets assume that's as good as the documentation is going to get and use it
-            if (carModel == null)
+            // 4 classes in ACC - GT4 (class enum 50 - 61), Porsche Cup (class enum 9) and Huracan Super Trofeo (class enum 18). Everything else is GT3
+            string carModel = "GT3";
+            if (car.CarModelEnum == 9)
             {
-                carModel = car.CarModelEnum >= 50 && car.CarModelEnum <= 61 ? "GT4" : "GT3";
+                carModel = "porsche_911_cup";
             }
+            else if (car.CarModelEnum == 18)
+            {
+                carModel = "ks_lamborghini_huracan_st"; // this puts the ST in the GTE class
+            }
+            else if (car.CarModelEnum >= 50 && car.CarModelEnum <= 61)
+            {
+                carModel = "GT4";
+            }
+
             return new accVehicleInfo
             {
                 bestLapMS = (bestLap?.IsValid ?? false) ? bestLap.LaptimeMS ?? 0 : 0,

@@ -192,6 +192,7 @@
 		{
 			"carClassEnum": "CARRERA_CUP",
 			"raceroomClassIds": [6345,7982],
+			"acClassNames": ["*911*cup*"],
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL",
 			"allMembersAreRWD": true
