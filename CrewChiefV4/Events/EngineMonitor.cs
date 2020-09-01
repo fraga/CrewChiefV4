@@ -170,37 +170,46 @@ namespace CrewChiefV4.Events
             {
                 if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHAT_IS_MY_OIL_TEMP))
                 {
-                    float temp = convertTemp(engineData.getOilTemp(), 1);
-                    if (temp > 0)
+                    if (CrewChief.currentGameState != null)
                     {
-                        gotData = true;
-                        if (SoundCache.availableSounds.Contains(folderOilTempIntro))
-                            audioPlayer.playMessageImmediately(new QueuedMessage("oil temp", 0, MessageContents(folderOilTempIntro, temp, getTempUnit())));
-                        else
-                            audioPlayer.playMessageImmediately(new QueuedMessage("oil temp", 0, MessageContents(temp, getTempUnit())));
+                        float temp = convertTemp(CrewChief.currentGameState.EngineData.EngineOilTemp, 1);
+                        if (temp > 0)
+                        {
+                            gotData = true;
+                            if (SoundCache.availableSounds.Contains(folderOilTempIntro))
+                                audioPlayer.playMessageImmediately(new QueuedMessage("oil temp", 0, MessageContents(folderOilTempIntro, temp, getTempUnit())));
+                            else
+                                audioPlayer.playMessageImmediately(new QueuedMessage("oil temp", 0, MessageContents(temp, getTempUnit())));
+                        }
                     }
                 }
                 else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHAT_IS_MY_WATER_TEMP))
                 {
-                    float temp = convertTemp(engineData.getWaterTemp(), 1);
-                    if (temp > 0)
+                    if (CrewChief.currentGameState != null)
                     {
-                        gotData = true;
-                        if (SoundCache.availableSounds.Contains(folderWaterTempIntro))
-                            audioPlayer.playMessageImmediately(new QueuedMessage("water temp", 0, MessageContents(folderWaterTempIntro, temp, getTempUnit())));
-                        else
-                            audioPlayer.playMessageImmediately(new QueuedMessage("water temp", 0, MessageContents(temp, getTempUnit())));
+                        float temp = convertTemp(CrewChief.currentGameState.EngineData.EngineWaterTemp, 1);
+                        if (temp > 0)
+                        {
+                            gotData = true;
+                            if (SoundCache.availableSounds.Contains(folderWaterTempIntro))
+                                audioPlayer.playMessageImmediately(new QueuedMessage("water temp", 0, MessageContents(folderWaterTempIntro, temp, getTempUnit())));
+                            else
+                                audioPlayer.playMessageImmediately(new QueuedMessage("water temp", 0, MessageContents(temp, getTempUnit())));
+                        }
                     }
                 }
                 else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHAT_ARE_MY_ENGINE_TEMPS))
                 {
-                    float oilTemp = convertTemp(engineData.getOilTemp(), 1);
-                    float waterTemp = convertTemp(engineData.getWaterTemp(), 1);
-                    if (oilTemp > 0 && waterTemp > 0 && SoundCache.availableSounds.Contains(folderWaterTempIntro))   // only allow this to play if we have the intro sounds
+                    if (CrewChief.currentGameState != null)
                     {
-                        gotData = true;
-                        audioPlayer.playMessageImmediately(new QueuedMessage("engine temps", 0,
-                            MessageContents(folderOilTempIntro, convertTemp(engineData.getOilTemp(), 1), folderWaterTempIntro, convertTemp(engineData.getWaterTemp(), 1), getTempUnit())));
+                        float oilTemp = convertTemp(CrewChief.currentGameState.EngineData.EngineOilTemp, 1);
+                        float waterTemp = convertTemp(CrewChief.currentGameState.EngineData.EngineWaterTemp, 1);
+                        if (oilTemp > 0 && waterTemp > 0 && SoundCache.availableSounds.Contains(folderWaterTempIntro))   // only allow this to play if we have the intro sounds
+                        {
+                            gotData = true;
+                            audioPlayer.playMessageImmediately(new QueuedMessage("engine temps", 0,
+                                MessageContents(folderOilTempIntro, oilTemp, folderWaterTempIntro, waterTemp, getTempUnit())));
+                        }
                     }
                 }
                 else
@@ -288,14 +297,7 @@ namespace CrewChiefV4.Events
                 this.currentWaterTempWarning = engineWaterTempWarning;
                 this.currentEngineStalled = engineStalled;
             }
-            public float getOilTemp()
-            {
-                return currentOilTemp;
-            }
-            public float getWaterTemp()
-            {
-                return currentWaterTemp;
-            }
+
             public EngineStatus getEngineStatusFromAverage(float maxSafeWaterTemp, float maxSafeOilTemp, float currentWaterTemp /*only used for logging*/)
             {
                 EngineStatus engineStatusFlags = EngineStatus.NONE;
