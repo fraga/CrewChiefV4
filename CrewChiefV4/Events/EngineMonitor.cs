@@ -166,88 +166,86 @@ namespace CrewChiefV4.Events
             Boolean fromStatusRequest = SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.CAR_STATUS) ||
                                         SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.STATUS);
             Boolean gotData = false;
-            if (engineData != null)
+            if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHAT_IS_MY_OIL_TEMP))
             {
-                if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHAT_IS_MY_OIL_TEMP))
+                if (CrewChief.currentGameState != null)
                 {
-                    if (CrewChief.currentGameState != null)
+                    float temp = convertTemp(CrewChief.currentGameState.EngineData.EngineOilTemp, 1);
+                    if (temp > 0)
                     {
-                        float temp = convertTemp(CrewChief.currentGameState.EngineData.EngineOilTemp, 1);
-                        if (temp > 0)
-                        {
-                            gotData = true;
-                            if (SoundCache.availableSounds.Contains(folderOilTempIntro))
-                                audioPlayer.playMessageImmediately(new QueuedMessage("oil temp", 0, MessageContents(folderOilTempIntro, temp, getTempUnit())));
-                            else
-                                audioPlayer.playMessageImmediately(new QueuedMessage("oil temp", 0, MessageContents(temp, getTempUnit())));
-                        }
+                        gotData = true;
+                        if (SoundCache.availableSounds.Contains(folderOilTempIntro))
+                            audioPlayer.playMessageImmediately(new QueuedMessage("oil temp", 0, MessageContents(folderOilTempIntro, temp, getTempUnit())));
+                        else
+                            audioPlayer.playMessageImmediately(new QueuedMessage("oil temp", 0, MessageContents(temp, getTempUnit())));
                     }
                 }
-                else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHAT_IS_MY_WATER_TEMP))
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHAT_IS_MY_WATER_TEMP))
+            {
+                if (CrewChief.currentGameState != null)
                 {
-                    if (CrewChief.currentGameState != null)
+                    float temp = convertTemp(CrewChief.currentGameState.EngineData.EngineWaterTemp, 1);
+                    if (temp > 0)
                     {
-                        float temp = convertTemp(CrewChief.currentGameState.EngineData.EngineWaterTemp, 1);
-                        if (temp > 0)
-                        {
-                            gotData = true;
-                            if (SoundCache.availableSounds.Contains(folderWaterTempIntro))
-                                audioPlayer.playMessageImmediately(new QueuedMessage("water temp", 0, MessageContents(folderWaterTempIntro, temp, getTempUnit())));
-                            else
-                                audioPlayer.playMessageImmediately(new QueuedMessage("water temp", 0, MessageContents(temp, getTempUnit())));
-                        }
+                        gotData = true;
+                        if (SoundCache.availableSounds.Contains(folderWaterTempIntro))
+                            audioPlayer.playMessageImmediately(new QueuedMessage("water temp", 0, MessageContents(folderWaterTempIntro, temp, getTempUnit())));
+                        else
+                            audioPlayer.playMessageImmediately(new QueuedMessage("water temp", 0, MessageContents(temp, getTempUnit())));
                     }
                 }
-                else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHAT_ARE_MY_ENGINE_TEMPS))
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHAT_ARE_MY_ENGINE_TEMPS))
+            {
+                if (CrewChief.currentGameState != null)
                 {
-                    if (CrewChief.currentGameState != null)
+                    float oilTemp = convertTemp(CrewChief.currentGameState.EngineData.EngineOilTemp, 1);
+                    float waterTemp = convertTemp(CrewChief.currentGameState.EngineData.EngineWaterTemp, 1);
+                    if (oilTemp > 0 && waterTemp > 0 && SoundCache.availableSounds.Contains(folderWaterTempIntro))   // only allow this to play if we have the intro sounds
                     {
-                        float oilTemp = convertTemp(CrewChief.currentGameState.EngineData.EngineOilTemp, 1);
-                        float waterTemp = convertTemp(CrewChief.currentGameState.EngineData.EngineWaterTemp, 1);
-                        if (oilTemp > 0 && waterTemp > 0 && SoundCache.availableSounds.Contains(folderWaterTempIntro))   // only allow this to play if we have the intro sounds
-                        {
-                            gotData = true;
-                            audioPlayer.playMessageImmediately(new QueuedMessage("engine temps", 0,
-                                MessageContents(folderOilTempIntro, oilTemp, folderWaterTempIntro, waterTemp, getTempUnit())));
-                        }
+                        gotData = true;
+                        audioPlayer.playMessageImmediately(new QueuedMessage("engine temps", 0,
+                            MessageContents(folderOilTempIntro, oilTemp, folderWaterTempIntro, waterTemp, getTempUnit())));
                     }
                 }
-                else
+            }
+            else if (engineData != null)
+            {
+                gotData = true;
+                EngineStatus currentEngineStatus = engineData.getEngineStatusFromCurrent(maxSafeWaterTemp, maxSafeOilTemp);
+                if (currentEngineStatus.HasFlag(EngineStatus.ALL_CLEAR))
                 {
-                    gotData = true;
-                    EngineStatus currentEngineStatus = engineData.getEngineStatusFromCurrent(maxSafeWaterTemp, maxSafeOilTemp);
-                    if (currentEngineStatus.HasFlag(EngineStatus.ALL_CLEAR))
+                    lastStatusMessage = currentEngineStatus;
+                    if (!fromStatusRequest)
+                    {
+                        audioPlayer.playMessageImmediately(new QueuedMessage(folderAllClear, 0));
+                    }
+                }
+                else if (currentEngineStatus.HasFlag(EngineStatus.HOT_OIL) && currentEngineStatus.HasFlag(EngineStatus.HOT_WATER))
+                {
+                    lastStatusMessage = currentEngineStatus;
+                    audioPlayer.playMessageImmediately(new QueuedMessage(folderHotOilAndWater, 0));
+                }
+                else if (currentEngineStatus.HasFlag(EngineStatus.HOT_OIL))
+                {
+                    // don't play this if the last message was about hot oil *and* water - wait for 'all clear'
+                    if (!lastStatusMessage.HasFlag(EngineStatus.HOT_OIL) && !lastStatusMessage.HasFlag(EngineStatus.HOT_WATER))
                     {
                         lastStatusMessage = currentEngineStatus;
-                        if (!fromStatusRequest)
-                        {
-                            audioPlayer.playMessageImmediately(new QueuedMessage(folderAllClear, 0));
-                        }
-                    }
-                    else if (currentEngineStatus.HasFlag(EngineStatus.HOT_OIL) && currentEngineStatus.HasFlag(EngineStatus.HOT_WATER))
-                    {
-                        lastStatusMessage = currentEngineStatus;
-                        audioPlayer.playMessageImmediately(new QueuedMessage(folderHotOilAndWater, 0));
-                    }
-                    else if (currentEngineStatus.HasFlag(EngineStatus.HOT_OIL))
-                    {
-                        // don't play this if the last message was about hot oil *and* water - wait for 'all clear'
-                        if (!lastStatusMessage.HasFlag(EngineStatus.HOT_OIL) && !lastStatusMessage.HasFlag(EngineStatus.HOT_WATER))
-                        {
-                            lastStatusMessage = currentEngineStatus;
-                            audioPlayer.playMessageImmediately(new QueuedMessage(folderHotOil, 0));
-                        }
-                    }
-                    else if (currentEngineStatus.HasFlag(EngineStatus.HOT_WATER))
-                    {
-                        // don't play this if the last message was about hot oil *and* water - wait for 'all clear'
-                        if (!lastStatusMessage.HasFlag(EngineStatus.HOT_OIL) && !lastStatusMessage.HasFlag(EngineStatus.HOT_WATER))
-                        {
-                            lastStatusMessage = currentEngineStatus;
-                            audioPlayer.playMessageImmediately(new QueuedMessage(folderHotWater, 0));
-                        }
+                        audioPlayer.playMessageImmediately(new QueuedMessage(folderHotOil, 0));
                     }
                 }
+                else if (currentEngineStatus.HasFlag(EngineStatus.HOT_WATER))
+                {
+                    // don't play this if the last message was about hot oil *and* water - wait for 'all clear'
+                    if (!lastStatusMessage.HasFlag(EngineStatus.HOT_OIL) && !lastStatusMessage.HasFlag(EngineStatus.HOT_WATER))
+                    {
+                        lastStatusMessage = currentEngineStatus;
+                        audioPlayer.playMessageImmediately(new QueuedMessage(folderHotWater, 0));
+                    }
+                }
+                
             }
             if (!gotData && !fromStatusRequest)
             {
