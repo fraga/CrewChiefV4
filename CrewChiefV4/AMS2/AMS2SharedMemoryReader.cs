@@ -97,7 +97,6 @@ namespace CrewChiefV4.AMS2
                     }
                     catch (Exception)
                     {
-                        Console.WriteLine("Found AMS2 process, but can't find AMS2 shared memory - check the game isn't running in AMS1 mode");
                         initialised = false;
                     }
                 }
