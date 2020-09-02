@@ -59,6 +59,7 @@
     <Exec Command="mkdir ..\CrewChiefV4\bin\PublishedComponents" />
     <Exec Command="mkdir ..\CrewChiefV4\bin\PublishedComponents\plugins" />
 	<Exec Command="mkdir ..\CrewChiefV4\bin\PublishedComponents\Resources" />
+	<Exec Command="mkdir ..\CrewChiefV4\bin\PublishedComponents\ui_text" />
     <Exec Command="xcopy ..\CrewChiefV4\plugins ..\CrewChiefV4\bin\PublishedComponents\plugins /e /k" />
 	<Exec Command="xcopy ..\CrewChiefV4\Resources ..\CrewChiefV4\bin\PublishedComponents\Resources /e /k" />
     <Exec Command="copy ..\CrewChiefV4\bin\$(Configuration)\AutoUpdater.NET.dll ..\CrewChiefV4\bin\PublishedComponents\AutoUpdater.NET.dll" />
@@ -84,7 +85,7 @@
 	<Exec Command="copy ..\CrewChiefV4\sounds_config.txt ..\CrewChiefV4\bin\PublishedComponents\sounds_config.txt" />
     <Exec Command="copy ..\CrewChiefV4\speech_recognition_config.txt ..\CrewChiefV4\bin\PublishedComponents\speech_recognition_config.txt" />
     <Exec Command="copy ..\CrewChiefV4\trackLandmarksData.json ..\CrewChiefV4\bin\PublishedComponents\trackLandmarksData.json" />
-    <Exec Command="copy ..\CrewChiefV4\ui_text.txt ..\CrewChiefV4\bin\PublishedComponents\ui_text.txt" />
+    <Exec Command="copy ..\CrewChiefV4\ui_text\en.txt ..\CrewChiefV4\bin\PublishedComponents\ui_text\en.txt" />
     <Exec Command="copy ..\help.txt ..\CrewChiefV4\bin\PublishedComponents\help.txt" />
     <Exec Command="copy ..\Newtonsoft_Json_licence.txt ..\CrewChiefV4\bin\PublishedComponents\Newtonsoft_Json_licence.txt" />
     <Exec Command="copy ..\README.txt ..\CrewChiefV4\bin\PublishedComponents\README.txt" />

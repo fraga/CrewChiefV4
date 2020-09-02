@@ -259,7 +259,7 @@ namespace CrewChiefV4.Events
 
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
-            if (!GlobalBehaviourSettings.enabledMessageTypes.Contains(MessageTypes.FUEL))
+            if (!GlobalBehaviourSettings.enabledMessageTypes.Contains(MessageTypes.FUEL) || CrewChief.gameDefinition.gameEnum == GameEnum.PCARS3 /* no fuel useage in pCars3*/)
             {
                 return;
             }

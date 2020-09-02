@@ -446,7 +446,8 @@ namespace CrewChiefV4.ACC
                 }
 
                 System.Diagnostics.Debug.WriteLine("Player is using car class " + currentGameState.carClass.getClassIdentifier());
-                Utilities.TraceEventClass(currentGameState);
+                // don't trace the car classes at this point because we might not have been told about them all, giving a misleading debug statement
+                // Utilities.TraceEventClass(currentGameState);
 
                 currentGameState.SessionData.PlayerLapTimeSessionBest = -1;
                 currentGameState.SessionData.OpponentsLapTimeSessionBestOverall = -1;

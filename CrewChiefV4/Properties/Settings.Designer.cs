@@ -4501,6 +4501,18 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ui_language {
+            get {
+                return ((string)(this["ui_language"]));
+            }
+            set {
+                this["ui_language"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool disable_overlay_voice_commands {
             get {
@@ -4568,6 +4580,66 @@ namespace CrewChiefV4.Properties {
             }
             set {
                 this["f1_2020_udp_data_port"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool show_vr_settings_as_overlay {
+            get {
+                return ((bool)(this["show_vr_settings_as_overlay"]));
+            }
+            set {
+                this["show_vr_settings_as_overlay"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string Setting {
+            get {
+                return ((string)(this["Setting"]));
+            }
+            set {
+                this["Setting"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:/Program Files (x86)/Steam/steamapps/common/Project CARS 3/pCARS3.exe")]
+        public string pcars3_launch_exe {
+            get {
+                return ((string)(this["pcars3_launch_exe"]));
+            }
+            set {
+                this["pcars3_launch_exe"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string pcars3_launch_params {
+            get {
+                return ((string)(this["pcars3_launch_params"]));
+            }
+            set {
+                this["pcars3_launch_params"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool launch_pcars3 {
+            get {
+                return ((bool)(this["launch_pcars3"]));
+            }
+            set {
+                this["launch_pcars3"] = value;
             }
         }
     }

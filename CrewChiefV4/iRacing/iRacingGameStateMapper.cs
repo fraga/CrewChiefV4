@@ -486,42 +486,6 @@ namespace CrewChiefV4.iRacing
                 lastTimeEngineFuelPressureWarning = DateTime.MaxValue;
             }
 
-
-            //Console.WriteLine("Voltage: " + shared.Telemetry.Voltage);
-            SessionFlags flag = (SessionFlags)shared.Telemetry.SessionFlags;
-            if (flag.HasFlag(SessionFlags.Black) && !flag.HasFlag(SessionFlags.Furled))
-            {
-                currentGameState.PenaltiesData.HasStopAndGo = true;
-            }
-            if (flag.HasFlag(SessionFlags.Furled))
-            {
-                currentGameState.PenaltiesData.HasSlowDown = true;
-            }
-            if (flag.HasFlag(SessionFlags.Repair))
-            {
-                currentGameState.PenaltiesData.HasPitStop = true;
-            }
-            if (flag.HasFlag(SessionFlags.YellowWaving))
-            {
-                currentGameState.SessionData.Flag = FlagEnum.YELLOW;
-            }
-            else if (previousGameState != null && !previousGameState.SessionData.Flag.HasFlag(FlagEnum.BLUE) && flag.HasFlag(SessionFlags.Blue))
-            {
-                currentGameState.SessionData.Flag = FlagEnum.BLUE;
-            }
-            /*else if (flag.HasFlag(SessionFlags.CautionWaving))
-            {
-                currentGameState.SessionData.Flag = FlagEnum.DOUBLE_YELLOW;
-            }*/
-            if (flag.HasFlag(SessionFlags.White))
-            {
-                if (GlobalBehaviourSettings.useAmericanTerms)
-                {
-                    currentGameState.SessionData.Flag = FlagEnum.WHITE;
-                }
-                currentGameState.SessionData.IsLastLap = true;
-            }
-
             currentGameState.SessionData.CompletedLaps = playerCar.Live.LiveLapsCompleted;
             currentGameState.SessionData.LapTimeCurrent = shared.Telemetry.LapCurrentLapTime;
             currentGameState.FlagData.isFullCourseYellow = currentGameState.SessionData.SessionPhase == SessionPhase.FullCourseYellow;
@@ -788,7 +752,43 @@ namespace CrewChiefV4.iRacing
             {
                 currentGameState.PitData.IsAtPitExit = true;
             }
-
+            //Console.WriteLine("Voltage: " + shared.Telemetry.Voltage);
+            SessionFlags flag = (SessionFlags)shared.Telemetry.SessionFlags;
+            if (flag.HasFlag(SessionFlags.Black) && !flag.HasFlag(SessionFlags.Furled))
+            {
+                if (currentGameState.PitData.OnInLap || currentGameState.PitData.OnOutLap)
+                    currentGameState.PenaltiesData.HasStopAndGo = true;
+                else
+                    currentGameState.PenaltiesData.HasDriveThrough = true;
+            }
+            if (flag.HasFlag(SessionFlags.Furled) && currentGameState.SessionData.SessionType != SessionType.Qualify)
+            {
+                currentGameState.PenaltiesData.HasSlowDown = true;
+            }
+            if (flag.HasFlag(SessionFlags.Repair))
+            {
+                currentGameState.PenaltiesData.HasPitStop = true;
+            }
+            if (flag.HasFlag(SessionFlags.YellowWaving))
+            {
+                currentGameState.SessionData.Flag = FlagEnum.YELLOW;
+            }
+            else if (previousGameState != null && !previousGameState.SessionData.Flag.HasFlag(FlagEnum.BLUE) && flag.HasFlag(SessionFlags.Blue) && !flag.HasFlag(SessionFlags.Green))
+            {
+                currentGameState.SessionData.Flag = FlagEnum.BLUE;
+            }
+            /*else if (flag.HasFlag(SessionFlags.CautionWaving))
+            {
+                currentGameState.SessionData.Flag = FlagEnum.DOUBLE_YELLOW;
+            }*/
+            if (flag.HasFlag(SessionFlags.White))
+            {
+                if (GlobalBehaviourSettings.useAmericanTerms)
+                {
+                    currentGameState.SessionData.Flag = FlagEnum.WHITE;
+                }
+                currentGameState.SessionData.IsLastLap = true;
+            }
             currentGameState.PitData.PitSpeedLimit = shared.SessionData.Track.TrackPitSpeedLimit;
 
             currentGameState.SessionData.DeltaTime.SetNextDeltaPoint(currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.SessionData.CompletedLaps,
@@ -1411,7 +1411,8 @@ namespace CrewChiefV4.iRacing
                 {
                     return SessionPhase.Countdown;
                 }
-                else if (sessionFlags.HasFlag(SessionFlags.Green))
+                else if (sessionFlags.HasFlag(SessionFlags.Green) || 
+                    sessionState.HasFlag(SessionStates.Racing) /* covers mid-session join in hosted racing */)
                 {
                     return SessionPhase.Green;
                 }

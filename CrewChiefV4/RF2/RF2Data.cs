@@ -1045,49 +1045,7 @@ namespace rF2SharedMemory
       [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = rFactor2Constants.MAX_RULES_INSTRUCTION_MSG_LEN)]
                    public byte[] mLSIRulesInstructionMessage;
 
-      [JsonIgnore] public int mUnsubscribedBuffersMask;                         // Currently active UnsbscribedBuffersMask value.  This will be allowed for clients to write to in the future, but not yet.
-
-                   public byte mHWControlInputEnabled;                          // HWControl input buffer is enabled.
-                   public byte mWeatherControlInputEnabled;                     // WeatherControl input buffer is enabled.
-                   public byte mRulesControlInputEnabled;                       // RulesControl input buffer is enabled.
+            [JsonIgnore] public long mUnsubscribedBuffersMask;                     // Currently active UnsbscribedBuffersMask value.  This will be allowed for clients to write to in the future, but not yet.
+        }
     }
-
-
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 4)]
-    public struct rF2HWControl
-    {
-                   public uint mVersionUpdateBegin;                             // Incremented right before buffer is written to.
-                   public uint mVersionUpdateEnd;                               // Incremented after buffer write is done.
-
-                   public int mLayoutVersion;
-
-      [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = rFactor2Constants.MAX_HWCONTROL_NAME_LEN)]
-                   public byte[] mControlName;
-                   public double mfRetVal;
-    }
-
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 4)]
-    struct rF2WeatherControl
-    {
-                   public uint mVersionUpdateBegin;                             // Incremented right before buffer is written to.
-                   public uint mVersionUpdateEnd;                               // Incremented after buffer write is done.
-
-                   public int mLayoutVersion;
-
-                   public rF2WeatherControlInfo mWeatherInfo;
-    }
-
-    enum SubscribedBuffer
-    {
-      Telemetry = 1,
-      Scoring = 2,
-      Rules = 4,
-      MultiRules = 8,
-      ForceFeedback = 16,
-      Graphics = 32,
-      PitInfo = 64,
-      Weather = 128,
-      All = 255
-    };
-  }
 }

@@ -136,8 +136,8 @@ namespace CrewChiefV4
             // trackBarPositionZ
             // 
             this.trackBarPositionZ.Location = new System.Drawing.Point(53, 152);
-            this.trackBarPositionZ.Maximum = 180;
-            this.trackBarPositionZ.Minimum = -180;
+            this.trackBarPositionZ.Maximum = 1000;
+            this.trackBarPositionZ.Minimum = -1000;
             this.trackBarPositionZ.Name = "trackBarPositionZ";
             this.trackBarPositionZ.Size = new System.Drawing.Size(223, 45);
             this.trackBarPositionZ.TabIndex = 15;
@@ -459,7 +459,7 @@ namespace CrewChiefV4
             // 
             this.trackBarScale.BackColor = System.Drawing.SystemColors.Control;
             this.trackBarScale.Location = new System.Drawing.Point(57, 32);
-            this.trackBarScale.Maximum = 100;
+            this.trackBarScale.Maximum = 1000;
             this.trackBarScale.Name = "trackBarScale";
             this.trackBarScale.Size = new System.Drawing.Size(223, 45);
             this.trackBarScale.TabIndex = 1;

@@ -400,12 +400,15 @@ namespace CrewChiefV4.Events
                     return folderSuperSoftTyres;
                 case TyreType.Soft:
                 case TyreType.R3E_2016_SOFT:
+                case TyreType.R3E_2017_SOFT:
                     return folderSoftTyres;
                 case TyreType.Medium:
                 case TyreType.R3E_2016_MEDIUM:
+                case TyreType.R3E_2017_MEDIUM:
                     return folderMediumTyres;
                 case TyreType.Hard:
                 case TyreType.R3E_2016_HARD:
+                case TyreType.R3E_2017_HARD:
                     return folderHardTyres;
                 case TyreType.Primary:
                     return folderPrimaryTyres;
@@ -623,7 +626,7 @@ namespace CrewChiefV4.Events
 
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
-            if (GameStateData.onManualFormationLap)
+            if (GameStateData.onManualFormationLap || CrewChief.gameDefinition.gameEnum == GameEnum.PCARS3 /* no tyre useage in pCars3*/)
             {
                 return;
             }

@@ -74,7 +74,7 @@ namespace CrewChiefV4.Events
             }
 
             // DRS:
-            if (drsMessagesEnabled && currentGameState.OvertakingAids.DrsEnabled)
+            if (drsMessagesEnabled && currentGameState.OvertakingAids.DrsEnabled && currentGameState.OvertakingAids.DrsRange != -1)
             {
                 if (trackDistanceToCheckDRSGapFrontAt == -1 && currentGameState.SessionData.TrackDefinition != null)
                 {
@@ -141,7 +141,7 @@ namespace CrewChiefV4.Events
             }
 
             // push to pass
-            if (ptpMessagesEnabled)
+            if (ptpMessagesEnabled && currentGameState.OvertakingAids.PushToPassActivationsRemaining != -1)
             {
                 if (previousGameState.OvertakingAids.PushToPassEngaged && !currentGameState.OvertakingAids.PushToPassEngaged &&
                     currentGameState.OvertakingAids.PushToPassActivationsRemaining == 0)

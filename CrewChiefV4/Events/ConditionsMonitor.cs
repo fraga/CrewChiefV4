@@ -283,7 +283,8 @@ namespace CrewChiefV4.Events
                         else if (CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT
                             || CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2
                             || CrewChief.gameDefinition.gameEnum == GameEnum.ACC
-                            || CrewChief.gameDefinition.gameEnum == GameEnum.AMS2)
+                            || CrewChief.gameDefinition.gameEnum == GameEnum.AMS2
+                            || CrewChief.gameDefinition.gameEnum == GameEnum.PCARS3)
                         {
                             if (rainDensityAtLastCheck != -1 && rainDensityAtLastCheck != currentConditions.RainDensity)
                             {

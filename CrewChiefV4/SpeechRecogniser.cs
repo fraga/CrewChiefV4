@@ -78,6 +78,9 @@ namespace CrewChiefV4
         public static String[] HOW_ARE_MY_BRAKE_TEMPS = Configuration.getSpeechRecognitionPhrases("HOW_ARE_MY_BRAKE_TEMPS");
         public static String[] WHAT_ARE_MY_BRAKE_TEMPS = Configuration.getSpeechRecognitionPhrases("WHAT_ARE_MY_BRAKE_TEMPS");
         public static String[] HOW_ARE_MY_ENGINE_TEMPS = Configuration.getSpeechRecognitionPhrases("HOW_ARE_MY_ENGINE_TEMPS");
+        public static String[] WHAT_ARE_MY_ENGINE_TEMPS = Configuration.getSpeechRecognitionPhrases("WHAT_ARE_MY_ENGINE_TEMPS");
+        public static String[] WHAT_IS_MY_OIL_TEMP = Configuration.getSpeechRecognitionPhrases("WHAT_IS_MY_OIL_TEMP");
+        public static String[] WHAT_IS_MY_WATER_TEMP = Configuration.getSpeechRecognitionPhrases("WHAT_IS_MY_WATER_TEMP");
         public static String[] WHATS_MY_GAP_IN_FRONT = Configuration.getSpeechRecognitionPhrases("WHATS_MY_GAP_IN_FRONT");
         public static String[] WHATS_MY_GAP_BEHIND = Configuration.getSpeechRecognitionPhrases("WHATS_MY_GAP_BEHIND");
         public static String[] WHAT_WAS_MY_LAST_LAP_TIME = Configuration.getSpeechRecognitionPhrases("WHAT_WAS_MY_LAST_LAP_TIME");
@@ -356,6 +359,7 @@ namespace CrewChiefV4
         private HashSet<string> driverNamesInUse = new HashSet<string>();
         private HashSet<string> carNumbersInUse = new HashSet<string>();
 
+        private HashSet<string> opponentsAddedMidSession = new HashSet<string>();
         private List<GrammarWrapper> opponentGrammarList = new List<GrammarWrapper>();
         private List<GrammarWrapper> iracingPitstopGrammarList = new List<GrammarWrapper>();
         private List<GrammarWrapper> r3ePitstopGrammarList = new List<GrammarWrapper>();
@@ -997,6 +1001,9 @@ namespace CrewChiefV4
                 validateAndAdd(PLAY_CORNER_NAMES, staticSpeechChoices);
                 validateAndAdd(HOW_LONG_WILL_THESE_TYRES_LAST, staticSpeechChoices);
                 validateAndAdd(WHATS_PITLANE_SPEED_LIMIT, staticSpeechChoices);
+                validateAndAdd(WHAT_ARE_MY_ENGINE_TEMPS, staticSpeechChoices);
+                validateAndAdd(WHAT_IS_MY_OIL_TEMP, staticSpeechChoices);
+                validateAndAdd(WHAT_IS_MY_WATER_TEMP, staticSpeechChoices);
 
                 validateAndAdd(DAMAGE_REPORT, staticSpeechChoices);
                 validateAndAdd(CAR_STATUS, staticSpeechChoices);
@@ -1237,62 +1244,66 @@ namespace CrewChiefV4
                 if (initialised)
                 {
                     String usableName = DriverNameHelper.getUsableDriverName(rawDriverName);
-                    Console.WriteLine("Adding new (mid-session joined) opponent name to speech recogniser: " + Environment.NewLine + usableName);
-                    // This method is called when a new driver appears mid-session. We need to load the sound file for this new driver
-                    // so do it here - nasty nasty hack, need to refactor this. The alternative is to call
-                    // SoundCache.loadDriverNameSound in each of mappers when a new driver is added.
-                    SoundCache.loadDriverNameSound(usableName);
+                    if (!opponentsAddedMidSession.Contains(usableName))
+                    {
+                        opponentsAddedMidSession.Add(usableName);
+                        Console.WriteLine("Adding new (mid-session joined) opponent name to speech recogniser: " + Environment.NewLine + usableName);
+                        // This method is called when a new driver appears mid-session. We need to load the sound file for this new driver
+                        // so do it here - nasty nasty hack, need to refactor this. The alternative is to call
+                        // SoundCache.loadDriverNameSound in each of mappers when a new driver is added.
+                        SoundCache.loadDriverNameSound(usableName);
 
-                    HashSet<string> nameChoices = new HashSet<string>();
-                    HashSet<string> namePossessiveChoices = new HashSet<string>();
-                    if (identifyOpponentsByName && usableName != null && usableName.Length > 0 && !driverNamesInUse.Contains(rawDriverName))
-                    {
-                        driverNamesInUse.Add(rawDriverName);
-                        nameChoices.Add(usableName);
-                        namePossessiveChoices.Add(usableName + POSSESSIVE);
-                    }
-                    if (identifyOpponentsByNumber && carNumberString != "-1" && carNumberToNumber.ContainsValue(carNumberString))
-                    {
-                        if (!carNumbersInUse.Contains(carNumberString))
+                        HashSet<string> nameChoices = new HashSet<string>();
+                        HashSet<string> namePossessiveChoices = new HashSet<string>();
+                        if (identifyOpponentsByName && usableName != null && usableName.Length > 0 && !driverNamesInUse.Contains(rawDriverName))
                         {
-                            carNumbersInUse.Add(carNumberString);
-                            String[] numberOptions = carNumberToNumber.FirstOrDefault(x => x.Value == carNumberString).Key;
-                            foreach (String number in numberOptions)
-                            {
-                                nameChoices.Add(CAR_NUMBER + " " + number);
-                                namePossessiveChoices.Add(CAR_NUMBER + " " + number + POSSESSIVE);
-                            }
+                            driverNamesInUse.Add(rawDriverName);
+                            nameChoices.Add(usableName);
+                            namePossessiveChoices.Add(usableName + POSSESSIVE);
                         }
-                        // if the car number has a 0 or 00 in front of it, also listen for the number without the leading zero(s)
-                        if (carNumberString.StartsWith("0"))
+                        if (identifyOpponentsByNumber && carNumberString != "-1" && carNumberToNumber.ContainsValue(carNumberString))
                         {
-                            int parsed;
-                            if (int.TryParse(carNumberString, out parsed))
+                            if (!carNumbersInUse.Contains(carNumberString))
                             {
-                                String carNumberStringAlternate = parsed.ToString();
-                                if (!carNumbersInUse.Contains(carNumberStringAlternate))
+                                carNumbersInUse.Add(carNumberString);
+                                String[] numberOptions = carNumberToNumber.FirstOrDefault(x => x.Value == carNumberString).Key;
+                                foreach (String number in numberOptions)
                                 {
-                                    carNumbersInUse.Add(carNumberStringAlternate);
-                                    String[] numberOptionsWithoutLeadingZeros = carNumberToNumber.FirstOrDefault(x => x.Value == parsed.ToString()).Key;
-                                    foreach (String number in numberOptionsWithoutLeadingZeros)
+                                    nameChoices.Add(CAR_NUMBER + " " + number);
+                                    namePossessiveChoices.Add(CAR_NUMBER + " " + number + POSSESSIVE);
+                                }
+                            }
+                            // if the car number has a 0 or 00 in front of it, also listen for the number without the leading zero(s)
+                            if (carNumberString.StartsWith("0"))
+                            {
+                                int parsed;
+                                if (int.TryParse(carNumberString, out parsed))
+                                {
+                                    String carNumberStringAlternate = parsed.ToString();
+                                    if (!carNumbersInUse.Contains(carNumberStringAlternate))
                                     {
-                                        nameChoices.Add(CAR_NUMBER + " " + number);
-                                        namePossessiveChoices.Add(CAR_NUMBER + " " + number + POSSESSIVE);
+                                        carNumbersInUse.Add(carNumberStringAlternate);
+                                        String[] numberOptionsWithoutLeadingZeros = carNumberToNumber.FirstOrDefault(x => x.Value == parsed.ToString()).Key;
+                                        foreach (String number in numberOptionsWithoutLeadingZeros)
+                                        {
+                                            nameChoices.Add(CAR_NUMBER + " " + number);
+                                            namePossessiveChoices.Add(CAR_NUMBER + " " + number + POSSESSIVE);
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                    ChoicesWrapper opponentNameChoices = SREWrapperFactory.createNewChoicesWrapper(nameChoices.ToArray<string>());
-                    ChoicesWrapper opponentNamePossessiveChoices = SREWrapperFactory.createNewChoicesWrapper(namePossessiveChoices.ToArray<string>());
+                        ChoicesWrapper opponentNameChoices = SREWrapperFactory.createNewChoicesWrapper(nameChoices.ToArray<string>());
+                        ChoicesWrapper opponentNamePossessiveChoices = SREWrapperFactory.createNewChoicesWrapper(namePossessiveChoices.ToArray<string>());
 
-                    opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHERE_IS, WHERES, WATCH, TEAM_MATE, RIVAL, STOP_WATCHING }, false, opponentNameChoices, null, true));
-                    // todo: iracing definitely has no opponent tyre type data, probably more games lack this info
-                    if (CrewChief.gameDefinition != null && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)
-                    {
-                        opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHAT_TYRE_IS, WHAT_TYRES_IS }, false, opponentNameChoices, new String[] { ON }, true));
+                        opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHERE_IS, WHERES, WATCH, TEAM_MATE, RIVAL, STOP_WATCHING }, false, opponentNameChoices, null, true));
+                        // todo: iracing definitely has no opponent tyre type data, probably more games lack this info
+                        if (CrewChief.gameDefinition != null && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)
+                        {
+                            opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHAT_TYRE_IS, WHAT_TYRES_IS }, false, opponentNameChoices, new String[] { ON }, true));
+                        }
+                        opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHATS }, true, opponentNamePossessiveChoices, getWhatsPossessiveChoices(), true));                        
                     }
-                    opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHATS }, true, opponentNamePossessiveChoices, getWhatsPossessiveChoices(), true));
                 }
             }
             catch (Exception e)
@@ -1315,6 +1326,7 @@ namespace CrewChiefV4
                 sreWrapper.UnloadGrammar(opponentGrammar);
             }
             opponentGrammarList.Clear();
+            opponentsAddedMidSession.Clear();
             ChoicesWrapper opponentChoices = SREWrapperFactory.createNewChoicesWrapper();
 
             // need choice sets for names, possessive names, positions, possessive positions, and combined:
@@ -2529,7 +2541,10 @@ namespace CrewChiefV4
             {
                 return CrewChief.getEvent("PitStops");
             }
-            else if (ResultContains(recognisedSpeech, HOW_ARE_MY_ENGINE_TEMPS, false))
+            else if (ResultContains(recognisedSpeech, HOW_ARE_MY_ENGINE_TEMPS, false) ||
+                ResultContains(recognisedSpeech, WHAT_IS_MY_WATER_TEMP, false) ||
+                ResultContains(recognisedSpeech, WHAT_IS_MY_OIL_TEMP, false) ||
+                ResultContains(recognisedSpeech, WHAT_ARE_MY_ENGINE_TEMPS, false))
             {
                 return CrewChief.getEvent("EngineMonitor");
             }

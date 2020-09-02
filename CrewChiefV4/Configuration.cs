@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -11,7 +12,9 @@ namespace CrewChiefV4
 {
     public class Configuration
     {
-        private static String UI_TEXT_FILENAME = "ui_text.txt";
+        private static String UI_TEXT_FILENAME = "ui_text\\en.txt";
+        private static String UI_TEXT_FILENAME_LEGACY = "ui_text.txt";  // this is used to load old UI translations from AppData/local/CrewChiefV4/ui_text.txt
+        private static String UI_TEXT_LOCALISED_FILENAME = "ui_text\\{locale}.txt";
         private static String SPEECH_RECOGNITION_CONFIG_FILENAME = "speech_recognition_config.txt";
         private static String SOUNDS_CONFIG_FILENAME = "sounds_config.txt";
 
@@ -153,63 +156,89 @@ namespace CrewChiefV4
             }
         }
 
-        private static Dictionary<string, string> LoadConfigHelper(string configFileName)
+        private static Dictionary<string, string> LoadConfigHelper(string configFileName, string localisedConfigFileName)
         {
             Dictionary<string, string> dict = new Dictionary<string, string>();
-            StreamReader file = null;
-            try
+            LoadAndMerge(dict, getDefaultFileLocation(configFileName));
+            if (localisedConfigFileName != null)
             {
-                file = new StreamReader(getDefaultFileLocation(configFileName));
-                merge(file, dict);
-            }
-            catch (Exception)
-            {
-            }
-            finally
-            {
-                if (file != null)
+                try
                 {
-                    file.Close();
+                    var locale = UserSettings.GetUserSettings().getString("ui_language");
+                    if (string.IsNullOrWhiteSpace(locale))
+                    {
+                        locale = CultureInfo.InstalledUICulture.Name;
+                    }
+                    var localised = getDefaultFileLocation(localisedConfigFileName.Replace("{locale}", locale));
+                    var language = getDefaultFileLocation(localisedConfigFileName.Replace("{locale}", locale.Substring(0, 2)));
+                    if (File.Exists(language))
+                    {
+                        Debug.WriteLine("Found language override for: " + configFileName + ". Locale " + locale + ". Merging.");
+                        LoadAndMerge(dict, language);
+                    }
+                    if (File.Exists(localised))
+                    {
+                        Debug.WriteLine("Found localised override for: " + configFileName + ". Locale " + locale + ". Merging.");
+                        LoadAndMerge(dict, localised);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine("Error loading localised ui: " + e.Message);
                 }
             }
-            StreamReader overridesFile = null;
-            try
-            {
-                var overrideFileName = getUserOverridesFileLocation(configFileName);
-                if (File.Exists(overrideFileName))
-                {
-                    Debug.WriteLine("Found user override for: " + configFileName + ".  Merging.");
-                    overridesFile = new StreamReader(overrideFileName);
-                    merge(overridesFile, dict);
-                }
-                }
-            catch (Exception)
-            {
 
-            }
-            finally
+            var overrideFileName = getUserOverridesFileLocation(configFileName);
+            // fall back to old UI text override location if no new version is provided to maintain backwards compatibility
+            var legacyOverrideFileName = getUserOverridesFileLocation(UI_TEXT_FILENAME_LEGACY);
+            if (File.Exists(overrideFileName))
             {
-                if (overridesFile != null)
-                {
-                    overridesFile.Close();
-                }
+                Debug.WriteLine("Found user override for: " + configFileName + ". Merging.");
+                LoadAndMerge(dict, overrideFileName);
+            }
+            else if (File.Exists(legacyOverrideFileName))
+            {
+                Debug.WriteLine("Found user override for: " + legacyOverrideFileName + ". Merging.");
+                LoadAndMerge(dict, legacyOverrideFileName);
             }
             return dict;
         }
 
+        private static void LoadAndMerge(Dictionary<string, string> dict, string language)
+        {
+            using (var file = new StreamReader(language))
+            {
+                try
+                {
+
+                    merge(file, dict);
+                }
+                catch (Exception)
+                {
+                }
+                finally
+                {
+                    if (file != null)
+                    {
+                        file.Close();
+                    }
+                }
+            }
+        }
+
         private static Dictionary<String, String> LoadSpeechRecognitionConfig()
         {
-            return LoadConfigHelper(SPEECH_RECOGNITION_CONFIG_FILENAME);
+            return LoadConfigHelper(SPEECH_RECOGNITION_CONFIG_FILENAME, null);
         }
 
         private static Dictionary<String, String> LoadSoundsConfig()
         {
-            return LoadConfigHelper(SOUNDS_CONFIG_FILENAME);
+            return LoadConfigHelper(SOUNDS_CONFIG_FILENAME, null);
         }
 
         private static Dictionary<String, String> LoadUIStrings()
         {
-            return LoadConfigHelper(UI_TEXT_FILENAME);
+            return LoadConfigHelper(UI_TEXT_FILENAME, UI_TEXT_LOCALISED_FILENAME);
         }
     }
 }

@@ -601,6 +601,7 @@ namespace CrewChiefV4.Overlay
                                 getPropertyValue(((CrewChiefV4.RaceRoom.R3ESharedMemoryReader.R3EStructWrapper)currentGameState.rawGameData).data, field.fieldName), field.overlayDataType, currentGameState.Ticks, currentGameState.SessionData.SectorNumber));
                             break;
                         case GameEnum.PCARS2:
+                        case GameEnum.PCARS3:
                             lapData.addDataPoint(new DataPoint(currentGameState.SessionData.CompletedLaps, distanceRoundTrack,
                                 getPropertyValue(((CrewChiefV4.PCars2.PCars2SharedMemoryReader.PCars2StructWrapper)currentGameState.rawGameData).data, field.fieldName), field.overlayDataType, currentGameState.Ticks, currentGameState.SessionData.SectorNumber));
                             break;

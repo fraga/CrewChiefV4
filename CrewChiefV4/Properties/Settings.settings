@@ -1121,6 +1121,9 @@
     <Setting Name="watched_opponent_names" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
+    <Setting Name="ui_language" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
     <Setting Name="disable_overlay_voice_commands" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
@@ -1138,6 +1141,21 @@
     </Setting>
     <Setting Name="f1_2020_udp_data_port" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">20777</Value>
+    </Setting>
+    <Setting Name="show_vr_settings_as_overlay" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="Setting" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="pcars3_launch_exe" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:/Program Files (x86)/Steam/steamapps/common/Project CARS 3/pCARS3.exe</Value>
+    </Setting>
+    <Setting Name="pcars3_launch_params" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="launch_pcars3" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
     </Setting>
   </Settings>
 </SettingsFile>

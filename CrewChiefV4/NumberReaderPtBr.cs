@@ -49,7 +49,7 @@ namespace CrewChiefV4.NumberProcessing
         private static String folderSeconds = folderNumbersStub + "seconds";
         public static String folderAnd = folderNumbersStub + "and";
         
-        private enum Unit { HOUR, MINUTE, SECOND, AND_TENTH, JUST_TENTH, AND_HUNDREDTH, JUST_HUNDREDTH }
+        private enum Unit { HOUR, MINUTE, SECOND, AND_TENTH, JUST_TENTH, NONE }
         
         protected override String getLocale()
         {
@@ -120,7 +120,7 @@ namespace CrewChiefV4.NumberProcessing
                     }
                     else
                     {
-                        messages.AddRange(resolveNumberSounds(false, seconds, Unit.SECOND, !messageHasContentAfterTime, ARTICLE_GENDER.MALE));
+                        messages.AddRange(resolveNumberSounds(false, seconds, Unit.NONE, !messageHasContentAfterTime, ARTICLE_GENDER.MALE));
                     }
                 }
             }
@@ -381,6 +381,8 @@ namespace CrewChiefV4.NumberProcessing
                     return NumberReaderPtBr.folderNumbersStub + (number == 1 ? "minute" : "minutes");
                 case Unit.SECOND:
                     return NumberReaderPtBr.folderNumbersStub + (number == 1 ? "second" : "seconds");
+                case Unit.AND_TENTH:
+                    return NumberReaderPtBr.folderNumbersStub + "seconds";
                 case Unit.JUST_TENTH:
                     return NumberReaderPtBr.folderNumbersStub + (number == 1 ? "tenth" : "tenths");
                 default:
@@ -415,7 +417,10 @@ namespace CrewChiefV4.NumberProcessing
                 }
                 sounds.Add(folderAnd);
                 sounds.Add(folderNumbersStub + number);
-                sounds.Add(unitFolder);
+                if (unitFolder.Length > 0)
+                {
+                    sounds.Add(unitFolder);
+                }
                 Console.WriteLine("Returning individual sounds: " + String.Join(", ", sounds));
                 return sounds;
             }
@@ -431,7 +436,10 @@ namespace CrewChiefV4.NumberProcessing
                     return sounds;
                 }
                 sounds.Add(folderNumbersStub + number);
-                sounds.Add(unitFolder);
+                if (unitFolder.Length > 0)
+                {
+                    sounds.Add(unitFolder);
+                }
                 Console.WriteLine("Returning individual sounds: " + String.Join(", ", sounds));
                 return sounds;
             }

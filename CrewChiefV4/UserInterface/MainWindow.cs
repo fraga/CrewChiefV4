@@ -736,6 +736,13 @@ namespace CrewChiefV4
                         setFromCommandLine = true;
                         break;
                     }
+                    else if (arg.Equals(GameDefinition.pCars3.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        Console.WriteLine("Set PCars 3 mode from command line");
+                        this.gameDefinitionList.Text = GameDefinition.pCars3.friendlyName;
+                        setFromCommandLine = true;
+                        break;
+                    }
                     else if (arg.Equals(GameDefinition.pCars32Bit.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase))
                     {
                         Console.WriteLine("Set PCars 32bit mode from command line");
@@ -905,7 +912,6 @@ namespace CrewChiefV4
             {
                 VROverlayController.vrUpdateThreadRunning = false;
                 VROverlayController.resumeVROverlayRenderThread();
-                killVRThread();
             }
 
             lock (consoleWriter)
@@ -1429,13 +1435,6 @@ namespace CrewChiefV4
             }
         }
 
-        // SVR Thread methods
-        [SecurityPermission(SecurityAction.Demand, ControlThread = true)]
-        private void killVRThread()
-        {
-            vrUpdateThread.Abort();
-        }
-
         private bool isSteamVrRunning()
         {
             return Win32Stuff.FindWindowsWithText("SteamVR").FirstOrDefault() != IntPtr.Zero;
@@ -1446,6 +1445,9 @@ namespace CrewChiefV4
             {
                 try
                 {
+                    deviceManager = new DeviceManager();
+                    captureSource = new Direct3D11CaptureSource(deviceManager);
+
                     this.Invoke((MethodInvoker)delegate
                     {
                         if (MainWindow.instance != null)
@@ -1454,9 +1456,7 @@ namespace CrewChiefV4
                             buttonVRWindowSettings.Enabled = true;
                         }
                     });
-                    deviceManager = new DeviceManager();
-                    captureSource = new Direct3D11CaptureSource(deviceManager);
-                    OpenVR.Compositor.SetTrackingSpace(ETrackingUniverseOrigin.TrackingUniverseSeated);
+
                     return true;
                 }
                 catch (Exception e)
@@ -1474,13 +1474,17 @@ namespace CrewChiefV4
         }
         private bool waitForSteamVR(int preSleep = 0)
         {
-            Thread.Sleep(preSleep);
-            while (!isSteamVrRunning())
+            if (preSleep > 0)
+                Utilities.InterruptedSleep(preSleep, 50, keepWaitingPredicate: () => VROverlayController.vrUpdateThreadRunning);
+
+            while (VROverlayController.vrUpdateThreadRunning
+                && !this.isSteamVrRunning())
             {
                 Thread.Sleep(1000);
             }
 
-            if (!initSteamVR())
+            if (VROverlayController.vrUpdateThreadRunning
+                && !this.initSteamVR())
             {
                 return false;
             }
@@ -1490,7 +1494,7 @@ namespace CrewChiefV4
             }
         }
 
-        private void vrOverlaysUpdateThreadWorker()
+       private void vrOverlaysUpdateThreadWorker()
         {
             bool vrOverlayForceDisabledDrawing = false;
             uint vrEventSize = (uint)SharpDX.Utilities.SizeOf<VREvent_t>();
@@ -1509,102 +1513,133 @@ namespace CrewChiefV4
 
                 while (VROverlayController.vrUpdateThreadRunning)
                 {
-                    if (VROverlayController.vrOverlayRenderThreadSuspended && !vrOverlayForceDisabledDrawing)  // This is to avoid locking most of the time.
+                    try
                     {
-                        lock (VROverlayController.suspendStateLock)
+                        if (VROverlayController.vrOverlayRenderThreadSuspended && !vrOverlayForceDisabledDrawing)  // This is to avoid locking most of the time.
                         {
-                            if (VROverlayController.vrOverlayRenderThreadSuspended)
+                            lock (VROverlayController.suspendStateLock)
                             {
-                                // Hide the layers.
-                                VROverlayWindow[] currentItemsToHide = null;
-                                lock (VROverlaySettings.instanceLock)
+                                if (VROverlayController.vrOverlayRenderThreadSuspended)
                                 {
-                                    currentItemsToHide = new VROverlayWindow[vrOverlayForm.listBoxWindows.Items.Count];
-                                    vrOverlayForm.listBoxWindows.Items.CopyTo(currentItemsToHide, 0);
+                                    // Hide the layers.
+                                    VROverlayWindow[] currentItemsToHide = null;
+                                    lock (VROverlaySettings.instanceLock)
+                                    {
+                                        currentItemsToHide = new VROverlayWindow[vrOverlayForm.listBoxWindows.Items.Count];
+                                        vrOverlayForm.listBoxWindows.Items.CopyTo(currentItemsToHide, 0);
+                                    }
+                                    currentItemsToHide.Where(wnd => wnd.enabled).ToList().ForEach(w => w.SetOverlayEnabled(false));
+                                    vrOverlayForceDisabledDrawing = true;
                                 }
-                                currentItemsToHide.Where(wnd => wnd.enabled).ToList().ForEach(w => w.SetOverlayEnabled(false));
-                                vrOverlayForceDisabledDrawing = true;
                             }
                         }
-                    }
-                    else
-                    {
-                        vrOverlayForceDisabledDrawing = false;
-                    }
-
-                    if (!VROverlayController.vrUpdateThreadRunning)
-                        return;
-
-                    var vrEvent = new VREvent_t();
-                    bool reinitialize = false;
-                    while (OpenVR.System != null && OpenVR.System.PollNextEvent(ref vrEvent, vrEventSize))
-                    {
-                        switch ((EVREventType)vrEvent.eventType)
+                        else
                         {
-                            case EVREventType.VREvent_Quit:
-                                {
-                                    if (Application.OpenForms.OfType<VROverlaySettings>().Count() == 1)
-                                        Application.OpenForms.OfType<VROverlaySettings>().First().Close();
-
-                                    OpenVR.System.AcknowledgeQuit_Exiting();
-
-                                    captureSource?.Dispose();
-                                    captureSource = null;
-
-                                    deviceManager?.Dispose();
-                                    deviceManager = null;
-
-                                    vrOverlayForm?.Dispose();
-                                    vrOverlayForm = null;
-
-                                    SteamVR.SafeDispose();
-
-                                    this.Invoke((MethodInvoker)delegate
-                                    {
-                                        if (MainWindow.instance != null)
-                                        {
-                                            buttonVRWindowSettings.Enabled = false;
-                                        }
-                                    });
-                                    reinitialize = true;
-                                    break;
-                                }
-                            default:
-                                break;
+                            vrOverlayForceDisabledDrawing = false;
                         }
+
+                        if (!VROverlayController.vrUpdateThreadRunning)
+                            return;
+
+                        var vrEvent = new VREvent_t();
+                        bool reinitialize = false;
+                        while (OpenVR.System != null && OpenVR.System.PollNextEvent(ref vrEvent, vrEventSize))
+                        {
+                            switch ((EVREventType)vrEvent.eventType)
+                            {
+                                case EVREventType.VREvent_Quit:
+                                    {
+                                        this.handleVRQuit();
+                                        reinitialize = true;
+                                        break;
+                                    }
+                                default:
+                                    break;
+                            }
+                        }
+                        if (reinitialize)
+                            waitForSteamVR(10000); // give svr process some time to shut down before we start monitoring again.
+
+                        if (!VROverlayController.vrUpdateThreadRunning)
+                            return;
+
+                        if (!vrOverlayForceDisabledDrawing && OpenVR.System != null)
+                        {
+                            // update poses(matix, velocity) for supported devices.
+                            TrackedDevices.UpdatePoses();
+                            TrackedDevices.GetHeadPose(out SharpDX.Matrix hmdMatrix, out _, out _);
+
+                            VROverlayWindow[] currentItems = null;
+                            lock (VROverlaySettings.instanceLock)
+                            {
+                                currentItems = new VROverlayWindow[vrOverlayForm.listBoxWindows.Items.Count];
+                                vrOverlayForm.listBoxWindows.Items.CopyTo(currentItems, 0);
+                            }
+
+                            foreach (var wnd in currentItems)
+                            {
+                                wnd.HandleToggleKey();
+                            }
+
+                            var windowBatch = currentItems.Where(wnd => wnd.enabled).ToList();
+
+                            captureSource.Capture(ref windowBatch);
+                            foreach (var wnd in windowBatch)
+                            {
+                                wnd.hmdMatrix = hmdMatrix;
+                                wnd.Draw();
+                            }
+                        }
+                        Thread.Sleep(11);
                     }
-                    if (reinitialize)
+                    catch (Exception ex)
+                    {
+                        // Treat exception as VRQuit.
+                        this.handleVRQuit();
                         waitForSteamVR(10000); // give svr process some time to shut down before we start monitoring again.
 
-                    if (!VROverlayController.vrUpdateThreadRunning)
-                        return;
-
-                    if (!vrOverlayForceDisabledDrawing && OpenVR.System != null)
-                    {
-                        // update poses(matix, velocity) for supported devices.
-                        TrackedDevices.UpdatePoses();
-                        TrackedDevices.GetHeadPose(out SharpDX.Matrix hmdMatrix, out _, out _);
-
-                        VROverlayWindow[] currentItems = null;
-                        lock (VROverlaySettings.instanceLock)
-                        {
-                            currentItems = new VROverlayWindow[vrOverlayForm.listBoxWindows.Items.Count];
-                            vrOverlayForm.listBoxWindows.Items.CopyTo(currentItems, 0);
-                        }
-                        var windowBatch = currentItems.Where(wnd => wnd.enabled).ToList();
-
-                        captureSource.Capture(ref windowBatch);
-                        foreach (var wnd in windowBatch)
-                        {
-                            wnd.hmdMatrix = hmdMatrix;
-                            wnd.Draw();
-                        }
+                        Utilities.ReportException(ex, "vrOverlaysUpdateThreadWorker exception.", needReport: false);
                     }
-                    Thread.Sleep(11);
                 }
             }
             finally
             {
+                
+                this.handleVRQuit();
+
+                SteamVR.enabled = false;
+                Debug.WriteLine("Exiting VR Overlays Render thread.");
+            }
+        }
+
+        private void handleVRQuit()
+        {
+            try
+            {
+                try
+                {
+                    if (VROverlayController.vrUpdateThreadRunning  // Shutting down.
+                        && MainWindow.instance != null)
+                    {
+                        this.Invoke((MethodInvoker)delegate
+                        {
+                            if (MainWindow.instance != null)
+                            {
+                                buttonVRWindowSettings.Enabled = false;
+                            }
+                        });
+                    }
+                }
+                catch (Exception)
+                {
+                    // Shutdown.
+                }
+
+                if (Application.OpenForms.OfType<VROverlaySettings>().Count() == 1)
+                    Application.OpenForms.OfType<VROverlaySettings>().First().Close();
+
+                OpenVR.System?.AcknowledgeQuit_Exiting();
+
                 captureSource?.Dispose();
                 captureSource = null;
 
@@ -1614,8 +1649,11 @@ namespace CrewChiefV4
                 vrOverlayForm?.Dispose();
                 vrOverlayForm = null;
 
-                SteamVR.enabled = false;
-                Debug.WriteLine("Exiting VR Overlays Render thread.");
+                SteamVR.SafeDispose();
+            }
+            catch (Exception ex)
+            {
+                Utilities.ReportException(ex, "handleVRQuit exited with exception.", needReport: false);
             }
         }
 
@@ -3458,7 +3496,8 @@ namespace CrewChiefV4
         {
             this.Close();
         }
-	public void buttonVRWindowSettings_Click(object sender, EventArgs e)
+
+        public void buttonVRWindowSettings_Click(object sender, EventArgs e)
         {
             vrOverlayForm.ShowDialog();
         }

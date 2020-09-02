@@ -311,7 +311,7 @@ namespace CrewChiefV4.ACC
                                 accShared.accStatic, accShared.accGraphic.position);
                             if (playerVehicle != null)
                             {
-                                activeVehicles.AddFirst(createCar(1, playerVehicle, structWrapper.data.accStatic.carModel, accShared.accPhysics.wheelsPressure,
+                                activeVehicles.AddFirst(createCar(1, playerVehicle,accShared.accPhysics.wheelsPressure,
                                     structWrapper.data.accGraphic.carIDs, structWrapper.data.accGraphic.carCoordinates));
                                 distancesTravelled.Add(playerVehicle.Laps + playerVehicle.SplinePosition);
 
@@ -320,7 +320,7 @@ namespace CrewChiefV4.ACC
                                 {
                                     if (car != playerVehicle && structWrapper.data.accGraphic.carIDs.Contains(car.CarIndex))
                                     {
-                                        activeVehicles.AddLast(createCar(0, car, structWrapper.data.accStatic.carModel, new float[4],
+                                        activeVehicles.AddLast(createCar(0, car, new float[4],
                                             structWrapper.data.accGraphic.carIDs, structWrapper.data.accGraphic.carCoordinates));
                                         distancesTravelled.Add(car.Laps + car.SplinePosition);
                                     }
@@ -362,9 +362,8 @@ namespace CrewChiefV4.ACC
             }
         }
 
-        // the carModel and tyreInflation aren't available for opponents, so these will always be the player's car model
-        // and either the player's tyre inflation or an array of zeros
-        private accVehicleInfo createCar(int carIsPlayerVehicle, CarViewModel car, string carModel, float[] tyreInflation, int[] carIds, accVec3[] carPositions)
+        // the tyreInflation data aren't available for opponents, so these will always be the player's tyre inflation or an array of zeros
+        private accVehicleInfo createCar(int carIsPlayerVehicle, CarViewModel car, float[] tyreInflation, int[] carIds, accVec3[] carPositions)
         {
             var currentLap = car.CurrentLap;
             var lastLap = car.LastLap;
@@ -391,13 +390,26 @@ namespace CrewChiefV4.ACC
                 x_coord = carPosition.x;
                 z_coord = carPosition.z;
             }
+            // 4 classes in ACC - GT4 (class enum 50 - 61), Porsche Cup (class enum 9) and Huracan Super Trofeo (class enum 18). Everything else is GT3
+            string carModel = "GT3";
+            if (car.CarModelEnum == 9)
+            {
+                carModel = "porsche_911_cup";
+            }
+            else if (car.CarModelEnum == 18)
+            {
+                carModel = "ks_lamborghini_huracan_st"; // this puts the ST in the GTE class
+            }
+            else if (car.CarModelEnum >= 50 && car.CarModelEnum <= 61)
+            {
+                carModel = "GT4";
+            }
+
             return new accVehicleInfo
             {
                 bestLapMS = (bestLap?.IsValid ?? false) ? bestLap.LaptimeMS ?? 0 : 0,
                 carId = car.CarIndex,
                 carLeaderboardPosition = car.Position,
-                // JB: we'll need to map the CarModelEnum here to something sensible. This code will mean the app assumes opponents
-                // are all racing the same car as the player. This is OK for the time being as ACC is single-class only
                 carModel = carModel,
                 carRealTimeLeaderboardPosition = car.Position,
                 currentLapInvalid = (currentLap?.IsValid ?? false) ? 0 : 1,

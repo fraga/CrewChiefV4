@@ -548,6 +548,9 @@ namespace CrewChiefV4
         {
             return Marshal.SizeOf(typeof(T));
         }
+
+        [System.Runtime.InteropServices.DllImport("kernel32.dll")]
+        public static extern long GetTickCount64();
     }
 
     public class WebsocketData : WebSocketBehavior
