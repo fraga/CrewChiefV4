@@ -1999,7 +1999,17 @@ namespace CrewChiefV4
                         else if (GrammarWrapperListContains(pitManagerGrammarList, recognitionGrammar))
                         {
                             this.lastRecognisedText = recognisedText;
-                            CrewChief.getEvent("PitManagerVoiceCmds").respond(recognisedText);
+							try
+							{
+                            	CrewChief.getEvent("PitManagerVoiceCmds").respond(recognisedText);
+							}
+							catch
+							{
+								if (CrewChief.Debugging)
+								{
+									Console.WriteLine("Pit Manager not included");
+								}
+							}
                         }
                         else if (GrammarWrapperListContains(overlayGrammarList, recognitionGrammar))
                         {
