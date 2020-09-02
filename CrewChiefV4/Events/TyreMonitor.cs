@@ -1795,6 +1795,66 @@ namespace CrewChiefV4.Events
                         aggregatePressureMessages(null, null, getPressureMessage(CornerData.Corners.REAR_LEFT, true), getPressureMessage(CornerData.Corners.REAR_RIGHT, true)));
                 }
             }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHAT_ARE_MY_LEFT_FRONT_SURFACE_TEMPS))
+            {
+                if (!hasUsableIMOTempData(false) || CrewChief.currentGameState == null)
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                }
+                else
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage("left front surface temps", 0, MessageContents(
+                        convertTemp(CrewChief.currentGameState.TyreData.FrontLeft_LeftTemp, 1),
+                        convertTemp(CrewChief.currentGameState.TyreData.FrontLeft_CenterTemp, 1),
+                        convertTemp(CrewChief.currentGameState.TyreData.FrontLeft_RightTemp, 1), 
+                        getTempUnit())));
+                }
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHAT_ARE_MY_RIGHT_FRONT_SURFACE_TEMPS))
+            {
+                if (!hasUsableIMOTempData(false) || CrewChief.currentGameState == null)
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                }
+                else
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage("right front surface temps", 0, MessageContents(
+                        convertTemp(CrewChief.currentGameState.TyreData.FrontRight_RightTemp, 1),
+                        convertTemp(CrewChief.currentGameState.TyreData.FrontRight_CenterTemp, 1),
+                        convertTemp(CrewChief.currentGameState.TyreData.FrontRight_LeftTemp, 1),
+                        getTempUnit())));
+                }
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHAT_ARE_MY_LEFT_REAR_SURFACE_TEMPS))
+            {
+                if (!hasUsableIMOTempData(false) || CrewChief.currentGameState == null)
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                }
+                else
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage("left rear surface temps", 0, MessageContents(
+                        convertTemp(CrewChief.currentGameState.TyreData.RearLeft_LeftTemp, 1),
+                        convertTemp(CrewChief.currentGameState.TyreData.RearLeft_CenterTemp, 1),
+                        convertTemp(CrewChief.currentGameState.TyreData.RearLeft_RightTemp, 1),
+                        getTempUnit())));
+                }
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHAT_ARE_MY_RIGHT_REAR_SURFACE_TEMPS))
+            {
+                if (!hasUsableIMOTempData(false) || CrewChief.currentGameState == null)
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                }
+                else
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage("right front surface temps", 0, MessageContents(
+                        convertTemp(CrewChief.currentGameState.TyreData.RearRight_RightTemp, 1),
+                        convertTemp(CrewChief.currentGameState.TyreData.RearRight_CenterTemp, 1),
+                        convertTemp(CrewChief.currentGameState.TyreData.RearRight_LeftTemp, 1),
+                        getTempUnit())));
+                }
+            }
         }
 
         private void playPressureMessage(Boolean allowDelayedResponse, string folder)

@@ -166,6 +166,12 @@ namespace CrewChiefV4
         public static String[] HOW_ARE_MY_FRONT_TYRE_PRESSURES_RIGHT_NOW = Configuration.getSpeechRecognitionPhrases("HOW_ARE_MY_FRONT_TYRE_PRESSURES_RIGHT_NOW");
         public static String[] HOW_ARE_MY_REAR_TYRE_PRESSURES_RIGHT_NOW = Configuration.getSpeechRecognitionPhrases("HOW_ARE_MY_REAR_TYRE_PRESSURES_RIGHT_NOW");
 
+        public static String[] WHAT_ARE_MY_LEFT_FRONT_SURFACE_TEMPS = Configuration.getSpeechRecognitionPhrases("WHAT_ARE_MY_LEFT_FRONT_SURFACE_TEMPS");
+        public static String[] WHAT_ARE_MY_RIGHT_FRONT_SURFACE_TEMPS = Configuration.getSpeechRecognitionPhrases("WHAT_ARE_MY_RIGHT_FRONT_SURFACE_TEMPS");
+        public static String[] WHAT_ARE_MY_LEFT_REAR_SURFACE_TEMPS = Configuration.getSpeechRecognitionPhrases("WHAT_ARE_MY_LEFT_REAR_SURFACE_TEMPS");
+        public static String[] WHAT_ARE_MY_RIGHT_REAR_SURFACE_TEMPS = Configuration.getSpeechRecognitionPhrases("WHAT_ARE_MY_RIGHT_REAR_SURFACE_TEMPS");
+
+
         public static String[] STOP_COMPLAINING = Configuration.getSpeechRecognitionPhrases("STOP_COMPLAINING");
 
         // R3E only for now:
@@ -1027,6 +1033,10 @@ namespace CrewChiefV4
                 validateAndAdd(HOW_ARE_MY_FRONT_TYRE_PRESSURES_RIGHT_NOW, staticSpeechChoices);
                 validateAndAdd(HOW_ARE_MY_REAR_TYRE_PRESSURES_RIGHT_NOW, staticSpeechChoices);
                 validateAndAdd(WHAT_ARE_THE_PIT_ACTIONS, staticSpeechChoices);
+                validateAndAdd(WHAT_ARE_MY_LEFT_FRONT_SURFACE_TEMPS, staticSpeechChoices);
+                validateAndAdd(WHAT_ARE_MY_LEFT_REAR_SURFACE_TEMPS, staticSpeechChoices);
+                validateAndAdd(WHAT_ARE_MY_RIGHT_FRONT_SURFACE_TEMPS, staticSpeechChoices);
+                validateAndAdd(WHAT_ARE_MY_RIGHT_REAR_SURFACE_TEMPS, staticSpeechChoices);
 
                 if (!disableBehaviorAlteringVoiceCommands)
                 {
@@ -2393,7 +2403,11 @@ namespace CrewChiefV4
                 ResultContains(recognisedSpeech, HOWS_MY_REAR_CAMBER_RIGHT_NOW, false) ||
                 ResultContains(recognisedSpeech, HOW_ARE_MY_TYRE_PRESSURES_RIGHT_NOW, false) ||
                 ResultContains(recognisedSpeech, HOW_ARE_MY_FRONT_TYRE_PRESSURES_RIGHT_NOW, false) ||
-                ResultContains(recognisedSpeech, HOW_ARE_MY_REAR_TYRE_PRESSURES_RIGHT_NOW, false))
+                ResultContains(recognisedSpeech, HOW_ARE_MY_REAR_TYRE_PRESSURES_RIGHT_NOW, false) ||
+                ResultContains(recognisedSpeech, WHAT_ARE_MY_LEFT_FRONT_SURFACE_TEMPS, false) ||
+                ResultContains(recognisedSpeech, WHAT_ARE_MY_RIGHT_FRONT_SURFACE_TEMPS, false) ||
+                ResultContains(recognisedSpeech, WHAT_ARE_MY_LEFT_REAR_SURFACE_TEMPS, false) ||
+                ResultContains(recognisedSpeech, WHAT_ARE_MY_RIGHT_REAR_SURFACE_TEMPS, false))
             {
                 return CrewChief.getEvent("TyreMonitor");
             }

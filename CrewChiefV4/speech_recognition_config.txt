@@ -163,6 +163,11 @@ HOW_ARE_MY_FRONT_TYRE_PRESSURES_RIGHT_NOW = how are my front pressures right now
 HOW_ARE_MY_REAR_TYRE_PRESSURES_RIGHT_NOW = how are my rear pressures right now:how are my rear tire pressures right now
 HOW_ARE_MY_TYRE_PRESSURES_RIGHT_NOW = how are my pressures right now: how are my tire pressures right now
 
+WHAT_ARE_MY_LEFT_FRONT_SURFACE_TEMPS = what are my left front surface temps
+WHAT_ARE_MY_RIGHT_FRONT_SURFACE_TEMPS = what are my right front surface temps
+WHAT_ARE_MY_LEFT_REAR_SURFACE_TEMPS = what are my left rear surface temps
+WHAT_ARE_MY_RIGHT_REAR_SURFACE_TEMPS = what are my right rear surface temps
+
 WHAT_ARE_THE_PIT_ACTIONS = what are the pit actions:what's the pitstop plan
 
 STOP_COMPLAINING = stop complaining:stop grumbling:fuck off
