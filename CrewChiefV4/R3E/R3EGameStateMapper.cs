@@ -58,30 +58,7 @@ namespace CrewChiefV4.RaceRoom
         private float destroyedSuspensionThresholdPercent = 50f;
 
 
-        private List<CornerData.EnumWithThresholds> brakeTempThresholdsForPlayersCar = null;
-
-        // Oil temps are typically 1 or 2 units (I'm assuming celcius) higher than water temps. Typical temps while racing tend to be
-        // mid - high 50s, with some in-traffic running this creeps up to the mid 60s. To get it into the 
-        // 70s you have to really try. Any higher requires you to sit by the side of the road bouncing off the
-        // rev limiter. Doing this I've been able to get to 110 without blowing up (I got bored). With temps in the
-        // 80s, by the end of a single lap at racing speed they're back into the 60s.
-        //
-        // I think the cool down effect of the radiator is the underlying issue here - it's far too strong. 
-        // The oil temp does lag behind the water temp, which is correct, but I think it should lag 
-        // more (i.e. it should take longer for the oil to cool) and the oil should heat up more relative to the water. 
-        // 
-        // I'd expect to be seeing water temperatures in the 80s for 'normal' running, with this getting well into the 
-        // 90s or 100s in traffic. The oil temps should be 100+, maybe hitting 125 or more when the water's also hot.
-        // 
-        // To work around this I take a 'baseline' temp for oil and water - this is the average temperature between 3
-        // and 5 minutes of the session. I then look at differences between this baseline and the current temperature, allowing
-        // a configurable 'max above baseline' for each. Assuming the base line temps are sensible (say, 85 for water 105 for oil), 
-        // then anthing over 95 for water and 120 for oil is 'bad' - the numbers in the config reflect this
-
-        private float targetEngineWaterTemp = 88;
-        private float targetEngineOilTemp = 105;
-        private float baselineEngineDataOilTemp = 88;
-        private float baselineEngineDataWaterTemp = 105;        
+        private List<CornerData.EnumWithThresholds> brakeTempThresholdsForPlayersCar = null;   
 
         // blue flag zone for improvised blues when the 'full flag rules' are disabled
         // note that this will be set to true at the start of a session and change to false as soon as the game sends a blue flag
@@ -132,6 +109,8 @@ namespace CrewChiefV4.RaceRoom
             suspensionDamageThresholds.Add(suspensionDamageMinor);
             suspensionDamageThresholds.Add(suspensionDamageMajor);
             suspensionDamageThresholds.Add(suspensionDamageDestroyed);
+
+            CarData.optimalTempsFromGame.Clear();
         }
 
         public override void versionCheck(Object memoryMappedFileStruct)
@@ -254,6 +233,7 @@ namespace CrewChiefV4.RaceRoom
                     currentGameState.SessionData.SessionPhase == SessionPhase.Countdown) ||
                 lastSessionRunningTime > currentGameState.SessionData.SessionRunningTime)
             {
+                CarData.optimalTempsFromGame.Clear();
                 R3EPitMenuManager.hasStateForCurrentSession = false;
                 currentGameState.SessionData.IsNewSession = true;
                 chequeredFlagShownInThisSession = false;
@@ -327,11 +307,7 @@ namespace CrewChiefV4.RaceRoom
                     currentGameState.SessionData.SessionTotalRunTime = shared.SessionTimeRemaining;
                     currentGameState.SessionData.SessionHasFixedTime = true;
                 }
-
-                // reset the engine temp monitor stuff
-
-                baselineEngineDataOilTemp = targetEngineOilTemp;
-                baselineEngineDataWaterTemp = targetEngineWaterTemp;
+                
                 lastTimeEngineWasRunning = DateTime.MaxValue;
                 opponentDriverNamesProcessedForThisTick.Clear();
                 for (int i = 0; i < shared.DriverData.Length; i++)
@@ -385,6 +361,7 @@ namespace CrewChiefV4.RaceRoom
                 if (lastSessionPhase != currentGameState.SessionData.SessionPhase)
                 {
                     Console.WriteLine("New session phase, was " + lastSessionPhase + " now " + currentGameState.SessionData.SessionPhase);
+                    CarData.optimalTempsFromGame.Clear();
                     if (currentGameState.SessionData.SessionPhase == SessionPhase.Green)
                     {
                         currentGameState.SessionData.JustGoneGreen = true;
@@ -465,10 +442,6 @@ namespace CrewChiefV4.RaceRoom
                         currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.Now);
 
                         Console.WriteLine("Just gone green, session details...");
-
-                        // reset the engine temp monitor stuff
-                        baselineEngineDataOilTemp = targetEngineOilTemp;
-                        baselineEngineDataWaterTemp = targetEngineWaterTemp;
 
                         Console.WriteLine("SessionType " + currentGameState.SessionData.SessionType);
                         Console.WriteLine("SessionPhase " + currentGameState.SessionData.SessionPhase);
@@ -1265,6 +1238,10 @@ namespace CrewChiefV4.RaceRoom
             currentGameState.TyreData.HasMatchedTyreTypes = true;
             currentGameState.TyreData.TyreWearActive = shared.TireWearActive > 0;
             TyreType tyreType = mapToTyreType(shared.TireTypeFront, shared.TireSubtypeFront, shared.TireTypeRear, shared.TireSubtypeFront, currentGameState.carClass.carClassEnum);
+            if (!CarData.optimalTempsFromGame.ContainsKey(tyreType))
+            {
+                CarData.AddTempThresholdsFromGame(tyreType, shared.TireTemp.FrontLeft.ColdTemp, shared.TireTemp.FrontLeft.OptimalTemp, shared.TireTemp.FrontLeft.HotTemp);
+            }
             currentGameState.TyreData.FrontLeft_CenterTemp = shared.TireTemp.FrontLeft.CurrentTemp.Center;
             currentGameState.TyreData.FrontLeft_LeftTemp = shared.TireTemp.FrontLeft.CurrentTemp.Left;
             currentGameState.TyreData.FrontLeft_RightTemp = shared.TireTemp.FrontLeft.CurrentTemp.Right;
