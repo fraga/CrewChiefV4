@@ -1,3 +1,0 @@
-The app includes a rather rudimentary preferences screen accessed by the <b>Properties</b> button. Many many aspects of that app's behaviour can be customised here but it's important to note that you don't have to make any changes to these properties to get the app to work correctly - the defaults are sensisble settings and the app doesn't need any configuration (except for swearing - see below).
-
-We've added a search capability to the window.  Most of CC options apply to all simulators, but you can also search for game specific preferences by typing ACS, AMS, R3E, rF1, rF2 or pCars to filter accordingly.

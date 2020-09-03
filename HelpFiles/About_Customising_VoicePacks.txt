@@ -1,7 +1,0 @@
-Q: I need a sound pack for my language, can I record it?
-A: Crew Chief is an open source project, we can't stop you from creating a sound pack for it if you would like to do that. However, it is a large commitment. Before beginning, it is worth checking <code>c:\Users[your_login_name]\AppData\Local\CrewChiefV4\sounds</code> for the scale of work involved, to see if you can commit to the work. Every sound in CC is human recorded and edited by Jim Britton (mr_belowski). Also, keep in mind that application is evolving, so the pack will need maintenance.
-
-Depending on how different sentence/number formatting is in your language, it might require code changes to the Crew Chief code. Depending on how much work it is we may or may not be able to help.
-
-More in this forum post <a href="http://thecrewchief.org/showthread.php?825-Authoring-alternative-Crew-Chief-voice-packs">Authoring alternative Crew Chief voice packs</a>
-

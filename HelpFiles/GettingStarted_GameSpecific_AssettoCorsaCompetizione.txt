@@ -1,1 +1,0 @@
-Crew Chief works in ACC but in a limited manner, see <b>About / Known Issues</b> for the technical details.
