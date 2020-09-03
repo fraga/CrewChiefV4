@@ -435,6 +435,7 @@ namespace CrewChiefV4.rFactor2
             }
 
             this.lastInRealTimeState = shared.extended.mInRealtimeFC == 1 || shared.scoring.mScoringInfo.mInRealtime == 1;
+            cgs.inCar = this.lastInRealTimeState;
 
             // --------------------------------
             // session data
@@ -1103,7 +1104,13 @@ namespace CrewChiefV4.rFactor2
 
             // First time intialize.  Might stay like that until we get telemetry.
             if (tt == TyreType.Uninitialized)
+            {
                 tt = this.MapToTyreType(ref playerTelemetry);
+                if (playerTelemetry.mFrontTireCompoundName != null)
+                {
+                    cgs.TyreData.TyreTypeName = RF2GameStateMapper.GetStringFromBytes(playerTelemetry.mFrontTireCompoundName);
+                }
+            }
 
             var wheelFrontLeft = playerTelemetry.mWheels[(int)rFactor2Constants.rF2WheelIndex.FrontLeft];
             cgs.TyreData.FrontLeftTyreType = tt;
@@ -1758,6 +1765,7 @@ namespace CrewChiefV4.rFactor2
             // fuel/battery data
             cgs.FuelData.FuelUseActive = cgs.BatteryData.BatteryUseActive = shared.extended.mPhysics.mFuelMult > 0;
             cgs.FuelData.FuelLeft = cgs.BatteryData.BatteryPercentageLeft = (float)playerTelemetry.mFuel;
+            cgs.FuelData.FuelCapacity = (float)playerTelemetry.mFuelCapacity;
 
             // --------------------------------
             // flags data
