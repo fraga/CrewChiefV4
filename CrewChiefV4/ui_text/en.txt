@@ -132,6 +132,7 @@ get_damage_report = Report car damage
 custom_device = custom device
 assigned_to = assigned to
 button = button
+POV = PoV
 not_assigned = not assigned
 
 text_prop_type = (text)
@@ -1822,3 +1823,7 @@ watched_opponent_names_help = Comma separated list of opponent names to report o
 show_vr_settings_as_overlay = Always show VR Settings window as overlay
 show_vr_settings_as_overlay_help = If enabled, SteamVR Settings window is always shown as an overlay.  Disable if it gets in a way of other windows.
 show_vr_settings_as_overlay_category = VR_SETTINGS
+
+enable_controller_pov_switches = Enable controller PoV switches
+enable_controller_pov_switches_help = Allow controller point-of-view switches to be used for button assignments
+enable_controller_pov_switches_category = AUDIO_VOICE_AND_CONTROLLERS
