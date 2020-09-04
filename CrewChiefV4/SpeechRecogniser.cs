@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -915,7 +915,7 @@ namespace CrewChiefV4
             }
             var sre = SREWrapperFactory.createNewSREWrapper(this.cultureInfo, true);
 
-            if (sre == null)
+            if(sre == null)
             {
                 if (MessageBox.Show(Configuration.getUIString("install_speechplatform_popup_text"), Configuration.getUIString("install_speechplatform_popup_title"),
                     MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
@@ -2372,7 +2372,7 @@ namespace CrewChiefV4
             {
                 return null;
             }
-            if (SubtitleManager.enableSubtitles)
+            if(SubtitleManager.enableSubtitles)
             {
                 SubtitleManager.AddPhraseForSpeech(recognisedSpeech);
             }
@@ -2588,9 +2588,9 @@ namespace CrewChiefV4
             {
                 return CrewChief.getEvent("Strategy");
             }
-            else if (ResultContains(recognisedSpeech, PIT_STOP_TEAROFF, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_FAST_REPAIR, false) ||
-                ResultContains(recognisedSpeech, PIT_STOP_CLEAR_ALL, false) ||
+            else if (ResultContains(recognisedSpeech, PIT_STOP_TEAROFF, false) ||   // tbd Does this actually do anything?
+                ResultContains(recognisedSpeech, PIT_STOP_FAST_REPAIR, false) ||    // already captured by 
+                ResultContains(recognisedSpeech, PIT_STOP_CLEAR_ALL, false) ||      // else if (GrammarWrapperListContains(iracingPitstopGrammarList, recognitionGrammar))
                 ResultContains(recognisedSpeech, PIT_STOP_CLEAR_TYRES, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_CLEAR_WIND_SCREEN, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_CLEAR_FAST_REPAIR, false) ||
