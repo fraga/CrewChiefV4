@@ -34,6 +34,7 @@ namespace HelpFiles
                 "VoiceRecognition_InstallationTraining",
                 "VoiceRecognition_VoiceCommandsAll",
                 "VoiceRecognition_VoiceCommandsGrouped",
+                "VoiceRecognition_VoiceCommandsPitstopManagement",
                 "VoiceRecognition_VoiceCommandsCheatSheet",
                 "VoiceRecognition_FreeDictationChatMessages",
                 "VoiceRecognition_CommandMacros",
