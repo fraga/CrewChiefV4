@@ -320,9 +320,18 @@
     <Compile Include="Overlay\OverlayElements\OverlayHeader.cs" />
     <Compile Include="Overlay\OverlaySettings.cs" />
     <Compile Include="Overlay\SubtitleOverlay.cs" />
+    <Compile Include="PitManager\PitManager.cs" />
+    <Compile Include="PitManager\PitManagerEventHandlers_RF2.cs" />
+    <Compile Include="PitManager\PitManagerResponseHandlers.cs" />
+    <Compile Include="PitManager\PitManagerVoiceCmds.cs" />
     <Compile Include="R3E\R3EPitMenuManager.cs" />
     <Compile Include="R3E\R3ERatings.cs" />
     <Compile Include="R3E\R3ESerializer.cs" />
+    <Compile Include="RF2\MappedBuffer.cs" />
+    <Compile Include="RF2\PitMenuAbstractionLayer.cs" />
+    <Compile Include="RF2\PitMenuAPI.cs" />
+    <Compile Include="RF2\PitMenuController.cs" />
+    <Compile Include="RF2\rF2HWControl.cs" />
     <Compile Include="VROverlayWindow\CaptureScreen.cs" />
     <Compile Include="VROverlayWindow\CursorInteraction.cs" />
     <Compile Include="VROverlayWindow\DeviceManager.cs" />
@@ -552,6 +561,7 @@
     <None Include="controllerConfigurationData.json" />
     <Compile Include="Overlay\OverlaySubscription.cs" />
     <None Include="packages.config" />
+    <None Include="PitManager\Documentation\rF2_PitManager.graphml" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -594,6 +604,7 @@
     <Content Include="openvr_api.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="PitManager\Documentation\rF2_PitManager.jpg" />
     <Content Include="Resources\cursor.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

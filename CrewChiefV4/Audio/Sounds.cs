@@ -138,7 +138,7 @@ namespace CrewChiefV4.Audio
             String[] pathFragments = soundPath.Split('\\');
             if (pathFragments.Length > 3)
             {
-                String interestingSoundPath = pathFragments[pathFragments.Length - 4] + "/" + pathFragments[pathFragments.Length - 3] + 
+                String interestingSoundPath = pathFragments[pathFragments.Length - 4] + "/" + pathFragments[pathFragments.Length - 3] +
                     "/" + pathFragments[pathFragments.Length - 2] + "/" + pathFragments[pathFragments.Length - 1];
                 if (varietyData.ContainsKey(interestingSoundPath))
                 {
@@ -249,7 +249,7 @@ namespace CrewChiefV4.Audio
                     {
                         // these are eagerly loaded on the main thread, soundPlayers are created and they're always in the SoundPlayer cache.
                         // If the number of prefixes and suffixes keeps growing this will need to be moved to a background thread but take care
-                        // to ensure the objects which hold the sounds are all created on the main thread, with only the file reading and 
+                        // to ensure the objects which hold the sounds are all created on the main thread, with only the file reading and
                         // SoundPlayer creation part done in the background (just like we do for voice messages).
 
                         if (!Directory.Exists(soundFolder.FullName + "\\" + selectedPersonalisation) && availableDriverNames.Contains(selectedPersonalisation.ToLower()))
@@ -272,7 +272,7 @@ namespace CrewChiefV4.Audio
                 }
                 else if (soundFolder.Name == "voice")
                 {
-                    // these are eagerly loaded on a background Thread. For frequently played sounds we create soundPlayers 
+                    // these are eagerly loaded on a background Thread. For frequently played sounds we create soundPlayers
                     // and hold them in the cache. For most sounds we just load the file(s) and create sound players when needed,
                     // allowing them to be cached until evicted.
 
@@ -339,7 +339,7 @@ namespace CrewChiefV4.Audio
                 }
                 else if (soundFolder.Name == "driver_names")
                 {
-                    // The folder of driver names is processed on the main thread and objects are created to hold the sounds, 
+                    // The folder of driver names is processed on the main thread and objects are created to hold the sounds,
                     // but the sound files are lazy-loaded on session start, along with the corresponding SoundPlayer objects.
                     prepareDriverNamesWithoutLoading(soundFolder, verbose);
                 }
@@ -354,7 +354,7 @@ namespace CrewChiefV4.Audio
                 Console.WriteLine("Finished preparing sounds cache, found " + singleSounds.Count + " driver names and " + soundSets.Count +
                     " sound sets. Loaded " + SoundCache.currentSoundsLoaded + " message sounds with " + SoundCache.activeSoundPlayerObjects + " active SoundPlayer objects");
             }
-            
+
             if (prefixesAndSuffixesCount > 0 && verbose)
             {
                 Console.WriteLine(prefixesAndSuffixesCount + " sounds have personalisations");
@@ -376,7 +376,7 @@ namespace CrewChiefV4.Audio
                 }
             }
         }
-        
+
         public static void loadSingleSound(String soundName, String fullPath, String subtitle = null)
         {
             if (!singleSounds.ContainsKey(soundName))
@@ -404,7 +404,7 @@ namespace CrewChiefV4.Audio
                 {
                     int loadedCount = 0;
                     DateTime start = DateTime.UtcNow;
-                    // No need to early terminate this thread on form close, because it only loads driver names in 
+                    // No need to early terminate this thread on form close, because it only loads driver names in
                     // a session, which isn't 1000's.
                     foreach (String name in names)
                     {
@@ -483,7 +483,7 @@ namespace CrewChiefV4.Audio
             }
             return false;
         }
-        
+
         public Boolean personalisedMessageIsDue()
         {
             double secondsSinceLastPersonalisedMessage = (GameStateData.CurrentTime - lastPersonalisedMessageTime).TotalSeconds;
@@ -494,7 +494,7 @@ namespace CrewChiefV4.Audio
             }
             else if (secondsSinceLastPersonalisedMessage > minSecondsBetweenPersonalisedMessages)
             {
-                // we can now select a personalised message, but we don't always do this - the probability is based 
+                // we can now select a personalised message, but we don't always do this - the probability is based
                 // on the time since the last one
                 due = Utilities.random.NextDouble() < 1.2 - minSecondsBetweenPersonalisedMessages / secondsSinceLastPersonalisedMessage;
             }
@@ -522,15 +522,15 @@ namespace CrewChiefV4.Audio
 
         /*
          * canInterrupt will be true for regular messages triggered by the app's normal event logic. When a message
-         * is played from the 'immediate' queue this will be false (spotter calls, command responses, some edge cases 
+         * is played from the 'immediate' queue this will be false (spotter calls, command responses, some edge cases
          * where the message is time-critical). If this flag is true the presence of a message in the immediate queue
          * can make the app skip playing this sound.
          */
         public void Play(List<String> soundNames, SoundMetadata soundMetadata)
-        {           
+        {
             SoundSet prefix = null;
             SoundSet suffix = null;
-            List<SingleSound> singleSoundsToPlay = new List<SingleSound>();      
+            List<SingleSound> singleSoundsToPlay = new List<SingleSound>();
             foreach (String soundName in soundNames)
             {
                 if (soundName.StartsWith(AudioPlayer.PAUSE_ID))
@@ -565,7 +565,7 @@ namespace CrewChiefV4.Audio
                     SoundSet soundSet = null;
                     if (soundSets.TryGetValue(soundName, out soundSet))
                     {
-                        // double check whether this soundSet wants to allow personalisations at this point - 
+                        // double check whether this soundSet wants to allow personalisations at this point -
                         // this prevents the app always choosing the personalised version of a sound if this sound is infrequent
                         if (soundSet.forceNonPersonalisedVersion())
                         {
@@ -617,9 +617,9 @@ namespace CrewChiefV4.Audio
                 {
                     SubtitleManager.AddPhrase(singleSoundsToPlay, soundMetadata);
                 }
-                
-                                   
-                SoundCache.IS_PLAYING = true;                    
+
+
+                SoundCache.IS_PLAYING = true;
                 foreach (SingleSound singleSound in singleSoundsToPlay)
                 {
                     if (singleSound.isPause)
@@ -628,7 +628,7 @@ namespace CrewChiefV4.Audio
                     }
                     else
                     {
-                   
+
                         singleSound.Play(soundMetadata);
                     }
                 }
@@ -638,7 +638,7 @@ namespace CrewChiefV4.Audio
 
         /*
          * canInterrupt will be true for regular messages triggered by the app's normal event logic. When a message
-         * is played from the 'immediate' queue this will be false (spotter calls, command responses, some edge cases 
+         * is played from the 'immediate' queue this will be false (spotter calls, command responses, some edge cases
          * where the message is time-critical). If this flag is true the presence of a message in the immediate queue
          * can make the app skip playing this sound.
          */
@@ -757,7 +757,7 @@ namespace CrewChiefV4.Audio
             }
             foreach (SingleSound singleSound in singleSounds.Values)
             {
-                try { 
+                try {
                     singleSound.Stop();
                 }
                 catch (Exception) { }
@@ -771,7 +771,7 @@ namespace CrewChiefV4.Audio
             if(verbose)
             {
                 Console.WriteLine("Preparing sound effects");
-            }           
+            }
             foreach (FileInfo bleepFile in bleepFiles)
             {
                 if (bleepFile.Name.EndsWith(".wav"))
@@ -881,12 +881,12 @@ namespace CrewChiefV4.Audio
             {
                 Console.WriteLine("Prepare sound effects completed");
             }
-            
+
         }
 
         private void loadVoices()
         {
-                       
+
         }
 
         private void prepareVoiceWithoutLoading(DirectoryInfo voiceDirectory, DirectoryInfo sharedVoiceDirectory, bool verbose)
@@ -931,7 +931,7 @@ namespace CrewChiefV4.Audio
                             {
                                 Console.WriteLine("Event " + fullEventName + " sound set is already loaded");
                             }
-                            else 
+                            else
                             {
                                 availableSounds.Add(fullEventName);
                                 soundSets.Add(fullEventName, soundSet);
@@ -960,7 +960,7 @@ namespace CrewChiefV4.Audio
             foreach (FileInfo driverNameFile in driverNameFiles)
             {
                 if (driverNameFile.Name.EndsWith(".wav"))
-                {                    
+                {
                     String name = driverNameFile.Name.ToLower().Split(new[] { ".wav" }, StringSplitOptions.None)[0];
                     singleSounds.Add(name, new SingleSound(driverNameFile.FullName, allowCaching, allowCaching, false));
                     availableDriverNames.Add(name);
@@ -989,7 +989,7 @@ namespace CrewChiefV4.Audio
         }
 
         private void preparePrefixesAndSuffixes(DirectoryInfo personalisationsDirectory, String selectedPersonalisation, bool verbose)
-        {            
+        {
             if(verbose)
             {
                 Console.WriteLine("Preparing personalisations for selected name " + selectedPersonalisation);
@@ -1023,7 +1023,7 @@ namespace CrewChiefV4.Audio
             if (verbose)
             {
                 Console.WriteLine("Prepare personalisations completed");
-            }            
+            }
         }
 
         private void createCompositePrefixesAndSuffixes(DirectoryInfo soundsRootDirectory,
@@ -1119,7 +1119,7 @@ namespace CrewChiefV4.Audio
         // allow the non-personalised versions of this soundset to play, if it's not frequent and has personalisations
         private Boolean lastVersionWasPersonalised = false;
 
-        public SoundSet(DirectoryInfo soundFolder, Boolean useSwearyMessages, Boolean cacheFileData, Boolean cacheSoundPlayers, 
+        public SoundSet(DirectoryInfo soundFolder, Boolean useSwearyMessages, Boolean cacheFileData, Boolean cacheSoundPlayers,
             Boolean cacheSoundPlayersPermanently, Boolean eagerlyCreateSoundPlayers)
         {
             this.soundsCount = 0;
@@ -1285,13 +1285,13 @@ namespace CrewChiefV4.Audio
             catch (DirectoryNotFoundException)
             {
                 Console.WriteLine("Unable to find sounds folder for sound set " + this.soundFolder.FullName);
-            } 
+            }
             catch (Exception e)
             {
                 Console.WriteLine("Failed to load sounds for sound set " + this.soundFolder.FullName + " exception: " + e.Message);
             }
         }
-        
+
         public SingleSound getSingleSound(Boolean preferPersonalised)
         {
             if (!initialised)
@@ -1330,7 +1330,7 @@ namespace CrewChiefV4.Audio
                 }
                 lastVersionWasPersonalised = true;
                 return ss;
-            } 
+            }
             else if (singleSoundsNoPrefixOrSuffix.Count > 0)
             {
                 if (indexes == null || indexesPosition == indexes.Count)
@@ -1386,7 +1386,7 @@ namespace CrewChiefV4.Audio
                 {
                     unloadedCount++;
                 }
-            } 
+            }
             foreach (SingleSound singleSound in singleSoundsWithPrefixOrSuffix)
             {
                 if (singleSound.UnLoad())
@@ -1402,7 +1402,7 @@ namespace CrewChiefV4.Audio
             foreach (SingleSound singleSound in singleSoundsNoPrefixOrSuffix)
             {
                 singleSound.Stop();
-            } 
+            }
             foreach (SingleSound singleSound in singleSoundsWithPrefixOrSuffix)
             {
                 singleSound.Stop();
@@ -1569,7 +1569,7 @@ namespace CrewChiefV4.Audio
                 }
                 if (AudioPlayer.playWithNAudio)
                 {
-                    if (loadedSoundPlayer && 
+                    if (loadedSoundPlayer &&
                         (AudioPlayer.naudioMessagesPlaybackDeviceId != deviceIdWhenCached || this.getVolume(1f) != volumeWhenCached))
                     {
                         // naudio device ID or volume has changed since the beep was cached, so unload and re-cache it
@@ -1627,7 +1627,7 @@ namespace CrewChiefV4.Audio
         }
         /*
          * canInterrupt will be true for regular messages triggered by the app's normal event logic. When a message
-         * is played from the 'immediate' queue this will be false (spotter calls, command responses, some edge cases 
+         * is played from the 'immediate' queue this will be false (spotter calls, command responses, some edge cases
          * where the message is time-critical). If this flag is true the presence of a message in the immediate queue
          * can make the app skip playing this sound.
          */
@@ -1714,7 +1714,7 @@ namespace CrewChiefV4.Audio
                     }
                     try
                     {
-                        uncachedNAudioOut.Init(SoundCache.forceStereoPlayback ? 
+                        uncachedNAudioOut.Init(SoundCache.forceStereoPlayback ?
                             new NAudio.Wave.SampleProviders.SampleToWaveProvider(monoToStereo) : new NAudio.Wave.SampleProviders.SampleToWaveProvider(sampleChannel));
                         SoundCache.currentlyPlayingSound = this;
                         uncachedNAudioOut.Play();
@@ -1807,8 +1807,8 @@ namespace CrewChiefV4.Audio
             this.reader = new NAudio.Wave.WaveFileReader(this.memoryStream);
             this.eventHandler = new EventHandler<NAudio.Wave.StoppedEventArgs>(playbackStopped);
             this.nAudioOut.SubscribePlaybackStopped(this.eventHandler);
-            float volume = getVolume(volumeBoost);   
-            
+            float volume = getVolume(volumeBoost);
+
             if (SoundCache.forceStereoPlayback)
             {
                 var sampleChannel = new NAudio.Wave.SampleProviders.SampleChannel(this.reader);
@@ -1973,7 +1973,7 @@ namespace CrewChiefV4.Audio
                     int bytesRead = reader.Read(buffer, 0, bytesToRead);
 
                     if (canProcessVolume)
-                    { 
+                    {
                         for (int i = 0; i < buffer.Length; i+=2)
                         {
                             Int16 sample = BitConverter.ToInt16(buffer, i);
