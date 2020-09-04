@@ -64,7 +64,8 @@ namespace HelpFiles
                 "ProjectCars2",
                 "RaceRoomRacingExperience",
                 "rFactor",
-                "rFactor2"
+                "rFactor2",
+                "RichardBurnsRally"
             };
 
             writeOnePage("index");
