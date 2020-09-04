@@ -188,9 +188,18 @@ namespace CrewChiefV4.Events
         public static Dictionary<TrackData.TrackLengthClass, float> outlierPaceLimits = new Dictionary<TrackData.TrackLengthClass, float> {
             { TrackData.TrackLengthClass.VERY_LONG, 15 },
             { TrackData.TrackLengthClass.LONG, 8 },
-            { TrackData.TrackLengthClass.MEDIUM, 5 },
-            { TrackData.TrackLengthClass.SHORT, 3 },
+            { TrackData.TrackLengthClass.MEDIUM, 3 },
+            { TrackData.TrackLengthClass.SHORT, 2 },
             { TrackData.TrackLengthClass.VERY_SHORT, 2}
+        };
+
+        // some calls (pearls and gaps) are suppressed until we've completed a number of laps depending on the track length class
+        public static Dictionary<TrackData.TrackLengthClass, int> lapsBeforeAnnouncingGaps = new Dictionary<TrackData.TrackLengthClass, int> {
+            { TrackData.TrackLengthClass.VERY_LONG, 0 },
+            { TrackData.TrackLengthClass.LONG, 1 },
+            { TrackData.TrackLengthClass.MEDIUM, 2 },
+            { TrackData.TrackLengthClass.SHORT, 3 },
+            { TrackData.TrackLengthClass.VERY_SHORT, 4}
         };
 
         public LapTimes(AudioPlayer audioPlayer)
@@ -582,7 +591,8 @@ namespace CrewChiefV4.Events
                                 Boolean playedLapMessage = false;
                                 if (frequencyOfPlayerRaceLapTimeReports > Utilities.random.NextDouble() * 10)
                                 {
-                                    float pearlLikelihood = 0.8f;
+                                    bool allowPearls = currentGameState.SessionData.CompletedLaps >= lapsBeforeAnnouncingGaps[currentGameState.SessionData.TrackDefinition.trackLengthClass];
+                                    float pearlLikelihood = allowPearls ? 0 : 0.8f;
                                     switch (lastLapRating)
                                     {
                                         case LastLapRating.BEST_OVERALL:

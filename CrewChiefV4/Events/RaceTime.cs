@@ -121,7 +121,8 @@ namespace CrewChiefV4.Events
                     }
                 }
                 PearlsOfWisdom.PearlType pearlType = PearlsOfWisdom.PearlType.NONE;
-                if (currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.SessionData.CompletedLaps > 1)
+                if (currentGameState.SessionData.SessionType == SessionType.Race 
+                    && currentGameState.SessionData.CompletedLaps >= LapTimes.lapsBeforeAnnouncingGaps[currentGameState.SessionData.TrackDefinition.trackLengthClass])
                 {
                     pearlType = PearlsOfWisdom.PearlType.NEUTRAL;
                     if (currentGameState.SessionData.ClassPosition < 4)
