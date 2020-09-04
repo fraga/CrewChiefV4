@@ -4642,5 +4642,17 @@ namespace CrewChiefV4.Properties {
                 this["launch_pcars3"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool enable_controller_pov_switches {
+            get {
+                return ((bool)(this["enable_controller_pov_switches"]));
+            }
+            set {
+                this["enable_controller_pov_switches"] = value;
+            }
+        }
     }
 }
