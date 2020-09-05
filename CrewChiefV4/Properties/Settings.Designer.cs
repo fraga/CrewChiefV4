@@ -4654,5 +4654,17 @@ namespace CrewChiefV4.Properties {
                 this["enable_controller_pov_switches"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool rf2_enable_auto_fuel_to_end_of_race {
+            get {
+                return ((bool)(this["rf2_enable_auto_fuel_to_end_of_race"]));
+            }
+            set {
+                this["rf2_enable_auto_fuel_to_end_of_race"] = value;
+            }
+        }
     }
 }
