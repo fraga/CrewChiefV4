@@ -432,7 +432,7 @@ One final point. If the app says "Jim is faster than you", let him through :)
 Changelog
 ---------
 
-Version 4.13.0.0: Added Rally mode and support for Richard Burns Rally; Added rudamentary pCars3 support; Added support for controller 'point of view' buttons (should allow direction-pads to be used for button assignments); AMS2 - A few car class tweaks; ACC - added multi-class support; RF2 - updated plugin and added a pit menu manager
+Version 4.13.0.0: rFactor 2 now needs Vytautas Leonavičius' rFactor 2 Plugin version 3.7.14.2  It's part of this CC version and will be installed automatically but note that any other apps that use it will need to be updated; Added Rally mode and support for Richard Burns Rally; Added rudamentary pCars3 support; Added support for controller 'point of view' buttons (should allow direction-pads to be used for button assignments); AMS2 - A few car class tweaks; ACC - added multi-class support; RF2 - updated plugin and added a pit menu manager
 
 Version 4.12.0.8: Corrected VR overlay default behaviour (should fix the remaining issues with the overlays); corrected app name being "5" on the Windows Sounds mixer (stupid fat-fingered typo, sorry); added "what's my oil temp" and "what's my water temp" voice commands; R3E - tweaked car class mapping for WTCR
 
