@@ -33,6 +33,7 @@ namespace CrewChiefV4.GameState
      */
     class GlobalBehaviourSettings
     {
+        public static CrewChief.RacingType racingType = CrewChief.RacingType.Circuit;
         private static float defaultSpotterVehicleLength = 4.5f;
         private static float defaultSpotterVehicleWidth = 1.8f;
 

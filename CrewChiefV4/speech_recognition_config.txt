@@ -427,6 +427,24 @@ CHART_FRAGMENT_RR_TEMPS = right rear surface temps:right rear temps
 SHOW_SUBTITLES = show subtitles
 HIDE_SUBTITLES = hide subtitles:close subtitles
 
+# Rally-specific commands
+RALLY_EARLIER_CALLS = earlier calls:more notice
+RALLY_LATER_CALLS = later calls
+RALLY_CORNER_NUMBER_FIRST = corner number first:use corner number first
+RALLY_CORNER_DECRIPTIONS = corner description:use corner description
+RALLY_CORNER_DIRECTION_FIRST = corner direction first:use corner direction first
+RALLY_CORRECTION = correction
+RALLY_LEFT = left
+RALLY_RIGHT = right
+RALLY_1 = one:hairpin
+RALLY_2 = two:square
+RALLY_3 = three:kay
+RALLY_4 = four:medium
+RALLY_5 = five:fast
+RALLY_6 = six:slight
+RALLY_HAIRPIN = hairpin
+RALLY_FLAT = flat
+
 #################################################
 # numbers - these are the text strings the voice recogniser will listen for (it's not good at listening for numeric characters)
 # These are used by the dynamic phrases, and are combined with the dynamic phrase fragments above

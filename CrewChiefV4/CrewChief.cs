@@ -23,6 +23,12 @@ namespace CrewChiefV4
 {
     public class CrewChief : IDisposable
     {
+        public enum RacingType
+        {
+            Circuit,
+            Rally
+        }
+
         public static Boolean Debugging = System.Diagnostics.Debugger.IsAttached;
         // these will generally be the same but in cases where we're checking the behaviour in debug, while pretending we're not in debug,
         // it's useful to have them separate
@@ -40,6 +46,7 @@ namespace CrewChiefV4
 
         public static Boolean loadDataFromFile = false;
         public static GameDefinition gameDefinition;
+        public static string gameExeParentDirectory = null;
 
         public static Boolean readOpponentDeltasForEveryLap = false;
         // initial state from properties but can be overridden during a session:
@@ -204,6 +211,7 @@ namespace CrewChiefV4
             eventsList.Add("CommonActions", new CommonActions(audioPlayer));
             eventsList.Add("OverlayController", new OverlayController(audioPlayer));
             eventsList.Add("VROverlayController", new VROverlayController(audioPlayer));
+            eventsList.Add("CoDriver", new CoDriver(audioPlayer));
             eventsList.Add("PitManagerVoiceCmds", new PitManagerVoiceCmds(audioPlayer));
 
             sessionEndMessages = new SessionEndMessages(audioPlayer);
@@ -516,13 +524,14 @@ namespace CrewChiefV4
                         {
                             nextProcessStateCheck = now.Add(
                                 TimeSpan.FromMilliseconds(isGameProcessRunning ? timeBetweenProcDisconnectCheckMillis : timeBetweenProcConnectCheckMillis));
-                            isGameProcessRunning = Utilities.IsGameRunning(gameDefinition.processName, gameDefinition.alternativeProcessNames);
+                            isGameProcessRunning = Utilities.IsGameRunning(gameDefinition.processName, gameDefinition.alternativeProcessNames, out CrewChief.gameExeParentDirectory);
                         }
 
                         if (mapped
                             && !isGameProcessRunning
                             && gameDefinition.HasAnyProcessNameAssociated())
                         {
+                            CrewChief.gameExeParentDirectory = null;
                             gameDataReader.DisconnectFromProcess();
                             mapped = false;
                         }
@@ -966,6 +975,7 @@ namespace CrewChiefV4
                     dataFileDumpDone = true;
                     try
                     {
+                        CrewChief.gameExeParentDirectory = null;
                         gameDataReader.stop();
                         gameDataReader.DisconnectFromProcess();
                     }

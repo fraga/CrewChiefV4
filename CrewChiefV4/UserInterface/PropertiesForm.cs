@@ -47,6 +47,7 @@ namespace CrewChiefV4
             UI_STARTUP_AND_PATHS,
             AUDIO_VOICE_AND_CONTROLLERS,
             SPOTTER,
+            CODRIVER,
             FLAGS_AND_RULES,
             MESSAGE_FREQUENCIES,
             FUEL_TEMPS_AND_DAMAGES,
@@ -87,7 +88,8 @@ namespace CrewChiefV4
                 + Configuration.getUIString("search_box_tooltip_line5") + Environment.NewLine
                 + Configuration.getUIString("search_box_tooltip_line6") + Environment.NewLine
                 + Configuration.getUIString("search_box_tooltip_line7") + Environment.NewLine
-                + Configuration.getUIString("search_box_tooltip_line8") + Environment.NewLine;
+                + Configuration.getUIString("search_box_tooltip_line8") + Environment.NewLine
+                + Configuration.getUIString("search_box_tooltip_line9") + Environment.NewLine;
             this.searchBoxTooltip.SetToolTip(this.searchTextBox, tooltip);
             this.exitButton.Text = Configuration.getUIString("exit_without_saving");
             this.restoreButton.Text = Configuration.getUIString("restore_default_settings");
@@ -314,6 +316,12 @@ namespace CrewChiefV4
             {
                 Label = Configuration.getUIString("spotter_category_label"),
                 Value = PropertyCategory.SPOTTER
+            });
+
+            this.categoriesBox.Items.Add(new ComboBoxItem<PropertyCategory>()
+            {
+                Label = Configuration.getUIString("codriver_category_label"),
+                Value = PropertyCategory.CODRIVER
             });
 
             this.categoriesBox.Items.Add(new ComboBoxItem<PropertyCategory>()

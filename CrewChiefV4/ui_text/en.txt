@@ -50,6 +50,7 @@ f1_2018 = F1 2018 (spotter only)
 acc = Assetto Corsa Competizione
 f1_2019 = F1 2019 (spotter only)
 f1_2020 = F1 2020 (spotter only)
+rbr = Richard Burns Rally
 please_choose_a_game_option = Please choose a game option
 no_game_selected = No game selected
 
@@ -195,6 +196,7 @@ search_box_tooltip_line6 = rF2 - for rFactor 2 specific preferences
 search_box_tooltip_line7 = pCARS - for Project CARS 1 and 2 specific preferences
 search_box_tooltip_line8 = iRacing - for iRacing specific preferences
 search_box_tooltip_line8 = ACC - for Assetto Corsa Competizione specific preferences
+search_box_tooltip_line9 = RBR - for Richard Burns Rally specific preferences
 no_matches = No matches.
 reset_warning_text = This will reset all the Crew Chief {0} profile '{1}' settings to their default values, are you sure?
 reset_warning_title = Reset All Settings to Default Values
@@ -203,6 +205,14 @@ chief_name_label = Chief &voice:
 chief_name_tooltip = Choose a Chief voice (requires restart)
 spotter_name_label = Spotter &voice:
 spotter_name_tooltip = Choose a Spotter voice (requires restart)
+codriver_name_label = Co-&driver:
+codriver_name_tooltip = Choose a Co-Driver voice (requires restart)
+codriver_style_label = &Style:
+codriver_style_number_first = Number First
+codriver_style_direction_first = Direction First
+codriver_style_descriptive = Descriptive
+codriver_style_number_first_reversed = Number First Reversed
+codriver_style_direction_first_reversed = Direction First Reversed
 messages_audio_device_label = Messages playbac&k device
 background_audio_device_label = Background playback &device
 
@@ -213,11 +223,14 @@ check_for_updates_title = Force update check
 donate_link_text = Donate to Support Crew Chief development
 toggle_manual_formation_lap = Toggle manual formation lap mode
 read_corner_names_for_lap = Read corner names for current lap
+the_application_must_be_restarted_to_switch_between_circuit_and_rally_racing = The application must be restarted to witch between Circuit and Rally racing. Click OK to restart the application.
+switch_racing_type = Switch racing type
 
 all_categories_label = All Categories
 ui_startup_and_paths_category_label = UI, Startup & Paths
 audio_voice_and_controllers_category_label = Audio, Voice & Controllers
 spotter_category_label = Spotter
+codriver_category_label = Co-Driver
 flags_and_rules_category_label = Flags & Rules
 message_frequencies_category_label = Message Frequencies
 fuel_temps_and_damages_category_label = Fuel, Temperatures & Damage
@@ -377,8 +390,14 @@ rf1_install_path_metadata = RESTART_REQUIRED
 rf2_install_path = rF2 install path
 rf2_install_path_help = rF2 installation path for plugin installation and updating
 rf2_install_path_filter = RF2_64BIT
-rf1_install_path_category = UI_STARTUP_AND_PATHS
-rf1_install_path_metadata = RESTART_REQUIRED
+rf2_install_path_category = UI_STARTUP_AND_PATHS
+rf2_install_path_metadata = RESTART_REQUIRED
+
+rbr_install_path = RBR install path
+rbr_install_path_help = RBR installation path for plugin installation and updating
+rbr_install_path_filter = RBR
+rbr_install_path_category = UI_STARTUP_AND_PATHS
+rbr_install_path_metadata = RESTART_REQUIRED
 
 f1_2018_install_path = F1 2018 install path
 f1_2018_install_path_help = F1 2018 installation path
@@ -731,7 +750,7 @@ rf1_launch_params_category = UI_STARTUP_AND_PATHS
 rf1_launch_params_metadata = RESTART_REQUIRED
 
 rf2_launch_params = rF2 launch params
-rf2_launch_params_help = This is used to tell Steam what app to run - rFactor2's Steam app ID is 365960. If you specified a path rFactor2.exe you can leave this blank
+rf2_launch_params_help = This is used to tell Steam what app to run - rFactor 2's Steam app ID is 365960. If you specified a path rFactor2.exe you can leave this blank
 rf2_launch_params_filter = RF2_64BIT
 rf2_launch_params_category = UI_STARTUP_AND_PATHS
 rf2_launch_params_metadata = RESTART_REQUIRED
@@ -777,11 +796,22 @@ f1_2019_launch_params_help = This is used to tell Steam what app to run - F1 201
 f1_2019_launch_params_filter = F1_2019
 f1_2019_launch_params_category = UI_STARTUP_AND_PATHS
 
+f1_2020_launch_params = F1 2020 launch params
+f1_2020_launch_params_help = This is used to tell Steam what app to run - F1 2020's Steam app ID is ??????. If you specified a path f1_2020.exe you can leave this blank
+f1_2020_launch_params_filter = F1_2020
+f1_2020_launch_params_category = UI_STARTUP_AND_PATHS
+
 r3e_launch_exe = R3E launch exe
 r3e_launch_exe_help = This is the location of Steam.exe or the direct path to RRRE.exe. Use forward slashes to separate paths.
 r3e_launch_exe_filter = RACE_ROOM
 r3e_launch_exe_category = UI_STARTUP_AND_PATHS
 r3e_launch_exe_metadata = RESTART_REQUIRED
+
+rbr_launch_exe = RBR launch exe
+rbr_launch_exe_help = This is the direct path to RichardBurnsRally_SSE.exe. Use forward slashes to separate paths.
+rbr_launch_exe_filter = RBR
+rbr_launch_exe_category = UI_STARTUP_AND_PATHS
+rbr_launch_exe_metadata = RESTART_REQUIRED
 
 acc_launch_exe = ACC launch exe
 acc_launch_exe_help = This is the location of Steam.exe or the direct path to acc.exe. Use forward slashes to separate paths.
@@ -871,6 +901,12 @@ launch_rfactor2_filter = RF2_64BIT
 launch_rfactor2_category = UI_STARTUP_AND_PATHS
 launch_rfactor2_metadata = RESTART_REQUIRED
 
+launch_rbr = Launch RBR
+launch_rbr_help = If this is true the application will attempt to launch Richard Burns Rally when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
+launch_rbr_filter = RBR
+launch_rbr_category = UI_STARTUP_AND_PATHS
+launch_rbr_metadata = RESTART_REQUIRED
+
 launch_gsc = Launch GSC
 launch_gsc_help = If this is true the application will attempt to launch Stock Car Extreme when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
 launch_gsc_filter = RF1
@@ -887,6 +923,11 @@ launch_f1_2019 = Launch F1 2019
 launch_f1_2019_help = If this is true the application will attempt to launch F1 2019 when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
 launch_f1_2019_filter = F1_2019
 launch_f1_2019_category = UI_STARTUP_AND_PATHS
+
+launch_f1_2020 = Launch F1 2020
+launch_f1_2020_help = If this is true the application will attempt to launch F1 2020 when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
+launch_f1_2020_filter = F1_2020
+launch_f1_2020_category = UI_STARTUP_AND_PATHS
 
 launch_ams = Launch AMS
 launch_ams_help = If this is true the application will attempt to launch Automobilista when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
@@ -1826,8 +1867,28 @@ watched_opponent_names = Watched opponent names
 watched_opponent_names_help = Comma separated list of opponent names to report on
 
 show_vr_settings_as_overlay = Always show VR Settings window as overlay
-show_vr_settings_as_overlay_help = If enabled, SteamVR Settings window is always shown as an overlay.  Disable if it gets in a way of other windows.
+show_vr_settings_as_overlay_help = If enabled, SteamVR Settings window is always shown as an overlay.  Disable if it gets in a way of other windows
 show_vr_settings_as_overlay_category = VR_SETTINGS
+
+codriver_rushed_speed = Codriver rushing speed threshold (km/h)
+codriver_rushed_speed_help = Use rushed / urgent calls when above this speed (rally only).  Set to unrealistically high value, e.g. 400km/h to never rush based on speed
+codriver_rushed_speed_category = CODRIVER
+codriver_rushed_speed_filter = RBR
+
+codriver_rushed_lookahead_seconds = Codriver rushing look ahead (seconds)
+codriver_rushed_lookahead_seconds_help = Use rushed / urgent calls when there are pace notes to be announced this many seconds away (rally only).  If set to 0, codriver will only rush based on speed.  The bigger the value, the more likely it is thatcodriver will rush.
+codriver_rushed_lookahead_seconds_category = CODRIVER
+codriver_rushed_lookahead_seconds_filter = RBR
+
+codriver_chained_pacenote_threshold_distance = Link codriver calls closer than this (metres)
+codriver_chained_pacenote_threshold_distance_help = Combined calls when they're closer together than this many metres (rally only)
+codriver_chained_pacenote_threshold_distance_category = CODRIVER
+codriver_chained_pacenote_threshold_distance_filter = RBR
+
+codriver_lookahead_seconds = Default look ahead for codriver calls (seconds)
+codriver_lookahead_seconds_help = Call out corners etc when you're this many seconds away (rally only)
+codriver_lookahead_seconds_category = CODRIVER
+codriver_lookahead_seconds_filter = RBR
 
 enable_controller_pov_switches = Enable controller PoV switches
 enable_controller_pov_switches_help = Allow controller point-of-view switches to be used for button assignments

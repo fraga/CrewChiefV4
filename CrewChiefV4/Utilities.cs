@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading;
 using WebSocketSharp;
 using WebSocketSharp.Server;
@@ -241,10 +242,19 @@ namespace CrewChiefV4
             }
         }
 
-        public static bool IsGameRunning(String processName, String[] alternateProcessNames)
+        public static bool IsGameRunning(String processName, String[] alternateProcessNames, out String parentDir)
         {
-            if (Process.GetProcessesByName(processName).Length > 0)
+            parentDir = null;
+
+            var proc = Process.GetProcessesByName(processName);
+            if (proc.Length > 0)
             {
+                try
+                {
+                    parentDir = Path.GetDirectoryName(proc[0].MainModule.FileName);
+                }
+                catch (Exception) { }
+
                 return true;
             }
             else if (alternateProcessNames != null && alternateProcessNames.Length > 0)
@@ -551,6 +561,68 @@ namespace CrewChiefV4
 
         [System.Runtime.InteropServices.DllImport("kernel32.dll")]
         public static extern long GetTickCount64();
+
+        public static IEnumerable<Enum> GetEnumFlags(Enum input)
+        {
+            foreach (Enum value in Enum.GetValues(input.GetType()))
+            {
+                if (input.HasFlag(value))
+                    yield return value;
+            }
+        }
+
+        public static string GetFileContentsJsonWithComment(string fullFilePath)
+        {
+            var jsonString = new StringBuilder();
+            StreamReader file = null;
+            try
+            {
+                file = new StreamReader(fullFilePath);
+                String line;
+                while ((line = file.ReadLine()) != null)
+                {
+                    if (!line.Trim().StartsWith("#"))
+                    {
+                        jsonString.AppendLine(line);
+                    }
+                }
+                return jsonString.ToString();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error reading file " + fullFilePath + ": " + e.Message);
+            }
+            finally
+            {
+                if (file != null)
+                {
+                    file.Close();
+                }
+            }
+            return null;
+        }
+
+        [DllImport("kernel32", CharSet = CharSet.Unicode)]
+        private static extern int GetPrivateProfileString(string section, string key,
+            string defaultValue, StringBuilder value, int size, string filePath);
+
+        [DllImport("kernel32", CharSet = CharSet.Unicode, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool WritePrivateProfileString(string section, string key,
+            string value, string filePath);
+
+        public static string ReadIniValue(string section, string key, string filePath, string defaultValue = "")
+        {
+            var value = new StringBuilder(512);
+            GetPrivateProfileString(section, key, defaultValue, value, value.Capacity, filePath);
+            return value.ToString();
+        }
+
+        public static bool WriteIniValue(string section, string key, string value, string filePath)
+        {
+            bool result = WritePrivateProfileString(section, key, value, filePath);
+            return result;
+        }
     }
 
     public class WebsocketData : WebSocketBehavior

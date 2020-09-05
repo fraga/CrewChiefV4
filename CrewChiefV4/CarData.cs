@@ -723,7 +723,7 @@ namespace CrewChiefV4
             {
                 try
                 {
-                    CarClasses carClass = JsonConvert.DeserializeObject<CarClasses>(getFileContents(filename));
+                    CarClasses carClass = JsonConvert.DeserializeObject<CarClasses>(Utilities.GetFileContentsJsonWithComment(filename));
                     if (carClass != null)
                     {
                         return carClass;
@@ -735,37 +735,6 @@ namespace CrewChiefV4
                 }
             }
             return new CarClasses();
-        }
-
-        private static String getFileContents(String fullFilePath)
-        {
-            StringBuilder jsonString = new StringBuilder();
-            StreamReader file = null;
-            try
-            {
-                file = new StreamReader(fullFilePath);
-                String line;
-                while ((line = file.ReadLine()) != null)
-                {
-                    if (!line.Trim().StartsWith("#"))
-                    {
-                        jsonString.AppendLine(line);
-                    }
-                }
-                return jsonString.ToString();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Error reading file " + fullFilePath + ": " + e.Message);
-            }
-            finally
-            {
-                if (file != null)
-                {
-                    file.Close();
-                }
-            }
-            return null;
         }
 
         private static String getDefaultCarClassFileLocation()

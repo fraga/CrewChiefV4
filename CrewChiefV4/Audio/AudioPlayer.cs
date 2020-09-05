@@ -1638,7 +1638,7 @@ namespace CrewChiefV4.Audio
 
         public void playStartSpeakingBeep()
         {
-            if (!mute && enableRadioBeeps)
+            if (!mute && enableRadioBeeps && GlobalBehaviourSettings.racingType == CrewChief.RacingType.Circuit)
             {
                 var soundToPlay = PlaybackModerator.GetSuggestedBleepStart();
                 soundCache.Play(soundToPlay, SoundMetadata.beep);
@@ -1677,7 +1677,7 @@ namespace CrewChiefV4.Audio
 
         public void playShortStartSpeakingBeep()
         {
-            if (!mute && enableRadioBeeps)
+            if (!mute && enableRadioBeeps && GlobalBehaviourSettings.racingType == CrewChief.RacingType.Circuit)
             {
                 var soundToPlay = PlaybackModerator.GetSuggestedBleepShorStart();
                 soundCache.Play(soundToPlay, SoundMetadata.beep);
@@ -1686,7 +1686,7 @@ namespace CrewChiefV4.Audio
 
         public void playEndSpeakingBeep()
         {
-            if (!mute && enableRadioBeeps)
+            if (!mute && enableRadioBeeps && GlobalBehaviourSettings.racingType == CrewChief.RacingType.Circuit)
             {
                 var soundToPlay = PlaybackModerator.GetSuggestedBleepEnd();
                 soundCache.Play(soundToPlay, SoundMetadata.beep);
@@ -1695,7 +1695,7 @@ namespace CrewChiefV4.Audio
 
         public void playChiefEndSpeakingBeep()
         {
-            if (!mute && enableRadioBeeps && channelCloseBeepEnabled)
+            if (!mute && enableRadioBeeps && channelCloseBeepEnabled && GlobalBehaviourSettings.racingType == CrewChief.RacingType.Circuit)
             {
                 var soundToPlay = PlaybackModerator.GetSuggestedBleepEnd(forceChief: true);
                 soundCache.Play(soundToPlay, SoundMetadata.beep);
@@ -1704,7 +1704,7 @@ namespace CrewChiefV4.Audio
 
         public void playMuteBeep()
         {
-            if (enableRadioBeeps)
+            if (enableRadioBeeps && GlobalBehaviourSettings.racingType == CrewChief.RacingType.Circuit)
             {
                 var soundToPlay = PlaybackModerator.GetSuggestedBleepEnd();
                 soundCache.Play(soundToPlay, SoundMetadata.beep);
@@ -1713,7 +1713,7 @@ namespace CrewChiefV4.Audio
 
         public void playUnMuteBeep()
         {
-            if (enableRadioBeeps)
+            if (enableRadioBeeps && GlobalBehaviourSettings.racingType == CrewChief.RacingType.Circuit)
             {
                 var soundToPlay = PlaybackModerator.GetSuggestedBleepShorStart();
                 soundCache.Play(soundToPlay, SoundMetadata.beep);

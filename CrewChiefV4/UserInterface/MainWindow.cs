@@ -68,6 +68,17 @@ namespace CrewChiefV4
             }
         }
 
+        public class CoDriverStyleEntry
+        {
+            public string uiText = "";
+            public CoDriver.CornerCallStyle style = CoDriver.CornerCallStyle.UNKNOWN;
+
+            public override string ToString()
+            {
+                return uiText;
+            }
+        }
+
         // Shared with worker thread and Properties UI.  This should be disposed after root threads stopped, in GlobalResources.Dispose.
         public ControllerConfiguration controllerConfiguration;
 
@@ -850,6 +861,14 @@ namespace CrewChiefV4
                         setFromCommandLine = true;
                         break;
                     }
+                    else if (arg.Equals("RBR", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        Console.WriteLine("Set RBR mode from command line");
+                        this.gameDefinitionList.Text = GameDefinition.rbr.friendlyName;
+                        setFromCommandLine = true;
+                        break;
+                    }
+
                 }
             }
             if (!setFromCommandLine)
@@ -1039,8 +1058,8 @@ namespace CrewChiefV4
             this.triggerWordButton.Text = Configuration.getUIString("trigger_word") + " (\"" + UserSettings.GetUserSettings().getString("trigger_word_for_always_on_sre") + "\")";
             voiceRecognitionTriggerWordToolTip.SetToolTip(this.triggerWordButton, Configuration.getUIString("voice_recognition_trigger_word_help"));
             this.button2.Text = Configuration.getUIString("clear_console");
-            this.label3.Text = Configuration.getUIString("messages_volume");
-            this.label4.Text = Configuration.getUIString("background_volume");
+            this.messagesVolumeSliderLabel.Text = Configuration.getUIString("messages_volume");
+            this.backgroundVolumeSliderLabel.Text = Configuration.getUIString("background_volume");
             this.label5.Text = Configuration.getUIString("game");
             this.filenameLabel.Text = "File &name to run";
             this.app_version.Text = Configuration.getUIString("app_version");
@@ -1057,6 +1076,10 @@ namespace CrewChiefV4
             this.spotterNameLabel.Text = Configuration.getUIString("spotter_name_label");
             this.spotterNameBoxTooltip.SetToolTip(this.spotterNameLabel, Configuration.getUIString("spotter_name_tooltip"));
             this.spotterNameBoxTooltip.SetToolTip(this.spotterNameBox, Configuration.getUIString("spotter_name_tooltip"));
+            this.codriverNameLabel.Text = Configuration.getUIString("codriver_name_label");
+            this.codriverNameBoxTooltip.SetToolTip(this.codriverNameLabel, Configuration.getUIString("codriver_name_tooltip"));
+            this.codriverNameBoxTooltip.SetToolTip(this.codriverNameBox, Configuration.getUIString("codriver_name_tooltip"));
+            this.codriverStyleLabel.Text = Configuration.getUIString("codriver_style_label");
             this.donateLink.Text = Configuration.getUIString("donate_link_text");
             this.speechRecognitionDeviceLabel.Text = Configuration.getUIString("speech_recognition_device_label");
             this.messagesAudioDeviceLabel.Text = Configuration.getUIString("messages_audio_device_label");
@@ -1065,6 +1088,37 @@ namespace CrewChiefV4
             this.buttonVRWindowSettings.Text = Configuration.getUIString("vr_window_settings");
             this.gameDefinitionList.Items.Clear();
             this.gameDefinitionList.Items.AddRange(GameDefinition.getGameDefinitionFriendlyNames());
+
+            this.codriverStyleBox.Items.Add(new MainWindow.CoDriverStyleEntry()
+            {
+                uiText = Configuration.getUIString("codriver_style_number_first"),
+                style = CoDriver.CornerCallStyle.NUMBER_FIRST
+            });
+
+            this.codriverStyleBox.Items.Add(new MainWindow.CoDriverStyleEntry()
+            {
+                uiText = Configuration.getUIString("codriver_style_direction_first"),
+                style = CoDriver.CornerCallStyle.DIRECTION_FIRST
+            });
+
+            this.codriverStyleBox.Items.Add(new MainWindow.CoDriverStyleEntry()
+            {
+                uiText = Configuration.getUIString("codriver_style_descriptive"),
+                style = CoDriver.CornerCallStyle.DESCRIPTIVE
+            });
+
+            this.codriverStyleBox.Items.Add(new MainWindow.CoDriverStyleEntry()
+            {
+                uiText = Configuration.getUIString("codriver_style_number_first_reversed"),
+                style = CoDriver.CornerCallStyle.NUMBER_FIRST_REVERSED
+            });
+
+            this.codriverStyleBox.Items.Add(new MainWindow.CoDriverStyleEntry()
+            {
+                uiText = Configuration.getUIString("codriver_style_direction_first_reversed"),
+                style = CoDriver.CornerCallStyle.DIRECTION_FIRST_REVERSED
+            });
+
             if (MainWindow.soundTestMode)
             {
                 this.SuspendLayout();
@@ -1315,6 +1369,7 @@ namespace CrewChiefV4
             this.personalisationBox.Items.AddRange(availablePersonalisations.ToArray<string>());
             this.chiefNameBox.Items.AddRange(AudioPlayer.availableChiefVoices.ToArray());
             this.spotterNameBox.Items.AddRange(NoisyCartesianCoordinateSpotter.availableSpotters.ToArray());
+            this.codriverNameBox.Items.AddRange(CoDriver.availableCodrivers.ToArray());
             if (crewChief.audioPlayer.selectedPersonalisation == null || crewChief.audioPlayer.selectedPersonalisation.Length == 0 ||
                 crewChief.audioPlayer.selectedPersonalisation.Equals(AudioPlayer.NO_PERSONALISATION_SELECTED) ||
                 !availablePersonalisations.Contains(crewChief.audioPlayer.selectedPersonalisation))
@@ -1348,10 +1403,37 @@ namespace CrewChiefV4
             {
                 this.spotterNameBox.Text = NoisyCartesianCoordinateSpotter.defaultSpotterId;
             }
+
+            String savedCodriver = UserSettings.GetUserSettings().getString("codriver_name");
+            if (!String.IsNullOrWhiteSpace(savedCodriver) && CoDriver.availableCodrivers.Contains(savedCodriver))
+            {
+                this.codriverNameBox.Text = savedCodriver;
+            }
+            else
+            {
+                this.codriverNameBox.Text = CoDriver.defaultCodriverId;
+            }
+
+            var savedCodriverSyle = UserSettings.GetUserSettings().getInt("codriver_style");
+            if (savedCodriverSyle == (int)CoDriver.CornerCallStyle.NUMBER_FIRST)
+                this.codriverStyleBox.Text = Configuration.getUIString("codriver_style_number_first");
+            else if (savedCodriverSyle == (int)CoDriver.CornerCallStyle.DIRECTION_FIRST)
+                this.codriverStyleBox.Text = Configuration.getUIString("codriver_style_direction_first");
+            else if (savedCodriverSyle == (int)CoDriver.CornerCallStyle.DESCRIPTIVE)
+                this.codriverStyleBox.Text = Configuration.getUIString("codriver_style_descriptive");
+            else if (savedCodriverSyle == (int)CoDriver.CornerCallStyle.NUMBER_FIRST_REVERSED)
+                this.codriverStyleBox.Text = Configuration.getUIString("codriver_style_number_first_reversed");
+            else if (savedCodriverSyle == (int)CoDriver.CornerCallStyle.DIRECTION_FIRST_REVERSED)
+                this.codriverStyleBox.Text = Configuration.getUIString("codriver_style_direction_first_reversed");
+            else
+                Debug.Assert(false, "Unknown codriver style.");
+
             // only register the value changed listener after loading the saved values
             this.personalisationBox.SelectedValueChanged += new System.EventHandler(this.personalisationSelected);
             this.chiefNameBox.SelectedValueChanged += new System.EventHandler(this.chiefNameSelected);
             this.spotterNameBox.SelectedValueChanged += new System.EventHandler(this.spotterNameSelected);
+            this.codriverNameBox.SelectedValueChanged += new System.EventHandler(this.codriverNameSelected);
+            this.codriverStyleBox.SelectedValueChanged += new System.EventHandler(this.codriverStyleSelected);
 
             float messagesVolume = UserSettings.GetUserSettings().getFloat("messages_volume");
             float backgroundVolume = UserSettings.GetUserSettings().getFloat("background_volume");
@@ -2030,6 +2112,8 @@ namespace CrewChiefV4
             this.personalisationBox.Enabled = false;
             this.chiefNameBox.Enabled = false;
             this.spotterNameBox.Enabled = false;
+            this.codriverNameBox.Enabled = false;
+            this.codriverStyleBox.Enabled = false;
             this.recordSession.Enabled = false;
             this.gameDefinitionList.Enabled = false;
             this.contextMenuPreferencesItem.Enabled = false;
@@ -2048,6 +2132,8 @@ namespace CrewChiefV4
             this.personalisationBox.Enabled = true;
             this.chiefNameBox.Enabled = true;
             this.spotterNameBox.Enabled = true;
+            this.codriverNameBox.Enabled = true;
+            this.codriverStyleBox.Enabled = true;
             this.recordSession.Enabled = true;
             this.gameDefinitionList.Enabled = true;
             this.contextMenuPreferencesItem.Enabled = true;
@@ -2780,6 +2866,26 @@ namespace CrewChiefV4
             }
         }
 
+        private void codriverNameSelected(object sender, EventArgs e)
+        {
+            if (!UserSettings.GetUserSettings().getString("codriver_name").Equals(this.codriverNameBox.Text))
+            {
+                UserSettings.GetUserSettings().setProperty("codriver_name", this.codriverNameBox.Text);
+                UserSettings.GetUserSettings().saveUserSettings();
+                doRestart(Configuration.getUIString("the_application_must_be_restarted_to_load_the_new_sounds"), Configuration.getUIString("load_new_sounds"));
+            }
+        }
+
+        private void codriverStyleSelected(object sender, EventArgs e)
+        {
+            var cs = (MainWindow.CoDriverStyleEntry)this.codriverStyleBox.SelectedItem;
+            if (UserSettings.GetUserSettings().getInt("codriver_style") != (int)cs.style)
+            {
+                UserSettings.GetUserSettings().setProperty("codriver_style", (int)cs.style);
+                UserSettings.GetUserSettings().saveUserSettings();
+            }
+        }
+
         private VoiceOptionEnum getVoiceOptionEnum(String enumStr)
         {
             VoiceOptionEnum enumVal = VoiceOptionEnum.DISABLED;
@@ -2840,7 +2946,46 @@ namespace CrewChiefV4
             {
                 try
                 {
+                    var prevRacingType = UserSettings.GetUserSettings().getInt("racing_type");
                     CrewChief.gameDefinition = GameDefinition.getGameDefinitionForFriendlyName(this.gameDefinitionList.Text);
+
+                    if (prevRacingType != (int)CrewChief.gameDefinition.racingType)
+                    {
+                        UserSettings.GetUserSettings().setProperty("racing_type", (int)CrewChief.gameDefinition.racingType);
+                        UserSettings.GetUserSettings().setProperty("last_game_definition", CrewChief.gameDefinition.gameEnum.ToString());
+                        UserSettings.GetUserSettings().saveUserSettings();
+
+                        doRestart(Configuration.getUIString("the_application_must_be_restarted_to_switch_between_circuit_and_rally_racing"), Configuration.getUIString("switch_racing_type"), removeSkipUpdates: false, mandatory: true);
+                    }
+
+                    GlobalBehaviourSettings.racingType = CrewChief.gameDefinition.racingType;
+
+                    if (GlobalBehaviourSettings.racingType == CrewChief.RacingType.Circuit)
+                    {
+                        this.chiefNameLabel.Visible = true;
+                        this.chiefNameBox.Visible = true;
+                        this.spotterNameLabel.Visible = true;
+                        this.spotterNameBox.Visible = true;
+                        this.codriverNameLabel.Visible = false;
+                        this.codriverNameBox.Visible = false;
+                        this.codriverStyleLabel.Visible = false;
+                        this.codriverStyleBox.Visible = false;
+                        this.backgroundVolumeSlider.Visible = true;
+                        this.backgroundVolumeSliderLabel.Visible = true;
+                    }
+                    else
+                    {
+                        this.chiefNameLabel.Visible = false;
+                        this.chiefNameBox.Visible = false;
+                        this.spotterNameLabel.Visible = false;
+                        this.spotterNameBox.Visible = false;
+                        this.codriverNameLabel.Visible = true;
+                        this.codriverNameBox.Visible = true;
+                        this.codriverStyleLabel.Visible = true;
+                        this.codriverStyleBox.Visible = true;
+                        this.backgroundVolumeSlider.Visible = false;
+                        this.backgroundVolumeSliderLabel.Visible = false;
+                    }
                 }
                 catch (Exception) { }
             }
@@ -3349,7 +3494,7 @@ namespace CrewChiefV4
             }
         }
 
-        private void doRestart(String warningMessage, String warningTitle, Boolean removeSkipUpdates = false)
+        private void doRestart(String warningMessage, String warningTitle, Boolean removeSkipUpdates = false, Boolean mandatory = false)
         {
             if (CrewChief.Debugging)
             {
@@ -3360,7 +3505,7 @@ namespace CrewChiefV4
             this.RestoreFromTray();
 
             if (MessageBox.Show(warningMessage, warningTitle,
-                CrewChief.Debugging ? MessageBoxButtons.OK : MessageBoxButtons.OKCancel) == DialogResult.OK)
+                CrewChief.Debugging || mandatory ? MessageBoxButtons.OK : MessageBoxButtons.OKCancel) == DialogResult.OK)
             {
                 if (Utilities.RestartApp(new List<string> { "-app_restart" }, removeSkipUpdates))
                 {

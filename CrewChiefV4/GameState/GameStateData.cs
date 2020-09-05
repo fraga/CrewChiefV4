@@ -2822,9 +2822,10 @@ namespace CrewChiefV4.GameState
         // Below fields are one tick triggers.
         public enum DetailedPenaltyType
         {
-           NONE,
-           STOP_AND_GO,
-           DRIVE_THROUGH
+            NONE,
+            STOP_AND_GO,
+            DRIVE_THROUGH,
+            TEN_SECONDS
         }
         public DetailedPenaltyType PenaltyType = DetailedPenaltyType.NONE;
 
@@ -3555,6 +3556,15 @@ namespace CrewChiefV4.GameState
         public PerWheelData FrontRightData = new PerWheelData();
         public PerWheelData RearLeftData = new PerWheelData();
         public PerWheelData RearRightData = new PerWheelData();
+    }
+
+    // Rally stuff
+    public class CoDriverPacenote
+    {
+        public float Distance = -1.0f;
+        public CoDriver.PacenoteType Pacenote = CoDriver.PacenoteType.unknown;
+        public object Options = null;
+        public CoDriver.PacenoteModifier Modifier = CoDriver.PacenoteModifier.none;
     }
 
     public class GameStateData
@@ -4572,5 +4582,24 @@ namespace CrewChiefV4.GameState
                 _TelemetryData = value;
             }
         }
+
+        // Rally stuff
+        private List<CoDriverPacenote> _CoDriverPacenotes;
+        public List<CoDriverPacenote> CoDriverPacenotes
+        {
+            get
+            {
+                if (_CoDriverPacenotes == null)
+                {
+                    _CoDriverPacenotes = new List<CoDriverPacenote>();
+                }
+                return _CoDriverPacenotes;
+            }
+            set
+            {
+                _CoDriverPacenotes = value;
+            }
+        }
+    
     }
 }
