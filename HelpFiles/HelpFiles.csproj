@@ -85,6 +85,7 @@
     <Content Include="GettingStarted_GameSpecific_RaceRoomRacingExperience.html" />
     <Content Include="GettingStarted_GameSpecific_rFactor.html" />
     <Content Include="GettingStarted_GameSpecific_rFactor2.html" />
+    <Content Include="GettingStarted_GameSpecific_RichardBurnsRally.html" />
     <Content Include="GettingStarted_General.html" />
     <Content Include="GettingStarted_nAudio.html" />
     <Content Include="index.html" />
@@ -106,6 +107,7 @@
     <Content Include="VoiceRecognition_VoiceCommandsAll.html" />
     <Content Include="VoiceRecognition_VoiceCommandsCheatSheet.html" />
     <Content Include="VoiceRecognition_VoiceCommandsGrouped.html" />
+    <Content Include="VoiceRecognition_VoiceCommandsPitstopManagement.html" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
