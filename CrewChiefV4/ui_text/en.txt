@@ -1531,7 +1531,7 @@ iracing_enable_auto_fuel_to_end_of_race_filter = IRACING
 rf2_enable_auto_fuel_to_end_of_race = Enable rF2 auto refueling when entering pit in race
 rf2_enable_auto_fuel_to_end_of_race_help = Enables auto refueling in rFactor 2 based on fuel calculations done by the app.
 rf2_enable_auto_fuel_to_end_of_race_category = PIT_STOPS_AND_MULTICLASS
-rf2_enable_auto_fuel_to_end_of_race_filter = RF2
+rf2_enable_auto_fuel_to_end_of_race_filter = RF2_64BIT
 
 priortise_messages_depending_on_situation = Advanced message prioritisation
 priortise_messages_depending_on_situation_help = Disable less important messages when under pressure, on a qualifying lap, etc
