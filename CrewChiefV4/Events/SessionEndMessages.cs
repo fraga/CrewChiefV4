@@ -96,93 +96,104 @@ namespace CrewChiefV4.Events
         public void playFinishMessage(SessionType sessionType, int startPosition, int position, int numCars, Boolean isDisqualified, Boolean isDNF, int completedLaps)
         {
             audioPlayer.suspendPearlsOfWisdom();
-            if (position < 1)
+            if (GlobalBehaviourSettings.racingType == CrewChief.RacingType.Circuit)
             {
-                Console.WriteLine("Session finished but position is < 1");
-            }
-            else if (sessionType == SessionType.Race)
-            {
-                Boolean isLast = position == numCars;
-                if (isDisqualified) 
+                if (position < 1)
                 {
-                    Boolean playedRant = false;
-                    if (completedLaps > 1)
+                    Console.WriteLine("Session finished but position is < 1");
+                }
+                else if (sessionType == SessionType.Race)
+                {
+                    Boolean isLast = position == numCars;
+                    if (isDisqualified)
                     {
-                        playedRant = audioPlayer.playRant(sessionEndMessageIdentifier, AbstractEvent.MessageContents(Penalties.folderDisqualified));
+                        Boolean playedRant = false;
+                        if (completedLaps > 1)
+                        {
+                            playedRant = audioPlayer.playRant(sessionEndMessageIdentifier, AbstractEvent.MessageContents(Penalties.folderDisqualified));
+                        }
+                        if (!playedRant)
+                        {
+                            audioPlayer.playMessage(new QueuedMessage(sessionEndMessageIdentifier, 0,
+                                messageFragments: AbstractEvent.MessageContents(Penalties.folderDisqualified), priority: 10));
+                        }
                     }
-                    if (!playedRant)
+                    else if (isDNF)
                     {
                         audioPlayer.playMessage(new QueuedMessage(sessionEndMessageIdentifier, 0,
-                            messageFragments: AbstractEvent.MessageContents(Penalties.folderDisqualified), priority: 10));
-                    }                    
-                }
-                else if (isDNF)
-                {
-                    audioPlayer.playMessage(new QueuedMessage(sessionEndMessageIdentifier, 0,
-                        messageFragments: AbstractEvent.MessageContents(folderFinishedRaceLast), priority: 10));
-                }
-                else if (position == 1)
-                {
-                    audioPlayer.playMessage(new QueuedMessage(sessionEndMessageIdentifier, 0,
-                        messageFragments: AbstractEvent.MessageContents(folderWonRace), priority: 10));
-                }
-                else if (position < 4)
-                {
-                    audioPlayer.playMessage(new QueuedMessage(sessionEndMessageIdentifier, 0,
-                        messageFragments: AbstractEvent.MessageContents(folderPodiumFinish), priority: 10));
-                }
-                else if (position >= 4 && !isLast)
-                {
-                    // check if this a significant improvement over the start position
-                    if (startPosition > position &&
-                        ((startPosition <= 6 && position <= 5) ||
-                         (startPosition <= 10 && position <= 6) ||
-                         (startPosition - position >= 6)))
-                    {
-                        audioPlayer.playMessage(new QueuedMessage(sessionEndMessageIdentifier, 0, 
-                            messageFragments: AbstractEvent.MessageContents(Position.folderStub + position, folderGoodFinish), priority: 10));
+                            messageFragments: AbstractEvent.MessageContents(folderFinishedRaceLast), priority: 10));
                     }
-                    else
+                    else if (position == 1)
                     {
-                        // if it's a shit finish, maybe launch into a tirade
+                        audioPlayer.playMessage(new QueuedMessage(sessionEndMessageIdentifier, 0,
+                            messageFragments: AbstractEvent.MessageContents(folderWonRace), priority: 10));
+                    }
+                    else if (position < 4)
+                    {
+                        audioPlayer.playMessage(new QueuedMessage(sessionEndMessageIdentifier, 0,
+                            messageFragments: AbstractEvent.MessageContents(folderPodiumFinish), priority: 10));
+                    }
+                    else if (position >= 4 && !isLast)
+                    {
+                        // check if this a significant improvement over the start position
+                        if (startPosition > position &&
+                            ((startPosition <= 6 && position <= 5) ||
+                             (startPosition <= 10 && position <= 6) ||
+                             (startPosition - position >= 6)))
+                        {
+                            audioPlayer.playMessage(new QueuedMessage(sessionEndMessageIdentifier, 0,
+                                messageFragments: AbstractEvent.MessageContents(Position.folderStub + position, folderGoodFinish), priority: 10));
+                        }
+                        else
+                        {
+                            // if it's a shit finish, maybe launch into a tirade
+                            Boolean playedRant = false;
+                            int positionsLost = position - startPosition;
+                            // if we've lost 9 or more positions, and this is more than half the field size, maybe play a rant
+                            if (numCars > 2 && completedLaps > 1 && positionsLost > 8 && (float)positionsLost / (float)numCars >= 0.5f)
+                            {
+                                playedRant = audioPlayer.playRant(sessionEndMessageIdentifier, AbstractEvent.MessageContents(Position.folderStub + position));
+                            }
+                            if (!playedRant)
+                            {
+                                audioPlayer.playMessage(new QueuedMessage(sessionEndMessageIdentifier, 0,
+                                    messageFragments: AbstractEvent.MessageContents(Position.folderStub + position, folderFinishedRace), priority: 10));
+                            }
+                        }
+                    }
+                    else if (isLast)
+                    {
                         Boolean playedRant = false;
-                        int positionsLost = position - startPosition;
-                        // if we've lost 9 or more positions, and this is more than half the field size, maybe play a rant
-                        if (numCars > 2 && completedLaps > 1 && positionsLost > 8 && (float)positionsLost / (float)numCars >= 0.5f)
+                        if (numCars > 5 && completedLaps > 1)
                         {
                             playedRant = audioPlayer.playRant(sessionEndMessageIdentifier, AbstractEvent.MessageContents(Position.folderStub + position));
                         }
                         if (!playedRant)
                         {
                             audioPlayer.playMessage(new QueuedMessage(sessionEndMessageIdentifier, 0,
-                                messageFragments: AbstractEvent.MessageContents(Position.folderStub + position, folderFinishedRace), priority: 10));
+                                messageFragments: AbstractEvent.MessageContents(folderFinishedRaceLast), priority: 10));
                         }
                     }
                 }
-                else if (isLast)
+                else
                 {
-                    Boolean playedRant = false;
-                    if (numCars > 5 && completedLaps > 1)
+                    if (sessionType == SessionType.Qualify && position == 1)
                     {
-                        playedRant = audioPlayer.playRant(sessionEndMessageIdentifier, AbstractEvent.MessageContents(Position.folderStub + position));
+                        audioPlayer.playMessage(new QueuedMessage(folderEndOfSessionPole, 0));
                     }
-                    if (!playedRant)
+                    else
                     {
                         audioPlayer.playMessage(new QueuedMessage(sessionEndMessageIdentifier, 0,
-                            messageFragments: AbstractEvent.MessageContents(folderFinishedRaceLast), priority: 10));
+                            messageFragments: AbstractEvent.MessageContents(folderEndOfSession, Position.folderStub + position), priority: 10));
                     }
                 }
             }
-            else
+            else if (GlobalBehaviourSettings.racingType == CrewChief.RacingType.Rally)
             {
-                if (sessionType == SessionType.Qualify && position == 1)
+                if (!isDNF)
                 {
-                    audioPlayer.playMessage(new QueuedMessage(folderEndOfSessionPole, 0));
-                }
-                else
-                {
-                    audioPlayer.playMessage(new QueuedMessage(sessionEndMessageIdentifier, 0, 
-                        messageFragments: AbstractEvent.MessageContents(folderEndOfSession, Position.folderStub + position), priority: 10));
+                    CoDriver coDriver = (CoDriver)CrewChief.getEvent("CoDriver");
+                    coDriver.PlayFinishMessage();
                 }
             }
         }

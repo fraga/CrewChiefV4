@@ -234,10 +234,6 @@ namespace CrewChiefV4.rFactor2
             for (int i = 0; i < numPopulated; ++i)
                 populated.Add(vehicles[i]);
 
-            // Not sure why this is needed.
-            if (populated.Count == 0)
-                populated.Add(vehicles[0]);  // In case of mNumVehicles == 0 this is all zero, should be.
-
             return populated.ToArray();
         }
 

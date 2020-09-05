@@ -15,6 +15,7 @@ namespace CrewChiefV4.Events
     {
         public static String SMOKE_TEST = "smoke_test_chief";
         public static String SMOKE_TEST_SPOTTER = "smoke_test_spotter";
+        public static String SMOKE_TEST_CODRIVER = "smoke_test_codriver";
 
         public SmokeTest(AudioPlayer audioPlayer)
         {
@@ -102,7 +103,8 @@ namespace CrewChiefV4.Events
 
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
-            if (AudioPlayer.folderChiefRadioCheck != null)
+            if (AudioPlayer.folderChiefRadioCheck != null
+                && GlobalBehaviourSettings.racingType == CrewChief.RacingType.Circuit)
             {
                 audioPlayer.playMessageImmediately(new QueuedMessage(SMOKE_TEST, 0, messageFragments: MessageContents(AudioPlayer.folderChiefRadioCheck)), false);
             }
@@ -113,7 +115,12 @@ namespace CrewChiefV4.Events
                 // hack to prevent the interrupting logic chopping the radio check sound:
                 PlaybackModerator.lastSoundWasSpotter = true;
                 audioPlayer.playSpotterMessage(new QueuedMessage(SMOKE_TEST_SPOTTER, 0,
-                    messageFragments: MessageContents(NoisyCartesianCoordinateSpotter.folderSpotterRadioCheck)), false);
+                messageFragments: MessageContents(NoisyCartesianCoordinateSpotter.folderSpotterRadioCheck)), false);
+            }
+            if (!string.IsNullOrWhiteSpace(CoDriver.folderMicCheck))
+            {
+                audioPlayer.playMessageImmediately(new QueuedMessage(SMOKE_TEST_CODRIVER, 0,
+                    messageFragments: MessageContents(CoDriver.folderMicCheck)), false);
             }
 
             PlaybackModerator.SetTracing(true /*enabled*/);

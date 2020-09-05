@@ -2,7 +2,7 @@ CrewChief version 4.12
 
 Written by Jim Britton, Morten Roslev, Vytautas Leonavičius, Paul Burgess, Tony Whitley, Dan Allongo (Automobilista and rFactor1 implementation), Daniel Nowak (nAudio speech recognition port), Mike Schreiner and Brent Owen (technical input on stock car rules). The application is the result of lots of lots of hard work and input from the guys above as well as some great advice and support from the community and the guys at Sector3 and SMS.
 
-Additional material from Scoops (fantastic track layout mapping work), Nolan Bates (conversion of thousands of phrases from speech to text for subtitle support) and Longtomjr (F1 2018 UDP data format structs). Fantastic alternate spotter sounds by Geoffrey Lessel, Matt Orr (aka EmptyBox), Clare Britton, Mike Schreiner, Phil Linden, Lee Taylor and Micha (last name?). Also a thank you to Nick Thissen for his work on iRacingSdkWrapper.
+Additional material from Scoops (fantastic track layout mapping work), Nolan Bates (conversion of thousands of phrases from speech to text for subtitle support) and Longtomjr (F1 2018 UDP data format structs). Fantastic alternate spotter sounds by Geoffrey Lessel, Matt Orr (aka EmptyBox), Clare Britton, Mike Schreiner, Phil Linden, Lee Taylor and Micha (last name?). Also a thank you to Nick Thissen for his work on iRacingSdkWrapper.  Rally mode was created in collaboration with Janne Laahanen, who contributed his codriver pack and helped in understanding of the RBR pacenotes.
 
 The source code for Crew Chief is available here: https://github.com/mrbelowski/CrewChiefV4
 
@@ -431,6 +431,9 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+
+Version 4.12.1.1: Added Rally mode and support for Richard Burns Rally; Added pCars3 support
+
 Version 4.12.0.8: Corrected VR overlay default behaviour (should fix the remaining issues with the overlays); corrected app name being "5" on the Windows Sounds mixer (stupid fat-fingered typo, sorry); added "what's my oil temp" and "what's my water temp" voice commands; R3E - tweaked car class mapping for WTCR
 
 Version 4.12.0.7: Hotfix for issues with VR overlay windows; corrected time deltas in multiclass racing on pCars2 / AMS2; R3E - fixed some missing tyre type mappings

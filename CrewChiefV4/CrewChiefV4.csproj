@@ -180,6 +180,7 @@
     <Compile Include="Events\CommonActions.cs" />
     <Compile Include="Events\CommonDataContainers.cs" />
     <Compile Include="Events\DriverSwaps.cs" />
+    <Compile Include="Events\CoDriver.cs" />
     <Compile Include="Events\WatchedOpponents.cs" />
     <Compile Include="Events\Strategy.cs" />
     <Compile Include="Events\FrozenOrderMonitor.cs" />
@@ -327,6 +328,9 @@
     <Compile Include="R3E\R3EPitMenuManager.cs" />
     <Compile Include="R3E\R3ERatings.cs" />
     <Compile Include="R3E\R3ESerializer.cs" />
+    <Compile Include="RBR\RBRData.cs" />
+    <Compile Include="RBR\RBRGameStateMapper.cs" />
+    <Compile Include="RBR\RBRSharedMemoryReader.cs" />
     <Compile Include="RF2\MappedBuffer.cs" />
     <Compile Include="RF2\PitMenuAbstractionLayer.cs" />
     <Compile Include="RF2\PitMenuAPI.cs" />
