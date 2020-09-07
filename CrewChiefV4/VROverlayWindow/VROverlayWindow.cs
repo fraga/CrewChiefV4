@@ -36,6 +36,12 @@ namespace CrewChiefV4.VirtualReality
         SendClicksOnly = 2, // Only Send Mouse Clicks
         Disabled = 3
     }
+    public enum TrackingSpace
+    {
+        Seated = 0,
+        Standing,
+        FollowHead
+    }
     [Serializable]
     public class VROverlayWindow
     {
@@ -58,7 +64,9 @@ namespace CrewChiefV4.VirtualReality
         public float curvature { get; set; }
         public bool gazeEnabled { get; set; }
         public bool forceTopMost { get; set; }
-        public ETrackingUniverseOrigin trackingUniverse { get; set; }
+        [DefaultValue(TrackingSpace.Seated)]
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
+        public TrackingSpace trackingSpace { get; set; }
         public bool isDisplay { get; set; }
         [DefaultValue(-1)]
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
@@ -85,7 +93,7 @@ namespace CrewChiefV4.VirtualReality
         }
         //[JsonConstructor]
         public VROverlayWindow(string Text, IntPtr hWnd, string Name = "", bool enabled = false, bool wasEnabled = false, float positionX = 0, float positionY = 0, float positionZ = -1,
-            float rotationX = 0, float rotationY = 0, float rotationZ = 0, float scale = 1, float transparency = 1, float curvature = 0, ETrackingUniverseOrigin trackingUniverse = ETrackingUniverseOrigin.TrackingUniverseSeated, bool isDisplay = false, int toggleVKeyCode = -1, bool gazeEnabled = false, float gazeScale = 1f, float gazeTransparency = 1f, bool forceTopMost = false)
+            float rotationX = 0, float rotationY = 0, float rotationZ = 0, float scale = 1, float transparency = 1, float curvature = 0, TrackingSpace trackingUniverse = TrackingSpace.Seated, bool isDisplay = false, int toggleVKeyCode = -1, bool gazeEnabled = false, float gazeScale = 1f, float gazeTransparency = 1f, bool forceTopMost = false)
         {
             this.Text = Text;
             if (string.IsNullOrWhiteSpace(Name))
@@ -104,7 +112,7 @@ namespace CrewChiefV4.VirtualReality
             this.gazeScale = gazeScale;
             this.transparency = transparency;
             this.gazeTransparency = gazeTransparency;
-            this.trackingUniverse = trackingUniverse;
+            this.trackingSpace = trackingUniverse;
             this.curvature = curvature;
             this.isDisplay = isDisplay;
             this.toggleVKeyCode = toggleVKeyCode;
@@ -138,7 +146,7 @@ namespace CrewChiefV4.VirtualReality
             this.gazeScale = other.gazeScale;
             this.transparency = other.transparency;
             this.gazeTransparency = other.gazeTransparency;
-            this.trackingUniverse = other.trackingUniverse;
+            this.trackingSpace = other.trackingSpace;
             this.curvature = other.curvature;
             this.isDisplay = other.isDisplay;
             this.toggleVKeyCode = other.toggleVKeyCode;
@@ -226,7 +234,7 @@ namespace CrewChiefV4.VirtualReality
             SteamVR.instance.overlay.SetOverlayAlpha(vrOverlayHandle, transparency);
         }
 
-        public void SetOverlayParams(bool followsHead, float scale = 1.0f)
+        public void SetOverlayParams(float scale = 1.0f)
         {
             SteamVR.instance.overlay.SetOverlayWidthInMeters(vrOverlayHandle, scale);
 
@@ -234,10 +242,10 @@ namespace CrewChiefV4.VirtualReality
             rotCenter *= Matrix.RotationX(rotationX);
             rotCenter *= Matrix.RotationY(rotationY);
             rotCenter *= Matrix.RotationZ(rotationZ);
-            var transform = Matrix.Scaling(wasGazing ? this.gazeScale : this.scale) * rotCenter * Matrix.Translation(positionX, positionY, positionZ);
+            var transform = Matrix.Scaling(wasGazing && trackingSpace != TrackingSpace.FollowHead ? this.gazeScale : this.scale) * rotCenter * Matrix.Translation(positionX, positionY, positionZ);
             transform.Transpose();
 
-            if (gazeEnabled)
+            if (gazeEnabled && trackingSpace != TrackingSpace.FollowHead)
             {
                 if (SetOverlayGazeing(transform))
                 {
@@ -253,7 +261,7 @@ namespace CrewChiefV4.VirtualReality
                 }
             }
 
-            if (followsHead)
+            if (trackingSpace == TrackingSpace.FollowHead)
             {
                 HmdMatrix34_t pose = transform.ToHmdMatrix34();
                 SteamVR.instance.overlay.SetOverlayTransformTrackedDeviceRelative(vrOverlayHandle, 0, ref pose);
@@ -261,7 +269,7 @@ namespace CrewChiefV4.VirtualReality
             else
             {
                 HmdMatrix34_t pose = transform.ToHmdMatrix34();
-                SteamVR.instance.overlay.SetOverlayTransformAbsolute(vrOverlayHandle, trackingUniverse, ref pose);
+                SteamVR.instance.overlay.SetOverlayTransformAbsolute(vrOverlayHandle, (ETrackingUniverseOrigin)trackingSpace, ref pose);
             }
             shouldDraw = false;
         }
@@ -313,7 +321,7 @@ namespace CrewChiefV4.VirtualReality
             if (shouldDraw)
             {
                 SubmitOverlay();
-                SetOverlayParams(false);
+                SetOverlayParams();
             }
         }
 
@@ -332,7 +340,7 @@ namespace CrewChiefV4.VirtualReality
                 return false;
 
             var input = new VROverlayIntersectionParams_t();
-            input.eOrigin = trackingUniverse;
+            input.eOrigin = OpenVR.Compositor.GetTrackingSpace();
             input.vSource.v0 = source.X;
             input.vSource.v1 = source.Y;
             input.vSource.v2 = source.Z;

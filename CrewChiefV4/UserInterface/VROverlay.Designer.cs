@@ -77,6 +77,8 @@ namespace CrewChiefV4
             this.textBoxScale = new System.Windows.Forms.TextBox();
             this.labelAvailableWindows = new System.Windows.Forms.Label();
             this.checkBoxForceTopMostWindow = new System.Windows.Forms.CheckBox();
+            this.comboBoxTrackingSpace = new System.Windows.Forms.ComboBox();
+            this.labelTrackingSpace = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarPositionX)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarPositionY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarPositionZ)).BeginInit();
@@ -559,11 +561,31 @@ namespace CrewChiefV4
             this.checkBoxForceTopMostWindow.UseVisualStyleBackColor = true;
             this.checkBoxForceTopMostWindow.CheckedChanged += new System.EventHandler(this.checkBoxForceTopMostWindow_CheckedChanged);
             // 
+            // comboBoxTrackingSpace
+            // 
+            this.comboBoxTrackingSpace.FormattingEnabled = true;
+            this.comboBoxTrackingSpace.Location = new System.Drawing.Point(521, 9);
+            this.comboBoxTrackingSpace.Name = "comboBoxTrackingSpace";
+            this.comboBoxTrackingSpace.Size = new System.Drawing.Size(121, 21);
+            this.comboBoxTrackingSpace.TabIndex = 12;
+            this.comboBoxTrackingSpace.SelectedIndexChanged += new System.EventHandler(this.comboBoxTrackingSpace_SelectedIndexChanged);
+            // 
+            // labelTrackingSpace
+            // 
+            this.labelTrackingSpace.AutoSize = true;
+            this.labelTrackingSpace.Location = new System.Drawing.Point(648, 12);
+            this.labelTrackingSpace.Name = "labelTrackingSpace";
+            this.labelTrackingSpace.Size = new System.Drawing.Size(95, 13);
+            this.labelTrackingSpace.TabIndex = 13;
+            this.labelTrackingSpace.Text = "vr_tracking_space";
+            // 
             // VROverlaySettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(823, 469);
+            this.Controls.Add(this.labelTrackingSpace);
+            this.Controls.Add(this.comboBoxTrackingSpace);
             this.Controls.Add(this.checkBoxForceTopMostWindow);
             this.Controls.Add(this.labelAvailableWindows);
             this.Controls.Add(this.groupBoxScaleTransCurve);
@@ -643,5 +665,7 @@ namespace CrewChiefV4
         private System.Windows.Forms.TextBox textBoxGazeTransparency;
         private System.Windows.Forms.TextBox textBoxGazeScale;
         private System.Windows.Forms.CheckBox checkBoxForceTopMostWindow;
+        private System.Windows.Forms.ComboBox comboBoxTrackingSpace;
+        private System.Windows.Forms.Label labelTrackingSpace;
     }
 }
