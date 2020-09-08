@@ -4790,5 +4790,20 @@ namespace CrewChiefV4.Properties {
                 this["rf2_enable_auto_fuel_to_end_of_race"] = value;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool rf2_enable_pit_manager
+        {
+            get
+            {
+                return ((bool)(this["rf2_enable_pit_manager"]));
+            }
+            set
+            {
+                this["rf2_enable_pit_manager"] = value;
+            }
+        }
     }
 }

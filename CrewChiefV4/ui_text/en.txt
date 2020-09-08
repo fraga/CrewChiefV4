@@ -1533,6 +1533,11 @@ rf2_enable_auto_fuel_to_end_of_race_help = Enables auto refueling in rFactor 2 b
 rf2_enable_auto_fuel_to_end_of_race_category = PIT_STOPS_AND_MULTICLASS
 rf2_enable_auto_fuel_to_end_of_race_filter = RF2_64BIT
 
+rf2_enable_pit_manager = Enable rF2 pit manager
+rf2_enable_pit_manager_help = Enables voice commands controlling rF2 pit menu
+rf2_enable_pit_manager_category = PIT_STOPS_AND_MULTICLASS
+rf2_enable_pit_manager_filter = RF2_64BIT
+
 priortise_messages_depending_on_situation = Advanced message prioritisation
 priortise_messages_depending_on_situation_help = Disable less important messages when under pressure, on a qualifying lap, etc
 priortise_messages_depending_on_situation_category = AUDIO_VOICE_AND_CONTROLLERS

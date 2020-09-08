@@ -353,7 +353,7 @@ namespace CrewChiefV4
         public static String[] RALLY_HAIRPIN = Configuration.getSpeechRecognitionPhrases("RALLY_HAIRPIN");
         public static String[] RALLY_FLAT = Configuration.getSpeechRecognitionPhrases("RALLY_FLAT");
 
-        
+
         // for watching opponent - "watch [bob]", "tell me about [bob]"
         public static String WATCH = Configuration.getSpeechRecognitionConfigOption("WATCH");
         public static String STOP_WATCHING = Configuration.getSpeechRecognitionConfigOption("STOP_WATCHING");
@@ -1335,7 +1335,7 @@ namespace CrewChiefV4
                         {
                             opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHAT_TYRE_IS, WHAT_TYRES_IS }, false, opponentNameChoices, new String[] { ON }, true));
                         }
-                        opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHATS }, true, opponentNamePossessiveChoices, getWhatsPossessiveChoices(), true));                        
+                        opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHATS }, true, opponentNamePossessiveChoices, getWhatsPossessiveChoices(), true));
                     }
                 }
             }
@@ -1749,7 +1749,7 @@ namespace CrewChiefV4
         }
         public void addPitManagerSpeechRecogniser()
         {
-            if (!initialised)
+            if (!initialised || !UserSettings.GetUserSettings().getBoolean("rf2_enable_auto_fuel_to_end_of_race"))
             {
                 return;
             }
@@ -2707,7 +2707,7 @@ namespace CrewChiefV4
                 return CrewChief.getEvent("Strategy");
             }
             else if (ResultContains(recognisedSpeech, PIT_STOP_TEAROFF, false) ||   // tbd Does this actually do anything?
-                ResultContains(recognisedSpeech, PIT_STOP_FAST_REPAIR, false) ||    // already captured by 
+                ResultContains(recognisedSpeech, PIT_STOP_FAST_REPAIR, false) ||    // already captured by
                 ResultContains(recognisedSpeech, PIT_STOP_CLEAR_ALL, false) ||      // else if (GrammarWrapperListContains(iracingPitstopGrammarList, recognitionGrammar))
                 ResultContains(recognisedSpeech, PIT_STOP_CLEAR_TYRES, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_CLEAR_WIND_SCREEN, false) ||
