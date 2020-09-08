@@ -73,6 +73,12 @@ namespace PitMenuAPI
             return Connect();
         }
 
+        public void RereadPitMenu()
+        {
+            MenuLayout.NewCar();
+            MenuLayout.getKeys();
+        }
+
         public bool SmartSetCategory(string category)
         {
             return PitMenuController.SmartSetCategory(category);
