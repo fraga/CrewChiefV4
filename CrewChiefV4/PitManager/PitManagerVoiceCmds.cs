@@ -180,6 +180,7 @@ namespace CrewChiefV4.PitManager
         {
             fuelCapacity = -1;
             currentFuel = -1;
+            pmh.EventHandlerInit();
         }
 
         /// <summary>
@@ -223,7 +224,7 @@ namespace CrewChiefV4.PitManager
             inCar = currentGameState.inCar;
             if (!previousGameState.inCar && currentGameState.inCar)
             {
-                pmh.EventHandler(PME.Initialise, "");
+                pmh.EventHandlerInit();
             }
 
             fuelCapacity = currentGameState.FuelData.FuelCapacity;

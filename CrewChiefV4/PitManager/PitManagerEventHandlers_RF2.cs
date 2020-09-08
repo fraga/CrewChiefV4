@@ -136,6 +136,7 @@ namespace CrewChiefV4.PitManager
         {
             Pmal.PmalConnect();
             currentRf2TyreType.Set(Pmal.GetTyreTypeNames()[0]);
+            Console.WriteLine("Pit Manager initialise");
             return true;
         }
         static public bool PMrF2eh_teardown(string __)
@@ -335,6 +336,10 @@ namespace CrewChiefV4.PitManager
 
         static public bool PMrF2eh_RepairAll(string __)
         {
+            if (!Pmal.SoftMatchCategory("DAMAGE:"))
+            {
+                Pmal.RereadPitMenu();   // DAMAGE is not in initial menu, check if it is now
+            }
             if (Pmal.SoftMatchCategory("DAMAGE:"))
             {
                 return Pmal.SetChoice("Repair All");
@@ -344,15 +349,23 @@ namespace CrewChiefV4.PitManager
 
         static public bool PMrF2eh_RepairNone(string __)
         {
+            if (!Pmal.SoftMatchCategory("DAMAGE:"))
+            {
+                Pmal.RereadPitMenu();   // DAMAGE is not in initial menu, check if it is now
+            }
             if (Pmal.SoftMatchCategory("DAMAGE:"))
             {
-                return Pmal.SetChoice("Repair None");
+                return Pmal.SetChoice("Do Not Repair");
             }
             return false;
         }
 
         static public bool PMrF2eh_RepairBody(string __)
         {
+            if (!Pmal.SoftMatchCategory("DAMAGE:"))
+            {
+                Pmal.RereadPitMenu();   // DAMAGE is not in initial menu, check if it is now
+            }
             if (Pmal.SoftMatchCategory("DAMAGE:"))
             {
                 return Pmal.SetChoice("Repair Body");
@@ -362,6 +375,10 @@ namespace CrewChiefV4.PitManager
 
         static public bool PMrF2eh_PenaltyServe(string __)
         {
+            if (!Pmal.SoftMatchCategory("STOP/GO"))
+            {
+                Pmal.RereadPitMenu();   // STOP/GO is not in initial menu, check if it is now
+            }
             if (Pmal.SoftMatchCategory("STOP/GO"))
             {
                 return Pmal.SetChoice("YES");
@@ -371,6 +388,10 @@ namespace CrewChiefV4.PitManager
 
         static public bool PMrF2eh_PenaltyServeNone(string __)
         {
+            if (!Pmal.SoftMatchCategory("STOP/GO"))
+            {
+                Pmal.RereadPitMenu();   // STOP/GO is not in initial menu, check if it is now
+            }
             if (Pmal.SoftMatchCategory("STOP/GO"))
             {
                 return Pmal.SetChoice("NO");

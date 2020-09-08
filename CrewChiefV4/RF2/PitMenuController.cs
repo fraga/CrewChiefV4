@@ -126,6 +126,7 @@ namespace PitMenuAPI
                     return false;
                 }
             }
+            startUsingPitMenu();
             string currentCategory = GetCategory();
             if (category != currentCategory)
             {
