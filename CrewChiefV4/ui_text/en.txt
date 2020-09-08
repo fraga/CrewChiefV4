@@ -1859,6 +1859,11 @@ vr_overlays_enabled_on_startup = Enable VR overlays when app starts
 vr_overlays_enabled_on_startup_help = Draw previously enabled Steam VR overlays on Crew Chief startup
 vr_overlays_enabled_on_startup_category = VR_SETTINGS;UI_STARTUP_AND_PATHS
 
+vr_tracking_space_seated = Seated
+vr_tracking_space_standing = Standing
+vr_tracking_space_followhead = Follow Head
+vr_tracking_space = Tracking space
+
 r3e_ratings_url = R3E Ratings URL
 r3e_ratings_url_help = URL to retrieve R3E rating data
 r3e_ratings_url_filter = RACE_ROOM
