@@ -1824,6 +1824,7 @@ namespace CrewChiefV4
                     validateAndAdd(PIT_STOP_MONSOON_TYRES, pitManagerChoices);
                     validateAndAdd(PIT_STOP_DONT_REFUEL, pitManagerChoices);
                     validateAndAdd(PIT_STOP_REFUEL, pitManagerChoices);
+                    validateAndAdd(PIT_STOP_FIX_BODY, pitManagerChoices);
 
                 }
 

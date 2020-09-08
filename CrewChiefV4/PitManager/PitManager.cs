@@ -140,13 +140,24 @@ namespace CrewChiefV4.PitManager
         /// internally (e.g."Fill to end" Property)
         /// </summary>
         /// <param name="ev">PitManagerEvent</param>
-        /// <param name="voiceMessage"> The voice commenand</param>
+        /// <param name="voiceMessage"> The voice command</param>
         /// <returns>
         /// true if event was handled
         /// </returns>
         private static Object myLock = new Object();
 
         private static Thread executeThread = null;
+
+        /// <summary>
+        /// Used to initialise PM event handler the first time a command is 
+        /// issued in a session
+        /// </summary>
+        private static bool initialised = false;
+
+        public void EventHandlerInit()
+        {
+            initialised = false;
+        }
 
         public bool EventHandler(PitManagerEvent ev, string voiceMessage)
         {
@@ -183,6 +194,11 @@ namespace CrewChiefV4.PitManager
                         {
                             try
                             {
+                                if (!initialised)
+                                {
+                                    PM_event_dict[PitManagerEvent.Initialise].PitManagerEventAction.Invoke("");
+                                    initialised = true;
+                                }
                                 result = PM_event_dict[ev].PitManagerEventAction.Invoke(voiceMessage);
                                 if (result)
                                 {
@@ -217,6 +233,11 @@ namespace CrewChiefV4.PitManager
             {
                 if (PM_event_dict.ContainsKey(ev))
                 {
+                    if (!initialised)
+                    {
+                        PM_event_dict[PitManagerEvent.Initialise].PitManagerEventAction.Invoke("");
+                        initialised = true;
+                    }
                     result = PM_event_dict[ev].PitManagerEventAction.Invoke(voiceMessage);
                     if (result)
                     {
