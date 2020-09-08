@@ -49,8 +49,8 @@ namespace CrewChiefV4
 
         private static  String[] reservedNameStarts = new String[] { "CHANNEL_", "TOGGLE_", "VOICE_OPTION", "background_volume", 
             "messages_volume", "last_game_definition", "UpdateSettings",ControllerConfiguration.ControllerData.PROPERTY_CONTAINER,
-            "PERSONALISATION_NAME", "app_version", "spotter_name","update_notify_attempted", "last_trace_file_name",
-             "NAUDIO_DEVICE_GUID", "NAUDIO_RECORDING_DEVICE_GUID", "chief_name", "current_settings_profile", "main_window_position"};
+            "PERSONALISATION_NAME", "app_version", "spotter_name", "codriver_name", "codriver_style", "racing_type", "update_notify_attempted", "last_trace_file_name",
+            "NAUDIO_DEVICE_GUID", "NAUDIO_RECORDING_DEVICE_GUID", "chief_name", "current_settings_profile", "main_window_position"};
 
         private static String defaultUserSettingsfileName = "defaultSettings.json";
         public static String userProfilesPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "Profiles");

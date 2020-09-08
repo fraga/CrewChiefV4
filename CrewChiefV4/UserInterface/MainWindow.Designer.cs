@@ -53,9 +53,9 @@ namespace CrewChiefV4
             this.messagesAudioDeviceBox = new System.Windows.Forms.ComboBox();
             this.speechRecognitionDeviceBox = new System.Windows.Forms.ComboBox();
             this.backgroundAudioDeviceBox = new System.Windows.Forms.ComboBox();
-            this.label3 = new System.Windows.Forms.Label();
+            this.messagesVolumeSliderLabel = new System.Windows.Forms.Label();
             this.backgroundVolumeSlider = new System.Windows.Forms.TrackBar();
-            this.label4 = new System.Windows.Forms.Label();
+            this.backgroundVolumeSliderLabel = new System.Windows.Forms.Label();
             this.gameDefinitionList = new System.Windows.Forms.ListBox();
             this.label5 = new System.Windows.Forms.Label();
             this.personalisationLabel = new System.Windows.Forms.Label();
@@ -84,6 +84,11 @@ namespace CrewChiefV4
             this.myNameBoxTooltip = new System.Windows.Forms.ToolTip(this.components);
             this.chiefNameBoxTooltip = new System.Windows.Forms.ToolTip(this.components);
             this.spotterNameBoxTooltip = new System.Windows.Forms.ToolTip(this.components);
+            this.codriverNameLabel = new System.Windows.Forms.Label();
+            this.codriverNameBox = new System.Windows.Forms.ComboBox();
+            this.codriverNameBoxTooltip = new System.Windows.Forms.ToolTip(this.components);
+            this.codriverStyleLabel = new System.Windows.Forms.Label();
+            this.codriverStyleBox = new System.Windows.Forms.ComboBox();
             this.scanControllers = new System.Windows.Forms.Button();
             this.buttonEditCommandMacros = new System.Windows.Forms.Button();
             this.voiceRecognitionToolTip = new System.Windows.Forms.ToolTip(this.components);
@@ -351,14 +356,14 @@ namespace CrewChiefV4
             this.backgroundAudioDeviceBox.TabIndex = 160;
             this.backgroundAudioDeviceBox.Visible = false;
             // 
-            // label3
+            // messagesVolumeSliderLabel
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(367, 36);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(94, 13);
-            this.label3.TabIndex = 59;
-            this.label3.Text = "messages_volume";
+            this.messagesVolumeSliderLabel.AutoSize = true;
+            this.messagesVolumeSliderLabel.Location = new System.Drawing.Point(367, 36);
+            this.messagesVolumeSliderLabel.Name = "messagesVolumeSliderLabel";
+            this.messagesVolumeSliderLabel.Size = new System.Drawing.Size(94, 13);
+            this.messagesVolumeSliderLabel.TabIndex = 59;
+            this.messagesVolumeSliderLabel.Text = "messages_volume";
             // 
             // backgroundVolumeSlider
             // 
@@ -370,14 +375,14 @@ namespace CrewChiefV4
             this.backgroundVolumeSlider.TickFrequency = 10;
             this.backgroundVolumeSlider.Scroll += new System.EventHandler(this.backgroundVolumeSlider_Scroll);
             // 
-            // label4
+            // backgroundVolumeSliderLabel
             // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(567, 35);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(104, 13);
-            this.label4.TabIndex = 69;
-            this.label4.Text = "background_volume";
+            this.backgroundVolumeSliderLabel.AutoSize = true;
+            this.backgroundVolumeSliderLabel.Location = new System.Drawing.Point(567, 35);
+            this.backgroundVolumeSliderLabel.Name = "backgroundVolumeSliderLabel";
+            this.backgroundVolumeSliderLabel.Size = new System.Drawing.Size(104, 13);
+            this.backgroundVolumeSliderLabel.TabIndex = 69;
+            this.backgroundVolumeSliderLabel.Text = "background_volume";
             // 
             // gameDefinitionList
             // 
@@ -641,6 +646,50 @@ namespace CrewChiefV4
             this.chiefNameBox.TabIndex = 95;
             this.chiefNameBoxTooltip.SetToolTip(this.chiefNameBox, "chief_name_tooltip");
             // 
+            // codriverNameLabel
+            // 
+            this.codriverNameLabel.AutoSize = true;
+            this.codriverNameLabel.Location = new System.Drawing.Point(958, 67);
+            this.codriverNameLabel.Name = "codriverNameLabel";
+            this.codriverNameLabel.Size = new System.Drawing.Size(90, 13);
+            this.codriverNameLabel.TabIndex = 94;
+            this.codriverNameLabel.Text = "codriver_name_label";
+            this.codriverNameLabel.Visible = false;
+            this.codriverNameBoxTooltip.SetToolTip(this.codriverNameLabel, "codriver_name_tooltip");
+            // 
+            // codriverNameBox
+            // 
+            this.codriverNameBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.codriverNameBox.IntegralHeight = false;
+            this.codriverNameBox.Location = new System.Drawing.Point(1027, 65);
+            this.codriverNameBox.MaxDropDownItems = 5;
+            this.codriverNameBox.Name = "codriverNameBox";
+            this.codriverNameBox.Size = new System.Drawing.Size(106, 21);
+            this.codriverNameBox.TabIndex = 95;
+            this.codriverNameBox.Visible = false;
+            this.codriverNameBoxTooltip.SetToolTip(this.codriverNameBox, "codriver_name_tooltip");
+            // 
+            // codriverStyleLabel
+            // 
+            this.codriverStyleLabel.AutoSize = true;
+            this.codriverStyleLabel.Location = new System.Drawing.Point(958, 99);
+            this.codriverStyleLabel.Name = "codriverStyleLabel";
+            this.codriverStyleLabel.Size = new System.Drawing.Size(90, 13);
+            this.codriverStyleLabel.TabIndex = 94;
+            this.codriverStyleLabel.Text = "codriver_style_label";
+            this.codriverStyleLabel.Visible = false;
+            // 
+            // codriverStyleBox
+            // 
+            this.codriverStyleBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.codriverStyleBox.IntegralHeight = false;
+            this.codriverStyleBox.Location = new System.Drawing.Point(1027, 97);
+            this.codriverStyleBox.MaxDropDownItems = 6;
+            this.codriverStyleBox.Name = "codriverStyleBox";
+            this.codriverStyleBox.Size = new System.Drawing.Size(106, 21);
+            this.codriverStyleBox.TabIndex = 95;
+            this.codriverStyleBox.Visible = false;
+            // 
             // scanControllers
             // 
             this.scanControllers.Location = new System.Drawing.Point(41, 654);
@@ -741,9 +790,9 @@ namespace CrewChiefV4
             this.Controls.Add(this.filenameTextbox);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.gameDefinitionList);
-            this.Controls.Add(this.label4);
+            this.Controls.Add(this.backgroundVolumeSliderLabel);
             this.Controls.Add(this.backgroundVolumeSlider);
-            this.Controls.Add(this.label3);
+            this.Controls.Add(this.messagesVolumeSliderLabel);
             this.Controls.Add(this.messagesVolumeSlider);
             this.Controls.Add(this.messagesAudioDeviceBox);
             this.Controls.Add(this.speechRecognitionDeviceBox);
@@ -772,6 +821,10 @@ namespace CrewChiefV4
             this.Controls.Add(this.smokeTestTextBox);
             this.Controls.Add(this.chiefNameLabel);
             this.Controls.Add(this.chiefNameBox);
+            this.Controls.Add(this.codriverNameLabel);
+            this.Controls.Add(this.codriverNameBox);
+            this.Controls.Add(this.codriverStyleLabel);
+            this.Controls.Add(this.codriverStyleBox);
             this.Controls.Add(this.scanControllers);
             this.Controls.Add(this.buttonEditCommandMacros);
             this.Controls.Add(this.menuStrip1);
@@ -819,9 +872,9 @@ namespace CrewChiefV4
         private System.Windows.Forms.ComboBox speechRecognitionDeviceBox;
         private System.Windows.Forms.ComboBox messagesAudioDeviceBox;
         private System.Windows.Forms.ComboBox backgroundAudioDeviceBox;
-        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label messagesVolumeSliderLabel;
         private System.Windows.Forms.TrackBar backgroundVolumeSlider;
-        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label backgroundVolumeSliderLabel;
         public System.Windows.Forms.ListBox gameDefinitionList;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label personalisationLabel;
@@ -846,9 +899,14 @@ namespace CrewChiefV4
         private System.Windows.Forms.Button buttonSmokeTest;
         private System.Windows.Forms.Label chiefNameLabel;
         private System.Windows.Forms.ComboBox chiefNameBox;
+        private System.Windows.Forms.Label codriverNameLabel;
+        private System.Windows.Forms.ComboBox codriverNameBox;
+        private System.Windows.Forms.Label codriverStyleLabel;
+        private System.Windows.Forms.ComboBox codriverStyleBox;
         private System.Windows.Forms.ToolTip myNameBoxTooltip;
         private System.Windows.Forms.ToolTip chiefNameBoxTooltip;
         private System.Windows.Forms.ToolTip spotterNameBoxTooltip;
+        private System.Windows.Forms.ToolTip codriverNameBoxTooltip;
         private System.Windows.Forms.Button scanControllers;
         private System.Windows.Forms.Button buttonEditCommandMacros;
         private ToolTip voiceRecognitionDisabledToolTip;

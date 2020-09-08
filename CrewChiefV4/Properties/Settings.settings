@@ -1145,6 +1145,36 @@
     <Setting Name="show_vr_settings_as_overlay" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="codriver_name" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Jim (default)</Value>
+    </Setting>
+    <Setting Name="racing_type" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="rbr_launch_exe" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="rbr_install_path" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="launch_rbr" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="codriver_style" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">1</Value>
+    </Setting>
+    <Setting Name="codriver_rushed_speed" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">140</Value>
+    </Setting>
+    <Setting Name="codriver_chained_pacenote_threshold_distance" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">30</Value>
+    </Setting>
+    <Setting Name="codriver_lookahead_seconds" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">4</Value>
+    </Setting>
+    <Setting Name="codriver_rushed_lookahead_seconds" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">2</Value>
+    </Setting>
     <Setting Name="Setting" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
@@ -1155,6 +1185,12 @@
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="launch_pcars3" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="enable_controller_pov_switches" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="rf2_enable_auto_fuel_to_end_of_race" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
   </Settings>

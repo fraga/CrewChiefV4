@@ -58,6 +58,11 @@ namespace CrewChiefV4
 
             checkBoxForceTopMostWindow.Text = Configuration.getUIString("vr_force_topmost_window");
 
+            labelTrackingSpace.Text = Configuration.getUIString("vr_tracking_space");
+            comboBoxTrackingSpace.Items.Add(Configuration.getUIString("vr_tracking_space_seated"));
+            comboBoxTrackingSpace.Items.Add(Configuration.getUIString("vr_tracking_space_standing"));
+            comboBoxTrackingSpace.Items.Add(Configuration.getUIString("vr_tracking_space_followhead"));
+
             updateWindowList();
 
             this.KeyPreview = true;
@@ -245,6 +250,8 @@ namespace CrewChiefV4
                     textBoxGazeScale.Text = window.gazeScale.ToString("0.0");
                     textBoxGazeTransparency.Text = window.gazeTransparency.ToString("0.00");
 
+                    comboBoxTrackingSpace.SelectedIndex = (int)window.trackingSpace;
+
                     this.loadingSettings = false;
                 }
             }
@@ -318,7 +325,6 @@ namespace CrewChiefV4
                         if (s.Text == currWnd.Text)
                         {
                             newWindow = false;
-
                             Debug.Assert(s.Name == currWnd.Name);
                             s.enabled = currWnd.enabled;
                             s.wasEnabled = currWnd.wasEnabled;
@@ -335,7 +341,7 @@ namespace CrewChiefV4
                             s.curvature = currWnd.curvature;
                             s.gazeEnabled = currWnd.gazeEnabled;
                             s.forceTopMost = currWnd.forceTopMost;
-                            s.trackingUniverse = currWnd.trackingUniverse;
+                            s.trackingSpace = currWnd.trackingSpace;
                             s.isDisplay = currWnd.isDisplay;
                             s.toggleVKeyCode = currWnd.toggleVKeyCode;
                         }
@@ -492,7 +498,7 @@ namespace CrewChiefV4
                         this.buttonSaveSettings.Enabled = true;
 
                     var window = ((VROverlayWindow)listBoxWindows.SelectedItem);
-                    window.gazeEnabled = checkBoxEnableGazeing.Enabled;
+                    window.gazeEnabled = checkBoxEnableGazeing.Checked;
                 }
             }
         }
@@ -540,6 +546,22 @@ namespace CrewChiefV4
 
                     var window = ((VROverlayWindow)listBoxWindows.SelectedItem);
                     window.forceTopMost = checkBoxForceTopMostWindow.Checked;
+                }
+            }
+        }
+
+        private void comboBoxTrackingSpace_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            lock (instanceLock)
+            {
+                if (listBoxWindows.SelectedIndex != -1)
+                {
+                    if (!this.loadingSettings)
+                        this.buttonSaveSettings.Enabled = true;
+
+                    var window = ((VROverlayWindow)listBoxWindows.SelectedItem);
+                    window.trackingSpace = comboBoxTrackingSpace.SelectedIndex != -1 ? (TrackingSpace)comboBoxTrackingSpace.SelectedIndex : TrackingSpace.Seated;
+                    ///window.forceTopMost = checkBoxForceTopMostWindow.Checked;
                 }
             }
         }

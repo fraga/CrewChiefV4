@@ -148,7 +148,12 @@ namespace CrewChiefV4.Events
             }
         }
 
-        public virtual List<SessionType> applicableSessionTypes 
+        public virtual List<CrewChief.RacingType> applicableRacingTypes
+        {
+            get { return new List<CrewChief.RacingType> { CrewChief.RacingType.Circuit }; }
+        }
+
+        public virtual List<SessionType> applicableSessionTypes
         {
             get { return new List<SessionType> { SessionType.Practice, SessionType.Qualify, SessionType.Race, SessionType.HotLap, SessionType.LonePractice }; }
         }
@@ -181,7 +186,7 @@ namespace CrewChiefV4.Events
 
         public virtual Boolean isApplicableForCurrentSessionAndPhase(SessionType sessionType, SessionPhase sessionPhase)
         {
-            return applicableSessionPhases.Contains(sessionPhase) && applicableSessionTypes.Contains(sessionType);
+            return applicableSessionPhases.Contains(sessionPhase) && applicableSessionTypes.Contains(sessionType) && applicableRacingTypes.Contains(GlobalBehaviourSettings.racingType);
         }
 
         public virtual void respond(String voiceMessage)

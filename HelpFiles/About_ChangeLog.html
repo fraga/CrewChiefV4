@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="">
   <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
@@ -13,21 +13,57 @@
     alink="#EE0000">
     <div style="font-family:'Lucida Sans Unicode';font-size:13px;"
       class="main">
+      <h4>Version 4.13.0.0:</h4>
+      <p> &nbsp;&nbsp;* <font color="#ff0000"><b>
+    rFactor 2 now needs
+    Vytautas Leonavi&#x010D;ius' rFactor 2 Plugin version 3.7.14.2
+</b></font>&nbsp;
+        It's part of this CC version and will be installed automatically
+        but note that any other apps that use it will need to be updated<br>
+        &nbsp;&nbsp;* rFactor 2 - added voice control of pit menu,
+        similar to that for iRacing and R3E<br>
+        &nbsp;&nbsp;* Added Rally mode and support for Richard Burns
+        Rally<br>
+        &nbsp;&nbsp;* Added rudimentary pCars3 support;<br>
+        &nbsp;&nbsp;* Added support for controller 'point of view'
+        buttons (should allow direction-pads to be used for button
+        assignments)<br>
+        &nbsp;&nbsp;* AMS2 - A few car class tweaks<br>
+        &nbsp;&nbsp;* ACC - added multi-class support<br>
+      </p>
+      <h4>Version 4.12.0.8:</h4>
+      <p>&nbsp;&nbsp;* Corrected VR overlay default behaviour (should
+        fix the remaining issues with the overlays)<br>
+        &nbsp;&nbsp;* corrected app name being "5" on the Windows Sounds
+        mixer (stupid fat-fingered typo, sorry)<br>
+        &nbsp;&nbsp;* added "what's my oil temp" and "what's my water
+        temp" voice commands<br>
+        &nbsp;&nbsp;* R3E - tweaked car class mapping for WTCR<br>
+      </p>
+      <h4>Version 4.12.0.7</h4>
+      <p>&nbsp;&nbsp;* Hotfix for issues with VR overlay windows<br>
+        &nbsp;&nbsp;* corrected time deltas in multiclass racing on
+        pCars2 / AMS2<br>
+        &nbsp;&nbsp;* R3E - fixed some missing tyre type mappings<br>
+      </p>
+      <h4>Version 4.12.0.6</h4>
+      <p>&nbsp;&nbsp;* R3E - fixed OtterHud integration<br>
+      </p>
       <h4>Version 4.12.0.5:<br>
       </h4>
-      &nbsp; * Some UI tidying up and bug fixes<br>
-      &nbsp; * Stockcar Extreme - fix for app trying (and failing) to
-      install plugin on every start (the plugin .dll must be install
+      &nbsp;&nbsp;* Some UI tidying up and bug fixes<br>
+      &nbsp;&nbsp;* Stockcar Extreme - fix for app trying (and failing)
+      to install plugin on every start (the plugin .dll must be install
       manually)<br>
-      &nbsp; * R3E - download player rating data in background (should
-      improve start up time)<br>
-      &nbsp; * pCars / pCars2 - allow finer control over car class
+      &nbsp;&nbsp;* R3E - download player rating data in background
+      (should improve start up time)<br>
+      &nbsp;&nbsp;* pCars / pCars2 - allow finer control over car class
       mapping using an optional pCarsCarNames field in the car classes
       JSON<br>
-      &nbsp; * AMS2 - wired up a bit more of the existing pCars2 logic
-      (e.g. weather conditions)<br>
-      &nbsp; * Added F1 2020 to games list (spotter only); fixed some VR
-      integration bugs<br>
+      &nbsp;&nbsp;* AMS2 - wired up a bit more of the existing pCars2
+      logic (e.g. weather conditions)<br>
+      &nbsp;&nbsp;* Added F1 2020 to games list (spotter only)<br>
+      &nbsp;&nbsp;* fixed some VR integration bugs<br>
       <h4>Version 4.12.0.1:</h4>
       &nbsp;&nbsp;* Fixed SteamVR detection on non-English installs<br>
       &nbsp;&nbsp;* Fixed some issues in speech recognition
@@ -200,14 +236,14 @@
       device names aren't unique<br>
       <h4>Version 4.9.11.1</h4>
       &nbsp;&nbsp;* Reworked nAudio playback path to improve stability
-      and fix some app shutdown issues; added option to play sounds
-      using WASAPI output device when using nAudio playback (set with
-      the 'nAudio Output Interface Type' property). This has
-      significantly lower playback latency and can make the app sound
-      more natural and responsive - definitely worth trying (remember to
-      enable nAudio playback first). If the audio pops or crackles with
-      this enable try increasing the 'nAudio WASAPI latency' property a
-      bit<br>
+      and fix some app shutdown issues<br>
+      &nbsp;&nbsp;* added option to play sounds using WASAPI output
+      device when using nAudio playback (set with the 'nAudio Output
+      Interface Type' property). This has significantly lower playback
+      latency and can make the app sound more natural and responsive -
+      definitely worth trying (remember to enable nAudio playback
+      first). If the audio pops or crackles with this enable try
+      increasing the 'nAudio WASAPI latency' property a bit<br>
       &nbsp;&nbsp;* Added option to make the app respond to voice
       commands as soon as it recognises them in 'Hold Button' mode,
       rather than waiting until the radio button is released (enable
@@ -360,8 +396,8 @@
       spotter as soon as the full course yellow is shown - to use the
       new behaviour disable the 'Mute spotter immediately on full course
       yellow' property)<br>
-      &nbsp;&nbsp;* RF2 - added latest Formula E mappings and rules; R3E
-      - improved accuracy of pit box countdown<br>
+      &nbsp;&nbsp;* RF2 - added latest Formula E mappings and rules
+      &nbsp;&nbsp;* R3E - improved accuracy of pit box countdown<br>
       <h4>Version 4.9.8.6</h4>
       &nbsp;&nbsp;* Assign buttons when the button is released, not
       pressed. Should fix issues where continuously pressed buttons
@@ -653,6 +689,8 @@
       only). See the 'Advanced command macros' section of the help.txt
       file or
       http://thecrewchief.org/showthread.php?263-Command-key-press-macros&amp;p=2378&amp;viewfull=1#post2378
+
+
       for more info<br>
       &nbsp;&nbsp;* Fixed some shutdown delays that can happen when
       closing the app without pressing 'stop' first<br>
@@ -1611,10 +1649,10 @@
       enabling this supresses some messages based on car class and track
       (e.g. spotter is off at start of session when not on ovals, older
       car classes have less telemetry based info like tyre temps) - this
-      is very much 'work in progress'; added per-car class behaviours
-      for yellow flag phrasing (e.g. pace car vs safety car) and last
-      lap message (e.g. "white flag" for last lap only applies to Indy
-      and NASCAR cars)<br>
+      is very much 'work in progress' &nbsp;&nbsp;* added per-car class
+      behaviours for yellow flag phrasing (e.g. pace car vs safety car)
+      and last lap message (e.g. "white flag" for last lap only applies
+      to Indy and NASCAR cars)<br>
       &nbsp;&nbsp;* Added 'force update check' button<br>
       <h4>Version 4.6.5.2</h4>
       &nbsp;&nbsp;* Fixed AC plugin after 1.14 update<br>
@@ -1697,6 +1735,8 @@
       folder with the new one in the app's install folder<br>
       &nbsp;&nbsp;* New plugin for RF2 - please replace your existing
       ...\Steam\steamapps\common\rFactor2\Bin64\Plugins\rFactor2SharedMemoryMapPlugin64.dll
+
+
       with the new one in the app's install folder<br>
       &nbsp;&nbsp;* Added corner names to some calls on several tracks
       (this is will a work-in-progress)<br>
@@ -1766,8 +1806,8 @@
       patch<br>
       &nbsp;&nbsp;* Added chequered flag message for timed sessions
       (still some issues here with PCars)<br>
-      &nbsp;&nbsp;* Reworked PCars session end detection; added
-      controller bindings for message volume up / down<br>
+      &nbsp;&nbsp;* Reworked PCars session end detection &nbsp;&nbsp;*
+      added controller bindings for message volume up / down<br>
       &nbsp;&nbsp;* Added some simple help text (much much more needs to
       be added to this)<br>
       &nbsp;&nbsp;* Externalised car class definitions (first version -
@@ -2066,8 +2106,9 @@ https://forum.studio-397.com/index.php?threads/crew-chief-v4-5-with-rfactor-2-su
       <h4>Version 4.1.2.1</h4>
       &nbsp;&nbsp;* Added some car class data and pit detection points
       for the PCars Lotus DLC<br>
-      &nbsp;&nbsp;* Fixed some pit detection issues in PCars; Added
-      option to enable spotter in hot lap (time trial) mode for PCars<br>
+      &nbsp;&nbsp;* Fixed some pit detection issues in PCars<br>
+      &nbsp;&nbsp;* Added option to enable spotter in hot lap (time
+      trial) mode for PCars<br>
       &nbsp;&nbsp;* Don't play lap time messages when we're in the pit
       lane<br>
       &nbsp;&nbsp;* Don't complain about worsening lap times if the

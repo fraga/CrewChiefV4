@@ -8,7 +8,7 @@ namespace CrewChiefV4
 {
     public enum GameEnum
     {
-        RACE_ROOM, PCARS2, PCARS_64BIT, PCARS_32BIT, PCARS_NETWORK, PCARS2_NETWORK, RF1, ASSETTO_64BIT, ASSETTO_32BIT, RF2_64BIT, IRACING, F1_2018, F1_2019, F1_2020, ACC, AMS2, AMS2_NETWORK, PCARS3, UNKNOWN
+        RACE_ROOM, PCARS2, PCARS_64BIT, PCARS_32BIT, PCARS_NETWORK, PCARS2_NETWORK, RF1, ASSETTO_64BIT, ASSETTO_32BIT, RF2_64BIT, IRACING, F1_2018, F1_2019, F1_2020, ACC, AMS2, AMS2_NETWORK, PCARS3, RBR, UNKNOWN
     }
     public class GameDefinition
     {
@@ -60,6 +60,8 @@ namespace CrewChiefV4
             "f1_2019_launch_exe", "f1_2019_launch_params", "launch_f1_2019", false);
         public static GameDefinition f1_2020 = new GameDefinition(GameEnum.F1_2020, "f1_2020", null, "CrewChiefV4.F1_2020.F12020Spotter",
             "f1_2020_launch_exe", "f1_2020_launch_params", "launch_f1_2020", false);
+        public static GameDefinition rbr = new GameDefinition(GameEnum.RBR, "rbr", "RichardBurnsRally_SSE", null /*spotterName*/,
+            "rbr_launch_exe", null /*gameStartCommandOptionsProperty*/, "launch_rbr", true, "", null, CrewChief.RacingType.Rally);
 
         private static string showOnlyTheseGames = UserSettings.GetUserSettings().getString("limit_available_games");
         
@@ -148,6 +150,10 @@ namespace CrewChiefV4
                                 {
                                     filtered.Add(GameDefinition.automobilista);
                                 }
+                                else if (filterLower.Contains("rbr"))
+                                {
+                                    filtered.Add(GameDefinition.rbr);
+                                }
                                 else
                                 {
                                     Console.WriteLine("Game filter term \"" + filter + "\" not recognised");
@@ -181,6 +187,7 @@ namespace CrewChiefV4
             definitions.Add(acc);
             definitions.Add(f1_2019);
             definitions.Add(f1_2020);
+            definitions.Add(rbr);
             return filterAvailableGames(definitions);
         }
 
@@ -224,6 +231,7 @@ namespace CrewChiefV4
         public GameEnum gameEnum;
         public String friendlyName;
         public String macroEditorName;
+        public readonly CrewChief.RacingType racingType;
         public String lookupName;
         public String processName;
         public String spotterName;
@@ -236,7 +244,7 @@ namespace CrewChiefV4
 
         public GameDefinition(GameEnum gameEnum, String lookupName, String processName,
             String spotterName, String gameStartCommandProperty, String gameStartCommandOptionsProperty, String gameStartEnabledProperty, Boolean allowsUserCreatedCars,
-            String gameInstallDirectory = "", String macroEditorName = null)
+            String gameInstallDirectory = "", String macroEditorName = null, CrewChief.RacingType racingType = CrewChief.RacingType.Circuit)
         {
             this.gameEnum = gameEnum;
             this.lookupName = lookupName;
@@ -249,11 +257,12 @@ namespace CrewChiefV4
             this.gameInstallDirectory = gameInstallDirectory;
             this.allowsUserCreatedCars = allowsUserCreatedCars;
             this.macroEditorName = macroEditorName == null ? this.friendlyName : macroEditorName;
+            this.racingType = racingType;
         }
 
         public GameDefinition(GameEnum gameEnum, String lookupName, String processName,
             String spotterName, String gameStartCommandProperty, String gameStartCommandOptionsProperty, String gameStartEnabledProperty, String[] alternativeProcessNames,
-            Boolean allowsUserCreatedCars, String gameInstallDirectory = "", String macroEditorName = null)
+            Boolean allowsUserCreatedCars, String gameInstallDirectory = "", String macroEditorName = null, CrewChief.RacingType racingType = CrewChief.RacingType.Circuit)
         {
             this.gameEnum = gameEnum;
             this.lookupName = lookupName;
@@ -267,6 +276,7 @@ namespace CrewChiefV4
             this.gameInstallDirectory = gameInstallDirectory;
             this.allowsUserCreatedCars = allowsUserCreatedCars;
             this.macroEditorName = macroEditorName == null ? this.friendlyName : macroEditorName;
+            this.racingType = racingType;
         }
 
         public bool HasAnyProcessNameAssociated()

@@ -9,6 +9,8 @@ using CrewChiefV4.Audio;
 using CrewChiefV4.GameState;
 using System.IO;
 using CrewChiefV4.iRacing;
+using System.Diagnostics;
+
 namespace CrewChiefV4
 {
     class PreviousPositionAndVelocityData {
@@ -110,6 +112,12 @@ namespace CrewChiefV4
          */
         static NoisyCartesianCoordinateSpotter()
         {
+            if (GlobalBehaviourSettings.racingType != CrewChief.RacingType.Circuit)
+            {
+                Debug.WriteLine("Spotter is not initialized because app is not running in a circuit racing mode");
+                return;
+            }
+
             availableSpotters.Clear();
             availableSpotters.Add(defaultSpotterId);
             try

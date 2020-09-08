@@ -14,16 +14,6 @@ namespace CrewChiefV4
 {
     class PluginInstaller
     {
-        //decided to import instead of "hacking" the ini
-        [DllImport("kernel32", CharSet = CharSet.Unicode)]
-        private static extern int GetPrivateProfileString(string section, string key,
-            string defaultValue, StringBuilder value, int size, string filePath);
-
-        [DllImport("kernel32", CharSet = CharSet.Unicode, SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool WritePrivateProfileString(string section, string key,
-            string value, string filePath);
-
         Boolean messageBoxPresented;
         Boolean errorMessageBoxPresented;
         Boolean messageBoxResult;
@@ -35,19 +25,6 @@ namespace CrewChiefV4
         {
             messageBoxPresented = false;
             messageBoxResult = false;
-        }
-
-        public static string ReadValue(string section, string key, string filePath, string defaultValue = "")
-        {
-            var value = new StringBuilder(512);
-            GetPrivateProfileString(section, key, defaultValue, value, value.Capacity, filePath);
-            return value.ToString();
-        }
-
-        public static bool WriteValue(string section, string key, string value, string filePath)
-        {
-            bool result = WritePrivateProfileString(section, key, value, filePath);
-            return result;
         }
 
         private string checkMD5(string filename)
@@ -252,7 +229,7 @@ namespace CrewChiefV4
                     try
                     {
                         // if the game is running it'll need to be bounced to pick up this change
-                        if (Utilities.IsGameRunning(gameDefinition.processName, gameDefinition.alternativeProcessNames))
+                        if (Utilities.IsGameRunning(gameDefinition.processName, gameDefinition.alternativeProcessNames, out var parentDir))
                         {
                             MessageBox.Show("broadcasting.json needs to be updated and the game restarted. Please exit the game then click 'OK'");
                         }
@@ -407,12 +384,12 @@ namespace CrewChiefV4
                     string pythonConfigPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Assetto Corsa\cfg", @"python.ini");
                     if (File.Exists(pythonConfigPath))
                     {
-                        string valueActive = ReadValue("CREWCHIEFEX", "ACTIVE", pythonConfigPath, "0");
+                        string valueActive = Utilities.ReadIniValue("CREWCHIEFEX", "ACTIVE", pythonConfigPath, "0");
                         if (!valueActive.Equals("1"))
                         {
                             if (presentEnableMessagebox())
                             {
-                                WriteValue("CREWCHIEFEX", "ACTIVE", "1", pythonConfigPath);
+                                Utilities.WriteIniValue("CREWCHIEFEX", "ACTIVE", "1", pythonConfigPath);
                             }
                             
                         }

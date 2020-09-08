@@ -25,6 +25,8 @@ namespace CrewChiefV4
         private SREWrapper sreWrapper;
 
         public static int sreSessionId = 0;
+        public static float distanceWhenVoiceCommandStarted = 0;
+        public static DateTime timeVoiceCommandStarted = DateTime.MinValue;
 
         private int nAudioWaveInSampleRate = UserSettings.GetUserSettings().getInt("naudio_wave_in_sample_rate");
         private int nAudioWaveInChannelCount = UserSettings.GetUserSettings().getInt("naudio_wave_in_channel_count");
@@ -332,6 +334,26 @@ namespace CrewChiefV4
         public static String[] SHOW_SUBTITLES = Configuration.getSpeechRecognitionPhrases("SHOW_SUBTITLES");
         public static String[] HIDE_SUBTITLES = Configuration.getSpeechRecognitionPhrases("HIDE_SUBTITLES");
 
+        // rally stuff
+        public static String[] RALLY_EARLIER_CALLS = Configuration.getSpeechRecognitionPhrases("RALLY_EARLIER_CALLS");
+        public static String[] RALLY_LATER_CALLS = Configuration.getSpeechRecognitionPhrases("RALLY_LATER_CALLS");
+        public static String[] RALLY_CORNER_NUMBER_FIRST = Configuration.getSpeechRecognitionPhrases("RALLY_CORNER_NUMBER_FIRST");
+        public static String[] RALLY_CORNER_DIRECTION_FIRST = Configuration.getSpeechRecognitionPhrases("RALLY_CORNER_DIRECTION_FIRST");
+        public static String[] RALLY_CORNER_DECRIPTIONS = Configuration.getSpeechRecognitionPhrases("RALLY_CORNER_DECRIPTIONS");
+        // pace note corrections
+        public static String RALLY_CORRECTION = Configuration.getSpeechRecognitionConfigOption("RALLY_CORRECTION");
+        public static String RALLY_LEFT = Configuration.getSpeechRecognitionConfigOption("RALLY_LEFT");
+        public static String RALLY_RIGHT = Configuration.getSpeechRecognitionConfigOption("RALLY_RIGHT");
+        public static String[] RALLY_1 = Configuration.getSpeechRecognitionPhrases("RALLY_1");
+        public static String[] RALLY_2 = Configuration.getSpeechRecognitionPhrases("RALLY_2");
+        public static String[] RALLY_3 = Configuration.getSpeechRecognitionPhrases("RALLY_3");
+        public static String[] RALLY_4 = Configuration.getSpeechRecognitionPhrases("RALLY_4");
+        public static String[] RALLY_5 = Configuration.getSpeechRecognitionPhrases("RALLY_5");
+        public static String[] RALLY_6 = Configuration.getSpeechRecognitionPhrases("RALLY_6");
+        public static String[] RALLY_HAIRPIN = Configuration.getSpeechRecognitionPhrases("RALLY_HAIRPIN");
+        public static String[] RALLY_FLAT = Configuration.getSpeechRecognitionPhrases("RALLY_FLAT");
+
+        
         // for watching opponent - "watch [bob]", "tell me about [bob]"
         public static String WATCH = Configuration.getSpeechRecognitionConfigOption("WATCH");
         public static String STOP_WATCHING = Configuration.getSpeechRecognitionConfigOption("STOP_WATCHING");
@@ -371,6 +393,7 @@ namespace CrewChiefV4
         private List<GrammarWrapper> r3ePitstopGrammarList = new List<GrammarWrapper>();
         private List<GrammarWrapper> pitManagerGrammarList = new List<GrammarWrapper>();
         private List<GrammarWrapper> overlayGrammarList = new List<GrammarWrapper>();
+        private List<GrammarWrapper> rallyGrammarList = new List<GrammarWrapper>();
 
         private GrammarWrapper macroGrammar = null;
 
@@ -1469,6 +1492,80 @@ namespace CrewChiefV4
             }
         }
 
+        public void addRallySpeechRecogniser()
+        {
+            // note that all the current rally voice commands are 'behaviour altering', so exit this method immediately if these are disable
+            // so we're not adding empty grammars to the SRE
+            if (!initialised || disableBehaviorAlteringVoiceCommands)
+            {
+                return;
+            }
+            try
+            {
+                iracingPitstopGrammarList.Clear();
+                r3ePitstopGrammarList.Clear();
+                rallyGrammarList.Clear();
+                ChoicesWrapper rallyChoices = SREWrapperFactory.createNewChoicesWrapper();
+                validateAndAdd(RALLY_EARLIER_CALLS, rallyChoices);
+                validateAndAdd(RALLY_LATER_CALLS, rallyChoices);
+                validateAndAdd(RALLY_CORNER_DECRIPTIONS, rallyChoices);
+                validateAndAdd(RALLY_CORNER_DIRECTION_FIRST, rallyChoices);
+                validateAndAdd(RALLY_CORNER_NUMBER_FIRST, rallyChoices);
+
+                validateAndAdd(getCornerCorrectionPhrases(RALLY_LEFT, RALLY_1).ToArray(), rallyChoices);
+                validateAndAdd(getCornerCorrectionPhrases(RALLY_LEFT, RALLY_2).ToArray(), rallyChoices);
+                validateAndAdd(getCornerCorrectionPhrases(RALLY_LEFT, RALLY_3).ToArray(), rallyChoices);
+                validateAndAdd(getCornerCorrectionPhrases(RALLY_LEFT, RALLY_4).ToArray(), rallyChoices);
+                validateAndAdd(getCornerCorrectionPhrases(RALLY_LEFT, RALLY_5).ToArray(), rallyChoices);
+                validateAndAdd(getCornerCorrectionPhrases(RALLY_LEFT, RALLY_6).ToArray(), rallyChoices);
+                validateAndAdd(getCornerCorrectionPhrases(RALLY_LEFT, RALLY_HAIRPIN).ToArray(), rallyChoices);
+                validateAndAdd(getCornerCorrectionPhrases(RALLY_LEFT, RALLY_FLAT).ToArray(), rallyChoices);
+
+                validateAndAdd(getCornerCorrectionPhrases(RALLY_RIGHT, RALLY_1).ToArray(), rallyChoices);
+                validateAndAdd(getCornerCorrectionPhrases(RALLY_RIGHT, RALLY_2).ToArray(), rallyChoices);
+                validateAndAdd(getCornerCorrectionPhrases(RALLY_RIGHT, RALLY_3).ToArray(), rallyChoices);
+                validateAndAdd(getCornerCorrectionPhrases(RALLY_RIGHT, RALLY_4).ToArray(), rallyChoices);
+                validateAndAdd(getCornerCorrectionPhrases(RALLY_RIGHT, RALLY_5).ToArray(), rallyChoices);
+                validateAndAdd(getCornerCorrectionPhrases(RALLY_RIGHT, RALLY_6).ToArray(), rallyChoices);
+                validateAndAdd(getCornerCorrectionPhrases(RALLY_RIGHT, RALLY_HAIRPIN).ToArray(), rallyChoices);
+                validateAndAdd(getCornerCorrectionPhrases(RALLY_RIGHT, RALLY_FLAT).ToArray(), rallyChoices);
+
+                validateAndAdd(getCornerCorrectionPhrases("", RALLY_1).ToArray(), rallyChoices);
+                validateAndAdd(getCornerCorrectionPhrases("", RALLY_2).ToArray(), rallyChoices);
+                validateAndAdd(getCornerCorrectionPhrases("", RALLY_3).ToArray(), rallyChoices);
+                validateAndAdd(getCornerCorrectionPhrases("", RALLY_4).ToArray(), rallyChoices);
+                validateAndAdd(getCornerCorrectionPhrases("", RALLY_5).ToArray(), rallyChoices);
+                validateAndAdd(getCornerCorrectionPhrases("", RALLY_6).ToArray(), rallyChoices);
+                validateAndAdd(getCornerCorrectionPhrases("", RALLY_HAIRPIN).ToArray(), rallyChoices);
+                validateAndAdd(getCornerCorrectionPhrases("", RALLY_FLAT).ToArray(), rallyChoices);
+
+
+                GrammarBuilderWrapper rallyGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper(rallyChoices);
+                rallyGrammarBuilder.SetCulture(cultureInfo);
+                GrammarWrapper rallyGrammar = SREWrapperFactory.createNewGrammarWrapper(rallyGrammarBuilder);
+                rallyGrammarList.Add(rallyGrammar);
+                sreWrapper.LoadGrammar(rallyGrammar);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Unable to add rally commands to speech recognition engine - " + e.Message);
+            }
+        }
+
+        List<string> getCornerCorrectionPhrases(string direction, string[] cornerNames)
+        {
+            List<string> phrases = new List<string>();
+            if (direction != "")
+            {
+                direction = direction + " ";
+            }
+            foreach (string name in cornerNames)
+            {
+                phrases.Add(RALLY_CORRECTION + " " + direction + name);
+            }
+            return phrases;
+        }
+
         public void addR3ESpeechRecogniser()
         {
             if (!initialised)
@@ -1479,6 +1576,7 @@ namespace CrewChiefV4
             {
                 iracingPitstopGrammarList.Clear();
                 r3ePitstopGrammarList.Clear();
+                rallyGrammarList.Clear();
                 pitManagerGrammarList.Clear();
                 ChoicesWrapper r3eChoices = SREWrapperFactory.createNewChoicesWrapper();
                 validateAndAdd(PIT_STOP_CHANGE_ALL_TYRES, r3eChoices);
@@ -1550,6 +1648,17 @@ namespace CrewChiefV4
                     // ignore - we might be switching between games here
                 }
             }
+            foreach (GrammarWrapper rallyGrammar in rallyGrammarList)
+            {
+                try
+                {
+                    sreWrapper.UnloadGrammar(rallyGrammar);
+                }
+                catch (Exception e)
+                {
+                    // ignore - we might be switching between games here
+                }
+            }
             foreach (GrammarWrapper PitManagerGrammar in pitManagerGrammarList)
             {
                 try
@@ -1573,6 +1682,7 @@ namespace CrewChiefV4
             {
                 r3ePitstopGrammarList.Clear();
                 iracingPitstopGrammarList.Clear();
+                rallyGrammarList.Clear();
                 pitManagerGrammarList.Clear();
                 ChoicesWrapper iRacingChoices = SREWrapperFactory.createNewChoicesWrapper();
                 if (enable_iracing_pit_stop_commands)
@@ -2038,6 +2148,11 @@ namespace CrewChiefV4
                             this.lastRecognisedText = recognisedText;
                             CrewChief.getEvent("OverlayController").respond(recognisedText);
                         }
+                        else if (GrammarWrapperListContains(rallyGrammarList, recognitionGrammar))
+                        {
+                            this.lastRecognisedText = recognisedText;
+                            CrewChief.getEvent("CoDriver").respond(recognisedText);
+                        }
                         else if (ResultContains(recognisedText, REPEAT_LAST_MESSAGE, false))
                         {
                             crewChief.audioPlayer.repeatLastMessage();
@@ -2193,6 +2308,8 @@ namespace CrewChiefV4
             {
                 return;
             }
+            SpeechRecogniser.timeVoiceCommandStarted = CrewChief.currentGameState == null ? DateTime.UtcNow : CrewChief.currentGameState.Now;
+            SpeechRecogniser.distanceWhenVoiceCommandStarted = CrewChief.currentGameState == null ? 0 : CrewChief.currentGameState.PositionAndMotionData.DistanceRoundTrack;
             SpeechRecogniser.sreSessionId++;
             Console.WriteLine("Opened channel - waiting for speech");
             SpeechRecogniser.waitingForSpeech = true;

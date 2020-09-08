@@ -419,7 +419,7 @@ namespace CrewChiefV4
                                 JoystickState state = joystick.GetCurrentState();
                                 if (state != null)
                                 {
-                                    Boolean click = state.Buttons[ba.buttonIndex];
+                                    Boolean click = ba.usePovData ? state.PointOfViewControllers[ba.buttonIndex] == ba.povValue : state.Buttons[ba.buttonIndex];
                                     if (click && !ba.wasPressedDown)
                                     {
                                         ba.wasPressedDown = true;
@@ -508,6 +508,8 @@ namespace CrewChiefV4
                             userButtonAssignment.deviceGuid = currButtonAssignment.deviceGuid;
                             userButtonAssignment.buttonIndex = currButtonAssignment.buttonIndex;
                             userButtonAssignment.action = currButtonAssignment.action;
+                            userButtonAssignment.povValue = currButtonAssignment.povValue;
+                            userButtonAssignment.usePovData = currButtonAssignment.usePovData;
                         }
                     }
                 }
@@ -535,7 +537,7 @@ namespace CrewChiefV4
                         {
                             try
                             {
-                                return joystick.GetCurrentState().Buttons[ba.buttonIndex];
+                                return ba.usePovData ? joystick.GetCurrentState().PointOfViewControllers[ba.buttonIndex] == ba.povValue : joystick.GetCurrentState().Buttons[ba.buttonIndex];
                             }
                             catch
                             { }
@@ -853,21 +855,37 @@ namespace CrewChiefV4
                         }
                     }
                     var pressedButtons = new List<int>();
+                    var pressedPovIndexes = new List<int>();
+                    var pressedPovValues = new List<int>();
+                    bool allowPov = UserSettings.GetUserSettings().getBoolean("enable_controller_pov_switches");
                     while (listenForAssignment)
                     {
                         Boolean[] buttons = joystick.GetCurrentState().Buttons;
-                        
+                        int[] pov = joystick.GetCurrentState().PointOfViewControllers;
+
                         // Collect currently pressed buttons:
-                        for (int i = 0; i < buttons.Count(); ++i)
+                        for (int buttonIndex = 0; buttonIndex < buttons.Count(); ++buttonIndex)
                         {
-                            if (buttons[i]
-                                && !pressedButtons.Contains(i))
+                            if (buttons[buttonIndex]
+                                && !pressedButtons.Contains(buttonIndex))
                             {
-                                Console.WriteLine("Button pressed at index: " + i);
-                                pressedButtons.Add(i);
+                                Console.WriteLine("Button pressed at index: " + buttonIndex);
+                                pressedButtons.Add(buttonIndex);
                             }
                         }
-                        
+                        if (allowPov)
+                        {
+                            for (int povIndex = 0; povIndex < pov.Count(); ++povIndex)
+                            {
+                                if (pov[povIndex] != -1
+                                    && !pressedPovIndexes.Contains(povIndex))
+                                {
+                                    Console.WriteLine("PoV pressed at index: " + povIndex + " with raw value " + pov[povIndex]);
+                                    pressedPovIndexes.Add(povIndex);
+                                    pressedPovValues.Add(pov[povIndex]);
+                                }
+                            }
+                        }
                         // See if any of the buttons got released:
                         foreach (var previouslyPressedButton in pressedButtons)
                         {
@@ -879,10 +897,32 @@ namespace CrewChiefV4
                                 buttonAssignment.controller = controllerData;
                                 buttonAssignment.deviceGuid = controllerData.guid.ToString();
                                 buttonAssignment.buttonIndex = previouslyPressedButton;
+                                buttonAssignment.usePovData = false;
                                 buttonAssignment.findEvent();
                                 listenForAssignment = false;
 
                                 gotAssignment = true;
+                            }
+                        }
+                        if (allowPov)
+                        {
+                            foreach (var previouslyPressedPov in pressedPovIndexes)
+                            {
+                                if (!gotAssignment
+                                    && pov[previouslyPressedPov] == -1)
+                                {
+                                    Console.WriteLine("Pov released at index: " + previouslyPressedPov);
+                                    removeAssignmentsForControllerAndButton(controllerData.guid, previouslyPressedPov);
+                                    buttonAssignment.controller = controllerData;
+                                    buttonAssignment.deviceGuid = controllerData.guid.ToString();
+                                    buttonAssignment.buttonIndex = previouslyPressedPov;
+                                    buttonAssignment.usePovData = true;
+                                    buttonAssignment.povValue = pressedPovValues[previouslyPressedPov];
+                                    buttonAssignment.findEvent();
+                                    listenForAssignment = false;
+
+                                    gotAssignment = true;
+                                }
                             }
                         }
 
@@ -975,6 +1015,8 @@ namespace CrewChiefV4
             public String action { get; set; }
             public String deviceGuid { get; set; }
             public int buttonIndex { get; set; }
+            public bool usePovData { get; set; }
+            public int povValue { get; set; }
             public bool opponentDataCommand { get; set; }
             public bool availableAction { get; set; }
             // used to override the default ui text for an action - is optional and generally not used much
@@ -1070,12 +1112,35 @@ namespace CrewChiefV4
                 if (controller != null && buttonIndex > -1)
                 {
                     String name = controller.deviceName == null || controller.deviceName.Length == 0 ? controller.deviceType.ToString() : controller.deviceName;
-                    return resolvedUiText + " " + Configuration.getUIString("assigned_to") + " " + name + ", " + Configuration.getUIString("button") + ": " + buttonIndex;
+                    string buttonName = usePovData ? Configuration.getUIString("POV") + " " + buttonIndex + " (" + getTextForPovValue() + ")" 
+                        : Configuration.getUIString("button") + ": " + buttonIndex;
+                    return resolvedUiText + " " + Configuration.getUIString("assigned_to") + " " + name + ", " + buttonName;
                 }
                 else
                 {
                     return resolvedUiText + " " + Configuration.getUIString("not_assigned");
                 }
+            }
+
+            private string getTextForPovValue()
+            {
+                if (povValue.ToString().StartsWith("0"))
+                {
+                    return Configuration.getUIString("up");
+                }
+                if (povValue.ToString().StartsWith("180"))
+                {
+                    return Configuration.getUIString("down");
+                }
+                if (povValue.ToString().StartsWith("270"))
+                {
+                    return Configuration.getUIString("left");
+                }
+                if (povValue.ToString().StartsWith("90"))
+                {
+                    return Configuration.getUIString("right");
+                }
+                return povValue.ToString();
             }
 
             public void unassign()

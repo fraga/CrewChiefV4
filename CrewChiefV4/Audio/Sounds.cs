@@ -337,7 +337,8 @@ namespace CrewChiefV4.Audio
                         SoundCache.cacheSoundsThread.Start();
                     }
                 }
-                else if (soundFolder.Name == "driver_names")
+                else if (soundFolder.Name == "driver_names" 
+                    && GlobalBehaviourSettings.racingType == CrewChief.RacingType.Circuit)
                 {
                     // The folder of driver names is processed on the main thread and objects are created to hold the sounds,
                     // but the sound files are lazy-loaded on session start, along with the corresponding SoundPlayer objects.
@@ -346,13 +347,29 @@ namespace CrewChiefV4.Audio
             }
             if (AudioPlayer.playWithNAudio && verbose)
             {
-                Console.WriteLine("Finished preparing sounds cache, found " + singleSounds.Count + " driver names and " + soundSets.Count +
-                    " sound sets. Loaded " + SoundCache.currentSoundsLoaded + " message sounds");
+                if (GlobalBehaviourSettings.racingType == CrewChief.RacingType.Circuit)
+                {
+                    Console.WriteLine("Finished preparing sounds cache, found " + singleSounds.Count + " driver names and " + soundSets.Count +
+                        " sound sets. Loaded " + SoundCache.currentSoundsLoaded + " message sounds");
+                }
+                else if (GlobalBehaviourSettings.racingType == CrewChief.RacingType.Rally)
+                {
+                    Console.WriteLine("Finished preparing sounds cache, found " + singleSounds.Count + " beep sounds and " + soundSets.Count +
+                        " sound sets. Loaded " + SoundCache.currentSoundsLoaded + " message sounds");
+                }
             }
             else if (verbose)
             {
-                Console.WriteLine("Finished preparing sounds cache, found " + singleSounds.Count + " driver names and " + soundSets.Count +
-                    " sound sets. Loaded " + SoundCache.currentSoundsLoaded + " message sounds with " + SoundCache.activeSoundPlayerObjects + " active SoundPlayer objects");
+                if (GlobalBehaviourSettings.racingType == CrewChief.RacingType.Circuit)
+                {
+                    Console.WriteLine("Finished preparing sounds cache, found " + singleSounds.Count + " driver names and " + soundSets.Count +
+                       " sound sets. Loaded " + SoundCache.currentSoundsLoaded + " message sounds with " + SoundCache.activeSoundPlayerObjects + " active SoundPlayer objects");
+                }
+                else if (GlobalBehaviourSettings.racingType == CrewChief.RacingType.Rally)
+                {
+                    Console.WriteLine("Finished preparing sounds cache, found " + singleSounds.Count + " beep sounds and " + soundSets.Count +
+                       " sound sets. Loaded " + SoundCache.currentSoundsLoaded + " message sounds with " + SoundCache.activeSoundPlayerObjects + " active SoundPlayer objects");
+                }
             }
 
             if (prefixesAndSuffixesCount > 0 && verbose)
@@ -393,7 +410,8 @@ namespace CrewChiefV4.Audio
 
         public static void loadDriverNameSounds(List<String> names)
         {
-            if (SoundCache.cancelDriverNameLoading)
+            if (SoundCache.cancelDriverNameLoading
+                || GlobalBehaviourSettings.racingType != CrewChief.RacingType.Circuit)
                 return;
 
             // Trace debugging only note: During trace playback session changes are very fast, so kill previous thread as it still being alive is not an indicator of a problem.
@@ -898,22 +916,53 @@ namespace CrewChiefV4.Audio
             DirectoryInfo[] eventFolders = null;
             if (!String.Equals(voiceDirectory.FullName, sharedVoiceDirectory.FullName, StringComparison.InvariantCultureIgnoreCase))
             {
-                // Get shared voice directories (spotter sounds).
-                DirectoryInfo[] spotterFolders = sharedVoiceDirectory.GetDirectories("spotter*");
-                DirectoryInfo[] radioCheckFolders = sharedVoiceDirectory.GetDirectories("radio_check*");
+                // This is the case of non-default Chief pack.
+                if (GlobalBehaviourSettings.racingType == CrewChief.RacingType.Circuit)
+                {
+                    // Get shared voice directories (spotter sounds).
+                    DirectoryInfo[] spotterFolders = sharedVoiceDirectory.GetDirectories("spotter*");
+                    DirectoryInfo[] radioCheckFolders = sharedVoiceDirectory.GetDirectories("radio_check*");
 
-                // Get redirected voice directories.
-                DirectoryInfo[] voiceFolders = voiceDirectory.GetDirectories();
+                    // Get redirected voice directories.  Exclude co-driver directories.
+                    DirectoryInfo[] voiceFolders = voiceDirectory.GetDirectories().Where(d => !d.Name.StartsWith("codriver")).ToArray();
 
-                eventFolders = new DirectoryInfo[spotterFolders.Length + radioCheckFolders.Length + voiceFolders.Length];
-                spotterFolders.CopyTo(eventFolders, 0);
-                radioCheckFolders.CopyTo(eventFolders, spotterFolders.Length);
-                voiceFolders.CopyTo(eventFolders, spotterFolders.Length + radioCheckFolders.Length);
+                    eventFolders = new DirectoryInfo[spotterFolders.Length + radioCheckFolders.Length + voiceFolders.Length];
+                    spotterFolders.CopyTo(eventFolders, 0);
+                    radioCheckFolders.CopyTo(eventFolders, spotterFolders.Length);
+                    voiceFolders.CopyTo(eventFolders, spotterFolders.Length + radioCheckFolders.Length);
+                }
+                else if (GlobalBehaviourSettings.racingType == CrewChief.RacingType.Rally)
+                {
+                    // Get shared voice directories (codriver sounds).
+                    DirectoryInfo[] codriverFolders = sharedVoiceDirectory.GetDirectories("codriver*");
+
+                    // Get redirected voice directories.  Exclude directories irrelevant for rally.
+                    DirectoryInfo[] voiceFolders = voiceDirectory.GetDirectories().Where(
+                        d => (d.Name.StartsWith("acknowledge")
+                            || d.Name.StartsWith("numbers")
+                            || d.Name.StartsWith("alarm_clock"))).ToArray();
+
+                    eventFolders = new DirectoryInfo[codriverFolders.Length + voiceFolders.Length];
+                    codriverFolders.CopyTo(eventFolders, 0);
+                    voiceFolders.CopyTo(eventFolders, codriverFolders.Length);
+                }
             }
             else
             {
-                eventFolders = voiceDirectory.GetDirectories();
+                if (GlobalBehaviourSettings.racingType == CrewChief.RacingType.Circuit)
+                {
+                    eventFolders = voiceDirectory.GetDirectories().Where(d => !d.Name.StartsWith("codriver")).ToArray();
+                }
+                else if (GlobalBehaviourSettings.racingType == CrewChief.RacingType.Rally)
+                {
+                    eventFolders = voiceDirectory.GetDirectories().Where(
+                        d => (d.Name.StartsWith("codriver")
+                            || d.Name.StartsWith("acknowledge")
+                            || d.Name.StartsWith("numbers")
+                            || d.Name.StartsWith("alarm_clock"))).ToArray();
+                }
             }
+
             foreach (DirectoryInfo eventFolder in eventFolders)
             {
                 Boolean cachePermanently = allowCaching && this.eventTypesToKeepCached.Contains(eventFolder.Name);

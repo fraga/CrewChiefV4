@@ -32,7 +32,7 @@ namespace CrewChiefV4.iRacing
             {
                 try
                 {
-                    string serverTransmitMaxCars = PluginInstaller.ReadValue("Graphics", "serverTransmitMaxCars", dataFilesPath, "0");
+                    string serverTransmitMaxCars = Utilities.ReadIniValue("Graphics", "serverTransmitMaxCars", dataFilesPath, "0");
                     Int32.TryParse(serverTransmitMaxCars.Substring(0, 2), out numberOfCarsEnabled);
                     Console.WriteLine("serverTransmitMaxCars = " + numberOfCarsEnabled);
                 }
@@ -42,7 +42,7 @@ namespace CrewChiefV4.iRacing
                 }
                 try
                 {
-                    string irsdkLog360Hz = PluginInstaller.ReadValue("Misc", "irsdkLog360Hz", dataFilesPath, "0");
+                    string irsdkLog360Hz = Utilities.ReadIniValue("Misc", "irsdkLog360Hz", dataFilesPath, "0");
                     int Is360HzTelemetry = 0;
                     Int32.TryParse(irsdkLog360Hz.Substring(0, 1), out Is360HzTelemetry);
                     if (Is360HzTelemetry == 1)

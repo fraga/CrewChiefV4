@@ -4597,6 +4597,30 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Jim (default)")]
+        public string codriver_name {
+            get {
+                return ((string)(this["codriver_name"]));
+            }
+            set {
+                this["codriver_name"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int racing_type {
+            get {
+                return ((int)(this["racing_type"]));
+            }
+            set {
+                this["racing_type"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string Setting {
             get {
@@ -4604,6 +4628,18 @@ namespace CrewChiefV4.Properties {
             }
             set {
                 this["Setting"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string rbr_launch_exe {
+            get {
+                return ((string)(this["rbr_launch_exe"]));
+            }
+            set {
+                this["rbr_launch_exe"] = value;
             }
         }
         
@@ -4622,6 +4658,18 @@ namespace CrewChiefV4.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string rbr_install_path {
+            get {
+                return ((string)(this["rbr_install_path"]));
+            }
+            set {
+                this["rbr_install_path"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public string pcars3_launch_params {
             get {
                 return ((string)(this["pcars3_launch_params"]));
@@ -4634,12 +4682,112 @@ namespace CrewChiefV4.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool launch_pcars3 {
+        public bool launch_rbr {
             get {
-                return ((bool)(this["launch_pcars3"]));
+                return ((bool)(this["launch_rbr"]));
             }
             set {
+                this["launch_rbr"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public int codriver_style {
+            get {
+                return ((int)(this["codriver_style"]));
+            }
+            set {
+                this["codriver_style"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("140")]
+        public float codriver_rushed_speed {
+            get {
+                return ((float)(this["codriver_rushed_speed"]));
+            }
+            set {
+                this["codriver_rushed_speed"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("30")]
+        public float codriver_chained_pacenote_threshold_distance {
+            get {
+                return ((float)(this["codriver_chained_pacenote_threshold_distance"]));
+            }
+            set {
+                this["codriver_chained_pacenote_threshold_distance"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("4")]
+        public float codriver_lookahead_seconds {
+            get {
+                return ((float)(this["codriver_lookahead_seconds"]));
+            }
+            set {
+                this["codriver_lookahead_seconds"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2")]
+        public float codriver_rushed_lookahead_seconds {
+            get {
+                return ((float)(this["codriver_rushed_lookahead_seconds"]));
+            }
+            set
+            {
+                this["codriver_rushed_lookahead_seconds"] = value;
+            }
+        }
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+
+        public bool launch_pcars3
+        {
+            get
+            {
+                return ((bool)(this["launch_pcars3"]));
+            }
+            set
+            {
                 this["launch_pcars3"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool enable_controller_pov_switches {
+            get {
+                return ((bool)(this["enable_controller_pov_switches"]));
+            }
+            set {
+                this["enable_controller_pov_switches"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool rf2_enable_auto_fuel_to_end_of_race {
+            get {
+                return ((bool)(this["rf2_enable_auto_fuel_to_end_of_race"]));
+            }
+            set {
+                this["rf2_enable_auto_fuel_to_end_of_race"] = value;
             }
         }
     }
