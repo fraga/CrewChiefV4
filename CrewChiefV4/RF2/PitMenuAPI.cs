@@ -110,7 +110,7 @@ namespace PitMenuAPI
                     sendHWControl.SendHWControl("ToggleMFDB", false); // Select rFactor Pit Menu
                     System.Threading.Thread.Sleep(delay);
                 }
-                while (!(iSoftMatchCategory("TIRE") || iSoftMatchCategory("FUEL")));
+                while (!(iSoftMatchCategory("TIRE", "FUEL")));
             }
             return Connected;
         }
@@ -245,13 +245,14 @@ namespace PitMenuAPI
         /// <summary>
         /// Static version
         /// </summary>
-        /// <param name="category"></param>
+        /// <param name="cat1">category to match</param>
+        /// <param name="cat2">optional other category to match</param>
         /// <returns></returns>
-        private static bool iSoftMatchCategory(string category)  // tbd Can this be done more cleanly?
+        private static bool iSoftMatchCategory(string cat1, string cat2 = "bleagh")  // tbd Can this be done more cleanly?
         {
             string InitialCategory = GetCategory();
             int tryNo = 3;
-            while (!GetCategory().Contains(category))
+            while (!(GetCategory().Contains(cat1) || GetCategory().Contains(cat2)))
             {
                 CategoryDown();
                 if (GetCategory() == InitialCategory)

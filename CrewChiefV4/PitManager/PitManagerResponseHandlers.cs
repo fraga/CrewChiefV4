@@ -135,7 +135,7 @@ namespace CrewChiefV4.PitManager
 
         static public bool PMrh_noFuel()
         {
-            playMessage("mandatory_pit_stops/confirm_no_refuelling ");
+            playMessage("mandatory_pit_stops/confirm_no_refuelling");
             return true;
         }
 
