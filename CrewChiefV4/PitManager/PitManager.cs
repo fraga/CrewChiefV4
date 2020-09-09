@@ -194,7 +194,7 @@ namespace CrewChiefV4.PitManager
                         {
                             try
                             {
-                                if (!initialised)
+                                if (!initialised && ev != PME.Teardown)
                                 {
                                     PM_event_dict[PitManagerEvent.Initialise].PitManagerEventAction.Invoke("");
                                     initialised = true;

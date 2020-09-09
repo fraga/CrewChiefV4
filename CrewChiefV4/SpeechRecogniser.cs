@@ -1749,7 +1749,7 @@ namespace CrewChiefV4
         }
         public void addPitManagerSpeechRecogniser()
         {
-            if (!initialised)
+            if (!initialised || !UserSettings.GetUserSettings().getBoolean("rf2_enable_pit_manager"))
             {
                 return;
             }
@@ -1759,75 +1759,70 @@ namespace CrewChiefV4
                 r3ePitstopGrammarList.Clear();
                 pitManagerGrammarList.Clear();
                 ChoicesWrapper pitManagerChoices = SREWrapperFactory.createNewChoicesWrapper();
-                if (enable_iracing_pit_stop_commands)
+                List<string> tyrePressureChangePhrases = new List<string>();
+                if (disable_alternative_voice_commands)
                 {
-                    List<string> tyrePressureChangePhrases = new List<string>();
-                    if (disable_alternative_voice_commands)
-                    {
-                        tyrePressureChangePhrases.Add(PIT_STOP_CHANGE_TYRE_PRESSURE[0]);
-                        tyrePressureChangePhrases.Add(PIT_STOP_CHANGE_FRONT_LEFT_TYRE_PRESSURE[0]);
-                        tyrePressureChangePhrases.Add(PIT_STOP_CHANGE_FRONT_RIGHT_TYRE_PRESSURE[0]);
-                        tyrePressureChangePhrases.Add(PIT_STOP_CHANGE_REAR_LEFT_TYRE_PRESSURE[0]);
-                        tyrePressureChangePhrases.Add(PIT_STOP_CHANGE_REAR_RIGHT_TYRE_PRESSURE[0]);
-                    }
-                    else
-                    {
-                        tyrePressureChangePhrases.AddRange(PIT_STOP_CHANGE_TYRE_PRESSURE);
-                        tyrePressureChangePhrases.AddRange(PIT_STOP_CHANGE_FRONT_LEFT_TYRE_PRESSURE);
-                        tyrePressureChangePhrases.AddRange(PIT_STOP_CHANGE_FRONT_RIGHT_TYRE_PRESSURE);
-                        tyrePressureChangePhrases.AddRange(PIT_STOP_CHANGE_REAR_LEFT_TYRE_PRESSURE);
-                        tyrePressureChangePhrases.AddRange(PIT_STOP_CHANGE_REAR_RIGHT_TYRE_PRESSURE);
-                    }
-
-                    pitManagerGrammarList.AddRange(addCompoundChoices(tyrePressureChangePhrases.ToArray(), true, this.digitsChoices, null, true));
-                    List<string> litresAndGallons = new List<string>();
-                    litresAndGallons.AddRange(LITERS);
-                    litresAndGallons.AddRange(GALLONS);
-                    pitManagerGrammarList.AddRange(addCompoundChoices(PIT_STOP_ADD, false, this.digitsChoices, litresAndGallons.ToArray(), true));
-                    // add the fuel choices with no unit - these use the default / reported unit for fuel
-                    pitManagerGrammarList.AddRange(addCompoundChoices(PIT_STOP_ADD, false, this.digitsChoices, null, true));
-
-                    validateAndAdd(PIT_STOP_TEAROFF, pitManagerChoices);
-                    validateAndAdd(PIT_STOP_FAST_REPAIR, pitManagerChoices);
-                    validateAndAdd(PIT_STOP_CLEAR_ALL, pitManagerChoices);
-                    validateAndAdd(PIT_STOP_CLEAR_TYRES, pitManagerChoices);
-                    validateAndAdd(PIT_STOP_CLEAR_WIND_SCREEN, pitManagerChoices);
-                    validateAndAdd(PIT_STOP_CLEAR_FAST_REPAIR, pitManagerChoices);
-                    validateAndAdd(PIT_STOP_CLEAR_FUEL, pitManagerChoices);
-
-                    validateAndAdd(PIT_STOP_CHANGE_ALL_TYRES, pitManagerChoices);
-                    validateAndAdd(PIT_STOP_CHANGE_FRONT_LEFT_TYRE, pitManagerChoices);
-                    validateAndAdd(PIT_STOP_CHANGE_FRONT_RIGHT_TYRE, pitManagerChoices);
-                    validateAndAdd(PIT_STOP_CHANGE_REAR_LEFT_TYRE, pitManagerChoices);
-                    validateAndAdd(PIT_STOP_CHANGE_REAR_RIGHT_TYRE, pitManagerChoices);
-                    validateAndAdd(PIT_STOP_CHANGE_LEFT_SIDE_TYRES, pitManagerChoices);
-                    validateAndAdd(PIT_STOP_CHANGE_RIGHT_SIDE_TYRES, pitManagerChoices);
-                    validateAndAdd(PIT_STOP_CHANGE_FRONT_TYRES, pitManagerChoices);
-                    validateAndAdd(PIT_STOP_CHANGE_REAR_TYRES, pitManagerChoices);
-                    validateAndAdd(PIT_STOP_FIX_FRONT_AERO, pitManagerChoices);
-                    validateAndAdd(PIT_STOP_FIX_REAR_AERO, pitManagerChoices);
-                    validateAndAdd(PIT_STOP_FIX_ALL_AERO, pitManagerChoices);
-                    validateAndAdd(PIT_STOP_FIX_NO_AERO, pitManagerChoices);
-                    validateAndAdd(PIT_STOP_FIX_SUSPENSION, pitManagerChoices);
-                    validateAndAdd(PIT_STOP_DONT_FIX_SUSPENSION, pitManagerChoices);
-                    validateAndAdd(PIT_STOP_SERVE_PENALTY, pitManagerChoices);
-                    validateAndAdd(PIT_STOP_DONT_SERVE_PENALTY, pitManagerChoices);
-                    validateAndAdd(PIT_STOP_NEXT_TYRE_COMPOUND, pitManagerChoices);
-                    validateAndAdd(PIT_STOP_HARD_TYRES, pitManagerChoices);
-                    validateAndAdd(PIT_STOP_MEDIUM_TYRES, pitManagerChoices);
-                    validateAndAdd(PIT_STOP_SOFT_TYRES, pitManagerChoices);
-                    validateAndAdd(PIT_STOP_PRIME_TYRES, pitManagerChoices);
-                    validateAndAdd(PIT_STOP_ALTERNATE_TYRES, pitManagerChoices);
-                    validateAndAdd(PIT_STOP_OPTION_TYRES, pitManagerChoices);
-                    validateAndAdd(PIT_STOP_INTERMEDIATE_TYRES, pitManagerChoices);
-                    validateAndAdd(PIT_STOP_WET_TYRES, pitManagerChoices);
-                    validateAndAdd(PIT_STOP_MONSOON_TYRES, pitManagerChoices);
-                    validateAndAdd(PIT_STOP_DONT_REFUEL, pitManagerChoices);
-                    validateAndAdd(PIT_STOP_REFUEL, pitManagerChoices);
-                    validateAndAdd(PIT_STOP_FIX_BODY, pitManagerChoices);
-
+                    tyrePressureChangePhrases.Add(PIT_STOP_CHANGE_TYRE_PRESSURE[0]);
+                    tyrePressureChangePhrases.Add(PIT_STOP_CHANGE_FRONT_LEFT_TYRE_PRESSURE[0]);
+                    tyrePressureChangePhrases.Add(PIT_STOP_CHANGE_FRONT_RIGHT_TYRE_PRESSURE[0]);
+                    tyrePressureChangePhrases.Add(PIT_STOP_CHANGE_REAR_LEFT_TYRE_PRESSURE[0]);
+                    tyrePressureChangePhrases.Add(PIT_STOP_CHANGE_REAR_RIGHT_TYRE_PRESSURE[0]);
+                }
+                else
+                {
+                    tyrePressureChangePhrases.AddRange(PIT_STOP_CHANGE_TYRE_PRESSURE);
+                    tyrePressureChangePhrases.AddRange(PIT_STOP_CHANGE_FRONT_LEFT_TYRE_PRESSURE);
+                    tyrePressureChangePhrases.AddRange(PIT_STOP_CHANGE_FRONT_RIGHT_TYRE_PRESSURE);
+                    tyrePressureChangePhrases.AddRange(PIT_STOP_CHANGE_REAR_LEFT_TYRE_PRESSURE);
+                    tyrePressureChangePhrases.AddRange(PIT_STOP_CHANGE_REAR_RIGHT_TYRE_PRESSURE);
                 }
 
+                pitManagerGrammarList.AddRange(addCompoundChoices(tyrePressureChangePhrases.ToArray(), true, this.digitsChoices, null, true));
+                List<string> litresAndGallons = new List<string>();
+                litresAndGallons.AddRange(LITERS);
+                litresAndGallons.AddRange(GALLONS);
+                pitManagerGrammarList.AddRange(addCompoundChoices(PIT_STOP_ADD, false, this.digitsChoices, litresAndGallons.ToArray(), true));
+                // add the fuel choices with no unit - these use the default / reported unit for fuel
+                pitManagerGrammarList.AddRange(addCompoundChoices(PIT_STOP_ADD, false, this.digitsChoices, null, true));
+
+                validateAndAdd(PIT_STOP_TEAROFF, pitManagerChoices);
+                validateAndAdd(PIT_STOP_FAST_REPAIR, pitManagerChoices);
+                validateAndAdd(PIT_STOP_CLEAR_ALL, pitManagerChoices);
+                validateAndAdd(PIT_STOP_CLEAR_TYRES, pitManagerChoices);
+                validateAndAdd(PIT_STOP_CLEAR_WIND_SCREEN, pitManagerChoices);
+                validateAndAdd(PIT_STOP_CLEAR_FAST_REPAIR, pitManagerChoices);
+                validateAndAdd(PIT_STOP_CLEAR_FUEL, pitManagerChoices);
+
+                validateAndAdd(PIT_STOP_CHANGE_ALL_TYRES, pitManagerChoices);
+                validateAndAdd(PIT_STOP_CHANGE_FRONT_LEFT_TYRE, pitManagerChoices);
+                validateAndAdd(PIT_STOP_CHANGE_FRONT_RIGHT_TYRE, pitManagerChoices);
+                validateAndAdd(PIT_STOP_CHANGE_REAR_LEFT_TYRE, pitManagerChoices);
+                validateAndAdd(PIT_STOP_CHANGE_REAR_RIGHT_TYRE, pitManagerChoices);
+                validateAndAdd(PIT_STOP_CHANGE_LEFT_SIDE_TYRES, pitManagerChoices);
+                validateAndAdd(PIT_STOP_CHANGE_RIGHT_SIDE_TYRES, pitManagerChoices);
+                validateAndAdd(PIT_STOP_CHANGE_FRONT_TYRES, pitManagerChoices);
+                validateAndAdd(PIT_STOP_CHANGE_REAR_TYRES, pitManagerChoices);
+                validateAndAdd(PIT_STOP_FIX_FRONT_AERO, pitManagerChoices);
+                validateAndAdd(PIT_STOP_FIX_REAR_AERO, pitManagerChoices);
+                validateAndAdd(PIT_STOP_FIX_ALL_AERO, pitManagerChoices);
+                validateAndAdd(PIT_STOP_FIX_NO_AERO, pitManagerChoices);
+                validateAndAdd(PIT_STOP_FIX_SUSPENSION, pitManagerChoices);
+                validateAndAdd(PIT_STOP_DONT_FIX_SUSPENSION, pitManagerChoices);
+                validateAndAdd(PIT_STOP_SERVE_PENALTY, pitManagerChoices);
+                validateAndAdd(PIT_STOP_DONT_SERVE_PENALTY, pitManagerChoices);
+                validateAndAdd(PIT_STOP_NEXT_TYRE_COMPOUND, pitManagerChoices);
+                validateAndAdd(PIT_STOP_HARD_TYRES, pitManagerChoices);
+                validateAndAdd(PIT_STOP_MEDIUM_TYRES, pitManagerChoices);
+                validateAndAdd(PIT_STOP_SOFT_TYRES, pitManagerChoices);
+                validateAndAdd(PIT_STOP_PRIME_TYRES, pitManagerChoices);
+                validateAndAdd(PIT_STOP_ALTERNATE_TYRES, pitManagerChoices);
+                validateAndAdd(PIT_STOP_OPTION_TYRES, pitManagerChoices);
+                validateAndAdd(PIT_STOP_INTERMEDIATE_TYRES, pitManagerChoices);
+                validateAndAdd(PIT_STOP_WET_TYRES, pitManagerChoices);
+                validateAndAdd(PIT_STOP_MONSOON_TYRES, pitManagerChoices);
+                validateAndAdd(PIT_STOP_DONT_REFUEL, pitManagerChoices);
+                validateAndAdd(PIT_STOP_REFUEL, pitManagerChoices);
+                validateAndAdd(PIT_STOP_FIX_BODY, pitManagerChoices);
                 validateAndAdd(PIT_STOP_FUEL_TO_THE_END, pitManagerChoices);
 
                 GrammarBuilderWrapper PitManagerGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper(pitManagerChoices);
