@@ -126,10 +126,10 @@ namespace PitMenuAPI
                     return false;
                 }
             }
-            startUsingPitMenu();
             string currentCategory = GetCategory();
             if (category != currentCategory)
             {
+                startUsingPitMenu();
                 int origin = Array.IndexOf(shadowPitMenuCats.ToArray(), currentCategory);
                 int target = Array.IndexOf(shadowPitMenuCats.ToArray(), category);
 
