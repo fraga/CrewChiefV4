@@ -1903,3 +1903,8 @@ codriver_lookahead_seconds_filter = RBR
 enable_controller_pov_switches = Enable controller PoV switches
 enable_controller_pov_switches_help = Allow controller point-of-view switches to be used for button assignments
 enable_controller_pov_switches_category = AUDIO_VOICE_AND_CONTROLLERS
+
+block_male_sounds = Block sounds which refer to drivers as male
+block_male_sounds_help = Don't play sounds which assume the player and all opponents are male (sounds that include "he", "guy", "man" etc)
+block_male_sounds_category = AUDIO_VOICE_AND_CONTROLLERS
+block_male_sounds_metadata = RESTART_REQUIRED
