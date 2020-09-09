@@ -431,6 +431,7 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.13.0.1: VR overlays: Fixed gazing. Added an option to change tracking space for overlays (Seated/Standing/Follow Head); Added an option to only use sounds which are gender-neutral. The app has, historically, assumed all players are male so contains lots of sounds with words like words like 'man', 'guy', 'he' etc which is a bit silly. If you enable the 'Block sounds which refer to drivers as male' property the app will only use sounds that are gender-neutral ('driver', 'car', etc). Note that this requires the latest sound pack update to work; RF2 - tweaked the behaviour of the pit manager system so it only inspects the pit menu layout when it's first invoked, rather than at the start of a session; RF2 - added an option to disable the pit menu manager ('enable rF2 pit manager' property)
 
 Version 4.13.0.0: rFactor 2 now needs Vytautas Leonavičius' rFactor 2 Plugin version 3.7.14.2  It's part of this CC version and will be installed automatically but note that any other apps that use it will need to be updated; Added Rally mode and support for Richard Burns Rally; Added rudamentary pCars3 support; Added support for controller 'point of view' buttons (should allow direction-pads to be used for button assignments); AMS2 - A few car class tweaks; ACC - added multi-class support; RF2 - updated plugin and added a pit menu manager
 

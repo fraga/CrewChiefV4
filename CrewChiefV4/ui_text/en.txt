@@ -1533,6 +1533,11 @@ rf2_enable_auto_fuel_to_end_of_race_help = Enables auto refueling in rFactor 2 b
 rf2_enable_auto_fuel_to_end_of_race_category = PIT_STOPS_AND_MULTICLASS
 rf2_enable_auto_fuel_to_end_of_race_filter = RF2_64BIT
 
+rf2_enable_pit_manager = Enable rF2 pit manager
+rf2_enable_pit_manager_help = Enables voice commands controlling rF2 pit menu
+rf2_enable_pit_manager_category = PIT_STOPS_AND_MULTICLASS
+rf2_enable_pit_manager_filter = RF2_64BIT
+
 priortise_messages_depending_on_situation = Advanced message prioritisation
 priortise_messages_depending_on_situation_help = Disable less important messages when under pressure, on a qualifying lap, etc
 priortise_messages_depending_on_situation_category = AUDIO_VOICE_AND_CONTROLLERS
@@ -1898,3 +1903,8 @@ codriver_lookahead_seconds_filter = RBR
 enable_controller_pov_switches = Enable controller PoV switches
 enable_controller_pov_switches_help = Allow controller point-of-view switches to be used for button assignments
 enable_controller_pov_switches_category = AUDIO_VOICE_AND_CONTROLLERS
+
+block_male_sounds = Block sounds which refer to drivers as male
+block_male_sounds_help = Don't play sounds which assume the player and all opponents are male (sounds that include "he", "guy", "man" etc)
+block_male_sounds_category = AUDIO_VOICE_AND_CONTROLLERS
+block_male_sounds_metadata = RESTART_REQUIRED

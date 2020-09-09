@@ -101,6 +101,7 @@ namespace CrewChiefV4.Audio
         private readonly TimeSpan minTimeBetweenPearlsOfWisdom = TimeSpan.FromSeconds(UserSettings.GetUserSettings().getInt("minimum_time_between_pearls_of_wisdom"));
 
         private Boolean sweary = UserSettings.GetUserSettings().getBoolean("use_sweary_messages");
+        private Boolean useMaleSounds = !UserSettings.GetUserSettings().getBoolean("block_male_sounds");
         private Boolean allowCaching = UserSettings.GetUserSettings().getBoolean("cache_sounds");
 
         private OrderedDictionary queuedClips = new OrderedDictionary();
@@ -533,7 +534,7 @@ namespace CrewChiefV4.Audio
                         SoundCache.cancelDriverNameLoading = false;
                         Console.WriteLine("Recreating sound cache.");
                         audioPlayer.soundCache = new SoundCache(new DirectoryInfo(soundFilesPath), new DirectoryInfo(soundFilesPathNoChiefOverride),
-                            new String[] { "spotter", "acknowledge" }, audioPlayer.sweary, audioPlayer.allowCaching, audioPlayer.selectedPersonalisation, false);
+                            new String[] { "spotter", "acknowledge" }, audioPlayer.sweary, audioPlayer.useMaleSounds, audioPlayer.allowCaching, audioPlayer.selectedPersonalisation, false);
 
                         ReloadBackgroundPlayer();
 
@@ -906,7 +907,7 @@ namespace CrewChiefV4.Audio
             if (this.soundCache == null)
             {
                 soundCache = new SoundCache(new DirectoryInfo(soundFilesPath), new DirectoryInfo(soundFilesPathNoChiefOverride),
-                    new String[] { "spotter", "acknowledge" }, sweary, allowCaching, selectedPersonalisation, true);
+                    new String[] { "spotter", "acknowledge" }, sweary, useMaleSounds, allowCaching, selectedPersonalisation, true);
             }
             initialised = true;
             PlaybackModerator.SetAudioPlayer(this);
