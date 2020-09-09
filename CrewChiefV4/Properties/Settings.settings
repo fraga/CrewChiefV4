@@ -1193,6 +1193,9 @@
     <Setting Name="rf2_enable_auto_fuel_to_end_of_race" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="block_male_sounds" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
     <Setting Name="rf2_enable_pit_manager" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>

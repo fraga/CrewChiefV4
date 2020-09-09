@@ -4618,18 +4618,6 @@ namespace CrewChiefV4.Properties {
                 this["racing_type"] = value;
             }
         }
-
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string Setting {
-            get {
-                return ((string)(this["Setting"]));
-            }
-            set {
-                this["Setting"] = value;
-            }
-        }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -4645,18 +4633,6 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:/Program Files (x86)/Steam/steamapps/common/Project CARS 3/pCARS3.exe")]
-        public string pcars3_launch_exe {
-            get {
-                return ((string)(this["pcars3_launch_exe"]));
-            }
-            set {
-                this["pcars3_launch_exe"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string rbr_install_path {
             get {
@@ -4664,18 +4640,6 @@ namespace CrewChiefV4.Properties {
             }
             set {
                 this["rbr_install_path"] = value;
-            }
-        }
-
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public string pcars3_launch_params {
-            get {
-                return ((string)(this["pcars3_launch_params"]));
-            }
-            set {
-                this["pcars3_launch_params"] = value;
             }
         }
         
@@ -4746,23 +4710,55 @@ namespace CrewChiefV4.Properties {
             get {
                 return ((float)(this["codriver_rushed_lookahead_seconds"]));
             }
-            set
-            {
+            set {
                 this["codriver_rushed_lookahead_seconds"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string Setting {
+            get {
+                return ((string)(this["Setting"]));
+            }
+            set {
+                this["Setting"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:/Program Files (x86)/Steam/steamapps/common/Project CARS 3/pCARS3.exe")]
+        public string pcars3_launch_exe {
+            get {
+                return ((string)(this["pcars3_launch_exe"]));
+            }
+            set {
+                this["pcars3_launch_exe"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string pcars3_launch_params {
+            get {
+                return ((string)(this["pcars3_launch_params"]));
+            }
+            set {
+                this["pcars3_launch_params"] = value;
+            }
+        }
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-
-        public bool launch_pcars3
-        {
-            get
-            {
+        public bool launch_pcars3 {
+            get {
                 return ((bool)(this["launch_pcars3"]));
             }
-            set
-            {
+            set {
                 this["launch_pcars3"] = value;
             }
         }
@@ -4790,18 +4786,27 @@ namespace CrewChiefV4.Properties {
                 this["rf2_enable_auto_fuel_to_end_of_race"] = value;
             }
         }
-
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool block_male_sounds {
+            get {
+                return ((bool)(this["block_male_sounds"]));
+            }
+            set {
+                this["block_male_sounds"] = value;
+            }
+        }
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool rf2_enable_pit_manager
-        {
-            get
-            {
+        public bool rf2_enable_pit_manager {
+            get {
                 return ((bool)(this["rf2_enable_pit_manager"]));
             }
-            set
-            {
+            set {
                 this["rf2_enable_pit_manager"] = value;
             }
         }

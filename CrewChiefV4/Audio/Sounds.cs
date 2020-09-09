@@ -39,6 +39,7 @@ namespace CrewChiefV4.Audio
         public static HashSet<String> availableSounds = new HashSet<String>();
         public static HashSet<String> availablePrefixesAndSuffixes = new HashSet<String>();
         private Boolean useSwearyMessages;
+        private Boolean useMaleSounds;
         private static Boolean allowCaching;
         private String[] eventTypesToKeepCached;
         private int maxSoundPlayerCacheSize = 500;
@@ -73,6 +74,10 @@ namespace CrewChiefV4.Audio
         public static Thread cacheSoundsThread;
 
         private static Thread loadDriverNameSoundsThread;
+
+        // for logging
+        public static int swearySoundsSkipped = 0;
+        public static int maleSoundsSkipped = 0;
 
         private static void loadExistingVarietyData()
         {
@@ -152,7 +157,7 @@ namespace CrewChiefV4.Audio
         }
 
         public SoundCache(DirectoryInfo soundsFolder, DirectoryInfo sharedSoundsFolder, String[] eventTypesToKeepCached,
-            Boolean useSwearyMessages, Boolean allowCaching, String selectedPersonalisation, bool verbose)
+            Boolean useSwearyMessages, Boolean useMaleSounds, Boolean allowCaching, String selectedPersonalisation, bool verbose)
         {
             loadExistingVarietyData();
 
@@ -230,6 +235,7 @@ namespace CrewChiefV4.Audio
             SoundCache.activeSoundPlayerObjects = 0;
             this.eventTypesToKeepCached = eventTypesToKeepCached;
             this.useSwearyMessages = useSwearyMessages;
+            this.useMaleSounds = useMaleSounds;
             SoundCache.allowCaching = allowCaching;
             DirectoryInfo[] sharedSoundsFolders = sharedSoundsFolder.GetDirectories();
             foreach (DirectoryInfo soundFolder in sharedSoundsFolders)
@@ -325,6 +331,14 @@ namespace CrewChiefV4.Audio
                                 {
                                     Console.WriteLine("Took " + (DateTime.UtcNow - start).TotalSeconds.ToString("0.00") + "s to lazy load remaining message sounds, there are now " +
                                         SoundCache.currentSoundsLoaded + " loaded message sounds with " + SoundCache.activeSoundPlayerObjects + " active SoundPlayer objects");
+                                }
+                                if (swearySoundsSkipped > 0)
+                                {
+                                    Console.WriteLine("Skipped " + swearySoundsSkipped + " sweary sounds");
+                                }
+                                if (maleSoundsSkipped > 0)
+                                {
+                                    Console.WriteLine("Skipped " + maleSoundsSkipped + " male-only sounds");
                                 }
                             }
                             catch (Exception e)
@@ -973,7 +987,8 @@ namespace CrewChiefV4.Audio
                     {
                         String fullEventName = eventFolder.Name + "/" + eventDetailFolder.Name;
                         // if we're caching this sound set permanently, create the sound players immediately after the files are loaded
-                        SoundSet soundSet = new SoundSet(eventDetailFolder, this.useSwearyMessages, allowCaching, allowCaching, cachePermanently, cachePermanently);
+                        SoundSet soundSet = new SoundSet(eventDetailFolder, this.useSwearyMessages, this.useMaleSounds, 
+                            allowCaching, allowCaching, cachePermanently, cachePermanently);
                         if (soundSet.hasSounds)
                         {
                             if (soundSets.ContainsKey(fullEventName))
@@ -1056,7 +1071,8 @@ namespace CrewChiefV4.Audio
                             foreach (DirectoryInfo prefixesAndSuffixesFolder in nameSubfolder.GetDirectories())
                             {
                                 // always keep the personalisations cached as they're reused frequently, so create the sound players immediately after the files are loaded
-                                SoundSet soundSet = new SoundSet(prefixesAndSuffixesFolder, this.useSwearyMessages, allowCaching, allowCaching, true, true);
+                                SoundSet soundSet = new SoundSet(prefixesAndSuffixesFolder, this.useSwearyMessages, this.useMaleSounds,
+                                    allowCaching, allowCaching, true, true);
                                 if (soundSet.hasSounds)
                                 {
                                     availablePrefixesAndSuffixes.Add(prefixesAndSuffixesFolder.Name);
@@ -1152,6 +1168,7 @@ namespace CrewChiefV4.Audio
         private List<SingleSound> singleSoundsWithPrefixOrSuffix = new List<SingleSound>();
         private DirectoryInfo soundFolder;
         private Boolean useSwearyMessages;
+        private Boolean useMaleSounds;
         public Boolean cacheSoundPlayers;
         public Boolean cacheFileData;
         public Boolean eagerlyCreateSoundPlayers;
@@ -1168,12 +1185,13 @@ namespace CrewChiefV4.Audio
         // allow the non-personalised versions of this soundset to play, if it's not frequent and has personalisations
         private Boolean lastVersionWasPersonalised = false;
 
-        public SoundSet(DirectoryInfo soundFolder, Boolean useSwearyMessages, Boolean cacheFileData, Boolean cacheSoundPlayers,
+        public SoundSet(DirectoryInfo soundFolder, Boolean useSwearyMessages, Boolean useMaleSounds, Boolean cacheFileData, Boolean cacheSoundPlayers,
             Boolean cacheSoundPlayersPermanently, Boolean eagerlyCreateSoundPlayers)
         {
             this.soundsCount = 0;
             this.soundFolder = soundFolder;
             this.useSwearyMessages = useSwearyMessages;
+            this.useMaleSounds = useMaleSounds;
             this.cacheFileData = cacheFileData;
             this.cacheSoundPlayers = cacheSoundPlayers;
             this.eagerlyCreateSoundPlayers = eagerlyCreateSoundPlayers;
@@ -1234,13 +1252,14 @@ namespace CrewChiefV4.Audio
                 {
                     if (soundFile.Name.EndsWith(".wav")) {
                         Boolean isSweary = soundFile.Name.Contains("sweary");
+                        Boolean isMale = soundFile.Name.Contains("male");   // the sound uses a term like 'he', 'man', 'fella' etc
                         Boolean isBleep = soundFile.Name.Contains("bleep");
                         Boolean isSpotter = soundFile.FullName.Contains(@"\spotter");
                         if (!isSpotter && NoisyCartesianCoordinateSpotter.folderSpotterRadioCheckBSlash != null)
                         {
                             isSpotter = soundFile.FullName.Contains(NoisyCartesianCoordinateSpotter.folderSpotterRadioCheckBSlash);
                         }
-                        if (this.useSwearyMessages || !isSweary)
+                        if ((this.useSwearyMessages || !isSweary) && (this.useMaleSounds || !isMale))
                         {
                             if (soundFile.Name.Contains(SoundCache.REQUIRED_PREFIX_IDENTIFIER) || soundFile.Name.Contains(SoundCache.REQUIRED_SUFFIX_IDENTIFIER) ||
                                 soundFile.Name.Contains(SoundCache.OPTIONAL_PREFIX_IDENTIFIER) || soundFile.Name.Contains(SoundCache.OPTIONAL_PREFIX_IDENTIFIER))
@@ -1326,6 +1345,14 @@ namespace CrewChiefV4.Audio
                                 singleSoundsNoPrefixOrSuffix.Add(singleSound);
                                 soundsCount++;
                             }
+                        }
+                        else if (isSweary && !this.useSwearyMessages)
+                        {
+                            SoundCache.swearySoundsSkipped++;
+                        }
+                        else if (isMale && !this.useMaleSounds)
+                        {
+                            SoundCache.maleSoundsSkipped++;
                         }
                     }
                 }
