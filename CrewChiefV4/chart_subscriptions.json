@@ -375,7 +375,7 @@
 		{
 			"id": "front ride height",
 			"voiceCommandFragment": "front ride height",
-			"groupMemberIds": [ "lf ride heightn", "rf ride height" ]
+			"groupMemberIds": [ "lf ride height", "rf ride height" ]
 		},
 		{
 			"id": "rear ride height",
