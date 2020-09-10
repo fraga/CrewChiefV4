@@ -32,6 +32,8 @@ namespace CrewChiefV4.PitManager
     {
         Initialise,
         Teardown,
+        PrepareToUseMenu,
+
         TyreChangeAll,
         TyreChangeNone,
         TyreChangeFront,
@@ -199,6 +201,7 @@ namespace CrewChiefV4.PitManager
                                     PM_event_dict[PitManagerEvent.Initialise].PitManagerEventAction.Invoke("");
                                     initialised = true;
                                 }
+                                PM_event_dict[PitManagerEvent.PrepareToUseMenu].PitManagerEventAction.Invoke("");
                                 result = PM_event_dict[ev].PitManagerEventAction.Invoke(voiceMessage);
                                 if (result)
                                 {
@@ -238,6 +241,7 @@ namespace CrewChiefV4.PitManager
                         PM_event_dict[PitManagerEvent.Initialise].PitManagerEventAction.Invoke("");
                         initialised = true;
                     }
+                    PM_event_dict[PitManagerEvent.PrepareToUseMenu].PitManagerEventAction.Invoke("");
                     result = PM_event_dict[ev].PitManagerEventAction.Invoke(voiceMessage);
                     if (result)
                     {
@@ -297,6 +301,7 @@ namespace CrewChiefV4.PitManager
             //                                                 (changes the pit menu)           response and any other outcomes
             {PME.Initialise,              _PMet(_PMeh, PMEHrF2.PMrF2eh_initialise,         PMER.PMrh_NoResponse) },
             {PME.Teardown,                _PMet(_PMeh, PMEHrF2.PMrF2eh_teardown,           PMER.PMrh_NoResponse) },
+            {PME.PrepareToUseMenu,        _PMet(_PMeh, PMEHrF2.PMrF2eh_prepareToUseMenu,   PMER.PMrh_NoResponse) },
             {PME.TyreChangeAll,           _PMet(_PMeh, PMEHrF2.PMrF2eh_changeAllTyres,     PMER.PMrh_ChangeAllTyres) },
             {PME.TyreChangeNone,          _PMet(_PMeh, PMEHrF2.PMrF2eh_changeNoTyres,      PMER.PMrh_ChangeNoTyres) },
             {PME.TyreChangeFront,         _PMet(_PMeh, PMEHrF2.PMrF2eh_changeFrontTyres,   PMER.PMrh_ChangeFrontTyres) },

@@ -145,6 +145,15 @@ namespace CrewChiefV4.PitManager
             return true;
         }
 
+        /// <summary>
+        /// Switch rFactor to the menu page and wake up the inputs driver
+        /// </summary>
+        static public bool PMrF2eh_prepareToUseMenu(string __)
+        {
+            PitMenu.startUsingPitMenu();
+            return true;
+        }
+
         /// <summary> PMrF2eh_example
         /// Dummy action handler for rF2
         /// </summary>
