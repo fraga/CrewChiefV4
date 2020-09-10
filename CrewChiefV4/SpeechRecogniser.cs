@@ -261,6 +261,7 @@ namespace CrewChiefV4
         public static String[] PIT_STOP_FIX_NO_AERO = Configuration.getSpeechRecognitionPhrases("PIT_STOP_FIX_NO_AERO");
         public static String[] PIT_STOP_FIX_SUSPENSION = Configuration.getSpeechRecognitionPhrases("PIT_STOP_FIX_SUSPENSION");
         public static String[] PIT_STOP_DONT_FIX_SUSPENSION = Configuration.getSpeechRecognitionPhrases("PIT_STOP_DONT_FIX_SUSPENSION");
+        public static String[] PIT_STOP_FIX_ALL = Configuration.getSpeechRecognitionPhrases("PIT_STOP_FIX_ALL");  // rF2
         public static String[] PIT_STOP_FIX_BODY = Configuration.getSpeechRecognitionPhrases("PIT_STOP_FIX_BODY");  // rF2
         public static String[] PIT_STOP_SERVE_PENALTY = Configuration.getSpeechRecognitionPhrases("PIT_STOP_SERVE_PENALTY");
         public static String[] PIT_STOP_DONT_SERVE_PENALTY = Configuration.getSpeechRecognitionPhrases("PIT_STOP_DONT_SERVE_PENALTY");
@@ -282,6 +283,7 @@ namespace CrewChiefV4
         public static String[] WHATS_THE_SOF = Configuration.getSpeechRecognitionPhrases("WHATS_THE_SOF");
 
         public static String[] PIT_STOP_FUEL_TO_THE_END = Configuration.getSpeechRecognitionPhrases("PIT_STOP_FUEL_TO_THE_END");
+        public static String[] PIT_STOP_FILL_TO = Configuration.getSpeechRecognitionPhrases("PIT_STOP_FILL_TO");
 
         public static String[] MORE_INFO = Configuration.getSpeechRecognitionPhrases("MORE_INFO");
 
@@ -353,7 +355,7 @@ namespace CrewChiefV4
         public static String[] RALLY_HAIRPIN = Configuration.getSpeechRecognitionPhrases("RALLY_HAIRPIN");
         public static String[] RALLY_FLAT = Configuration.getSpeechRecognitionPhrases("RALLY_FLAT");
 
-        
+
         // for watching opponent - "watch [bob]", "tell me about [bob]"
         public static String WATCH = Configuration.getSpeechRecognitionConfigOption("WATCH");
         public static String STOP_WATCHING = Configuration.getSpeechRecognitionConfigOption("STOP_WATCHING");
@@ -1335,7 +1337,7 @@ namespace CrewChiefV4
                         {
                             opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHAT_TYRE_IS, WHAT_TYRES_IS }, false, opponentNameChoices, new String[] { ON }, true));
                         }
-                        opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHATS }, true, opponentNamePossessiveChoices, getWhatsPossessiveChoices(), true));                        
+                        opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHATS }, true, opponentNamePossessiveChoices, getWhatsPossessiveChoices(), true));
                     }
                 }
             }
@@ -1785,6 +1787,10 @@ namespace CrewChiefV4
                 // add the fuel choices with no unit - these use the default / reported unit for fuel
                 pitManagerGrammarList.AddRange(addCompoundChoices(PIT_STOP_ADD, false, this.digitsChoices, null, true));
 
+                pitManagerGrammarList.AddRange(addCompoundChoices(PIT_STOP_FILL_TO, false, this.digitsChoices, litresAndGallons.ToArray(), true));
+                // add the fuel choices with no unit - these use the default / reported unit for fuel
+                pitManagerGrammarList.AddRange(addCompoundChoices(PIT_STOP_FILL_TO, false, this.digitsChoices, null, true));
+
                 validateAndAdd(PIT_STOP_TEAROFF, pitManagerChoices);
                 validateAndAdd(PIT_STOP_FAST_REPAIR, pitManagerChoices);
                 validateAndAdd(PIT_STOP_CLEAR_ALL, pitManagerChoices);
@@ -1822,6 +1828,7 @@ namespace CrewChiefV4
                 validateAndAdd(PIT_STOP_MONSOON_TYRES, pitManagerChoices);
                 validateAndAdd(PIT_STOP_DONT_REFUEL, pitManagerChoices);
                 validateAndAdd(PIT_STOP_REFUEL, pitManagerChoices);
+                validateAndAdd(PIT_STOP_FIX_ALL, pitManagerChoices);
                 validateAndAdd(PIT_STOP_FIX_BODY, pitManagerChoices);
                 validateAndAdd(PIT_STOP_FUEL_TO_THE_END, pitManagerChoices);
 
@@ -2702,7 +2709,7 @@ namespace CrewChiefV4
                 return CrewChief.getEvent("Strategy");
             }
             else if (ResultContains(recognisedSpeech, PIT_STOP_TEAROFF, false) ||   // tbd Does this actually do anything?
-                ResultContains(recognisedSpeech, PIT_STOP_FAST_REPAIR, false) ||    // already captured by 
+                ResultContains(recognisedSpeech, PIT_STOP_FAST_REPAIR, false) ||    // already captured by
                 ResultContains(recognisedSpeech, PIT_STOP_CLEAR_ALL, false) ||      // else if (GrammarWrapperListContains(iracingPitstopGrammarList, recognitionGrammar))
                 ResultContains(recognisedSpeech, PIT_STOP_CLEAR_TYRES, false) ||
                 ResultContains(recognisedSpeech, PIT_STOP_CLEAR_WIND_SCREEN, false) ||

@@ -65,7 +65,7 @@ namespace CrewChiefV4.PitManager
         FuelFillToEnd,
         FuelNone,
 
-        RepairAll,
+        RepairAll,              // rF2
         RepairNone,
         RepairFast,             // iRacing
         RepairAllAero,          // R3E
@@ -149,7 +149,7 @@ namespace CrewChiefV4.PitManager
         private static Thread executeThread = null;
 
         /// <summary>
-        /// Used to initialise PM event handler the first time a command is 
+        /// Used to initialise PM event handler the first time a command is
         /// issued in a session
         /// </summary>
         private static bool initialised = false;
@@ -316,7 +316,7 @@ namespace CrewChiefV4.PitManager
             {PME.TyreCompoundHard,        _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundHard,   PMER.PMrh_TyreCompoundHard) },
             {PME.TyreCompoundMedium,      _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundMedium, PMER.PMrh_TyreCompoundMedium) },
             {PME.TyreCompoundSoft,        _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundSoft,   PMER.PMrh_TyreCompoundSoft) },
-            {PME.TyreCompoundIntermediate,_PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundWet,    PMER.PMrh_TyreCompoundWet) },    // tbd
+            {PME.TyreCompoundIntermediate,_PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundWet,    PMER.PMrh_TyreCompoundWet) },
             {PME.TyreCompoundWet,         _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundWet,    PMER.PMrh_TyreCompoundWet) },
             {PME.TyreCompoundMonsoon,     _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundWet,    PMER.PMrh_TyreCompoundWet) },
             {PME.TyreCompoundOption,      _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundOption, PMER.PMrh_TyreCompoundOption) },

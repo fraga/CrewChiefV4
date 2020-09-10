@@ -39,21 +39,21 @@ namespace CrewChiefV4.PitManager
             {PME.TyreCompoundHard,        SRE.PIT_STOP_HARD_TYRES },
             {PME.TyreCompoundMedium,      SRE.PIT_STOP_MEDIUM_TYRES },
             {PME.TyreCompoundSoft,        SRE.PIT_STOP_SOFT_TYRES },
-            {PME.TyreCompoundIntermediate,SRE.PIT_STOP_INTERMEDIATE_TYRES },        // tbd:
-            {PME.TyreCompoundWet,         SRE.PIT_STOP_WET_TYRES },        // tbd:
-            {PME.TyreCompoundMonsoon,     SRE.PIT_STOP_MONSOON_TYRES },        // tbd:
+            {PME.TyreCompoundIntermediate,SRE.PIT_STOP_INTERMEDIATE_TYRES },
+            {PME.TyreCompoundWet,         SRE.PIT_STOP_WET_TYRES },
+            {PME.TyreCompoundMonsoon,     SRE.PIT_STOP_MONSOON_TYRES },
             {PME.TyreCompoundOption,      SRE.PIT_STOP_OPTION_TYRES },
             {PME.TyreCompoundPrime,       SRE.PIT_STOP_PRIME_TYRES },
             {PME.TyreCompoundAlternate,   SRE.PIT_STOP_ALTERNATE_TYRES },
             {PME.TyreCompoundNext,        SRE.PIT_STOP_NEXT_TYRE_COMPOUND },
 
             {PME.FuelAddXlitres,          SRE.PIT_STOP_ADD },
-            //{PME.FuelFillToXlitres,     SRE.PIT_STOP },               // tbd: would require added speech handling
+            {PME.FuelFillToXlitres,       SRE.PIT_STOP_FILL_TO },
             {PME.FuelFillToEnd,           SRE.PIT_STOP_FUEL_TO_THE_END },
             {PME.FuelNone,                SRE.PIT_STOP_DONT_REFUEL },
             //{PME.FuelNone,              SRE.PIT_STOP_CLEAR_FUEL },
 
-            // tbd {PME.RepairAll,        SRE.PIT_STOP },
+            {PME.RepairAll,               SRE.PIT_STOP_FIX_ALL },          // rF2
             {PME.RepairNone,              SRE.PIT_STOP_CLEAR_ALL },
             {PME.RepairFast,              SRE.PIT_STOP_FAST_REPAIR },        // iRacing
             {PME.RepairAllAero,           SRE.PIT_STOP_FIX_ALL_AERO },       // R3E
