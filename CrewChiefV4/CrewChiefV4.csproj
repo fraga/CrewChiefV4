@@ -322,6 +322,7 @@
     <Compile Include="Overlay\OverlaySettings.cs" />
     <Compile Include="Overlay\SubtitleOverlay.cs" />
     <Compile Include="PitManager\PitManager.cs" />
+    <Compile Include="PitManager\PitManagerEventHandlers_iRacing.cs" />
     <Compile Include="PitManager\PitManagerEventHandlers_RF2.cs" />
     <Compile Include="PitManager\PitManagerResponseHandlers.cs" />
     <Compile Include="PitManager\PitManagerVoiceCmds.cs" />
