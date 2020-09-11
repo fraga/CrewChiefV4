@@ -343,6 +343,7 @@ namespace CrewChiefV4.PitManager
         }
         #endregion Fuel
 
+        #region Repairs
         static public bool PMrF2eh_RepairAll(string __)
         {
             if (!Pmal.SoftMatchCategory("DAMAGE:"))
@@ -381,7 +382,8 @@ namespace CrewChiefV4.PitManager
             }
             return false;
         }
-
+        #endregion Repairs
+        #region Penalties
         static public bool PMrF2eh_PenaltyServe(string __)
         {
             if (!Pmal.SoftMatchCategory("STOP/GO"))
@@ -407,7 +409,7 @@ namespace CrewChiefV4.PitManager
             }
             return false;
         }
-
+        #endregion Penalties
         #endregion Public Methods
 
         #region Private Methods
