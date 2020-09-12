@@ -345,10 +345,12 @@ PIT_STOP_OPTION_TYRES = pitstop option tyres:box, option tyres
 PIT_STOP_ALTERNATE_TYRES = pitstop alternate tyres:box, alternate tyres
 
 // Pit Manager/rF2-specific pit commands
-PIT_STOP_FIX_BODY = pitstop fix body:box, fix body
+PIT_STOP_FIX_ALL = pitstop fix all:box, fix all:pitstop repair all:box, repair all
+PIT_STOP_FIX_BODY = pitstop fix body:box, fix body:pitstop repair body:box, repair body
 PIT_STOP_INTERMEDIATE_TYRES = pitstop intermediate tyres:box, intermediate tyres
 PIT_STOP_WET_TYRES = pitstop wet tyres:box, wet tyres
 PIT_STOP_MONSOON_TYRES = pitstop monsoon tyres:box, monsoon tyres
+PIT_STOP_FILL_TO = pitstop fill to:box, fill to
 
 LITERS = liters
 GALLONS = gallons

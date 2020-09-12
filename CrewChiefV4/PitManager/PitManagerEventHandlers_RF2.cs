@@ -145,6 +145,15 @@ namespace CrewChiefV4.PitManager
             return true;
         }
 
+        /// <summary>
+        /// Switch rFactor to the menu page and wake up the inputs driver
+        /// </summary>
+        static public bool PMrF2eh_prepareToUseMenu(string __)
+        {
+            PitMenu.startUsingPitMenu();
+            return true;
+        }
+
         /// <summary> PMrF2eh_example
         /// Dummy action handler for rF2
         /// </summary>
@@ -334,6 +343,7 @@ namespace CrewChiefV4.PitManager
         }
         #endregion Fuel
 
+        #region Repairs
         static public bool PMrF2eh_RepairAll(string __)
         {
             if (!Pmal.SoftMatchCategory("DAMAGE:"))
@@ -372,7 +382,8 @@ namespace CrewChiefV4.PitManager
             }
             return false;
         }
-
+        #endregion Repairs
+        #region Penalties
         static public bool PMrF2eh_PenaltyServe(string __)
         {
             if (!Pmal.SoftMatchCategory("STOP/GO"))
@@ -398,7 +409,7 @@ namespace CrewChiefV4.PitManager
             }
             return false;
         }
-
+        #endregion Penalties
         #endregion Public Methods
 
         #region Private Methods
