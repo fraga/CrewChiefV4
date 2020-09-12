@@ -21,7 +21,6 @@ namespace CrewChiefV4.PitManager
 {
     using PME = PitManagerEvent;  // shorthand
     using PMEHrF2 = PitManagerEventHandlers_RF2;
-    using PMEHiR = PitManagerEventHandlers_iRacing;
     using PMER = PitManagerResponseHandlers;
 
     /// <summary>
@@ -133,10 +132,7 @@ namespace CrewChiefV4.PitManager
         private readonly Dictionary<CrewChiefV4.GameEnum, GamePitManagerDict>
             games_dict = new Dictionary<CrewChiefV4.GameEnum, GamePitManagerDict>
         {
-          {GameEnum.RF2_64BIT,  PM_event_dict_RF2},
-#if IRACING
-          {GameEnum.IRACING,    PM_event_dict_iRacing }
-#endif
+          {GameEnum.RF2_64BIT,  PM_event_dict_RF2}
         };
 
         ///////////////////////////////////////////////////////////////////////////
@@ -375,87 +371,6 @@ namespace CrewChiefV4.PitManager
             //{PME.TearOffNone,           _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
         };
 
-#if IRACING
-        ///////////////////////////////////////////////////////////////////////////
-        /// <summary>
-        /// The event dictionary for iRacing
-        /// </summary>
-        private static readonly GamePitManagerDict PM_event_dict_iRacing = new GamePitManagerDict
-        {
-            //  The event                                      the fn that implements it        the fn that handles speech
-            //                                                 (changes the pit menu)           response and any other outcomes
-            {PME.Initialise,              _PMet(_PMeh, PMEHiR.PMiReh_initialise,         PMER.PMrh_NoResponse) },
-            {PME.Teardown,                _PMet(_PMeh, PMEHiR.PMiReh_teardown,           PMER.PMrh_NoResponse) },
-            {PME.PrepareToUseMenu,        _PMet(_PMeh, PMEHiR.PMiReh_prepareToUseMenu,   PMER.PMrh_NoResponse) },
-            {PME.TyreChangeAll,           _PMet(_PMeh, PMEHiR.PMiReh_changeAllTyres,     PMER.PMrh_ChangeAllTyres) },
-            {PME.TyreChangeNone,          _PMet(_PMeh, PMEHiR.PMiReh_changeNoTyres,      PMER.PMrh_ChangeNoTyres) },
-            {PME.TyreChangeFront,         _PMet(_PMeh, PMEHiR.PMiReh_changeFrontTyres,   PMER.PMrh_ChangeFrontTyres) },
-            {PME.TyreChangeRear,          _PMet(_PMeh, PMEHiR.PMiReh_changeRearTyres,    PMER.PMrh_ChangeRearTyres) },
-            {PME.TyreChangeLeft,          _PMet(_PMeh, PMEHiR.PMiReh_changeLeftTyres,    PMER.PMrh_Acknowledge) },
-            {PME.TyreChangeRight,         _PMet(_PMeh, PMEHiR.PMiReh_changeRightTyres,   PMER.PMrh_Acknowledge) },
-            {PME.TyreChangeLF,            _PMet(_PMeh, PMEHiR.PMiReh_changeFLTyre,       PMER.PMrh_Acknowledge) },
-            {PME.TyreChangeRF,            _PMet(_PMeh, PMEHiR.PMiReh_changeFRTyre,       PMER.PMrh_Acknowledge) },
-            {PME.TyreChangeLR,            _PMet(_PMeh, PMEHiR.PMiReh_changeRLTyre,       PMER.PMrh_Acknowledge) },
-            {PME.TyreChangeRR,            _PMet(_PMeh, PMEHiR.PMiReh_changeRRTyre,       PMER.PMrh_Acknowledge) },
-
-            {PME.TyrePressureLF,          _PMet(_PMeh, PMEHiR.PMiReh_changeFLpressure,   PMER.PMrh_Acknowledge) },
-            {PME.TyrePressureRF,          _PMet(_PMeh, PMEHiR.PMiReh_example,            PMER.PMrh_Acknowledge) },
-            {PME.TyrePressureLR,          _PMet(_PMeh, PMEHiR.PMiReh_example,            PMER.PMrh_Acknowledge) },
-            {PME.TyrePressureRR,          _PMet(_PMeh, PMEHiR.PMiReh_example,            PMER.PMrh_Acknowledge) },
-
-            {PME.TyreCompoundHard,        _PMet(_PMeh, PMEHiR.PMiReh_TyreCompoundHard,   PMER.PMrh_TyreCompoundHard) },
-            {PME.TyreCompoundMedium,      _PMet(_PMeh, PMEHiR.PMiReh_TyreCompoundMedium, PMER.PMrh_TyreCompoundMedium) },
-            {PME.TyreCompoundSoft,        _PMet(_PMeh, PMEHiR.PMiReh_TyreCompoundSoft,   PMER.PMrh_TyreCompoundSoft) },
-            {PME.TyreCompoundIntermediate,_PMet(_PMeh, PMEHiR.PMiReh_TyreCompoundWet,    PMER.PMrh_TyreCompoundWet) },
-            {PME.TyreCompoundWet,         _PMet(_PMeh, PMEHiR.PMiReh_TyreCompoundWet,    PMER.PMrh_TyreCompoundWet) },
-            {PME.TyreCompoundMonsoon,     _PMet(_PMeh, PMEHiR.PMiReh_TyreCompoundWet,    PMER.PMrh_TyreCompoundWet) },
-            {PME.TyreCompoundOption,      _PMet(_PMeh, PMEHiR.PMiReh_TyreCompoundOption, PMER.PMrh_TyreCompoundOption) },
-            {PME.TyreCompoundPrime,       _PMet(_PMeh, PMEHiR.PMiReh_TyreCompoundPrime,  PMER.PMrh_TyreCompoundPrime) },
-            {PME.TyreCompoundAlternate,   _PMet(_PMeh, PMEHiR.PMiReh_TyreCompoundAlternate, PMER.PMrh_TyreCompoundAlternate) },
-            {PME.TyreCompoundNext,        _PMet(_PMeh, PMEHiR.PMiReh_TyreCompoundNext,   PMER.PMrh_TyreCompoundNext) },
-
-            {PME.FuelAddXlitres,          _PMet(_PMeh, PMEHiR.PMiReh_FuelAddXlitres,     PMER.PMrh_NoResponse) },
-            {PME.FuelFillToXlitres,       _PMet(_PMeh, PMEHiR.PMiReh_FuelToXlitres,      PMER.PMrh_Acknowledge) },
-            {PME.FuelFillToEnd,           _PMet(_PMeh, PMEHiR.PMiReh_FuelToEnd,          PMER.PMrh_fuelToEnd) },
-            {PME.FuelNone,                _PMet(_PMeh, PMEHiR.PMiReh_FuelNone,           PMER.PMrh_noFuel) },
-
-            {PME.RepairAll,               _PMet(_PMeh, PMEHiR.PMiReh_RepairAll,          PMER.PMrh_Acknowledge) },
-            {PME.RepairNone,              _PMet(_PMeh, PMEHiR.PMiReh_RepairNone,         PMER.PMrh_Acknowledge) },
-            //{PME.RepairFast,            _PMet(_PMeh, PMEHiR.PMiReh_example,            PMER.PMrh_Acknowledge) },     // iRacing
-            //{PME.RepairAllAero,         _PMet(_PMeh, PMEHiR.PMiReh_example,            PMER.PMrh_Acknowledge) },     // R3E
-            //{PME.RepairFrontAero,       _PMet(_PMeh, PMEHiR.PMiReh_example,            PMER.PMrh_Acknowledge) },
-            //{PME.RepairRearAero,        _PMet(_PMeh, PMEHiR.PMiReh_example,            PMER.PMrh_Acknowledge) },
-            //{PME.RepairSuspension,      _PMet(_PMeh, PMEHiR.PMiReh_example,            PMER.PMrh_Acknowledge) },
-            //{PME.RepairSuspensionNone,  _PMet(_PMeh, PMEHiR.PMiReh_example,            PMER.PMrh_Acknowledge) },
-            {PME.RepairBody,              _PMet(_PMeh, PMEHiR.PMiReh_RepairBody,         PMER.PMrh_Acknowledge) },
-
-            {PME.PenaltyServe,            _PMet(_PMeh, PMEHiR.PMiReh_PenaltyServe,       PMER.PMrh_Acknowledge) },
-            {PME.PenaltyServeNone,        _PMet(_PMeh, PMEHiR.PMiReh_PenaltyServeNone,   PMER.PMrh_Acknowledge) },
-
-            {PME.AeroFrontPlusMinusX,     _PMet(_PMeh, PMEHiR.PMiReh_example,            PMER.PMrh_CantDoThat) },
-            {PME.AeroRearPlusMinusX,      _PMet(_PMeh, PMEHiR.PMiReh_example,            PMER.PMrh_CantDoThat) },
-            {PME.AeroFrontSetToX,         _PMet(_PMeh, PMEHiR.PMiReh_example,            PMER.PMrh_CantDoThat) },
-            {PME.AeroRearSetToX,          _PMet(_PMeh, PMEHiR.PMiReh_example,            PMER.PMrh_CantDoThat) },
-
-            {PME.GrillePlusMinusX,        _PMet(_PMeh, PMEHiR.PMiReh_example,            PMER.PMrh_CantDoThat) }, // rF2
-            {PME.GrilleSetToX,            _PMet(_PMeh, PMEHiR.PMiReh_example,            PMER.PMrh_CantDoThat) },
-            {PME.WedgePlusMinusX,         _PMet(_PMeh, PMEHiR.PMiReh_example,            PMER.PMrh_CantDoThat) },
-            {PME.WedgeSetToX,             _PMet(_PMeh, PMEHiR.PMiReh_example,            PMER.PMrh_CantDoThat) },
-            {PME.TrackBarPlusMinusX,      _PMet(_PMeh, PMEHiR.PMiReh_example,            PMER.PMrh_CantDoThat) },
-            {PME.TrackBarSetToX,          _PMet(_PMeh, PMEHiR.PMiReh_example,            PMER.PMrh_CantDoThat) },
-            {PME.RubberLF,                _PMet(_PMeh, PMEHiR.PMiReh_example,            PMER.PMrh_CantDoThat) },
-            {PME.RubberRF,                _PMet(_PMeh, PMEHiR.PMiReh_example,            PMER.PMrh_CantDoThat) },
-            {PME.RubberLR,                _PMet(_PMeh, PMEHiR.PMiReh_example,            PMER.PMrh_CantDoThat) },
-            {PME.RubberRR,                _PMet(_PMeh, PMEHiR.PMiReh_example,            PMER.PMrh_CantDoThat) },
-            {PME.FenderL,                 _PMet(_PMeh, PMEHiR.PMiReh_example,            PMER.PMrh_CantDoThat) },
-            {PME.FenderR,                 _PMet(_PMeh, PMEHiR.PMiReh_example,            PMER.PMrh_CantDoThat) },
-            {PME.FlipUpL,                 _PMet(_PMeh, PMEHiR.PMiReh_example,            PMER.PMrh_CantDoThat) },
-            {PME.FlipUpR,                 _PMet(_PMeh, PMEHiR.PMiReh_example,            PMER.PMrh_CantDoThat) },
-
-            //{PME.Tearoff,               _PMet(_PMeh, PMEHiR.PMiReh_example,            PMER.PMrh_CantDoThat) }, // iRacing
-            //{PME.TearOffNone,           _PMet(_PMeh, PMEHiR.PMiReh_example,            PMER.PMrh_CantDoThat) },
-        };
-#endif // IRACING
         ///////////////////////////////////////////////////////////////////////////
         /// <summary>
         /// The event dictionary for...
