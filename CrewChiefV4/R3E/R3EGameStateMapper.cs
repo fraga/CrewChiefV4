@@ -250,7 +250,7 @@ namespace CrewChiefV4.RaceRoom
                 previousLapsCompleted, shared.CompletedLaps, isCarRunning, chequeredFlagShownInThisSession, shared.StartLights);
 
             if ((lastSessionPhase != currentGameState.SessionData.SessionPhase && (lastSessionPhase == SessionPhase.Unavailable || lastSessionPhase == SessionPhase.Finished)) ||
-                ((lastSessionPhase == SessionPhase.Checkered || lastSessionPhase == SessionPhase.Finished || lastSessionPhase == SessionPhase.Green || lastSessionPhase == SessionPhase.FullCourseYellow) && 
+                ((lastSessionPhase == SessionPhase.Checkered || lastSessionPhase == SessionPhase.Finished || lastSessionPhase == SessionPhase.Green || lastSessionPhase == SessionPhase.FullCourseYellow) &&
                     currentGameState.SessionData.SessionPhase == SessionPhase.Countdown) ||
                 lastSessionRunningTime > currentGameState.SessionData.SessionRunningTime)
             {
@@ -381,7 +381,7 @@ namespace CrewChiefV4.RaceRoom
                 currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.Now);
             }
             else
-            {                
+            {
                 if (lastSessionPhase != currentGameState.SessionData.SessionPhase)
                 {
                     Console.WriteLine("New session phase, was " + lastSessionPhase + " now " + currentGameState.SessionData.SessionPhase);
@@ -393,7 +393,7 @@ namespace CrewChiefV4.RaceRoom
                         if (shared.SessionLengthFormat == 0 || shared.SessionLengthFormat == 2 || shared.SessionTimeRemaining > 0)
                         {
                             currentGameState.SessionData.SessionTotalRunTime = shared.SessionTimeRemaining;
-                            if (shared.SessionLengthFormat == 2) 
+                            if (shared.SessionLengthFormat == 2)
                             {
                                 currentGameState.SessionData.HasExtraLap = true;
                             }
@@ -427,7 +427,7 @@ namespace CrewChiefV4.RaceRoom
                         }
                         currentGameState.PitData.PitWindowStart = shared.PitWindowStart;
                         currentGameState.PitData.PitWindowEnd = shared.PitWindowEnd;
-                        currentGameState.PitData.HasMandatoryPitStop = currentGameState.PitData.PitWindowStart > 0 && currentGameState.PitData.PitWindowEnd > 0;                         
+                        currentGameState.PitData.HasMandatoryPitStop = currentGameState.PitData.PitWindowStart > 0 && currentGameState.PitData.PitWindowEnd > 0;
                         if (currentGameState.PitData.HasMandatoryPitStop)
                         {
                             if (currentGameState.carClass.carClassEnum == CarData.CarClassEnum.DTM_2014 ||
@@ -441,7 +441,7 @@ namespace CrewChiefV4.RaceRoom
                                 if (currentGameState.carClass.carClassEnum == CarData.CarClassEnum.DTM_2014)
                                 {
                                     double halfRaceDistance = currentGameState.SessionData.SessionNumberOfLaps / 2d;
-                                    if (mapToTyreType(shared.TireTypeFront, shared.TireSubtypeFront, shared.TireTypeRear, shared.TireSubtypeFront, 
+                                    if (mapToTyreType(shared.TireTypeFront, shared.TireSubtypeFront, shared.TireTypeRear, shared.TireSubtypeFront,
                                         currentGameState.carClass.carClassEnum) == TyreType.Option)
                                     {
                                         currentGameState.PitData.MandatoryTyreChangeRequiredTyreType = TyreType.Prime;
@@ -457,7 +457,7 @@ namespace CrewChiefV4.RaceRoom
                                 {
                                     currentGameState.PitData.MandatoryTyreChangeRequiredTyreType = TyreType.Prime;
                                     // the mandatory change must be completed by the end of the pit window
-                                    currentGameState.PitData.MaxPermittedDistanceOnCurrentTyre = (int) currentGameState.PitData.PitWindowEnd;
+                                    currentGameState.PitData.MaxPermittedDistanceOnCurrentTyre = (int)currentGameState.PitData.PitWindowEnd;
                                 }
                             }
                         }
@@ -580,71 +580,78 @@ namespace CrewChiefV4.RaceRoom
 
             //------------------------ Session data -----------------------
             currentGameState.SessionData.Flag = FlagEnum.UNKNOWN;
-            // Mark Yellow sectors.
-            // note that any yellow flag info will switch off improvised incident calling for the remainder of the session
-            if (shared.Flags.SectorYellow.Sector1 == 1)
-            {
-                currentGameState.FlagData.sectorFlags[0] = FlagEnum.YELLOW;
-                currentGameState.FlagData.useImprovisedIncidentCalling = false;
-            }
-            if (shared.Flags.SectorYellow.Sector2 == 1)
-            {
-                currentGameState.FlagData.sectorFlags[1] = FlagEnum.YELLOW;
-                currentGameState.FlagData.useImprovisedIncidentCalling = false;
-            }
-            if (shared.Flags.SectorYellow.Sector3 == 1)
-            {
-                currentGameState.FlagData.sectorFlags[2] = FlagEnum.YELLOW;
-                currentGameState.FlagData.useImprovisedIncidentCalling = false;
-            } 
-            currentGameState.FlagData.isLocalYellow = shared.Flags.Yellow == 1;
-            if (currentGameState.FlagData.isLocalYellow)
-            {
-                currentGameState.FlagData.useImprovisedIncidentCalling = false;
-            }
-            // the flag rules cover blue and yellow with a single in-game option.
-            // So as soon as we see any yellow flag data we know that the game is also handling blues, so we turn this off too.
-            if (!currentGameState.FlagData.useImprovisedIncidentCalling)
-            {
-                useImprovisedBlueFlagDetection = false;
-            }
 
-            if (shared.Flags.White == 1 && !currentGameState.FlagData.isLocalYellow)
+            // only allow flag data when the session's been running for a couple of seconds - hopefully this will reduce the spurious
+            // yellow flags right at the start of race sessions
+            if (currentGameState.SessionData.SessionType != SessionType.Race || shared.Player.GameSimulationTime > 3)
             {
-                currentGameState.SessionData.Flag = FlagEnum.WHITE;
-            }
-            else if (shared.Flags.Black == 1)
-            {
-                currentGameState.SessionData.Flag = FlagEnum.BLACK;
-            }
+                // Mark Yellow sectors.
+                // note that any yellow flag info will switch off improvised incident calling for the remainder of the session
+                if (shared.Flags.SectorYellow.Sector1 == 1)
+                {
+                    currentGameState.FlagData.sectorFlags[0] = FlagEnum.YELLOW;
+                    currentGameState.FlagData.useImprovisedIncidentCalling = false;
+                }
+                if (shared.Flags.SectorYellow.Sector2 == 1)
+                {
+                    currentGameState.FlagData.sectorFlags[1] = FlagEnum.YELLOW;
+                    currentGameState.FlagData.useImprovisedIncidentCalling = false;
+                }
+                if (shared.Flags.SectorYellow.Sector3 == 1)
+                {
+                    currentGameState.FlagData.sectorFlags[2] = FlagEnum.YELLOW;
+                    currentGameState.FlagData.useImprovisedIncidentCalling = false;
+                }
+                filterBadFlags(shared.TrackId, previousGameState == null ? null : previousGameState.FlagData.sectorFlags, currentGameState.FlagData.sectorFlags);
+                currentGameState.FlagData.isLocalYellow = shared.Flags.Yellow == 1;
+                if (currentGameState.FlagData.isLocalYellow)
+                {
+                    currentGameState.FlagData.useImprovisedIncidentCalling = false;
+                }
+                // the flag rules cover blue and yellow with a single in-game option.
+                // So as soon as we see any yellow flag data we know that the game is also handling blues, so we turn this off too.
+                if (!currentGameState.FlagData.useImprovisedIncidentCalling)
+                {
+                    useImprovisedBlueFlagDetection = false;
+                }
 
-            if (shared.Flags.Checkered == 1 && currentGameState.SessionData.SessionPhase == SessionPhase.Green)
-            {
-                chequeredFlagShownInThisSession = true;
-            }
+                if (shared.Flags.White == 1 && !currentGameState.FlagData.isLocalYellow)
+                {
+                    currentGameState.SessionData.Flag = FlagEnum.WHITE;
+                }
+                else if (shared.Flags.Black == 1)
+                {
+                    currentGameState.SessionData.Flag = FlagEnum.BLACK;
+                }
 
-            currentGameState.FlagData.numCarsPassedIllegally = shared.Flags.YellowPositionsGained;
-            if (shared.Flags.YellowOvertake == 1)
-            {
-                currentGameState.FlagData.canOvertakeCarInFront = PassAllowedUnderYellow.YES;
-                currentGameState.FlagData.useImprovisedIncidentCalling = false;
-            }
-            else if (shared.Flags.YellowOvertake == 0)
-            {
-                currentGameState.FlagData.canOvertakeCarInFront = PassAllowedUnderYellow.NO;
-            }
+                if (shared.Flags.Checkered == 1 && currentGameState.SessionData.SessionPhase == SessionPhase.Green)
+                {
+                    chequeredFlagShownInThisSession = true;
+                }
 
-            // closestYellowLapDistance is the distance roundn the lap from the player to the incident
-            if (shared.Flags.ClosestYellowDistanceIntoTrack > 0)
-            {
-                currentGameState.FlagData.distanceToNearestIncident = shared.Flags.ClosestYellowDistanceIntoTrack;
-                currentGameState.FlagData.useImprovisedIncidentCalling = false;
-            }
+                currentGameState.FlagData.numCarsPassedIllegally = shared.Flags.YellowPositionsGained;
+                if (shared.Flags.YellowOvertake == 1)
+                {
+                    currentGameState.FlagData.canOvertakeCarInFront = PassAllowedUnderYellow.YES;
+                    currentGameState.FlagData.useImprovisedIncidentCalling = false;
+                }
+                else if (shared.Flags.YellowOvertake == 0)
+                {
+                    currentGameState.FlagData.canOvertakeCarInFront = PassAllowedUnderYellow.NO;
+                }
 
-            if (shared.Flags.Blue == 1)
-            {
-                currentGameState.SessionData.Flag = FlagEnum.BLUE;
-                useImprovisedBlueFlagDetection = false;
+                // closestYellowLapDistance is the distance roundn the lap from the player to the incident
+                if (shared.Flags.ClosestYellowDistanceIntoTrack > 0)
+                {
+                    currentGameState.FlagData.distanceToNearestIncident = shared.Flags.ClosestYellowDistanceIntoTrack;
+                    currentGameState.FlagData.useImprovisedIncidentCalling = false;
+                }
+
+                if (shared.Flags.Blue == 1)
+                {
+                    currentGameState.SessionData.Flag = FlagEnum.BLUE;
+                    useImprovisedBlueFlagDetection = false;
+                }
             }
 
             currentGameState.SessionData.SessionTimeRemaining = shared.SessionTimeRemaining;
@@ -1946,6 +1953,15 @@ namespace CrewChiefV4.RaceRoom
         {
             int count = Array.IndexOf(name, (byte) 0);
             return Encoding.UTF8.GetString(name, 0, count);
+        }
+
+        private void filterBadFlags(int trackId, FlagEnum[] previousTickFlags, FlagEnum[] currentTickFlags)
+        {
+            // previousTickFlags may be null
+            if (trackId == 3870 /* Spa GP - sector 3 flags don't seem to clear properly, until the exact behaviour is understood, just filter them*/)
+            {
+                currentTickFlags[2] = FlagEnum.GREEN;
+            }
         }
     }
 }
