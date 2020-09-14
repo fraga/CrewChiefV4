@@ -649,6 +649,7 @@ namespace CrewChiefV4.RaceRoom
 
             currentGameState.SessionData.SessionTimeRemaining = shared.SessionTimeRemaining;
             currentGameState.SessionData.CompletedLaps = shared.CompletedLaps;
+            currentGameState.SessionData.MaxIncidentCount = shared.MaxIncidentPoints;
 
             currentGameState.SessionData.LapTimeCurrent = shared.LapTimeCurrentSelf;
             currentGameState.SessionData.NumCarsOverall = shared.NumCars;
@@ -784,7 +785,6 @@ namespace CrewChiefV4.RaceRoom
                         currentGameState.SessionData.stoppedInLandmark = participantStruct.InPitlane == 1 ? null : stoppedInLandmark;
                     }
 
-                    // TODO: what to do with this data? Be careful here - it's populated for iRacing and R3E and will behave differently
                     currentGameState.SessionData.CurrentIncidentCount = participantStruct.DriverInfo.IncidentPoints;
                     break;
                 }
@@ -1222,8 +1222,9 @@ namespace CrewChiefV4.RaceRoom
                (currentGameState.PitData.OnInLap || currentGameState.PitData.OnOutLap);
             if (previousGameState != null)
             {
-                currentGameState.PitData.MandatoryPitStopCompleted = previousGameState.PitData.MandatoryPitStopCompleted || shared.PitWindowStatus == (int)PitWindow.Completed;
+                currentGameState.PitData.MandatoryPitStopCompleted = previousGameState.PitData.MandatoryPitStopCompleted || shared.PitWindowStatus == (int)RaceRoomConstant.PitWindow.Completed;
             }
+
             currentGameState.PitData.limiterStatus = (PitData.LimiterStatus)shared.PitLimiter + 1;
             currentGameState.PitData.HasRequestedPitStop = shared.PitState == (Int32)RaceRoomConstant.PitStates.Requested;
 
@@ -1232,6 +1233,9 @@ namespace CrewChiefV4.RaceRoom
             {
                 currentGameState.PitData.IsPitCrewDone = shared.PitState == (Int32)RaceRoomConstant.PitStates.Exiting;
             }
+            
+            currentGameState.PitData.MandatoryPitMinDurationLeft = shared.PitMinDurationLeft;
+            currentGameState.PitData.MandatoryPitMinDurationTotal = shared.PitMinDurationTotal;
 
             // See if it looks like we're entering the pits.  Use TrackDefinition.pitApproachPoint if available.
             var pitApproachPoint = currentGameState.SessionData.TrackDefinition.pitApproachPoint;
@@ -1765,6 +1769,7 @@ namespace CrewChiefV4.RaceRoom
             OvertakingAids overtakingAids = new OvertakingAids();
             overtakingAids.DrsAvailable = shared.Drs.Available == 1;
             overtakingAids.DrsEngaged = shared.Drs.Engaged == 1;
+            overtakingAids.DrsActivationsRemaining = shared.DrsNumActivationsTotal; // only used for DTM 2020
             // DTM rule sets are kinda deprecated and not really that clear any more. Generally the DRS is enabled at the end of lap 1 and disabled near
             // the end of the race (but I'm not sure exactly when). We can't infer the rule set from the selected car so have a one-size-fits-all hack
             if (carClassEnum == CarData.CarClassEnum.DTM_2013 || carClassEnum == CarData.CarClassEnum.DTM_2014 
@@ -1774,18 +1779,18 @@ namespace CrewChiefV4.RaceRoom
                 overtakingAids.DrsEnabled = sessionType == SessionType.Race && lapsCompleted > 0;
                 overtakingAids.DrsRange = 1;
             }
-            overtakingAids.PushToPassActivationsRemaining = shared.PushToPass.AmountLeft;
+            // use shared.PtPNumActivationsTotal if available
+            overtakingAids.PushToPassActivationsRemaining = shared.PtPNumActivationsTotal == -1 ? shared.PushToPass.AmountLeft : shared.PtPNumActivationsTotal;
             overtakingAids.PushToPassAvailable = shared.PushToPass.Available == 1;
             overtakingAids.PushToPassEngaged = shared.PushToPass.Engaged == 1;
             overtakingAids.PushToPassEngagedTimeLeft = shared.PushToPass.EngagedTimeLeft;
             overtakingAids.PushToPassWaitTimeLeft = shared.PushToPass.WaitTimeLeft;
 
-            // work-around for DTM 2020, which has unlimited PTP (1 use per lap) and a limited number of DRS activations (still to be implemented) which don't
-            // depend on opponent proximity. Setting these to -1 disables the PTP activations remaining calls and the DRS range-to-opponent calls / 'you missed DRS' calls.
+            // work-around for DTM 2020, which has a limited number of DRS activations which don't
+            // depend on opponent proximity. Setting this to -1 disables the DRS range-to-opponent calls / 'you missed DRS' calls.
             if (carClassEnum == CarData.CarClassEnum.DTM_2020)
             {
                 overtakingAids.DrsRange = -1;
-                overtakingAids.PushToPassActivationsRemaining = -1;
             }
             return overtakingAids;
         }

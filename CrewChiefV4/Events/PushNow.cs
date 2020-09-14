@@ -39,6 +39,9 @@ namespace CrewChiefV4.Events
         private float distanceBeforeStartLineToWarnOfPitExit = 200;
         private float maxSpeedWhenCrossingLine = 0;
 
+        // not cleared between sessions
+        private Dictionary<string, float> pitExitPoints = new Dictionary<string, float>();
+
         public PushNow(AudioPlayer audioPlayer)
         {
             this.audioPlayer = audioPlayer;
@@ -63,6 +66,10 @@ namespace CrewChiefV4.Events
             if (GameStateData.onManualFormationLap)
             {
                 return;
+            }
+            if (previousGameState != null && previousGameState.PitData.InPitlane && !currentGameState.PitData.InPitlane && currentGameState.PositionAndMotionData.DistanceRoundTrack > 0)
+            {
+                pitExitPoints[currentGameState.SessionData.TrackDefinition.name] = currentGameState.PositionAndMotionData.DistanceRoundTrack;
             }
             if (currentGameState.SessionData.IsNewLap && currentGameState.PositionAndMotionData.CarSpeed > maxSpeedWhenCrossingLine)
             {
@@ -224,13 +231,21 @@ namespace CrewChiefV4.Events
         private Boolean isOpponentLeavingPits(GameStateData currentGameState)
         {
             // games with sane lap distance data when pitting
+            float triggerStartPoint = 0;
+            float triggerEndPoint = 300;
+            float pitExitPoint;
+            if (pitExitPoints.TryGetValue(currentGameState.SessionData.TrackDefinition.name, out pitExitPoint))
+            {
+                triggerStartPoint = Math.Max(0, pitExitPoint - 100);
+                triggerEndPoint = pitExitPoint + 50;
+            }
             foreach (KeyValuePair<string, OpponentData> opponent in currentGameState.OpponentData)
             {
                 // if the opponent car is moving at approximately the pit speed limit, is exiting the pits, 
                 // has passed the start line, warn about him. Note that this method is expected to be called
                 // when the player is approaching the start line
                 if (opponent.Value.Speed > 10 && opponent.Value.Speed < 40 && opponent.Value.InPits &&
-                    opponent.Value.isExitingPits() && opponent.Value.DistanceRoundTrack > 0 && opponent.Value.DistanceRoundTrack < 300)
+                    opponent.Value.isExitingPits() && opponent.Value.DistanceRoundTrack > triggerStartPoint && opponent.Value.DistanceRoundTrack < triggerEndPoint)
                 {
                     return true;
                 }

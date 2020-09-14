@@ -114,10 +114,11 @@ namespace CrewChiefV4.Events
         private static bool useNewCutTrackSounds = false;
 
         public static String folderCutTrackPracticeOrQualNextLapInvalid = "penalties/cut_track_in_prac_or_qual_next_invalid";
-
-        // TODO: record these, still not sure what to actually say
+        
         public static String folderCarToCarCollision = "penalties/car_to_car_collision";
         public static String folderTooManyCarToCarCollisions = "penalties/too_many_car_to_car_collisions";
+        public static String folderWillBeKickedAfterOneMoreCollision = "penalties/one_more_collision_before_kick";
+        public static String folderWillBeKickedAfterOneMoreOffTrack = "penalties/one_more_off_track_before_kick";
 
         // 1, 2, 3, 4 versions of race cut ("track limits...") and non-race cut ("lap deleted") messages. For non-race,
         // "lap deleted" are combined with "track limits". 1, 2, 3, 4 are the taking-piss levels where 1 is few or zero cuts up to
@@ -172,16 +173,18 @@ namespace CrewChiefV4.Events
 
         public static Boolean playerMustPitThisLap = false;
 
-        private int r3eIncidentPointsForCarToCarCollision = 4;
+        private int incidentPointsForCarToCarCollision = 4;
 
         private int tooManyCarToCarCollisionsThreshold = 3;   // get really cranky after this many significant car-to-car collisions
 
-        private double carToCarCollisionSpeedChangeThreshold = -0.3;    // a car to car collision resulting in this (or greater) speed change is considered significant
+        private double carToCarCollisionSpeedChangeThreshold = -1.5;    // a car to car collision resulting in this (or greater) speed change is considered significant
         // note this is negative so we're only interested in collisions that slow the player down
 
         private int carToCarCollisionCount = 0;
 
         private DateTime nextCarToCarCollisionCallDue = DateTime.MinValue;
+
+        private bool playedKickWarning = false;
 
         private enum TrackLimitsMode
         {
@@ -227,6 +230,7 @@ namespace CrewChiefV4.Events
             cutTimesInSession.Clear();
             carToCarCollisionCount = 0;
             nextCarToCarCollisionCallDue = DateTime.MinValue;
+            playedKickWarning = false;
         }
 
         private void clearPenaltyState()
@@ -286,6 +290,10 @@ namespace CrewChiefV4.Events
                     // Don't validate "Penalty served" in rF1/rF2, hasOutstandingPenalty is false by the time we get here.
                     return true;
                 }
+                else if (eventSubType == folderTimePenalty && CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM && currentGameState.SessionData.SessionPhase != SessionPhase.Finished)
+                {
+                    return true;
+                }
                 else
                 {
                     return hasOutstandingPenalty && currentGameState.SessionData.SessionPhase != SessionPhase.Finished;
@@ -303,10 +311,10 @@ namespace CrewChiefV4.Events
             if (previousGameState != null && currentGameState.SessionData.CurrentIncidentCount > previousGameState.SessionData.CurrentIncidentCount)
             {
                 Console.WriteLine("incident points increased from " + previousGameState.SessionData.CurrentIncidentCount + " to " + currentGameState.SessionData.CurrentIncidentCount);
-                // for R3E we have no idea what the incident point limits might be or even what type of incident has occurred - we know it's 
+                // for R3E we have no idea what type of incident has occurred - we know it's 
                 // 4 points for a car-to-car collision so we can, at least, do *something* with it
                 if (CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM
-                    && currentGameState.SessionData.CurrentIncidentCount - previousGameState.SessionData.CurrentIncidentCount >= r3eIncidentPointsForCarToCarCollision)
+                    && currentGameState.SessionData.CurrentIncidentCount - previousGameState.SessionData.CurrentIncidentCount >= incidentPointsForCarToCarCollision)
                 {
                     // this isn't as reliable as it might be - there may be an edge case where multiple car-to-wall collisions occur in the same tick,
                     // but this is unlikely.
@@ -321,7 +329,7 @@ namespace CrewChiefV4.Events
                         Console.WriteLine("we appear to have re-ended another car, collision count = " + carToCarCollisionCount);
                         if (currentGameState.Now > nextCarToCarCollisionCallDue)
                         {
-                            nextCarToCarCollisionCallDue = currentGameState.Now.AddSeconds(30);
+                            nextCarToCarCollisionCallDue = currentGameState.Now.AddSeconds(60);
                             if (carToCarCollisionCount == tooManyCarToCarCollisionsThreshold)
                             {
                                 // we've hit our 'stop crashing into people' threshold
@@ -333,6 +341,25 @@ namespace CrewChiefV4.Events
                                 audioPlayer.playMessage(new QueuedMessage(folderCarToCarCollision, 0, abstractEvent: this));
                             }
                         }
+                    }
+                }
+                if (!playedKickWarning && currentGameState.SessionData.MaxIncidentCount > 0 && currentGameState.SessionData.SessionType == SessionType.Race
+                    && CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM /*will probably work for iRacing too but wait for Morten*/)
+                {
+                    // how close to being kicked are we?
+                    if (currentGameState.SessionData.CurrentIncidentCount + 2 /* should this be 1?*/ >= currentGameState.SessionData.MaxIncidentCount)
+                    {
+                        // shit we're close, one or two more anything and we're out
+                        Console.WriteLine("2 incident points from a kick");
+                        audioPlayer.playMessage(new QueuedMessage(folderWillBeKickedAfterOneMoreOffTrack, 0, abstractEvent: this, priority: 10));
+                        playedKickWarning = true;
+                    }
+                    else if (currentGameState.SessionData.CurrentIncidentCount + 4 >= currentGameState.SessionData.MaxIncidentCount)
+                    {
+                        // one more car contact and we're out
+                        Console.WriteLine("4 incident points (one car-car collision) from a kick");
+                        audioPlayer.playMessage(new QueuedMessage(folderWillBeKickedAfterOneMoreCollision, 0, abstractEvent: this, priority: 10));
+                        playedKickWarning = true;
                     }
                 }
             }
