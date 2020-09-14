@@ -273,8 +273,9 @@ namespace CrewChiefV4.Events
                             // this opponent has just completed a lap - do we need to report it? if it's fast overall and more than
                             // a tenth quicker then his previous best we do...
                             if (((currentGameState.SessionData.SessionType == SessionType.Race && opponentData.CompletedLaps > 2) ||
-                                (currentGameState.SessionData.SessionType != SessionType.Race && opponentData.CompletedLaps > 1)) && opponentData.LastLapTime <= currentFastestLap &&
-                                (opponentData.CanUseName && AudioPlayer.canReadName(opponentData.DriverRawName)))
+                                (!PitStops.waitingForMandatoryStopTimer &&
+                                 currentGameState.SessionData.SessionType != SessionType.Race && opponentData.CompletedLaps > 1)) && opponentData.LastLapTime <= currentFastestLap &&
+                                 (opponentData.CanUseName && AudioPlayer.canReadName(opponentData.DriverRawName)))
                             {
                                 if ((currentGameState.SessionData.SessionType == SessionType.Race && frequencyOfOpponentRaceLapTimes > 0) ||
                                     (currentGameState.SessionData.SessionType != SessionType.Race && frequencyOfOpponentPracticeAndQualLapTimes > 0))

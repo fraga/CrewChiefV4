@@ -203,7 +203,7 @@ namespace CrewChiefV4.Events
         private bool pitLaneSpeedWarningAnnounced = false;
 
         private bool playedMandatoryStopMinWaitTime = false;
-        private bool waitingForMandatoryStopTimer = false;
+        public static bool waitingForMandatoryStopTimer = false;    // can be used by other events to suppress sounds when this timer is ticking
         private bool playedWait5Seconds = false;
         private DateTime nextWaitWarningDue = DateTime.MaxValue;
 
@@ -1009,6 +1009,7 @@ namespace CrewChiefV4.Events
                         }
                         else
                         {
+                            waitingForMandatoryStopTimer = false;
                             audioPlayer.playMessageImmediately(new QueuedMessage(folderStopCompleteGo, 1, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
                         }
                     }
