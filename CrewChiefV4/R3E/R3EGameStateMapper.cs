@@ -1208,13 +1208,13 @@ namespace CrewChiefV4.RaceRoom
             currentGameState.PenaltiesData.CutTrackWarnings = shared.CutTrackWarnings;
             currentGameState.PenaltiesData.HasSlowDown = shared.Penalties.SlowDown > 0;
             currentGameState.PenaltiesData.HasPitStop = shared.Penalties.PitStop > 0;
-            currentGameState.PenaltiesData.HasTimeDeduction = shared.Penalties.TimeDeduction > 0;
+            currentGameState.PenaltiesData.HasTimeDeduction = shared.Penalties.TimeDeduction > 0;   // "time deduction" is actually "servable time penalty"
             currentGameState.PenaltiesData.NumPenalties = shared.NumPenalties;
 
             // new penalties data, incomplete mapping using same event logic as RF2
             currentGameState.PenaltiesData.PenaltyType = getDetailedPenaltyType(playerDriverData.PenaltyType);
             currentGameState.PenaltiesData.PenaltyCause = getDetailedPenaltyCause(currentGameState.PenaltiesData.PenaltyType, playerDriverData.PenaltyReason);
-
+            currentGameState.PenaltiesData.HasStopAndGo = currentGameState.PenaltiesData.PenaltyType == PenatiesData.DetailedPenaltyType.STOP_AND_GO;
 
             //------------------------ Pit stop data -----------------------            
             currentGameState.PitData.PitWindow = mapToPitWindow(shared.PitWindowStatus);
@@ -1730,6 +1730,7 @@ namespace CrewChiefV4.RaceRoom
                 case 0:
                     return PenatiesData.DetailedPenaltyType.DRIVE_THROUGH;
                 case 1:
+                case 3:/* "servable time penalty" */
                     return PenatiesData.DetailedPenaltyType.STOP_AND_GO;
                 default:
                     return PenatiesData.DetailedPenaltyType.NONE;

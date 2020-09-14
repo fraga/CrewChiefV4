@@ -750,7 +750,7 @@
 			"raceroomClassIds": [9101],
 			"brakeType": "Carbon",
 			"maxSafeWaterTemp": 100,
-			"maxSafeOilTemp": 106,
+			"maxSafeOilTemp": 105,
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL",
 			"allMembersAreRWD": true
