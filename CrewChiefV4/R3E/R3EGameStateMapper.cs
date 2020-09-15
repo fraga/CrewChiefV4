@@ -792,7 +792,12 @@ namespace CrewChiefV4.RaceRoom
                         currentGameState.SessionData.stoppedInLandmark = participantStruct.InPitlane == 1 ? null : stoppedInLandmark;
                     }
 
-                    currentGameState.SessionData.CurrentIncidentCount = participantStruct.DriverInfo.IncidentPoints;
+                    int pointsFromVehInfo = shared.VehicleInfo.IncidentPoints;
+                    int pointsFromDriverArray = participantStruct.DriverInfo.IncidentPoints;
+                    // not sure which of these is actually set. Originally only the one in the driverData array was set but now these
+                    // values have been removed for opponents, perhaps the player's has been removed too and the one in VehicleInfo is set.
+                    // Either way, we won't know until the patch is released so pick the one that looks 'set'
+                    currentGameState.SessionData.CurrentIncidentCount = Math.Max(pointsFromDriverArray, pointsFromVehInfo);
                     break;
                 }
             }

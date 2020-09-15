@@ -59,7 +59,10 @@ namespace CrewChiefV4.Events
         public static String folderLicenseD = "licence/d_licence";
         public static String folderLicenseR = "licence/r_licence";
         public static String folderLicensePro = "licence/pro_licence";
-        
+
+        public static String folderRatingIntro = "opponents/rating_intro";
+        public static String folderReputationIntro = "opponents/reputation_intro";
+
         private int frequencyOfOpponentRaceLapTimes = UserSettings.GetUserSettings().getInt("frequency_of_opponent_race_lap_times");
         private int frequencyOfOpponentPracticeAndQualLapTimes = UserSettings.GetUserSettings().getInt("frequency_of_opponent_practice_and_qual_lap_times");
 
@@ -676,7 +679,7 @@ namespace CrewChiefV4.Events
             Boolean gotData = false;
             if (currentGameState != null)
             {
-                if (SpeechRecogniser.WHAT_TYRES_AM_I_ON.Contains(voiceMessage))
+                if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHAT_TYRES_AM_I_ON))
                 {
                     gotData = true;
                     audioPlayer.playMessageImmediately(new QueuedMessage(TyreMonitor.getFolderForTyreType(currentGameState.TyreData.FrontLeftTyreType), 0));
@@ -696,6 +699,23 @@ namespace CrewChiefV4.Events
                                 audioPlayer.playMessageImmediately(new QueuedMessage(TyreMonitor.getFolderForTyreType(opponentData.CurrentTyres), 0));
                             }
                         }
+                    }
+                }
+                else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOW_GOOD_IS))
+                {
+                    R3ERatingData ratingData = R3ERatings.getRatingForUserId(getOpponentR3EUserId(getOpponentKey(voiceMessage, "").Item1));
+                    if (ratingData != null)
+                    {
+                        gotData = true;
+                        Console.WriteLine("got rating data for opponent:" + ratingData.ToString());
+                        // if we don't explicitly split the sounds up here they'll be read ints
+                        int reputationIntPart = (int)ratingData.reputation;
+                        int reputationDecPart = (int)(10 * (ratingData.reputation - (float)reputationIntPart));
+                        int ratingIntPart = (int)ratingData.rating;
+                        int ratingDecPart = (int)(10 * (ratingData.rating - (float)ratingIntPart));
+                        audioPlayer.playMessageImmediately(new QueuedMessage("opponentReputationAndRating", 0,
+                            messageFragments: MessageContents(folderReputationIntro, reputationIntPart, NumberReader.folderPoint, reputationDecPart, 
+                            folderRatingIntro, ratingIntPart, NumberReader.folderPoint, ratingDecPart)));
                     }
                 }
                 else if (voiceMessage.StartsWith(SpeechRecogniser.WHATS) &&

@@ -211,6 +211,7 @@ namespace CrewChiefV4
         public static String[] WHATS_MY_RATING = Configuration.getSpeechRecognitionPhrases("WHATS_MY_RATING");
         public static String[] WHATS_MY_RANK = Configuration.getSpeechRecognitionPhrases("WHATS_MY_RANK");
         public static String[] WHATS_MY_REPUTATION = Configuration.getSpeechRecognitionPhrases("WHATS_MY_REPUTATION");
+        public static String[] HOW_GOOD_IS = Configuration.getSpeechRecognitionPhrases("HOW_GOOD_IS");
         public static String RATING = Configuration.getSpeechRecognitionConfigOption("RATING");
         public static String REPUTATION = Configuration.getSpeechRecognitionConfigOption("REPUTATION");
         public static String RANK = Configuration.getSpeechRecognitionConfigOption("RANK");
@@ -1337,6 +1338,10 @@ namespace CrewChiefV4
                         {
                             opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHAT_TYRE_IS, WHAT_TYRES_IS }, false, opponentNameChoices, new String[] { ON }, true));
                         }
+                        if (CrewChief.gameDefinition != null && CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM)
+                        {
+                            opponentGrammarList.AddRange(addCompoundChoices(HOW_GOOD_IS, false, opponentNameChoices, null, true));
+                        }
                         opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHATS }, true, opponentNamePossessiveChoices, getWhatsPossessiveChoices(), true));
                     }
                 }
@@ -1463,6 +1468,10 @@ namespace CrewChiefV4
             if (CrewChief.gameDefinition != null && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)
             {
                 opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHAT_TYRE_IS, WHAT_TYRES_IS }, false, opponentNameOrPositionChoices, new String[] { ON }, true));
+            }
+            if (CrewChief.gameDefinition != null && CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM)
+            {
+                opponentGrammarList.AddRange(addCompoundChoices(HOW_GOOD_IS, false, opponentNameOrPositionChoices, null, true));
             }
             opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHATS }, false, opponentNameOrPositionPossessiveChoices, getWhatsPossessiveChoices(), true));
         }
