@@ -166,14 +166,13 @@ namespace PitMenuAPI
 
         /// <summary>
         /// Read the fuel level to find if "Relative Fuel Strategy" is selected
-        /// (if so there is a + before the fuel quantity)
+        /// in Player.JSON (if it is there is a + before the fuel quantity)
         /// </summary>
         /// true: "Relative Fuel Strategy" is selected
         /// <returns></returns>
         public bool RelativeFuelStrategy()
         {
             bool relativeFuelStrategy = false;
-            float current = -1; //tbd
             Match match;
             Regex reggie = new Regex(@"(.*)/(.*)");
             if (SmartSetCategory("FUEL:"))
@@ -181,14 +180,9 @@ namespace PitMenuAPI
                 match = reggie.Match(GetChoice());
                 if (match.Groups.Count == 3)
                 {
-                    // tbd change to simple regex, don't need the number
-                    bool parsed = float.TryParse(match.Groups[1].Value, out current);
-                    if (parsed)
+                    if (match.Groups[1].Value.StartsWith("+"))
                     {
-                        if (match.Groups[1].Value.StartsWith("+"))
-                        {
-                            relativeFuelStrategy = true;
-                        }
+                        relativeFuelStrategy = true;
                     }
                 }
             }

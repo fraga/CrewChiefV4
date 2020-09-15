@@ -329,12 +329,12 @@ namespace CrewChiefV4.PitManager
             {PME.TyreCompoundAlternate,   _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundAlternate, PMER.PMrh_TyreCompoundAlternate) },
             {PME.TyreCompoundNext,        _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundNext,   PMER.PMrh_TyreCompoundNext) },
 
-            {PME.FuelAddXlitres,          _PMet(_PMeh, PMEHrF2.PMrF2eh_FuelAddXlitres,     PMER.PMrh_NoResponse) },
-            {PME.FuelFillToXlitres,       _PMet(_PMeh, PMEHrF2.PMrF2eh_FuelToXlitres,      PMER.PMrh_Acknowledge) },
+            {PME.FuelAddXlitres,          _PMet(_PMeh, PMEHrF2.PMrF2eh_FuelAddXlitres,     PMER.PMrh_FuelAddXlitres) },
+            {PME.FuelFillToXlitres,       _PMet(_PMeh, PMEHrF2.PMrF2eh_FuelToXlitres,      PMER.PMrh_FuelAddXlitres) },
             {PME.FuelFillToEnd,           _PMet(_PMeh, PMEHrF2.PMrF2eh_FuelToEnd,          PMER.PMrh_fuelToEnd) },
             {PME.FuelNone,                _PMet(_PMeh, PMEHrF2.PMrF2eh_FuelNone,           PMER.PMrh_noFuel) },
 
-            {PME.RepairAll,               _PMet(_PMeh, PMEHrF2.PMrF2eh_RepairAll,          PMER.PMrh_Acknowledge) },
+            {PME.RepairAll,               _PMet(_PMeh, PMEHrF2.PMrF2eh_RepairAll,          PMER.PMrh_RepairAll) },
             {PME.RepairNone,              _PMet(_PMeh, PMEHrF2.PMrF2eh_RepairNone,         PMER.PMrh_Acknowledge) },
             //{PME.RepairFast,            _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_Acknowledge) },     // iRacing
             //{PME.RepairAllAero,         _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_Acknowledge) },     // R3E
@@ -342,9 +342,9 @@ namespace CrewChiefV4.PitManager
             //{PME.RepairRearAero,        _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_Acknowledge) },
             //{PME.RepairSuspension,      _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_Acknowledge) },
             //{PME.RepairSuspensionNone,  _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_Acknowledge) },
-            {PME.RepairBody,              _PMet(_PMeh, PMEHrF2.PMrF2eh_RepairBody,         PMER.PMrh_Acknowledge) },
+            {PME.RepairBody,              _PMet(_PMeh, PMEHrF2.PMrF2eh_RepairBody,         PMER.PMrh_RepairBody) },
 
-            {PME.PenaltyServe,            _PMet(_PMeh, PMEHrF2.PMrF2eh_PenaltyServe,       PMER.PMrh_Acknowledge) },
+            {PME.PenaltyServe,            _PMet(_PMeh, PMEHrF2.PMrF2eh_PenaltyServe,       PMER.PMrh_ServePenalty) },
             {PME.PenaltyServeNone,        _PMet(_PMeh, PMEHrF2.PMrF2eh_PenaltyServeNone,   PMER.PMrh_Acknowledge) },
 
             {PME.AeroFrontPlusMinusX,     _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },

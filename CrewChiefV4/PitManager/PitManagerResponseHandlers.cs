@@ -125,17 +125,33 @@ namespace CrewChiefV4.PitManager
             return true;
         }
 
-#pragma warning disable S4144 // Methods should not have identical implementations
         static public bool PMrh_FuelAddXlitres()
-#pragma warning restore S4144 // Methods should not have identical implementations
         {
-            playMessage(AudioPlayer.folderFuelToEnd); // tbd:
+            playMessage("mandatory_pit_stops/confirm_refuelling");
             return true;
         }
 
         static public bool PMrh_noFuel()
         {
             playMessage("mandatory_pit_stops/confirm_no_refuelling");
+            return true;
+        }
+
+        static public bool PMrh_RepairAll()
+        {
+            playMessage("mandatory_pit_stops/confirm_fix_suspension");
+            return true;
+        }
+
+        static public bool PMrh_RepairBody()
+        {
+            playMessage("mandatory_pit_stops/confirm_dont_fix_suspension");
+            return true;
+        }
+
+        static public bool PMrh_ServePenalty()
+        {
+            playMessage("mandatory_pit_stops/will_be_serving_penalty");
             return true;
         }
 
