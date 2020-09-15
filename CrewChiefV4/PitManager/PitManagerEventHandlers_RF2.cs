@@ -284,7 +284,7 @@ namespace CrewChiefV4.PitManager
         static public bool PMrF2eh_FuelAddXlitres(string voiceMessage)
         {
             var amount = Pmal.GetFuelLevel();
-            if (amount > 0)
+            if (amount >= 0)
             {
                 var amountAdd = PitNumberHandling.processNumber(voiceMessage);
                 if (amountAdd == 0)
@@ -296,7 +296,7 @@ namespace CrewChiefV4.PitManager
                 {
                     amount = (int)PitManagerVoiceCmds.getFuelCapacity();
                 }
-                return rF2SetFuel(amount);
+                return rF2SetFuel(amount, (int)PitManagerVoiceCmds.getCurrentFuel());
             }
             return false;
         }
@@ -313,7 +313,7 @@ namespace CrewChiefV4.PitManager
             {
                 amount = (int)PitManagerVoiceCmds.getFuelCapacity();
             }
-            return rF2SetFuel(amount);
+            return rF2SetFuel(amount, (int)PitManagerVoiceCmds.getCurrentFuel());
         }
 
         static public bool PMrF2eh_FuelToEnd(string __)
@@ -329,17 +329,17 @@ namespace CrewChiefV4.PitManager
             {
                 return false;
             }
-            return rF2SetFuel(litresNeeded);
+            return rF2SetFuel(litresNeeded, (int)PitManagerVoiceCmds.getCurrentFuel());
         }
 
         static public bool PMrF2eh_FuelNone(string __)
         {
-            return rF2SetFuel(1);
+            return rF2SetFuel(1, (int)PitManagerVoiceCmds.getCurrentFuel());
         }
 
-        static public bool rF2SetFuel(int amount)
+        static public bool rF2SetFuel(int amount, int currentFuel)
         {
-            return Pmal.SetFuelLevel(amount);
+            return Pmal.SetFuelLevel(amount, currentFuel);
         }
         #endregion Fuel
 
