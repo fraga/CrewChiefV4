@@ -521,6 +521,10 @@
     </Compile>
     <Compile Include="Configuration.cs" />
     <Compile Include="Utilities.cs" />
+    <Compile Include="GTR2\GTR2GameStateMapper.cs" />
+    <Compile Include="GTR2\GTR2SharedMemoryReader.cs" />
+    <Compile Include="GTR2\GTR2Spotter.cs" />
+    <Compile Include="GTR2\GTR2Data.cs" />
     <EmbeddedResource Include="UserInterface\ActionEditor.resx">
       <DependentUpon>ActionEditor.cs</DependentUpon>
     </EmbeddedResource>
