@@ -79,11 +79,9 @@ namespace CrewChiefV4.PitManager
             return true;
         }
 
-#pragma warning disable S4144 // Methods should not have identical implementations
         static public bool PMrh_TyreCompoundWet()
-#pragma warning restore S4144 // Methods should not have identical implementations
         {
-            playMessage(AudioPlayer.folderAcknowlegeOK);     // tbd
+            playMessage("mandatory_pit_stops/confirm_wet_tyres");
             return true;
         }
 
@@ -105,11 +103,9 @@ namespace CrewChiefV4.PitManager
             return true;
         }
 
-#pragma warning disable S4144 // Methods should not have identical implementations
         static public bool PMrh_TyreCompoundNext()
-#pragma warning restore S4144 // Methods should not have identical implementations
         {
-            playMessage(AudioPlayer.folderAcknowlegeOK);
+            playMessage("mandatory_pit_stops/confirm_next_tyre_compound");
             return true;
         }
 
