@@ -281,27 +281,16 @@ namespace CrewChiefV4.PitManager
         #endregion Tyre pressures
 
         #region Fuel
-        static public bool PMrF2eh_FuelAddXlitres(string voiceMessage)
-        {
-            var amount = Pmal.GetFuelLevel();
-            if (amount >= 0)
-            {
-                var amountAdd = PitNumberHandling.processNumber(voiceMessage);
-                if (amountAdd == 0)
-                {
-                    return false;
-                }
-                amount += PitNumberHandling.processLitresGallons(amountAdd, voiceMessage);
-                if (amount > PitManagerVoiceCmds.getFuelCapacity())
-                {
-                    amount = (int)PitManagerVoiceCmds.getFuelCapacity();
-                }
-                return rF2SetFuel(amount, (int)PitManagerVoiceCmds.getCurrentFuel());
-            }
-            return false;
-        }
-
-        static public bool PMrF2eh_FuelToXlitres(string voiceMessage)
+        // Fuel Add:
+        // If "Relative Fuel Strategy" set menu to X litres else set to X+current
+        // X' = X+current
+        // Fuel To:
+        // If "Relative Fuel Strategy" set menu to X litres-current else set to X
+        // X' = X
+        //
+        // in rF2SetFuel(X')
+        // If "Relative Fuel Strategy" set to X'-current else set to X'
+        static private bool FuelAddXlitres(string voiceMessage, int current)
         {
             var amount = PitNumberHandling.processNumber(voiceMessage);
             amount = PitNumberHandling.processLitresGallons(amount, voiceMessage);
@@ -313,7 +302,15 @@ namespace CrewChiefV4.PitManager
             {
                 amount = (int)PitManagerVoiceCmds.getFuelCapacity();
             }
-            return rF2SetFuel(amount, (int)PitManagerVoiceCmds.getCurrentFuel());
+            return rF2SetFuel(amount + current);
+        }
+        static public bool PMrF2eh_FuelAddXlitres(string voiceMessage)
+        {
+            return FuelAddXlitres(voiceMessage, (int)PitManagerVoiceCmds.getCurrentFuel());
+        }
+        static public bool PMrF2eh_FuelToXlitres(string voiceMessage)
+        {
+            return FuelAddXlitres(voiceMessage, 0);
         }
 
         static public bool PMrF2eh_FuelToEnd(string __)
@@ -329,60 +326,64 @@ namespace CrewChiefV4.PitManager
             {
                 return false;
             }
-            return rF2SetFuel(litresNeeded, (int)PitManagerVoiceCmds.getCurrentFuel());
+            return rF2SetFuel(litresNeeded);
         }
 
         static public bool PMrF2eh_FuelNone(string __)
         {
-            return rF2SetFuel(1, (int)PitManagerVoiceCmds.getCurrentFuel());
+            return rF2SetFuel(1);
         }
 
-        static public bool rF2SetFuel(int amount, int currentFuel)
+        static public bool rF2SetFuel(int amount)
         {
-            return Pmal.SetFuelLevel(amount, currentFuel);
+            if (Pmal.RelativeFuelStrategy())
+            {
+                amount = Math.Max(amount - (int)PitManagerVoiceCmds.getCurrentFuel(), 0);
+            }
+            return Pmal.SetFuelLevel(amount);
         }
         #endregion Fuel
 
         #region Repairs
         static public bool PMrF2eh_RepairAll(string __)
+    {
+        if (!Pmal.SoftMatchCategory("DAMAGE:"))
         {
-            if (!Pmal.SoftMatchCategory("DAMAGE:"))
-            {
-                Pmal.RereadPitMenu();   // DAMAGE is not in initial menu, check if it is now
-            }
-            if (Pmal.SoftMatchCategory("DAMAGE:"))
-            {
-                return Pmal.SetChoice("Repair All");
-            }
-            return false;
+            Pmal.RereadPitMenu();   // DAMAGE is not in initial menu, check if it is now
         }
+        if (Pmal.SoftMatchCategory("DAMAGE:"))
+        {
+            return Pmal.SetChoice("Repair All");
+        }
+        return false;
+    }
 
-        static public bool PMrF2eh_RepairNone(string __)
+    static public bool PMrF2eh_RepairNone(string __)
+    {
+        if (!Pmal.SoftMatchCategory("DAMAGE:"))
         {
-            if (!Pmal.SoftMatchCategory("DAMAGE:"))
-            {
-                Pmal.RereadPitMenu();   // DAMAGE is not in initial menu, check if it is now
-            }
-            if (Pmal.SoftMatchCategory("DAMAGE:"))
-            {
-                return Pmal.SetChoice("Do Not Repair");
-            }
-            return false;
+            Pmal.RereadPitMenu();   // DAMAGE is not in initial menu, check if it is now
         }
+        if (Pmal.SoftMatchCategory("DAMAGE:"))
+        {
+            return Pmal.SetChoice("Do Not Repair");
+        }
+        return false;
+    }
 
-        static public bool PMrF2eh_RepairBody(string __)
+    static public bool PMrF2eh_RepairBody(string __)
+    {
+        if (!Pmal.SoftMatchCategory("DAMAGE:"))
         {
-            if (!Pmal.SoftMatchCategory("DAMAGE:"))
-            {
-                Pmal.RereadPitMenu();   // DAMAGE is not in initial menu, check if it is now
-            }
-            if (Pmal.SoftMatchCategory("DAMAGE:"))
-            {
-                return Pmal.SetChoice("Repair Body");
-            }
-            return false;
+            Pmal.RereadPitMenu();   // DAMAGE is not in initial menu, check if it is now
         }
-        #endregion Repairs
+        if (Pmal.SoftMatchCategory("DAMAGE:"))
+        {
+            return Pmal.SetChoice("Repair Body");
+        }
+        return false;
+    }
+    #endregion Repairs
         #region Penalties
         static public bool PMrF2eh_PenaltyServe(string __)
         {

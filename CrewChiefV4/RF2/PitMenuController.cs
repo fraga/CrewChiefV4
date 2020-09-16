@@ -168,8 +168,9 @@ namespace PitMenuAPI
         /// Read the fuel level to find if "Relative Fuel Strategy" is selected
         /// in Player.JSON (if it is there is a + before the fuel quantity)
         /// </summary>
+        /// <returns>
         /// true: "Relative Fuel Strategy" is selected
-        /// <returns></returns>
+        /// </returns>
         public bool RelativeFuelStrategy()
         {
             bool relativeFuelStrategy = false;
@@ -232,26 +233,16 @@ namespace PitMenuAPI
         /// Player.JSON needs to be set "Relative Fuel Strategy":FALSE,
         /// </summary>
         /// <param name="requiredFuel"> in litres (even if current units are (US?) gallons)</param>
-        /// <param name="currentFuel"> in litres </param>
         /// <returns>
         /// true if level set (or it reached max/min possible
         /// false if the level can't be read
         /// </returns>
-        public bool SetFuelLevel(int requiredFuel, int currentFuel)
+        public bool SetFuelLevel(int requiredFuel)
         {
             int tryNo = 5;
 
             SmartSetCategory("FUEL:");
             int current = GetFuelLevel();
-
-            if (RelativeFuelStrategy())
-            {
-                requiredFuel -= currentFuel;
-                if (requiredFuel < 0)
-                {
-                    requiredFuel = 0;
-                }
-            }
 
             if (current < 0)
             {

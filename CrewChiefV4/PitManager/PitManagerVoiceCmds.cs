@@ -241,7 +241,7 @@ namespace CrewChiefV4.PitManager
                 var litres = PitFuelling.fuelToEnd(fuelCapacity, currentFuel);
                 if (CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT)
                 {
-                    PitManagerEventHandlers_RF2.rF2SetFuel(litres, (int)getCurrentFuel());
+                    PitManagerEventHandlers_RF2.rF2SetFuel(litres);
                 }
             }
         }
