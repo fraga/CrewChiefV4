@@ -365,7 +365,7 @@ namespace CrewChiefV4.Events
                             if (!warnedAboutOpponent && WatchedOpponents.watchedOpponentKeys.Contains(entry.Key))
                             {
                                 // this guy has entered the pits but won't exit close to us, but he's on the watch list
-                                if (AudioPlayer.canReadName(entry.Value.DriverRawName))
+                                if (AudioPlayer.canReadName(entry.Value.DriverRawName, false))
                                 {
                                     audioPlayer.playMessage(new QueuedMessage("watched_opponent_pitting", 10,
                                             messageFragments: MessageContents(entry.Value, folderIsPittingFromPosition, entry.Value.ClassPosition),
@@ -539,12 +539,12 @@ namespace CrewChiefV4.Events
                                 float expectedDistanceToPlayerOnPitExit = currentGameState.PositionAndMotionData.DistanceRoundTrack - closestDeltapointPosition;
                                 float absGap = Math.Abs(expectedDistanceToPlayerOnPitExit);
 
-                                if (expectedDistanceToPlayerOnPitExit < 0 && absGap < minDistanceAheadToBeConsideredAFewSeconds && AudioPlayer.canReadName(entry.Value.DriverRawName))
+                                if (expectedDistanceToPlayerOnPitExit < 0 && absGap < minDistanceAheadToBeConsideredAFewSeconds && AudioPlayer.canReadName(entry.Value.DriverRawName, false))
                                 {
                                     // he'll come out of the pits right in front of us if he pits
                                     Strategy.opponentsWhoWillExitCloseInFront.Add(entry.Value.DriverRawName);
                                 }
-                                else if (expectedDistanceToPlayerOnPitExit > 0 && absGap < minDistanceBehindToBeConsideredAFewSeconds && AudioPlayer.canReadName(entry.Value.DriverRawName))
+                                else if (expectedDistanceToPlayerOnPitExit > 0 && absGap < minDistanceBehindToBeConsideredAFewSeconds && AudioPlayer.canReadName(entry.Value.DriverRawName, false))
                                 {
                                     // he'll come out right behind us if he pits
                                     Strategy.opponentsWhoWillExitCloseBehind.Add(entry.Value.DriverRawName);
@@ -1001,11 +1001,11 @@ namespace CrewChiefV4.Events
                 // figure out what to read here
                 if (postPitData.opponentClosestAheadAfterStop != null)
                 {
-                    Boolean canReadOpponentAhead = AudioPlayer.canReadName(postPitData.opponentClosestAheadAfterStop.opponentData.DriverRawName);
+                    Boolean canReadOpponentAhead = AudioPlayer.canReadName(postPitData.opponentClosestAheadAfterStop.opponentData.DriverRawName, false);
                     float gapFront = postPitData.opponentClosestAheadAfterStop.predictedDistanceGap;
                     if (postPitData.opponentClosestBehindAfterStop != null)
                     {
-                        Boolean canReadOpponentBehind = AudioPlayer.canReadName(postPitData.opponentClosestBehindAfterStop.opponentData.DriverRawName);
+                        Boolean canReadOpponentBehind = AudioPlayer.canReadName(postPitData.opponentClosestBehindAfterStop.opponentData.DriverRawName, false);
                         // can read 2 driver names, so decide which to read (or both)
                         float gapBehind = postPitData.opponentClosestBehindAfterStop.predictedDistanceGap;
                         if (gapFront < distanceAheadToBeConsideredVeryClose)
@@ -1120,7 +1120,7 @@ namespace CrewChiefV4.Events
                 else if (postPitData.opponentClosestBehindAfterStop != null)
                 {
                     // only have a car behind here
-                    Boolean canReadOpponentBehind = AudioPlayer.canReadName(postPitData.opponentClosestBehindAfterStop.opponentData.DriverRawName);
+                    Boolean canReadOpponentBehind = AudioPlayer.canReadName(postPitData.opponentClosestBehindAfterStop.opponentData.DriverRawName, false);
                     // can read 2 driver names, so decide which to read (or both)
                     float gapBehind = postPitData.opponentClosestBehindAfterStop.predictedDistanceGap;
                     if (gapBehind < distanceBehindToBeConsideredVeryClose)
