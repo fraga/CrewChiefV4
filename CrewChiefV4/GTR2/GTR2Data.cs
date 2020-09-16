@@ -157,7 +157,7 @@ namespace GTR2SharedMemory
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
         public struct GTR2Vec3
         {
-            public double x, y, z;
+            public float x, y, z;
         }
 
         /////////////////////////////////////
@@ -191,91 +191,99 @@ namespace GTR2SharedMemory
         //////////////////////////////////////////////////////////////////////////////////////////
         // Identical to TelemInfoV2, except where noted by MM_NEW/MM_NOT_USED comments.
         //////////////////////////////////////////////////////////////////////////////////////////
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 4)]
         struct GTR2VehicleTelemetry
         {
             // Time
-            float mDeltaTime;      // time since last update (seconds)
-            long mLapNumber;       // current lap number
-            float mLapStartET;     // time this lap was started
-            char mVehicleName[64]; // current vehicle name
-            char mTrackName[64];   // current track name
+            public float mDeltaTime;                                    // time since last update (seconds)
+            [JsonIgnore] public int mLapNumber;                                       // current lap number
+            [JsonIgnore] public float mLapStartET;                                   // time this lap was started
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 64)]
+            [JsonIgnore] public byte[] mVehicleName;                                  // current vehicle name
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 64)]
+            [JsonIgnore] public byte[] mTrackName;                                    // current track name
 
             // Position and derivatives
-            GTR2Vec3 mPos;        // world position in meters
-            GTR2Vec3 mLocalVel;   // velocity (meters/sec) in local vehicle coordinates
-            GTR2Vec3 mLocalAccel; // acceleration (meters/sec^2) in local vehicle coordinates
+            public GTR2Vec3 mPos;                                         // world position in meters
+            public GTR2Vec3 mLocalVel;                                    // velocity (meters/sec) in local vehicle coordinates
+            [JsonIgnore] public GTR2Vec3 mLocalAccel;                                  // acceleration (meters/sec^2) in local vehicle coordinates
 
             // Orientation and derivatives
-            GTR2Vec3 mOriX; // top row of orientation matrix (also converts local vehicle vectors into world X using dot product)
-            GTR2Vec3 mOriY; // mid row of orientation matrix (also converts local vehicle vectors into world Y using dot product)
-            GTR2Vec3 mOriZ; // bot row of orientation matrix (also converts local vehicle vectors into world Z using dot product)
-            GTR2Vec3 mLocalRot;      // rotation (radians/sec) in local vehicle coordinates
-            GTR2Vec3 mLocalRotAccel; // rotational acceleration (radians/sec^2) in local vehicle coordinates
+            public GTR2Vec3 mOriX; // top row of orientation matrix (also converts local vehicle vectors into world X using dot product)
+            public GTR2Vec3 mOriY; // mid row of orientation matrix (also converts local vehicle vectors into world Y using dot product)
+            public GTR2Vec3 mOriZ; // bot row of orientation matrix (also converts local vehicle vectors into world Z using dot product)
+            public GTR2Vec3 mLocalRot;      // rotation (radians/sec) in local vehicle coordinates
+            public GTR2Vec3 mLocalRotAccel; // rotational acceleration (radians/sec^2) in local vehicle coordinates
 
             // Vehicle status
-            long mGear;             // -1=reverse, 0=neutral, 1+=forward gears
-            float mEngineRPM;       // engine RPM
-            float mEngineWaterTemp; // Celsius
-            float mEngineOilTemp;   // Celsius
-            float mClutchRPM;       // clutch RPM
+            public int mGear;             // -1=reverse, 0=neutral, 1+=forward gears
+            public float mEngineRPM;       // engine RPM
+            public float mEngineWaterTemp; // Celsius
+            public float mEngineOilTemp;   // Celsius
+            public float mClutchRPM;       // clutch RPM
 
             // Driver input
-            float mUnfilteredThrottle; // ranges  0.0-1.0
-            float mUnfilteredBrake;    // ranges  0.0-1.0
-            float mUnfilteredSteering; // ranges -1.0-1.0 (left to right)
-            float mUnfilteredClutch;   // ranges  0.0-1.0
+            public float mUnfilteredThrottle; // ranges  0.0-1.0
+            public float mUnfilteredBrake;    // ranges  0.0-1.0
+            [JsonIgnore] public float mUnfilteredSteering; // ranges -1.0-1.0 (left to right)
+            public float mUnfilteredClutch;   // ranges  0.0-1.0
 
             // Misc
-            float mSteeringArmForce; // force on steering arms
+            public float mSteeringArmForce; // force on steering arms
 
             // state/damage info
-            float mFuel;                    // amount of fuel (liters)
-            float mEngineMaxRPM;            // rev limit
-            unsigned char mScheduledStops;  // number of scheduled pitstops
-            bool mOverheating;              // whether overheating icon is shown
-            bool mDetached;                 // whether any parts (besides wheels) have been detached
-            unsigned char mDentSeverity[8]; // dent severity at 8 locations around the car (0=none, 1=some, 2=more)
-            float mLastImpactET;            // time of last impact
-            float mLastImpactMagnitude;     // magnitude of last impact
-            GTR2Vec3 mLastImpactPos;        // location of last impact
+            public float mFuel;                    // amount of fuel (liters)
+            public float mEngineMaxRPM;            // rev limit
+            public byte mScheduledStops;  // number of scheduled pitstops
+            public bool mOverheating;              // whether overheating icon is shown
+            public bool mDetached;                 // whether any parts (besides wheels) have been detached
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 8)]
+            public byte[] mDentSeverity;                                 // dent severity at 8 locations around the car (0=none, 1=some, 2=more)
+            public float mLastImpactET;            // time of last impact
+            public float mLastImpactMagnitude;     // magnitude of last impact
+            public GTR2Vec3 mLastImpactPos;        // location of last impact
 
             // Future use
-            unsigned char mExpansion[64];
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 64)]
+            // TODO: SLOT ID MIGHT BE IN THE EXPANSION!!!!!!!!!!!!!!!!  BASED ON COMMENTS
+            [JsonIgnore] public byte[] mExpansion;
 
             // keeping this at the end of the structure to make it easier to replace in future versions
-            GTR2Wheel mWheel[4]; // wheel info (front left, front right, rear left, rear right)
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 4)]
+            public GTR2Wheel[] mWheel; // wheel info (front left, front right, rear left, rear right)
         };
 
         //////////////////////////////////////////////////////////////////////////////////////////
-        // Identical to ScoringInfoV01, except where noted by MM_NEW/MM_NOT_USED comments.
+        // Identical to ScoringInfoV2, except where noted by MM_NEW/MM_NOT_USED comments.
         //////////////////////////////////////////////////////////////////////////////////////////
-        struct GTR2ScoringInfo
+        public struct GTR2ScoringInfo
         {
-            char mTrackName[64]; // current track name
-            long mSession;       // current session
-            float mCurrentET;    // current time
-            float mEndET;        // ending time
-            long mMaxLaps;       // maximum laps
-            float mLapDist;      // distance around track
-
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 64)]
+            public byte[] mTrackName;                                    // current track name
+            public int mSession;                                         // current session (0=testday 1-4=practice 5-8=qual 9=warmup 10-13=race)
+            public float mCurrentET;                                    // current time
+            public float mEndET;                                        // ending time
+            public int mMaxLaps;                                         // maximum laps
+            public float mLapDist;                                      // distance around track
             // MM_NOT_USED
-            // char *mResultsStream;          // results stream additions since last update (newline-delimited and
-            // NULL-terminated)
+            //char *mResultsStream;                                                   // results stream additions since last update (newline-delimited and NULL-terminated)
             // MM_NEW
-            unsigned char pointer1[4];
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 4)]
+            [JsonIgnore] public byte[] pointer1;
 
-            long mNumVehicles; // current number of vehicles
-                               // Game phases:
-                               // 0 Before session has begun
-                               // 1 Reconnaissance laps (race only)
-                               // 2 Grid walk-through (race only)
-                               // 3 Formation lap (race only)
-                               // 4 Starting-light countdown has begun (race only)
-                               // 5 Green flag
-                               // 6 Full course yellow / safety car
-                               // 7 Session stopped
-                               // 8 Session over
-            unsigned char mGamePhase;
+            public int mNumVehicles; // current number of vehicles
+
+            // Game phases:
+            // 0 Before session has begun
+            // 1 Reconnaissance laps (race only)
+            // 2 Grid walk-through (race only)
+            // 3 Formation lap (race only)
+            // 4 Starting-light countdown has begun (race only)
+            // 5 Green flag
+            // 6 Full course yellow / safety car
+            // 7 Session stopped
+            // 8 Session over
+            public byte mGamePhase;
 
             // Yellow flag states (applies to full-course only)
             // -1 Invalid
@@ -287,15 +295,17 @@ namespace GTR2SharedMemory
             //  5 Last lap
             //  6 Resume
             //  7 Race halt (not currently used)
-            signed char mYellowFlagState;
+            public byte mYellowFlagState;
 
-            signed char mSectorFlag[3];  // whether there are any local yellows at the moment in each sector (not sure if sector 0
-                                         // is first or last, so test)
-            unsigned char mStartLight;   // start light frame (number depends on track)
-            unsigned char mNumRedLights; // number of red lights in start sequence
-            bool mInRealtime;            // in realtime as opposed to at the monitor
-            char mPlayerName[32];        // player name (including possible multiplayer override)
-            char mPlrFileName[64];       // may be encoded to be a legal filename
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 3)]
+            public sbyte[] mSectorFlag;                                  // whether there are any local yellows at the moment in each sector (not sure if sector 0 is first or last, so test)
+            [JsonIgnore] public byte mStartLight;                                     // start light frame (number depends on track)
+            [JsonIgnore] public byte mNumRedLights;                                   // number of red lights in start sequence
+            public byte mInRealtime;                                     // in realtime as opposed to at the monitor
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 32)]
+            public byte[] mPlayerName;                                   // player name (including possible multiplayer override)
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 64)]
+            [JsonIgnore] public byte[] mPlrFileName;                                  // may be encoded to be a legal filename
 
             // weather
             float mDarkCloud;      // cloud darkness? 0.0-1.0
@@ -313,12 +323,10 @@ namespace GTR2SharedMemory
             // VehicleScoringInfoV2 *mVehicle;  // array of vehicle scoring info's
             // MM_NEW
             unsigned char pointer2[4];
-        };
-        static_assert(sizeof(GTR2ScoringInfo) == sizeof(ScoringInfoV2),
-                      "GTR2ScoringInfo and ScoringInfoV2 structures are out of sync");
+        }
 
         //////////////////////////////////////////////////////////////////////////////////////////
-        // Identical to VehicleScoringInfoV01, except where noted by MM_NEW/MM_NOT_USED comments.
+        // Identical to VehicleScoringInfoV2, except where noted by MM_NEW/MM_NOT_USED comments.
         //////////////////////////////////////////////////////////////////////////////////////////
         struct GTR2VehicleScoring
         {
@@ -372,8 +380,177 @@ namespace GTR2SharedMemory
             // Future use
             unsigned char mExpansion[128];
         };
-        static_assert(sizeof(GTR2VehicleScoring) == sizeof(VehicleScoringInfoV2),
-                      "GTR2VehicleScoring and VehicleScoringInfoV01 structures are out of sync");
+
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 4)]
+        public struct GTR2ScoringInfo
+        {
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 64)]
+            public byte[] mTrackName;                                    // current track name
+            public int mSession;                                         // current session (0=testday 1-4=practice 5-8=qual 9=warmup 10-13=race)
+            public double mCurrentET;                                    // current time
+            public double mEndET;                                        // ending time
+            public int mMaxLaps;                                         // maximum laps
+            public double mLapDist;                                      // distance around track
+                                                                         // MM_NOT_USED
+                                                                         //char *mResultsStream;                                                   // results stream additions since last update (newline-delimited and NULL-terminated)
+                                                                         // MM_NEW
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 8)]
+            [JsonIgnore] public byte[] pointer1;
+
+            public int mNumVehicles;                                     // current number of vehicles
+
+            // Game phases:
+            // 0 Before session has begun
+            // 1 Reconnaissance laps (race only)
+            // 2 Grid walk-through (race only)
+            // 3 Formation lap (race only)
+            // 4 Starting-light countdown has begun (race only)
+            // 5 Green flag
+            // 6 Full course yellow / safety car
+            // 7 Session stopped
+            // 8 Session over
+            // 9 Paused (tag.2015.09.14 - this is new, and indicates that this is a heartbeat call to the plugin)
+            public byte mGamePhase;
+
+            // Yellow flag states (applies to full-course only)
+            // -1 Invalid
+            //  0 None
+            //  1 Pending
+            //  2 Pits closed
+            //  3 Pit lead lap
+            //  4 Pits open
+            //  5 Last lap
+            //  6 Resume
+            //  7 Race halt (not currently used)
+            public sbyte mYellowFlagState;
+
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 3)]
+            public sbyte[] mSectorFlag;                                  // whether there are any local yellows at the moment in each sector (not sure if sector 0 is first or last, so test)
+            [JsonIgnore] public byte mStartLight;                                     // start light frame (number depends on track)
+            [JsonIgnore] public byte mNumRedLights;                                   // number of red lights in start sequence
+            public byte mInRealtime;                                     // in realtime as opposed to at the monitor
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 32)]
+            [JsonIgnore] public byte[] mPlayerName;                                   // player name (including possible multiplayer override)
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 64)]
+            [JsonIgnore] public byte[] mPlrFileName;                                  // may be encoded to be a legal filename
+
+            // weather
+            [JsonIgnore] public double mDarkCloud;                                    // cloud darkness? 0.0-1.0
+            public double mRaining;                                      // raining severity 0.0-1.0
+            public double mAmbientTemp;                                  // temperature (Celsius)
+            public double mTrackTemp;                                    // temperature (Celsius)
+            public GTR2Vec3 mWind;                                        // wind speed
+            [JsonIgnore] public double mMinPathWetness;                               // minimum wetness on main path 0.0-1.0
+            [JsonIgnore] public double mMaxPathWetness;                               // maximum wetness on main path 0.0-1.0
+
+            // multiplayer
+            public byte mGameMode;                                       // 1 = server, 2 = client, 3 = server and client
+            [JsonIgnore] public byte mIsPasswordProtected;                            // is the server password protected
+            [JsonIgnore] public ushort mServerPort;                                   // the port of the server (if on a server)
+            [JsonIgnore] public uint mServerPublicIP;                                 // the public IP address of the server (if on a server)
+            [JsonIgnore] public int mMaxPlayers;                                      // maximum number of vehicles that can be in the session
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 32)]
+            [JsonIgnore] public byte[] mServerName;                                   // name of the server
+            [JsonIgnore] public float mStartET;                                       // start time (seconds since midnight) of the event
+
+            [JsonIgnore] public double mAvgPathWetness;                               // average wetness on main path 0.0-1.0
+
+            // Future use
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 200)]
+            [JsonIgnore] public byte[] mExpansion;
+
+            // MM_NOT_USED
+            // keeping this at the end of the structure to make it easier to replace in future versions
+            // VehicleScoringInfoV2 *mVehicle;                                       // array of vehicle scoring info's
+            // MM_NEW
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 4)]
+            [JsonIgnore] public byte[] pointer2;
+        }
+
+
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 4)]
+        public struct GTR2VehicleScoring
+        {
+            public int mID;                                              // slot ID (note that it can be re-used in multiplayer after someone leaves)
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 32)]
+            public byte[] mDriverName;                                   // driver name
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 64)]
+            [JsonIgnore] public byte[] mVehicleName;                                  // vehicle name
+            public short mTotalLaps;                                     // laps completed
+            public sbyte mSector;                                        // 0=sector3, 1=sector1, 2=sector2 (don't ask why)
+            public sbyte mFinishStatus;                                  // 0=none, 1=finished, 2=dnf, 3=dq
+            public double mLapDist;                                      // current distance around track
+            public double mPathLateral;                                  // lateral position with respect to *very approximate* "center" path
+            public double mTrackEdge;                                    // track edge (w.r.t. "center" path) on same side of track as vehicle
+
+            public double mBestSector1;                                  // best sector 1
+            public double mBestSector2;                                  // best sector 2 (plus sector 1)
+            public double mBestLapTime;                                  // best lap time
+            public double mLastSector1;                                  // last sector 1
+            public double mLastSector2;                                  // last sector 2 (plus sector 1)
+            public double mLastLapTime;                                  // last lap time
+            public double mCurSector1;                                   // current sector 1 if valid
+            public double mCurSector2;                                   // current sector 2 (plus sector 1) if valid
+                                                                         // no current laptime because it instantly becomes "last"
+
+            public short mNumPitstops;                                   // number of pitstops made
+            public short mNumPenalties;                                  // number of outstanding penalties
+            public byte mIsPlayer;                                       // is this the player's vehicle
+
+            public sbyte mControl;                                       // who's in control: -1=nobody (shouldn't get this), 0=local player, 1=local AI, 2=remote, 3=replay (shouldn't get this)
+            public byte mInPits;                                         // between pit entrance and pit exit (not always accurate for remote vehicles)
+            public byte mPlace;                                          // 1-based position
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 32)]
+            public byte[] mVehicleClass;                                 // vehicle class
+
+            // Dash Indicators
+            public double mTimeBehindNext;                               // time behind vehicle in next higher place
+            [JsonIgnore] public int mLapsBehindNext;                                  // laps behind vehicle in next higher place
+            [JsonIgnore] public double mTimeBehindLeader;                             // time behind leader
+            [JsonIgnore] public int mLapsBehindLeader;                                // laps behind leader
+            public double mLapStartET;                                   // time this lap was started
+
+            // Position and derivatives
+            [JsonIgnore] public GTR2Vec3 mPos;                                         // world position in meters
+            public GTR2Vec3 mLocalVel;                                    // velocity (meters/sec) in local vehicle coordinates
+            public GTR2Vec3 mLocalAccel;                                  // acceleration (meters/sec^2) in local vehicle coordinates
+
+            // Orientation and derivatives
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 3)]
+            [JsonIgnore] public GTR2Vec3[] mOri;                                       // rows of orientation matrix (use TelemQuat conversions if desired), also converts local
+                                                                                       // vehicle vectors into world X, Y, or Z using dot product of rows 0, 1, or 2 respectively
+            [JsonIgnore] public GTR2Vec3 mLocalRot;                                    // rotation (radians/sec) in local vehicle coordinates
+            [JsonIgnore] public GTR2Vec3 mLocalRotAccel;                               // rotational acceleration (radians/sec^2) in local vehicle coordinates
+
+            // tag.2012.03.01 - stopped casting some of these so variables now have names and mExpansion has shrunk, overall size and old data locations should be same
+            [JsonIgnore] public byte mHeadlights;                                     // status of headlights
+            public byte mPitState;                                       // 0=none, 1=request, 2=entering, 3=stopped, 4=exiting
+            [JsonIgnore] public byte mServerScored;                                   // whether this vehicle is being scored by server (could be off in qualifying or racing heats)
+            [JsonIgnore] public byte mIndividualPhase;                                // game phases (described below) plus 9=after formation, 10=under yellow, 11=under blue (not used)
+
+            [JsonIgnore] public int mQualification;                                   // 1-based, can be -1 when invalid
+
+            [JsonIgnore] public double mTimeIntoLap;                                  // estimated time into lap
+            [JsonIgnore] public double mEstimatedLapTime;                             // estimated laptime used for 'time behind' and 'time into lap' (note: this may changed based on vehicle and setup!?)
+
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 24)]
+            [JsonIgnore] public byte[] mPitGroup;                                     // pit group (same as team name unless pit is shared)
+            public byte mFlag;                                           // primary flag being shown to vehicle (currently only 0=green or 6=blue)
+            [JsonIgnore] public byte mUnderYellow;                                    // whether this car has taken a full-course caution flag at the start/finish line
+            public byte mCountLapFlag;                                   // 0 = do not count lap or time, 1 = count lap but not time, 2 = count lap and time
+            public byte mInGarageStall;                                  // appears to be within the correct garage stall
+
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 16)]
+            [JsonIgnore] public byte[] mUpgradePack;                                  // Coded upgrades
+
+            public float mPitLapDist;                                    // location of pit in terms of lap distance
+
+            [JsonIgnore] public float mBestLapSector1;                                // sector 1 time from best lap (not necessarily the best sector 1 time)
+            [JsonIgnore] public float mBestLapSector2;                                // sector 2 time from best lap (not necessarily the best sector 2 time)
+
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 48)]
+            [JsonIgnore] public byte[] mExpansion;                                    // for future use
+        }
 
         //////////////////////////////////////////////////////////////////////////////////////////
         // Identical to GraphicsInfoV02, except where noted by MM_NEW/MM_NOT_USED comments.
@@ -542,161 +719,6 @@ struct GTR2PluginControl : public GTR2MappedInputBufferHeader
 long mRequestEnableBuffersMask;
 bool mRequestHWControlInput;
 };
-
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 4)]
-        public struct GTR2Wheel
-        {
-            [JsonIgnore] public double mSuspensionDeflection;                         // meters
-            [JsonIgnore] public double mRideHeight;                                   // meters
-            [JsonIgnore] public double mSuspForce;                                    // pushrod load in Newtons
-            public double mBrakeTemp;                                    // Celsius
-            [JsonIgnore] public double mBrakePressure;                                // currently 0.0-1.0, depending on driver input and brake balance; will convert to true brake pressure (kPa) in future
-
-            public double mRotation;                                     // radians/sec
-            [JsonIgnore] public double mLateralPatchVel;                              // lateral velocity at contact patch
-            [JsonIgnore] public double mLongitudinalPatchVel;                         // longitudinal velocity at contact patch
-            [JsonIgnore] public double mLateralGroundVel;                             // lateral velocity at contact patch
-            [JsonIgnore] public double mLongitudinalGroundVel;                        // longitudinal velocity at contact patch
-            [JsonIgnore] public double mCamber;                                       // radians (positive is left for left-side wheels, right for right-side wheels)
-            [JsonIgnore] public double mLateralForce;                                 // Newtons
-            [JsonIgnore] public double mLongitudinalForce;                            // Newtons
-            [JsonIgnore] public double mTireLoad;                                     // Newtons
-
-            [JsonIgnore] public double mGripFract;                                    // an approximation of what fraction of the contact patch is sliding
-            public double mPressure;                                     // kPa (tire pressure)
-            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 3)]
-            public double[] mTemperature;                                // Kelvin (subtract 273.15 to get Celsius), left/center/right (not to be confused with inside/center/outside!)
-            public double mWear;                                         // wear (0.0-1.0, fraction of maximum) ... this is not necessarily proportional with grip loss
-            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 16)]
-            [JsonIgnore] public byte[] mTerrainName;                                  // the material prefixes from the TDF file
-            public byte mSurfaceType;                                    // 0=dry, 1=wet, 2=grass, 3=dirt, 4=gravel, 5=rumblestrip, 6=special
-            public byte mFlat;                                           // whether tire is flat
-            public byte mDetached;                                       // whether wheel is detached
-            public byte mStaticUndeflectedRadius;                        // tire radius in centimeters
-
-            [JsonIgnore] public double mVerticalTireDeflection;                       // how much is tire deflected from its (speed-sensitive) radius
-            [JsonIgnore] public double mWheelYLocation;                               // wheel's y location relative to vehicle y location
-            [JsonIgnore] public double mToe;                                          // current toe angle w.r.t. the vehicle
-
-            [JsonIgnore] public double mTireCarcassTemperature;                       // rough average of temperature samples from carcass (Kelvin)
-            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 3)]
-            [JsonIgnore] public double[] mTireInnerLayerTemperature;                  // rough average of temperature samples from innermost layer of rubber (before carcass) (Kelvin)
-
-            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 24)]
-            [JsonIgnore] byte[] mExpansion;                                           // for future use
-        }
-
-
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 4)]
-        public struct GTR2VehicleTelemetry
-        {
-            // Time
-            public int mID;                                              // slot ID (note that it can be re-used in multiplayer after someone leaves)
-            [JsonIgnore] public double mDeltaTime;                                    // time since last update (seconds)
-            public double mElapsedTime;                                  // game session time
-            [JsonIgnore] public int mLapNumber;                                       // current lap number
-            [JsonIgnore] public double mLapStartET;                                   // time this lap was started
-            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 64)]
-            [JsonIgnore] public byte[] mVehicleName;                                  // current vehicle name
-            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 64)]
-            [JsonIgnore] public byte[] mTrackName;                                    // current track name
-
-            // Position and derivatives
-            public GTR2Vec3 mPos;                                         // world position in meters
-            public GTR2Vec3 mLocalVel;                                    // velocity (meters/sec) in local vehicle coordinates
-            [JsonIgnore] public GTR2Vec3 mLocalAccel;                                  // acceleration (meters/sec^2) in local vehicle coordinates
-
-            // Orientation and derivatives
-            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 3)]
-            public GTR2Vec3[] mOri;                                       // rows of orientation matrix (use TelemQuat conversions if desired), also converts local
-                                                                         // vehicle vectors into world X, Y, or Z using dot product of rows 0, 1, or 2 respectively
-            [JsonIgnore] public GTR2Vec3 mLocalRot;                                    // rotation (radians/sec) in local vehicle coordinates
-            [JsonIgnore] public GTR2Vec3 mLocalRotAccel;                               // rotational acceleration (radians/sec^2) in local vehicle coordinates
-
-            // Vehicle status
-            public int mGear;                                            // -1=reverse, 0=neutral, 1+=forward gears
-            public double mEngineRPM;                                    // engine RPM
-            public double mEngineWaterTemp;                              // Celsius
-            public double mEngineOilTemp;                                // Celsius
-            [JsonIgnore] public double mClutchRPM;                                    // clutch RPM
-
-            // Driver input
-            public double mUnfilteredThrottle;                           // ranges  0.0-1.0
-            public double mUnfilteredBrake;                              // ranges  0.0-1.0
-            [JsonIgnore] public double mUnfilteredSteering;                           // ranges -1.0-1.0 (left to right)
-            public double mUnfilteredClutch;                             // ranges  0.0-1.0
-
-            // Filtered input (various adjustments for rev or speed limiting, TC, ABS?, speed sensitive steering, clutch work for semi-automatic shifting, etc.)
-            [JsonIgnore] public double mFilteredThrottle;                             // ranges  0.0-1.0
-            [JsonIgnore] public double mFilteredBrake;                                // ranges  0.0-1.0
-            [JsonIgnore] public double mFilteredSteering;                             // ranges -1.0-1.0 (left to right)
-            [JsonIgnore] public double mFilteredClutch;                               // ranges  0.0-1.0
-
-            // Misc
-            [JsonIgnore] public double mSteeringShaftTorque;                          // torque around steering shaft (used to be mSteeringArmForce, but that is not necessarily accurate for feedback purposes)
-            [JsonIgnore] public double mFront3rdDeflection;                           // deflection at front 3rd spring
-            [JsonIgnore] public double mRear3rdDeflection;                            // deflection at rear 3rd spring
-
-            // Aerodynamics
-            [JsonIgnore] public double mFrontWingHeight;                              // front wing height
-            [JsonIgnore] public double mFrontRideHeight;                              // front ride height
-            [JsonIgnore] public double mRearRideHeight;                               // rear ride height
-            [JsonIgnore] public double mDrag;                                         // drag
-            [JsonIgnore] public double mFrontDownforce;                               // front downforce
-            [JsonIgnore] public double mRearDownforce;                                // rear downforce
-
-            // State/damage info
-            public double mFuel;                                         // amount of fuel (liters)
-            public double mEngineMaxRPM;                                 // rev limit
-            public byte mScheduledStops;                                 // number of scheduled pitstops
-            public byte mOverheating;                                    // whether overheating icon is shown
-            public byte mDetached;                                       // whether any parts (besides wheels) have been detached
-            [JsonIgnore] public byte mHeadlights;                                     // whether headlights are on
-            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 8)]
-            [JsonIgnore] public byte[] mDentSeverity;                                 // dent severity at 8 locations around the car (0=none, 1=some, 2=more)
-            public double mLastImpactET;                                 // time of last impact
-            [JsonIgnore] public double mLastImpactMagnitude;                          // magnitude of last impact
-            [JsonIgnore] public GTR2Vec3 mLastImpactPos;                               // location of last impact
-
-            // Expanded
-            [JsonIgnore] public double mEngineTorque;                                 // current engine torque (including additive torque) (used to be mEngineTq, but there's little reason to abbreviate it)
-            [JsonIgnore] public int mCurrentSector;                                   // the current sector (zero-based) with the pitlane stored in the sign bit (example: entering pits from third sector gives 0x80000002)
-            public byte mSpeedLimiter;                                   // whether speed limiter is on
-            [JsonIgnore] public byte mMaxGears;                                       // maximum forward gears
-            public byte mFrontTireCompoundIndex;                         // index within brand
-            [JsonIgnore] public byte mRearTireCompoundIndex;                          // index within brand
-            [JsonIgnore] public double mFuelCapacity;                                 // capacity in liters
-            [JsonIgnore] public byte mFrontFlapActivated;                             // whether front flap is activated
-            public byte mRearFlapActivated;                              // whether rear flap is activated
-            public byte mRearFlapLegalStatus;                            // 0=disallowed, 1=criteria detected but not allowed quite yet, 2=allowed
-            [JsonIgnore] public byte mIgnitionStarter;                                // 0=off 1=ignition 2=ignition+starter
-
-            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 18)]
-            public byte[] mFrontTireCompoundName;                        // name of front tire compound
-            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 18)]
-            [JsonIgnore] public byte[] mRearTireCompoundName;                         // name of rear tire compound
-
-            public byte mSpeedLimiterAvailable;                          // whether speed limiter is available
-            [JsonIgnore] public byte mAntiStallActivated;                             // whether (hard) anti-stall is activated
-            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 2)]
-            [JsonIgnore] public byte[] mUnused;                                       //
-            [JsonIgnore] public float mVisualSteeringWheelRange;                      // the *visual* steering wheel range
-
-            [JsonIgnore] public double mRearBrakeBias;                                // fraction of brakes on rear
-            [JsonIgnore] public double mTurboBoostPressure;                           // current turbo boost pressure if available
-            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 3)]
-            [JsonIgnore] public float[] mPhysicsToGraphicsOffset;                     // offset from static CG to graphical center
-            [JsonIgnore] public float mPhysicalSteeringWheelRange;                    // the *physical* steering wheel range
-
-            // Future use
-            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 152)]
-            [JsonIgnore] public byte[] mExpansion;                                    // for future use (note that the slot ID has been moved to mID above)
-
-            // keeping this at the end of the structure to make it easier to replace in future versions
-            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 4)]
-            public GTR2Wheel[] mWheels;                                   // wheel info (front left, front right, rear left, rear right)
-        }
-
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 4)]
         public struct GTR2ScoringInfo
