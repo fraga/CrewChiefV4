@@ -59,7 +59,11 @@ namespace CrewChiefV4.PitManager
         // Sample:
         private static readonly Dictionary<string, List<string>> SampleTyreTranslationDict =
           new Dictionary<string, List<string>>() {
-            { "Supersoft",    new List <string> {"supersoft", "soft",
+            { "Hypersoft",    new List <string> {"hypersoft", "ultrasoft", "supersoft", "soft",
+                        "s310", "slick", "dry", "all-weather", "medium" } },
+            { "Ultrasoft",    new List <string> {"ultrasoft","hypersoft", "supersoft", "soft",
+                        "s310", "slick", "dry", "all-weather", "medium" } },
+            { "Supersoft",    new List <string> {"supersoft", "hypersoft", "ultrasoft", "soft",
                         "s310", "slick", "dry", "all-weather", "medium" } },
             { "Soft",         new List <string> {"soft",
                         "s310", "slick", "dry", "all-weather", "medium" } },
@@ -176,6 +180,21 @@ namespace CrewChiefV4.PitManager
         static public bool PMrF2eh_TyreCompoundSoft(string __)
         {
             return setTyreCompound("Soft");
+        }
+
+        static public bool PMrF2eh_TyreCompoundSupersoft(string __)
+        {
+            return setTyreCompound("Supersoft");
+        }
+
+        static public bool PMrF2eh_TyreCompoundUltrasoft(string __)
+        {
+            return setTyreCompound("Ultrasoft");
+        }
+
+        static public bool PMrF2eh_TyreCompoundHypersoft(string __)
+        {
+            return setTyreCompound("Hypersoft");
         }
 
         static public bool PMrF2eh_TyreCompoundWet(string __)

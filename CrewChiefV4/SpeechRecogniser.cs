@@ -270,6 +270,9 @@ namespace CrewChiefV4
         public static String[] PIT_STOP_DONT_REFUEL = Configuration.getSpeechRecognitionPhrases("PIT_STOP_DONT_REFUEL");
         public static String[] PIT_STOP_NEXT_TYRE_COMPOUND = Configuration.getSpeechRecognitionPhrases("PIT_STOP_NEXT_TYRE_COMPOUND");
         public static String[] PIT_STOP_SOFT_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_SOFT_TYRES");
+        public static String[] PIT_STOP_SUPERSOFT_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_SUPERSOFT_TYRES");
+        public static String[] PIT_STOP_ULTRASOFT_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_ULTRASOFT_TYRES");
+        public static String[] PIT_STOP_HYPERSOFT_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_HYPERSOFT_TYRES");
         public static String[] PIT_STOP_MEDIUM_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_MEDIUM_TYRES");
         public static String[] PIT_STOP_HARD_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_HARD_TYRES");
         public static String[] PIT_STOP_INTERMEDIATE_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_INTERMEDIATE_TYRES");
@@ -1829,6 +1832,9 @@ namespace CrewChiefV4
                 validateAndAdd(PIT_STOP_HARD_TYRES, pitManagerChoices);
                 validateAndAdd(PIT_STOP_MEDIUM_TYRES, pitManagerChoices);
                 validateAndAdd(PIT_STOP_SOFT_TYRES, pitManagerChoices);
+                validateAndAdd(PIT_STOP_SUPERSOFT_TYRES, pitManagerChoices);
+                validateAndAdd(PIT_STOP_ULTRASOFT_TYRES, pitManagerChoices);
+                validateAndAdd(PIT_STOP_HYPERSOFT_TYRES, pitManagerChoices);
                 validateAndAdd(PIT_STOP_PRIME_TYRES, pitManagerChoices);
                 validateAndAdd(PIT_STOP_ALTERNATE_TYRES, pitManagerChoices);
                 validateAndAdd(PIT_STOP_OPTION_TYRES, pitManagerChoices);
