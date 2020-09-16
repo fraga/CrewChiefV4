@@ -747,7 +747,7 @@
 		},
 		{
 			"carClassEnum": "DTM_2020",
-			"raceroomClassIds": [9101],
+			"raceroomClassIds": [9101, 9205],
 			"brakeType": "Carbon",
 			"maxSafeWaterTemp": 100,
 			"maxSafeOilTemp": 105,
