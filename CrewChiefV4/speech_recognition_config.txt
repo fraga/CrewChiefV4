@@ -276,6 +276,8 @@ IRATING = eye rating
 RATING = rating
 REPUTATION = reputation
 RANK = rank
+#  this gets a combined rank and reputation - "how good is bob" / "how good is the driver in front"
+HOW_GOOD_IS = how good is
 
 WATCH = watch
 STOP_WATCHING = stop watching

@@ -55,6 +55,42 @@ namespace CrewChiefV4.PitManager
             return true;
         }
 
+        static public bool PMrh_ChangeLeftTyres()
+        {
+            playMessage("mandatory_pit_stops/confirm_change_left_side_tyres");
+            return true;
+        }
+
+        static public bool PMrh_ChangeRightTyres()
+        {
+            playMessage("mandatory_pit_stops/confirm_change_right_side_tyres");
+            return true;
+        }
+
+        static public bool PMrh_ChangeFrontLeftTyre()
+        {
+            playMessage("mandatory_pit_stops/confirm_change_front_left_only");
+            return true;
+        }
+
+        static public bool PMrh_ChangeFrontRightTyre()
+        {
+            playMessage("mandatory_pit_stops/confirm_change_front_right_only");
+            return true;
+        }
+
+        static public bool PMrh_ChangeRearLeftTyre()
+        {
+            playMessage("mandatory_pit_stops/confirm_change_rear_left_only");
+            return true;
+        }
+
+        static public bool PMrh_ChangeRearRightTyre()
+        {
+            playMessage("mandatory_pit_stops/confirm_change_rear_right_only");
+            return true;
+        }
+
         static public bool PMrh_ChangeNoTyres()
         {
             playMessage("mandatory_pit_stops/confirm_change_no_tyres");
@@ -79,11 +115,21 @@ namespace CrewChiefV4.PitManager
             return true;
         }
 
-#pragma warning disable S4144 // Methods should not have identical implementations
-        static public bool PMrh_TyreCompoundWet()
-#pragma warning restore S4144 // Methods should not have identical implementations
+        static public bool PMrh_TyreCompoundIntermediate()
         {
-            playMessage(AudioPlayer.folderAcknowlegeOK);     // tbd
+            playMessage("mandatory_pit_stops/confirm_intermediate_tyres");
+            return true;
+        }
+
+        static public bool PMrh_TyreCompoundWet()
+        {
+            playMessage("mandatory_pit_stops/confirm_wet_tyres");
+            return true;
+        }
+
+        static public bool PMrh_TyreCompoundMonsoon()
+        {
+            playMessage("mandatory_pit_stops/confirm_monsoon_tyres");
             return true;
         }
 
@@ -105,11 +151,9 @@ namespace CrewChiefV4.PitManager
             return true;
         }
 
-#pragma warning disable S4144 // Methods should not have identical implementations
         static public bool PMrh_TyreCompoundNext()
-#pragma warning restore S4144 // Methods should not have identical implementations
         {
-            playMessage(AudioPlayer.folderAcknowlegeOK);
+            playMessage("mandatory_pit_stops/confirm_next_tyre_compound");
             return true;
         }
 
@@ -139,19 +183,31 @@ namespace CrewChiefV4.PitManager
 
         static public bool PMrh_RepairAll()
         {
-            playMessage("mandatory_pit_stops/confirm_fix_suspension");
+            playMessage("mandatory_pit_stops/confirm_fix_all");
+            return true;
+        }
+
+        static public bool PMrh_RepairNone()
+        {
+            playMessage("mandatory_pit_stops/confirm_fix_nothing");
             return true;
         }
 
         static public bool PMrh_RepairBody()
         {
-            playMessage("mandatory_pit_stops/confirm_dont_fix_suspension");
+            playMessage("mandatory_pit_stops/confirm_fix_body");
             return true;
         }
 
         static public bool PMrh_ServePenalty()
         {
             playMessage("mandatory_pit_stops/will_be_serving_penalty");
+            return true;
+        }
+
+        static public bool PMrh_DontServePenalty()
+        {
+            playMessage("mandatory_pit_stops/will_not_be_serving_penalty");
             return true;
         }
 

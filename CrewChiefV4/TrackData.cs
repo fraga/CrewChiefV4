@@ -910,7 +910,7 @@ namespace CrewChiefV4
     public class TrackDefinition
     {
         public int id;
-        public String name;
+        public String name = "";
         public float trackLength;
         public Boolean hasPitLane;
         public float[] pitEntryPoint = new float[] { 0, 0 };

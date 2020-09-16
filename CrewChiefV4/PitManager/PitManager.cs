@@ -306,12 +306,12 @@ namespace CrewChiefV4.PitManager
             {PME.TyreChangeNone,          _PMet(_PMeh, PMEHrF2.PMrF2eh_changeNoTyres,      PMER.PMrh_ChangeNoTyres) },
             {PME.TyreChangeFront,         _PMet(_PMeh, PMEHrF2.PMrF2eh_changeFrontTyres,   PMER.PMrh_ChangeFrontTyres) },
             {PME.TyreChangeRear,          _PMet(_PMeh, PMEHrF2.PMrF2eh_changeRearTyres,    PMER.PMrh_ChangeRearTyres) },
-            {PME.TyreChangeLeft,          _PMet(_PMeh, PMEHrF2.PMrF2eh_changeLeftTyres,    PMER.PMrh_Acknowledge) },
-            {PME.TyreChangeRight,         _PMet(_PMeh, PMEHrF2.PMrF2eh_changeRightTyres,   PMER.PMrh_Acknowledge) },
-            {PME.TyreChangeLF,            _PMet(_PMeh, PMEHrF2.PMrF2eh_changeFLTyre,       PMER.PMrh_Acknowledge) },
-            {PME.TyreChangeRF,            _PMet(_PMeh, PMEHrF2.PMrF2eh_changeFRTyre,       PMER.PMrh_Acknowledge) },
-            {PME.TyreChangeLR,            _PMet(_PMeh, PMEHrF2.PMrF2eh_changeRLTyre,       PMER.PMrh_Acknowledge) },
-            {PME.TyreChangeRR,            _PMet(_PMeh, PMEHrF2.PMrF2eh_changeRRTyre,       PMER.PMrh_Acknowledge) },
+            {PME.TyreChangeLeft,          _PMet(_PMeh, PMEHrF2.PMrF2eh_changeLeftTyres,    PMER.PMrh_ChangeLeftTyres) },
+            {PME.TyreChangeRight,         _PMet(_PMeh, PMEHrF2.PMrF2eh_changeRightTyres,   PMER.PMrh_ChangeRightTyres) },
+            {PME.TyreChangeLF,            _PMet(_PMeh, PMEHrF2.PMrF2eh_changeFLTyre,       PMER.PMrh_ChangeFrontLeftTyre) },
+            {PME.TyreChangeRF,            _PMet(_PMeh, PMEHrF2.PMrF2eh_changeFRTyre,       PMER.PMrh_ChangeFrontRightTyre) },
+            {PME.TyreChangeLR,            _PMet(_PMeh, PMEHrF2.PMrF2eh_changeRLTyre,       PMER.PMrh_ChangeRearLeftTyre) },
+            {PME.TyreChangeRR,            _PMet(_PMeh, PMEHrF2.PMrF2eh_changeRRTyre,       PMER.PMrh_ChangeRearRightTyre) },
 
             {PME.TyrePressureLF,          _PMet(_PMeh, PMEHrF2.PMrF2eh_changeFLpressure,   PMER.PMrh_Acknowledge) },
             {PME.TyrePressureRF,          _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_Acknowledge) },
@@ -321,9 +321,9 @@ namespace CrewChiefV4.PitManager
             {PME.TyreCompoundHard,        _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundHard,   PMER.PMrh_TyreCompoundHard) },
             {PME.TyreCompoundMedium,      _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundMedium, PMER.PMrh_TyreCompoundMedium) },
             {PME.TyreCompoundSoft,        _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundSoft,   PMER.PMrh_TyreCompoundSoft) },
-            {PME.TyreCompoundIntermediate,_PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundWet,    PMER.PMrh_TyreCompoundWet) },
+            {PME.TyreCompoundIntermediate,_PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundWet,    PMER.PMrh_TyreCompoundIntermediate) },
             {PME.TyreCompoundWet,         _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundWet,    PMER.PMrh_TyreCompoundWet) },
-            {PME.TyreCompoundMonsoon,     _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundWet,    PMER.PMrh_TyreCompoundWet) },
+            {PME.TyreCompoundMonsoon,     _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundWet,    PMER.PMrh_TyreCompoundMonsoon) },
             {PME.TyreCompoundOption,      _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundOption, PMER.PMrh_TyreCompoundOption) },
             {PME.TyreCompoundPrime,       _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundPrime,  PMER.PMrh_TyreCompoundPrime) },
             {PME.TyreCompoundAlternate,   _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundAlternate, PMER.PMrh_TyreCompoundAlternate) },
@@ -335,7 +335,7 @@ namespace CrewChiefV4.PitManager
             {PME.FuelNone,                _PMet(_PMeh, PMEHrF2.PMrF2eh_FuelNone,           PMER.PMrh_noFuel) },
 
             {PME.RepairAll,               _PMet(_PMeh, PMEHrF2.PMrF2eh_RepairAll,          PMER.PMrh_RepairAll) },
-            {PME.RepairNone,              _PMet(_PMeh, PMEHrF2.PMrF2eh_RepairNone,         PMER.PMrh_Acknowledge) },
+            {PME.RepairNone,              _PMet(_PMeh, PMEHrF2.PMrF2eh_RepairNone,         PMER.PMrh_RepairNone) },
             //{PME.RepairFast,            _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_Acknowledge) },     // iRacing
             //{PME.RepairAllAero,         _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_Acknowledge) },     // R3E
             //{PME.RepairFrontAero,       _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_Acknowledge) },
@@ -345,7 +345,7 @@ namespace CrewChiefV4.PitManager
             {PME.RepairBody,              _PMet(_PMeh, PMEHrF2.PMrF2eh_RepairBody,         PMER.PMrh_RepairBody) },
 
             {PME.PenaltyServe,            _PMet(_PMeh, PMEHrF2.PMrF2eh_PenaltyServe,       PMER.PMrh_ServePenalty) },
-            {PME.PenaltyServeNone,        _PMet(_PMeh, PMEHrF2.PMrF2eh_PenaltyServeNone,   PMER.PMrh_Acknowledge) },
+            {PME.PenaltyServeNone,        _PMet(_PMeh, PMEHrF2.PMrF2eh_PenaltyServeNone,   PMER.PMrh_DontServePenalty) },
 
             {PME.AeroFrontPlusMinusX,     _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
             {PME.AeroRearPlusMinusX,      _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },

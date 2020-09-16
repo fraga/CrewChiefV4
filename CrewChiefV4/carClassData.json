@@ -163,7 +163,7 @@
 			"pCarsClassNames": ["*GTE*"],
 			"rf2ClassNames": ["*GTE*", "URD_EGT_Darche", "URD_EGT_AM", "URD_EGT_Bayro", "URD_EGT_Ferruccio", "URD_EGT_Venom", "URD_EGT_C7R"],
 			"acClassNames": ["ks_lamborghini_huracan_st", "ks_glickenhaus_scg003", "*GTE*", "urd_bayro_egt_2018", "urd_detroit_egt_2018", "urd_detroit_egt_2018_LM", "ks_porsche_911_rsr*", "ks_corvette_c7r"],
-			"iracingCarIds": [92, 93, 102, 109],
+			"iracingCarIds": [92, 93, 102, 109, 127],
 			"brakeType": "Ceramic",
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL",
@@ -201,6 +201,8 @@
 		{
 			"carClassEnum": "CAYMAN_CLUBSPORT",
 			"raceroomClassIds": [6648],
+			"maxSafeWaterTemp": 100,
+			"maxSafeOilTemp": 106,
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL",
 			"allMembersAreRWD": true
@@ -247,6 +249,8 @@
 			"carClassEnum": "BMW_235I",
 			"raceroomClassIds": [6344],
 			"timesInHundredths": true,
+			"maxSafeWaterTemp": 100,
+			"maxSafeOilTemp": 106,
 			"enabledMessageTypes": "ALL",
 			"allMembersAreRWD": true
 		},
@@ -361,7 +365,7 @@
 			"rf2ClassNames": ["LMP2", "ES_P2"],
 			"ams2ClassNames": ["P2"],
 			"acClassNames": ["Oreca_07*"],
-			"iracingCarIds": [39, 70],
+			"iracingCarIds": [39, 70, 128],
 			"brakeType": "Ceramic",
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL",
@@ -444,6 +448,8 @@
 			"carClassEnum": "DTM_92",
 			"raceroomClassIds": [3499],
 			"timesInHundredths": true,
+			"maxSafeWaterTemp": 100,
+			"maxSafeOilTemp": 106,
 			"enabledMessageTypes": "TYRE_TEMPS, BRAKE_TEMPS, FUEL, LOCKING_AND_SPINNING",
 			"allMembersAreRWD": true
 		},
@@ -451,6 +457,8 @@
 			"carClassEnum": "M1_PROCAR",
 			"raceroomClassIds": [2378],
 			"timesInHundredths": false,
+			"maxSafeWaterTemp": 100,
+			"maxSafeOilTemp": 106,
 			"enabledMessageTypes": "FUEL, LOCKING_AND_SPINNING",
 			"allMembersAreRWD": true
 		},
@@ -701,8 +709,8 @@
 			"carClassEnum": "DTM_2013",
 			"raceroomClassIds": [1921],
 			"brakeType": "Carbon",
-			"maxSafeWaterTemp": 105,
-			"maxSafeOilTemp": 140,
+			"maxSafeWaterTemp": 100,
+			"maxSafeOilTemp": 106,
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL",
 			"allMembersAreRWD": true
@@ -711,8 +719,8 @@
 			"carClassEnum": "DTM_2014",
 			"raceroomClassIds": [3086],
 			"brakeType": "Carbon",
-			"maxSafeWaterTemp": 105,
-			"maxSafeOilTemp": 140,
+			"maxSafeWaterTemp": 100,
+			"maxSafeOilTemp": 106,
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL",
 			"allMembersAreRWD": true
@@ -721,8 +729,8 @@
 			"carClassEnum": "DTM_2015",
 			"raceroomClassIds": [4260],
 			"brakeType": "Carbon",
-			"maxSafeWaterTemp": 105,
-			"maxSafeOilTemp": 140,
+			"maxSafeWaterTemp": 100,
+			"maxSafeOilTemp": 106,
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL",
 			"allMembersAreRWD": true
@@ -731,18 +739,18 @@
 			"carClassEnum": "DTM_2016",
 			"raceroomClassIds": [5262],
 			"brakeType": "Carbon",
-			"maxSafeWaterTemp": 105,
-			"maxSafeOilTemp": 140,
+			"maxSafeWaterTemp": 100,
+			"maxSafeOilTemp": 106,
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL",
 			"allMembersAreRWD": true
 		},
 		{
 			"carClassEnum": "DTM_2020",
-			"raceroomClassIds": [9101],
+			"raceroomClassIds": [9101, 9205],
 			"brakeType": "Carbon",
-			"maxSafeWaterTemp": 105,
-			"maxSafeOilTemp": 140,
+			"maxSafeWaterTemp": 100,
+			"maxSafeOilTemp": 105,
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL",
 			"allMembersAreRWD": true
@@ -774,6 +782,8 @@
 			"carClassEnum": "TC1_2014",
 			"raceroomClassIds": [3905],
 			"timesInHundredths": true,
+			"maxSafeWaterTemp": 100,
+			"maxSafeOilTemp": 106,
 			"enabledMessageTypes": "ALL",
 			"allMembersAreFWD": true
 		},
@@ -798,6 +808,8 @@
 		{
 			"carClassEnum": "AUDI_TT_CUP",
 			"raceroomClassIds": [4680, 5726],
+			"maxSafeWaterTemp": 100,
+			"maxSafeOilTemp": 106,
 			"timesInHundredths": true,
 			"enabledMessageTypes": "TYRE_TEMPS, BRAKE_TEMPS, FUEL, LOCKING_AND_SPINNING",
 			"allMembersAreFWD": true
@@ -805,6 +817,8 @@
 		{
 			"carClassEnum": "AUDI_TT_VLN",
 			"raceroomClassIds": [5234],
+			"maxSafeWaterTemp": 100,
+			"maxSafeOilTemp": 106,
 			"brakeType": "Ceramic",
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL"
@@ -907,8 +921,8 @@
 		{
 			"carClassEnum": "NSU_TT",
 			"raceroomClassIds": [4813],
-			"maxSafeWaterTemp": 102,
-			"maxSafeOilTemp": 115,
+			"maxSafeWaterTemp": 100,
+			"maxSafeOilTemp": 106,
 			"minTyreCircumference": 1.25,
 			"maxTyreCircumference": 2.8,
 			"timesInHundredths": false,
@@ -1025,6 +1039,8 @@
 			"carClassEnum": "R3E_SILHOUETTE",
 			"raceroomClassIds": [1717],
 			"timesInHundredths": true,
+			"maxSafeWaterTemp": 100,
+			"maxSafeOilTemp": 106,
 			"enabledMessageTypes": "ALL",
 			"allMembersAreRWD": true
 		},
@@ -1127,6 +1143,8 @@
 		{
 			"carClassEnum": "PORSCHE_964_CUP",
 			"raceroomClassIds": [7287],
+			"maxSafeWaterTemp": 100,
+			"maxSafeOilTemp": 106,
 			"enabledMessageTypes": "ALL",
 			"allMembersAreRWD": true
 		},
@@ -1161,6 +1179,8 @@
 			"carClassEnum": "PORSCHE_GT2RS",
 			"raceroomClassIds": [8248],
 			"timesInHundredths": true,
+			"maxSafeWaterTemp": 100,
+			"maxSafeOilTemp": 106,
 			"enabledMessageTypes": "ALL",
 			"brakeType": "Ceramic",
 			"allMembersAreRWD": true

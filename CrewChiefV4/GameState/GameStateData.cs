@@ -1088,7 +1088,7 @@ namespace CrewChiefV4.GameState
 
         public String PlayerCarNr = "-1";
 
-        // Currently only used in iRacing.
+        // Currently only used in iRacing and R3E
         public int MaxIncidentCount = -1;
 
         public int CurrentIncidentCount ;
@@ -2789,6 +2789,10 @@ namespace CrewChiefV4.GameState
 
         public float DriverStintTotalSecondsRemaining;  // total time remaining that this driver is allowed to drive in the session
 
+        public float MandatoryPitMinDurationTotal = -1.0f;
+
+        public float MandatoryPitMinDurationLeft = -1.0f;
+
         // Note that callers have to also check if PitSpeedLimit != -1.0f, which means no data.
         public bool pitlaneHasSpeedLimit()
         {
@@ -3074,6 +3078,7 @@ namespace CrewChiefV4.GameState
         public Boolean DrsAvailable;
         public Boolean DrsEngaged;
         public Single DrsRange;
+        public Single DrsActivationsRemaining = -1; // -1 means no limit
     }
 
     public class DeltaTime
