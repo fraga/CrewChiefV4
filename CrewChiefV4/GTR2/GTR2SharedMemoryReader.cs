@@ -20,9 +20,8 @@ namespace CrewChiefV4.GTR2
 {
     public class GTR2SharedMemoryReader : GameDataReader
     {
-        MappedBuffer<GTR2Telemetry> telemetryBuffer = new MappedBuffer<GTR2Telemetry>(GTR2Constants.MM_TELEMETRY_FILE_NAME, true /*partial*/, true /*skipUnchanged*/);
+        MappedBuffer<GTR2Telemetry> telemetryBuffer = new MappedBuffer<GTR2Telemetry>(GTR2Constants.MM_TELEMETRY_FILE_NAME, false /*partial*/, true /*skipUnchanged*/);
         MappedBuffer<GTR2Scoring> scoringBuffer = new MappedBuffer<GTR2Scoring>(GTR2Constants.MM_SCORING_FILE_NAME, true /*partial*/, true /*skipUnchanged*/);
-        MappedBuffer<GTR2Rules> rulesBuffer = new MappedBuffer<GTR2Rules>(GTR2Constants.MM_RULES_FILE_NAME, true /*partial*/, true /*skipUnchanged*/);
         MappedBuffer<GTR2Extended> extendedBuffer = new MappedBuffer<GTR2Extended>(GTR2Constants.MM_EXTENDED_FILE_NAME, false /*partial*/, true /*skipUnchanged*/);
 
         private bool initialised = false;
@@ -41,7 +40,6 @@ namespace CrewChiefV4.GTR2
             public long ticksWhenRead;
             public GTR2Telemetry telemetry;
             public GTR2Scoring scoring;
-            public GTR2Rules rules;
             public GTR2Extended extended;
         }
 
@@ -93,14 +91,12 @@ namespace CrewChiefV4.GTR2
                     {
                         this.telemetryBuffer.Connect();
                         this.scoringBuffer.Connect();
-                        this.rulesBuffer.Connect();
                         this.extendedBuffer.Connect();
 
                         // Clear mapped views.
                         this.telemetry = new GTR2Telemetry();
                         this.scoring = new GTR2Scoring();
                         this.extended = new GTR2Extended();
-                        this.rules = new GTR2Rules();
 
                         if (dumpToFile)
                             this.dataToDump = new List<GTR2StructWrapper>();
@@ -122,7 +118,6 @@ namespace CrewChiefV4.GTR2
         // Marshalled views:
         private GTR2Telemetry telemetry;
         private GTR2Scoring scoring;
-        private GTR2Rules rules;
         private GTR2Extended extended;
 
         public override Object ReadGameData(Boolean forSpotter)
@@ -143,7 +138,6 @@ namespace CrewChiefV4.GTR2
 #endif
                     extendedBuffer.GetMappedData(ref this.extended);
                     telemetryBuffer.GetMappedData(ref this.telemetry);
-                    rulesBuffer.GetMappedData(ref this.rules);
 
                     // Scoring is the most important game data in Crew Chief sense, 
                     // so acquire it last, hoping it will be most recent view of all buffer types.
@@ -156,7 +150,6 @@ namespace CrewChiefV4.GTR2
                     {
                         extended = this.extended,
                         telemetry = this.telemetry,
-                        rules = this.rules,  // TODO_GTR2:  we probably don't need rules buffer if reading for spotter.
                         scoring = this.scoring,
                         ticksWhenRead = DateTime.UtcNow.Ticks
                     };
@@ -243,7 +236,6 @@ namespace CrewChiefV4.GTR2
             {
                 Console.WriteLine("Telemetry: " + this.telemetryBuffer.GetStats());
                 Console.WriteLine("Scoring: " + this.scoringBuffer.GetStats());
-                Console.WriteLine("Rules: " + this.rulesBuffer.GetStats());
                 Console.WriteLine("Extended: " + this.extendedBuffer.GetStats());
             }
 
@@ -263,7 +255,6 @@ namespace CrewChiefV4.GTR2
 
             this.telemetryBuffer.Disconnect();
             this.scoringBuffer.Disconnect();
-            this.rulesBuffer.Disconnect();
             this.extendedBuffer.Disconnect();
         }
 
