@@ -231,6 +231,26 @@
     </div>
     <br>
     <div style="font-family:'Lucida Sans Unicode';font-size:13px;" class="main">
+      <h4>Version 4.13.1.0</h4>
+      <p>&nbsp;* Fixed some cases where the app would use text-to-speech
+        driver names when it shouldn't when the TTS settings was 'Use
+        TTS only when necessary';<br>
+        &nbsp;* pCars3 - always assume races are single class<br>
+        &nbsp;* R3E - added support for DTM 2020 rules (push to pass and
+        DRS)<br>
+        &nbsp;* R3E - added support for minimum pit stop duration
+        (calculates how long you need to wait in the pitbox and warns
+        you about it - note that this calculation requires you to have
+        driven out of the pits at least once since starting the app to
+        record the track's pit exit location)<br>
+        &nbsp;* R3E - added support for maximum incident points on
+        ranked servers before being kicked (warnings about further
+        incidents resulting in a DQ / kick)<br>
+        &nbsp;* R3E - reduced some engine temp warning thresholds<br>
+        &nbsp;* rF2 - enhanced pit menu manager to work with "Relative
+        Fuel Strategy" (how much to add rather than the total) and races
+        that have "Finish Criteria: Laps and Time" some other fixes<br>
+      </p>
       <h4>Version 4.13.0.2<br>
       </h4>
       <p>&nbsp;* VR overlays: Fixed gazing. Added an option to change
@@ -925,6 +945,7 @@
       only). See the 'Advanced command macros' section of the help.txt
       file or
       http://thecrewchief.org/showthread.php?263-Command-key-press-macros&amp;p=2378&amp;viewfull=1#post2378
+
 
 
 
@@ -1973,6 +1994,7 @@
       folder with the new one in the app's install folder<br>
       &nbsp;&nbsp;* New plugin for RF2 - please replace your existing
       ...\Steam\steamapps\common\rFactor2\Bin64\Plugins\rFactor2SharedMemoryMapPlugin64.dll
+
 
 
 
