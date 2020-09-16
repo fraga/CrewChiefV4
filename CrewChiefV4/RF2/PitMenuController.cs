@@ -192,7 +192,7 @@ namespace PitMenuAPI
 
         /// <summary>
         /// Read the fuel level in the Pit Menu display
-        /// Player.JSON needs to be set "Relative Fuel Strategy":FALSE,
+        /// Player.JSON "Relative Fuel Strategy" affects the display
         /// "+ 1.6/2"	Gallons to ADD/laps "Relative Fuel Strategy":TRUE,
         /// "65/25"		Litres TOTAL/laps   "Relative Fuel Strategy":FALSE,
         /// </summary>
@@ -230,7 +230,6 @@ namespace PitMenuAPI
 
         /// <summary>
         /// Set the fuel level in the Pit Menu display
-        /// Player.JSON needs to be set "Relative Fuel Strategy":FALSE,
         /// </summary>
         /// <param name="requiredFuel"> in litres (even if current units are (US?) gallons)</param>
         /// <returns>
