@@ -165,15 +165,40 @@ namespace PitMenuAPI
         // Fuel
 
         /// <summary>
+        /// Read the fuel level to find if "Relative Fuel Strategy" is selected
+        /// in Player.JSON (if it is there is a + before the fuel quantity)
+        /// </summary>
+        /// <returns>
+        /// true: "Relative Fuel Strategy" is selected
+        /// </returns>
+        public bool RelativeFuelStrategy()
+        {
+            bool relativeFuelStrategy = false;
+            Match match;
+            Regex reggie = new Regex(@"(.*)/(.*)");
+            if (SmartSetCategory("FUEL:"))
+            {
+                match = reggie.Match(GetChoice());
+                if (match.Groups.Count == 3)
+                {
+                    if (match.Groups[1].Value.StartsWith("+"))
+                    {
+                        relativeFuelStrategy = true;
+                    }
+                }
+            }
+            return relativeFuelStrategy;
+        }
+
+        /// <summary>
         /// Read the fuel level in the Pit Menu display
-        /// Player.JSON needs to be set "Relative Fuel Strategy":FALSE,
+        /// Player.JSON "Relative Fuel Strategy" affects the display
         /// "+ 1.6/2"	Gallons to ADD/laps "Relative Fuel Strategy":TRUE,
         /// "65/25"		Litres TOTAL/laps   "Relative Fuel Strategy":FALSE,
         /// </summary>
         /// <returns>
         /// Fuel level in litres
         /// -1 if parsing the number failed
-        /// -2 if Relative Fuel Strategy true
         /// </returns>
         public int GetFuelLevel()
         {
@@ -188,11 +213,7 @@ namespace PitMenuAPI
                     bool parsed = float.TryParse(match.Groups[1].Value, out current);
                     if (parsed)
                     {
-                        if (match.Groups[1].Value.StartsWith("+"))
-                        {
-                            current = -2;
-                        }
-                        else if (match.Value.Contains("."))
+                        if (match.Value.Contains("."))
                         {   // Gallons are displayed in 10ths
                             current = convertGallonsToLitres(current);
                         }
@@ -209,7 +230,6 @@ namespace PitMenuAPI
 
         /// <summary>
         /// Set the fuel level in the Pit Menu display
-        /// Player.JSON needs to be set "Relative Fuel Strategy":FALSE,
         /// </summary>
         /// <param name="requiredFuel"> in litres (even if current units are (US?) gallons)</param>
         /// <returns>
@@ -222,6 +242,7 @@ namespace PitMenuAPI
 
             SmartSetCategory("FUEL:");
             int current = GetFuelLevel();
+
             if (current < 0)
             {
                 return false; // Can't read value

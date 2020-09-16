@@ -115,6 +115,24 @@ namespace CrewChiefV4.PitManager
             return true;
         }
 
+        static public bool PMrh_TyreCompoundSupersoft()
+        {
+            playMessage("mandatory_pit_stops/confirm_supersoft_tyres");
+            return true;
+        }
+
+        static public bool PMrh_TyreCompoundUltrasoft()
+        {
+            playMessage("mandatory_pit_stops/confirm_ultrasoft_tyres");
+            return true;
+        }
+
+        static public bool PMrh_TyreCompoundHypersoft()
+        {
+            playMessage("mandatory_pit_stops/confirm_hypersoft_tyres");
+            return true;
+        }
+
         static public bool PMrh_TyreCompoundIntermediate()
         {
             playMessage("mandatory_pit_stops/confirm_intermediate_tyres");
@@ -169,11 +187,9 @@ namespace CrewChiefV4.PitManager
             return true;
         }
 
-#pragma warning disable S4144 // Methods should not have identical implementations
         static public bool PMrh_FuelAddXlitres()
-#pragma warning restore S4144 // Methods should not have identical implementations
         {
-            playMessage(AudioPlayer.folderFuelToEnd); // tbd:
+            playMessage("mandatory_pit_stops/confirm_refuelling");
             return true;
         }
 
