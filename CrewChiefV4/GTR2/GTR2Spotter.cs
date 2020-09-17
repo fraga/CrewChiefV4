@@ -107,49 +107,33 @@ namespace CrewChiefV4.GTR2
                 }
             }
 
-            var idsToTelIndicesMap = GTR2GameStateMapper.getIdsToTelIndicesMap(ref currentState.telemetry);
-
             // Initialize current player information.
             float[] currentPlayerPosition = null;
             float currentPlayerSpeed = -1.0f;
             float playerRotation = 0.0f;
 
-            int playerTelIdx = -1;
-            if (idsToTelIndicesMap.TryGetValue(currentPlayerScoring.mID, out playerTelIdx))
-            {
-                var currentPlayerTelemetry = currentState.telemetry.mVehicles[playerTelIdx];
+            var currentPlayerTelemetry = currentState.telemetry.mPlayerTelemetry;
 
-                currentPlayerPosition = new float[] { (float)currentPlayerTelemetry.mPos.x, (float)currentPlayerTelemetry.mPos.z };
-                currentPlayerSpeed = (float)Math.Sqrt((currentPlayerTelemetry.mLocalVel.x * currentPlayerTelemetry.mLocalVel.x)
-                    + (currentPlayerTelemetry.mLocalVel.y * currentPlayerTelemetry.mLocalVel.y)
-                    + (currentPlayerTelemetry.mLocalVel.z * currentPlayerTelemetry.mLocalVel.z));
+            currentPlayerPosition = new float[] { (float)currentPlayerTelemetry.mPos.x, (float)currentPlayerTelemetry.mPos.z };
+            currentPlayerSpeed = (float)Math.Sqrt((currentPlayerTelemetry.mLocalVel.x * currentPlayerTelemetry.mLocalVel.x)
+                + (currentPlayerTelemetry.mLocalVel.y * currentPlayerTelemetry.mLocalVel.y)
+                + (currentPlayerTelemetry.mLocalVel.z * currentPlayerTelemetry.mLocalVel.z));
 
-                playerRotation = (float)(Math.Atan2(currentPlayerTelemetry.mOri[GTR2Constants.RowZ].x, currentPlayerTelemetry.mOri[GTR2Constants.RowZ].z));
-            }
-            else
-            {
-                // Telemetry is not available, fall back to scoring info.  This is corner case, should not happen often.
-                currentPlayerPosition = new float[] { (float)currentPlayerScoring.mPos.x, (float)currentPlayerScoring.mPos.z };
-                currentPlayerSpeed = (float)Math.Sqrt((currentPlayerScoring.mLocalVel.x * currentPlayerScoring.mLocalVel.x)
-                    + (currentPlayerScoring.mLocalVel.y * currentPlayerScoring.mLocalVel.y)
-                    + (currentPlayerScoring.mLocalVel.z * currentPlayerScoring.mLocalVel.z));
-
-                playerRotation = (float)(Math.Atan2(currentPlayerScoring.mOri[GTR2Constants.RowZ].x, currentPlayerScoring.mOri[GTR2Constants.RowZ].z));
-            }
+            playerRotation = (float)(Math.Atan2(currentPlayerTelemetry.mOriZ.x, currentPlayerTelemetry.mOriZ.z));
 
             if (playerRotation < 0.0f)
                 playerRotation = (float)(2.0f * Math.PI) + playerRotation;
 
             // Find position data for previous player vehicle.  Default to scoring pos, but use telemetry if available (corner case, should not happen often).
             var previousPlayerPosition = new float[] { (float)previousPlayerScoring.mPos.x, (float)previousPlayerScoring.mPos.z };
-            for (int i = 0; i < lastState.telemetry.mNumVehicles; ++i)
+            /*for (int i = 0; i < lastState.telemetry.mNumVehicles; ++i)
             {
                 if (previousPlayerScoring.mID == lastState.telemetry.mVehicles[i].mID)
                 {
                     previousPlayerPosition = new float[] { (float)lastState.telemetry.mVehicles[i].mPos.x, (float)lastState.telemetry.mVehicles[i].mPos.z };
                     break;
                 }
-            }
+            }*/
 
             var playerVelocityData = new float[] {
                 currentPlayerSpeed,
@@ -163,14 +147,14 @@ namespace CrewChiefV4.GTR2
                 if (vehicle.mIsPlayer == 1 || vehicle.mInPits == 1 || vehicle.mLapDist < 0.0f)
                     continue;
 
-                int opponentTelIdx = -1;
-                if (idsToTelIndicesMap.TryGetValue(vehicle.mID, out opponentTelIdx))
+                //int opponentTelIdx = -1;
+                /*if (idsToTelIndicesMap.TryGetValue(vehicle.mID, out opponentTelIdx))
                 {
                     var opponentTelemetry = currentState.telemetry.mVehicles[opponentTelIdx];
                     currentOpponentPositions.Add(new float[] { (float)opponentTelemetry.mPos.x, (float)opponentTelemetry.mPos.z });
                 }
-                else
-                    currentOpponentPositions.Add(new float[] { (float)vehicle.mPos.x, (float)vehicle.mPos.z });  // Use scoring if telemetry isn't available.
+                else*/
+                currentOpponentPositions.Add(new float[] { (float)vehicle.mPos.x, (float)vehicle.mPos.z });  // Use scoring if telemetry isn't available.
             }
 
             this.internalSpotter.triggerInternal(playerRotation, currentPlayerPosition, playerVelocityData, currentOpponentPositions);

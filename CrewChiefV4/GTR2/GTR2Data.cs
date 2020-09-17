@@ -235,8 +235,8 @@ namespace GTR2SharedMemory
             public float mFuel;                    // amount of fuel (liters)
             public float mEngineMaxRPM;            // rev limit
             public byte mScheduledStops;  // number of scheduled pitstops
-            public bool mOverheating;              // whether overheating icon is shown
-            public bool mDetached;                 // whether any parts (besides wheels) have been detached
+            public byte mOverheating;              // whether overheating icon is shown
+            public byte mDetached;                 // whether any parts (besides wheels) have been detached
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 8)]
             public byte[] mDentSeverity;                                 // dent severity at 8 locations around the car (0=none, 1=some, 2=more)
             public float mLastImpactET;            // time of last impact
@@ -384,7 +384,8 @@ namespace GTR2SharedMemory
             public GTR2Vec3 mLocalRot;      // rotation (radians/sec) in local vehicle coordinates
             public GTR2Vec3 mLocalRotAccel; // rotational acceleration (radians/sec^2) in local vehicle coordinates
 
-            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 128)]
+            public int mID;
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 124)]
             [JsonIgnore] public byte[] mExpansion;                                    // for future use
         };
 
@@ -414,9 +415,6 @@ namespace GTR2SharedMemory
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = GTR2Constants.MAX_MAPPED_VEHICLES)]
             public GTR2VehicleScoring[] mVehicles;
         }
-
-
-
 
 
         [StructLayout(LayoutKind.Sequential, Pack = 4)]

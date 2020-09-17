@@ -31,8 +31,6 @@ namespace CrewChiefV4.GTR2
         private readonly bool enableWrongWayMessage = UserSettings.GetUserSettings().getBoolean("enable_gtr2_wrong_way_message");
         private readonly bool disableRaceEndMessagesOnAbandon = UserSettings.GetUserSettings().getBoolean("disable_gtr2_race_end_messages_on_abandoned_sessions");
 
-        private readonly string scrLuckyDogIsPrefix = "Lucky Dog: ";
-
         public static string playerName = null;
 
         private List<CornerData.EnumWithThresholds> suspensionDamageThresholds = new List<CornerData.EnumWithThresholds>();
@@ -81,7 +79,6 @@ namespace CrewChiefV4.GTR2
         private bool isApproachingPitEntry = false;
 
         // Detect if there any changes in the the game data since the last update.
-        private double lastPlayerTelemetryET = -1.0;
         private double lastScoringET = -1.0;
 
         // True if it looks like track has no DRS zones defined.
@@ -219,28 +216,8 @@ namespace CrewChiefV4.GTR2
             }
             else
             {
-                if (Utilities.IsFlagOn(shared.extended.mUnsubscribedBuffersMask, SubscribedBuffer.Telemetry))
-                {
-                    Console.WriteLine($"Telemetry buffer updates are disabled, Crew Chief will not work correctly.  UnsubscribedBuffersMask: {shared.extended.mUnsubscribedBuffersMask}.");
-                    return;
-                }
-
-                if (Utilities.IsFlagOn(shared.extended.mUnsubscribedBuffersMask, SubscribedBuffer.Scoring))
-                {
-                    Console.WriteLine($"Scoring buffer updates are disabled, Crew Chief will not work correctly.  UnsubscribedBuffersMask: {shared.extended.mUnsubscribedBuffersMask}.");
-                    return;
-                }
-
-                if (Utilities.IsFlagOn(shared.extended.mUnsubscribedBuffersMask, SubscribedBuffer.Rules))
-                {
-                    Console.WriteLine($"Rules buffer updates are disabled, Crew Chief will not work correctly.  UnsubscribedBuffersMask: {shared.extended.mUnsubscribedBuffersMask}.");
-                    return;
-                }
-
-                var msg = "rFactor 2 Shared Memory version: " + versionStr + " 64bit."
-                    + (shared.extended.mDirectMemoryAccessEnabled != 0 && shared.extended.mSCRPluginEnabled != 0 ? ("  Stock Car Rules plugin enabled. (DFT:" + shared.extended.mSCRPluginDoubleFileType + ")")  : "")
-                    + (shared.extended.mDirectMemoryAccessEnabled != 0 ? "  DMA enabled." : "")
-                    + "  UBM: " + shared.extended.mUnsubscribedBuffersMask;
+                var msg = "GTR2 Shared Memory version: " + versionStr
+                    + (shared.extended.mDirectMemoryAccessEnabled != 0 ? "  DMA enabled." : "");
                 Console.WriteLine(msg);
             }
         }
@@ -263,7 +240,6 @@ namespace CrewChiefV4.GTR2
 
         private void ClearState()
         {
-            this.lastPlayerTelemetryET = -1.0;
             this.lastScoringET = -1.0;
 
             this.waitingToTerminateSession = false;
@@ -510,13 +486,9 @@ namespace CrewChiefV4.GTR2
             // try to use Telemetry values whenever possible (position, speed, elapsed time, orientation).
             // In those rare cases where Scoring contains vehicle that is not in Telemetry set, use Scoring as a
             // fallback where possible.  For the rest of values, use zeroed out Telemetry object (playerTelemetry).
-            bool playerTelemetryAvailable = true;
 
-            var idsToTelIndicesMap = GTR2GameStateMapper.getIdsToTelIndicesMap(ref shared.telemetry);
-            int playerTelIdx = -1;
-            if (idsToTelIndicesMap.TryGetValue(playerScoring.mID, out playerTelIdx))
-                playerTelemetry = shared.telemetry.mVehicles[playerTelIdx];
-            else
+            playerTelemetry = shared.telemetry.mPlayerTelemetry;
+            /*else
             {
                 playerTelemetryAvailable = false;
                 GTR2GameStateMapper.InitEmptyVehicleTelemetry(ref playerTelemetry);
@@ -529,14 +501,12 @@ namespace CrewChiefV4.GTR2
                 {
                     Console.WriteLine("Failed to obtain player telemetry, falling back to scoring.");
                 }
-            }
+            }*/
 
             // See if there are meaningful updates to the data.
-            var currPlayerTelET = playerTelemetry.mElapsedTime;
             var currScoringET = shared.scoring.mScoringInfo.mCurrentET;
 
-            if (currPlayerTelET == this.lastPlayerTelemetryET
-                && currScoringET == this.lastScoringET)
+            if (currScoringET == this.lastScoringET)
             {
                 if (pgs != null)
                     pgs.SessionData.AbruptSessionEndDetected = false;  // Not 100% sure how this happened, but I saw us entering inifinite session restart due to this sticking.
@@ -544,22 +514,9 @@ namespace CrewChiefV4.GTR2
                 return pgs;  // Skip this update.
             }
 
-            this.lastPlayerTelemetryET = currPlayerTelET;
             this.lastScoringET = currScoringET;
 
             // Get player vehicle track rules.
-            var playerRulesIdx = -1;
-#if !SIMULATE_ONLINE
-            for (int i = 0; i < shared.rules.mTrackRules.mNumParticipants; ++i)
-            {
-                if (shared.rules.mParticipants[i].mID == playerScoring.mID)
-                {
-                    playerRulesIdx = i;
-                    break;
-                }
-            }
-#endif
-
             // these things should remain constant during a session
             var csd = cgs.SessionData;
             var psd = pgs != null ? pgs.SessionData : null;
@@ -656,7 +613,8 @@ namespace CrewChiefV4.GTR2
 
                 GlobalBehaviourSettings.UpdateFromTrackDefinition(csd.TrackDefinition);
 
-                cgs.PitData.PitBoxPositionEstimate = playerScoring.mPitLapDist;
+                // TODO: dig it out
+                //cgs.PitData.PitBoxPositionEstimate = playerScoring.mPitLapDist;
                 Console.WriteLine("Pit box position = " + (cgs.PitData.PitBoxPositionEstimate < 0.0f ? "Unknown" : cgs.PitData.PitBoxPositionEstimate.ToString("0.000")));
             }
 
@@ -698,7 +656,7 @@ namespace CrewChiefV4.GTR2
             csd.SessionStartTime = csd.IsNewSession ? cgs.Now : psd.SessionStartTime;
             csd.SessionHasFixedTime = csd.SessionTotalRunTime > 0.0f;
 
-            csd.SessionRunningTime = (float)(playerTelemetryAvailable ? playerTelemetry.mElapsedTime : shared.scoring.mScoringInfo.mCurrentET);
+            csd.SessionRunningTime = (float)shared.scoring.mScoringInfo.mCurrentET;
             csd.SessionTimeRemaining = csd.SessionHasFixedTime ? csd.SessionTotalRunTime - csd.SessionRunningTime : 0.0f;
 
             // hack for test day sessions running longer than allotted time
@@ -729,23 +687,10 @@ namespace CrewChiefV4.GTR2
 
             ////////////////////////////////////
             // motion data
-            if (playerTelemetryAvailable)
-            {
-                cgs.PositionAndMotionData.CarSpeed = (float)GTR2GameStateMapper.getVehicleSpeed(ref playerTelemetry);
-                cgs.PositionAndMotionData.DistanceRoundTrack = (float)getEstimatedLapDist(shared, ref playerScoring, ref playerTelemetry);
-                cgs.PositionAndMotionData.WorldPosition = new float[] { (float)playerTelemetry.mPos.x, (float)playerTelemetry.mPos.y, (float)playerTelemetry.mPos.z };
-                if (playerTelemetry.mOri != null)
-                    cgs.PositionAndMotionData.Orientation = GTR2GameStateMapper.GetRotation(ref playerTelemetry.mOri);
-            }
-            else
-            {
-                cgs.PositionAndMotionData.CarSpeed = (float)GTR2GameStateMapper.getVehicleSpeed(ref playerScoring);
-                cgs.PositionAndMotionData.DistanceRoundTrack = (float)playerScoring.mLapDist;
-                cgs.PositionAndMotionData.WorldPosition = new float[] { (float)playerScoring.mPos.x, (float)playerScoring.mPos.y, (float)playerScoring.mPos.z };
-
-                if (playerScoring.mOri != null)  // Don't bother with corner case of no telemetry data if we're reading from a file.
-                    cgs.PositionAndMotionData.Orientation = GTR2GameStateMapper.GetRotation(ref playerScoring.mOri);
-            }
+            cgs.PositionAndMotionData.CarSpeed = (float)GTR2GameStateMapper.getVehicleSpeed(ref playerTelemetry);
+            cgs.PositionAndMotionData.DistanceRoundTrack = (float)getEstimatedLapDist(shared, ref playerScoring, ref playerTelemetry);
+            cgs.PositionAndMotionData.WorldPosition = new float[] { (float)playerTelemetry.mPos.x, (float)playerTelemetry.mPos.y, (float)playerTelemetry.mPos.z };
+            cgs.PositionAndMotionData.Orientation = GTR2GameStateMapper.GetRotation(ref playerTelemetry.mOriX, ref playerTelemetry.mOriY, ref playerTelemetry.mOriZ);
 
             // During Gridwalk/Formation and Finished phases, distance close to S/F line is negative.  Fix it up.
             if (cgs.PositionAndMotionData.DistanceRoundTrack < 0.0f)
@@ -800,7 +745,7 @@ namespace CrewChiefV4.GTR2
             }
 
             // mInGarageStall also means retired or before race start, but for now use it here.
-            cgs.PitData.InPitlane = playerScoring.mInPits == 1 || playerScoring.mInGarageStall == 1;
+            cgs.PitData.InPitlane = playerScoring.mInPits == 1/* || playerScoring.mInGarageStall == 1*/;
 
             csd.DeltaTime.SetNextDeltaPoint(cgs.PositionAndMotionData.DistanceRoundTrack, csd.CompletedLaps, cgs.PositionAndMotionData.CarSpeed, cgs.Now, !cgs.PitData.InPitlane);
 
@@ -811,16 +756,17 @@ namespace CrewChiefV4.GTR2
             }
 
             cgs.PitData.IsAtPitExit = pgs != null && pgs.PitData.InPitlane && !cgs.PitData.InPitlane;
-            cgs.PitData.OnOutLap = cgs.PitData.IsAtPitExit || playerScoring.mInGarageStall == 1;
+            cgs.PitData.OnOutLap = cgs.PitData.IsAtPitExit/* || playerScoring.mInGarageStall == 1*/;
 
             if (shared.extended.mInRealtimeFC == 0  // Mark pit limiter as unavailable if in Monitor (not real time).
                 || shared.scoring.mScoringInfo.mInRealtime == 0
-                || playerTelemetry.mSpeedLimiterAvailable == 0)
+                /*|| playerTelemetry.mSpeedLimiterAvailable == 0*/)  // TODO: get it
             {
                 cgs.PitData.limiterStatus = PitData.LimiterStatus.NOT_AVAILABLE;
             }
             else
-                cgs.PitData.limiterStatus = playerTelemetry.mSpeedLimiter > 0 ? PitData.LimiterStatus.ACTIVE : PitData.LimiterStatus.INACTIVE;
+                cgs.PitData.limiterStatus = PitData.LimiterStatus.ACTIVE;  // TODO: revisit
+            //cgs.PitData.limiterStatus = playerTelemetry.mSpeedLimiter > 0 ? PitData.LimiterStatus.ACTIVE : PitData.LimiterStatus.INACTIVE;
 
             if (pgs != null
                 && csd.CompletedLaps == psd.CompletedLaps
@@ -842,7 +788,8 @@ namespace CrewChiefV4.GTR2
             if (pgs != null)
                 cgs.PitData.MandatoryPitStopCompleted = pgs.PitData.MandatoryPitStopCompleted || cgs.PitData.IsMakingMandatoryPitStop;
 
-            cgs.PitData.HasRequestedPitStop = (GTR2PitState)playerScoring.mPitState == GTR2Constants.GTR2PitState.Request;
+            // TODO: revisit
+            //cgs.PitData.HasRequestedPitStop = (GTR2PitState)playerScoring.mPitState == GTR2Constants.GTR2PitState.Request;
 
             // Is this new pit request?
             if (pgs != null && !pgs.PitData.HasRequestedPitStop && cgs.PitData.HasRequestedPitStop)
@@ -868,7 +815,8 @@ namespace CrewChiefV4.GTR2
                 && shared.extended.mInRealtimeFC == 1 && shared.scoring.mScoringInfo.mInRealtime == 1  // Limit this to Realtime only.
                 && csd.SessionType == SessionType.Race)  // Also, limit to race only, this helps with back and forth between returing to pits via exit to monitor.
             {                                            // There's also no real critical rush in quali or practice to stress about.
-                cgs.PitData.IsPitCrewDone = (GTR2PitState)playerScoring.mPitState == GTR2Constants.GTR2PitState.Exiting;
+                // TODO: revisit
+                //cgs.PitData.IsPitCrewDone = (GTR2PitState)playerScoring.mPitState == GTR2Constants.GTR2PitState.Exiting;
             }
 
             if (csd.IsNewLap)
@@ -884,7 +832,8 @@ namespace CrewChiefV4.GTR2
                 this.minTrackWidth = -1.0;
                 this.isApproachingPitEntry = false;
             }
-            else if (this.enablePitLaneApproachHeuristics)
+            // TODO: use pitlane dist from car class?
+            /*else if (this.enablePitLaneApproachHeuristics)
             {
                 if (cgs.PitData.InPitlane)
                 {
@@ -934,7 +883,7 @@ namespace CrewChiefV4.GTR2
                 }
 
                 cgs.PitData.IsApproachingPitlane = this.isApproachingPitEntry;
-            }
+            }*/
 
             // --------------------------------
             // MC warnings
@@ -1032,7 +981,7 @@ namespace CrewChiefV4.GTR2
             }
 
             //HACK: there's probably a cleaner way to do this...
-            if (playerTelemetry.mOverheating == 1)
+            if (playerTelemetry.mOverheating ==1)
             {
                 cgs.EngineData.EngineWaterTemp += 50;
                 cgs.EngineData.EngineOilTemp += 50;
@@ -1054,14 +1003,15 @@ namespace CrewChiefV4.GTR2
 
             var playerDamageInfo = shared.extended.mTrackedDamages[playerScoring.mID % GTR2Constants.MAX_MAPPED_IDS];
 
-            if (shared.extended.mPhysics.mInvulnerable == 0)
-            {
+            // TODO: extract
+            //if (shared.extended.mPhysics.mInvulnerable == 0)
+            //{
                 const double MINOR_DAMAGE_THRESHOLD = 1500.0;
                 const double MAJOR_DAMAGE_THRESHOLD = 4000.0;
                 const double ACCUMULATED_THRESHOLD_FACTOR = 4.0;
 
                 bool anyWheelDetached = false;
-                foreach (var wheel in playerTelemetry.mWheels)
+                foreach (var wheel in playerTelemetry.mWheel)
                     anyWheelDetached |= wheel.mDetached == 1;
 
                 if (playerTelemetry.mDetached == 1
@@ -1085,12 +1035,12 @@ namespace CrewChiefV4.GTR2
                     cgs.CarDamageData.OverallAeroDamage = DamageLevel.TRIVIAL;
                 else
                     cgs.CarDamageData.OverallAeroDamage = DamageLevel.NONE;
-            }
+            /*}
             else  // shared.extended.mPhysics.mInvulnerable != 0
             {
                 // roll over all you want - it's just a scratch.
                 cgs.CarDamageData.OverallAeroDamage = playerDamageInfo.mMaxImpactMagnitude > 0.0 ? DamageLevel.TRIVIAL : DamageLevel.NONE;
-            }
+            }*/
 
             // --------------------------------
             // control data
@@ -1102,7 +1052,8 @@ namespace CrewChiefV4.GTR2
             cgs.TyreData.TyreWearActive = true;
 
             // For now, all tyres will be reported as front compund.
-            var tt = TyreType.Uninitialized;
+            // TODO: extract
+            /*var tt = TyreType.Uninitialized;
             if (pgs != null)
             {
                 // Restore previous tyre type.
@@ -1123,10 +1074,10 @@ namespace CrewChiefV4.GTR2
                 {
                     cgs.TyreData.TyreTypeName = GTR2GameStateMapper.GetStringFromBytes(playerTelemetry.mFrontTireCompoundName);
                 }
-            }
+            }*/
 
-            var wheelFrontLeft = playerTelemetry.mWheels[(int)GTR2Constants.GTR2WheelIndex.FrontLeft];
-            cgs.TyreData.FrontLeftTyreType = tt;
+            var wheelFrontLeft = playerTelemetry.mWheel[(int)GTR2Constants.GTR2WheelIndex.FrontLeft];
+            //cgs.TyreData.FrontLeftTyreType = tt;
             cgs.TyreData.LeftFrontAttached = wheelFrontLeft.mDetached == 0;
             cgs.TyreData.FrontLeft_LeftTemp = (float)wheelFrontLeft.mTemperature[0] - 273.15f;
             cgs.TyreData.FrontLeft_CenterTemp = (float)wheelFrontLeft.mTemperature[1] - 273.15f;
@@ -1141,8 +1092,8 @@ namespace CrewChiefV4.GTR2
             else if (pgs == null || frontLeftTemp > pgs.TyreData.PeakFrontLeftTemperatureForLap)
                 cgs.TyreData.PeakFrontLeftTemperatureForLap = frontLeftTemp;
 
-            var wheelFrontRight = playerTelemetry.mWheels[(int)GTR2Constants.GTR2WheelIndex.FrontRight];
-            cgs.TyreData.FrontRightTyreType = tt;
+            var wheelFrontRight = playerTelemetry.mWheel[(int)GTR2Constants.GTR2WheelIndex.FrontRight];
+            //cgs.TyreData.FrontRightTyreType = tt;
             cgs.TyreData.RightFrontAttached = wheelFrontRight.mDetached == 0;
             cgs.TyreData.FrontRight_LeftTemp = (float)wheelFrontRight.mTemperature[0] - 273.15f;
             cgs.TyreData.FrontRight_CenterTemp = (float)wheelFrontRight.mTemperature[1] - 273.15f;
@@ -1157,8 +1108,8 @@ namespace CrewChiefV4.GTR2
             else if (pgs == null || frontRightTemp > pgs.TyreData.PeakFrontRightTemperatureForLap)
                 cgs.TyreData.PeakFrontRightTemperatureForLap = frontRightTemp;
 
-            var wheelRearLeft = playerTelemetry.mWheels[(int)GTR2Constants.GTR2WheelIndex.RearLeft];
-            cgs.TyreData.RearLeftTyreType = tt;
+            var wheelRearLeft = playerTelemetry.mWheel[(int)GTR2Constants.GTR2WheelIndex.RearLeft];
+            //cgs.TyreData.RearLeftTyreType = tt;
             cgs.TyreData.LeftRearAttached = wheelRearLeft.mDetached == 0;
             cgs.TyreData.RearLeft_LeftTemp = (float)wheelRearLeft.mTemperature[0] - 273.15f;
             cgs.TyreData.RearLeft_CenterTemp = (float)wheelRearLeft.mTemperature[1] - 273.15f;
@@ -1173,8 +1124,8 @@ namespace CrewChiefV4.GTR2
             else if (pgs == null || rearLeftTemp > pgs.TyreData.PeakRearLeftTemperatureForLap)
                 cgs.TyreData.PeakRearLeftTemperatureForLap = rearLeftTemp;
 
-            var wheelRearRight = playerTelemetry.mWheels[(int)GTR2Constants.GTR2WheelIndex.RearRight];
-            cgs.TyreData.RearRightTyreType = tt;
+            var wheelRearRight = playerTelemetry.mWheel[(int)GTR2Constants.GTR2WheelIndex.RearRight];
+            //cgs.TyreData.RearRightTyreType = tt;
             cgs.TyreData.RightRearAttached = wheelRearRight.mDetached == 0;
             cgs.TyreData.RearRight_LeftTemp = (float)wheelRearRight.mTemperature[0] - 273.15f;
             cgs.TyreData.RearRight_CenterTemp = (float)wheelRearRight.mTemperature[1] - 273.15f;
@@ -1192,7 +1143,8 @@ namespace CrewChiefV4.GTR2
             cgs.TyreData.TyreConditionStatus = CornerData.getCornerData(this.tyreWearThresholds, cgs.TyreData.FrontLeftPercentWear,
                 cgs.TyreData.FrontRightPercentWear, cgs.TyreData.RearLeftPercentWear, cgs.TyreData.RearRightPercentWear);
 
-            var tyreTempThresholds = CarData.getTyreTempThresholds(cgs.carClass, tt);
+            // TODO: pass tire
+            var tyreTempThresholds = CarData.getTyreTempThresholds(cgs.carClass);
             cgs.TyreData.TyreTempStatus = CornerData.getCornerData(tyreTempThresholds,
                 cgs.TyreData.PeakFrontLeftTemperatureForLap, cgs.TyreData.PeakFrontRightTemperatureForLap,
                 cgs.TyreData.PeakRearLeftTemperatureForLap, cgs.TyreData.PeakRearRightTemperatureForLap);
@@ -1200,7 +1152,7 @@ namespace CrewChiefV4.GTR2
             // some simple locking / spinning checks
             if (cgs.PositionAndMotionData.CarSpeed > 7.0f)
             {
-                if (this.useRealWheelSizeForLockingAndSpinning && playerTelemetryAvailable)
+                /*if (this.useRealWheelSizeForLockingAndSpinning)
                 {
                     float minRotatingSpeedOld = (float)Math.PI * cgs.PositionAndMotionData.CarSpeed / cgs.carClass.maxTyreCircumference;
                     float maxRotatingSpeedOld = 3 * (float)Math.PI * cgs.PositionAndMotionData.CarSpeed / cgs.carClass.minTyreCircumference;
@@ -1232,7 +1184,7 @@ namespace CrewChiefV4.GTR2
 #endif
                 }
                 else
-                {
+                {*/
                     float minRotatingSpeed = (float)Math.PI * cgs.PositionAndMotionData.CarSpeed / cgs.carClass.maxTyreCircumference;
                     cgs.TyreData.LeftFrontIsLocked = Math.Abs(wheelFrontLeft.mRotation) < minRotatingSpeed;
                     cgs.TyreData.RightFrontIsLocked = Math.Abs(wheelFrontRight.mRotation) < minRotatingSpeed;
@@ -1244,7 +1196,7 @@ namespace CrewChiefV4.GTR2
                     cgs.TyreData.RightFrontIsSpinning = Math.Abs(wheelFrontRight.mRotation) > maxRotatingSpeed;
                     cgs.TyreData.LeftRearIsSpinning = Math.Abs(wheelRearLeft.mRotation) > maxRotatingSpeed;
                     cgs.TyreData.RightRearIsSpinning = Math.Abs(wheelRearRight.mRotation) > maxRotatingSpeed;
-                }
+              //  }
             }
 
             // use detached wheel status for suspension damage
@@ -1279,34 +1231,6 @@ namespace CrewChiefV4.GTR2
                     (float)Math.Sqrt((double)(shared.scoring.mScoringInfo.mWind.x * shared.scoring.mScoringInfo.mWind.x + shared.scoring.mScoringInfo.mWind.y * shared.scoring.mScoringInfo.mWind.y + shared.scoring.mScoringInfo.mWind.z * shared.scoring.mScoringInfo.mWind.z)),
                     0, 0, 0, csd.IsNewLap);
             }
-
-            // --------------------------------
-            // DRS data
-            cgs.OvertakingAids.DrsAvailable = playerTelemetry.mRearFlapLegalStatus == (int)GTR2Constants.GTR2RearFlapLegalStatus.Alllowed;
-
-            // Many of GTR2 tracks have no DRS zones defined.  One of the symptoms is DRS alloweved immediately on race start.
-            // Disallow DRS messages in such case.
-            if (!this.detectedTrackNoDRSZones
-                && csd.CompletedLaps == 0
-                && csd.SessionRunningTime > 10.0f
-                && cgs.OvertakingAids.DrsAvailable)
-            {
-                this.detectedTrackNoDRSZones = true;
-                if (cgs.carClass.isDRSCapable)
-                    Console.WriteLine("Track has no valid DRS zones defined, disabling DRS messages.");
-            }
-
-            cgs.OvertakingAids.DrsEngaged = playerTelemetry.mRearFlapActivated == 1;
-
-            if (cgs.SessionData.SessionPhase != SessionPhase.FullCourseYellow)
-            {
-                // Doesn't look like game is providing info on when DRS is actually enabled in race, so guess.
-                cgs.OvertakingAids.DrsEnabled = cgs.carClass.isDRSCapable
-                    && csd.CompletedLaps > 2  // Hack of course.
-                    && !this.detectedTrackNoDRSZones;
-            }
-
-            cgs.OvertakingAids.DrsRange = cgs.carClass.DRSRange;
 
             // --------------------------------
             // opponent data
@@ -1385,27 +1309,6 @@ namespace CrewChiefV4.GTR2
                 if (vehicleCachedInfo.isGhost)
                     continue;  // Skip trainer.
 
-                // Get telemetry for this vehicle.
-                var vehicleTelemetry = new GTR2VehicleTelemetry();
-                bool vehicleTelemetryAvailable = true;
-                int vehicleTelIdx = -1;
-                if (idsToTelIndicesMap.TryGetValue(vehicleScoring.mID, out vehicleTelIdx))
-                    vehicleTelemetry = shared.telemetry.mVehicles[vehicleTelIdx];
-                else
-                {
-                    vehicleTelemetryAvailable = false;
-                    GTR2GameStateMapper.InitEmptyVehicleTelemetry(ref vehicleTelemetry);
-
-                    // Exclude known situations when telemetry is not available, but log otherwise to get more
-                    // insights.
-                    if (shared.extended.mInRealtimeFC == 1
-                        && shared.scoring.mScoringInfo.mInRealtime == 1
-                        && shared.scoring.mScoringInfo.mGamePhase != (byte)GTR2Constants.GTR2GamePhase.GridWalk)
-                    {
-                        Console.WriteLine("Failed to obtain opponent telemetry, falling back to scoring.");
-                    }
-                }
-
                 var driverName = vehicleCachedInfo.driverNameRawSanitized;
                 OpponentData opponentPrevious = null;
                 var duplicatesCount = driverNameCounts[driverName];
@@ -1427,7 +1330,7 @@ namespace CrewChiefV4.GTR2
                     else
                     {
                         // offline we can have any number of duplicates :(
-                        opponentKey = this.GetOpponentKeyForVehicleInfo(ref vehicleScoring, ref vehicleTelemetry, pgs, csd.SessionRunningTime, driverName, duplicatesCount, vehicleTelemetryAvailable);
+                        opponentKey = this.GetOpponentKeyForVehicleInfo(ref vehicleScoring, pgs, csd.SessionRunningTime, driverName, duplicatesCount);
 
                         if (opponentKey == null)
                         {
@@ -1477,7 +1380,8 @@ namespace CrewChiefV4.GTR2
 
                 opponent.CarClass = vehicleCachedInfo.carClass;
 
-                tt = TyreType.Uninitialized;
+                // TODO: revisit.
+                /*tt = TyreType.Uninitialized;
                 if (pgs != null && opponentPrevious != null)
                 {
                     // Restore previous tyre type.
@@ -1495,7 +1399,7 @@ namespace CrewChiefV4.GTR2
                 if (tt == TyreType.Uninitialized)
                     tt = this.MapToTyreType(ref vehicleTelemetry);
 
-                opponent.CurrentTyres = tt;
+                opponent.CurrentTyres = tt;*/
                 opponent.DriverRawName = vehicleCachedInfo.driverNameRawSanitized;
                 opponent.DriverNameSet = opponent.DriverRawName.Length > 0;
                 opponent.OverallPosition = vehicleScoring.mPlace;
@@ -1541,18 +1445,9 @@ namespace CrewChiefV4.GTR2
                 var isNewSector = csd.IsNewSession || (opponentPrevious != null && opponentPrevious.CurrentSectorNumber != opponent.CurrentSectorNumber);
                 opponent.IsNewLap = csd.IsNewSession || (isNewSector && opponent.CurrentSectorNumber == 1 && opponent.CompletedLaps > 0);
 
-                if (vehicleTelemetryAvailable)
-                {
-                    opponent.Speed = (float)GTR2GameStateMapper.getVehicleSpeed(ref vehicleTelemetry);
-                    opponent.WorldPosition = new float[] { (float)vehicleTelemetry.mPos.x, (float)vehicleTelemetry.mPos.z };
-                    opponent.DistanceRoundTrack = (float)GTR2GameStateMapper.getEstimatedLapDist(shared, ref vehicleScoring, ref vehicleTelemetry);
-                }
-                else
-                {
-                    opponent.Speed = (float)GTR2GameStateMapper.getVehicleSpeed(ref vehicleScoring);
-                    opponent.WorldPosition = new float[] { (float)vehicleScoring.mPos.x, (float)vehicleScoring.mPos.z };
-                    opponent.DistanceRoundTrack = (float)vehicleScoring.mLapDist;
-                }
+                opponent.Speed = (float)GTR2GameStateMapper.getVehicleSpeed(ref vehicleScoring);
+                opponent.WorldPosition = new float[] { (float)vehicleScoring.mPos.x, (float)vehicleScoring.mPos.z };
+                opponent.DistanceRoundTrack = (float)vehicleScoring.mLapDist;
 
                 if (opponentPrevious != null)
                 {
@@ -1634,8 +1529,8 @@ namespace CrewChiefV4.GTR2
                 var lastSectorTime = this.getLastSectorTime(ref vehicleScoring, opponent.CurrentSectorNumber);
 
                 bool lapValid = true;
-                if (vehicleScoring.mCountLapFlag != 2)
-                    lapValid = false;
+                //if (vehicleScoring.mCountLapFlag != 2)
+                  //  lapValid = false;
 
                 if (opponent.IsNewLap)
                 {
@@ -1741,7 +1636,8 @@ namespace CrewChiefV4.GTR2
                 if (!cgs.OpponentData.ContainsKey(opponentKey))
                     cgs.OpponentData.Add(opponentKey, opponent);
 
-                if (cgs.PitData.HasRequestedPitStop
+                // TODO: revisit
+                /*if (cgs.PitData.HasRequestedPitStop
                     && csd.SessionType == SessionType.Race)
                 {
                     // Detect if opponent occupies player's stall.
@@ -1750,7 +1646,7 @@ namespace CrewChiefV4.GTR2
                         if (Math.Abs(cgs.PitData.PitBoxPositionEstimate - opponent.DistanceRoundTrack) < 5.0)
                             cgs.PitData.PitStallOccupied = true;
                     }
-                }
+                }*/
             }
 
             cgs.sortClassPositions();
@@ -1776,9 +1672,11 @@ namespace CrewChiefV4.GTR2
 
             // --------------------------------
             // fuel/battery data
-            cgs.FuelData.FuelUseActive = cgs.BatteryData.BatteryUseActive = shared.extended.mPhysics.mFuelMult > 0;
+            // TODO: revisit
+            //cgs.FuelData.FuelUseActive = cgs.BatteryData.BatteryUseActive = shared.extended.mPhysics.mFuelMult > 0;
+            cgs.FuelData.FuelUseActive = cgs.BatteryData.BatteryUseActive = true;
             cgs.FuelData.FuelLeft = cgs.BatteryData.BatteryPercentageLeft = (float)playerTelemetry.mFuel;
-            cgs.FuelData.FuelCapacity = (float)playerTelemetry.mFuelCapacity;
+            //cgs.FuelData.FuelCapacity = (float)playerTelemetry.mFuelCapacity;
 
             // --------------------------------
             // flags data
@@ -1803,24 +1701,7 @@ namespace CrewChiefV4.GTR2
                 {
                     if (!this.enableFCYPitStateMessages)
                         cgs.FlagData.fcyPhase = FullCourseYellowPhase.IN_PROGRESS;
-                    else if (playerRulesIdx != -1
-                        && shared.scoring.mScoringInfo.mYellowFlagState == (sbyte)GTR2Constants.GTR2YellowFlagState.PitClosed)
-                    {
-                        var allowedToPit = shared.rules.mParticipants[playerRulesIdx].mPitsOpen;
-                        if (shared.extended.mDirectMemoryAccessEnabled == 1 && shared.extended.mSCRPluginEnabled == 1)
-                        {
-                            // Apparently, 0 and 2 means not allowed with SCR plugin.
-                            var pitsClosedForPlayer = allowedToPit == 2 || allowedToPit == 0;
-                            cgs.FlagData.fcyPhase = pitsClosedForPlayer ? FullCourseYellowPhase.PITS_CLOSED : FullCourseYellowPhase.PITS_OPEN;
-                        }
-                        else
-                        {
-                            // Core rules: always open, pit state == 3
-                            cgs.FlagData.fcyPhase = FullCourseYellowPhase.PITS_OPEN;
-                        }
-                    }
-                    else if (playerRulesIdx == -1  // Online case
-                        && shared.scoring.mScoringInfo.mYellowFlagState == (sbyte)GTR2Constants.GTR2YellowFlagState.PitClosed)
+                    else if (shared.scoring.mScoringInfo.mYellowFlagState == (sbyte)GTR2Constants.GTR2YellowFlagState.PitClosed)
                     {
                         if (shared.extended.mDirectMemoryAccessEnabled == 1)
                         {
@@ -1911,8 +1792,9 @@ namespace CrewChiefV4.GTR2
                 }
             }
 
-            if (playerScoring.mFlag == (byte)GTR2Constants.GTR2PrimaryFlag.Blue)
-                currFlag = FlagEnum.BLUE;
+            // TODO: REVISIT HIGH PRI
+            /*if (playerScoring.mFlag == (byte)GTR2Constants.GTR2PrimaryFlag.Blue)
+                currFlag = FlagEnum.BLUE;*/
 
             if (csd.IsDisqualified
                 && pgs != null
@@ -1922,19 +1804,11 @@ namespace CrewChiefV4.GTR2
             csd.Flag = currFlag;
 
             // --------------------------------
-            // Stock Car Rules data
-            if (shared.extended.mDirectMemoryAccessEnabled != 0
-                && shared.extended.mSCRPluginEnabled != 0)
-                cgs.StockCarRulesData = this.GetStockCarRulesData(cgs, ref shared);
-
-            // --------------------------------
             // Frozen order data
             if (this.enableFrozenOrderMessages
                 && pgs != null)
             {
-                cgs.FrozenOrderData = playerRulesIdx != -1
-                    ? this.GetFrozenOrderData(pgs.FrozenOrderData, ref playerScoring, ref shared.scoring, ref shared.rules.mParticipants[playerRulesIdx], ref shared.rules, ref shared.extended, cgs.PositionAndMotionData.CarSpeed)
-                    : this.GetFrozenOrderOnlineData(cgs, pgs.FrozenOrderData, ref playerScoring, ref shared.scoring, ref shared.extended, cgs.PositionAndMotionData.CarSpeed);
+                cgs.FrozenOrderData = this.GetFrozenOrderOnlineData(cgs, pgs.FrozenOrderData, ref playerScoring, ref shared.scoring, ref shared.extended, cgs.PositionAndMotionData.CarSpeed);
             }
 
             // --------------------------------
@@ -2078,8 +1952,8 @@ namespace CrewChiefV4.GTR2
             {
                 cgs.EngineData.Gear = playerTelemetry.mGear;
 
-                cgs.TelemetryData.FrontDownforce = playerTelemetry.mFrontDownforce;
-                cgs.TelemetryData.RearDownforce = playerTelemetry.mRearDownforce;
+                //cgs.TelemetryData.FrontDownforce = playerTelemetry.mFrontDownforce;
+                //cgs.TelemetryData.RearDownforce = playerTelemetry.mRearDownforce;
 
                 cgs.TelemetryData.FrontLeftData.SuspensionDeflection = wheelFrontLeft.mSuspensionDeflection;
                 cgs.TelemetryData.FrontRightData.SuspensionDeflection = wheelFrontRight.mSuspensionDeflection;
@@ -2265,78 +2139,6 @@ namespace CrewChiefV4.GTR2
             }
         }
 
-        private StockCarRulesData GetStockCarRulesData(GameStateData currentGameState, ref GTR2SharedMemoryReader.GTR2StructWrapper shared)
-        {
-            var scrData = new StockCarRulesData();
-            scrData.stockCarRulesEnabled = shared.extended.mDirectMemoryAccessEnabled != 0 && shared.extended.mSCRPluginEnabled != 0;
-
-            var cgs = currentGameState;
-
-            if (!scrData.stockCarRulesEnabled
-                || !GlobalBehaviourSettings.useAmericanTerms
-                || cgs.SessionData.SessionPhase != SessionPhase.FullCourseYellow
-                || cgs.SessionData.SessionType != SessionType.Race)
-                return scrData;
-
-            if (this.LSIRulesInstructionMessageUpdatedTicks == shared.extended.mTicksLSIRulesInstructionMessageUpdated)
-                return scrData;
-
-            this.LSIRulesInstructionMessageUpdatedTicks = shared.extended.mTicksLSIRulesInstructionMessageUpdated;
-
-            var msg = GTR2GameStateMapper.GetStringFromBytes(shared.extended.mLSIRulesInstructionMessage);
-            if (string.IsNullOrWhiteSpace(msg))
-                return scrData;
-
-            var consumed = true;
-            // New SCR plugin:
-            if (msg == "Lucky Dog: Pass Field On Outside")
-                scrData.stockCarRuleApplicable = StockCarRule.LUCKY_DOG_PASS_ON_OUTSIDE;
-            else if (msg == "Allow Lucky Dog To Pass On Outside")
-                scrData.stockCarRuleApplicable = StockCarRule.LUCKY_DOG_ALLOW_TO_PASS_ON_OUTSIDE;
-            else if (msg == "Move to the Left Or Right to Choose a Lane")
-                scrData.stockCarRuleApplicable = StockCarRule.MOVE_CHOOSE_LANE;
-            else if (msg == "Wave Around: Catch Rear of Field")
-                scrData.stockCarRuleApplicable = StockCarRule.WAVE_AROUND_CATCH_END_OF_FIELD;
-            else if (msg == "Two To Green")
-                scrData.stockCarRuleApplicable = StockCarRule.TWO_TO_GREEN;
-            else if (msg == "Two To Green (You Were Lucky Dog)")
-                scrData.stockCarRuleApplicable = StockCarRule.TWO_TO_GREEN_REMIND_LUCKY_DOG;
-            else if (msg == "PENALTY: End Of Longest Line")
-                scrData.stockCarRuleApplicable = StockCarRule.PENALTY_EOLL;
-            else if (msg == "(You Were Lucky Dog)")
-                scrData.stockCarRuleApplicable = StockCarRule.REMIND_LUCKY_DOG;
-            // Old SCR plugin:
-            else if (msg == "Lucky Dog: Pass Field On Left")
-                scrData.stockCarRuleApplicable = StockCarRule.LUCKY_DOG_PASS_ON_LEFT;
-            else if (msg.Length > this.scrLuckyDogIsPrefix.Length
-                && msg.StartsWith(this.scrLuckyDogIsPrefix))
-            {
-                scrData.luckyDogNameRaw = msg.Substring(this.scrLuckyDogIsPrefix.Length).ToLowerInvariant();
-                scrData.luckyDogNameRaw = GTR2GameStateMapper.GetSanitizedDriverName(scrData.luckyDogNameRaw);
-                scrData.stockCarRuleApplicable = StockCarRule.NEW_LUCKY_DOG;
-            }
-            else if (msg == "Allow Lucky Dog To Pass On Left")
-                scrData.stockCarRuleApplicable = StockCarRule.LUCKY_DOG_ALLOW_TO_PASS_ON_LEFT;
-            else if (msg == "Choose A Lane By Staying Left Or Right")
-                scrData.stockCarRuleApplicable = StockCarRule.LEADER_CHOOSE_LANE;
-            else if (msg == "Move To End Of Longest Line")
-                scrData.stockCarRuleApplicable = StockCarRule.MOVE_TO_EOLL;
-            // Note: "wave around" is a prefix message, because apparently ISI plugin says "on left",
-            // but custom plugin leagues use says "on right".
-            else if (msg.StartsWith("Wave Around: Pass Field On"))
-                scrData.stockCarRuleApplicable = StockCarRule.WAVE_AROUND_PASS_ON_RIGHT;
-            else
-            {
-                Console.WriteLine("Rule instruction messages: unrecognized message - " + msg);
-                consumed = false;
-            }
-
-            if (consumed)
-                Console.WriteLine("Rule instruction messages: processed message - \"" + msg + "\"");
-
-            return scrData;
-        }
-
         private static double getVehicleSpeed(ref GTR2VehicleTelemetry vehicleTelemetry)
         {
             return Math.Sqrt((vehicleTelemetry.mLocalVel.x * vehicleTelemetry.mLocalVel.x)
@@ -2355,7 +2157,7 @@ namespace CrewChiefV4.GTR2
         {
             // Estimate lapdist
             // See how much ahead telemetry is ahead of scoring update
-            var delta = vehicleTelemetry.mElapsedTime - shared.scoring.mScoringInfo.mCurrentET;
+            /*var delta = vehicleTelemetry.mDeltaTime - shared.scoring.mScoringInfo.mCurrentET;
             var lapDistEstimated = vehicleScoring.mLapDist;
             if (delta > 0.0)
             {
@@ -2363,9 +2165,10 @@ namespace CrewChiefV4.GTR2
                 var localZVelEstimated = vehicleScoring.mLocalVel.z + localZAccelEstimated;
 
                 lapDistEstimated = vehicleScoring.mLapDist - localZVelEstimated * delta;
-            }
+            }*/
 
-            return lapDistEstimated;
+            // TODO: we can track time since scoring update.  Just add TickCounts to both tel and scoring.
+            return vehicleScoring.mLapDist;
         }
 
         private void processPlayerTimingData(
@@ -2427,9 +2230,9 @@ namespace CrewChiefV4.GTR2
                 csd.CurrentLapIsValid = false;
             }
             // GTR2 lap time or whole lap won't count
-            else if (playerScoring.mCountLapFlag != (byte)GTR2Constants.GTR2CountLapFlag.CountLapAndTime
+            else if (/*playerScoring.mCountLapFlag != (byte)GTR2Constants.GTR2CountLapFlag.CountLapAndTime
                 // And, this is not an out/in lap
-                && !cgs.PitData.OnOutLap && !cgs.PitData.OnInLap)
+                && */!cgs.PitData.OnOutLap && !cgs.PitData.OnInLap)
             {
                 csd.CurrentLapIsValid = false;
             }
@@ -2565,7 +2368,6 @@ namespace CrewChiefV4.GTR2
                 case GTR2Constants.GTR2GamePhase.Formation:
                     return SessionPhase.Formation;
                 case GTR2Constants.GTR2GamePhase.Garage:
-                case GTR2Constants.GTR2GamePhase.PausedOrHeartbeat:
                     return SessionPhase.Garage;
                 case GTR2Constants.GTR2GamePhase.GridWalk:
                     return SessionPhase.Gridwalk;
@@ -2592,7 +2394,7 @@ namespace CrewChiefV4.GTR2
         }
 
         // finds OpponentData key for given vehicle based on driver name, vehicle class, and world position
-        private String GetOpponentKeyForVehicleInfo(ref GTR2VehicleScoring vehicleScoring, ref GTR2VehicleTelemetry vehicleTelemetry, GameStateData previousGameState, float sessionRunningTime, string driverName, int duplicatesCount, bool vehicleTelemetryAvailable)
+        private String GetOpponentKeyForVehicleInfo(ref GTR2VehicleScoring vehicleScoring, GameStateData previousGameState, float sessionRunningTime, string driverName, int duplicatesCount)
         {
             if (previousGameState == null)
                 return null;
@@ -2601,11 +2403,7 @@ namespace CrewChiefV4.GTR2
             for (int i = 1; i <= duplicatesCount; ++i)
                 possibleKeys.Add(driverName + "_duplicate_ " + i);
 
-            float[] worldPos = null;
-            if (vehicleTelemetryAvailable)
-                worldPos = new float[] { (float)vehicleTelemetry.mPos.x, (float)vehicleTelemetry.mPos.z };
-            else
-                worldPos = new float[] { (float)vehicleScoring.mPos.x, (float)vehicleScoring.mPos.z };
+            float[] worldPos = new float[] { (float)vehicleScoring.mPos.x, (float)vehicleScoring.mPos.z };
 
             float minDistDiff = -1.0f;
             float timeDelta = sessionRunningTime - previousGameState.SessionData.SessionRunningTime;
@@ -2713,7 +2511,7 @@ namespace CrewChiefV4.GTR2
             }
         }
 
-        private TyreType MapToTyreType(ref GTR2VehicleTelemetry vehicleTelemetry)
+        /*private TyreType MapToTyreType(ref GTR2VehicleTelemetry vehicleTelemetry)
         {
             // Do not cache tyre type if telemetry is not available yet.
             if (vehicleTelemetry.mFrontTireCompoundName == null)
@@ -2763,7 +2561,7 @@ namespace CrewChiefV4.GTR2
             this.compoundNameToTyreType.Add(frontCompound, tyreType);
 
             return tyreType;
-        }
+        }*/
 
         private ControlType MapToControlType(GTR2Control controlType)
         {
@@ -2775,8 +2573,6 @@ namespace CrewChiefV4.GTR2
                     return ControlType.Player;
                 case GTR2Constants.GTR2Control.Remote:
                     return ControlType.Remote;
-                case GTR2Constants.GTR2Control.Replay:
-                    return ControlType.Replay;
                 default:
                     return ControlType.Unavailable;
             }
@@ -2802,39 +2598,22 @@ namespace CrewChiefV4.GTR2
             return sanitizedName;
         }
 
-
-        // Since it is not clear if there's any guarantee around vehicle telemetry update order in GTR2
-        // I don't want to assume mID == i in telemetry.mVehicles.  Also, telemetry is updated separately from scoring,
-        // so it is possible order changes in between updates.  Lastly, it is possible scoring to contain mID, but not
-        // telemetry.  So, build a lookup map of mID -> i into telemetry mVehicles, for lookup between scoring.mVehicles[].mID
-        // into telemetry.
-        public static Dictionary<long, int> getIdsToTelIndicesMap(ref GTR2Telemetry telemetry)
-        {
-            var idsToTelIndices = new Dictionary<long, int>();
-            for (int i = 0; i < telemetry.mNumVehicles; ++i)
-            {
-                if (!idsToTelIndices.ContainsKey(telemetry.mVehicles[i].mID))
-                    idsToTelIndices.Add(telemetry.mVehicles[i].mID, i);
-            }
-
-            return idsToTelIndices;
-        }
-
         // Vehicle telemetry is not always available (before sesssion start).  Instead of
         // hardening code against this case, create and zero intialize arrays within passed in object.
         // This is equivalent of how V1 and rF1 works.
         // NOTE: not a complete initialization, just parts that were cause NRE.
         public static void InitEmptyVehicleTelemetry(ref GTR2VehicleTelemetry vehicleTelemetry)
         {
-            Debug.Assert(vehicleTelemetry.mWheels == null);
+            Debug.Assert(vehicleTelemetry.mWheel == null);
 
-            vehicleTelemetry.mWheels = new GTR2Wheel[4];
+            vehicleTelemetry.mWheel = new GTR2Wheel[4];
             for (int i = 0; i < 4; ++i)
-                vehicleTelemetry.mWheels[i].mTemperature = new double[3];
+                vehicleTelemetry.mWheel[i].mTemperature = new float[3];
         }
 
+#if false
         private FrozenOrderData GetFrozenOrderData(FrozenOrderData prevFrozenOrderData, ref GTR2VehicleScoring vehicle, ref GTR2Scoring scoring,
-            ref GTR2TrackRulesParticipant vehicleRules, ref GTR2Rules rules, ref GTR2Extended extended, float vehicleSpeedMS)
+            /*ref GTR2TrackRulesParticipant vehicleRules, ref GTR2Rules rules, */ref GTR2Extended extended, float vehicleSpeedMS)
         {
             var fod = new FrozenOrderData();
 
@@ -2847,9 +2626,9 @@ namespace CrewChiefV4.GTR2
                 return fod;
             }
 
-            var foStage = rules.mTrackRules.mStage;
-            if (foStage == GTR2TrackRulesStage.Normal)
-                return fod; // Note, there's slight race between scoring and rules here, FO messages should have validation on them.
+        //    var foStage = rules.mTrackRules.mStage;
+          //  if (foStage == GTR2TrackRulesStage.Normal)
+            //    return fod; // Note, there's slight race between scoring and rules here, FO messages should have validation on them.
 
             // Figure out the phase:
             if (extended.mDirectMemoryAccessEnabled != 0)
@@ -2883,7 +2662,7 @@ namespace CrewChiefV4.GTR2
                     fod.Phase = prevFrozenOrderData.Phase;
                 }
             }
-            else
+            /*else
             {
                 // GTR2 currently does not expose what kind of race start is chosen.  For tracks with SC, I use presence of SC to distinguish between
                 // Formation/Standing and Rolling starts.  However, if SC does not exist (Kart tracks), I used the fact that in Rolling start leader is
@@ -2925,7 +2704,7 @@ namespace CrewChiefV4.GTR2
                           : FrozenOrderPhase.FormationStanding;
                     }
                 }
-            }
+//        }*/
 
             if (fod.Phase == FrozenOrderPhase.None)
                 return fod;  // Wait a bit, there's a delay for string based phases.
@@ -2938,7 +2717,7 @@ namespace CrewChiefV4.GTR2
                 return fod;
             }
 
-            var useSCRules = GlobalBehaviourSettings.useAmericanTerms && extended.mDirectMemoryAccessEnabled != 0 && extended.mSCRPluginEnabled != 0;
+            /*var useSCRules = GlobalBehaviourSettings.useAmericanTerms && extended.mDirectMemoryAccessEnabled != 0 && extended.mSCRPluginEnabled != 0;
             if (vehicleRules.mPositionAssignment != -1)
             {
                 var gridOrder = false;
@@ -2977,7 +2756,7 @@ namespace CrewChiefV4.GTR2
                     }
 
                 }
-
+                
                 // Figure out Driver Name to follow.
                 // NOTE: In Formation/Standing, game does not report those in UI, but we can.
                 var vehToFollowId = -1;
@@ -3060,7 +2839,7 @@ namespace CrewChiefV4.GTR2
                         fod.Action = FrozenOrderAction.CatchUp;
                 }
             }
-
+            
             if (rules.mTrackRules.mSafetyCarActive == 1)
                 fod.SafetyCarSpeed = rules.mTrackRules.mSafetyCarSpeed;
 
@@ -3071,10 +2850,10 @@ namespace CrewChiefV4.GTR2
                 fod.Action = FrozenOrderAction.None;
                 this.safetyCarLeft = true;
             }
-
+            */
             return fod;
         }
-
+#endif 
         private FrozenOrderData GetFrozenOrderOnlineData(GameStateData cgs, FrozenOrderData prevFrozenOrderData, ref GTR2VehicleScoring vehicle,
             ref GTR2Scoring scoring, ref GTR2Extended extended, float vehicleSpeedMS)
         {
@@ -3323,17 +3102,17 @@ namespace CrewChiefV4.GTR2
             return GTR2Sector == 0 ? 3 : GTR2Sector;
         }
 
-        private static PositionAndMotionData.Rotation GetRotation(ref GTR2Vec3[] orientation)
+        private static PositionAndMotionData.Rotation GetRotation(ref GTR2Vec3 oriX, ref GTR2Vec3 oriY, ref GTR2Vec3 oriZ)
         {
             var rot = new PositionAndMotionData.Rotation()
             {
-                Yaw = (float)Math.Atan2(orientation[GTR2Constants.RowZ].x, orientation[GTR2Constants.RowZ].z),
+                Yaw = (float)Math.Atan2(oriZ.x, oriZ.z),
 
-                Pitch = (float)Math.Atan2(-orientation[GTR2Constants.RowY].z,
-                    Math.Sqrt(orientation[GTR2Constants.RowX].z * orientation[GTR2Constants.RowX].z + orientation[GTR2Constants.RowZ].z * orientation[GTR2Constants.RowZ].z)),
+                Pitch = (float)Math.Atan2(-oriY.z,
+                    Math.Sqrt(oriX.z * oriX.z + oriZ.z * oriZ.z)),
 
-                Roll = (float)Math.Atan2(orientation[GTR2Constants.RowY].x,
-                    Math.Sqrt(orientation[GTR2Constants.RowX].x * orientation[GTR2Constants.RowX].x + orientation[GTR2Constants.RowZ].x * orientation[GTR2Constants.RowZ].x))
+                Roll = (float)Math.Atan2(oriY.x,
+                    Math.Sqrt(oriX.x * oriX.x + oriZ.x * oriZ.x))
             };
 
             return rot;

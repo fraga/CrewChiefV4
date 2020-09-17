@@ -33,7 +33,7 @@ namespace CrewChiefV4.GTR2
         // Capture mCurrentET from scoring to prevent dumping double frames to the file.
         private double lastScoringET = -1.0;
         // Capture mElapsedTime from telemetry of the first vehicle to prevent dumping double frames to the file.
-        private double lastTelemetryET = -1.0;
+        private uint lastTelemetryVersionUpdateBegin = 0;
 
         public class GTR2StructWrapper
         {
@@ -163,13 +163,8 @@ namespace CrewChiefV4.GTR2
                         if (wrapper.scoring.mScoringInfo.mNumVehicles > 0
                             && wrapper.extended.mSessionStarted == 1)
                         {
-                            var hasTelemetryChanged = false;
-                            if (wrapper.telemetry.mNumVehicles > 0)
-                            {
-                                var currTelET = wrapper.telemetry.mVehicles[0].mElapsedTime;
-                                hasTelemetryChanged = currTelET != this.lastTelemetryET;
-                                this.lastTelemetryET = currTelET;
-                            }
+                            var hasTelemetryChanged = wrapper.telemetry.mVersionUpdateBegin != this.lastTelemetryVersionUpdateBegin;
+                            this.lastTelemetryVersionUpdateBegin = wrapper.telemetry.mVersionUpdateBegin;
 
                             var currScoringET = wrapper.scoring.mScoringInfo.mCurrentET;
                             if (currScoringET != this.lastScoringET  // scoring contains new payload
@@ -177,14 +172,7 @@ namespace CrewChiefV4.GTR2
                             {
                                 // NOTE: truncation code could be moved to DumpRawGameData method for reduced CPU use.
                                 // However, this causes memory pressure (~250Mb/minute with 22 vehicles), so probably better done here.
-                                wrapper.telemetry.mVehicles = this.GetPopulatedVehicleInfoArray<GTR2VehicleTelemetry>(wrapper.telemetry.mVehicles, wrapper.telemetry.mNumVehicles);
                                 wrapper.scoring.mVehicles = this.GetPopulatedVehicleInfoArray<GTR2VehicleScoring>(wrapper.scoring.mVehicles, wrapper.scoring.mScoringInfo.mNumVehicles);
-
-                                // For rules, exclude empty messages from serialization.
-                                wrapper.rules.mTrackRules.mMessage = wrapper.rules.mTrackRules.mMessage[0] != 0 ? wrapper.rules.mTrackRules.mMessage : null;
-                                wrapper.rules.mParticipants = this.GetPopulatedVehicleInfoArray<GTR2TrackRulesParticipant>(wrapper.rules.mParticipants, wrapper.rules.mTrackRules.mNumParticipants);
-                                for (int i = 0; i < wrapper.rules.mParticipants.Length; ++i)
-                                    wrapper.rules.mParticipants[i].mMessage = wrapper.rules.mParticipants[i].mMessage[0] != 0 ? wrapper.rules.mParticipants[i].mMessage : null;
 
                                 int maxmID = 0;
                                 foreach (var vehicleScoring in wrapper.scoring.mVehicles)
