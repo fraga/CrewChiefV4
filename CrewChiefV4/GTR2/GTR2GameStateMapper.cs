@@ -177,7 +177,7 @@ namespace CrewChiefV4.GTR2
             var versionParts = versionStr.Split('.');
             if (versionParts.Length != 4)
             {
-                Console.WriteLine("Corrupt or leaked rFactor 2 Shared Memory.  Version string: " + versionStr + failureHelpMsg);
+                Console.WriteLine("Corrupt or leaked GTR 2 Shared Memory.  Version string: " + versionStr + failureHelpMsg);
                 return;
             }
 
@@ -189,7 +189,7 @@ namespace CrewChiefV4.GTR2
                 int versionPart = 0;
                 if (!int.TryParse(versionParts[i], out versionPart))
                 {
-                    Console.WriteLine("Corrupt or leaked rFactor 2 Shared Memory version.  Version string: " + versionStr + failureHelpMsg);
+                    Console.WriteLine("Corrupt or leaked GTR 2 Shared Memory version.  Version string: " + versionStr + failureHelpMsg);
                     return;
                 }
 
@@ -205,7 +205,7 @@ namespace CrewChiefV4.GTR2
 
                 var msg2 = "Minimum supported version is: "
                     + minVerStr
-                    + "\nPlease update rFactor2SharedMemoryMapPlugin64.dll" + failureHelpMsg;
+                    + "\nPlease update CrewChief.dll" + failureHelpMsg;
                 Console.WriteLine(msg1 + " " + msg2);
                 MessageBox.Show(msg2, msg1,
                     //Configuration.getUIString("install_plugin_popup_enable_text"),
@@ -215,7 +215,7 @@ namespace CrewChiefV4.GTR2
             else
             {
                 var msg = "GTR2 Shared Memory version: " + versionStr
-                    + (shared.extended.mDirectMemoryAccessEnabled != 0 ? "  DMA enabled." : "");
+                    + (shared.extended.mUnofficialFeaturesEnabled != 0 ? "  DMA enabled." : "");
                 Console.WriteLine(msg);
             }
         }
@@ -793,7 +793,7 @@ namespace CrewChiefV4.GTR2
             if (pgs != null && !pgs.PitData.HasRequestedPitStop && cgs.PitData.HasRequestedPitStop)
                 this.timePitStopRequested = cgs.Now;
 
-            if (shared.extended.mDirectMemoryAccessEnabled == 0)
+            if (shared.extended.mUnofficialFeaturesEnabled == 0)
             {
                 // If DMA is not enabled, check if it's time to mark pit crew as ready.
                 if (pgs != null
@@ -803,7 +803,7 @@ namespace CrewChiefV4.GTR2
                         cgs.PitData.IsPitCrewReady = true;
             }
 
-            if (shared.extended.mDirectMemoryAccessEnabled != 0)
+            if (shared.extended.mUnofficialFeaturesEnabled != 0)
                 cgs.PitData.PitSpeedLimit = shared.extended.mCurrentPitSpeedLimit;
 
             // This sometimes fires under Countdown, so limit to phases when message might make sense.
@@ -999,7 +999,39 @@ namespace CrewChiefV4.GTR2
             cgs.CarDamageData.DamageEnabled = true;
             cgs.CarDamageData.LastImpactTime = (float)playerTelemetry.mLastImpactET;
 
-            var playerDamageInfo = shared.extended.mTrackedDamages[playerScoring.mID % GTR2Constants.MAX_MAPPED_IDS];
+            // --------------------------------
+            // damage
+            // not 100% certain on this mapping but it should be reasonably close
+            // Use rF1 approach, see how it works.
+            if (cgs.SessionData.SessionType != SessionType.HotLap)
+            {
+                var bodyDamage = 0;
+                foreach (int dent in playerTelemetry.mDentSeverity)
+                    bodyDamage += dent;
+
+                switch (bodyDamage)
+                {
+                    // there's suspension damage included in these bytes but I'm not sure which ones
+                    case 0:
+                        cgs.CarDamageData.OverallAeroDamage = DamageLevel.NONE;
+                        break;
+                    case 1:
+                        cgs.CarDamageData.OverallAeroDamage = DamageLevel.TRIVIAL;
+                        break;
+                    case 2:
+                    case 3:
+                        cgs.CarDamageData.OverallAeroDamage = DamageLevel.MINOR;
+                        break;
+                    case 4:
+                    case 5:
+                        cgs.CarDamageData.OverallAeroDamage = DamageLevel.MAJOR;
+                        break;
+                    default:
+                        cgs.CarDamageData.OverallAeroDamage = DamageLevel.DESTROYED;
+                        break;
+                }
+            }
+            /*var playerDamageInfo = shared.extended.mTrackedDamages[playerScoring.mID % GTR2Constants.MAX_MAPPED_IDS];
 
             // TODO: extract
             //if (shared.extended.mPhysics.mInvulnerable == 0)
@@ -1039,7 +1071,7 @@ namespace CrewChiefV4.GTR2
                 // roll over all you want - it's just a scratch.
                 cgs.CarDamageData.OverallAeroDamage = playerDamageInfo.mMaxImpactMagnitude > 0.0 ? DamageLevel.TRIVIAL : DamageLevel.NONE;
             }*/
-
+            
             // --------------------------------
             // control data
             cgs.ControlData.ControlType = MapToControlType((GTR2Control)playerScoring.mControl);
@@ -1701,7 +1733,7 @@ namespace CrewChiefV4.GTR2
                         cgs.FlagData.fcyPhase = FullCourseYellowPhase.IN_PROGRESS;
                     else if (shared.scoring.mScoringInfo.mYellowFlagState == (sbyte)GTR2Constants.GTR2YellowFlagState.PitClosed)
                     {
-                        if (shared.extended.mDirectMemoryAccessEnabled == 1)
+                        if (shared.extended.mUnofficialFeaturesEnabled == 1)
                         {
                             if (shared.extended.mTicksLSIPitStateMessageUpdated != this.LSIPitStateMessageUpdatedTicks)
                             {
@@ -1969,16 +2001,8 @@ namespace CrewChiefV4.GTR2
 
         private void ProcessMCMessages(GameStateData cgs, GameStateData pgs, GTR2SharedMemoryReader.GTR2StructWrapper shared)
         {
-            if (shared.extended.mDirectMemoryAccessEnabled == 0)
+            if (shared.extended.mUnofficialFeaturesEnabled == 0)
                 return;
-
-#if DEBUG
-            if (shared.extended.mTicksStatusMessageUpdated != this.statusMessageUpdatedTicks)
-            {
-                this.statusMessageUpdatedTicks = shared.extended.mTicksStatusMessageUpdated;
-                Console.WriteLine("Status message: updated - \"" + GTR2GameStateMapper.GetStringFromBytes(shared.extended.mStatusMessage) + "\"");
-            }
-#endif
 
             if (shared.extended.mTicksLastHistoryMessageUpdated == this.lastHistoryMessageUpdatedTicks)
                 return;
@@ -2855,7 +2879,7 @@ namespace CrewChiefV4.GTR2
         private FrozenOrderData GetFrozenOrderOnlineData(GameStateData cgs, FrozenOrderData prevFrozenOrderData, ref GTR2VehicleScoring vehicle,
             ref GTR2Scoring scoring, ref GTR2Extended extended, float vehicleSpeedMS)
         {
-            if (extended.mDirectMemoryAccessEnabled == 0)
+            if (extended.mUnofficialFeaturesEnabled == 0)
                 return null;
 
             var fod = new FrozenOrderData();
@@ -3118,6 +3142,7 @@ namespace CrewChiefV4.GTR2
 
         private CarInfo GetCachedCarInfo(ref GTR2VehicleScoring vehicleScoring)
         {
+            // TODO: if unofficial features are off, make this string->car info
             CarInfo ci = null;
             if (this.idToCarInfoMap.TryGetValue(vehicleScoring.mID, out ci))
                 return ci;

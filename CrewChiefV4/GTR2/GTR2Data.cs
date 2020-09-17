@@ -384,9 +384,9 @@ namespace GTR2SharedMemory
             public GTR2Vec3 mLocalRot;      // rotation (radians/sec) in local vehicle coordinates
             public GTR2Vec3 mLocalRotAccel; // rotational acceleration (radians/sec^2) in local vehicle coordinates
 
-            public int mID;
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 124)]
             [JsonIgnore] public byte[] mExpansion;                                    // for future use
+            public int mID;
         };
 
         ///////////////////////////////////////////
@@ -471,16 +471,8 @@ namespace GTR2SharedMemory
             public Int64 mTicksSessionEnded;                             // Ticks when session ended.
             public GTR2SessionTransitionCapture mSessionTransitionCapture;// Contains partial internals capture at session transition time.
 
-            // Captured non-empty MessageInfoV01::mText message.
-            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 128)]
-            public byte[] mDisplayedMessageUpdateCapture;
-
             // Direct Memory access stuff
-            public byte mDirectMemoryAccessEnabled;
-
-            public Int64 mTicksStatusMessageUpdated;                     // Ticks when status message was updated;
-            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = GTR2Constants.MAX_STATUS_MSG_LEN)]
-            public byte[] mStatusMessage;
+            public byte mUnofficialFeaturesEnabled;
 
             public Int64 mTicksLastHistoryMessageUpdated;                // Ticks when last message history message was updated;
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = GTR2Constants.MAX_STATUS_MSG_LEN)]
@@ -507,6 +499,7 @@ namespace GTR2SharedMemory
             [JsonIgnore] public int mUnsubscribedBuffersMask;                         // Currently active UnsbscribedBuffersMask value.  This will be allowed for clients to write to in the future, but not yet.
 
             public byte mHWControlInputEnabled;                          // HWControl input buffer is enabled.
+            public byte mPluginControlInputEnabled;                      // Plugin Control input buffer is enabled.
         }
     }
 }
