@@ -51,6 +51,7 @@ acc = Assetto Corsa Competizione
 f1_2019 = F1 2019 (spotter only)
 f1_2020 = F1 2020 (spotter only)
 rbr = Richard Burns Rally
+gtr2 = GTR 2
 please_choose_a_game_option = Please choose a game option
 no_game_selected = No game selected
 
@@ -197,6 +198,7 @@ search_box_tooltip_line7 = pCARS - for Project CARS 1 and 2 specific preferences
 search_box_tooltip_line8 = iRacing - for iRacing specific preferences
 search_box_tooltip_line8 = ACC - for Assetto Corsa Competizione specific preferences
 search_box_tooltip_line9 = RBR - for Richard Burns Rally specific preferences
+search_box_tooltip_line10 = GTR2 - for GTR 2 specific preferences
 no_matches = No matches.
 reset_warning_text = This will reset all the Crew Chief {0} profile '{1}' settings to their default values, are you sure?
 reset_warning_title = Reset All Settings to Default Values
@@ -398,6 +400,12 @@ rbr_install_path_help = RBR installation path for plugin installation and updati
 rbr_install_path_filter = RBR
 rbr_install_path_category = UI_STARTUP_AND_PATHS
 rbr_install_path_metadata = RESTART_REQUIRED
+
+gtr2_install_path = GTR 2 install path
+gtr2_install_path_help = GTR 2 installation path for plugin installation and updating
+gtr2_install_path_filter = GTR 2
+gtr2_install_path_category = UI_STARTUP_AND_PATHS
+gtr2_install_path_metadata = RESTART_REQUIRED
 
 f1_2018_install_path = F1 2018 install path
 f1_2018_install_path_help = F1 2018 installation path
@@ -813,6 +821,12 @@ rbr_launch_exe_filter = RBR
 rbr_launch_exe_category = UI_STARTUP_AND_PATHS
 rbr_launch_exe_metadata = RESTART_REQUIRED
 
+gtr2_launch_exe = GTR 2 launch exe
+gtr2_launch_exe_help = This is the direct path to GTR2.exe. Use forward slashes to separate paths.
+gtr2_launch_exe_filter = GTR 2
+gtr2_launch_exe_category = UI_STARTUP_AND_PATHS
+gtr2r_launch_exe_metadata = RESTART_REQUIRED
+
 acc_launch_exe = ACC launch exe
 acc_launch_exe_help = This is the location of Steam.exe or the direct path to acc.exe. Use forward slashes to separate paths.
 acc_launch_exe_filter = ACC
@@ -906,6 +920,12 @@ launch_rbr_help = If this is true the application will attempt to launch Richard
 launch_rbr_filter = RBR
 launch_rbr_category = UI_STARTUP_AND_PATHS
 launch_rbr_metadata = RESTART_REQUIRED
+
+launch_gtr2 = Launch GTR 2
+launch_gtr2_help = If this is true the application will attempt to launch Richard Burns Rally when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
+launch_gtr2_filter = GTR 2
+launch_gtr2_category = UI_STARTUP_AND_PATHS
+launch_gtr2_metadata = RESTART_REQUIRED
 
 launch_gsc = Launch GSC
 launch_gsc_help = If this is true the application will attempt to launch Stock Car Extreme when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
@@ -1246,6 +1266,11 @@ enable_rf2_pit_stop_prediction_help = Play 'box now' messages when using offline
 enable_rf2_pit_stop_prediction_filter = RF2_64BIT
 enable_rf2_pit_stop_prediction_category = PIT_STOPS_AND_MULTICLASS
 
+enable_gtr2_pit_stop_prediction = Enable GTR 2 pit stop prediction
+enable_gtr2_pit_stop_prediction_help = Play 'box now' messages when using offline scheduled pit stops
+enable_gtr2_pit_stop_prediction_filter = GTR2
+enable_gtr2_pit_stop_prediction_category = PIT_STOPS_AND_MULTICLASS
+
 enable_simple_incident_detection_listprop = Enable simple incident detection
 enable_simple_incident_detection_listprop_help = Watch for and report very slow cars as incidents (iRacing, pCARS and AC only)
 enable_simple_incident_detection_listprop_filter = ASSETTO_64BIT;ASSETTO_32BIT;PCARS_64BIT;PCARS_32BIT;PCARS_NETWORK;IRACING
@@ -1327,6 +1352,11 @@ enable_rf2_cut_track_heuristics = Enable rF2 cut track heuristic detection
 enable_rf2_cut_track_heuristics_help = If enabled, CC will try to detect if user cut track.  If disabled, cut track will only be reported if game reported that lap got invalidated.
 enable_rf2_cut_track_heuristics_filter = RF2_64BIT
 enable_rf2_cut_track_heuristics_category = FLAGS_AND_RULES
+
+enable_gtr2_cut_track_heuristics = Enable GTR 2 cut track heuristic detection
+enable_gtr2_cut_track_heuristics_help = If enabled, CC will try to detect if user cut track.  If disabled, cut track will only be reported if game reported that lap got invalidated.
+enable_gtr2_cut_track_heuristics_filter = GTR2
+enable_gtr2_cut_track_heuristics_category = FLAGS_AND_RULES
 
 enable_rf2_pit_lane_approach_heuristics = Enable rF2 pit lane approach detection
 enable_rf2_pit_lane_approach_heuristics_help = Experimental: If enabled, CC will try to detect if user approaches the pit lane entry and remind him to respect speed limit.  Might not work correctly for all tracks.

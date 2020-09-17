@@ -458,7 +458,6 @@ namespace GTR2SharedMemory
 
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 12)]
             public byte[] mVersion;                                      // API version
-            public byte is64bit;                                         // Is 64bit plugin?
 
             // Damage tracking for each vehicle (indexed by mID % GTR2MappedBufferHeader::MAX_MAPPED_IDS):
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = GTR2Constants.MAX_MAPPED_IDS)]

@@ -23,13 +23,13 @@ namespace CrewChiefV4.GTR2
     {
         // User preference constants.
         private readonly bool enablePitStopPrediction = UserSettings.GetUserSettings().getBoolean("enable_gtr2_pit_stop_prediction");
-        private readonly bool enableFrozenOrderMessages = UserSettings.GetUserSettings().getBoolean("enable_gtr2_frozen_order_messages");
+        private readonly bool enableFrozenOrderMessages = true; // UserSettings.GetUserSettings().getBoolean("enable_gtr2_frozen_order_messages");
         private readonly bool enableCutTrackHeuristics = UserSettings.GetUserSettings().getBoolean("enable_gtr2_cut_track_heuristics");
-        private readonly bool enablePitLaneApproachHeuristics = UserSettings.GetUserSettings().getBoolean("enable_gtr2_pit_lane_approach_heuristics");
-        private readonly bool enableFCYPitStateMessages = UserSettings.GetUserSettings().getBoolean("enable_gtr2_pit_state_during_fcy");
-        private readonly bool useRealWheelSizeForLockingAndSpinning = UserSettings.GetUserSettings().getBoolean("use_gtr2_wheel_size_for_locking_and_spinning");
-        private readonly bool enableWrongWayMessage = UserSettings.GetUserSettings().getBoolean("enable_gtr2_wrong_way_message");
-        private readonly bool disableRaceEndMessagesOnAbandon = UserSettings.GetUserSettings().getBoolean("disable_gtr2_race_end_messages_on_abandoned_sessions");
+        //private readonly bool enablePitLaneApproachHeuristics = UserSettings.GetUserSettings().getBoolean("enable_gtr2_pit_lane_approach_heuristics");
+        private readonly bool enableFCYPitStateMessages = true;  // UserSettings.GetUserSettings().getBoolean("enable_gtr2_pit_state_during_fcy");
+        //private readonly bool useRealWheelSizeForLockingAndSpinning = UserSettings.GetUserSettings().getBoolean("use_gtr2_wheel_size_for_locking_and_spinning");
+        //private readonly bool enableWrongWayMessage = UserSettings.GetUserSettings().getBoolean("enable_gtr2_wrong_way_message");
+        private readonly bool disableRaceEndMessagesOnAbandon = true; // UserSettings.GetUserSettings().getBoolean("disable_gtr2_race_end_messages_on_abandoned_sessions");
 
         public static string playerName = null;
 
@@ -146,7 +146,7 @@ namespace CrewChiefV4.GTR2
             this.suspensionDamageThresholds.Add(new CornerData.EnumWithThresholds(DamageLevel.DESTROYED, 1.0f, 2.0f));
         }
 
-        private int[] minimumSupportedVersionParts = new int[] { 3, 7, 14, 0 };
+        private int[] minimumSupportedVersionParts = new int[] { 1, 0, 0, 0 };
         public static bool pluginVerified = false;
         private static int reinitWaitAttempts = 0;
         public override void versionCheck(Object memoryMappedFileStruct)
@@ -198,12 +198,10 @@ namespace CrewChiefV4.GTR2
                 partFactor *= 100;
             }
 
-            if (shared.extended.is64bit == 0)
-                Console.WriteLine("Only 64bit version of rFactor 2 is supported.   Plugin version is:"  + versionStr + failureHelpMsg);
-            else if (smVer < minVer)
+            if (smVer < minVer)
             {
                 var minVerStr = string.Join(".", this.minimumSupportedVersionParts);
-                var msg1 = "Unsupported rFactor 2 Shared Memory version: " + versionStr;
+                var msg1 = "Unsupported GTR 2 Shared Memory version: " + versionStr;
 
                 var msg2 = "Minimum supported version is: "
                     + minVerStr
@@ -2093,7 +2091,7 @@ namespace CrewChiefV4.GTR2
                     cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.ENTER_PITS_TO_SERVE_PENALTY;
                 else if (msg == "Wrong Way")
                 {
-                    if (this.enableWrongWayMessage)
+                    //if (this.enableWrongWayMessage)
                         cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.WRONG_WAY;
                 }
                 else if (msg == "Blue Flag Warning: Move over soon or be penalized")
