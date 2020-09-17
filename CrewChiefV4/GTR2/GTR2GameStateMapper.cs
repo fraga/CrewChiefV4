@@ -265,12 +265,13 @@ namespace CrewChiefV4.GTR2
             this.lastHistoryMessageUpdatedTicks = 0L;
         }
 
-    public override GameStateData mapToGameStateData(Object memoryMappedFileStruct, GameStateData previousGameState)
+        public override GameStateData mapToGameStateData(Object memoryMappedFileStruct, GameStateData previousGameState)
         {
             var pgs = previousGameState;
             var shared = memoryMappedFileStruct as GTR2SharedMemoryReader.GTR2StructWrapper;
             var cgs = new GameStateData(shared.ticksWhenRead);
             cgs.rawGameData = shared;
+#if false // Broken on 2nd prac session, sessionStarted == 0
             //
             // This block has two purposes:
             //
@@ -420,6 +421,7 @@ namespace CrewChiefV4.GTR2
 
                 return pgs;
             }
+#endif // ABRUPT detection, try to fix
 
             this.lastInRealTimeState = shared.extended.mInRealtimeFC == 1 || shared.scoring.mScoringInfo.mInRealtime == 1;
             cgs.inCar = this.lastInRealTimeState;
@@ -2472,14 +2474,9 @@ namespace CrewChiefV4.GTR2
             var shared = wrapper as GTR2SharedMemoryReader.GTR2StructWrapper;
             switch (shared.scoring.mScoringInfo.mSession)
             {
-                // up to four possible practice sessions
+                // up to four possible practice sessions (seems 2 in GTR2)
                 case 1:
                 case 2:
-                case 3:
-                case 4:
-                // test day and pre-race warm-up sessions are 'Practice' as well
-                case 0:
-                case 9:
                     // This might go from LonePractice to Practice without any nice state transition.  However,
                     // I am not aware of any horrible side effects.
                     if (this.lastPracticeNumVehicles < shared.scoring.mScoringInfo.mNumVehicles)
@@ -2499,21 +2496,25 @@ namespace CrewChiefV4.GTR2
                         }
                     }
 
+
+                    // 1
+
                     return this.lastPracticeNumNonGhostVehicles > 1 // 1 means player only session.
                         ? SessionType.Practice
                         : SessionType.LonePractice;
-                // up to four possible qualifying sessions
-                case 5:
-                case 6:
-                case 7:
-                case 8:
+                // up to four possible qualifying sessions (seems 2 in GTR2)
+                case 3:
+                case 4:
                     return SessionType.Qualify;
+                case 5:
+                    return SessionType.Practice;  // Warmup really.
+                case 6:
+                    return SessionType.Race;
                 // up to four possible race sessions
                 case 10:
                 case 11:
                 case 12:
                 case 13:
-                    return SessionType.Race;
                 default:
                     return SessionType.Unavailable;
             }
@@ -2875,7 +2876,7 @@ namespace CrewChiefV4.GTR2
             */
             return fod;
         }
-#endif 
+#endif
         private FrozenOrderData GetFrozenOrderOnlineData(GameStateData cgs, FrozenOrderData prevFrozenOrderData, ref GTR2VehicleScoring vehicle,
             ref GTR2Scoring scoring, ref GTR2Extended extended, float vehicleSpeedMS)
         {

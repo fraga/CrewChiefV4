@@ -63,6 +63,9 @@ namespace rF2SharedMemory
       this.memoryMappedFile = null;
       this.fullSizeBuffer = null;
 
+      this.lastSuccessVersionBegin = 0;
+      this.lastSuccessVersionEnd = 0;
+
       this.ClearStats();
     }
 

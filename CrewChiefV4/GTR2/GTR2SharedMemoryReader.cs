@@ -103,7 +103,7 @@ namespace CrewChiefV4.GTR2
 
                         this.initialised = true;
 
-                        Console.WriteLine("Initialized rFactor 2 Shared Memory");
+                        Console.WriteLine("Initialized GTR 2 Shared Memory");
                     }
                     catch (Exception)
                     {
