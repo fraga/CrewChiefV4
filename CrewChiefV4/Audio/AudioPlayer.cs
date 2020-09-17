@@ -2229,12 +2229,13 @@ namespace CrewChiefV4.Audio
             regularQueuePaused = false;
         }
 
-        public static Boolean canReadName(String rawName)
+        public static Boolean canReadName(String rawName, bool allowTTSNameInOnlyWhenNecessaryMode = true)
         {
             Debug.Assert(!string.IsNullOrWhiteSpace(rawName), "rawName should never be an empty string, this is a bug.");
-
+            bool allowTTSName = SoundCache.hasSuitableTTSVoice
+                && (ttsOption == TTS_OPTION.ANY_TIME || (ttsOption == TTS_OPTION.ONLY_WHEN_NECESSARY && allowTTSNameInOnlyWhenNecessaryMode));
             return !string.IsNullOrWhiteSpace(rawName) && CrewChief.enableDriverNames &&
-                ((SoundCache.hasSuitableTTSVoice && ttsOption != TTS_OPTION.NEVER) || SoundCache.availableDriverNames.Contains(DriverNameHelper.getUsableDriverName(rawName)));
+                (allowTTSName || SoundCache.availableDriverNames.Contains(DriverNameHelper.getUsableDriverName(rawName)));
         }
 
         internal void pauseQueueAndPlayDelayedImmediateMessage(QueuedMessage queuedMessage, int lowerDelayBoundInclusive, int upperDelayBound)

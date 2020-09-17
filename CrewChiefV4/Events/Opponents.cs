@@ -199,7 +199,7 @@ namespace CrewChiefV4.Events
             if ((positionToCheck > 1 && positionToCheck <= 3) ||
                 (playerRacePosition - 2 <= positionToCheck && playerRacePosition + 2 >= positionToCheck))
             {
-                if (opponentData.CanUseName && AudioPlayer.canReadName(opponentData.DriverRawName))
+                if (opponentData.CanUseName && AudioPlayer.canReadName(opponentData.DriverRawName, false))
                 {
                     return opponentData;
                 }
@@ -278,7 +278,7 @@ namespace CrewChiefV4.Events
                             if (((currentGameState.SessionData.SessionType == SessionType.Race && opponentData.CompletedLaps > 2) ||
                                 (!PitStops.waitingForMandatoryStopTimer &&
                                  currentGameState.SessionData.SessionType != SessionType.Race && opponentData.CompletedLaps > 1)) && opponentData.LastLapTime <= currentFastestLap &&
-                                 (opponentData.CanUseName && AudioPlayer.canReadName(opponentData.DriverRawName)))
+                                 (opponentData.CanUseName && AudioPlayer.canReadName(opponentData.DriverRawName, false)))
                             {
                                 if ((currentGameState.SessionData.SessionType == SessionType.Race && frequencyOfOpponentRaceLapTimes > 0) ||
                                     (currentGameState.SessionData.SessionType != SessionType.Race && frequencyOfOpponentPracticeAndQualLapTimes > 0))
@@ -350,7 +350,7 @@ namespace CrewChiefV4.Events
                                 // The ones that don't fit on a track are marked as DNF before session goes Green.  Don't announce those.
                                 continue;
                             }
-                            if (AudioPlayer.canReadName(retiredDriver))
+                            if (AudioPlayer.canReadName(retiredDriver, false))
                             {
                                 audioPlayer.playMessage(new QueuedMessage("retirement", 10,
                                     messageFragments: MessageContents(DriverNameHelper.getUsableDriverName(retiredDriver), folderHasJustRetired), abstractEvent: this, priority: 0));
@@ -366,7 +366,7 @@ namespace CrewChiefV4.Events
                         if (!announcedRetirementsAndDQs.Contains(dqDriver))
                         {
                             announcedRetirementsAndDQs.Add(dqDriver);
-                            if (AudioPlayer.canReadName(dqDriver))
+                            if (AudioPlayer.canReadName(dqDriver, false))
                             {
                                 audioPlayer.playMessage(new QueuedMessage("retirement", 10,
                                     messageFragments: MessageContents(DriverNameHelper.getUsableDriverName(dqDriver), folderHasJustBeenDisqualified), abstractEvent: this, priority: 0));
@@ -388,7 +388,7 @@ namespace CrewChiefV4.Events
                                     DateTime announceAfterTime = DateTime.MinValue;
                                     if (!WatchedOpponents.watchedOpponentKeys.Contains(opponentName) &&
                                         !opponentData.isEnteringPits() && !opponentData.InPits && (lastNextCarAheadOpponentName == null || !lastNextCarAheadOpponentName.Equals(opponentName)) &&
-                                        opponentData.CanUseName && AudioPlayer.canReadName(opponentName) &&
+                                        opponentData.CanUseName && AudioPlayer.canReadName(opponentName, false) &&
                                         (!onlyAnnounceOpponentAfter.TryGetValue(opponentName, out announceAfterTime) || currentGameState.Now > announceAfterTime))
                                     {
                                         Console.WriteLine("New car ahead: " + opponentName);
@@ -413,7 +413,7 @@ namespace CrewChiefV4.Events
                                 if (!WatchedOpponents.watchedOpponentKeys.Contains(name) &&
                                     currentGameState.SessionData.ClassPosition > 1 && previousGameState.SessionData.ClassPosition > 1 &&
                                     !name.Equals(lastLeaderAnnounced) &&
-                                    currentGameState.Now > nextLeadChangeMessage && leader.CanUseName && AudioPlayer.canReadName(name))
+                                    currentGameState.Now > nextLeadChangeMessage && leader.CanUseName && AudioPlayer.canReadName(name, false))
                                 {
                                     Console.WriteLine("Lead change, current leader is " + name + " laps completed = " + currentGameState.SessionData.CompletedLaps);
                                     audioPlayer.playMessage(new QueuedMessage("new_leader", 4, secondsDelay:2,

@@ -223,7 +223,7 @@ check_for_updates_title = Force update check
 donate_link_text = Donate to Support Crew Chief development
 toggle_manual_formation_lap = Toggle manual formation lap mode
 read_corner_names_for_lap = Read corner names for current lap
-the_application_must_be_restarted_to_switch_between_circuit_and_rally_racing = The application must be restarted to witch between Circuit and Rally racing. Click OK to restart the application.
+the_application_must_be_restarted_to_switch_between_circuit_and_rally_racing = The application must be restarted to switch between Circuit and Rally racing. Click OK to restart the application.
 switch_racing_type = Switch racing type
 
 all_categories_label = All Categories

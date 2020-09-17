@@ -184,7 +184,7 @@ namespace CrewChiefV4.Events
                                 // get the laptime, decide whether it's worth reporting
                                 if (opponentData.LastLapValid && opponentData.LastLapTime == opponentData.CurrentBestLapTime && opponentData.LastLapTime > 0 && opponentData.OpponentLapData.Count > 2)
                                 {
-                                    if (AudioPlayer.canReadName(opponentData.DriverRawName))
+                                    if (AudioPlayer.canReadName(opponentData.DriverRawName, false))
                                     {
                                         audioPlayer.playMessage(new QueuedMessage("watched opponent laptime", 10,
                                             messageFragments: MessageContents(opponentData, folderHasJustDoneA, TimeSpanWrapper.FromSeconds(opponentData.LastLapTime, Precision.AUTO_LAPTIMES))));
@@ -219,7 +219,7 @@ namespace CrewChiefV4.Events
                                 if (!pitExitMessagesPlayed.TryGetValue(opponentKey, out alreadyPlayedForLapNumber) || alreadyPlayedForLapNumber < opponentData.CompletedLaps)
                                 {
                                     pitExitMessagesPlayed[opponentKey] = opponentData.CompletedLaps;
-                                    if (AudioPlayer.canReadName(opponentData.DriverRawName))
+                                    if (AudioPlayer.canReadName(opponentData.DriverRawName, false))
                                     {
                                         audioPlayer.playMessage(new QueuedMessage("watched opponent exiting pit", 10,
                                             messageFragments: MessageContents(opponentData, folderIsLeavingThePit)));
@@ -252,7 +252,7 @@ namespace CrewChiefV4.Events
                                 if (!nextPositionUpdateDueTimes.TryGetValue(opponentKey, out nextUpdateDue) || currentGameState.Now > nextUpdateDue)
                                 {
                                     nextPositionUpdateDueTimes[opponentKey] = currentGameState.Now.AddSeconds(40);
-                                    if (AudioPlayer.canReadName(opponentData.DriverRawName))
+                                    if (AudioPlayer.canReadName(opponentData.DriverRawName, false))
                                     {
                                         audioPlayer.playMessage(new QueuedMessage("watched opponent position change", 10,
                                             messageFragments: MessageContents(opponentData, folderIsNowInPosition, opponentData.ClassPosition)));
@@ -406,7 +406,7 @@ namespace CrewChiefV4.Events
             else
             {
                 List<MessageFragment> messageFragments = new List<MessageFragment>();
-                if (AudioPlayer.canReadName(opponentName))
+                if (AudioPlayer.canReadName(opponentName, false))
                 {
                     messageFragments.Add(MessageFragment.Opponent(opponent));
                 }
