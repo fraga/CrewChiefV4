@@ -56,7 +56,7 @@ will be pulled from the thecrewchief.org ftp server. -->
 		<update-pack url="http://crewchief.isnais.de/update_7_driver_names.zip" updates-from-version="136"/>
 		<update-pack url="http://crewchief.isnais.de/update_8_driver_names.zip" updates-from-version="137"/>
 	</driver-names>
-	<personalisations latest-version="139">
+	<personalisations latest-version="140">
 		<update-pack url="http://crewchief.isnais.de/personalisations.zip" updates-from-version="-1"/>
 		<update-pack url="http://crewchief.isnais.de/update_personalisations.zip" updates-from-version="0"/>
 		<update-pack url="http://crewchief.isnais.de/update_2_personalisations.zip" updates-from-version="121"/>
@@ -68,6 +68,7 @@ will be pulled from the thecrewchief.org ftp server. -->
 		<update-pack url="http://crewchief.isnais.de/update_8_personalisations.zip" updates-from-version="136"/>
 		<update-pack url="http://crewchief.isnais.de/update_9_personalisations.zip" updates-from-version="137"/>
 		<update-pack url="http://crewchief.isnais.de/update_10_personalisations.zip" updates-from-version="138"/>
+		<update-pack url="http://crewchief.isnais.de/update_11_personalisations.zip" updates-from-version="139"/>
 	</personalisations>
 </sounds>
 
