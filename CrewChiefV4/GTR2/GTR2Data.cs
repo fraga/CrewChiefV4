@@ -474,9 +474,13 @@ namespace GTR2SharedMemory
             // Direct Memory access stuff
             public byte mUnofficialFeaturesEnabled;
 
-            public Int64 mTicksLastHistoryMessageUpdated;                // Ticks when last message history message was updated;
+            public Int64 mTicksFirstHistoryMessageUpdated;                // Ticks when first message history message was updated;
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = GTR2Constants.MAX_STATUS_MSG_LEN)]
-            public byte[] mLastHistoryMessage;
+            public byte[] mFirstHistoryMessage;
+
+            public Int64 mTicksSecondHistoryMessageUpdated;                // Ticks when second message history message was updated;
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = GTR2Constants.MAX_STATUS_MSG_LEN)]
+            public byte[] mSecondHistoryMessage;
 
             public float mCurrentPitSpeedLimit;                          // speed limit m/s.
 

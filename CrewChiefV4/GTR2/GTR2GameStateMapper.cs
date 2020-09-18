@@ -271,7 +271,7 @@ namespace CrewChiefV4.GTR2
             var shared = memoryMappedFileStruct as GTR2SharedMemoryReader.GTR2StructWrapper;
             var cgs = new GameStateData(shared.ticksWhenRead);
             cgs.rawGameData = shared;
-#if false // Broken on 2nd prac session, sessionStarted == 0
+
             //
             // This block has two purposes:
             //
@@ -291,7 +291,9 @@ namespace CrewChiefV4.GTR2
             var sessionJustEnded = shared.extended.mTicksSessionEnded != 0 && this.lastSessionEndTicks != shared.extended.mTicksSessionEnded;
 
             this.lastSessionEndTicks = shared.extended.mTicksSessionEnded;
-            var sessionStarted = shared.extended.mSessionStarted == 1;
+            var sessionStarted = shared.extended.mSessionStarted == 1
+                || (pgs != null && pgs.SessionData.SessionType == SessionType.Practice  // For some reason, no Started signal on second practice in GTR2.
+                    || cgs.SessionData.SessionType == SessionType.Practice);
 
             if (shared.scoring.mScoringInfo.mNumVehicles == 0  // No session data (game startup, new session or game shutdown).
                 || sessionJustEnded  // Need to start the wait for the next session
@@ -421,7 +423,6 @@ namespace CrewChiefV4.GTR2
 
                 return pgs;
             }
-#endif // ABRUPT detection, try to fix
 
             this.lastInRealTimeState = shared.extended.mInRealtimeFC == 1 || shared.scoring.mScoringInfo.mInRealtime == 1;
             cgs.inCar = this.lastInRealTimeState;
@@ -1840,7 +1841,7 @@ namespace CrewChiefV4.GTR2
             if (this.enableFrozenOrderMessages
                 && pgs != null)
             {
-                cgs.FrozenOrderData = this.GetFrozenOrderOnlineData(cgs, pgs.FrozenOrderData, ref playerScoring, ref shared.scoring, ref shared.extended, cgs.PositionAndMotionData.CarSpeed);
+                cgs.FrozenOrderData = this.GetFrozenOrderData(cgs, pgs.FrozenOrderData, ref playerScoring, ref shared.scoring, ref shared.extended, cgs.PositionAndMotionData.CarSpeed);
             }
 
             // --------------------------------
@@ -2006,13 +2007,13 @@ namespace CrewChiefV4.GTR2
             if (shared.extended.mUnofficialFeaturesEnabled == 0)
                 return;
 
-            if (shared.extended.mTicksLastHistoryMessageUpdated == this.lastHistoryMessageUpdatedTicks)
+            if (shared.extended.mTicksFirstHistoryMessageUpdated == this.lastHistoryMessageUpdatedTicks)
                 return;
 
             // Do not re-process this update.
-            this.lastHistoryMessageUpdatedTicks = shared.extended.mTicksLastHistoryMessageUpdated;
+            this.lastHistoryMessageUpdatedTicks = shared.extended.mTicksFirstHistoryMessageUpdated;
 
-            var msg = GTR2GameStateMapper.GetStringFromBytes(shared.extended.mLastHistoryMessage);
+            var msg = GTR2GameStateMapper.GetStringFromBytes(shared.extended.mFirstHistoryMessage);
             if (msg != this.lastEffectiveHistoryMessage
                 || (cgs.Now - this.timeEffectiveMessageProcessed).TotalSeconds > this.effectiveMessageExpirySeconds)
             {
@@ -2877,7 +2878,7 @@ namespace CrewChiefV4.GTR2
             return fod;
         }
 #endif
-        private FrozenOrderData GetFrozenOrderOnlineData(GameStateData cgs, FrozenOrderData prevFrozenOrderData, ref GTR2VehicleScoring vehicle,
+        private FrozenOrderData GetFrozenOrderData(GameStateData cgs, FrozenOrderData prevFrozenOrderData, ref GTR2VehicleScoring vehicle,
             ref GTR2Scoring scoring, ref GTR2Extended extended, float vehicleSpeedMS)
         {
             if (extended.mUnofficialFeaturesEnabled == 0)
@@ -2908,32 +2909,31 @@ namespace CrewChiefV4.GTR2
             if (fod.Phase == FrozenOrderPhase.None)
             {
                 // Don't bother checking updated ticks, this showld allow catching multiple SC car phases.
-                var phase = GTR2GameStateMapper.GetStringFromBytes(extended.mLSIPhaseMessage);
-
-                if (scoring.mScoringInfo.mGamePhase == (int)GTR2Constants.GTR2GamePhase.Formation
-                  && string.IsNullOrWhiteSpace(phase))
+                var fhm = GTR2GameStateMapper.GetStringFromBytes(extended.mFirstHistoryMessage);
+                if (!string.IsNullOrWhiteSpace(fhm)
+                  && fhm == "Begin Formation Lap")
+                    fod.Phase = GTR2GameStateMapper.GetSector(vehicle.mSector) == 3 && vehicleSpeedMS > 10.0f ? FrozenOrderPhase.FastRolling : FrozenOrderPhase.Rolling;
+                else if (!string.IsNullOrWhiteSpace(fhm)
+                  && (fhm == "Full-Course Yellow" || fhm == "One Lap To Go"))
+                    fod.Phase = FrozenOrderPhase.FullCourseYellow;
+                else if (string.IsNullOrWhiteSpace(fhm))
+                    fod.Phase = prevFrozenOrderData.Phase;
+                /*else if (scoring.mScoringInfo.mGamePhase == (int)GTR2Constants.GTR2GamePhase.Formation)
                 {
                     if (this.numFODetectPhaseAttempts > GTR2GameStateMapper.maxFormationStandingCheckAttempts)
-                        fod.Phase = FrozenOrderPhase.FormationStanding;
+                        fod.Phase = FrozenOrderPhase.Rolling;
 
                     ++this.numFODetectPhaseAttempts;
                 }
-                else if (!string.IsNullOrWhiteSpace(phase)
-                  && phase == "Formation Lap")
-                    fod.Phase = GTR2GameStateMapper.GetSector(vehicle.mSector) == 3 && vehicleSpeedMS > 10.0f ? FrozenOrderPhase.FastRolling : FrozenOrderPhase.Rolling;
-                else if (!string.IsNullOrWhiteSpace(phase)
-                  && (phase == "Full-Course Yellow" || phase == "One Lap To Go"))
-                    fod.Phase = FrozenOrderPhase.FullCourseYellow;
-                else if (string.IsNullOrWhiteSpace(phase))
-                    fod.Phase = prevFrozenOrderData.Phase;
                 else
-                    Debug.Assert(false, "Unhandled FO phase");
+                    Debug.Assert(false, "Unhandled FO phase");*/
             }
 
             if (fod.Phase == FrozenOrderPhase.None)
                 return fod;  // Wait a bit, there's a delay for string based phases.
 
             // NOTE: for formation/standing capture order once.   For other phases, rely on LSI text.
+            // TODO: For Rolling, find who should we folow from start order.
             if ((fod.Phase == FrozenOrderPhase.FastRolling || fod.Phase == FrozenOrderPhase.Rolling || fod.Phase == FrozenOrderPhase.FullCourseYellow)
               && this.LSIOrderInstructionMessageUpdatedTicks != extended.mTicksLSIOrderInstructionMessageUpdated)
             {

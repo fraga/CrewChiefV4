@@ -201,7 +201,7 @@ namespace CrewChiefV4.Events
                 possibleMessages.Add(new QueuedMessage("air_temp", 0, messageFragments: MessageContents(ConditionsMonitor.folderAirTempIs,
                     convertTemp(currentConditions.AmbientTemperature), getTempUnit()), abstractEvent: this, priority: 10));
             }
-            if (currentGameState.PitData.HasMandatoryPitStop && CrewChief.gameDefinition.gameEnum != GameEnum.RF1 && CrewChief.gameDefinition.gameEnum != GameEnum.RF2_64BIT)
+            if (currentGameState.PitData.HasMandatoryPitStop && CrewChief.gameDefinition.gameEnum != GameEnum.RF1 && CrewChief.gameDefinition.gameEnum != GameEnum.RF2_64BIT && CrewChief.gameDefinition.gameEnum != GameEnum.GTR2)
             {
                 if (currentGameState.SessionData.SessionHasFixedTime)
                 {
@@ -269,7 +269,7 @@ namespace CrewChiefV4.Events
             }
             else if (CrewChief.gameDefinition.gameEnum != GameEnum.RF1 && /* session time in gridwalk phase isn't usable in rf1 */
                 minutesInSession > 0 && minutesInSession <= 100 &&
-                !(CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT && (currentGameState.FrozenOrderData.Phase == FrozenOrderPhase.Rolling || currentGameState.FrozenOrderData.Phase == FrozenOrderPhase.FastRolling)))   // No time available in rF2s rolling.
+                !((CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT || CrewChief.gameDefinition.gameEnum == GameEnum.GTR2) && (currentGameState.FrozenOrderData.Phase == FrozenOrderPhase.Rolling || currentGameState.FrozenOrderData.Phase == FrozenOrderPhase.FastRolling)))   // No time available in rF2s rolling.
             {
                 if (CrewChief.gameDefinition.gameEnum != GameEnum.RACE_ROOM && currentGameState.SessionData.ClassPosition > 3 && minutesInSession < 20 && minutesInSession > 1)
                 {
@@ -387,7 +387,7 @@ namespace CrewChiefV4.Events
                                         (currentGameState.SessionData.SessionPhase == SessionPhase.Gridwalk && CrewChief.gameDefinition.gameEnum != GameEnum.RACE_ROOM) ||
                                         (currentGameState.SessionData.SessionPhase == SessionPhase.Formation && CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM) ||
                                         (currentGameState.SessionData.SessionPhase == SessionPhase.Formation && CrewChief.gameDefinition.gameEnum == GameEnum.IRACING) ||
-                                        (currentGameState.SessionData.SessionPhase == SessionPhase.Formation && (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT) &&
+                                        (currentGameState.SessionData.SessionPhase == SessionPhase.Formation && (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT || CrewChief.gameDefinition.gameEnum != GameEnum.GTR2) &&
                                         currentGameState.SessionData.SectorNumber == 3)))
                                 {
                                     Console.WriteLine("Queuing pre-lights messages");
@@ -417,7 +417,7 @@ namespace CrewChiefV4.Events
                         preLightsMessageCount = 2;
                     }
                     if (!playedPreLightsMessage && currentGameState.SessionData.SessionType == SessionType.Race && 
-                        currentGameState.SessionData.SessionPhase == SessionPhase.Gridwalk && CrewChief.gameDefinition.gameEnum != GameEnum.RF2_64BIT) // Not much correct info is available during rF2's Gridwalk.
+                        currentGameState.SessionData.SessionPhase == SessionPhase.Gridwalk && CrewChief.gameDefinition.gameEnum != GameEnum.RF2_64BIT && CrewChief.gameDefinition.gameEnum != GameEnum.GTR2) // Not much correct info is available during rF2's Gridwalk.
                     {
                         playPreLightsMessage(currentGameState, preLightsMessageCount);
                         if (CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)
@@ -433,13 +433,13 @@ namespace CrewChiefV4.Events
                         (currentGameState.SessionData.SessionPhase == SessionPhase.Formation && CrewChief.gameDefinition.gameEnum == GameEnum.RF1 &&
                         currentGameState.SessionData.SectorNumber == 3 && currentGameState.FrozenOrderData.Phase != FrozenOrderPhase.Rolling) ||
                         // play 'get ready' message when entering sector 3 of formation lap in Rolling start of rF2
-                        (currentGameState.SessionData.SessionPhase == SessionPhase.Formation && (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT) &&
+                        (currentGameState.SessionData.SessionPhase == SessionPhase.Formation && (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT || CrewChief.gameDefinition.gameEnum == GameEnum.GTR2) &&
                         currentGameState.SessionData.SectorNumber == 3 && (currentGameState.FrozenOrderData.Phase == FrozenOrderPhase.Rolling || currentGameState.FrozenOrderData.Phase == FrozenOrderPhase.FastRolling))))
                     {
                         // If we've not yet played the pre-lights messages, just play one of them here, but not for RaceRoom as the lights will already have started
                         if (!playedPreLightsMessage && CrewChief.gameDefinition.gameEnum != GameEnum.RACE_ROOM)
                         {
-                            playPreLightsMessage(currentGameState, CrewChief.gameDefinition.gameEnum != GameEnum.RF2_64BIT ? 1 : 2);
+                            playPreLightsMessage(currentGameState, (CrewChief.gameDefinition.gameEnum != GameEnum.RF2_64BIT && CrewChief.gameDefinition.gameEnum != GameEnum.GTR2) ? 1 : 2);
                             purgePreLightsMessages = false;
                         }
                         if (purgePreLightsMessages)
@@ -473,6 +473,7 @@ namespace CrewChiefV4.Events
             // looks like belt n braces but there's a bug in R3E DTM 2015 race 1 which has a number of laps and a time remaining
             if ((!currentGameState.SessionData.SessionHasFixedTime
                   || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT
+                  || CrewChief.gameDefinition.gameEnum == GameEnum.GTR2
                   || CrewChief.gameDefinition.gameEnum == GameEnum.IRACING)
                 && currentGameState.SessionData.SessionType == SessionType.Race
                 && currentGameState.SessionData.IsNewLap
