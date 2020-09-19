@@ -9,6 +9,7 @@
 #    "carClassEnum": this is the built-in car class group (see complete list below). It must match on of these built in types.
 #    "pCarsClassNames": this is a comma (,) separated array of pCars classnames. * or ? denote wildcards. The app searches for classes which have full matches before considering wildcards
 #    "rf2ClassNames": as above, for rFactor2
+#    "gtr2ClassNames": as above, for GTR2
 #    "rf1ClassNames": as above, for rFactor1, AMS, GSC, FTruck, and other RF1 based games (the Reiza games)
 #    "acClassNames": as above, for Assetto Corsa
 #    "raceroomClassIds": this is an array of integers or R3E class IDs  
@@ -97,7 +98,7 @@
 #
 #
 # Crew Chief built-in car classes are:
-# GT1X, GT1, GTE, GT2, GTC, GTLM, GT3, GT4, GT5, GT300, GT500, Kart_1, Kart_2, KART_JUNIOR, KART_F1, LMP1, LMP2, LMP3, LMP900, ROAD_B, ROAD_C1, ROAD_C2, ROAD_D, ROAD_E, ROAD_F, ROAD_G, 
+# G2, G3, GT, GT1X, GT1, GTE, GT2, GTC, GTLM, GT3, GT4, GT5, GT300, GT500, NGT, Kart_1, Kart_2, KART_JUNIOR, KART_F1, LMP1, LMP2, LMP3, LMP900, ROAD_B, ROAD_C1, ROAD_C2, ROAD_D, ROAD_E, ROAD_F, ROAD_G, 
 # ROAD_SUPERCAR, GROUPC, GROUPB, GROUPA, GROUP4, GROUP5, GROUP6, GTO, DTM_92,
 # VINTAGE_INDY_65, VINTAGE_F3_A, VINTAGE_F1_A, VINTAGE_F1_A1, VINTAGE_PROTOTYPE_B, VINTAGE_GT_D, VINTAGE_GT_C, HISTORIC_TOURING_1, HISTORIC_TOURING_2, VINTAGE_F1_B,
 # VINTAGE_F1_C, VINTAGE_STOCK_CAR,
@@ -1187,11 +1188,43 @@
 		},
 		{
 			"carClassEnum": "MCR_2000",
-			"rf2ClassNames": ["MCR Sports 2000"],			
+			"rf2ClassNames": ["MCR Sports 2000"],
 			"ams2ClassNames": ["P4"],
 			"maxSafeWaterTemp": 102,
 			"maxSafeOilTemp": 115,
 			"enabledMessageTypes": "ALL",
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "G2",
+			"gtr2ClassNames": ["*Chevrolet Corvette C5-R", "*P996 GT2", "*Mosler MT900R", "*Gillet Vertigo Streiff", "*SEAT Toledo GT", "*Morgan Aero 8 GT", "*BMW M3 GTR", "*Dodge Viper Comp. Coupe", "Porsche 911 Biturbo"],
+			"timesInHundredths": true,
+			"enabledMessageTypes": "ALL",
+			"maxSafeOilTemp": 135,
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "G3",
+			"gtr2ClassNames": ["*Lotus Elise", "*P996 GT3 Cup", "*BMW Z3 M Coupe", "BMW Z3 M", "Porsche 911 GT3 Cup", "Viper Competition Coupe"],
+			"timesInHundredths": true,
+			"enabledMessageTypes": "ALL",
+			"maxSafeOilTemp": 135,
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "GT",
+			"gtr2ClassNames": ["*Chrysler Viper GTS-R", "*Lister Storm GT", "*F550 GTS", "*F575 GTC", "*Lamborghini Murcielago R-GT", "*Saleen S7-R", "*P993 GT2", "*Maserati MC12 GT", "Ferrari 550 Maranello", "Lister Storm", "Ferrari 575 GTC", "Porsche 911 GT2", "Maserati MC12"],
+			"timesInHundredths": true,
+			"enabledMessageTypes": "ALL",
+			"maxSafeOilTemp": 135,
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "NGT",
+			"gtr2ClassNames": ["*P996 GT3-RS", "*P996 GT3-R", "*F360 GT", "*Nissan 350Z", "*TVR Tuscan T400R", "*P996 GT3-RSR", "*F360 GTC", "Porsche GT3-RSR", "TVR T400R", "Ferrari 360 GTC", "Porsche GT3-RS", "Ferrari 360 Modena"],
+			"timesInHundredths": true,
+			"enabledMessageTypes": "ALL",
+			"maxSafeOilTemp": 135,
 			"allMembersAreRWD": true
 		}
 	]

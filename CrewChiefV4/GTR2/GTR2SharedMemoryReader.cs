@@ -231,7 +231,7 @@ namespace CrewChiefV4.GTR2
 
             // There's still possibility of double message, but who cares.
             if (wasInitialised)
-                Console.WriteLine("Disconnected from rFactor 2 Shared Memory");
+                Console.WriteLine("Disconnected from GTR 2 Shared Memory");
 
             // Hack to re-check plugin version.
             GTR2GameStateMapper.pluginVerified = false;

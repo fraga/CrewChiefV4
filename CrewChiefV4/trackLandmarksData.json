@@ -9213,8 +9213,10 @@
 			]
 		},
 		{
-			"rf2TrackNames": ["Spa Francorchamps  1988"],
-			"trackLandmarks": [{
+			"rf2TrackNames": [ "Spa Francorchamps  1988" ],
+			"gtr2TrackNames": [ "HQ Circuit de Spa-Francorchamps", "Spa-Francorchamps, 2003 FIA GT Championship Round 6", "Spa-Francorchamps, 2004 FIA GT Championship Round 7" ],
+			"trackLandmarks": [
+				{
 					"landmarkName": "la_source",
 					"distanceRoundLapStart": 190,
 					"distanceRoundLapEnd": 290,
