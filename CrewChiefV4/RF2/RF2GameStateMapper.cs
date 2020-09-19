@@ -969,7 +969,7 @@ namespace CrewChiefV4.rFactor2
             {
                 // Preserve current values.
                 // Those values change on sector/lap change, otherwise stay the same between updates.
-                psd.restorePlayerTimings(csd);
+                psd.RestorePlayerTimings(csd);
             }
 
             this.processPlayerTimingData(ref shared.scoring, cgs, pgs, ref playerScoring);

@@ -4,7 +4,7 @@ Must be kept in sync with Include\GTR2State.h.
 
 See: MainForm.MainUpdate for sample on how to marshall from native in memory struct.
 
-Author: The Iron Wolf (vleonavicius@hotmail.com)
+Authors: The Iron Wolf (vleonavicius@hotmail.com), The Sparten
 Website: thecrewchief.org
 */
 using Newtonsoft.Json;
@@ -150,6 +150,16 @@ namespace GTR2SharedMemory
             Exiting = 4
         }
 
+        public enum ISITyreCompound
+        {
+            Default_Compound = 1,
+            Hard_Compound,
+            Medium_Compound,
+            Soft_Compound,
+            Intermediate_Compound,
+            Wet_Compound,
+            Monsoon_Compound
+        }
     }
 
     namespace GTR2Data
@@ -245,7 +255,6 @@ namespace GTR2SharedMemory
 
             // Future use
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 64)]
-            // TODO: SLOT ID MIGHT BE IN THE EXPANSION!!!!!!!!!!!!!!!!  BASED ON COMMENTS
             [JsonIgnore] public byte[] mExpansion;
 
             // keeping this at the end of the structure to make it easier to replace in future versions
@@ -373,7 +382,7 @@ namespace GTR2SharedMemory
             public float mLapStartET;                                   // time this lap was started
 
             // Position and derivatives
-            [JsonIgnore] public GTR2Vec3 mPos;                                         // world position in meters
+            public GTR2Vec3 mPos;                                         // world position in meters
             public GTR2Vec3 mLocalVel;                                    // velocity (meters/sec) in local vehicle coordinates
             public GTR2Vec3 mLocalAccel;                                  // acceleration (meters/sec^2) in local vehicle coordinates
 
@@ -384,9 +393,9 @@ namespace GTR2SharedMemory
             public GTR2Vec3 mLocalRot;      // rotation (radians/sec) in local vehicle coordinates
             public GTR2Vec3 mLocalRotAccel; // rotational acceleration (radians/sec^2) in local vehicle coordinates
 
+            public int mID;
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 124)]
             [JsonIgnore] public byte[] mExpansion;                                    // for future use
-            public int mID;
         };
 
         ///////////////////////////////////////////
@@ -422,7 +431,18 @@ namespace GTR2SharedMemory
         {
             public float mMaxImpactMagnitude;                           // Max impact magnitude.  Tracked on every telemetry update, and reset on visit to pits or Session restart.
             public float mAccumulatedImpactMagnitude;                   // Accumulated impact magnitude.  Tracked on every telemetry update, and reset on visit to pits or Session restart.
-        };
+        }
+
+
+        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        public struct GTR2ExtendedVehicleScoring
+        {
+            public int mPitState;
+            public int mTireCompoundIndex;
+            public float mFuelCapacityLiters;
+            public int mBlueFlag;
+            public float mBlueFlagET;
+        }
 
 
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
@@ -433,7 +453,7 @@ namespace GTR2SharedMemory
             public byte mPlace;
             public byte mIsPlayer;
             [JsonIgnore] public sbyte mFinishStatus;                                  // 0=none, 1=finished, 2=dnf, 3=dq
-        };
+        }
 
 
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
@@ -462,6 +482,9 @@ namespace GTR2SharedMemory
             // Damage tracking for each vehicle (indexed by mID % GTR2MappedBufferHeader::MAX_MAPPED_IDS):
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = GTR2Constants.MAX_MAPPED_IDS)]
             public GTR2TrackedDamage[] mTrackedDamages;
+
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = GTR2Constants.MAX_MAPPED_IDS)]
+            public GTR2ExtendedVehicleScoring[] mExtendedVehicleScoring;
 
             // Function call based flags:
             public byte mInRealtimeFC;                                   // in realtime as opposed to at the monitor (reported via last EnterRealtime/ExitRealtime calls).

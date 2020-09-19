@@ -358,7 +358,7 @@ namespace CrewChiefV4.rFactor1
             {
                 // Preserve current timing values.
                 // Those values change on sector/lap change, otherwise stay the same between updates.
-                previousGameState.SessionData.restorePlayerTimings(currentGameState.SessionData);
+                previousGameState.SessionData.RestorePlayerTimings(currentGameState.SessionData);
 
                 currentGameState.SessionData.DeltaTime = previousGameState.SessionData.DeltaTime;
                 currentGameState.Conditions.samples = previousGameState.Conditions.samples;
