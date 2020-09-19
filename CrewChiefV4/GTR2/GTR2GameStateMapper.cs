@@ -3108,7 +3108,7 @@ namespace CrewChiefV4.GTR2
             var driverName = GTR2GameStateMapper.GetStringFromBytes(vehicleScoring.mDriverName).ToLowerInvariant();
             driverName = GTR2GameStateMapper.GetSanitizedDriverName(driverName);
 
-            var carClassId = GTR2GameStateMapper.GetStringFromBytes(vehicleScoring.mVehicleClass);
+            var carClassId = GTR2GameStateMapper.GetStringFromBytes(vehicleScoring.mVehicleName);
             var carClass = CarData.getCarClassForClassNameOrCarName(carClassId);
 
             // Name does not appear to be localized in GTR2, so hardcoding it is ok for now.

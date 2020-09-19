@@ -416,6 +416,7 @@ namespace CrewChiefV4
             public List<string> ams2ClassNames { get; set; }
             public List<string> rf2ClassNames { get; set; }
             public List<string> acClassNames { get; set; }
+            public List<string> gtr2ClassNames { get; set; }
 
             [JsonConverter(typeof(StringEnumConverter))]
             public BrakeType brakeType { get; set; }
@@ -460,6 +461,7 @@ namespace CrewChiefV4
             public List<Regex> ams2ClassNamesRegexs = new List<Regex>();
             public List<Regex> rf2ClassNamesRegexs = new List<Regex>();
             public List<Regex> acClassNamesRegexs = new List<Regex>();
+            public List<Regex> gtr2ClassNamesRegexs = new List<Regex>();
 
             // Turns out enum.ToString() is costly, so cache string representation of enum value.
             private String carClassEnumString = null;
@@ -475,6 +477,7 @@ namespace CrewChiefV4
                 this.ams2ClassNames = new List<string>();
                 this.rf2ClassNames = new List<string>();
                 this.acClassNames = new List<string>();
+                this.gtr2ClassNames = new List<string>();
                 this.brakeType = BrakeType.Iron_Race;
                 this.maxColdBrakeTemp = -1;
                 this.maxWarmBrakeTemp = -1;
@@ -547,6 +550,7 @@ namespace CrewChiefV4
                 setupRegexs(rf2ClassNames, rf2ClassNamesRegexs);
                 setupRegexs(acClassNames, acClassNamesRegexs);
                 setupRegexsForPCars(pCarsClassNames, pCarsClassNamesRegexs);
+                setupRegexs(gtr2ClassNames, gtr2ClassNamesRegexs);
             }
 
             /**
@@ -888,6 +892,10 @@ namespace CrewChiefV4
                         case GameEnum.AMS2_NETWORK:
                             classNamesPropName = "ams2ClassNames";
                             regexsPropName = "ams2ClassNamesRegexs";
+                            break;
+                        case GameEnum.GTR2:
+                            classNamesPropName = "gtr2ClassNames";
+                            regexsPropName = "gtr2ClassNamesRegexs";
                             break;
                         default:
                             // err....

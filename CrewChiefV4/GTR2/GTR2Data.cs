@@ -346,7 +346,7 @@ namespace GTR2SharedMemory
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 32)]
             public byte[] mDriverName;                                   // driver name
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 64)]
-            [JsonIgnore] public byte[] mVehicleName;                                  // vehicle name
+            public byte[] mVehicleName;                                  // vehicle name
             public short mTotalLaps;                                     // laps completed
             public sbyte mSector;                                        // 0=sector3, 1=sector1, 2=sector2 (don't ask why)
             public sbyte mFinishStatus;                                  // 0=none, 1=finished, 2=dnf, 3=dq
@@ -372,7 +372,7 @@ namespace GTR2SharedMemory
             public byte mInPits;                                         // between pit entrance and pit exit (not always accurate for remote vehicles)
             public byte mPlace;                                          // 1-based position
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 32)]
-            public byte[] mVehicleClass;                                 // vehicle class
+            [JsonIgnore] public byte[] mVehicleClass;                                 // vehicle class
 
             // Dash Indicators
             public float mTimeBehindNext;                               // time behind vehicle in next higher place
