@@ -524,9 +524,10 @@ namespace CrewChiefV4.GTR2
             csd.EventIndex = shared.scoring.mScoringInfo.mSession;
 
             csd.SessionIteration
-                = shared.scoring.mScoringInfo.mSession >= 1 && shared.scoring.mScoringInfo.mSession <= 4 ? shared.scoring.mScoringInfo.mSession - 1 :
-                shared.scoring.mScoringInfo.mSession >= 5 && shared.scoring.mScoringInfo.mSession <= 8 ? shared.scoring.mScoringInfo.mSession - 5 :
-                shared.scoring.mScoringInfo.mSession >= 10 && shared.scoring.mScoringInfo.mSession <= 13 ? shared.scoring.mScoringInfo.mSession - 10 : 0;
+                = shared.scoring.mScoringInfo.mSession >= 1 && shared.scoring.mScoringInfo.mSession <= 2 ? shared.scoring.mScoringInfo.mSession - 1 :  // Practice
+                shared.scoring.mScoringInfo.mSession >= 3 && shared.scoring.mScoringInfo.mSession <= 4 ? shared.scoring.mScoringInfo.mSession - 3 :  // Qualification
+                shared.scoring.mScoringInfo.mSession == 5 ? shared.scoring.mScoringInfo.mSession - 5 :  // Warmup (Practice)
+                shared.scoring.mScoringInfo.mSession >= 6 && shared.scoring.mScoringInfo.mSession <= 6 ? shared.scoring.mScoringInfo.mSession - 6 : 0;  // Race
 
             csd.SessionType = this.MapToSessionType(shared);
             csd.SessionPhase = this.mapToSessionPhase((GTR2GamePhase)shared.scoring.mScoringInfo.mGamePhase, csd.SessionType, ref playerScoring);
@@ -764,7 +765,7 @@ namespace CrewChiefV4.GTR2
                 cgs.PitData.limiterStatus = PitData.LimiterStatus.NOT_AVAILABLE;
             }
             else
-                cgs.PitData.limiterStatus = PitData.LimiterStatus.ACTIVE;  // TODO: revisit
+                cgs.PitData.limiterStatus = PitData.LimiterStatus.INACTIVE;  // TODO: revisit
             //cgs.PitData.limiterStatus = playerTelemetry.mSpeedLimiter > 0 ? PitData.LimiterStatus.ACTIVE : PitData.LimiterStatus.INACTIVE;
 
             if (pgs != null
@@ -788,7 +789,7 @@ namespace CrewChiefV4.GTR2
                 cgs.PitData.MandatoryPitStopCompleted = pgs.PitData.MandatoryPitStopCompleted || cgs.PitData.IsMakingMandatoryPitStop;
 
             if (shared.extended.mUnofficialFeaturesEnabled != 0)
-                cgs.PitData.HasRequestedPitStop = (GTR2PitState)playerExtendedScoring.mPitState == GTR2Constants.GTR2PitState.Request;
+                cgs.PitData.HasRequestedPitStop = (GTR2PitState)shared.extended.mPlayerPitState == GTR2Constants.GTR2PitState.Request;
 
             // Is this new pit request?
             if (pgs != null && !pgs.PitData.HasRequestedPitStop && cgs.PitData.HasRequestedPitStop)
@@ -815,7 +816,7 @@ namespace CrewChiefV4.GTR2
                 && shared.extended.mInRealtimeFC == 1 && shared.scoring.mScoringInfo.mInRealtime == 1  // Limit this to Realtime only.
                 && csd.SessionType == SessionType.Race)  // Also, limit to race only, this helps with back and forth between returing to pits via exit to monitor.
             {                                            // There's also no real critical rush in quali or practice to stress about.
-                cgs.PitData.IsPitCrewDone = (GTR2PitState)playerExtendedScoring.mPitState == GTR2Constants.GTR2PitState.Exiting;
+                cgs.PitData.IsPitCrewDone = (GTR2PitState)shared.extended.mPlayerPitState == GTR2Constants.GTR2PitState.Exiting;
             }
 
             if (csd.IsNewLap)
@@ -1003,35 +1004,53 @@ namespace CrewChiefV4.GTR2
             // --------------------------------
             // damage
             // not 100% certain on this mapping but it should be reasonably close
-            // Use rF1 approach, see how it works.
-            if (cgs.SessionData.SessionType != SessionType.HotLap)
-            {
-                var bodyDamage = 0;
-                foreach (int dent in playerTelemetry.mDentSeverity)
-                    bodyDamage += dent;
+            // Investigate if impact is ever not 0 and dents ever not 0.
+            var bodyDamage = 0;
+            foreach (int dent in playerTelemetry.mDentSeverity)
+                bodyDamage += dent;
 
-                switch (bodyDamage)
-                {
-                    // there's suspension damage included in these bytes but I'm not sure which ones
-                    case 0:
-                        cgs.CarDamageData.OverallAeroDamage = DamageLevel.NONE;
-                        break;
-                    case 1:
-                        cgs.CarDamageData.OverallAeroDamage = DamageLevel.TRIVIAL;
-                        break;
-                    case 2:
-                    case 3:
-                        cgs.CarDamageData.OverallAeroDamage = DamageLevel.MINOR;
-                        break;
-                    case 4:
-                    case 5:
-                        cgs.CarDamageData.OverallAeroDamage = DamageLevel.MAJOR;
-                        break;
-                    default:
-                        cgs.CarDamageData.OverallAeroDamage = DamageLevel.DESTROYED;
-                        break;
-                }
+            if (bodyDamage > 0)
+                Console.WriteLine("DAMAGE DENT");
+
+            if (playerTelemetry.mLastImpactMagnitude > 0.0f)
+                Console.WriteLine("DAMAGE IMPACT");
+
+            bool anyWheelDetached = false;
+            foreach (var wheel in playerTelemetry.mWheel)
+                anyWheelDetached |= wheel.mDetached == 1;
+
+            if (playerTelemetry.mDetached == 1
+                && anyWheelDetached)  // Wheel is not really aero damage, but it is bad situation.
+            {
+                // Things are sad if we have both part and wheel detached.
+                cgs.CarDamageData.OverallAeroDamage = DamageLevel.DESTROYED;
             }
+            else if (playerTelemetry.mDetached == 1)  // If there are parts detached, consider damage major, and pit stop is necessary.)
+                cgs.CarDamageData.OverallAeroDamage = DamageLevel.MAJOR;
+
+
+            /*
+            switch (bodyDamage)
+            {
+                // there's suspension damage included in these bytes but I'm not sure which ones
+                case 0:
+                    cgs.CarDamageData.OverallAeroDamage = DamageLevel.NONE;
+                    break;
+                case 1:
+                    cgs.CarDamageData.OverallAeroDamage = DamageLevel.TRIVIAL;
+                    break;
+                case 2:
+                case 3:
+                    cgs.CarDamageData.OverallAeroDamage = DamageLevel.MINOR;
+                    break;
+                case 4:
+                case 5:
+                    cgs.CarDamageData.OverallAeroDamage = DamageLevel.MAJOR;
+                    break;
+                default:
+                    cgs.CarDamageData.OverallAeroDamage = DamageLevel.DESTROYED;
+                    break;
+            }*/
             /*var playerDamageInfo = shared.extended.mTrackedDamages[playerScoring.mID % GTR2Constants.MAX_MAPPED_IDS];
 
             // TODO: extract
@@ -1550,7 +1569,7 @@ namespace CrewChiefV4.GTR2
                     }
                 }
 
-                var lastSectorTime = this.getLastSectorTime(ref vehicleScoring, opponent.CurrentSectorNumber);
+                var lastSectorTime = this.GetLastSectorTime(ref vehicleScoring, opponent.CurrentSectorNumber);
 
                 bool lapValid = true;
                 //if (vehicleScoring.mCountLapFlag != 2)
@@ -2236,7 +2255,8 @@ namespace CrewChiefV4.GTR2
             // Verify lap is valid
             // First, verify if previous sector has invalid time.
             if (((csd.SectorNumber == 2 && csd.LastSector1Time < 0.0f
-                    || csd.SectorNumber == 3 && csd.LastSector2Time < 0.0f)
+                    || csd.SectorNumber == 3 && csd.LastSector2Time < 0.0f
+                    /*|| csd.IsNewLap && csd.LastSector3Time < 0.0f*/)
                 // Make sure that's not after rolling start
                 && csd.CompletedLaps > 0
                 // And, this is not an out/in lap
@@ -2252,8 +2272,10 @@ namespace CrewChiefV4.GTR2
             {
                 csd.CurrentLapIsValid = false;
             }
+
+
             // GTR2 lap time or whole lap won't count
-            /*else if (/*playerScoring.mCountLapFlag != (byte)GTR2Constants.GTR2CountLapFlag.CountLapAndTime
+            /*else if (playerScoring.mCountLapFlag != (byte)GTR2Constants.GTR2CountLapFlag.CountLapAndTime
                 // And, this is not an out/in lap
                 && !cgs.PitData.OnOutLap && !cgs.PitData.OnInLap)
             {
@@ -2266,7 +2288,7 @@ namespace CrewChiefV4.GTR2
 
             /////////////////////////////////////////
             // Update Sector/Lap timings.
-            var lastSectorTime = this.getLastSectorTime(ref playerScoring, csd.SectorNumber);
+            var lastSectorTime = this.GetLastSectorTime(ref playerScoring, csd.SectorNumber);
 
             if (csd.IsNewLap)
             {
@@ -2306,7 +2328,7 @@ namespace CrewChiefV4.GTR2
             }
         }
 
-        private float getLastSectorTime(ref GTR2VehicleScoring vehicle, int currSector)
+        private float GetLastSectorTime(ref GTR2VehicleScoring vehicle, int currSector)
         {
             var lastSectorTime = -1.0f;
             if (currSector == 1)
@@ -2474,9 +2496,16 @@ namespace CrewChiefV4.GTR2
             var shared = wrapper as GTR2SharedMemoryReader.GTR2StructWrapper;
             switch (shared.scoring.mScoringInfo.mSession)
             {
+                case 0:  // Applies to open practice, private practice, time trial.
+                         // This might be problematic - memory may be simply empty.
                 // up to four possible practice sessions (seems 2 in GTR2)
                 case 1:
                 case 2:
+                    if (shared.scoring.mScoringInfo.mSession == 0)
+                    {
+                        Console.WriteLine("0 SESSION!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                    }
+
                     // This might go from LonePractice to Practice without any nice state transition.  However,
                     // I am not aware of any horrible side effects.
                     if (this.lastPracticeNumVehicles < shared.scoring.mScoringInfo.mNumVehicles)
@@ -2495,9 +2524,6 @@ namespace CrewChiefV4.GTR2
                             ++this.lastPracticeNumNonGhostVehicles;
                         }
                     }
-
-
-                    // 1
 
                     return this.lastPracticeNumNonGhostVehicles > 1 // 1 means player only session.
                         ? SessionType.Practice
