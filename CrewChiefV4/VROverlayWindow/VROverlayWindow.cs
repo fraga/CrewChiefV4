@@ -71,6 +71,9 @@ namespace CrewChiefV4.VirtualReality
         [DefaultValue(-1)]
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
         public int toggleVKeyCode { get; set; }
+        [DefaultValue(-1)]
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
+        public int modifierVKeyCode { get; set; }
         [JsonIgnore]
         public Texture2D copiedScreenTexture { get; set; }
         [JsonIgnore]
@@ -93,7 +96,7 @@ namespace CrewChiefV4.VirtualReality
         }
         //[JsonConstructor]
         public VROverlayWindow(string Text, IntPtr hWnd, string Name = "", bool enabled = false, bool wasEnabled = false, float positionX = 0, float positionY = 0, float positionZ = -1,
-            float rotationX = 0, float rotationY = 0, float rotationZ = 0, float scale = 1, float transparency = 1, float curvature = 0, TrackingSpace trackingUniverse = TrackingSpace.Seated, bool isDisplay = false, int toggleVKeyCode = -1, bool gazeEnabled = false, float gazeScale = 1f, float gazeTransparency = 1f, bool forceTopMost = false)
+            float rotationX = 0, float rotationY = 0, float rotationZ = 0, float scale = 1, float transparency = 1, float curvature = 0, TrackingSpace trackingUniverse = TrackingSpace.Seated, bool isDisplay = false, int toggleVKeyCode = -1, int modifierVKeyCode = -1, bool gazeEnabled = false, float gazeScale = 1f, float gazeTransparency = 1f, bool forceTopMost = false)
         {
             this.Text = Text;
             if (string.IsNullOrWhiteSpace(Name))
@@ -116,6 +119,7 @@ namespace CrewChiefV4.VirtualReality
             this.curvature = curvature;
             this.isDisplay = isDisplay;
             this.toggleVKeyCode = toggleVKeyCode;
+            this.modifierVKeyCode = modifierVKeyCode;
             this.gazeEnabled = gazeEnabled;
             this.wasEnabled = wasEnabled;
             this.rectAbs = new Rectangle();
@@ -150,6 +154,7 @@ namespace CrewChiefV4.VirtualReality
             this.curvature = other.curvature;
             this.isDisplay = other.isDisplay;
             this.toggleVKeyCode = other.toggleVKeyCode;
+            this.modifierVKeyCode = other.modifierVKeyCode;
             this.gazeEnabled = other.gazeEnabled;
             this.wasEnabled = other.wasEnabled;
             this.rectAbs = new Rectangle();
@@ -276,17 +281,22 @@ namespace CrewChiefV4.VirtualReality
 
         public void HandleToggleKey()
         {
-            if (toggleVKeyCode == -1)
+            if (toggleVKeyCode == -1 || toggleVKeyCode == 0)
             {
                 return;
             }
-
             var ticksNow = Utilities.GetTickCount64();
             if (ticksNow - lastKeyHandleTickCount > 150L)  // 150ms
             {
                 lastKeyHandleTickCount = ticksNow;
-                if (KeyPresser.GetAsyncKeyState((System.Windows.Forms.Keys)toggleVKeyCode) != 0)
+                short modifierPressed = 1;
+                if (modifierVKeyCode != -1 && modifierVKeyCode != 0)
                 {
+                    modifierPressed = KeyPresser.GetAsyncKeyState((System.Windows.Forms.Keys)modifierVKeyCode);
+                }
+                if (KeyPresser.GetAsyncKeyState((System.Windows.Forms.Keys)toggleVKeyCode) != 0 && modifierPressed != 0)
+                {
+
                     enabled = !enabled;
                     if (enabled && vrOverlayHandle == 0)
                     {
