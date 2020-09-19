@@ -14,11 +14,29 @@ using Valve.VR;
 using CrewChiefV4.VirtualReality;
 using System.Threading;
 using System.Diagnostics;
+using static CrewChiefV4.commands.KeyPresser;
 
 namespace CrewChiefV4
 {
     public partial class VROverlaySettings : Form
     {
+
+        
+
+        private class VirtualKeyMap
+        {
+            public Keys keyCode;
+            public VirtualKeyMap(Keys keyCode)
+            {
+                this.keyCode = keyCode;
+            }
+
+            public override string ToString()
+            {
+                return keyCode.ToString();
+            }
+        }
+
         List<VROverlayWindow> settings = VROverlayWindow.loadOverlaySetttings<List<VROverlayWindow>>("vr_overlay_windows.json");
 
         public static object instanceLock = new object();
@@ -63,6 +81,17 @@ namespace CrewChiefV4
             comboBoxTrackingSpace.Items.Add(Configuration.getUIString("vr_tracking_space_standing"));
             comboBoxTrackingSpace.Items.Add(Configuration.getUIString("vr_tracking_space_followhead"));
 
+            labelToggleKey.Text = Configuration.getUIString("vr_toggle_key");
+
+            var keys = Enum.GetValues(typeof(Keys));
+            foreach(var key in keys)
+            {
+                comboBoxToggleVirtualKeys.Items.Add(new VirtualKeyMap((Keys)key));
+            }
+            foreach (var key in keys)
+            {
+                comboBoxModifierKeys.Items.Add(new VirtualKeyMap((Keys)key));
+            }
             updateWindowList();
 
             this.KeyPreview = true;
@@ -252,6 +281,22 @@ namespace CrewChiefV4
 
                     comboBoxTrackingSpace.SelectedIndex = (int)window.trackingSpace;
 
+                    if(window.toggleVKeyCode == -1)
+                    {
+                        comboBoxToggleVirtualKeys.SelectedIndex = 0;
+                    }
+                    else
+                    {
+                        comboBoxToggleVirtualKeys.SelectedIndex = comboBoxToggleVirtualKeys.FindString(((Keys)window.toggleVKeyCode).ToString());
+                    }
+                    if (window.modifierVKeyCode == -1)
+                    {
+                        comboBoxModifierKeys.SelectedIndex = 0;
+                    }
+                    else
+                    {
+                        comboBoxModifierKeys.SelectedIndex = comboBoxModifierKeys.FindString(((Keys)window.modifierVKeyCode).ToString());
+                    }
                     this.loadingSettings = false;
                 }
             }
@@ -344,6 +389,7 @@ namespace CrewChiefV4
                             s.trackingSpace = currWnd.trackingSpace;
                             s.isDisplay = currWnd.isDisplay;
                             s.toggleVKeyCode = currWnd.toggleVKeyCode;
+                            s.modifierVKeyCode = currWnd.modifierVKeyCode;
                         }
                     }
 
@@ -561,6 +607,38 @@ namespace CrewChiefV4
 
                     var window = ((VROverlayWindow)listBoxWindows.SelectedItem);
                     window.trackingSpace = comboBoxTrackingSpace.SelectedIndex != -1 ? (TrackingSpace)comboBoxTrackingSpace.SelectedIndex : TrackingSpace.Seated;
+                    ///window.forceTopMost = checkBoxForceTopMostWindow.Checked;
+                }
+            }
+        }
+
+        private void comboBoxVirtualKeys_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            lock (instanceLock)
+            {
+                if (listBoxWindows.SelectedIndex != -1)
+                {
+                    if (!this.loadingSettings)
+                        this.buttonSaveSettings.Enabled = true;
+
+                    var window = ((VROverlayWindow)listBoxWindows.SelectedItem);
+                        window.toggleVKeyCode =  comboBoxToggleVirtualKeys.SelectedIndex != -1 || comboBoxToggleVirtualKeys.SelectedIndex == 0 ? (int)((VirtualKeyMap)comboBoxToggleVirtualKeys.SelectedItem).keyCode : -1;
+                    ///window.forceTopMost = checkBoxForceTopMostWindow.Checked;
+                }
+            }
+        }
+
+        private void comboBoxModifierKeys_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            lock (instanceLock)
+            {
+                if (listBoxWindows.SelectedIndex != -1)
+                {
+                    if (!this.loadingSettings)
+                        this.buttonSaveSettings.Enabled = true;
+
+                    var window = ((VROverlayWindow)listBoxWindows.SelectedItem);
+                    window.modifierVKeyCode = comboBoxModifierKeys.SelectedIndex != -1 || comboBoxModifierKeys.SelectedIndex == 0 ? (int)((VirtualKeyMap)comboBoxModifierKeys.SelectedItem).keyCode : -1;
                     ///window.forceTopMost = checkBoxForceTopMostWindow.Checked;
                 }
             }
