@@ -19,7 +19,7 @@ namespace CrewChiefV4
              "tim heinemann", "Josh Cassar", "Jesse Hoppo", "markus grönthal", "joan moreno", "N.Quinque", "epsilon",
              "^1!^5c^3hrist ^5i^3n ^5a^3ction", "slightly mad", "dickovens", "Pyromaniac", "luismat112", "Ruben Zukic", "Adam L Watson",
              "Dave Rowe"/*for brake checking doing daytona 24h and being a general dck*/, "Visar Gjikolli", "Lukasz Salwerowicz",
-             "xavi lópez" /*roughing up in ranked*/};
+             "xavi lópez", "bernie ecclestone" /*roughing up in ranked*/};
 
 
           public static void validate(String str)
