@@ -1104,6 +1104,7 @@ namespace CrewChiefV4.Events
             }
 
             if (CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT
+                || CrewChief.gameDefinition.gameEnum == GameEnum.GTR2
                 || CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM
                 || CrewChief.gameDefinition.gameEnum == GameEnum.IRACING)
             {
