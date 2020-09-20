@@ -760,12 +760,14 @@ namespace CrewChiefV4.GTR2
 
             if (shared.extended.mInRealtimeFC == 0  // Mark pit limiter as unavailable if in Monitor (not real time).
                 || shared.scoring.mScoringInfo.mInRealtime == 0
-                /*|| playerTelemetry.mSpeedLimiterAvailable == 0*/)  // TODO: get it
+                || shared.extended.mUnofficialFeaturesEnabled == 0
+                /*| playerTelemetry.mSpeedLimiterAvailable == 0*/)  // TODO: get it
             {
                 cgs.PitData.limiterStatus = PitData.LimiterStatus.NOT_AVAILABLE;
             }
             else
-                cgs.PitData.limiterStatus = PitData.LimiterStatus.INACTIVE;  // TODO: revisit
+                cgs.PitData.limiterStatus = playerExtendedScoring.mSpeedLimiter > 0 ? PitData.LimiterStatus.ACTIVE : PitData.LimiterStatus.INACTIVE;
+            //PitData.LimiterStatus.INACTIVE;  // TODO: revisit
             //cgs.PitData.limiterStatus = playerTelemetry.mSpeedLimiter > 0 ? PitData.LimiterStatus.ACTIVE : PitData.LimiterStatus.INACTIVE;
 
             if (pgs != null
@@ -789,21 +791,23 @@ namespace CrewChiefV4.GTR2
                 cgs.PitData.MandatoryPitStopCompleted = pgs.PitData.MandatoryPitStopCompleted || cgs.PitData.IsMakingMandatoryPitStop;
 
             if (shared.extended.mUnofficialFeaturesEnabled != 0)
-                cgs.PitData.HasRequestedPitStop = (GTR2PitState)shared.extended.mPlayerPitState == GTR2Constants.GTR2PitState.Request;
+                cgs.PitData.HasRequestedPitStop = (GTR2PitState)playerExtendedScoring.mPitState == GTR2Constants.GTR2PitState.Request;
+            //cgs.PitData.HasRequestedPitStop = (GTR2PitState)shared.extended.mPlayerPitState == GTR2Constants.GTR2PitState.Request;
 
             // Is this new pit request?
             if (pgs != null && !pgs.PitData.HasRequestedPitStop && cgs.PitData.HasRequestedPitStop)
                 this.timePitStopRequested = cgs.Now;
 
-            if (shared.extended.mUnofficialFeaturesEnabled == 0)
-            {
+            //if (shared.extended.mUnofficialFeaturesEnabled == 0)
+            //{
+            // TODO: use hardcoded time for now.
                 // If DMA is not enabled, check if it's time to mark pit crew as ready.
                 if (pgs != null
                     && pgs.PitData.HasRequestedPitStop
                     && cgs.PitData.HasRequestedPitStop
                     && (cgs.Now - this.timePitStopRequested).TotalSeconds > cgs.carClass.pitCrewPreparationTime)
                         cgs.PitData.IsPitCrewReady = true;
-            }
+            //}
 
             if (shared.extended.mUnofficialFeaturesEnabled != 0)
                 cgs.PitData.PitSpeedLimit = shared.extended.mCurrentPitSpeedLimit;
@@ -816,7 +820,9 @@ namespace CrewChiefV4.GTR2
                 && shared.extended.mInRealtimeFC == 1 && shared.scoring.mScoringInfo.mInRealtime == 1  // Limit this to Realtime only.
                 && csd.SessionType == SessionType.Race)  // Also, limit to race only, this helps with back and forth between returing to pits via exit to monitor.
             {                                            // There's also no real critical rush in quali or practice to stress about.
-                cgs.PitData.IsPitCrewDone = (GTR2PitState)shared.extended.mPlayerPitState == GTR2Constants.GTR2PitState.Exiting;
+                cgs.PitData.IsPitCrewDone = (GTR2PitState)playerExtendedScoring.mPitState == GTR2Constants.GTR2PitState.Exiting;
+                
+                //cgs.PitData.IsPitCrewDone = (GTR2PitState)shared.extended.mPlayerPitState == GTR2Constants.GTR2PitState.Exiting;
             }
 
             if (csd.IsNewLap)

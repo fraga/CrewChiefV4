@@ -442,6 +442,7 @@ namespace GTR2SharedMemory
             public float mFuelCapacityLiters;
             public int mBlueFlag;
             public float mBlueFlagET;
+            public byte mSpeedLimiter;
         }
 
 
@@ -507,8 +508,7 @@ namespace GTR2SharedMemory
 
             public float mCurrentPitSpeedLimit;                          // speed limit m/s.
             public float mFormationLapSpeeed;
-            public char mPlayerPitState;
-            public char mSpeedLimiter;
+            public byte mPlayerPitState;
 
             public Int64 mTicksLSIPhaseMessageUpdated;                   // Ticks when last LSI phase message was updated.
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = GTR2Constants.MAX_RULES_INSTRUCTION_MSG_LEN)]
