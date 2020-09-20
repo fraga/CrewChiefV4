@@ -2806,8 +2806,11 @@ namespace CrewChiefV4.GameState
 
         public Boolean HasStopAndGo;
 
-        // from R3E data - what is this??
+        // used for iRacing where we don't know the pit action required to serve the penalty
         public Boolean HasPitStop;
+
+        // iRacing only
+        public Boolean HasMeatballFlag;
 
         public Boolean HasTimeDeduction;
 
