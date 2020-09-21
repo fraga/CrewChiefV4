@@ -1825,8 +1825,12 @@ namespace CrewChiefV4.GTR2
                 for (int i = 0; i < 3; ++i)
                 {
                     // Mark Yellow sectors.
-                    if (shared.scoring.mScoringInfo.mSectorFlag[i] == (int)GTR2Constants.GTR2YellowFlagState.Pending)
-                        cgs.FlagData.sectorFlags[i] = FlagEnum.YELLOW;
+                    //if (shared.scoring.mScoringInfo.mSectorFlag[i] == (int)GTR2Constants.GTR2YellowFlagState.Pending)
+                    if (shared.scoring.mScoringInfo.mSectorFlag[i] == (int)GTR2Constants.GTR2YellowFlagState.PitClosed)
+                    {
+                        var sector = i == 0 ? 2 : i - 1;
+                        cgs.FlagData.sectorFlags[sector] = FlagEnum.YELLOW;
+                    }
                 }
             }
 
