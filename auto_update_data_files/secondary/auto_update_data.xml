@@ -17,7 +17,7 @@ secondary update sources) can still be updated. All downloads from this source w
 
 <!-- current implementation where all the sound pack update information is in this document -->
 <sounds language="en">
-	<voice-messages latest-version="179">
+	<voice-messages latest-version="180">
 		<update-pack url="http://thecrewchief.org/downloads/base_sound_pack.zip" updates-from-version="-1"/>
 		<update-pack url="http://thecrewchief.org/downloads/update_sound_pack.zip" updates-from-version="0"/>
 		<update-pack url="http://thecrewchief.org/downloads/update_2_sound_pack.zip" updates-from-version="122"/>
@@ -44,6 +44,7 @@ secondary update sources) can still be updated. All downloads from this source w
 		<update-pack url="http://thecrewchief.org/downloads/update_23_sound_pack.zip" updates-from-version="176"/>
 		<update-pack url="http://thecrewchief.org/downloads/update_24_sound_pack.zip" updates-from-version="177"/>
 		<update-pack url="http://thecrewchief.org/downloads/update_25_sound_pack.zip" updates-from-version="178"/>
+		<update-pack url="http://thecrewchief.org/downloads/update_26_sound_pack.zip" updates-from-version="179"/>
 	</voice-messages>
 	<driver-names latest-version="139">
 		<update-pack url="http://thecrewchief.org/downloads/base_driver_names.zip" updates-from-version="-1"/>
@@ -57,7 +58,7 @@ secondary update sources) can still be updated. All downloads from this source w
 		<update-pack url="http://thecrewchief.org/downloads/update_8_driver_names.zip" updates-from-version="137"/>
 		<update-pack url="http://thecrewchief.org/downloads/update_9_driver_names.zip" updates-from-version="138"/>
 	</driver-names>
-	<personalisations latest-version="141">
+	<personalisations latest-version="142">
 		<update-pack url="http://thecrewchief.org/downloads/personalisations.zip" updates-from-version="-1"/>
 		<update-pack url="http://thecrewchief.org/downloads/update_personalisations.zip" updates-from-version="0"/>
 		<update-pack url="http://thecrewchief.org/downloads/update_2_personalisations.zip" updates-from-version="121"/>
@@ -71,6 +72,7 @@ secondary update sources) can still be updated. All downloads from this source w
 		<update-pack url="http://thecrewchief.org/downloads/update_10_personalisations.zip" updates-from-version="138"/>
 		<update-pack url="http://thecrewchief.org/downloads/update_11_personalisations.zip" updates-from-version="139"/>
 		<update-pack url="http://thecrewchief.org/downloads/update_12_personalisations.zip" updates-from-version="140"/>
+		<update-pack url="http://thecrewchief.org/downloads/update_13_personalisations.zip" updates-from-version="141"/>
 	</personalisations>
 </sounds>
 
