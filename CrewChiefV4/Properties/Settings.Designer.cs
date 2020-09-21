@@ -4810,5 +4810,17 @@ namespace CrewChiefV4.Properties {
                 this["rf2_enable_pit_manager"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool enable_watch_car_command {
+            get {
+                return ((bool)(this["enable_watch_car_command"]));
+            }
+            set {
+                this["enable_watch_car_command"] = value;
+            }
+        }
     }
 }
