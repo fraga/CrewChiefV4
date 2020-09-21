@@ -19,6 +19,12 @@ namespace CrewChiefV4.Events
 
         private String folderNewPenaltyDriveThrough = "penalties/new_penalty_drivethrough";
 
+        // for iracing we don't know if it's a drive through or a stop-go, so use a generic message
+        private String folderBlackFlag = "penalties/new_penalty_black_flag";
+        // for iracing - meatball flag
+        private String folderBlackAndOrangeFlag = "penalties/meatball_flag";
+
+
         private String folderNewPenaltySlowDown = "penalties/new_penalty_slowdown";
 
         private String folderThreeLapsToServe = "penalties/penalty_three_laps_left";
@@ -28,6 +34,9 @@ namespace CrewChiefV4.Events
         private String folderOneLapToServeStopGo = "penalties/penalty_one_lap_left_stopgo";
 
         private String folderOneLapToServeDriveThrough = "penalties/penalty_one_lap_left_drivethrough";
+
+        // for iRacing where we don't know if it's a DT or a S&G
+        private String folderOneLapToServe = "penalties/penalty_one_lap_left_to_pit";
 
         public static String folderDisqualified = "penalties/penalty_disqualified";
 
@@ -481,6 +490,29 @@ namespace CrewChiefV4.Events
                     totalAnnouncableCutWarnings = 0;
                     cutTimesInSession.Clear();
                 }
+                else if (CrewChief.gameDefinition.gameEnum == GameEnum.IRACING && currentGameState.PenaltiesData.HasPitStop && !previousGameState.PenaltiesData.HasPitStop)
+                {
+                    lapsCompleted = currentGameState.SessionData.CompletedLaps;
+                    // this is a new penalty
+                    audioPlayer.playMessage(new QueuedMessage(folderBlackFlag, 0, abstractEvent: this, priority: 10));
+                    // queue a '3 laps to serve penalty' message - this might not get played
+                    audioPlayer.playMessage(new QueuedMessage(folderThreeLapsToServe, 0, secondsDelay: pitstopDelay, abstractEvent: this, priority: 10));
+                    // we don't already have a penalty
+                    if (penaltyLap == -1 || !hasOutstandingPenalty)
+                    {
+                        penaltyLap = currentGameState.SessionData.CompletedLaps;
+                    }
+                    hasOutstandingPenalty = true;
+                    hasHadAPenalty = true;
+                    // don't know if this is for cutting, just in case we reset the cutting data
+                    trackLimitsMode = TrackLimitsMode.OK;
+                    totalAnnouncableCutWarnings = 0;
+                    cutTimesInSession.Clear();
+                }
+                else if (CrewChief.gameDefinition.gameEnum == GameEnum.IRACING && currentGameState.PenaltiesData.HasMeatballFlag && !previousGameState.PenaltiesData.HasMeatballFlag)
+                {
+                    audioPlayer.playMessage(new QueuedMessage(folderBlackAndOrangeFlag, 0, abstractEvent: this, priority: 10));                    
+                }
                 else if (currentGameState.PitData.InPitlane && currentGameState.PitData.OnOutLap && !playedNotServedPenalty &&
                     (currentGameState.PenaltiesData.HasStopAndGo || currentGameState.PenaltiesData.HasDriveThrough))
                 {
@@ -488,7 +520,7 @@ namespace CrewChiefV4.Events
                     audioPlayer.playMessage(new QueuedMessage(folderPenaltyNotServed, 0, secondsDelay: 3, abstractEvent: this, priority: 10));
                     playedNotServedPenalty = true;
                 }
-                else if (currentGameState.SessionData.IsNewLap && (currentGameState.PenaltiesData.HasStopAndGo || currentGameState.PenaltiesData.HasDriveThrough))
+                else if (currentGameState.SessionData.IsNewLap && (currentGameState.PenaltiesData.HasStopAndGo || currentGameState.PenaltiesData.HasDriveThrough || currentGameState.PenaltiesData.HasPitStop))
                 {
                     lapsCompleted = currentGameState.SessionData.CompletedLaps;
                     if (lapsCompleted - penaltyLap == 3 && !currentGameState.PitData.InPitlane)
@@ -506,6 +538,10 @@ namespace CrewChiefV4.Events
                     else if (lapsCompleted - penaltyLap == 2 && currentGameState.PenaltiesData.HasStopAndGo)
                     {
                         audioPlayer.playMessage(new QueuedMessage(folderOneLapToServeStopGo, 0, secondsDelay: pitstopDelay, abstractEvent: this, priority: 10));
+                    }
+                    else if (lapsCompleted - penaltyLap == 2 && currentGameState.PenaltiesData.HasPitStop)
+                    {
+                        audioPlayer.playMessage(new QueuedMessage(folderOneLapToServe, 0, secondsDelay: pitstopDelay, abstractEvent: this, priority: 10));
                     }
                     else if (lapsCompleted - penaltyLap == 1)
                     {

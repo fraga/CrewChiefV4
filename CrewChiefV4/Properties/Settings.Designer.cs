@@ -4882,5 +4882,17 @@ namespace CrewChiefV4.Properties {
                 this["enable_gtr2_cut_track_heuristics"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool enable_watch_car_command {
+            get {
+                return ((bool)(this["enable_watch_car_command"]));
+            }
+            set {
+                this["enable_watch_car_command"] = value;
+            }
+        }
     }
 }

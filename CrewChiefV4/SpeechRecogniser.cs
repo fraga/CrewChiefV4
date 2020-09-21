@@ -1334,8 +1334,9 @@ namespace CrewChiefV4
                         }
                         ChoicesWrapper opponentNameChoices = SREWrapperFactory.createNewChoicesWrapper(nameChoices.ToArray<string>());
                         ChoicesWrapper opponentNamePossessiveChoices = SREWrapperFactory.createNewChoicesWrapper(namePossessiveChoices.ToArray<string>());
-
-                        opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHERE_IS, WHERES, WATCH, TEAM_MATE, RIVAL, STOP_WATCHING }, false, opponentNameChoices, null, true));
+                        String[] enabledOpponentChoices = UserSettings.GetUserSettings().getBoolean("enable_watch_car_command") ?
+                            new String[] { WHERE_IS, WHERES, WATCH, TEAM_MATE, RIVAL, STOP_WATCHING } : new String[] { WHERE_IS, WHERES };
+                        opponentGrammarList.AddRange(addCompoundChoices(enabledOpponentChoices, false, opponentNameChoices, null, true));
                         // todo: iracing definitely has no opponent tyre type data, probably more games lack this info
                         if (CrewChief.gameDefinition != null && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)
                         {
@@ -1462,8 +1463,9 @@ namespace CrewChiefV4
                 opponentNameOrPositionPossessiveChoices.Add(THE_GUY_IN_FRONT);
                 opponentNameOrPositionPossessiveChoices.Add(THE_GUY_BEHIND);
             }
-
-            opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHERE_IS, WHERES, WATCH, TEAM_MATE, RIVAL, STOP_WATCHING }, false, opponentNameOrPositionChoices, null, true));
+            String[] enabledOpponentChoices = UserSettings.GetUserSettings().getBoolean("enable_watch_car_command") ?
+                new String[] { WHERE_IS, WHERES, WATCH, TEAM_MATE, RIVAL, STOP_WATCHING } : new String[] { WHERE_IS, WHERES };
+            opponentGrammarList.AddRange(addCompoundChoices(enabledOpponentChoices, false, opponentNameOrPositionChoices, null, true));
             if (identifyOpponentsByPosition)
             {
                 opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHOS_IN }, false, opponentPositionChoices, null, true));
