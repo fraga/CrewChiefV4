@@ -289,7 +289,7 @@ namespace CrewChiefV4.Events
             // AMS (RF1) uses the pit window calculations to make 'box now' calls for scheduled stops, but we don't want 
             // the pit window opening / closing warnings.
             // Try also applying the same approach to rF2.
-            if (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT)
+            if (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT || CrewChief.gameDefinition.gameEnum == GameEnum.GTR2)
             {
                 enableWindowWarnings = false;
             }

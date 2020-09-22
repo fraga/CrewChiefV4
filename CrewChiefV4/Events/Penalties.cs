@@ -294,7 +294,7 @@ namespace CrewChiefV4.Events
                     return currentGameState.PenaltiesData.HasSlowDown;
                 }
                 else if (eventSubType == folderPenaltyServed &&
-                    (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT))
+                    (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT || CrewChief.gameDefinition.gameEnum == GameEnum.GTR2))
                 {
                     // Don't validate "Penalty served" in rF1/rF2, hasOutstandingPenalty is false by the time we get here.
                     return true;
@@ -435,7 +435,7 @@ namespace CrewChiefV4.Events
                 }
             }
 
-            if (CrewChief.gameDefinition.gameEnum != GameEnum.RF2_64BIT
+            if (CrewChief.gameDefinition.gameEnum != GameEnum.RF2_64BIT && CrewChief.gameDefinition.gameEnum != GameEnum.GTR2
                 && currentGameState.SessionData.SessionPhase == SessionPhase.FullCourseYellow)
             {
                 // Do not allow penalty/warning messagess under FCY unless this is rF2.
@@ -601,7 +601,7 @@ namespace CrewChiefV4.Events
             else if ((currentGameState.SessionData.SessionType == SessionType.Race || currentGameState.SessionData.SessionType == SessionType.Qualify
                         || currentGameState.SessionData.SessionType == SessionType.Practice || currentGameState.SessionData.SessionType == SessionType.LonePractice)
                     && previousGameState != null && currentGameState.PenaltiesData.NumPenalties > 0
-                    && (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT || CrewChief.gameDefinition.gameEnum == GameEnum.ACC ||
+                    && (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT || CrewChief.gameDefinition.gameEnum == GameEnum.ACC || CrewChief.gameDefinition.gameEnum == GameEnum.GTR2 ||
                 (CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM && currentGameState.PenaltiesData.PenaltyType != PenatiesData.DetailedPenaltyType.NONE)))
             {
                 if (currentGameState.PenaltiesData.NumPenalties > previousGameState.PenaltiesData.NumPenalties)
@@ -698,7 +698,7 @@ namespace CrewChiefV4.Events
                 (previousGameState.PenaltiesData.HasDriveThrough && !currentGameState.PenaltiesData.HasDriveThrough) ||
                 // can't read penalty type in Automobilista (and presumably in rF2).
                 (previousGameState.PenaltiesData.NumPenalties > currentGameState.PenaltiesData.NumPenalties &&
-                (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT))))
+                (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT || CrewChief.gameDefinition.gameEnum == GameEnum.GTR2))))
             {
                 audioPlayer.playMessage(new QueuedMessage(folderPenaltyServed, 0, abstractEvent: this, priority: 10));
             }

@@ -532,15 +532,30 @@ namespace CrewChiefV4.GTR2
             csd.SessionType = this.MapToSessionType(shared);
             csd.SessionPhase = this.mapToSessionPhase((GTR2GamePhase)shared.scoring.mScoringInfo.mGamePhase, csd.SessionType, ref playerScoring);
 
-            csd.SessionNumberOfLaps = shared.scoring.mScoringInfo.mMaxLaps > 0 && shared.scoring.mScoringInfo.mMaxLaps < 1000 ? shared.scoring.mScoringInfo.mMaxLaps : 0;
-
-            // default to 60:30 if both session time and number of laps undefined (test day)
             float defaultSessionTotalRunTime = 3630.0f;
-            csd.SessionTotalRunTime
-                = (float)shared.scoring.mScoringInfo.mEndET > 0.0f
-                    ? (float)shared.scoring.mScoringInfo.mEndET
-                    : csd.SessionNumberOfLaps > 0 ? 0.0f : defaultSessionTotalRunTime;
+            if (shared.extended.mUnofficialFeaturesEnabled != 0 && cgs.inCar)
+            {
+                if (shared.extended.mTotalSessionRunningTime < 108000.0f)
+                {
+                    csd.SessionNumberOfLaps = 0;
+                    csd.SessionTotalRunTime = shared.extended.mTotalSessionRunningTime;
+                }
+                else
+                {
+                    csd.SessionNumberOfLaps = shared.scoring.mScoringInfo.mMaxLaps;
+                    csd.SessionTotalRunTime = 0.0f;
+                }
+            }
+            else
+            {
+                csd.SessionNumberOfLaps = shared.scoring.mScoringInfo.mMaxLaps > 0 && shared.scoring.mScoringInfo.mMaxLaps < 1000 ? shared.scoring.mScoringInfo.mMaxLaps : 0;
 
+                // default to 60:30 if both session time and number of laps undefined (test day)
+                csd.SessionTotalRunTime
+                    = (float)shared.scoring.mScoringInfo.mEndET > 0.0f
+                        ? (float)shared.scoring.mScoringInfo.mEndET
+                        : csd.SessionNumberOfLaps > 0 ? 0.0f : defaultSessionTotalRunTime;
+            }
             // If any difference between current and previous states suggests it is a new session
             if (pgs == null
                 || csd.SessionType != psd.SessionType

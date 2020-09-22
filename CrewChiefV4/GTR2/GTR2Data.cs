@@ -509,6 +509,7 @@ namespace GTR2SharedMemory
             public float mCurrentPitSpeedLimit;                          // speed limit m/s.
             public float mFormationLapSpeeed;
             public byte mPlayerPitState;
+            public float mTotalSessionRunningTime;
 
             public Int64 mTicksLSIPhaseMessageUpdated;                   // Ticks when last LSI phase message was updated.
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = GTR2Constants.MAX_RULES_INSTRUCTION_MSG_LEN)]

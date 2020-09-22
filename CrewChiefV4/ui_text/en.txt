@@ -404,7 +404,7 @@ rbr_install_path_metadata = RESTART_REQUIRED
 
 gtr2_install_path = GTR 2 install path
 gtr2_install_path_help = GTR 2 installation path for plugin installation and updating
-gtr2_install_path_filter = GTR 2
+gtr2_install_path_filter = GTR2
 gtr2_install_path_category = UI_STARTUP_AND_PATHS
 gtr2_install_path_metadata = RESTART_REQUIRED
 
@@ -824,7 +824,7 @@ rbr_launch_exe_metadata = RESTART_REQUIRED
 
 gtr2_launch_exe = GTR 2 launch exe
 gtr2_launch_exe_help = This is the direct path to GTR2.exe. Use forward slashes to separate paths.
-gtr2_launch_exe_filter = GTR 2
+gtr2_launch_exe_filter = GTR2
 gtr2_launch_exe_category = UI_STARTUP_AND_PATHS
 gtr2r_launch_exe_metadata = RESTART_REQUIRED
 
@@ -924,7 +924,7 @@ launch_rbr_metadata = RESTART_REQUIRED
 
 launch_gtr2 = Launch GTR 2
 launch_gtr2_help = If this is true the application will attempt to launch Richard Burns Rally when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
-launch_gtr2_filter = GTR 2
+launch_gtr2_filter = GTR2
 launch_gtr2_category = UI_STARTUP_AND_PATHS
 launch_gtr2_metadata = RESTART_REQUIRED
 

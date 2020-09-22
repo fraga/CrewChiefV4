@@ -270,7 +270,7 @@ namespace CrewChiefV4.Events
             }
             else if (CrewChief.gameDefinition.gameEnum != GameEnum.RF1 && /* session time in gridwalk phase isn't usable in rf1 */
                 minutesInSession > 0 && minutesInSession <= 100 &&
-                !((CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT || CrewChief.gameDefinition.gameEnum == GameEnum.GTR2) && (currentGameState.FrozenOrderData.Phase == FrozenOrderPhase.Rolling || currentGameState.FrozenOrderData.Phase == FrozenOrderPhase.FastRolling)))   // No time available in rF2s rolling.
+                !(CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT && (currentGameState.FrozenOrderData.Phase == FrozenOrderPhase.Rolling || currentGameState.FrozenOrderData.Phase == FrozenOrderPhase.FastRolling)))   // No time available in rF2s rolling.
             {
                 if (CrewChief.gameDefinition.gameEnum != GameEnum.RACE_ROOM && currentGameState.SessionData.ClassPosition > 3 && minutesInSession < 20 && minutesInSession > 1)
                 {
