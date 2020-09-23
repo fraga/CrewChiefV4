@@ -375,7 +375,7 @@ namespace CrewChiefV4
                             s.wasEnabled = currWnd.wasEnabled;
                             s.positionX = currWnd.positionX;
                             s.positionY = currWnd.positionY;
-                            s.positionY = currWnd.positionY;
+                            s.positionZ = currWnd.positionZ;
                             s.rotationX = currWnd.rotationX;
                             s.rotationY = currWnd.rotationY;
                             s.rotationZ = currWnd.rotationZ;
