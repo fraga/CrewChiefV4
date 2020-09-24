@@ -1971,7 +1971,13 @@ namespace CrewChiefV4
                 {
                     SoundCache.InterruptCurrentlyPlayingSound(true);
                 }
-                crewChief.audioPlayer.playStartListeningBeep();
+                ThreadStart startListingBeep = crewChief.audioPlayer.playStartListeningBeep;
+                Thread startListingBeepThread = new Thread(startListingBeep);
+
+                startListingBeepThread.Name = "SpeechRecogniser.audioPlayer.playStartListeningBeep";
+                ThreadManager.RegisterRootThread(startListingBeepThread);
+
+                startListingBeepThread.Start();
             }
             else
             {
