@@ -51,9 +51,9 @@ namespace CrewChiefV4
 
         private String localeCountryPropertySetting = UserSettings.GetUserSettings().getString("speech_recognition_country");
 
-        private float minimum_name_voice_recognition_confidence = UserSettings.GetUserSettings().getFloat("minimum_name_voice_recognition_confidence");
-        private float minimum_trigger_voice_recognition_confidence = UserSettings.GetUserSettings().getFloat("trigger_word_sre_min_confidence");
-        private float minimum_voice_recognition_confidence = UserSettings.GetUserSettings().getFloat("minimum_voice_recognition_confidence");
+        private float minimum_name_voice_recognition_confidence = SREWrapperFactory.useSystem ? UserSettings.GetUserSettings().getFloat("minimum_name_voice_recognition_confidence_system_sre") : UserSettings.GetUserSettings().getFloat("minimum_name_voice_recognition_confidence");
+        private float minimum_trigger_voice_recognition_confidence = SREWrapperFactory.useSystem ? UserSettings.GetUserSettings().getFloat("trigger_word_sre_min_confidence_system_sre") : UserSettings.GetUserSettings().getFloat("trigger_word_sre_min_confidence");
+        private float minimum_voice_recognition_confidence = SREWrapperFactory.useSystem ? UserSettings.GetUserSettings().getFloat("minimum_voice_recognition_confidence_system_sre") : UserSettings.GetUserSettings().getFloat("minimum_voice_recognition_confidence");
         private Boolean disable_alternative_voice_commands = UserSettings.GetUserSettings().getBoolean("disable_alternative_voice_commands");
         private Boolean enable_iracing_pit_stop_commands = UserSettings.GetUserSettings().getBoolean("enable_iracing_pit_stop_commands");
         private static Boolean use_verbose_responses = UserSettings.GetUserSettings().getBoolean("use_verbose_responses");
@@ -1334,8 +1334,9 @@ namespace CrewChiefV4
                         }
                         ChoicesWrapper opponentNameChoices = SREWrapperFactory.createNewChoicesWrapper(nameChoices.ToArray<string>());
                         ChoicesWrapper opponentNamePossessiveChoices = SREWrapperFactory.createNewChoicesWrapper(namePossessiveChoices.ToArray<string>());
-
-                        opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHERE_IS, WHERES, WATCH, TEAM_MATE, RIVAL, STOP_WATCHING }, false, opponentNameChoices, null, true));
+                        String[] enabledOpponentChoices = UserSettings.GetUserSettings().getBoolean("enable_watch_car_command") ?
+                            new String[] { WHERE_IS, WHERES, WATCH, TEAM_MATE, RIVAL, STOP_WATCHING } : new String[] { WHERE_IS, WHERES };
+                        opponentGrammarList.AddRange(addCompoundChoices(enabledOpponentChoices, false, opponentNameChoices, null, true));
                         // todo: iracing definitely has no opponent tyre type data, probably more games lack this info
                         if (CrewChief.gameDefinition != null && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)
                         {
@@ -1462,8 +1463,9 @@ namespace CrewChiefV4
                 opponentNameOrPositionPossessiveChoices.Add(THE_GUY_IN_FRONT);
                 opponentNameOrPositionPossessiveChoices.Add(THE_GUY_BEHIND);
             }
-
-            opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHERE_IS, WHERES, WATCH, TEAM_MATE, RIVAL, STOP_WATCHING }, false, opponentNameOrPositionChoices, null, true));
+            String[] enabledOpponentChoices = UserSettings.GetUserSettings().getBoolean("enable_watch_car_command") ?
+                new String[] { WHERE_IS, WHERES, WATCH, TEAM_MATE, RIVAL, STOP_WATCHING } : new String[] { WHERE_IS, WHERES };
+            opponentGrammarList.AddRange(addCompoundChoices(enabledOpponentChoices, false, opponentNameOrPositionChoices, null, true));
             if (identifyOpponentsByPosition)
             {
                 opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHOS_IN }, false, opponentPositionChoices, null, true));
@@ -1969,7 +1971,13 @@ namespace CrewChiefV4
                 {
                     SoundCache.InterruptCurrentlyPlayingSound(true);
                 }
-                crewChief.audioPlayer.playStartListeningBeep();
+                ThreadStart startListingBeep = crewChief.audioPlayer.playStartListeningBeep;
+                Thread startListingBeepThread = new Thread(startListingBeep);
+
+                startListingBeepThread.Name = "SpeechRecogniser.audioPlayer.playStartListeningBeep";
+                ThreadManager.RegisterRootThread(startListingBeepThread);
+
+                startListingBeepThread.Start();
             }
             else
             {

@@ -756,10 +756,7 @@ namespace CrewChiefV4.iRacing
             SessionFlags flag = (SessionFlags)shared.Telemetry.SessionFlags;
             if (flag.HasFlag(SessionFlags.Black) && !flag.HasFlag(SessionFlags.Furled))
             {
-                if (currentGameState.PitData.OnInLap || currentGameState.PitData.OnOutLap)
-                    currentGameState.PenaltiesData.HasStopAndGo = true;
-                else
-                    currentGameState.PenaltiesData.HasDriveThrough = true;
+                currentGameState.PenaltiesData.HasPitStop = true;
             }
             if (flag.HasFlag(SessionFlags.Furled) && currentGameState.SessionData.SessionType != SessionType.Qualify)
             {
@@ -767,7 +764,7 @@ namespace CrewChiefV4.iRacing
             }
             if (flag.HasFlag(SessionFlags.Repair))
             {
-                currentGameState.PenaltiesData.HasPitStop = true;
+                currentGameState.PenaltiesData.HasMeatballFlag = true;
             }
             if (flag.HasFlag(SessionFlags.YellowWaving))
             {

@@ -175,7 +175,8 @@ namespace CrewChiefV4.Events
             if (CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM)
             {
                 minutesInSession = currentGameState.SessionData.RaceSessionsLengthMinutes[currentGameState.SessionData.SessionIteration];
-                lapsInSession = currentGameState.SessionData.RaceSessionsLengthLaps[currentGameState.SessionData.SessionIteration];
+                // don't set laps in session if minutes is > 0
+                lapsInSession = minutesInSession > 0 ? -1 : currentGameState.SessionData.RaceSessionsLengthLaps[currentGameState.SessionData.SessionIteration];
             }
             else
             {
