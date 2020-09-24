@@ -31,6 +31,7 @@ namespace CrewChiefV4.Audio
         public static float spotterVolumeBoost = UserSettings.GetUserSettings().getFloat("spotter_volume_boost");
         public static int ttsTrimStartMilliseconds = UserSettings.GetUserSettings().getInt("tts_trim_start_milliseconds");
         public static int ttsTrimEndMilliseconds = UserSettings.GetUserSettings().getInt("tts_trim_end_milliseconds");
+        public static Boolean loadSubtitlesOnStartup = UserSettings.GetUserSettings().getBoolean("load_subtitles_on_startup");
         private static LinkedList<String> dynamicLoadedSounds = new LinkedList<String>();
         public static Dictionary<String, SoundSet> soundSets = new Dictionary<String, SoundSet>();
         private static Dictionary<String, SingleSound> singleSounds = new Dictionary<String, SingleSound>();
@@ -1521,7 +1522,8 @@ namespace CrewChiefV4.Audio
 
         EventHandler<NAudio.Wave.StoppedEventArgs> eventHandler;
 
-        public String subtitle = "";
+        private String subtitle = "";
+        public bool loadSubtitleBeforePlaying = false;
 
         public SingleSound(int pauseLength)
         {
@@ -1548,46 +1550,69 @@ namespace CrewChiefV4.Audio
             this.cacheSoundPlayerPermanently = cacheSoundPlayerPermanently;
             if (SubtitleManager.enableSubtitles)
             {
-                try
+                if (subtitle != null)
                 {
-                    if (subtitle != null)
+                    this.subtitle = subtitle;
+                }
+                else
+                {
+                    if (SoundCache.loadSubtitlesOnStartup)
                     {
-                        this.subtitle = subtitle;
-                    }
-                    else if (fullPath.Contains("numbers"))
-                    {
-                        this.subtitle = SubtitleManager.ParseSubtitleForNumber(fullPath, this);
-                    }
-                    else if (fullPath.Contains("driver_names"))
-                    {
-                        this.subtitle = Path.GetFileNameWithoutExtension(fullPath);
-                        if (!string.IsNullOrWhiteSpace(this.subtitle))
-                            this.subtitle = Utilities.FirstLetterToUpper(this.subtitle);
-                    }
-                    else if (fullPath.Contains("prefixes_and_suffixes"))
-                    {
-                        this.subtitle = SubtitleManager.ParseSubtitleForPersonalisation(fullPath);
+                        LoadSubtitle();
                     }
                     else
                     {
-                        this.subtitle = SubtitleManager.LoadSubtitleForSound(fullPath);
+                        this.loadSubtitleBeforePlaying = true;
                     }
-
-                    if (string.IsNullOrWhiteSpace(this.subtitle)
-                        && !fullPath.Contains(@"\fx\")
-                        && !fullPath.Contains(@"\breath_in"))  // Shouldn't breaths be moved to fx?
-                    {
-                        Console.WriteLine($"Warning: no subtitle found for \"{fullPath}\"");
-                    }
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Failed to load subtitles for sound " + fullPath + " : " + e.StackTrace);
                 }
             }
+        }
 
-            /*if(!string.IsNullOrEmpty(subtitle))
-                Console.WriteLine("Loaded subtitle for soundFile = " + this.subtitle); */
+        public String GetSubtitle()
+        {
+            if (SubtitleManager.enableSubtitles && this.loadSubtitleBeforePlaying)
+            {
+                LoadSubtitle();
+            }
+            return this.subtitle;
+        }
+
+        private void LoadSubtitle()
+        {
+            try
+            {
+                if (fullPath.Contains("numbers"))
+                {
+                    this.subtitle = SubtitleManager.ParseSubtitleForNumber(fullPath, this);
+                }
+                else if (fullPath.Contains("driver_names"))
+                {
+                    this.subtitle = Path.GetFileNameWithoutExtension(fullPath);
+                    if (!string.IsNullOrWhiteSpace(this.subtitle))
+                        this.subtitle = Utilities.FirstLetterToUpper(this.subtitle);
+                }
+                else if (fullPath.Contains("prefixes_and_suffixes"))
+                {
+                    this.subtitle = SubtitleManager.ParseSubtitleForPersonalisation(fullPath);
+                }
+                else
+                {
+                    this.subtitle = SubtitleManager.LoadSubtitleForSound(fullPath);
+                }
+
+                if (string.IsNullOrWhiteSpace(this.subtitle)
+                    && !fullPath.Contains(@"\fx\")
+                    && !fullPath.Contains(@"\breath_in"))  // Shouldn't breaths be moved to fx?
+                {
+                    Console.WriteLine($"Warning: no subtitle found for \"{fullPath}\"");
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Failed to load subtitles for sound " + fullPath + " : " + e.StackTrace);
+            }
+            // don't retry loading the subtitle
+            this.loadSubtitleBeforePlaying = false;
         }
 
         public void LoadAndCacheFile()

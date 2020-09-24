@@ -4858,5 +4858,17 @@ namespace CrewChiefV4.Properties {
                 this["minimum_name_voice_recognition_confidence_system_sre"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool load_subtitles_on_startup {
+            get {
+                return ((bool)(this["load_subtitles_on_startup"]));
+            }
+            set {
+                this["load_subtitles_on_startup"] = value;
+            }
+        }
     }
 }

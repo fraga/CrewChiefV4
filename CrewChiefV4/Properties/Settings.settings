@@ -1211,5 +1211,8 @@
     <Setting Name="minimum_name_voice_recognition_confidence_system_sre" Type="System.Single" Scope="User">
       <Value Profile="(Default)">0.7</Value>
     </Setting>
+    <Setting Name="load_subtitles_on_startup" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

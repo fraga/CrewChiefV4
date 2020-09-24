@@ -1922,9 +1922,14 @@ enable_controller_pov_switches_category = AUDIO_VOICE_AND_CONTROLLERS
 
 block_male_sounds = Block sounds which refer to drivers as male
 block_male_sounds_help = Don't play sounds which assume the player and all opponents are male (sounds that include "he", "guy", "man" etc)
-block_male_sounds_category = AUDIO_VOICE_AND_CONTROLLERS
+block_male_sounds
 block_male_sounds_metadata = RESTART_REQUIRED
 
 enable_watch_car_command = Enable watch opponent commands
 enable_watch_car_command_help = Enable the watched opponent / rivals voice commands
 enable_watch_car_command_category = AUDIO_VOICE_AND_CONTROLLERS
+
+load_subtitles_on_startup = Load subtitles on app launch
+load_subtitles_on_startup_help = Load all subtitles at startup (may improve performance but can make startup slow)
+load_subtitles_on_startup_category = AUDIO_VOICE_AND_CONTROLLERS
+load_subtitles_on_startup_metadata = RESTART_REQUIRED
