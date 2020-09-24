@@ -1,4 +1,4 @@
-﻿using CrewChiefV4.Audio;
+using CrewChiefV4.Audio;
 using CrewChiefV4.Events;
 using CrewChiefV4.GameState;
 using System;
@@ -222,7 +222,7 @@ namespace CrewChiefV4.PitManager
         /// <param name="currentGameState"></param>
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
-            Boolean autoFuelToEnd = UserSettings.GetUserSettings().getBoolean("iracing_enable_auto_fuel_to_end_of_race"); // tbd: duplicate or rename
+            Boolean autoFuelToEnd = UserSettings.GetUserSettings().getBoolean("rf2_enable_auto_fuel_to_end_of_race");
 
             inCar = currentGameState.inCar;
             if (!previousGameState.inCar && currentGameState.inCar)
