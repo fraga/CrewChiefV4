@@ -1922,7 +1922,7 @@ enable_controller_pov_switches_category = AUDIO_VOICE_AND_CONTROLLERS
 
 block_male_sounds = Block sounds which refer to drivers as male
 block_male_sounds_help = Don't play sounds which assume the player and all opponents are male (sounds that include "he", "guy", "man" etc)
-block_male_sounds
+block_male_sounds_category = AUDIO_VOICE_AND_CONTROLLERS
 block_male_sounds_metadata = RESTART_REQUIRED
 
 enable_watch_car_command = Enable watch opponent commands
