@@ -31,7 +31,7 @@ namespace CrewChiefV4.Audio
         public static float spotterVolumeBoost = UserSettings.GetUserSettings().getFloat("spotter_volume_boost");
         public static int ttsTrimStartMilliseconds = UserSettings.GetUserSettings().getInt("tts_trim_start_milliseconds");
         public static int ttsTrimEndMilliseconds = UserSettings.GetUserSettings().getInt("tts_trim_end_milliseconds");
-        public static Boolean loadSubtitlesOnStartup = UserSettings.GetUserSettings().getBoolean("load_subtitles_on_startup");
+        public static Boolean lazyLoadSubtitles = UserSettings.GetUserSettings().getBoolean("lazy_load_subtitles");
         private static LinkedList<String> dynamicLoadedSounds = new LinkedList<String>();
         public static Dictionary<String, SoundSet> soundSets = new Dictionary<String, SoundSet>();
         private static Dictionary<String, SingleSound> singleSounds = new Dictionary<String, SingleSound>();
@@ -1556,13 +1556,13 @@ namespace CrewChiefV4.Audio
                 }
                 else
                 {
-                    if (SoundCache.loadSubtitlesOnStartup)
+                    if (SoundCache.lazyLoadSubtitles)
                     {
-                        LoadSubtitle();
+                        this.loadSubtitleBeforePlaying = true;
                     }
                     else
                     {
-                        this.loadSubtitleBeforePlaying = true;
+                        LoadSubtitle();
                     }
                 }
             }

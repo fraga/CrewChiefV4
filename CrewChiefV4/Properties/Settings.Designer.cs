@@ -4861,13 +4861,13 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool load_subtitles_on_startup {
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool lazy_load_subtitles {
             get {
-                return ((bool)(this["load_subtitles_on_startup"]));
+                return ((bool)(this["lazy_load_subtitles"]));
             }
             set {
-                this["load_subtitles_on_startup"] = value;
+                this["lazy_load_subtitles"] = value;
             }
         }
     }

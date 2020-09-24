@@ -1929,7 +1929,7 @@ enable_watch_car_command = Enable watch opponent commands
 enable_watch_car_command_help = Enable the watched opponent / rivals voice commands
 enable_watch_car_command_category = AUDIO_VOICE_AND_CONTROLLERS
 
-load_subtitles_on_startup = Load subtitles on app launch
-load_subtitles_on_startup_help = Load all subtitles at startup (may improve performance but can make startup slow)
-load_subtitles_on_startup_category = AUDIO_VOICE_AND_CONTROLLERS
-load_subtitles_on_startup_metadata = RESTART_REQUIRED
+lazy_load_subtitles = Lazy load subtitles
+lazy_load_subtitles_help = Load subtitles immediately before displaying (improves app startup time, may add additional load at runtime)
+lazy_load_subtitles_category = AUDIO_VOICE_AND_CONTROLLERS
+lazy_load_subtitles_metadata = RESTART_REQUIRED
