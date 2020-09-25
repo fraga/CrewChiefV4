@@ -57,7 +57,7 @@ namespace rF2SharedMemory
     public void Disconnect()
     {
       if (this.memoryMappedFile != null)
-          this.memoryMappedFile.Dispose();
+        this.memoryMappedFile.Dispose();
 
       this.memoryMappedFile = null;
       this.fullSizeBuffer = null;
