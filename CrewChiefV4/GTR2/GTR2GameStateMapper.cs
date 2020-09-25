@@ -468,7 +468,6 @@ namespace CrewChiefV4.GTR2
             if (GTR2GameStateMapper.playerName == null)
             {
                 var driverName = GTR2GameStateMapper.GetStringFromBytes(playerScoring.mDriverName);
-                Validator.validate(driverName);
                 GTR2GameStateMapper.playerName = driverName;
             }
 
