@@ -204,18 +204,22 @@ namespace CrewChiefV4.PitManager
                                     PM_event_dict[PitManagerEvent.Initialise].PitManagerEventAction.Invoke("");
                                     initialised = true;
                                 }
-                                PM_event_dict[PitManagerEvent.PrepareToUseMenu].PitManagerEventAction.Invoke("");
-                                result = PM_event_dict[ev].PitManagerEventAction.Invoke(voiceMessage);
-                                if (result)
+                                if (initialised)
                                 {
-                                    result = PM_event_dict[ev].PitManagerEventResponse.Invoke();
+                                    PM_event_dict[PitManagerEvent.PrepareToUseMenu].PitManagerEventAction.Invoke("");
+                                    result = PM_event_dict[ev].PitManagerEventAction.Invoke(voiceMessage);
+                                    if (result)
+                                    {
+                                        result = PM_event_dict[ev].PitManagerEventResponse.Invoke();
+                                    }
+                                    else
+                                    {
+                                        //TBD: default handler "Couldn't do event for this vehicle"
+                                        // e.g. change aero on non-aero car, option not in menu
+                                        Console.WriteLine($"Pit Manager couldn't do {ev} for this vehicle");
+                                    }
                                 }
-                                else
-                                {
-                                    //TBD: default handler "Couldn't do event for this vehicle"
-                                    // e.g. change aero on non-aero car, option not in menu
-                                    Console.WriteLine($"Pit Manager couldn't do {ev} for this vehicle");
-                                }
+                                // else TearDown when not started up
                             }
                             catch (Exception e)
                             {
