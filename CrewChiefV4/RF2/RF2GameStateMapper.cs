@@ -2784,11 +2784,16 @@ namespace CrewChiefV4.rFactor2
 
         public static string GetStringFromBytes(byte[] bytes)
         {
-            var nullIdx = Array.IndexOf(bytes, (byte)0);
+            if (bytes != null)
+            {
+                var nullIdx = Array.IndexOf(bytes, (byte)0);
 
-            return nullIdx >= 0
-              ? Encoding.Default.GetString(bytes, 0, nullIdx)
-              : Encoding.Default.GetString(bytes);
+                return nullIdx >= 0
+                  ? Encoding.Default.GetString(bytes, 0, nullIdx)
+                  : Encoding.Default.GetString(bytes);
+            }
+            // Defensive code
+            return "";
         }
 
         public static string GetSanitizedDriverName(string nameFromGame)

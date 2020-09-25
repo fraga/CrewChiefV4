@@ -59,6 +59,9 @@ namespace CrewChiefV4.RBR
                 this.memoryMappedFile = null;
                 this.fullSizeBuffer = null;
 
+                this.lastSuccessVersionBegin = 0;
+                this.lastSuccessVersionEnd = 0;
+
                 this.ClearStats();
             }
 
@@ -124,7 +127,7 @@ namespace CrewChiefV4.RBR
             {
                 // This method tries to ensure we read consistent buffer view in three steps.
                 // 1. Pre-Check:
-                //       - read version header and retry reading this buffer if begin/end versions don't match.  This reduces a chance of 
+                //       - read version header and retry reading this buffer if begin/end versions don't match.  This reduces a chance of
                 //         reading torn frame during full buffer read.  This saves CPU time.
                 //       - return if version matches last failed read version (stuck frame).
                 //       - return if version matches previously successfully read buffer.  This saves CPU time by avoiding the full read of most likely identical data.
@@ -222,9 +225,9 @@ namespace CrewChiefV4.RBR
                         // sometimes will be required if buffer is updated between checks.
                         //
                         // Anyway, the case is
-                        // * Reader thread reads updateBegin version and continues to read buffer. 
+                        // * Reader thread reads updateBegin version and continues to read buffer.
                         // * Simultaneously, Writer thread begins overwriting the buffer.
-                        // * If Reader thread reads updateEnd before Writer thread finishes, it will look 
+                        // * If Reader thread reads updateEnd before Writer thread finishes, it will look
                         //   like updateBegin == updateEnd.But we actually just read a partially overwritten buffer.
                         //
                         // Hence, this second check is needed here.  Even if writer thread still hasn't finished writing,
@@ -395,7 +398,7 @@ namespace CrewChiefV4.RBR
                         throw new GameDataReadException("Failed to initialise shared memory");
                     }
                 }
-                try 
+                try
                 {
 #if TRACE_BUFFER_READ_ELAPSED_TIME
                     var watch = System.Diagnostics.Stopwatch.StartNew();
