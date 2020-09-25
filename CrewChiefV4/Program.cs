@@ -1,4 +1,5 @@
 ﻿using CrewChiefV4.Audio;
+using CrewChiefV4.UserInterface;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -24,6 +25,7 @@ namespace CrewChiefV4
             { "-cpu7", new IntPtr(0x0040) },
             { "-cpu8", new IntPtr(0x0080) }
         };
+        public static Loading LoadingScreen;
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
@@ -52,7 +54,7 @@ namespace CrewChiefV4
                         try
                         {
                             var process = System.Diagnostics.Process.GetCurrentProcess();
-                            // Set Core 
+                            // Set Core
                             process.ProcessorAffinity = pArg;
                             Console.WriteLine("Set process core affinity to " + commandLineArg);
                         }
@@ -107,6 +109,15 @@ namespace CrewChiefV4
             }
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+
+            LoadSplashImage();
+            
+            LoadingScreen = new Loading();
+            // Display form modelessly
+            LoadingScreen.StartPosition = FormStartPosition.CenterScreen;
+            LoadingScreen.FormBorderStyle = FormBorderStyle.None;
+            LoadingScreen.Show();
+
             Application.Run(new MainWindow());
 
             var watch = System.Diagnostics.Stopwatch.StartNew();
@@ -132,6 +143,37 @@ namespace CrewChiefV4
 
             if (AudioPlayer.playWithNAudio)
                 Debug.Assert(SoundCache.activeSoundPlayerObjects == 0);
+        }
+
+        // get the latest splash image and prepare it to be used on the next run (not this one)
+        private static void LoadSplashImage()
+        {
+            // download the latest splash image in a thread
+            // if our working file exists, move it to be our actual splash image
+            try
+            {
+                if (File.Exists(Loading.tempSplashImagePath))
+                {
+                    File.Move(Loading.tempSplashImagePath, Loading.splashImagePath);
+                }
+            }
+            catch (Exception)
+            {
+                // can't move it but it exists, so nuke it
+                try
+                {
+                    File.Delete(Loading.tempSplashImagePath);
+                }
+                catch (Exception) { }
+            }
+            new Thread(() =>
+            {
+                Thread.CurrentThread.IsBackground = true;
+                using (var client = new System.Net.WebClient())
+                {
+                    client.DownloadFile(@"http://crewchief.isnais.de/CrewChief_splash_image.png", Loading.tempSplashImagePath);
+                }
+            }).Start();
         }
     }
 }

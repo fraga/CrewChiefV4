@@ -548,6 +548,8 @@ namespace CrewChiefV4
             {
                 Console.WriteLine("Skipping update check in debug mode");
             }
+            Program.LoadingScreen.Close();
+            Console.WriteLine("Loading screen closed");
 
             if (UserSettings.GetUserSettings().getBoolean("minimize_on_startup"))
             {
@@ -1140,6 +1142,7 @@ namespace CrewChiefV4
             InitializeUiText();
 
             this.SuspendLayout();
+            Application.DoEvents();
             var currProfileName = UserSettings.currentUserProfileFileName;
             if (currProfileName.EndsWith(".json", StringComparison.InvariantCultureIgnoreCase))
                 currProfileName = currProfileName.Substring(0, currProfileName.Length - ".json".Length);
@@ -1161,6 +1164,7 @@ namespace CrewChiefV4
             consoleTextBox.KeyDown += TextBoxConsole_KeyDown;
 
             Console.SetOut(consoleWriter);
+            Console.WriteLine("Loading screen opened"); // The first point at which we can do that, the screen is already loaded.
 
             // if we can't init the UserSettings the app will basically be fucked. So try to nuke the Britton_IT_Ltd directory from
             // orbit (it's the only way to be sure) then restart the app. This shit is comically flakey but what else can we do here?
@@ -1686,7 +1690,7 @@ namespace CrewChiefV4
             }
             finally
             {
-                
+
                 this.handleVRQuit();
 
                 SteamVR.enabled = false;
