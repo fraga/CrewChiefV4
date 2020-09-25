@@ -149,7 +149,7 @@ namespace CrewChiefV4.rFactor1
             if (playerName == null)
             {
                 String driverName = getStringFromBytes(player.driverName).ToLower();
-                Validator.validate(driverName);
+                AdditionalDataProvider.validate(driverName);
                 playerName = driverName;
             }
             // these things should remain constant during a session
