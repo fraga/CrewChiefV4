@@ -1079,14 +1079,24 @@ cumulative_lap_wheelspin_warning_threshold_filter = !IRACING
 cumulative_lap_wheelspin_warning_threshold_category = FUEL_TEMPS_AND_DAMAGES;MESSAGE_FREQUENCIES
 
 minimum_name_voice_recognition_confidence = Minimum name voice recognition confidence
-minimum_name_voice_recognition_confidence_help = When processing voice commands asking about opponent drivers, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0, default 0.4)
+minimum_name_voice_recognition_confidence_help = When processing voice commands asking about opponent drivers, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0)
 minimum_name_voice_recognition_confidence_category = AUDIO_VOICE_AND_CONTROLLERS
 minimum_name_voice_recognition_confidence_metadata = RESTART_REQUIRED
 
+minimum_name_voice_recognition_confidence_system_sre = Minimum name voice recognition confidence
+minimum_name_voice_recognition_confidence_system_sre_help = When processing voice commands asking about opponent drivers, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0)
+minimum_name_voice_recognition_confidence_system_sre_category = AUDIO_VOICE_AND_CONTROLLERS
+minimum_name_voice_recognition_confidence_system_sre_metadata = RESTART_REQUIRED
+
 minimum_voice_recognition_confidence = Minimum voice recognition confidence
-minimum_voice_recognition_confidence_help = When processing voice commands, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0, default 0.5)
+minimum_voice_recognition_confidence_help = When processing voice commands, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0)
 minimum_voice_recognition_confidence_category = AUDIO_VOICE_AND_CONTROLLERS
 minimum_voice_recognition_confidence_metadata = RESTART_REQUIRED
+
+minimum_voice_recognition_confidence_system_sre = Minimum voice recognition confidence
+minimum_voice_recognition_confidence_system_sre_help = When processing voice commands, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0)
+minimum_voice_recognition_confidence_system_sre_category = AUDIO_VOICE_AND_CONTROLLERS
+minimum_voice_recognition_confidence_system_sre_metadata = RESTART_REQUIRED
 
 display_session_lap_times = Display session lap times
 display_session_lap_times_help = Write all the lap times from the completed session to the console (separated by ;)
@@ -1612,9 +1622,14 @@ naudio_wasapi_latency_category = AUDIO_VOICE_AND_CONTROLLERS
 naudio_wasapi_latency_metadata = RESTART_REQUIRED
 
 trigger_word_sre_min_confidence = Minimum trigger word confidence
-trigger_word_sre_min_confidence_help = When listening for the voice command trigger word, the app must be at least this confident it understood before starting speech recognition (0.0 - 1.0, default 0.6)
+trigger_word_sre_min_confidence_help = When listening for the voice command trigger word, the app must be at least this confident it understood before starting speech recognition (0.0 - 1.0)
 trigger_word_sre_min_confidence_category = AUDIO_VOICE_AND_CONTROLLERS
 trigger_word_sre_min_confidence_metadata = RESTART_REQUIRED
+
+trigger_word_sre_min_confidence_system_sre = Minimum trigger word confidence
+trigger_word_sre_min_confidence_system_sre_help = When listening for the voice command trigger word, the app must be at least this confident it understood before starting speech recognition (0.0 - 1.0)
+trigger_word_sre_min_confidence_system_sre_category = AUDIO_VOICE_AND_CONTROLLERS
+trigger_word_sre_min_confidence_system_sre_metadata = RESTART_REQUIRED
 
 trigger_word_listen_timeout = Trigger word listen timeout (ms)
 trigger_word_listen_timeout_help = Wait this many milliseconds for a command after receiving the trigger word
@@ -1943,3 +1958,8 @@ block_male_sounds_metadata = RESTART_REQUIRED
 enable_watch_car_command = Enable watch opponent commands
 enable_watch_car_command_help = Enable the watched opponent / rivals voice commands
 enable_watch_car_command_category = AUDIO_VOICE_AND_CONTROLLERS
+
+lazy_load_subtitles = Lazy load subtitles
+lazy_load_subtitles_help = Load subtitles immediately before displaying (improves app startup time, may add additional load at runtime)
+lazy_load_subtitles_category = AUDIO_VOICE_AND_CONTROLLERS
+lazy_load_subtitles_metadata = RESTART_REQUIRED

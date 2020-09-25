@@ -1220,5 +1220,17 @@
     <Setting Name="enable_watch_car_command" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="trigger_word_sre_min_confidence_system_sre" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">0.96</Value>
+    </Setting>
+    <Setting Name="minimum_voice_recognition_confidence_system_sre" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">0.75</Value>
+    </Setting>
+    <Setting Name="minimum_name_voice_recognition_confidence_system_sre" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">0.7</Value>
+    </Setting>
+    <Setting Name="lazy_load_subtitles" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

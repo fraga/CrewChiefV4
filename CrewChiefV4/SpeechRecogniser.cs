@@ -51,9 +51,9 @@ namespace CrewChiefV4
 
         private String localeCountryPropertySetting = UserSettings.GetUserSettings().getString("speech_recognition_country");
 
-        private float minimum_name_voice_recognition_confidence = UserSettings.GetUserSettings().getFloat("minimum_name_voice_recognition_confidence");
-        private float minimum_trigger_voice_recognition_confidence = UserSettings.GetUserSettings().getFloat("trigger_word_sre_min_confidence");
-        private float minimum_voice_recognition_confidence = UserSettings.GetUserSettings().getFloat("minimum_voice_recognition_confidence");
+        private float minimum_name_voice_recognition_confidence = SREWrapperFactory.useSystem ? UserSettings.GetUserSettings().getFloat("minimum_name_voice_recognition_confidence_system_sre") : UserSettings.GetUserSettings().getFloat("minimum_name_voice_recognition_confidence");
+        private float minimum_trigger_voice_recognition_confidence = SREWrapperFactory.useSystem ? UserSettings.GetUserSettings().getFloat("trigger_word_sre_min_confidence_system_sre") : UserSettings.GetUserSettings().getFloat("trigger_word_sre_min_confidence");
+        private float minimum_voice_recognition_confidence = SREWrapperFactory.useSystem ? UserSettings.GetUserSettings().getFloat("minimum_voice_recognition_confidence_system_sre") : UserSettings.GetUserSettings().getFloat("minimum_voice_recognition_confidence");
         private Boolean disable_alternative_voice_commands = UserSettings.GetUserSettings().getBoolean("disable_alternative_voice_commands");
         private Boolean enable_iracing_pit_stop_commands = UserSettings.GetUserSettings().getBoolean("enable_iracing_pit_stop_commands");
         private static Boolean use_verbose_responses = UserSettings.GetUserSettings().getBoolean("use_verbose_responses");
@@ -1971,7 +1971,13 @@ namespace CrewChiefV4
                 {
                     SoundCache.InterruptCurrentlyPlayingSound(true);
                 }
-                crewChief.audioPlayer.playStartListeningBeep();
+                ThreadStart startListingBeep = crewChief.audioPlayer.playStartListeningBeep;
+                Thread startListingBeepThread = new Thread(startListingBeep);
+
+                startListingBeepThread.Name = "SpeechRecogniser.audioPlayer.playStartListeningBeep";
+                ThreadManager.RegisterRootThread(startListingBeepThread);
+
+                startListingBeepThread.Start();
             }
             else
             {

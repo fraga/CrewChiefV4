@@ -113,7 +113,7 @@ namespace CrewChiefV4.iRacing
             {
                 leaderCar = playerCar;
             }
-            Validator.validate(playerName);
+            AdditionalDataProvider.validate(playerName);
 
             currentGameState.SafetyCarData = GetSafetyCarData(previousGameState == null ? null : previousGameState.SafetyCarData, shared.PaceCar, 
                 (float)(shared.SessionData.Track.Length * 1000), shared.PaceCarPresent && shared.Drivers.Count <= shared.Telemetry.NumberOfCarsEnabled);                      

@@ -218,6 +218,16 @@ namespace CrewChiefV4
             widgetCount = 0;
             foreach (SettingsProperty floatProp in UserSettings.GetUserSettings().getProperties(typeof(float), null, null))
             {
+                // special case for SRE confidence values - hide the one we won't be using
+                if ((floatProp.Name == "trigger_word_sre_min_confidence" && SRE.SREWrapperFactory.useSystem)
+                    || (floatProp.Name == "trigger_word_sre_min_confidence_system_sre" && !SRE.SREWrapperFactory.useSystem)
+                    || (floatProp.Name == "minimum_voice_recognition_confidence" && SRE.SREWrapperFactory.useSystem)
+                    || (floatProp.Name == "minimum_voice_recognition_confidence_system_sre" && !SRE.SREWrapperFactory.useSystem)
+                    || (floatProp.Name == "minimum_name_voice_recognition_confidence" && SRE.SREWrapperFactory.useSystem)
+                    || (floatProp.Name == "minimum_name_voice_recognition_confidence_system_sre" && !SRE.SREWrapperFactory.useSystem))
+                {
+                    continue;
+                }
                 float defaultValue;
                 float.TryParse((String)floatProp.DefaultValue, out defaultValue);
                 this.propertiesFlowLayoutPanel.Controls.Add(new FloatPropertyControl(floatProp.Name, Configuration.getUIString(floatProp.Name) + " " + Configuration.getUIString("real_number_prop_type"),

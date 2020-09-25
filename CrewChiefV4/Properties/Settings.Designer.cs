@@ -4894,5 +4894,53 @@ namespace CrewChiefV4.Properties {
                 this["enable_watch_car_command"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.96")]
+        public float trigger_word_sre_min_confidence_system_sre {
+            get {
+                return ((float)(this["trigger_word_sre_min_confidence_system_sre"]));
+            }
+            set {
+                this["trigger_word_sre_min_confidence_system_sre"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.75")]
+        public float minimum_voice_recognition_confidence_system_sre {
+            get {
+                return ((float)(this["minimum_voice_recognition_confidence_system_sre"]));
+            }
+            set {
+                this["minimum_voice_recognition_confidence_system_sre"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.7")]
+        public float minimum_name_voice_recognition_confidence_system_sre {
+            get {
+                return ((float)(this["minimum_name_voice_recognition_confidence_system_sre"]));
+            }
+            set {
+                this["minimum_name_voice_recognition_confidence_system_sre"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool lazy_load_subtitles {
+            get {
+                return ((bool)(this["lazy_load_subtitles"]));
+            }
+            set {
+                this["lazy_load_subtitles"] = value;
+            }
+        }
     }
 }

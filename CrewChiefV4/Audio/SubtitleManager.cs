@@ -62,37 +62,38 @@ namespace CrewChiefV4.Audio
                 voiceName = soundMetadata.type == SoundType.SPOTTER ? spotterName : chiefName;
             }           
             for (int i = 0; i < singleSoundsToPlay.Count(); i++)
-            {                
-                if (!string.IsNullOrWhiteSpace(singleSoundsToPlay[i].subtitle))
+            {
+                string subtitle = singleSoundsToPlay[i].GetSubtitle();
+                if (!string.IsNullOrWhiteSpace(subtitle))
                 {
                     if (i == singleSoundsToPlay.Count() - 1)
                     {
-                        subtitleFullString += singleSoundsToPlay[i].subtitle;
+                        subtitleFullString += subtitle;
                     }
                     else
                     {
                         if (singleSoundsToPlay[i].isNumber)
                         {
-                            if (numbersAdded == 0 && numberStringsCount > 1 && !singleSoundsToPlay[i].subtitle.Contains(':') && !singleSoundsToPlay[i].subtitle.Contains('.'))
+                            if (numbersAdded == 0 && numberStringsCount > 1 && !subtitle.Contains(':') && !subtitle.Contains('.'))
                             {
-                                subtitleFullString += singleSoundsToPlay[i].subtitle + ':';
+                                subtitleFullString += subtitle + ':';
                                 numbersAdded++;
                             }
                             else
                             {
                                 if (i <= singleSoundsToPlay.Count() - 2 && !singleSoundsToPlay[i+1].isNumber)
                                 {
-                                    subtitleFullString += singleSoundsToPlay[i].subtitle + " ";
+                                    subtitleFullString += subtitle + " ";
                                 }
                                 else
                                 {
-                                    subtitleFullString += singleSoundsToPlay[i].subtitle;
+                                    subtitleFullString += subtitle;
                                 }
                             }
                         }
                         else
                         {
-                            subtitleFullString += singleSoundsToPlay[i].subtitle + " ";
+                            subtitleFullString += subtitle + " ";
                         }                        
                     }
                 }
