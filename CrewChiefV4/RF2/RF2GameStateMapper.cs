@@ -491,7 +491,7 @@ namespace CrewChiefV4.rFactor2
             if (RF2GameStateMapper.playerName == null)
             {
                 var driverName = RF2GameStateMapper.GetStringFromBytes(playerScoring.mDriverName);
-                Validator.validate(driverName);
+                AdditionalDataProvider.validate(driverName);
                 RF2GameStateMapper.playerName = driverName;
             }
 

@@ -794,7 +794,7 @@ namespace CrewChiefV4.assetto
 
 
             playerName = getNameFromBytes(playerVehicle.driverName);
-            Validator.validate(playerName);
+            AdditionalDataProvider.validate(playerName);
             AC_SESSION_TYPE sessionType = shared.acsGraphic.session;
 
             SessionPhase lastSessionPhase = SessionPhase.Unavailable;

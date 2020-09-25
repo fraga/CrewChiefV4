@@ -189,7 +189,7 @@ namespace CrewChiefV4.ACC
 
             currentGameState.SessionData.TrackDefinition = new TrackDefinition(shared.accStatic.track + ":" + shared.accStatic.trackConfiguration, shared.accChief.trackLength);
 
-            Validator.validate(playerVehicle.driverName);
+            AdditionalDataProvider.validate(playerVehicle.driverName);
             AC_SESSION_TYPE sessionTypeAsSentByGame = shared.accGraphic.session;
 
             SessionPhase lastSessionPhase = SessionPhase.Unavailable;
