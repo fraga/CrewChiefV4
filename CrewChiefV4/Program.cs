@@ -175,7 +175,14 @@ namespace CrewChiefV4
                 Thread.CurrentThread.IsBackground = true;
                 using (var client = new System.Net.WebClient())
                 {
-                    client.DownloadFile(@"http://crewchief.isnais.de/CrewChief_splash_image.png", Loading.tempSplashImagePath);
+                    try
+                    {
+                        client.DownloadFile(@"http://crewchief.isnais.de/CrewChief_splash_image.png", Loading.tempSplashImagePath);
+                    }
+                    catch (Exception)
+                    {
+                        // ignore - no splash screen, doesn't matter
+                    }
                 }
             }).Start();
         }

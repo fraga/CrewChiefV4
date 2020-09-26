@@ -291,16 +291,23 @@ namespace CrewChiefV4
             {
                 var updateAdditionalData = new Thread(() =>
                 {
-                    string base64EncodedData = new WebClient().DownloadString(additionalDataURL);
-                    string decodedData = Base64Decode(base64EncodedData);
-                    string[] splitData = decodedData.Split(',');                   
-                    foreach (var s in splitData)
+                    try
                     {
-                        if (!AdditionalDataProvider.additionalData.Contains(s))
+                        string base64EncodedData = new WebClient().DownloadString(additionalDataURL);
+                        string decodedData = Base64Decode(base64EncodedData);
+                        string[] splitData = decodedData.Split(',');
+                        foreach (var s in splitData)
                         {
-                            string cleanedData = s.Trim('\r', '\n'); ;
-                            AdditionalDataProvider.additionalData.Add(cleanedData);
+                            if (!AdditionalDataProvider.additionalData.Contains(s))
+                            {
+                                string cleanedData = s.Trim('\r', '\n'); ;
+                                AdditionalDataProvider.additionalData.Add(cleanedData);
+                            }
                         }
+                    }
+                    catch (Exception)
+                    {
+                        // don't really care
                     }
                 });
                 updateAdditionalData.Name = "MainWindow.updateAdditionalData";
