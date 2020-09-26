@@ -634,23 +634,30 @@ namespace CrewChiefV4.Audio
                     }
                 }
             }
-            if (singleSounds.Count > 0)
+            if (singleSoundsToPlay.Count > 0)
             {
                 if (prefix != null)
                 {
-                    singleSoundsToPlay.Insert(0, prefix.getSingleSound(false));
-                    lastPersonalisedMessageTime = GameStateData.CurrentTime;
+                    SingleSound prefixSound = prefix.getSingleSound(false);
+                    if (prefixSound != null)
+                    {
+                        singleSoundsToPlay.Insert(0, prefixSound);
+                        lastPersonalisedMessageTime = GameStateData.CurrentTime;
+                    }
                 }
                 if (suffix != null)
                 {
-                    singleSoundsToPlay.Add(suffix.getSingleSound(false));
-                    lastPersonalisedMessageTime = GameStateData.CurrentTime;
+                    SingleSound suffixSound = suffix.getSingleSound(false);
+                    if (suffixSound != null)
+                    {
+                        singleSoundsToPlay.Add(suffixSound);
+                        lastPersonalisedMessageTime = GameStateData.CurrentTime;
+                    }
                 }
-                if(SubtitleManager.enableSubtitles && singleSoundsToPlay.Count > 0)
+                if (SubtitleManager.enableSubtitles)
                 {
                     SubtitleManager.AddPhrase(singleSoundsToPlay, soundMetadata);
                 }
-
 
                 SoundCache.IS_PLAYING = true;
                 foreach (SingleSound singleSound in singleSoundsToPlay)
@@ -665,8 +672,12 @@ namespace CrewChiefV4.Audio
                         singleSound.Play(soundMetadata);
                     }
                 }
-                SoundCache.IS_PLAYING = false;
             }
+            else
+            {
+                Console.WriteLine("No playable sounds could be found for " + String.Join(", ", soundNames));
+            }
+            SoundCache.IS_PLAYING = false;
         }
 
         /*
