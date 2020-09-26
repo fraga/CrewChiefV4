@@ -450,7 +450,8 @@ namespace CrewChiefV4.Events
                 playerMustPitThisLap = false;
             }
             if ((currentGameState.SessionData.SessionType == SessionType.Race || CrewChief.gameDefinition.gameEnum == GameEnum.IRACING) && previousGameState != null &&
-                (currentGameState.PenaltiesData.HasDriveThrough || currentGameState.PenaltiesData.HasStopAndGo || currentGameState.PenaltiesData.HasTimeDeduction))
+                (currentGameState.PenaltiesData.HasDriveThrough || currentGameState.PenaltiesData.HasStopAndGo || currentGameState.PenaltiesData.HasTimeDeduction || 
+                currentGameState.PenaltiesData.HasPitStop || currentGameState.PenaltiesData.HasMeatballFlag))
             {
                 if (currentGameState.PenaltiesData.HasDriveThrough && !previousGameState.PenaltiesData.HasDriveThrough)
                 {

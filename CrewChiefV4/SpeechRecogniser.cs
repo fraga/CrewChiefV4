@@ -264,6 +264,7 @@ namespace CrewChiefV4
         public static String[] PIT_STOP_DONT_FIX_SUSPENSION = Configuration.getSpeechRecognitionPhrases("PIT_STOP_DONT_FIX_SUSPENSION");
         public static String[] PIT_STOP_FIX_ALL = Configuration.getSpeechRecognitionPhrases("PIT_STOP_FIX_ALL");  // rF2
         public static String[] PIT_STOP_FIX_BODY = Configuration.getSpeechRecognitionPhrases("PIT_STOP_FIX_BODY");  // rF2
+        public static String[] PIT_STOP_FIX_NONE = Configuration.getSpeechRecognitionPhrases("PIT_STOP_FIX_NONE");  // rF2
         public static String[] PIT_STOP_SERVE_PENALTY = Configuration.getSpeechRecognitionPhrases("PIT_STOP_SERVE_PENALTY");
         public static String[] PIT_STOP_DONT_SERVE_PENALTY = Configuration.getSpeechRecognitionPhrases("PIT_STOP_DONT_SERVE_PENALTY");
         public static String[] PIT_STOP_REFUEL = Configuration.getSpeechRecognitionPhrases("PIT_STOP_REFUEL");
@@ -1847,6 +1848,7 @@ namespace CrewChiefV4
                 validateAndAdd(PIT_STOP_REFUEL, pitManagerChoices);
                 validateAndAdd(PIT_STOP_FIX_ALL, pitManagerChoices);
                 validateAndAdd(PIT_STOP_FIX_BODY, pitManagerChoices);
+                validateAndAdd(PIT_STOP_FIX_NONE, pitManagerChoices);
                 validateAndAdd(PIT_STOP_FUEL_TO_THE_END, pitManagerChoices);
 
                 GrammarBuilderWrapper PitManagerGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper(pitManagerChoices);
