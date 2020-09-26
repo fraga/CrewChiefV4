@@ -401,7 +401,7 @@
       <DependentUpon>VROverlay.cs</DependentUpon>
     </Compile>
     <Compile Include="UserSettings.cs" />
-    <Compile Include="Validator.cs" />
+    <Compile Include="AdditionalDataProvider.cs" />
     <Compile Include="NoisyCartesianCoordinateSpotter.cs" />
     <Compile Include="NumberProcessing\TimeSpanWrapper.cs" />
     <Compile Include="NumberReaderIt.cs" />

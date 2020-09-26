@@ -1,6 +1,22 @@
 <!DOCTYPE html>
 <html>
 <body>
+<h2>Version 4.13.1.2</h2>
+<ul>
+	<li>Hotfix for startup crash for new users</li>
+</ul>
+<h2>Version 4.13.1.1</h2>
+<ul>
+	<li>Added separate voice recognition sensitivity threshold values for when using the built-in Windows speech recogniser. These are higher (particularly for the 'Trigger word') and should stop a lot of the false-positives (again, especially for the 'Trigger word') when using the 'Prefer Windows speech recogniser' option</li>
+	<li>Fix z-offset not saving for some VR overlays</li>
+	<li>Allow the 'Watch opponent' function to be disabled (added 'Enable watch opponent commands' property, default enabled)</li>
+	<li>Fix bug playing start-listening beep using Trigger Word voice recognition mode and nAudio</li>
+	<li>Added shortcut key bindings to toggle VR overlays</li>
+	<li>Added option to control when subtitles are loaded. If the property 'Lazy load subtitles' is enabled the subtitles are loaded only when needed. This can improve app launch times when using subtitles but may increase app resource use when driving</li>
+	<li>R3E - fix for incorrect session length message with time + 1 extra lap race sessions</li>
+	<li>iRacing - added Meatball flag message and generic pit-to-serve-penalty message (the app doesn't know if it's a drive-through or a stop-and-go penalty)</li>
+	<li>RF2 & RBR - fix app crash when restarting the app</li>
+</ul>
 <h2>Version 4.13.1.0</h2>
 <ul>
 	<li>Fixed some cases where the app would use text-to-speech driver names when it shouldn't when the TTS settings was 'Use TTS only when necessary'</li>

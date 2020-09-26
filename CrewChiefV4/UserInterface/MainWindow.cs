@@ -102,6 +102,8 @@ namespace CrewChiefV4
         // this is the file accessed via the PHP download script:
         private static String autoUpdateXMLURL1 = "http://thecrewchief.org/downloads.php?do=downloadxml";
 
+        private static String additionalDataURL = "http://thecrewchief.org/downloads.php?do=getadditionaldata";
+
         // the legacy update stuff hosted on GoogleDrive with downloads on the isnais ftp server
         private static String autoUpdateXMLURL2 = "https://drive.google.com/uc?export=download&id=0B4KQS820QNFbWWFjaDAzRldMNUE";
 
@@ -206,7 +208,6 @@ namespace CrewChiefV4
             }
             base.WndProc(ref m);
         }
-
         private void FormMain_Load(object sender, EventArgs e)
         {
             // Restore window position.
@@ -285,22 +286,50 @@ namespace CrewChiefV4
                 this.MinimumSize = new System.Drawing.Size(1160, 730);
             }
 
+            // do the auto updating stuff in a separate Thread's
+            if (!CrewChief.Debugging)
+            {
+                var updateAdditionalData = new Thread(() =>
+                {
+                    try
+                    {
+                        string base64EncodedData = new WebClient().DownloadString(additionalDataURL);
+                        string decodedData = Base64Decode(base64EncodedData);
+                        string[] splitData = decodedData.Split(',');
+                        foreach (var s in splitData)
+                        {
+                            if (!AdditionalDataProvider.additionalData.Contains(s))
+                            {
+                                string cleanedData = s.Trim('\r', '\n'); ;
+                                AdditionalDataProvider.additionalData.Add(cleanedData);
+                            }
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        // don't really care
+                    }
+                });
+                updateAdditionalData.Name = "MainWindow.updateAdditionalData";
+                ThreadManager.RegisterResourceThread(updateAdditionalData);
+                updateAdditionalData.Start();
+            }
             // Some update test code - uncomment this to allow the app to process an update .zip file in the root of the sound pack
             /*
             ZipFile.ExtractToDirectory(AudioPlayer.soundFilesPath + @"\" + soundPackTempFileName, AudioPlayer.soundFilesPath + @"\sounds_temp");
             UpdateHelper.ProcessFileUpdates(AudioPlayer.soundFilesPath + @"\sounds_temp");
             UpdateHelper.MoveDirectory(AudioPlayer.soundFilesPath + @"\sounds_temp", AudioPlayer.soundFilesPath);
             */
-
-            // do the auto updating stuff in a separate Thread
             if (!CrewChief.Debugging ||
                 SoundPackVersionsHelper.currentSoundPackVersion <= 0 || SoundPackVersionsHelper.currentPersonalisationsVersion <= 0 || SoundPackVersionsHelper.currentDriverNamesVersion <= 0)
             {
                 var checkForUpdatesThread = new Thread(() =>
                 {
+
                     try
                     {
                         Console.WriteLine("Checking for updates");
+
                         String firstUpdate = preferAlternativeDownloadSite ? autoUpdateXMLURL2 : autoUpdateXMLURL1;
                         String secondUpdate = preferAlternativeDownloadSite ? autoUpdateXMLURL1 : autoUpdateXMLURL2;
 
@@ -548,8 +577,11 @@ namespace CrewChiefV4
             {
                 Console.WriteLine("Skipping update check in debug mode");
             }
-            Program.LoadingScreen.Close();
-            Console.WriteLine("Loading screen closed");
+            if (UserSettings.GetUserSettings().getBoolean("show_splash_screen"))
+            {
+                Program.LoadingScreen.Close();
+                Console.WriteLine("Loading screen closed");
+            }
 
             if (UserSettings.GetUserSettings().getBoolean("minimize_on_startup"))
             {
@@ -3649,6 +3681,11 @@ namespace CrewChiefV4
         public void buttonVRWindowSettings_Click(object sender, EventArgs e)
         {
             vrOverlayForm.ShowDialog();
+        }
+        public static string Base64Decode(string base64EncodedData)
+        {
+            var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
+            return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
         }
     }
 
