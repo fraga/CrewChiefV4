@@ -109,14 +109,15 @@ namespace CrewChiefV4
             }
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-
-            LoadSplashImage();
-            
-            LoadingScreen = new Loading();
-            // Display form modelessly
-            LoadingScreen.StartPosition = FormStartPosition.CenterScreen;
-            LoadingScreen.FormBorderStyle = FormBorderStyle.None;
-            LoadingScreen.Show();
+            if (UserSettings.GetUserSettings().getBoolean("show_splash_screen"))
+            {
+                LoadSplashImage();
+                LoadingScreen = new Loading();
+                // Display form modelessly
+                LoadingScreen.StartPosition = FormStartPosition.CenterScreen;
+                LoadingScreen.FormBorderStyle = FormBorderStyle.None;
+                LoadingScreen.Show();
+            }
 
             Application.Run(new MainWindow());
 
@@ -152,6 +153,10 @@ namespace CrewChiefV4
             // if our working file exists, move it to be our actual splash image
             try
             {
+                if (!Directory.Exists(Loading.splashImageFolderPath))
+                {
+                    Directory.CreateDirectory(Loading.splashImageFolderPath);
+                }
                 if (File.Exists(Loading.tempSplashImagePath))
                 {
                     File.Move(Loading.tempSplashImagePath, Loading.splashImagePath);
@@ -171,7 +176,14 @@ namespace CrewChiefV4
                 Thread.CurrentThread.IsBackground = true;
                 using (var client = new System.Net.WebClient())
                 {
-                    client.DownloadFile(@"http://crewchief.isnais.de/CrewChief_splash_image.png", Loading.tempSplashImagePath);
+                    try
+                    {
+                        client.DownloadFile(@"http://crewchief.isnais.de/CrewChief_splash_image.png", Loading.tempSplashImagePath);
+                    }
+                    catch (Exception)
+                    {
+                        // ignore - no splash screen, doesn't matter
+                    }
                 }
             }).Start();
         }
