@@ -1933,3 +1933,7 @@ lazy_load_subtitles = Lazy load subtitles
 lazy_load_subtitles_help = Load subtitles immediately before displaying (improves app startup time, may add additional load at runtime)
 lazy_load_subtitles_category = AUDIO_VOICE_AND_CONTROLLERS
 lazy_load_subtitles_metadata = RESTART_REQUIRED
+
+show_splash_screen = Show splash screen
+show_splash_screen_help = Show splash screen while the app is launching
+show_splash_screen_category = MISC

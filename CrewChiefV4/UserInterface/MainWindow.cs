@@ -577,8 +577,11 @@ namespace CrewChiefV4
             {
                 Console.WriteLine("Skipping update check in debug mode");
             }
-            Program.LoadingScreen.Close();
-            Console.WriteLine("Loading screen closed");
+            if (UserSettings.GetUserSettings().getBoolean("show_splash_screen"))
+            {
+                Program.LoadingScreen.Close();
+                Console.WriteLine("Loading screen closed");
+            }
 
             if (UserSettings.GetUserSettings().getBoolean("minimize_on_startup"))
             {

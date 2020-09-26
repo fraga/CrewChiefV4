@@ -109,14 +109,15 @@ namespace CrewChiefV4
             }
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-
-            LoadSplashImage();
-            
-            LoadingScreen = new Loading();
-            // Display form modelessly
-            LoadingScreen.StartPosition = FormStartPosition.CenterScreen;
-            LoadingScreen.FormBorderStyle = FormBorderStyle.None;
-            LoadingScreen.Show();
+            if (UserSettings.GetUserSettings().getBoolean("show_splash_screen"))
+            {
+                LoadSplashImage();
+                LoadingScreen = new Loading();
+                // Display form modelessly
+                LoadingScreen.StartPosition = FormStartPosition.CenterScreen;
+                LoadingScreen.FormBorderStyle = FormBorderStyle.None;
+                LoadingScreen.Show();
+            }
 
             Application.Run(new MainWindow());
 

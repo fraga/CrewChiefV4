@@ -4870,5 +4870,17 @@ namespace CrewChiefV4.Properties {
                 this["lazy_load_subtitles"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool show_splash_screen {
+            get {
+                return ((bool)(this["show_splash_screen"]));
+            }
+            set {
+                this["show_splash_screen"] = value;
+            }
+        }
     }
 }
