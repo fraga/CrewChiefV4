@@ -646,7 +646,7 @@ namespace CrewChiefV4.Audio
                     singleSoundsToPlay.Add(suffix.getSingleSound(false));
                     lastPersonalisedMessageTime = GameStateData.CurrentTime;
                 }
-                if(SubtitleManager.enableSubtitles)
+                if(SubtitleManager.enableSubtitles && singleSoundsToPlay.Count > 0)
                 {
                     SubtitleManager.AddPhrase(singleSoundsToPlay, soundMetadata);
                 }
