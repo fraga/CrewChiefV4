@@ -57,7 +57,7 @@ namespace CrewChiefV4.PitManager
             //{PME.FuelNone,              SRE.PIT_STOP_CLEAR_FUEL },
 
             {PME.RepairAll,               SRE.PIT_STOP_FIX_ALL },          // rF2
-            {PME.RepairNone,              SRE.PIT_STOP_CLEAR_ALL },
+            {PME.RepairNone,              SRE.PIT_STOP_FIX_NONE },         // rF2 
             {PME.RepairFast,              SRE.PIT_STOP_FAST_REPAIR },        // iRacing
             {PME.RepairAllAero,           SRE.PIT_STOP_FIX_ALL_AERO },       // R3E
             {PME.RepairFrontAero,         SRE.PIT_STOP_FIX_FRONT_AERO },
@@ -68,6 +68,8 @@ namespace CrewChiefV4.PitManager
 
             {PME.PenaltyServe,            SRE.PIT_STOP_SERVE_PENALTY },
             {PME.PenaltyServeNone,        SRE.PIT_STOP_DONT_SERVE_PENALTY },
+
+            {PME.ClearAll,                SRE.PIT_STOP_CLEAR_ALL },
 
             // tbd {PME.AeroFrontPlusMinusX, SRE.PIT_STOP },     // tbd: would require added speech handling
             // tbd {PME.AeroRearPlusMinusX,  SRE.PIT_STOP },

@@ -93,6 +93,8 @@ namespace CrewChiefV4.PitManager
         /// <summary>
         /// Take a list of tyre types available in the menu and map them on to
         /// the set of generic tyre types
+        /// Hypersoft
+        /// Ultrasoft
         /// Supersoft
         /// Soft
         /// Medium
@@ -101,6 +103,11 @@ namespace CrewChiefV4.PitManager
         /// Wet
         /// Monsoon
         /// (No Change) for completeness
+        ///
+        /// Algorithm:
+        /// Check the first list item for each key in tyreDict
+        /// if the word is in inMenu then that key is DONE
+        /// if not, check the 2nd list item
         /// </summary>
         /// <param name="tyreDict">
         /// The dict used for translation
@@ -116,16 +123,30 @@ namespace CrewChiefV4.PitManager
           List<string> inMenu)
         {
             Dictionary<string, string> result = new Dictionary<string, string>();
-            foreach (var genericTyretype in tyreDict)
-            { // "Supersoft", "Soft"...
-                foreach (var availableTyretype in inMenu)
-                {  // Tyre type in the menu
-                    foreach (var tyreName in genericTyretype.Value)
-                    { // Type that generic type can match to
-                        if (availableTyretype.IndexOf(tyreName, StringComparison.OrdinalIgnoreCase) >= 0)
+            int columnCount = 1; // will increase
+
+            for (var col = 0; col < columnCount; col++)
+            {
+                foreach (var genericTyretype in tyreDict)
+                { // "Hypersoft", "Ultrasoft", "Supersoft", "Soft"...
+                    foreach (var availableTyretype in inMenu)
+                    {  // Tyre type in the menu
+                        if (genericTyretype.Value.Count > columnCount)
                         {
-                            result[genericTyretype.Key] = availableTyretype;
-                            break;
+                            columnCount = genericTyretype.Value.Count;
+                        }
+                        if (col < genericTyretype.Value.Count)
+                        {
+                            var tyreName = genericTyretype.Value[col];
+                            // Type that generic type can match to
+                            if (availableTyretype.IndexOf(tyreName, StringComparison.OrdinalIgnoreCase) >= 0)
+                            {
+                                if (!result.ContainsKey(genericTyretype.Key))
+                                {
+                                    result[genericTyretype.Key] = availableTyretype;
+                                    break;
+                                }
+                            }
                         }
                     }
                 }
@@ -204,17 +225,17 @@ namespace CrewChiefV4.PitManager
 
         static public bool PMrF2eh_TyreCompoundOption(string __)
         {
-            return setTyreCompound("Soft"); // tbd:
+            return setTyreCompound("Soft");
         }
 
         static public bool PMrF2eh_TyreCompoundPrime(string __)
         {
-            return setTyreCompound("Soft"); // tbd:
+            return setTyreCompound("Hard");
         }
 
         static public bool PMrF2eh_TyreCompoundAlternate(string __)
         {
-            return setTyreCompound("Soft"); // tbd:
+            return setTyreCompound("Soft");
         }
 
         static public bool PMrF2eh_TyreCompoundNext(string __)
@@ -232,7 +253,7 @@ namespace CrewChiefV4.PitManager
                 currentTyreTypeIndex = 0;
             response = true;
             currentRf2TyreType.Set(tyreTypes[currentTyreTypeIndex]);
-            return response;
+            return PMrF2eh_changeAllTyres(null);
         }
         #endregion Tyre compounds
 
@@ -406,11 +427,11 @@ namespace CrewChiefV4.PitManager
         #region Penalties
         static public bool PMrF2eh_PenaltyServe(string __)
         {
-            if (!Pmal.SoftMatchCategory("STOP/GO"))
+            if (!Pmal.GetCategories().Contains("STOP/GO"))
             {
                 Pmal.RereadPitMenu();   // STOP/GO is not in initial menu, check if it is now
             }
-            if (Pmal.SoftMatchCategory("STOP/GO"))
+            if (Pmal.GetCategories().Contains("STOP/GO"))
             {
                 return Pmal.SetChoice("YES");
             }
@@ -419,17 +440,38 @@ namespace CrewChiefV4.PitManager
 
         static public bool PMrF2eh_PenaltyServeNone(string __)
         {
-            if (!Pmal.SoftMatchCategory("STOP/GO"))
+            if (!Pmal.GetCategories().Contains("STOP/GO"))
             {
                 Pmal.RereadPitMenu();   // STOP/GO is not in initial menu, check if it is now
             }
-            if (Pmal.SoftMatchCategory("STOP/GO"))
+            if (Pmal.GetCategories().Contains("STOP/GO"))
             {
                 return Pmal.SetChoice("NO");
             }
             return false;
         }
         #endregion Penalties
+
+        static public bool PMrF2eh_ClearAll(string __)
+        {
+            if (PMrF2eh_FuelNone(null) &&
+                PMrF2eh_changeNoTyres(null))
+            {
+                Pmal.RereadPitMenu();   // STOP/GO or DAMAGE: is not in initial menu, check if it is now
+                var categories = Pmal.GetCategories();
+                if (categories.Contains("STOP/GO"))
+                {
+                    PMrF2eh_RepairNone(null);
+                }
+                if (categories.Contains("DAMAGE:"))
+                {
+                    PMrF2eh_PenaltyServeNone(null);
+                }
+            }
+            return false;
+        }
+
+
         #endregion Public Methods
 
         #region Private Methods
@@ -450,7 +492,7 @@ namespace CrewChiefV4.PitManager
             }
 
             currentRf2TyreType.Set(result[genericTyreType]);
-            return true;
+            return PMrF2eh_changeAllTyres(null);
         }
 
         /// <summary>

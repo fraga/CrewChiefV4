@@ -79,6 +79,10 @@ namespace PitMenuAPI
             MenuLayout.getKeys();
         }
 
+        public List<string> GetCategories()
+        {
+            return MenuLayout.getKeys();
+        }
         public bool SmartSetCategory(string category)
         {
             return PitMenuController.SmartSetCategory(category);
