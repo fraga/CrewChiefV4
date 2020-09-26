@@ -83,6 +83,8 @@ namespace CrewChiefV4.PitManager
         PenaltyServe,
         PenaltyServeNone,
 
+        ClearAll,
+
         AeroFrontPlusMinusX,
         AeroRearPlusMinusX,
         AeroFrontSetToX,
@@ -356,6 +358,8 @@ namespace CrewChiefV4.PitManager
 
             {PME.PenaltyServe,            _PMet(_PMeh, PMEHrF2.PMrF2eh_PenaltyServe,       PMER.PMrh_ServePenalty) },
             {PME.PenaltyServeNone,        _PMet(_PMeh, PMEHrF2.PMrF2eh_PenaltyServeNone,   PMER.PMrh_DontServePenalty) },
+
+            {PME.ClearAll,                _PMet(_PMeh, PMEHrF2.PMrF2eh_ClearAll,           PMER.PMrh_Acknowledge) },
 
             {PME.AeroFrontPlusMinusX,     _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
             {PME.AeroRearPlusMinusX,      _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
