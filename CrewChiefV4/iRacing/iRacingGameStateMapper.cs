@@ -1135,7 +1135,7 @@ namespace CrewChiefV4.iRacing
             {
                 currentGameState.PenaltiesData.NumPenalties++;
             }
-            if (currentGameState.PenaltiesData.HasStopAndGo)
+            if (currentGameState.PenaltiesData.HasPitStop)
             {
                 currentGameState.PenaltiesData.NumPenalties++;
             }
