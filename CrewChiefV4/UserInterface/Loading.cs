@@ -12,8 +12,9 @@ namespace CrewChiefV4.UserInterface
 {
     public partial class Loading : Form
     {
-        public static string tempSplashImagePath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\CrewChiefV4\splash_image_tmp.png";
-        public static string splashImagePath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\CrewChiefV4\splash_image.png";
+        public static string splashImageFolderPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + @"\CrewChiefV4\";
+        public static string tempSplashImagePath = splashImageFolderPath + "splash_image_tmp.png";
+        public static string splashImagePath = splashImageFolderPath + "splash_image.png";
         public Loading()
         {
             InitializeComponent();

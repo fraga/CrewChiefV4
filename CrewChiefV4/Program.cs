@@ -152,6 +152,10 @@ namespace CrewChiefV4
             // if our working file exists, move it to be our actual splash image
             try
             {
+                if (!Directory.Exists(Loading.splashImageFolderPath))
+                {
+                    Directory.CreateDirectory(Loading.splashImageFolderPath);
+                }
                 if (File.Exists(Loading.tempSplashImagePath))
                 {
                     File.Move(Loading.tempSplashImagePath, Loading.splashImagePath);
