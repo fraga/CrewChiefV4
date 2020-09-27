@@ -431,6 +431,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.13.1.3: Made splash screen optional; Sound internal sound player wiring fixes; Don't attempt to show subtitles when there's nothing to show; Pit Manager "Clear all" clears tyre changes, fuel, any penalties and any damage repairs; RF2 - Pit Manager changes tyres as part of tyre type commands (so you don't have to make 2 separate commands to change tyre type); RF2 - Fix tyre selection on Pit Manager for some cars
+
 Version 4.13.1.2: Hotfix for startup crash for new users
 
 Version 4.13.1.1: Added separate voice recognition sensitivity threshold values for when using the built-in Windows speech recogniser. These are higher (particularly for the 'Trigger word') and should stop a lot of the false-positives (again, especially for the 'Trigger word') when using the 'Prefer Windows speech recogniser' option; Fix z-offset not saving for some VR overlays; Allow the 'Watch opponent' function to be disabled (added 'Enable watch opponent commands' property, default enabled); Fix bug playing start-listening beep using Trigger Word voice recognition mode and nAudio; Added shortcut key bindings to toggle VR overlays; Added option to control when subtitles are loaded. If the property 'Lazy load subtitles' is enabled the subtitles are loaded only when needed. This can improve app launch times when using subtitles but may increase app resource use when driving; R3E - fix for incorrect session length message with time + 1 extra lap race sessions; iRacing - added Meatball flag message and generic pit-to-serve-penalty message (the app doesn't know if it's a drive-through or a stop-and-go penalty); RF2 & RBR - fix app crash when restarting the app
