@@ -431,7 +431,7 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
-Version 4.13.1.3: Made splash screen optional; Sound internal sound player wiring fixes; Don't attempt to show subtitles when there's nothing to show; Pit Manager "Clear all" clears tyre changes, fuel, any penalties and any damage repairs; RF2 - Pit Manager changes tyres as part of tyre type commands (so you don't have to make 2 separate commands to change tyre type); RF2 - Fix tyre selection on Pit Manager for some cars
+Version 4.13.1.3: Made splash screen optional; Some internal sound player wiring fixes; Don't attempt to show subtitles when there's nothing to show; Pit Manager "Clear all" clears tyre changes, fuel, any penalties and any damage repairs; RF2 - Pit Manager changes tyres as part of tyre type commands (so you don't have to make 2 separate commands to change tyre type); RF2 - Fix tyre selection on Pit Manager for some cars
 
 Version 4.13.1.2: Hotfix for startup crash for new users
 

@@ -2135,6 +2135,7 @@ namespace CrewChiefV4
                         }
                         else
                         {
+                            Console.WriteLine("Confidence " + recognitionConfidence + " is below the minimum threshold of " + minimum_name_voice_recognition_confidence);
                             crewChief.youWot(true);
                             youWot = true;
                         }
@@ -2222,6 +2223,7 @@ namespace CrewChiefV4
                     }
                     else
                     {
+                        Console.WriteLine("Confidence " + recognitionConfidence + " is below the minimum threshold of " + minimum_voice_recognition_confidence);
                         crewChief.youWot(true);
                         youWot = true;
                     }
