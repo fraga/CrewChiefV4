@@ -2091,7 +2091,8 @@ namespace CrewChiefV4
             String[] recognisedWords = SREWrapperFactory.GetCallbackWordsList(e);
             float recognitionConfidence = SREWrapperFactory.GetCallbackConfidence(e);
             object recognitionGrammar = SREWrapperFactory.GetCallbackGrammar(e);
-            Console.WriteLine("Recognised : " + recognisedText + "  Confidence = " + recognitionConfidence.ToString("0.000"));
+            Console.WriteLine("Recognised : " + recognisedText + " using the " + (SREWrapperFactory.useSystem ? "Windows" : "Microsoft") +
+                " recogniser, Confidence = " + recognitionConfidence.ToString("0.000"));
             float confidence = SREWrapperFactory.useSystem ? minimum_voice_recognition_confidence_windows : minimum_voice_recognition_confidence_microsoft;
             float confidenceNames = SREWrapperFactory.useSystem ? minimum_name_voice_recognition_confidence_windows : minimum_name_voice_recognition_confidence_microsoft;
             try
