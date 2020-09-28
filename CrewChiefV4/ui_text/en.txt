@@ -1078,22 +1078,22 @@ cumulative_lap_wheelspin_warning_threshold_help = If the player has wheelspin fo
 cumulative_lap_wheelspin_warning_threshold_filter = !IRACING
 cumulative_lap_wheelspin_warning_threshold_category = FUEL_TEMPS_AND_DAMAGES;MESSAGE_FREQUENCIES
 
-minimum_name_voice_recognition_confidence = Minimum name voice recognition confidence
+minimum_name_voice_recognition_confidence = Min name voice recognition confidence (Microsoft recogniser)
 minimum_name_voice_recognition_confidence_help = When processing voice commands asking about opponent drivers, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0)
 minimum_name_voice_recognition_confidence_category = AUDIO_VOICE_AND_CONTROLLERS
 minimum_name_voice_recognition_confidence_metadata = RESTART_REQUIRED
 
-minimum_name_voice_recognition_confidence_system_sre = Minimum name voice recognition confidence
+minimum_name_voice_recognition_confidence_system_sre = Min name voice recognition confidence (Windows recogniser)
 minimum_name_voice_recognition_confidence_system_sre_help = When processing voice commands asking about opponent drivers, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0)
 minimum_name_voice_recognition_confidence_system_sre_category = AUDIO_VOICE_AND_CONTROLLERS
 minimum_name_voice_recognition_confidence_system_sre_metadata = RESTART_REQUIRED
 
-minimum_voice_recognition_confidence = Minimum voice recognition confidence
+minimum_voice_recognition_confidence = Min voice recognition confidence (Microsoft recogniser)
 minimum_voice_recognition_confidence_help = When processing voice commands, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0)
 minimum_voice_recognition_confidence_category = AUDIO_VOICE_AND_CONTROLLERS
 minimum_voice_recognition_confidence_metadata = RESTART_REQUIRED
 
-minimum_voice_recognition_confidence_system_sre = Minimum voice recognition confidence
+minimum_voice_recognition_confidence_system_sre = Min voice recognition confidence (Windows recogniser)
 minimum_voice_recognition_confidence_system_sre_help = When processing voice commands, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0)
 minimum_voice_recognition_confidence_system_sre_category = AUDIO_VOICE_AND_CONTROLLERS
 minimum_voice_recognition_confidence_system_sre_metadata = RESTART_REQUIRED
@@ -1621,12 +1621,12 @@ naudio_wasapi_latency_help = Set WASAPI output latency in milliseconds.  Lower v
 naudio_wasapi_latency_category = AUDIO_VOICE_AND_CONTROLLERS
 naudio_wasapi_latency_metadata = RESTART_REQUIRED
 
-trigger_word_sre_min_confidence = Minimum trigger word confidence
+trigger_word_sre_min_confidence = Min trigger word confidence (Microsoft recogniser)
 trigger_word_sre_min_confidence_help = When listening for the voice command trigger word, the app must be at least this confident it understood before starting speech recognition (0.0 - 1.0)
 trigger_word_sre_min_confidence_category = AUDIO_VOICE_AND_CONTROLLERS
 trigger_word_sre_min_confidence_metadata = RESTART_REQUIRED
 
-trigger_word_sre_min_confidence_system_sre = Minimum trigger word confidence
+trigger_word_sre_min_confidence_system_sre = Min trigger word confidence (Windows recogniser)
 trigger_word_sre_min_confidence_system_sre_help = When listening for the voice command trigger word, the app must be at least this confident it understood before starting speech recognition (0.0 - 1.0)
 trigger_word_sre_min_confidence_system_sre_category = AUDIO_VOICE_AND_CONTROLLERS
 trigger_word_sre_min_confidence_system_sre_metadata = RESTART_REQUIRED

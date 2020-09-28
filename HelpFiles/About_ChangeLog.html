@@ -13,6 +13,46 @@
     alink="#EE0000">
     <div style="font-family:'Lucida Sans Unicode';font-size:13px;"
       class="main">
+      <h4>Version 4.13.1.3</h4>
+      <p>&nbsp; * Splash screen optional.<br>
+        &nbsp; * Sound internal sound player wiring fixes<br>
+        &nbsp; * Don't attempt to show subtitles when there is nothing
+        to show<br>
+        &nbsp; * RF2 - Pit Manager: change tyres as part of tyre type
+        commands (so you don't have to make two separate commands to
+        change tyre type).&nbsp; Fix tyre selection method for choosing
+        available tyres from commands "Soft", "Hard", "Wet" etc. "Clear
+        all" clears tyre changes, fuel, any penalties and any damage
+        repair<br>
+      </p>
+      <h4>Version 4.13.1.2</h4>
+      <p>&nbsp; * Hotfix for startup crash for new users<br>
+      </p>
+      <h4>Version 4.13.1.1</h4>
+      <p>&nbsp; * Added separate voice recognition sensitivity threshold
+        values for when using the built-in Windows speech recogniser.
+        These are higher (particularly for the 'Trigger word') and
+        should stop a lot of the false-positives (again, especially for
+        the 'Trigger word') when using the 'Prefer Windows speech
+        recogniser' option<br>
+        &nbsp; * Fix z-offset not saving for some VR overlays<br>
+        &nbsp; * Allow the 'Watch opponent' function to be disabled
+        (added 'Enable watch opponent commands' property, default
+        enabled)<br>
+        &nbsp; * Fix bug playing start-listening beep using Trigger Word
+        voice recognition mode and nAudio<br>
+        &nbsp; * Added shortcut key bindings to toggle VR overlays<br>
+        &nbsp; * Added option to control when subtitles are loaded. If
+        the property 'Lazy load subtitles' is enabled the subtitles are
+        loaded only when needed. This can improve app launch times when
+        using subtitles but may increase app resource use when driving<br>
+        &nbsp; * R3E - fix for incorrect session length message with
+        time + 1 extra lap race sessions<br>
+        &nbsp; * iRacing - added Meatball flag message and generic
+        pit-to-serve-penalty message (the app doesn't know if it's a
+        drive-through or a stop-and-go penalty)<br>
+        &nbsp; * RF2 &amp; RBR - fix app crash when restarting the app<br>
+      </p>
       <h4>Version 4.13.1.0</h4>
       <p>&nbsp;* Fixed some cases where the app would use text-to-speech
         driver names when it shouldn't when the TTS settings was 'Use
@@ -727,6 +767,8 @@
       only). See the 'Advanced command macros' section of the help.txt
       file or
       http://thecrewchief.org/showthread.php?263-Command-key-press-macros&amp;p=2378&amp;viewfull=1#post2378
+
+
 
 
 
@@ -1776,6 +1818,8 @@
       folder with the new one in the app's install folder<br>
       &nbsp;&nbsp;* New plugin for RF2 - please replace your existing
       ...\Steam\steamapps\common\rFactor2\Bin64\Plugins\rFactor2SharedMemoryMapPlugin64.dll
+
+
 
 
 
