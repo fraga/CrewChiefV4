@@ -2051,16 +2051,17 @@ namespace CrewChiefV4
                 return;
             }
             float recognitionConfidence = SREWrapperFactory.GetCallbackConfidence(e);
-            float confidence = SREWrapperFactory.useSystem ? minimum_trigger_voice_recognition_confidence_windows : minimum_trigger_voice_recognition_confidence_microsoft;
-            if (recognitionConfidence > confidence)
+            float confidenceThreshold = SREWrapperFactory.useSystem ? minimum_trigger_voice_recognition_confidence_windows : minimum_trigger_voice_recognition_confidence_microsoft;
+            string recogniserName = SREWrapperFactory.useSystem ? "System recogniser" : "Microsoft recogniser";
+            if (recognitionConfidence > confidenceThreshold)
             {
-                Console.WriteLine("Heard keyword " + keyWord + ", waiting for command confidence " + recognitionConfidence);
+                Console.WriteLine(recogniserName + " heard keyword \"" + keyWord + "\", waiting for command, confidence " + recognitionConfidence.ToString("0.000"));
                 switchFromTriggerToRegularRecogniser();
                 restartWaitTimeoutThread(trigger_word_listen_timeout);
             }
             else
             {
-                Console.WriteLine("keyword detected but confidence (" + recognitionConfidence + ") too low");
+                Console.WriteLine(recogniserName + " heard keyword \"" + keyWord + "\" but confidence (" + recognitionConfidence.ToString("0.000") + ") below threshold (" + confidenceThreshold.ToString("0.000") + ")");
             }
         }
 
@@ -2091,17 +2092,17 @@ namespace CrewChiefV4
             String[] recognisedWords = SREWrapperFactory.GetCallbackWordsList(e);
             float recognitionConfidence = SREWrapperFactory.GetCallbackConfidence(e);
             object recognitionGrammar = SREWrapperFactory.GetCallbackGrammar(e);
-            Console.WriteLine("Recognised : " + recognisedText + " using the " + (SREWrapperFactory.useSystem ? "Windows" : "Microsoft") +
-                " recogniser, Confidence = " + recognitionConfidence.ToString("0.000"));
-            float confidence = SREWrapperFactory.useSystem ? minimum_voice_recognition_confidence_windows : minimum_voice_recognition_confidence_microsoft;
-            float confidenceNames = SREWrapperFactory.useSystem ? minimum_name_voice_recognition_confidence_windows : minimum_name_voice_recognition_confidence_microsoft;
+            string recogniserName = SREWrapperFactory.useSystem ? "System recogniser" : "Microsoft recogniser";
+            Console.WriteLine(recogniserName + " recognised : \"" + recognisedText + "\", Confidence = " + recognitionConfidence.ToString("0.000"));
+            float confidenceThreshold = SREWrapperFactory.useSystem ? minimum_voice_recognition_confidence_windows : minimum_voice_recognition_confidence_microsoft;
+            float confidenceNamesThreshold = SREWrapperFactory.useSystem ? minimum_name_voice_recognition_confidence_windows : minimum_name_voice_recognition_confidence_microsoft;
             try
             {
                 // special case when we're waiting for a message after a heavy crash:
                 if (DamageReporting.waitingForDriverIsOKResponse)
                 {
                     DamageReporting damageReportingEvent = (DamageReporting)CrewChief.getEvent("DamageReporting");
-                    if (recognitionConfidence > confidence && ResultContains(recognisedText, I_AM_OK, false))
+                    if (recognitionConfidence > confidenceThreshold && ResultContains(recognisedText, I_AM_OK, false))
                     {
                         damageReportingEvent.cancelWaitingForDriverIsOK(DamageReporting.DriverOKResponseType.CLEARLY_OK);
                     }
@@ -2114,7 +2115,7 @@ namespace CrewChiefV4
                 {
                     if (useFreeDictationForChatMessages && this.chatDictationGrammar != null && recognitionGrammar == this.chatDictationGrammar.GetInternalGrammar())
                     {
-                        Console.WriteLine("chat recognised: " + recognisedText);
+                        Console.WriteLine("chat recognised: \"" + recognisedText + "\"");
                         if (recognisedText.StartsWith(chatContextStart))
                         {
                             string chatText = recognisedText.TrimStart(chatContextStart.ToCharArray()).Trim();
@@ -2140,7 +2141,7 @@ namespace CrewChiefV4
                     }
                     else if (GrammarWrapperListContains(opponentGrammarList, recognitionGrammar))
                     {
-                        if (recognitionConfidence > confidenceNames)
+                        if (recognitionConfidence > confidenceNamesThreshold)
                         {
                             this.lastRecognisedText = recognisedText;
                             if (recognisedText.StartsWith(WATCH) || recognisedText.StartsWith(RIVAL) || recognisedText.StartsWith(TEAM_MATE) || recognisedText.StartsWith(STOP_WATCHING))
@@ -2154,12 +2155,12 @@ namespace CrewChiefV4
                         }
                         else
                         {
-                            Console.WriteLine("Confidence " + recognitionConfidence + " is below the minimum threshold of " + confidenceNames);
+                            Console.WriteLine("Confidence " + recognitionConfidence.ToString("0.000") + " is below the minimum threshold of " + confidenceNamesThreshold.ToString("0.000"));
                             crewChief.youWot(true);
                             youWot = true;
                         }
                     }
-                    else if (recognitionConfidence > confidence)
+                    else if (recognitionConfidence > confidenceThreshold)
                     {
                         if (macroGrammar != null && macroGrammar.GetInternalGrammar() == recognitionGrammar && macroLookup.ContainsKey(recognisedText))
                         {
@@ -2242,7 +2243,7 @@ namespace CrewChiefV4
                     }
                     else
                     {
-                        Console.WriteLine("Confidence " + recognitionConfidence + " is below the minimum threshold of " + confidence);
+                        Console.WriteLine("Confidence " + recognitionConfidence.ToString("0.000") + " is below the minimum threshold of " + confidenceThreshold.ToString("0.000"));
                         crewChief.youWot(true);
                         youWot = true;
                     }
