@@ -1486,6 +1486,10 @@ namespace CrewChiefV4.Audio
                                 // only cache the last message for repeat if it's an actual message
                                 lastMessagePlayed = thisMessage;
                             }
+                            if (thisMessage.delayMessageResolution)
+                            {
+                                thisMessage.resolveDelayedContents();
+                            }
                             String messageStringContent = thisMessage.ToString();
                             if (messageStringContent != "")
                             {
@@ -1493,10 +1497,6 @@ namespace CrewChiefV4.Audio
                             }
                             if (!mute)
                             {
-                                if (thisMessage.delayMessageResolution)
-                                {
-                                    thisMessage.resolveDelayedContents();
-                                }
                                 if (GlobalBehaviourSettings.enableBreathIn && !DriverTrainingService.isPlayingPaceNotes)
                                 {
                                     if (thisMessage.metadata.type == SoundType.SPOTTER)
