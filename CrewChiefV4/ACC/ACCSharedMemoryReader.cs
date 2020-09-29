@@ -415,7 +415,7 @@ namespace CrewChiefV4.ACC
                 carId = car.CarIndex,
                 carLeaderboardPosition = car.Position,
                 carModel = getCarModel(car.CarModelEnum),
-                carRealTimeLeaderboardPosition = car.Position,
+                carRealTimeLeaderboardPosition = car.Position,  /* don't be tempted to use TrackPosition here, it's always zero */    
                 currentLapInvalid = (currentLap?.IsValid ?? false) ? 0 : 1,
                 currentLapTimeMS = currentLap?.LaptimeMS ?? 0,
                 isPlayerVehicle = carIsPlayerVehicle,
