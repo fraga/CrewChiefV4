@@ -362,6 +362,24 @@ namespace CrewChiefV4.ACC
             }
         }
 
+        public string getCarModel(int carModelEnum)
+        {
+            // 4 classes in ACC - GT4 (class enum 50 - 61), Porsche Cup (class enum 9) and Huracan Super Trofeo (class enum 18). Everything else is GT3
+            if (carModelEnum == 9)
+            {
+                return "porsche_911_cup";
+            }
+            else if (carModelEnum == 18)
+            {
+                return "ks_lamborghini_huracan_st"; // this puts the ST in the GTE class
+            }
+            else if (carModelEnum >= 50 && carModelEnum <= 61)
+            {
+                return "GT4";
+            }
+            return "GT3";
+        }
+
         // the tyreInflation data aren't available for opponents, so these will always be the player's tyre inflation or an array of zeros
         private accVehicleInfo createCar(int carIsPlayerVehicle, CarViewModel car, float[] tyreInflation, int[] carIds, accVec3[] carPositions)
         {
@@ -390,27 +408,13 @@ namespace CrewChiefV4.ACC
                 x_coord = carPosition.x;
                 z_coord = carPosition.z;
             }
-            // 4 classes in ACC - GT4 (class enum 50 - 61), Porsche Cup (class enum 9) and Huracan Super Trofeo (class enum 18). Everything else is GT3
-            string carModel = "GT3";
-            if (car.CarModelEnum == 9)
-            {
-                carModel = "porsche_911_cup";
-            }
-            else if (car.CarModelEnum == 18)
-            {
-                carModel = "ks_lamborghini_huracan_st"; // this puts the ST in the GTE class
-            }
-            else if (car.CarModelEnum >= 50 && car.CarModelEnum <= 61)
-            {
-                carModel = "GT4";
-            }
 
             return new accVehicleInfo
             {
                 bestLapMS = (bestLap?.IsValid ?? false) ? bestLap.LaptimeMS ?? 0 : 0,
                 carId = car.CarIndex,
                 carLeaderboardPosition = car.Position,
-                carModel = carModel,
+                carModel = getCarModel(car.CarModelEnum),
                 carRealTimeLeaderboardPosition = car.Position,
                 currentLapInvalid = (currentLap?.IsValid ?? false) ? 0 : 1,
                 currentLapTimeMS = currentLap?.LaptimeMS ?? 0,
