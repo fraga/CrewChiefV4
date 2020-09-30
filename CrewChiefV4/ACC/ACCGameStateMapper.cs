@@ -173,7 +173,7 @@ namespace CrewChiefV4.ACC
             if (status == AC_STATUS.AC_REPLAY)
             {
                 CrewChief.trackName = shared.accStatic.track + ":" + shared.accStatic.trackConfiguration;
-                CrewChief.carClass = CarData.getCarClassForClassNameOrCarName(shared.accStatic.carModel).carClassEnum;
+                CrewChief.carClass = CarData.getCarClassForClassNameOrCarName(playerVehicle.carModel).carClassEnum;
                 CrewChief.viewingReplay = true;
                 CrewChief.distanceRoundTrack = (shared.accChief.vehicle?.Length ?? 0) == 0 ? 0 : spLineLengthToDistanceRoundTrack(shared.accChief.trackLength, playerVehicle.spLineLength);
             }
@@ -228,7 +228,7 @@ namespace CrewChiefV4.ACC
 
             if (currentGameState.carClass.carClassEnum == CarData.CarClassEnum.UNKNOWN_RACE)
             {
-                CarData.CarClass newClass = CarData.getCarClassForClassNameOrCarName(shared.accStatic.carModel);
+                CarData.CarClass newClass = CarData.getCarClassForClassNameOrCarName(playerVehicle.carModel);
                 CarData.CLASS_ID = shared.accStatic.carModel;
                 if (!CarData.IsCarClassEqual(newClass, currentGameState.carClass, true))
                 {
@@ -412,7 +412,7 @@ namespace CrewChiefV4.ACC
                 currentGameState.PitData.IsRefuellingAllowed = true;
 
                 //add carclasses for assetto corsa.
-                currentGameState.carClass = CarData.getCarClassForClassNameOrCarName(shared.accStatic.carModel);
+                currentGameState.carClass = CarData.getCarClassForClassNameOrCarName(playerVehicle.carModel);
                 GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass);
                 CarData.CLASS_ID = shared.accStatic.carModel;
 
@@ -525,7 +525,7 @@ namespace CrewChiefV4.ACC
                         }
                         currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, distanceRoundTrack, currentGameState.Now);
 
-                        currentGameState.carClass = CarData.getCarClassForClassNameOrCarName(shared.accStatic.carModel);
+                        currentGameState.carClass = CarData.getCarClassForClassNameOrCarName(playerVehicle.carModel);
                         CarData.CLASS_ID = shared.accStatic.carModel;
                         GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass);
                         System.Diagnostics.Debug.WriteLine("Player is using car class " + currentGameState.carClass.getClassIdentifier());
