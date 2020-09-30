@@ -3101,6 +3101,8 @@ namespace CrewChiefV4.GameState
         public float trackLength = 0;
         public int goingSlowCount = 0;
 
+        public int indexOfLastPointSet = -1;
+
         public DeltaTime()
         {
             this.currentDeltaPoint = -1;
@@ -3143,27 +3145,107 @@ namespace CrewChiefV4.GameState
             // extract the keyset to a float array so we can iterate it much more efficiently - the keyset doesn't
             // change after the dictionary has been constructed
             deltaPointsKeysArray = deltaPoints.Keys.ToArray();
+            Array.Sort(deltaPointsKeysArray);
         }
+
+        // interpolate missing DeltaPoint timing data assuming a constant speed between the last know DeltaPoint and the current one
+        private void interpolateMissingData(int startIndex, int endIndex, DateTime now)
+        {
+            DateTime timeAtLastRecordedDataPoint = deltaPoints[deltaPointsKeysArray[startIndex]];
+            bool wrap = startIndex > endIndex;  // the missing block might include the zero point
+            int numberOfPointsToInterpolate;
+            if (wrap)
+            {
+                numberOfPointsToInterpolate = deltaPointsKeysArray.Length - (startIndex - endIndex);
+            }
+            else
+            {
+                numberOfPointsToInterpolate = endIndex - startIndex;
+            }
+            float secondsToAdd = (float)(now - timeAtLastRecordedDataPoint).TotalSeconds / (float)numberOfPointsToInterpolate;
+            float n = 0;
+            // set the missing data from start index +1 (the first missing point). Stop before we reach endIndex (the point we're actually setting)
+            if (wrap)
+            {
+                for (; startIndex < deltaPointsKeysArray.Length; startIndex++)
+                {
+                    n++;
+                    deltaPoints[deltaPointsKeysArray[startIndex]] = timeAtLastRecordedDataPoint.AddSeconds(secondsToAdd * n);
+                }
+                for (int i=0; i < endIndex; i++)
+                {
+                    n++;
+                    deltaPoints[deltaPointsKeysArray[i]] = timeAtLastRecordedDataPoint.AddSeconds(secondsToAdd * n);
+                }
+            }
+            else
+            {
+                for (; startIndex < endIndex; startIndex++)
+                {
+                    n++;
+                    deltaPoints[deltaPointsKeysArray[startIndex]] = timeAtLastRecordedDataPoint.AddSeconds(secondsToAdd * n);
+                }
+            }
+        }
+
         public void SetNextDeltaPoint(float distanceRoundTrackOnCurrentLap, int lapsCompleted, float speed, DateTime now, bool collectAvgSpeed = false, int percentageForGoingSlow = 80)
         {
+            if (distanceRoundTrackOnCurrentLap <= 0)
+            {
+                return;
+            }
             this.distanceRoundTrackOnCurrentLap = distanceRoundTrackOnCurrentLap;
             this.lapsCompleted = lapsCompleted;
             this.totalDistanceTravelled = (lapsCompleted * this.trackLength) + distanceRoundTrackOnCurrentLap;
 
             float deltaPoint = 0;
-            foreach (float key in deltaPointsKeysArray)
+
+            // find the right index in the deltaPoints keys array for the lap distance
+            int deltaPointsKeysArrayIndex = 0;
+            for (; deltaPointsKeysArrayIndex < deltaPointsKeysArray.Length; deltaPointsKeysArrayIndex++)
             {
-                if (key >= distanceRoundTrackOnCurrentLap)
+                if (deltaPointsKeysArray[deltaPointsKeysArrayIndex] > distanceRoundTrackOnCurrentLap)
                 {
-                    deltaPoint = key;
+                    // we've found the index of the first deltapoint we've not yet reached, so our current deltapoint is the one we just passed
                     break;
                 }
             }
+            deltaPointsKeysArrayIndex--;
+            deltaPoint = deltaPointsKeysArray[deltaPointsKeysArrayIndex];
+
+            // check if there's any missing data - if the key index we just found is more than 1 greater than the previous key
+            // index we have data for, there's at least 1 missing time entry in the deltaPoints dictionary
+            if (deltaPointsKeysArrayIndex != indexOfLastPointSet && indexOfLastPointSet != -1)
+            {
+                int missingDeltaPoints;
+                if (deltaPointsKeysArrayIndex > indexOfLastPointSet)
+                {
+                    missingDeltaPoints = deltaPointsKeysArrayIndex - indexOfLastPointSet;
+                }
+                else if (deltaPointsKeysArrayIndex + 10 < indexOfLastPointSet) // we're interpolating over the start line, but we need to exclude cases where a car is reversing
+                                                                               // or lag means the lapDistance jumps back. So only allow the wrap stuff to trigger if the change is
+                                                                               // 10 or more points (200m)
+                {
+                    missingDeltaPoints = deltaPointsKeysArray.Length - (indexOfLastPointSet - deltaPointsKeysArrayIndex);
+                }
+                else
+                {
+                    missingDeltaPoints = 0;
+                }
+                // don't try and interpolate more than half a lap
+                if (missingDeltaPoints > 1 && missingDeltaPoints < deltaPointsKeysArray.Length / 2)
+                {
+                    interpolateMissingData(indexOfLastPointSet, deltaPointsKeysArrayIndex, now);
+                }
+            }
+            indexOfLastPointSet = deltaPointsKeysArrayIndex;
+
             this.nextDeltaPoint = deltaPoint;
 
             if (currentDeltaPoint != nextDeltaPoint || speed < 5)
             {
                 deltaPoints[nextDeltaPoint] = now;
+
                 if (collectAvgSpeed && currentDeltaPoint != nextDeltaPoint)
                 {
                     float [] points = null;

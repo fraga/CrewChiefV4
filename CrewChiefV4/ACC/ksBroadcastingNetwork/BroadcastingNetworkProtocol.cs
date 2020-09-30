@@ -216,7 +216,7 @@ namespace ksBroadcastingNetwork
                         carUpdate.Kmh = br.ReadUInt16();
                         carUpdate.Position = br.ReadUInt16(); // official P/Q/R position (1 based)
                         carUpdate.CupPosition = br.ReadUInt16(); // official P/Q/R position (1 based)
-                        carUpdate.TrackPosition = br.ReadUInt16(); // position on track (1 based)
+                        carUpdate.TrackPosition = br.ReadUInt16(); // THIS IS ALWAYS ZERO
                         carUpdate.SplinePosition = br.ReadSingle(); // track position between 0.0 and 1.0
                         carUpdate.Laps = br.ReadUInt16();
 
