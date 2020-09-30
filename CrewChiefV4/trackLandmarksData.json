@@ -9004,6 +9004,7 @@
 		},
 		{
 			"rf2TrackNames": ["Monza  1988"],
+			"gtr2TrackNames": ["Monza, 2003 FIA GT Championship Round 10"],
 			"trackLandmarks": [{
 					"landmarkName": "variante_del_rettifilo",
 					"distanceRoundLapStart": 600,
