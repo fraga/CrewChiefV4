@@ -99,7 +99,7 @@
 #
 # Crew Chief built-in car classes are:
 # G2, G3, GT, GT1X, GT1, GTE, GT2, GTC, GTLM, GT3, GT4, GT5, GT300, GT500, NGT, Kart_1, Kart_2, KART_JUNIOR, KART_F1, LMP1, LMP2, LMP3, LMP900, ROAD_B, ROAD_C1, ROAD_C2, ROAD_D, ROAD_E, ROAD_F, ROAD_G, 
-# ROAD_SUPERCAR, GROUPC, GROUPB, GROUPA, GROUP4, GROUP5, GROUP6, GTO, DTM_92,
+# ROAD_SUPERCAR, GROUPC, GROUPB, GROUPA, GROUP4, GROUP5, GROUP6, GTO, GR2_70S, GR4_70S, DTM_92,
 # VINTAGE_INDY_65, VINTAGE_F3_A, VINTAGE_F1_A, VINTAGE_F1_A1, VINTAGE_PROTOTYPE_B, VINTAGE_GT_D, VINTAGE_GT_C, HISTORIC_TOURING_1, HISTORIC_TOURING_2, VINTAGE_F1_B,
 # VINTAGE_F1_C, VINTAGE_STOCK_CAR,
 # F1, F2, F3, F4, FF, FORMULA_E_2018, FORMULA_E_2019, F1_70S, TC1, TC2, TCR, TC1_2014, AUDI_TT_CUP, AUDI_TT_VLN, CLIO_CUP, DTM, DTM_2013, V8_SUPERCAR, DTM_2014, DTM_2015, DTM_2016, DTM_2020,
@@ -1226,6 +1226,17 @@
 			"enabledMessageTypes": "ALL",
 			"maxSafeOilTemp": 135,
 			"allMembersAreRWD": true
-		}
+		},
+		{
+			"carClassEnum": "GR2_70S",
+			"gtr2ClassNames": ["BMW 3.0 CSL 3.3 12v", "BMW 3.0 CSL 3.5 24v", "BMW 3.0 CSL 3.5 24v IMSA", "BMW 3.0 CSL 3.5 12v", "Ford Mustang Boss 302", "Ford Capri RS 3100", "Ford Capri RS 2600"],
+			"enabledMessageTypes": "TYRE_TEMPS, BRAKE_TEMPS, FUEL, LOCKING_AND_SPINNING"
+		},
+		{
+			"carClassEnum": "GR4_70S",
+			"gtr2ClassNames": ["Porsche 914/6 GT", "Porsche 911 Carrera RSR 3.0", "Porsche 911 Carrera RSR 2.8", "DeTomaso Pantera Gr.4 (Modena)", "DeTomaso Pantera Gr.4 (Boss)"],
+			"enabledMessageTypes": "TYRE_TEMPS, BRAKE_TEMPS, FUEL, LOCKING_AND_SPINNING"
+		},
+
 	]
 }
