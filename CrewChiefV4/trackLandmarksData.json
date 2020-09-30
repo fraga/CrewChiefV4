@@ -431,6 +431,7 @@
 			"pcars2TrackName": "Hockenheim:GP",
 			"raceroomLayoutId": 1693,
 			"raceroomRollingStartLapDistance": 4145,
+			"gtr2TrackNames": ["Hockenheim GP, 2004 FIA GT Championship Round 4", "HQ Hockenheimring"],
 			"trackLandmarks": [{
 					"landmarkName": "nord_kurve",
 					"distanceRoundLapStart": 200,
@@ -992,6 +993,7 @@
 			"ams2TrackName": "ImolaAMS2:Imola_GP_2018",
 			"irTrackName": "imola gp",
 			"raceroomLayoutId": 1850,
+			"gtr2TrackNames": ["Imola, 2004 FIA GT Championship Round 8", "Imola", "HQ Autodromo Enzo e Dino Ferrari"],
 			"trackLandmarks": [{
 					"landmarkName": "tamburello",
 					"distanceRoundLapStart": 660,
@@ -1252,6 +1254,7 @@
 			"irTrackName": "monza full",
 			"raceroomLayoutId": 1671,
 			"raceroomRollingStartLapDistance": 4285,
+			"gtr2TrackNames": ["Monza, 2003 FIA GT Championship Round 10", "Monza, 2004 FIA GT Championship Round 1", "Monza", "HQ Autodromo Nazionale di Monza"],
 			"pitApproachPoint": [
 				5345,
 				755.2,
@@ -5027,6 +5030,7 @@
 			"pcars2TrackName": "Barcelona_Catalunya:GP",
 			"accTrackName": "Barcelona:track config",
 			"irTrackName": "barcelona gp",
+			"gtr2TrackNames": ["Barcelona, 2003 FIA GT Championship Round 1", "HQ Circuit de Catalunya"],
 			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 765,
@@ -9057,6 +9061,7 @@
 		},
 		{
 			"rf2TrackNames": ["Estoril  1988"],
+			"gtr2TrackNames": ["Estoril, 2003 FIA GT Championship Round 9", "HQ Autodromo do Estoril"],
 			"trackLandmarks": [{
 					"landmarkName": "curva1",
 					"distanceRoundLapStart": 425,
@@ -9214,10 +9219,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": [ "Spa Francorchamps  1988" ],
-			"gtr2TrackNames": [ "HQ Circuit de Spa-Francorchamps", "Spa-Francorchamps, 2003 FIA GT Championship Round 6", "Spa-Francorchamps, 2004 FIA GT Championship Round 7" ],
-			"trackLandmarks": [
-				{
+			"rf2TrackNames": ["Spa Francorchamps  1988"],
+			"trackLandmarks": [{
 					"landmarkName": "la_source",
 					"distanceRoundLapStart": 190,
 					"distanceRoundLapEnd": 290,
@@ -9294,6 +9297,88 @@
 					"distanceRoundLapStart": 6430,
 					"distanceRoundLapEnd": 6680,
 					"isCommonOvertakingSpot": true
+				}
+			]
+		},
+		{
+			"gtr2TrackNames": ["HQ Circuit de Spa-Francorchamps", "Spa-Francorchamps, 2003 FIA GT Championship Round 6", "Spa-Francorchamps, 2004 FIA GT Championship Round 7"],
+			"trackLandmarks": [{
+					"landmarkName": "eau_rouge",
+					"distanceRoundLapStart": 205,
+					"distanceRoundLapEnd": 455,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "radillion",
+					"distanceRoundLapStart": 450,
+					"distanceRoundLapEnd": 600,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "les_combes",
+					"distanceRoundLapStart": 1575,
+					"distanceRoundLapEnd": 1780,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "malmedey",
+					"distanceRoundLapStart": 1820,
+					"distanceRoundLapEnd": 1940,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "rivage",
+					"distanceRoundLapStart": 2176,
+					"distanceRoundLapEnd": 2375,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn11",
+					"distanceRoundLapStart": 2440,
+					"distanceRoundLapEnd": 2490,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "pouhon",
+					"distanceRoundLapStart": 2945,
+					"distanceRoundLapEnd": 3370,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "les_fanges",
+					"distanceRoundLapStart": 3620,
+					"distanceRoundLapEnd": 3945,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn15",
+					"distanceRoundLapStart": 4090,
+					"distanceRoundLapEnd": 4235,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "stavlot",
+					"distanceRoundLapStart": 4290,
+					"distanceRoundLapEnd": 4470,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "blanchimont",
+					"distanceRoundLapStart": 5305,
+					"distanceRoundLapEnd": 5485,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "bus_stop",
+					"distanceRoundLapStart": 5820,
+					"distanceRoundLapEnd": 6070,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "la_source",
+					"distanceRoundLapStart": 6500,
+					"distanceRoundLapEnd": 6575,
+					"isCommonOvertakingSpot": false
 				}
 			]
 		},
@@ -9458,6 +9543,8 @@
 		{
 			"rf2TrackNames": ["Donington Park GP Circuit"],
 			"irTrackName": "donington gp",
+			"gtr2TrackNames": ["Donington Park GP, 2003 FIA GT Championship Round 5", "Donington Park GP, 2004 FIA GT Championship Round 6", "HQ Donington Park"],
+
 			"trackLandmarks": [{
 					"landmarkName": "redgate",
 					"distanceRoundLapStart": 220,
@@ -11078,6 +11165,8 @@
 		},
 		{
 			"rf2TrackNames": ["Magny-Cours"],
+			"gtr2TrackNames": ["Magny-Cours, 2003 FIA GT Championship Round 2", "Magny-Cours, 2004 FIA GT Championship Round 3", "Magny-Cours", "HQ Circuit de Nevers Magny-Cours"],
+
 			"trackLandmarks": [{
 					"landmarkName": "grande_courbe",
 					"distanceRoundLapStart": 140,
@@ -12910,6 +12999,7 @@
 			"pcars2TrackName": "Oschersleben:A_Course",
 			"raceroomLayoutId": 2384,
 			"raceroomRollingStartLapDistance": 3181,
+			"gtr2TrackNames": ["Oschersleben, 2003 FIA GT Championship Round 8", "Oschersleben, 2004 FIA GT Championship Round 9", "Oschersleben", "HQ Motorsport Arena Oschersleben"],
 			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 430,
