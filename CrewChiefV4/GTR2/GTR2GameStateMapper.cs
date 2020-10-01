@@ -227,6 +227,7 @@ namespace CrewChiefV4.GTR2
         private int sessionWaitMessageCounter = 0;
 
         private Int64 lastSessionEndTicks = -1;
+        private int lastGameSession = -1;
         private bool lastInRealTimeState = false;
 
         public override void setSpeechRecogniser(SpeechRecogniser speechRecogniser)
@@ -261,6 +262,8 @@ namespace CrewChiefV4.GTR2
             this.numFODetectPhaseAttempts = 0;
             this.safetyCarLeft = false;
             this.lastHistoryMessageUpdatedTicks = 0L;
+
+            this.lastGameSession = -1;
         }
 
         public override GameStateData mapToGameStateData(Object memoryMappedFileStruct, GameStateData previousGameState)
@@ -288,10 +291,20 @@ namespace CrewChiefV4.GTR2
             // Check if session has _just_ ended and we are possibly hanging in between.
             var sessionJustEnded = shared.extended.mTicksSessionEnded != 0 && this.lastSessionEndTicks != shared.extended.mTicksSessionEnded;
 
+            if (!sessionJustEnded
+                && this.lastGameSession != -1 // There was a session before.
+                && shared.scoring.mScoringInfo.mSession != 0 // Exclude 0 because we can't tell empty from Session 0
+                && this.lastGameSession != shared.scoring.mScoringInfo.mSession)
+            {
+                Console.WriteLine($"Abrupt Session End: consider session end by transition from '{this.lastGameSession}' to '{shared.scoring.mScoringInfo.mSession}'");
+                this.lastGameSession = shared.scoring.mScoringInfo.mSession;
+                sessionJustEnded = true;
+            }
+
             this.lastSessionEndTicks = shared.extended.mTicksSessionEnded;
-            var sessionStarted = shared.extended.mSessionStarted == 1
+            var sessionStarted = shared.extended.mSessionStarted == 1;/*
                 || (pgs != null && pgs.SessionData.SessionType == SessionType.Practice  // For some reason, no Started signal on second practice in GTR2.
-                    || cgs.SessionData.SessionType == SessionType.Practice);
+                    || cgs.SessionData.SessionType == SessionType.Practice);*/
 
             if (shared.scoring.mScoringInfo.mNumVehicles == 0  // No session data (game startup, new session or game shutdown).
                 || sessionJustEnded  // Need to start the wait for the next session
@@ -530,7 +543,7 @@ namespace CrewChiefV4.GTR2
                 shared.scoring.mScoringInfo.mSession >= 6 && shared.scoring.mScoringInfo.mSession <= 6 ? shared.scoring.mScoringInfo.mSession - 6 : 0;  // Race
 
             csd.SessionType = this.MapToSessionType(shared);
-            csd.SessionPhase = this.mapToSessionPhase((GTR2GamePhase)shared.scoring.mScoringInfo.mGamePhase, csd.SessionType, ref playerScoring);
+            csd.SessionPhase = this.MapToSessionPhase((GTR2GamePhase)shared.scoring.mScoringInfo.mGamePhase, csd.SessionType, ref playerScoring);
 
             float defaultSessionTotalRunTime = 3630.0f;
             if (shared.extended.mUnofficialFeaturesEnabled != 0 && cgs.inCar)
@@ -584,6 +597,8 @@ namespace CrewChiefV4.GTR2
                 pgs = null;
 
                 this.ClearState();
+
+                this.lastGameSession = shared.scoring.mScoringInfo.mSession;
 
                 // Initialize variables that persist for the duration of a session.
                 var cci = this.GetCachedCarInfo(ref playerScoring);
@@ -2424,7 +2439,7 @@ namespace CrewChiefV4.GTR2
         }
 
 
-        private SessionPhase mapToSessionPhase(
+        private SessionPhase MapToSessionPhase(
             GTR2GamePhase sessionPhase,
             SessionType sessionType,
             ref GTR2VehicleScoring player)
