@@ -1730,7 +1730,7 @@ namespace CrewChiefV4.rFactor2
                 {
                     opponent.trackLandmarksTiming = opponentPrevious.trackLandmarksTiming;
                     String stoppedInLandmark = opponent.trackLandmarksTiming.updateLandmarkTiming(csd.TrackDefinition,
-                        csd.SessionRunningTime, previousDistanceRoundTrack, opponent.DistanceRoundTrack, opponent.Speed, opponent.DeltaTime.currentDeltaPoint, opponent.CarClass);
+                        csd.SessionRunningTime, previousDistanceRoundTrack, opponent.DistanceRoundTrack, opponent.Speed, opponent.CarClass);
                     opponent.stoppedInLandmark = opponent.InPits ? null : stoppedInLandmark;
                 }
 
@@ -1762,7 +1762,7 @@ namespace CrewChiefV4.rFactor2
 
                 var stoppedInLandmark = csd.trackLandmarksTiming.updateLandmarkTiming(csd.TrackDefinition,
                     csd.SessionRunningTime, previousGameState.PositionAndMotionData.DistanceRoundTrack, cgs.PositionAndMotionData.DistanceRoundTrack,
-                    cgs.PositionAndMotionData.CarSpeed, csd.DeltaTime.currentDeltaPoint, cgs.carClass);
+                    cgs.PositionAndMotionData.CarSpeed, cgs.carClass);
 
                 cgs.SessionData.stoppedInLandmark = cgs.PitData.InPitlane ? null : stoppedInLandmark;
 
