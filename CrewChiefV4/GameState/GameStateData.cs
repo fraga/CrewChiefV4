@@ -3249,7 +3249,6 @@ namespace CrewChiefV4.GameState
                         this.avgSpeedForEachDeltapointSection[deltaPointsIndex] = points.Average();
                     }
                 }
-                this.currentDeltaPointIndex = deltaPointsIndex;
             }
 
             // update the deltapoint's time if it's a new deltapoint or we're going slow - for cars that are (nearly) stopped we
@@ -3259,6 +3258,7 @@ namespace CrewChiefV4.GameState
             {
                 this.deltaPoints[deltaPointsIndex] = now;
             }
+            this.currentDeltaPointIndex = deltaPointsIndex;
         }
 
         // get the delta to otherCar in whole laps and seconds.
