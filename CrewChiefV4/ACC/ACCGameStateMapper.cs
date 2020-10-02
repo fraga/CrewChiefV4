@@ -30,10 +30,6 @@ namespace CrewChiefV4.ACC
             }
         }
 
-        // lapCount and splinePosition disagree when we're near to the start line. Who knows why.
-        private const float startOfShitSplinePoint = 0.993f;
-        private const float endOfShitSplinePoint = 0.007f;
-
         List<CornerData.EnumWithThresholds> tyreTempThresholds = new List<CornerData.EnumWithThresholds>();
         private static Dictionary<string, AcTyres> acTyres = new Dictionary<string, AcTyres>();
 
@@ -336,16 +332,7 @@ namespace CrewChiefV4.ACC
             }
             else
             {
-                // sanity check for realtime position data - the lap start point and the spline zero point aren't in the same place. Here we assume they're quite close
-                // and if we're quite close to 0 on the spline, re-use the previous position data
-                if (previousGameState != null && (playerVehicle.spLineLength > ACCGameStateMapper.startOfShitSplinePoint || playerVehicle.spLineLength < ACCGameStateMapper.endOfShitSplinePoint))
-                {
-                    currentGameState.SessionData.OverallPosition = previousGameState.SessionData.OverallPosition;
-                }
-                else
-                {
-                    currentGameState.SessionData.OverallPosition = playerVehicle.carRealTimeLeaderboardPosition;
-                }
+                currentGameState.SessionData.OverallPosition = playerVehicle.carRealTimeLeaderboardPosition;
             }
 
             currentGameState.SessionData.TrackDefinition = TrackData.getTrackDefinition(shared.accStatic.track + ":" + shared.accStatic.trackConfiguration, shared.accChief.trackLength, shared.accStatic.sectorCount);
@@ -731,7 +718,7 @@ namespace CrewChiefV4.ACC
                 if (previousGameState != null)
                 {
                     String stoppedInLandmark = currentGameState.SessionData.trackLandmarksTiming.updateLandmarkTiming(currentGameState.SessionData.TrackDefinition,
-                        currentGameState.SessionData.SessionRunningTime, previousGameState.PositionAndMotionData.DistanceRoundTrack, distanceRoundTrack, playerVehicle.speedMS, currentGameState.SessionData.DeltaTime.currentDeltaPoint, currentGameState.carClass);
+                        currentGameState.SessionData.SessionRunningTime, previousGameState.PositionAndMotionData.DistanceRoundTrack, distanceRoundTrack, playerVehicle.speedMS, currentGameState.carClass);
                     currentGameState.SessionData.stoppedInLandmark = shared.accGraphic.isInPitLane == 1 ? null : stoppedInLandmark;
                     if (currentGameState.SessionData.IsNewLap)
                     {
@@ -859,16 +846,7 @@ namespace CrewChiefV4.ACC
                                 }
                                 else
                                 {
-                                    // realtime position in race sessions tends to be more accurate than leaderboard position so we always use it.
-                                    // However, if this car is close to the track spline zero point then we can't trust the calculation
-                                    if (previousOpponentPosition > 0 && (participantStruct.spLineLength > ACCGameStateMapper.startOfShitSplinePoint || participantStruct.spLineLength < ACCGameStateMapper.endOfShitSplinePoint))
-                                    {
-                                        currentOpponentRacePosition = previousOpponentPosition;
-                                    }
-                                    else
-                                    {
-                                        currentOpponentRacePosition = participantStruct.carRealTimeLeaderboardPosition;
-                                    }
+                                    currentOpponentRacePosition = participantStruct.carRealTimeLeaderboardPosition;
                                 }
 
 
@@ -918,7 +896,7 @@ namespace CrewChiefV4.ACC
                                     currentOpponentData.trackLandmarksTiming = previousOpponentData.trackLandmarksTiming;
                                     String stoppedInLandmark = currentOpponentData.trackLandmarksTiming.updateLandmarkTiming(
                                         currentGameState.SessionData.TrackDefinition, currentGameState.SessionData.SessionRunningTime,
-                                        previousDistanceRoundTrack, currentOpponentData.DistanceRoundTrack, currentOpponentData.Speed, currentOpponentData.DeltaTime.currentDeltaPoint, currentOpponentData.CarClass);
+                                        previousDistanceRoundTrack, currentOpponentData.DistanceRoundTrack, currentOpponentData.Speed, currentOpponentData.CarClass);
                                     currentOpponentData.stoppedInLandmark = participantStruct.isCarInPitline == 1 ? null : stoppedInLandmark;
                                 }
                                 if (currentGameState.SessionData.JustGoneGreen)

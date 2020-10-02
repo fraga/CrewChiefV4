@@ -788,7 +788,7 @@ namespace CrewChiefV4.RaceRoom
                     {
                         String stoppedInLandmark = currentGameState.SessionData.trackLandmarksTiming.updateLandmarkTiming(currentGameState.SessionData.TrackDefinition,
                             currentGameState.SessionData.SessionRunningTime, previousGameState.PositionAndMotionData.DistanceRoundTrack,
-                            participantStruct.LapDistance, shared.CarSpeed, currentGameState.SessionData.DeltaTime.currentDeltaPoint, currentGameState.carClass);
+                            participantStruct.LapDistance, shared.CarSpeed, currentGameState.carClass);
                         currentGameState.SessionData.stoppedInLandmark = participantStruct.InPitlane == 1 ? null : stoppedInLandmark;
                     }
 
@@ -984,7 +984,7 @@ namespace CrewChiefV4.RaceRoom
                             currentOpponentData.trackLandmarksTiming = previousOpponentData.trackLandmarksTiming;
                             String stoppedInLandmark = currentOpponentData.trackLandmarksTiming.updateLandmarkTiming(
                                 currentGameState.SessionData.TrackDefinition, currentGameState.SessionData.SessionRunningTime,
-                                previousDistanceRoundTrack, currentOpponentData.DistanceRoundTrack, currentOpponentData.Speed, currentOpponentData.DeltaTime.currentDeltaPoint, currentOpponentData.CarClass);
+                                previousDistanceRoundTrack, currentOpponentData.DistanceRoundTrack, currentOpponentData.Speed, currentOpponentData.CarClass);
                             currentOpponentData.stoppedInLandmark = currentOpponentData.InPits ? null : stoppedInLandmark;
                         }
                         if (currentGameState.SessionData.JustGoneGreen)
