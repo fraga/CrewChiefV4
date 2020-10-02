@@ -146,7 +146,8 @@ namespace CrewChiefV4.iRacing
                 Console.WriteLine("TrackPitSpeedLimit = " + shared.SessionData.Track.TrackPitSpeedLimit);
                 Console.WriteLine("CourseCautions = " + shared.SessionData.CourseCautions);
                 Console.WriteLine("Restarts = " + shared.SessionData.Restarts);
-                if(shared.Telemetry.NumberOfCarsEnabled < shared.Drivers.Count && shared.PaceCarPresent)
+                Console.WriteLine("TrackCodeName " + shared.SessionData.Track.CodeName + " Track Reported Length " + (float)shared.SessionData.Track.Length * 1000);
+                if (shared.Telemetry.NumberOfCarsEnabled < shared.Drivers.Count && shared.PaceCarPresent)
                 {
                     Console.WriteLine("Advanced Safety/Pace Car calls has been disable for this session, to enable increase the Max Cars in iRacing graphics settings to " + shared.Drivers.Count + ". And restart the app");
                 }                
@@ -789,7 +790,7 @@ namespace CrewChiefV4.iRacing
             currentGameState.PitData.PitSpeedLimit = shared.SessionData.Track.TrackPitSpeedLimit;
 
             currentGameState.SessionData.DeltaTime.SetNextDeltaPoint(currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.SessionData.CompletedLaps,
-                (float)playerCar.Live.Speed, currentGameState.Now, !currentGameState.PitData.InPitlane && !currentGameState.PitData.IsApproachingPitlane && !currentGameState.PitData.OnOutLap);
+                (float)playerCar.Live.Speed, currentGameState.Now, !currentGameState.PitData.InPitlane && !currentGameState.PitData.IsApproachingPitlane && !currentGameState.PitData.OnOutLap && playerCar.Live.TrackSurface != TrackSurfaces.NotInWorld);
 
             if (previousGameState != null)
             {
