@@ -1729,7 +1729,7 @@ namespace CrewChiefV4.rFactor2
                 if (opponentPrevious != null)
                 {
                     opponent.trackLandmarksTiming = opponentPrevious.trackLandmarksTiming;
-                    String stoppedInLandmark = opponent.trackLandmarksTiming.updateLandmarkTiming(csd.TrackDefinition,
+                    var stoppedInLandmark = opponent.trackLandmarksTiming.updateLandmarkTiming(csd.TrackDefinition,
                         csd.SessionRunningTime, previousDistanceRoundTrack, opponent.DistanceRoundTrack, opponent.Speed, opponent.CarClass);
                     opponent.stoppedInLandmark = opponent.InPits ? null : stoppedInLandmark;
                 }
