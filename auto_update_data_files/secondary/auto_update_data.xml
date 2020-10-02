@@ -59,7 +59,7 @@ secondary update sources) can still be updated. All downloads from this source w
 		<update-pack url="http://thecrewchief.org/downloads/update_8_driver_names.zip" updates-from-version="137"/>
 		<update-pack url="http://thecrewchief.org/downloads/update_9_driver_names.zip" updates-from-version="138"/>
 	</driver-names>
-	<personalisations latest-version="143">
+	<personalisations latest-version="144">
 		<update-pack url="http://thecrewchief.org/downloads/personalisations.zip" updates-from-version="-1"/>
 		<update-pack url="http://thecrewchief.org/downloads/update_personalisations.zip" updates-from-version="0"/>
 		<update-pack url="http://thecrewchief.org/downloads/update_2_personalisations.zip" updates-from-version="121"/>
@@ -75,6 +75,7 @@ secondary update sources) can still be updated. All downloads from this source w
 		<update-pack url="http://thecrewchief.org/downloads/update_12_personalisations.zip" updates-from-version="140"/>
 		<update-pack url="http://thecrewchief.org/downloads/update_13_personalisations.zip" updates-from-version="141"/>
 		<update-pack url="http://thecrewchief.org/downloads/update_14_personalisations.zip" updates-from-version="142"/>
+		<update-pack url="http://thecrewchief.org/downloads/update_15_personalisations.zip" updates-from-version="143"/>
 	</personalisations>
 </sounds>
 
