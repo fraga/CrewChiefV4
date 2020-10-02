@@ -1494,7 +1494,7 @@ force_min_window_size_category = UI_STARTUP_AND_PATHS
 force_min_window_size_metadata = RESTART_REQUIRED
 
 pit_box_position_countdown = Pit box distance countdown
-pit_box_position_countdown_help = Play distance in metres to box as you approach (R3E, rF2 and iRacing only).  Note:  In rF2, disabled for oval tracks.  May not work with some other tracks too.
+pit_box_position_countdown_help = Play distance in metres to box as you approach (R3E, rF2, iRacing and GTR 2 only).  Note:  In rF2, disabled for oval tracks.  May not work with some other tracks too.
 pit_box_position_countdown_filter = IRACING;RACE_ROOM;RF2_64BIT
 pit_box_position_countdown_category = PIT_STOPS_AND_MULTICLASS
 
@@ -1967,3 +1967,9 @@ lazy_load_subtitles_metadata = RESTART_REQUIRED
 show_splash_screen = Show splash screen
 show_splash_screen_help = Show splash screen while the app is launching
 show_splash_screen_category = MISC
+
+enable_gtr2_pit_lane_approach_heuristics = Enable GTR 2 pit lane approach detection
+enable_gtr2_pit_lane_approach_heuristics_help = Experimental: If enabled, CC will try to detect if user approaches the pit lane entry and remind him to respect speed limit.  Might not work correctly for all tracks.
+enable_gtr2_pit_lane_approach_heuristics_filter = GTR2
+enable_gtr2_pit_lane_approach_heuristics_category = PIT_STOPS_AND_MULTICLASS
+

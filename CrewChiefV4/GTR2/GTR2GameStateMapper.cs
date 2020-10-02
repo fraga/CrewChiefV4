@@ -25,7 +25,7 @@ namespace CrewChiefV4.GTR2
         private readonly bool enablePitStopPrediction = UserSettings.GetUserSettings().getBoolean("enable_gtr2_pit_stop_prediction");
         private readonly bool enableFrozenOrderMessages = true; // UserSettings.GetUserSettings().getBoolean("enable_gtr2_frozen_order_messages");
         private readonly bool enableCutTrackHeuristics = UserSettings.GetUserSettings().getBoolean("enable_gtr2_cut_track_heuristics");
-        //private readonly bool enablePitLaneApproachHeuristics = UserSettings.GetUserSettings().getBoolean("enable_gtr2_pit_lane_approach_heuristics");
+        private readonly bool enablePitLaneApproachHeuristics = UserSettings.GetUserSettings().getBoolean("enable_gtr2_pit_lane_approach_heuristics");
         private readonly bool enableFCYPitStateMessages = true;  // UserSettings.GetUserSettings().getBoolean("enable_gtr2_pit_state_during_fcy");
         //private readonly bool useRealWheelSizeForLockingAndSpinning = UserSettings.GetUserSettings().getBoolean("use_gtr2_wheel_size_for_locking_and_spinning");
         //private readonly bool enableWrongWayMessage = UserSettings.GetUserSettings().getBoolean("enable_gtr2_wrong_way_message");
@@ -643,8 +643,7 @@ namespace CrewChiefV4.GTR2
 
                 GlobalBehaviourSettings.UpdateFromTrackDefinition(csd.TrackDefinition);
 
-                // TODO: dig it out
-                //cgs.PitData.PitBoxPositionEstimate = playerScoring.mPitLapDist;
+                cgs.PitData.PitBoxPositionEstimate = playerExtendedScoring.mPitLapDist;
                 Console.WriteLine("Pit box position = " + (cgs.PitData.PitBoxPositionEstimate < 0.0f ? "Unknown" : cgs.PitData.PitBoxPositionEstimate.ToString("0.000")));
             }
 
@@ -868,8 +867,7 @@ namespace CrewChiefV4.GTR2
                 this.minTrackWidth = -1.0;
                 this.isApproachingPitEntry = false;
             }
-            // TODO: use pitlane dist from car class?
-            /*else if (this.enablePitLaneApproachHeuristics)
+            else if (this.enablePitLaneApproachHeuristics)
             {
                 if (cgs.PitData.InPitlane)
                 {
@@ -884,12 +882,12 @@ namespace CrewChiefV4.GTR2
                     {
                         this.minTrackWidth = estTrackWidth;
 
-                        var pitLaneStartDist = shared.rules.mTrackRules.mPitLaneStartDist;
+                        var pitLaneStartDist = shared.extended.mPitApproachLapDist;
                         if (cgs.SessionData.SessionType != SessionType.Race)
                         {
                             // Rules aren't updated in non-race sessions, so estimate pit lane start based on
                             // pit stall position.
-                            pitLaneStartDist = playerScoring.mPitLapDist - 400.0f;
+                            pitLaneStartDist = playerExtendedScoring.mPitLapDist - 400.0f;
                             if (pitLaneStartDist < 0.0f)
                                 pitLaneStartDist += (float)shared.scoring.mScoringInfo.mLapDist;
                         }
@@ -910,16 +908,16 @@ namespace CrewChiefV4.GTR2
                                 playerScoring.mLapDist,
                                 playerScoring.mPathLateral,
                                 cgs.PitData.InPitlane,
-                                playerScoring.mPitState,
+                                playerExtendedScoring.mPitState,
                                 this.isApproachingPitEntry,
                                 csd.CompletedLaps + 1,
-                                shared.rules.mTrackRules.mPitLaneStartDist));
+                                shared.extended.mPitApproachLapDist));
                         }
                     }
                 }
 
                 cgs.PitData.IsApproachingPitlane = this.isApproachingPitEntry;
-            }*/
+            }
 
             // --------------------------------
             // MC warnings
@@ -1723,9 +1721,8 @@ namespace CrewChiefV4.GTR2
                     // Detect if opponent occupies player's stall.
                     if (vehicleExtendedScoring.mPitState == (byte)GTR2Constants.GTR2PitState.Stopped)
                     {
-                        // TODO: revisit
-                        //if (Math.Abs(cgs.PitData.PitBoxPositionEstimate - opponent.DistanceRoundTrack) < 5.0)
-                         //   cgs.PitData.PitStallOccupied = true;
+                        if (Math.Abs(cgs.PitData.PitBoxPositionEstimate - opponent.DistanceRoundTrack) < 5.0)
+                          cgs.PitData.PitStallOccupied = true;
                     }
                 }
             }
@@ -2248,7 +2245,7 @@ namespace CrewChiefV4.GTR2
                 lapDistEstimated = vehicleScoring.mLapDist - localZVelEstimated * delta;
             }*/
 
-            // TODO: we can track time since scoring update.  Just add TickCounts to both tel and scoring.
+            // TODO: we could track time since scoring update and interpolate.  Just add TickCounts to both tel and scoring.
             return vehicleScoring.mLapDist;
         }
 

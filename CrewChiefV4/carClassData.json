@@ -1230,13 +1230,14 @@
 		{
 			"carClassEnum": "GR2_70S",
 			"gtr2ClassNames": ["BMW 3.0 CSL 3.3 12v", "BMW 3.0 CSL 3.5 24v", "BMW 3.0 CSL 3.5 24v IMSA", "BMW 3.0 CSL 3.5 12v", "Ford Mustang Boss 302", "Ford Capri RS 3100", "Ford Capri RS 2600"],
-			"enabledMessageTypes": "TYRE_TEMPS, BRAKE_TEMPS, FUEL, LOCKING_AND_SPINNING"
+			"enabledMessageTypes": "TYRE_TEMPS, BRAKE_TEMPS, FUEL, LOCKING_AND_SPINNING",
+			"timesInHundredths": false
 		},
 		{
 			"carClassEnum": "GR4_70S",
 			"gtr2ClassNames": ["Porsche 914/6 GT", "Porsche 911 Carrera RSR 3.0", "Porsche 911 Carrera RSR 2.8", "DeTomaso Pantera Gr.4 (Modena)", "DeTomaso Pantera Gr.4 (Boss)"],
 			"enabledMessageTypes": "TYRE_TEMPS, BRAKE_TEMPS, FUEL, LOCKING_AND_SPINNING"
+			"timesInHundredths": false
 		},
-
 	]
 }

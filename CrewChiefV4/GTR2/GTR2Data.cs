@@ -443,6 +443,8 @@ namespace GTR2SharedMemory
             public int mBlueFlag;
             public float mBlueFlagET;
             public byte mSpeedLimiter;
+            public int mWpBranchID;
+            public float mPitLapDist;
         }
 
 

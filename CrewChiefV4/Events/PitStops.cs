@@ -394,7 +394,7 @@ namespace CrewChiefV4.Events
                 currentGameState.PositionAndMotionData.CarSpeed > 2 &&
                 (currentGameState.PitData.PitBoxPositionEstimate > 0 || currentGameState.PitData.PitBoxLocationEstimate != null ) && 
                 !currentGameState.PenaltiesData.HasDriveThrough &&
-                !(CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT && currentGameState.PitData.OnOutLap && currentGameState.SessionData.SessionType != SessionType.Race))  // In rF2 countdown pit countdown messages get triggered on exit from the garage.
+                !((CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT || CrewChief.gameDefinition.gameEnum == GameEnum.GTR2) && currentGameState.PitData.OnOutLap && currentGameState.SessionData.SessionType != SessionType.Race))  // In rF2 countdown pit countdown messages get triggered on exit from the garage.
             {
                 if (previousGameState.PitData.InPitlane && !currentGameState.PitData.InPitlane)
                 {

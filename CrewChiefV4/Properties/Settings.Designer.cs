@@ -4954,5 +4954,17 @@ namespace CrewChiefV4.Properties {
                 this["show_splash_screen"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool enable_gtr2_pit_lane_approach_heuristics {
+            get {
+                return ((bool)(this["enable_gtr2_pit_lane_approach_heuristics"]));
+            }
+            set {
+                this["enable_gtr2_pit_lane_approach_heuristics"] = value;
+            }
+        }
     }
 }
