@@ -222,7 +222,7 @@
 			"rf2ClassNames": ["*GT4*"],
 			"acClassNames": ["*GT4*", "ks_bmw_m235i_racing", "lotus_evora_gx", "ginetta_g55"],
 			"ams2ClassNames": ["G55Supercup"],
-			"iracingCarIds": [119],
+			"iracingCarIds": [119, 122],
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL",
 			"allMembersAreRWD": true,
