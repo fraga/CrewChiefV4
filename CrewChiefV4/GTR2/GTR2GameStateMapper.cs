@@ -2541,11 +2541,6 @@ namespace CrewChiefV4.GTR2
                 // up to four possible practice sessions (seems 2 in GTR2)
                 case 1:
                 case 2:
-                    if (shared.scoring.mScoringInfo.mSession == 0)
-                    {
-                        Console.WriteLine("0 SESSION!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                    }
-
                     // This might go from LonePractice to Practice without any nice state transition.  However,
                     // I am not aware of any horrible side effects.
                     if (this.lastPracticeNumVehicles < shared.scoring.mScoringInfo.mNumVehicles)
