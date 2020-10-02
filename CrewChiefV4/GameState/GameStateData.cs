@@ -3100,6 +3100,8 @@ namespace CrewChiefV4.GameState
 
         public int indexOfLastPointSet = -1;
 
+        private bool initialised = false;
+
         public DeltaTime()
         {
             this.currentDeltaPointIndex = -1;
@@ -3111,40 +3113,53 @@ namespace CrewChiefV4.GameState
 
         public DeltaTime(float trackLength, float distanceRoundTrackOnCurrentLap, DateTime now, float spacing = 20f)
         {
-            this.distanceRoundTrackOnCurrentLap = distanceRoundTrackOnCurrentLap;
-            this.totalDistanceTravelled = distanceRoundTrackOnCurrentLap;
-            this.trackLength = trackLength;
-            this.spacing = spacing;
-            float totalSpacing = 0;
-            List<DateTime> deltaPointsList = new List<DateTime>();
-            List<List<float>> avgSpeedTrapPointsList = new List<List<float>>();
-            List<float> avgSpeedForEachDeltapointSectionList = new List<float>();
-            bool foundCurrentDeltaPoint = false;
-            int index = 0;
-            while (totalSpacing < trackLength)
+            if (trackLength >= spacing) // only initialise if we have at least 1 deltapoint
             {
-                deltaPointsList.Add(now);
-                avgSpeedTrapPointsList.Add(new List<float>());
-                avgSpeedForEachDeltapointSectionList.Add(0);
-                totalSpacing += spacing;
-                if (!foundCurrentDeltaPoint)
+                this.distanceRoundTrackOnCurrentLap = distanceRoundTrackOnCurrentLap;
+                this.totalDistanceTravelled = distanceRoundTrackOnCurrentLap;
+                this.trackLength = trackLength;
+                this.spacing = spacing;
+                float totalSpacing = 0;
+                List<DateTime> deltaPointsList = new List<DateTime>();
+                List<List<float>> avgSpeedTrapPointsList = new List<List<float>>();
+                List<float> avgSpeedForEachDeltapointSectionList = new List<float>();
+                bool foundCurrentDeltaPoint = false;
+                int index = 0;
+                while (totalSpacing < trackLength)
                 {
-                    currentDeltaPointIndex = index;
-                    if (distanceRoundTrackOnCurrentLap >= totalSpacing)
+                    deltaPointsList.Add(now);
+                    avgSpeedTrapPointsList.Add(new List<float>());
+                    avgSpeedForEachDeltapointSectionList.Add(0);
+                    totalSpacing += spacing;
+                    if (!foundCurrentDeltaPoint)
                     {
-                        foundCurrentDeltaPoint = true;
+                        currentDeltaPointIndex = index;
+                        if (distanceRoundTrackOnCurrentLap >= totalSpacing)
+                        {
+                            foundCurrentDeltaPoint = true;
+                        }
                     }
+                    index++;
                 }
-                index++;
+                this.deltaPoints = deltaPointsList.ToArray();
+                this.avgSpeedTrapPoints = avgSpeedTrapPointsList.ToArray();
+                this.avgSpeedForEachDeltapointSection = avgSpeedForEachDeltapointSectionList.ToArray();
+                this.initialised = true;
             }
-            this.deltaPoints = deltaPointsList.ToArray();
-            this.avgSpeedTrapPoints = avgSpeedTrapPointsList.ToArray();
-            this.avgSpeedForEachDeltapointSection = avgSpeedForEachDeltapointSectionList.ToArray();
         }
 
         private int getIndexFromLapDistance(float lapDistance)
         {
-            return (int) (lapDistance / spacing);
+            int index = (int) (lapDistance / spacing);
+            if (index < 0)
+            {
+                return 0;
+            }
+            if (index >= this.deltaPoints.Length)
+            {
+                return this.deltaPoints.Length - 1;
+            }
+            return index;
         }
 
         // interpolate missing DeltaPoint timing data assuming a constant speed between the last know DeltaPoint and the current one
@@ -3189,7 +3204,7 @@ namespace CrewChiefV4.GameState
 
         public void SetNextDeltaPoint(float distanceRoundTrackOnCurrentLap, int lapsCompleted, float speed, DateTime now, bool collectAvgSpeed = false, int percentageForGoingSlow = 80)
         {
-            if (distanceRoundTrackOnCurrentLap <= 0)
+            if (!this.initialised || distanceRoundTrackOnCurrentLap <= 0)
             {
                 return;
             }
@@ -3266,7 +3281,7 @@ namespace CrewChiefV4.GameState
         {
             TimeSpan splitTime = new TimeSpan(0);
             int lapDifference = 0;
-            if (otherCarDelta.deltaPoints.Length > 0 && this.deltaPoints.Length > 0 && this.currentDeltaPointIndex != -1 && otherCarDelta.currentDeltaPointIndex != -1)
+            if (initialised && otherCarDelta.deltaPoints.Length > 0 && this.deltaPoints.Length > 0 && this.currentDeltaPointIndex != -1 && otherCarDelta.currentDeltaPointIndex != -1)
             {
                 lapDifference = GetSignedLapDifference(otherCarDelta);
 
@@ -3296,7 +3311,7 @@ namespace CrewChiefV4.GameState
         public int GetSignedLapDifference(DeltaTime otherCarDelta)
         {
             int lapDifference = 0;
-            if (otherCarDelta.deltaPoints.Length > 0 && this.deltaPoints.Length > 0 && this.currentDeltaPointIndex != -1 && otherCarDelta.currentDeltaPointIndex != -1)
+            if (initialised && otherCarDelta.deltaPoints.Length > 0 && this.deltaPoints.Length > 0 && this.currentDeltaPointIndex != -1 && otherCarDelta.currentDeltaPointIndex != -1)
             {
                 // +ve means I've travelled further than him:
                 float totalDistanceTravelledDifference = this.totalDistanceTravelled - otherCarDelta.totalDistanceTravelled;
@@ -3329,7 +3344,7 @@ namespace CrewChiefV4.GameState
         public float GetSignedDeltaTimeOnly(DeltaTime otherCarDelta)
         {
             TimeSpan splitTime = new TimeSpan(0);
-            if (otherCarDelta.deltaPoints.Length > 0 && deltaPoints.Length > 0 && currentDeltaPointIndex != -1 && otherCarDelta.currentDeltaPointIndex != -1)
+            if (initialised && otherCarDelta.deltaPoints.Length > 0 && deltaPoints.Length > 0 && currentDeltaPointIndex != -1 && otherCarDelta.currentDeltaPointIndex != -1)
             {
                 DateTime otherCarTime;
                 DateTime thisCarTime;
@@ -3356,7 +3371,7 @@ namespace CrewChiefV4.GameState
 
         public Tuple<int, float> GetAverageSpeedCurrentDeltaPoint(float lapDistance)
         {
-            if (lapDistance != -1)
+            if (initialised && lapDistance != -1)
             { 
                 int index = getIndexFromLapDistance(lapDistance);
                 List<float> points = this.avgSpeedTrapPoints[index];
