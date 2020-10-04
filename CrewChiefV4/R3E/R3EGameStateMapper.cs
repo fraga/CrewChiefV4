@@ -1457,6 +1457,11 @@ namespace CrewChiefV4.RaceRoom
 
         private TyreType mapToTyreType(int tire_type_front, int tire_sub_type_front, int tire_type_rear, int tire_sub_type_rear, CarData.CarClassEnum carClass)
         {
+            // F Junior
+            if (carClass == CarData.CarClassEnum.FF)
+            {
+                return TyreType.R3E_2017_F5;
+            }
             // bias ply cars
             if (carClass == CarData.CarClassEnum.GROUP4 || carClass == CarData.CarClassEnum.GROUP5 || carClass == CarData.CarClassEnum.M1_PROCAR)
             {

@@ -31,7 +31,7 @@ namespace CrewChiefV4.GameState
     {
         // separate enum for compound & weather, and prime / option?
         Hard, Medium, Soft, Super_Soft, Ultra_Soft, Hyper_Soft, Wet, Intermediate, Road, Bias_Ply, Unknown_Race, R3E_2017_SOFT, R3E_2017_MEDIUM, R3E_2017_HARD,
-        R3E_2016_SOFT, R3E_2016_MEDIUM, R3E_2016_HARD, Prime, Option, Alternate, Primary, Ice, Snow, AllTerrain, Uninitialized
+        R3E_2017_F5, R3E_2016_SOFT, R3E_2016_MEDIUM, R3E_2016_HARD, Prime, Option, Alternate, Primary, Ice, Snow, AllTerrain, Uninitialized
     }
 
     public enum BrakeType
