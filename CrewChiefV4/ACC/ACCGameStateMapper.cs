@@ -353,30 +353,30 @@ namespace CrewChiefV4.ACC
                             (currentGameState.SessionData.SessionHasFixedTime && sessionTimeRemaining > lastSessionTimeRemaining + 1))))
             {
                 opponentDisconnectionCounter.Clear();
-                System.Diagnostics.Debug.WriteLine("New session, trigger...");
+                Console.WriteLine("New session, trigger...");
                 if (sessionOfSameTypeRestarted)
                 {
-                    System.Diagnostics.Debug.WriteLine("Session of same type (" + lastSessionType + ") restarted (green / finished -> countdown)");
+                    Console.WriteLine("Session of same type (" + lastSessionType + ") restarted (green / finished -> countdown)");
                 }
                 if (lastSessionType != currentGameState.SessionData.SessionType)
                 {
-                    System.Diagnostics.Debug.WriteLine("lastSessionType = " + lastSessionType + " currentGameState.SessionData.SessionType = " + currentGameState.SessionData.SessionType);
+                    Console.WriteLine("lastSessionType = " + lastSessionType + " currentGameState.SessionData.SessionType = " + currentGameState.SessionData.SessionType);
                 }
                 else if (lastSessionTrack != currentGameState.SessionData.TrackDefinition)
                 {
                     String lastTrackName = lastSessionTrack == null ? "unknown" : lastSessionTrack.name;
                     String currentTrackName = currentGameState.SessionData.TrackDefinition == null ? "unknown" : currentGameState.SessionData.TrackDefinition.name;
-                    System.Diagnostics.Debug.WriteLine("lastSessionTrack = " + lastTrackName + " currentGameState.SessionData.Track = " + currentTrackName);
+                    Console.WriteLine("lastSessionTrack = " + lastTrackName + " currentGameState.SessionData.Track = " + currentTrackName);
                     if (currentGameState.SessionData.TrackDefinition.unknownTrack)
                     {
-                        System.Diagnostics.Debug.WriteLine("Track is unknown, setting virtual sectors");
+                        Console.WriteLine("Track is unknown, setting virtual sectors");
                         currentGameState.SessionData.TrackDefinition.setSectorPointsForUnknownTracks();
                     }
 
                 }
                 else if (currentGameState.SessionData.SessionHasFixedTime && sessionTimeRemaining > lastSessionTimeRemaining + 1)
                 {
-                    System.Diagnostics.Debug.WriteLine("sessionTimeRemaining = " + sessionTimeRemaining.ToString("0.000") + " lastSessionTimeRemaining = " + lastSessionTimeRemaining.ToString("0.000"));
+                    Console.WriteLine("sessionTimeRemaining = " + sessionTimeRemaining.ToString("0.000") + " lastSessionTimeRemaining = " + lastSessionTimeRemaining.ToString("0.000"));
                 }
                 lapCountAtSector1End = -1;
                 currentGameState.SessionData.IsNewSession = true;
@@ -391,9 +391,9 @@ namespace CrewChiefV4.ACC
                     currentGameState.SessionData.HasExtraLap = shared.accStatic.hasExtraLap == 1;
                     if (currentGameState.SessionData.SessionTotalRunTime == 0)
                     {
-                        System.Diagnostics.Debug.WriteLine("Setting session run time to 0");
+                        Console.WriteLine("Setting session run time to 0");
                     }
-                    System.Diagnostics.Debug.WriteLine("Time in this new session = " + sessionTimeRemaining.ToString("0.000"));
+                    Console.WriteLine("Time in this new session = " + sessionTimeRemaining.ToString("0.000"));
                 }
                 currentGameState.SessionData.DriverRawName = playerVehicle.driverName;
                 currentGameState.PitData.IsRefuellingAllowed = true;
@@ -405,11 +405,11 @@ namespace CrewChiefV4.ACC
 
                 if (acTyres.Count > 0 && !acTyres.ContainsKey(shared.accGraphic.tyreCompound))
                 {
-                    System.Diagnostics.Debug.WriteLine("Tyre information is disabled. Player is using unknown Tyre Type " + shared.accGraphic.tyreCompound);
+                    Console.WriteLine("Tyre information is disabled. Player is using unknown Tyre Type " + shared.accGraphic.tyreCompound);
                 }
                 else
                 {
-                    System.Diagnostics.Debug.WriteLine("Player is using Tyre Type " + shared.accGraphic.tyreCompound);
+                    Console.WriteLine("Player is using Tyre Type " + shared.accGraphic.tyreCompound);
                 }
                 currentGameState.TyreData.TyreTypeName = shared.accGraphic.tyreCompound;
                 tyreTempThresholds = getTyreTempThresholds(currentGameState.carClass, currentGameState.TyreData.TyreTypeName);
@@ -1557,11 +1557,11 @@ namespace CrewChiefV4.ACC
             {
                 return SessionType.Practice;
             }
-            else if (sessionState == AC_SESSION_TYPE.AC_QUALIFY)
+            else if (sessionState == AC_SESSION_TYPE.AC_QUALIFY || sessionState == AC_SESSION_TYPE.ACC_HOTSTINTSUPERPOLE)
             {
                 return SessionType.Qualify;
             }
-            else if (sessionState == AC_SESSION_TYPE.AC_TIME_ATTACK || sessionState == AC_SESSION_TYPE.AC_HOTLAP)
+            else if (sessionState == AC_SESSION_TYPE.AC_TIME_ATTACK || sessionState == AC_SESSION_TYPE.AC_HOTLAP || sessionState == AC_SESSION_TYPE.ACC_HOTSTINT)
             {
                 return SessionType.HotLap;
             }
