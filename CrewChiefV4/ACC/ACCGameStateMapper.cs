@@ -580,7 +580,6 @@ namespace CrewChiefV4.ACC
                     // the other properties of PitData are updated each tick, and shouldn't be copied over here. Nasty...
                     currentGameState.SessionData.SessionTimesAtEndOfSectors = previousGameState.SessionData.SessionTimesAtEndOfSectors;
                     currentGameState.PenaltiesData.CutTrackWarnings = previousGameState.PenaltiesData.CutTrackWarnings;
-                    currentGameState.PenaltiesData.NumPenalties = previousGameState.PenaltiesData.NumPenalties;
                     currentGameState.SessionData.formattedPlayerLapTimes = previousGameState.SessionData.formattedPlayerLapTimes;
                     currentGameState.SessionData.GameTimeAtLastPositionFrontChange = previousGameState.SessionData.GameTimeAtLastPositionFrontChange;
                     currentGameState.SessionData.GameTimeAtLastPositionBehindChange = previousGameState.SessionData.GameTimeAtLastPositionBehindChange;
@@ -997,12 +996,14 @@ namespace CrewChiefV4.ACC
             // penalty data
             PenatiesData.DetailedPenaltyType previousPenaltyType = previousGameState == null ? PenatiesData.DetailedPenaltyType.NONE :
                 previousGameState.PenaltiesData.PenaltyType;
-            int previousPenaltyCount = previousGameState == null ? 0 : previousGameState.PenaltiesData.NumPenalties;
             if (shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_DriveThrough_Cutting
                 || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_DriveThrough_IgnoredDriverStint
-                || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_DriveThrough_PitSpeeding)
+                || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_DriveThrough_PitSpeeding
+                || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_DriveThrough_False_Start)
             {
                 currentGameState.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.DRIVE_THROUGH;
+                currentGameState.PenaltiesData.NumPenalties++;
+                currentGameState.PenaltiesData.HasDriveThrough = true;
             }
             else if (shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_StopAndGo_10_Cutting
                 || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_StopAndGo_10_PitSpeeding
@@ -1012,15 +1013,14 @@ namespace CrewChiefV4.ACC
                 || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_StopAndGo_30_PitSpeeding)
             {
                 currentGameState.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
+                currentGameState.PenaltiesData.NumPenalties++;
+                currentGameState.PenaltiesData.HasStopAndGo = true;
             }
             else
             {
                 currentGameState.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.NONE;
             }
-            if (currentGameState.PenaltiesData.PenaltyType != PenatiesData.DetailedPenaltyType.NONE && currentGameState.PenaltiesData.PenaltyType != previousPenaltyType)
-            {
-                currentGameState.PenaltiesData.NumPenalties = previousPenaltyCount + 1;
-            }
+
             currentGameState.PenaltiesData.HasTimeDeduction = shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_PostRaceTime;
             
             if (shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_DriveThrough_PitSpeeding
@@ -1047,6 +1047,10 @@ namespace CrewChiefV4.ACC
                 || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_DriveThrough_IgnoredDriverStint)
             {
                 currentGameState.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.EXCEEDED_SINGLE_DRIVER_STINT_LIMIT;
+            }
+            else if (shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_DriveThrough_False_Start)
+            {
+                currentGameState.PenaltiesData.PenaltyCause = PenatiesData.DetailedPenaltyCause.FALSE_START;
             }
             else
             {

@@ -449,7 +449,8 @@ namespace CrewChiefV4.Events
                 playedSlowdownNotificationOnThisLap = false;
                 playerMustPitThisLap = false;
             }
-            if ((currentGameState.SessionData.SessionType == SessionType.Race || CrewChief.gameDefinition.gameEnum == GameEnum.IRACING) && previousGameState != null &&
+            if (CrewChief.gameDefinition.gameEnum != GameEnum.ACC &&
+                (currentGameState.SessionData.SessionType == SessionType.Race || CrewChief.gameDefinition.gameEnum == GameEnum.IRACING) && previousGameState != null &&
                 (currentGameState.PenaltiesData.HasDriveThrough || currentGameState.PenaltiesData.HasStopAndGo || currentGameState.PenaltiesData.HasTimeDeduction || 
                 currentGameState.PenaltiesData.HasPitStop || currentGameState.PenaltiesData.HasMeatballFlag))
             {
@@ -631,7 +632,7 @@ namespace CrewChiefV4.Events
                     // don't know if this is for cutting, just in case we reset the cutting enum
                     trackLimitsMode = TrackLimitsMode.OK;
                 }
-                else if (currentGameState.PitData.InPitlane && currentGameState.PitData.OnOutLap && !playedNotServedPenalty &&
+                else if (previousGameState.PitData.InPitlane && !currentGameState.PitData.InPitlane && !playedNotServedPenalty &&
                     currentGameState.PenaltiesData.NumPenalties > 0)
                 {
                     // we've exited the pits but there's still an outstanding penalty
