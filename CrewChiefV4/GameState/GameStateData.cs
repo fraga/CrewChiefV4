@@ -2816,8 +2816,10 @@ namespace CrewChiefV4.GameState
 
         public Boolean HasSlowDown;
 
-        // Number of penalties pending for the player
-        public int NumPenalties;
+        // Number of outstanding (unserved) penalties pending for the player
+        // For some games (e.g. ACC) this will either be 0 (no penalty to serve) or 1 (1 or more to serve).
+        // It is *not* a cumulative number of penalties acquired (and potentially served) during a session
+        public int NumOutstandingPenalties;
 
         // Total number of cut track warnings
         public int CutTrackWarnings;

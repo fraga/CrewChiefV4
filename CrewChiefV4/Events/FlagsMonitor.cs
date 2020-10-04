@@ -606,7 +606,7 @@ namespace CrewChiefV4.Events
         private void processIllegalOvertakes(GameStateData previousGameState, GameStateData currentGameState)
         {
             // some uncertainty here - once a penalty has been applied, does the numCarsPassedIllegally reset or remain non-zero?
-            if (illegalPassCarsCountAtLastAnnouncement > 0 && previousGameState.PenaltiesData.NumPenalties > currentGameState.PenaltiesData.NumPenalties)
+            if (illegalPassCarsCountAtLastAnnouncement > 0 && previousGameState.PenaltiesData.NumOutstandingPenalties > currentGameState.PenaltiesData.NumOutstandingPenalties)
             {
                 Console.WriteLine("numCarsPassedIllegally has changed from " + illegalPassCarsCountAtLastAnnouncement +
                     " to  " + currentGameState.FlagData.numCarsPassedIllegally + " and penalty count has increased");
@@ -656,7 +656,7 @@ namespace CrewChiefV4.Events
                 else
                 {
                     // more guesswork :(
-                    if (currentGameState.PenaltiesData.NumPenalties == 0)
+                    if (currentGameState.PenaltiesData.NumOutstandingPenalties == 0)
                     {
                         // don't allow any other message to override this one:
                         audioPlayer.playMessageImmediately(new QueuedMessage("give_positions_back_completed", 5,

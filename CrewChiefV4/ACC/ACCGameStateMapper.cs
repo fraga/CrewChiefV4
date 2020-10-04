@@ -1002,7 +1002,7 @@ namespace CrewChiefV4.ACC
                 || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_DriveThrough_False_Start)
             {
                 currentGameState.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.DRIVE_THROUGH;
-                currentGameState.PenaltiesData.NumPenalties++;
+                currentGameState.PenaltiesData.NumOutstandingPenalties++;
                 currentGameState.PenaltiesData.HasDriveThrough = true;
             }
             else if (shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_StopAndGo_10_Cutting
@@ -1013,7 +1013,7 @@ namespace CrewChiefV4.ACC
                 || shared.accGraphic.penalty == AC_PENALTY_TYPE.ACC_StopAndGo_30_PitSpeeding)
             {
                 currentGameState.PenaltiesData.PenaltyType = PenatiesData.DetailedPenaltyType.STOP_AND_GO;
-                currentGameState.PenaltiesData.NumPenalties++;
+                currentGameState.PenaltiesData.NumOutstandingPenalties++;
                 currentGameState.PenaltiesData.HasStopAndGo = true;
             }
             else

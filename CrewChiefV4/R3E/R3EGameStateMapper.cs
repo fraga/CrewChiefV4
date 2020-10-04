@@ -1221,7 +1221,7 @@ namespace CrewChiefV4.RaceRoom
             currentGameState.PenaltiesData.HasSlowDown = shared.Penalties.SlowDown > 0;
             currentGameState.PenaltiesData.HasPitStop = shared.Penalties.PitStop > 0;
             currentGameState.PenaltiesData.HasTimeDeduction = shared.Penalties.TimeDeduction > 0;   // "time deduction" is actually "servable time penalty"
-            currentGameState.PenaltiesData.NumPenalties = shared.NumPenalties;
+            currentGameState.PenaltiesData.NumOutstandingPenalties = shared.NumPenalties;
 
             // new penalties data, incomplete mapping using same event logic as RF2
             currentGameState.PenaltiesData.PenaltyType = getDetailedPenaltyType(playerDriverData.PenaltyType);
