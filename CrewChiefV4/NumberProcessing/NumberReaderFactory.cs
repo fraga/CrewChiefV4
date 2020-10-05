@@ -25,19 +25,23 @@ namespace CrewChiefV4.NumberProcessing
             {
                 if (SoundPackVersionsHelper.currentSoundPackVersion >= 150)
                 {
+                    Console.WriteLine("Using NumberReaderIt2 for soundPackLanguage " + AudioPlayer.soundPackLanguage);
                     numberReader = new NumberReaderIt2();
                 }
                 else
                 {
+                    Console.WriteLine("Using NumberReaderIt for soundPackLanguage " + AudioPlayer.soundPackLanguage);
                     numberReader = new NumberReaderIt();
                 }
             }
             else if ("pt-br" == AudioPlayer.soundPackLanguage)
             {
+                Console.WriteLine("Using NumberReaderPtBr for soundPackLanguage " + AudioPlayer.soundPackLanguage);
                 numberReader = new NumberReaderPtBr();
             }
             else
             {
+                Console.WriteLine("Using NumberReaderEn for soundPackLanguage " + AudioPlayer.soundPackLanguage);
                 numberReader = new NumberReaderEn();
             }
         }
