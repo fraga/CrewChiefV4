@@ -106,9 +106,18 @@ namespace CrewChiefV4.GTR2
             public CarData.CarClass carClass = null;
             public string driverNameRawSanitized = null;
             public bool isGhost = false;
+
+            // TODO:
+            // model
+            // year
+            // number
+            // team name
         }
 
         private Dictionary<long, CarInfo> idToCarInfoMap = new Dictionary<long, CarInfo>();
+
+        // barebones lazy ass fallback if someone disables DMA
+        private Dictionary<string, CarInfo> driverNameToCarInfoMap = new Dictionary<string, CarInfo>();
 
         // Message center stuff
         private Int64 lastHistoryMessageUpdatedTicks = 0L;
@@ -251,6 +260,7 @@ namespace CrewChiefV4.GTR2
             this.isApproachingPitEntry = false;
             this.lastTimeEngineWasRunning = DateTime.MaxValue;
             this.idToCarInfoMap.Clear();
+            this.driverNameToCarInfoMap.Clear();
             this.lastPenaltyTime = DateTime.MinValue;
 
             // Do not reset MC tracking variables as "Disqualified" messages seem to stick for a bit on restart.
@@ -601,7 +611,7 @@ namespace CrewChiefV4.GTR2
                 this.lastGameSession = shared.scoring.mScoringInfo.mSession;
 
                 // Initialize variables that persist for the duration of a session.
-                var cci = this.GetCachedCarInfo(ref playerScoring);
+                var cci = this.GetCachedCarInfo(shared.extended.mUnofficialFeaturesEnabled != 0, ref playerScoring, ref playerExtendedScoring);
                 Debug.Assert(!cci.isGhost);
 
                 cgs.carClass = cci.carClass;
@@ -1317,7 +1327,8 @@ namespace CrewChiefV4.GTR2
             {
                 var vehicleScoring = shared.scoring.mVehicles[i];
 
-                var cci = this.GetCachedCarInfo(ref vehicleScoring);
+                var vehicleExtendedScoring = shared.extended.mExtendedVehicleScoring[vehicleScoring.mID % GTR2Constants.MAX_MAPPED_IDS];
+                var cci = this.GetCachedCarInfo(shared.extended.mUnofficialFeaturesEnabled != 0, ref vehicleScoring, ref vehicleExtendedScoring);
                 if (cci.isGhost)
                     continue;  // Skip trainer.
 
@@ -1381,7 +1392,7 @@ namespace CrewChiefV4.GTR2
                 if (ct == ControlType.Player || ct == ControlType.Replay || ct == ControlType.Unavailable)
                     continue;
 
-                var vehicleCachedInfo = this.GetCachedCarInfo(ref vehicleScoring);
+                var vehicleCachedInfo = this.GetCachedCarInfo(shared.extended.mUnofficialFeaturesEnabled != 0, ref vehicleScoring, ref vehicleExtendedScoring);
                 if (vehicleCachedInfo.isGhost)
                     continue;  // Skip trainer.
 
@@ -1406,7 +1417,7 @@ namespace CrewChiefV4.GTR2
                     else
                     {
                         // offline we can have any number of duplicates :(
-                        opponentKey = this.GetOpponentKeyForVehicleInfo(ref vehicleScoring, pgs, csd.SessionRunningTime, driverName, duplicatesCount);
+                        opponentKey = this.GetOpponentKeyForVehicleInfo(ref vehicleScoring, pgs, csd.SessionRunningTime, driverName, duplicatesCount, shared.extended.mUnofficialFeaturesEnabled != 0, ref vehicleExtendedScoring);
 
                         if (opponentKey == null)
                         {
@@ -2473,7 +2484,7 @@ namespace CrewChiefV4.GTR2
 
         // finds OpponentData key for given vehicle based on driver name, vehicle class, and world position
         // TODO: is this even needed if we have mID?
-        private String GetOpponentKeyForVehicleInfo(ref GTR2VehicleScoring vehicleScoring, GameStateData previousGameState, float sessionRunningTime, string driverName, int duplicatesCount)
+        private String GetOpponentKeyForVehicleInfo(ref GTR2VehicleScoring vehicleScoring, GameStateData previousGameState, float sessionRunningTime, string driverName, int duplicatesCount, bool unofficialFeaturesEnabled, ref GTR2ExtendedVehicleScoring vehicleExtendedScoring)
         {
             if (previousGameState == null)
                 return null;
@@ -2494,7 +2505,7 @@ namespace CrewChiefV4.GTR2
                     OpponentData o = null;
                     if (previousGameState.OpponentData.TryGetValue(possibleKey, out o))
                     {
-                        var cci = this.GetCachedCarInfo(ref vehicleScoring);
+                        var cci = this.GetCachedCarInfo(unofficialFeaturesEnabled, ref vehicleScoring, ref vehicleExtendedScoring);
                         Debug.Assert(!cci.isGhost);
 
                         var driverNameFromScoring = cci.driverNameRawSanitized;
@@ -2544,8 +2555,8 @@ namespace CrewChiefV4.GTR2
                         for (int i = 0; i < shared.scoring.mScoringInfo.mNumVehicles; ++i)
                         {
                             var vehicleScoring = shared.scoring.mVehicles[i];
-
-                            var cci = this.GetCachedCarInfo(ref vehicleScoring);
+                            var vehicleExtendedScoring = shared.extended.mExtendedVehicleScoring[vehicleScoring.mID % GTR2Constants.MAX_MAPPED_IDS];
+                            var cci = this.GetCachedCarInfo(shared.extended.mUnofficialFeaturesEnabled != 0, ref vehicleScoring, ref vehicleExtendedScoring);
                             if (cci.isGhost)
                                 continue;  // Skip trainer.
 
@@ -3152,32 +3163,61 @@ namespace CrewChiefV4.GTR2
             return rot;
         }
 
-        private CarInfo GetCachedCarInfo(ref GTR2VehicleScoring vehicleScoring)
+        private CarInfo GetCachedCarInfo(bool unofficialFeaturesEnabled, ref GTR2VehicleScoring vehicleScoring, ref GTR2ExtendedVehicleScoring vehicleExtendedScoring)
         {
-            // TODO: if unofficial features are off, make this string->car info
-            CarInfo ci = null;
-            if (this.idToCarInfoMap.TryGetValue(vehicleScoring.mID, out ci))
-                return ci;
-
-            var driverName = GTR2GameStateMapper.GetStringFromBytes(vehicleScoring.mDriverName).ToLowerInvariant();
-            driverName = GTR2GameStateMapper.GetSanitizedDriverName(driverName);
-
-            var carClassId = GTR2GameStateMapper.GetStringFromBytes(vehicleScoring.mVehicleName);
-            var carClass = CarData.getCarClassForClassNameOrCarName(carClassId);
-
-            // Name does not appear to be localized in GTR2, so hardcoding it is ok for now.
-            var isGhost = string.Equals(driverName, "transparent trainer", StringComparison.InvariantCultureIgnoreCase);
-
-            ci = new CarInfo()
+            if (unofficialFeaturesEnabled)
             {
-                carClass = carClass,
-                driverNameRawSanitized = driverName,
-                isGhost = isGhost
-            };
+                CarInfo ci = null;
+                if (this.idToCarInfoMap.TryGetValue(vehicleScoring.mID, out ci))
+                    return ci;
 
-            this.idToCarInfoMap.Add(vehicleScoring.mID, ci);
+                var driverName = GTR2GameStateMapper.GetStringFromBytes(vehicleScoring.mDriverName).ToLowerInvariant();
+                driverName = GTR2GameStateMapper.GetSanitizedDriverName(driverName);
 
-            return ci;
+                var carClassId = GTR2GameStateMapper.GetStringFromBytes(vehicleExtendedScoring.mCarClass);
+                var carClass = CarData.getCarClassForClassNameOrCarName(carClassId);
+
+                // Name does not appear to be localized in GTR2, so hardcoding it is ok for now.
+                var isGhost = string.Equals(driverName, "transparent trainer", StringComparison.InvariantCultureIgnoreCase);
+
+                ci = new CarInfo()
+                {
+                    carClass = carClass,
+                    driverNameRawSanitized = driverName,
+                    isGhost = isGhost
+                };
+
+                this.idToCarInfoMap.Add(vehicleScoring.mID, ci);
+
+                return ci;
+            }
+            else
+            {
+                CarInfo ci = null;
+                var driverNameRaw = GTR2GameStateMapper.GetStringFromBytes(vehicleScoring.mDriverName).ToLowerInvariant();
+                // CBA to deal with duplicates, for now ...
+                if (this.driverNameToCarInfoMap.TryGetValue(driverNameRaw, out ci))
+                    return ci;
+
+                var driverNameSanitized = GTR2GameStateMapper.GetSanitizedDriverName(driverNameRaw);
+
+                var carClassId = GTR2GameStateMapper.GetStringFromBytes(vehicleScoring.mVehicleName);
+                var carClass = CarData.getCarClassForClassNameOrCarName(carClassId);
+
+                // Name does not appear to be localized in GTR2, so hardcoding it is ok for now.
+                var isGhost = string.Equals(driverNameSanitized, "transparent trainer", StringComparison.InvariantCultureIgnoreCase);
+
+                ci = new CarInfo()
+                {
+                    carClass = carClass,
+                    driverNameRawSanitized = driverNameSanitized,
+                    isGhost = isGhost
+                };
+
+                this.driverNameToCarInfoMap.Add(driverNameRaw, ci);
+
+                return ci;
+            }
         }
     }
 }

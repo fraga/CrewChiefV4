@@ -456,6 +456,13 @@ namespace GTR2SharedMemory
             public float mPitLapDist;
             public int mCountLapFlag;
             public int mSpeedLimiterAvailable;
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 64)]
+            public byte[] mCarModelName;
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 64)]
+            public byte[] mTeamName;
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 8)]
+            public byte[] mCarClass;
+            int mYearAndCarNumber;
         }
 
 
