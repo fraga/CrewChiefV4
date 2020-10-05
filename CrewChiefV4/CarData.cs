@@ -114,6 +114,11 @@ namespace CrewChiefV4
         private static float maxWarmR3E2017HardTyreTempPeak = 105;
         private static float maxHotR3E2017HardTyreTempPeak = 115;
 
+        // special case for F-Junior, maybe need to add this to NSU as well
+        private static float maxColdR3E2017F5TyreTempPeak = 50;
+        private static float maxWarmR3E2017F5TyreTempPeak = 65;
+        private static float maxHotR3E2017F5TyreTempPeak = 80;
+
         private static float maxColdIronRoadBrakeTemp = 80;
         private static float maxWarmIronRoadBrakeTemp = 500;
         private static float maxHotIronRoadBrakeTemp = 780;
@@ -269,6 +274,13 @@ namespace CrewChiefV4
             biasPlyTyreTempsThresholds.Add(new CornerData.EnumWithThresholds(TyreTemp.HOT, maxWarmBiasPlyTyreTempPeak, maxHotBiasPlyTyreTempPeak));
             biasPlyTyreTempsThresholds.Add(new CornerData.EnumWithThresholds(TyreTemp.COOKING, maxHotBiasPlyTyreTempPeak, 10000));
             tyreTempThresholds.Add(TyreType.Bias_Ply, biasPlyTyreTempsThresholds);
+
+            List<CornerData.EnumWithThresholds> r3e2017F5TyreTempsThresholds = new List<CornerData.EnumWithThresholds>();
+            r3e2017F5TyreTempsThresholds.Add(new CornerData.EnumWithThresholds(TyreTemp.COLD, -10000, maxColdR3E2017F5TyreTempPeak));
+            r3e2017F5TyreTempsThresholds.Add(new CornerData.EnumWithThresholds(TyreTemp.WARM, maxColdR3E2017F5TyreTempPeak, maxWarmR3E2017F5TyreTempPeak));
+            r3e2017F5TyreTempsThresholds.Add(new CornerData.EnumWithThresholds(TyreTemp.HOT, maxWarmR3E2017F5TyreTempPeak, maxHotR3E2017F5TyreTempPeak));
+            r3e2017F5TyreTempsThresholds.Add(new CornerData.EnumWithThresholds(TyreTemp.COOKING, maxHotR3E2017F5TyreTempPeak, 10000));
+            tyreTempThresholds.Add(TyreType.R3E_2017_F5, r3e2017F5TyreTempsThresholds);
 
             List<CornerData.EnumWithThresholds> r3e2017SoftTyreTempsThresholds = new List<CornerData.EnumWithThresholds>();
             r3e2017SoftTyreTempsThresholds.Add(new CornerData.EnumWithThresholds(TyreTemp.COLD, -10000, maxColdR3E2017SoftTyreTempPeak));

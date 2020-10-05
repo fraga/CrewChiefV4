@@ -31,7 +31,7 @@ namespace CrewChiefV4.GameState
     {
         // separate enum for compound & weather, and prime / option?
         Hard, Medium, Soft, Super_Soft, Ultra_Soft, Hyper_Soft, Wet, Intermediate, Road, Bias_Ply, Unknown_Race, R3E_2017_SOFT, R3E_2017_MEDIUM, R3E_2017_HARD,
-        R3E_2016_SOFT, R3E_2016_MEDIUM, R3E_2016_HARD, Prime, Option, Alternate, Primary, Ice, Snow, AllTerrain, Uninitialized
+        R3E_2017_F5, R3E_2016_SOFT, R3E_2016_MEDIUM, R3E_2016_HARD, Prime, Option, Alternate, Primary, Ice, Snow, AllTerrain, Uninitialized
     }
 
     public enum BrakeType
@@ -2816,8 +2816,10 @@ namespace CrewChiefV4.GameState
 
         public Boolean HasSlowDown;
 
-        // Number of penalties pending for the player
-        public int NumPenalties;
+        // Number of outstanding (unserved) penalties pending for the player
+        // For some games (e.g. ACC) this will either be 0 (no penalty to serve) or 1 (1 or more to serve).
+        // It is *not* a cumulative number of penalties acquired (and potentially served) during a session
+        public int NumOutstandingPenalties;
 
         // Total number of cut track warnings
         public int CutTrackWarnings;

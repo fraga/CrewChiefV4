@@ -226,6 +226,7 @@ namespace CrewChiefV4.Events
             {TyreType.R3E_2017_HARD, new float[] {4, 7}},     // more recent tyre model
             {TyreType.R3E_2017_MEDIUM, new float[] {4, 7}},     // more recent tyre model
             {TyreType.R3E_2017_SOFT, new float[] {3, 6}},     // more recent tyre model
+            {TyreType.R3E_2017_F5, new float[] {3, 6}},     // more recent tyre model
             {TyreType.Medium, new float[] {4, 7}},
             {TyreType.Soft, new float[] {3, 6}},
             {TyreType.Super_Soft, new float[] {3, 5}},

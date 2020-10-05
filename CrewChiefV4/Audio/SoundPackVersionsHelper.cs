@@ -85,7 +85,7 @@ namespace CrewChiefV4.Audio
                     foreach (XElement element in doc.Descendants("sounds"))
                     {
                         XAttribute languageAttribute = element.Attribute(XName.Get("language", ""));
-                        if (languageAttribute.Value == languageToCheck)
+                        if (languageToCheck.Equals(languageAttribute.Value, StringComparison.InvariantCultureIgnoreCase))
                         {
                             // this is the update set for this language
                             XElement voiceMessagesElement = element.Descendants("voice-messages").First();

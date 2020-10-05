@@ -1906,8 +1906,8 @@ namespace CrewChiefV4.GTR2
 
             // --------------------------------
             // penalties data
-            cgs.PenaltiesData.NumPenalties = playerScoring.mNumPenalties;
-            if (pgs != null && cgs.PenaltiesData.NumPenalties > pgs.PenaltiesData.NumPenalties)
+            cgs.PenaltiesData.NumOutstandingPenalties = playerScoring.mNumPenalties;
+            if (pgs != null && cgs.PenaltiesData.NumOutstandingPenalties > pgs.PenaltiesData.NumOutstandingPenalties)
                 this.lastPenaltyTime = cgs.Now;
 
             var cutTrackByInvalidLapDetected = false;

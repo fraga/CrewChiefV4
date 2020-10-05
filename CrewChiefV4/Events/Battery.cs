@@ -900,7 +900,7 @@ namespace CrewChiefV4.Events
                 else
                 {
                     messageFragments.Add(MessageFragment.Text(introSound));
-                    messageFragments.Add(MessageFragment.Integer(lapsOfBatteryChargeLeft, false));
+                    messageFragments.Add(MessageFragment.Integer(lapsOfBatteryChargeLeft, false, MessageFragment.Genders("pt-br", NumberReader.ARTICLE_GENDER.FEMALE)));
                     messageFragments.Add(MessageFragment.Text(outroSound));
                 }
             }

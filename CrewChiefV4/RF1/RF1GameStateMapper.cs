@@ -1028,7 +1028,7 @@ namespace CrewChiefV4.rFactor1
 
             // --------------------------------
             // penalties data
-            currentGameState.PenaltiesData.NumPenalties = player.numPenalties;
+            currentGameState.PenaltiesData.NumOutstandingPenalties = player.numPenalties;
 
             if (previousGameState != null)
             {

@@ -1134,11 +1134,11 @@ namespace CrewChiefV4.iRacing
             currentGameState.SessionData.MaxIncidentCount = shared.SessionData.IncidentLimit;
             if(currentGameState.PenaltiesData.HasSlowDown)
             {
-                currentGameState.PenaltiesData.NumPenalties++;
+                currentGameState.PenaltiesData.NumOutstandingPenalties++;
             }
             if (currentGameState.PenaltiesData.HasPitStop)
             {
-                currentGameState.PenaltiesData.NumPenalties++;
+                currentGameState.PenaltiesData.NumOutstandingPenalties++;
             }
             currentGameState.TyreData.FrontLeftPressure = shared.Telemetry.LFcoldPressure;
             currentGameState.TyreData.FrontRightPressure = shared.Telemetry.RFcoldPressure;
