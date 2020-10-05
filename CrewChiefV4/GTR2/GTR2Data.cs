@@ -160,6 +160,15 @@ namespace GTR2SharedMemory
             Wet_Compound,
             Monsoon_Compound
         }
+
+        // 0 = do not count lap or time, 1 = count lap but not time, 2 = count lap and time
+        public enum GTR2CountLapFlag
+        {
+            DoNotCountLap = 0,
+            CountLapButNotTime = 1,
+            CountLapAndTime = 2,
+        }
+
     }
 
     namespace GTR2Data
@@ -445,6 +454,8 @@ namespace GTR2SharedMemory
             public byte mSpeedLimiter;
             public int mWpBranchID;
             public float mPitLapDist;
+            public int mCountLapFlag;
+            public int mSpeedLimiterAvailable;
         }
 
 
@@ -512,6 +523,8 @@ namespace GTR2SharedMemory
             public float mFormationLapSpeeed;
             public float mTotalSessionRunningTime;
             public float mPitApproachLapDist;
+            public int mFuelMult;
+            public byte mInvulnerable;
 
             public Int64 mTicksLSIPhaseMessageUpdated;                   // Ticks when last LSI phase message was updated.
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = GTR2Constants.MAX_RULES_INSTRUCTION_MSG_LEN)]

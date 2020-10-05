@@ -717,7 +717,7 @@ namespace CrewChiefV4.GTR2
             ////////////////////////////////////
             // motion data
             cgs.PositionAndMotionData.CarSpeed = (float)GTR2GameStateMapper.getVehicleSpeed(ref playerTelemetry);
-            cgs.PositionAndMotionData.DistanceRoundTrack = (float)getEstimatedLapDist(shared, ref playerScoring, ref playerTelemetry);
+            cgs.PositionAndMotionData.DistanceRoundTrack = (float)GetEstimatedLapDist(shared, ref playerScoring, ref playerTelemetry);
             cgs.PositionAndMotionData.WorldPosition = new float[] { (float)playerTelemetry.mPos.x, (float)playerTelemetry.mPos.y, (float)playerTelemetry.mPos.z };
             cgs.PositionAndMotionData.Orientation = GTR2GameStateMapper.GetRotation(ref playerTelemetry.mOriX, ref playerTelemetry.mOriY, ref playerTelemetry.mOriZ);
 
@@ -790,14 +790,10 @@ namespace CrewChiefV4.GTR2
             if (shared.extended.mInRealtimeFC == 0  // Mark pit limiter as unavailable if in Monitor (not real time).
                 || shared.scoring.mScoringInfo.mInRealtime == 0
                 || shared.extended.mUnofficialFeaturesEnabled == 0
-                /*| playerTelemetry.mSpeedLimiterAvailable == 0*/)  // TODO: get it
-            {
+                || playerExtendedScoring.mSpeedLimiterAvailable == 0)
                 cgs.PitData.limiterStatus = PitData.LimiterStatus.NOT_AVAILABLE;
-            }
             else
                 cgs.PitData.limiterStatus = playerExtendedScoring.mSpeedLimiter > 0 ? PitData.LimiterStatus.ACTIVE : PitData.LimiterStatus.INACTIVE;
-            //PitData.LimiterStatus.INACTIVE;  // TODO: revisit
-            //cgs.PitData.limiterStatus = playerTelemetry.mSpeedLimiter > 0 ? PitData.LimiterStatus.ACTIVE : PitData.LimiterStatus.INACTIVE;
 
             if (pgs != null
                 && csd.CompletedLaps == psd.CompletedLaps
@@ -955,7 +951,7 @@ namespace CrewChiefV4.GTR2
                 psd.RestorePlayerTimings(csd);
             }
 
-            this.ProcessPlayerTimingData(ref shared.scoring, cgs, pgs, ref playerScoring);
+            this.ProcessPlayerTimingData(ref shared.scoring, cgs, pgs, ref playerScoring, ref playerExtendedScoring);
 
             csd.SessionTimesAtEndOfSectors = pgs != null ? psd.SessionTimesAtEndOfSectors : new SessionData().SessionTimesAtEndOfSectors;
 
@@ -1039,29 +1035,31 @@ namespace CrewChiefV4.GTR2
             // damage
             // not 100% certain on this mapping but it should be reasonably close
             // Investigate if impact is ever not 0 and dents ever not 0.
-            var bodyDamage = 0;
-            foreach (int dent in playerTelemetry.mDentSeverity)
-                bodyDamage += dent;
-
-            if (bodyDamage > 0)
-                Console.WriteLine("DAMAGE DENT");
-
-            if (playerTelemetry.mLastImpactMagnitude > 0.0f)
-                Console.WriteLine("DAMAGE IMPACT");
-
-            bool anyWheelDetached = false;
-            foreach (var wheel in playerTelemetry.mWheel)
-                anyWheelDetached |= wheel.mDetached == 1;
-
-            if (playerTelemetry.mDetached == 1
-                && anyWheelDetached)  // Wheel is not really aero damage, but it is bad situation.
+            if (shared.extended.mInvulnerable == 0)
             {
-                // Things are sad if we have both part and wheel detached.
-                cgs.CarDamageData.OverallAeroDamage = DamageLevel.DESTROYED;
-            }
-            else if (playerTelemetry.mDetached == 1)  // If there are parts detached, consider damage major, and pit stop is necessary.)
-                cgs.CarDamageData.OverallAeroDamage = DamageLevel.MAJOR;
+                var bodyDamage = 0;
+                foreach (int dent in playerTelemetry.mDentSeverity)
+                    bodyDamage += dent;
 
+                if (bodyDamage > 0)
+                    Console.WriteLine("DAMAGE DENT");
+
+                if (playerTelemetry.mLastImpactMagnitude > 0.0f)
+                    Console.WriteLine("DAMAGE IMPACT");
+
+                bool anyWheelDetached = false;
+                foreach (var wheel in playerTelemetry.mWheel)
+                    anyWheelDetached |= wheel.mDetached == 1;
+
+                if (playerTelemetry.mDetached == 1
+                    && anyWheelDetached)  // Wheel is not really aero damage, but it is bad situation.
+                {
+                    // Things are sad if we have both part and wheel detached.
+                    cgs.CarDamageData.OverallAeroDamage = DamageLevel.DESTROYED;
+                }
+                else if (playerTelemetry.mDetached == 1)  // If there are parts detached, consider damage major, and pit stop is necessary.)
+                    cgs.CarDamageData.OverallAeroDamage = DamageLevel.MAJOR;
+            }
 
             /*
             switch (bodyDamage)
@@ -1606,8 +1604,8 @@ namespace CrewChiefV4.GTR2
                 var lastSectorTime = this.GetLastSectorTime(ref vehicleScoring, opponent.CurrentSectorNumber);
 
                 bool lapValid = true;
-                //if (vehicleScoring.mCountLapFlag != 2)
-                  //  lapValid = false;
+                if (vehicleExtendedScoring.mCountLapFlag != 2)
+                    lapValid = false;
 
                 if (opponent.IsNewLap)
                 {
@@ -1750,9 +1748,7 @@ namespace CrewChiefV4.GTR2
 
             // --------------------------------
             // fuel/battery data
-            // TODO: revisit
-            //cgs.FuelData.FuelUseActive = cgs.BatteryData.BatteryUseActive = shared.extended.mPhysics.mFuelMult > 0;
-            cgs.FuelData.FuelUseActive = cgs.BatteryData.BatteryUseActive = true;
+            cgs.FuelData.FuelUseActive = cgs.BatteryData.BatteryUseActive = shared.extended.mFuelMult > 0;
             cgs.FuelData.FuelLeft = cgs.BatteryData.BatteryPercentageLeft = (float)playerTelemetry.mFuel;
 
             if (shared.extended.mUnofficialFeaturesEnabled != 0)
@@ -2231,7 +2227,7 @@ namespace CrewChiefV4.GTR2
                 + (vehicleScoring.mLocalVel.z * vehicleScoring.mLocalVel.z));
         }
 
-        private static double getEstimatedLapDist(GTR2SharedMemoryReader.GTR2StructWrapper shared, ref GTR2VehicleScoring vehicleScoring, ref GTR2VehicleTelemetry vehicleTelemetry)
+        private static double GetEstimatedLapDist(GTR2SharedMemoryReader.GTR2StructWrapper shared, ref GTR2VehicleScoring vehicleScoring, ref GTR2VehicleTelemetry vehicleTelemetry)
         {
             // Estimate lapdist
             // See how much ahead telemetry is ahead of scoring update
@@ -2253,7 +2249,8 @@ namespace CrewChiefV4.GTR2
             ref GTR2Scoring scoring,
             GameStateData currentGameState,
             GameStateData previousGameState,
-            ref GTR2VehicleScoring playerScoring)
+            ref GTR2VehicleScoring playerScoring,
+            ref GTR2ExtendedVehicleScoring playerExtendedScoring)
         {
             var cgs = currentGameState;
             var csd = cgs.SessionData;
@@ -2310,15 +2307,13 @@ namespace CrewChiefV4.GTR2
             {
                 csd.CurrentLapIsValid = false;
             }
-
-
             // GTR2 lap time or whole lap won't count
-            /*else if (playerScoring.mCountLapFlag != (byte)GTR2Constants.GTR2CountLapFlag.CountLapAndTime
+            else if (playerExtendedScoring.mCountLapFlag != (byte)GTR2Constants.GTR2CountLapFlag.CountLapAndTime
                 // And, this is not an out/in lap
                 && !cgs.PitData.OnOutLap && !cgs.PitData.OnInLap)
             {
                 csd.CurrentLapIsValid = false;
-            }*/
+            }
 
             // Check if timing update is needed.
             if (!csd.IsNewLap && !csd.IsNewSector)
