@@ -667,7 +667,7 @@ namespace CrewChiefV4.Events
             {
                 isPastMidDay = true;
             }
-            if (AudioPlayer.soundPackLanguage == "it")
+            if ("it".Equals(AudioPlayer.soundPackLanguage, StringComparison.InvariantCultureIgnoreCase))
             {
                 audioPlayer.playMessageImmediately(new QueuedMessage("current_time", 0,
                     messageFragments: AbstractEvent.MessageContents(hour, NumberReaderIt2.folderAnd, now.Minute)));
