@@ -462,7 +462,7 @@ namespace GTR2SharedMemory
             public byte[] mTeamName;
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 8)]
             public byte[] mCarClass;
-            int mYearAndCarNumber;
+            public int mYearAndCarNumber;
         }
 
 

@@ -106,12 +106,11 @@ namespace CrewChiefV4.GTR2
             public CarData.CarClass carClass = null;
             public string driverNameRawSanitized = null;
             public bool isGhost = false;
-
-            // TODO:
-            // model
-            // year
-            // number
-            // team name
+            public string carName = null;
+            public string teamName = null;
+            public int carNumber = -1;
+            public string carNumberStr = null;
+            public int year = -1;
         }
 
         private Dictionary<long, CarInfo> idToCarInfoMap = new Dictionary<long, CarInfo>();
@@ -126,7 +125,7 @@ namespace CrewChiefV4.GTR2
 #endif
         private Int64 LSIPitStateMessageUpdatedTicks = 0L;
         private Int64 LSIRulesInstructionMessageUpdatedTicks = 0L;
-        private Int64 LSIOrderInstructionMessageUpdatedTicks = 0L;
+        private Int64 firstHistoryMessageUpdatedTicks = 0L;
 
         // Since some of MC messages disapper (Player Control: N, for example), we need to remember last message that
         // mattered from CC's standpoint, otherwise, same message could get applied multiple times.
@@ -611,7 +610,7 @@ namespace CrewChiefV4.GTR2
                 this.lastGameSession = shared.scoring.mScoringInfo.mSession;
 
                 // Initialize variables that persist for the duration of a session.
-                var cci = this.GetCachedCarInfo(shared.extended.mUnofficialFeaturesEnabled != 0, ref playerScoring, ref playerExtendedScoring);
+                var cci = this.GetCachedCarInfo(shared.extended.mUnofficialFeaturesEnabled != 0, ref playerScoring, ref shared.extended);
                 Debug.Assert(!cci.isGhost);
 
                 cgs.carClass = cci.carClass;
@@ -1327,8 +1326,7 @@ namespace CrewChiefV4.GTR2
             {
                 var vehicleScoring = shared.scoring.mVehicles[i];
 
-                var vehicleExtendedScoring = shared.extended.mExtendedVehicleScoring[vehicleScoring.mID % GTR2Constants.MAX_MAPPED_IDS];
-                var cci = this.GetCachedCarInfo(shared.extended.mUnofficialFeaturesEnabled != 0, ref vehicleScoring, ref vehicleExtendedScoring);
+                var cci = this.GetCachedCarInfo(shared.extended.mUnofficialFeaturesEnabled != 0, ref vehicleScoring, ref shared.extended);
                 if (cci.isGhost)
                     continue;  // Skip trainer.
 
@@ -1392,7 +1390,7 @@ namespace CrewChiefV4.GTR2
                 if (ct == ControlType.Player || ct == ControlType.Replay || ct == ControlType.Unavailable)
                     continue;
 
-                var vehicleCachedInfo = this.GetCachedCarInfo(shared.extended.mUnofficialFeaturesEnabled != 0, ref vehicleScoring, ref vehicleExtendedScoring);
+                var vehicleCachedInfo = this.GetCachedCarInfo(shared.extended.mUnofficialFeaturesEnabled != 0, ref vehicleScoring, ref shared.extended);
                 if (vehicleCachedInfo.isGhost)
                     continue;  // Skip trainer.
 
@@ -1417,7 +1415,7 @@ namespace CrewChiefV4.GTR2
                     else
                     {
                         // offline we can have any number of duplicates :(
-                        opponentKey = this.GetOpponentKeyForVehicleInfo(ref vehicleScoring, pgs, csd.SessionRunningTime, driverName, duplicatesCount, shared.extended.mUnofficialFeaturesEnabled != 0, ref vehicleExtendedScoring);
+                        opponentKey = this.GetOpponentKeyForVehicleInfo(ref vehicleScoring, pgs, csd.SessionRunningTime, driverName, duplicatesCount, shared.extended.mUnofficialFeaturesEnabled != 0, ref shared.extended);
 
                         if (opponentKey == null)
                         {
@@ -1489,6 +1487,7 @@ namespace CrewChiefV4.GTR2
                 opponent.DriverRawName = vehicleCachedInfo.driverNameRawSanitized;
                 opponent.DriverNameSet = opponent.DriverRawName.Length > 0;
                 opponent.OverallPosition = vehicleScoring.mPlace;
+                opponent.CarNumber = vehicleCachedInfo.carNumberStr;
 
                 // Telemetry isn't always available, initialize first tyre set 10 secs or more into race.
                 if (csd.SessionType == SessionType.Race && csd.SessionRunningTime > 10.0f
@@ -2484,7 +2483,14 @@ namespace CrewChiefV4.GTR2
 
         // finds OpponentData key for given vehicle based on driver name, vehicle class, and world position
         // TODO: is this even needed if we have mID?
-        private String GetOpponentKeyForVehicleInfo(ref GTR2VehicleScoring vehicleScoring, GameStateData previousGameState, float sessionRunningTime, string driverName, int duplicatesCount, bool unofficialFeaturesEnabled, ref GTR2ExtendedVehicleScoring vehicleExtendedScoring)
+        private String GetOpponentKeyForVehicleInfo(
+            ref GTR2VehicleScoring vehicleScoring, 
+            GameStateData previousGameState,
+            float sessionRunningTime,
+            string driverName,
+            int duplicatesCount,
+            bool unofficialFeaturesEnabled,
+            ref GTR2Extended extended)
         {
             if (previousGameState == null)
                 return null;
@@ -2505,7 +2511,7 @@ namespace CrewChiefV4.GTR2
                     OpponentData o = null;
                     if (previousGameState.OpponentData.TryGetValue(possibleKey, out o))
                     {
-                        var cci = this.GetCachedCarInfo(unofficialFeaturesEnabled, ref vehicleScoring, ref vehicleExtendedScoring);
+                        var cci = this.GetCachedCarInfo(unofficialFeaturesEnabled, ref vehicleScoring, ref extended);
                         Debug.Assert(!cci.isGhost);
 
                         var driverNameFromScoring = cci.driverNameRawSanitized;
@@ -2556,7 +2562,7 @@ namespace CrewChiefV4.GTR2
                         {
                             var vehicleScoring = shared.scoring.mVehicles[i];
                             var vehicleExtendedScoring = shared.extended.mExtendedVehicleScoring[vehicleScoring.mID % GTR2Constants.MAX_MAPPED_IDS];
-                            var cci = this.GetCachedCarInfo(shared.extended.mUnofficialFeaturesEnabled != 0, ref vehicleScoring, ref vehicleExtendedScoring);
+                            var cci = this.GetCachedCarInfo(shared.extended.mUnofficialFeaturesEnabled != 0, ref vehicleScoring, ref shared.extended);
                             if (cci.isGhost)
                                 continue;  // Skip trainer.
 
@@ -2912,6 +2918,7 @@ namespace CrewChiefV4.GTR2
             if (scoring.mScoringInfo.mGamePhase != (int)GTR2Constants.GTR2GamePhase.Formation
               && scoring.mScoringInfo.mGamePhase != (int)GTR2Constants.GTR2GamePhase.FullCourseYellow)
             {
+                // TODO: Not sure this needed.
                 this.numFODetectPhaseAttempts = 0;
                 return fod;
             }
@@ -2926,6 +2933,7 @@ namespace CrewChiefV4.GTR2
                 fod.DriverToFollowRaw = prevFrozenOrderData.DriverToFollowRaw;
                 fod.Phase = prevFrozenOrderData.Phase;
                 fod.SafetyCarSpeed = prevFrozenOrderData.SafetyCarSpeed;
+                fod.CarNumberToFollowRaw = prevFrozenOrderData.CarNumberToFollowRaw;
             }
 
             if (fod.Phase == FrozenOrderPhase.None)
@@ -2934,10 +2942,16 @@ namespace CrewChiefV4.GTR2
                 var fhm = GTR2GameStateMapper.GetStringFromBytes(extended.mFirstHistoryMessage);
                 if (!string.IsNullOrWhiteSpace(fhm)
                   && fhm == "Begin Formation Lap")
+                {
                     fod.Phase = GTR2GameStateMapper.GetSector(vehicle.mSector) == 3 && vehicleSpeedMS > 10.0f ? FrozenOrderPhase.FastRolling : FrozenOrderPhase.Rolling;
+                    this.firstHistoryMessageUpdatedTicks = extended.mTicksFirstHistoryMessageUpdated;
+                }
                 else if (!string.IsNullOrWhiteSpace(fhm)
                   && (fhm == "Full-Course Yellow" || fhm == "One Lap To Go"))
+                {
                     fod.Phase = FrozenOrderPhase.FullCourseYellow;
+                    this.firstHistoryMessageUpdatedTicks = extended.mTicksFirstHistoryMessageUpdated;
+                }
                 else if (string.IsNullOrWhiteSpace(fhm))
                     fod.Phase = prevFrozenOrderData.Phase;
                 /*else if (scoring.mScoringInfo.mGamePhase == (int)GTR2Constants.GTR2GamePhase.Formation)
@@ -2954,14 +2968,43 @@ namespace CrewChiefV4.GTR2
             if (fod.Phase == FrozenOrderPhase.None)
                 return fod;  // Wait a bit, there's a delay for string based phases.
 
+            // For Rolling, assign initial action, which is to either follow car ahead or SC.
+            if (fod.Phase == FrozenOrderPhase.Rolling
+                && fod.Action == FrozenOrderAction.None)
+            {
+                fod.Action = FrozenOrderAction.Follow;
+                var carNumberToFollow = "-1";
+                var driverNameToFollow = "Safety Car";
+                fod.AssignedColumn = vehicle.mPlace % 2 == 0 ? FrozenOrderColumn.Right : FrozenOrderColumn.Left;
+                if (vehicle.mPlace > 2)
+                {
+                    // Just capture the starting position.
+                    fod.AssignedPosition = vehicle.mPlace;
+                    for (int i = 0; i < scoring.mScoringInfo.mNumVehicles; ++i)
+                    {
+                        var veh = scoring.mVehicles[i];
+                        if (veh.mPlace == vehicle.mPlace - 2)
+                        {
+                            var cci = this.GetCachedCarInfo(true, ref veh, ref extended);
+                            driverNameToFollow = cci.driverNameRawSanitized;
+                            carNumberToFollow = cci.carNumberStr;
+                        }
+                    }
+                }
+            
+                fod.DriverToFollowRaw = driverNameToFollow;
+                fod.CarNumberToFollowRaw = carNumberToFollow;
+                return fod;
+            }
+
             // NOTE: for formation/standing capture order once.   For other phases, rely on LSI text.
             // TODO: For Rolling, find who should we folow from start order.
             if ((fod.Phase == FrozenOrderPhase.FastRolling || fod.Phase == FrozenOrderPhase.Rolling || fod.Phase == FrozenOrderPhase.FullCourseYellow)
-              && this.LSIOrderInstructionMessageUpdatedTicks != extended.mTicksLSIOrderInstructionMessageUpdated)
+              && this.firstHistoryMessageUpdatedTicks != extended.mTicksFirstHistoryMessageUpdated)
             {
-                this.LSIOrderInstructionMessageUpdatedTicks = extended.mTicksLSIOrderInstructionMessageUpdated;
+                this.firstHistoryMessageUpdatedTicks = extended.mTicksFirstHistoryMessageUpdated;
 
-                var orderInstruction = GTR2GameStateMapper.GetStringFromBytes(extended.mLSIOrderInstructionMessage);
+                var orderInstruction = GTR2GameStateMapper.GetStringFromBytes(extended.mFirstHistoryMessage);
                 if (!string.IsNullOrWhiteSpace(orderInstruction))
                 {
                     Console.WriteLine("LSI Message: order instruction updated - \"" + orderInstruction + "\"");
@@ -3163,7 +3206,7 @@ namespace CrewChiefV4.GTR2
             return rot;
         }
 
-        private CarInfo GetCachedCarInfo(bool unofficialFeaturesEnabled, ref GTR2VehicleScoring vehicleScoring, ref GTR2ExtendedVehicleScoring vehicleExtendedScoring)
+        private CarInfo GetCachedCarInfo(bool unofficialFeaturesEnabled, ref GTR2VehicleScoring vehicleScoring, ref GTR2Extended extended)
         {
             if (unofficialFeaturesEnabled)
             {
@@ -3174,17 +3217,33 @@ namespace CrewChiefV4.GTR2
                 var driverName = GTR2GameStateMapper.GetStringFromBytes(vehicleScoring.mDriverName).ToLowerInvariant();
                 driverName = GTR2GameStateMapper.GetSanitizedDriverName(driverName);
 
+                var vehicleExtendedScoring = extended.mExtendedVehicleScoring[vehicleScoring.mID % GTR2Constants.MAX_MAPPED_IDS];
+
                 var carClassId = GTR2GameStateMapper.GetStringFromBytes(vehicleExtendedScoring.mCarClass);
                 var carClass = CarData.getCarClassForClassNameOrCarName(carClassId);
 
                 // Name does not appear to be localized in GTR2, so hardcoding it is ok for now.
                 var isGhost = string.Equals(driverName, "transparent trainer", StringComparison.InvariantCultureIgnoreCase);
 
+                var carNumber = vehicleExtendedScoring.mYearAndCarNumber % 1000;
+                string carNumberStr = null;
+                if (carNumber < 10)
+                    carNumberStr = $"00{carNumber}";
+                else if (carNumber < 100)
+                    carNumberStr = $"0{carNumber}";
+                else
+                    carNumberStr = $"{carNumber}";
+
                 ci = new CarInfo()
                 {
                     carClass = carClass,
                     driverNameRawSanitized = driverName,
-                    isGhost = isGhost
+                    isGhost = isGhost,
+                    carName = GTR2GameStateMapper.GetStringFromBytes(vehicleExtendedScoring.mCarModelName),
+                    teamName = GTR2GameStateMapper.GetStringFromBytes(vehicleExtendedScoring.mTeamName),
+                    carNumber = carNumber,
+                    carNumberStr = carNumberStr,
+                    year = vehicleExtendedScoring.mYearAndCarNumber / 1000
                 };
 
                 this.idToCarInfoMap.Add(vehicleScoring.mID, ci);
