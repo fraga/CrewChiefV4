@@ -219,6 +219,9 @@ namespace CrewChiefV4.Events
         // or it covers only the stop part, or it covers the entry-and-stop
         private bool includeExitTimeInStopDuration = true;
 
+        private string trackNameInitialPitSpeedLimitAnnounced = null;
+        private float lastInitialPitspeedLimitAnnounced = -1.0f;
+
         public PitStops(AudioPlayer audioPlayer)
         {
             this.audioPlayer = audioPlayer;
@@ -1116,8 +1119,12 @@ namespace CrewChiefV4.Events
                     && !DriverTrainingService.isRecordingPaceNotes)
                 {
                     pitLaneSpeedWarningAnnounced = true;
-                    if (currentGameState.PitData.PitSpeedLimit != -1.0f)
+                    if (currentGameState.PitData.PitSpeedLimit != -1.0f
+                        && (this.trackNameInitialPitSpeedLimitAnnounced != currentGameState.SessionData.TrackDefinition.name
+                            || this.lastInitialPitspeedLimitAnnounced != currentGameState.PitData.PitSpeedLimit))  // Don't re-announce initial pit lane speed info unless track or limit actually changed.
                     {
+                        this.trackNameInitialPitSpeedLimitAnnounced = currentGameState.SessionData.TrackDefinition.name;
+                        this.lastInitialPitspeedLimitAnnounced = currentGameState.PitData.PitSpeedLimit;
                         announcePitlaneSpeedLimit(currentGameState, false /*possiblyPlayIntro*/, false /*voiceResponse*/);
                     }
                 }

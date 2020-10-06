@@ -648,6 +648,10 @@ rf2_spotter_car_length = rF2 Spotter default car length
 rf2_spotter_car_length_filter = RF2_64BIT
 rf2_spotter_car_length_category = SPOTTER
 
+gtr2_spotter_car_length = GTR 2 Spotter default car length
+gtr2_spotter_car_length_filter = GTR2
+gtr2_spotter_car_length_category = SPOTTER
+
 f1_2018_spotter_car_length = F1 2018 Spotter default car length
 f1_2018_spotter_car_length_filter = F1_2018
 f1_2018_spotter_car_length_category = SPOTTER

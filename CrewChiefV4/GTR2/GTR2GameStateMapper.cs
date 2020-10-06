@@ -1991,8 +1991,8 @@ namespace CrewChiefV4.GTR2
                 Console.WriteLine("PitWindowStart: " + cgs.PitData.PitWindowStart);
                 Console.WriteLine("PitWindowEnd: " + cgs.PitData.PitWindowEnd);
                 Console.WriteLine("NumCarsAtStartOfSession: " + csd.NumCarsOverallAtStartOfSession);
-                Console.WriteLine("SessionNumberOfLaps: " + csd.SessionNumberOfLaps);
-                Console.WriteLine("SessionRunTime: " + csd.SessionTotalRunTime);
+                if (!csd.SessionHasFixedTime)
+                    Console.WriteLine("SessionNumberOfLaps: " + csd.SessionNumberOfLaps);
                 Console.WriteLine("SessionStartTime: " + csd.SessionStartTime);
                 Console.WriteLine("SessionIteration: " + csd.SessionIteration);
                 Console.WriteLine("EventIndex: " + csd.EventIndex);
@@ -2007,10 +2007,10 @@ namespace CrewChiefV4.GTR2
                     " to " + csd.SessionPhase);
                 if (csd.SessionPhase == SessionPhase.Checkered ||
                     csd.SessionPhase == SessionPhase.Finished)
-                    Console.WriteLine("Checkered - completed " + csd.CompletedLaps + " laps, session running time = " + csd.SessionRunningTime);
+                    Console.WriteLine("Checkered - completed " + csd.CompletedLaps + " laps, session running time = " + csd.SessionRunningTime + "  (" + TimeSpan.FromSeconds(csd.SessionRunningTime).ToString(@"hh\:mm\:ss\:fff") + ")");
             }
             if (pgs != null && !psd.LeaderHasFinishedRace && csd.LeaderHasFinishedRace)
-                Console.WriteLine("Leader has finished race, player has done " + csd.CompletedLaps + " laps, session time = " + csd.SessionRunningTime);
+                Console.WriteLine("Leader has finished race, player has done " + csd.CompletedLaps + " laps, session time = " + csd.SessionRunningTime + "  (" + TimeSpan.FromSeconds(csd.SessionRunningTime).ToString(@"hh\:mm\:ss\:fff") + ")");
 
             CrewChief.trackName = csd.TrackDefinition.name;
             CrewChief.carClass = cgs.carClass.carClassEnum;
