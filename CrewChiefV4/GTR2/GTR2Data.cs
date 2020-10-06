@@ -526,6 +526,10 @@ namespace GTR2SharedMemory
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = GTR2Constants.MAX_STATUS_MSG_LEN)]
             public byte[] mSecondHistoryMessage;
 
+            public Int64 mTicksThirdHistoryMessageUpdated;                // Ticks when third message history message was updated;
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = GTR2Constants.MAX_STATUS_MSG_LEN)]
+            public byte[] mThirdHistoryMessage;
+
             public float mCurrentPitSpeedLimit;                          // speed limit m/s.
             public float mFormationLapSpeeed;
             public float mTotalSessionRunningTime;

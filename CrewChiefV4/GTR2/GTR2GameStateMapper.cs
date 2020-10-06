@@ -126,7 +126,12 @@ namespace CrewChiefV4.GTR2
         private Int64 LSIPitStateMessageUpdatedTicks = 0L;
         private Int64 LSIRulesInstructionMessageUpdatedTicks = 0L;
         private Int64 firstHistoryMessageUpdatedTicks = 0L;
-        private Int64 secondHistoryMessageUpdatedTicks = 0L;
+
+        // Frozen order processing.
+        private Int64 firstHistoryMessageUpdatedFOTicks = 0L;
+        private Int64 secondHistoryMessageUpdatedFOTicks = 0L;
+        private Int64 thirdHistoryMessageUpdatedFOTicks = 0L;
+
 
         // Since some of MC messages disapper (Player Control: N, for example), we need to remember last message that
         // mattered from CC's standpoint, otherwise, same message could get applied multiple times.
@@ -2702,13 +2707,13 @@ namespace CrewChiefV4.GTR2
                   && fhm == "Begin Formation Lap")
                 {
                     fod.Phase = GTR2GameStateMapper.GetSector(vehicle.mSector) == 3 && vehicleSpeedMS > 10.0f ? FrozenOrderPhase.FastRolling : FrozenOrderPhase.Rolling;
-                    this.firstHistoryMessageUpdatedTicks = extended.mTicksFirstHistoryMessageUpdated;
+                    this.firstHistoryMessageUpdatedFOTicks = extended.mTicksFirstHistoryMessageUpdated;
                 }
                 else if (!string.IsNullOrWhiteSpace(fhm)
                   && (fhm == "Full-Course Yellow" || fhm == "One Lap To Go"))
                 {
                     fod.Phase = FrozenOrderPhase.FullCourseYellow;
-                    this.firstHistoryMessageUpdatedTicks = extended.mTicksFirstHistoryMessageUpdated;
+                    this.firstHistoryMessageUpdatedFOTicks = extended.mTicksFirstHistoryMessageUpdated;
                 }
                 else if (string.IsNullOrWhiteSpace(fhm))
                     fod.Phase = prevFrozenOrderData.Phase;
@@ -2746,6 +2751,8 @@ namespace CrewChiefV4.GTR2
                             var cci = this.GetCachedCarInfo(true, ref veh, ref extended);
                             driverNameToFollow = cci.driverNameRawSanitized;
                             carNumberToFollow = cci.carNumberStr;
+                            // Team, make etc.
+                            break;
                         }
                     }
                 }
@@ -2755,29 +2762,60 @@ namespace CrewChiefV4.GTR2
                 return fod;
             }
 
-            // NOTE: for formation/standing capture order once.   For other phases, rely on LSI text.
+            // NOTE: for formation/standing capture order once.   For other phases, rely on MC text.
             // TODO: For Rolling, find who should we folow from start order.
             if (fod.Phase == FrozenOrderPhase.FastRolling || fod.Phase == FrozenOrderPhase.Rolling || fod.Phase == FrozenOrderPhase.FullCourseYellow)
             {
-                if (this.firstHistoryMessageUpdatedTicks != extended.mTicksFirstHistoryMessageUpdated)
+                //var anyMsgChanged = false;
+                if (this.firstHistoryMessageUpdatedFOTicks != extended.mTicksFirstHistoryMessageUpdated)
                 {
-                    this.firstHistoryMessageUpdatedTicks = extended.mTicksFirstHistoryMessageUpdated;
-                    if (this.ProcessOrderMessage(GTR2GameStateMapper.GetStringFromBytes(extended.mFirstHistoryMessage), fod))
+                    this.firstHistoryMessageUpdatedFOTicks = extended.mTicksFirstHistoryMessageUpdated;
+                    Console.WriteLine("1ST CHANGED");
+
+                    if (this.ProcessOrderMessage(GTR2GameStateMapper.GetStringFromBytes(extended.mFirstHistoryMessage), fod, ref scoring, ref extended))
                         return fod;
+
+                    //anyMsgChanged = true;
                 }
 
-                if (this.secondHistoryMessageUpdatedTicks != extended.mTicksSecondHistoryMessageUpdated)
+                if (this.secondHistoryMessageUpdatedFOTicks != extended.mTicksSecondHistoryMessageUpdated)
                 {
-                    this.secondHistoryMessageUpdatedTicks = extended.mTicksSecondHistoryMessageUpdated;
-                    if (this.ProcessOrderMessage(GTR2GameStateMapper.GetStringFromBytes(extended.mSecondHistoryMessage), fod))
+                    Console.WriteLine("2ND CHANGED");
+                    this.secondHistoryMessageUpdatedFOTicks = extended.mTicksSecondHistoryMessageUpdated;
+
+                    if (this.ProcessOrderMessage(GTR2GameStateMapper.GetStringFromBytes(extended.mSecondHistoryMessage), fod, ref scoring, ref extended))
                         return fod;
+
+                    //anyMsgChanged = true;
                 }
+
+                if (this.thirdHistoryMessageUpdatedFOTicks != extended.mTicksThirdHistoryMessageUpdated)
+                {
+                    Console.WriteLine("3RD CHANGED");
+                    this.thirdHistoryMessageUpdatedFOTicks = extended.mTicksThirdHistoryMessageUpdated;
+
+                    if (this.ProcessOrderMessage(GTR2GameStateMapper.GetStringFromBytes(extended.mThirdHistoryMessage), fod, ref scoring, ref extended))
+                        return fod;
+
+                    //anyMsgChanged = true;
+                }
+
+                //if (anyMsgChanged)
+                //{
+                // See if any of the messages still make sense as FO order.
+
+
+                //}
+
+                return fod;
+
+
             }
 
             return fod;
         }
 
-        private bool ProcessOrderMessage(string orderInstruction, FrozenOrderData fod)
+        private bool ProcessOrderMessage(string orderInstruction, FrozenOrderData fod, ref GTR2Scoring scoring, ref GTR2Extended extended)
         {
             if (string.IsNullOrWhiteSpace(orderInstruction))
                 return false;
@@ -2787,11 +2825,13 @@ namespace CrewChiefV4.GTR2
 
             var followPrefix = @"Please Follow ";
             var catchUpToPrefix = @"Please Catch Up To ";
-            var allowToPassPrefix = @"Please Allow ";
+            var allowToPassPrefix = @"Stay Behind ";
 
             var action = FrozenOrderAction.None;
 
             string prefix = null;
+            string driverName = null;
+
             if (orderInstruction.StartsWith(followPrefix))
             {
                 prefix = followPrefix;
@@ -2806,6 +2846,9 @@ namespace CrewChiefV4.GTR2
             {
                 prefix = allowToPassPrefix;
                 action = FrozenOrderAction.AllowToPass;
+
+                //if (orderInstruction == "Stay Behind The Safety Car")
+                  //  driverName = "Safety Car";
             }
             else if (orderInstruction == "Please Pass The Safety Car")
             {
@@ -2823,15 +2866,48 @@ namespace CrewChiefV4.GTR2
                             Console.WriteLine("LSI Message: unrecognized Frozen Order action - \"" + orderInstruction + "\"");
                         }
 #else
-                Console.WriteLine("Ignoring MC Message: - \"" + orderInstruction + "\"");
+                Console.WriteLine("Ignoring MC FO Message: - \"" + orderInstruction + "\"");
 #endif
                 return false;
             }
 
+            string carNumberStr = null;
+            var vehNumberHash = orderInstruction.LastIndexOf("#");
+            try
+            {
+                if (vehNumberHash != -1)
+                {
+                    var spaceAfterNumber = orderInstruction.IndexOf(" ", vehNumberHash);
+                    carNumberStr = orderInstruction.Substring(vehNumberHash + 1, spaceAfterNumber - vehNumberHash - 1);
+
+                    if (int.TryParse(carNumberStr, out var carNumber))
+                    {
+                        for (int i = 0; i < scoring.mScoringInfo.mNumVehicles; ++i)
+                        {
+                            var veh = scoring.mVehicles[i];
+                            var vehExtended = extended.mExtendedVehicleScoring[veh.mID % GTR2Constants.MAX_MAPPED_IDS];
+                            if (carNumber == vehExtended.mYearAndCarNumber % 1000)
+                            {
+                                var cci = this.GetCachedCarInfo(true, ref veh, ref extended);
+                                driverName = cci.driverNameRawSanitized;
+                                carNumberStr = cci.carNumberStr;
+                                // Team, make etc.
+                                break;
+                            }
+                        }
+                    }
+                    
+                    // Find the actual car.
+                }
+                else
+                    driverName = "Safety Car";
+//                    SCassignedAhead = true;
+            }
+            catch (Exception) { }
+
             fod.Action = action;
-            //fod.AssignedColumn = column;
-            //fod.DriverToFollowRaw = driverName;
-            //fod.AssignedPosition = assignedPos;
+            fod.CarNumberToFollowRaw = carNumberStr;
+            fod.DriverToFollowRaw = driverName;
             return true;
         }
 
