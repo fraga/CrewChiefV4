@@ -126,6 +126,7 @@ namespace CrewChiefV4.GTR2
         private Int64 LSIPitStateMessageUpdatedTicks = 0L;
         private Int64 LSIRulesInstructionMessageUpdatedTicks = 0L;
         private Int64 firstHistoryMessageUpdatedTicks = 0L;
+        private Int64 secondHistoryMessageUpdatedTicks = 0L;
 
         // Since some of MC messages disapper (Player Control: N, for example), we need to remember last message that
         // mattered from CC's standpoint, otherwise, same message could get applied multiple times.
@@ -835,12 +836,12 @@ namespace CrewChiefV4.GTR2
             //if (shared.extended.mUnofficialFeaturesEnabled == 0)
             //{
             // TODO: use hardcoded time for now.
-                // If DMA is not enabled, check if it's time to mark pit crew as ready.
-                if (pgs != null
-                    && pgs.PitData.HasRequestedPitStop
-                    && cgs.PitData.HasRequestedPitStop
-                    && (cgs.Now - this.timePitStopRequested).TotalSeconds > cgs.carClass.pitCrewPreparationTime)
-                        cgs.PitData.IsPitCrewReady = true;
+            // If DMA is not enabled, check if it's time to mark pit crew as ready.
+            if (pgs != null
+                && pgs.PitData.HasRequestedPitStop
+                && cgs.PitData.HasRequestedPitStop
+                && (cgs.Now - this.timePitStopRequested).TotalSeconds > cgs.carClass.pitCrewPreparationTime)
+                cgs.PitData.IsPitCrewReady = true;
             //}
 
             if (shared.extended.mUnofficialFeaturesEnabled != 0)
@@ -855,7 +856,7 @@ namespace CrewChiefV4.GTR2
                 && csd.SessionType == SessionType.Race)  // Also, limit to race only, this helps with back and forth between returing to pits via exit to monitor.
             {                                            // There's also no real critical rush in quali or practice to stress about.
                 cgs.PitData.IsPitCrewDone = (GTR2PitState)playerExtendedScoring.mPitState == GTR2Constants.GTR2PitState.Exiting;
-                
+
                 //cgs.PitData.IsPitCrewDone = (GTR2PitState)shared.extended.mPlayerPitState == GTR2Constants.GTR2PitState.Exiting;
             }
 
@@ -1020,7 +1021,7 @@ namespace CrewChiefV4.GTR2
             }
 
             //HACK: there's probably a cleaner way to do this...
-            if (playerTelemetry.mOverheating ==1)
+            if (playerTelemetry.mOverheating == 1)
             {
                 cgs.EngineData.EngineWaterTemp += 50;
                 cgs.EngineData.EngineOilTemp += 50;
@@ -1132,7 +1133,7 @@ namespace CrewChiefV4.GTR2
                 // roll over all you want - it's just a scratch.
                 cgs.CarDamageData.OverallAeroDamage = playerDamageInfo.mMaxImpactMagnitude > 0.0 ? DamageLevel.TRIVIAL : DamageLevel.NONE;
             }*/
-            
+
             // --------------------------------
             // control data
             cgs.ControlData.ControlType = MapToControlType((GTR2Control)playerScoring.mControl);
@@ -1158,7 +1159,7 @@ namespace CrewChiefV4.GTR2
 
             // First time intialize.  Might stay like that until we get telemetry.
             if (tt == TyreType.Uninitialized)
-                cgs.TyreData.TyreTypeName  = this.MapToTyreType(ref shared.extended, ref playerExtendedScoring).ToString();
+                cgs.TyreData.TyreTypeName = this.MapToTyreType(ref shared.extended, ref playerExtendedScoring).ToString();
 
             var wheelFrontLeft = playerTelemetry.mWheel[(int)GTR2Constants.GTR2WheelIndex.FrontLeft];
             cgs.TyreData.FrontLeftTyreType = tt;
@@ -1268,18 +1269,18 @@ namespace CrewChiefV4.GTR2
                 }
                 else
                 {*/
-                    float minRotatingSpeed = (float)Math.PI * cgs.PositionAndMotionData.CarSpeed / cgs.carClass.maxTyreCircumference;
-                    cgs.TyreData.LeftFrontIsLocked = Math.Abs(wheelFrontLeft.mRotation) < minRotatingSpeed;
-                    cgs.TyreData.RightFrontIsLocked = Math.Abs(wheelFrontRight.mRotation) < minRotatingSpeed;
-                    cgs.TyreData.LeftRearIsLocked = Math.Abs(wheelRearLeft.mRotation) < minRotatingSpeed;
-                    cgs.TyreData.RightRearIsLocked = Math.Abs(wheelRearRight.mRotation) < minRotatingSpeed;
+                float minRotatingSpeed = (float)Math.PI * cgs.PositionAndMotionData.CarSpeed / cgs.carClass.maxTyreCircumference;
+                cgs.TyreData.LeftFrontIsLocked = Math.Abs(wheelFrontLeft.mRotation) < minRotatingSpeed;
+                cgs.TyreData.RightFrontIsLocked = Math.Abs(wheelFrontRight.mRotation) < minRotatingSpeed;
+                cgs.TyreData.LeftRearIsLocked = Math.Abs(wheelRearLeft.mRotation) < minRotatingSpeed;
+                cgs.TyreData.RightRearIsLocked = Math.Abs(wheelRearRight.mRotation) < minRotatingSpeed;
 
-                    float maxRotatingSpeed = 3 * (float)Math.PI * cgs.PositionAndMotionData.CarSpeed / cgs.carClass.minTyreCircumference;
-                    cgs.TyreData.LeftFrontIsSpinning = Math.Abs(wheelFrontLeft.mRotation) > maxRotatingSpeed;
-                    cgs.TyreData.RightFrontIsSpinning = Math.Abs(wheelFrontRight.mRotation) > maxRotatingSpeed;
-                    cgs.TyreData.LeftRearIsSpinning = Math.Abs(wheelRearLeft.mRotation) > maxRotatingSpeed;
-                    cgs.TyreData.RightRearIsSpinning = Math.Abs(wheelRearRight.mRotation) > maxRotatingSpeed;
-              //  }
+                float maxRotatingSpeed = 3 * (float)Math.PI * cgs.PositionAndMotionData.CarSpeed / cgs.carClass.minTyreCircumference;
+                cgs.TyreData.LeftFrontIsSpinning = Math.Abs(wheelFrontLeft.mRotation) > maxRotatingSpeed;
+                cgs.TyreData.RightFrontIsSpinning = Math.Abs(wheelFrontRight.mRotation) > maxRotatingSpeed;
+                cgs.TyreData.LeftRearIsSpinning = Math.Abs(wheelRearLeft.mRotation) > maxRotatingSpeed;
+                cgs.TyreData.RightRearIsSpinning = Math.Abs(wheelRearRight.mRotation) > maxRotatingSpeed;
+                //  }
             }
 
             // use detached wheel status for suspension damage
@@ -1730,7 +1731,7 @@ namespace CrewChiefV4.GTR2
                     if (vehicleExtendedScoring.mPitState == (byte)GTR2Constants.GTR2PitState.Stopped)
                     {
                         if (Math.Abs(cgs.PitData.PitBoxPositionEstimate - opponent.DistanceRoundTrack) < 5.0)
-                          cgs.PitData.PitStallOccupied = true;
+                            cgs.PitData.PitStallOccupied = true;
                     }
                 }
             }
@@ -2178,7 +2179,7 @@ namespace CrewChiefV4.GTR2
                 else if (msg == "Wrong Way")
                 {
                     //if (this.enableWrongWayMessage)
-                        cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.WRONG_WAY;
+                    cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.WRONG_WAY;
                 }
                 else if (msg == "Blue Flag Warning: Move over soon or be penalized")
                 {
@@ -2484,7 +2485,7 @@ namespace CrewChiefV4.GTR2
         // finds OpponentData key for given vehicle based on driver name, vehicle class, and world position
         // TODO: is this even needed if we have mID?
         private String GetOpponentKeyForVehicleInfo(
-            ref GTR2VehicleScoring vehicleScoring, 
+            ref GTR2VehicleScoring vehicleScoring,
             GameStateData previousGameState,
             float sessionRunningTime,
             string driverName,
@@ -2548,7 +2549,7 @@ namespace CrewChiefV4.GTR2
             {
                 case 0:  // Applies to open practice, private practice, time trial.
                          // This might be problematic - memory may be simply empty.
-                // up to four possible practice sessions (seems 2 in GTR2)
+                         // up to four possible practice sessions (seems 2 in GTR2)
                 case 1:
                 case 2:
                     // This might go from LonePractice to Practice without any nice state transition.  However,
@@ -2611,7 +2612,7 @@ namespace CrewChiefV4.GTR2
             else if (tc == ISITyreCompound.Wet_Compound
                 || tc == ISITyreCompound.Monsoon_Compound)
                 tyreType = TyreType.Wet;
-            
+
             return tyreType;
         }
 
@@ -2663,249 +2664,6 @@ namespace CrewChiefV4.GTR2
                 vehicleTelemetry.mWheel[i].mTemperature = new float[3];
         }
 
-#if false
-        private FrozenOrderData GetFrozenOrderData(FrozenOrderData prevFrozenOrderData, ref GTR2VehicleScoring vehicle, ref GTR2Scoring scoring,
-            /*ref GTR2TrackRulesParticipant vehicleRules, ref GTR2Rules rules, */ref GTR2Extended extended, float vehicleSpeedMS)
-        {
-            var fod = new FrozenOrderData();
-
-            // Only applies to formation laps and FCY.
-            if (scoring.mScoringInfo.mGamePhase != (int)GTR2Constants.GTR2GamePhase.Formation
-                && scoring.mScoringInfo.mGamePhase != (int)GTR2Constants.GTR2GamePhase.FullCourseYellow)
-            {
-                this.numFODetectPhaseAttempts = 0;
-                this.safetyCarLeft = false;
-                return fod;
-            }
-
-        //    var foStage = rules.mTrackRules.mStage;
-          //  if (foStage == GTR2TrackRulesStage.Normal)
-            //    return fod; // Note, there's slight race between scoring and rules here, FO messages should have validation on them.
-
-            // Figure out the phase:
-            if (extended.mDirectMemoryAccessEnabled != 0)
-            {
-                if (prevFrozenOrderData == null || prevFrozenOrderData.Phase == FrozenOrderPhase.None)
-                {
-                    // Don't bother checking updated ticks, this showld allow catching multiple SC car phases.
-                    var phase = GTR2GameStateMapper.GetStringFromBytes(extended.mLSIPhaseMessage);
-
-                    if (scoring.mScoringInfo.mGamePhase == (int)GTR2Constants.GTR2GamePhase.Formation
-                      && string.IsNullOrWhiteSpace(phase))
-                    {
-                        if (this.numFODetectPhaseAttempts > GTR2GameStateMapper.maxFormationStandingCheckAttempts)
-                            fod.Phase = FrozenOrderPhase.FormationStanding;
-
-                        ++this.numFODetectPhaseAttempts;
-                    }
-                    else if (!string.IsNullOrWhiteSpace(phase)
-                      && phase == "Formation Lap")
-                        fod.Phase = GTR2GameStateMapper.GetSector(vehicle.mSector) == 3 && vehicleSpeedMS > 10.0f ? FrozenOrderPhase.FastRolling : FrozenOrderPhase.Rolling;
-                    else if (!string.IsNullOrWhiteSpace(phase)
-                      && (phase == "Full-Course Yellow" || phase == "One Lap To Go"))
-                        fod.Phase = FrozenOrderPhase.FullCourseYellow;
-                    else if (string.IsNullOrWhiteSpace(phase))
-                        fod.Phase = prevFrozenOrderData.Phase;
-                    else
-                        Debug.Assert(false, "Unhandled FO phase");
-                }
-                else
-                {
-                    fod.Phase = prevFrozenOrderData.Phase;
-                }
-            }
-            /*else
-            {
-                // GTR2 currently does not expose what kind of race start is chosen.  For tracks with SC, I use presence of SC to distinguish between
-                // Formation/Standing and Rolling starts.  However, if SC does not exist (Kart tracks), I used the fact that in Rolling start leader is
-                // typically standing past S/F line (mLapDist is positive).  Obviously, there will be perverted tracks where that won't be true, but this
-                // all I could come up with, and real problem is in game being shit in this area.
-                var leaderLapDistAtFOPhaseStart = 0.0;
-                var leaderSectorAtFOPhaseStart = -1;
-                if (foStage != GTR2TrackRulesStage.CautionInit && foStage != GTR2TrackRulesStage.CautionUpdate  // If this is not FCY.
-                  && (prevFrozenOrderData == null || prevFrozenOrderData.Phase == FrozenOrderPhase.None)  // And, this is first FO calculation.
-                  && rules.mTrackRules.mSafetyCarExists == 0) // And, track has no SC.
-                {
-                    // Find where leader is relatively to F/S line.
-                    for (int i = 0; i < scoring.mScoringInfo.mNumVehicles; ++i)
-                    {
-                        var veh = scoring.mVehicles[i];
-                        if (veh.mPlace == 1)
-                        {
-                            leaderLapDistAtFOPhaseStart = veh.mLapDist;
-                            leaderSectorAtFOPhaseStart = GTR2GameStateMapper.GetSector(veh.mSector);
-                            break;
-                        }
-                    }
-                }
-
-                if (foStage == GTR2TrackRulesStage.CautionInit || foStage == GTR2TrackRulesStage.CautionUpdate)
-                    fod.Phase = FrozenOrderPhase.FullCourseYellow;
-                else if (foStage == GTR2TrackRulesStage.FormationInit || foStage == GTR2TrackRulesStage.FormationUpdate)
-                {
-                    // Check for signs of a rolling start.
-                    if ((prevFrozenOrderData != null && prevFrozenOrderData.Phase == FrozenOrderPhase.Rolling)  // If FO started as Rolling, keep it as Rolling even after SC leaves the track
-                      || (rules.mTrackRules.mSafetyCarExists == 1 && rules.mTrackRules.mSafetyCarActive == 1)  // Of, if SC exists and is active
-                      || (rules.mTrackRules.mSafetyCarExists == 0 && leaderLapDistAtFOPhaseStart > 0.0 && leaderSectorAtFOPhaseStart == 1)) // Or, if SC is not present on a track, and leader started ahead of S/F line and is insector 1.  This will be problem on some tracks.
-                        fod.Phase = FrozenOrderPhase.Rolling;
-                    else
-                    {
-                        // Formation / Standing and Fast Rolling have no Safety Car.
-                        fod.Phase = rules.mTrackRules.mStage == GTR2TrackRulesStage.FormationInit && GTR2GameStateMapper.GetSector(vehicle.mSector) == 3
-                          ? FrozenOrderPhase.FastRolling  // Fast rolling never goes into FormationUpdate and usually starts in S3.
-                          : FrozenOrderPhase.FormationStanding;
-                    }
-                }
-//        }*/
-
-            if (fod.Phase == FrozenOrderPhase.None)
-                return fod;  // Wait a bit, there's a delay for string based phases.
-
-            if (this.safetyCarLeft)
-            {
-                // Afer SC left, disable order messages.  This is not perfect, because there might be useful data, but it is an attempt
-                // to suppress weird messages during Rolling start, when pit lane is long.  Still did not get exact repro, will have to revisit.
-                Debug.Assert(fod.Action == FrozenOrderAction.None);
-                return fod;
-            }
-
-            /*var useSCRules = GlobalBehaviourSettings.useAmericanTerms && extended.mDirectMemoryAccessEnabled != 0 && extended.mSCRPluginEnabled != 0;
-            if (vehicleRules.mPositionAssignment != -1)
-            {
-                var gridOrder = false;
-                var scrLastLapDoubleFile = useSCRules
-                    && fod.Phase == FrozenOrderPhase.FullCourseYellow
-                    && (extended.mSCRPluginDoubleFileType == 1 || extended.mSCRPluginDoubleFileType == 2)
-                    && scoring.mScoringInfo.mYellowFlagState == (sbyte)GTR2Constants.GTR2YellowFlagState.LastLap;
-
-                if (fod.Phase == FrozenOrderPhase.FullCourseYellow  // Core FCY does not use grid order.
-                      && !scrLastLapDoubleFile)  // With SCR rules, however, last lap might be double file depending on DoubleFileType configuration var value.
-                {
-                    gridOrder = false;
-                    fod.AssignedPosition = vehicleRules.mPositionAssignment + 1;  // + 1, because it is zero based with 0 meaning follow SC.
-                }
-                else  // This is not FCY, or last lap of Double File FCY with SCR plugin enabled.  The order reported is grid order, with columns specified.
-                {
-                    gridOrder = true;
-                    fod.AssignedGridPosition = vehicleRules.mPositionAssignment + 1;
-
-                    if (vehicleRules.mColumnAssignment == GTR2TrackRulesColumn.LeftLane)
-                        fod.AssignedColumn = FrozenOrderColumn.Left;
-                    else if (vehicleRules.mColumnAssignment == GTR2TrackRulesColumn.RightLane)
-                        fod.AssignedColumn = FrozenOrderColumn.Right;
-
-                    if (rules.mTrackRules.mPoleColumn == GTR2TrackRulesColumn.LeftLane)
-                    {
-                        fod.AssignedPosition = (vehicleRules.mColumnAssignment == GTR2TrackRulesColumn.LeftLane
-                          ? vehicleRules.mPositionAssignment * 2
-                          : vehicleRules.mPositionAssignment * 2 + 1) + 1;
-                    }
-                    else if (rules.mTrackRules.mPoleColumn == GTR2TrackRulesColumn.RightLane)
-                    {
-                        fod.AssignedPosition = (vehicleRules.mColumnAssignment == GTR2TrackRulesColumn.RightLane
-                          ? vehicleRules.mPositionAssignment * 2
-                          : vehicleRules.mPositionAssignment * 2 + 1) + 1;
-                    }
-
-                }
-                
-                // Figure out Driver Name to follow.
-                // NOTE: In Formation/Standing, game does not report those in UI, but we can.
-                var vehToFollowId = -1;
-                bool followSC = true;
-                if ((gridOrder && fod.AssignedPosition > 2)  // In grid order, first 2 vehicles are following SC.
-                  || (!gridOrder && fod.AssignedPosition > 1))  // In non-grid order, 1st car is following SC.
-                {
-                    followSC = false;
-                    // Find the mID of a vehicle in front of us by frozen order.
-                    for (int i = 0; i < rules.mTrackRules.mNumParticipants; ++i)
-                    {
-                        var p = rules.mParticipants[i];
-                        if ((!gridOrder  // Don't care about column in non-grid order case.
-                            || (gridOrder && p.mColumnAssignment == vehicleRules.mColumnAssignment))  // Should be vehicle in the same column.
-                          && p.mPositionAssignment == (vehicleRules.mPositionAssignment - 1))
-                        {
-                            vehToFollowId = p.mID;
-                            break;
-                        }
-                    }
-                }
-
-                var playerDist = GTR2GameStateMapper.GetDistanceCompleteded(ref scoring, ref vehicle);
-                var toFollowDist = -1.0;
-
-                if (!followSC)
-                {
-                    // Now find the vehicle to follow from the scoring info.
-                    for (int i = 0; i < scoring.mScoringInfo.mNumVehicles; ++i)
-                    {
-                        var v = scoring.mVehicles[i];
-                        if (v.mID == vehToFollowId)
-                        {
-                            var cci = this.GetCachedCarInfo(ref v);
-                            Debug.Assert(!cci.isGhost);
-
-                            fod.DriverToFollowRaw = cci.driverNameRawSanitized;
-
-                            toFollowDist = GTR2GameStateMapper.GetDistanceCompleteded(ref scoring, ref v);
-                            break;
-                        }
-                    }
-                }
-                else
-                    toFollowDist = ((vehicle.mTotalLaps - vehicleRules.mRelativeLaps) * scoring.mScoringInfo.mLapDist) + rules.mTrackRules.mSafetyCarLapDist;
-
-                if (fod.Phase == FrozenOrderPhase.Rolling
-                    && followSC
-                    && rules.mTrackRules.mSafetyCarExists == 0)
-                {
-                    // Find distance to car next to us if we're in pole.
-                    var neighborDist = -1.0;
-                    for (int i = 0; i < scoring.mScoringInfo.mNumVehicles; ++i)
-                    {
-                        var veh = scoring.mVehicles[i];
-                        if (veh.mPlace == (vehicle.mPlace == 1 ? 2 : 1))
-                        {
-                            neighborDist = GTR2GameStateMapper.GetDistanceCompleteded(ref scoring, ref veh);
-                            break;
-                        }
-                    }
-
-                    var distDelta = neighborDist - playerDist;
-                    // Special case if we have to stay in pole row, but there's no SC on this track.
-                    if (fod.AssignedColumn == FrozenOrderColumn.None)
-                        fod.Action = distDelta > 70.0 ? FrozenOrderAction.MoveToPole : FrozenOrderAction.StayInPole;
-                    else
-                        fod.Action = distDelta > 70.0 ? FrozenOrderAction.MoveToPole : FrozenOrderAction.StayInPole;
-                }
-                else
-                {
-                    Debug.Assert(toFollowDist != -1.0);
-
-                    fod.Action = FrozenOrderAction.Follow;
-
-                    var distDelta = toFollowDist - playerDist;
-                    if (distDelta < 0.0)
-                        fod.Action = FrozenOrderAction.AllowToPass;
-                    else if (distDelta > 70.0)
-                        fod.Action = FrozenOrderAction.CatchUp;
-                }
-            }
-            
-            if (rules.mTrackRules.mSafetyCarActive == 1)
-                fod.SafetyCarSpeed = rules.mTrackRules.mSafetyCarSpeed;
-
-            if (prevFrozenOrderData != null
-                && prevFrozenOrderData.SafetyCarSpeed != -1.0f
-                && fod.SafetyCarSpeed == -1.0f)
-            {
-                fod.Action = FrozenOrderAction.None;
-                this.safetyCarLeft = true;
-            }
-            */
-            return fod;
-        }
-#endif
         private FrozenOrderData GetFrozenOrderData(GameStateData cgs, FrozenOrderData prevFrozenOrderData, ref GTR2VehicleScoring vehicle,
             ref GTR2Scoring scoring, ref GTR2Extended extended, float vehicleSpeedMS)
         {
@@ -2991,7 +2749,7 @@ namespace CrewChiefV4.GTR2
                         }
                     }
                 }
-            
+
                 fod.DriverToFollowRaw = driverNameToFollow;
                 fod.CarNumberToFollowRaw = carNumberToFollow;
                 return fod;
@@ -2999,46 +2757,64 @@ namespace CrewChiefV4.GTR2
 
             // NOTE: for formation/standing capture order once.   For other phases, rely on LSI text.
             // TODO: For Rolling, find who should we folow from start order.
-            if ((fod.Phase == FrozenOrderPhase.FastRolling || fod.Phase == FrozenOrderPhase.Rolling || fod.Phase == FrozenOrderPhase.FullCourseYellow)
-              && this.firstHistoryMessageUpdatedTicks != extended.mTicksFirstHistoryMessageUpdated)
+            if (fod.Phase == FrozenOrderPhase.FastRolling || fod.Phase == FrozenOrderPhase.Rolling || fod.Phase == FrozenOrderPhase.FullCourseYellow)
             {
-                this.firstHistoryMessageUpdatedTicks = extended.mTicksFirstHistoryMessageUpdated;
-
-                var orderInstruction = GTR2GameStateMapper.GetStringFromBytes(extended.mFirstHistoryMessage);
-                if (!string.IsNullOrWhiteSpace(orderInstruction))
+                if (this.firstHistoryMessageUpdatedTicks != extended.mTicksFirstHistoryMessageUpdated)
                 {
-                    Console.WriteLine("LSI Message: order instruction updated - \"" + orderInstruction + "\"");
+                    this.firstHistoryMessageUpdatedTicks = extended.mTicksFirstHistoryMessageUpdated;
+                    if (this.ProcessOrderMessage(GTR2GameStateMapper.GetStringFromBytes(extended.mFirstHistoryMessage), fod))
+                        return fod;
+                }
 
-                    var followPrefix = @"Please Follow ";
-                    var catchUpToPrefix = @"Please Catch Up To ";
-                    var allowToPassPrefix = @"Please Allow ";
+                if (this.secondHistoryMessageUpdatedTicks != extended.mTicksSecondHistoryMessageUpdated)
+                {
+                    this.secondHistoryMessageUpdatedTicks = extended.mTicksSecondHistoryMessageUpdated;
+                    if (this.ProcessOrderMessage(GTR2GameStateMapper.GetStringFromBytes(extended.mSecondHistoryMessage), fod))
+                        return fod;
+                }
+            }
 
-                    var action = FrozenOrderAction.None;
+            return fod;
+        }
 
-                    string prefix = null;
-                    if (orderInstruction.StartsWith(followPrefix))
-                    {
-                        prefix = followPrefix;
-                        action = FrozenOrderAction.Follow;
-                    }
-                    else if (orderInstruction.StartsWith(catchUpToPrefix))
-                    {
-                        prefix = catchUpToPrefix;
-                        action = FrozenOrderAction.CatchUp;
-                    }
-                    else if (orderInstruction.StartsWith(allowToPassPrefix))
-                    {
-                        prefix = allowToPassPrefix;
-                        action = FrozenOrderAction.AllowToPass;
-                    }
-                    else if (orderInstruction == "Please Pass The Safety Car")
-                    {
-                        // Special case - set action only.
-                        fod.Action = FrozenOrderAction.PassSafetyCar;
-                    }
-                    else
-                    {
-                        Debug.Assert(false, "unhandled action");
+        private bool ProcessOrderMessage(string orderInstruction, FrozenOrderData fod)
+        {
+            if (string.IsNullOrWhiteSpace(orderInstruction))
+                return false;
+
+            if (!string.IsNullOrWhiteSpace(orderInstruction))
+                Console.WriteLine("MC Message: order instruction - \"" + orderInstruction + "\"");
+
+            var followPrefix = @"Please Follow ";
+            var catchUpToPrefix = @"Please Catch Up To ";
+            var allowToPassPrefix = @"Please Allow ";
+
+            var action = FrozenOrderAction.None;
+
+            string prefix = null;
+            if (orderInstruction.StartsWith(followPrefix))
+            {
+                prefix = followPrefix;
+                action = FrozenOrderAction.Follow;
+            }
+            else if (orderInstruction.StartsWith(catchUpToPrefix))
+            {
+                prefix = catchUpToPrefix;
+                action = FrozenOrderAction.CatchUp;
+            }
+            else if (orderInstruction.StartsWith(allowToPassPrefix))
+            {
+                prefix = allowToPassPrefix;
+                action = FrozenOrderAction.AllowToPass;
+            }
+            else if (orderInstruction == "Please Pass The Safety Car")
+            {
+                // Special case - set action only.
+                fod.Action = FrozenOrderAction.PassSafetyCar;
+            }
+            else
+            {
+                ///Debug.Assert(false, "unhandled action");
 #if !DEBUG
                         // Avoid spamming console too aggressively.
                         if ((cgs.Now - this.timeLSIMessageIgnored).TotalSeconds > 10)
@@ -3047,136 +2823,16 @@ namespace CrewChiefV4.GTR2
                             Console.WriteLine("LSI Message: unrecognized Frozen Order action - \"" + orderInstruction + "\"");
                         }
 #else
-                        Console.WriteLine("LSI Message: unrecognized Frozen Order action - \"" + orderInstruction + "\"");
+                Console.WriteLine("Ignoring MC Message: - \"" + orderInstruction + "\"");
 #endif
-                    }
-
-                    var SCassignedAhead = false;
-                    if (!string.IsNullOrWhiteSpace(prefix))
-                    {
-                        var closingQuoteIdx = orderInstruction.LastIndexOf("\"");
-                        string driverName = null;
-                        try
-                        {
-                            if (closingQuoteIdx != -1)
-                            {
-                                driverName = orderInstruction.Substring(prefix.Length + 1, closingQuoteIdx - prefix.Length - 1);
-                            }
-                            else
-                            {
-                                driverName = "Safety Car";
-                                SCassignedAhead = true;
-                            }
-                        }
-                        catch (Exception) { }
-
-                        // Remove [-0.2 laps] if it is there.
-                        var lastOpenBckt = orderInstruction.LastIndexOf('[');
-                        if (lastOpenBckt != -1)
-                        {
-                            try
-                            {
-                                orderInstruction = orderInstruction.Substring(0, lastOpenBckt - 1);
-                            }
-                            catch (Exception) { }
-                        }
-
-                        var column = FrozenOrderColumn.None;
-                        if (orderInstruction.EndsWith("(In Right Line)") || orderInstruction.EndsWith("(In Outside Line)"))
-                            column = FrozenOrderColumn.Right;
-                        else if (orderInstruction.EndsWith("(In Left Line)") || orderInstruction.EndsWith("(In Inside Line)"))
-                            column = FrozenOrderColumn.Left;
-                        else if (!orderInstruction.EndsWith("\"") && action == FrozenOrderAction.Follow && !SCassignedAhead)
-                        {
-                            Debug.Assert(false, "unrecognized postfix");
-#if !DEBUG
-                            // Avoid spamming console too aggressively.
-                            if ((cgs.Now - this.timeLSIMessageIgnored).TotalSeconds > 10)
-                            {
-                                this.timeLSIMessageIgnored = cgs.Now;
-                                Console.WriteLine("LSI Message: unrecognized Frozen Order message postfix - \"" + orderInstruction + "\"");
-                            }
-#else
-                            Console.WriteLine("LSI Message: unrecognized Frozen Order message postfix - \"" + orderInstruction + "\"");
-#endif
-                        }
-
-                        // Note: assigned Grid position only matters for Formation/Standing - don't bother figuring it out, just figure out assigned position (starting position).
-                        var assignedPos = -1;
-                        if (!string.IsNullOrWhiteSpace(driverName))
-                        {
-                            if (!SCassignedAhead)
-                            {
-                                for (int i = 0; i < scoring.mScoringInfo.mNumVehicles; ++i)
-                                {
-                                    var veh = scoring.mVehicles[i];
-                                    var driver = GTR2GameStateMapper.GetStringFromBytes(veh.mDriverName);
-                                    if (driver == driverName)
-                                    {
-                                        if (column == FrozenOrderColumn.None)
-                                        {
-                                            assignedPos = action == FrozenOrderAction.Follow || action == FrozenOrderAction.CatchUp
-                                              ? veh.mPlace + 1
-                                              : veh.mPlace - 1; // Might not be true
-                                        }
-                                        else
-                                        {
-                                            assignedPos = action == FrozenOrderAction.Follow || action == FrozenOrderAction.CatchUp
-                                              ? veh.mPlace + 2
-                                              : veh.mPlace - 2; // Might not be true
-                                        }
-                                        break;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                assignedPos = vehicle.mPlace;
-                            }
-                        }
-
-                        fod.Action = action;
-                        fod.AssignedColumn = column;
-                        fod.DriverToFollowRaw = driverName;
-                        fod.AssignedPosition = assignedPos;
-                    }
-                }
-            }
-            else if ((prevFrozenOrderData == null || prevFrozenOrderData.Phase == FrozenOrderPhase.None)
-              && fod.Phase == FrozenOrderPhase.FormationStanding)
-            {
-                // Just capture the starting position.
-                fod.AssignedColumn = vehicle.mTrackEdge > 0.0 ? FrozenOrderColumn.Right : FrozenOrderColumn.Left;
-                fod.AssignedPosition = vehicle.mPlace;
-
-                // We need to know which side of a grid leader is here, gosh what a bullshit.
-                // Find where leader is relatively to F/S line.
-                var leaderCol = FrozenOrderColumn.None;
-                for (int i = 0; i < scoring.mScoringInfo.mNumVehicles; ++i)
-                {
-                    var veh = scoring.mVehicles[i];
-                    if (veh.mPlace == 1)
-                    {
-                        leaderCol = veh.mTrackEdge > 0.0 ? FrozenOrderColumn.Right : FrozenOrderColumn.Left;
-                        break;
-                    }
-                }
-
-                if (fod.AssignedColumn == FrozenOrderColumn.Left)
-                {
-                    fod.AssignedGridPosition = leaderCol == FrozenOrderColumn.Left
-                      ? (vehicle.mPlace / 2) + 1
-                      : vehicle.mPlace / 2;
-                }
-                else if (fod.AssignedColumn == FrozenOrderColumn.Right)
-                {
-                    fod.AssignedGridPosition = leaderCol == FrozenOrderColumn.Right
-                      ? (vehicle.mPlace / 2) + 1
-                      : vehicle.mPlace / 2;
-                }
+                return false;
             }
 
-            return fod;
+            fod.Action = action;
+            //fod.AssignedColumn = column;
+            //fod.DriverToFollowRaw = driverName;
+            //fod.AssignedPosition = assignedPos;
+            return true;
         }
 
         private static double GetDistanceCompleteded(ref GTR2Scoring scoring, ref GTR2VehicleScoring vehicle)
