@@ -2860,11 +2860,11 @@ namespace CrewChiefV4.GTR2
                 ///Debug.Assert(false, "unhandled action");
 #if !DEBUG
                         // Avoid spamming console too aggressively.
-                        if ((cgs.Now - this.timeLSIMessageIgnored).TotalSeconds > 10)
+                        /*if ((cgs.Now - this.timeLSIMessageIgnored).TotalSeconds > 10)
                         {
                             this.timeLSIMessageIgnored = cgs.Now;
                             Console.WriteLine("LSI Message: unrecognized Frozen Order action - \"" + orderInstruction + "\"");
-                        }
+                        }*/
 #else
                 Console.WriteLine("Ignoring MC FO Message: - \"" + orderInstruction + "\"");
 #endif

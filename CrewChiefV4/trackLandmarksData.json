@@ -16216,6 +16216,237 @@
 			"raceroomRollingStartLapDistance": -1.0,
 			"iracingPitEntranceDistanceRoundTrack": -1.0,
 			"pitApproachPoint": null
+		}, {
+			"gtr2TrackNames": ["Anderstorp, 2003 FIA GT Championship Round 7"],
+			"trackLandmarks": [{
+					"landmarkName": "SOEDRA",
+					"distanceRoundLapStart": 65,
+					"distanceRoundLapEnd": 300,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "NORRA",
+					"distanceRoundLapStart": 1240,
+					"distanceRoundLapEnd": 1345,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "LAEKTAR",
+					"distanceRoundLapStart": 1500,
+					"distanceRoundLapEnd": 1635,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "STARTKURVAN",
+					"distanceRoundLapStart": 2000,
+					"distanceRoundLapEnd": 2240,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "OPEL",
+					"distanceRoundLapStart": 2480,
+					"distanceRoundLapEnd": 2715,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "HANSEN",
+					"distanceRoundLapStart": 3130,
+					"distanceRoundLapEnd": 3260,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "KARUSLL",
+					"distanceRoundLapStart": 3380,
+					"distanceRoundLapEnd": 3735,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "GISLAVED",
+					"distanceRoundLapStart": 3765,
+					"distanceRoundLapEnd": 3850,
+					"isCommonOvertakingSpot": false
+				}
+			]
+		},
+		{
+			"gtr2TrackNames": ["Anderstorp South"],
+			"trackLandmarks": [{
+					"landmarkName": "SOEDRA",
+					"distanceRoundLapStart": 65,
+					"distanceRoundLapEnd": 300,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "VAENDEPUNK_SYDSLINGAN",
+					"distanceRoundLapStart": 725,
+					"distanceRoundLapEnd": 940,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "HANSEN",
+					"distanceRoundLapStart": 990,
+					"distanceRoundLapEnd": 1120,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "KARUSLL",
+					"distanceRoundLapStart": 1200,
+					"distanceRoundLapEnd": 1590,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "GISLAVED",
+					"distanceRoundLapStart": 1625,
+					"distanceRoundLapEnd": 1700,
+					"isCommonOvertakingSpot": false
+				}
+			]
+		},
+		{
+			"gtr2TrackNames": ["Brno, 2003 FIA GT Championship Round 4", "Brno, 2004 FIA GT Championship Round 5", "Circuit de Masaryk"],
+			"trackLandmarks": [{
+					"landmarkName": "turn 1",
+					"distanceRoundLapStart": 415,
+					"distanceRoundLapEnd": 750,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn 2",
+					"distanceRoundLapStart": 1390,
+					"distanceRoundLapEnd": 1540,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn 3",
+					"distanceRoundLapStart": 1620,
+					"distanceRoundLapEnd": 1750,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn 4",
+					"distanceRoundLapStart": 2185,
+					"distanceRoundLapEnd": 2310,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn 5",
+					"distanceRoundLapStart": 2380,
+					"distanceRoundLapEnd": 2480,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn 6",
+					"distanceRoundLapStart": 2550,
+					"distanceRoundLapEnd": 2720,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn 7",
+					"distanceRoundLapStart": 2890,
+					"distanceRoundLapEnd": 2990,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn 8",
+					"distanceRoundLapStart": 3050,
+					"distanceRoundLapEnd": 3190,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn 9",
+					"distanceRoundLapStart": 3700,
+					"distanceRoundLapEnd": 3880,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn 10",
+					"distanceRoundLapStart": 4100,
+					"distanceRoundLapEnd": 4205,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn 11",
+					"distanceRoundLapStart": 4250,
+					"distanceRoundLapEnd": 4360,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn 12",
+					"distanceRoundLapStart": 4850,
+					"distanceRoundLapEnd": 4980,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn 13",
+					"distanceRoundLapStart": 5040,
+					"distanceRoundLapEnd": 5200,
+					"isCommonOvertakingSpot": true
+				}
+			]
+		},
+		{
+			"gtr2TrackNames": ["Valencia GP, 2004 FIA GT Championship Round 2"],
+			"trackLandmarks": [{
+					"landmarkName": "Turn 1",
+					"distanceRoundLapStart": 470,
+					"distanceRoundLapEnd": 590,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn 2",
+					"distanceRoundLapStart": 860,
+					"distanceRoundLapEnd": 950,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn 3",
+					"distanceRoundLapStart": 1220,
+					"distanceRoundLapEnd": 1290,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn 4",
+					"distanceRoundLapStart": 1375,
+					"distanceRoundLapEnd": 1490,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn 5",
+					"distanceRoundLapStart": 1670,
+					"distanceRoundLapEnd": 1775,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn 6",
+					"distanceRoundLapStart": 2210,
+					"distanceRoundLapEnd": 2340,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn 7",
+					"distanceRoundLapStart": 2620,
+					"distanceRoundLapEnd": 2750,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn 8",
+					"distanceRoundLapStart": 3000,
+					"distanceRoundLapEnd": 3170,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn 9",
+					"distanceRoundLapStart": 3225,
+					"distanceRoundLapEnd": 3530,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn 10",
+					"distanceRoundLapStart": 3550,
+					"distanceRoundLapEnd": 3610,
+					"isCommonOvertakingSpot": false
+				}
+			]
 		}
 	]
 }
