@@ -32,34 +32,62 @@ namespace CrewChiefV4.commands
         [DllImport("user32.dll")]
         public static extern IntPtr GetForegroundWindow();
 
+        /// <summary>
+        /// If the game process is not already the foreground window, set it to be.
+        /// rFactor 2 in particular has 3 or 4 processes, only one is "the" window
+        /// </summary>
+        /// <param name="processName"></param>
+        /// <param name="currentForgroundWindow"></param>
+        /// <returns>true: foreground was changed</returns>
+        /// <exception cref="System.InvalidOperationException">Thrown if unable
+        /// to change foreground window</exception>
+        private bool SetGameProcessAsForeground(String processName, IntPtr currentForgroundWindow)
+        {
+            Process[] matchingProcesses = Process.GetProcessesByName(processName);
+            foreach (var gameProcess in matchingProcesses)
+            {
+                if (gameProcess.MainWindowHandle != (IntPtr)0 &&
+                    gameProcess.MainWindowHandle != currentForgroundWindow)
+                {
+                    if (SetForegroundWindow(gameProcess.MainWindowHandle))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Couldn't set {processName} to be the current window");
+                        throw new System.InvalidOperationException($"Couldn't set {processName} to be the current window");
+                    }
+                }
+            }
+            return false;
+        }
+        /// <summary>
+        /// If the game window is not already the foreground window, set it to be.
+        /// </summary>
+        /// <param name="processName"> Name of the game</param>
+        /// <param name="alternateProcessNames"> Optional list of alternate
+        /// names the game might use</param>
+        /// <param name="currentForgroundWindow"></param>
+        /// <returns>true: foreground was changed</returns>
         bool BringGameWindowToFront(String processName, String[] alternateProcessNames, IntPtr currentForgroundWindow)
         {
             if (!UserSettings.GetUserSettings().getBoolean("bring_game_window_to_front_for_macros"))
             {
                 return false;
             }
-            Process[] p = Process.GetProcessesByName(processName);
-            if (p.Count() > 0)
+            if (SetGameProcessAsForeground(processName, currentForgroundWindow))
             {
-                if (p[0].MainWindowHandle != currentForgroundWindow)
-                {
-                    SetForegroundWindow(p[0].MainWindowHandle);
-                    return true;
-                }               
-            }                
+                return true;
+            }
             else if (alternateProcessNames != null && alternateProcessNames.Length > 0)
             {
                 foreach (String alternateProcessName in alternateProcessNames)
                 {
-                    p = Process.GetProcessesByName(processName);
-                    if (p.Count() > 0)
+                    if (SetGameProcessAsForeground(alternateProcessName, currentForgroundWindow))
                     {
-                        if (p[0].MainWindowHandle != currentForgroundWindow)
-                        {
-                            SetForegroundWindow(p[0].MainWindowHandle);
-                            return true;
-                        }                       
-                    } 
+                        return true;
+                    }
                 }
             }
             return false;
@@ -68,7 +96,7 @@ namespace CrewChiefV4.commands
         private Boolean checkValidAndPlayConfirmation(CommandSet commandSet, Boolean supressConfirmationMessage)
         {
             Boolean isValid = true;
-            String macroConfirmationMessage = macro.confirmationMessage != null && macro.confirmationMessage.Length > 0 && !supressConfirmationMessage ? 
+            String macroConfirmationMessage = macro.confirmationMessage != null && macro.confirmationMessage.Length > 0 && !supressConfirmationMessage ?
                 macro.confirmationMessage : null;
 
 
@@ -81,7 +109,7 @@ namespace CrewChiefV4.commands
                     ((CrewChief.gameDefinition == GameDefinition.pCars2 || CrewChief.gameDefinition == GameDefinition.rfactor2_64bit || CrewChief.gameDefinition == GameDefinition.AMS2) &&
                      CrewChief.currentGameState != null && CrewChief.currentGameState.PitData.HasRequestedPitStop))
                 {
-                    // special case for R3E. Pit requested state doesn't clear after completing a stop, so we might need to execute the 
+                    // special case for R3E. Pit requested state doesn't clear after completing a stop, so we might need to execute the
                     // serve penalty macro even if we deem this request invalid (the pit request flag is already true)
                     if (CrewChief.gameDefinition == GameDefinition.raceRoom && CrewChief.currentGameState != null &&
                         (CrewChief.currentGameState.PenaltiesData.PenaltyType == GameState.PenatiesData.DetailedPenaltyType.DRIVE_THROUGH
@@ -105,8 +133,8 @@ namespace CrewChiefV4.commands
                 }
                 if (isValid)
                 {
-                    if (CrewChief.gameDefinition == GameDefinition.raceRoom && CrewChief.currentGameState != null && 
-                        (CrewChief.currentGameState.PenaltiesData.PenaltyType == GameState.PenatiesData.DetailedPenaltyType.DRIVE_THROUGH 
+                    if (CrewChief.gameDefinition == GameDefinition.raceRoom && CrewChief.currentGameState != null &&
+                        (CrewChief.currentGameState.PenaltiesData.PenaltyType == GameState.PenatiesData.DetailedPenaltyType.DRIVE_THROUGH
                          || CrewChief.currentGameState.PenaltiesData.PenaltyType == GameState.PenatiesData.DetailedPenaltyType.STOP_AND_GO))
                     {
                         // if we request a stop and we have a penalty, select the 'serve penalty' option in R3E
@@ -161,7 +189,7 @@ namespace CrewChiefV4.commands
             }
             // only execute for the requested game - is this check sensible?
             foreach (CommandSet commandSet in macro.commandSets.Where(cs => MacroManager.isCommandSetForCurrentGame(cs.gameDefinition)))
-            {                
+            {
                 Boolean isValid = checkValidAndPlayConfirmation(commandSet, supressConfirmationMessage);
                 if (isValid)
                 {
@@ -186,103 +214,110 @@ namespace CrewChiefV4.commands
                     }
                 }
                 break;
-            }            
+            }
         }
 
         private void runMacro(CommandSet commandSet, Boolean isR3e, int multiplePressCountFromVoiceCommand)
         {
             IntPtr currentForgroundWindow = GetForegroundWindow();
-            bool hasChangedForgroundWindow = BringGameWindowToFront(CrewChief.gameDefinition.processName, CrewChief.gameDefinition.alternativeProcessNames, currentForgroundWindow);
-
-            List<ActionItem> actionItems = commandSet.getActionItems();
-            int actionItemsCount = actionItems.Count();
-
-            // R3E set fuel macro is a special case. There are some menu commands to move the cursor to fuel and deselect it. We want to skip
-            // all of these and simply move the cursor to fuel and deselect it (if necessary) using the new menu stuff. So skip all fuel key
-            // presses after the initial command (which opens the pit menu) but before the event or SRE driven fuelling amount:
-            int r3eFuelMacroSkipUntil = -1;
-            if (isR3e && macro.name.Contains("fuel"))
+            try // catch "Couldn't set the game to foreground", don't send keys in that case
             {
+                bool hasChangedForgroundWindow = BringGameWindowToFront(CrewChief.gameDefinition.processName, CrewChief.gameDefinition.alternativeProcessNames, currentForgroundWindow);
+
+                List<ActionItem> actionItems = commandSet.getActionItems();
+                int actionItemsCount = actionItems.Count();
+
+                // R3E set fuel macro is a special case. There are some menu commands to move the cursor to fuel and deselect it. We want to skip
+                // all of these and simply move the cursor to fuel and deselect it (if necessary) using the new menu stuff. So skip all fuel key
+                // presses after the initial command (which opens the pit menu) but before the event or SRE driven fuelling amount:
+                int r3eFuelMacroSkipUntil = -1;
+                if (isR3e && macro.name.Contains("fuel"))
+                {
+                    for (int actionItemIndex = 0; actionItemIndex < actionItemsCount; actionItemIndex++)
+                    {
+                        if (actionItems[actionItemIndex].extendedTypeTextParam != null && actionItemIndex >= 2)
+                        {
+                            // this is the action item that actually adds the fuel. We want the action item before this one to trigger (this resets
+                            // fuel to 0) but action items before that reset will be skipped
+                            r3eFuelMacroSkipUntil = actionItemIndex - 1;
+                            break;
+                        }
+                    }
+                }
                 for (int actionItemIndex = 0; actionItemIndex < actionItemsCount; actionItemIndex++)
                 {
-                    if (actionItems[actionItemIndex].extendedTypeTextParam != null && actionItemIndex >= 2)
+                    ActionItem actionItem = actionItems[actionItemIndex];
+                    if (MacroManager.stopped)
                     {
-                        // this is the action item that actually adds the fuel. We want the action item before this one to trigger (this resets
-                        // fuel to 0) but action items before that reset will be skipped
-                        r3eFuelMacroSkipUntil = actionItemIndex - 1;
                         break;
                     }
-                }
-            }
-            for (int actionItemIndex = 0; actionItemIndex < actionItemsCount; actionItemIndex++)
-            {
-                ActionItem actionItem = actionItems[actionItemIndex];
-                if (MacroManager.stopped)
-                {
-                    break;
-                }
-                if (MacroManager.WAIT_IDENTIFIER.Equals(actionItem.extendedType))
-                {
-                    Thread.Sleep(actionItem.extendedTypeNumericParam);
-                }
-                else
-                {
-                    int count;
-                    if (actionItemIndex > 0 && r3eFuelMacroSkipUntil != -1)
+                    if (MacroManager.WAIT_IDENTIFIER.Equals(actionItem.extendedType))
                     {
-                        // we're skipping all actions items until the actual fuelling action and replacing it with the proper menu navigation stuff
-                        if (actionItemIndex < r3eFuelMacroSkipUntil)
-                        {
-                            continue;
-                        }
-                        else if (actionItemIndex == r3eFuelMacroSkipUntil)
-                        {
-                            Thread.Sleep(100);
-                            R3EPitMenuManager.goToMenuItem(SelectedItem.Fuel);
-                            R3EPitMenuManager.unselectFuel(false);
-                            Thread.Sleep(100);
-                        }
+                        Thread.Sleep(actionItem.extendedTypeNumericParam);
                     }
-                    if (MacroManager.MULTIPLE_PRESS_IDENTIFIER.Equals(actionItem.extendedType))
+                    else
                     {
-                        if (actionItem.extendedTypeTextParam != null)
+                        int count;
+                        if (actionItemIndex > 0 && r3eFuelMacroSkipUntil != -1)
                         {
-                            if (MacroManager.MULTIPLE_PRESS_FROM_VOICE_TRIGGER_IDENTIFIER.Equals(actionItem.extendedTypeTextParam))
+                            // we're skipping all actions items until the actual fuelling action and replacing it with the proper menu navigation stuff
+                            if (actionItemIndex < r3eFuelMacroSkipUntil)
                             {
-                                count = multiplePressCountFromVoiceCommand;
+                                continue;
+                            }
+                            else if (actionItemIndex == r3eFuelMacroSkipUntil)
+                            {
+                                Thread.Sleep(100);
+                                R3EPitMenuManager.goToMenuItem(SelectedItem.Fuel);
+                                R3EPitMenuManager.unselectFuel(false);
+                                Thread.Sleep(100);
+                            }
+                        }
+                        if (MacroManager.MULTIPLE_PRESS_IDENTIFIER.Equals(actionItem.extendedType))
+                        {
+                            if (actionItem.extendedTypeTextParam != null)
+                            {
+                                if (MacroManager.MULTIPLE_PRESS_FROM_VOICE_TRIGGER_IDENTIFIER.Equals(actionItem.extendedTypeTextParam))
+                                {
+                                    count = multiplePressCountFromVoiceCommand;
+                                }
+                                else
+                                {
+                                    count = CrewChief.getEvent(actionItem.extendedTypeTextParam).resolveMacroKeyPressCount(macro.name);
+                                }
+
+                                // eewwww... for the r3e fuel macro we want to ensure we're on 'fuel' and it's enabled before issuing the many
+                                // commands to set the amount. In this case, there'll be multiple other button presses to get us to fuel so
+                                // we need to catch the actual fuelling amount action and insert a crafty 'go to fuel item and deselect it' line
+                                if (isR3e && macro.name.Contains("fuel"))
+                                {
+                                    // hack for R3E: fuel menu needs 3 presses to get it from the start to 0
+                                    count = count + 3;
+                                }
                             }
                             else
                             {
-                                count = CrewChief.getEvent(actionItem.extendedTypeTextParam).resolveMacroKeyPressCount(macro.name);
-                            }
-
-                            // eewwww... for the r3e fuel macro we want to ensure we're on 'fuel' and it's enabled before issuing the many
-                            // commands to set the amount. In this case, there'll be multiple other button presses to get us to fuel so
-                            // we need to catch the actual fuelling amount action and insert a crafty 'go to fuel item and deselect it' line
-                            if (isR3e && macro.name.Contains("fuel"))
-                            {
-                                // hack for R3E: fuel menu needs 3 presses to get it from the start to 0
-                                count = count + 3;
+                                count = actionItem.extendedTypeNumericParam;
                             }
                         }
                         else
                         {
-                            count = actionItem.extendedTypeNumericParam;
+                            count = 1;
                         }
+                        // only wait if there's another key press in the sequence
+                        int wait = actionItemIndex == actionItemsCount - 1 ? 0 : commandSet.waitBetweenEachCommand;
+                        sendKeys(count, actionItem, commandSet.keyPressTime, wait);
                     }
-                    else
-                    {
-                        count = 1;
-                    }
-                    // only wait if there's another key press in the sequence
-                    int wait = actionItemIndex == actionItemsCount - 1 ? 0 : commandSet.waitBetweenEachCommand;
-                    sendKeys(count, actionItem, commandSet.keyPressTime, wait);
+                }
+                // if we changed forground window we need to restore the old window again as the user could be running overlays or other apps they want to keep in forground.
+                if (hasChangedForgroundWindow)
+                {
+                    SetForegroundWindow(currentForgroundWindow);
                 }
             }
-            // if we changed forground window we need to restore the old window again as the user could be running overlays or other apps they want to keep in forground.
-            if (hasChangedForgroundWindow)
+            catch (System.InvalidOperationException e)
             {
-                SetForegroundWindow(currentForgroundWindow);
+                // Couldn't set the game to foreground
             }
         }
 
@@ -338,22 +373,22 @@ namespace CrewChiefV4.commands
 
     public class Macro
     {
-        public String name { get; set; }        
+        public String name { get; set; }
         public String description { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public String confirmationMessage { get; set; }
-		
+
         public String[] voiceTriggers { get; set; }
-        
+
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public ButtonTrigger[] buttonTriggers { get; set; }
-        
+
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public CommandSet[] commandSets { get; set; }
 
         [JsonIgnore]
         private String _integerVariableVoiceTrigger;
-        
+
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public String integerVariableVoiceTrigger
         {
@@ -435,7 +470,7 @@ namespace CrewChiefV4.commands
             {
                 Console.WriteLine("No action sequence for commandSet " + description);
                 return false;
-            }            
+            }
             foreach (String action in actionSequence)
             {
                 ActionItem actionItem = new ActionItem(action);
