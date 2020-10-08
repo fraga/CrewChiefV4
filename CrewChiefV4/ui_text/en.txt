@@ -26,6 +26,7 @@ personalisations_are_up_to_date = Personalisations are up to date
 stop = &Stop
 stop_and_save = &Stop and Save trace
 start_application = &Start application
+incremental_updates_count = updates to apply
 
 pcars_64_bit = pCARS (64 bit)
 pcars_32_bit = pCARS (32 bit)
