@@ -558,7 +558,7 @@ namespace CrewChiefV4.RaceRoom
             public Int32 ClassPerformanceIndex;
             // Note: See the EngineType enum
             public Int32 EngineType;
-            public Int32 IncidentPoints;
+            public Int32 IncidentPoints;    //  this isn't set - it's always 0
 
             public Int32 Unused2;
         }
@@ -882,11 +882,13 @@ namespace CrewChiefV4.RaceRoom
             public Sectors<Single> BestIndividualSectorTimeLeader;
             public Sectors<Single> BestIndividualSectorTimeLeaderClass;
 
+            // Incident points (-1 = N/A)
+            public Int32 IncidentPoints;
+
             // Reserved data
             public Int32 ScoreUnused1;
-            public Int32 ScoreUnused2;
+            public Single ScoreUnused2;
             public Single ScoreUnused3;
-            public Single ScoreUnused4;
 
             //////////////////////////////////////////////////////////////////////////
             // Vehicle information
