@@ -440,6 +440,7 @@
 			"carClassEnum": "GROUPA",
 			"raceroomClassIds": [1712],
 			"pCarsClassNames": ["Group A"],
+			"ams2ClassNames": ["Group A"],
 			"timesInHundredths": true,
 			"enabledMessageTypes": "TYRE_TEMPS, BRAKE_TEMPS, FUEL, LOCKING_AND_SPINNING",
 			"allMembersAreRWD": true
@@ -456,6 +457,7 @@
 		{
 			"carClassEnum": "M1_PROCAR",
 			"raceroomClassIds": [2378],
+			"ams2ClassNames": ["Procar"],
 			"timesInHundredths": false,
 			"maxSafeWaterTemp": 100,
 			"maxSafeOilTemp": 106,
