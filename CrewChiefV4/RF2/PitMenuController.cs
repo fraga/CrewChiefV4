@@ -59,10 +59,7 @@ namespace PitMenuAPI
             string category;
             string choice;
 
-            if (CrewChief.Debugging)
-            {
-                Console.WriteLine("GetMenuDict");
-            }
+            Log.Debug("GetMenuDict");
             if (startUsingPitMenu())
                 {
                 initialCategory = GetCategory();

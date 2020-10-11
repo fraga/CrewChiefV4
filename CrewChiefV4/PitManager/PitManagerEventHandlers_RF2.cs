@@ -161,7 +161,7 @@ namespace CrewChiefV4.PitManager
         {
             Pmal.PmalConnect();
             currentRf2TyreType.Set(Pmal.GetTyreTypeNames()[0]);
-            Console.WriteLine("Pit Manager initialise");
+            Log.Commentary("Pit Manager initialise");
             return true;
         }
         static public bool PMrF2eh_teardown(string __)
@@ -514,7 +514,7 @@ namespace CrewChiefV4.PitManager
                     // dict is the other direction currentGenericTyreCompound = ttDict[tyreType];
                     if (CrewChief.Debugging)
                     {
-                        Console.WriteLine("Pit Manager tyre compound set to (" +
+                        Log.Commentary("Pit Manager tyre compound set to (" +
                             tyreCategory + ") " + tyreType);
                     }
                 }
@@ -561,7 +561,7 @@ namespace CrewChiefV4.PitManager
                 {
                     if (CrewChief.Debugging)
                     {
-                        Console.WriteLine("Pit Manager tyre pressure set to (" +
+                        Log.Commentary("Pit Manager tyre pressure set to (" +
                             tyreCategory + ") " + pressure);
                     }
                 }

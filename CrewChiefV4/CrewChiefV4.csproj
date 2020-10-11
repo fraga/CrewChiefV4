@@ -302,6 +302,7 @@
     <Compile Include="iRacing\SessionData.cs" />
     <Compile Include="iRacing\Sim.cs" />
     <Compile Include="iRacing\Track.cs" />
+    <Compile Include="Logging.cs" />
     <Compile Include="NumberReaderPtBr.cs" />
     <Compile Include="NumberReaderIt2.cs" />
     <Compile Include="Overlay\Charts.cs" />

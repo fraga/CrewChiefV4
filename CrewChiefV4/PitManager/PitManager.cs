@@ -218,14 +218,14 @@ namespace CrewChiefV4.PitManager
                                     {
                                         //TBD: default handler "Couldn't do event for this vehicle"
                                         // e.g. change aero on non-aero car, option not in menu
-                                        Console.WriteLine($"Pit Manager couldn't do {ev} for this vehicle");
+                                        Log.Commentary($"Pit Manager couldn't do {ev} for this vehicle");
                                     }
                                 }
                                 // else TearDown when not started up
                             }
                             catch (Exception e)
                             {
-                                Console.WriteLine("Pit Manager event error " + e.ToString());
+                                Log.Error("Pit Manager event error " + e.ToString());
                             }
                         }
                         else
