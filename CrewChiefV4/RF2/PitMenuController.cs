@@ -70,6 +70,10 @@ namespace PitMenuAPI
                 do
                 {
                     category = GetCategory();
+                    if (string.IsNullOrWhiteSpace(category))
+                    {
+                        break;
+                    }
                     shadowPitMenu[category] = new List<string>();
                     shadowPitMenuCats.Add(category);
                     if (category.Contains("TIRE"))
