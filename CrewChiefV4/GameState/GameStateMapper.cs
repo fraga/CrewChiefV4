@@ -260,15 +260,31 @@ namespace CrewChiefV4.GameState
             }
         }
 
-
         // so far, only the laps remaining is populated for non-race sessions. This is a bit of an edge case anyway - non-race sessions
         // with fixed number of laps is an American thing really.
+        //
+        // Update - we also need a little car class data in these sessions
         public virtual void populateDerivedNonRaceSessionData(GameStateData currentGameState)
         {
             if (!currentGameState.SessionData.SessionHasFixedTime)
             {
                 currentGameState.SessionData.SessionLapsRemaining = currentGameState.SessionData.SessionNumberOfLaps - currentGameState.SessionData.CompletedLaps;
             }
+            // just need the car class counts here
+            Boolean singleClass = GameStateData.NumberOfClasses == 1 || CrewChief.forceSingleClass;
+            int numCarsInPlayerClass = 1;
+            foreach (OpponentData opponent in currentGameState.OpponentData.Values)
+            {
+                if (!opponent.IsActive)
+                {
+                    continue;
+                }
+                if (singleClass || CarData.IsCarClassEqual(opponent.CarClass, currentGameState.carClass))
+                {
+                    numCarsInPlayerClass++;
+                }
+            }
+            currentGameState.SessionData.NumCarsInPlayerClass = numCarsInPlayerClass;
         }
 
         // filters race position changes by delaying them a short time to prevent bouncing and noise interferring with event logic

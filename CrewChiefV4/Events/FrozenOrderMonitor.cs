@@ -233,7 +233,7 @@ namespace CrewChiefV4.Events
                     || (cfod.AssignedColumn != FrozenOrderColumn.None && cfod.AssignedPosition <= 2);  // Double file (grid) order.
                 
                 useCarNumber = CrewChief.gameDefinition.gameEnum == GameEnum.IRACING && !shouldFollowSafetyCar && cfod.CarNumberToFollowRaw != "-1" &&
-                    Int32.TryParse(cfod.CarNumberToFollowRaw, out carNumber) && !(useDriverName && AudioPlayer.canReadName(cfod.DriverToFollowRaw));
+                    Int32.TryParse(cfod.CarNumberToFollowRaw, out carNumber) && !(useDriverName && AudioPlayer.canReadName(cfod.DriverToFollowRaw, false));
                 if (useCarNumber && cfod.CarNumberToFollowRaw.StartsWith("00"))
                 {
                     leadingZerosKey = doubleZeroKey;

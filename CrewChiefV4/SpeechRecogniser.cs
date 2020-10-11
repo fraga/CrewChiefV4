@@ -51,9 +51,12 @@ namespace CrewChiefV4
 
         private String localeCountryPropertySetting = UserSettings.GetUserSettings().getString("speech_recognition_country");
 
-        private float minimum_name_voice_recognition_confidence = UserSettings.GetUserSettings().getFloat("minimum_name_voice_recognition_confidence");
-        private float minimum_trigger_voice_recognition_confidence = UserSettings.GetUserSettings().getFloat("trigger_word_sre_min_confidence");
-        private float minimum_voice_recognition_confidence = UserSettings.GetUserSettings().getFloat("minimum_voice_recognition_confidence");
+        private float minimum_name_voice_recognition_confidence_windows = UserSettings.GetUserSettings().getFloat("minimum_name_voice_recognition_confidence_system_sre");
+        private float minimum_name_voice_recognition_confidence_microsoft = UserSettings.GetUserSettings().getFloat("minimum_name_voice_recognition_confidence");
+        private float minimum_trigger_voice_recognition_confidence_windows = UserSettings.GetUserSettings().getFloat("trigger_word_sre_min_confidence_system_sre");
+        private float minimum_trigger_voice_recognition_confidence_microsoft = UserSettings.GetUserSettings().getFloat("trigger_word_sre_min_confidence");
+        private float minimum_voice_recognition_confidence_windows = UserSettings.GetUserSettings().getFloat("minimum_voice_recognition_confidence_system_sre");
+        private float minimum_voice_recognition_confidence_microsoft = UserSettings.GetUserSettings().getFloat("minimum_voice_recognition_confidence");
         private Boolean disable_alternative_voice_commands = UserSettings.GetUserSettings().getBoolean("disable_alternative_voice_commands");
         private Boolean enable_iracing_pit_stop_commands = UserSettings.GetUserSettings().getBoolean("enable_iracing_pit_stop_commands");
         private static Boolean use_verbose_responses = UserSettings.GetUserSettings().getBoolean("use_verbose_responses");
@@ -211,6 +214,7 @@ namespace CrewChiefV4
         public static String[] WHATS_MY_RATING = Configuration.getSpeechRecognitionPhrases("WHATS_MY_RATING");
         public static String[] WHATS_MY_RANK = Configuration.getSpeechRecognitionPhrases("WHATS_MY_RANK");
         public static String[] WHATS_MY_REPUTATION = Configuration.getSpeechRecognitionPhrases("WHATS_MY_REPUTATION");
+        public static String[] HOW_GOOD_IS = Configuration.getSpeechRecognitionPhrases("HOW_GOOD_IS");
         public static String RATING = Configuration.getSpeechRecognitionConfigOption("RATING");
         public static String REPUTATION = Configuration.getSpeechRecognitionConfigOption("REPUTATION");
         public static String RANK = Configuration.getSpeechRecognitionConfigOption("RANK");
@@ -263,12 +267,16 @@ namespace CrewChiefV4
         public static String[] PIT_STOP_DONT_FIX_SUSPENSION = Configuration.getSpeechRecognitionPhrases("PIT_STOP_DONT_FIX_SUSPENSION");
         public static String[] PIT_STOP_FIX_ALL = Configuration.getSpeechRecognitionPhrases("PIT_STOP_FIX_ALL");  // rF2
         public static String[] PIT_STOP_FIX_BODY = Configuration.getSpeechRecognitionPhrases("PIT_STOP_FIX_BODY");  // rF2
+        public static String[] PIT_STOP_FIX_NONE = Configuration.getSpeechRecognitionPhrases("PIT_STOP_FIX_NONE");  // rF2
         public static String[] PIT_STOP_SERVE_PENALTY = Configuration.getSpeechRecognitionPhrases("PIT_STOP_SERVE_PENALTY");
         public static String[] PIT_STOP_DONT_SERVE_PENALTY = Configuration.getSpeechRecognitionPhrases("PIT_STOP_DONT_SERVE_PENALTY");
         public static String[] PIT_STOP_REFUEL = Configuration.getSpeechRecognitionPhrases("PIT_STOP_REFUEL");
         public static String[] PIT_STOP_DONT_REFUEL = Configuration.getSpeechRecognitionPhrases("PIT_STOP_DONT_REFUEL");
         public static String[] PIT_STOP_NEXT_TYRE_COMPOUND = Configuration.getSpeechRecognitionPhrases("PIT_STOP_NEXT_TYRE_COMPOUND");
         public static String[] PIT_STOP_SOFT_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_SOFT_TYRES");
+        public static String[] PIT_STOP_SUPERSOFT_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_SUPERSOFT_TYRES");
+        public static String[] PIT_STOP_ULTRASOFT_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_ULTRASOFT_TYRES");
+        public static String[] PIT_STOP_HYPERSOFT_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_HYPERSOFT_TYRES");
         public static String[] PIT_STOP_MEDIUM_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_MEDIUM_TYRES");
         public static String[] PIT_STOP_HARD_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_HARD_TYRES");
         public static String[] PIT_STOP_INTERMEDIATE_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_INTERMEDIATE_TYRES");
@@ -790,17 +798,29 @@ namespace CrewChiefV4
         public SpeechRecogniser(CrewChief crewChief)
         {
             this.crewChief = crewChief;
-            if (minimum_name_voice_recognition_confidence < 0 || minimum_name_voice_recognition_confidence > 1)
+            if (minimum_name_voice_recognition_confidence_microsoft < 0 || minimum_name_voice_recognition_confidence_microsoft > 1)
             {
-                minimum_name_voice_recognition_confidence = 0.4f;
+                minimum_name_voice_recognition_confidence_microsoft = 0.4f;
             }
-            if (minimum_voice_recognition_confidence < 0 || minimum_voice_recognition_confidence > 1)
+            if (minimum_voice_recognition_confidence_microsoft < 0 || minimum_voice_recognition_confidence_microsoft > 1)
             {
-                minimum_voice_recognition_confidence = 0.5f;
+                minimum_voice_recognition_confidence_microsoft = 0.5f;
             }
-            if (minimum_trigger_voice_recognition_confidence < 0 || minimum_trigger_voice_recognition_confidence > 1)
+            if (minimum_trigger_voice_recognition_confidence_microsoft < 0 || minimum_trigger_voice_recognition_confidence_microsoft > 1)
             {
-                minimum_trigger_voice_recognition_confidence = 0.6f;
+                minimum_trigger_voice_recognition_confidence_microsoft = 0.6f;
+            }
+            if (minimum_name_voice_recognition_confidence_windows < 0 || minimum_name_voice_recognition_confidence_windows > 1)
+            {
+                minimum_name_voice_recognition_confidence_windows = 0.75f;
+            }
+            if (minimum_voice_recognition_confidence_windows < 0 || minimum_voice_recognition_confidence_windows > 1)
+            {
+                minimum_voice_recognition_confidence_windows = 0.7f;
+            }
+            if (minimum_trigger_voice_recognition_confidence_windows < 0 || minimum_trigger_voice_recognition_confidence_windows > 1)
+            {
+                minimum_trigger_voice_recognition_confidence_windows = 0.95f;
             }
         }
 
@@ -1330,12 +1350,17 @@ namespace CrewChiefV4
                         }
                         ChoicesWrapper opponentNameChoices = SREWrapperFactory.createNewChoicesWrapper(nameChoices.ToArray<string>());
                         ChoicesWrapper opponentNamePossessiveChoices = SREWrapperFactory.createNewChoicesWrapper(namePossessiveChoices.ToArray<string>());
-
-                        opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHERE_IS, WHERES, WATCH, TEAM_MATE, RIVAL, STOP_WATCHING }, false, opponentNameChoices, null, true));
+                        String[] enabledOpponentChoices = UserSettings.GetUserSettings().getBoolean("enable_watch_car_command") ?
+                            new String[] { WHERE_IS, WHERES, WATCH, TEAM_MATE, RIVAL, STOP_WATCHING } : new String[] { WHERE_IS, WHERES };
+                        opponentGrammarList.AddRange(addCompoundChoices(enabledOpponentChoices, false, opponentNameChoices, null, true));
                         // todo: iracing definitely has no opponent tyre type data, probably more games lack this info
                         if (CrewChief.gameDefinition != null && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)
                         {
                             opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHAT_TYRE_IS, WHAT_TYRES_IS }, false, opponentNameChoices, new String[] { ON }, true));
+                        }
+                        if (CrewChief.gameDefinition != null && CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM)
+                        {
+                            opponentGrammarList.AddRange(addCompoundChoices(HOW_GOOD_IS, false, opponentNameChoices, null, true));
                         }
                         opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHATS }, true, opponentNamePossessiveChoices, getWhatsPossessiveChoices(), true));
                     }
@@ -1454,8 +1479,9 @@ namespace CrewChiefV4
                 opponentNameOrPositionPossessiveChoices.Add(THE_GUY_IN_FRONT);
                 opponentNameOrPositionPossessiveChoices.Add(THE_GUY_BEHIND);
             }
-
-            opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHERE_IS, WHERES, WATCH, TEAM_MATE, RIVAL, STOP_WATCHING }, false, opponentNameOrPositionChoices, null, true));
+            String[] enabledOpponentChoices = UserSettings.GetUserSettings().getBoolean("enable_watch_car_command") ?
+                new String[] { WHERE_IS, WHERES, WATCH, TEAM_MATE, RIVAL, STOP_WATCHING } : new String[] { WHERE_IS, WHERES };
+            opponentGrammarList.AddRange(addCompoundChoices(enabledOpponentChoices, false, opponentNameOrPositionChoices, null, true));
             if (identifyOpponentsByPosition)
             {
                 opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHOS_IN }, false, opponentPositionChoices, null, true));
@@ -1463,6 +1489,10 @@ namespace CrewChiefV4
             if (CrewChief.gameDefinition != null && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)
             {
                 opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHAT_TYRE_IS, WHAT_TYRES_IS }, false, opponentNameOrPositionChoices, new String[] { ON }, true));
+            }
+            if (CrewChief.gameDefinition != null && CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM)
+            {
+                opponentGrammarList.AddRange(addCompoundChoices(HOW_GOOD_IS, false, opponentNameOrPositionChoices, null, true));
             }
             opponentGrammarList.AddRange(addCompoundChoices(new String[] { WHATS }, false, opponentNameOrPositionPossessiveChoices, getWhatsPossessiveChoices(), true));
         }
@@ -1820,6 +1850,9 @@ namespace CrewChiefV4
                 validateAndAdd(PIT_STOP_HARD_TYRES, pitManagerChoices);
                 validateAndAdd(PIT_STOP_MEDIUM_TYRES, pitManagerChoices);
                 validateAndAdd(PIT_STOP_SOFT_TYRES, pitManagerChoices);
+                validateAndAdd(PIT_STOP_SUPERSOFT_TYRES, pitManagerChoices);
+                validateAndAdd(PIT_STOP_ULTRASOFT_TYRES, pitManagerChoices);
+                validateAndAdd(PIT_STOP_HYPERSOFT_TYRES, pitManagerChoices);
                 validateAndAdd(PIT_STOP_PRIME_TYRES, pitManagerChoices);
                 validateAndAdd(PIT_STOP_ALTERNATE_TYRES, pitManagerChoices);
                 validateAndAdd(PIT_STOP_OPTION_TYRES, pitManagerChoices);
@@ -1830,6 +1863,7 @@ namespace CrewChiefV4
                 validateAndAdd(PIT_STOP_REFUEL, pitManagerChoices);
                 validateAndAdd(PIT_STOP_FIX_ALL, pitManagerChoices);
                 validateAndAdd(PIT_STOP_FIX_BODY, pitManagerChoices);
+                validateAndAdd(PIT_STOP_FIX_NONE, pitManagerChoices);
                 validateAndAdd(PIT_STOP_FUEL_TO_THE_END, pitManagerChoices);
 
                 GrammarBuilderWrapper PitManagerGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper(pitManagerChoices);
@@ -1954,7 +1988,13 @@ namespace CrewChiefV4
                 {
                     SoundCache.InterruptCurrentlyPlayingSound(true);
                 }
-                crewChief.audioPlayer.playStartListeningBeep();
+                ThreadStart startListingBeep = crewChief.audioPlayer.playStartListeningBeep;
+                Thread startListingBeepThread = new Thread(startListingBeep);
+
+                startListingBeepThread.Name = "SpeechRecogniser.audioPlayer.playStartListeningBeep";
+                ThreadManager.RegisterRootThread(startListingBeepThread);
+
+                startListingBeepThread.Start();
             }
             else
             {
@@ -2011,15 +2051,17 @@ namespace CrewChiefV4
                 return;
             }
             float recognitionConfidence = SREWrapperFactory.GetCallbackConfidence(e);
-            if (recognitionConfidence > minimum_trigger_voice_recognition_confidence)
+            float confidenceThreshold = SREWrapperFactory.useSystem ? minimum_trigger_voice_recognition_confidence_windows : minimum_trigger_voice_recognition_confidence_microsoft;
+            string recogniserName = SREWrapperFactory.useSystem ? "System recogniser" : "Microsoft recogniser";
+            if (recognitionConfidence > confidenceThreshold)
             {
-                Console.WriteLine("Heard keyword " + keyWord + ", waiting for command confidence " + recognitionConfidence);
+                Console.WriteLine(recogniserName + " heard keyword \"" + keyWord + "\", waiting for command, confidence " + recognitionConfidence.ToString("0.000"));
                 switchFromTriggerToRegularRecogniser();
                 restartWaitTimeoutThread(trigger_word_listen_timeout);
             }
             else
             {
-                Console.WriteLine("keyword detected but confidence (" + recognitionConfidence + ") too low");
+                Console.WriteLine(recogniserName + " heard keyword \"" + keyWord + "\" but confidence (" + recognitionConfidence.ToString("0.000") + ") below threshold (" + confidenceThreshold.ToString("0.000") + ")");
             }
         }
 
@@ -2050,14 +2092,17 @@ namespace CrewChiefV4
             String[] recognisedWords = SREWrapperFactory.GetCallbackWordsList(e);
             float recognitionConfidence = SREWrapperFactory.GetCallbackConfidence(e);
             object recognitionGrammar = SREWrapperFactory.GetCallbackGrammar(e);
-            Console.WriteLine("Recognised : " + recognisedText + "  Confidence = " + recognitionConfidence.ToString("0.000"));
+            string recogniserName = SREWrapperFactory.useSystem ? "System recogniser" : "Microsoft recogniser";
+            Console.WriteLine(recogniserName + " recognised : \"" + recognisedText + "\", Confidence = " + recognitionConfidence.ToString("0.000"));
+            float confidenceThreshold = SREWrapperFactory.useSystem ? minimum_voice_recognition_confidence_windows : minimum_voice_recognition_confidence_microsoft;
+            float confidenceNamesThreshold = SREWrapperFactory.useSystem ? minimum_name_voice_recognition_confidence_windows : minimum_name_voice_recognition_confidence_microsoft;
             try
             {
                 // special case when we're waiting for a message after a heavy crash:
                 if (DamageReporting.waitingForDriverIsOKResponse)
                 {
                     DamageReporting damageReportingEvent = (DamageReporting)CrewChief.getEvent("DamageReporting");
-                    if (recognitionConfidence > minimum_voice_recognition_confidence && ResultContains(recognisedText, I_AM_OK, false))
+                    if (recognitionConfidence > confidenceThreshold && ResultContains(recognisedText, I_AM_OK, false))
                     {
                         damageReportingEvent.cancelWaitingForDriverIsOK(DamageReporting.DriverOKResponseType.CLEARLY_OK);
                     }
@@ -2070,7 +2115,7 @@ namespace CrewChiefV4
                 {
                     if (useFreeDictationForChatMessages && this.chatDictationGrammar != null && recognitionGrammar == this.chatDictationGrammar.GetInternalGrammar())
                     {
-                        Console.WriteLine("chat recognised: " + recognisedText);
+                        Console.WriteLine("chat recognised: \"" + recognisedText + "\"");
                         if (recognisedText.StartsWith(chatContextStart))
                         {
                             string chatText = recognisedText.TrimStart(chatContextStart.ToCharArray()).Trim();
@@ -2096,7 +2141,7 @@ namespace CrewChiefV4
                     }
                     else if (GrammarWrapperListContains(opponentGrammarList, recognitionGrammar))
                     {
-                        if (recognitionConfidence > minimum_name_voice_recognition_confidence)
+                        if (recognitionConfidence > confidenceNamesThreshold)
                         {
                             this.lastRecognisedText = recognisedText;
                             if (recognisedText.StartsWith(WATCH) || recognisedText.StartsWith(RIVAL) || recognisedText.StartsWith(TEAM_MATE) || recognisedText.StartsWith(STOP_WATCHING))
@@ -2110,11 +2155,12 @@ namespace CrewChiefV4
                         }
                         else
                         {
+                            Console.WriteLine("Confidence " + recognitionConfidence.ToString("0.000") + " is below the minimum threshold of " + confidenceNamesThreshold.ToString("0.000"));
                             crewChief.youWot(true);
                             youWot = true;
                         }
                     }
-                    else if (recognitionConfidence > minimum_voice_recognition_confidence)
+                    else if (recognitionConfidence > confidenceThreshold)
                     {
                         if (macroGrammar != null && macroGrammar.GetInternalGrammar() == recognitionGrammar && macroLookup.ContainsKey(recognisedText))
                         {
@@ -2197,6 +2243,7 @@ namespace CrewChiefV4
                     }
                     else
                     {
+                        Console.WriteLine("Confidence " + recognitionConfidence.ToString("0.000") + " is below the minimum threshold of " + confidenceThreshold.ToString("0.000"));
                         crewChief.youWot(true);
                         youWot = true;
                     }

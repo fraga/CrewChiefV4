@@ -209,7 +209,7 @@ namespace CrewChiefV4.PCars2
                 " EventTimeRemaining: " + shared.mEventTimeRemaining + " LapsInEvent: " + 
                 shared.mLapsInEvent + " SequenceNumber: " + shared.mSequenceNumber);*/
 
-            Validator.validate(playerName);
+            AdditionalDataProvider.validate(playerName);
             currentGameState.SessionData.CompletedLaps = (int)playerData.mLapsCompleted;
             currentGameState.SessionData.SectorNumber = (int)playerData.mCurrentSector + 1; // zero indexed
             currentGameState.SessionData.OverallPosition = (int)playerData.mRacePosition;
@@ -674,7 +674,7 @@ namespace CrewChiefV4.PCars2
             {
                 String stoppedInLandmark = currentGameState.SessionData.trackLandmarksTiming.updateLandmarkTiming(currentGameState.SessionData.TrackDefinition,
                     currentGameState.SessionData.SessionRunningTime, previousGameState.PositionAndMotionData.DistanceRoundTrack,
-                    currentGameState.PositionAndMotionData.DistanceRoundTrack, shared.mSpeed, currentGameState.SessionData.DeltaTime.currentDeltaPoint, currentGameState.carClass);
+                    currentGameState.PositionAndMotionData.DistanceRoundTrack, shared.mSpeed, currentGameState.carClass);
                 currentGameState.SessionData.stoppedInLandmark = currentGameState.PitData.InPitlane ? null : stoppedInLandmark;
                 if (currentGameState.SessionData.IsNewLap)
                 {
@@ -821,7 +821,7 @@ namespace CrewChiefV4.PCars2
                                         currentOpponentData.trackLandmarksTiming = previousOpponentData.trackLandmarksTiming;
                                         String stoppedInLandmark = currentOpponentData.trackLandmarksTiming.updateLandmarkTiming(
                                             currentGameState.SessionData.TrackDefinition, currentGameState.SessionData.SessionRunningTime,
-                                            previousDistanceRoundTrack, currentOpponentData.DistanceRoundTrack, currentOpponentData.Speed, currentOpponentData.DeltaTime.currentDeltaPoint, currentOpponentData.CarClass);
+                                            previousDistanceRoundTrack, currentOpponentData.DistanceRoundTrack, currentOpponentData.Speed, currentOpponentData.CarClass);
                                         currentOpponentData.stoppedInLandmark = currentOpponentData.InPits ? null : stoppedInLandmark;
                                     }
                                     if (currentGameState.SessionData.JustGoneGreen)

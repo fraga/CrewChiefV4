@@ -103,11 +103,11 @@ namespace CrewChiefV4.Overlay
 
         [DllImport("user32.dll")]
         static extern int ToUnicodeEx(uint wVirtKey, uint wScanCode, byte[] lpKeyState, [Out, MarshalAs(UnmanagedType.LPWStr)] StringBuilder pwszBuff, int cchBuff, uint wFlags, IntPtr dwhkl);
-        // enable user to move the window        
+        // enable user to move the window
         public SubtitleOverlay()
         {
             // initialize a new Graphics object
-            // GraphicsWindow will do the remaining initialization            
+            // GraphicsWindow will do the remaining initialization
             settings = OverlaySettings.loadOverlaySetttings<SubtitleOverlaySettings>(overlayFileName);
             if (settings.colorSchemes == null || settings.colorSchemes.Count == 0)
             {
@@ -220,7 +220,7 @@ namespace CrewChiefV4.Overlay
             lastChild.OnKeyDown += OnKeyDown;
             lastChild.OnElementDraw += OnDrawTextBox;
 
-            displayModeControlBox.AddChildElement(new ElementText(gfx, "Display time (secunds)", fontControls, new Rect(0, 62, 90, 17), defaultColorScheme, textAlign: TextAlign.Left | TextAlign.Center));
+            displayModeControlBox.AddChildElement(new ElementText(gfx, "Display time (seconds)", fontControls, new Rect(0, 62, 90, 17), defaultColorScheme, textAlign: TextAlign.Left | TextAlign.Center));
             lastChild = linkedTabStopElements.AddLast(displayModeControlBox.AddChildElement(new ElementTextBox(gfx, "display_time_textbox", fontControls, new Rect(122, 62, 30, 17),
                 defaultColorScheme, text: settings.displayTime.ToString(), initialEnableState: true, acceptInput: true, maxTextLength: 2, digitsOnly: true, textAlign: TextAlign.Left | TextAlign.Center))).Value;
             lastChild.OnKeyDown += OnKeyDown;
@@ -369,7 +369,7 @@ namespace CrewChiefV4.Overlay
             colorScheme, initialEnableState: true, internalDrawBox: false);
 
             subtitleElement.OnElementDraw += OnPhraseUpdate;
-            
+
             overlayWindow.Resize(settings.windowWidth, (int)subtitleElement.rectangle.Bottom);
 
             foreach (var element in overlayElements)
@@ -391,7 +391,7 @@ namespace CrewChiefV4.Overlay
                 {
                     bool shiftPressed = Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
                     switch ((Keys)e.wParam)
-                    {                        
+                    {
                         case Keys.Tab:
                             {
                                 if(shiftPressed)
@@ -515,7 +515,7 @@ namespace CrewChiefV4.Overlay
             }
             cleared = false;
             var gfx = e.Graphics;
-            
+
             if (keepWindowActiveBackUpOnClose)
             {
                 inputsEnabled = keepWindowActiveBackUpOnClose;
@@ -539,7 +539,7 @@ namespace CrewChiefV4.Overlay
         {
             // you may want to dispose any brushes, fonts or images
         }
-        // 
+        //
         IEnumerable<string> SplitToLines(string stringToSplit, int maximumLineLength)
         {
             var words = stringToSplit.Split(' ').Concat(new[] { "" });
@@ -578,7 +578,7 @@ namespace CrewChiefV4.Overlay
             lock (Audio.SubtitleManager.phraseBuffer)
             {
                 if(Audio.SubtitleManager.phraseBuffer.Size < 1)
-                {                    
+                {
                     string subtitle = initialSubtitle;
                     System.Drawing.SizeF textSize = textBox.font.MeasureString(subtitle);
                     if (textSize.Width > textBox.rectangle.Width)
@@ -623,7 +623,7 @@ namespace CrewChiefV4.Overlay
                 }
 
                 var phrases = Audio.SubtitleManager.phraseBuffer.ToArray();
-                
+
                 //public enum PhraseVoiceType { chief = 0, spotter, you }
                 int elementCount = settings.displayMode == DisplayMode.AlwaysOn ? settings.maxSubtitlehistory : 1;
                 for (int i = 0; i < phrases.Length && i < elementCount; i++)
@@ -632,8 +632,8 @@ namespace CrewChiefV4.Overlay
                         true;
 
                     bool shouldShowVoice = false;
-                    if ((PhraseVoiceType)phrases[i].voiceType == PhraseVoiceType.chief && (settings.displayVoices == DisplayVoices.All || 
-                        settings.displayVoices == DisplayVoices.ChiefOnly || settings.displayVoices == DisplayVoices.ChiefAndSpotter || 
+                    if ((PhraseVoiceType)phrases[i].voiceType == PhraseVoiceType.chief && (settings.displayVoices == DisplayVoices.All ||
+                        settings.displayVoices == DisplayVoices.ChiefOnly || settings.displayVoices == DisplayVoices.ChiefAndSpotter ||
                         settings.displayVoices == DisplayVoices.YouAndChief))
                     {
                         shouldShowVoice = true;
@@ -684,13 +684,13 @@ namespace CrewChiefV4.Overlay
                 // only resize the width of the window if we are not showing vr windows as it will screw with scaling.
                 if (textBox.rectangle.Bottom != overlayWindow.Height)
                 {
-                    overlayWindow.Resize((int)settings.windowWidth, (int)textBox.rectangle.Bottom);                    
-                }     
+                    overlayWindow.Resize((int)settings.windowWidth, (int)textBox.rectangle.Bottom);
+                }
                 foreach (var line in phraseLines)
                 {
                     e.graphics.DrawTextWithBackground(textBox.font, fontBrush,backgroundBrush, e.rect.Left, lineOffsetY, line, settings.windowWidth, true, likelyShownInVR || titleBar.elementEnabled);
                     lineOffsetY += (messuredFontHeight - 1);
-                }       
+                }
             }
         }
 
@@ -719,7 +719,7 @@ namespace CrewChiefV4.Overlay
                 //e.graphics.DrawText(element.font, fontBrush, e.rect.Left, e.rect.Top, element.text);
             }
             if(element.selected && DateTime.Now.Second % 2 == 0)
-            {               
+            {
                 e.graphics.DrawLine(element.secondaryBrush, (int)carretPos + e.rect.Left, e.rect.Top + 1, (int)carretPos + e.rect.Left, e.rect.Bottom - 2, 2);
             }
             return;
@@ -773,7 +773,7 @@ namespace CrewChiefV4.Overlay
         }
 
         private void OnKeyDown(object sender, OverlayElementKeyDown e)
-        {           
+        {
             ElementTextBox element = (ElementTextBox)sender;
             string text = element.text;
             if (e.key == Keys.Back)
@@ -786,14 +786,14 @@ namespace CrewChiefV4.Overlay
             if (element.digitsOnly && !int.TryParse(wChar, out _))
             {
                 return;
-            }           
+            }
             text = element.text + wChar;
             if (element.maxTextLength != 0)
             {
                 if(text.Length <= element.maxTextLength)
                 {
                     element.text = text;
-                }               
+                }
                 return;
             }
             else if (element.font.MeasureString(text).Width < element.rectangle.Width)
@@ -906,7 +906,7 @@ namespace CrewChiefV4.Overlay
             var colorSchemesListBox = colorSchemes.children.FirstOrDefault(el => el.title == "ColorScheme") as ElementListBox;
             if (colorBox != null)
             {
-                var selecteColor = colorBox.children.FirstOrDefault(el => el.GetType() == typeof(ElementRadioButton) && ((ElementRadioButton)el).enabled);                
+                var selecteColor = colorBox.children.FirstOrDefault(el => el.GetType() == typeof(ElementRadioButton) && ((ElementRadioButton)el).enabled);
                 if(selecteColor != null)
                 {
                     var red = ((ElementTextBox)colorBox.children.FirstOrDefault(el => el.title == "color_red_textbox")).text;
@@ -945,7 +945,7 @@ namespace CrewChiefV4.Overlay
                     }
 
                 }
-                
+
             }
         }
         public void OnListBoxColorSchemeSelectedObjectChange(object sender, OverlayElementClicked e)
@@ -957,14 +957,14 @@ namespace CrewChiefV4.Overlay
             if(colorScheme == null)
             {
                 return;
-            } 
+            }
             if (selecteColor.title == "Font color")
             {
                 System.Drawing.Color selectedColor = System.Drawing.Color.FromArgb(colorScheme.fontColor.ToARGB());
                 ((ElementTextBox)colorBox.children.FirstOrDefault(el => el.title == "color_red_textbox")).text = selectedColor.R.ToString();
                 ((ElementTextBox)colorBox.children.FirstOrDefault(el => el.title == "color_green_textbox")).text = selectedColor.G.ToString();
                 ((ElementTextBox)colorBox.children.FirstOrDefault(el => el.title == "color_blue_textbox")).text = selectedColor.B.ToString();
-                ((ElementTextBox)colorBox.children.FirstOrDefault(el => el.title == "color_alpha_textbox")).text = selectedColor.A.ToString();                
+                ((ElementTextBox)colorBox.children.FirstOrDefault(el => el.title == "color_alpha_textbox")).text = selectedColor.A.ToString();
             }
             else
             {
@@ -972,7 +972,7 @@ namespace CrewChiefV4.Overlay
                 ((ElementTextBox)colorBox.children.FirstOrDefault(el => el.title == "color_red_textbox")).text = selectedColor.R.ToString();
                 ((ElementTextBox)colorBox.children.FirstOrDefault(el => el.title == "color_green_textbox")).text = selectedColor.G.ToString();
                 ((ElementTextBox)colorBox.children.FirstOrDefault(el => el.title == "color_blue_textbox")).text = selectedColor.B.ToString();
-                ((ElementTextBox)colorBox.children.FirstOrDefault(el => el.title == "color_alpha_textbox")).text = selectedColor.A.ToString();                
+                ((ElementTextBox)colorBox.children.FirstOrDefault(el => el.title == "color_alpha_textbox")).text = selectedColor.A.ToString();
             }
             fontBrush = e.graphics.CreateSolidBrush(colorScheme.fontColor);
             backgroundBrush = e.graphics.CreateSolidBrush(colorScheme.backgroundColor);
@@ -990,7 +990,7 @@ namespace CrewChiefV4.Overlay
                 settings.colorSchemes.Add(new ColorScheme(colorSchemesTextBox.text, new Color(0, 0, 0), new Color(255, 255, 255)));
                 colorSchemesListBox.AddObject(colorSchemesTextBox.text);
                 colorSchemesTextBox.text = "";
-            }               
+            }
         }
     }
 }

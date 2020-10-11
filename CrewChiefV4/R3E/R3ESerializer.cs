@@ -148,6 +148,8 @@ namespace CrewChiefV4.RaceRoom
                     writeProperty(writer, "PitElapsedTime", roundRealNumber(data.PitElapsedTime), disabledProperties);
                     writeProperty(writer, "PitAction", data.PitAction, disabledProperties);
                     writeProperty(writer, "NumPitstopsPerformed", data.NumPitstopsPerformed, disabledProperties);
+                    writeProperty(writer, "PitMinDurationTotal", data.PitMinDurationTotal, disabledProperties);
+                    writeProperty(writer, "PitMinDurationLeft", data.PitMinDurationLeft, disabledProperties);
 
                     if (enabled("Flags", disabledProperties))
                     {
@@ -187,6 +189,7 @@ namespace CrewChiefV4.RaceRoom
 
                     writeProperty(writer, "NumPenalties", data.NumPenalties, disabledProperties);
                     writeProperty(writer, "CompletedLaps", data.CompletedLaps, disabledProperties);
+                    writeProperty(writer, "MaxIncidentPoints", data.MaxIncidentPoints, disabledProperties);
                     writeProperty(writer, "CurrentLapValid", data.CurrentLapValid, disabledProperties);
                     writeProperty(writer, "TrackSector", data.TrackSector, disabledProperties);
                     writeProperty(writer, "LapDistance", roundRealNumber(data.LapDistance), disabledProperties);
@@ -293,6 +296,9 @@ namespace CrewChiefV4.RaceRoom
                         writer.WriteEndObject();
                     }
                     writeProperty(writer, "BrakeBias", roundRealNumber(data.BrakeBias), disabledProperties);
+                    writeProperty(writer, "DrsNumActivationsTotal", data.DrsNumActivationsTotal, disabledProperties);
+                    writeProperty(writer, "PtPNumActivationsTotal", data.PtPNumActivationsTotal, disabledProperties);
+                    
                     writeProperty(writer, "TireType", data.TireType, disabledProperties);
                     writeCorners(writer, "TireRps", data.TireRps.FrontLeft, data.TireRps.FrontRight, data.TireRps.RearLeft, data.TireRps.RearRight, disabledProperties);
                     writeCorners(writer, "TireSpeed", data.TireSpeed.FrontLeft, data.TireSpeed.FrontRight, data.TireSpeed.RearLeft, data.TireSpeed.RearRight, disabledProperties);

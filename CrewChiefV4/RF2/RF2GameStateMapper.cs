@@ -491,7 +491,7 @@ namespace CrewChiefV4.rFactor2
             if (RF2GameStateMapper.playerName == null)
             {
                 var driverName = RF2GameStateMapper.GetStringFromBytes(playerScoring.mDriverName);
-                Validator.validate(driverName);
+                AdditionalDataProvider.validate(driverName);
                 RF2GameStateMapper.playerName = driverName;
             }
 
@@ -1730,7 +1730,7 @@ namespace CrewChiefV4.rFactor2
                 {
                     opponent.trackLandmarksTiming = opponentPrevious.trackLandmarksTiming;
                     String stoppedInLandmark = opponent.trackLandmarksTiming.updateLandmarkTiming(csd.TrackDefinition,
-                        csd.SessionRunningTime, previousDistanceRoundTrack, opponent.DistanceRoundTrack, opponent.Speed, opponent.DeltaTime.currentDeltaPoint, opponent.CarClass);
+                        csd.SessionRunningTime, previousDistanceRoundTrack, opponent.DistanceRoundTrack, opponent.Speed, opponent.CarClass);
                     opponent.stoppedInLandmark = opponent.InPits ? null : stoppedInLandmark;
                 }
 
@@ -1762,7 +1762,7 @@ namespace CrewChiefV4.rFactor2
 
                 var stoppedInLandmark = csd.trackLandmarksTiming.updateLandmarkTiming(csd.TrackDefinition,
                     csd.SessionRunningTime, previousGameState.PositionAndMotionData.DistanceRoundTrack, cgs.PositionAndMotionData.DistanceRoundTrack,
-                    cgs.PositionAndMotionData.CarSpeed, csd.DeltaTime.currentDeltaPoint, cgs.carClass);
+                    cgs.PositionAndMotionData.CarSpeed, cgs.carClass);
 
                 cgs.SessionData.stoppedInLandmark = cgs.PitData.InPitlane ? null : stoppedInLandmark;
 
@@ -1939,8 +1939,8 @@ namespace CrewChiefV4.rFactor2
 
             // --------------------------------
             // penalties data
-            cgs.PenaltiesData.NumPenalties = playerScoring.mNumPenalties;
-            if (pgs != null && cgs.PenaltiesData.NumPenalties > pgs.PenaltiesData.NumPenalties)
+            cgs.PenaltiesData.NumOutstandingPenalties = playerScoring.mNumPenalties;
+            if (pgs != null && cgs.PenaltiesData.NumOutstandingPenalties > pgs.PenaltiesData.NumOutstandingPenalties)
                 this.lastPenaltyTime = cgs.Now;
 
             var cutTrackByInvalidLapDetected = false;
@@ -2784,11 +2784,16 @@ namespace CrewChiefV4.rFactor2
 
         public static string GetStringFromBytes(byte[] bytes)
         {
-            var nullIdx = Array.IndexOf(bytes, (byte)0);
+            if (bytes != null)
+            {
+                var nullIdx = Array.IndexOf(bytes, (byte)0);
 
-            return nullIdx >= 0
-              ? Encoding.Default.GetString(bytes, 0, nullIdx)
-              : Encoding.Default.GetString(bytes);
+                return nullIdx >= 0
+                  ? Encoding.Default.GetString(bytes, 0, nullIdx)
+                  : Encoding.Default.GetString(bytes);
+            }
+            // Defensive code
+            return "";
         }
 
         public static string GetSanitizedDriverName(string nameFromGame)

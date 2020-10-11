@@ -31,6 +31,7 @@ namespace CrewChiefV4.Audio
         public static float spotterVolumeBoost = UserSettings.GetUserSettings().getFloat("spotter_volume_boost");
         public static int ttsTrimStartMilliseconds = UserSettings.GetUserSettings().getInt("tts_trim_start_milliseconds");
         public static int ttsTrimEndMilliseconds = UserSettings.GetUserSettings().getInt("tts_trim_end_milliseconds");
+        public static Boolean lazyLoadSubtitles = UserSettings.GetUserSettings().getBoolean("lazy_load_subtitles");
         private static LinkedList<String> dynamicLoadedSounds = new LinkedList<String>();
         public static Dictionary<String, SoundSet> soundSets = new Dictionary<String, SoundSet>();
         private static Dictionary<String, SingleSound> singleSounds = new Dictionary<String, SingleSound>();
@@ -633,23 +634,30 @@ namespace CrewChiefV4.Audio
                     }
                 }
             }
-            if (singleSounds.Count > 0)
+            if (singleSoundsToPlay.Count > 0)
             {
                 if (prefix != null)
                 {
-                    singleSoundsToPlay.Insert(0, prefix.getSingleSound(false));
-                    lastPersonalisedMessageTime = GameStateData.CurrentTime;
+                    SingleSound prefixSound = prefix.getSingleSound(false);
+                    if (prefixSound != null)
+                    {
+                        singleSoundsToPlay.Insert(0, prefixSound);
+                        lastPersonalisedMessageTime = GameStateData.CurrentTime;
+                    }
                 }
                 if (suffix != null)
                 {
-                    singleSoundsToPlay.Add(suffix.getSingleSound(false));
-                    lastPersonalisedMessageTime = GameStateData.CurrentTime;
+                    SingleSound suffixSound = suffix.getSingleSound(false);
+                    if (suffixSound != null)
+                    {
+                        singleSoundsToPlay.Add(suffixSound);
+                        lastPersonalisedMessageTime = GameStateData.CurrentTime;
+                    }
                 }
-                if(SubtitleManager.enableSubtitles)
+                if (SubtitleManager.enableSubtitles)
                 {
                     SubtitleManager.AddPhrase(singleSoundsToPlay, soundMetadata);
                 }
-
 
                 SoundCache.IS_PLAYING = true;
                 foreach (SingleSound singleSound in singleSoundsToPlay)
@@ -664,8 +672,12 @@ namespace CrewChiefV4.Audio
                         singleSound.Play(soundMetadata);
                     }
                 }
-                SoundCache.IS_PLAYING = false;
             }
+            else
+            {
+                Console.WriteLine("No playable sounds could be found for " + String.Join(", ", soundNames));
+            }
+            SoundCache.IS_PLAYING = false;
         }
 
         /*
@@ -1521,7 +1533,8 @@ namespace CrewChiefV4.Audio
 
         EventHandler<NAudio.Wave.StoppedEventArgs> eventHandler;
 
-        public String subtitle = "";
+        private String subtitle = "";
+        public bool loadSubtitleBeforePlaying = false;
 
         public SingleSound(int pauseLength)
         {
@@ -1548,46 +1561,69 @@ namespace CrewChiefV4.Audio
             this.cacheSoundPlayerPermanently = cacheSoundPlayerPermanently;
             if (SubtitleManager.enableSubtitles)
             {
-                try
+                if (subtitle != null)
                 {
-                    if (subtitle != null)
+                    this.subtitle = subtitle;
+                }
+                else
+                {
+                    if (SoundCache.lazyLoadSubtitles)
                     {
-                        this.subtitle = subtitle;
-                    }
-                    else if (fullPath.Contains("numbers"))
-                    {
-                        this.subtitle = SubtitleManager.ParseSubtitleForNumber(fullPath, this);
-                    }
-                    else if (fullPath.Contains("driver_names"))
-                    {
-                        this.subtitle = Path.GetFileNameWithoutExtension(fullPath);
-                        if (!string.IsNullOrWhiteSpace(this.subtitle))
-                            this.subtitle = Utilities.FirstLetterToUpper(this.subtitle);
-                    }
-                    else if (fullPath.Contains("prefixes_and_suffixes"))
-                    {
-                        this.subtitle = SubtitleManager.ParseSubtitleForPersonalisation(fullPath);
+                        this.loadSubtitleBeforePlaying = true;
                     }
                     else
                     {
-                        this.subtitle = SubtitleManager.LoadSubtitleForSound(fullPath);
+                        LoadSubtitle();
                     }
-
-                    if (string.IsNullOrWhiteSpace(this.subtitle)
-                        && !fullPath.Contains(@"\fx\")
-                        && !fullPath.Contains(@"\breath_in"))  // Shouldn't breaths be moved to fx?
-                    {
-                        Console.WriteLine($"Warning: no subtitle found for \"{fullPath}\"");
-                    }
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Failed to load subtitles for sound " + fullPath + " : " + e.StackTrace);
                 }
             }
+        }
 
-            /*if(!string.IsNullOrEmpty(subtitle))
-                Console.WriteLine("Loaded subtitle for soundFile = " + this.subtitle); */
+        public String GetSubtitle()
+        {
+            if (SubtitleManager.enableSubtitles && this.loadSubtitleBeforePlaying)
+            {
+                LoadSubtitle();
+            }
+            return this.subtitle;
+        }
+
+        private void LoadSubtitle()
+        {
+            try
+            {
+                if (fullPath.Contains("numbers"))
+                {
+                    this.subtitle = SubtitleManager.ParseSubtitleForNumber(fullPath, this);
+                }
+                else if (fullPath.Contains("driver_names"))
+                {
+                    this.subtitle = Path.GetFileNameWithoutExtension(fullPath);
+                    if (!string.IsNullOrWhiteSpace(this.subtitle))
+                        this.subtitle = Utilities.FirstLetterToUpper(this.subtitle);
+                }
+                else if (fullPath.Contains("prefixes_and_suffixes"))
+                {
+                    this.subtitle = SubtitleManager.ParseSubtitleForPersonalisation(fullPath);
+                }
+                else
+                {
+                    this.subtitle = SubtitleManager.LoadSubtitleForSound(fullPath);
+                }
+
+                if (string.IsNullOrWhiteSpace(this.subtitle)
+                    && !fullPath.Contains(@"\fx\")
+                    && !fullPath.Contains(@"\breath_in"))  // Shouldn't breaths be moved to fx?
+                {
+                    Console.WriteLine($"Warning: no subtitle found for \"{fullPath}\"");
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Failed to load subtitles for sound " + fullPath + " : " + e.StackTrace);
+            }
+            // don't retry loading the subtitle
+            this.loadSubtitleBeforePlaying = false;
         }
 
         public void LoadAndCacheFile()
@@ -1625,11 +1661,9 @@ namespace CrewChiefV4.Audio
                     }
                     catch (Exception ex)
                     {
-                        // CC was reported to crash here.  Not sure how's that possible, AFAIK all paths come the file system.
-                        // Maybe we have a race somewhere, or there's something going on during sound unpacking.  For now, trace
-                        // and keep an eye on this.
-                        Console.WriteLine(string.Format("Exception loading file:{0}  msg:{1}  stack:{2}", fullPath, ex.Message,
-                            ex.StackTrace + (ex.InnerException != null ? ex.InnerException.Message + " " + ex.InnerException.StackTrace : "")));
+                        // this can happen if the load files thread is running when file renames are being processed. While it looks
+                        // bad, the user is prompted to restart the app anyway so it doesn't break anything
+                        Console.WriteLine(string.Format("unable to load file:{0}", fullPath));
                     }
                 }
             }

@@ -794,7 +794,7 @@ namespace CrewChiefV4.assetto
 
 
             playerName = getNameFromBytes(playerVehicle.driverName);
-            Validator.validate(playerName);
+            AdditionalDataProvider.validate(playerName);
             AC_SESSION_TYPE sessionType = shared.acsGraphic.session;
 
             SessionPhase lastSessionPhase = SessionPhase.Unavailable;
@@ -1294,7 +1294,7 @@ namespace CrewChiefV4.assetto
                 if (previousGameState != null)
                 {
                     String stoppedInLandmark = currentGameState.SessionData.trackLandmarksTiming.updateLandmarkTiming(currentGameState.SessionData.TrackDefinition,
-                        currentGameState.SessionData.SessionRunningTime, previousGameState.PositionAndMotionData.DistanceRoundTrack, distanceRoundTrack, playerVehicle.speedMS, currentGameState.SessionData.DeltaTime.currentDeltaPoint, currentGameState.carClass);
+                        currentGameState.SessionData.SessionRunningTime, previousGameState.PositionAndMotionData.DistanceRoundTrack, distanceRoundTrack, playerVehicle.speedMS, currentGameState.carClass);
                     currentGameState.SessionData.stoppedInLandmark = shared.acsGraphic.isInPitLane == 1 ? null : stoppedInLandmark;
                     if (currentGameState.SessionData.IsNewLap)
                     {
@@ -1459,7 +1459,7 @@ namespace CrewChiefV4.assetto
                                         currentOpponentData.trackLandmarksTiming = previousOpponentData.trackLandmarksTiming;
                                         String stoppedInLandmark = currentOpponentData.trackLandmarksTiming.updateLandmarkTiming(
                                             currentGameState.SessionData.TrackDefinition, currentGameState.SessionData.SessionRunningTime,
-                                            previousDistanceRoundTrack, currentOpponentData.DistanceRoundTrack, currentOpponentData.Speed, currentOpponentData.DeltaTime.currentDeltaPoint, currentOpponentData.CarClass);
+                                            previousDistanceRoundTrack, currentOpponentData.DistanceRoundTrack, currentOpponentData.Speed, currentOpponentData.CarClass);
                                         currentOpponentData.stoppedInLandmark = participantStruct.isCarInPitline == 1 ? null : stoppedInLandmark;
                                     }
                                     if (currentGameState.SessionData.JustGoneGreen)

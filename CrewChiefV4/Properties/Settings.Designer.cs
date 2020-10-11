@@ -4810,5 +4810,89 @@ namespace CrewChiefV4.Properties {
                 this["rf2_enable_pit_manager"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool enable_watch_car_command {
+            get {
+                return ((bool)(this["enable_watch_car_command"]));
+            }
+            set {
+                this["enable_watch_car_command"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.96")]
+        public float trigger_word_sre_min_confidence_system_sre {
+            get {
+                return ((float)(this["trigger_word_sre_min_confidence_system_sre"]));
+            }
+            set {
+                this["trigger_word_sre_min_confidence_system_sre"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.75")]
+        public float minimum_voice_recognition_confidence_system_sre {
+            get {
+                return ((float)(this["minimum_voice_recognition_confidence_system_sre"]));
+            }
+            set {
+                this["minimum_voice_recognition_confidence_system_sre"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.7")]
+        public float minimum_name_voice_recognition_confidence_system_sre {
+            get {
+                return ((float)(this["minimum_name_voice_recognition_confidence_system_sre"]));
+            }
+            set {
+                this["minimum_name_voice_recognition_confidence_system_sre"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool lazy_load_subtitles {
+            get {
+                return ((bool)(this["lazy_load_subtitles"]));
+            }
+            set {
+                this["lazy_load_subtitles"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool show_splash_screen {
+            get {
+                return ((bool)(this["show_splash_screen"]));
+            }
+            set {
+                this["show_splash_screen"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool scroll_bars_on_main_window {
+            get {
+                return ((bool)(this["scroll_bars_on_main_window"]));
+            }
+            set {
+                this["scroll_bars_on_main_window"] = value;
+            }
+        }
     }
 }

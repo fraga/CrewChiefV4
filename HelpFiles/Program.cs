@@ -25,7 +25,7 @@ namespace HelpFiles
                 "index",
                 "GettingStarted_General",
                 "GettingStarted_nAudio",
-                //"GettingStarted_GameSpecific",
+                "GettingStarted_ControlButtons",
                 "Speech_DriverNames",
                 "Speech_Swearing",
                 "Speech_TextToSpeech",
@@ -87,7 +87,8 @@ namespace HelpFiles
                 "CrewChief.png",
                 "VoiceRecognition_InstallationTraining.png",
                 "engineer_edited.ico",
-                "engineer_edited_transparent.png"
+                "engineer_edited_transparent.png",
+                "CC_Talk_to_CC.png"
             })
             {
                 System.IO.File.Copy($"..\\..\\{file}", $"..\\..\\..\\public\\{file}", true);

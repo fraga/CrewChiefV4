@@ -485,6 +485,8 @@ namespace CrewChiefV4
                     Console.WriteLine("No spotter defined for game " + gameDefinition.friendlyName);
                     spotter = null;
                 }
+                // force pcars3 to be single class because it probably is, i don't own it and it's not very good
+                CrewChief.forceSingleClass = gameDefinition.gameEnum == GameEnum.PCARS3;
                 running = true;
                 if (!audioPlayer.initialised)
                 {

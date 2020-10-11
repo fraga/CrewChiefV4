@@ -149,7 +149,7 @@ namespace CrewChiefV4.rFactor1
             if (playerName == null)
             {
                 String driverName = getStringFromBytes(player.driverName).ToLower();
-                Validator.validate(driverName);
+                AdditionalDataProvider.validate(driverName);
                 playerName = driverName;
             }
             // these things should remain constant during a session
@@ -897,7 +897,7 @@ namespace CrewChiefV4.rFactor1
                 {
                     opponent.trackLandmarksTiming = opponentPrevious.trackLandmarksTiming;
                     String stoppedInLandmark = opponent.trackLandmarksTiming.updateLandmarkTiming(currentGameState.SessionData.TrackDefinition,
-                        currentGameState.SessionData.SessionRunningTime, previousDistanceRoundTrack, opponent.DistanceRoundTrack, opponent.Speed, opponent.DeltaTime.currentDeltaPoint, opponent.CarClass);
+                        currentGameState.SessionData.SessionRunningTime, previousDistanceRoundTrack, opponent.DistanceRoundTrack, opponent.Speed, opponent.CarClass);
                     opponent.stoppedInLandmark = opponent.InPits ? null : stoppedInLandmark;
                 }
                 if (opponent.IsNewLap)
@@ -925,7 +925,7 @@ namespace CrewChiefV4.rFactor1
                 currentGameState.SessionData.trackLandmarksTiming = previousGameState.SessionData.trackLandmarksTiming;
                 String stoppedInLandmark = currentGameState.SessionData.trackLandmarksTiming.updateLandmarkTiming(currentGameState.SessionData.TrackDefinition,
                                     currentGameState.SessionData.SessionRunningTime, previousGameState.PositionAndMotionData.DistanceRoundTrack,
-                                    currentGameState.PositionAndMotionData.DistanceRoundTrack, shared.speed, currentGameState.SessionData.DeltaTime.currentDeltaPoint, currentGameState.carClass);
+                                    currentGameState.PositionAndMotionData.DistanceRoundTrack, shared.speed, currentGameState.carClass);
                 currentGameState.SessionData.stoppedInLandmark = currentGameState.PitData.InPitlane ? null : stoppedInLandmark;
                 if (currentGameState.SessionData.IsNewLap)
                 {
@@ -1028,7 +1028,7 @@ namespace CrewChiefV4.rFactor1
 
             // --------------------------------
             // penalties data
-            currentGameState.PenaltiesData.NumPenalties = player.numPenalties;
+            currentGameState.PenaltiesData.NumOutstandingPenalties = player.numPenalties;
 
             if (previousGameState != null)
             {

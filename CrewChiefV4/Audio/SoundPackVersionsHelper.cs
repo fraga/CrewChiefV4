@@ -9,10 +9,11 @@ namespace CrewChiefV4.Audio
 {
     class SoundPackVersionsHelper
     {
+        // these really should be integers...
         public static float currentSoundPackVersion = -1;
         public static float currentDriverNamesVersion = -1;
         public static float currentPersonalisationsVersion = -1;
-
+        
         public static float latestSoundPackVersion = -1;
         public static float latestDriverNamesVersion = -1;
         public static float latestPersonalisationsVersion = -1;
@@ -85,7 +86,7 @@ namespace CrewChiefV4.Audio
                     foreach (XElement element in doc.Descendants("sounds"))
                     {
                         XAttribute languageAttribute = element.Attribute(XName.Get("language", ""));
-                        if (languageAttribute.Value == languageToCheck)
+                        if (languageToCheck.Equals(languageAttribute.Value, StringComparison.InvariantCultureIgnoreCase))
                         {
                             // this is the update set for this language
                             XElement voiceMessagesElement = element.Descendants("voice-messages").First();

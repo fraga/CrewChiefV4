@@ -13,19 +13,105 @@
     alink="#EE0000">
     <div style="font-family:'Lucida Sans Unicode';font-size:13px;"
       class="main">
+      <h4>Version 4.13.1.7<br>
+      </h4>
+      &nbsp; * Changed "<b>watch</b>" commands to be "<b>monitor</b>"
+      ("monitor [opponent name / the car ahead / p12 / the leader /
+      etc]" / stop monitoring [opponent name / etc] / stop monitoring
+      all etc) - the word "watch" is too similar to "what's" so was
+      being regularly misinterpreted by the speech recogniser<br>
+      &nbsp; * Fix some issues with macros not applying to the correct
+      application window<br>
+      &nbsp; * ACC - fix penalty logic<br>
+      &nbsp; * ACC - fix for the app repeating laptime in hotstint mode<br>
+      &nbsp; * RBR - subtitles fix<br>
+      &nbsp; * R3E - reduced optimial tyre temps for F-Junior<br>
+      &nbsp; * R3E - retry ratings downloads with http / https toggled<br>
+      <h4>Version 4.13.1.6</h4>
+      &nbsp; * Hotfix for iRacing crash bug (sorry guys)<br>
+      <h4>Version 4.13.1.5</h4>
+      &nbsp; * Added some interpolation for car timing positions -
+      should address issues with wildly inaccurate gap messages where
+      stale data (1 lap old) was being used to calculate gaps; ACC -
+      fixed player car always being in a separate car class from
+      opponents (should fix at least some of the inaccurate position
+      calls)<br>
+      &nbsp; * ACC - workaround for unsynchronised lap distance and laps
+      completed data - should improve car position calls in online races<br>
+      <h4>Version 4.13.1.3</h4>
+      <p>&nbsp; * Splash screen optional.<br>
+        &nbsp; * Sound internal sound player wiring fixes<br>
+        &nbsp; * Don't attempt to show subtitles when there is nothing
+        to show<br>
+        &nbsp; * RF2 - Pit Manager: change tyres as part of tyre type
+        commands (so you don't have to make two separate commands to
+        change tyre type).&nbsp; Fix tyre selection method for choosing
+        available tyres from commands "Soft", "Hard", "Wet" etc. "Clear
+        all" clears tyre changes, fuel, any penalties and any damage
+        repair<br>
+      </p>
+      <h4>Version 4.13.1.2</h4>
+      <p>&nbsp; * Hotfix for startup crash for new users<br>
+      </p>
+      <h4>Version 4.13.1.1</h4>
+      <p>&nbsp; * Added separate voice recognition sensitivity threshold
+        values for when using the built-in Windows speech recogniser.
+        These are higher (particularly for the 'Trigger word') and
+        should stop a lot of the false-positives (again, especially for
+        the 'Trigger word') when using the 'Prefer Windows speech
+        recogniser' option<br>
+        &nbsp; * Fix z-offset not saving for some VR overlays<br>
+        &nbsp; * Allow the 'Watch opponent' function to be disabled
+        (added 'Enable watch opponent commands' property, default
+        enabled)<br>
+        &nbsp; * Fix bug playing start-listening beep using Trigger Word
+        voice recognition mode and nAudio<br>
+        &nbsp; * Added shortcut key bindings to toggle VR overlays<br>
+        &nbsp; * Added option to control when subtitles are loaded. If
+        the property 'Lazy load subtitles' is enabled the subtitles are
+        loaded only when needed. This can improve app launch times when
+        using subtitles but may increase app resource use when driving<br>
+        &nbsp; * R3E - fix for incorrect session length message with
+        time + 1 extra lap race sessions<br>
+        &nbsp; * iRacing - added Meatball flag message and generic
+        pit-to-serve-penalty message (the app doesn't know if it's a
+        drive-through or a stop-and-go penalty)<br>
+        &nbsp; * RF2 &amp; RBR - fix app crash when restarting the app<br>
+      </p>
+      <h4>Version 4.13.1.0</h4>
+      <p>&nbsp;* Fixed some cases where the app would use text-to-speech
+        driver names when it shouldn't when the TTS settings was 'Use
+        TTS only when necessary';<br>
+        &nbsp;* pCars3 - always assume races are single class<br>
+        &nbsp;* R3E - added support for DTM 2020 rules (push to pass and
+        DRS)<br>
+        &nbsp;* R3E - added support for minimum pit stop duration
+        (calculates how long you need to wait in the pitbox and warns
+        you about it - note that this calculation requires you to have
+        driven out of the pits at least once since starting the app to
+        record the track's pit exit location)<br>
+        &nbsp;* R3E - added support for maximum incident points on
+        ranked servers before being kicked (warnings about further
+        incidents resulting in a DQ / kick)<br>
+        &nbsp;* R3E - reduced some engine temp warning thresholds<br>
+        &nbsp;* rF2 - enhanced pit menu manager to work with "Relative
+        Fuel Strategy" (how much to add rather than the total) and races
+        that have "Finish Criteria: Laps and Time" some other fixes<br>
+      </p>
       <h4>Version 4.13.0.2<br>
       </h4>
-      <p>* VR overlays: Fixed gazing. Added an option to change tracking
-        space for overlays (Seated/Standing/Follow Head); <br>
-        * Added an option to only use sounds which are gender-neutral.
-        The app has, historically, assumed all players are male so
-        contains lots of sounds with words like words like 'man', 'guy',
-        'he' etc which is a bit silly. If you enable the 'Block sounds
-        which refer to drivers as male' property the app will only use
-        sounds that are gender-neutral ('driver', 'car', etc). Note that
-        this requires the latest sound pack update to work;<br>
-        * RF2 - tweaked the behaviour of the pit manager system so it
-        only inspects the pit menu layout when it's first invoked,
+      <p>&nbsp;* VR overlays: Fixed gazing. Added an option to change
+        tracking space for overlays (Seated/Standing/Follow Head); <br>
+        &nbsp;* Added an option to only use sounds which are
+        gender-neutral. The app has, historically, assumed all players
+        are male so contains lots of sounds with words like words like
+        'man', 'guy', 'he' etc which is a bit silly. If you enable the
+        'Block sounds which refer to drivers as male' property the app
+        will only use sounds that are gender-neutral ('driver', 'car',
+        etc). Note that this requires the latest sound pack update to
+        work;<br>
+        &nbsp;* RF2 - tweaked the behaviour of the pit manager system so
+        it only inspects the pit menu layout when it's first invoked,
         rather than at the start of a session; Added an option to
         disable the pit menu manager ('enable rF2 pit manager'
         property); Fixed initialisation of pit menu manager<br>
@@ -705,6 +791,11 @@
       only). See the 'Advanced command macros' section of the help.txt
       file or
       http://thecrewchief.org/showthread.php?263-Command-key-press-macros&amp;p=2378&amp;viewfull=1#post2378
+
+
+
+
+
 
 
 
@@ -1752,6 +1843,11 @@
       folder with the new one in the app's install folder<br>
       &nbsp;&nbsp;* New plugin for RF2 - please replace your existing
       ...\Steam\steamapps\common\rFactor2\Bin64\Plugins\rFactor2SharedMemoryMapPlugin64.dll
+
+
+
+
+
 
 
 

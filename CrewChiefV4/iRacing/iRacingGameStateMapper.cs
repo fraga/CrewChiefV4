@@ -113,7 +113,7 @@ namespace CrewChiefV4.iRacing
             {
                 leaderCar = playerCar;
             }
-            Validator.validate(playerName);
+            AdditionalDataProvider.validate(playerName);
 
             currentGameState.SafetyCarData = GetSafetyCarData(previousGameState == null ? null : previousGameState.SafetyCarData, shared.PaceCar, 
                 (float)(shared.SessionData.Track.Length * 1000), shared.PaceCarPresent && shared.Drivers.Count <= shared.Telemetry.NumberOfCarsEnabled);                      
@@ -146,7 +146,8 @@ namespace CrewChiefV4.iRacing
                 Console.WriteLine("TrackPitSpeedLimit = " + shared.SessionData.Track.TrackPitSpeedLimit);
                 Console.WriteLine("CourseCautions = " + shared.SessionData.CourseCautions);
                 Console.WriteLine("Restarts = " + shared.SessionData.Restarts);
-                if(shared.Telemetry.NumberOfCarsEnabled < shared.Drivers.Count && shared.PaceCarPresent)
+                Console.WriteLine("TrackCodeName " + shared.SessionData.Track.CodeName + " Track Reported Length " + (float)shared.SessionData.Track.Length * 1000);
+                if (shared.Telemetry.NumberOfCarsEnabled < shared.Drivers.Count && shared.PaceCarPresent)
                 {
                     Console.WriteLine("Advanced Safety/Pace Car calls has been disable for this session, to enable increase the Max Cars in iRacing graphics settings to " + shared.Drivers.Count + ". And restart the app");
                 }                
@@ -756,10 +757,7 @@ namespace CrewChiefV4.iRacing
             SessionFlags flag = (SessionFlags)shared.Telemetry.SessionFlags;
             if (flag.HasFlag(SessionFlags.Black) && !flag.HasFlag(SessionFlags.Furled))
             {
-                if (currentGameState.PitData.OnInLap || currentGameState.PitData.OnOutLap)
-                    currentGameState.PenaltiesData.HasStopAndGo = true;
-                else
-                    currentGameState.PenaltiesData.HasDriveThrough = true;
+                currentGameState.PenaltiesData.HasPitStop = true;
             }
             if (flag.HasFlag(SessionFlags.Furled) && currentGameState.SessionData.SessionType != SessionType.Qualify)
             {
@@ -767,7 +765,7 @@ namespace CrewChiefV4.iRacing
             }
             if (flag.HasFlag(SessionFlags.Repair))
             {
-                currentGameState.PenaltiesData.HasPitStop = true;
+                currentGameState.PenaltiesData.HasMeatballFlag = true;
             }
             if (flag.HasFlag(SessionFlags.YellowWaving))
             {
@@ -792,13 +790,13 @@ namespace CrewChiefV4.iRacing
             currentGameState.PitData.PitSpeedLimit = shared.SessionData.Track.TrackPitSpeedLimit;
 
             currentGameState.SessionData.DeltaTime.SetNextDeltaPoint(currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.SessionData.CompletedLaps,
-                (float)playerCar.Live.Speed, currentGameState.Now, !currentGameState.PitData.InPitlane && !currentGameState.PitData.IsApproachingPitlane && !currentGameState.PitData.OnOutLap);
+                (float)playerCar.Live.Speed, currentGameState.Now, !currentGameState.PitData.InPitlane && !currentGameState.PitData.IsApproachingPitlane && !currentGameState.PitData.OnOutLap && playerCar.Live.TrackSurface != TrackSurfaces.NotInWorld);
 
             if (previousGameState != null)
             {
                 String stoppedInLandmark = currentGameState.SessionData.trackLandmarksTiming.updateLandmarkTiming(currentGameState.SessionData.TrackDefinition,
                     currentGameState.SessionData.SessionRunningTime, previousGameState.PositionAndMotionData.DistanceRoundTrack,
-                    currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.PositionAndMotionData.CarSpeed, currentGameState.SessionData.DeltaTime.currentDeltaPoint, currentGameState.carClass);
+                    currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.PositionAndMotionData.CarSpeed, currentGameState.carClass);
                 currentGameState.SessionData.stoppedInLandmark = currentGameState.PitData.InPitlane ? null : stoppedInLandmark;
             }
             if (playerCar.Live.HasCrossedSFLine)
@@ -990,7 +988,7 @@ namespace CrewChiefV4.iRacing
                                 currentOpponentData.trackLandmarksTiming = previousOpponentData.trackLandmarksTiming;
                                 String stoppedInLandmark = currentOpponentData.trackLandmarksTiming.updateLandmarkTiming(
                                     currentGameState.SessionData.TrackDefinition, currentGameState.SessionData.SessionRunningTime,
-                                    previousDistanceRoundTrack, currentOpponentData.DistanceRoundTrack, currentOpponentData.Speed, currentOpponentData.DeltaTime.currentDeltaPoint, currentOpponentData.CarClass);
+                                    previousDistanceRoundTrack, currentOpponentData.DistanceRoundTrack, currentOpponentData.Speed, currentOpponentData.CarClass);
                                 currentOpponentData.stoppedInLandmark = shared.Telemetry.CarIdxOnPitRoad[driver.Id] || !isInWorld || finishedAllottedRaceTime || finishedAllottedRaceLaps || driver.Live.TrackSurface == TrackSurfaces.AproachingPits ? null : stoppedInLandmark;
                             }
                             if (currentGameState.SessionData.JustGoneGreen)
@@ -1136,11 +1134,11 @@ namespace CrewChiefV4.iRacing
             currentGameState.SessionData.MaxIncidentCount = shared.SessionData.IncidentLimit;
             if(currentGameState.PenaltiesData.HasSlowDown)
             {
-                currentGameState.PenaltiesData.NumPenalties++;
+                currentGameState.PenaltiesData.NumOutstandingPenalties++;
             }
-            if (currentGameState.PenaltiesData.HasStopAndGo)
+            if (currentGameState.PenaltiesData.HasPitStop)
             {
-                currentGameState.PenaltiesData.NumPenalties++;
+                currentGameState.PenaltiesData.NumOutstandingPenalties++;
             }
             currentGameState.TyreData.FrontLeftPressure = shared.Telemetry.LFcoldPressure;
             currentGameState.TyreData.FrontRightPressure = shared.Telemetry.RFcoldPressure;

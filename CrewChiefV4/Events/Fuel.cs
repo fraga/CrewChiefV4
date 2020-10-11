@@ -117,7 +117,7 @@ namespace CrewChiefV4.Events
         private Boolean played1LitreWarning;
 
         private Boolean played2LitreWarning;
-        
+
         // base fuel use by lap estimates on the last 3 laps
         private int fuelUseByLapsWindowLengthToUse = 3;
         private int fuelUseByLapsWindowLengthVeryShort = 5;
@@ -125,7 +125,7 @@ namespace CrewChiefV4.Events
         private int fuelUseByLapsWindowLengthMedium = 3;
         private int fuelUseByLapsWindowLengthLong = 2;
         private int fuelUseByLapsWindowLengthVeryLong = 1;
-        
+
         // base fuel use by time estimates on the last 6 samples (6 minutes)
         private int fuelUseByTimeWindowLength = 6;
 
@@ -228,7 +228,7 @@ namespace CrewChiefV4.Events
             nextFuelStatusCheck = DateTime.MinValue;
             sessionHasFixedNumberOfLaps = false;
             lapsCompletedSinceFuelReset = 0;
-            
+
             lapsRemaining = -1;
             secondsRemaining = -1;
             hasExtraLap = false;
@@ -285,15 +285,15 @@ namespace CrewChiefV4.Events
             if (fuelUseActive && !GameStateData.onManualFormationLap &&
                 currentGameState.SessionData.SessionRunningTime > 15 &&
                 ((currentGameState.SessionData.SessionType == SessionType.Race &&
-                    (currentGameState.SessionData.SessionPhase == SessionPhase.Green || 
-                     currentGameState.SessionData.SessionPhase == SessionPhase.FullCourseYellow || 
+                    (currentGameState.SessionData.SessionPhase == SessionPhase.Green ||
+                     currentGameState.SessionData.SessionPhase == SessionPhase.FullCourseYellow ||
                      currentGameState.SessionData.SessionPhase == SessionPhase.Checkered)) ||
                  ((currentGameState.SessionData.SessionType == SessionType.Qualify ||
-                   currentGameState.SessionData.SessionType == SessionType.Practice || 
+                   currentGameState.SessionData.SessionType == SessionType.Practice ||
                    currentGameState.SessionData.SessionType == SessionType.HotLap ||
                    currentGameState.SessionData.SessionType == SessionType.LonePractice) &&
-                    (currentGameState.SessionData.SessionPhase == SessionPhase.Green || 
-                     currentGameState.SessionData.SessionPhase == SessionPhase.FullCourseYellow || 
+                    (currentGameState.SessionData.SessionPhase == SessionPhase.Green ||
+                     currentGameState.SessionData.SessionPhase == SessionPhase.FullCourseYellow ||
                      currentGameState.SessionData.SessionPhase == SessionPhase.Countdown) &&
                     // don't process fuel data in prac and qual until we're actually moving:
                     currentGameState.PositionAndMotionData.CarSpeed > 10)))
@@ -307,7 +307,7 @@ namespace CrewChiefV4.Events
                     (fuelLevelWindowByTime.Count() > 0 && fuelLevelWindowByTime[0] > 0 && currentGameState.FuelData.FuelLeft > fuelLevelWindowByTime[0] + 1) ||
                     (currentGameState.SessionData.SessionType != SessionType.Race && previousGameState != null && previousGameState.PitData.InPitlane && !currentGameState.PitData.InPitlane))
                 {
-                    // first time in, fuel has increased, or pit exit so initialise our internal state. Note we don't blat the average use data - 
+                    // first time in, fuel has increased, or pit exit so initialise our internal state. Note we don't blat the average use data -
                     // this will be replaced when we get our first data point but it's still valid until we do.
                     fuelLevelWindowByTime = new List<float>();
                     fuelLevelWindowByLap = new List<float>();
@@ -371,7 +371,13 @@ namespace CrewChiefV4.Events
                                     break;
                             }
                         }
-                        if (currentGameState.SessionData.SessionNumberOfLaps > 1)
+                        if (currentGameState.SessionData.SessionNumberOfLaps > 1
+                            &&
+                            // rF2 has "Finish Criteria: Laps and Time", if that's selected then ignore laps
+                            //  and calculate fuel based on time (sub-optimal but at least it won't run out of fuel)
+                            !(CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT
+                                  && currentGameState.SessionData.SessionHasFixedTime)
+                            )
                         {
                             sessionHasFixedNumberOfLaps = true;
                             if (halfDistance == -1)
@@ -424,25 +430,25 @@ namespace CrewChiefV4.Events
                                     maxConsumptionPerMinute = 60 * thisLapFuelUse / currentGameState.SessionData.LapTimePrevious;
                                 }
                                 averageUsagePerLap += thisLapFuelUse;
-                            }                            
+                            }
                             averageUsagePerLap = averageUsagePerLap / fuelUseByLapsWindowLengthToUse;
                             historicAverageUsagePerLap.Add(averageUsagePerLap);
                             if(fuelReportsInGallon)
                             {
-                                Console.WriteLine("Fuel use per lap: windowed calc=" + 
+                                Console.WriteLine("Fuel use per lap: windowed calc=" +
                                     convertLitersToGallons(averageUsagePerLap).ToString("0.000") +
-                                    ", max per lap=" + 
+                                    ", max per lap=" +
                                     convertLitersToGallons(maxConsumptionPerLap).ToString("0.000") +
-                                    " fuel(gallons) left=" + 
+                                    " fuel(gallons) left=" +
                                     convertLitersToGallons(currentGameState.FuelData.FuelLeft).ToString("0.000"));
                             }
                             else
                             {
-                                Console.WriteLine("Fuel use per lap: windowed calc=" + 
+                                Console.WriteLine("Fuel use per lap: windowed calc=" +
                                     averageUsagePerLap.ToString("0.000") +
-                                    ", max per lap=" + 
-                                    maxConsumptionPerLap.ToString("0.000") + 
-                                    " fuel(liters) left=" + 
+                                    ", max per lap=" +
+                                    maxConsumptionPerLap.ToString("0.000") +
+                                    " fuel(liters) left=" +
                                     currentGameState.FuelData.FuelLeft.ToString("0.000"));
                             }
                         }
@@ -486,14 +492,14 @@ namespace CrewChiefV4.Events
                             historicAverageUsagePerMinute.Add(averageUsagePerMinute);
                             if (fuelReportsInGallon)
                             {
-                                Console.WriteLine("Fuel use per minute: windowed calc=" + convertLitersToGallons(averageUsagePerMinute).ToString("0.000") + 
-                                    ", max per lap calc=" + convertLitersToGallons(maxConsumptionPerMinute).ToString("0.000") + 
+                                Console.WriteLine("Fuel use per minute: windowed calc=" + convertLitersToGallons(averageUsagePerMinute).ToString("0.000") +
+                                    ", max per lap calc=" + convertLitersToGallons(maxConsumptionPerMinute).ToString("0.000") +
                                     " fuel(gallons) left=" + convertLitersToGallons(currentGameState.FuelData.FuelLeft).ToString("0.000"));
                             }
                             else
                             {
                                 Console.WriteLine("Fuel use per minute: windowed calc=" + averageUsagePerMinute.ToString("0.000") +
-                                    ", max per lap calc=" + maxConsumptionPerMinute.ToString("0.000") + 
+                                    ", max per lap calc=" + maxConsumptionPerMinute.ToString("0.000") +
                                     " fuel left(liters)=" + currentGameState.FuelData.FuelLeft.ToString("0.000"));
                             }
                         }
@@ -612,7 +618,7 @@ namespace CrewChiefV4.Events
                                 else
                                 {
                                     Console.WriteLine("4 laps fuel left, starting fuel = " + initialFuelLevel.ToString("0.000") +
-                                            ", current fuel = " + currentGameState.FuelData.FuelLeft.ToString("0.000") + ", usage per lap = " + averageUsagePerLapToCheck.ToString("0.000"));  
+                                            ", current fuel = " + currentGameState.FuelData.FuelLeft.ToString("0.000") + ", usage per lap = " + averageUsagePerLapToCheck.ToString("0.000"));
                                 }
                                 if (canPlayFuelMessage())
                                 {
@@ -751,7 +757,7 @@ namespace CrewChiefV4.Events
                                 playedTwoMinutesRemaining = true;
                                 playedFiveMinutesRemaining = true;
                                 playedTenMinutesRemaining = true;
-                                float cutoffForRefuelCall = 120;  
+                                float cutoffForRefuelCall = 120;
                                 //  needs to be <= as PlayerLapTimeSessionBest is initialized to -1
                                 if (benchmarkLaptime != -1)
                                 {
@@ -801,7 +807,7 @@ namespace CrewChiefV4.Events
                                     lastFuelCall = currentGameState.Now;
                                 }
                             }
-                            else if (!playedHalfTankWarning && currentGameState.FuelData.FuelLeft / initialFuelLevel <= 0.50 && 
+                            else if (!playedHalfTankWarning && currentGameState.FuelData.FuelLeft / initialFuelLevel <= 0.50 &&
                                 currentGameState.FuelData.FuelLeft / initialFuelLevel >= 0.47 && !hasBeenRefuelled)
                             {
                                 // warning message for fuel left - these play as soon as the fuel reaches 1/2 tank left
@@ -833,12 +839,12 @@ namespace CrewChiefV4.Events
                                 {
                                     // sanity check this
                                     int lapLimit = 2;
-                                    if (currentGameState.SessionData.TrackDefinition.trackLengthClass == TrackData.TrackLengthClass.VERY_LONG || 
+                                    if (currentGameState.SessionData.TrackDefinition.trackLengthClass == TrackData.TrackLengthClass.VERY_LONG ||
                                         currentGameState.SessionData.TrackDefinition.trackLengthClass == TrackData.TrackLengthClass.LONG) {
                                         lapLimit = 1;
                                     }
-                                    else if (currentGameState.SessionData.TrackDefinition.trackLengthClass == TrackData.TrackLengthClass.VERY_SHORT || 
-                                        currentGameState.SessionData.TrackDefinition.trackLengthClass == TrackData.TrackLengthClass.SHORT) 
+                                    else if (currentGameState.SessionData.TrackDefinition.trackLengthClass == TrackData.TrackLengthClass.VERY_SHORT ||
+                                        currentGameState.SessionData.TrackDefinition.trackLengthClass == TrackData.TrackLengthClass.SHORT)
                                     {
                                         lapLimit = 4;
                                     }
@@ -957,7 +963,7 @@ namespace CrewChiefV4.Events
 
                 Debug.Assert(queuedMessage != null);
                 if (individualResponse)
-                { 
+                {
                     if (this.delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
                     {
                         this.audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(queuedMessage, 5 /*lowerDelayBoundInclusive*/, 8 /*upperDelayBound*/);
@@ -1001,7 +1007,7 @@ namespace CrewChiefV4.Events
                         // for gallons we want both whole and fractional part cause its a stupid unit.
                         Tuple<int, int> wholeandfractional = Utilities.WholeAndFractionalPart(totalUsage);
                         if (wholeandfractional.Item2 > 0)
-                        {                            
+                        {
                             messageFragments.AddRange(MessageContents(wholeandfractional.Item1, NumberReader.folderPoint, wholeandfractional.Item2, folderGallons));
                         }
                         else
@@ -1053,7 +1059,7 @@ namespace CrewChiefV4.Events
                 {
                     haveData = true;
                     // build up the message fragments the verbose way, so we can prevent the number reader from shortening hundreds to
-                    // stuff like "one thirty two" - we always want "one hundred and thirty two"    
+                    // stuff like "one thirty two" - we always want "one hundred and thirty two"
                     List<MessageFragment> messageFragments = new List<MessageFragment>();
                     messageFragments.Add(MessageFragment.Text(folderFor));
                     messageFragments.Add(MessageFragment.Time(TimeSpanWrapper.FromMinutes(timeToUse, Precision.MINUTES)));
@@ -1263,7 +1269,7 @@ namespace CrewChiefV4.Events
                 {
                     float minRemainingFuelToBeSafe = getMinFuelRemainingToBeConsideredSafe();
 
-                    // litresToEnd to end is a measure of how much fuel we need to add to get to the end. If it's 
+                    // litresToEnd to end is a measure of how much fuel we need to add to get to the end. If it's
                     // negative we have fuel to spare
                     if (litresToEnd <= 0 && litresToEnd * -1 < minRemainingFuelToBeSafe)
                     {
@@ -1338,7 +1344,7 @@ namespace CrewChiefV4.Events
          * gets a quick n dirty estimate of what counts for 'safe' in fuel terms - if we have this many litres
          * remaining.
          * Base this on consumption per lap if we have it, otherwise use track length.
-         * 
+         *
          * This is intented to be about half a lap's worth of fuel
          */
         private float getMinFuelRemainingToBeConsideredSafe()
@@ -1421,7 +1427,7 @@ namespace CrewChiefV4.Events
                 if (!fuelUseActive || litresNeeded == float.MaxValue)
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
-                } 
+                }
                 else if (litresNeeded < 0)
                 {
                     if (litresNeeded * -1 > fuelToBeSafe)
@@ -1494,14 +1500,14 @@ namespace CrewChiefV4.Events
                     if (!reportFuelConsumptionForLaps(unit))
                     {
                         audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
-                    } 
+                    }
                 }
                 else if(SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.MINUTE) || SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.MINUTES))
                 {
                     if (!reportFuelConsumptionForTime(0, unit))
                     {
                         audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
-                    } 
+                    }
                 }
                 else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOUR) || SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOURS))
                 {
@@ -1528,7 +1534,7 @@ namespace CrewChiefV4.Events
             {
                 // OK, here's where' the fuel calculations are a bit awkward. AverageUsagePerLap and AverageUsagePerMinute
                 // are based on your recent consumption. If you're stretching the fuel out towards the pitstop, this is going
-                // to skew these quantities and the calculation will assume you'll carry on driving like this, which isn't 
+                // to skew these quantities and the calculation will assume you'll carry on driving like this, which isn't
                 // necessarily the case. So if we're asking for the litresToEnd *with* the reserve, assume we want the overall
                 // average consumption, not the recent consumption
 
@@ -1680,7 +1686,7 @@ namespace CrewChiefV4.Events
                 if (lapsCompletedSinceFuelReset > minLaps && averageUsagePerMinuteToUse > 0)
                 {
                     float litersNeeded = getLitresToEndOfRace(false);
-                    gotPredictedPitWindow = true;                    
+                    gotPredictedPitWindow = true;
                     if (litersNeeded > 0)
                     {
                         // more then 1 stop needed
@@ -1743,7 +1749,7 @@ namespace CrewChiefV4.Events
         private Boolean canUseLastLapForMaxPerLapFuelConsumption(GameStateData currentGameState)
         {
             return currentGameState.SessionData.PreviousLapWasValid && currentGameState.SessionData.LapTimePrevious > 0 &&
-                currentGameState.SessionData.PlayerLapTimeSessionBest > 0 && !currentGameState.PitData.InPitlane && 
+                currentGameState.SessionData.PlayerLapTimeSessionBest > 0 && !currentGameState.PitData.InPitlane &&
                 currentGameState.SessionData.LapTimePrevious < currentGameState.SessionData.PlayerLapTimeSessionBest + LapTimes.outlierPaceLimits[currentGameState.SessionData.TrackDefinition.trackLengthClass];
         }
 
@@ -1760,8 +1766,8 @@ namespace CrewChiefV4.Events
         // don't allow some automatic fuel messages to play if the last fuel message was < 30 seconds ago
         private static Boolean canPlayFuelMessage()
         {
-            return CrewChief.currentGameState != null 
-                && CrewChief.currentGameState.Now != null 
+            return CrewChief.currentGameState != null
+                && CrewChief.currentGameState.Now != null
                 && CrewChief.currentGameState.Now > lastFuelCall.AddSeconds(30);
         }
     }

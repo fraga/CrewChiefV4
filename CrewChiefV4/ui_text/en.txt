@@ -1,7 +1,7 @@
 # this is a comment - any blank line or line starting with # is ignored
 
 # This file contains default user interface text Strings, ***** and will be overwritten when the app is updated *****.
-# The text in here can be overridden by creating another file called "ui_text.txt" and placing this in 
+# The text in here can be overridden by creating another file called "ui_text.txt" and placing this in
 # [user]/AppData/local/CrewChiefV4/
 #
 # Any text set in that file will replace the corresponding default here
@@ -26,6 +26,7 @@ personalisations_are_up_to_date = Personalisations are up to date
 stop = &Stop
 stop_and_save = &Stop and Save trace
 start_application = &Start application
+incremental_updates_count = updates to apply
 
 pcars_64_bit = pCARS (64 bit)
 pcars_32_bit = pCARS (32 bit)
@@ -169,7 +170,7 @@ personalisation_tooltip = Choose a name you'd like Chief to call you (requires r
 
 install_plugin_popup_text = Crew Chief needs additional files to be installed or updated for the selected game. Click OK to install or Cancel to Return
 install_plugin_popup_title = Plugin Needed
-install_plugin_select_directory_start = Please select 
+install_plugin_select_directory_start = Please select
 install_plugin_select_directory_end = installation directory
 install_plugin_popup_enable_text = Crew Chief can automatically enable the plugin for you, if you select Cancel you will have to enable it manually in the game ui. Click OK to enable or Cancel to Return
 install_plugin_popup_enable_title = Enable Plugin
@@ -223,7 +224,7 @@ check_for_updates_title = Force update check
 donate_link_text = Donate to Support Crew Chief development
 toggle_manual_formation_lap = Toggle manual formation lap mode
 read_corner_names_for_lap = Read corner names for current lap
-the_application_must_be_restarted_to_switch_between_circuit_and_rally_racing = The application must be restarted to witch between Circuit and Rally racing. Click OK to restart the application.
+the_application_must_be_restarted_to_switch_between_circuit_and_rally_racing = The application must be restarted to switch between Circuit and Rally racing. Click OK to restart the application.
 switch_racing_type = Switch racing type
 
 all_categories_label = All Categories
@@ -287,7 +288,7 @@ keypress_time = Key hold down time
 keypress_wait_time = Time between key presses
 add_action_to_sequence = Add action to sequence
 add_key_to_sequence = Add action to sequence
-add_action_sequence = Save sequence to macro for 
+add_action_sequence = Save sequence to macro for
 load_user_macro_settings = Load user macros file
 load_default_macro_settings = Load default macros file
 macro_please_download_soundpack = Please download sound packs before adding confirmation message
@@ -307,7 +308,7 @@ undo_last_action = Undo last action
 actions_keys = Available keys
 must_select_a_key = You must select a key from the list of available keys
 special_action_text_cant_be_empty = must contain a value
-delete_selected_macro_confirmation = Are you sure you want to delete 
+delete_selected_macro_confirmation = Are you sure you want to delete
 delete_selected_macro_confirmation_title = Confirm delete
 must_select_a_macro = You must select a macro before trying to add a sequence
 action_sequence_cant_be_empty = You must add at least one action to Action sequence
@@ -338,6 +339,7 @@ vr_enable_gazing = Enable gazing
 vr_gaze_scale = Gazing scale
 vr_gaze_transparency = Gazing transparency
 vr_force_topmost_window = Force window on top
+vr_toggle_key = Toggle Key(s)
 ###################################### Preferences ######################################################
 # to change the name of the property title in the properties screen, just use the property name like this:
 # enable_spotter = Enable spotter
@@ -349,11 +351,11 @@ vr_force_topmost_window = Force window on top
 #
 # In order to specify property filter, add entry [property_name]_filter = [filter].
 # If property has no filter attached, it is considered to be common property.
-# Filter can consist of semicolon separated GameEnum values.  Filter can be inclusive or exclusive.  Exclusive filter starts with '!'. 
+# Filter can consist of semicolon separated GameEnum values.  Filter can be inclusive or exclusive.  Exclusive filter starts with '!'.
 #
 # Examples:
 # To specify that property applies to rF2 and R3E (include filter):
-#	my_prop_filter = RF2_64BIT;RACE_ROOM  
+#	my_prop_filter = RF2_64BIT;RACE_ROOM
 #
 # To specify that property applies to all games but rF1 and AC (exclude filter):
 #	my_prop_filter = !RF1;ASSETTO_64BIT;ASSETTO_32BIT
@@ -1007,7 +1009,7 @@ launch_pcars2_filter = PCARS2
 launch_pcars2_category = UI_STARTUP_AND_PATHS
 launch_pcars2_metadata = RESTART_REQUIRED
 
-launch_pcars3 = Launch pCARS 
+launch_pcars3 = Launch pCARS
 launch_pcars3_help = If this is true the application will attempt to launch pCARS 3 when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
 launch_pcars3_filter = PCARS3
 launch_pcars3_category = UI_STARTUP_AND_PATHS
@@ -1057,15 +1059,25 @@ cumulative_lap_wheelspin_warning_threshold_help = If the player has wheelspin fo
 cumulative_lap_wheelspin_warning_threshold_filter = !IRACING
 cumulative_lap_wheelspin_warning_threshold_category = FUEL_TEMPS_AND_DAMAGES;MESSAGE_FREQUENCIES
 
-minimum_name_voice_recognition_confidence = Minimum name voice recognition confidence
-minimum_name_voice_recognition_confidence_help = When processing voice commands asking about opponent drivers, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0, default 0.4)
+minimum_name_voice_recognition_confidence = Min name voice recognition confidence (Microsoft recogniser)
+minimum_name_voice_recognition_confidence_help = When processing voice commands asking about opponent drivers, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0)
 minimum_name_voice_recognition_confidence_category = AUDIO_VOICE_AND_CONTROLLERS
 minimum_name_voice_recognition_confidence_metadata = RESTART_REQUIRED
 
-minimum_voice_recognition_confidence = Minimum voice recognition confidence
-minimum_voice_recognition_confidence_help = When processing voice commands, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0, default 0.5)
+minimum_name_voice_recognition_confidence_system_sre = Min name voice recognition confidence (Windows recogniser)
+minimum_name_voice_recognition_confidence_system_sre_help = When processing voice commands asking about opponent drivers, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0)
+minimum_name_voice_recognition_confidence_system_sre_category = AUDIO_VOICE_AND_CONTROLLERS
+minimum_name_voice_recognition_confidence_system_sre_metadata = RESTART_REQUIRED
+
+minimum_voice_recognition_confidence = Min voice recognition confidence (Microsoft recogniser)
+minimum_voice_recognition_confidence_help = When processing voice commands, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0)
 minimum_voice_recognition_confidence_category = AUDIO_VOICE_AND_CONTROLLERS
 minimum_voice_recognition_confidence_metadata = RESTART_REQUIRED
+
+minimum_voice_recognition_confidence_system_sre = Min voice recognition confidence (Windows recogniser)
+minimum_voice_recognition_confidence_system_sre_help = When processing voice commands, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0)
+minimum_voice_recognition_confidence_system_sre_category = AUDIO_VOICE_AND_CONTROLLERS
+minimum_voice_recognition_confidence_system_sre_metadata = RESTART_REQUIRED
 
 display_session_lap_times = Display session lap times
 display_session_lap_times_help = Write all the lap times from the completed session to the console (separated by ;)
@@ -1580,10 +1592,15 @@ naudio_wasapi_latency_help = Set WASAPI output latency in milliseconds.  Lower v
 naudio_wasapi_latency_category = AUDIO_VOICE_AND_CONTROLLERS
 naudio_wasapi_latency_metadata = RESTART_REQUIRED
 
-trigger_word_sre_min_confidence = Minimum trigger word confidence
-trigger_word_sre_min_confidence_help = When listening for the voice command trigger word, the app must be at least this confident it understood before starting speech recognition (0.0 - 1.0, default 0.6)
+trigger_word_sre_min_confidence = Min trigger word confidence (Microsoft recogniser)
+trigger_word_sre_min_confidence_help = When listening for the voice command trigger word, the app must be at least this confident it understood before starting speech recognition (0.0 - 1.0)
 trigger_word_sre_min_confidence_category = AUDIO_VOICE_AND_CONTROLLERS
 trigger_word_sre_min_confidence_metadata = RESTART_REQUIRED
+
+trigger_word_sre_min_confidence_system_sre = Min trigger word confidence (Windows recogniser)
+trigger_word_sre_min_confidence_system_sre_help = When listening for the voice command trigger word, the app must be at least this confident it understood before starting speech recognition (0.0 - 1.0)
+trigger_word_sre_min_confidence_system_sre_category = AUDIO_VOICE_AND_CONTROLLERS
+trigger_word_sre_min_confidence_system_sre_metadata = RESTART_REQUIRED
 
 trigger_word_listen_timeout = Trigger word listen timeout (ms)
 trigger_word_listen_timeout_help = Wait this many milliseconds for a command after receiving the trigger word
@@ -1591,7 +1608,7 @@ trigger_word_listen_timeout_category = AUDIO_VOICE_AND_CONTROLLERS
 trigger_word_listen_timeout_metadata = RESTART_REQUIRED
 
 enable_alarm_clock_voice_recognition = Enable alarm clock voice commands
-enable_alarm_clock_voice_recognition_help = Enable this if you want to use the alarm clock feature, this is disabled by default to limit the number of voice commands 
+enable_alarm_clock_voice_recognition_help = Enable this if you want to use the alarm clock feature, this is disabled by default to limit the number of voice commands
 enable_alarm_clock_voice_recognition_category = AUDIO_VOICE_AND_CONTROLLERS;TIMINGS
 
 alarm_clock_times = Alarm time(s)
@@ -1623,7 +1640,7 @@ persist_pitstop_benchmark_times_category = PIT_STOPS_AND_MULTICLASS
 persist_pitstop_benchmark_times_metadata = RESTART_REQUIRED
 
 controller_mappings_file_error_title = Error reading controller mappings
-controller_mappings_file_error_details_1 = Controller mapping file 
+controller_mappings_file_error_details_1 = Controller mapping file
 controller_mappings_file_error_details_2 = is invalid - no button mappings will be available. Error message from JSON parsers is:
 
 use_rf2_wheel_size_for_locking_and_spinning = Use rF2's real wheel size for lock/spin messages
@@ -1635,7 +1652,7 @@ enable_iracing_pit_state_during_fcy = Enable iRacing FCY pit state messages
 enable_iracing_pit_state_during_fcy_help = Announce pit state during Safety Car/Pace Car phase
 enable_iracing_pit_state_during_fcy_filter = IRACING
 enable_iracing_pit_state_during_fcy_category = FLAGS_AND_RULES;PIT_STOPS_AND_MULTICLASS
-		
+
 iracing_fcy_formation_use_drivername = iRacing fcy/formation use driver names
 iracing_fcy_formation_use_drivername_help = Use driver names instead of car number if available doing fcy and formation laps
 iracing_fcy_formation_use_drivername_filter = IRACING
@@ -1804,24 +1821,24 @@ make_overlay_app_window_help = Make the overlay window appear on the taskbar as 
 make_overlay_app_window_category = UI_STARTUP_AND_PATHS
 make_overlay_app_window_metadata = RESTART_REQUIRED
 
-delete_iracing_telemetryfile = Delete iRacing telemetry file after processing 
-delete_iracing_telemetryfile_help = Deletes the latest iRacing telemetry file after processing it, helps reducing diskspace used for telelmetry recordings. 
+delete_iracing_telemetryfile = Delete iRacing telemetry file after processing
+delete_iracing_telemetryfile_help = Deletes the latest iRacing telemetry file after processing it, helps reducing diskspace used for telelmetry recordings.
 delete_iracing_telemetryfile_filter = IRACING
 delete_iracing_telemetryfile_category = UI_STARTUP_AND_PATHS
 delete_iracing_telemetryfile_metadata = RESTART_REQUIRED
 
-enable_automatic_disk_telemetry_recording = Enable automatic telemetry disk recording   
-enable_automatic_disk_telemetry_recording_help = Let's Crew Chief handle the starting and stopping of iRacing telemetry recoding. 
+enable_automatic_disk_telemetry_recording = Enable automatic telemetry disk recording
+enable_automatic_disk_telemetry_recording_help = Let's Crew Chief handle the starting and stopping of iRacing telemetry recoding.
 enable_automatic_disk_telemetry_recording_filter = IRACING
 enable_automatic_disk_telemetry_recording_category = UI_STARTUP_AND_PATHS
 enable_automatic_disk_telemetry_recording_metadata = RESTART_REQUIRED
 
 enable_shared_memory = Enable Shared Memory
-enable_shared_memory_help = Allows other apps to read the current shared memory from Crew Chief 
+enable_shared_memory_help = Allows other apps to read the current shared memory from Crew Chief
 enable_shared_memory_metadata = RESTART_REQUIRED
 
 enable_subtitle_overlay = Enable subtitle overlay
-enable_subtitle_overlay_help = Displays an overlay window with subtitles 
+enable_subtitle_overlay_help = Displays an overlay window with subtitles
 enable_subtitle_overlay_category = AUDIO_VOICE_AND_CONTROLLERS
 enable_subtitle_overlay_metadata = RESTART_REQUIRED
 
@@ -1908,3 +1925,21 @@ block_male_sounds = Block sounds which refer to drivers as male
 block_male_sounds_help = Don't play sounds which assume the player and all opponents are male (sounds that include "he", "guy", "man" etc)
 block_male_sounds_category = AUDIO_VOICE_AND_CONTROLLERS
 block_male_sounds_metadata = RESTART_REQUIRED
+
+enable_watch_car_command = Enable watch opponent commands
+enable_watch_car_command_help = Enable the watched opponent / rivals voice commands
+enable_watch_car_command_category = AUDIO_VOICE_AND_CONTROLLERS
+
+lazy_load_subtitles = Lazy load subtitles
+lazy_load_subtitles_help = Load subtitles immediately before displaying (improves app startup time, may add additional load at runtime)
+lazy_load_subtitles_category = AUDIO_VOICE_AND_CONTROLLERS
+lazy_load_subtitles_metadata = RESTART_REQUIRED
+
+show_splash_screen = Show splash screen
+show_splash_screen_help = Show splash screen while the app is launching
+show_splash_screen_category = MISC
+
+scroll_bars_on_main_window = Scroll bars on main window
+scroll_bars_on_main_window_help = Scroll bars if main window is larger than screen
+scroll_bars_on_main_window_category = MISC
+scroll_bars_on_main_window_metadata = RESTART_REQUIRED

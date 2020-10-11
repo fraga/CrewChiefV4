@@ -336,6 +336,12 @@
     <Compile Include="RF2\PitMenuAPI.cs" />
     <Compile Include="RF2\PitMenuController.cs" />
     <Compile Include="RF2\rF2HWControl.cs" />
+    <Compile Include="UserInterface\Loading.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UserInterface\Loading.Designer.cs">
+      <DependentUpon>Loading.cs</DependentUpon>
+    </Compile>
     <Compile Include="VROverlayWindow\CaptureScreen.cs" />
     <Compile Include="VROverlayWindow\CursorInteraction.cs" />
     <Compile Include="VROverlayWindow\DeviceManager.cs" />
@@ -395,7 +401,7 @@
       <DependentUpon>VROverlay.cs</DependentUpon>
     </Compile>
     <Compile Include="UserSettings.cs" />
-    <Compile Include="Validator.cs" />
+    <Compile Include="AdditionalDataProvider.cs" />
     <Compile Include="NoisyCartesianCoordinateSpotter.cs" />
     <Compile Include="NumberProcessing\TimeSpanWrapper.cs" />
     <Compile Include="NumberReaderIt.cs" />
@@ -530,6 +536,9 @@
     <EmbeddedResource Include="UserInterface\HelpWindow.resx" />
     <EmbeddedResource Include="UserInterface\IntPropertycontrol.resx">
       <DependentUpon>IntPropertyControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UserInterface\Loading.resx">
+      <DependentUpon>Loading.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UserInterface\MacroEditor.resx">
       <DependentUpon>MacroEditor.cs</DependentUpon>

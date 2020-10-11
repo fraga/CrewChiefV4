@@ -176,7 +176,7 @@ WHATS_MY_RANK = what's my rank
 WHATS_MY_RATING = what's my rating
 WHATS_MY_REPUTATION = what's my reputation
 
-STOP_WATCHING_ALL = cancel watched drivers:stop watching drivers:stop watching all
+STOP_WATCHING_ALL = cancel monitored drivers:stop monitoring drivers:stop monitoring all
 
 #################################################
 # Dynamic recognition phrase fragments - these are used to build up recognition sentences for opponent information.
@@ -276,9 +276,11 @@ IRATING = eye rating
 RATING = rating
 REPUTATION = reputation
 RANK = rank
+#  this gets a combined rank and reputation - "how good is bob" / "how good is the driver in front"
+HOW_GOOD_IS = how good is
 
-WATCH = watch
-STOP_WATCHING = stop watching
+WATCH = monitor
+STOP_WATCHING = stop monitoring
 RIVAL = rival
 TEAM_MATE = team mate
 
@@ -340,6 +342,9 @@ PIT_STOP_NEXT_TYRE_COMPOUND = pitstop next tyre compound:box, next tyre compound
 PIT_STOP_HARD_TYRES = pitstop hard tyres:box, hard tyres
 PIT_STOP_MEDIUM_TYRES = pitstop medium tyres:box, medium tyres
 PIT_STOP_SOFT_TYRES = pitstop soft tyres:box, soft tyres
+PIT_STOP_SUPERSOFT_TYRES = pitstop super soft tyres:box, super soft tyres
+PIT_STOP_ULTRASOFT_TYRES = pitstop ultra soft tyres:box, ultra soft tyres
+PIT_STOP_HYPERSOFT_TYRES = pitstop hyper soft tyres:box, hyper soft tyres
 PIT_STOP_PRIME_TYRES = pitstop prime tyres:box, prime tyres:pitstop primary tyres:box, primary tyres
 PIT_STOP_OPTION_TYRES = pitstop option tyres:box, option tyres
 PIT_STOP_ALTERNATE_TYRES = pitstop alternate tyres:box, alternate tyres
@@ -347,6 +352,7 @@ PIT_STOP_ALTERNATE_TYRES = pitstop alternate tyres:box, alternate tyres
 // Pit Manager/rF2-specific pit commands
 PIT_STOP_FIX_ALL = pitstop fix all:box, fix all:pitstop repair all:box, repair all
 PIT_STOP_FIX_BODY = pitstop fix body:box, fix body:pitstop repair body:box, repair body
+PIT_STOP_FIX_NONE = pitstop fix none:box, fix none:pitstop repair none:box, repair none
 PIT_STOP_INTERMEDIATE_TYRES = pitstop intermediate tyres:box, intermediate tyres
 PIT_STOP_WET_TYRES = pitstop wet tyres:box, wet tyres
 PIT_STOP_MONSOON_TYRES = pitstop monsoon tyres:box, monsoon tyres

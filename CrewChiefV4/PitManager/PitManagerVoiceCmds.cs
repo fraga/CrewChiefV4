@@ -1,4 +1,4 @@
-﻿using CrewChiefV4.Audio;
+using CrewChiefV4.Audio;
 using CrewChiefV4.Events;
 using CrewChiefV4.GameState;
 using System;
@@ -39,6 +39,9 @@ namespace CrewChiefV4.PitManager
             {PME.TyreCompoundHard,        SRE.PIT_STOP_HARD_TYRES },
             {PME.TyreCompoundMedium,      SRE.PIT_STOP_MEDIUM_TYRES },
             {PME.TyreCompoundSoft,        SRE.PIT_STOP_SOFT_TYRES },
+            {PME.TyreCompoundSupersoft,   SRE.PIT_STOP_SUPERSOFT_TYRES },
+            {PME.TyreCompoundUltrasoft,   SRE.PIT_STOP_ULTRASOFT_TYRES },
+            {PME.TyreCompoundHypersoft,   SRE.PIT_STOP_HYPERSOFT_TYRES },
             {PME.TyreCompoundIntermediate,SRE.PIT_STOP_INTERMEDIATE_TYRES },
             {PME.TyreCompoundWet,         SRE.PIT_STOP_WET_TYRES },
             {PME.TyreCompoundMonsoon,     SRE.PIT_STOP_MONSOON_TYRES },
@@ -54,7 +57,7 @@ namespace CrewChiefV4.PitManager
             //{PME.FuelNone,              SRE.PIT_STOP_CLEAR_FUEL },
 
             {PME.RepairAll,               SRE.PIT_STOP_FIX_ALL },          // rF2
-            {PME.RepairNone,              SRE.PIT_STOP_CLEAR_ALL },
+            {PME.RepairNone,              SRE.PIT_STOP_FIX_NONE },         // rF2 
             {PME.RepairFast,              SRE.PIT_STOP_FAST_REPAIR },        // iRacing
             {PME.RepairAllAero,           SRE.PIT_STOP_FIX_ALL_AERO },       // R3E
             {PME.RepairFrontAero,         SRE.PIT_STOP_FIX_FRONT_AERO },
@@ -65,6 +68,8 @@ namespace CrewChiefV4.PitManager
 
             {PME.PenaltyServe,            SRE.PIT_STOP_SERVE_PENALTY },
             {PME.PenaltyServeNone,        SRE.PIT_STOP_DONT_SERVE_PENALTY },
+
+            {PME.ClearAll,                SRE.PIT_STOP_CLEAR_ALL },
 
             // tbd {PME.AeroFrontPlusMinusX, SRE.PIT_STOP },     // tbd: would require added speech handling
             // tbd {PME.AeroRearPlusMinusX,  SRE.PIT_STOP },
@@ -219,7 +224,7 @@ namespace CrewChiefV4.PitManager
         /// <param name="currentGameState"></param>
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
-            Boolean autoFuelToEnd = UserSettings.GetUserSettings().getBoolean("iracing_enable_auto_fuel_to_end_of_race"); // tbd: duplicate or rename
+            Boolean autoFuelToEnd = UserSettings.GetUserSettings().getBoolean("rf2_enable_auto_fuel_to_end_of_race");
 
             inCar = currentGameState.inCar;
             if (!previousGameState.inCar && currentGameState.inCar)

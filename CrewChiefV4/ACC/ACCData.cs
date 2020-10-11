@@ -79,7 +79,8 @@ namespace CrewChiefV4.ACC
             ACC_Disqualified_Wrongway = 18,
             ACC_DriveThrough_IgnoredDriverStint = 19,
             ACC_Disqualified_IgnoredDriverStint = 20,
-            ACC_Disqualified_ExceededDriverStintLimit = 21
+            ACC_Disqualified_ExceededDriverStintLimit = 21,
+            ACC_DriveThrough_False_Start = 30    /* this one isn't documented, but it's what i got for a false start */
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Unicode)]

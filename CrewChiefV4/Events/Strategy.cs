@@ -365,7 +365,7 @@ namespace CrewChiefV4.Events
                             if (!warnedAboutOpponent && WatchedOpponents.watchedOpponentKeys.Contains(entry.Key))
                             {
                                 // this guy has entered the pits but won't exit close to us, but he's on the watch list
-                                if (AudioPlayer.canReadName(entry.Value.DriverRawName))
+                                if (AudioPlayer.canReadName(entry.Value.DriverRawName, false))
                                 {
                                     audioPlayer.playMessage(new QueuedMessage("watched_opponent_pitting", 10,
                                             messageFragments: MessageContents(entry.Value, folderIsPittingFromPosition, entry.Value.ClassPosition),
@@ -526,25 +526,27 @@ namespace CrewChiefV4.Events
                                 
                                 TimeSpan closestDeltapointTimeDelta = TimeSpan.MaxValue;
                                 float closestDeltapointPosition = -1;
-                                foreach (KeyValuePair<float, DateTime> deltaPointEntry in entry.Value.DeltaTime.deltaPoints)
+                                int index = 0;
+                                foreach (DateTime deltaPointEntry in entry.Value.DeltaTime.deltaPoints)
                                 {
-                                    TimeSpan timeDelta = (nowMinusExpectedLoss - deltaPointEntry.Value).Duration();
+                                    TimeSpan timeDelta = (nowMinusExpectedLoss - deltaPointEntry).Duration();
                                     if (timeDelta < closestDeltapointTimeDelta)
                                     {
                                         closestDeltapointTimeDelta = timeDelta;
-                                        closestDeltapointPosition = deltaPointEntry.Key;
+                                        closestDeltapointPosition = index * entry.Value.DeltaTime.spacing;
                                     }
+                                    index++;
                                 }
                                 // this is the gap we expect to this guy when he leaves the pits. Negative gap means he'll be in front
                                 float expectedDistanceToPlayerOnPitExit = currentGameState.PositionAndMotionData.DistanceRoundTrack - closestDeltapointPosition;
                                 float absGap = Math.Abs(expectedDistanceToPlayerOnPitExit);
 
-                                if (expectedDistanceToPlayerOnPitExit < 0 && absGap < minDistanceAheadToBeConsideredAFewSeconds && AudioPlayer.canReadName(entry.Value.DriverRawName))
+                                if (expectedDistanceToPlayerOnPitExit < 0 && absGap < minDistanceAheadToBeConsideredAFewSeconds && AudioPlayer.canReadName(entry.Value.DriverRawName, false))
                                 {
                                     // he'll come out of the pits right in front of us if he pits
                                     Strategy.opponentsWhoWillExitCloseInFront.Add(entry.Value.DriverRawName);
                                 }
-                                else if (expectedDistanceToPlayerOnPitExit > 0 && absGap < minDistanceBehindToBeConsideredAFewSeconds && AudioPlayer.canReadName(entry.Value.DriverRawName))
+                                else if (expectedDistanceToPlayerOnPitExit > 0 && absGap < minDistanceBehindToBeConsideredAFewSeconds && AudioPlayer.canReadName(entry.Value.DriverRawName, false))
                                 {
                                     // he'll come out right behind us if he pits
                                     Strategy.opponentsWhoWillExitCloseBehind.Add(entry.Value.DriverRawName);
@@ -670,14 +672,16 @@ namespace CrewChiefV4.Events
             // get the track distanceRoundTrack at this point in history
             TimeSpan closestDeltapointTimeDelta = TimeSpan.MaxValue;
             float closestDeltapointPosition = float.MaxValue;
-            foreach (KeyValuePair<float, DateTime> entry in playerDeltaTime.deltaPoints)
+            int index = 0;
+            foreach (DateTime entry in playerDeltaTime.deltaPoints)
             {
-                TimeSpan timeDelta = (nowMinusExpectedLoss - entry.Value).Duration();
+                TimeSpan timeDelta = (nowMinusExpectedLoss - entry).Duration();
                 if (timeDelta < closestDeltapointTimeDelta)
                 {
                     closestDeltapointTimeDelta = timeDelta;
-                    closestDeltapointPosition = entry.Key;
+                    closestDeltapointPosition = index * playerDeltaTime.spacing;
                 }
+                index++;
             }
 
             // work out how far we'd have travelled if we were expectedPlayerTimeLoss seconds behind where we are now
@@ -702,7 +706,7 @@ namespace CrewChiefV4.Events
         {
             float halfTrackLength = trackLength / 2;
             // check we have deltapoints first
-            if (playerDeltaTime == null || playerDeltaTime.deltaPoints == null || playerDeltaTime.deltaPoints.Count == 0)
+            if (playerDeltaTime == null || playerDeltaTime.deltaPoints == null || playerDeltaTime.deltaPoints.Length == 0)
             {
                 Console.WriteLine("No usable deltapoints object, can't derive post-pit positions");
                 return null;
@@ -1001,11 +1005,11 @@ namespace CrewChiefV4.Events
                 // figure out what to read here
                 if (postPitData.opponentClosestAheadAfterStop != null)
                 {
-                    Boolean canReadOpponentAhead = AudioPlayer.canReadName(postPitData.opponentClosestAheadAfterStop.opponentData.DriverRawName);
+                    Boolean canReadOpponentAhead = AudioPlayer.canReadName(postPitData.opponentClosestAheadAfterStop.opponentData.DriverRawName, false);
                     float gapFront = postPitData.opponentClosestAheadAfterStop.predictedDistanceGap;
                     if (postPitData.opponentClosestBehindAfterStop != null)
                     {
-                        Boolean canReadOpponentBehind = AudioPlayer.canReadName(postPitData.opponentClosestBehindAfterStop.opponentData.DriverRawName);
+                        Boolean canReadOpponentBehind = AudioPlayer.canReadName(postPitData.opponentClosestBehindAfterStop.opponentData.DriverRawName, false);
                         // can read 2 driver names, so decide which to read (or both)
                         float gapBehind = postPitData.opponentClosestBehindAfterStop.predictedDistanceGap;
                         if (gapFront < distanceAheadToBeConsideredVeryClose)
@@ -1120,7 +1124,7 @@ namespace CrewChiefV4.Events
                 else if (postPitData.opponentClosestBehindAfterStop != null)
                 {
                     // only have a car behind here
-                    Boolean canReadOpponentBehind = AudioPlayer.canReadName(postPitData.opponentClosestBehindAfterStop.opponentData.DriverRawName);
+                    Boolean canReadOpponentBehind = AudioPlayer.canReadName(postPitData.opponentClosestBehindAfterStop.opponentData.DriverRawName, false);
                     // can read 2 driver names, so decide which to read (or both)
                     float gapBehind = postPitData.opponentClosestBehindAfterStop.predictedDistanceGap;
                     if (gapBehind < distanceBehindToBeConsideredVeryClose)

@@ -79,6 +79,10 @@ namespace CrewChiefV4
             this.checkBoxForceTopMostWindow = new System.Windows.Forms.CheckBox();
             this.comboBoxTrackingSpace = new System.Windows.Forms.ComboBox();
             this.labelTrackingSpace = new System.Windows.Forms.Label();
+            this.comboBoxToggleVirtualKeys = new System.Windows.Forms.ComboBox();
+            this.labelToggleKey = new System.Windows.Forms.Label();
+            this.comboBoxModifierKeys = new System.Windows.Forms.ComboBox();
+            this.label2 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarPositionX)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarPositionY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarPositionZ)).BeginInit();
@@ -104,7 +108,7 @@ namespace CrewChiefV4
             // checkBoxEnabled
             // 
             this.checkBoxEnabled.AutoSize = true;
-            this.checkBoxEnabled.Location = new System.Drawing.Point(220, 9);
+            this.checkBoxEnabled.Location = new System.Drawing.Point(12, 256);
             this.checkBoxEnabled.Name = "checkBoxEnabled";
             this.checkBoxEnabled.Size = new System.Drawing.Size(87, 17);
             this.checkBoxEnabled.TabIndex = 1;
@@ -157,7 +161,7 @@ namespace CrewChiefV4
             this.groupBoxPosition.Controls.Add(this.trackBarPositionX);
             this.groupBoxPosition.Controls.Add(this.trackBarPositionZ);
             this.groupBoxPosition.Controls.Add(this.trackBarPositionY);
-            this.groupBoxPosition.Location = new System.Drawing.Point(220, 47);
+            this.groupBoxPosition.Location = new System.Drawing.Point(213, 25);
             this.groupBoxPosition.Name = "groupBoxPosition";
             this.groupBoxPosition.Size = new System.Drawing.Size(295, 203);
             this.groupBoxPosition.TabIndex = 3;
@@ -223,7 +227,7 @@ namespace CrewChiefV4
             // 
             // buttonSaveSettings
             // 
-            this.buttonSaveSettings.Location = new System.Drawing.Point(680, 434);
+            this.buttonSaveSettings.Location = new System.Drawing.Point(673, 412);
             this.buttonSaveSettings.Name = "buttonSaveSettings";
             this.buttonSaveSettings.Size = new System.Drawing.Size(136, 23);
             this.buttonSaveSettings.TabIndex = 9;
@@ -251,7 +255,7 @@ namespace CrewChiefV4
             this.groupBoxRotation.Controls.Add(this.trackBarRotationY);
             this.groupBoxRotation.Controls.Add(this.textBoxRotationY);
             this.groupBoxRotation.Controls.Add(this.textBoxRotationX);
-            this.groupBoxRotation.Location = new System.Drawing.Point(220, 254);
+            this.groupBoxRotation.Location = new System.Drawing.Point(213, 232);
             this.groupBoxRotation.Name = "groupBoxRotation";
             this.groupBoxRotation.Size = new System.Drawing.Size(295, 203);
             this.groupBoxRotation.TabIndex = 4;
@@ -368,7 +372,7 @@ namespace CrewChiefV4
             this.groupBoxScaleTransCurve.Controls.Add(this.trackBarTransparency);
             this.groupBoxScaleTransCurve.Controls.Add(this.textBoxTransparency);
             this.groupBoxScaleTransCurve.Controls.Add(this.textBoxScale);
-            this.groupBoxScaleTransCurve.Location = new System.Drawing.Point(521, 47);
+            this.groupBoxScaleTransCurve.Location = new System.Drawing.Point(514, 25);
             this.groupBoxScaleTransCurve.Name = "groupBoxScaleTransCurve";
             this.groupBoxScaleTransCurve.Size = new System.Drawing.Size(295, 356);
             this.groupBoxScaleTransCurve.TabIndex = 5;
@@ -553,7 +557,7 @@ namespace CrewChiefV4
             // checkBoxForceTopMostWindow
             // 
             this.checkBoxForceTopMostWindow.AutoSize = true;
-            this.checkBoxForceTopMostWindow.Location = new System.Drawing.Point(347, 9);
+            this.checkBoxForceTopMostWindow.Location = new System.Drawing.Point(12, 279);
             this.checkBoxForceTopMostWindow.Name = "checkBoxForceTopMostWindow";
             this.checkBoxForceTopMostWindow.Size = new System.Drawing.Size(150, 17);
             this.checkBoxForceTopMostWindow.TabIndex = 11;
@@ -564,7 +568,7 @@ namespace CrewChiefV4
             // comboBoxTrackingSpace
             // 
             this.comboBoxTrackingSpace.FormattingEnabled = true;
-            this.comboBoxTrackingSpace.Location = new System.Drawing.Point(521, 9);
+            this.comboBoxTrackingSpace.Location = new System.Drawing.Point(12, 318);
             this.comboBoxTrackingSpace.Name = "comboBoxTrackingSpace";
             this.comboBoxTrackingSpace.Size = new System.Drawing.Size(121, 21);
             this.comboBoxTrackingSpace.TabIndex = 12;
@@ -573,17 +577,57 @@ namespace CrewChiefV4
             // labelTrackingSpace
             // 
             this.labelTrackingSpace.AutoSize = true;
-            this.labelTrackingSpace.Location = new System.Drawing.Point(648, 12);
+            this.labelTrackingSpace.Location = new System.Drawing.Point(12, 302);
             this.labelTrackingSpace.Name = "labelTrackingSpace";
             this.labelTrackingSpace.Size = new System.Drawing.Size(95, 13);
             this.labelTrackingSpace.TabIndex = 13;
             this.labelTrackingSpace.Text = "vr_tracking_space";
             // 
+            // comboBoxToggleVirtualKeys
+            // 
+            this.comboBoxToggleVirtualKeys.FormattingEnabled = true;
+            this.comboBoxToggleVirtualKeys.Location = new System.Drawing.Point(12, 365);
+            this.comboBoxToggleVirtualKeys.Name = "comboBoxToggleVirtualKeys";
+            this.comboBoxToggleVirtualKeys.Size = new System.Drawing.Size(121, 21);
+            this.comboBoxToggleVirtualKeys.TabIndex = 14;
+            this.comboBoxToggleVirtualKeys.SelectedIndexChanged += new System.EventHandler(this.comboBoxVirtualKeys_SelectedIndexChanged);
+            // 
+            // labelToggleKey
+            // 
+            this.labelToggleKey.AutoSize = true;
+            this.labelToggleKey.Location = new System.Drawing.Point(12, 349);
+            this.labelToggleKey.Name = "labelToggleKey";
+            this.labelToggleKey.Size = new System.Drawing.Size(74, 13);
+            this.labelToggleKey.TabIndex = 15;
+            this.labelToggleKey.Text = "vr_toggle_key";
+            // 
+            // comboBoxModifierKeys
+            // 
+            this.comboBoxModifierKeys.FormattingEnabled = true;
+            this.comboBoxModifierKeys.Location = new System.Drawing.Point(12, 408);
+            this.comboBoxModifierKeys.Name = "comboBoxModifierKeys";
+            this.comboBoxModifierKeys.Size = new System.Drawing.Size(121, 21);
+            this.comboBoxModifierKeys.TabIndex = 16;
+            this.comboBoxModifierKeys.SelectedIndexChanged += new System.EventHandler(this.comboBoxModifierKeys_SelectedIndexChanged);
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(62, 391);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(13, 13);
+            this.label2.TabIndex = 20;
+            this.label2.Text = "+";
+            // 
             // VROverlaySettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(823, 469);
+            this.ClientSize = new System.Drawing.Size(823, 449);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.comboBoxModifierKeys);
+            this.Controls.Add(this.labelToggleKey);
+            this.Controls.Add(this.comboBoxToggleVirtualKeys);
             this.Controls.Add(this.labelTrackingSpace);
             this.Controls.Add(this.comboBoxTrackingSpace);
             this.Controls.Add(this.checkBoxForceTopMostWindow);
@@ -667,5 +711,9 @@ namespace CrewChiefV4
         private System.Windows.Forms.CheckBox checkBoxForceTopMostWindow;
         private System.Windows.Forms.ComboBox comboBoxTrackingSpace;
         private System.Windows.Forms.Label labelTrackingSpace;
+        private System.Windows.Forms.ComboBox comboBoxToggleVirtualKeys;
+        private System.Windows.Forms.Label labelToggleKey;
+        private System.Windows.Forms.ComboBox comboBoxModifierKeys;
+        private System.Windows.Forms.Label label2;
     }
 }

@@ -59,7 +59,10 @@ namespace CrewChiefV4.Events
         public static String folderLicenseD = "licence/d_licence";
         public static String folderLicenseR = "licence/r_licence";
         public static String folderLicensePro = "licence/pro_licence";
-        
+
+        public static String folderRatingIntro = "opponents/rating_intro";
+        public static String folderReputationIntro = "opponents/reputation_intro";
+
         private int frequencyOfOpponentRaceLapTimes = UserSettings.GetUserSettings().getInt("frequency_of_opponent_race_lap_times");
         private int frequencyOfOpponentPracticeAndQualLapTimes = UserSettings.GetUserSettings().getInt("frequency_of_opponent_practice_and_qual_lap_times");
 
@@ -196,7 +199,7 @@ namespace CrewChiefV4.Events
             if ((positionToCheck > 1 && positionToCheck <= 3) ||
                 (playerRacePosition - 2 <= positionToCheck && playerRacePosition + 2 >= positionToCheck))
             {
-                if (opponentData.CanUseName && AudioPlayer.canReadName(opponentData.DriverRawName))
+                if (opponentData.CanUseName && AudioPlayer.canReadName(opponentData.DriverRawName, false))
                 {
                     return opponentData;
                 }
@@ -273,8 +276,9 @@ namespace CrewChiefV4.Events
                             // this opponent has just completed a lap - do we need to report it? if it's fast overall and more than
                             // a tenth quicker then his previous best we do...
                             if (((currentGameState.SessionData.SessionType == SessionType.Race && opponentData.CompletedLaps > 2) ||
-                                (currentGameState.SessionData.SessionType != SessionType.Race && opponentData.CompletedLaps > 1)) && opponentData.LastLapTime <= currentFastestLap &&
-                                (opponentData.CanUseName && AudioPlayer.canReadName(opponentData.DriverRawName)))
+                                (!PitStops.waitingForMandatoryStopTimer &&
+                                 currentGameState.SessionData.SessionType != SessionType.Race && opponentData.CompletedLaps > 1)) && opponentData.LastLapTime <= currentFastestLap &&
+                                 (opponentData.CanUseName && AudioPlayer.canReadName(opponentData.DriverRawName, false)))
                             {
                                 if ((currentGameState.SessionData.SessionType == SessionType.Race && frequencyOfOpponentRaceLapTimes > 0) ||
                                     (currentGameState.SessionData.SessionType != SessionType.Race && frequencyOfOpponentPracticeAndQualLapTimes > 0))
@@ -346,7 +350,7 @@ namespace CrewChiefV4.Events
                                 // The ones that don't fit on a track are marked as DNF before session goes Green.  Don't announce those.
                                 continue;
                             }
-                            if (AudioPlayer.canReadName(retiredDriver))
+                            if (AudioPlayer.canReadName(retiredDriver, false))
                             {
                                 audioPlayer.playMessage(new QueuedMessage("retirement", 10,
                                     messageFragments: MessageContents(DriverNameHelper.getUsableDriverName(retiredDriver), folderHasJustRetired), abstractEvent: this, priority: 0));
@@ -362,7 +366,7 @@ namespace CrewChiefV4.Events
                         if (!announcedRetirementsAndDQs.Contains(dqDriver))
                         {
                             announcedRetirementsAndDQs.Add(dqDriver);
-                            if (AudioPlayer.canReadName(dqDriver))
+                            if (AudioPlayer.canReadName(dqDriver, false))
                             {
                                 audioPlayer.playMessage(new QueuedMessage("retirement", 10,
                                     messageFragments: MessageContents(DriverNameHelper.getUsableDriverName(dqDriver), folderHasJustBeenDisqualified), abstractEvent: this, priority: 0));
@@ -384,7 +388,7 @@ namespace CrewChiefV4.Events
                                     DateTime announceAfterTime = DateTime.MinValue;
                                     if (!WatchedOpponents.watchedOpponentKeys.Contains(opponentName) &&
                                         !opponentData.isEnteringPits() && !opponentData.InPits && (lastNextCarAheadOpponentName == null || !lastNextCarAheadOpponentName.Equals(opponentName)) &&
-                                        opponentData.CanUseName && AudioPlayer.canReadName(opponentName) &&
+                                        opponentData.CanUseName && AudioPlayer.canReadName(opponentName, false) &&
                                         (!onlyAnnounceOpponentAfter.TryGetValue(opponentName, out announceAfterTime) || currentGameState.Now > announceAfterTime))
                                     {
                                         Console.WriteLine("New car ahead: " + opponentName);
@@ -409,7 +413,7 @@ namespace CrewChiefV4.Events
                                 if (!WatchedOpponents.watchedOpponentKeys.Contains(name) &&
                                     currentGameState.SessionData.ClassPosition > 1 && previousGameState.SessionData.ClassPosition > 1 &&
                                     !name.Equals(lastLeaderAnnounced) &&
-                                    currentGameState.Now > nextLeadChangeMessage && leader.CanUseName && AudioPlayer.canReadName(name))
+                                    currentGameState.Now > nextLeadChangeMessage && leader.CanUseName && AudioPlayer.canReadName(name, false))
                                 {
                                     Console.WriteLine("Lead change, current leader is " + name + " laps completed = " + currentGameState.SessionData.CompletedLaps);
                                     audioPlayer.playMessage(new QueuedMessage("new_leader", 4, secondsDelay:2,
@@ -675,7 +679,7 @@ namespace CrewChiefV4.Events
             Boolean gotData = false;
             if (currentGameState != null)
             {
-                if (SpeechRecogniser.WHAT_TYRES_AM_I_ON.Contains(voiceMessage))
+                if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHAT_TYRES_AM_I_ON))
                 {
                     gotData = true;
                     audioPlayer.playMessageImmediately(new QueuedMessage(TyreMonitor.getFolderForTyreType(currentGameState.TyreData.FrontLeftTyreType), 0));
@@ -695,6 +699,23 @@ namespace CrewChiefV4.Events
                                 audioPlayer.playMessageImmediately(new QueuedMessage(TyreMonitor.getFolderForTyreType(opponentData.CurrentTyres), 0));
                             }
                         }
+                    }
+                }
+                else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOW_GOOD_IS))
+                {
+                    R3ERatingData ratingData = R3ERatings.getRatingForUserId(getOpponentR3EUserId(getOpponentKey(voiceMessage, "").Item1));
+                    if (ratingData != null)
+                    {
+                        gotData = true;
+                        Console.WriteLine("got rating data for opponent:" + ratingData.ToString());
+                        // if we don't explicitly split the sounds up here they'll be read ints
+                        int reputationIntPart = (int)ratingData.reputation;
+                        int reputationDecPart = (int)(10 * (ratingData.reputation - (float)reputationIntPart));
+                        int ratingIntPart = (int)ratingData.rating;
+                        int ratingDecPart = (int)(10 * (ratingData.rating - (float)ratingIntPart));
+                        audioPlayer.playMessageImmediately(new QueuedMessage("opponentReputationAndRating", 0,
+                            messageFragments: MessageContents(folderReputationIntro, reputationIntPart, NumberReader.folderPoint, reputationDecPart, 
+                            folderRatingIntro, ratingIntPart, NumberReader.folderPoint, ratingDecPart)));
                     }
                 }
                 else if (voiceMessage.StartsWith(SpeechRecogniser.WHATS) &&

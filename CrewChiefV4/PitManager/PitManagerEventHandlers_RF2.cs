@@ -59,7 +59,11 @@ namespace CrewChiefV4.PitManager
         // Sample:
         private static readonly Dictionary<string, List<string>> SampleTyreTranslationDict =
           new Dictionary<string, List<string>>() {
-            { "Supersoft",    new List <string> {"supersoft", "soft",
+            { "Hypersoft",    new List <string> {"hypersoft", "ultrasoft", "supersoft", "soft",
+                        "s310", "slick", "dry", "all-weather", "medium" } },
+            { "Ultrasoft",    new List <string> {"ultrasoft","hypersoft", "supersoft", "soft",
+                        "s310", "slick", "dry", "all-weather", "medium" } },
+            { "Supersoft",    new List <string> {"supersoft", "hypersoft", "ultrasoft", "soft",
                         "s310", "slick", "dry", "all-weather", "medium" } },
             { "Soft",         new List <string> {"soft",
                         "s310", "slick", "dry", "all-weather", "medium" } },
@@ -89,6 +93,8 @@ namespace CrewChiefV4.PitManager
         /// <summary>
         /// Take a list of tyre types available in the menu and map them on to
         /// the set of generic tyre types
+        /// Hypersoft
+        /// Ultrasoft
         /// Supersoft
         /// Soft
         /// Medium
@@ -97,6 +103,11 @@ namespace CrewChiefV4.PitManager
         /// Wet
         /// Monsoon
         /// (No Change) for completeness
+        ///
+        /// Algorithm:
+        /// Check the first list item for each key in tyreDict
+        /// if the word is in inMenu then that key is DONE
+        /// if not, check the 2nd list item
         /// </summary>
         /// <param name="tyreDict">
         /// The dict used for translation
@@ -112,16 +123,30 @@ namespace CrewChiefV4.PitManager
           List<string> inMenu)
         {
             Dictionary<string, string> result = new Dictionary<string, string>();
-            foreach (var genericTyretype in tyreDict)
-            { // "Supersoft", "Soft"...
-                foreach (var availableTyretype in inMenu)
-                {  // Tyre type in the menu
-                    foreach (var tyreName in genericTyretype.Value)
-                    { // Type that generic type can match to
-                        if (availableTyretype.IndexOf(tyreName, StringComparison.OrdinalIgnoreCase) >= 0)
+            int columnCount = 1; // will increase
+
+            for (var col = 0; col < columnCount; col++)
+            {
+                foreach (var genericTyretype in tyreDict)
+                { // "Hypersoft", "Ultrasoft", "Supersoft", "Soft"...
+                    foreach (var availableTyretype in inMenu)
+                    {  // Tyre type in the menu
+                        if (genericTyretype.Value.Count > columnCount)
                         {
-                            result[genericTyretype.Key] = availableTyretype;
-                            break;
+                            columnCount = genericTyretype.Value.Count;
+                        }
+                        if (col < genericTyretype.Value.Count)
+                        {
+                            var tyreName = genericTyretype.Value[col];
+                            // Type that generic type can match to
+                            if (availableTyretype.IndexOf(tyreName, StringComparison.OrdinalIgnoreCase) >= 0)
+                            {
+                                if (!result.ContainsKey(genericTyretype.Key))
+                                {
+                                    result[genericTyretype.Key] = availableTyretype;
+                                    break;
+                                }
+                            }
                         }
                     }
                 }
@@ -178,6 +203,21 @@ namespace CrewChiefV4.PitManager
             return setTyreCompound("Soft");
         }
 
+        static public bool PMrF2eh_TyreCompoundSupersoft(string __)
+        {
+            return setTyreCompound("Supersoft");
+        }
+
+        static public bool PMrF2eh_TyreCompoundUltrasoft(string __)
+        {
+            return setTyreCompound("Ultrasoft");
+        }
+
+        static public bool PMrF2eh_TyreCompoundHypersoft(string __)
+        {
+            return setTyreCompound("Hypersoft");
+        }
+
         static public bool PMrF2eh_TyreCompoundWet(string __)
         {
             return setTyreCompound("Wet");
@@ -185,17 +225,17 @@ namespace CrewChiefV4.PitManager
 
         static public bool PMrF2eh_TyreCompoundOption(string __)
         {
-            return setTyreCompound("Soft"); // tbd:
+            return setTyreCompound("Soft");
         }
 
         static public bool PMrF2eh_TyreCompoundPrime(string __)
         {
-            return setTyreCompound("Soft"); // tbd:
+            return setTyreCompound("Hard");
         }
 
         static public bool PMrF2eh_TyreCompoundAlternate(string __)
         {
-            return setTyreCompound("Soft"); // tbd:
+            return setTyreCompound("Soft");
         }
 
         static public bool PMrF2eh_TyreCompoundNext(string __)
@@ -213,7 +253,7 @@ namespace CrewChiefV4.PitManager
                 currentTyreTypeIndex = 0;
             response = true;
             currentRf2TyreType.Set(tyreTypes[currentTyreTypeIndex]);
-            return response;
+            return PMrF2eh_changeAllTyres(null);
         }
         #endregion Tyre compounds
 
@@ -281,27 +321,16 @@ namespace CrewChiefV4.PitManager
         #endregion Tyre pressures
 
         #region Fuel
-        static public bool PMrF2eh_FuelAddXlitres(string voiceMessage)
-        {
-            var amount = Pmal.GetFuelLevel();
-            if (amount > 0)
-            {
-                var amountAdd = PitNumberHandling.processNumber(voiceMessage);
-                if (amountAdd == 0)
-                {
-                    return false;
-                }
-                amount += PitNumberHandling.processLitresGallons(amountAdd, voiceMessage);
-                if (amount > PitManagerVoiceCmds.getFuelCapacity())
-                {
-                    amount = (int)PitManagerVoiceCmds.getFuelCapacity();
-                }
-                return rF2SetFuel(amount);
-            }
-            return false;
-        }
-
-        static public bool PMrF2eh_FuelToXlitres(string voiceMessage)
+        // Fuel Add:
+        // If "Relative Fuel Strategy" set menu to X litres else set to X+current
+        // X' = X+current
+        // Fuel To:
+        // If "Relative Fuel Strategy" set menu to X litres-current else set to X
+        // X' = X
+        //
+        // in rF2SetFuel(X')
+        // If "Relative Fuel Strategy" set to X'-current else set to X'
+        static private bool FuelAddXlitres(string voiceMessage, int current)
         {
             var amount = PitNumberHandling.processNumber(voiceMessage);
             amount = PitNumberHandling.processLitresGallons(amount, voiceMessage);
@@ -313,7 +342,15 @@ namespace CrewChiefV4.PitManager
             {
                 amount = (int)PitManagerVoiceCmds.getFuelCapacity();
             }
-            return rF2SetFuel(amount);
+            return rF2SetFuel(amount + current);
+        }
+        static public bool PMrF2eh_FuelAddXlitres(string voiceMessage)
+        {
+            return FuelAddXlitres(voiceMessage, (int)PitManagerVoiceCmds.getCurrentFuel());
+        }
+        static public bool PMrF2eh_FuelToXlitres(string voiceMessage)
+        {
+            return FuelAddXlitres(voiceMessage, 0);
         }
 
         static public bool PMrF2eh_FuelToEnd(string __)
@@ -339,56 +376,62 @@ namespace CrewChiefV4.PitManager
 
         static public bool rF2SetFuel(int amount)
         {
+            if (Pmal.RelativeFuelStrategy())
+            {
+                amount = Math.Max(amount - (int)PitManagerVoiceCmds.getCurrentFuel(), 0);
+            }
             return Pmal.SetFuelLevel(amount);
         }
         #endregion Fuel
 
+        #region Repairs
         static public bool PMrF2eh_RepairAll(string __)
+    {
+        if (!Pmal.SoftMatchCategory("DAMAGE:"))
         {
-            if (!Pmal.SoftMatchCategory("DAMAGE:"))
-            {
-                Pmal.RereadPitMenu();   // DAMAGE is not in initial menu, check if it is now
-            }
-            if (Pmal.SoftMatchCategory("DAMAGE:"))
-            {
-                return Pmal.SetChoice("Repair All");
-            }
-            return false;
+            Pmal.RereadPitMenu();   // DAMAGE is not in initial menu, check if it is now
         }
-
-        static public bool PMrF2eh_RepairNone(string __)
+        if (Pmal.SoftMatchCategory("DAMAGE:"))
         {
-            if (!Pmal.SoftMatchCategory("DAMAGE:"))
-            {
-                Pmal.RereadPitMenu();   // DAMAGE is not in initial menu, check if it is now
-            }
-            if (Pmal.SoftMatchCategory("DAMAGE:"))
-            {
-                return Pmal.SetChoice("Do Not Repair");
-            }
-            return false;
+            return Pmal.SetChoice("Repair All");
         }
+        return false;
+    }
 
-        static public bool PMrF2eh_RepairBody(string __)
+    static public bool PMrF2eh_RepairNone(string __)
+    {
+        if (!Pmal.SoftMatchCategory("DAMAGE:"))
         {
-            if (!Pmal.SoftMatchCategory("DAMAGE:"))
-            {
-                Pmal.RereadPitMenu();   // DAMAGE is not in initial menu, check if it is now
-            }
-            if (Pmal.SoftMatchCategory("DAMAGE:"))
-            {
-                return Pmal.SetChoice("Repair Body");
-            }
-            return false;
+            Pmal.RereadPitMenu();   // DAMAGE is not in initial menu, check if it is now
         }
+        if (Pmal.SoftMatchCategory("DAMAGE:"))
+        {
+            return Pmal.SetChoice("Do Not Repair");
+        }
+        return false;
+    }
 
+    static public bool PMrF2eh_RepairBody(string __)
+    {
+        if (!Pmal.SoftMatchCategory("DAMAGE:"))
+        {
+            Pmal.RereadPitMenu();   // DAMAGE is not in initial menu, check if it is now
+        }
+        if (Pmal.SoftMatchCategory("DAMAGE:"))
+        {
+            return Pmal.SetChoice("Repair Body");
+        }
+        return false;
+    }
+    #endregion Repairs
+        #region Penalties
         static public bool PMrF2eh_PenaltyServe(string __)
         {
-            if (!Pmal.SoftMatchCategory("STOP/GO"))
+            if (!Pmal.GetCategories().Contains("STOP/GO"))
             {
                 Pmal.RereadPitMenu();   // STOP/GO is not in initial menu, check if it is now
             }
-            if (Pmal.SoftMatchCategory("STOP/GO"))
+            if (Pmal.GetCategories().Contains("STOP/GO"))
             {
                 return Pmal.SetChoice("YES");
             }
@@ -397,16 +440,37 @@ namespace CrewChiefV4.PitManager
 
         static public bool PMrF2eh_PenaltyServeNone(string __)
         {
-            if (!Pmal.SoftMatchCategory("STOP/GO"))
+            if (!Pmal.GetCategories().Contains("STOP/GO"))
             {
                 Pmal.RereadPitMenu();   // STOP/GO is not in initial menu, check if it is now
             }
-            if (Pmal.SoftMatchCategory("STOP/GO"))
+            if (Pmal.GetCategories().Contains("STOP/GO"))
             {
                 return Pmal.SetChoice("NO");
             }
             return false;
         }
+        #endregion Penalties
+
+        static public bool PMrF2eh_ClearAll(string __)
+        {
+            if (PMrF2eh_FuelNone(null) &&
+                PMrF2eh_changeNoTyres(null))
+            {
+                Pmal.RereadPitMenu();   // STOP/GO or DAMAGE: is not in initial menu, check if it is now
+                var categories = Pmal.GetCategories();
+                if (categories.Contains("STOP/GO"))
+                {
+                    PMrF2eh_RepairNone(null);
+                }
+                if (categories.Contains("DAMAGE:"))
+                {
+                    PMrF2eh_PenaltyServeNone(null);
+                }
+            }
+            return false;
+        }
+
 
         #endregion Public Methods
 
@@ -428,7 +492,7 @@ namespace CrewChiefV4.PitManager
             }
 
             currentRf2TyreType.Set(result[genericTyreType]);
-            return true;
+            return PMrF2eh_changeAllTyres(null);
         }
 
         /// <summary>
