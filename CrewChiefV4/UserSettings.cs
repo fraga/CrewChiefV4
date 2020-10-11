@@ -20,7 +20,7 @@ namespace CrewChiefV4
             ForceablyDeleteDirectory(userConfigFolder);
         }
 
-        /// Depth-first recursive delete, with handling for descendant 
+        /// Depth-first recursive delete, with handling for descendant
         /// directories open in Windows Explorer and other Windows "not doing what its been told" arseholery.
         private static void ForceablyDeleteDirectory(string path)
         {
@@ -47,7 +47,7 @@ namespace CrewChiefV4
         public string initFailedStack = "";
         public string initFailedMessage = "";
 
-        private static  String[] reservedNameStarts = new String[] { "CHANNEL_", "TOGGLE_", "VOICE_OPTION", "background_volume", 
+        private static  String[] reservedNameStarts = new String[] { "CHANNEL_", "TOGGLE_", "VOICE_OPTION", "background_volume",
             "messages_volume", "last_game_definition", "UpdateSettings",ControllerConfiguration.ControllerData.PROPERTY_CONTAINER,
             "PERSONALISATION_NAME", "app_version", "spotter_name", "codriver_name", "codriver_style", "racing_type", "update_notify_attempted", "last_trace_file_name",
             "NAUDIO_DEVICE_GUID", "NAUDIO_RECORDING_DEVICE_GUID", "chief_name", "current_settings_profile", "main_window_position"};
@@ -170,7 +170,7 @@ namespace CrewChiefV4
             return null;
         }
         public static void saveUserSettingsFile(UserProfileSettings profileSettings, String fileName)
-        {                        
+        {
             if (!Directory.Exists(userProfilesPath))
             {
                 try
@@ -254,6 +254,12 @@ namespace CrewChiefV4
             }
         }
 
+        /// <summary>
+        /// Load the user settings from either "current_settings_profile"
+        /// or the profile specified in the command line arg -profile <profile name>
+        /// If the command line profile file does not exist use the default
+        /// (not the current) profile instead.
+        /// </summary>
         private UserSettings()
         {
             // Set profile from command line '-profile "file name without extension" ...'.  This needs to be
@@ -277,6 +283,9 @@ namespace CrewChiefV4
 
             if (!string.IsNullOrWhiteSpace(profileRequestedFromCommandLine))
             {
+                // Initialise to defaultUserSettingsfileName for the case where
+                // the specified profile does not exist
+                Properties.Settings.Default["current_settings_profile"] = defaultUserSettingsfileName;
                 var files = Directory.GetFiles(userProfilesPath, "*.json", SearchOption.TopDirectoryOnly).ToList();
                 foreach (var file in files)
                 {
@@ -285,7 +294,7 @@ namespace CrewChiefV4
                     {
                         var fileName = Path.GetFileName(file);
                         Properties.Settings.Default["current_settings_profile"] = fileName;
-                        // hmm not sure this will ever get displayed as this init happens before main window is initialized 
+                        // hmm not sure this will ever get displayed as this init happens before main window is initialized
                         Console.WriteLine($"Setting profile ({fileName}.json) from the command line");
                         break;
                     }
@@ -293,7 +302,7 @@ namespace CrewChiefV4
             }
             try
             {
-                // start by checked we can actually read a property value - this will throw an exception if the 
+                // start by checked we can actually read a property value - this will throw an exception if the
                 // user settings in AppData are broken
                 int x = Properties.Settings.Default.main_window_position.X;
 
@@ -426,7 +435,7 @@ namespace CrewChiefV4
                 else
                 {
                     return (String)Properties.Settings.Default[name];
-                }                   
+                }
             }
             catch (Exception)
             {
@@ -458,7 +467,7 @@ namespace CrewChiefV4
             {
                 Console.WriteLine("PROPERTY " + name + " NOT FOUND");
             }
-            
+
             return 0f;
         }
 
@@ -520,7 +529,7 @@ namespace CrewChiefV4
                     if (!value.Equals(currentActiveProfile.userSettings[name]))
                     {
                         userProfilePropertiesUpdated = true;
-                        currentActiveProfile.userSettings[name] = value;                 
+                        currentActiveProfile.userSettings[name] = value;
                     }
                 }
                 else if (!value.Equals(Properties.Settings.Default[name]))
