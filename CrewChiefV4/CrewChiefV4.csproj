@@ -170,6 +170,7 @@
     <Compile Include="commands\KeyPresser.cs" />
     <Compile Include="commands\CommandMacro.cs" />
     <Compile Include="commands\MacroManager.cs" />
+    <Compile Include="Dirt\DirtData.cs" />
     <Compile Include="DriverNameHelper.cs" />
     <Compile Include="DriverTrainingService.cs" />
     <Compile Include="Events\AbstractEvent.cs" />
@@ -241,6 +242,9 @@
     <Compile Include="F1_2019\longtomjr\Structs\RaceWinner.cs" />
     <Compile Include="F1_2019\longtomjr\Structs\TeamMateInPits.cs" />
     <Compile Include="F1_2019\longtomjr\Structs\Retirement.cs" />
+    <Compile Include="Dirt\DirtGameStateMapper.cs" />
+    <Compile Include="Dirt\DirtStructWrapper.cs" />
+    <Compile Include="Dirt\DirtUDPreader.cs" />
     <Compile Include="F1_2020\F12020GameStateMapper.cs" />
     <Compile Include="F1_2020\F12020Spotter.cs" />
     <Compile Include="F1_2020\F12020StructWrapper.cs" />
@@ -274,6 +278,8 @@
     <Compile Include="GameDataSerializer.cs" />
     <Compile Include="GameDefinition.cs" />
     <Compile Include="GameStateReaderFactory.cs" />
+    <Compile Include="GameState\DummyGameDataReader.cs" />
+    <Compile Include="GameState\DummyGameStateMapper.cs" />
     <Compile Include="GameState\GlobalBehaviourSettings.cs" />
     <Compile Include="GlobalResources.cs" />
     <Compile Include="iRacing\Bitfields\CameraState.cs" />

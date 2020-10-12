@@ -88,7 +88,7 @@ namespace CrewChiefV4
             }
             macroContainer = MacroManager.loadCommands(MacroManager.getMacrosFileLocation());
 
-            availableMacroGames = GameDefinition.getAllGameDefinitions().Where(
+            availableMacroGames = GameDefinition.getAllGameDefinitions(true).Where(
                 gd => gd.gameEnum != GameEnum.PCARS2_NETWORK && gd.gameEnum != GameEnum.AMS2 && gd.gameEnum != GameEnum.AMS2_NETWORK).ToList();
             var items = from name in availableMacroGames orderby name.friendlyName ascending select name;
             availableMacroGames = items.ToList();

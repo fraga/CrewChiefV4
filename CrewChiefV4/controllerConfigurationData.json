@@ -910,6 +910,12 @@
       "buttonIndex": -1,
       "opponentDataCommand": false,
       "availableAction": false
+    },
+	{
+      "action": "toggle_rally_recce_mode",
+      "deviceGuid": "",
+      "buttonIndex": -1,
+      "opponentDataCommand": false
     }
   ]
 }

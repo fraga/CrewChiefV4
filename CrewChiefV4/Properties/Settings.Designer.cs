@@ -4894,5 +4894,101 @@ namespace CrewChiefV4.Properties {
                 this["scroll_bars_on_main_window"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool launch_dirt {
+            get {
+                return ((bool)(this["launch_dirt"]));
+            }
+            set {
+                this["launch_dirt"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool launch_dirt2 {
+            get {
+                return ((bool)(this["launch_dirt2"]));
+            }
+            set {
+                this["launch_dirt2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string dirt_launch_exe {
+            get {
+                return ((string)(this["dirt_launch_exe"]));
+            }
+            set {
+                this["dirt_launch_exe"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string dirt2_launch_exe {
+            get {
+                return ((string)(this["dirt2_launch_exe"]));
+            }
+            set {
+                this["dirt2_launch_exe"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string dirt_launch_params {
+            get {
+                return ((string)(this["dirt_launch_params"]));
+            }
+            set {
+                this["dirt_launch_params"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string dirt2_launch_params {
+            get {
+                return ((string)(this["dirt2_launch_params"]));
+            }
+            set {
+                this["dirt2_launch_params"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool use_dictation_grammar_for_rally {
+            get {
+                return ((bool)(this["use_dictation_grammar_for_rally"]));
+            }
+            set {
+                this["use_dictation_grammar_for_rally"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.3")]
+        public float dictation_grammar_for_rally_confidence {
+            get {
+                return ((float)(this["dictation_grammar_for_rally_confidence"]));
+            }
+            set {
+                this["dictation_grammar_for_rally_confidence"] = value;
+            }
+        }
     }
 }
