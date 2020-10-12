@@ -515,7 +515,11 @@ namespace CrewChiefV4.rFactor2
             var idsToTelIndicesMap = RF2GameStateMapper.getIdsToTelIndicesMap(ref shared.telemetry);
             int playerTelIdx = -1;
             if (idsToTelIndicesMap.TryGetValue(playerScoring.mID, out playerTelIdx))
+            {
                 playerTelemetry = shared.telemetry.mVehicles[playerTelIdx];
+                cgs.carName = GetStringFromBytes(playerTelemetry.mVehicleName);
+                cgs.trackName = GetStringFromBytes(playerTelemetry.mTrackName);
+            }
             else
             {
                 playerTelemetryAvailable = false;

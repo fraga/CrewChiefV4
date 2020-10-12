@@ -123,6 +123,7 @@ namespace CrewChiefV4.PitManager
           List<string> inMenu)
         {
             Dictionary<string, string> result = new Dictionary<string, string>();
+            inMenu.Remove("No Change");
             int columnCount = 1; // will increase
 
             for (var col = 0; col < columnCount; col++)
@@ -149,6 +150,10 @@ namespace CrewChiefV4.PitManager
                             }
                         }
                     }
+                    if (!result.ContainsKey(genericTyretype.Key))
+                    {   // Didn't match, give it something
+                        result[genericTyretype.Key] = inMenu[0];
+                    }
                 }
             }
             return result;
@@ -160,8 +165,13 @@ namespace CrewChiefV4.PitManager
         static public bool PMrF2eh_initialise(string __)
         {
             Pmal.PmalConnect();
-            currentRf2TyreType.Set(Pmal.GetTyreTypeNames()[0]);
+            List<string> tyreTypeNames = Pmal.GetTyreTypeNames();
+            currentRf2TyreType.Set(tyreTypeNames[0]);
             Console.WriteLine("Pit Manager initialise");
+            foreach (var tyre in tyreTypeNames)
+            {
+                Console.WriteLine($"Tyre type '{tyre}'");
+            }
             return true;
         }
         static public bool PMrF2eh_teardown(string __)

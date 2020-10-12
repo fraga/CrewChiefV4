@@ -57,7 +57,7 @@ namespace CrewChiefV4.PitManager
             //{PME.FuelNone,              SRE.PIT_STOP_CLEAR_FUEL },
 
             {PME.RepairAll,               SRE.PIT_STOP_FIX_ALL },          // rF2
-            {PME.RepairNone,              SRE.PIT_STOP_FIX_NONE },         // rF2 
+            {PME.RepairNone,              SRE.PIT_STOP_FIX_NONE },         // rF2
             {PME.RepairFast,              SRE.PIT_STOP_FAST_REPAIR },        // iRacing
             {PME.RepairAllAero,           SRE.PIT_STOP_FIX_ALL_AERO },       // R3E
             {PME.RepairFrontAero,         SRE.PIT_STOP_FIX_FRONT_AERO },
@@ -230,6 +230,8 @@ namespace CrewChiefV4.PitManager
             if (!previousGameState.inCar && currentGameState.inCar)
             {
                 pmh.EventHandlerInit();
+                Console.WriteLine($"Car name {currentGameState.carName}");
+                Console.WriteLine($"Track name {currentGameState.trackName}");
             }
 
             fuelCapacity = currentGameState.FuelData.FuelCapacity;
