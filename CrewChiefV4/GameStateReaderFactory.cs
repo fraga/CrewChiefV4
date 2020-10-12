@@ -4,9 +4,6 @@ using CrewChiefV4.RaceRoom;
 using CrewChiefV4.rFactor1;
 using CrewChiefV4.assetto;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using CrewChiefV4.rFactor2;
 using CrewChiefV4.iRacing;
 using CrewChiefV4.PCars2;
@@ -16,6 +13,7 @@ using CrewChiefV4.F1_2019;
 using CrewChiefV4.AMS2;
 using CrewChiefV4.F1_2020;
 using CrewChiefV4.RBR;
+using CrewChiefV4.Dirt;
 
 namespace CrewChiefV4
 {
@@ -41,6 +39,7 @@ namespace CrewChiefV4
         private AMS2SharedMemoryReader ams2SharedMemoryReader;
         private F12020UDPreader f12020UDPReader;
         private RBRSharedMemoryReader rbrSharedMemoryReader;
+        private DirtUDPreader dirtUDPMemoryReader;
 
         public static GameStateReaderFactory getInstance()
         {
@@ -152,6 +151,15 @@ namespace CrewChiefV4
                             rbrSharedMemoryReader = new RBRSharedMemoryReader();
                         }
                         return rbrSharedMemoryReader;
+                    case GameEnum.DIRT:
+                    case GameEnum.DIRT_2:
+                        if (dirtUDPMemoryReader == null)
+                        {
+                            dirtUDPMemoryReader = new DirtUDPreader();
+                        }
+                        return dirtUDPMemoryReader;
+                    default:
+                        return new DummyGameDataReader();
                 }
             }
             return null;
@@ -193,9 +201,12 @@ namespace CrewChiefV4
                     return new AMS2GameStateMapper();
                 case GameEnum.RBR:
                     return new RBRGameStateMapper();
+                case GameEnum.DIRT:
+                case GameEnum.DIRT_2:
+                    return new DirtGameStateMapper();
                 default:
                     Console.WriteLine("No mapper is defined for GameDefinition " + gameDefinition.friendlyName);
-                    return null;
+                    return new DummyGameStateMapper();
             }
         }
     }

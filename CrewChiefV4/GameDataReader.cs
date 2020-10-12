@@ -58,7 +58,10 @@ namespace CrewChiefV4
         // NOTE: InitialiseInternal must be synchronized internally.
         public Boolean Initialise()
         {
-            Console.WriteLine("Initialising...");
+            if (CrewChief.gameDefinition.gameEnum != GameEnum.NONE)
+            {
+                Console.WriteLine("Initialising...");
+            }
             Boolean initialised = InitialiseInternal();
             if (dataFilesPath == null)
             {

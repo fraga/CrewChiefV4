@@ -1,16 +1,13 @@
 ﻿using Microsoft.Speech.Recognition;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CrewChiefV4.SRE
 {
     class MicrosoftGrammarBuilderWrapper : GrammarBuilderWrapper
     {
         private GrammarBuilder grammarBuilder;
+        private CultureInfo cultureInfo = null;
 
         public MicrosoftGrammarBuilderWrapper()
         {
@@ -27,6 +24,26 @@ namespace CrewChiefV4.SRE
             grammarBuilder.Append((Choices)choicesWrapper.GetInternalChoices());
         }
 
+        void GrammarBuilderWrapper.Append(ChoicesWrapper choicesWrapper, int minRepeat, int maxRepeat)
+        {
+            if (this.cultureInfo == null)
+            {
+                throw new InvalidOperationException("No culture object defined for nested GrammarBuilder");
+            }
+            GrammarBuilder choicesGrammarBuilder = new GrammarBuilder((Choices)choicesWrapper.GetInternalChoices());
+            choicesGrammarBuilder.Culture = this.cultureInfo;
+            this.grammarBuilder.Append(choicesGrammarBuilder, minRepeat, maxRepeat);
+        }
+
+        void GrammarBuilderWrapper.Append(GrammarBuilderWrapper grammarBuilderWrapper, int minRepeat, int maxRepeat)
+        {
+            if (this.cultureInfo == null)
+            {
+                throw new InvalidOperationException("No culture object defined for nested GrammarBuilder");
+            }
+            this.grammarBuilder.Append((GrammarBuilder)grammarBuilderWrapper.GetInternalGrammarBuilder(), minRepeat, maxRepeat);
+        }
+
         void GrammarBuilderWrapper.Append(string text)
         {
             grammarBuilder.Append(text);
@@ -40,6 +57,7 @@ namespace CrewChiefV4.SRE
         void GrammarBuilderWrapper.SetCulture(CultureInfo cultureInfo)
         {
             grammarBuilder.Culture = cultureInfo;
+            this.cultureInfo = cultureInfo;
         }
     }
 }

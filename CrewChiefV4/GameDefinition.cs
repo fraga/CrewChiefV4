@@ -8,15 +8,19 @@ namespace CrewChiefV4
 {
     public enum GameEnum
     {
-        RACE_ROOM, PCARS2, PCARS_64BIT, PCARS_32BIT, PCARS_NETWORK, PCARS2_NETWORK, RF1, ASSETTO_64BIT, ASSETTO_32BIT, RF2_64BIT, IRACING, F1_2018, F1_2019, F1_2020, ACC, AMS2, AMS2_NETWORK, PCARS3, RBR, UNKNOWN
+        RACE_ROOM, PCARS2, PCARS_64BIT, PCARS_32BIT, PCARS_NETWORK, PCARS2_NETWORK, RF1, ASSETTO_64BIT, ASSETTO_32BIT,
+        RF2_64BIT, IRACING, F1_2018, F1_2019, F1_2020, ACC, AMS2, AMS2_NETWORK, PCARS3, RBR, DIRT, DIRT_2, UNKNOWN,
+        NONE, /* this allows CC macros to run when an unsupported game is being played, it's selectable from the Games list */
+        ANY   /* this allows CC macros to be defined that apply to all supported games, it's only selectable from the macro UI */
+
     }
     public class GameDefinition
     {
         public static GameDefinition pCars64Bit = new GameDefinition(GameEnum.PCARS_64BIT, "pcars_64_bit", "pCARS64",
-            "CrewChiefV4.PCars.PCarsSpotterv2", "pcars64_launch_exe", "pcars64_launch_params", "launch_pcars", 
+            "CrewChiefV4.PCars.PCarsSpotterv2", "pcars64_launch_exe", "pcars64_launch_params", "launch_pcars",
             new String[] { "pCARS2", "pCARS2Gld", "pCARS2QA", "pCARS2AVX" }, false);
         public static GameDefinition AMS2 = new GameDefinition(GameEnum.AMS2, "ams2", "AMS2AVX",
-            "CrewChiefV4.AMS2.AMS2Spotter", "ams2_launch_exe", "ams2_launch_params", "launch_ams2", new String[] { "AMS2", "AMS2AVX"}, false);
+            "CrewChiefV4.AMS2.AMS2Spotter", "ams2_launch_exe", "ams2_launch_params", "launch_ams2", new String[] { "AMS2", "AMS2AVX" }, false);
         public static GameDefinition pCars32Bit = new GameDefinition(GameEnum.PCARS_32BIT, "pcars_32_bit", "pCARS",
             "CrewChiefV4.PCars.PCarsSpotterv2", "pcars32_launch_exe", "pcars32_launch_params", "launch_pcars", false);
         // pCars2 defines its own macro manager friendly game name, as these macros can be used by AMS2 and pCars2. Other games
@@ -62,9 +66,16 @@ namespace CrewChiefV4
             "f1_2020_launch_exe", "f1_2020_launch_params", "launch_f1_2020", false);
         public static GameDefinition rbr = new GameDefinition(GameEnum.RBR, "rbr", "RichardBurnsRally_SSE", null /*spotterName*/,
             "rbr_launch_exe", null /*gameStartCommandOptionsProperty*/, "launch_rbr", true, "", null, CrewChief.RacingType.Rally);
+        public static GameDefinition dirt = new GameDefinition(GameEnum.DIRT, "dirt", "drt", null /*spotterName*/,
+            "dirt_launch_exe", "dirt2_launch_params" /*gameStartCommandOptionsProperty*/, "launch_dirt", false, "", null, CrewChief.RacingType.Rally);
+        public static GameDefinition dirt2 = new GameDefinition(GameEnum.DIRT_2, "dirt2", "dirtrally2", null /*spotterName*/,
+            "dirt2_launch_exe", "dirt2_launch_params" /*gameStartCommandOptionsProperty*/, "launch_dirt2", false, "", null, CrewChief.RacingType.Rally);
+
+        public static GameDefinition any = new GameDefinition(GameEnum.ANY, "all_games", null, null, null, null, null, false, "", "Generic (all games)");
+        public static GameDefinition none = new GameDefinition(GameEnum.NONE, "unsupported_game", null, null, null, null, null, false, "", "Unsupported games");
 
         private static string showOnlyTheseGames = UserSettings.GetUserSettings().getString("limit_available_games");
-        
+
         private static List<GameDefinition> filterAvailableGames(List<GameDefinition> gameDefinitions)
         {
             if (showOnlyTheseGames != null && showOnlyTheseGames.Length > 0)
@@ -154,6 +165,14 @@ namespace CrewChiefV4
                                 {
                                     filtered.Add(GameDefinition.rbr);
                                 }
+                                else if (filterLower.Contains("dirt"))
+                                {
+                                    filtered.Add(GameDefinition.dirt);
+                                }
+                                else if (filterLower.Contains("dirt_2"))
+                                {
+                                    filtered.Add(GameDefinition.dirt2);
+                                }
                                 else
                                 {
                                     Console.WriteLine("Game filter term \"" + filter + "\" not recognised");
@@ -169,7 +188,7 @@ namespace CrewChiefV4
             return gameDefinitions;
         }
 
-        public static List<GameDefinition> getAllGameDefinitions()
+        public static List<GameDefinition> getAllGameDefinitions(Boolean includeAllSupportedGamesEntry)
         {
             List<GameDefinition> definitions = new List<GameDefinition>();
             definitions.Add(automobilista); definitions.Add(AMS2);
@@ -188,12 +207,16 @@ namespace CrewChiefV4
             definitions.Add(f1_2019);
             definitions.Add(f1_2020);
             definitions.Add(rbr);
+            definitions.Add(none);
+            definitions.Add(dirt);
+            definitions.Add(dirt2);
+            if (includeAllSupportedGamesEntry) definitions.Add(any);
             return filterAvailableGames(definitions);
         }
 
         public static GameDefinition getGameDefinitionForFriendlyName(String friendlyName)
         {
-            List<GameDefinition> definitions = getAllGameDefinitions();
+            List<GameDefinition> definitions = getAllGameDefinitions(true);
             foreach (GameDefinition def in definitions)
             {
                 if (def.friendlyName == friendlyName)
@@ -206,7 +229,7 @@ namespace CrewChiefV4
 
         public static GameDefinition getGameDefinitionForEnumName(String enumName)
         {
-            List<GameDefinition> definitions = getAllGameDefinitions();
+            List<GameDefinition> definitions = getAllGameDefinitions(false);
             foreach (GameDefinition def in definitions)
             {
                 if (def.gameEnum.ToString() == enumName)
@@ -220,7 +243,7 @@ namespace CrewChiefV4
         public static String[] getGameDefinitionFriendlyNames()
         {
             List<String> names = new List<String>();
-            foreach (GameDefinition def in getAllGameDefinitions())
+            foreach (GameDefinition def in getAllGameDefinitions(false))
             {
                 names.Add(def.friendlyName);
             }

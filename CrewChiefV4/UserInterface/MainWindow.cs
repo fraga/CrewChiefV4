@@ -135,6 +135,7 @@ namespace CrewChiefV4
         public static bool autoScrollConsole = true;
         private Thread youWotThread = null;
         private Thread assignButtonThread = null;
+        private Thread loadSREGrammarThread = null;
         public bool formClosed = false;
 
         public static bool soundTestMode = false;
@@ -944,7 +945,27 @@ namespace CrewChiefV4
                         setFromCommandLine = true;
                         break;
                     }
-
+                    else if (arg.Equals("DIRT", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        Console.WriteLine("Set DIRT mode from command line");
+                        this.gameDefinitionList.Text = GameDefinition.dirt.friendlyName;
+                        setFromCommandLine = true;
+                        break;
+                    }
+                    else if (arg.Equals("DIRT_2", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        Console.WriteLine("Set DIRT 2 mode from command line");
+                        this.gameDefinitionList.Text = GameDefinition.dirt2.friendlyName;
+                        setFromCommandLine = true;
+                        break;
+                    }
+                    else if (arg.Equals("NONE", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        Console.WriteLine("Set None mode from command line");
+                        this.gameDefinitionList.Text = GameDefinition.none.friendlyName;
+                        setFromCommandLine = true;
+                        break;
+                    }
                 }
             }
             if (!setFromCommandLine)
@@ -2219,6 +2240,70 @@ namespace CrewChiefV4
             this.scanControllers.Enabled = true;
         }
 
+        private void loadSREGrammarAndStartListening()
+        {
+            bool loadedCommands = false;
+            try
+            {
+                crewChief.speechRecogniser.loadSRECommands();
+                loadedCommands = true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Failed to load voice commands into speech recogniser: " + e.Message);
+            }
+            try
+            {
+                crewChief.speechRecogniser.loadMacroVoiceTriggers(MacroManager.voiceTriggeredMacros);
+                loadedCommands = true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Failed to load command macros into speech recogniser: " + e.Message);
+            }
+
+            // once the grammars are loaded successfully, we can start listening for commands
+            // post this back to the main thread so we're kicking off the button listener from our root thread
+            // and running always-on SRE on the root thread
+            if (loadedCommands)
+            {
+                this.Invoke((MethodInvoker)delegate
+                {
+                    runListenForChannelOpenThread = controllerConfiguration.listenForChannelOpen()
+                                && voiceOption == VoiceOptionEnum.HOLD && crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised;
+                    if (runListenForChannelOpenThread && voiceOption == VoiceOptionEnum.HOLD && crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised)
+                    {
+                        Console.WriteLine("Listening on default audio input device");
+                        ThreadStart channelOpenButtonListenerWork = listenForChannelOpen;
+                        Thread channelOpenButtonListenerThread = new Thread(channelOpenButtonListenerWork);
+
+                        channelOpenButtonListenerThread.Name = "MainWindow.listenForChannelOpen";
+                        ThreadManager.RegisterRootThread(channelOpenButtonListenerThread);
+
+                        channelOpenButtonListenerThread.Start();
+                    }
+                    else if ((voiceOption == VoiceOptionEnum.ALWAYS_ON || voiceOption == VoiceOptionEnum.TRIGGER_WORD) &&
+                        crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised)
+                    {
+                        Console.WriteLine("Running speech recognition in 'always on' mode");
+                        crewChief.speechRecogniser.voiceOptionEnum = voiceOption;
+                        crewChief.speechRecogniser.startContinuousListening();
+                    }
+                    if (runListenForButtonPressesThread)
+                    {
+                        Console.WriteLine("Listening for buttons");
+                        ThreadStart buttonPressesListenerWork = listenForButtons;
+                        Thread buttonPressesListenerThread = new Thread(buttonPressesListenerWork);
+
+                        buttonPressesListenerThread.Name = "MainWindow.listenForButtons";
+                        ThreadManager.RegisterRootThread(buttonPressesListenerThread);
+
+                        buttonPressesListenerThread.Start();
+                    }
+                });
+            }
+        }
+
         private void doStartAppStuff()
         {
             IsAppRunning = !IsAppRunning;
@@ -2265,38 +2350,16 @@ namespace CrewChiefV4
 
                     crewChief.onRestart();
                     crewChiefThread.Start();
-                    runListenForChannelOpenThread = controllerConfiguration.listenForChannelOpen()
-                        && voiceOption == VoiceOptionEnum.HOLD && crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised;
-                    if (runListenForChannelOpenThread && voiceOption == VoiceOptionEnum.HOLD && crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised)
+
+                    if (crewChief.speechRecogniser != null)
                     {
-                        Console.WriteLine("Listening on default audio input device");
-                        ThreadStart channelOpenButtonListenerWork = listenForChannelOpen;
-                        Thread channelOpenButtonListenerThread = new Thread(channelOpenButtonListenerWork);
-
-                        channelOpenButtonListenerThread.Name = "MainWindow.listenForChannelOpen";
-                        ThreadManager.RegisterRootThread(channelOpenButtonListenerThread);
-
-                        channelOpenButtonListenerThread.Start();
+                        ThreadStart loadSREGrammarWork = loadSREGrammarAndStartListening;
+                        ThreadManager.UnregisterTemporaryThread(loadSREGrammarThread);
+                        loadSREGrammarThread = new Thread(loadSREGrammarWork);
+                        loadSREGrammarThread.Name = "MainWindow.loadSREGrammarThread";
+                        ThreadManager.RegisterTemporaryThread(loadSREGrammarThread);
+                        loadSREGrammarThread.Start();
                     }
-                    else if ((voiceOption == VoiceOptionEnum.ALWAYS_ON || voiceOption == VoiceOptionEnum.TRIGGER_WORD) &&
-                        crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised)
-                    {
-                        Console.WriteLine("Running speech recognition in 'always on' mode");
-                        crewChief.speechRecogniser.voiceOptionEnum = voiceOption;
-                        crewChief.speechRecogniser.startContinuousListening();
-                    }
-                    if (runListenForButtonPressesThread)
-                    {
-                        Console.WriteLine("Listening for buttons");
-                        ThreadStart buttonPressesListenerWork = listenForButtons;
-                        Thread buttonPressesListenerThread = new Thread(buttonPressesListenerWork);
-
-                        buttonPressesListenerThread.Name = "MainWindow.listenForButtons";
-                        ThreadManager.RegisterRootThread(buttonPressesListenerThread);
-
-                        buttonPressesListenerThread.Start();
-                    }
-
                 }
                 else
                 {
