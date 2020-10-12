@@ -524,7 +524,7 @@ namespace CrewChiefV4.PitManager
                     // dict is the other direction currentGenericTyreCompound = ttDict[tyreType];
                     if (CrewChief.Debugging)
                     {
-                        Console.WriteLine("Pit Manager tyre compound set to (" +
+                        Log.Commentary("Pit Manager tyre compound set to (" +
                             tyreCategory + ") " + tyreType);
                     }
                 }
@@ -571,7 +571,7 @@ namespace CrewChiefV4.PitManager
                 {
                     if (CrewChief.Debugging)
                     {
-                        Console.WriteLine("Pit Manager tyre pressure set to (" +
+                        Log.Commentary("Pit Manager tyre pressure set to (" +
                             tyreCategory + ") " + pressure);
                     }
                 }

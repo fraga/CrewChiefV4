@@ -4882,5 +4882,17 @@ namespace CrewChiefV4.Properties {
                 this["show_splash_screen"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool scroll_bars_on_main_window {
+            get {
+                return ((bool)(this["scroll_bars_on_main_window"]));
+            }
+            set {
+                this["scroll_bars_on_main_window"] = value;
+            }
+        }
     }
 }

@@ -176,7 +176,7 @@ WHATS_MY_RANK = what's my rank
 WHATS_MY_RATING = what's my rating
 WHATS_MY_REPUTATION = what's my reputation
 
-STOP_WATCHING_ALL = cancel watched drivers:stop watching drivers:stop watching all
+STOP_WATCHING_ALL = cancel monitored drivers:stop monitoring drivers:stop monitoring all
 
 #################################################
 # Dynamic recognition phrase fragments - these are used to build up recognition sentences for opponent information.
@@ -279,8 +279,8 @@ RANK = rank
 #  this gets a combined rank and reputation - "how good is bob" / "how good is the driver in front"
 HOW_GOOD_IS = how good is
 
-WATCH = watch
-STOP_WATCHING = stop watching
+WATCH = monitor
+STOP_WATCHING = stop monitoring
 RIVAL = rival
 TEAM_MATE = team mate
 

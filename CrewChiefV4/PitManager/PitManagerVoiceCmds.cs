@@ -164,15 +164,14 @@ namespace CrewChiefV4.PitManager
                 {
                     if (inCar)
                     {
-                        if (CrewChief.Debugging)
-                            Console.WriteLine("Pit Manager voice command " + cmd.Value[0]);
+                        Log.Debug("Pit Manager voice command " + cmd.Value[0]);
                         pmh.EventHandler(cmd.Key, voiceMessage);
                         break;
                     }
                     else
                     {
                         PitManagerResponseHandlers.PMrh_CantDoThat(); // tbd
-                        Console.WriteLine("Not in car received Pit Manager voice command " + cmd.Value[0]);
+                        Log.Commentary("Not in car received Pit Manager voice command " + cmd.Value[0]);
                     }
                 }
             }
@@ -288,8 +287,7 @@ namespace CrewChiefV4.PitManager
                     if (_voiceMessage.Contains(" " + numberStr))
                     {
                         amount = entry.Value;
-                        if (CrewChief.Debugging)
-                            Console.WriteLine("processed number " + amount.ToString());
+                        Log.Debug("processed number " + amount.ToString());
                         break;
                     }
                 }
@@ -325,7 +323,7 @@ namespace CrewChiefV4.PitManager
             else
             {
                 Fuel fuelEvent = (Fuel)CrewChief.getEvent("Fuel");
-                Console.WriteLine("Got fuel request with no unit, assuming " + (fuelEvent.fuelReportsInGallon ? " gallons" : "litres"));
+                Log.Commentary("Got fuel request with no unit, assuming " + (fuelEvent.fuelReportsInGallon ? " gallons" : "litres"));
                 if (fuelEvent.fuelReportsInGallon)
                 {
                     litres = false;
@@ -392,7 +390,7 @@ namespace CrewChiefV4.PitManager
             else if (additionaLitresNeeded > 0)
             {
                 roundedLitresNeeded = (int)Math.Ceiling(additionaLitresNeeded);
-                Console.WriteLine("Auto refuel to the end of the race, adding " + roundedLitresNeeded + " litres of fuel");
+                Log.Commentary("Auto refuel to the end of the race, adding " + roundedLitresNeeded + " litres of fuel");
                 if (roundedLitresNeeded > fuelCapacity - currentFuel)
                 {
                     // if we have a known fuel capacity and this is less than the calculated amount of fuel we need, warn about it.

@@ -526,14 +526,16 @@ namespace CrewChiefV4.Events
                                 
                                 TimeSpan closestDeltapointTimeDelta = TimeSpan.MaxValue;
                                 float closestDeltapointPosition = -1;
-                                foreach (KeyValuePair<float, DateTime> deltaPointEntry in entry.Value.DeltaTime.deltaPoints)
+                                int index = 0;
+                                foreach (DateTime deltaPointEntry in entry.Value.DeltaTime.deltaPoints)
                                 {
-                                    TimeSpan timeDelta = (nowMinusExpectedLoss - deltaPointEntry.Value).Duration();
+                                    TimeSpan timeDelta = (nowMinusExpectedLoss - deltaPointEntry).Duration();
                                     if (timeDelta < closestDeltapointTimeDelta)
                                     {
                                         closestDeltapointTimeDelta = timeDelta;
-                                        closestDeltapointPosition = deltaPointEntry.Key;
+                                        closestDeltapointPosition = index * entry.Value.DeltaTime.spacing;
                                     }
+                                    index++;
                                 }
                                 // this is the gap we expect to this guy when he leaves the pits. Negative gap means he'll be in front
                                 float expectedDistanceToPlayerOnPitExit = currentGameState.PositionAndMotionData.DistanceRoundTrack - closestDeltapointPosition;
@@ -670,14 +672,16 @@ namespace CrewChiefV4.Events
             // get the track distanceRoundTrack at this point in history
             TimeSpan closestDeltapointTimeDelta = TimeSpan.MaxValue;
             float closestDeltapointPosition = float.MaxValue;
-            foreach (KeyValuePair<float, DateTime> entry in playerDeltaTime.deltaPoints)
+            int index = 0;
+            foreach (DateTime entry in playerDeltaTime.deltaPoints)
             {
-                TimeSpan timeDelta = (nowMinusExpectedLoss - entry.Value).Duration();
+                TimeSpan timeDelta = (nowMinusExpectedLoss - entry).Duration();
                 if (timeDelta < closestDeltapointTimeDelta)
                 {
                     closestDeltapointTimeDelta = timeDelta;
-                    closestDeltapointPosition = entry.Key;
+                    closestDeltapointPosition = index * playerDeltaTime.spacing;
                 }
+                index++;
             }
 
             // work out how far we'd have travelled if we were expectedPlayerTimeLoss seconds behind where we are now
@@ -702,7 +706,7 @@ namespace CrewChiefV4.Events
         {
             float halfTrackLength = trackLength / 2;
             // check we have deltapoints first
-            if (playerDeltaTime == null || playerDeltaTime.deltaPoints == null || playerDeltaTime.deltaPoints.Count == 0)
+            if (playerDeltaTime == null || playerDeltaTime.deltaPoints == null || playerDeltaTime.deltaPoints.Length == 0)
             {
                 Console.WriteLine("No usable deltapoints object, can't derive post-pit positions");
                 return null;

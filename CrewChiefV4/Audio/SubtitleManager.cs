@@ -18,15 +18,16 @@ namespace CrewChiefV4.Audio
     internal static class SubtitleManager
     {
         private static readonly String spotterName = UserSettings.GetUserSettings().getString("spotter_name");
-        private static readonly String chiefName = UserSettings.GetUserSettings().getString("chief_name");
+        private static readonly String nameToUseForSubtitles = CrewChief.gameDefinition != null && CrewChief.gameDefinition.racingType == CrewChief.RacingType.Rally ? UserSettings.GetUserSettings().getString("codriver_name") : UserSettings.GetUserSettings().getString("chief_name");
         public static readonly bool enableSubtitles = UserSettings.GetUserSettings().getBoolean("enable_subtitle_overlay") || UserSettings.GetUserSettings().getBoolean("enable_shared_memory");
         public static CircularBuffer<Phrase> phraseBuffer = new CircularBuffer<Phrase>(10);
 
         static SubtitleManager()
         {
-            if (chiefName.Contains("default"))
+
+            if (nameToUseForSubtitles.Contains("default"))
             {
-                chiefName = chiefName.Remove(chiefName.IndexOf(" (default)"));
+                nameToUseForSubtitles = nameToUseForSubtitles.Remove(nameToUseForSubtitles.IndexOf(" (default)"));
             }            
         }
         internal static void AddPhraseForSpeech(string phrase)
@@ -59,7 +60,7 @@ namespace CrewChiefV4.Audio
             string voiceName = "";
             if (!singleSoundsToPlay[0].isPause && !singleSoundsToPlay[0].isBleep)
             {
-                voiceName = soundMetadata.type == SoundType.SPOTTER ? spotterName : chiefName;
+                voiceName = soundMetadata.type == SoundType.SPOTTER ? spotterName : nameToUseForSubtitles;
             }           
             for (int i = 0; i < singleSoundsToPlay.Count(); i++)
             {

@@ -449,7 +449,8 @@ namespace CrewChiefV4.Events
                 playedSlowdownNotificationOnThisLap = false;
                 playerMustPitThisLap = false;
             }
-            if ((currentGameState.SessionData.SessionType == SessionType.Race || CrewChief.gameDefinition.gameEnum == GameEnum.IRACING) && previousGameState != null &&
+            if (CrewChief.gameDefinition.gameEnum != GameEnum.ACC &&
+                (currentGameState.SessionData.SessionType == SessionType.Race || CrewChief.gameDefinition.gameEnum == GameEnum.IRACING) && previousGameState != null &&
                 (currentGameState.PenaltiesData.HasDriveThrough || currentGameState.PenaltiesData.HasStopAndGo || currentGameState.PenaltiesData.HasTimeDeduction || 
                 currentGameState.PenaltiesData.HasPitStop || currentGameState.PenaltiesData.HasMeatballFlag))
             {
@@ -568,7 +569,7 @@ namespace CrewChiefV4.Events
             else if (currentGameState.PositionAndMotionData.CarSpeed > 10 && GlobalBehaviourSettings.cutTrackWarningsEnabled &&
                 !currentGameState.PitData.OnOutLap &&
                 currentGameState.PenaltiesData.CutTrackWarnings > cutTrackWarningsCount &&
-                currentGameState.PenaltiesData.NumPenalties == previousGameState.PenaltiesData.NumPenalties)  // Make sure we've no new penalty for this cut.
+                currentGameState.PenaltiesData.NumOutstandingPenalties == previousGameState.PenaltiesData.NumOutstandingPenalties)  // Make sure we've no new penalty for this cut.
             {
                 cutTrackWarningsCount = currentGameState.PenaltiesData.CutTrackWarnings;
                 if (currentGameState.ControlData.ControlType != ControlType.AI &&
@@ -601,11 +602,11 @@ namespace CrewChiefV4.Events
             }
             else if ((currentGameState.SessionData.SessionType == SessionType.Race || currentGameState.SessionData.SessionType == SessionType.Qualify
                         || currentGameState.SessionData.SessionType == SessionType.Practice || currentGameState.SessionData.SessionType == SessionType.LonePractice)
-                    && previousGameState != null && currentGameState.PenaltiesData.NumPenalties > 0
+                    && previousGameState != null && currentGameState.PenaltiesData.NumOutstandingPenalties > 0
                     && (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT || CrewChief.gameDefinition.gameEnum == GameEnum.ACC ||
                 (CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM && currentGameState.PenaltiesData.PenaltyType != PenatiesData.DetailedPenaltyType.NONE)))
             {
-                if (currentGameState.PenaltiesData.NumPenalties > previousGameState.PenaltiesData.NumPenalties)
+                if (currentGameState.PenaltiesData.NumOutstandingPenalties > previousGameState.PenaltiesData.NumOutstandingPenalties)
                 {
                     lapsCompleted = currentGameState.SessionData.CompletedLaps;
                     // this is a new penalty
@@ -631,14 +632,14 @@ namespace CrewChiefV4.Events
                     // don't know if this is for cutting, just in case we reset the cutting enum
                     trackLimitsMode = TrackLimitsMode.OK;
                 }
-                else if (currentGameState.PitData.InPitlane && currentGameState.PitData.OnOutLap && !playedNotServedPenalty &&
-                    currentGameState.PenaltiesData.NumPenalties > 0)
+                else if (previousGameState.PitData.InPitlane && !currentGameState.PitData.InPitlane && !playedNotServedPenalty &&
+                    currentGameState.PenaltiesData.NumOutstandingPenalties > 0)
                 {
                     // we've exited the pits but there's still an outstanding penalty
                     audioPlayer.playMessage(new QueuedMessage(folderPenaltyNotServed, 0, secondsDelay: 3, abstractEvent: this, priority: 10));
                     playedNotServedPenalty = true;
                 }
-                else if (currentGameState.SessionData.IsNewLap && currentGameState.PenaltiesData.NumPenalties > 0)
+                else if (currentGameState.SessionData.IsNewLap && currentGameState.PenaltiesData.NumOutstandingPenalties > 0)
                 {
                     lapsCompleted = currentGameState.SessionData.CompletedLaps;
                     if (lapsCompleted - penaltyLap >= 2 && !currentGameState.PitData.InPitlane)
@@ -698,7 +699,7 @@ namespace CrewChiefV4.Events
                 ((previousGameState.PenaltiesData.HasStopAndGo && !currentGameState.PenaltiesData.HasStopAndGo) ||
                 (previousGameState.PenaltiesData.HasDriveThrough && !currentGameState.PenaltiesData.HasDriveThrough) ||
                 // can't read penalty type in Automobilista (and presumably in rF2).
-                (previousGameState.PenaltiesData.NumPenalties > currentGameState.PenaltiesData.NumPenalties &&
+                (previousGameState.PenaltiesData.NumOutstandingPenalties > currentGameState.PenaltiesData.NumOutstandingPenalties &&
                 (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT))))
             {
                 audioPlayer.playMessage(new QueuedMessage(folderPenaltyServed, 0, abstractEvent: this, priority: 10));

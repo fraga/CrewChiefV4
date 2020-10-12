@@ -100,7 +100,10 @@ namespace CrewChiefV4
             // try to select the CME game matching the main window game
             var selection = Math.Min(MainWindow.instance.gameDefinitionList.SelectedIndex,
                 listBoxGames.Items.Count-1);
-            listBoxGames.SetSelected(selection, true);
+            if (selection != -1)
+            {
+                listBoxGames.SetSelected(selection, true);
+            }
             updateMacroList();
             listBoxGames.Select();
 

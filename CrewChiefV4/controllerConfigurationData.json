@@ -884,21 +884,21 @@
       "availableAction": false
     },
     {
-      "action": "watch the car ahead",
+      "action": "monitor the car ahead",
       "deviceGuid": "",
       "buttonIndex": -1,
       "opponentDataCommand": true,
       "availableAction": false
     },
     {
-      "action": "watch the car behind",
+      "action": "monitor the car behind",
       "deviceGuid": "",
       "buttonIndex": -1,
       "opponentDataCommand": true,
       "availableAction": false
     },
     {
-      "action": "watch the car behind",
+      "action": "monitor the car behind",
       "deviceGuid": "",
       "buttonIndex": -1,
       "opponentDataCommand": true,

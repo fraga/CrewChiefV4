@@ -82,8 +82,7 @@ namespace CrewChiefV4.R3E
                     {
                         var stopwatch = new Stopwatch();
                         stopwatch.Start();
-                        WebClient client = new WebClient();
-                        string ratingsJson = client.DownloadString(url);
+                        string ratingsJson = R3ERatings.download(url);
                         stopwatch.Stop();
                         Console.WriteLine("Downloaded driver rating profiles from " + url + " in " + stopwatch.ElapsedMilliseconds + "ms");
                         stopwatch.Reset();
@@ -102,7 +101,7 @@ namespace CrewChiefV4.R3E
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine("Unable to get R3E ranking data from " + url + " error: " + e.StackTrace);
+                        Console.WriteLine("Unable to get R3E ranking data from " + url + " error: " + e.Message);
                     }
                     finally
                     {
@@ -114,6 +113,46 @@ namespace CrewChiefV4.R3E
             ThreadManager.RegisterTemporaryThread(ratingDownloadThread);
             ratingDownloadThread.Name = "R3ERatings.init";
             ratingDownloadThread.Start();
+        }
+
+        private static string download(string url)
+        {
+            string ratingsJson = null;
+            using (WebClient client = new WebClient())
+            {
+                try
+                {
+                    ratingsJson = client.DownloadString(url);
+                }
+                catch (Exception e)
+                {
+                    // nasty error handling, 404 or SSL / TLS error -> toggle http / https and retry
+                    if (e.Message.Contains("404") || (url.Contains("https") && (e.Message.Contains("TLS") || e.Message.Contains("SSL"))))
+                    {
+                        // try toggling HTTPS
+                        string retryUrl = null;
+                        if (url.Contains("http:"))
+                        {
+                            retryUrl = url.Replace("http", "https");
+                        }
+                        else if (url.Contains("https"))
+                        {
+                            retryUrl = url.Replace("https", "http");
+                        }
+                        if (retryUrl != null)
+                        {
+                            Console.WriteLine("Unable to find ratings at " + url + " trying " + retryUrl);
+                            ratingsJson = client.DownloadString(retryUrl);
+                        }
+                    }
+                    else
+                    {
+                        // not a 404 or TLS / SSL error, rethrow the exception from the first try
+                        throw (e);
+                    }
+                }
+            }
+            return ratingsJson;
         }
     }
     

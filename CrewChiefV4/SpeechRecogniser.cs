@@ -51,9 +51,12 @@ namespace CrewChiefV4
 
         private String localeCountryPropertySetting = UserSettings.GetUserSettings().getString("speech_recognition_country");
 
-        private float minimum_name_voice_recognition_confidence = SREWrapperFactory.useSystem ? UserSettings.GetUserSettings().getFloat("minimum_name_voice_recognition_confidence_system_sre") : UserSettings.GetUserSettings().getFloat("minimum_name_voice_recognition_confidence");
-        private float minimum_trigger_voice_recognition_confidence = SREWrapperFactory.useSystem ? UserSettings.GetUserSettings().getFloat("trigger_word_sre_min_confidence_system_sre") : UserSettings.GetUserSettings().getFloat("trigger_word_sre_min_confidence");
-        private float minimum_voice_recognition_confidence = SREWrapperFactory.useSystem ? UserSettings.GetUserSettings().getFloat("minimum_voice_recognition_confidence_system_sre") : UserSettings.GetUserSettings().getFloat("minimum_voice_recognition_confidence");
+        private float minimum_name_voice_recognition_confidence_windows = UserSettings.GetUserSettings().getFloat("minimum_name_voice_recognition_confidence_system_sre");
+        private float minimum_name_voice_recognition_confidence_microsoft = UserSettings.GetUserSettings().getFloat("minimum_name_voice_recognition_confidence");
+        private float minimum_trigger_voice_recognition_confidence_windows = UserSettings.GetUserSettings().getFloat("trigger_word_sre_min_confidence_system_sre");
+        private float minimum_trigger_voice_recognition_confidence_microsoft = UserSettings.GetUserSettings().getFloat("trigger_word_sre_min_confidence");
+        private float minimum_voice_recognition_confidence_windows = UserSettings.GetUserSettings().getFloat("minimum_voice_recognition_confidence_system_sre");
+        private float minimum_voice_recognition_confidence_microsoft = UserSettings.GetUserSettings().getFloat("minimum_voice_recognition_confidence");
         private Boolean disable_alternative_voice_commands = UserSettings.GetUserSettings().getBoolean("disable_alternative_voice_commands");
         private Boolean enable_iracing_pit_stop_commands = UserSettings.GetUserSettings().getBoolean("enable_iracing_pit_stop_commands");
         private static Boolean use_verbose_responses = UserSettings.GetUserSettings().getBoolean("use_verbose_responses");
@@ -795,17 +798,29 @@ namespace CrewChiefV4
         public SpeechRecogniser(CrewChief crewChief)
         {
             this.crewChief = crewChief;
-            if (minimum_name_voice_recognition_confidence < 0 || minimum_name_voice_recognition_confidence > 1)
+            if (minimum_name_voice_recognition_confidence_microsoft < 0 || minimum_name_voice_recognition_confidence_microsoft > 1)
             {
-                minimum_name_voice_recognition_confidence = 0.4f;
+                minimum_name_voice_recognition_confidence_microsoft = 0.4f;
             }
-            if (minimum_voice_recognition_confidence < 0 || minimum_voice_recognition_confidence > 1)
+            if (minimum_voice_recognition_confidence_microsoft < 0 || minimum_voice_recognition_confidence_microsoft > 1)
             {
-                minimum_voice_recognition_confidence = 0.5f;
+                minimum_voice_recognition_confidence_microsoft = 0.5f;
             }
-            if (minimum_trigger_voice_recognition_confidence < 0 || minimum_trigger_voice_recognition_confidence > 1)
+            if (minimum_trigger_voice_recognition_confidence_microsoft < 0 || minimum_trigger_voice_recognition_confidence_microsoft > 1)
             {
-                minimum_trigger_voice_recognition_confidence = 0.6f;
+                minimum_trigger_voice_recognition_confidence_microsoft = 0.6f;
+            }
+            if (minimum_name_voice_recognition_confidence_windows < 0 || minimum_name_voice_recognition_confidence_windows > 1)
+            {
+                minimum_name_voice_recognition_confidence_windows = 0.75f;
+            }
+            if (minimum_voice_recognition_confidence_windows < 0 || minimum_voice_recognition_confidence_windows > 1)
+            {
+                minimum_voice_recognition_confidence_windows = 0.7f;
+            }
+            if (minimum_trigger_voice_recognition_confidence_windows < 0 || minimum_trigger_voice_recognition_confidence_windows > 1)
+            {
+                minimum_trigger_voice_recognition_confidence_windows = 0.95f;
             }
         }
 
@@ -2036,15 +2051,17 @@ namespace CrewChiefV4
                 return;
             }
             float recognitionConfidence = SREWrapperFactory.GetCallbackConfidence(e);
-            if (recognitionConfidence > minimum_trigger_voice_recognition_confidence)
+            float confidenceThreshold = SREWrapperFactory.useSystem ? minimum_trigger_voice_recognition_confidence_windows : minimum_trigger_voice_recognition_confidence_microsoft;
+            string recogniserName = SREWrapperFactory.useSystem ? "System recogniser" : "Microsoft recogniser";
+            if (recognitionConfidence > confidenceThreshold)
             {
-                Console.WriteLine("Heard keyword " + keyWord + ", waiting for command confidence " + recognitionConfidence);
+                Console.WriteLine(recogniserName + " heard keyword \"" + keyWord + "\", waiting for command, confidence " + recognitionConfidence.ToString("0.000"));
                 switchFromTriggerToRegularRecogniser();
                 restartWaitTimeoutThread(trigger_word_listen_timeout);
             }
             else
             {
-                Console.WriteLine("keyword detected but confidence (" + recognitionConfidence + ") too low");
+                Console.WriteLine(recogniserName + " heard keyword \"" + keyWord + "\" but confidence (" + recognitionConfidence.ToString("0.000") + ") below threshold (" + confidenceThreshold.ToString("0.000") + ")");
             }
         }
 
@@ -2075,14 +2092,17 @@ namespace CrewChiefV4
             String[] recognisedWords = SREWrapperFactory.GetCallbackWordsList(e);
             float recognitionConfidence = SREWrapperFactory.GetCallbackConfidence(e);
             object recognitionGrammar = SREWrapperFactory.GetCallbackGrammar(e);
-            Console.WriteLine("Recognised : " + recognisedText + "  Confidence = " + recognitionConfidence.ToString("0.000"));
+            string recogniserName = SREWrapperFactory.useSystem ? "System recogniser" : "Microsoft recogniser";
+            Console.WriteLine(recogniserName + " recognised : \"" + recognisedText + "\", Confidence = " + recognitionConfidence.ToString("0.000"));
+            float confidenceThreshold = SREWrapperFactory.useSystem ? minimum_voice_recognition_confidence_windows : minimum_voice_recognition_confidence_microsoft;
+            float confidenceNamesThreshold = SREWrapperFactory.useSystem ? minimum_name_voice_recognition_confidence_windows : minimum_name_voice_recognition_confidence_microsoft;
             try
             {
                 // special case when we're waiting for a message after a heavy crash:
                 if (DamageReporting.waitingForDriverIsOKResponse)
                 {
                     DamageReporting damageReportingEvent = (DamageReporting)CrewChief.getEvent("DamageReporting");
-                    if (recognitionConfidence > minimum_voice_recognition_confidence && ResultContains(recognisedText, I_AM_OK, false))
+                    if (recognitionConfidence > confidenceThreshold && ResultContains(recognisedText, I_AM_OK, false))
                     {
                         damageReportingEvent.cancelWaitingForDriverIsOK(DamageReporting.DriverOKResponseType.CLEARLY_OK);
                     }
@@ -2095,7 +2115,7 @@ namespace CrewChiefV4
                 {
                     if (useFreeDictationForChatMessages && this.chatDictationGrammar != null && recognitionGrammar == this.chatDictationGrammar.GetInternalGrammar())
                     {
-                        Console.WriteLine("chat recognised: " + recognisedText);
+                        Console.WriteLine("chat recognised: \"" + recognisedText + "\"");
                         if (recognisedText.StartsWith(chatContextStart))
                         {
                             string chatText = recognisedText.TrimStart(chatContextStart.ToCharArray()).Trim();
@@ -2121,7 +2141,7 @@ namespace CrewChiefV4
                     }
                     else if (GrammarWrapperListContains(opponentGrammarList, recognitionGrammar))
                     {
-                        if (recognitionConfidence > minimum_name_voice_recognition_confidence)
+                        if (recognitionConfidence > confidenceNamesThreshold)
                         {
                             this.lastRecognisedText = recognisedText;
                             if (recognisedText.StartsWith(WATCH) || recognisedText.StartsWith(RIVAL) || recognisedText.StartsWith(TEAM_MATE) || recognisedText.StartsWith(STOP_WATCHING))
@@ -2135,11 +2155,12 @@ namespace CrewChiefV4
                         }
                         else
                         {
+                            Console.WriteLine("Confidence " + recognitionConfidence.ToString("0.000") + " is below the minimum threshold of " + confidenceNamesThreshold.ToString("0.000"));
                             crewChief.youWot(true);
                             youWot = true;
                         }
                     }
-                    else if (recognitionConfidence > minimum_voice_recognition_confidence)
+                    else if (recognitionConfidence > confidenceThreshold)
                     {
                         if (macroGrammar != null && macroGrammar.GetInternalGrammar() == recognitionGrammar && macroLookup.ContainsKey(recognisedText))
                         {
@@ -2222,6 +2243,7 @@ namespace CrewChiefV4
                     }
                     else
                     {
+                        Console.WriteLine("Confidence " + recognitionConfidence.ToString("0.000") + " is below the minimum threshold of " + confidenceThreshold.ToString("0.000"));
                         crewChief.youWot(true);
                         youWot = true;
                     }

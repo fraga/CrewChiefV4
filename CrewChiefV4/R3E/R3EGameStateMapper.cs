@@ -691,6 +691,8 @@ namespace CrewChiefV4.RaceRoom
                 currentGameState.SessionData.LeaderSectorNumber = currentGameState.SessionData.SectorNumber;
             }
 
+            currentGameState.SessionData.CurrentIncidentCount = shared.IncidentPoints; ;
+
             foreach (DriverData participantStruct in shared.DriverData)
             {
                 if (participantStruct.DriverInfo.SlotId == shared.VehicleInfo.SlotId)
@@ -788,16 +790,9 @@ namespace CrewChiefV4.RaceRoom
                     {
                         String stoppedInLandmark = currentGameState.SessionData.trackLandmarksTiming.updateLandmarkTiming(currentGameState.SessionData.TrackDefinition,
                             currentGameState.SessionData.SessionRunningTime, previousGameState.PositionAndMotionData.DistanceRoundTrack,
-                            participantStruct.LapDistance, shared.CarSpeed, currentGameState.SessionData.DeltaTime.currentDeltaPoint, currentGameState.carClass);
+                            participantStruct.LapDistance, shared.CarSpeed, currentGameState.carClass);
                         currentGameState.SessionData.stoppedInLandmark = participantStruct.InPitlane == 1 ? null : stoppedInLandmark;
                     }
-
-                    int pointsFromVehInfo = shared.VehicleInfo.IncidentPoints;
-                    int pointsFromDriverArray = participantStruct.DriverInfo.IncidentPoints;
-                    // not sure which of these is actually set. Originally only the one in the driverData array was set but now these
-                    // values have been removed for opponents, perhaps the player's has been removed too and the one in VehicleInfo is set.
-                    // Either way, we won't know until the patch is released so pick the one that looks 'set'
-                    currentGameState.SessionData.CurrentIncidentCount = Math.Max(pointsFromDriverArray, pointsFromVehInfo);
                     break;
                 }
             }
@@ -984,7 +979,7 @@ namespace CrewChiefV4.RaceRoom
                             currentOpponentData.trackLandmarksTiming = previousOpponentData.trackLandmarksTiming;
                             String stoppedInLandmark = currentOpponentData.trackLandmarksTiming.updateLandmarkTiming(
                                 currentGameState.SessionData.TrackDefinition, currentGameState.SessionData.SessionRunningTime,
-                                previousDistanceRoundTrack, currentOpponentData.DistanceRoundTrack, currentOpponentData.Speed, currentOpponentData.DeltaTime.currentDeltaPoint, currentOpponentData.CarClass);
+                                previousDistanceRoundTrack, currentOpponentData.DistanceRoundTrack, currentOpponentData.Speed, currentOpponentData.CarClass);
                             currentOpponentData.stoppedInLandmark = currentOpponentData.InPits ? null : stoppedInLandmark;
                         }
                         if (currentGameState.SessionData.JustGoneGreen)
@@ -1221,7 +1216,7 @@ namespace CrewChiefV4.RaceRoom
             currentGameState.PenaltiesData.HasSlowDown = shared.Penalties.SlowDown > 0;
             currentGameState.PenaltiesData.HasPitStop = shared.Penalties.PitStop > 0;
             currentGameState.PenaltiesData.HasTimeDeduction = shared.Penalties.TimeDeduction > 0;   // "time deduction" is actually "servable time penalty"
-            currentGameState.PenaltiesData.NumPenalties = shared.NumPenalties;
+            currentGameState.PenaltiesData.NumOutstandingPenalties = shared.NumPenalties;
 
             // new penalties data, incomplete mapping using same event logic as RF2
             currentGameState.PenaltiesData.PenaltyType = getDetailedPenaltyType(playerDriverData.PenaltyType);
@@ -1457,6 +1452,11 @@ namespace CrewChiefV4.RaceRoom
 
         private TyreType mapToTyreType(int tire_type_front, int tire_sub_type_front, int tire_type_rear, int tire_sub_type_rear, CarData.CarClassEnum carClass)
         {
+            // F Junior
+            if (carClass == CarData.CarClassEnum.FF)
+            {
+                return TyreType.R3E_2017_F5;
+            }
             // bias ply cars
             if (carClass == CarData.CarClassEnum.GROUP4 || carClass == CarData.CarClassEnum.GROUP5 || carClass == CarData.CarClassEnum.M1_PROCAR)
             {

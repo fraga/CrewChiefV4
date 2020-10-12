@@ -399,7 +399,7 @@ namespace CrewChiefV4.Events
                     playedRaceStartMessage = true;
                     Console.WriteLine("Race start message... isLastInStandings = " + isLastInStandings +
                         " session start pos = " + currentGameState.SessionData.SessionStartClassPosition + " current pos = " + currentGameState.SessionData.ClassPosition);
-                    bool hasrFactorPenaltyPending = (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT) && currentGameState.PenaltiesData.NumPenalties > 0;
+                    bool hasrFactorPenaltyPending = (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT) && currentGameState.PenaltiesData.NumOutstandingPenalties > 0;
                     if (currentGameState.SessionData.SessionStartClassPosition > 0 &&
                             !currentGameState.PenaltiesData.HasDriveThrough && !currentGameState.PenaltiesData.HasStopAndGo &&
                             !hasrFactorPenaltyPending)
