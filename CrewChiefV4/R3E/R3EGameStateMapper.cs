@@ -139,12 +139,6 @@ namespace CrewChiefV4.RaceRoom
             // no version number in r3e shared data so this is a no-op
         }
 
-        public override void setSpeechRecogniser(SpeechRecogniser speechRecogniser)
-        {
-            speechRecogniser.addR3ESpeechRecogniser();
-            this.speechRecogniser = speechRecogniser;
-        }
-
         public override GameStateData mapToGameStateData(Object memoryMappedFileStruct, GameStateData previousGameState)
         {
             CrewChiefV4.RaceRoom.R3ESharedMemoryReader.R3EStructWrapper wrapper = (CrewChiefV4.RaceRoom.R3ESharedMemoryReader.R3EStructWrapper)memoryMappedFileStruct;

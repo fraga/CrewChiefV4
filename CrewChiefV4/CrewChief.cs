@@ -18,6 +18,7 @@ using WebSocketSharp.Server;
 using CrewChiefV4.Overlay;
 using CrewChiefV4.SharedMemory;
 using CrewChiefV4.PitManager;
+using CrewChiefV4.commands;
 
 namespace CrewChiefV4
 {
@@ -457,7 +458,7 @@ namespace CrewChiefV4
                 SpeechRecogniser.gotRecognitionResult = false;
                 SpeechRecogniser.keepRecognisingInHoldMode = false;
                 GameStateMapper gameStateMapper = GameStateReaderFactory.getInstance().getGameStateMapper(gameDefinition);
-                if (speechRecogniser != null) speechRecogniser.unloadAdditionalGrammars();
+
                 gameStateMapper.setSpeechRecogniser(speechRecogniser);
                 gameDataReader = GameStateReaderFactory.getInstance().getGameStateReader(gameDefinition);
                 gameDataReader.ResetGameDataFromFile();
@@ -500,7 +501,7 @@ namespace CrewChiefV4
                     Utilities.queuedMessageIds.Clear();
                     Utilities.includesRaceSession = false;
                 }
-                audioPlayer.startMonitor();
+                audioPlayer.startMonitor(gameDefinition.gameEnum != GameEnum.NONE);
                 Boolean attemptedToRunGame = false;
 
                 OverlayDataSource.loadChartSubscriptions();
@@ -510,7 +511,14 @@ namespace CrewChiefV4
                 }
                 bool useTelemetryIntervalWhereApplicable = CrewChief.gameDefinition.gameEnum != GameEnum.IRACING
                     && UserSettings.GetUserSettings().getBoolean("enable_overlay_window");
-                Console.WriteLine("Polling for shared data every " + timeInterval + "ms");
+                if (CrewChief.gameDefinition.gameEnum != GameEnum.NONE && 
+                    CrewChief.gameDefinition.gameEnum != GameEnum.PCARS_NETWORK &&
+                    CrewChief.gameDefinition.gameEnum != GameEnum.F1_2018 &&
+                    CrewChief.gameDefinition.gameEnum != GameEnum.F1_2019 &&
+                    CrewChief.gameDefinition.gameEnum != GameEnum.F1_2020)
+                {
+                    Console.WriteLine("Polling for shared data every " + timeInterval + "ms");
+                }
                 Boolean sessionFinished = false;
                 while (running)
                 {
@@ -522,7 +530,7 @@ namespace CrewChiefV4
                     if (!loadDataFromFile)
                     {
                         // Turns our checking for running process by name is an expensive system call.  So don't do that on every tick.
-                        if (now > nextProcessStateCheck)
+                        if (now > nextProcessStateCheck && gameDefinition.processName != null)
                         {
                             nextProcessStateCheck = now.Add(
                                 TimeSpan.FromMilliseconds(isGameProcessRunning ? timeBetweenProcDisconnectCheckMillis : timeBetweenProcConnectCheckMillis));

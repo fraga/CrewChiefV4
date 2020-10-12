@@ -26,12 +26,6 @@ namespace CrewChiefV4.RBR
         public static bool pluginVerified = false;
         private static int reinitWaitAttempts = 0;
 
-        public override void setSpeechRecogniser(SpeechRecogniser speechRecogniser)
-        {
-            speechRecogniser.addRallySpeechRecogniser();
-            this.speechRecogniser = speechRecogniser;
-        }
-
         private class CarID
         {
             public int hash = -1;
@@ -473,6 +467,8 @@ namespace CrewChiefV4.RBR
                 // Initialize variables that persist for the duration of a session.
                 if (this.knownTracks.TryGetValue(shared.perFrame.mRBRMapSettings.trackID, out var rbrtd))
                     csd.TrackDefinition = new TrackDefinition(rbrtd.name, (float)rbrtd.approxLengthKM * 1000.0f);
+                else
+                    csd.TrackDefinition = new TrackDefinition("stage_length_" + shared.perFrame.stageLength, (float)shared.perFrame.stageLength);
             }
 
             // Restore cumulative data.
@@ -547,6 +543,7 @@ namespace CrewChiefV4.RBR
             }
 
             if (!this.pacenotesLoaded
+                && !cgs.UseCrewchiefPaceNotes
                 && ((csd.SessionPhase == SessionPhase.Countdown
                         && csd.SessionType == SessionType.Race
                         && csd.SessionRunningTime > -6.9f)
@@ -654,34 +651,6 @@ namespace CrewChiefV4.RBR
 
             return cgs;
         }
-
-        private readonly int[] rbrRanges = new int[]
-        {
-            30,
-            40,
-            50,
-            60,
-            70,
-            80,
-            100,
-            120,
-            140,
-            150,
-            160,
-            180,
-            200,
-            250,
-            300,
-            350,
-            400,
-            450,
-            500,
-            600,
-            700,
-            800,
-            900,
-            1000
-        };
 
         // Weird stuff:
         // * I saw some pace notes before detail_start at some tracks.  Those also have weird flags on them, maybe worth ignoring all pre-start entries?
@@ -814,19 +783,7 @@ namespace CrewChiefV4.RBR
                         continue;
                     }
 
-                    var closestRange = 1000;
-                    var minDistance = Math.Abs(closestRange - distanceToNext);
-                    foreach (var r in rbrRanges)
-                    {
-                        var distToRange = Math.Abs(r - distanceToNext);
-                        if (distToRange < minDistance)
-                        {
-                            minDistance = distToRange;
-                            closestRange = r;
-                        }
-                    }
-
-                    options = closestRange;
+                    options = CoDriver.GetClosestValueForDistanceCall(distanceToNext);
                 }
 
                 if (pacenote == CoDriver.PacenoteType.detail_finish)

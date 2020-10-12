@@ -23,8 +23,12 @@ namespace CrewChiefV4.commands
 
         public static Boolean stopped = false;
 
+        public static string GENERIC_MACRO_GAME_NAME = "ANY";
+
         // make all the macros available so the events can press buttons as they see fit:
         public static Dictionary<string, ExecutableCommandMacro> macros = new Dictionary<string, ExecutableCommandMacro>();
+
+        public static Dictionary<string, ExecutableCommandMacro> voiceTriggeredMacros = new Dictionary<string, ExecutableCommandMacro>();
 
         public static int MAX_FUEL_RESET_COUNT = 150;
 
@@ -72,15 +76,17 @@ namespace CrewChiefV4.commands
         public static bool isCommandSetForCurrentGame(string gameDefinitionFromCommandSet)
         {
             return gameDefinitionFromCommandSet != null &&
-                ((gameDefinitionFromCommandSet.Equals(CrewChief.gameDefinition.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase)) ||
+                ((gameDefinitionFromCommandSet.Equals(GENERIC_MACRO_GAME_NAME, StringComparison.InvariantCultureIgnoreCase) && CrewChief.gameDefinition.gameEnum != GameEnum.NONE) ||
+                  gameDefinitionFromCommandSet.Equals(CrewChief.gameDefinition.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase) ||
                   gameDefinitionFromCommandSet.Equals(GameEnum.PCARS2.ToString(), StringComparison.InvariantCultureIgnoreCase) && CrewChief.gameDefinition.gameEnum == GameEnum.AMS2);
         }
 
         // This is called immediately after initialising the speech recogniser in MainWindow
         public static void initialise(AudioPlayer audioPlayer, SpeechRecogniser speechRecogniser)
         {
-            stopped = false;
-            macros.Clear();
+            MacroManager.stopped = false;
+            MacroManager.macros.Clear();
+            MacroManager.voiceTriggeredMacros.Clear();
             if (UserSettings.GetUserSettings().getBoolean("enable_command_macros"))
             {
                 // load the json:
@@ -92,7 +98,6 @@ namespace CrewChiefV4.commands
                 }
 
                 // if it's valid, load the command sets:
-                Dictionary<string, ExecutableCommandMacro> voiceTriggeredMacros = new Dictionary<string, ExecutableCommandMacro>();
                 foreach (Macro macro in macroContainer.macros)
                 {
                     Boolean hasCommandForCurrentGame = false;
@@ -148,14 +153,6 @@ namespace CrewChiefV4.commands
                             }
                         }
                     }
-                }
-                try
-                {
-                    speechRecogniser.loadMacroVoiceTriggers(voiceTriggeredMacros);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Failed to load command macros into speech recogniser: " + e.Message);
                 }
             }
             else

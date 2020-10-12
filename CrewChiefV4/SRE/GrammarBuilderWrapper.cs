@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CrewChiefV4.SRE
 {
@@ -12,6 +8,10 @@ namespace CrewChiefV4.SRE
         void SetCulture(CultureInfo cultureInfo); // internal.Culture = ...
 
         void Append(ChoicesWrapper choicesWrapper);
+
+        void Append(ChoicesWrapper choicesWrapper, int minRepeat, int maxRepeat);
+
+        void Append(GrammarBuilderWrapper grammarBuilderWrapper, int minRepeat, int maxRepeat);
 
         void Append(String text);
 
