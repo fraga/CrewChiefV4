@@ -229,8 +229,8 @@ namespace CrewChiefV4.PitManager
             if (!previousGameState.inCar && currentGameState.inCar)
             {
                 pmh.EventHandlerInit();
-                Console.WriteLine($"Car name {currentGameState.carName}");
-                Console.WriteLine($"Track name {currentGameState.trackName}");
+                Log.Debug($"Car name {currentGameState.carName}");
+                Log.Debug($"Track name {currentGameState.trackName}");
             }
 
             fuelCapacity = currentGameState.FuelData.FuelCapacity;

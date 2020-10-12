@@ -25,18 +25,18 @@ namespace CrewChiefV4
             Debug = 1 << 6,
             Verbose = 1 << 7,
         };
-        private static LogType _logMask = setLogLevel(LogType.Verbose);
+        private static LogType _logMask = setLogLevel(LogType.Subtitle);
         private static readonly Dictionary<LogType, string> logPrefixes = new
             Dictionary<LogType, string>
         {
             { LogType.FatalError, "FATAL ERROR: " },
-            { LogType.Error     , "ERROR:   " },
-            { LogType.Warning   , "Warning: " },
-            { LogType.Commentary, "Comment: " },
-            { LogType.Subtitle,   "Subtitle:" },
-            { LogType.Info      , "Info:    " },
-            { LogType.Verbose   , "Verbose: " },
-            { LogType.Debug     , "Debug:   " }
+            { LogType.Error     , "ERROR: " },
+            { LogType.Warning   , "Warn: " },
+            { LogType.Commentary, "Cmnt: " },
+            { LogType.Subtitle,   "Subt: " },
+            { LogType.Info      , "Info: " },
+            { LogType.Verbose   , "Verb: " },
+            { LogType.Debug     , "Dbug: " }
         };
         /// <summary>
         /// Set the log mask so all logs up to "logType" are shown

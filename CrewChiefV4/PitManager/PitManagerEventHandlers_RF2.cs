@@ -167,10 +167,10 @@ namespace CrewChiefV4.PitManager
             Pmal.PmalConnect();
             List<string> tyreTypeNames = Pmal.GetTyreTypeNames();
             currentRf2TyreType.Set(tyreTypeNames[0]);
-            Console.WriteLine("Pit Manager initialise");
+            Log.Commentary("Pit Manager initialise");
             foreach (var tyre in tyreTypeNames)
             {
-                Console.WriteLine($"Tyre type '{tyre}'");
+                Log.Commentary($"Tyre type '{tyre}'");
             }
             return true;
         }
@@ -487,7 +487,7 @@ namespace CrewChiefV4.PitManager
         #region Private Methods
 
         /// <summary>
-        /// Set the current tyre compound
+        /// Set the current tyre compound and fit them
         /// </summary>
         /// <param name="genericTyreType">Soft / Medium / Wet etc.</param>
         /// <returns></returns>
@@ -502,6 +502,7 @@ namespace CrewChiefV4.PitManager
             }
 
             currentRf2TyreType.Set(result[genericTyreType]);
+            Log.Commentary($"Fitting {result[genericTyreType]}");
             return PMrF2eh_changeAllTyres(null);
         }
 
@@ -524,7 +525,7 @@ namespace CrewChiefV4.PitManager
                     // dict is the other direction currentGenericTyreCompound = ttDict[tyreType];
                     if (CrewChief.Debugging)
                     {
-                        Log.Commentary("Pit Manager tyre compound set to (" +
+                        Log.Info("Pit Manager tyre compound set to (" +
                             tyreCategory + ") " + tyreType);
                     }
                 }
