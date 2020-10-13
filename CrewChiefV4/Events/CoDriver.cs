@@ -1718,6 +1718,7 @@ namespace CrewChiefV4.Events
                     // weird bug: after finishing stage recce mid-stage, the app spews loads of pace note messages
                     this.lastProcessedPacenoteIdx = CrewChief.currentGameState.CoDriverPacenotes.Count - 1;
                     CrewChief.currentGameState.CoDriverPacenotes.Clear();
+                    this.recePaceNotes.Clear();
                 }
                 this.audioPlayer.playMessageImmediately(new QueuedMessage(CoDriver.folderAcknowledgeEndRecce, 0));
             }
@@ -1738,6 +1739,7 @@ namespace CrewChiefV4.Events
                         // weird bug: after finishing stage recce mid-stage, the app spews loads of pace note messages
                         this.lastProcessedPacenoteIdx = CrewChief.currentGameState.CoDriverPacenotes.Count - 1;
                         CrewChief.currentGameState.CoDriverPacenotes.Clear();
+                        this.recePaceNotes.Clear();
                         this.audioPlayer.playMessageImmediately(new QueuedMessage(CoDriver.folderAcknowledgeEndRecce, 0));
                     }
                 }
