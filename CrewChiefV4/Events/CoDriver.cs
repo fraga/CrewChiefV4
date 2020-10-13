@@ -1751,7 +1751,7 @@ namespace CrewChiefV4.Events
                     {
                         if (voiceMessage.StartsWith(correctionFragment))
                         {
-                            voiceMessage = voiceMessage.Remove(0, correctionFragment.Length);
+                            voiceMessage = voiceMessage.Remove(0, correctionFragment.Length).Trim();
                             break;
                         }
                     }
@@ -1797,9 +1797,13 @@ namespace CrewChiefV4.Events
                 }
                 foreach (CoDriverPacenote pacenote in this.lastPlayedOrAddedBatch)
                 {
-                    if (pacenote.Pacenote != PacenoteType.detail_distance_call)
+                    if (pacenote.Pacenote != PacenoteType.detail_distance_call && pacenote.Pacenote != PacenoteType.unknown)
                     {
-                        confirmationFragments.Add(MessageFragment.Text(GetMessageID(pacenote.Pacenote, pacenote.Modifier)));
+                        confirmationFragments.Add(MessageFragment.Text(GetMessageID(pacenote.Pacenote, PacenoteModifier.none)));
+                    }
+                    if (pacenote.Modifier != PacenoteModifier.none)
+                    {
+                        confirmationFragments.Add(MessageFragment.Text(GetMessageID(PacenoteType.unknown, pacenote.Modifier)));
                     }
                 }
                 this.audioPlayer.playMessageImmediately(new QueuedMessage("pacenote confirmation", 0, confirmationFragments));
@@ -1985,11 +1989,11 @@ namespace CrewChiefV4.Events
                 // remove that text from the voice command
                 foreach (string correctionWord in SpeechRecogniser.RALLY_EARLIER)
                 {
-                    voiceMessage = voiceMessage.Replace(correctionWord, "");
+                    voiceMessage = voiceMessage.Replace(correctionWord, "").Trim();
                 }
                 foreach (string correctionWord in SpeechRecogniser.RALLY_LATER)
                 {
-                    voiceMessage = voiceMessage.Replace(correctionWord, "");
+                    voiceMessage = voiceMessage.Replace(correctionWord, "").Trim();
                 }
                 bool correctionIncludesCornerModifier = ContainsCornerModifier(voiceMessage);
                 foreach (HistoricCall callToCorrect in callsToCorrect)
