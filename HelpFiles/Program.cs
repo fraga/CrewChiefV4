@@ -88,7 +88,8 @@ namespace HelpFiles
                 "VoiceRecognition_InstallationTraining.png",
                 "engineer_edited.ico",
                 "engineer_edited_transparent.png",
-                "CC_Talk_to_CC.png"
+                "CC_Talk_to_CC.png",
+                "CC_Confidence.png"
             })
             {
                 System.IO.File.Copy($"..\\..\\{file}", $"..\\..\\..\\public\\{file}", true);
