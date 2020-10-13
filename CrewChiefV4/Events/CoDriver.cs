@@ -1715,6 +1715,7 @@ namespace CrewChiefV4.Events
                     {
                         WriteRecePacenotes(lastStageName);
                     }
+                    CrewChief.currentGameState.CoDriverPacenotes.Clear();
                 }
                 this.audioPlayer.playMessageImmediately(new QueuedMessage(CoDriver.folderAcknowledgeEndRecce, 0));
             }

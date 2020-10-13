@@ -1992,3 +1992,8 @@ dictation_grammar_for_rally_confidence = Min rally free dictation voice recognit
 dictation_grammar_for_rally_confidence_help = When processing stage notes in free dictation mode, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0)
 dictation_grammar_for_rally_confidence_category = AUDIO_VOICE_AND_CONTROLLERS
 dictation_grammar_for_rally_confidence_filter = RBR;DIRT;DIRT_2
+
+confirm_recce_pace_notes = Confirm each pace note in stage recce
+confirm_recce_pace_notes_help = Play back the pace note(s) created from each stage notes voice command
+confirm_recce_pace_notes_category = AUDIO_VOICE_AND_CONTROLLERS
+dictation_grammar_for_rally_confidence_filter = RBR;DIRT;DIRT_2

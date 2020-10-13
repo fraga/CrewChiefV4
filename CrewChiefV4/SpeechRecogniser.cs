@@ -2340,8 +2340,16 @@ namespace CrewChiefV4
             Console.WriteLine(recogniserName + " recognised : \"" + recognisedText + "\", Confidence = " + recognitionConfidence.ToString("0.000"));
             float confidenceThreshold = SREWrapperFactory.useSystem ? minimum_voice_recognition_confidence_windows : minimum_voice_recognition_confidence_microsoft;
             float confidenceNamesThreshold = SREWrapperFactory.useSystem ? minimum_name_voice_recognition_confidence_windows : minimum_name_voice_recognition_confidence_microsoft;
-            float confidenceRallyDictiationThreshold = UserSettings.GetUserSettings().getFloat("dictation_grammar_for_rally_confidence");
+            float confidenceRallyDictationThreshold = UserSettings.GetUserSettings().getFloat("dictation_grammar_for_rally_confidence");
             bool useDictationGrammarForRally = UserSettings.GetUserSettings().getBoolean("use_dictation_grammar_for_rally");
+
+            // hack for rally. In rally mode the SRE has a lot of permutations to deal with. The recognition accuracy remains high but this affects the confidence values reported. 
+            // We could have 2 additional 'rally confidence' values (maybe we should) but it's probably more simple for the users to just silently adjust the confidence threshold here
+            if (CrewChief.gameDefinition.racingType == CrewChief.RacingType.Rally)
+            {
+                confidenceThreshold = (float) Math.Max(0, confidenceThreshold - 0.15);
+            }
+
             try
             {
                 // special case when we're waiting for a message after a heavy crash:
@@ -2487,7 +2495,7 @@ namespace CrewChiefV4
                     else if (CrewChief.gameDefinition.racingType == CrewChief.RacingType.Rally
                        && SREWrapperFactory.useSystem
                        && useDictationGrammarForRally
-                       && recognitionConfidence > confidenceRallyDictiationThreshold)
+                       && recognitionConfidence > confidenceRallyDictationThreshold)
                     {
                         // note that cases where the confidence is high for a free dictation rally grammar match, we'll have already
                         // invoked the CoDriver Respond call - this check is for cases where confidence is below the 'proper' threshold
