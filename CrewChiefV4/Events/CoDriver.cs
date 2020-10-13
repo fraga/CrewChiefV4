@@ -1072,11 +1072,19 @@ namespace CrewChiefV4.Events
                         bool logCorrectedPacenote = false;
                         if (Math.Abs(correction.Distance - paceNote.Distance) < 5)
                         {
-                            // we've found a note to correct, if it's a corner and the correction is a corner, apply it. Otherwise just apply the distance
-                            if (paceNote.Pacenote.ToString().Contains("corner") && correction.Pacenote.ToString().Contains("corner"))
+                            // we've found a note to correct, if it's a corner and the correction is a corner or it's just
+                            // a modifier, apply it. Otherwise just apply the distance
+                            if (IsCorner(paceNote.Pacenote) && 
+                                (IsCorner(correction.Pacenote) || (correction.Pacenote == PacenoteType.unknown && correction.Modifier != PacenoteModifier.none)))
                             {
-                                paceNote.Pacenote = correction.Pacenote;
-                                paceNote.Modifier = correction.Modifier;
+                                if (correction.Pacenote != PacenoteType.unknown)
+                                {
+                                    paceNote.Pacenote = correction.Pacenote;
+                                }
+                                if (correction.Modifier != PacenoteModifier.none)
+                                {
+                                    paceNote.Modifier = correction.Modifier;
+                                }
                                 appliedAsCorrection = true;
                                 logCorrectedPacenote = true;
                             }
@@ -1339,12 +1347,12 @@ namespace CrewChiefV4.Events
         // prevent too many 'into' sounds being stacked up in a single block of messages and block some specific combinations
         private bool canUseChaining(DateTime now, PacenoteType previousPacenoteType, PacenoteType pacenoteType)
         {
-            if (previousPacenoteType.ToString().Contains("corner") && pacenoteType == PacenoteType.detail_junction)
+            if (IsCorner(previousPacenoteType) && pacenoteType == PacenoteType.detail_junction)
             {
                 // don't allow "into junction" after a corner call as the corner will probably be the junction
                 return false;
             }
-            if (previousPacenoteType.ToString().Contains("corner") && 
+            if (IsCorner(previousPacenoteType) && 
                 (pacenoteType == PacenoteType.detail_ruts || pacenoteType == PacenoteType.detail_bumps || pacenoteType == PacenoteType.detail_bumpy || pacenoteType == PacenoteType.detail_deepruts))
             {
                 // don't allow "into ruts" after a corner call as the ruts / bumps will probably be at the corner
@@ -1854,7 +1862,7 @@ namespace CrewChiefV4.Events
             float distance = 20;    // any non-corner obstacle is assumed to be 20 metres from the start point to where the player makes the pace note command
             foreach (CoDriverPacenote paceNote in paceNotesInBatch)
             {
-                if (paceNote.Pacenote.ToString().Contains("corner"))
+                if (IsCorner(paceNote.Pacenote))
                 {
                     if (paceNote.Modifier.ToString().Contains("long"))
                     {
@@ -1912,7 +1920,7 @@ namespace CrewChiefV4.Events
             MutableString voiceMessageWrapper = new MutableString(voiceMessage);
 
             // first see if we have a corner - we assume there can only be 1 corner for each command
-            Tuple<PacenoteType, PacenoteModifier> cornerWithModifier = GetCornerPacenoteTypeWithModifier(voiceMessageWrapper);
+            Tuple<PacenoteType, PacenoteModifier> cornerWithModifier = GetCornerPacenoteTypeWithModifier(voiceMessageWrapper, false);
             if (cornerWithModifier.Item1 != PacenoteType.unknown)
             {
                 paceNotes.Add(new CoDriverPacenote() { Pacenote = cornerWithModifier.Item1, Modifier = cornerWithModifier.Item2, RawVoiceCommand = voiceMessage });
@@ -1969,6 +1977,8 @@ namespace CrewChiefV4.Events
             List<HistoricCall> callsToCorrect = GetCallsToCorrect(requestedDirection);
             if (callsToCorrect.Count > 0)
             {
+                // we might change the voice message to replace some contents, so stash it first so we can add the raw message to the note
+                string rawVoiceMessage = voiceMessage;
                 // check if we're moving a call:
                 bool moveEarlier = SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_EARLIER);
                 bool moveLater = SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_LATER);
@@ -1981,13 +1991,12 @@ namespace CrewChiefV4.Events
                 {
                     voiceMessage = voiceMessage.Replace(correctionWord, "");
                 }
-
-                // we might change the voice message to replace 'correction' with the direction, so stash it first so we can add the raw message to the note
-                string rawVoiceMessage = voiceMessage;
+                bool correctionIncludesCornerModifier = ContainsCornerModifier(voiceMessage);
                 foreach (HistoricCall callToCorrect in callsToCorrect)
                 {
                     // special case for corner corrections
-                    if (callToCorrect.callType.ToString().Contains("corner"))
+                    // we might have just called "correction don't cut" here, so our PacenoteType from the correction will be unknown so check for modifier as well as corner
+                    if (IsCorner(callToCorrect.callType) || correctionIncludesCornerModifier)
                     {
                         Direction direction = GetDirectionFromPaceNote(callToCorrect.callType);
                         if (requestedDirection == Direction.UNKNOWN)
@@ -2001,8 +2010,13 @@ namespace CrewChiefV4.Events
                                 }
                             }
                         }
-                        Tuple<PacenoteType, PacenoteModifier> cornerWithModifier = GetCornerPacenoteTypeWithModifier(new MutableString(voiceMessage));
-                        if (cornerWithModifier.Item1 != PacenoteType.unknown)
+                        Tuple<PacenoteType, PacenoteModifier> cornerWithModifier = GetCornerPacenoteTypeWithModifier(new MutableString(voiceMessage), true);
+                        // check we've been able to derive a call type, modifier or move directive
+                        if (cornerWithModifier.Item1 == PacenoteType.unknown && cornerWithModifier.Item2 == PacenoteModifier.none && !moveEarlier && !moveLater)
+                        {
+                            Console.WriteLine("Unable to create a usable correction from " + rawVoiceMessage);
+                        }
+                        else
                         {
                             CreateCorrection(callToCorrect, cornerWithModifier.Item1, cornerWithModifier.Item2, moveEarlier, moveLater, rawVoiceMessage);
                         }
@@ -2133,16 +2147,22 @@ namespace CrewChiefV4.Events
                 return Direction.UNKNOWN;
         }
         
-        private Tuple<PacenoteType, PacenoteModifier> GetCornerPacenoteTypeWithModifier(MutableString voiceMessageWrapper)
+        private Tuple<PacenoteType, PacenoteModifier> GetCornerPacenoteTypeWithModifier(MutableString voiceMessageWrapper, bool allowModifierOnly)
         {
             Tuple<PacenoteType, PacenoteModifier> result = new Tuple<PacenoteType, PacenoteModifier>(PacenoteType.unknown, PacenoteModifier.none);
+            bool gotCornerType = false;
             foreach (string key in possibleCornerCommands.Keys)
             {
                 if (voiceMessageWrapper.FindAndRemove(key, false, true))
                 {
                     result = new Tuple<PacenoteType, PacenoteModifier> (possibleCornerCommands[key], GetModifier(voiceMessageWrapper));
+                    gotCornerType = true;
                     break;
                 }
+            }
+            if (!gotCornerType && allowModifierOnly)
+            {
+                result = new Tuple<PacenoteType, PacenoteModifier>(PacenoteType.unknown, GetModifier(voiceMessageWrapper));
             }
             return result;
         }
@@ -2203,6 +2223,20 @@ namespace CrewChiefV4.Events
                 modifier = modifier | PacenoteModifier.detail_maybe;
             }
             return modifier;
+        }
+
+        private bool IsCorner(PacenoteType pacenoteType)
+        {
+            return pacenoteType.ToString().Contains("corner");
+        }
+
+        private bool ContainsCornerModifier(string voiceMessage)
+        {
+            return SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_DONT_CUT)
+                || SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_CUT)
+                || SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_TIGHTENS)
+                || SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_TIGHTENS_BAD)
+                || SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_WIDENS);
         }
     }
 
