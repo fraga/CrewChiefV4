@@ -1803,7 +1803,14 @@ namespace CrewChiefV4.Events
                     }
                     if (pacenote.Modifier != PacenoteModifier.none)
                     {
-                        confirmationFragments.Add(MessageFragment.Text(GetMessageID(PacenoteType.unknown, pacenote.Modifier)));
+                        foreach (var mod in Utilities.GetEnumFlags(pacenote.Modifier))
+                        {
+                            if ((CoDriver.PacenoteModifier)mod != CoDriver.PacenoteModifier.none)
+                            {
+                                if (Enum.TryParse<CoDriver.PacenoteModifier>(mod.ToString(), out var modChecked))
+                                    confirmationFragments.Add(MessageFragment.Text(GetMessageID(PacenoteType.unknown, modChecked)));
+                            }
+                        }
                     }
                 }
                 this.audioPlayer.playMessageImmediately(new QueuedMessage("pacenote confirmation", 0, confirmationFragments));
@@ -1840,23 +1847,50 @@ namespace CrewChiefV4.Events
                     // we're assuming that the pace note command is made *after* the obstacle / corner, so create the notes then use the created
                     // notes to estimate how long the obstacle / corner is (i.e. the stage distance when the obstacle starts), and set that into the notes
                     List<CoDriverPacenote> paceNotesToAdd = GetPacenotesFromVoiceCommand(voiceMessage);
-                    float distanceAtStartOfObstacle = distance - EstimateObstacleLength(paceNotesToAdd);
-                    foreach (CoDriverPacenote paceNote in paceNotesToAdd)
+                    // one special case (eeewww). We missed a modifier during our previous corner call and have made a new command which is just "don't cut"
+                    // or something. In this case we attempt to insert that modifier into the last corner call
+                    if (paceNotesToAdd.Count == 0 && ContainsCornerModifier(voiceMessage))
                     {
-                        paceNote.Distance = distanceAtStartOfObstacle;
+                        AppendModifierToLastCorner(voiceMessage);
                     }
-                    // after each block of pace notes there'll be a distance placeholder. We always add this but the decision as to whether it'll be
-                    // read is made on playback.
-                    if (!lastRecePacenoteWasDistance)
+                    else
                     {
-                        // auto generate an optional distance note
-                        paceNotesToAdd.Add(new CoDriverPacenote { Pacenote = PacenoteType.detail_distance_call, Distance = distance + 20}); // the distance call needs to come some way after the obstacle is finished
+                        float distanceAtStartOfObstacle = distance - EstimateObstacleLength(paceNotesToAdd);
+                        foreach (CoDriverPacenote paceNote in paceNotesToAdd)
+                        {
+                            paceNote.Distance = distanceAtStartOfObstacle;
+                        }
+                        // after each block of pace notes there'll be a distance placeholder. We always add this but the decision as to whether it'll be
+                        // read is made on playback.
+                        if (!lastRecePacenoteWasDistance)
+                        {
+                            // auto generate an optional distance note
+                            paceNotesToAdd.Add(new CoDriverPacenote { Pacenote = PacenoteType.detail_distance_call, Distance = distance + 20 }); // the distance call needs to come some way after the obstacle is finished
+                        }
+                        this.recePaceNotes.AddRange(paceNotesToAdd);
+                        // store these so we can remove them if we get a 'correction' call
+                        this.lastPlayedOrAddedBatch.Clear();
+                        this.lastPlayedOrAddedBatch.AddRange(paceNotesToAdd);
                     }
-                    this.recePaceNotes.AddRange(paceNotesToAdd);
-                    // store these so we can remove them if we get a 'correction' call
-                    this.lastPlayedOrAddedBatch.Clear();
-                    this.lastPlayedOrAddedBatch.AddRange(paceNotesToAdd);
                     lastRecePacenoteWasDistance = false;
+                }
+            }
+        }
+
+        private void AppendModifierToLastCorner(string voiceMessage)
+        {
+            Tuple<PacenoteType, PacenoteModifier> modifier = GetCornerPacenoteTypeWithModifier(new MutableString(voiceMessage), true);
+            if (modifier.Item2 != PacenoteModifier.none)
+            {
+                // we have a modifier from the call, so see if we have a corner in the last batch and apply the modifier to it
+                foreach (CoDriverPacenote paceNote in this.lastPlayedOrAddedBatch)
+                {
+                    if (IsCorner(paceNote.Pacenote))
+                    {
+                        // update the modifier
+                        paceNote.Modifier = paceNote.Modifier | modifier.Item2;
+                        break;
+                    }                        
                 }
             }
         }
