@@ -906,8 +906,8 @@ namespace CrewChiefV4.Events
                 }
                 foreach (string cornerType in SpeechRecogniser.RALLY_HAIRPIN)
                 {
-                    possibleCornerCommands[cornerType + " " + direction] = PacenoteType.corner_left_right;
-                    possibleCornerCommands[direction + " " + cornerType] = PacenoteType.corner_left_right;
+                    possibleCornerCommands[cornerType + " " + direction] = PacenoteType.corner_right_acute;
+                    possibleCornerCommands[direction + " " + cornerType] = PacenoteType.corner_right_acute;
                 }
             }
         }
@@ -1733,6 +1733,7 @@ namespace CrewChiefV4.Events
                     if (this.recePaceNotes != null && this.recePaceNotes.Count > 0)
                     {
                         WriteRecePacenotes(lastStageName);
+                        CrewChief.currentGameState.CoDriverPacenotes.Clear();
                         this.audioPlayer.playMessageImmediately(new QueuedMessage(CoDriver.folderAcknowledgeEndRecce, 0));
                     }
                 }
@@ -2014,7 +2015,7 @@ namespace CrewChiefV4.Events
                 requestedDirection = Direction.RIGHT;
             }
             List<HistoricCall> callsToCorrect = GetCallsToCorrect(requestedDirection);
-            if (callsToCorrect.Count > 0)
+            if (callsToCorrect != null && callsToCorrect.Count > 0)
             {
                 // we might change the voice message to replace some contents, so stash it first so we can add the raw message to the note
                 string rawVoiceMessage = voiceMessage;
@@ -2160,6 +2161,7 @@ namespace CrewChiefV4.Events
             // at this point we have the first historic call we want to correct, get this and the other calls made at the same distance
             List<HistoricCall> historicCalls = new List<HistoricCall>();
             float distanceOfFirstCorrectedCall = historicCallNode.Value.callDistance;
+            historicCalls.Add(historicCallNode.Value);
             var preceedingCallNode = historicCallNode.Previous;
             while (preceedingCallNode != null)
             {
