@@ -4990,5 +4990,17 @@ namespace CrewChiefV4.Properties {
                 this["dictation_grammar_for_rally_confidence"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool confirm_recce_pace_notes {
+            get {
+                return ((bool)(this["confirm_recce_pace_notes"]));
+            }
+            set {
+                this["confirm_recce_pace_notes"] = value;
+            }
+        }
     }
 }

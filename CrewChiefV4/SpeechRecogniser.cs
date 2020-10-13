@@ -355,6 +355,8 @@ namespace CrewChiefV4
         public static String[] RALLY_START_RECORDING_STAGE_NOTES = Configuration.getSpeechRecognitionPhrases("RALLY_START_RECORDING_STAGE_NOTES", loadHomophones);
         public static String[] RALLY_FINISH_RECORDING_STAGE_NOTES = Configuration.getSpeechRecognitionPhrases("RALLY_FINISH_RECORDING_STAGE_NOTES", loadHomophones);
         public static String[] RALLY_CORRECTION = Configuration.getSpeechRecognitionPhrases("RALLY_CORRECTION", loadHomophones);
+        public static String[] RALLY_EARLIER = Configuration.getSpeechRecognitionPhrases("RALLY_EARLIER", loadHomophones);
+        public static String[] RALLY_LATER = Configuration.getSpeechRecognitionPhrases("RALLY_LATER", loadHomophones);
         public static String[] RALLY_INSERT = Configuration.getSpeechRecognitionPhrases("RALLY_INSERT", loadHomophones);
         public static String[] RALLY_LEFT = Configuration.getSpeechRecognitionPhrases("RALLY_LEFT", loadHomophones);
         public static String[] RALLY_RIGHT = Configuration.getSpeechRecognitionPhrases("RALLY_RIGHT", loadHomophones);
@@ -444,7 +446,8 @@ namespace CrewChiefV4
             SpeechRecogniser.RALLY_RIGHT_ENTRY_CHICANE,
             SpeechRecogniser.RALLY_RUTS,
             SpeechRecogniser.RALLY_TARMAC,
-            SpeechRecogniser.RALLY_TUNNEL
+            SpeechRecogniser.RALLY_TUNNEL,
+            SpeechRecogniser.RALLY_NARROWS
         };
 
         // for watching opponent - "watch [bob]", "tell me about [bob]"
@@ -1806,6 +1809,7 @@ namespace CrewChiefV4
                     validateAndAdd(RALLY_CORRECTION, correctionChoicesWrapper);
                     validateAndAdd(RALLY_INSERT, correctionChoicesWrapper);
 
+                    
                     // modifier commands. These are generally used to modify a corner call but can apply to other obstacles.
                     ChoicesWrapper stageNoteCommandChoicesWrapper = SREWrapperFactory.createNewChoicesWrapper();
                     validateAndAdd(RALLY_CUT, stageNoteCommandChoicesWrapper);
@@ -1836,6 +1840,10 @@ namespace CrewChiefV4
                     {
                         validateAndAdd(command, stageNoteCommandChoicesWrapper);
                     }
+
+                    // distance correction commands
+                    validateAndAdd(RALLY_EARLIER, stageNoteCommandChoicesWrapper);
+                    validateAndAdd(RALLY_LATER, stageNoteCommandChoicesWrapper);
 
                     // now assemble the choices
                     GrammarBuilderWrapper obstaclesAndCornersRallyGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper();
@@ -2442,7 +2450,15 @@ namespace CrewChiefV4
                         }
                         else if (ResultContains(recognisedText, REPEAT_LAST_MESSAGE, false))
                         {
-                            crewChief.audioPlayer.repeatLastMessage();
+                            // in rally mode, repeat-last-message need to replay all the last command batch
+                            if (CrewChief.gameDefinition.racingType == CrewChief.RacingType.Rally)
+                            {
+                                CrewChief.getEvent("CoDriver").respond(recognisedText);
+                            }
+                            else
+                            {
+                                crewChief.audioPlayer.repeatLastMessage();
+                            }
                         }
                         else if (ResultContains(recognisedText, MORE_INFO, false) && this.lastRecognisedText != null && !use_verbose_responses)
                         {

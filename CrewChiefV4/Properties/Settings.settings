@@ -1244,5 +1244,8 @@
     <Setting Name="dictation_grammar_for_rally_confidence" Type="System.Single" Scope="User">
       <Value Profile="(Default)">0.3</Value>
     </Setting>
+    <Setting Name="confirm_recce_pace_notes" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
