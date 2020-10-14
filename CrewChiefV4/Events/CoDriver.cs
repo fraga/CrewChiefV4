@@ -1815,10 +1815,18 @@ namespace CrewChiefV4.Events
             }
             else if (this.inReceMode)
             {
-                ProcessRecePaceNote(voiceMessage);
-                if (UserSettings.GetUserSettings().getBoolean("confirm_recce_pace_notes"))
+                bool addedPacenote = ProcessRecePaceNote(voiceMessage);
+                if (addedPacenote)
                 {
-                    ReplayLastPacenotesBatch(true);
+                    if (UserSettings.GetUserSettings().getBoolean("confirm_recce_pace_notes"))
+                    {
+                        ReplayLastPacenotesBatch(true);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Voice message \"" + voiceMessage + "\" didn't produce any pace notes");
+                    this.audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderDidntUnderstand, 0));
                 }
             }
         }
@@ -1879,7 +1887,7 @@ namespace CrewChiefV4.Events
             File.WriteAllText(Path.Combine(pacenotesPath, "pacenotes.json"), JsonConvert.SerializeObject(this.recePaceNotes, Formatting.Indented));
         }
 
-        private void ProcessRecePaceNote(string voiceMessage)
+        private bool ProcessRecePaceNote(string voiceMessage)
         {
             Console.WriteLine("Got stage recce voice message \"" + voiceMessage + "\"");
             float currentDistance = CrewChief.currentGameState == null ? 0 : CrewChief.currentGameState.PositionAndMotionData.DistanceRoundTrack;
@@ -1890,11 +1898,12 @@ namespace CrewChiefV4.Events
                 if (lastRecePacenoteWasDistance)
                 {
                     Console.WriteLine("Skipping distance pacenote as we can't have 2 of these consecutively");
-                    return;
+                    return true;
                 }
                 // manually add a distance call - the actual distance will be resolved on playback
                 this.recePaceNotes.Add(new CoDriverPacenote { Pacenote = PacenoteType.detail_distance_call, Distance = distance });
                 lastRecePacenoteWasDistance = true;
+                return true;
             }
             else
             {
@@ -1927,6 +1936,7 @@ namespace CrewChiefV4.Events
                     this.lastPlayedOrAddedBatch.AddRange(paceNotesToAdd);
                 }
                 lastRecePacenoteWasDistance = false;
+                return this.lastPlayedOrAddedBatch.Count > 0;
             }
         }
 
