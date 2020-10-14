@@ -593,6 +593,9 @@ namespace CrewChiefV4.Events
             }
         }
 
+        private const string pacenotesFileName = "pacenotes.json";
+        private const string correctionsFileName = "corrections.json";
+
         public static Terminologies terminologies = new Terminologies();
   
         private const string codriverFolderPrefix = "codriver_";
@@ -1066,90 +1069,97 @@ namespace CrewChiefV4.Events
 
         private void LoadAndApplyCorrections(string trackName, List<CoDriverPacenote> paceNotes)
         {
-            string correctionsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4", CrewChief.gameDefinition.gameEnum.ToString(), trackName, "corrections.json");
-            if (File.Exists(correctionsPath))
+            // reset the corrections
+            correctionsForCurrentSession = new List<CoDriverPacenote>();
+            string pacenotesPath = GetPacenotesPath(trackName);
+            if (Directory.Exists(pacenotesPath))
             {
-                correctionsForCurrentSession = JsonConvert.DeserializeObject<List<CoDriverPacenote>>(Utilities.GetFileContentsJsonWithComment(correctionsPath));
-            }
-            if (correctionsForCurrentSession == null)
-            {
-                // empty file, ensure the local var is initialised
-                correctionsForCurrentSession = new List<CoDriverPacenote>();
-            }
-            else
-            {
-                // apply the corrections
-                foreach (CoDriverPacenote correction in correctionsForCurrentSession)
+                string correctionsFullFileName = Path.Combine(pacenotesPath, CoDriver.correctionsFileName);
+                if (File.Exists(correctionsFullFileName))
                 {
-                    bool appliedAsCorrection = false;
-                    foreach (CoDriverPacenote paceNote in paceNotes)
+                    correctionsForCurrentSession = JsonConvert.DeserializeObject<List<CoDriverPacenote>>(Utilities.GetFileContentsJsonWithComment(correctionsFullFileName));
+                    if (correctionsForCurrentSession == null)
                     {
-                        bool logCorrectedPacenote = false;
-                        if (Math.Abs(correction.Distance - paceNote.Distance) < 5)
-                        {
-                            // we've found a note to correct, if it's a corner and the correction is a corner or it's just
-                            // a modifier, apply it. Otherwise just apply the distance
-                            if (IsCorner(paceNote.Pacenote) && 
-                                (IsCorner(correction.Pacenote) || (correction.Pacenote == PacenoteType.unknown && correction.Modifier != PacenoteModifier.none)))
-                            {
-                                if (correction.Pacenote != PacenoteType.unknown)
-                                {
-                                    paceNote.Pacenote = correction.Pacenote;
-                                }
-                                if (correction.Modifier != PacenoteModifier.none)
-                                {
-                                    paceNote.Modifier = correction.Modifier;
-                                }
-                                appliedAsCorrection = true;
-                                logCorrectedPacenote = true;
-                            }
-                            if (correction.CorrectedDistance != null)
-                            {
-                                paceNote.Distance = (float)correction.CorrectedDistance;
-                                appliedAsCorrection = true;
-                                logCorrectedPacenote = true;
-                            }
-                            if (logCorrectedPacenote)
-                            {
-                                Console.WriteLine("Pacenote " + paceNote.ToString() + " corrected to " + correction.ToString());
-                            }
-                        }
+                        // empty file, ensure the local var is initialised
+                        correctionsForCurrentSession = new List<CoDriverPacenote>();
                     }
-                    if (!appliedAsCorrection)
+                }
+            }
+            // apply the corrections
+            foreach (CoDriverPacenote correction in correctionsForCurrentSession)
+            {
+                bool appliedAsCorrection = false;
+                foreach (CoDriverPacenote paceNote in paceNotes)
+                {
+                    bool logCorrectedPacenote = false;
+                    if (Math.Abs(correction.Distance - paceNote.Distance) < 5)
                     {
-                        // look to insert this
-                        for (int i = 0; i < paceNotes.Count; i++)
+                        // we've found a note to correct, if it's a corner and the correction is a corner or it's just
+                        // a modifier, apply it. Otherwise just apply the distance
+                        if (IsCorner(paceNote.Pacenote) && 
+                            (IsCorner(correction.Pacenote) || (correction.Pacenote == PacenoteType.unknown && correction.Modifier != PacenoteModifier.none)))
                         {
-                            if (paceNotes[i].Pacenote == PacenoteType.detail_distance_call)
+                            if (correction.Pacenote != PacenoteType.unknown)
                             {
-                                continue;
+                                paceNote.Pacenote = correction.Pacenote;
                             }
-                            if (paceNotes[i].Distance > correction.Distance)
+                            if (correction.Modifier != PacenoteModifier.none)
                             {
-                                // we've found place to insert the new note
-                                Console.WriteLine("Inserting pacenote " + correction.ToString());
-                                paceNotes.Insert(i, correction);
-                                break;
+                                paceNote.Modifier = correction.Modifier;
                             }
+                            appliedAsCorrection = true;
+                            logCorrectedPacenote = true;
+                        }
+                        if (correction.CorrectedDistance != null)
+                        {
+                            paceNote.Distance = (float)correction.CorrectedDistance;
+                            appliedAsCorrection = true;
+                            logCorrectedPacenote = true;
+                        }
+                        if (logCorrectedPacenote)
+                        {
+                            Console.WriteLine("Pacenote " + paceNote.ToString() + " corrected to " + correction.ToString());
                         }
                     }
                 }
+                if (!appliedAsCorrection)
+                {
+                    // look to insert this
+                    for (int i = 0; i < paceNotes.Count; i++)
+                    {
+                        if (paceNotes[i].Pacenote == PacenoteType.detail_distance_call)
+                        {
+                            continue;
+                        }
+                        if (paceNotes[i].Distance > correction.Distance)
+                        {
+                            // we've found place to insert the new note
+                            Console.WriteLine("Inserting pacenote " + correction.ToString());
+                            paceNotes.Insert(i, correction);
+                            break;
+                        }
+                    }
+                }
+                
             }
         }
 
         private void LoadRecePaceNotes(GameStateData cgs)
         {
-            string pacenotesPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4", CrewChief.gameDefinition.gameEnum.ToString(),
-                cgs.SessionData.TrackDefinition.name, "pacenotes.json");
-            if (File.Exists(pacenotesPath))
+            string pacenotesPath = GetPacenotesPath(cgs.SessionData.TrackDefinition.name);
+            if (Directory.Exists(pacenotesPath))
             {
-                List<CoDriverPacenote> paceNotes = JsonConvert.DeserializeObject<List<CoDriverPacenote>>(Utilities.GetFileContentsJsonWithComment(pacenotesPath));
-                if (paceNotes != null && paceNotes.Count > 0)
+                string pacenotesFullFileName = Path.Combine(pacenotesPath, CoDriver.pacenotesFileName);
+                if (File.Exists(pacenotesFullFileName))
                 {
-                    cgs.UseCrewchiefPaceNotes = true;
-                    InsertDistanceData(paceNotes);
-                    InsertFinish(paceNotes, cgs.SessionData.TrackDefinition.trackLength);
-                    cgs.CoDriverPacenotes = paceNotes;
+                    List<CoDriverPacenote> paceNotes = JsonConvert.DeserializeObject<List<CoDriverPacenote>>(Utilities.GetFileContentsJsonWithComment(pacenotesFullFileName));
+                    if (paceNotes != null && paceNotes.Count > 0)
+                    {
+                        cgs.UseCrewchiefPaceNotes = true;
+                        InsertDistanceData(paceNotes);
+                        InsertFinish(paceNotes, cgs.SessionData.TrackDefinition.trackLength);
+                        cgs.CoDriverPacenotes = paceNotes;
+                    }
                 }
             }
             this.lastProcessedPacenoteIdx = 0;
@@ -1882,9 +1892,34 @@ namespace CrewChiefV4.Events
 
         private void WriteRecePacenotes(string trackName)
         {
-            string pacenotesPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4", CrewChief.gameDefinition.gameEnum.ToString(), trackName);
+            string pacenotesPath = GetPacenotesPath(trackName);
             Directory.CreateDirectory(pacenotesPath);
-            File.WriteAllText(Path.Combine(pacenotesPath, "pacenotes.json"), JsonConvert.SerializeObject(this.recePaceNotes, Formatting.Indented));
+            RenameExistingPacenotesFile(trackName);
+            File.WriteAllText(Path.Combine(pacenotesPath, CoDriver.pacenotesFileName), JsonConvert.SerializeObject(this.recePaceNotes, Formatting.Indented));
+        }
+
+        private string GetPacenotesPath(string trackName)
+        {
+            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4", CrewChief.gameDefinition.gameEnum.ToString(), trackName);
+        }
+
+        private void RenameExistingPacenotesFile(string trackName)
+        {
+            string pacenotesPath = GetPacenotesPath(trackName);
+            string existingPacenotesFullPath = Path.Combine(pacenotesPath, CoDriver.pacenotesFileName);
+            if (File.Exists(existingPacenotesFullPath))
+            {
+                string newFileName;
+                int i = 1;
+                do
+                {
+                    string filenameWithNoExtension = Path.GetFileNameWithoutExtension(CoDriver.pacenotesFileName);
+                    string filenameExtension = Path.GetExtension(CoDriver.pacenotesFileName);
+                    newFileName = Path.Combine(pacenotesPath, filenameWithNoExtension + "_" + i + filenameExtension);
+                }
+                while (File.Exists(newFileName));
+                File.Move(existingPacenotesFullPath, newFileName);
+            }
         }
 
         private bool ProcessRecePaceNote(string voiceMessage)
@@ -2193,9 +2228,9 @@ namespace CrewChiefV4.Events
 
         private void WritePacenoteCorrections(string trackName)
         {
-            string correctionsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4", CrewChief.gameDefinition.gameEnum.ToString(), trackName);
-            Directory.CreateDirectory(correctionsPath);
-            File.WriteAllText(Path.Combine(correctionsPath, "corrections.json"), JsonConvert.SerializeObject(this.correctionsForCurrentSession, Formatting.Indented));
+            string pacenotesPath = GetPacenotesPath(trackName);
+            Directory.CreateDirectory(pacenotesPath);
+            File.WriteAllText(Path.Combine(pacenotesPath, CoDriver.correctionsFileName), JsonConvert.SerializeObject(this.correctionsForCurrentSession, Formatting.Indented));
         }
 
         private List<HistoricCall> GetCallsToCorrect(Direction requestedDirection)
