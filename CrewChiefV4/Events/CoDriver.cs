@@ -7,6 +7,7 @@
 using CrewChiefV4.Audio;
 using CrewChiefV4.GameState;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -39,6 +40,7 @@ namespace CrewChiefV4.Events
         //
         // NOTE: coner_hairpin* and variants is special, it is not coming from the game.  CoDriver pack
         //       has to map it if needed.
+        [JsonConverter(typeof(StringEnumConverter))]
         public enum PacenoteType
         {
             // Weird naming is used to simplify sound reading.
@@ -362,10 +364,15 @@ namespace CrewChiefV4.Events
             detail_standard_call = 10009,
             detail_sound_index = 10010,
             detail_callout_adjust = 10012,
-            unknown = 20000
+            unknown = 20000,
+
+            // CC-only
+            detail_through_gate,
+            detail_big_jump
         }
 
         [Flags]
+        [JsonConverter(typeof(StringEnumConverter))]
         public enum PacenoteModifier : int
         {
             none = 0,
@@ -378,6 +385,35 @@ namespace CrewChiefV4.Events
             detail_long = 1024,
             detail_maybe = 8192
         }
+
+        private static readonly int[] distanceCallRanges = new int[]
+        {
+            30,
+            40,
+            50,
+            60,
+            70,
+            80,
+            100,
+            120,
+            140,
+            150,
+            160,
+            180,
+            200,
+            250,
+            300,
+            350,
+            400,
+            450,
+            500,
+            600,
+            700,
+            800,
+            900,
+            1000
+        };
+
 
         // It turns out that chainedNotes not only define "into" logic, they also affect distance calculation.
         // That means we may need to allow specifying those in the .json.
@@ -474,6 +510,55 @@ namespace CrewChiefV4.Events
             { CoDriver.PacenoteType.detail_bridge, CoDriver.PacenoteType.detail_over_bridge }
         };
 
+        private Dictionary<string, CoDriver.PacenoteType> possibleCornerCommands = new Dictionary<string, PacenoteType>();
+        
+        private Dictionary<string[], PacenoteType> obstaclePacenoteTypes = new Dictionary<string[], PacenoteType>()
+        {
+            // TODO: record bad camber
+            { SpeechRecogniser.RALLY_BAD_CAMBER, PacenoteType.detail_bad_camber },
+            { SpeechRecogniser.RALLY_OVER_BRIDGE, PacenoteType.detail_over_bridge },
+            { SpeechRecogniser.RALLY_BRIDGE, PacenoteType.detail_bridge },
+            { SpeechRecogniser.RALLY_BUMPS, PacenoteType.detail_bumps },
+            { SpeechRecogniser.RALLY_CONCRETE, PacenoteType.detail_concrete },
+            { SpeechRecogniser.RALLY_OVER_CREST, PacenoteType.detail_over_crest },
+            { SpeechRecogniser.RALLY_CREST, PacenoteType.detail_crest },
+            { SpeechRecogniser.RALLY_FORD, PacenoteType.detail_ford },
+            { SpeechRecogniser.RALLY_LOOSE_GRAVEL, PacenoteType.detail_loose_gravel },
+            { SpeechRecogniser.RALLY_GRAVEL, PacenoteType.detail_gravel },
+            { SpeechRecogniser.RALLY_SNOW, PacenoteType.detail_snow },
+            { SpeechRecogniser.RALLY_SLIPPY, PacenoteType.detail_slippy},
+            { SpeechRecogniser.RALLY_OVER_JUMP, PacenoteType.detail_over_jump },
+            { SpeechRecogniser.RALLY_BIG_JUMP, PacenoteType.detail_big_jump }, 
+            { SpeechRecogniser.RALLY_JUMP, PacenoteType.detail_jump },
+            { SpeechRecogniser.RALLY_JUNCTION, PacenoteType.detail_junction },
+            { SpeechRecogniser.RALLY_KEEP_IN, PacenoteType.detail_keep_in },
+            { SpeechRecogniser.RALLY_KEEP_LEFT, PacenoteType.detail_keep_left },
+            { SpeechRecogniser.RALLY_KEEP_MIDDLE, PacenoteType.detail_keep_middle },
+            { SpeechRecogniser.RALLY_KEEP_OUT, PacenoteType.detail_keep_out },
+            { SpeechRecogniser.RALLY_KEEP_RIGHT, PacenoteType.detail_keep_right },
+            { SpeechRecogniser.RALLY_LEFT_ENTRY_CHICANE, PacenoteType.detail_left_entry_chicane },
+            { SpeechRecogniser.RALLY_OPENS_THEN_TIGHTENS, PacenoteType.detail_opens_tightens },
+            { SpeechRecogniser.RALLY_TIGHTENS_THEN_OPENS, PacenoteType.detail_tightens_opens },
+            { SpeechRecogniser.RALLY_OPENS, PacenoteType.detail_opens },
+            { SpeechRecogniser.RALLY_OVER_RAILS, PacenoteType.detail_over_rails },
+            { SpeechRecogniser.RALLY_RIGHT_ENTRY_CHICANE, PacenoteType.detail_right_entry_chicane },
+            { SpeechRecogniser.RALLY_DEEP_RUTS, PacenoteType.detail_deepruts },
+            { SpeechRecogniser.RALLY_RUTS, PacenoteType.detail_ruts },
+            { SpeechRecogniser.RALLY_TARMAC, PacenoteType.detail_onto_tarmac },
+            { SpeechRecogniser.RALLY_TUNNEL, PacenoteType.detail_tunnel },
+            { SpeechRecogniser.RALLY_CARE, PacenoteType.detail_care },
+            { SpeechRecogniser.RALLY_CAUTION, PacenoteType.detail_caution },
+            { SpeechRecogniser.RALLY_DANGER, PacenoteType.detail_double_caution },
+            { SpeechRecogniser.RALLY_THROUGH_GATE, PacenoteType.detail_through_gate },
+            { SpeechRecogniser.RALLY_NARROWS, PacenoteType.detail_narrows },
+            // TODO: record separate sounds for "logs/rocks/tree inside/outside" and wire these as separate obstacles
+            { SpeechRecogniser.RALLY_OBSTACLE_INSIDE, PacenoteType.detail_keep_out },
+            { SpeechRecogniser.RALLY_OBSTACLE_OUTSIDE, PacenoteType.detail_keep_in },
+            { SpeechRecogniser.RALLY_UPHILL, PacenoteType.detail_uphill },
+            { SpeechRecogniser.RALLY_DOWNHILL, PacenoteType.detail_downhill },
+            { SpeechRecogniser.RALLY_BRAKE, PacenoteType.detail_brake }
+        };
+
         public class Terminology
         {
             public Dictionary<string, string> terminology = new Dictionary<string, string>();
@@ -485,29 +570,29 @@ namespace CrewChiefV4.Events
             public HashSet<string> chainedNotes = new HashSet<string>();
         }
 
-        public class HistoricCornerCall
+        public class HistoricCall
         {
             public DateTime callTime = DateTime.MinValue;
             public float callDistance = 0;
             public PacenoteType callType = PacenoteType.unknown;
-            public HistoricCornerCall()
+            public PacenoteModifier modifier = PacenoteModifier.none;
+            public HistoricCall()
             {
 
             }
-            public HistoricCornerCall(PacenoteType callType, float callDistance, DateTime callTime)
+            public HistoricCall(PacenoteType callType, PacenoteModifier modifier, float callDistance, DateTime callTime)
             {
                 this.callType = callType;
                 this.callDistance = callDistance;
                 this.callTime = callTime;
+                this.modifier = modifier;
+            }
+            public override string ToString()
+            {
+                return callType.ToString() + ":" + modifier.ToString();
             }
         }
 
-        public class PaceNoteCorrection
-        {
-            public float distance;
-            public string pacenoteType;
-        }
-        
         public static Terminologies terminologies = new Terminologies();
   
         private const string codriverFolderPrefix = "codriver_";
@@ -521,6 +606,9 @@ namespace CrewChiefV4.Events
         private float lookaheadSecondsFromConfig = UserSettings.GetUserSettings().getFloat("codriver_lookahead_seconds");  // default 4s
         private float rushedLookaheadSeconds = UserSettings.GetUserSettings().getFloat("codriver_rushed_lookahead_seconds");  // default 2s
 
+        private static string folderAcknowledgeStartRecce = "codriver/acknowledge_start_recce";
+        private static string folderAcknowledgeEndRecce = "codriver/acknowledge_end_recce";
+
         private float lookaheadSecondsToUse;
         private const float maxLookaheadSeconds = 10f;
         private const float minLookaheadSeconds = 0.5f;
@@ -528,6 +616,8 @@ namespace CrewChiefV4.Events
         private int lastProcessedPacenoteIdx = 0;
         private bool isLost = false;
         private float lastProcessedLapDist = -1.0f;
+
+        private DateTime lastIntoSoundPlayed = DateTime.MinValue;
 
         // used when switching between descriptive and numeric corner calls
         private bool preferReversedNumbers = false;
@@ -543,9 +633,39 @@ namespace CrewChiefV4.Events
         private DateTime lastRushedPacenoteTime = DateTime.MinValue;
         private int lastBatchFragmentCount = 0;
 
-        private LinkedList<HistoricCornerCall> historicCalls = new LinkedList<HistoricCornerCall>();
+        private LinkedList<HistoricCall> historicCalls = new LinkedList<HistoricCall>();
 
-        private List<PaceNoteCorrection> correctionsForCurrentSession = new List<PaceNoteCorrection>();
+        private List<CoDriverPacenote> correctionsForCurrentSession = new List<CoDriverPacenote>();
+
+        private List<CoDriverPacenote> recePaceNotes = new List<CoDriverPacenote>();
+        private bool inReceMode = false;
+        private bool lastRecePacenoteWasDistance = false;
+
+        // this is the set of pacenotes just added when in recce mode or just played when in normal mode.
+        // It's used to locate the pace notes we need to remove and replace (recce mode) and provide a set
+        // of pace notes to replay (normal mode when requesting that the chief repeats the last message)
+        private List<CoDriverPacenote> lastPlayedOrAddedBatch = new List<CoDriverPacenote>();
+
+        public static string TOGGLE_RALLY_RECCE_MODE = "toggle_rally_recce_mode";
+
+        private string lastStageName = "";
+
+        // random rally helper function
+        public static double GetClosestValueForDistanceCall(double distanceToNext)
+        {
+            var closestRange = 1000;
+            var minDistance = Math.Abs(closestRange - distanceToNext);
+            foreach (var r in CoDriver.distanceCallRanges)
+            {
+                var distToRange = Math.Abs(r - distanceToNext);
+                if (distToRange < minDistance)
+                {
+                    minDistance = distToRange;
+                    closestRange = r;
+                }
+            }
+            return closestRange;
+        }
 
         public CoDriver(AudioPlayer audioPlayer)
         {
@@ -559,6 +679,7 @@ namespace CrewChiefV4.Events
             this.rushedLookaheadSeconds = UserSettings.GetUserSettings().getFloat("codriver_rushed_lookahead_seconds");
 
             this.audioPlayer = audioPlayer;
+            assemblePossibleCornerCommands();
 
             if (GlobalBehaviourSettings.racingType != CrewChief.RacingType.Rally)
             {
@@ -705,6 +826,107 @@ namespace CrewChiefV4.Events
 #endif
     }
 
+        private void assemblePossibleCornerCommands()
+        {
+            foreach (string direction in SpeechRecogniser.RALLY_LEFT)
+            {
+                foreach (string cornerType in SpeechRecogniser.RALLY_1)
+                {
+                    possibleCornerCommands[cornerType + " " + direction] = PacenoteType.corner_1_left;
+                    possibleCornerCommands[direction + " " + cornerType] = PacenoteType.corner_1_left;
+                }
+                foreach (string cornerType in SpeechRecogniser.RALLY_2)
+                {
+                    possibleCornerCommands[cornerType + " " + direction] = PacenoteType.corner_2_left;
+                    possibleCornerCommands[direction + " " + cornerType] = PacenoteType.corner_2_left;
+                }
+                foreach (string cornerType in SpeechRecogniser.RALLY_3)
+                {
+                    possibleCornerCommands[cornerType + " " + direction] = PacenoteType.corner_3_left;
+                    possibleCornerCommands[direction + " " + cornerType] = PacenoteType.corner_3_left;
+                }
+                foreach (string cornerType in SpeechRecogniser.RALLY_4)
+                {
+                    possibleCornerCommands[cornerType + " " + direction] = PacenoteType.corner_4_left;
+                    possibleCornerCommands[direction + " " + cornerType] = PacenoteType.corner_4_left;
+                }
+                foreach (string cornerType in SpeechRecogniser.RALLY_5)
+                {
+                    possibleCornerCommands[cornerType + " " + direction] = PacenoteType.corner_5_left;
+                    possibleCornerCommands[direction + " " + cornerType] = PacenoteType.corner_5_left;
+                }
+                foreach (string cornerType in SpeechRecogniser.RALLY_6)
+                {
+                    possibleCornerCommands[cornerType + " " + direction] = PacenoteType.corner_6_left;
+                    possibleCornerCommands[direction + " " + cornerType] = PacenoteType.corner_6_left;
+                }
+                foreach (string cornerType in SpeechRecogniser.RALLY_SQUARE)
+                {
+                    possibleCornerCommands[cornerType + " " + direction] = PacenoteType.corner_square_left;
+                    possibleCornerCommands[direction + " " + cornerType] = PacenoteType.corner_square_left;
+                }
+                foreach (string cornerType in SpeechRecogniser.RALLY_FLAT)
+                {
+                    possibleCornerCommands[cornerType + " " + direction] = PacenoteType.corner_flat_left;
+                    possibleCornerCommands[direction + " " + cornerType] = PacenoteType.corner_flat_left;
+                }
+                foreach (string cornerType in SpeechRecogniser.RALLY_HAIRPIN)
+                {
+                    possibleCornerCommands[cornerType + " " + direction] = PacenoteType.corner_left_acute;
+                    possibleCornerCommands[direction + " " + cornerType] = PacenoteType.corner_left_acute;
+                }
+            }
+
+            foreach (string direction in SpeechRecogniser.RALLY_RIGHT)
+            {
+                foreach (string cornerType in SpeechRecogniser.RALLY_1)
+                {
+                    possibleCornerCommands[cornerType + " " + direction] = PacenoteType.corner_1_right;
+                    possibleCornerCommands[direction + " " + cornerType] = PacenoteType.corner_1_right;
+                }
+                foreach (string cornerType in SpeechRecogniser.RALLY_2)
+                {
+                    possibleCornerCommands[cornerType + " " + direction] = PacenoteType.corner_2_right;
+                    possibleCornerCommands[direction + " " + cornerType] = PacenoteType.corner_2_right;
+                }
+                foreach (string cornerType in SpeechRecogniser.RALLY_3)
+                {
+                    possibleCornerCommands[cornerType + " " + direction] = PacenoteType.corner_3_right;
+                    possibleCornerCommands[direction + " " + cornerType] = PacenoteType.corner_3_right;
+                }
+                foreach (string cornerType in SpeechRecogniser.RALLY_4)
+                {
+                    possibleCornerCommands[cornerType + " " + direction] = PacenoteType.corner_4_right;
+                    possibleCornerCommands[direction + " " + cornerType] = PacenoteType.corner_4_right;
+                }
+                foreach (string cornerType in SpeechRecogniser.RALLY_5)
+                {
+                    possibleCornerCommands[cornerType + " " + direction] = PacenoteType.corner_5_right;
+                    possibleCornerCommands[direction + " " + cornerType] = PacenoteType.corner_5_right;
+                }
+                foreach (string cornerType in SpeechRecogniser.RALLY_6)
+                {
+                    possibleCornerCommands[cornerType + " " + direction] = PacenoteType.corner_6_right;
+                    possibleCornerCommands[direction + " " + cornerType] = PacenoteType.corner_6_right;
+                }
+                foreach (string cornerType in SpeechRecogniser.RALLY_SQUARE)
+                {
+                    possibleCornerCommands[cornerType + " " + direction] = PacenoteType.corner_square_right;
+                    possibleCornerCommands[direction + " " + cornerType] = PacenoteType.corner_square_right;
+                }
+                foreach (string cornerType in SpeechRecogniser.RALLY_FLAT)
+                {
+                    possibleCornerCommands[cornerType + " " + direction] = PacenoteType.corner_flat_right;
+                    possibleCornerCommands[direction + " " + cornerType] = PacenoteType.corner_flat_right;
+                }
+                foreach (string cornerType in SpeechRecogniser.RALLY_HAIRPIN)
+                {
+                    possibleCornerCommands[cornerType + " " + direction] = PacenoteType.corner_right_acute;
+                    possibleCornerCommands[direction + " " + cornerType] = PacenoteType.corner_right_acute;
+                }
+            }
+        }
+        
         public override List<CrewChief.RacingType> applicableRacingTypes
         {
             get { return new List<CrewChief.RacingType> { CrewChief.RacingType.Rally }; }
@@ -744,7 +966,8 @@ namespace CrewChiefV4.Events
             this.lastRushedPacenoteTime = DateTime.MinValue;
             this.lastBatchFragmentCount = 0;
             this.historicCalls.Clear();
-    }
+            this.recePaceNotes.Clear();
+        }
 
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
@@ -756,16 +979,33 @@ namespace CrewChiefV4.Events
             var cgs = currentGameState;
             var csd = currentGameState.SessionData;
             var psd = previousGameState.SessionData;
+            if (csd.TrackDefinition != null && csd.TrackDefinition.name != null && csd.TrackDefinition.name != "")
+            {
+                lastStageName = csd.TrackDefinition.name;
+            }
 
-            this.ProcessRaceStart(cgs, csd, psd);
-            this.ProcessPenalties(cgs, pgs);
-            this.ProcessLost(cgs, pgs);
-            this.ProcessPacenotes(cgs, csd);
+            if (this.inReceMode)
+            {
+                if (csd.SessionPhase == SessionPhase.Green && psd.SessionPhase == SessionPhase.Countdown)
+                {
+                    Console.WriteLine("Stage recce started");
+                }
+            }
+            else
+            {
+                this.ProcessRaceStart(cgs, csd, psd);
+                if (CrewChief.gameDefinition.gameEnum == GameEnum.RBR)
+                {
+                    this.ProcessPenalties(cgs, pgs);
+                    this.ProcessLost(cgs, pgs);
+                }
+                this.ProcessPacenotes(cgs, csd);
+            }
         }
 
         private void ProcessLost(GameStateData cgs, GameStateData pgs)
         {
-            if (cgs.SessionData.SessionPhase != SessionPhase.Green
+            if (cgs.SessionData.SessionPhase != SessionPhase.Green || cgs.PositionAndMotionData.DistanceRoundTrack == 0
                 || this.isLost)
                 return;
 
@@ -817,22 +1057,167 @@ namespace CrewChiefV4.Events
                 && cgs.PenaltiesData.PenaltyCause == PenatiesData.DetailedPenaltyCause.NONE)
             {
                 this.audioPlayer.playMessageImmediately(new QueuedMessage(CoDriver.folderCodriverPrefix + "detail_go", 0));
+                // load saved pace notes
+                LoadRecePaceNotes(cgs);
                 // load the corrections here for now
-                LoadCorrections(cgs.SessionData.TrackDefinition.name);
+                LoadAndApplyCorrections(cgs.SessionData.TrackDefinition.name, cgs.CoDriverPacenotes);
             }
         }
 
-        private void LoadCorrections(string trackName)
+        private void LoadAndApplyCorrections(string trackName, List<CoDriverPacenote> paceNotes)
         {
-            string correctionsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4", GameEnum.RBR.ToString(), trackName, "corrections.json");
+            string correctionsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4", CrewChief.gameDefinition.gameEnum.ToString(), trackName, "corrections.json");
             if (File.Exists(correctionsPath))
             {
-                correctionsForCurrentSession = JsonConvert.DeserializeObject<List<PaceNoteCorrection>>(Utilities.GetFileContentsJsonWithComment(correctionsPath));
+                correctionsForCurrentSession = JsonConvert.DeserializeObject<List<CoDriverPacenote>>(Utilities.GetFileContentsJsonWithComment(correctionsPath));
             }
             if (correctionsForCurrentSession == null)
             {
-                // empty file
-                correctionsForCurrentSession = new List<PaceNoteCorrection>();
+                // empty file, ensure the local var is initialised
+                correctionsForCurrentSession = new List<CoDriverPacenote>();
+            }
+            else
+            {
+                // apply the corrections
+                foreach (CoDriverPacenote correction in correctionsForCurrentSession)
+                {
+                    bool appliedAsCorrection = false;
+                    foreach (CoDriverPacenote paceNote in paceNotes)
+                    {
+                        bool logCorrectedPacenote = false;
+                        if (Math.Abs(correction.Distance - paceNote.Distance) < 5)
+                        {
+                            // we've found a note to correct, if it's a corner and the correction is a corner or it's just
+                            // a modifier, apply it. Otherwise just apply the distance
+                            if (IsCorner(paceNote.Pacenote) && 
+                                (IsCorner(correction.Pacenote) || (correction.Pacenote == PacenoteType.unknown && correction.Modifier != PacenoteModifier.none)))
+                            {
+                                if (correction.Pacenote != PacenoteType.unknown)
+                                {
+                                    paceNote.Pacenote = correction.Pacenote;
+                                }
+                                if (correction.Modifier != PacenoteModifier.none)
+                                {
+                                    paceNote.Modifier = correction.Modifier;
+                                }
+                                appliedAsCorrection = true;
+                                logCorrectedPacenote = true;
+                            }
+                            if (correction.CorrectedDistance != null)
+                            {
+                                paceNote.Distance = (float)correction.CorrectedDistance;
+                                appliedAsCorrection = true;
+                                logCorrectedPacenote = true;
+                            }
+                            if (logCorrectedPacenote)
+                            {
+                                Console.WriteLine("Pacenote " + paceNote.ToString() + " corrected to " + correction.ToString());
+                            }
+                        }
+                    }
+                    if (!appliedAsCorrection)
+                    {
+                        // look to insert this
+                        for (int i = 0; i < paceNotes.Count; i++)
+                        {
+                            if (paceNotes[i].Pacenote == PacenoteType.detail_distance_call)
+                            {
+                                continue;
+                            }
+                            if (paceNotes[i].Distance > correction.Distance)
+                            {
+                                // we've found place to insert the new note
+                                Console.WriteLine("Inserting pacenote " + correction.ToString());
+                                paceNotes.Insert(i, correction);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void LoadRecePaceNotes(GameStateData cgs)
+        {
+            string pacenotesPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4", CrewChief.gameDefinition.gameEnum.ToString(),
+                cgs.SessionData.TrackDefinition.name, "pacenotes.json");
+            if (File.Exists(pacenotesPath))
+            {
+                List<CoDriverPacenote> paceNotes = JsonConvert.DeserializeObject<List<CoDriverPacenote>>(Utilities.GetFileContentsJsonWithComment(pacenotesPath));
+                if (paceNotes != null && paceNotes.Count > 0)
+                {
+                    cgs.UseCrewchiefPaceNotes = true;
+                    InsertDistanceData(paceNotes);
+                    InsertFinish(paceNotes, cgs.SessionData.TrackDefinition.trackLength);
+                    cgs.CoDriverPacenotes = paceNotes;
+                }
+            }
+            this.lastProcessedPacenoteIdx = 0;
+            this.isLost = false;
+            this.lastProcessedLapDist = -1.0f;
+        }
+
+        private void InsertFinish(List<CoDriverPacenote> loadedPaceNotes, float trackLength)
+        {
+            int indexToInsertFinish = -1;
+            for (int i=loadedPaceNotes.Count - 1; i>=0; i--)
+            {
+                CoDriverPacenote paceNote = loadedPaceNotes[i];
+                if (paceNote.Pacenote == PacenoteType.detail_finish || paceNote.Pacenote == PacenoteType.detail_to_finish)
+                {
+                    return;
+                }
+                else if (indexToInsertFinish != -1 && paceNote.Distance <= trackLength)
+                {
+                    indexToInsertFinish = i + 1;
+                    // allow the loop to continue here. We know where we want to insert the 'finish' pace note but continue iterating till we reach the start
+                    // to ensure it's not in there already
+                }
+            }
+            if (indexToInsertFinish > 0)
+            {
+                CoDriverPacenote finishPaceNote = new CoDriverPacenote();
+                finishPaceNote.Distance = trackLength;
+                finishPaceNote.Pacenote = PacenoteType.detail_to_finish;
+                loadedPaceNotes.Insert(indexToInsertFinish, finishPaceNote);
+            }
+        }
+
+        private void InsertDistanceData(List<CoDriverPacenote> loadedPaceNotes)
+        {
+            for (int i=1; i<loadedPaceNotes.Count; i++)
+            {
+                if (loadedPaceNotes[i].Pacenote == PacenoteType.detail_distance_call && loadedPaceNotes[i].Options == null)
+                {
+                    // this is an autogenerated distance placeholder.
+                    // Get the distance from the previous pace note to the next proper pacenote
+                    int nextIndex = i + 1;
+                    while (nextIndex < loadedPaceNotes.Count)
+                    {
+                        CoDriverPacenote nextPacenote = loadedPaceNotes[nextIndex];
+                        if (nextPacenote.Pacenote != CoDriver.PacenoteType.detail_keep_centre
+                            && nextPacenote.Pacenote != CoDriver.PacenoteType.detail_keep_left
+                            && nextPacenote.Pacenote != CoDriver.PacenoteType.detail_keep_right
+                            && nextPacenote.Pacenote != CoDriver.PacenoteType.detail_keep_middle
+                            && nextPacenote.Pacenote != CoDriver.PacenoteType.detail_keep_out
+                            && nextPacenote.Pacenote != CoDriver.PacenoteType.detail_keep_in
+                            && nextPacenote.Pacenote != CoDriver.PacenoteType.detail_bumps
+                            && nextPacenote.Pacenote != CoDriver.PacenoteType.detail_bump
+                            && nextPacenote.Pacenote != CoDriver.PacenoteType.detail_ruts
+                            && nextPacenote.Pacenote != CoDriver.PacenoteType.detail_deepruts
+                            && nextPacenote.Pacenote != CoDriver.PacenoteType.detail_distance_call)
+                        {
+                            // next pace note is a real one so get the distance to call
+                            float distanceToNext = loadedPaceNotes[i + 1].Distance - loadedPaceNotes[i].Distance;
+                            if (distanceToNext >= 40)
+                            {
+                                loadedPaceNotes[i].Options = CoDriver.GetClosestValueForDistanceCall(distanceToNext);
+                            }
+                            break;
+                        }
+                        nextIndex++;
+                    }
+                }
             }
         }
 
@@ -855,10 +1240,11 @@ namespace CrewChiefV4.Events
 
                 var nextBatchDistance = this.FindNextBatchDistance(readDist, cgs, out var fragmentsInCurrBatch);
 
+                List<CoDriverPacenote> pacenotesInBatch = new List<CoDriverPacenote>();
                 while (this.lastProcessedPacenoteIdx < cgs.CoDriverPacenotes.Count
                     && readDist > cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Distance)
                 {
-                    if (this.ShouldIgnorePacenote(cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Pacenote))
+                    if (this.ShouldIgnorePacenote(cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx]))
                     {
                         Console.WriteLine($"IGNORING PACENOTE: {cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Pacenote}  at: {cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Distance.ToString("0.000")}");
                         ++this.lastProcessedPacenoteIdx;
@@ -885,7 +1271,6 @@ namespace CrewChiefV4.Events
                             this.audioPlayer.playMessageImmediately(new QueuedMessage(this.GetPacenoteMessageID(pacenote, mainPacenoteDist, nextBatchDistance, fragmentsInCurrBatch, speed, cgs.Now), 0));
                         else
                             Console.WriteLine($"DISTANCE PARSE FAILED: {cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Options}  at: {cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Distance.ToString("0.000")}");
-
                     }
                     else
                     {
@@ -893,26 +1278,15 @@ namespace CrewChiefV4.Events
                             $"with pacenote distance: {cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Distance.ToString("0.000")}  " +
                             $"at track distance {cgs.PositionAndMotionData.DistanceRoundTrack.ToString("0.000")}");
                         this.audioPlayer.playMessageImmediately(new QueuedMessage(GetPacenoteMessageID(cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Pacenote, mainPacenoteDist, nextBatchDistance, fragmentsInCurrBatch, speed, cgs.Now), 0));
+                        pacenotesInBatch.Add(cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx]);
                     }
 
                     // Play modifiers.
-                    var modifier = cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Modifier;
-                    if (modifier != CoDriver.PacenoteModifier.none)
-                    {
-                        foreach (var mod in Utilities.GetEnumFlags(modifier))
-                        {
-                            if ((CoDriver.PacenoteModifier)mod != CoDriver.PacenoteModifier.none)
-                            {
-                                Console.WriteLine($"PLAYING MODIFIER PACENOTE: {mod}  at: {cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Distance.ToString("0.000")}");
-                                if (Enum.TryParse<CoDriver.PacenoteModifier>(mod.ToString(), out var modChecked))
-                                    this.audioPlayer.playMessageImmediately(new QueuedMessage(this.GetPacenoteMessageID(CoDriver.PacenoteType.unknown, mainPacenoteDist, nextBatchDistance, fragmentsInCurrBatch, speed, cgs.Now, modChecked), 0));
-                                else
-                                    Console.WriteLine($"MODIFIER PARSE FAILED: {mod}  at: {cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Distance.ToString("0.000")}");
-                            }
-                        }
-                    }
+                    playModifiers(cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Modifier, cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Distance,
+                        mainPacenoteDist, nextBatchDistance, fragmentsInCurrBatch, speed, cgs.Now);
 
                     var prevNoteDist = cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Distance;
+                    var previousPacenoteType = cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Pacenote;
 
                     ++this.lastProcessedPacenoteIdx;
 
@@ -927,9 +1301,7 @@ namespace CrewChiefV4.Events
                                 this.audioPlayer.playMessageImmediately(new QueuedMessage(this.GetPacenoteMessageID(pacenote, mainPacenoteDist, nextBatchDistance, fragmentsInCurrBatch, speed, cgs.Now), 0));
                             else
                                 Console.WriteLine($"DISTANCE PARSE FAILED: {cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Options}  at: {cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Distance.ToString("0.000")}");
-
                             ++this.lastProcessedPacenoteIdx;
-
                             continue;
                         }
                         else if (Math.Abs(prevNoteDist - cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Distance) < this.chainedPacenoteThresholdMeters)
@@ -937,21 +1309,30 @@ namespace CrewChiefV4.Events
                             if (CoDriver.terminologies.chainedNotes.Contains(cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Pacenote.ToString()))
                             {
                                 Console.WriteLine($"PLAYING INSERTED CHAINED PACENOTE: {CoDriver.PacenoteType.detail_into}  at: {prevNoteDist.ToString("0.000")}");
-                                foreach (var pacenoteMessageID in this.GetChainedPacenoteMessageIDs(cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Pacenote, mainPacenoteDist, nextBatchDistance, fragmentsInCurrBatch, speed, cgs.Now))
+                                foreach (var pacenoteMessageID in this.GetChainedPacenoteMessageIDs(previousPacenoteType, cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Pacenote, 
+                                    mainPacenoteDist, nextBatchDistance, fragmentsInCurrBatch, speed, cgs.Now))
                                     this.audioPlayer.playMessageImmediately(new QueuedMessage(pacenoteMessageID, 0));
 
-                                // NOTE: Not sure if we want to advance prevNoteDist, don't for now.
+                                // play modifiers for this chained note
+                                playModifiers(cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Modifier, cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Distance,
+                                    mainPacenoteDist, nextBatchDistance, fragmentsInCurrBatch, speed, cgs.Now);
 
+                                // NOTE: Not sure if we want to advance prevNoteDist, don't for now.
+                                pacenotesInBatch.Add(cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx]);
                                 ++this.lastProcessedPacenoteIdx;
 
                                 continue;
                             }
                         }
-
                         break;
                     }
                 }
 
+                if (pacenotesInBatch.Count > 0)
+                {
+                    this.lastPlayedOrAddedBatch.Clear();
+                    this.lastPlayedOrAddedBatch.AddRange(pacenotesInBatch);
+                }
 #if DEBUG
                 if (this.lastProcessedPacenoteIdx < cgs.CoDriverPacenotes.Count
                     && !reachedFinish)
@@ -960,30 +1341,75 @@ namespace CrewChiefV4.Events
             }
         }
 
-        private List<string> GetChainedPacenoteMessageIDs(PacenoteType pacenoteType, float mainPacenoteDist, float nextBatchDistance, int fragmentsInCurrBatch, float speed, DateTime now)
+        private void playModifiers(CoDriver.PacenoteModifier modifier, float distance, float mainPacenoteDist, float nextBatchDistance, int fragmentsInCurrBatch, float speed, DateTime now)
+        {
+            if (modifier != CoDriver.PacenoteModifier.none)
+            {
+                foreach (var mod in Utilities.GetEnumFlags(modifier))
+                {
+                    if ((CoDriver.PacenoteModifier)mod != CoDriver.PacenoteModifier.none)
+                    {
+                        Console.WriteLine($"PLAYING MODIFIER PACENOTE: {mod}  at: {distance.ToString("0.000")}");
+                        if (Enum.TryParse<CoDriver.PacenoteModifier>(mod.ToString(), out var modChecked))
+                            this.audioPlayer.playMessageImmediately(new QueuedMessage(this.GetPacenoteMessageID(CoDriver.PacenoteType.unknown, mainPacenoteDist, nextBatchDistance, fragmentsInCurrBatch, speed, now, modChecked), 0));
+                        else
+                            Console.WriteLine($"MODIFIER PARSE FAILED: {mod}  at: {distance.ToString("0.000")}");
+                    }
+                }
+            }
+        }
+
+        // prevent too many 'into' sounds being stacked up in a single block of messages and block some specific combinations
+        private bool canUseChaining(DateTime now, PacenoteType previousPacenoteType, PacenoteType pacenoteType)
+        {
+            if (IsCorner(previousPacenoteType) && pacenoteType == PacenoteType.detail_junction)
+            {
+                // don't allow "into junction" after a corner call as the corner will probably be the junction
+                return false;
+            }
+            if (IsCorner(previousPacenoteType) && 
+                (pacenoteType == PacenoteType.detail_ruts || pacenoteType == PacenoteType.detail_bumps || pacenoteType == PacenoteType.detail_bumpy || pacenoteType == PacenoteType.detail_deepruts))
+            {
+                // don't allow "into ruts" after a corner call as the ruts / bumps will probably be at the corner
+                return false;
+            }
+            return (now - lastIntoSoundPlayed).TotalSeconds > 2;
+        }
+
+        private List<string> GetChainedPacenoteMessageIDs(PacenoteType previousPaceNoteType, PacenoteType pacenoteType, float mainPacenoteDist, 
+            float nextBatchDistance, int fragmentsInCurrBatch, float speed, DateTime now)
         {
             var IDs = new List<string>();
             var id = this.GetPacenoteMessageID(pacenoteType, mainPacenoteDist, nextBatchDistance, fragmentsInCurrBatch, speed, now);
 
-            // first see if we have a compound "into_[whatever] sound, and if so use it:
-            var idWithIntoPrefix = id.Insert(CoDriver.folderCodriverPrefix.Length, "cmp_into_");
-            Console.WriteLine($"LOOKING FOR {idWithIntoPrefix}");
-            if (SoundCache.availableSounds.Contains(idWithIntoPrefix))
+            if (canUseChaining(now, previousPaceNoteType, pacenoteType))
             {
-                Console.WriteLine($"PLAYING COMPOUND INSERTED PACENOTE: {idWithIntoPrefix}");
-                IDs.Add(idWithIntoPrefix);
-            }
-            else if (intoToOver.ContainsKey(pacenoteType))
-            {
-                // otherwise see if we can transform into X to over X
-                Console.WriteLine($"TRANSFORMING: into_{pacenoteType} TO over_{pacenoteType}");
-                IDs.Add(this.GetPacenoteMessageID(intoToOver[pacenoteType], mainPacenoteDist, nextBatchDistance, fragmentsInCurrBatch, speed, now));
+
+                // first see if we have a compound "into_[whatever] sound, and if so use it:
+                var idWithIntoPrefix = id.Insert(CoDriver.folderCodriverPrefix.Length, "cmp_into_");
+                Console.WriteLine($"LOOKING FOR {idWithIntoPrefix}");
+                if (SoundCache.availableSounds.Contains(idWithIntoPrefix))
+                {
+                    Console.WriteLine($"PLAYING COMPOUND INSERTED PACENOTE: {idWithIntoPrefix}");
+                    IDs.Add(idWithIntoPrefix);
+                }
+                else if (intoToOver.ContainsKey(pacenoteType))
+                {
+                    // otherwise see if we can transform into X to over X
+                    Console.WriteLine($"TRANSFORMING: into_{pacenoteType} TO over_{pacenoteType}");
+                    IDs.Add(this.GetPacenoteMessageID(intoToOver[pacenoteType], mainPacenoteDist, nextBatchDistance, fragmentsInCurrBatch, speed, now));
+                }
+                else
+                {
+                    // just add the into and the X messages
+                    Console.WriteLine("Falling back to INTO");
+                    IDs.Add(this.GetPacenoteMessageID(CoDriver.PacenoteType.detail_into, mainPacenoteDist, nextBatchDistance, fragmentsInCurrBatch, speed, now));
+                    IDs.Add(id);
+                }
+                lastIntoSoundPlayed = now;
             }
             else
             {
-                // just add the into and the X messages
-                Console.WriteLine("Falling back to INTO");
-                IDs.Add(this.GetPacenoteMessageID(CoDriver.PacenoteType.detail_into, mainPacenoteDist, nextBatchDistance, fragmentsInCurrBatch, speed, now));
                 IDs.Add(id);
             }
 
@@ -1000,7 +1426,7 @@ namespace CrewChiefV4.Events
             while (preprocPacenoteIdx < cgs.CoDriverPacenotes.Count
                 && readDist > cgs.CoDriverPacenotes[preprocPacenoteIdx].Distance)
             {
-                if (this.ShouldIgnorePacenote(cgs.CoDriverPacenotes[preprocPacenoteIdx].Pacenote))
+                if (this.ShouldIgnorePacenote(cgs.CoDriverPacenotes[preprocPacenoteIdx]))
                 {
                     ++preprocPacenoteIdx;
                     continue;
@@ -1065,27 +1491,13 @@ namespace CrewChiefV4.Events
             return -1.0f;
         }
 
-        public string GetPacenoteMessageID(CoDriver.PacenoteType pacenote, float distance, float nextBatchDistance, int fragmentsInCurrBatch, float carSpeed, DateTime now,
-            CoDriver.PacenoteModifier modifier = PacenoteModifier.none)
+        private string GetMessageID(PacenoteType pacenote, PacenoteModifier modifier)
         {
-            PaceNoteCorrection correction = FindMatchingCorrection(pacenote, distance);
-            if (correction != null)
-            {
-                PacenoteType correctedPacenote;
-                if (Enum.TryParse<PacenoteType>(correction.pacenoteType, out correctedPacenote))
-                {
-                    Console.WriteLine($"CoDriver: Correcting {pacenote} to: {correctedPacenote}");
-                    pacenote = correctedPacenote;
-                }
-            }
-
             var pacenoteStr = pacenote != PacenoteType.unknown ? pacenote.ToString() : modifier.ToString();
             var pacenoteID = CoDriver.folderCodriverPrefix + pacenoteStr;
             if (pacenoteStr.StartsWith("corner_"))
             {
-                historicCalls.AddLast(new HistoricCornerCall(pacenote, distance, now));
                 var pacenoteStrRemapped = this.RemapPerChosenTerminology(pacenoteStr, pacenote);
-
                 if (CoDriver.cornerCallStyle == CoDriver.CornerCallStyle.NUMBER_FIRST)
                     pacenoteID = CoDriver.folderCodriverPrefix + pacenoteStrRemapped;
                 else if (CoDriver.cornerCallStyle == CoDriver.CornerCallStyle.DIRECTION_FIRST)
@@ -1151,7 +1563,18 @@ namespace CrewChiefV4.Events
                         pacenoteID = CoDriver.folderCodriverPrefix + pacenoteStrRemapped;
                 }
             }
+            return pacenoteID;
+        }
 
+        public string GetPacenoteMessageID(CoDriver.PacenoteType pacenote, float distance, float nextBatchDistance, int fragmentsInCurrBatch, float carSpeed, DateTime now,
+            CoDriver.PacenoteModifier modifier = PacenoteModifier.none)
+        {
+            var pacenoteStr = pacenote != PacenoteType.unknown ? pacenote.ToString() : modifier.ToString();
+            
+            historicCalls.AddLast(new HistoricCall(pacenote, modifier, distance, now));
+
+            var pacenoteID = GetMessageID(pacenote, modifier);
+            
             // TODO: handle relaxed vs regular, and potentially handle complex messages (into glued).
             var distToNextBatch = Math.Abs(distance - nextBatchDistance);
 
@@ -1224,16 +1647,21 @@ namespace CrewChiefV4.Events
             this.audioPlayer.playMessageImmediately(new QueuedMessage(CoDriver.folderCodriverPrefix + CoDriver.PacenoteType.detail_finish, 0));
         }
 
-        private bool ShouldIgnorePacenote(CoDriver.PacenoteType pacenote)
+        private bool ShouldIgnorePacenote(CoDriverPacenote pacenote)
         {
-            switch (pacenote)
+            if (pacenote == null)
+            {
+                return true;
+            }
+            switch (pacenote.Pacenote)
             {
                 case CoDriver.PacenoteType.detail_start:
                 case CoDriver.PacenoteType.detail_empty_call:
                 case CoDriver.PacenoteType.detail_split:  // For now, ignore split/checkpoints, but eventually consider announcing something, maybe time, if not busy.
                     return true;
+                case CoDriver.PacenoteType.detail_distance_call:
+                    return pacenote.Options == null;
             }
-
             return false;
         }
 
@@ -1284,14 +1712,353 @@ namespace CrewChiefV4.Events
                 this.audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
                 CoDriver.cornerCallStyle = this.preferReversedNumbers ? CornerCallStyle.DIRECTION_FIRST_REVERSED : CornerCallStyle.DIRECTION_FIRST;
             }
-            else if (voiceMessage.StartsWith(SpeechRecogniser.RALLY_CORRECTION))
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_START_RECORDING_STAGE_NOTES))
             {
-                ProcessCorrection(voiceMessage);
+                if (!this.inReceMode)
+                {
+                    this.inReceMode = true;
+                    this.recePaceNotes.Clear();
+                    if (CrewChief.currentGameState != null)
+                    {
+                        CrewChief.currentGameState.CoDriverPacenotes.Clear();
+                    }
+                }
+                this.audioPlayer.playMessageImmediately(new QueuedMessage(CoDriver.folderAcknowledgeStartRecce, 0));
             }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_FINISH_RECORDING_STAGE_NOTES))
+            {
+                if (this.inReceMode)
+                {
+                    this.inReceMode = false;
+                    if (this.recePaceNotes != null && this.recePaceNotes.Count > 0)
+                    {
+                        WriteRecePacenotes(lastStageName);
+                    }
+                    // weird bug: after finishing stage recce mid-stage, the app spews loads of pace note messages
+                    
+                    if (CrewChief.currentGameState != null)
+                    {
+                        this.lastProcessedPacenoteIdx = CrewChief.currentGameState.CoDriverPacenotes.Count - 1;
+                        CrewChief.currentGameState.CoDriverPacenotes.Clear();
+                    }
+                    this.recePaceNotes.Clear();
+                }
+                this.audioPlayer.playMessageImmediately(new QueuedMessage(CoDriver.folderAcknowledgeEndRecce, 0));
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, new string[] { TOGGLE_RALLY_RECCE_MODE }))
+            {
+                if (!this.inReceMode)
+                {
+                    this.inReceMode = true;
+                    this.recePaceNotes.Clear();if (CrewChief.currentGameState != null)
+                    {
+                        CrewChief.currentGameState.CoDriverPacenotes.Clear();
+                    }
+                    this.audioPlayer.playMessageImmediately(new QueuedMessage(CoDriver.folderAcknowledgeStartRecce, 0));
+                }
+                else
+                {
+                    this.inReceMode = false;
+                    if (this.recePaceNotes != null && this.recePaceNotes.Count > 0)
+                    {
+                        WriteRecePacenotes(lastStageName);
+                        // weird bug: after finishing stage recce mid-stage, the app spews loads of pace note messages
+                        if (CrewChief.currentGameState != null)
+                        {
+                            this.lastProcessedPacenoteIdx = CrewChief.currentGameState.CoDriverPacenotes.Count - 1;
+                            CrewChief.currentGameState.CoDriverPacenotes.Clear();
+                        }
+                        this.recePaceNotes.Clear();
+                        this.audioPlayer.playMessageImmediately(new QueuedMessage(CoDriver.folderAcknowledgeEndRecce, 0));
+                    }
+                }
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_CORRECTION))
+            {
+                if (this.inReceMode)
+                {
+                    // remove the previously added batch from the recce notes
+                    foreach (CoDriverPacenote pacenote in this.lastPlayedOrAddedBatch)
+                    {
+                        Console.WriteLine("Recce correction, removing pace note " + pacenote);
+                        this.recePaceNotes.Remove(pacenote);
+                    }
+                    // remove the correction bit from the voice command
+                    foreach (string correctionFragment in SpeechRecogniser.RALLY_CORRECTION)
+                    {
+                        if (voiceMessage.StartsWith(correctionFragment))
+                        {
+                            voiceMessage = voiceMessage.Remove(0, correctionFragment.Length).Trim();
+                            break;
+                        }
+                    }
+                    // now process this as a regular recce note
+                    ProcessRecePaceNote(voiceMessage);
+                    if (UserSettings.GetUserSettings().getBoolean("confirm_recce_pace_notes"))
+                    {
+                        ReplayLastPacenotesBatch(true);
+                    }
+                }
+                else
+                {
+                    // regular non-recce correction
+                    ProcessCorrection(voiceMessage);
+                }
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_INSERT))
+            {
+                ProcessInsert(voiceMessage);
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.REPEAT_LAST_MESSAGE))
+            {
+                ReplayLastPacenotesBatch(false);
+            }
+            else if (this.inReceMode)
+            {
+                bool addedPacenote = ProcessRecePaceNote(voiceMessage);
+                if (addedPacenote)
+                {
+                    if (UserSettings.GetUserSettings().getBoolean("confirm_recce_pace_notes"))
+                    {
+                        ReplayLastPacenotesBatch(true);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Voice message \"" + voiceMessage + "\" didn't produce any pace notes");
+                    this.audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderDidntUnderstand, 0));
+                }
+            }
+        }
+
+        private void ReplayLastPacenotesBatch(bool addAcknowledge)
+        {
+            if (this.lastPlayedOrAddedBatch.Count > 0)
+            {
+                List<MessageFragment> confirmationFragments = new List<MessageFragment>();
+                if (addAcknowledge)
+                {
+                    confirmationFragments.Add(MessageFragment.Text(AudioPlayer.folderAcknowlegeOK));
+                }
+                foreach (CoDriverPacenote pacenote in this.lastPlayedOrAddedBatch)
+                {
+                    if (pacenote.Pacenote != PacenoteType.detail_distance_call && pacenote.Pacenote != PacenoteType.unknown)
+                    {
+                        string sound = GetMessageID(pacenote.Pacenote, PacenoteModifier.none);
+                        if (SoundCache.availableSounds.Contains(sound))
+                        {
+                            confirmationFragments.Add(MessageFragment.Text(sound));
+                        }
+                        else
+                        {
+                            Console.WriteLine("Successfully identified pace note modifier " + sound + " but can't find a sound for this");
+                        }
+                    }
+                    if (pacenote.Modifier != PacenoteModifier.none)
+                    {
+                        foreach (var mod in Utilities.GetEnumFlags(pacenote.Modifier))
+                        {
+                            if ((CoDriver.PacenoteModifier)mod != CoDriver.PacenoteModifier.none)
+                            {
+                                if (Enum.TryParse<CoDriver.PacenoteModifier>(mod.ToString(), out var modChecked))
+                                {
+                                    string sound = GetMessageID(PacenoteType.unknown, modChecked);
+                                    if (SoundCache.availableSounds.Contains(sound))
+                                    {
+                                        confirmationFragments.Add(MessageFragment.Text(sound));
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("Successfully identified pace note fragment " + sound + " but can't find a sound for this");
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                this.audioPlayer.playMessageImmediately(new QueuedMessage("pacenote confirmation", 0, confirmationFragments));
+            }
+        }
+
+        private void WriteRecePacenotes(string trackName)
+        {
+            string pacenotesPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4", CrewChief.gameDefinition.gameEnum.ToString(), trackName);
+            Directory.CreateDirectory(pacenotesPath);
+            File.WriteAllText(Path.Combine(pacenotesPath, "pacenotes.json"), JsonConvert.SerializeObject(this.recePaceNotes, Formatting.Indented));
+        }
+
+        private bool ProcessRecePaceNote(string voiceMessage)
+        {
+            Console.WriteLine("Got stage recce voice message \"" + voiceMessage + "\"");
+            float currentDistance = CrewChief.currentGameState == null ? 0 : CrewChief.currentGameState.PositionAndMotionData.DistanceRoundTrack;
+            float distance = MainWindow.voiceOption == MainWindow.VoiceOptionEnum.ALWAYS_ON ?
+                currentDistance : SpeechRecogniser.distanceWhenVoiceCommandStarted;
+            if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_DISTANCE))
+            {
+                if (lastRecePacenoteWasDistance)
+                {
+                    Console.WriteLine("Skipping distance pacenote as we can't have 2 of these consecutively");
+                    return true;
+                }
+                // manually add a distance call - the actual distance will be resolved on playback
+                this.recePaceNotes.Add(new CoDriverPacenote { Pacenote = PacenoteType.detail_distance_call, Distance = distance });
+                lastRecePacenoteWasDistance = true;
+                return true;
+            }
+            else
+            {
+                // we're assuming that the pace note command is made *after* the obstacle / corner, so create the notes then use the created
+                // notes to estimate how long the obstacle / corner is (i.e. the stage distance when the obstacle starts), and set that into the notes
+                List<CoDriverPacenote> paceNotesToAdd = GetPacenotesFromVoiceCommand(voiceMessage);
+                // one special case (eeewww). We missed a modifier during our previous corner call and have made a new command which is just "don't cut"
+                // or something. In this case we attempt to insert that modifier into the last corner call
+                if (paceNotesToAdd.Count == 0 && ContainsCornerModifier(voiceMessage))
+                {
+                    AppendModifierToLastCorner(voiceMessage);
+                }
+                else
+                {
+                    float distanceAtStartOfObstacle = distance - EstimateObstacleLength(paceNotesToAdd);
+                    foreach (CoDriverPacenote paceNote in paceNotesToAdd)
+                    {
+                        paceNote.Distance = distanceAtStartOfObstacle;
+                    }
+                    // after each block of pace notes there'll be a distance placeholder. We always add this but the decision as to whether it'll be
+                    // read is made on playback.
+                    if (!lastRecePacenoteWasDistance)
+                    {
+                        // auto generate an optional distance note
+                        paceNotesToAdd.Add(new CoDriverPacenote { Pacenote = PacenoteType.detail_distance_call, Distance = distance + 20 }); // the distance call needs to come some way after the obstacle is finished
+                    }
+                    this.recePaceNotes.AddRange(paceNotesToAdd);
+                    // store these so we can remove them if we get a 'correction' call
+                    this.lastPlayedOrAddedBatch.Clear();
+                    this.lastPlayedOrAddedBatch.AddRange(paceNotesToAdd);
+                }
+                lastRecePacenoteWasDistance = false;
+                return this.lastPlayedOrAddedBatch.Count > 0;
+            }
+        }
+
+        private void AppendModifierToLastCorner(string voiceMessage)
+        {
+            Tuple<PacenoteType, PacenoteModifier> modifier = GetCornerPacenoteTypeWithModifier(new MutableString(voiceMessage), true);
+            if (modifier.Item2 != PacenoteModifier.none)
+            {
+                // we have a modifier from the call, so see if we have a corner in the last batch and apply the modifier to it
+                foreach (CoDriverPacenote paceNote in this.lastPlayedOrAddedBatch)
+                {
+                    if (IsCorner(paceNote.Pacenote))
+                    {
+                        // update the modifier
+                        paceNote.Modifier = paceNote.Modifier | modifier.Item2;
+                        break;
+                    }                        
+                }
+            }
+        }
+
+        private float EstimateObstacleLength(List<CoDriverPacenote> paceNotesInBatch)
+        {
+            float distance = 10;    // any non-corner obstacle is assumed to be 20 metres from the start point to where the player makes the pace note command
+            foreach (CoDriverPacenote paceNote in paceNotesInBatch)
+            {
+                if (IsCorner(paceNote.Pacenote))
+                {
+                    if (paceNote.Modifier.ToString().Contains("long"))
+                    {
+                        // use 80 metres for long corners, this is the longest one so stop looking here
+                        distance = 80;
+                        break;
+                    }
+                    else
+                    {
+                        // use 40 metres for regular corners
+                        distance = Math.Max(40, distance);
+                    }
+                }
+            }
+            return distance;
+        }
+
+        private void ProcessInsert(string voiceMessage)
+        {
+            Console.WriteLine("Got insert voice message \"" + voiceMessage + "\"");
+            if (CrewChief.currentGameState == null || CrewChief.currentGameState.SessionData == null || CrewChief.currentGameState.SessionData.TrackDefinition == null)
+            {
+                return;
+            }
+            string trackName = CrewChief.currentGameState.SessionData.TrackDefinition.name;
+            float distance = MainWindow.voiceOption == MainWindow.VoiceOptionEnum.ALWAYS_ON ? 
+                CrewChief.currentGameState.PositionAndMotionData.DistanceRoundTrack : SpeechRecogniser.distanceWhenVoiceCommandStarted;
+            // remove the insert bit from the voice command
+            foreach (string insertFragment in SpeechRecogniser.RALLY_INSERT)
+            {
+                if (voiceMessage.StartsWith(insertFragment))
+                {
+                    voiceMessage = voiceMessage.Remove(0, insertFragment.Length);
+                    break;
+                }
+            }
+            List<CoDriverPacenote> insertedNotes = GetPacenotesFromVoiceCommand(voiceMessage);
+            float distanceAtStartOfObstacle = distance - EstimateObstacleLength(insertedNotes);
+            foreach (CoDriverPacenote paceNote in insertedNotes)
+            {
+                paceNote.Distance = distanceAtStartOfObstacle;
+            }
+            if (insertedNotes.Count > 0)
+            {
+                correctionsForCurrentSession.AddRange(insertedNotes);
+                WritePacenoteCorrections(trackName);
+            }
+        }
+
+        // get the pace note (or sometimes multiple pace notes) from a single voice command
+        private List<CoDriverPacenote> GetPacenotesFromVoiceCommand(string voiceMessage)
+        {
+            List<CoDriverPacenote> paceNotes = new List<CoDriverPacenote>();
+            // as we parse the command we want to consume the recognised text, so wrap this in our little helper class
+            MutableString voiceMessageWrapper = new MutableString(voiceMessage);
+
+            // first see if we have a corner - we assume there can only be 1 corner for each command
+            Tuple<PacenoteType, PacenoteModifier> cornerWithModifier = GetCornerPacenoteTypeWithModifier(voiceMessageWrapper, false);
+            if (cornerWithModifier.Item1 != PacenoteType.unknown)
+            {
+                paceNotes.Add(new CoDriverPacenote() { Pacenote = cornerWithModifier.Item1, Modifier = cornerWithModifier.Item2, RawVoiceCommand = voiceMessage });
+            }
+            // reset the cursor in the remaining (uneaten) voice message and extract the other obstacle calls
+            voiceMessageWrapper.ResetCursor();
+            foreach (Tuple<PacenoteType, PacenoteModifier> obstacle in GetObstaclePacenoteTypesWithModifiers(voiceMessageWrapper))
+            {
+                if (obstacle.Item1 == PacenoteType.detail_care || obstacle.Item1 == PacenoteType.detail_caution || obstacle.Item1 == PacenoteType.detail_double_caution)
+                {
+                    // special case for danger / care / caution - ensure it's played first
+                    paceNotes.Insert(0, new CoDriverPacenote() { Pacenote = obstacle.Item1, Modifier = obstacle.Item2, RawVoiceCommand = voiceMessage });
+                }
+                else
+                {
+                    paceNotes.Add(new CoDriverPacenote() { Pacenote = obstacle.Item1, Modifier = obstacle.Item2, RawVoiceCommand = voiceMessage });
+                }
+            }
+            // if we've not been able to work out what's been said here, create an empty pace note to hold the misunderstood raw voice command
+            if (paceNotes.Count == 0)
+            {
+                paceNotes.Add(new CoDriverPacenote() { RawVoiceCommand = voiceMessage, UnprocessedVoiceCommandText = voiceMessage });
+            }
+            else
+            {
+                string uneatenVoiceCommanFragments = voiceMessageWrapper.GetUnprocessedCommandText();
+                foreach (CoDriverPacenote paceNote in paceNotes)
+                {
+                    paceNote.UnprocessedVoiceCommandText = uneatenVoiceCommanFragments;
+                }
+            }
+            return paceNotes;
         }
 
         private void ProcessCorrection(string voiceMessage)
         {
+            Console.WriteLine("Got correction voice message \"" + voiceMessage + "\"");
             if (historicCalls.Last == null || CrewChief.currentGameState == null
                 || CrewChief.currentGameState.SessionData == null || CrewChief.currentGameState.SessionData.TrackDefinition == null)
             {
@@ -1300,45 +2067,123 @@ namespace CrewChiefV4.Events
             }
             string trackName = CrewChief.currentGameState.SessionData.TrackDefinition.name;
             CoDriver.Direction requestedDirection = Direction.UNKNOWN;
-            if (voiceMessage.Contains(SpeechRecogniser.RALLY_LEFT))
+            if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_LEFT))
             {
                 requestedDirection = Direction.LEFT;
             }
-            else if (voiceMessage.Contains(SpeechRecogniser.RALLY_RIGHT))
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_RIGHT))
             {
                 requestedDirection = Direction.RIGHT;
             }
-            HistoricCornerCall callToCorrect = GetCornerCallToCorrect(requestedDirection);
-            if (callToCorrect.callType != PacenoteType.unknown)
+            List<HistoricCall> callsToCorrect = GetCallsToCorrect(requestedDirection);
+            if (callsToCorrect != null && callsToCorrect.Count > 0)
             {
-                PacenoteType correctedPacenote = GetCorrectedPacenoteType(voiceMessage, callToCorrect.callType);
-                if (correctedPacenote != PacenoteType.unknown)
+                // we might change the voice message to replace some contents, so stash it first so we can add the raw message to the note
+                string rawVoiceMessage = voiceMessage;
+                // check if we're moving a call:
+                bool moveEarlier = SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_EARLIER);
+                bool moveLater = SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_LATER);
+                // remove that text from the voice command
+                foreach (string correctionWord in SpeechRecogniser.RALLY_EARLIER)
                 {
-                    Console.WriteLine("Correcting existing pace note " + callToCorrect.callType + " at distance " + callToCorrect.callDistance + " to be " + correctedPacenote);
-                    // now write the pacenote correction to some file
-                    PaceNoteCorrection existingCorrection = FindMatchingCorrection(callToCorrect.callType, callToCorrect.callDistance);
-                    if (existingCorrection != null)
+                    voiceMessage = voiceMessage.Replace(correctionWord, "").Trim();
+                }
+                foreach (string correctionWord in SpeechRecogniser.RALLY_LATER)
+                {
+                    voiceMessage = voiceMessage.Replace(correctionWord, "").Trim();
+                }
+                bool correctionIncludesCornerModifier = ContainsCornerModifier(voiceMessage);
+                foreach (HistoricCall callToCorrect in callsToCorrect)
+                {
+                    // special case for corner corrections
+                    // we might have just called "correction don't cut" here, so our PacenoteType from the correction will be unknown so check for modifier as well as corner
+                    if (IsCorner(callToCorrect.callType) || correctionIncludesCornerModifier)
                     {
-                        existingCorrection.pacenoteType = correctedPacenote.ToString();
+                        Direction direction = GetDirectionFromPaceNote(callToCorrect.callType);
+                        if (requestedDirection == Direction.UNKNOWN)
+                        {
+                            // if no direction was specified, add it to the command so the parser can work
+                            foreach (string directionWord in direction == Direction.LEFT ? SpeechRecogniser.RALLY_LEFT : SpeechRecogniser.RALLY_RIGHT)
+                            {
+                                foreach (string correctionWord in SpeechRecogniser.RALLY_CORRECTION)
+                                {
+                                    voiceMessage = voiceMessage.Replace(correctionWord.ToLower(), directionWord.ToLower());
+                                }
+                            }
+                        }
+                        Tuple<PacenoteType, PacenoteModifier> cornerWithModifier = GetCornerPacenoteTypeWithModifier(new MutableString(voiceMessage), true);
+                        // check we've been able to derive a call type, modifier or move directive
+                        if (cornerWithModifier.Item1 == PacenoteType.unknown && cornerWithModifier.Item2 == PacenoteModifier.none && !moveEarlier && !moveLater)
+                        {
+                            Console.WriteLine("Unable to create a usable correction from " + rawVoiceMessage);
+                        }
+                        else
+                        {
+                            CreateCorrection(callToCorrect, cornerWithModifier.Item1, cornerWithModifier.Item2, moveEarlier, moveLater, rawVoiceMessage);
+                        }
                     }
                     else
                     {
-                        PaceNoteCorrection newCorrection = new PaceNoteCorrection();
-                        newCorrection.distance = callToCorrect.callDistance;
-                        newCorrection.pacenoteType = correctedPacenote.ToString();
-                        correctionsForCurrentSession.Add(newCorrection);
+                        // also move non-corner calls if we have a move request
+                        if (moveEarlier || moveLater)
+                        {
+                            CreateCorrection(callToCorrect, callToCorrect.callType, callToCorrect.modifier, moveEarlier, moveLater, rawVoiceMessage);
+                        }
                     }
-                    WritePacenoteCorrections(trackName);
                 }
-            }            
+                WritePacenoteCorrections(trackName);
+            }
         }
 
-        private PaceNoteCorrection FindMatchingCorrection(PacenoteType pacenote, float distance)
+        private void CreateCorrection(HistoricCall callToCorrect, PacenoteType pacenoteType, PacenoteModifier pacenoteModifier, bool moveEarlier, bool moveLater, string rawVoiceMessage)
+        {
+            Console.WriteLine("Correcting existing pace note " + callToCorrect.ToString() + " at distance " + callToCorrect.callDistance + " to be " + pacenoteType + ":" + pacenoteModifier);
+
+            CoDriverPacenote existingCorrection = FindMatchingCorrection(callToCorrect.callType, callToCorrect.callDistance);
+            // we might be correcting distance, but this is optional
+            float? correctedDistance = null;
+            if (existingCorrection != null)
+            {
+                if (moveEarlier)
+                {
+                    correctedDistance = existingCorrection.CorrectedDistance == null ? existingCorrection.Distance - 50 : existingCorrection.CorrectedDistance - 50;
+                }
+                else if (moveLater)
+                {
+                    correctedDistance = existingCorrection.CorrectedDistance == null ? existingCorrection.Distance + 50 : existingCorrection.CorrectedDistance + 50;
+                }
+                existingCorrection.Pacenote = pacenoteType;
+                existingCorrection.Modifier = pacenoteModifier;
+                existingCorrection.CorrectedDistance = correctedDistance;
+                existingCorrection.RawVoiceCommand = rawVoiceMessage;
+            }
+            else
+            {
+                if (moveEarlier)
+                {
+                    correctedDistance = callToCorrect.callDistance - 50;
+                }
+                else if (moveLater)
+                {
+                    correctedDistance = callToCorrect.callDistance + 50;
+                }
+                correctionsForCurrentSession.Add(new CoDriverPacenote()
+                {
+                    Distance = callToCorrect.callDistance,
+                    CorrectedDistance = correctedDistance,
+                    Pacenote = pacenoteType,
+                    Modifier = pacenoteModifier,
+                    RawVoiceCommand = rawVoiceMessage
+                });
+            }
+        }
+        
+        private CoDriverPacenote FindMatchingCorrection(PacenoteType pacenote, float distance)
         {
             if (pacenote.ToString().StartsWith("corner_"))
-            foreach (PaceNoteCorrection paceNoteCorrection in this.correctionsForCurrentSession)
+            foreach (CoDriverPacenote paceNoteCorrection in this.correctionsForCurrentSession)
             {
-                if (Math.Abs(paceNoteCorrection.distance - distance) < 5)
+                if (Math.Abs(paceNoteCorrection.Distance - distance) < 5)
                 {
                     return paceNoteCorrection;
                 }
@@ -1348,88 +2193,248 @@ namespace CrewChiefV4.Events
 
         private void WritePacenoteCorrections(string trackName)
         {
-            string correctionsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4", GameEnum.RBR.ToString(), trackName);
+            string correctionsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4", CrewChief.gameDefinition.gameEnum.ToString(), trackName);
             Directory.CreateDirectory(correctionsPath);
             File.WriteAllText(Path.Combine(correctionsPath, "corrections.json"), JsonConvert.SerializeObject(this.correctionsForCurrentSession, Formatting.Indented));
         }
 
-        private HistoricCornerCall GetCornerCallToCorrect(Direction requestedDirection)
+        private List<HistoricCall> GetCallsToCorrect(Direction requestedDirection)
         {
             // Count back through the historic calls to find the first one that we've passed and that matches the corner direction (if we specified one).
-            // We also check that the corner call was made more than 0.4 seconds ago (do we need this?)
+            // We also check that the call was made more than 0.4 seconds ago (do we need this?)
             // If we find a call to correct and it's for a corner > 200 metres behind us, assume we've not been able to find the appropriate call
             var historicCallNode = this.historicCalls.Last;
+            float distance = MainWindow.voiceOption == MainWindow.VoiceOptionEnum.ALWAYS_ON ?
+                    CrewChief.currentGameState.PositionAndMotionData.DistanceRoundTrack : SpeechRecogniser.distanceWhenVoiceCommandStarted;
             while (historicCallNode != null
-                && (historicCallNode.Value.callDistance > SpeechRecogniser.distanceWhenVoiceCommandStarted   // we've not reached this pacenote
+                && (historicCallNode.Value.callDistance > distance   // we've not reached this pacenote
                     || (SpeechRecogniser.timeVoiceCommandStarted - historicCallNode.Value.callTime).TotalSeconds < 0.4  // the pacenote call is too recent - we've not had time to drive the corner
                     || (requestedDirection != Direction.UNKNOWN && requestedDirection != GetDirectionFromPaceNote(historicCallNode.Value.callType)))) // this pacenote's direction is incorrect
             {
                 historicCallNode = historicCallNode.Previous;
             }
-            if (historicCallNode == null || SpeechRecogniser.distanceWhenVoiceCommandStarted - historicCallNode.Value.callDistance > 200 /* this pace note is for a corner 200m behind us*/)
+            if (historicCallNode == null || distance - historicCallNode.Value.callDistance > 200 /* this pace note is for an obstacle / corner 200m behind us*/)
             {
                 Console.WriteLine("Unable to find a pacenote to correct");
                 return null;
             }
-            return historicCallNode.Value;
+
+            // at this point we have the first historic call we want to correct, get this and the other calls made at the same distance
+            List<HistoricCall> historicCalls = new List<HistoricCall>();
+            float distanceOfFirstCorrectedCall = historicCallNode.Value.callDistance;
+            historicCalls.Add(historicCallNode.Value);
+            var preceedingCallNode = historicCallNode.Previous;
+            while (preceedingCallNode != null)
+            {
+                if (preceedingCallNode.Value.callDistance == distanceOfFirstCorrectedCall)
+                {
+                    historicCalls.Add(preceedingCallNode.Value);
+                    preceedingCallNode = preceedingCallNode.Previous;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            return historicCalls;
         }
 
         private Direction GetDirectionFromPaceNote(PacenoteType paceNote)
         {
-            if (paceNote == PacenoteType.corner_1_left || paceNote == PacenoteType.corner_2_left || paceNote == PacenoteType.corner_3_left
-                    || paceNote == PacenoteType.corner_4_left || paceNote == PacenoteType.corner_5_left || paceNote == PacenoteType.corner_6_left
-                    || paceNote == PacenoteType.corner_flat_left || paceNote == PacenoteType.corner_left_acute)
+            if (paceNote.ToString().ToLower().Contains("left"))
                 return Direction.LEFT;
-            else if (paceNote == PacenoteType.corner_1_right || paceNote == PacenoteType.corner_2_right || paceNote == PacenoteType.corner_3_right
-                    || paceNote == PacenoteType.corner_4_right || paceNote == PacenoteType.corner_5_right || paceNote == PacenoteType.corner_6_right
-                    || paceNote == PacenoteType.corner_flat_right || paceNote == PacenoteType.corner_right_acute)
+            else if (paceNote.ToString().ToLower().Contains("right"))
                 return Direction.RIGHT;
             else
                 return Direction.UNKNOWN;
         }
-
-        private PacenoteType GetCorrectedPacenoteType(string voiceMessage, PacenoteType pacenoteToCorrect)
+        
+        private Tuple<PacenoteType, PacenoteModifier> GetCornerPacenoteTypeWithModifier(MutableString voiceMessageWrapper, bool allowModifierOnly)
         {
-            Direction direction = GetDirectionFromPaceNote(pacenoteToCorrect);
-            PacenoteType correctedPaceNote = PacenoteType.unknown;
-            if (direction != Direction.UNKNOWN)
+            Tuple<PacenoteType, PacenoteModifier> result = new Tuple<PacenoteType, PacenoteModifier>(PacenoteType.unknown, PacenoteModifier.none);
+            bool gotCornerType = false;
+            foreach (string key in possibleCornerCommands.Keys)
             {
-                bool reverseNumber = CoDriver.cornerCallStyle == CornerCallStyle.DIRECTION_FIRST_REVERSED || CoDriver.cornerCallStyle == CornerCallStyle.NUMBER_FIRST_REVERSED;
-                if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_HAIRPIN))
+                if (voiceMessageWrapper.FindAndRemove(key, false, true))
                 {
-                    correctedPaceNote = direction == Direction.LEFT ? PacenoteType.corner_left_acute : PacenoteType.corner_right_acute;
+                    result = new Tuple<PacenoteType, PacenoteModifier> (possibleCornerCommands[key], GetModifier(voiceMessageWrapper));
+                    gotCornerType = true;
+                    break;
                 }
-                if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_FLAT))
-                {
-                    correctedPaceNote = direction == Direction.LEFT ? PacenoteType.corner_flat_left : PacenoteType.corner_flat_right;
-                }
-                else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_1))
-                {
-                    correctedPaceNote = direction == Direction.LEFT ? reverseNumber ? PacenoteType.corner_6_left : PacenoteType.corner_1_left : reverseNumber ? PacenoteType.corner_6_right : PacenoteType.corner_1_right;
-                }
-                else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_2))
-                {
-                    correctedPaceNote = direction == Direction.LEFT ? reverseNumber ? PacenoteType.corner_5_left : PacenoteType.corner_2_left : reverseNumber ? PacenoteType.corner_5_right : PacenoteType.corner_2_right;
-                }
-                else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_3))
-                {
-                    correctedPaceNote = direction == Direction.LEFT ? reverseNumber ? PacenoteType.corner_4_left : PacenoteType.corner_3_left : reverseNumber ? PacenoteType.corner_4_right : PacenoteType.corner_3_right;
-                }
-                else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_4))
-                {
-                    correctedPaceNote = direction == Direction.LEFT ? reverseNumber ? PacenoteType.corner_3_left : PacenoteType.corner_4_left : reverseNumber ? PacenoteType.corner_3_right : PacenoteType.corner_4_right;
-                }
-                else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_5))
-                {
-                    correctedPaceNote = direction == Direction.LEFT ? reverseNumber ? PacenoteType.corner_2_left : PacenoteType.corner_5_left : reverseNumber ? PacenoteType.corner_2_right : PacenoteType.corner_5_right;
-                }
-                else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_6))
-                {
-                    correctedPaceNote = direction == Direction.LEFT ? reverseNumber ? PacenoteType.corner_1_left : PacenoteType.corner_6_left : reverseNumber ? PacenoteType.corner_1_right : PacenoteType.corner_6_right;
-                }
-                // TODO: square
             }
-            return correctedPaceNote;
+            if (!gotCornerType && allowModifierOnly)
+            {
+                result = new Tuple<PacenoteType, PacenoteModifier>(PacenoteType.unknown, GetModifier(voiceMessageWrapper));
+            }
+            return result;
+        }
+
+        private HashSet<Tuple<PacenoteType, PacenoteModifier>> GetObstaclePacenoteTypesWithModifiers(MutableString voiceMessageWrapper)
+        {
+            HashSet<Tuple<PacenoteType, PacenoteModifier>> matches = new HashSet<Tuple<PacenoteType, PacenoteModifier>>();
+            foreach (string[] command in SpeechRecogniser.RallyObstacleCommands)
+            {
+                if (voiceMessageWrapper.FindAndRemove(command, false, true))
+                {
+                    matches.Add(new Tuple<PacenoteType, PacenoteModifier>(obstaclePacenoteTypes[command], GetModifier(voiceMessageWrapper)));
+                }
+            }
+            return matches;
+        }
+
+        // this is quite specific - we only want modifiers that come after the position in the string
+        // where we got our previous command
+        private PacenoteModifier GetModifier(MutableString voiceMessageWrapper)
+        {
+            PacenoteModifier modifier = PacenoteModifier.none;
+            bool allowCut = true;
+            if (voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_TIGHTENS_BAD, true, false))
+            {
+                modifier = modifier | PacenoteModifier.detail_double_tightens;
+            }
+            if (!voiceMessageWrapper.ContainsAny(SpeechRecogniser.RALLY_TIGHTENS_THEN_OPENS, true)
+                && !voiceMessageWrapper.ContainsAny(SpeechRecogniser.RALLY_OPENS_THEN_TIGHTENS, true)
+                && voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_TIGHTENS, true, false))
+            {
+                // additional check here - we don't want this to trigger for "tightens then opens" / "opens then tightens"
+                modifier = modifier | PacenoteModifier.detail_tightens;
+            }
+            if (voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_DONT_CUT, true, false))
+            {
+                allowCut = false;   // hack... cases where multiple notes are stacked in a single command can have cut and don't cut
+                                    // This doesn't really work because the ordering is lost so we end up with "don't cut, cut"
+                modifier = modifier | PacenoteModifier.detail_dont_cut;
+            }
+            if (allowCut && voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_CUT, true, false))
+            {
+                modifier = modifier | PacenoteModifier.detail_cut;
+            }
+            if (!voiceMessageWrapper.ContainsAny(SpeechRecogniser.RALLY_TIGHTENS_THEN_OPENS, true)
+                && !voiceMessageWrapper.ContainsAny(SpeechRecogniser.RALLY_OPENS_THEN_TIGHTENS, true)
+                && voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_WIDENS, true, false))
+            {
+                // additional check here - we don't want this to trigger for "tightens then opens" / "opens then tightens"
+                modifier = modifier | PacenoteModifier.detail_wideout;
+            }
+            if (voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_LONG, true, false))
+            {
+                modifier = modifier | PacenoteModifier.detail_long;
+            }
+            if (voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_MAYBE, true, false))
+            {
+                modifier = modifier | PacenoteModifier.detail_maybe;
+            }
+            return modifier;
+        }
+
+        private bool IsCorner(PacenoteType pacenoteType)
+        {
+            return pacenoteType.ToString().Contains("corner");
+        }
+
+        private bool ContainsCornerModifier(string voiceMessage)
+        {
+            return SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_DONT_CUT)
+                || SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_CUT)
+                || SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_TIGHTENS)
+                || SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_TIGHTENS_BAD)
+                || SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_WIDENS);
+        }
+    }
+
+    class MutableString
+    {
+        string contents;
+        int cursorPosition = 0;
+        public MutableString(string contents)
+        {
+            this.contents = contents;
+        }
+
+        public string GetString()
+        {
+            return contents;
+        }
+
+        public void ResetCursor()
+        {
+            this.cursorPosition = 0;
+        }
+        
+        // return true is the text is in our internal string, and remove it from the string.
+        // If fromCursorPosition is true, we start the search from where our cursor is. If 
+        // updateCursor is true we move the cursor to the start of the located string.
+        //
+        // When looking for an obstacle or corner, we want to search the whole string and move the cursor
+        // to the position after the match. Then we search for associated modifiers from the cursor position
+        // but as there can be multiple modifiers, we keep the cursor at the same place so we can be sure to
+        // find all the modifiers after the corner or obstacle.
+        //
+        // This logic means that a corner will have all subsequent modifiers applied to it, even when the command
+        // goes corner->modifier1->obstacle->modifier2. This is a bit of an edge case.
+        public bool FindAndRemove(string text, bool fromCursorPosition, bool updateCursor)
+        {
+            if (fromCursorPosition && this.cursorPosition >= this.contents.Length)
+            {
+                return false;
+            }
+            string substringToSearch = fromCursorPosition ? this.contents.Substring(cursorPosition) : this.contents;
+            int matchIndex = substringToSearch.IndexOf(text);
+            if (matchIndex != -1)
+            {
+                int startPoint = fromCursorPosition ? this.cursorPosition + matchIndex : matchIndex;
+                if (updateCursor)
+                {
+                    this.cursorPosition = startPoint;
+                }
+                this.contents = this.contents.Remove(startPoint, text.Length).Trim();
+                return true;
+            }
+            return false;
+        }
+
+        public bool FindAndRemove(string[] text, bool fromCursorPosition, bool updateCursorPosition)
+        {
+            foreach (string item in text)
+            {
+                if (FindAndRemove(item, fromCursorPosition, updateCursorPosition))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public bool ContainsAny(string[] text, bool fromCursorPosition)
+        {
+            if (fromCursorPosition && cursorPosition >= this.contents.Length)
+            {
+                return false;
+            }
+            foreach (string item in text)
+            {
+                int startIndex = fromCursorPosition ? this.cursorPosition : 0;
+                if (this.contents.Substring(startIndex).Contains(item))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // get any text fragments that haven't been successfully processed, or null if all the message was processed.
+        public string GetUnprocessedCommandText()
+        {
+            string uneatenText = this.contents.Trim();
+            if (uneatenText.Length > 0)
+            {
+                Console.WriteLine("Voice command fragments left over: \"" + contents + "\"");
+                return uneatenText;
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

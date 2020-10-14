@@ -57,6 +57,8 @@ namespace CrewChiefV4
         private float minimum_trigger_voice_recognition_confidence_microsoft = UserSettings.GetUserSettings().getFloat("trigger_word_sre_min_confidence");
         private float minimum_voice_recognition_confidence_windows = UserSettings.GetUserSettings().getFloat("minimum_voice_recognition_confidence_system_sre");
         private float minimum_voice_recognition_confidence_microsoft = UserSettings.GetUserSettings().getFloat("minimum_voice_recognition_confidence");
+        private float minimum_rally_voice_recognition_confidence_windows = UserSettings.GetUserSettings().getFloat("minimum_rally_voice_recognition_confidence_system_sre");
+        private float minimum_rally_voice_recognition_confidence_microsoft = UserSettings.GetUserSettings().getFloat("minimum_rally_voice_recognition_confidence");
         private Boolean disable_alternative_voice_commands = UserSettings.GetUserSettings().getBoolean("disable_alternative_voice_commands");
         private Boolean enable_iracing_pit_stop_commands = UserSettings.GetUserSettings().getBoolean("enable_iracing_pit_stop_commands");
         private static Boolean use_verbose_responses = UserSettings.GetUserSettings().getBoolean("use_verbose_responses");
@@ -345,24 +347,129 @@ namespace CrewChiefV4
         public static String[] HIDE_SUBTITLES = Configuration.getSpeechRecognitionPhrases("HIDE_SUBTITLES");
 
         // rally stuff
-        public static String[] RALLY_EARLIER_CALLS = Configuration.getSpeechRecognitionPhrases("RALLY_EARLIER_CALLS");
-        public static String[] RALLY_LATER_CALLS = Configuration.getSpeechRecognitionPhrases("RALLY_LATER_CALLS");
-        public static String[] RALLY_CORNER_NUMBER_FIRST = Configuration.getSpeechRecognitionPhrases("RALLY_CORNER_NUMBER_FIRST");
-        public static String[] RALLY_CORNER_DIRECTION_FIRST = Configuration.getSpeechRecognitionPhrases("RALLY_CORNER_DIRECTION_FIRST");
-        public static String[] RALLY_CORNER_DECRIPTIONS = Configuration.getSpeechRecognitionPhrases("RALLY_CORNER_DECRIPTIONS");
-        // pace note corrections
-        public static String RALLY_CORRECTION = Configuration.getSpeechRecognitionConfigOption("RALLY_CORRECTION");
-        public static String RALLY_LEFT = Configuration.getSpeechRecognitionConfigOption("RALLY_LEFT");
-        public static String RALLY_RIGHT = Configuration.getSpeechRecognitionConfigOption("RALLY_RIGHT");
-        public static String[] RALLY_1 = Configuration.getSpeechRecognitionPhrases("RALLY_1");
-        public static String[] RALLY_2 = Configuration.getSpeechRecognitionPhrases("RALLY_2");
-        public static String[] RALLY_3 = Configuration.getSpeechRecognitionPhrases("RALLY_3");
-        public static String[] RALLY_4 = Configuration.getSpeechRecognitionPhrases("RALLY_4");
-        public static String[] RALLY_5 = Configuration.getSpeechRecognitionPhrases("RALLY_5");
-        public static String[] RALLY_6 = Configuration.getSpeechRecognitionPhrases("RALLY_6");
-        public static String[] RALLY_HAIRPIN = Configuration.getSpeechRecognitionPhrases("RALLY_HAIRPIN");
-        public static String[] RALLY_FLAT = Configuration.getSpeechRecognitionPhrases("RALLY_FLAT");
+        private static bool loadHomophones = UserSettings.GetUserSettings().getBoolean("use_dictation_grammar_for_rally") && SREWrapperFactory.useSystem;
+        public static String[] RALLY_EARLIER_CALLS = Configuration.getSpeechRecognitionPhrases("RALLY_EARLIER_CALLS", loadHomophones);
+        public static String[] RALLY_LATER_CALLS = Configuration.getSpeechRecognitionPhrases("RALLY_LATER_CALLS", loadHomophones);
+        public static String[] RALLY_CORNER_NUMBER_FIRST = Configuration.getSpeechRecognitionPhrases("RALLY_CORNER_NUMBER_FIRST", loadHomophones);
+        public static String[] RALLY_CORNER_DIRECTION_FIRST = Configuration.getSpeechRecognitionPhrases("RALLY_CORNER_DIRECTION_FIRST", loadHomophones);
+        public static String[] RALLY_CORNER_DECRIPTIONS = Configuration.getSpeechRecognitionPhrases("RALLY_CORNER_DECRIPTIONS", loadHomophones);
+        // pace note creation / correction
+        public static String[] RALLY_START_RECORDING_STAGE_NOTES = Configuration.getSpeechRecognitionPhrases("RALLY_START_RECORDING_STAGE_NOTES", loadHomophones);
+        public static String[] RALLY_FINISH_RECORDING_STAGE_NOTES = Configuration.getSpeechRecognitionPhrases("RALLY_FINISH_RECORDING_STAGE_NOTES", loadHomophones);
+        public static String[] RALLY_CORRECTION = Configuration.getSpeechRecognitionPhrases("RALLY_CORRECTION", loadHomophones);
+        public static String[] RALLY_EARLIER = Configuration.getSpeechRecognitionPhrases("RALLY_EARLIER", loadHomophones);
+        public static String[] RALLY_LATER = Configuration.getSpeechRecognitionPhrases("RALLY_LATER", loadHomophones);
+        public static String[] RALLY_INSERT = Configuration.getSpeechRecognitionPhrases("RALLY_INSERT", loadHomophones);
+        public static String[] RALLY_LEFT = Configuration.getSpeechRecognitionPhrases("RALLY_LEFT", loadHomophones);
+        public static String[] RALLY_RIGHT = Configuration.getSpeechRecognitionPhrases("RALLY_RIGHT", loadHomophones);
+        public static String[] RALLY_1 = Configuration.getSpeechRecognitionPhrases("RALLY_1", loadHomophones);
+        public static String[] RALLY_2 = Configuration.getSpeechRecognitionPhrases("RALLY_2", loadHomophones);
+        public static String[] RALLY_3 = Configuration.getSpeechRecognitionPhrases("RALLY_3", loadHomophones);
+        public static String[] RALLY_4 = Configuration.getSpeechRecognitionPhrases("RALLY_4", loadHomophones);
+        public static String[] RALLY_5 = Configuration.getSpeechRecognitionPhrases("RALLY_5", loadHomophones);
+        public static String[] RALLY_6 = Configuration.getSpeechRecognitionPhrases("RALLY_6", loadHomophones);
+        public static String[] RALLY_HAIRPIN = Configuration.getSpeechRecognitionPhrases("RALLY_HAIRPIN", loadHomophones);
+        public static String[] RALLY_SQUARE = Configuration.getSpeechRecognitionPhrases("RALLY_SQUARE", loadHomophones);
+        public static String[] RALLY_FLAT = Configuration.getSpeechRecognitionPhrases("RALLY_FLAT", loadHomophones);
+        public static String[] RALLY_START_RECE = Configuration.getSpeechRecognitionPhrases("RALLY_START_RECE", loadHomophones);
+        public static String[] RALLY_FINISH_RECE = Configuration.getSpeechRecognitionPhrases("RALLY_FINISH_RECE", loadHomophones);
+        public static String[] RALLY_DISTANCE = Configuration.getSpeechRecognitionPhrases("RALLY_DISTANCE", loadHomophones);
 
+        public static String[] RALLY_CUT = Configuration.getSpeechRecognitionPhrases("RALLY_CUT", loadHomophones);
+        public static String[] RALLY_DONT_CUT = Configuration.getSpeechRecognitionPhrases("RALLY_DONT_CUT", loadHomophones);
+        public static String[] RALLY_TIGHTENS = Configuration.getSpeechRecognitionPhrases("RALLY_TIGHTENS", loadHomophones);
+        public static String[] RALLY_TIGHTENS_BAD = Configuration.getSpeechRecognitionPhrases("RALLY_TIGHTENS_BAD", loadHomophones);
+        public static String[] RALLY_TIGHTENS_THEN_OPENS = Configuration.getSpeechRecognitionPhrases("RALLY_TIGHTENS_THEN_OPENS", loadHomophones);
+        public static String[] RALLY_OPENS_THEN_TIGHTENS = Configuration.getSpeechRecognitionPhrases("RALLY_OPENS_THEN_TIGHTENS", loadHomophones);
+        public static String[] RALLY_WIDENS = Configuration.getSpeechRecognitionPhrases("RALLY_WIDENS", loadHomophones);
+        public static String[] RALLY_MAYBE = Configuration.getSpeechRecognitionPhrases("RALLY_MAYBE", loadHomophones);
+        public static String[] RALLY_LONG = Configuration.getSpeechRecognitionPhrases("RALLY_LONG", loadHomophones);
+        public static String[] RALLY_OPENS = Configuration.getSpeechRecognitionPhrases("RALLY_OPENS", loadHomophones);
+        public static String[] RALLY_BRIDGE = Configuration.getSpeechRecognitionPhrases("RALLY_BRIDGE", loadHomophones);
+        public static String[] RALLY_FORD = Configuration.getSpeechRecognitionPhrases("RALLY_FORD", loadHomophones);
+        public static String[] RALLY_JUNCTION = Configuration.getSpeechRecognitionPhrases("RALLY_JUNCTION", loadHomophones);
+        public static String[] RALLY_CAUTION = Configuration.getSpeechRecognitionPhrases("RALLY_CAUTION", loadHomophones);
+        public static String[] RALLY_CREST = Configuration.getSpeechRecognitionPhrases("RALLY_CREST", loadHomophones);
+        public static String[] RALLY_OVER_CREST = Configuration.getSpeechRecognitionPhrases("RALLY_OVER_CREST", loadHomophones);
+        public static String[] RALLY_OVER_BRIDGE = Configuration.getSpeechRecognitionPhrases("RALLY_OVER_BRIDGE", loadHomophones);
+        public static String[] RALLY_JUMP = Configuration.getSpeechRecognitionPhrases("RALLY_JUMP", loadHomophones);
+        public static String[] RALLY_OVER_JUMP = Configuration.getSpeechRecognitionPhrases("RALLY_OVER_JUMP", loadHomophones);
+        public static String[] RALLY_BIG_JUMP = Configuration.getSpeechRecognitionPhrases("RALLY_BIG_JUMP", loadHomophones);
+        public static String[] RALLY_BAD_CAMBER = Configuration.getSpeechRecognitionPhrases("RALLY_BAD_CAMBER", loadHomophones);
+        public static String[] RALLY_TARMAC = Configuration.getSpeechRecognitionPhrases("RALLY_TARMAC", loadHomophones);
+        public static String[] RALLY_GRAVEL = Configuration.getSpeechRecognitionPhrases("RALLY_GRAVEL", loadHomophones);
+        public static String[] RALLY_SNOW = Configuration.getSpeechRecognitionPhrases("RALLY_SNOW", loadHomophones);
+        public static String[] RALLY_SLIPPY = Configuration.getSpeechRecognitionPhrases("RALLY_SLIPPY", loadHomophones);
+        public static String[] RALLY_CONCRETE = Configuration.getSpeechRecognitionPhrases("RALLY_CONCRETE", loadHomophones);
+        public static String[] RALLY_TUNNEL = Configuration.getSpeechRecognitionPhrases("RALLY_TUNNEL", loadHomophones);
+        public static String[] RALLY_LEFT_ENTRY_CHICANE = Configuration.getSpeechRecognitionPhrases("RALLY_LEFT_ENTRY_CHICANE", loadHomophones);
+        public static String[] RALLY_RIGHT_ENTRY_CHICANE = Configuration.getSpeechRecognitionPhrases("RALLY_RIGHT_ENTRY_CHICANE", loadHomophones);
+        public static String[] RALLY_RUTS = Configuration.getSpeechRecognitionPhrases("RALLY_RUTS", loadHomophones);
+        public static String[] RALLY_DEEP_RUTS = Configuration.getSpeechRecognitionPhrases("RALLY_DEEP_RUTS", loadHomophones);
+        public static String[] RALLY_CARE = Configuration.getSpeechRecognitionPhrases("RALLY_CARE", loadHomophones);
+        public static String[] RALLY_DANGER = Configuration.getSpeechRecognitionPhrases("RALLY_DANGER", loadHomophones);
+        public static String[] RALLY_KEEP_MIDDLE = Configuration.getSpeechRecognitionPhrases("RALLY_KEEP_MIDDLE", loadHomophones);
+        public static String[] RALLY_KEEP_LEFT = Configuration.getSpeechRecognitionPhrases("RALLY_KEEP_LEFT", loadHomophones);
+        public static String[] RALLY_KEEP_RIGHT = Configuration.getSpeechRecognitionPhrases("RALLY_KEEP_RIGHT", loadHomophones);
+        public static String[] RALLY_KEEP_IN = Configuration.getSpeechRecognitionPhrases("RALLY_KEEP_IN", loadHomophones);
+        public static String[] RALLY_KEEP_OUT = Configuration.getSpeechRecognitionPhrases("RALLY_KEEP_OUT", loadHomophones);
+        public static String[] RALLY_BUMPS = Configuration.getSpeechRecognitionPhrases("RALLY_BUMPS", loadHomophones);
+        public static String[] RALLY_OVER_RAILS = Configuration.getSpeechRecognitionPhrases("RALLY_OVER_RAILS", loadHomophones);
+        public static String[] RALLY_UPHILL = Configuration.getSpeechRecognitionPhrases("RALLY_UPHILL", loadHomophones);
+        public static String[] RALLY_DOWNHILL = Configuration.getSpeechRecognitionPhrases("RALLY_DOWNHILL", loadHomophones);
+        public static String[] RALLY_BRAKE = Configuration.getSpeechRecognitionPhrases("RALLY_BRAKE", loadHomophones);
+        public static String[] RALLY_LOOSE_GRAVEL = Configuration.getSpeechRecognitionPhrases("RALLY_LOOSE_GRAVEL", loadHomophones);
+        public static String[] RALLY_NARROWS = Configuration.getSpeechRecognitionPhrases("RALLY_NARROWS", loadHomophones);
+        public static String[] RALLY_THROUGH_GATE = Configuration.getSpeechRecognitionPhrases("RALLY_THROUGH_GATE", loadHomophones);
+        // TODO: these phrases cover tree / logs / rocks inside / outside and will (for now) just create a 'keep in' / 'keep out' note
+        public static String[] RALLY_OBSTACLE_INSIDE = Configuration.getSpeechRecognitionPhrases("RALLY_OBSTACLE_INSIDE", loadHomophones);
+        public static String[] RALLY_OBSTACLE_OUTSIDE = Configuration.getSpeechRecognitionPhrases("RALLY_OBSTACLE_OUTSIDE", loadHomophones);
+
+        // most specific first, so "big jump" comes before "jump" when we parse in the event code
+        public static List<string[]> RallyObstacleCommands = new List<string[]>()
+        {
+            SpeechRecogniser.RALLY_BAD_CAMBER,
+            SpeechRecogniser.RALLY_BIG_JUMP,
+            SpeechRecogniser.RALLY_OVER_BRIDGE,
+            SpeechRecogniser.RALLY_BRIDGE,
+            SpeechRecogniser.RALLY_BUMPS,
+            SpeechRecogniser.RALLY_CARE,
+            SpeechRecogniser.RALLY_DANGER,
+            SpeechRecogniser.RALLY_CAUTION,
+            SpeechRecogniser.RALLY_CONCRETE,
+            SpeechRecogniser.RALLY_OVER_CREST,
+            SpeechRecogniser.RALLY_CREST,
+            SpeechRecogniser.RALLY_DEEP_RUTS,
+            SpeechRecogniser.RALLY_FORD,
+            SpeechRecogniser.RALLY_LOOSE_GRAVEL,
+            SpeechRecogniser.RALLY_GRAVEL,
+            SpeechRecogniser.RALLY_SNOW,
+            SpeechRecogniser.RALLY_SLIPPY,
+            SpeechRecogniser.RALLY_OVER_JUMP,
+            SpeechRecogniser.RALLY_JUMP,
+            SpeechRecogniser.RALLY_JUNCTION,
+            SpeechRecogniser.RALLY_KEEP_IN,
+            SpeechRecogniser.RALLY_KEEP_LEFT,
+            SpeechRecogniser.RALLY_KEEP_MIDDLE,
+            SpeechRecogniser.RALLY_KEEP_OUT,
+            SpeechRecogniser.RALLY_KEEP_RIGHT,
+            SpeechRecogniser.RALLY_LEFT_ENTRY_CHICANE,
+            SpeechRecogniser.RALLY_TIGHTENS_THEN_OPENS,
+            SpeechRecogniser.RALLY_OPENS_THEN_TIGHTENS,
+            SpeechRecogniser.RALLY_OPENS,
+            SpeechRecogniser.RALLY_OVER_RAILS,
+            SpeechRecogniser.RALLY_RIGHT_ENTRY_CHICANE,
+            SpeechRecogniser.RALLY_RUTS,
+            SpeechRecogniser.RALLY_TARMAC,
+            SpeechRecogniser.RALLY_TUNNEL,
+            SpeechRecogniser.RALLY_NARROWS,
+            SpeechRecogniser.RALLY_OBSTACLE_INSIDE,
+            SpeechRecogniser.RALLY_OBSTACLE_OUTSIDE,
+            SpeechRecogniser.RALLY_UPHILL,
+            SpeechRecogniser.RALLY_DOWNHILL,
+            SpeechRecogniser.RALLY_BRAKE,
+            SpeechRecogniser.RALLY_THROUGH_GATE
+        };
 
         // for watching opponent - "watch [bob]", "tell me about [bob]"
         public static String WATCH = Configuration.getSpeechRecognitionConfigOption("WATCH");
@@ -810,6 +917,10 @@ namespace CrewChiefV4
             {
                 minimum_trigger_voice_recognition_confidence_microsoft = 0.6f;
             }
+            if (minimum_rally_voice_recognition_confidence_microsoft < 0 || minimum_rally_voice_recognition_confidence_microsoft > 1)
+            {
+                minimum_rally_voice_recognition_confidence_microsoft = 0.35f;
+            }
             if (minimum_name_voice_recognition_confidence_windows < 0 || minimum_name_voice_recognition_confidence_windows > 1)
             {
                 minimum_name_voice_recognition_confidence_windows = 0.75f;
@@ -821,6 +932,10 @@ namespace CrewChiefV4
             if (minimum_trigger_voice_recognition_confidence_windows < 0 || minimum_trigger_voice_recognition_confidence_windows > 1)
             {
                 minimum_trigger_voice_recognition_confidence_windows = 0.95f;
+            }
+            if (minimum_rally_voice_recognition_confidence_windows < 0 || minimum_rally_voice_recognition_confidence_windows > 1)
+            {
+                minimum_rally_voice_recognition_confidence_windows = 0.55f;
             }
         }
 
@@ -906,6 +1021,11 @@ namespace CrewChiefV4
 
                 return false;
             }
+        }
+
+        private void validateAndAdd(String speechPhrase, ChoicesWrapper choices)
+        {
+            validateAndAdd(new string[] { speechPhrase }, choices);
         }
 
         private void validateAndAdd(String[] speechPhrases, ChoicesWrapper choices)
@@ -1004,8 +1124,41 @@ namespace CrewChiefV4
                 Console.WriteLine("Unable to set default audio device, speech recognition may not function and may crash the app");
                 Console.WriteLine("Exception message: " + e.Message);
             }
+            
+            sreWrapper.SetInitialSilenceTimeout(TimeSpan.Zero);
             try
             {
+                if (SREWrapperFactory.useSystem)
+                {
+                    sreWrapper.AddSpeechRecognizedCallback(new EventHandler<System.Speech.Recognition.SpeechRecognizedEventArgs>(sre_SpeechRecognizedSystem));
+                    triggerSreWrapper.AddSpeechRecognizedCallback(new EventHandler<System.Speech.Recognition.SpeechRecognizedEventArgs>(trigger_SpeechRecognizedSystem));
+                }
+                else
+                {
+                    sreWrapper.AddSpeechRecognizedCallback(new EventHandler<Microsoft.Speech.Recognition.SpeechRecognizedEventArgs>(sre_SpeechRecognizedMicrosoft));
+                    triggerSreWrapper.AddSpeechRecognizedCallback(new EventHandler<Microsoft.Speech.Recognition.SpeechRecognizedEventArgs>(trigger_SpeechRecognizedMicrosoft));
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Unable to add event handler to speech engine");
+                Console.WriteLine("Exception message: " + e.Message);
+                return;
+            }
+            initialised = true;
+        }
+
+        public void loadSRECommands()
+        {
+            try
+            {
+                sreWrapper.UnloadAllGrammars();
+                iracingPitstopGrammarList.Clear();
+                r3ePitstopGrammarList.Clear();
+                rallyGrammarList.Clear();
+                pitManagerGrammarList.Clear();
+                overlayGrammarList.Clear();
+                opponentGrammarList.Clear();
                 if (disable_alternative_voice_commands)
                 {
                     Console.WriteLine("*Alternative voice commands are disabled, only the first command from each line in speech_recognition_config.txt will be available*");
@@ -1014,138 +1167,14 @@ namespace CrewChiefV4
                 {
                     Console.WriteLine("Loading all voice command alternatives from speech_recognition_config.txt");
                 }
-                this.digitsChoices = SREWrapperFactory.createNewChoicesWrapper();
-                foreach (KeyValuePair<String[], int> entry in numberToNumber)
-                {
-                    foreach (String numberStr in entry.Key)
-                    {
-                        digitsChoices.Add(numberStr);
-                    }
-                }
 
+                // generic commands for all games. Note that these won't necessarily be wired up for every game
                 ChoicesWrapper staticSpeechChoices = SREWrapperFactory.createNewChoicesWrapper();
-                validateAndAdd(HOWS_MY_TYRE_WEAR, staticSpeechChoices);
-                validateAndAdd(HOWS_MY_TRANSMISSION, staticSpeechChoices);
-                validateAndAdd(HOWS_MY_AERO, staticSpeechChoices);
-                validateAndAdd(HOWS_MY_ENGINE, staticSpeechChoices);
-                validateAndAdd(HOWS_MY_SUSPENSION, staticSpeechChoices);
-                validateAndAdd(HOWS_MY_BRAKES, staticSpeechChoices);
-                validateAndAdd(HOWS_MY_FUEL, staticSpeechChoices);
-                validateAndAdd(HOWS_MY_BATTERY, staticSpeechChoices);
-                validateAndAdd(HOWS_MY_PACE, staticSpeechChoices);
-                validateAndAdd(HOWS_MY_SELF_PACE, staticSpeechChoices);
-                validateAndAdd(HOW_ARE_MY_TYRE_TEMPS, staticSpeechChoices);
-                validateAndAdd(WHAT_ARE_MY_TYRE_TEMPS, staticSpeechChoices);
-                validateAndAdd(HOW_ARE_MY_BRAKE_TEMPS, staticSpeechChoices);
-                validateAndAdd(WHAT_ARE_MY_BRAKE_TEMPS, staticSpeechChoices);
-                validateAndAdd(HOW_ARE_MY_ENGINE_TEMPS, staticSpeechChoices);
-                validateAndAdd(WHATS_MY_GAP_IN_FRONT, staticSpeechChoices);
-                validateAndAdd(WHATS_MY_GAP_BEHIND, staticSpeechChoices);
-                validateAndAdd(WHAT_WAS_MY_LAST_LAP_TIME, staticSpeechChoices);
-                validateAndAdd(WHATS_MY_BEST_LAP_TIME, staticSpeechChoices);
-                validateAndAdd(WHATS_MY_POSITION, staticSpeechChoices);
-                validateAndAdd(WHATS_MY_FUEL_LEVEL, staticSpeechChoices);
-                validateAndAdd(WHATS_MY_FUEL_USAGE, staticSpeechChoices);
-                validateAndAdd(HOW_MUCH_FUEL_TO_END_OF_RACE, staticSpeechChoices);
-                validateAndAdd(WHAT_TYRES_AM_I_ON, staticSpeechChoices);
-                validateAndAdd(WHAT_ARE_THE_RELATIVE_TYRE_PERFORMANCES, staticSpeechChoices);
-                validateAndAdd(PLAY_CORNER_NAMES, staticSpeechChoices);
-                validateAndAdd(HOW_LONG_WILL_THESE_TYRES_LAST, staticSpeechChoices);
-                validateAndAdd(WHATS_PITLANE_SPEED_LIMIT, staticSpeechChoices);
-                validateAndAdd(WHAT_ARE_MY_ENGINE_TEMPS, staticSpeechChoices);
-                validateAndAdd(WHAT_IS_MY_OIL_TEMP, staticSpeechChoices);
-                validateAndAdd(WHAT_IS_MY_WATER_TEMP, staticSpeechChoices);
-
-                validateAndAdd(DAMAGE_REPORT, staticSpeechChoices);
-                validateAndAdd(CAR_STATUS, staticSpeechChoices);
-                validateAndAdd(SESSION_STATUS, staticSpeechChoices);
-                validateAndAdd(STATUS, staticSpeechChoices);
-
-                validateAndAdd(START_PACE_NOTES_PLAYBACK, staticSpeechChoices);
-                validateAndAdd(STOP_PACE_NOTES_PLAYBACK, staticSpeechChoices);
-
-                validateAndAdd(HOWS_MY_LEFT_FRONT_CAMBER, staticSpeechChoices);
-                validateAndAdd(HOWS_MY_RIGHT_FRONT_CAMBER, staticSpeechChoices);
-                validateAndAdd(HOWS_MY_LEFT_REAR_CAMBER, staticSpeechChoices);
-                validateAndAdd(HOWS_MY_RIGHT_REAR_CAMBER, staticSpeechChoices);
-                validateAndAdd(HOWS_MY_FRONT_CAMBER, staticSpeechChoices);
-                validateAndAdd(HOWS_MY_REAR_CAMBER, staticSpeechChoices);
-                validateAndAdd(HOW_ARE_MY_TYRE_PRESSURES, staticSpeechChoices);
-                validateAndAdd(HOW_ARE_MY_FRONT_TYRE_PRESSURES, staticSpeechChoices);
-                validateAndAdd(HOW_ARE_MY_REAR_TYRE_PRESSURES, staticSpeechChoices);
-                validateAndAdd(HOWS_MY_LEFT_FRONT_CAMBER_RIGHT_NOW, staticSpeechChoices);
-                validateAndAdd(HOWS_MY_RIGHT_FRONT_CAMBER_RIGHT_NOW, staticSpeechChoices);
-                validateAndAdd(HOWS_MY_LEFT_REAR_CAMBER_RIGHT_NOW, staticSpeechChoices);
-                validateAndAdd(HOWS_MY_RIGHT_REAR_CAMBER_RIGHT_NOW, staticSpeechChoices);
-                validateAndAdd(HOWS_MY_FRONT_CAMBER_RIGHT_NOW, staticSpeechChoices);
-                validateAndAdd(HOWS_MY_REAR_CAMBER_RIGHT_NOW, staticSpeechChoices);
-                validateAndAdd(HOW_ARE_MY_TYRE_PRESSURES_RIGHT_NOW, staticSpeechChoices);
-                validateAndAdd(HOW_ARE_MY_FRONT_TYRE_PRESSURES_RIGHT_NOW, staticSpeechChoices);
-                validateAndAdd(HOW_ARE_MY_REAR_TYRE_PRESSURES_RIGHT_NOW, staticSpeechChoices);
-                validateAndAdd(WHAT_ARE_THE_PIT_ACTIONS, staticSpeechChoices);
-                validateAndAdd(WHAT_ARE_MY_LEFT_FRONT_SURFACE_TEMPS, staticSpeechChoices);
-                validateAndAdd(WHAT_ARE_MY_LEFT_REAR_SURFACE_TEMPS, staticSpeechChoices);
-                validateAndAdd(WHAT_ARE_MY_RIGHT_FRONT_SURFACE_TEMPS, staticSpeechChoices);
-                validateAndAdd(WHAT_ARE_MY_RIGHT_REAR_SURFACE_TEMPS, staticSpeechChoices);
-
-                if (!disableBehaviorAlteringVoiceCommands)
-                {
-                    validateAndAdd(KEEP_QUIET, staticSpeechChoices);
-                    validateAndAdd(KEEP_ME_INFORMED, staticSpeechChoices);
-                    validateAndAdd(TELL_ME_THE_GAPS, staticSpeechChoices);
-                    validateAndAdd(DONT_TELL_ME_THE_GAPS, staticSpeechChoices);
-                    validateAndAdd(ENABLE_YELLOW_FLAG_MESSAGES, staticSpeechChoices);
-                    validateAndAdd(DISABLE_YELLOW_FLAG_MESSAGES, staticSpeechChoices);
-                    validateAndAdd(ENABLE_MANUAL_FORMATION_LAP, staticSpeechChoices);
-                    validateAndAdd(DISABLE_MANUAL_FORMATION_LAP, staticSpeechChoices);
-                    validateAndAdd(TALK_TO_ME_ANYWHERE, staticSpeechChoices);
-                    validateAndAdd(DONT_TALK_IN_THE_CORNERS, staticSpeechChoices);
-                    validateAndAdd(SPOT, staticSpeechChoices);
-                    validateAndAdd(DONT_SPOT, staticSpeechChoices);
-                    validateAndAdd(ENABLE_CUT_TRACK_WARNINGS, staticSpeechChoices);
-                    validateAndAdd(DISABLE_CUT_TRACK_WARNINGS, staticSpeechChoices);
-                    validateAndAdd(STOP_COMPLAINING, staticSpeechChoices);
-                }
-
-                validateAndAdd(WHATS_THE_FASTEST_LAP_TIME, staticSpeechChoices);
-
-                validateAndAdd(WHERE_AM_I_FASTER, staticSpeechChoices);
-                validateAndAdd(WHERE_AM_I_SLOWER, staticSpeechChoices);
-
-                validateAndAdd(HOW_LONGS_LEFT, staticSpeechChoices);
+                Console.WriteLine("Loading shared SRE commands");
+                
                 validateAndAdd(WHATS_THE_TIME, staticSpeechChoices);
                 validateAndAdd(REPEAT_LAST_MESSAGE, staticSpeechChoices);
-                validateAndAdd(HAVE_I_SERVED_MY_PENALTY, staticSpeechChoices);
-                validateAndAdd(DO_I_HAVE_A_PENALTY, staticSpeechChoices);
-                validateAndAdd(DO_I_STILL_HAVE_A_PENALTY, staticSpeechChoices);
-                validateAndAdd(IS_MY_PIT_BOX_OCCUPIED, staticSpeechChoices);
-                validateAndAdd(PLAY_POST_PIT_POSITION_ESTIMATE, staticSpeechChoices);
-                validateAndAdd(PRACTICE_PIT_STOP, staticSpeechChoices);
-                validateAndAdd(DO_I_HAVE_A_MANDATORY_PIT_STOP, staticSpeechChoices);
-                validateAndAdd(WHAT_ARE_MY_SECTOR_TIMES, staticSpeechChoices);
-                validateAndAdd(WHATS_MY_LAST_SECTOR_TIME, staticSpeechChoices);
-                validateAndAdd(WHATS_THE_AIR_TEMP, staticSpeechChoices);
-                validateAndAdd(WHATS_THE_TRACK_TEMP, staticSpeechChoices);
                 validateAndAdd(RADIO_CHECK, staticSpeechChoices);
-
-                validateAndAdd(WHOS_IN_FRONT_IN_THE_RACE, staticSpeechChoices);
-                validateAndAdd(WHOS_BEHIND_IN_THE_RACE, staticSpeechChoices);
-                validateAndAdd(WHOS_IN_FRONT_ON_TRACK, staticSpeechChoices);
-                validateAndAdd(WHOS_BEHIND_ON_TRACK, staticSpeechChoices);
-                validateAndAdd(WHOS_LEADING, staticSpeechChoices);
-
-                validateAndAdd(WHAT_CLASS_IS_CAR_AHEAD, staticSpeechChoices);
-                validateAndAdd(WHAT_CLASS_IS_CAR_BEHIND, staticSpeechChoices);
-                validateAndAdd(IS_CAR_AHEAD_MY_CLASS, staticSpeechChoices);
-                validateAndAdd(IS_CAR_BEHIND_MY_CLASS, staticSpeechChoices);
-
-                validateAndAdd(MORE_INFO, staticSpeechChoices);
-
-                validateAndAdd(I_AM_OK, staticSpeechChoices);
-
-                validateAndAdd(WHATS_MY_RATING, staticSpeechChoices);
-                validateAndAdd(WHATS_MY_RANK, staticSpeechChoices);
-                validateAndAdd(WHATS_MY_REPUTATION, staticSpeechChoices);
 
                 if (UserSettings.GetUserSettings().getBoolean("enable_overlay_window")
                     && !this.disableOverlayVoiceCommands)
@@ -1196,30 +1225,6 @@ namespace CrewChiefV4
                 if (alarmClockVoiceRecognitionEnabled)
                 {
                     validateAndAdd(CLEAR_ALARM_CLOCK, staticSpeechChoices);
-                }
-                GrammarBuilderWrapper staticGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper();
-                staticGrammarBuilder.SetCulture(cultureInfo);
-                staticGrammarBuilder.Append(staticSpeechChoices);
-                GrammarWrapper staticGrammar = SREWrapperFactory.createNewGrammarWrapper(staticGrammarBuilder);
-                sreWrapper.LoadGrammar(staticGrammar);
-
-                // now the fuel choices
-                List<string> fuelTimeChoices = new List<string>();
-                if (disable_alternative_voice_commands)
-                {
-                    fuelTimeChoices.Add(LAPS[0]);
-                    fuelTimeChoices.Add(MINUTES[0]);
-                    fuelTimeChoices.Add(HOURS[0]);
-                }
-                else
-                {
-                    fuelTimeChoices.AddRange(LAPS);
-                    fuelTimeChoices.AddRange(MINUTES);
-                    fuelTimeChoices.AddRange(HOURS);
-                }
-                addCompoundChoices(CALCULATE_FUEL_FOR, false, this.digitsChoices, fuelTimeChoices.ToArray(), true);
-                if (alarmClockVoiceRecognitionEnabled)
-                {
                     this.hourChoices = SREWrapperFactory.createNewChoicesWrapper();
                     foreach (KeyValuePair<String[], int> entry in hourMappings)
                     {
@@ -1247,6 +1252,241 @@ namespace CrewChiefV4
                     addCompoundChoices(SET_ALARM_CLOCK, false, this.hourChoices, minuteArray.ToArray(), true);
                 }
 
+                if (CrewChief.gameDefinition.gameEnum != GameEnum.NONE)
+                {
+                    validateAndAdd(HOWS_MY_TYRE_WEAR, staticSpeechChoices);
+                    validateAndAdd(HOWS_MY_TRANSMISSION, staticSpeechChoices);
+                    validateAndAdd(HOWS_MY_AERO, staticSpeechChoices);
+                    validateAndAdd(HOWS_MY_ENGINE, staticSpeechChoices);
+                    validateAndAdd(HOWS_MY_SUSPENSION, staticSpeechChoices);
+                    validateAndAdd(HOWS_MY_BRAKES, staticSpeechChoices);
+                    validateAndAdd(HOWS_MY_FUEL, staticSpeechChoices);
+                    validateAndAdd(HOWS_MY_BATTERY, staticSpeechChoices);
+                    validateAndAdd(WHAT_ARE_MY_ENGINE_TEMPS, staticSpeechChoices);
+                    validateAndAdd(WHAT_IS_MY_OIL_TEMP, staticSpeechChoices);
+                    validateAndAdd(WHAT_IS_MY_WATER_TEMP, staticSpeechChoices);
+                    validateAndAdd(HOW_ARE_MY_TYRE_TEMPS, staticSpeechChoices);
+                    validateAndAdd(WHAT_ARE_MY_TYRE_TEMPS, staticSpeechChoices);
+                    validateAndAdd(HOW_ARE_MY_BRAKE_TEMPS, staticSpeechChoices);
+                    validateAndAdd(WHAT_ARE_MY_BRAKE_TEMPS, staticSpeechChoices);
+                    validateAndAdd(HOW_ARE_MY_ENGINE_TEMPS, staticSpeechChoices);
+
+                    validateAndAdd(DAMAGE_REPORT, staticSpeechChoices);
+                    validateAndAdd(CAR_STATUS, staticSpeechChoices);
+                    validateAndAdd(SESSION_STATUS, staticSpeechChoices);
+                    validateAndAdd(STATUS, staticSpeechChoices);
+                    validateAndAdd(WHATS_THE_AIR_TEMP, staticSpeechChoices);
+                    validateAndAdd(WHATS_THE_TRACK_TEMP, staticSpeechChoices);
+                    validateAndAdd(MORE_INFO, staticSpeechChoices);
+                    validateAndAdd(I_AM_OK, staticSpeechChoices);
+                }
+
+                GrammarBuilderWrapper staticGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper();
+                staticGrammarBuilder.SetCulture(cultureInfo);
+                staticGrammarBuilder.Append(staticSpeechChoices);
+                GrammarWrapper staticGrammar = SREWrapperFactory.createNewGrammarWrapper(staticGrammarBuilder);
+                sreWrapper.LoadGrammar(staticGrammar);
+                // end of shared commands
+
+                // now the commands for the game type
+                loadSRECommandsForGameType();
+                // now the commands for the specific game
+                loadSRECommandsForSpecificGame();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Unable to configure speech engine grammar");
+                Console.WriteLine("Exception message: " + e.Message);
+                return;
+            }
+        }
+
+        private void loadSRECommandsForSpecificGame()
+        {
+            switch (CrewChief.gameDefinition.gameEnum)
+            {
+                case GameEnum.IRACING:
+                    addiRacingSpeechRecogniser();
+                    break;
+                case GameEnum.RACE_ROOM:
+                    addR3ESpeechRecogniser();
+                    break;
+                case GameEnum.RF2_64BIT:
+                    addPitManagerSpeechRecogniser();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void loadSRECommandsForGameType()
+        {
+            switch (CrewChief.gameDefinition.gameEnum)
+            {
+                // standard circuit racing games
+                case GameEnum.ACC:
+                case GameEnum.AMS2:
+                case GameEnum.AMS2_NETWORK:
+                case GameEnum.ASSETTO_32BIT:
+                case GameEnum.ASSETTO_64BIT:
+                case GameEnum.IRACING:
+                case GameEnum.PCARS2:
+                case GameEnum.PCARS2_NETWORK:
+                case GameEnum.PCARS_32BIT:
+                case GameEnum.PCARS_64BIT:
+                case GameEnum.PCARS_NETWORK:
+                case GameEnum.RACE_ROOM:
+                case GameEnum.RF1:
+                case GameEnum.RF2_64BIT:
+                    loadSpotterCommands();
+                    loadBasicCircuitRacingCommands();
+                    loadExtendedCircuitRacingCommands();
+                    break;
+                // 'basic' circuit racing games (heh)
+                case GameEnum.PCARS3:
+                    loadSpotterCommands();
+                    loadBasicCircuitRacingCommands();
+                    break;
+                // spotter-only games
+                case GameEnum.F1_2018:
+                case GameEnum.F1_2019:
+                case GameEnum.F1_2020:
+                    loadSpotterCommands();
+                    break;
+                // rally games
+                case GameEnum.RBR:
+                case GameEnum.DIRT:
+                case GameEnum.DIRT_2:
+                    addRallySpeechRecogniser();
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void loadSpotterCommands()
+        {
+            try
+            {
+                if (!disableBehaviorAlteringVoiceCommands)
+                {
+                    Console.WriteLine("Loading spotter speech recognition commands");
+                    ChoicesWrapper staticSpeechChoices = SREWrapperFactory.createNewChoicesWrapper();
+                    validateAndAdd(SPOT, staticSpeechChoices);
+                    validateAndAdd(DONT_SPOT, staticSpeechChoices);
+                    GrammarBuilderWrapper staticGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper();
+                    staticGrammarBuilder.SetCulture(cultureInfo);
+                    staticGrammarBuilder.Append(staticSpeechChoices);
+                    GrammarWrapper staticGrammar = SREWrapperFactory.createNewGrammarWrapper(staticGrammarBuilder);
+                    sreWrapper.LoadGrammar(staticGrammar);
+                }
+                else
+                {
+                    Console.WriteLine("Skipping spotter speech recognition command because behaviour-altering commands are enabled");
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Unable to configure spotter speech engine grammar");
+                Console.WriteLine("Exception message: " + e.Message);
+                return;
+            }
+        }
+
+        private void loadBasicCircuitRacingCommands()
+        {
+            try
+            {
+                Console.WriteLine("Loading basic circuit racing speech recognition commands");
+                this.digitsChoices = SREWrapperFactory.createNewChoicesWrapper();
+                foreach (KeyValuePair<String[], int> entry in numberToNumber)
+                {
+                    foreach (String numberStr in entry.Key)
+                    {
+                        digitsChoices.Add(numberStr);
+                    }
+                }
+
+                ChoicesWrapper staticSpeechChoices = SREWrapperFactory.createNewChoicesWrapper();
+                validateAndAdd(HOWS_MY_PACE, staticSpeechChoices);
+                validateAndAdd(HOWS_MY_SELF_PACE, staticSpeechChoices);
+                validateAndAdd(WHATS_MY_GAP_IN_FRONT, staticSpeechChoices);
+                validateAndAdd(WHATS_MY_GAP_BEHIND, staticSpeechChoices);
+                validateAndAdd(WHAT_WAS_MY_LAST_LAP_TIME, staticSpeechChoices);
+                validateAndAdd(WHATS_MY_BEST_LAP_TIME, staticSpeechChoices);
+                validateAndAdd(WHATS_MY_POSITION, staticSpeechChoices);
+                validateAndAdd(WHAT_TYRES_AM_I_ON, staticSpeechChoices);
+                validateAndAdd(WHAT_ARE_THE_RELATIVE_TYRE_PERFORMANCES, staticSpeechChoices);
+                validateAndAdd(PLAY_CORNER_NAMES, staticSpeechChoices);
+
+                validateAndAdd(START_PACE_NOTES_PLAYBACK, staticSpeechChoices);
+                validateAndAdd(STOP_PACE_NOTES_PLAYBACK, staticSpeechChoices);
+
+                validateAndAdd(HOWS_MY_LEFT_FRONT_CAMBER, staticSpeechChoices);
+                validateAndAdd(HOWS_MY_RIGHT_FRONT_CAMBER, staticSpeechChoices);
+                validateAndAdd(HOWS_MY_LEFT_REAR_CAMBER, staticSpeechChoices);
+                validateAndAdd(HOWS_MY_RIGHT_REAR_CAMBER, staticSpeechChoices);
+                validateAndAdd(HOWS_MY_FRONT_CAMBER, staticSpeechChoices);
+                validateAndAdd(HOWS_MY_REAR_CAMBER, staticSpeechChoices);
+                validateAndAdd(HOW_ARE_MY_TYRE_PRESSURES, staticSpeechChoices);
+                validateAndAdd(HOW_ARE_MY_FRONT_TYRE_PRESSURES, staticSpeechChoices);
+                validateAndAdd(HOW_ARE_MY_REAR_TYRE_PRESSURES, staticSpeechChoices);
+                validateAndAdd(HOWS_MY_LEFT_FRONT_CAMBER_RIGHT_NOW, staticSpeechChoices);
+                validateAndAdd(HOWS_MY_RIGHT_FRONT_CAMBER_RIGHT_NOW, staticSpeechChoices);
+                validateAndAdd(HOWS_MY_LEFT_REAR_CAMBER_RIGHT_NOW, staticSpeechChoices);
+                validateAndAdd(HOWS_MY_RIGHT_REAR_CAMBER_RIGHT_NOW, staticSpeechChoices);
+                validateAndAdd(HOWS_MY_FRONT_CAMBER_RIGHT_NOW, staticSpeechChoices);
+                validateAndAdd(HOWS_MY_REAR_CAMBER_RIGHT_NOW, staticSpeechChoices);
+                validateAndAdd(HOW_ARE_MY_TYRE_PRESSURES_RIGHT_NOW, staticSpeechChoices);
+                validateAndAdd(HOW_ARE_MY_FRONT_TYRE_PRESSURES_RIGHT_NOW, staticSpeechChoices);
+                validateAndAdd(HOW_ARE_MY_REAR_TYRE_PRESSURES_RIGHT_NOW, staticSpeechChoices);
+                validateAndAdd(WHAT_ARE_MY_LEFT_FRONT_SURFACE_TEMPS, staticSpeechChoices);
+                validateAndAdd(WHAT_ARE_MY_LEFT_REAR_SURFACE_TEMPS, staticSpeechChoices);
+                validateAndAdd(WHAT_ARE_MY_RIGHT_FRONT_SURFACE_TEMPS, staticSpeechChoices);
+                validateAndAdd(WHAT_ARE_MY_RIGHT_REAR_SURFACE_TEMPS, staticSpeechChoices);
+
+                if (!disableBehaviorAlteringVoiceCommands)
+                {
+                    validateAndAdd(KEEP_QUIET, staticSpeechChoices);
+                    validateAndAdd(KEEP_ME_INFORMED, staticSpeechChoices);
+                    validateAndAdd(TELL_ME_THE_GAPS, staticSpeechChoices);
+                    validateAndAdd(DONT_TELL_ME_THE_GAPS, staticSpeechChoices);
+                    validateAndAdd(ENABLE_YELLOW_FLAG_MESSAGES, staticSpeechChoices);
+                    validateAndAdd(DISABLE_YELLOW_FLAG_MESSAGES, staticSpeechChoices);
+                    validateAndAdd(ENABLE_MANUAL_FORMATION_LAP, staticSpeechChoices);
+                    validateAndAdd(DISABLE_MANUAL_FORMATION_LAP, staticSpeechChoices);
+                    validateAndAdd(TALK_TO_ME_ANYWHERE, staticSpeechChoices);
+                    validateAndAdd(DONT_TALK_IN_THE_CORNERS, staticSpeechChoices);
+                    validateAndAdd(ENABLE_CUT_TRACK_WARNINGS, staticSpeechChoices);
+                    validateAndAdd(DISABLE_CUT_TRACK_WARNINGS, staticSpeechChoices);
+                    validateAndAdd(STOP_COMPLAINING, staticSpeechChoices);
+                }
+
+                validateAndAdd(WHATS_THE_FASTEST_LAP_TIME, staticSpeechChoices);
+
+                validateAndAdd(WHERE_AM_I_FASTER, staticSpeechChoices);
+                validateAndAdd(WHERE_AM_I_SLOWER, staticSpeechChoices);
+
+                validateAndAdd(HOW_LONGS_LEFT, staticSpeechChoices);
+                validateAndAdd(WHAT_ARE_MY_SECTOR_TIMES, staticSpeechChoices);
+                validateAndAdd(WHATS_MY_LAST_SECTOR_TIME, staticSpeechChoices);
+
+                validateAndAdd(WHOS_IN_FRONT_IN_THE_RACE, staticSpeechChoices);
+                validateAndAdd(WHOS_BEHIND_IN_THE_RACE, staticSpeechChoices);
+                validateAndAdd(WHOS_IN_FRONT_ON_TRACK, staticSpeechChoices);
+                validateAndAdd(WHOS_BEHIND_ON_TRACK, staticSpeechChoices);
+                validateAndAdd(WHOS_LEADING, staticSpeechChoices);
+
+                validateAndAdd(WHATS_MY_RATING, staticSpeechChoices);
+                validateAndAdd(WHATS_MY_RANK, staticSpeechChoices);
+                validateAndAdd(WHATS_MY_REPUTATION, staticSpeechChoices);
+
+                GrammarBuilderWrapper staticGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper();
+                staticGrammarBuilder.SetCulture(cultureInfo);
+                staticGrammarBuilder.Append(staticSpeechChoices);
+                GrammarWrapper staticGrammar = SREWrapperFactory.createNewGrammarWrapper(staticGrammarBuilder);
+                sreWrapper.LoadGrammar(staticGrammar);
+
                 if (SREWrapperFactory.useSystem && useFreeDictationForChatMessages)
                 {
                     this.chatDictationGrammar = SREWrapperFactory.CreateChatDictationGrammarWrapper();
@@ -1255,31 +1495,65 @@ namespace CrewChiefV4
             }
             catch (Exception e)
             {
-                Console.WriteLine("Unable to configure speech engine grammar");
+                Console.WriteLine("Unable to configure basic circuit racing speech engine grammar");
                 Console.WriteLine("Exception message: " + e.Message);
                 return;
             }
-            sreWrapper.SetInitialSilenceTimeout(TimeSpan.Zero);
+        }
+
+        private void loadExtendedCircuitRacingCommands()
+        {
             try
             {
-                if (SREWrapperFactory.useSystem)
+                Console.WriteLine("Loading " + CrewChief.gameDefinition.friendlyName + " speech recognition commands");
+                ChoicesWrapper staticSpeechChoices = SREWrapperFactory.createNewChoicesWrapper();
+                validateAndAdd(WHATS_MY_FUEL_LEVEL, staticSpeechChoices);
+                validateAndAdd(WHATS_MY_FUEL_USAGE, staticSpeechChoices);
+                validateAndAdd(HOW_MUCH_FUEL_TO_END_OF_RACE, staticSpeechChoices);
+                validateAndAdd(HOW_LONG_WILL_THESE_TYRES_LAST, staticSpeechChoices);
+                validateAndAdd(WHATS_PITLANE_SPEED_LIMIT, staticSpeechChoices);
+                validateAndAdd(WHAT_ARE_THE_PIT_ACTIONS, staticSpeechChoices);
+                validateAndAdd(HAVE_I_SERVED_MY_PENALTY, staticSpeechChoices);
+                validateAndAdd(DO_I_HAVE_A_PENALTY, staticSpeechChoices);
+                validateAndAdd(DO_I_STILL_HAVE_A_PENALTY, staticSpeechChoices);
+                validateAndAdd(IS_MY_PIT_BOX_OCCUPIED, staticSpeechChoices);
+                validateAndAdd(PLAY_POST_PIT_POSITION_ESTIMATE, staticSpeechChoices);
+                validateAndAdd(PRACTICE_PIT_STOP, staticSpeechChoices);
+                validateAndAdd(DO_I_HAVE_A_MANDATORY_PIT_STOP, staticSpeechChoices);
+
+                validateAndAdd(WHAT_CLASS_IS_CAR_AHEAD, staticSpeechChoices);
+                validateAndAdd(WHAT_CLASS_IS_CAR_BEHIND, staticSpeechChoices);
+                validateAndAdd(IS_CAR_AHEAD_MY_CLASS, staticSpeechChoices);
+                validateAndAdd(IS_CAR_BEHIND_MY_CLASS, staticSpeechChoices);
+
+                GrammarBuilderWrapper staticGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper();
+                staticGrammarBuilder.SetCulture(cultureInfo);
+                staticGrammarBuilder.Append(staticSpeechChoices);
+                GrammarWrapper staticGrammar = SREWrapperFactory.createNewGrammarWrapper(staticGrammarBuilder);
+                sreWrapper.LoadGrammar(staticGrammar);
+
+                // now the fuel choices
+                List<string> fuelTimeChoices = new List<string>();
+                if (disable_alternative_voice_commands)
                 {
-                    sreWrapper.AddSpeechRecognizedCallback(new EventHandler<System.Speech.Recognition.SpeechRecognizedEventArgs>(sre_SpeechRecognizedSystem));
-                    triggerSreWrapper.AddSpeechRecognizedCallback(new EventHandler<System.Speech.Recognition.SpeechRecognizedEventArgs>(trigger_SpeechRecognizedSystem));
+                    fuelTimeChoices.Add(LAPS[0]);
+                    fuelTimeChoices.Add(MINUTES[0]);
+                    fuelTimeChoices.Add(HOURS[0]);
                 }
                 else
                 {
-                    sreWrapper.AddSpeechRecognizedCallback(new EventHandler<Microsoft.Speech.Recognition.SpeechRecognizedEventArgs>(sre_SpeechRecognizedMicrosoft));
-                    triggerSreWrapper.AddSpeechRecognizedCallback(new EventHandler<Microsoft.Speech.Recognition.SpeechRecognizedEventArgs>(trigger_SpeechRecognizedMicrosoft));
+                    fuelTimeChoices.AddRange(LAPS);
+                    fuelTimeChoices.AddRange(MINUTES);
+                    fuelTimeChoices.AddRange(HOURS);
                 }
+                addCompoundChoices(CALCULATE_FUEL_FOR, false, this.digitsChoices, fuelTimeChoices.ToArray(), true);
             }
             catch (Exception e)
             {
-                Console.WriteLine("Unable to add event handler to speech engine");
+                Console.WriteLine("Unable to configure " + CrewChief.gameDefinition.friendlyName + " speech engine grammar");
                 Console.WriteLine("Exception message: " + e.Message);
                 return;
             }
-            initialised = true;
         }
 
         private String[] getWhatsPossessiveChoices()
@@ -1524,7 +1798,7 @@ namespace CrewChiefV4
             }
         }
 
-        public void addRallySpeechRecogniser()
+        private void addRallySpeechRecogniser()
         {
             // note that all the current rally voice commands are 'behaviour altering', so exit this method immediately if these are disable
             // so we're not adding empty grammars to the SRE
@@ -1534,49 +1808,84 @@ namespace CrewChiefV4
             }
             try
             {
-                iracingPitstopGrammarList.Clear();
-                r3ePitstopGrammarList.Clear();
-                rallyGrammarList.Clear();
-                ChoicesWrapper rallyChoices = SREWrapperFactory.createNewChoicesWrapper();
-                validateAndAdd(RALLY_EARLIER_CALLS, rallyChoices);
-                validateAndAdd(RALLY_LATER_CALLS, rallyChoices);
-                validateAndAdd(RALLY_CORNER_DECRIPTIONS, rallyChoices);
-                validateAndAdd(RALLY_CORNER_DIRECTION_FIRST, rallyChoices);
-                validateAndAdd(RALLY_CORNER_NUMBER_FIRST, rallyChoices);
-
-                validateAndAdd(getCornerCorrectionPhrases(RALLY_LEFT, RALLY_1).ToArray(), rallyChoices);
-                validateAndAdd(getCornerCorrectionPhrases(RALLY_LEFT, RALLY_2).ToArray(), rallyChoices);
-                validateAndAdd(getCornerCorrectionPhrases(RALLY_LEFT, RALLY_3).ToArray(), rallyChoices);
-                validateAndAdd(getCornerCorrectionPhrases(RALLY_LEFT, RALLY_4).ToArray(), rallyChoices);
-                validateAndAdd(getCornerCorrectionPhrases(RALLY_LEFT, RALLY_5).ToArray(), rallyChoices);
-                validateAndAdd(getCornerCorrectionPhrases(RALLY_LEFT, RALLY_6).ToArray(), rallyChoices);
-                validateAndAdd(getCornerCorrectionPhrases(RALLY_LEFT, RALLY_HAIRPIN).ToArray(), rallyChoices);
-                validateAndAdd(getCornerCorrectionPhrases(RALLY_LEFT, RALLY_FLAT).ToArray(), rallyChoices);
-
-                validateAndAdd(getCornerCorrectionPhrases(RALLY_RIGHT, RALLY_1).ToArray(), rallyChoices);
-                validateAndAdd(getCornerCorrectionPhrases(RALLY_RIGHT, RALLY_2).ToArray(), rallyChoices);
-                validateAndAdd(getCornerCorrectionPhrases(RALLY_RIGHT, RALLY_3).ToArray(), rallyChoices);
-                validateAndAdd(getCornerCorrectionPhrases(RALLY_RIGHT, RALLY_4).ToArray(), rallyChoices);
-                validateAndAdd(getCornerCorrectionPhrases(RALLY_RIGHT, RALLY_5).ToArray(), rallyChoices);
-                validateAndAdd(getCornerCorrectionPhrases(RALLY_RIGHT, RALLY_6).ToArray(), rallyChoices);
-                validateAndAdd(getCornerCorrectionPhrases(RALLY_RIGHT, RALLY_HAIRPIN).ToArray(), rallyChoices);
-                validateAndAdd(getCornerCorrectionPhrases(RALLY_RIGHT, RALLY_FLAT).ToArray(), rallyChoices);
-
-                validateAndAdd(getCornerCorrectionPhrases("", RALLY_1).ToArray(), rallyChoices);
-                validateAndAdd(getCornerCorrectionPhrases("", RALLY_2).ToArray(), rallyChoices);
-                validateAndAdd(getCornerCorrectionPhrases("", RALLY_3).ToArray(), rallyChoices);
-                validateAndAdd(getCornerCorrectionPhrases("", RALLY_4).ToArray(), rallyChoices);
-                validateAndAdd(getCornerCorrectionPhrases("", RALLY_5).ToArray(), rallyChoices);
-                validateAndAdd(getCornerCorrectionPhrases("", RALLY_6).ToArray(), rallyChoices);
-                validateAndAdd(getCornerCorrectionPhrases("", RALLY_HAIRPIN).ToArray(), rallyChoices);
-                validateAndAdd(getCornerCorrectionPhrases("", RALLY_FLAT).ToArray(), rallyChoices);
+                // basic commands
+                ChoicesWrapper basicChoicesWrapper = SREWrapperFactory.createNewChoicesWrapper();
+                validateAndAdd(RALLY_EARLIER_CALLS, basicChoicesWrapper);
+                validateAndAdd(RALLY_LATER_CALLS, basicChoicesWrapper);
+                validateAndAdd(RALLY_CORNER_DECRIPTIONS, basicChoicesWrapper);
+                validateAndAdd(RALLY_CORNER_DIRECTION_FIRST, basicChoicesWrapper);
+                validateAndAdd(RALLY_CORNER_NUMBER_FIRST, basicChoicesWrapper);
+                validateAndAdd(RALLY_START_RECE, basicChoicesWrapper);
+                validateAndAdd(RALLY_FINISH_RECE, basicChoicesWrapper);
+                validateAndAdd(RALLY_DISTANCE, basicChoicesWrapper);
+                GrammarBuilderWrapper basicRallyGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper(basicChoicesWrapper);
+                basicRallyGrammarBuilder.SetCulture(cultureInfo);
+                GrammarWrapper basicRallyGrammar = SREWrapperFactory.createNewGrammarWrapper(basicRallyGrammarBuilder);
+                rallyGrammarList.Add(basicRallyGrammar);
+                sreWrapper.LoadGrammar(basicRallyGrammar);
 
 
-                GrammarBuilderWrapper rallyGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper(rallyChoices);
-                rallyGrammarBuilder.SetCulture(cultureInfo);
-                GrammarWrapper rallyGrammar = SREWrapperFactory.createNewGrammarWrapper(rallyGrammarBuilder);
-                rallyGrammarList.Add(rallyGrammar);
-                sreWrapper.LoadGrammar(rallyGrammar);
+                // now the stage notes commands - these may use a defined grammar or free dictation
+                if (UserSettings.GetUserSettings().getBoolean("use_dictation_grammar_for_rally") && SREWrapperFactory.useSystem)
+                {
+                    GrammarWrapper rallyDicationGrammar = SREWrapperFactory.CreateChatDictationGrammarWrapper();
+                    SREWrapperFactory.LoadChatDictationGrammar(this.sreWrapper, rallyDicationGrammar, null, null);
+                    rallyGrammarList.Add(rallyDicationGrammar);
+                }
+                else
+                {
+
+                    // for corrections
+                    ChoicesWrapper correctionChoicesWrapper = SREWrapperFactory.createNewChoicesWrapper(); // this will be added at the start with 0 or 1 repeats
+                    validateAndAdd(RALLY_CORRECTION, correctionChoicesWrapper);
+                    validateAndAdd(RALLY_INSERT, correctionChoicesWrapper);
+
+                    
+                    // modifier commands. These are generally used to modify a corner call but can apply to other obstacles.
+                    ChoicesWrapper stageNoteCommandChoicesWrapper = SREWrapperFactory.createNewChoicesWrapper();
+                    validateAndAdd(RALLY_CUT, stageNoteCommandChoicesWrapper);
+                    validateAndAdd(RALLY_DONT_CUT, stageNoteCommandChoicesWrapper);
+                    validateAndAdd(RALLY_TIGHTENS, stageNoteCommandChoicesWrapper);
+                    validateAndAdd(RALLY_LONG, stageNoteCommandChoicesWrapper);
+                    validateAndAdd(RALLY_NARROWS, stageNoteCommandChoicesWrapper);
+                    validateAndAdd(RALLY_TIGHTENS_BAD, stageNoteCommandChoicesWrapper);
+                    validateAndAdd(RALLY_WIDENS, stageNoteCommandChoicesWrapper);
+                    validateAndAdd(RALLY_MAYBE, stageNoteCommandChoicesWrapper);
+
+                    // corner commands
+                    validateAndAdd(RALLY_LEFT, stageNoteCommandChoicesWrapper);
+                    validateAndAdd(RALLY_RIGHT, stageNoteCommandChoicesWrapper);
+                    validateAndAdd(RALLY_1, stageNoteCommandChoicesWrapper);
+                    validateAndAdd(RALLY_2, stageNoteCommandChoicesWrapper);
+                    validateAndAdd(RALLY_3, stageNoteCommandChoicesWrapper);
+                    validateAndAdd(RALLY_4, stageNoteCommandChoicesWrapper);
+                    validateAndAdd(RALLY_5, stageNoteCommandChoicesWrapper);
+                    validateAndAdd(RALLY_6, stageNoteCommandChoicesWrapper);
+                    validateAndAdd(RALLY_SQUARE, stageNoteCommandChoicesWrapper);
+                    validateAndAdd(RALLY_HAIRPIN, stageNoteCommandChoicesWrapper);
+                    validateAndAdd(RALLY_FLAT, stageNoteCommandChoicesWrapper);
+
+                    // obstacle commands
+                    ChoicesWrapper obstacleChoicesWrapper = SREWrapperFactory.createNewChoicesWrapper();
+                    foreach (string[] command in SpeechRecogniser.RallyObstacleCommands)
+                    {
+                        validateAndAdd(command, stageNoteCommandChoicesWrapper);
+                    }
+
+                    // distance correction commands
+                    validateAndAdd(RALLY_EARLIER, stageNoteCommandChoicesWrapper);
+                    validateAndAdd(RALLY_LATER, stageNoteCommandChoicesWrapper);
+
+                    // now assemble the choices
+                    GrammarBuilderWrapper obstaclesAndCornersRallyGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper();
+                    obstaclesAndCornersRallyGrammarBuilder.SetCulture(cultureInfo);
+                    obstaclesAndCornersRallyGrammarBuilder.Append(correctionChoicesWrapper, 0, 1);          // separate grammar for optional 'correction' - maybe add 'insert' to this
+                    obstaclesAndCornersRallyGrammarBuilder.Append(stageNoteCommandChoicesWrapper, 0, 8);    // between 0 and 8 matches for any word in any order
+
+                    GrammarWrapper obstaclesAndCornersRallyGrammar = SREWrapperFactory.createNewGrammarWrapper(obstaclesAndCornersRallyGrammarBuilder);
+                    rallyGrammarList.Add(obstaclesAndCornersRallyGrammar);
+                    sreWrapper.LoadGrammar(obstaclesAndCornersRallyGrammar);
+                }
             }
             catch (Exception e)
             {
@@ -1584,21 +1893,7 @@ namespace CrewChiefV4
             }
         }
 
-        List<string> getCornerCorrectionPhrases(string direction, string[] cornerNames)
-        {
-            List<string> phrases = new List<string>();
-            if (direction != "")
-            {
-                direction = direction + " ";
-            }
-            foreach (string name in cornerNames)
-            {
-                phrases.Add(RALLY_CORRECTION + " " + direction + name);
-            }
-            return phrases;
-        }
-
-        public void addR3ESpeechRecogniser()
+        private void addR3ESpeechRecogniser()
         {
             if (!initialised)
             {
@@ -1606,10 +1901,6 @@ namespace CrewChiefV4
             }
             try
             {
-                iracingPitstopGrammarList.Clear();
-                r3ePitstopGrammarList.Clear();
-                rallyGrammarList.Clear();
-                pitManagerGrammarList.Clear();
                 ChoicesWrapper r3eChoices = SREWrapperFactory.createNewChoicesWrapper();
                 validateAndAdd(PIT_STOP_CHANGE_ALL_TYRES, r3eChoices);
                 validateAndAdd(PIT_STOP_CHANGE_FRONT_TYRES, r3eChoices);
@@ -1645,66 +1936,7 @@ namespace CrewChiefV4
             }
         }
 
-        public void unloadAdditionalGrammars()
-        {
-            foreach (GrammarWrapper iracingGrammar in iracingPitstopGrammarList)
-            {
-                try
-                {
-                    sreWrapper.UnloadGrammar(iracingGrammar);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Failed to unload iRacing grammar: " + e.Message);
-                }
-            }
-            foreach (GrammarWrapper r3eGrammar in r3ePitstopGrammarList)
-            {
-                try
-                {
-                    sreWrapper.UnloadGrammar(r3eGrammar);
-                }
-                catch (Exception e)
-                {
-                    // ignore - we might be switching between games here
-                }
-            }
-            foreach (GrammarWrapper chartGrammar in overlayGrammarList)
-            {
-                try
-                {
-                    sreWrapper.UnloadGrammar(chartGrammar);
-                }
-                catch (Exception e)
-                {
-                    // ignore - we might be switching between games here
-                }
-            }
-            foreach (GrammarWrapper rallyGrammar in rallyGrammarList)
-            {
-                try
-                {
-                    sreWrapper.UnloadGrammar(rallyGrammar);
-                }
-                catch (Exception e)
-                {
-                    // ignore - we might be switching between games here
-                }
-            }
-            foreach (GrammarWrapper PitManagerGrammar in pitManagerGrammarList)
-            {
-                try
-                {
-                    sreWrapper.UnloadGrammar(PitManagerGrammar);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Failed to unload PitManager grammar: " + e.Message);
-                }
-            }
-        }
-
-        public void addiRacingSpeechRecogniser()
+        private void addiRacingSpeechRecogniser()
         {
             if (!initialised)
             {
@@ -1712,10 +1944,6 @@ namespace CrewChiefV4
             }
             try
             {
-                r3ePitstopGrammarList.Clear();
-                iracingPitstopGrammarList.Clear();
-                rallyGrammarList.Clear();
-                pitManagerGrammarList.Clear();
                 ChoicesWrapper iRacingChoices = SREWrapperFactory.createNewChoicesWrapper();
                 if (enable_iracing_pit_stop_commands)
                 {
@@ -1779,7 +2007,8 @@ namespace CrewChiefV4
                 Console.WriteLine("Unable to add iRacing pit stop commands to speech recognition engine - " + e.Message);
             }
         }
-        public void addPitManagerSpeechRecogniser()
+
+        private void addPitManagerSpeechRecogniser()
         {
             if (!initialised || !UserSettings.GetUserSettings().getBoolean("rf2_enable_pit_manager"))
             {
@@ -1787,9 +2016,6 @@ namespace CrewChiefV4
             }
             try
             {
-                iracingPitstopGrammarList.Clear();
-                r3ePitstopGrammarList.Clear();
-                pitManagerGrammarList.Clear();
                 ChoicesWrapper pitManagerChoices = SREWrapperFactory.createNewChoicesWrapper();
                 List<string> tyrePressureChangePhrases = new List<string>();
                 if (disable_alternative_voice_commands)
@@ -1908,6 +2134,54 @@ namespace CrewChiefV4
             return false;
         }
 
+        public static Boolean ResultStartsWith(String result, String[] alternatives, Boolean logMatch = true)
+        {
+            result = result.ToLower().Trim();
+            foreach (String alternative in alternatives)
+            {
+                String alternativeLower = alternative.ToLower();
+                if (result.StartsWith(alternativeLower))
+                {
+                    if (logMatch)
+                    {
+                        Console.WriteLine("matching partial response " + alternativeLower);
+                    }
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static Tuple<string, int> GetResultMatchWithStartIndex(String result, String[] alternatives, Boolean logMatch = true)
+        {
+            result = result.ToLower();
+            foreach (String alternative in alternatives)
+            {
+                if (result == alternative.ToLower())
+                {
+                    if (logMatch)
+                    {
+                        Console.WriteLine("Matching entire response: \"" + alternative + "\"");
+                    }
+                    return new Tuple<string, int> (result, 0);
+                }
+            }
+            // no result with == so try contains
+            foreach (String alternative in alternatives)
+            {
+                String alternativeLower = alternative.ToLower();
+                if (result.Contains(alternativeLower))
+                {
+                    if (logMatch)
+                    {
+                        Console.WriteLine("matching partial response " + alternativeLower);
+                    }
+                    return new Tuple<string, int>(alternativeLower, result.IndexOf(alternativeLower));
+                }
+            }
+            return new Tuple<string, int>("", -1);
+        }
+
         private Boolean switchFromRegularToTriggerRecogniser()
         {
             if (!initialised)
@@ -1995,6 +2269,7 @@ namespace CrewChiefV4
                 ThreadManager.RegisterRootThread(startListingBeepThread);
 
                 startListingBeepThread.Start();
+                SpeechRecogniser.distanceWhenVoiceCommandStarted = CrewChief.currentGameState == null ? 0 : CrewChief.currentGameState.PositionAndMotionData.DistanceRoundTrack;
             }
             else
             {
@@ -2094,8 +2369,15 @@ namespace CrewChiefV4
             object recognitionGrammar = SREWrapperFactory.GetCallbackGrammar(e);
             string recogniserName = SREWrapperFactory.useSystem ? "System recogniser" : "Microsoft recogniser";
             Console.WriteLine(recogniserName + " recognised : \"" + recognisedText + "\", Confidence = " + recognitionConfidence.ToString("0.000"));
-            float confidenceThreshold = SREWrapperFactory.useSystem ? minimum_voice_recognition_confidence_windows : minimum_voice_recognition_confidence_microsoft;
             float confidenceNamesThreshold = SREWrapperFactory.useSystem ? minimum_name_voice_recognition_confidence_windows : minimum_name_voice_recognition_confidence_microsoft;
+            float confidenceCircuitThreshold = SREWrapperFactory.useSystem ? minimum_voice_recognition_confidence_windows : minimum_voice_recognition_confidence_microsoft;
+            float confidenceRallyThreshold = SREWrapperFactory.useSystem ? minimum_rally_voice_recognition_confidence_windows : minimum_rally_voice_recognition_confidence_microsoft;
+
+            float confidenceThreshold = CrewChief.gameDefinition.racingType == CrewChief.RacingType.Rally ? confidenceRallyThreshold : confidenceCircuitThreshold;
+
+            bool useDictationGrammarForRally = false;   // this really doesn't work well. Perhaps it'll be reinstated at some point
+            float confidenceRallyDictationThreshold = 0.3f;
+
             try
             {
                 // special case when we're waiting for a message after a heavy crash:
@@ -2135,6 +2417,20 @@ namespace CrewChiefV4
                         else
                         {
                             Console.WriteLine("Chat message doesn't appear to start with context " + chatContextStart + " so will not be executed");
+                            crewChief.youWot(true);
+                            youWot = true;
+                        }
+                    }
+                    else if (CrewChief.gameDefinition.racingType == CrewChief.RacingType.Rally && GrammarWrapperListContains(rallyGrammarList, recognitionGrammar))
+                    {
+                        if (recognitionConfidence > confidenceRallyThreshold)
+                        {
+                            this.lastRecognisedText = recognisedText;
+                            CrewChief.getEvent("CoDriver").respond(recognisedText);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Confidence " + recognitionConfidence.ToString("0.000") + " is below the minimum threshold of " + confidenceRallyThreshold.ToString("0.000"));
                             crewChief.youWot(true);
                             youWot = true;
                         }
@@ -2197,14 +2493,17 @@ namespace CrewChiefV4
                             this.lastRecognisedText = recognisedText;
                             CrewChief.getEvent("OverlayController").respond(recognisedText);
                         }
-                        else if (GrammarWrapperListContains(rallyGrammarList, recognitionGrammar))
-                        {
-                            this.lastRecognisedText = recognisedText;
-                            CrewChief.getEvent("CoDriver").respond(recognisedText);
-                        }
                         else if (ResultContains(recognisedText, REPEAT_LAST_MESSAGE, false))
                         {
-                            crewChief.audioPlayer.repeatLastMessage();
+                            // in rally mode, repeat-last-message needs to replay all the last command batch so send this to the CoDriver event
+                            if (CrewChief.gameDefinition.racingType == CrewChief.RacingType.Rally)
+                            {
+                                CrewChief.getEvent("CoDriver").respond(recognisedText);
+                            }
+                            else
+                            {
+                                crewChief.audioPlayer.repeatLastMessage();
+                            }
                         }
                         else if (ResultContains(recognisedText, MORE_INFO, false) && this.lastRecognisedText != null && !use_verbose_responses)
                         {
@@ -2229,17 +2528,17 @@ namespace CrewChiefV4
                                 }
                             }
                         }
-                        /*if (buttonAssignments.Count > 0)
-                        {
-                            foreach (var buttonAssignment in buttonAssignments)
-                            {
-                                if(ResultContains(e.Result.Text, buttonAssignment.action, false))
-                                {
-                                    this.lastRecognisedText = e.Result.Text;
-                                    CrewChief.getEvent(buttonAssignment.eventName).respond(e.Result.Text);
-                                }
-                            }
-                        }*/
+                    }
+                    else if (CrewChief.gameDefinition.racingType == CrewChief.RacingType.Rally
+                       && SREWrapperFactory.useSystem
+                       && useDictationGrammarForRally
+                       && recognitionConfidence > confidenceRallyDictationThreshold)
+                    {
+                        // note that cases where the confidence is high for a free dictation rally grammar match, we'll have already
+                        // invoked the CoDriver Respond call - this check is for cases where confidence is below the 'proper' threshold
+                        // but above the (lower) rally free dictation threshold
+                        this.lastRecognisedText = recognisedText;
+                        CrewChief.getEvent("CoDriver").respond(recognisedText);
                     }
                     else
                     {
@@ -2629,6 +2928,12 @@ namespace CrewChiefV4
                 ControllerConfiguration.builtInActionMappings.ContainsValue(recognisedSpeech))
             {
                 return CrewChief.getEvent("CommonActions");
+            }
+            else if (ResultContains(recognisedSpeech, new string[] { CoDriver.TOGGLE_RALLY_RECCE_MODE }, false) ||
+                ResultContains(recognisedSpeech, RALLY_START_RECORDING_STAGE_NOTES, false) ||
+                ResultContains(recognisedSpeech, RALLY_FINISH_RECORDING_STAGE_NOTES, false))
+            {
+                return CrewChief.getEvent("CoDriver");
             }
             else if (ResultContains(recognisedSpeech, HOWS_MY_AERO, false) ||
                ResultContains(recognisedSpeech, HOWS_MY_TRANSMISSION, false) ||

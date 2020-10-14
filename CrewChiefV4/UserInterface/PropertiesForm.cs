@@ -267,14 +267,17 @@ namespace CrewChiefV4
                     foreach (var game in MainWindow.instance.gameDefinitionList.Items)
                     {
                         var friendlyGameName = game.ToString();
-                        this.filterBox.Items.Add(new ComboBoxItem<GameEnum>()
+                        if (friendlyGameName != GameDefinition.none.friendlyName)
                         {
-                            Label = friendlyGameName,
-                            Value = GameDefinition.getGameDefinitionForFriendlyName(friendlyGameName).gameEnum
-                        });
+                            this.filterBox.Items.Add(new ComboBoxItem<GameEnum>()
+                            {
+                                Label = friendlyGameName,
+                                Value = GameDefinition.getGameDefinitionForFriendlyName(friendlyGameName).gameEnum
+                            });
 
-                        if (friendlyGameName == currSelectedGameFriendlyName)
-                            this.filterBox.SelectedIndex = this.filterBox.Items.Count - 1;
+                            if (friendlyGameName == currSelectedGameFriendlyName)
+                                this.filterBox.SelectedIndex = this.filterBox.Items.Count - 1;
+                        }
                     }
                 }
             }

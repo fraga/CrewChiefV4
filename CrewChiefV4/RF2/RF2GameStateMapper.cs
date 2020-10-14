@@ -255,12 +255,6 @@ namespace CrewChiefV4.rFactor2
         private Int64 lastSessionEndTicks = -1;
         private bool lastInRealTimeState = false;
 
-        public override void setSpeechRecogniser(SpeechRecogniser speechRecogniser)
-        {
-            speechRecogniser.addPitManagerSpeechRecogniser();
-            this.speechRecogniser = speechRecogniser;
-        }
-
         private void ClearState()
         {
             this.lastPlayerTelemetryET = -1.0;

@@ -244,12 +244,6 @@ namespace CrewChiefV4.GTR2
         private int lastGameSession = -1;
         private bool lastInRealTimeState = false;
 
-        public override void setSpeechRecogniser(SpeechRecogniser speechRecogniser)
-        {
-            speechRecogniser.addPitManagerSpeechRecogniser();
-            this.speechRecogniser = speechRecogniser;
-        }
-
         private void ClearState()
         {
             this.lastScoringET = -1.0;

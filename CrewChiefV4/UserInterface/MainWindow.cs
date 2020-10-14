@@ -135,6 +135,7 @@ namespace CrewChiefV4
         public static bool autoScrollConsole = true;
         private Thread youWotThread = null;
         private Thread assignButtonThread = null;
+        private Thread loadSREGrammarThread = null;
         public bool formClosed = false;
 
         public static bool soundTestMode = false;
@@ -174,6 +175,7 @@ namespace CrewChiefV4
         private DeviceManager deviceManager = null;
         private Direct3D11CaptureSource captureSource = null;
         private Thread vrUpdateThread = null;
+
         public void killChief()
         {
             crewChief.stop();
@@ -325,7 +327,6 @@ namespace CrewChiefV4
             {
                 var checkForUpdatesThread = new Thread(() =>
                 {
-
                     try
                     {
                         Console.WriteLine("Checking for updates");
@@ -420,6 +421,7 @@ namespace CrewChiefV4
                             else if (SoundPackVersionsHelper.latestSoundPackVersion > SoundPackVersionsHelper.currentSoundPackVersion &&
                                 SoundPackVersionsHelper.voiceMessageUpdatePacks.Count > 0)
                             {
+                                int soundPackVersionsBehind = (int) (SoundPackVersionsHelper.latestSoundPackVersion - SoundPackVersionsHelper.currentSoundPackVersion);
                                 SoundPackVersionsHelper.SoundPackData soundPackUpdateData = SoundPackVersionsHelper.voiceMessageUpdatePacks[0];
                                 foreach (SoundPackVersionsHelper.SoundPackData soundPack in SoundPackVersionsHelper.voiceMessageUpdatePacks)
                                 {
@@ -437,8 +439,21 @@ namespace CrewChiefV4
                                 {
                                     Console.WriteLine("Current sound pack version " + SoundPackVersionsHelper.currentSoundPackVersion + " is out of date, next update is " + soundPackUpdateData.url);
                                     willNeedAnotherSoundPackDownload = soundPackUpdateData.willRequireAnotherUpdate;
-                                    downloadSoundPackButton.Text = Configuration.getUIString(SoundPackVersionsHelper.latestSoundPackVersion == -1 ?
-                                        "no_sound_pack_detected_press_to_download" : "updated_sound_pack_available_press_to_download");
+                                    string buttonText;
+                                    if (SoundPackVersionsHelper.latestSoundPackVersion == -1)
+                                    {
+                                        buttonText = Configuration.getUIString("no_sound_pack_detected_press_to_download");
+                                    }
+                                    else if (soundPackVersionsBehind > 1)
+                                    {
+                                        buttonText = Configuration.getUIString("updated_sound_pack_available_press_to_download") + " (" + soundPackVersionsBehind + " " +
+                                            Configuration.getUIString("incremental_updates_count") + ")";
+                                    }
+                                    else
+                                    {
+                                        buttonText = Configuration.getUIString("updated_sound_pack_available_press_to_download");
+                                    }
+                                    downloadSoundPackButton.Text = buttonText;
                                     if (!IsAppRunning)
                                     {
                                         downloadSoundPackButton.Enabled = true;
@@ -458,6 +473,7 @@ namespace CrewChiefV4
                             else if (SoundPackVersionsHelper.latestPersonalisationsVersion > SoundPackVersionsHelper.currentPersonalisationsVersion &&
                                 SoundPackVersionsHelper.personalisationUpdatePacks.Count > 0)
                             {
+                                int personalisationsVersionsBehind = (int)(SoundPackVersionsHelper.latestPersonalisationsVersion - SoundPackVersionsHelper.currentPersonalisationsVersion);
                                 SoundPackVersionsHelper.SoundPackData personalisationPackUpdateData = SoundPackVersionsHelper.personalisationUpdatePacks[0];
                                 foreach (SoundPackVersionsHelper.SoundPackData personalisationPack in SoundPackVersionsHelper.personalisationUpdatePacks)
                                 {
@@ -475,8 +491,21 @@ namespace CrewChiefV4
                                 {
                                     Console.WriteLine("Current personalisations pack version " + SoundPackVersionsHelper.currentPersonalisationsVersion + " is out of date, next update is " + personalisationPackUpdateData.url);
                                     willNeedAnotherPersonalisationsDownload = personalisationPackUpdateData.willRequireAnotherUpdate;
-                                    downloadPersonalisationsButton.Text = Configuration.getUIString(SoundPackVersionsHelper.latestPersonalisationsVersion == -1 ?
-                                        "no_personalisations_detected_press_to_download" : "updated_personalisations_available_press_to_download");
+                                    string buttonText;
+                                    if (SoundPackVersionsHelper.latestPersonalisationsVersion == -1)
+                                    {
+                                        buttonText = Configuration.getUIString("no_personalisations_detected_press_to_download");
+                                    }
+                                    else if (personalisationsVersionsBehind > 1)
+                                    {
+                                        buttonText = Configuration.getUIString("updated_personalisations_available_press_to_download") + " (" + personalisationsVersionsBehind + " " +
+                                            Configuration.getUIString("incremental_updates_count") + ")";
+                                    }
+                                    else
+                                    {
+                                        buttonText = Configuration.getUIString("updated_personalisations_available_press_to_download");
+                                    }
+                                    downloadPersonalisationsButton.Text = buttonText;
                                     if (!IsAppRunning)
                                     {
                                         downloadPersonalisationsButton.Enabled = true;
@@ -496,6 +525,7 @@ namespace CrewChiefV4
                             else if (SoundPackVersionsHelper.latestDriverNamesVersion > SoundPackVersionsHelper.currentDriverNamesVersion &&
                                 SoundPackVersionsHelper.drivernamesUpdatePacks.Count > 0)
                             {
+                                int driverNamesVersionsBehind = (int)(SoundPackVersionsHelper.latestDriverNamesVersion - SoundPackVersionsHelper.currentDriverNamesVersion);
                                 SoundPackVersionsHelper.SoundPackData drivernamesPackUpdateData = SoundPackVersionsHelper.drivernamesUpdatePacks[0];
                                 foreach (SoundPackVersionsHelper.SoundPackData drivernamesPack in SoundPackVersionsHelper.drivernamesUpdatePacks)
                                 {
@@ -513,8 +543,21 @@ namespace CrewChiefV4
                                 {
                                     Console.WriteLine("Current driver names pack version " + SoundPackVersionsHelper.currentDriverNamesVersion + " is out of date, next update is " + drivernamesPackUpdateData.url);
                                     willNeedAnotherDrivernamesDownload = drivernamesPackUpdateData.willRequireAnotherUpdate;
-                                    downloadDriverNamesButton.Text = Configuration.getUIString(SoundPackVersionsHelper.latestDriverNamesVersion == -1 ?
-                                        "no_driver_names_detected_press_to_download" : "updated_driver_names_available_press_to_download");
+                                    string buttonText;
+                                    if (SoundPackVersionsHelper.latestDriverNamesVersion == -1)
+                                    {
+                                        buttonText = Configuration.getUIString("no_driver_names_detected_press_to_download");
+                                    }
+                                    else if (driverNamesVersionsBehind > 1)
+                                    {
+                                        buttonText = Configuration.getUIString("updated_driver_names_available_press_to_download") + " (" + driverNamesVersionsBehind + " " +
+                                            Configuration.getUIString("incremental_updates_count") + ")";
+                                    }
+                                    else
+                                    {
+                                        buttonText = Configuration.getUIString("updated_driver_names_available_press_to_download");
+                                    }
+                                    downloadDriverNamesButton.Text = buttonText;
                                     if (!IsAppRunning)
                                     {
                                         downloadDriverNamesButton.Enabled = true;
@@ -902,7 +945,27 @@ namespace CrewChiefV4
                         setFromCommandLine = true;
                         break;
                     }
-
+                    else if (arg.Equals("DIRT", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        Console.WriteLine("Set DIRT mode from command line");
+                        this.gameDefinitionList.Text = GameDefinition.dirt.friendlyName;
+                        setFromCommandLine = true;
+                        break;
+                    }
+                    else if (arg.Equals("DIRT_2", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        Console.WriteLine("Set DIRT 2 mode from command line");
+                        this.gameDefinitionList.Text = GameDefinition.dirt2.friendlyName;
+                        setFromCommandLine = true;
+                        break;
+                    }
+                    else if (arg.Equals("NONE", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        Console.WriteLine("Set None mode from command line");
+                        this.gameDefinitionList.Text = GameDefinition.none.friendlyName;
+                        setFromCommandLine = true;
+                        break;
+                    }
                 }
             }
             if (!setFromCommandLine)
@@ -2177,6 +2240,70 @@ namespace CrewChiefV4
             this.scanControllers.Enabled = true;
         }
 
+        private void loadSREGrammarAndStartListening()
+        {
+            bool loadedCommands = false;
+            try
+            {
+                crewChief.speechRecogniser.loadSRECommands();
+                loadedCommands = true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Failed to load voice commands into speech recogniser: " + e.Message);
+            }
+            try
+            {
+                crewChief.speechRecogniser.loadMacroVoiceTriggers(MacroManager.voiceTriggeredMacros);
+                loadedCommands = true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Failed to load command macros into speech recogniser: " + e.Message);
+            }
+
+            // once the grammars are loaded successfully, we can start listening for commands
+            // post this back to the main thread so we're kicking off the button listener from our root thread
+            // and running always-on SRE on the root thread
+            if (loadedCommands)
+            {
+                this.Invoke((MethodInvoker)delegate
+                {
+                    runListenForChannelOpenThread = controllerConfiguration.listenForChannelOpen()
+                                && voiceOption == VoiceOptionEnum.HOLD && crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised;
+                    if (runListenForChannelOpenThread && voiceOption == VoiceOptionEnum.HOLD && crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised)
+                    {
+                        Console.WriteLine("Listening on default audio input device");
+                        ThreadStart channelOpenButtonListenerWork = listenForChannelOpen;
+                        Thread channelOpenButtonListenerThread = new Thread(channelOpenButtonListenerWork);
+
+                        channelOpenButtonListenerThread.Name = "MainWindow.listenForChannelOpen";
+                        ThreadManager.RegisterRootThread(channelOpenButtonListenerThread);
+
+                        channelOpenButtonListenerThread.Start();
+                    }
+                    else if ((voiceOption == VoiceOptionEnum.ALWAYS_ON || voiceOption == VoiceOptionEnum.TRIGGER_WORD) &&
+                        crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised)
+                    {
+                        Console.WriteLine("Running speech recognition in 'always on' mode");
+                        crewChief.speechRecogniser.voiceOptionEnum = voiceOption;
+                        crewChief.speechRecogniser.startContinuousListening();
+                    }
+                    if (runListenForButtonPressesThread)
+                    {
+                        Console.WriteLine("Listening for buttons");
+                        ThreadStart buttonPressesListenerWork = listenForButtons;
+                        Thread buttonPressesListenerThread = new Thread(buttonPressesListenerWork);
+
+                        buttonPressesListenerThread.Name = "MainWindow.listenForButtons";
+                        ThreadManager.RegisterRootThread(buttonPressesListenerThread);
+
+                        buttonPressesListenerThread.Start();
+                    }
+                });
+            }
+        }
+
         private void doStartAppStuff()
         {
             IsAppRunning = !IsAppRunning;
@@ -2223,38 +2350,16 @@ namespace CrewChiefV4
 
                     crewChief.onRestart();
                     crewChiefThread.Start();
-                    runListenForChannelOpenThread = controllerConfiguration.listenForChannelOpen()
-                        && voiceOption == VoiceOptionEnum.HOLD && crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised;
-                    if (runListenForChannelOpenThread && voiceOption == VoiceOptionEnum.HOLD && crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised)
+
+                    if (crewChief.speechRecogniser != null)
                     {
-                        Console.WriteLine("Listening on default audio input device");
-                        ThreadStart channelOpenButtonListenerWork = listenForChannelOpen;
-                        Thread channelOpenButtonListenerThread = new Thread(channelOpenButtonListenerWork);
-
-                        channelOpenButtonListenerThread.Name = "MainWindow.listenForChannelOpen";
-                        ThreadManager.RegisterRootThread(channelOpenButtonListenerThread);
-
-                        channelOpenButtonListenerThread.Start();
+                        ThreadStart loadSREGrammarWork = loadSREGrammarAndStartListening;
+                        ThreadManager.UnregisterTemporaryThread(loadSREGrammarThread);
+                        loadSREGrammarThread = new Thread(loadSREGrammarWork);
+                        loadSREGrammarThread.Name = "MainWindow.loadSREGrammarThread";
+                        ThreadManager.RegisterTemporaryThread(loadSREGrammarThread);
+                        loadSREGrammarThread.Start();
                     }
-                    else if ((voiceOption == VoiceOptionEnum.ALWAYS_ON || voiceOption == VoiceOptionEnum.TRIGGER_WORD) &&
-                        crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised)
-                    {
-                        Console.WriteLine("Running speech recognition in 'always on' mode");
-                        crewChief.speechRecogniser.voiceOptionEnum = voiceOption;
-                        crewChief.speechRecogniser.startContinuousListening();
-                    }
-                    if (runListenForButtonPressesThread)
-                    {
-                        Console.WriteLine("Listening for buttons");
-                        ThreadStart buttonPressesListenerWork = listenForButtons;
-                        Thread buttonPressesListenerThread = new Thread(buttonPressesListenerWork);
-
-                        buttonPressesListenerThread.Name = "MainWindow.listenForButtons";
-                        ThreadManager.RegisterRootThread(buttonPressesListenerThread);
-
-                        buttonPressesListenerThread.Start();
-                    }
-
                 }
                 else
                 {

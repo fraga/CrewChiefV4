@@ -9,10 +9,11 @@ namespace CrewChiefV4.Audio
 {
     class SoundPackVersionsHelper
     {
+        // these really should be integers...
         public static float currentSoundPackVersion = -1;
         public static float currentDriverNamesVersion = -1;
         public static float currentPersonalisationsVersion = -1;
-
+        
         public static float latestSoundPackVersion = -1;
         public static float latestDriverNamesVersion = -1;
         public static float latestPersonalisationsVersion = -1;

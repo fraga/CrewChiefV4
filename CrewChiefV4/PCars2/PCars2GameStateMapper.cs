@@ -197,6 +197,10 @@ namespace CrewChiefV4.PCars2
             }
 
             int playerIndex = getPlayerIndex(shared);
+            if (playerIndex == -1 || playerIndex >= shared.mParticipantData.Length)
+            {
+                return previousGameState;
+            }
             pCars2APIParticipantStruct playerData = shared.mParticipantData[playerIndex];
 
             String playerName = StructHelper.getNameFromBytes(shared.mParticipantData[playerIndex].mName);

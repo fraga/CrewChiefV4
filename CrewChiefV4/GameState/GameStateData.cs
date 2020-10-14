@@ -1,5 +1,6 @@
 ﻿using CrewChiefV4.Audio;
 using CrewChiefV4.Events;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -3642,9 +3643,23 @@ namespace CrewChiefV4.GameState
     public class CoDriverPacenote
     {
         public float Distance = -1.0f;
+
+        // corrected distance is used when a correction is made to move a note earlier or later
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public float? CorrectedDistance = null;
+
         public CoDriver.PacenoteType Pacenote = CoDriver.PacenoteType.unknown;
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public object Options = null;
         public CoDriver.PacenoteModifier Modifier = CoDriver.PacenoteModifier.none;
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string RawVoiceCommand = null;
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string UnprocessedVoiceCommandText = null;
+        public override string ToString()
+        {
+            return Pacenote.ToString() + ": " + Modifier.ToString() + " at " + Distance;
+        }
     }
 
     public class GameStateData
@@ -4680,6 +4695,7 @@ namespace CrewChiefV4.GameState
                 _CoDriverPacenotes = value;
             }
         }
+        public bool UseCrewchiefPaceNotes = false;
     
     }
 }

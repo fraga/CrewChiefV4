@@ -24,12 +24,6 @@ namespace CrewChiefV4.iRacing
             // no version number in iRacing shared data so this is a no-op
         }
 
-        public override void setSpeechRecogniser(SpeechRecogniser speechRecogniser)
-        {
-            speechRecogniser.addiRacingSpeechRecogniser();
-            this.speechRecogniser = speechRecogniser;
-        }
-
         Dictionary<string, DateTime> lastActiveTimeForOpponents = new Dictionary<string, DateTime>();
         DateTime nextOpponentCleanupTime = DateTime.MinValue;
         TimeSpan opponentCleanupInterval = TimeSpan.FromSeconds(3);

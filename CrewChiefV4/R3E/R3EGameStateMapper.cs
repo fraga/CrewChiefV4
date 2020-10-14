@@ -139,12 +139,6 @@ namespace CrewChiefV4.RaceRoom
             // no version number in r3e shared data so this is a no-op
         }
 
-        public override void setSpeechRecogniser(SpeechRecogniser speechRecogniser)
-        {
-            speechRecogniser.addR3ESpeechRecogniser();
-            this.speechRecogniser = speechRecogniser;
-        }
-
         public override GameStateData mapToGameStateData(Object memoryMappedFileStruct, GameStateData previousGameState)
         {
             CrewChiefV4.RaceRoom.R3ESharedMemoryReader.R3EStructWrapper wrapper = (CrewChiefV4.RaceRoom.R3ESharedMemoryReader.R3EStructWrapper)memoryMappedFileStruct;
@@ -691,6 +685,8 @@ namespace CrewChiefV4.RaceRoom
                 currentGameState.SessionData.LeaderSectorNumber = currentGameState.SessionData.SectorNumber;
             }
 
+            currentGameState.SessionData.CurrentIncidentCount = shared.IncidentPoints; ;
+
             foreach (DriverData participantStruct in shared.DriverData)
             {
                 if (participantStruct.DriverInfo.SlotId == shared.VehicleInfo.SlotId)
@@ -791,13 +787,6 @@ namespace CrewChiefV4.RaceRoom
                             participantStruct.LapDistance, shared.CarSpeed, currentGameState.carClass);
                         currentGameState.SessionData.stoppedInLandmark = participantStruct.InPitlane == 1 ? null : stoppedInLandmark;
                     }
-
-                    int pointsFromVehInfo = shared.VehicleInfo.IncidentPoints;
-                    int pointsFromDriverArray = participantStruct.DriverInfo.IncidentPoints;
-                    // not sure which of these is actually set. Originally only the one in the driverData array was set but now these
-                    // values have been removed for opponents, perhaps the player's has been removed too and the one in VehicleInfo is set.
-                    // Either way, we won't know until the patch is released so pick the one that looks 'set'
-                    currentGameState.SessionData.CurrentIncidentCount = Math.Max(pointsFromDriverArray, pointsFromVehInfo);
                     break;
                 }
             }

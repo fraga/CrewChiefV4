@@ -1,7 +1,7 @@
 # this is a comment - any blank line or line starting with # is ignored
 
 # This file contains default user interface text Strings, ***** and will be overwritten when the app is updated *****.
-# The text in here can be overridden by creating another file called "ui_text.txt" and placing this in 
+# The text in here can be overridden by creating another file called "ui_text.txt" and placing this in
 # [user]/AppData/local/CrewChiefV4/
 #
 # Any text set in that file will replace the corresponding default here
@@ -26,6 +26,7 @@ personalisations_are_up_to_date = Personalisations are up to date
 stop = &Stop
 stop_and_save = &Stop and Save trace
 start_application = &Start application
+incremental_updates_count = updates to apply
 
 pcars_64_bit = pCARS (64 bit)
 pcars_32_bit = pCARS (32 bit)
@@ -52,6 +53,9 @@ f1_2019 = F1 2019 (spotter only)
 f1_2020 = F1 2020 (spotter only)
 rbr = Richard Burns Rally
 gtr2 = GTR 2
+dirt = Dirt Rally
+dirt2 = Dirt Rally 2
+unsupported_game = None (unsupported game)
 please_choose_a_game_option = Please choose a game option
 no_game_selected = No game selected
 
@@ -130,6 +134,7 @@ get_status = Report car, damage and session status
 get_car_status = Report car status and damage
 get_session_status = Report session status
 get_damage_report = Report car damage
+toggle_rally_recce_mode = Toggle stage recce mode (rally only)
 
 custom_device = custom device
 assigned_to = assigned to
@@ -170,7 +175,7 @@ personalisation_tooltip = Choose a name you'd like Chief to call you (requires r
 
 install_plugin_popup_text = Crew Chief needs additional files to be installed or updated for the selected game. Click OK to install or Cancel to Return
 install_plugin_popup_title = Plugin Needed
-install_plugin_select_directory_start = Please select 
+install_plugin_select_directory_start = Please select
 install_plugin_select_directory_end = installation directory
 install_plugin_popup_enable_text = Crew Chief can automatically enable the plugin for you, if you select Cancel you will have to enable it manually in the game ui. Click OK to enable or Cancel to Return
 install_plugin_popup_enable_title = Enable Plugin
@@ -289,7 +294,7 @@ keypress_time = Key hold down time
 keypress_wait_time = Time between key presses
 add_action_to_sequence = Add action to sequence
 add_key_to_sequence = Add action to sequence
-add_action_sequence = Save sequence to macro for 
+add_action_sequence = Save sequence to macro for
 load_user_macro_settings = Load user macros file
 load_default_macro_settings = Load default macros file
 macro_please_download_soundpack = Please download sound packs before adding confirmation message
@@ -309,7 +314,7 @@ undo_last_action = Undo last action
 actions_keys = Available keys
 must_select_a_key = You must select a key from the list of available keys
 special_action_text_cant_be_empty = must contain a value
-delete_selected_macro_confirmation = Are you sure you want to delete 
+delete_selected_macro_confirmation = Are you sure you want to delete
 delete_selected_macro_confirmation_title = Confirm delete
 must_select_a_macro = You must select a macro before trying to add a sequence
 action_sequence_cant_be_empty = You must add at least one action to Action sequence
@@ -352,11 +357,11 @@ vr_toggle_key = Toggle Key(s)
 #
 # In order to specify property filter, add entry [property_name]_filter = [filter].
 # If property has no filter attached, it is considered to be common property.
-# Filter can consist of semicolon separated GameEnum values.  Filter can be inclusive or exclusive.  Exclusive filter starts with '!'. 
+# Filter can consist of semicolon separated GameEnum values.  Filter can be inclusive or exclusive.  Exclusive filter starts with '!'.
 #
 # Examples:
 # To specify that property applies to rF2 and R3E (include filter):
-#	my_prop_filter = RF2_64BIT;RACE_ROOM  
+#	my_prop_filter = RF2_64BIT;RACE_ROOM
 #
 # To specify that property applies to all games but rF1 and AC (exclude filter):
 #	my_prop_filter = !RF1;ASSETTO_64BIT;ASSETTO_32BIT
@@ -832,6 +837,28 @@ gtr2_launch_exe_filter = GTR2
 gtr2_launch_exe_category = UI_STARTUP_AND_PATHS
 gtr2r_launch_exe_metadata = RESTART_REQUIRED
 
+dirt_launch_exe = Dirt Rally launch exe
+dirt_launch_exe_help = This is the location of Steam.exe or the direct path to dirtrally.exe. Use forward slashes to separate paths.
+dirt_launch_exe_filter = DIRT
+dirt_launch_exe_category = UI_STARTUP_AND_PATHS
+dirt_launch_exe_metadata = RESTART_REQUIRED
+
+dirt_launch_params = Dirt Rally launch params
+dirt_launch_params_help = This is used to tell Steam what app to run - Dirt Rally's Steam app ID is 310560. If you specified a path dirtrally.exe you can leave this blank
+dirt_launch_params_filter = DIRT
+dirt_launch_params_category = UI_STARTUP_AND_PATHS
+
+dirt2_launch_exe = Dirt Rally 2 launch exe
+dirt2_launch_exe_help = This is the location of Steam.exe or the direct path to dirtrally2.exe. Use forward slashes to separate paths.
+dirt2_launch_exe_filter = DIRT_2
+dirt2_launch_exe_category = UI_STARTUP_AND_PATHS
+dirt2_launch_exe_metadata = RESTART_REQUIRED
+
+dirt2_launch_params = Dirt Rally 2 launch params
+dirt2_launch_params_help = This is used to tell Steam what app to run - Dirt Rally 2's Steam app ID is 690790. If you specified a path dirtrally.exe you can leave this blank
+dirt2_launch_params_filter = DIRT_2
+dirt2_launch_params_category = UI_STARTUP_AND_PATHS
+
 acc_launch_exe = ACC launch exe
 acc_launch_exe_help = This is the location of Steam.exe or the direct path to acc.exe. Use forward slashes to separate paths.
 acc_launch_exe_filter = ACC
@@ -931,6 +958,18 @@ launch_gtr2_help = If this is true the application will attempt to launch Richar
 launch_gtr2_filter = GTR2
 launch_gtr2_category = UI_STARTUP_AND_PATHS
 launch_gtr2_metadata = RESTART_REQUIRED
+
+launch_dirt = Launch Dirt Rally
+launch_dirt_help = If this is true the application will attempt to launch Dirt Rally when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
+launch_dirt_filter = DIRT
+launch_dirt_category = UI_STARTUP_AND_PATHS
+launch_dirt_metadata = RESTART_REQUIRED
+
+launch_dirt2 = Launch Dirt Rally 2
+launch_dirt2_help = If this is true the application will attempt to launch Dirt Rally 2 when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
+launch_dirt2_filter = DIRT_2
+launch_dirt2_category = UI_STARTUP_AND_PATHS
+launch_dirt2_metadata = RESTART_REQUIRED
 
 launch_gsc = Launch GSC
 launch_gsc_help = If this is true the application will attempt to launch Stock Car Extreme when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
@@ -1032,7 +1071,7 @@ launch_pcars2_filter = PCARS2
 launch_pcars2_category = UI_STARTUP_AND_PATHS
 launch_pcars2_metadata = RESTART_REQUIRED
 
-launch_pcars3 = Launch pCARS 
+launch_pcars3 = Launch pCARS
 launch_pcars3_help = If this is true the application will attempt to launch pCARS 3 when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
 launch_pcars3_filter = PCARS3
 launch_pcars3_category = UI_STARTUP_AND_PATHS
@@ -1641,7 +1680,7 @@ trigger_word_listen_timeout_category = AUDIO_VOICE_AND_CONTROLLERS
 trigger_word_listen_timeout_metadata = RESTART_REQUIRED
 
 enable_alarm_clock_voice_recognition = Enable alarm clock voice commands
-enable_alarm_clock_voice_recognition_help = Enable this if you want to use the alarm clock feature, this is disabled by default to limit the number of voice commands 
+enable_alarm_clock_voice_recognition_help = Enable this if you want to use the alarm clock feature, this is disabled by default to limit the number of voice commands
 enable_alarm_clock_voice_recognition_category = AUDIO_VOICE_AND_CONTROLLERS;TIMINGS
 
 alarm_clock_times = Alarm time(s)
@@ -1673,7 +1712,7 @@ persist_pitstop_benchmark_times_category = PIT_STOPS_AND_MULTICLASS
 persist_pitstop_benchmark_times_metadata = RESTART_REQUIRED
 
 controller_mappings_file_error_title = Error reading controller mappings
-controller_mappings_file_error_details_1 = Controller mapping file 
+controller_mappings_file_error_details_1 = Controller mapping file
 controller_mappings_file_error_details_2 = is invalid - no button mappings will be available. Error message from JSON parsers is:
 
 use_rf2_wheel_size_for_locking_and_spinning = Use rF2's real wheel size for lock/spin messages
@@ -1685,7 +1724,7 @@ enable_iracing_pit_state_during_fcy = Enable iRacing FCY pit state messages
 enable_iracing_pit_state_during_fcy_help = Announce pit state during Safety Car/Pace Car phase
 enable_iracing_pit_state_during_fcy_filter = IRACING
 enable_iracing_pit_state_during_fcy_category = FLAGS_AND_RULES;PIT_STOPS_AND_MULTICLASS
-		
+
 iracing_fcy_formation_use_drivername = iRacing fcy/formation use driver names
 iracing_fcy_formation_use_drivername_help = Use driver names instead of car number if available doing fcy and formation laps
 iracing_fcy_formation_use_drivername_filter = IRACING
@@ -1854,24 +1893,24 @@ make_overlay_app_window_help = Make the overlay window appear on the taskbar as 
 make_overlay_app_window_category = UI_STARTUP_AND_PATHS
 make_overlay_app_window_metadata = RESTART_REQUIRED
 
-delete_iracing_telemetryfile = Delete iRacing telemetry file after processing 
-delete_iracing_telemetryfile_help = Deletes the latest iRacing telemetry file after processing it, helps reducing diskspace used for telelmetry recordings. 
+delete_iracing_telemetryfile = Delete iRacing telemetry file after processing
+delete_iracing_telemetryfile_help = Deletes the latest iRacing telemetry file after processing it, helps reducing diskspace used for telelmetry recordings.
 delete_iracing_telemetryfile_filter = IRACING
 delete_iracing_telemetryfile_category = UI_STARTUP_AND_PATHS
 delete_iracing_telemetryfile_metadata = RESTART_REQUIRED
 
-enable_automatic_disk_telemetry_recording = Enable automatic telemetry disk recording   
-enable_automatic_disk_telemetry_recording_help = Let's Crew Chief handle the starting and stopping of iRacing telemetry recoding. 
+enable_automatic_disk_telemetry_recording = Enable automatic telemetry disk recording
+enable_automatic_disk_telemetry_recording_help = Let's Crew Chief handle the starting and stopping of iRacing telemetry recoding.
 enable_automatic_disk_telemetry_recording_filter = IRACING
 enable_automatic_disk_telemetry_recording_category = UI_STARTUP_AND_PATHS
 enable_automatic_disk_telemetry_recording_metadata = RESTART_REQUIRED
 
 enable_shared_memory = Enable Shared Memory
-enable_shared_memory_help = Allows other apps to read the current shared memory from Crew Chief 
+enable_shared_memory_help = Allows other apps to read the current shared memory from Crew Chief
 enable_shared_memory_metadata = RESTART_REQUIRED
 
 enable_subtitle_overlay = Enable subtitle overlay
-enable_subtitle_overlay_help = Displays an overlay window with subtitles 
+enable_subtitle_overlay_help = Displays an overlay window with subtitles
 enable_subtitle_overlay_category = AUDIO_VOICE_AND_CONTROLLERS
 enable_subtitle_overlay_metadata = RESTART_REQUIRED
 
@@ -1933,22 +1972,22 @@ show_vr_settings_as_overlay_category = VR_SETTINGS
 codriver_rushed_speed = Codriver rushing speed threshold (km/h)
 codriver_rushed_speed_help = Use rushed / urgent calls when above this speed (rally only).  Set to unrealistically high value, e.g. 400km/h to never rush based on speed
 codriver_rushed_speed_category = CODRIVER
-codriver_rushed_speed_filter = RBR
+codriver_rushed_speed_filter = RBR;DIRT;DIRT_2
 
 codriver_rushed_lookahead_seconds = Codriver rushing look ahead (seconds)
 codriver_rushed_lookahead_seconds_help = Use rushed / urgent calls when there are pace notes to be announced this many seconds away (rally only).  If set to 0, codriver will only rush based on speed.  The bigger the value, the more likely it is thatcodriver will rush.
 codriver_rushed_lookahead_seconds_category = CODRIVER
-codriver_rushed_lookahead_seconds_filter = RBR
+codriver_rushed_lookahead_seconds_filter = RBR;DIRT;DIRT_2
 
 codriver_chained_pacenote_threshold_distance = Link codriver calls closer than this (metres)
 codriver_chained_pacenote_threshold_distance_help = Combined calls when they're closer together than this many metres (rally only)
 codriver_chained_pacenote_threshold_distance_category = CODRIVER
-codriver_chained_pacenote_threshold_distance_filter = RBR
+codriver_chained_pacenote_threshold_distance_filter = RBR;DIRT;DIRT_2
 
 codriver_lookahead_seconds = Default look ahead for codriver calls (seconds)
 codriver_lookahead_seconds_help = Call out corners etc when you're this many seconds away (rally only)
 codriver_lookahead_seconds_category = CODRIVER
-codriver_lookahead_seconds_filter = RBR
+codriver_lookahead_seconds_filter = RBR;DIRT;DIRT_2
 
 enable_controller_pov_switches = Enable controller PoV switches
 enable_controller_pov_switches_help = Allow controller point-of-view switches to be used for button assignments
@@ -1977,3 +2016,47 @@ enable_gtr2_pit_lane_approach_heuristics_help = Experimental: If enabled, CC wil
 enable_gtr2_pit_lane_approach_heuristics_filter = GTR2
 enable_gtr2_pit_lane_approach_heuristics_category = PIT_STOPS_AND_MULTICLASS
 
+scroll_bars_on_main_window = Scroll bars on main window
+scroll_bars_on_main_window_help = Scroll bars if main window is larger than screen
+scroll_bars_on_main_window_category = MISC
+scroll_bars_on_main_window_metadata = RESTART_REQUIRED
+
+use_dictation_grammar_for_rally = Use free dictation for stage notes
+use_dictation_grammar_for_rally_help = Record pace notes using free dictaction grammar (Windows speech recogniser only)
+use_dictation_grammar_for_rally_category = AUDIO_VOICE_AND_CONTROLLERS
+use_dictation_grammar_for_rally_filter = RBR;DIRT;DIRT_2
+use_dictation_grammar_for_rally_metadata = RESTART_REQUIRED
+
+dictation_grammar_for_rally_confidence = Min rally free dictation voice recognition confidence (Microsoft recogniser)
+dictation_grammar_for_rally_confidence_help = When processing stage notes in free dictation mode, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0)
+dictation_grammar_for_rally_confidence_category = AUDIO_VOICE_AND_CONTROLLERS
+dictation_grammar_for_rally_confidence_filter = RBR;DIRT;DIRT_2
+
+confirm_recce_pace_notes = Confirm each pace note in stage recce
+confirm_recce_pace_notes_help = Play back the pace note(s) created from each stage notes voice command
+confirm_recce_pace_notes_category = AUDIO_VOICE_AND_CONTROLLERS
+dictation_grammar_for_rally_confidence_filter = RBR;DIRT;DIRT_2
+
+minimum_rally_voice_recognition_confidence_microsoft_sre = Min rally voice recognition confidence (Windows recogniser)
+minimum_rally_voice_recognition_confidence_microsoft_sre_help =  When processing voice commands in rally mode, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0)
+minimum_rally_voice_recognition_confidence_microsoft_sre_category = AUDIO_VOICE_AND_CONTROLLERS
+minimum_rally_voice_recognition_confidence_microsoft_sre_filter = RBR;DIRT;DIRT_2
+minimum_rally_voice_recognition_confidence_microsoft_sre_metadata = RESTART_REQUIRED
+
+minimum_rally_voice_recognition_confidence_system_sre = Min rally voice recognition confidence (Windows recogniser)
+minimum_rally_voice_recognition_confidence_system_sre_help =  When processing voice commands in rally mode, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0)
+minimum_rally_voice_recognition_confidence_system_sre_category = AUDIO_VOICE_AND_CONTROLLERS
+minimum_rally_voice_recognition_confidence_system_sre_filter = RBR;DIRT;DIRT_2
+minimum_rally_voice_recognition_confidence_system_sre_metadata = RESTART_REQUIRED
+
+dirt_rally_udp_data_port = Dirt Rally UDP port
+dirt_rally_udp_data_port_help = Dirt Rally network data UDP port (should usually be 20777)
+dirt_rally_udp_data_port_category = UI_STARTUP_AND_PATHS
+dirt_rally_udp_data_port_filter = DIRT
+dirt_rally_udp_data_port_metadata = RESTART_REQUIRED
+
+dirt_rally_2_udp_data_port = Dirt Rally 2 UDP port
+dirt_rally_2_udp_data_port_help = Dirt Rally 2 network data UDP port (should usually be 20777)
+dirt_rally_2_udp_data_port_category = UI_STARTUP_AND_PATHS
+dirt_rally_2_udp_data_port_filter = DIRT_2
+dirt_rally_2_udp_data_port_metadata = RESTART_REQUIRED

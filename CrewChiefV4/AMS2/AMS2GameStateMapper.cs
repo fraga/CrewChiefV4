@@ -196,6 +196,10 @@ namespace CrewChiefV4.AMS2
             }
 
             int playerIndex = getPlayerIndex(shared);
+            if (playerIndex == -1 || playerIndex >= shared.mParticipantData.Length)
+            {
+                return previousGameState;
+            }
             ams2APIParticipantStruct playerData = shared.mParticipantData[playerIndex];
 
             String playerName = StructHelper.getNameFromBytes(shared.mParticipantData[playerIndex].mName);

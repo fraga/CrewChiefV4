@@ -11,6 +11,7 @@ using System.Diagnostics;
 using static CrewChiefV4.RBR.Constants;
 using System.Threading;
 using System.IO;
+using System.Text.RegularExpressions;
 
 /**
  * Maps memory mapped file to a local game-agnostic representation.
@@ -25,12 +26,13 @@ namespace CrewChiefV4.RBR
         private int[] minimumSupportedVersionParts = new int[] { 1, 0, 0, 0 };
         public static bool pluginVerified = false;
         private static int reinitWaitAttempts = 0;
+        // regex using the chars .Net says are invalid
+        private string tracknameToValidFolderNameRegex = string.Format("[{0}]", Regex.Escape(new string(Path.GetInvalidPathChars())));
+        // max length for track name folder
+        private int maxLengthForTrackNameFolder = 65;
 
-        public override void setSpeechRecogniser(SpeechRecogniser speechRecogniser)
-        {
-            speechRecogniser.addRallySpeechRecogniser();
-            this.speechRecogniser = speechRecogniser;
-        }
+        // BTB tracks all use track ID 41
+        private int BTBTrackIDs = 41;
 
         private class CarID
         {
@@ -471,8 +473,33 @@ namespace CrewChiefV4.RBR
                 this.ClearState();
 
                 // Initialize variables that persist for the duration of a session.
+
                 if (this.knownTracks.TryGetValue(shared.perFrame.mRBRMapSettings.trackID, out var rbrtd))
                     csd.TrackDefinition = new TrackDefinition(rbrtd.name, (float)rbrtd.approxLengthKM * 1000.0f);
+
+                // for BTB tracks we're using trackID 41, so we try to detect that here and set the correct name. Note that BTB tracks don't
+                // appear to have any track length data we can use (the shared.perFrame.stageLength field is a number of segments which aren't 
+                // a consistent length)
+                // as we're using track name as a folder name for pace notes, it must be valid:
+                string rawTrackname = GetWideStringFromBytes(shared.perFrame.currentLocationStringWide);
+                if (rawTrackname.Length == 0)
+                {
+                    Console.WriteLine("RBR plugin needs updating to support BTB tracks");
+                }
+                else
+                {
+                    string validTrackNameForFolder = Regex.Replace(rawTrackname, tracknameToValidFolderNameRegex, "");
+                    if (!string.IsNullOrEmpty(validTrackNameForFolder))
+                    {
+                        validTrackNameForFolder = validTrackNameForFolder.Substring(0, Math.Min(validTrackNameForFolder.Length, maxLengthForTrackNameFolder));
+                    }
+                    if (shared.perFrame.mRBRMapSettings.trackID == BTBTrackIDs && csd.TrackDefinition.name != rawTrackname)
+                    {
+                        // this is a BTB track
+                        Console.WriteLine("Using BTB track with raw name " + rawTrackname + " and folder name " + validTrackNameForFolder);
+                        csd.TrackDefinition = new TrackDefinition(validTrackNameForFolder, -1);   // we have no idea how long the track is :(
+                    }
+                }
             }
 
             // Restore cumulative data.
@@ -547,6 +574,7 @@ namespace CrewChiefV4.RBR
             }
 
             if (!this.pacenotesLoaded
+                && !cgs.UseCrewchiefPaceNotes
                 && ((csd.SessionPhase == SessionPhase.Countdown
                         && csd.SessionType == SessionType.Race
                         && csd.SessionRunningTime > -6.9f)
@@ -654,34 +682,6 @@ namespace CrewChiefV4.RBR
 
             return cgs;
         }
-
-        private readonly int[] rbrRanges = new int[]
-        {
-            30,
-            40,
-            50,
-            60,
-            70,
-            80,
-            100,
-            120,
-            140,
-            150,
-            160,
-            180,
-            200,
-            250,
-            300,
-            350,
-            400,
-            450,
-            500,
-            600,
-            700,
-            800,
-            900,
-            1000
-        };
 
         // Weird stuff:
         // * I saw some pace notes before detail_start at some tracks.  Those also have weird flags on them, maybe worth ignoring all pre-start entries?
@@ -814,19 +814,7 @@ namespace CrewChiefV4.RBR
                         continue;
                     }
 
-                    var closestRange = 1000;
-                    var minDistance = Math.Abs(closestRange - distanceToNext);
-                    foreach (var r in rbrRanges)
-                    {
-                        var distToRange = Math.Abs(r - distanceToNext);
-                        if (distToRange < minDistance)
-                        {
-                            minDistance = distToRange;
-                            closestRange = r;
-                        }
-                    }
-
-                    options = closestRange;
+                    options = CoDriver.GetClosestValueForDistanceCall(distanceToNext);
                 }
 
                 if (pacenote == CoDriver.PacenoteType.detail_finish)

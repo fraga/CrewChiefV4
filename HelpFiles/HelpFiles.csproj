@@ -104,6 +104,7 @@
     <Content Include="VoiceRecognition_CommandMacros.html" />
     <Content Include="VoiceRecognition_FreeDictationChatMessages.html" />
     <Content Include="VoiceRecognition_InstallationTraining.html" />
+    <Content Include="VoiceRecognition_RallyStageNotes.html" />
     <Content Include="VoiceRecognition_VoiceCommandsAll.html" />
     <Content Include="VoiceRecognition_VoiceCommandsCheatSheet.html" />
     <Content Include="VoiceRecognition_VoiceCommandsGrouped.html" />

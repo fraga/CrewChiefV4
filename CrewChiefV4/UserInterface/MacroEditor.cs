@@ -88,7 +88,7 @@ namespace CrewChiefV4
             }
             macroContainer = MacroManager.loadCommands(MacroManager.getMacrosFileLocation());
 
-            availableMacroGames = GameDefinition.getAllGameDefinitions().Where(
+            availableMacroGames = GameDefinition.getAllGameDefinitions(true).Where(
                 gd => gd.gameEnum != GameEnum.PCARS2_NETWORK && gd.gameEnum != GameEnum.AMS2 && gd.gameEnum != GameEnum.AMS2_NETWORK).ToList();
             var items = from name in availableMacroGames orderby name.friendlyName ascending select name;
             availableMacroGames = items.ToList();
@@ -100,7 +100,10 @@ namespace CrewChiefV4
             // try to select the CME game matching the main window game
             var selection = Math.Min(MainWindow.instance.gameDefinitionList.SelectedIndex,
                 listBoxGames.Items.Count-1);
-            listBoxGames.SetSelected(selection, true);
+            if (selection != -1)
+            {
+                listBoxGames.SetSelected(selection, true);
+            }
             updateMacroList();
             listBoxGames.Select();
 

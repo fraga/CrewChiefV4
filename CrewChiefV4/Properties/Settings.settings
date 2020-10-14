@@ -1238,5 +1238,44 @@
     <Setting Name="enable_gtr2_pit_lane_approach_heuristics" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="scroll_bars_on_main_window" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="launch_dirt" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="launch_dirt2" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="dirt_launch_exe" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="dirt2_launch_exe" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="dirt_launch_params" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="dirt2_launch_params" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="use_dictation_grammar_for_rally" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="minimum_rally_voice_recognition_confidence_system_sre" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">0.55</Value>
+    </Setting>
+    <Setting Name="confirm_recce_pace_notes" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="minimum_rally_voice_recognition_confidence_microsoft_sre" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">0.35</Value>
+    </Setting>
+    <Setting Name="dirt_rally_udp_data_port" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">20777</Value>
+    </Setting>
+    <Setting Name="dirt_rally_2_udp_data_port" Type="System.String" Scope="User">
+      <Value Profile="(Default)">20777</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
