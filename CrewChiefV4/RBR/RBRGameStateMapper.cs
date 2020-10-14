@@ -32,7 +32,7 @@ namespace CrewChiefV4.RBR
         private int maxLengthForTrackNameFolder = 65;
 
         // BTB tracks all use track ID 41
-        private int BTBTrackIDs = 41;
+        private int BTBTrackID = 41;
 
         private class CarID
         {
@@ -171,6 +171,13 @@ namespace CrewChiefV4.RBR
             public string country;
             public RBRGameStateMapper.RBRSurfaceType surface;
             public double approxLengthKM;
+        }
+
+        // BTB tracks all use slot ID 41, but they'll have a different name from the expected track in slot 41
+        private bool IsBTBTrack(string trackName, int trackID)
+        {
+            return trackID == BTBTrackID
+                && knownTracks.TryGetValue(BTBTrackID, out var trackDefinitionForBTBSlot) && trackDefinitionForBTBSlot.name != trackName;
         }
 
         // List from RBRCZ.
@@ -473,33 +480,18 @@ namespace CrewChiefV4.RBR
                 this.ClearState();
 
                 // Initialize variables that persist for the duration of a session.
+                string trackName = GetWideStringFromBytes(shared.perFrame.currentLocationStringWide);
+                // version of the track name that can be used for a folder name
+                string trackNameValidFolderName = Regex.Replace(trackName, tracknameToValidFolderNameRegex, ""); 
 
-                if (this.knownTracks.TryGetValue(shared.perFrame.mRBRMapSettings.trackID, out var rbrtd))
-                    csd.TrackDefinition = new TrackDefinition(rbrtd.name, (float)rbrtd.approxLengthKM * 1000.0f);
-
-                // for BTB tracks we're using trackID 41, so we try to detect that here and set the correct name. Note that BTB tracks don't
-                // appear to have any track length data we can use (the shared.perFrame.stageLength field is a number of segments which aren't 
-                // a consistent length)
-                // as we're using track name as a folder name for pace notes, it must be valid:
-                string rawTrackname = GetWideStringFromBytes(shared.perFrame.currentLocationStringWide);
-                if (rawTrackname.Length == 0)
+                // use track length from known tracks, or -1 for BTB and unknown tracks
+                double trackLength = -1;
+                if (!IsBTBTrack(trackName, shared.perFrame.mRBRMapSettings.trackID)
+                    && this.knownTracks.TryGetValue(shared.perFrame.mRBRMapSettings.trackID, out var rbrtd))
                 {
-                    Console.WriteLine("RBR plugin needs updating to support BTB tracks");
+                    trackLength = rbrtd.approxLengthKM;
                 }
-                else
-                {
-                    string validTrackNameForFolder = Regex.Replace(rawTrackname, tracknameToValidFolderNameRegex, "");
-                    if (!string.IsNullOrEmpty(validTrackNameForFolder))
-                    {
-                        validTrackNameForFolder = validTrackNameForFolder.Substring(0, Math.Min(validTrackNameForFolder.Length, maxLengthForTrackNameFolder));
-                    }
-                    if (shared.perFrame.mRBRMapSettings.trackID == BTBTrackIDs && csd.TrackDefinition.name != rawTrackname)
-                    {
-                        // this is a BTB track
-                        Console.WriteLine("Using BTB track with raw name " + rawTrackname + " and folder name " + validTrackNameForFolder);
-                        csd.TrackDefinition = new TrackDefinition(validTrackNameForFolder, -1);   // we have no idea how long the track is :(
-                    }
-                }
+                csd.TrackDefinition = new TrackDefinition(trackNameValidFolderName, (float) trackLength);
             }
 
             // Restore cumulative data.
