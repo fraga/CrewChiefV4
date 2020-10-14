@@ -1905,7 +1905,7 @@ namespace CrewChiefV4.Events
 
         private float EstimateObstacleLength(List<CoDriverPacenote> paceNotesInBatch)
         {
-            float distance = 20;    // any non-corner obstacle is assumed to be 20 metres from the start point to where the player makes the pace note command
+            float distance = 10;    // any non-corner obstacle is assumed to be 20 metres from the start point to where the player makes the pace note command
             foreach (CoDriverPacenote paceNote in paceNotesInBatch)
             {
                 if (IsCorner(paceNote.Pacenote))

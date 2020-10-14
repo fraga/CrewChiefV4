@@ -28,9 +28,10 @@ namespace CrewChiefV4.RBR
         private static int reinitWaitAttempts = 0;
         // regex using the chars .Net says are invalid
         private string tracknameToValidFolderNameRegex = string.Format("[{0}]", Regex.Escape(new string(Path.GetInvalidPathChars())));
-        // regex to remove all non-word chars
-        // private string tracknameToSimpleFolderNameRegex = @"\W+\s+";
+        // max length for track name folder
+        private int maxLengthForTrackNameFolder = 65;
 
+        // BTB tracks all use track ID 41
         private int BTBTrackIDs = 41;
 
         private class CarID
@@ -488,6 +489,10 @@ namespace CrewChiefV4.RBR
                 else
                 {
                     string validTrackNameForFolder = Regex.Replace(rawTrackname, tracknameToValidFolderNameRegex, "");
+                    if (!string.IsNullOrEmpty(validTrackNameForFolder))
+                    {
+                        validTrackNameForFolder = validTrackNameForFolder.Substring(0, Math.Min(validTrackNameForFolder.Length, maxLengthForTrackNameFolder));
+                    }
                     if (shared.perFrame.mRBRMapSettings.trackID == BTBTrackIDs && csd.TrackDefinition.name != rawTrackname)
                     {
                         // this is a BTB track
