@@ -1153,6 +1153,12 @@ namespace CrewChiefV4
             try
             {
                 sreWrapper.UnloadAllGrammars();
+                iracingPitstopGrammarList.Clear();
+                r3ePitstopGrammarList.Clear();
+                rallyGrammarList.Clear();
+                pitManagerGrammarList.Clear();
+                overlayGrammarList.Clear();
+                opponentGrammarList.Clear();
                 if (disable_alternative_voice_commands)
                 {
                     Console.WriteLine("*Alternative voice commands are disabled, only the first command from each line in speech_recognition_config.txt will be available*");
@@ -1315,10 +1321,6 @@ namespace CrewChiefV4
 
         private void loadSRECommandsForGameType()
         {
-            iracingPitstopGrammarList.Clear();
-            r3ePitstopGrammarList.Clear();
-            rallyGrammarList.Clear();
-            pitManagerGrammarList.Clear();
             switch (CrewChief.gameDefinition.gameEnum)
             {
                 // standard circuit racing games
