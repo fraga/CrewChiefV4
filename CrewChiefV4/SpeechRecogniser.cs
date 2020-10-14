@@ -384,7 +384,6 @@ namespace CrewChiefV4
         public static String[] RALLY_WIDENS = Configuration.getSpeechRecognitionPhrases("RALLY_WIDENS", loadHomophones);
         public static String[] RALLY_MAYBE = Configuration.getSpeechRecognitionPhrases("RALLY_MAYBE", loadHomophones);
         public static String[] RALLY_LONG = Configuration.getSpeechRecognitionPhrases("RALLY_LONG", loadHomophones);
-        public static String[] RALLY_NARROWS = Configuration.getSpeechRecognitionPhrases("RALLY_NARROWS", loadHomophones);
         public static String[] RALLY_OPENS = Configuration.getSpeechRecognitionPhrases("RALLY_OPENS", loadHomophones);
         public static String[] RALLY_BRIDGE = Configuration.getSpeechRecognitionPhrases("RALLY_BRIDGE", loadHomophones);
         public static String[] RALLY_FORD = Configuration.getSpeechRecognitionPhrases("RALLY_FORD", loadHomophones);
@@ -399,6 +398,8 @@ namespace CrewChiefV4
         public static String[] RALLY_BAD_CAMBER = Configuration.getSpeechRecognitionPhrases("RALLY_BAD_CAMBER", loadHomophones);
         public static String[] RALLY_TARMAC = Configuration.getSpeechRecognitionPhrases("RALLY_TARMAC", loadHomophones);
         public static String[] RALLY_GRAVEL = Configuration.getSpeechRecognitionPhrases("RALLY_GRAVEL", loadHomophones);
+        public static String[] RALLY_SNOW = Configuration.getSpeechRecognitionPhrases("RALLY_SNOW", loadHomophones);
+        public static String[] RALLY_SLIPPY = Configuration.getSpeechRecognitionPhrases("RALLY_SLIPPY", loadHomophones);
         public static String[] RALLY_CONCRETE = Configuration.getSpeechRecognitionPhrases("RALLY_CONCRETE", loadHomophones);
         public static String[] RALLY_TUNNEL = Configuration.getSpeechRecognitionPhrases("RALLY_TUNNEL", loadHomophones);
         public static String[] RALLY_LEFT_ENTRY_CHICANE = Configuration.getSpeechRecognitionPhrases("RALLY_LEFT_ENTRY_CHICANE", loadHomophones);
@@ -414,6 +415,16 @@ namespace CrewChiefV4
         public static String[] RALLY_KEEP_OUT = Configuration.getSpeechRecognitionPhrases("RALLY_KEEP_OUT", loadHomophones);
         public static String[] RALLY_BUMPS = Configuration.getSpeechRecognitionPhrases("RALLY_BUMPS", loadHomophones);
         public static String[] RALLY_OVER_RAILS = Configuration.getSpeechRecognitionPhrases("RALLY_OVER_RAILS", loadHomophones);
+        public static String[] RALLY_UPHILL = Configuration.getSpeechRecognitionPhrases("RALLY_UPHILL", loadHomophones);
+        public static String[] RALLY_DOWNHILL = Configuration.getSpeechRecognitionPhrases("RALLY_UPHILL", loadHomophones);
+        public static String[] RALLY_BRAKE = Configuration.getSpeechRecognitionPhrases("RALLY_BRAKE", loadHomophones);
+        // TODO: create loose_gravel type and record, for now this is hacked to be "gravel", "slippy"
+        public static String[] RALLY_LOOSE_GRAVEL = Configuration.getSpeechRecognitionPhrases("RALLY_LOOSE_GRAVEL", loadHomophones);
+        // TODO: this includes the "through gate" command, which is recorded as "narrows" - need a separate "through gate" message here
+        public static String[] RALLY_NARROWS = Configuration.getSpeechRecognitionPhrases("RALLY_NARROWS", loadHomophones);
+        // TODO: these phrases cover tree / logs / rocks inside / outside and will (for now) just create a 'keep in' / 'keep out' note
+        public static String[] RALLY_OBSTACLE_INSIDE = Configuration.getSpeechRecognitionPhrases("RALLY_OBSTACLE_INSIDE", loadHomophones);
+        public static String[] RALLY_OBSTACLE_OUTSIDE = Configuration.getSpeechRecognitionPhrases("RALLY_OBSTACLE_OUTSIDE", loadHomophones);
 
         // most specific first, so "big jump" comes before "jump" when we parse in the event code
         public static List<string[]> RallyObstacleCommands = new List<string[]>()
@@ -431,7 +442,10 @@ namespace CrewChiefV4
             SpeechRecogniser.RALLY_CREST,
             SpeechRecogniser.RALLY_DEEP_RUTS,
             SpeechRecogniser.RALLY_FORD,
+            SpeechRecogniser.RALLY_LOOSE_GRAVEL,
             SpeechRecogniser.RALLY_GRAVEL,
+            SpeechRecogniser.RALLY_SNOW,
+            SpeechRecogniser.RALLY_SLIPPY,
             SpeechRecogniser.RALLY_OVER_JUMP,
             SpeechRecogniser.RALLY_JUMP,
             SpeechRecogniser.RALLY_JUNCTION,
@@ -449,7 +463,12 @@ namespace CrewChiefV4
             SpeechRecogniser.RALLY_RUTS,
             SpeechRecogniser.RALLY_TARMAC,
             SpeechRecogniser.RALLY_TUNNEL,
-            SpeechRecogniser.RALLY_NARROWS
+            SpeechRecogniser.RALLY_NARROWS,
+            SpeechRecogniser.RALLY_OBSTACLE_INSIDE,
+            SpeechRecogniser.RALLY_OBSTACLE_OUTSIDE,
+            SpeechRecogniser.RALLY_UPHILL,
+            SpeechRecogniser.RALLY_DOWNHILL,
+            SpeechRecogniser.RALLY_BRAKE
         };
 
         // for watching opponent - "watch [bob]", "tell me about [bob]"

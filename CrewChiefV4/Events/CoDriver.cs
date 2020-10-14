@@ -518,7 +518,11 @@ namespace CrewChiefV4.Events
             { SpeechRecogniser.RALLY_OVER_CREST, PacenoteType.detail_over_crest },
             { SpeechRecogniser.RALLY_CREST, PacenoteType.detail_crest },
             { SpeechRecogniser.RALLY_FORD, PacenoteType.detail_ford },
+            // TODO: record 'loose gravel' sound
+            { SpeechRecogniser.RALLY_LOOSE_GRAVEL, PacenoteType.detail_gravel },
             { SpeechRecogniser.RALLY_GRAVEL, PacenoteType.detail_gravel },
+            { SpeechRecogniser.RALLY_SNOW, PacenoteType.detail_snow },
+            { SpeechRecogniser.RALLY_SLIPPY, PacenoteType.detail_slippy},
             { SpeechRecogniser.RALLY_OVER_JUMP, PacenoteType.detail_over_jump },
             { SpeechRecogniser.RALLY_BIG_JUMP, PacenoteType.detail_jump }, /* ??? */
             { SpeechRecogniser.RALLY_JUMP, PacenoteType.detail_jump },
@@ -541,7 +545,13 @@ namespace CrewChiefV4.Events
             { SpeechRecogniser.RALLY_CARE, PacenoteType.detail_care },
             { SpeechRecogniser.RALLY_CAUTION, PacenoteType.detail_caution },
             { SpeechRecogniser.RALLY_DANGER, PacenoteType.detail_double_caution },
-            { SpeechRecogniser.RALLY_NARROWS, PacenoteType.detail_narrows }
+            // TODO: record separate sounds for "gate", "logs/rocks/tree inside/outside" and wire these as separate obstacles
+            { SpeechRecogniser.RALLY_NARROWS, PacenoteType.detail_narrows },
+            { SpeechRecogniser.RALLY_OBSTACLE_INSIDE, PacenoteType.detail_keep_out },
+            { SpeechRecogniser.RALLY_OBSTACLE_OUTSIDE, PacenoteType.detail_keep_in },
+            { SpeechRecogniser.RALLY_UPHILL, PacenoteType.detail_uphill },
+            { SpeechRecogniser.RALLY_DOWNHILL, PacenoteType.detail_downhill },
+            { SpeechRecogniser.RALLY_BRAKE, PacenoteType.detail_brake }
         };
 
         public class Terminology
@@ -2214,14 +2224,23 @@ namespace CrewChiefV4.Events
             return result;
         }
 
-        private List<Tuple<PacenoteType, PacenoteModifier>> GetObstaclePacenoteTypesWithModifiers(MutableString voiceMessageWrapper)
+        private HashSet<Tuple<PacenoteType, PacenoteModifier>> GetObstaclePacenoteTypesWithModifiers(MutableString voiceMessageWrapper)
         {
-            List<Tuple<PacenoteType, PacenoteModifier>> matches = new List<Tuple<PacenoteType, PacenoteModifier>>();
+            HashSet<Tuple<PacenoteType, PacenoteModifier>> matches = new HashSet<Tuple<PacenoteType, PacenoteModifier>>();
             foreach (string[] command in SpeechRecogniser.RallyObstacleCommands)
             {
                 if (voiceMessageWrapper.FindAndRemove(command, false, true))
                 {
-                    matches.Add(new Tuple<PacenoteType, PacenoteModifier>(obstaclePacenoteTypes[command], GetModifier(voiceMessageWrapper)));
+                    // TODO: remove this special case when loose_gravel is recorded
+                    if (command == SpeechRecogniser.RALLY_LOOSE_GRAVEL)
+                    {
+                        matches.Add(new Tuple<PacenoteType, PacenoteModifier>(PacenoteType.detail_onto_gravel, GetModifier(voiceMessageWrapper)));
+                        matches.Add(new Tuple<PacenoteType, PacenoteModifier>(PacenoteType.detail_slippy, GetModifier(voiceMessageWrapper)));
+                    }
+                    else
+                    {
+                        matches.Add(new Tuple<PacenoteType, PacenoteModifier>(obstaclePacenoteTypes[command], GetModifier(voiceMessageWrapper)));
+                    }
                 }
             }
             return matches;
@@ -2294,6 +2313,11 @@ namespace CrewChiefV4.Events
         public MutableString(string contents)
         {
             this.contents = contents;
+        }
+
+        public string GetString()
+        {
+            return contents;
         }
 
         public void ResetCursor()
