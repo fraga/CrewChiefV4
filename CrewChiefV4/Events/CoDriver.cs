@@ -1712,7 +1712,8 @@ namespace CrewChiefV4.Events
                 if (!this.inReceMode)
                 {
                     this.inReceMode = true;
-                    this.recePaceNotes.Clear();                    
+                    this.recePaceNotes.Clear();
+                    CrewChief.currentGameState.CoDriverPacenotes.Clear();
                 }
                 this.audioPlayer.playMessageImmediately(new QueuedMessage(CoDriver.folderAcknowledgeStartRecce, 0));
             }
@@ -1738,6 +1739,7 @@ namespace CrewChiefV4.Events
                 {
                     this.inReceMode = true;
                     this.recePaceNotes.Clear();
+                    CrewChief.currentGameState.CoDriverPacenotes.Clear();
                     this.audioPlayer.playMessageImmediately(new QueuedMessage(CoDriver.folderAcknowledgeStartRecce, 0));
                 }
                 else
