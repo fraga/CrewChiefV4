@@ -1,4 +1,4 @@
-CrewChief version 4.13
+CrewChief version 4.14
 
 Written by Jim Britton, Morten Roslev, Vytautas Leonavičius, Paul Burgess, Tony Whitley, Dan Allongo (Automobilista and rFactor1 implementation), Daniel Nowak (nAudio speech recognition port), Mike Schreiner and Brent Owen (technical input on stock car rules). The application is the result of lots of lots of hard work and input from the guys above as well as some great advice and support from the community and the guys at Sector3 and SMS.
 
@@ -431,6 +431,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.14.0.1: Added rally stage notes creation support - see https://mr_belowski.gitlab.io/CrewChiefV4/VoiceRecognition_RallyStageNotes.html; Added support for Dirt Rally and Dirt Rally 2 (user-created stage notes only);A dded option to enable scroll bars on main window where necessary (enable with 'Scroll bars on main window' property); R3E - use correct field for player incident points
+
 Version 4.13.1.7: Changed "watch" commands to be "monitor" ("monitor [opponent name / the car ahead / p12 / the leader / etc]" / stop monitoring [opponent name / etc] / stop monitoring all etc) - the word "watch" is too similar to "what's" so was being regularly mis-interpreted by the speech recogniser; Fix some issues with macros not applying to the correct application window; ACC - fix penalty logic; ACC - fix for the app repeating laptime in hotstint mode; RBR - subtitles fix; R3E - reduced optimial tyre temps for F-Junior; R3E - retry ratings downloads with http / https toggled
 
 Version 4.13.1.6: Hotfix for iRacing crash bug (sorry guys)
