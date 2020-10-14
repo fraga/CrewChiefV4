@@ -13,15 +13,15 @@
     alink="#EE0000">
     <div style="font-family:'Lucida Sans Unicode';font-size:13px;"
       class="main">
-      Crew Chief can act as co-driver in Dirt Rally, Dirt Rally 2 and Richard Burns Rally. The app can read built-in stage notes for tracks which have them (Richard Burns Rally only) but you can create your own stage notes as you drive a stage using voice commands.<br>
+      Crew Chief can act as co-driver in Dirt Rally, Dirt Rally 2 and Richard Burns Rally. The app can read built-in stage notes for tracks which have them (Richard Burns Rally only) but you can create your own stage notes as you drive a stage using voice commands.<br><br>
       <h3>Setup</h3>
       Dirt Rally and Dirt Rally 2<br><br>
       These need to have UDP data enabled. For Dirt Rally you need to edit Documents\My Games\DiRT Rally\hardwaresettings\hardware_settings_config.xml. For Dirt Rally 2 it's Documents\My Games\DiRT Rally 2.0\hardwaresettings\hardware_settings_config.xml (or Documents\My Games\DiRT Rally 2.0\hardwaresettings\hardware_settings_config_vr.xml). Modify the udp element (under the motion_platform element) so it looks like this:<br>
-&lt;udp enabled="true" extradata="3" ip="127.0.0.1" port="20777" delay="1" /&gt;<br>
+&lt;udp enabled="true" extradata="3" ip="127.0.0.1" port="20777" delay="1" /&gt;<br><br>
 
       Richard Burns Rally<br><br>
       Copy the file C:\Program Files (x86)\Britton IT Ltd\CrewChiefV4\plugins\RBR\CrewChief.dll to C:\RBR\Plugins\, overwriting the file if it's already there (this dll was updated recently).
-      <br>
+      <br><br>
       <h3>Voice Recognition settings</h3>
       Creating stage notes using voice commands is quite challenging for the voice recognition system. Before you start it's a good idea to ensure you're getting the best voice recognition accuracy possible. Optimal settings will vary for each user but I find that it works best using the built-in Windows speech recogniser (enable the "Prefer Windows speech recogniser") - you need to complete all the training steps in the Windows Speech Recognition control panel (the "Train your computer to understand you better" option). Note that this training will only work if you use the same microphone you'll use while you're actually playing.
       <br><br>
@@ -55,15 +55,15 @@
       On playback the app uses the estimated start point (along with your current position and car speed) to determine when it needs to play a stage note, so these start points can be approximate.
       <br>
       The stage notes are stored in Documents\CrewChiefV4\[game name]\[stage name]\pacenotes.json, this is JSON and can be edited and shared. When you start a stage the app will load the pacenotes.json file (in RBR this process replaces any game-provided pace notes for that run). Corrections in corrections.json will be applied to which ever stage notes you're using (game-provided or user-created). If you want to go back to the game-provided stage notes, rename or move the pacenotes.json file.
-	  <br><br>
-	  <h3>Corrections During Stage Recce</h3>
-	  Inevitably the app will fail to recognise some commands, misrecognise some or (and this is more common than I'd like to admit) you'll get left / right mixed up and create a stage note that is so wrong it'll definitely kill you if you don't fix it.
+      <br><br>
+      <h3>Corrections During Stage Recce</h3>
+      Inevitably the app will fail to recognise some commands, misrecognise some or (and this is more common than I'd like to admit) you'll get left / right mixed up and create a stage note that is so wrong it'll definitely kill you if you don't fix it.
       <br>
       During stage recce, if the app says "I didn't catch that" or "pardon?", just wait a second then make the command again. If it keeps failing to recognise, try phrasing the command differently (e.g. "medium left" instead of "left 4"). If the app hears you and responds, but the response is clearly wrong (the app misinterpreted or you were confused and made the wrong request) make the command again but this time start it with the word "correction, ...". The app will replace the stage note just created with a new one.
       <br>
       For example:
-	  <br>
-	  <ul>
+      <br>
+      <ul>
       <li>me: "left 4 crest, caution"</li>
       <li>app: "OK, caution ford over crest" [four and ford do sound quite similar, and the app will always put 'caution' first in stage notes]</li>
       <li>me: "correction, left 4 crest, caution"</li>
@@ -72,15 +72,15 @@
       <li>app: "Acknowledged, caution left 4 over crest" [yay, finally]</li>
       </ul>
       <br>
-	  As you can see, correcting a stage note can be a bit of a faff (usually a single correction or repeat is enough but not always). This is why it's important to slow right down after the corner / obstacle to give yourself time in case you need to make a correction.
+      As you can see, correcting a stage note can be a bit of a faff (usually a single correction or repeat is enough but not always). This is why it's important to slow right down after the corner / obstacle to give yourself time in case you need to make a correction.
       <br><br>
-	  <h3>Corrections While Driving a Stage</h3>
-	  You can also correct stage notes while driving. This is a bit limited and applies only to corners. After a corner you can make a voice command "Correction, ..." and say what the corner should have been. This can be a different tightness or a different modifier (or both). Some examples:
-	  <br>
-	  <ul>
+      <h3>Corrections While Driving a Stage</h3>
+      You can also correct stage notes while driving. This is a bit limited and applies only to corners. After a corner you can make a voice command "Correction, ..." and say what the corner should have been. This can be a different tightness or a different modifier (or both). Some examples:
+      <br>
+      <ul>
       <li>app: "left 4, cut" [drive the corner, nearly hit a tree on the apex and slide wide, soil pants]</li>
-	  <li>me: "correction, 3, don't cut" [app creates a new entry in its 'corrections' file for this stage to replace the '4' with a '3' and replace 'cut' with 'dont cut']</li>
-	  </ul>
+      <li>me: "correction, 3, don't cut" [app creates a new entry in its 'corrections' file for this stage to replace the '4' with a '3' and replace 'cut' with 'dont cut']</li>
+      </ul>
       <br>
       You can just add a modifier too - "correction, long" or whatever. The app tries to find the stage note for the corner you just drove and it applies the correction. Corrections can also be used to adjust the position of the last-played stage note. "correction, earlier" and "correction, later" will move the last stage note's trigger point back or forward by 50 metres. A single correction can be any combination of these (e.g. "correction, 3, don't cut, earlier").
       <br>
@@ -89,25 +89,25 @@
       Another form of correction is an insert. You can make a command "insert caution jump", for example, and the app will add a stage note.
       <br>
       Corrections and inserts are stored in Documents\CrewChiefV4\[game name]\[stage name]\corrections.json, this is JSON and can be edited. Note that corrections can be used for user-created stage notes and (for RBR) game-provided stage notes.
-	  <br><br>
-	  <h3>Available Commands</h3>
-	  These are the currently supported commands, the set may grow but it's a trade-off between a rich vocabulary and putting too much pressure on the speech recogniser.
+      <br><br>
+      <h3>Available Commands</h3>
+      These are the currently supported commands, the set may grow but it's a trade-off between a rich vocabulary and putting too much pressure on the speech recogniser.
       <br>
-	  <ul>
-      <li>earlier calls / more notice							[call all stage notes earlier]</li>
-      <li>later calls											[call all stage notes later]</li>
-      <li>corner number first / use corner number first		[change calling style]</li>
-      <li>corner description / use corner description			[change calling style]</li>
-      <li>corner direction first / use corner direction first	[change calling style]</li>
-      <li>start stage reccy / start reccy / start recording pace notes / start recording stage notes		[starts stage recce mode]</li>
-      <li>finish stage reccy / finish reccy / finish recording pace notes / finish recording stage notes	[finishes stage recce mode and saves created stage notes]</li>
-      <li>correction				[starts a correction, recce or normal mode]</li>
-      <li>insert					[starts an insert, doesn't apply to recce mode]</li>
-      <li>earlier / sooner		[part of a correction, moves the last stage note so it triggers earlier, doesn't apply to recce mode]</li>
-      <li>later					[part of a correction, moves the last stage note so it triggers later, doesn't apply to recce mode]</li>
-	  </ul>
-	  <br><h4>Corner types</h4>
-	  <ul>
+      <ul>
+      <li>earlier calls / more notice                            [call all stage notes earlier]</li>
+      <li>later calls                                            [call all stage notes later]</li>
+      <li>corner number first / use corner number first        [change calling style]</li>
+      <li>corner description / use corner description            [change calling style]</li>
+      <li>corner direction first / use corner direction first    [change calling style]</li>
+      <li>start stage reccy / start reccy / start recording pace notes / start recording stage notes        [starts stage recce mode]</li>
+      <li>finish stage reccy / finish reccy / finish recording pace notes / finish recording stage notes    [finishes stage recce mode and saves created stage notes]</li>
+      <li>correction                [starts a correction, recce or normal mode]</li>
+      <li>insert                    [starts an insert, doesn't apply to recce mode]</li>
+      <li>earlier / sooner        [part of a correction, moves the last stage note so it triggers earlier, doesn't apply to recce mode]</li>
+      <li>later                    [part of a correction, moves the last stage note so it triggers later, doesn't apply to recce mode]</li>
+      </ul>
+      <h4>Corner types</h4>
+      <ul>
       <li>left</li>
       <li>right</li>
       <li>one / acute</li>
@@ -119,9 +119,8 @@
       <li>square</li>
       <li>hairpin</li>
       <li>flat</li>
-	  </ul>
-	  <br><h4>Corner modifiers</h4>
-	  <ul>
+      </ul><h4>Corner modifiers</h4>
+      <ul>
       <li>cut</li>
       <li>don't cut</li>
       <li>tightens</li>
@@ -131,9 +130,8 @@
       <li>maybe</li>
       <li>tightens then opens</li>
       <li>opens then tightens</li>
-	  </ul>
-	  <br><h4>Obstacles (note that some of the modifiers above can also be used on there own as obstacles)</h4>
-	  <ul>
+      </ul><h4>Obstacles (note that some of the modifiers above can also be used on there own as obstacles)</h4>
+      <ul>
       <li>narrows</li>
       <li>opens</li>
       <li>bad camber</li>
@@ -165,7 +163,7 @@
       <li>over rails</li>
       <li>tightens then opens</li>
       <li>opens then tightens</li>
-	  </ul>
+      </ul>
     </div>
   </body>
 </html>
