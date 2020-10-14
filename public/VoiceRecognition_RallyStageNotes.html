@@ -49,11 +49,11 @@
       <br><br>
       <h3>Under the Hood</h3>
       It's very helpful to have a basic grasp of what the app's doing here. When you pass a corner or a crest or whatever and make a stage note command, the app records the command along with distance into the stage where your car currently is (i.e. the distance at the end of the corner / obstacle). It uses this to estimate when the corner / obstacle started (it assumes corners are 40 metres long, corners you describe as 'long' are 80 metres long and other obstacles are 10 metres long). This sounds sketchy but it's not too bad. You need to have driven the corner to understand what it'll do (if the app expected the command at the beginning of a corner you might miss important 'tightens', 'keep in' or other details) and it also allows for an accurate placement of the next distance call.
-      <br>
+      <br><br>
       The app uses the distance when you first begin making the command (unless you're using 'always on' voice recognition mode - then it has to use the distance when you finish the command). Moving while making the commands is fine but it makes corrections harder - if you have to correct a command you have less time to do it before the next command needs to be made.
-      <br>
+      <br><br>
       On playback the app uses the estimated start point (along with your current position and car speed) to determine when it needs to play a stage note, so these start points can be approximate.
-      <br>
+      <br><br>
       The stage notes are stored in Documents\CrewChiefV4\[game name]\[stage name]\pacenotes.json, this is JSON and can be edited and shared. When you start a stage the app will load the pacenotes.json file (in RBR this process replaces any game-provided pace notes for that run). Corrections in corrections.json will be applied to which ever stage notes you're using (game-provided or user-created). If you want to go back to the game-provided stage notes, rename or move the pacenotes.json file.
       <br><br>
       <h3>Corrections During Stage Recce</h3>
