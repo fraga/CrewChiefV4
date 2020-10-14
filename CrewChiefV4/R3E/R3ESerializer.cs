@@ -212,6 +212,8 @@ namespace CrewChiefV4.RaceRoom
                     writeSectors(writer, "BestIndividualSectorTimeLeader", data.BestIndividualSectorTimeLeader.Sector1, data.BestIndividualSectorTimeLeader.Sector2, data.BestIndividualSectorTimeLeader.Sector3, disabledProperties);
                     writeSectors(writer, "BestIndividualSectorTimeLeaderClass", data.BestIndividualSectorTimeLeaderClass.Sector1, data.BestIndividualSectorTimeLeaderClass.Sector2, data.BestIndividualSectorTimeLeaderClass.Sector3, disabledProperties);
 
+                    writeProperty(writer, "IncidentPoints", data.IncidentPoints, disabledProperties);
+
                     if (enabled("VehicleInfo", disabledProperties))
                     {
                         writer.WritePropertyName("VehicleInfo");
@@ -459,7 +461,7 @@ namespace CrewChiefV4.RaceRoom
                         {
                             if (i < data.DriverData.Length)
                             {
-                                addDriverData(writer, data.DriverData[i], disabledProperties);
+                                addDriverData(writer, data.DriverData[i], disabledProperties, data.IncidentPoints, data.DriverData[i].DriverInfo.SlotId == data.VehicleInfo.SlotId);
                             }
                         }
                         writer.WriteEndArray();
@@ -475,7 +477,7 @@ namespace CrewChiefV4.RaceRoom
             }
         }
 
-        private void addDriverData(JsonWriter writer, DriverData driverData, HashSet<string> disabledProperties)
+        private void addDriverData(JsonWriter writer, DriverData driverData, HashSet<string> disabledProperties, int playerIncidentPoints, bool includeIncidentPoints)
         {
             if (enabled("DriverInfo", disabledProperties))
             {
@@ -493,9 +495,11 @@ namespace CrewChiefV4.RaceRoom
                 writeProperty(writer, "SlotId", driverData.DriverInfo.SlotId, disabledProperties);
                 writeProperty(writer, "ClassPerformanceIndex", driverData.DriverInfo.ClassPerformanceIndex, disabledProperties);
                 writeProperty(writer, "EngineType", driverData.DriverInfo.EngineType, disabledProperties);
-                writeProperty(writer, "IncidentPoints", driverData.DriverInfo.IncidentPoints, disabledProperties);
+                if (includeIncidentPoints)
+                {
+                    writeProperty(writer, "IncidentPoints", playerIncidentPoints, disabledProperties);
+                }
                 writer.WriteEndObject();
-                
             }
             writeProperty(writer, "FinishStatus", driverData.FinishStatus, disabledProperties);
             writeProperty(writer, "Place", driverData.Place, disabledProperties);

@@ -685,7 +685,7 @@ namespace CrewChiefV4.RaceRoom
                 currentGameState.SessionData.LeaderSectorNumber = currentGameState.SessionData.SectorNumber;
             }
 
-            currentGameState.SessionData.CurrentIncidentCount = shared.IncidentPoints; ;
+            currentGameState.SessionData.CurrentIncidentCount = shared.IncidentPoints;
 
             foreach (DriverData participantStruct in shared.DriverData)
             {

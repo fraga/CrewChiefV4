@@ -23,7 +23,7 @@ namespace CrewChiefV4.RBR
         public RBRGameStateMapper()
         {}
 
-        private int[] minimumSupportedVersionParts = new int[] { 1, 0, 0, 0 };
+        private int[] minimumSupportedVersionParts = new int[] { 1, 3, 0, 0 };
         public static bool pluginVerified = false;
         private static int reinitWaitAttempts = 0;
         // regex using the chars .Net says are invalid
