@@ -1997,3 +1997,27 @@ confirm_recce_pace_notes = Confirm each pace note in stage recce
 confirm_recce_pace_notes_help = Play back the pace note(s) created from each stage notes voice command
 confirm_recce_pace_notes_category = AUDIO_VOICE_AND_CONTROLLERS
 dictation_grammar_for_rally_confidence_filter = RBR;DIRT;DIRT_2
+
+minimum_rally_voice_recognition_confidence_microsoft_sre = Min rally voice recognition confidence (Windows recogniser)
+minimum_rally_voice_recognition_confidence_microsoft_sre_help =  When processing voice commands in rally mode, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0)
+minimum_rally_voice_recognition_confidence_microsoft_sre_category = AUDIO_VOICE_AND_CONTROLLERS
+minimum_rally_voice_recognition_confidence_microsoft_sre_filter = RBR;DIRT;DIRT_2
+minimum_rally_voice_recognition_confidence_microsoft_sre_metadata = RESTART_REQUIRED
+
+minimum_rally_voice_recognition_confidence_system_sre = Min rally voice recognition confidence (Windows recogniser)
+minimum_rally_voice_recognition_confidence_system_sre_help =  When processing voice commands in rally mode, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0)
+minimum_rally_voice_recognition_confidence_system_sre_category = AUDIO_VOICE_AND_CONTROLLERS
+minimum_rally_voice_recognition_confidence_system_sre_filter = RBR;DIRT;DIRT_2
+minimum_rally_voice_recognition_confidence_system_sre_metadata = RESTART_REQUIRED
+
+dirt_rally_udp_data_port = Dirt Rally UDP port
+dirt_rally_udp_data_port_help = Dirt Rally network data UDP port (should usually be 20777)
+dirt_rally_udp_data_port_category = UI_STARTUP_AND_PATHS
+dirt_rally_udp_data_port_filter = DIRT
+dirt_rally_udp_data_port_metadata = RESTART_REQUIRED
+
+dirt_rally_2_udp_data_port = Dirt Rally 2 UDP port
+dirt_rally_2_udp_data_port_help = Dirt Rally 2 network data UDP port (should usually be 20777)
+dirt_rally_2_udp_data_port_category = UI_STARTUP_AND_PATHS
+dirt_rally_2_udp_data_port_filter = DIRT_2
+dirt_rally_2_udp_data_port_metadata = RESTART_REQUIRED

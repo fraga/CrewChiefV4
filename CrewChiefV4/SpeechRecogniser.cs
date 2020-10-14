@@ -57,6 +57,8 @@ namespace CrewChiefV4
         private float minimum_trigger_voice_recognition_confidence_microsoft = UserSettings.GetUserSettings().getFloat("trigger_word_sre_min_confidence");
         private float minimum_voice_recognition_confidence_windows = UserSettings.GetUserSettings().getFloat("minimum_voice_recognition_confidence_system_sre");
         private float minimum_voice_recognition_confidence_microsoft = UserSettings.GetUserSettings().getFloat("minimum_voice_recognition_confidence");
+        private float minimum_rally_voice_recognition_confidence_windows = UserSettings.GetUserSettings().getFloat("minimum_rally_voice_recognition_confidence_system_sre");
+        private float minimum_rally_voice_recognition_confidence_microsoft = UserSettings.GetUserSettings().getFloat("minimum_rally_voice_recognition_confidence");
         private Boolean disable_alternative_voice_commands = UserSettings.GetUserSettings().getBoolean("disable_alternative_voice_commands");
         private Boolean enable_iracing_pit_stop_commands = UserSettings.GetUserSettings().getBoolean("enable_iracing_pit_stop_commands");
         private static Boolean use_verbose_responses = UserSettings.GetUserSettings().getBoolean("use_verbose_responses");
@@ -896,6 +898,10 @@ namespace CrewChiefV4
             {
                 minimum_trigger_voice_recognition_confidence_microsoft = 0.6f;
             }
+            if (minimum_rally_voice_recognition_confidence_microsoft < 0 || minimum_rally_voice_recognition_confidence_microsoft > 1)
+            {
+                minimum_rally_voice_recognition_confidence_microsoft = 0.35f;
+            }
             if (minimum_name_voice_recognition_confidence_windows < 0 || minimum_name_voice_recognition_confidence_windows > 1)
             {
                 minimum_name_voice_recognition_confidence_windows = 0.75f;
@@ -907,6 +913,10 @@ namespace CrewChiefV4
             if (minimum_trigger_voice_recognition_confidence_windows < 0 || minimum_trigger_voice_recognition_confidence_windows > 1)
             {
                 minimum_trigger_voice_recognition_confidence_windows = 0.95f;
+            }
+            if (minimum_rally_voice_recognition_confidence_windows < 0 || minimum_rally_voice_recognition_confidence_windows > 1)
+            {
+                minimum_rally_voice_recognition_confidence_windows = 0.55f;
             }
         }
 
@@ -2338,17 +2348,14 @@ namespace CrewChiefV4
             object recognitionGrammar = SREWrapperFactory.GetCallbackGrammar(e);
             string recogniserName = SREWrapperFactory.useSystem ? "System recogniser" : "Microsoft recogniser";
             Console.WriteLine(recogniserName + " recognised : \"" + recognisedText + "\", Confidence = " + recognitionConfidence.ToString("0.000"));
-            float confidenceThreshold = SREWrapperFactory.useSystem ? minimum_voice_recognition_confidence_windows : minimum_voice_recognition_confidence_microsoft;
             float confidenceNamesThreshold = SREWrapperFactory.useSystem ? minimum_name_voice_recognition_confidence_windows : minimum_name_voice_recognition_confidence_microsoft;
-            float confidenceRallyDictationThreshold = UserSettings.GetUserSettings().getFloat("dictation_grammar_for_rally_confidence");
-            bool useDictationGrammarForRally = UserSettings.GetUserSettings().getBoolean("use_dictation_grammar_for_rally");
+            float confidenceCircuitThreshold = SREWrapperFactory.useSystem ? minimum_voice_recognition_confidence_windows : minimum_voice_recognition_confidence_microsoft;
+            float confidenceRallyThreshold = SREWrapperFactory.useSystem ? minimum_rally_voice_recognition_confidence_windows : minimum_rally_voice_recognition_confidence_microsoft;
 
-            // hack for rally. In rally mode the SRE has a lot of permutations to deal with. The recognition accuracy remains high but this affects the confidence values reported. 
-            // We could have 2 additional 'rally confidence' values (maybe we should) but it's probably more simple for the users to just silently adjust the confidence threshold here
-            if (CrewChief.gameDefinition.racingType == CrewChief.RacingType.Rally)
-            {
-                confidenceThreshold = (float) Math.Max(0, confidenceThreshold - 0.15);
-            }
+            float confidenceThreshold = CrewChief.gameDefinition.racingType == CrewChief.RacingType.Rally ? confidenceRallyThreshold : confidenceCircuitThreshold;
+
+            bool useDictationGrammarForRally = false;   // this really doesn't work well. Perhaps it'll be reinstated at some point
+            float confidenceRallyDictationThreshold = 0.3f;
 
             try
             {
@@ -2389,6 +2396,20 @@ namespace CrewChiefV4
                         else
                         {
                             Console.WriteLine("Chat message doesn't appear to start with context " + chatContextStart + " so will not be executed");
+                            crewChief.youWot(true);
+                            youWot = true;
+                        }
+                    }
+                    else if (CrewChief.gameDefinition.racingType == CrewChief.RacingType.Rally && GrammarWrapperListContains(rallyGrammarList, recognitionGrammar))
+                    {
+                        if (recognitionConfidence > confidenceRallyThreshold)
+                        {
+                            this.lastRecognisedText = recognisedText;
+                            CrewChief.getEvent("CoDriver").respond(recognisedText);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Confidence " + recognitionConfidence.ToString("0.000") + " is below the minimum threshold of " + confidenceRallyThreshold.ToString("0.000"));
                             crewChief.youWot(true);
                             youWot = true;
                         }
@@ -2451,14 +2472,9 @@ namespace CrewChiefV4
                             this.lastRecognisedText = recognisedText;
                             CrewChief.getEvent("OverlayController").respond(recognisedText);
                         }
-                        else if (GrammarWrapperListContains(rallyGrammarList, recognitionGrammar))
-                        {
-                            this.lastRecognisedText = recognisedText;
-                            CrewChief.getEvent("CoDriver").respond(recognisedText);
-                        }
                         else if (ResultContains(recognisedText, REPEAT_LAST_MESSAGE, false))
                         {
-                            // in rally mode, repeat-last-message need to replay all the last command batch
+                            // in rally mode, repeat-last-message needs to replay all the last command batch so send this to the CoDriver event
                             if (CrewChief.gameDefinition.racingType == CrewChief.RacingType.Rally)
                             {
                                 CrewChief.getEvent("CoDriver").respond(recognisedText);

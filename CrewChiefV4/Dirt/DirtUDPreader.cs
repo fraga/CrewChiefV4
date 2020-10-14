@@ -22,7 +22,7 @@ namespace CrewChiefV4.Dirt
         private DirtStructWrapper workingData = new DirtStructWrapper();
         private DirtStructWrapper[] dataReadFromFile = null;
         private int dataReadFromFileIndex = 0;
-        private int udpPort = 20777;/*UserSettings.GetUserSettings().getInt("dirt_udp_data_port");*/
+        private int udpPort = 20777;
 
         private byte[] receivedDataBuffer;
 
@@ -76,6 +76,14 @@ namespace CrewChiefV4.Dirt
         {
             if (!this.initialised)
             {
+                if (CrewChief.gameDefinition.gameEnum == GameEnum.DIRT)
+                {
+                    this.udpPort = UserSettings.GetUserSettings().getInt("dirt_rally_udp_data_port");
+                }
+                else if (CrewChief.gameDefinition.gameEnum == GameEnum.DIRT_2)
+                {
+                    this.udpPort = UserSettings.GetUserSettings().getInt("dirt_rally_2_udp_data_port");
+                }
                 socketCallback = new AsyncCallback(ReceiveCallback);
                 packetCount = 0;
                 packetCountAtStartOfNextRateCheck = packetRateCheckInterval;
