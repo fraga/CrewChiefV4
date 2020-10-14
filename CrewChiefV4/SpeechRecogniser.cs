@@ -416,12 +416,11 @@ namespace CrewChiefV4
         public static String[] RALLY_BUMPS = Configuration.getSpeechRecognitionPhrases("RALLY_BUMPS", loadHomophones);
         public static String[] RALLY_OVER_RAILS = Configuration.getSpeechRecognitionPhrases("RALLY_OVER_RAILS", loadHomophones);
         public static String[] RALLY_UPHILL = Configuration.getSpeechRecognitionPhrases("RALLY_UPHILL", loadHomophones);
-        public static String[] RALLY_DOWNHILL = Configuration.getSpeechRecognitionPhrases("RALLY_UPHILL", loadHomophones);
+        public static String[] RALLY_DOWNHILL = Configuration.getSpeechRecognitionPhrases("RALLY_DOWNHILL", loadHomophones);
         public static String[] RALLY_BRAKE = Configuration.getSpeechRecognitionPhrases("RALLY_BRAKE", loadHomophones);
-        // TODO: create loose_gravel type and record, for now this is hacked to be "gravel", "slippy"
         public static String[] RALLY_LOOSE_GRAVEL = Configuration.getSpeechRecognitionPhrases("RALLY_LOOSE_GRAVEL", loadHomophones);
-        // TODO: this includes the "through gate" command, which is recorded as "narrows" - need a separate "through gate" message here
         public static String[] RALLY_NARROWS = Configuration.getSpeechRecognitionPhrases("RALLY_NARROWS", loadHomophones);
+        public static String[] RALLY_THROUGH_GATE = Configuration.getSpeechRecognitionPhrases("RALLY_THROUGH_GATE", loadHomophones);
         // TODO: these phrases cover tree / logs / rocks inside / outside and will (for now) just create a 'keep in' / 'keep out' note
         public static String[] RALLY_OBSTACLE_INSIDE = Configuration.getSpeechRecognitionPhrases("RALLY_OBSTACLE_INSIDE", loadHomophones);
         public static String[] RALLY_OBSTACLE_OUTSIDE = Configuration.getSpeechRecognitionPhrases("RALLY_OBSTACLE_OUTSIDE", loadHomophones);
@@ -468,7 +467,8 @@ namespace CrewChiefV4
             SpeechRecogniser.RALLY_OBSTACLE_OUTSIDE,
             SpeechRecogniser.RALLY_UPHILL,
             SpeechRecogniser.RALLY_DOWNHILL,
-            SpeechRecogniser.RALLY_BRAKE
+            SpeechRecogniser.RALLY_BRAKE,
+            SpeechRecogniser.RALLY_THROUGH_GATE
         };
 
         // for watching opponent - "watch [bob]", "tell me about [bob]"

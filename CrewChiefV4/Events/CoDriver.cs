@@ -364,7 +364,11 @@ namespace CrewChiefV4.Events
             detail_standard_call = 10009,
             detail_sound_index = 10010,
             detail_callout_adjust = 10012,
-            unknown = 20000
+            unknown = 20000,
+
+            // CC-only
+            detail_through_gate,
+            detail_big_jump
         }
 
         [Flags]
@@ -510,6 +514,7 @@ namespace CrewChiefV4.Events
         
         private Dictionary<string[], PacenoteType> obstaclePacenoteTypes = new Dictionary<string[], PacenoteType>()
         {
+            // TODO: record bad camber
             { SpeechRecogniser.RALLY_BAD_CAMBER, PacenoteType.detail_bad_camber },
             { SpeechRecogniser.RALLY_OVER_BRIDGE, PacenoteType.detail_over_bridge },
             { SpeechRecogniser.RALLY_BRIDGE, PacenoteType.detail_bridge },
@@ -518,13 +523,12 @@ namespace CrewChiefV4.Events
             { SpeechRecogniser.RALLY_OVER_CREST, PacenoteType.detail_over_crest },
             { SpeechRecogniser.RALLY_CREST, PacenoteType.detail_crest },
             { SpeechRecogniser.RALLY_FORD, PacenoteType.detail_ford },
-            // TODO: record 'loose gravel' sound
-            { SpeechRecogniser.RALLY_LOOSE_GRAVEL, PacenoteType.detail_gravel },
+            { SpeechRecogniser.RALLY_LOOSE_GRAVEL, PacenoteType.detail_loose_gravel },
             { SpeechRecogniser.RALLY_GRAVEL, PacenoteType.detail_gravel },
             { SpeechRecogniser.RALLY_SNOW, PacenoteType.detail_snow },
             { SpeechRecogniser.RALLY_SLIPPY, PacenoteType.detail_slippy},
             { SpeechRecogniser.RALLY_OVER_JUMP, PacenoteType.detail_over_jump },
-            { SpeechRecogniser.RALLY_BIG_JUMP, PacenoteType.detail_jump }, /* ??? */
+            { SpeechRecogniser.RALLY_BIG_JUMP, PacenoteType.detail_big_jump }, 
             { SpeechRecogniser.RALLY_JUMP, PacenoteType.detail_jump },
             { SpeechRecogniser.RALLY_JUNCTION, PacenoteType.detail_junction },
             { SpeechRecogniser.RALLY_KEEP_IN, PacenoteType.detail_keep_in },
@@ -545,8 +549,9 @@ namespace CrewChiefV4.Events
             { SpeechRecogniser.RALLY_CARE, PacenoteType.detail_care },
             { SpeechRecogniser.RALLY_CAUTION, PacenoteType.detail_caution },
             { SpeechRecogniser.RALLY_DANGER, PacenoteType.detail_double_caution },
-            // TODO: record separate sounds for "gate", "logs/rocks/tree inside/outside" and wire these as separate obstacles
+            { SpeechRecogniser.RALLY_THROUGH_GATE, PacenoteType.detail_through_gate },
             { SpeechRecogniser.RALLY_NARROWS, PacenoteType.detail_narrows },
+            // TODO: record separate sounds for "logs/rocks/tree inside/outside" and wire these as separate obstacles
             { SpeechRecogniser.RALLY_OBSTACLE_INSIDE, PacenoteType.detail_keep_out },
             { SpeechRecogniser.RALLY_OBSTACLE_OUTSIDE, PacenoteType.detail_keep_in },
             { SpeechRecogniser.RALLY_UPHILL, PacenoteType.detail_uphill },
@@ -1713,7 +1718,10 @@ namespace CrewChiefV4.Events
                 {
                     this.inReceMode = true;
                     this.recePaceNotes.Clear();
-                    CrewChief.currentGameState.CoDriverPacenotes.Clear();
+                    if (CrewChief.currentGameState != null)
+                    {
+                        CrewChief.currentGameState.CoDriverPacenotes.Clear();
+                    }
                 }
                 this.audioPlayer.playMessageImmediately(new QueuedMessage(CoDriver.folderAcknowledgeStartRecce, 0));
             }
@@ -1727,8 +1735,12 @@ namespace CrewChiefV4.Events
                         WriteRecePacenotes(lastStageName);
                     }
                     // weird bug: after finishing stage recce mid-stage, the app spews loads of pace note messages
-                    this.lastProcessedPacenoteIdx = CrewChief.currentGameState.CoDriverPacenotes.Count - 1;
-                    CrewChief.currentGameState.CoDriverPacenotes.Clear();
+                    
+                    if (CrewChief.currentGameState != null)
+                    {
+                        this.lastProcessedPacenoteIdx = CrewChief.currentGameState.CoDriverPacenotes.Count - 1;
+                        CrewChief.currentGameState.CoDriverPacenotes.Clear();
+                    }
                     this.recePaceNotes.Clear();
                 }
                 this.audioPlayer.playMessageImmediately(new QueuedMessage(CoDriver.folderAcknowledgeEndRecce, 0));
@@ -1738,8 +1750,10 @@ namespace CrewChiefV4.Events
                 if (!this.inReceMode)
                 {
                     this.inReceMode = true;
-                    this.recePaceNotes.Clear();
-                    CrewChief.currentGameState.CoDriverPacenotes.Clear();
+                    this.recePaceNotes.Clear();if (CrewChief.currentGameState != null)
+                    {
+                        CrewChief.currentGameState.CoDriverPacenotes.Clear();
+                    }
                     this.audioPlayer.playMessageImmediately(new QueuedMessage(CoDriver.folderAcknowledgeStartRecce, 0));
                 }
                 else
@@ -1749,8 +1763,11 @@ namespace CrewChiefV4.Events
                     {
                         WriteRecePacenotes(lastStageName);
                         // weird bug: after finishing stage recce mid-stage, the app spews loads of pace note messages
-                        this.lastProcessedPacenoteIdx = CrewChief.currentGameState.CoDriverPacenotes.Count - 1;
-                        CrewChief.currentGameState.CoDriverPacenotes.Clear();
+                        if (CrewChief.currentGameState != null)
+                        {
+                            this.lastProcessedPacenoteIdx = CrewChief.currentGameState.CoDriverPacenotes.Count - 1;
+                            CrewChief.currentGameState.CoDriverPacenotes.Clear();
+                        }
                         this.recePaceNotes.Clear();
                         this.audioPlayer.playMessageImmediately(new QueuedMessage(CoDriver.folderAcknowledgeEndRecce, 0));
                     }
@@ -1819,7 +1836,15 @@ namespace CrewChiefV4.Events
                 {
                     if (pacenote.Pacenote != PacenoteType.detail_distance_call && pacenote.Pacenote != PacenoteType.unknown)
                     {
-                        confirmationFragments.Add(MessageFragment.Text(GetMessageID(pacenote.Pacenote, PacenoteModifier.none)));
+                        string sound = GetMessageID(pacenote.Pacenote, PacenoteModifier.none);
+                        if (SoundCache.availableSounds.Contains(sound))
+                        {
+                            confirmationFragments.Add(MessageFragment.Text(sound));
+                        }
+                        else
+                        {
+                            Console.WriteLine("Successfully identified pace note modifier " + sound + " but can't find a sound for this");
+                        }
                     }
                     if (pacenote.Modifier != PacenoteModifier.none)
                     {
@@ -1828,7 +1853,17 @@ namespace CrewChiefV4.Events
                             if ((CoDriver.PacenoteModifier)mod != CoDriver.PacenoteModifier.none)
                             {
                                 if (Enum.TryParse<CoDriver.PacenoteModifier>(mod.ToString(), out var modChecked))
-                                    confirmationFragments.Add(MessageFragment.Text(GetMessageID(PacenoteType.unknown, modChecked)));
+                                {
+                                    string sound = GetMessageID(PacenoteType.unknown, modChecked);
+                                    if (SoundCache.availableSounds.Contains(sound))
+                                    {
+                                        confirmationFragments.Add(MessageFragment.Text(sound));
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("Successfully identified pace note fragment " + sound + " but can't find a sound for this");
+                                    }
+                                }
                             }
                         }
                     }
@@ -1846,54 +1881,52 @@ namespace CrewChiefV4.Events
 
         private void ProcessRecePaceNote(string voiceMessage)
         {
-            if (CrewChief.currentGameState != null)
+            Console.WriteLine("Got stage recce voice message \"" + voiceMessage + "\"");
+            float currentDistance = CrewChief.currentGameState == null ? 0 : CrewChief.currentGameState.PositionAndMotionData.DistanceRoundTrack;
+            float distance = MainWindow.voiceOption == MainWindow.VoiceOptionEnum.ALWAYS_ON ?
+                currentDistance : SpeechRecogniser.distanceWhenVoiceCommandStarted;
+            if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_DISTANCE))
             {
-                Console.WriteLine("Got stage recce voice message \"" + voiceMessage + "\"");
-                float distance = MainWindow.voiceOption == MainWindow.VoiceOptionEnum.ALWAYS_ON ?
-                    CrewChief.currentGameState.PositionAndMotionData.DistanceRoundTrack : SpeechRecogniser.distanceWhenVoiceCommandStarted;
-                if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_DISTANCE))
+                if (lastRecePacenoteWasDistance)
                 {
-                    if (lastRecePacenoteWasDistance)
-                    {
-                        Console.WriteLine("Skipping distance pacenote as we can't have 2 of these consecutively");
-                        return;
-                    }
-                    // manually add a distance call - the actual distance will be resolved on playback
-                    this.recePaceNotes.Add(new CoDriverPacenote { Pacenote = PacenoteType.detail_distance_call, Distance = distance });
-                    lastRecePacenoteWasDistance = true;
+                    Console.WriteLine("Skipping distance pacenote as we can't have 2 of these consecutively");
+                    return;
+                }
+                // manually add a distance call - the actual distance will be resolved on playback
+                this.recePaceNotes.Add(new CoDriverPacenote { Pacenote = PacenoteType.detail_distance_call, Distance = distance });
+                lastRecePacenoteWasDistance = true;
+            }
+            else
+            {
+                // we're assuming that the pace note command is made *after* the obstacle / corner, so create the notes then use the created
+                // notes to estimate how long the obstacle / corner is (i.e. the stage distance when the obstacle starts), and set that into the notes
+                List<CoDriverPacenote> paceNotesToAdd = GetPacenotesFromVoiceCommand(voiceMessage);
+                // one special case (eeewww). We missed a modifier during our previous corner call and have made a new command which is just "don't cut"
+                // or something. In this case we attempt to insert that modifier into the last corner call
+                if (paceNotesToAdd.Count == 0 && ContainsCornerModifier(voiceMessage))
+                {
+                    AppendModifierToLastCorner(voiceMessage);
                 }
                 else
                 {
-                    // we're assuming that the pace note command is made *after* the obstacle / corner, so create the notes then use the created
-                    // notes to estimate how long the obstacle / corner is (i.e. the stage distance when the obstacle starts), and set that into the notes
-                    List<CoDriverPacenote> paceNotesToAdd = GetPacenotesFromVoiceCommand(voiceMessage);
-                    // one special case (eeewww). We missed a modifier during our previous corner call and have made a new command which is just "don't cut"
-                    // or something. In this case we attempt to insert that modifier into the last corner call
-                    if (paceNotesToAdd.Count == 0 && ContainsCornerModifier(voiceMessage))
+                    float distanceAtStartOfObstacle = distance - EstimateObstacleLength(paceNotesToAdd);
+                    foreach (CoDriverPacenote paceNote in paceNotesToAdd)
                     {
-                        AppendModifierToLastCorner(voiceMessage);
+                        paceNote.Distance = distanceAtStartOfObstacle;
                     }
-                    else
+                    // after each block of pace notes there'll be a distance placeholder. We always add this but the decision as to whether it'll be
+                    // read is made on playback.
+                    if (!lastRecePacenoteWasDistance)
                     {
-                        float distanceAtStartOfObstacle = distance - EstimateObstacleLength(paceNotesToAdd);
-                        foreach (CoDriverPacenote paceNote in paceNotesToAdd)
-                        {
-                            paceNote.Distance = distanceAtStartOfObstacle;
-                        }
-                        // after each block of pace notes there'll be a distance placeholder. We always add this but the decision as to whether it'll be
-                        // read is made on playback.
-                        if (!lastRecePacenoteWasDistance)
-                        {
-                            // auto generate an optional distance note
-                            paceNotesToAdd.Add(new CoDriverPacenote { Pacenote = PacenoteType.detail_distance_call, Distance = distance + 20 }); // the distance call needs to come some way after the obstacle is finished
-                        }
-                        this.recePaceNotes.AddRange(paceNotesToAdd);
-                        // store these so we can remove them if we get a 'correction' call
-                        this.lastPlayedOrAddedBatch.Clear();
-                        this.lastPlayedOrAddedBatch.AddRange(paceNotesToAdd);
+                        // auto generate an optional distance note
+                        paceNotesToAdd.Add(new CoDriverPacenote { Pacenote = PacenoteType.detail_distance_call, Distance = distance + 20 }); // the distance call needs to come some way after the obstacle is finished
                     }
-                    lastRecePacenoteWasDistance = false;
+                    this.recePaceNotes.AddRange(paceNotesToAdd);
+                    // store these so we can remove them if we get a 'correction' call
+                    this.lastPlayedOrAddedBatch.Clear();
+                    this.lastPlayedOrAddedBatch.AddRange(paceNotesToAdd);
                 }
+                lastRecePacenoteWasDistance = false;
             }
         }
 
@@ -2233,16 +2266,7 @@ namespace CrewChiefV4.Events
             {
                 if (voiceMessageWrapper.FindAndRemove(command, false, true))
                 {
-                    // TODO: remove this special case when loose_gravel is recorded
-                    if (command == SpeechRecogniser.RALLY_LOOSE_GRAVEL)
-                    {
-                        matches.Add(new Tuple<PacenoteType, PacenoteModifier>(PacenoteType.detail_onto_gravel, GetModifier(voiceMessageWrapper)));
-                        matches.Add(new Tuple<PacenoteType, PacenoteModifier>(PacenoteType.detail_slippy, GetModifier(voiceMessageWrapper)));
-                    }
-                    else
-                    {
-                        matches.Add(new Tuple<PacenoteType, PacenoteModifier>(obstaclePacenoteTypes[command], GetModifier(voiceMessageWrapper)));
-                    }
+                    matches.Add(new Tuple<PacenoteType, PacenoteModifier>(obstaclePacenoteTypes[command], GetModifier(voiceMessageWrapper)));
                 }
             }
             return matches;

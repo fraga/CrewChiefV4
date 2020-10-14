@@ -463,8 +463,8 @@ RALLY_DONT_CUT = don't cut
 RALLY_TIGHTENS = tightens
 RALLY_TIGHTENS_BAD = tightens bad
 RALLY_WIDENS = widens:opens
-# TODO: split narrows and through gate into separate commands
-RALLY_NARROWS = narrows:gate:through gate
+RALLY_NARROWS = narrows
+RALLY_THROUGH_GATE = gate:through gate
 RALLY_OPENS = opens
 RALLY_LONG = long
 RALLY_BAD_CAMBER = bad camber
@@ -475,7 +475,7 @@ RALLY_CREST = crest
 RALLY_OVER_CREST = over crest
 RALLY_JUMP = jump
 RALLY_OVER_JUMP = over jump
-RALLY_BIG_JUMP = big jump
+RALLY_BIG_JUMP = big jump:over big jump
 RALLY_MAYBE = maybe
 RALLY_JUNCTION = over junction:junction:past junction:through junction
 RALLY_CAUTION = caution
@@ -503,13 +503,12 @@ RALLY_KEEP_IN = keep in
 RALLY_KEEP_OUT = keep out
 RALLY_BUMPS = bumps:bumpy
 RALLY_OVER_RAILS = over rails
-RALLY_DOWNHILL = downhill
-RALLY_UPHILL = uphill
+RALLY_DOWNHILL = down hill
+RALLY_UPHILL = up hill
 RALLY_BRAKE = braking:brake
 # TODO: specific commands for each of these obstacle types and corresponding recordings:
 RALLY_OBSTACLE_INSIDE = logs inside:rocks inside:tree inside
 RALLY_OBSTACLE_OUTSIDE = logs outside:rocks outside:tree outside
-# TODO: create and record this type and remove the 'onto gravel slippy' hack
 RALLY_LOOSE_GRAVEL = onto loose gravel:loose gravel
 
 
