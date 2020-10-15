@@ -1940,6 +1940,7 @@ namespace CrewChiefV4.Events
                     string filenameWithNoExtension = Path.GetFileNameWithoutExtension(CoDriver.pacenotesFileName);
                     string filenameExtension = Path.GetExtension(CoDriver.pacenotesFileName);
                     newFileName = Path.Combine(pacenotesPath, filenameWithNoExtension + "_" + i + filenameExtension);
+                    i++;
                 }
                 while (File.Exists(newFileName));
                 File.Move(existingPacenotesFullPath, newFileName);
