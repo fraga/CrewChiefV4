@@ -4981,13 +4981,61 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0.3")]
-        public float dictation_grammar_for_rally_confidence {
+        [global::System.Configuration.DefaultSettingValueAttribute("0.55")]
+        public float minimum_rally_voice_recognition_confidence_system_sre {
             get {
-                return ((float)(this["dictation_grammar_for_rally_confidence"]));
+                return ((float)(this["minimum_rally_voice_recognition_confidence_system_sre"]));
             }
             set {
-                this["dictation_grammar_for_rally_confidence"] = value;
+                this["minimum_rally_voice_recognition_confidence_system_sre"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool confirm_recce_pace_notes {
+            get {
+                return ((bool)(this["confirm_recce_pace_notes"]));
+            }
+            set {
+                this["confirm_recce_pace_notes"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.35")]
+        public float minimum_rally_voice_recognition_confidence_microsoft_sre {
+            get {
+                return ((float)(this["minimum_rally_voice_recognition_confidence_microsoft_sre"]));
+            }
+            set {
+                this["minimum_rally_voice_recognition_confidence_microsoft_sre"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("20777")]
+        public int dirt_rally_udp_data_port {
+            get {
+                return ((int)(this["dirt_rally_udp_data_port"]));
+            }
+            set {
+                this["dirt_rally_udp_data_port"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("20777")]
+        public string dirt_rally_2_udp_data_port {
+            get {
+                return ((string)(this["dirt_rally_2_udp_data_port"]));
+            }
+            set {
+                this["dirt_rally_2_udp_data_port"] = value;
             }
         }
     }

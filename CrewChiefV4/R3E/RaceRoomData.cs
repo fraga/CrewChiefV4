@@ -558,8 +558,8 @@ namespace CrewChiefV4.RaceRoom
             public Int32 ClassPerformanceIndex;
             // Note: See the EngineType enum
             public Int32 EngineType;
-            public Int32 IncidentPoints;    //  this isn't set - it's always 0
 
+            public Int32 Unused1;
             public Int32 Unused2;
         }
 

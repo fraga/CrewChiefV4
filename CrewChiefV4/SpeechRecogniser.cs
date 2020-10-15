@@ -57,6 +57,8 @@ namespace CrewChiefV4
         private float minimum_trigger_voice_recognition_confidence_microsoft = UserSettings.GetUserSettings().getFloat("trigger_word_sre_min_confidence");
         private float minimum_voice_recognition_confidence_windows = UserSettings.GetUserSettings().getFloat("minimum_voice_recognition_confidence_system_sre");
         private float minimum_voice_recognition_confidence_microsoft = UserSettings.GetUserSettings().getFloat("minimum_voice_recognition_confidence");
+        private float minimum_rally_voice_recognition_confidence_windows = UserSettings.GetUserSettings().getFloat("minimum_rally_voice_recognition_confidence_system_sre");
+        private float minimum_rally_voice_recognition_confidence_microsoft = UserSettings.GetUserSettings().getFloat("minimum_rally_voice_recognition_confidence");
         private Boolean disable_alternative_voice_commands = UserSettings.GetUserSettings().getBoolean("disable_alternative_voice_commands");
         private Boolean enable_iracing_pit_stop_commands = UserSettings.GetUserSettings().getBoolean("enable_iracing_pit_stop_commands");
         private static Boolean use_verbose_responses = UserSettings.GetUserSettings().getBoolean("use_verbose_responses");
@@ -355,6 +357,8 @@ namespace CrewChiefV4
         public static String[] RALLY_START_RECORDING_STAGE_NOTES = Configuration.getSpeechRecognitionPhrases("RALLY_START_RECORDING_STAGE_NOTES", loadHomophones);
         public static String[] RALLY_FINISH_RECORDING_STAGE_NOTES = Configuration.getSpeechRecognitionPhrases("RALLY_FINISH_RECORDING_STAGE_NOTES", loadHomophones);
         public static String[] RALLY_CORRECTION = Configuration.getSpeechRecognitionPhrases("RALLY_CORRECTION", loadHomophones);
+        public static String[] RALLY_EARLIER = Configuration.getSpeechRecognitionPhrases("RALLY_EARLIER", loadHomophones);
+        public static String[] RALLY_LATER = Configuration.getSpeechRecognitionPhrases("RALLY_LATER", loadHomophones);
         public static String[] RALLY_INSERT = Configuration.getSpeechRecognitionPhrases("RALLY_INSERT", loadHomophones);
         public static String[] RALLY_LEFT = Configuration.getSpeechRecognitionPhrases("RALLY_LEFT", loadHomophones);
         public static String[] RALLY_RIGHT = Configuration.getSpeechRecognitionPhrases("RALLY_RIGHT", loadHomophones);
@@ -380,7 +384,6 @@ namespace CrewChiefV4
         public static String[] RALLY_WIDENS = Configuration.getSpeechRecognitionPhrases("RALLY_WIDENS", loadHomophones);
         public static String[] RALLY_MAYBE = Configuration.getSpeechRecognitionPhrases("RALLY_MAYBE", loadHomophones);
         public static String[] RALLY_LONG = Configuration.getSpeechRecognitionPhrases("RALLY_LONG", loadHomophones);
-        public static String[] RALLY_NARROWS = Configuration.getSpeechRecognitionPhrases("RALLY_NARROWS", loadHomophones);
         public static String[] RALLY_OPENS = Configuration.getSpeechRecognitionPhrases("RALLY_OPENS", loadHomophones);
         public static String[] RALLY_BRIDGE = Configuration.getSpeechRecognitionPhrases("RALLY_BRIDGE", loadHomophones);
         public static String[] RALLY_FORD = Configuration.getSpeechRecognitionPhrases("RALLY_FORD", loadHomophones);
@@ -395,6 +398,8 @@ namespace CrewChiefV4
         public static String[] RALLY_BAD_CAMBER = Configuration.getSpeechRecognitionPhrases("RALLY_BAD_CAMBER", loadHomophones);
         public static String[] RALLY_TARMAC = Configuration.getSpeechRecognitionPhrases("RALLY_TARMAC", loadHomophones);
         public static String[] RALLY_GRAVEL = Configuration.getSpeechRecognitionPhrases("RALLY_GRAVEL", loadHomophones);
+        public static String[] RALLY_SNOW = Configuration.getSpeechRecognitionPhrases("RALLY_SNOW", loadHomophones);
+        public static String[] RALLY_SLIPPY = Configuration.getSpeechRecognitionPhrases("RALLY_SLIPPY", loadHomophones);
         public static String[] RALLY_CONCRETE = Configuration.getSpeechRecognitionPhrases("RALLY_CONCRETE", loadHomophones);
         public static String[] RALLY_TUNNEL = Configuration.getSpeechRecognitionPhrases("RALLY_TUNNEL", loadHomophones);
         public static String[] RALLY_LEFT_ENTRY_CHICANE = Configuration.getSpeechRecognitionPhrases("RALLY_LEFT_ENTRY_CHICANE", loadHomophones);
@@ -410,6 +415,15 @@ namespace CrewChiefV4
         public static String[] RALLY_KEEP_OUT = Configuration.getSpeechRecognitionPhrases("RALLY_KEEP_OUT", loadHomophones);
         public static String[] RALLY_BUMPS = Configuration.getSpeechRecognitionPhrases("RALLY_BUMPS", loadHomophones);
         public static String[] RALLY_OVER_RAILS = Configuration.getSpeechRecognitionPhrases("RALLY_OVER_RAILS", loadHomophones);
+        public static String[] RALLY_UPHILL = Configuration.getSpeechRecognitionPhrases("RALLY_UPHILL", loadHomophones);
+        public static String[] RALLY_DOWNHILL = Configuration.getSpeechRecognitionPhrases("RALLY_DOWNHILL", loadHomophones);
+        public static String[] RALLY_BRAKE = Configuration.getSpeechRecognitionPhrases("RALLY_BRAKE", loadHomophones);
+        public static String[] RALLY_LOOSE_GRAVEL = Configuration.getSpeechRecognitionPhrases("RALLY_LOOSE_GRAVEL", loadHomophones);
+        public static String[] RALLY_NARROWS = Configuration.getSpeechRecognitionPhrases("RALLY_NARROWS", loadHomophones);
+        public static String[] RALLY_THROUGH_GATE = Configuration.getSpeechRecognitionPhrases("RALLY_THROUGH_GATE", loadHomophones);
+        // TODO: these phrases cover tree / logs / rocks inside / outside and will (for now) just create a 'keep in' / 'keep out' note
+        public static String[] RALLY_OBSTACLE_INSIDE = Configuration.getSpeechRecognitionPhrases("RALLY_OBSTACLE_INSIDE", loadHomophones);
+        public static String[] RALLY_OBSTACLE_OUTSIDE = Configuration.getSpeechRecognitionPhrases("RALLY_OBSTACLE_OUTSIDE", loadHomophones);
 
         // most specific first, so "big jump" comes before "jump" when we parse in the event code
         public static List<string[]> RallyObstacleCommands = new List<string[]>()
@@ -420,14 +434,17 @@ namespace CrewChiefV4
             SpeechRecogniser.RALLY_BRIDGE,
             SpeechRecogniser.RALLY_BUMPS,
             SpeechRecogniser.RALLY_CARE,
+            SpeechRecogniser.RALLY_DANGER,
             SpeechRecogniser.RALLY_CAUTION,
             SpeechRecogniser.RALLY_CONCRETE,
-            SpeechRecogniser.RALLY_DANGER,
             SpeechRecogniser.RALLY_OVER_CREST,
             SpeechRecogniser.RALLY_CREST,
             SpeechRecogniser.RALLY_DEEP_RUTS,
             SpeechRecogniser.RALLY_FORD,
+            SpeechRecogniser.RALLY_LOOSE_GRAVEL,
             SpeechRecogniser.RALLY_GRAVEL,
+            SpeechRecogniser.RALLY_SNOW,
+            SpeechRecogniser.RALLY_SLIPPY,
             SpeechRecogniser.RALLY_OVER_JUMP,
             SpeechRecogniser.RALLY_JUMP,
             SpeechRecogniser.RALLY_JUNCTION,
@@ -444,7 +461,14 @@ namespace CrewChiefV4
             SpeechRecogniser.RALLY_RIGHT_ENTRY_CHICANE,
             SpeechRecogniser.RALLY_RUTS,
             SpeechRecogniser.RALLY_TARMAC,
-            SpeechRecogniser.RALLY_TUNNEL
+            SpeechRecogniser.RALLY_TUNNEL,
+            SpeechRecogniser.RALLY_NARROWS,
+            SpeechRecogniser.RALLY_OBSTACLE_INSIDE,
+            SpeechRecogniser.RALLY_OBSTACLE_OUTSIDE,
+            SpeechRecogniser.RALLY_UPHILL,
+            SpeechRecogniser.RALLY_DOWNHILL,
+            SpeechRecogniser.RALLY_BRAKE,
+            SpeechRecogniser.RALLY_THROUGH_GATE
         };
 
         // for watching opponent - "watch [bob]", "tell me about [bob]"
@@ -893,6 +917,10 @@ namespace CrewChiefV4
             {
                 minimum_trigger_voice_recognition_confidence_microsoft = 0.6f;
             }
+            if (minimum_rally_voice_recognition_confidence_microsoft < 0 || minimum_rally_voice_recognition_confidence_microsoft > 1)
+            {
+                minimum_rally_voice_recognition_confidence_microsoft = 0.35f;
+            }
             if (minimum_name_voice_recognition_confidence_windows < 0 || minimum_name_voice_recognition_confidence_windows > 1)
             {
                 minimum_name_voice_recognition_confidence_windows = 0.75f;
@@ -904,6 +932,10 @@ namespace CrewChiefV4
             if (minimum_trigger_voice_recognition_confidence_windows < 0 || minimum_trigger_voice_recognition_confidence_windows > 1)
             {
                 minimum_trigger_voice_recognition_confidence_windows = 0.95f;
+            }
+            if (minimum_rally_voice_recognition_confidence_windows < 0 || minimum_rally_voice_recognition_confidence_windows > 1)
+            {
+                minimum_rally_voice_recognition_confidence_windows = 0.55f;
             }
         }
 
@@ -1121,6 +1153,12 @@ namespace CrewChiefV4
             try
             {
                 sreWrapper.UnloadAllGrammars();
+                iracingPitstopGrammarList.Clear();
+                r3ePitstopGrammarList.Clear();
+                rallyGrammarList.Clear();
+                pitManagerGrammarList.Clear();
+                overlayGrammarList.Clear();
+                opponentGrammarList.Clear();
                 if (disable_alternative_voice_commands)
                 {
                     Console.WriteLine("*Alternative voice commands are disabled, only the first command from each line in speech_recognition_config.txt will be available*");
@@ -1283,10 +1321,6 @@ namespace CrewChiefV4
 
         private void loadSRECommandsForGameType()
         {
-            iracingPitstopGrammarList.Clear();
-            r3ePitstopGrammarList.Clear();
-            rallyGrammarList.Clear();
-            pitManagerGrammarList.Clear();
             switch (CrewChief.gameDefinition.gameEnum)
             {
                 // standard circuit racing games
@@ -1806,6 +1840,7 @@ namespace CrewChiefV4
                     validateAndAdd(RALLY_CORRECTION, correctionChoicesWrapper);
                     validateAndAdd(RALLY_INSERT, correctionChoicesWrapper);
 
+                    
                     // modifier commands. These are generally used to modify a corner call but can apply to other obstacles.
                     ChoicesWrapper stageNoteCommandChoicesWrapper = SREWrapperFactory.createNewChoicesWrapper();
                     validateAndAdd(RALLY_CUT, stageNoteCommandChoicesWrapper);
@@ -1836,6 +1871,10 @@ namespace CrewChiefV4
                     {
                         validateAndAdd(command, stageNoteCommandChoicesWrapper);
                     }
+
+                    // distance correction commands
+                    validateAndAdd(RALLY_EARLIER, stageNoteCommandChoicesWrapper);
+                    validateAndAdd(RALLY_LATER, stageNoteCommandChoicesWrapper);
 
                     // now assemble the choices
                     GrammarBuilderWrapper obstaclesAndCornersRallyGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper();
@@ -2330,10 +2369,15 @@ namespace CrewChiefV4
             object recognitionGrammar = SREWrapperFactory.GetCallbackGrammar(e);
             string recogniserName = SREWrapperFactory.useSystem ? "System recogniser" : "Microsoft recogniser";
             Console.WriteLine(recogniserName + " recognised : \"" + recognisedText + "\", Confidence = " + recognitionConfidence.ToString("0.000"));
-            float confidenceThreshold = SREWrapperFactory.useSystem ? minimum_voice_recognition_confidence_windows : minimum_voice_recognition_confidence_microsoft;
             float confidenceNamesThreshold = SREWrapperFactory.useSystem ? minimum_name_voice_recognition_confidence_windows : minimum_name_voice_recognition_confidence_microsoft;
-            float confidenceRallyDictiationThreshold = UserSettings.GetUserSettings().getFloat("dictation_grammar_for_rally_confidence");
-            bool useDictationGrammarForRally = UserSettings.GetUserSettings().getBoolean("use_dictation_grammar_for_rally");
+            float confidenceCircuitThreshold = SREWrapperFactory.useSystem ? minimum_voice_recognition_confidence_windows : minimum_voice_recognition_confidence_microsoft;
+            float confidenceRallyThreshold = SREWrapperFactory.useSystem ? minimum_rally_voice_recognition_confidence_windows : minimum_rally_voice_recognition_confidence_microsoft;
+
+            float confidenceThreshold = CrewChief.gameDefinition.racingType == CrewChief.RacingType.Rally ? confidenceRallyThreshold : confidenceCircuitThreshold;
+
+            bool useDictationGrammarForRally = false;   // this really doesn't work well. Perhaps it'll be reinstated at some point
+            float confidenceRallyDictationThreshold = 0.3f;
+
             try
             {
                 // special case when we're waiting for a message after a heavy crash:
@@ -2373,6 +2417,20 @@ namespace CrewChiefV4
                         else
                         {
                             Console.WriteLine("Chat message doesn't appear to start with context " + chatContextStart + " so will not be executed");
+                            crewChief.youWot(true);
+                            youWot = true;
+                        }
+                    }
+                    else if (CrewChief.gameDefinition.racingType == CrewChief.RacingType.Rally && GrammarWrapperListContains(rallyGrammarList, recognitionGrammar))
+                    {
+                        if (recognitionConfidence > confidenceRallyThreshold)
+                        {
+                            this.lastRecognisedText = recognisedText;
+                            CrewChief.getEvent("CoDriver").respond(recognisedText);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Confidence " + recognitionConfidence.ToString("0.000") + " is below the minimum threshold of " + confidenceRallyThreshold.ToString("0.000"));
                             crewChief.youWot(true);
                             youWot = true;
                         }
@@ -2435,14 +2493,17 @@ namespace CrewChiefV4
                             this.lastRecognisedText = recognisedText;
                             CrewChief.getEvent("OverlayController").respond(recognisedText);
                         }
-                        else if (GrammarWrapperListContains(rallyGrammarList, recognitionGrammar))
-                        {
-                            this.lastRecognisedText = recognisedText;
-                            CrewChief.getEvent("CoDriver").respond(recognisedText);
-                        }
                         else if (ResultContains(recognisedText, REPEAT_LAST_MESSAGE, false))
                         {
-                            crewChief.audioPlayer.repeatLastMessage();
+                            // in rally mode, repeat-last-message needs to replay all the last command batch so send this to the CoDriver event
+                            if (CrewChief.gameDefinition.racingType == CrewChief.RacingType.Rally)
+                            {
+                                CrewChief.getEvent("CoDriver").respond(recognisedText);
+                            }
+                            else
+                            {
+                                crewChief.audioPlayer.repeatLastMessage();
+                            }
                         }
                         else if (ResultContains(recognisedText, MORE_INFO, false) && this.lastRecognisedText != null && !use_verbose_responses)
                         {
@@ -2471,7 +2532,7 @@ namespace CrewChiefV4
                     else if (CrewChief.gameDefinition.racingType == CrewChief.RacingType.Rally
                        && SREWrapperFactory.useSystem
                        && useDictationGrammarForRally
-                       && recognitionConfidence > confidenceRallyDictiationThreshold)
+                       && recognitionConfidence > confidenceRallyDictationThreshold)
                     {
                         // note that cases where the confidence is high for a free dictation rally grammar match, we'll have already
                         // invoked the CoDriver Respond call - this check is for cases where confidence is below the 'proper' threshold

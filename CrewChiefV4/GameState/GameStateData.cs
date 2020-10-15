@@ -3644,6 +3644,10 @@ namespace CrewChiefV4.GameState
     {
         public float Distance = -1.0f;
 
+        // corrected distance is used when a correction is made to move a note earlier or later
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public float? CorrectedDistance = null;
+
         public CoDriver.PacenoteType Pacenote = CoDriver.PacenoteType.unknown;
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public object Options = null;
