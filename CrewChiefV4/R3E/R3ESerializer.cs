@@ -454,14 +454,15 @@ namespace CrewChiefV4.RaceRoom
                     }
 
                     writeProperty(writer, "NumCars", data.NumCars, disabledProperties);
-                    if (enabled("DriverData", disabledProperties)) {
+                    if (enabled("DriverData", disabledProperties))
+                    {
                         writer.WritePropertyName("DriverData");
                         writer.WriteStartArray();
                         for (int i = 0; i < data.NumCars; i++)
                         {
                             if (i < data.DriverData.Length)
                             {
-                                addDriverData(writer, data.DriverData[i], disabledProperties, data.IncidentPoints, data.DriverData[i].DriverInfo.SlotId == data.VehicleInfo.SlotId);
+                                addDriverData(writer, data.DriverData[i], disabledProperties);
                             }
                         }
                         writer.WriteEndArray();
@@ -477,7 +478,7 @@ namespace CrewChiefV4.RaceRoom
             }
         }
 
-        private void addDriverData(JsonWriter writer, DriverData driverData, HashSet<string> disabledProperties, int playerIncidentPoints, bool includeIncidentPoints)
+        private void addDriverData(JsonWriter writer, DriverData driverData, HashSet<string> disabledProperties)
         {
             if (enabled("DriverInfo", disabledProperties))
             {
@@ -495,10 +496,6 @@ namespace CrewChiefV4.RaceRoom
                 writeProperty(writer, "SlotId", driverData.DriverInfo.SlotId, disabledProperties);
                 writeProperty(writer, "ClassPerformanceIndex", driverData.DriverInfo.ClassPerformanceIndex, disabledProperties);
                 writeProperty(writer, "EngineType", driverData.DriverInfo.EngineType, disabledProperties);
-                if (includeIncidentPoints)
-                {
-                    writeProperty(writer, "IncidentPoints", playerIncidentPoints, disabledProperties);
-                }
                 writer.WriteEndObject();
             }
             writeProperty(writer, "FinishStatus", driverData.FinishStatus, disabledProperties);
