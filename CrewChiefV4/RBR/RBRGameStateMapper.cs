@@ -482,7 +482,8 @@ namespace CrewChiefV4.RBR
                 // Initialize variables that persist for the duration of a session.
                 string trackName = GetWideStringFromBytes(shared.perFrame.currentLocationStringWide);
                 // version of the track name that can be used for a folder name
-                string trackNameValidFolderName = Regex.Replace(trackName, tracknameToValidFolderNameRegex, ""); 
+                string trackNameValidFolderName = Regex.Replace(trackName, tracknameToValidFolderNameRegex, "");
+                trackNameValidFolderName = trackNameValidFolderName.Substring(0, Math.Min(trackNameValidFolderName.Length, maxLengthForTrackNameFolder));
 
                 // use track length from known tracks, or -1 for BTB and unknown tracks
                 double trackLength = -1;
@@ -751,7 +752,9 @@ namespace CrewChiefV4.RBR
                 if (cgs.SessionData.SessionPhase == SessionPhase.Green
                     && (cgs.PositionAndMotionData.DistanceRoundTrack + 4.0f * cgs.PositionAndMotionData.CarSpeed > distance))
                 {
+#if DEBUG
                     Console.WriteLine($"LoadPacenotes: WARNING: mid-session load detected.  Skipping call at: {i}.");
+#endif  // DEBUG
                     continue;
                 }
 
