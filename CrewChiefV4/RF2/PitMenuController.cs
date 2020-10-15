@@ -59,10 +59,7 @@ namespace PitMenuAPI
             string category;
             string choice;
 
-            if (CrewChief.Debugging)
-            {
-                Console.WriteLine("GetMenuDict");
-            }
+            Log.Debug("GetMenuDict");
             if (startUsingPitMenu())
                 {
                 initialCategory = GetCategory();
@@ -70,6 +67,10 @@ namespace PitMenuAPI
                 do
                 {
                     category = GetCategory();
+                    if (string.IsNullOrWhiteSpace(category))
+                    {
+                        break;
+                    }
                     shadowPitMenu[category] = new List<string>();
                     shadowPitMenuCats.Add(category);
                     if (category.Contains("TIRE"))
