@@ -94,7 +94,7 @@
     <Content Include="Overlays_VR.html" />
     <Content Include="Properties_Profiles.html" />
     <Content Include="Properties_Properties.html" />
-    <Content Include="ReadMe.txt" />
+    <None Include="ReadMe.md" />
     <Content Include="Speech_DriverNames.html" />
     <Content Include="Speech_PaceNotes.html" />
     <Content Include="Speech_PitExitPositionPrediction.html" />
