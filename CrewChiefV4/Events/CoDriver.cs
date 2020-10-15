@@ -1158,10 +1158,6 @@ namespace CrewChiefV4.Events
                         cgs.UseCrewchiefPaceNotes = true;
                         InsertDistanceData(paceNotes);
                         InsertFinish(paceNotes, cgs.SessionData.TrackDefinition.trackLength);
-                        if (cgs.CoDriverPacenotes != null && cgs.CoDriverPacenotes.Count > 0)
-                        {
-                            Console.WriteLine("Replacing " + cgs.CoDriverPacenotes.Count + " game-provided stage notes with " + paceNotes.Count + " Crew Chief stagenotes");
-                        }
                         cgs.CoDriverPacenotes = paceNotes;
                     }
                 }
@@ -1260,9 +1256,7 @@ namespace CrewChiefV4.Events
                 {
                     if (this.ShouldIgnorePacenote(cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx]))
                     {
-#if DEBUG
                         Console.WriteLine($"IGNORING PACENOTE: {cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Pacenote}  at: {cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Distance.ToString("0.000")}");
-#endif  // DEBUG
                         ++this.lastProcessedPacenoteIdx;
                         continue;
                     }
@@ -1282,17 +1276,15 @@ namespace CrewChiefV4.Events
                     if (cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Pacenote == CoDriver.PacenoteType.detail_distance_call)
                     {
                         // Distance call is not chained if "empty call" precedes it.
-                        Console.WriteLine($"Playing pacenote: {cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Pacenote}  at: {cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Distance.ToString("0.000")}");
+                        Console.WriteLine($"PLAYING PACENOTE: {cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Pacenote}  at: {cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Distance.ToString("0.000")}");
                         if (Enum.TryParse<CoDriver.PacenoteType>("number_" + cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Options, out var pacenote))
                             this.audioPlayer.playMessageImmediately(new QueuedMessage(this.GetPacenoteMessageID(pacenote, mainPacenoteDist, nextBatchDistance, fragmentsInCurrBatch, speed, cgs.Now), 0));
                         else
-#if DEBUG
                             Console.WriteLine($"DISTANCE PARSE FAILED: {cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Options}  at: {cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Distance.ToString("0.000")}");
-#endif  // DEBUG
                     }
                     else
                     {
-                        Console.WriteLine($"Playing pacenote: {cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Pacenote}  " +
+                        Console.WriteLine($"PLAYING PACENOTE: {cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Pacenote}  " +
                             $"with pacenote distance: {cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Distance.ToString("0.000")}  " +
                             $"at track distance {cgs.PositionAndMotionData.DistanceRoundTrack.ToString("0.000")}");
                         this.audioPlayer.playMessageImmediately(new QueuedMessage(GetPacenoteMessageID(cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Pacenote, mainPacenoteDist, nextBatchDistance, fragmentsInCurrBatch, speed, cgs.Now), 0));
@@ -1314,13 +1306,11 @@ namespace CrewChiefV4.Events
                     {
                         if (cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Pacenote == CoDriver.PacenoteType.detail_distance_call)
                         {
-                            Console.WriteLine($"Playing chained pacenote: {cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Pacenote}  at: {cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Distance.ToString("0.000")}");
+                            Console.WriteLine($"PLAYING CHAINED PACENOTE: {cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Pacenote}  at: {cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Distance.ToString("0.000")}");
                             if (Enum.TryParse<CoDriver.PacenoteType>("number_" + cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Options, out var pacenote))
                                 this.audioPlayer.playMessageImmediately(new QueuedMessage(this.GetPacenoteMessageID(pacenote, mainPacenoteDist, nextBatchDistance, fragmentsInCurrBatch, speed, cgs.Now), 0));
                             else
-#if DEBUG
                                 Console.WriteLine($"DISTANCE PARSE FAILED: {cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Options}  at: {cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Distance.ToString("0.000")}");
-#endif  // DEBUG
                             ++this.lastProcessedPacenoteIdx;
                             continue;
                         }
@@ -1328,7 +1318,7 @@ namespace CrewChiefV4.Events
                         {
                             if (CoDriver.terminologies.chainedNotes.Contains(cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Pacenote.ToString()))
                             {
-                                Console.WriteLine($"Playing inserted chained pacenote: {CoDriver.PacenoteType.detail_into}  at: {prevNoteDist.ToString("0.000")}");
+                                Console.WriteLine($"PLAYING INSERTED CHAINED PACENOTE: {CoDriver.PacenoteType.detail_into}  at: {prevNoteDist.ToString("0.000")}");
                                 foreach (var pacenoteMessageID in this.GetChainedPacenoteMessageIDs(previousPacenoteType, cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Pacenote, 
                                     mainPacenoteDist, nextBatchDistance, fragmentsInCurrBatch, speed, cgs.Now))
                                     this.audioPlayer.playMessageImmediately(new QueuedMessage(pacenoteMessageID, 0));
@@ -1369,11 +1359,11 @@ namespace CrewChiefV4.Events
                 {
                     if ((CoDriver.PacenoteModifier)mod != CoDriver.PacenoteModifier.none)
                     {
-                        Console.WriteLine($"Playing pacenote modifier: {mod}  at: {distance.ToString("0.000")}");
+                        Console.WriteLine($"PLAYING MODIFIER PACENOTE: {mod}  at: {distance.ToString("0.000")}");
                         if (Enum.TryParse<CoDriver.PacenoteModifier>(mod.ToString(), out var modChecked))
                             this.audioPlayer.playMessageImmediately(new QueuedMessage(this.GetPacenoteMessageID(CoDriver.PacenoteType.unknown, mainPacenoteDist, nextBatchDistance, fragmentsInCurrBatch, speed, now, modChecked), 0));
                         else
-                            Console.WriteLine($"Pacenote modifier parse failed: {mod}  at: {distance.ToString("0.000")}");
+                            Console.WriteLine($"MODIFIER PARSE FAILED: {mod}  at: {distance.ToString("0.000")}");
                     }
                 }
             }
@@ -1407,30 +1397,22 @@ namespace CrewChiefV4.Events
 
                 // first see if we have a compound "into_[whatever] sound, and if so use it:
                 var idWithIntoPrefix = id.Insert(CoDriver.folderCodriverPrefix.Length, "cmp_into_");
-#if DEBUG
                 Console.WriteLine($"LOOKING FOR {idWithIntoPrefix}");
-#endif  // DEBUG
                 if (SoundCache.availableSounds.Contains(idWithIntoPrefix))
                 {
-#if DEBUG
                     Console.WriteLine($"PLAYING COMPOUND INSERTED PACENOTE: {idWithIntoPrefix}");
-#endif  // DEBUG
                     IDs.Add(idWithIntoPrefix);
                 }
                 else if (intoToOver.ContainsKey(pacenoteType))
                 {
                     // otherwise see if we can transform into X to over X
-#if DEBUG
                     Console.WriteLine($"TRANSFORMING: into_{pacenoteType} TO over_{pacenoteType}");
-#endif  // DEBUG
                     IDs.Add(this.GetPacenoteMessageID(intoToOver[pacenoteType], mainPacenoteDist, nextBatchDistance, fragmentsInCurrBatch, speed, now));
                 }
                 else
                 {
                     // just add the into and the X messages
-#if DEBUG
                     Console.WriteLine("Falling back to INTO");
-#endif  // DEBUG
                     IDs.Add(this.GetPacenoteMessageID(CoDriver.PacenoteType.detail_into, mainPacenoteDist, nextBatchDistance, fragmentsInCurrBatch, speed, now));
                     IDs.Add(id);
                 }
@@ -1665,9 +1647,8 @@ namespace CrewChiefV4.Events
             }
 
             if (mappedPacenoteStr != pacenoteStr)
-#if DEBUG
                 Console.WriteLine($"PACENOTE RE-MAPPED FROM: {pacenoteStr}  TO: {mappedPacenoteStr}");
-#endif  // DEBUG
+
             return mappedPacenoteStr;
         }
 
@@ -2012,49 +1993,24 @@ namespace CrewChiefV4.Events
             }
         }
 
-        // gets the longest obstacle length from the batch (estimated)
         private float EstimateObstacleLength(List<CoDriverPacenote> paceNotesInBatch)
         {
-            float distance = 10;    // any non-corner obstacle is assumed to be 10 metres from the start point to where the player makes the pace note command
+            float distance = 10;    // any non-corner obstacle is assumed to be 20 metres from the start point to where the player makes the pace note command
             foreach (CoDriverPacenote paceNote in paceNotesInBatch)
             {
-                // TODO add support for 'very long'
-                bool isLong = paceNote.Modifier.ToString().Contains("long") || paceNote.Modifier.ToString().Contains("tighens");
-                switch (paceNote.Pacenote)
+                if (IsCorner(paceNote.Pacenote))
                 {
-                    case PacenoteType.corner_1_left:
-                    case PacenoteType.corner_1_right:
-                    case PacenoteType.corner_2_left:
-                    case PacenoteType.corner_2_right:
-                    case PacenoteType.corner_square_left:
-                    case PacenoteType.corner_square_right:
-                        // short corners
-                        distance = Math.Max(distance, isLong ? 40 : 20);
+                    if (paceNote.Modifier.ToString().Contains("long"))
+                    {
+                        // use 80 metres for long corners, this is the longest one so stop looking here
+                        distance = 80;
                         break;
-                    case PacenoteType.corner_3_left:
-                    case PacenoteType.corner_3_right:
-                    case PacenoteType.corner_4_left:
-                    case PacenoteType.corner_4_right:
-                    case PacenoteType.corner_left_acute:
-                    case PacenoteType.corner_right_acute:
-                    case PacenoteType.detail_left_entry_chicane:
-                    case PacenoteType.detail_right_entry_chicane:
-                        // medium length corners
-                        distance = Math.Max(distance, isLong ? 60 : 30);
-                        break;
-                    case PacenoteType.corner_5_left:
-                    case PacenoteType.corner_5_right:
-                    case PacenoteType.corner_6_left:
-                    case PacenoteType.corner_6_right:
-                    case PacenoteType.corner_flat_left:
-                    case PacenoteType.corner_flat_right:
-                        // long corners
-                        distance = Math.Max(distance, isLong ? 100 : 50);
-                        break;
-                    case PacenoteType.detail_tunnel:
-                        distance = Math.Max(distance, 50);
-                        break;
-                    // other cases?
+                    }
+                    else
+                    {
+                        // use 40 metres for regular corners
+                        distance = Math.Max(40, distance);
+                    }
                 }
             }
             return distance;
