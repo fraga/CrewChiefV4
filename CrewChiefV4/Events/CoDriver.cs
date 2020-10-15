@@ -1160,7 +1160,7 @@ namespace CrewChiefV4.Events
                         InsertFinish(paceNotes, cgs.SessionData.TrackDefinition.trackLength);
                         if (cgs.CoDriverPacenotes != null && cgs.CoDriverPacenotes.Count > 0)
                         {
-                            Console.WriteLine("Replacing " + cgs.CoDriverPacenotes.Count + " game-provided stage notes with " + paceNotes.Count + " Crew Chief stagenotes");
+                            Console.WriteLine("Replacing " + cgs.CoDriverPacenotes.Count + " game-provided stage notes with " + paceNotes.Count + " Crew Chief stage notes");
                         }
                         cgs.CoDriverPacenotes = paceNotes;
                     }

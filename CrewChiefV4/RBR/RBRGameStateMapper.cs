@@ -683,7 +683,7 @@ namespace CrewChiefV4.RBR
         {
             Debug.Assert(!this.pacenotesLoaded);
             this.pacenotesLoaded = true;
-
+            int undefinedPacenoteTypesCount = 0;
             var numPacenotes = shared.coDriver.mRBRPacenoteInfo.numPacenotes;
             if (numPacenotes == 0)
             {
@@ -698,7 +698,10 @@ namespace CrewChiefV4.RBR
 
                 if (!Enum.IsDefined(typeof(CoDriver.PacenoteType), pacenote))
                 {
+                    undefinedPacenoteTypesCount++;
+#if DEBUG
                     Console.WriteLine($"LoadPacenotes: WARNING: unknown pacenote type at: {i}  type: {shared.coDriver.mPacenotes[i].type}  flags: {shared.coDriver.mPacenotes[i].flags}  distance: {distance.ToString("0.000")}.  Skipping.");
+#endif  // DEBUG
                     continue;
                 }
 
@@ -745,9 +748,10 @@ namespace CrewChiefV4.RBR
                 }
 
                 // TODO: Investigate modifer 256 at harwood forest 2
+#if DEBUG
                 if (flagsSum != (int)modifier)
                     Console.WriteLine($"LoadPacenotes: WARNING: unknown pacenote modifiers at: {i}  {pacenote}  flags: {shared.coDriver.mPacenotes[i].flags}  distance: {distance.ToString("0.000")}.");
-
+#endif  // DEBUG
                 // Skip pacenotes that are no longer relevant (mid-session connect with CC started after countdown).
                 if (cgs.SessionData.SessionPhase == SessionPhase.Green
                     && (cgs.PositionAndMotionData.DistanceRoundTrack + 4.0f * cgs.PositionAndMotionData.CarSpeed > distance))
@@ -763,7 +767,9 @@ namespace CrewChiefV4.RBR
                 {
                     if (i + 1 >= numPacenotes)
                     {
+#if DEBUG
                         Console.WriteLine($"LoadPacenotes: no more elements after distance call at: {i}.  Skipping.");
+#endif  // DEBUG
                         continue;
                     }
 
@@ -784,13 +790,17 @@ namespace CrewChiefV4.RBR
                             || typeAhead == (int)CoDriver.PacenoteType.detail_keep_out
                             || typeAhead == (int)CoDriver.PacenoteType.detail_keep_in)
                         {
+#if DEBUG
                             Console.WriteLine($"LoadPacenotes: skipping element: {(CoDriver.PacenoteType)typeAhead} in distance call calculation at: {i}.");
+#endif  // DEBUG
                             ++lookAheadIdx;
                             continue;
                         }
                         else if (!CoDriver.terminologies.chainedNotes.Contains(((CoDriver.PacenoteType)typeAhead).ToString()))
                         {
-                            Console.WriteLine($"LoadPacenotes: skipping element: {(CoDriver.PacenoteType)typeAhead} in distance call calculation  at: {i}.  No it in a list of chained types.");
+#if DEBUG
+                            Console.WriteLine($"LoadPacenotes: skipping element: {(CoDriver.PacenoteType)typeAhead} in distance call calculation  at: {i}. Not in a list of chained types.");
+#endif  // DEBUG
                             ++lookAheadIdx;
                             continue;
                         }
@@ -805,7 +815,9 @@ namespace CrewChiefV4.RBR
 
                     if (distanceToNext < 25.0f || distanceToNext > 1050.0f)
                     {
+#if DEBUG
                         Console.WriteLine($"LoadPacenotes: unable to process distance call at: {i} distance to next: {distanceToNext.ToString("0.000")}.  Skipping.");
+#endif  // DEBUG
                         continue;
                     }
 
@@ -815,10 +827,13 @@ namespace CrewChiefV4.RBR
                 if (pacenote == CoDriver.PacenoteType.detail_finish)
                 {
                     this.finishDistance = distance;
+#if DEBUG
                     Console.WriteLine($"LoadPacenotes: finish distance: {distance.ToString("0.000")}");
+#endif  // DEBUG
                 }
-
+#if DEBUG
                 Console.WriteLine($"LoadPacenotes: pacenote loaded at: {i}      {distance.ToString("0.000")},       {pacenote},     { (options == null ? "null" : options.ToString()) },      [{modifier}]");
+#endif  // DEBUG
                 cgs.CoDriverPacenotes.Add(new CoDriverPacenote() {
                     Distance = distance,
                     Pacenote = pacenote,
@@ -826,6 +841,7 @@ namespace CrewChiefV4.RBR
                     Modifier = modifier
                 });
             }
+            Console.WriteLine("LoadPacenotes: loaded " + cgs.CoDriverPacenotes.Count + " pacenotes with " + undefinedPacenoteTypesCount + " unrecognised pacenotes");
         }
 
         public SessionType MapToSessionType(object wrapper)
