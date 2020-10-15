@@ -38,6 +38,7 @@ namespace HelpFiles
                 "VoiceRecognition_VoiceCommandsCheatSheet",
                 "VoiceRecognition_FreeDictationChatMessages",
                 "VoiceRecognition_CommandMacros",
+                "VoiceRecognition_RallyStageNotes",
                 "Overlays_InGame",
                 "Overlays_VR",
                 //"GameSpecific_ForEachGame",
