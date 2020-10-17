@@ -41,29 +41,6 @@ namespace CrewChiefV4.Dirt
 
         private static Boolean[] buttonsState = new Boolean[32];
 
-        private void UpdateXML(string fileName)
-        {
-            if (File.Exists(fileName))
-            {
-                try
-                {
-                    File.Copy(fileName, fileName + "_backup", true);
-                    XmlDocument doc = new XmlDocument();
-                    doc.Load(fileName);
-                    XmlNode root = doc.DocumentElement;
-                    XmlNode udpNode = root.SelectSingleNode("descendant::udp");
-                    udpNode.Attributes["enabled"].Value = "true";
-                    udpNode.Attributes["extradata"].Value = Math.Max(int.Parse(udpNode.Attributes["extradata"].Value), 3).ToString();
-                    udpNode.Attributes["port"].Value = this.udpPort.ToString();
-                    doc.Save(fileName);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Failed to update settings XML file " + fileName + ", " + e.Message);
-                }
-            }
-        }
-
         public override void DumpRawGameData()
         {
             if (dumpToFile && dataToDump != null && dataToDump.Count > 0 && filenameToDump != null)
@@ -262,6 +239,96 @@ namespace CrewChiefV4.Dirt
             }
 
             return result;
+        }
+
+        private void UpdateXML(string fileName)
+        {
+            if (File.Exists(fileName))
+            {
+                try
+                {
+                    bool save = false;
+                    XmlDocument doc = new XmlDocument();
+                    doc.Load(fileName);
+                    XmlNode root = doc.DocumentElement;
+                    XmlNode udpNode = root.SelectSingleNode("descendant::udp");
+                    if (udpNode == null)
+                    {
+                        // no UDP node, create it and it's motion_platform parent, with the attributes we need
+                        save = true;
+                        CreateElement(doc, root);
+                    }
+                    else
+                    {
+                        // check the attributes and update them if necessary
+                        save = UpdateUDPAttributes(udpNode);
+                    }
+                    if (save)
+                    {
+                        Console.WriteLine("Updating UDP element in " + fileName);
+                        if (!File.Exists(fileName + "_backup"))
+                        {
+                            File.Copy(fileName, fileName + "_backup");
+                        }
+                        doc.Save(fileName);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Failed to update settings XML file " + fileName + ", " + e.Message);
+                }
+            }
+        }
+
+        private bool UpdateUDPAttributes(XmlNode udpNode)
+        {
+            bool save = false;
+            if (udpNode.Attributes["enabled"] == null || !udpNode.Attributes["enabled"].Value.Equals("true"))
+            {
+                save = true;
+                udpNode.Attributes["enabled"].Value = "true";
+            }
+            if (udpNode.Attributes["extradata"] == null || !int.TryParse(udpNode.Attributes["extradata"].Value, out var edv) || edv < 3)
+            {
+                // extradata doesn't exist, or it exists but it's not set to "3" or above
+                save = true;
+                udpNode.Attributes["extradata"].Value = "3";
+            }
+            if (udpNode.Attributes["port"] == null || !udpNode.Attributes["port"].Value.Equals(this.udpPort.ToString()))
+            {
+                save = true;
+                udpNode.Attributes["port"].Value = this.udpPort.ToString();
+            }
+            return save;
+        }
+
+        private void CreateElement(XmlDocument doc, XmlNode root)
+        {
+            // try to create it
+            XmlNode motionPlatform = root.SelectSingleNode("descendant::motion_platform");
+            if (motionPlatform == null)
+            {
+                motionPlatform = doc.CreateElement("motion_platform");
+                root.AppendChild(motionPlatform);
+            }
+            XmlNode udpNode = doc.CreateElement("udp");
+            XmlAttribute enabledAttrib = doc.CreateAttribute("enabled");
+            enabledAttrib.Value = "true";
+            udpNode.Attributes.Append(enabledAttrib);
+            XmlAttribute extradataAttrib = doc.CreateAttribute("extradata");
+            extradataAttrib.Value = "3";
+            udpNode.Attributes.Append(extradataAttrib);
+            XmlAttribute ipAttrib = doc.CreateAttribute("ip");
+            ipAttrib.Value = "127.0.0.1";
+            udpNode.Attributes.Append(ipAttrib);
+            XmlAttribute portAttrib = doc.CreateAttribute("port");
+            portAttrib.Value = CrewChief.gameDefinition.gameEnum == GameEnum.DIRT ?
+                UserSettings.GetUserSettings().getInt("dirt_rally_udp_data_port").ToString() : UserSettings.GetUserSettings().getInt("dirt_rally_2_udp_data_port").ToString();
+            udpNode.Attributes.Append(portAttrib);
+            XmlAttribute delayAttrib = doc.CreateAttribute("delay");
+            delayAttrib.Value = "1";
+            udpNode.Attributes.Append(delayAttrib);
+            motionPlatform.AppendChild(udpNode);
         }
     }
 }
