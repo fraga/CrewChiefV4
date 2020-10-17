@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Xml;
 
 namespace CrewChiefV4.Dirt
 {
@@ -24,6 +26,10 @@ namespace CrewChiefV4.Dirt
         private int dataReadFromFileIndex = 0;
         private int udpPort = 20777;
 
+        private string hardwareSettingsFileDirt = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\My Games\DiRT Rally\hardwaresettings\hardware_settings_config.xml";
+        private string hardwareSettingsFileDirt2 = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\My Games\DiRT Rally 2.0\hardwaresettings\hardware_settings_config.xml";
+        private string hardwareSettingsFileDirt2VR = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\My Games\DiRT Rally 2.0\hardwaresettings\hardware_settings_config_vr.xml";
+
         private byte[] receivedDataBuffer;
 
         private IPEndPoint broadcastAddress;
@@ -34,6 +40,29 @@ namespace CrewChiefV4.Dirt
         private AsyncCallback socketCallback;
 
         private static Boolean[] buttonsState = new Boolean[32];
+
+        private void UpdateXML(string fileName)
+        {
+            if (File.Exists(fileName))
+            {
+                try
+                {
+                    File.Copy(fileName, fileName + "_backup", true);
+                    XmlDocument doc = new XmlDocument();
+                    doc.Load(fileName);
+                    XmlNode root = doc.DocumentElement;
+                    XmlNode udpNode = root.SelectSingleNode("descendant::udp");
+                    udpNode.Attributes["enabled"].Value = "true";
+                    udpNode.Attributes["extradata"].Value = Math.Max(int.Parse(udpNode.Attributes["extradata"].Value), 3).ToString();
+                    udpNode.Attributes["port"].Value = this.udpPort.ToString();
+                    doc.Save(fileName);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Failed to update settings XML file " + fileName + ", " + e.Message);
+                }
+            }
+        }
 
         public override void DumpRawGameData()
         {
@@ -79,10 +108,13 @@ namespace CrewChiefV4.Dirt
                 if (CrewChief.gameDefinition.gameEnum == GameEnum.DIRT)
                 {
                     this.udpPort = UserSettings.GetUserSettings().getInt("dirt_rally_udp_data_port");
+                    UpdateXML(hardwareSettingsFileDirt);
                 }
                 else if (CrewChief.gameDefinition.gameEnum == GameEnum.DIRT_2)
-                {
+                {                    
                     this.udpPort = UserSettings.GetUserSettings().getInt("dirt_rally_2_udp_data_port");
+                    UpdateXML(hardwareSettingsFileDirt2);
+                    UpdateXML(hardwareSettingsFileDirt2VR);
                 }
                 socketCallback = new AsyncCallback(ReceiveCallback);
                 packetCount = 0;
