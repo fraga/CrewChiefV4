@@ -1912,6 +1912,10 @@ namespace CrewChiefV4.Events
                 }
                 this.audioPlayer.playMessageImmediately(new QueuedMessage("pacenote confirmation", 0, confirmationFragments));
             }
+            else if (addAcknowledge)
+            {
+                this.audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderDidntUnderstand, 0));
+            }
         }
 
         private void WriteRecePacenotes(string trackName)
