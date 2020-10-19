@@ -431,7 +431,7 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
-Version 4.14.0.2: Added rally stage notes creation support - see https://mr_belowski.gitlab.io/CrewChiefV4/VoiceRecognition_RallyStageNotes.html; Added support for Dirt Rally and Dirt Rally 2 (user-created stage notes only); Added option to enable scroll bars on main window where necessary (enable with 'Scroll bars on main window' property); R3E - use correct field for player incident points
+Version 4.14.0.2: Added rally stage notes creation support - see https://mr_belowski.gitlab.io/CrewChiefV4/VoiceRecognition_RallyStageNotes.html; Added support for Dirt Rally and Dirt Rally 2 (user-created stage notes only); Added option to enable scroll bars on main window where necessary (enable with 'Scroll bars on main window' property); Pit Manager - tyre selection handles in-game tyre compound that is not in PM's list; R3E - use correct field for player incident points
 
 Version 4.13.1.7: Changed "watch" commands to be "monitor" ("monitor [opponent name / the car ahead / p12 / the leader / etc]" / stop monitoring [opponent name / etc] / stop monitoring all etc) - the word "watch" is too similar to "what's" so was being regularly mis-interpreted by the speech recogniser; Fix some issues with macros not applying to the correct application window; ACC - fix penalty logic; ACC - fix for the app repeating laptime in hotstint mode; RBR - subtitles fix; R3E - reduced optimial tyre temps for F-Junior; R3E - retry ratings downloads with http / https toggled
 

@@ -1803,8 +1803,8 @@ namespace CrewChiefV4.Events
                             CrewChief.currentGameState.CoDriverPacenotes.Clear();
                         }
                         this.recePaceNotes.Clear();
-                        this.audioPlayer.playMessageImmediately(new QueuedMessage(CoDriver.folderAcknowledgeEndRecce, 0));
                     }
+                    this.audioPlayer.playMessageImmediately(new QueuedMessage(CoDriver.folderAcknowledgeEndRecce, 0));
                 }
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_CORRECTION))
@@ -1911,6 +1911,10 @@ namespace CrewChiefV4.Events
                     }
                 }
                 this.audioPlayer.playMessageImmediately(new QueuedMessage("pacenote confirmation", 0, confirmationFragments));
+            }
+            else if (addAcknowledge)
+            {
+                this.audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderDidntUnderstand, 0));
             }
         }
 

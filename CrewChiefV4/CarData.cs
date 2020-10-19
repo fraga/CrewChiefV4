@@ -110,8 +110,8 @@ namespace CrewChiefV4
         private static float maxWarmR3E2017MediumTyreTempPeak = 99;
         private static float maxHotR3E2017MediumTyreTempPeak = 110;
 
-        private static float maxColdR3E2017HardTyreTempPeak = 75;
-        private static float maxWarmR3E2017HardTyreTempPeak = 105;
+        private static float maxColdR3E2017HardTyreTempPeak = 72;
+        private static float maxWarmR3E2017HardTyreTempPeak = 100;
         private static float maxHotR3E2017HardTyreTempPeak = 115;
 
         // special case for F-Junior, maybe need to add this to NSU as well
