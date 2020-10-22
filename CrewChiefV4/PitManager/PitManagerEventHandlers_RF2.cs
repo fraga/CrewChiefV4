@@ -150,6 +150,9 @@ namespace CrewChiefV4.PitManager
                             }
                         }
                     }
+                }
+                foreach (var genericTyretype in tyreDict)
+                {
                     if (!result.ContainsKey(genericTyretype.Key))
                     {   // Didn't match, give it something
                         result[genericTyretype.Key] = inMenu[0];

@@ -1256,5 +1256,11 @@
     <Setting Name="dirt_rally_2_udp_data_port" Type="System.String" Scope="User">
       <Value Profile="(Default)">20777</Value>
     </Setting>
+    <Setting Name="log_type_debug" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="log_type_verbose" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
