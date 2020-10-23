@@ -25,7 +25,9 @@ namespace CrewChiefV4
             Debug = 1 << 6,
             Verbose = 1 << 7,
         };
-        private static LogType _logMask = setLogLevel(LogType.Subtitle);
+        private static LogType _logMask = UserSettings.GetUserSettings().getBoolean("log_type_debug") ?
+            setLogLevel(LogType.Debug) : (UserSettings.GetUserSettings().getBoolean("log_type_verbose") ?
+            setLogLevel(LogType.Verbose) : setLogLevel(LogType.Subtitle));
         private static readonly Dictionary<LogType, string> logPrefixes = new
             Dictionary<LogType, string>
         {
