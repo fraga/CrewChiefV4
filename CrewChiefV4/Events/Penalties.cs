@@ -265,6 +265,13 @@ namespace CrewChiefV4.Events
         {
             if (base.isMessageStillValid(eventSubType, currentGameState, validationData))
             {
+                if (eventSubType == folderCarToCarCollision 
+                    || eventSubType == folderTooManyCarToCarCollisions 
+                    || eventSubType == folderWillBeKickedAfterOneMoreCollision 
+                    || eventSubType == folderWillBeKickedAfterOneMoreOffTrack)
+                {
+                    return currentGameState.SessionData.SessionPhase != SessionPhase.Finished;
+                }
                 if (eventSubType == folderPossibleTrackLimitsViolation)
                 {
                     return currentGameState.PositionAndMotionData.CarSpeed > 10;
