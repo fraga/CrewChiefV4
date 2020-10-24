@@ -628,11 +628,11 @@ namespace CrewChiefV4.Events
         private static string startRecce = "acknowledge_start_recce";
         private static string endRecce = "acknowledge_end_recce";
         // if available, we use a codriver-specific version of these
-        private static string folderAcknowlegeOK = AudioPlayer.folderAcknowlegeOK;
-        private static string folderDidntUnderstand = AudioPlayer.folderDidntUnderstand;
-        private static string folderNo = AudioPlayer.folderNo;
-        private static string folderAcknowledgeStartRecce = folderCodriverPrefix + startRecce;
-        private static string folderAcknowledgeEndRecce = folderCodriverPrefix + endRecce;
+        private string folderAcknowlegeOK = AudioPlayer.folderAcknowlegeOK;
+        private string folderDidntUnderstand = AudioPlayer.folderDidntUnderstand;
+        private string folderNo = AudioPlayer.folderNo;
+        private string folderAcknowledgeStartRecce = folderCodriverPrefix + startRecce;
+        private string folderAcknowledgeEndRecce = folderCodriverPrefix + endRecce;
 
         // These are to be combined with the folderCodriverPrefix string.
         public static string folderFalseStart;
@@ -729,23 +729,23 @@ namespace CrewChiefV4.Events
                     string codriverEndRecce = CoDriver.folderCodriverPrefix + endRecce;
                     if (SoundCache.availableSounds.Contains(codriverAcknowledgeOK))
                     {
-                        CoDriver.folderAcknowlegeOK = codriverAcknowledgeOK;
+                        this.folderAcknowlegeOK = codriverAcknowledgeOK;
                     }
                     if (SoundCache.availableSounds.Contains(codriverAcknowledgeDidntUnderstand))
                     {
-                        CoDriver.folderDidntUnderstand = codriverAcknowledgeDidntUnderstand;
+                        this.folderDidntUnderstand = codriverAcknowledgeDidntUnderstand;
                     }
                     if (SoundCache.availableSounds.Contains(codriverNo))
                     {
-                        CoDriver.folderNo = codriverNo;
+                        this.folderNo = codriverNo;
                     }
                     if (SoundCache.availableSounds.Contains(codriverStartRecce))
                     {
-                        CoDriver.folderAcknowledgeStartRecce = codriverStartRecce;
+                        this.folderAcknowledgeStartRecce = codriverStartRecce;
                     }
                     if (SoundCache.availableSounds.Contains(codriverEndRecce))
                     {
-                        CoDriver.folderAcknowledgeEndRecce = codriverEndRecce;
+                        this.folderAcknowledgeEndRecce = codriverEndRecce;
                     }
                 }
             }
@@ -1734,7 +1734,7 @@ namespace CrewChiefV4.Events
             {
                 if (this.lookaheadSecondsToUse < CoDriver.maxLookaheadSeconds)
                 {
-                    this.audioPlayer.playMessageImmediately(new QueuedMessage(CoDriver.folderAcknowlegeOK, 0));
+                    this.audioPlayer.playMessageImmediately(new QueuedMessage(this.folderAcknowlegeOK, 0));
                     var newLookahead = this.lookaheadSecondsToUse + 0.5f;
                     Console.WriteLine("Increasing lookahead from " + this.lookaheadSecondsToUse.ToString("0.0") + " seconds to " + newLookahead.ToString("0.0") + " seconds.");
                     this.lookaheadSecondsToUse = newLookahead;
@@ -1742,14 +1742,14 @@ namespace CrewChiefV4.Events
                 else
                 {
                     // TODO: need to specific "no, bugger off" response?
-                    this.audioPlayer.playMessageImmediately(new QueuedMessage(CoDriver.folderNo, 0));
+                    this.audioPlayer.playMessageImmediately(new QueuedMessage(this.folderNo, 0));
                 }
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_LATER_CALLS))
             {
                 if (this.lookaheadSecondsToUse > CoDriver.minLookaheadSeconds)
                 {
-                    this.audioPlayer.playMessageImmediately(new QueuedMessage(CoDriver.folderAcknowlegeOK, 0));
+                    this.audioPlayer.playMessageImmediately(new QueuedMessage(this.folderAcknowlegeOK, 0));
                     var newLookahead = this.lookaheadSecondsToUse - 0.5f;
                     Console.WriteLine("Decreasing lookahead from " + this.lookaheadSecondsToUse.ToString("0.0") + " seconds to " + newLookahead.ToString("0.0") + " seconds.");
                     this.lookaheadSecondsToUse = newLookahead;
@@ -1757,22 +1757,22 @@ namespace CrewChiefV4.Events
                 else
                 {
                     // TODO: need to specific "no, bugger off" response?
-                    this.audioPlayer.playMessageImmediately(new QueuedMessage(CoDriver.folderNo, 0));
+                    this.audioPlayer.playMessageImmediately(new QueuedMessage(this.folderNo, 0));
                 }
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_CORNER_DECRIPTIONS))
             {
-                this.audioPlayer.playMessageImmediately(new QueuedMessage(CoDriver.folderAcknowlegeOK, 0));
+                this.audioPlayer.playMessageImmediately(new QueuedMessage(this.folderAcknowlegeOK, 0));
                 CoDriver.cornerCallStyle = CornerCallStyle.DESCRIPTIVE;
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_CORNER_NUMBER_FIRST))
             {
-                this.audioPlayer.playMessageImmediately(new QueuedMessage(CoDriver.folderAcknowlegeOK, 0));
+                this.audioPlayer.playMessageImmediately(new QueuedMessage(this.folderAcknowlegeOK, 0));
                 CoDriver.cornerCallStyle = this.preferReversedNumbers ? CornerCallStyle.NUMBER_FIRST_REVERSED : CornerCallStyle.NUMBER_FIRST;
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_CORNER_DIRECTION_FIRST))
             {
-                this.audioPlayer.playMessageImmediately(new QueuedMessage(CoDriver.folderAcknowlegeOK, 0));
+                this.audioPlayer.playMessageImmediately(new QueuedMessage(this.folderAcknowlegeOK, 0));
                 CoDriver.cornerCallStyle = this.preferReversedNumbers ? CornerCallStyle.DIRECTION_FIRST_REVERSED : CornerCallStyle.DIRECTION_FIRST;
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_START_RECORDING_STAGE_NOTES))
@@ -1786,7 +1786,7 @@ namespace CrewChiefV4.Events
                         CrewChief.currentGameState.CoDriverPacenotes.Clear();
                     }
                 }
-                this.audioPlayer.playMessageImmediately(new QueuedMessage(CoDriver.folderAcknowledgeStartRecce, 0));
+                this.audioPlayer.playMessageImmediately(new QueuedMessage(this.folderAcknowledgeStartRecce, 0));
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_FINISH_RECORDING_STAGE_NOTES))
             {
@@ -1806,7 +1806,7 @@ namespace CrewChiefV4.Events
                     }
                     this.recePaceNotes.Clear();
                 }
-                this.audioPlayer.playMessageImmediately(new QueuedMessage(CoDriver.folderAcknowledgeEndRecce, 0));
+                this.audioPlayer.playMessageImmediately(new QueuedMessage(this.folderAcknowledgeEndRecce, 0));
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, new string[] { TOGGLE_RALLY_RECCE_MODE }))
             {
@@ -1817,7 +1817,7 @@ namespace CrewChiefV4.Events
                     {
                         CrewChief.currentGameState.CoDriverPacenotes.Clear();
                     }
-                    this.audioPlayer.playMessageImmediately(new QueuedMessage(CoDriver.folderAcknowledgeStartRecce, 0));
+                    this.audioPlayer.playMessageImmediately(new QueuedMessage(this.folderAcknowledgeStartRecce, 0));
                 }
                 else
                 {
@@ -1833,7 +1833,7 @@ namespace CrewChiefV4.Events
                         }
                         this.recePaceNotes.Clear();
                     }
-                    this.audioPlayer.playMessageImmediately(new QueuedMessage(CoDriver.folderAcknowledgeEndRecce, 0));
+                    this.audioPlayer.playMessageImmediately(new QueuedMessage(this.folderAcknowledgeEndRecce, 0));
                 }
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_CORRECTION))
