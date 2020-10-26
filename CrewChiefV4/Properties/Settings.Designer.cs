@@ -5062,5 +5062,17 @@ namespace CrewChiefV4.Properties {
                 this["log_type_verbose"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool allow_composite_personalisations {
+            get {
+                return ((bool)(this["allow_composite_personalisations"]));
+            }
+            set {
+                this["allow_composite_personalisations"] = value;
+            }
+        }
     }
 }
