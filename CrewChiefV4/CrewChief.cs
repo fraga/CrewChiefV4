@@ -240,7 +240,11 @@ namespace CrewChiefV4
                         gameDefinition.gameEnum == GameEnum.ASSETTO_64BIT ||
                         gameDefinition.gameEnum == GameEnum.RF1 ||
                         gameDefinition.gameEnum == GameEnum.RF2_64BIT ||
-                        gameDefinition.gameEnum == GameEnum.ACC)
+                        gameDefinition.gameEnum == GameEnum.ACC ||
+                        gameDefinition.gameEnum == GameEnum.DIRT ||
+                        gameDefinition.gameEnum == GameEnum.DIRT_2 ||
+                        gameDefinition.gameEnum == GameEnum.RBR
+                        )
                     {
                         PluginInstaller pluginInstaller = new PluginInstaller();
                         pluginInstaller.InstallOrUpdatePlugins(gameDefinition);
