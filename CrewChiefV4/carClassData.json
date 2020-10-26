@@ -424,6 +424,7 @@
 			"carClassEnum": "GTO",
 			"raceroomClassIds": [1713],
 			"pCarsClassNames": ["GTO"],
+			"ams2ClassNames": ["GTOpen"],
 			"timesInHundredths": true,
 			"enabledMessageTypes": "TYRE_TEMPS, BRAKE_TEMPS, FUEL, LOCKING_AND_SPINNING",
 			"allMembersAreRWD": true
@@ -492,6 +493,7 @@
 			"pCarsClassNames": ["FA", "Formula A"],
 			"rf2ClassNames": ["Formula ISI 2012", "OW Formula 1 2017 Single Player", "OW Formula 1 2017 League Edition", "F1 2016 Single Player", "F1 2016 League Edition", "Mercedes Amg Petronas FW08", "Mclaren Honda Mcl32", "Toro-rosso STR12", "Ferrari SF70H", "Renault R.S 17", "Haas VF-17", "Force India VJM10", "Redbull Racing RB13", "Williams Racing FW40", "Sauber F1 c34 Hybrid", "F1RFT 2013"],
 			"acClassNames": ["ks_ferrari_f138", "ferrari_f2002", "ks_ferrari_sf15t"],
+			"ams2ClassNames": ["F-Ultimate"],
 			"brakeType": "Carbon",
 			"maxSafeWaterTemp": 105,
 			"maxSafeOilTemp": 140,
@@ -896,6 +898,16 @@
 			"enabledMessageTypes": "TYRE_TEMPS, FUEL, LOCKING_AND_SPINNING"
 		},
 		{
+			"carClassEnum": "ROAD_A",
+			"ams2ClassNames": ["Street"],
+			"defaultTyreType": "Road",
+			"brakeType": "Iron_Road",
+			"maxSafeWaterTemp": 102,
+			"maxSafeOilTemp": 115,
+			"timesInHundredths": true,
+			"enabledMessageTypes": "TYRE_TEMPS, FUEL, LOCKING_AND_SPINNING"
+		},
+		{
 			"carClassEnum": "ROAD_B",
 			"pCarsClassNames": ["Road B"],
 			"defaultTyreType": "Road",
@@ -1194,6 +1206,97 @@
 			"maxSafeWaterTemp": 102,
 			"maxSafeOilTemp": 115,
 			"enabledMessageTypes": "ALL",
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "ARC_CAMERO",
+			"ams2ClassNames": ["ARC_Cam"],
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "CATERHAM_620R",
+			"ams2ClassNames": ["Cat620R"],
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "CATERHAM_SUPERSPORT",
+			"ams2ClassNames": ["Cat_Supersport"],
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "CATERHAM_SUPERLIGHT",
+			"ams2ClassNames": ["Cat_Superlight"],
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "CATERHAM_ACADAMY",
+			"ams2ClassNames": ["Cat_Academy"],
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "COPA_CLASSIC_A",
+			"ams2ClassNames": ["CopaClassicA"]
+		},
+		{
+			"carClassEnum": "COPA_CLASSIC_B",
+			"ams2ClassNames": ["CopaClassicB"]
+		},
+		{
+			"carClassEnum": "COPA_FUSCA",
+			"ams2ClassNames": ["CopaFusca"],
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "TRUCK",
+			"ams2ClassNames": ["CopaTruck"],
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "COPA_UNO",
+			"ams2ClassNames": ["CopaUno"],
+			"allMembersAreFWD": true
+		},
+		{
+			"carClassEnum": "REIZA_FV12",
+			"ams2ClassNames": ["F-V12"],
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "COPA_HOT_CARS",
+			"ams2ClassNames": ["Hot Cars"],
+			"allMembersAreFWD": true
+		},
+		{
+			"carClassEnum": "LANCER_CUP",
+			"ams2ClassNames": ["LancerCup"]
+		},
+		{
+			"carClassEnum": "MINI_CHALLENGE",
+			"ams2ClassNames": ["MiniChallenge"]
+		},
+		{
+			"carClassEnum": "COPA_MONTANA",
+			"ams2ClassNames": ["Montana"],
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "OPALA_STOCK_OLD",
+			"ams2ClassNames": ["OldStock"],
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "OPALA_STOCK_79",
+			"ams2ClassNames": ["Opala79"],
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "OPALA_STOCK_86",
+			"ams2ClassNames": ["Opala86"],
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "SPRINT_RACE",
+			"ams2ClassNames": ["SprintRace"],
 			"allMembersAreRWD": true
 		}
 	]
