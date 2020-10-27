@@ -132,15 +132,16 @@ namespace CrewChiefV4.GameState
                     if (opponent.ClassPosition == currentGameState.SessionData.ClassPosition - 1)
                     {
                         var useDerivedDeltas = true;
-                        if (CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2
-                            || CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM
-                            || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT
-                            || CrewChief.gameDefinition.gameEnum == GameEnum.RF1
-                            || CrewChief.gameDefinition.gameEnum == GameEnum.AMS2
-                            || CrewChief.gameDefinition.gameEnum == GameEnum.PCARS3)
+                        if (singleClass &&
+                             (CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2
+                              || CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM
+                              || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT
+                              || CrewChief.gameDefinition.gameEnum == GameEnum.RF1
+                              || CrewChief.gameDefinition.gameEnum == GameEnum.AMS2
+                              || CrewChief.gameDefinition.gameEnum == GameEnum.PCARS3))
                         {
                             // special case for R3E, RF1, RF2 and PCars2 - gap ahead is provided by the game - use these 
-                            // (already set in the mapper) if the opponent is on the same lap
+                            // (already set in the mapper) if the opponent is on the same lap and we're racing a single class
                             var lapDifference = opponent.DeltaTime.GetSignedLapDifference(currentGameState.SessionData.DeltaTime);
                             if (lapDifference == 0)
                             {
