@@ -63,12 +63,12 @@ namespace CrewChiefV4.R3E
 
         public static int getAverageRatingForParticipants(Dictionary<string, OpponentData> opponentData)
         {
-            if (opponentData == null)
+            if (opponentData == null || !gotPlayerRating)
             {
                 return -1;
             }
-            float average = 0;
-            float count = 0;
+            float opponentRatingSum = 0;
+            float opponentWithRatingCount = 0;
             foreach (OpponentData opponent in opponentData.Values)
             {
                 if (opponent.r3eUserId != -1)
@@ -76,12 +76,16 @@ namespace CrewChiefV4.R3E
                     R3ERatingData data = getRatingForUserId(opponent.r3eUserId);
                     if (data != null)
                     {
-                        average += data.rating;
-                        count++;
+                        opponentRatingSum += data.rating;
+                        opponentWithRatingCount++;
                     }
                 }
             }
-            return count == 0 ? -1 : (int) (average / count);
+            if (opponentWithRatingCount > 0)
+            {
+                return (int) ((playerRating.rating + opponentRatingSum) / (opponentWithRatingCount + 1f));
+            }
+            return -1;
         }
         
         public static void init()
