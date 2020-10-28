@@ -180,7 +180,7 @@
 		},
 		{
 			"carClassEnum": "GT3",
-			"raceroomClassIds": [1703, 2922, 3375, 4516, 7278],
+			"raceroomClassIds": [1703, 2922, 3375, 4516, 7278, 7767],
 			"pCarsClassNames": ["GT3"],
 			"rf2ClassNames": ["*GT3*"],
 			"acClassNames": ["ks_audi_r8_lms*", "*GT3*"],
@@ -192,7 +192,7 @@
 		},
 		{
 			"carClassEnum": "CARRERA_CUP",
-			"raceroomClassIds": [6345,7982],
+			"raceroomClassIds": [6345, 7982, 8165, 8681],
 			"acClassNames": ["porsche*cup*"],
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL",
@@ -802,7 +802,7 @@
 		},
 		{
 			"carClassEnum": "TCR",
-			"raceroomClassIds": [7009, 7844, 8660],
+			"raceroomClassIds": [7009, 7844, 8660, 8077, 9233],
 			"rf2ClassNames": ["TCR SEAT", "Honda Civic TCR", "Opel Astra OPC", "TT Cup 2015", "TCR VW", "Ford Focus ST"],
 			"iracingCarIds": [112],
 			"timesInHundredths": true,
@@ -1111,7 +1111,7 @@
 			"maxSafeOilTemp": 140,
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL",
-			"allMembersAreRWD": true,
+			"allMembersAreRWD": true
 		},
 		{
 			"carClassEnum": "F1_80S_NA",
@@ -1120,7 +1120,7 @@
 			"maxSafeOilTemp": 140,
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL",
-			"allMembersAreRWD": true,
+			"allMembersAreRWD": true
 		},
 		{
 			"carClassEnum": "F1_2000S",
@@ -1235,11 +1235,13 @@
 		},
 		{
 			"carClassEnum": "COPA_CLASSIC_A",
-			"ams2ClassNames": ["CopaClassicA"]
+			"ams2ClassNames": ["CopaClassicA"],
+			"defaultTyreType": "Bias_Ply"
 		},
 		{
 			"carClassEnum": "COPA_CLASSIC_B",
-			"ams2ClassNames": ["CopaClassicB"]
+			"ams2ClassNames": ["CopaClassicB"],
+			"defaultTyreType": "Bias_Ply"
 		},
 		{
 			"carClassEnum": "COPA_FUSCA",
@@ -1282,11 +1284,13 @@
 		{
 			"carClassEnum": "OPALA_STOCK_OLD",
 			"ams2ClassNames": ["OldStock"],
+			"defaultTyreType": "Bias_Ply",
 			"allMembersAreRWD": true
 		},
 		{
 			"carClassEnum": "OPALA_STOCK_79",
 			"ams2ClassNames": ["Opala79"],
+			"defaultTyreType": "Bias_Ply",
 			"allMembersAreRWD": true
 		},
 		{
@@ -1298,6 +1302,23 @@
 			"carClassEnum": "SPRINT_RACE",
 			"ams2ClassNames": ["SprintRace"],
 			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "F_VEE",
+			"ams2ClassNames": ["F-Vee"],
+			"allMembersAreRWD": true,
+			"defaultTyreType": "Road"
+		},
+		{
+			"carClassEnum": "GROUP2",
+			"raceroomClassIds": [8483],
+			"defaultTyreType": "Bias_Ply",
+			"allMembersAreFWD": true
+		},
+		{
+			"carClassEnum": "E_TCR",
+			"raceroomClassIds": [8682],
+			"isBatteryPowered": true
 		}
 	]
 }
