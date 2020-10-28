@@ -54,7 +54,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="About_ChangeLog.html" />
     <Content Include="About_Contact.html" />
     <Content Include="About_Credits.html" />
     <Content Include="About_Customising_NameRequests.html" />
