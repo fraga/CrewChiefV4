@@ -48,7 +48,6 @@ namespace HelpFiles
                 "About_Customising_CarClasses",
                 "About_Credits",
                 "About_Donations",
-                "About_ChangeLog",
                 "About_Licenses"
                 };
             gameNames = new string[]{
@@ -74,6 +73,8 @@ namespace HelpFiles
             };
 
             writeOnePage("index");
+            // Use change_log_for_auto_updated.html as source for About_ChangeLog.html - no need to duplicate
+            writeOnePage("About_ChangeLog", $"..\\..\\..\\change_log_for_auto_updated.html");
 
             foreach (string page in pageNames)
             {
@@ -99,8 +100,18 @@ namespace HelpFiles
         /// The content section is marked <div> </div>
         /// </summary>
         /// <param name="pageName"></param>
-        static void writeOnePage(string pageName)
+        static void writeOnePage(string pageName, string fromPage = null)
         {
+            string div;
+            if (fromPage == null)
+            {
+                fromPage = $"..\\..\\{pageName}.html";
+                div = "//div";
+            }
+            else
+            {
+                div = "//body";
+            }
             var templateDoc = new HtmlDocument();
             templateDoc.Load("..\\..\\menu.html");
             var node = templateDoc.DocumentNode.SelectSingleNode("//div");
@@ -108,8 +119,8 @@ namespace HelpFiles
             var oldChild = nodes[1];
 
             var contentDoc = new HtmlDocument();
-            contentDoc.Load($"..\\..\\{pageName}.html");
-            var insert = contentDoc.DocumentNode.SelectSingleNode("//div").InnerHtml;
+            contentDoc.Load(fromPage);
+            var insert = contentDoc.DocumentNode.SelectSingleNode(div).InnerHtml;
             oldChild.InnerHtml = insert;
             templateDoc.Save($"..\\..\\..\\public\\{pageName}.html");
         }

@@ -31,3 +31,5 @@ encoding:uft-8
 encoding usage:Always
 method:deflate
 level:default
+
+Run HelpFiles\bin\Release\HelpFiles.exe to update any help files (including change_log_for_auto_updated.html -> public\About_ChangeLog.html)
