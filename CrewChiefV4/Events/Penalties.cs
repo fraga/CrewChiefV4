@@ -268,7 +268,8 @@ namespace CrewChiefV4.Events
                 if (eventSubType == folderCarToCarCollision 
                     || eventSubType == folderTooManyCarToCarCollisions 
                     || eventSubType == folderWillBeKickedAfterOneMoreCollision 
-                    || eventSubType == folderWillBeKickedAfterOneMoreOffTrack)
+                    || eventSubType == folderWillBeKickedAfterOneMoreOffTrack
+                    || eventSubType == folderBlackAndOrangeFlag)
                 {
                     return currentGameState.SessionData.SessionPhase != SessionPhase.Finished;
                 }
