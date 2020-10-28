@@ -361,9 +361,9 @@ PIT_STOP_FILL_TO = pitstop fill to:box, fill to
 LITERS = liters
 GALLONS = gallons
 
-HOW_MANY_INCIDENT_POINTS = how many incidents do i have:what's my incident count
+HOW_MANY_INCIDENT_POINTS = how many incidents do i have:what's my incident count:what's my incident points
 WHATS_THE_INCIDENT_LIMIT = what's the incident limit
-WHATS_THE_SOF = what's the sof:what is the strength of field
+WHATS_THE_SOF = what's the sof:what is the strength of field:what's the strength of field
 
 
 #################################################

@@ -1929,6 +1929,17 @@ namespace CrewChiefV4
                 GrammarWrapper r3eGrammar = SREWrapperFactory.createNewGrammarWrapper(r3eGrammarBuilder);
                 r3ePitstopGrammarList.Add(r3eGrammar);
                 sreWrapper.LoadGrammar(r3eGrammar);
+
+                // these are processed by the iRacing event so we put them in the iRacing grammar list
+                ChoicesWrapper iRacingChoices = SREWrapperFactory.createNewChoicesWrapper();
+                validateAndAdd(WHATS_THE_SOF, iRacingChoices);
+                validateAndAdd(HOW_MANY_INCIDENT_POINTS, iRacingChoices);
+                validateAndAdd(WHATS_THE_INCIDENT_LIMIT, iRacingChoices);
+                GrammarBuilderWrapper iRacingGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper(iRacingChoices);
+                iRacingGrammarBuilder.SetCulture(cultureInfo);
+                GrammarWrapper iRacingGrammar = SREWrapperFactory.createNewGrammarWrapper(iRacingGrammarBuilder);
+                iracingPitstopGrammarList.Add(iRacingGrammar);
+                sreWrapper.LoadGrammar(iRacingGrammar);
             }
             catch (Exception e)
             {

@@ -93,6 +93,13 @@ namespace CrewChiefV4.Events
 
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
+            // allow incident points and SoF for other games so we can ask about them in R3E:
+            maxIncidentCount = currentGameState.SessionData.MaxIncidentCount;
+            incidentsCount = currentGameState.SessionData.CurrentIncidentCount;
+            strenghtOfField = currentGameState.SessionData.StrengthOfField;
+            hasLimitedIncidents = currentGameState.SessionData.HasLimitedIncidents;
+
+            // the rest of this event is iRacing only
             if (CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)
             {
                 return;
@@ -102,12 +109,8 @@ namespace CrewChiefV4.Events
             lastColdRLPressure = (int)currentGameState.TyreData.RearLeftPressure;
             lastColdRRPressure = (int)currentGameState.TyreData.RearRightPressure;
 
-            maxIncidentCount = currentGameState.SessionData.MaxIncidentCount;
-            incidentsCount = currentGameState.SessionData.CurrentIncidentCount;
-            hasLimitedIncidents = currentGameState.SessionData.HasLimitedIncidents;
             licenseLevel = currentGameState.SessionData.LicenseLevel;
             iRating = currentGameState.SessionData.iRating;
-            strenghtOfField = currentGameState.SessionData.StrengthOfField;
             fuelCapacity = currentGameState.FuelData.FuelCapacity;
             currentFuel = currentGameState.FuelData.FuelLeft;
             if(autoFuelToEnd)
@@ -481,6 +484,11 @@ namespace CrewChiefV4.Events
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHATS_THE_SOF))
             {
+                // for R3E we need to recalculate this on each request unless we're in a race session
+                if (CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM && CrewChief.currentGameState != null && CrewChief.currentGameState.SessionData.SessionType != SessionType.Race)
+                {
+                    strenghtOfField = R3E.R3ERatings.getAverageRatingForParticipants(CrewChief.currentGameState.OpponentData);
+                }
                 if (strenghtOfField != -1)
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage("license/irating", 0, messageFragments: MessageContents(strenghtOfField)));
