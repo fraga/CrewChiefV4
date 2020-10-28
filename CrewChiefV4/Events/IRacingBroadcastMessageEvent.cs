@@ -484,14 +484,20 @@ namespace CrewChiefV4.Events
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHATS_THE_SOF))
             {
-                // for R3E we need to recalculate this on each request unless we're in a race session
+                // for R3E we need to recalculate this on each request unless we're in a race session. For race sessions we want to use the fixed SoF the mapper generated
+                // at the green light
+                int sofToReport;
                 if (CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM && CrewChief.currentGameState != null && CrewChief.currentGameState.SessionData.SessionType != SessionType.Race)
                 {
-                    strenghtOfField = R3E.R3ERatings.getAverageRatingForParticipants(CrewChief.currentGameState.OpponentData);
+                    sofToReport = R3E.R3ERatings.getAverageRatingForParticipants(CrewChief.currentGameState.OpponentData);
                 }
-                if (strenghtOfField != -1)
+                else
                 {
-                    audioPlayer.playMessageImmediately(new QueuedMessage("license/irating", 0, messageFragments: MessageContents(strenghtOfField)));
+                    sofToReport = this.strenghtOfField;
+                }
+                if (sofToReport != -1)
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage("license/irating", 0, messageFragments: MessageContents(sofToReport)));
                     return;
                 }
                 else

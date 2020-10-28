@@ -74,7 +74,7 @@ namespace CrewChiefV4.R3E
                 if (opponent.r3eUserId != -1)
                 {
                     R3ERatingData data = getRatingForUserId(opponent.r3eUserId);
-                    if (data != null)
+                    if (data != null && data.rating > 0)
                     {
                         opponentRatingSum += data.rating;
                         opponentWithRatingCount++;
