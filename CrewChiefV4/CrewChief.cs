@@ -491,7 +491,10 @@ namespace CrewChiefV4
                     spotter = null;
                 }
                 // force pcars3 to be single class because it probably is, i don't own it and it's not very good
-                CrewChief.forceSingleClass = gameDefinition.gameEnum == GameEnum.PCARS3;
+                if (gameDefinition.gameEnum == GameEnum.PCARS3)
+                {
+                    CrewChief.forceSingleClass = true;
+                }
                 running = true;
                 if (!audioPlayer.initialised)
                 {
