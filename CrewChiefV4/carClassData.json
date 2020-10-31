@@ -183,6 +183,7 @@
 			"raceroomClassIds": [1703, 2922, 3375, 4516, 7278, 7767],
 			"pCarsClassNames": ["GT3"],
 			"rf2ClassNames": ["*GT3*"],
+			"ams2ClassNames": ["GT3"],
 			"acClassNames": ["ks_audi_r8_lms*", "*GT3*"],
 			"iracingCarIds": [43, 55, 59, 72, 73, 94],
 			"timesInHundredths": true,
@@ -193,6 +194,7 @@
 		{
 			"carClassEnum": "CARRERA_CUP",
 			"raceroomClassIds": [6345, 7982, 8165, 8681],
+			"ams2ClassNames": ["Carrera Cup"],
 			"acClassNames": ["porsche*cup*"],
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL",
@@ -220,7 +222,7 @@
 			"pCarsClassNames": ["GT4"],
 			"rf2ClassNames": ["*GT4*"],
 			"acClassNames": ["*GT4*", "ks_bmw_m235i_racing", "lotus_evora_gx", "ginetta_g55"],
-			"ams2ClassNames": ["G55Supercup"],
+			"ams2ClassNames": ["GT4"],
 			"iracingCarIds": [119, 122],
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL",
@@ -237,6 +239,13 @@
 					"maxHotTyreTemp": 140
 				}
 			}
+		},
+		{
+			"carClassEnum": "GT55_SUPERCUP",
+			"ams2ClassNames": ["G55Supercup"],
+			"timesInHundredths": true,
+			"enabledMessageTypes": "ALL",
+			"allMembersAreRWD": true
 		},
 		{
 			"carClassEnum": "GT5",
