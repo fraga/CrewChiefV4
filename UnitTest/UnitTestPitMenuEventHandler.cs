@@ -6,6 +6,7 @@ using System.Resources;
 using System.Windows.Forms;
 using System.Globalization;
 using System.Threading;
+using System.Collections.Generic;
 
 // NONE of these actually run, TestPitManager does allow stepping through the
 // Pit Menu event handler
@@ -133,5 +134,111 @@ namespace UnitTest
             Thread.Sleep(200);
         }
 
+    }
+    [TestClass]
+    public class TestPitManagerEventHandlers
+    {
+        [TestMethod]
+        public void Test_TTT_FormulaISI()
+        {
+            List<string> inMenu = new List<string>();
+            inMenu.Add("Intermediate");
+            inMenu.Add("Super Soft");
+            inMenu.Add("Soft");
+            inMenu.Add("Medium");
+            inMenu.Add("Hard");
+            inMenu.Add("Wet");
+
+            Dictionary<string, string> result =
+                PitManagerEventHandlers_RF2.TranslateTyreTypes(
+                    PitManagerEventHandlers_RF2.SampleTyreTranslationDict,
+                    inMenu);
+            Assert.IsNotNull(result);
+            //Assert.AreEqual("Super Soft"  , result["Hypersoft"]);
+            //Assert.AreEqual("Super Soft"  , result["Ultrasoft"]);
+            //Assert.AreEqual("Super Soft"  , result["Supersoft"]);
+            //Assert.AreEqual("Soft"        , result["Soft"]);
+            Assert.AreEqual("Medium"      , result["Medium"]);
+            Assert.AreEqual("Hard"        , result["Hard"]);
+            Assert.AreEqual("Intermediate", result["Intermediate"]);
+            Assert.AreEqual("Wet"         , result["Wet"]);
+            //Assert.AreEqual("Wet"         , result["Monsoon"]);
+
+        }
+        [TestMethod]
+        public void Test_TTT_S397_Oreca()
+        {
+            List<string> inMenu = new List<string>();
+            inMenu.Add("Soft");
+            inMenu.Add("Medium");
+            inMenu.Add("Hard");
+            inMenu.Add("Inter");
+            inMenu.Add("Rain");
+
+            Dictionary<string, string> result =
+                PitManagerEventHandlers_RF2.TranslateTyreTypes(
+                    PitManagerEventHandlers_RF2.SampleTyreTranslationDict,
+                    inMenu);
+            Assert.IsNotNull(result);
+            Assert.AreEqual("Soft"        , result["Hypersoft"]);
+            Assert.AreEqual("Soft"        , result["Ultrasoft"]);
+            Assert.AreEqual("Soft"        , result["Supersoft"]);
+            Assert.AreEqual("Soft"        , result["Soft"]);
+            Assert.AreEqual("Medium"      , result["Medium"]);
+            Assert.AreEqual("Hard"        , result["Hard"]);
+            //Assert.AreEqual("Inter"       , result["Intermediate"]);
+            //Assert.AreEqual("Rain"        , result["Wet"]);
+            //Assert.AreEqual("Wet"         , result["Monsoon"]);
+
+        }
+        [TestMethod]
+        public void Test_TTT_DallaraIndy()
+        {
+            List<string> inMenu = new List<string>();
+            inMenu.Add("Alternates");   // Soft
+            inMenu.Add("Primary");      // Hard
+            inMenu.Add("Rain");
+
+            Dictionary<string, string> result =
+                PitManagerEventHandlers_RF2.TranslateTyreTypes(
+                    PitManagerEventHandlers_RF2.SampleTyreTranslationDict,
+                    inMenu);
+            Assert.IsNotNull(result);
+            Assert.AreEqual("Alternates", result["Hypersoft"]);
+            Assert.AreEqual("Alternates", result["Ultrasoft"]);
+            Assert.AreEqual("Alternates", result["Supersoft"]);
+            Assert.AreEqual("Alternates", result["Soft"]);
+            Assert.AreEqual("Alternates", result["Medium"]);
+            //Assert.AreEqual("Primary",    result["Hard"]);
+            //Assert.AreEqual("Rain",       result["Intermediate"]);
+            //Assert.AreEqual("Rain",       result["Wet"]);
+            //Assert.AreEqual("Wet"         , result["Monsoon"]);
+
+        }
+        [TestMethod]
+        public void Test_TTT_S397_AMGT3()
+        {
+            List<string> inMenu = new List<string>();
+            inMenu.Add("Soft");
+            inMenu.Add("Medium");
+            inMenu.Add("Hard");
+            inMenu.Add("Rain");
+
+            Dictionary<string, string> result =
+                PitManagerEventHandlers_RF2.TranslateTyreTypes(
+                    PitManagerEventHandlers_RF2.SampleTyreTranslationDict,
+                    inMenu);
+            Assert.IsNotNull(result);
+            Assert.AreEqual("Soft", result["Hypersoft"]);
+            Assert.AreEqual("Soft", result["Ultrasoft"]);
+            Assert.AreEqual("Soft", result["Supersoft"]);
+            Assert.AreEqual("Soft", result["Soft"]);
+            Assert.AreEqual("Medium", result["Medium"]);
+            Assert.AreEqual("Hard", result["Hard"]);
+            //Assert.AreEqual("Rain", result["Intermediate"]);
+            //Assert.AreEqual("Rain", result["Wet"]);
+            //Assert.AreEqual("Wet"         , result["Monsoon"]);
+
+        }
     }
 }

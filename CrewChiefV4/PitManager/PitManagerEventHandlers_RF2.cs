@@ -47,7 +47,7 @@ using PitMenuAPI;
 
 namespace CrewChiefV4.PitManager
 {
-    internal class PitManagerEventHandlers_RF2
+    public class PitManagerEventHandlers_RF2 // public for unit testing
     {
         private static readonly PitMenuAbstractionLayer Pmal = new PitMenuAbstractionLayer();
 
@@ -57,7 +57,7 @@ namespace CrewChiefV4.PitManager
         // possible alternative names for each type
         // Each entry has a list of possible matches in declining order
         // Sample:
-        private static readonly Dictionary<string, List<string>> SampleTyreTranslationDict =
+        public static readonly Dictionary<string, List<string>> SampleTyreTranslationDict =  // public for unit testing
           new Dictionary<string, List<string>>() {
             { "Hypersoft",    new List <string> {"hypersoft", "ultrasoft", "supersoft", "soft",
                         "s310", "slick", "dry", "all-weather", "medium" } },
