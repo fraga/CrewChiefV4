@@ -177,8 +177,7 @@ namespace CrewChiefV4.PitManager
                         {
                             var tyreName = genericTyretype.Value[col];
                             // Type that generic type can match to
-                            if (availableTyretype.Length == tyreName.Length &&
-                                availableTyretype.IndexOf(tyreName, StringComparison.OrdinalIgnoreCase) >= 0)
+                            if (availableTyretype.IndexOf(tyreName, StringComparison.OrdinalIgnoreCase) >= 0)
                             {
                                 if (!result.ContainsKey(genericTyretype.Key))
                                 {
