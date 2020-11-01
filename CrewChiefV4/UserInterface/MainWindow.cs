@@ -108,6 +108,7 @@ namespace CrewChiefV4
         private static String autoUpdateXMLURL2 = "https://drive.google.com/uc?export=download&id=0B4KQS820QNFbWWFjaDAzRldMNUE";
 
         private Boolean preferAlternativeDownloadSite = UserSettings.GetUserSettings().getBoolean("prefer_alternative_download_site");
+        private Boolean allowCompositePersonalisations = UserSettings.GetUserSettings().getBoolean("allow_composite_personalisations");
         private Boolean minimizeToTray = UserSettings.GetUserSettings().getBoolean("minimize_to_tray");
         private Boolean rejectMessagesWhenTalking = UserSettings.GetUserSettings().getBoolean("reject_message_when_talking");
         public static Boolean forceMinWindowSize = UserSettings.GetUserSettings().getBoolean("force_min_window_size");
@@ -1463,7 +1464,10 @@ namespace CrewChiefV4
             GlobalResources.controllerConfiguration = controllerConfiguration;
 
             HashSet<string> availablePersonalisations = new HashSet<string>(this.crewChief.audioPlayer.personalisationsArray);
-            availablePersonalisations.UnionWith(new HashSet<string>(SoundCache.availableDriverNamesForUI));
+            if (allowCompositePersonalisations)
+            {
+                availablePersonalisations.UnionWith(new HashSet<string>(SoundCache.availableDriverNamesForUI));
+            }
 
             this.personalisationBox.Items.AddRange(availablePersonalisations.ToArray<string>());
             this.chiefNameBox.Items.AddRange(AudioPlayer.availableChiefVoices.ToArray());

@@ -4645,7 +4645,7 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:/RBR")]
         public string rbr_install_path {
             get {
                 return ((string)(this["rbr_install_path"]));
@@ -5120,6 +5120,42 @@ namespace CrewChiefV4.Properties {
             }
             set {
                 this["dirt_rally_2_udp_data_port"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool log_type_debug {
+            get {
+                return ((bool)(this["log_type_debug"]));
+            }
+            set {
+                this["log_type_debug"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool log_type_verbose {
+            get {
+                return ((bool)(this["log_type_verbose"]));
+            }
+            set {
+                this["log_type_verbose"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool allow_composite_personalisations {
+            get {
+                return ((bool)(this["allow_composite_personalisations"]));
+            }
+            set {
+                this["allow_composite_personalisations"] = value;
             }
         }
     }

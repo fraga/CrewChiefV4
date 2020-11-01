@@ -110,8 +110,8 @@ namespace CrewChiefV4
         private static float maxWarmR3E2017MediumTyreTempPeak = 99;
         private static float maxHotR3E2017MediumTyreTempPeak = 110;
 
-        private static float maxColdR3E2017HardTyreTempPeak = 75;
-        private static float maxWarmR3E2017HardTyreTempPeak = 105;
+        private static float maxColdR3E2017HardTyreTempPeak = 72;
+        private static float maxWarmR3E2017HardTyreTempPeak = 100;
         private static float maxHotR3E2017HardTyreTempPeak = 115;
 
         // special case for F-Junior, maybe need to add this to NSU as well
@@ -137,15 +137,19 @@ namespace CrewChiefV4
 
         public enum CarClassEnum
         {
-            G2, G3, GT, GT1X, GT1, GTE, GT2, GTC, GTLM, GT3, GT4, GT5, GT300, GT500, NGT, Kart_1, Kart_2, KART_JUNIOR, KART_F1, KART_X30_SENIOR, KART_X30_RENTAL, SUPERKART, LMP1, LMP2, LMP3, LMP900, ROAD_B, ROAD_C1, ROAD_C2, ROAD_D,
-            ROAD_E, ROAD_F, ROAD_G, ROAD_SUPERCAR, GROUPC, GROUPB, GROUPA, GROUP4, GROUP5, GROUP6, GTO, GR2_70S, GR4_70S, DTM_92,
+            G2, G3, GT, GT1X, GT1, GTE, GT2, GTC, GTLM, GT3, GT4, GT5, GT300, GT500, NGT, Kart_1, Kart_2, KART_JUNIOR, KART_F1, KART_X30_SENIOR, KART_X30_RENTAL, SUPERKART, LMP1, LMP2, LMP3, LMP900, ROAD_A, ROAD_B, ROAD_C1,
+            ROAD_C2, ROAD_D, ROAD_E, ROAD_F, ROAD_G, ROAD_SUPERCAR, GROUPC, GROUPB, GROUPA, GROUP2, GROUP4, GROUP5, GROUP6, GTO, GR2_70S, GR4_70S, DTM_92,
             VINTAGE_INDY_65, VINTAGE_F3_A, VINTAGE_F1_A, VINTAGE_F1_A1, VINTAGE_PROTOTYPE_B, VINTAGE_GT_D, VINTAGE_GT_C, HISTORIC_TOURING_1, HISTORIC_TOURING_2, VINTAGE_F1_B,
             VINTAGE_F1_C, VINTAGE_STOCK_CAR,
             F1, F2, F3, F4, FF, FORMULA_E_2018, FORMULA_E_2019, F1_70S, F1_90S, TC1, TC2, TCR, TC1_2014, AUDI_TT_CUP, AUDI_TT_VLN, CLIO_CUP, DTM, DTM_2013, V8_SUPERCAR, DTM_2014, DTM_2015, DTM_2016, DTM_2020,
             TRANS_AM, HILL_CLIMB_ICONS, FORMULA_RENAULT,
             MEGANE_TROPHY, NSU_TT, KTM_RR, INDYCAR, HYPER_CAR, HYPER_CAR_RACE, UNKNOWN_RACE, STOCK_V8, STOCK_V8_2020, BOXER_CUP, NASCAR_2016, ISI_STOCKCAR_2015, RADICAL_SR3, USER_CREATED,
             RS01_TROPHY, TRACKDAY_A, TRACKDAY_B, BMW_235I, CARRERA_CUP, R3E_SILHOUETTE, SPEC_MIATA, SKIP_BARBER, CAYMAN_CLUBSPORT, CAN_AM, FORMULA_RENAULT20, INDYCAR_DALLARA_2011, INDYCAR_DALLARA_DW12,
-            M1_PROCAR, PORSCHE_964_CUP, PALATOV_D4_TRACKDAY, PALATOV_D4_HILLCLIMB, PALATOV_D4_CUSTOM, PORSCHE_GT2RS, MCR_2000, F1_2000S, F1_2010S, F1_80S_TURBO, F1_80S_NA
+            M1_PROCAR, PORSCHE_964_CUP, PALATOV_D4_TRACKDAY, PALATOV_D4_HILLCLIMB, PALATOV_D4_CUSTOM, PORSCHE_GT2RS, MCR_2000, F1_2000S, F1_2010S, F1_80S_TURBO, F1_80S_NA,
+            ARC_CAMERO, CATERHAM_620R, CATERHAM_ACADAMY, CATERHAM_SUPERLIGHT, CATERHAM_SUPERSPORT, E_TCR,
+            /* AMS2 odd-ball classes: */
+            COPA_CLASSIC_A, COPA_CLASSIC_B, COPA_FUSCA, COPA_HOT_CARS, TRUCK, COPA_UNO, REIZA_FV12, LANCER_CUP, MINI_CHALLENGE, COPA_MONTANA, OPALA_STOCK_OLD, OPALA_STOCK_79, OPALA_STOCK_86,
+            SPRINT_RACE, F_VEE, GT55_SUPERCUP
         }
 
         // use different thresholds for R3E car classes - there are a few different tyre models in the game with different heating characteristics:
@@ -157,7 +161,8 @@ namespace CrewChiefV4
         public static CarClassEnum[] r3e2017TyreModelClasses = new CarClassEnum[] {
             CarClassEnum.GROUPC, CarClassEnum.F1_90S, CarClassEnum.GROUPA, CarClassEnum.R3E_SILHOUETTE, CarClassEnum.PORSCHE_964_CUP, CarClassEnum.GTE,
             CarClassEnum.GT1, CarClassEnum.GT2, CarClassEnum.GT4, CarClassEnum.CARRERA_CUP, CarClassEnum.TCR, CarClassEnum.GT1X, CarClassEnum.CAYMAN_CLUBSPORT, 
-            CarClassEnum.FF, CarClassEnum.M1_PROCAR, CarClassEnum.DTM_92, CarClassEnum.GROUPA, CarClassEnum.PORSCHE_GT2RS, CarClassEnum.HILL_CLIMB_ICONS, CarClassEnum.DTM_2020 };
+            CarClassEnum.FF, CarClassEnum.M1_PROCAR, CarClassEnum.DTM_92, CarClassEnum.GROUPA, CarClassEnum.PORSCHE_GT2RS, CarClassEnum.HILL_CLIMB_ICONS, CarClassEnum.DTM_2020,
+            CarClassEnum.GROUP5, CarClassEnum.E_TCR, CarClassEnum.GROUP2 };
 
         private static Dictionary<TyreType, List<CornerData.EnumWithThresholds>> tyreTempThresholds = new Dictionary<TyreType, List<CornerData.EnumWithThresholds>>();
         private static Dictionary<BrakeType, List<CornerData.EnumWithThresholds>> brakeTempThresholds = new Dictionary<BrakeType, List<CornerData.EnumWithThresholds>>();

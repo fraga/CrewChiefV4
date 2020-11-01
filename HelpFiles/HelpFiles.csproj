@@ -54,7 +54,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="About_ChangeLog.html" />
     <Content Include="About_Contact.html" />
     <Content Include="About_Credits.html" />
     <Content Include="About_Customising_NameRequests.html" />
@@ -94,7 +93,7 @@
     <Content Include="Overlays_VR.html" />
     <Content Include="Properties_Profiles.html" />
     <Content Include="Properties_Properties.html" />
-    <Content Include="ReadMe.txt" />
+    <None Include="ReadMe.md" />
     <Content Include="Speech_DriverNames.html" />
     <Content Include="Speech_PaceNotes.html" />
     <Content Include="Speech_PitExitPositionPrediction.html" />

@@ -1,11 +1,22 @@
 <!DOCTYPE html>
 <html>
 <body>
-<h2>Version 4.14.0.1</h2>
+<h2>Version 4.14.0.3</h2>
 <ul>
-	<li>Added rally stage notes creation support - see https://mr_belowski.gitlab.io/CrewChiefV4/VoiceRecognition_RallyStageNotes.html</li>
-	<li>Added support for Dirt Rally and Dirt Rally 2 (user-created stage notes only); R3E - use correct field for player incident points</li>
+	<li>Changed 'My name' list behaviour - this UI component use to show the specially recorded 'personalisations' (about 1000 names) and all the opponent driver names in the app (about 10000 names), which made it unreliable for some users. By default it now hides the opponent driver names so you'll only see the 1000 specially recorded personalisations. Enabling the "Allow opponent names in 'My name' list" property will add all opponent driver names to this list allowing the app to generate a personalisation from any of the opponent names (see folder C:\Users\[user name]\AppData\Local\CrewChiefV4\sounds\driver_names). Note that these won't sound as natural as the specially recorded personalisations. If you've requested that your name be added to this list, please check again after updating as it might be shown</li>
+	<li>AMS2 - added missing car class mappings</li>
+	<li>RF2 - fixed tyre selection issues in pit menu manager when selecting some tyre types</li>
+	<li>R3E - fixed some missing incident points messages</li>
+	<li>RBR - automatically install the Crew Chief plugin</li>
+	<li>Various minor bug fixes</li>
+</ul>
+<h2>Version 4.14.0.2</h2>
+<ul>
+	<li>Added rally stage notes creation support - see <a href="https://mr_belowski.gitlab.io/CrewChiefV4/VoiceRecognition_RallyStageNotes.html">rally pace notes help page</a></li>
+	<li>Added support for Dirt Rally and Dirt Rally 2 (user-created stage notes only)</li>
 	<li>Added option to enable scroll bars on main window where necessary (enable with 'Scroll bars on main window' property)</li>
+	<li>R3E - use correct field for player incident points</li>
+	<li>Pit Manager - tyre selection handles in-game tyre compound that is not in PM's list</li>
 	<li>R3E - use correct field for player incident points</li>
 </ul>
 <h2>Version 4.13.1.7</h2>

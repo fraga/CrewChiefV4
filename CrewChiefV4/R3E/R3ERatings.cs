@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CrewChiefV4.GameState;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -58,6 +59,33 @@ namespace CrewChiefV4.R3E
                 }
             }
             return null;
+        }
+
+        public static int getAverageRatingForParticipants(Dictionary<string, OpponentData> opponentData)
+        {
+            if (opponentData == null || !gotPlayerRating)
+            {
+                return -1;
+            }
+            float opponentRatingSum = 0;
+            float opponentWithRatingCount = 0;
+            foreach (OpponentData opponent in opponentData.Values)
+            {
+                if (opponent.r3eUserId != -1)
+                {
+                    R3ERatingData data = getRatingForUserId(opponent.r3eUserId);
+                    if (data != null && data.rating > 0)
+                    {
+                        opponentRatingSum += data.rating;
+                        opponentWithRatingCount++;
+                    }
+                }
+            }
+            if (opponentWithRatingCount > 0)
+            {
+                return (int) ((playerRating.rating + opponentRatingSum) / (opponentWithRatingCount + 1f));
+            }
+            return -1;
         }
         
         public static void init()

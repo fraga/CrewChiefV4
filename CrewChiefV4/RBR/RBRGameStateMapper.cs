@@ -23,7 +23,7 @@ namespace CrewChiefV4.RBR
         public RBRGameStateMapper()
         {}
 
-        private int[] minimumSupportedVersionParts = new int[] { 1, 0, 0, 0 };
+        private int[] minimumSupportedVersionParts = new int[] { 1, 3, 0, 0 };
         public static bool pluginVerified = false;
         private static int reinitWaitAttempts = 0;
         // regex using the chars .Net says are invalid
@@ -32,7 +32,7 @@ namespace CrewChiefV4.RBR
         private int maxLengthForTrackNameFolder = 65;
 
         // BTB tracks all use track ID 41
-        private int BTBTrackIDs = 41;
+        private int BTBTrackID = 41;
 
         private class CarID
         {
@@ -171,6 +171,13 @@ namespace CrewChiefV4.RBR
             public string country;
             public RBRGameStateMapper.RBRSurfaceType surface;
             public double approxLengthKM;
+        }
+
+        // BTB tracks all use slot ID 41, but they'll have a different name from the expected track in slot 41
+        private bool IsBTBTrack(string trackName, int trackID)
+        {
+            return trackID == BTBTrackID
+                && knownTracks.TryGetValue(BTBTrackID, out var trackDefinitionForBTBSlot) && trackDefinitionForBTBSlot.name != trackName;
         }
 
         // List from RBRCZ.
@@ -473,33 +480,25 @@ namespace CrewChiefV4.RBR
                 this.ClearState();
 
                 // Initialize variables that persist for the duration of a session.
-
-                if (this.knownTracks.TryGetValue(shared.perFrame.mRBRMapSettings.trackID, out var rbrtd))
-                    csd.TrackDefinition = new TrackDefinition(rbrtd.name, (float)rbrtd.approxLengthKM * 1000.0f);
-
-                // for BTB tracks we're using trackID 41, so we try to detect that here and set the correct name. Note that BTB tracks don't
-                // appear to have any track length data we can use (the shared.perFrame.stageLength field is a number of segments which aren't 
-                // a consistent length)
-                // as we're using track name as a folder name for pace notes, it must be valid:
-                string rawTrackname = GetWideStringFromBytes(shared.perFrame.currentLocationStringWide);
-                if (rawTrackname.Length == 0)
+                string trackName = GetWideStringFromBytes(shared.perFrame.currentLocationStringWide);
+                // workaround for RBR CZ tracks plugin. The track may be reported as "Rally HQ"
+                if ((string.IsNullOrEmpty(trackName) || "Rally HQ".Equals(trackName))
+                    && this.knownTracks.TryGetValue(shared.perFrame.mRBRMapSettings.trackID, out var trackDefinitionForMissingName))
                 {
-                    Console.WriteLine("RBR plugin needs updating to support BTB tracks");
+                    trackName = trackDefinitionForMissingName.name;
                 }
-                else
+                // version of the track name that can be used for a folder name
+                string trackNameValidFolderName = Regex.Replace(trackName, tracknameToValidFolderNameRegex, "");
+                trackNameValidFolderName = trackNameValidFolderName.Substring(0, Math.Min(trackNameValidFolderName.Length, maxLengthForTrackNameFolder));
+
+                // use track length from known tracks, or -1 for BTB and unknown tracks
+                double trackLength = -1;
+                if (!IsBTBTrack(trackName, shared.perFrame.mRBRMapSettings.trackID)
+                    && this.knownTracks.TryGetValue(shared.perFrame.mRBRMapSettings.trackID, out var rbrtd))
                 {
-                    string validTrackNameForFolder = Regex.Replace(rawTrackname, tracknameToValidFolderNameRegex, "");
-                    if (!string.IsNullOrEmpty(validTrackNameForFolder))
-                    {
-                        validTrackNameForFolder = validTrackNameForFolder.Substring(0, Math.Min(validTrackNameForFolder.Length, maxLengthForTrackNameFolder));
-                    }
-                    if (shared.perFrame.mRBRMapSettings.trackID == BTBTrackIDs && csd.TrackDefinition.name != rawTrackname)
-                    {
-                        // this is a BTB track
-                        Console.WriteLine("Using BTB track with raw name " + rawTrackname + " and folder name " + validTrackNameForFolder);
-                        csd.TrackDefinition = new TrackDefinition(validTrackNameForFolder, -1);   // we have no idea how long the track is :(
-                    }
+                    trackLength = rbrtd.approxLengthKM;
                 }
+                csd.TrackDefinition = new TrackDefinition(trackNameValidFolderName, (float) trackLength);
             }
 
             // Restore cumulative data.
@@ -690,7 +689,7 @@ namespace CrewChiefV4.RBR
         {
             Debug.Assert(!this.pacenotesLoaded);
             this.pacenotesLoaded = true;
-
+            int undefinedPacenoteTypesCount = 0;
             var numPacenotes = shared.coDriver.mRBRPacenoteInfo.numPacenotes;
             if (numPacenotes == 0)
             {
@@ -705,7 +704,10 @@ namespace CrewChiefV4.RBR
 
                 if (!Enum.IsDefined(typeof(CoDriver.PacenoteType), pacenote))
                 {
+                    undefinedPacenoteTypesCount++;
+#if DEBUG
                     Console.WriteLine($"LoadPacenotes: WARNING: unknown pacenote type at: {i}  type: {shared.coDriver.mPacenotes[i].type}  flags: {shared.coDriver.mPacenotes[i].flags}  distance: {distance.ToString("0.000")}.  Skipping.");
+#endif  // DEBUG
                     continue;
                 }
 
@@ -752,14 +754,17 @@ namespace CrewChiefV4.RBR
                 }
 
                 // TODO: Investigate modifer 256 at harwood forest 2
+#if DEBUG
                 if (flagsSum != (int)modifier)
                     Console.WriteLine($"LoadPacenotes: WARNING: unknown pacenote modifiers at: {i}  {pacenote}  flags: {shared.coDriver.mPacenotes[i].flags}  distance: {distance.ToString("0.000")}.");
-
+#endif  // DEBUG
                 // Skip pacenotes that are no longer relevant (mid-session connect with CC started after countdown).
                 if (cgs.SessionData.SessionPhase == SessionPhase.Green
                     && (cgs.PositionAndMotionData.DistanceRoundTrack + 4.0f * cgs.PositionAndMotionData.CarSpeed > distance))
                 {
+#if DEBUG
                     Console.WriteLine($"LoadPacenotes: WARNING: mid-session load detected.  Skipping call at: {i}.");
+#endif  // DEBUG
                     continue;
                 }
 
@@ -768,7 +773,9 @@ namespace CrewChiefV4.RBR
                 {
                     if (i + 1 >= numPacenotes)
                     {
+#if DEBUG
                         Console.WriteLine($"LoadPacenotes: no more elements after distance call at: {i}.  Skipping.");
+#endif  // DEBUG
                         continue;
                     }
 
@@ -789,13 +796,17 @@ namespace CrewChiefV4.RBR
                             || typeAhead == (int)CoDriver.PacenoteType.detail_keep_out
                             || typeAhead == (int)CoDriver.PacenoteType.detail_keep_in)
                         {
+#if DEBUG
                             Console.WriteLine($"LoadPacenotes: skipping element: {(CoDriver.PacenoteType)typeAhead} in distance call calculation at: {i}.");
+#endif  // DEBUG
                             ++lookAheadIdx;
                             continue;
                         }
                         else if (!CoDriver.terminologies.chainedNotes.Contains(((CoDriver.PacenoteType)typeAhead).ToString()))
                         {
-                            Console.WriteLine($"LoadPacenotes: skipping element: {(CoDriver.PacenoteType)typeAhead} in distance call calculation  at: {i}.  No it in a list of chained types.");
+#if DEBUG
+                            Console.WriteLine($"LoadPacenotes: skipping element: {(CoDriver.PacenoteType)typeAhead} in distance call calculation  at: {i}. Not in a list of chained types.");
+#endif  // DEBUG
                             ++lookAheadIdx;
                             continue;
                         }
@@ -810,7 +821,9 @@ namespace CrewChiefV4.RBR
 
                     if (distanceToNext < 25.0f || distanceToNext > 1050.0f)
                     {
+#if DEBUG
                         Console.WriteLine($"LoadPacenotes: unable to process distance call at: {i} distance to next: {distanceToNext.ToString("0.000")}.  Skipping.");
+#endif  // DEBUG
                         continue;
                     }
 
@@ -820,10 +833,13 @@ namespace CrewChiefV4.RBR
                 if (pacenote == CoDriver.PacenoteType.detail_finish)
                 {
                     this.finishDistance = distance;
+#if DEBUG
                     Console.WriteLine($"LoadPacenotes: finish distance: {distance.ToString("0.000")}");
+#endif  // DEBUG
                 }
-
+#if DEBUG
                 Console.WriteLine($"LoadPacenotes: pacenote loaded at: {i}      {distance.ToString("0.000")},       {pacenote},     { (options == null ? "null" : options.ToString()) },      [{modifier}]");
+#endif  // DEBUG
                 cgs.CoDriverPacenotes.Add(new CoDriverPacenote() {
                     Distance = distance,
                     Pacenote = pacenote,
@@ -831,6 +847,7 @@ namespace CrewChiefV4.RBR
                     Modifier = modifier
                 });
             }
+            Console.WriteLine("LoadPacenotes: loaded " + cgs.CoDriverPacenotes.Count + " pacenotes with " + undefinedPacenoteTypesCount + " unrecognised pacenotes");
         }
 
         public SessionType MapToSessionType(object wrapper)

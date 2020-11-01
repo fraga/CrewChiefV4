@@ -212,6 +212,8 @@ namespace CrewChiefV4.RaceRoom
                     writeSectors(writer, "BestIndividualSectorTimeLeader", data.BestIndividualSectorTimeLeader.Sector1, data.BestIndividualSectorTimeLeader.Sector2, data.BestIndividualSectorTimeLeader.Sector3, disabledProperties);
                     writeSectors(writer, "BestIndividualSectorTimeLeaderClass", data.BestIndividualSectorTimeLeaderClass.Sector1, data.BestIndividualSectorTimeLeaderClass.Sector2, data.BestIndividualSectorTimeLeaderClass.Sector3, disabledProperties);
 
+                    writeProperty(writer, "IncidentPoints", data.IncidentPoints, disabledProperties);
+
                     if (enabled("VehicleInfo", disabledProperties))
                     {
                         writer.WritePropertyName("VehicleInfo");
@@ -452,7 +454,8 @@ namespace CrewChiefV4.RaceRoom
                     }
 
                     writeProperty(writer, "NumCars", data.NumCars, disabledProperties);
-                    if (enabled("DriverData", disabledProperties)) {
+                    if (enabled("DriverData", disabledProperties))
+                    {
                         writer.WritePropertyName("DriverData");
                         writer.WriteStartArray();
                         for (int i = 0; i < data.NumCars; i++)
@@ -493,9 +496,7 @@ namespace CrewChiefV4.RaceRoom
                 writeProperty(writer, "SlotId", driverData.DriverInfo.SlotId, disabledProperties);
                 writeProperty(writer, "ClassPerformanceIndex", driverData.DriverInfo.ClassPerformanceIndex, disabledProperties);
                 writeProperty(writer, "EngineType", driverData.DriverInfo.EngineType, disabledProperties);
-                writeProperty(writer, "IncidentPoints", driverData.DriverInfo.IncidentPoints, disabledProperties);
                 writer.WriteEndObject();
-                
             }
             writeProperty(writer, "FinishStatus", driverData.FinishStatus, disabledProperties);
             writeProperty(writer, "Place", driverData.Place, disabledProperties);

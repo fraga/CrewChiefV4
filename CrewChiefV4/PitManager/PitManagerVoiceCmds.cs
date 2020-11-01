@@ -57,7 +57,7 @@ namespace CrewChiefV4.PitManager
             //{PME.FuelNone,              SRE.PIT_STOP_CLEAR_FUEL },
 
             {PME.RepairAll,               SRE.PIT_STOP_FIX_ALL },          // rF2
-            {PME.RepairNone,              SRE.PIT_STOP_FIX_NONE },         // rF2 
+            {PME.RepairNone,              SRE.PIT_STOP_FIX_NONE },         // rF2
             {PME.RepairFast,              SRE.PIT_STOP_FAST_REPAIR },        // iRacing
             {PME.RepairAllAero,           SRE.PIT_STOP_FIX_ALL_AERO },       // R3E
             {PME.RepairFrontAero,         SRE.PIT_STOP_FIX_FRONT_AERO },
@@ -164,15 +164,14 @@ namespace CrewChiefV4.PitManager
                 {
                     if (inCar)
                     {
-                        if (CrewChief.Debugging)
-                            Console.WriteLine("Pit Manager voice command " + cmd.Value[0]);
+                        Log.Debug("Pit Manager voice command " + cmd.Value[0]);
                         pmh.EventHandler(cmd.Key, voiceMessage);
                         break;
                     }
                     else
                     {
                         PitManagerResponseHandlers.PMrh_CantDoThat(); // tbd
-                        Console.WriteLine("Not in car received Pit Manager voice command " + cmd.Value[0]);
+                        Log.Commentary("Not in car received Pit Manager voice command " + cmd.Value[0]);
                     }
                 }
             }
@@ -230,6 +229,8 @@ namespace CrewChiefV4.PitManager
             if (!previousGameState.inCar && currentGameState.inCar)
             {
                 pmh.EventHandlerInit();
+                Log.Debug($"Car name {currentGameState.carName}");
+                Log.Debug($"Track name {currentGameState.trackName}");
             }
 
             fuelCapacity = currentGameState.FuelData.FuelCapacity;
@@ -286,8 +287,7 @@ namespace CrewChiefV4.PitManager
                     if (_voiceMessage.Contains(" " + numberStr))
                     {
                         amount = entry.Value;
-                        if (CrewChief.Debugging)
-                            Console.WriteLine("processed number " + amount.ToString());
+                        Log.Debug("processed number " + amount.ToString());
                         break;
                     }
                 }
@@ -323,7 +323,7 @@ namespace CrewChiefV4.PitManager
             else
             {
                 Fuel fuelEvent = (Fuel)CrewChief.getEvent("Fuel");
-                Console.WriteLine("Got fuel request with no unit, assuming " + (fuelEvent.fuelReportsInGallon ? " gallons" : "litres"));
+                Log.Commentary("Got fuel request with no unit, assuming " + (fuelEvent.fuelReportsInGallon ? " gallons" : "litres"));
                 if (fuelEvent.fuelReportsInGallon)
                 {
                     litres = false;
@@ -390,7 +390,7 @@ namespace CrewChiefV4.PitManager
             else if (additionaLitresNeeded > 0)
             {
                 roundedLitresNeeded = (int)Math.Ceiling(additionaLitresNeeded);
-                Console.WriteLine("Auto refuel to the end of the race, adding " + roundedLitresNeeded + " litres of fuel");
+                Log.Commentary("Auto refuel to the end of the race, adding " + roundedLitresNeeded + " litres of fuel");
                 if (roundedLitresNeeded > fuelCapacity - currentFuel)
                 {
                     // if we have a known fuel capacity and this is less than the calculated amount of fuel we need, warn about it.

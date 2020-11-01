@@ -2060,3 +2060,20 @@ dirt_rally_2_udp_data_port_help = Dirt Rally 2 network data UDP port (should usu
 dirt_rally_2_udp_data_port_category = UI_STARTUP_AND_PATHS
 dirt_rally_2_udp_data_port_filter = DIRT_2
 dirt_rally_2_udp_data_port_metadata = RESTART_REQUIRED
+
+log_type_debug = Log type - debug
+log_type_debug_help = Include debug messages in the console and log
+log_type_debug_category = MISC
+log_type_debug_filter = RF2_64BIT
+log_type_debug_metadata = RESTART_REQUIRED
+
+log_type_verbose = Log type - verbose
+log_type_verbose_help = Include verbose messages in the console and log
+log_type_verbose_category = MISC
+log_type_verbose_filter = RF2_64BIT
+log_type_verbose_metadata = RESTART_REQUIRED
+
+allow_composite_personalisations = Allow opponent names in 'My name' list
+allow_composite_personalisations_help = Include composite names (using opponent names) in the 'My name' list on the main screen
+allow_composite_personalisations_category = MISC
+allow_composite_personalisations_metadata = RESTART_REQUIRED

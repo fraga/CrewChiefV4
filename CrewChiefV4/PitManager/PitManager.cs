@@ -218,14 +218,14 @@ namespace CrewChiefV4.PitManager
                                     {
                                         //TBD: default handler "Couldn't do event for this vehicle"
                                         // e.g. change aero on non-aero car, option not in menu
-                                        Console.WriteLine($"Pit Manager couldn't do {ev} for this vehicle");
+                                        Log.Commentary($"Pit Manager couldn't do {ev} for this vehicle");
                                     }
                                 }
                                 // else TearDown when not started up
                             }
                             catch (Exception e)
                             {
-                                Console.WriteLine("Pit Manager event error " + e.ToString());
+                                Log.Error("Pit Manager event error " + e.ToString());
                             }
                         }
                         else
@@ -333,9 +333,9 @@ namespace CrewChiefV4.PitManager
             {PME.TyreCompoundSupersoft,   _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundSupersoft, PMER.PMrh_TyreCompoundSupersoft) },
             {PME.TyreCompoundUltrasoft,   _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundUltrasoft, PMER.PMrh_TyreCompoundUltrasoft) },
             {PME.TyreCompoundHypersoft,   _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundHypersoft, PMER.PMrh_TyreCompoundHypersoft) },
-            {PME.TyreCompoundIntermediate,_PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundWet,    PMER.PMrh_TyreCompoundIntermediate) },
+            {PME.TyreCompoundIntermediate,_PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundIntermediate, PMER.PMrh_TyreCompoundIntermediate) },
             {PME.TyreCompoundWet,         _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundWet,    PMER.PMrh_TyreCompoundWet) },
-            {PME.TyreCompoundMonsoon,     _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundWet,    PMER.PMrh_TyreCompoundMonsoon) },
+            {PME.TyreCompoundMonsoon,     _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundMonsoon, PMER.PMrh_TyreCompoundMonsoon) },
             {PME.TyreCompoundOption,      _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundOption, PMER.PMrh_TyreCompoundOption) },
             {PME.TyreCompoundPrime,       _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundPrime,  PMER.PMrh_TyreCompoundPrime) },
             {PME.TyreCompoundAlternate,   _PMet(_PMeh, PMEHrF2.PMrF2eh_TyreCompoundAlternate, PMER.PMrh_TyreCompoundAlternate) },

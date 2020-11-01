@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -22,8 +23,8 @@ namespace CrewChiefV4.Dirt
         private DirtStructWrapper workingData = new DirtStructWrapper();
         private DirtStructWrapper[] dataReadFromFile = null;
         private int dataReadFromFileIndex = 0;
-        private int udpPort = 20777;
-
+        private int udpPort = CrewChief.gameDefinition.gameEnum == GameEnum.DIRT ? UserSettings.GetUserSettings().getInt("dirt_rally_udp_data_port") : UserSettings.GetUserSettings().getInt("dirt_rally_2_udp_data_port");
+        
         private byte[] receivedDataBuffer;
 
         private IPEndPoint broadcastAddress;
@@ -76,14 +77,6 @@ namespace CrewChiefV4.Dirt
         {
             if (!this.initialised)
             {
-                if (CrewChief.gameDefinition.gameEnum == GameEnum.DIRT)
-                {
-                    this.udpPort = UserSettings.GetUserSettings().getInt("dirt_rally_udp_data_port");
-                }
-                else if (CrewChief.gameDefinition.gameEnum == GameEnum.DIRT_2)
-                {
-                    this.udpPort = UserSettings.GetUserSettings().getInt("dirt_rally_2_udp_data_port");
-                }
                 socketCallback = new AsyncCallback(ReceiveCallback);
                 packetCount = 0;
                 packetCountAtStartOfNextRateCheck = packetRateCheckInterval;

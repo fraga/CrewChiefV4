@@ -143,10 +143,7 @@ namespace PitMenuAPI
         {
             pitInfoBuffer.GetMappedData(ref pitInfo);
             var catName = GetStringFromBytes(pitInfo.mPitMneu.mCategoryName);
-            if (CrewChief.Debugging)
-            {
-                Console.WriteLine($"Pit menu category '{catName}'");
-            }
+            Log.Debug($"Pit menu category '{catName}'");
             return catName;
         }
 
@@ -194,7 +191,7 @@ namespace PitMenuAPI
             var choiceStr = GetStringFromBytes(pitInfo.mPitMneu.mChoiceString);
             if (CrewChief.Debugging)
             {
-                Console.WriteLine($"Pit menu choice '{choiceStr}'");
+                Log.Commentary($"Pit menu choice '{choiceStr}'");
             }
             return choiceStr;
         }

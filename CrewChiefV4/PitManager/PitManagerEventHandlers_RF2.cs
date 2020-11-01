@@ -47,37 +47,55 @@ using PitMenuAPI;
 
 namespace CrewChiefV4.PitManager
 {
-    internal class PitManagerEventHandlers_RF2
+    public class PitManagerEventHandlers_RF2 // public for unit testing
     {
         private static readonly PitMenuAbstractionLayer Pmal = new PitMenuAbstractionLayer();
 
         #region Private Fields
 
+        /* Trying to create a class so tyre dict could be a data file but don't
+         * know how to do this
+        public class TyreDictionary : IEnumerator, IEnumerable
+        {
+            public TyreDictionary()
+            {
+                TyreTranslationDict = new Dictionary<string, List<string>>();
+            }
+            public Dictionary<string, List<string>> TyreTranslationDict
+            {
+                get; set;
+            }
+            public IEnumerator GetEnumerator()
+            {
+                return (IEnumerator)this;
+            }
+        }
+        */
         // Complicated because rF2 has many names for tyres so use a dict of
         // possible alternative names for each type
         // Each entry has a list of possible matches in declining order
         // Sample:
-        private static readonly Dictionary<string, List<string>> SampleTyreTranslationDict =
+        public static readonly Dictionary<string, List<string>> SampleTyreTranslationDict =  // public for unit testing
           new Dictionary<string, List<string>>() {
-            { "Hypersoft",    new List <string> {"hypersoft", "ultrasoft", "supersoft", "soft",
+            { "Hypersoft",    new List <string> {"hypersoft", "ultrasoft", "supersoft", "super soft", "soft", "alternates",
                         "s310", "slick", "dry", "all-weather", "medium" } },
-            { "Ultrasoft",    new List <string> {"ultrasoft","hypersoft", "supersoft", "soft",
+            { "Ultrasoft",    new List <string> {"ultrasoft","hypersoft", "supersoft", "super soft", "soft", "alternates",
                         "s310", "slick", "dry", "all-weather", "medium" } },
-            { "Supersoft",    new List <string> {"supersoft", "hypersoft", "ultrasoft", "soft",
+            { "Supersoft",    new List <string> {"supersoft", "super soft", "hypersoft", "ultrasoft", "soft", "alternates",
                         "s310", "slick", "dry", "all-weather", "medium" } },
-            { "Soft",         new List <string> {"soft",
+            { "Soft",         new List <string> {"soft", "alternates",
                         "s310", "slick", "dry", "all-weather", "medium" } },
             { "Medium",       new List <string> { "medium", "default",
                         "s310", "slick", "dry", "all-weather" } },
-            { "Hard",         new List <string> {"hard", "p310", "endur",
+            { "Hard",         new List <string> {"hard", "p310", "endur", "primary",
                         "medium", "default",
                                 "slick", "dry", "all-weather" } },
-            { "Intermediate", new List <string> { "intermediate",
+            { "Intermediate", new List <string> { "intermediate", "inter",
                         "wet", "rain", "monsoon", "all-weather" } },
             { "Wet",          new List <string> {
-                        "wet", "rain", "monsoon", "all-weather", "intermediate" } },
+                        "wet", "rain", "monsoon", "all-weather", "intermediate", "inter" } },
             { "Monsoon",      new List <string> {"monsoon",
-                        "wet", "rain",  "all-weather", "intermediate" } },
+                        "wet", "rain",  "all-weather", "intermediate", "inter" } },
             { "No Change",    new List <string> {"no change"} }
             };
 
@@ -123,6 +141,7 @@ namespace CrewChiefV4.PitManager
           List<string> inMenu)
         {
             Dictionary<string, string> result = new Dictionary<string, string>();
+            inMenu.Remove("No Change");
             int columnCount = 1; // will increase
 
             for (var col = 0; col < columnCount; col++)
@@ -139,7 +158,8 @@ namespace CrewChiefV4.PitManager
                         {
                             var tyreName = genericTyretype.Value[col];
                             // Type that generic type can match to
-                            if (availableTyretype.IndexOf(tyreName, StringComparison.OrdinalIgnoreCase) >= 0)
+                            if (availableTyretype.Length == tyreName.Length &&
+                                availableTyretype.IndexOf(tyreName, StringComparison.OrdinalIgnoreCase) >= 0)
                             {
                                 if (!result.ContainsKey(genericTyretype.Key))
                                 {
@@ -151,6 +171,13 @@ namespace CrewChiefV4.PitManager
                     }
                 }
             }
+            foreach (var genericTyretype in tyreDict)
+            {
+                if (!result.ContainsKey(genericTyretype.Key))
+                {   // Didn't match, give it something
+                    result[genericTyretype.Key] = inMenu[0];
+                }
+            }
             return result;
         }
 
@@ -160,8 +187,13 @@ namespace CrewChiefV4.PitManager
         static public bool PMrF2eh_initialise(string __)
         {
             Pmal.PmalConnect();
-            currentRf2TyreType.Set(Pmal.GetTyreTypeNames()[0]);
-            Console.WriteLine("Pit Manager initialise");
+            List<string> tyreTypeNames = Pmal.GetTyreTypeNames();
+            currentRf2TyreType.Set(tyreTypeNames[0]);
+            Log.Commentary("Pit Manager initialise");
+            foreach (var tyre in tyreTypeNames)
+            {
+                Log.Commentary($"Tyre type '{tyre}'");
+            }
             return true;
         }
         static public bool PMrF2eh_teardown(string __)
@@ -218,9 +250,19 @@ namespace CrewChiefV4.PitManager
             return setTyreCompound("Hypersoft");
         }
 
+        static public bool PMrF2eh_TyreCompoundIntermediate(string __)
+        {
+            return setTyreCompound("Intermediate");
+        }
+
         static public bool PMrF2eh_TyreCompoundWet(string __)
         {
             return setTyreCompound("Wet");
+        }
+
+        static public bool PMrF2eh_TyreCompoundMonsoon(string __)
+        {
+            return setTyreCompound("Monsoon");
         }
 
         static public bool PMrF2eh_TyreCompoundOption(string __)
@@ -477,7 +519,7 @@ namespace CrewChiefV4.PitManager
         #region Private Methods
 
         /// <summary>
-        /// Set the current tyre compound
+        /// Set the current tyre compound and fit them
         /// </summary>
         /// <param name="genericTyreType">Soft / Medium / Wet etc.</param>
         /// <returns></returns>
@@ -492,6 +534,7 @@ namespace CrewChiefV4.PitManager
             }
 
             currentRf2TyreType.Set(result[genericTyreType]);
+            Log.Commentary($"Fitting {result[genericTyreType]}");
             return PMrF2eh_changeAllTyres(null);
         }
 
@@ -514,7 +557,7 @@ namespace CrewChiefV4.PitManager
                     // dict is the other direction currentGenericTyreCompound = ttDict[tyreType];
                     if (CrewChief.Debugging)
                     {
-                        Console.WriteLine("Pit Manager tyre compound set to (" +
+                        Log.Info("Pit Manager tyre compound set to (" +
                             tyreCategory + ") " + tyreType);
                     }
                 }
@@ -561,7 +604,7 @@ namespace CrewChiefV4.PitManager
                 {
                     if (CrewChief.Debugging)
                     {
-                        Console.WriteLine("Pit Manager tyre pressure set to (" +
+                        Log.Commentary("Pit Manager tyre pressure set to (" +
                             tyreCategory + ") " + pressure);
                     }
                 }
@@ -608,6 +651,92 @@ namespace CrewChiefV4.PitManager
             #endregion Public Methods
         }
 
+        /*
+        private class TyreDictFile
+        {
+            static bool TyreDictionaryIsBroken = false;
+            private static String getUserTyreDictionaryFileLocation()
+            {
+                var path = System.IO.Path.Combine(Environment.GetFolderPath(
+                    Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "TyreDictionary.json");
+
+                if (!File.Exists(path))
+                {
+                    saveTyreDictionaryFile(SampleTyreTranslationDict);
+                }
+                return path;
+            }
+            private static TyreDictionary getTyreDictionaryFromFile(String filename)
+            {
+                if (filename != null && !TyreDictionaryIsBroken)
+                {
+                    try
+                    {
+                        using (StreamReader r = new StreamReader(filename))
+                        {
+                            string json = r.ReadToEnd();
+                            TyreDictionary data = JsonConvert.DeserializeObject<TyreDictionary>(json);
+                            if (data != null)
+                            {
+                                TyreDictionaryIsBroken = false;
+                                return data;
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Error parsing " + filename + ": " + e.Message);
+                        TyreDictionaryIsBroken = true;
+                    }
+                }
+                return new TyreDictionary();
+            }
+
+            public static void saveTyreDictionaryFile(TyreDictionary tyreDict)
+            {
+                if (TyreDictionaryIsBroken)
+                {
+                    Console.WriteLine("Unable to update Tyre Dictionary because the file isn't valid JSON");
+                    return;
+                }
+
+                var fileName = "TyreDictionary.json";
+
+                String path = System.IO.Path.Combine(Environment.GetFolderPath(
+                    Environment.SpecialFolder.MyDocuments), "CrewChiefV4");
+
+                if (!Directory.Exists(path))
+                {
+                    try
+                    {
+                        Directory.CreateDirectory(path);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Error creating " + path + ": " + e.Message);
+                    }
+                }
+
+
+                if (fileName != null)
+                {
+                    try
+                    {
+                        using (StreamWriter file = File.CreateText(System.IO.Path.Combine(path, fileName)))
+                        {
+                            JsonSerializer serializer = new JsonSerializer();
+                            serializer.Formatting = Newtonsoft.Json.Formatting.Indented;
+                            serializer.Serialize(file, tyreDict);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Error parsing " + fileName + ": " + e.Message);
+                    }
+                }
+            }
+        }
+        */
         #endregion Private Classes
     }
 }

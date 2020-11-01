@@ -64,12 +64,12 @@ namespace CrewChiefV4
         public static GameDefinition f1_2020 = new GameDefinition(GameEnum.F1_2020, "f1_2020", null, "CrewChiefV4.F1_2020.F12020Spotter",
             "f1_2020_launch_exe", "f1_2020_launch_params", "launch_f1_2020", false);
         public static GameDefinition rbr = new GameDefinition(GameEnum.RBR, "rbr", "RichardBurnsRally_SSE", null /*spotterName*/,
-            "rbr_launch_exe", null /*gameStartCommandOptionsProperty*/, "launch_rbr", true, "", null, CrewChief.RacingType.Rally);
+            "rbr_launch_exe", null /*gameStartCommandOptionsProperty*/, "launch_rbr", true, "RBR", null, CrewChief.RacingType.Rally);
         public static GameDefinition gtr2 = new GameDefinition(GameEnum.GTR2, "gtr2", "GTR2", "CrewChiefV4.GTR2.GTR2Spotter",
             "gtr2_launch_exe", "gtr2_launch_params", "launch_gtr2", true);
-        public static GameDefinition dirt = new GameDefinition(GameEnum.DIRT, "dirt", "drt", null /*spotterName*/,
+        public static GameDefinition dirt = new GameDefinition(GameEnum.DIRT, "dirt", null, null /*spotterName*/,
             "dirt_launch_exe", "dirt2_launch_params" /*gameStartCommandOptionsProperty*/, "launch_dirt", false, "", null, CrewChief.RacingType.Rally);
-        public static GameDefinition dirt2 = new GameDefinition(GameEnum.DIRT_2, "dirt2", "dirtrally2", null /*spotterName*/,
+        public static GameDefinition dirt2 = new GameDefinition(GameEnum.DIRT_2, "dirt2", null, null /*spotterName*/,
             "dirt2_launch_exe", "dirt2_launch_params" /*gameStartCommandOptionsProperty*/, "launch_dirt2", false, "", null, CrewChief.RacingType.Rally);
 
         public static GameDefinition any = new GameDefinition(GameEnum.ANY, "all_games", null, null, null, null, null, false, "", "Generic (all games)");

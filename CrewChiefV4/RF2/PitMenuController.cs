@@ -55,21 +55,19 @@ namespace PitMenuAPI
         {
             shadowPitMenu = new Dictionary<string, List<string>> { };
             shadowPitMenuCats = new List<string> { };
-            string initialCategory;
             string category;
             string choice;
 
-            if (CrewChief.Debugging)
-            {
-                Console.WriteLine("GetMenuDict");
-            }
+            Log.Debug("GetMenuDict");
             if (startUsingPitMenu())
                 {
-                initialCategory = GetCategory();
-
                 do
                 {
                     category = GetCategory();
+                    if (string.IsNullOrWhiteSpace(category))
+                    {
+                        break;
+                    }
                     shadowPitMenu[category] = new List<string>();
                     shadowPitMenuCats.Add(category);
                     if (category.Contains("TIRE"))
@@ -82,7 +80,7 @@ namespace PitMenuAPI
                         } while (!shadowPitMenu[category].Contains(GetChoice()));
                     }
                     CategoryDown();
-                } while (GetCategory() != initialCategory);
+                } while (!shadowPitMenu.ContainsKey(GetCategory()));
             }
 
             if (shadowPitMenu.Count < 2)

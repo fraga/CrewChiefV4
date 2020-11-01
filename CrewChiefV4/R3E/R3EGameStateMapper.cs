@@ -419,6 +419,11 @@ namespace CrewChiefV4.RaceRoom
                             currentGameState.PitData.PitBoxPositionEstimate = previousGameState.PitData.PitBoxPositionEstimate;
                             currentGameState.PitData.PitBoxLocationEstimate = previousGameState.PitData.PitBoxLocationEstimate;
                         }
+
+                        // get the SoF once at the race start, so it's fixed for the duration of the session. Note that this will
+                        // be inaccurate if opponents disconnect while on the grid but the alternative is too fiddly:
+                        currentGameState.SessionData.StrengthOfField = R3ERatings.getAverageRatingForParticipants(currentGameState.OpponentData);
+
                         currentGameState.PitData.PitWindowStart = shared.PitWindowStart;
                         currentGameState.PitData.PitWindowEnd = shared.PitWindowEnd;
                         currentGameState.PitData.HasMandatoryPitStop = currentGameState.PitData.PitWindowStart > 0 && currentGameState.PitData.PitWindowEnd > 0;
@@ -563,6 +568,7 @@ namespace CrewChiefV4.RaceRoom
                     currentGameState.TimingData = previousGameState.TimingData;
 
                     currentGameState.SessionData.JustGoneGreenTime = previousGameState.SessionData.JustGoneGreenTime;
+                    currentGameState.SessionData.StrengthOfField = previousGameState.SessionData.StrengthOfField;
                 }
             }
 
@@ -651,6 +657,7 @@ namespace CrewChiefV4.RaceRoom
             currentGameState.SessionData.SessionTimeRemaining = shared.SessionTimeRemaining;
             currentGameState.SessionData.CompletedLaps = shared.CompletedLaps;
             currentGameState.SessionData.MaxIncidentCount = shared.MaxIncidentPoints;
+            currentGameState.SessionData.HasLimitedIncidents = shared.MaxIncidentPoints > 0;
 
             currentGameState.SessionData.LapTimeCurrent = shared.LapTimeCurrentSelf;
             currentGameState.SessionData.NumCarsOverall = shared.NumCars;
@@ -685,7 +692,7 @@ namespace CrewChiefV4.RaceRoom
                 currentGameState.SessionData.LeaderSectorNumber = currentGameState.SessionData.SectorNumber;
             }
 
-            currentGameState.SessionData.CurrentIncidentCount = shared.IncidentPoints; ;
+            currentGameState.SessionData.CurrentIncidentCount = shared.IncidentPoints;
 
             foreach (DriverData participantStruct in shared.DriverData)
             {

@@ -160,8 +160,9 @@ namespace CrewChiefV4
                 if (File.Exists(Loading.tempSplashImagePath))
                 {
                     if (File.Exists(Loading.splashImagePath))
+                    {
                         File.Delete(Loading.splashImagePath);
-
+                    }
                     File.Move(Loading.tempSplashImagePath, Loading.splashImagePath);
                 }
             }
