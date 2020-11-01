@@ -1842,11 +1842,15 @@ namespace CrewChiefV4.Events
             {
                 if (this.inReceMode)
                 {
+                    // save the previously added batch from the recce notes - these will be re-added if the correction doesn't
+                    // insert any replacements
+                    List<CoDriverPacenote> deletedPacenotes = new List<CoDriverPacenote>();
                     // remove the previously added batch from the recce notes
                     foreach (CoDriverPacenote pacenote in this.lastPlayedOrAddedBatch)
                     {
                         Console.WriteLine("Recce correction, removing pace note " + pacenote);
                         this.recePaceNotes.Remove(pacenote);
+                        deletedPacenotes.Add(pacenote);
                     }
                     // remove the correction bit from the voice command
                     foreach (string correctionFragment in SpeechRecogniser.RALLY_CORRECTION)
@@ -1858,10 +1862,19 @@ namespace CrewChiefV4.Events
                         }
                     }
                     // now process this as a regular recce note
-                    ProcessRecePaceNote(voiceMessage);
-                    if (UserSettings.GetUserSettings().getBoolean("confirm_recce_pace_notes"))
+                    if (ProcessRecePaceNote(voiceMessage))
                     {
-                        ReplayLastPacenotesBatch(true);
+                        if (UserSettings.GetUserSettings().getBoolean("confirm_recce_pace_notes"))
+                        {
+                            ReplayLastPacenotesBatch(true);
+                        }
+                    }
+                    else
+                    {
+                        // got 'correction' but no actual correction, reinstate the removed notes and say "eh?"
+                        this.recePaceNotes.AddRange(deletedPacenotes);
+                        Console.WriteLine("Voice message \"Correction, " + voiceMessage + "\" didn't produce any pace notes");
+                        this.audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderDidntUnderstand, 0));
                     }
                 }
                 else
