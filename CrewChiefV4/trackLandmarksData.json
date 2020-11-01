@@ -202,6 +202,7 @@
 			"pcars2TrackName": "Brands_Hatch:GP",
 			"ams2TrackName": "BrandsHatch:GrandPrix",
 			"accTrackName": "brands_hatch:track config",
+			"raceroomLayoutId": 9251,
 			"trackLandmarks": [{
 					"landmarkName": "paddock_hill",
 					"distanceRoundLapStart": 200,
@@ -7729,6 +7730,7 @@
 			"pcarsTrackName": "Watkins Glen International:Short Circuit",
 			"pcars2TrackName": "Watkins_Glen_International:Short",
 			"rf2TrackNames": ["Watkins Glen Short Endurance", "Watkins Glen Short"],
+			"raceroomLayoutId": 9177,
 			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 275,

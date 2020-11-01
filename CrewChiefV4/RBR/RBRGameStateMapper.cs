@@ -481,6 +481,12 @@ namespace CrewChiefV4.RBR
 
                 // Initialize variables that persist for the duration of a session.
                 string trackName = GetWideStringFromBytes(shared.perFrame.currentLocationStringWide);
+                // workaround for RBR CZ tracks plugin. The track may be reported as "Rally HQ"
+                if ((string.IsNullOrEmpty(trackName) || "Rally HQ".Equals(trackName))
+                    && this.knownTracks.TryGetValue(shared.perFrame.mRBRMapSettings.trackID, out var trackDefinitionForMissingName))
+                {
+                    trackName = trackDefinitionForMissingName.name;
+                }
                 // version of the track name that can be used for a folder name
                 string trackNameValidFolderName = Regex.Replace(trackName, tracknameToValidFolderNameRegex, "");
                 trackNameValidFolderName = trackNameValidFolderName.Substring(0, Math.Min(trackNameValidFolderName.Length, maxLengthForTrackNameFolder));

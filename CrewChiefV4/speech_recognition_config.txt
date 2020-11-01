@@ -361,9 +361,9 @@ PIT_STOP_FILL_TO = pitstop fill to:box, fill to
 LITERS = liters
 GALLONS = gallons
 
-HOW_MANY_INCIDENT_POINTS = how many incidents do i have:what's my incident count
-WHATS_THE_INCIDENT_LIMIT = what's the incident limit
-WHATS_THE_SOF = what's the sof:what is the strength of field
+HOW_MANY_INCIDENT_POINTS = how many incidents do i have:how many incident points do i have:what's my incident count:what are my incident points
+WHATS_THE_INCIDENT_LIMIT = what's the incident limit:what's the incident points limit
+WHATS_THE_SOF = what's the sof:what is the strength of field:what's the strength of field
 
 
 #################################################
@@ -462,7 +462,7 @@ RALLY_CUT = cut
 RALLY_DONT_CUT = don't cut
 RALLY_TIGHTENS = tightens
 RALLY_TIGHTENS_BAD = tightens bad
-RALLY_WIDENS = widens:opens
+RALLY_WIDENS = widens:wide out
 RALLY_NARROWS = narrows
 RALLY_THROUGH_GATE = gate:through gate
 RALLY_OPENS = opens

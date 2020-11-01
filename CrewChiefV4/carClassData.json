@@ -180,9 +180,10 @@
 		},
 		{
 			"carClassEnum": "GT3",
-			"raceroomClassIds": [1703, 2922, 3375, 4516, 7278],
+			"raceroomClassIds": [1703, 2922, 3375, 4516, 7278, 7767],
 			"pCarsClassNames": ["GT3"],
 			"rf2ClassNames": ["*GT3*"],
+			"ams2ClassNames": ["GT3"],
 			"acClassNames": ["ks_audi_r8_lms*", "*GT3*"],
 			"iracingCarIds": [43, 55, 59, 72, 73, 94],
 			"timesInHundredths": true,
@@ -192,7 +193,8 @@
 		},
 		{
 			"carClassEnum": "CARRERA_CUP",
-			"raceroomClassIds": [6345,7982],
+			"raceroomClassIds": [6345, 7982, 8165, 8681],
+			"ams2ClassNames": ["Carrera Cup"],
 			"acClassNames": ["porsche*cup*"],
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL",
@@ -220,7 +222,7 @@
 			"pCarsClassNames": ["GT4"],
 			"rf2ClassNames": ["*GT4*"],
 			"acClassNames": ["*GT4*", "ks_bmw_m235i_racing", "lotus_evora_gx", "ginetta_g55"],
-			"ams2ClassNames": ["G55Supercup"],
+			"ams2ClassNames": ["GT4"],
 			"iracingCarIds": [119, 122],
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL",
@@ -237,6 +239,13 @@
 					"maxHotTyreTemp": 140
 				}
 			}
+		},
+		{
+			"carClassEnum": "GT55_SUPERCUP",
+			"ams2ClassNames": ["G55Supercup"],
+			"timesInHundredths": true,
+			"enabledMessageTypes": "ALL",
+			"allMembersAreRWD": true
 		},
 		{
 			"carClassEnum": "GT5",
@@ -424,6 +433,7 @@
 			"carClassEnum": "GTO",
 			"raceroomClassIds": [1713],
 			"pCarsClassNames": ["GTO"],
+			"ams2ClassNames": ["GTOpen"],
 			"timesInHundredths": true,
 			"enabledMessageTypes": "TYRE_TEMPS, BRAKE_TEMPS, FUEL, LOCKING_AND_SPINNING",
 			"allMembersAreRWD": true
@@ -492,6 +502,7 @@
 			"pCarsClassNames": ["FA", "Formula A"],
 			"rf2ClassNames": ["Formula ISI 2012", "OW Formula 1 2017 Single Player", "OW Formula 1 2017 League Edition", "F1 2016 Single Player", "F1 2016 League Edition", "Mercedes Amg Petronas FW08", "Mclaren Honda Mcl32", "Toro-rosso STR12", "Ferrari SF70H", "Renault R.S 17", "Haas VF-17", "Force India VJM10", "Redbull Racing RB13", "Williams Racing FW40", "Sauber F1 c34 Hybrid", "F1RFT 2013"],
 			"acClassNames": ["ks_ferrari_f138", "ferrari_f2002", "ks_ferrari_sf15t"],
+			"ams2ClassNames": ["F-Ultimate"],
 			"brakeType": "Carbon",
 			"maxSafeWaterTemp": 105,
 			"maxSafeOilTemp": 140,
@@ -800,7 +811,7 @@
 		},
 		{
 			"carClassEnum": "TCR",
-			"raceroomClassIds": [7009, 7844, 8660],
+			"raceroomClassIds": [7009, 7844, 8660, 8077, 9233],
 			"rf2ClassNames": ["TCR SEAT", "Honda Civic TCR", "Opel Astra OPC", "TT Cup 2015", "TCR VW", "Ford Focus ST"],
 			"iracingCarIds": [112],
 			"timesInHundredths": true,
@@ -891,6 +902,16 @@
 			"defaultTyreType": "Road",
 			"brakeType": "Iron_Road",
 			"maxSafeWaterTemp": 105,
+			"maxSafeOilTemp": 115,
+			"timesInHundredths": true,
+			"enabledMessageTypes": "TYRE_TEMPS, FUEL, LOCKING_AND_SPINNING"
+		},
+		{
+			"carClassEnum": "ROAD_A",
+			"ams2ClassNames": ["Street"],
+			"defaultTyreType": "Road",
+			"brakeType": "Iron_Road",
+			"maxSafeWaterTemp": 102,
 			"maxSafeOilTemp": 115,
 			"timesInHundredths": true,
 			"enabledMessageTypes": "TYRE_TEMPS, FUEL, LOCKING_AND_SPINNING"
@@ -1099,7 +1120,7 @@
 			"maxSafeOilTemp": 140,
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL",
-			"allMembersAreRWD": true,
+			"allMembersAreRWD": true
 		},
 		{
 			"carClassEnum": "F1_80S_NA",
@@ -1108,7 +1129,7 @@
 			"maxSafeOilTemp": 140,
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL",
-			"allMembersAreRWD": true,
+			"allMembersAreRWD": true
 		},
 		{
 			"carClassEnum": "F1_2000S",
@@ -1195,6 +1216,118 @@
 			"maxSafeOilTemp": 115,
 			"enabledMessageTypes": "ALL",
 			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "ARC_CAMERO",
+			"ams2ClassNames": ["ARC_Cam"],
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "CATERHAM_620R",
+			"ams2ClassNames": ["Cat620R"],
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "CATERHAM_SUPERSPORT",
+			"ams2ClassNames": ["Cat_Supersport"],
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "CATERHAM_SUPERLIGHT",
+			"ams2ClassNames": ["Cat_Superlight"],
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "CATERHAM_ACADAMY",
+			"ams2ClassNames": ["Cat_Academy"],
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "COPA_CLASSIC_A",
+			"ams2ClassNames": ["CopaClassicA"],
+			"defaultTyreType": "Bias_Ply"
+		},
+		{
+			"carClassEnum": "COPA_CLASSIC_B",
+			"ams2ClassNames": ["CopaClassicB"],
+			"defaultTyreType": "Bias_Ply"
+		},
+		{
+			"carClassEnum": "COPA_FUSCA",
+			"ams2ClassNames": ["CopaFusca"],
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "TRUCK",
+			"ams2ClassNames": ["CopaTruck"],
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "COPA_UNO",
+			"ams2ClassNames": ["CopaUno"],
+			"allMembersAreFWD": true
+		},
+		{
+			"carClassEnum": "REIZA_FV12",
+			"ams2ClassNames": ["F-V12"],
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "COPA_HOT_CARS",
+			"ams2ClassNames": ["Hot Cars"],
+			"allMembersAreFWD": true
+		},
+		{
+			"carClassEnum": "LANCER_CUP",
+			"ams2ClassNames": ["LancerCup"]
+		},
+		{
+			"carClassEnum": "MINI_CHALLENGE",
+			"ams2ClassNames": ["MiniChallenge"]
+		},
+		{
+			"carClassEnum": "COPA_MONTANA",
+			"ams2ClassNames": ["Montana"],
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "OPALA_STOCK_OLD",
+			"ams2ClassNames": ["OldStock"],
+			"defaultTyreType": "Bias_Ply",
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "OPALA_STOCK_79",
+			"ams2ClassNames": ["Opala79"],
+			"defaultTyreType": "Bias_Ply",
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "OPALA_STOCK_86",
+			"ams2ClassNames": ["Opala86"],
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "SPRINT_RACE",
+			"ams2ClassNames": ["SprintRace"],
+			"allMembersAreRWD": true
+		},
+		{
+			"carClassEnum": "F_VEE",
+			"ams2ClassNames": ["F-Vee"],
+			"allMembersAreRWD": true,
+			"defaultTyreType": "Road"
+		},
+		{
+			"carClassEnum": "GROUP2",
+			"raceroomClassIds": [8483],
+			"defaultTyreType": "Bias_Ply",
+			"allMembersAreFWD": true
+		},
+		{
+			"carClassEnum": "E_TCR",
+			"raceroomClassIds": [8682],
+			"isBatteryPowered": true
 		}
 	]
 }

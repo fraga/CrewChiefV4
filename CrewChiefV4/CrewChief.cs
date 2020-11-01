@@ -51,39 +51,40 @@ namespace CrewChiefV4
 
         public static Boolean readOpponentDeltasForEveryLap = false;
         // initial state from properties but can be overridden during a session:
-        public static Boolean yellowFlagMessagesEnabled = UserSettings.GetUserSettings().getBoolean("enable_yellow_flag_messages");
+        // No need to initialise here, it's done in reloadSettings()
+        public static Boolean yellowFlagMessagesEnabled;
 
-        public static Boolean enableDriverNames = UserSettings.GetUserSettings().getBoolean("enable_driver_names");
+        public static Boolean enableDriverNames;
 
         private const int IRACING_INTERVAL = 16;    // always use 60Hz for iracing
-        private static int timeInterval = UserSettings.GetUserSettings().getInt("update_interval");
+        private static int timeInterval;
 
-        private static int spotterInterval = UserSettings.GetUserSettings().getInt("spotter_update_interval");
+        private static int spotterInterval;
 
-        private Boolean displaySessionLapTimes = UserSettings.GetUserSettings().getBoolean("display_session_lap_times");
+        private Boolean displaySessionLapTimes;
 
-        public static Boolean forceSingleClass = UserSettings.GetUserSettings().getBoolean("force_single_class");
-        public static int maxUnknownClassesForAC = UserSettings.GetUserSettings().getInt("max_unknown_car_classes_for_assetto");
+        public static Boolean forceSingleClass;
+        public static int maxUnknownClassesForAC;
 
-        private Boolean enableWebsocket = UserSettings.GetUserSettings().getBoolean("enable_websocket");
-        private Boolean enableGameDataWebsocket = UserSettings.GetUserSettings().getBoolean("enable_game_data_websocket");
+        private Boolean enableWebsocket;
+        private Boolean enableGameDataWebsocket;
 
-        private Boolean turnSpotterOffImmediatelyOnFCY = UserSettings.GetUserSettings().getBoolean("fcy_stop_spotter_immediately");
+        private Boolean turnSpotterOffImmediatelyOnFCY;
 
-        public static bool recordChartTelemetryDuringRace = UserSettings.GetUserSettings().getBoolean("enable_chart_telemetry_in_race_session");
+        public static bool recordChartTelemetryDuringRace;
 
-        public static int intervalWhenCollectionTelemetry = UserSettings.GetUserSettings().getInt("update_interval_when_collecting_telemetry");
+        private static int intervalWhenCollectionTelemetry;
 
         public static bool enableSharedMemory = UserSettings.GetUserSettings().getBoolean("enable_shared_memory");
 
-        private Boolean autoEnablePacenotesInPractice = UserSettings.GetUserSettings().getBoolean("auto_enable_pacenotes_in_practice");
+        private Boolean autoEnablePacenotesInPractice;
 
         private static Dictionary<String, AbstractEvent> eventsList = new Dictionary<String, AbstractEvent>();
 
-        Object lastSpotterState;
-        Object currentSpotterState;
+        private Object lastSpotterState;
+        private Object currentSpotterState;
 
-        Boolean stateCleared = false;
+        private Boolean stateCleared = false;
 
         public Boolean running = false;
 
@@ -168,11 +169,13 @@ namespace CrewChiefV4
 
         private void reloadSettings()
         {
+            // Class vars
             this.enableWebsocket = UserSettings.GetUserSettings().getBoolean("enable_websocket");
             this.enableGameDataWebsocket = UserSettings.GetUserSettings().getBoolean("enable_game_data_websocket");
             this.displaySessionLapTimes = UserSettings.GetUserSettings().getBoolean("display_session_lap_times");
             this.turnSpotterOffImmediatelyOnFCY = UserSettings.GetUserSettings().getBoolean("fcy_stop_spotter_immediately");
             this.autoEnablePacenotesInPractice = UserSettings.GetUserSettings().getBoolean("auto_enable_pacenotes_in_practice");
+            // Static vars
             CrewChief.yellowFlagMessagesEnabled = UserSettings.GetUserSettings().getBoolean("enable_yellow_flag_messages");
             CrewChief.enableDriverNames = UserSettings.GetUserSettings().getBoolean("enable_driver_names");
             CrewChief.timeInterval = gameDefinition.gameEnum == GameEnum.IRACING ? IRACING_INTERVAL : UserSettings.GetUserSettings().getInt("update_interval");
@@ -233,14 +236,17 @@ namespace CrewChiefV4
                 UserSettings.GetUserSettings().setProperty("last_game_definition", gameDefinition.gameEnum.ToString());
                 UserSettings.GetUserSettings().saveUserSettings();
                 CrewChief.gameDefinition = gameDefinition;
-                // I think we shuld add it here
                 if (UserSettings.GetUserSettings().getBoolean("enable_automatic_plugin_update"))
                 {
                     if (gameDefinition.gameEnum == GameEnum.ASSETTO_32BIT ||
                         gameDefinition.gameEnum == GameEnum.ASSETTO_64BIT ||
                         gameDefinition.gameEnum == GameEnum.RF1 ||
                         gameDefinition.gameEnum == GameEnum.RF2_64BIT ||
-                        gameDefinition.gameEnum == GameEnum.ACC)
+                        gameDefinition.gameEnum == GameEnum.ACC ||
+                        gameDefinition.gameEnum == GameEnum.DIRT ||
+                        gameDefinition.gameEnum == GameEnum.DIRT_2 ||
+                        gameDefinition.gameEnum == GameEnum.RBR
+                        )
                     {
                         PluginInstaller pluginInstaller = new PluginInstaller();
                         pluginInstaller.InstallOrUpdatePlugins(gameDefinition);
@@ -487,7 +493,10 @@ namespace CrewChiefV4
                     spotter = null;
                 }
                 // force pcars3 to be single class because it probably is, i don't own it and it's not very good
-                CrewChief.forceSingleClass = gameDefinition.gameEnum == GameEnum.PCARS3;
+                if (gameDefinition.gameEnum == GameEnum.PCARS3)
+                {
+                    CrewChief.forceSingleClass = true;
+                }
                 running = true;
                 if (!audioPlayer.initialised)
                 {
@@ -511,7 +520,7 @@ namespace CrewChiefV4
                 }
                 bool useTelemetryIntervalWhereApplicable = CrewChief.gameDefinition.gameEnum != GameEnum.IRACING
                     && UserSettings.GetUserSettings().getBoolean("enable_overlay_window");
-                if (CrewChief.gameDefinition.gameEnum != GameEnum.NONE && 
+                if (CrewChief.gameDefinition.gameEnum != GameEnum.NONE &&
                     CrewChief.gameDefinition.gameEnum != GameEnum.PCARS_NETWORK &&
                     CrewChief.gameDefinition.gameEnum != GameEnum.F1_2018 &&
                     CrewChief.gameDefinition.gameEnum != GameEnum.F1_2019 &&

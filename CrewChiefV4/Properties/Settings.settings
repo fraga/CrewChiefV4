@@ -1155,7 +1155,7 @@
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="rbr_install_path" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">C:/RBR</Value>
     </Setting>
     <Setting Name="launch_rbr" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
@@ -1260,6 +1260,9 @@
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="log_type_verbose" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="allow_composite_personalisations" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
   </Settings>

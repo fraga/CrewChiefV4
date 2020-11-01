@@ -58,7 +58,7 @@ namespace CrewChiefV4
         private float minimum_voice_recognition_confidence_windows = UserSettings.GetUserSettings().getFloat("minimum_voice_recognition_confidence_system_sre");
         private float minimum_voice_recognition_confidence_microsoft = UserSettings.GetUserSettings().getFloat("minimum_voice_recognition_confidence");
         private float minimum_rally_voice_recognition_confidence_windows = UserSettings.GetUserSettings().getFloat("minimum_rally_voice_recognition_confidence_system_sre");
-        private float minimum_rally_voice_recognition_confidence_microsoft = UserSettings.GetUserSettings().getFloat("minimum_rally_voice_recognition_confidence");
+        private float minimum_rally_voice_recognition_confidence_microsoft = UserSettings.GetUserSettings().getFloat("minimum_rally_voice_recognition_confidence_microsoft_sre");
         private Boolean disable_alternative_voice_commands = UserSettings.GetUserSettings().getBoolean("disable_alternative_voice_commands");
         private Boolean enable_iracing_pit_stop_commands = UserSettings.GetUserSettings().getBoolean("enable_iracing_pit_stop_commands");
         private static Boolean use_verbose_responses = UserSettings.GetUserSettings().getBoolean("use_verbose_responses");
@@ -468,7 +468,8 @@ namespace CrewChiefV4
             SpeechRecogniser.RALLY_UPHILL,
             SpeechRecogniser.RALLY_DOWNHILL,
             SpeechRecogniser.RALLY_BRAKE,
-            SpeechRecogniser.RALLY_THROUGH_GATE
+            SpeechRecogniser.RALLY_THROUGH_GATE,
+            SpeechRecogniser.RALLY_WIDENS
         };
 
         // for watching opponent - "watch [bob]", "tell me about [bob]"
@@ -1929,6 +1930,17 @@ namespace CrewChiefV4
                 GrammarWrapper r3eGrammar = SREWrapperFactory.createNewGrammarWrapper(r3eGrammarBuilder);
                 r3ePitstopGrammarList.Add(r3eGrammar);
                 sreWrapper.LoadGrammar(r3eGrammar);
+
+                // these are processed by the iRacing event so we put them in the iRacing grammar list
+                ChoicesWrapper iRacingChoices = SREWrapperFactory.createNewChoicesWrapper();
+                validateAndAdd(WHATS_THE_SOF, iRacingChoices);
+                validateAndAdd(HOW_MANY_INCIDENT_POINTS, iRacingChoices);
+                validateAndAdd(WHATS_THE_INCIDENT_LIMIT, iRacingChoices);
+                GrammarBuilderWrapper iRacingGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper(iRacingChoices);
+                iRacingGrammarBuilder.SetCulture(cultureInfo);
+                GrammarWrapper iRacingGrammar = SREWrapperFactory.createNewGrammarWrapper(iRacingGrammarBuilder);
+                iracingPitstopGrammarList.Add(iRacingGrammar);
+                sreWrapper.LoadGrammar(iRacingGrammar);
             }
             catch (Exception e)
             {
