@@ -55,15 +55,12 @@ namespace PitMenuAPI
         {
             shadowPitMenu = new Dictionary<string, List<string>> { };
             shadowPitMenuCats = new List<string> { };
-            string initialCategory;
             string category;
             string choice;
 
             Log.Debug("GetMenuDict");
             if (startUsingPitMenu())
                 {
-                initialCategory = GetCategory();
-
                 do
                 {
                     category = GetCategory();
@@ -83,7 +80,7 @@ namespace PitMenuAPI
                         } while (!shadowPitMenu[category].Contains(GetChoice()));
                     }
                     CategoryDown();
-                } while (GetCategory() != initialCategory);
+                } while (!shadowPitMenu.ContainsKey(GetCategory()));
             }
 
             if (shadowPitMenu.Count < 2)
