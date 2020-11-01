@@ -468,7 +468,8 @@ namespace CrewChiefV4
             SpeechRecogniser.RALLY_UPHILL,
             SpeechRecogniser.RALLY_DOWNHILL,
             SpeechRecogniser.RALLY_BRAKE,
-            SpeechRecogniser.RALLY_THROUGH_GATE
+            SpeechRecogniser.RALLY_THROUGH_GATE,
+            SpeechRecogniser.RALLY_WIDENS
         };
 
         // for watching opponent - "watch [bob]", "tell me about [bob]"
