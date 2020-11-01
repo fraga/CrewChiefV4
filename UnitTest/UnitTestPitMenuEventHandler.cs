@@ -265,5 +265,31 @@ namespace UnitTest
             Assert.AreEqual("Rain"         , result["Monsoon"]);
 
         }
+        [TestMethod]
+        public void Test_TTT_F1_1998()
+        {
+            List<string> inMenu = new List<string>();
+            inMenu.Add("Wet");
+            inMenu.Add("Soft");
+            inMenu.Add("Medium");
+            inMenu.Add("Hard");
+            inMenu.Add("Intermediate");
+
+            Dictionary<string, string> result =
+                PitManagerEventHandlers_RF2.TranslateTyreTypes(
+                    PitManagerEventHandlers_RF2.SampleTyreTranslationDict,
+                    inMenu);
+            Assert.IsNotNull(result);
+            Assert.AreEqual("Soft", result["Hypersoft"]);
+            Assert.AreEqual("Soft", result["Ultrasoft"]);
+            Assert.AreEqual("Soft", result["Supersoft"]);
+            Assert.AreEqual("Soft", result["Soft"]);
+            Assert.AreEqual("Medium", result["Medium"]);
+            Assert.AreEqual("Hard", result["Hard"]);
+            Assert.AreEqual("Intermediate", result["Intermediate"]);
+            Assert.AreEqual("Wet", result["Wet"]);
+            Assert.AreEqual("Wet", result["Monsoon"]);
+
+        }
     }
 }

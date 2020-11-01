@@ -55,19 +55,13 @@ namespace PitMenuAPI
         {
             shadowPitMenu = new Dictionary<string, List<string>> { };
             shadowPitMenuCats = new List<string> { };
-            string initialCategory;
             string category;
             string choice;
 
             Log.Debug("GetMenuDict");
             if (startUsingPitMenu())
                 {
-                initialCategory = GetCategory();
-
-                // Case: Formula ISI doesn't have FUEL menu but initialCategory
-                // somehow is FUEL and it never exited the while loop.
-                // Hack: put a limit on how many menu rows 
-                for (var i = 0; i < 10; i++)
+                do
                 {
                     category = GetCategory();
                     if (string.IsNullOrWhiteSpace(category))
@@ -86,11 +80,7 @@ namespace PitMenuAPI
                         } while (!shadowPitMenu[category].Contains(GetChoice()));
                     }
                     CategoryDown();
-                    if (GetCategory() == initialCategory)
-                    {
-                        break;
-                    }
-                }
+                } while (!shadowPitMenu.ContainsKey(GetCategory()));
             }
 
             if (shadowPitMenu.Count < 2)

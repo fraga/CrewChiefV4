@@ -250,9 +250,19 @@ namespace CrewChiefV4.PitManager
             return setTyreCompound("Hypersoft");
         }
 
+        static public bool PMrF2eh_TyreCompoundIntermediate(string __)
+        {
+            return setTyreCompound("Intermediate");
+        }
+
         static public bool PMrF2eh_TyreCompoundWet(string __)
         {
             return setTyreCompound("Wet");
+        }
+
+        static public bool PMrF2eh_TyreCompoundMonsoon(string __)
+        {
+            return setTyreCompound("Monsoon");
         }
 
         static public bool PMrF2eh_TyreCompoundOption(string __)
