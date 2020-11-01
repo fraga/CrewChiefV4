@@ -169,6 +169,24 @@ namespace CrewChiefV4.PitManager
                             }
                         }
                     }
+                    // Didn't find an exact match, see if the genericTyretype
+                    // is in one of the menu items, e.g. "Soft" in "Soft COMPOUND"
+                    foreach (var availableTyretype in inMenu)
+                    {  // Tyre type in the menu
+                        if (col < genericTyretype.Value.Count)
+                        {
+                            var tyreName = genericTyretype.Value[col];
+                            // Type that generic type can match to
+                            if (availableTyretype.IndexOf(tyreName, StringComparison.OrdinalIgnoreCase) >= 0)
+                            {
+                                if (!result.ContainsKey(genericTyretype.Key))
+                                {
+                                    result[genericTyretype.Key] = availableTyretype;
+                                    break;
+                                }
+                            }
+                        }
+                    }
                 }
             }
             foreach (var genericTyretype in tyreDict)

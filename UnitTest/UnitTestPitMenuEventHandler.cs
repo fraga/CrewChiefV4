@@ -18,6 +18,7 @@ namespace UnitTest
         [TestMethod]
         [ExpectedException(typeof(ArgumentOutOfRangeException),
             "text")]
+        /// RUNS OK AS LONG AS RF2 IS NOT LOADED
         public void Test_EventHandler()
         {
             bool result;
@@ -289,6 +290,31 @@ namespace UnitTest
             Assert.AreEqual("Intermediate", result["Intermediate"]);
             Assert.AreEqual("Wet", result["Wet"]);
             Assert.AreEqual("Wet", result["Monsoon"]);
+
+        }
+        [TestMethod]
+        public void Test_TTT_Audi_R15()
+        {
+            List<string> inMenu = new List<string>();
+            inMenu.Add("Wet COMPOUND");
+            inMenu.Add("Soft COMPOUND");
+            inMenu.Add("Medium COMPOUND");
+            inMenu.Add("Hard COMPOUND");
+
+            Dictionary<string, string> result =
+                PitManagerEventHandlers_RF2.TranslateTyreTypes(
+                    PitManagerEventHandlers_RF2.SampleTyreTranslationDict,
+                    inMenu);
+            Assert.IsNotNull(result);
+            Assert.AreEqual("Soft COMPOUND", result["Hypersoft"]);
+            Assert.AreEqual("Soft COMPOUND", result["Ultrasoft"]);
+            Assert.AreEqual("Soft COMPOUND", result["Supersoft"]);
+            Assert.AreEqual("Soft COMPOUND", result["Soft"]);
+            Assert.AreEqual("Medium COMPOUND", result["Medium"]);
+            Assert.AreEqual("Hard COMPOUND", result["Hard"]);
+            Assert.AreEqual("Wet COMPOUND", result["Intermediate"]);
+            Assert.AreEqual("Wet COMPOUND", result["Wet"]);
+            Assert.AreEqual("Wet COMPOUND", result["Monsoon"]);
 
         }
     }
