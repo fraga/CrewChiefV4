@@ -53,31 +53,49 @@ namespace CrewChiefV4.PitManager
 
         #region Private Fields
 
+        /* Trying to create a class so tyre dict could be a data file but don't
+         * know how to do this
+        public class TyreDictionary : IEnumerator, IEnumerable
+        {
+            public TyreDictionary()
+            {
+                TyreTranslationDict = new Dictionary<string, List<string>>();
+            }
+            public Dictionary<string, List<string>> TyreTranslationDict
+            {
+                get; set;
+            }
+            public IEnumerator GetEnumerator()
+            {
+                return (IEnumerator)this;
+            }
+        }
+        */
         // Complicated because rF2 has many names for tyres so use a dict of
         // possible alternative names for each type
         // Each entry has a list of possible matches in declining order
         // Sample:
         public static readonly Dictionary<string, List<string>> SampleTyreTranslationDict =  // public for unit testing
           new Dictionary<string, List<string>>() {
-            { "Hypersoft",    new List <string> {"hypersoft", "ultrasoft", "supersoft", "soft",
+            { "Hypersoft",    new List <string> {"hypersoft", "ultrasoft", "supersoft", "super soft", "soft", "alternates",
                         "s310", "slick", "dry", "all-weather", "medium" } },
-            { "Ultrasoft",    new List <string> {"ultrasoft","hypersoft", "supersoft", "soft",
+            { "Ultrasoft",    new List <string> {"ultrasoft","hypersoft", "supersoft", "super soft", "soft", "alternates",
                         "s310", "slick", "dry", "all-weather", "medium" } },
-            { "Supersoft",    new List <string> {"supersoft", "hypersoft", "ultrasoft", "soft",
+            { "Supersoft",    new List <string> {"supersoft", "super soft", "hypersoft", "ultrasoft", "soft", "alternates",
                         "s310", "slick", "dry", "all-weather", "medium" } },
-            { "Soft",         new List <string> {"soft",
+            { "Soft",         new List <string> {"soft", "alternates",
                         "s310", "slick", "dry", "all-weather", "medium" } },
             { "Medium",       new List <string> { "medium", "default",
                         "s310", "slick", "dry", "all-weather" } },
-            { "Hard",         new List <string> {"hard", "p310", "endur",
+            { "Hard",         new List <string> {"hard", "p310", "endur", "primary",
                         "medium", "default",
                                 "slick", "dry", "all-weather" } },
-            { "Intermediate", new List <string> { "intermediate",
+            { "Intermediate", new List <string> { "intermediate", "inter",
                         "wet", "rain", "monsoon", "all-weather" } },
             { "Wet",          new List <string> {
-                        "wet", "rain", "monsoon", "all-weather", "intermediate" } },
+                        "wet", "rain", "monsoon", "all-weather", "intermediate", "inter" } },
             { "Monsoon",      new List <string> {"monsoon",
-                        "wet", "rain",  "all-weather", "intermediate" } },
+                        "wet", "rain",  "all-weather", "intermediate", "inter" } },
             { "No Change",    new List <string> {"no change"} }
             };
 
@@ -140,7 +158,8 @@ namespace CrewChiefV4.PitManager
                         {
                             var tyreName = genericTyretype.Value[col];
                             // Type that generic type can match to
-                            if (availableTyretype.IndexOf(tyreName, StringComparison.OrdinalIgnoreCase) >= 0)
+                            if (availableTyretype.Length == tyreName.Length &&
+                                availableTyretype.IndexOf(tyreName, StringComparison.OrdinalIgnoreCase) >= 0)
                             {
                                 if (!result.ContainsKey(genericTyretype.Key))
                                 {
@@ -151,12 +170,12 @@ namespace CrewChiefV4.PitManager
                         }
                     }
                 }
-                foreach (var genericTyretype in tyreDict)
-                {
-                    if (!result.ContainsKey(genericTyretype.Key))
-                    {   // Didn't match, give it something
-                        result[genericTyretype.Key] = inMenu[0];
-                    }
+            }
+            foreach (var genericTyretype in tyreDict)
+            {
+                if (!result.ContainsKey(genericTyretype.Key))
+                {   // Didn't match, give it something
+                    result[genericTyretype.Key] = inMenu[0];
                 }
             }
             return result;
@@ -622,6 +641,92 @@ namespace CrewChiefV4.PitManager
             #endregion Public Methods
         }
 
+        /*
+        private class TyreDictFile
+        {
+            static bool TyreDictionaryIsBroken = false;
+            private static String getUserTyreDictionaryFileLocation()
+            {
+                var path = System.IO.Path.Combine(Environment.GetFolderPath(
+                    Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "TyreDictionary.json");
+
+                if (!File.Exists(path))
+                {
+                    saveTyreDictionaryFile(SampleTyreTranslationDict);
+                }
+                return path;
+            }
+            private static TyreDictionary getTyreDictionaryFromFile(String filename)
+            {
+                if (filename != null && !TyreDictionaryIsBroken)
+                {
+                    try
+                    {
+                        using (StreamReader r = new StreamReader(filename))
+                        {
+                            string json = r.ReadToEnd();
+                            TyreDictionary data = JsonConvert.DeserializeObject<TyreDictionary>(json);
+                            if (data != null)
+                            {
+                                TyreDictionaryIsBroken = false;
+                                return data;
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Error parsing " + filename + ": " + e.Message);
+                        TyreDictionaryIsBroken = true;
+                    }
+                }
+                return new TyreDictionary();
+            }
+
+            public static void saveTyreDictionaryFile(TyreDictionary tyreDict)
+            {
+                if (TyreDictionaryIsBroken)
+                {
+                    Console.WriteLine("Unable to update Tyre Dictionary because the file isn't valid JSON");
+                    return;
+                }
+
+                var fileName = "TyreDictionary.json";
+
+                String path = System.IO.Path.Combine(Environment.GetFolderPath(
+                    Environment.SpecialFolder.MyDocuments), "CrewChiefV4");
+
+                if (!Directory.Exists(path))
+                {
+                    try
+                    {
+                        Directory.CreateDirectory(path);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Error creating " + path + ": " + e.Message);
+                    }
+                }
+
+
+                if (fileName != null)
+                {
+                    try
+                    {
+                        using (StreamWriter file = File.CreateText(System.IO.Path.Combine(path, fileName)))
+                        {
+                            JsonSerializer serializer = new JsonSerializer();
+                            serializer.Formatting = Newtonsoft.Json.Formatting.Indented;
+                            serializer.Serialize(file, tyreDict);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Error parsing " + fileName + ": " + e.Message);
+                    }
+                }
+            }
+        }
+        */
         #endregion Private Classes
     }
 }

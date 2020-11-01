@@ -33,6 +33,7 @@ namespace UnitTest
         }
 
         [TestMethod]
+        [Ignore]
         public void Test_EventHandlerFuel()
         {
             bool result;
@@ -43,6 +44,7 @@ namespace UnitTest
         }
 
         [TestMethod]
+        [Ignore]
         [ExpectedException(typeof(TypeInitializationException),
             "text")]
         public void Test_EventHandlerUndo()
@@ -83,6 +85,7 @@ namespace UnitTest
             ccObj = hwnd.crewChief;//    new CrewChief(controllerConfiguration);
         }
         [TestMethod]
+        [Ignore]
         public void CCobject()
         {
             ; // Do nothing, just tests that CC MainWindow has been created
@@ -110,8 +113,7 @@ namespace UnitTest
 #endif
 
         [TestMethod]
-        //[ExpectedException(typeof(TypeInitializationException),
-        //    "text")]
+        [Ignore]
         public void TestVoice()
         {
             bool result;
@@ -154,15 +156,15 @@ namespace UnitTest
                     PitManagerEventHandlers_RF2.SampleTyreTranslationDict,
                     inMenu);
             Assert.IsNotNull(result);
-            //Assert.AreEqual("Super Soft"  , result["Hypersoft"]);
-            //Assert.AreEqual("Super Soft"  , result["Ultrasoft"]);
-            //Assert.AreEqual("Super Soft"  , result["Supersoft"]);
-            //Assert.AreEqual("Soft"        , result["Soft"]);
+            Assert.AreEqual("Super Soft"  , result["Hypersoft"]);
+            Assert.AreEqual("Super Soft"  , result["Ultrasoft"]);
+            Assert.AreEqual("Super Soft"  , result["Supersoft"]);
+            Assert.AreEqual("Soft"        , result["Soft"]);
             Assert.AreEqual("Medium"      , result["Medium"]);
             Assert.AreEqual("Hard"        , result["Hard"]);
             Assert.AreEqual("Intermediate", result["Intermediate"]);
             Assert.AreEqual("Wet"         , result["Wet"]);
-            //Assert.AreEqual("Wet"         , result["Monsoon"]);
+            Assert.AreEqual("Wet"         , result["Monsoon"]);
 
         }
         [TestMethod]
@@ -186,17 +188,17 @@ namespace UnitTest
             Assert.AreEqual("Soft"        , result["Soft"]);
             Assert.AreEqual("Medium"      , result["Medium"]);
             Assert.AreEqual("Hard"        , result["Hard"]);
-            //Assert.AreEqual("Inter"       , result["Intermediate"]);
-            //Assert.AreEqual("Rain"        , result["Wet"]);
-            //Assert.AreEqual("Wet"         , result["Monsoon"]);
+            Assert.AreEqual("Inter"       , result["Intermediate"]);
+            Assert.AreEqual("Rain"        , result["Wet"]);
+            Assert.AreEqual("Rain"        , result["Monsoon"]);
 
         }
         [TestMethod]
         public void Test_TTT_DallaraIndy()
         {
             List<string> inMenu = new List<string>();
-            inMenu.Add("Alternates");   // Soft
-            inMenu.Add("Primary");      // Hard
+            inMenu.Add("Alternates");    // Soft
+            inMenu.Add("Primary");       // Hard
             inMenu.Add("Rain");
 
             Dictionary<string, string> result =
@@ -209,10 +211,10 @@ namespace UnitTest
             Assert.AreEqual("Alternates", result["Supersoft"]);
             Assert.AreEqual("Alternates", result["Soft"]);
             Assert.AreEqual("Alternates", result["Medium"]);
-            //Assert.AreEqual("Primary",    result["Hard"]);
-            //Assert.AreEqual("Rain",       result["Intermediate"]);
-            //Assert.AreEqual("Rain",       result["Wet"]);
-            //Assert.AreEqual("Wet"         , result["Monsoon"]);
+            Assert.AreEqual("Primary",    result["Hard"]);
+            Assert.AreEqual("Rain",       result["Intermediate"]);
+            Assert.AreEqual("Rain",       result["Wet"]);
+            Assert.AreEqual("Rain",       result["Monsoon"]);
 
         }
         [TestMethod]
@@ -235,9 +237,32 @@ namespace UnitTest
             Assert.AreEqual("Soft", result["Soft"]);
             Assert.AreEqual("Medium", result["Medium"]);
             Assert.AreEqual("Hard", result["Hard"]);
-            //Assert.AreEqual("Rain", result["Intermediate"]);
-            //Assert.AreEqual("Rain", result["Wet"]);
-            //Assert.AreEqual("Wet"         , result["Monsoon"]);
+            Assert.AreEqual("Rain", result["Intermediate"]);
+            Assert.AreEqual("Rain", result["Wet"]);
+            Assert.AreEqual("Rain"         , result["Monsoon"]);
+
+        }
+        [TestMethod]
+        public void Test_TTT_S397_Megane()
+        {
+            List<string> inMenu = new List<string>();
+            inMenu.Add("Dry");
+            inMenu.Add("Rain");
+
+            Dictionary<string, string> result =
+                PitManagerEventHandlers_RF2.TranslateTyreTypes(
+                    PitManagerEventHandlers_RF2.SampleTyreTranslationDict,
+                    inMenu);
+            Assert.IsNotNull(result);
+            Assert.AreEqual("Dry", result["Hypersoft"]);
+            Assert.AreEqual("Dry", result["Ultrasoft"]);
+            Assert.AreEqual("Dry", result["Supersoft"]);
+            Assert.AreEqual("Dry", result["Soft"]);
+            Assert.AreEqual("Dry", result["Medium"]);
+            Assert.AreEqual("Dry", result["Hard"]);
+            Assert.AreEqual("Rain", result["Intermediate"]);
+            Assert.AreEqual("Rain", result["Wet"]);
+            Assert.AreEqual("Rain"         , result["Monsoon"]);
 
         }
     }
