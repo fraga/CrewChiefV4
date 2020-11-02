@@ -74,7 +74,7 @@ namespace CrewChiefV4.PitManager
         // Complicated because rF2 has many names for tyres so use a dict of
         // possible alternative names for each type
         // Each entry has a list of possible matches in declining order
-        // This is the default dict which is loaded into MyDocuments\CrewChiefV4\TyreDictionary.json
+        // This is the default dict which is loaded into MyDocuments\CrewChiefV4\rF2\TyreDictionary.json
         // The user can edit that file to add new names if required
         public static readonly TyreDictionary SampleTyreTranslationDict =
           new TyreDictionary() {
