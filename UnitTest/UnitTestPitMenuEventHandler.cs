@@ -317,6 +317,57 @@ namespace UnitTest
             Assert.AreEqual("Wet COMPOUND", result["Monsoon"]);
 
         }
+        [TestMethod]
+        public void Test_TTT_Boxmaster()
+        {
+            List<string> inMenu = new List<string>();
+            inMenu.Add("All-weather");
+
+            Dictionary<string, string> result =
+                PitManagerEventHandlers_RF2.TranslateTyreTypes(
+                    PitManagerEventHandlers_RF2.SampleTyreTranslationDict,
+                    inMenu);
+            Assert.IsNotNull(result);
+            Assert.AreEqual("All-weather", result["Hypersoft"]);
+            Assert.AreEqual("All-weather", result["Ultrasoft"]);
+            Assert.AreEqual("All-weather", result["Supersoft"]);
+            Assert.AreEqual("All-weather", result["Soft"]);
+            Assert.AreEqual("All-weather", result["Medium"]);
+            Assert.AreEqual("All-weather", result["Hard"]);
+            Assert.AreEqual("All-weather", result["Intermediate"]);
+            Assert.AreEqual("All-weather", result["Wet"]);
+            Assert.AreEqual("All-weather", result["Monsoon"]);
+
+        }
+        [TestMethod]
+        public void Test_TTT_testCases()
+        {
+            List<string> inMenu = new List<string>();
+            inMenu.Add("All-weather");
+            inMenu.Add("Inters");
+            inMenu.Add("Hyper Soft");
+            inMenu.Add("UltraSoft");
+            inMenu.Add("Super-Soft");
+            inMenu.Add("S310");
+            inMenu.Add("P310");
+            inMenu.Add("Medium");
+
+            Dictionary<string, string> result =
+                PitManagerEventHandlers_RF2.TranslateTyreTypes(
+                    PitManagerEventHandlers_RF2.SampleTyreTranslationDict,
+                    inMenu);
+            Assert.IsNotNull(result);
+            Assert.AreEqual("Hyper Soft", result["Hypersoft"]);
+            Assert.AreEqual("UltraSoft", result["Ultrasoft"]);
+            Assert.AreEqual("Super-Soft", result["Supersoft"]);
+            Assert.AreEqual("S310", result["Soft"]);
+            Assert.AreEqual("Medium", result["Medium"]);
+            Assert.AreEqual("P310", result["Hard"]);
+            Assert.AreEqual("Inters", result["Intermediate"]);
+            Assert.AreEqual("All-weather", result["Wet"]);
+            Assert.AreEqual("All-weather", result["Monsoon"]);
+
+        }
     }
     [TestClass]
     public class TestTyreTypeDictionary

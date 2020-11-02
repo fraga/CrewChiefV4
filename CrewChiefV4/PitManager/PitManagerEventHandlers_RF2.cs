@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using PitMenuAPI;
 
@@ -78,25 +79,25 @@ namespace CrewChiefV4.PitManager
         // The user can edit that file to add new names if required
         public static readonly TyreDictionary SampleTyreTranslationDict =
           new TyreDictionary() {
-            { "Hypersoft",    new List <string> {"hypersoft", "ultrasoft", "supersoft", "super soft", "soft", "alternates",
-                        "s310", "slick", "dry", "all-weather", "medium" } },
-            { "Ultrasoft",    new List <string> {"ultrasoft","hypersoft", "supersoft", "super soft", "soft", "alternates",
-                        "s310", "slick", "dry", "all-weather", "medium" } },
-            { "Supersoft",    new List <string> {"supersoft", "super soft", "hypersoft", "ultrasoft", "soft", "alternates",
-                        "s310", "slick", "dry", "all-weather", "medium" } },
+            { "Hypersoft",    new List <string> {"hypersoft", "ultrasoft", "supersoft", "soft", "alternates",
+                        "s310", "slick", "dry", "allweather", "medium" } },
+            { "Ultrasoft",    new List <string> {"ultrasoft","hypersoft", "supersoft", "soft", "alternates",
+                        "s310", "slick", "dry", "allweather", "medium" } },
+            { "Supersoft",    new List <string> {"supersoft", "hypersoft", "ultrasoft", "soft", "alternates",
+                        "s310", "slick", "dry", "allweather", "medium" } },
             { "Soft",         new List <string> {"soft", "alternates",
-                        "s310", "slick", "dry", "all-weather", "medium" } },
+                        "s310", "slick", "dry", "allweather", "medium" } },
             { "Medium",       new List <string> { "medium", "default",
-                        "s310", "slick", "dry", "all-weather" } },
+                        "s310", "slick", "dry", "allweather" } },
             { "Hard",         new List <string> {"hard", "p310", "endur", "primary",
                         "medium", "default",
-                                "slick", "dry", "all-weather" } },
-            { "Intermediate", new List <string> { "intermediate", "inter",
-                        "wet", "rain", "monsoon", "all-weather" } },
+                                "slick", "dry", "allweather" } },
+            { "Intermediate", new List <string> { "intermediate", "inter", "inters",
+                        "wet", "rain", "monsoon", "allweather" } },
             { "Wet",          new List <string> {
-                        "wet", "rain", "monsoon", "all-weather", "intermediate", "inter" } },
+                        "wet", "rain", "monsoon", "allweather", "intermediate", "inter", "inters" } },
             { "Monsoon",      new List <string> {"monsoon",
-                        "wet", "rain",  "all-weather", "intermediate", "inter" } },
+                        "wet", "rain",  "allweather", "intermediate", "inter", "inters" } },
             { "No Change",    new List <string> {"no change"} }
             };
         #endregion Private field made Public for unit testing
@@ -150,45 +151,51 @@ namespace CrewChiefV4.PitManager
             inMenu.Remove("No Change");
             int columnCount = 1; // will increase
 
-            for (var col = 0; col < columnCount; col++)
-            {
-                foreach (var genericTyretype in tyreDict)
-                { // "Hypersoft", "Ultrasoft", "Supersoft", "Soft"...
-                    foreach (var availableTyretype in inMenu)
-                    {  // Tyre type in the menu
-                        if (genericTyretype.Value.Count > columnCount)
-                        {
-                            columnCount = genericTyretype.Value.Count;
-                        }
-                        if (col < genericTyretype.Value.Count)
-                        {
-                            var tyreName = genericTyretype.Value[col];
-                            // Type that generic type can match to
-                            if (availableTyretype.Length == tyreName.Length &&
-                                availableTyretype.IndexOf(tyreName, StringComparison.OrdinalIgnoreCase) >= 0)
-                            {
-                                if (!result.ContainsKey(genericTyretype.Key))
+            for (var run = 0; run < 2; run++)
+            {   // run = 0, exact match; run = 1, any matching word
+                for (var col = 0; col < columnCount; col++)
+                {
+                    foreach (var genericTyretype in tyreDict)
+                    { // "Hypersoft", "Ultrasoft", "Supersoft", "Soft"...
+                        if (!result.ContainsKey(genericTyretype.Key))
+                        { // Didn't match in run 0
+                            foreach (var availableTyretype in inMenu)
+                            {  // Tyre type in the menu
+                                if (genericTyretype.Value.Count > columnCount)
                                 {
-                                    result[genericTyretype.Key] = availableTyretype;
-                                    break;
+                                    columnCount = genericTyretype.Value.Count;
                                 }
-                            }
-                        }
-                    }
-                    // Didn't find an exact match, see if the genericTyretype
-                    // is in one of the menu items, e.g. "Soft" in "Soft COMPOUND"
-                    foreach (var availableTyretype in inMenu)
-                    {  // Tyre type in the menu
-                        if (col < genericTyretype.Value.Count)
-                        {
-                            var tyreName = genericTyretype.Value[col];
-                            // Type that generic type can match to
-                            if (availableTyretype.IndexOf(tyreName, StringComparison.OrdinalIgnoreCase) >= 0)
-                            {
-                                if (!result.ContainsKey(genericTyretype.Key))
+                                if (col < genericTyretype.Value.Count)
                                 {
-                                    result[genericTyretype.Key] = availableTyretype;
-                                    break;
+                                    var tyreName = genericTyretype.Value[col];
+                                    // Normalise the tyre type name by removing spaces and -
+                                    var normalisedAvailableTyretype = Regex.Replace(availableTyretype, " |-", "");
+                                    // Type that generic type can match to
+                                    if (run == 0)
+                                    {
+                                        if (normalisedAvailableTyretype.Length == tyreName.Length &&
+                                            normalisedAvailableTyretype.IndexOf(tyreName, StringComparison.OrdinalIgnoreCase) >= 0)
+                                        {
+                                            if (!result.ContainsKey(genericTyretype.Key))
+                                            {
+                                                result[genericTyretype.Key] = availableTyretype;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // Didn't find an exact match, see if the genericTyretype
+                                        // is in one of the menu items, e.g. "Soft" in "Soft COMPOUND"
+                                        if (normalisedAvailableTyretype.IndexOf(tyreName, StringComparison.OrdinalIgnoreCase) >= 0)
+                                        {
+                                            if (!result.ContainsKey(genericTyretype.Key))
+                                            {
+                                                result[genericTyretype.Key] = availableTyretype;
+                                                break;
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -198,8 +205,9 @@ namespace CrewChiefV4.PitManager
             foreach (var genericTyretype in tyreDict)
             {
                 if (!result.ContainsKey(genericTyretype.Key))
-                {   // Didn't match, give it something
-                    result[genericTyretype.Key] = inMenu[0];
+                {
+                // Still didn't match, give it something
+                result[genericTyretype.Key] = inMenu[0];
                 }
             }
             return result;
