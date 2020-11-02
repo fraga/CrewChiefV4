@@ -114,7 +114,7 @@ namespace CrewChiefV4.PitManager
 
         /// <summary>
         /// Take a list of tyre types available in the menu and map them on to
-        /// the set of generic tyre types
+        /// the set of cc tyre types
         /// Hypersoft
         /// Ultrasoft
         /// Supersoft
@@ -131,8 +131,8 @@ namespace CrewChiefV4.PitManager
         /// if the word is in inMenu then that key is DONE
         /// if not, check the 2nd list item
         /// If there are no exact matches in the whole dictionary then see if
-        /// CC's generic tyre type is a sub-string of one of the game's entries
-        /// e.g. "Soft" in "Soft COMPOUND"
+        /// one of the tyre dict values is a sub-string of one of the game's entries
+        /// e.g. "soft" in "Soft COMPOUND"
         /// </summary>
         /// <param name="tyreDict">
         /// The dict used for translation
@@ -141,7 +141,7 @@ namespace CrewChiefV4.PitManager
         /// The list returned by GetTyreTypes()
         /// </param>
         /// <returns>
-        /// Dictionary mapping generic tyre types to names of those available
+        /// Dictionary mapping CC tyre types to names of those available
         /// </returns>
         public static Dictionary<string, string> TranslateTyreTypes(
           TyreDictionary tyreDict,
@@ -155,45 +155,42 @@ namespace CrewChiefV4.PitManager
             {   // run = 0, exact match; run = 1, any matching word
                 for (var col = 0; col < columnCount; col++)
                 {
-                    foreach (var genericTyretype in tyreDict)
+                    foreach (var ccTyreType in tyreDict)
                     { // "Hypersoft", "Ultrasoft", "Supersoft", "Soft"...
-                        if (!result.ContainsKey(genericTyretype.Key))
+                        if (!result.ContainsKey(ccTyreType.Key))
                         { // Didn't match in run 0
-                            foreach (var availableTyretype in inMenu)
+                            foreach (var rF2TyreType in inMenu)
                             {  // Tyre type in the menu
-                                if (genericTyretype.Value.Count > columnCount)
+                                if (ccTyreType.Value.Count > columnCount)
                                 {
-                                    columnCount = genericTyretype.Value.Count;
+                                    columnCount = ccTyreType.Value.Count;
                                 }
-                                if (col < genericTyretype.Value.Count)
+                                if (col < ccTyreType.Value.Count)
                                 {
-                                    var tyreName = genericTyretype.Value[col];
-                                    // Normalise the tyre type name by removing spaces and -
-                                    var normalisedAvailableTyretype = Regex.Replace(availableTyretype, " |-", "");
-                                    // Type that generic type can match to
+                                    var dictTyreName = ccTyreType.Value[col];
+                                    // Normalise the rF2 tyre type name by removing spaces and -
+                                    var normalisedRf2TyreType = Regex.Replace(rF2TyreType, " |-", "");
                                     if (run == 0)
                                     {
-                                        if (normalisedAvailableTyretype.Length == tyreName.Length &&
-                                            normalisedAvailableTyretype.IndexOf(tyreName, StringComparison.OrdinalIgnoreCase) >= 0)
+                                        if (normalisedRf2TyreType.Length == dictTyreName.Length &&
+                                            normalisedRf2TyreType.IndexOf(dictTyreName, StringComparison.OrdinalIgnoreCase) >= 0)
                                         {
-                                            if (!result.ContainsKey(genericTyretype.Key))
+                                            if (!result.ContainsKey(ccTyreType.Key))
                                             {
-                                                result[genericTyretype.Key] = availableTyretype;
+                                                result[ccTyreType.Key] = rF2TyreType;
                                                 break;
                                             }
                                         }
                                     }
                                     else
                                     {
-                                        // Didn't find an exact match, see if the genericTyretype
-                                        // is in one of the menu items, e.g. "Soft" in "Soft COMPOUND"
-                                        if (normalisedAvailableTyretype.IndexOf(tyreName, StringComparison.OrdinalIgnoreCase) >= 0)
+                                        // Didn't find an exact match, see if dictTyreName
+                                        // is in one of the menu items, e.g. "soft" in "Soft COMPOUND"
+                                        if (normalisedRf2TyreType.IndexOf(dictTyreName, StringComparison.OrdinalIgnoreCase) >= 0)
                                         {
-                                            if (!result.ContainsKey(genericTyretype.Key))
-                                            {
-                                                result[genericTyretype.Key] = availableTyretype;
-                                                break;
-                                            }
+                                            // (Already checked that it's not in result)
+                                            result[ccTyreType.Key] = rF2TyreType;
+                                            break;
                                         }
                                     }
                                 }
@@ -202,12 +199,12 @@ namespace CrewChiefV4.PitManager
                     }
                 }
             }
-            foreach (var genericTyretype in tyreDict)
+            foreach (var ccTyretype in tyreDict)
             {
-                if (!result.ContainsKey(genericTyretype.Key))
+                if (!result.ContainsKey(ccTyretype.Key))
                 {
                 // Still didn't match, give it something
-                result[genericTyretype.Key] = inMenu[0];
+                result[ccTyretype.Key] = inMenu[0];
                 }
             }
             return result;
@@ -553,20 +550,20 @@ namespace CrewChiefV4.PitManager
         /// <summary>
         /// Set the current tyre compound and fit them
         /// </summary>
-        /// <param name="genericTyreType">Soft / Medium / Wet etc.</param>
+        /// <param name="ccTyreType">Soft / Medium / Wet etc.</param>
         /// <returns></returns>
-        static private bool setTyreCompound(string genericTyreType)
+        static private bool setTyreCompound(string ccTyreType)
         {
             var inMenu = Pmal.GetTyreTypeNames();
             var result = TranslateTyreTypes(tyreTranslationDict, inMenu);
-            if (!result.ContainsKey(genericTyreType))
+            if (!result.ContainsKey(ccTyreType))
             {   // Didn't find a match
                 PitManagerResponseHandlers.PMrh_TyreCompoundNotAvailable();
                 return false;
             }
 
-            currentRf2TyreType.Set(result[genericTyreType]);
-            Log.Commentary($"Fitting {result[genericTyreType]}");
+            currentRf2TyreType.Set(result[ccTyreType]);
+            Log.Commentary($"Fitting {result[ccTyreType]}");
             return PMrF2eh_changeAllTyres(null);
         }
 
@@ -586,7 +583,7 @@ namespace CrewChiefV4.PitManager
                 response = Pmal.SetCategoryAndChoice(tyreCategory, tyreType);
                 if (response)
                 {
-                    // dict is the other direction currentGenericTyreCompound = ttDict[tyreType];
+                    // dict is the other direction currentccTyreCompound = ttDict[tyreType];
                     if (CrewChief.Debugging)
                     {
                         Log.Info("Pit Manager tyre compound set to (" +
