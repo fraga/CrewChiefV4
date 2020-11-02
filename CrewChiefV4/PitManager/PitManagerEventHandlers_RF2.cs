@@ -169,7 +169,7 @@ namespace CrewChiefV4.PitManager
                                 {
                                     var dictTyreName = ccTyreType.Value[col];
                                     // Normalise the rF2 tyre type name by removing spaces and -
-                                    var normalisedRf2TyreType = Regex.Replace(rF2TyreType, " |-", "");
+                                    var normalisedRf2TyreType = Regex.Replace(rF2TyreType, " |-|_", "");
                                     if (run == 0)
                                     {
                                         if (normalisedRf2TyreType.Length == dictTyreName.Length &&
@@ -687,7 +687,7 @@ namespace CrewChiefV4.PitManager
             private static Tuple<string,  string> getUserTyreDictionaryFileLocation()
             {
                 var path = Path.Combine(Environment.GetFolderPath(
-                    Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "rF2");
+                    Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "RF2");
 
                 return new Tuple<string, string>(path, "TyreDictionary.json");
             }
