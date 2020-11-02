@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
@@ -43,10 +42,13 @@ using PitMenuAPI;
 // R WING:
 // REAR DF:
 //
+// Player.JSON entries relevant to the Pit Menu:
 //"Relative Fuel Strategy":false,
 //"Relative Fuel Strategy#":"Show how much fuel to ADD, rather than how much TOTAL fuel to fill the tank up to (note: new default is true)",
+//      Pit Manager handles true or false
 //"Smart Pitcrew":true,
 //"Smart Pitcrew#":"Pitcrew does things even if you mistakenly forgot to ask (one example is changing a damaged tire)",
+//      Doesn't affect Pit Manager
 
 namespace CrewChiefV4.PitManager
 {
@@ -54,7 +56,7 @@ namespace CrewChiefV4.PitManager
     {
         private static readonly PitMenuAbstractionLayer Pmal = new PitMenuAbstractionLayer();
 
-        #region Private Fields
+        #region Public struct
         public class TyreDictionary : Dictionary<string, List<string>>
         {
             public TyreDictionary()
@@ -66,13 +68,15 @@ namespace CrewChiefV4.PitManager
                 get; set;
             }
         }
+        #endregion Public struct
 
+        #region Private field made Public for unit testing
         // Complicated because rF2 has many names for tyres so use a dict of
         // possible alternative names for each type
         // Each entry has a list of possible matches in declining order
         // This is the default dict which is loaded into MyDocuments\CrewChiefV4\TyreDictionary.json
         // The user can edit that file to add new names if required
-        public static readonly TyreDictionary SampleTyreTranslationDict =  // public for unit testing
+        public static readonly TyreDictionary SampleTyreTranslationDict =
           new TyreDictionary() {
             { "Hypersoft",    new List <string> {"hypersoft", "ultrasoft", "supersoft", "super soft", "soft", "alternates",
                         "s310", "slick", "dry", "all-weather", "medium" } },
@@ -95,7 +99,9 @@ namespace CrewChiefV4.PitManager
                         "wet", "rain",  "all-weather", "intermediate", "inter" } },
             { "No Change",    new List <string> {"no change"} }
             };
+        #endregion Private field made Public for unit testing
 
+        #region Private Fields
         static private TyreDictionary tyreTranslationDict =
                     TyreDictFile.getTyreDictionaryFromFile();
 
@@ -123,6 +129,9 @@ namespace CrewChiefV4.PitManager
         /// Check the first list item for each key in tyreDict
         /// if the word is in inMenu then that key is DONE
         /// if not, check the 2nd list item
+        /// If there are no exact matches in the whole dictionary then see if
+        /// CC's generic tyre type is a sub-string of one of the game's entries
+        /// e.g. "Soft" in "Soft COMPOUND"
         /// </summary>
         /// <param name="tyreDict">
         /// The dict used for translation
@@ -666,13 +675,14 @@ namespace CrewChiefV4.PitManager
             #endregion Public Methods
         }
 
+        #endregion Private Classes
 
         public class TyreDictFile
         {
             private static Tuple<string,  string> getUserTyreDictionaryFileLocation()
             {
                 var path = Path.Combine(Environment.GetFolderPath(
-                    Environment.SpecialFolder.MyDocuments), "CrewChiefV4");
+                    Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "rF2");
 
                 return new Tuple<string, string>(path, "TyreDictionary.json");
             }
@@ -744,6 +754,5 @@ namespace CrewChiefV4.PitManager
                 }
             }
         }
-        #endregion Private Classes
     }
 }
