@@ -368,6 +368,60 @@ namespace UnitTest
             Assert.AreEqual("All-weather", result["Monsoon"]);
 
         }
+        [TestMethod]
+        /// Test all the types scraped from rF2 data files
+        /// Not convinced this test is catching everything...
+        public void Test_TTT_testAllTyres()
+        {
+            Dictionary<string, string> result = null;
+            PitManagerEventHandlers_RF2.TyreDictionary tyreDict = PitManagerEventHandlers_RF2.SampleTyreTranslationDict;
+
+            foreach (string line in System.IO.File.ReadLines(@"..\..\..\CrewChiefV4\PitManager\Documentation\Scraped_rf2_tyres_Sorted_categorised.txt"))
+            {
+                string testName = line.Split(',')[0];
+                string ccName = line.Split(',')[1];
+                List<string> inMenu = new List<string>();
+                inMenu.Add("NotFound");
+                inMenu.Add(testName);
+                tyreDict["default"] = new List<string> { testName };
+                try
+                {
+                    result =
+                        PitManagerEventHandlers_RF2.TranslateTyreTypes(
+                            tyreDict,
+                            inMenu);
+                    Assert.IsNotNull(result);
+                    Assert.AreEqual(testName, result[ccName]);
+                }
+                catch
+                {
+                    Console.WriteLine($"{ccName} didn't return '{testName}', instead '{result[ccName]}'");
+                }
+            }
+        }
+        [TestMethod]
+        /// Single tyre type, not in tyre dict
+        public void Test_TTT_Predators()
+        {
+            List<string> inMenu = new List<string>();
+            inMenu.Add("Avon ACB10");
+
+            Dictionary<string, string> result =
+                PitManagerEventHandlers_RF2.TranslateTyreTypes(
+                    PitManagerEventHandlers_RF2.SampleTyreTranslationDict,
+                    inMenu);
+            Assert.IsNotNull(result);
+            Assert.AreEqual("Avon ACB10", result["Hypersoft"]);
+            Assert.AreEqual("Avon ACB10", result["Ultrasoft"]);
+            Assert.AreEqual("Avon ACB10", result["Supersoft"]);
+            Assert.AreEqual("Avon ACB10", result["Soft"]);
+            Assert.AreEqual("Avon ACB10", result["Medium"]);
+            Assert.AreEqual("Avon ACB10", result["Hard"]);
+            Assert.AreEqual("Avon ACB10", result["Intermediate"]);
+            Assert.AreEqual("Avon ACB10", result["Wet"]);
+            Assert.AreEqual("Avon ACB10", result["Monsoon"]);
+
+        }
     }
     [TestClass]
     public class TestTyreTypeDictionary
