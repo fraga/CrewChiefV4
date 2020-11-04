@@ -159,7 +159,7 @@ namespace CrewChiefV4.GTR2
             this.suspensionDamageThresholds.Add(new CornerData.EnumWithThresholds(DamageLevel.DESTROYED, 1.0f, 2.0f));
         }
 
-        private int[] minimumSupportedVersionParts = new int[] { 1, 0, 0, 0 };
+        private int[] minimumSupportedVersionParts = new int[] { 1, 0, 0, 4 };
         public static bool pluginVerified = false;
         private static int reinitWaitAttempts = 0;
         public override void versionCheck(Object memoryMappedFileStruct)
@@ -1789,7 +1789,7 @@ namespace CrewChiefV4.GTR2
                         cgs.FlagData.fcyPhase = FullCourseYellowPhase.IN_PROGRESS;
                     else if (shared.scoring.mScoringInfo.mYellowFlagState == (sbyte)GTR2Constants.GTR2YellowFlagState.PitClosed)
                     {
-                        if (shared.extended.mUnofficialFeaturesEnabled == 1)
+                        /*if (shared.extended.mUnofficialFeaturesEnabled == 1)
                         {
                             if (shared.extended.mTicksLSIPitStateMessageUpdated != this.LSIPitStateMessageUpdatedTicks)
                             {
@@ -1829,7 +1829,7 @@ namespace CrewChiefV4.GTR2
                         {
                             // Core rules: always open, pit state == 3
                             cgs.FlagData.fcyPhase = FullCourseYellowPhase.PITS_OPEN;
-                        }
+                        }*/
                     }
                     else
                         cgs.FlagData.fcyPhase = FullCourseYellowPhase.PITS_OPEN;

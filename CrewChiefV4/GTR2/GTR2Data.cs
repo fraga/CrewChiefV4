@@ -537,22 +537,6 @@ namespace GTR2SharedMemory
             public int mFuelMult;
             public byte mInvulnerable;
 
-            public Int64 mTicksLSIPhaseMessageUpdated;                   // Ticks when last LSI phase message was updated.
-            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = GTR2Constants.MAX_RULES_INSTRUCTION_MSG_LEN)]
-            public byte[] mLSIPhaseMessage;
-
-            public Int64 mTicksLSIPitStateMessageUpdated;                // Ticks when last LSI pit state message was updated.
-            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = GTR2Constants.MAX_RULES_INSTRUCTION_MSG_LEN)]
-            public byte[] mLSIPitStateMessage;
-
-            public Int64 mTicksLSIOrderInstructionMessageUpdated;        // Ticks when last LSI order instruction message was updated.
-            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = GTR2Constants.MAX_RULES_INSTRUCTION_MSG_LEN)]
-            public byte[] mLSIOrderInstructionMessage;
-
-            public Int64 mTicksLSIRulesInstructionMessageUpdated;        // Ticks when last FCY rules message was updated.  Currently, only SCR plugin sets that.
-            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = GTR2Constants.MAX_RULES_INSTRUCTION_MSG_LEN)]
-            public byte[] mLSIRulesInstructionMessage;
-
             [JsonIgnore] public int mUnsubscribedBuffersMask;                         // Currently active UnsbscribedBuffersMask value.  This will be allowed for clients to write to in the future, but not yet.
 
             public byte mHWControlInputEnabled;                          // HWControl input buffer is enabled.
