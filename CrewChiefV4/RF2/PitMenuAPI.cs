@@ -81,10 +81,22 @@ namespace PitMenuAPI
         }
 
         /// <summary>
+        /// Switch the MFD to
+        /// MFDA Standard (Sectors etc.)
+        /// MFDB Pit Menu
+        /// MFDC Vehicle Status (Tyres etc.)
+        /// MFDD Driving Aids
+        /// MFDE Extra Info (RPM, temps)
+        /// MFDF Race Info (Clock, leader etc.)
+        /// MFDG Standings (Race position)
+        /// MFDH Penalties
+        ///
         /// Shared memory is normally scanning slowly until a control is received
-        /// so send the first control (to select the Pit Menu) with a longer delay
+        /// so send the first control with a longer delay
         /// </summary>
-        public static bool startUsingPitMenu()
+        /// <param name="display"></param>
+        /// <returns></returns>
+        public static bool switchMFD(string display = "MFDB")
         {
             if (!Connected)
             {
@@ -92,27 +104,33 @@ namespace PitMenuAPI
             }
             if (Connected)
             {
-                // Need to select the Pit Menu
-                // If it is off ToggleMFDA will turn it on then ToggleMFDB will switch
+                // To select MFDB screen for example:
+                // If the MFD is off ToggleMFDA will turn it on then ToggleMFDB will switch
                 // to the Pit Menu
                 // If it is showing MFDA ToggleMFDA will turn it off then ToggleMFDB
                 // will show the Pit Menu
                 // If it is showing MFD"x" ToggleMFDA will show MFDA then ToggleMFDB
                 // will show the Pit Menu
+                string notDisplay = display == "MFDA" ? "ToggleMFDB" : "ToggleMFDA";
                 do
                 {
-                    sendHWControl.SendHWControl("ToggleMFDA", true);
+                    sendHWControl.SendHWControl(notDisplay, true);
                     System.Threading.Thread.Sleep(initialDelay);
-                    sendHWControl.SendHWControl("ToggleMFDA", false);
+                    sendHWControl.SendHWControl(notDisplay, false);
                     System.Threading.Thread.Sleep(delay);
-                    sendHWControl.SendHWControl("ToggleMFDB", true); // Select rFactor Pit Menu
+                    sendHWControl.SendHWControl("Toggle" + display, true); // Select required MFD
                     System.Threading.Thread.Sleep(delay);
-                    sendHWControl.SendHWControl("ToggleMFDB", false); // Select rFactor Pit Menu
+                    sendHWControl.SendHWControl("Toggle" + display, false);
                     System.Threading.Thread.Sleep(delay);
                 }
                 while (!(iSoftMatchCategory("TIRE", "FUEL")));
             }
             return Connected;
+        }
+
+        public static bool startUsingPitMenu()
+        {
+            return switchMFD("MFDB");
         }
 
         /// <summary>
