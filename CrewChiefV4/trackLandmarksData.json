@@ -16219,7 +16219,7 @@
 			"iracingPitEntranceDistanceRoundTrack": -1.0,
 			"pitApproachPoint": null
 		}, {
-			"gtr2TrackNames": ["Anderstorp, 2003 FIA GT Championship Round 7"],
+			"gtr2TrackNames": ["Anderstorp, 2003 FIA GT Championship Round 7", "Anderstorp 2007", "HQ Anderstorp"],
 			"trackLandmarks": [{
 					"landmarkName": "SOEDRA",
 					"distanceRoundLapStart": 65,
@@ -16305,83 +16305,332 @@
 			]
 		},
 		{
-			"gtr2TrackNames": ["Brno, 2003 FIA GT Championship Round 4", "Brno, 2004 FIA GT Championship Round 5", "Circuit de Masaryk"],
+			"gtr2TrackNames": ["Brno, 2003 FIA GT Championship Round 4", "Brno, 2004 FIA GT Championship Round 5", "Circuit de Masaryk", "HQ Circuit de Masaryk"],
 			"trackLandmarks": [{
-					"landmarkName": "turn 1",
+					"landmarkName": "turn1",
 					"distanceRoundLapStart": 415,
 					"distanceRoundLapEnd": 750,
 					"isCommonOvertakingSpot": true
 				},
 				{
-					"landmarkName": "turn 2",
+					"landmarkName": "turn2",
 					"distanceRoundLapStart": 1390,
 					"distanceRoundLapEnd": 1540,
 					"isCommonOvertakingSpot": true
 				},
 				{
-					"landmarkName": "turn 3",
+					"landmarkName": "turn3",
 					"distanceRoundLapStart": 1620,
 					"distanceRoundLapEnd": 1750,
 					"isCommonOvertakingSpot": true
 				},
 				{
-					"landmarkName": "turn 4",
+					"landmarkName": "turn4",
 					"distanceRoundLapStart": 2185,
 					"distanceRoundLapEnd": 2310,
 					"isCommonOvertakingSpot": false
 				},
 				{
-					"landmarkName": "turn 5",
+					"landmarkName": "turn5",
 					"distanceRoundLapStart": 2380,
 					"distanceRoundLapEnd": 2480,
 					"isCommonOvertakingSpot": false
 				},
 				{
-					"landmarkName": "turn 6",
+					"landmarkName": "turn6",
 					"distanceRoundLapStart": 2550,
 					"distanceRoundLapEnd": 2720,
 					"isCommonOvertakingSpot": true
 				},
 				{
-					"landmarkName": "turn 7",
+					"landmarkName": "turn7",
 					"distanceRoundLapStart": 2890,
 					"distanceRoundLapEnd": 2990,
 					"isCommonOvertakingSpot": false
 				},
 				{
-					"landmarkName": "turn 8",
+					"landmarkName": "turn8",
 					"distanceRoundLapStart": 3050,
 					"distanceRoundLapEnd": 3190,
 					"isCommonOvertakingSpot": true
 				},
 				{
-					"landmarkName": "turn 9",
+					"landmarkName": "turn9",
 					"distanceRoundLapStart": 3700,
 					"distanceRoundLapEnd": 3880,
 					"isCommonOvertakingSpot": false
 				},
 				{
-					"landmarkName": "turn 10",
+					"landmarkName": "turn10",
 					"distanceRoundLapStart": 4100,
 					"distanceRoundLapEnd": 4205,
 					"isCommonOvertakingSpot": false
 				},
 				{
-					"landmarkName": "turn 11",
+					"landmarkName": "turn11",
 					"distanceRoundLapStart": 4250,
 					"distanceRoundLapEnd": 4360,
 					"isCommonOvertakingSpot": false
 				},
 				{
-					"landmarkName": "turn 12",
+					"landmarkName": "turn12",
 					"distanceRoundLapStart": 4850,
 					"distanceRoundLapEnd": 4980,
 					"isCommonOvertakingSpot": false
 				},
 				{
-					"landmarkName": "turn 13",
+					"landmarkName": "turn13",
 					"distanceRoundLapStart": 5040,
 					"distanceRoundLapEnd": 5200,
+					"isCommonOvertakingSpot": true
+				}
+			]
+		}, {
+			"gtr2TrackNames": ["Valencia GP, 2004 FIA GT Championship Round 2", "HQ Circuit Ricardo Tormo", "Valencia GP"],
+			"trackLandmarks": [{
+					"landmarkName": "turn1",
+					"distanceRoundLapStart": 470,
+					"distanceRoundLapEnd": 590,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn2",
+					"distanceRoundLapStart": 860,
+					"distanceRoundLapEnd": 950,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn3",
+					"distanceRoundLapStart": 1220,
+					"distanceRoundLapEnd": 1290,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn4",
+					"distanceRoundLapStart": 1375,
+					"distanceRoundLapEnd": 1490,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn5",
+					"distanceRoundLapStart": 1670,
+					"distanceRoundLapEnd": 1775,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn6",
+					"distanceRoundLapStart": 2210,
+					"distanceRoundLapEnd": 2340,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn7",
+					"distanceRoundLapStart": 2620,
+					"distanceRoundLapEnd": 2750,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn8",
+					"distanceRoundLapStart": 3000,
+					"distanceRoundLapEnd": 3170,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn9",
+					"distanceRoundLapStart": 3225,
+					"distanceRoundLapEnd": 3530,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn10",
+					"distanceRoundLapStart": 3550,
+					"distanceRoundLapEnd": 3610,
+					"isCommonOvertakingSpot": false
+				}
+			]
+		},
+		{
+			"gtr2TrackNames": ["Zhuhai, FIA GT Championship Round 11", "HQ Zhuhai International Circuit"],
+			"trackLandmarks": [{
+					"landmarkName": "turn1",
+					"distanceRoundLapStart": 405,
+					"distanceRoundLapEnd": 540,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn2",
+					"distanceRoundLapStart": 810,
+					"distanceRoundLapEnd": 870,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn3",
+					"distanceRoundLapStart": 1110,
+					"distanceRoundLapEnd": 1160,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn4",
+					"distanceRoundLapStart": 1750,
+					"distanceRoundLapEnd": 1840,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn5",
+					"distanceRoundLapStart": 2390,
+					"distanceRoundLapEnd": 2450,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn6",
+					"distanceRoundLapStart": 2580,
+					"distanceRoundLapEnd": 2660,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn7",
+					"distanceRoundLapStart": 3140,
+					"distanceRoundLapEnd": 3285,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn8",
+					"distanceRoundLapStart": 3840,
+					"distanceRoundLapEnd": 33930,
+					"isCommonOvertakingSpot": true
+				}
+			]
+		},
+		{
+			"gtr2TrackNames": ["Enna Pergusa, 2003 FIA GT Championship Round 3", "HQ Autodromo di Pergusa"],
+			"trackLandmarks": [{
+					"landmarkName": "turn1",
+					"distanceRoundLapStart": 250,
+					"distanceRoundLapEnd": 390,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn2",
+					"distanceRoundLapStart": 610,
+					"distanceRoundLapEnd": 670,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn3",
+					"distanceRoundLapStart": 830,
+					"distanceRoundLapEnd": 930,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn4",
+					"distanceRoundLapStart": 1990,
+					"distanceRoundLapEnd": 2040,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn5",
+					"distanceRoundLapStart": 2170,
+					"distanceRoundLapEnd": 2280,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn6",
+					"distanceRoundLapStart": 3090,
+					"distanceRoundLapEnd": 3160,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn7",
+					"distanceRoundLapStart": 4360,
+					"distanceRoundLapEnd": 4550,
+					"isCommonOvertakingSpot": false
+				}
+			]
+		},
+		{
+			"gtr2TrackNames": ["Dubai, 2004 FIA GT Championship Round 11", "HQ Dubai Autodrome"],
+			"trackLandmarks": [{
+					"landmarkName": "turn1",
+					"distanceRoundLapStart": 720,
+					"distanceRoundLapEnd": 820,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn2",
+					"distanceRoundLapStart": 855,
+					"distanceRoundLapEnd": 920,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn3",
+					"distanceRoundLapStart": 1050,
+					"distanceRoundLapEnd": 1270,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn4",
+					"distanceRoundLapStart": 1460,
+					"distanceRoundLapEnd": 1585,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn5",
+					"distanceRoundLapStart": 1645,
+					"distanceRoundLapEnd": 1760,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn6",
+					"distanceRoundLapStart": 2000,
+					"distanceRoundLapEnd": 2080,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn7",
+					"distanceRoundLapStart": 2115,
+					"distanceRoundLapEnd": 2205,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn8",
+					"distanceRoundLapStart": 3145,
+					"distanceRoundLapEnd": 3220,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn9",
+					"distanceRoundLapStart": 3305,
+					"distanceRoundLapEnd": 3380,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn10",
+					"distanceRoundLapStart": 3660,
+					"distanceRoundLapEnd": 3755,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn11",
+					"distanceRoundLapStart": 4190,
+					"distanceRoundLapEnd": 4280,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn12",
+					"distanceRoundLapStart": 4455,
+					"distanceRoundLapEnd": 4520,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn13",
+					"distanceRoundLapStart": 4700,
+					"distanceRoundLapEnd": 4780,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn14",
+					"distanceRoundLapStart": 5050,
+					"distanceRoundLapEnd": 5160,
 					"isCommonOvertakingSpot": true
 				}
 			]
@@ -16389,61 +16638,61 @@
 		{
 			"gtr2TrackNames": ["Valencia GP, 2004 FIA GT Championship Round 2"],
 			"trackLandmarks": [{
-					"landmarkName": "Turn 1",
+					"landmarkName": "turn1",
 					"distanceRoundLapStart": 470,
 					"distanceRoundLapEnd": 590,
 					"isCommonOvertakingSpot": true
 				},
 				{
-					"landmarkName": "turn 2",
+					"landmarkName": "turn2",
 					"distanceRoundLapStart": 860,
 					"distanceRoundLapEnd": 950,
 					"isCommonOvertakingSpot": false
 				},
 				{
-					"landmarkName": "turn 3",
+					"landmarkName": "turn3",
 					"distanceRoundLapStart": 1220,
 					"distanceRoundLapEnd": 1290,
 					"isCommonOvertakingSpot": false
 				},
 				{
-					"landmarkName": "turn 4",
+					"landmarkName": "turn4",
 					"distanceRoundLapStart": 1375,
 					"distanceRoundLapEnd": 1490,
 					"isCommonOvertakingSpot": false
 				},
 				{
-					"landmarkName": "turn 5",
+					"landmarkName": "turn5",
 					"distanceRoundLapStart": 1670,
 					"distanceRoundLapEnd": 1775,
 					"isCommonOvertakingSpot": false
 				},
 				{
-					"landmarkName": "turn 6",
+					"landmarkName": "turn6",
 					"distanceRoundLapStart": 2210,
 					"distanceRoundLapEnd": 2340,
 					"isCommonOvertakingSpot": false
 				},
 				{
-					"landmarkName": "turn 7",
+					"landmarkName": "turn7",
 					"distanceRoundLapStart": 2620,
 					"distanceRoundLapEnd": 2750,
 					"isCommonOvertakingSpot": true
 				},
 				{
-					"landmarkName": "turn 8",
+					"landmarkName": "turn8",
 					"distanceRoundLapStart": 3000,
 					"distanceRoundLapEnd": 3170,
 					"isCommonOvertakingSpot": false
 				},
 				{
-					"landmarkName": "turn 9",
+					"landmarkName": "turn9",
 					"distanceRoundLapStart": 3225,
 					"distanceRoundLapEnd": 3530,
 					"isCommonOvertakingSpot": true
 				},
 				{
-					"landmarkName": "turn 10",
+					"landmarkName": "turn10",
 					"distanceRoundLapStart": 3550,
 					"distanceRoundLapEnd": 3610,
 					"isCommonOvertakingSpot": false
