@@ -17,6 +17,8 @@ namespace CrewChiefV4.Dirt
             copy.dirtData.speed = this.dirtData.speed;
             copy.dirtData.stageLength = this.dirtData.stageLength;
             copy.dirtData.trackNumber = this.dirtData.trackNumber;
+            copy.dirtData.worldX = this.dirtData.worldX;
+            copy.dirtData.worldZ = this.dirtData.worldZ;
 
             return copy;
         }

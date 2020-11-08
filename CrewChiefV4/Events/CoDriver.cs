@@ -1134,7 +1134,7 @@ namespace CrewChiefV4.Events
         {
             // reset the corrections
             correctionsForCurrentSession = new List<CoDriverPacenote>();
-            string pacenotesPath = GetPacenotesPath(trackName);
+            string pacenotesPath = GetPacenotesPath(trackName, true);
             if (Directory.Exists(pacenotesPath))
             {
                 string correctionsFullFileName = Path.Combine(pacenotesPath, CoDriver.correctionsFileName);
@@ -1209,7 +1209,15 @@ namespace CrewChiefV4.Events
 
         private void LoadRecePaceNotes(GameStateData cgs)
         {
-            string pacenotesPath = GetPacenotesPath(cgs.SessionData.TrackDefinition.name);
+            if (CrewChief.gameDefinition.gameEnum == GameEnum.DIRT || CrewChief.gameDefinition.gameEnum == GameEnum.DIRT_2)
+            {
+                // if we're playing Dirt rally, there are no game-provided pace notes. The session clear should have taken care of this
+                // but there are cases where it doesn't that I've still not debugged
+                cgs.CoDriverPacenotes.Clear();
+                correctionsForCurrentSession.Clear();
+                historicCalls.Clear();
+            }
+            string pacenotesPath = GetPacenotesPath(cgs.SessionData.TrackDefinition.name, true);
             if (Directory.Exists(pacenotesPath))
             {
                 string pacenotesFullFileName = Path.Combine(pacenotesPath, CoDriver.pacenotesFileName);
@@ -1996,20 +2004,36 @@ namespace CrewChiefV4.Events
 
         private void WriteRecePacenotes(string trackName)
         {
-            string pacenotesPath = GetPacenotesPath(trackName);
+            string pacenotesPath = GetPacenotesPath(trackName, false);
             Directory.CreateDirectory(pacenotesPath);
             RenameExistingPacenotesFile(trackName);
             File.WriteAllText(Path.Combine(pacenotesPath, CoDriver.pacenotesFileName), JsonConvert.SerializeObject(this.recePaceNotes, Formatting.Indented));
         }
 
-        private string GetPacenotesPath(string trackName)
+        // we allow ambiguous Dirt track names when loading but not when saving
+        private string GetPacenotesPath(string trackName, bool allowAmbiguousPath)
         {
-            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4", CrewChief.gameDefinition.gameEnum.ToString(), trackName);
+            string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4", CrewChief.gameDefinition.gameEnum.ToString(), trackName);
+            if (allowAmbiguousPath && (CrewChief.gameDefinition.gameEnum == GameEnum.DIRT || CrewChief.gameDefinition.gameEnum == GameEnum.DIRT_2))
+            {
+                // special case for dirt / dirt 2, try and load the stage name with the x and z positions and fall back to the ambiguous name if it's not there
+                if (!Directory.Exists(path) && trackName.Contains("^"))
+                {
+                    string ambiguousTrackName = trackName.Split('^')[0];
+                    string ambiguousPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4", CrewChief.gameDefinition.gameEnum.ToString(), ambiguousTrackName);
+                    if (Directory.Exists(ambiguousPath))
+                    {
+                        Console.WriteLine("Warning: using ambiguous track name " + ambiguousTrackName + " instead of full track name " + trackName);
+                        return ambiguousPath;
+                    }
+                }
+            }
+            return path;
         }
 
         private void RenameExistingPacenotesFile(string trackName)
         {
-            string pacenotesPath = GetPacenotesPath(trackName);
+            string pacenotesPath = GetPacenotesPath(trackName, false);
             string existingPacenotesFullPath = Path.Combine(pacenotesPath, CoDriver.pacenotesFileName);
             if (File.Exists(existingPacenotesFullPath))
             {
@@ -2366,7 +2390,7 @@ namespace CrewChiefV4.Events
 
         private void WritePacenoteCorrections(string trackName)
         {
-            string pacenotesPath = GetPacenotesPath(trackName);
+            string pacenotesPath = GetPacenotesPath(trackName, false);
             Directory.CreateDirectory(pacenotesPath);
             File.WriteAllText(Path.Combine(pacenotesPath, CoDriver.correctionsFileName), JsonConvert.SerializeObject(this.correctionsForCurrentSession, Formatting.Indented));
         }

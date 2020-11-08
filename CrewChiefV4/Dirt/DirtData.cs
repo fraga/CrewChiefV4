@@ -8,5 +8,7 @@
         public float stageLength;
         public int trackNumber;
         public float speed;
+        public float worldX;
+        public float worldZ;
     }
 }
