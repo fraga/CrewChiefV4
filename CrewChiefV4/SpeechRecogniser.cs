@@ -388,6 +388,8 @@ namespace CrewChiefV4
         public static String[] RALLY_LONG = Configuration.getSpeechRecognitionPhrases("RALLY_LONG", loadHomophones);
         public static String[] RALLY_LONGLONG = Configuration.getSpeechRecognitionPhrases("RALLY_LONGLONG", loadHomophones);
         public static String[] RALLY_OPENS = Configuration.getSpeechRecognitionPhrases("RALLY_OPENS", loadHomophones);
+        public static String[] RALLY_PLUS = Configuration.getSpeechRecognitionPhrases("RALLY_PLUS", loadHomophones);
+        public static String[] RALLY_MINUS = Configuration.getSpeechRecognitionPhrases("RALLY_MINUS", loadHomophones);
         public static String[] RALLY_BRIDGE = Configuration.getSpeechRecognitionPhrases("RALLY_BRIDGE", loadHomophones);
         public static String[] RALLY_FORD = Configuration.getSpeechRecognitionPhrases("RALLY_FORD", loadHomophones);
         public static String[] RALLY_JUNCTION = Configuration.getSpeechRecognitionPhrases("RALLY_JUNCTION", loadHomophones);
@@ -1858,6 +1860,8 @@ namespace CrewChiefV4
                     validateAndAdd(RALLY_WIDENS, stageNoteCommandChoicesWrapper);
                     validateAndAdd(RALLY_MAYBE, stageNoteCommandChoicesWrapper);
                     validateAndAdd(RALLY_OPENS, stageNoteCommandChoicesWrapper);
+                    validateAndAdd(RALLY_PLUS, stageNoteCommandChoicesWrapper);
+                    validateAndAdd(RALLY_MINUS, stageNoteCommandChoicesWrapper);
 
                     // corner commands
                     validateAndAdd(RALLY_LEFT, stageNoteCommandChoicesWrapper);

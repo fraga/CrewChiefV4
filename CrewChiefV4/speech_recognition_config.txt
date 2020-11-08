@@ -508,7 +508,9 @@ RALLY_OVER_RAILS = over rails
 RALLY_DOWNHILL = down hill
 RALLY_UPHILL = up hill
 RALLY_BRAKE = braking:brake
-RALL_GO_STRAIGHT = go straight
+RALLY_GO_STRAIGHT = go straight
+RALLY_PLUS = plus
+RALLY_MINUS = minus
 # TODO: specific commands for each of these obstacle types and corresponding recordings:
 RALLY_OBSTACLE_INSIDE = logs inside:rocks inside:tree inside
 RALLY_OBSTACLE_OUTSIDE = logs outside:rocks outside:tree outside

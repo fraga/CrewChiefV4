@@ -388,6 +388,8 @@ namespace CrewChiefV4.Events
             detail_opens = 256,
             detail_longlong = 512,
             detail_long = 1024,
+            detail_minus = 2048,    // TODO: record this
+            detail_plus = 4096,     // TODO: record this
             detail_maybe = 8192
         }
 
@@ -2485,6 +2487,14 @@ namespace CrewChiefV4.Events
             if (voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_MAYBE, true, false))
             {
                 modifier = modifier | PacenoteModifier.detail_maybe;
+            }
+            if (voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_PLUS, true, false))
+            {
+                modifier = modifier | PacenoteModifier.detail_plus;
+            }
+            else if (voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_MINUS, true, false))
+            {
+                modifier = modifier | PacenoteModifier.detail_minus;
             }
             return modifier;
         }
