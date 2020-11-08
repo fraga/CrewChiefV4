@@ -2038,3 +2038,8 @@ allow_composite_personalisations = Allow opponent names in 'My name' list
 allow_composite_personalisations_help = Include composite names (using opponent names) in the 'My name' list on the main screen
 allow_composite_personalisations_category = MISC
 allow_composite_personalisations_metadata = RESTART_REQUIRED
+
+codriver_min_space_for_auto_distance_call = Minimum rally distance pace note distance (metres)
+codriver_min_space_for_auto_distance_call_help = Insert auto-generated distance call when the next call is greater than this distance away
+codriver_min_space_for_auto_distance_call_category = AUDIO_VOICE_AND_CONTROLLERS
+codriver_min_space_for_auto_distance_call_filter = RBR;DIRT;DIRT_2

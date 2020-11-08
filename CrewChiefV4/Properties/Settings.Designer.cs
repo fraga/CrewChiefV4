@@ -5074,5 +5074,17 @@ namespace CrewChiefV4.Properties {
                 this["allow_composite_personalisations"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("40")]
+        public float codriver_min_space_for_auto_distance_call {
+            get {
+                return ((float)(this["codriver_min_space_for_auto_distance_call"]));
+            }
+            set {
+                this["codriver_min_space_for_auto_distance_call"] = value;
+            }
+        }
     }
 }

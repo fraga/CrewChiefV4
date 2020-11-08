@@ -1265,5 +1265,8 @@
     <Setting Name="allow_composite_personalisations" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="codriver_min_space_for_auto_distance_call" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">40</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

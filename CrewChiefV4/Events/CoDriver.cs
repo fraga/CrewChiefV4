@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 
@@ -355,7 +356,7 @@ namespace CrewChiefV4.Events
             detail_and = 4084,
             detail_thightens = 4088,
             detail_double_tightens = 4089,
-            
+
             // _don't care?
             detail_place_holder = 10005,
             detail_callout_time = 10006,
@@ -367,8 +368,10 @@ namespace CrewChiefV4.Events
             unknown = 20000,
 
             // CC-only
-            detail_through_gate,
-            detail_big_jump
+            detail_through_gate = 40001,
+            detail_big_jump = 40002,
+            corner_open_hairpin_left = 40003,
+            corner_open_hairpin_right = 40004
         }
 
         [Flags]
@@ -383,6 +386,7 @@ namespace CrewChiefV4.Events
             detail_cut = 64,
             detail_double_tightens = 128,
             detail_opens = 256,
+            detail_longlong = 512,
             detail_long = 1024,
             detail_maybe = 8192
         }
@@ -511,7 +515,9 @@ namespace CrewChiefV4.Events
             { CoDriver.PacenoteType.detail_bridge, CoDriver.PacenoteType.detail_over_bridge }
         };
 
-        private Dictionary<string, CoDriver.PacenoteType> possibleCornerCommands = new Dictionary<string, PacenoteType>();
+        // this needs to be an ordered dictionary so we can look for more specific corner names (open hairpin) before less specific names
+        // (hairpin) - as we iterate we expect to encounter more specific names first
+        private OrderedDictionary possibleCornerCommands = new OrderedDictionary();
         
         private Dictionary<string[], PacenoteType> obstaclePacenoteTypes = new Dictionary<string[], PacenoteType>()
         {
@@ -610,6 +616,8 @@ namespace CrewChiefV4.Events
         private float chainedPacenoteThresholdMeters = UserSettings.GetUserSettings().getFloat("codriver_chained_pacenote_threshold_distance");  // default 30m
         private float lookaheadSecondsFromConfig = UserSettings.GetUserSettings().getFloat("codriver_lookahead_seconds");  // default 4s
         private float rushedLookaheadSeconds = UserSettings.GetUserSettings().getFloat("codriver_rushed_lookahead_seconds");  // default 2s
+        private float minSpacingForAutoDistanceCall = UserSettings.GetUserSettings().getFloat("codriver_min_space_for_auto_distance_call");  // 40m
+        private float earlierLaterStepSeconds = 0.5f;   // step used when moving calls forward or back
 
         private float lookaheadSecondsToUse;
         private const float maxLookaheadSeconds = 10f;
@@ -862,6 +870,8 @@ namespace CrewChiefV4.Events
 
         private void assemblePossibleCornerCommands()
         {
+            // Note that this needs to be assembled with the most specific commands first so we find, for example,
+            // "open hairpin" before "hairpin"
             foreach (string direction in SpeechRecogniser.RALLY_LEFT)
             {
                 foreach (string cornerType in SpeechRecogniser.RALLY_1)
@@ -903,6 +913,12 @@ namespace CrewChiefV4.Events
                 {
                     possibleCornerCommands[cornerType + " " + direction] = PacenoteType.corner_flat_left;
                     possibleCornerCommands[direction + " " + cornerType] = PacenoteType.corner_flat_left;
+                }
+                foreach (string cornerType in SpeechRecogniser.RALLY_OPEN_HAIRPIN)
+                {
+                    // TODO: record "open hairpin left"
+                    possibleCornerCommands[cornerType + " " + direction] = PacenoteType.corner_open_hairpin_left;
+                    possibleCornerCommands[direction + " " + cornerType] = PacenoteType.corner_open_hairpin_left;
                 }
                 foreach (string cornerType in SpeechRecogniser.RALLY_HAIRPIN)
                 {
@@ -952,6 +968,12 @@ namespace CrewChiefV4.Events
                 {
                     possibleCornerCommands[cornerType + " " + direction] = PacenoteType.corner_flat_right;
                     possibleCornerCommands[direction + " " + cornerType] = PacenoteType.corner_flat_right;
+                }
+                foreach (string cornerType in SpeechRecogniser.RALLY_OPEN_HAIRPIN)
+                {
+                    // TODO: record "open hairpin right"
+                    possibleCornerCommands[cornerType + " " + direction] = PacenoteType.corner_open_hairpin_right;
+                    possibleCornerCommands[direction + " " + cornerType] = PacenoteType.corner_open_hairpin_right;
                 }
                 foreach (string cornerType in SpeechRecogniser.RALLY_HAIRPIN)
                 {
@@ -1254,7 +1276,7 @@ namespace CrewChiefV4.Events
                         {
                             // next pace note is a real one so get the distance to call
                             float distanceToNext = loadedPaceNotes[i + 1].Distance - loadedPaceNotes[i].Distance;
-                            if (distanceToNext >= 40)
+                            if (distanceToNext >= minSpacingForAutoDistanceCall)
                             {
                                 loadedPaceNotes[i].Options = CoDriver.GetClosestValueForDistanceCall(distanceToNext);
                             }
@@ -1734,10 +1756,10 @@ namespace CrewChiefV4.Events
         {
             if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_EARLIER_CALLS))
             {
-                if (this.lookaheadSecondsToUse < CoDriver.maxLookaheadSeconds)
+                if (this.lookaheadSecondsToUse + earlierLaterStepSeconds <= CoDriver.maxLookaheadSeconds)
                 {
                     this.audioPlayer.playMessageImmediately(new QueuedMessage(this.folderAcknowlegeOK, 0));
-                    var newLookahead = this.lookaheadSecondsToUse + 0.5f;
+                    var newLookahead = this.lookaheadSecondsToUse + earlierLaterStepSeconds;
                     Console.WriteLine("Increasing lookahead from " + this.lookaheadSecondsToUse.ToString("0.0") + " seconds to " + newLookahead.ToString("0.0") + " seconds.");
                     this.lookaheadSecondsToUse = newLookahead;
                 }
@@ -1749,10 +1771,10 @@ namespace CrewChiefV4.Events
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_LATER_CALLS))
             {
-                if (this.lookaheadSecondsToUse > CoDriver.minLookaheadSeconds)
+                if (this.lookaheadSecondsToUse - earlierLaterStepSeconds >= CoDriver.minLookaheadSeconds)
                 {
                     this.audioPlayer.playMessageImmediately(new QueuedMessage(this.folderAcknowlegeOK, 0));
-                    var newLookahead = this.lookaheadSecondsToUse - 0.5f;
+                    var newLookahead = this.lookaheadSecondsToUse - earlierLaterStepSeconds;
                     Console.WriteLine("Decreasing lookahead from " + this.lookaheadSecondsToUse.ToString("0.0") + " seconds to " + newLookahead.ToString("0.0") + " seconds.");
                     this.lookaheadSecondsToUse = newLookahead;
                 }
@@ -2389,7 +2411,7 @@ namespace CrewChiefV4.Events
             {
                 if (voiceMessageWrapper.FindAndRemove(key, false, true))
                 {
-                    result = new Tuple<PacenoteType, PacenoteModifier> (possibleCornerCommands[key], GetModifier(voiceMessageWrapper));
+                    result = new Tuple<PacenoteType, PacenoteModifier> ((PacenoteType)possibleCornerCommands[key], GetModifier(voiceMessageWrapper));
                     gotCornerType = true;
                     break;
                 }
@@ -2448,7 +2470,11 @@ namespace CrewChiefV4.Events
                 // additional check here - we don't want this to trigger for "tightens then opens" / "opens then tightens"
                 modifier = modifier | PacenoteModifier.detail_opens;
             }
-            if (voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_LONG, true, false))
+            if (voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_LONGLONG, true, false))
+            {
+                modifier = modifier | PacenoteModifier.detail_longlong;
+            }
+            else if (voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_LONG, true, false)) /*long OR very long, not both*/
             {
                 modifier = modifier | PacenoteModifier.detail_long;
             }
