@@ -2119,23 +2119,30 @@ namespace CrewChiefV4.Events
                         break;
                     case PacenoteType.corner_3_left:
                     case PacenoteType.corner_3_right:
+                        distance = Math.Max(distance, isVeryLong ? 90 : isLong ? 60 : 30);
+                        break;
+                    case PacenoteType.corner_open_hairpin_left:
+                    case PacenoteType.corner_open_hairpin_right:
+                        distance = Math.Max(distance, isVeryLong ? 140 : isLong ? 100 : 60);
+                        break;
                     case PacenoteType.corner_4_left:
                     case PacenoteType.corner_4_right:
                     case PacenoteType.corner_left_acute:
                     case PacenoteType.corner_right_acute:
                     case PacenoteType.detail_left_entry_chicane:
                     case PacenoteType.detail_right_entry_chicane:
-                        // medium length corners
-                        distance = Math.Max(distance, isVeryLong ? 80 : isLong ? 60 : 30);
+                        distance = Math.Max(distance, isVeryLong ? 120 : isLong ? 80 : 50);
                         break;
                     case PacenoteType.corner_5_left:
-                    case PacenoteType.corner_5_right:
+                    case PacenoteType.corner_5_right:// long corners
+                        distance = Math.Max(distance, isVeryLong ? 150 : isLong ? 100 : 50);
+                        break;
                     case PacenoteType.corner_6_left:
                     case PacenoteType.corner_6_right:
                     case PacenoteType.corner_flat_left:
                     case PacenoteType.corner_flat_right:
                         // long corners
-                        distance = Math.Max(distance, isVeryLong ? 120 : isLong ? 80 : 50);
+                        distance = Math.Max(distance, isVeryLong ? 200 : isLong ? 100 : 50);
                         break;
                     case PacenoteType.detail_tunnel:
                         distance = Math.Max(distance, 50);
