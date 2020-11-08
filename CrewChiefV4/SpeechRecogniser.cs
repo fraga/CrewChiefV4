@@ -426,9 +426,12 @@ namespace CrewChiefV4
         public static String[] RALLY_LOOSE_GRAVEL = Configuration.getSpeechRecognitionPhrases("RALLY_LOOSE_GRAVEL", loadHomophones);
         public static String[] RALLY_NARROWS = Configuration.getSpeechRecognitionPhrases("RALLY_NARROWS", loadHomophones);
         public static String[] RALLY_THROUGH_GATE = Configuration.getSpeechRecognitionPhrases("RALLY_THROUGH_GATE", loadHomophones);
-        // TODO: these phrases cover tree / logs / rocks inside / outside and will (for now) just create a 'keep in' / 'keep out' note
-        public static String[] RALLY_OBSTACLE_INSIDE = Configuration.getSpeechRecognitionPhrases("RALLY_OBSTACLE_INSIDE", loadHomophones);
-        public static String[] RALLY_OBSTACLE_OUTSIDE = Configuration.getSpeechRecognitionPhrases("RALLY_OBSTACLE_OUTSIDE", loadHomophones);
+        public static String[] RALLY_LOGS_INSIDE = Configuration.getSpeechRecognitionPhrases("RALLY_LOGS_INSIDE", loadHomophones);
+        public static String[] RALLY_ROCKS_INSIDE = Configuration.getSpeechRecognitionPhrases("RALLY_ROCKS_INSIDE", loadHomophones);
+        public static String[] RALLY_TREE_INSIDE = Configuration.getSpeechRecognitionPhrases("RALLY_TREE_INSIDE", loadHomophones);
+        public static String[] RALLY_LOGS_OUTSIDE = Configuration.getSpeechRecognitionPhrases("RALLY_LOGS_OUTSIDE", loadHomophones);
+        public static String[] RALLY_ROCKS_OUTSIDE = Configuration.getSpeechRecognitionPhrases("RALLY_ROCKS_OUTSIDE", loadHomophones);
+        public static String[] RALLY_TREE_OUTSIDE = Configuration.getSpeechRecognitionPhrases("RALLY_TREE_OUTSIDE", loadHomophones);
 
         // most specific first, so "big jump" comes before "jump" when we parse in the event code
         public static List<string[]> RallyObstacleCommands = new List<string[]>()
@@ -468,8 +471,12 @@ namespace CrewChiefV4
             SpeechRecogniser.RALLY_TARMAC,
             SpeechRecogniser.RALLY_TUNNEL,
             SpeechRecogniser.RALLY_NARROWS,
-            SpeechRecogniser.RALLY_OBSTACLE_INSIDE,
-            SpeechRecogniser.RALLY_OBSTACLE_OUTSIDE,
+            SpeechRecogniser.RALLY_LOGS_INSIDE,
+            SpeechRecogniser.RALLY_ROCKS_INSIDE,
+            SpeechRecogniser.RALLY_TREE_INSIDE,
+            SpeechRecogniser.RALLY_LOGS_OUTSIDE,
+            SpeechRecogniser.RALLY_ROCKS_OUTSIDE,
+            SpeechRecogniser.RALLY_TREE_OUTSIDE,
             SpeechRecogniser.RALLY_UPHILL,
             SpeechRecogniser.RALLY_DOWNHILL,
             SpeechRecogniser.RALLY_BRAKE,

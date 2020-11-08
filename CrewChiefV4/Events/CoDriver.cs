@@ -371,7 +371,14 @@ namespace CrewChiefV4.Events
             detail_through_gate = 40001,
             detail_big_jump = 40002,
             corner_open_hairpin_left = 40003,
-            corner_open_hairpin_right = 40004
+            corner_open_hairpin_right = 40004,
+            detail_widens = 40005,
+            detail_logs_inside = 40006,
+            detail_rocks_inside = 40007,
+            detail_tree_inside = 40008,
+            detail_logs_outside = 40009,
+            detail_rocks_outside = 40010,
+            detail_tree_outside = 40010
         }
 
         [Flags]
@@ -388,8 +395,8 @@ namespace CrewChiefV4.Events
             detail_opens = 256,
             detail_longlong = 512,
             detail_long = 1024,
-            detail_minus = 2048,    // TODO: record this
-            detail_plus = 4096,     // TODO: record this
+            detail_minus = 2048,
+            detail_plus = 4096,
             detail_maybe = 8192
         }
 
@@ -523,7 +530,6 @@ namespace CrewChiefV4.Events
         
         private Dictionary<string[], PacenoteType> obstaclePacenoteTypes = new Dictionary<string[], PacenoteType>()
         {
-            // TODO: record bad camber
             { SpeechRecogniser.RALLY_BAD_CAMBER, PacenoteType.detail_bad_camber },
             { SpeechRecogniser.RALLY_OVER_BRIDGE, PacenoteType.detail_over_bridge },
             { SpeechRecogniser.RALLY_BRIDGE, PacenoteType.detail_bridge },
@@ -549,7 +555,7 @@ namespace CrewChiefV4.Events
             { SpeechRecogniser.RALLY_OPENS_THEN_TIGHTENS, PacenoteType.detail_opens_tightens },
             { SpeechRecogniser.RALLY_TIGHTENS_THEN_OPENS, PacenoteType.detail_tightens_opens },
             { SpeechRecogniser.RALLY_OPENS, PacenoteType.detail_opens },
-            { SpeechRecogniser.RALLY_WIDENS, PacenoteType.detail_opens },   // TODO: record "widens"
+            { SpeechRecogniser.RALLY_WIDENS, PacenoteType.detail_widens },
             { SpeechRecogniser.RALLY_OVER_RAILS, PacenoteType.detail_over_rails },
             { SpeechRecogniser.RALLY_RIGHT_ENTRY_CHICANE, PacenoteType.detail_right_entry_chicane },
             { SpeechRecogniser.RALLY_DEEP_RUTS, PacenoteType.detail_deepruts },
@@ -561,12 +567,16 @@ namespace CrewChiefV4.Events
             { SpeechRecogniser.RALLY_DANGER, PacenoteType.detail_double_caution },
             { SpeechRecogniser.RALLY_THROUGH_GATE, PacenoteType.detail_through_gate },
             { SpeechRecogniser.RALLY_NARROWS, PacenoteType.detail_narrows },
-            // TODO: record separate sounds for "logs/rocks/tree inside/outside" and wire these as separate obstacles
-            { SpeechRecogniser.RALLY_OBSTACLE_INSIDE, PacenoteType.detail_keep_out },
-            { SpeechRecogniser.RALLY_OBSTACLE_OUTSIDE, PacenoteType.detail_keep_in },
+            { SpeechRecogniser.RALLY_LOGS_INSIDE, PacenoteType.detail_logs_inside },
+            { SpeechRecogniser.RALLY_ROCKS_INSIDE, PacenoteType.detail_rocks_inside },
+            { SpeechRecogniser.RALLY_TREE_INSIDE, PacenoteType.detail_tree_inside },
+            { SpeechRecogniser.RALLY_LOGS_OUTSIDE, PacenoteType.detail_logs_outside },
+            { SpeechRecogniser.RALLY_ROCKS_OUTSIDE, PacenoteType.detail_rocks_outside },
+            { SpeechRecogniser.RALLY_TREE_OUTSIDE, PacenoteType.detail_tree_outside },
             { SpeechRecogniser.RALLY_UPHILL, PacenoteType.detail_uphill },
             { SpeechRecogniser.RALLY_DOWNHILL, PacenoteType.detail_downhill },
-            { SpeechRecogniser.RALLY_BRAKE, PacenoteType.detail_brake }
+            { SpeechRecogniser.RALLY_BRAKE, PacenoteType.detail_brake },
+            { SpeechRecogniser.RALLY_GO_STRAIGHT, PacenoteType.detail_go_straight },
         };
 
         public class Terminology
@@ -918,7 +928,6 @@ namespace CrewChiefV4.Events
                 }
                 foreach (string cornerType in SpeechRecogniser.RALLY_OPEN_HAIRPIN)
                 {
-                    // TODO: record "open hairpin left"
                     possibleCornerCommands[cornerType + " " + direction] = PacenoteType.corner_open_hairpin_left;
                     possibleCornerCommands[direction + " " + cornerType] = PacenoteType.corner_open_hairpin_left;
                 }
@@ -973,7 +982,6 @@ namespace CrewChiefV4.Events
                 }
                 foreach (string cornerType in SpeechRecogniser.RALLY_OPEN_HAIRPIN)
                 {
-                    // TODO: record "open hairpin right"
                     possibleCornerCommands[cornerType + " " + direction] = PacenoteType.corner_open_hairpin_right;
                     possibleCornerCommands[direction + " " + cornerType] = PacenoteType.corner_open_hairpin_right;
                 }
