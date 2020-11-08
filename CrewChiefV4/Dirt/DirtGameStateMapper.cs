@@ -18,13 +18,15 @@ namespace CrewChiefV4.Dirt
             DirtStructWrapper wrapper = (DirtStructWrapper)structWrapper;
             long ticks = wrapper.ticksWhenRead;
             GameStateData gsd = new GameStateData(ticks);
+            gsd.SessionData.SessionRunningTime = wrapper.dirtData.currentStageTime;
+            gsd.SessionData.SessionPhase = gsd.SessionData.SessionRunningTime <= 0 ? SessionPhase.Countdown : SessionPhase.Green;
             bool createNewTrackDefinition = false;
             if (previousGameState != null)
             {
-                // if we appear to be starting a new session, we'll want to generate our track name again:
-                if ((wrapper.dirtData.stageLength > 0 && previousGameState.SessionData.TrackDefinition != null && previousGameState.SessionData.TrackDefinition.trackLength != wrapper.dirtData.stageLength)
-                    || (previousGameState.PositionAndMotionData.DistanceRoundTrack == 0 && wrapper.dirtData.lapDistance != 0)
-                    || (previousGameState.PositionAndMotionData.DistanceRoundTrack <= 0 && wrapper.dirtData.lapDistance > 0))
+                // if we appear to be starting a new session, we'll want to generate our track name:
+                if (wrapper.dirtData.stageLength > 0
+                    && previousGameState.SessionData.SessionPhase == SessionPhase.Countdown
+                    && gsd.SessionData.SessionPhase == SessionPhase.Green)
                 {
                     createNewTrackDefinition = true;
                 }
@@ -46,9 +48,7 @@ namespace CrewChiefV4.Dirt
                 string trackName = "stage_length_" + stageLengthAtFirstDistanceUpdate + "^x" + worldXAtFirstDistanceUpdate + "z" + worldZAtFirstDistanceUpdate;
                 gsd.SessionData.TrackDefinition = new TrackDefinition(trackName, -1, wrapper.dirtData.stageLength, null, null);
             }
-            gsd.SessionData.SessionRunningTime = wrapper.dirtData.currentStageTime;
             gsd.SessionData.SessionType = SessionType.Race;
-            gsd.SessionData.SessionPhase = gsd.SessionData.SessionRunningTime <= 0 ? SessionPhase.Countdown : SessionPhase.Green;
             gsd.PositionAndMotionData.DistanceRoundTrack = wrapper.dirtData.lapDistance;
             gsd.PositionAndMotionData.CarSpeed = wrapper.dirtData.speed;
 
