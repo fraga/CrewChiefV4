@@ -2096,7 +2096,7 @@ namespace CrewChiefV4.Events
             float distance = 10;    // any non-corner obstacle is assumed to be 10 metres from the start point to where the player makes the pace note command
             foreach (CoDriverPacenote paceNote in paceNotesInBatch)
             {
-                // TODO add support for 'very long'
+                bool isVeryLong = paceNote.Modifier.ToString().Contains("longlong");
                 bool isLong = paceNote.Modifier.ToString().Contains("long") || paceNote.Modifier.ToString().Contains("tighens");
                 switch (paceNote.Pacenote)
                 {
@@ -2107,7 +2107,7 @@ namespace CrewChiefV4.Events
                     case PacenoteType.corner_square_left:
                     case PacenoteType.corner_square_right:
                         // short corners
-                        distance = Math.Max(distance, isLong ? 40 : 20);
+                        distance = Math.Max(distance, isVeryLong ? 60 : isLong ? 40 : 20);
                         break;
                     case PacenoteType.corner_3_left:
                     case PacenoteType.corner_3_right:
@@ -2118,7 +2118,7 @@ namespace CrewChiefV4.Events
                     case PacenoteType.detail_left_entry_chicane:
                     case PacenoteType.detail_right_entry_chicane:
                         // medium length corners
-                        distance = Math.Max(distance, isLong ? 60 : 30);
+                        distance = Math.Max(distance, isVeryLong ? 80 : isLong ? 60 : 30);
                         break;
                     case PacenoteType.corner_5_left:
                     case PacenoteType.corner_5_right:
@@ -2127,7 +2127,7 @@ namespace CrewChiefV4.Events
                     case PacenoteType.corner_flat_left:
                     case PacenoteType.corner_flat_right:
                         // long corners
-                        distance = Math.Max(distance, isLong ? 100 : 50);
+                        distance = Math.Max(distance, isVeryLong ? 120 : isLong ? 80 : 50);
                         break;
                     case PacenoteType.detail_tunnel:
                         distance = Math.Max(distance, 50);
