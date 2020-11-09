@@ -649,12 +649,14 @@ namespace CrewChiefV4.Events
         private static string loadedCodriverPrefix = "";
         private static string startRecce = "acknowledge_start_recce";
         private static string endRecce = "acknowledge_end_recce";
+        private static string correction = "correction";
         // if available, we use a codriver-specific version of these
         private string folderAcknowlegeOK = AudioPlayer.folderAcknowlegeOK;
         private string folderDidntUnderstand = AudioPlayer.folderDidntUnderstand;
         private string folderNo = AudioPlayer.folderNo;
         private string folderAcknowledgeStartRecce = folderCodriverPrefix + startRecce;
         private string folderAcknowledgeEndRecce = folderCodriverPrefix + endRecce;
+        private string folderCorrection = folderCodriverPrefix + correction;
 
         // These are to be combined with the folderCodriverPrefix string.
         public static string folderFalseStart;
@@ -749,6 +751,7 @@ namespace CrewChiefV4.Events
                     string codriverAcknowledgeDidntUnderstand = CoDriver.folderCodriverPrefix + "didnt_understand";
                     string codriverStartRecce = CoDriver.folderCodriverPrefix + startRecce;
                     string codriverEndRecce = CoDriver.folderCodriverPrefix + endRecce;
+                    string codriverCorrection = CoDriver.folderCodriverPrefix + correction;
                     if (SoundCache.availableSounds.Contains(codriverAcknowledgeOK))
                     {
                         this.folderAcknowlegeOK = codriverAcknowledgeOK;
@@ -768,6 +771,10 @@ namespace CrewChiefV4.Events
                     if (SoundCache.availableSounds.Contains(codriverEndRecce))
                     {
                         this.folderAcknowledgeEndRecce = codriverEndRecce;
+                    }
+                    if (SoundCache.availableSounds.Contains(codriverCorrection))
+                    {
+                        this.folderCorrection = codriverCorrection;
                     }
                 }
             }
@@ -1202,8 +1209,7 @@ namespace CrewChiefV4.Events
                             break;
                         }
                     }
-                }
-                
+                }                
             }
         }
 
@@ -1906,7 +1912,8 @@ namespace CrewChiefV4.Events
                     {
                         if (UserSettings.GetUserSettings().getBoolean("confirm_recce_pace_notes"))
                         {
-                            ReplayLastPacenotesBatch(true);
+                            this.audioPlayer.playMessageImmediately(new QueuedMessage(this.folderCorrection, 0));
+                            ReplayLastPacenotesBatch(false);
                         }
                     }
                     else
@@ -2204,6 +2211,7 @@ namespace CrewChiefV4.Events
             }
             if (insertedNotes.Count > 0)
             {
+                this.audioPlayer.playMessageImmediately(new QueuedMessage(this.folderAcknowlegeOK, 0));
                 correctionsForCurrentSession.AddRange(insertedNotes);
                 WritePacenoteCorrections(trackName);
             }
@@ -2289,6 +2297,7 @@ namespace CrewChiefV4.Events
                     voiceMessage = voiceMessage.Replace(correctionWord, "").Trim();
                 }
                 bool correctionIncludesCornerModifier = ContainsCornerModifier(voiceMessage);
+                bool appliedCorrection = false;
                 foreach (HistoricCall callToCorrect in callsToCorrect)
                 {
                     // special case for corner corrections
@@ -2315,6 +2324,7 @@ namespace CrewChiefV4.Events
                         }
                         else
                         {
+                            appliedCorrection = true;
                             CreateCorrection(callToCorrect, cornerWithModifier.Item1, cornerWithModifier.Item2, moveEarlier, moveLater, rawVoiceMessage);
                         }
                     }
@@ -2323,12 +2333,16 @@ namespace CrewChiefV4.Events
                         // also move non-corner calls if we have a move request
                         if (moveEarlier || moveLater)
                         {
+                            appliedCorrection = true;
                             CreateCorrection(callToCorrect, callToCorrect.callType, callToCorrect.modifier, moveEarlier, moveLater, rawVoiceMessage);
                         }
                     }
                 }
-                this.audioPlayer.playMessageImmediately(new QueuedMessage(this.folderAcknowlegeOK, 0));
-                WritePacenoteCorrections(trackName);
+                if (appliedCorrection)
+                {
+                    this.audioPlayer.playMessageImmediately(new QueuedMessage(this.folderAcknowlegeOK, 0));
+                    WritePacenoteCorrections(trackName);
+                }
             }
         }
 
