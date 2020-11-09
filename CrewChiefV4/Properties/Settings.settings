@@ -1269,7 +1269,7 @@
       <Value Profile="(Default)">40</Value>
     </Setting>
     <Setting Name="codriver_dynamic_lookahead" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
+      <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="include_start_pos_in_dirt_stage_names" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>

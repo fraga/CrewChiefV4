@@ -2039,12 +2039,12 @@ allow_composite_personalisations_help = Include composite names (using opponent 
 allow_composite_personalisations_category = MISC
 allow_composite_personalisations_metadata = RESTART_REQUIRED
 
-codriver_dynamic_lookahead = Dynamic co-driver look ahead distance
-codriver_dynamic_lookahead_help = Adjust co-driver look ahead distance based on upcoming calls
+codriver_dynamic_lookahead = Dynamic co-driver distance look ahead
+codriver_dynamic_lookahead_help = Reduce co-driver look ahead distance when approaching slow corners
 codriver_dynamic_lookahead_category = MISC
 codriver_dynamic_lookahead_filter = RBR;DIRT;DIRT_2
 
-codriver_min_space_for_auto_distance_call = Minimum rally distance pace note distance (metres)
+codriver_min_space_for_auto_distance_call = Min gap for auto-generated distance pace note (metres)
 codriver_min_space_for_auto_distance_call_help = Insert auto-generated distance call when the next call is greater than this distance away
 codriver_min_space_for_auto_distance_call_category = AUDIO_VOICE_AND_CONTROLLERS
 codriver_min_space_for_auto_distance_call_filter = RBR;DIRT;DIRT_2

@@ -5089,7 +5089,7 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool codriver_dynamic_lookahead {
             get {
                 return ((bool)(this["codriver_dynamic_lookahead"]));
@@ -5098,7 +5098,7 @@ namespace CrewChiefV4.Properties {
                 this["codriver_dynamic_lookahead"] = value;
             }
         }
-
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
