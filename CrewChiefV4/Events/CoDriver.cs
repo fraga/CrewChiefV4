@@ -628,6 +628,7 @@ namespace CrewChiefV4.Events
         private float chainedPacenoteThresholdMeters = UserSettings.GetUserSettings().getFloat("codriver_chained_pacenote_threshold_distance");  // default 30m
         private float lookaheadSecondsFromConfig = UserSettings.GetUserSettings().getFloat("codriver_lookahead_seconds");  // default 4s
         private float rushedLookaheadSeconds = UserSettings.GetUserSettings().getFloat("codriver_rushed_lookahead_seconds");  // default 2s
+        private bool dynamicLookahead = UserSettings.GetUserSettings().getBoolean("codriver_dynamic_lookahead");
         private float minSpacingForAutoDistanceCall = UserSettings.GetUserSettings().getFloat("codriver_min_space_for_auto_distance_call");  // 40m
         private float earlierLaterStepSeconds = 0.5f;   // step used when moving calls forward or back
 
@@ -677,6 +678,7 @@ namespace CrewChiefV4.Events
         // It's used to locate the pace notes we need to remove and replace (recce mode) and provide a set
         // of pace notes to replay (normal mode when requesting that the chief repeats the last message)
         private List<CoDriverPacenote> lastPlayedOrAddedBatch = new List<CoDriverPacenote>();
+        private DateTime lastPlayedBatchTime = DateTime.MinValue;
 
         public static string TOGGLE_RALLY_RECCE_MODE = "toggle_rally_recce_mode";
 
@@ -1312,6 +1314,71 @@ namespace CrewChiefV4.Events
             }
         }
 
+        // gets a (very) rough estimate of how slow the car might need to be as it travels through a slow corner.
+        // This is used only to adjust the read-ahead distance when we're expecting the car to be slowing significantly.
+        // The numbers here aren't intended to be exact or anything, they're just intended to allow the pace notes
+        // after the corner to be delayed.
+        private float GetSlowestExpectedSpeedForBatch(List<CoDriverPacenote> batch, float currentSpeed)
+        {
+            float slowestSpeed = currentSpeed;
+            if (batch != null)
+            {
+                foreach (CoDriverPacenote paceNote in batch)
+                {
+                    switch (paceNote.Pacenote)
+                    {
+                        case PacenoteType.corner_1_left:
+                        case PacenoteType.corner_1_right:
+                        case PacenoteType.corner_left_acute:
+                        case PacenoteType.corner_right_acute:
+                            slowestSpeed = Math.Min(slowestSpeed, 15);
+                            break;
+                        case PacenoteType.corner_2_left:
+                        case PacenoteType.corner_2_right:
+                        case PacenoteType.corner_square_left:
+                        case PacenoteType.corner_square_right:
+                            slowestSpeed = Math.Min(slowestSpeed, 20);
+                            break;
+                        case PacenoteType.corner_3_left:
+                        case PacenoteType.corner_3_right:
+                        case PacenoteType.corner_open_hairpin_left:
+                        case PacenoteType.corner_open_hairpin_right:
+                            if (paceNote.Modifier.HasFlag(PacenoteModifier.detail_tightens))
+                            {
+                                slowestSpeed = Math.Min(slowestSpeed, 25);
+                            }
+                            else if (paceNote.Modifier.HasFlag(PacenoteModifier.detail_double_tightens))
+                            {
+                                slowestSpeed = Math.Min(slowestSpeed, 20);
+                            }
+                            else
+                            {
+                                slowestSpeed = Math.Min(slowestSpeed, 30);
+                            }
+                            break;
+                        case PacenoteType.corner_4_left:
+                        case PacenoteType.corner_4_right:
+                            if (paceNote.Modifier.HasFlag(PacenoteModifier.detail_tightens))
+                            {
+                                slowestSpeed = Math.Min(slowestSpeed, 30);
+                            }
+                            else if (paceNote.Modifier.HasFlag(PacenoteModifier.detail_double_tightens))
+                            {
+                                slowestSpeed = Math.Min(slowestSpeed, 20);
+                            }
+                            break;
+                        default:
+                            if (paceNote.Modifier.HasFlag(PacenoteModifier.detail_double_tightens))
+                            {
+                                slowestSpeed = Math.Min(slowestSpeed, 30);
+                            }
+                            break;
+                    }
+                }
+            }
+            return slowestSpeed;
+        }
+
         private void ProcessPacenotes(GameStateData cgs, SessionData csd)
         {
             if (this.isLost)
@@ -1323,15 +1390,27 @@ namespace CrewChiefV4.Events
                 // NOTE: sometimes distance jumps significantly, that typically means we're lost on track.  Not sure we have to handle that though ("we're ***** lost" message?)
 
                 // 4 secs of look ahead, by default.
-                var speed = cgs.PositionAndMotionData.CarSpeed;
-                var readDist = cgs.PositionAndMotionData.DistanceRoundTrack + this.lookaheadSecondsToUse * speed;
+                var currentSpeed = cgs.PositionAndMotionData.CarSpeed;
+                // if our last batch is recent, use the expected slowest speed from it. Otherwise use our current speed.
+                // readDist is recalculated on every iteration inside the loop
+                float readDist;
+                if (dynamicLookahead && cgs.Now < this.lastPlayedBatchTime.AddSeconds(3))
+                {
+                    // we've recently played a batch so use the expected speed from this batch
+                    readDist = cgs.PositionAndMotionData.DistanceRoundTrack + 
+                        this.lookaheadSecondsToUse * GetSlowestExpectedSpeedForBatch(this.lastPlayedOrAddedBatch, currentSpeed);
+                }
+                else
+                {
+                    readDist = cgs.PositionAndMotionData.DistanceRoundTrack + this.lookaheadSecondsToUse * currentSpeed;
+                }
+                var nextBatchDistance = this.FindNextBatchDistance(readDist, cgs, out var fragmentsInCurrBatch);
 #if DEBUG
                 var reachedFinish = false;
 #endif  // DEBUG
 
-                var nextBatchDistance = this.FindNextBatchDistance(readDist, cgs, out var fragmentsInCurrBatch);
-
                 List<CoDriverPacenote> pacenotesInBatch = new List<CoDriverPacenote>();
+
                 while (this.lastProcessedPacenoteIdx < cgs.CoDriverPacenotes.Count
                     && readDist > cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Distance)
                 {
@@ -1361,7 +1440,7 @@ namespace CrewChiefV4.Events
                         // Distance call is not chained if "empty call" precedes it.
                         Console.WriteLine($"Playing pacenote: {cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Pacenote}  at: {cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Distance.ToString("0.000")}");
                         if (Enum.TryParse<CoDriver.PacenoteType>("number_" + cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Options, out var pacenote))
-                            this.audioPlayer.playMessageImmediately(new QueuedMessage(this.GetPacenoteMessageID(pacenote, mainPacenoteDist, nextBatchDistance, fragmentsInCurrBatch, speed, cgs.Now), 0));
+                            this.audioPlayer.playMessageImmediately(new QueuedMessage(this.GetPacenoteMessageID(pacenote, mainPacenoteDist, nextBatchDistance, fragmentsInCurrBatch, currentSpeed, cgs.Now), 0));
 #if DEBUG
                         else
 
@@ -1373,13 +1452,13 @@ namespace CrewChiefV4.Events
                         Console.WriteLine($"Playing pacenote: {cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Pacenote}  " +
                             $"with pacenote distance: {cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Distance.ToString("0.000")}  " +
                             $"at track distance {cgs.PositionAndMotionData.DistanceRoundTrack.ToString("0.000")}");
-                        this.audioPlayer.playMessageImmediately(new QueuedMessage(GetPacenoteMessageID(cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Pacenote, mainPacenoteDist, nextBatchDistance, fragmentsInCurrBatch, speed, cgs.Now), 0));
+                        this.audioPlayer.playMessageImmediately(new QueuedMessage(GetPacenoteMessageID(cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Pacenote, mainPacenoteDist, nextBatchDistance, fragmentsInCurrBatch, currentSpeed, cgs.Now), 0));
                         pacenotesInBatch.Add(cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx]);
                     }
 
                     // Play modifiers.
                     playModifiers(cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Modifier, cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Distance,
-                        mainPacenoteDist, nextBatchDistance, fragmentsInCurrBatch, speed, cgs.Now);
+                        mainPacenoteDist, nextBatchDistance, fragmentsInCurrBatch, currentSpeed, cgs.Now);
 
                     var prevNoteDist = cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Distance;
                     var previousPacenoteType = cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Pacenote;
@@ -1394,7 +1473,7 @@ namespace CrewChiefV4.Events
                         {
                             Console.WriteLine($"Playing chained pacenote: {cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Pacenote}  at: {cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Distance.ToString("0.000")}");
                             if (Enum.TryParse<CoDriver.PacenoteType>("number_" + cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Options, out var pacenote))
-                                this.audioPlayer.playMessageImmediately(new QueuedMessage(this.GetPacenoteMessageID(pacenote, mainPacenoteDist, nextBatchDistance, fragmentsInCurrBatch, speed, cgs.Now), 0));
+                                this.audioPlayer.playMessageImmediately(new QueuedMessage(this.GetPacenoteMessageID(pacenote, mainPacenoteDist, nextBatchDistance, fragmentsInCurrBatch, currentSpeed, cgs.Now), 0));
 #if DEBUG
                             else
                                 Console.WriteLine($"DISTANCE PARSE FAILED: {cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Options}  at: {cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Distance.ToString("0.000")}");
@@ -1407,13 +1486,13 @@ namespace CrewChiefV4.Events
                             if (CoDriver.terminologies.chainedNotes.Contains(cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Pacenote.ToString()))
                             {
                                 Console.WriteLine($"Playing inserted chained pacenote: {CoDriver.PacenoteType.detail_into}  at: {prevNoteDist.ToString("0.000")}");
-                                foreach (var pacenoteMessageID in this.GetChainedPacenoteMessageIDs(previousPacenoteType, cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Pacenote, 
-                                    mainPacenoteDist, nextBatchDistance, fragmentsInCurrBatch, speed, cgs.Now))
+                                foreach (var pacenoteMessageID in this.GetChainedPacenoteMessageIDs(previousPacenoteType, cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Pacenote,
+                                    mainPacenoteDist, nextBatchDistance, fragmentsInCurrBatch, currentSpeed, cgs.Now))
                                     this.audioPlayer.playMessageImmediately(new QueuedMessage(pacenoteMessageID, 0));
 
                                 // play modifiers for this chained note
                                 playModifiers(cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Modifier, cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Distance,
-                                    mainPacenoteDist, nextBatchDistance, fragmentsInCurrBatch, speed, cgs.Now);
+                                    mainPacenoteDist, nextBatchDistance, fragmentsInCurrBatch, currentSpeed, cgs.Now);
 
                                 // NOTE: Not sure if we want to advance prevNoteDist, don't for now.
                                 pacenotesInBatch.Add(cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx]);
@@ -1424,12 +1503,22 @@ namespace CrewChiefV4.Events
                         }
                         break;
                     }
+                    // we now process the next note in the current set. Before we do, recalcuate the readDist and nextBatchDistance.
+                    // This allows us to adjust read ahead distance to take into account the likelihood of the player having to slow
+                    // significantly for a tight corner - currentSpeed may be much higher than the actual speed when he reaches a hairpin.
+                    // This effectively delays calls after a slow corner to give the driver time to negotiate it before we make subsequent calls
+                    if (dynamicLookahead)
+                    {
+                        readDist = cgs.PositionAndMotionData.DistanceRoundTrack + this.lookaheadSecondsToUse * GetSlowestExpectedSpeedForBatch(pacenotesInBatch, currentSpeed); ;
+                        nextBatchDistance = this.FindNextBatchDistance(readDist, cgs, out fragmentsInCurrBatch);
+                    }
                 }
 
                 if (pacenotesInBatch.Count > 0)
                 {
                     this.lastPlayedOrAddedBatch.Clear();
                     this.lastPlayedOrAddedBatch.AddRange(pacenotesInBatch);
+                    this.lastPlayedBatchTime = cgs.Now;
                 }
 #if DEBUG
                 if (this.lastProcessedPacenoteIdx < cgs.CoDriverPacenotes.Count
@@ -2105,6 +2194,7 @@ namespace CrewChiefV4.Events
                     // store these so we can remove them if we get a 'correction' call
                     this.lastPlayedOrAddedBatch.Clear();
                     this.lastPlayedOrAddedBatch.AddRange(paceNotesToAdd);
+                    this.lastPlayedBatchTime = CrewChief.currentGameState.Now;
                 }
                 lastRecePacenoteWasDistance = false;
                 return this.lastPlayedOrAddedBatch.Count > 0;
