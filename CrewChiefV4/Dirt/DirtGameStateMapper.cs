@@ -52,9 +52,9 @@ namespace CrewChiefV4.Dirt
                 }
                 if (stageLengthAtFirstDistanceUpdate > 0)
                 {
-                    Console.WriteLine("Stage details: length = " + stageLengthAtFirstDistanceUpdate +
-                        ", starting position X = " + wrapper.dirtData.worldX + " Y = " + wrapper.dirtData.worldY + " Z = " + wrapper.dirtData.worldZ);
-                    Console.WriteLine("Using folder name " + trackName + "  for pace notes");
+                    Console.WriteLine("Stage details: length=" + stageLengthAtFirstDistanceUpdate +
+                        ", starting position X=" + wrapper.dirtData.worldX + ", Y=" + wrapper.dirtData.worldY + ", Z=" + wrapper.dirtData.worldZ);
+                    Console.WriteLine("Using folder name \"" + trackName + "\" for pace notes");
                 }
                 gsd.SessionData.TrackDefinition = new TrackDefinition(trackName, -1, wrapper.dirtData.stageLength, null, null);
             }
