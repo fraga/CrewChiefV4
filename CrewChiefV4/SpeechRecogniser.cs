@@ -394,6 +394,7 @@ namespace CrewChiefV4
         public static String[] RALLY_FORD = Configuration.getSpeechRecognitionPhrases("RALLY_FORD", loadHomophones);
         public static String[] RALLY_JUNCTION = Configuration.getSpeechRecognitionPhrases("RALLY_JUNCTION", loadHomophones);
         public static String[] RALLY_CAUTION = Configuration.getSpeechRecognitionPhrases("RALLY_CAUTION", loadHomophones);
+        public static String[] RALLY_DOUBLE_CAUTION = Configuration.getSpeechRecognitionPhrases("RALLY_DOUBLE_CAUTION", loadHomophones);
         public static String[] RALLY_CREST = Configuration.getSpeechRecognitionPhrases("RALLY_CREST", loadHomophones);
         public static String[] RALLY_OVER_CREST = Configuration.getSpeechRecognitionPhrases("RALLY_OVER_CREST", loadHomophones);
         public static String[] RALLY_OVER_BRIDGE = Configuration.getSpeechRecognitionPhrases("RALLY_OVER_BRIDGE", loadHomophones);
@@ -443,6 +444,7 @@ namespace CrewChiefV4
             SpeechRecogniser.RALLY_BUMPS,
             SpeechRecogniser.RALLY_CARE,
             SpeechRecogniser.RALLY_DANGER,
+            SpeechRecogniser.RALLY_DOUBLE_CAUTION,
             SpeechRecogniser.RALLY_CAUTION,
             SpeechRecogniser.RALLY_CONCRETE,
             SpeechRecogniser.RALLY_OVER_CREST,

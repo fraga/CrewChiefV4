@@ -564,7 +564,8 @@ namespace CrewChiefV4.Events
             { SpeechRecogniser.RALLY_TUNNEL, PacenoteType.detail_tunnel },
             { SpeechRecogniser.RALLY_CARE, PacenoteType.detail_care },
             { SpeechRecogniser.RALLY_CAUTION, PacenoteType.detail_caution },
-            { SpeechRecogniser.RALLY_DANGER, PacenoteType.detail_double_caution },
+            { SpeechRecogniser.RALLY_DOUBLE_CAUTION, PacenoteType.detail_double_caution },
+            { SpeechRecogniser.RALLY_DANGER, PacenoteType.detail_triple_caution },
             { SpeechRecogniser.RALLY_THROUGH_GATE, PacenoteType.detail_through_gate },
             { SpeechRecogniser.RALLY_NARROWS, PacenoteType.detail_narrows },
             { SpeechRecogniser.RALLY_LOGS_INSIDE, PacenoteType.detail_logs_inside },
@@ -2234,7 +2235,7 @@ namespace CrewChiefV4.Events
             voiceMessageWrapper.ResetCursor();
             foreach (Tuple<PacenoteType, PacenoteModifier> obstacle in GetObstaclePacenoteTypesWithModifiers(voiceMessageWrapper))
             {
-                if (obstacle.Item1 == PacenoteType.detail_care || obstacle.Item1 == PacenoteType.detail_caution || obstacle.Item1 == PacenoteType.detail_double_caution)
+                if (obstacle.Item1 == PacenoteType.detail_care || obstacle.Item1 == PacenoteType.detail_caution || obstacle.Item1 == PacenoteType.detail_double_caution || obstacle.Item1 == PacenoteType.detail_triple_caution)
                 {
                     // special case for danger / care / caution - ensure it's played first
                     paceNotes.Insert(0, new CoDriverPacenote() { Pacenote = obstacle.Item1, Modifier = obstacle.Item2, RawVoiceCommand = voiceMessage });
