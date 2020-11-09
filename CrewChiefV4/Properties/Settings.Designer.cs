@@ -5090,6 +5090,18 @@ namespace CrewChiefV4.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool codriver_dynamic_lookahead {
+            get {
+                return ((bool)(this["codriver_dynamic_lookahead"]));
+            }
+            set {
+                this["codriver_dynamic_lookahead"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool include_start_pos_in_dirt_stage_names {
             get {
                 return ((bool)(this["include_start_pos_in_dirt_stage_names"]));
