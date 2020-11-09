@@ -1268,5 +1268,8 @@
     <Setting Name="codriver_min_space_for_auto_distance_call" Type="System.Single" Scope="User">
       <Value Profile="(Default)">40</Value>
     </Setting>
+    <Setting Name="include_start_pos_in_dirt_stage_names" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

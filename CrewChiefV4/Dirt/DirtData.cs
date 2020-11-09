@@ -9,6 +9,7 @@
         public int trackNumber;
         public float speed;
         public float worldX;
+        public float worldY;
         public float worldZ;
     }
 }

@@ -174,6 +174,7 @@ namespace CrewChiefV4.Dirt
             this.workingData.dirtData.currentStageTime = BitConverter.ToSingle(rawData, 4);
             this.workingData.dirtData.lapDistance = BitConverter.ToSingle(rawData, 8);
             this.workingData.dirtData.worldX = BitConverter.ToSingle(rawData, 16);
+            this.workingData.dirtData.worldY = BitConverter.ToSingle(rawData, 20);
             this.workingData.dirtData.worldZ = BitConverter.ToSingle(rawData, 24);
             this.workingData.dirtData.speed = BitConverter.ToSingle(rawData, 28);
             this.workingData.dirtData.stageLength = BitConverter.ToSingle(rawData, 244);

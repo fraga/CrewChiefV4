@@ -39,13 +39,23 @@ namespace CrewChiefV4.Dirt
             }
             if (createNewTrackDefinition || gsd.SessionData.TrackDefinition == null)
             {
-                // track name includes the start point x and z co-ordinates (rounded to the nearest hundred metres in case
-                // the start position varies a little). This allows tracks with the same distance but different start points (e.g.
-                // reversed stages) to be differentiated
-                int worldXAtFirstDistanceUpdate = roundToNearest100(wrapper.dirtData.worldX);
-                int worldZAtFirstDistanceUpdate = roundToNearest100(wrapper.dirtData.worldZ);
                 float stageLengthAtFirstDistanceUpdate = wrapper.dirtData.stageLength;
-                string trackName = "stage_length_" + stageLengthAtFirstDistanceUpdate + "^x" + worldXAtFirstDistanceUpdate + "z" + worldZAtFirstDistanceUpdate;
+                string trackName = "stage_length_" + stageLengthAtFirstDistanceUpdate;
+                if (UserSettings.GetUserSettings().getBoolean("include_start_pos_in_dirt_stage_names"))
+                {
+                    // track name includes the start point x and z co-ordinates (rounded to the nearest hundred metres in case
+                    // the start position varies a little). This allows tracks with the same distance but different start points (e.g.
+                    // reversed stages) to be differentiated
+                    int worldXAtFirstDistanceUpdate = roundToNearest100(wrapper.dirtData.worldX);
+                    int worldZAtFirstDistanceUpdate = roundToNearest100(wrapper.dirtData.worldZ);
+                    trackName += "^x" + worldXAtFirstDistanceUpdate + "z" + worldZAtFirstDistanceUpdate;
+                }
+                if (stageLengthAtFirstDistanceUpdate > 0)
+                {
+                    Console.WriteLine("Stage details: length = " + stageLengthAtFirstDistanceUpdate +
+                        ", starting position X = " + wrapper.dirtData.worldX + " Y = " + wrapper.dirtData.worldY + " Z = " + wrapper.dirtData.worldZ);
+                    Console.WriteLine("Using folder name " + trackName + "  for pace notes");
+                }
                 gsd.SessionData.TrackDefinition = new TrackDefinition(trackName, -1, wrapper.dirtData.stageLength, null, null);
             }
             gsd.SessionData.SessionType = SessionType.Race;

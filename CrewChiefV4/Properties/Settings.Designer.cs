@@ -5086,5 +5086,17 @@ namespace CrewChiefV4.Properties {
                 this["codriver_min_space_for_auto_distance_call"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool include_start_pos_in_dirt_stage_names {
+            get {
+                return ((bool)(this["include_start_pos_in_dirt_stage_names"]));
+            }
+            set {
+                this["include_start_pos_in_dirt_stage_names"] = value;
+            }
+        }
     }
 }

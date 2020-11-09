@@ -2043,3 +2043,8 @@ codriver_min_space_for_auto_distance_call = Minimum rally distance pace note dis
 codriver_min_space_for_auto_distance_call_help = Insert auto-generated distance call when the next call is greater than this distance away
 codriver_min_space_for_auto_distance_call_category = AUDIO_VOICE_AND_CONTROLLERS
 codriver_min_space_for_auto_distance_call_filter = RBR;DIRT;DIRT_2
+
+include_start_pos_in_dirt_stage_names = Include start location in Dirt Rally pace note folders
+include_start_pos_in_dirt_stage_names_help = Add X and Z coordinates to stage length when constructing folder name for pace notes
+include_start_pos_in_dirt_stage_names_category = MISC
+include_start_pos_in_dirt_stage_names_filter = DIRT;DIRT_2
