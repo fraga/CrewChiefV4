@@ -512,12 +512,12 @@ RALLY_BRAKE = braking:brake
 RALLY_GO_STRAIGHT = go straight
 RALLY_PLUS = plus
 RALLY_MINUS = minus
-RALLY_LOGS_INSIDE = logs inside
-RALLY_ROCKS_INSIDE = rocks inside
-RALLY_TREE_INSIDE = tree inside
-RALLY_LOGS_OUTSIDE = logs outside
-RALLY_ROCKS_OUTSIDE = rocks outside
-RALLY_TREE_OUTSIDE = tree outside
+RALLY_LOGS_INSIDE = log inside:logs inside
+RALLY_ROCKS_INSIDE = rock inside:rocks inside
+RALLY_TREE_INSIDE = tree inside:trees inside
+RALLY_LOGS_OUTSIDE = log outside:logs outside
+RALLY_ROCKS_OUTSIDE = rock outside:rocks outside
+RALLY_TREE_OUTSIDE = tree outside:trees outside
 RALLY_LOOSE_GRAVEL = onto loose gravel:loose gravel
 
 
