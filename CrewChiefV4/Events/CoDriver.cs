@@ -1412,8 +1412,14 @@ namespace CrewChiefV4.Events
 
                 List<CoDriverPacenote> pacenotesInBatch = new List<CoDriverPacenote>();
 
+                // while looping, if we encounter a note with the same distance value as the one we just played, we always play
+                // it regardless of the dynamic lookahead calculation. This applies to 'real' notes (not distance calls)
+                float previousDistance = -1f;
+
+                // play if we've reached the magic distance or this note is part of a batch recorded at the same distance as the previously played note in this iteration
                 while (this.lastProcessedPacenoteIdx < cgs.CoDriverPacenotes.Count
-                    && readDist > cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Distance)
+                    && (readDist > cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Distance 
+                    || (previousDistance != -1 && previousDistance == cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Distance)))
                 {
                     if (this.ShouldIgnorePacenote(cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx]))
                     {
@@ -1461,9 +1467,8 @@ namespace CrewChiefV4.Events
                     playModifiers(cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Modifier, cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Distance,
                         mainPacenoteDist, nextBatchDistance, fragmentsInCurrBatch, currentSpeed, cgs.Now);
 
-                    var prevNoteDist = cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Distance;
                     var previousPacenoteType = cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Pacenote;
-
+                    previousDistance = mainPacenoteDist;
                     ++this.lastProcessedPacenoteIdx;
 
                     // If next call is one of the chained calls, play them.  All this might be too RBR specific, but if there
@@ -1482,11 +1487,11 @@ namespace CrewChiefV4.Events
                             ++this.lastProcessedPacenoteIdx;
                             continue;
                         }
-                        else if (Math.Abs(prevNoteDist - cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Distance) < this.chainedPacenoteThresholdMeters)
+                        else if (Math.Abs(mainPacenoteDist - cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Distance) < this.chainedPacenoteThresholdMeters)
                         {
                             if (CoDriver.terminologies.chainedNotes.Contains(cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Pacenote.ToString()))
                             {
-                                Console.WriteLine($"Playing inserted chained pacenote: {CoDriver.PacenoteType.detail_into}  at: {prevNoteDist.ToString("0.000")}");
+                                Console.WriteLine($"Playing inserted chained pacenote: {CoDriver.PacenoteType.detail_into}  at: {mainPacenoteDist.ToString("0.000")}");
                                 foreach (var pacenoteMessageID in this.GetChainedPacenoteMessageIDs(previousPacenoteType, cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Pacenote,
                                     mainPacenoteDist, nextBatchDistance, fragmentsInCurrBatch, currentSpeed, cgs.Now))
                                     this.audioPlayer.playMessageImmediately(new QueuedMessage(pacenoteMessageID, 0));
@@ -1495,8 +1500,8 @@ namespace CrewChiefV4.Events
                                 playModifiers(cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Modifier, cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Distance,
                                     mainPacenoteDist, nextBatchDistance, fragmentsInCurrBatch, currentSpeed, cgs.Now);
 
-                                // NOTE: Not sure if we want to advance prevNoteDist, don't for now.
                                 pacenotesInBatch.Add(cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx]);
+                                previousDistance = cgs.CoDriverPacenotes[this.lastProcessedPacenoteIdx].Distance;
                                 ++this.lastProcessedPacenoteIdx;
 
                                 continue;
