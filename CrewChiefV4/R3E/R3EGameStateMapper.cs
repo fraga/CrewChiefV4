@@ -870,7 +870,6 @@ namespace CrewChiefV4.RaceRoom
                         int previousOpponentCompletedLaps = 0;
                         int previousOpponentPosition = 0;
                         Boolean previousOpponentIsEnteringPits = false;
-                        Boolean previousOpponentIsExitingPits = false;
                         float[] previousOpponentWorldPosition = new float[] { 0, 0, 0 };
                         float previousOpponentSpeed = 0;
                         float previousDistanceRoundTrack = 0;
@@ -881,7 +880,6 @@ namespace CrewChiefV4.RaceRoom
                             previousOpponentCompletedLaps = previousOpponentData.CompletedLaps;
                             previousOpponentPosition = previousOpponentData.OverallPosition;
                             previousOpponentIsEnteringPits = previousOpponentData.isEnteringPits();
-                            previousOpponentIsExitingPits = previousOpponentData.isExitingPits();
                             previousOpponentInPits = previousOpponentData.InPits;
                             previousOpponentWorldPosition = previousOpponentData.WorldPosition;
                             previousOpponentSpeed = previousOpponentData.Speed;

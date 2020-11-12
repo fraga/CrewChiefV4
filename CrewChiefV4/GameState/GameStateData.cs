@@ -1729,10 +1729,10 @@ namespace CrewChiefV4.GameState
         }
 
         /// <summary>
-        /// be careful using this - it should actually be called 'isOnOutLap'
+        /// This returns true as soon as the car passes the start line after entering the pit.
         /// </summary>
         /// <returns></returns>
-        public Boolean isExitingPits()
+        public Boolean isOnOutLap()
         {
             LapData currentLap = getCurrentLapData();
             return currentLap != null && currentLap.OutLap;

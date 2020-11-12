@@ -761,7 +761,6 @@ namespace CrewChiefV4.ACC
                                 int previousOpponentPosition = 0;
                                 int currentOpponentSector = 0;
                                 Boolean previousOpponentIsEnteringPits = false;
-                                Boolean previousOpponentIsExitingPits = false;
                                 /* previous tick data for hasNewLapData check*/
                                 Boolean previousOpponentDataWaitingForNewLapData = false;
                                 DateTime previousOpponentNewLapDataTimerExpiry = DateTime.MaxValue;
@@ -782,7 +781,6 @@ namespace CrewChiefV4.ACC
                                     previousOpponentCompletedLaps = previousOpponentData.CompletedLaps;
                                     previousOpponentPosition = previousOpponentData.OverallPosition;
                                     previousOpponentIsEnteringPits = previousOpponentData.isEnteringPits();
-                                    previousOpponentIsExitingPits = previousOpponentData.isExitingPits();
                                     previousOpponentWorldPosition = previousOpponentData.WorldPosition;
                                     previousOpponentSpeed = previousOpponentData.Speed;
                                     previousDistanceRoundTrack = previousOpponentData.DistanceRoundTrack;
