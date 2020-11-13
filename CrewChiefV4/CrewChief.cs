@@ -690,7 +690,7 @@ namespace CrewChiefV4
                                 {
                                     sessionEndMessages.trigger(previousGameState.SessionData.SessionRunningTime, previousGameState.SessionData.SessionType, currentGameState.SessionData.SessionPhase,
                                         previousGameState.SessionData.SessionStartClassPosition, previousGameState.SessionData.ClassPosition,
-                                        previousGameState.SessionData.NumCarsInPlayerClassAtStartOfSession, previousGameState.SessionData.CompletedLaps,
+                                        previousGameState.SessionData.NumCarsInPlayerClassAtStartOfSession, previousGameState.SessionData.CompletedLaps, currentGameState.SessionData.expectedFinishingPosition,
                                         currentGameState.SessionData.IsDisqualified, currentGameState.SessionData.IsDNF, currentGameState.Now);
                                 }
                                 else
@@ -699,7 +699,7 @@ namespace CrewChiefV4
                                     // before finishing line.
                                     sessionEndMessages.trigger(previousGameState.SessionData.SessionRunningTime, previousGameState.SessionData.SessionType, currentGameState.SessionData.SessionPhase,
                                         previousGameState.SessionData.SessionStartClassPosition, currentGameState.SessionData.ClassPosition,
-                                        previousGameState.SessionData.NumCarsInPlayerClassAtStartOfSession, previousGameState.SessionData.CompletedLaps,
+                                        previousGameState.SessionData.NumCarsInPlayerClassAtStartOfSession, previousGameState.SessionData.CompletedLaps, currentGameState.SessionData.expectedFinishingPosition,
                                         currentGameState.SessionData.IsDisqualified, currentGameState.SessionData.IsDNF, currentGameState.Now);
                                 }
                                 audioPlayer.holdChannelOpen = false;    // clear the 'hold open' state here before waking the monitor

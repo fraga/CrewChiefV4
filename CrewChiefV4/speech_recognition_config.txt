@@ -61,6 +61,7 @@ WHATS_MY_FUEL_LEVEL = what's my fuel level
 WHATS_MY_FUEL_USAGE = what's my fuel usage:what's my fuel consumption:what's my fuel use
 WHATS_MY_IRATING = whats my eye rating
 WHATS_MY_LICENSE_CLASS = what's my licence class
+WHATS_MY_EXPECTED_FINISH_POSITION = what's my expected finish position:what's my expected position
 WHAT_TYRES_AM_I_ON = what tires am i on:what tire am i on:what tire type am i on
 IS_MY_PIT_BOX_OCCUPIED = is my pit box occupied:is my pit stall occupied
 HOW_MUCH_FUEL_TO_END_OF_RACE = how much fuel to the end:how much fuel do we need

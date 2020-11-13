@@ -164,6 +164,9 @@ namespace CrewChiefV4.Audio
         private DateTime breathDueAt = DateTime.MaxValue;
         private int maxSecondsBeforeTakingABreath = 3;
 
+        // any messages with this magic string in their ID will not be purged on session end
+        public static string RETAIN_ON_SESSION_END = "retain_on_session_end";
+
         public struct WaveDevice
         {
             public int WaveDeviceId;
@@ -1186,6 +1189,19 @@ namespace CrewChiefV4.Audio
             keepQuiet = false;
         }
 
+        private bool messageFunctionIsEmptyOrTrue(QueuedMessage queuedMessage)
+        {
+            // if we have a function, execute it and return the resut, otherwise return true
+            if (CrewChief.currentGameState != null && queuedMessage.triggerFunction != null)
+            {
+                return queuedMessage.triggerFunction.Invoke(CrewChief.currentGameState);
+            }
+            else
+            {
+                return true;
+            }
+        }
+
         private void playQueueContents(OrderedDictionary queueToPlay, Boolean isImmediateMessages)
         {
             long milliseconds = GameStateData.CurrentTime.Ticks / TimeSpan.TicksPerMillisecond;
@@ -1232,8 +1248,18 @@ namespace CrewChiefV4.Audio
                         Boolean queueTooLongForMessage = queuedMessage.maxPermittedQueueLengthForMessage != 0 && willBePlayedCount > queuedMessage.maxPermittedQueueLengthForMessage;
                         Boolean hasJustPlayedAsAnImmediateMessage = !isImmediateMessages && lastImmediateMessageName != null &&
                             key == lastImmediateMessageName && GameStateData.CurrentTime - lastImmediateMessageTime < TimeSpan.FromSeconds(5);
-                        if (!blockedByKeepQuietMode && queuedMessage.canBePlayed && !blockedByDelayedHigherPriorityMessage
-                            && messageIsStillValid && !keysToPlay.Contains(key) && !queueTooLongForMessage && !messageHasExpired && !hasJustPlayedAsAnImmediateMessage)
+                        Boolean messageFunctionIsEmptyOrTrue = this.messageFunctionIsEmptyOrTrue(queuedMessage);
+                        Boolean isAlreadyQueuedToPlay = keysToPlay.Contains(key);
+                        // can we actually play the message?
+                        if (!blockedByKeepQuietMode
+                            && queuedMessage.canBePlayed
+                            && !blockedByDelayedHigherPriorityMessage
+                            && messageIsStillValid
+                            && !isAlreadyQueuedToPlay
+                            && !queueTooLongForMessage
+                            && !messageHasExpired
+                            && !hasJustPlayedAsAnImmediateMessage
+                            && messageFunctionIsEmptyOrTrue)
                         {
                             // special case for 'get ready' event here - we don't want to move this to the top of the queue because
                             // it makes it sound shit. Bit of a hack, needs a better solution
@@ -1251,14 +1277,17 @@ namespace CrewChiefV4.Audio
                             if (blockedByKeepQuietMode)
                             {
                                 Console.WriteLine("Clip " + key + " will not be played because we're in 'keep quiet' mode");
+                                soundsProcessed.Add(key);   // add this to the set processed so it's removed from the queue
                             }
                             else if (!messageIsStillValid)
                             {
                                 Console.WriteLine("Clip " + key + " is not valid");
+                                soundsProcessed.Add(key);   // add this to the set processed so it's removed from the queue
                             }
                             else if (messageHasExpired)
                             {
                                 Console.WriteLine("Clip " + key + " has expired after being queued for " + queuedMessage.getAge() + " milliseconds");
+                                soundsProcessed.Add(key);   // add this to the set processed so it's removed from the queue
                             }
                             else if (queueTooLongForMessage)
                             {
@@ -1269,24 +1298,34 @@ namespace CrewChiefV4.Audio
                                 }
                                 Console.WriteLine("Queue is too long to play clip " + key + " max permitted items for this message = "
                                     + queuedMessage.maxPermittedQueueLengthForMessage + " queue: " + String.Join(", ", keysToDisplay));
+                                soundsProcessed.Add(key);   // add this to the set processed so it's removed from the queue
                             }
                             else if (!queuedMessage.canBePlayed)
                             {
                                 Console.WriteLine("Clip " + key + " has some missing sound files");
+                                soundsProcessed.Add(key);   // add this to the set processed so it's removed from the queue
                             }
                             else if (hasJustPlayedAsAnImmediateMessage)
                             {
                                 Console.WriteLine("Clip " + key + " has just been played in response to a voice command, skipping");
+                                soundsProcessed.Add(key);   // add this to the set processed so it's removed from the queue
                             }
                             else if (blockedByDelayedHigherPriorityMessage)
                             {
-                                Console.WriteLine("Clip " + key + " because higher priority message is waiting to be played: " + higherPriorityDelayedMessage.messageName);
+                                Console.WriteLine("Clip " + key + "will not be played because higher priority message is waiting to be played: " + higherPriorityDelayedMessage.messageName);
+                                soundsProcessed.Add(key);   // add this to the set processed so it's removed from the queue - TODO: can we leave this in the queue for the next iteration?
                             }
-                            else
+                            else if (isAlreadyQueuedToPlay)
                             {
-                                Console.WriteLine("Clip " + key + " will not be played");
+                                Console.WriteLine("Clip " + key + " will not be played because it's already about to be played");
+                                soundsProcessed.Add(key);   // add this to the set processed so it's removed from the queue
                             }
-                            soundsProcessed.Add(key);
+                            else if (!messageFunctionIsEmptyOrTrue)
+                            {
+                                // special case for messages which would otherwise be ready to play, but that have
+                                // an associated function which hasn't (yet) evaluated to true
+                                // Console.WriteLine("wait...");
+                            }
                             willBePlayedCount--;
                         }
                     }
@@ -1387,7 +1426,8 @@ namespace CrewChiefV4.Audio
                 {
                     foreach (String key in queueToCheck.Keys)
                     {
-                        if (((QueuedMessage)queueToCheck[key]).dueTime <= milliseconds)
+                        QueuedMessage message = (QueuedMessage)queueToCheck[key];
+                        if (message.dueTime <= milliseconds && messageFunctionIsEmptyOrTrue(message))
                         {
                             return true;
                         }
@@ -1749,7 +1789,8 @@ namespace CrewChiefV4.Audio
 
                         if (!keyStr.Contains(SessionEndMessages.sessionEndMessageIdentifier) &&
                             !keyStr.Contains(SmokeTest.SMOKE_TEST) &&
-                            !keyStr.Contains(SmokeTest.SMOKE_TEST_SPOTTER))
+                            !keyStr.Contains(SmokeTest.SMOKE_TEST_SPOTTER) &&
+                            !keyStr.Contains(AudioPlayer.RETAIN_ON_SESSION_END))
                         {
                             queue.Remove(keyStr);
                             purged++;
@@ -2046,6 +2087,7 @@ namespace CrewChiefV4.Audio
                                 QueuedMessage pearlQueuedMessage = new QueuedMessage(queuedMessage.abstractEvent);
                                 pearlQueuedMessage.metadata = queuedMessage.metadata;
                                 pearlQueuedMessage.dueTime = queuedMessage.dueTime;
+                                pearlQueuedMessage.triggerFunction = queuedMessage.triggerFunction;
                                 queuedClips.Insert(insertionIndex, PearlsOfWisdom.getMessageFolder(pearlType), pearlQueuedMessage);
                                 insertionIndex++;
                             }
@@ -2055,6 +2097,7 @@ namespace CrewChiefV4.Audio
                                 QueuedMessage pearlQueuedMessage = new QueuedMessage(queuedMessage.abstractEvent);
                                 pearlQueuedMessage.dueTime = queuedMessage.dueTime;
                                 pearlQueuedMessage.metadata = queuedMessage.metadata;
+                                pearlQueuedMessage.triggerFunction = queuedMessage.triggerFunction;
                                 insertionIndex++;
                                 queuedClips.Insert(insertionIndex, PearlsOfWisdom.getMessageFolder(pearlType), pearlQueuedMessage);
                             }
