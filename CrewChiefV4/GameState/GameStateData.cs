@@ -957,6 +957,11 @@ namespace CrewChiefV4.GameState
 
         public Boolean HasLeadChanged;
 
+        // this is the expected finish position based only on ratings, and the number of cars in the player class.
+        // For games which make this data available, it's expected to be updated regularly during Q and P sessions
+        // and to be correct at the end of Q. It's expected to be set once at the start of the race and remain constant during the race.
+        public Tuple<int, int> expectedFinishingPosition = new Tuple<int, int>(-1, -1);
+
         private Dictionary<int, float> _SessionTimesAtEndOfSectors;
         public Dictionary<int, float> SessionTimesAtEndOfSectors {
             get {

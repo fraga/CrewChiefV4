@@ -98,6 +98,7 @@ namespace CrewChiefV4
         public static String[] WHATS_MY_FUEL_USAGE = Configuration.getSpeechRecognitionPhrases("WHATS_MY_FUEL_USAGE");
         public static String[] WHATS_MY_IRATING = Configuration.getSpeechRecognitionPhrases("WHATS_MY_IRATING");
         public static String[] WHATS_MY_LICENSE_CLASS = Configuration.getSpeechRecognitionPhrases("WHATS_MY_LICENSE_CLASS");
+        public static String[] WHATS_MY_EXPECTED_FINISH_POSITION = Configuration.getSpeechRecognitionPhrases("WHATS_MY_EXPECTED_FINISH_POSITION");
         public static String[] WHAT_TYRES_AM_I_ON = Configuration.getSpeechRecognitionPhrases("WHAT_TYRES_AM_I_ON");
         public static String[] WHAT_ARE_THE_RELATIVE_TYRE_PERFORMANCES = Configuration.getSpeechRecognitionPhrases("WHAT_ARE_THE_RELATIVE_TYRE_PERFORMANCES");
         public static String[] HOW_LONG_WILL_THESE_TYRES_LAST = Configuration.getSpeechRecognitionPhrases("HOW_LONG_WILL_THESE_TYRES_LAST");
@@ -1431,6 +1432,7 @@ namespace CrewChiefV4
                 validateAndAdd(WHAT_WAS_MY_LAST_LAP_TIME, staticSpeechChoices);
                 validateAndAdd(WHATS_MY_BEST_LAP_TIME, staticSpeechChoices);
                 validateAndAdd(WHATS_MY_POSITION, staticSpeechChoices);
+                validateAndAdd(WHATS_MY_EXPECTED_FINISH_POSITION, staticSpeechChoices);
                 validateAndAdd(WHAT_TYRES_AM_I_ON, staticSpeechChoices);
                 validateAndAdd(WHAT_ARE_THE_RELATIVE_TYRE_PERFORMANCES, staticSpeechChoices);
                 validateAndAdd(PLAY_CORNER_NAMES, staticSpeechChoices);
@@ -2996,7 +2998,8 @@ namespace CrewChiefV4
             {
                 return CrewChief.getEvent("Timings");
             }
-            else if (ResultContains(recognisedSpeech, WHATS_MY_POSITION, false))
+            else if (ResultContains(recognisedSpeech, WHATS_MY_POSITION, false) ||
+                ResultContains(recognisedSpeech, WHATS_MY_EXPECTED_FINISH_POSITION, false))
             {
                 return CrewChief.getEvent("Position");
             }
