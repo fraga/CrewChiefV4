@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 
 namespace CrewChiefV4.Events
 {
@@ -2209,8 +2210,8 @@ namespace CrewChiefV4.Events
 
         private void AppendModifierToLastCorner(string voiceMessage)
         {
-            Tuple<PacenoteType, PacenoteModifier> modifier = GetCornerPacenoteTypeWithModifier(new MutableString(voiceMessage), true);
-            if (modifier.Item2 != PacenoteModifier.none)
+            VoiceMessagePaceNoteResult modifier = GetCornerPacenoteTypeWithModifier(new MutableString(voiceMessage), true);
+            if (modifier.pacenoteModifier != PacenoteModifier.none)
             {
                 // we have a modifier from the call, so see if we have a corner in the last batch and apply the modifier to it
                 foreach (CoDriverPacenote paceNote in this.lastPlayedOrAddedBatch)
@@ -2218,7 +2219,7 @@ namespace CrewChiefV4.Events
                     if (IsCorner(paceNote.Pacenote))
                     {
                         // update the modifier
-                        paceNote.Modifier = paceNote.Modifier | modifier.Item2;
+                        paceNote.Modifier = paceNote.Modifier | modifier.pacenoteModifier;
                         break;
                     }                        
                 }
@@ -2321,23 +2322,42 @@ namespace CrewChiefV4.Events
             MutableString voiceMessageWrapper = new MutableString(voiceMessage);
 
             // first see if we have a corner - we assume there can only be 1 corner for each command
-            Tuple<PacenoteType, PacenoteModifier> cornerWithModifier = GetCornerPacenoteTypeWithModifier(voiceMessageWrapper, false);
-            if (cornerWithModifier.Item1 != PacenoteType.unknown)
+            int cornerVoiceCommandMatchLocation = -1;
+            int cornerPaceNoteLocation = -1;
+            VoiceMessagePaceNoteResult cornerWithModifier = GetCornerPacenoteTypeWithModifier(voiceMessageWrapper, false);
+            if (cornerWithModifier.pacenoteType != PacenoteType.unknown)
             {
-                paceNotes.Add(new CoDriverPacenote() { Pacenote = cornerWithModifier.Item1, Modifier = cornerWithModifier.Item2, RawVoiceCommand = voiceMessage });
+                cornerVoiceCommandMatchLocation = cornerWithModifier.matchStartPoint;
+                cornerPaceNoteLocation = 0;
+                paceNotes.Add(new CoDriverPacenote() { Pacenote = cornerWithModifier.pacenoteType, Modifier = cornerWithModifier.pacenoteModifier, RawVoiceCommand = voiceMessage });
             }
             // reset the cursor in the remaining (uneaten) voice message and extract the other obstacle calls
             voiceMessageWrapper.ResetCursor();
-            foreach (Tuple<PacenoteType, PacenoteModifier> obstacle in GetObstaclePacenoteTypesWithModifiers(voiceMessageWrapper))
+            foreach (VoiceMessagePaceNoteResult obstacle in GetObstaclePacenoteTypesWithModifiers(voiceMessageWrapper))
             {
-                if (obstacle.Item1 == PacenoteType.detail_care || obstacle.Item1 == PacenoteType.detail_caution || obstacle.Item1 == PacenoteType.detail_double_caution || obstacle.Item1 == PacenoteType.detail_triple_caution)
+                if (obstacle.pacenoteType == PacenoteType.detail_care || obstacle.pacenoteType == PacenoteType.detail_caution || obstacle.pacenoteType == PacenoteType.detail_double_caution || obstacle.pacenoteType == PacenoteType.detail_triple_caution)
                 {
-                    // special case for danger / care / caution - ensure it's played first
-                    paceNotes.Insert(0, new CoDriverPacenote() { Pacenote = obstacle.Item1, Modifier = obstacle.Item2, RawVoiceCommand = voiceMessage });
+                    // special case for danger / care / caution - ensure it's played first regardless of where it appears in the voice command
+                    paceNotes.Insert(0, new CoDriverPacenote() { Pacenote = obstacle.pacenoteType, Modifier = obstacle.pacenoteModifier, RawVoiceCommand = voiceMessage });
+                    if (cornerPaceNoteLocation != -1)
+                    {
+                        cornerPaceNoteLocation++;
+                    }
                 }
                 else
                 {
-                    paceNotes.Add(new CoDriverPacenote() { Pacenote = obstacle.Item1, Modifier = obstacle.Item2, RawVoiceCommand = voiceMessage });
+                    // use the location hint from the result to decide whether to put this before or after the corner, if we have one
+                    if (cornerPaceNoteLocation != -1 && obstacle.matchStartPoint < cornerVoiceCommandMatchLocation)
+                    {
+                        // this obstacle came before the corner in the voice command so insert it immediately in front of the corner.
+                        // Because the list of obstacles is in voice command order doing this will preserve the ordering
+                        paceNotes.Insert(cornerPaceNoteLocation, new CoDriverPacenote() { Pacenote = obstacle.pacenoteType, Modifier = obstacle.pacenoteModifier, RawVoiceCommand = voiceMessage });
+                        cornerPaceNoteLocation++;
+                    }
+                    else
+                    {
+                        paceNotes.Add(new CoDriverPacenote() { Pacenote = obstacle.pacenoteType, Modifier = obstacle.pacenoteModifier, RawVoiceCommand = voiceMessage });
+                    }
                 }
             }
             // if we've not been able to work out what's been said here, create an empty pace note to hold the misunderstood raw voice command
@@ -2412,16 +2432,16 @@ namespace CrewChiefV4.Events
                                 }
                             }
                         }
-                        Tuple<PacenoteType, PacenoteModifier> cornerWithModifier = GetCornerPacenoteTypeWithModifier(new MutableString(voiceMessage), true);
+                        VoiceMessagePaceNoteResult cornerWithModifier = GetCornerPacenoteTypeWithModifier(new MutableString(voiceMessage), true);
                         // check we've been able to derive a call type, modifier or move directive
-                        if (cornerWithModifier.Item1 == PacenoteType.unknown && cornerWithModifier.Item2 == PacenoteModifier.none && !moveEarlier && !moveLater)
+                        if (cornerWithModifier.pacenoteType == PacenoteType.unknown && cornerWithModifier.pacenoteModifier == PacenoteModifier.none && !moveEarlier && !moveLater)
                         {
                             Console.WriteLine("Unable to create a usable correction from " + rawVoiceMessage);
                         }
                         else
                         {
                             appliedCorrection = true;
-                            CreateCorrection(callToCorrect, cornerWithModifier.Item1, cornerWithModifier.Item2, moveEarlier, moveLater, rawVoiceMessage);
+                            CreateCorrection(callToCorrect, cornerWithModifier.pacenoteType, cornerWithModifier.pacenoteModifier, moveEarlier, moveLater, rawVoiceMessage);
                         }
                     }
                     else
@@ -2554,94 +2574,109 @@ namespace CrewChiefV4.Events
                 return Direction.UNKNOWN;
         }
         
-        private Tuple<PacenoteType, PacenoteModifier> GetCornerPacenoteTypeWithModifier(MutableString voiceMessageWrapper, bool allowModifierOnly)
+        private VoiceMessagePaceNoteResult GetCornerPacenoteTypeWithModifier(MutableString voiceMessageWrapper, bool allowModifierOnly)
         {
-            Tuple<PacenoteType, PacenoteModifier> result = new Tuple<PacenoteType, PacenoteModifier>(PacenoteType.unknown, PacenoteModifier.none);
+            VoiceMessagePaceNoteResult result = new VoiceMessagePaceNoteResult(PacenoteType.unknown, PacenoteModifier.none, -1);
             bool gotCornerType = false;
             foreach (string key in possibleCornerCommands.Keys)
             {
-                if (voiceMessageWrapper.FindAndRemove(key, false, true))
+                int startPoint = -1;
+                if (voiceMessageWrapper.FindAndRemove(key, false, true, out startPoint))
                 {
-                    result = new Tuple<PacenoteType, PacenoteModifier> ((PacenoteType)possibleCornerCommands[key], GetModifier(voiceMessageWrapper));
+                    result = new VoiceMessagePaceNoteResult((PacenoteType)possibleCornerCommands[key], GetModifier(voiceMessageWrapper, out int startPointOfLastModifier), startPoint);
                     gotCornerType = true;
                     break;
                 }
             }
             if (!gotCornerType && allowModifierOnly)
             {
-                result = new Tuple<PacenoteType, PacenoteModifier>(PacenoteType.unknown, GetModifier(voiceMessageWrapper));
+                PacenoteModifier modifier = GetModifier(voiceMessageWrapper, out int startPoint);
+                result = new VoiceMessagePaceNoteResult(PacenoteType.unknown, modifier, startPoint);
             }
             return result;
         }
 
-        private HashSet<Tuple<PacenoteType, PacenoteModifier>> GetObstaclePacenoteTypesWithModifiers(MutableString voiceMessageWrapper)
+        private List<VoiceMessagePaceNoteResult> GetObstaclePacenoteTypesWithModifiers(MutableString voiceMessageWrapper)
         {
-            HashSet<Tuple<PacenoteType, PacenoteModifier>> matches = new HashSet<Tuple<PacenoteType, PacenoteModifier>>();
+            List<VoiceMessagePaceNoteResult> matches = new List<VoiceMessagePaceNoteResult>();
             foreach (string[] command in SpeechRecogniser.RallyObstacleCommands)
             {
-                if (voiceMessageWrapper.FindAndRemove(command, false, true))
+                int startPoint = -1;
+                if (voiceMessageWrapper.FindAndRemove(command, false, true, out startPoint))
                 {
-                    matches.Add(new Tuple<PacenoteType, PacenoteModifier>(obstaclePacenoteTypes[command], GetModifier(voiceMessageWrapper)));
+                    VoiceMessagePaceNoteResult result = new VoiceMessagePaceNoteResult(obstaclePacenoteTypes[command], GetModifier(voiceMessageWrapper, out int startPointOfLastModifier), startPoint);
+                    // don't re-add this if it already contains it. The equals method on the result object ignores the startPoint, so this
+                    // prevents us replacing the hit with one later in the command
+                    if (!matches.Contains(result))
+                    {
+                        matches.Add(result);
+                    }
                 }
             }
-            return matches;
+            // at this point the list of obstacles will match the ordering of SpeechRecogniser.RallyObstacleCommands. Reorder it to
+            // match the voice command order:
+            return matches.OrderBy(item => item.matchStartPoint).ToList();
         }
 
         // this is quite specific - we only want modifiers that come after the position in the string
         // where we got our previous command
-        private PacenoteModifier GetModifier(MutableString voiceMessageWrapper)
+        private PacenoteModifier GetModifier(MutableString voiceMessageWrapper, out int startPointOfModifier)
         {
+            // note that startPointOfModifier will be set to the start point of whichever modifier the code happens to
+            // match last. While this isn't important at the time of writing, it's a handy land-mine to ruin an otherwise
+            // productive day in some unimagined future.
+            startPointOfModifier = -1;
             PacenoteModifier modifier = PacenoteModifier.none;
             bool allowCut = true;
-            if (voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_TIGHTENS_BAD, true, false))
+            if (voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_TIGHTENS_BAD, true, false, out startPointOfModifier))
             {
                 modifier = modifier | PacenoteModifier.detail_double_tightens;
             }
             if (!voiceMessageWrapper.ContainsAny(SpeechRecogniser.RALLY_TIGHTENS_THEN_OPENS, true)
                 && !voiceMessageWrapper.ContainsAny(SpeechRecogniser.RALLY_OPENS_THEN_TIGHTENS, true)
-                && voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_TIGHTENS, true, false))
+                && voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_TIGHTENS, true, false, out startPointOfModifier))
             {
                 // additional check here - we don't want this to trigger for "tightens then opens" / "opens then tightens"
                 modifier = modifier | PacenoteModifier.detail_tightens;
             }
-            if (voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_DONT_CUT, true, false))
+            if (voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_DONT_CUT, true, false, out startPointOfModifier))
             {
                 allowCut = false;   // hack... cases where multiple notes are stacked in a single command can have cut and don't cut
                                     // This doesn't really work because the ordering is lost so we end up with "don't cut, cut"
                 modifier = modifier | PacenoteModifier.detail_dont_cut;
             }
-            if (allowCut && voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_CUT, true, false))
+            if (allowCut && voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_CUT, true, false, out startPointOfModifier))
             {
                 modifier = modifier | PacenoteModifier.detail_cut;
             }
             if (!voiceMessageWrapper.ContainsAny(SpeechRecogniser.RALLY_TIGHTENS_THEN_OPENS, true)
                 && !voiceMessageWrapper.ContainsAny(SpeechRecogniser.RALLY_OPENS_THEN_TIGHTENS, true)
-                && voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_OPENS, true, false))
+                && voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_OPENS, true, false, out startPointOfModifier))
             {
                 // additional check here - we don't want this to trigger for "tightens then opens" / "opens then tightens"
                 modifier = modifier | PacenoteModifier.detail_opens;
             }
-            if (voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_LONGLONG, true, false))
+            if (voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_LONGLONG, true, false, out startPointOfModifier))
             {
                 modifier = modifier | PacenoteModifier.detail_longlong;
             }
-            else if (voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_LONG, true, false)) /*long OR very long, not both*/
+            else if (voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_LONG, true, false, out startPointOfModifier)) /*long OR very long, not both*/
             {
                 modifier = modifier | PacenoteModifier.detail_long;
             }
-            if (voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_WIDENS, true, false))
+            if (voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_WIDENS, true, false, out startPointOfModifier))
             {
                 modifier = modifier | PacenoteModifier.detail_wideout;
             }
-            if (voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_MAYBE, true, false))
+            if (voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_MAYBE, true, false, out startPointOfModifier))
             {
                 modifier = modifier | PacenoteModifier.detail_maybe;
             }
-            if (voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_PLUS, true, false))
+            if (voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_PLUS, true, false, out startPointOfModifier))
             {
                 modifier = modifier | PacenoteModifier.detail_plus;
             }
-            else if (voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_MINUS, true, false))
+            else if (voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_MINUS, true, false, out startPointOfModifier))
             {
                 modifier = modifier | PacenoteModifier.detail_minus;
             }
@@ -2660,6 +2695,30 @@ namespace CrewChiefV4.Events
                 || SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_TIGHTENS)
                 || SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_TIGHTENS_BAD)
                 || SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_WIDENS);
+        }
+    }
+
+    class VoiceMessagePaceNoteResult
+    {
+        public CoDriver.PacenoteType pacenoteType;
+        public CoDriver.PacenoteModifier pacenoteModifier;
+        public int matchStartPoint;
+        public VoiceMessagePaceNoteResult(CoDriver.PacenoteType pacenoteType, CoDriver.PacenoteModifier pacenoteModifier, int matchStartPoint)
+        {
+            this.pacenoteType = pacenoteType;
+            this.pacenoteModifier = pacenoteModifier;
+            this.matchStartPoint = matchStartPoint;
+        }
+
+        // equals ignoring match location
+        public override bool Equals(object other)
+        {
+            VoiceMessagePaceNoteResult otherResult = (VoiceMessagePaceNoteResult)other;
+            return otherResult.pacenoteModifier == this.pacenoteModifier && otherResult.pacenoteType == this.pacenoteType;
+        }
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
     }
 
@@ -2693,17 +2752,18 @@ namespace CrewChiefV4.Events
         //
         // This logic means that a corner will have all subsequent modifiers applied to it, even when the command
         // goes corner->modifier1->obstacle->modifier2. This is a bit of an edge case.
-        public bool FindAndRemove(string text, bool fromCursorPosition, bool updateCursor)
+        public bool FindAndRemove(string text, bool fromCursorPosition, bool updateCursor, out int startPoint)
         {
             if (fromCursorPosition && this.cursorPosition >= this.contents.Length)
             {
+                startPoint = -1;
                 return false;
             }
             string substringToSearch = fromCursorPosition ? this.contents.Substring(cursorPosition) : this.contents;
             int matchIndex = substringToSearch.IndexOf(text);
             if (matchIndex != -1)
             {
-                int startPoint = fromCursorPosition ? this.cursorPosition + matchIndex : matchIndex;
+                startPoint = fromCursorPosition ? this.cursorPosition + matchIndex : matchIndex;
                 if (updateCursor)
                 {
                     this.cursorPosition = startPoint;
@@ -2711,18 +2771,20 @@ namespace CrewChiefV4.Events
                 this.contents = this.contents.Remove(startPoint, text.Length).Trim();
                 return true;
             }
+            startPoint = -1;
             return false;
         }
 
-        public bool FindAndRemove(string[] text, bool fromCursorPosition, bool updateCursorPosition)
+        public bool FindAndRemove(string[] text, bool fromCursorPosition, bool updateCursorPosition, out int startPoint)
         {
             foreach (string item in text)
             {
-                if (FindAndRemove(item, fromCursorPosition, updateCursorPosition))
+                if (FindAndRemove(item, fromCursorPosition, updateCursorPosition, out startPoint))
                 {
                     return true;
                 }
             }
+            startPoint = -1;
             return false;
         }
 
