@@ -1109,7 +1109,12 @@ namespace CrewChiefV4.Events
         {
             if (pgs.PenaltiesData.PenaltyCause == PenatiesData.DetailedPenaltyCause.NONE
                 && cgs.PenaltiesData.PenaltyCause == PenatiesData.DetailedPenaltyCause.FALSE_START)
+            {
                 this.audioPlayer.playMessageImmediately(new QueuedMessage(CoDriver.folderCodriverPrefix + "penalty_false_start", 0));
+                // this is only supported for RBR (no countdown data for Dirt). If we launch before zero we miss the transition from
+                // countdown to green so the ProcessRaceStart call won't load the notes. So load them here
+                LoadUserCreatedNotesAndCorrections(cgs);
+            }
         }
 
         private void ProcessRaceStart(GameStateData cgs, SessionData csd, SessionData psd)
@@ -1134,11 +1139,16 @@ namespace CrewChiefV4.Events
                 && cgs.PenaltiesData.PenaltyCause == PenatiesData.DetailedPenaltyCause.NONE)
             {
                 this.audioPlayer.playMessageImmediately(new QueuedMessage(CoDriver.folderCodriverPrefix + "detail_go", 0));
-                // load saved pace notes
-                LoadRecePaceNotes(cgs);
-                // load the corrections here for now
-                LoadAndApplyCorrections(cgs.SessionData.TrackDefinition.name, cgs.CoDriverPacenotes);
+                LoadUserCreatedNotesAndCorrections(cgs);
             }
+        }
+
+        private void LoadUserCreatedNotesAndCorrections(GameStateData cgs)
+        {
+            // load saved pace notes
+            LoadRecePaceNotes(cgs);
+            // load the corrections here
+            LoadAndApplyCorrections(cgs.SessionData.TrackDefinition.name, cgs.CoDriverPacenotes);
         }
 
         private void LoadAndApplyCorrections(string trackName, List<CoDriverPacenote> paceNotes)
