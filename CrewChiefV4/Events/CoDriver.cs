@@ -379,7 +379,7 @@ namespace CrewChiefV4.Events
             detail_tree_inside = 40008,
             detail_logs_outside = 40009,
             detail_rocks_outside = 40010,
-            detail_tree_outside = 40010
+            detail_tree_outside = 40011
         }
 
         [Flags]
