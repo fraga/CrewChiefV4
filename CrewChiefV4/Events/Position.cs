@@ -35,8 +35,7 @@ namespace CrewChiefV4.Events
 
         // optional intro for driver position message (not used in English)
         public static String folderDriverPositionIntro = "position/driver_position_intro";
-
-        // TODO: record these
+        
         // messages for expected finish position for the end of Q:
         private static String folderExpectedFinishPositionIntroStrongField = "position/expected_position_intro_strong_field";  // it's a strong field, we'll be happy if we finish in the top...
         private static String folderExpectedFinishPositionIntroWeakField = "position/expected_position_intro_weak_field";      // we should do well here, we should aim to finish in the top...
@@ -49,8 +48,6 @@ namespace CrewChiefV4.Events
         private static String folderCurrentPositionIntroLeading = "position/expected_position_current_position_leading";    // we're currently leading
         private static String folderExpectedFinishPositionIntroMidRace = "position/expected_position_intro_mid_race";       // "we expected to finish in the top..."
         private static String folderExpectedFinishPositionIntroWinMidRace = "position/expected_position_win_mid_race";      // "we expected to win this"
-        // message ID, which the purge will skip over
-        public static String EXPECTED_POSITION = "expected_position";
 
         private int currentPosition;
 
