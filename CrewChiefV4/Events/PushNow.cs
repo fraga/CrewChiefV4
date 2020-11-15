@@ -207,14 +207,14 @@ namespace CrewChiefV4.Events
             foreach (KeyValuePair<string, OpponentData> opponent in currentGameState.OpponentData)
             {
                 if ((opponent.Value.OpponentLapData.Count > 0 || !startCheckPointIsInSector1) && opponent.Value.Speed > 0 &&
-                    !opponent.Value.isEnteringPits() && !opponent.Value.isExitingPits() && !opponent.Value.InPits &&
+                    !opponent.Value.isEnteringPits() && !opponent.Value.isOnOutLap() && !opponent.Value.InPits &&
                     ((startCheckPointIsInSector1 && opponent.Value.DistanceRoundTrack > distanceStartCheckPoint && opponent.Value.DistanceRoundTrack < distanceEndCheckPoint) ||
                         (!startCheckPointIsInSector1 && (opponent.Value.DistanceRoundTrack > distanceStartCheckPoint || opponent.Value.DistanceRoundTrack < distanceEndCheckPoint))))
                 {
                     return true;
                 }
                 if (opponent.Value.Speed > 0 &&
-                    !opponent.Value.isEnteringPits() && !opponent.Value.isExitingPits() && !opponent.Value.InPits)
+                    !opponent.Value.isEnteringPits() && !opponent.Value.isOnOutLap() && !opponent.Value.InPits)
                 {
                     float signedDelta = opponent.Value.DeltaTime.GetSignedDeltaTimeOnly(currentGameState.SessionData.DeltaTime);
                     //add a little to gap as 0 is right next to us when leaving the pits
@@ -241,11 +241,10 @@ namespace CrewChiefV4.Events
             }
             foreach (KeyValuePair<string, OpponentData> opponent in currentGameState.OpponentData)
             {
-                // if the opponent car is moving at approximately the pit speed limit, is exiting the pits, 
-                // has passed the start line, warn about him. Note that this method is expected to be called
-                // when the player is approaching the start line
+                // if the opponent car is moving at approximately the pit speed limit, is in the pits and on his out lap, 
+                // warn about him. Note that this method is expected to be called when the player is approaching the start line
                 if (opponent.Value.Speed > 10 && opponent.Value.Speed < 40 && opponent.Value.InPits &&
-                    opponent.Value.isExitingPits() && opponent.Value.DistanceRoundTrack > triggerStartPoint && opponent.Value.DistanceRoundTrack < triggerEndPoint)
+                    opponent.Value.isOnOutLap() && opponent.Value.DistanceRoundTrack > triggerStartPoint && opponent.Value.DistanceRoundTrack < triggerEndPoint)
                 {
                     return true;
                 }

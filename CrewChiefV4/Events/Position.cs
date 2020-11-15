@@ -35,6 +35,19 @@ namespace CrewChiefV4.Events
 
         // optional intro for driver position message (not used in English)
         public static String folderDriverPositionIntro = "position/driver_position_intro";
+        
+        // messages for expected finish position for the end of Q:
+        private static String folderExpectedFinishPositionIntroStrongField = "position/expected_position_intro_strong_field";  // it's a strong field, we'll be happy if we finish in the top...
+        private static String folderExpectedFinishPositionIntroWeakField = "position/expected_position_intro_weak_field";      // we should do well here, we should aim to finish in the top...
+        private static String folderExpectedFinishPositionIntroMediumField = "position/expected_position_intro_medium_field";  // this should be close, we're aiming to finish in the top...
+        // used when the field is too small for a strong / weak / matched message to make sense:
+        private static String folderExpectedFinishPositionIntroSmallField = "position/expected_position_intro_small_field";  // we're aiming to finish in the top...
+        private static String folderExpectedFinishPositionWin = "position/expected_position_win";      // "we should aim to win this"
+        // messages for expected finish position for mid-race:
+        private static String folderCurrentPositionIntro = "position/expected_position_current_position_intro"; // we're running in P...
+        private static String folderCurrentPositionIntroLeading = "position/expected_position_current_position_leading";    // we're currently leading
+        private static String folderExpectedFinishPositionIntroMidRace = "position/expected_position_intro_mid_race";       // "we expected to finish in the top..."
+        private static String folderExpectedFinishPositionIntroWinMidRace = "position/expected_position_win_mid_race";      // "we expected to win this"
 
         private int currentPosition;
 
@@ -582,31 +595,127 @@ namespace CrewChiefV4.Events
         }
 
         public override void respond(String voiceMessage)
-        {            
-            if (isLastInStandings && !GlobalBehaviourSettings.complaintsDisabled && GlobalBehaviourSettings.complaintsCountInThisSession <= GlobalBehaviourSettings.maxComplaintsPerSession)
+        {
+            if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHATS_MY_EXPECTED_FINISH_POSITION))
             {
-                audioPlayer.playMessageImmediately(new QueuedMessage(folderLast, 0));
-            }
-            else if (currentPosition == 1)
-            {
-                audioPlayer.playMessageImmediately(new QueuedMessage(folderLeading, 0));                    
-            }
-            else if (currentPosition > 0)
-            {
-                if (SoundCache.availableSounds.Contains(folderDriverPositionIntro))
-                {
-                    audioPlayer.playMessageImmediately(new QueuedMessage("position", 0,
-                        messageFragments: MessageContents(folderDriverPositionIntro, folderStub + currentPosition)));
-                }
-                else
-                {
-                    audioPlayer.playMessageImmediately(new QueuedMessage(folderStub + currentPosition, 0));
-                }    
+                bool raceUnderway = CrewChief.currentGameState != null
+                    && CrewChief.currentGameState.SessionData.SessionType == SessionType.Race
+                    && (CrewChief.currentGameState.SessionData.SessionPhase == SessionPhase.Green || CrewChief.currentGameState.SessionData.SessionPhase == SessionPhase.Checkered || CrewChief.currentGameState.SessionData.SessionPhase == SessionPhase.FullCourseYellow)
+                    && CrewChief.currentGameState.SessionData.SessionRunningTime > 60;
+                reportExpectedFinishPosition(audioPlayer, CrewChief.currentGameState.SessionData.expectedFinishingPosition, true, raceUnderway, currentPosition);
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHATS_MY_POSITION))
             {
-                // only play 'no data' if we asked for position directly
-                audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));                    
+                if (isLastInStandings && !GlobalBehaviourSettings.complaintsDisabled && GlobalBehaviourSettings.complaintsCountInThisSession <= GlobalBehaviourSettings.maxComplaintsPerSession)
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(folderLast, 0));
+                }
+                else if (currentPosition == 1)
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(folderLeading, 0));
+                }
+                else if (currentPosition > 0)
+                {
+                    if (SoundCache.availableSounds.Contains(folderDriverPositionIntro))
+                    {
+                        audioPlayer.playMessageImmediately(new QueuedMessage("position", 0,
+                            messageFragments: MessageContents(folderDriverPositionIntro, folderStub + currentPosition)));
+                    }
+                    else
+                    {
+                        audioPlayer.playMessageImmediately(new QueuedMessage(folderStub + currentPosition, 0));
+                    }
+                }
+                else
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                }
+            }
+        }
+
+        public static void reportExpectedFinishPosition(AudioPlayer audioPlayer, Tuple<int, int> expectedFinish, bool fromVoiceCommand, bool raceUnderway, int currentPosition)
+        {
+            if (expectedFinish.Item1 > 0 && expectedFinish.Item2 > 0)
+            {
+                List<MessageFragment> messageContents = new List<MessageFragment>();
+                // once we're into the race, the responses are simple stuff like "we're running in P4, we expected to finish in the top N".
+                if (raceUnderway)
+                {
+                    if (currentPosition == 1)
+                    {
+                        messageContents.Add(MessageFragment.Text(Position.folderCurrentPositionIntroLeading));
+                    }
+                    else
+                    {
+                        messageContents.Add(MessageFragment.Text(Position.folderCurrentPositionIntro));
+                        messageContents.Add(MessageFragment.Integer(currentPosition));
+                    }
+                    if (expectedFinish.Item1 == 1)
+                    {
+                        messageContents.Add(MessageFragment.Text(Position.folderExpectedFinishPositionIntroWinMidRace));
+                    }
+                    else
+                    {
+                        messageContents.Add(MessageFragment.Text(Position.folderExpectedFinishPositionIntroMidRace));
+                        messageContents.Add(MessageFragment.Integer(expectedFinish.Item1));
+                    }
+                }
+                else
+                {
+                    // when triggered at the end of Q, be a little more descriptive. If we're not expected to win, we need the field strength
+                    if (expectedFinish.Item1 == 1)
+                    {
+                        messageContents.Add(MessageFragment.Text(Position.folderExpectedFinishPositionWin));
+                    }
+                    else
+                    {
+                        if (expectedFinish.Item2 > 3)
+                        {
+                            // no point in doing this if we have too few participants
+                            float expectedFinishRatio = (float)expectedFinish.Item1 / (float)expectedFinish.Item2;
+                            // >= 0.66 means "strong field"
+                            // <= 0.33 means "weak field"
+                            if (expectedFinishRatio >= 0.66f)
+                            {
+                                messageContents.Add(MessageFragment.Text(Position.folderExpectedFinishPositionIntroStrongField));
+                            }
+                            else if (expectedFinishRatio <= 0.33f)
+                            {
+                                messageContents.Add(MessageFragment.Text(Position.folderExpectedFinishPositionIntroWeakField));
+                            }
+                            else
+                            {
+                                messageContents.Add(MessageFragment.Text(Position.folderExpectedFinishPositionIntroMediumField));
+                            }
+                        }
+                        else
+                        {
+                            messageContents.Add(MessageFragment.Text(Position.folderExpectedFinishPositionIntroSmallField));
+                        }
+                        messageContents.Add(MessageFragment.Integer(expectedFinish.Item1));
+                    }
+                }
+                if (fromVoiceCommand)
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage("expected_position_response", 0, messageFragments: messageContents));
+                }
+                else
+                {
+                    // if this isn't from a voice command it's been triggered as a result of ending the Q session, so we want this to play
+                    // when we enter the subsequent race session.
+                    //
+                    // this message will survive the session end purge and will play when the triggerFunction evaluates to true. It expires after 2 minutes
+                    audioPlayer.playMessage(new QueuedMessage(AudioPlayer.RETAIN_ON_SESSION_END + "_expected_position", 120, messageFragments: messageContents, 
+                        triggerFunction: (GameStateData gsd) => 
+                            gsd.SessionData.TrackDefinition != null 
+                            && gsd.SessionData.TrackDefinition.name == CrewChief.currentGameState.SessionData.TrackDefinition.name
+                            && gsd.SessionData.SessionType == SessionType.Race
+                            && gsd.SessionData.SessionPhase != SessionPhase.Green));
+                }
+            }
+            else if (fromVoiceCommand)
+            {
+                audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
             }
         }
     }

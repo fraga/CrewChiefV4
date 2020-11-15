@@ -57,31 +57,7 @@ namespace CrewChiefV4.RaceRoom
         private float severeSuspensionDamageThresholdPercent = 20f;
         private float destroyedSuspensionThresholdPercent = 50f;
 
-
-        private List<CornerData.EnumWithThresholds> brakeTempThresholdsForPlayersCar = null;
-
-        // Oil temps are typically 1 or 2 units (I'm assuming celcius) higher than water temps. Typical temps while racing tend to be
-        // mid - high 50s, with some in-traffic running this creeps up to the mid 60s. To get it into the 
-        // 70s you have to really try. Any higher requires you to sit by the side of the road bouncing off the
-        // rev limiter. Doing this I've been able to get to 110 without blowing up (I got bored). With temps in the
-        // 80s, by the end of a single lap at racing speed they're back into the 60s.
-        //
-        // I think the cool down effect of the radiator is the underlying issue here - it's far too strong. 
-        // The oil temp does lag behind the water temp, which is correct, but I think it should lag 
-        // more (i.e. it should take longer for the oil to cool) and the oil should heat up more relative to the water. 
-        // 
-        // I'd expect to be seeing water temperatures in the 80s for 'normal' running, with this getting well into the 
-        // 90s or 100s in traffic. The oil temps should be 100+, maybe hitting 125 or more when the water's also hot.
-        // 
-        // To work around this I take a 'baseline' temp for oil and water - this is the average temperature between 3
-        // and 5 minutes of the session. I then look at differences between this baseline and the current temperature, allowing
-        // a configurable 'max above baseline' for each. Assuming the base line temps are sensible (say, 85 for water 105 for oil), 
-        // then anthing over 95 for water and 120 for oil is 'bad' - the numbers in the config reflect this
-
-        private float targetEngineWaterTemp = 88;
-        private float targetEngineOilTemp = 105;
-        private float baselineEngineDataOilTemp = 88;
-        private float baselineEngineDataWaterTemp = 105;        
+        private List<CornerData.EnumWithThresholds> brakeTempThresholdsForPlayersCar = null; 
 
         // blue flag zone for improvised blues when the 'full flag rules' are disabled
         // note that this will be set to true at the start of a session and change to false as soon as the game sends a blue flag
@@ -102,6 +78,9 @@ namespace CrewChiefV4.RaceRoom
         private bool approachingFirstFlyingLap = false;
 
         private bool chequeredFlagShownInThisSession = false;
+
+        // update the expected finishing position regularly in non-race sessions
+        private DateTime nextExpectedFinishingPositionUpdateDue = DateTime.MinValue;
 
         class PendingRacePositionChange
         {
@@ -243,6 +222,14 @@ namespace CrewChiefV4.RaceRoom
                 currentGameState.SessionData.SessionRunningTime, shared.SessionPhase, currentGameState.ControlData.ControlType,
                 previousLapsCompleted, shared.CompletedLaps, isCarRunning, chequeredFlagShownInThisSession, shared.StartLights);
 
+            // yuk, another session end hack. Catch the tick when q and p session timer reaches zero (but not when it's reset to zero as a result of quitting the session)
+            if ((currentGameState.SessionData.SessionType == SessionType.Qualify || currentGameState.SessionData.SessionType == SessionType.Practice)
+                && previousGameState != null && previousGameState.SessionData.SessionPhase != SessionPhase.Finished
+                && previousGameState.SessionData.SessionTimeRemaining > 0 && previousGameState.SessionData.SessionTimeRemaining < 0.2)
+            {
+                currentGameState.SessionData.SessionPhase = SessionPhase.Finished;
+            }
+
             if ((lastSessionPhase != currentGameState.SessionData.SessionPhase && (lastSessionPhase == SessionPhase.Unavailable || lastSessionPhase == SessionPhase.Finished)) ||
                 ((lastSessionPhase == SessionPhase.Checkered || lastSessionPhase == SessionPhase.Finished || lastSessionPhase == SessionPhase.Green || lastSessionPhase == SessionPhase.FullCourseYellow) &&
                     currentGameState.SessionData.SessionPhase == SessionPhase.Countdown) ||
@@ -321,11 +308,7 @@ namespace CrewChiefV4.RaceRoom
                     currentGameState.SessionData.SessionTotalRunTime = shared.SessionTimeRemaining;
                     currentGameState.SessionData.SessionHasFixedTime = true;
                 }
-
-                // reset the engine temp monitor stuff
-
-                baselineEngineDataOilTemp = targetEngineOilTemp;
-                baselineEngineDataWaterTemp = targetEngineWaterTemp;
+                
                 lastTimeEngineWasRunning = DateTime.MaxValue;
                 opponentDriverNamesProcessedForThisTick.Clear();
                 for (int i = 0; i < shared.DriverData.Length; i++)
@@ -464,11 +447,7 @@ namespace CrewChiefV4.RaceRoom
                         currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.Now);
 
                         Console.WriteLine("Just gone green, session details...");
-
-                        // reset the engine temp monitor stuff
-                        baselineEngineDataOilTemp = targetEngineOilTemp;
-                        baselineEngineDataWaterTemp = targetEngineWaterTemp;
-
+                        
                         Console.WriteLine("SessionType " + currentGameState.SessionData.SessionType);
                         Console.WriteLine("SessionPhase " + currentGameState.SessionData.SessionPhase);
                         Console.WriteLine("EventIndex " + currentGameState.SessionData.EventIndex);
@@ -493,6 +472,8 @@ namespace CrewChiefV4.RaceRoom
                         }
                         Console.WriteLine("TrackName " + trackName);
                         Console.WriteLine("TrackLayoutID " + shared.LayoutId);
+                        // recalculate the expected finish position on race start to account for drop-outs
+                        currentGameState.SessionData.expectedFinishingPosition = R3ERatings.calculateExpectedFinishPosition(currentGameState.OpponentData, currentGameState.carClass);
                     }
                 }
                 if (!currentGameState.SessionData.JustGoneGreen && previousGameState != null)
@@ -569,6 +550,8 @@ namespace CrewChiefV4.RaceRoom
 
                     currentGameState.SessionData.JustGoneGreenTime = previousGameState.SessionData.JustGoneGreenTime;
                     currentGameState.SessionData.StrengthOfField = previousGameState.SessionData.StrengthOfField;
+
+                    currentGameState.SessionData.expectedFinishingPosition = previousGameState.SessionData.expectedFinishingPosition;
                 }
             }
 
@@ -870,7 +853,6 @@ namespace CrewChiefV4.RaceRoom
                         int previousOpponentCompletedLaps = 0;
                         int previousOpponentPosition = 0;
                         Boolean previousOpponentIsEnteringPits = false;
-                        Boolean previousOpponentIsExitingPits = false;
                         float[] previousOpponentWorldPosition = new float[] { 0, 0, 0 };
                         float previousOpponentSpeed = 0;
                         float previousDistanceRoundTrack = 0;
@@ -881,7 +863,6 @@ namespace CrewChiefV4.RaceRoom
                             previousOpponentCompletedLaps = previousOpponentData.CompletedLaps;
                             previousOpponentPosition = previousOpponentData.OverallPosition;
                             previousOpponentIsEnteringPits = previousOpponentData.isEnteringPits();
-                            previousOpponentIsExitingPits = previousOpponentData.isExitingPits();
                             previousOpponentInPits = previousOpponentData.InPits;
                             previousOpponentWorldPosition = previousOpponentData.WorldPosition;
                             previousOpponentSpeed = previousOpponentData.Speed;
@@ -1447,6 +1428,18 @@ namespace CrewChiefV4.RaceRoom
             currentGameState.SessionData.RaceSessionsLengthMinutes[0] = shared.RaceSessionMinutes.Race1;
             currentGameState.SessionData.RaceSessionsLengthMinutes[1] = shared.RaceSessionMinutes.Race2;
             currentGameState.SessionData.RaceSessionsLengthMinutes[2] = shared.RaceSessionMinutes.Race3;
+
+            if (previousGameState != null
+                && (previousGameState.SessionData.SessionType == SessionType.Practice || previousGameState.SessionData.SessionType == SessionType.Qualify)
+                && (previousGameState.SessionData.SessionPhase != SessionPhase.Unavailable)
+                && (currentGameState.Now > nextExpectedFinishingPositionUpdateDue 
+                    || (previousGameState.SessionData.SessionTimeRemaining > 0 && currentGameState.SessionData.SessionTimeRemaining <= 0)))
+            {
+                // during practice and qual sessions, update this every 30 seconds and again at the end of the session. Here we use the previous game state's opponent data 
+                // as it gets cleared at session end
+                currentGameState.SessionData.expectedFinishingPosition = R3ERatings.calculateExpectedFinishPosition(previousGameState.OpponentData, previousGameState.carClass);
+                nextExpectedFinishingPositionUpdateDue = currentGameState.Now.AddSeconds(30);
+            }
 
             return currentGameState;
         }

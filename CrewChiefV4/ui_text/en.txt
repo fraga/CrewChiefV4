@@ -2077,3 +2077,18 @@ allow_composite_personalisations = Allow opponent names in 'My name' list
 allow_composite_personalisations_help = Include composite names (using opponent names) in the 'My name' list on the main screen
 allow_composite_personalisations_category = MISC
 allow_composite_personalisations_metadata = RESTART_REQUIRED
+
+codriver_dynamic_lookahead = Dynamic co-driver distance look ahead
+codriver_dynamic_lookahead_help = Reduce co-driver look ahead distance when approaching slow corners
+codriver_dynamic_lookahead_category = MISC
+codriver_dynamic_lookahead_filter = RBR;DIRT;DIRT_2
+
+codriver_min_space_for_auto_distance_call = Min gap for auto-generated distance pace note (metres)
+codriver_min_space_for_auto_distance_call_help = Insert auto-generated distance call when the next call is greater than this distance away
+codriver_min_space_for_auto_distance_call_category = AUDIO_VOICE_AND_CONTROLLERS
+codriver_min_space_for_auto_distance_call_filter = RBR;DIRT;DIRT_2
+
+include_start_pos_in_dirt_stage_names = Include start location in Dirt Rally pace note folders
+include_start_pos_in_dirt_stage_names_help = Add X and Z coordinates to stage length when constructing folder name for pace notes
+include_start_pos_in_dirt_stage_names_category = MISC
+include_start_pos_in_dirt_stage_names_filter = DIRT;DIRT_2

@@ -551,7 +551,7 @@ namespace CrewChiefV4.Events
                 float trackLength = currentGameState.SessionData.TrackDefinition.trackLength;
                 OpponentData leader = currentGameState.getOpponentAtOverallPosition(1);
                 OpponentData carAhead = currentGameState.getOpponentAtOverallPosition(currentGameState.SessionData.OverallPosition - 1);
-                if (carAhead != null && leader != null && leader.CompletedLaps > 0 && !leader.InPits && !leader.isExitingPits())
+                if (carAhead != null && leader != null && leader.CompletedLaps > 0 && !leader.InPits && !leader.isOnOutLap())
                 {
                     float leaderRaceDistance = (trackLength * leader.CompletedLaps) + leader.DistanceRoundTrack;
                     float carAheadRaceDistance = (trackLength * carAhead.CompletedLaps) + carAhead.DistanceRoundTrack;
@@ -570,7 +570,7 @@ namespace CrewChiefV4.Events
                     if (carAheadDistanceToLeader < trackLength && myDistanceToLeader > trackLength)
                     {
                         // we're the first lapped car. Only allow a lucky dog call if he's not in the pit or on an out lap
-                        return carAhead.InPits || carAhead.isExitingPits() ? GreenFlagLuckyDogStatus.NONE : GreenFlagLuckyDogStatus.WE_ARE_IN_LUCKY_DOG;
+                        return carAhead.InPits || carAhead.isOnOutLap() ? GreenFlagLuckyDogStatus.NONE : GreenFlagLuckyDogStatus.WE_ARE_IN_LUCKY_DOG;
                     }
 
                     // if we're in p3 or higher, see if the guy in front is the lucky dog:
@@ -593,7 +593,7 @@ namespace CrewChiefV4.Events
                             {
                                 // the car 2 places ahead is on the lead lap, the car ahead is lapped, so he's the lucky dog.
                                 // Only allow a lucky dog call if he's not in the pit or on an out lap
-                                return car2PlacesAhead.InPits || car2PlacesAhead.isExitingPits() ? GreenFlagLuckyDogStatus.NONE : GreenFlagLuckyDogStatus.PASS_FOR_LUCKY_DOG;                                
+                                return car2PlacesAhead.InPits || car2PlacesAhead.isOnOutLap() ? GreenFlagLuckyDogStatus.NONE : GreenFlagLuckyDogStatus.PASS_FOR_LUCKY_DOG;
                             }
                         }
                     }

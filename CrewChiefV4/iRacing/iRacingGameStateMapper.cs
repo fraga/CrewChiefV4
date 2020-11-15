@@ -858,7 +858,6 @@ namespace CrewChiefV4.iRacing
                             int previousOpponentCompletedLaps = 0;
                             int previousOpponentOverallPosition = 0;
                             Boolean previousOpponentIsEnteringPits = false;
-                            Boolean previousOpponentIsExitingPits = false;
                             float previousOpponentSpeed = 0;
                             float previousDistanceRoundTrack = 0;
                             bool previousIsInPits = false;
@@ -875,7 +874,6 @@ namespace CrewChiefV4.iRacing
                                 previousOpponentCompletedLaps = previousOpponentData.CompletedLaps;
                                 previousOpponentOverallPosition = previousOpponentData.OverallPosition;
                                 previousOpponentIsEnteringPits = previousOpponentData.isEnteringPits();
-                                previousOpponentIsExitingPits = previousOpponentData.isExitingPits();
                                 previousOpponentSpeed = previousOpponentData.Speed;
                                 previousDistanceRoundTrack = previousOpponentData.DistanceRoundTrack;
                                 previousIsInPits = previousOpponentData.InPits;

@@ -212,7 +212,7 @@ namespace CrewChiefV4.Events
                                 }
                             }
                             // pitting is handled by the Strategy class                            
-                            else if (isRaceSession && opponentData.isExitingPits())
+                            else if (isRaceSession && opponentData.isOnOutLap() && !opponentData.InPits)
                             {
                                 int alreadyPlayedForLapNumber = -1;
                                 // if we've no previously played pit exit for this opponent, or the last pit exit message was played on an earlier lap, we can play it

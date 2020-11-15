@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using CrewChiefV4.Audio;
+using CrewChiefV4.R3E;
 
 namespace CrewChiefV4.Events
 {
@@ -39,7 +40,7 @@ namespace CrewChiefV4.Events
         }
 
         public void trigger(float sessionRunningTime, SessionType sessionType, SessionPhase lastSessionPhase, int startPosition,
-            int finishPosition, int numCars, int completedLaps, Boolean isDisqualified, Boolean isDNF, DateTime now)
+            int finishPosition, int numCars, int completedLaps, Tuple<int, int> expectedFinishPosition, Boolean isDisqualified, Boolean isDNF, DateTime now)
         {
             if (!enableSessionEndMessages)
             {
@@ -59,7 +60,7 @@ namespace CrewChiefV4.Events
                     {
                         // only play session end message for races if we've actually finished, not restarted
                         lastSessionEndMessagesPlayedAt = now;
-                        playFinishMessage(sessionType, startPosition, finishPosition, numCars, isDisqualified, isDNF, completedLaps);
+                        playFinishMessage(sessionType, startPosition, finishPosition, numCars, isDisqualified, isDNF, completedLaps, expectedFinishPosition);
                     }
                     else
                     {
@@ -79,7 +80,7 @@ namespace CrewChiefV4.Events
                         lastSessionPhase == SessionPhase.Finished || lastSessionPhase == SessionPhase.Checkered)
                     {
                         lastSessionEndMessagesPlayedAt = now;
-                        playFinishMessage(sessionType, startPosition, finishPosition, numCars, false, isDNF, completedLaps);
+                        playFinishMessage(sessionType, startPosition, finishPosition, numCars, false, isDNF, completedLaps, expectedFinishPosition);
                     }
                     else
                     {
@@ -93,7 +94,8 @@ namespace CrewChiefV4.Events
             }
         }
 
-        public void playFinishMessage(SessionType sessionType, int startPosition, int position, int numCars, Boolean isDisqualified, Boolean isDNF, int completedLaps)
+        public void playFinishMessage(SessionType sessionType, int startPosition, int position, int numCars, Boolean isDisqualified, Boolean isDNF, int completedLaps, 
+            Tuple<int, int> expectedFinishingPosition)
         {
             audioPlayer.suspendPearlsOfWisdom();
             if (GlobalBehaviourSettings.racingType == CrewChief.RacingType.Circuit)
@@ -135,11 +137,13 @@ namespace CrewChiefV4.Events
                     }
                     else if (position >= 4 && !isLast)
                     {
-                        // check if this a significant improvement over the start position
-                        if (startPosition > position &&
+                        // check if this a significant improvement over the start position or, if we have it, if it's equal or better than our expected position
+                        bool metExpectations = expectedFinishingPosition.Item1 != -1 && expectedFinishingPosition.Item1 >= position;
+                        if (metExpectations ||
+                            (startPosition > position &&
                             ((startPosition <= 6 && position <= 5) ||
                              (startPosition <= 10 && position <= 6) ||
-                             (startPosition - position >= 6)))
+                             (startPosition - position >= 6))))
                         {
                             audioPlayer.playMessage(new QueuedMessage(sessionEndMessageIdentifier, 0,
                                 messageFragments: AbstractEvent.MessageContents(Position.folderStub + position, folderGoodFinish), priority: 10));
@@ -149,8 +153,11 @@ namespace CrewChiefV4.Events
                             // if it's a shit finish, maybe launch into a tirade
                             Boolean playedRant = false;
                             int positionsLost = position - startPosition;
-                            // if we've lost 9 or more positions, and this is more than half the field size, maybe play a rant
-                            if (numCars > 2 && completedLaps > 1 && positionsLost > 8 && (float)positionsLost / (float)numCars >= 0.5f)
+                            // check expectations - a 'fail' 
+                            bool failedExpectations = expectedFinishingPosition.Item1 != -1 && expectedFinishingPosition.Item1 + 5 < position;
+                            // if we've lost 9 or more positions, and this is more than half the field size (or badly missed our expectations) maybe play a rant
+                            if (numCars > 2 && completedLaps > 1 
+                                && (failedExpectations || (positionsLost > 8 && (float)positionsLost / (float)numCars >= 0.5f)))
                             {
                                 playedRant = audioPlayer.playRant(sessionEndMessageIdentifier, AbstractEvent.MessageContents(Position.folderStub + position));
                             }
@@ -185,6 +192,12 @@ namespace CrewChiefV4.Events
                     {
                         audioPlayer.playMessage(new QueuedMessage(sessionEndMessageIdentifier, 0,
                             messageFragments: AbstractEvent.MessageContents(folderEndOfSession, Position.folderStub + position), priority: 10));
+                    }
+                    if (sessionType == SessionType.Qualify && CrewChief.currentGameState != null)
+                    {
+                        // report the expected race finish position
+                        Position.reportExpectedFinishPosition(audioPlayer, CrewChief.currentGameState.SessionData.expectedFinishingPosition,
+                            false, false, CrewChief.currentGameState.SessionData.ClassPosition);
                     }
                 }
             }

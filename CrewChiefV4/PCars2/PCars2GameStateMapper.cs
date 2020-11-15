@@ -754,7 +754,6 @@ namespace CrewChiefV4.PCars2
                                     int previousOpponentCompletedLaps = 0;
                                     int previousOpponentPosition = 0;
                                     Boolean previousOpponentIsEnteringPits = false;
-                                    Boolean previousOpponentIsExitingPits = false;
 
                                     float[] previousOpponentWorldPosition = new float[] { 0, 0, 0 };
                                     float previousDistanceRoundTrack = 0;
@@ -765,7 +764,6 @@ namespace CrewChiefV4.PCars2
                                         previousOpponentCompletedLaps = previousOpponentData.CompletedLaps;
                                         previousOpponentPosition = previousOpponentData.OverallPosition;
                                         previousOpponentIsEnteringPits = previousOpponentData.isEnteringPits();
-                                        previousOpponentIsExitingPits = previousOpponentData.isExitingPits();
                                         previousOpponentWorldPosition = previousOpponentData.WorldPosition;
                                         previousDistanceRoundTrack = previousOpponentData.DistanceRoundTrack;
                                         currentOpponentData.ClassPositionAtPreviousTick = previousOpponentData.ClassPosition;
