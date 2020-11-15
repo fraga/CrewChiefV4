@@ -460,6 +460,12 @@ RALLY_SQUARE = square
 RALLY_HAIRPIN = hairpin
 RALLY_OPEN_HAIRPIN = open hairpin
 RALLY_FLAT = flat
+RALLY_TIGHTENS_TO_1 = tightens to one:tightens one:tightens acute:tightens to acute
+RALLY_TIGHTENS_TO_2 = tightens to two:tightens two:tightens kay:tightens to kay
+RALLY_TIGHTENS_TO_3 = tightens to three:tightens three:tightens slow:tightens to slow
+RALLY_TIGHTENS_TO_4 = tightens to four:tightens four:tightens medium:tightens to medium
+RALLY_TIGHTENS_TO_5 = tightens to five:tightens five:tightens fast:tightens to fast
+RALLY_TIGHTENS_TO_HAIRPIN = tightens to hairpin:tightens hairpin
 RALLY_CUT = cut
 RALLY_DONT_CUT = don't cut
 RALLY_TIGHTENS = tightens
@@ -520,7 +526,9 @@ RALLY_LOGS_OUTSIDE = log outside:logs outside
 RALLY_ROCKS_OUTSIDE = rock outside:rocks outside
 RALLY_TREE_OUTSIDE = tree outside:trees outside
 RALLY_LOOSE_GRAVEL = onto loose gravel:loose gravel
-
+RALLY_INTO = into
+RALLY_THEN = then
+RALLY_AND = and
 
 RALLY_RIGHT_HOMOPHONES = write:wright:rate
 RALLY_1_HOMOPHONES = 1
