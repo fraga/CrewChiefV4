@@ -376,6 +376,13 @@ namespace CrewChiefV4
         public static String[] RALLY_START_RECE = Configuration.getSpeechRecognitionPhrases("RALLY_START_RECE", loadHomophones);
         public static String[] RALLY_FINISH_RECE = Configuration.getSpeechRecognitionPhrases("RALLY_FINISH_RECE", loadHomophones);
         public static String[] RALLY_DISTANCE = Configuration.getSpeechRecognitionPhrases("RALLY_DISTANCE", loadHomophones);
+        
+        public static String[] RALLY_TIGHTENS_TO_5 = Configuration.getSpeechRecognitionPhrases("RALLY_TIGHTENS_TO_5", loadHomophones);
+        public static String[] RALLY_TIGHTENS_TO_4 = Configuration.getSpeechRecognitionPhrases("RALLY_TIGHTENS_TO_4", loadHomophones);
+        public static String[] RALLY_TIGHTENS_TO_3 = Configuration.getSpeechRecognitionPhrases("RALLY_TIGHTENS_TO_3", loadHomophones);
+        public static String[] RALLY_TIGHTENS_TO_2 = Configuration.getSpeechRecognitionPhrases("RALLY_TIGHTENS_TO_2", loadHomophones);
+        public static String[] RALLY_TIGHTENS_TO_1 = Configuration.getSpeechRecognitionPhrases("RALLY_TIGHTENS_TO_1", loadHomophones);
+        public static String[] RALLY_TIGHTENS_TO_HAIRPIN = Configuration.getSpeechRecognitionPhrases("RALLY_TIGHTENS_TO_HAIRPIN", loadHomophones);
 
         public static String[] RALLY_CUT = Configuration.getSpeechRecognitionPhrases("RALLY_CUT", loadHomophones);
         public static String[] RALLY_DONT_CUT = Configuration.getSpeechRecognitionPhrases("RALLY_DONT_CUT", loadHomophones);
@@ -435,6 +442,10 @@ namespace CrewChiefV4
         public static String[] RALLY_ROCKS_OUTSIDE = Configuration.getSpeechRecognitionPhrases("RALLY_ROCKS_OUTSIDE", loadHomophones);
         public static String[] RALLY_TREE_OUTSIDE = Configuration.getSpeechRecognitionPhrases("RALLY_TREE_OUTSIDE", loadHomophones);
 
+        public static String[] RALLY_INTO = Configuration.getSpeechRecognitionPhrases("RALLY_INTO", loadHomophones);
+        public static String[] RALLY_THEN = Configuration.getSpeechRecognitionPhrases("RALLY_THEN", loadHomophones);
+        public static String[] RALLY_AND = Configuration.getSpeechRecognitionPhrases("RALLY_AND", loadHomophones);
+
         // most specific first, so "big jump" comes before "jump" when we parse in the event code
         public static List<string[]> RallyObstacleCommands = new List<string[]>()
         {
@@ -485,7 +496,18 @@ namespace CrewChiefV4
             SpeechRecogniser.RALLY_BRAKE,
             SpeechRecogniser.RALLY_THROUGH_GATE,
             SpeechRecogniser.RALLY_WIDENS,
-            SpeechRecogniser.RALLY_GO_STRAIGHT
+            SpeechRecogniser.RALLY_GO_STRAIGHT,
+
+            SpeechRecogniser.RALLY_TIGHTENS_TO_1,
+            SpeechRecogniser.RALLY_TIGHTENS_TO_2,
+            SpeechRecogniser.RALLY_TIGHTENS_TO_3,
+            SpeechRecogniser.RALLY_TIGHTENS_TO_4,
+            SpeechRecogniser.RALLY_TIGHTENS_TO_5,
+            SpeechRecogniser.RALLY_TIGHTENS_TO_HAIRPIN,
+
+            SpeechRecogniser.RALLY_INTO,
+            SpeechRecogniser.RALLY_THEN,
+            SpeechRecogniser.RALLY_AND
         };
 
         // for watching opponent - "watch [bob]", "tell me about [bob]"
