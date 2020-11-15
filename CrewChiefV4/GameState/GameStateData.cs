@@ -2402,11 +2402,15 @@ namespace CrewChiefV4.GameState
         // returns null or a landmark name this car is stopped in
         public String updateLandmarkTiming(TrackDefinition trackDefinition, float gameTime, float previousDistanceRoundTrack, float currentDistanceRoundTrack, float speed, CarData.CarClass carClass)
         {
-            if (trackDefinition == null || trackDefinition.trackLandmarks == null || trackDefinition.trackLandmarks.Count == 0 ||
-                gameTime < 30 ||
-                (CrewChief.isPCars() && (currentDistanceRoundTrack == 0 || speed == 0)))
+            if (trackDefinition == null || trackDefinition.trackLandmarks == null || currentDistanceRoundTrack <= 0 || speed <= 0 || gameTime < 30
+                || previousDistanceRoundTrack == currentDistanceRoundTrack || trackDefinition.trackLandmarks.Count == 0)
             {
-                // don't collect data if the session has been running < 30 seconds or we're PCars and the distanceRoundTrack or speed is exactly zero
+                // don't collect data if the session has been running < 30 seconds, the distanceRoundTrack values haven't changed at all,
+                // or the distanceRoundTrack or speed are exactly zero or less (generally this means we have no data for this participant).
+                // We want to ignore any cases where the data coming from the game may be frozen or incomplete
+
+                // for iRacing we sometimes don't get a position update or sometimes don't get a speed update. This doesn't mean the data
+                // are broken, it's just that this tick's data are incomplete
                 return null;
             }
             // yuk...
@@ -2437,7 +2441,6 @@ namespace CrewChiefV4.GameState
             }
             else
             {
-
                 // looking for landmark end only
                 foreach (TrackLandmark trackLandmark in trackDefinition.trackLandmarks)
                 {
@@ -2505,7 +2508,6 @@ namespace CrewChiefV4.GameState
             if (landmarkNameStart == null)
             {
                 // again, we're waiting to enter a landmark zone - perhaps we've just left a zone so still check for stopped cars
-
                 foreach (TrackLandmark trackLandmark in trackDefinition.trackLandmarks)
                 {
                     if (currentDistanceRoundTrack > Math.Max(0, trackLandmark.distanceRoundLapStart - 70) &&
@@ -2544,7 +2546,6 @@ namespace CrewChiefV4.GameState
                     nearLandmarkName = null;
                 }
             }
-
             if (landMarkStoppedDelayTime != DateTime.MaxValue && CrewChief.currentGameState.Now >= landMarkStoppedDelayTime)
             {
                 return landmarkNameStart == null ? nearLandmarkName : landmarkNameStart;
@@ -2554,6 +2555,7 @@ namespace CrewChiefV4.GameState
                 return null;
             }
         }
+
         public float CalculateAvgSpeedForCurentDelta(float lapDistance, CarData.CarClass carClass)
         {
             int opponentCount = 0;
