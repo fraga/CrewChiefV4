@@ -13,6 +13,7 @@ using CrewChiefV4.F1_2019;
 using CrewChiefV4.AMS2;
 using CrewChiefV4.F1_2020;
 using CrewChiefV4.RBR;
+using CrewChiefV4.GTR2;
 using CrewChiefV4.Dirt;
 
 namespace CrewChiefV4
@@ -39,6 +40,7 @@ namespace CrewChiefV4
         private AMS2SharedMemoryReader ams2SharedMemoryReader;
         private F12020UDPreader f12020UDPReader;
         private RBRSharedMemoryReader rbrSharedMemoryReader;
+        private GTR2SharedMemoryReader gtr2SharedMemoryReader;
         private DirtUDPreader dirtUDPMemoryReader;
 
         public static GameStateReaderFactory getInstance()
@@ -151,6 +153,12 @@ namespace CrewChiefV4
                             rbrSharedMemoryReader = new RBRSharedMemoryReader();
                         }
                         return rbrSharedMemoryReader;
+                    case GameEnum.GTR2:
+                        if (gtr2SharedMemoryReader == null)
+                        {
+                            gtr2SharedMemoryReader = new GTR2SharedMemoryReader();
+                        }
+                        return gtr2SharedMemoryReader;
                     case GameEnum.DIRT:
                     case GameEnum.DIRT_2:
                         if (dirtUDPMemoryReader == null)
@@ -201,6 +209,8 @@ namespace CrewChiefV4
                     return new AMS2GameStateMapper();
                 case GameEnum.RBR:
                     return new RBRGameStateMapper();
+                case GameEnum.GTR2:
+                    return new GTR2GameStateMapper();
                 case GameEnum.DIRT:
                 case GameEnum.DIRT_2:
                     return new DirtGameStateMapper();

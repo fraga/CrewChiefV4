@@ -219,6 +219,9 @@ namespace CrewChiefV4.Events
         // or it covers only the stop part, or it covers the entry-and-stop
         private bool includeExitTimeInStopDuration = true;
 
+        private string trackNameInitialPitSpeedLimitAnnounced = null;
+        private float lastInitialPitspeedLimitAnnounced = -1.0f;
+
         public PitStops(AudioPlayer audioPlayer)
         {
             this.audioPlayer = audioPlayer;
@@ -289,7 +292,7 @@ namespace CrewChiefV4.Events
             // AMS (RF1) uses the pit window calculations to make 'box now' calls for scheduled stops, but we don't want 
             // the pit window opening / closing warnings.
             // Try also applying the same approach to rF2.
-            if (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT)
+            if (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT || CrewChief.gameDefinition.gameEnum == GameEnum.GTR2)
             {
                 enableWindowWarnings = false;
             }
@@ -394,7 +397,7 @@ namespace CrewChiefV4.Events
                 currentGameState.PositionAndMotionData.CarSpeed > 2 &&
                 (currentGameState.PitData.PitBoxPositionEstimate > 0 || currentGameState.PitData.PitBoxLocationEstimate != null ) && 
                 !currentGameState.PenaltiesData.HasDriveThrough &&
-                !(CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT && currentGameState.PitData.OnOutLap && currentGameState.SessionData.SessionType != SessionType.Race))  // In rF2 countdown pit countdown messages get triggered on exit from the garage.
+                !((CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT || CrewChief.gameDefinition.gameEnum == GameEnum.GTR2) && currentGameState.PitData.OnOutLap && currentGameState.SessionData.SessionType != SessionType.Race))  // In rF2 countdown pit countdown messages get triggered on exit from the garage.
             {
                 if (previousGameState.PitData.InPitlane && !currentGameState.PitData.InPitlane)
                 {
@@ -1104,6 +1107,7 @@ namespace CrewChiefV4.Events
             }
 
             if (CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT
+                || CrewChief.gameDefinition.gameEnum == GameEnum.GTR2
                 || CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM
                 || CrewChief.gameDefinition.gameEnum == GameEnum.IRACING)
             {
@@ -1115,8 +1119,12 @@ namespace CrewChiefV4.Events
                     && !DriverTrainingService.isRecordingPaceNotes)
                 {
                     pitLaneSpeedWarningAnnounced = true;
-                    if (currentGameState.PitData.PitSpeedLimit != -1.0f)
+                    if (currentGameState.PitData.PitSpeedLimit != -1.0f
+                        && (this.trackNameInitialPitSpeedLimitAnnounced != currentGameState.SessionData.TrackDefinition.name
+                            || this.lastInitialPitspeedLimitAnnounced != currentGameState.PitData.PitSpeedLimit))  // Don't re-announce initial pit lane speed info unless track or limit actually changed.
                     {
+                        this.trackNameInitialPitSpeedLimitAnnounced = currentGameState.SessionData.TrackDefinition.name;
+                        this.lastInitialPitspeedLimitAnnounced = currentGameState.PitData.PitSpeedLimit;
                         announcePitlaneSpeedLimit(currentGameState, false /*possiblyPlayIntro*/, false /*voiceResponse*/);
                     }
                 }
