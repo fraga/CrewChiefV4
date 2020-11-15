@@ -1160,7 +1160,7 @@ namespace CrewChiefV4.GameState
             SessionTimesAtEndOfSectors.Add(12, -1);
         }
 
-        public void restorePlayerTimings(SessionData restoreTo)
+        public void RestorePlayerTimings(SessionData restoreTo)
         {
             restoreTo.PlayerBestSector1Time = PlayerBestSector1Time;
             restoreTo.PlayerBestSector2Time = PlayerBestSector2Time;

@@ -419,6 +419,9 @@
     <Setting Name="rf2_spotter_car_length" Type="System.Single" Scope="User">
       <Value Profile="(Default)">4.5</Value>
     </Setting>
+    <Setting Name="gtr2_spotter_car_length" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">4.5</Value>
+    </Setting>
     <Setting Name="enable_rf2_pit_stop_prediction" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
@@ -1160,6 +1163,15 @@
     <Setting Name="launch_rbr" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
+    <Setting Name="gtr2_launch_exe" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="gtr2_install_path" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="launch_gtr2" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
     <Setting Name="codriver_style" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">1</Value>
     </Setting>
@@ -1199,6 +1211,12 @@
     <Setting Name="rf2_enable_pit_manager" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="enable_gtr2_pit_stop_prediction" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="enable_gtr2_cut_track_heuristics" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
     <Setting Name="enable_watch_car_command" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
@@ -1216,6 +1234,9 @@
     </Setting>
     <Setting Name="show_splash_screen" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="enable_gtr2_pit_lane_approach_heuristics" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="scroll_bars_on_main_window" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>

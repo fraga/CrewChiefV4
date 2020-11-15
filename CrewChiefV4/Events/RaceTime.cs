@@ -109,9 +109,10 @@ namespace CrewChiefV4.Events
                 {
                     startedExtraLap = true;
                 }
-                if (!gotHalfTime)
+                if (!gotHalfTime
+                    && (CrewChief.gameDefinition.gameEnum != GameEnum.GTR2 || currentGameState.inCar))  // No timed session length in GTR2 until we are in the realtime.
                 {
-                    Console.WriteLine("Session time remaining = " + timeLeft);
+                    Console.WriteLine("Session time remaining = " + timeLeft + "  (" + TimeSpan.FromSeconds(timeLeft).ToString(@"hh\:mm\:ss\:fff") + ")");
                     halfTime = timeLeft / 2;
                     gotHalfTime = true;
                     if (currentGameState.FuelData.FuelUseActive)

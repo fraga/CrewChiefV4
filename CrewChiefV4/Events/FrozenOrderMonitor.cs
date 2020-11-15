@@ -232,7 +232,7 @@ namespace CrewChiefV4.Events
                 shouldFollowSafetyCar = (cfod.AssignedColumn == FrozenOrderColumn.None && cfod.AssignedPosition == 1)  // Single file order.
                     || (cfod.AssignedColumn != FrozenOrderColumn.None && cfod.AssignedPosition <= 2);  // Double file (grid) order.
                 
-                useCarNumber = CrewChief.gameDefinition.gameEnum == GameEnum.IRACING && !shouldFollowSafetyCar && cfod.CarNumberToFollowRaw != "-1" &&
+                useCarNumber = (CrewChief.gameDefinition.gameEnum == GameEnum.IRACING || CrewChief.gameDefinition.gameEnum == GameEnum.GTR2) && !shouldFollowSafetyCar && cfod.CarNumberToFollowRaw != "-1" &&
                     Int32.TryParse(cfod.CarNumberToFollowRaw, out carNumber) && !(useDriverName && AudioPlayer.canReadName(cfod.DriverToFollowRaw, false));
                 if (useCarNumber && cfod.CarNumberToFollowRaw.StartsWith("00"))
                 {
@@ -258,6 +258,7 @@ namespace CrewChiefV4.Events
                         || this.currDriverToFollow != this.newDriverToFollow
                         || this.currFrozenOrderColumn != this.newFrozenOrderColumn))
                 {
+                    Console.WriteLine("NEW PHASE");
                     this.currFrozenOrderAction = this.newFrozenOrderAction;
                     this.currDriverToFollow = this.newDriverToFollow;
                     this.currFrozenOrderColumn = this.newFrozenOrderColumn;
@@ -319,7 +320,8 @@ namespace CrewChiefV4.Events
                     {
                         // Follow messages are only meaningful if there's name to announce.
                         int delay = Utilities.random.Next(1, 4);
-                        if (canReadDriverToFollow && Utilities.random.Next(1, 11) > 2)  // Randomly, announce message without name.
+                        if ((canReadDriverToFollow && Utilities.random.Next(0, 11) > 1)   // Randomly, announce message without name.
+                            || shouldFollowSafetyCar)  // Unless it is SC
                         {
                             if (!useCarNumber)
                                 audioPlayer.playMessage(new QueuedMessage(!shouldFollowSafetyCar ? "frozen_order/allow_driver_to_pass" : "frozen_order/allow_safety_car_to_pass", delay + 6,
@@ -339,7 +341,8 @@ namespace CrewChiefV4.Events
                     else if (this.newFrozenOrderAction == FrozenOrderAction.CatchUp)
                     {
                         int delay = Utilities.random.Next(1, 4);
-                        if (canReadDriverToFollow && Utilities.random.Next(1, 11) > 2)  // Randomly, announce message without name.
+                        if ((canReadDriverToFollow && Utilities.random.Next(0, 11) > 1)  // Randomly, announce message without name.
+                            || shouldFollowSafetyCar)
                         {
                             if(!useCarNumber)
                                 audioPlayer.playMessage(new QueuedMessage(!shouldFollowSafetyCar ? "frozen_order/catch_up_to_driver" : "frozen_order/catch_up_to_safety_car", delay + 6,
@@ -538,7 +541,8 @@ namespace CrewChiefV4.Events
                     else if (this.newFrozenOrderAction == FrozenOrderAction.AllowToPass)
                     {
                         int delay = Utilities.random.Next(1, 4);
-                        if (canReadDriverToFollow && Utilities.random.Next(1, 11) > 2)  // Randomly, announce message without name.
+                        if ((canReadDriverToFollow && Utilities.random.Next(0, 11) > 1) // Randomly, announce message without name.
+                            || shouldFollowSafetyCar)
                             audioPlayer.playMessage(new QueuedMessage(!shouldFollowSafetyCar ? "frozen_order/allow_driver_to_pass" : "frozen_order/allow_safety_car_to_pass",
                                 delay + 6, secondsDelay: delay, messageFragments: MessageContents(folderAllow, usableDriverNameToFollow, folderToPass),
                                 abstractEvent: this, validationData: validationData, priority: 10));
@@ -549,7 +553,8 @@ namespace CrewChiefV4.Events
                     else if (this.newFrozenOrderAction == FrozenOrderAction.CatchUp)
                     {
                         int delay = Utilities.random.Next(1, 4);
-                        if (canReadDriverToFollow && Utilities.random.Next(1, 11) > 2)  // Randomly, announce message without name.
+                        if (canReadDriverToFollow && Utilities.random.Next(0, 11) > 1  // Randomly, announce message without name.
+                            || shouldFollowSafetyCar)
                             audioPlayer.playMessage(new QueuedMessage(!shouldFollowSafetyCar ? "frozen_order/catch_up_to_driver" : "frozen_order/catch_up_to_safety_car",
                                 delay + 6, secondsDelay: delay, messageFragments: MessageContents(folderCatchUpTo, usableDriverNameToFollow), 
                                 abstractEvent: this, validationData: validationData, priority: 10));

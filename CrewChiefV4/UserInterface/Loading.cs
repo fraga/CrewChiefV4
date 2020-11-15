@@ -17,6 +17,9 @@ namespace CrewChiefV4.UserInterface
         public static string splashImagePath = splashImageFolderPath + "splash_image.png";
         public Loading()
         {
+            ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
+            this.Icon = ((Icon)(resources.GetObject("$this.Icon")));
+
             InitializeComponent();
         }
     }

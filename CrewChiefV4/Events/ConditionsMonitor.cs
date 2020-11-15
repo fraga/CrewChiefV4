@@ -149,7 +149,7 @@ namespace CrewChiefV4.Events
                     Boolean canReportTrackChange = enableTrackAndAirTempReports &&
                         currentGameState.Now > lastTrackTempReport.Add(TrackTemperatureReportMaxFrequency);
                     Boolean reportedCombinedTemps = false;
-                    TimeSpan rainReportFrequency = CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT ? RainReportMaxFrequencyRF2 : RainReportMaxFrequencyPCars;
+                    TimeSpan rainReportFrequency = (CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT || CrewChief.gameDefinition.gameEnum == GameEnum.GTR2) ? RainReportMaxFrequencyRF2 : RainReportMaxFrequencyPCars;
                     if (canReportAirChange || canReportTrackChange)
                     {
                         if (trackTempToUse > trackTempAtLastReport + minTrackTempDeltaToReport && currentConditions.AmbientTemperature > airTempAtLastReport + minAirTempDeltaToReport)
@@ -281,6 +281,7 @@ namespace CrewChiefV4.Events
                             }
                         }
                         else if (CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT
+                            || CrewChief.gameDefinition.gameEnum == GameEnum.GTR2
                             || CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2
                             || CrewChief.gameDefinition.gameEnum == GameEnum.ACC
                             || CrewChief.gameDefinition.gameEnum == GameEnum.AMS2

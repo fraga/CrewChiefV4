@@ -137,8 +137,8 @@ namespace CrewChiefV4
 
         public enum CarClassEnum
         {
-            GT1X, GT1, GTE, GT2, GTC, GTLM, GT3, GT4, GT5, GT300, GT500, Kart_1, Kart_2, KART_JUNIOR, KART_F1, KART_X30_SENIOR, KART_X30_RENTAL, SUPERKART, LMP1, LMP2, LMP3, LMP900, ROAD_A, ROAD_B, ROAD_C1,
-            ROAD_C2, ROAD_D, ROAD_E, ROAD_F, ROAD_G, ROAD_SUPERCAR, GROUPC, GROUPB, GROUPA, GROUP2, GROUP4, GROUP5, GROUP6, GTO, DTM_92,
+            G2, G3, GT, GT1X, GT1, GTE, GT2, GTC, GTLM, GT3, GT4, GT5, GT300, GT500, NGT, Kart_1, Kart_2, KART_JUNIOR, KART_F1, KART_X30_SENIOR, KART_X30_RENTAL, SUPERKART, LMP1, LMP2, LMP3, LMP900, ROAD_A, ROAD_B, ROAD_C1,
+            ROAD_C2, ROAD_D, ROAD_E, ROAD_F, ROAD_G, ROAD_SUPERCAR, GROUPC, GROUPB, GROUPA, GROUP2, GROUP4, GROUP5, GROUP6, GTO, GR2_70S, GR4_70S, DTM_92,
             VINTAGE_INDY_65, VINTAGE_F3_A, VINTAGE_F1_A, VINTAGE_F1_A1, VINTAGE_PROTOTYPE_B, VINTAGE_GT_D, VINTAGE_GT_C, HISTORIC_TOURING_1, HISTORIC_TOURING_2, VINTAGE_F1_B,
             VINTAGE_F1_C, VINTAGE_STOCK_CAR,
             F1, F2, F3, F4, FF, FORMULA_E_2018, FORMULA_E_2019, F1_70S, F1_90S, TC1, TC2, TCR, TC1_2014, AUDI_TT_CUP, AUDI_TT_VLN, CLIO_CUP, DTM, DTM_2013, V8_SUPERCAR, DTM_2014, DTM_2015, DTM_2016, DTM_2020,
@@ -433,6 +433,7 @@ namespace CrewChiefV4
             public List<string> ams2ClassNames { get; set; }
             public List<string> rf2ClassNames { get; set; }
             public List<string> acClassNames { get; set; }
+            public List<string> gtr2ClassNames { get; set; }
 
             [JsonConverter(typeof(StringEnumConverter))]
             public BrakeType brakeType { get; set; }
@@ -477,6 +478,7 @@ namespace CrewChiefV4
             public List<Regex> ams2ClassNamesRegexs = new List<Regex>();
             public List<Regex> rf2ClassNamesRegexs = new List<Regex>();
             public List<Regex> acClassNamesRegexs = new List<Regex>();
+            public List<Regex> gtr2ClassNamesRegexs = new List<Regex>();
 
             // Turns out enum.ToString() is costly, so cache string representation of enum value.
             private String carClassEnumString = null;
@@ -492,6 +494,7 @@ namespace CrewChiefV4
                 this.ams2ClassNames = new List<string>();
                 this.rf2ClassNames = new List<string>();
                 this.acClassNames = new List<string>();
+                this.gtr2ClassNames = new List<string>();
                 this.brakeType = BrakeType.Iron_Race;
                 this.maxColdBrakeTemp = -1;
                 this.maxWarmBrakeTemp = -1;
@@ -564,6 +567,7 @@ namespace CrewChiefV4
                 setupRegexs(rf2ClassNames, rf2ClassNamesRegexs);
                 setupRegexs(acClassNames, acClassNamesRegexs);
                 setupRegexsForPCars(pCarsClassNames, pCarsClassNamesRegexs);
+                setupRegexs(gtr2ClassNames, gtr2ClassNamesRegexs);
             }
 
             /**
@@ -905,6 +909,10 @@ namespace CrewChiefV4
                         case GameEnum.AMS2_NETWORK:
                             classNamesPropName = "ams2ClassNames";
                             regexsPropName = "ams2ClassNamesRegexs";
+                            break;
+                        case GameEnum.GTR2:
+                            classNamesPropName = "gtr2ClassNames";
+                            regexsPropName = "gtr2ClassNamesRegexs";
                             break;
                         default:
                             // err....
