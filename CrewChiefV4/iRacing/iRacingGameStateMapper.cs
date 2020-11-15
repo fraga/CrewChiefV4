@@ -782,9 +782,11 @@ namespace CrewChiefV4.iRacing
                 currentGameState.SessionData.IsLastLap = true;
             }
             currentGameState.PitData.PitSpeedLimit = shared.SessionData.Track.TrackPitSpeedLimit;
-
+            float speed = (float)playerCar.Live.Speed;
+            bool hasValidSpeed = speed > 0 && speed < 110;  // we get some wild speed data occasionally (>400m/s)
             currentGameState.SessionData.DeltaTime.SetNextDeltaPoint(currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.SessionData.CompletedLaps,
-                (float)playerCar.Live.Speed, currentGameState.Now, !currentGameState.PitData.InPitlane && !currentGameState.PitData.IsApproachingPitlane && !currentGameState.PitData.OnOutLap && playerCar.Live.TrackSurface != TrackSurfaces.NotInWorld);
+                speed, currentGameState.Now, 
+                hasValidSpeed && !currentGameState.PitData.InPitlane && !currentGameState.PitData.IsApproachingPitlane && !currentGameState.PitData.OnOutLap && playerCar.Live.TrackSurface != TrackSurfaces.NotInWorld);
 
             if (previousGameState != null)
             {
@@ -928,7 +930,9 @@ namespace CrewChiefV4.iRacing
                             float currentOpponentLapDistance = isInWorld && currentGameState.SessionData.TrackDefinition != null ? currentGameState.SessionData.TrackDefinition.trackLength * driver.Live.CorrectedLapDistance : 0;
                             float currentOpponentSpeed = isInWorld ? (float)driver.Live.Speed : 0;
                             //Console.WriteLine("lapdistance:" + currentOpponentLapDistance);
-                            currentOpponentData.DeltaTime.SetNextDeltaPoint(currentOpponentLapDistance, currentOpponentLapsCompleted, currentOpponentSpeed, currentGameState.Now, driver.Live.TrackSurface != TrackSurfaces.AproachingPits && !shared.Telemetry.CarIdxOnPitRoad[driver.Id] && driver.Live.TrackSurface != TrackSurfaces.NotInWorld);
+                            bool opponentHasValidSpeed = currentOpponentSpeed > 7 && currentOpponentSpeed < 110;    // we get some wild speed data occasionally (>400m/s)
+                            currentOpponentData.DeltaTime.SetNextDeltaPoint(currentOpponentLapDistance, currentOpponentLapsCompleted, currentOpponentSpeed, currentGameState.Now,
+                                opponentHasValidSpeed && driver.Live.TrackSurface != TrackSurfaces.AproachingPits && !shared.Telemetry.CarIdxOnPitRoad[driver.Id] && driver.Live.TrackSurface != TrackSurfaces.NotInWorld);
 
                             Boolean finishedAllottedRaceLaps = currentGameState.SessionData.SessionNumberOfLaps > 0 && currentGameState.SessionData.SessionNumberOfLaps == currentOpponentLapsCompleted;
                             Boolean finishedAllottedRaceTime = false;
