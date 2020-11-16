@@ -418,7 +418,8 @@ namespace CrewChiefV4.AMS2
                         }
                     }
                 }
-                currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.Now);
+                currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, 
+                    currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.PositionAndMotionData.CarSpeed, currentGameState.Now);
 
                 currentGameState.PitData.MandatoryPitStopCompleted = false;
                 currentGameState.PitData.PitWindow = shared.mEnforcedPitStopLap > 0 ? PitWindow.Closed : PitWindow.Unavailable;
@@ -489,7 +490,8 @@ namespace CrewChiefV4.AMS2
                         currentGameState.PitData.MandatoryPitStopCompleted = false;
                         currentGameState.PitData.PitWindow = shared.mEnforcedPitStopLap > 0 ? PitWindow.Closed : PitWindow.Unavailable;
 
-                        currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.Now);
+                        currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength,
+                            currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.PositionAndMotionData.CarSpeed, currentGameState.Now);
 
                         Console.WriteLine("Just gone green, session details...");
                         Console.WriteLine("SessionType " + currentGameState.SessionData.SessionType);
@@ -1383,7 +1385,7 @@ namespace CrewChiefV4.AMS2
             opponentData.CurrentSectorNumber = (int)participantStruct.mCurrentSector + 1;   // zero indexed
             opponentData.WorldPosition = new float[] { participantStruct.mWorldPosition[0], participantStruct.mWorldPosition[2] };
             opponentData.DistanceRoundTrack = participantStruct.mCurrentLapDistance;
-            opponentData.DeltaTime = new DeltaTime(trackLength, opponentData.DistanceRoundTrack, DateTime.UtcNow);
+            opponentData.DeltaTime = new DeltaTime(trackLength, opponentData.DistanceRoundTrack, opponentData.Speed, DateTime.UtcNow);
             opponentData.CarClass = carClass;
             opponentData.IsActive = true;
             String nameToLog = opponentData.DriverRawName == null ? "unknown" : opponentData.DriverRawName;

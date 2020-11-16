@@ -3097,6 +3097,7 @@ namespace CrewChiefV4.GameState
     public class DeltaTime
     {
         public DateTime[] deltaPoints;
+        public float[] speeds;
         public List<float>[] avgSpeedTrapPoints;
         public float[] avgSpeedForEachDeltapointSection;
         
@@ -3121,7 +3122,7 @@ namespace CrewChiefV4.GameState
             this.trackLength = 0;
         }
 
-        public DeltaTime(float trackLength, float distanceRoundTrackOnCurrentLap, DateTime now, float spacing = 20f)
+        public DeltaTime(float trackLength, float distanceRoundTrackOnCurrentLap, float speed, DateTime now, float spacing = 20f)
         {
             if (trackLength >= spacing) // only initialise if we have at least 1 deltapoint
             {
@@ -3131,6 +3132,7 @@ namespace CrewChiefV4.GameState
                 this.spacing = spacing;
                 float totalSpacing = 0;
                 List<DateTime> deltaPointsList = new List<DateTime>();
+                List<float> speedsList = new List<float>();
                 List<List<float>> avgSpeedTrapPointsList = new List<List<float>>();
                 List<float> avgSpeedForEachDeltapointSectionList = new List<float>();
                 bool foundCurrentDeltaPoint = false;
@@ -3138,6 +3140,7 @@ namespace CrewChiefV4.GameState
                 while (totalSpacing < trackLength)
                 {
                     deltaPointsList.Add(now);
+                    speedsList.Add(speed);
                     avgSpeedTrapPointsList.Add(new List<float>());
                     avgSpeedForEachDeltapointSectionList.Add(0);
                     totalSpacing += spacing;
@@ -3152,6 +3155,7 @@ namespace CrewChiefV4.GameState
                     index++;
                 }
                 this.deltaPoints = deltaPointsList.ToArray();
+                this.speeds = speedsList.ToArray();
                 this.avgSpeedTrapPoints = avgSpeedTrapPointsList.ToArray();
                 this.avgSpeedForEachDeltapointSection = avgSpeedForEachDeltapointSectionList.ToArray();
                 this.initialised = true;
@@ -3160,7 +3164,7 @@ namespace CrewChiefV4.GameState
 
         private int getIndexFromLapDistance(float lapDistance)
         {
-            int index = (int) (lapDistance / spacing);
+            int index = (int) (lapDistance / this.spacing);
             if (index < 0)
             {
                 return 0;
@@ -3229,6 +3233,23 @@ namespace CrewChiefV4.GameState
             // if we've reached a new point, check if there are any missing and interpolate and add the average speed data
             if (deltaPointsIndex != this.currentDeltaPointIndex)
             {
+                // adjust the 'now' time based on our speed and the distance between our exact position and 
+                // the deltaPoint position we're about to set
+                float lapDistanceError = distanceRoundTrackOnCurrentLap - (deltaPointsIndex * this.spacing);
+                // get a speed - use average of this speed and the last speed we set if possible
+                float averageSpeedBetweenPoints = speed;
+                if (this.indexOfLastPointSet != -1)
+                {
+                    float lastSpeed = this.speeds[this.indexOfLastPointSet];
+                    if (lastSpeed > 0)
+                    {
+                        averageSpeedBetweenPoints = Math.Abs((speed + this.speeds[this.indexOfLastPointSet]) / 2f);
+                    }
+                }
+                // only adjust if we have sensible speed data
+                float secondsSinceWePassedDeltaPoint = averageSpeedBetweenPoints < 0.5 ? 0 : lapDistanceError / averageSpeedBetweenPoints;
+                now = now.AddSeconds(-1 * secondsSinceWePassedDeltaPoint);
+
                 // check if there's any missing data - if the key index we just found is more than 1 greater than the previous key
                 // index we have data for, there's at least 1 missing time entry in the deltaPoints dictionary
                 if (deltaPointsIndex != this.indexOfLastPointSet && this.indexOfLastPointSet != -1)
@@ -3282,6 +3303,7 @@ namespace CrewChiefV4.GameState
             if (deltaPointsIndex != this.currentDeltaPointIndex || speed < 5)
             {
                 this.deltaPoints[deltaPointsIndex] = now;
+                this.speeds[deltaPointsIndex] = speed;
             }
             this.currentDeltaPointIndex = deltaPointsIndex;
         }

@@ -456,7 +456,8 @@ namespace CrewChiefV4.ACC
                         }
                     }
                 }
-                currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, distanceRoundTrack, currentGameState.Now);
+                currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, distanceRoundTrack,
+                    playerVehicle.speedMS, currentGameState.Now);
             }
             else
             {
@@ -510,7 +511,8 @@ namespace CrewChiefV4.ACC
                                 }
                             }
                         }
-                        currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, distanceRoundTrack, currentGameState.Now);
+                        currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, distanceRoundTrack,
+                            playerVehicle.speedMS, currentGameState.Now);
 
                         currentGameState.carClass = CarData.getCarClassForClassNameOrCarName(playerVehicle.carModel);
                         CarData.CLASS_ID = shared.accStatic.carModel;
@@ -1464,7 +1466,7 @@ namespace CrewChiefV4.ACC
             opponentData.CurrentSectorNumber = 0;
             opponentData.WorldPosition = new float[] { participantStruct.worldPosition.x, participantStruct.worldPosition.z };
             opponentData.DistanceRoundTrack = spLineLengthToDistanceRoundTrack(trackLength, participantStruct.spLineLength);
-            opponentData.DeltaTime = new DeltaTime(trackLength, opponentData.DistanceRoundTrack, DateTime.UtcNow);
+            opponentData.DeltaTime = new DeltaTime(trackLength, opponentData.DistanceRoundTrack, participantStruct.speedMS, DateTime.UtcNow);
             opponentData.CarClass = carClass;
             opponentData.IsActive = true;
             opponentData.CarNumber = participantStruct.raceNumber.ToString();
