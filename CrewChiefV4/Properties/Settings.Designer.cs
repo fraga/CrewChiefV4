@@ -5194,5 +5194,17 @@ namespace CrewChiefV4.Properties {
                 this["include_start_pos_in_dirt_stage_names"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string gtr2_launch_params {
+            get {
+                return ((string)(this["gtr2_launch_params"]));
+            }
+            set {
+                this["gtr2_launch_params"] = value;
+            }
+        }
     }
 }
