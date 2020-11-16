@@ -245,7 +245,8 @@ namespace CrewChiefV4
                         gameDefinition.gameEnum == GameEnum.ACC ||
                         gameDefinition.gameEnum == GameEnum.DIRT ||
                         gameDefinition.gameEnum == GameEnum.DIRT_2 ||
-                        gameDefinition.gameEnum == GameEnum.RBR
+                        gameDefinition.gameEnum == GameEnum.RBR ||
+                        gameDefinition.gameEnum == GameEnum.GTR2
                         )
                     {
                         PluginInstaller pluginInstaller = new PluginInstaller();
