@@ -1031,7 +1031,8 @@ namespace CrewChiefV4.assetto
                         }
                     }
                 }
-                currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, distanceRoundTrack, currentGameState.Now);
+                currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, distanceRoundTrack,
+                    playerVehicle.speedMS, currentGameState.Now);
             }
             else
             {
@@ -1083,7 +1084,8 @@ namespace CrewChiefV4.assetto
                                 }
                             }
                         }
-                        currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, distanceRoundTrack, currentGameState.Now);
+                        currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, distanceRoundTrack,
+                            playerVehicle.speedMS, currentGameState.Now);
 
                         currentGameState.carClass = CarData.getCarClassForClassNameOrCarName(shared.acsStatic.carModel);                        
                         CarData.CLASS_ID = shared.acsStatic.carModel;
@@ -2010,7 +2012,7 @@ namespace CrewChiefV4.assetto
             opponentData.CurrentSectorNumber = 0;
             opponentData.WorldPosition = new float[] { participantStruct.worldPosition.x, participantStruct.worldPosition.z };
             opponentData.DistanceRoundTrack = spLineLengthToDistanceRoundTrack(trackSplineLength, participantStruct.spLineLength);
-            opponentData.DeltaTime = new DeltaTime(trackSplineLength, opponentData.DistanceRoundTrack, DateTime.UtcNow);
+            opponentData.DeltaTime = new DeltaTime(trackSplineLength, opponentData.DistanceRoundTrack, participantStruct.speedMS, DateTime.UtcNow);
             opponentData.CarClass = carClass;
             opponentData.IsActive = true;
             String nameToLog = opponentData.DriverRawName == null ? "unknown" : opponentData.DriverRawName;

@@ -372,7 +372,8 @@ namespace CrewChiefV4.RaceRoom
                         }
                     }
                 }
-                currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.Now);
+                currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, 
+                    currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.PositionAndMotionData.CarSpeed, currentGameState.Now);
             }
             else
             {
@@ -461,7 +462,8 @@ namespace CrewChiefV4.RaceRoom
                             }
                         }
 
-                        currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.Now);
+                        currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, 
+                            currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.PositionAndMotionData.CarSpeed, currentGameState.Now);
 
                         Console.WriteLine("Just gone green, session details...");
 
@@ -1930,7 +1932,7 @@ namespace CrewChiefV4.RaceRoom
             opponentData.CurrentSectorNumber = participantStruct.TrackSector;
             opponentData.WorldPosition = new float[] { participantStruct.Position.X, participantStruct.Position.Z };
             opponentData.DistanceRoundTrack = participantStruct.LapDistance;
-            opponentData.DeltaTime = new DeltaTime(trackLength, opponentData.DistanceRoundTrack, DateTime.UtcNow);
+            opponentData.DeltaTime = new DeltaTime(trackLength, opponentData.DistanceRoundTrack, participantStruct.CarSpeed, DateTime.UtcNow);
             opponentData.CarClass = CarData.getCarClassForRaceRoomId(participantStruct.DriverInfo.ClassId);
             opponentData.CurrentTyres = mapToTyreType(participantStruct.TireTypeFront, participantStruct.TireSubtypeFront,
                 participantStruct.TireTypeRear, participantStruct.TireSubtypeRear, playerCarClass);

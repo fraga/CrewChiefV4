@@ -212,7 +212,8 @@ namespace CrewChiefV4.iRacing
                 Console.WriteLine("Player is using car class " + currentGameState.carClass.getClassIdentifier() + " (car ID " + playerCar.Car.CarId + ")");
                 currentGameState.SessionData.PlayerCarNr = playerCar.CarNumber;
 
-                currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.Now);
+                currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, 
+                    currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.PositionAndMotionData.CarSpeed, currentGameState.Now);
                 currentGameState.SessionData.SectorNumber = playerCar.Live.CurrentSector;
                 foreach (Driver driver in shared.Drivers)
                 {
@@ -290,7 +291,8 @@ namespace CrewChiefV4.iRacing
                             currentGameState.carClass.limiterAvailable = false;
                         }
                         GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass);
-                        currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.Now);
+                        currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength,
+                            currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.PositionAndMotionData.CarSpeed, currentGameState.Now);
                         Console.WriteLine("Player is using car class " + currentGameState.carClass.getClassIdentifier() + " (car ID " + playerCar.Car.CarId + ")");
                         currentGameState.SessionData.PlayerCarNr = playerCar.CarNumber;
 
@@ -1489,7 +1491,7 @@ namespace CrewChiefV4.iRacing
             opponentData.OverallPosition = driver.Live.PositionRaw;
             opponentData.CompletedLaps = driver.Live.LiveLapsCompleted;
             opponentData.DistanceRoundTrack = driver.Live.CorrectedLapDistance * trackLength;
-            opponentData.DeltaTime = new DeltaTime(trackLength, opponentData.DistanceRoundTrack, DateTime.UtcNow);
+            opponentData.DeltaTime = new DeltaTime(trackLength, opponentData.DistanceRoundTrack, (float)driver.Live.Speed, DateTime.UtcNow);
             opponentData.CarClass = CarData.getCarClassForIRacingId(driver.Car.CarClassId, driver.Car.CarId);
             opponentData.CurrentSectorNumber = driver.Live.CurrentSector;
             opponentData.CarNumber = driver.CarNumber;

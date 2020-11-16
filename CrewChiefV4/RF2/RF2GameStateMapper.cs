@@ -751,7 +751,7 @@ namespace CrewChiefV4.rFactor2
 
             // Initialize DeltaTime.
             if (csd.IsNewSession)
-                csd.DeltaTime = new DeltaTime(csd.TrackDefinition.trackLength, cgs.PositionAndMotionData.DistanceRoundTrack, cgs.Now);
+                csd.DeltaTime = new DeltaTime(csd.TrackDefinition.trackLength, cgs.PositionAndMotionData.DistanceRoundTrack, cgs.PositionAndMotionData.CarSpeed, cgs.Now);
 
             // Is online session?
             for (int i = 0; i < shared.scoring.mScoringInfo.mNumVehicles; ++i)
@@ -1569,7 +1569,7 @@ namespace CrewChiefV4.rFactor2
                 }
                 else
                 {
-                    opponent.DeltaTime = new DeltaTime(csd.TrackDefinition.trackLength, opponent.DistanceRoundTrack, DateTime.UtcNow);
+                    opponent.DeltaTime = new DeltaTime(csd.TrackDefinition.trackLength, opponent.DistanceRoundTrack, opponent.Speed, DateTime.UtcNow);
                 }
                 opponent.DeltaTime.SetNextDeltaPoint(opponent.DistanceRoundTrack, opponent.CompletedLaps, opponent.Speed, cgs.Now, vehicleScoring.mInPits != 1);
 
