@@ -852,7 +852,8 @@ namespace CrewChiefV4.Events
 
             // for debugging command parsing, set recce mode and squirt a string straight into the respond method
             // this.inReceMode = true;
-            // this.respond("left four don't cut rocks inside tightens to three then ford and right two bad camber cut");
+            // CrewChief.currentGameState = new GameStateData(DateTime.Now.Ticks);
+            // this.respond("left ford don't cut rocks inside tightens to three then ford and right two bad camber cut");
 
 #if false
             var terminologies = new Terminologies();
@@ -2237,9 +2238,16 @@ namespace CrewChiefV4.Events
                 // we're assuming that the pace note command is made *after* the obstacle / corner, so create the notes then use the created
                 // notes to estimate how long the obstacle / corner is (i.e. the stage distance when the obstacle starts), and set that into the notes
                 List<CoDriverPacenote> paceNotesToAdd = GetPacenotesFromVoiceCommand(voiceMessage);
+
+                // see if we need to re-run the parser with a tweaked input phrase for some special cases
+                if (retryWithModifiedPhrase(voiceMessage, paceNotesToAdd, out string modifiedVoiceCommand) && modifiedVoiceCommand != null && modifiedVoiceCommand != voiceMessage)
+                {
+                    return ProcessRecePaceNote(modifiedVoiceCommand);
+                }
+
                 // one special case (eeewww). We missed a modifier during our previous corner call and have made a new command which is just "don't cut"
                 // or something. In this case we attempt to insert that modifier into the last corner call
-                if (paceNotesToAdd.Count == 0 && ContainsCornerModifier(voiceMessage))
+                if (paceNotesToAdd.Count == 1 && paceNotesToAdd[0].Pacenote == PacenoteType.unknown && paceNotesToAdd[0].Modifier == PacenoteModifier.none && ContainsCornerModifier(voiceMessage))
                 {
                     AppendModifierToLastCorner(voiceMessage);
                 }
@@ -2266,6 +2274,37 @@ namespace CrewChiefV4.Events
                 lastRecePacenoteWasDistance = false;
                 return this.lastPlayedOrAddedBatch.Count > 0;
             }
+        }
+
+        // magic hack for "four" being mis-recognised as "ford". Yuk
+        private bool retryWithModifiedPhrase(string voiceMessage, List<CoDriverPacenote> paceNotesToAdd, out string modifiedPhrase)
+        {
+            // special case for four / ford confusion
+            if (paceNotesToAdd.Count > 0 && paceNotesToAdd[0].UnprocessedVoiceCommandText != null)
+            {
+                if (paceNotesToAdd[0].UnprocessedVoiceCommandText.Contains("left") && voiceMessage.Contains("left ford"))
+                {
+                    modifiedPhrase = voiceMessage.Replace("left ford", "left four");
+                    return true;
+                }
+                if (paceNotesToAdd[0].UnprocessedVoiceCommandText.Contains("left") && voiceMessage.Contains("ford left"))
+                {
+                    modifiedPhrase = voiceMessage.Replace("ford left", "four left");
+                    return true;
+                }
+                if (paceNotesToAdd[0].UnprocessedVoiceCommandText.Contains("right") && voiceMessage.Contains("right ford"))
+                {
+                    modifiedPhrase = voiceMessage.Replace("right ford", "right four");
+                    return true;
+                }
+                if (paceNotesToAdd[0].UnprocessedVoiceCommandText.Contains("right") && voiceMessage.Contains("ford right"))
+                {
+                    modifiedPhrase = voiceMessage.Replace("ford right", "four right");
+                    return true;
+                }
+            }
+            modifiedPhrase = null;
+            return false;
         }
 
         private void AppendModifierToLastCorner(string voiceMessage)
@@ -2656,8 +2695,6 @@ namespace CrewChiefV4.Events
         private List<VoiceMessagePaceNoteResult> GetCornerPacenoteTypesWithModifiers(MutableString voiceMessageWrapper, bool allowModifierOnly)
         {
             List<VoiceMessagePaceNoteResult> results = new List<VoiceMessagePaceNoteResult>();
-            PacenoteType tightensToPacenote = PacenoteType.unknown;
-            PacenoteModifier tightensToPacenoteModifier = PacenoteModifier.none;
             bool gotCornerType = false;
 
             List<VoiceMessagePaceNoteResult> tightensCalls = new List<VoiceMessagePaceNoteResult>();

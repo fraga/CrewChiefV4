@@ -12,16 +12,17 @@ namespace CrewChiefV4.SRE
         public static Boolean useSystem = UserSettings.GetUserSettings().getBoolean("prefer_system_sre");
 
         // try to create the preferred SRE impl, fall back to the other type if this isn't available
-        public static SREWrapper createNewSREWrapper(CultureInfo culture, Boolean log = false)
+        // if endSilenceTimeoutAmbiguous is not null we override the default endSilenceTimeoutAmbiguous in the SRE impl
+        public static SREWrapper createNewSREWrapper(CultureInfo culture, TimeSpan? endSilenceTimeoutAmbiguous, Boolean log = false)
         {
             SREWrapper sreWrapper = null;
             if (useSystem)
             {
-                sreWrapper = createSystemSREWrapper(culture);
+                sreWrapper = createSystemSREWrapper(culture, endSilenceTimeoutAmbiguous);
                 if (sreWrapper == null)
                 {
                     if (log) Console.WriteLine("Unable to create a System SRE, trying with Microsoft SRE");
-                    sreWrapper = createMicrosoftSREWrapper(culture);
+                    sreWrapper = createMicrosoftSREWrapper(culture, endSilenceTimeoutAmbiguous);
                     if (sreWrapper != null)
                     {
                         useSystem = false;
@@ -35,11 +36,11 @@ namespace CrewChiefV4.SRE
             }
             else
             {
-                sreWrapper = createMicrosoftSREWrapper(culture);
+                sreWrapper = createMicrosoftSREWrapper(culture, endSilenceTimeoutAmbiguous);
                 if (sreWrapper == null)
                 {
                     if (log) Console.WriteLine("Unable to create a Microsoft SRE, trying with System SRE");
-                    sreWrapper = createSystemSREWrapper(culture);
+                    sreWrapper = createSystemSREWrapper(culture, endSilenceTimeoutAmbiguous);
                     if (sreWrapper != null)
                     {
                         useSystem = true;
@@ -70,11 +71,11 @@ namespace CrewChiefV4.SRE
             dictationGrammar.SetDictationContext(dictationContextStart, dictationContextEnd);
         }
 
-        private static SREWrapper createMicrosoftSREWrapper(CultureInfo culture)
+        private static SREWrapper createMicrosoftSREWrapper(CultureInfo culture, TimeSpan? endSilenceTimeoutAmbiguous)
         {
             try
             {
-                return new MicrosoftSREWrapper(culture);
+                return new MicrosoftSREWrapper(culture, endSilenceTimeoutAmbiguous);
             }
             catch (Exception)
             {
@@ -82,11 +83,11 @@ namespace CrewChiefV4.SRE
             }
         }
 
-        private static SREWrapper createSystemSREWrapper(CultureInfo culture)
+        private static SREWrapper createSystemSREWrapper(CultureInfo culture, TimeSpan? endSilenceTimeoutAmbiguous)
         {
             try
             {
-                return new SystemSREWrapper(culture);
+                return new SystemSREWrapper(culture, endSilenceTimeoutAmbiguous);
             }
             catch (Exception)
             {

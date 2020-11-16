@@ -9,7 +9,7 @@ namespace CrewChiefV4.SRE
     {
         private SpeechRecognitionEngine internalSRE;
 
-        public SystemSREWrapper(CultureInfo culture)
+        public SystemSREWrapper(CultureInfo culture, TimeSpan? endSilenceTimeoutAmbiguous)
         {
             // if the culture is null we won't be able to use the SRE - this is checked later in the initialisation code.
             // We still want to check if the engine is available so we know which warning to display to the user
@@ -20,6 +20,10 @@ namespace CrewChiefV4.SRE
             else
             {
                 this.internalSRE = new SpeechRecognitionEngine(culture);
+            }
+            if (endSilenceTimeoutAmbiguous != null)
+            {
+                this.internalSRE.EndSilenceTimeoutAmbiguous = endSilenceTimeoutAmbiguous.Value;
             }
         }
 
