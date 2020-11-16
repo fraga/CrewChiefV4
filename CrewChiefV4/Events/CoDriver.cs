@@ -852,6 +852,7 @@ namespace CrewChiefV4.Events
 
             // for debugging command parsing, set recce mode and squirt a string straight into the respond method
             // this.inReceMode = true;
+            // CrewChief.currentGameState = new GameStateData(DateTime.Now.Ticks);
             // this.respond("left ford don't cut rocks inside tightens to three then ford and right two bad camber cut");
 
 #if false

@@ -17,7 +17,7 @@ will be pulled from the thecrewchief.org ftp server. -->
 
 <!-- current implementation where all the sound pack update information is in this document -->
 <sounds language="en">
-	<voice-messages latest-version="183">
+	<voice-messages latest-version="184">
 		<update-pack url="http://crewchief.isnais.de/base_sound_pack.zip" updates-from-version="-1"/>
 		<update-pack url="http://crewchief.isnais.de/update_sound_pack.zip" updates-from-version="0"/>
 		<update-pack url="http://crewchief.isnais.de/update_2_sound_pack.zip" updates-from-version="122"/>
@@ -48,6 +48,7 @@ will be pulled from the thecrewchief.org ftp server. -->
 		<update-pack url="http://crewchief.isnais.de/update_27_sound_pack.zip" updates-from-version="180"/>
 		<update-pack url="http://crewchief.isnais.de/update_28_sound_pack.zip" updates-from-version="181"/>
 		<update-pack url="http://crewchief.isnais.de/update_29_sound_pack.zip" updates-from-version="182"/>
+		<update-pack url="http://crewchief.isnais.de/update_30_sound_pack.zip" updates-from-version="183"/>
 	</voice-messages>
 	<driver-names latest-version="140">
 		<update-pack url="http://crewchief.isnais.de/base_driver_names.zip" updates-from-version="-1"/>
