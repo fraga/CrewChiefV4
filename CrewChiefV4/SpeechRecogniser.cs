@@ -1011,8 +1011,8 @@ namespace CrewChiefV4
             if (cultureInfo != null)
             {
                 Console.WriteLine("Got SRE for " + cultureInfo);
-                this.sreWrapper = SREWrapperFactory.createNewSREWrapper(cultureInfo);
-                this.triggerSreWrapper = SREWrapperFactory.createNewSREWrapper(cultureInfo);
+                this.sreWrapper = SREWrapperFactory.createNewSREWrapper(cultureInfo, voiceOptionEnum == MainWindow.VoiceOptionEnum.HOLD ? TimeSpan.FromSeconds(1.5) : (TimeSpan?)null);
+                this.triggerSreWrapper = SREWrapperFactory.createNewSREWrapper(cultureInfo, (TimeSpan?) null);
                 return this.sreWrapper != null;
             }
             if (langCodes.countryToUse == null)
@@ -1117,7 +1117,7 @@ namespace CrewChiefV4
                 SREWrapperFactory.useSystem = false;
                 this.cultureInfo = SREWrapperFactory.GetCultureInfo(langCodes.langAndCountryToUse, langCodes.langToUse, false);
             }
-            var sre = SREWrapperFactory.createNewSREWrapper(this.cultureInfo, true);
+            var sre = SREWrapperFactory.createNewSREWrapper(this.cultureInfo, voiceOptionEnum == MainWindow.VoiceOptionEnum.HOLD ? TimeSpan.FromSeconds(1.5) : (TimeSpan?) null, true);
 
             if(sre == null)
             {
@@ -1874,12 +1874,10 @@ namespace CrewChiefV4
                 }
                 else
                 {
-
                     // for corrections
                     ChoicesWrapper correctionChoicesWrapper = SREWrapperFactory.createNewChoicesWrapper(); // this will be added at the start with 0 or 1 repeats
                     validateAndAdd(RALLY_CORRECTION, correctionChoicesWrapper);
                     validateAndAdd(RALLY_INSERT, correctionChoicesWrapper);
-
                     
                     // modifier commands. These are generally used to modify a corner call but can apply to other obstacles.
                     ChoicesWrapper stageNoteCommandChoicesWrapper = SREWrapperFactory.createNewChoicesWrapper();
