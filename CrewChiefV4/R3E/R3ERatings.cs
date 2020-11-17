@@ -70,7 +70,7 @@ namespace CrewChiefV4.R3E
             // allow a small proportion of the field to have no data and assume they're starting with 1500 (the base rating)
             int participantsWithValidData = 1;
             int assumedRatingForMissingData = 1500;
-            if (opponentData != null && gotPlayerRating && playerRating.rating > 0)
+            if (opponentData != null && gotPlayerRating && playerRating != null && playerRating.rating > 0)
             {
                 foreach (OpponentData opponent in opponentData.Values)
                 {
@@ -106,7 +106,7 @@ namespace CrewChiefV4.R3E
         }
         public static int getAverageRatingForParticipants(Dictionary<string, OpponentData> opponentData)
         {
-            if (opponentData == null || !gotPlayerRating)
+            if (opponentData == null || !gotPlayerRating || playerRating == null)
             {
                 return -1;
             }
