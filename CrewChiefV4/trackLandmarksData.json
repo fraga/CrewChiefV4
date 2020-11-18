@@ -3805,6 +3805,7 @@
 		},
 		{
 			"rf2TrackNames": ["SaoPaulo GP"],
+			"gtr2TrackNames": ["94Interlagos"],
 			"trackLandmarks": [{
 					"landmarkName": "senna_s",
 					"distanceRoundLapStart": 205,
