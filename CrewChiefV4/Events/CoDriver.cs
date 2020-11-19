@@ -2678,6 +2678,10 @@ namespace CrewChiefV4.Events
                     break;
                 }
             }
+            // at this point the historic calls are ordered such that the most recently played call is at the end of the list. We only
+            // allow a single "correction 4" command to be applied and as this is applied to the first corner in this list, we reverse the
+            // list here to ensure the correction is applied to the last (not first) call
+            historicCalls.Reverse();
             return historicCalls;
         }
 
