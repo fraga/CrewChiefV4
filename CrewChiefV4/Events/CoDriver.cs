@@ -2833,8 +2833,8 @@ namespace CrewChiefV4.Events
                 || SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_NARROWS)
                 || SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_MINUS)
                 || SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_PLUS)
-                || SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_MAYBE);
-                || SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_WIDENS)
+                || SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_MAYBE)
+                || SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_WIDENS);
         }
     }
 
