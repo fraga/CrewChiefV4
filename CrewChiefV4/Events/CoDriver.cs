@@ -2526,39 +2526,38 @@ namespace CrewChiefV4.Events
                     voiceMessage = voiceMessage.Replace(correctionWord, "").Trim();
                 }
                 bool correctionIncludesCornerModifier = ContainsCornerModifier(voiceMessage);
-                bool appliedCorrection = false;
+                bool appliedDistanceCorrection = false;
+                bool appliedCornerCorrection = false;
                 foreach (HistoricCall callToCorrect in callsToCorrect)
                 {
                     // special case for corner corrections
                     // we might have just called "correction don't cut" here, so our PacenoteType from the correction will be unknown so check for modifier as well as corner
-                    if (IsCorner(callToCorrect.callType) || correctionIncludesCornerModifier)
+                    if (!appliedCornerCorrection && (IsCorner(callToCorrect.callType) || correctionIncludesCornerModifier))
                     {
                         Direction direction = GetDirectionFromPaceNote(callToCorrect.callType);
                         if (requestedDirection == Direction.UNKNOWN)
                         {
                             // if no direction was specified, add it to the command so the parser can work
-                            foreach (string directionWord in direction == Direction.LEFT ? SpeechRecogniser.RALLY_LEFT : SpeechRecogniser.RALLY_RIGHT)
+                            string directionWord = direction == Direction.LEFT ? SpeechRecogniser.RALLY_LEFT[0] : SpeechRecogniser.RALLY_RIGHT[0];
+                            foreach (string correctionWord in SpeechRecogniser.RALLY_CORRECTION)
                             {
-                                foreach (string correctionWord in SpeechRecogniser.RALLY_CORRECTION)
-                                {
-                                    voiceMessage = voiceMessage.Replace(correctionWord.ToLower(), directionWord.ToLower());
-                                }
+                                voiceMessage = voiceMessage.Replace(correctionWord, directionWord);
                             }
                         }
                         List<VoiceMessagePaceNoteResult> cornersWithModifiers = GetCornerPacenoteTypesWithModifiers(new MutableString(voiceMessage), true);
                         // TODO: can we make this work with a correction of the form "correction, right 4 tightens to 2"?
                         // check we've been able to derive a call type, modifier or move directive
-                        if (cornersWithModifiers.Count == 0 || (!moveEarlier && !moveLater))
+                        if (cornersWithModifiers.Count == 0 && !moveEarlier && !moveLater)
                         {
                             Console.WriteLine("Unable to create a usable correction from " + rawVoiceMessage);
                         }
                         else
                         {
-                            if (cornersWithModifiers.Count == 2)
+                            if (cornersWithModifiers.Count > 1)
                             {
-                                Console.WriteLine("Warning: correction item 2 " + cornersWithModifiers[2] + " will not be processed");
+                                Console.WriteLine("Warning: only correction item 1 will be processed");
                             }
-                            appliedCorrection = true;
+                            appliedCornerCorrection = true;
                             CreateCorrection(callToCorrect, cornersWithModifiers[0].pacenoteType, cornersWithModifiers[0].pacenoteModifier, moveEarlier, moveLater, rawVoiceMessage);
                         }
                     }
@@ -2567,12 +2566,12 @@ namespace CrewChiefV4.Events
                         // also move non-corner calls if we have a move request
                         if (moveEarlier || moveLater)
                         {
-                            appliedCorrection = true;
+                            appliedDistanceCorrection = true;
                             CreateCorrection(callToCorrect, callToCorrect.callType, callToCorrect.modifier, moveEarlier, moveLater, rawVoiceMessage);
                         }
                     }
                 }
-                if (appliedCorrection)
+                if (appliedDistanceCorrection || appliedCornerCorrection)
                 {
                     this.audioPlayer.playMessageImmediately(new QueuedMessage(this.folderAcknowlegeOK, 0));
                     WritePacenoteCorrections(trackName);
@@ -2826,7 +2825,12 @@ namespace CrewChiefV4.Events
                 || SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_CUT)
                 || SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_TIGHTENS)
                 || SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_TIGHTENS_BAD)
-                || SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_WIDENS);
+                || SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_OPENS)
+                || SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_NARROWS)
+                || SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_MINUS)
+                || SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_PLUS)
+                || SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_MAYBE);
+                || SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_WIDENS)
         }
     }
 
