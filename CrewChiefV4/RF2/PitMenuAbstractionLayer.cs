@@ -80,6 +80,11 @@ namespace PitMenuAPI
             MenuLayout.getKeys();
         }
 
+        public void MfdPage(string Mfd)
+        {
+            switchMFD(Mfd);
+        }
+
         public List<string> GetCategories()
         {
             return MenuLayout.getKeys();

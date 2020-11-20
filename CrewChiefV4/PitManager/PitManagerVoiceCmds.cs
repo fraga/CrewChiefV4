@@ -93,6 +93,14 @@ namespace CrewChiefV4.PitManager
 
             {PME.Tearoff,                 SRE.PIT_STOP_TEAROFF },    // iRacing
             {PME.TearOffNone,             SRE.PIT_STOP_CLEAR_WIND_SCREEN },
+
+            {PME.DisplaySectors,          SRE.DISPLAY_SECTORS },
+            {PME.DisplayPitMenu,          SRE.DISPLAY_PIT_MENU },
+            {PME.DisplayTyres,            SRE.DISPLAY_TYRES },
+            {PME.DisplayTemps,            SRE.DISPLAY_TEMPS },
+            {PME.DisplayRaceInfo,         SRE.DISPLAY_RACE_INFO },
+            {PME.DisplayStandings,        SRE.DISPLAY_STANDINGS },
+            {PME.DisplayPenalties,        SRE.DISPLAY_PENALTIES }
             };
 
         private static float fuelCapacity = -1;

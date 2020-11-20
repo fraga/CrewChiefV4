@@ -296,6 +296,14 @@ namespace CrewChiefV4
         public static String[] PIT_STOP_FUEL_TO_THE_END = Configuration.getSpeechRecognitionPhrases("PIT_STOP_FUEL_TO_THE_END");
         public static String[] PIT_STOP_FILL_TO = Configuration.getSpeechRecognitionPhrases("PIT_STOP_FILL_TO");
 
+        public static String[] DISPLAY_SECTORS = Configuration.getSpeechRecognitionPhrases("DISPLAY_SECTORS");  // rF2
+        public static String[] DISPLAY_PIT_MENU = Configuration.getSpeechRecognitionPhrases("DISPLAY_PIT_MENU");  // rF2
+        public static String[] DISPLAY_TYRES = Configuration.getSpeechRecognitionPhrases("DISPLAY_TYRES");  // rF2
+        public static String[] DISPLAY_TEMPS = Configuration.getSpeechRecognitionPhrases("DISPLAY_TEMPS");  // rF2
+        public static String[] DISPLAY_RACE_INFO = Configuration.getSpeechRecognitionPhrases("DISPLAY_RACE_INFO");  // rF2
+        public static String[] DISPLAY_STANDINGS = Configuration.getSpeechRecognitionPhrases("DISPLAY_STANDINGS");  // rF2
+        public static String[] DISPLAY_PENALTIES = Configuration.getSpeechRecognitionPhrases("DISPLAY_PENALTIES");  // rF2
+
         public static String[] MORE_INFO = Configuration.getSpeechRecognitionPhrases("MORE_INFO");
 
         public static String[] I_AM_OK = Configuration.getSpeechRecognitionPhrases("I_AM_OK");
@@ -2145,6 +2153,13 @@ namespace CrewChiefV4
                 validateAndAdd(PIT_STOP_FIX_BODY, pitManagerChoices);
                 validateAndAdd(PIT_STOP_FIX_NONE, pitManagerChoices);
                 validateAndAdd(PIT_STOP_FUEL_TO_THE_END, pitManagerChoices);
+                validateAndAdd(DISPLAY_SECTORS, pitManagerChoices);
+                validateAndAdd(DISPLAY_PIT_MENU, pitManagerChoices);
+                validateAndAdd(DISPLAY_TYRES, pitManagerChoices);
+                validateAndAdd(DISPLAY_TEMPS, pitManagerChoices);
+                validateAndAdd(DISPLAY_RACE_INFO, pitManagerChoices);
+                validateAndAdd(DISPLAY_STANDINGS, pitManagerChoices);
+                validateAndAdd(DISPLAY_PENALTIES, pitManagerChoices);
 
                 GrammarBuilderWrapper PitManagerGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper(pitManagerChoices);
                 PitManagerGrammarBuilder.SetCulture(cultureInfo);
