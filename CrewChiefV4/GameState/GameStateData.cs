@@ -3300,7 +3300,8 @@ namespace CrewChiefV4.GameState
             // update the deltapoint's time if it's a new deltapoint or we're going slow - for cars that are (nearly) stopped we
             // keep moving the deltapoint time forward for the last point they passed to force gaps to grow / shrink even though
             // they won't pass another deltapoint for a while
-            if (deltaPointsIndex != this.currentDeltaPointIndex || speed < 5)
+            // sometimes the game sends speed = 0, don't update the deltapoint time in this case
+            if (deltaPointsIndex != this.currentDeltaPointIndex || (speed < 5 && speed > 0))
             {
                 this.deltaPoints[deltaPointsIndex] = now;
                 this.speeds[deltaPointsIndex] = speed;
