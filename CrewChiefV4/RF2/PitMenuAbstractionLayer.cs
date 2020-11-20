@@ -8,6 +8,7 @@ This handles the translation both ways
 
 Author: Tony Whitley (sven.smiles@gmail.com)
 */
+using CrewChiefV4;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -101,6 +102,7 @@ namespace PitMenuAPI
             List<string> result =
                 frontTyreCategories.Intersect(MenuLayout.getKeys()).ToList();
             result.Sort();
+            Log.Debug("Front tyre categories in menu: " + string.Join(", ", result.Select(s => $"'{s}'")));
             return result;
         }
 
@@ -168,7 +170,9 @@ namespace PitMenuAPI
         public List<string> GetTyreTypeNames()
         {
             string tyre = GetFrontTyreCategories()[0];
-            return MenuLayout.get(tyre);
+            var result = MenuLayout.get(tyre);
+            Log.Debug("Tyre type names " + string.Join(", ", result.Select(s => $"'{s}'")));
+            return result;
         }
 
         /// <summary>
