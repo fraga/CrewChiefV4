@@ -3869,6 +3869,7 @@ namespace CrewChiefV4
                 lock (ControlWriter.controlWriterLock)
                 {
                     newMessagesBuilder.Append(message);
+                    Debug.Write(message);
                 }
                 consoleUpdateThreadWakeUpEvent.Set();
             }

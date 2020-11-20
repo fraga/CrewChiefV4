@@ -98,6 +98,7 @@ namespace CrewChiefV4
         public static String[] WHATS_MY_FUEL_USAGE = Configuration.getSpeechRecognitionPhrases("WHATS_MY_FUEL_USAGE");
         public static String[] WHATS_MY_IRATING = Configuration.getSpeechRecognitionPhrases("WHATS_MY_IRATING");
         public static String[] WHATS_MY_LICENSE_CLASS = Configuration.getSpeechRecognitionPhrases("WHATS_MY_LICENSE_CLASS");
+        public static String[] WHATS_MY_EXPECTED_FINISH_POSITION = Configuration.getSpeechRecognitionPhrases("WHATS_MY_EXPECTED_FINISH_POSITION");
         public static String[] WHAT_TYRES_AM_I_ON = Configuration.getSpeechRecognitionPhrases("WHAT_TYRES_AM_I_ON");
         public static String[] WHAT_ARE_THE_RELATIVE_TYRE_PERFORMANCES = Configuration.getSpeechRecognitionPhrases("WHAT_ARE_THE_RELATIVE_TYRE_PERFORMANCES");
         public static String[] HOW_LONG_WILL_THESE_TYRES_LAST = Configuration.getSpeechRecognitionPhrases("HOW_LONG_WILL_THESE_TYRES_LAST");
@@ -369,11 +370,19 @@ namespace CrewChiefV4
         public static String[] RALLY_5 = Configuration.getSpeechRecognitionPhrases("RALLY_5", loadHomophones);
         public static String[] RALLY_6 = Configuration.getSpeechRecognitionPhrases("RALLY_6", loadHomophones);
         public static String[] RALLY_HAIRPIN = Configuration.getSpeechRecognitionPhrases("RALLY_HAIRPIN", loadHomophones);
+        public static String[] RALLY_OPEN_HAIRPIN = Configuration.getSpeechRecognitionPhrases("RALLY_OPEN_HAIRPIN", loadHomophones);
         public static String[] RALLY_SQUARE = Configuration.getSpeechRecognitionPhrases("RALLY_SQUARE", loadHomophones);
         public static String[] RALLY_FLAT = Configuration.getSpeechRecognitionPhrases("RALLY_FLAT", loadHomophones);
         public static String[] RALLY_START_RECE = Configuration.getSpeechRecognitionPhrases("RALLY_START_RECE", loadHomophones);
         public static String[] RALLY_FINISH_RECE = Configuration.getSpeechRecognitionPhrases("RALLY_FINISH_RECE", loadHomophones);
         public static String[] RALLY_DISTANCE = Configuration.getSpeechRecognitionPhrases("RALLY_DISTANCE", loadHomophones);
+        
+        public static String[] RALLY_TIGHTENS_TO_5 = Configuration.getSpeechRecognitionPhrases("RALLY_TIGHTENS_TO_5", loadHomophones);
+        public static String[] RALLY_TIGHTENS_TO_4 = Configuration.getSpeechRecognitionPhrases("RALLY_TIGHTENS_TO_4", loadHomophones);
+        public static String[] RALLY_TIGHTENS_TO_3 = Configuration.getSpeechRecognitionPhrases("RALLY_TIGHTENS_TO_3", loadHomophones);
+        public static String[] RALLY_TIGHTENS_TO_2 = Configuration.getSpeechRecognitionPhrases("RALLY_TIGHTENS_TO_2", loadHomophones);
+        public static String[] RALLY_TIGHTENS_TO_1 = Configuration.getSpeechRecognitionPhrases("RALLY_TIGHTENS_TO_1", loadHomophones);
+        public static String[] RALLY_TIGHTENS_TO_HAIRPIN = Configuration.getSpeechRecognitionPhrases("RALLY_TIGHTENS_TO_HAIRPIN", loadHomophones);
 
         public static String[] RALLY_CUT = Configuration.getSpeechRecognitionPhrases("RALLY_CUT", loadHomophones);
         public static String[] RALLY_DONT_CUT = Configuration.getSpeechRecognitionPhrases("RALLY_DONT_CUT", loadHomophones);
@@ -382,13 +391,18 @@ namespace CrewChiefV4
         public static String[] RALLY_TIGHTENS_THEN_OPENS = Configuration.getSpeechRecognitionPhrases("RALLY_TIGHTENS_THEN_OPENS", loadHomophones);
         public static String[] RALLY_OPENS_THEN_TIGHTENS = Configuration.getSpeechRecognitionPhrases("RALLY_OPENS_THEN_TIGHTENS", loadHomophones);
         public static String[] RALLY_WIDENS = Configuration.getSpeechRecognitionPhrases("RALLY_WIDENS", loadHomophones);
+        public static String[] RALLY_GO_STRAIGHT = Configuration.getSpeechRecognitionPhrases("RALLY_GO_STRAIGHT", loadHomophones);
         public static String[] RALLY_MAYBE = Configuration.getSpeechRecognitionPhrases("RALLY_MAYBE", loadHomophones);
         public static String[] RALLY_LONG = Configuration.getSpeechRecognitionPhrases("RALLY_LONG", loadHomophones);
+        public static String[] RALLY_LONGLONG = Configuration.getSpeechRecognitionPhrases("RALLY_LONGLONG", loadHomophones);
         public static String[] RALLY_OPENS = Configuration.getSpeechRecognitionPhrases("RALLY_OPENS", loadHomophones);
+        public static String[] RALLY_PLUS = Configuration.getSpeechRecognitionPhrases("RALLY_PLUS", loadHomophones);
+        public static String[] RALLY_MINUS = Configuration.getSpeechRecognitionPhrases("RALLY_MINUS", loadHomophones);
         public static String[] RALLY_BRIDGE = Configuration.getSpeechRecognitionPhrases("RALLY_BRIDGE", loadHomophones);
         public static String[] RALLY_FORD = Configuration.getSpeechRecognitionPhrases("RALLY_FORD", loadHomophones);
         public static String[] RALLY_JUNCTION = Configuration.getSpeechRecognitionPhrases("RALLY_JUNCTION", loadHomophones);
         public static String[] RALLY_CAUTION = Configuration.getSpeechRecognitionPhrases("RALLY_CAUTION", loadHomophones);
+        public static String[] RALLY_DOUBLE_CAUTION = Configuration.getSpeechRecognitionPhrases("RALLY_DOUBLE_CAUTION", loadHomophones);
         public static String[] RALLY_CREST = Configuration.getSpeechRecognitionPhrases("RALLY_CREST", loadHomophones);
         public static String[] RALLY_OVER_CREST = Configuration.getSpeechRecognitionPhrases("RALLY_OVER_CREST", loadHomophones);
         public static String[] RALLY_OVER_BRIDGE = Configuration.getSpeechRecognitionPhrases("RALLY_OVER_BRIDGE", loadHomophones);
@@ -421,9 +435,16 @@ namespace CrewChiefV4
         public static String[] RALLY_LOOSE_GRAVEL = Configuration.getSpeechRecognitionPhrases("RALLY_LOOSE_GRAVEL", loadHomophones);
         public static String[] RALLY_NARROWS = Configuration.getSpeechRecognitionPhrases("RALLY_NARROWS", loadHomophones);
         public static String[] RALLY_THROUGH_GATE = Configuration.getSpeechRecognitionPhrases("RALLY_THROUGH_GATE", loadHomophones);
-        // TODO: these phrases cover tree / logs / rocks inside / outside and will (for now) just create a 'keep in' / 'keep out' note
-        public static String[] RALLY_OBSTACLE_INSIDE = Configuration.getSpeechRecognitionPhrases("RALLY_OBSTACLE_INSIDE", loadHomophones);
-        public static String[] RALLY_OBSTACLE_OUTSIDE = Configuration.getSpeechRecognitionPhrases("RALLY_OBSTACLE_OUTSIDE", loadHomophones);
+        public static String[] RALLY_LOGS_INSIDE = Configuration.getSpeechRecognitionPhrases("RALLY_LOGS_INSIDE", loadHomophones);
+        public static String[] RALLY_ROCKS_INSIDE = Configuration.getSpeechRecognitionPhrases("RALLY_ROCKS_INSIDE", loadHomophones);
+        public static String[] RALLY_TREE_INSIDE = Configuration.getSpeechRecognitionPhrases("RALLY_TREE_INSIDE", loadHomophones);
+        public static String[] RALLY_LOGS_OUTSIDE = Configuration.getSpeechRecognitionPhrases("RALLY_LOGS_OUTSIDE", loadHomophones);
+        public static String[] RALLY_ROCKS_OUTSIDE = Configuration.getSpeechRecognitionPhrases("RALLY_ROCKS_OUTSIDE", loadHomophones);
+        public static String[] RALLY_TREE_OUTSIDE = Configuration.getSpeechRecognitionPhrases("RALLY_TREE_OUTSIDE", loadHomophones);
+
+        public static String[] RALLY_INTO = Configuration.getSpeechRecognitionPhrases("RALLY_INTO", loadHomophones);
+        public static String[] RALLY_THEN = Configuration.getSpeechRecognitionPhrases("RALLY_THEN", loadHomophones);
+        public static String[] RALLY_AND = Configuration.getSpeechRecognitionPhrases("RALLY_AND", loadHomophones);
 
         // most specific first, so "big jump" comes before "jump" when we parse in the event code
         public static List<string[]> RallyObstacleCommands = new List<string[]>()
@@ -435,6 +456,7 @@ namespace CrewChiefV4
             SpeechRecogniser.RALLY_BUMPS,
             SpeechRecogniser.RALLY_CARE,
             SpeechRecogniser.RALLY_DANGER,
+            SpeechRecogniser.RALLY_DOUBLE_CAUTION,
             SpeechRecogniser.RALLY_CAUTION,
             SpeechRecogniser.RALLY_CONCRETE,
             SpeechRecogniser.RALLY_OVER_CREST,
@@ -463,13 +485,29 @@ namespace CrewChiefV4
             SpeechRecogniser.RALLY_TARMAC,
             SpeechRecogniser.RALLY_TUNNEL,
             SpeechRecogniser.RALLY_NARROWS,
-            SpeechRecogniser.RALLY_OBSTACLE_INSIDE,
-            SpeechRecogniser.RALLY_OBSTACLE_OUTSIDE,
+            SpeechRecogniser.RALLY_LOGS_INSIDE,
+            SpeechRecogniser.RALLY_ROCKS_INSIDE,
+            SpeechRecogniser.RALLY_TREE_INSIDE,
+            SpeechRecogniser.RALLY_LOGS_OUTSIDE,
+            SpeechRecogniser.RALLY_ROCKS_OUTSIDE,
+            SpeechRecogniser.RALLY_TREE_OUTSIDE,
             SpeechRecogniser.RALLY_UPHILL,
             SpeechRecogniser.RALLY_DOWNHILL,
             SpeechRecogniser.RALLY_BRAKE,
             SpeechRecogniser.RALLY_THROUGH_GATE,
-            SpeechRecogniser.RALLY_WIDENS
+            SpeechRecogniser.RALLY_WIDENS,
+            SpeechRecogniser.RALLY_GO_STRAIGHT,
+
+            SpeechRecogniser.RALLY_TIGHTENS_TO_1,
+            SpeechRecogniser.RALLY_TIGHTENS_TO_2,
+            SpeechRecogniser.RALLY_TIGHTENS_TO_3,
+            SpeechRecogniser.RALLY_TIGHTENS_TO_4,
+            SpeechRecogniser.RALLY_TIGHTENS_TO_5,
+            SpeechRecogniser.RALLY_TIGHTENS_TO_HAIRPIN,
+
+            SpeechRecogniser.RALLY_INTO,
+            SpeechRecogniser.RALLY_THEN,
+            SpeechRecogniser.RALLY_AND
         };
 
         // for watching opponent - "watch [bob]", "tell me about [bob]"
@@ -973,8 +1011,8 @@ namespace CrewChiefV4
             if (cultureInfo != null)
             {
                 Console.WriteLine("Got SRE for " + cultureInfo);
-                this.sreWrapper = SREWrapperFactory.createNewSREWrapper(cultureInfo);
-                this.triggerSreWrapper = SREWrapperFactory.createNewSREWrapper(cultureInfo);
+                this.sreWrapper = SREWrapperFactory.createNewSREWrapper(cultureInfo, voiceOptionEnum == MainWindow.VoiceOptionEnum.HOLD ? TimeSpan.FromSeconds(1.5) : (TimeSpan?)null);
+                this.triggerSreWrapper = SREWrapperFactory.createNewSREWrapper(cultureInfo, (TimeSpan?) null);
                 return this.sreWrapper != null;
             }
             if (langCodes.countryToUse == null)
@@ -1079,7 +1117,7 @@ namespace CrewChiefV4
                 SREWrapperFactory.useSystem = false;
                 this.cultureInfo = SREWrapperFactory.GetCultureInfo(langCodes.langAndCountryToUse, langCodes.langToUse, false);
             }
-            var sre = SREWrapperFactory.createNewSREWrapper(this.cultureInfo, true);
+            var sre = SREWrapperFactory.createNewSREWrapper(this.cultureInfo, voiceOptionEnum == MainWindow.VoiceOptionEnum.HOLD ? TimeSpan.FromSeconds(1.5) : (TimeSpan?) null, true);
 
             if(sre == null)
             {
@@ -1416,6 +1454,7 @@ namespace CrewChiefV4
                 validateAndAdd(WHAT_WAS_MY_LAST_LAP_TIME, staticSpeechChoices);
                 validateAndAdd(WHATS_MY_BEST_LAP_TIME, staticSpeechChoices);
                 validateAndAdd(WHATS_MY_POSITION, staticSpeechChoices);
+                validateAndAdd(WHATS_MY_EXPECTED_FINISH_POSITION, staticSpeechChoices);
                 validateAndAdd(WHAT_TYRES_AM_I_ON, staticSpeechChoices);
                 validateAndAdd(WHAT_ARE_THE_RELATIVE_TYRE_PERFORMANCES, staticSpeechChoices);
                 validateAndAdd(PLAY_CORNER_NAMES, staticSpeechChoices);
@@ -1835,12 +1874,10 @@ namespace CrewChiefV4
                 }
                 else
                 {
-
                     // for corrections
                     ChoicesWrapper correctionChoicesWrapper = SREWrapperFactory.createNewChoicesWrapper(); // this will be added at the start with 0 or 1 repeats
                     validateAndAdd(RALLY_CORRECTION, correctionChoicesWrapper);
                     validateAndAdd(RALLY_INSERT, correctionChoicesWrapper);
-
                     
                     // modifier commands. These are generally used to modify a corner call but can apply to other obstacles.
                     ChoicesWrapper stageNoteCommandChoicesWrapper = SREWrapperFactory.createNewChoicesWrapper();
@@ -1848,10 +1885,14 @@ namespace CrewChiefV4
                     validateAndAdd(RALLY_DONT_CUT, stageNoteCommandChoicesWrapper);
                     validateAndAdd(RALLY_TIGHTENS, stageNoteCommandChoicesWrapper);
                     validateAndAdd(RALLY_LONG, stageNoteCommandChoicesWrapper);
+                    validateAndAdd(RALLY_LONGLONG, stageNoteCommandChoicesWrapper);
                     validateAndAdd(RALLY_NARROWS, stageNoteCommandChoicesWrapper);
                     validateAndAdd(RALLY_TIGHTENS_BAD, stageNoteCommandChoicesWrapper);
                     validateAndAdd(RALLY_WIDENS, stageNoteCommandChoicesWrapper);
                     validateAndAdd(RALLY_MAYBE, stageNoteCommandChoicesWrapper);
+                    validateAndAdd(RALLY_OPENS, stageNoteCommandChoicesWrapper);
+                    validateAndAdd(RALLY_PLUS, stageNoteCommandChoicesWrapper);
+                    validateAndAdd(RALLY_MINUS, stageNoteCommandChoicesWrapper);
 
                     // corner commands
                     validateAndAdd(RALLY_LEFT, stageNoteCommandChoicesWrapper);
@@ -1864,6 +1905,7 @@ namespace CrewChiefV4
                     validateAndAdd(RALLY_6, stageNoteCommandChoicesWrapper);
                     validateAndAdd(RALLY_SQUARE, stageNoteCommandChoicesWrapper);
                     validateAndAdd(RALLY_HAIRPIN, stageNoteCommandChoicesWrapper);
+                    validateAndAdd(RALLY_OPEN_HAIRPIN, stageNoteCommandChoicesWrapper);
                     validateAndAdd(RALLY_FLAT, stageNoteCommandChoicesWrapper);
 
                     // obstacle commands
@@ -2976,7 +3018,8 @@ namespace CrewChiefV4
             {
                 return CrewChief.getEvent("Timings");
             }
-            else if (ResultContains(recognisedSpeech, WHATS_MY_POSITION, false))
+            else if (ResultContains(recognisedSpeech, WHATS_MY_POSITION, false) ||
+                ResultContains(recognisedSpeech, WHATS_MY_EXPECTED_FINISH_POSITION, false))
             {
                 return CrewChief.getEvent("Position");
             }

@@ -61,9 +61,52 @@ namespace CrewChiefV4.R3E
             return null;
         }
 
+        // only works if all participants have non-zero rating.
+        // returns a tuple with the expected finish position and the number of cars in the player's class
+        public static Tuple<int, int> calculateExpectedFinishPosition(Dictionary<string, OpponentData> opponentData, CarData.CarClass playerCarClass)
+        {
+            int expectedFinishPosition = 1;
+            int numCarsInPlayerClass = 1;
+            // allow a small proportion of the field to have no data and assume they're starting with 1500 (the base rating)
+            int participantsWithValidData = 1;
+            int assumedRatingForMissingData = 1500;
+            if (opponentData != null && gotPlayerRating && playerRating != null && playerRating.rating > 0)
+            {
+                foreach (OpponentData opponent in opponentData.Values)
+                {
+                    if (CarData.IsCarClassEqual(playerCarClass, opponent.CarClass))
+                    {
+                        numCarsInPlayerClass++;
+                        float opponentRating = assumedRatingForMissingData;
+                        if (opponent.r3eUserId != -1)
+                        {
+                            R3ERatingData data = getRatingForUserId(opponent.r3eUserId);
+                            if (data != null && data.rating > 0)
+                            {
+                                opponentRating = data.rating;
+                                participantsWithValidData++;
+                            }
+                        }
+                        if (opponentRating > playerRating.rating)
+                        {
+                            expectedFinishPosition++;
+                        }
+                    }
+                }
+            }
+            // if we have 4 or more participants and more than 3/4 of the field have valid rating data, allow an expected finish position
+            if (participantsWithValidData > 3 && (float)participantsWithValidData / (float)numCarsInPlayerClass > 0.75f)
+            {
+                return new Tuple<int, int>(expectedFinishPosition, numCarsInPlayerClass);
+            }
+            else
+            {
+                return new Tuple<int, int>(-1, -1);
+            }
+        }
         public static int getAverageRatingForParticipants(Dictionary<string, OpponentData> opponentData)
         {
-            if (opponentData == null || !gotPlayerRating)
+            if (opponentData == null || !gotPlayerRating || playerRating == null)
             {
                 return -1;
             }

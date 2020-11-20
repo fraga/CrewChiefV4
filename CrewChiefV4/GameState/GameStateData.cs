@@ -957,6 +957,11 @@ namespace CrewChiefV4.GameState
 
         public Boolean HasLeadChanged;
 
+        // this is the expected finish position based only on ratings, and the number of cars in the player class.
+        // For games which make this data available, it's expected to be updated regularly during Q and P sessions
+        // and to be correct at the end of Q. It's expected to be set once at the start of the race and remain constant during the race.
+        public Tuple<int, int> expectedFinishingPosition = new Tuple<int, int>(-1, -1);
+
         private Dictionary<int, float> _SessionTimesAtEndOfSectors;
         public Dictionary<int, float> SessionTimesAtEndOfSectors {
             get {
@@ -1155,7 +1160,7 @@ namespace CrewChiefV4.GameState
             SessionTimesAtEndOfSectors.Add(12, -1);
         }
 
-        public void restorePlayerTimings(SessionData restoreTo)
+        public void RestorePlayerTimings(SessionData restoreTo)
         {
             restoreTo.PlayerBestSector1Time = PlayerBestSector1Time;
             restoreTo.PlayerBestSector2Time = PlayerBestSector2Time;
@@ -1729,10 +1734,10 @@ namespace CrewChiefV4.GameState
         }
 
         /// <summary>
-        /// be careful using this - it should actually be called 'isOnOutLap'
+        /// This returns true as soon as the car passes the start line after entering the pit.
         /// </summary>
         /// <returns></returns>
-        public Boolean isExitingPits()
+        public Boolean isOnOutLap()
         {
             LapData currentLap = getCurrentLapData();
             return currentLap != null && currentLap.OutLap;
@@ -2397,11 +2402,15 @@ namespace CrewChiefV4.GameState
         // returns null or a landmark name this car is stopped in
         public String updateLandmarkTiming(TrackDefinition trackDefinition, float gameTime, float previousDistanceRoundTrack, float currentDistanceRoundTrack, float speed, CarData.CarClass carClass)
         {
-            if (trackDefinition == null || trackDefinition.trackLandmarks == null || trackDefinition.trackLandmarks.Count == 0 ||
-                gameTime < 30 ||
-                (CrewChief.isPCars() && (currentDistanceRoundTrack == 0 || speed == 0)))
+            if (trackDefinition == null || trackDefinition.trackLandmarks == null || currentDistanceRoundTrack <= 0 || speed <= 0 || gameTime < 30
+                || previousDistanceRoundTrack == currentDistanceRoundTrack || trackDefinition.trackLandmarks.Count == 0)
             {
-                // don't collect data if the session has been running < 30 seconds or we're PCars and the distanceRoundTrack or speed is exactly zero
+                // don't collect data if the session has been running < 30 seconds, the distanceRoundTrack values haven't changed at all,
+                // or the distanceRoundTrack or speed are exactly zero or less (generally this means we have no data for this participant).
+                // We want to ignore any cases where the data coming from the game may be frozen or incomplete
+
+                // for iRacing we sometimes don't get a position update or sometimes don't get a speed update. This doesn't mean the data
+                // are broken, it's just that this tick's data are incomplete
                 return null;
             }
             // yuk...
@@ -2432,7 +2441,6 @@ namespace CrewChiefV4.GameState
             }
             else
             {
-
                 // looking for landmark end only
                 foreach (TrackLandmark trackLandmark in trackDefinition.trackLandmarks)
                 {
@@ -2500,7 +2508,6 @@ namespace CrewChiefV4.GameState
             if (landmarkNameStart == null)
             {
                 // again, we're waiting to enter a landmark zone - perhaps we've just left a zone so still check for stopped cars
-
                 foreach (TrackLandmark trackLandmark in trackDefinition.trackLandmarks)
                 {
                     if (currentDistanceRoundTrack > Math.Max(0, trackLandmark.distanceRoundLapStart - 70) &&
@@ -2539,7 +2546,6 @@ namespace CrewChiefV4.GameState
                     nearLandmarkName = null;
                 }
             }
-
             if (landMarkStoppedDelayTime != DateTime.MaxValue && CrewChief.currentGameState.Now >= landMarkStoppedDelayTime)
             {
                 return landmarkNameStart == null ? nearLandmarkName : landmarkNameStart;
@@ -2549,6 +2555,7 @@ namespace CrewChiefV4.GameState
                 return null;
             }
         }
+
         public float CalculateAvgSpeedForCurentDelta(float lapDistance, CarData.CarClass carClass)
         {
             int opponentCount = 0;
@@ -3090,6 +3097,7 @@ namespace CrewChiefV4.GameState
     public class DeltaTime
     {
         public DateTime[] deltaPoints;
+        public float[] speeds;
         public List<float>[] avgSpeedTrapPoints;
         public float[] avgSpeedForEachDeltapointSection;
         
@@ -3114,7 +3122,7 @@ namespace CrewChiefV4.GameState
             this.trackLength = 0;
         }
 
-        public DeltaTime(float trackLength, float distanceRoundTrackOnCurrentLap, DateTime now, float spacing = 20f)
+        public DeltaTime(float trackLength, float distanceRoundTrackOnCurrentLap, float speed, DateTime now, float spacing = 20f)
         {
             if (trackLength >= spacing) // only initialise if we have at least 1 deltapoint
             {
@@ -3124,6 +3132,7 @@ namespace CrewChiefV4.GameState
                 this.spacing = spacing;
                 float totalSpacing = 0;
                 List<DateTime> deltaPointsList = new List<DateTime>();
+                List<float> speedsList = new List<float>();
                 List<List<float>> avgSpeedTrapPointsList = new List<List<float>>();
                 List<float> avgSpeedForEachDeltapointSectionList = new List<float>();
                 bool foundCurrentDeltaPoint = false;
@@ -3131,6 +3140,7 @@ namespace CrewChiefV4.GameState
                 while (totalSpacing < trackLength)
                 {
                     deltaPointsList.Add(now);
+                    speedsList.Add(speed);
                     avgSpeedTrapPointsList.Add(new List<float>());
                     avgSpeedForEachDeltapointSectionList.Add(0);
                     totalSpacing += spacing;
@@ -3145,6 +3155,7 @@ namespace CrewChiefV4.GameState
                     index++;
                 }
                 this.deltaPoints = deltaPointsList.ToArray();
+                this.speeds = speedsList.ToArray();
                 this.avgSpeedTrapPoints = avgSpeedTrapPointsList.ToArray();
                 this.avgSpeedForEachDeltapointSection = avgSpeedForEachDeltapointSectionList.ToArray();
                 this.initialised = true;
@@ -3153,7 +3164,7 @@ namespace CrewChiefV4.GameState
 
         private int getIndexFromLapDistance(float lapDistance)
         {
-            int index = (int) (lapDistance / spacing);
+            int index = (int) (lapDistance / this.spacing);
             if (index < 0)
             {
                 return 0;
@@ -3222,6 +3233,23 @@ namespace CrewChiefV4.GameState
             // if we've reached a new point, check if there are any missing and interpolate and add the average speed data
             if (deltaPointsIndex != this.currentDeltaPointIndex)
             {
+                // adjust the 'now' time based on our speed and the distance between our exact position and 
+                // the deltaPoint position we're about to set
+                float lapDistanceError = distanceRoundTrackOnCurrentLap - (deltaPointsIndex * this.spacing);
+                // get a speed - use average of this speed and the last speed we set if possible
+                float averageSpeedBetweenPoints = speed;
+                if (this.indexOfLastPointSet != -1)
+                {
+                    float lastSpeed = this.speeds[this.indexOfLastPointSet];
+                    if (lastSpeed > 0)
+                    {
+                        averageSpeedBetweenPoints = Math.Abs((speed + this.speeds[this.indexOfLastPointSet]) / 2f);
+                    }
+                }
+                // only adjust if we have sensible speed data
+                float secondsSinceWePassedDeltaPoint = averageSpeedBetweenPoints < 0.5 ? 0 : lapDistanceError / averageSpeedBetweenPoints;
+                now = now.AddSeconds(-1 * secondsSinceWePassedDeltaPoint);
+
                 // check if there's any missing data - if the key index we just found is more than 1 greater than the previous key
                 // index we have data for, there's at least 1 missing time entry in the deltaPoints dictionary
                 if (deltaPointsIndex != this.indexOfLastPointSet && this.indexOfLastPointSet != -1)
@@ -3275,6 +3303,7 @@ namespace CrewChiefV4.GameState
             if (deltaPointsIndex != this.currentDeltaPointIndex || speed < 5)
             {
                 this.deltaPoints[deltaPointsIndex] = now;
+                this.speeds[deltaPointsIndex] = speed;
             }
             this.currentDeltaPointIndex = deltaPointsIndex;
         }

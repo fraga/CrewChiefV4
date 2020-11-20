@@ -211,6 +211,9 @@ namespace CrewChiefV4
 
         public long expiryTime = 0;
 
+        // Optional function to evaluate to determine that this message should be played. This overrides the secondsDelay. Implementation need to null check current game state.
+        public Func<GameStateData, bool> triggerFunction;
+
         // if any of the sound clips in this message are missing, this will be set to false when the constructors
         // get the message folders to use
         public Boolean canBePlayed = true;
@@ -233,13 +236,20 @@ namespace CrewChiefV4
         public QueuedMessage(String messageName, int expiresAfter, List<MessageFragment> messageFragments = null, 
             List<MessageFragment> alternateMessageFragments = null, DelayedMessageEvent delayedMessageEvent = null,
             int secondsDelay = 0, AbstractEvent abstractEvent = null, Dictionary<String, Object> validationData = null,
-            int priority = SoundMetadata.DEFAULT_PRIORITY, SoundType type = SoundType.AUTO)
+            int priority = SoundMetadata.DEFAULT_PRIORITY, SoundType type = SoundType.AUTO, Func<GameStateData, bool> triggerFunction = null)
         {
+            if (triggerFunction != null && expiresAfter == 0)
+            {
+                Console.WriteLine("Warning: message " + messageName + " includes triggerFunction with no expiry. An expiry of 5 minutes will be used");
+                expiresAfter = 300;
+            }
+
             this.messageId = getMessageId();
             this.validationData = validationData;
             this.creationTime = GameStateData.CurrentTime.Ticks / TimeSpan.TicksPerMillisecond;
             this.dueTime = secondsDelay == 0 ? 0 : this.creationTime + (secondsDelay * 1000) + updateInterval;
             this.expiryTime = expiresAfter == 0 ? 0 : this.creationTime + (expiresAfter * 1000);
+            this.triggerFunction = triggerFunction;
 
             Debug.Assert(expiresAfter == 0 || expiresAfter > secondsDelay, "Expiry time specified should be longer than delay time");
 
@@ -303,6 +313,7 @@ namespace CrewChiefV4
             metadata.priority = 5;
             metadata.type = SoundType.VOICE_COMMAND_RESPONSE;
             dueTime = 0;
+            triggerFunction = null;
             expiryTime = 0;
             abstractEvent = null;
             validationData = null;

@@ -181,7 +181,7 @@ namespace CrewChiefV4
             }
             return true;
         }
-        
+
         public void InstallOrUpdatePlugins(GameDefinition gameDefinition)
         {
             //appInstallPath is also used to check if the user allready was asked to update
@@ -291,6 +291,10 @@ namespace CrewChiefV4
                     UserSettings.GetUserSettings().getInt("dirt_rally_2_udp_data_port"));
                 return;
             }
+            else if (gameDefinition.gameEnum == GameEnum.GTR2)
+            {
+                gameInstallPath = UserSettings.GetUserSettings().getString("gtr2_install_path");
+            }
             // try to get the install folder from steam common install folders.
             if (!Directory.Exists(gameInstallPath))
             {
@@ -303,7 +307,7 @@ namespace CrewChiefV4
                         string commonPath = Path.Combine(lib, @"steamapps\common\" + gameDefinition.gameInstallDirectory);
                         if (Directory.Exists(commonPath))
                         {
-                            gameInstallPath = commonPath;
+                            gameInstallPath = commonPath;                            
                             break;
                         }
                     }
@@ -422,6 +426,10 @@ namespace CrewChiefV4
                 else if (gameDefinition.gameEnum == GameEnum.RBR)
                 {
                     UserSettings.GetUserSettings().setProperty("rbr_install_path", gameInstallPath);
+                }
+                else if (gameDefinition.gameEnum == GameEnum.GTR2)
+                {
+                    UserSettings.GetUserSettings().setProperty("gtr2_install_path", gameInstallPath);
                 }
                 UserSettings.GetUserSettings().saveUserSettings();
             }

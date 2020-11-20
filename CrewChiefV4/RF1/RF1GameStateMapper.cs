@@ -358,7 +358,7 @@ namespace CrewChiefV4.rFactor1
             {
                 // Preserve current timing values.
                 // Those values change on sector/lap change, otherwise stay the same between updates.
-                previousGameState.SessionData.restorePlayerTimings(currentGameState.SessionData);
+                previousGameState.SessionData.RestorePlayerTimings(currentGameState.SessionData);
 
                 currentGameState.SessionData.DeltaTime = previousGameState.SessionData.DeltaTime;
                 currentGameState.Conditions.samples = previousGameState.Conditions.samples;
@@ -508,7 +508,7 @@ namespace CrewChiefV4.rFactor1
             if (currentGameState.SessionData.IsNewSession)
             {
                 currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength,
-                    currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.Now);
+                    currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.PositionAndMotionData.CarSpeed, currentGameState.Now);
             }
 
             // --------------------------------
@@ -810,7 +810,8 @@ namespace CrewChiefV4.rFactor1
                 }
                 else
                 {
-                    opponent.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, opponent.DistanceRoundTrack, DateTime.UtcNow);
+                    opponent.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, 
+                        opponent.DistanceRoundTrack, opponent.Speed, DateTime.UtcNow);
                 }
                 opponent.DeltaTime.SetNextDeltaPoint(opponent.DistanceRoundTrack, opponent.CompletedLaps, opponent.Speed, currentGameState.Now, vehicle.inPits != 1);
 

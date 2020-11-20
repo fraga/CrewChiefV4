@@ -1693,6 +1693,18 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("4.5")]
+        public float gtr2_spotter_car_length {
+            get {
+                return ((float)(this["gtr2_spotter_car_length"]));
+            }
+            set {
+                this["gtr2_spotter_car_length"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool enable_rf2_pit_stop_prediction {
             get {
@@ -4657,6 +4669,42 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string gtr2_launch_exe {
+            get {
+                return ((string)(this["gtr2_launch_exe"]));
+            }
+            set {
+                this["gtr2_launch_exe"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string gtr2_install_path {
+            get {
+                return ((string)(this["gtr2_install_path"]));
+            }
+            set {
+                this["gtr2_install_path"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool launch_gtr2 {
+            get {
+                return ((bool)(this["launch_gtr2"]));
+            }
+            set {
+                this["launch_gtr2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("1")]
         public int codriver_style {
             get {
@@ -4814,6 +4862,30 @@ namespace CrewChiefV4.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool enable_gtr2_pit_stop_prediction {
+            get {
+                return ((bool)(this["enable_gtr2_pit_stop_prediction"]));
+            }
+            set {
+                this["enable_gtr2_pit_stop_prediction"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool enable_gtr2_cut_track_heuristics {
+            get {
+                return ((bool)(this["enable_gtr2_cut_track_heuristics"]));
+            }
+            set {
+                this["enable_gtr2_cut_track_heuristics"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool enable_watch_car_command {
             get {
                 return ((bool)(this["enable_watch_car_command"]));
@@ -4880,6 +4952,18 @@ namespace CrewChiefV4.Properties {
             }
             set {
                 this["show_splash_screen"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool enable_gtr2_pit_lane_approach_heuristics {
+            get {
+                return ((bool)(this["enable_gtr2_pit_lane_approach_heuristics"]));
+            }
+            set {
+                this["enable_gtr2_pit_lane_approach_heuristics"] = value;
             }
         }
         
@@ -5072,6 +5156,54 @@ namespace CrewChiefV4.Properties {
             }
             set {
                 this["allow_composite_personalisations"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("40")]
+        public float codriver_min_space_for_auto_distance_call {
+            get {
+                return ((float)(this["codriver_min_space_for_auto_distance_call"]));
+            }
+            set {
+                this["codriver_min_space_for_auto_distance_call"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool codriver_dynamic_lookahead {
+            get {
+                return ((bool)(this["codriver_dynamic_lookahead"]));
+            }
+            set {
+                this["codriver_dynamic_lookahead"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool include_start_pos_in_dirt_stage_names {
+            get {
+                return ((bool)(this["include_start_pos_in_dirt_stage_names"]));
+            }
+            set {
+                this["include_start_pos_in_dirt_stage_names"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string gtr2_launch_params {
+            get {
+                return ((string)(this["gtr2_launch_params"]));
+            }
+            set {
+                this["gtr2_launch_params"] = value;
             }
         }
     }

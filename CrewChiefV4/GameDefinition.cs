@@ -9,10 +9,9 @@ namespace CrewChiefV4
     public enum GameEnum
     {
         RACE_ROOM, PCARS2, PCARS_64BIT, PCARS_32BIT, PCARS_NETWORK, PCARS2_NETWORK, RF1, ASSETTO_64BIT, ASSETTO_32BIT,
-        RF2_64BIT, IRACING, F1_2018, F1_2019, F1_2020, ACC, AMS2, AMS2_NETWORK, PCARS3, RBR, DIRT, DIRT_2, UNKNOWN,
+        RF2_64BIT, IRACING, F1_2018, F1_2019, F1_2020, ACC, AMS2, AMS2_NETWORK, PCARS3, RBR, DIRT, DIRT_2, GTR2, UNKNOWN,
         NONE, /* this allows CC macros to run when an unsupported game is being played, it's selectable from the Games list */
         ANY   /* this allows CC macros to be defined that apply to all supported games, it's only selectable from the macro UI */
-
     }
     public class GameDefinition
     {
@@ -66,6 +65,8 @@ namespace CrewChiefV4
             "f1_2020_launch_exe", "f1_2020_launch_params", "launch_f1_2020", false);
         public static GameDefinition rbr = new GameDefinition(GameEnum.RBR, "rbr", "RichardBurnsRally_SSE", null /*spotterName*/,
             "rbr_launch_exe", null /*gameStartCommandOptionsProperty*/, "launch_rbr", true, "RBR", null, CrewChief.RacingType.Rally);
+        public static GameDefinition gtr2 = new GameDefinition(GameEnum.GTR2, "gtr2", "GTR2", "CrewChiefV4.GTR2.GTR2Spotter",
+            "gtr2_launch_exe", "gtr2_launch_params", "launch_gtr2", true, "GTR2");
         public static GameDefinition dirt = new GameDefinition(GameEnum.DIRT, "dirt", null, null /*spotterName*/,
             "dirt_launch_exe", "dirt2_launch_params" /*gameStartCommandOptionsProperty*/, "launch_dirt", false, "", null, CrewChief.RacingType.Rally);
         public static GameDefinition dirt2 = new GameDefinition(GameEnum.DIRT_2, "dirt2", null, null /*spotterName*/,
@@ -165,6 +166,10 @@ namespace CrewChiefV4
                                 {
                                     filtered.Add(GameDefinition.rbr);
                                 }
+                                else if (filterLower.Contains("gtr2"))
+                                {
+                                    filtered.Add(GameDefinition.gtr2);
+                                }
                                 else if (filterLower.Contains("dirt"))
                                 {
                                     filtered.Add(GameDefinition.dirt);
@@ -207,6 +212,7 @@ namespace CrewChiefV4
             definitions.Add(f1_2019);
             definitions.Add(f1_2020);
             definitions.Add(rbr);
+            definitions.Add(gtr2);
             definitions.Add(none);
             definitions.Add(dirt);
             definitions.Add(dirt2);

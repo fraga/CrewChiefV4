@@ -751,7 +751,7 @@ namespace CrewChiefV4.rFactor2
 
             // Initialize DeltaTime.
             if (csd.IsNewSession)
-                csd.DeltaTime = new DeltaTime(csd.TrackDefinition.trackLength, cgs.PositionAndMotionData.DistanceRoundTrack, cgs.Now);
+                csd.DeltaTime = new DeltaTime(csd.TrackDefinition.trackLength, cgs.PositionAndMotionData.DistanceRoundTrack, cgs.PositionAndMotionData.CarSpeed, cgs.Now);
 
             // Is online session?
             for (int i = 0; i < shared.scoring.mScoringInfo.mNumVehicles; ++i)
@@ -967,7 +967,7 @@ namespace CrewChiefV4.rFactor2
             {
                 // Preserve current values.
                 // Those values change on sector/lap change, otherwise stay the same between updates.
-                psd.restorePlayerTimings(csd);
+                psd.RestorePlayerTimings(csd);
             }
 
             this.processPlayerTimingData(ref shared.scoring, cgs, pgs, ref playerScoring);
@@ -1569,7 +1569,7 @@ namespace CrewChiefV4.rFactor2
                 }
                 else
                 {
-                    opponent.DeltaTime = new DeltaTime(csd.TrackDefinition.trackLength, opponent.DistanceRoundTrack, DateTime.UtcNow);
+                    opponent.DeltaTime = new DeltaTime(csd.TrackDefinition.trackLength, opponent.DistanceRoundTrack, opponent.Speed, DateTime.UtcNow);
                 }
                 opponent.DeltaTime.SetNextDeltaPoint(opponent.DistanceRoundTrack, opponent.CompletedLaps, opponent.Speed, cgs.Now, vehicleScoring.mInPits != 1);
 
@@ -1727,7 +1727,7 @@ namespace CrewChiefV4.rFactor2
                 if (opponentPrevious != null)
                 {
                     opponent.trackLandmarksTiming = opponentPrevious.trackLandmarksTiming;
-                    String stoppedInLandmark = opponent.trackLandmarksTiming.updateLandmarkTiming(csd.TrackDefinition,
+                    var stoppedInLandmark = opponent.trackLandmarksTiming.updateLandmarkTiming(csd.TrackDefinition,
                         csd.SessionRunningTime, previousDistanceRoundTrack, opponent.DistanceRoundTrack, opponent.Speed, opponent.CarClass);
                     opponent.stoppedInLandmark = opponent.InPits ? null : stoppedInLandmark;
                 }
@@ -2039,10 +2039,10 @@ namespace CrewChiefV4.rFactor2
                     " to " + csd.SessionPhase);
                 if (csd.SessionPhase == SessionPhase.Checkered ||
                     csd.SessionPhase == SessionPhase.Finished)
-                    Console.WriteLine("Checkered - completed " + csd.CompletedLaps + " laps, session running time = " + csd.SessionRunningTime);
+                    Console.WriteLine("Checkered - completed " + csd.CompletedLaps + " laps, session running time = " + csd.SessionRunningTime + "  (" + TimeSpan.FromSeconds(csd.SessionRunningTime).ToString(@"hh\:mm\:ss\:fff") + ")");
             }
             if (pgs != null && !psd.LeaderHasFinishedRace && csd.LeaderHasFinishedRace)
-                Console.WriteLine("Leader has finished race, player has done " + csd.CompletedLaps + " laps, session time = " + csd.SessionRunningTime);
+                Console.WriteLine("Leader has finished race, player has done " + csd.CompletedLaps + " laps, session time = " + csd.SessionRunningTime + "  (" + TimeSpan.FromSeconds(csd.SessionRunningTime).ToString(@"hh\:mm\:ss\:fff") + ")");
 
             CrewChief.trackName = csd.TrackDefinition.name;
             CrewChief.carClass = cgs.carClass.carClassEnum;

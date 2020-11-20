@@ -407,7 +407,14 @@ namespace CrewChiefV4.Events
 
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOW_MANY_INCIDENT_POINTS))
             {
-                audioPlayer.playMessageImmediately(new QueuedMessage("Incidents/incidents", 0, messageFragments: MessageContents(folderYouHave, incidentsCount, folderincidents)));
+                if (incidentsCount == -1)
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                }
+                else
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage("Incidents/incidents", 0, messageFragments: MessageContents(folderYouHave, incidentsCount, folderincidents)));
+                }
                 return;
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHATS_THE_INCIDENT_LIMIT))

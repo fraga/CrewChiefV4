@@ -246,7 +246,7 @@ namespace CrewChiefV4.Events
             string opponentKey = inFront ? currentGameState.getOpponentKeyInFront(currentGameState.carClass) : currentGameState.getOpponentKeyBehind(currentGameState.carClass);
             OpponentData opponent;
             return opponentKey != null && currentGameState.OpponentData.TryGetValue(opponentKey, out opponent) &&
-                opponent != null && !opponent.isEnteringPits() && !opponent.isExitingPits() && !opponent.InPits && !opponent.isApporchingPits;
+                opponent != null && !opponent.isEnteringPits() && !opponent.isOnOutLap()/*TODO: change for correct impl*/ && !opponent.InPits && !opponent.isApporchingPits;
         }
 
         public override void respond(string voiceMessage)

@@ -89,7 +89,8 @@ namespace CrewChiefV4
                 + Configuration.getUIString("search_box_tooltip_line6") + Environment.NewLine
                 + Configuration.getUIString("search_box_tooltip_line7") + Environment.NewLine
                 + Configuration.getUIString("search_box_tooltip_line8") + Environment.NewLine
-                + Configuration.getUIString("search_box_tooltip_line9") + Environment.NewLine;
+                + Configuration.getUIString("search_box_tooltip_line9") + Environment.NewLine
+                + Configuration.getUIString("search_box_tooltip_line10") + Environment.NewLine;
             this.searchBoxTooltip.SetToolTip(this.searchTextBox, tooltip);
             this.exitButton.Text = Configuration.getUIString("exit_without_saving");
             this.restoreButton.Text = Configuration.getUIString("restore_default_settings");
