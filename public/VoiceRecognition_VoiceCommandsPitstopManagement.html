@@ -48,6 +48,7 @@
 
 
                       Corsa Competizione</span></a></li>
+                <li><a href="GettingStarted_GameSpecific_GTR2.html"><span>GTR 2</span></a></li>
                 <li><a href="GettingStarted_GameSpecific_F1_2018.html" title="Also F1 2018 and 2019"><span>F1 2020</span></a></li>
                 <li><a href="GettingStarted_GameSpecific_iRacing.html"><span>iRacing</span></a></li>
                 <li><a href="GettingStarted_GameSpecific_ProjectCars.html"><span>Project
@@ -615,9 +616,25 @@
       In rFactor 2 the tyre types are translated from <b>hard/medium/soft</b>
       etc. to whatever is available for the vehicle.<br>
       That requires quite a bit of magic so you may not end up with the
-      tyres you expect. If that happens <b>next tyre compound<br>
-      </b>will select the next type of tyre.<br>
-      <b></b><br>
+      tyres you expect. If that happens <b><i>Pitstop, next tyre
+          compound</i><br>
+      </b>will select the next type of tyre or if you're adventurous you
+      may try editing <i><tt>&lt;</tt></i><tt><i>Documents&gt;</i>\CrewChiefV4\rF2\TyreDictionary.json
+
+
+
+      </tt>where you'll find each tyre type and a list of words from the
+      names of tyres available in rF2.&nbsp;
+      <!-- When you ask for say Soft
+      tyres Crew Chief works down the list <br>
+      <b>Algorithm:</b><br>
+      Check the first list item for each key in the tyre dictionary<br>
+      * if the word is in the Pit Menu then that key is DONE<br>
+      * if not, check the 2nd list item and so on<br>
+      If there are no exact matches in the whole dictionary then see if
+      one of the tyre dictionary values is a sub-string of one of the
+      game's entries e.g. "soft" in "Soft COMPOUND"<br>--> <br>
+      <br>
       <table width="764" height="284" cellspacing="2" cellpadding="2" border="1">
         <tbody>
           <tr>

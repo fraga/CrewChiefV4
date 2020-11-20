@@ -60,7 +60,8 @@ namespace HelpFiles
                 "RaceRoomRacingExperience",
                 "rFactor",
                 "rFactor2",
-                "RichardBurnsRally"
+                "RichardBurnsRally",
+                "GTR2"
             };
             images = new string[]{
                 "styles.css",
