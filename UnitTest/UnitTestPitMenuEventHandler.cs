@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using System.Globalization;
 using System.Threading;
 using System.Collections.Generic;
+using PitMenuAPI;
 
 // NONE of these actually run, TestPitManager does allow stepping through the
 // Pit Menu event handler
@@ -141,6 +142,7 @@ namespace UnitTest
     [TestClass]
     public class TestTranslateTyreTypes
     {
+        private static readonly PitMenuAbstractionLayer Pmal = new PitMenuAbstractionLayer();
         [TestMethod]
         public void Test_TTT_FormulaISI()
         {
@@ -291,101 +293,6 @@ namespace UnitTest
             Assert.AreEqual("Wet", result["Wet"]);
             Assert.AreEqual("Wet", result["Monsoon"]);
 
-        }
-        [TestMethod]
-        public void Test_TTT_Audi_R15()
-        {
-            List<string> inMenu = new List<string>();
-            inMenu.Add("Wet COMPOUND");
-            inMenu.Add("Soft COMPOUND");
-            inMenu.Add("Medium COMPOUND");
-            inMenu.Add("Hard COMPOUND");
-
-            Dictionary<string, string> result =
-                PitManagerEventHandlers_RF2.TranslateTyreTypes(
-                    PitManagerEventHandlers_RF2.SampleTyreTranslationDict,
-                    inMenu);
-            Assert.IsNotNull(result);
-            Assert.AreEqual("Soft COMPOUND", result["Hypersoft"]);
-            Assert.AreEqual("Soft COMPOUND", result["Ultrasoft"]);
-            Assert.AreEqual("Soft COMPOUND", result["Supersoft"]);
-            Assert.AreEqual("Soft COMPOUND", result["Soft"]);
-            Assert.AreEqual("Medium COMPOUND", result["Medium"]);
-            Assert.AreEqual("Hard COMPOUND", result["Hard"]);
-            Assert.AreEqual("Wet COMPOUND", result["Intermediate"]);
-            Assert.AreEqual("Wet COMPOUND", result["Wet"]);
-            Assert.AreEqual("Wet COMPOUND", result["Monsoon"]);
-
-        }
-        [TestMethod]
-        public void Test_TTT_Boxmaster()
-        {
-            List<string> inMenu = new List<string>();
-            inMenu.Add("All-weather");
-
-            Dictionary<string, string> result =
-                PitManagerEventHandlers_RF2.TranslateTyreTypes(
-                    PitManagerEventHandlers_RF2.SampleTyreTranslationDict,
-                    inMenu);
-            Assert.IsNotNull(result);
-            Assert.AreEqual("All-weather", result["Hypersoft"]);
-            Assert.AreEqual("All-weather", result["Ultrasoft"]);
-            Assert.AreEqual("All-weather", result["Supersoft"]);
-            Assert.AreEqual("All-weather", result["Soft"]);
-            Assert.AreEqual("All-weather", result["Medium"]);
-            Assert.AreEqual("All-weather", result["Hard"]);
-            Assert.AreEqual("All-weather", result["Intermediate"]);
-            Assert.AreEqual("All-weather", result["Wet"]);
-            Assert.AreEqual("All-weather", result["Monsoon"]);
-
-        }
-        [TestMethod]
-        public void Test_TTT_testCases()
-        {
-            List<string> inMenu = new List<string>();
-            inMenu.Add("All-weather");
-            inMenu.Add("Inters");
-            inMenu.Add("Hyper Soft");
-            inMenu.Add("UltraSoft");
-            inMenu.Add("Super-Soft");
-            inMenu.Add("S310");
-            inMenu.Add("P310");
-            inMenu.Add("Medium");
-
-            Dictionary<string, string> result =
-                PitManagerEventHandlers_RF2.TranslateTyreTypes(
-                    PitManagerEventHandlers_RF2.SampleTyreTranslationDict,
-                    inMenu);
-            Assert.IsNotNull(result);
-            Assert.AreEqual("Hyper Soft", result["Hypersoft"]);
-            Assert.AreEqual("UltraSoft", result["Ultrasoft"]);
-            Assert.AreEqual("Super-Soft", result["Supersoft"]);
-            Assert.AreEqual("S310", result["Soft"]);
-            Assert.AreEqual("Medium", result["Medium"]);
-            Assert.AreEqual("P310", result["Hard"]);
-            Assert.AreEqual("Inters", result["Intermediate"]);
-            Assert.AreEqual("All-weather", result["Wet"]);
-            Assert.AreEqual("All-weather", result["Monsoon"]);
-
-        }
-    }
-    [TestClass]
-    public class TestTyreTypeDictionary
-    {
-        [TestMethod]
-        public void Test_TyreTypeDictionary_Write()
-        {
-            PitManagerEventHandlers_RF2.TyreDictFile.saveTyreDictionaryFile(
-                PitManagerEventHandlers_RF2.SampleTyreTranslationDict);
-        }
-        [TestMethod]
-        public void Test_TyreTypeDictionary_Read()
-        {
-            PitManagerEventHandlers_RF2.TyreDictFile.saveTyreDictionaryFile(
-                PitManagerEventHandlers_RF2.SampleTyreTranslationDict);
-            var dict = PitManagerEventHandlers_RF2.TyreDictFile.getTyreDictionaryFromFile();
-            Assert.AreEqual(PitManagerEventHandlers_RF2.SampleTyreTranslationDict["Hypersoft"][0],
-                dict["Hypersoft"][0]);
         }
     }
 }
