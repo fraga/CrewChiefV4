@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using System.Globalization;
 using System.Threading;
 using System.Collections.Generic;
+using PitMenuAPI;
 
 // NONE of these actually run, TestPitManager does allow stepping through the
 // Pit Menu event handler
@@ -141,6 +142,7 @@ namespace UnitTest
     [TestClass]
     public class TestTranslateTyreTypes
     {
+        private static readonly PitMenuAbstractionLayer Pmal = new PitMenuAbstractionLayer();
         [TestMethod]
         public void Test_TTT_FormulaISI()
         {
@@ -337,6 +339,37 @@ namespace UnitTest
             Assert.AreEqual("All-weather", result["Intermediate"]);
             Assert.AreEqual("All-weather", result["Wet"]);
             Assert.AreEqual("All-weather", result["Monsoon"]);
+
+        }
+
+        [TestMethod]
+        /// From "first principles" by creating a dummy pit menu
+        public void Test_TTT_Howston_G4_1967_Endurance()
+        {
+            Dictionary<string, List<string>> MenuDict = new Dictionary<string, List<string>>();
+            foreach (var tyreCat in new List<string> { "FR TIRE:", "FL TIRE:", "RR TIRE:", "RL TIRE:" })
+            {
+                MenuDict[tyreCat] = new List<string>();
+                MenuDict[tyreCat].Add("Bias-Ply");
+                MenuDict[tyreCat].Add("Bias-Ply Rain Wheel Set");
+            }
+            Pmal.setMenuDict(MenuDict);
+            var inMenu = Pmal.GetTyreTypeNames();
+
+            Dictionary<string, string> result =
+                PitManagerEventHandlers_RF2.TranslateTyreTypes(
+                    PitManagerEventHandlers_RF2.SampleTyreTranslationDict,
+                    inMenu);
+            Assert.IsNotNull(result);
+            Assert.AreEqual("Bias-Ply", result["Hypersoft"]);
+            Assert.AreEqual("Bias-Ply", result["Ultrasoft"]);
+            Assert.AreEqual("Bias-Ply", result["Supersoft"]);
+            Assert.AreEqual("Bias-Ply", result["Soft"]);
+            Assert.AreEqual("Bias-Ply", result["Medium"]);
+            Assert.AreEqual("Bias-Ply", result["Hard"]);
+            Assert.AreEqual("Bias-Ply Rain Wheel Set", result["Intermediate"]);
+            Assert.AreEqual("Bias-Ply Rain Wheel Set", result["Wet"]);
+            Assert.AreEqual("Bias-Ply Rain Wheel Set", result["Monsoon"]);
 
         }
         [TestMethod]

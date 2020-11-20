@@ -280,6 +280,23 @@ namespace PitMenuAPI
             }
             return true;
         }
+
+        /// <summary>
+        /// SetChoice first tries an exact match, if that fails it accepts an
+        /// entry that starts with the choice.  This extracts that complexity
+        /// (Not certain it's necessary, an exact match looks OK but it was
+        /// written with StartsWith...)
+        /// </summary>
+        /// <param name="choice"></param>
+        /// <param name="startsWith"></param>
+        /// <returns>
+        /// false: Choice not found using the current comparison
+        /// </returns>
+        static bool choiceCompare(string choice, bool startsWith)
+        {
+            return ((startsWith && GetChoice().StartsWith(choice)) ||
+                (!startsWith && GetChoice() == choice));
+        }
         /// <summary>
         /// Set the current choice
         /// </summary>
@@ -291,7 +308,8 @@ namespace PitMenuAPI
         {
             string LastChoice = GetChoice();
             bool inc = true;
-            while (!GetChoice().StartsWith(choice))
+            bool startsWith = false;
+            while (!choiceCompare(choice, startsWith))
             {
                 if (inc)
                     ChoiceInc();
@@ -305,7 +323,12 @@ namespace PitMenuAPI
                     }
                     else
                     {
-                        return false;
+                        if (startsWith)
+                        {
+                            return false;
+                        }
+                        startsWith = true;
+                        inc = false;
                     }
                 }
                 LastChoice = GetChoice();
