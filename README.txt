@@ -431,6 +431,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.15.0.3: Some timing accuracy improvements where opponent data is incomplete; RBR / Dirt / Dirt 2 - ensure corner / obstacle modifiers apply to the correct pace note fragment and fixed issue with pace note corrections not working; GTR2 - improved plugin handling
+
 Version 4.15.0.2: R3E - hotfix for error when the player has no rating data (i.e. has never raced on one of the official ranked servers)
 
 Version 4.15.0.1: Added full support for GTR2, see http://thecrewchief.org/showthread.php?2012-GTR2-Setup-Instructions-and-Known-Issues&p=8180#post8180 for installation and setup instructions. Note that this also includes full (native) VR support for GTR2 (see the link for details); R3E - added rating-based finishing position expectation messages and voice command ("what's my expected finish position?"). The rating data also affects the race-end messages; RBR / Dirt / Dirt2 - rally stage notes creation improvements - added "into", "and" and "then" items, added "tightens to [1/2/3/4/5/hairpin]" command, ensure pace notes are ordered correctly, some other fixes and improvements; iRacing - added sanity checks to opponent speed and position data, should reduce the number of spurious stopped-car calls; Various bug fixes
