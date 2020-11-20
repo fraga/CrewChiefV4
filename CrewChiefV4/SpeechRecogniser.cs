@@ -391,6 +391,7 @@ namespace CrewChiefV4
         public static String[] RALLY_TIGHTENS_THEN_OPENS = Configuration.getSpeechRecognitionPhrases("RALLY_TIGHTENS_THEN_OPENS", loadHomophones);
         public static String[] RALLY_OPENS_THEN_TIGHTENS = Configuration.getSpeechRecognitionPhrases("RALLY_OPENS_THEN_TIGHTENS", loadHomophones);
         public static String[] RALLY_WIDENS = Configuration.getSpeechRecognitionPhrases("RALLY_WIDENS", loadHomophones);
+        public static String[] RALLY_WIDE_OUT = Configuration.getSpeechRecognitionPhrases("RALLY_WIDE_OUT", loadHomophones);
         public static String[] RALLY_GO_STRAIGHT = Configuration.getSpeechRecognitionPhrases("RALLY_GO_STRAIGHT", loadHomophones);
         public static String[] RALLY_MAYBE = Configuration.getSpeechRecognitionPhrases("RALLY_MAYBE", loadHomophones);
         public static String[] RALLY_LONG = Configuration.getSpeechRecognitionPhrases("RALLY_LONG", loadHomophones);
@@ -1889,6 +1890,7 @@ namespace CrewChiefV4
                     validateAndAdd(RALLY_NARROWS, stageNoteCommandChoicesWrapper);
                     validateAndAdd(RALLY_TIGHTENS_BAD, stageNoteCommandChoicesWrapper);
                     validateAndAdd(RALLY_WIDENS, stageNoteCommandChoicesWrapper);
+                    validateAndAdd(RALLY_WIDE_OUT, stageNoteCommandChoicesWrapper);
                     validateAndAdd(RALLY_MAYBE, stageNoteCommandChoicesWrapper);
                     validateAndAdd(RALLY_OPENS, stageNoteCommandChoicesWrapper);
                     validateAndAdd(RALLY_PLUS, stageNoteCommandChoicesWrapper);

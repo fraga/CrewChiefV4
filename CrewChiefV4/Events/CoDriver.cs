@@ -398,7 +398,8 @@ namespace CrewChiefV4.Events
             detail_long = 1024,
             detail_minus = 2048,
             detail_plus = 4096,
-            detail_maybe = 8192
+            detail_maybe = 8192,
+            detail_widens = 16384
         }
 
         private static readonly int[] distanceCallRanges = new int[]
@@ -2815,6 +2816,10 @@ namespace CrewChiefV4.Events
                 modifier = modifier | PacenoteModifier.detail_long;
             }
             if (voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_WIDENS, true, false, searchEndIndex, out startPointOfModifier))
+            {
+                modifier = modifier | PacenoteModifier.detail_widens;
+            }
+            if (voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_WIDE_OUT, true, false, searchEndIndex, out startPointOfModifier))
             {
                 modifier = modifier | PacenoteModifier.detail_wideout;
             }
