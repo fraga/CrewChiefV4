@@ -207,7 +207,7 @@ namespace CrewChiefV4.SRE
                     }
                     catch (Exception)
                     {
-                        Console.WriteLine("Unable to get Microsoft speech recogniser. Is SpeechPlaftformRuntime.msi installed?");
+                        Console.WriteLine("Unable to get Microsoft speech recogniser. Is SpeechPlatformRuntime.msi installed?");
                         return null;
                     }
                     if (langAndCountryToUse != null && langAndCountryToUse.Length == 5)
