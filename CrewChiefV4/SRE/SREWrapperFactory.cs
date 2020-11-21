@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -161,10 +162,21 @@ namespace CrewChiefV4.SRE
             {
                 if (useSystem)
                 {
+                    // first check we can get the system installed recognisers
+                    ReadOnlyCollection<System.Speech.Recognition.RecognizerInfo> systemRecognisers = null;
+                    try
+                    {
+                        systemRecognisers = System.Speech.Recognition.SpeechRecognitionEngine.InstalledRecognizers();
+                    }
+                    catch (Exception)
+                    {
+                        Console.WriteLine("Unable to get System (Windows) speech recogniser");
+                        return null;
+                    }
                     if (langAndCountryToUse != null && langAndCountryToUse.Length == 5)
                     {
                         if (log) Console.WriteLine("Attempting to get recogniser for " + langAndCountryToUse);
-                        foreach (System.Speech.Recognition.RecognizerInfo ri in System.Speech.Recognition.SpeechRecognitionEngine.InstalledRecognizers())
+                        foreach (System.Speech.Recognition.RecognizerInfo ri in systemRecognisers)
                         {
                             if (ri.Culture.Name.Equals(langAndCountryToUse))
                             {
@@ -177,7 +189,7 @@ namespace CrewChiefV4.SRE
                         Console.WriteLine("Failed to get recogniser for " + langAndCountryToUse);
                     }
                     if (log) Console.WriteLine("Attempting to get recogniser for " + langToUse);
-                    foreach (System.Speech.Recognition.RecognizerInfo ri in System.Speech.Recognition.SpeechRecognitionEngine.InstalledRecognizers())
+                    foreach (System.Speech.Recognition.RecognizerInfo ri in systemRecognisers)
                     {
                         if (ri.Culture.TwoLetterISOLanguageName.Equals(langToUse))
                         {
@@ -187,10 +199,21 @@ namespace CrewChiefV4.SRE
                 }
                 else
                 {
+                    // first check we can get the microsoft installed recognisers
+                    ReadOnlyCollection<Microsoft.Speech.Recognition.RecognizerInfo> microsoftRecognisers = null;
+                    try
+                    {
+                        microsoftRecognisers = Microsoft.Speech.Recognition.SpeechRecognitionEngine.InstalledRecognizers();
+                    }
+                    catch (Exception)
+                    {
+                        Console.WriteLine("Unable to get Microsoft speech recogniser. Is SpeechPlaftformRuntime.msi installed?");
+                        return null;
+                    }
                     if (langAndCountryToUse != null && langAndCountryToUse.Length == 5)
                     {
-                        if (log) Console.WriteLine("Attempting to get recogniser for " + langAndCountryToUse);
-                        foreach (Microsoft.Speech.Recognition.RecognizerInfo ri in Microsoft.Speech.Recognition.SpeechRecognitionEngine.InstalledRecognizers())
+                        if (log) Console.WriteLine("Attempting to get recogniser for " + langAndCountryToUse + " package name MSSpeech_SR_" + langAndCountryToUse + "_TELE.msi");
+                        foreach (Microsoft.Speech.Recognition.RecognizerInfo ri in microsoftRecognisers)
                         {
                             if (ri.Culture.Name.Equals(langAndCountryToUse))
                             {
@@ -202,8 +225,8 @@ namespace CrewChiefV4.SRE
                     {
                         Console.WriteLine("Failed to get recogniser for " + langAndCountryToUse);
                     }
-                    if (log) Console.WriteLine("Attempting to get recogniser for " + langToUse);
-                    foreach (Microsoft.Speech.Recognition.RecognizerInfo ri in Microsoft.Speech.Recognition.SpeechRecognitionEngine.InstalledRecognizers())
+                    if (log) Console.WriteLine("Attempting to get recogniser for " + langToUse + " package name MSSpeech_SR_" + langToUse + "-XX_TELE.msi");
+                    foreach (Microsoft.Speech.Recognition.RecognizerInfo ri in microsoftRecognisers)
                     {
                         if (ri.Culture.TwoLetterISOLanguageName.Equals(langToUse))
                         {
