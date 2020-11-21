@@ -52,13 +52,29 @@ namespace CrewChiefV4
         private String localeCountryPropertySetting = UserSettings.GetUserSettings().getString("speech_recognition_country");
 
         private float minimum_name_voice_recognition_confidence_windows = UserSettings.GetUserSettings().getFloat("minimum_name_voice_recognition_confidence_system_sre");
+        private string minimum_name_voice_recognition_confidence_windows_prop_name = Configuration.getUIString("minimum_name_voice_recognition_confidence_system_sre");
+
         private float minimum_name_voice_recognition_confidence_microsoft = UserSettings.GetUserSettings().getFloat("minimum_name_voice_recognition_confidence");
+        private string minimum_name_voice_recognition_confidence_microsoft_prop_name = Configuration.getUIString("minimum_name_voice_recognition_confidence");
+
         private float minimum_trigger_voice_recognition_confidence_windows = UserSettings.GetUserSettings().getFloat("trigger_word_sre_min_confidence_system_sre");
+        private string minimum_trigger_voice_recognition_confidence_windows_prop_name = Configuration.getUIString("trigger_word_sre_min_confidence_system_sre");
+
         private float minimum_trigger_voice_recognition_confidence_microsoft = UserSettings.GetUserSettings().getFloat("trigger_word_sre_min_confidence");
+        private string minimum_trigger_voice_recognition_confidence_microsoft_prop_name = Configuration.getUIString("trigger_word_sre_min_confidence");
+
         private float minimum_voice_recognition_confidence_windows = UserSettings.GetUserSettings().getFloat("minimum_voice_recognition_confidence_system_sre");
+        private string minimum_voice_recognition_confidence_windows_prop_name = Configuration.getUIString("minimum_voice_recognition_confidence_system_sre");
+
         private float minimum_voice_recognition_confidence_microsoft = UserSettings.GetUserSettings().getFloat("minimum_voice_recognition_confidence");
+        private string minimum_voice_recognition_confidence_microsoft_prop_name = Configuration.getUIString("minimum_voice_recognition_confidence");
+
         private float minimum_rally_voice_recognition_confidence_windows = UserSettings.GetUserSettings().getFloat("minimum_rally_voice_recognition_confidence_system_sre");
+        private string minimum_rally_voice_recognition_confidence_windows_prop_name = Configuration.getUIString("minimum_rally_voice_recognition_confidence_system_sre");
+
         private float minimum_rally_voice_recognition_confidence_microsoft = UserSettings.GetUserSettings().getFloat("minimum_rally_voice_recognition_confidence_microsoft_sre");
+        private string minimum_rally_voice_recognition_confidence_microsoft_prop_name = Configuration.getUIString("minimum_rally_voice_recognition_confidence_microsoft_sre");
+
         private Boolean disable_alternative_voice_commands = UserSettings.GetUserSettings().getBoolean("disable_alternative_voice_commands");
         private Boolean enable_iracing_pit_stop_commands = UserSettings.GetUserSettings().getBoolean("enable_iracing_pit_stop_commands");
         private static Boolean use_verbose_responses = UserSettings.GetUserSettings().getBoolean("use_verbose_responses");
@@ -2426,10 +2442,14 @@ namespace CrewChiefV4
             string recogniserName = SREWrapperFactory.useSystem ? "System recogniser" : "Microsoft recogniser";
             Console.WriteLine(recogniserName + " recognised : \"" + recognisedText + "\", Confidence = " + recognitionConfidence.ToString("0.000"));
             float confidenceNamesThreshold = SREWrapperFactory.useSystem ? minimum_name_voice_recognition_confidence_windows : minimum_name_voice_recognition_confidence_microsoft;
+            string confidenceNamesThresholdPropName = SREWrapperFactory.useSystem ? minimum_name_voice_recognition_confidence_windows_prop_name : minimum_name_voice_recognition_confidence_microsoft_prop_name;
             float confidenceCircuitThreshold = SREWrapperFactory.useSystem ? minimum_voice_recognition_confidence_windows : minimum_voice_recognition_confidence_microsoft;
+            string confidenceCircuitThresholdPropName = SREWrapperFactory.useSystem ? minimum_voice_recognition_confidence_windows_prop_name : minimum_voice_recognition_confidence_microsoft_prop_name;
             float confidenceRallyThreshold = SREWrapperFactory.useSystem ? minimum_rally_voice_recognition_confidence_windows : minimum_rally_voice_recognition_confidence_microsoft;
+            string confidenceRallyThresholdPropName = SREWrapperFactory.useSystem ? minimum_rally_voice_recognition_confidence_windows_prop_name : minimum_rally_voice_recognition_confidence_microsoft_prop_name;
 
             float confidenceThreshold = CrewChief.gameDefinition.racingType == CrewChief.RacingType.Rally ? confidenceRallyThreshold : confidenceCircuitThreshold;
+            string confidenceThresholdPropName = CrewChief.gameDefinition.racingType == CrewChief.RacingType.Rally ? confidenceRallyThresholdPropName : confidenceCircuitThresholdPropName;
 
             bool useDictationGrammarForRally = false;   // this really doesn't work well. Perhaps it'll be reinstated at some point
             float confidenceRallyDictationThreshold = 0.3f;
@@ -2486,7 +2506,8 @@ namespace CrewChiefV4
                         }
                         else
                         {
-                            Console.WriteLine("Confidence " + recognitionConfidence.ToString("0.000") + " is below the minimum threshold of " + confidenceRallyThreshold.ToString("0.000"));
+                            Console.WriteLine("Confidence " + recognitionConfidence.ToString("0.000") +
+                                " is below the minimum threshold of " + confidenceRallyThreshold.ToString("0.000") + " set in property \"" + confidenceRallyThresholdPropName + "\"");
                             crewChief.youWot(true);
                             youWot = true;
                         }
@@ -2507,7 +2528,8 @@ namespace CrewChiefV4
                         }
                         else
                         {
-                            Console.WriteLine("Confidence " + recognitionConfidence.ToString("0.000") + " is below the minimum threshold of " + confidenceNamesThreshold.ToString("0.000"));
+                            Console.WriteLine("Confidence " + recognitionConfidence.ToString("0.000") +
+                                " is below the minimum threshold of " + confidenceNamesThreshold.ToString("0.000") + " set in property \"" + confidenceNamesThresholdPropName + "\"");
                             crewChief.youWot(true);
                             youWot = true;
                         }
@@ -2598,7 +2620,8 @@ namespace CrewChiefV4
                     }
                     else
                     {
-                        Console.WriteLine("Confidence " + recognitionConfidence.ToString("0.000") + " is below the minimum threshold of " + confidenceThreshold.ToString("0.000"));
+                        Console.WriteLine("Confidence " + recognitionConfidence.ToString("0.000") +
+                            " is below the minimum threshold of " + confidenceThreshold.ToString("0.000") + " set in property \"" + confidenceThresholdPropName + "\"");
                         crewChief.youWot(true);
                         youWot = true;
                     }
