@@ -2510,6 +2510,7 @@ namespace CrewChiefV4.Events
                 requestedDirection = Direction.RIGHT;
             }
             List<HistoricCall> callsToCorrect = GetCallsToCorrect(requestedDirection);
+            // the calls to correct list is ordered such that the most recently called pace note is at the front
             if (callsToCorrect != null && callsToCorrect.Count > 0)
             {
                 // we might change the voice message to replace some contents, so stash it first so we can add the raw message to the note
@@ -2646,7 +2647,7 @@ namespace CrewChiefV4.Events
         private List<HistoricCall> GetCallsToCorrect(Direction requestedDirection)
         {
             // Count back through the historic calls to find the first one that we've passed and that matches the corner direction (if we specified one).
-            // If we find a call to correct and it's for a corner > 200 metres behind us, assume we've not been able to find the appropriate call
+            // If we find a call to correct and it's for a corner > 400 metres behind us, assume we've not been able to find the appropriate call
             var historicCallNode = this.historicCalls.Last;
             float distance = MainWindow.voiceOption == MainWindow.VoiceOptionEnum.ALWAYS_ON ?
                     CrewChief.currentGameState.PositionAndMotionData.DistanceRoundTrack : SpeechRecogniser.distanceWhenVoiceCommandStarted;
@@ -2679,10 +2680,8 @@ namespace CrewChiefV4.Events
                     break;
                 }
             }
-            // at this point the historic calls are ordered such that the most recently played call is at the end of the list. We only
-            // allow a single "correction 4" command to be applied and as this is applied to the first corner in this list, we reverse the
-            // list here to ensure the correction is applied to the last (not first) call
-            historicCalls.Reverse();
+            // at this point the historicCalls are ordered such that the most recently played call is at the front of the list.
+            // There can be many calls at a single distance so we want the correction to apply to the most recently made call.
             return historicCalls;
         }
 
