@@ -398,7 +398,8 @@ namespace CrewChiefV4.Events
             detail_long = 1024,
             detail_minus = 2048,
             detail_plus = 4096,
-            detail_maybe = 8192
+            detail_maybe = 8192,
+            detail_widens = 16384
         }
 
         private static readonly int[] distanceCallRanges = new int[]
@@ -852,8 +853,9 @@ namespace CrewChiefV4.Events
 
             // for debugging command parsing, set recce mode and squirt a string straight into the respond method
             // this.inReceMode = true;
+            // this.lastPlayedOrAddedBatch.Add(new CoDriverPacenote { Pacenote = PacenoteType.corner_1_left, Distance = 100 });
             // CrewChief.currentGameState = new GameStateData(DateTime.Now.Ticks);
-            // this.respond("over bridge tightens long crest plus maybe");
+            // this.respond("correction left two earlier");
 
 #if false
             var terminologies = new Terminologies();
@@ -2049,11 +2051,13 @@ namespace CrewChiefV4.Events
                     // insert any replacements
                     List<CoDriverPacenote> deletedPacenotes = new List<CoDriverPacenote>();
                     // remove the previously added batch from the recce notes
+                    float distanceOfReplacedBatch = -1;
                     foreach (CoDriverPacenote pacenote in this.lastPlayedOrAddedBatch)
                     {
                         Console.WriteLine("Recce correction, removing pace note " + pacenote);
                         this.recePaceNotes.Remove(pacenote);
                         deletedPacenotes.Add(pacenote);
+                        distanceOfReplacedBatch = pacenote.Distance;
                     }
                     // remove the correction bit from the voice command
                     foreach (string correctionFragment in SpeechRecogniser.RALLY_CORRECTION)
@@ -2064,9 +2068,17 @@ namespace CrewChiefV4.Events
                             break;
                         }
                     }
+                    bool moveEarlier = SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_EARLIER);
+                    bool moveLater = SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.RALLY_LATER);
                     // now process this as a regular recce note
-                    if (ProcessRecePaceNote(voiceMessage))
+                    if (ProcessRecePaceNote(voiceMessage, false))
                     {
+                        if (distanceOfReplacedBatch == -1)
+                            distanceOfReplacedBatch = this.lastPlayedOrAddedBatch[0].Distance;
+                        foreach (CoDriverPacenote pacenote in this.lastPlayedOrAddedBatch)
+                        {
+                            pacenote.Distance = moveEarlier ? Math.Max(0, distanceOfReplacedBatch - 50) : moveLater ? distanceOfReplacedBatch + 50 : distanceOfReplacedBatch;
+                        }
                         if (UserSettings.GetUserSettings().getBoolean("confirm_recce_pace_notes"))
                         {
                             this.audioPlayer.playMessageImmediately(new QueuedMessage(this.folderCorrection, 0));
@@ -2076,9 +2088,23 @@ namespace CrewChiefV4.Events
                     else
                     {
                         // got 'correction' but no actual correction, reinstate the removed notes and say "eh?"
+                        foreach (CoDriverPacenote pacenote in deletedPacenotes)
+                        {
+                            if (moveEarlier)
+                                pacenote.Distance = Math.Max(0, pacenote.Distance - 50);
+                            else if (moveLater)
+                                pacenote.Distance = pacenote.Distance + 50;
+                        }
                         this.recePaceNotes.AddRange(deletedPacenotes);
-                        Console.WriteLine("Voice message \"Correction, " + voiceMessage + "\" didn't produce any pace notes");
-                        this.audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderDidntUnderstand, 0));
+                        if (!moveLater && !moveEarlier)
+                        {
+                            Console.WriteLine("Voice message \"Correction, " + voiceMessage + "\" didn't produce any pace notes");
+                            this.audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderDidntUnderstand, 0));
+                        }
+                        else
+                        {
+                            this.audioPlayer.playMessageImmediately(new QueuedMessage(this.folderAcknowlegeOK, 0));
+                        }
                     }
                 }
                 else
@@ -2097,7 +2123,7 @@ namespace CrewChiefV4.Events
             }
             else if (this.inReceMode)
             {
-                bool addedPacenote = ProcessRecePaceNote(voiceMessage);
+                bool addedPacenote = ProcessRecePaceNote(voiceMessage, true);
                 if (addedPacenote)
                 {
                     if (UserSettings.GetUserSettings().getBoolean("confirm_recce_pace_notes"))
@@ -2215,7 +2241,7 @@ namespace CrewChiefV4.Events
             }
         }
 
-        private bool ProcessRecePaceNote(string voiceMessage)
+        private bool ProcessRecePaceNote(string voiceMessage, bool createPlaceholderForUnrecognised)
         {
             Console.WriteLine("Got stage recce voice message \"" + voiceMessage + "\"");
             float currentDistance = CrewChief.currentGameState == null ? 0 : CrewChief.currentGameState.PositionAndMotionData.DistanceRoundTrack;
@@ -2237,12 +2263,12 @@ namespace CrewChiefV4.Events
             {
                 // we're assuming that the pace note command is made *after* the obstacle / corner, so create the notes then use the created
                 // notes to estimate how long the obstacle / corner is (i.e. the stage distance when the obstacle starts), and set that into the notes
-                List<CoDriverPacenote> paceNotesToAdd = GetPacenotesFromVoiceCommand(voiceMessage);
+                List<CoDriverPacenote> paceNotesToAdd = GetPacenotesFromVoiceCommand(voiceMessage, createPlaceholderForUnrecognised);
 
                 // see if we need to re-run the parser with a tweaked input phrase for some special cases
                 if (retryWithModifiedPhrase(voiceMessage, paceNotesToAdd, out string modifiedVoiceCommand) && modifiedVoiceCommand != null && modifiedVoiceCommand != voiceMessage)
                 {
-                    return ProcessRecePaceNote(modifiedVoiceCommand);
+                    return ProcessRecePaceNote(modifiedVoiceCommand, createPlaceholderForUnrecognised);
                 }
 
                 // one special case (eeewww). We missed a modifier during our previous corner call and have made a new command which is just "don't cut"
@@ -2251,7 +2277,7 @@ namespace CrewChiefV4.Events
                 {
                     AppendModifierToLastCorner(voiceMessage);
                 }
-                else
+                else if (paceNotesToAdd.Count > 0)
                 {
                     float distanceAtStartOfObstacle = distance - EstimateObstacleLength(paceNotesToAdd);
                     foreach (CoDriverPacenote paceNote in paceNotesToAdd)
@@ -2272,7 +2298,7 @@ namespace CrewChiefV4.Events
                     this.lastPlayedBatchTime = CrewChief.currentGameState.Now;
                 }
                 lastRecePacenoteWasDistance = false;
-                return this.lastPlayedOrAddedBatch.Count > 0;
+                return paceNotesToAdd.Count > 0;
             }
         }
 
@@ -2409,7 +2435,7 @@ namespace CrewChiefV4.Events
                     break;
                 }
             }
-            List<CoDriverPacenote> insertedNotes = GetPacenotesFromVoiceCommand(voiceMessage);
+            List<CoDriverPacenote> insertedNotes = GetPacenotesFromVoiceCommand(voiceMessage, true);
             float distanceAtStartOfObstacle = distance - EstimateObstacleLength(insertedNotes);
             foreach (CoDriverPacenote paceNote in insertedNotes)
             {
@@ -2424,7 +2450,7 @@ namespace CrewChiefV4.Events
         }
 
         // get the pace note (or sometimes multiple pace notes) from a single voice command
-        private List<CoDriverPacenote> GetPacenotesFromVoiceCommand(string voiceMessage)
+        private List<CoDriverPacenote> GetPacenotesFromVoiceCommand(string voiceMessage, bool createPlaceholderForUnrecognised)
         {
             List<CoDriverPacenote> paceNotes = new List<CoDriverPacenote>();
             // as we parse the command we want to consume the recognised text, so wrap this in our little helper class
@@ -2474,7 +2500,7 @@ namespace CrewChiefV4.Events
                 }
             }
             // if we've not been able to work out what's been said here, create an empty pace note to hold the misunderstood raw voice command
-            if (paceNotes.Count == 0)
+            if (paceNotes.Count == 0 && createPlaceholderForUnrecognised)
             {
                 paceNotes.Add(new CoDriverPacenote() { RawVoiceCommand = voiceMessage, UnprocessedVoiceCommandText = voiceMessage });
             }
@@ -2509,6 +2535,7 @@ namespace CrewChiefV4.Events
                 requestedDirection = Direction.RIGHT;
             }
             List<HistoricCall> callsToCorrect = GetCallsToCorrect(requestedDirection);
+            // the calls to correct list is ordered such that the most recently called pace note is at the front
             if (callsToCorrect != null && callsToCorrect.Count > 0)
             {
                 // we might change the voice message to replace some contents, so stash it first so we can add the raw message to the note
@@ -2645,7 +2672,7 @@ namespace CrewChiefV4.Events
         private List<HistoricCall> GetCallsToCorrect(Direction requestedDirection)
         {
             // Count back through the historic calls to find the first one that we've passed and that matches the corner direction (if we specified one).
-            // If we find a call to correct and it's for a corner > 200 metres behind us, assume we've not been able to find the appropriate call
+            // If we find a call to correct and it's for a corner > 400 metres behind us, assume we've not been able to find the appropriate call
             var historicCallNode = this.historicCalls.Last;
             float distance = MainWindow.voiceOption == MainWindow.VoiceOptionEnum.ALWAYS_ON ?
                     CrewChief.currentGameState.PositionAndMotionData.DistanceRoundTrack : SpeechRecogniser.distanceWhenVoiceCommandStarted;
@@ -2678,10 +2705,8 @@ namespace CrewChiefV4.Events
                     break;
                 }
             }
-            // at this point the historic calls are ordered such that the most recently played call is at the end of the list. We only
-            // allow a single "correction 4" command to be applied and as this is applied to the first corner in this list, we reverse the
-            // list here to ensure the correction is applied to the last (not first) call
-            historicCalls.Reverse();
+            // at this point the historicCalls are ordered such that the most recently played call is at the front of the list.
+            // There can be many calls at a single distance so we want the correction to apply to the most recently made call.
             return historicCalls;
         }
 
@@ -2815,6 +2840,10 @@ namespace CrewChiefV4.Events
                 modifier = modifier | PacenoteModifier.detail_long;
             }
             if (voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_WIDENS, true, false, searchEndIndex, out startPointOfModifier))
+            {
+                modifier = modifier | PacenoteModifier.detail_widens;
+            }
+            if (voiceMessageWrapper.FindAndRemove(SpeechRecogniser.RALLY_WIDE_OUT, true, false, searchEndIndex, out startPointOfModifier))
             {
                 modifier = modifier | PacenoteModifier.detail_wideout;
             }
