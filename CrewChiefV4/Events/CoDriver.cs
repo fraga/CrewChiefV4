@@ -2051,11 +2051,13 @@ namespace CrewChiefV4.Events
                     // insert any replacements
                     List<CoDriverPacenote> deletedPacenotes = new List<CoDriverPacenote>();
                     // remove the previously added batch from the recce notes
+                    float distanceOfReplacedBatch = -1;
                     foreach (CoDriverPacenote pacenote in this.lastPlayedOrAddedBatch)
                     {
                         Console.WriteLine("Recce correction, removing pace note " + pacenote);
                         this.recePaceNotes.Remove(pacenote);
                         deletedPacenotes.Add(pacenote);
+                        distanceOfReplacedBatch = pacenote.Distance;
                     }
                     // remove the correction bit from the voice command
                     foreach (string correctionFragment in SpeechRecogniser.RALLY_CORRECTION)
@@ -2071,12 +2073,14 @@ namespace CrewChiefV4.Events
                     // now process this as a regular recce note
                     if (ProcessRecePaceNote(voiceMessage, false))
                     {
+                        if (distanceOfReplacedBatch == -1)
+                            distanceOfReplacedBatch = this.lastPlayedOrAddedBatch[0].Distance;
                         foreach (CoDriverPacenote pacenote in this.lastPlayedOrAddedBatch)
                         {
                             if (moveEarlier)
-                                pacenote.Distance = Math.Max(0, pacenote.Distance - 50);
+                                pacenote.Distance = Math.Max(0, distanceOfReplacedBatch - 50);
                             else if (moveLater)
-                                pacenote.Distance = pacenote.Distance + 50;
+                                pacenote.Distance = distanceOfReplacedBatch + 50;
                         }
                         if (UserSettings.GetUserSettings().getBoolean("confirm_recce_pace_notes"))
                         {
