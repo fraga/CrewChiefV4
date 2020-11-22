@@ -2077,10 +2077,7 @@ namespace CrewChiefV4.Events
                             distanceOfReplacedBatch = this.lastPlayedOrAddedBatch[0].Distance;
                         foreach (CoDriverPacenote pacenote in this.lastPlayedOrAddedBatch)
                         {
-                            if (moveEarlier)
-                                pacenote.Distance = Math.Max(0, distanceOfReplacedBatch - 50);
-                            else if (moveLater)
-                                pacenote.Distance = distanceOfReplacedBatch + 50;
+                            pacenote.Distance = moveEarlier ? Math.Max(0, distanceOfReplacedBatch - 50) : moveLater ? distanceOfReplacedBatch + 50 : distanceOfReplacedBatch;
                         }
                         if (UserSettings.GetUserSettings().getBoolean("confirm_recce_pace_notes"))
                         {
