@@ -15,6 +15,7 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using NAudio.CoreAudioApi;
 using CrewChiefV4.Overlay;
+using NAudio.Wave;
 
 namespace CrewChiefV4
 {
@@ -2838,6 +2839,19 @@ namespace CrewChiefV4
                     StopNAudioWaveIn();
                     if (!isShuttingDown)
                     {
+                        if (false)
+                        {   // Failed attempt to play it back
+                            var by = new byte[25600];
+                            var bufferedWaveProvider = new BufferedWaveProvider(new WaveFormat(16000, 16, 2));
+                            bufferedWaveProvider.BufferLength = 25600;
+                            bufferedWaveProvider.DiscardOnBufferOverflow = true;
+                            buffer.Read(by, 0, 25600);
+                            bufferedWaveProvider.AddSamples(by, 0, 25600);
+                            WaveOut waveout = new WaveOut();
+                            waveout.Init(bufferedWaveProvider);
+                            waveout.Play();
+                            Thread.Sleep(2000);
+                        }
                         sreWrapper.SetInputToAudioStream(buffer, nAudioWaveInSampleRate, nAudioWaveInSampleDepth, nAudioWaveInChannelCount); // otherwise input gets unset
                         try
                         {
