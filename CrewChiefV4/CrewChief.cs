@@ -842,7 +842,8 @@ namespace CrewChiefV4
                                 {
                                     Boolean isPractice = currentGameState.SessionData.SessionType == SessionType.Practice || currentGameState.SessionData.SessionType == SessionType.LonePractice;
                                     // before triggering events, see if we need to enable pace notes automatically.
-                                    if (this.autoEnablePacenotesInPractice && currentGameState != null && previousGameState != null
+                                    if (this.autoEnablePacenotesInPractice && CrewChief.gameDefinition.racingType == RacingType.Circuit
+                                        && currentGameState != null && previousGameState != null
                                         && !DriverTrainingService.isRecordingPaceNotes
                                         && isPractice)
                                     {

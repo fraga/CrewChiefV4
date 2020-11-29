@@ -582,6 +582,7 @@ namespace CrewChiefV4.Events
             { SpeechRecogniser.RALLY_DOWNHILL, PacenoteType.detail_downhill },
             { SpeechRecogniser.RALLY_BRAKE, PacenoteType.detail_brake },
             { SpeechRecogniser.RALLY_GO_STRAIGHT, PacenoteType.detail_go_straight },
+            { SpeechRecogniser.RALLY_TWISTY, PacenoteType.detail_twisty },
 
             { SpeechRecogniser.RALLY_TIGHTENS_TO_1, PacenoteType.detail_tightens_to_1},
             { SpeechRecogniser.RALLY_TIGHTENS_TO_2, PacenoteType.detail_tightens_to_2},

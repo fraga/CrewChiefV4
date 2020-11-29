@@ -2,12 +2,19 @@
 using Microsoft.Speech.AudioFormat;
 using System;
 using System.Globalization;
+using System.Collections.Generic;
 
 namespace CrewChiefV4.SRE
 {
     public class MicrosoftSREWrapper : SREWrapper
     {
         private SpeechRecognitionEngine internalSRE;
+
+        private int maxAudioLevel = 0;
+
+        private List<string> lastProblems = new List<string>();
+
+        private bool debugRecognitionAttempt = false;
 
         public MicrosoftSREWrapper(CultureInfo culture, TimeSpan? endSilenceTimeoutAmbiguous)
         {
@@ -25,7 +32,10 @@ namespace CrewChiefV4.SRE
             {
                 this.internalSRE.EndSilenceTimeoutAmbiguous = endSilenceTimeoutAmbiguous.Value;
             }
+            this.internalSRE.AudioLevelUpdated += new EventHandler<AudioLevelUpdatedEventArgs>(recognizer_AudioLevelUpdated); ;
+            this.internalSRE.AudioSignalProblemOccurred += new EventHandler<AudioSignalProblemOccurredEventArgs>(recognizer_AudioSignalProblemOccurred);
         }
+
         public void AddSpeechRecognizedCallback(object callback)
         {
             internalSRE.SpeechRecognized += (EventHandler<SpeechRecognizedEventArgs>)callback;
@@ -38,17 +48,35 @@ namespace CrewChiefV4.SRE
 
         public void RecognizeAsync()
         {
+            this.maxAudioLevel = 0;
+            this.lastProblems.Clear();
+            this.debugRecognitionAttempt = false;
             internalSRE.RecognizeAsync(RecognizeMode.Multiple);
         }
 
         public void RecognizeAsyncCancel()
         {
             internalSRE.RecognizeAsyncCancel();
+            if (this.debugRecognitionAttempt)
+            {
+                Console.WriteLine("Max audio level for recogniser operation = " + this.maxAudioLevel);
+                Console.WriteLine(string.Join(", ", this.lastProblems));
+            }
         }
 
         public void RecognizeAsyncStop()
         {
             internalSRE.RecognizeAsyncStop();
+            if (this.debugRecognitionAttempt)
+            {
+                Console.WriteLine("Max audio level for recogniser operation = " + this.maxAudioLevel);
+                Console.WriteLine(string.Join(", ", this.lastProblems));
+            }
+        }
+
+        public int GetMaxAudioLevelForLastOperation()
+        {
+            return maxAudioLevel;
         }
 
         public void SetInitialSilenceTimeout(TimeSpan timeSpan)
@@ -87,6 +115,21 @@ namespace CrewChiefV4.SRE
         public object GetInternalSRE()
         {
             return internalSRE;
+        }
+
+        private void recognizer_AudioLevelUpdated(object sender, AudioLevelUpdatedEventArgs e)
+        {
+            if (this.maxAudioLevel < e.AudioLevel)
+            {
+                this.maxAudioLevel = e.AudioLevel;
+            }
+        }
+
+        // Gather information when the AudioSignalProblemOccurred event is raised.  
+        private void recognizer_AudioSignalProblemOccurred(object sender, AudioSignalProblemOccurredEventArgs e)
+        {
+            this.lastProblems.Add(string.Format("Audio signal problem information: {0}", e.AudioSignalProblem));
+            this.debugRecognitionAttempt = true;
         }
     }
 }
