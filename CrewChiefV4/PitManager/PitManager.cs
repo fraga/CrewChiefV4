@@ -106,7 +106,15 @@ namespace CrewChiefV4.PitManager
         FlipUpR,
 
         Tearoff,                // iRacing
-        TearOffNone
+        TearOffNone,
+
+        DisplaySectors,         // rF2 Multi-Function Display pages
+        DisplayPitMenu,
+        DisplayTyres,
+        DisplayTemps,
+        DisplayRaceInfo,
+        DisplayStandings,
+        DisplayPenalties
     }
 
     public class PitManager
@@ -217,7 +225,9 @@ namespace CrewChiefV4.PitManager
                                     else
                                     {
                                         //TBD: default handler "Couldn't do event for this vehicle"
-                                        // e.g. change aero on non-aero car, option not in menu
+                                        // e.g. change aero on non-aero car, option not in menu,
+                                        // fuel a car
+                                        PitManagerResponseHandlers.PMrh_CantDoThat();
                                         Log.Commentary($"Pit Manager couldn't do {ev} for this vehicle");
                                     }
                                 }
@@ -232,6 +242,7 @@ namespace CrewChiefV4.PitManager
                         {
                             //TBD: default handler "Not available in this game"
                             PitManagerResponseHandlers.PMrh_CantDoThat();
+                            Log.Commentary($"Pit Manager couldn't do {ev} in this game");
                             //Alternatively event dicts for all games have all events
                             //and the response handler does the warning.
                         }
@@ -383,6 +394,14 @@ namespace CrewChiefV4.PitManager
 
             //{PME.Tearoff,               _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) }, // iRacing
             //{PME.TearOffNone,           _PMet(_PMeh, PMEHrF2.PMrF2eh_example,            PMER.PMrh_CantDoThat) },
+
+            {PME.DisplaySectors,          _PMet(_PMeh, PMEHrF2.PMrF2eh_DisplaySectors,     PMER.PMrh_NoResponse) },
+            {PME.DisplayPitMenu,          _PMet(_PMeh, PMEHrF2.PMrF2eh_DisplayPitMenu,     PMER.PMrh_NoResponse) },
+            {PME.DisplayTyres,            _PMet(_PMeh, PMEHrF2.PMrF2eh_DisplayTyres,       PMER.PMrh_NoResponse) },
+            {PME.DisplayTemps,            _PMet(_PMeh, PMEHrF2.PMrF2eh_DisplayTemps,       PMER.PMrh_NoResponse) },
+            {PME.DisplayRaceInfo,         _PMet(_PMeh, PMEHrF2.PMrF2eh_DisplayRaceInfo,    PMER.PMrh_NoResponse) },
+            {PME.DisplayStandings,        _PMet(_PMeh, PMEHrF2.PMrF2eh_DisplayStandings,   PMER.PMrh_NoResponse) },
+            {PME.DisplayPenalties,        _PMet(_PMeh, PMEHrF2.PMrF2eh_DisplayPenalties,   PMER.PMrh_NoResponse) },
         };
 
         ///////////////////////////////////////////////////////////////////////////

@@ -545,6 +545,44 @@ namespace CrewChiefV4.PitManager
 
         #endregion Public Methods
 
+        #region MFD
+        static public bool PMrF2eh_DisplaySectors(string __)
+        {
+            Pmal.MfdPage("MFDA");
+            return true;
+        }
+        static public bool PMrF2eh_DisplayPitMenu(string __)
+        {
+            Pmal.MfdPage("MFDB");
+            return true;
+        }
+        static public bool PMrF2eh_DisplayTyres(string __)
+        {
+            Pmal.MfdPage("MFDC");
+            return true;
+        }
+        static public bool PMrF2eh_DisplayTemps(string __)
+        {
+            Pmal.MfdPage("MFDE");
+            return true;
+        }
+        static public bool PMrF2eh_DisplayRaceInfo(string __)
+        {
+            Pmal.MfdPage("MFDF");
+            return true;
+        }
+        static public bool PMrF2eh_DisplayStandings(string __)
+        {
+            Pmal.MfdPage("MFDG");
+            return true;
+        }
+        static public bool PMrF2eh_DisplayPenalties(string __)
+        {
+            Pmal.MfdPage("MFDH");
+            return true;
+        }
+        #endregion MFD
+
         #region Private Methods
 
         /// <summary>
