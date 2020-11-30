@@ -225,7 +225,9 @@ namespace CrewChiefV4.PitManager
                                     else
                                     {
                                         //TBD: default handler "Couldn't do event for this vehicle"
-                                        // e.g. change aero on non-aero car, option not in menu
+                                        // e.g. change aero on non-aero car, option not in menu,
+                                        // fuel a car
+                                        PitManagerResponseHandlers.PMrh_CantDoThat();
                                         Log.Commentary($"Pit Manager couldn't do {ev} for this vehicle");
                                     }
                                 }
@@ -240,6 +242,7 @@ namespace CrewChiefV4.PitManager
                         {
                             //TBD: default handler "Not available in this game"
                             PitManagerResponseHandlers.PMrh_CantDoThat();
+                            Log.Commentary($"Pit Manager couldn't do {ev} in this game");
                             //Alternatively event dicts for all games have all events
                             //and the response handler does the warning.
                         }
