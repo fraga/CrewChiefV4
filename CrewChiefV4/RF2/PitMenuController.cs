@@ -124,6 +124,10 @@ namespace PitMenuAPI
                     return false;
                 }
             }
+            if (!shadowPitMenu.ContainsKey(category))
+                {
+                return false;
+                }
             string currentCategory = GetCategory();
             if (category != currentCategory)
             {
@@ -206,7 +210,7 @@ namespace PitMenuAPI
             if (SmartSetCategory("FUEL:"))
             {
                 match = reggie.Match(GetChoice());
-                if (match.Groups.Count == 3)
+                if (match.Groups.Count >= 1)
                 {
                     bool parsed = float.TryParse(match.Groups[1].Value, out current);
                     if (parsed)
