@@ -1395,6 +1395,7 @@ namespace CrewChiefV4
                 case GameEnum.AMS2_NETWORK:
                 case GameEnum.ASSETTO_32BIT:
                 case GameEnum.ASSETTO_64BIT:
+                case GameEnum.GTR2:
                 case GameEnum.IRACING:
                 case GameEnum.PCARS2:
                 case GameEnum.PCARS2_NETWORK:

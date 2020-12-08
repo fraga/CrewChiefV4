@@ -1114,11 +1114,10 @@ namespace CrewChiefV4.iRacing
                 currentGameState.Conditions.addSample(currentGameState.Now, currentGameState.SessionData.CompletedLaps, currentGameState.SessionData.SectorNumber,
                     shared.Telemetry.AirTemp, shared.Telemetry.TrackTempCrew, 0, shared.Telemetry.WindVel, 0, 0, 0, currentGameState.SessionData.IsNewLap);
             }
+
             currentGameState.PenaltiesData.IsOffRacingSurface = shared.Telemetry.PlayerTrackSurface == TrackSurfaces.OffTrack;
 
-
-
-            if(invalidateCutTrackLaps && !currentGameState.PitData.OnOutLap && previousGameState != null &&
+            if(previousGameState != null && invalidateCutTrackLaps && (!previousGameState.PitData.OnOutLap && currentGameState.SessionData.IsNewLap) &&
                 !(currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.SessionData.SessionPhase == SessionPhase.Countdown) &&
                 currentGameState.SessionData.CurrentIncidentCount + 1 == shared.Telemetry.PlayerCarMyIncidentCount)
             {

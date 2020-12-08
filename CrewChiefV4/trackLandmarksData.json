@@ -432,7 +432,7 @@
 			"pcars2TrackName": "Hockenheim:GP",
 			"raceroomLayoutId": 1693,
 			"raceroomRollingStartLapDistance": 4145,
-			"gtr2TrackNames": ["Hockenheim GP, 2004 FIA GT Championship Round 4", "HQ Hockenheimring"],
+			"gtr2TrackNames": ["Hockenheim GP, 2004 FIA GT Championship Round 4", "HQ Hockenheimring", "Hockenheimring, GT Masters Round 8"],
 			"trackLandmarks": [{
 					"landmarkName": "nord_kurve",
 					"distanceRoundLapStart": 200,
@@ -705,7 +705,8 @@
 			]
 		},
 		{
-			"rf2TrackNames": ["RaceRfactor Spa 2013", "Spa Francorchamps"],
+			"rf2TrackNames": ["Spa-Francorchamps", "RaceRfactor Spa 2013", "Spa Francorchamps"],
+			"gtr2TrackNames": ["Spa-Francorchamps, Blancpain Endurance Series Round 4"],
 			"accTrackName": "Spa:track config",
 			"trackLandmarks": [{
 					"landmarkName": "la_source",
