@@ -437,19 +437,31 @@ namespace CrewChiefV4
         /// <param name="newArgs"></param>
         /// <param name="removeSkipUpdates"></param>
         /// <returns>true if app restarted</returns>
-        public static bool RestartApp(List<String> newArgs=null, bool removeSkipUpdates = false)
+        public static bool RestartApp(
+            List<String> newArgs=null,
+            bool removeSkipUpdates=false,
+            bool removeProfile=false)
         {
             if (!CrewChief.Debugging)
             {
                 List<String> startArgs = new List<string>();
-                foreach (String startArg in Environment.GetCommandLineArgs())
+                List<String> oldArgs = Environment.GetCommandLineArgs().ToList<String>();
+                for (var i = 0; i < oldArgs.Count; i++)
                 {
+                    String startArg = oldArgs[i];
                     // if we're restarting because the 'force update check'
                     // was clicked, remove the '-skip_updates' arg
                     if (removeSkipUpdates && 
                         ("-skip_updates".Equals(startArg, StringComparison.InvariantCultureIgnoreCase)
                         || "SKIP_UPDATES".Equals(startArg)))
                     {
+                        continue;
+                    }
+                    if (removeProfile &&
+                        "-profile".Equals(startArg, StringComparison.InvariantCultureIgnoreCase)
+                       )
+                    {
+                        i++;    // Skip -profile's arg too
                         continue;
                     }
                     startArgs.Add(startArg);
