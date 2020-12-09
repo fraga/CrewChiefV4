@@ -445,7 +445,7 @@ namespace CrewChiefV4
                                     {
                                         buttonText = Configuration.getUIString("no_sound_pack_detected_press_to_download");
                                     }
-                                    else if (soundPackVersionsBehind > 1)
+                                    else if (soundPackVersionsBehind > 1 && SoundPackVersionsHelper.latestSoundPackVersion > 0)
                                     {
                                         buttonText = Configuration.getUIString("updated_sound_pack_available_press_to_download") + " (" + soundPackVersionsBehind + " " +
                                             Configuration.getUIString("incremental_updates_count") + ")";
@@ -497,7 +497,7 @@ namespace CrewChiefV4
                                     {
                                         buttonText = Configuration.getUIString("no_personalisations_detected_press_to_download");
                                     }
-                                    else if (personalisationsVersionsBehind > 1)
+                                    else if (personalisationsVersionsBehind > 1 && SoundPackVersionsHelper.currentPersonalisationsVersion > 0)
                                     {
                                         buttonText = Configuration.getUIString("updated_personalisations_available_press_to_download") + " (" + personalisationsVersionsBehind + " " +
                                             Configuration.getUIString("incremental_updates_count") + ")";
@@ -549,7 +549,7 @@ namespace CrewChiefV4
                                     {
                                         buttonText = Configuration.getUIString("no_driver_names_detected_press_to_download");
                                     }
-                                    else if (driverNamesVersionsBehind > 1)
+                                    else if (driverNamesVersionsBehind > 1 && SoundPackVersionsHelper.currentDriverNamesVersion > 0)
                                     {
                                         buttonText = Configuration.getUIString("updated_driver_names_available_press_to_download") + " (" + driverNamesVersionsBehind + " " +
                                             Configuration.getUIString("incremental_updates_count") + ")";
