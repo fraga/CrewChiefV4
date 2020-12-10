@@ -69,6 +69,7 @@
     <Content Include="GameSpecific_ForEachGame_AssettoCorsa.html" />
     <Content Include="GameSpecific_ForEachGame_AssettoCorsaCompetizione.html" />
     <Content Include="GameSpecific_ForEachGame_F1_2018.html" />
+    <Content Include="GameSpecific_ForEachGame_GTR2.html" />
     <Content Include="GameSpecific_ForEachGame_iRacing.html" />
     <Content Include="GameSpecific_ForEachGame_ProjectCars.html" />
     <Content Include="GameSpecific_ForEachGame_ProjectCars2.html" />
@@ -78,6 +79,7 @@
     <Content Include="GettingStarted_GameSpecific_AssettoCorsa.html" />
     <Content Include="GettingStarted_GameSpecific_AssettoCorsaCompetizione.html" />
     <Content Include="GettingStarted_GameSpecific_F1_2018.html" />
+    <Content Include="GettingStarted_GameSpecific_GTR2.html" />
     <Content Include="GettingStarted_GameSpecific_iRacing.html" />
     <Content Include="GettingStarted_GameSpecific_ProjectCars.html" />
     <Content Include="GettingStarted_GameSpecific_ProjectCars2.html" />
