@@ -16,7 +16,9 @@ namespace CrewChiefV4.SRE
 
         private bool debugRecognitionAttempt = false;
 
-        public MicrosoftSREWrapper(CultureInfo culture, TimeSpan? endSilenceTimeoutAmbiguous)
+        private bool writeDebugData;
+
+        public MicrosoftSREWrapper(CultureInfo culture, TimeSpan? endSilenceTimeoutAmbiguous, bool writeSREDebugData)
         {
             // if the culture is null we won't be able to use the SRE - this is checked later in the initialisation code.
             // We still want to check if the engine is available so we know which warning to display to the user
@@ -34,11 +36,22 @@ namespace CrewChiefV4.SRE
             }
             this.internalSRE.AudioLevelUpdated += new EventHandler<AudioLevelUpdatedEventArgs>(recognizer_AudioLevelUpdated); ;
             this.internalSRE.AudioSignalProblemOccurred += new EventHandler<AudioSignalProblemOccurredEventArgs>(recognizer_AudioSignalProblemOccurred);
+            this.writeDebugData = writeSREDebugData;
         }
 
         public void AddSpeechRecognizedCallback(object callback)
         {
             internalSRE.SpeechRecognized += (EventHandler<SpeechRecognizedEventArgs>)callback;
+        }
+
+        public void AddRecognitionCompleteCallback(object callback)
+        {
+            internalSRE.RecognizeCompleted += (EventHandler<RecognizeCompletedEventArgs>)callback;
+        }
+
+        public void AddRecognitionRejectedCallback(object callback)
+        {
+            internalSRE.SpeechRecognitionRejected += (EventHandler<SpeechRecognitionRejectedEventArgs>)callback;
         }
 
         public void LoadGrammar(GrammarWrapper grammarWrapper)
@@ -48,9 +61,12 @@ namespace CrewChiefV4.SRE
 
         public void RecognizeAsync()
         {
-            this.maxAudioLevel = 0;
-            this.lastProblems.Clear();
-            this.debugRecognitionAttempt = false;
+            if (writeDebugData)
+            {
+                this.maxAudioLevel = 0;
+                this.lastProblems.Clear();
+                this.debugRecognitionAttempt = false;
+            }
             internalSRE.RecognizeAsync(RecognizeMode.Multiple);
         }
 
@@ -60,7 +76,7 @@ namespace CrewChiefV4.SRE
             if (this.debugRecognitionAttempt)
             {
                 Console.WriteLine("Max audio level for recogniser operation = " + this.maxAudioLevel);
-                Console.WriteLine(string.Join(", ", this.lastProblems));
+                Console.WriteLine("Reported audio signal problems: " + string.Join(", ", this.lastProblems));
             }
         }
 
@@ -70,13 +86,18 @@ namespace CrewChiefV4.SRE
             if (this.debugRecognitionAttempt)
             {
                 Console.WriteLine("Max audio level for recogniser operation = " + this.maxAudioLevel);
-                Console.WriteLine(string.Join(", ", this.lastProblems));
+                Console.WriteLine("Reported audio signal problems: " + string.Join(", ", this.lastProblems));
             }
         }
 
         public int GetMaxAudioLevelForLastOperation()
         {
             return maxAudioLevel;
+        }
+
+        public List<string> GetReportedProblemsForLastOperation()
+        {
+            return this.lastProblems;
         }
 
         public void SetInitialSilenceTimeout(TimeSpan timeSpan)
@@ -119,7 +140,7 @@ namespace CrewChiefV4.SRE
 
         private void recognizer_AudioLevelUpdated(object sender, AudioLevelUpdatedEventArgs e)
         {
-            if (this.maxAudioLevel < e.AudioLevel)
+            if (this.writeDebugData && this.maxAudioLevel < e.AudioLevel)
             {
                 this.maxAudioLevel = e.AudioLevel;
             }
@@ -128,8 +149,11 @@ namespace CrewChiefV4.SRE
         // Gather information when the AudioSignalProblemOccurred event is raised.  
         private void recognizer_AudioSignalProblemOccurred(object sender, AudioSignalProblemOccurredEventArgs e)
         {
-            this.lastProblems.Add(string.Format("Audio signal problem information: {0}", e.AudioSignalProblem));
-            this.debugRecognitionAttempt = true;
+            if (this.writeDebugData)
+            {
+                this.lastProblems.Add(e.AudioSignalProblem.ToString());
+                this.debugRecognitionAttempt = true;
+            }
         }
     }
 }
