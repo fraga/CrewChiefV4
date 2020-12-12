@@ -2092,3 +2092,8 @@ include_start_pos_in_dirt_stage_names = Include start location in Dirt Rally pac
 include_start_pos_in_dirt_stage_names_help = Add X and Z coordinates to stage length when constructing folder name for pace notes
 include_start_pos_in_dirt_stage_names_category = MISC
 include_start_pos_in_dirt_stage_names_filter = DIRT;DIRT_2
+
+save_sre_debug_data = Write speech recognition debug data
+save_sre_debug_data_help = SRE audio file and recognised text to voiceRecognitionDebug
+save_sre_debug_data_category = MISC
+save_sre_debug_data_metadata = RESTART_REQUIRED

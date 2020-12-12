@@ -2,15 +2,16 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CrewChiefV4.SRE
 {
     class SREWrapperFactory
     {
-        public static Boolean useSystem = UserSettings.GetUserSettings().getBoolean("prefer_system_sre");
+        public static bool useSystem = UserSettings.GetUserSettings().getBoolean("prefer_system_sre");
+
+        private static bool writeDebugData = UserSettings.GetUserSettings().getBoolean("save_sre_debug_data");
 
         // try to create the preferred SRE impl, fall back to the other type if this isn't available
         // if endSilenceTimeoutAmbiguous is not null we override the default endSilenceTimeoutAmbiguous in the SRE impl
@@ -76,7 +77,7 @@ namespace CrewChiefV4.SRE
         {
             try
             {
-                return new MicrosoftSREWrapper(culture, endSilenceTimeoutAmbiguous);
+                return new MicrosoftSREWrapper(culture, endSilenceTimeoutAmbiguous, writeDebugData);
             }
             catch (Exception)
             {
@@ -88,7 +89,7 @@ namespace CrewChiefV4.SRE
         {
             try
             {
-                return new SystemSREWrapper(culture, endSilenceTimeoutAmbiguous);
+                return new SystemSREWrapper(culture, endSilenceTimeoutAmbiguous, writeDebugData);
             }
             catch (Exception)
             {
@@ -289,6 +290,74 @@ namespace CrewChiefV4.SRE
             {
                 return ((Microsoft.Speech.Recognition.SpeechRecognizedEventArgs)recognitionCallback).Result.Grammar;
             }
+        }
+
+        public static List<string> WriteSREDebugData(object recognitionCallback, Stream stream, SREWrapper sreWrapper)
+        {
+            List<string> metadata = new List<string>();
+            bool gotResult = false;
+            string recognisedText = "";
+            float confidence = 0;
+            if (recognitionCallback is System.Speech.Recognition.RecognizeCompletedEventArgs)
+            {
+                var callbackArgs = (System.Speech.Recognition.RecognizeCompletedEventArgs)recognitionCallback;
+                if (callbackArgs.Result != null)
+                {
+                    gotResult = true;
+                    var recognisedAudio = callbackArgs.Result.Audio;
+                    recognisedText = callbackArgs.Result.Text;
+                    confidence = callbackArgs.Result.Confidence;
+                    recognisedAudio.GetRange(TimeSpan.FromSeconds(0), recognisedAudio.Duration).WriteToWaveStream(stream);
+                }
+            }
+            else if (recognitionCallback is Microsoft.Speech.Recognition.RecognizeCompletedEventArgs)
+            {
+                var callbackArgs = (Microsoft.Speech.Recognition.RecognizeCompletedEventArgs)recognitionCallback;
+                if (callbackArgs.Result != null)
+                {
+                    gotResult = true;
+                    var recognisedAudio = callbackArgs.Result.Audio;
+                    recognisedText = callbackArgs.Result.Text;
+                    confidence = callbackArgs.Result.Confidence;
+                    recognisedAudio.GetRange(TimeSpan.FromSeconds(0), recognisedAudio.Duration).WriteToWaveStream(stream);
+                }
+            }
+            else if (recognitionCallback is System.Speech.Recognition.SpeechRecognitionRejectedEventArgs)
+            {
+                var callbackArgs = (System.Speech.Recognition.SpeechRecognitionRejectedEventArgs)recognitionCallback;
+                if (callbackArgs.Result != null)
+                {
+                    gotResult = true;
+                    var recognisedAudio = callbackArgs.Result.Audio;
+                    recognisedText = callbackArgs.Result.Text;
+                    confidence = callbackArgs.Result.Confidence;
+                    recognisedAudio.GetRange(TimeSpan.FromSeconds(0), recognisedAudio.Duration).WriteToWaveStream(stream);
+                }
+            }
+            else if (recognitionCallback is Microsoft.Speech.Recognition.SpeechRecognitionRejectedEventArgs)
+            {
+                var callbackArgs = (Microsoft.Speech.Recognition.SpeechRecognitionRejectedEventArgs)recognitionCallback;
+                if (callbackArgs.Result != null)
+                {
+                    gotResult = true;
+                    var recognisedAudio = callbackArgs.Result.Audio;
+                    recognisedText = callbackArgs.Result.Text;
+                    confidence = callbackArgs.Result.Confidence;
+                    recognisedAudio.GetRange(TimeSpan.FromSeconds(0), recognisedAudio.Duration).WriteToWaveStream(stream);
+                }
+            }
+            if (!gotResult)
+            {
+                metadata.Add("No SRE result");
+            }
+            else
+            {
+                metadata.Add("Recognised text: " + recognisedText);
+                metadata.Add("Confidence: " + confidence);
+            }
+            metadata.Add("Max audio level: " + sreWrapper.GetMaxAudioLevelForLastOperation());
+            metadata.Add("Reported problems: " + string.Join(",", sreWrapper.GetReportedProblemsForLastOperation()));
+            return metadata;
         }
     }
 }

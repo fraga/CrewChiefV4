@@ -15,6 +15,7 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using NAudio.CoreAudioApi;
 using CrewChiefV4.Overlay;
+using System.IO;
 
 namespace CrewChiefV4
 {
@@ -43,6 +44,9 @@ namespace CrewChiefV4
         private Boolean useNAudio = UserSettings.GetUserSettings().getBoolean("use_naudio_for_speech_recognition");
         private Boolean disableBehaviorAlteringVoiceCommands = UserSettings.GetUserSettings().getBoolean("disable_behavior_altering_voice_commands");
         private Boolean disableOverlayVoiceCommands = UserSettings.GetUserSettings().getBoolean("disable_overlay_voice_commands");
+        private Boolean saveSREDebugData = UserSettings.GetUserSettings().getBoolean("save_sre_debug_data");
+        private string debugDataPath = Path.Combine(Environment.GetFolderPath(
+                             Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "voiceRecognitionDebug");
         private RingBufferStream.RingBufferStream buffer;
         private NAudio.Wave.WaveInEvent waveIn;
 
@@ -1197,12 +1201,20 @@ namespace CrewChiefV4
                 if (SREWrapperFactory.useSystem)
                 {
                     sreWrapper.AddSpeechRecognizedCallback(new EventHandler<System.Speech.Recognition.SpeechRecognizedEventArgs>(sre_SpeechRecognizedSystem));
+                    sreWrapper.AddRecognitionCompleteCallback(new EventHandler<System.Speech.Recognition.RecognizeCompletedEventArgs>(sre_SpeechRecognitionCompleteSystem));
+                    sreWrapper.AddRecognitionRejectedCallback(new EventHandler<System.Speech.Recognition.SpeechRecognitionRejectedEventArgs>(sre_SpeechRecognitionRejectedSystem));
                     triggerSreWrapper.AddSpeechRecognizedCallback(new EventHandler<System.Speech.Recognition.SpeechRecognizedEventArgs>(trigger_SpeechRecognizedSystem));
+                    triggerSreWrapper.AddRecognitionCompleteCallback(new EventHandler<System.Speech.Recognition.RecognizeCompletedEventArgs>(sre_SpeechRecognitionCompleteSystem));
+                    triggerSreWrapper.AddRecognitionRejectedCallback(new EventHandler<System.Speech.Recognition.SpeechRecognitionRejectedEventArgs>(sre_SpeechRecognitionRejectedSystem));
                 }
                 else
                 {
                     sreWrapper.AddSpeechRecognizedCallback(new EventHandler<Microsoft.Speech.Recognition.SpeechRecognizedEventArgs>(sre_SpeechRecognizedMicrosoft));
+                    sreWrapper.AddRecognitionCompleteCallback(new EventHandler<Microsoft.Speech.Recognition.RecognizeCompletedEventArgs>(sre_SpeechRecognitionCompleteMicrosoft));
+                    sreWrapper.AddRecognitionRejectedCallback(new EventHandler<Microsoft.Speech.Recognition.SpeechRecognitionRejectedEventArgs>(sre_SpeechRecognitionRejectedMicrosoft));
                     triggerSreWrapper.AddSpeechRecognizedCallback(new EventHandler<Microsoft.Speech.Recognition.SpeechRecognizedEventArgs>(trigger_SpeechRecognizedMicrosoft));
+                    triggerSreWrapper.AddRecognitionCompleteCallback(new EventHandler<Microsoft.Speech.Recognition.RecognizeCompletedEventArgs>(sre_SpeechRecognitionCompleteMicrosoft));
+                    triggerSreWrapper.AddRecognitionRejectedCallback(new EventHandler<Microsoft.Speech.Recognition.SpeechRecognitionRejectedEventArgs>(sre_SpeechRecognitionRejectedMicrosoft));
                 }
             }
             catch (Exception e)
@@ -1210,6 +1222,10 @@ namespace CrewChiefV4
                 Console.WriteLine("Unable to add event handler to speech engine");
                 Console.WriteLine("Exception message: " + e.Message);
                 return;
+            }
+            if (saveSREDebugData)
+            {
+                Console.WriteLine("SRE is running in debug mode. Captured audio and metadata will be written to " + debugDataPath);
             }
             initialised = true;
         }
@@ -2438,6 +2454,60 @@ namespace CrewChiefV4
         void sre_SpeechRecognizedSystem(object sender, System.Speech.Recognition.SpeechRecognizedEventArgs e)
         {
             sre_SpeechRecognized(sender, e);
+        }
+
+        void sre_SpeechRecognitionCompleteMicrosoft(object sender, Microsoft.Speech.Recognition.RecognizeCompletedEventArgs e)
+        {
+            saveAudio(sender, e);
+        }
+
+        void sre_SpeechRecognitionCompleteSystem(object sender, System.Speech.Recognition.RecognizeCompletedEventArgs e)
+        {
+            saveAudio(sender, e);
+        }
+
+        void sre_SpeechRecognitionRejectedMicrosoft(object sender, Microsoft.Speech.Recognition.SpeechRecognitionRejectedEventArgs e)
+        {
+            saveAudio(sender, e);
+        }
+
+        void sre_SpeechRecognitionRejectedSystem(object sender, System.Speech.Recognition.SpeechRecognitionRejectedEventArgs e)
+        {
+            saveAudio(sender, e);
+        }
+
+        void saveAudio(object sender, object e)
+        {
+            if (saveSREDebugData)
+            {
+                try
+                {
+                    DateTime now = DateTime.Now;
+                    string wavFilename = now.ToString("MM-dd-yyyy_hh-mm-ss") + ".wav";
+                    string textFilename = now.ToString("MM-dd-yyyy_hh-mm-ss") + ".txt";
+                    Directory.CreateDirectory(debugDataPath);
+                    string wavFileFullPath = Path.Combine(debugDataPath, wavFilename);
+                    string textFileFullPath = Path.Combine(debugDataPath, textFilename);
+                    List<string> result;
+                    bool deleteEmptyFile;
+                    using (Stream outputStream = new FileStream(wavFileFullPath, FileMode.Create))
+                    {
+                        result = SREWrapperFactory.WriteSREDebugData(e, outputStream, this.sreWrapper);
+                        deleteEmptyFile = outputStream.Length == 0;
+                        outputStream.Close();
+                    }
+                    if (deleteEmptyFile)
+                    {
+                        File.Delete(wavFileFullPath);
+                    }
+                    File.WriteAllText(textFileFullPath, string.Join(Environment.NewLine, result));
+                }
+                catch (Exception ex)
+                {
+                    // log n swallow, this-is-the-way
+                    Console.WriteLine("Failed to write SRE debug data: " + ex.Message);
+                }
+            }
         }
 
         void sre_SpeechRecognized(object sender, object e)
