@@ -5206,5 +5206,17 @@ namespace CrewChiefV4.Properties {
                 this["gtr2_launch_params"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool save_sre_debug_data {
+            get {
+                return ((bool)(this["save_sre_debug_data"]));
+            }
+            set {
+                this["save_sre_debug_data"] = value;
+            }
+        }
     }
 }

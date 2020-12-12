@@ -240,57 +240,58 @@
     </div>
     <br>
     <div style="font-family:'Lucida Sans Unicode';font-size:13px;" class="main">
-<code>-game <i>GAME_NAME</i></code> - Specify game to select in the Crew Chief
-<br>
-Example: <code>[full path]\CrewChiefV4.exe -game RACE_ROOM</code><br>
-this will make RaceRoom the selected game in the Crew Chief.<br>
-<br>
-Supported values:<br>
-&#8226; ACC<br>
-&#8226; AMS<br>
-&#8226; AMS2, AMS2_NETWORK<br>
-&#8226; ASSETTO_64BIT, ASSETTO_32BIT<br>
-&#8226; F1_2018, F1_2019<br>
-&#8226; FTRUCK<br>
-&#8226; GSC<br>
-&#8226; IRACING<br>
-&#8226; MARCAS<br>
-&#8226; PCARS2, PCARS2_NETWORK<br>
-&#8226; PCARS_64BIT, PCARS_32BIT, PCARS_NETWORK<br>
-&#8226; RACE_ROOM<br>
-&#8226; RF1<br>
-&#8226; RF2, RF2_64BIT <i>Note: 32 bit rFactor 2 is no longer supported. RF2 is the same as RF2_64BIT</i><br>
-<br>
-<br>
-This can be used in conjunction with the launch_pcars / launch_raceroom / [game]_launch_exe / [game]_launch_params and run_immediately options to set crew chief up to start the game selected in the app launch argument, and start its own process.<br>
-<br>
-<code>-profile <i>profile file name</i></code>- You can specify name of the profile to run at CC startup
-<br>
-Example: <code>[full path]\CrewChiefV4.exe -profile "my favorite game my awesome profile"</code><br>
-this will load <code>"my favorite game my awesome profile.json"</code> profile at Crew Chief startup.<br>
-<br>
-<br>
-<code>-cpu<i>[1-8]</i></code> - You can set the processor affinity for Crew Chief in TaskManager, but this will have to be done each time you start the app. Alternatively, you can start the app with an addition argument "-cpu1", "-cpu2", ... "-cpu8", like this:
-<br>
-Example: <code>[full path]\CrewChiefV4.exe -cpu4</code><br>
-this will set the processor affinity to the 4th CPU in your system (usually referred to as CPU3 - they're zero-indexed).<br>
-<br>
-<br>
-<code>-c_exit</code> - Pass this switch to close running Crew Chief instance.
-<br>
-<br>
-<code>-nodevicescan</code> - Disable automatic active/disabled controller detection.  Use this if you have issues with CC rescanning controllers all the time (caused by buggy device drivers).
-<br>
-<br>
-<code>-sound_test</code> - Enables extra UI that helps sound pack creators testing sounds.
-<br>
-<br>
-<code>-skip_updates</code> - disables the check for CC updates.
-<br>
-<br>
-<code>-debug</code> - collects CC debug trace.  For more info see <a href="http://thecrewchief.org/showthread.php?142-How-to-collect-Crew-Chief-repro-traces">here</a>
-<br>
-</div>
+          <code>-game <i>GAME_NAME</i></code> - Specify game to select in the Crew Chief
+          <br>
+          Example: <code>[full path]\CrewChiefV4.exe -game RACE_ROOM</code><br>
+          this will make RaceRoom the selected game in the Crew Chief.<br>
+          <br>
+          Supported values:<br>
+          &#8226; ACC<br>
+          &#8226; AMS<br>
+          &#8226; AMS2, AMS2_NETWORK<br>
+          &#8226; ASSETTO_64BIT, ASSETTO_32BIT<br>
+          &#8226; F1_2018, F1_2019, F1_2020<br>
+          &#8226; FTRUCK<br>
+          &#8226; GSC<br>
+          &#8226; IRACING<br>
+          &#8226; MARCAS<br>
+          &#8226; PCARS2, PCARS2_NETWORK<br>
+          &#8226; PCARS_64BIT, PCARS_32BIT, PCARS_NETWORK<br>
+          &#8226; RACE_ROOM<br>
+          &#8226; RBR<br>
+          &#8226; RF1<br>
+          &#8226; RF2, RF2_64BIT <i>Note: 32 bit rFactor 2 is no longer supported. RF2 is the same as RF2_64BIT</i><br>
+          <br>
+          <br>
+          This can be used in conjunction with the launch_pcars / launch_raceroom / [game]_launch_exe / [game]_launch_params and run_immediately options to set crew chief up to start the game selected in the app launch argument, and start its own process.<br>
+          <br>
+          <code>-profile <i>profile file name</i></code>- You can specify name of the profile to run at CC startup
+          <br>
+          Example: <code>[full path]\CrewChiefV4.exe -profile "my favourite game my awesome profile"</code><br>
+          this will load <code>"my favourite game my awesome profile.json"</code> profile at Crew Chief startup.<br>
+          <br>
+          <br>
+          <code>-cpu<i>[1-8]</i></code> - You can set the processor affinity for Crew Chief in TaskManager, but this will have to be done each time you start the app. Alternatively, you can start the app with an additional argument "-cpu1", "-cpu2", ... "-cpu8", like this:
+          <br>
+          Example: <code>[full path]\CrewChiefV4.exe -cpu4</code><br>
+          this will set the processor affinity to the 4th CPU in your system (usually referred to as CPU3 - they're zero-indexed).<br>
+          <br>
+          <br>
+          <code>-c_exit</code> - Pass this switch to close running Crew Chief instance.
+          <br>
+          <br>
+          <code>-nodevicescan</code> - Disable automatic active/disabled controller detection.  Use this if you have issues with CC rescanning controllers all the time (caused by buggy device drivers).
+          <br>
+          <br>
+          <code>-sound_test</code> - Enables extra UI that helps sound pack creators testing sounds.
+          <br>
+          <br>
+          <code>-skip_updates</code> - disables the check for CC updates.
+          <br>
+          <br>
+          <code>-debug</code> - collects CC debug trace.  For more info see <a href="http://thecrewchief.org/showthread.php?142-How-to-collect-Crew-Chief-repro-traces">here</a>
+          <br>
+      </div>
     <hr width="100%" size="2">
     <table style="font-family:'Lucida Sans Unicode';font-size:13px;" width="100%" cellspacing="0" cellpadding="0" border="0">
       <tbody>
