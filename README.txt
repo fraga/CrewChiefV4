@@ -431,7 +431,7 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
-Version 4.15.0.4: Added speech recogniser debug function (enable with 'Write speech recognition debug data' property) - writes recognition information and captured audio as a .wav file to Documents/CrewChiefV4/voiceRecognitionDebug/; RBR / Dirt / Dirt 2 - fixed a few bugs in the recce pace notes parser; GTR2 - fixed missing reflections in VR
+Version 4.15.0.5: Added speech recogniser debug function (enable with 'Write speech recognition debug data' property) - writes recognition information and captured audio as a .wav file to Documents/CrewChiefV4/voiceRecognitionDebug/; RBR / Dirt / Dirt 2 - fixed a few bugs in the recce pace notes parser; GTR2 - fixed missing speech recognition commands;GTR2 - fixed missing reflections in VR; RF2 - pit menu manager improvements; Minor bugfixes
 
 Version 4.15.0.3: Some timing accuracy improvements where opponent data is incomplete; RBR / Dirt / Dirt 2 - ensure corner / obstacle modifiers apply to the correct pace note fragment and fixed issue with pace note corrections not working; GTR2 - improved plugin handling; RF2 - pit menu tyre type matching improvements
 
