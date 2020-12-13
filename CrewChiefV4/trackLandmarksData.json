@@ -1047,7 +1047,7 @@
 			]
 		},
 		{
-			"acTrackNames": ["ks_zandvoort:"],
+			"acTrackNames": ["ks_zandvoort:", "zandvoort2020"],
 			"raceroomLayoutId": 1678,
 			"rf2TrackNames": ["Zandvoort"],
 			"irTrackName": "zandvoort grandprix",
