@@ -1,49 +1,53 @@
-version: 4.15.0.{build}
-image: Visual Studio 2019
-configuration: Release
-assembly_info:
-  patch: true
-  file: '**\AssemblyInfo.*'
-  assembly_version: '{version}'
-  assembly_file_version: '{version}'
-  assembly_informational_version: '{version}'
-build_script:
-- cmd: >-
-    nuget restore
+-
+  branches:
+    only:
+      - HTMLhelp
+  version: 4.15.0.{build}
+  image: Visual Studio 2019
+  configuration: Release
+  assembly_info:
+    patch: true
+    file: '**\AssemblyInfo.*'
+    assembly_version: '{version}'
+    assembly_file_version: '{version}'
+    assembly_informational_version: '{version}'
+  build_script:
+  - cmd: >-
+      nuget restore
 
-    cd HelpFiles
+      cd HelpFiles
 
-    msbuild HelpFiles.csproj /t:Rebuild /p:Configuration=Release
+      msbuild HelpFiles.csproj /t:Rebuild /p:Configuration=Release
 
-    cd bin\Release
-    
-    HelpFiles.exe 
+      cd bin\Release
+      
+      HelpFiles.exe 
 
-    cd ..\..\..
+      cd ..\..\..
 
-    cd CrewChiefV4
-    
-    msbuild CrewChiefV4.csproj /t:Rebuild /p:Configuration=Release
-    
-    cd ..
+      cd CrewChiefV4
+      
+      # msbuild CrewChiefV4.csproj /t:Rebuild /p:Configuration=Release
+      
+      cd ..
 
-    cd CrewChiefV4_installer
-    
-    msbuild CrewChiefV4_installer.wixproj /t:Rebuild
-artifacts:
-- path: Deployment\
-  name: Binaries
-- path: \Installs\CrewChiefV4-4.14.0.3.msi
-  name: Installer
+      cd CrewChiefV4_installer
+      
+      # msbuild CrewChiefV4_installer.wixproj /t:Rebuild
+  artifacts:
+  - path: Deployment\
+    name: Binaries
+  - path: \Installs\CrewChiefV4-4.14.0.3.msi
+    name: Installer
 
-environment:
-  access_token:
-    secure: qFNvsPzsv-KnWo3BgxHZ
+  environment:
+    access_token:
+      secure: qFNvsPzsv-KnWo3BgxHZ
 
-on_success:
-  - git config --global credential.helper store
-  - ps: Set-Content -Path "$HOME\.git-credentials" -Value "https://$($env:access_token):x-oauth-basic@gitlab.com`n" -NoNewline
-  - git config --global user.email "tony_whitley@hotmail.com"
-  - git config --global user.name "Tony Whitley"
-  - git commit public
-  - git push public
+  on_success:
+    - git config --global credential.helper store
+    - ps: Set-Content -Path "$HOME\.git-credentials" -Value "https://$($env:access_token):x-oauth-basic@gitlab.com`n" -NoNewline
+    - git config --global user.email "tony_whitley@hotmail.com"
+    - git config --global user.name "Tony Whitley"
+    - git commit public
+    - git push public
