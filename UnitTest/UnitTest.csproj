@@ -60,6 +60,7 @@
     <Compile Include="DummyForm.Designer.cs">
       <DependentUpon>DummyForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="UnitTestCommandLineParametersReader.cs" />
     <Compile Include="UnitTestPitMenuEventHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
