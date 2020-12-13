@@ -3382,13 +3382,13 @@ namespace CrewChiefV4.GameState
                 DateTime otherCarTime;
                 DateTime thisCarTime;
                 //opponent is behind
-                if (distanceRoundTrackOnCurrentLap < otherCarDelta.distanceRoundTrackOnCurrentLap)
+                if (distanceRoundTrackOnCurrentLap < otherCarDelta.distanceRoundTrackOnCurrentLap && otherCarDelta.deltaPoints.Length > this.currentDeltaPointIndex)
                 {
                     otherCarTime = otherCarDelta.deltaPoints[this.currentDeltaPointIndex];
                     thisCarTime = this.deltaPoints[this.currentDeltaPointIndex];
                     splitTime = otherCarTime - thisCarTime;
                 }
-                else if (distanceRoundTrackOnCurrentLap > otherCarDelta.distanceRoundTrackOnCurrentLap)
+                else if (distanceRoundTrackOnCurrentLap > otherCarDelta.distanceRoundTrackOnCurrentLap && this.deltaPoints.Length > otherCarDelta.currentDeltaPointIndex)
                 {
                     otherCarTime = otherCarDelta.deltaPoints[otherCarDelta.currentDeltaPointIndex];
                     thisCarTime = this.deltaPoints[otherCarDelta.currentDeltaPointIndex];
