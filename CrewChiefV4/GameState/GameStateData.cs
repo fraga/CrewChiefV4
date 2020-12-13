@@ -3320,7 +3320,7 @@ namespace CrewChiefV4.GameState
 
                 DateTime otherCarTime;
                 DateTime thisCarTime;
-                if (this.totalDistanceTravelled < otherCarDelta.totalDistanceTravelled)
+                if (this.totalDistanceTravelled < otherCarDelta.totalDistanceTravelled && otherCarDelta.deltaPoints.Length > this.currentDeltaPointIndex)
                 {
                     // I'm behind otherCar, so we want to know time between otherCar reaching the last deltaPoint I've just hit, and me reaching it.
                     // Because otherCar reached it further in the past than me, this will be negative
@@ -3328,7 +3328,7 @@ namespace CrewChiefV4.GameState
                     thisCarTime = this.deltaPoints[this.currentDeltaPointIndex];
                     splitTime = otherCarTime - thisCarTime;
                 }
-                else if (this.totalDistanceTravelled > otherCarDelta.totalDistanceTravelled)
+                else if (this.totalDistanceTravelled > otherCarDelta.totalDistanceTravelled && this.deltaPoints.Length > otherCarDelta.currentDeltaPointIndex)
                 {
                     // I'm ahead of otherCar, so we want to know time between otherCar reaching the last deltaPoint he's just hit, and me reaching
                     // that delta point.
