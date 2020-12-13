@@ -56,6 +56,9 @@ namespace CrewChiefV4
 
         public static Boolean enableDriverNames;
 
+        public static Utilities.CommandLineParametersReader CommandLine =
+            new Utilities.CommandLineParametersReader();
+
         private const int IRACING_INTERVAL = 16;    // always use 60Hz for iracing
         private static int timeInterval;
 

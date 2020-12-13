@@ -16,14 +16,14 @@ namespace CrewChiefV4
     static class Program
     {
         private static Dictionary<String, IntPtr> processorAffinities = new Dictionary<String, IntPtr> {
-            { "-cpu1", new IntPtr(0x0001) },
-            { "-cpu2", new IntPtr(0x0002) },
-            { "-cpu3", new IntPtr(0x0004) },
-            { "-cpu4", new IntPtr(0x0008) },
-            { "-cpu5", new IntPtr(0x0010) },
-            { "-cpu6", new IntPtr(0x0020) },
-            { "-cpu7", new IntPtr(0x0040) },
-            { "-cpu8", new IntPtr(0x0080) }
+            { "cpu1", new IntPtr(0x0001) },
+            { "cpu2", new IntPtr(0x0002) },
+            { "cpu3", new IntPtr(0x0004) },
+            { "cpu4", new IntPtr(0x0008) },
+            { "cpu5", new IntPtr(0x0010) },
+            { "cpu6", new IntPtr(0x0020) },
+            { "cpu7", new IntPtr(0x0040) },
+            { "cpu8", new IntPtr(0x0080) }
         };
         public static Loading LoadingScreen;
         /// <summary>
@@ -40,71 +40,48 @@ namespace CrewChiefV4
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
             Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
 
-            String[] commandLineArgs = Environment.GetCommandLineArgs();
-            Boolean allowMultipleInst = false;
-            String commandPassed = null;
-            if (commandLineArgs != null)
+            foreach (var affinity in processorAffinities)
             {
-                var argIdx = 0;
-                foreach (String commandLineArg in commandLineArgs)
+                if (CrewChief.CommandLine.Get(affinity.Key) != null)
                 {
-                    IntPtr pArg = IntPtr.Zero;
-                    if (processorAffinities.TryGetValue(commandLineArg.ToLowerInvariant(), out pArg))
-                    {
                         try
                         {
                             var process = System.Diagnostics.Process.GetCurrentProcess();
                             // Set Core
-                            process.ProcessorAffinity = pArg;
-                            Console.WriteLine("Set process core affinity to " + commandLineArg);
+                            process.ProcessorAffinity = affinity.Value;
+                            Console.WriteLine("Set process core affinity to " + affinity.Key);
                         }
                         catch (Exception)
                         {
                             Console.WriteLine("Failed to set process affinity");
                         }
                     }
-                    if (commandLineArg.Equals("-sound_test", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        MainWindow.soundTestMode = true;
-                    }
-                    if (commandLineArg.Equals("-nodevicescan", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        MainWindow.disableControllerReacquire = true;
-                    }
-                    if (commandLineArg.StartsWith("-c_", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        commandPassed = commandLineArg;
-                    }
-                    // Internal.
-                    if (commandLineArg.Equals("-multi", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        allowMultipleInst = true;
-                    }
-                    if (commandLineArg.Equals("-profile_mode", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        MainWindow.profileMode = true;
-                    }
+            }
+            MainWindow.soundTestMode = CrewChief.CommandLine.Get("sound_test") != null;
+            MainWindow.disableControllerReacquire = CrewChief.CommandLine.Get("nodevicescan") != null;
 
-                    ++argIdx;
-                }
-                if (!allowMultipleInst)
+            // Internal.
+            Boolean allowMultipleInst = CrewChief.CommandLine.Get("multi") != null;
+            MainWindow.profileMode = CrewChief.CommandLine.Get("profile_mode") != null;
+
+            if (!allowMultipleInst)
+            {
+                String commandPassed = CrewChief.CommandLine.GetCommandArg();
+				if (commandPassed != null)
                 {
-                    if (!string.IsNullOrWhiteSpace(commandPassed))
+                    if (CommandManager.ProcesssCommand(commandPassed))
+                        return;  // This is execution to perform command, exit.
+                }
+                try
+                {
+                    if (System.Diagnostics.Process.GetProcessesByName(System.IO.Path.GetFileNameWithoutExtension(System.Reflection.Assembly.GetEntryAssembly().Location)).Count() > 1)
                     {
-                        if (CommandManager.ProcesssCommand(commandPassed))
-                            return;  // This is execution to perform command, exit.
+                        System.Diagnostics.Process.GetCurrentProcess().Kill();
                     }
-                    try
-                    {
-                        if (System.Diagnostics.Process.GetProcessesByName(System.IO.Path.GetFileNameWithoutExtension(System.Reflection.Assembly.GetEntryAssembly().Location)).Count() > 1)
-                        {
-                            System.Diagnostics.Process.GetCurrentProcess().Kill();
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        //ignore
-                    }
+                }
+                catch (Exception)
+                {
+                    //ignore
                 }
             }
             Application.EnableVisualStyles();

@@ -524,7 +524,7 @@ namespace CrewChiefV4
                     this.saveActiveProfile();
                     if (requiresRestart)
                     {
-                        if (Utilities.RestartApp(new List<string> { "-app_restart" }))
+                        if (Utilities.RestartApp(app_restart:true))
                         {
                             parent.Close(); // To turn off current app
                         }
@@ -1005,7 +1005,7 @@ namespace CrewChiefV4
             {
                 UserSettings.GetUserSettings().saveUserSettings();
 
-                if (Utilities.RestartApp(new List<string> { "-app_restart" }, removeProfile:true))
+                if (Utilities.RestartApp(app_restart:true, removeProfile:true))
                 {
                     this.clearChangedState();
                     this.parent.Close(); //to turn off current app
