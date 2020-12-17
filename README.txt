@@ -431,7 +431,7 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
-Version 4.15.0.6: Some error handling improvements - the app should show a popup window with error details instead of silently crashing and writing to the Windows Event Log; Command line parameter rework (note that the "RF2_64BIT" parameter has been changed to "RF2"); iRacing - some car class fixes
+Version 4.15.0.6: Some error handling improvements - the app should show a popup window with error details instead of silently crashing and writing to the Windows Event Log; Command line parameter rework (note that the "RF2_64BIT" parameter has been changed to "RF2"); iRacing - some car class fixes; iRacing - fix some issues with off track penalties
 
 Version 4.15.0.5: Added speech recogniser debug function (enable with 'Write speech recognition debug data' property) - writes recognition information and captured audio as a .wav file to Documents/CrewChiefV4/voiceRecognitionDebug/; RBR / Dirt / Dirt 2 - fixed a few bugs in the recce pace notes parser; GTR2 - fixed missing speech recognition commands;GTR2 - fixed missing reflections in VR; RF2 - pit menu manager improvements; Minor bugfixes
 
