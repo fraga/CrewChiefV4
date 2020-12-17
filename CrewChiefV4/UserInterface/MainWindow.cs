@@ -1116,7 +1116,8 @@ namespace CrewChiefV4
                 catch (Exception)
                 {
                     // oh dear, now we are in a pickle.
-                    Console.WriteLine("Unable to remove broken app settings file\n Please exit the app and manually delete folder " + UserSettings.userConfigFolder);
+                    // throw a new exception to be shown in the "oh shit" popup message
+                    throw new Exception("Unable to remove broken app settings file\n Please exit the app and manually delete folder " + UserSettings.userConfigFolder);
                 }
             }
 
