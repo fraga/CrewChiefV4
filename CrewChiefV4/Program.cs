@@ -1,14 +1,12 @@
 ﻿using CrewChiefV4.Audio;
 using CrewChiefV4.UserInterface;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace CrewChiefV4
@@ -86,7 +84,16 @@ namespace CrewChiefV4
             }
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            if (UserSettings.GetUserSettings().getBoolean("show_splash_screen"))
+            bool showSplashScreen = false;
+            try
+            {
+                showSplashScreen = UserSettings.GetUserSettings().getBoolean("show_splash_screen");
+            }
+            catch (Exception)
+            {
+                // ignore, if we've been unable to load the settings the UserSettings instance should have the 'broken' flag set at this point
+            }
+            if (showSplashScreen)
             {
                 LoadSplashImage();
                 LoadingScreen = new Loading();
@@ -96,7 +103,22 @@ namespace CrewChiefV4
                 LoadingScreen.Show();
             }
 
-            Application.Run(new MainWindow());
+#if !DEBUG
+            try
+            {
+#endif
+                Application.Run(new MainWindow());
+#if !DEBUG
+            }
+            catch (Exception e)
+            {
+                String message = "Error message: " + e.Message + "\n\nStack trace: " + String.Join(",", e.StackTrace);
+                MessageBox.Show("The following text will be copied to the clipboard, please report this to the Crew Chief team.\n\n" + message,
+                    "Fatal error",
+                    MessageBoxButtons.OK);
+                Clipboard.SetText(message);
+            }
+#endif
 
             var watch = System.Diagnostics.Stopwatch.StartNew();
             ThreadManager.WaitForRootThreadsShutdown();
