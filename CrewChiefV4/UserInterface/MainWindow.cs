@@ -153,7 +153,7 @@ namespace CrewChiefV4
 
         public static bool disableControllerReacquire = false;
 
-        private Boolean isMuted = false;
+        private static Boolean isMuted = false;
         private float messageVolumeToRestore = -1;
 
         private const int WM_DEVICECHANGE = 0x219;
@@ -1799,7 +1799,7 @@ namespace CrewChiefV4
             }
         }
 
-        private void listenForChannelOpen()
+        private void thread_listenForChannelOpen()
         {
             Boolean channelOpen = false;
             if (crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised && voiceOption == VoiceOptionEnum.HOLD)
@@ -1889,7 +1889,7 @@ namespace CrewChiefV4
             }
         }
 
-        private void listenForButtons()
+        private void thread_listenForButtons()
         {
             DateTime lastButtoncheck = DateTime.UtcNow;
             if (crewChief.speechRecogniser.initialised && voiceOption == VoiceOptionEnum.TOGGLE)
@@ -1900,89 +1900,18 @@ namespace CrewChiefV4
             {
                 Thread.Sleep(50);
                 DateTime now = DateTime.UtcNow;
-                controllerConfiguration.pollForButtonClicks();
-                if (now > lastButtoncheck.Add(buttonCheckInterval))
+                controllerConfiguration.PollForButtonClicks();
+                if (now > lastButtoncheck.Add(buttonCheckInterval)) // (50mS also)
                 {
                     lastButtoncheck = now;
-                    if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.VOLUME_UP))
+                    if (controllerConfiguration.ExecuteSpecialClickedButton())
                     {
-                        if (currentMessageVolume == -1)
-                        {
-                            Console.WriteLine("Initial volume not set, ignoring");
-                        }
-                        else if (currentMessageVolume >= 1)
-                        {
-                            Console.WriteLine("Volume at max");
-                        }
-                        else
-                        {
-                            Console.WriteLine("Increasing volume");
-                            updateMessagesVolume(currentMessageVolume + 0.05f, true, true);
-                        }
                     }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.VOLUME_DOWN))
-                    {
-                        if (currentMessageVolume == -1)
-                        {
-                            Console.WriteLine("Initial volume not set, ignoring");
-                        }
-                        else if (currentMessageVolume <= 0)
-                        {
-                            Console.WriteLine("Volume at min");
-                        }
-                        else
-                        {
-                            Console.WriteLine("Decreasing volume");
-                            updateMessagesVolume(currentMessageVolume - 0.05f, true, true);
-                        }
-                    }
-                    else if (crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised && voiceOption == VoiceOptionEnum.TOGGLE &&
-                             controllerConfiguration.hasOutstandingClick(ControllerConfiguration.CHANNEL_OPEN_FUNCTION))
-                    {
-                        // JB: no idea why we're setting this enum option here. Will leave it in just in case
-                        crewChief.speechRecogniser.voiceOptionEnum = VoiceOptionEnum.TOGGLE;
-                        if (SpeechRecogniser.waitingForSpeech)
-                        {
-                            Console.WriteLine("Cancelling...");
-                            SpeechRecogniser.waitingForSpeech = false;
-                            crewChief.speechRecogniser.recognizeAsyncCancel();
-                        }
-                        else
-                        {
-                            // if we reject messages while we're talking to the chief, attempt to interrupt any sound currently playing
-                            if (PlaybackModerator.rejectMessagesWhenTalking)
-                            {
-                                SoundCache.InterruptCurrentlyPlayingSound(true);
-                            }
-                            Console.WriteLine("Listening...");
-                            crewChief.speechRecogniser.recognizeAsync();
-                            crewChief.audioPlayer.playStartListeningBeep();
-                        }
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_SPOTTER_FUNCTION))
-                    {
-                        Console.WriteLine("Toggling spotter mode");
-                        crewChief.toggleSpotterMode();
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick(ControllerConfiguration.TOGGLE_MUTE))
-                    {
-                        if (!isMuted)
-                        {
-                            //crewChief.audioPlayer.playMuteBeep();
-                            muteVolumes();
-                        }
-                        else
-                        {
-
-                            unmuteVolumes();
-                            //crewChief.audioPlayer.playUnMuteBeep();
-                        }
-                        isMuted = !isMuted;
-                    }
-                    else if (controllerConfiguration.hasOutstandingClick())
+                    else if (controllerConfiguration.ExecuteClickedButton())
                     {
                         //Console.WriteLine("Toggling keep quiet mode");
                         //crewChief.toggleKeepQuietMode();
+                        // HUH????
                     }
                 }
 
@@ -1990,6 +1919,90 @@ namespace CrewChiefV4
                     //Thread.Sleep(nextPollWait);
             }
         }
+
+        #region ConcreteControllerActions
+        public void volumeUp()
+        {
+            if (currentMessageVolume == -1)
+            {
+                Console.WriteLine("Initial volume not set, ignoring");
+            }
+            else if (currentMessageVolume >= 1)
+            {
+                Console.WriteLine("Volume at max");
+            }
+            else
+            {
+                Console.WriteLine("Increasing volume");
+                updateMessagesVolume(currentMessageVolume + 0.05f, true, true);
+            }
+        }
+
+        public void volumeDown()
+        {
+            if (currentMessageVolume == -1)
+            {
+                Console.WriteLine("Initial volume not set, ignoring");
+            }
+            else if (currentMessageVolume <= 0)
+            {
+                Console.WriteLine("Volume at min");
+            }
+            else
+            {
+                Console.WriteLine("Decreasing volume");
+                updateMessagesVolume(currentMessageVolume - 0.05f, true, true);
+            }
+        }
+
+        public void channelOpen()
+        {
+            if (crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised && voiceOption == VoiceOptionEnum.TOGGLE)
+            {
+                // JB: no idea why we're setting this enum option here. Will leave it in just in case
+                crewChief.speechRecogniser.voiceOptionEnum = VoiceOptionEnum.TOGGLE;
+                if (SpeechRecogniser.waitingForSpeech)
+                {
+                    Console.WriteLine("Cancelling...");
+                    SpeechRecogniser.waitingForSpeech = false;
+                    crewChief.speechRecogniser.recognizeAsyncCancel();
+                }
+                else
+                {
+                    // if we reject messages while we're talking to the chief, attempt to interrupt any sound currently playing
+                    if (PlaybackModerator.rejectMessagesWhenTalking)
+                    {
+                        SoundCache.InterruptCurrentlyPlayingSound(true);
+                    }
+                    Console.WriteLine("Listening...");
+                    crewChief.speechRecogniser.recognizeAsync();
+                    crewChief.audioPlayer.playStartListeningBeep();
+                }
+            }
+        }
+
+        public void toggleSpotter()
+        {
+            Console.WriteLine("Toggling spotter mode");
+            crewChief.toggleSpotterMode();
+        }
+
+        public void toggleMute()
+        {
+            if (!isMuted)
+            {
+                //crewChief.audioPlayer.playMuteBeep();
+                muteVolumes();
+            }
+            else
+            {
+
+                unmuteVolumes();
+                //crewChief.audioPlayer.playUnMuteBeep();
+            }
+            isMuted = !isMuted;
+        }
+        #endregion ConcreteControllerActions
 
         private void unmuteVolumes()
         {
@@ -2103,7 +2116,7 @@ namespace CrewChiefV4
                     if (runListenForChannelOpenThread && voiceOption == VoiceOptionEnum.HOLD && crewChief.speechRecogniser != null && crewChief.speechRecogniser.initialised)
                     {
                         Console.WriteLine("Listening on default audio input device");
-                        ThreadStart channelOpenButtonListenerWork = listenForChannelOpen;
+                        ThreadStart channelOpenButtonListenerWork = thread_listenForChannelOpen;
                         Thread channelOpenButtonListenerThread = new Thread(channelOpenButtonListenerWork);
 
                         channelOpenButtonListenerThread.Name = "MainWindow.listenForChannelOpen";
@@ -2121,7 +2134,7 @@ namespace CrewChiefV4
                     if (runListenForButtonPressesThread)
                     {
                         Console.WriteLine("Listening for buttons");
-                        ThreadStart buttonPressesListenerWork = listenForButtons;
+                        ThreadStart buttonPressesListenerWork = thread_listenForButtons;
                         Thread buttonPressesListenerThread = new Thread(buttonPressesListenerWork);
 
                         buttonPressesListenerThread.Name = "MainWindow.listenForButtons";

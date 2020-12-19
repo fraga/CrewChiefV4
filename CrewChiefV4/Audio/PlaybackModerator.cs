@@ -1,11 +1,11 @@
 ﻿/*
  * The idea behind PlaybackModerator class is to allow us to adjust playback after all the high level logic is evaluated,
  * messages resolved, duplicates removed etc.  It is plugged into SingleSound play and couple of other low level places.
- * Currently, the only two things it does is injects fake beep-out/in between Spotter and Chief messages and decides which 
+ * Currently, the only two things it does is injects fake beep-out/in between Spotter and Chief messages and decides which
  * sounds should be used for open/close of radio channel.  In the future we might use it to mess with playback: remove/add sounds,
  * corrupt them etc.
- * 
- * Official website: thecrewchief.org 
+ *
+ * Official website: thecrewchief.org
  * License: MIT
  */
 using CrewChiefV4.GameState;
@@ -280,7 +280,7 @@ namespace CrewChiefV4.Audio
 
         /*
          * CanInterrupt will be true for regular messages triggered by the app's normal event logic. When a message
-         * is played from the 'immediate' queue this will be false (spotter calls, command responses, some edge cases 
+         * is played from the 'immediate' queue this will be false (spotter calls, command responses, some edge cases
          * where the message is time-critical). If this flag is true the presence of a message in the immediate queue
          * will make the app skip this sound if immediate_messages_block_other_messages is enabled.
          */
@@ -327,7 +327,7 @@ namespace CrewChiefV4.Audio
 
                 return false;
             }
-            
+
             if (PlaybackModerator.minPriorityForInterrupt != SoundType.OTHER && PlaybackModerator.CanInterrupt(soundMetadata))
             {
                 SoundType mostImportantTypeInImmediateQueue = PlaybackModerator.audioPlayer.getPriortyOfFirstWaitingImmediateMessage();
@@ -369,7 +369,7 @@ namespace CrewChiefV4.Audio
             }
 
             if (paceNotesMuteOtherMessages
-                && (DriverTrainingService.isPlayingPaceNotes || DriverTrainingService.isRecordingPaceNotes) 
+                && (DriverTrainingService.isPlayingPaceNotes || DriverTrainingService.isRecordingPaceNotes)
                 && type != SoundType.PACE_NOTE)
             {
                 PlaybackModerator.Trace(string.Format("Message {0} hasn't been queued because its not a pace note", queuedMessage.messageName));

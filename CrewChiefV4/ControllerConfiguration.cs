@@ -22,8 +22,8 @@ namespace CrewChiefV4
         private MainWindow mainWindow;
         public Boolean listenForAssignment = false;
         DirectInput directInput = new DirectInput();
-        public static DeviceType[] supportedDeviceTypes = new DeviceType[] {DeviceType.Driving, DeviceType.Joystick, DeviceType.Gamepad, 
-            DeviceType.Keyboard, DeviceType.ControlDevice, DeviceType.FirstPerson, DeviceType.Flight, 
+        public static DeviceType[] supportedDeviceTypes = new DeviceType[] {DeviceType.Driving, DeviceType.Joystick, DeviceType.Gamepad,
+            DeviceType.Keyboard, DeviceType.ControlDevice, DeviceType.FirstPerson, DeviceType.Flight,
             DeviceType.Supplemental, DeviceType.Remote};
 
         // Note: Below two collections are accessed from the multiple threads, but not yet synchronized.
@@ -40,7 +40,7 @@ namespace CrewChiefV4
         // keep track of all the Joystick devices we've 'acquired'
         private static Dictionary<Guid, Joystick> activeDevices = new Dictionary<Guid, Joystick>();
         // separate var for added custom controller
-        private Guid customControllerGuid = Guid.Empty; 
+        private Guid customControllerGuid = Guid.Empty;
 
         // built in controller button functions:
         public static String CHANNEL_OPEN_FUNCTION = "talk_to_crew_chief";
@@ -61,13 +61,13 @@ namespace CrewChiefV4
         public static String GET_STATUS = "get_status";
         public static String GET_SESSION_STATUS = "get_session_status";
         public static String GET_DAMAGE_REPORT = "get_damage_report";
-                
+
         public static String TOGGLE_PACE_NOTES_RECORDING = "toggle_pace_notes_recording";
         public static String TOGGLE_PACE_NOTES_PLAYBACK = "toggle_pace_notes_playback";
 
         public static String TOGGLE_TRACK_LANDMARKS_RECORDING = "toggle_track_landmarks_recording";
         public static String TOGGLE_ENABLE_CUT_TRACK_WARNINGS = "toggle_enable_cut_track_warnings";
-        
+
         public static String ADD_TRACK_LANDMARK = "add_track_landmark";
 
         public static String PIT_PREDICTION = "activate_pit_prediction";
@@ -76,11 +76,17 @@ namespace CrewChiefV4
 
         private ControllerData networkGamePad = new ControllerData(Configuration.getUIString("udp_network_data_buttons"), DeviceType.Gamepad, UDP_NETWORK_CONTROLLER_GUID);
 
+        #region ConcreteControllerActions
         // these are actions *not* handled by an AbstractEvent instance because of some batshit internal wiring that's impossible to unpick
-        private static List<String> specialActions = new List<String>()
+        private static Dictionary<String, Action> specialActions = new Dictionary<string, Action>()
         {
-            CHANNEL_OPEN_FUNCTION, TOGGLE_SPOTTER_FUNCTION, VOLUME_UP, VOLUME_DOWN, TOGGLE_MUTE
+            { CHANNEL_OPEN_FUNCTION  , channelOpen },
+            { TOGGLE_SPOTTER_FUNCTION, toggleSpotter },
+            { VOLUME_UP              , volumeUp },
+            { VOLUME_DOWN            , volumeDown },
+            { TOGGLE_MUTE            , toggleMute }
         };
+        #endregion ConcreteControllerActions
 
         // this is a map of legacy action name (stuff like "CHANNEL_OPEN_FUNCTION") to new action name (stuff like "talk_to_crew_chief")
         // and is used to move old properties values over to the new JSON format on app start (when there's no user file for mappings)
@@ -193,7 +199,7 @@ namespace CrewChiefV4
                     ControllerConfiguration.usersConfigFileIsBroken = true;
                     MessageBox.Show(Configuration.getUIString("controller_mappings_file_error_details_1") + " " + filename + " " +
                             Configuration.getUIString("controller_mappings_file_error_details_2") + " " + e.Message,
-                            Configuration.getUIString("controller_mappings_file_error_title"), 
+                            Configuration.getUIString("controller_mappings_file_error_title"),
                         MessageBoxButtons.OK);
                 }
             }
@@ -289,7 +295,7 @@ namespace CrewChiefV4
         public ControllerConfiguration(MainWindow mainWindow)
         {
             this.mainWindow = mainWindow;
-            
+
         }
 
         private bool initialized = false;
@@ -316,7 +322,7 @@ namespace CrewChiefV4
                 oldUserData.devices = ControllerData.parse(UserSettings.GetUserSettings().getString(ControllerData.PROPERTY_CONTAINER));
                 saveControllerConfigurationDataFile(oldUserData);
             }
-            // if there is something in the default data file we want to add it, this is in case we want to add default button actions later on  
+            // if there is something in the default data file we want to add it, this is in case we want to add default button actions later on
             ControllerConfigurationData defaultData = getControllerConfigurationDataFromFile(getDefaultControllerConfigurationDataFileLocation());
             ControllerConfigurationData controllerConfigurationData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
 
@@ -338,7 +344,7 @@ namespace CrewChiefV4
                     newAssignment.action = missingNewButtonMapping.Value;
                     controllerConfigurationData.buttonAssignments.Add(newAssignment);
                 }
-                if (save) 
+                if (save)
                 {
                     saveControllerConfigurationDataFile(controllerConfigurationData);
                 }
@@ -367,11 +373,20 @@ namespace CrewChiefV4
             customControllerGuid = guid;
         }
 
-        public void pollForButtonClicks()
+        /// <summary>
+        /// For each controller button that is assigned that is pressed set
+        /// hasUnprocessedClick which will execute the assigned action when
+        /// ExecuteClickedButton() is called or in the case of "specialActions"
+        /// when ExecuteSpecialClickedButton() is called
+        /// Also handles auto-repeat
+        /// </summary>
+        public void PollForButtonClicks()
         {
             foreach (var assignment in buttonAssignments)
             {
-                pollForButtonClicks(assignment, assignment.action == VOLUME_UP || assignment.action == VOLUME_DOWN ? 200 : 1000);
+                var autorepeat = assignment.action == VOLUME_UP || assignment.action == VOLUME_DOWN ? 200 : 1000;
+                // 200mS for UP/DOWN, 1 second for all other buttons
+                pollForButtonClicks(assignment, autorepeat);
             }
         }
 
@@ -379,31 +394,34 @@ namespace CrewChiefV4
         {
             if (ba != null && ba.buttonIndex != -1 && ba.controller != null && ba.controller.guid != Guid.Empty)
             {
-                if (ba.controller.guid == UDP_NETWORK_CONTROLLER_GUID && CrewChief.gameDefinition.gameEnum == GameEnum.PCARS_NETWORK)
+                if (ba.controller.guid == UDP_NETWORK_CONTROLLER_GUID)
                 {
-                    var udpButtonState = PCarsUDPreader.getButtonState(ba.buttonIndex);
-                    if (udpButtonState && !ba.wasPressedDown)
+                    bool udpButtonState = false;
+                    if (CrewChief.gameDefinition.gameEnum == GameEnum.PCARS_NETWORK)
                     {
-                        ba.wasPressedDown = true;
-                        ba.hasUnprocessedClick = true;
-                        ba.clickTime = DateTime.Now.AddMilliseconds(repeatRate);
+                        udpButtonState = PCarsUDPreader.getButtonState(ba.buttonIndex);
                     }
-                    else if((!udpButtonState || ba.clickTime < DateTime.Now) && ba.wasPressedDown)
+                    else if (CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2_NETWORK)
                     {
-                        ba.wasPressedDown = false;
+                        udpButtonState = PCars2UDPreader.getButtonState(ba.buttonIndex);
                     }
-                }
-                else if (ba.controller.guid == UDP_NETWORK_CONTROLLER_GUID && CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2_NETWORK)
-                {
-                    var udpButtonState = PCars2UDPreader.getButtonState(ba.buttonIndex);
-                    if (udpButtonState && !ba.wasPressedDown)
+                    if (udpButtonState)
                     {
-                        ba.wasPressedDown = true;
-                        ba.hasUnprocessedClick = true;
-                        ba.clickTime = DateTime.Now.AddMilliseconds(repeatRate);
+                        if (!ba.wasPressedDown)
+                        {   // New remote "button" click
+                            ba.wasPressedDown = true;
+                            ba.hasUnprocessedClick = true;
+                            // Set auto-repeat timeout
+                            ba.clickTime = DateTime.Now.AddMilliseconds(repeatRate);
+                        }
+                        else if (ba.clickTime < DateTime.Now)
+                        {   // Remote "button" still pressed after "repeatRate" mS
+                            ba.wasPressedDown = false;
+                            // If still pressed then next time it will auto repeat
+                        }
                     }
-                    else if (!(udpButtonState || ba.clickTime < DateTime.Now) && ba.wasPressedDown)
-                    {                        
+                    else
+                    {
                         ba.wasPressedDown = false;
                     }
                 }
@@ -420,14 +438,23 @@ namespace CrewChiefV4
                                 if (state != null)
                                 {
                                     Boolean click = ba.usePovData ? state.PointOfViewControllers[ba.buttonIndex] == ba.povValue : state.Buttons[ba.buttonIndex];
-                                    if (click && !ba.wasPressedDown)
+                                    if (click)
                                     {
-                                        ba.wasPressedDown = true;
-                                        ba.hasUnprocessedClick = true;
-                                        ba.clickTime = DateTime.Now.AddMilliseconds(repeatRate); 
+                                        if (!ba.wasPressedDown)
+                                        {   // New button click
+                                            ba.wasPressedDown = true;
+                                            ba.hasUnprocessedClick = true;
+                                            // Set auto-repeat timeout
+                                            ba.clickTime = DateTime.Now.AddMilliseconds(repeatRate);
+                                        }
+                                        else if (ba.clickTime < DateTime.Now)
+                                        {   // Button still pressed after "repeatRate" mS
+                                            ba.wasPressedDown = false;
+                                            // If still pressed then next time it will auto repeat
+                                        }
                                     }
-                                    else if ((!click || ba.clickTime < DateTime.Now) && ba.wasPressedDown)
-                                    {                                        
+                                    else
+                                    {
                                         ba.wasPressedDown = false;
                                     }
                                 }
@@ -440,33 +467,82 @@ namespace CrewChiefV4
             }
         }
 
-        public Boolean hasOutstandingClick(String action = null)
+        #region ConcreteControllerActions
+        /// <summary>
+        /// These functions connect to their equivalents in MainWindow
+        /// I suspect there's a neater answer...
+        /// </summary>
+        static void channelOpen()
         {
-            if (specialActions.Contains(action))
+            MainWindow.instance.channelOpen();
+        }
+        static void toggleSpotter()
+        {
+            MainWindow.instance.toggleSpotter();
+        }
+        static void volumeUp()
+        {
+            MainWindow.instance.volumeUp();
+        }
+        static void volumeDown()
+        {
+            MainWindow.instance.volumeDown();
+        }
+        static void toggleMute()
+        {
+            MainWindow.instance.toggleMute();
+        }
+        /// <summary>
+        /// Check if the button assigned to a "special" action has been pressed
+        /// Used for actions that do NOT have an AbstractEvent instance
+        /// </summary>
+        /// <returns>
+        /// True: a special action's button was pressed.
+        /// </returns>
+        public Boolean ExecuteSpecialClickedButton()
+        {
+            foreach (var action in specialActions.Keys)
             {
                 ButtonAssignment ba = buttonAssignments.SingleOrDefault(ba1 => ba1.action == action);
                 if (ba != null && ba.hasUnprocessedClick)
                 {
+                    Log.Verbose($"{ba.action} clicked");
+                    specialActions[action].Invoke();
                     ba.hasUnprocessedClick = false;
                     return true;
-                }
-                return false;                
-            }
-            else
-            {
-                foreach(var ba in buttonAssignments)
-                {
-                    if (ba.hasUnprocessedClick && ba.actionEvent != null)
-                    {
-                        ba.execute();
-                        ba.hasUnprocessedClick = false;
-                        return true;
-                    }                    
                 }
             }
             return false;
         }
-        
+        /// <summary>
+        /// Execute the assigned action for any button that is pressed
+        /// Used for actions that do have an AbstractEvent instance
+        /// </summary>
+        /// <returns>
+        /// True: an assigned button's action was executed
+        /// </returns>
+        public Boolean ExecuteClickedButton()
+        {
+            foreach (var ba in buttonAssignments)
+            {
+                if (ba.hasUnprocessedClick && ba.actionEvent != null)
+                {
+                    Log.Verbose($"{ba.action} executed");
+                    ba.execute();
+                    ba.hasUnprocessedClick = false;
+                    return true;
+                }
+            }
+            return false;
+        }
+        #endregion ConcreteControllerActions
+
+        /// <summary>
+        /// Whether a button is assigned for "talk to crew chief"
+        /// </summary>
+        /// <returns>
+        /// True: a button is assigned
+        /// </returns>
         public Boolean listenForChannelOpen()
         {
             foreach (ButtonAssignment buttonAssignment in buttonAssignments)
@@ -479,6 +555,14 @@ namespace CrewChiefV4
             return false;
         }
 
+        /// <summary>
+        /// Whether to listen for controller button presses
+        /// </summary>
+        /// <param name="channelOpenIsToggle">Set if voice command is triggered
+        /// by toggling a button</param>
+        /// <returns>
+        /// True: listen for controller buttons
+        /// </returns>
         public Boolean listenForButtons(Boolean channelOpenIsToggle)
         {
             foreach (ButtonAssignment buttonAssignment in buttonAssignments)
@@ -489,9 +573,9 @@ namespace CrewChiefV4
                     return true;
                 }
             }
-            return false;     
+            return false;
         }
-        
+
         public void saveSettings()
         {
             ControllerConfigurationData controllerConfigurationData = getControllerConfigurationDataFromFile(getUserControllerConfigurationDataFileLocation());
@@ -525,7 +609,7 @@ namespace CrewChiefV4
             {
                 if (ba.controller.guid == UDP_NETWORK_CONTROLLER_GUID)
                 {
-                    return CrewChief.gameDefinition.gameEnum == GameEnum.PCARS_NETWORK ? 
+                    return CrewChief.gameDefinition.gameEnum == GameEnum.PCARS_NETWORK ?
                         PCarsUDPreader.getButtonState(ba.buttonIndex) : PCars2UDPreader.getButtonState(ba.buttonIndex);
                 }
                 else
@@ -562,7 +646,7 @@ namespace CrewChiefV4
                     {
                         continue;
                     }
-                    
+
                     Console.WriteLine("Adding \"" + instance.Type + "\" device instance " + (i + 1) + " of " + instances.Count + " (\"" + instance.InstanceName + "\")");
                     instancesToReturn.Add(instance);
                 }
@@ -943,7 +1027,7 @@ namespace CrewChiefV4
         }
 
         private void removeAssignmentsForControllerAndButton(Guid controllerGuid, int buttonIndex)
-        {            
+        {
             foreach (ButtonAssignment ba in buttonAssignments.Where(ba => ba.controller != null && ba.controller.guid == controllerGuid && ba.buttonIndex == buttonIndex))
             {
                 ba.unassign();
@@ -1006,7 +1090,7 @@ namespace CrewChiefV4
                 // action is the built-in action name, the SRE action name (key in the SRE config file) or one of the SRE
                 // values from the SRE config file (e.g "get_session_status", "SESSION_STATUS", or "session status" will all do the same thing)
                 action = string.Empty;
-                deviceGuid = string.Empty; 
+                deviceGuid = string.Empty;
                 buttonIndex = -1;
                 // uiText is optional and will be resolved from the ui_text file or from the SRE config if it's not in the ui_text
                 uiText = null;
@@ -1032,7 +1116,7 @@ namespace CrewChiefV4
             [JsonIgnore]
             public ControllerData controller;
             [JsonIgnore]
-            public Boolean hasUnprocessedClick = false;            
+            public Boolean hasUnprocessedClick = false;
             [JsonIgnore]
             public Boolean wasPressedDown = false;
             [JsonIgnore]
@@ -1047,7 +1131,7 @@ namespace CrewChiefV4
 
             public void findEvent()
             {
-                if (this.action != null && !specialActions.Contains(this.action))
+                if (this.action != null && !specialActions.ContainsKey(this.action))
                 {
                     string[] srePhrases = Configuration.getSpeechRecognitionPhrases(this.action);
                     if (srePhrases != null && srePhrases.Length > 0)
@@ -1085,7 +1169,7 @@ namespace CrewChiefV4
                     if (string.IsNullOrEmpty(this.resolvedUiText))
                     {
                         // nothing in the ui_text, use the resolved SRE command
-                        this.resolvedUiText = resolvedSRECommand;                        
+                        this.resolvedUiText = resolvedSRECommand;
                     }
                     if (string.IsNullOrEmpty(this.resolvedUiText))
                     {
@@ -1112,7 +1196,7 @@ namespace CrewChiefV4
                 if (controller != null && buttonIndex > -1)
                 {
                     String name = controller.deviceName == null || controller.deviceName.Length == 0 ? controller.deviceType.ToString() : controller.deviceName;
-                    string buttonName = usePovData ? Configuration.getUIString("POV") + " " + buttonIndex + " (" + getTextForPovValue() + ")" 
+                    string buttonName = usePovData ? Configuration.getUIString("POV") + " " + buttonIndex + " (" + getTextForPovValue() + ")"
                         : Configuration.getUIString("button") + ": " + buttonIndex;
                     return resolvedUiText + " " + Configuration.getUIString("assigned_to") + " " + name + ", " + buttonName;
                 }
