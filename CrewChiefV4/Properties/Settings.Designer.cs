@@ -5218,5 +5218,17 @@ namespace CrewChiefV4.Properties {
                 this["save_sre_debug_data"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int sre_button_release_delay {
+            get {
+                return ((int)(this["sre_button_release_delay"]));
+            }
+            set {
+                this["sre_button_release_delay"] = value;
+            }
+        }
     }
 }

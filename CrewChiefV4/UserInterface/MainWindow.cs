@@ -20,7 +20,6 @@ using CrewChiefV4.Overlay;
 using Valve.VR;
 using CrewChiefV4.ScreenCapture;
 using CrewChiefV4.VirtualReality;
-using System.Security.Permissions;
 
 namespace CrewChiefV4
 {
@@ -113,6 +112,9 @@ namespace CrewChiefV4
         private Boolean rejectMessagesWhenTalking = UserSettings.GetUserSettings().getBoolean("reject_message_when_talking");
         public static Boolean forceMinWindowSize = UserSettings.GetUserSettings().getBoolean("force_min_window_size");
         private readonly int holdButtonPollFrequency = UserSettings.GetUserSettings().getInt("hold_button_poll_frequency");
+
+        // 2 SRE delays here, sreWaitTime is the time we allow the SRE to get its shit together after invoking
+        // recognizeAsync, and another delay between releasing the button and calling recognizeAsync
         private readonly int sreWaitTime = UserSettings.GetUserSettings().getInt("sre_wait_time");
 
         public ControlWriter consoleWriter = null;
@@ -1858,6 +1860,15 @@ namespace CrewChiefV4
                         }
                         else
                         {
+                            // button released, if we're waiting for speech here (i.e. the SRE hasn't unilaterally
+                            // decided we've finished talking and has gone off on some ill-advised recognition adventure)
+                            // then we might want to sleep a bit before triggering the SRE just in case some cack-handed
+                            // user has let go of the button too soon
+                            int delayBeforeRecognising = UserSettings.GetUserSettings().getInt("sre_button_release_delay");
+                            if (SpeechRecogniser.waitingForSpeech && delayBeforeRecognising > 0)
+                            {
+                                Thread.Sleep(delayBeforeRecognising);
+                            }
                             Console.WriteLine("Invoking speech recognition...");
                             crewChief.speechRecogniser.recognizeAsyncCancel();
                             if (youWotThread == null

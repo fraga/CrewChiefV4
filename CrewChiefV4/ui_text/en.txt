@@ -2097,3 +2097,7 @@ save_sre_debug_data = Write speech recognition debug data
 save_sre_debug_data_help = SRE audio file and recognised text to voiceRecognitionDebug
 save_sre_debug_data_category = MISC
 save_sre_debug_data_metadata = RESTART_REQUIRED
+
+sre_button_release_delay = SRE delay after button release, hold button mode only (ms)
+sre_button_release_delay_help = Wait this long after releasing the radio button before invoking the speech recogniser
+sre_button_release_delay_category = AUDIO_VOICE_AND_CONTROLLERS
