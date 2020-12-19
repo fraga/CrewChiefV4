@@ -404,7 +404,7 @@ namespace CrewChiefV4
         public static String[] RALLY_START_RECE = Configuration.getSpeechRecognitionPhrases("RALLY_START_RECE", loadHomophones);
         public static String[] RALLY_FINISH_RECE = Configuration.getSpeechRecognitionPhrases("RALLY_FINISH_RECE", loadHomophones);
         public static String[] RALLY_DISTANCE = Configuration.getSpeechRecognitionPhrases("RALLY_DISTANCE", loadHomophones);
-        
+
         public static String[] RALLY_TIGHTENS_TO_5 = Configuration.getSpeechRecognitionPhrases("RALLY_TIGHTENS_TO_5", loadHomophones);
         public static String[] RALLY_TIGHTENS_TO_4 = Configuration.getSpeechRecognitionPhrases("RALLY_TIGHTENS_TO_4", loadHomophones);
         public static String[] RALLY_TIGHTENS_TO_3 = Configuration.getSpeechRecognitionPhrases("RALLY_TIGHTENS_TO_3", loadHomophones);
@@ -1194,7 +1194,7 @@ namespace CrewChiefV4
                 Console.WriteLine("Unable to set default audio device, speech recognition may not function and may crash the app");
                 Console.WriteLine("Exception message: " + e.Message);
             }
-            
+
             sreWrapper.SetInitialSilenceTimeout(TimeSpan.Zero);
             try
             {
@@ -1253,7 +1253,7 @@ namespace CrewChiefV4
                 // generic commands for all games. Note that these won't necessarily be wired up for every game
                 ChoicesWrapper staticSpeechChoices = SREWrapperFactory.createNewChoicesWrapper();
                 Console.WriteLine("Loading shared SRE commands");
-                
+
                 validateAndAdd(WHATS_THE_TIME, staticSpeechChoices);
                 validateAndAdd(REPEAT_LAST_MESSAGE, staticSpeechChoices);
                 validateAndAdd(RADIO_CHECK, staticSpeechChoices);
@@ -1922,7 +1922,7 @@ namespace CrewChiefV4
                     ChoicesWrapper correctionChoicesWrapper = SREWrapperFactory.createNewChoicesWrapper(); // this will be added at the start with 0 or 1 repeats
                     validateAndAdd(RALLY_CORRECTION, correctionChoicesWrapper);
                     validateAndAdd(RALLY_INSERT, correctionChoicesWrapper);
-                    
+
                     // modifier commands. These are generally used to modify a corner call but can apply to other obstacles.
                     ChoicesWrapper stageNoteCommandChoicesWrapper = SREWrapperFactory.createNewChoicesWrapper();
                     validateAndAdd(RALLY_CUT, stageNoteCommandChoicesWrapper);
