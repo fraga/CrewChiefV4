@@ -92,11 +92,17 @@ namespace CrewChiefV4.commands
                 // load the json:
                 MacroContainer macroContainer = loadCommands(getMacrosFileLocation());
                 MacroContainer defaultMacroContainer = loadCommands(getMacrosFileLocation(true));
-                if (mergeNewCommandSetsFromDefault(macroContainer, defaultMacroContainer))
+                if (macroContainer.macros == null)
                 {
-                    saveCommands(macroContainer);
+                    macroContainer.macros = defaultMacroContainer.macros;
                 }
-
+                else
+                {
+                    if (mergeNewCommandSetsFromDefault(macroContainer, defaultMacroContainer))
+                    {
+                        saveCommands(macroContainer);
+                    }
+                }
                 // if it's valid, load the command sets:
                 foreach (Macro macro in macroContainer.macros)
                 {
@@ -202,13 +208,13 @@ namespace CrewChiefV4.commands
                 }
                 foreach (var defaultMacro in defaultMacroContainer.macros)
                 {
-                    if (userMacro.name == defaultMacro.name) 
+                    if (userMacro.name == defaultMacro.name)
                     {
                         if (defaultMacro.commandSets != null)
                         {
                             foreach (var defaultMacroCommandSet in defaultMacro.commandSets)
                             {
-                                if (!userMacroGameDefinitions.Contains(defaultMacroCommandSet.gameDefinition)) 
+                                if (!userMacroGameDefinitions.Contains(defaultMacroCommandSet.gameDefinition))
                                 {
                                     // this macro exists in the user set and the default set, but the default set
                                     // has a CommandSet for a game that's not in the user's set - add it
@@ -219,13 +225,13 @@ namespace CrewChiefV4.commands
                             }
                         }
                         break;
-                    }                
+                    }
                 }
                 if (added)
                 {
                     // we've added a command set from the default to this user macro (or temporary list)
                     userMacro.commandSets = userMacroCommandSetsList.ToArray();
-                }                
+                }
             }
             return addedAny;
         }

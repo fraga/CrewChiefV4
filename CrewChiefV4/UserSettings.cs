@@ -264,22 +264,7 @@ namespace CrewChiefV4
         {
             // Set profile from command line '-profile "file name without extension" ...'.  This needs to be
             // done here, because this executes before Main.
-            var commandLineArgs = Environment.GetCommandLineArgs();
-            var profileRequestedFromCommandLine = "";
-            for (int argIdx = 1; argIdx < commandLineArgs.Length; ++argIdx)
-            {
-                var arg = (string)commandLineArgs.GetValue(argIdx);
-                if (arg.StartsWith("-profile", StringComparison.InvariantCultureIgnoreCase))
-                {
-                    // Next argument should specify the desired profile name.
-                    if (argIdx + 1 < commandLineArgs.Length)
-                    {
-                        profileRequestedFromCommandLine = (string)commandLineArgs.GetValue(argIdx + 1);
-                    }
-
-                    break;
-                }
-            }
+            var profileRequestedFromCommandLine = CrewChief.CommandLine.Get("profile");
 
             if (!string.IsNullOrWhiteSpace(profileRequestedFromCommandLine))
             {

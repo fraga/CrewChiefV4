@@ -37,7 +37,7 @@ namespace CrewChiefV4
         {
             this.messageNames = messageNames;
             this.minCount = minCount;
-            this.maxCount = maxCount;            
+            this.maxCount = maxCount;
         }
         // expect a specific message to be played the exact number of times - note that the DELAYED_ and COMPOUND_ prefixes are also considered here
         public ExpectedMessage(string messageName, int exactCount)
@@ -88,15 +88,15 @@ namespace CrewChiefV4
         // TODO: move the hard-coded Strings to a messageNames class and reference these in all the events instead of using random
         // magic Strings everywhere
         private static ExpectedMessage[] defaultExpectedMessagesForRaceSessions = new ExpectedMessage[]
-        {        
+        {
             new ExpectedMessage("lap_counter/get_ready", 1),
             new ExpectedMessage("lap_counter/green_green_green", 1),
             new ExpectedMessage("position", 1, 1000), // expect at least *some* position messages
             new ExpectedMessage(new string[] {"Timings/gap_behind", "Timings/gap_in_front"}, 1, 1000), // expect at least *some* gap messages
             new ExpectedMessage(new string[] {"fuel/half_distance_good_fuel", "fuel/half_distance_low_fuel"}, 0, 1),    // won't always get this, but should never have > 1
-            new ExpectedMessage(new string[] {"lap_counter/two_to_go", "lap_counter/two_to_go_top_three", "lap_counter/two_to_go_leading", 
+            new ExpectedMessage(new string[] {"lap_counter/two_to_go", "lap_counter/two_to_go_top_three", "lap_counter/two_to_go_leading",
                 "race_time/five_minutes_left_podium", "race_time/five_minutes_left_leading", "race_time/five_minutes_left"}, 1),    // should always get 1 2-to-go or 5-mins-to-go
-            new ExpectedMessage(new string[] {"lap_counter/last_lap", "lap_counter/white_flag_last_lap", "lap_counter/last_lap_leading", 
+            new ExpectedMessage(new string[] {"lap_counter/last_lap", "lap_counter/white_flag_last_lap", "lap_counter/last_lap_leading",
                 "lap_counter/last_lap_top_three", "race_time/last_lap", "race_time/last_lap_leading", "race_time/last_lap_top_three"}, 1),  // should always get 1 last-lap
             new ExpectedMessage("SESSION_END", 1)   // should always get 1 session end
         };
@@ -118,7 +118,7 @@ namespace CrewChiefV4
         public static GameDataReader gameDataReader;
 
         public static GameDataSerializer gameDataSerializer;
-        
+
         public static void checkPlaybackCounts()
         {
             if (includesRaceSession)
@@ -221,7 +221,7 @@ namespace CrewChiefV4
             }
         }
 
-        private static void stopGameDataWebsocketServer() 
+        private static void stopGameDataWebsocketServer()
         {
             GameDataWebsocketData.reset();
             try
@@ -308,7 +308,7 @@ namespace CrewChiefV4
          * For tyre life estimates we want to know how long the tyres will last, so we're asking for a time prediction
          * given a wear amount (100% wear). So y_data is the y-axis which may be time points (session running time) or
          * number of sectors since session start incrementing +1 for each sector. When we change tyres we clear these
-         * data sets but the y-axis time / sector counts will start at however long into the session (time or total 
+         * data sets but the y-axis time / sector counts will start at however long into the session (time or total
          * sectors) we are.
          * x_data is the tyre wear at that y point (a percentage).
          * the x_point is the point you want to predict the life - wear amount. So we pass 100% in here to give us
@@ -438,53 +438,143 @@ namespace CrewChiefV4
         /// <param name="removeSkipUpdates"></param>
         /// <returns>true if app restarted</returns>
         public static bool RestartApp(
-            List<String> newArgs=null,
-            bool removeSkipUpdates=false,
-            bool removeProfile=false)
+            bool app_restart = false,
+            bool removeSkipUpdates = false,
+            bool removeProfile = false)
         {
             if (!CrewChief.Debugging)
             {
-                List<String> startArgs = new List<string>();
-                List<String> oldArgs = Environment.GetCommandLineArgs().ToList<String>();
-                for (var i = 0; i < oldArgs.Count; i++)
+                if (app_restart)
                 {
-                    String startArg = oldArgs[i];
-                    // if we're restarting because the 'force update check'
-                    // was clicked, remove the '-skip_updates' arg
-                    if (removeSkipUpdates && 
-                        ("-skip_updates".Equals(startArg, StringComparison.InvariantCultureIgnoreCase)
-                        || "SKIP_UPDATES".Equals(startArg)))
-                    {
-                        continue;
-                    }
-                    if (removeProfile &&
-                        "-profile".Equals(startArg, StringComparison.InvariantCultureIgnoreCase)
-                       )
-                    {
-                        i++;    // Skip -profile's arg too
-                        continue;
-                    }
-                    startArgs.Add(startArg);
+                    CrewChief.CommandLine.Add("app_restart", "");
                 }
-
-                // Always have to add "-multi" to the start args so the app can restart
-                if (newArgs == null)
-                    newArgs = new List<string>();
-                newArgs.Add("-multi");
-                foreach (string arg in newArgs)
+                // if we're restarting because the 'force update check'
+                // was clicked, remove the '-skip_updates' arg
+                if (removeSkipUpdates)
                 {
-                    if (!startArgs.Contains(arg))
-                    {
-                        startArgs.Add(arg);
-                    }
+                    CrewChief.CommandLine.Remove("skip_updates");
+                    CrewChief.CommandLine.Remove("SKIP_UPDATES");
+                }
+                if (removeProfile)
+                {
+                    CrewChief.CommandLine.Remove("profile");
+                }
+                // Always have to add "-multi" to the start args so the app can restart
+                CrewChief.CommandLine.Add("multi", "");
+
+                // Translate the dict back into a command line
+                var newArgs = new List<string>();
+                foreach (var arg in CrewChief.CommandLine._dict)
+                {
+                    newArgs.Add("-" + arg.Key);
+                    newArgs.Add(arg.Value);
                 }
                 System.Diagnostics.Process.Start(    // to start new instance of application
                     System.Windows.Forms.Application.ExecutablePath,
-                    String.Join(" ", startArgs.ToArray()));
+                    String.Join(" ", newArgs.ToArray()));
                 return true;
             }
             // If debugging then carry on regardless
             return false;
+        }
+
+    /// <summary>
+    /// Read the command line arguments into a dictionary
+    /// </summary>
+    public class CommandLineParametersReader
+        {
+            private string[] _args
+            {
+                get;
+            }
+            public Dictionary<string, string> _dict
+            {
+                get;
+            }
+
+            private bool CaseSensitive
+            {
+                get;
+            }
+
+            public CommandLineParametersReader(string[] args=null, bool isCaseSensitive=false)
+            {
+                if (args == null)
+                {
+                    args = Environment.GetCommandLineArgs();
+                }
+                _args = args;
+                CaseSensitive = isCaseSensitive;
+                _dict = new Dictionary<string, string>();
+                Process();
+            }
+
+            // Process Arguments into KeyPairs
+            private void Process()
+            {
+                string currentKey = null;
+                foreach (var arg in _args)
+                {
+                    var s = arg.Trim();
+                    if (s.StartsWith("-"))
+                    {
+                        currentKey = s.Substring(1);
+                        if (!CaseSensitive)
+                        {
+                            currentKey = currentKey.ToLower();
+                        }
+                        _dict[currentKey] = "";
+                    }
+                    else
+                    {
+                        if (currentKey != null)
+                        {
+                            _dict[currentKey] = s;
+                            currentKey = null;
+                        }
+                    }
+                }
+            }
+
+            // Return the Key with a default value
+            public string Get(string key, string defaultvalue = null)
+            {
+                if (!CaseSensitive)
+                {
+                    key = key.ToLower();
+                }
+                return _dict.ContainsKey(key) ? _dict[key] : defaultvalue;
+            }
+
+            public void Add(string key, string value)
+            {
+                _dict[key] = value;
+            }
+            public void Remove(string key)
+            {
+                if (_dict.ContainsKey(key))
+                {
+                    _dict.Remove(key);
+                }
+            }
+            /// <summary>
+            /// Return a -c_[command] argument
+            /// </summary>
+            /// <returns>
+            /// The command or "" if none
+            /// </returns>
+            public string GetCommandArg()
+            {
+                string cmd = "";
+                foreach (var arg in _dict)
+                {
+                    if (arg.Key.StartsWith("c_"))
+                    {
+                        cmd = "-" + arg.Key;
+                    }
+                }
+                return cmd;
+            }
         }
 
         internal static void ReportException(Exception e, string msg, bool needReport)

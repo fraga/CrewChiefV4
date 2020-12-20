@@ -1117,13 +1117,15 @@ namespace CrewChiefV4.iRacing
 
             currentGameState.PenaltiesData.IsOffRacingSurface = shared.Telemetry.PlayerTrackSurface == TrackSurfaces.OffTrack;
 
-            if(previousGameState != null && invalidateCutTrackLaps && (!previousGameState.PitData.OnOutLap && currentGameState.SessionData.IsNewLap) &&
+            if (invalidateCutTrackLaps && !currentGameState.PitData.OnOutLap && previousGameState != null &&
                 !(currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.SessionData.SessionPhase == SessionPhase.Countdown) &&
-                currentGameState.SessionData.CurrentIncidentCount + 1 == shared.Telemetry.PlayerCarMyIncidentCount)
+                currentGameState.SessionData.CurrentIncidentCount + 1 == shared.Telemetry.PlayerCarMyIncidentCount && 
+                currentGameState.SessionData.TrackSurface == (int)TrackSurfaces.OffTrack)
             {
                 currentGameState.PenaltiesData.CutTrackWarnings = previousGameState.PenaltiesData.CutTrackWarnings + 1;
                 currentGameState.SessionData.CurrentLapIsValid = false;
             }
+
             currentGameState.SessionData.CurrentIncidentCount = shared.Telemetry.PlayerCarMyIncidentCount;
             currentGameState.SessionData.CurrentDriverIncidentCount = shared.Telemetry.PlayerCarDriverIncidentCount;
             currentGameState.SessionData.CurrentTeamIncidentCount = shared.Telemetry.PlayerCarTeamIncidentCount;
