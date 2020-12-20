@@ -12,6 +12,7 @@ using CrewChiefV4.Events;
 using System.Windows.Forms;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using CrewChiefV4.commands;
 
 namespace CrewChiefV4
 {
@@ -43,14 +44,16 @@ namespace CrewChiefV4
         private Guid customControllerGuid = Guid.Empty;
 
         // built in controller button functions:
-        public static String CHANNEL_OPEN_FUNCTION = "talk_to_crew_chief";
+        private static String CHANNEL_OPEN_FUNCTION = "talk_to_crew_chief";
+        private static String TOGGLE_SPOTTER_FUNCTION = "toggle_spotter_on/off";
+        private static String VOLUME_UP = "volume_up";
+        private static String VOLUME_DOWN = "volume_down";
+        private static String TOGGLE_MUTE = "toggle_mute";
+        private static String RESET_VR_VIEW = "reset_vr_view";
+
         public static String TOGGLE_RACE_UPDATES_FUNCTION = "toggle_race_updates_on/off";
-        public static String TOGGLE_SPOTTER_FUNCTION = "toggle_spotter_on/off";
         public static String TOGGLE_READ_OPPONENT_DELTAS = "toggle_opponent_deltas_on/off_for_each_lap";
         public static String REPEAT_LAST_MESSAGE_BUTTON = "press_to_replay_the_last_message";
-        public static String VOLUME_UP = "volume_up";
-        public static String VOLUME_DOWN = "volume_down";
-        public static String TOGGLE_MUTE = "toggle_mute";
         public static String PRINT_TRACK_DATA = "print_track_data";
         public static String TOGGLE_YELLOW_FLAG_MESSAGES = "toggle_yellow_flag_messages";
         public static String GET_FUEL_STATUS = "get_fuel_status";
@@ -84,7 +87,8 @@ namespace CrewChiefV4
             { TOGGLE_SPOTTER_FUNCTION, toggleSpotter },
             { VOLUME_UP              , volumeUp },
             { VOLUME_DOWN            , volumeDown },
-            { TOGGLE_MUTE            , toggleMute }
+            { TOGGLE_MUTE            , toggleMute },
+            { RESET_VR_VIEW          , resetVRview },
         };
         #endregion ConcreteControllerActions
 
@@ -492,6 +496,33 @@ namespace CrewChiefV4
         {
             MainWindow.instance.toggleMute();
         }
+
+        /// <summary>
+        /// Send Numpad 5 to games that have CC VR DLLs
+        /// </summary>
+        static void resetVRview()
+        {
+            if (CrewChief.gameDefinition.friendlyName.Equals("Automobilista") ||
+                CrewChief.gameDefinition.friendlyName.Equals("GTR 2"))
+            {
+                KeyPresser.KeyCode keyCode;
+                string str = UserSettings.GetUserSettings().getString("reset_vr_view_control");
+                if (Enum.TryParse<KeyPresser.KeyCode>(str, out keyCode))
+                {
+                    KeyPresser.SendScanCodeKeyPress(keyCode, false, 50);
+                    Log.Commentary("Reset VR view");
+                }
+                else
+                {
+                    Log.Error($"reset_vr_view_control: invalid keycode '{str}'");
+                }
+            }
+            else
+            {
+                Log.Verbose($"{CrewChief.gameDefinition.friendlyName} doesn't use 'Reset VR view'");
+            }
+        }
+
         /// <summary>
         /// Check if the button assigned to a "special" action has been pressed
         /// Used for actions that do NOT have an AbstractEvent instance
@@ -514,6 +545,7 @@ namespace CrewChiefV4
             }
             return false;
         }
+        #endregion ConcreteControllerActions
         /// <summary>
         /// Execute the assigned action for any button that is pressed
         /// Used for actions that do have an AbstractEvent instance
@@ -535,7 +567,6 @@ namespace CrewChiefV4
             }
             return false;
         }
-        #endregion ConcreteControllerActions
 
         /// <summary>
         /// Whether a button is assigned for "talk to crew chief"
