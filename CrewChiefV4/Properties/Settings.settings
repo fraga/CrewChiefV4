@@ -1304,5 +1304,8 @@
     <Setting Name="sre_button_release_delay" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
+    <Setting Name="reset_vr_view_control" Type="System.String" Scope="User">
+      <Value Profile="(Default)">NUMPAD5</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
