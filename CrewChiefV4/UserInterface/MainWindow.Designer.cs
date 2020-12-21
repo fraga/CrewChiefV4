@@ -774,10 +774,7 @@ namespace CrewChiefV4
             //
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            if (UserSettings.GetUserSettings().getBoolean("scroll_bars_on_main_window"))
-            {
-                this.AutoScroll = true;
-            }
+
             this.ClientSize = new System.Drawing.Size(1152, 714);
             this.Controls.Add(this.buttonVRWindowSettings);
             this.Controls.Add(this.AddRemoveActions);
