@@ -1020,6 +1020,7 @@ namespace CrewChiefV4
             this.buttonVRWindowSettings.Text = Configuration.getUIString("vr_window_settings");
             this.gameDefinitionList.Items.Clear();
             this.gameDefinitionList.Items.AddRange(GameDefinition.getGameDefinitionFriendlyNames());
+            this.AutoScroll = UserSettings.GetUserSettings().getBoolean("scroll_bars_on_main_window");
 
             this.codriverStyleBox.Items.Add(new MainWindow.CoDriverStyleEntry()
             {
