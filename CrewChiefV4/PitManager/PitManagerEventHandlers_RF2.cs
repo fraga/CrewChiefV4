@@ -635,7 +635,7 @@ namespace CrewChiefV4.PitManager
             }
             else
             {   // Category is not available
-                PitManagerResponseHandlers.PMrh_CantDoThat();
+                PitManagerResponseHandlers.PMrh_CantChangeThose();
             }
             return response;
         }
