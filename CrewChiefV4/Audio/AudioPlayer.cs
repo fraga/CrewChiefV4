@@ -761,11 +761,11 @@ namespace CrewChiefV4.Audio
                 }
                 if (!foundMessagePlayBackDevice)
                 {
-                    Console.WriteLine($"Unable to find saved message audio output device, using default: {GetDefaultOutputDeviceName()}");
+                    Console.WriteLine($"Unable to find saved message audio output device, using default: {GetDefaultOutputDeviceName()}.  Note: this could be caused by a driver reinstall or an OS feature update.  If you keep seeing this message, re-select the desired device in the UI.");
                 }
                 if (!foundBackgroundAudioDevice)
                 {
-                    Console.WriteLine($"Unable to find saved background audio output device, using default: {GetDefaultOutputDeviceName()}");
+                    Console.WriteLine($"Unable to find saved background audio output device, using default: {GetDefaultOutputDeviceName()}.  Note: this could be caused by a driver reinstall or an OS feature update.  If you keep seeing this message, re-select the desired device in the UI.");
                 }
             }
         }
