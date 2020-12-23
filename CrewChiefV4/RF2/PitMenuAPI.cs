@@ -161,7 +161,7 @@ namespace PitMenuAPI
         {
             pitInfoBuffer.GetMappedData(ref pitInfo);
             var catName = GetStringFromBytes(pitInfo.mPitMneu.mCategoryName);
-            Log.Debug($"Pit menu category '{catName}'");
+            Log.Verbose($"Pit menu category '{catName}'");
             return catName;
         }
 

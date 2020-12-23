@@ -58,7 +58,7 @@ namespace PitMenuAPI
             string category;
             string choice;
 
-            Log.Debug("GetMenuDict");
+            Log.Verbose("GetMenuDict");
             if (startUsingPitMenu())
                 {
                 do
@@ -126,6 +126,7 @@ namespace PitMenuAPI
             }
             if (!shadowPitMenu.ContainsKey(category))
                 {
+                Log.Commentary($"Pit menu doesn't have category '{category}'");
                 return false;
                 }
             string currentCategory = GetCategory();
@@ -219,6 +220,11 @@ namespace PitMenuAPI
                         {   // Gallons are displayed in 10ths
                             current = convertGallonsToLitres(current);
                         }
+                        Log.Verbose($"Fuel level {current}");
+                    }
+                    else
+                    {
+                        Log.Commentary($"Couldn't parse fuel level '{GetChoice()}'");
                     }
                 }
             }
@@ -235,14 +241,17 @@ namespace PitMenuAPI
         /// </summary>
         /// <param name="requiredFuel"> in litres (even if current units are (US?) gallons)</param>
         /// <returns>
-        /// true if level set (or it reached max/min possible
+        /// true if level set (or it reached max/min possible)
         /// false if the level can't be read
         /// </returns>
         public bool SetFuelLevel(int requiredFuel)
         {
             int tryNo = 5;
 
-            SmartSetCategory("FUEL:");
+            if (!SmartSetCategory("FUEL:"))
+            {   // Menu doesn't contain FUEL
+                return false;
+            }
             int current = GetFuelLevel();
 
             if (current < 0)
@@ -259,7 +268,7 @@ namespace PitMenuAPI
                 { // Can't adjust further
                     if (tryNo-- < 0)
                     {
-                        return false;
+                        return true;
                     }
                     startUsingPitMenu();
                     SmartSetCategory("FUEL:");
@@ -278,7 +287,7 @@ namespace PitMenuAPI
                 { // Can't adjust further
                     if (tryNo-- < 0)
                     {
-                        return false;
+                        return true;
                     }
                     startUsingPitMenu();
                     SmartSetCategory("FUEL:");

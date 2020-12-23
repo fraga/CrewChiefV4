@@ -295,7 +295,7 @@ namespace CrewChiefV4.PitManager
                     if (_voiceMessage.Contains(" " + numberStr))
                     {
                         amount = entry.Value;
-                        Log.Debug("processed number " + amount.ToString());
+                        Log.Verbose("processed number " + amount.ToString());
                         break;
                     }
                 }
