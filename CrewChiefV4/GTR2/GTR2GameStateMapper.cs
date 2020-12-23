@@ -111,6 +111,7 @@ namespace CrewChiefV4.GTR2
             public int carNumber = -1;
             public string carNumberStr = null;
             public int year = -1;
+            public OpponentData opponentData = null;
         }
 
         private Dictionary<long, CarInfo> idToCarInfoMap = new Dictionary<long, CarInfo>();
@@ -273,6 +274,9 @@ namespace CrewChiefV4.GTR2
             this.lastHistoryMessageUpdatedTicks = 0L;
 
             this.lastGameSession = -1;
+
+            this.rspwState = RollingStateWorkaroundState.Done;
+            this.rspwIDToRSWData = null;
         }
 
         public override GameStateData mapToGameStateData(Object memoryMappedFileStruct, GameStateData previousGameState)
@@ -464,7 +468,7 @@ namespace CrewChiefV4.GTR2
                         if (vehicle.mIsPlayer == 1)
                             playerScoring = vehicle;
 
-                        if (vehicle.mPlace == 1)
+                        if (this.GetPreprocessedPlace(ref vehicle) == 1)
                             leaderScoring = vehicle;
                         break;
 
@@ -472,12 +476,12 @@ namespace CrewChiefV4.GTR2
                         continue;
                 }
 
-                if (playerScoring.mIsPlayer == 1 && leaderScoring.mPlace == 1)
+                if (playerScoring.mIsPlayer == 1 && this.GetPreprocessedPlace(ref leaderScoring) == 1)
                     break;
             }
 
             // Can't find the player or session leader vehicle info (replay).  No useful data is available.
-            if (playerScoring.mIsPlayer != 1 || leaderScoring.mPlace != 1)
+            if (playerScoring.mIsPlayer != 1 || this.GetPreprocessedPlace(ref leaderScoring) != 1)
             {
                 if (pgs != null)
                     pgs.SessionData.AbruptSessionEndDetected = false;  // Not 100% sure how this happened, but I saw us entering inifinite session restart due to this sticking.
@@ -702,7 +706,7 @@ namespace CrewChiefV4.GTR2
 
             csd.NumCarsOverall = shared.scoring.mScoringInfo.mNumVehicles;
             csd.NumCarsOverallAtStartOfSession = csd.IsNewSession ? csd.NumCarsOverall : psd.NumCarsOverallAtStartOfSession;
-            csd.OverallPosition = playerScoring.mPlace;
+            csd.OverallPosition = this.GetPreprocessedPlace(ref playerScoring);
 
             csd.SectorNumber = playerScoring.mSector == 0 ? 3 : playerScoring.mSector;
             csd.IsNewSector = csd.IsNewSession || csd.SectorNumber != psd.SectorNumber;
@@ -1339,10 +1343,11 @@ namespace CrewChiefV4.GTR2
                     driverNameCounts.Add(driverName, 1);
             }
 
+            OpponentData leaderOppoentData = null;
             for (int i = 0; i < shared.scoring.mScoringInfo.mNumVehicles; ++i)
             {
                 var vehicleScoring = shared.scoring.mVehicles[i];
-                var vehicleExtendedScoring = shared.extended.mExtendedVehicleScoring[playerScoring.mID % GTR2Constants.MAX_MAPPED_IDS];
+                var vehicleExtendedScoring = shared.extended.mExtendedVehicleScoring[vehicleScoring.mID % GTR2Constants.MAX_MAPPED_IDS];
 
                 if (vehicleScoring.mIsPlayer == 1)
                 {
@@ -1376,7 +1381,7 @@ namespace CrewChiefV4.GTR2
                             if (csd.OverallLeaderIsOnLastLap)
                                 csd.IsLastLap = true;
 
-                            if (vehicleScoring.mPlace == 1
+                            if (this.GetPreprocessedPlace(ref vehicleScoring) == 1
                                 && csd.PlayerLapTimeSessionBest > 0.0f
                                 && csd.SessionTimeRemaining < csd.PlayerLapTimeSessionBest * 0.90f)
                                 csd.IsLastLap = csd.OverallLeaderIsOnLastLap = true;
@@ -1446,6 +1451,7 @@ namespace CrewChiefV4.GTR2
                     {
                         Console.WriteLine("Opponent " + driverName + " has retired");
                         cgs.retriedDriverNames.Add(driverName);
+                        vehicleCachedInfo.opponentData = null;
                     }
                     continue;
                 }
@@ -1456,12 +1462,22 @@ namespace CrewChiefV4.GTR2
                     {
                         Console.WriteLine("Opponent " + driverName + " has been disqualified");
                         cgs.disqualifiedDriverNames.Add(driverName);
+                        vehicleCachedInfo.opponentData = null;
                     }
                     continue;
                 }
 
                 opponentPrevious = pgs == null || opponentKey == null || !pgs.OpponentData.TryGetValue(opponentKey, out opponentPrevious) ? null : opponentPrevious;
                 var opponent = new OpponentData();
+
+                if (shared.extended.mUnofficialFeaturesEnabled != 0
+                    && leaderScoring.mID == vehicleScoring.mID)
+                {
+                    Debug.Assert(leaderOppoentData == null);
+                    leaderOppoentData = opponent;
+                }
+
+                vehicleCachedInfo.opponentData = opponent;
 
                 opponent.CarClass = vehicleCachedInfo.carClass;
 
@@ -1486,7 +1502,7 @@ namespace CrewChiefV4.GTR2
                 opponent.CurrentTyres = tt;
                 opponent.DriverRawName = vehicleCachedInfo.driverNameRawSanitized;
                 opponent.DriverNameSet = opponent.DriverRawName.Length > 0;
-                opponent.OverallPosition = vehicleScoring.mPlace;
+                opponent.OverallPosition = this.GetPreprocessedPlace(ref vehicleScoring);
                 opponent.CarNumber = vehicleCachedInfo.carNumberStr;
 
                 // Telemetry isn't always available, initialize first tyre set 10 secs or more into race.
@@ -1528,7 +1544,7 @@ namespace CrewChiefV4.GTR2
                 opponent.CompletedLaps = vehicleScoring.mTotalLaps;
                 opponent.CurrentSectorNumber = vehicleScoring.mSector == 0 ? 3 : vehicleScoring.mSector;
                 var isNewSector = csd.IsNewSession || (opponentPrevious != null && opponentPrevious.CurrentSectorNumber != opponent.CurrentSectorNumber);
-                opponent.IsNewLap = csd.IsNewSession || (isNewSector && opponent.CurrentSectorNumber == 1 && opponent.CompletedLaps > 0);
+                opponent.IsNewLap = csd.IsNewSession || (isNewSector && opponent.CurrentSectorNumber == 1/* && opponent.CompletedLaps > 0*/);  // Why last condition opponent but not player?
 
                 opponent.Speed = (float)GTR2GameStateMapper.getVehicleSpeed(ref vehicleScoring);
                 opponent.WorldPosition = new float[] { (float)vehicleScoring.mPos.x, (float)vehicleScoring.mPos.z };
@@ -2058,7 +2074,148 @@ namespace CrewChiefV4.GTR2
                 cgs.TelemetryData.RearRightData.RideHeight = wheelRearRight.mRideHeight;
             }
 
+            // ------------------------
+            // Apply rolling start position data workaround.
+            this.ApplyRollingStartPosWorkaround(cgs, pgs, ref shared.scoring, ref shared.extended, leaderScoring.mID, leaderOppoentData, csd.IsNewLap, playerScoring.mID);
+
             return cgs;
+        }
+
+        private int GetPreprocessedPlace(ref GTR2VehicleScoring vehScoring)
+        {
+            if (this.rspwState == RollingStateWorkaroundState.Done)
+                return vehScoring.mPlace;
+            else
+            {
+                if (this.rspwIDToRSWData.TryGetValue(vehScoring.mID, out var rswvd))
+                    return rswvd.frozenPosition;
+            }
+
+            return vehScoring.mPlace;
+        }
+
+        // Rolling start is f-ed up slightly.  As soon as leader crosses s/f line, standings reported by the game are incorrect.
+        // They get back order only when all vehicles cross s/f line.  So, we need to cache last valid standings and use them
+        // during that time window.
+        enum RollingStateWorkaroundState
+        {
+            Done,
+            PhaseWentGreen,
+            LeaderCrossedStartFinishLine
+        }
+        RollingStateWorkaroundState rspwState = RollingStateWorkaroundState.Done;
+
+        public class RollingStateWorkaroundVehicleData
+        {
+            public bool crossedSFLine = false;
+            public int frozenPosition = -1;
+#if DEBUG
+            public string driverName = "";
+#endif  // DEBUG
+        }
+
+        Dictionary<int, RollingStateWorkaroundVehicleData> rspwIDToRSWData = null;
+        private long rspwTicksStabilizationWaitStarted = DateTime.MinValue.Ticks;
+
+        private void ApplyRollingStartPosWorkaround(
+            GameStateData cgs,
+            GameStateData pgs,
+            ref GTR2Scoring scoring,
+            ref GTR2Extended extended,
+            int leaderVehID,
+            OpponentData leaderOpponentData,
+            bool playerOnNewLap,
+            int playerVehID)
+        {
+            var csd = cgs.SessionData;
+            if (extended.mUnofficialFeaturesEnabled == 0
+                || csd.SessionType != SessionType.Race
+                || pgs == null)
+                return;
+
+            var psd = pgs.SessionData;
+
+            if (this.rspwState == RollingStateWorkaroundState.Done
+                && psd.SessionPhase == SessionPhase.Formation
+                && csd.SessionPhase == SessionPhase.Green)
+            {
+                Console.WriteLine("Rolling Start position workaround: just went green.");
+                this.rspwState = RollingStateWorkaroundState.PhaseWentGreen;
+                this.rspwIDToRSWData = new Dictionary<int, RollingStateWorkaroundVehicleData>();
+                this.rspwTicksStabilizationWaitStarted = DateTime.MinValue.Ticks;
+            }
+
+            if (this.rspwState == RollingStateWorkaroundState.PhaseWentGreen)
+            {
+                // Check if anyone crossed s/f line - leader below is wrong.
+                if ((leaderOpponentData != null && leaderOpponentData.IsNewLap)  // leaderOpponentData == null means that player is leading.
+                    || playerOnNewLap)
+                {
+                    Console.WriteLine("Rolling Start position workaround: leader crossed s/f line, freeze the position order.");
+                    this.rspwState = RollingStateWorkaroundState.LeaderCrossedStartFinishLine;
+
+                    if (this.rspwIDToRSWData.TryGetValue(leaderVehID, out var rswvd))
+                        rswvd.crossedSFLine = true;
+#if DEBUG
+                    Console.WriteLine("Rolling Start position workaround: frozen grid order:");
+                    foreach (var rswvdOrder in this.rspwIDToRSWData)
+                    {
+                        Console.WriteLine($"Driver: {rswvdOrder.Value.driverName}  Assigned pos: {rswvdOrder.Value.frozenPosition}");
+                    }
+#endif  // DEBUG
+                }
+                else
+                {
+                    for (int i = 0; i < scoring.mScoringInfo.mNumVehicles; ++i)
+                    {
+                        var vehicleScoring = scoring.mVehicles[i];
+                        var vehicleExtendedScoring = extended.mExtendedVehicleScoring[vehicleScoring.mID % GTR2Constants.MAX_MAPPED_IDS];
+
+                        if (this.rspwIDToRSWData.TryGetValue(vehicleScoring.mID, out var rswvd))
+                            rswvd.frozenPosition =  vehicleScoring.mPlace;
+                        else
+                        {
+                            this.rspwIDToRSWData.Add(vehicleScoring.mID, new RollingStateWorkaroundVehicleData()
+                            {
+                                frozenPosition = vehicleScoring.mPlace
+#if DEBUG
+                                ,
+                                driverName = GTR2GameStateMapper.GetStringFromBytes(vehicleScoring.mDriverName)
+#endif  // DEBUG
+                            });
+                        }
+                    }
+                }
+            }
+            else if (this.rspwState == RollingStateWorkaroundState.LeaderCrossedStartFinishLine)
+            {
+                var allVehCrossedSF = true;
+                for (int i = 0; i < scoring.mScoringInfo.mNumVehicles; ++i)
+                {
+                    if (playerOnNewLap && this.rspwIDToRSWData.TryGetValue(playerVehID, out var rswvd))
+                    {
+                        rswvd.crossedSFLine = true;
+                        allVehCrossedSF = allVehCrossedSF && rswvd.crossedSFLine;
+                    }
+
+                    var vehicleScoring = scoring.mVehicles[i];
+                    var cci = this.GetCachedCarInfo(true /*unofficialFeaturesEnabled*/, ref vehicleScoring, ref extended);
+                    if (cci.opponentData != null  // DNF/DQ are nulled out.
+                        && this.rspwIDToRSWData.TryGetValue(vehicleScoring.mID, out var rswvdOpponent))
+                    {
+                        if (cci.opponentData.IsNewLap)
+                            rswvdOpponent.crossedSFLine = true;
+
+                        allVehCrossedSF = allVehCrossedSF && rswvdOpponent.crossedSFLine;
+                    }
+                }
+
+                if (allVehCrossedSF)
+                {
+                    Console.WriteLine("Rolling Start position workaround: all vehicles crossed s/f line.  Workaround is done.");
+                    this.rspwState = RollingStateWorkaroundState.Done;
+                }
+            }
         }
 
         private void ProcessMCMessages(GameStateData cgs, GameStateData pgs, GTR2SharedMemoryReader.GTR2StructWrapper shared)
@@ -2252,7 +2409,7 @@ namespace CrewChiefV4.GTR2
             }*/
 
             // TODO: we could track time since scoring update and interpolate.  Just add TickCounts to both tel and scoring.
-            return vehicleScoring.mLapDist;
+                    return vehicleScoring.mLapDist;
         }
 
         private void ProcessPlayerTimingData(

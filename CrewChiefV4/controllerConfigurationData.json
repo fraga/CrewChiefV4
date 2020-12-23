@@ -916,6 +916,12 @@
       "deviceGuid": "",
       "buttonIndex": -1,
       "opponentDataCommand": false
-    }
+    },
+  {
+      "action": "reset_vr_view",
+      "deviceGuid": "",
+      "buttonIndex": -1,
+      "opponentDataCommand": false
+    },
   ]
 }

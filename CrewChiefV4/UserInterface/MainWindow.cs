@@ -1020,6 +1020,7 @@ namespace CrewChiefV4
             this.buttonVRWindowSettings.Text = Configuration.getUIString("vr_window_settings");
             this.gameDefinitionList.Items.Clear();
             this.gameDefinitionList.Items.AddRange(GameDefinition.getGameDefinitionFriendlyNames());
+            this.AutoScroll = UserSettings.GetUserSettings().getBoolean("scroll_bars_on_main_window");
 
             this.codriverStyleBox.Items.Add(new MainWindow.CoDriverStyleEntry()
             {
@@ -1915,19 +1916,11 @@ namespace CrewChiefV4
                 if (now > lastButtoncheck.Add(buttonCheckInterval)) // (50mS also)
                 {
                     lastButtoncheck = now;
-                    if (controllerConfiguration.ExecuteSpecialClickedButton())
-                    {
-                    }
-                    else if (controllerConfiguration.ExecuteClickedButton())
-                    {
-                        //Console.WriteLine("Toggling keep quiet mode");
-                        //crewChief.toggleKeepQuietMode();
-                        // HUH????
-                    }
+                    // Only process one button at a time
+                    // because it's always been like that
+                    var _ = controllerConfiguration.ExecuteSpecialClickedButton() ||
+                            controllerConfiguration.ExecuteClickedButton();
                 }
-
-                //if (nextPollWait > 0)
-                    //Thread.Sleep(nextPollWait);
             }
         }
 
@@ -2007,7 +2000,6 @@ namespace CrewChiefV4
             }
             else
             {
-
                 unmuteVolumes();
                 //crewChief.audioPlayer.playUnMuteBeep();
             }
