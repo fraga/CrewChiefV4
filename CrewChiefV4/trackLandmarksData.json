@@ -1256,7 +1256,7 @@
 			"irTrackName": "monza full",
 			"raceroomLayoutId": 1671,
 			"raceroomRollingStartLapDistance": 4285,
-			"gtr2TrackNames": ["Monza, 2003 FIA GT Championship Round 10", "Monza, 2004 FIA GT Championship Round 1", "Monza", "HQ Autodromo Nazionale di Monza"],
+			"gtr2TrackNames": ["Monza, 2003 FIA GT Championship Round 10", "Monza, 2004 FIA GT Championship Round 1", "Monza", "HQ Autodromo Nazionale di Monza", "HQ-Vanilla Monza 2004", "HQ-Vanilla Monza 2003"],
 			"pitApproachPoint": [
 				5345,
 				755.2,
@@ -9066,7 +9066,7 @@
 		},
 		{
 			"rf2TrackNames": ["Estoril  1988"],
-			"gtr2TrackNames": ["Estoril, 2003 FIA GT Championship Round 9", "HQ Autodromo do Estoril"],
+			"gtr2TrackNames": ["Estoril, 2003 FIA GT Championship Round 9", "HQ Autodromo do Estoril", "HQ-Vanilla Estoril 2003"],
 			"trackLandmarks": [{
 					"landmarkName": "curva1",
 					"distanceRoundLapStart": 425,
@@ -9306,7 +9306,7 @@
 			]
 		},
 		{
-			"gtr2TrackNames": ["HQ Circuit de Spa-Francorchamps", "Spa-Francorchamps, 2003 FIA GT Championship Round 6", "Spa-Francorchamps, 2004 FIA GT Championship Round 7"],
+			"gtr2TrackNames": ["HQ Circuit de Spa-Francorchamps", "Spa-Francorchamps, 2003 FIA GT Championship Round 6", "Spa-Francorchamps, 2004 FIA GT Championship Round 7", "HQ-Vanilla Spa-Francorchamps 2004", "HQ-Vanilla Spa-Francorchamps 2003"],
 			"trackLandmarks": [{
 					"landmarkName": "eau_rouge",
 					"distanceRoundLapStart": 205,
@@ -13004,7 +13004,7 @@
 			"pcars2TrackName": "Oschersleben:A_Course",
 			"raceroomLayoutId": 2384,
 			"raceroomRollingStartLapDistance": 3181,
-			"gtr2TrackNames": ["Oschersleben, 2003 FIA GT Championship Round 8", "Oschersleben, 2004 FIA GT Championship Round 9", "Oschersleben", "HQ Motorsport Arena Oschersleben"],
+			"gtr2TrackNames": ["Oschersleben, 2003 FIA GT Championship Round 8", "Oschersleben, 2004 FIA GT Championship Round 9", "Oschersleben", "HQ Motorsport Arena Oschersleben", "HQ-Vanilla Oschersleben 2003"],
 			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 430,
@@ -16309,7 +16309,7 @@
 			]
 		},
 		{
-			"gtr2TrackNames": ["Brno, 2003 FIA GT Championship Round 4", "Brno, 2004 FIA GT Championship Round 5", "Circuit de Masaryk", "HQ Circuit de Masaryk"],
+			"gtr2TrackNames": ["Brno, 2003 FIA GT Championship Round 4", "Brno, 2004 FIA GT Championship Round 5", "Circuit de Masaryk", "HQ Circuit de Masaryk", "HQ-Vanilla Brno 2004", "HQ-Vanilla Brno 2003"],
 			"trackLandmarks": [{
 					"landmarkName": "turn1",
 					"distanceRoundLapStart": 415,

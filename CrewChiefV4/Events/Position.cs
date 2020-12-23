@@ -527,10 +527,10 @@ namespace CrewChiefV4.Events
         // Because of this, we use a delayed message event - when the message reaches the top of the queue it uses the latest 
         // position, rather than the position when it was inserted into the queue.
 
-        // For RF2 use a non-zero delay here because the position data isn't always updated in a timely fashion at the start of a new lap.
         private void playCurrentPositionMessage(PearlsOfWisdom.PearlType pearlType, float pearlLikelihood, Boolean isReminder)
         {
             int delaySeconds = CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT ||
+                                CrewChief.gameDefinition.gameEnum == GameEnum.GTR2 ||
                                 CrewChief.gameDefinition.gameEnum == GameEnum.ASSETTO_32BIT ||
                                 CrewChief.gameDefinition.gameEnum == GameEnum.ASSETTO_64BIT ||
                                 CrewChief.gameDefinition.gameEnum == GameEnum.ACC ? 1 : 0;
