@@ -1868,7 +1868,7 @@ namespace CrewChiefV4
                             int delayBeforeRecognising = UserSettings.GetUserSettings().getInt("sre_button_release_delay");
                             if (SpeechRecogniser.waitingForSpeech && delayBeforeRecognising > 0)
                             {
-                                Thread.Sleep(delayBeforeRecognising);
+                                Utilities.InterruptedSleep(totalWaitMillis: delayBeforeRecognising, waitWindowMillis: 50, keepWaitingPredicate: () => crewChief.running);
                             }
                             Console.WriteLine("Invoking speech recognition...");
                             crewChief.speechRecogniser.recognizeAsyncCancel();
