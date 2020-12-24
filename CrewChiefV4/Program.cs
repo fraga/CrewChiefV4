@@ -72,14 +72,33 @@ namespace CrewChiefV4
                 }
                 try
                 {
-                    if (System.Diagnostics.Process.GetProcessesByName(System.IO.Path.GetFileNameWithoutExtension(System.Reflection.Assembly.GetEntryAssembly().Location)).Count() > 1)
+                    var processes = System.Diagnostics.Process.GetProcessesByName(System.IO.Path.GetFileNameWithoutExtension(System.Reflection.Assembly.GetEntryAssembly().Location));
+                    if (processes.Count() > 1)
                     {
-                        System.Diagnostics.Process.GetCurrentProcess().Kill();
+                        var result = MessageBox.Show("Retry to close the other one\nCancel to close this one",
+                            "Crew Chief is already running",
+                            MessageBoxButtons.RetryCancel);
+                        if (result == DialogResult.Cancel)
+                        {
+                            System.Diagnostics.Process.GetCurrentProcess().Kill();
+                        }
+                        else // Maybe overkill but may let users kill a stuck process
+                        {
+                            var startTime = System.Diagnostics.Process.GetCurrentProcess().StartTime;
+                            foreach (var process in processes)
+                            {
+                                if (process.StartTime != startTime)
+                                {
+                                    process.Kill();
+                                }
+                            }
+                        }
                     }
                 }
                 catch (Exception)
                 {
-                    //ignore
+                    // Shouldn't happen but belt and braces...
+                    System.Environment.Exit(1);
                 }
             }
             Application.EnableVisualStyles();
