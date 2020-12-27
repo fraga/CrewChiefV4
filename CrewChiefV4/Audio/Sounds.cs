@@ -182,7 +182,7 @@ namespace CrewChiefV4.Audio
                             synthesizer.Dispose();
                             synthesizer = null;
                         }
-                        catch (Exception) { }
+                        catch (Exception e) {Log.Exception(e);}
                     }
                     synthesizer = new SpeechSynthesizer();
                     Boolean hasMale = false;
@@ -577,7 +577,7 @@ namespace CrewChiefV4.Audio
                             pauseLength = int.Parse(split[1]);
                         }
                     }
-                    catch (Exception) { }
+                    catch (Exception e) {Log.Exception(e);}
                     singleSoundsToPlay.Add(new SingleSound(pauseLength));
                 }
                 else if (soundName.StartsWith(TTS_IDENTIFIER))
@@ -763,7 +763,7 @@ namespace CrewChiefV4.Audio
                     synthesizer.Dispose();
                     synthesizer = null;
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
             }
             lock(soundSets)
             {
@@ -774,7 +774,7 @@ namespace CrewChiefV4.Audio
                         soundSet.StopAll();
                         soundSet.UnLoadAll();
                     }
-                    catch (Exception) { }
+                    catch (Exception e) {Log.Exception(e);}
                 }
                 foreach (SingleSound singleSound in singleSounds.Values)
                 {
@@ -783,7 +783,7 @@ namespace CrewChiefV4.Audio
                         singleSound.Stop();
                         singleSound.UnLoad();
                     }
-                    catch (Exception) { }
+                    catch (Exception e) {Log.Exception(e);}
                 }
             }
 
@@ -797,14 +797,14 @@ namespace CrewChiefV4.Audio
                 {
                     soundSet.StopAll();
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
             }
             foreach (SingleSound singleSound in singleSounds.Values)
             {
                 try {
                     singleSound.Stop();
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
             }
         }
 
@@ -1687,15 +1687,14 @@ namespace CrewChiefV4.Audio
                         {
                             this.reader.Dispose();
                         }
-                        catch (Exception)
-                        { }
+                        catch (Exception e) { Log.Exception(e); }
                         try
                         {
                             if (this.eventHandler != null) this.nAudioOut.SubscribePlaybackStopped(this.eventHandler);
                             this.nAudioOut.Stop();
                             this.nAudioOut.Dispose();
                         }
-                        catch (Exception) { }
+                        catch (Exception e) {Log.Exception(e);}
                         loadedSoundPlayer = false;
                     }
                     if (!loadedSoundPlayer)
@@ -1768,7 +1767,7 @@ namespace CrewChiefV4.Audio
                 {
                     soundPlayer.Dispose();
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
             }
             else
             {
@@ -1783,7 +1782,7 @@ namespace CrewChiefV4.Audio
                     {
                         this.soundPlayer.Dispose();
                     }
-                    catch (Exception) { }
+                    catch (Exception e) {Log.Exception(e);}
                     this.loadedSoundPlayer = false;
                     SoundCache.activeSoundPlayerObjects--;
                 }
@@ -1861,12 +1860,12 @@ namespace CrewChiefV4.Audio
                 {
                     uncachedReader.Dispose();
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
                 try
                 {
                     uncachedNAudioOut.Dispose();
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
             }
             else
             {
@@ -1982,7 +1981,7 @@ namespace CrewChiefV4.Audio
                     {
                         this.memoryStream.Dispose();
                     }
-                    catch (Exception) { }
+                    catch (Exception e) {Log.Exception(e);}
                 }
                 if (this.soundPlayer != null)
                 {
@@ -1990,7 +1989,7 @@ namespace CrewChiefV4.Audio
                     {
                         this.soundPlayer.Dispose();
                     }
-                    catch (Exception) { }
+                    catch (Exception e) {Log.Exception(e);}
                     this.loadedSoundPlayer = false;
                     unloaded = true;
                     SoundCache.activeSoundPlayerObjects--;
@@ -2001,7 +2000,7 @@ namespace CrewChiefV4.Audio
                     {
                         this.nAudioOut.Dispose();
                     }
-                    catch (Exception) { }
+                    catch (Exception e) {Log.Exception(e);}
                     this.loadedSoundPlayer = false;
                     unloaded = true;
                 }

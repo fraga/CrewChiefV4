@@ -253,7 +253,7 @@ namespace CrewChiefV4
                 {
                     parentDir = Path.GetDirectoryName(proc[0].MainModule.FileName);
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
 
                 return true;
             }

@@ -938,7 +938,7 @@ namespace CrewChiefV4
                 {
                     waveIn.Dispose();
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
             }
             // VL: do not dispose SRE engines.  It is not clear when, and if ever any stupid outstanding Async call will complete.
             // Outstanding Async calls block Dispose on shutdown.
@@ -952,12 +952,12 @@ namespace CrewChiefV4
                 {
                     sreWrapper.SetInputToNull();
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
                 try
                 {
                     //sre.Dispose();
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
                 sreWrapper = null;
             }
             if (triggerSreWrapper != null)
@@ -966,7 +966,7 @@ namespace CrewChiefV4
                 {
                     //triggerSre.Dispose();
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
                 triggerSreWrapper = null;
             }
             initialised = false;
@@ -1232,6 +1232,10 @@ namespace CrewChiefV4
 
         public void loadSRECommands()
         {
+            if (sreWrapper == null)
+            {
+                return;
+            }
             try
             {
                 sreWrapper.UnloadAllGrammars();

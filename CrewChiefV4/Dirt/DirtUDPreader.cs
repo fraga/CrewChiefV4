@@ -194,7 +194,7 @@ namespace CrewChiefV4.Dirt
                     }
                     udpClient.Close();
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
             }
             initialised = false;
         }

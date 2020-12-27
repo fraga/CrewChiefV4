@@ -272,7 +272,7 @@ namespace CrewChiefV4
             {
                 directInput.Dispose();
             }
-            catch (Exception) { }
+            catch (Exception e) {Log.Exception(e);}
         }
 
         private void unacquireAndDisposeActiveJoysticks()
@@ -285,12 +285,12 @@ namespace CrewChiefV4
                     {
                         joystick.Unacquire();
                     }
-                    catch (Exception) { }
+                    catch (Exception e) {Log.Exception(e);}
                     try
                     {
                         joystick.Dispose();
                     }
-                    catch (Exception) { }
+                    catch (Exception e) {Log.Exception(e);}
                 }
                 activeDevices.Clear();
             }
@@ -463,8 +463,7 @@ namespace CrewChiefV4
                                     }
                                 }
                             }
-                            catch (Exception)
-                            { }
+                            catch (Exception e) { Log.Exception(e); }
                         }
                     }
                 }
@@ -660,8 +659,7 @@ namespace CrewChiefV4
                             {
                                 return ba.usePovData ? joystick.GetCurrentState().PointOfViewControllers[ba.buttonIndex] == ba.povValue : joystick.GetCurrentState().Buttons[ba.buttonIndex];
                             }
-                            catch
-                            { }
+                            catch (Exception e) { Log.Exception(e); }
                         }
                     }
                 }
@@ -688,7 +686,7 @@ namespace CrewChiefV4
                     instancesToReturn.Add(instance);
                 }
             }
-            catch (Exception) { }
+            catch (Exception e) {Log.Exception(e);}
             return instancesToReturn;
         }
 
@@ -896,7 +894,7 @@ namespace CrewChiefV4
                     {
                         joystick.Dispose();
                     }
-                    catch (Exception) { }
+                    catch (Exception e) {Log.Exception(e);}
                 }
             }
         }

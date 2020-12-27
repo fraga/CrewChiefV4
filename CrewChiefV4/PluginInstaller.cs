@@ -240,7 +240,7 @@ namespace CrewChiefV4
                         // again, write with the same encoding the game uses
                         File.WriteAllText(broadcastPath, accBroadcastFileContents, LEunicodeWithoutBOM);
                     }
-                    catch { }
+                    catch(Exception e) { Log.Exception(e); }
                 }
                 return;
             }

@@ -191,7 +191,7 @@ namespace CrewChiefV4
                 {
                     File.Delete(Loading.tempSplashImagePath);
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
             }
             new Thread(() =>
             {

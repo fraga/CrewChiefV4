@@ -92,7 +92,7 @@ namespace CrewChiefV4.NumberProcessing
                 LoadNumberReader(sb.ToString());
                 loadedOverride = true;
             }
-            catch (Exception) {}
+            catch (Exception e) { Log.Exception(e); }
             finally
             {
                 if (file != null)
