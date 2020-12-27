@@ -148,7 +148,7 @@ namespace CrewChiefV4.Audio
                         }
                     }
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
                 base.dispose();
             }
         }

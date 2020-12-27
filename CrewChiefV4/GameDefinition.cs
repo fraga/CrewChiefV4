@@ -152,8 +152,7 @@ namespace CrewChiefV4
                     }
                     return filtered.ToList();
                 }
-                catch
-                { }
+                catch (Exception e) { Log.Exception(e); }
             }
             return gameDefinitions;
         }

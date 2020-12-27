@@ -501,7 +501,7 @@ namespace CrewChiefV4.RBR
             {
                 this.DisconnectInternal();
             }
-            catch (Exception) { }
+            catch (Exception e) {Log.Exception(e);}
         }
     }
 }

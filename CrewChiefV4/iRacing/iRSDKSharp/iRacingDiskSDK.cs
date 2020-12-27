@@ -38,11 +38,11 @@ namespace iRSDKSharp
             diskTelemetryUpdateThread.Name = "iRacingDiskSDK.GetDiskTelemetryUpdateThread";
             ThreadManager.RegisterResourceThread(diskTelemetryUpdateThread);
             diskTelemetryUpdateThread.Start();
-            IsInitialized = true;           
+            IsInitialized = true;
         }
 
         public T ByteToType<T>() where T : struct
-        {            
+        {
             byte[] bytes = binaryReader.ReadBytes(Marshal.SizeOf(typeof(T)));
             GCHandle handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
             T theStructure = (T)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(T));
@@ -56,7 +56,7 @@ namespace iRSDKSharp
             int offset = Header.varHeaderOffset;
             binaryReader.BaseStream.Seek(offset, SeekOrigin.Begin);
             for (var i = 0; i < Header.numVars; i++)
-            {                
+            {
                 var varHeader = ByteToType<VarHeader>();
                 offset += sizeOfVarHeader;
                 VarHeaders[varHeader.name] = varHeader;
@@ -77,7 +77,7 @@ namespace iRSDKSharp
             FileStream telemetryFileStream = null;
             try
             {
-                telemetryFileStream = File.Open(file.FullName, FileMode.Open);                        
+                telemetryFileStream = File.Open(file.FullName, FileMode.Open);
                 processedFileNames.Add(file.FullName);
             }
             catch (Exception ex)
@@ -104,11 +104,8 @@ namespace iRSDKSharp
                     }
                 }
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Exception " + ex.Message);
-            }            
-            iRacingDiskDataReady.Set();            
+            catch (Exception ex) { Log.Exception(ex); }
+            iRacingDiskDataReady.Set();
         }
         public List<object> GetDataForLap(string name, int lapNumber)
         {
@@ -119,7 +116,7 @@ namespace iRSDKSharp
                 {
                     long nextLapOffset = -1;
                     lapOffsets.TryGetValue(lapNumber + 1, out nextLapOffset);
-                       
+
                     offset += varHeader.offset;
                     int count = varHeader.count;
                     while ((offset <= binaryReader.BaseStream.Length && nextLapOffset == -1) || offset < nextLapOffset)
@@ -310,8 +307,8 @@ namespace iRSDKSharp
                             }
                         }
                     }
-                }                                      
-            }            
+                }
+            }
             return null;
         }
         public string GetSessionInfoString()
@@ -323,8 +320,8 @@ namespace iRSDKSharp
         public void ClearData()
         {
             binaryReader?.Dispose();
-            memoryStream?.Dispose();            
-            IsInitialized = false;            
+            memoryStream?.Dispose();
+            IsInitialized = false;
         }
     }
 

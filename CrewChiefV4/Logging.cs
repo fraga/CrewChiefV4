@@ -24,6 +24,7 @@ namespace CrewChiefV4
             Info = 1 << 5,
             Debug = 1 << 6,
             Verbose = 1 << 7,
+            Exception = 1 << 8
         };
         private static LogType _logMask = UserSettings.GetUserSettings().getBoolean("log_type_debug") ?
             setLogLevel(LogType.Debug) : (UserSettings.GetUserSettings().getBoolean("log_type_verbose") ?
@@ -38,7 +39,8 @@ namespace CrewChiefV4
             { LogType.Subtitle,   "Subt: " },
             { LogType.Info      , "Info: " },
             { LogType.Verbose   , "Verb: " },
-            { LogType.Debug     , "Dbug: " }
+            { LogType.Debug     , "Dbug: " },
+            { LogType.Exception , "EXCEPTION: " }
         };
         /// <summary>
         /// Set the log mask so all logs up to "logType" are shown
@@ -166,6 +168,20 @@ namespace CrewChiefV4
         public static void Verbose(string log)
         {
             _Log(LogType.Verbose, log);
+        }
+        /// <summary>
+        /// Write Exception details to Console if logType.Exception is enabled
+        /// Precede with log if the arg is included
+        /// </summary>
+        /// <param name="e">Exception</param>
+        /// <param name="log">Optional text</param>
+        public static void Exception(Exception e, string log="")
+        {
+            if (!string.IsNullOrEmpty(log))
+            {
+                log = log + Environment.NewLine;
+            }
+            _Log(LogType.Exception, log + e.ToString());
         }
         #endregion Shorthand calls
     }

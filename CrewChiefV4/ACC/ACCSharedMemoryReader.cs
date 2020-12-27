@@ -572,7 +572,7 @@ namespace CrewChiefV4.ACC
                     memoryMappedPhysicsFile.Dispose();
                     memoryMappedPhysicsFile = null;
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
             }
             if (memoryMappedGraphicFile != null)
             {
@@ -581,7 +581,7 @@ namespace CrewChiefV4.ACC
                     memoryMappedGraphicFile.Dispose();
                     memoryMappedGraphicFile = null;
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
             }
             if (memoryMappedStaticFile != null)
             {
@@ -590,7 +590,7 @@ namespace CrewChiefV4.ACC
                     memoryMappedStaticFile.Dispose();
                     memoryMappedStaticFile = null;
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
             }
             if (udpUpdateViewModel != null)
             {
@@ -598,7 +598,7 @@ namespace CrewChiefV4.ACC
                 {
                     udpUpdateViewModel.Shutdown();
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
             }
             initialised = false;
         }

@@ -266,7 +266,7 @@ namespace CrewChiefV4
                         soundPackLocation = soundPackLocationOverride;
                     }
                 }
-                catch (Exception) {}
+                catch (Exception ee) { Log.Exception(ee); }
             }
             try
             {
