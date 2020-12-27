@@ -64,6 +64,7 @@ assign = Assign
 assign_control = Assi&gn control
 delete_assignment = &Delete assignment
 available_controllers = Available &controllers
+no_control_assigned = No control assigned
 available_actions = Available ac&tions
 properties = &Properties
 voice_recognition_mode = Voice &recognition mode

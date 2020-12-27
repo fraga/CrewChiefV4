@@ -22,6 +22,8 @@ namespace CrewChiefV4.commands
         public Macro macro;
         private Thread executableCommandMacroThread = null;
 
+        private bool macroExecutingOnCommandMacroThread = false;
+
         public ExecutableCommandMacro(AudioPlayer audioPlayer, Macro macro)
         {
             this.audioPlayer = audioPlayer;
@@ -178,8 +180,9 @@ namespace CrewChiefV4.commands
             return isValid;
         }
 
-        public void execute(String recognitionResult, Boolean supressConfirmationMessage, Boolean useNewThread)
+        public bool execute(String recognitionResult, Boolean supressConfirmationMessage, Boolean useNewThread)
         {
+            bool allowedToRun = true;
             // blocking...
             Boolean isR3e = CrewChief.gameDefinition == GameDefinition.raceRoom;
             int multiplePressCountFromVoiceCommand = 0;
@@ -195,18 +198,29 @@ namespace CrewChiefV4.commands
                 {
                     if (useNewThread)
                     {
-                        ThreadManager.UnregisterTemporaryThread(executableCommandMacroThread);
-                        executableCommandMacroThread = new Thread(() =>
+                        if (this.macroExecutingOnCommandMacroThread)
                         {
-                            // only allow macros to excute one at a time
-                            lock (ExecutableCommandMacro.mutex)
+                            Log.Debug("Macro \"" + this.macro.name + "\" can't run while another macro is excuting");
+                            allowedToRun = false;
+                        }
+                        else
+                        {
+                            this.macroExecutingOnCommandMacroThread = true;
+                            ThreadManager.UnregisterTemporaryThread(executableCommandMacroThread);
+                            executableCommandMacroThread = new Thread(() =>
                             {
-                                runMacro(commandSet, isR3e, multiplePressCountFromVoiceCommand);
-                            }
-                        });
-                        executableCommandMacroThread.Name = "CommandMacro.executableCommandMacroThread";
-                        ThreadManager.RegisterTemporaryThread(executableCommandMacroThread);
-                        executableCommandMacroThread.Start();
+                                // only allow macros to excute one at a time
+                                lock (ExecutableCommandMacro.mutex)
+                                {
+                                    this.macroExecutingOnCommandMacroThread = true;
+                                    runMacro(commandSet, isR3e, multiplePressCountFromVoiceCommand);
+                                    this.macroExecutingOnCommandMacroThread = false;
+                                }
+                            });
+                            executableCommandMacroThread.Name = "CommandMacro.executableCommandMacroThread";
+                            ThreadManager.RegisterTemporaryThread(executableCommandMacroThread);
+                            executableCommandMacroThread.Start();
+                        }
                     }
                     else
                     {
@@ -215,6 +229,7 @@ namespace CrewChiefV4.commands
                 }
                 break;
             }
+            return allowedToRun;
         }
 
         private void runMacro(CommandSet commandSet, Boolean isR3e, int multiplePressCountFromVoiceCommand)

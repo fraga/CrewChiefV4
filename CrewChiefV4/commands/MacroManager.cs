@@ -71,18 +71,16 @@ namespace CrewChiefV4.commands
             return macroContainer;
         }
 
-        // checks if the game definition selected matches the game definition from the command set. Note that we're allowing
-        // pCars2 macros to be used with AMS2 here
+        // checks if the game definition selected matches the game definition from the command set.
         public static bool isCommandSetForCurrentGame(string gameDefinitionFromCommandSet)
         {
             return gameDefinitionFromCommandSet != null &&
                 ((gameDefinitionFromCommandSet.Equals(GENERIC_MACRO_GAME_NAME, StringComparison.InvariantCultureIgnoreCase) && CrewChief.gameDefinition.gameEnum != GameEnum.NONE) ||
-                  gameDefinitionFromCommandSet.Equals(CrewChief.gameDefinition.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase) ||
-                  gameDefinitionFromCommandSet.Equals(GameEnum.PCARS2.ToString(), StringComparison.InvariantCultureIgnoreCase) && CrewChief.gameDefinition.gameEnum == GameEnum.AMS2);
+                  gameDefinitionFromCommandSet.Equals(CrewChief.gameDefinition.gameEnum.ToString(), StringComparison.InvariantCultureIgnoreCase));
         }
 
         // This is called immediately after initialising the speech recogniser in MainWindow
-        public static void initialise(AudioPlayer audioPlayer, SpeechRecogniser speechRecogniser)
+        public static void initialise(AudioPlayer audioPlayer, SpeechRecogniser speechRecogniser, ControllerConfiguration controllerConfiguration)
         {
             MacroManager.stopped = false;
             MacroManager.macros.Clear();
@@ -156,6 +154,20 @@ namespace CrewChiefV4.commands
                             else
                             {
                                 voiceTriggeredMacros.Add(macro.integerVariableVoiceTrigger, commandMacro);
+                            }
+                        }
+                        if (macro.buttonTriggers != null && macro.buttonTriggers.Length > 0)
+                        {
+                            // load each button assignment
+                            foreach (ButtonTrigger buttonTrigger in macro.buttonTriggers)
+                            {
+                                ControllerConfiguration.ButtonAssignment buttonAssignment = new ControllerConfiguration.ButtonAssignment();
+                                buttonAssignment.macro = commandMacro;
+                                buttonAssignment.buttonIndex = buttonTrigger.buttonIndex;
+                                buttonAssignment.deviceGuid = buttonTrigger.deviceId;
+                                controllerConfiguration.addControllerObjectToButtonAssignment(buttonAssignment);
+                                controllerConfiguration.buttonAssignments.Add(buttonAssignment);
+                                controllerConfiguration.addControllerIfNecessary(buttonTrigger.description, buttonTrigger.deviceId);
                             }
                         }
                     }

@@ -2165,8 +2165,6 @@ namespace CrewChiefV4
                 }
 
                 startApplicationButton.Enabled = false;
-                uiSyncAppStart();
-
 
 #if !DEBUG
                 // Don't disable auto scroll in Debug builds and in Profile mode.
@@ -2180,7 +2178,8 @@ namespace CrewChiefV4
                 if (gameDefinition != null)
                 {
                     crewChief.setGameDefinition(gameDefinition);
-                    MacroManager.initialise(crewChief.audioPlayer, crewChief.speechRecogniser);
+                    MacroManager.initialise(crewChief.audioPlayer, crewChief.speechRecogniser, this.controllerConfiguration);
+                    uiSyncAppStart();
                     CarData.loadCarClassData();
                     TrackData.loadTrackLandmarksData();
                     ThreadStart crewChiefWork = runApp;
@@ -3607,7 +3606,7 @@ namespace CrewChiefV4
         }
         private void editCommandMacroButtonClicked(object sender, EventArgs e)
         {
-            var form = new MacroEditor(this);
+            var form = new MacroEditor(this, this.controllerConfiguration);
             form.ShowDialog(this);
         }
 
