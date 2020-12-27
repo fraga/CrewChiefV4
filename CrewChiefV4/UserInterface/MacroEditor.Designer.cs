@@ -49,6 +49,9 @@
             this.buttonAddNewMacro = new System.Windows.Forms.Button();
             this.buttonAddActionSequence = new System.Windows.Forms.Button();
             this.groupBoxGlobalOptins = new System.Windows.Forms.GroupBox();
+            this.deleteAssignmentButton = new System.Windows.Forms.Button();
+            this.addAssignmentButton = new System.Windows.Forms.Button();
+            this.currentAssignmentLabel = new System.Windows.Forms.Label();
             this.groupBoxAvailableMacros = new System.Windows.Forms.GroupBox();
             this.labelMacroEditMode = new System.Windows.Forms.Label();
             this.buttonDeleteSelectedMacro = new System.Windows.Forms.Button();
@@ -58,6 +61,8 @@
             this.groupBoxGlobalMacroVoiceTrigger = new System.Windows.Forms.GroupBox();
             this.radioButtonRegularVoiceTrigger = new System.Windows.Forms.RadioButton();
             this.radioButtonIntegerVoiceTrigger = new System.Windows.Forms.RadioButton();
+            this.controllerListLabel = new System.Windows.Forms.Label();
+            this.controllersList = new System.Windows.Forms.ListBox();
             this.groupBoxGameSettings = new System.Windows.Forms.GroupBox();
             this.groupAvailableActions = new System.Windows.Forms.GroupBox();
             this.textBoxSpecialActionParameter = new System.Windows.Forms.TextBox();
@@ -267,21 +272,56 @@
             // 
             // groupBoxGlobalOptins
             // 
+            this.groupBoxGlobalOptins.Controls.Add(this.deleteAssignmentButton);
+            this.groupBoxGlobalOptins.Controls.Add(this.addAssignmentButton);
+            this.groupBoxGlobalOptins.Controls.Add(this.currentAssignmentLabel);
             this.groupBoxGlobalOptins.Controls.Add(this.groupBoxAvailableMacros);
             this.groupBoxGlobalOptins.Controls.Add(this.groupBoxGlobalMacroVoiceTrigger);
+            this.groupBoxGlobalOptins.Controls.Add(this.controllerListLabel);
             this.groupBoxGlobalOptins.Controls.Add(this.listBoxGames);
             this.groupBoxGlobalOptins.Controls.Add(this.textBoxDescription);
             this.groupBoxGlobalOptins.Controls.Add(this.buttonSelectConfirmationMessage);
             this.groupBoxGlobalOptins.Controls.Add(this.labelGame);
             this.groupBoxGlobalOptins.Controls.Add(this.labelConfirmationMessage);
             this.groupBoxGlobalOptins.Controls.Add(this.labelGlobalMacroDescription);
+            this.groupBoxGlobalOptins.Controls.Add(this.controllersList);
             this.groupBoxGlobalOptins.Controls.Add(this.textBoxConfirmationMessage);
             this.groupBoxGlobalOptins.Location = new System.Drawing.Point(9, 11);
             this.groupBoxGlobalOptins.Name = "groupBoxGlobalOptins";
-            this.groupBoxGlobalOptins.Size = new System.Drawing.Size(763, 245);
+            this.groupBoxGlobalOptins.Size = new System.Drawing.Size(1022, 245);
             this.groupBoxGlobalOptins.TabIndex = 30;
             this.groupBoxGlobalOptins.TabStop = false;
             this.groupBoxGlobalOptins.Text = "global_macro_settings";
+            // 
+            // deleteAssignmentButton
+            // 
+            this.deleteAssignmentButton.Location = new System.Drawing.Point(769, 199);
+            this.deleteAssignmentButton.Name = "deleteAssignmentButton";
+            this.deleteAssignmentButton.Size = new System.Drawing.Size(174, 33);
+            this.deleteAssignmentButton.TabIndex = 213;
+            this.deleteAssignmentButton.Text = "delete_assignment";
+            this.deleteAssignmentButton.UseVisualStyleBackColor = true;
+            this.deleteAssignmentButton.Click += new System.EventHandler(this.deleteAssignment_Click);
+            // 
+            // addAssignmentButton
+            // 
+            this.addAssignmentButton.Location = new System.Drawing.Point(769, 156);
+            this.addAssignmentButton.Name = "addAssignmentButton";
+            this.addAssignmentButton.Size = new System.Drawing.Size(174, 32);
+            this.addAssignmentButton.TabIndex = 215;
+            this.addAssignmentButton.Text = "add_assignment";
+            this.addAssignmentButton.UseVisualStyleBackColor = true;
+            this.addAssignmentButton.Click += new System.EventHandler(this.addAssignment_Click);
+            // 
+            // currentAssignmentLabel
+            // 
+            this.currentAssignmentLabel.AutoSize = true;
+            this.currentAssignmentLabel.Location = new System.Drawing.Point(766, 116);
+            this.currentAssignmentLabel.MaximumSize = new System.Drawing.Size(241, 30);
+            this.currentAssignmentLabel.Name = "currentAssignmentLabel";
+            this.currentAssignmentLabel.Size = new System.Drawing.Size(127, 13);
+            this.currentAssignmentLabel.TabIndex = 216;
+            this.currentAssignmentLabel.Text = "current_assignment_label";
             // 
             // groupBoxAvailableMacros
             // 
@@ -389,6 +429,24 @@
             this.radioButtonIntegerVoiceTrigger.TabStop = true;
             this.radioButtonIntegerVoiceTrigger.Text = "integer_macro_voice_command";
             this.radioButtonIntegerVoiceTrigger.UseVisualStyleBackColor = true;
+            // 
+            // controllerListLabel
+            // 
+            this.controllerListLabel.AutoSize = true;
+            this.controllerListLabel.Location = new System.Drawing.Point(766, 16);
+            this.controllerListLabel.Name = "controllerListLabel";
+            this.controllerListLabel.Size = new System.Drawing.Size(55, 13);
+            this.controllerListLabel.TabIndex = 214;
+            this.controllerListLabel.Text = "controllers";
+            // 
+            // controllersList
+            // 
+            this.controllersList.FormattingEnabled = true;
+            this.controllersList.Location = new System.Drawing.Point(769, 32);
+            this.controllersList.Name = "controllersList";
+            this.controllersList.Size = new System.Drawing.Size(241, 82);
+            this.controllersList.TabIndex = 210;
+            this.controllersList.SelectedIndexChanged += new System.EventHandler(this.controllersList_SelectedIndexChanged);
             // 
             // groupBoxGameSettings
             // 
@@ -593,7 +651,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
-            this.ClientSize = new System.Drawing.Size(781, 572);
+            this.ClientSize = new System.Drawing.Size(1041, 572);
             this.Controls.Add(this.buttonLoadDefaultMacroSettings);
             this.Controls.Add(this.buttonLoadUserMacroSettings);
             this.Controls.Add(this.groupBoxGameSettings);
@@ -602,6 +660,7 @@
             this.MaximizeBox = false;
             this.Name = "MacroEditor";
             this.Text = "Command Macro Editor";
+            this.Load += new System.EventHandler(this.MacroEditor_Load);
             this.groupBoxGlobalOptins.ResumeLayout(false);
             this.groupBoxGlobalOptins.PerformLayout();
             this.groupBoxAvailableMacros.ResumeLayout(false);
@@ -665,5 +724,10 @@
         private System.Windows.Forms.TextBox textBoxSpecialActionParameter;
         private System.Windows.Forms.Button buttonDeleteSelectedMacro;
         private System.Windows.Forms.Label labelMacroEditMode;
+        private System.Windows.Forms.Button deleteAssignmentButton;
+        private System.Windows.Forms.Label controllerListLabel;
+        private System.Windows.Forms.Button addAssignmentButton;
+        private System.Windows.Forms.ListBox controllersList;
+        private System.Windows.Forms.Label currentAssignmentLabel;
     }
 }

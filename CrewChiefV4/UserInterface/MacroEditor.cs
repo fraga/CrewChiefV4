@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using CrewChiefV4.commands;
 using System.IO;
+using System.Threading;
+using static CrewChiefV4.ControllerConfiguration;
 
 namespace CrewChiefV4
 {
@@ -18,8 +20,14 @@ namespace CrewChiefV4
         public static List<String> builtInKeyMappings = new List<String>();
         MacroContainer macroContainer = null;
         List<GameDefinition> availableMacroGames = null;
-        public MacroEditor(Form parent)
+        ControllerConfiguration controllerConfiguration;
+
+        private Thread assignButtonThread = null;
+        bool isAssigningButton = false;
+
+        public MacroEditor(Form parent, ControllerConfiguration controllerConfiguration)
         {
+            this.controllerConfiguration = controllerConfiguration;
             StartPosition = FormStartPosition.CenterParent;
             InitializeComponent();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
@@ -72,6 +80,10 @@ namespace CrewChiefV4
             buttonLoadUserMacroSettings.Text = Configuration.getUIString("load_user_macro_settings");
             buttonLoadDefaultMacroSettings.Text = Configuration.getUIString("load_default_macro_settings");
 
+            deleteAssignmentButton.Text = Configuration.getUIString("delete_assignment");
+            addAssignmentButton.Text = Configuration.getUIString("assign_control");
+            currentAssignmentLabel.Text = Configuration.getUIString("no_control_assigned");
+
             radioButtonRegularKeyAction.Checked = true;
             radioButtonViewOnly.Checked = true;
 
@@ -89,7 +101,7 @@ namespace CrewChiefV4
             macroContainer = MacroManager.loadCommands(MacroManager.getMacrosFileLocation());
 
             availableMacroGames = GameDefinition.getAllAvailableGameDefinitions(true).Where(
-                gd => gd.gameEnum != GameEnum.PCARS2_NETWORK && gd.gameEnum != GameEnum.AMS2 && gd.gameEnum != GameEnum.AMS2_NETWORK).ToList();
+                gd => gd.gameEnum != GameEnum.PCARS2_NETWORK).ToList();
             var items = from name in availableMacroGames orderby name.friendlyName ascending select name;
             availableMacroGames = items.ToList();
             listBoxGames.Items.Clear();
@@ -98,14 +110,23 @@ namespace CrewChiefV4
                 listBoxGames.Items.Add(mapping.macroEditorName);
             }
             // try to select the CME game matching the main window game
-            var selection = Math.Min(MainWindow.instance.gameDefinitionList.SelectedIndex,
+            var selectionIndexFromPosition = Math.Min(MainWindow.instance.gameDefinitionList.SelectedIndex,
                 listBoxGames.Items.Count-1);
-            if (selection != -1)
+            var selectionIndexFromName = listBoxGames.Items.IndexOf(MainWindow.instance.gameDefinitionList.SelectedItem);
+
+            if (selectionIndexFromName != -1)
             {
-                listBoxGames.SetSelected(selection, true);
+                listBoxGames.SetSelected(selectionIndexFromName, true);
+            }
+            else if (selectionIndexFromPosition != -1)
+            {
+                listBoxGames.SetSelected(selectionIndexFromPosition, true);
             }
             updateMacroList();
             listBoxGames.Select();
+
+            updateControllersList();
+            updateAssignmentElements(true);
 
             this.KeyPreview = true;
             this.KeyDown += this.MacroEditor_KeyDown;
@@ -186,6 +207,41 @@ namespace CrewChiefV4
                     }
                 }
 
+            }
+            updateAssignmentElements(true);
+        }
+
+        private void updateAssignmentElements(bool updateSelectedController)
+        {
+            Macro currentMacro = macroContainer.macros.FirstOrDefault(mc => mc.name == listBoxAvailableMacros.Items[listBoxAvailableMacros.SelectedIndex].ToString());
+            this.addAssignmentButton.Enabled = currentMacro != null && this.controllersList.SelectedIndex > -1 && ((MainWindow.ControllerUiEntry)this.controllersList.Items[this.controllersList.SelectedIndex]).isConnected;
+            if (currentMacro != null && currentMacro.buttonTriggers != null && currentMacro.buttonTriggers.Length > 0
+                && currentMacro.buttonTriggers[0].deviceId != null && currentMacro.buttonTriggers[0].deviceId.Length > 0)
+            {
+                this.currentAssignmentLabel.Text = "Assigned to " + currentMacro.buttonTriggers[0].description + ", Button " + currentMacro.buttonTriggers[0].buttonIndex;
+                this.deleteAssignmentButton.Enabled = true;
+                if (updateSelectedController)
+                {
+                    int index = 0;
+                    foreach (var item in this.controllersList.Items)
+                    {
+                        if (item.ToString().Equals(currentMacro.buttonTriggers[0].description))
+                        {
+                            this.controllersList.SelectedIndex = index;
+                            break;
+                        }
+                        index++;
+                    }
+                }
+            }
+            else
+            {
+                this.currentAssignmentLabel.Text = Configuration.getUIString("no_control_assigned");
+                this.deleteAssignmentButton.Enabled = false;
+                if (updateSelectedController)
+                {
+                    this.controllersList.SelectedIndex = -1;
+                }
             }
         }
 
@@ -397,17 +453,20 @@ namespace CrewChiefV4
         private void updateMacroList(bool setToEnd = false, bool retainIndex = true)
         {
             listBoxAvailableMacros.Items.Clear();
-            foreach (var macro in macroContainer.macros)
+            if (macroContainer != null && macroContainer.macros != null)
             {
-                listBoxAvailableMacros.Items.Add(macro.name);
-            }
-            if (setToEnd)
-            {
-                listBoxAvailableMacros.SetSelected(listBoxAvailableMacros.Items.Count - 1, true);
-            }
-            else
-            {
-                listBoxAvailableMacros.SetSelected(0, true);
+                foreach (var macro in macroContainer.macros)
+                {
+                    listBoxAvailableMacros.Items.Add(macro.name);
+                }
+                if (setToEnd)
+                {
+                    listBoxAvailableMacros.SetSelected(listBoxAvailableMacros.Items.Count - 1, true);
+                }
+                else
+                {
+                    listBoxAvailableMacros.SetSelected(0, true);
+                }
             }
         }
 
@@ -647,6 +706,103 @@ namespace CrewChiefV4
             {
                 textBoxActionSequence.Lines = textBoxActionSequence.Lines.Take(textBoxActionSequence.Lines.Count() - 1).ToArray();
             }
+        }
+
+        private void controllersList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            updateAssignmentElements(false);
+        }
+
+        private void updateControllersList()
+        {
+            foreach (ControllerConfiguration.ControllerData configData in this.controllerConfiguration.controllers)
+            {
+                this.controllersList.Items.Add(new MainWindow.ControllerUiEntry(configData.deviceName, isConnected: true));
+            }
+
+            // Now, add grayed out (inactive) controllers
+            foreach (ControllerConfiguration.ControllerData configData in this.controllerConfiguration.knownControllers)
+            {
+                if (this.controllerConfiguration.controllers.Exists(c => c.guid == configData.guid))
+                {
+                    continue;
+                }
+                this.controllersList.Items.Add(new MainWindow.ControllerUiEntry(configData.deviceName, isConnected: false));
+            }
+        }
+
+        private void addAssignment_Click(object sender, EventArgs e)
+        {
+            if (!this.isAssigningButton)
+            {
+                if (this.controllersList.SelectedIndex >= 0)
+                {
+                    isAssigningButton = true;
+                    this.addAssignmentButton.Text = Configuration.getUIString("waiting_for_button_click_to_cancel");
+                    ThreadStart assignButtonWork = assignButton;
+                    ThreadManager.UnregisterTemporaryThread(assignButtonThread);
+                    assignButtonThread = new Thread(assignButtonWork);
+                    assignButtonThread.Name = "MacroWindow.assignButtonThread";
+                    ThreadManager.RegisterTemporaryThread(assignButtonThread);
+                    assignButtonThread.Start();
+                }
+            }
+            else
+            {
+                isAssigningButton = false;
+                controllerConfiguration.listenForAssignment = false;
+                this.addAssignmentButton.Text = Configuration.getUIString("assign_control");
+            }
+        }
+
+        private void assignButton()
+        {
+            ButtonAssignment buttonAssignment = new ButtonAssignment();
+            if (controllerConfiguration.assignButton(this, this.controllersList.SelectedIndex, buttonAssignment))
+            {
+                // update the macro with the controller guid and button id
+                isAssigningButton = false;
+                Macro currentMacro = macroContainer.macros.FirstOrDefault(mc => mc.name == listBoxAvailableMacros.Items[listBoxAvailableMacros.SelectedIndex].ToString());
+                if (currentMacro != null)
+                {
+                    if (currentMacro.buttonTriggers == null || currentMacro.buttonTriggers.Length == 0)
+                    {
+                        currentMacro.buttonTriggers = new ButtonTrigger[] { new ButtonTrigger() };
+                    }
+                    currentMacro.buttonTriggers[0].buttonIndex = buttonAssignment.buttonIndex;
+                    currentMacro.buttonTriggers[0].deviceId = buttonAssignment.deviceGuid;
+                    currentMacro.buttonTriggers[0].description = buttonAssignment.controller.deviceName;
+                    saveMacroSettings();
+                    updateAssignmentElements(true);
+                }
+            }
+            try
+            {
+                this.Invoke((MethodInvoker)delegate
+                {
+                    this.addAssignmentButton.Text = Configuration.getUIString("assign_control");
+                });
+            }
+            catch (Exception)
+            {
+                // Shutdown.
+            }
+        }
+
+        private void deleteAssignment_Click(object sender, EventArgs e)
+        {
+            Macro currentMacro = macroContainer.macros.FirstOrDefault(mc => mc.name == listBoxAvailableMacros.Items[listBoxAvailableMacros.SelectedIndex].ToString());
+            if (currentMacro != null && currentMacro.buttonTriggers != null && currentMacro.buttonTriggers.Length > 0)
+            {
+                currentMacro.buttonTriggers = null;
+                saveMacroSettings();
+                updateAssignmentElements(true);
+            }
+        }
+
+        private void MacroEditor_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }

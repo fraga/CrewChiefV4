@@ -26,11 +26,9 @@ namespace CrewChiefV4
             approxFilterNames: new String[] { "ams2", "ams_2", "ams 2", "ams-2" });
         public static GameDefinition pCars32Bit = new GameDefinition(GameEnum.PCARS_32BIT, "pcars_32_bit", "pCARS",
             "CrewChiefV4.PCars.PCarsSpotterv2", "pcars32_launch_exe", "pcars32_launch_params", "launch_pcars", false);
-        // pCars2 defines its own macro manager friendly game name, as these macros can be used by AMS2 and pCars2. Other games
-        // just use the game friendly name
         public static GameDefinition pCars2 = new GameDefinition(GameEnum.PCARS2, "pcars_2", "pCARS2AVX",
             "CrewChiefV4.PCars2.PCars2Spotterv2", "pcars2_launch_exe", "pcars2_launch_params", "launch_pcars2", false,
-            alternativeProcessNames:new String[] { "pCARS2", "pCARS2Gld" }, macroEditorName:"pCARS2 / Automobilista 2",
+            alternativeProcessNames:new String[] { "pCARS2", "pCARS2Gld" }, macroEditorName:"pCARS2",
             approxFilterNames: new String[] { "pcars2", "pcars_2", "pcars 2", "pcars-2" });
 
         // pCars3 - uses all the pCars2 classes
