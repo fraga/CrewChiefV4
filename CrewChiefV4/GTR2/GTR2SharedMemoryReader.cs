@@ -252,7 +252,7 @@ namespace CrewChiefV4.GTR2
             {
                 this.DisconnectInternal();
             }
-            catch (Exception) { }
+            catch (Exception e) {Log.Exception(e);}
         }
     }
 }

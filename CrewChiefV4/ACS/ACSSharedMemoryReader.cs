@@ -225,7 +225,7 @@ namespace CrewChiefV4.assetto
                     memoryMappedPhysicsFile.Dispose();
                     memoryMappedPhysicsFile = null;
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
             }
             if (memoryMappedGraphicFile != null)
             {
@@ -234,7 +234,7 @@ namespace CrewChiefV4.assetto
                     memoryMappedGraphicFile.Dispose();
                     memoryMappedGraphicFile = null;
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
             }
             if (memoryMappedStaticFile != null)
             {
@@ -243,7 +243,7 @@ namespace CrewChiefV4.assetto
                     memoryMappedStaticFile.Dispose();
                     memoryMappedStaticFile = null;
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
             }
             if (memoryMappedCrewChiefFile != null)
             {
@@ -252,7 +252,7 @@ namespace CrewChiefV4.assetto
                     memoryMappedCrewChiefFile.Dispose();
                     memoryMappedCrewChiefFile = null;
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
             }
             initialised = false;
         }

@@ -465,7 +465,7 @@ namespace CrewChiefV4.Overlay
                             {
                                 series.Color = Color.FromName(overlaySubscription.Item1.coloursLastLap[lastLapColourIndex]);
                             }
-                            catch (Exception) { }
+                            catch (Exception e) {Log.Exception(e);}
                             lastLapColourIndex++;
                         }
                         else if (overlaySubscription.Item2 == SeriesMode.BEST_LAP && overlaySubscription.Item1.coloursBestLap.Count() > i)
@@ -474,7 +474,7 @@ namespace CrewChiefV4.Overlay
                             {
                                 series.Color = Color.FromName(overlaySubscription.Item1.coloursBestLap[bestLapColourIndex]);
                             }
-                            catch (Exception) { }
+                            catch (Exception e) {Log.Exception(e);}
                             bestLapColourIndex++;
                         }
                         else if (overlaySubscription.Item2 == SeriesMode.OPPONENT_BEST_LAP && overlaySubscription.Item1.coloursOpponentBestLap.Count() > i)
@@ -483,7 +483,7 @@ namespace CrewChiefV4.Overlay
                             {
                                 series.Color = Color.FromName(overlaySubscription.Item1.coloursOpponentBestLap[opponentBestLapColourIndex]);
                             }
-                            catch (Exception) { }
+                            catch (Exception e) {Log.Exception(e);}
                             opponentBestLapColourIndex++;
                         }
                         bool autoScaleMin = true;

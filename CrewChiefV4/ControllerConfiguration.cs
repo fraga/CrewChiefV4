@@ -272,7 +272,7 @@ namespace CrewChiefV4
             {
                 directInput.Dispose();
             }
-            catch (Exception) { }
+            catch (Exception e) {Log.Exception(e);}
         }
 
         private void unacquireAndDisposeActiveJoysticks()
@@ -285,12 +285,12 @@ namespace CrewChiefV4
                     {
                         joystick.Unacquire();
                     }
-                    catch (Exception) { }
+                    catch (Exception e) {Log.Exception(e);}
                     try
                     {
                         joystick.Dispose();
                     }
-                    catch (Exception) { }
+                    catch (Exception e) {Log.Exception(e);}
                 }
                 activeDevices.Clear();
             }
@@ -463,8 +463,7 @@ namespace CrewChiefV4
                                     }
                                 }
                             }
-                            catch (Exception)
-                            { }
+                            catch (Exception e) { Log.Exception(e); }
                         }
                     }
                 }
@@ -557,10 +556,16 @@ namespace CrewChiefV4
         {
             foreach (var ba in buttonAssignments)
             {
-                if (ba.hasUnprocessedClick && ba.actionEvent != null)
+                if (ba.hasUnprocessedClick && (ba.actionEvent != null || ba.macro != null))
                 {
-                    Log.Verbose($"{ba.action} executed");
-                    ba.execute();
+                    string actionName = ba.actionEvent != null ? ba.actionEvent.ToString() : ba.macro.macro.name;
+                    Log.Verbose($"\"{actionName}\" executing");
+                    bool allowedToRun = ba.execute();
+                    // if we're executing a macro, report when we're done
+                    if (ba.macro != null)
+                    {
+                        Log.Verbose(allowedToRun ? "macro complete" : "macro rejected");
+                    }
                     ba.hasUnprocessedClick = false;
                     return true;
                 }
@@ -654,8 +659,7 @@ namespace CrewChiefV4
                             {
                                 return ba.usePovData ? joystick.GetCurrentState().PointOfViewControllers[ba.buttonIndex] == ba.povValue : joystick.GetCurrentState().Buttons[ba.buttonIndex];
                             }
-                            catch
-                            { }
+                            catch (Exception e) { Log.Exception(e); }
                         }
                     }
                 }
@@ -682,7 +686,7 @@ namespace CrewChiefV4
                     instancesToReturn.Add(instance);
                 }
             }
-            catch (Exception) { }
+            catch (Exception e) {Log.Exception(e);}
             return instancesToReturn;
         }
 
@@ -718,7 +722,7 @@ namespace CrewChiefV4
                             {
                                 try
                                 {
-                                    addControllerFromScan(deviceInstance.InstanceName, deviceInstance.Type, joystickGuid, false);
+                                    addController(deviceInstance.InstanceName, deviceInstance.Type, joystickGuid, false, false);
                                     availableCount++;
                                 }
                                 catch (Exception e)
@@ -768,7 +772,7 @@ namespace CrewChiefV4
                 {
                     try
                     {
-                        addControllerFromScan(null, DeviceType.Joystick, customControllerGuid, true);
+                        addController(null, DeviceType.Joystick, customControllerGuid, true, false);
                         availableCount++;
                     }
                     catch (Exception e)
@@ -782,13 +786,31 @@ namespace CrewChiefV4
                 saveControllerConfigurationDataFile(controllerConfigurationData);
                 foreach (ButtonAssignment assignment in buttonAssignments.Where(ba => ba.controller == null && ba.buttonIndex != -1 && !string.IsNullOrEmpty(ba.deviceGuid)))
                 {
-                    assignment.controller = controllers.FirstOrDefault(c => c.guid.ToString() == assignment.deviceGuid);
+                    addControllerObjectToButtonAssignment(assignment);
                 }
             }
             Console.WriteLine("Re-scanned controllers, there are " + availableCount + " available controllers and " + activeDevices.Count + " active controllers");
         }
 
-        private void addControllerFromScan(string deviceName, DeviceType deviceType, Guid joystickGuid, Boolean isCustomDevice)
+        public void addControllerObjectToButtonAssignment(ButtonAssignment buttonAssignment)
+        {
+            buttonAssignment.controller = controllers.FirstOrDefault(c => c.guid.ToString() == buttonAssignment.deviceGuid);
+        }
+
+        public void addControllerIfNecessary(string deviceName, string guid)
+        {
+            Guid deviceGuid;
+            if (Guid.TryParse(guid, out deviceGuid))
+            {
+                if (!activeDevices.ContainsKey(deviceGuid))
+                {
+                    // don't really care what the device type is here, we're just ensuring the macro-assigned device is active
+                    addController(deviceName, DeviceType.Device, deviceGuid, false, true);
+                }
+            }
+        }
+
+        private void addController(string deviceName, DeviceType deviceType, Guid joystickGuid, Boolean isCustomDevice, bool addForMacroSupport)
         {
             lock (activeDevices)
             {
@@ -836,9 +858,10 @@ namespace CrewChiefV4
                 {
                     // ignore - some devices don't have a product name
                 }
-                foreach (var ba in buttonAssignments.Where(b => b.controller != null && b.controller.guid == joystickGuid && b.buttonIndex != -1))
+                if (addForMacroSupport)
                 {
-                    // if we have a button assigned to this device and it's not active, acquire it here:
+                    // when adding for macro support we always want to ensure this device is active because at this point we know
+                    // there's an active macro using it
                     if (!activeDevices.ContainsKey(joystickGuid))
                     {
                         joystick.SetCooperativeLevel(mainWindow.Handle, (CooperativeLevel.NonExclusive | CooperativeLevel.Background));
@@ -848,7 +871,22 @@ namespace CrewChiefV4
                     }
                     isMappedToAction = true;
                 }
-                controllers.Add(new ControllerData(productName, deviceType, joystickGuid));
+                else
+                {
+                    foreach (var ba in buttonAssignments.Where(b => b.controller != null && b.controller.guid == joystickGuid && b.buttonIndex != -1))
+                    {
+                        // if we have a button assigned to this device and it's not active, acquire it here:
+                        if (!activeDevices.ContainsKey(joystickGuid))
+                        {
+                            joystick.SetCooperativeLevel(mainWindow.Handle, (CooperativeLevel.NonExclusive | CooperativeLevel.Background));
+                            joystick.Properties.BufferSize = 128;
+                            joystick.Acquire();
+                            activeDevices.Add(joystickGuid, joystick);
+                        }
+                        isMappedToAction = true;
+                    }
+                    controllers.Add(new ControllerData(productName, deviceType, joystickGuid));
+                }
                 if (!isMappedToAction)
                 {
                     // we're not using this device so dispose the temporary handle we used to get its name
@@ -856,7 +894,7 @@ namespace CrewChiefV4
                     {
                         joystick.Dispose();
                     }
-                    catch (Exception) { }
+                    catch (Exception e) {Log.Exception(e);}
                 }
             }
         }
@@ -881,7 +919,7 @@ namespace CrewChiefV4
                 {
                     try
                     {
-                        addControllerFromScan(null, DeviceType.Joystick, customControllerGuid, true);
+                        addController(null, DeviceType.Joystick, customControllerGuid, true, false);
                     }
                     catch (Exception e)
                     {
@@ -890,7 +928,7 @@ namespace CrewChiefV4
                 }
 
                 // Update assignments.
-                controllerConfigurationData.devices.ForEach(controller => addControllerFromScan(controller.deviceName, controller.deviceType, controller.guid, false));
+                controllerConfigurationData.devices.ForEach(controller => addController(controller.deviceName, controller.deviceType, controller.guid, false, false));
                 foreach (ButtonAssignment assignment in buttonAssignments.Where(ba => ba.controller == null && ba.buttonIndex != -1 && !string.IsNullOrEmpty(ba.deviceGuid)))
                 {
                     assignment.controller = controllers.FirstOrDefault(c => c.guid.ToString() == assignment.deviceGuid);
@@ -922,6 +960,12 @@ namespace CrewChiefV4
         {
             return controllerIndex != -1 && controllerIndex < controllers.Count // Make sure device is connected.
                 && getFirstReleasedButton(parent, controllers[controllerIndex], buttonAssignments[actionIndex]);
+        }
+
+        public Boolean assignButton(System.Windows.Forms.Form parent, int controllerIndex, ButtonAssignment buttonAssignment)
+        {
+            return controllerIndex != -1 && controllerIndex < controllers.Count // Make sure device is connected.
+                && getFirstReleasedButton(parent, controllers[controllerIndex], buttonAssignment);
         }
 
         private Boolean getFirstReleasedButton(System.Windows.Forms.Form parent, ControllerData controllerData, ButtonAssignment buttonAssignment)
@@ -1154,6 +1198,9 @@ namespace CrewChiefV4
             public DateTime clickTime = DateTime.MinValue;
             [JsonIgnore]
             public AbstractEvent actionEvent = null;
+
+            [JsonIgnore]
+            public ExecutableCommandMacro macro;
             public void Initialize()
             {
                 findEvent();
@@ -1162,7 +1209,7 @@ namespace CrewChiefV4
 
             public void findEvent()
             {
-                if (this.action != null && !specialActions.ContainsKey(this.action))
+                if (this.macro == null && this.action != null && !specialActions.ContainsKey(this.action))
                 {
                     string[] srePhrases = Configuration.getSpeechRecognitionPhrases(this.action);
                     if (srePhrases != null && srePhrases.Length > 0)
@@ -1214,12 +1261,18 @@ namespace CrewChiefV4
                 }
             }
 
-            public void execute()
+            public bool execute()
             {
                 if (actionEvent != null)
                 {
                     actionEvent.respond(resolvedSRECommand);
+                    return true;
                 }
+                if (macro != null)
+                {
+                    return macro.execute("", false, true);
+                }
+                return false;
             }
 
             public String getInfo()

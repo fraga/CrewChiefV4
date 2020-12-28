@@ -363,7 +363,7 @@ namespace CrewChiefV4
                             string xml = new WebClient().DownloadString(firstUpdate);
                             gotUpdateData = SoundPackVersionsHelper.parseUpdateData(xml);
                         }
-                        catch (Exception) { }
+                        catch (Exception ee) {Log.Exception(ee);}
                         if (gotUpdateData)
                         {
                             Console.WriteLine("Got update data from primary URL: " + firstUpdate.Substring(0, 24));
@@ -388,7 +388,7 @@ namespace CrewChiefV4
                                 string xml = new WebClient().DownloadString(secondUpdate);
                                 gotUpdateData = SoundPackVersionsHelper.parseUpdateData(xml);
                             }
-                            catch (Exception) { }
+                            catch (Exception ee) {Log.Exception(ee);}
                         }
                         if (formClosed)
                         {
@@ -829,7 +829,7 @@ namespace CrewChiefV4
                 {
                     CrewChief.gameDefinition = GameDefinition.getGameDefinitionForFriendlyName(this.gameDefinitionList.Text);
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
             }
         }
 
@@ -874,8 +874,7 @@ namespace CrewChiefV4
                 Properties.Settings.Default["main_window_position"] = new Point(DesktopBounds.X, DesktopBounds.Y);
                 Properties.Settings.Default.Save();
             }
-            catch (Exception)
-            { }
+            catch (Exception ee) { Log.Exception(ee); }
 
         }
 
@@ -1687,8 +1686,7 @@ namespace CrewChiefV4
                     {
                         Debug.WriteLine("Exiting console update thread, console output disabled.");
                     }
-                    catch (Exception)
-                    { }
+                    catch (Exception e) { Log.Exception(e); }
                     return;
                 }
 
@@ -1868,7 +1866,7 @@ namespace CrewChiefV4
                             int delayBeforeRecognising = UserSettings.GetUserSettings().getInt("sre_button_release_delay");
                             if (SpeechRecogniser.waitingForSpeech && delayBeforeRecognising > 0)
                             {
-                                Thread.Sleep(delayBeforeRecognising);
+                                Utilities.InterruptedSleep(totalWaitMillis: delayBeforeRecognising, waitWindowMillis: 50, keepWaitingPredicate: () => crewChief.running);
                             }
                             Console.WriteLine("Invoking speech recognition...");
                             crewChief.speechRecogniser.recognizeAsyncCancel();
@@ -2165,8 +2163,6 @@ namespace CrewChiefV4
                 }
 
                 startApplicationButton.Enabled = false;
-                uiSyncAppStart();
-
 
 #if !DEBUG
                 // Don't disable auto scroll in Debug builds and in Profile mode.
@@ -2180,7 +2176,8 @@ namespace CrewChiefV4
                 if (gameDefinition != null)
                 {
                     crewChief.setGameDefinition(gameDefinition);
-                    MacroManager.initialise(crewChief.audioPlayer, crewChief.speechRecogniser);
+                    MacroManager.initialise(crewChief.audioPlayer, crewChief.speechRecogniser, this.controllerConfiguration);
+                    uiSyncAppStart();
                     CarData.loadCarClassData();
                     TrackData.loadTrackLandmarksData();
                     ThreadStart crewChiefWork = runApp;
@@ -2229,7 +2226,7 @@ namespace CrewChiefV4
                         crewChief.speechRecogniser.recognizeAsyncCancel();
                         crewChief.speechRecogniser.stopTriggerRecogniser();
                     }
-                    catch (Exception) { }
+                    catch (Exception e) {Log.Exception(e);}
                 }
                 stopApp();
                 Console.WriteLine("Application stopped");
@@ -2973,7 +2970,7 @@ namespace CrewChiefV4
                         this.backgroundVolumeSliderLabel.Visible = false;
                     }
                 }
-                catch (Exception) { }
+                catch (Exception ee) {Log.Exception(ee);}
             }
             populateControlListUI();
         }
@@ -3001,7 +2998,7 @@ namespace CrewChiefV4
                     {
                         File.Delete(AudioPlayer.soundFilesPathNoChiefOverride + @"\" + soundPackTempFileName);
                     }
-                    catch (Exception) { }
+                    catch (Exception e) {Log.Exception(e);}
                     wc.DownloadFileAsync(new Uri(soundPackDownloadURL), AudioPlayer.soundFilesPathNoChiefOverride + @"\" + soundPackTempFileName);
                 }
                 else if (downloadType == DownloadType.DRIVER_NAMES)
@@ -3013,7 +3010,7 @@ namespace CrewChiefV4
                     {
                         File.Delete(AudioPlayer.soundFilesPathNoChiefOverride + @"\" + driverNamesTempFileName);
                     }
-                    catch (Exception) { }
+                    catch (Exception e) {Log.Exception(e);}
                     wc.DownloadFileAsync(new Uri(drivernamesDownloadURL), AudioPlayer.soundFilesPathNoChiefOverride + @"\" + driverNamesTempFileName);
                 }
                 else if (downloadType == DownloadType.PERSONALISATIONS)
@@ -3025,7 +3022,7 @@ namespace CrewChiefV4
                     {
                         File.Delete(AudioPlayer.soundFilesPathNoChiefOverride + @"\" + personalisationsTempFileName);
                     }
-                    catch (Exception) { }
+                    catch (Exception e) {Log.Exception(e);}
                     wc.DownloadFileAsync(new Uri(personalisationsDownloadURL), AudioPlayer.soundFilesPathNoChiefOverride + @"\" + personalisationsTempFileName);
                 }
             }
@@ -3138,7 +3135,7 @@ namespace CrewChiefV4
                             {
                                 File.Delete(AudioPlayer.soundFilesPathNoChiefOverride + @"\" + soundPackTempFileName);
                             }
-                            catch (Exception) { }
+                            catch (Exception ee) {Log.Exception(ee);}
                         }
                         soundPackProgressBar.Value = 0;
                         isDownloadingSoundPack = false;
@@ -3202,7 +3199,7 @@ namespace CrewChiefV4
                             }
                         }
                     }
-                    catch (Exception) { }
+                    catch (Exception ee) {Log.Exception(ee);}
                     finally
                     {
                         if (progressThread != null)
@@ -3217,7 +3214,7 @@ namespace CrewChiefV4
                             {
                                 File.Delete(AudioPlayer.soundFilesPathNoChiefOverride + @"\" + driverNamesTempFileName);
                             }
-                            catch (Exception) { }
+                            catch (Exception ee) {Log.Exception(ee);}
                         }
                         driverNamesProgressBar.Value = 0;
                         isDownloadingDriverNames = false;
@@ -3303,7 +3300,7 @@ namespace CrewChiefV4
                             {
                                 File.Delete(AudioPlayer.soundFilesPathNoChiefOverride + @"\" + personalisationsTempFileName);
                             }
-                            catch (Exception) { }
+                            catch (Exception ee) {Log.Exception(ee);}
                         }
                         personalisationsProgressBar.Value = 0;
                         isDownloadingPersonalisations = false;
@@ -3607,7 +3604,7 @@ namespace CrewChiefV4
         }
         private void editCommandMacroButtonClicked(object sender, EventArgs e)
         {
-            var form = new MacroEditor(this);
+            var form = new MacroEditor(this, this.controllerConfiguration);
             form.ShowDialog(this);
         }
 

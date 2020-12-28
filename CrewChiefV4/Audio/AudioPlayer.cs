@@ -1164,8 +1164,7 @@ namespace CrewChiefV4.Audio
                 // This can throw on device disconnect.
                 this.backgroundPlayer.stop();
             }
-            catch (Exception)
-            {}
+            catch (Exception e) { Log.Exception(e); }
         }
 
         private void writeMessagePlayedStats()
@@ -2221,7 +2220,7 @@ namespace CrewChiefV4.Audio
                     deviceEnum.UnregisterEndpointNotificationCallback(notificationClient);
                     deviceEnum.Dispose();
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
                 deviceEnum = null;
                 notificationClient = null;
             }
@@ -2238,7 +2237,7 @@ namespace CrewChiefV4.Audio
                 {
                     soundCache.StopAndUnloadAll();
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
                 soundCache = null;
             }
         }

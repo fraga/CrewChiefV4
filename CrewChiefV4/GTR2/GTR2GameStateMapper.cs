@@ -3054,7 +3054,7 @@ namespace CrewChiefV4.GTR2
                     driverName = "Safety Car";
 //                    SCassignedAhead = true;
             }
-            catch (Exception) { }
+            catch (Exception e) {Log.Exception(e);}
 
             fod.Action = action;
             fod.CarNumberToFollowRaw = carNumberStr;

@@ -3204,7 +3204,7 @@ namespace CrewChiefV4.rFactor2
                                 SCassignedAhead = true;
                             }
                         }
-                        catch (Exception) { }
+                        catch (Exception e) {Log.Exception(e);}
 
                         // Remove [-0.2 laps] if it is there.
                         var lastOpenBckt = orderInstruction.LastIndexOf('[');
@@ -3214,7 +3214,7 @@ namespace CrewChiefV4.rFactor2
                             {
                                 orderInstruction = orderInstruction.Substring(0, lastOpenBckt - 1);
                             }
-                            catch (Exception) { }
+                            catch (Exception e) {Log.Exception(e);}
                         }
 
                         var column = FrozenOrderColumn.None;

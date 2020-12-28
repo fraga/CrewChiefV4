@@ -143,7 +143,7 @@ namespace CrewChiefV4.PCars
                     memoryMappedFile.Dispose();
                     memoryMappedFile = null;
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
             }
             initialised = false;
         }
