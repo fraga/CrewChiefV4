@@ -249,12 +249,15 @@ namespace CrewChiefV4
             var proc = Process.GetProcessesByName(processName);
             if (proc.Length > 0)
             {
-                try
+                if (CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)
                 {
-                    parentDir = Path.GetDirectoryName(proc[0].MainModule.FileName);
+                    try
+                    {
+                        parentDir = Path.GetDirectoryName(proc[0].MainModule.FileName);
+                    }
+                    catch (Win32Exception) { /*Ignore - anti cheat protection?*/ }
+                    catch (Exception e) { Log.Exception(e); }
                 }
-                catch (Exception e) {Log.Exception(e);}
-
                 return true;
             }
             else if (alternateProcessNames != null && alternateProcessNames.Length > 0)
