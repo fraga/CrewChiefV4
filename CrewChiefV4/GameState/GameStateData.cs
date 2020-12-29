@@ -3677,6 +3677,16 @@ namespace CrewChiefV4.GameState
         // corrected distance is used when a correction is made to move a note earlier or later
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public float? CorrectedDistance = null;
+        // corrected PacenoteType is used when a correction is made to an actual call
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public CoDriver.PacenoteType? CorrectedPacenoteType = null;
+        // corrected PacenoteModifier is used when a correction is made to an actual call
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public CoDriver.PacenoteModifier? CorrectedPacenoteModifier = null;
+        // special case for corrections - normally a correction will replace a note, but in some
+        // cases we may want a correction to be added to a note (played after)
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public bool? AppendToNote = null;
 
         public CoDriver.PacenoteType Pacenote = CoDriver.PacenoteType.unknown;
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
@@ -3688,7 +3698,22 @@ namespace CrewChiefV4.GameState
         public string UnprocessedVoiceCommandText = null;
         public override string ToString()
         {
-            return Pacenote.ToString() + ": " + Modifier.ToString() + " at " + Distance;
+            return GetPacenoteType().ToString() + ": " + GetModifier().ToString() + " at " + GetDistance();
+        }
+        
+        public CoDriver.PacenoteType GetPacenoteType()
+        {
+            return this.CorrectedPacenoteType == null ? this.Pacenote : this.CorrectedPacenoteType.Value;
+        }
+
+        public CoDriver.PacenoteModifier GetModifier()
+        {
+            return this.CorrectedPacenoteModifier == null ? this.Modifier : this.CorrectedPacenoteModifier.Value;
+        }
+
+        public float GetDistance()
+        {
+            return this.CorrectedDistance == null ? this.Distance : this.CorrectedDistance.Value;
         }
     }
 
