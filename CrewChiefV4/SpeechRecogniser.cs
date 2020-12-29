@@ -471,6 +471,7 @@ namespace CrewChiefV4
         public static String[] RALLY_ROCKS_OUTSIDE = Configuration.getSpeechRecognitionPhrases("RALLY_ROCKS_OUTSIDE", loadHomophones);
         public static String[] RALLY_TREE_OUTSIDE = Configuration.getSpeechRecognitionPhrases("RALLY_TREE_OUTSIDE", loadHomophones);
         public static String[] RALLY_TWISTY = Configuration.getSpeechRecognitionPhrases("RALLY_TWISTY", loadHomophones);
+        public static String[] RALLY_DIP = Configuration.getSpeechRecognitionPhrases("RALLY_DIP", loadHomophones);
 
         public static String[] RALLY_INTO = Configuration.getSpeechRecognitionPhrases("RALLY_INTO", loadHomophones);
         public static String[] RALLY_THEN = Configuration.getSpeechRecognitionPhrases("RALLY_THEN", loadHomophones);
@@ -528,6 +529,7 @@ namespace CrewChiefV4
             SpeechRecogniser.RALLY_WIDENS,
             SpeechRecogniser.RALLY_GO_STRAIGHT,
             SpeechRecogniser.RALLY_TWISTY,
+            SpeechRecogniser.RALLY_DIP,
 
             SpeechRecogniser.RALLY_TIGHTENS_TO_1,
             SpeechRecogniser.RALLY_TIGHTENS_TO_2,
