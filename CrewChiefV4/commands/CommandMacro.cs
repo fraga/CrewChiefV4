@@ -10,7 +10,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-
+using WindowsInput;
+using WindowsInput.Native;
 namespace CrewChiefV4.commands
 {
     // wrapper that actually runs the macro
@@ -231,6 +232,47 @@ namespace CrewChiefV4.commands
             }
             return allowedToRun;
         }
+        // must be called from static method SpeechRecogniser.getStartChatMacro()
+        public VirtualKeyCode getStartChatKey()
+        {
+            //defaut to KEY_T as that is most common 
+            KeyPresser.KeyCode keyCode = KeyPresser.KeyCode.KEY_T;
+            foreach (CommandSet commandSet in macro.commandSets.Where(cs => MacroManager.isCommandSetForCurrentGame(cs.gameDefinition)))
+            {
+                string action = commandSet.actionSequence[0];                
+                if (Enum.TryParse(action, out keyCode))
+                {
+                    return (VirtualKeyCode)keyCode;
+                }
+            }
+            return (VirtualKeyCode)keyCode;
+        }
+        // must be called from static method SpeechRecogniser.getEndChatMacro()
+        public VirtualKeyCode getEndChatKey()
+        {
+            //defaut to ENTER as that is most common 
+            KeyPresser.KeyCode keyCode = KeyPresser.KeyCode.ENTER;
+            foreach (CommandSet commandSet in macro.commandSets.Where(cs => MacroManager.isCommandSetForCurrentGame(cs.gameDefinition)))
+            {
+                string action = commandSet.actionSequence[0];
+                if (Enum.TryParse(action, out keyCode))
+                {
+                    return (VirtualKeyCode)keyCode;
+                }
+            }
+            return (VirtualKeyCode)keyCode;
+        }
+
+        public int getWaitBetweenEachCommand()
+        {
+            //defaut to 100
+            int waitTime = 100;
+            foreach (CommandSet commandSet in macro.commandSets.Where(cs => MacroManager.isCommandSetForCurrentGame(cs.gameDefinition)))
+            {
+                waitTime = commandSet.waitBetweenEachCommand;
+            }
+            return waitTime;
+        }
 
         private void runMacro(CommandSet commandSet, Boolean isR3e, int multiplePressCountFromVoiceCommand)
         {
@@ -241,7 +283,6 @@ namespace CrewChiefV4.commands
 
                 List<ActionItem> actionItems = commandSet.getActionItems();
                 int actionItemsCount = actionItems.Count();
-
                 // R3E set fuel macro is a special case. There are some menu commands to move the cursor to fuel and deselect it. We want to skip
                 // all of these and simply move the cursor to fuel and deselect it (if necessary) using the new menu stuff. So skip all fuel key
                 // presses after the initial command (which opens the pit menu) but before the event or SRE driven fuelling amount:
@@ -337,9 +378,17 @@ namespace CrewChiefV4.commands
         }
 
         private void sendKeys(int count, ActionItem actionItem, int keyPressTime, int waitBetweenKeys)
-        {
+        {            
+            if (actionItem.allowFreeText)
+            {
+                Console.WriteLine(actionItem.freeText);
+                new InputSimulator().Keyboard
+                    .KeyPress(SpeechRecogniser.getStartChatMacro().getStartChatKey()).Sleep(getWaitBetweenEachCommand())
+                    .TextEntry(actionItem.freeText).Sleep(getWaitBetweenEachCommand())
+                    .KeyPress(SpeechRecogniser.getEndChatMacro().getEndChatKey());
+            }
             // completely arbitrary sanity check on resolved count. We don't want the app trying to press 'right' MaxInt times
-            if (actionItem.keyCodes.Length * count > 300)
+            else if (actionItem.keyCodes.Length * count > 300)
             {
                 Console.WriteLine("Macro item " + actionItem.actionText + " has > 300 key presses and will be ignored");
             }
@@ -351,10 +400,13 @@ namespace CrewChiefV4.commands
                     {
                         break;
                     }
-                    for (int keyIndex = 0; keyIndex < actionItem.keyCodes.Length; keyIndex++)
+                    else
                     {
-                        KeyPresser.SendScanCodeKeyPress(actionItem.keyCodes[keyIndex], actionItem.forcedUpperCases[keyIndex], keyPressTime);
-                        Thread.Sleep(waitBetweenKeys);
+                        for (int keyIndex = 0; keyIndex < actionItem.keyCodes.Length; keyIndex++)
+                        {
+                            KeyPresser.SendScanCodeKeyPress(actionItem.keyCodes[keyIndex], keyPressTime);
+                            Thread.Sleep(waitBetweenKeys);
+                        }
                     }
                 }
             }
@@ -486,6 +538,18 @@ namespace CrewChiefV4.commands
                 Console.WriteLine("No action sequence for commandSet " + description);
                 return false;
             }
+
+            foreach (String action in actionSequence.Where(ai => ai.Contains(MacroManager.FREE_TEXT_IDENTIFIER)))
+            {
+                ActionItem actionItem = new ActionItem(action);
+                if (actionItem.parsedSuccessfully)
+                {
+                    this.actionItems.Add(actionItem);
+                    Console.WriteLine("Found " + MacroManager.FREE_TEXT_IDENTIFIER + " for commandSet " + description);
+                    return true;
+                }
+            }
+
             foreach (String action in actionSequence)
             {
                 ActionItem actionItem = new ActionItem(action);
@@ -513,10 +577,8 @@ namespace CrewChiefV4.commands
     {
         public Boolean parsedSuccessfully = false;
         public KeyPresser.KeyCode[] keyCodes;
-        // for free-text entry, capital letters (e.g. in chat commands) will trigger holding down the LSHIFT key
-        // for single action items this will be a single element array with 'false'
-        public Boolean[] forcedUpperCases;
         public String actionText;
+        public String freeText;
         public String extendedType;
         public String extendedTypeTextParam;
         public Boolean allowFreeText;
@@ -566,29 +628,17 @@ namespace CrewChiefV4.commands
                 {
                     // first assume we have a single key binding
                     this.keyCodes = new KeyPresser.KeyCode[1];
-                    this.forcedUpperCases = new Boolean[] { false };
                     // try and get it directly without going through the key bindings
-                    parsedSuccessfully = KeyPresser.parseKeycode(action, false, out this.keyCodes[0], out this.forcedUpperCases[0]);
+                    parsedSuccessfully = KeyPresser.parseKeycode(action, false, out this.keyCodes[0]);
                     if (!parsedSuccessfully)
                     {
                         if (allowFreeText)
                         {
-                            // finally, try to parse each letter
-                            this.keyCodes = new KeyPresser.KeyCode[action.Length];
-                            // any of the free text chars might be upper case
-                            this.forcedUpperCases = new Boolean[action.Length];
-                            for (int i = 0; i < action.Length; i++)
-                            {
-                                parsedSuccessfully = KeyPresser.parseKeycode(action[i].ToString(), true, out this.keyCodes[i], out this.forcedUpperCases[i]);
-                                if (!parsedSuccessfully)
-                                {
-                                    Console.WriteLine("Unable to convert character " + action[i] + " to a key press");
-                                    break;
-                                }
-                            }
+                            parsedSuccessfully = true;
+                            this.freeText = action;
                             if (parsedSuccessfully)
                             {
-                                Console.WriteLine("Free text action macro, text = \"" + action + "\" key presses to send = " + String.Join(", ", keyCodes));
+                                Console.WriteLine("Free text action macro, text = " + freeText);
                             }
                         }
                         else

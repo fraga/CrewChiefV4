@@ -86,33 +86,13 @@ namespace CrewChiefV4.commands
         private static KeyCode[] extendedKeys = { KeyCode.UP, KeyCode.DOWN, KeyCode.LEFT, KeyCode.RIGHT, 
                                            KeyCode.INSERT, KeyCode.HOME, KeyCode.PAGE_UP, KeyCode.PAGEDOWN, KeyCode.DELETE, KeyCode.END };
 
-        public static Boolean parseKeycode(String keyString, Boolean freeText, out KeyPresser.KeyCode keyCode, out Boolean forcedUppercase)
-        {
-            // assume we don't need to hold shift for this press:
-            forcedUppercase = false;
-            // some character literal replacements, only applicable to free text macros:
+        public static Boolean parseKeycode(String keyString, Boolean freeText, out KeyPresser.KeyCode keyCode)
+        {      
             if (freeText)
             {
-                if (",".Equals(keyString))
-                {
-                    keyCode = KeyPresser.KeyCode.OEM_COMMA;
-                    return true;
-                }
-                if (" ".Equals(keyString))
-                {
-                    keyCode = KeyPresser.KeyCode.SPACE_BAR;
-                    return true;
-                }
-                if (".".Equals(keyString))
-                {
-                    keyCode = KeyPresser.KeyCode.OEM_PERIOD;
-                    return true;
-                }
-                if ("-".Equals(keyString))
-                {
-                    keyCode = KeyPresser.KeyCode.OEM_MINUS;
-                    return true;
-                }
+                //not used when free text
+                keyCode = 0;
+                return true;
             }
             if (Enum.TryParse(keyString, true, out keyCode))
             {
@@ -120,8 +100,6 @@ namespace CrewChiefV4.commands
             }
             if (Enum.TryParse("KEY_" + keyString, true, out keyCode))
             {
-                // if we're parsing this as a raw key and we're in free-text mode, hold shift if it's upper case
-                forcedUppercase = freeText && Char.IsUpper(keyString[0]);
                 return true;
             }
             return false;
@@ -139,23 +117,13 @@ namespace CrewChiefV4.commands
             }
         }
         
-        public static void SendScanCodeKeyPress(KeyCode keyCode, Boolean holdShift, int holdTimeMillis)
+        public static void SendScanCodeKeyPress(KeyCode keyCode, int holdTimeMillis)
         {
             ushort scanCode = (ushort)MapVirtualKey((ushort)keyCode, 0);
             Boolean extended = extendedKeys.Contains(keyCode);
-            if (holdShift)
-            {
-                press((ushort)MapVirtualKey((ushort)KeyCode.LSHIFT, 0), false);
-                Thread.Sleep(10);
-            }
             press(scanCode, extended);
             Thread.Sleep(holdTimeMillis);
             release(scanCode, extended);
-            if (holdShift)
-            {
-                Thread.Sleep(10);
-                release((ushort)MapVirtualKey((ushort)KeyCode.LSHIFT, 0), false);                
-            }
         }
         private static void press(ushort scanCode, Boolean extended)
         {
