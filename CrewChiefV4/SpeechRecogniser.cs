@@ -16,7 +16,8 @@ using System.Runtime.InteropServices;
 using NAudio.CoreAudioApi;
 using CrewChiefV4.Overlay;
 using System.IO;
-
+using WindowsInput;
+using WindowsInput.Native;
 namespace CrewChiefV4
 {
     public class SpeechRecogniser : IDisposable
@@ -471,6 +472,7 @@ namespace CrewChiefV4
         public static String[] RALLY_ROCKS_OUTSIDE = Configuration.getSpeechRecognitionPhrases("RALLY_ROCKS_OUTSIDE", loadHomophones);
         public static String[] RALLY_TREE_OUTSIDE = Configuration.getSpeechRecognitionPhrases("RALLY_TREE_OUTSIDE", loadHomophones);
         public static String[] RALLY_TWISTY = Configuration.getSpeechRecognitionPhrases("RALLY_TWISTY", loadHomophones);
+        public static String[] RALLY_DIP = Configuration.getSpeechRecognitionPhrases("RALLY_DIP", loadHomophones);
 
         public static String[] RALLY_INTO = Configuration.getSpeechRecognitionPhrases("RALLY_INTO", loadHomophones);
         public static String[] RALLY_THEN = Configuration.getSpeechRecognitionPhrases("RALLY_THEN", loadHomophones);
@@ -528,6 +530,7 @@ namespace CrewChiefV4
             SpeechRecogniser.RALLY_WIDENS,
             SpeechRecogniser.RALLY_GO_STRAIGHT,
             SpeechRecogniser.RALLY_TWISTY,
+            SpeechRecogniser.RALLY_DIP,
 
             SpeechRecogniser.RALLY_TIGHTENS_TO_1,
             SpeechRecogniser.RALLY_TIGHTENS_TO_2,
@@ -621,8 +624,8 @@ namespace CrewChiefV4
 
         // experimental free-dictation grammar for chat messages
         private Boolean useFreeDictationForChatMessages = UserSettings.GetUserSettings().getBoolean("use_free_dictation_for_chat");
-        private static string startChatMacroName = "start chat message";
-        private static string endChatMacroName = "end chat message";
+        public static string startChatMacroName = "start chat message";
+        public static string endChatMacroName = "end chat message";
         private static string chatContextStart = UserSettings.GetUserSettings().getString("free_dictation_chat_start_word");
         private string chatContextEnd = null;
         private GrammarWrapper chatDictationGrammar;
@@ -2568,19 +2571,14 @@ namespace CrewChiefV4
                         Console.WriteLine("chat recognised: \"" + recognisedText + "\"");
                         if (recognisedText.StartsWith(chatContextStart))
                         {
-                            string chatText = recognisedText.TrimStart(chatContextStart.ToCharArray()).Trim();
-                            getStartChatMacro().execute("", true, false);
+                            string chatText = recognisedText.TrimStart(chatContextStart.ToCharArray()).Trim();                            
                             Console.WriteLine("Sending chat text \"" + chatText + "\"");
-                            for (int charIndex = 0; charIndex < chatText.Length; charIndex++)
-                            {
-                                KeyPresser.KeyCode keyCode;
-                                Boolean forcedUpperCase;
-                                KeyPresser.parseKeycode(chatText[charIndex].ToString(), true, out keyCode, out forcedUpperCase);
-                                // Console.WriteLine("key code = " + keyCode);
-                                KeyPresser.SendScanCodeKeyPress(keyCode, forcedUpperCase, 20);
-                                Thread.Sleep(20);
-                            }
-                            getEndChatMacro().execute("", true, false);
+                            new InputSimulator().Keyboard.KeyPress(getStartChatMacro()
+                                .getStartChatKey())
+                                .Sleep(getStartChatMacro().getWaitBetweenEachCommand())
+                                .TextEntry(chatText)
+                                .Sleep(getStartChatMacro().getWaitBetweenEachCommand())
+                                .KeyPress(getEndChatMacro().getEndChatKey());
                         }
                         else
                         {
@@ -3279,7 +3277,7 @@ namespace CrewChiefV4
             return false;
         }
 
-        private static ExecutableCommandMacro getStartChatMacro()
+        public static ExecutableCommandMacro getStartChatMacro()
         {
             if (SpeechRecogniser.startChatMacro == null)
             {
@@ -3288,7 +3286,7 @@ namespace CrewChiefV4
             return SpeechRecogniser.startChatMacro;
         }
 
-        private static ExecutableCommandMacro getEndChatMacro()
+        public static ExecutableCommandMacro getEndChatMacro()
         {
             if (SpeechRecogniser.endChatMacro == null)
             {

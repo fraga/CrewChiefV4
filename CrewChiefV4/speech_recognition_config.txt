@@ -526,6 +526,7 @@ RALLY_UPHILL = up hill
 RALLY_BRAKE = braking:brake
 RALLY_GO_STRAIGHT = go straight
 RALLY_TWISTY = twisty
+RALLY_DIP = dip
 RALLY_PLUS = plus
 RALLY_MINUS = minus
 RALLY_LOGS_INSIDE = log inside:logs inside
