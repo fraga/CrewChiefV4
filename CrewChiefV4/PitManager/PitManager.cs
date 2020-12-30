@@ -354,7 +354,7 @@ namespace CrewChiefV4.PitManager
 
             {PME.FuelAddXlitres,          _PMet(_PMeh, PMEHrF2.PMrF2eh_FuelAddXlitres,     PMER.PMrh_FuelAddXlitres) },
             {PME.FuelFillToXlitres,       _PMet(_PMeh, PMEHrF2.PMrF2eh_FuelToXlitres,      PMER.PMrh_FuelAddXlitres) },
-            {PME.FuelFillToEnd,           _PMet(_PMeh, PMEHrF2.PMrF2eh_FuelToEnd,          PMER.PMrh_fuelToEnd) },
+            {PME.FuelFillToEnd,           _PMet(_PMeh, PMEHrF2.PMrF2eh_FuelToEnd,          PMER.PMrh_NoResponse) }, // Multiple responses in event handler
             {PME.FuelNone,                _PMet(_PMeh, PMEHrF2.PMrF2eh_FuelNone,           PMER.PMrh_noFuel) },
 
             {PME.RepairAll,               _PMet(_PMeh, PMEHrF2.PMrF2eh_RepairAll,          PMER.PMrh_RepairAll) },

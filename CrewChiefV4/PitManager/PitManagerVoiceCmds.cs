@@ -388,21 +388,24 @@ namespace CrewChiefV4.PitManager
             if (additionaLitresNeeded == float.MaxValue)
             {
                 crewChief.audioPlayer.playMessage(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                Log.Fuel("Pit: couldn't calculate fuel needed");
                 roundedLitresNeeded = 0;
             }
             else if (additionaLitresNeeded <= 0)
             {
                 crewChief.audioPlayer.playMessage(new QueuedMessage(Fuel.folderPlentyOfFuel, 0));
+                Log.Fuel("Pit: no fuel needed");
                 roundedLitresNeeded = 0;
             }
             else if (additionaLitresNeeded > 0)
             {
                 roundedLitresNeeded = (int)Math.Ceiling(additionaLitresNeeded);
-                Log.Commentary("Auto refuel to the end of the race, adding " + roundedLitresNeeded + " litres of fuel");
+                Log.Fuel($"Pit: auto refuel to the end of the race, need to add {roundedLitresNeeded} litres of fuel");
                 if (roundedLitresNeeded > fuelCapacity - currentFuel)
                 {
                     // if we have a known fuel capacity and this is less than the calculated amount of fuel we need, warn about it.
                     crewChief.audioPlayer.playMessage(new QueuedMessage(Fuel.folderWillNeedToStopAgain, 0, secondsDelay: 4));
+                    Log.Fuel($"Pit: need {roundedLitresNeeded + currentFuel} but tank only holds {fuelCapacity} litres");
                 }
                 else
                 {

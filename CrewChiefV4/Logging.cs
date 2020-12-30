@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("UnitTest")]
 
 namespace CrewChiefV4
 {
@@ -14,7 +13,7 @@ namespace CrewChiefV4
         /// Each log has its type prepended before it is written to the console.
         /// </summary>
         [Flags]
-        public enum LogType
+        internal enum LogType
         {
             FatalError = 1 << 0,
             Error = 1 << 1,
@@ -22,9 +21,10 @@ namespace CrewChiefV4
             Commentary = 1 << 3,
             Subtitle = 1 << 4,
             Info = 1 << 5,
-            Debug = 1 << 6,
-            Verbose = 1 << 7,
-            Exception = 1 << 8
+            Fuel = 1 << 6,
+            Debug = 1 << 7,
+            Verbose = 1 << 8,
+            Exception = 1 << 9
         };
         private static LogType _logMask = UserSettings.GetUserSettings().getBoolean("log_type_debug") ?
             setLogLevel(LogType.Debug) : (UserSettings.GetUserSettings().getBoolean("log_type_verbose") ?
@@ -38,8 +38,9 @@ namespace CrewChiefV4
             { LogType.Commentary, "Cmnt: " },
             { LogType.Subtitle,   "Subt: " },
             { LogType.Info      , "Info: " },
-            { LogType.Verbose   , "Verb: " },
+            { LogType.Fuel      , "Fuel: " },
             { LogType.Debug     , "Dbug: " },
+            { LogType.Verbose   , "Verb: " },
             { LogType.Exception , "EXCEPTION: " }
         };
         /// <summary>
@@ -57,31 +58,38 @@ namespace CrewChiefV4
             }
             return _logMask;
         }
-        /// <summary>
-        /// Set the log mask so all logs matching "logMask" are shown
-        /// Can set individual types of log, for example
-        ///   setLogMask(LogType.Error | LogType.Subtitle);
-        /// </summary>
-        /// <param name="logMask"> log mask</param>
-        /// <returns></returns>
-        public static void setLogMask(LogType logMask)
-        {
-            _logMask = logMask;
-        }
 
+        public static LogType LogMask
+        {
+            get
+            {
+                return _logMask;
+            }
+            /// <summary>
+            /// Set the log mask so all logs matching "logMask" are shown
+            /// Can set individual types of log, for example
+            ///   setLogMask(LogType.Error | LogType.Subtitle);
+            /// </summary>
+            /// <param name="logMask"> log mask</param>
+            /// <returns></returns>
+            set
+            {
+                _logMask = value;
+            }
+        }
         /// <summary>
         /// Write "log" to Console if logType is enabled
         /// "log" has its type prepended before it is written.
         /// </summary>
         /// <param name="logType"></param>
         /// <param name="log"></param>
-        public static void _Log(LogType logType, string log)
+        internal static void _Log(LogType logType, string log)
         {
             if ((logType & _logMask) != 0 || CrewChief.Debugging)
             {
                 Console.WriteLine(logPrefixes[logType] + log);
             }
-            // tbd: Also write to log whatever the logLogMask
+            // tbd: Also write to log whatever the logMask
         }
         /// <summary>
         /// Write "log" with object to Console if LogType is enabled
@@ -91,11 +99,11 @@ namespace CrewChiefV4
         /// <param name="logType"></param>
         /// <param name="log">format string containing {0}</param>
         /// <param name="arg0">the object to replace {0}</param>
-        public static void _Log(LogType logType, string log, object arg0)
+        internal static void _Log(LogType logType, string log, object arg0)
         {
             _Log(logType, String.Format(log, arg0));
         }
-        public static void _Log(LogType logType, string log, object arg0, object arg1)
+        internal static void _Log(LogType logType, string log, object arg0, object arg1)
         {
             _Log(logType, String.Format(log, arg0, arg1));
         }
@@ -152,6 +160,14 @@ namespace CrewChiefV4
         public static void Info(string log)
         {
             _Log(LogType.Info, log);
+        }
+        /// <summary>
+        /// Write "log" to Console if logType.Fuel is enabled
+        /// </summary>
+        /// <param name="log"></param>
+        public static void Fuel(string log)
+        {
+            _Log(LogType.Fuel, log);
         }
         /// <summary>
         /// Write "log" to Console if logType.Debug is enabled

@@ -428,14 +428,14 @@ namespace CrewChiefV4.PitManager
         {
             if (UserSettings.GetUserSettings().getBoolean("rf2_enable_auto_fuel_to_end_of_race"))
             {   // Ignore the voice command if we're going to do it automatically
-                return false;
+                return true;
             }
             var litresNeeded = PitFuelling.fuelToEnd(
                 PitManagerVoiceCmds.getFuelCapacity(),
                 PitManagerVoiceCmds.getCurrentFuel());
             if (litresNeeded == 0)
             {
-                return false;
+                return true;
             }
             return rF2SetFuel(litresNeeded);
         }
