@@ -136,7 +136,7 @@ get_car_status = Report car status and damage
 get_session_status = Report session status
 get_damage_report = Report car damage
 toggle_rally_recce_mode = Toggle stage recce mode (rally only)
-reset_vr_view  = Reset VR view
+reset_vr_view = Reset VR view
 
 custom_device = custom device
 assigned_to = assigned to
