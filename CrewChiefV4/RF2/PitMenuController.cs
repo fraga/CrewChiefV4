@@ -190,6 +190,7 @@ namespace PitMenuAPI
                     }
                 }
             }
+            Log.Debug($"Relative Fuel Strategy: {relativeFuelStrategy}");
             return relativeFuelStrategy;
         }
 
@@ -219,12 +220,17 @@ namespace PitMenuAPI
                         if (match.Value.Contains("."))
                         {   // Gallons are displayed in 10ths
                             current = convertGallonsToLitres(current);
+                            Log.Verbose("Using gallons");
+                        }
+                        else
+                        {
+                            Log.Verbose("Using litres");
                         }
                         Log.Verbose($"Fuel level {current}");
                     }
                     else
                     {
-                        Log.Commentary($"Couldn't parse fuel level '{GetChoice()}'");
+                        Log.Warning($"Couldn't parse fuel level '{GetChoice()}'");
                     }
                 }
             }

@@ -1161,6 +1161,10 @@ namespace CrewChiefV4
                     this.filenameTextbox.Visible = true;
                 }
             }
+            if (UserSettings.GetUserSettings().getBoolean("log_type_fuel"))
+            {
+                Log.LogMask |= Log.LogType.Fuel;
+            }
 
             if (!UserSettings.GetUserSettings().getBoolean("enable_console_logging"))
             {
