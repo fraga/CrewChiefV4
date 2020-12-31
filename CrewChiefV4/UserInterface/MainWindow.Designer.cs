@@ -48,7 +48,6 @@ namespace CrewChiefV4
             this.toggleButton = new System.Windows.Forms.RadioButton();
             this.alwaysOnButton = new System.Windows.Forms.RadioButton();
             this.triggerWordButton = new System.Windows.Forms.RadioButton();
-            this.button2 = new System.Windows.Forms.Button();
             this.messagesVolumeSlider = new System.Windows.Forms.TrackBar();
             this.messagesAudioDeviceBox = new System.Windows.Forms.ComboBox();
             this.speechRecognitionDeviceBox = new System.Windows.Forms.ComboBox();
@@ -98,16 +97,11 @@ namespace CrewChiefV4
             this.voiceRecognitionDisabledToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.voiceRecognitionTriggerWordToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.AddRemoveActions = new System.Windows.Forms.Button();
-            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.buttonVRWindowSettings = new System.Windows.Forms.Button();
             this.consoleTextBoxBackgroundPanel.SuspendLayout();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.messagesVolumeSlider)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.backgroundVolumeSlider)).BeginInit();
-            this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             //
             // consoleTextBox
@@ -299,16 +293,6 @@ namespace CrewChiefV4
             this.voiceRecognitionTriggerWordToolTip.SetToolTip(this.triggerWordButton, "voice_recognition_trigger_word_help");
             this.triggerWordButton.UseVisualStyleBackColor = true;
             this.triggerWordButton.CheckedChanged += new System.EventHandler(this.triggerWordButton_CheckedChanged);
-            //
-            // button2
-            //
-            this.button2.Location = new System.Drawing.Point(184, 52);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(137, 38);
-            this.button2.TabIndex = 50;
-            this.button2.Text = "clear_console";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.clearConsole);
             //
             // messagesVolumeSlider
             //
@@ -719,46 +703,6 @@ namespace CrewChiefV4
             this.AddRemoveActions.UseVisualStyleBackColor = true;
             this.AddRemoveActions.Click += new System.EventHandler(this.AddRemoveActions_Click);
             //
-            // menuStrip1
-            //
-            this.menuStrip1.ImageScalingSize = new System.Drawing.Size(28, 28);
-            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem,
-            this.helpToolStripMenuItem});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-            this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Padding = new System.Windows.Forms.Padding(3, 1, 0, 1);
-            this.menuStrip1.Size = new System.Drawing.Size(1152, 24);
-            this.menuStrip1.TabIndex = 503;
-            this.menuStrip1.Text = "menuStrip1";
-            //
-            // fileToolStripMenuItem
-            //
-            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.exitToolStripMenuItem});
-            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.ShortcutKeyDisplayString = "";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 22);
-            this.fileToolStripMenuItem.Text = "File";
-            //
-            // exitToolStripMenuItem
-            //
-            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.ShortcutKeyDisplayString = "Alt+F4";
-            this.exitToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
-            this.exitToolStripMenuItem.Text = "Exit";
-            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
-            //
-            // helpToolStripMenuItem
-            //
-            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            this.helpToolStripMenuItem.ShortcutKeyDisplayString = "F1";
-            this.helpToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F1;
-            this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 22);
-            this.helpToolStripMenuItem.Text = "Help";
-            this.helpToolStripMenuItem.Click += new System.EventHandler(this.helpToolStripMenuItem_Click);
-            //
             // buttonVRWindowSettings
             //
             this.buttonVRWindowSettings.Enabled = false;
@@ -798,7 +742,6 @@ namespace CrewChiefV4
             this.Controls.Add(this.messagesAudioDeviceBox);
             this.Controls.Add(this.speechRecognitionDeviceBox);
             this.Controls.Add(this.backgroundAudioDeviceBox);
-            this.Controls.Add(this.button2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.propertiesButton);
             this.Controls.Add(this.label2);
@@ -828,9 +771,7 @@ namespace CrewChiefV4
             this.Controls.Add(this.codriverStyleBox);
             this.Controls.Add(this.scanControllers);
             this.Controls.Add(this.buttonEditCommandMacros);
-            this.Controls.Add(this.menuStrip1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MainMenuStrip = this.menuStrip1;
             this.MaximizeBox = false;
             this.Name = "MainWindow";
             this.Text = "Crew Chief V4";
@@ -841,8 +782,6 @@ namespace CrewChiefV4
             this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.messagesVolumeSlider)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.backgroundVolumeSlider)).EndInit();
-            this.menuStrip1.ResumeLayout(false);
-            this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -868,7 +807,6 @@ namespace CrewChiefV4
         private System.Windows.Forms.RadioButton holdButton;
         private System.Windows.Forms.RadioButton voiceDisableButton;
         private System.Windows.Forms.RadioButton triggerWordButton;
-        private System.Windows.Forms.Button button2;
         private System.Windows.Forms.TrackBar messagesVolumeSlider;
         private System.Windows.Forms.ComboBox speechRecognitionDeviceBox;
         private System.Windows.Forms.ComboBox messagesAudioDeviceBox;
@@ -917,10 +855,6 @@ namespace CrewChiefV4
         private ToolTip voiceRecognitionTriggerWordToolTip;
         private ToolTip voiceRecognitionToolTip;
         private Button AddRemoveActions;
-        private MenuStrip menuStrip1;
-        private ToolStripMenuItem fileToolStripMenuItem;
-        private ToolStripMenuItem exitToolStripMenuItem;
-        private ToolStripMenuItem helpToolStripMenuItem;
         public Button buttonVRWindowSettings;
     }
 }
