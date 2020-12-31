@@ -1307,5 +1307,8 @@
     <Setting Name="reset_vr_view_control" Type="System.String" Scope="User">
       <Value Profile="(Default)">NUMPAD5</Value>
     </Setting>
+    <Setting Name="log_type_fuel" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
