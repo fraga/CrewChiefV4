@@ -126,7 +126,9 @@ namespace CrewChiefV4
             try
             {
 #endif
-                Application.Run(new MainWindow());
+                MainWindow mw = new MainWindow();
+                mw.MenuStrip(); // Add the menu strip to the main window
+                Application.Run(mw);
 #if !DEBUG
             }
             catch (Exception e)

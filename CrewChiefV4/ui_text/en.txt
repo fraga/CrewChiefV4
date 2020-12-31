@@ -74,6 +74,7 @@ toggle_button = Press and release button
 hold_button = Hold button
 disabled = Disabled
 clear_console = Clear c&onsole
+copy_console_text = Copy console text
 game = &Game
 app_version = App version
 help_menu = &Help
