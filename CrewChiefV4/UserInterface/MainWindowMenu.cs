@@ -23,7 +23,7 @@ namespace CrewChiefV4
         private ContextMenuStrip consoleContextMenuStrip;
         private ToolStripMenuItem cCopyConsoleToolStripMenuItem;
         private ToolStripMenuItem cClearConsoleToolStripMenuItem;
-        private ToolStripMenuItem cSaveConsoleTextToolStripMenuItem;
+        private ToolStripMenuItem cSaveConsoleToolStripMenuItem;
         private ToolStripMenuItem mExitToolStripMenuItem;
         private ToolStripMenuItem mcCopyConsoleToolStripMenuItem;
         private ToolStripMenuItem mcClearConsoleToolStripMenuItem;
@@ -39,7 +39,7 @@ namespace CrewChiefV4
             this.mSaveConsoleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.consoleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.consoleContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.cSaveConsoleTextToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.cSaveConsoleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cCopyConsoleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cClearConsoleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -110,7 +110,7 @@ namespace CrewChiefV4
             this.mSaveConsoleToolStripMenuItem.Name = "mSaveConsoleToolStripMenuItem";
             this.mSaveConsoleToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.mSaveConsoleToolStripMenuItem.Text = Configuration.getUIString("save_console_output");
-            this.mSaveConsoleToolStripMenuItem.Click += new System.EventHandler(this.saveConsoleOutputText);
+            this.mSaveConsoleToolStripMenuItem.Click += new System.EventHandler(this.cSaveConsoleOutputText);
 
             //
             // helpToolStripMenuItem
@@ -129,7 +129,7 @@ namespace CrewChiefV4
             this.consoleContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.cCopyConsoleToolStripMenuItem,
             this.cClearConsoleToolStripMenuItem,
-            this.cSaveConsoleTextToolStripMenuItem});
+            this.cSaveConsoleToolStripMenuItem});
             this.consoleContextMenuStrip.Name = "consoleContextMenuStrip";
             this.consoleContextMenuStrip.Size = new System.Drawing.Size(271, 144);
             //
@@ -150,6 +150,14 @@ namespace CrewChiefV4
             this.cClearConsoleToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.cClearConsoleToolStripMenuItem.Text = Configuration.getUIString("clear_console");
             this.cClearConsoleToolStripMenuItem.Click += new System.EventHandler(this.clearConsole);
+            //
+            // cSaveConsoleToolStripMenuItem
+            //
+            this.cSaveConsoleToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.cSaveConsoleToolStripMenuItem.Name = "cSaveConsoleToolStripMenuItem";
+            this.cSaveConsoleToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
+            this.cSaveConsoleToolStripMenuItem.Text = Configuration.getUIString("copy_console_text");
+            this.cSaveConsoleToolStripMenuItem.Click += new System.EventHandler(this.cSaveConsoleOutputText);
 
             this.MainMenuStrip = this.menuStrip1;
             this.Controls.Add(this.menuStrip1);
@@ -165,7 +173,7 @@ namespace CrewChiefV4
             this.helpToolStripMenuItem.Text = Configuration.getUIString("help_menu");
             this.cClearConsoleToolStripMenuItem.Text = Configuration.getUIString("clear_console");
             this.cCopyConsoleToolStripMenuItem.Text = Configuration.getUIString("copy_console_text");
-            this.cSaveConsoleTextToolStripMenuItem.Text = Configuration.getUIString("save_console_output");
+            this.cSaveConsoleToolStripMenuItem.Text = Configuration.getUIString("save_console_output");
 
             this.consoleTextBox.ContextMenuStrip = this.consoleContextMenuStrip;
         }
@@ -193,7 +201,7 @@ namespace CrewChiefV4
             }
         }
 
-        private void saveConsoleOutputText(object sender, EventArgs e)
+        private void cSaveConsoleOutputText(object sender, EventArgs e)
         {
             saveConsoleOutputText();
         }
