@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace CrewChiefV4
@@ -28,7 +29,7 @@ namespace CrewChiefV4
         private ToolStripMenuItem mcClearConsoleToolStripMenuItem;
         private ToolStripMenuItem mSaveConsoleToolStripMenuItem;
 
-        public void MenuStrip()
+        public void MenuStrip(Font exemplarFont)
         {
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -48,6 +49,7 @@ namespace CrewChiefV4
             // menuStrip1
             //
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(28, 28);
+            this.menuStrip1.BackColor = MainWindow.DefaultBackColor;
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
             this.consoleToolStripMenuItem,
@@ -58,6 +60,7 @@ namespace CrewChiefV4
             this.menuStrip1.Size = new System.Drawing.Size(1152, 54);
             this.menuStrip1.TabIndex = 503;
             this.menuStrip1.Text = "menuStrip1";
+            this.menuStrip1.Font = exemplarFont;
             //
             // fileToolStripMenuItem
             //

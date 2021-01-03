@@ -127,7 +127,7 @@ namespace CrewChiefV4
             {
 #endif
                 MainWindow mw = new MainWindow();
-                mw.MenuStrip(); // Add the menu strip to the main window
+                mw.MenuStrip(mw.exemplarFont); // Add the menu strip to the main window
                 Application.Run(mw);
 #if !DEBUG
             }

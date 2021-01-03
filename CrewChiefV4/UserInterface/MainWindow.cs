@@ -179,6 +179,9 @@ namespace CrewChiefV4
         private Direct3D11CaptureSource captureSource = null;
         private Thread vrUpdateThread = null;
 
+        // Used to set the font size in the menu which otherwise varies with DPI
+        public readonly Font exemplarFont;
+
         public void killChief()
         {
             crewChief.stop();
@@ -1065,6 +1068,7 @@ namespace CrewChiefV4
             this.constructingWindow = true;
 
             InitializeComponent();
+            exemplarFont = this.buttonEditCommandMacros.Font;
             InitializeUiText();
 
             this.SuspendLayout();
