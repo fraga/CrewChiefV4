@@ -24,10 +24,13 @@ namespace CrewChiefV4
         private ToolStripMenuItem cCopyConsoleToolStripMenuItem;
         private ToolStripMenuItem cClearConsoleToolStripMenuItem;
         private ToolStripMenuItem cSaveConsoleToolStripMenuItem;
+        private ToolStripMenuItem cSaveConsoleTextToolStripMenuItem;
+        private ToolStripMenuItem cCopySelectedConsoleTextToolStripMenuItem;
         private ToolStripMenuItem mExitToolStripMenuItem;
         private ToolStripMenuItem mcCopyConsoleToolStripMenuItem;
         private ToolStripMenuItem mcClearConsoleToolStripMenuItem;
         private ToolStripMenuItem mSaveConsoleToolStripMenuItem;
+        private ToolStripMenuItem mCopySelectedConsoleTextToolStripMenuItem;
 
         public void MenuStrip(Font exemplarFont)
         {
@@ -37,11 +40,15 @@ namespace CrewChiefV4
             this.mcCopyConsoleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mcClearConsoleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mSaveConsoleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.mCopySelectedConsoleTextToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.consoleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.consoleContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.cSaveConsoleTextToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cSaveConsoleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cCopyConsoleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.cClearConsoleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.cCopySelectedConsoleTextToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.cSaveConsoleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -58,6 +65,7 @@ namespace CrewChiefV4
             this.menuStrip1.TabIndex = 503;
             this.menuStrip1.Text = "menuStrip1";
             this.menuStrip1.Font = exemplarFont;
+            this.menuStrip1.Padding = new System.Windows.Forms.Padding(3, 1, 0, 1);
             //
             // fileToolStripMenuItem
             //
@@ -87,6 +95,7 @@ namespace CrewChiefV4
             this.consoleToolStripMenuItem.ShortcutKeyDisplayString = "";
             this.consoleToolStripMenuItem.Size = new System.Drawing.Size(37, 22);
             this.consoleToolStripMenuItem.Text = "Console";
+            this.consoleToolStripMenuItem.Click += ConsoleToolStripMenuItem_Click;
             //
             // mcCopyConsoleToolStripMenuItem
             //
@@ -107,7 +116,14 @@ namespace CrewChiefV4
             this.mSaveConsoleToolStripMenuItem.Name = "mSaveConsoleToolStripMenuItem";
             this.mSaveConsoleToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.mSaveConsoleToolStripMenuItem.Text = Configuration.getUIString("save_console_output");
-            this.mSaveConsoleToolStripMenuItem.Click += new System.EventHandler(this.cSaveConsoleOutputText);
+            this.mSaveConsoleToolStripMenuItem.Click += new System.EventHandler(this.saveConsoleOutputText);
+            //
+            // mCopySelectedConsoleTextToolStripMenuItem
+            //
+            this.mCopySelectedConsoleTextToolStripMenuItem.Name = "mCopySelectedConsoleTextToolStripMenuItem";
+            this.mCopySelectedConsoleTextToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
+            this.mCopySelectedConsoleTextToolStripMenuItem.Text = Configuration.getUIString("copy_selected_text");
+            this.mCopySelectedConsoleTextToolStripMenuItem.Click += new System.EventHandler(this.saveSelectedConsoleText_Click);
 
             //
             // helpToolStripMenuItem
@@ -122,12 +138,11 @@ namespace CrewChiefV4
             //
             // consoleContextMenuStrip
             //
-            this.consoleContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-                this.cCopyConsoleToolStripMenuItem,
-                this.cClearConsoleToolStripMenuItem,
-                this.cSaveConsoleToolStripMenuItem});
+            // Items added at runtime
             this.consoleContextMenuStrip.Name = "consoleContextMenuStrip";
             this.consoleContextMenuStrip.Size = new System.Drawing.Size(271, 144);
+            this.consoleContextMenuStrip.Opening += new System.ComponentModel.CancelEventHandler(consoleContextMenuStrip_Opening);
+
             //
             // cCopyConsoleToolStripMenuItem
             //
@@ -151,9 +166,17 @@ namespace CrewChiefV4
             //
             this.cSaveConsoleToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.cSaveConsoleToolStripMenuItem.Name = "cSaveConsoleToolStripMenuItem";
-            this.cSaveConsoleToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
-            this.cSaveConsoleToolStripMenuItem.Text = Configuration.getUIString("copy_console_text");
-            this.cSaveConsoleToolStripMenuItem.Click += new System.EventHandler(this.cSaveConsoleOutputText);
+            this.cSaveConsoleToolStripMenuItem.Size = new System.Drawing.Size(270, 22);
+            this.cSaveConsoleToolStripMenuItem.Text = Configuration.getUIString("save_console_output");
+            this.cSaveConsoleToolStripMenuItem.Click += new System.EventHandler(this.saveConsoleOutputText);
+            //
+            // cCopySelectedConsoleTextToolStripMenuItem
+            //
+            this.cCopySelectedConsoleTextToolStripMenuItem.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.cCopySelectedConsoleTextToolStripMenuItem.Name = "cCopySelectedConsoleTextToolStripMenuItem";
+            this.cCopySelectedConsoleTextToolStripMenuItem.Size = new System.Drawing.Size(270, 22);
+            this.cCopySelectedConsoleTextToolStripMenuItem.Text = Configuration.getUIString("copy_selected_text");
+            this.cCopySelectedConsoleTextToolStripMenuItem.Click += new System.EventHandler(this.saveSelectedConsoleText_Click);
 
             this.MainMenuStrip = this.menuStrip1;
             this.Controls.Add(this.menuStrip1);
@@ -169,8 +192,8 @@ namespace CrewChiefV4
             this.helpToolStripMenuItem.Text = Configuration.getUIString("help_menu");
             this.cClearConsoleToolStripMenuItem.Text = Configuration.getUIString("clear_console");
             this.cCopyConsoleToolStripMenuItem.Text = Configuration.getUIString("copy_console_text");
-            this.cSaveConsoleToolStripMenuItem.Text = Configuration.getUIString("save_console_output");
-
+            this.cSaveConsoleTextToolStripMenuItem.Text = Configuration.getUIString("save_console_output");
+            this.cCopySelectedConsoleTextToolStripMenuItem.Text = Configuration.getUIString("copy_selected_text");
             this.consoleTextBox.ContextMenuStrip = this.consoleContextMenuStrip;
         }
 
@@ -187,19 +210,73 @@ namespace CrewChiefV4
 
         private void cCopyConsoleToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (consoleTextBox.Text != "")
+            if (!string.IsNullOrWhiteSpace(consoleTextBox.Text))
             {
                 System.Windows.Forms.Clipboard.SetText(consoleTextBox.Text);
             }
-            else // can't copy "" to clipboard
+        }
+
+        private void saveConsoleOutputText(object sender, EventArgs e)
+        {
+            saveConsoleOutputText();
+        }
+
+        private void saveSelectedConsoleText_Click(object sender, EventArgs e)
+        {
+            if (!string.IsNullOrWhiteSpace(consoleTextBox.SelectedText))
             {
-                System.Windows.Forms.Clipboard.SetText(" ");
+                System.Windows.Forms.Clipboard.SetText(consoleTextBox.SelectedText);
             }
         }
 
-        private void cSaveConsoleOutputText(object sender, EventArgs e)
+        /// <summary>
+        /// Console context menu entries offered according to Console contents
+        /// </summary>
+        private void consoleContextMenuStrip_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            saveConsoleOutputText();
+            consoleContextMenuStrip.Items.Clear();
+            this.cCopySelectedConsoleTextToolStripMenuItem.Enabled = false;
+            if (!string.IsNullOrWhiteSpace(consoleTextBox.SelectedText))
+            {
+                this.cCopySelectedConsoleTextToolStripMenuItem.Enabled = true;
+            }
+            if (!string.IsNullOrWhiteSpace(consoleTextBox.Text))
+            {
+                consoleContextMenuStrip.Items.Add(this.cCopyConsoleToolStripMenuItem);
+                consoleContextMenuStrip.Items.Add(this.cCopySelectedConsoleTextToolStripMenuItem);
+                consoleContextMenuStrip.Items.Add(this.cClearConsoleToolStripMenuItem);
+                consoleContextMenuStrip.Items.Add(this.cSaveConsoleToolStripMenuItem);
+                e.Cancel = false;
+            }
+            else
+            {
+                e.Cancel = true;    // Don't show the context menu
+            }
+        }
+        private void ConsoleToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            mcCopyConsoleToolStripMenuItem.Enabled = false;
+            mCopySelectedConsoleTextToolStripMenuItem.Enabled = false;
+            mcClearConsoleToolStripMenuItem.Enabled = false;
+            mSaveConsoleToolStripMenuItem.Enabled = false;
+            this.menuStrip1.SuspendLayout();
+            consoleToolStripMenuItem.DropDownItems.Clear();
+            if (!string.IsNullOrWhiteSpace(consoleTextBox.SelectedText))
+            {
+                mCopySelectedConsoleTextToolStripMenuItem.Enabled = true;
+            }
+            if (!string.IsNullOrWhiteSpace(consoleTextBox.Text))
+            {
+                mcCopyConsoleToolStripMenuItem.Enabled = true;
+                mcClearConsoleToolStripMenuItem.Enabled = true;
+                mSaveConsoleToolStripMenuItem.Enabled = true;
+            }
+            consoleToolStripMenuItem.DropDownItems.Add(this.mcCopyConsoleToolStripMenuItem);
+            consoleToolStripMenuItem.DropDownItems.Add(this.mCopySelectedConsoleTextToolStripMenuItem);
+            consoleToolStripMenuItem.DropDownItems.Add(this.mcClearConsoleToolStripMenuItem);
+            consoleToolStripMenuItem.DropDownItems.Add(this.mSaveConsoleToolStripMenuItem);
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
         }
     }
 }

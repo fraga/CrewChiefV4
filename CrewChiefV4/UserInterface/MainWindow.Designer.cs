@@ -186,9 +186,7 @@ namespace CrewChiefV4
             //
             // label1
             //
-            var fontSize = this.buttonEditCommandMacros.Font.SizeInPoints * 1.2f;
             this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", fontSize, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(38, 484);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(138, 17);
@@ -198,7 +196,6 @@ namespace CrewChiefV4
             // label2
             //
             this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", fontSize, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.Location = new System.Drawing.Point(292, 484);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(117, 17);
@@ -737,9 +734,7 @@ namespace CrewChiefV4
             this.Controls.Add(this.label5);
             this.Controls.Add(this.gameDefinitionList);
             this.Controls.Add(this.backgroundVolumeSliderLabel);
-            this.Controls.Add(this.backgroundVolumeSlider);
             this.Controls.Add(this.messagesVolumeSliderLabel);
-            this.Controls.Add(this.messagesVolumeSlider);
             this.Controls.Add(this.messagesAudioDeviceBox);
             this.Controls.Add(this.speechRecognitionDeviceBox);
             this.Controls.Add(this.backgroundAudioDeviceBox);
@@ -772,6 +767,8 @@ namespace CrewChiefV4
             this.Controls.Add(this.codriverStyleBox);
             this.Controls.Add(this.scanControllers);
             this.Controls.Add(this.buttonEditCommandMacros);
+            this.Controls.Add(this.backgroundVolumeSlider);
+            this.Controls.Add(this.messagesVolumeSlider);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "MainWindow";
