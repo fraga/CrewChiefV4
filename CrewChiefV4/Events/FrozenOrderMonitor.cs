@@ -258,7 +258,6 @@ namespace CrewChiefV4.Events
                         || this.currDriverToFollow != this.newDriverToFollow
                         || this.currFrozenOrderColumn != this.newFrozenOrderColumn))
                 {
-                    Console.WriteLine("NEW PHASE");
                     this.currFrozenOrderAction = this.newFrozenOrderAction;
                     this.currDriverToFollow = this.newDriverToFollow;
                     this.currFrozenOrderColumn = this.newFrozenOrderColumn;
