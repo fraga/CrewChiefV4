@@ -87,7 +87,7 @@ namespace CrewChiefV4
         public static GameDefinition rbr = new GameDefinition(GameEnum.RBR, "rbr", "RichardBurnsRally_SSE", null /*spotterName*/,
             "rbr_launch_exe", null /*gameStartCommandOptionsProperty*/, "launch_rbr", true, "RBR", null, racingType:CrewChief.RacingType.Rally);
         public static GameDefinition gtr2 = new GameDefinition(GameEnum.GTR2, "gtr2", "GTR2", "CrewChiefV4.GTR2.GTR2Spotter",
-            "gtr2_launch_exe", "gtr2_launch_params", "launch_gtr2", true, "GTR2",
+            "gtr2_launch_exe", null /*gameStartCommandOptionsProperty*/, "launch_gtr2", true, "GTR2",
             approxFilterNames: new String[] { "gtr2", "gtr 2", "gtr_2", "gtr-2" });
         public static GameDefinition dirt = new GameDefinition(GameEnum.DIRT, "dirt", null, null /*spotterName*/,
             "dirt_launch_exe", "dirt2_launch_params" /*gameStartCommandOptionsProperty*/, "launch_dirt", false, "", null, racingType:CrewChief.RacingType.Rally,

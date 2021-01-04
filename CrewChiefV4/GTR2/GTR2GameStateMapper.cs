@@ -160,7 +160,7 @@ namespace CrewChiefV4.GTR2
             this.suspensionDamageThresholds.Add(new CornerData.EnumWithThresholds(DamageLevel.DESTROYED, 1.0f, 2.0f));
         }
 
-        private int[] minimumSupportedVersionParts = new int[] { 1, 0, 0, 4 };
+        private int[] minimumSupportedVersionParts = new int[] { 1, 1, 11, 0 };
         public static bool pluginVerified = false;
         private static int reinitWaitAttempts = 0;
         public override void versionCheck(Object memoryMappedFileStruct)
@@ -185,8 +185,7 @@ namespace CrewChiefV4.GTR2
             GTR2GameStateMapper.reinitWaitAttempts = 0;
 
             var failureHelpMsg = ".\nMake sure you have \"Update game plugins on startup\" option enabled."
-                + "\nAlternatively, visit https://forum.studio-397.com/index.php?threads/crew-chief-v4-5-with-rfactor-2-support.54421/ "
-                + "to download and update plugin manually.";
+                + "\nFor manual setup instructions, visit http://thecrewchief.org/showthread.php?2012-GTR2-Setup-Instructions-and-Known-Issues.";
 
             var versionParts = versionStr.Split('.');
             if (versionParts.Length != 4)
@@ -219,7 +218,7 @@ namespace CrewChiefV4.GTR2
 
                 var msg2 = "Minimum supported version is: "
                     + minVerStr
-                    + "\nPlease update CrewChief.dll" + failureHelpMsg;
+                    + "\nPlease update the CrewChief.dll" + failureHelpMsg;
                 Console.WriteLine(msg1 + " " + msg2);
                 MessageBox.Show(msg2, msg1,
                     //Configuration.getUIString("install_plugin_popup_enable_text"),
@@ -561,7 +560,8 @@ namespace CrewChiefV4.GTR2
             float defaultSessionTotalRunTime = 3630.0f;
             if (shared.extended.mUnofficialFeaturesEnabled != 0 && cgs.inCar)
             {
-                if (shared.extended.mTotalSessionRunningTime < 108000.0f)
+                if (shared.extended.mTotalSessionRunningTime < 108000.0f 
+                    && !(shared.extended.mGameMode == (int)GTR2GameMode.Championship && csd.SessionType == SessionType.Race))  // Seems like Championship race is laps only, no matter what.
                 {
                     csd.SessionNumberOfLaps = 0;
                     csd.SessionTotalRunTime = shared.extended.mTotalSessionRunningTime;
@@ -2921,28 +2921,21 @@ namespace CrewChiefV4.GTR2
                 if (this.firstHistoryMessageUpdatedFOTicks != extended.mTicksFirstHistoryMessageUpdated)
                 {
                     this.firstHistoryMessageUpdatedFOTicks = extended.mTicksFirstHistoryMessageUpdated;
-                    Console.WriteLine("1ST CHANGED");
 
                     if (this.ProcessOrderMessage(GTR2GameStateMapper.GetStringFromBytes(extended.mFirstHistoryMessage), fod, ref scoring, ref extended))
                         return fod;
-
-                    //anyMsgChanged = true;
                 }
 
                 if (this.secondHistoryMessageUpdatedFOTicks != extended.mTicksSecondHistoryMessageUpdated)
                 {
-                    Console.WriteLine("2ND CHANGED");
                     this.secondHistoryMessageUpdatedFOTicks = extended.mTicksSecondHistoryMessageUpdated;
 
                     if (this.ProcessOrderMessage(GTR2GameStateMapper.GetStringFromBytes(extended.mSecondHistoryMessage), fod, ref scoring, ref extended))
                         return fod;
-
-                    //anyMsgChanged = true;
                 }
 
                 if (this.thirdHistoryMessageUpdatedFOTicks != extended.mTicksThirdHistoryMessageUpdated)
                 {
-                    Console.WriteLine("3RD CHANGED");
                     this.thirdHistoryMessageUpdatedFOTicks = extended.mTicksThirdHistoryMessageUpdated;
 
                     if (this.ProcessOrderMessage(GTR2GameStateMapper.GetStringFromBytes(extended.mThirdHistoryMessage), fod, ref scoring, ref extended))
