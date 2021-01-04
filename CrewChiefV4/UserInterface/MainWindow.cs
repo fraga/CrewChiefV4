@@ -1068,7 +1068,19 @@ namespace CrewChiefV4
             this.constructingWindow = true;
 
             InitializeComponent();
+
+            // Run time font size twiddling to deal with DPI issues
             exemplarFont = this.buttonEditCommandMacros.Font;
+            var bigFontSize = this.exemplarFont.SizeInPoints * 1.2f;
+            foreach (var label in new List<Label>{
+                this.label1,
+                this.label2,
+                this.messagesAudioDeviceLabel,
+                this.backgroundAudioDeviceLabel })
+            {
+                label.Font = new System.Drawing.Font("Microsoft Sans Serif", bigFontSize, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            }
+
             InitializeUiText();
 
             this.SuspendLayout();
