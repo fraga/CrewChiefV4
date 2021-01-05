@@ -794,6 +794,23 @@ namespace CrewChiefV4
             Macro currentMacro = macroContainer.macros.FirstOrDefault(mc => mc.name == listBoxAvailableMacros.Items[listBoxAvailableMacros.SelectedIndex].ToString());
             if (currentMacro != null && currentMacro.buttonTriggers != null && currentMacro.buttonTriggers.Length > 0)
             {
+                bool remove = false;
+                int i = 0;
+                // remove the loaded button assignment for this macro. Here we match on macro name, which is kind of nasty. Note that if we move button assignments
+                // to be in the per-game element this won't work
+                for (; i < this.controllerConfiguration.buttonAssignments.Count; i++)
+                {
+                    if (this.controllerConfiguration.buttonAssignments[i].executableCommandMacro != null
+                        && this.controllerConfiguration.buttonAssignments[i].executableCommandMacro.macro.name == currentMacro.name)
+                    {
+                        remove = true;
+                        break;
+                    }
+                }
+                if (remove)
+                {
+                    this.controllerConfiguration.buttonAssignments.RemoveAt(i);
+                }
                 currentMacro.buttonTriggers = null;
                 saveMacroSettings();
                 updateAssignmentElements(true);
