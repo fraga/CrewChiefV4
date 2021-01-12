@@ -179,6 +179,9 @@ namespace CrewChiefV4
         private Direct3D11CaptureSource captureSource = null;
         private Thread vrUpdateThread = null;
 
+        // Used to set the font size in the menu which otherwise varies with DPI
+        public readonly Font exemplarFont;
+
         public void killChief()
         {
             crewChief.stop();
@@ -973,9 +976,6 @@ namespace CrewChiefV4
             this.label1.Text = Configuration.getUIString("available_controllers");
             this.label2.Text = Configuration.getUIString("available_actions");
             this.propertiesButton.Text = Configuration.getUIString("properties");
-            this.fileToolStripMenuItem.Text = Configuration.getUIString("file_menu");
-            this.exitToolStripMenuItem.Text = Configuration.getUIString("exit_menu_item");
-            this.helpToolStripMenuItem.Text = Configuration.getUIString("help_menu");
             this.groupBox1.Text = Configuration.getUIString("voice_recognition_mode");
             voiceRecognitionToolTip.SetToolTip(this.groupBox1, Configuration.getUIString("voice_recognition_mode_help"));
             this.alwaysOnButton.Text = Configuration.getUIString("always_on");
@@ -988,7 +988,6 @@ namespace CrewChiefV4
             voiceRecognitionDisabledToolTip.SetToolTip(this.voiceDisableButton, Configuration.getUIString("voice_recognition_disabled_help"));
             this.triggerWordButton.Text = Configuration.getUIString("trigger_word") + " (\"" + UserSettings.GetUserSettings().getString("trigger_word_for_always_on_sre") + "\")";
             voiceRecognitionTriggerWordToolTip.SetToolTip(this.triggerWordButton, Configuration.getUIString("voice_recognition_trigger_word_help"));
-            this.button2.Text = Configuration.getUIString("clear_console");
             this.messagesVolumeSliderLabel.Text = Configuration.getUIString("messages_volume");
             this.backgroundVolumeSliderLabel.Text = Configuration.getUIString("background_volume");
             this.label5.Text = Configuration.getUIString("game");
@@ -1069,6 +1068,19 @@ namespace CrewChiefV4
             this.constructingWindow = true;
 
             InitializeComponent();
+
+            // Run time font size twiddling to deal with DPI issues
+            exemplarFont = this.buttonEditCommandMacros.Font;
+            var bigFontSize = this.exemplarFont.SizeInPoints * 1.2f;
+            foreach (var label in new List<Label>{
+                this.label1,
+                this.label2,
+                this.messagesAudioDeviceLabel,
+                this.backgroundAudioDeviceLabel })
+            {
+                label.Font = new System.Drawing.Font("Microsoft Sans Serif", bigFontSize, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            }
+
             InitializeUiText();
 
             this.SuspendLayout();
@@ -1801,6 +1813,10 @@ namespace CrewChiefV4
             else if (e.KeyCode == Keys.Escape)
             {
                 consoleTextBox.DeselectAll();
+            }
+            else if (e.Alt && e.KeyCode == Keys.E)
+            {
+                consoleContextMenuStrip.Show(consoleTextBox.PointToScreen(new Point(250, 100)));
             }
         }
 
@@ -3616,17 +3632,6 @@ namespace CrewChiefV4
         {
             var form = new ActionEditor(this);
             form.ShowDialog(this);
-        }
-
-        private void helpToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            var form = new HelpWindow(this);
-            form.ShowDialog(this);
-        }
-
-        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            this.Close();
         }
 
         public void buttonVRWindowSettings_Click(object sender, EventArgs e)

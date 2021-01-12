@@ -74,6 +74,8 @@ toggle_button = Press and release button
 hold_button = Hold button
 disabled = Disabled
 clear_console = Clear c&onsole
+copy_console_text = Copy all console text
+copy_selected_text = Copy selected console text
 game = &Game
 app_version = App version
 help_menu = &Help
@@ -837,7 +839,7 @@ gtr2_launch_exe = GTR 2 launch exe
 gtr2_launch_exe_help = This is the direct path to GTR2.exe. Use forward slashes to separate paths.
 gtr2_launch_exe_filter = GTR2
 gtr2_launch_exe_category = UI_STARTUP_AND_PATHS
-gtr2r_launch_exe_metadata = RESTART_REQUIRED
+gtr2_launch_exe_metadata = RESTART_REQUIRED
 
 dirt_launch_exe = Dirt Rally launch exe
 dirt_launch_exe_help = This is the location of Steam.exe or the direct path to dirtrally.exe. Use forward slashes to separate paths.

@@ -556,13 +556,13 @@ namespace CrewChiefV4
         {
             foreach (var ba in buttonAssignments)
             {
-                if (ba.hasUnprocessedClick && (ba.actionEvent != null || ba.macro != null))
+                if (ba.hasUnprocessedClick && (ba.actionEvent != null || ba.executableCommandMacro != null))
                 {
-                    string actionName = ba.actionEvent != null ? ba.actionEvent.ToString() : ba.macro.macro.name;
+                    string actionName = ba.actionEvent != null ? ba.actionEvent.ToString() : ba.executableCommandMacro.macro.name;
                     Log.Verbose($"\"{actionName}\" executing");
                     bool allowedToRun = ba.execute();
                     // if we're executing a macro, report when we're done
-                    if (ba.macro != null)
+                    if (ba.executableCommandMacro != null)
                     {
                         Log.Verbose(allowedToRun ? "macro complete" : "macro rejected");
                     }
@@ -1200,7 +1200,7 @@ namespace CrewChiefV4
             public AbstractEvent actionEvent = null;
 
             [JsonIgnore]
-            public ExecutableCommandMacro macro;
+            public ExecutableCommandMacro executableCommandMacro;
             public void Initialize()
             {
                 findEvent();
@@ -1209,7 +1209,7 @@ namespace CrewChiefV4
 
             public void findEvent()
             {
-                if (this.macro == null && this.action != null && !specialActions.ContainsKey(this.action))
+                if (this.executableCommandMacro == null && this.action != null && !specialActions.ContainsKey(this.action))
                 {
                     string[] srePhrases = Configuration.getSpeechRecognitionPhrases(this.action);
                     if (srePhrases != null && srePhrases.Length > 0)
@@ -1268,9 +1268,9 @@ namespace CrewChiefV4
                     actionEvent.respond(resolvedSRECommand);
                     return true;
                 }
-                if (macro != null)
+                if (executableCommandMacro != null)
                 {
-                    return macro.execute("", false, true);
+                    return executableCommandMacro.execute("", false, true);
                 }
                 return false;
             }

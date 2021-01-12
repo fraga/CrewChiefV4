@@ -65,6 +65,7 @@ OverwriteFile $releaseBinPath\"SharpDX.Mathematics.dll" $ccLayoutMainPath
 OverwriteFile $releaseBinPath\"websocket-sharp.dll" $ccLayoutMainPath
 OverwriteFile $releaseBinPath\"GameOverlay.dll" $ccLayoutMainPath
 OverwriteFile $releaseBinPath\"openvr_api.dll" $ccLayoutMainPath
+OverwriteFile $releaseBinPath\"WindowsInput.dll" $ccLayoutMainPath
 
 echo "Press any key to finish..."
 

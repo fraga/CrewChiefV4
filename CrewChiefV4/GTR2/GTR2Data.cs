@@ -166,9 +166,17 @@ namespace GTR2SharedMemory
         {
             DoNotCountLap = 0,
             CountLapButNotTime = 1,
-            CountLapAndTime = 2,
+            CountLapAndTime = 2
         }
 
+        public enum GTR2GameMode
+        {
+            Unknown = 0,
+            OpenPractice = 1,
+            RaceWeekendOr24Hr = 3,
+            Championship = 4,
+            Online = 5
+        }
     }
 
     namespace GTR2Data
@@ -536,6 +544,8 @@ namespace GTR2SharedMemory
             public float mPitApproachLapDist;
             public int mFuelMult;
             public byte mInvulnerable;
+            public byte mRaceDistanceIsLaps;
+            public int mGameMode;
 
             [JsonIgnore] public int mUnsubscribedBuffersMask;                         // Currently active UnsbscribedBuffersMask value.  This will be allowed for clients to write to in the future, but not yet.
 

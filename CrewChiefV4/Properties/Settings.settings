@@ -672,7 +672,7 @@
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="use_naudio" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
+      <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="NAUDIO_DEVICE_GUID_MESSAGES" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
@@ -1294,9 +1294,6 @@
     </Setting>
     <Setting Name="include_start_pos_in_dirt_stage_names" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
-    </Setting>
-    <Setting Name="gtr2_launch_params" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
     </Setting>
     <Setting Name="save_sre_debug_data" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>

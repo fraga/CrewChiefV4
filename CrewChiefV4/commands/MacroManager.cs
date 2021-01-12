@@ -162,7 +162,7 @@ namespace CrewChiefV4.commands
                             foreach (ButtonTrigger buttonTrigger in macro.buttonTriggers)
                             {
                                 ControllerConfiguration.ButtonAssignment buttonAssignment = new ControllerConfiguration.ButtonAssignment();
-                                buttonAssignment.macro = commandMacro;
+                                buttonAssignment.executableCommandMacro = commandMacro;
                                 buttonAssignment.buttonIndex = buttonTrigger.buttonIndex;
                                 buttonAssignment.deviceGuid = buttonTrigger.deviceId;
                                 controllerConfiguration.addControllerObjectToButtonAssignment(buttonAssignment);

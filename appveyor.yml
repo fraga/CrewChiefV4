@@ -73,11 +73,13 @@
     # git diff --quiet && git diff --staged --quiet ensures only commit if files changed
     - git diff --quiet && git diff --staged --quiet || git commit -am "Appveyor update public/ files" && git push
 
+#####################################################################################################
 # If master change_log_for_auto_updated.html changes merge master to HTMLhelp (kicking off the above)
 -
   branches:
     only:
-      - master
+      - XXmasterXX
+      # XX should stop it matching and thus stop this running
 
   only_commits:
     files:

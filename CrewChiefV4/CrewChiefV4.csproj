@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -351,6 +351,9 @@
     </Compile>
     <Compile Include="UserInterface\Loading.Designer.cs">
       <DependentUpon>Loading.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserInterface\MainWindowMenu.cs">
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="VROverlayWindow\CaptureScreen.cs" />
     <Compile Include="VROverlayWindow\CursorInteraction.cs" />

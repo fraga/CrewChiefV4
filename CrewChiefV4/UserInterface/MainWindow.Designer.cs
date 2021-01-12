@@ -48,7 +48,6 @@ namespace CrewChiefV4
             this.toggleButton = new System.Windows.Forms.RadioButton();
             this.alwaysOnButton = new System.Windows.Forms.RadioButton();
             this.triggerWordButton = new System.Windows.Forms.RadioButton();
-            this.button2 = new System.Windows.Forms.Button();
             this.messagesVolumeSlider = new System.Windows.Forms.TrackBar();
             this.messagesAudioDeviceBox = new System.Windows.Forms.ComboBox();
             this.speechRecognitionDeviceBox = new System.Windows.Forms.ComboBox();
@@ -98,16 +97,11 @@ namespace CrewChiefV4
             this.voiceRecognitionDisabledToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.voiceRecognitionTriggerWordToolTip = new System.Windows.Forms.ToolTip(this.components);
             this.AddRemoveActions = new System.Windows.Forms.Button();
-            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
-            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.buttonVRWindowSettings = new System.Windows.Forms.Button();
             this.consoleTextBoxBackgroundPanel.SuspendLayout();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.messagesVolumeSlider)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.backgroundVolumeSlider)).BeginInit();
-            this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             //
             // consoleTextBox
@@ -118,7 +112,7 @@ namespace CrewChiefV4
             this.consoleTextBox.MaxLength = 99999999;
             this.consoleTextBox.Name = "consoleTextBox";
             this.consoleTextBox.ReadOnly = true;
-            this.consoleTextBox.Size = new System.Drawing.Size(1091, 283);
+            this.consoleTextBox.Size = new System.Drawing.Size(1091, 243);
             this.consoleTextBox.TabIndex = 200;
             this.consoleTextBox.Text = "";
             //
@@ -128,7 +122,7 @@ namespace CrewChiefV4
             this.consoleTextBoxBackgroundPanel.Controls.Add(this.consoleTextBox);
             this.consoleTextBoxBackgroundPanel.Location = new System.Drawing.Point(41, 239);
             this.consoleTextBoxBackgroundPanel.Name = "consoleTextBoxBackgroundPanel";
-            this.consoleTextBoxBackgroundPanel.Size = new System.Drawing.Size(1093, 285);
+            this.consoleTextBoxBackgroundPanel.Size = new System.Drawing.Size(1093, 245);
             this.consoleTextBoxBackgroundPanel.TabIndex = 291;
             //
             // startApplicationButton
@@ -144,7 +138,7 @@ namespace CrewChiefV4
             // forceVersionCheckButton
             //
             this.forceVersionCheckButton.AutoSize = true;
-            this.forceVersionCheckButton.Location = new System.Drawing.Point(1030, 689);
+            this.forceVersionCheckButton.Location = new System.Drawing.Point(1030, 649);
             this.forceVersionCheckButton.Name = "forceVersionCheckButton";
             this.forceVersionCheckButton.Size = new System.Drawing.Size(109, 23);
             this.forceVersionCheckButton.TabIndex = 290;
@@ -155,7 +149,7 @@ namespace CrewChiefV4
             // buttonActionSelect
             //
             this.buttonActionSelect.FormattingEnabled = true;
-            this.buttonActionSelect.Location = new System.Drawing.Point(295, 544);
+            this.buttonActionSelect.Location = new System.Drawing.Point(295, 504);
             this.buttonActionSelect.Name = "buttonActionSelect";
             this.buttonActionSelect.Size = new System.Drawing.Size(528, 108);
             this.buttonActionSelect.TabIndex = 230;
@@ -164,7 +158,7 @@ namespace CrewChiefV4
             // controllersList
             //
             this.controllersList.FormattingEnabled = true;
-            this.controllersList.Location = new System.Drawing.Point(41, 544);
+            this.controllersList.Location = new System.Drawing.Point(41, 504);
             this.controllersList.Name = "controllersList";
             this.controllersList.Size = new System.Drawing.Size(248, 108);
             this.controllersList.TabIndex = 210;
@@ -172,7 +166,7 @@ namespace CrewChiefV4
             //
             // assignButtonToAction
             //
-            this.assignButtonToAction.Location = new System.Drawing.Point(830, 544);
+            this.assignButtonToAction.Location = new System.Drawing.Point(830, 504);
             this.assignButtonToAction.Name = "assignButtonToAction";
             this.assignButtonToAction.Size = new System.Drawing.Size(146, 49);
             this.assignButtonToAction.TabIndex = 240;
@@ -182,7 +176,7 @@ namespace CrewChiefV4
             //
             // deleteAssigmentButton
             //
-            this.deleteAssigmentButton.Location = new System.Drawing.Point(830, 604);
+            this.deleteAssigmentButton.Location = new System.Drawing.Point(830, 564);
             this.deleteAssigmentButton.Name = "deleteAssigmentButton";
             this.deleteAssigmentButton.Size = new System.Drawing.Size(146, 49);
             this.deleteAssigmentButton.TabIndex = 250;
@@ -193,8 +187,7 @@ namespace CrewChiefV4
             // label1
             //
             this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(38, 524);
+            this.label1.Location = new System.Drawing.Point(38, 484);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(138, 17);
             this.label1.TabIndex = 209;
@@ -203,8 +196,7 @@ namespace CrewChiefV4
             // label2
             //
             this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(292, 524);
+            this.label2.Location = new System.Drawing.Point(292, 484);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(117, 17);
             this.label2.TabIndex = 229;
@@ -227,7 +219,7 @@ namespace CrewChiefV4
             this.groupBox1.Controls.Add(this.toggleButton);
             this.groupBox1.Controls.Add(this.alwaysOnButton);
             this.groupBox1.Controls.Add(this.triggerWordButton);
-            this.groupBox1.Location = new System.Drawing.Point(982, 539);
+            this.groupBox1.Location = new System.Drawing.Point(982, 499);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(152, 135);
             this.groupBox1.TabIndex = 260;
@@ -299,16 +291,6 @@ namespace CrewChiefV4
             this.voiceRecognitionTriggerWordToolTip.SetToolTip(this.triggerWordButton, "voice_recognition_trigger_word_help");
             this.triggerWordButton.UseVisualStyleBackColor = true;
             this.triggerWordButton.CheckedChanged += new System.EventHandler(this.triggerWordButton_CheckedChanged);
-            //
-            // button2
-            //
-            this.button2.Location = new System.Drawing.Point(184, 52);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(137, 38);
-            this.button2.TabIndex = 50;
-            this.button2.Text = "clear_console";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.clearConsole);
             //
             // messagesVolumeSlider
             //
@@ -471,7 +453,7 @@ namespace CrewChiefV4
             // app_version
             //
             this.app_version.AutoSize = true;
-            this.app_version.Location = new System.Drawing.Point(1045, 674);
+            this.app_version.Location = new System.Drawing.Point(1045, 634);
             this.app_version.Name = "app_version";
             this.app_version.Size = new System.Drawing.Size(65, 13);
             this.app_version.TabIndex = 193;
@@ -595,7 +577,7 @@ namespace CrewChiefV4
             //
             // donateLink
             //
-            this.donateLink.Location = new System.Drawing.Point(35, 684);
+            this.donateLink.Location = new System.Drawing.Point(35, 644);
             this.donateLink.Name = "donateLink";
             this.donateLink.Size = new System.Drawing.Size(250, 15);
             this.donateLink.TabIndex = 270;
@@ -616,7 +598,7 @@ namespace CrewChiefV4
             //
             // buttonSmokeTest
             //
-            this.buttonSmokeTest.Location = new System.Drawing.Point(847, 509);
+            this.buttonSmokeTest.Location = new System.Drawing.Point(847, 469);
             this.buttonSmokeTest.Name = "buttonSmokeTest";
             this.buttonSmokeTest.Size = new System.Drawing.Size(283, 23);
             this.buttonSmokeTest.TabIndex = 501;
@@ -692,7 +674,7 @@ namespace CrewChiefV4
             //
             // scanControllers
             //
-            this.scanControllers.Location = new System.Drawing.Point(41, 654);
+            this.scanControllers.Location = new System.Drawing.Point(41, 614);
             this.scanControllers.Name = "scanControllers";
             this.scanControllers.Size = new System.Drawing.Size(248, 26);
             this.scanControllers.TabIndex = 215;
@@ -711,53 +693,13 @@ namespace CrewChiefV4
             //
             // AddRemoveActions
             //
-            this.AddRemoveActions.Location = new System.Drawing.Point(295, 654);
+            this.AddRemoveActions.Location = new System.Drawing.Point(295, 614);
             this.AddRemoveActions.Name = "AddRemoveActions";
             this.AddRemoveActions.Size = new System.Drawing.Size(529, 26);
             this.AddRemoveActions.TabIndex = 233;
             this.AddRemoveActions.Text = "add_remove_actions";
             this.AddRemoveActions.UseVisualStyleBackColor = true;
             this.AddRemoveActions.Click += new System.EventHandler(this.AddRemoveActions_Click);
-            //
-            // menuStrip1
-            //
-            this.menuStrip1.ImageScalingSize = new System.Drawing.Size(28, 28);
-            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem,
-            this.helpToolStripMenuItem});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-            this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Padding = new System.Windows.Forms.Padding(3, 1, 0, 1);
-            this.menuStrip1.Size = new System.Drawing.Size(1152, 24);
-            this.menuStrip1.TabIndex = 503;
-            this.menuStrip1.Text = "menuStrip1";
-            //
-            // fileToolStripMenuItem
-            //
-            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.exitToolStripMenuItem});
-            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.ShortcutKeyDisplayString = "";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 22);
-            this.fileToolStripMenuItem.Text = "File";
-            //
-            // exitToolStripMenuItem
-            //
-            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.ShortcutKeyDisplayString = "Alt+F4";
-            this.exitToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
-            this.exitToolStripMenuItem.Text = "Exit";
-            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
-            //
-            // helpToolStripMenuItem
-            //
-            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            this.helpToolStripMenuItem.ShortcutKeyDisplayString = "F1";
-            this.helpToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F1;
-            this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 22);
-            this.helpToolStripMenuItem.Text = "Help";
-            this.helpToolStripMenuItem.Click += new System.EventHandler(this.helpToolStripMenuItem_Click);
             //
             // buttonVRWindowSettings
             //
@@ -775,7 +717,7 @@ namespace CrewChiefV4
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 
-            this.ClientSize = new System.Drawing.Size(1152, 714);
+            this.ClientSize = new System.Drawing.Size(1152, 674);
             this.Controls.Add(this.buttonVRWindowSettings);
             this.Controls.Add(this.AddRemoveActions);
             this.Controls.Add(this.driverNamesProgressBar);
@@ -792,13 +734,10 @@ namespace CrewChiefV4
             this.Controls.Add(this.label5);
             this.Controls.Add(this.gameDefinitionList);
             this.Controls.Add(this.backgroundVolumeSliderLabel);
-            this.Controls.Add(this.backgroundVolumeSlider);
             this.Controls.Add(this.messagesVolumeSliderLabel);
-            this.Controls.Add(this.messagesVolumeSlider);
             this.Controls.Add(this.messagesAudioDeviceBox);
             this.Controls.Add(this.speechRecognitionDeviceBox);
             this.Controls.Add(this.backgroundAudioDeviceBox);
-            this.Controls.Add(this.button2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.propertiesButton);
             this.Controls.Add(this.label2);
@@ -828,9 +767,9 @@ namespace CrewChiefV4
             this.Controls.Add(this.codriverStyleBox);
             this.Controls.Add(this.scanControllers);
             this.Controls.Add(this.buttonEditCommandMacros);
-            this.Controls.Add(this.menuStrip1);
+            this.Controls.Add(this.backgroundVolumeSlider);
+            this.Controls.Add(this.messagesVolumeSlider);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MainMenuStrip = this.menuStrip1;
             this.MaximizeBox = false;
             this.Name = "MainWindow";
             this.Text = "Crew Chief V4";
@@ -841,8 +780,6 @@ namespace CrewChiefV4
             this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.messagesVolumeSlider)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.backgroundVolumeSlider)).EndInit();
-            this.menuStrip1.ResumeLayout(false);
-            this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -868,7 +805,6 @@ namespace CrewChiefV4
         private System.Windows.Forms.RadioButton holdButton;
         private System.Windows.Forms.RadioButton voiceDisableButton;
         private System.Windows.Forms.RadioButton triggerWordButton;
-        private System.Windows.Forms.Button button2;
         private System.Windows.Forms.TrackBar messagesVolumeSlider;
         private System.Windows.Forms.ComboBox speechRecognitionDeviceBox;
         private System.Windows.Forms.ComboBox messagesAudioDeviceBox;
@@ -917,10 +853,6 @@ namespace CrewChiefV4
         private ToolTip voiceRecognitionTriggerWordToolTip;
         private ToolTip voiceRecognitionToolTip;
         private Button AddRemoveActions;
-        private MenuStrip menuStrip1;
-        private ToolStripMenuItem fileToolStripMenuItem;
-        private ToolStripMenuItem exitToolStripMenuItem;
-        private ToolStripMenuItem helpToolStripMenuItem;
         public Button buttonVRWindowSettings;
     }
 }
