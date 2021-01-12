@@ -5221,18 +5221,6 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int sre_button_release_delay {
-            get {
-                return ((int)(this["sre_button_release_delay"]));
-            }
-            set {
-                this["sre_button_release_delay"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("NUMPAD5")]
         public string reset_vr_view_control {
             get {
