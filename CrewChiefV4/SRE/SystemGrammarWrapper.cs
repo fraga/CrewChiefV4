@@ -14,6 +14,9 @@ namespace CrewChiefV4.SRE
         public SystemGrammarWrapper(GrammarBuilderWrapper grammarBuilderWrapper)
         {
             this.grammar = new Grammar((GrammarBuilder) grammarBuilderWrapper.GetInternalGrammarBuilder());
+            // this wil dump the SRE grammar object to the console (as a list of the phrases in all of its choices). 
+            // Perhaps it should be a debug line?
+            // Console.WriteLine("Create grammar with contents\n " + ((GrammarBuilder)grammarBuilderWrapper.GetInternalGrammarBuilder()).DebugShowPhrases);
         }
 
         public SystemGrammarWrapper(Grammar grammar)

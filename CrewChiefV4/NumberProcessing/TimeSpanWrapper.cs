@@ -2,8 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+[assembly: InternalsVisibleTo("XunitTest")]
 
 namespace CrewChiefV4.NumberProcessing
 {
@@ -30,15 +32,20 @@ namespace CrewChiefV4.NumberProcessing
 
         public Precision getPrecision()
         {
-            if (precision == Precision.AUTO_GAPS) 
+            return getPrecisionInner(GlobalBehaviourSettings.useHundredths, GlobalBehaviourSettings.useOvalLogic);
+        }
+        // Makes the central logic available to unit test
+        internal Precision getPrecisionInner(bool useHundredths, bool useOvalLogic)
+        {
+            if (precision == Precision.AUTO_GAPS)
             {
                 if (timeSpan > gapsSecondsThreshold)
                 {
                     return Precision.SECONDS;
                 }
-                else if (GlobalBehaviourSettings.useHundredths && 
+                else if (useHundredths &&
                     (timeSpan < gapsInHundredthsThreshold ||
-                    (GlobalBehaviourSettings.useOvalLogic && timeSpan < ovalGapsInHundredthsThreshold)))
+                    (useOvalLogic && timeSpan < ovalGapsInHundredthsThreshold)))
                 {
                     Console.WriteLine("Using hundredths for gap of " + timeSpan.ToString(@"mm\:ss\:fff"));
                     return Precision.HUNDREDTHS;
@@ -99,9 +106,9 @@ namespace CrewChiefV4.NumberProcessing
 
     public enum Precision {
         AUTO_GAPS /* used for gaps - will report hundredths for gaps in oval races, if the 'prefer hundredths' is set, or if gap < 0.2, otherwise tenths. */,
-        AUTO_LAPTIMES /* used for laptimes - will report hundredthds for gaps in oval races, if the 'prefer hundredths' is set, otherwise tenths. */, 
-        HUNDREDTHS, 
-        TENTHS, 
+        AUTO_LAPTIMES /* used for laptimes - will report hundredthds for gaps in oval races, if the 'prefer hundredths' is set, otherwise tenths. */,
+        HUNDREDTHS,
+        TENTHS,
         SECONDS,
         MINUTES
     }

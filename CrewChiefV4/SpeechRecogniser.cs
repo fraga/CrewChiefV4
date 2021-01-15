@@ -852,46 +852,48 @@ namespace CrewChiefV4
         private List<GrammarWrapper> addCompoundChoices(String[] phrases, Boolean alwaysUseAllPhrases, ChoicesWrapper choices, String[] append, Boolean alwaysUseAllAppends)
         {
             List<GrammarWrapper> generatedGrammars = new List<GrammarWrapper>();
+            GrammarBuilderWrapper gb = SREWrapperFactory.createNewGrammarBuilderWrapper();
+            gb.SetCulture(cultureInfo);
+            ChoicesWrapper initialChoices = SREWrapperFactory.createNewChoicesWrapper();
             foreach (string s in phrases)
             {
                 if (s == null || s.Trim().Count() == 0)
                 {
                     continue;
                 }
-                GrammarBuilderWrapper gb = SREWrapperFactory.createNewGrammarBuilderWrapper();
-                gb.SetCulture(cultureInfo);
-                gb.Append(s);
-                gb.Append(choices);
-                Boolean addAppendChoices = false;
-                if (append != null && append.Length > 0)
-                {
-                    ChoicesWrapper appendChoices = SREWrapperFactory.createNewChoicesWrapper();
-                    foreach (string sa in append)
-                    {
-                        if (sa == null || sa.Trim().Count() == 0)
-                        {
-                            continue;
-                        }
-                        addAppendChoices = true;
-                        appendChoices.Add(sa.Trim().Trim());
-                        if (disable_alternative_voice_commands && !alwaysUseAllAppends)
-                        {
-                            break;
-                        }
-                    }
-                    if (addAppendChoices)
-                    {
-                        gb.Append(appendChoices);
-                    }
-                }
-                GrammarWrapper grammar = SREWrapperFactory.createNewGrammarWrapper(gb);
-                sreWrapper.LoadGrammar(grammar);
-                generatedGrammars.Add(grammar);
+                initialChoices.Add(s);
                 if (disable_alternative_voice_commands && !alwaysUseAllPhrases)
                 {
                     break;
                 }
             }
+            gb.Append(initialChoices);
+            gb.Append(choices);
+            Boolean addAppendChoices = false;
+            if (append != null && append.Length > 0)
+            {
+                ChoicesWrapper appendChoices = SREWrapperFactory.createNewChoicesWrapper();
+                foreach (string sa in append)
+                {
+                    if (sa == null || sa.Trim().Count() == 0)
+                    {
+                        continue;
+                    }
+                    addAppendChoices = true;
+                    appendChoices.Add(sa.Trim().Trim());
+                    if (disable_alternative_voice_commands && !alwaysUseAllAppends)
+                    {
+                        break;
+                    }
+                }
+                if (addAppendChoices)
+                {
+                    gb.Append(appendChoices);
+                }
+            }
+            GrammarWrapper grammar = SREWrapperFactory.createNewGrammarWrapper(gb);
+            sreWrapper.LoadGrammar(grammar);
+            generatedGrammars.Add(grammar);
             return generatedGrammars;
         }
 
