@@ -60,27 +60,6 @@ namespace CrewChiefV4
             return key;
         }
 
-        /// <summary>
-        /// Add phrase to phrasesList
-        /// If the phrase starts with "pitstop" add the phrase starting
-        /// with "box" as well. Throw away any starting with "box"
-        /// </summary>
-        /// <param name="phrasesList"></param>
-        /// <param name="phrase"></param>
-        private static void pitstopBox(List<String> phrasesList, String phrase)
-        { 
-            if (phrase.StartsWith("pitstop "))
-            {
-                phrasesList.Add(phrase);
-                int LEN_PITSTOP = "pitstop ".Length;
-                phrasesList.Add($"box {phrase.Substring(LEN_PITSTOP)}");
-            }
-            else if (!phrase.StartsWith("box "))
-            {
-                phrasesList.Add(phrase);
-            }
-        }
-
         public static String[] getSpeechRecognitionPhrases(String key, bool loadHomophones = false)
         {
             List<string> phrasesList = new List<string>();
@@ -95,13 +74,13 @@ namespace CrewChiefV4
                         String phrase = phrases[i].Trim();
                         if (phrase.Length > 0)
                         {
-                            pitstopBox(phrasesList, phrase);
+                            phrasesList.Add(phrase);
                         }
                     }
                 }
                 else if (options.Length > 0)
                 {
-                    pitstopBox(phrasesList, options);
+                    phrasesList.Add(options);
                 }
                 if (loadHomophones)
                 {
