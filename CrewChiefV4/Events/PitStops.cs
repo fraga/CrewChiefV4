@@ -420,7 +420,7 @@ namespace CrewChiefV4.Events
                         // unless - note that <250 metres will result in a truncated countdown starting at 3 or 4
                         if (distanceToBox > 250 && !playedLimiterLineToPitBoxDistanceWarning)
                         {
-                            int distanceToBoxInt = (int)(distanceToBox * (pitBoxPositionCountdownInFeet ? metresToFeet : 1));
+                            int distanceToBoxInt = (int)(distanceToBox * (pitBoxPositionCountdownInFeet ? metresToFeet : 1f));
                             int distanceToBoxRounded;
                             if (distanceToBoxInt % 10 == 0)
                                 distanceToBoxRounded = distanceToBoxInt;
@@ -500,11 +500,11 @@ namespace CrewChiefV4.Events
                     }
                     else
                     {
-                        float adjustment = pitBoxPositionCountdownInFeet ? 30 : 10; // as we're moving at like 20m/s, move the warnings back half a second
-                        float distanceUpperFor100MetreOr300FeetWarning = pitBoxPositionCountdownInFeet ? 300 / metresToFeet : 100;
+                        float adjustment = pitBoxPositionCountdownInFeet ? 30f : 10f; // as we're moving at like 20m/s, move the warnings back half a second
+                        float distanceUpperFor100MetreOr300FeetWarning = pitBoxPositionCountdownInFeet ? 300f / metresToFeet : 100f;
                         float distanceLowerFor100MetreOr300FeetWarning = distanceUpperFor100MetreOr300FeetWarning - adjustment;
 
-                        float distanceUpperFor50MetreOr100FeetWarning = pitBoxPositionCountdownInFeet ? 100 / metresToFeet : 50;
+                        float distanceUpperFor50MetreOr100FeetWarning = pitBoxPositionCountdownInFeet ? 100f / metresToFeet : 50f;
                         float distanceLowerFor50MetreOr100FeetWarning = distanceUpperFor50MetreOr100FeetWarning - adjustment;
 
                         if (!played100MetreOr300FeetWarning && distanceToBox < distanceUpperFor100MetreOr300FeetWarning && previousDistanceToBox > distanceLowerFor100MetreOr300FeetWarning)
