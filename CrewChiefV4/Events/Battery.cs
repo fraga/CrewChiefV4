@@ -493,6 +493,7 @@ namespace CrewChiefV4.Events
                             {
                                 this.playedPitForBatteryNow = true;
                                 this.audioPlayer.playMessage(new QueuedMessage(PitStops.folderMandatoryPitStopsPitThisLap, 0, secondsDelay: 10, abstractEvent: this, priority: 10));
+                                currentGameState.calledInToPit = true;
                             }
                         }
                     }
@@ -557,6 +558,7 @@ namespace CrewChiefV4.Events
                             {
                                 this.audioPlayer.playMessage(new QueuedMessage("pit_for_vehicle_swap_now",0, 
                                     messageFragments: MessageContents(Battery.folderAboutToRunOut, PitStops.folderMandatoryPitStopsPitThisLap), abstractEvent: this, priority: 10));
+                                currentGameState.calledInToPit = true;
                             }
                             else
                             {

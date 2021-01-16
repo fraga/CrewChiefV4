@@ -797,6 +797,20 @@ namespace CrewChiefV4.rFactor2
                 cgs.PitData.PitWindowEnd = pitWindowEndLapOrTime;
             }
 
+            if (pgs != null && pgs.calledInToPit &&
+                UserSettings.GetUserSettings().getBoolean("auto_pit_request"))
+            {
+                if (!pgs.PitData.HasRequestedPitStop)
+                {
+                    PitMenuAPI.PitMenu.PitRequest();
+                    cgs.calledInToPit = false;
+                }
+                else
+                {
+                    Log.Commentary("Pitstop already requested");
+                }    
+            }
+
             // mInGarageStall also means retired or before race start, but for now use it here.
             cgs.PitData.InPitlane = playerScoring.mInPits == 1 || playerScoring.mInGarageStall == 1;
 

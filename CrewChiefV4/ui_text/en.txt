@@ -2118,3 +2118,8 @@ sre_enable_threshold_tuning = Auto-tune speech recognition thresholds
 sre_enable_threshold_tuning_help = Adjust SRE confidence thresholds automatically
 sre_enable_threshold_tuning_category = AUDIO_VOICE_AND_CONTROLLERS
 sre_enable_threshold_tuning_metadata = RESTART_REQUIRED
+
+auto_pit_request = Automatic pit request
+auto_pit_request_help = Automatic pit request when fuel is low
+auto_pit_request_category = PIT_STOPS_AND_MULTICLASS
+auto_pit_request_filter = RF2
