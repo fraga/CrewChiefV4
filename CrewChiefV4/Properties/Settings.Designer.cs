@@ -5242,5 +5242,17 @@ namespace CrewChiefV4.Properties {
                 this["log_type_fuel"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool sre_enable_threshold_tuning {
+            get {
+                return ((bool)(this["sre_enable_threshold_tuning"]));
+            }
+            set {
+                this["sre_enable_threshold_tuning"] = value;
+            }
+        }
     }
 }
