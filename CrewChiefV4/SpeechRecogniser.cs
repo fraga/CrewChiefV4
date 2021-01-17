@@ -3405,7 +3405,8 @@ namespace CrewChiefV4
                     // TODO: should we care here if an accepted command for something entirely different has been received since this?
                     if (this.rejectedCommands.Last.Value.confidence < this.currentThreshold)
                     {
-                        updateCurrentThreshold(this.rejectedCommands.Last.Value.confidence);
+                        float newConfidence = this.rejectedCommands.Last.Value.confidence - (this.rejectedCommands.Last.Value.confidence * 0.05f);
+                        updateCurrentThreshold(newConfidence);
                     }
                     addAcceptedCommand(confidence, recognisedText);
                     return true;
