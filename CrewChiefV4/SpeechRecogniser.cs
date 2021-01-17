@@ -3427,7 +3427,7 @@ namespace CrewChiefV4
             {
                 // TODO: probably need different behaviour here when running in "always on" mode to prevent cases where the app mis-recognises noise
                 // and auto adjusts the thresholds down repeatedly                
-                if (SpeechRecogniser.tuneConfidenceThresholds)
+                if (SpeechRecogniser.tuneConfidenceThresholds && newThreshold > 0 && newThreshold < 1)
                 {
                     Console.WriteLine("Updating session's SRE threshold from " + this.currentThreshold + " to "
                         + newThreshold + " for type " + type + " (property name " + this.thresholdPropertyName + ")");
@@ -3476,8 +3476,7 @@ namespace CrewChiefV4
                         this.currentThreshold = maxConfidence - (maxConfidence * 0.1f);
                     }
                 }
-
-                if (acceptedPlusRejected > 5)
+                else if (acceptedPlusRejected > 5)
                 {
                     Console.WriteLine("Reviewing SRE confidence threshold for " + type + ", there have been " + acceptedCountSinceLastReview +
                         " accepted command and " + rejectedCountSinceLastReview + " rejected commands since the last review");
