@@ -3369,6 +3369,7 @@ namespace CrewChiefV4
         class SREThresholdInfo
         {
             private static float secondsBetweenLoggedSREAttempts = 4f; // any SRE callbacks more frequent than this many seconds are ignored for auto-tuning
+            private static float maxSecondsBetweenRepeatedCommands = 10f;
 
             private float currentThreshold;
             private float initialThreshold;
@@ -3523,7 +3524,7 @@ namespace CrewChiefV4
             {
                 return this.rejectedCommands.Last != null
                         && this.rejectedCommands.Last.Value.command == recognisedText
-                        && this.rejectedCommands.Last.Value.dateTime.AddSeconds(10) > DateTime.Now;
+                        && (DateTime.Now - this.rejectedCommands.Last.Value.dateTime).TotalSeconds < SREThresholdInfo.maxSecondsBetweenRepeatedCommands;
             }
             private float getAverageConfidence(bool isRejectedMessages, int totalToCheck)
             {
