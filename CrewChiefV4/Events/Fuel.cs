@@ -766,7 +766,9 @@ namespace CrewChiefV4.Events
                                 }
                                 if (!currentGameState.PitData.InPitlane)
                                 {
-                                    if (currentGameState.SessionData.SessionTimeRemaining > cutoffForRefuelCall)
+                                    // call the player in to the pit for practice and race sessions, leave him out for qual (he may be doing a low fuel lap)
+                                    if ((currentGameState.SessionData.SessionType == SessionType.Race || currentGameState.SessionData.SessionType == SessionType.Practice)
+                                        && currentGameState.SessionData.SessionTimeRemaining > cutoffForRefuelCall)
                                     {
                                         audioPlayer.playMessage(new QueuedMessage("pit_for_fuel_now", 0,
                                             messageFragments: MessageContents(folderAboutToRunOut, PitStops.folderMandatoryPitStopsPitThisLap), abstractEvent: this, priority: 10));
@@ -776,7 +778,6 @@ namespace CrewChiefV4.Events
                                     {
                                         // going to run out, but don't call the player into the pits - it's up to him
                                         audioPlayer.playMessage(new QueuedMessage("about_to_run_out_of_fuel", 0, messageFragments: MessageContents(folderAboutToRunOut), abstractEvent: this, priority: 10));
-                                        currentGameState.calledInToPit = true;
                                     }
                                 }
                             }
