@@ -3375,6 +3375,7 @@ namespace CrewChiefV4
             private float initialThreshold;
             private ThresholdType type;
             public string thresholdPropertyName;
+            private  bool initialCheckCompleted = false;
 
             private LinkedList<HistoricSRECommandInfo> rejectedCommands = new LinkedList<HistoricSRECommandInfo>();
             private LinkedList<HistoricSRECommandInfo> acceptedCommands = new LinkedList<HistoricSRECommandInfo>();
@@ -3462,11 +3463,25 @@ namespace CrewChiefV4
                 // periodically inspect the accepted and rejected lists to see how the threshold looks.
                 // The goal is to find cases where there are too many items in the rejected list that are fairly close to their threshold, and adjust the
                 // threshold such that more of these items would have been accepted
-                if (acceptedCountSinceLastReview + rejectedCountSinceLastReview > 5)
+
+                int acceptedPlusRejected = acceptedCountSinceLastReview + rejectedCountSinceLastReview;
+                // do an initial rough-n-ready threshold check after the first 2 non-trigger word commands
+                if (this.type != ThresholdType.TRIGGER && !this.initialCheckCompleted && acceptedPlusRejected == 2)
+                {
+                    this.initialCheckCompleted = true;
+                    float maxConfidence = Math.Max(getMaxConfidence(true, 2), getMaxConfidence(false, 2));
+                    Console.WriteLine("Best confidence score from first 2 SRE commands = " + maxConfidence + ", threshold = " + this.currentThreshold);
+                    if (maxConfidence < this.currentThreshold)
+                    {
+                        this.currentThreshold = maxConfidence - (maxConfidence * 0.1f);
+                    }
+                }
+
+                if (acceptedPlusRejected > 5)
                 {
                     Console.WriteLine("Reviewing SRE confidence threshold for " + type + ", there have been " + acceptedCountSinceLastReview +
                         " accepted command and " + rejectedCountSinceLastReview + " rejected commands since the last review");
-                    float acceptedRatio = (float) acceptedCountSinceLastReview / (float)(acceptedCountSinceLastReview + rejectedCountSinceLastReview);
+                    float acceptedRatio = (float) acceptedCountSinceLastReview / (float)(acceptedPlusRejected);
                     if (acceptedRatio == 1)
                     {
                         // hooray, no rejected commands. The threshold may be *way* too low so the accepted commands are full of crap, but we
