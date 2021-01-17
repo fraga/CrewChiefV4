@@ -671,8 +671,8 @@ namespace CrewChiefV4.Events
                                 else
                                 {
                                     audioPlayer.playMessage(new QueuedMessage(folderMandatoryPitStopsPitThisLap, delay + 6, secondsDelay: delay, abstractEvent: this, priority: 10));
-                                    currentGameState.calledInToPit = true;
-                                    }
+                                }
+                                currentGameState.calledInToPit = true;
                             }
                             else if (minDistanceOnCurrentTyre > 0 && currentGameState.SessionData.CompletedLaps == minDistanceOnCurrentTyre)
                             {
@@ -728,8 +728,8 @@ namespace CrewChiefV4.Events
                                 else
                                 {
                                     audioPlayer.playMessage(new QueuedMessage(folderMandatoryPitStopsPitThisLap, delay + 6, secondsDelay: delay, abstractEvent: this, priority: 10));
-                                    currentGameState.calledInToPit = true;
                                 }
+                                currentGameState.calledInToPit = true;
                             }
                         }
                         else if (pitWindowClosedLap > 0 && currentGameState.SessionData.CompletedLaps == pitWindowClosedLap)
@@ -786,8 +786,8 @@ namespace CrewChiefV4.Events
                                 else
                                 {
                                     audioPlayer.playMessage(new QueuedMessage(folderMandatoryPitStopsPitThisLap, delay + 6, secondsDelay: delay, abstractEvent: this, priority: 10));
-                                    currentGameState.calledInToPit = true;
                                 }
+                                currentGameState.calledInToPit = true;
                             }
                         }
                     }

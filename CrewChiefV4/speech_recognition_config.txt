@@ -300,7 +300,6 @@ HOUR = hour
 HOURS = hours
 
 # used for iracing and rF2 pitstop commands
-PIT_STOP = pitstop:box
 PIT_STOP_ADD = pitstop add:box, add
 PIT_STOP_TEAROFF = pitstop tearoff:box, tearoff:pitstop windscreen:box, windscreen
 PIT_STOP_FAST_REPAIR = pitstop fast repair:box, fast repair:pitstop repair:box, repair
