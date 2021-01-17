@@ -3401,13 +3401,25 @@ namespace CrewChiefV4
                 reviewThreshold();
                 if (type != ThresholdType.TRIGGER && isRepeatOfLastRejectedCommand(recognisedText))
                 {
-                    // accept this command and, because it's a repeat of a previously rejected command, adjust the threshold
-                    // such that the previously rejected version would have been accepted.
-                    // TODO: should we care here if an accepted command for something entirely different has been received since this?
-                    if (this.rejectedCommands.Last.Value.confidence < this.currentThreshold)
+                    // accept this command and, because it's a repeat of a previously rejected command, adjust the threshold.
+                    float newThreshold;
+                    if (confidence < currentThreshold)
                     {
-                        float newConfidence = this.rejectedCommands.Last.Value.confidence - (this.rejectedCommands.Last.Value.confidence * 0.05f);
-                        updateCurrentThreshold(newConfidence);
+                        // Both commands are below the threshold, adjust it such that the better of the two would have been recognised
+                        newThreshold = Math.Max(confidence, this.rejectedCommands.Last.Value.confidence);
+                    }
+                    else
+                    {
+                        // this command has been recognised but the previous attempt failed. The previous attempt may have been a clear command
+                        // and a near-miss, or it may have been mumbled incomprehensible horseshit, we have no way of knowing. So move the threshold
+                        // such that the average of the two would have been recognised
+                        newThreshold = (confidence + this.rejectedCommands.Last.Value.confidence) / 2;
+                    }
+                    newThreshold = newThreshold - (newThreshold * 0.05f);
+                    if (newThreshold < this.currentThreshold)
+                    {
+                        Console.WriteLine("Command appears to have been re-tried, lowering threshold");
+                        updateCurrentThreshold(newThreshold);
                     }
                     addAcceptedCommand(confidence, recognisedText);
                     return true;
@@ -3479,7 +3491,7 @@ namespace CrewChiefV4
                 else if (acceptedPlusRejected > 5)
                 {
                     Console.WriteLine("Reviewing SRE confidence threshold for " + type + ", there have been " + acceptedCountSinceLastReview +
-                        " accepted command and " + rejectedCountSinceLastReview + " rejected commands since the last review");
+                        " accepted command and " + rejectedCountSinceLastReview + " rejected commands since the last review, threshold is currently " + this.currentThreshold);
                     float acceptedRatio = (float) acceptedCountSinceLastReview / (float)(acceptedPlusRejected);
                     if (acceptedRatio == 1)
                     {
