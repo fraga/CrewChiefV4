@@ -3368,10 +3368,14 @@ namespace CrewChiefV4
 
         class SREThresholdInfo
         {
+            private static float secondsBetweenLoggedSREAttempts = 4f; // any SRE callbacks more frequent than this many seconds are ignored for auto-tuning
+            private static float maxSecondsBetweenRepeatedCommands = 10f;
+
             private float currentThreshold;
             private float initialThreshold;
             private ThresholdType type;
             public string thresholdPropertyName;
+            private  bool initialCheckCompleted = false;
 
             private LinkedList<HistoricSRECommandInfo> rejectedCommands = new LinkedList<HistoricSRECommandInfo>();
             private LinkedList<HistoricSRECommandInfo> acceptedCommands = new LinkedList<HistoricSRECommandInfo>();
@@ -3395,20 +3399,27 @@ namespace CrewChiefV4
             public bool checkConfidence(float confidence, string recognisedText)
             {
                 reviewThreshold();
-                if (type == ThresholdType.TRIGGER)
+                if (type != ThresholdType.TRIGGER && isRepeatOfLastRejectedCommand(recognisedText))
                 {
-                    // separate rules for trigger word - need to be *very* careful here that we don't auto-adjust it down so
-                    // it recognises breathing, farts, gear changes, etc
-                    return confidence > currentThreshold;
-                }
-                if (isRepeatOfLastRejectedCommand(recognisedText))
-                {
-                    // accept this command and, because it's a repeat of a previously rejected command, adjust the threshold
-                    // such that the previously rejected version would have been accepted.
-                    // TODO: should we care here if an accepted command for something entirely different has been received since this?
-                    if (this.rejectedCommands.Last.Value.confidence < this.currentThreshold)
+                    // accept this command and, because it's a repeat of a previously rejected command, adjust the threshold.
+                    float newThreshold;
+                    if (confidence < currentThreshold)
                     {
-                        updateCurrentThreshold(this.rejectedCommands.Last.Value.confidence);
+                        // Both commands are below the threshold, adjust it such that the better of the two would have been recognised
+                        newThreshold = Math.Max(confidence, this.rejectedCommands.Last.Value.confidence);
+                    }
+                    else
+                    {
+                        // this command has been recognised but the previous attempt failed. The previous attempt may have been a clear command
+                        // and a near-miss, or it may have been mumbled incomprehensible horseshit, we have no way of knowing. So move the threshold
+                        // such that the average of the two would have been recognised
+                        newThreshold = (confidence + this.rejectedCommands.Last.Value.confidence) / 2;
+                    }
+                    newThreshold = newThreshold - (newThreshold * 0.05f);
+                    if (newThreshold < this.currentThreshold)
+                    {
+                        Console.WriteLine("Command appears to have been re-tried, lowering threshold");
+                        updateCurrentThreshold(newThreshold);
                     }
                     addAcceptedCommand(confidence, recognisedText);
                     return true;
@@ -3428,7 +3439,7 @@ namespace CrewChiefV4
             {
                 // TODO: probably need different behaviour here when running in "always on" mode to prevent cases where the app mis-recognises noise
                 // and auto adjusts the thresholds down repeatedly                
-                if (SpeechRecogniser.tuneConfidenceThresholds)
+                if (SpeechRecogniser.tuneConfidenceThresholds && newThreshold > 0 && newThreshold < 1)
                 {
                     Console.WriteLine("Updating session's SRE threshold from " + this.currentThreshold + " to "
                         + newThreshold + " for type " + type + " (property name " + this.thresholdPropertyName + ")");
@@ -3444,7 +3455,7 @@ namespace CrewChiefV4
             {
                 DateTime lastRejectedCommandDateTime = this.rejectedCommands.Last == null ? DateTime.MinValue : this.rejectedCommands.Last.Value.dateTime;
                 // don't add this into the rejected list if it comes immediately after the last rejected command
-                if (lastRejectedCommandDateTime.AddSeconds(4) < DateTime.Now)
+                if ((DateTime.Now - lastRejectedCommandDateTime).TotalSeconds >= SREThresholdInfo.secondsBetweenLoggedSREAttempts)
                 {
                     rejectedCountSinceLastReview++;
                     this.rejectedCommands.AddLast(new HistoricSRECommandInfo(confidence, currentThreshold, command, DateTime.Now));
@@ -3453,7 +3464,7 @@ namespace CrewChiefV4
             private void addAcceptedCommand(float confidence, string command)
             {
                 DateTime lastAcceptedCommandDateTime = this.acceptedCommands.Last == null ? DateTime.MinValue : this.acceptedCommands.Last.Value.dateTime;
-                if (lastAcceptedCommandDateTime.AddSeconds(4) < DateTime.Now)
+                if ((DateTime.Now - lastAcceptedCommandDateTime).TotalSeconds >= SREThresholdInfo.secondsBetweenLoggedSREAttempts)
                 {
                     acceptedCountSinceLastReview++;
                     this.acceptedCommands.AddLast(new HistoricSRECommandInfo(confidence, currentThreshold, command, DateTime.Now));
@@ -3464,18 +3475,31 @@ namespace CrewChiefV4
                 // periodically inspect the accepted and rejected lists to see how the threshold looks.
                 // The goal is to find cases where there are too many items in the rejected list that are fairly close to their threshold, and adjust the
                 // threshold such that more of these items would have been accepted
-                if (acceptedCountSinceLastReview + rejectedCountSinceLastReview > 5)
+
+                int acceptedPlusRejected = acceptedCountSinceLastReview + rejectedCountSinceLastReview;
+                // do an initial rough-n-ready threshold check after the first 2 non-trigger word commands
+                if (this.type != ThresholdType.TRIGGER && !this.initialCheckCompleted && acceptedPlusRejected == 2)
+                {
+                    this.initialCheckCompleted = true;
+                    float maxConfidence = Math.Max(getMaxConfidence(true, 2), getMaxConfidence(false, 2));
+                    Console.WriteLine("Best confidence score from first 2 SRE commands = " + maxConfidence + ", threshold = " + this.currentThreshold);
+                    if (maxConfidence < this.currentThreshold)
+                    {
+                        this.currentThreshold = maxConfidence - (maxConfidence * 0.1f);
+                    }
+                }
+                else if (acceptedPlusRejected > 5)
                 {
                     Console.WriteLine("Reviewing SRE confidence threshold for " + type + ", there have been " + acceptedCountSinceLastReview +
-                        " accepted command and " + rejectedCountSinceLastReview + " rejected commands since the last review");
-                    float acceptedRatio = (float) acceptedCountSinceLastReview / (float)(acceptedCountSinceLastReview + rejectedCountSinceLastReview);
+                        " accepted command and " + rejectedCountSinceLastReview + " rejected commands since the last review, threshold is currently " + this.currentThreshold);
+                    float acceptedRatio = (float) acceptedCountSinceLastReview / (float)(acceptedPlusRejected);
                     if (acceptedRatio == 1)
                     {
                         // hooray, no rejected commands. The threshold may be *way* too low so the accepted commands are full of crap, but we
                         // have no way of knowing this. Assume that we could be more strict here
                         float minAcceptedConfidence = getMinConfidence(false, acceptedCountSinceLastReview);
                         // set the threshold to be just under whatever the worst confidence we had was
-                        float newConfidence = minAcceptedConfidence - (minAcceptedConfidence * 0.05f);
+                        float newConfidence = minAcceptedConfidence - (minAcceptedConfidence * 0.1f);
                         updateCurrentThreshold(newConfidence);
                     }
                     else if (acceptedRatio == 0)
@@ -3500,18 +3524,20 @@ namespace CrewChiefV4
                             // be extra careful with trigger. There's only 1 word in the grammar so we can easily lower the threshold so
                             // it triggers on any noise
                             float suggestedNewThreshold = maxRejectedConfidence + ((maxAcceptedConfidence - maxRejectedConfidence) / 2);
-                            if (suggestedNewThreshold < this.currentThreshold)
+                            if (suggestedNewThreshold < this.currentThreshold || acceptedRatio > 0.7)
                             {
+                                // only update the threshold if we're lowering it, or if most of our commands have been accepted
                                 updateCurrentThreshold(suggestedNewThreshold);
                             }
                         }
                         else
                         {
                             // I've absolutely no idea if this "forumla" is nonsense but it'll do for now. Move the threshold so it's half way between
-                            // the average rejected and average accepted confidence, if this means we're reducing the confidence
+                            // the average rejected and average accepted confidence
                             float suggestedNewThreshold = averageRejectedConfidence + ((averageAcceptedConfidence - averageRejectedConfidence) / 2);
-                            if (suggestedNewThreshold < this.currentThreshold)
+                            if (suggestedNewThreshold < this.currentThreshold || acceptedRatio > 0.7)
                             {
+                                // only update the threshold if we're lowering it, or if most of our commands have been accepted
                                 updateCurrentThreshold(suggestedNewThreshold);
                             }
                         }
@@ -3525,7 +3551,7 @@ namespace CrewChiefV4
             {
                 return this.rejectedCommands.Last != null
                         && this.rejectedCommands.Last.Value.command == recognisedText
-                        && this.rejectedCommands.Last.Value.dateTime.AddSeconds(10) > DateTime.Now;
+                        && (DateTime.Now - this.rejectedCommands.Last.Value.dateTime).TotalSeconds < SREThresholdInfo.maxSecondsBetweenRepeatedCommands;
             }
             private float getAverageConfidence(bool isRejectedMessages, int totalToCheck)
             {
