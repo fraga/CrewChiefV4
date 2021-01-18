@@ -5254,17 +5254,5 @@ namespace CrewChiefV4.Properties {
                 this["sre_enable_threshold_tuning"] = value;
             }
         }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool auto_pit_request {
-            get {
-                return ((bool)(this["auto_pit_request"]));
-            }
-            set {
-                this["auto_pit_request"] = value;
-            }
-        }
     }
 }

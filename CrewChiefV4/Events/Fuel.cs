@@ -682,7 +682,6 @@ namespace CrewChiefV4.Events
                                 {
                                     playedPitForFuelNow = true;
                                     audioPlayer.playMessage(new QueuedMessage(PitStops.folderMandatoryPitStopsPitThisLap, 0, secondsDelay: 10, abstractEvent: this, priority: 7));
-                                    currentGameState.calledInToPit = true;
                                 }
                             }
                         }
@@ -772,7 +771,6 @@ namespace CrewChiefV4.Events
                                     {
                                         audioPlayer.playMessage(new QueuedMessage("pit_for_fuel_now", 0,
                                             messageFragments: MessageContents(folderAboutToRunOut, PitStops.folderMandatoryPitStopsPitThisLap), abstractEvent: this, priority: 10));
-                                        currentGameState.calledInToPit = true;
                                     }
                                     else
                                     {

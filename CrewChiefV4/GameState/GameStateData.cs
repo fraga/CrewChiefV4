@@ -3743,8 +3743,6 @@ namespace CrewChiefV4.GameState
 
         // Set when actually in the car
         public Boolean inCar;
-        // Set when the driver is called in
-        public Boolean calledInToPit;
 
         public string carName;
         public string trackName;
