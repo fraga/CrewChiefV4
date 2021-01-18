@@ -293,7 +293,9 @@ namespace CrewChiefV4.Events
             // AMS (RF1) uses the pit window calculations to make 'box now' calls for scheduled stops, but we don't want
             // the pit window opening / closing warnings.
             // Try also applying the same approach to rF2.
-            if (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT || CrewChief.gameDefinition.gameEnum == GameEnum.GTR2)
+            if (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 ||
+                CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT ||
+                CrewChief.gameDefinition.gameEnum == GameEnum.GTR2)
             {
                 enableWindowWarnings = false;
             }
@@ -398,7 +400,9 @@ namespace CrewChiefV4.Events
                 currentGameState.PositionAndMotionData.CarSpeed > 2 &&
                 (currentGameState.PitData.PitBoxPositionEstimate > 0 || currentGameState.PitData.PitBoxLocationEstimate != null ) &&
                 !currentGameState.PenaltiesData.HasDriveThrough &&
-                !((CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT || CrewChief.gameDefinition.gameEnum == GameEnum.GTR2) && currentGameState.PitData.OnOutLap && currentGameState.SessionData.SessionType != SessionType.Race))  // In rF2 countdown pit countdown messages get triggered on exit from the garage.
+                !((CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT ||
+                   CrewChief.gameDefinition.gameEnum == GameEnum.GTR2) &&
+                   currentGameState.PitData.OnOutLap && currentGameState.SessionData.SessionType != SessionType.Race))  // In rF2 countdown pit countdown messages get triggered on exit from the garage.
             {
                 if (previousGameState.PitData.InPitlane && !currentGameState.PitData.InPitlane)
                 {
@@ -543,9 +547,9 @@ namespace CrewChiefV4.Events
             {
                 if ((currentGameState.SessionData.SectorNumber == 1 &&
                     currentGameState.Now > timeOfDisengageCheck && !currentGameState.PitData.InPitlane && currentGameState.PitData.limiterStatus == PitData.LimiterStatus.ACTIVE &&
-                    !(CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT && currentGameState.SessionData.SessionPhase == SessionPhase.Finished) // In rF2, Sector number is not updated on cooldown lap, hence ignore disengage limiter logic.
+                    !( CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT && currentGameState.SessionData.SessionPhase == SessionPhase.Finished) // In rF2, Sector number is not updated on cooldown lap, hence ignore disengage limiter logic.
                     && CrewChief.gameDefinition.gameEnum != GameEnum.IRACING) ||
-                    (CrewChief.gameDefinition.gameEnum == GameEnum.IRACING &&
+                    (  CrewChief.gameDefinition.gameEnum == GameEnum.IRACING &&
                     currentGameState.Now > timeOfDisengageCheck && currentGameState.PitData.OnOutLap && !currentGameState.PitData.InPitlane &&
                     currentGameState.PitData.limiterStatus == PitData.LimiterStatus.ACTIVE && !currentGameState.PitData.IsApproachingPitlane))
                 {
@@ -927,7 +931,9 @@ namespace CrewChiefV4.Events
                         timeStartedAppoachingPitsCheck = currentGameState.Now + TimeSpan.FromSeconds(2);
                     }
                     // different logic for PCars2 pit-crew-ready checks
-                    if (CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2 || CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2_NETWORK || CrewChief.gameDefinition.gameEnum == GameEnum.AMS2)
+                    if (CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2 ||
+                        CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2_NETWORK ||
+                        CrewChief.gameDefinition.gameEnum == GameEnum.AMS2)
                     {
                         int delay = Utilities.random.Next(1, 3);
                         if (!previousGameState.PitData.PitStallOccupied && currentGameState.PitData.PitStallOccupied)
@@ -1111,10 +1117,10 @@ namespace CrewChiefV4.Events
                 }
             }
 
-            if (CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT
-                || CrewChief.gameDefinition.gameEnum == GameEnum.GTR2
-                || CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM
-                || CrewChief.gameDefinition.gameEnum == GameEnum.IRACING)
+            if (CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT ||
+                CrewChief.gameDefinition.gameEnum == GameEnum.GTR2 ||
+                CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM ||
+                CrewChief.gameDefinition.gameEnum == GameEnum.IRACING)
             {
                 if (!pitLaneSpeedWarningAnnounced
                     && (currentGameState.SessionData.SessionType == SessionType.LonePractice || currentGameState.SessionData.SessionType == SessionType.Practice || currentGameState.SessionData.SessionType == SessionType.Qualify)
