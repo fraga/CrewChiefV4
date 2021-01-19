@@ -131,16 +131,38 @@ namespace CrewChiefV4.Events
             if (loadNamesFromProperty
                 && (currentGameState.SessionData.IsNewSession || (currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.SessionData.JustGoneGreen)))
             {
-                foreach (KeyValuePair<string, OpponentData> entry in currentGameState.OpponentData)
+                foreach (string name in namesSetFromProperty)
                 {
-                    String usableDriverName = DriverNameHelper.getUsableDriverName(entry.Value.DriverRawName);
-                    foreach (string name in namesSetFromProperty)
+                    string fullMatch = null;
+                    string surnameMatch = null;
+                    foreach (KeyValuePair<string, OpponentData> entry in currentGameState.OpponentData)
                     {
-                        if (usableDriverName.Equals(name, StringComparison.InvariantCultureIgnoreCase))
+                        // check for full name match against all the names first
+                        if (entry.Value.DriverRawName.Equals(name, StringComparison.InvariantCultureIgnoreCase))
                         {
-                            watchedOpponentKeys.Add(entry.Key);
+                            fullMatch = entry.Key;
+                            // no need to check any more opponents with a full match
                             break;
                         }
+                        // fall back to matching on surnames only
+                        else if (DriverNameHelper.getUsableDriverName(entry.Value.DriverRawName).Equals(name, StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            surnameMatch = entry.Key;
+                        }
+                    }
+                    if (fullMatch != null)
+                    {
+                        Console.WriteLine("Watching driver " + fullMatch + " (name set in watched opponents property = " + name + ")");
+                        watchedOpponentKeys.Add(fullMatch);
+                    }
+                    else if (surnameMatch != null)
+                    {
+                        Console.WriteLine("Watching driver " + surnameMatch + " (name set in watched opponents property = " + name + ")");
+                        watchedOpponentKeys.Add(surnameMatch);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Watched driver " + name + " doesn't appear in this session");
                     }
                 }
             }

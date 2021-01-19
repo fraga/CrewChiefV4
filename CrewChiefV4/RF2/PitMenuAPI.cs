@@ -112,6 +112,7 @@ namespace PitMenuAPI
                 // If it is showing MFD"x" ToggleMFDA will show MFDA then ToggleMFDB
                 // will show the Pit Menu
                 string notDisplay = display == "MFDA" ? "ToggleMFDB" : "ToggleMFDA";
+                int countDown = 20; // Otherwise it can lock up here
                 do
                 {
                     sendHWControl.SendHWControl(notDisplay, true);
@@ -123,7 +124,7 @@ namespace PitMenuAPI
                     sendHWControl.SendHWControl("Toggle" + display, false);
                     System.Threading.Thread.Sleep(delay);
                 }
-                while (!(iSoftMatchCategory("TIRE", "FUEL")));
+                while (!(iSoftMatchCategory("TIRE", "FUEL")) && countDown-- > 0);
             }
             return Connected;
         }
@@ -145,6 +146,24 @@ namespace PitMenuAPI
         {
             delay = mS;
             initialDelay = _initialDelay;
+        }
+
+        /// <summary>
+        /// Send a Pit Request (which toggles)
+        /// </summary>
+        /// <returns>Successful</returns>
+        public static bool PitRequest()
+        {
+            if (!Connected)
+            {
+                Connected = Connect();
+            }
+            if (Connected)
+            {
+                sendHWControl.SendHWControl("PitRequest", true);
+                Log.Commentary("PitRequest sent");
+            }
+            return Connected;
         }
 
         //////////////////////////////////////////////////////////////////////////

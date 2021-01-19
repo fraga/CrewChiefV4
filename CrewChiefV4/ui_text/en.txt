@@ -2113,3 +2113,8 @@ reset_vr_view_control = Keycode to reset VR view
 reset_vr_view_control_help = Keycode sent to game to reset VR view, default is NUMPAD5
 reset_vr_view_control_category = MISC
 reset_vr_view_control_filter = RF1;GTR2
+
+sre_enable_threshold_tuning = Auto-tune speech recognition thresholds
+sre_enable_threshold_tuning_help = Adjust SRE confidence thresholds automatically
+sre_enable_threshold_tuning_category = AUDIO_VOICE_AND_CONTROLLERS
+sre_enable_threshold_tuning_metadata = RESTART_REQUIRED

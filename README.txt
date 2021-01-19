@@ -431,6 +431,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.15.1.2: Fixed some issues in gap reporting that could result in incorrect gaps or unwanted messages; Some internal speech recognition improvements; Automatically tune the speech recogniser's confidence thresholds - should improve recognition accuracy and consistency (this behaviour is enabled by default and can be disable by unchecking the 'Auto-tune speech recognition thresholds' property); GTR2 - some plugin and VR rendering improvements; RF2 - some pit menu fixes
+
 Version 4.15.1.1: Added a configurable delay after releasing the speech recognition button before finishing speech recognition - may help users who tend to release the button too early ('hold button' mode only, property name 'SRE delay after button release'); Allow keyboard and button assignments to trigger macro functions and extended the Macro Editor UI to support key / button assignments; Speeded up free-chat macro functions; Extended mid-stage rally stage notes correction feature to include many more call types; UI enhancements (console context menu and other stuff); AMS2 - use separate command macros for AMS2 rather than reusing pCars2 macros; GTR2 - VR rendering enhancements and support for more message types including rolling start; RF2 - pit menu fixes
 
 Version 4.15.0.6: Some error handling improvements - the app should show a popup window with error details instead of silently crashing and writing to the Windows Event Log; Command line parameter rework (note that the "RF2_64BIT" parameter has been changed to "RF2"); iRacing - some car class fixes; iRacing - fix some issues with off track penalties

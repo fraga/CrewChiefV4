@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using CrewChiefV4.Events;
 using System.Threading;
 using CrewChiefV4.Audio;
@@ -17,7 +15,7 @@ using NAudio.CoreAudioApi;
 using CrewChiefV4.Overlay;
 using System.IO;
 using WindowsInput;
-using WindowsInput.Native;
+
 namespace CrewChiefV4
 {
     public class SpeechRecogniser : IDisposable
@@ -38,6 +36,8 @@ namespace CrewChiefV4
         private Boolean identifyOpponentsByName = UserSettings.GetUserSettings().getBoolean("sre_enable_opponents_by_name");
         private Boolean identifyOpponentsByNumber = UserSettings.GetUserSettings().getBoolean("sre_enable_opponents_by_number");
 
+        public static Boolean tuneConfidenceThresholds = UserSettings.GetUserSettings().getBoolean("sre_enable_threshold_tuning");
+
         // used in nAudio mode:
         public static Dictionary<string, Tuple<string, int>> speechRecognitionDevices = new Dictionary<string, Tuple<string, int>>();
         public static int speechInputDeviceIndex = 0;
@@ -56,29 +56,23 @@ namespace CrewChiefV4
 
         private String localeCountryPropertySetting = UserSettings.GetUserSettings().getString("speech_recognition_country");
 
-        private float minimum_name_voice_recognition_confidence_windows = UserSettings.GetUserSettings().getFloat("minimum_name_voice_recognition_confidence_system_sre");
         private string minimum_name_voice_recognition_confidence_windows_prop_name = Configuration.getUIString("minimum_name_voice_recognition_confidence_system_sre");
-
-        private float minimum_name_voice_recognition_confidence_microsoft = UserSettings.GetUserSettings().getFloat("minimum_name_voice_recognition_confidence");
         private string minimum_name_voice_recognition_confidence_microsoft_prop_name = Configuration.getUIString("minimum_name_voice_recognition_confidence");
-
-        private float minimum_trigger_voice_recognition_confidence_windows = UserSettings.GetUserSettings().getFloat("trigger_word_sre_min_confidence_system_sre");
         private string minimum_trigger_voice_recognition_confidence_windows_prop_name = Configuration.getUIString("trigger_word_sre_min_confidence_system_sre");
-
-        private float minimum_trigger_voice_recognition_confidence_microsoft = UserSettings.GetUserSettings().getFloat("trigger_word_sre_min_confidence");
         private string minimum_trigger_voice_recognition_confidence_microsoft_prop_name = Configuration.getUIString("trigger_word_sre_min_confidence");
-
-        private float minimum_voice_recognition_confidence_windows = UserSettings.GetUserSettings().getFloat("minimum_voice_recognition_confidence_system_sre");
         private string minimum_voice_recognition_confidence_windows_prop_name = Configuration.getUIString("minimum_voice_recognition_confidence_system_sre");
-
-        private float minimum_voice_recognition_confidence_microsoft = UserSettings.GetUserSettings().getFloat("minimum_voice_recognition_confidence");
         private string minimum_voice_recognition_confidence_microsoft_prop_name = Configuration.getUIString("minimum_voice_recognition_confidence");
-
-        private float minimum_rally_voice_recognition_confidence_windows = UserSettings.GetUserSettings().getFloat("minimum_rally_voice_recognition_confidence_system_sre");
         private string minimum_rally_voice_recognition_confidence_windows_prop_name = Configuration.getUIString("minimum_rally_voice_recognition_confidence_system_sre");
-
-        private float minimum_rally_voice_recognition_confidence_microsoft = UserSettings.GetUserSettings().getFloat("minimum_rally_voice_recognition_confidence_microsoft_sre");
         private string minimum_rally_voice_recognition_confidence_microsoft_prop_name = Configuration.getUIString("minimum_rally_voice_recognition_confidence_microsoft_sre");
+
+        private enum ThresholdType
+        {
+            STANDARD, NAMES, RALLY, TRIGGER
+        }
+
+        private string recogniserName;
+
+        private Dictionary<ThresholdType, SREThresholdInfo> thresholds = new Dictionary<ThresholdType, SREThresholdInfo>();
 
         private Boolean disable_alternative_voice_commands = UserSettings.GetUserSettings().getBoolean("disable_alternative_voice_commands");
         private Boolean enable_iracing_pit_stop_commands = UserSettings.GetUserSettings().getBoolean("enable_iracing_pit_stop_commands");
@@ -254,7 +248,6 @@ namespace CrewChiefV4
         public static String[] STOP_PACE_NOTES_PLAYBACK = Configuration.getSpeechRecognitionPhrases("STOP_PACE_NOTES_PLAYBACK");
 
         // pitstop commands specific to iRacing:
-        public static String[] PIT_STOP = Configuration.getSpeechRecognitionPhrases("PIT_STOP");
         public static String[] PIT_STOP_ADD = Configuration.getSpeechRecognitionPhrases("PIT_STOP_ADD");
         public static String[] LITERS = Configuration.getSpeechRecognitionPhrases("LITERS");
         public static String[] GALLONS = Configuration.getSpeechRecognitionPhrases("GALLONS");
@@ -631,7 +624,7 @@ namespace CrewChiefV4
         private GrammarWrapper chatDictationGrammar;
         private static ExecutableCommandMacro startChatMacro = null;
         private static ExecutableCommandMacro endChatMacro = null;
-
+        
         [DllImport("winmm.dll", SetLastError = true)]
         public static extern uint waveInGetNumDevs();
         [DllImport("winmm.dll", SetLastError = true)]
@@ -979,6 +972,14 @@ namespace CrewChiefV4
 
         public SpeechRecogniser(CrewChief crewChief)
         {
+            float minimum_name_voice_recognition_confidence_windows = UserSettings.GetUserSettings().getFloat("minimum_name_voice_recognition_confidence_system_sre");
+            float minimum_name_voice_recognition_confidence_microsoft = UserSettings.GetUserSettings().getFloat("minimum_name_voice_recognition_confidence");
+            float minimum_trigger_voice_recognition_confidence_windows = UserSettings.GetUserSettings().getFloat("trigger_word_sre_min_confidence_system_sre");
+            float minimum_trigger_voice_recognition_confidence_microsoft = UserSettings.GetUserSettings().getFloat("trigger_word_sre_min_confidence");
+            float minimum_voice_recognition_confidence_windows = UserSettings.GetUserSettings().getFloat("minimum_voice_recognition_confidence_system_sre");
+            float minimum_voice_recognition_confidence_microsoft = UserSettings.GetUserSettings().getFloat("minimum_voice_recognition_confidence");
+            float minimum_rally_voice_recognition_confidence_windows = UserSettings.GetUserSettings().getFloat("minimum_rally_voice_recognition_confidence_system_sre");
+            float minimum_rally_voice_recognition_confidence_microsoft = UserSettings.GetUserSettings().getFloat("minimum_rally_voice_recognition_confidence_microsoft_sre");
             this.crewChief = crewChief;
             if (minimum_name_voice_recognition_confidence_microsoft < 0 || minimum_name_voice_recognition_confidence_microsoft > 1)
             {
@@ -1011,6 +1012,30 @@ namespace CrewChiefV4
             if (minimum_rally_voice_recognition_confidence_windows < 0 || minimum_rally_voice_recognition_confidence_windows > 1)
             {
                 minimum_rally_voice_recognition_confidence_windows = 0.55f;
+            }
+            if (SREWrapperFactory.useSystem)
+            {
+                this.recogniserName = "System recogniser";
+                this.thresholds.Add(ThresholdType.STANDARD,
+                    new SREThresholdInfo(minimum_voice_recognition_confidence_windows, minimum_voice_recognition_confidence_windows_prop_name, ThresholdType.STANDARD));
+                this.thresholds.Add(ThresholdType.NAMES,
+                     new SREThresholdInfo(minimum_name_voice_recognition_confidence_windows, minimum_name_voice_recognition_confidence_windows_prop_name, ThresholdType.NAMES));
+                this.thresholds.Add(ThresholdType.RALLY,
+                     new SREThresholdInfo(minimum_rally_voice_recognition_confidence_windows, minimum_rally_voice_recognition_confidence_windows_prop_name, ThresholdType.RALLY));
+                this.thresholds.Add(ThresholdType.TRIGGER,
+                     new SREThresholdInfo(minimum_trigger_voice_recognition_confidence_windows, minimum_trigger_voice_recognition_confidence_windows_prop_name, ThresholdType.TRIGGER));
+            }
+            else
+            {
+                this.recogniserName = "Microsoft recogniser";
+                this.thresholds.Add(ThresholdType.STANDARD,
+                    new SREThresholdInfo(minimum_voice_recognition_confidence_microsoft, minimum_voice_recognition_confidence_microsoft_prop_name, ThresholdType.STANDARD));
+                this.thresholds.Add(ThresholdType.NAMES,
+                     new SREThresholdInfo(minimum_name_voice_recognition_confidence_microsoft, minimum_name_voice_recognition_confidence_microsoft_prop_name, ThresholdType.NAMES));
+                this.thresholds.Add(ThresholdType.RALLY,
+                     new SREThresholdInfo(minimum_rally_voice_recognition_confidence_microsoft, minimum_rally_voice_recognition_confidence_microsoft_prop_name, ThresholdType.RALLY));
+                this.thresholds.Add(ThresholdType.TRIGGER,
+                    new SREThresholdInfo(minimum_trigger_voice_recognition_confidence_microsoft, minimum_trigger_voice_recognition_confidence_microsoft_prop_name, ThresholdType.TRIGGER));
             }
         }
 
@@ -2441,17 +2466,18 @@ namespace CrewChiefV4
                 return;
             }
             float recognitionConfidence = SREWrapperFactory.GetCallbackConfidence(e);
-            float confidenceThreshold = SREWrapperFactory.useSystem ? minimum_trigger_voice_recognition_confidence_windows : minimum_trigger_voice_recognition_confidence_microsoft;
-            string recogniserName = SREWrapperFactory.useSystem ? "System recogniser" : "Microsoft recogniser";
-            if (recognitionConfidence > confidenceThreshold)
+            SREThresholdInfo thresholdInfo = this.thresholds[ThresholdType.TRIGGER];
+            if (thresholdInfo.checkConfidence(recognitionConfidence, keyWord))
             {
-                Console.WriteLine(recogniserName + " heard keyword \"" + keyWord + "\", waiting for command, confidence " + recognitionConfidence.ToString("0.000"));
+                Console.WriteLine(this.recogniserName + " heard keyword \"" + keyWord + "\", waiting for command, confidence " + recognitionConfidence.ToString("0.000"));
                 switchFromTriggerToRegularRecogniser();
                 restartWaitTimeoutThread(trigger_word_listen_timeout);
             }
             else
             {
-                Console.WriteLine(recogniserName + " heard keyword \"" + keyWord + "\" but confidence (" + recognitionConfidence.ToString("0.000") + ") below threshold (" + confidenceThreshold.ToString("0.000") + ")");
+                Console.WriteLine(this.recogniserName + " heard keyword \"" + keyWord +
+                    "\" but confidence " + recognitionConfidence.ToString("0.000") +
+                    " is below the minimum threshold of " + thresholdInfo.getCurrentThreshold() + " set in property \"" + thresholdInfo.thresholdPropertyName + "\"");
             }
         }
 
@@ -2536,18 +2562,8 @@ namespace CrewChiefV4
             String[] recognisedWords = SREWrapperFactory.GetCallbackWordsList(e);
             float recognitionConfidence = SREWrapperFactory.GetCallbackConfidence(e);
             object recognitionGrammar = SREWrapperFactory.GetCallbackGrammar(e);
-            string recogniserName = SREWrapperFactory.useSystem ? "System recogniser" : "Microsoft recogniser";
-            Console.WriteLine(recogniserName + " recognised : \"" + recognisedText + "\", Confidence = " + recognitionConfidence.ToString("0.000"));
-            float confidenceNamesThreshold = SREWrapperFactory.useSystem ? minimum_name_voice_recognition_confidence_windows : minimum_name_voice_recognition_confidence_microsoft;
-            string confidenceNamesThresholdPropName = SREWrapperFactory.useSystem ? minimum_name_voice_recognition_confidence_windows_prop_name : minimum_name_voice_recognition_confidence_microsoft_prop_name;
-            float confidenceCircuitThreshold = SREWrapperFactory.useSystem ? minimum_voice_recognition_confidence_windows : minimum_voice_recognition_confidence_microsoft;
-            string confidenceCircuitThresholdPropName = SREWrapperFactory.useSystem ? minimum_voice_recognition_confidence_windows_prop_name : minimum_voice_recognition_confidence_microsoft_prop_name;
-            float confidenceRallyThreshold = SREWrapperFactory.useSystem ? minimum_rally_voice_recognition_confidence_windows : minimum_rally_voice_recognition_confidence_microsoft;
-            string confidenceRallyThresholdPropName = SREWrapperFactory.useSystem ? minimum_rally_voice_recognition_confidence_windows_prop_name : minimum_rally_voice_recognition_confidence_microsoft_prop_name;
-
-            float confidenceThreshold = CrewChief.gameDefinition.racingType == CrewChief.RacingType.Rally ? confidenceRallyThreshold : confidenceCircuitThreshold;
-            string confidenceThresholdPropName = CrewChief.gameDefinition.racingType == CrewChief.RacingType.Rally ? confidenceRallyThresholdPropName : confidenceCircuitThresholdPropName;
-
+            Console.WriteLine(this.recogniserName + " recognised : \"" + recognisedText + "\", Confidence = " + recognitionConfidence.ToString("0.000"));
+            
             bool useDictationGrammarForRally = false;   // this really doesn't work well. Perhaps it'll be reinstated at some point
             float confidenceRallyDictationThreshold = 0.3f;
 
@@ -2557,7 +2573,7 @@ namespace CrewChiefV4
                 if (DamageReporting.waitingForDriverIsOKResponse)
                 {
                     DamageReporting damageReportingEvent = (DamageReporting)CrewChief.getEvent("DamageReporting");
-                    if (recognitionConfidence > confidenceThreshold && ResultContains(recognisedText, I_AM_OK, false))
+                    if (thresholds[ThresholdType.STANDARD].checkConfidence(recognitionConfidence, recognisedText) && ResultContains(recognisedText, I_AM_OK, false))
                     {
                         damageReportingEvent.cancelWaitingForDriverIsOK(DamageReporting.DriverOKResponseType.CLEARLY_OK);
                     }
@@ -2591,7 +2607,8 @@ namespace CrewChiefV4
                     }
                     else if (CrewChief.gameDefinition.racingType == CrewChief.RacingType.Rally && GrammarWrapperListContains(rallyGrammarList, recognitionGrammar))
                     {
-                        if (recognitionConfidence > confidenceRallyThreshold)
+                        SREThresholdInfo thresholdInfo = thresholds[ThresholdType.RALLY];
+                        if (thresholdInfo.checkConfidence(recognitionConfidence, recognisedText))
                         {
                             this.lastRecognisedText = recognisedText;
                             CrewChief.getEvent("CoDriver").respond(recognisedText);
@@ -2599,14 +2616,15 @@ namespace CrewChiefV4
                         else
                         {
                             Console.WriteLine("Confidence " + recognitionConfidence.ToString("0.000") +
-                                " is below the minimum threshold of " + confidenceRallyThreshold.ToString("0.000") + " set in property \"" + confidenceRallyThresholdPropName + "\"");
+                                " is below the minimum threshold of " + thresholdInfo.getCurrentThreshold() + " set in property \"" + thresholdInfo.thresholdPropertyName + "\"");
                             crewChief.youWot(true);
                             youWot = true;
                         }
                     }
                     else if (GrammarWrapperListContains(opponentGrammarList, recognitionGrammar))
                     {
-                        if (recognitionConfidence > confidenceNamesThreshold)
+                        SREThresholdInfo thresholdInfo = thresholds[ThresholdType.NAMES];
+                        if (thresholdInfo.checkConfidence(recognitionConfidence, recognisedText))
                         {
                             this.lastRecognisedText = recognisedText;
                             if (recognisedText.StartsWith(WATCH) || recognisedText.StartsWith(RIVAL) || recognisedText.StartsWith(TEAM_MATE) || recognisedText.StartsWith(STOP_WATCHING))
@@ -2621,13 +2639,13 @@ namespace CrewChiefV4
                         else
                         {
                             Console.WriteLine("Confidence " + recognitionConfidence.ToString("0.000") +
-                                " is below the minimum threshold of " + confidenceNamesThreshold.ToString("0.000") + " set in property \"" + confidenceNamesThresholdPropName + "\"");
+                                " is below the minimum threshold of " + thresholdInfo.getCurrentThreshold() + " set in property \"" + thresholdInfo.thresholdPropertyName + "\"");
                             crewChief.youWot(true);
                             youWot = true;
                         }
                     }
-                    else if (recognitionConfidence > confidenceThreshold)
-                    {
+                    else if (thresholds[ThresholdType.STANDARD].checkConfidence(recognitionConfidence, recognisedText))
+                    {              
                         if (macroGrammar != null && macroGrammar.GetInternalGrammar() == recognitionGrammar && macroLookup.ContainsKey(recognisedText))
                         {
                             this.lastRecognisedText = recognisedText;
@@ -2708,12 +2726,13 @@ namespace CrewChiefV4
                         // invoked the CoDriver Respond call - this check is for cases where confidence is below the 'proper' threshold
                         // but above the (lower) rally free dictation threshold
                         this.lastRecognisedText = recognisedText;
-                        CrewChief.getEvent("CoDriver").respond(recognisedText);
+                        CrewChief.getEvent("CoDriver").respond(recognisedText);                        
                     }
                     else
                     {
                         Console.WriteLine("Confidence " + recognitionConfidence.ToString("0.000") +
-                            " is below the minimum threshold of " + confidenceThreshold.ToString("0.000") + " set in property \"" + confidenceThresholdPropName + "\"");
+                            " is below the minimum threshold of " + thresholds[ThresholdType.STANDARD].getCurrentThreshold() + 
+                            " set in property \"" + thresholds[ThresholdType.STANDARD].thresholdPropertyName + "\"");
                         crewChief.youWot(true);
                         youWot = true;
                     }
@@ -3327,6 +3346,253 @@ namespace CrewChiefV4
             public override string ToString()
             {
                 return "countryToUse = \"" + countryToUse + "\", langToUse = \"" + langToUse + "\" langAndCountryToUse = \"" + langAndCountryToUse + "\"";
+            }
+        }
+
+        class HistoricSRECommandInfo
+        {
+            public float confidence;    // the confidence reported for this SRE operation
+            public float threshold;     // the current threshold in force at the time this operation was evaluated. IMPORTANT: this
+                                        // may be *greater* than the confidence but we still might have accepted the command
+            public string command;      // the command text as reported by the SRE
+            public DateTime dateTime;   // the dateTime this was evalulated
+            public HistoricSRECommandInfo(float confidence, float threshold, string command, DateTime dateTime)
+            {
+                this.confidence = confidence;
+                this.threshold = threshold;
+                this.command = command;
+                this.dateTime = dateTime;
+            }
+        }
+
+        class SREThresholdInfo
+        {
+            private static float secondsBetweenLoggedSREAttempts = 4f; // any SRE callbacks more frequent than this many seconds are ignored for auto-tuning
+            private static float maxSecondsBetweenRepeatedCommands = 10f;
+
+            private float currentThreshold;
+            private float initialThreshold;
+            private ThresholdType type;
+            public string thresholdPropertyName;
+            private  bool initialCheckCompleted = false;
+
+            private LinkedList<HistoricSRECommandInfo> rejectedCommands = new LinkedList<HistoricSRECommandInfo>();
+            private LinkedList<HistoricSRECommandInfo> acceptedCommands = new LinkedList<HistoricSRECommandInfo>();
+
+            private int acceptedCountSinceLastReview = 0;
+            private int rejectedCountSinceLastReview = 0;
+
+            public SREThresholdInfo(float initialThreshold, string thresholdPropertyName, ThresholdType type)
+            {
+                this.initialThreshold = initialThreshold;
+                this.currentThreshold = initialThreshold;
+                this.thresholdPropertyName = thresholdPropertyName;
+                this.type = type;
+            }
+
+            public string getCurrentThreshold()
+            {
+                return this.currentThreshold.ToString("0.000");
+            }
+
+            public bool checkConfidence(float confidence, string recognisedText)
+            {
+                reviewThreshold();
+                if (type != ThresholdType.TRIGGER && isRepeatOfLastRejectedCommand(recognisedText))
+                {
+                    // accept this command and, because it's a repeat of a previously rejected command, adjust the threshold.
+                    float newThreshold;
+                    if (confidence < currentThreshold)
+                    {
+                        // Both commands are below the threshold, adjust it such that the better of the two would have been recognised
+                        newThreshold = Math.Max(confidence, this.rejectedCommands.Last.Value.confidence);
+                    }
+                    else
+                    {
+                        // this command has been recognised but the previous attempt failed. The previous attempt may have been a clear command
+                        // and a near-miss, or it may have been mumbled incomprehensible horseshit, we have no way of knowing. So move the threshold
+                        // such that the average of the two would have been recognised
+                        newThreshold = (confidence + this.rejectedCommands.Last.Value.confidence) / 2;
+                    }
+                    newThreshold = newThreshold - (newThreshold * 0.05f);
+                    if (newThreshold < this.currentThreshold)
+                    {
+                        Console.WriteLine("Command appears to have been re-tried, lowering threshold");
+                        updateCurrentThreshold(newThreshold);
+                    }
+                    addAcceptedCommand(confidence, recognisedText);
+                    return true;
+                }
+                if (confidence > currentThreshold)
+                {
+                    addAcceptedCommand(confidence, recognisedText);
+                    return true;
+                }
+                else
+                {
+                    addRejectedCommand(confidence, recognisedText);
+                    return false;
+                }
+            }
+            private void updateCurrentThreshold(float newThreshold)
+            {
+                // TODO: probably need different behaviour here when running in "always on" mode to prevent cases where the app mis-recognises noise
+                // and auto adjusts the thresholds down repeatedly                
+                if (SpeechRecogniser.tuneConfidenceThresholds && newThreshold > 0 && newThreshold < 1)
+                {
+                    Console.WriteLine("Updating session's SRE threshold from " + this.currentThreshold + " to "
+                        + newThreshold + " for type " + type + " (property name " + this.thresholdPropertyName + ")");
+                    this.currentThreshold = newThreshold;
+                }
+                else
+                {
+                    Console.WriteLine("SRE confidence tuner recommends setting the session's SRE threshold from " + this.currentThreshold + " to "
+                        + newThreshold + " for type " + type + " (property name " + this.thresholdPropertyName + "). This recommendation will be ignored");
+                }
+            }
+            private void addRejectedCommand(float confidence, string command)
+            {
+                DateTime lastRejectedCommandDateTime = this.rejectedCommands.Last == null ? DateTime.MinValue : this.rejectedCommands.Last.Value.dateTime;
+                // don't add this into the rejected list if it comes immediately after the last rejected command
+                if ((DateTime.Now - lastRejectedCommandDateTime).TotalSeconds >= SREThresholdInfo.secondsBetweenLoggedSREAttempts)
+                {
+                    rejectedCountSinceLastReview++;
+                    this.rejectedCommands.AddLast(new HistoricSRECommandInfo(confidence, currentThreshold, command, DateTime.Now));
+                }
+            }
+            private void addAcceptedCommand(float confidence, string command)
+            {
+                DateTime lastAcceptedCommandDateTime = this.acceptedCommands.Last == null ? DateTime.MinValue : this.acceptedCommands.Last.Value.dateTime;
+                if ((DateTime.Now - lastAcceptedCommandDateTime).TotalSeconds >= SREThresholdInfo.secondsBetweenLoggedSREAttempts)
+                {
+                    acceptedCountSinceLastReview++;
+                    this.acceptedCommands.AddLast(new HistoricSRECommandInfo(confidence, currentThreshold, command, DateTime.Now));
+                }
+            }
+            private void reviewThreshold()
+            {
+                // periodically inspect the accepted and rejected lists to see how the threshold looks.
+                // The goal is to find cases where there are too many items in the rejected list that are fairly close to their threshold, and adjust the
+                // threshold such that more of these items would have been accepted
+
+                int acceptedPlusRejected = acceptedCountSinceLastReview + rejectedCountSinceLastReview;
+                // do an initial rough-n-ready threshold check after the first 2 non-trigger word commands
+                if (this.type != ThresholdType.TRIGGER && !this.initialCheckCompleted && acceptedPlusRejected == 2)
+                {
+                    this.initialCheckCompleted = true;
+                    float maxConfidence = Math.Max(getMaxConfidence(true, 2), getMaxConfidence(false, 2));
+                    Console.WriteLine("Best confidence score from first 2 SRE commands = " + maxConfidence + ", threshold = " + this.currentThreshold);
+                    if (maxConfidence < this.currentThreshold)
+                    {
+                        this.currentThreshold = maxConfidence - (maxConfidence * 0.1f);
+                    }
+                }
+                else if (acceptedPlusRejected > 5)
+                {
+                    Console.WriteLine("Reviewing SRE confidence threshold for " + type + ", there have been " + acceptedCountSinceLastReview +
+                        " accepted command and " + rejectedCountSinceLastReview + " rejected commands since the last review, threshold is currently " + this.currentThreshold);
+                    float acceptedRatio = (float) acceptedCountSinceLastReview / (float)(acceptedPlusRejected);
+                    if (acceptedRatio == 1)
+                    {
+                        // hooray, no rejected commands. The threshold may be *way* too low so the accepted commands are full of crap, but we
+                        // have no way of knowing this. Assume that we could be more strict here
+                        float minAcceptedConfidence = getMinConfidence(false, acceptedCountSinceLastReview);
+                        // set the threshold to be just under whatever the worst confidence we had was
+                        float newConfidence = minAcceptedConfidence - (minAcceptedConfidence * 0.1f);
+                        updateCurrentThreshold(newConfidence);
+                    }
+                    else if (acceptedRatio == 0)
+                    {
+                        // none of the recent commands have been accepted
+                        float maxRejectedConfidence = getMaxConfidence(true, rejectedCountSinceLastReview);
+                        // set the threshold to be just under whatever the best confidence we had was
+                        float newConfidence = maxRejectedConfidence - (maxRejectedConfidence * 0.05f);
+                        // update the confidence with the best case from the rejected commands. TODO: is it safe for the trigger word threshold to be updated like this?
+                        updateCurrentThreshold(maxRejectedConfidence);
+                    }
+                    else
+                    {
+                        float averageRejectedConfidence = getAverageConfidence(true, rejectedCountSinceLastReview);
+                        float maxRejectedConfidence = getMaxConfidence(true, rejectedCountSinceLastReview);
+                        float averageAcceptedConfidence = getAverageConfidence(false, acceptedCountSinceLastReview);
+                        float maxAcceptedConfidence = getMaxConfidence(false, acceptedCountSinceLastReview);
+                        // some rejections so may need to tune the threshold. The approach will (probably) be different depending on the
+                        // SRE mode and what this threshold is for
+                        if (this.type == ThresholdType.TRIGGER)
+                        {
+                            // be extra careful with trigger. There's only 1 word in the grammar so we can easily lower the threshold so
+                            // it triggers on any noise
+                            float suggestedNewThreshold = maxRejectedConfidence + ((maxAcceptedConfidence - maxRejectedConfidence) / 2);
+                            if (suggestedNewThreshold < this.currentThreshold || acceptedRatio > 0.7)
+                            {
+                                // only update the threshold if we're lowering it, or if most of our commands have been accepted
+                                updateCurrentThreshold(suggestedNewThreshold);
+                            }
+                        }
+                        else
+                        {
+                            // I've absolutely no idea if this "forumla" is nonsense but it'll do for now. Move the threshold so it's half way between
+                            // the average rejected and average accepted confidence
+                            float suggestedNewThreshold = averageRejectedConfidence + ((averageAcceptedConfidence - averageRejectedConfidence) / 2);
+                            if (suggestedNewThreshold < this.currentThreshold || acceptedRatio > 0.7)
+                            {
+                                // only update the threshold if we're lowering it, or if most of our commands have been accepted
+                                updateCurrentThreshold(suggestedNewThreshold);
+                            }
+                        }
+                    }
+                    // reset the accepted / rejected counts
+                    acceptedCountSinceLastReview = 0;
+                    rejectedCountSinceLastReview = 0;
+                }
+            }
+            private bool isRepeatOfLastRejectedCommand(string recognisedText)
+            {
+                return this.rejectedCommands.Last != null
+                        && this.rejectedCommands.Last.Value.command == recognisedText
+                        && (DateTime.Now - this.rejectedCommands.Last.Value.dateTime).TotalSeconds < SREThresholdInfo.maxSecondsBetweenRepeatedCommands;
+            }
+            private float getAverageConfidence(bool isRejectedMessages, int totalToCheck)
+            {
+                float confidence = 0;
+                int count = 0;
+                LinkedList<HistoricSRECommandInfo> historicCommandInfoList = isRejectedMessages ? this.rejectedCommands : this.acceptedCommands;
+                LinkedListNode<HistoricSRECommandInfo> lastNode = historicCommandInfoList.Last;
+                while (totalToCheck > count && lastNode != null)
+                {
+                    confidence += lastNode.Value.confidence;
+                    lastNode = lastNode.Previous;
+                    count++;
+                }
+                return confidence / count;
+            }
+            private float getMaxConfidence(bool isRejectedMessages, int totalToCheck)
+            {
+                float confidence = 0;
+                int count = 0;
+                LinkedList<HistoricSRECommandInfo> historicCommandInfoList = isRejectedMessages ? this.rejectedCommands : this.acceptedCommands;
+                LinkedListNode<HistoricSRECommandInfo> lastNode = historicCommandInfoList.Last;
+                while (totalToCheck > count && lastNode != null)
+                {
+                    confidence = Math.Max(lastNode.Value.confidence, confidence);
+                    lastNode = lastNode.Previous;
+                    count++;
+                }
+                return confidence;
+            }
+            private float getMinConfidence(bool isRejectedMessages, int totalToCheck)
+            {
+                float confidence = 1;
+                int count = 0;
+                LinkedList<HistoricSRECommandInfo> historicCommandInfoList = isRejectedMessages ? this.rejectedCommands : this.acceptedCommands;
+                LinkedListNode<HistoricSRECommandInfo> lastNode = historicCommandInfoList.Last;
+                while (totalToCheck > count && lastNode != null)
+                {
+                    confidence = Math.Min(lastNode.Value.confidence, confidence);
+                    lastNode = lastNode.Previous;
+                    count++;
+                }
+                return confidence;
             }
         }
     }
