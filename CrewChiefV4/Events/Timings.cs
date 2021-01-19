@@ -321,7 +321,7 @@ namespace CrewChiefV4.Events
             {
                 return;
             }
-            if (!currentGameState.PitData.InPitlane && enableGapMessages && !currentGameState.FlagData.currentLapIsFCY && !isNearRaceEnd(currentGameState) && !Penalties.playerMustPitThisLap)
+            if (!currentGameState.PitData.InPitlane && enableGapMessages && !currentGameState.FlagData.currentLapIsFCY && !isNearRaceEnd(currentGameState) && !PitStops.isPittingThisLap)
             {
                 // as soon as there's a position change in front, reset the being-held-up-by value
                 if (!currentGameState.SessionData.IsRacingSameCarInFront)
