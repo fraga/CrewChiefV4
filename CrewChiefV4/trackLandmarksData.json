@@ -432,7 +432,7 @@
 			"pcars2TrackName": "Hockenheim:GP",
 			"raceroomLayoutId": 1693,
 			"raceroomRollingStartLapDistance": 4145,
-			"gtr2TrackNames": ["Hockenheim GP, 2004 FIA GT Championship Round 4", "HQ Hockenheimring", "Hockenheimring, GT Masters Round 8"],
+			"gtr2TrackNames": ["Hockenheim GP, 2004 FIA GT Championship Round 4", "HQ Hockenheimring", "Hockenheimring, GT Masters Round 8", "HQ-NAP Hockenheim 2004"],
 			"trackLandmarks": [{
 					"landmarkName": "nord_kurve",
 					"distanceRoundLapStart": 200,
