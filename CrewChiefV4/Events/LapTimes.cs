@@ -263,7 +263,7 @@ namespace CrewChiefV4.Events
 
         public override bool isMessageStillValid(string eventSubType, GameStateData currentGameState, Dictionary<string, object> validationData)
         {
-            if (Penalties.playerMustPitThisLap)
+            if (PitStops.isPittingThisLap)
             {
                 return false;
             }
