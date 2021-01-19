@@ -19,11 +19,11 @@ namespace CrewChiefV4
             Error = 1 << 1,
             Warning = 1 << 2,
             Commentary = 1 << 3,
-            Subtitle = 1 << 4,
+            Subtitle = 1 << 4,  // All here and up show in release builds
             Info = 1 << 5,
             Fuel = 1 << 6,
-            Debug = 1 << 7,
-            Verbose = 1 << 8,
+            Debug = 1 << 7,     // All here and up show in debug builds, shown if log_type_debug is set
+            Verbose = 1 << 8,   // Shown if log_type_verbose is set
             Exception = 1 << 9
         };
         private static LogType _logMask = UserSettings.GetUserSettings().getBoolean("log_type_debug") ?
