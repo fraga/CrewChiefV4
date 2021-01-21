@@ -473,7 +473,7 @@ namespace CrewChiefV4.Events
                     }
                     else
                     {
-                        if (previousPosition != currentGameState.SessionData.ClassPosition)
+                        if (previousPosition != currentGameState.SessionData.ClassPosition && currentGameState.SessionData.CompletedLaps > 0)
                         {
                             if (currentGameState.SessionData.CompletedLaps > 1)
                             {
