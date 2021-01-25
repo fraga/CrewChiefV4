@@ -509,11 +509,7 @@ namespace CrewChiefV4.rFactor2
             var idsToTelIndicesMap = RF2GameStateMapper.getIdsToTelIndicesMap(ref shared.telemetry);
             int playerTelIdx = -1;
             if (idsToTelIndicesMap.TryGetValue(playerScoring.mID, out playerTelIdx))
-            {
                 playerTelemetry = shared.telemetry.mVehicles[playerTelIdx];
-                cgs.carName = GetStringFromBytes(playerTelemetry.mVehicleName);
-                cgs.trackName = GetStringFromBytes(playerTelemetry.mTrackName);
-            }
             else
             {
                 playerTelemetryAvailable = false;
@@ -656,6 +652,8 @@ namespace CrewChiefV4.rFactor2
 
                 cgs.PitData.PitBoxPositionEstimate = playerScoring.mPitLapDist;
                 Console.WriteLine("Pit box position = " + (cgs.PitData.PitBoxPositionEstimate < 0.0f ? "Unknown" : cgs.PitData.PitBoxPositionEstimate.ToString("0.000")));
+
+                cgs.trackName = csd.TrackDefinition.name;
             }
 
             // Restore cumulative data.
@@ -691,7 +689,13 @@ namespace CrewChiefV4.rFactor2
 
                 csd.IsLastLap = psd.IsLastLap;
                 csd.OverallLeaderIsOnLastLap = psd.OverallLeaderIsOnLastLap;
+
+                cgs.trackName = pgs.trackName;
+                cgs.carName = pgs.carName;
             }
+
+            if (cgs.carName == null && playerTelemetryAvailable)
+                cgs.carName = RF2GameStateMapper.GetStringFromBytes(playerTelemetry.mVehicleName);
 
             csd.SessionStartTime = csd.IsNewSession ? cgs.Now : psd.SessionStartTime;
             csd.SessionHasFixedTime = csd.SessionTotalRunTime > 0.0f;
@@ -3003,7 +3007,7 @@ namespace CrewChiefV4.rFactor2
                     }
                 }
 
-                var playerDist = RF2GameStateMapper.GetDistanceCompleteded(ref scoring, ref vehicle);
+                var playerDist = RF2GameStateMapper.GetDistanceCompleted(ref scoring, ref vehicle);
                 var toFollowDist = -1.0;
 
                 if (!followSC)
@@ -3019,7 +3023,7 @@ namespace CrewChiefV4.rFactor2
 
                             fod.DriverToFollowRaw = cci.driverNameRawSanitized;
 
-                            toFollowDist = RF2GameStateMapper.GetDistanceCompleteded(ref scoring, ref v);
+                            toFollowDist = RF2GameStateMapper.GetDistanceCompleted(ref scoring, ref v);
                             break;
                         }
                     }
@@ -3038,7 +3042,7 @@ namespace CrewChiefV4.rFactor2
                         var veh = scoring.mVehicles[i];
                         if (veh.mPlace == (vehicle.mPlace == 1 ? 2 : 1))
                         {
-                            neighborDist = RF2GameStateMapper.GetDistanceCompleteded(ref scoring, ref veh);
+                            neighborDist = RF2GameStateMapper.GetDistanceCompleted(ref scoring, ref veh);
                             break;
                         }
                     }
@@ -3204,7 +3208,7 @@ namespace CrewChiefV4.rFactor2
                                 SCassignedAhead = true;
                             }
                         }
-                        catch (Exception e) {Log.Exception(e);}
+                        catch (Exception e) { Log.Exception(e); }
 
                         // Remove [-0.2 laps] if it is there.
                         var lastOpenBckt = orderInstruction.LastIndexOf('[');
@@ -3214,7 +3218,7 @@ namespace CrewChiefV4.rFactor2
                             {
                                 orderInstruction = orderInstruction.Substring(0, lastOpenBckt - 1);
                             }
-                            catch (Exception e) {Log.Exception(e);}
+                            catch (Exception e) { Log.Exception(e); }
                         }
 
                         var column = FrozenOrderColumn.None;
@@ -3315,7 +3319,7 @@ namespace CrewChiefV4.rFactor2
             return fod;
         }
 
-        private static double GetDistanceCompleteded(ref rF2Scoring scoring, ref rF2VehicleScoring vehicle)
+        private static double GetDistanceCompleted(ref rF2Scoring scoring, ref rF2VehicleScoring vehicle)
         {
             // Note: Can be interpolated a bit.
             return vehicle.mTotalLaps * scoring.mScoringInfo.mLapDist + vehicle.mLapDist;
