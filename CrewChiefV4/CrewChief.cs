@@ -1142,5 +1142,10 @@ namespace CrewChiefV4
             dataFileReadDone = false;
             dataFileDumpDone = false;
         }
+
+        public Spotter getSpotter()
+        {
+            return spotter;
+        }
     }
 }
