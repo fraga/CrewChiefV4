@@ -513,7 +513,8 @@
 			"isDRSCapable": true,
 			"DRSRange": 1.0,
 			"pitCrewPreparationTime": 17,
-			"allMembersAreRWD": true
+			"allMembersAreRWD": true,
+			"preferNameForOrderMessages": true
 		},
 		{
 			"carClassEnum": "F2",

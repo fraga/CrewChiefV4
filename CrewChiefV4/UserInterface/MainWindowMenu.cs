@@ -183,9 +183,9 @@ namespace CrewChiefV4
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
 
-            consoleToolStripMenuItem.Name = "ConsoleToolStripMenuItem";
-            consoleToolStripMenuItem.Size = new System.Drawing.Size(62, 22);
-            consoleToolStripMenuItem.Text = "Console";
+            this.consoleToolStripMenuItem.Name = "ConsoleToolStripMenuItem";
+            this.consoleToolStripMenuItem.Size = new System.Drawing.Size(62, 22);
+            this.consoleToolStripMenuItem.Text = Configuration.getUIString("console_menu");
 
             this.fileToolStripMenuItem.Text = Configuration.getUIString("file_menu");
             this.mExitToolStripMenuItem.Text = Configuration.getUIString("exit_menu_item");

@@ -24,6 +24,9 @@ namespace CrewChiefV4.R3E
         public static bool gotPlayerRating = false;
         public static R3ERatingData playerRating = null;
 
+        private static bool triedHttp = false;
+        private static bool triedHttps = false;
+
         public static void getRatingForPlayer(int userId)
         {
             if (!R3ERatings.ratingDownloadCompleted)
@@ -126,13 +129,14 @@ namespace CrewChiefV4.R3E
             }
             if (opponentWithRatingCount > 0)
             {
-                return (int) ((playerRating.rating + opponentRatingSum) / (opponentWithRatingCount + 1f));
+                return (int)((playerRating.rating + opponentRatingSum) / (opponentWithRatingCount + 1f));
             }
             return -1;
         }
-        
+
         public static void init()
         {
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             lock (R3ERatings.initLock)
             {
                 // Download ratings only once per CC session.
@@ -193,12 +197,14 @@ namespace CrewChiefV4.R3E
             {
                 try
                 {
+                    triedHttp = triedHttp || url.StartsWith("http:");
+                    triedHttps = triedHttps || url.StartsWith("https:");
                     ratingsJson = client.DownloadString(url);
                 }
                 catch (Exception e)
                 {
                     // nasty error handling, 404 or SSL / TLS error -> toggle http / https and retry
-                    if (e.Message.Contains("404") || (url.Contains("https") && (e.Message.Contains("TLS") || e.Message.Contains("SSL"))))
+                    if ((!triedHttp || !triedHttps) && (e.Message.Contains("404") || e.Message.Contains("TLS") || e.Message.Contains("SSL")))
                     {
                         // try toggling HTTPS
                         string retryUrl = null;
@@ -213,7 +219,7 @@ namespace CrewChiefV4.R3E
                         if (retryUrl != null)
                         {
                             Console.WriteLine("Unable to find ratings at " + url + " trying " + retryUrl);
-                            ratingsJson = client.DownloadString(retryUrl);
+                            ratingsJson = download(retryUrl);
                         }
                     }
                     else
@@ -226,7 +232,7 @@ namespace CrewChiefV4.R3E
             return ratingsJson;
         }
     }
-    
+
     public class R3ERatingData
     {
         public string username;

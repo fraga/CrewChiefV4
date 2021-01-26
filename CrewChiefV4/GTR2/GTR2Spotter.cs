@@ -165,5 +165,10 @@ namespace CrewChiefV4.GTR2
             System.Console.WriteLine("Spotter microseconds: " + microseconds);
 #endif
         }
+
+        public NoisyCartesianCoordinateSpotter getInternalSpotter()
+        {
+            return this.internalSpotter;
+        }
     }
 }

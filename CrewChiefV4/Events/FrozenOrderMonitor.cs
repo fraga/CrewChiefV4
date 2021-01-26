@@ -22,6 +22,7 @@ namespace CrewChiefV4.Events
         private bool useDriverName = UserSettings.GetUserSettings().getBoolean("iracing_fcy_formation_use_drivername");
         // Number of updates FO Action and Driver name were the same.
         private int numUpdatesActionSame = 0;
+        private Int64 lastActionUpdateTicks = DateTime.MinValue.Ticks;
 
         // Last FO Action and Driver name announced.
         private FrozenOrderAction currFrozenOrderAction = FrozenOrderAction.None;
@@ -170,6 +171,7 @@ namespace CrewChiefV4.Events
             this.currDriverToFollow = null;
             this.currFrozenOrderColumn = FrozenOrderColumn.None;
             this.scrLastFCYLapLaneAnnounced = false;
+            this.lastActionUpdateTicks = DateTime.MinValue.Ticks;
         }
         
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
@@ -210,14 +212,20 @@ namespace CrewChiefV4.Events
                 && cfod.DriverToFollowRaw == pfod.DriverToFollowRaw
                 && cfod.AssignedColumn == pfod.AssignedColumn)
                 ++this.numUpdatesActionSame;
-            else           
+            else
+            {
                 this.numUpdatesActionSame = 0;
+                this.lastActionUpdateTicks = cgs.Now.Ticks;
+            }
 
             this.newFrozenOrderAction = cfod.Action;
             this.newDriverToFollow = cfod.DriverToFollowRaw;
             this.newFrozenOrderColumn = cfod.AssignedColumn;
 
-            var isActionUpdateStable = this.numUpdatesActionSame >= FrozenOrderMonitor.ACTION_STABLE_THRESHOLD;
+            var isActionUpdateStable = CrewChief.gameDefinition.gameEnum != GameEnum.GTR2
+                ? this.numUpdatesActionSame >= FrozenOrderMonitor.ACTION_STABLE_THRESHOLD
+                : TimeSpan.FromTicks(cgs.Now.Ticks - this.lastActionUpdateTicks).TotalMilliseconds > 500;  // GTR2 updates at ~2FPS.  So use ticks to detect stability.  Ticks is better in general, but I've no time to test rF2/iR for now.
+
             // Detect if we should be following SC, as SC has no driver name.
             var shouldFollowSafetyCar = false;
             var driverToFollow = "";
@@ -231,9 +239,11 @@ namespace CrewChiefV4.Events
             {
                 shouldFollowSafetyCar = (cfod.AssignedColumn == FrozenOrderColumn.None && cfod.AssignedPosition == 1)  // Single file order.
                     || (cfod.AssignedColumn != FrozenOrderColumn.None && cfod.AssignedPosition <= 2);  // Double file (grid) order.
-                
-                useCarNumber = (CrewChief.gameDefinition.gameEnum == GameEnum.IRACING || CrewChief.gameDefinition.gameEnum == GameEnum.GTR2) && !shouldFollowSafetyCar && cfod.CarNumberToFollowRaw != "-1" &&
-                    Int32.TryParse(cfod.CarNumberToFollowRaw, out carNumber) && !(useDriverName && AudioPlayer.canReadName(cfod.DriverToFollowRaw, false));
+
+                useCarNumber = (CrewChief.gameDefinition.gameEnum == GameEnum.IRACING || (CrewChief.gameDefinition.gameEnum == GameEnum.GTR2 && !cgs.carClass.preferNameForOrderMessages))
+                    && !shouldFollowSafetyCar && cfod.CarNumberToFollowRaw != "-1" && Int32.TryParse(cfod.CarNumberToFollowRaw, out carNumber)
+                    && !(useDriverName && cfod.DriverToFollowRaw != null && AudioPlayer.canReadName(cfod.DriverToFollowRaw, false));
+
                 if (useCarNumber && cfod.CarNumberToFollowRaw.StartsWith("00"))
                 {
                     leadingZerosKey = doubleZeroKey;
@@ -263,9 +273,9 @@ namespace CrewChiefV4.Events
                     this.currFrozenOrderColumn = this.newFrozenOrderColumn;
 
                     // canReadDriverToFollow will be true if we're behind the safety car or we can read the driver's name:
-                    var canReadDriverToFollow = shouldFollowSafetyCar || useCarNumber || AudioPlayer.canReadName(driverToFollow);
+                    var canReadDriverToFollow = shouldFollowSafetyCar || useCarNumber || (driverToFollow != null && AudioPlayer.canReadName(driverToFollow));
 
-                    var usableDriverNameToFollow = shouldFollowSafetyCar || useCarNumber ? driverToFollow : DriverNameHelper.getUsableDriverName(driverToFollow);
+                    var usableDriverNameToFollow = shouldFollowSafetyCar || useCarNumber ? driverToFollow : (driverToFollow != null ? DriverNameHelper.getUsableDriverName(driverToFollow) : null);
 
                     // special case for a single leading zero - only play it if we have to - e.g. there is a car using number 023 and one using number 23
                     if (useCarNumber && leadingZeros && leadingZerosKey == zeroKey)
@@ -286,16 +296,17 @@ namespace CrewChiefV4.Events
                             int delay = Utilities.random.Next(3, 6);
                             if (cfod.AssignedColumn == FrozenOrderColumn.None
                                 || Utilities.random.Next(1, 11) > 8)  // Randomly, announce message without coulmn info.
-                                if (!useCarNumber)
+                            {
+                                if (!useCarNumber || shouldFollowSafetyCar)
                                     audioPlayer.playMessage(new QueuedMessage(!shouldFollowSafetyCar ? "frozen_order/follow_driver" : "frozen_order/follow_safety_car", delay + 6,
                                         secondsDelay: delay, messageFragments: MessageContents(folderFollow, usableDriverNameToFollow), abstractEvent: this,
                                         validationData: validationData, priority: 10));
                                 else
-                                    audioPlayer.playMessage(new QueuedMessage(!shouldFollowSafetyCar ? "frozen_order/follow_driver" : "frozen_order/follow_safety_car", 0,
+                                    audioPlayer.playMessage(new QueuedMessage("frozen_order/follow_driver", 0,
                                         secondsDelay: 0, messageFragments:
                                         leadingZeros ? MessageContents(folderFollowCarNumber, leadingZerosKey, carNumber) : MessageContents(folderFollowCarNumber, carNumber), abstractEvent: this,
                                         validationData: validationData, priority: 10));
-
+                            }
                             else
                             {
                                 string columnName;
@@ -303,12 +314,12 @@ namespace CrewChiefV4.Events
                                     columnName = cfod.AssignedColumn == FrozenOrderColumn.Left ? folderInTheInsideColumn : folderInTheOutsideColumn;
                                 else
                                     columnName = cfod.AssignedColumn == FrozenOrderColumn.Left ? folderInTheLeftColumn : folderInTheRightColumn;
-                                if (!useCarNumber)
+                                if (!useCarNumber || shouldFollowSafetyCar)
                                     audioPlayer.playMessage(new QueuedMessage(!shouldFollowSafetyCar ? "frozen_order/follow_driver_in_col" : "frozen_order/follow_safecy_car_in_col", delay + 6,
                                         secondsDelay: delay, messageFragments: MessageContents(folderFollow, usableDriverNameToFollow, columnName), abstractEvent: this,
                                         validationData: validationData, priority: 10));
                                 else
-                                    audioPlayer.playMessage(new QueuedMessage(!shouldFollowSafetyCar ? "frozen_order/follow_driver_in_col" : "frozen_order/follow_safecy_car_in_col", 0,
+                                    audioPlayer.playMessage(new QueuedMessage("frozen_order/follow_driver_in_col", 0,
                                         secondsDelay: 0, messageFragments:
                                         leadingZeros ? MessageContents(folderFollowCarNumber, leadingZerosKey, carNumber, columnName) : MessageContents(folderFollowCarNumber, carNumber, columnName), abstractEvent: this,
                                         validationData: validationData, priority: 10));
@@ -322,12 +333,12 @@ namespace CrewChiefV4.Events
                         if ((canReadDriverToFollow && Utilities.random.Next(0, 11) > 1)   // Randomly, announce message without name.
                             || shouldFollowSafetyCar)  // Unless it is SC
                         {
-                            if (!useCarNumber)
+                            if (!useCarNumber || shouldFollowSafetyCar)
                                 audioPlayer.playMessage(new QueuedMessage(!shouldFollowSafetyCar ? "frozen_order/allow_driver_to_pass" : "frozen_order/allow_safety_car_to_pass", delay + 6,
                                     secondsDelay: delay, messageFragments: MessageContents(folderAllow, usableDriverNameToFollow, folderToPass), abstractEvent: this,
                                     validationData: validationData, priority: 10));
                             else
-                                audioPlayer.playMessage(new QueuedMessage(!shouldFollowSafetyCar ? "frozen_order/allow_driver_to_pass" : "frozen_order/allow_safety_car_to_pass", delay + 6,
+                                audioPlayer.playMessage(new QueuedMessage("frozen_order/allow_driver_to_pass", delay + 6,
                                     secondsDelay: delay, messageFragments:
                                     leadingZeros ? MessageContents(folderAllowCarNumber, leadingZerosKey, carNumber, folderToPass) : MessageContents(folderAllowCarNumber, carNumber, folderToPass), abstractEvent: this,
                                     validationData: validationData, priority: 10));
@@ -343,12 +354,12 @@ namespace CrewChiefV4.Events
                         if ((canReadDriverToFollow && Utilities.random.Next(0, 11) > 1)  // Randomly, announce message without name.
                             || shouldFollowSafetyCar)
                         {
-                            if(!useCarNumber)
+                            if(!useCarNumber || shouldFollowSafetyCar)
                                 audioPlayer.playMessage(new QueuedMessage(!shouldFollowSafetyCar ? "frozen_order/catch_up_to_driver" : "frozen_order/catch_up_to_safety_car", delay + 6,
                                     secondsDelay: delay, messageFragments: MessageContents(folderCatchUpTo, usableDriverNameToFollow), abstractEvent: this,
                                     validationData: validationData, priority: 10));
                             else
-                                audioPlayer.playMessage(new QueuedMessage(!shouldFollowSafetyCar ? "frozen_order/catch_up_to_driver" : "frozen_order/catch_up_to_safety_car", delay + 6,
+                                audioPlayer.playMessage(new QueuedMessage("frozen_order/catch_up_to_driver", delay + 6,
                                     secondsDelay: delay, messageFragments:
                                     leadingZeros ? MessageContents(folderCatchUpToCarNumber, leadingZerosKey, carNumber) : MessageContents(folderCatchUpToCarNumber, carNumber), abstractEvent: this,
                                     validationData: validationData, priority: 10));
@@ -407,9 +418,9 @@ namespace CrewChiefV4.Events
                 this.scrLastFCYLapLaneAnnounced = announceSCRLastFCYLapLane;
 
                 // canReadDriverToFollow will be true if we're behind the safety car or we can read the driver's name:
-                var canReadDriverToFollow = shouldFollowSafetyCar || useCarNumber || AudioPlayer.canReadName(driverToFollow);
+                var canReadDriverToFollow = shouldFollowSafetyCar || useCarNumber || (driverToFollow != null && AudioPlayer.canReadName(driverToFollow));
 
-                var usableDriverNameToFollow = shouldFollowSafetyCar || useCarNumber ? driverToFollow : DriverNameHelper.getUsableDriverName(driverToFollow);
+                var usableDriverNameToFollow = shouldFollowSafetyCar || useCarNumber ? driverToFollow : (driverToFollow != null ? DriverNameHelper.getUsableDriverName(driverToFollow) : null);
 
                 // special case for a single leading zero - only play it if we have to - e.g. there is a car using number 023 and one using number 23
                 if (useCarNumber && leadingZeros && leadingZerosKey == zeroKey)
@@ -500,9 +511,13 @@ namespace CrewChiefV4.Events
                     this.scrLastFCYLapLaneAnnounced = announceSCRLastFCYLapLane;
 
                     // canReadDriverToFollow will be true if we're behind the safety car or we can read the driver's name:
-                    var canReadDriverToFollow = shouldFollowSafetyCar || useCarNumber || AudioPlayer.canReadName(driverToFollow);
+                    var canReadDriverToFollow = shouldFollowSafetyCar || useCarNumber || (driverToFollow != null && AudioPlayer.canReadName(driverToFollow));
 
-                    var usableDriverNameToFollow = shouldFollowSafetyCar || useCarNumber ? driverToFollow : DriverNameHelper.getUsableDriverName(driverToFollow);
+                    var usableDriverNameToFollow = shouldFollowSafetyCar || useCarNumber ? driverToFollow : (driverToFollow != null ? DriverNameHelper.getUsableDriverName(driverToFollow) : null);
+
+                    // special case for a single leading zero - only play it if we have to - e.g. there is a car using number 023 and one using number 23
+                    if (useCarNumber && leadingZeros && leadingZerosKey == zeroKey)
+                        leadingZeros = this.ShouldUseLeadingZeros(carNumber, currentGameState.getCarNumbers());
 
                     var validationData = new Dictionary<string, object>();
                     validationData.Add(FrozenOrderMonitor.validateMessageTypeKey, FrozenOrderMonitor.validateMessageTypeAction);
@@ -514,27 +529,51 @@ namespace CrewChiefV4.Events
                         && ((prevDriverToFollow != this.currDriverToFollow)  // Don't announce Follow messages for the driver that we caught up to or allowed to pass.
                             || (prevFrozenOrderColumn != this.currFrozenOrderColumn && announceSCRLastFCYLapLane)))  // But announce for SCR last FCY lap.
                     {
+                        string columnName;
+                        if (useOvalLogic)
+                            columnName = cfod.AssignedColumn == FrozenOrderColumn.Left ? folderInTheInsideColumn : folderInTheOutsideColumn;
+                        else
+                            columnName = cfod.AssignedColumn == FrozenOrderColumn.Left ? folderInTheLeftColumn : folderInTheRightColumn;
+
                         int delay = Utilities.random.Next(0, 3);
                         if (canReadDriverToFollow)
                         {
-                            if (announceSCRLastFCYLapLane && cfod.AssignedColumn == FrozenOrderColumn.Left)
-                                audioPlayer.playMessage(new QueuedMessage(!shouldFollowSafetyCar ? "frozen_order/follow_driver_in_left" : "frozen_order/follow_safety_car_in_left",
-                                    delay + 6, secondsDelay: delay, messageFragments: MessageContents(folderFollow, usableDriverNameToFollow,
-                                    useOvalLogic ? folderInTheInsideColumn : folderInTheLeftColumn), abstractEvent: this, validationData: validationData, priority: 10));
-                            else if (announceSCRLastFCYLapLane && cfod.AssignedColumn == FrozenOrderColumn.Right)
-                                audioPlayer.playMessage(new QueuedMessage(!shouldFollowSafetyCar ? "frozen_order/follow_driver_in_right" : "frozen_order/follow_safety_car_in_right",
-                                    delay + 6, secondsDelay: delay, 
-                                    messageFragments: MessageContents(folderFollow, usableDriverNameToFollow, useOvalLogic ? folderInTheOutsideColumn : folderInTheRightColumn),
-                                    abstractEvent: this, validationData: validationData, priority: 10));
+                            if (!useCarNumber || shouldFollowSafetyCar)
+                            {
+                                if (announceSCRLastFCYLapLane && cfod.AssignedColumn == FrozenOrderColumn.Left)
+                                    audioPlayer.playMessage(new QueuedMessage(!shouldFollowSafetyCar ? "frozen_order/follow_driver_in_left" : "frozen_order/follow_safety_car_in_left",
+                                        delay + 6, secondsDelay: delay, messageFragments: MessageContents(folderFollow, usableDriverNameToFollow, columnName), abstractEvent: this, validationData: validationData, priority: 10));
+                                else if (announceSCRLastFCYLapLane && cfod.AssignedColumn == FrozenOrderColumn.Right)
+                                    audioPlayer.playMessage(new QueuedMessage(!shouldFollowSafetyCar ? "frozen_order/follow_driver_in_right" : "frozen_order/follow_safety_car_in_right",
+                                        delay + 6, secondsDelay: delay,
+                                        messageFragments: MessageContents(folderFollow, usableDriverNameToFollow, columnName),
+                                        abstractEvent: this, validationData: validationData, priority: 10));
+                                else
+                                    audioPlayer.playMessage(new QueuedMessage(!shouldFollowSafetyCar ? "frozen_order/follow_driver" : "frozen_order/follow_safety_car", delay + 6,
+                                        secondsDelay: delay, messageFragments: MessageContents(folderFollow, usableDriverNameToFollow), abstractEvent: this, validationData: validationData, priority: 10));
+                            }
                             else
-                                audioPlayer.playMessage(new QueuedMessage(!shouldFollowSafetyCar ? "frozen_order/follow_driver" : "frozen_order/follow_safety_car", delay + 6, 
-                                    secondsDelay: delay, messageFragments: MessageContents(folderFollow, usableDriverNameToFollow), abstractEvent: this, validationData: validationData, priority: 10));
+                            {
+                                if (announceSCRLastFCYLapLane && cfod.AssignedColumn == FrozenOrderColumn.Left)
+                                    audioPlayer.playMessage(new QueuedMessage("frozen_order/follow_driver_in_left",
+                                        delay + 6, secondsDelay: delay, messageFragments: leadingZeros ? MessageContents(folderFollowCarNumber, leadingZerosKey, carNumber, columnName) : MessageContents(folderFollowCarNumber, carNumber, columnName),
+                                        abstractEvent: this, validationData: validationData, priority: 10));
+                                else if (announceSCRLastFCYLapLane && cfod.AssignedColumn == FrozenOrderColumn.Right)
+                                    audioPlayer.playMessage(new QueuedMessage("frozen_order/follow_driver_in_right",
+                                        delay + 6, secondsDelay: delay,
+                                        messageFragments: leadingZeros ? MessageContents(folderFollowCarNumber, leadingZerosKey, carNumber, columnName) : MessageContents(folderFollowCarNumber, carNumber, columnName),
+                                        abstractEvent: this, validationData: validationData, priority: 10));
+                                else
+                                    audioPlayer.playMessage(new QueuedMessage("frozen_order/follow_driver", delay + 6,
+                                        secondsDelay: delay, messageFragments: leadingZeros ? MessageContents(folderFollowCarNumber, leadingZerosKey, carNumber) : MessageContents(folderFollowCarNumber, carNumber),
+                                        abstractEvent: this, validationData: validationData, priority: 10));
+                            }
                         }
                         else if (announceSCRLastFCYLapLane && cfod.AssignedColumn == FrozenOrderColumn.Left)
-                            audioPlayer.playMessage(new QueuedMessage(useOvalLogic ? folderLineUpInInsideColumn : folderLineUpInLeftColumn, delay + 6, secondsDelay: delay,
+                            audioPlayer.playMessage(new QueuedMessage(columnName, delay + 6, secondsDelay: delay,
                                 abstractEvent: this, validationData: validationData, priority: 10));
                         else if (announceSCRLastFCYLapLane && cfod.AssignedColumn == FrozenOrderColumn.Right)
-                            audioPlayer.playMessage(new QueuedMessage(useOvalLogic ? folderLineUpInOutsideColumn : folderLineUpInRightColumn, delay + 6, secondsDelay: delay,
+                            audioPlayer.playMessage(new QueuedMessage(columnName, delay + 6, secondsDelay: delay,
                                 abstractEvent: this, validationData: validationData, priority: 10));
                     }
                     else if (this.newFrozenOrderAction == FrozenOrderAction.AllowToPass)
@@ -542,9 +581,17 @@ namespace CrewChiefV4.Events
                         int delay = Utilities.random.Next(1, 4);
                         if ((canReadDriverToFollow && Utilities.random.Next(0, 11) > 1) // Randomly, announce message without name.
                             || shouldFollowSafetyCar)
-                            audioPlayer.playMessage(new QueuedMessage(!shouldFollowSafetyCar ? "frozen_order/allow_driver_to_pass" : "frozen_order/allow_safety_car_to_pass",
-                                delay + 6, secondsDelay: delay, messageFragments: MessageContents(folderAllow, usableDriverNameToFollow, folderToPass),
-                                abstractEvent: this, validationData: validationData, priority: 10));
+                        {
+                            if (!useCarNumber || shouldFollowSafetyCar)
+                                audioPlayer.playMessage(new QueuedMessage(!shouldFollowSafetyCar ? "frozen_order/allow_driver_to_pass" : "frozen_order/allow_safety_car_to_pass",
+                                    delay + 6, secondsDelay: delay, messageFragments: MessageContents(folderAllow, usableDriverNameToFollow, folderToPass),
+                                    abstractEvent: this, validationData: validationData, priority: 10));
+                            else
+                                audioPlayer.playMessage(new QueuedMessage("frozen_order/allow_driver_to_pass",
+                                    delay + 6, secondsDelay: delay, messageFragments:
+                                    leadingZeros ? MessageContents(folderAllowCarNumber, leadingZerosKey, carNumber, folderToPass) : MessageContents(folderAllowCarNumber, carNumber, folderToPass),
+                                    abstractEvent: this, validationData: validationData, priority: 10));
+                        }
                         else
                             audioPlayer.playMessage(new QueuedMessage(folderYoureAheadOfAGuyYouShouldBeFollowing, delay + 6, secondsDelay: delay, abstractEvent: this,
                                 validationData: validationData, priority: 10));
@@ -554,9 +601,17 @@ namespace CrewChiefV4.Events
                         int delay = Utilities.random.Next(1, 4);
                         if (canReadDriverToFollow && Utilities.random.Next(0, 11) > 1  // Randomly, announce message without name.
                             || shouldFollowSafetyCar)
-                            audioPlayer.playMessage(new QueuedMessage(!shouldFollowSafetyCar ? "frozen_order/catch_up_to_driver" : "frozen_order/catch_up_to_safety_car",
-                                delay + 6, secondsDelay: delay, messageFragments: MessageContents(folderCatchUpTo, usableDriverNameToFollow), 
-                                abstractEvent: this, validationData: validationData, priority: 10));
+                        { 
+                            if (!useCarNumber || shouldFollowSafetyCar)
+                                audioPlayer.playMessage(new QueuedMessage(!shouldFollowSafetyCar ? "frozen_order/catch_up_to_driver" : "frozen_order/catch_up_to_safety_car",
+                                    delay + 6, secondsDelay: delay, messageFragments: MessageContents(folderCatchUpTo, usableDriverNameToFollow),
+                                    abstractEvent: this, validationData: validationData, priority: 10));
+                            else
+                                audioPlayer.playMessage(new QueuedMessage("frozen_order/catch_up_to_driver",
+                                    delay + 6, secondsDelay: delay, messageFragments:
+                                    leadingZeros ? MessageContents(folderCatchUpToCarNumber, leadingZerosKey, carNumber) : MessageContents(folderCatchUpToCarNumber, carNumber),
+                                    abstractEvent: this, validationData: validationData, priority: 10));
+                        }
                         else
                             audioPlayer.playMessage(new QueuedMessage(folderYouNeedToCatchUpToTheGuyAhead, delay + 6, secondsDelay: delay, abstractEvent: this,
                                 validationData: validationData, priority: 10));
