@@ -931,6 +931,7 @@ namespace CrewChiefV4
                             Thread.Sleep(CrewChief.playbackIntervalMilliseconds);
                             if (enableSharedMemory)
                             {
+                                sharedMemoryManager.UpdateVariable("phraseIsPlaying", new bool[1] { audioPlayer.isChannelOpen() });
                                 sharedMemoryManager.Tick(playbackIntervalMilliseconds);
                             }
                         }
@@ -957,6 +958,7 @@ namespace CrewChiefV4
                         }
                         if (enableSharedMemory)
                         {
+                            sharedMemoryManager.UpdateVariable("phraseIsPlaying", new bool[1] { audioPlayer.isChannelOpen() });
                             sharedMemoryManager.Tick(interval);
                         }
                         Thread.Sleep(interval);
