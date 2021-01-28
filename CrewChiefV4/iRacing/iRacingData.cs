@@ -88,6 +88,18 @@ namespace CrewChiefV4.iRacing
                 _VertAccel = (System.Single[])sdk.GetData("VertAccel");
                 _LatAccel = (System.Single[])sdk.GetData("LatAccel");
                 _LongAccel = (System.Single[])sdk.GetData("LongAccel");
+
+                _RRshockDefl = (System.Single[])sdk.GetData("RRshockDefl");
+                _RRshockVel = (System.Single[])sdk.GetData("RRshockVel");
+
+                _LRshockDefl = (System.Single[])sdk.GetData("LRshockDefl");
+                _LRshockVel = (System.Single[])sdk.GetData("LRshockVel");
+
+                _RFshockDefl = (System.Single[])sdk.GetData("RFshockDefl");
+                _RFshockVel = (System.Single[])sdk.GetData("RFshockVel");  
+                
+                _LFshockDefl = (System.Single[])sdk.GetData("LFshockDefl");
+                _LFshockVel = (System.Single[])sdk.GetData("LFshockVel");
             }
             else
             {
@@ -97,6 +109,28 @@ namespace CrewChiefV4.iRacing
                 _LatAccel[0] = (System.Single)sdk.GetData("LatAccel");
                 _LongAccel = new System.Single[1];
                 _LongAccel[0] = (System.Single)sdk.GetData("LongAccel");
+
+                _RRshockDefl = new System.Single[1];
+                _RRshockDefl[0] = (System.Single)sdk.GetData("RRshockDefl");
+                _RRshockVel = new System.Single[1];
+                _RRshockVel[0] = (System.Single)sdk.GetData("RRshockVel");
+
+                _LRshockDefl = new System.Single[1];
+                _LRshockDefl[0] = (System.Single)sdk.GetData("LRshockDefl");
+                _LRshockVel = new System.Single[1];
+                _LRshockVel[0] = (System.Single)sdk.GetData("LRshockVel");
+
+                _RFshockDefl = new System.Single[1];
+                _RFshockDefl[0] = (System.Single)sdk.GetData("RFshockDefl");
+                _RFshockVel = new System.Single[1];
+                _RFshockVel[0] = (System.Single)sdk.GetData("RFshockVel");
+
+                _LFshockDefl = new System.Single[1];
+                _LFshockDefl[0] = (System.Single)sdk.GetData("LFshockDefl");
+                _LFshockVel = new System.Single[1];
+                _LFshockVel[0] = (System.Single)sdk.GetData("LFshockVel");
+
+
             }
             PitSvFlags = (CrewChiefV4.iRacing.PitServiceFlags)sdk.GetData("PitSvFlags");
             PitSvLFP = (System.Single)sdk.GetData("PitSvLFP");
@@ -502,5 +536,94 @@ namespace CrewChiefV4.iRacing
         /// Players car pit service status bits
         /// <summary>
         public CrewChiefV4.iRacing.PitSvStatus PlayerCarPitSvStatus;
+
+        /// <summary>
+        /// RR shock deflection
+        /// <summary>
+        private System.Single[] _RRshockDefl;
+        public System.Single RRshockDefl
+        {
+            get
+            {
+                return _RRshockDefl == null ? 0 : _RRshockDefl.Average();
+            }
+        }
+        /// <summary>
+        /// RR shock velocity
+        /// <summary>
+        private System.Single[] _RRshockVel;
+        public System.Single RRshockVel
+        {
+            get
+            {
+                return _RRshockVel == null ? 0 : _RRshockVel.Average();
+            }
+        }
+        /// <summary>
+        /// LR shock deflection
+        /// <summary>
+        private System.Single[] _LRshockDefl;
+        public System.Single LRshockDefl
+        {
+            get
+            {
+                return _LRshockDefl == null ? 0 : _LRshockDefl.Average();
+            }
+        }
+        /// <summary>
+        /// LR shock velocity
+        /// <summary>
+        private System.Single[] _LRshockVel;
+        public System.Single LRshockVel
+        {
+            get
+            {
+                return _LRshockVel == null ? 0 : _LRshockVel.Average();
+            }
+        }
+        /// <summary>
+        /// RF shock deflection
+        /// <summary>
+        private System.Single[] _RFshockDefl;
+        public System.Single RFshockDefl
+        {
+            get
+            {
+                return _RFshockDefl == null ? 0 : _RFshockDefl.Average();
+            }
+        }
+        /// <summary>
+        /// RF shock velocity
+        /// <summary>
+        private System.Single[] _RFshockVel;
+        public System.Single RFshockVel
+        {
+            get
+            {
+                return _RFshockVel == null ? 0 : _RFshockVel.Average();
+            }
+        }
+        /// <summary>
+        /// LF shock deflection
+        /// <summary>
+        private System.Single[] _LFshockDefl;
+        public System.Single LFshockDefl
+        {
+            get
+            {
+                return _LFshockDefl == null ? 0 : _LFshockDefl.Average();
+            }
+        }
+        /// <summary>
+        /// LF shock velocity
+        /// <summary>
+        private System.Single[] _LFshockVel;
+        public System.Single LFshockVel
+        {
+            get
+            {
+                return _LFshockVel == null ? 0 : _LFshockVel.Average();
+            }
+        }
     }
 }

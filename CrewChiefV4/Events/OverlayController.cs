@@ -27,6 +27,8 @@ namespace CrewChiefV4.Events
         public static float x_max = -1;
         public static float clampXMaxTo = -1;
 
+        public static int histogramZoomLevel = 1;
+
         public static Boolean showMap = false;
         public static float mapXSizeScale = 1;
 
@@ -300,26 +302,33 @@ namespace CrewChiefV4.Events
                 x_min = Math.Max(0, x_min + zoomAmount);
                 x_max = Math.Max(x_min, x_max - zoomAmount);
                 showMap = true;
-                refreshChart();
             }
+            if (histogramZoomLevel < 6)
+            {
+                histogramZoomLevel++;
+            }
+            refreshChart();
         }
 
         public static void zoomOut()
         {
-            if (x_max >= clampXMaxTo && x_min <= 0)
+            if (histogramZoomLevel > 1)
             {
-                return;
+                histogramZoomLevel--;
             }
-            float zoomAmount = (x_max - x_min) / 2;
-            x_max = Math.Min(clampXMaxTo, x_max + zoomAmount);
-            x_min = Math.Max(0, x_min - zoomAmount);
-            if (x_min < 10)
+            if (x_max < clampXMaxTo || x_min > 0)
             {
-                x_min = 0;
-            }
-            if (x_min == 0 && x_max == clampXMaxTo)
-            {
-                showMap = false;
+                float zoomAmount = (x_max - x_min) / 2;
+                x_max = Math.Min(clampXMaxTo, x_max + zoomAmount);
+                x_min = Math.Max(0, x_min - zoomAmount);
+                if (x_min < 10)
+                {
+                    x_min = 0;
+                }
+                if (x_min == 0 && x_max == clampXMaxTo)
+                {
+                    showMap = false;
+                }
             }
             refreshChart();
         }
