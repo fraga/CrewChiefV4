@@ -15,45 +15,26 @@
       class="main"> There are two voice recognition systems which Crew
       Chief can use. <br>
       <ol>
-        <li>The default option is referred to as the "<font
-            color="#009900"><b>Microsoft</b></font> speech recognition
-          engine" which is optimised for noisy environments and poor
-          quality sound input. It requires no training and works with a
-          wide range of microphone types and accents, but it requires a
-          separate runtime installation and a language pack.</li>
-        <li>The other system is referred to as the "<font
+	    <li>The default option is referred to as the "<font
             color="#009900"><b>Windows</b></font> speech recognition
           engine" and uses the speech recognition system built in to
           Windows. This requires a better quality voice input signal
           than the default system but can be trained to recognise a
           user's individual voice. It does not require the installation
           of any additional components.</li>
+        <li>The other option is referred to as the "<font
+            color="#009900"><b>Microsoft</b></font> speech recognition
+          engine" which is optimised for noisy environments and poor
+          quality sound input. It requires no training and works with a
+          wide range of microphone types and accents, but it requires a
+          separate runtime installation and a language pack.</li>        
       </ol>
       Which is best depends on the quality of your microphone, your
       voice, the amount of background noise, and countless other
       factors. It's worth trying both and seeing which gives the best
       results.<br>
-      <br>
-      If you want to use the default <font color="#009900"><b>Microsoft</b></font>
-      voice recognition system, you'll need to install <a
-        href="https://www.microsoft.com/en-gb/download/details.aspx?id=27225">the
-
-        Microsoft Speech Recognition runtime</a><br>
-      From this page click 'Download' and select the right version - for
-      most users this will be
-      x64_SpeechPlatformRuntime\SpeechPlatformRuntime.msi<br>
-      Once you've installed this, you'll also need to install <a
-        href="https://www.microsoft.com/en-gb/download/details.aspx?id=27224">a
-        language pack</a><br>
-      Again, from this page click 'Download' and select the right
-      version - for most users this will be MSSpeech_SR_en-US_TELE.msi
-      (US users) or MSSpeech_SR_en-GB_TELE.msi (UK users).<br>
-      <br>
-      Note that the app will fall back to using the Windows speech
-      recognition engine if it can't find a working installation of the
-      Microsoft speech recognition engine.<br>
-      <br>
-      If you want to use the <font color="#009900"><b>Windows</b></font>
+      <br><br>
+	  If you want to use the default <font color="#009900"><b>Windows</b></font>
       speech recognition engine simply ensure that the 'Prefer Windows
       speech recogniser' option is checked on the Properties screen. You
       will get better results if you work through the speech recognition
@@ -67,7 +48,29 @@
 
       There's also a checkbox in the Speech settings for "Recognise non-native accents for this language". This may improve accuracy for some users.<br><br>
 
-      Note that you don't have to change your display language to English<br><br>
+      Note that you don't have to change your display language to English<br><br><br>
+      
+      If you want to use the <font color="#009900"><b>Microsoft</b></font>
+      voice recognition system, you'll need to install the Microsoft Speech
+	  Recognition runtime 
+	  <a href="https://www.microsoft.com/en-gb/download/details.aspx?id=27225">SpeechPlatformRuntime.msi</a>. 
+	  From this page click 'Download' and select the right version - for most users
+	  this will be x64_SpeechPlatformRuntime\SpeechPlatformRuntime.msi.
+	  Alternative downloads containing this installer (and installers for the UK and US language packs) are 
+	  <a href="http://crewchief.isnais.de/Speech_recognition_64bit.zip"/>here (64bit)</a> and
+	  <a href="http://crewchief.isnais.de/Speech_recognition_32bit.zip"/>here (32bit)</a><br><br>
+      Once you've installed this, you'll also need to install an English language pack. The official download
+	  location for these is <a
+        href="https://www.microsoft.com/en-gb/download/details.aspx?id=27224">here</a><br>
+      Again, from this page click 'Download' and select the right
+      version - for most users this will be MSSpeech_SR_en-US_TELE.msi
+      (US users) or MSSpeech_SR_en-GB_TELE.msi (UK users).<br>
+	  If this isn't available, these language packs are
+	  also in the alternative download package linked above.<br><br>
+      Note that the app will fall back to using the Windows speech
+      recognition engine if it can't find a working installation of the
+      Microsoft speech recognition engine.<br>
+      <br>
       
       Crew Chief will use the "Default" recording device for voice
       recognition - this can be selected in the "Recording devices"
@@ -85,20 +88,25 @@
       button down while you talk - this can be changed by selecting a
       different 'Voice recognition mode'.<br>
       <h4>Confidence Levels</h4>
-      <p>The voice recognition system reports a "Confidence Level" that
-        it understood what you said. Crew Chief uses that to be sure
-        that speech is intended as a voice command. The Microsoft and
-        Windows speech recognition engines give different values and
-        Crew Chief also uses different values for different situations
+      <p>The voice recognition system reports a "Confidence Level", indicating
+	    how confident is is that it understood what you said.
+		Crew Chief uses that to be sure that speech is intended as a
+		and that the app interprets the command correctly. Crew Chief uses
+		confidence thresholds to decide whether to reject a voice command which
+		is recognised with too low a confidence value. The Microsoft and
+        Windows speech recognition engines report different confidence values and
+        Crew Chief also uses different threshold values for different situations
         (recognising the trigger word "Chief", recognising commands,
         recognising names) so there are 6 levels that can be adjusted if
         needed.&nbsp; Crew Chief shows the confidence level in the
-        console window when it recognises speech which gives something
-        on which to base any adjustments.<br>
-        <br>
-        <i><font face="Helvetica, Arial, sans-serif">Microsoft
+        console window along with the relevant threshold property name and
+		value when it recognises speech - e.g. <i><font face="Helvetica, Arial, sans-serif">Microsoft
             recogniser heard keyword "Chief", waiting for command,
-            confidence 0.986</font></i><br>
+            confidence 0.986</font></i>.<br>
+		By default, Crew Chief will modify the Confidence Level thresholds
+		automatically, while running tuning them to better match the range of values reported
+		by the speech recogniser (starting from the initial values set in the Properties screen).
+        <br><br>
       </p>
       <p>A screen dump of the levels:<br>
       <a target="_blank" href="CC_Confidence.png"> <img src="CC_Confidence.png" alt="Control
