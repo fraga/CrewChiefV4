@@ -119,7 +119,9 @@ namespace CrewChiefV4.GTR2
         private Dictionary<string, CarInfo> driverNameToCarInfoMap = new Dictionary<string, CarInfo>();
 
         // Message center stuff
-        private Int64 lastHistoryMessageUpdatedTicks = 0L;
+        private Int64 lastFirstHistoryMessageUpdatedTicks = 0L;
+        private Int64 lastSecondHistoryMessageUpdatedTicks = 0L;
+        private Int64 lastThirdHistoryMessageUpdatedTicks = 0L;
 #if DEBUG
         private Int64 statusMessageUpdatedTicks = 0L;
 #endif
@@ -274,7 +276,9 @@ namespace CrewChiefV4.GTR2
             this.timeHistoryMessageIgnored = DateTime.MinValue;
             this.timeLSIMessageIgnored = DateTime.MinValue;
             this.numFODetectPhaseAttempts = 0;
-            this.lastHistoryMessageUpdatedTicks = 0L;
+            this.lastFirstHistoryMessageUpdatedTicks = 0L;
+            this.lastSecondHistoryMessageUpdatedTicks = 0L;
+            this.lastThirdHistoryMessageUpdatedTicks = 0L;
 
             this.lastGameSession = -1;
 
@@ -2171,13 +2175,50 @@ namespace CrewChiefV4.GTR2
             if (shared.extended.mUnofficialFeaturesEnabled == 0)
                 return;
 
-            if (shared.extended.mTicksFirstHistoryMessageUpdated == this.lastHistoryMessageUpdatedTicks)
+            if (shared.extended.mTicksFirstHistoryMessageUpdated == this.lastFirstHistoryMessageUpdatedTicks
+                && shared.extended.mTicksSecondHistoryMessageUpdated == this.lastSecondHistoryMessageUpdatedTicks
+                && shared.extended.mTicksThirdHistoryMessageUpdated == this.lastThirdHistoryMessageUpdatedTicks)
                 return;
 
-            // Do not re-process this update.
-            this.lastHistoryMessageUpdatedTicks = shared.extended.mTicksFirstHistoryMessageUpdated;
+            if (this.lastFirstHistoryMessageUpdatedTicks != shared.extended.mTicksFirstHistoryMessageUpdated)
+            {
+                this.lastFirstHistoryMessageUpdatedTicks = shared.extended.mTicksFirstHistoryMessageUpdated;
 
-            var msg = GTR2GameStateMapper.GetStringFromBytes(shared.extended.mFirstHistoryMessage);
+                var msg = GTR2GameStateMapper.GetStringFromBytes(shared.extended.mFirstHistoryMessage);
+                if (!string.IsNullOrWhiteSpace(msg))
+                {
+                    Log.Info("First history message changed.");
+                    this.ProcessMCMesagesHelper(cgs, pgs, msg);
+                }
+            }
+
+            if (this.lastSecondHistoryMessageUpdatedTicks != shared.extended.mTicksSecondHistoryMessageUpdated)
+            {
+                this.lastSecondHistoryMessageUpdatedTicks = shared.extended.mTicksSecondHistoryMessageUpdated;
+
+                var msg = GTR2GameStateMapper.GetStringFromBytes(shared.extended.mSecondHistoryMessage);
+                if (!string.IsNullOrWhiteSpace(msg))
+                {
+                    Log.Info("Second history message changed.");
+                    this.ProcessMCMesagesHelper(cgs, pgs, msg);
+                }
+            }
+
+            if (this.lastThirdHistoryMessageUpdatedTicks != shared.extended.mTicksThirdHistoryMessageUpdated)
+            {
+                this.lastThirdHistoryMessageUpdatedTicks = shared.extended.mTicksThirdHistoryMessageUpdated;
+
+                var msg = GTR2GameStateMapper.GetStringFromBytes(shared.extended.mThirdHistoryMessage);
+                if (!string.IsNullOrWhiteSpace(msg))
+                {
+                    Log.Info("Third history message changed.");
+                    this.ProcessMCMesagesHelper(cgs, pgs, msg);
+                }
+            }
+        }
+
+        private void ProcessMCMesagesHelper(GameStateData cgs, GameStateData pgs, string msg)
+        {
             if (msg != this.lastEffectiveHistoryMessage
                 || (cgs.Now - this.timeEffectiveMessageProcessed).TotalSeconds > this.effectiveMessageExpirySeconds)
             {
