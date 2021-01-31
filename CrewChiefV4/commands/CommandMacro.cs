@@ -381,6 +381,16 @@ namespace CrewChiefV4.commands
         {            
             if (actionItem.allowFreeText)
             {
+                if (SpeechRecogniser.getStartChatMacro() == null)
+                {
+                    Console.WriteLine("Can't send chat macro, no \"start chat message\" macro is defined for game " + CrewChief.gameDefinition.gameEnum);
+                    return;
+                }
+                if (SpeechRecogniser.getEndChatMacro() == null)
+                {
+                    Console.WriteLine("Can't send chat macro, no \"end chat message\" macro is defined for game " + CrewChief.gameDefinition.gameEnum);
+                    return;
+                }
                 Console.WriteLine(actionItem.freeText);
                 new InputSimulator().Keyboard
                     .KeyPress(SpeechRecogniser.getStartChatMacro().getStartChatKey()).Sleep(getWaitBetweenEachCommand())
