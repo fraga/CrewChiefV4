@@ -89,6 +89,7 @@ namespace CrewChiefV4.iRacing
                 _LatAccel = (System.Single[])sdk.GetData("LatAccel");
                 _LongAccel = (System.Single[])sdk.GetData("LongAccel");
 
+                /*
                 _RRshockDefl = (System.Single[])sdk.GetData("RRshockDefl");
                 _RRshockVel = (System.Single[])sdk.GetData("RRshockVel");
 
@@ -100,6 +101,7 @@ namespace CrewChiefV4.iRacing
                 
                 _LFshockDefl = (System.Single[])sdk.GetData("LFshockDefl");
                 _LFshockVel = (System.Single[])sdk.GetData("LFshockVel");
+                */
             }
             else
             {
@@ -110,6 +112,7 @@ namespace CrewChiefV4.iRacing
                 _LongAccel = new System.Single[1];
                 _LongAccel[0] = (System.Single)sdk.GetData("LongAccel");
 
+                /*
                 _RRshockDefl = new System.Single[1];
                 _RRshockDefl[0] = (System.Single)sdk.GetData("RRshockDefl");
                 _RRshockVel = new System.Single[1];
@@ -129,7 +132,7 @@ namespace CrewChiefV4.iRacing
                 _LFshockDefl[0] = (System.Single)sdk.GetData("LFshockDefl");
                 _LFshockVel = new System.Single[1];
                 _LFshockVel[0] = (System.Single)sdk.GetData("LFshockVel");
-
+                */
 
             }
             PitSvFlags = (CrewChiefV4.iRacing.PitServiceFlags)sdk.GetData("PitSvFlags");
