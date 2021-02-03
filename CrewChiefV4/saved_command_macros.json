@@ -2,7 +2,7 @@
   "macros": [
     {
       "name": "say sorry",
-      "description": "opens chat, types 'sorry, my bad', presses enter. An action sequence item starting with {FREE_TEXT} tells the app to press each of the following keys in sequence. Numbers, letters, commas and full-stops only are supported.",
+      "description": "opens chat, types 'sorry, my bad', presses enter. An action sequence item starting with {FREE_TEXT} tells the app to press each of the following keys in sequence. The key for the current game's 'start chat message' macro is pressed before typing the FREE_TEXT keys, then the key for the current game's 'end chat message' macro is pressed.",
       "voiceTriggers": [
         "chat, say sorry"
       ],
@@ -11,9 +11,7 @@
           "description": "r3e version",
           "gameDefinition": "RACE_ROOM",
           "actionSequence": [
-            "KEY_C",
-            "{FREE_TEXT}Sorry, my bad",
-            "ENTER"
+            "{FREE_TEXT}Sorry, my bad"
           ],
           "keyPressTime": 10,
           "waitBetweenEachCommand": 200
@@ -22,9 +20,7 @@
           "description": "pcars2 version",
           "gameDefinition": "PCARS2",
           "actionSequence": [
-            "KEY_T",
-            "{FREE_TEXT}Sorry, my bad",
-            "ENTER"
+            "{FREE_TEXT}Sorry, my bad"
           ],
           "keyPressTime": 50,
           "waitBetweenEachCommand": 100
@@ -33,9 +29,7 @@
           "description": "AMS2 version",
           "gameDefinition": "AMS2",
           "actionSequence": [
-            "KEY_T",
-            "{FREE_TEXT}Sorry, my bad",
-            "ENTER"
+            "{FREE_TEXT}Sorry, my bad"
           ],
           "keyPressTime": 50,
           "waitBetweenEachCommand": 100
@@ -44,68 +38,58 @@
           "description": "iracing version",
           "gameDefinition": "IRACING",
           "actionSequence": [
-            "KEY_T",
-            "{FREE_TEXT}Sorry, my bad",
-            "ENTER"
+            "{FREE_TEXT}Sorry, my bad"
           ],
           "keyPressTime": 50,
           "waitBetweenEachCommand": 100
         }
       ]
     },
-    {
-      "name": "say good pass",
-      "description": "opens chat, types 'good pass', presses enter. An action sequence item starting with {FREE_TEXT} tells the app to press each of the following keys in sequence. Numbers, letters, commas and full-stops only are supported",
-      "voiceTriggers": [
-        "chat, say good pass"
-      ],
-      "commandSets": [
-        {
-          "description": "r3e version",
-          "gameDefinition": "RACE_ROOM",
-          "actionSequence": [
-            "KEY_C",
-            "{FREE_TEXT}good pass",
-            "ENTER"
-          ],
-          "keyPressTime": 10,
-          "waitBetweenEachCommand": 200
-        },
-        {
-          "description": "pcars2 version",
-          "gameDefinition": "PCARS2",
-          "actionSequence": [
-            "KEY_T",
-            "{FREE_TEXT}good pass",
-            "ENTER"
-          ],
-          "keyPressTime": 50,
-          "waitBetweenEachCommand": 100
-        },
-		{
-          "description": "AMS2 version",
-          "gameDefinition": "AMS2",
-          "actionSequence": [
-            "KEY_T",
-            "{FREE_TEXT}good pass",
-            "ENTER"
-          ],
-          "keyPressTime": 50,
-          "waitBetweenEachCommand": 100
-        },
-        {
-          "description": "iracing version",
-          "gameDefinition": "IRACING",
-          "actionSequence": [
-            "KEY_T",
-            "{FREE_TEXT}Good pass",
-            "ENTER"
-          ],
-          "keyPressTime": 50,
-          "waitBetweenEachCommand": 100
-        }
-      ]
-    },
+	{
+		"name": "say good pass",
+		"description": "opens chat, types 'good pass', presses enter. An action sequence item starting with {FREE_TEXT} tells the app to press each of the following keys in sequence. The key for the current game's 'start chat message' macro is pressed before typing the FREE_TEXT keys, then the key for the current game's 'end chat message' macro is pressed.",
+		"voiceTriggers": [
+			"chat, say good pass"
+		],
+		"commandSets": [
+			{
+				"description": "r3e version",
+				"gameDefinition": "RACE_ROOM",
+				"actionSequence": [
+					"{FREE_TEXT}good pass"
+				],
+				"keyPressTime": 10,
+				"waitBetweenEachCommand": 200
+			},
+			{
+				"description": "pcars2 version",
+				"gameDefinition": "PCARS2",
+				"actionSequence": [
+					"{FREE_TEXT}good pass"
+				],
+				"keyPressTime": 50,
+				"waitBetweenEachCommand": 100
+			},
+			{
+				"description": "AMS2 version",
+				"gameDefinition": "AMS2",
+				"actionSequence": [
+					"{FREE_TEXT}good pass"
+				],
+				"keyPressTime": 50,
+				"waitBetweenEachCommand": 100
+			},
+			{
+				"description": "iracing version",
+				"gameDefinition": "IRACING",
+				"actionSequence": [
+					"{FREE_TEXT}Good pass"
+				],
+				"keyPressTime": 50,
+				"waitBetweenEachCommand": 100
+			}
+		]
+	},
     {
       "name": "request pit",
       "description": "requests a pitstop",
@@ -847,6 +831,24 @@
           ],
           "keyPressTime": 100,
           "waitBetweenEachCommand": 100
+        },
+        {
+          "description": "ACC version",
+          "gameDefinition": "ACC",
+          "actionSequence": [
+            "ENTER"
+          ],
+          "keyPressTime": 100,
+          "waitBetweenEachCommand": 100
+        },
+        {
+          "description": "AC version",
+          "gameDefinition": "AC",
+          "actionSequence": [
+            "ENTER"
+          ],
+          "keyPressTime": 100,
+          "waitBetweenEachCommand": 100
         }
       ]
     },
@@ -885,6 +887,24 @@
         {
           "description": "iracing version",
           "gameDefinition": "IRACING",
+          "actionSequence": [
+            "ENTER"
+          ],
+          "keyPressTime": 100,
+          "waitBetweenEachCommand": 100
+        },
+        {
+          "description": "ACC version",
+          "gameDefinition": "ACC",
+          "actionSequence": [
+            "ENTER"
+          ],
+          "keyPressTime": 100,
+          "waitBetweenEachCommand": 100
+        },
+        {
+          "description": "AC version",
+          "gameDefinition": "AC",
           "actionSequence": [
             "ENTER"
           ],

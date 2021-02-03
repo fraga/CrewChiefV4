@@ -431,6 +431,10 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.15.1.5: iRacing crash hotfix
+
+Version 4.15.1.4: Added option to prefer driver names over car numbers for frozen order calls (full course yellow / rolling start); Added suspension velocity histogram data to R3E, AMS2 and pCars2 chart data (default voice command "show me suspension velocity"); Made Windows speech recognition the default; R3E - fixed ratings retrieval; R3E - increase app tick-rate during start lights to reduce delay in reporting countdown / green flag state to other apps; GTR2 - fix some VR rendering issues; ACC - fix free chat macros; Various bug fixes and improvements
+
 Version 4.15.1.2: Fixed some issues in gap reporting that could result in incorrect gaps or unwanted messages; Some internal speech recognition improvements; Automatically tune the speech recogniser's confidence thresholds - should improve recognition accuracy and consistency (this behaviour is enabled by default and can be disable by unchecking the 'Auto-tune speech recognition thresholds' property); GTR2 - some plugin and VR rendering improvements; RF2 - some pit menu fixes
 
 Version 4.15.1.1: Added a configurable delay after releasing the speech recognition button before finishing speech recognition - may help users who tend to release the button too early ('hold button' mode only, property name 'SRE delay after button release'); Allow keyboard and button assignments to trigger macro functions and extended the Macro Editor UI to support key / button assignments; Speeded up free-chat macro functions; Extended mid-stage rally stage notes correction feature to include many more call types; UI enhancements (console context menu and other stuff); AMS2 - use separate command macros for AMS2 rather than reusing pCars2 macros; GTR2 - VR rendering enhancements and support for more message types including rolling start; RF2 - pit menu fixes

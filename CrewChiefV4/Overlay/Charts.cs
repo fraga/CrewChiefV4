@@ -32,22 +32,69 @@ namespace CrewChiefV4.Overlay
         private static float y_min;
         private static float y_max;
         private static float x_min;
+        private static float x_max;
 
-        public static List<ChartContainer> createCharts(int width, int height, Boolean antiAliasing)
+        public static bool hasHistogramSeriesSubs()
+        {
+            foreach (Tuple<OverlaySubscription, SeriesMode> activeSubscription in activeSubscriptions)
+            {
+                if (activeSubscription.Item1.dataSeriesType == DataSeriesType.HISTOGRAM)
+                {
+                    return true;
+
+                }
+            }
+            return false;
+        }
+ 
+        public static bool hasTimeSeriesSubs()
+        {
+            foreach (Tuple<OverlaySubscription, SeriesMode> activeSubscription in activeSubscriptions)
+            {
+                if (activeSubscription.Item1.dataSeriesType == DataSeriesType.TIMESERIES)
+                {
+                    return true;
+
+                }
+            }
+            return false;
+        }
+
+        public static List<ChartContainer> createOverlayChart(int width, int height, Boolean antiAliasing)
+        {
+            List<ChartContainer> chartContainers = new List<ChartContainer>();
+            foreach (DataSeriesType type in Enum.GetValues(typeof(DataSeriesType)))
+            {
+                ChartContainer container = createTypedOverlayChart(width, height, antiAliasing, type);
+                if (container != null)
+                {
+                    chartContainers.Add(container);
+                }
+            }
+            return chartContainers;
+        }
+
+        public static List<ChartContainer> createStackedCharts(int width, int height, Boolean antiAliasing)
         {
             Color ForeColor = Color.FromArgb(CrewChiefOverlayWindow.colorScheme.fontColor.ToARGB());
             Color BackColor = Color.FromArgb(CrewChiefOverlayWindow.colorScheme.backgroundColor.ToARGB());
             List<ChartContainer> charts = new List<ChartContainer>();
-            // Display a single empty chart if there are no data to display istead of just a blank screen.
+            // Display a single empty chart if there are no data to display instead of just a blank screen.
             if (activeSubscriptions.Count == 0)
             {
-                charts.Add(createChart(width, height, antiAliasing));
+                charts.Add(createTypedOverlayChart(width, height, antiAliasing, null));
                 return charts;
-
             }
             HashSet<Tuple<OverlaySubscription, SeriesMode>> addedSubscriptions = new HashSet<Tuple<OverlaySubscription, SeriesMode>>();
             foreach (var subscription in activeSubscriptions)
             {
+                Boolean isHistogram = false;
+                string histogramXLabel = "";
+                if (subscription.Item1.dataSeriesType == DataSeriesType.HISTOGRAM)
+                {
+                    histogramXLabel = subscription.Item1.histogramXLabel == null ? subscription.Item1.labels[0] : subscription.Item1.histogramXLabel;
+                    isHistogram = true;
+                }
                 if (addedSubscriptions.Contains(subscription))
                 {
                     continue;
@@ -106,8 +153,34 @@ namespace CrewChiefV4.Overlay
                     yAxisFormat = getYAxisFormat();
                 }
                 chartArea1.AxisY.LabelStyle.Format = yAxisFormat;
-                chartArea1.AxisX.LabelStyle.Format = "F0";
-                chartArea1.AxisX.Title = OverlayDataSource.xAxisType == X_AXIS_TYPE.DISTANCE ? "Distance (m)" : "Time (s)";
+                if (isHistogram)
+                {
+                    chartArea1.AxisX.Title = histogramXLabel;
+                    chartArea1.AxisX.LabelStyle.Format = "F3";
+                    chartArea1.AxisY.LabelStyle.Format = "P";   // convert to percentage
+                    double xmin = Double.Parse(x_min.ToString("G1"));
+                    double xmax = Double.Parse(x_max.ToString("G1"));
+                    // ensure a symmetrical range for charts crossing 0
+                    if (xmin < 0 && xmax > 0)
+                    {
+                        double maxAndMin = Math.Max(xmax, xmin * 1);
+                        chartArea1.AxisX.Minimum = maxAndMin * -1;
+                        chartArea1.AxisX.Maximum = maxAndMin;
+                        chart1.Annotations.Add(createZeroAnnotation(chartArea1));
+                    }
+                    else
+                    {
+                        chartArea1.AxisX.Minimum = xmin;
+                        chartArea1.AxisX.Maximum = xmax;
+                    }
+                }
+                else
+                {
+                    chartArea1.AxisX.Title = OverlayDataSource.xAxisType == X_AXIS_TYPE.DISTANCE ? "Distance (m)" : "Time (s)";
+                    chartArea1.AxisX.LabelStyle.Format = "F0";
+                    chartArea1.AxisX.Minimum = x_min;
+                    chartArea1.AxisX.Maximum = x_max;
+                }
                 chartArea1.AxisX.TitleForeColor = ForeColor;
                 if (y_max <= y_min)
                 {
@@ -116,7 +189,6 @@ namespace CrewChiefV4.Overlay
                 }
                 chartArea1.AxisY.Maximum = y_max;
                 chartArea1.AxisY.Minimum = y_min;
-                chartArea1.AxisX.Minimum = x_min;
                 int colourIndex = 0;
                 foreach (Series series in seriesList)
                 {
@@ -139,31 +211,20 @@ namespace CrewChiefV4.Overlay
                 }
                 chartArea1.InnerPlotPosition = new ElementPosition(7, 10, 70, 60);
                 chart1.Legends[0].Position = new ElementPosition(80, 0, 20, 100);
-                if (OverlayDataSource.sector1End > 0)
-                    chart1.Annotations.Add(createSectorAnnotation(chartArea1, 1, OverlayDataSource.sector1End));
-                if (OverlayDataSource.sector2End > 0)
-                    chart1.Annotations.Add(createSectorAnnotation(chartArea1, 2, OverlayDataSource.sector2End));
+                if (!isHistogram)
+                {
+                    if (OverlayDataSource.sector1End > 0)
+                        chart1.Annotations.Add(createSectorAnnotation(chartArea1, 1, OverlayDataSource.sector1End));
+                    if (OverlayDataSource.sector2End > 0)
+                        chart1.Annotations.Add(createSectorAnnotation(chartArea1, 2, OverlayDataSource.sector2End));
+                }
                 chart1.Invalidate();
                 charts.Add(new ChartContainer(subscription.Item2.ToString() + " " + subscription.Item1.id, GetByteArrayForChart(chart1)));
             }            
             return charts;
         }
-        
-        private static VerticalLineAnnotation createSectorAnnotation(ChartArea chartArea, int sectorNumber, float sectorPoint)
-        {
-            var sectorAnnotation = new VerticalLineAnnotation();
-            sectorAnnotation.AxisX = chartArea.AxisX;
-            sectorAnnotation.Name = "S" + sectorNumber;
-            sectorAnnotation.X = sectorPoint;
-            sectorAnnotation.LineColor = Color.Gray;
-            sectorAnnotation.LineDashStyle = ChartDashStyle.Dash;
-            sectorAnnotation.LineWidth = 2;
-            sectorAnnotation.IsInfinitive = true;
-            sectorAnnotation.ClipToChartArea = chartArea.Name;
-            return sectorAnnotation;
-        }
 
-        public static ChartContainer createChart(int width, int height, Boolean antiAliasing)
+        private static ChartContainer createTypedOverlayChart(int width, int height, Boolean antiAliasing, DataSeriesType? type)
         {
             Color ForeColor = Color.FromArgb(CrewChiefOverlayWindow.colorScheme.fontColor.ToARGB());
             Color BackColor = Color.FromArgb(CrewChiefOverlayWindow.colorScheme.backgroundColor.ToARGB());
@@ -201,10 +262,17 @@ namespace CrewChiefV4.Overlay
             string yAxisFormat = null;
             string compoundId = "";
             Boolean addedFirst = false;
+            Boolean isHistogram = false;
+            string histogramXLabel = "";
             foreach (Tuple<OverlaySubscription, SeriesMode> subscription in Charts.activeSubscriptions)
             {
-                if (subscription != null)
+                if (subscription != null && (type == null || subscription.Item1.dataSeriesType == type.Value))
                 {
+                    if (subscription.Item1.dataSeriesType == DataSeriesType.HISTOGRAM)
+                    {
+                        isHistogram = true;
+                        histogramXLabel = subscription.Item1.histogramXLabel == null ? subscription.Item1.labels[0] : subscription.Item1.histogramXLabel;
+                    }
                     seriesList.AddRange(createSeriesSet(subscription));
                     if (addedFirst)
                     {
@@ -212,8 +280,14 @@ namespace CrewChiefV4.Overlay
                     }
                     compoundId += subscription.Item2.ToString() + " " + subscription.Item1.id;
                     yAxisFormat = subscription.Item1.yAxisFormat;
+                    addedFirst = true;
                 }
             }
+            if (!addedFirst && type != null)
+            {
+                return null;
+            }
+
             if (y_max <= y_min)
             {
                 Console.WriteLine("Data series is incomplete");
@@ -221,14 +295,41 @@ namespace CrewChiefV4.Overlay
             }
             chartArea1.AxisY.Maximum = y_max;
             chartArea1.AxisY.Minimum = y_min;
-            chartArea1.AxisX.Minimum = x_min;
+
             if (yAxisFormat == null)
             {
                 yAxisFormat = getYAxisFormat();
             }
             chartArea1.AxisY.LabelStyle.Format = yAxisFormat;
             chartArea1.AxisX.LabelStyle.Format = "F0";
-            chartArea1.AxisX.Title = OverlayDataSource.xAxisType == X_AXIS_TYPE.DISTANCE ? "Distance (m)" : "Time (s)";
+            if (isHistogram)
+            {
+                chartArea1.AxisX.Title = histogramXLabel;
+                chartArea1.AxisX.LabelStyle.Format = "F3";
+                chartArea1.AxisY.LabelStyle.Format = "P";   // convert to percentage
+                double xmin = Double.Parse(x_min.ToString("G1"));
+                double xmax = Double.Parse(x_max.ToString("G1"));
+                // ensure a symmetrical range for charts crossing 0
+                if (xmin < 0 && xmax > 0)
+                {
+                    double maxAndMin = Math.Max(xmax, xmin * 1);
+                    chartArea1.AxisX.Minimum = maxAndMin * -1;
+                    chartArea1.AxisX.Maximum = maxAndMin;
+                    chart1.Annotations.Add(createZeroAnnotation(chartArea1));
+                }
+                else
+                {
+                    chartArea1.AxisX.Minimum = xmin;
+                    chartArea1.AxisX.Maximum = xmax;
+                }
+            }
+            else
+            {
+                chartArea1.AxisX.Title = OverlayDataSource.xAxisType == X_AXIS_TYPE.DISTANCE ? "Distance (m)" : "Time (s)";
+                chartArea1.AxisX.LabelStyle.Format = "F0";
+                chartArea1.AxisX.Minimum = x_min;
+                chartArea1.AxisX.Maximum = x_max;
+            }
             chartArea1.AxisX.TitleForeColor = ForeColor;
             int colourIndex = 0;
             foreach (Series series in seriesList)
@@ -252,12 +353,43 @@ namespace CrewChiefV4.Overlay
             }
             chartArea1.InnerPlotPosition = new ElementPosition(7, 10, 70, 60);
             chart1.Legends[0].Position = new ElementPosition(80, 0, 20, 100);
-            if (OverlayDataSource.sector1End > 0)
-                chart1.Annotations.Add(createSectorAnnotation(chartArea1, 1, OverlayDataSource.sector1End));
-            if (OverlayDataSource.sector2End > 0)
-                chart1.Annotations.Add(createSectorAnnotation(chartArea1, 2, OverlayDataSource.sector2End));
+            if (!isHistogram)
+            {
+                if (OverlayDataSource.sector1End > 0)
+                    chart1.Annotations.Add(createSectorAnnotation(chartArea1, 1, OverlayDataSource.sector1End));
+                if (OverlayDataSource.sector2End > 0)
+                    chart1.Annotations.Add(createSectorAnnotation(chartArea1, 2, OverlayDataSource.sector2End));
+            }
             chart1.Invalidate();
             return new ChartContainer(compoundId, GetByteArrayForChart(chart1));
+        }
+
+        private static VerticalLineAnnotation createSectorAnnotation(ChartArea chartArea, int sectorNumber, float sectorPoint)
+        {
+            var sectorAnnotation = new VerticalLineAnnotation();
+            sectorAnnotation.AxisX = chartArea.AxisX;
+            sectorAnnotation.Name = "S" + sectorNumber;
+            sectorAnnotation.X = sectorPoint;
+            sectorAnnotation.LineColor = Color.Gray;
+            sectorAnnotation.LineDashStyle = ChartDashStyle.Dash;
+            sectorAnnotation.LineWidth = 2;
+            sectorAnnotation.IsInfinitive = true;
+            sectorAnnotation.ClipToChartArea = chartArea.Name;
+            return sectorAnnotation;
+        }
+
+        private static VerticalLineAnnotation createZeroAnnotation(ChartArea chartArea)
+        {
+            var zeroAnnotation = new VerticalLineAnnotation();
+            zeroAnnotation.AxisX = chartArea.AxisX;
+            zeroAnnotation.Name = "0";
+            zeroAnnotation.X = 0.0f;
+            zeroAnnotation.LineColor = Color.Black;
+            zeroAnnotation.LineDashStyle = ChartDashStyle.Dash;
+            zeroAnnotation.LineWidth = 1;
+            zeroAnnotation.IsInfinitive = true;
+            zeroAnnotation.ClipToChartArea = chartArea.Name;
+            return zeroAnnotation;
         }
 
         private static string getYAxisFormat()
@@ -438,6 +570,11 @@ namespace CrewChiefV4.Overlay
                     }
                     OverlayDataSource.getLapTimeForBestLapString();
                     Boolean addedLaptime = false;
+                    if (overlaySubscription.Item1.dataSeriesType == DataSeriesType.HISTOGRAM)
+                    {
+                        x_min = float.MaxValue;
+                    }
+                    x_max = float.MinValue;
                     for (int i = 0; i < data[0].Item2.Length; i++)
                     {
                         string name;
@@ -459,29 +596,29 @@ namespace CrewChiefV4.Overlay
                             /* white ==> needs to be auto-set*/
                             Color = Color.White,
                         };
-                        if (overlaySubscription.Item2 == SeriesMode.LAST_LAP && overlaySubscription.Item1.coloursLastLap.Count() > i)
+                        if (overlaySubscription.Item2 == SeriesMode.LAST_LAP && overlaySubscription.Item1.coloursLastLap_Internal.Count() > i)
                         {
                             try
                             {
-                                series.Color = Color.FromName(overlaySubscription.Item1.coloursLastLap[lastLapColourIndex]);
+                                series.Color = Color.FromName(overlaySubscription.Item1.coloursLastLap_Internal[lastLapColourIndex]);
                             }
                             catch (Exception e) {Log.Exception(e);}
                             lastLapColourIndex++;
                         }
-                        else if (overlaySubscription.Item2 == SeriesMode.BEST_LAP && overlaySubscription.Item1.coloursBestLap.Count() > i)
+                        else if (overlaySubscription.Item2 == SeriesMode.BEST_LAP && overlaySubscription.Item1.coloursBestLap_Internal.Count() > i)
                         {
                             try
                             {
-                                series.Color = Color.FromName(overlaySubscription.Item1.coloursBestLap[bestLapColourIndex]);
+                                series.Color = Color.FromName(overlaySubscription.Item1.coloursBestLap_Internal[bestLapColourIndex]);
                             }
                             catch (Exception e) {Log.Exception(e);}
                             bestLapColourIndex++;
                         }
-                        else if (overlaySubscription.Item2 == SeriesMode.OPPONENT_BEST_LAP && overlaySubscription.Item1.coloursOpponentBestLap.Count() > i)
+                        else if (overlaySubscription.Item2 == SeriesMode.OPPONENT_BEST_LAP && overlaySubscription.Item1.coloursOpponentBestLap_Internal.Count() > i)
                         {
                             try
                             {
-                                series.Color = Color.FromName(overlaySubscription.Item1.coloursOpponentBestLap[opponentBestLapColourIndex]);
+                                series.Color = Color.FromName(overlaySubscription.Item1.coloursOpponentBestLap_Internal[opponentBestLapColourIndex]);
                             }
                             catch (Exception e) {Log.Exception(e);}
                             opponentBestLapColourIndex++;
@@ -507,7 +644,18 @@ namespace CrewChiefV4.Overlay
                         bool gotXMin = false;
                         foreach (Tuple<float, float[]> overlayDataPoint in data)
                         {
-                            if (!gotXMin)
+                            if (overlayDataPoint.Item1 > x_max)
+                            {
+                                x_max = overlayDataPoint.Item1;
+                            }
+                            if (overlaySubscription.Item1.dataSeriesType == DataSeriesType.HISTOGRAM)
+                            {
+                                if (overlayDataPoint.Item1 < x_min)
+                                {
+                                    x_min = overlayDataPoint.Item1;
+                                }
+                            }
+                            else if (!gotXMin)
                             {
                                 x_min = overlayDataPoint.Item1;
                                 // special case for when we're at the start of the range - ensure the first X point is actually 0

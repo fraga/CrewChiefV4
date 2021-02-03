@@ -26,7 +26,6 @@ namespace CrewChiefV4.GTR2
         private readonly bool enableFrozenOrderMessages = true; // UserSettings.GetUserSettings().getBoolean("enable_gtr2_frozen_order_messages");
         private readonly bool enableCutTrackHeuristics = UserSettings.GetUserSettings().getBoolean("enable_gtr2_cut_track_heuristics");
         private readonly bool enablePitLaneApproachHeuristics = UserSettings.GetUserSettings().getBoolean("enable_gtr2_pit_lane_approach_heuristics");
-        private readonly bool enableFCYPitStateMessages = true;  // UserSettings.GetUserSettings().getBoolean("enable_gtr2_pit_state_during_fcy");
         //private readonly bool useRealWheelSizeForLockingAndSpinning = UserSettings.GetUserSettings().getBoolean("use_gtr2_wheel_size_for_locking_and_spinning");
         //private readonly bool enableWrongWayMessage = UserSettings.GetUserSettings().getBoolean("enable_gtr2_wrong_way_message");
         private readonly bool disableRaceEndMessagesOnAbandon = true; // UserSettings.GetUserSettings().getBoolean("disable_gtr2_race_end_messages_on_abandoned_sessions");
@@ -120,7 +119,9 @@ namespace CrewChiefV4.GTR2
         private Dictionary<string, CarInfo> driverNameToCarInfoMap = new Dictionary<string, CarInfo>();
 
         // Message center stuff
-        private Int64 lastHistoryMessageUpdatedTicks = 0L;
+        private Int64 lastFirstHistoryMessageUpdatedTicks = 0L;
+        private Int64 lastSecondHistoryMessageUpdatedTicks = 0L;
+        private Int64 lastThirdHistoryMessageUpdatedTicks = 0L;
 #if DEBUG
         private Int64 statusMessageUpdatedTicks = 0L;
 #endif
@@ -132,7 +133,13 @@ namespace CrewChiefV4.GTR2
         private Int64 firstHistoryMessageUpdatedFOTicks = 0L;
         private Int64 secondHistoryMessageUpdatedFOTicks = 0L;
         private Int64 thirdHistoryMessageUpdatedFOTicks = 0L;
-
+        private string firstHistoryMessage = "";
+        private string secondHistoryMessage = "";
+        private string thirdHistoryMessage = "";
+        private Int64 lastFOChangeTicks = DateTime.MinValue.Ticks;
+        private int lastKnownVehicleToFollowID = -1;
+        private const int SPECIAL_MID_NONE = -2;
+        private const int SPECIAL_MID_SAFETY_CAR = -1;
 
         // Since some of MC messages disapper (Player Control: N, for example), we need to remember last message that
         // mattered from CC's standpoint, otherwise, same message could get applied multiple times.
@@ -146,7 +153,7 @@ namespace CrewChiefV4.GTR2
         private DateTime timeLSIMessageIgnored = DateTime.MinValue;
         private int numFODetectPhaseAttempts = 0;
         private const int maxFormationStandingCheckAttempts = 5;
-        private bool safetyCarLeft = false;
+        //private bool safetyCarLeft = false;
 
         public GTR2GameStateMapper()
         {
@@ -269,13 +276,17 @@ namespace CrewChiefV4.GTR2
             this.timeHistoryMessageIgnored = DateTime.MinValue;
             this.timeLSIMessageIgnored = DateTime.MinValue;
             this.numFODetectPhaseAttempts = 0;
-            this.safetyCarLeft = false;
-            this.lastHistoryMessageUpdatedTicks = 0L;
+            this.lastFirstHistoryMessageUpdatedTicks = 0L;
+            this.lastSecondHistoryMessageUpdatedTicks = 0L;
+            this.lastThirdHistoryMessageUpdatedTicks = 0L;
 
             this.lastGameSession = -1;
 
             this.rspwState = RollingStateWorkaroundState.Done;
             this.rspwIDToRSWData = null;
+
+            this.lastFOChangeTicks = DateTime.MinValue.Ticks;
+            this.lastKnownVehicleToFollowID = GTR2GameStateMapper.SPECIAL_MID_NONE;
         }
 
         public override GameStateData mapToGameStateData(Object memoryMappedFileStruct, GameStateData previousGameState)
@@ -1784,75 +1795,20 @@ namespace CrewChiefV4.GTR2
             // flags data
             cgs.FlagData.useImprovisedIncidentCalling = false;
 
-            cgs.FlagData.isFullCourseYellow = csd.SessionPhase == SessionPhase.FullCourseYellow
-                || shared.scoring.mScoringInfo.mYellowFlagState == (sbyte)GTR2Constants.GTR2YellowFlagState.Resume;
+            // Note that mYellowFlagState goes to 7 (Halt) after FCY is cleared and until player hits s/f.
+            // It's possible there's something special going on during 7 (no passing?).
+            cgs.FlagData.isFullCourseYellow = csd.SessionPhase == SessionPhase.FullCourseYellow;
 
-            if (shared.scoring.mScoringInfo.mYellowFlagState == (sbyte)GTR2Constants.GTR2YellowFlagState.Resume)
-            {
-                // Special case for resume after FCY.  GTR2 no longer has FCY set, but still has Resume sub phase set.
-                cgs.FlagData.fcyPhase = FullCourseYellowPhase.RACING;
-                cgs.FlagData.lapCountWhenLastWentGreen = cgs.SessionData.CompletedLaps;
-            }
-            else if (cgs.FlagData.isFullCourseYellow)
+            if (cgs.FlagData.isFullCourseYellow)
             {
                 cgs.FlagData.currentLapIsFCY = true;
                 if (shared.scoring.mScoringInfo.mYellowFlagState == (sbyte)GTR2Constants.GTR2YellowFlagState.Pending)
                     cgs.FlagData.fcyPhase = FullCourseYellowPhase.PENDING;
                 else if (shared.scoring.mScoringInfo.mYellowFlagState == (sbyte)GTR2Constants.GTR2YellowFlagState.PitOpen
-                    || shared.scoring.mScoringInfo.mYellowFlagState == (sbyte)GTR2Constants.GTR2YellowFlagState.PitClosed)
-                {
-                    if (!this.enableFCYPitStateMessages)
-                        cgs.FlagData.fcyPhase = FullCourseYellowPhase.IN_PROGRESS;
-                    else if (shared.scoring.mScoringInfo.mYellowFlagState == (sbyte)GTR2Constants.GTR2YellowFlagState.PitClosed)
-                    {
-                        /*if (shared.extended.mUnofficialFeaturesEnabled == 1)
-                        {
-                            if (shared.extended.mTicksLSIPitStateMessageUpdated != this.LSIPitStateMessageUpdatedTicks)
-                            {
-                                this.LSIPitStateMessageUpdatedTicks = shared.extended.mTicksLSIPitStateMessageUpdated;
-                                var pitStateMsg = GTR2GameStateMapper.GetStringFromBytes(shared.extended.mLSIPitStateMessage);
-                                if (!string.IsNullOrWhiteSpace(pitStateMsg))
-                                    Console.WriteLine("LSI Message: pit state message updated - \"" + pitStateMsg + "\"");
-
-                                if (pitStateMsg == "Pits Open")
-                                    cgs.FlagData.fcyPhase = FullCourseYellowPhase.PITS_OPEN;
-                                else if (pitStateMsg == "Pits Closed")
-                                    cgs.FlagData.fcyPhase = FullCourseYellowPhase.PITS_CLOSED;
-                                else
-                                {
-                                    if (pgs != null)
-                                        cgs.FlagData.fcyPhase = pgs.FlagData.fcyPhase;
-
-                                    if (!string.IsNullOrWhiteSpace(pitStateMsg))
-                                    {
-#if !DEBUG
-                                        // Avoid spamming console too aggressively.
-                                        if ((cgs.Now - this.timeLSIMessageIgnored).TotalSeconds > 10)
-                                        {
-                                            this.timeLSIMessageIgnored = cgs.Now;
-                                            Console.WriteLine("LSI Message: pit state ignored - \"" + pitStateMsg + "\"");
-                                        }
-#else
-                                        Console.WriteLine("LSI Message: pit state ignored - \"" + pitStateMsg + "\"");
-#endif
-                                    }
-                                }
-                            }
-                            else if (pgs != null)
-                                cgs.FlagData.fcyPhase = pgs.FlagData.fcyPhase;
-                        }
-                        else
-                        {
-                            // Core rules: always open, pit state == 3
-                            cgs.FlagData.fcyPhase = FullCourseYellowPhase.PITS_OPEN;
-                        }*/
-                    }
-                    else
-                        cgs.FlagData.fcyPhase = FullCourseYellowPhase.PITS_OPEN;
-                }
-                else if (shared.scoring.mScoringInfo.mYellowFlagState == (sbyte)GTR2Constants.GTR2YellowFlagState.PitLeadLap)
-                    cgs.FlagData.fcyPhase = this.enableFCYPitStateMessages ? FullCourseYellowPhase.PITS_OPEN_LEAD_LAP_VEHICLES : FullCourseYellowPhase.IN_PROGRESS;
-                else if (shared.scoring.mScoringInfo.mYellowFlagState == (sbyte)GTR2Constants.GTR2YellowFlagState.LastLap)
+                    || shared.scoring.mScoringInfo.mYellowFlagState == (sbyte)GTR2Constants.GTR2YellowFlagState.PitClosed
+                    || shared.scoring.mScoringInfo.mYellowFlagState == (sbyte)GTR2Constants.GTR2YellowFlagState.PitLeadLap)
+                    cgs.FlagData.fcyPhase = FullCourseYellowPhase.IN_PROGRESS;
+                else if (shared.scoring.mScoringInfo.mYellowFlagState == (sbyte)GTR2Constants.GTR2YellowFlagState.Resume)
                 {
                     if (pgs != null)
                     {
@@ -1915,9 +1871,7 @@ namespace CrewChiefV4.GTR2
             // Frozen order data
             if (this.enableFrozenOrderMessages
                 && pgs != null)
-            {
-                cgs.FrozenOrderData = this.GetFrozenOrderData(cgs, pgs.FrozenOrderData, ref playerScoring, ref shared.scoring, ref shared.extended, cgs.PositionAndMotionData.CarSpeed);
-            }
+                cgs.FrozenOrderData = this.GetFrozenOrderData(cgs, pgs, pgs.FrozenOrderData, ref playerScoring, ref shared.scoring, ref shared.extended, cgs.PositionAndMotionData.CarSpeed);
 
             // --------------------------------
             // penalties data
@@ -2115,7 +2069,6 @@ namespace CrewChiefV4.GTR2
         }
 
         Dictionary<int, RollingStateWorkaroundVehicleData> rspwIDToRSWData = null;
-        private long rspwTicksStabilizationWaitStarted = DateTime.MinValue.Ticks;
 
         private void ApplyRollingStartPosWorkaround(
             GameStateData cgs,
@@ -2142,7 +2095,6 @@ namespace CrewChiefV4.GTR2
                 Console.WriteLine("Rolling Start position workaround: just went green.");
                 this.rspwState = RollingStateWorkaroundState.PhaseWentGreen;
                 this.rspwIDToRSWData = new Dictionary<int, RollingStateWorkaroundVehicleData>();
-                this.rspwTicksStabilizationWaitStarted = DateTime.MinValue.Ticks;
             }
 
             if (this.rspwState == RollingStateWorkaroundState.PhaseWentGreen)
@@ -2223,13 +2175,50 @@ namespace CrewChiefV4.GTR2
             if (shared.extended.mUnofficialFeaturesEnabled == 0)
                 return;
 
-            if (shared.extended.mTicksFirstHistoryMessageUpdated == this.lastHistoryMessageUpdatedTicks)
+            if (shared.extended.mTicksFirstHistoryMessageUpdated == this.lastFirstHistoryMessageUpdatedTicks
+                && shared.extended.mTicksSecondHistoryMessageUpdated == this.lastSecondHistoryMessageUpdatedTicks
+                && shared.extended.mTicksThirdHistoryMessageUpdated == this.lastThirdHistoryMessageUpdatedTicks)
                 return;
 
-            // Do not re-process this update.
-            this.lastHistoryMessageUpdatedTicks = shared.extended.mTicksFirstHistoryMessageUpdated;
+            if (this.lastFirstHistoryMessageUpdatedTicks != shared.extended.mTicksFirstHistoryMessageUpdated)
+            {
+                this.lastFirstHistoryMessageUpdatedTicks = shared.extended.mTicksFirstHistoryMessageUpdated;
 
-            var msg = GTR2GameStateMapper.GetStringFromBytes(shared.extended.mFirstHistoryMessage);
+                var msg = GTR2GameStateMapper.GetStringFromBytes(shared.extended.mFirstHistoryMessage);
+                if (!string.IsNullOrWhiteSpace(msg))
+                {
+                    Log.Info("First history message changed.");
+                    this.ProcessMCMesagesHelper(cgs, pgs, msg);
+                }
+            }
+
+            if (this.lastSecondHistoryMessageUpdatedTicks != shared.extended.mTicksSecondHistoryMessageUpdated)
+            {
+                this.lastSecondHistoryMessageUpdatedTicks = shared.extended.mTicksSecondHistoryMessageUpdated;
+
+                var msg = GTR2GameStateMapper.GetStringFromBytes(shared.extended.mSecondHistoryMessage);
+                if (!string.IsNullOrWhiteSpace(msg))
+                {
+                    Log.Info("Second history message changed.");
+                    this.ProcessMCMesagesHelper(cgs, pgs, msg);
+                }
+            }
+
+            if (this.lastThirdHistoryMessageUpdatedTicks != shared.extended.mTicksThirdHistoryMessageUpdated)
+            {
+                this.lastThirdHistoryMessageUpdatedTicks = shared.extended.mTicksThirdHistoryMessageUpdated;
+
+                var msg = GTR2GameStateMapper.GetStringFromBytes(shared.extended.mThirdHistoryMessage);
+                if (!string.IsNullOrWhiteSpace(msg))
+                {
+                    Log.Info("Third history message changed.");
+                    this.ProcessMCMesagesHelper(cgs, pgs, msg);
+                }
+            }
+        }
+
+        private void ProcessMCMesagesHelper(GameStateData cgs, GameStateData pgs, string msg)
+        {
             if (msg != this.lastEffectiveHistoryMessage
                 || (cgs.Now - this.timeEffectiveMessageProcessed).TotalSeconds > this.effectiveMessageExpirySeconds)
             {
@@ -2820,7 +2809,7 @@ namespace CrewChiefV4.GTR2
                 vehicleTelemetry.mWheel[i].mTemperature = new float[3];
         }
 
-        private FrozenOrderData GetFrozenOrderData(GameStateData cgs, FrozenOrderData prevFrozenOrderData, ref GTR2VehicleScoring vehicle,
+        private FrozenOrderData GetFrozenOrderData(GameStateData cgs, GameStateData pgs, FrozenOrderData prevFrozenOrderData, ref GTR2VehicleScoring playerVehicle,
             ref GTR2Scoring scoring, ref GTR2Extended extended, float vehicleSpeedMS)
         {
             if (extended.mUnofficialFeaturesEnabled == 0)
@@ -2849,6 +2838,8 @@ namespace CrewChiefV4.GTR2
                 fod.SafetyCarSpeed = prevFrozenOrderData.SafetyCarSpeed;
                 fod.CarNumberToFollowRaw = prevFrozenOrderData.CarNumberToFollowRaw;
             }
+            else
+                this.lastKnownVehicleToFollowID = SPECIAL_MID_NONE;
 
             if (fod.Phase == FrozenOrderPhase.None)
             {
@@ -2857,7 +2848,7 @@ namespace CrewChiefV4.GTR2
                 if (!string.IsNullOrWhiteSpace(fhm)
                   && fhm == "Begin Formation Lap")
                 {
-                    fod.Phase = GTR2GameStateMapper.GetSector(vehicle.mSector) == 3 && vehicleSpeedMS > 10.0f ? FrozenOrderPhase.FastRolling : FrozenOrderPhase.Rolling;
+                    fod.Phase = GTR2GameStateMapper.GetSector(playerVehicle.mSector) == 3 && vehicleSpeedMS > 10.0f ? FrozenOrderPhase.FastRolling : FrozenOrderPhase.Rolling;
                     this.firstHistoryMessageUpdatedFOTicks = extended.mTicksFirstHistoryMessageUpdated;
                 }
                 else if (!string.IsNullOrWhiteSpace(fhm)
@@ -2886,26 +2877,71 @@ namespace CrewChiefV4.GTR2
             if (fod.Phase == FrozenOrderPhase.Rolling
                 && fod.Action == FrozenOrderAction.None)
             {
+                fod.SafetyCarSpeed = extended.mFormationLapSpeeed;
                 fod.Action = FrozenOrderAction.Follow;
                 var carNumberToFollow = "-1";
                 var driverNameToFollow = "Safety Car";
-                fod.AssignedColumn = vehicle.mPlace % 2 == 0 ? FrozenOrderColumn.Right : FrozenOrderColumn.Left;
-                if (vehicle.mPlace > 2)
+                this.lastKnownVehicleToFollowID = GTR2GameStateMapper.SPECIAL_MID_SAFETY_CAR;
+                fod.AssignedColumn = FrozenOrderColumn.None;
+
+                // If we are the first vehicle, check assigned column by inspecting the previous vehicle on the grid.
+                // Otherwise, check the next vehicle.
+                var columnCheckVehPlace = playerVehicle.mPlace == 1 ? 2 : playerVehicle.mPlace - 1;
+                var vehToFollowFound = false;
+                var vehForColumnCheckFound = false;
+
+                // Just capture the starting position.
+                fod.AssignedPosition = playerVehicle.mPlace;
+                for (int i = 0; i < scoring.mScoringInfo.mNumVehicles; ++i)
                 {
-                    // Just capture the starting position.
-                    fod.AssignedPosition = vehicle.mPlace;
-                    for (int i = 0; i < scoring.mScoringInfo.mNumVehicles; ++i)
+                    var veh = scoring.mVehicles[i];
+                    if (veh.mPlace == playerVehicle.mPlace - 2)
                     {
-                        var veh = scoring.mVehicles[i];
-                        if (veh.mPlace == vehicle.mPlace - 2)
-                        {
-                            var cci = this.GetCachedCarInfo(true, ref veh, ref extended);
-                            driverNameToFollow = cci.driverNameRawSanitized;
-                            carNumberToFollow = cci.carNumberStr;
-                            // Team, make etc.
-                            break;
-                        }
+                        this.lastKnownVehicleToFollowID = veh.mID;
+                        var cci = this.GetCachedCarInfo(true, ref veh, ref extended);
+                        driverNameToFollow = cci.driverNameRawSanitized;
+                        carNumberToFollow = cci.carNumberStr;
+                        // Team, make etc.
+                        vehToFollowFound = true;
                     }
+
+                    if (veh.mPlace == columnCheckVehPlace)
+                    {
+                        GTR2Spotter spotter = null;
+                        lock (MainWindow.instanceLock)
+                        {
+                            if (MainWindow.instance != null)
+                            {
+                                try
+                                {
+                                    spotter = (GTR2Spotter)MainWindow.instance.crewChief.getSpotter();
+                                }
+                                catch (Exception) { }
+                            }
+                        }
+
+                        var internalSpotter = spotter.getInternalSpotter();
+                        if (internalSpotter != null)
+                        {
+                            var playerRotation = (float)(Math.Atan2(playerVehicle.mOriZ.x, playerVehicle.mOriZ.z));
+                            if (playerRotation < 0.0f)
+                                playerRotation = (float)(2.0f * Math.PI) + playerRotation;
+
+                            var coordsAligned = internalSpotter.getAlignedXZCoordinates(
+                                playerRotation,
+                                playerVehicle.mPos.x,
+                                playerVehicle.mPos.z,
+                                veh.mPos.x,
+                                veh.mPos.z);
+
+                             fod.AssignedColumn = coordsAligned[0] > 0.0f ? FrozenOrderColumn.Right : FrozenOrderColumn.Left;
+                        }
+
+                        vehForColumnCheckFound = true;
+                    }
+
+                    if (vehToFollowFound && vehForColumnCheckFound)
+                        break;
                 }
 
                 fod.DriverToFollowRaw = driverNameToFollow;
@@ -2915,89 +2951,160 @@ namespace CrewChiefV4.GTR2
 
             // NOTE: for formation/standing capture order once.   For other phases, rely on MC text.
             // TODO: For Rolling, find who should we folow from start order.
-            if (fod.Phase == FrozenOrderPhase.FastRolling || fod.Phase == FrozenOrderPhase.Rolling || fod.Phase == FrozenOrderPhase.FullCourseYellow)
+            if ((fod.Phase == FrozenOrderPhase.FastRolling || fod.Phase == FrozenOrderPhase.Rolling || fod.Phase == FrozenOrderPhase.FullCourseYellow)
+                && TimeSpan.FromTicks(cgs.Now.Ticks - this.lastFOChangeTicks).TotalMilliseconds > 2000)  // Since text fluctuates, we need throttle state changes.
             {
-                //var anyMsgChanged = false;
+                var anyMsgChanged = false;
                 if (this.firstHistoryMessageUpdatedFOTicks != extended.mTicksFirstHistoryMessageUpdated)
                 {
                     this.firstHistoryMessageUpdatedFOTicks = extended.mTicksFirstHistoryMessageUpdated;
-
-                    if (this.ProcessOrderMessage(GTR2GameStateMapper.GetStringFromBytes(extended.mFirstHistoryMessage), fod, ref scoring, ref extended))
-                        return fod;
+                    this.firstHistoryMessage = GTR2GameStateMapper.GetStringFromBytes(extended.mFirstHistoryMessage);
+                    anyMsgChanged = true;
                 }
 
                 if (this.secondHistoryMessageUpdatedFOTicks != extended.mTicksSecondHistoryMessageUpdated)
                 {
                     this.secondHistoryMessageUpdatedFOTicks = extended.mTicksSecondHistoryMessageUpdated;
-
-                    if (this.ProcessOrderMessage(GTR2GameStateMapper.GetStringFromBytes(extended.mSecondHistoryMessage), fod, ref scoring, ref extended))
-                        return fod;
+                    this.secondHistoryMessage = GTR2GameStateMapper.GetStringFromBytes(extended.mSecondHistoryMessage);
+                    anyMsgChanged = true;
                 }
 
                 if (this.thirdHistoryMessageUpdatedFOTicks != extended.mTicksThirdHistoryMessageUpdated)
                 {
                     this.thirdHistoryMessageUpdatedFOTicks = extended.mTicksThirdHistoryMessageUpdated;
-
-                    if (this.ProcessOrderMessage(GTR2GameStateMapper.GetStringFromBytes(extended.mThirdHistoryMessage), fod, ref scoring, ref extended))
-                        return fod;
-
-                    //anyMsgChanged = true;
+                    this.thirdHistoryMessage = GTR2GameStateMapper.GetStringFromBytes(extended.mThirdHistoryMessage);
+                    anyMsgChanged = true;
                 }
 
-                //if (anyMsgChanged)
-                //{
-                // See if any of the messages still make sense as FO order.
+                if (anyMsgChanged)
+                    this.ProcessOrderMessages(fod, ref scoring, ref extended, cgs);
 
+                if (fod.Action == FrozenOrderAction.Follow
+                    && this.lastKnownVehicleToFollowID != SPECIAL_MID_NONE
+                    && this.lastKnownVehicleToFollowID != GTR2GameStateMapper.SPECIAL_MID_SAFETY_CAR)  // FUTURE: We don't have SC location, yet.
+                {
+                    // See if we need to catch up the vehicle we have to be following.
+                    for (int i = 0; i < scoring.mScoringInfo.mNumVehicles; ++i)
+                    {
+                        var veh = scoring.mVehicles[i];
+                        if (veh.mID == this.lastKnownVehicleToFollowID)
+                        {
+                            var plrDistTotal = GTR2GameStateMapper.GetDistanceCompleted(ref scoring, ref playerVehicle);
+                            var toFollowDistTotal = GTR2GameStateMapper.GetDistanceCompleted(ref scoring, ref veh);
+                            var distDelta = toFollowDistTotal - plrDistTotal;
 
-                //}
+                            // FUTURE:
+                            // if (distDelta < 0.0)
+                            //   fod.Action = FrozenOrderAction.AllowToPass;
+                            if (distDelta > 100.0)
+                            {
+                                fod.Action = FrozenOrderAction.CatchUp;
+                                var cci = this.GetCachedCarInfo(true, ref veh, ref extended);
+                                fod.DriverToFollowRaw = cci.driverNameRawSanitized;
+                                fod.CarNumberToFollowRaw = cci.carNumberStr;
+                                // Team, make etc.
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (pgs != null
+                    && fod.Phase == FrozenOrderPhase.FullCourseYellow
+                    && pgs.FlagData.fcyPhase == FullCourseYellowPhase.PENDING
+                    && cgs.FlagData.fcyPhase == FullCourseYellowPhase.IN_PROGRESS)
+                    fod.SafetyCarSpeed = extended.mFormationLapSpeeed;
 
                 return fod;
-
-
             }
 
             return fod;
         }
 
-        private bool ProcessOrderMessage(string orderInstruction, FrozenOrderData fod, ref GTR2Scoring scoring, ref GTR2Extended extended)
+        private bool ProcessOrderMessages(FrozenOrderData fod, ref GTR2Scoring scoring, ref GTR2Extended extended, GameStateData cgs)
         {
-            if (string.IsNullOrWhiteSpace(orderInstruction))
-                return false;
+            if (!string.IsNullOrWhiteSpace(this.firstHistoryMessage))
+                Console.WriteLine("MC Message: order instruction 1 - \"" + this.firstHistoryMessage + "\"");
 
-            if (!string.IsNullOrWhiteSpace(orderInstruction))
-                Console.WriteLine("MC Message: order instruction - \"" + orderInstruction + "\"");
+            if (!string.IsNullOrWhiteSpace(this.secondHistoryMessage))
+                Console.WriteLine("MC Message: order instruction 2 - \"" + this.secondHistoryMessage + "\"");
 
-            var followPrefix = @"Please Follow ";
-            var catchUpToPrefix = @"Please Catch Up To ";
-            var allowToPassPrefix = @"Stay Behind ";
+            if (!string.IsNullOrWhiteSpace(this.thirdHistoryMessage))
+                Console.WriteLine("MC Message: order instruction 3 - \"" + this.thirdHistoryMessage + "\"");
+
+            var followPrefix = @"Stay Behind ";
 
             var action = FrozenOrderAction.None;
 
             string prefix = null;
-            string driverName = null;
+            string driverName = null;  // FUTURE: Hack "Allow To Pass" to use nameless version for now, can change in the future.
+            string orderInstruction = null;
 
-            if (orderInstruction.StartsWith(followPrefix))
+            var msgPassSC = "Please Pass The Safety Car";
+            var msgAllowToPass = "Warning: You Are Ahead Of The Car You Should Be Following";
+            var cautionPrefix = "Caution Lap: ";
+
+            if (this.firstHistoryMessage == msgPassSC
+                || this.secondHistoryMessage == msgPassSC
+                || this.thirdHistoryMessage == msgPassSC)
             {
+                fod.Action = FrozenOrderAction.PassSafetyCar;
+            }
+            if (this.firstHistoryMessage == msgAllowToPass
+                || this.secondHistoryMessage == msgAllowToPass
+                || this.thirdHistoryMessage == msgAllowToPass)
+            {
+                // FUTURE: It is possible that we could use contents of another message on the stack to figure out
+                // the driver name.
+                action = FrozenOrderAction.AllowToPass;
+            }
+            else if (fod.Phase == FrozenOrderPhase.FullCourseYellow
+                && this.firstHistoryMessage.StartsWith(cautionPrefix))
+            {
+                orderInstruction = this.firstHistoryMessage.Substring(cautionPrefix.Length);
+                if (orderInstruction.StartsWith(followPrefix))
+                {
+                    prefix = followPrefix;
+                    action = FrozenOrderAction.Follow;
+                }
+            }
+            else if (fod.Phase == FrozenOrderPhase.FullCourseYellow
+                && this.secondHistoryMessage.StartsWith(cautionPrefix))
+            {
+                orderInstruction = this.secondHistoryMessage.Substring(cautionPrefix.Length);
+                if (orderInstruction.StartsWith(followPrefix))
+                {
+                    prefix = followPrefix;
+                    action = FrozenOrderAction.Follow;
+                }
+            }
+            else if (fod.Phase == FrozenOrderPhase.FullCourseYellow
+                && this.thirdHistoryMessage.StartsWith(cautionPrefix))
+            {
+                orderInstruction = this.thirdHistoryMessage.Substring(cautionPrefix.Length);
+                if (orderInstruction.StartsWith(followPrefix))
+                {
+                    prefix = followPrefix;
+                    action = FrozenOrderAction.Follow;
+                }
+            }
+            else if (this.firstHistoryMessage.StartsWith(followPrefix))
+            {
+                orderInstruction = this.firstHistoryMessage;
                 prefix = followPrefix;
                 action = FrozenOrderAction.Follow;
             }
-            else if (orderInstruction.StartsWith(catchUpToPrefix))
+            else if (this.secondHistoryMessage.StartsWith(followPrefix))
             {
-                prefix = catchUpToPrefix;
-                action = FrozenOrderAction.CatchUp;
+                orderInstruction = this.secondHistoryMessage;
+                prefix = followPrefix;
+                action = FrozenOrderAction.Follow;
             }
-            else if (orderInstruction.StartsWith(allowToPassPrefix))
+            else if (this.thirdHistoryMessage.StartsWith(followPrefix))
             {
-                prefix = allowToPassPrefix;
-                action = FrozenOrderAction.AllowToPass;
-
-                //if (orderInstruction == "Stay Behind The Safety Car")
-                  //  driverName = "Safety Car";
-            }
-            else if (orderInstruction == "Please Pass The Safety Car")
-            {
-                // Special case - set action only.
-                fod.Action = FrozenOrderAction.PassSafetyCar;
+                orderInstruction = this.thirdHistoryMessage;
+                prefix = followPrefix;
+                action = FrozenOrderAction.Follow;
             }
             else
             {
@@ -3010,44 +3117,58 @@ namespace CrewChiefV4.GTR2
                             Console.WriteLine("LSI Message: unrecognized Frozen Order action - \"" + orderInstruction + "\"");
                         }*/
 #else
-                Console.WriteLine("Ignoring MC FO Message: - \"" + orderInstruction + "\"");
+                Console.WriteLine("Ignoring MC FO Messages, nothing is recognized.");
 #endif
                 return false;
             }
 
             string carNumberStr = null;
-            var vehNumberHash = orderInstruction.LastIndexOf("#");
-            try
+            if (action == FrozenOrderAction.Follow)
             {
-                if (vehNumberHash != -1)
-                {
-                    var spaceAfterNumber = orderInstruction.IndexOf(" ", vehNumberHash);
-                    carNumberStr = orderInstruction.Substring(vehNumberHash + 1, spaceAfterNumber - vehNumberHash - 1);
+                Debug.Assert(!string.IsNullOrWhiteSpace(orderInstruction));
+                if (string.IsNullOrWhiteSpace(orderInstruction))
+                    return false;
 
-                    if (int.TryParse(carNumberStr, out var carNumber))
+                var vehNumberHash = orderInstruction.LastIndexOf("#");
+                try
+                {
+                    if (vehNumberHash != -1)
                     {
-                        for (int i = 0; i < scoring.mScoringInfo.mNumVehicles; ++i)
+                        var spaceAfterNumber = orderInstruction.IndexOf(" ", vehNumberHash);
+                        carNumberStr = orderInstruction.Substring(vehNumberHash + 1, spaceAfterNumber - vehNumberHash - 1);
+
+                        if (int.TryParse(carNumberStr, out var carNumber))
                         {
-                            var veh = scoring.mVehicles[i];
-                            var vehExtended = extended.mExtendedVehicleScoring[veh.mID % GTR2Constants.MAX_MAPPED_IDS];
-                            if (carNumber == vehExtended.mYearAndCarNumber % 1000)
+                            for (int i = 0; i < scoring.mScoringInfo.mNumVehicles; ++i)
                             {
-                                var cci = this.GetCachedCarInfo(true, ref veh, ref extended);
-                                driverName = cci.driverNameRawSanitized;
-                                carNumberStr = cci.carNumberStr;
-                                // Team, make etc.
-                                break;
+                                var veh = scoring.mVehicles[i];
+                                var vehExtended = extended.mExtendedVehicleScoring[veh.mID % GTR2Constants.MAX_MAPPED_IDS];
+                                if (carNumber == vehExtended.mYearAndCarNumber % 1000)
+                                {
+                                    this.lastKnownVehicleToFollowID = veh.mID;
+
+                                    var cci = this.GetCachedCarInfo(true, ref veh, ref extended);
+                                    driverName = cci.driverNameRawSanitized;
+                                    carNumberStr = cci.carNumberStr;
+                                    // Team, make etc.
+                                    break;
+                                }
                             }
                         }
+
+                        // Find the actual car.
                     }
-                    
-                    // Find the actual car.
+                    else
+                    {
+                        driverName = "Safety Car";
+                        this.lastKnownVehicleToFollowID = GTR2GameStateMapper.SPECIAL_MID_SAFETY_CAR;
+                    }
+                    //                    SCassignedAhead = true;
                 }
-                else
-                    driverName = "Safety Car";
-//                    SCassignedAhead = true;
+                catch (Exception e) { Log.Exception(e); }
             }
-            catch (Exception e) {Log.Exception(e);}
+
+            this.lastFOChangeTicks = cgs.Now.Ticks;
 
             fod.Action = action;
             fod.CarNumberToFollowRaw = carNumberStr;
@@ -3055,7 +3176,7 @@ namespace CrewChiefV4.GTR2
             return true;
         }
 
-        private static double GetDistanceCompleteded(ref GTR2Scoring scoring, ref GTR2VehicleScoring vehicle)
+        private static double GetDistanceCompleted(ref GTR2Scoring scoring, ref GTR2VehicleScoring vehicle)
         {
             // Note: Can be interpolated a bit.
             return vehicle.mTotalLaps * scoring.mScoringInfo.mLapDist + vehicle.mLapDist;

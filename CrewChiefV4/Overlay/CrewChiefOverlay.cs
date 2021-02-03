@@ -34,7 +34,7 @@ namespace CrewChiefV4.Overlay
             public int trackMapSize = 150;
             public int windowWidth = 800;
             [JsonIgnore]
-            public int chartHeight = 130;
+            public int chartHeight = 170;
             public int maxDisplayLines = 22;
             public float chartAlpha = 0.784313738f;
             public bool antiAliasCharts = false;
@@ -344,7 +344,14 @@ namespace CrewChiefV4.Overlay
             {
                 if (CrewChiefOverlayWindow.createNewImage)
                 {
-                    CreateNewImages(gfx);
+                    try
+                    {
+                        CreateNewImages(gfx);
+                    }
+                    catch (Exception ge)
+                    {
+                        Console.WriteLine(ge.Message);
+                    }
                     CrewChiefOverlayWindow.createNewImage = false;
                 }
                 int rectHeight;
@@ -389,7 +396,7 @@ namespace CrewChiefV4.Overlay
             // you may want to dispose any brushes, fonts or images
         }
         #endregion
-        public void CreateNewImages(Graphics gfx)
+        /*public void CreateNewImages(Graphics gfx)
         { 
             int combinedImageHeight = 0;
             if (OverlayController.chartRenderMode == ChartRenderMode.SINGLE)
@@ -478,8 +485,54 @@ namespace CrewChiefV4.Overlay
                     }
                 }
             }
-            
         }
+        */
+
+        public void CreateNewImages(Graphics gfx)
+        {
+            int combinedImageHeight = 0;
+            List<ChartContainer> chartContainers = new List<ChartContainer>();
+            if (OverlayController.chartRenderMode == ChartRenderMode.SINGLE)
+            {
+                chartContainers.AddRange(Charts.createOverlayChart(settings.windowWidth, settings.chartHeight, settings.antiAliasCharts));
+            }
+            else
+            {
+                chartContainers.AddRange(Charts.createStackedCharts(settings.windowWidth, settings.chartHeight, settings.antiAliasCharts));
+            }
+            foreach (ElementImage child in chartBox.children.Where(el => el.GetType() == typeof(ElementImage)))
+            {
+                child.DisposeImage();
+            }
+            chartBox.children.Clear();
+            foreach (var chartContainer in chartContainers)
+            {
+                var child = chartBox.AddChildElement(new ElementImage(gfx, chartContainer.subscriptionId, font, new Rect(0, combinedImageHeight, settings.windowWidth, settings.chartHeight),
+                    colorSchemeTransparent, chartContainer: chartContainer, imageAlpha: settings.chartAlpha, outlined: true));
+                child.OnElementMWheel += MouseWheelOnImage;
+                child.OnElementMMButtonClicked += MouseMButtonOnImage;
+                combinedImageHeight += (int)settings.chartHeight;
+            }
+            if (OverlayController.showMap && Charts.hasTimeSeriesSubs())
+            {
+                ChartContainer mapContainer = Charts.createWorldPositionSeries(SeriesMode.LAST_LAP, settings.trackMapSize);
+                if (mapContainer != null)
+                {
+                    ElementImage mapImage = (ElementImage)chartBox.children.FirstOrDefault(c => c.title == "Map");
+                    if (mapImage == null)
+                    {
+                        chartBox.AddChildElement(new ElementImage(gfx, mapContainer.subscriptionId, font, new Rect(0, combinedImageHeight,
+                            OverlayController.mapXSizeScale * settings.trackMapSize, settings.trackMapSize),
+                            colorSchemeTransparent, chartContainer: mapContainer, imageAlpha: settings.chartAlpha, outlined: true));
+                    }
+                    else
+                    {
+                        mapImage.UpdateImage(mapContainer, new GameOverlay.Drawing.Point(0, combinedImageHeight));
+                    }
+                }
+            }
+        }
+
         private void populateControlBox(Graphics graphics, bool gamedefinitionChanged = false)
         {
             lock (availableSubscriptionControlBox.children)
@@ -499,7 +552,7 @@ namespace CrewChiefV4.Overlay
                         {
                             continue;
                         }
-                        var sub = availableSubscriptionControlBox.AddChildElement(new ElementCheckBox(graphics, overlaySubscription.voiceCommandFragment, font, 
+                        var sub = availableSubscriptionControlBox.AddChildElement(new ElementCheckBox(graphics, overlaySubscription.voiceCommandFragment_Internal, font, 
                             new Rect(offsetX, offsetY, 14, 14), colorScheme, overlaySubscription.id));
                         sub.OnElementLMButtonClicked += OnSubscribe;
 

@@ -164,14 +164,10 @@ namespace CrewChiefV4SharedMemory
         public void GenerateCSharpDataClass()
         {
             String dataFilesPath = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location), @"..\", @"..\CrewChiefData.cs");
+            Console.WriteLine("Writing CrewChiefData.cs to: " + dataFilesPath);
             using (System.IO.StreamWriter file = new System.IO.StreamWriter(dataFilesPath))
             {
                 file.WriteLine("using System;");
-                file.WriteLine("using System.Collections.Generic;");
-                file.WriteLine("using System.Linq;");
-                file.WriteLine("using System.Text;");
-                file.WriteLine("using System.Threading.Tasks;");
-                file.WriteLine("using System.Runtime.InteropServices;");
                 file.WriteLine("namespace CrewChiefV4SharedMemory");
                 file.WriteLine("{");
                 file.WriteLine("\t[Serializable]");

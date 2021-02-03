@@ -59,7 +59,9 @@ namespace CrewChiefV4
         public static Utilities.CommandLineParametersReader CommandLine =
             new Utilities.CommandLineParametersReader();
 
-        private const int IRACING_INTERVAL = 16;    // always use 60Hz for iracing
+        private const int IRACING_INTERVAL = 16;               // always use 60Hz for iracing
+        private const int DEFAULT_START_LIGHTS_INTERVAL = 10;  // default 10ms during race countdown
+        private static int startLightsInterval;
         private static int timeInterval;
 
         private static int spotterInterval;
@@ -182,6 +184,7 @@ namespace CrewChiefV4
             CrewChief.yellowFlagMessagesEnabled = UserSettings.GetUserSettings().getBoolean("enable_yellow_flag_messages");
             CrewChief.enableDriverNames = UserSettings.GetUserSettings().getBoolean("enable_driver_names");
             CrewChief.timeInterval = gameDefinition.gameEnum == GameEnum.IRACING ? IRACING_INTERVAL : UserSettings.GetUserSettings().getInt("update_interval");
+            CrewChief.startLightsInterval = Math.Min(CrewChief.timeInterval, CrewChief.DEFAULT_START_LIGHTS_INTERVAL);
             CrewChief.spotterInterval = gameDefinition.gameEnum == GameEnum.IRACING ? IRACING_INTERVAL : UserSettings.GetUserSettings().getInt("spotter_update_interval");
             CrewChief.forceSingleClass = UserSettings.GetUserSettings().getBoolean("force_single_class");
             CrewChief.maxUnknownClassesForAC = UserSettings.GetUserSettings().getInt("max_unknown_car_classes_for_assetto");
@@ -261,7 +264,7 @@ namespace CrewChiefV4
 
         protected virtual void Dispose(bool disposing)
         {
-            if(enableSharedMemory)
+            if (enableSharedMemory)
             {
                 CrewChief.sharedMemoryManager.Dispose();
             }
@@ -928,6 +931,7 @@ namespace CrewChiefV4
                             Thread.Sleep(CrewChief.playbackIntervalMilliseconds);
                             if (enableSharedMemory)
                             {
+                                sharedMemoryManager.UpdateVariable("phraseIsPlaying", new bool[1] { audioPlayer.isChannelOpen() });
                                 sharedMemoryManager.Tick(playbackIntervalMilliseconds);
                             }
                         }
@@ -937,18 +941,27 @@ namespace CrewChiefV4
                         // iracing runs at 60Hz anyway, but for other games if we're collecting telemetry for charting, use the
                         // appropriate time interval
                         int interval = timeInterval;
-                        if (useTelemetryIntervalWhereApplicable
-                            && CrewChief.currentGameState != null
-                            && (recordChartTelemetryDuringRace || CrewChief.currentGameState.SessionData.SessionType != SessionType.Race))
+                        if (CrewChief.currentGameState != null)
                         {
-                            interval = CrewChief.intervalWhenCollectionTelemetry;
+                            // TODO: this may be applicable to other games but limit it to R3E for now
+                            if (gameDefinition.gameEnum == GameEnum.RACE_ROOM
+                                && CrewChief.currentGameState.SessionData.SessionType == SessionType.Race
+                                && CrewChief.currentGameState.SessionData.SessionPhase == SessionPhase.Countdown)
+                            {
+                                interval = CrewChief.startLightsInterval;
+                            }
+                            else if (useTelemetryIntervalWhereApplicable
+                                && (recordChartTelemetryDuringRace || CrewChief.currentGameState.SessionData.SessionType != SessionType.Race))
+                            {
+                                interval = CrewChief.intervalWhenCollectionTelemetry;
+                            }
                         }
                         if (enableSharedMemory)
                         {
+                            sharedMemoryManager.UpdateVariable("phraseIsPlaying", new bool[1] { audioPlayer.isChannelOpen() });
                             sharedMemoryManager.Tick(interval);
                         }
-                        Thread.Sleep(timeInterval);
-
+                        Thread.Sleep(interval);
                     }
                 } // end while(running)
                 foreach (KeyValuePair<String, AbstractEvent> entry in eventsList)
@@ -1097,7 +1110,7 @@ namespace CrewChiefV4
                 audioPlayer.monitorRunning = false;
             }
             // set status of shared mem to connected
-            if(enableSharedMemory)
+            if (enableSharedMemory)
             {
                 sharedMemoryManager.UpdateVariable("updateStatus", new int[1] { (int)UpdateStatus.connected });
                 sharedMemoryManager.Tick(0, UpdateStatus.connected);
@@ -1130,6 +1143,11 @@ namespace CrewChiefV4
         {
             dataFileReadDone = false;
             dataFileDumpDone = false;
+        }
+
+        public Spotter getSpotter()
+        {
+            return spotter;
         }
     }
 }
