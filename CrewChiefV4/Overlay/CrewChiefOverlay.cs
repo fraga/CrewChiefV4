@@ -178,7 +178,7 @@ namespace CrewChiefV4.Overlay
             titleBar.AddChildElement(new ElementButton(gfx, "ButtonClose", font, new Rect(overlayWindow.Width - 18, 3, 14, 14), colorScheme));
             titleBar.AddChildElement(new ElementButton(gfx, "Save window position", font, new Rect(overlayWindow.Width - 160, 3, 130, 14), colorScheme));
 
-            maxDisplayLines = settings.maxDisplayLines == -1 || settings.maxDisplayLines > 22 ? 22 : settings.maxDisplayLines;
+            maxDisplayLines = settings.maxDisplayLines == -1 || settings.maxDisplayLines > 17 ? 17 : settings.maxDisplayLines;
             messuredFontHeight = font.MeasureString("Hello World").Height;
             consoleBoxHeight = messuredFontHeight * (maxDisplayLines);
             consoleControlBox = overlayElements[consoleBoxName] = new ElementTextBox(gfx, consoleBoxName, font, new Rect(0, 20, overlayWindow.Width, consoleBoxHeight),
