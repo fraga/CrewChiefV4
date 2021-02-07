@@ -112,6 +112,14 @@ namespace CrewChiefV4.Events
 
         private Boolean waitingForValidDataForBenchmark = false;
 
+        // data for player pitbox position and opponents we think may be sharing that pitbox
+        private static string trackAndCarNameForPitBoxPositionData = null; // record the car and track name so reduce the amount of stale data being reused
+                                                                           // (note that we can't clear the pit box data between sessions)
+        private static float playerPitBoxLapDistance = -1;
+        private static float[] playerPitBoxLocation = null;
+        private static HashSet<string> opponentKeysSharingPitLocation = new HashSet<string>();
+        private static DateTime nextPitBoxBlockedCheckDue = DateTime.MinValue;
+
         public override List<SessionPhase> applicableSessionPhases
         {
             get { return new List<SessionPhase> { SessionPhase.Green, SessionPhase.FullCourseYellow }; }
@@ -200,6 +208,14 @@ namespace CrewChiefV4.Events
                 // no track data
                 return;
             }
+
+            if (currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.Now > nextPitBoxBlockedCheckDue)
+            {
+                nextPitBoxBlockedCheckDue = currentGameState.Now.AddSeconds(1);
+                string opponentBlockingBox = Strategy.getOpponentKeyBlockingBox(currentGameState);
+                Console.WriteLine("Opponent " + opponentBlockingBox + " appears to be, or will be, blocking our pit stall");
+            }
+
             if (CrewChief.gameDefinition.gameEnum == GameEnum.ASSETTO_32BIT || CrewChief.gameDefinition.gameEnum == GameEnum.ASSETTO_64BIT)
             {
                 // tracks may not have 2 or 3 sectors
@@ -300,6 +316,10 @@ namespace CrewChiefV4.Events
                                 waitingForValidDataForBenchmark = true;
                             }
                         }
+                    }
+                    else if (currentGameState.PitData.InPitlane && currentGameState.PositionAndMotionData.CarSpeed < 0.1)
+                    {
+                        Strategy.setPlayerPitLocationData(currentGameState);
                     }
                 }
                 // nothing else to do unless we're in race mode
@@ -1223,8 +1243,95 @@ namespace CrewChiefV4.Events
                 respondRace();
             }                
         }
-    }
 
+        private static string getTrackNameAndCarClass(GameStateData currentGameState)
+        {
+            if (currentGameState != null && currentGameState.SessionData.TrackDefinition != null)
+            {
+                return currentGameState.carClass.getClassIdentifier() + "_" + currentGameState.SessionData.TrackDefinition.name;
+            }
+            return null;
+        }
+
+        public static float getPlayerPitBoxLapDistance(GameStateData currentGameState)
+        {
+            string trackNameAndCarClass = getTrackNameAndCarClass(currentGameState);
+            if (trackNameAndCarClass != null && trackNameAndCarClass == Strategy.trackAndCarNameForPitBoxPositionData)
+            {
+                return Strategy.playerPitBoxLapDistance;
+            }
+            return -1;
+        }
+        
+        public static float[] getPlayerPitBoxLocation(GameStateData currentGameState)
+        {
+            string trackNameAndCarClass = getTrackNameAndCarClass(currentGameState);
+            if (trackNameAndCarClass != null && trackNameAndCarClass == Strategy.trackAndCarNameForPitBoxPositionData)
+            {
+                return Strategy.playerPitBoxLocation;
+            }
+            return null;
+        }
+
+        // call this during prac or qual when we do our practice stop
+        public static void setPlayerPitLocationData(GameStateData currentGameState)
+        {
+            string trackNameAndCarClass = getTrackNameAndCarClass(currentGameState);
+            if (trackNameAndCarClass != null)
+            {
+                if (currentGameState.PositionAndMotionData.DistanceRoundTrack > 0)
+                {
+                    Strategy.trackAndCarNameForPitBoxPositionData = trackNameAndCarClass;
+                    Strategy.playerPitBoxLapDistance = currentGameState.PositionAndMotionData.DistanceRoundTrack;
+                }
+                if (currentGameState.PositionAndMotionData.WorldPosition != null
+                    && locationIsValid(currentGameState.PositionAndMotionData.WorldPosition))
+                {
+                    Strategy.trackAndCarNameForPitBoxPositionData = trackNameAndCarClass;
+                    Strategy.playerPitBoxLocation = currentGameState.PositionAndMotionData.WorldPosition;
+                }
+            }
+            if (trackNameAndCarClass == null || trackNameAndCarClass != Strategy.trackAndCarNameForPitBoxPositionData)
+            {
+                Strategy.opponentKeysSharingPitLocation.Clear();
+            }
+        }
+
+        private static bool locationIsValid(float[] location)
+        {
+            return !(location[0] == 0 && location[1] == 0);
+        }
+        
+        // only checks the position - call this when we know the opponent is stationary in the pit lane
+        public static void checkIfOpponentSharesPlayerPitBox(string opponentKey, float opponentLapDistance, float[] opponentWorldLocation)
+        {
+            if ((Strategy.playerPitBoxLapDistance > 0 && opponentLapDistance > 0 && Math.Abs(opponentLapDistance) - Strategy.playerPitBoxLapDistance < 5)
+                || (locationIsValid(Strategy.playerPitBoxLocation) && locationIsValid(opponentWorldLocation)
+                     && Math.Abs(Strategy.playerPitBoxLocation[0] - opponentWorldLocation[0]) < 5
+                     && Math.Abs(Strategy.playerPitBoxLocation[1] - opponentWorldLocation[1]) < 5))
+            {
+                Strategy.opponentKeysSharingPitLocation.Add(opponentKey);
+            }
+        }
+        
+        // only call this every few seconds
+        public static string getOpponentKeyBlockingBox(GameStateData currentGameState)
+        {
+            if (currentGameState.SessionData.SessionType == SessionType.Race && getTrackNameAndCarClass(currentGameState) == Strategy.trackAndCarNameForPitBoxPositionData)
+            {
+                foreach (string opponentKey in Strategy.opponentKeysSharingPitLocation)
+                {
+                    OpponentData opponentData;
+                    if (currentGameState.OpponentData.TryGetValue(opponentKey, out opponentData) && opponentData.InPits)
+                    {
+                        // this opponent shares our box, he's pitting so report it if we haven't already
+                        return opponentKey;
+                    }
+                }
+            }
+            return null;
+        }
+    }
 
     // code to persist and load benchmark data
     class PersistedBenchmark

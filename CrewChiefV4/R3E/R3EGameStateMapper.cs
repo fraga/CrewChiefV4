@@ -939,7 +939,7 @@ namespace CrewChiefV4.RaceRoom
                         Boolean lapInvalidated = participantStruct.CurrentLapValid != 1 || participantStruct.LapTimeCurrentSelf == -1 ||
                             (participantStruct.LapDistance > 1 && participantStruct.LapTimeCurrentSelf == 0);
 
-                        upateOpponentData(currentOpponentData, currentOpponentRacePosition,
+                        updateOpponentData(currentOpponentData, currentOpponentRacePosition,
                                 participantStruct.Place, currentOpponentLapsCompleted,
                                 currentOpponentSector, sectorTime, participantStruct.SectorTimePreviousSelf.Sector3,
                                 participantStruct.InPitlane == 1, !lapInvalidated,
@@ -1021,6 +1021,11 @@ namespace CrewChiefV4.RaceRoom
                             {
                                 currentGameState.SessionData.Flag = FlagEnum.BLUE;
                             }
+                        }
+
+                        if (currentOpponentData.InPits && currentOpponentData.Speed != 0 && currentOpponentData.Speed < 0.1)
+                        {
+                            Strategy.checkIfOpponentSharesPlayerPitBox(driverName, currentOpponentData.DistanceRoundTrack, currentOpponentData.WorldPosition);
                         }
                     }
                 }
@@ -1804,7 +1809,7 @@ namespace CrewChiefV4.RaceRoom
             return overtakingAids;
         }
 
-        private void upateOpponentData(OpponentData opponentData, int racePosition, int unfilteredRacePosition, int completedLaps, int sector, float sectorTime, 
+        private void updateOpponentData(OpponentData opponentData, int racePosition, int unfilteredRacePosition, int completedLaps, int sector, float sectorTime, 
             float completedLapTime, Boolean isInPits, Boolean lapIsValid, float sessionRunningTime, float secondsSinceLastUpdate, float[] currentWorldPosition,
             float[] previousWorldPosition, float distanceRoundTrack, int tire_type_front, int tyre_sub_type_front, int tire_type_rear, int tyre_sub_type_rear,  
             Boolean sessionLengthIsTime, float sessionTimeRemaining, Boolean isRace, float nearPitEntryPointDistance, float speed,
