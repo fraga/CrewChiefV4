@@ -1066,6 +1066,7 @@
 			"acTrackNames": [ "ks_zandvoort:", "zandvoort2020" ],
 			"raceroomLayoutId": 1678,
 			"rf2TrackNames": [ "Zandvoort" ],
+			"gtr2TrackNames": [ "Zandvoort, GT Masters Round 2" ],
 			"irTrackName": "zandvoort grandprix",
 			"raceroomRollingStartLapDistance": 3572,
 			"trackLandmarks": [

@@ -80,7 +80,7 @@ namespace CrewChiefV4.Events
                         lastSessionPhase == SessionPhase.Finished || lastSessionPhase == SessionPhase.Checkered)
                     {
                         lastSessionEndMessagesPlayedAt = now;
-                        playFinishMessage(sessionType, startPosition, finishPosition, numCars, false, isDNF, completedLaps, expectedFinishPosition);
+                        playFinishMessage(sessionType, startPosition, finishPosition, numCars, isDisqualified, isDNF, completedLaps, expectedFinishPosition);
                     }
                     else
                     {
@@ -104,23 +104,23 @@ namespace CrewChiefV4.Events
                 {
                     Console.WriteLine("Session finished but position is < 1");
                 }
+                else if (isDisqualified)
+                {
+                    Boolean playedRant = false;
+                    if (completedLaps > 1)
+                    {
+                        playedRant = audioPlayer.playRant(sessionEndMessageIdentifier, AbstractEvent.MessageContents(Penalties.folderDisqualified));
+                    }
+                    if (!playedRant)
+                    {
+                        audioPlayer.playMessage(new QueuedMessage(sessionEndMessageIdentifier, 0,
+                            messageFragments: AbstractEvent.MessageContents(Penalties.folderDisqualified), priority: 10));
+                    }
+                }
                 else if (sessionType == SessionType.Race)
                 {
                     Boolean isLast = position == numCars;
-                    if (isDisqualified)
-                    {
-                        Boolean playedRant = false;
-                        if (completedLaps > 1)
-                        {
-                            playedRant = audioPlayer.playRant(sessionEndMessageIdentifier, AbstractEvent.MessageContents(Penalties.folderDisqualified));
-                        }
-                        if (!playedRant)
-                        {
-                            audioPlayer.playMessage(new QueuedMessage(sessionEndMessageIdentifier, 0,
-                                messageFragments: AbstractEvent.MessageContents(Penalties.folderDisqualified), priority: 10));
-                        }
-                    }
-                    else if (isDNF)
+                    if (isDNF)
                     {
                         audioPlayer.playMessage(new QueuedMessage(sessionEndMessageIdentifier, 0,
                             messageFragments: AbstractEvent.MessageContents(folderFinishedRaceLast), priority: 10));
