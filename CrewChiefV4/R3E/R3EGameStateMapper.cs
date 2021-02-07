@@ -256,20 +256,6 @@ namespace CrewChiefV4.RaceRoom
                 Console.WriteLine("rawSessionPhase = " + shared.SessionPhase);
                 Console.WriteLine("currentSessionRunningTime = " + currentGameState.SessionData.SessionRunningTime);
 
-                if ((currentGameState.SessionData.SessionType == SessionType.Practice || currentGameState.SessionData.SessionType == SessionType.Qualify)
-                    && shared.InPitlane == 1)
-                {
-                    currentGameState.PitData.PitBoxPositionEstimate = shared.LapDistance;
-                    currentGameState.PitData.PitBoxLocationEstimate = new float[] { playerDriverData.Position.X, playerDriverData.Position.Y, playerDriverData.Position.Z };
-                    Console.WriteLine("Pit box position = " + currentGameState.PitData.PitBoxPositionEstimate.ToString("0.000"));
-                }
-                else if (previousGameState != null)
-                {
-                    // if we're entering a race session or rolling qually, copy the value from the previous field
-                    currentGameState.PitData.PitBoxPositionEstimate = previousGameState.PitData.PitBoxPositionEstimate;
-                    currentGameState.PitData.PitBoxLocationEstimate = previousGameState.PitData.PitBoxLocationEstimate;
-                }
-
                 // reset the flag to allow the improvised blue flag calling
                 useImprovisedBlueFlagDetection = true;
 
@@ -357,6 +343,20 @@ namespace CrewChiefV4.RaceRoom
                 }
                 currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, 
                     currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.PositionAndMotionData.CarSpeed, currentGameState.Now);
+                if ((currentGameState.SessionData.SessionType == SessionType.Practice || currentGameState.SessionData.SessionType == SessionType.Qualify)
+                     && shared.InPitlane == 1)
+                {
+                    currentGameState.PitData.PitBoxPositionEstimate = shared.LapDistance;
+                    currentGameState.PitData.PitBoxLocationEstimate = new float[] { playerDriverData.Position.X, playerDriverData.Position.Y, playerDriverData.Position.Z };
+                    Strategy.setPlayerPitLocationData(currentGameState);
+                    Console.WriteLine("Pit box position = " + currentGameState.PitData.PitBoxPositionEstimate.ToString("0.000"));
+                }
+                else if (previousGameState != null)
+                {
+                    // if we're entering a race session or rolling qually, copy the value from the previous field
+                    currentGameState.PitData.PitBoxPositionEstimate = previousGameState.PitData.PitBoxPositionEstimate;
+                    currentGameState.PitData.PitBoxLocationEstimate = previousGameState.PitData.PitBoxLocationEstimate;
+                }
             }
             else
             {

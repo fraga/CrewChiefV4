@@ -116,9 +116,10 @@ namespace CrewChiefV4.Events
         private static string trackAndCarNameForPitBoxPositionData = null; // record the car and track name so reduce the amount of stale data being reused
                                                                            // (note that we can't clear the pit box data between sessions)
         private static float playerPitBoxLapDistance = -1;
-        private static float[] playerPitBoxLocation = null;
+        private static float[] playerPitBoxLocation = new float[] { 0, 0 }; // note opponent's array is x,z. Player is x,y,z
         private static HashSet<string> opponentKeysSharingPitLocation = new HashSet<string>();
         private static DateTime nextPitBoxBlockedCheckDue = DateTime.MinValue;
+        private HashSet<string> namesBlockingPitBoxAtLastCheck = new HashSet<string>();
 
         public override List<SessionPhase> applicableSessionPhases
         {
@@ -161,6 +162,7 @@ namespace CrewChiefV4.Events
             // clear this on each session refresh to ensure we iterate the persisted data each time, 
             // getting the data for the correct combo. This is reset for race sessions on JustGoneGreen
             BenchmarkHelper.benchmarkForThisCombo = null;
+            namesBlockingPitBoxAtLastCheck.Clear();
         }
 
         private void setTimeLossFromBenchmark(GameStateData currentGameState)
@@ -212,8 +214,17 @@ namespace CrewChiefV4.Events
             if (currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.Now > nextPitBoxBlockedCheckDue)
             {
                 nextPitBoxBlockedCheckDue = currentGameState.Now.AddSeconds(1);
-                string opponentBlockingBox = Strategy.getOpponentKeyBlockingBox(currentGameState);
-                Console.WriteLine("Opponent " + opponentBlockingBox + " appears to be, or will be, blocking our pit stall");
+                HashSet<string> opponentsCurrentlyBlockingBox = Strategy.getOpponentKeysBlockingBox(currentGameState);
+                // remove elements not present in the current list of blocking opponents
+                namesBlockingPitBoxAtLastCheck.IntersectWith(opponentsCurrentlyBlockingBox);
+                // now trigger a warning for each new opponent
+                foreach (string currentOpponentBlocking in opponentsCurrentlyBlockingBox)
+                {
+                    if (namesBlockingPitBoxAtLastCheck.Add(currentOpponentBlocking))
+                    {
+                        Console.WriteLine("Opponent " + currentOpponentBlocking + " appears to be, or will be, blocking our pit stall");
+                    }
+                }
             }
 
             if (CrewChief.gameDefinition.gameEnum == GameEnum.ASSETTO_32BIT || CrewChief.gameDefinition.gameEnum == GameEnum.ASSETTO_64BIT)
@@ -1288,7 +1299,8 @@ namespace CrewChiefV4.Events
                     && locationIsValid(currentGameState.PositionAndMotionData.WorldPosition))
                 {
                     Strategy.trackAndCarNameForPitBoxPositionData = trackNameAndCarClass;
-                    Strategy.playerPitBoxLocation = currentGameState.PositionAndMotionData.WorldPosition;
+                    Strategy.playerPitBoxLocation[0] = currentGameState.PositionAndMotionData.WorldPosition[0];
+                    Strategy.playerPitBoxLocation[1] = currentGameState.PositionAndMotionData.WorldPosition[2];
                 }
             }
             if (trackNameAndCarClass == null || trackNameAndCarClass != Strategy.trackAndCarNameForPitBoxPositionData)
@@ -1299,13 +1311,13 @@ namespace CrewChiefV4.Events
 
         private static bool locationIsValid(float[] location)
         {
-            return !(location[0] == 0 && location[1] == 0);
+            return location != null && !(location[0] == 0 && location[1] == 0);
         }
         
         // only checks the position - call this when we know the opponent is stationary in the pit lane
         public static void checkIfOpponentSharesPlayerPitBox(string opponentKey, float opponentLapDistance, float[] opponentWorldLocation)
         {
-            if ((Strategy.playerPitBoxLapDistance > 0 && opponentLapDistance > 0 && Math.Abs(opponentLapDistance) - Strategy.playerPitBoxLapDistance < 5)
+            if ((Strategy.playerPitBoxLapDistance > 0 && opponentLapDistance > 0 && Math.Abs(opponentLapDistance - Strategy.playerPitBoxLapDistance) < 5)
                 || (locationIsValid(Strategy.playerPitBoxLocation) && locationIsValid(opponentWorldLocation)
                      && Math.Abs(Strategy.playerPitBoxLocation[0] - opponentWorldLocation[0]) < 5
                      && Math.Abs(Strategy.playerPitBoxLocation[1] - opponentWorldLocation[1]) < 5))
@@ -1315,8 +1327,9 @@ namespace CrewChiefV4.Events
         }
         
         // only call this every few seconds
-        public static string getOpponentKeyBlockingBox(GameStateData currentGameState)
+        public static HashSet<string> getOpponentKeysBlockingBox(GameStateData currentGameState)
         {
+            HashSet<string> blocking = new HashSet<string>();
             if (currentGameState.SessionData.SessionType == SessionType.Race && getTrackNameAndCarClass(currentGameState) == Strategy.trackAndCarNameForPitBoxPositionData)
             {
                 foreach (string opponentKey in Strategy.opponentKeysSharingPitLocation)
@@ -1325,11 +1338,11 @@ namespace CrewChiefV4.Events
                     if (currentGameState.OpponentData.TryGetValue(opponentKey, out opponentData) && opponentData.InPits)
                     {
                         // this opponent shares our box, he's pitting so report it if we haven't already
-                        return opponentKey;
+                        blocking.Add(opponentKey);
                     }
                 }
             }
-            return null;
+            return blocking;
         }
     }
 
