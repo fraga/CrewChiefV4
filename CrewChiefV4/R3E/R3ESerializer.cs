@@ -442,6 +442,10 @@ namespace CrewChiefV4.RaceRoom
 
                     writeCorners(writer, "BrakePressure", data.BrakePressure.FrontLeft, data.BrakePressure.FrontRight, data.BrakePressure.RearLeft, data.BrakePressure.RearRight, disabledProperties);
 
+                    writeProperty(writer, "TractionControlSetting", data.TractionControlSetting, disabledProperties);
+                    writeProperty(writer, "EngineMapSetting", data.EngineMapSetting, disabledProperties);
+                    writeProperty(writer, "EngineBrakeSetting", data.EngineBrakeSetting, disabledProperties);
+
                     if (enabled("CarDamage", disabledProperties))
                     {
                         writer.WritePropertyName("CarDamage");
