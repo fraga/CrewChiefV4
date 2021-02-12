@@ -102,6 +102,14 @@ namespace CrewChiefV4.commands
             {
                 return true;
             }
+            if (keyString.StartsWith("KEY_") && keyString.Length > 3)
+            {
+                string keyStringWithoutLeadingText = keyString.Substring(4);
+                if (Enum.TryParse(keyStringWithoutLeadingText, true, out keyCode))
+                {
+                    return true;
+                }
+            }
             return false;
         }
 
