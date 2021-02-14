@@ -2119,3 +2119,9 @@ sre_enable_threshold_tuning = Auto-tune speech recognition thresholds
 sre_enable_threshold_tuning_help = Adjust SRE confidence thresholds automatically
 sre_enable_threshold_tuning_category = AUDIO_VOICE_AND_CONTROLLERS
 sre_enable_threshold_tuning_metadata = RESTART_REQUIRED
+
+enable_rf1_box_sharing_warnings = Warn about opponents sharing player's pit box (RF1 / AMS 1 only)
+enable_rf1_box_sharing_warnings_help = Use practice pit stop car position data to trigger pit-box-in-use warnings
+enable_rf1_box_sharing_warnings_category = MISC
+enable_rf1_box_sharing_warnings_filter = RF1
+enable_rf1_box_sharing_warnings_metadata = RESTART_REQUIRED

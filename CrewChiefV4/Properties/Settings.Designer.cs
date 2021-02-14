@@ -5254,5 +5254,17 @@ namespace CrewChiefV4.Properties {
                 this["sre_enable_threshold_tuning"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool enable_rf1_box_sharing_warnings {
+            get {
+                return ((bool)(this["enable_rf1_box_sharing_warnings"]));
+            }
+            set {
+                this["enable_rf1_box_sharing_warnings"] = value;
+            }
+        }
     }
 }

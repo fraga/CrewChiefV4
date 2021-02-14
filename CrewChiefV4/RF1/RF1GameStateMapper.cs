@@ -912,7 +912,7 @@ namespace CrewChiefV4.rFactor1
                     currentGameState.OpponentData.Add(opponentKey, opponent);
                 }
 
-                if (opponent.InPits && opponent.Speed != 0 && opponent.Speed < 0.1)
+                if (opponent.InPits && opponent.Speed > 0 && opponent.Speed < 0.1)
                 {
                     Strategy.checkIfOpponentSharesPlayerPitBox(opponentKey, opponent.DistanceRoundTrack, opponent.WorldPosition);
                 }

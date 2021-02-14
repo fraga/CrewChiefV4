@@ -1023,7 +1023,8 @@ namespace CrewChiefV4.RaceRoom
                             }
                         }
 
-                        if (currentOpponentData.InPits && currentOpponentData.Speed != 0 && currentOpponentData.Speed < 0.1)
+                        // no point in wiring this up for R3E - cars are ghosted in the pits
+                        if (currentOpponentData.InPits && currentOpponentData.Speed > 0 && currentOpponentData.Speed < 0.1)
                         {
                             Strategy.checkIfOpponentSharesPlayerPitBox(driverName, currentOpponentData.DistanceRoundTrack, currentOpponentData.WorldPosition);
                         }

@@ -14,6 +14,7 @@ namespace CrewChiefV4.Events
     {
         private Boolean enablePitExitPositionEstimates = UserSettings.GetUserSettings().getBoolean("enable_pit_exit_position_estimates");
         private Boolean warnAboutOpponentsExitingCloseToPlayer = UserSettings.GetUserSettings().getBoolean("enable_opponent_pit_exit_estimates");
+        private static Boolean rf1WarnAboutOpponentsSharingBox = UserSettings.GetUserSettings().getBoolean("enable_rf1_box_sharing_warnings");
 
         // if this is enabled, don't play the pit position estimates on pit entry. This is only a fallback in case
         // we haven't made a pit request
@@ -120,6 +121,7 @@ namespace CrewChiefV4.Events
         private static HashSet<string> opponentKeysSharingPitLocation = new HashSet<string>();
         private static DateTime nextPitBoxBlockedCheckDue = DateTime.MinValue;
         private HashSet<string> namesBlockingPitBoxAtLastCheck = new HashSet<string>();
+        public static bool pitStallIsBlocked = false;
 
         public override List<SessionPhase> applicableSessionPhases
         {
@@ -163,6 +165,7 @@ namespace CrewChiefV4.Events
             // getting the data for the correct combo. This is reset for race sessions on JustGoneGreen
             BenchmarkHelper.benchmarkForThisCombo = null;
             namesBlockingPitBoxAtLastCheck.Clear();
+            pitStallIsBlocked = false;
         }
 
         private void setTimeLossFromBenchmark(GameStateData currentGameState)
@@ -211,10 +214,12 @@ namespace CrewChiefV4.Events
                 return;
             }
 
-            if (currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.Now > nextPitBoxBlockedCheckDue)
+            if (rf1WarnAboutOpponentsSharingBox && currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.Now > nextPitBoxBlockedCheckDue)
             {
                 nextPitBoxBlockedCheckDue = currentGameState.Now.AddSeconds(1);
                 HashSet<string> opponentsCurrentlyBlockingBox = Strategy.getOpponentKeysBlockingBox(currentGameState);
+                bool pitStallWasBlocked = Strategy.pitStallIsBlocked;
+                Strategy.pitStallIsBlocked = opponentsCurrentlyBlockingBox.Count() > 0;
                 // remove elements not present in the current list of blocking opponents
                 namesBlockingPitBoxAtLastCheck.IntersectWith(opponentsCurrentlyBlockingBox);
                 // now trigger a warning for each new opponent
@@ -224,6 +229,14 @@ namespace CrewChiefV4.Events
                     {
                         Console.WriteLine("Opponent " + currentOpponentBlocking + " appears to be, or will be, blocking our pit stall");
                     }
+                }
+                if (pitStallWasBlocked && !Strategy.pitStallIsBlocked)
+                {
+                    audioPlayer.playMessage(new QueuedMessage(PitStops.folderPitStallOccupied, 6, abstractEvent: this, priority: 10));
+                }
+                else if (!pitStallIsBlocked && Strategy.pitStallIsBlocked)
+                {
+                    audioPlayer.playMessage(new QueuedMessage(PitStops.folderPitStallAvailable, 6, abstractEvent: this, priority: 10));
                 }
             }
 
@@ -1317,6 +1330,11 @@ namespace CrewChiefV4.Events
         // only checks the position - call this when we know the opponent is stationary in the pit lane
         public static void checkIfOpponentSharesPlayerPitBox(string opponentKey, float opponentLapDistance, float[] opponentWorldLocation)
         {
+            if (Strategy.trackAndCarNameForPitBoxPositionData == null || !rf1WarnAboutOpponentsSharingBox)
+            {
+                // no data for the player's box or feature disabled, so no point in adding any data for the opponent
+                return;
+            }
             if ((Strategy.playerPitBoxLapDistance > 0 && opponentLapDistance > 0 && Math.Abs(opponentLapDistance - Strategy.playerPitBoxLapDistance) < 5)
                 || (locationIsValid(Strategy.playerPitBoxLocation) && locationIsValid(opponentWorldLocation)
                      && Math.Abs(Strategy.playerPitBoxLocation[0] - opponentWorldLocation[0]) < 5

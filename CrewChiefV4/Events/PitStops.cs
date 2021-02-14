@@ -68,8 +68,8 @@ namespace CrewChiefV4.Events
         // pit stop messages
         private String folderWatchYourPitSpeed = "mandatory_pit_stops/watch_your_pit_speed";
         private String folderPitCrewReady = "mandatory_pit_stops/pit_crew_ready";
-        private String folderPitStallOccupied = "mandatory_pit_stops/pit_stall_occupied";
-        private String folderPitStallAvailable = "mandatory_pit_stops/pit_stall_available";
+        public static String folderPitStallOccupied = "mandatory_pit_stops/pit_stall_occupied";
+        public static String folderPitStallAvailable = "mandatory_pit_stops/pit_stall_available";
         private String folderStopCompleteGo = "mandatory_pit_stops/stop_complete_go";
         private String folderPitStopRequestReceived = "mandatory_pit_stops/pit_stop_requested";
         private String folderPitStopRequestCancelled = "mandatory_pit_stops/pit_request_cancelled";
@@ -1414,7 +1414,7 @@ namespace CrewChiefV4.Events
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.IS_MY_PIT_BOX_OCCUPIED))
             {
-                if (this.pitStallOccupied)
+                if (this.pitStallOccupied || Strategy.pitStallIsBlocked)
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(folderPitStallOccupied, 0));
                 }
