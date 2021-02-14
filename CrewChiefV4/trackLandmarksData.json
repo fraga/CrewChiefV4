@@ -1066,6 +1066,7 @@
 			"acTrackNames": [ "ks_zandvoort:", "zandvoort2020" ],
 			"raceroomLayoutId": 1678,
 			"rf2TrackNames": [ "Zandvoort" ],
+			"gtr2TrackNames": [ "Zandvoort, GT Masters Round 2" ],
 			"irTrackName": "zandvoort grandprix",
 			"raceroomRollingStartLapDistance": 3572,
 			"trackLandmarks": [
@@ -17029,6 +17030,65 @@
 					"distanceRoundLapStart": 3440.779,
 					"distanceRoundLapEnd": 3562.7644,
 					"isCommonOvertakingSpot": false
+				}
+			]
+		},
+		{
+			"acTrackNames": [ "ks_monza66:full" ],
+			"trackLandmarks": [
+				{
+					"landmarkName": "curva_grande",
+					"distanceRoundLapStart": 945.56665,
+					"distanceRoundLapEnd": 1420.25684,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "della_roggia",
+					"distanceRoundLapStart": 1664.40869,
+					"distanceRoundLapEnd": 1928.20264,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "lesmos1",
+					"distanceRoundLapStart": 2129.77124,
+					"distanceRoundLapEnd": 2315.02051,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "lesmos2",
+					"distanceRoundLapStart": 2468.56,
+					"distanceRoundLapEnd": 2665.78223,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "curva_del_serraglio",
+					"distanceRoundLapStart": 2901.566,
+					"distanceRoundLapEnd": 3078.35034,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "curva_del_vialone",
+					"distanceRoundLapStart": 3512.15112,
+					"distanceRoundLapEnd": 3926.0708,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "parabolica",
+					"distanceRoundLapStart": 4775.79248,
+					"distanceRoundLapEnd": 5262.11133,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "curva_nord",
+					"distanceRoundLapStart": 6136.852,
+					"distanceRoundLapEnd": 7376.635,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "curva_sud",
+					"distanceRoundLapStart": 8258.614,
+					"distanceRoundLapEnd": 9483.352,
+					"isCommonOvertakingSpot": true
 				}
 			]
 		}
