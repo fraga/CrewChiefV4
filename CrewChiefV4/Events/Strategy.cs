@@ -1336,10 +1336,10 @@ namespace CrewChiefV4.Events
                 // no data for the player's box or feature disabled, so no point in adding any data for the opponent
                 return;
             }
-            if ((Strategy.playerPitBoxLapDistance > 0 && opponentLapDistance > 0 && Math.Abs(opponentLapDistance - Strategy.playerPitBoxLapDistance) < 5)
+            if ((Strategy.playerPitBoxLapDistance > 0 && opponentLapDistance > 0 && Math.Abs(opponentLapDistance - Strategy.playerPitBoxLapDistance) < 3)
                 || (locationIsValid(Strategy.playerPitBoxLocation) && locationIsValid(opponentWorldLocation)
-                     && Math.Abs(Strategy.playerPitBoxLocation[0] - opponentWorldLocation[0]) < 5
-                     && Math.Abs(Strategy.playerPitBoxLocation[1] - opponentWorldLocation[1]) < 5))
+                     && Math.Abs(Strategy.playerPitBoxLocation[0] - opponentWorldLocation[0]) < 3
+                     && Math.Abs(Strategy.playerPitBoxLocation[1] - opponentWorldLocation[1]) < 3))
             {
                 Console.WriteLine("Opponent " + opponentKey + " appears to be sharing our pitbox at distance " + opponentLapDistance + " world location " + String.Join(",", opponentWorldLocation));
                 Strategy.opponentKeysSharingPitLocation.Add(opponentKey);
