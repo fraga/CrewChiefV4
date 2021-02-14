@@ -586,7 +586,7 @@ namespace CrewChiefV4.commands
     public class ActionItem
     {
         public Boolean parsedSuccessfully = false;
-        public KeyPresser.KeyCode[] keyCodes;
+        public Tuple<KeyPresser.KeyCode?, KeyPresser.KeyCode>[] keyCodes;
         public String actionText;
         public String freeText;
         public String extendedType;
@@ -637,7 +637,7 @@ namespace CrewChiefV4.commands
                 try
                 {
                     // first assume we have a single key binding
-                    this.keyCodes = new KeyPresser.KeyCode[1];
+                    this.keyCodes = new Tuple<KeyPresser.KeyCode?, KeyPresser.KeyCode>[1];
                     // try and get it directly without going through the key bindings
                     parsedSuccessfully = KeyPresser.parseKeycode(action, false, out this.keyCodes[0]);
                     if (!parsedSuccessfully)
@@ -685,7 +685,22 @@ namespace CrewChiefV4.commands
                 }
                 else
                 {
-                    return String.Join(",", keyCodes);
+                    String str = "";
+                    bool addComma = false;
+                    foreach (Tuple< KeyPresser.KeyCode?, KeyPresser.KeyCode> keyCode in keyCodes)
+                    {
+                        if (addComma)
+                        {
+                            str += ", ";
+                        }
+                        if (keyCode.Item1 != null)
+                        {
+                            str += keyCode.Item1.ToString() + "+";
+                        }
+                        str += keyCode.Item2.ToString();
+                        addComma = true;
+                    }
+                    return str;
                 }
             }
             else

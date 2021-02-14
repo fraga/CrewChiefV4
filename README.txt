@@ -431,6 +431,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.15.1.6: Added support for modifier keys in macros - prefix the key with modifier+ to hold down that modifier while typing the key (e.g. LSHIFT+KEY_X, RSHIFT+KEY_X, LCONTROL+KEY_X, ALT+KEY_X, etc); Some error logging improvements; A few other bit & bobs
+
 Version 4.15.1.5: iRacing crash hotfix
 
 Version 4.15.1.4: Added option to prefer driver names over car numbers for frozen order calls (full course yellow / rolling start); Added suspension velocity histogram data to R3E, AMS2 and pCars2 chart data (default voice command "show me suspension velocity"); Made Windows speech recognition the default; R3E - fixed ratings retrieval; R3E - increase app tick-rate during start lights to reduce delay in reporting countdown / green flag state to other apps; GTR2 - fix some VR rendering issues; ACC - fix free chat macros; Various bug fixes and improvements
