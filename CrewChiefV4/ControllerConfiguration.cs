@@ -508,7 +508,7 @@ namespace CrewChiefV4
                 string str = UserSettings.GetUserSettings().getString("reset_vr_view_control");
                 if (Enum.TryParse<KeyPresser.KeyCode>(str, out keyCode))
                 {
-                    KeyPresser.SendScanCodeKeyPress(keyCode, 50);
+                    KeyPresser.SendScanCodeKeyPress(new Tuple<KeyPresser.KeyCode?, KeyPresser.KeyCode>(null, keyCode), 50);
                     Log.Commentary("Reset VR view");
                 }
                 else

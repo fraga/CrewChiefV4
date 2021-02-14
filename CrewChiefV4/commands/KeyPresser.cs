@@ -19,6 +19,7 @@ namespace CrewChiefV4.commands
         const uint KEYEVENTF_SCANCODE = 0x0008;
 
         static Tuple<ushort, Boolean> keyBeingPressed = null;
+        static Tuple<ushort, Boolean> modifierKeyBeingPressed = null;
 
         struct INPUT
         {
@@ -86,54 +87,96 @@ namespace CrewChiefV4.commands
         private static KeyCode[] extendedKeys = { KeyCode.UP, KeyCode.DOWN, KeyCode.LEFT, KeyCode.RIGHT, 
                                            KeyCode.INSERT, KeyCode.HOME, KeyCode.PAGE_UP, KeyCode.PAGEDOWN, KeyCode.DELETE, KeyCode.END };
 
-        public static Boolean parseKeycode(String keyString, Boolean freeText, out KeyPresser.KeyCode keyCode)
-        {      
+        private static KeyCode[] modifierKeys = { KeyCode.ALT, KeyCode.LSHIFT, KeyCode.RSHIFT, KeyCode.SHIFT, KeyCode.CONTROL, KeyCode.LCONTROL,
+                                                  KeyCode.RCONTROL, KeyCode.LWIN, KeyCode.RWIN };
+
+        public static Boolean parseKeycode(String keyString, Boolean freeText, out Tuple<KeyPresser.KeyCode?, KeyPresser.KeyCode> modifierAndKeyCode)
+        {
+            KeyCode? modifier = null;
+            if (keyString.Contains("+"))
+            {
+                string[] split = keyString.Split('+');
+                keyString = split[1];
+                if (Enum.TryParse(split[0], true, out KeyCode parsedModifier) && KeyPresser.modifierKeys.Contains(parsedModifier))
+                {
+                    modifier = parsedModifier;
+                }
+            }
+            KeyCode parsedKeyCode;
             if (freeText)
             {
                 //not used when free text
-                keyCode = 0;
+                modifierAndKeyCode = new Tuple<KeyCode?, KeyCode>(modifier, 0);
                 return true;
             }
-            if (Enum.TryParse(keyString, true, out keyCode))
+            if (Enum.TryParse(keyString, true, out parsedKeyCode))
             {
+                modifierAndKeyCode = new Tuple<KeyCode?, KeyCode>(modifier, parsedKeyCode);
                 return true;
             }
-            if (Enum.TryParse("KEY_" + keyString, true, out keyCode))
+            if (Enum.TryParse("KEY_" + keyString, true, out parsedKeyCode))
             {
+                modifierAndKeyCode = new Tuple<KeyCode?, KeyCode>(modifier, parsedKeyCode);
                 return true;
             }
             if (keyString.StartsWith("KEY_") && keyString.Length > 3)
             {
                 string keyStringWithoutLeadingText = keyString.Substring(4);
-                if (Enum.TryParse(keyStringWithoutLeadingText, true, out keyCode))
+                if (Enum.TryParse(keyStringWithoutLeadingText, true, out parsedKeyCode))
                 {
+                    modifierAndKeyCode = new Tuple<KeyCode?, KeyCode>(modifier, parsedKeyCode);
                     return true;
                 }
             }
+            modifierAndKeyCode = new Tuple<KeyCode?, KeyCode>(null, 0);
             return false;
         }
 
         public static void releasePressedKey()
         {
+            if (modifierKeyBeingPressed != null)
+            {
+                try
+                {
+                    release(keyBeingPressed.Item1, keyBeingPressed.Item2, true);
+                }
+                catch (Exception) { /*swallow*/ }
+            }
             if (keyBeingPressed != null)
             {
                 try
                 {
-                    release(keyBeingPressed.Item1, keyBeingPressed.Item2);
+                    release(keyBeingPressed.Item1, keyBeingPressed.Item2, false);
                 }
                 catch (Exception) { /*swallow*/ }
             }
         }
         
-        public static void SendScanCodeKeyPress(KeyCode keyCode, int holdTimeMillis)
+        public static void SendScanCodeKeyPress(Tuple<KeyPresser.KeyCode?, KeyPresser.KeyCode> modifierAndKeyCode, int holdTimeMillis)
         {
-            ushort scanCode = (ushort)MapVirtualKey((ushort)keyCode, 0);
-            Boolean extended = extendedKeys.Contains(keyCode);
-            press(scanCode, extended);
+            bool sendModifier = modifierAndKeyCode.Item1 != null && KeyPresser.modifierKeys.Contains(modifierAndKeyCode.Item1.Value);
+
+            ushort scanCode = (ushort)MapVirtualKey((ushort)modifierAndKeyCode.Item2, 0);
+            Boolean extended = extendedKeys.Contains(modifierAndKeyCode.Item2);
+            ushort modifierScanCode = 0;
+            Boolean modifierExtended = false;
+            if (sendModifier)
+            {
+                modifierScanCode = (ushort)MapVirtualKey((ushort)modifierAndKeyCode.Item1.Value, 0);
+                modifierExtended = extendedKeys.Contains(modifierAndKeyCode.Item1.Value);
+                press(modifierScanCode, modifierExtended, true);
+                Thread.Sleep(20);
+            }
+            press(scanCode, extended, false);
             Thread.Sleep(holdTimeMillis);
-            release(scanCode, extended);
+            release(scanCode, extended, false);
+            if (sendModifier)
+            {
+                Thread.Sleep(20);
+                release(modifierScanCode, modifierExtended, true);
+            }
         }
-        private static void press(ushort scanCode, Boolean extended)
+        private static void press(ushort scanCode, Boolean extended, Boolean isModifier)
         {
             uint eventScanCode = extended ? KEYEVENTF_SCANCODE | KEYEVENTF_EXTENDEDKEY : KEYEVENTF_SCANCODE;
             INPUT[] inputs = new INPUT[]
@@ -153,11 +196,18 @@ namespace CrewChiefV4.commands
                     }
                 }
             };
-            keyBeingPressed = new Tuple<ushort,bool>(scanCode, extended);
+            if (isModifier)
+            {
+                modifierKeyBeingPressed = new Tuple<ushort, bool>(scanCode, extended);
+            }
+            else
+            {
+                keyBeingPressed = new Tuple<ushort, bool>(scanCode, extended);
+            }
             SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
         }
 
-        private static void release(ushort scanCode, Boolean extended)
+        private static void release(ushort scanCode, Boolean extended, Boolean isModifier)
         {
             uint eventScanCode = extended ? KEYEVENTF_SCANCODE | KEYEVENTF_KEYUP | KEYEVENTF_EXTENDEDKEY : KEYEVENTF_SCANCODE | KEYEVENTF_KEYUP;
             INPUT[] inputs = new INPUT[]
@@ -178,7 +228,14 @@ namespace CrewChiefV4.commands
                 }
             };
             SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
-            keyBeingPressed = null;
+            if (isModifier)
+            {
+                modifierKeyBeingPressed = null;
+            }
+            else
+            {
+                keyBeingPressed = null;
+            }
         }
 
         public enum KeyCode : ushort
