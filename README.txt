@@ -431,7 +431,7 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
-Version 4.15.1.6: Added support for modifier keys in macros - prefix the key with modifier+ to hold down that modifier while typing the key (e.g. LSHIFT+KEY_X, RSHIFT+KEY_X, LCONTROL+KEY_X, ALT+KEY_X, etc); Some error logging improvements; A few other bit & bobs
+Version 4.15.1.6: Added support for modifier keys in macros - prefix the key with modifier+ to hold down that modifier while typing the key (e.g. LSHIFT+KEY_X, RSHIFT+KEY_X, LCONTROL+KEY_X, ALT+KEY_X, etc); Some error logging improvements; RF1 / AMS - WIP implementation of pit box in use warnings (still lots of work and testing to do here, enable this with the "Warn about opponents sharing player's pit box (RF1 / AMS 1 only)" property, note this relies on participants making practice pitstops during practice / qual); A few other bit & bobs
 
 Version 4.15.1.5: iRacing crash hotfix
 

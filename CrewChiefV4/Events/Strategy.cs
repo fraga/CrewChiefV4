@@ -341,7 +341,7 @@ namespace CrewChiefV4.Events
                             }
                         }
                     }
-                    else if (currentGameState.PitData.InPitlane && currentGameState.PositionAndMotionData.CarSpeed < 0.1)
+                    else if (currentGameState.PitData.InPitlane && currentGameState.PositionAndMotionData.CarSpeed < 0.1 && currentGameState.PositionAndMotionData.CarSpeed > 0)
                     {
                         Strategy.setPlayerPitLocationData(currentGameState);
                     }
@@ -1301,6 +1301,7 @@ namespace CrewChiefV4.Events
         public static void setPlayerPitLocationData(GameStateData currentGameState)
         {
             string trackNameAndCarClass = getTrackNameAndCarClass(currentGameState);
+            bool newTrackNameAndCarClass = trackNameAndCarClass != Strategy.trackAndCarNameForPitBoxPositionData;
             if (trackNameAndCarClass != null)
             {
                 if (currentGameState.PositionAndMotionData.DistanceRoundTrack > 0)
@@ -1316,7 +1317,7 @@ namespace CrewChiefV4.Events
                     Strategy.playerPitBoxLocation[1] = currentGameState.PositionAndMotionData.WorldPosition[2];
                 }
             }
-            if (trackNameAndCarClass == null || trackNameAndCarClass != Strategy.trackAndCarNameForPitBoxPositionData)
+            if (trackNameAndCarClass == null || newTrackNameAndCarClass)
             {
                 Strategy.opponentKeysSharingPitLocation.Clear();
             }
@@ -1340,6 +1341,7 @@ namespace CrewChiefV4.Events
                      && Math.Abs(Strategy.playerPitBoxLocation[0] - opponentWorldLocation[0]) < 5
                      && Math.Abs(Strategy.playerPitBoxLocation[1] - opponentWorldLocation[1]) < 5))
             {
+                Console.WriteLine("Opponent " + opponentKey + " appears to be sharing our pitbox at distance " + opponentLapDistance + " world location " + String.Join(",", opponentWorldLocation));
                 Strategy.opponentKeysSharingPitLocation.Add(opponentKey);
             }
         }
