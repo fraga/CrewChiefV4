@@ -13,6 +13,7 @@ using System.Windows.Forms;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using CrewChiefV4.commands;
+using WindowsInput.Native;
 
 namespace CrewChiefV4
 {
@@ -504,11 +505,10 @@ namespace CrewChiefV4
             if (CrewChief.gameDefinition.friendlyName.Equals("Automobilista") ||
                 CrewChief.gameDefinition.friendlyName.Equals("GTR 2"))
             {
-                KeyPresser.KeyCode keyCode;
                 string str = UserSettings.GetUserSettings().getString("reset_vr_view_control");
-                if (Enum.TryParse<KeyPresser.KeyCode>(str, out keyCode))
+                if (KeyPresser.parseKeycode(str, out Tuple<VirtualKeyCode?, VirtualKeyCode> keyCode))
                 {
-                    KeyPresser.SendScanCodeKeyPress(new Tuple<KeyPresser.KeyCode?, KeyPresser.KeyCode>(null, keyCode), 50);
+                    KeyPresser.SendKeyPress(keyCode);
                     Log.Commentary("Reset VR view");
                 }
                 else
