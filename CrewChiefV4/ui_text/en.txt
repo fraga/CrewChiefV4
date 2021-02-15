@@ -2125,3 +2125,8 @@ enable_rf1_box_sharing_warnings_help = Use practice pit stop car position data t
 enable_rf1_box_sharing_warnings_category = MISC
 enable_rf1_box_sharing_warnings_filter = RF1
 enable_rf1_box_sharing_warnings_metadata = RESTART_REQUIRED
+
+force_resample = nAudio playback resample rate (0 - no resampling)
+force_resample_help = Change sample rate of message files before playback, set to 0 to disable resampling (nAudio only)
+force_resample_category = AUDIO_VOICE_AND_CONTROLLERS
+force_resample_metadata = RESTART_REQUIRED
