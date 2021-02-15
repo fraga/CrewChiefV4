@@ -23,6 +23,7 @@ namespace CrewChiefV4.Audio
         public static String TTS_IDENTIFIER = "TTS_IDENTIFIER";
         private Boolean useAlternateBeeps = UserSettings.GetUserSettings().getBoolean("use_alternate_beeps");
         public static Boolean forceStereoPlayback = UserSettings.GetUserSettings().getBoolean("force_stereo");
+        public static int forceResamplePlayback = UserSettings.GetUserSettings().getInt("force_resample");
         public static Boolean recordVarietyData = UserSettings.GetUserSettings().getBoolean("record_sound_variety_data");
         public static Boolean dumpListOfUnvocalizedNames = UserSettings.GetUserSettings().getBoolean("save_list_of_unvocalized_names");
         private double minSecondsBetweenPersonalisedMessages = (double)UserSettings.GetUserSettings().getInt("min_time_between_personalised_messages");
@@ -1806,55 +1807,20 @@ namespace CrewChiefV4.Audio
                 WaveFileReader uncachedReader = new WaveFileReader(fullPath);
                 this.eventHandler = new EventHandler<StoppedEventArgs>(playbackStopped);
                 uncachedNAudioOut.SubscribePlaybackStopped(this.eventHandler);
-
-                if (SoundCache.forceStereoPlayback || volume != 1f)
+                ISampleProvider sampleProvider = createSampleProvider(reader, volume);
+                try
                 {
-                    var sampleChannel = new NAudio.Wave.SampleProviders.SampleChannel(uncachedReader);
-                    NAudio.Wave.SampleProviders.MonoToStereoSampleProvider monoToStereo = null;
-                    if (SoundCache.forceStereoPlayback)
-                    {
-                        monoToStereo = new NAudio.Wave.SampleProviders.MonoToStereoSampleProvider(sampleChannel);
-                        monoToStereo.LeftVolume = volume;
-                        monoToStereo.RightVolume = volume;
-                    }
-                    else
-                    {
-                        sampleChannel.Volume = volume;
-                    }
-                    try
-                    {
-                        uncachedNAudioOut.Init(SoundCache.forceStereoPlayback ?
-                            new NAudio.Wave.SampleProviders.SampleToWaveProvider(monoToStereo) : new NAudio.Wave.SampleProviders.SampleToWaveProvider(sampleChannel));
-                        SoundCache.currentlyPlayingSound = this;
-                        uncachedNAudioOut.Play();
-                        // stop waiting after 30 seconds if it's not a beep. If it is a beep wait a few seconds
-                        // just in case someone has done something weird like swap the beep sound for a personalisation
-                        this.playWaitHandle.WaitOne(this.isBleep ? 4000 : 30000);
-                        uncachedNAudioOut.UnsubscribePlaybackStopped(this.playbackStopped);
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("Exception " + e.Message + " playing sound " + this.fullPath + " stack trace " + e.StackTrace);
-                    }
+                    uncachedNAudioOut.Init(sampleProvider);
+                    SoundCache.currentlyPlayingSound = this;
+                    uncachedNAudioOut.Play();
+                    // stop waiting after 30 seconds if it's not a beep. If it is a beep wait a few seconds
+                    // just in case someone has done something weird like swap the beep sound for a personalisation
+                    this.playWaitHandle.WaitOne(this.isBleep ? 4000 : 30000);
+                    uncachedNAudioOut.UnsubscribePlaybackStopped(this.playbackStopped);
                 }
-                else
+                catch (Exception e)
                 {
-                    var sampleChannel = new NAudio.Wave.SampleProviders.SampleChannel(uncachedReader);
-                    sampleChannel.Volume = volume;
-                    try
-                    {
-                        uncachedNAudioOut.Init(new NAudio.Wave.SampleProviders.SampleToWaveProvider(sampleChannel));
-                        SoundCache.currentlyPlayingSound = this;
-                        uncachedNAudioOut.Play();
-                        // stop waiting after 30 seconds if it's not a beep. If it is a beep wait a few seconds
-                        // just in case someone has done something weird like swap the beep sound for a personalisation
-                        this.playWaitHandle.WaitOne(this.isBleep ? 4000 : 30000);
-                        uncachedNAudioOut.UnsubscribePlaybackStopped(this.playbackStopped);
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("Exception " + e.Message + " playing sound " + this.fullPath + " stack trace " + e.StackTrace);
-                    }
+                    Console.WriteLine("Exception " + e.Message + " playing sound " + this.fullPath + " stack trace " + e.StackTrace);
                 }
                 try
                 {
@@ -1918,27 +1884,20 @@ namespace CrewChiefV4.Audio
             this.nAudioOut.SubscribePlaybackStopped(this.eventHandler);
             float volume = getVolume(volumeBoost);
 
-            if (SoundCache.forceStereoPlayback)
-            {
-                var sampleChannel = new NAudio.Wave.SampleProviders.SampleChannel(this.reader);
-                var monoToStereo = new NAudio.Wave.SampleProviders.MonoToStereoSampleProvider(sampleChannel);
-
-                monoToStereo.LeftVolume = volume;
-                monoToStereo.RightVolume = volume;
-
-                this.nAudioOut.Init(new NAudio.Wave.SampleProviders.SampleToWaveProvider(monoToStereo));
-            }
-            else if (volume != 1f)
-            {
-                var sampleChannel = new NAudio.Wave.SampleProviders.SampleChannel(this.reader);
-                sampleChannel.Volume = volume;
-                this.nAudioOut.Init(new NAudio.Wave.SampleProviders.SampleToWaveProvider(sampleChannel));
-            }
-            else
-            {
-                this.nAudioOut.Init(this.reader);
-            }
+            ISampleProvider sampleProvider = createSampleProvider(this.reader, volume);            
+            this.nAudioOut.Init(sampleProvider);
             this.reader.CurrentTime = TimeSpan.Zero;
+        }
+
+        private ISampleProvider createSampleProvider(WaveFileReader reader, float volume)
+        {
+            ISampleProvider sampleProvider = new NAudio.Wave.SampleProviders.SampleChannel(this.reader, SoundCache.forceStereoPlayback);
+            ((NAudio.Wave.SampleProviders.SampleChannel)sampleProvider).Volume = volume;
+            if (SoundCache.forceResamplePlayback > 500 && SoundCache.forceResamplePlayback <= 48000)
+            {
+                sampleProvider = new NAudio.Wave.SampleProviders.WdlResamplingSampleProvider(sampleProvider, SoundCache.forceResamplePlayback);
+            }
+            return sampleProvider;
         }
 
         private void playbackStopped(object sender, NAudio.Wave.StoppedEventArgs e)

@@ -5254,5 +5254,17 @@ namespace CrewChiefV4.Properties {
                 this["sre_enable_threshold_tuning"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int force_resample {
+            get {
+                return ((int)(this["force_resample"]));
+            }
+            set {
+                this["force_resample"] = value;
+            }
+        }
     }
 }
