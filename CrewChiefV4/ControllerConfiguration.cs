@@ -13,6 +13,7 @@ using System.Windows.Forms;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using CrewChiefV4.commands;
+using WindowsInput.Native;
 
 namespace CrewChiefV4
 {
@@ -29,6 +30,7 @@ namespace CrewChiefV4
 
         // Note: Below two collections are accessed from the multiple threads, but not yet synchronized.
         public List<ButtonAssignment> buttonAssignments = new List<ButtonAssignment>();
+        private List<ButtonAssignment> macroButtonAssignments = new List<ButtonAssignment>();
         public List<ControllerData> controllers;
 
         // Controllers we found during last device scan, not necessarily all connected.
@@ -142,6 +144,21 @@ namespace CrewChiefV4
             {
                 ba.findEvent();
             }
+        }
+
+        public void addMacroButtonAssignment(ButtonAssignment buttonAssignment)
+        {
+            this.buttonAssignments.Add(buttonAssignment);
+            this.macroButtonAssignments.Add(buttonAssignment);
+        }
+
+        public void clearMacroButtonAssignmments()
+        {
+            foreach (ButtonAssignment macroButtonAssignment in this.macroButtonAssignments)
+            {
+                this.buttonAssignments.Remove(macroButtonAssignment);
+            }
+            this.macroButtonAssignments.Clear();
         }
 
         private static String getDefaultControllerConfigurationDataFileLocation()
@@ -504,11 +521,10 @@ namespace CrewChiefV4
             if (CrewChief.gameDefinition.friendlyName.Equals("Automobilista") ||
                 CrewChief.gameDefinition.friendlyName.Equals("GTR 2"))
             {
-                KeyPresser.KeyCode keyCode;
                 string str = UserSettings.GetUserSettings().getString("reset_vr_view_control");
-                if (Enum.TryParse<KeyPresser.KeyCode>(str, out keyCode))
+                if (KeyPresser.parseKeycode(str, out Tuple<VirtualKeyCode?, VirtualKeyCode> keyCode))
                 {
-                    KeyPresser.SendScanCodeKeyPress(keyCode, 50);
+                    KeyPresser.SendKeyPress(keyCode);
                     Log.Commentary("Reset VR view");
                 }
                 else

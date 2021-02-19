@@ -13,7 +13,6 @@
           "actionSequence": [
             "{FREE_TEXT}Sorry, my bad"
           ],
-          "keyPressTime": 10,
           "waitBetweenEachCommand": 200
         },
         {
@@ -22,7 +21,6 @@
           "actionSequence": [
             "{FREE_TEXT}Sorry, my bad"
           ],
-          "keyPressTime": 50,
           "waitBetweenEachCommand": 100
         },
 		{
@@ -31,7 +29,6 @@
           "actionSequence": [
             "{FREE_TEXT}Sorry, my bad"
           ],
-          "keyPressTime": 50,
           "waitBetweenEachCommand": 100
         },
         {
@@ -40,7 +37,6 @@
           "actionSequence": [
             "{FREE_TEXT}Sorry, my bad"
           ],
-          "keyPressTime": 50,
           "waitBetweenEachCommand": 100
         }
       ]
@@ -58,7 +54,6 @@
 				"actionSequence": [
 					"{FREE_TEXT}good pass"
 				],
-				"keyPressTime": 10,
 				"waitBetweenEachCommand": 200
 			},
 			{
@@ -67,7 +62,6 @@
 				"actionSequence": [
 					"{FREE_TEXT}good pass"
 				],
-				"keyPressTime": 50,
 				"waitBetweenEachCommand": 100
 			},
 			{
@@ -76,7 +70,6 @@
 				"actionSequence": [
 					"{FREE_TEXT}good pass"
 				],
-				"keyPressTime": 50,
 				"waitBetweenEachCommand": 100
 			},
 			{
@@ -85,7 +78,6 @@
 				"actionSequence": [
 					"{FREE_TEXT}Good pass"
 				],
-				"keyPressTime": 50,
 				"waitBetweenEachCommand": 100
 			}
 		]
@@ -101,32 +93,29 @@
       ],
       "commandSets": [
         {
-          "description": "r3e version, keyPressTime quite short because of low key-repeat-delay. The action sequence item {WAIT,5000} tells the app to wait 5000 milliseconds before moving to the next command",
+          "description": "r3e version. The action sequence item {WAIT,5000} tells the app to wait 5000 milliseconds before moving to the next command",
           "gameDefinition": "RACE_ROOM",
           "actionSequence": [
             "KEY_R",
             "{WAIT,5000}",
             "KEY_Q"
           ],
-          "keyPressTime": 10,
           "waitBetweenEachCommand": 200
         },
         {
-          "description": "pcars2 version, keyPressTime longer",
+          "description": "pcars2 version",
           "gameDefinition": "PCARS2",
           "actionSequence": [
             "KEY_R"
           ],
-          "keyPressTime": 100,
           "waitBetweenEachCommand": 100
         },
 		{
-          "description": "AMS2 version, keyPressTime longer",
+          "description": "AMS2 version",
           "gameDefinition": "AMS2",
           "actionSequence": [
             "KEY_R"
           ],
-          "keyPressTime": 100,
           "waitBetweenEachCommand": 100
         }
       ]
@@ -142,30 +131,27 @@
       ],
       "commandSets": [
         {
-            "description": "pcars2 version, keyPressTime longer",
+            "description": "pcars2 version",
             "gameDefinition": "PCARS2",
             "actionSequence": [
                 "KEY_R"
             ],
-            "keyPressTime": 100,
             "waitBetweenEachCommand": 100
         },
 		{
-            "description": "AMS2 version, keyPressTime longer",
+            "description": "AMS2 version",
             "gameDefinition": "AMS2",
             "actionSequence": [
                 "KEY_R"
             ],
-            "keyPressTime": 100,
             "waitBetweenEachCommand": 100
         },
         {
-          "description": "r3e version, keyPressTime quite short because of low key-repeat-delay. The action sequence item {WAIT,5000} tells the app to wait 5000 milliseconds before moving to the next command",
+          "description": "r3e version. The action sequence item {WAIT,5000} tells the app to wait 5000 milliseconds before moving to the next command",
           "gameDefinition": "RACE_ROOM",
           "actionSequence": [
             "KEY_R"
           ],
-          "keyPressTime": 10,
           "waitBetweenEachCommand": 200
         }
       ]
@@ -193,7 +179,6 @@
             "{WAIT,5000}",
             "KEY_Q"
           ],
-          "keyPressTime": 20,
           "waitBetweenEachCommand": 20
         },
         {
@@ -216,7 +201,6 @@
             "KEY_S",
             "KEY_D"
           ],
-          "keyPressTime": 40,
           "waitBetweenEachCommand": 30
         },
         {
@@ -239,7 +223,6 @@
             "KEY_S",
             "KEY_D"
           ],
-          "keyPressTime": 40,
           "waitBetweenEachCommand": 30
         }
       ]
@@ -264,7 +247,6 @@
             "{WAIT,5000}",
             "KEY_Q"
           ],
-          "keyPressTime": 20,
           "waitBetweenEachCommand": 20
         },
         {
@@ -287,7 +269,6 @@
             "KEY_S",
             "KEY_D"
           ],
-          "keyPressTime": 40,
           "waitBetweenEachCommand": 30
         },
         {
@@ -310,7 +291,6 @@
             "KEY_S",
             "KEY_D"
           ],
-          "keyPressTime": 40,
           "waitBetweenEachCommand": 30
         }
       ],
@@ -333,7 +313,6 @@
             "{WAIT,3000}",
             "KEY_Q"
           ],
-          "keyPressTime": 10,
           "waitBetweenEachCommand": 200
         }
       ]
@@ -355,7 +334,6 @@
             "{WAIT,3000}",
             "KEY_Q"
           ],
-          "keyPressTime": 10,
           "waitBetweenEachCommand": 200
         }
       ]
@@ -388,7 +366,6 @@
             "KEY_S",
             "KEY_D"
           ],
-          "keyPressTime": 100,
           "waitBetweenEachCommand": 100
         },
 		{
@@ -410,7 +387,6 @@
             "KEY_S",
             "KEY_D"
           ],
-          "keyPressTime": 100,
           "waitBetweenEachCommand": 100
         }
       ]
@@ -444,7 +420,6 @@
             "KEY_S",
             "KEY_D"
           ],
-          "keyPressTime": 100,
           "waitBetweenEachCommand": 100
         },
 		{
@@ -467,7 +442,6 @@
             "KEY_S",
             "KEY_D"
           ],
-          "keyPressTime": 100,
           "waitBetweenEachCommand": 100
         }
       ]
@@ -502,7 +476,6 @@
             "KEY_S",
             "KEY_D"
           ],
-          "keyPressTime": 100,
           "waitBetweenEachCommand": 100
         },
 		{
@@ -526,7 +499,6 @@
             "KEY_S",
             "KEY_D"
           ],
-          "keyPressTime": 100,
           "waitBetweenEachCommand": 100
         }
       ]
@@ -562,7 +534,6 @@
             "KEY_S",
             "KEY_D"
           ],
-          "keyPressTime": 100,
           "waitBetweenEachCommand": 100
         },
 		{
@@ -587,7 +558,6 @@
             "KEY_S",
             "KEY_D"
           ],
-          "keyPressTime": 100,
           "waitBetweenEachCommand": 100
         }
       ]
@@ -606,7 +576,6 @@
           "actionSequence": [
             "KEY_Q"
           ],
-          "keyPressTime": 10,
           "waitBetweenEachCommand": 60
         },
         {
@@ -615,7 +584,6 @@
           "actionSequence": [
             "KEY_E"
           ],
-          "keyPressTime": 100,
           "waitBetweenEachCommand": 100
         },
         {
@@ -624,7 +592,6 @@
           "actionSequence": [
             "KEY_E"
           ],
-          "keyPressTime": 100,
           "waitBetweenEachCommand": 100
         }
       ]
@@ -642,7 +609,6 @@
           "actionSequence": [
             "KEY_E"
           ],
-          "keyPressTime": 10,
           "waitBetweenEachCommand": 60
         }
       ]
@@ -660,7 +626,6 @@
           "actionSequence": [
             "KEY_W"
           ],
-          "keyPressTime": 10,
           "waitBetweenEachCommand": 60
         },
         {
@@ -669,7 +634,6 @@
           "actionSequence": [
             "KEY_W"
           ],
-          "keyPressTime": 100,
           "waitBetweenEachCommand": 100
         },
         {
@@ -678,7 +642,6 @@
           "actionSequence": [
             "KEY_W"
           ],
-          "keyPressTime": 100,
           "waitBetweenEachCommand": 100
         }
       ]
@@ -696,7 +659,6 @@
           "actionSequence": [
             "KEY_S"
           ],
-          "keyPressTime": 10,
           "waitBetweenEachCommand": 60
         },
         {
@@ -705,7 +667,6 @@
           "actionSequence": [
             "KEY_S"
           ],
-          "keyPressTime": 100,
           "waitBetweenEachCommand": 100
         },
         {
@@ -714,7 +675,6 @@
           "actionSequence": [
             "KEY_S"
           ],
-          "keyPressTime": 100,
           "waitBetweenEachCommand": 100
         }
       ]
@@ -732,7 +692,6 @@
           "actionSequence": [
             "KEY_A"
           ],
-          "keyPressTime": 10,
           "waitBetweenEachCommand": 60
         },
         {
@@ -741,7 +700,6 @@
           "actionSequence": [
             "KEY_A"
           ],
-          "keyPressTime": 100,
           "waitBetweenEachCommand": 100
         },
         {
@@ -750,7 +708,6 @@
           "actionSequence": [
             "KEY_A"
           ],
-          "keyPressTime": 100,
           "waitBetweenEachCommand": 100
         }
       ]
@@ -768,7 +725,6 @@
           "actionSequence": [
             "KEY_D"
           ],
-          "keyPressTime": 10,
           "waitBetweenEachCommand": 60
         },
         {
@@ -777,7 +733,6 @@
           "actionSequence": [
             "KEY_D"
           ],
-          "keyPressTime": 100,
           "waitBetweenEachCommand": 100
         },
         {
@@ -786,7 +741,6 @@
           "actionSequence": [
             "KEY_D"
           ],
-          "keyPressTime": 100,
           "waitBetweenEachCommand": 100
         }
       ]
@@ -802,7 +756,6 @@
           "actionSequence": [
             "KEY_C"
           ],
-          "keyPressTime": 10,
           "waitBetweenEachCommand": 60
         },
         {
@@ -811,7 +764,6 @@
           "actionSequence": [
             "KEY_T"
           ],
-          "keyPressTime": 100,
           "waitBetweenEachCommand": 100
         },
         {
@@ -820,7 +772,6 @@
           "actionSequence": [
             "KEY_T"
           ],
-          "keyPressTime": 100,
           "waitBetweenEachCommand": 100
         },
         {
@@ -829,7 +780,6 @@
           "actionSequence": [
             "KEY_T"
           ],
-          "keyPressTime": 100,
           "waitBetweenEachCommand": 100
         },
         {
@@ -838,7 +788,6 @@
           "actionSequence": [
             "ENTER"
           ],
-          "keyPressTime": 100,
           "waitBetweenEachCommand": 100
         },
         {
@@ -847,7 +796,6 @@
           "actionSequence": [
             "ENTER"
           ],
-          "keyPressTime": 100,
           "waitBetweenEachCommand": 100
         }
       ]
@@ -863,7 +811,6 @@
           "actionSequence": [
             "ENTER"
           ],
-          "keyPressTime": 10,
           "waitBetweenEachCommand": 60
         },
         {
@@ -872,7 +819,6 @@
           "actionSequence": [
             "ENTER"
           ],
-          "keyPressTime": 100,
           "waitBetweenEachCommand": 100
         },
         {
@@ -881,7 +827,6 @@
           "actionSequence": [
             "ENTER"
           ],
-          "keyPressTime": 100,
           "waitBetweenEachCommand": 100
         },
         {
@@ -890,7 +835,6 @@
           "actionSequence": [
             "ENTER"
           ],
-          "keyPressTime": 100,
           "waitBetweenEachCommand": 100
         },
         {
@@ -899,7 +843,6 @@
           "actionSequence": [
             "ENTER"
           ],
-          "keyPressTime": 100,
           "waitBetweenEachCommand": 100
         },
         {
@@ -908,7 +851,6 @@
           "actionSequence": [
             "ENTER"
           ],
-          "keyPressTime": 100,
           "waitBetweenEachCommand": 100
         }
       ]
@@ -926,7 +868,6 @@
           "actionSequence": [
             "F1"
           ],
-          "keyPressTime": 10,
           "waitBetweenEachCommand": 200
         }
       ]
@@ -944,7 +885,6 @@
           "actionSequence": [
             "F2"
           ],
-          "keyPressTime": 10,
           "waitBetweenEachCommand": 200
         }
       ]
@@ -962,7 +902,6 @@
           "actionSequence": [
             "F3"
           ],
-          "keyPressTime": 10,
           "waitBetweenEachCommand": 200
         }
       ]
@@ -980,7 +919,6 @@
           "actionSequence": [
             "F4"
           ],
-          "keyPressTime": 10,
           "waitBetweenEachCommand": 200
         }
       ]
@@ -998,7 +936,6 @@
           "actionSequence": [
             "F5"
           ],
-          "keyPressTime": 10,
           "waitBetweenEachCommand": 200
         }
       ]
@@ -1016,7 +953,6 @@
           "actionSequence": [
             "F6"
           ],
-          "keyPressTime": 10,
           "waitBetweenEachCommand": 200
         }
       ]
@@ -1034,7 +970,6 @@
           "actionSequence": [
             "F7"
           ],
-          "keyPressTime": 10,
           "waitBetweenEachCommand": 200
         }
       ]
@@ -1052,7 +987,6 @@
           "actionSequence": [
             "F8"
           ],
-          "keyPressTime": 10,
           "waitBetweenEachCommand": 200
         }
       ]
@@ -1070,7 +1004,6 @@
           "actionSequence": [
             "F9"
           ],
-          "keyPressTime": 10,
           "waitBetweenEachCommand": 200
         }
       ]
@@ -1088,7 +1021,6 @@
           "actionSequence": [
             "F10"
           ],
-          "keyPressTime": 10,
           "waitBetweenEachCommand": 200
         }
       ]
@@ -1106,7 +1038,6 @@
           "actionSequence": [
             "UP"
           ],
-          "keyPressTime": 10,
           "waitBetweenEachCommand": 200
         }
       ]
@@ -1124,7 +1055,6 @@
           "actionSequence": [
             "DOWN"
           ],
-          "keyPressTime": 10,
           "waitBetweenEachCommand": 200
         }
       ]
@@ -1142,7 +1072,6 @@
           "actionSequence": [
             "RIGHT"
           ],
-          "keyPressTime": 30,
           "waitBetweenEachCommand": 200
         }
       ]
@@ -1160,7 +1089,6 @@
           "actionSequence": [
             "LEFT"
           ],
-          "keyPressTime": 10,
           "waitBetweenEachCommand": 200
         }
       ]
@@ -1178,7 +1106,6 @@
           "actionSequence": [
             "SPACE_BAR"
           ],
-          "keyPressTime": 10,
           "waitBetweenEachCommand": 200
         }
       ]

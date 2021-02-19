@@ -295,7 +295,7 @@ macro_edit_mode = Mode
 game_specific_settings = Game specific settings
 action_sequence = Action sequence
 new_action = New action name
-keypress_time = Key hold down time
+keypress_time = Key hold time (optional)
 keypress_wait_time = Time between key presses
 add_action_to_sequence = Add action to sequence
 add_key_to_sequence = Add action to sequence
@@ -323,9 +323,7 @@ delete_selected_macro_confirmation = Are you sure you want to delete
 delete_selected_macro_confirmation_title = Confirm delete
 must_select_a_macro = You must select a macro before trying to add a sequence
 action_sequence_cant_be_empty = You must add at least one action to Action sequence
-empty_keypress_time_start = Both
-empty_keypress_time_middle = and
-empty_keypress_time_end = must contain a value
+empty_wait_time_end = must contain a value
 
 ###################################### Action Editor ######################################################
 current_available_actions = &Current available actions

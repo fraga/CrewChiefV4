@@ -161,7 +161,7 @@ namespace CrewChiefV4
             textBoxActionSequence.Text = "";
             textBoxDescription.Text = "";
             textBoxConfirmationMessage.Text = "";
-            textBoxKeyPressTime.Text = "20";
+            textBoxKeyPressTime.Text = "";
             textBoxWaitBetweenEachCommand.Text = "60";
             textBoxGameMacroDescription.Text = "";
             textBoxAddNewMacro.Text = "";
@@ -201,7 +201,7 @@ namespace CrewChiefV4
                     if (macroForGame != null)
                     {
                         textBoxActionSequence.Lines = macroForGame.actionSequence;
-                        textBoxKeyPressTime.Text = macroForGame.keyPressTime.ToString();
+                        textBoxKeyPressTime.Text = macroForGame.keyPressTime == null ? "" : macroForGame.keyPressTime.Value.ToString();
                         textBoxWaitBetweenEachCommand.Text = macroForGame.waitBetweenEachCommand.ToString();
                         textBoxGameMacroDescription.Text = macroForGame.description;
                     }
@@ -482,11 +482,9 @@ namespace CrewChiefV4
                 MessageBox.Show(Configuration.getUIString("action_sequence_cant_be_empty"));
                 return;
             }
-            if(string.IsNullOrWhiteSpace(textBoxKeyPressTime.Text) || string.IsNullOrWhiteSpace(textBoxWaitBetweenEachCommand.Text))
+            if(string.IsNullOrWhiteSpace(textBoxWaitBetweenEachCommand.Text))
             {
-                MessageBox.Show(Configuration.getUIString("empty_keypress_time_start") + " " +
-                    labelKeyPressTime.Text + " " + Configuration.getUIString("empty_keypress_time_middle") + " " +
-                    labelWaitBetweenEachCommand.Text + " " + Configuration.getUIString("empty_keypress_time_end"));
+                MessageBox.Show(labelWaitBetweenEachCommand.Text + " " + Configuration.getUIString("empty_wait_time_end"));
                 return;
             }
             int currentSelectedMacroIndex = listBoxAvailableMacros.SelectedIndex;
@@ -516,7 +514,14 @@ namespace CrewChiefV4
                     currentCommandSet.description = currentSelectedGame.friendlyName + " version";
                 }
                 currentCommandSet.actionSequence = actions.ToArray();
-                currentCommandSet.keyPressTime = int.Parse(textBoxKeyPressTime.Text);
+                if (string.IsNullOrWhiteSpace(textBoxKeyPressTime.Text))
+                {
+                    currentCommandSet.keyPressTime = null;
+                }
+                else
+                {
+                    currentCommandSet.keyPressTime = int.Parse(textBoxKeyPressTime.Text);
+                }
                 currentCommandSet.waitBetweenEachCommand = int.Parse(textBoxWaitBetweenEachCommand.Text);
                 currentCommandSets.Add(currentCommandSet);
                 currentMacro.commandSets = currentCommandSets.ToArray();
@@ -529,7 +534,14 @@ namespace CrewChiefV4
             {
                 currentCommandSet.gameDefinition = currentSelectedGame.gameEnum.ToString();
                 currentCommandSet.actionSequence = actions.ToArray();
-                currentCommandSet.keyPressTime = int.Parse(textBoxKeyPressTime.Text);
+                if (string.IsNullOrWhiteSpace(textBoxKeyPressTime.Text))
+                {
+                    currentCommandSet.keyPressTime = null;
+                }
+                else
+                {
+                    currentCommandSet.keyPressTime = int.Parse(textBoxKeyPressTime.Text);
+                }
                 currentCommandSet.waitBetweenEachCommand = int.Parse(textBoxWaitBetweenEachCommand.Text);
                 if (!string.IsNullOrWhiteSpace(textBoxGameMacroDescription.Text))
                 {
