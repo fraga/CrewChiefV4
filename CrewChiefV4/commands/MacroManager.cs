@@ -16,6 +16,7 @@ namespace CrewChiefV4.commands
 
         public static readonly String MULTIPLE_PRESS_IDENTIFIER = "MULTIPLE";
         public static readonly String FREE_TEXT_IDENTIFIER = "FREE_TEXT";
+        public static readonly String HOLD_TIME_IDENTIFIER = "HOLD_TIME";   // used to override the key hold time on a per-key basis
         public static readonly String MULTIPLE_PRESS_FROM_VOICE_TRIGGER_IDENTIFIER = "VOICE_TRIGGER";
         public static readonly String WAIT_IDENTIFIER = "WAIT";
 
@@ -35,7 +36,6 @@ namespace CrewChiefV4.commands
         public static void stop()
         {
             stopped = true;
-            KeyPresser.releasePressedKey();
         }
 
         // converter 
@@ -101,6 +101,7 @@ namespace CrewChiefV4.commands
                         saveCommands(macroContainer);
                     }
                 }
+                controllerConfiguration.clearMacroButtonAssignmments();
                 // if it's valid, load the command sets:
                 foreach (Macro macro in macroContainer.macros)
                 {
@@ -166,7 +167,7 @@ namespace CrewChiefV4.commands
                                 buttonAssignment.buttonIndex = buttonTrigger.buttonIndex;
                                 buttonAssignment.deviceGuid = buttonTrigger.deviceId;
                                 controllerConfiguration.addControllerObjectToButtonAssignment(buttonAssignment);
-                                controllerConfiguration.buttonAssignments.Add(buttonAssignment);
+                                controllerConfiguration.addMacroButtonAssignment(buttonAssignment);
                                 controllerConfiguration.addControllerIfNecessary(buttonTrigger.description, buttonTrigger.deviceId);
                             }
                         }

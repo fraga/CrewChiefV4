@@ -7,10 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
-using WindowsInput;
 using WindowsInput.Native;
 namespace CrewChiefV4.commands
 {
@@ -362,7 +359,12 @@ namespace CrewChiefV4.commands
                         }
                         // only wait if there's another key press in the sequence
                         int wait = actionItemIndex == actionItemsCount - 1 ? 0 : commandSet.waitBetweenEachCommand;
-                        sendKeys(count, actionItem, commandSet.keyPressTime, wait);
+                        int? keyPressTime = commandSet.keyPressTime;
+                        if (MacroManager.HOLD_TIME_IDENTIFIER.Equals(actionItem.extendedType) && actionItem.extendedTypeNumericParam > 0)
+                        {
+                            keyPressTime = actionItem.extendedTypeNumericParam;
+                        }
+                        sendKeys(count, actionItem, keyPressTime, wait);
                     }
                 }
                 // if we changed forground window we need to restore the old window again as the user could be running overlays or other apps they want to keep in forground.
@@ -377,7 +379,7 @@ namespace CrewChiefV4.commands
             }
         }
 
-        private void sendKeys(int count, ActionItem actionItem, int keyPressTime, int waitBetweenKeys)
+        private void sendKeys(int count, ActionItem actionItem, int? keyPressTime, int waitBetweenKeys)
         {            
             if (actionItem.allowFreeText)
             {
@@ -392,7 +394,7 @@ namespace CrewChiefV4.commands
                     return;
                 }
                 Console.WriteLine(actionItem.freeText);
-                new InputSimulator().Keyboard
+                KeyPresser.InputSim.Keyboard
                     .KeyPress(SpeechRecogniser.getStartChatMacro().getStartChatKey()).Sleep(getWaitBetweenEachCommand())
                     .TextEntry(actionItem.freeText).Sleep(getWaitBetweenEachCommand())
                     .KeyPress(SpeechRecogniser.getEndChatMacro().getEndChatKey());
@@ -414,7 +416,7 @@ namespace CrewChiefV4.commands
                     {
                         for (int keyIndex = 0; keyIndex < actionItem.keyCodes.Length; keyIndex++)
                         {
-                            KeyPresser.SendScanCodeKeyPress(actionItem.keyCodes[keyIndex], keyPressTime);
+                            KeyPresser.SendKeyPress(actionItem.keyCodes[keyIndex], keyPressTime);
                             Thread.Sleep(waitBetweenKeys);
                         }
                     }
@@ -535,7 +537,8 @@ namespace CrewChiefV4.commands
         public String description { get; set; }
         public String gameDefinition { get; set; }
 		public String[] actionSequence { get; set; }
-		public int keyPressTime { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? keyPressTime { get; set; }
         public int waitBetweenEachCommand { get; set; }
         [JsonIgnore]
         private List<ActionItem> actionItems = null;
@@ -586,7 +589,7 @@ namespace CrewChiefV4.commands
     public class ActionItem
     {
         public Boolean parsedSuccessfully = false;
-        public KeyPresser.KeyCode[] keyCodes;
+        public Tuple<VirtualKeyCode?, VirtualKeyCode>[] keyCodes;
         public String actionText;
         public String freeText;
         public String extendedType;
@@ -637,9 +640,9 @@ namespace CrewChiefV4.commands
                 try
                 {
                     // first assume we have a single key binding
-                    this.keyCodes = new KeyPresser.KeyCode[1];
+                    this.keyCodes = new Tuple<VirtualKeyCode?, VirtualKeyCode>[1];
                     // try and get it directly without going through the key bindings
-                    parsedSuccessfully = KeyPresser.parseKeycode(action, false, out this.keyCodes[0]);
+                    parsedSuccessfully = KeyPresser.parseKeycode(action, out this.keyCodes[0]);
                     if (!parsedSuccessfully)
                     {
                         if (allowFreeText)
@@ -657,9 +660,9 @@ namespace CrewChiefV4.commands
                         }
                     }
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    Console.WriteLine("Action " + action + " not recognised");
+                    Console.WriteLine("Error parsing action " + action + ", message:" + e.Message + " stackTrace: " + e.StackTrace);
                 }
             }
             else
@@ -685,7 +688,22 @@ namespace CrewChiefV4.commands
                 }
                 else
                 {
-                    return String.Join(",", keyCodes);
+                    String str = "";
+                    bool addComma = false;
+                    foreach (Tuple<VirtualKeyCode?, VirtualKeyCode> keyCode in keyCodes)
+                    {
+                        if (addComma)
+                        {
+                            str += ", ";
+                        }
+                        if (keyCode.Item1 != null)
+                        {
+                            str += keyCode.Item1.ToString() + "+";
+                        }
+                        str += keyCode.Item2.ToString();
+                        addComma = true;
+                    }
+                    return str;
                 }
             }
             else
