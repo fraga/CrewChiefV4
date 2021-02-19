@@ -8481,6 +8481,7 @@
 		},
 		{
 			"rf2TrackNames": [ "Imola 1988" ],
+			"gtr2TrackNames": [ "Imola  1994" ],
 			"ams2TrackName": "ImolaAMS2:Imola_GP_1988",
 			"trackLandmarks": [
 				{
@@ -14347,6 +14348,7 @@
 		},
 		{
 			"rf2TrackNames": [ "Sachsenring" ],
+			"gtr2TrackNames": [ "Sachsenring, GT Masters Round 3" ],
 			"trackLandmarks": [
 				{
 					"landmarkName": "coca_cola_kurve",
