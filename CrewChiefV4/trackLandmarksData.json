@@ -6896,8 +6896,72 @@
 			]
 		},
 		{
+			"trackLandmarksData": [
+				{
+					"irTrackName": "mosport",
+					"trackLandmarks": [
+						{
+							"midPoint": -1.0,
+							"landmarkName": "turn1",
+							"distanceRoundLapStart": 165.695084,
+							"distanceRoundLapEnd": 363.5834,
+							"isCommonOvertakingSpot": true
+						},
+						{
+							"midPoint": -1.0,
+							"landmarkName": "clayton_corner",
+							"distanceRoundLapStart": 621.920166,
+							"distanceRoundLapEnd": 928.3879,
+							"isCommonOvertakingSpot": false
+						},
+						{
+							"midPoint": -1.0,
+							"landmarkName": "quebec_corner",
+							"distanceRoundLapStart": 1062.76672,
+							"distanceRoundLapEnd": 1358.18787,
+							"isCommonOvertakingSpot": false
+						},
+						{
+							"midPoint": -1.0,
+							"landmarkName": "turn4",
+							"distanceRoundLapStart": 1652.10242,
+							"distanceRoundLapEnd": 1820.96277,
+							"isCommonOvertakingSpot": false
+						},
+						{
+							"midPoint": -1.0,
+							"landmarkName": "moss_corner",
+							"distanceRoundLapStart": 1858.22131,
+							"distanceRoundLapEnd": 2060,
+							"isCommonOvertakingSpot": true
+						},
+						{
+							"midPoint": -1.0,
+							"landmarkName": "turn7",
+							"distanceRoundLapStart": 2081.09229,
+							"distanceRoundLapEnd": 2243.99365,
+							"isCommonOvertakingSpot": false
+						},
+						{
+							"midPoint": -1.0,
+							"landmarkName": "the_esses",
+							"distanceRoundLapStart": 3140,
+							"distanceRoundLapEnd": 3610,
+							"isCommonOvertakingSpot": true
+						},
+						{
+							"midPoint": -1.0,
+							"landmarkName": "whites_corner",
+							"distanceRoundLapStart": 3620,
+							"distanceRoundLapEnd": 3825,
+							"isCommonOvertakingSpot": true
+						}
+					]
+				}
+			]
+		},
+		{
 			"rf2TrackNames": [ "Canadian Tire Motorsport Park (after 2013)", "Mosport Park", "Canadian Tire Motorsport Park" ],
-			"irTrackName": "mosport",
 			"trackLandmarks": [
 				{
 					"landmarkName": "turn1",
