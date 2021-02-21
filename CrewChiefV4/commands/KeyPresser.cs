@@ -22,7 +22,6 @@ namespace CrewChiefV4.commands
         private static VirtualKeyCode[] modifierVirtualKeys = { VirtualKeyCode.MENU, VirtualKeyCode.LSHIFT, VirtualKeyCode.RSHIFT, VirtualKeyCode.SHIFT,
                                                          VirtualKeyCode.CONTROL, VirtualKeyCode.LCONTROL, VirtualKeyCode.RCONTROL, VirtualKeyCode.LWIN, VirtualKeyCode.RWIN };
 
-
         public static bool parseKeycode(String keyString, out Tuple<VirtualKeyCode?, VirtualKeyCode> modifierAndKeyCode)
         {
             // special case for action keys where the keyString is just a letter - we parse this to the appropriate VirtualKeyCode
@@ -126,6 +125,17 @@ namespace CrewChiefV4.commands
 
         public static void SendKeyPress(Tuple<VirtualKeyCode?, VirtualKeyCode> modifierAndKeyCode, int? keyPressTime = null)
         {
+            SendKeyPressWithInputSim(modifierAndKeyCode, keyPressTime);
+            KeyCode? modifierKeyCode = null;
+            if (modifierAndKeyCode.Item1 != null)
+            {
+                modifierKeyCode = (KeyCode)modifierAndKeyCode.Item1;
+            }
+            SendScanCodeKeyPress(new Tuple<KeyCode?, KeyCode>(modifierKeyCode, (KeyCode)modifierAndKeyCode.Item2), keyPressTime == null ? 50 : keyPressTime.Value);
+        }
+
+        private static void SendKeyPressWithInputSim(Tuple<VirtualKeyCode?, VirtualKeyCode> modifierAndKeyCode, int? keyPressTime = null)
+        {
             if (keyPressTime == null || keyPressTime.Value <= 0)
             {
                 if (modifierAndKeyCode.Item1 == null)
@@ -154,6 +164,190 @@ namespace CrewChiefV4.commands
                 }
             }
         }
+
+
+        // legacy key presser code, to be removed
+        const int INPUT_MOUSE = 0;
+        const int INPUT_KEYBOARD = 1;
+        const int INPUT_HARDWARE = 2;
+        const uint KEYEVENTF_EXTENDEDKEY = 0x0001;
+        const uint KEYEVENTF_KEYUP = 0x0002;
+        const uint KEYEVENTF_UNICODE = 0x0004;
+        const uint KEYEVENTF_SCANCODE = 0x0008;
+
+        static Tuple<ushort, Boolean> keyBeingPressed = null;
+        static Tuple<ushort, Boolean> modifierKeyBeingPressed = null;
+
+        struct INPUT
+        {
+            public int type;
+            public InputUnion u;
+        }
+
+        [StructLayout(LayoutKind.Explicit)]
+        struct InputUnion
+        {
+            [FieldOffset(0)]
+            public MOUSEINPUT mi;
+            [FieldOffset(0)]
+            public KEYBDINPUT ki;
+            [FieldOffset(0)]
+            public HARDWAREINPUT hi;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        struct MOUSEINPUT
+        {
+            public int dx;
+            public int dy;
+            public uint mouseData;
+            public uint dwFlags;
+            public uint time;
+            public IntPtr dwExtraInfo;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        struct KEYBDINPUT
+        {
+            /*Virtual Key code.  Must be from 1-254.  If the dwFlags member specifies KEYEVENTF_UNICODE, wVk must be 0.*/
+            public ushort wVk;
+            /*A hardware scan code for the key. If dwFlags specifies KEYEVENTF_UNICODE, wScan specifies a Unicode character which is to be sent to the foreground application.*/
+            public ushort wScan;
+            /*Specifies various aspects of a keystroke.  See the KEYEVENTF_ constants for more information.*/
+            public uint dwFlags;
+            /*The time stamp for the event, in milliseconds. If this parameter is zero, the system will provide its own time stamp.*/
+            public uint time;
+            /*An additional value associated with the keystroke. Use the GetMessageExtraInfo function to obtain this information.*/
+            public IntPtr dwExtraInfo;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        struct HARDWAREINPUT
+        {
+            public uint uMsg;
+            public ushort wParamL;
+            public ushort wParamH;
+        }
+
+        [DllImport("user32.dll")]
+        static extern IntPtr GetMessageExtraInfo();
+
+        [DllImport("user32.dll", SetLastError = true)]
+        static extern uint SendInput(uint nInputs, INPUT[] pInputs, int cbSize);
+
+        [DllImport("user32.dll")]
+        public static extern uint MapVirtualKey(uint uCode, uint uMapType);
+
+        private static KeyCode[] extendedKeys = { KeyCode.UP, KeyCode.DOWN, KeyCode.LEFT, KeyCode.RIGHT,
+                                           KeyCode.INSERT, KeyCode.HOME, KeyCode.PAGE_UP, KeyCode.PAGEDOWN, KeyCode.DELETE, KeyCode.END };
+
+        public static void releasePressedKey()
+        {
+            if (modifierKeyBeingPressed != null)
+            {
+                try
+                {
+                    release(keyBeingPressed.Item1, keyBeingPressed.Item2, true);
+                }
+                catch (Exception) { /*swallow*/ }
+            }
+            if (keyBeingPressed != null)
+            {
+                try
+                {
+                    release(keyBeingPressed.Item1, keyBeingPressed.Item2, false);
+                }
+                catch (Exception) { /*swallow*/ }
+            }
+        }
+
+        private static void SendScanCodeKeyPress(Tuple<KeyPresser.KeyCode?, KeyPresser.KeyCode> modifierAndKeyCode, int holdTimeMillis)
+        {
+            bool sendModifier = modifierAndKeyCode.Item1 != null && KeyPresser.modifierKeys.Contains(modifierAndKeyCode.Item1.Value);
+
+            ushort scanCode = (ushort)MapVirtualKey((ushort)modifierAndKeyCode.Item2, 0);
+            Boolean extended = extendedKeys.Contains(modifierAndKeyCode.Item2);
+            ushort modifierScanCode = 0;
+            Boolean modifierExtended = false;
+            if (sendModifier)
+            {
+                modifierScanCode = (ushort)MapVirtualKey((ushort)modifierAndKeyCode.Item1.Value, 0);
+                modifierExtended = extendedKeys.Contains(modifierAndKeyCode.Item1.Value);
+                press(modifierScanCode, modifierExtended, true);
+                Thread.Sleep(20);
+            }
+            press(scanCode, extended, false);
+            Thread.Sleep(holdTimeMillis);
+            release(scanCode, extended, false);
+            if (sendModifier)
+            {
+                Thread.Sleep(20);
+                release(modifierScanCode, modifierExtended, true);
+            }
+        }
+        private static void press(ushort scanCode, Boolean extended, Boolean isModifier)
+        {
+            uint eventScanCode = extended ? KEYEVENTF_SCANCODE | KEYEVENTF_EXTENDEDKEY : KEYEVENTF_SCANCODE;
+            INPUT[] inputs = new INPUT[]
+            {
+                new INPUT
+                {
+                    type = INPUT_KEYBOARD,
+                    u = new InputUnion
+                    {
+                        ki = new KEYBDINPUT
+                        {
+                            wVk = 0,
+                            wScan = scanCode,
+                            dwFlags = eventScanCode,
+                            dwExtraInfo = GetMessageExtraInfo(),
+                        }
+                    }
+                }
+            };
+            if (isModifier)
+            {
+                modifierKeyBeingPressed = new Tuple<ushort, bool>(scanCode, extended);
+            }
+            else
+            {
+                keyBeingPressed = new Tuple<ushort, bool>(scanCode, extended);
+            }
+            SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
+        }
+
+        private static void release(ushort scanCode, Boolean extended, Boolean isModifier)
+        {
+            uint eventScanCode = extended ? KEYEVENTF_SCANCODE | KEYEVENTF_KEYUP | KEYEVENTF_EXTENDEDKEY : KEYEVENTF_SCANCODE | KEYEVENTF_KEYUP;
+            INPUT[] inputs = new INPUT[]
+            {
+                new INPUT
+                {
+                    type = INPUT_KEYBOARD,
+                    u = new InputUnion
+                    {
+                        ki = new KEYBDINPUT
+                        {
+                            wVk = 0,
+                            wScan = scanCode,
+                            dwFlags = eventScanCode,
+                            dwExtraInfo = GetMessageExtraInfo(),
+                        }
+                    }
+                }
+            };
+            SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
+            if (isModifier)
+            {
+                modifierKeyBeingPressed = null;
+            }
+            else
+            {
+                keyBeingPressed = null;
+            }
+        }
+
+
 
         public enum KeyCode : ushort
         {
