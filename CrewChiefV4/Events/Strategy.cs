@@ -1349,7 +1349,7 @@ namespace CrewChiefV4.Events
         }
         
         // only call this every few seconds
-        public static HashSet<string> getOpponentKeysBlockingBox(GameStateData currentGameState)
+        private static HashSet<string> getOpponentKeysBlockingBox(GameStateData currentGameState)
         {
             HashSet<string> blocking = new HashSet<string>();
             if (currentGameState.SessionData.SessionType == SessionType.Race && getTrackNameAndCarClass(currentGameState) == Strategy.trackAndCarNameForPitBoxPositionData)
