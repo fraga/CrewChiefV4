@@ -34,7 +34,7 @@ namespace CrewChiefV4.RaceRoom
         private float scrubbedTyreWearPercent = 2f;
         private float minorTyreWearPercent = 25f;
         private float majorTyreWearPercent = 55f;
-        private float wornOutTyreWearPercent = 85f;        
+        private float wornOutTyreWearPercent = 85f;
 
         private float trivialAeroDamageThreshold = 0.99995f;
         private float trivialEngineDamageThreshold = 0.995f;
@@ -57,7 +57,7 @@ namespace CrewChiefV4.RaceRoom
         private float severeSuspensionDamageThresholdPercent = 20f;
         private float destroyedSuspensionThresholdPercent = 50f;
 
-        private List<CornerData.EnumWithThresholds> brakeTempThresholdsForPlayersCar = null; 
+        private List<CornerData.EnumWithThresholds> brakeTempThresholdsForPlayersCar = null;
 
         // blue flag zone for improvised blues when the 'full flag rules' are disabled
         // note that this will be set to true at the start of a session and change to false as soon as the game sends a blue flag
@@ -256,6 +256,20 @@ namespace CrewChiefV4.RaceRoom
                 Console.WriteLine("rawSessionPhase = " + shared.SessionPhase);
                 Console.WriteLine("currentSessionRunningTime = " + currentGameState.SessionData.SessionRunningTime);
 
+                if ((currentGameState.SessionData.SessionType == SessionType.Practice || currentGameState.SessionData.SessionType == SessionType.Qualify)
+                    && shared.InPitlane == 1)
+                {
+                    currentGameState.PitData.PitBoxPositionEstimate = shared.LapDistance;
+                    currentGameState.PitData.PitBoxLocationEstimate = new float[] { playerDriverData.Position.X, playerDriverData.Position.Y, playerDriverData.Position.Z };
+                    Console.WriteLine("Pit box position = " + currentGameState.PitData.PitBoxPositionEstimate.ToString("0.000"));
+                }
+                else if (previousGameState != null)
+                {
+                    // if we're entering a race session or rolling qually, copy the value from the previous field
+                    currentGameState.PitData.PitBoxPositionEstimate = previousGameState.PitData.PitBoxPositionEstimate;
+                    currentGameState.PitData.PitBoxLocationEstimate = previousGameState.PitData.PitBoxLocationEstimate;
+                }
+
                 // reset the flag to allow the improvised blue flag calling
                 useImprovisedBlueFlagDetection = true;
 
@@ -294,7 +308,7 @@ namespace CrewChiefV4.RaceRoom
                     currentGameState.SessionData.SessionTotalRunTime = shared.SessionTimeRemaining;
                     currentGameState.SessionData.SessionHasFixedTime = true;
                 }
-                
+
                 lastTimeEngineWasRunning = DateTime.MaxValue;
                 opponentDriverNamesProcessedForThisTick.Clear();
                 for (int i = 0; i < shared.DriverData.Length; i++)
@@ -341,22 +355,8 @@ namespace CrewChiefV4.RaceRoom
                         }
                     }
                 }
-                currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, 
+                currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength,
                     currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.PositionAndMotionData.CarSpeed, currentGameState.Now);
-                if ((currentGameState.SessionData.SessionType == SessionType.Practice || currentGameState.SessionData.SessionType == SessionType.Qualify)
-                     && shared.InPitlane == 1)
-                {
-                    currentGameState.PitData.PitBoxPositionEstimate = shared.LapDistance;
-                    currentGameState.PitData.PitBoxLocationEstimate = new float[] { playerDriverData.Position.X, playerDriverData.Position.Y, playerDriverData.Position.Z };
-                    Strategy.setPlayerPitLocationData(currentGameState);
-                    Console.WriteLine("Pit box position = " + currentGameState.PitData.PitBoxPositionEstimate.ToString("0.000"));
-                }
-                else if (previousGameState != null)
-                {
-                    // if we're entering a race session or rolling qually, copy the value from the previous field
-                    currentGameState.PitData.PitBoxPositionEstimate = previousGameState.PitData.PitBoxPositionEstimate;
-                    currentGameState.PitData.PitBoxLocationEstimate = previousGameState.PitData.PitBoxLocationEstimate;
-                }
             }
             else
             {
@@ -445,11 +445,11 @@ namespace CrewChiefV4.RaceRoom
                             }
                         }
 
-                        currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, 
+                        currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength,
                             currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.PositionAndMotionData.CarSpeed, currentGameState.Now);
 
                         Console.WriteLine("Just gone green, session details...");
-                        
+
                         Console.WriteLine("SessionType " + currentGameState.SessionData.SessionType);
                         Console.WriteLine("SessionPhase " + currentGameState.SessionData.SessionPhase);
                         Console.WriteLine("EventIndex " + currentGameState.SessionData.EventIndex);
@@ -736,7 +736,7 @@ namespace CrewChiefV4.RaceRoom
                     }
 
                     currentGameState.SessionData.SectorNumber = participantStruct.TrackSector;
-                    
+
                     currentGameState.PositionAndMotionData.DistanceRoundTrack = participantStruct.LapDistance;
 
                     if (currentGameState.PitData.InPitlane)
@@ -939,7 +939,7 @@ namespace CrewChiefV4.RaceRoom
                         Boolean lapInvalidated = participantStruct.CurrentLapValid != 1 || participantStruct.LapTimeCurrentSelf == -1 ||
                             (participantStruct.LapDistance > 1 && participantStruct.LapTimeCurrentSelf == 0);
 
-                        updateOpponentData(currentOpponentData, currentOpponentRacePosition,
+                        upateOpponentData(currentOpponentData, currentOpponentRacePosition,
                                 participantStruct.Place, currentOpponentLapsCompleted,
                                 currentOpponentSector, sectorTime, participantStruct.SectorTimePreviousSelf.Sector3,
                                 participantStruct.InPitlane == 1, !lapInvalidated,
@@ -1022,19 +1022,13 @@ namespace CrewChiefV4.RaceRoom
                                 currentGameState.SessionData.Flag = FlagEnum.BLUE;
                             }
                         }
-
-                        // no point in wiring this up for R3E - cars are ghosted in the pits
-                        if (currentOpponentData.InPits && currentOpponentData.Speed > 0 && currentOpponentData.Speed < 0.1)
-                        {
-                            Strategy.checkIfOpponentSharesPlayerPitBox(driverName, currentOpponentData.DistanceRoundTrack, currentOpponentData.WorldPosition);
-                        }
                     }
                 }
                 else
                 {
                     Boolean skipGhost = false;
-                    if (currentGameState.OpponentData.Count() == 0 
-                        &&  (currentGameState.SessionData.SessionType == SessionType.HotLap
+                    if (currentGameState.OpponentData.Count() == 0
+                        && (currentGameState.SessionData.SessionType == SessionType.HotLap
                              || currentGameState.SessionData.SessionType == SessionType.LonePractice))
                     {
                         if (!ghostOpponents.Contains(driverName))
@@ -1106,10 +1100,10 @@ namespace CrewChiefV4.RaceRoom
             if (shared.SessionType == (int)RaceRoomConstant.Session.Race && shared.SessionPhase == (int)RaceRoomConstant.SessionPhase.Checkered &&
                 previousGameState != null && (previousGameState.SessionData.SessionPhase == SessionPhase.Green || previousGameState.SessionData.SessionPhase == SessionPhase.Green))
             {
-                Console.WriteLine("Leader has finished race, player has done "+ shared.CompletedLaps + " laps, session time = " + shared.Player.GameSimulationTime);
+                Console.WriteLine("Leader has finished race, player has done " + shared.CompletedLaps + " laps, session time = " + shared.Player.GameSimulationTime);
                 currentGameState.SessionData.LeaderHasFinishedRace = true;
             }
-                                    
+
             //------------------------ Car damage data -----------------------
             currentGameState.CarDamageData.DamageEnabled = shared.CarDamage.Aerodynamics != -1 &&
                 shared.CarDamage.Transmission != -1 && shared.CarDamage.Engine != -1;
@@ -1181,13 +1175,13 @@ namespace CrewChiefV4.RaceRoom
                 currentGameState.CarDamageData.SuspensionDamageStatus = CornerData.getCornerData(suspensionDamageThresholds,
                     suspensionDamageLevel, suspensionDamageLevel, suspensionDamageLevel, suspensionDamageLevel);
             }
-            
+
             //------------------------ Engine data -----------------------            
             currentGameState.EngineData.EngineOilPressure = shared.EngineOilPressure;
             currentGameState.EngineData.EngineRpm = shared.EngineRps * (60 / (2 * (Single)Math.PI));
             currentGameState.EngineData.MaxEngineRpm = shared.MaxEngineRps * (60 / (2 * (Single)Math.PI));
             currentGameState.EngineData.MinutesIntoSessionBeforeMonitoring = 5;
-            
+
             currentGameState.EngineData.EngineOilTemp = shared.EngineOilTemp;
             currentGameState.EngineData.EngineWaterTemp = shared.EngineWaterTemp;
 
@@ -1230,7 +1224,7 @@ namespace CrewChiefV4.RaceRoom
             {
                 currentGameState.PitData.IsPitCrewDone = shared.PitState == (Int32)RaceRoomConstant.PitStates.Exiting;
             }
-            
+
             currentGameState.PitData.MandatoryPitMinDurationLeft = shared.PitMinDurationLeft;
             currentGameState.PitData.MandatoryPitMinDurationTotal = shared.PitMinDurationTotal;
 
@@ -1240,9 +1234,9 @@ namespace CrewChiefV4.RaceRoom
                 && currentGameState.PitData.HasRequestedPitStop
                 && Math.Abs(currentGameState.PositionAndMotionData.DistanceRoundTrack - pitApproachPoint[0]) < 30.0f)  // Within 30 meters of anchor pt by lapdist.
             {
-                 var distToPitApproachPt = Math.Sqrt(
-                    (double)((currentGameState.PositionAndMotionData.WorldPosition[0] - pitApproachPoint[1]) * (currentGameState.PositionAndMotionData.WorldPosition[0] - pitApproachPoint[1])
-                    + (currentGameState.PositionAndMotionData.WorldPosition[2] - pitApproachPoint[2]) * (currentGameState.PositionAndMotionData.WorldPosition[2] - pitApproachPoint[2])));
+                var distToPitApproachPt = Math.Sqrt(
+                   (double)((currentGameState.PositionAndMotionData.WorldPosition[0] - pitApproachPoint[1]) * (currentGameState.PositionAndMotionData.WorldPosition[0] - pitApproachPoint[1])
+                   + (currentGameState.PositionAndMotionData.WorldPosition[2] - pitApproachPoint[2]) * (currentGameState.PositionAndMotionData.WorldPosition[2] - pitApproachPoint[2])));
 
                 currentGameState.PitData.IsApproachingPitlane = distToPitApproachPt < 4.0;  // Within 4 meters by world pos.
                 Console.WriteLine($"Pit approach detection: approaching - {currentGameState.PitData.IsApproachingPitlane}    dist to point - {distToPitApproachPt.ToString("0.000")}");
@@ -1389,7 +1383,7 @@ namespace CrewChiefV4.RaceRoom
                 lastTimeEngineWasRunning = currentGameState.Now;
             }
             // don't check for stalled engine in qualify because this will be triggered when starting a lap in rolling-start qual
-            if (!currentGameState.PitData.InPitlane && 
+            if (!currentGameState.PitData.InPitlane &&
                 currentGameState.SessionData.SessionType != SessionType.Qualify &&
                 previousGameState != null && !previousGameState.EngineData.EngineStalledWarning &&
                 currentGameState.SessionData.SessionRunningTime > 60 && currentGameState.EngineData.EngineRpm < 5 &&
@@ -1440,7 +1434,7 @@ namespace CrewChiefV4.RaceRoom
             if (previousGameState != null
                 && (previousGameState.SessionData.SessionType == SessionType.Practice || previousGameState.SessionData.SessionType == SessionType.Qualify)
                 && (previousGameState.SessionData.SessionPhase != SessionPhase.Unavailable)
-                && (currentGameState.Now > nextExpectedFinishingPositionUpdateDue 
+                && (currentGameState.Now > nextExpectedFinishingPositionUpdateDue
                     || (previousGameState.SessionData.SessionTimeRemaining > 0 && currentGameState.SessionData.SessionTimeRemaining <= 0)))
             {
                 // during practice and qual sessions, update this every 30 seconds and again at the end of the session. Here we use the previous game state's opponent data 
@@ -1616,7 +1610,7 @@ namespace CrewChiefV4.RaceRoom
         public SessionType mapToSessionType(Object memoryMappedFileStruct, GameStateData previousGameState)
         {
             RaceRoomData.RaceRoomShared shared = (RaceRoomData.RaceRoomShared)memoryMappedFileStruct;
-            RaceRoomConstant.Session r3eSessionType = (RaceRoomConstant.Session) shared.SessionType;
+            RaceRoomConstant.Session r3eSessionType = (RaceRoomConstant.Session)shared.SessionType;
 
             if (RaceRoomConstant.Session.Practice == r3eSessionType)
             {
@@ -1649,7 +1643,7 @@ namespace CrewChiefV4.RaceRoom
                         return SessionType.HotLap;
                     }
                 }
-                
+
                 if (((previousGameState != null && previousGameState.PositionAndMotionData.CarSpeed < 1) || previousGameState == null)
                     && shared.InPitlane != 1
                     && shared.CarSpeed > 10)
@@ -1725,11 +1719,11 @@ namespace CrewChiefV4.RaceRoom
             if (percentWear >= minorTyreWearPercent)
             {
                 return TyreCondition.MINOR_WEAR;
-            } 
+            }
             if (percentWear >= scrubbedTyreWearPercent)
             {
                 return TyreCondition.SCRUBBED;
-            } 
+            }
             else
             {
                 return TyreCondition.NEW;
@@ -1778,7 +1772,7 @@ namespace CrewChiefV4.RaceRoom
             return PenatiesData.DetailedPenaltyCause.NONE;
         }
 
-        private OvertakingAids getOvertakingAids(RaceRoomShared shared, CarData.CarClassEnum carClassEnum, 
+        private OvertakingAids getOvertakingAids(RaceRoomShared shared, CarData.CarClassEnum carClassEnum,
             int lapsCompleted, int lapsInSession, float sessionTimeRemaining, SessionType sessionType)
         {
             OvertakingAids overtakingAids = new OvertakingAids();
@@ -1787,7 +1781,7 @@ namespace CrewChiefV4.RaceRoom
             overtakingAids.DrsActivationsRemaining = shared.DrsNumActivationsTotal; // only used for DTM 2020
             // DTM rule sets are kinda deprecated and not really that clear any more. Generally the DRS is enabled at the end of lap 1 and disabled near
             // the end of the race (but I'm not sure exactly when). We can't infer the rule set from the selected car so have a one-size-fits-all hack
-            if (carClassEnum == CarData.CarClassEnum.DTM_2013 || carClassEnum == CarData.CarClassEnum.DTM_2014 
+            if (carClassEnum == CarData.CarClassEnum.DTM_2013 || carClassEnum == CarData.CarClassEnum.DTM_2014
                 || carClassEnum == CarData.CarClassEnum.DTM_2015 || carClassEnum == CarData.CarClassEnum.DTM_2016 || carClassEnum == CarData.CarClassEnum.DTM_2020)
             {
                 // No race end check - TODO: find out if there's a predictable point where DRS is disabled near the race end
@@ -1810,9 +1804,9 @@ namespace CrewChiefV4.RaceRoom
             return overtakingAids;
         }
 
-        private void updateOpponentData(OpponentData opponentData, int racePosition, int unfilteredRacePosition, int completedLaps, int sector, float sectorTime, 
+        private void upateOpponentData(OpponentData opponentData, int racePosition, int unfilteredRacePosition, int completedLaps, int sector, float sectorTime,
             float completedLapTime, Boolean isInPits, Boolean lapIsValid, float sessionRunningTime, float secondsSinceLastUpdate, float[] currentWorldPosition,
-            float[] previousWorldPosition, float distanceRoundTrack, int tire_type_front, int tyre_sub_type_front, int tire_type_rear, int tyre_sub_type_rear,  
+            float[] previousWorldPosition, float distanceRoundTrack, int tire_type_front, int tyre_sub_type_front, int tire_type_rear, int tyre_sub_type_rear,
             Boolean sessionLengthIsTime, float sessionTimeRemaining, Boolean isRace, float nearPitEntryPointDistance, float speed,
             /* currentLapTime is used only to correct the game time at lap start */float currentLapTime,
             /* may need to recalculate car classes for a short time at session start */int carClassId, DateTime now, TimingData timingData, CarData.CarClass playerCarClass)
@@ -1821,7 +1815,7 @@ namespace CrewChiefV4.RaceRoom
             if (now < recheckCarClassesUntil)
             {
                 CarData.CarClass correctedCarClass = CarData.getCarClassForRaceRoomId(carClassId);
-                if (!CarData.IsCarClassEqual(opponentData.CarClass, correctedCarClass, false)) 
+                if (!CarData.IsCarClassEqual(opponentData.CarClass, correctedCarClass, false))
                 {
                     // note we're not correcting the tyre types here but this shouldn't matter as we don't announce them in 
                     // practice and qually anyway
@@ -1835,7 +1829,7 @@ namespace CrewChiefV4.RaceRoom
             opponentData.DistanceRoundTrack = distanceRoundTrack;
             opponentData.Speed = speed;
 
-            if (opponentData.OverallPosition != racePosition) 
+            if (opponentData.OverallPosition != racePosition)
             {
                 opponentData.SessionTimeAtLastPositionChange = sessionRunningTime;
             }
@@ -1894,7 +1888,7 @@ namespace CrewChiefV4.RaceRoom
                         {
                             completedLapTime = sessionRunningTime - currentLapData.GameTimeAtLapStart;
                         }
-                        opponentData.CompleteLapWithProvidedLapTime(racePosition, sessionRunningTime, currentLapData.IsValid ? completedLapTime : -1, 
+                        opponentData.CompleteLapWithProvidedLapTime(racePosition, sessionRunningTime, currentLapData.IsValid ? completedLapTime : -1,
                             isInPits, false, 20, 20, sessionLengthIsTime, sessionTimeRemaining, 3, timingData, isPlayerCarClass);
                     }
                     opponentData.StartNewLap(completedLaps + 1, racePosition, isInPits, sessionRunningTime, false, 20, 20);
@@ -1905,7 +1899,7 @@ namespace CrewChiefV4.RaceRoom
                     opponentData.AddCumulativeSectorData(opponentData.CurrentSectorNumber, racePosition, sectorTime, sessionRunningTime, lapIsValid, false, 20, 20);
                     if (sector == 2)
                     {
-                        opponentData.CurrentTyres = mapToTyreType(tire_type_front, tyre_sub_type_front, tire_type_rear, tyre_sub_type_rear, opponentData.CarClass.carClassEnum);                        
+                        opponentData.CurrentTyres = mapToTyreType(tire_type_front, tyre_sub_type_front, tire_type_rear, tyre_sub_type_rear, opponentData.CarClass.carClassEnum);
                     }
                 }
                 opponentData.CurrentSectorNumber = sector;
@@ -1922,7 +1916,7 @@ namespace CrewChiefV4.RaceRoom
             if (loadDriverName && CrewChief.enableDriverNames)
             {
                 if (speechRecogniser != null) speechRecogniser.addNewOpponentName(driverName, participantStruct.DriverInfo.CarNumber.ToString());
-            } 
+            }
             OpponentData opponentData = new OpponentData();
             opponentData.DriverRawName = driverName;
             opponentData.CarNumber = participantStruct.DriverInfo.CarNumber.ToString();
@@ -1958,7 +1952,7 @@ namespace CrewChiefV4.RaceRoom
 
         public static String getNameFromBytes(byte[] name)
         {
-            int count = Array.IndexOf(name, (byte) 0);
+            int count = Array.IndexOf(name, (byte)0);
             return Encoding.UTF8.GetString(name, 0, count);
         }
 
