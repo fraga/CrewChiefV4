@@ -214,7 +214,8 @@ namespace CrewChiefV4.Events
                 return;
             }
 
-            if (rf1WarnAboutOpponentsSharingBox && currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.Now > nextPitBoxBlockedCheckDue)
+            if (rf1WarnAboutOpponentsSharingBox && CrewChief.gameDefinition.gameEnum == GameEnum.RF1
+                && currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.Now > nextPitBoxBlockedCheckDue)
             {
                 nextPitBoxBlockedCheckDue = currentGameState.Now.AddSeconds(1);
                 HashSet<string> opponentsCurrentlyBlockingBox = Strategy.getOpponentKeysBlockingBox(currentGameState);
@@ -341,7 +342,8 @@ namespace CrewChiefV4.Events
                             }
                         }
                     }
-                    else if (currentGameState.PitData.InPitlane && currentGameState.PositionAndMotionData.CarSpeed < 0.1 && currentGameState.PositionAndMotionData.CarSpeed > 0)
+                    else if (rf1WarnAboutOpponentsSharingBox && CrewChief.gameDefinition.gameEnum == GameEnum.RF1 &&
+                        currentGameState.PitData.InPitlane && currentGameState.PositionAndMotionData.CarSpeed < 0.1 && currentGameState.PositionAndMotionData.CarSpeed > 0)
                     {
                         Strategy.setPlayerPitLocationData(currentGameState);
                     }
