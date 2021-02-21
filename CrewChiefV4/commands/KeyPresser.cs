@@ -12,6 +12,8 @@ namespace CrewChiefV4.commands
     {
         public static InputSimulator InputSim = new InputSimulator();
 
+        private static bool useLegacyKeyPresser = true;
+
         // used by VROverlayWindow
         [DllImport("user32.dll")]
         public static extern short GetAsyncKeyState(System.Windows.Forms.Keys vKey);
@@ -125,13 +127,19 @@ namespace CrewChiefV4.commands
 
         public static void SendKeyPress(Tuple<VirtualKeyCode?, VirtualKeyCode> modifierAndKeyCode, int? keyPressTime = null)
         {
-            SendKeyPressWithInputSim(modifierAndKeyCode, keyPressTime);
-            KeyCode? modifierKeyCode = null;
-            if (modifierAndKeyCode.Item1 != null)
+            if (useLegacyKeyPresser)
             {
-                modifierKeyCode = (KeyCode)modifierAndKeyCode.Item1;
+                KeyCode? modifierKeyCode = null;
+                if (modifierAndKeyCode.Item1 != null)
+                {
+                    modifierKeyCode = (KeyCode)modifierAndKeyCode.Item1;
+                }
+                SendScanCodeKeyPress(new Tuple<KeyCode?, KeyCode>(modifierKeyCode, (KeyCode)modifierAndKeyCode.Item2), keyPressTime == null ? 50 : keyPressTime.Value);
             }
-            SendScanCodeKeyPress(new Tuple<KeyCode?, KeyCode>(modifierKeyCode, (KeyCode)modifierAndKeyCode.Item2), keyPressTime == null ? 50 : keyPressTime.Value);
+            else
+            {
+                SendKeyPressWithInputSim(modifierAndKeyCode, keyPressTime);
+            }
         }
 
         private static void SendKeyPressWithInputSim(Tuple<VirtualKeyCode?, VirtualKeyCode> modifierAndKeyCode, int? keyPressTime = null)

@@ -36,6 +36,7 @@ namespace CrewChiefV4.commands
         public static void stop()
         {
             stopped = true;
+            KeyPresser.releasePressedKey();
         }
 
         // converter 
