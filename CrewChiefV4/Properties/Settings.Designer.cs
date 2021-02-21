@@ -5265,17 +5265,29 @@ namespace CrewChiefV4.Properties {
             set {
                 this["enable_rf1_box_sharing_warnings"] = value;
             }
-	}
-
+        }
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-	[global::System.Configuration.DefaultSettingValueAttribute("0")]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
         public int force_resample {
             get {
                 return ((int)(this["force_resample"]));
             }
             set {
                 this["force_resample"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool use_legacy_key_presser {
+            get {
+                return ((bool)(this["use_legacy_key_presser"]));
+            }
+            set {
+                this["use_legacy_key_presser"] = value;
             }
         }
     }

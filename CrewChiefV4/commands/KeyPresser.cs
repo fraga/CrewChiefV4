@@ -12,7 +12,7 @@ namespace CrewChiefV4.commands
     {
         public static InputSimulator InputSim = new InputSimulator();
 
-        private static bool useLegacyKeyPresser = true;
+        private static bool useLegacyKeyPresser = UserSettings.GetUserSettings().getBoolean("use_legacy_key_presser");
 
         // used by VROverlayWindow
         [DllImport("user32.dll")]

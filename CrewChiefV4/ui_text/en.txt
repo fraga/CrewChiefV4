@@ -2128,3 +2128,8 @@ force_resample = nAudio playback resample rate (0 - no resampling)
 force_resample_help = Change sample rate of message files before playback, set to 0 to disable resampling (nAudio only)
 force_resample_category = AUDIO_VOICE_AND_CONTROLLERS
 force_resample_metadata = RESTART_REQUIRED
+
+use_legacy_key_presser = Use old method of pressing macro keys
+use_legacy_key_presser_help = Send scan-code directly instead of going via InputSim for macro keystrokes
+use_legacy_key_presser_category = MISC
+use_legacy_key_presser_metadata = RESTART_REQUIRED
