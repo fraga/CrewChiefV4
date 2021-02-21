@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using System.Threading;
 using WindowsInput;
 using WindowsInput.Native;
 
@@ -107,7 +108,7 @@ namespace CrewChiefV4.commands
             }
             if (Enum.TryParse("KEY_" + keyString, true, out parsedKeyCode))
             {
-                virtualKeyCode = (VirtualKeyCode) parsedKeyCode;
+                virtualKeyCode = (VirtualKeyCode)parsedKeyCode;
                 return true;
             }
             if (keyString.StartsWith("KEY_") && keyString.Length > 3)
@@ -123,15 +124,34 @@ namespace CrewChiefV4.commands
             return false;
         }
 
-        public static void SendKeyPress(Tuple<VirtualKeyCode?, VirtualKeyCode> modifierAndKeyCode)
+        public static void SendKeyPress(Tuple<VirtualKeyCode?, VirtualKeyCode> modifierAndKeyCode, int? keyPressTime = null)
         {
-            if (modifierAndKeyCode.Item1 == null)
+            if (keyPressTime == null || keyPressTime.Value <= 0)
             {
-                KeyPresser.InputSim.Keyboard.KeyPress(modifierAndKeyCode.Item2);
+                if (modifierAndKeyCode.Item1 == null)
+                {
+                    KeyPresser.InputSim.Keyboard.KeyPress(modifierAndKeyCode.Item2);
+                }
+                else
+                {
+                    KeyPresser.InputSim.Keyboard.ModifiedKeyStroke(modifierAndKeyCode.Item1.Value, modifierAndKeyCode.Item2);
+                }
             }
             else
             {
-                KeyPresser.InputSim.Keyboard.ModifiedKeyStroke(modifierAndKeyCode.Item1.Value, modifierAndKeyCode.Item2);
+                if (modifierAndKeyCode.Item1 != null)
+                {
+                    KeyPresser.InputSim.Keyboard.KeyDown(modifierAndKeyCode.Item1.Value);
+                    Thread.Sleep(10);
+                }
+                KeyPresser.InputSim.Keyboard.KeyDown(modifierAndKeyCode.Item2);
+                Thread.Sleep(keyPressTime.Value);
+                KeyPresser.InputSim.Keyboard.KeyUp(modifierAndKeyCode.Item2);
+                if (modifierAndKeyCode.Item1 != null)
+                {
+                    Thread.Sleep(10);
+                    KeyPresser.InputSim.Keyboard.KeyUp(modifierAndKeyCode.Item1.Value);
+                }
             }
         }
 
@@ -563,7 +583,7 @@ namespace CrewChiefV4.commands
             /// 
             /// </summary>
             KEY_Z = 90,
-            
+
             #endregion
 
             #region volume

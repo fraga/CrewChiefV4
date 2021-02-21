@@ -30,6 +30,7 @@ namespace CrewChiefV4
 
         // Note: Below two collections are accessed from the multiple threads, but not yet synchronized.
         public List<ButtonAssignment> buttonAssignments = new List<ButtonAssignment>();
+        private List<ButtonAssignment> macroButtonAssignments = new List<ButtonAssignment>();
         public List<ControllerData> controllers;
 
         // Controllers we found during last device scan, not necessarily all connected.
@@ -143,6 +144,21 @@ namespace CrewChiefV4
             {
                 ba.findEvent();
             }
+        }
+
+        public void addMacroButtonAssignment(ButtonAssignment buttonAssignment)
+        {
+            this.buttonAssignments.Add(buttonAssignment);
+            this.macroButtonAssignments.Add(buttonAssignment);
+        }
+
+        public void clearMacroButtonAssignmments()
+        {
+            foreach (ButtonAssignment macroButtonAssignment in this.macroButtonAssignments)
+            {
+                this.buttonAssignments.Remove(macroButtonAssignment);
+            }
+            this.macroButtonAssignments.Clear();
         }
 
         private static String getDefaultControllerConfigurationDataFileLocation()

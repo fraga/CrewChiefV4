@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html>
 <body>
+<h2>Version 4.15.1.6</h2>
+<ul>
+	<li>Added support for modifier keys in macros - prefix the key with modifier+ to hold down that modifier while typing the key (e.g. LSHIFT+KEY_X, RSHIFT+KEY_X, LCONTROL+KEY_X, ALT+KEY_X, etc)</li>
+	<li>Adding an optional HOLD_TIME modifier to macro keys to specify how long that single key will be held down (e.g. "{HOLD_TIME,4000}KEY_A" hold A down for 4000 milliseconds)</li>
+	<li>Added message playback resample option for nAudio - specify a resampling rate in Hz with the "nAudio playback resample rate" property - 0 disables resampling (the default). The sound files are recorded at 22050Hz so there's no point in going above that, values below 5000 may make the messages difficult to understand</li>
+	<li>Prevent key bindings activing macros multiple times after restarting the app</li>
+	<li>Some error logging improvements</li>
+	<li>Updated track landmark locations for a couple of tracks (thanks to the users who submitted these)</li>
+	<li>A few other bit & bobs</li>
+</ul>
 <h2>Version 4.15.1.5</h2>
 <ul>
 	<li>iRacing crash hotfix</li>

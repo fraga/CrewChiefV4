@@ -236,7 +236,7 @@ namespace CrewChiefV4.commands
             KeyPresser.KeyCode keyCode = KeyPresser.KeyCode.KEY_T;
             foreach (CommandSet commandSet in macro.commandSets.Where(cs => MacroManager.isCommandSetForCurrentGame(cs.gameDefinition)))
             {
-                string action = commandSet.actionSequence[0];                
+                string action = commandSet.actionSequence[0];
                 if (Enum.TryParse(action, out keyCode))
                 {
                     return (VirtualKeyCode)keyCode;
@@ -359,7 +359,12 @@ namespace CrewChiefV4.commands
                         }
                         // only wait if there's another key press in the sequence
                         int wait = actionItemIndex == actionItemsCount - 1 ? 0 : commandSet.waitBetweenEachCommand;
-                        sendKeys(count, actionItem, wait);
+                        int? keyPressTime = commandSet.keyPressTime;
+                        if (MacroManager.HOLD_TIME_IDENTIFIER.Equals(actionItem.extendedType) && actionItem.extendedTypeNumericParam > 0)
+                        {
+                            keyPressTime = actionItem.extendedTypeNumericParam;
+                        }
+                        sendKeys(count, actionItem, keyPressTime, wait);
                     }
                 }
                 // if we changed forground window we need to restore the old window again as the user could be running overlays or other apps they want to keep in forground.
@@ -374,8 +379,8 @@ namespace CrewChiefV4.commands
             }
         }
 
-        private void sendKeys(int count, ActionItem actionItem, int waitBetweenKeys)
-        {            
+        private void sendKeys(int count, ActionItem actionItem, int? keyPressTime, int waitBetweenKeys)
+        {
             if (actionItem.allowFreeText)
             {
                 if (SpeechRecogniser.getStartChatMacro() == null)
@@ -411,7 +416,7 @@ namespace CrewChiefV4.commands
                     {
                         for (int keyIndex = 0; keyIndex < actionItem.keyCodes.Length; keyIndex++)
                         {
-                            KeyPresser.SendKeyPress(actionItem.keyCodes[keyIndex]);
+                            KeyPresser.SendKeyPress(actionItem.keyCodes[keyIndex], keyPressTime);
                             Thread.Sleep(waitBetweenKeys);
                         }
                     }
@@ -531,8 +536,9 @@ namespace CrewChiefV4.commands
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public String description { get; set; }
         public String gameDefinition { get; set; }
-		public String[] actionSequence { get; set; }
-		public int keyPressTime { get; set; }
+        public String[] actionSequence { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? keyPressTime { get; set; }
         public int waitBetweenEachCommand { get; set; }
         [JsonIgnore]
         private List<ActionItem> actionItems = null;
@@ -672,10 +678,12 @@ namespace CrewChiefV4.commands
                 if (extendedType != null)
                 {
                     String additionalInfo = "";
-                    if (extendedTypeNumericParam > 0) {
+                    if (extendedTypeNumericParam > 0)
+                    {
                         additionalInfo = ": " + extendedTypeNumericParam;
                     }
-                    else if (extendedTypeTextParam != null) {
+                    else if (extendedTypeTextParam != null)
+                    {
                         additionalInfo = ": " + extendedTypeTextParam;
                     }
                     return extendedType + additionalInfo;
