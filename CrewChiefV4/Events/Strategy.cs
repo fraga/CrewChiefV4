@@ -1328,7 +1328,7 @@ namespace CrewChiefV4.Events
             return location != null && !(location[0] == 0 && location[1] == 0);
         }
         
-        // only checks the position - call this when we know the opponent is stationary in the pit lane
+        // only checks the position - call this when we know the opponent has just stopped in the pit lane
         public static void checkIfOpponentSharesPlayerPitBox(string opponentKey, float opponentLapDistance, float[] opponentWorldLocation)
         {
             if (Strategy.trackAndCarNameForPitBoxPositionData == null || !rf1WarnAboutOpponentsSharingBox)
