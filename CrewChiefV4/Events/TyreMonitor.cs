@@ -1867,14 +1867,17 @@ namespace CrewChiefV4.Events
         {
             List<MessageFragment> fragments = new List<MessageFragment>();
             Array.ForEach(folders, f => fragments.Add(MessageFragment.Text(f)));
-            QueuedMessage message = new QueuedMessage("pressures", 0, fragments);
-            if (delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
+            if (fragments.Count > 0)
             {
-                this.audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(message, 5 /*lowerDelayBoundInclusive*/, 7 /*upperDelayBound*/);
-            }
-            else
-            {
-                this.audioPlayer.playMessageImmediately(message);
+                QueuedMessage message = new QueuedMessage("pressures", 0, fragments);
+                if (delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
+                {
+                    this.audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(message, 5 /*lowerDelayBoundInclusive*/, 7 /*upperDelayBound*/);
+                }
+                else
+                {
+                    this.audioPlayer.playMessageImmediately(message);
+                }
             }
         }
 
@@ -2022,13 +2025,16 @@ namespace CrewChiefV4.Events
             {
                 message = new QueuedMessage("imo_diff", 0, messageFragments: MessageContents(folderDiffIntro, absoluteDiff, folderHotterThanOutersOutro, folderCamberOK));
             }
-            if (delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
+            if (message != null)
             {
-                this.audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(message, 5 /*lowerDelayBoundInclusive*/, 7 /*upperDelayBound*/);
-            }
-            else
-            {
-                this.audioPlayer.playMessageImmediately(message);
+                if (delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
+                {
+                    this.audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(message, 5 /*lowerDelayBoundInclusive*/, 7 /*upperDelayBound*/);
+                }
+                else
+                {
+                    this.audioPlayer.playMessageImmediately(message);
+                }
             }
         }
 
