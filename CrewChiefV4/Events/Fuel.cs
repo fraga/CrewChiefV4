@@ -964,7 +964,8 @@ namespace CrewChiefV4.Events
                 }
 
                 Debug.Assert(queuedMessage != null);
-                if (individualResponse)
+                if (individualResponse
+                    && queuedMessage != null)
                 {
                     if (this.delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
                     {
@@ -1025,16 +1026,20 @@ namespace CrewChiefV4.Events
                         messageFragments.Add(MessageFragment.Integer(usage, false));
                         messageFragments.Add(MessageFragment.Text(usage == 1 ? folderLitre : folderLitres));
                     }
-                    QueuedMessage fuelEstimateMessage = new QueuedMessage("Fuel/estimate", 0, messageFragments: messageFragments);
 
-                    // play this immediately or play "stand by", and queue it to be played in a few seconds
-                    if (delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
+                    if (messageFragments.Count > 0)
                     {
-                        audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(fuelEstimateMessage, 5 /*lowerDelayBoundInclusive*/, 8 /*upperDelayBound*/);
-                    }
-                    else
-                    {
-                        audioPlayer.playMessageImmediately(fuelEstimateMessage);
+                        QueuedMessage fuelEstimateMessage = new QueuedMessage("Fuel/estimate", 0, messageFragments: messageFragments);
+
+                        // play this immediately or play "stand by", and queue it to be played in a few seconds
+                        if (delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
+                        {
+                            audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(fuelEstimateMessage, 5 /*lowerDelayBoundInclusive*/, 8 /*upperDelayBound*/);
+                        }
+                        else
+                        {
+                            audioPlayer.playMessageImmediately(fuelEstimateMessage);
+                        }
                     }
                 }
             }
@@ -1088,15 +1093,18 @@ namespace CrewChiefV4.Events
                         messageFragments.Add(MessageFragment.Text(usage == 1 ? folderLitre : folderLitres));
                     }
 
-                    QueuedMessage fuelEstimateMessage = new QueuedMessage("Fuel/estimate", 0, messageFragments: messageFragments);
-                    // play this immediately or play "stand by", and queue it to be played in a few seconds
-                    if (delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
+                    if (messageFragments.Count > 0)
                     {
-                        audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(fuelEstimateMessage, 5 /*lowerDelayBoundInclusive*/, 8 /*upperDelayBound*/);
-                    }
-                    else
-                    {
-                        audioPlayer.playMessageImmediately(fuelEstimateMessage);
+                        QueuedMessage fuelEstimateMessage = new QueuedMessage("Fuel/estimate", 0, messageFragments: messageFragments);
+                        // play this immediately or play "stand by", and queue it to be played in a few seconds
+                        if (delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
+                        {
+                            audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(fuelEstimateMessage, 5 /*lowerDelayBoundInclusive*/, 8 /*upperDelayBound*/);
+                        }
+                        else
+                        {
+                            audioPlayer.playMessageImmediately(fuelEstimateMessage);
+                        }
                     }
                 }
             }
@@ -1329,15 +1337,17 @@ namespace CrewChiefV4.Events
             }
             else
             {
-                if (allowNoDataMessage  // True if this is fuel specific command response.
-                    && fuelStatusMessageFragments.Count > 0
-                    && this.delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
+                if (fuelStatusMessageFragments.Count > 0)
                 {
-                    this.audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(new QueuedMessage("Fuel/status", 0, messageFragments: fuelStatusMessageFragments), 3 /*lowerDelayBoundInclusive*/, 6 /*upperDelayBound*/);
-                }
-                else
-                {
-                    this.audioPlayer.playMessageImmediately(new QueuedMessage("Fuel/status", 0, messageFragments: fuelStatusMessageFragments));
+                    if (allowNoDataMessage  // True if this is fuel specific command response.
+                        && this.delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
+                    {
+                        this.audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(new QueuedMessage("Fuel/status", 0, messageFragments: fuelStatusMessageFragments), 3 /*lowerDelayBoundInclusive*/, 6 /*upperDelayBound*/);
+                    }
+                    else
+                    {
+                        this.audioPlayer.playMessageImmediately(new QueuedMessage("Fuel/status", 0, messageFragments: fuelStatusMessageFragments));
+                    }
                 }
             }
         }
@@ -1412,13 +1422,16 @@ namespace CrewChiefV4.Events
                 {
                     queuedMessage = new QueuedMessage(folderAboutToRunOut, 0);
                 }
-                if (queuedMessage != null && delayResponses && Utilities.random.Next(10) >= 4 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
+                if (queuedMessage != null)
                 {
-                    this.audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(queuedMessage, 3 /*lowerDelayBoundInclusive*/, 6 /*upperDelayBound*/);
-                }
-                else
-                {
-                    this.audioPlayer.playMessageImmediately(queuedMessage);
+                    if (delayResponses && Utilities.random.Next(10) >= 4 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
+                    {
+                        this.audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(queuedMessage, 3 /*lowerDelayBoundInclusive*/, 6 /*upperDelayBound*/);
+                    }
+                    else
+                    {
+                        this.audioPlayer.playMessageImmediately(queuedMessage);
+                    }
                 }
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOW_MUCH_FUEL_TO_END_OF_RACE))
