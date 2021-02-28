@@ -3322,7 +3322,8 @@ namespace CrewChiefV4.GameState
         {
             TimeSpan splitTime = new TimeSpan(0);
             int lapDifference = 0;
-            if (initialised && otherCarDelta.deltaPoints.Length > 0 && this.deltaPoints.Length > 0 && this.currentDeltaPointIndex != -1 && otherCarDelta.currentDeltaPointIndex != -1)
+            if (initialised && otherCarDelta != null && otherCarDelta.deltaPoints != null && this.deltaPoints != null
+                && otherCarDelta.deltaPoints.Length > 0 && this.deltaPoints.Length > 0 && this.currentDeltaPointIndex != -1 && otherCarDelta.currentDeltaPointIndex != -1)
             {
                 lapDifference = GetSignedLapDifference(otherCarDelta);
 
@@ -3352,7 +3353,8 @@ namespace CrewChiefV4.GameState
         public int GetSignedLapDifference(DeltaTime otherCarDelta)
         {
             int lapDifference = 0;
-            if (initialised && otherCarDelta.deltaPoints.Length > 0 && this.deltaPoints.Length > 0 && this.currentDeltaPointIndex != -1 && otherCarDelta.currentDeltaPointIndex != -1)
+            if (initialised && otherCarDelta != null && otherCarDelta.deltaPoints != null && this.deltaPoints != null
+                && otherCarDelta.deltaPoints.Length > 0 && this.deltaPoints.Length > 0 && this.currentDeltaPointIndex != -1 && otherCarDelta.currentDeltaPointIndex != -1)
             {
                 // +ve means I've travelled further than him:
                 float totalDistanceTravelledDifference = this.totalDistanceTravelled - otherCarDelta.totalDistanceTravelled;
