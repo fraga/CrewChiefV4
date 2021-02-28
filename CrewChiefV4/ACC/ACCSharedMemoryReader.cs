@@ -204,12 +204,8 @@ namespace CrewChiefV4.ACC
                         return previousAACStructWrapper ?? structWrapper;
 
                     structWrapper.data = accShared;
-
-                    // Tyre missing data fixups
-                    structWrapper.data.accPhysics.tyreTempI = structWrapper.data.accPhysics.tyreTempM;
-                    structWrapper.data.accPhysics.tyreTempO = structWrapper.data.accPhysics.tyreTempM; 
-
-                    structWrapper.data.accStatic.isTimedRace = udpUpdateViewModel.SessionInfoVM.RemainingTime.TotalMilliseconds > 0 ? 1 : 0;
+                    
+                    structWrapper.data.accStatic.SET_FROM_UDP_isTimedRace = udpUpdateViewModel.SessionInfoVM.RemainingTime.TotalMilliseconds > 0 ? 1 : 0;
 
                     // New penality?
                     if (structWrapper.data.accGraphic.penaltyTime != ackPenalityTime)
@@ -316,8 +312,7 @@ namespace CrewChiefV4.ACC
                                 accShared.accStatic, accShared.accGraphic.position);
                             if (playerVehicle != null)
                             {
-                                activeVehicles.AddFirst(createCar(1, playerVehicle,accShared.accPhysics.wheelsPressure,
-                                    structWrapper.data.accGraphic.carIDs, structWrapper.data.accGraphic.carCoordinates));
+                                activeVehicles.AddFirst(createCar(1, playerVehicle, structWrapper.data.accGraphic.carIDs, structWrapper.data.accGraphic.carCoordinates));
                                 distancesTravelled.Add(playerVehicle.Laps + playerVehicle.SplinePosition);
 
                                 // only add a car to our data set if it exists in the UDP data and the shared memory car IDs array
@@ -325,8 +320,7 @@ namespace CrewChiefV4.ACC
                                 {
                                     if (car != playerVehicle && structWrapper.data.accGraphic.carIDs.Contains(car.CarIndex))
                                     {
-                                        activeVehicles.AddLast(createCar(0, car, new float[4],
-                                            structWrapper.data.accGraphic.carIDs, structWrapper.data.accGraphic.carCoordinates));
+                                        activeVehicles.AddLast(createCar(0, car, structWrapper.data.accGraphic.carIDs, structWrapper.data.accGraphic.carCoordinates));
                                         distancesTravelled.Add(car.Laps + car.SplinePosition);
                                     }
                                 }
@@ -385,8 +379,7 @@ namespace CrewChiefV4.ACC
             return "GT3";
         }
 
-        // the tyreInflation data aren't available for opponents, so these will always be the player's tyre inflation or an array of zeros
-        private accVehicleInfo createCar(int carIsPlayerVehicle, CarViewModel car, float[] tyreInflation, int[] carIds, accVec3[] carPositions)
+        private accVehicleInfo createCar(int carIsPlayerVehicle, CarViewModel car, int[] carIds, accVec3[] carPositions)
         {
             var currentLap = car.CurrentLap;
             var lastLap = car.LastLap;
@@ -433,7 +426,6 @@ namespace CrewChiefV4.ACC
                 speedMS = car.Kmh * 0.277778f,
                 spLineLength = car.SplinePosition,
                 worldPosition = new accVec3 { x = x_coord, z = z_coord },
-                tyreInflation = tyreInflation,
                 raceNumber = car.RaceNumber
             };            
         }

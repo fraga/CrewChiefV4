@@ -97,6 +97,7 @@ namespace CrewChiefV4
         public static String[] HOWS_MY_SELF_PACE = Configuration.getSpeechRecognitionPhrases("HOWS_MY_SELF_PACE");
         public static String[] HOW_ARE_MY_TYRE_TEMPS = Configuration.getSpeechRecognitionPhrases("HOW_ARE_MY_TYRE_TEMPS");
         public static String[] WHAT_ARE_MY_TYRE_TEMPS = Configuration.getSpeechRecognitionPhrases("WHAT_ARE_MY_TYRE_TEMPS");
+        public static String[] WHAT_ARE_MY_TYRE_PRESSURES = Configuration.getSpeechRecognitionPhrases("WHAT_ARE_MY_TYRE_PRESSURES");
         public static String[] HOW_ARE_MY_BRAKE_TEMPS = Configuration.getSpeechRecognitionPhrases("HOW_ARE_MY_BRAKE_TEMPS");
         public static String[] WHAT_ARE_MY_BRAKE_TEMPS = Configuration.getSpeechRecognitionPhrases("WHAT_ARE_MY_BRAKE_TEMPS");
         public static String[] HOW_ARE_MY_ENGINE_TEMPS = Configuration.getSpeechRecognitionPhrases("HOW_ARE_MY_ENGINE_TEMPS");
@@ -1383,6 +1384,7 @@ namespace CrewChiefV4
                     validateAndAdd(WHAT_IS_MY_WATER_TEMP, staticSpeechChoices);
                     validateAndAdd(HOW_ARE_MY_TYRE_TEMPS, staticSpeechChoices);
                     validateAndAdd(WHAT_ARE_MY_TYRE_TEMPS, staticSpeechChoices);
+                    validateAndAdd(WHAT_ARE_MY_TYRE_PRESSURES, staticSpeechChoices);
                     validateAndAdd(HOW_ARE_MY_BRAKE_TEMPS, staticSpeechChoices);
                     validateAndAdd(WHAT_ARE_MY_BRAKE_TEMPS, staticSpeechChoices);
                     validateAndAdd(HOW_ARE_MY_ENGINE_TEMPS, staticSpeechChoices);
@@ -3170,6 +3172,7 @@ namespace CrewChiefV4
                 return CrewChief.getEvent("LapTimes");
             }
             else if (ResultContains(recognisedSpeech, WHAT_ARE_MY_TYRE_TEMPS, false) ||
+                ResultContains(recognisedSpeech, HOW_ARE_MY_TYRE_PRESSURES, false) ||
                 ResultContains(recognisedSpeech, HOW_ARE_MY_TYRE_TEMPS, false) ||
                 ResultContains(recognisedSpeech, HOWS_MY_TYRE_WEAR, false) ||
                 ResultContains(recognisedSpeech, HOW_ARE_MY_BRAKE_TEMPS, false) ||

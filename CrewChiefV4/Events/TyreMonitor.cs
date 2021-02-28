@@ -336,6 +336,11 @@ namespace CrewChiefV4.Events
         private float leftRearTyreTemp = 0;
         private float rightRearTyreTemp = 0;
 
+        private float leftFrontTyrePressure = 0;
+        private float rightFrontTyrePressure = 0;
+        private float leftRearTyrePressure = 0;
+        private float rightRearTyrePressure = 0;
+
         private float leftFrontBrakeTemp = 0;
         private float rightFrontBrakeTemp = 0;
         private float leftRearBrakeTemp = 0;
@@ -472,6 +477,11 @@ namespace CrewChiefV4.Events
             rightFrontTyreTemp = 0;
             leftRearTyreTemp = 0;
             rightRearTyreTemp = 0;
+
+            leftFrontTyrePressure = 0;
+            rightFrontTyrePressure = 0;
+            leftRearTyrePressure = 0;
+            rightRearTyrePressure = 0;
 
             leftFrontBrakeTemp = 0;
             rightFrontBrakeTemp = 0;
@@ -895,6 +905,10 @@ namespace CrewChiefV4.Events
             rightFrontTyreTemp = currentGameState.TyreData.FrontRight_CenterTemp;
             leftRearTyreTemp = currentGameState.TyreData.RearLeft_CenterTemp;
             rightRearTyreTemp = currentGameState.TyreData.RearRight_CenterTemp;
+            leftFrontTyrePressure = currentGameState.TyreData.FrontLeftPressure;
+            rightFrontTyrePressure = currentGameState.TyreData.FrontRightPressure;
+            leftRearTyrePressure = currentGameState.TyreData.RearLeftPressure;
+            rightRearTyrePressure = currentGameState.TyreData.RearRightPressure;
 
             currentTyreTempStatus = currentGameState.TyreData.TyreTempStatus;
             currentBrakeTempStatus = currentGameState.TyreData.BrakeTempStatus;
@@ -1413,7 +1427,20 @@ namespace CrewChiefV4.Events
                     messageFragments: MessageContents(folderLeftFront, convertTemp(leftFrontTyreTemp), folderRightFront, convertTemp(rightFrontTyreTemp),
                                                        folderLeftRear, convertTemp(leftRearTyreTemp), folderRightRear, convertTemp(rightRearTyreTemp), getTempUnit())));
             }
+        }
 
+        private void reportCurrentTyrePressures()
+        {
+            if (leftFrontTyrePressure == 0 && rightFrontTyrePressure == 0 && leftRearTyrePressure == 0 && rightRearTyrePressure == 0)
+            {
+                audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+            }
+            else
+            {
+                audioPlayer.playMessageImmediately(new QueuedMessage("tyre_pressures", 0,
+                    messageFragments: MessageContents(folderLeftFront, convertPressure(leftFrontTyrePressure, 1), folderRightFront, convertPressure(rightFrontTyrePressure, 1),
+                                                       folderLeftRear, convertPressure(leftRearTyrePressure, 1), folderRightRear, convertPressure(rightRearTyrePressure, 1), getTempUnit())));
+            }
         }
 
         private void reportCurrentBrakeTemps()
@@ -1447,6 +1474,10 @@ namespace CrewChiefV4.Events
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHAT_ARE_MY_TYRE_TEMPS))
             {
                 reportCurrentTyreTemps();
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHAT_ARE_MY_TYRE_PRESSURES))
+            {
+                reportCurrentTyrePressures();
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOW_ARE_MY_BRAKE_TEMPS))
             {
