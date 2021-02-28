@@ -311,6 +311,7 @@ PIT_STOP_CLEAR_FAST_REPAIR = pitstop clear fast repair:box, clear fast repair
 PIT_STOP_CLEAR_FUEL = pitstop clear fuel:box, clear fuel
 
 PIT_STOP_CHANGE_ALL_TYRES = pitstop change all tyres:box, change all tyres
+PIT_STOP_CHANGE_TYRES = pitstop change tyres:box, change tyres
 PIT_STOP_CHANGE_FRONT_LEFT_TYRE = pitstop change left front tyre:box, change left front tyre:pitstop change front left tyre:box, change front left tyre
 PIT_STOP_CHANGE_FRONT_RIGHT_TYRE = pitstop change right front tyre:box, change right front tyre:pitstop change front right tyre:box, change front right tyre
 PIT_STOP_CHANGE_REAR_LEFT_TYRE = pitstop change left rear tyre:box, change left rear tyre:pitstop change rear left tyre:box, change rear left tyre
@@ -356,6 +357,7 @@ PIT_STOP_FIX_BODY = pitstop fix body:box, fix body:pitstop repair body:box, repa
 PIT_STOP_FIX_NONE = pitstop fix none:box, fix none:pitstop repair none:box, repair none
 PIT_STOP_INTERMEDIATE_TYRES = pitstop intermediate tyres:box, intermediate tyres
 PIT_STOP_WET_TYRES = pitstop wet tyres:box, wet tyres
+PIT_STOP_DRY_TYRES = pitstop dry tyres:box, dry tyres
 PIT_STOP_MONSOON_TYRES = pitstop monsoon tyres:box, monsoon tyres
 PIT_STOP_FILL_TO = pitstop fill to:box, fill to
 

@@ -2931,6 +2931,8 @@ namespace CrewChiefV4.GameState
         public Single RearLeftPressure;
         public Single RearRightPressure;
 
+        public int selectedSet = -1;
+
         private CornerData _TyreTempStatus;
         public CornerData TyreTempStatus
         {

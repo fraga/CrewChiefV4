@@ -15,6 +15,7 @@ using NAudio.CoreAudioApi;
 using CrewChiefV4.Overlay;
 using System.IO;
 using WindowsInput;
+using CrewChiefV4.ACC;
 
 namespace CrewChiefV4
 {
@@ -260,6 +261,7 @@ namespace CrewChiefV4
         public static String[] PIT_STOP_CLEAR_FAST_REPAIR = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CLEAR_FAST_REPAIR");
         public static String[] PIT_STOP_CLEAR_FUEL = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CLEAR_FUEL");
 
+        public static String[] PIT_STOP_CHANGE_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CHANGE_TYRES");  // for ACC
         public static String[] PIT_STOP_CHANGE_ALL_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CHANGE_ALL_TYRES");
         public static String[] PIT_STOP_CHANGE_FRONT_LEFT_TYRE = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CHANGE_FRONT_LEFT_TYRE");
         public static String[] PIT_STOP_CHANGE_FRONT_RIGHT_TYRE = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CHANGE_FRONT_RIGHT_TYRE");
@@ -299,6 +301,7 @@ namespace CrewChiefV4
         public static String[] PIT_STOP_HARD_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_HARD_TYRES");
         public static String[] PIT_STOP_INTERMEDIATE_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_INTERMEDIATE_TYRES");
         public static String[] PIT_STOP_WET_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_WET_TYRES");
+        public static String[] PIT_STOP_DRY_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_DRY_TYRES");
         public static String[] PIT_STOP_MONSOON_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_MONSOON_TYRES");
         public static String[] PIT_STOP_OPTION_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_OPTION_TYRES");
         public static String[] PIT_STOP_PRIME_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_PRIME_TYRES");
@@ -575,6 +578,7 @@ namespace CrewChiefV4
         private List<GrammarWrapper> opponentGrammarList = new List<GrammarWrapper>();
         private List<GrammarWrapper> iracingPitstopGrammarList = new List<GrammarWrapper>();
         private List<GrammarWrapper> r3ePitstopGrammarList = new List<GrammarWrapper>();
+        private List<GrammarWrapper> accPitstopGrammarList = new List<GrammarWrapper>();
         private List<GrammarWrapper> pitManagerGrammarList = new List<GrammarWrapper>();
         private List<GrammarWrapper> overlayGrammarList = new List<GrammarWrapper>();
         private List<GrammarWrapper> rallyGrammarList = new List<GrammarWrapper>();
@@ -1272,6 +1276,7 @@ namespace CrewChiefV4
                 sreWrapper.UnloadAllGrammars();
                 iracingPitstopGrammarList.Clear();
                 r3ePitstopGrammarList.Clear();
+                accPitstopGrammarList.Clear();
                 rallyGrammarList.Clear();
                 pitManagerGrammarList.Clear();
                 overlayGrammarList.Clear();
@@ -1431,6 +1436,9 @@ namespace CrewChiefV4
                     break;
                 case GameEnum.RF2_64BIT:
                     addPitManagerSpeechRecogniser();
+                    break;
+                case GameEnum.ACC:
+                    addACCPitManagerSpeechRecogniser();
                     break;
                 default:
                     break;
@@ -2071,6 +2079,34 @@ namespace CrewChiefV4
             }
         }
 
+        private void addACCPitManagerSpeechRecogniser()
+        {
+            if (!initialised)
+            {
+                return;
+            }
+            try
+            {
+                ChoicesWrapper accChoices = SREWrapperFactory.createNewChoicesWrapper();
+                validateAndAdd(PIT_STOP_CHANGE_TYRES, accChoices);
+                validateAndAdd(PIT_STOP_CLEAR_TYRES, accChoices);
+                validateAndAdd(PIT_STOP_WET_TYRES, accChoices);
+                validateAndAdd(PIT_STOP_DRY_TYRES, accChoices);
+                validateAndAdd(PIT_STOP_DONT_REFUEL, accChoices);
+
+                GrammarBuilderWrapper accGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper(accChoices);
+                accGrammarBuilder.SetCulture(cultureInfo);
+                GrammarWrapper accGrammar = SREWrapperFactory.createNewGrammarWrapper(accGrammarBuilder);
+                accPitstopGrammarList.Add(accGrammar);
+                sreWrapper.LoadGrammar(accGrammar);
+                
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Unable to add ACC pit stop commands to speech recognition engine - " + e.Message);
+            }
+        }
+
         private void addiRacingSpeechRecogniser()
         {
             if (!initialised)
@@ -2662,6 +2698,11 @@ namespace CrewChiefV4
                         {
                             this.lastRecognisedText = recognisedText;
                             R3EPitMenuManager.processVoiceCommand(recognisedText, crewChief.audioPlayer);
+                        }
+                        else if (GrammarWrapperListContains(accPitstopGrammarList, recognitionGrammar))
+                        {
+                            this.lastRecognisedText = recognisedText;
+                            ACCPitMenuManager.processVoiceCommand(recognisedText, crewChief.audioPlayer);
                         }
                         else if (GrammarWrapperListContains(pitManagerGrammarList, recognitionGrammar))
                         {

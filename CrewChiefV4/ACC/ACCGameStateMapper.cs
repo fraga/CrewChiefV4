@@ -1222,6 +1222,7 @@ namespace CrewChiefV4.ACC
             currentGameState.TyreData.RightFrontBrakeTemp = shared.accPhysics.brakeTemp[1];
             currentGameState.TyreData.LeftRearBrakeTemp = shared.accPhysics.brakeTemp[2];
             currentGameState.TyreData.RightRearBrakeTemp = shared.accPhysics.brakeTemp[3];
+            currentGameState.TyreData.selectedSet = shared.accGraphic.mfdTyreSet;
 
             String currentTyreCompound = shared.accGraphic.tyreCompound;
 
