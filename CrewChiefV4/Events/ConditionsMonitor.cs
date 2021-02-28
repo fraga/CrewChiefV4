@@ -86,8 +86,7 @@ namespace CrewChiefV4.Events
         private Boolean useFahrenheit = UserSettings.GetUserSettings().getBoolean("use_fahrenheit");
 
         // ACC forecast messages
-        // TODO: record these
-        private string folderExpectNoRain = "conditions/we_expect_no_rain_in_the_next";
+        private string folderExpectNoRain = "conditions/we_expect_rain_to_stop_in_the_next";
         private string folderExpectDrizzle = "conditions/we_expect_drizzle_in_the_next";
         private string folderExpectLightRain = "conditions/we_expect_light_rain_in_the_next";
         private string folderExpectMediumRain = "conditions/we_expect_medium_rain_in_the_next";

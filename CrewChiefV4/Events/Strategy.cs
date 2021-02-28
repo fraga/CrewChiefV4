@@ -59,7 +59,8 @@ namespace CrewChiefV4.Events
         public static String folderHeWillComeOutJustInFront = "strategy/he_will_come_out_just_in_front";
         public static String folderHeWillComeOutJustBehind = "strategy/he_will_come_out_just_behind";
 
-
+        // TODO: record this and wire it up - maybe trigger it as part of the session end message after Q
+        public static string folderWeAreSharingOurPitboxWith = "strategy/we_are_sharing_our_pit_box_with";
         // may be timed during practice.
         // Need to be careful here to ensure this is applicable to the session we've actually entered
         private float playerTimeLostForStop = -1;

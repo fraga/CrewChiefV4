@@ -12,7 +12,6 @@ namespace CrewChiefV4.Events
     {
         private static String folderCelsius = "conditions/celsius";
         private static String folderFahrenheit = "conditions/fahrenheit";
-        // TODO: record these
         private static String folderPSI = "tyre_monitor/psi";
         private static String folderBar = "tyre_monitor/bar";   // if people grumble about this, 1bar = 100kPa
         private Boolean useFahrenheit = UserSettings.GetUserSettings().getBoolean("use_fahrenheit");
