@@ -60,7 +60,7 @@ namespace CrewChiefV4.GameState
     public enum FlagEnum
     {
         // note that chequered isn't used at the moment
-        GREEN, YELLOW, DOUBLE_YELLOW, BLUE, WHITE, BLACK, CHEQUERED, UNKNOWN
+        GREEN, YELLOW, DOUBLE_YELLOW, BLUE, WHITE, BLACK, CHEQUERED, UNKNOWN, RED /* red not used yet*/
     }
 
     public enum FullCourseYellowPhase
@@ -2925,6 +2925,7 @@ namespace CrewChiefV4.GameState
         public float RearLeftPercentWear;
         public float RearRightPercentWear;
 
+        // note these are expected to be in kPa
         public Single FrontLeftPressure;
         public Single FrontRightPressure;
         public Single RearLeftPressure;
@@ -2998,6 +2999,11 @@ namespace CrewChiefV4.GameState
 
     public class Conditions
     {
+        // set by ACC only:
+        public ConditionsMonitor.RainLevel rainLevelNow = ConditionsMonitor.RainLevel.NONE;
+        public ConditionsMonitor.RainLevel rainLevelIn10Mins = ConditionsMonitor.RainLevel.NONE;
+        public ConditionsMonitor.RainLevel rainLevelIn30Mins = ConditionsMonitor.RainLevel.NONE;
+
         private List<ConditionsSample> _samples;
         public List<ConditionsSample> samples
         {

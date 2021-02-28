@@ -45,6 +45,7 @@ HOWS_MY_PACE = how's my pace
 HOWS_MY_SELF_PACE = how's my self gap:how's my personal pace:how's my delta best
 HOW_ARE_MY_TYRE_TEMPS = how are my tire temps:how are my tire temperatures
 WHAT_ARE_MY_TYRE_TEMPS = what are my tire temps:what are my tire temperatures:tire temps:tire temperatures
+WHAT_ARE_MY_TYRE_PRESSURES = what are my tire pressures:tire pressures
 HOW_ARE_MY_BRAKE_TEMPS = how are my brake temps:how are my brake temperatures
 WHAT_ARE_MY_BRAKE_TEMPS = what are my brake temps:what are my brake temperatures:brake temps:brake temperatures
 HOW_ARE_MY_ENGINE_TEMPS = how are my engine temps:how are my engine temperatures

@@ -630,10 +630,18 @@ namespace CrewChiefV4.Events
                                 {
                                     bestLastAndFirstSectorTime = entry.Value.bestSector2Time + entry.Value.bestSector1Time;
                                 }
-                                
+
                                 // note that these are zero-indexed - we want the game time at the end of sector2 on the previous lap and s1 on this lap
-                                float lastLapPenultimateSectorEndTime = entry.Value.getLastLapData().GameTimeAtSectorEnd[sectorCount == 3 ? 1 : 0];
-                                float thisLapS1EndTime = entry.Value.getCurrentLapData().GameTimeAtSectorEnd[0];
+                                float lastLapPenultimateSectorEndTime = -1;
+                                float thisLapS1EndTime = -1;
+                                if (entry.Value.getLastLapData() != null)
+                                {
+                                    lastLapPenultimateSectorEndTime = entry.Value.getLastLapData().GameTimeAtSectorEnd[sectorCount == 3 ? 1 : 0];
+                                }
+                                if (entry.Value.getCurrentLapData() != null)
+                                {
+                                    thisLapS1EndTime = entry.Value.getCurrentLapData().GameTimeAtSectorEnd[0];
+                                }
                                 // only insert data here if we have sane times
                                 if (lastLapPenultimateSectorEndTime > 0 && thisLapS1EndTime > 0)
                                 {
