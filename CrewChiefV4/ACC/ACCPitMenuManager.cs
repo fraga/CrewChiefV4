@@ -17,7 +17,7 @@ namespace CrewChiefV4.ACC
         private static VirtualKeyCode pitMenuKey = VirtualKeyCode.VK_P;
         private static VirtualKeyCode standingsMenuKey = VirtualKeyCode.VK_U;
 
-        public void processVoiceCommand(string recognisedText, AudioPlayer audioPlayer)
+        public static void processVoiceCommand(string recognisedText, AudioPlayer audioPlayer)
         {
             if (SpeechRecogniser.ResultContains(recognisedText, SpeechRecogniser.PIT_STOP_CHANGE_TYRES) || SpeechRecogniser.ResultContains(recognisedText, SpeechRecogniser.PIT_STOP_DRY_TYRES))
             {
