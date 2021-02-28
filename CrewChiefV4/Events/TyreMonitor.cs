@@ -1439,7 +1439,7 @@ namespace CrewChiefV4.Events
             {
                 audioPlayer.playMessageImmediately(new QueuedMessage("tyre_pressures", 0,
                     messageFragments: MessageContents(folderLeftFront, convertPressure(leftFrontTyrePressure, 1), folderRightFront, convertPressure(rightFrontTyrePressure, 1),
-                                                       folderLeftRear, convertPressure(leftRearTyrePressure, 1), folderRightRear, convertPressure(rightRearTyrePressure, 1), getTempUnit())));
+                                                       folderLeftRear, convertPressure(leftRearTyrePressure, 1), folderRightRear, convertPressure(rightRearTyrePressure, 1), getPressureUnit())));
             }
         }
 

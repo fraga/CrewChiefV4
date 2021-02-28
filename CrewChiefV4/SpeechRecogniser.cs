@@ -3172,7 +3172,7 @@ namespace CrewChiefV4
                 return CrewChief.getEvent("LapTimes");
             }
             else if (ResultContains(recognisedSpeech, WHAT_ARE_MY_TYRE_TEMPS, false) ||
-                ResultContains(recognisedSpeech, HOW_ARE_MY_TYRE_PRESSURES, false) ||
+                ResultContains(recognisedSpeech, WHAT_ARE_MY_TYRE_PRESSURES, false) ||
                 ResultContains(recognisedSpeech, HOW_ARE_MY_TYRE_TEMPS, false) ||
                 ResultContains(recognisedSpeech, HOWS_MY_TYRE_WEAR, false) ||
                 ResultContains(recognisedSpeech, HOW_ARE_MY_BRAKE_TEMPS, false) ||
