@@ -62,7 +62,7 @@ namespace CrewChiefV4
         private const int IRACING_INTERVAL = 16;               // always use 60Hz for iracing
         private const int DEFAULT_START_LIGHTS_INTERVAL = 10;  // default 10ms during race countdown
         private static int startLightsInterval;
-        private static int timeInterval;
+        public static int timeInterval;
 
         private static int spotterInterval;
 

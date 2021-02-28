@@ -680,8 +680,7 @@
 					"gameDefinition": "ACC",
 					"actionSequence": [
 						"UP"
-					],
-					"waitBetweenEachCommand": 100
+					]
 				}
 			]
 		},
@@ -721,8 +720,7 @@
 					"gameDefinition": "ACC",
 					"actionSequence": [
 						"DOWN"
-					],
-					"waitBetweenEachCommand": 100
+					]
 				}
 			]
 		},
@@ -762,8 +760,7 @@
 					"gameDefinition": "ACC",
 					"actionSequence": [
 						"LEFT"
-					],
-					"waitBetweenEachCommand": 100
+					]
 				}
 			]
 		},
@@ -803,8 +800,39 @@
 					"gameDefinition": "ACC",
 					"actionSequence": [
 						"RIGHT"
-					],
-					"waitBetweenEachCommand": 100
+					]
+				}
+			]
+		},
+		{
+			"name": "show acc pit menu",
+			"description": "press the key to open the ACC pit menu. Note this isn't a toggle",
+			"voiceTriggers": [
+				"show pit menu"
+			],
+			"commandSets": [
+				{
+					"description": "ACC version",
+					"gameDefinition": "ACC",
+					"actionSequence": [
+						"KEY_P"
+					]
+				}
+			]
+		},
+		{
+			"name": "show acc standings menu",
+			"description": "press the key to open the ACC standings screen. Note this isn't a toggle",
+			"voiceTriggers": [
+				"show standings"
+			],
+			"commandSets": [
+				{
+					"description": "ACC version",
+					"gameDefinition": "ACC",
+					"actionSequence": [
+						"KEY_U"
+					]
 				}
 			]
 		},
