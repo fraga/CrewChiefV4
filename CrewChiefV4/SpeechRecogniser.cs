@@ -794,7 +794,6 @@ namespace CrewChiefV4
             return dict;
         }
 
-
         private static Dictionary<String[], string> getCarNumberMappings()
         {
             Dictionary<String[], string> dict = new Dictionary<string[], string>();
@@ -2103,51 +2102,66 @@ namespace CrewChiefV4
                 validateAndAdd(PIT_STOP_WET_TYRES, accChoices);
                 validateAndAdd(PIT_STOP_DRY_TYRES, accChoices);
                 validateAndAdd(PIT_STOP_DONT_REFUEL, accChoices);
-
-                // tyre pressures - TODO, transform into proper 'choices'
-                /*
-                for (int i=15; i<40; i++)
-                {
-                    for (int j = 0; j < 10; j++)
-                    {
-                        string pressureString = " " + Configuration.getSpeechRecognitionPhrases(i.ToString())[0] + " " + POINT[0] + " " + Configuration.getSpeechRecognitionPhrases(j.ToString())[0];
-                        foreach (string intro in PIT_STOP_CHANGE_ALL_PRESSURES)
-                        {
-                            validateAndAdd(intro + pressureString, accChoices);
-                        }
-                        foreach (string intro in PIT_STOP_CHANGE_FRONT_PRESSURES)
-                        {
-                            validateAndAdd(intro + pressureString, accChoices);
-                        }
-                        foreach (string intro in PIT_STOP_CHANGE_REAR_PRESSURES)
-                        {
-                            validateAndAdd(intro + pressureString, accChoices);
-                        }
-                        foreach (string intro in PIT_STOP_CHANGE_LEFT_FRONT_PRESSURE)
-                        {
-                            validateAndAdd(intro + pressureString, accChoices);
-                        }
-                        foreach (string intro in PIT_STOP_CHANGE_RIGHT_FRONT_PRESSURE)
-                        {
-                            validateAndAdd(intro + pressureString, accChoices);
-                        }
-                        foreach (string intro in PIT_STOP_CHANGE_LEFT_REAR_PRESSURE)
-                        {
-                            validateAndAdd(intro + pressureString, accChoices);
-                        }
-                        foreach (string intro in PIT_STOP_CHANGE_RIGHT_REAR_PRESSURE)
-                        {
-                            validateAndAdd(intro + pressureString, accChoices);
-                        }                        
-                    }
-                }*/
-
                 GrammarBuilderWrapper accGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper(accChoices);
                 accGrammarBuilder.SetCulture(cultureInfo);
                 GrammarWrapper accGrammar = SREWrapperFactory.createNewGrammarWrapper(accGrammarBuilder);
                 accPitstopGrammarList.Add(accGrammar);
                 sreWrapper.LoadGrammar(accGrammar);
-                
+
+                // now complex grammar for pit stop tyre pressure changes
+                ChoicesWrapper pressureIntroChoicesWrapper = SREWrapperFactory.createNewChoicesWrapper();
+                ChoicesWrapper pressureIntAmountChoicesWrapper = SREWrapperFactory.createNewChoicesWrapper();
+                ChoicesWrapper pressureFractionAmountChoicesWrapper = SREWrapperFactory.createNewChoicesWrapper();
+                foreach (string intro in PIT_STOP_CHANGE_ALL_PRESSURES)
+                {
+                    validateAndAdd(intro, pressureIntroChoicesWrapper);
+                }
+                foreach (string intro in PIT_STOP_CHANGE_FRONT_PRESSURES)
+                {
+                    validateAndAdd(intro, pressureIntroChoicesWrapper);
+                }
+                foreach (string intro in PIT_STOP_CHANGE_REAR_PRESSURES)
+                {
+                    validateAndAdd(intro, pressureIntroChoicesWrapper);
+                }
+                foreach (string intro in PIT_STOP_CHANGE_LEFT_FRONT_PRESSURE)
+                {
+                    validateAndAdd(intro, pressureIntroChoicesWrapper);
+                }
+                foreach (string intro in PIT_STOP_CHANGE_RIGHT_FRONT_PRESSURE)
+                {
+                    validateAndAdd(intro, pressureIntroChoicesWrapper);
+                }
+                foreach (string intro in PIT_STOP_CHANGE_LEFT_REAR_PRESSURE)
+                {
+                    validateAndAdd(intro, pressureIntroChoicesWrapper);
+                }
+                foreach (string intro in PIT_STOP_CHANGE_RIGHT_REAR_PRESSURE)
+                {
+                    validateAndAdd(intro, pressureIntroChoicesWrapper);
+                }
+                foreach (KeyValuePair<String[], int> numberEntry in numberToNumber)
+                {
+                    if (numberEntry.Value >= 15 && numberEntry.Value <= 40)
+                    {
+                        validateAndAdd(numberEntry.Key[0], pressureIntAmountChoicesWrapper);
+                    }
+                    else if (numberEntry.Value >= 0 && numberEntry.Value <= 9)
+                    {
+                        validateAndAdd(POINT[0] + " " + numberEntry.Key[0], pressureFractionAmountChoicesWrapper);
+                    }
+                }
+                //  note that 24.0 should be "twenty four", there's no "point zero" in the grammar
+
+                // now assemble the choices
+                GrammarBuilderWrapper pressureChangeGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper();
+                pressureChangeGrammarBuilder.SetCulture(cultureInfo);
+                pressureChangeGrammarBuilder.Append(pressureIntroChoicesWrapper, 1, 1);
+                pressureChangeGrammarBuilder.Append(pressureIntAmountChoicesWrapper, 1, 1);
+                pressureChangeGrammarBuilder.Append(pressureFractionAmountChoicesWrapper, 0, 1);    // optional fractional part
+                GrammarWrapper pressureChangeGrammar = SREWrapperFactory.createNewGrammarWrapper(pressureChangeGrammarBuilder);
+                accPitstopGrammarList.Add(pressureChangeGrammar);
+                sreWrapper.LoadGrammar(pressureChangeGrammar);
             }
             catch (Exception e)
             {

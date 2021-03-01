@@ -349,14 +349,16 @@ PIT_STOP_ULTRASOFT_TYRES = pitstop ultra soft tires:box, ultra soft tires
 PIT_STOP_HYPERSOFT_TYRES = pitstop hyper soft tires:box, hyper soft tires
 PIT_STOP_PRIME_TYRES = pitstop prime tires:box, prime tires:pitstop primary tires:box, primary tyres
 PIT_STOP_OPTION_TYRES = pitstop option tires:box, option tires
+
+// ACC specific pit commands
 PIT_STOP_ALTERNATE_TYRES = pitstop alternate tyres:box, alternate tires
-PIT_STOP_CHANGE_ALL_PRESSURES = pitstop change all tire pressures to
-PIT_STOP_CHANGE_FRONT_PRESSURES = pitstop change front tire pressures to
-PIT_STOP_CHANGE_REAR_PRESSURES = pitstop change all rear pressures to
-PIT_STOP_CHANGE_LEFT_FRONT_PRESSURE = pitstop change left front tire pressure to
-PIT_STOP_CHANGE_RIGHT_FRONT_PRESSURE = pitstop change right front tire pressure to
-PIT_STOP_CHANGE_LEFT_REAR_PRESSURE = pitstop change left rear tire pressure to
-PIT_STOP_CHANGE_RIGHT_REAR_PRESSUREpitstop change right rear tire pressure to
+PIT_STOP_CHANGE_ALL_PRESSURES = pitstop change all pressures:box change all pressures
+PIT_STOP_CHANGE_FRONT_PRESSURES = pitstop change front pressures:box change front pressures
+PIT_STOP_CHANGE_REAR_PRESSURES = pitstop change rear pressures:box change rear pressures
+PIT_STOP_CHANGE_LEFT_FRONT_PRESSURE = pitstop change left front pressure:box change left front pressure
+PIT_STOP_CHANGE_RIGHT_FRONT_PRESSURE = pitstop change right front pressure:boc change right front pressure
+PIT_STOP_CHANGE_LEFT_REAR_PRESSURE = pitstop change left rear pressure:box change left rear pressure
+PIT_STOP_CHANGE_RIGHT_REAR_PRESSURE = pitstop change right rear pressure:box change right rear pressure
 
 // Pit Manager/rF2-specific pit commands
 PIT_STOP_FIX_ALL = pitstop fix all:box, fix all:pitstop repair all:box, repair all
