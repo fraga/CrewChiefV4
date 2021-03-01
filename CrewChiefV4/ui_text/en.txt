@@ -562,9 +562,6 @@ use_alternate_beeps_metadata = RESTART_REQUIRED
 use_fahrenheit = Use Fahrenheit for temps
 use_fahrenheit_category = INTERNATIONALISATION;FUEL_TEMPS_AND_DAMAGES
 
-use_psi = Use PSI for pressures
-use_psi_category = INTERNATIONALISATION;FUEL_TEMPS_AND_DAMAGES
-
 use_listen_beep = Use listen beep
 use_listen_beep_help = Play a beep when you press the 'talk to Crew Chief' button
 use_listen_beep_category = AUDIO_VOICE_AND_CONTROLLERS

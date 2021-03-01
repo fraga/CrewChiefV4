@@ -15,7 +15,7 @@ namespace CrewChiefV4.Events
         private static String folderPSI = "tyre_monitor/psi";
         private static String folderBar = "tyre_monitor/bar";   // if people grumble about this, 1bar = 100kPa
         private Boolean useFahrenheit = UserSettings.GetUserSettings().getBoolean("use_fahrenheit");
-        private Boolean usePSI = UserSettings.GetUserSettings().getBoolean("use_psi");
+        private Boolean usePSI = !UserSettings.GetUserSettings().getBoolean("use_metric");
 
         public enum SIMPLE_INCIDENT_DETECTION_SESSIONS { DISABLED, RACE_ONLY, ALL_SESSIONS };
         public static SIMPLE_INCIDENT_DETECTION_SESSIONS simpleIncidentDetectionSessions = SIMPLE_INCIDENT_DETECTION_SESSIONS.RACE_ONLY;

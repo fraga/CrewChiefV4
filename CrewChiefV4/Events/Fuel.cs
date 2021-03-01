@@ -899,68 +899,69 @@ namespace CrewChiefV4.Events
             if (fuelUseActive && averageUsagePerLap > 0)
             {
                 // round to 1dp
-                float meanUsePerLap = ((float)Math.Round(averageUsagePerLap * 10f)) / 10f;
-                if (meanUsePerLap == 0)
+                float roundedAverageUsePerLap;
+                if (fuelReportsInGallon)
                 {
-                    // rounded fuel use is < 0.1 litres per lap - can't really do anything with this.
+                    roundedAverageUsePerLap = ((float)Math.Round(convertLitersToGallons(averageUsagePerLap, false) * 10f)) / 10f;
+                }
+                else
+                {
+                    roundedAverageUsePerLap = ((float)Math.Round(averageUsagePerLap * 10f)) / 10f;
+                }
+                if (roundedAverageUsePerLap <= 0)
+                {
+                    // rounded fuel use is < 0.1 litres or gallons per lap - can't really do anything with this.
                     return false;
                 }
-                if(fuelReportsInGallon)
-                {
-                    meanUsePerLap = convertLitersToGallons(averageUsagePerLap, true);
-                }
-                Tuple<int, int> wholeandfractional = Utilities.WholeAndFractionalPart(meanUsePerLap);
+                Tuple<int, int> wholeandfractional = Utilities.WholeAndFractionalPart(roundedAverageUsePerLap);
                 QueuedMessage queuedMessage = null;
-                if (meanUsePerLap > 0)
+                haveData = true;
+
+                if (wholeandfractional.Item2 > 0)
                 {
-                    haveData = true;
-
-                    if (wholeandfractional.Item2 > 0)
+                    if (fuelReportsInGallon)
                     {
-                        if (fuelReportsInGallon)
-                        {
-                            queuedMessage = new QueuedMessage("Fuel/mean_use_per_lap", 0,
-                                    messageFragments: MessageContents(wholeandfractional.Item1, NumberReader.folderPoint, wholeandfractional.Item2, folderGallonsPerLap));
+                        queuedMessage = new QueuedMessage("Fuel/mean_use_per_lap", 0,
+                                messageFragments: MessageContents(wholeandfractional.Item1, NumberReader.folderPoint, wholeandfractional.Item2, folderGallonsPerLap));
 
-                            if (!individualResponse)
-                            {
-                                messageFragments.AddRange(MessageContents(wholeandfractional.Item1, NumberReader.folderPoint, wholeandfractional.Item2, folderGallonsPerLap));
-                            }
-                        }
-                        else
+                        if (!individualResponse)
                         {
-                            queuedMessage = new QueuedMessage("Fuel/mean_use_per_lap", 0,
-                                    messageFragments: MessageContents(wholeandfractional.Item1, NumberReader.folderPoint, wholeandfractional.Item2, folderLitresPerLap));
-
-                            if (!individualResponse)
-                            {
-                                messageFragments.AddRange(MessageContents(wholeandfractional.Item1, NumberReader.folderPoint, wholeandfractional.Item2, folderLitresPerLap));
-                            }
+                            messageFragments.AddRange(MessageContents(wholeandfractional.Item1, NumberReader.folderPoint, wholeandfractional.Item2, folderGallonsPerLap));
                         }
                     }
                     else
                     {
-                        if (fuelReportsInGallon)
-                        {
-                            queuedMessage = new QueuedMessage("Fuel/mean_use_per_lap", 0,
-                                    messageFragments: MessageContents(wholeandfractional.Item1, folderGallonsPerLap));
+                        queuedMessage = new QueuedMessage("Fuel/mean_use_per_lap", 0,
+                                messageFragments: MessageContents(wholeandfractional.Item1, NumberReader.folderPoint, wholeandfractional.Item2, folderLitresPerLap));
 
-                            if (!individualResponse)
-                            {
-                                messageFragments.AddRange(MessageContents(wholeandfractional.Item1, folderGallonsPerLap));
-                            }
-                        }
-                        else
+                        if (!individualResponse)
                         {
-                            queuedMessage = new QueuedMessage("Fuel/mean_use_per_lap", 0,
-                                    messageFragments: MessageContents(wholeandfractional.Item1, folderLitresPerLap));
-
-                            if (!individualResponse)
-                            {
-                                messageFragments.AddRange(MessageContents(wholeandfractional.Item1, folderLitresPerLap));
-                            }
+                            messageFragments.AddRange(MessageContents(wholeandfractional.Item1, NumberReader.folderPoint, wholeandfractional.Item2, folderLitresPerLap));
                         }
                     }
+                }
+                else
+                {
+                    if (fuelReportsInGallon)
+                    {
+                        queuedMessage = new QueuedMessage("Fuel/mean_use_per_lap", 0,
+                                messageFragments: MessageContents(wholeandfractional.Item1, folderGallonsPerLap));
+
+                        if (!individualResponse)
+                        {
+                            messageFragments.AddRange(MessageContents(wholeandfractional.Item1, folderGallonsPerLap));
+                        }
+                    }
+                    else
+                    {
+                        queuedMessage = new QueuedMessage("Fuel/mean_use_per_lap", 0,
+                                messageFragments: MessageContents(wholeandfractional.Item1, folderLitresPerLap));
+
+                        if (!individualResponse)
+                        {
+                            messageFragments.AddRange(MessageContents(wholeandfractional.Item1, folderLitresPerLap));
+                        }
+                    }                    
                 }
 
                 Debug.Assert(queuedMessage != null);
@@ -1414,6 +1415,7 @@ namespace CrewChiefV4.Events
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
                 }
+                // TODO: report this in gallons for the metrically challenged users
                 else if (currentFuel >= 2)
                 {
                     queuedMessage = new QueuedMessage("Fuel/level", 0, messageFragments: MessageContents((int)currentFuel, folderLitresRemaining));

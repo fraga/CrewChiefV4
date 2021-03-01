@@ -5290,17 +5290,5 @@ namespace CrewChiefV4.Properties {
                 this["use_legacy_key_presser"] = value;
             }
         }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool use_psi {
-            get {
-                return ((bool)(this["use_psi"]));
-            }
-            set {
-                this["use_psi"] = value;
-            }
-        }
     }
 }

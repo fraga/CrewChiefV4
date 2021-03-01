@@ -77,7 +77,7 @@ namespace CrewChiefV4.ACC
             }
         }
 
-        public static void mashKeysToPutPitMenuInKnownState()
+        private static void mashKeysToPutPitMenuInKnownState()
         {
             if (CrewChief.currentGameState == null)
             {
@@ -103,7 +103,7 @@ namespace CrewChiefV4.ACC
             if (currentSelectedTyreSet != CrewChief.currentGameState.TyreData.selectedSet)
             {
                 gotMenuInKnownState = true;
-                // yay, we know where we are - put the tyre set back to where it was
+                // yay, we know where we are - put the tyre set back to where it was at the end of the block
             }
             else
             {
@@ -122,6 +122,7 @@ namespace CrewChiefV4.ACC
                 if (currentSelectedTyreSet != CrewChief.currentGameState.TyreData.selectedSet)
                 {
                     gotMenuInKnownState = true;
+                    // yay, we know where we are - put the tyre set back to where it was at the end of the block
                 }
                 else
                 {
@@ -136,12 +137,13 @@ namespace CrewChiefV4.ACC
                     if (currentSelectedTyreSet != CrewChief.currentGameState.TyreData.selectedSet)
                     {
                         gotMenuInKnownState = true;
-                        // ok, we now have a tyre set change. Don't reinstate wets - we want the menu in a known state
+                        // Don't reinstate wets - we want the menu in a known state
                     }
                 }
             }
             if (gotMenuInKnownState)
             {
+                // put the tyre set back to where it was
                 sendKeyPressOrMacro(getMenuLeftMacro(), leftKey);
                 // now exit and re-enter the pit menu to put the cursor back to the top
                 sendKeyPressOrMacro(getStandingsMenuMacro(), standingsMenuKey);
@@ -158,12 +160,13 @@ namespace CrewChiefV4.ACC
             }
             else
             {
+                // we didn't find a required key press macro so just press the most likely key anyway
                 KeyPresser.SendKeyPress(new Tuple<VirtualKeyCode?, VirtualKeyCode>(null, fallbackKeyCode));
             }
             Thread.Sleep(10);
         }
 
-        public static void selectWets()
+        private static void selectWets()
         {
             mashKeysToPutPitMenuInKnownState();
             sendKeyPressOrMacro(getMenuDownMacro(), downKey);
@@ -174,13 +177,13 @@ namespace CrewChiefV4.ACC
             sendKeyPressOrMacro(getMenuRightMacro(), rightKey);
         }
 
-        public static void selectDrys()
+        private static void selectDrys()
         {
             mashKeysToPutPitMenuInKnownState();
             sendKeyPressOrMacro(getPitMenuMacro(), pitMenuKey);
         }
 
-        public static void dontChangeTyres()
+        private static void dontChangeTyres()
         {
             mashKeysToPutPitMenuInKnownState();
             sendKeyPressOrMacro(getMenuDownMacro(), downKey);
@@ -189,7 +192,7 @@ namespace CrewChiefV4.ACC
             sendKeyPressOrMacro(getMenuRightMacro(), rightKey);
         }
 
-        public static void addFuel(int litres)
+        private static void addFuel(int litres)
         {
             clearFuel();
             for (int i = 0; i < litres; i++)
@@ -198,7 +201,7 @@ namespace CrewChiefV4.ACC
             }
         }
 
-        public static void clearFuel()
+        private static void clearFuel()
         {
             mashKeysToPutPitMenuInKnownState();
             sendKeyPressOrMacro(getMenuDownMacro(), downKey);
@@ -210,7 +213,7 @@ namespace CrewChiefV4.ACC
             }
         }
 
-        public static void increaseAllPressuresTo(float targetPressure)
+        private static void increaseAllPressuresTo(float targetPressure)
         {
             // TODO: map MFD tyre pressures and work out the correct number of button presses
         }
