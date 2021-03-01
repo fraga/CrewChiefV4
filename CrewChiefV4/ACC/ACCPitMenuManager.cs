@@ -89,7 +89,7 @@ namespace CrewChiefV4.ACC
             // mash keys until this changes
             bool gotMenuInKnownState = false;
             // go to the pit menu to put the cursor at the top
-            sendKeyPressOrMacro(getPitMenuMacro(), pitMenuKey);
+            moveCursorToTopOfPitMenu();
 
             // now go down 4 times and press right. If change tyres is selected this will change the selected tyre set
             sendKeyPressOrMacro(getMenuDownMacro(), downKey);
@@ -155,9 +155,7 @@ namespace CrewChiefV4.ACC
                 // put the tyre set back to where it was
                 sendKeyPressOrMacro(getMenuLeftMacro(), leftKey);
                 // put the cursor back to the top
-                sendKeyPressOrMacro(getPitMenuMacro(), pitMenuKey);
-                // additional pause - sometimes this specific key is ignored
-                Thread.Sleep(100);
+                moveCursorToTopOfPitMenu();
             }
         }
 
@@ -173,7 +171,14 @@ namespace CrewChiefV4.ACC
                 // we didn't find a required key press macro so just press the most likely key anyway
                 KeyPresser.SendKeyPress(new Tuple<VirtualKeyCode?, VirtualKeyCode>(null, fallbackKeyCode), 100);
             }
-            Thread.Sleep(200);
+            Thread.Sleep(100);
+        }
+
+        private static void moveCursorToTopOfPitMenu()
+        {
+            sendKeyPressOrMacro(getPitMenuMacro(), pitMenuKey);
+            // additional pause - sometimes this specific key is ignored or it takes a while to complete the action
+            Thread.Sleep(100);
         }
 
         private static void selectWets()
@@ -200,7 +205,6 @@ namespace CrewChiefV4.ACC
                 return;
             }
             mashKeysToPutPitMenuInKnownState();
-            sendKeyPressOrMacro(getPitMenuMacro(), pitMenuKey);
         }
 
         private static void dontChangeTyres()
@@ -217,20 +221,6 @@ namespace CrewChiefV4.ACC
             sendKeyPressOrMacro(getMenuRightMacro(), rightKey);
         }
 
-        private static void addFuel(int litres)
-        {
-            if (CrewChief.currentGameState == null)
-            {
-                // meh
-                return;
-            }
-            clearFuel();
-            for (int i = 0; i < litres; i++)
-            {
-                sendKeyPressOrMacro(getMenuRightMacro(), rightKey);
-            }
-        }
-
         private static void clearFuel()
         {
             if (CrewChief.currentGameState == null)
@@ -238,7 +228,7 @@ namespace CrewChiefV4.ACC
                 // meh
                 return;
             }
-            mashKeysToPutPitMenuInKnownState();
+            moveCursorToTopOfPitMenu();
             sendKeyPressOrMacro(getMenuDownMacro(), downKey);
             sendKeyPressOrMacro(getMenuDownMacro(), downKey);
             sendKeyPressOrMacro(getMenuRightMacro(), rightKey);
