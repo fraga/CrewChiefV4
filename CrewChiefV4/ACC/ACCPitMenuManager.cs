@@ -88,8 +88,7 @@ namespace CrewChiefV4.ACC
             int currentSelectedTyreSet = CrewChief.currentGameState.TyreData.selectedSet;
             // mash keys until this changes
             bool gotMenuInKnownState = false;
-            // go to a random non-pit menu, then to the pit menu to put the cursor at the top
-            sendKeyPressOrMacro(getStandingsMenuMacro(), standingsMenuKey);
+            // go to the pit menu to put the cursor at the top
             sendKeyPressOrMacro(getPitMenuMacro(), pitMenuKey);
 
             // now go down 4 times and press right. If change tyres is selected this will change the selected tyre set
@@ -103,7 +102,7 @@ namespace CrewChiefV4.ACC
             if (currentSelectedTyreSet != CrewChief.currentGameState.TyreData.selectedSet)
             {
                 gotMenuInKnownState = true;
-                // yay, we know where we are - put the tyre set back to where it was at the end of the block
+                // yay, we know where we are
             }
             else
             {
@@ -111,33 +110,43 @@ namespace CrewChiefV4.ACC
                 // selected 'change brakes', or we do have change-tyres selected and we're on the tyre set option
                 // but the game's ignoring us
 
-                // assume the first, unselect change brakes
+                // on the happy path, we either changed the brakes checkbox or the tyre type. A left press will either
+                // reset the brake option or select dry tyres
                 sendKeyPressOrMacro(getMenuLeftMacro(), leftKey);
+
+                // now go up - we'll either be on tyre set or change tyres
                 sendKeyPressOrMacro(getMenuUpMacro(), upKey);
                 sendKeyPressOrMacro(getMenuRightMacro(), rightKey);
-                sendKeyPressOrMacro(getMenuDownMacro(), downKey);
-                sendKeyPressOrMacro(getMenuRightMacro(), rightKey);
-                // now wait a moment to ensure we have a new game update
+                // now see if that change tyres
                 Thread.Sleep(CrewChief.timeInterval * 2);
                 if (currentSelectedTyreSet != CrewChief.currentGameState.TyreData.selectedSet)
                 {
                     gotMenuInKnownState = true;
-                    // yay, we know where we are - put the tyre set back to where it was at the end of the block
+                    // yay, we know where we are
                 }
                 else
                 {
-                    // ok, so now we have enabled tyre change but the cursor skips the tyre set because we have
-                    // wets selected. Select drys and try to change the tyre set again
-                    sendKeyPressOrMacro(getMenuUpMacro(), upKey);
-                    sendKeyPressOrMacro(getMenuLeftMacro(), leftKey);
+                    // this last press must have enabled tyre change. We're on drys at this point so down-and-right must be what we want
                     sendKeyPressOrMacro(getMenuDownMacro(), downKey);
                     sendKeyPressOrMacro(getMenuRightMacro(), rightKey);
                     Thread.Sleep(CrewChief.timeInterval * 2);
-                    // now wait a moment to ensure we have a new game update
                     if (currentSelectedTyreSet != CrewChief.currentGameState.TyreData.selectedSet)
                     {
                         gotMenuInKnownState = true;
-                        // Don't reinstate wets - we want the menu in a known state
+                        // yay, we know where we are
+                    }
+                    else
+                    {
+                        // one more possibility, we're now on the tyre type option with wets selected - change to dry and try again
+                        sendKeyPressOrMacro(getMenuLeftMacro(), leftKey);
+                        sendKeyPressOrMacro(getMenuUpMacro(), upKey);
+                        sendKeyPressOrMacro(getMenuRightMacro(), rightKey);
+                        Thread.Sleep(CrewChief.timeInterval * 2);
+                        if (currentSelectedTyreSet != CrewChief.currentGameState.TyreData.selectedSet)
+                        {
+                            gotMenuInKnownState = true;
+                            // yay, we know where we are
+                        }
                     }
                 }
             }
@@ -145,9 +154,10 @@ namespace CrewChiefV4.ACC
             {
                 // put the tyre set back to where it was
                 sendKeyPressOrMacro(getMenuLeftMacro(), leftKey);
-                // now exit and re-enter the pit menu to put the cursor back to the top
-                sendKeyPressOrMacro(getStandingsMenuMacro(), standingsMenuKey);
+                // put the cursor back to the top
                 sendKeyPressOrMacro(getPitMenuMacro(), pitMenuKey);
+                // additional pause - sometimes this specific key is ignored
+                Thread.Sleep(100);
             }
         }
 
@@ -161,13 +171,18 @@ namespace CrewChiefV4.ACC
             else
             {
                 // we didn't find a required key press macro so just press the most likely key anyway
-                KeyPresser.SendKeyPress(new Tuple<VirtualKeyCode?, VirtualKeyCode>(null, fallbackKeyCode));
+                KeyPresser.SendKeyPress(new Tuple<VirtualKeyCode?, VirtualKeyCode>(null, fallbackKeyCode), 100);
             }
-            Thread.Sleep(10);
+            Thread.Sleep(200);
         }
 
         private static void selectWets()
         {
+            if (CrewChief.currentGameState == null)
+            {
+                // meh
+                return;
+            }
             mashKeysToPutPitMenuInKnownState();
             sendKeyPressOrMacro(getMenuDownMacro(), downKey);
             sendKeyPressOrMacro(getMenuDownMacro(), downKey);
@@ -179,12 +194,22 @@ namespace CrewChiefV4.ACC
 
         private static void selectDrys()
         {
+            if (CrewChief.currentGameState == null)
+            {
+                // meh
+                return;
+            }
             mashKeysToPutPitMenuInKnownState();
             sendKeyPressOrMacro(getPitMenuMacro(), pitMenuKey);
         }
 
         private static void dontChangeTyres()
         {
+            if (CrewChief.currentGameState == null)
+            {
+                // meh
+                return;
+            }
             mashKeysToPutPitMenuInKnownState();
             sendKeyPressOrMacro(getMenuDownMacro(), downKey);
             sendKeyPressOrMacro(getMenuDownMacro(), downKey);
@@ -194,6 +219,11 @@ namespace CrewChiefV4.ACC
 
         private static void addFuel(int litres)
         {
+            if (CrewChief.currentGameState == null)
+            {
+                // meh
+                return;
+            }
             clearFuel();
             for (int i = 0; i < litres; i++)
             {
@@ -203,6 +233,11 @@ namespace CrewChiefV4.ACC
 
         private static void clearFuel()
         {
+            if (CrewChief.currentGameState == null)
+            {
+                // meh
+                return;
+            }
             mashKeysToPutPitMenuInKnownState();
             sendKeyPressOrMacro(getMenuDownMacro(), downKey);
             sendKeyPressOrMacro(getMenuDownMacro(), downKey);
