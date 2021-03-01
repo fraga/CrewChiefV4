@@ -134,7 +134,8 @@ namespace CrewChiefV4.commands
                 {
                     modifierKeyCode = (KeyCode)modifierAndKeyCode.Item1;
                 }
-                SendScanCodeKeyPress(new Tuple<KeyCode?, KeyCode>(modifierKeyCode, (KeyCode)modifierAndKeyCode.Item2), keyPressTime == null ? 50 : keyPressTime.Value);
+                int defaultKeyHoldTime = CrewChief.gameDefinition.gameEnum == GameEnum.ACC ? 80 : 50;
+                SendScanCodeKeyPress(new Tuple<KeyCode?, KeyCode>(modifierKeyCode, (KeyCode)modifierAndKeyCode.Item2), keyPressTime == null ? defaultKeyHoldTime : keyPressTime.Value);
             }
             else
             {

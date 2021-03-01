@@ -634,13 +634,6 @@
 						"KEY_E"
 					],
 					"waitBetweenEachCommand": 60
-				},
-				{
-					"description": "ACC version",
-					"gameDefinition": "ACC",
-					"actionSequence": [
-						"KEY_P"
-					]
 				}
 			]
 		},
@@ -806,7 +799,7 @@
 		},
 		{
 			"name": "show acc pit menu",
-			"description": "press the key to open the ACC pit menu. Note this isn't a toggle",
+			"description": "press the key to open the ACC pit menu. Note this isn't a toggle. Longer hold time here because we rely on this in the pit macros",
 			"voiceTriggers": [
 				"show pit menu"
 			],
@@ -815,7 +808,23 @@
 					"description": "ACC version",
 					"gameDefinition": "ACC",
 					"actionSequence": [
-						"KEY_P"
+						"{HOLD_TIME,200}KEY_P",
+					]
+				}
+			]
+		},
+		{
+			"name": "close acc pit menu",
+			"description": "hold the key to close the ACC pit menu",
+			"voiceTriggers": [
+				"close pit menu"
+			],
+			"commandSets": [
+				{
+					"description": "ACC version",
+					"gameDefinition": "ACC",
+					"actionSequence": [
+						"{HOLD_TIME,1000}KEY_P",
 					]
 				}
 			]
@@ -832,6 +841,86 @@
 					"gameDefinition": "ACC",
 					"actionSequence": [
 						"KEY_U"
+					]
+				}
+			]
+		},
+		{
+			"name": "close acc standings menu",
+			"description": "hold the key to close the ACC standings screen",
+			"voiceTriggers": [
+				"close standings"
+			],
+			"commandSets": [
+				{
+					"description": "ACC version",
+					"gameDefinition": "ACC",
+					"actionSequence": [
+						"{HOLD_TIME,1000}KEY_U"
+					]
+				}
+			]
+		},
+		{
+			"name": "show acc overall standings menu",
+			"description": "press the key to open the ACC overall standings screen. Note this isn't a toggle",
+			"voiceTriggers": [
+				"show overall standings"
+			],
+			"commandSets": [
+				{
+					"description": "ACC version",
+					"gameDefinition": "ACC",
+					"actionSequence": [
+						"KEY_I"
+					]
+				}
+			]
+		},
+		{
+			"name": "close acc overall standings menu",
+			"description": "hold the key to close the ACC overall standings screen",
+			"voiceTriggers": [
+				"close overall standings"
+			],
+			"commandSets": [
+				{
+					"description": "ACC version",
+					"gameDefinition": "ACC",
+					"actionSequence": [
+						"{HOLD_TIME,1000}KEY_I"
+					]
+				}
+			]
+		},
+		{
+			"name": "show acc electronics menu",
+			"description": "press the key to open the ACC electronics screen. Note this isn't a toggle",
+			"voiceTriggers": [
+				"show electronics"
+			],
+			"commandSets": [
+				{
+					"description": "ACC version",
+					"gameDefinition": "ACC",
+					"actionSequence": [
+						"KEY_O"
+					]
+				}
+			]
+		},
+		{
+			"name": "close acc electronics menu",
+			"description": "hold the key to close the ACC electronics screen",
+			"voiceTriggers": [
+				"close electronics"
+			],
+			"commandSets": [
+				{
+					"description": "ACC version",
+					"gameDefinition": "ACC",
+					"actionSequence": [
+						"{HOLD_TIME,1000}KEY_O"
 					]
 				}
 			]
