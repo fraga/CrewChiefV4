@@ -307,6 +307,16 @@ namespace CrewChiefV4
         public static String[] PIT_STOP_PRIME_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_PRIME_TYRES");
         public static String[] PIT_STOP_ALTERNATE_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_ALTERNATE_TYRES");
 
+        // ACC only:
+        public static String[] PIT_STOP_CHANGE_ALL_PRESSURES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CHANGE_ALL_PRESSURES");
+        public static String[] PIT_STOP_CHANGE_FRONT_PRESSURES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CHANGE_FRONT_PRESSURES");
+        public static String[] PIT_STOP_CHANGE_REAR_PRESSURES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CHANGE_REAR_PRESSURES");
+        public static String[] PIT_STOP_CHANGE_LEFT_FRONT_PRESSURE = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CHANGE_LEFT_FRONT_PRESSURE");
+        public static String[] PIT_STOP_CHANGE_RIGHT_FRONT_PRESSURE = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CHANGE_RIGHT_FRONT_PRESSURE");
+        public static String[] PIT_STOP_CHANGE_LEFT_REAR_PRESSURE = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CHANGE_LEFT_REAR_PRESSURE");
+        public static String[] PIT_STOP_CHANGE_RIGHT_REAR_PRESSURE = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CHANGE_RIGHT_REAR_PRESSURE");
+        public static String[] POINT = Configuration.getSpeechRecognitionPhrases("POINT");
+
         public static String[] HOW_MANY_INCIDENT_POINTS = Configuration.getSpeechRecognitionPhrases("HOW_MANY_INCIDENT_POINTS");
         public static String[] WHATS_THE_INCIDENT_LIMIT = Configuration.getSpeechRecognitionPhrases("WHATS_THE_INCIDENT_LIMIT");
         public static String[] WHATS_THE_SOF = Configuration.getSpeechRecognitionPhrases("WHATS_THE_SOF");
@@ -2093,6 +2103,44 @@ namespace CrewChiefV4
                 validateAndAdd(PIT_STOP_WET_TYRES, accChoices);
                 validateAndAdd(PIT_STOP_DRY_TYRES, accChoices);
                 validateAndAdd(PIT_STOP_DONT_REFUEL, accChoices);
+
+                // tyre pressures - TODO, transform into proper 'choices'
+                /*
+                for (int i=15; i<40; i++)
+                {
+                    for (int j = 0; j < 10; j++)
+                    {
+                        string pressureString = " " + Configuration.getSpeechRecognitionPhrases(i.ToString())[0] + " " + POINT[0] + " " + Configuration.getSpeechRecognitionPhrases(j.ToString())[0];
+                        foreach (string intro in PIT_STOP_CHANGE_ALL_PRESSURES)
+                        {
+                            validateAndAdd(intro + pressureString, accChoices);
+                        }
+                        foreach (string intro in PIT_STOP_CHANGE_FRONT_PRESSURES)
+                        {
+                            validateAndAdd(intro + pressureString, accChoices);
+                        }
+                        foreach (string intro in PIT_STOP_CHANGE_REAR_PRESSURES)
+                        {
+                            validateAndAdd(intro + pressureString, accChoices);
+                        }
+                        foreach (string intro in PIT_STOP_CHANGE_LEFT_FRONT_PRESSURE)
+                        {
+                            validateAndAdd(intro + pressureString, accChoices);
+                        }
+                        foreach (string intro in PIT_STOP_CHANGE_RIGHT_FRONT_PRESSURE)
+                        {
+                            validateAndAdd(intro + pressureString, accChoices);
+                        }
+                        foreach (string intro in PIT_STOP_CHANGE_LEFT_REAR_PRESSURE)
+                        {
+                            validateAndAdd(intro + pressureString, accChoices);
+                        }
+                        foreach (string intro in PIT_STOP_CHANGE_RIGHT_REAR_PRESSURE)
+                        {
+                            validateAndAdd(intro + pressureString, accChoices);
+                        }                        
+                    }
+                }*/
 
                 GrammarBuilderWrapper accGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper(accChoices);
                 accGrammarBuilder.SetCulture(cultureInfo);

@@ -1,6 +1,7 @@
 ﻿using CrewChiefV4.Audio;
 using CrewChiefV4.commands;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using WindowsInput.Native;
 
@@ -38,7 +39,7 @@ namespace CrewChiefV4.ACC
         private const string folderConfirmNoTyres = "mandatory_pit_stops/confirm_change_no_tyres";
         private const string folderConfirmNoRefuelling = "mandatory_pit_stops/confirm_no_refuelling";
 
-        public static void processVoiceCommand(string recognisedText, AudioPlayer audioPlayer)
+        public static void processVoiceCommand(string recognisedText, AudioPlayer audioPlayer, bool allowDidntUnderstandResponse = true)
         {
             bool recognised = false;
             if (SpeechRecogniser.ResultContains(recognisedText, SpeechRecogniser.PIT_STOP_CHANGE_TYRES))
@@ -71,10 +72,119 @@ namespace CrewChiefV4.ACC
                 recognised = true;
                 audioPlayer.playMessageImmediately(new QueuedMessage(folderConfirmNoRefuelling, 0));
             }
-            if (!recognised)
+            else if (SpeechRecogniser.ResultContains(recognisedText, SpeechRecogniser.PIT_STOP_CHANGE_ALL_PRESSURES))
+            {
+                foreach (string command in SpeechRecogniser.PIT_STOP_CHANGE_ALL_PRESSURES)
+                {
+                    if (recognisedText.StartsWith(command))
+                    {
+                        recognisedText = recognisedText.Substring(command.Length);
+                        break;
+                    }
+                }
+                changeAllPressuresTo(parsePressureRequest(recognisedText));
+            }
+            else if (SpeechRecogniser.ResultContains(recognisedText, SpeechRecogniser.PIT_STOP_CHANGE_FRONT_PRESSURES))
+            {
+                foreach (string command in SpeechRecogniser.PIT_STOP_CHANGE_FRONT_PRESSURES)
+                {
+                    if (recognisedText.StartsWith(command))
+                    {
+                        recognisedText = recognisedText.Substring(command.Length);
+                        break;
+                    }
+                }
+                changeFrontPressuresTo(parsePressureRequest(recognisedText));
+            }
+            else if (SpeechRecogniser.ResultContains(recognisedText, SpeechRecogniser.PIT_STOP_CHANGE_REAR_PRESSURES))
+            {
+                foreach (string command in SpeechRecogniser.PIT_STOP_CHANGE_REAR_PRESSURES)
+                {
+                    if (recognisedText.StartsWith(command))
+                    {
+                        recognisedText = recognisedText.Substring(command.Length);
+                        break;
+                    }
+                }
+                changeRearPressuresTo(parsePressureRequest(recognisedText));
+            }
+            else if (SpeechRecogniser.ResultContains(recognisedText, SpeechRecogniser.PIT_STOP_CHANGE_LEFT_FRONT_PRESSURE))
+            {
+                foreach (string command in SpeechRecogniser.PIT_STOP_CHANGE_LEFT_FRONT_PRESSURE)
+                {
+                    if (recognisedText.StartsWith(command))
+                    {
+                        recognisedText = recognisedText.Substring(command.Length);
+                        break;
+                    }
+                }
+                changeLFPressuresTo(parsePressureRequest(recognisedText));
+            }
+            else if (SpeechRecogniser.ResultContains(recognisedText, SpeechRecogniser.PIT_STOP_CHANGE_RIGHT_FRONT_PRESSURE))
+            {
+                foreach (string command in SpeechRecogniser.PIT_STOP_CHANGE_RIGHT_FRONT_PRESSURE)
+                {
+                    if (recognisedText.StartsWith(command))
+                    {
+                        recognisedText = recognisedText.Substring(command.Length);
+                        break;
+                    }
+                }
+                changeRFPressuresTo(parsePressureRequest(recognisedText));
+            }
+            else if (SpeechRecogniser.ResultContains(recognisedText, SpeechRecogniser.PIT_STOP_CHANGE_LEFT_REAR_PRESSURE))
+            {
+                foreach (string command in SpeechRecogniser.PIT_STOP_CHANGE_LEFT_REAR_PRESSURE)
+                {
+                    if (recognisedText.StartsWith(command))
+                    {
+                        recognisedText = recognisedText.Substring(command.Length);
+                        break;
+                    }
+                }
+                changeLRPressuresTo(parsePressureRequest(recognisedText));
+            }
+            else if (SpeechRecogniser.ResultContains(recognisedText, SpeechRecogniser.PIT_STOP_CHANGE_RIGHT_REAR_PRESSURE))
+            {
+                foreach (string command in SpeechRecogniser.PIT_STOP_CHANGE_RIGHT_REAR_PRESSURE)
+                {
+                    if (recognisedText.StartsWith(command))
+                    {
+                        recognisedText = recognisedText.Substring(command.Length);
+                        break;
+                    }
+                }
+                changeRRPressuresTo(parsePressureRequest(recognisedText));
+            }
+            if (!recognised && allowDidntUnderstandResponse)
             {
                 audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderDidntUnderstand, 0));
             }
+        }
+
+        private static float parsePressureRequest(string phrase)
+        {
+            string[] beforeAndAfterPoint = phrase.Split(SpeechRecogniser.POINT[0].ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            if (beforeAndAfterPoint.Length == 2)
+            {
+                return float.Parse(extractInt(beforeAndAfterPoint[0]) + "." + extractInt(beforeAndAfterPoint[1]));
+            }
+            return -1;
+        }
+
+        private static  int extractInt(String commandFragment)
+        {
+            foreach (KeyValuePair<String[], int> entry in SpeechRecogniser.numberToNumber)
+            {
+                foreach (String numberStr in entry.Key)
+                {
+                    if (commandFragment.Trim() == numberStr)
+                    {
+                        return entry.Value;
+                    }
+                }
+            }
+            return 0;
         }
 
         private static void mashKeysToPutPitMenuInKnownState()
@@ -159,7 +269,7 @@ namespace CrewChiefV4.ACC
             }
         }
 
-        private static void sendKeyPressOrMacro(ExecutableCommandMacro macro, VirtualKeyCode fallbackKeyCode)
+        private static void sendKeyPressOrMacro(ExecutableCommandMacro macro, VirtualKeyCode fallbackKeyCode, int sleepTime = 200)
         {
             if (macro != null)
             {
@@ -171,7 +281,7 @@ namespace CrewChiefV4.ACC
                 // we didn't find a required key press macro so just press the most likely key anyway
                 KeyPresser.SendKeyPress(new Tuple<VirtualKeyCode?, VirtualKeyCode>(null, fallbackKeyCode), 100);
             }
-            Thread.Sleep(100);
+            Thread.Sleep(sleepTime);
         }
 
         private static void moveCursorToTopOfPitMenu()
@@ -231,16 +341,136 @@ namespace CrewChiefV4.ACC
             moveCursorToTopOfPitMenu();
             sendKeyPressOrMacro(getMenuDownMacro(), downKey);
             sendKeyPressOrMacro(getMenuDownMacro(), downKey);
-            sendKeyPressOrMacro(getMenuRightMacro(), rightKey);
             for (int i = 0; i < 100; i++)
             {
-                sendKeyPressOrMacro(getMenuLeftMacro(), leftKey);
+                sendKeyPressOrMacro(getMenuLeftMacro(), leftKey, 50);
             }
         }
 
-        private static void increaseAllPressuresTo(float targetPressure)
+        private static void changeAllPressuresTo(float targetPressure)
         {
-            // TODO: map MFD tyre pressures and work out the correct number of button presses
+            if (CrewChief.currentGameState == null)
+            {
+                // meh
+                return;
+            }
+            mashKeysToPutPitMenuInKnownState();
+            for (int i = 0; i < 6; i++)
+            {
+                sendKeyPressOrMacro(getMenuDownMacro(), downKey);
+            }
+            changePressureTo(targetPressure);
+        }
+
+        private static void changeFrontPressuresTo(float targetPressure)
+        {
+            if (CrewChief.currentGameState == null)
+            {
+                // meh
+                return;
+            }
+            mashKeysToPutPitMenuInKnownState();
+            for (int i = 0; i < 7; i++)
+            {
+                sendKeyPressOrMacro(getMenuDownMacro(), downKey);
+            }
+            changePressureTo(targetPressure);
+            sendKeyPressOrMacro(getMenuDownMacro(), downKey);
+            changePressureTo(targetPressure);
+        }
+
+        private static void changeRearPressuresTo(float targetPressure)
+        {
+            if (CrewChief.currentGameState == null)
+            {
+                // meh
+                return;
+            }
+            mashKeysToPutPitMenuInKnownState();
+            for (int i = 0; i < 9; i++)
+            {
+                sendKeyPressOrMacro(getMenuDownMacro(), downKey);
+            }
+            changePressureTo(targetPressure);
+            sendKeyPressOrMacro(getMenuDownMacro(), downKey);
+            changePressureTo(targetPressure);
+        }
+
+        private static void changeLFPressuresTo(float targetPressure)
+        {
+            if (CrewChief.currentGameState == null)
+            {
+                // meh
+                return;
+            }
+            mashKeysToPutPitMenuInKnownState();
+            for (int i = 0; i < 7; i++)
+            {
+                sendKeyPressOrMacro(getMenuDownMacro(), downKey);
+            }
+            changePressureTo(targetPressure);
+        }
+
+        private static void changeRFPressuresTo(float targetPressure)
+        {
+            if (CrewChief.currentGameState == null)
+            {
+                // meh
+                return;
+            }
+            mashKeysToPutPitMenuInKnownState();
+            for (int i = 0; i < 8; i++)
+            {
+                sendKeyPressOrMacro(getMenuDownMacro(), downKey);
+            }
+            changePressureTo(targetPressure);
+        }
+
+        private static void changeLRPressuresTo(float targetPressure)
+        {
+            if (CrewChief.currentGameState == null)
+            {
+                // meh
+                return;
+            }
+            mashKeysToPutPitMenuInKnownState();
+            for (int i = 0; i < 9; i++)
+            {
+                sendKeyPressOrMacro(getMenuDownMacro(), downKey);
+            }
+            changePressureTo(targetPressure);
+        }
+
+        private static void changeRRPressuresTo(float targetPressure)
+        {
+            if (CrewChief.currentGameState == null)
+            {
+                // meh
+                return;
+            }
+            mashKeysToPutPitMenuInKnownState();
+            for (int i = 0; i < 10; i++)
+            {
+                sendKeyPressOrMacro(getMenuDownMacro(), downKey);
+            }
+            changePressureTo(targetPressure);
+        }
+
+        private static void changePressureTo(float targetPressure)
+        {
+            int diff = (int)((targetPressure - CrewChief.currentGameState.TyreData.ACCFrontLeftPressureMFD) * 10f);
+            // steps of 0.1 psi
+            for (int i = 0; i < diff; i++)
+            {
+                if (diff > 0)
+                {
+                    sendKeyPressOrMacro(getMenuRightMacro(), rightKey);
+                }
+                else
+                {
+                    sendKeyPressOrMacro(getMenuLeftMacro(), leftKey);
+                }
+            }
         }
 
         private static ExecutableCommandMacro getPitMenuMacro()

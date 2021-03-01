@@ -1224,6 +1224,12 @@ namespace CrewChiefV4.ACC
             currentGameState.TyreData.RightRearBrakeTemp = shared.accPhysics.brakeTemp[3];
             currentGameState.TyreData.selectedSet = shared.accGraphic.mfdTyreSet;
 
+            // specific fields for manuipulating tyre pressure in ACC:
+            currentGameState.TyreData.ACCFrontLeftPressureMFD = shared.accGraphic.mfdTyrePressureLF;
+            currentGameState.TyreData.ACCFrontRightPressureMFD = shared.accGraphic.mfdTyrePressureRF;
+            currentGameState.TyreData.ACCRearLeftPressureMFD = shared.accGraphic.mfdTyrePressureLR;
+            currentGameState.TyreData.ACCRearRightPressureMFD = shared.accGraphic.mfdTyrePressureRR;
+
             String currentTyreCompound = shared.accGraphic.tyreCompound;
 
             // Only middle tire temperature is available

@@ -2931,6 +2931,12 @@ namespace CrewChiefV4.GameState
         public Single RearLeftPressure;
         public Single RearRightPressure;
 
+        // specific fields for manuipulating tyre pressure in ACC, all in PSI (the game's standard internal unit)
+        public Single ACCFrontLeftPressureMFD;
+        public Single ACCFrontRightPressureMFD;
+        public Single ACCRearLeftPressureMFD;
+        public Single ACCRearRightPressureMFD;
+
         public int selectedSet = -1;
 
         private CornerData _TyreTempStatus;

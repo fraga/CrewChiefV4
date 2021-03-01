@@ -357,14 +357,12 @@ namespace CrewChiefV4.commands
                         {
                             count = 1;
                         }
-                        // only wait if there's another key press in the sequence
-                        int wait = actionItemIndex == actionItemsCount - 1 ? 0 : commandSet.waitBetweenEachCommand;
                         int? keyPressTime = commandSet.keyPressTime;
                         if (MacroManager.HOLD_TIME_IDENTIFIER.Equals(actionItem.extendedType) && actionItem.extendedTypeNumericParam > 0)
                         {
                             keyPressTime = actionItem.extendedTypeNumericParam;
                         }
-                        sendKeys(count, actionItem, keyPressTime, wait);
+                        sendKeys(count, actionItem, keyPressTime, commandSet.waitBetweenEachCommand);
                     }
                 }
                 // if we changed forground window we need to restore the old window again as the user could be running overlays or other apps they want to keep in forground.
