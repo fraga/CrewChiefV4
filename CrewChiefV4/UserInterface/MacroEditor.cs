@@ -73,9 +73,11 @@ namespace CrewChiefV4
             radioButtonWaitAction.Text = Configuration.getUIString("wait_action");
             radioButtonFreeTextAction.Text = Configuration.getUIString("free_text_action");
             radioButtonAdvancedEditAction.Text = Configuration.getUIString("advanced_edit_action");
+            radioButtonModifierAndKey.Text = Configuration.getUIString("modifier_and_key");
             buttonAddSelectedKeyToSequence.Text = Configuration.getUIString("add_key_to_sequence");
             buttonUndoLastAction.Text = Configuration.getUIString("undo_last_action");
             labelActionKeys.Text = Configuration.getUIString("actions_keys");
+            lableModifierKeys.Text = Configuration.getUIString("modifier_keys");
             // Load
             buttonLoadUserMacroSettings.Text = Configuration.getUIString("load_user_macro_settings");
             buttonLoadDefaultMacroSettings.Text = Configuration.getUIString("load_default_macro_settings");
@@ -97,6 +99,10 @@ namespace CrewChiefV4
             if (comboBoxKeySelection.Items.Count <= 0)
             {
                 comboBoxKeySelection.Items.AddRange(builtInKeyMappings.ToArray());
+            }
+            if (comboBoxModifierKeySelection.Items.Count <= 0)
+            {
+                comboBoxModifierKeySelection.Items.AddRange(builtInKeyMappings.ToArray());
             }
             macroContainer = MacroManager.loadCommands(MacroManager.getMacrosFileLocation());
 
@@ -146,6 +152,7 @@ namespace CrewChiefV4
             textBoxActionSequence.Text = "";
             textBoxDescription.Text = "";
             comboBoxKeySelection.SelectedIndex = -1;
+            comboBoxModifierKeySelection.SelectedIndex = -1;
             if (listBoxGames.SelectedIndex != -1)
             {
                 buttonAddActionSequence.Text = Configuration.getUIString("add_action_sequence") + " " + listBoxGames.Items[listBoxGames.SelectedIndex].ToString();
@@ -280,6 +287,20 @@ namespace CrewChiefV4
             else if (radioButtonFreeTextAction.Checked)
             {
                 formatedAction = "{FREE_TEXT}" + textBoxSpecialActionParameter.Text;
+            }
+            else if(radioButtonModifierAndKey.Checked)
+            {
+                if (comboBoxKeySelection.SelectedIndex != -1 && comboBoxModifierKeySelection.SelectedIndex != -1)
+                {
+                    formatedAction = comboBoxModifierKeySelection.Items[comboBoxModifierKeySelection.SelectedIndex].ToString() 
+                        + textBoxSpecialActionParameter.Text 
+                        + comboBoxKeySelection.Items[comboBoxKeySelection.SelectedIndex].ToString();
+                }
+                else
+                {
+                    MessageBox.Show(Configuration.getUIString("must_select_a_key"));
+                    return;
+                }
             }
             else if(comboBoxKeySelection.SelectedIndex != -1)
             {
@@ -595,9 +616,11 @@ namespace CrewChiefV4
             buttonAddSelectedKeyToSequence.Enabled = true;
             textBoxDescription.ShortcutsEnabled = false;
             comboBoxKeySelection.Enabled = true;
+            comboBoxModifierKeySelection.Enabled = false;
             if (radioButtonRegularKeyAction.Checked)
             {
                 textBoxSpecialActionParameter.Enabled = false;
+                comboBoxModifierKeySelection.Enabled = false;
                 textBoxSpecialActionParameter.Text = "";
                 labelSpecialActionParameter.Text = "";
             }
@@ -632,6 +655,14 @@ namespace CrewChiefV4
                 textBoxSpecialActionParameter.Text = "";
                 comboBoxKeySelection.Enabled = false;
                 labelSpecialActionParameter.Text = Configuration.getUIString("action_free_text");
+            }
+            else if(radioButtonModifierAndKey.Checked)
+            {
+                comboBoxModifierKeySelection.Enabled = true;
+                textBoxSpecialActionParameter.Enabled = false;
+                textBoxSpecialActionParameter.Text = "+";
+                labelSpecialActionParameter.Text = "";
+
             }
             else if (radioButtonAdvancedEditAction.Checked)
             {

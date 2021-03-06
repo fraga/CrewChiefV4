@@ -307,7 +307,7 @@ float absVibrations  vibrations sent to the FFB, could be used for motion rigs
             public int driverStintTotalTimeLeft;// Time is the driver is allowed to drive per race in milliseconds
             public int driverStintTimeLeft;// Time the driver is allowed to drive per stint in milliseconds
             public int rainTyres;// Are rain tyres equipped
-            public int sessionIndex;
+            public int sessionIndex; // zero-indexed counter of all sessions in weekend, prac1 is zero, increments for each subsequent session, doesn't reset between session types
             public float usedFuel;// Used fuel since last time refueling
             [MarshalAsAttribute(UnmanagedType.ByValTStr, SizeConst = 15)]
             public String deltaLapTime;// Delta time in wide character

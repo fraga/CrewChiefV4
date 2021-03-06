@@ -230,8 +230,9 @@
 					"gameDefinition": "ACC",
 					"actionSequence": [
 						"{HOLD_TIME,200}KEY_P",
+						"{WAIT,300}",
 						"DOWN",
-						"DOWN",
+						"{SESSION_TYPES,Race}DOWN",
 						"{MULTIPLE,100}LEFT",
 						"{MULTIPLE,Fuel}RIGHT"
 					],
@@ -310,8 +311,8 @@
 					"gameDefinition": "ACC",
 					"actionSequence": [
 						"{HOLD_TIME,200}KEY_P",
-						"DOWN",
-						"DOWN",
+						"{WAIT,300}",
+						"{SESSION_TYPES,Race}DOWN",
 						"{MULTIPLE,100}LEFT",
 						"{MULTIPLE,VOICE_TRIGGER}RIGHT"
 					],
@@ -338,6 +339,16 @@
 						"KEY_Q"
 					],
 					"waitBetweenEachCommand": 200
+				},
+				{
+					"description": "ACC version",
+					"gameDefinition": "ACC",
+					"actionSequence": [
+						"{HOLD_TIME,200}KEY_P",
+						"{WAIT,300}",
+						"{SESSION_TYPES,Race}DOWN",
+						"{SESSION_TYPES,Race}RIGHT"
+					]
 				}
 			]
 		},
@@ -359,6 +370,16 @@
 						"KEY_Q"
 					],
 					"waitBetweenEachCommand": 200
+				},
+				{
+					"description": "ACC version",
+					"gameDefinition": "ACC",
+					"actionSequence": [
+						"{HOLD_TIME,200}KEY_P",
+						"{WAIT,300}",
+						"{SESSION_TYPES,Race}DOWN",
+						"{SESSION_TYPES,Race}RIGHT"
+					]
 				}
 			]
 		},
@@ -801,30 +822,15 @@
 			"name": "show acc pit menu",
 			"description": "press the key to open the ACC pit menu. Note this isn't a toggle. Longer hold time here because we rely on this in the pit macros",
 			"voiceTriggers": [
-				"show pit menu"
+				"show pit menu",
+				"show pit stop"
 			],
 			"commandSets": [
 				{
 					"description": "ACC version",
 					"gameDefinition": "ACC",
 					"actionSequence": [
-						"{HOLD_TIME,200}KEY_P",
-					]
-				}
-			]
-		},
-		{
-			"name": "close acc pit menu",
-			"description": "hold the key to close the ACC pit menu",
-			"voiceTriggers": [
-				"close pit menu"
-			],
-			"commandSets": [
-				{
-					"description": "ACC version",
-					"gameDefinition": "ACC",
-					"actionSequence": [
-						"{HOLD_TIME,1000}KEY_P",
+						"{HOLD_TIME,200}KEY_P"
 					]
 				}
 			]
@@ -833,30 +839,14 @@
 			"name": "show acc standings menu",
 			"description": "press the key to open the ACC standings screen. Note this isn't a toggle",
 			"voiceTriggers": [
-				"show standings"
+				"show real time position"
 			],
 			"commandSets": [
 				{
 					"description": "ACC version",
 					"gameDefinition": "ACC",
 					"actionSequence": [
-						"KEY_U"
-					]
-				}
-			]
-		},
-		{
-			"name": "close acc standings menu",
-			"description": "hold the key to close the ACC standings screen",
-			"voiceTriggers": [
-				"close standings"
-			],
-			"commandSets": [
-				{
-					"description": "ACC version",
-					"gameDefinition": "ACC",
-					"actionSequence": [
-						"{HOLD_TIME,1000}KEY_U"
+						"{HOLD_TIME,150}KEY_U"
 					]
 				}
 			]
@@ -865,30 +855,14 @@
 			"name": "show acc overall standings menu",
 			"description": "press the key to open the ACC overall standings screen. Note this isn't a toggle",
 			"voiceTriggers": [
-				"show overall standings"
+				"show standings"
 			],
 			"commandSets": [
 				{
 					"description": "ACC version",
 					"gameDefinition": "ACC",
 					"actionSequence": [
-						"KEY_I"
-					]
-				}
-			]
-		},
-		{
-			"name": "close acc overall standings menu",
-			"description": "hold the key to close the ACC overall standings screen",
-			"voiceTriggers": [
-				"close overall standings"
-			],
-			"commandSets": [
-				{
-					"description": "ACC version",
-					"gameDefinition": "ACC",
-					"actionSequence": [
-						"{HOLD_TIME,1000}KEY_I"
+						"{HOLD_TIME,150}KEY_I"
 					]
 				}
 			]
@@ -904,23 +878,24 @@
 					"description": "ACC version",
 					"gameDefinition": "ACC",
 					"actionSequence": [
-						"KEY_O"
+						"{HOLD_TIME,150}KEY_O"
 					]
 				}
 			]
 		},
 		{
-			"name": "close acc electronics menu",
-			"description": "hold the key to close the ACC electronics screen",
+			"name": "close acc pit / standings / electronics menu",
+			"description": "go to the pit menu then press INSERT",
 			"voiceTriggers": [
-				"close electronics"
+				"close menu"
 			],
 			"commandSets": [
 				{
 					"description": "ACC version",
 					"gameDefinition": "ACC",
 					"actionSequence": [
-						"{HOLD_TIME,1000}KEY_O"
+						"{HOLD_TIME,150}KEY_P",
+						"INSERT"
 					]
 				}
 			]

@@ -5278,17 +5278,5 @@ namespace CrewChiefV4.Properties {
                 this["force_resample"] = value;
             }
         }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool use_legacy_key_presser {
-            get {
-                return ((bool)(this["use_legacy_key_presser"]));
-            }
-            set {
-                this["use_legacy_key_presser"] = value;
-            }
-        }
     }
 }
