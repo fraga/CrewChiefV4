@@ -83,6 +83,9 @@ namespace CrewChiefV4
             this.labelToggleKey = new System.Windows.Forms.Label();
             this.comboBoxModifierKeys = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
+            this.comboBoxSetTrackingSpace = new System.Windows.Forms.ComboBox();
+            this.groupBoxTrackingUniverse = new System.Windows.Forms.GroupBox();
+            this.buttonReCenter = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarPositionX)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarPositionY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarPositionZ)).BeginInit();
@@ -97,6 +100,7 @@ namespace CrewChiefV4
             ((System.ComponentModel.ISupportInitialize)(this.trackBarScale)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarCurvature)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarTransparency)).BeginInit();
+            this.groupBoxTrackingUniverse.SuspendLayout();
             this.SuspendLayout();
             // 
             // timer5sec
@@ -108,9 +112,10 @@ namespace CrewChiefV4
             // checkBoxEnabled
             // 
             this.checkBoxEnabled.AutoSize = true;
-            this.checkBoxEnabled.Location = new System.Drawing.Point(12, 256);
+            this.checkBoxEnabled.Location = new System.Drawing.Point(16, 315);
+            this.checkBoxEnabled.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.checkBoxEnabled.Name = "checkBoxEnabled";
-            this.checkBoxEnabled.Size = new System.Drawing.Size(87, 17);
+            this.checkBoxEnabled.Size = new System.Drawing.Size(112, 21);
             this.checkBoxEnabled.TabIndex = 1;
             this.checkBoxEnabled.Text = "enable_in_vr";
             this.checkBoxEnabled.UseVisualStyleBackColor = true;
@@ -118,34 +123,37 @@ namespace CrewChiefV4
             // 
             // trackBarPositionX
             // 
-            this.trackBarPositionX.Location = new System.Drawing.Point(53, 32);
+            this.trackBarPositionX.Location = new System.Drawing.Point(71, 39);
+            this.trackBarPositionX.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.trackBarPositionX.Maximum = 1000;
             this.trackBarPositionX.Minimum = -1000;
             this.trackBarPositionX.Name = "trackBarPositionX";
-            this.trackBarPositionX.Size = new System.Drawing.Size(223, 45);
+            this.trackBarPositionX.Size = new System.Drawing.Size(297, 56);
             this.trackBarPositionX.TabIndex = 5;
             this.trackBarPositionX.TickStyle = System.Windows.Forms.TickStyle.None;
             this.trackBarPositionX.ValueChanged += new System.EventHandler(this.trackBarPositionX_ValueChanged);
             // 
             // trackBarPositionY
             // 
-            this.trackBarPositionY.Location = new System.Drawing.Point(53, 88);
+            this.trackBarPositionY.Location = new System.Drawing.Point(71, 108);
+            this.trackBarPositionY.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.trackBarPositionY.Maximum = 1000;
             this.trackBarPositionY.Minimum = -1000;
             this.trackBarPositionY.Name = "trackBarPositionY";
             this.trackBarPositionY.RightToLeftLayout = true;
-            this.trackBarPositionY.Size = new System.Drawing.Size(223, 45);
+            this.trackBarPositionY.Size = new System.Drawing.Size(297, 56);
             this.trackBarPositionY.TabIndex = 10;
             this.trackBarPositionY.TickStyle = System.Windows.Forms.TickStyle.None;
             this.trackBarPositionY.ValueChanged += new System.EventHandler(this.trackBarPositionY_ValueChanged);
             // 
             // trackBarPositionZ
             // 
-            this.trackBarPositionZ.Location = new System.Drawing.Point(53, 152);
+            this.trackBarPositionZ.Location = new System.Drawing.Point(71, 187);
+            this.trackBarPositionZ.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.trackBarPositionZ.Maximum = 1000;
             this.trackBarPositionZ.Minimum = -1000;
             this.trackBarPositionZ.Name = "trackBarPositionZ";
-            this.trackBarPositionZ.Size = new System.Drawing.Size(223, 45);
+            this.trackBarPositionZ.Size = new System.Drawing.Size(297, 56);
             this.trackBarPositionZ.TabIndex = 15;
             this.trackBarPositionZ.TickStyle = System.Windows.Forms.TickStyle.None;
             this.trackBarPositionZ.ValueChanged += new System.EventHandler(this.trackBarPositionZ_ValueChanged);
@@ -161,9 +169,11 @@ namespace CrewChiefV4
             this.groupBoxPosition.Controls.Add(this.trackBarPositionX);
             this.groupBoxPosition.Controls.Add(this.trackBarPositionZ);
             this.groupBoxPosition.Controls.Add(this.trackBarPositionY);
-            this.groupBoxPosition.Location = new System.Drawing.Point(213, 25);
+            this.groupBoxPosition.Location = new System.Drawing.Point(284, 31);
+            this.groupBoxPosition.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.groupBoxPosition.Name = "groupBoxPosition";
-            this.groupBoxPosition.Size = new System.Drawing.Size(295, 203);
+            this.groupBoxPosition.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBoxPosition.Size = new System.Drawing.Size(393, 250);
             this.groupBoxPosition.TabIndex = 3;
             this.groupBoxPosition.TabStop = false;
             this.groupBoxPosition.Text = "vr_overlay_position";
@@ -171,65 +181,72 @@ namespace CrewChiefV4
             // labelPositionZ
             // 
             this.labelPositionZ.AutoSize = true;
-            this.labelPositionZ.Location = new System.Drawing.Point(3, 136);
+            this.labelPositionZ.Location = new System.Drawing.Point(4, 167);
+            this.labelPositionZ.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelPositionZ.Name = "labelPositionZ";
-            this.labelPositionZ.Size = new System.Drawing.Size(69, 13);
+            this.labelPositionZ.Size = new System.Drawing.Size(92, 17);
             this.labelPositionZ.TabIndex = 13;
             this.labelPositionZ.Text = "vr_position_z";
             // 
             // labelPositionY
             // 
             this.labelPositionY.AutoSize = true;
-            this.labelPositionY.Location = new System.Drawing.Point(3, 72);
+            this.labelPositionY.Location = new System.Drawing.Point(4, 89);
+            this.labelPositionY.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelPositionY.Name = "labelPositionY";
-            this.labelPositionY.Size = new System.Drawing.Size(69, 13);
+            this.labelPositionY.Size = new System.Drawing.Size(92, 17);
             this.labelPositionY.TabIndex = 12;
             this.labelPositionY.Text = "vr_position_y";
             // 
             // labelPositionX
             // 
             this.labelPositionX.AutoSize = true;
-            this.labelPositionX.Location = new System.Drawing.Point(6, 16);
+            this.labelPositionX.Location = new System.Drawing.Point(8, 20);
+            this.labelPositionX.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelPositionX.Name = "labelPositionX";
-            this.labelPositionX.Size = new System.Drawing.Size(69, 13);
+            this.labelPositionX.Size = new System.Drawing.Size(91, 17);
             this.labelPositionX.TabIndex = 11;
             this.labelPositionX.Text = "vr_position_x";
             // 
             // textBoxDistance
             // 
-            this.textBoxDistance.Location = new System.Drawing.Point(9, 152);
+            this.textBoxDistance.Location = new System.Drawing.Point(12, 187);
+            this.textBoxDistance.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.textBoxDistance.MaxLength = 4;
             this.textBoxDistance.Name = "textBoxDistance";
             this.textBoxDistance.ReadOnly = true;
-            this.textBoxDistance.Size = new System.Drawing.Size(40, 20);
+            this.textBoxDistance.Size = new System.Drawing.Size(52, 22);
             this.textBoxDistance.TabIndex = 10;
             this.textBoxDistance.TabStop = false;
             // 
             // textBoxUpDown
             // 
-            this.textBoxUpDown.Location = new System.Drawing.Point(7, 88);
+            this.textBoxUpDown.Location = new System.Drawing.Point(9, 108);
+            this.textBoxUpDown.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.textBoxUpDown.MaxLength = 4;
             this.textBoxUpDown.Name = "textBoxUpDown";
             this.textBoxUpDown.ReadOnly = true;
-            this.textBoxUpDown.Size = new System.Drawing.Size(40, 20);
+            this.textBoxUpDown.Size = new System.Drawing.Size(52, 22);
             this.textBoxUpDown.TabIndex = 9;
             this.textBoxUpDown.TabStop = false;
             // 
             // textBoxLeftRight
             // 
-            this.textBoxLeftRight.Location = new System.Drawing.Point(6, 32);
+            this.textBoxLeftRight.Location = new System.Drawing.Point(8, 39);
+            this.textBoxLeftRight.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.textBoxLeftRight.MaxLength = 100;
             this.textBoxLeftRight.Name = "textBoxLeftRight";
             this.textBoxLeftRight.ReadOnly = true;
-            this.textBoxLeftRight.Size = new System.Drawing.Size(40, 20);
+            this.textBoxLeftRight.Size = new System.Drawing.Size(52, 22);
             this.textBoxLeftRight.TabIndex = 8;
             this.textBoxLeftRight.TabStop = false;
             // 
             // buttonSaveSettings
             // 
-            this.buttonSaveSettings.Location = new System.Drawing.Point(673, 412);
+            this.buttonSaveSettings.Location = new System.Drawing.Point(903, 544);
+            this.buttonSaveSettings.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.buttonSaveSettings.Name = "buttonSaveSettings";
-            this.buttonSaveSettings.Size = new System.Drawing.Size(136, 23);
+            this.buttonSaveSettings.Size = new System.Drawing.Size(181, 28);
             this.buttonSaveSettings.TabIndex = 9;
             this.buttonSaveSettings.Text = "button_save_settings";
             this.buttonSaveSettings.UseVisualStyleBackColor = true;
@@ -238,9 +255,11 @@ namespace CrewChiefV4
             // listBoxWindows
             // 
             this.listBoxWindows.FormattingEnabled = true;
-            this.listBoxWindows.Location = new System.Drawing.Point(12, 25);
+            this.listBoxWindows.ItemHeight = 16;
+            this.listBoxWindows.Location = new System.Drawing.Point(16, 31);
+            this.listBoxWindows.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.listBoxWindows.Name = "listBoxWindows";
-            this.listBoxWindows.Size = new System.Drawing.Size(195, 225);
+            this.listBoxWindows.Size = new System.Drawing.Size(259, 276);
             this.listBoxWindows.TabIndex = 1;
             this.listBoxWindows.SelectedIndexChanged += new System.EventHandler(this.listBoxWindows_SelectedIndexChanged);
             // 
@@ -255,9 +274,11 @@ namespace CrewChiefV4
             this.groupBoxRotation.Controls.Add(this.trackBarRotationY);
             this.groupBoxRotation.Controls.Add(this.textBoxRotationY);
             this.groupBoxRotation.Controls.Add(this.textBoxRotationX);
-            this.groupBoxRotation.Location = new System.Drawing.Point(213, 232);
+            this.groupBoxRotation.Location = new System.Drawing.Point(284, 286);
+            this.groupBoxRotation.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.groupBoxRotation.Name = "groupBoxRotation";
-            this.groupBoxRotation.Size = new System.Drawing.Size(295, 203);
+            this.groupBoxRotation.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBoxRotation.Size = new System.Drawing.Size(393, 250);
             this.groupBoxRotation.TabIndex = 4;
             this.groupBoxRotation.TabStop = false;
             this.groupBoxRotation.Text = "vr_overlay_rotation";
@@ -265,20 +286,22 @@ namespace CrewChiefV4
             // labelRotationZ
             // 
             this.labelRotationZ.AutoSize = true;
-            this.labelRotationZ.Location = new System.Drawing.Point(4, 136);
+            this.labelRotationZ.Location = new System.Drawing.Point(5, 167);
+            this.labelRotationZ.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelRotationZ.Name = "labelRotationZ";
-            this.labelRotationZ.Size = new System.Drawing.Size(68, 13);
+            this.labelRotationZ.Size = new System.Drawing.Size(91, 17);
             this.labelRotationZ.TabIndex = 19;
             this.labelRotationZ.Text = "vr_rotation_z";
             // 
             // trackBarRotationX
             // 
             this.trackBarRotationX.BackColor = System.Drawing.SystemColors.Control;
-            this.trackBarRotationX.Location = new System.Drawing.Point(57, 32);
+            this.trackBarRotationX.Location = new System.Drawing.Point(76, 39);
+            this.trackBarRotationX.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.trackBarRotationX.Maximum = 180;
             this.trackBarRotationX.Minimum = -180;
             this.trackBarRotationX.Name = "trackBarRotationX";
-            this.trackBarRotationX.Size = new System.Drawing.Size(223, 45);
+            this.trackBarRotationX.Size = new System.Drawing.Size(297, 56);
             this.trackBarRotationX.TabIndex = 1;
             this.trackBarRotationX.TickStyle = System.Windows.Forms.TickStyle.None;
             this.trackBarRotationX.ValueChanged += new System.EventHandler(this.trackBarRotationX_ValueChanged);
@@ -286,19 +309,21 @@ namespace CrewChiefV4
             // labelRotationY
             // 
             this.labelRotationY.AutoSize = true;
-            this.labelRotationY.Location = new System.Drawing.Point(4, 72);
+            this.labelRotationY.Location = new System.Drawing.Point(5, 89);
+            this.labelRotationY.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelRotationY.Name = "labelRotationY";
-            this.labelRotationY.Size = new System.Drawing.Size(68, 13);
+            this.labelRotationY.Size = new System.Drawing.Size(91, 17);
             this.labelRotationY.TabIndex = 18;
             this.labelRotationY.Text = "vr_rotation_y";
             // 
             // trackBarRotationZ
             // 
-            this.trackBarRotationZ.Location = new System.Drawing.Point(57, 152);
+            this.trackBarRotationZ.Location = new System.Drawing.Point(76, 187);
+            this.trackBarRotationZ.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.trackBarRotationZ.Maximum = 180;
             this.trackBarRotationZ.Minimum = -180;
             this.trackBarRotationZ.Name = "trackBarRotationZ";
-            this.trackBarRotationZ.Size = new System.Drawing.Size(223, 45);
+            this.trackBarRotationZ.Size = new System.Drawing.Size(297, 56);
             this.trackBarRotationZ.TabIndex = 3;
             this.trackBarRotationZ.TickStyle = System.Windows.Forms.TickStyle.None;
             this.trackBarRotationZ.ValueChanged += new System.EventHandler(this.trackBarRotationZ_ValueChanged);
@@ -306,51 +331,56 @@ namespace CrewChiefV4
             // labelRotationX
             // 
             this.labelRotationX.AutoSize = true;
-            this.labelRotationX.Location = new System.Drawing.Point(6, 16);
+            this.labelRotationX.Location = new System.Drawing.Point(8, 20);
+            this.labelRotationX.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelRotationX.Name = "labelRotationX";
-            this.labelRotationX.Size = new System.Drawing.Size(68, 13);
+            this.labelRotationX.Size = new System.Drawing.Size(90, 17);
             this.labelRotationX.TabIndex = 17;
             this.labelRotationX.Text = "vr_rotation_x";
             // 
             // textBoxRotationZ
             // 
-            this.textBoxRotationZ.Location = new System.Drawing.Point(7, 152);
+            this.textBoxRotationZ.Location = new System.Drawing.Point(9, 187);
+            this.textBoxRotationZ.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.textBoxRotationZ.MaxLength = 4;
             this.textBoxRotationZ.Name = "textBoxRotationZ";
             this.textBoxRotationZ.ReadOnly = true;
-            this.textBoxRotationZ.Size = new System.Drawing.Size(40, 20);
+            this.textBoxRotationZ.Size = new System.Drawing.Size(52, 22);
             this.textBoxRotationZ.TabIndex = 16;
             this.textBoxRotationZ.TabStop = false;
             // 
             // trackBarRotationY
             // 
-            this.trackBarRotationY.Location = new System.Drawing.Point(57, 88);
+            this.trackBarRotationY.Location = new System.Drawing.Point(76, 108);
+            this.trackBarRotationY.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.trackBarRotationY.Maximum = 180;
             this.trackBarRotationY.Minimum = -180;
             this.trackBarRotationY.Name = "trackBarRotationY";
             this.trackBarRotationY.RightToLeftLayout = true;
-            this.trackBarRotationY.Size = new System.Drawing.Size(223, 45);
+            this.trackBarRotationY.Size = new System.Drawing.Size(297, 56);
             this.trackBarRotationY.TabIndex = 2;
             this.trackBarRotationY.TickStyle = System.Windows.Forms.TickStyle.None;
             this.trackBarRotationY.ValueChanged += new System.EventHandler(this.trackBarRotationY_ValueChanged);
             // 
             // textBoxRotationY
             // 
-            this.textBoxRotationY.Location = new System.Drawing.Point(7, 88);
+            this.textBoxRotationY.Location = new System.Drawing.Point(9, 108);
+            this.textBoxRotationY.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.textBoxRotationY.MaxLength = 4;
             this.textBoxRotationY.Name = "textBoxRotationY";
             this.textBoxRotationY.ReadOnly = true;
-            this.textBoxRotationY.Size = new System.Drawing.Size(40, 20);
+            this.textBoxRotationY.Size = new System.Drawing.Size(52, 22);
             this.textBoxRotationY.TabIndex = 15;
             this.textBoxRotationY.TabStop = false;
             // 
             // textBoxRotationX
             // 
-            this.textBoxRotationX.Location = new System.Drawing.Point(7, 32);
+            this.textBoxRotationX.Location = new System.Drawing.Point(9, 39);
+            this.textBoxRotationX.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.textBoxRotationX.MaxLength = 100;
             this.textBoxRotationX.Name = "textBoxRotationX";
             this.textBoxRotationX.ReadOnly = true;
-            this.textBoxRotationX.Size = new System.Drawing.Size(40, 20);
+            this.textBoxRotationX.Size = new System.Drawing.Size(52, 22);
             this.textBoxRotationX.TabIndex = 14;
             this.textBoxRotationX.TabStop = false;
             // 
@@ -372,9 +402,11 @@ namespace CrewChiefV4
             this.groupBoxScaleTransCurve.Controls.Add(this.trackBarTransparency);
             this.groupBoxScaleTransCurve.Controls.Add(this.textBoxTransparency);
             this.groupBoxScaleTransCurve.Controls.Add(this.textBoxScale);
-            this.groupBoxScaleTransCurve.Location = new System.Drawing.Point(514, 25);
+            this.groupBoxScaleTransCurve.Location = new System.Drawing.Point(685, 31);
+            this.groupBoxScaleTransCurve.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.groupBoxScaleTransCurve.Name = "groupBoxScaleTransCurve";
-            this.groupBoxScaleTransCurve.Size = new System.Drawing.Size(295, 356);
+            this.groupBoxScaleTransCurve.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.groupBoxScaleTransCurve.Size = new System.Drawing.Size(393, 438);
             this.groupBoxScaleTransCurve.TabIndex = 5;
             this.groupBoxScaleTransCurve.TabStop = false;
             this.groupBoxScaleTransCurve.Text = "vr_overlay_scale_trans_curve";
@@ -382,19 +414,21 @@ namespace CrewChiefV4
             // labelGazeScale
             // 
             this.labelGazeScale.AutoSize = true;
-            this.labelGazeScale.Location = new System.Drawing.Point(6, 223);
+            this.labelGazeScale.Location = new System.Drawing.Point(8, 274);
+            this.labelGazeScale.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelGazeScale.Name = "labelGazeScale";
-            this.labelGazeScale.Size = new System.Drawing.Size(76, 13);
+            this.labelGazeScale.Size = new System.Drawing.Size(100, 17);
             this.labelGazeScale.TabIndex = 26;
             this.labelGazeScale.Text = "vr_gaze_scale";
             // 
             // trackBarGazeScale
             // 
             this.trackBarGazeScale.BackColor = System.Drawing.SystemColors.Control;
-            this.trackBarGazeScale.Location = new System.Drawing.Point(57, 239);
+            this.trackBarGazeScale.Location = new System.Drawing.Point(76, 294);
+            this.trackBarGazeScale.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.trackBarGazeScale.Maximum = 100;
             this.trackBarGazeScale.Name = "trackBarGazeScale";
-            this.trackBarGazeScale.Size = new System.Drawing.Size(223, 45);
+            this.trackBarGazeScale.Size = new System.Drawing.Size(297, 56);
             this.trackBarGazeScale.TabIndex = 21;
             this.trackBarGazeScale.TickStyle = System.Windows.Forms.TickStyle.None;
             this.trackBarGazeScale.Value = 10;
@@ -403,19 +437,21 @@ namespace CrewChiefV4
             // labelGazeTransparency
             // 
             this.labelGazeTransparency.AutoSize = true;
-            this.labelGazeTransparency.Location = new System.Drawing.Point(4, 287);
+            this.labelGazeTransparency.Location = new System.Drawing.Point(5, 353);
+            this.labelGazeTransparency.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelGazeTransparency.Name = "labelGazeTransparency";
-            this.labelGazeTransparency.Size = new System.Drawing.Size(112, 13);
+            this.labelGazeTransparency.Size = new System.Drawing.Size(150, 17);
             this.labelGazeTransparency.TabIndex = 25;
             this.labelGazeTransparency.Text = "vr_gaze_transparency";
             // 
             // trackBarGazeTransparency
             // 
-            this.trackBarGazeTransparency.Location = new System.Drawing.Point(57, 303);
+            this.trackBarGazeTransparency.Location = new System.Drawing.Point(76, 373);
+            this.trackBarGazeTransparency.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.trackBarGazeTransparency.Maximum = 100;
             this.trackBarGazeTransparency.Name = "trackBarGazeTransparency";
             this.trackBarGazeTransparency.RightToLeftLayout = true;
-            this.trackBarGazeTransparency.Size = new System.Drawing.Size(223, 45);
+            this.trackBarGazeTransparency.Size = new System.Drawing.Size(297, 56);
             this.trackBarGazeTransparency.TabIndex = 22;
             this.trackBarGazeTransparency.TickStyle = System.Windows.Forms.TickStyle.None;
             this.trackBarGazeTransparency.Value = 100;
@@ -423,30 +459,33 @@ namespace CrewChiefV4
             // 
             // textBoxGazeTransparency
             // 
-            this.textBoxGazeTransparency.Location = new System.Drawing.Point(7, 303);
+            this.textBoxGazeTransparency.Location = new System.Drawing.Point(9, 373);
+            this.textBoxGazeTransparency.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.textBoxGazeTransparency.MaxLength = 4;
             this.textBoxGazeTransparency.Name = "textBoxGazeTransparency";
             this.textBoxGazeTransparency.ReadOnly = true;
-            this.textBoxGazeTransparency.Size = new System.Drawing.Size(40, 20);
+            this.textBoxGazeTransparency.Size = new System.Drawing.Size(52, 22);
             this.textBoxGazeTransparency.TabIndex = 24;
             this.textBoxGazeTransparency.TabStop = false;
             // 
             // textBoxGazeScale
             // 
-            this.textBoxGazeScale.Location = new System.Drawing.Point(7, 247);
+            this.textBoxGazeScale.Location = new System.Drawing.Point(9, 304);
+            this.textBoxGazeScale.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.textBoxGazeScale.MaxLength = 100;
             this.textBoxGazeScale.Name = "textBoxGazeScale";
             this.textBoxGazeScale.ReadOnly = true;
-            this.textBoxGazeScale.Size = new System.Drawing.Size(40, 20);
+            this.textBoxGazeScale.Size = new System.Drawing.Size(52, 22);
             this.textBoxGazeScale.TabIndex = 23;
             this.textBoxGazeScale.TabStop = false;
             // 
             // checkBoxEnableGazeing
             // 
             this.checkBoxEnableGazeing.AutoSize = true;
-            this.checkBoxEnableGazeing.Location = new System.Drawing.Point(6, 207);
+            this.checkBoxEnableGazeing.Location = new System.Drawing.Point(8, 255);
+            this.checkBoxEnableGazeing.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.checkBoxEnableGazeing.Name = "checkBoxEnableGazeing";
-            this.checkBoxEnableGazeing.Size = new System.Drawing.Size(110, 17);
+            this.checkBoxEnableGazeing.Size = new System.Drawing.Size(143, 21);
             this.checkBoxEnableGazeing.TabIndex = 20;
             this.checkBoxEnableGazeing.Text = "vr_enable_gazing";
             this.checkBoxEnableGazeing.UseVisualStyleBackColor = true;
@@ -455,19 +494,21 @@ namespace CrewChiefV4
             // labelCurvature
             // 
             this.labelCurvature.AutoSize = true;
-            this.labelCurvature.Location = new System.Drawing.Point(4, 136);
+            this.labelCurvature.Location = new System.Drawing.Point(5, 167);
+            this.labelCurvature.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelCurvature.Name = "labelCurvature";
-            this.labelCurvature.Size = new System.Drawing.Size(67, 13);
+            this.labelCurvature.Size = new System.Drawing.Size(88, 17);
             this.labelCurvature.TabIndex = 19;
             this.labelCurvature.Text = "vr_curvature";
             // 
             // trackBarScale
             // 
             this.trackBarScale.BackColor = System.Drawing.SystemColors.Control;
-            this.trackBarScale.Location = new System.Drawing.Point(57, 32);
+            this.trackBarScale.Location = new System.Drawing.Point(76, 39);
+            this.trackBarScale.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.trackBarScale.Maximum = 1000;
             this.trackBarScale.Name = "trackBarScale";
-            this.trackBarScale.Size = new System.Drawing.Size(223, 45);
+            this.trackBarScale.Size = new System.Drawing.Size(297, 56);
             this.trackBarScale.TabIndex = 1;
             this.trackBarScale.TickStyle = System.Windows.Forms.TickStyle.None;
             this.trackBarScale.UseWaitCursor = true;
@@ -477,18 +518,20 @@ namespace CrewChiefV4
             // labelTransparency
             // 
             this.labelTransparency.AutoSize = true;
-            this.labelTransparency.Location = new System.Drawing.Point(4, 80);
+            this.labelTransparency.Location = new System.Drawing.Point(5, 98);
+            this.labelTransparency.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelTransparency.Name = "labelTransparency";
-            this.labelTransparency.Size = new System.Drawing.Size(83, 13);
+            this.labelTransparency.Size = new System.Drawing.Size(111, 17);
             this.labelTransparency.TabIndex = 18;
             this.labelTransparency.Text = "vr_transparency";
             // 
             // trackBarCurvature
             // 
-            this.trackBarCurvature.Location = new System.Drawing.Point(57, 152);
+            this.trackBarCurvature.Location = new System.Drawing.Point(76, 187);
+            this.trackBarCurvature.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.trackBarCurvature.Maximum = 100;
             this.trackBarCurvature.Name = "trackBarCurvature";
-            this.trackBarCurvature.Size = new System.Drawing.Size(223, 45);
+            this.trackBarCurvature.Size = new System.Drawing.Size(297, 56);
             this.trackBarCurvature.TabIndex = 3;
             this.trackBarCurvature.TickStyle = System.Windows.Forms.TickStyle.None;
             this.trackBarCurvature.ValueChanged += new System.EventHandler(this.trackBarCurvature_ValueChanged);
@@ -496,29 +539,32 @@ namespace CrewChiefV4
             // labelSale
             // 
             this.labelSale.AutoSize = true;
-            this.labelSale.Location = new System.Drawing.Point(6, 16);
+            this.labelSale.Location = new System.Drawing.Point(8, 20);
+            this.labelSale.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelSale.Name = "labelSale";
-            this.labelSale.Size = new System.Drawing.Size(47, 13);
+            this.labelSale.Size = new System.Drawing.Size(61, 17);
             this.labelSale.TabIndex = 17;
             this.labelSale.Text = "vr_scale";
             // 
             // textBoxCurvature
             // 
-            this.textBoxCurvature.Location = new System.Drawing.Point(7, 152);
+            this.textBoxCurvature.Location = new System.Drawing.Point(9, 187);
+            this.textBoxCurvature.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.textBoxCurvature.MaxLength = 4;
             this.textBoxCurvature.Name = "textBoxCurvature";
             this.textBoxCurvature.ReadOnly = true;
-            this.textBoxCurvature.Size = new System.Drawing.Size(40, 20);
+            this.textBoxCurvature.Size = new System.Drawing.Size(52, 22);
             this.textBoxCurvature.TabIndex = 16;
             this.textBoxCurvature.TabStop = false;
             // 
             // trackBarTransparency
             // 
-            this.trackBarTransparency.Location = new System.Drawing.Point(57, 96);
+            this.trackBarTransparency.Location = new System.Drawing.Point(76, 118);
+            this.trackBarTransparency.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.trackBarTransparency.Maximum = 100;
             this.trackBarTransparency.Name = "trackBarTransparency";
             this.trackBarTransparency.RightToLeftLayout = true;
-            this.trackBarTransparency.Size = new System.Drawing.Size(223, 45);
+            this.trackBarTransparency.Size = new System.Drawing.Size(297, 56);
             this.trackBarTransparency.TabIndex = 2;
             this.trackBarTransparency.TickStyle = System.Windows.Forms.TickStyle.None;
             this.trackBarTransparency.Value = 100;
@@ -526,40 +572,42 @@ namespace CrewChiefV4
             // 
             // textBoxTransparency
             // 
-            this.textBoxTransparency.Location = new System.Drawing.Point(7, 96);
+            this.textBoxTransparency.Location = new System.Drawing.Point(9, 118);
+            this.textBoxTransparency.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.textBoxTransparency.MaxLength = 4;
             this.textBoxTransparency.Name = "textBoxTransparency";
             this.textBoxTransparency.ReadOnly = true;
-            this.textBoxTransparency.Size = new System.Drawing.Size(40, 20);
+            this.textBoxTransparency.Size = new System.Drawing.Size(52, 22);
             this.textBoxTransparency.TabIndex = 15;
             this.textBoxTransparency.TabStop = false;
             // 
             // textBoxScale
             // 
-            this.textBoxScale.Location = new System.Drawing.Point(7, 40);
+            this.textBoxScale.Location = new System.Drawing.Point(9, 49);
+            this.textBoxScale.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.textBoxScale.MaxLength = 100;
             this.textBoxScale.Name = "textBoxScale";
             this.textBoxScale.ReadOnly = true;
-            this.textBoxScale.Size = new System.Drawing.Size(40, 20);
+            this.textBoxScale.Size = new System.Drawing.Size(52, 22);
             this.textBoxScale.TabIndex = 14;
             this.textBoxScale.TabStop = false;
             // 
             // labelAvailableWindows
             // 
             this.labelAvailableWindows.AutoSize = true;
-            this.labelAvailableWindows.Location = new System.Drawing.Point(12, 7);
-            this.labelAvailableWindows.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labelAvailableWindows.Location = new System.Drawing.Point(16, 9);
             this.labelAvailableWindows.Name = "labelAvailableWindows";
-            this.labelAvailableWindows.Size = new System.Drawing.Size(96, 13);
+            this.labelAvailableWindows.Size = new System.Drawing.Size(124, 17);
             this.labelAvailableWindows.TabIndex = 10;
             this.labelAvailableWindows.Text = "available_windows";
             // 
             // checkBoxForceTopMostWindow
             // 
             this.checkBoxForceTopMostWindow.AutoSize = true;
-            this.checkBoxForceTopMostWindow.Location = new System.Drawing.Point(12, 279);
+            this.checkBoxForceTopMostWindow.Location = new System.Drawing.Point(16, 343);
+            this.checkBoxForceTopMostWindow.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.checkBoxForceTopMostWindow.Name = "checkBoxForceTopMostWindow";
-            this.checkBoxForceTopMostWindow.Size = new System.Drawing.Size(150, 17);
+            this.checkBoxForceTopMostWindow.Size = new System.Drawing.Size(193, 21);
             this.checkBoxForceTopMostWindow.TabIndex = 11;
             this.checkBoxForceTopMostWindow.Text = "vr_force_topmost_window";
             this.checkBoxForceTopMostWindow.UseVisualStyleBackColor = true;
@@ -568,62 +616,99 @@ namespace CrewChiefV4
             // comboBoxTrackingSpace
             // 
             this.comboBoxTrackingSpace.FormattingEnabled = true;
-            this.comboBoxTrackingSpace.Location = new System.Drawing.Point(12, 318);
+            this.comboBoxTrackingSpace.Location = new System.Drawing.Point(16, 391);
+            this.comboBoxTrackingSpace.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.comboBoxTrackingSpace.Name = "comboBoxTrackingSpace";
-            this.comboBoxTrackingSpace.Size = new System.Drawing.Size(121, 21);
+            this.comboBoxTrackingSpace.Size = new System.Drawing.Size(160, 24);
             this.comboBoxTrackingSpace.TabIndex = 12;
             this.comboBoxTrackingSpace.SelectedIndexChanged += new System.EventHandler(this.comboBoxTrackingSpace_SelectedIndexChanged);
             // 
             // labelTrackingSpace
             // 
             this.labelTrackingSpace.AutoSize = true;
-            this.labelTrackingSpace.Location = new System.Drawing.Point(12, 302);
+            this.labelTrackingSpace.Location = new System.Drawing.Point(16, 372);
+            this.labelTrackingSpace.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelTrackingSpace.Name = "labelTrackingSpace";
-            this.labelTrackingSpace.Size = new System.Drawing.Size(95, 13);
+            this.labelTrackingSpace.Size = new System.Drawing.Size(124, 17);
             this.labelTrackingSpace.TabIndex = 13;
             this.labelTrackingSpace.Text = "vr_tracking_space";
             // 
             // comboBoxToggleVirtualKeys
             // 
             this.comboBoxToggleVirtualKeys.FormattingEnabled = true;
-            this.comboBoxToggleVirtualKeys.Location = new System.Drawing.Point(12, 365);
+            this.comboBoxToggleVirtualKeys.Location = new System.Drawing.Point(16, 449);
+            this.comboBoxToggleVirtualKeys.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.comboBoxToggleVirtualKeys.Name = "comboBoxToggleVirtualKeys";
-            this.comboBoxToggleVirtualKeys.Size = new System.Drawing.Size(121, 21);
+            this.comboBoxToggleVirtualKeys.Size = new System.Drawing.Size(160, 24);
             this.comboBoxToggleVirtualKeys.TabIndex = 14;
             this.comboBoxToggleVirtualKeys.SelectedIndexChanged += new System.EventHandler(this.comboBoxVirtualKeys_SelectedIndexChanged);
             // 
             // labelToggleKey
             // 
             this.labelToggleKey.AutoSize = true;
-            this.labelToggleKey.Location = new System.Drawing.Point(12, 349);
+            this.labelToggleKey.Location = new System.Drawing.Point(16, 430);
+            this.labelToggleKey.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelToggleKey.Name = "labelToggleKey";
-            this.labelToggleKey.Size = new System.Drawing.Size(74, 13);
+            this.labelToggleKey.Size = new System.Drawing.Size(97, 17);
             this.labelToggleKey.TabIndex = 15;
             this.labelToggleKey.Text = "vr_toggle_key";
             // 
             // comboBoxModifierKeys
             // 
             this.comboBoxModifierKeys.FormattingEnabled = true;
-            this.comboBoxModifierKeys.Location = new System.Drawing.Point(12, 408);
+            this.comboBoxModifierKeys.Location = new System.Drawing.Point(16, 502);
+            this.comboBoxModifierKeys.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.comboBoxModifierKeys.Name = "comboBoxModifierKeys";
-            this.comboBoxModifierKeys.Size = new System.Drawing.Size(121, 21);
+            this.comboBoxModifierKeys.Size = new System.Drawing.Size(160, 24);
             this.comboBoxModifierKeys.TabIndex = 16;
             this.comboBoxModifierKeys.SelectedIndexChanged += new System.EventHandler(this.comboBoxModifierKeys_SelectedIndexChanged);
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(62, 391);
+            this.label2.Location = new System.Drawing.Point(83, 481);
+            this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(13, 13);
+            this.label2.Size = new System.Drawing.Size(16, 17);
             this.label2.TabIndex = 20;
             this.label2.Text = "+";
             // 
+            // comboBoxSetTrackingSpace
+            // 
+            this.comboBoxSetTrackingSpace.FormattingEnabled = true;
+            this.comboBoxSetTrackingSpace.Location = new System.Drawing.Point(6, 24);
+            this.comboBoxSetTrackingSpace.Name = "comboBoxSetTrackingSpace";
+            this.comboBoxSetTrackingSpace.Size = new System.Drawing.Size(164, 24);
+            this.comboBoxSetTrackingSpace.TabIndex = 21;
+            this.comboBoxSetTrackingSpace.SelectedIndexChanged += new System.EventHandler(this.comboBoxSetTrackingSpace_SelectedIndexChanged);
+            // 
+            // groupBoxTrackingUniverse
+            // 
+            this.groupBoxTrackingUniverse.Controls.Add(this.buttonReCenter);
+            this.groupBoxTrackingUniverse.Controls.Add(this.comboBoxSetTrackingSpace);
+            this.groupBoxTrackingUniverse.Location = new System.Drawing.Point(685, 481);
+            this.groupBoxTrackingUniverse.Name = "groupBoxTrackingUniverse";
+            this.groupBoxTrackingUniverse.Size = new System.Drawing.Size(393, 55);
+            this.groupBoxTrackingUniverse.TabIndex = 24;
+            this.groupBoxTrackingUniverse.TabStop = false;
+            this.groupBoxTrackingUniverse.Text = "vr_tracking_universe_overwrite";
+            // 
+            // buttonReCenter
+            // 
+            this.buttonReCenter.Location = new System.Drawing.Point(202, 21);
+            this.buttonReCenter.Name = "buttonReCenter";
+            this.buttonReCenter.Size = new System.Drawing.Size(185, 29);
+            this.buttonReCenter.TabIndex = 22;
+            this.buttonReCenter.Text = "vr_recenter_pose";
+            this.buttonReCenter.UseVisualStyleBackColor = true;
+            this.buttonReCenter.Click += new System.EventHandler(this.buttonReCenter_Click);
+            // 
             // VROverlaySettings
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(823, 449);
+            this.ClientSize = new System.Drawing.Size(1097, 585);
+            this.Controls.Add(this.groupBoxTrackingUniverse);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.comboBoxModifierKeys);
             this.Controls.Add(this.labelToggleKey);
@@ -638,6 +723,7 @@ namespace CrewChiefV4
             this.Controls.Add(this.buttonSaveSettings);
             this.Controls.Add(this.groupBoxPosition);
             this.Controls.Add(this.checkBoxEnabled);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.MaximizeBox = false;
             this.Name = "VROverlaySettings";
             this.Text = "SteamVR Overlay Settings";
@@ -660,6 +746,7 @@ namespace CrewChiefV4
             ((System.ComponentModel.ISupportInitialize)(this.trackBarScale)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarCurvature)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarTransparency)).EndInit();
+            this.groupBoxTrackingUniverse.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -715,5 +802,8 @@ namespace CrewChiefV4
         private System.Windows.Forms.Label labelToggleKey;
         private System.Windows.Forms.ComboBox comboBoxModifierKeys;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.ComboBox comboBoxSetTrackingSpace;
+        private System.Windows.Forms.GroupBox groupBoxTrackingUniverse;
+        private System.Windows.Forms.Button buttonReCenter;
     }
 }

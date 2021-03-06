@@ -1522,7 +1522,7 @@ namespace CrewChiefV4
             }
         }
 
-       private void vrOverlaysUpdateThreadWorker()
+        private void vrOverlaysUpdateThreadWorker()
         {
             bool vrOverlayForceDisabledDrawing = false;
             uint vrEventSize = (uint)SharpDX.Utilities.SizeOf<VREvent_t>();
@@ -1683,6 +1683,14 @@ namespace CrewChiefV4
             {
                 Utilities.ReportException(ex, "handleVRQuit exited with exception.", needReport: false);
             }
+        }
+        public void resetSteamVRTrackingPose()
+        {
+            if (!VROverlayController.vrUpdateThreadRunning)
+                return;
+
+            OpenVR.Chaperone.ResetZeroPose(OpenVR.Compositor.GetTrackingSpace());
+            Log.Commentary("Reset VR view");
         }
 
         private void consoleUpdateThreadWorker()

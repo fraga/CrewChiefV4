@@ -201,10 +201,9 @@ namespace CrewChiefV4.VirtualReality
             }
         }
 
-        public static void Recenter()
+        public static void Recenter(ETrackingUniverseOrigin eTrackingUniverse)
         {
-            
-            OpenVR.System.ResetSeatedZeroPose();
+            OpenVR.Chaperone.ResetZeroPose(eTrackingUniverse);
         }
 
         public static void GetEyeToHead(int eyeIndex, out Matrix pose)
