@@ -44,6 +44,7 @@ automobilista = Automobilista
 marcas = Copa Petrobras de Marcas
 ftruck = Formula Truck
 assetto_64_bit = Assetto Corsa (64 bit)
+assetto_64_bit_rally_mode = Assetto Corsa Rally (64 bit)
 assetto_32_bit = Assetto Corsa (32 bit)
 rfactor2_64_bit = rFactor 2 (64 bit)
 iracing = iRacing
@@ -1979,22 +1980,22 @@ show_vr_settings_as_overlay_category = VR_SETTINGS
 codriver_rushed_speed = Codriver rushing speed threshold (km/h)
 codriver_rushed_speed_help = Use rushed / urgent calls when above this speed (rally only).  Set to unrealistically high value, e.g. 400km/h to never rush based on speed
 codriver_rushed_speed_category = CODRIVER
-codriver_rushed_speed_filter = RBR;DIRT;DIRT_2
+codriver_rushed_speed_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
 
 codriver_rushed_lookahead_seconds = Codriver rushing look ahead (seconds)
 codriver_rushed_lookahead_seconds_help = Use rushed / urgent calls when there are pace notes to be announced this many seconds away (rally only).  If set to 0, codriver will only rush based on speed.  The bigger the value, the more likely it is thatcodriver will rush.
 codriver_rushed_lookahead_seconds_category = CODRIVER
-codriver_rushed_lookahead_seconds_filter = RBR;DIRT;DIRT_2
+codriver_rushed_lookahead_seconds_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
 
 codriver_chained_pacenote_threshold_distance = Link codriver calls closer than this (metres)
 codriver_chained_pacenote_threshold_distance_help = Combined calls when they're closer together than this many metres (rally only)
 codriver_chained_pacenote_threshold_distance_category = CODRIVER
-codriver_chained_pacenote_threshold_distance_filter = RBR;DIRT;DIRT_2
+codriver_chained_pacenote_threshold_distance_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
 
 codriver_lookahead_seconds = Default look ahead for codriver calls (seconds)
 codriver_lookahead_seconds_help = Call out corners etc when you're this many seconds away (rally only)
 codriver_lookahead_seconds_category = CODRIVER
-codriver_lookahead_seconds_filter = RBR;DIRT;DIRT_2
+codriver_lookahead_seconds_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
 
 enable_controller_pov_switches = Enable controller PoV switches
 enable_controller_pov_switches_help = Allow controller point-of-view switches to be used for button assignments
@@ -2031,29 +2032,29 @@ scroll_bars_on_main_window_metadata = RESTART_REQUIRED
 use_dictation_grammar_for_rally = Use free dictation for stage notes
 use_dictation_grammar_for_rally_help = Record pace notes using free dictaction grammar (Windows speech recogniser only)
 use_dictation_grammar_for_rally_category = AUDIO_VOICE_AND_CONTROLLERS
-use_dictation_grammar_for_rally_filter = RBR;DIRT;DIRT_2
+use_dictation_grammar_for_rally_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
 use_dictation_grammar_for_rally_metadata = RESTART_REQUIRED
 
 dictation_grammar_for_rally_confidence = Min rally free dictation voice recognition confidence (Microsoft recogniser)
 dictation_grammar_for_rally_confidence_help = When processing stage notes in free dictation mode, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0)
 dictation_grammar_for_rally_confidence_category = AUDIO_VOICE_AND_CONTROLLERS
-dictation_grammar_for_rally_confidence_filter = RBR;DIRT;DIRT_2
+dictation_grammar_for_rally_confidence_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
 
 confirm_recce_pace_notes = Confirm each pace note in stage recce
 confirm_recce_pace_notes_help = Play back the pace note(s) created from each stage notes voice command
 confirm_recce_pace_notes_category = AUDIO_VOICE_AND_CONTROLLERS
-dictation_grammar_for_rally_confidence_filter = RBR;DIRT;DIRT_2
+dictation_grammar_for_rally_confidence_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
 
 minimum_rally_voice_recognition_confidence_microsoft_sre = Min rally voice recognition confidence (Windows recogniser)
 minimum_rally_voice_recognition_confidence_microsoft_sre_help =  When processing voice commands in rally mode, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0)
 minimum_rally_voice_recognition_confidence_microsoft_sre_category = AUDIO_VOICE_AND_CONTROLLERS
-minimum_rally_voice_recognition_confidence_microsoft_sre_filter = RBR;DIRT;DIRT_2
+minimum_rally_voice_recognition_confidence_microsoft_sre_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
 minimum_rally_voice_recognition_confidence_microsoft_sre_metadata = RESTART_REQUIRED
 
 minimum_rally_voice_recognition_confidence_system_sre = Min rally voice recognition confidence (Windows recogniser)
 minimum_rally_voice_recognition_confidence_system_sre_help =  When processing voice commands in rally mode, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0)
 minimum_rally_voice_recognition_confidence_system_sre_category = AUDIO_VOICE_AND_CONTROLLERS
-minimum_rally_voice_recognition_confidence_system_sre_filter = RBR;DIRT;DIRT_2
+minimum_rally_voice_recognition_confidence_system_sre_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
 minimum_rally_voice_recognition_confidence_system_sre_metadata = RESTART_REQUIRED
 
 dirt_rally_udp_data_port = Dirt Rally UDP port
@@ -2091,12 +2092,12 @@ allow_composite_personalisations_metadata = RESTART_REQUIRED
 codriver_dynamic_lookahead = Dynamic co-driver distance look ahead
 codriver_dynamic_lookahead_help = Reduce co-driver look ahead distance when approaching slow corners
 codriver_dynamic_lookahead_category = MISC
-codriver_dynamic_lookahead_filter = RBR;DIRT;DIRT_2
+codriver_dynamic_lookahead_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
 
 codriver_min_space_for_auto_distance_call = Min gap for auto-generated distance pace note (metres)
 codriver_min_space_for_auto_distance_call_help = Insert auto-generated distance call when the next call is greater than this distance away
 codriver_min_space_for_auto_distance_call_category = AUDIO_VOICE_AND_CONTROLLERS
-codriver_min_space_for_auto_distance_call_filter = RBR;DIRT;DIRT_2
+codriver_min_space_for_auto_distance_call_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
 
 include_start_pos_in_dirt_stage_names = Include start location in Dirt Rally pace note folders
 include_start_pos_in_dirt_stage_names_help = Add X and Z coordinates to stage length when constructing folder name for pace notes

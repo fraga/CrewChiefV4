@@ -248,7 +248,7 @@ namespace CrewChiefV4
             {
                 gameInstallPath = UserSettings.GetUserSettings().getString("rf2_install_path");
             }
-            else if (gameDefinition.gameEnum == GameEnum.ASSETTO_32BIT || gameDefinition.gameEnum == GameEnum.ASSETTO_64BIT)
+            else if (gameDefinition.gameEnum == GameEnum.ASSETTO_32BIT || gameDefinition.gameEnum == GameEnum.ASSETTO_64BIT || gameDefinition.gameEnum == GameEnum.ASSETTO_64BIT_RALLY)
             {
                 gameInstallPath = UserSettings.GetUserSettings().getString("acs_install_path");
             }
@@ -396,7 +396,7 @@ namespace CrewChiefV4
                         Console.WriteLine("Failed to enable plugin" + e.Message);
                     }
                 }
-                else if (gameDefinition.gameEnum == GameEnum.ASSETTO_32BIT || gameDefinition.gameEnum == GameEnum.ASSETTO_64BIT)
+                else if (gameDefinition.gameEnum == GameEnum.ASSETTO_32BIT || gameDefinition.gameEnum == GameEnum.ASSETTO_64BIT || gameDefinition.gameEnum == GameEnum.ASSETTO_64BIT_RALLY)
                 {
                     UserSettings.GetUserSettings().setProperty("acs_install_path", gameInstallPath);
                     string pythonConfigPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Assetto Corsa\cfg", @"python.ini");
