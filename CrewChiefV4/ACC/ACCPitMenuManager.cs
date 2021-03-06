@@ -32,9 +32,9 @@ namespace CrewChiefV4.ACC
         private const String PIT_MENU_RIGHT_MACRO_NAME = "pit menu right";
         private const String PIT_MENU_LEFT_MACRO_NAME = "pit menu left";
 
-        private const string folderConfirmChangeTyres = "mandatory_pit_stops/confirm_change_all_tyres";  // TODO record "confirm change tyres"
+        private const string folderConfirmChangeTyres = "mandatory_pit_stops/confirm_change_tyres";
         private const string folderConfirmWetTyres = "mandatory_pit_stops/confirm_wet_tyres";
-        private const string folderConfirmDryTyres = "mandatory_pit_stops/confirm_hard_tyres";  // TODO: record "confirm dry tyres"
+        private const string folderConfirmDryTyres = "mandatory_pit_stops/confirm_dry_tyres";
         private const string folderConfirmNoTyres = "mandatory_pit_stops/confirm_change_no_tyres";
         private const string folderConfirmNoRefuelling = "mandatory_pit_stops/confirm_no_refuelling";
 
