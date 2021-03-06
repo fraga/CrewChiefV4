@@ -896,6 +896,7 @@ namespace CrewChiefV4
                             break;
                         case GameEnum.ASSETTO_64BIT:
                         case GameEnum.ASSETTO_32BIT:
+                        case GameEnum.ASSETTO_64BIT_RALLY:
                             classNamesPropName = "acClassNames";
                             regexsPropName = "acClassNamesRegexs";
                             break;

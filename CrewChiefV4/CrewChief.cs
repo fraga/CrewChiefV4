@@ -246,6 +246,7 @@ namespace CrewChiefV4
                 {
                     if (gameDefinition.gameEnum == GameEnum.ASSETTO_32BIT ||
                         gameDefinition.gameEnum == GameEnum.ASSETTO_64BIT ||
+                        gameDefinition.gameEnum == GameEnum.ASSETTO_64BIT_RALLY ||
                         gameDefinition.gameEnum == GameEnum.RF1 ||
                         gameDefinition.gameEnum == GameEnum.RF2_64BIT ||
                         gameDefinition.gameEnum == GameEnum.ACC ||

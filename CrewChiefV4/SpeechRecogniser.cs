@@ -1493,6 +1493,7 @@ namespace CrewChiefV4
                 case GameEnum.RBR:
                 case GameEnum.DIRT:
                 case GameEnum.DIRT_2:
+                case GameEnum.ASSETTO_64BIT_RALLY:
                     addRallySpeechRecogniser();
                     break;
                 default:

@@ -213,11 +213,11 @@ namespace CrewChiefV4.assetto
 
 
             List<CornerData.EnumWithThresholds> tyreWearThresholdsGP54 = new List<CornerData.EnumWithThresholds>();
-            tyreWearThresholdsGP54.Add(new CornerData.EnumWithThresholds(TyreCondition.NEW, -10000f, -1.0f));
-            tyreWearThresholdsGP54.Add(new CornerData.EnumWithThresholds(TyreCondition.SCRUBBED, -1.0f, 0.0f));
-            tyreWearThresholdsGP54.Add(new CornerData.EnumWithThresholds(TyreCondition.MINOR_WEAR, 0.0f, 1.0f));
-            tyreWearThresholdsGP54.Add(new CornerData.EnumWithThresholds(TyreCondition.MAJOR_WEAR, 1.0f, 49.49493f));
-            tyreWearThresholdsGP54.Add(new CornerData.EnumWithThresholds(TyreCondition.WORN_OUT, 49.49493f, 1000f));
+            tyreWearThresholdsGP54.Add(new CornerData.EnumWithThresholds(TyreCondition.NEW, -10000f, 0.0f));
+            tyreWearThresholdsGP54.Add(new CornerData.EnumWithThresholds(TyreCondition.SCRUBBED, 0.0f, 10.0f));
+            tyreWearThresholdsGP54.Add(new CornerData.EnumWithThresholds(TyreCondition.MINOR_WEAR, 10.0f, 40.0f));
+            tyreWearThresholdsGP54.Add(new CornerData.EnumWithThresholds(TyreCondition.MAJOR_WEAR, 40.0f, 55.49493f));
+            tyreWearThresholdsGP54.Add(new CornerData.EnumWithThresholds(TyreCondition.WORN_OUT, 55.49493f, 1000f));
 
             List<CornerData.EnumWithThresholds> tyreTempsThresholdsGP54 = new List<CornerData.EnumWithThresholds>();
             tyreTempsThresholdsGP54.Add(new CornerData.EnumWithThresholds(TyreTemp.COLD, -10000f, 40f));
@@ -228,11 +228,11 @@ namespace CrewChiefV4.assetto
 
 
             List<CornerData.EnumWithThresholds> tyreWearThresholdsGP57 = new List<CornerData.EnumWithThresholds>();
-            tyreWearThresholdsGP57.Add(new CornerData.EnumWithThresholds(TyreCondition.NEW, -10000f, -1.0f));
-            tyreWearThresholdsGP57.Add(new CornerData.EnumWithThresholds(TyreCondition.SCRUBBED, -1.0f, 0.0f));
-            tyreWearThresholdsGP57.Add(new CornerData.EnumWithThresholds(TyreCondition.MINOR_WEAR, 0.0f, 1.0f));
-            tyreWearThresholdsGP57.Add(new CornerData.EnumWithThresholds(TyreCondition.MAJOR_WEAR, 1.0f, 49.49493f));
-            tyreWearThresholdsGP57.Add(new CornerData.EnumWithThresholds(TyreCondition.WORN_OUT, 49.49493f, 1000f));
+            tyreWearThresholdsGP54.Add(new CornerData.EnumWithThresholds(TyreCondition.NEW, -10000f, 0.0f));
+            tyreWearThresholdsGP54.Add(new CornerData.EnumWithThresholds(TyreCondition.SCRUBBED, 0.0f, 10.0f));
+            tyreWearThresholdsGP54.Add(new CornerData.EnumWithThresholds(TyreCondition.MINOR_WEAR, 10.0f, 40.0f));
+            tyreWearThresholdsGP54.Add(new CornerData.EnumWithThresholds(TyreCondition.MAJOR_WEAR, 40.0f, 55.49493f));
+            tyreWearThresholdsGP54.Add(new CornerData.EnumWithThresholds(TyreCondition.WORN_OUT, 55.49493f, 1000f));
 
             List<CornerData.EnumWithThresholds> tyreTempsThresholdsGP57 = new List<CornerData.EnumWithThresholds>();
             tyreTempsThresholdsGP57.Add(new CornerData.EnumWithThresholds(TyreTemp.COLD, -10000f, 40f));
@@ -243,11 +243,11 @@ namespace CrewChiefV4.assetto
 
 
             List<CornerData.EnumWithThresholds> tyreWearThresholdsGP63 = new List<CornerData.EnumWithThresholds>();
-            tyreWearThresholdsGP63.Add(new CornerData.EnumWithThresholds(TyreCondition.NEW, -10000f, -1.0f));
-            tyreWearThresholdsGP63.Add(new CornerData.EnumWithThresholds(TyreCondition.SCRUBBED, -1.0f, 0.0f));
-            tyreWearThresholdsGP63.Add(new CornerData.EnumWithThresholds(TyreCondition.MINOR_WEAR, 0.0f, 1.0f));
-            tyreWearThresholdsGP63.Add(new CornerData.EnumWithThresholds(TyreCondition.MAJOR_WEAR, 1.0f, 49.49493f));
-            tyreWearThresholdsGP63.Add(new CornerData.EnumWithThresholds(TyreCondition.WORN_OUT, 49.49493f, 1000f));
+            tyreWearThresholdsGP54.Add(new CornerData.EnumWithThresholds(TyreCondition.NEW, -10000f, 0.0f));
+            tyreWearThresholdsGP54.Add(new CornerData.EnumWithThresholds(TyreCondition.SCRUBBED, 0.0f, 10.0f));
+            tyreWearThresholdsGP54.Add(new CornerData.EnumWithThresholds(TyreCondition.MINOR_WEAR, 10.0f, 40.0f));
+            tyreWearThresholdsGP54.Add(new CornerData.EnumWithThresholds(TyreCondition.MAJOR_WEAR, 40.0f, 55.49493f));
+            tyreWearThresholdsGP54.Add(new CornerData.EnumWithThresholds(TyreCondition.WORN_OUT, 55.49493f, 1000f));
 
 
             List<CornerData.EnumWithThresholds> tyreTempsThresholdsGP63 = new List<CornerData.EnumWithThresholds>();
@@ -258,11 +258,11 @@ namespace CrewChiefV4.assetto
             acTyres.Add("GP63 (V)", new AcTyres(tyreWearThresholdsGP63, tyreTempsThresholdsGP63, 98f));
 
             List<CornerData.EnumWithThresholds> tyreWearThresholdsGP67 = new List<CornerData.EnumWithThresholds>();
-            tyreWearThresholdsGP67.Add(new CornerData.EnumWithThresholds(TyreCondition.NEW, -10000f, -1.0f));
-            tyreWearThresholdsGP67.Add(new CornerData.EnumWithThresholds(TyreCondition.SCRUBBED, -1.0f, 0.0f));
-            tyreWearThresholdsGP67.Add(new CornerData.EnumWithThresholds(TyreCondition.MINOR_WEAR, 0.0f, 1.0f));
-            tyreWearThresholdsGP67.Add(new CornerData.EnumWithThresholds(TyreCondition.MAJOR_WEAR, 1.0f, 49.49493f));
-            tyreWearThresholdsGP67.Add(new CornerData.EnumWithThresholds(TyreCondition.WORN_OUT, 49.49493f, 1000f));
+            tyreWearThresholdsGP54.Add(new CornerData.EnumWithThresholds(TyreCondition.NEW, -10000f, 0.0f));
+            tyreWearThresholdsGP54.Add(new CornerData.EnumWithThresholds(TyreCondition.SCRUBBED, 0.0f, 10.0f));
+            tyreWearThresholdsGP54.Add(new CornerData.EnumWithThresholds(TyreCondition.MINOR_WEAR, 10.0f, 40.0f));
+            tyreWearThresholdsGP54.Add(new CornerData.EnumWithThresholds(TyreCondition.MAJOR_WEAR, 40.0f, 55.49493f));
+            tyreWearThresholdsGP54.Add(new CornerData.EnumWithThresholds(TyreCondition.WORN_OUT, 55.49493f, 1000f));
 
             List<CornerData.EnumWithThresholds> tyreTempsThresholdsGP67 = new List<CornerData.EnumWithThresholds>();
             tyreTempsThresholdsGP67.Add(new CornerData.EnumWithThresholds(TyreTemp.COLD, -10000f, 40f));
@@ -1197,6 +1197,8 @@ namespace CrewChiefV4.assetto
                     currentGameState.TimingData = previousGameState.TimingData;
 
                     currentGameState.SessionData.JustGoneGreenTime = previousGameState.SessionData.JustGoneGreenTime;
+
+                    currentGameState.CoDriverPacenotes = previousGameState.CoDriverPacenotes;
                 }
 
                 //------------------- Variable session data ---------------------------

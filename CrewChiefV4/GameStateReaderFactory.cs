@@ -94,6 +94,7 @@ namespace CrewChiefV4
                         return rf1SharedMemoryReader;
                     case GameEnum.ASSETTO_64BIT:
                     case GameEnum.ASSETTO_32BIT:
+                    case GameEnum.ASSETTO_64BIT_RALLY:
                         if (ascSharedMemoryReader == null)
                         {
                             ascSharedMemoryReader = new ACSSharedMemoryReader();
@@ -191,6 +192,7 @@ namespace CrewChiefV4
                     return new RF1GameStateMapper();
                 case GameEnum.ASSETTO_64BIT:
                 case GameEnum.ASSETTO_32BIT:
+                case GameEnum.ASSETTO_64BIT_RALLY:
                     return new ACSGameStateMapper();
                 case GameEnum.RF2_64BIT:
                     return new RF2GameStateMapper();

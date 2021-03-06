@@ -8,7 +8,7 @@ namespace CrewChiefV4
 {
     public enum GameEnum
     {
-        RACE_ROOM, PCARS2, PCARS_64BIT, PCARS_32BIT, PCARS_NETWORK, PCARS2_NETWORK, RF1, ASSETTO_64BIT, ASSETTO_32BIT,
+        RACE_ROOM, PCARS2, PCARS_64BIT, PCARS_32BIT, PCARS_NETWORK, PCARS2_NETWORK, RF1, ASSETTO_64BIT, ASSETTO_64BIT_RALLY, ASSETTO_32BIT,
         RF2_64BIT, IRACING, F1_2018, F1_2019, F1_2020, ACC, AMS2, AMS2_NETWORK, PCARS3, RBR, DIRT, DIRT_2, GTR2, UNKNOWN,
         NONE, /* this allows CC macros to run when an unsupported game is being played, it's selectable from the Games list */
         ANY   /* this allows CC macros to be defined that apply to all supported games, it's only selectable from the macro UI */
@@ -63,6 +63,9 @@ namespace CrewChiefV4
             "ftruck_launch_exe", "ftruck_launch_params", "launch_ftruck", true, commandLineName:"FTRUCK");
         public static GameDefinition assetto64Bit = new GameDefinition(GameEnum.ASSETTO_64BIT, "assetto_64_bit", "acs", "CrewChiefV4.assetto.ACSSpotter",
             "acs_launch_exe", "acs_launch_params", "launch_acs", true, "assettocorsa",
+            approxFilterNames: new String[] { "assetto", "corsa" });
+        public static GameDefinition assetto64BitRallyMode = new GameDefinition(GameEnum.ASSETTO_64BIT_RALLY, "assetto_64_bit_rally_mode", "acs", null,
+            "acs_launch_exe", "acs_launch_params", "launch_acs", true, "assettocorsa", racingType: CrewChief.RacingType.Rally,
             approxFilterNames: new String[] { "assetto", "corsa" });
         public static GameDefinition assetto32Bit = new GameDefinition(GameEnum.ASSETTO_32BIT, "assetto_32_bit", "acs_x86", "CrewChiefV4.assetto.ACSSpotter",
             "acs_launch_exe", "acs_launch_params", "launch_acs", true, "assettocorsa");
@@ -175,6 +178,7 @@ namespace CrewChiefV4
 
             definitions.Add(rFactor1);
             definitions.Add(assetto64Bit);
+            definitions.Add(assetto64BitRallyMode);
             definitions.Add(assetto32Bit);
             definitions.Add(rfactor2_64bit);
             definitions.Add(iracing);

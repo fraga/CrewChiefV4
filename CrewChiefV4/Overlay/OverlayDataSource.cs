@@ -622,6 +622,7 @@ namespace CrewChiefV4.Overlay
                             break;
                         case GameEnum.ASSETTO_32BIT:
                         case GameEnum.ASSETTO_64BIT:
+                        case GameEnum.ASSETTO_64BIT_RALLY:
                             lapData.addDataPoint(new DataPoint(currentGameState.SessionData.CompletedLaps, distanceRoundTrack,
                                 getPropertyValue(((CrewChiefV4.assetto.ACSSharedMemoryReader.ACSStructWrapper)currentGameState.rawGameData).data, field.fieldName), field.overlayDataType, currentGameState.Ticks, currentGameState.SessionData.SectorNumber));
                             break;
