@@ -1,15 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using SharpDX;
 using Valve.VR;
 using CrewChiefV4.VirtualReality;
 using System.Threading;
@@ -20,9 +13,19 @@ namespace CrewChiefV4
 {
     public partial class VROverlaySettings : Form
     {
-
+        private class TrackingUniverseMap
+        {
+            public ETrackingUniverseOrigin eTrackingUniverse;
+            public TrackingUniverseMap(ETrackingUniverseOrigin eTrackingUniverse)
+            {
+                this.eTrackingUniverse = eTrackingUniverse;
+            }
+            public override string ToString()
+            {
+                return eTrackingUniverse.ToString();
+            }
+        }
         
-
         private class VirtualKeyMap
         {
             public Keys keyCode;
@@ -83,6 +86,9 @@ namespace CrewChiefV4
 
             labelToggleKey.Text = Configuration.getUIString("vr_toggle_key");
 
+            groupBoxTrackingUniverse.Text = Configuration.getUIString("vr_tracking_universe_overwrite");
+            buttonReCenter.Text = Configuration.getUIString("vr_recenter_pose");
+
             var keys = Enum.GetValues(typeof(Keys));
             foreach(var key in keys)
             {
@@ -92,6 +98,17 @@ namespace CrewChiefV4
             {
                 comboBoxModifierKeys.Items.Add(new VirtualKeyMap((Keys)key));
             }
+
+            comboBoxSetTrackingSpace.DropDownStyle = ComboBoxStyle.DropDownList;
+            var trackingSpaces = Enum.GetValues(typeof(ETrackingUniverseOrigin));
+            foreach (var trackingSpace in trackingSpaces)
+            {
+                comboBoxSetTrackingSpace.Items.Add(new TrackingUniverseMap((ETrackingUniverseOrigin)trackingSpace));
+            }
+            List<TrackingUniverseMap> trackList = comboBoxSetTrackingSpace.Items.OfType<TrackingUniverseMap>().ToList();
+            var currentSpace = trackList.FirstOrDefault(t => t.ToString() == OpenVR.Compositor.GetTrackingSpace().ToString());
+            comboBoxSetTrackingSpace.SelectedItem = currentSpace;
+
             updateWindowList();
 
             this.KeyPreview = true;
@@ -642,6 +659,21 @@ namespace CrewChiefV4
                     ///window.forceTopMost = checkBoxForceTopMostWindow.Checked;
                 }
             }
+        }
+
+        private void comboBoxSetTrackingSpace_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (comboBoxSetTrackingSpace.SelectedIndex == -1)
+                return;
+            lock (instanceLock)
+            {
+                OpenVR.Compositor.SetTrackingSpace(((TrackingUniverseMap)comboBoxSetTrackingSpace.SelectedItem).eTrackingUniverse);
+            }
+        }
+
+        private void buttonReCenter_Click(object sender, EventArgs e)
+        {
+            OpenVR.Chaperone.ResetZeroPose(((TrackingUniverseMap)comboBoxSetTrackingSpace.SelectedItem).eTrackingUniverse);
         }
     }
 }

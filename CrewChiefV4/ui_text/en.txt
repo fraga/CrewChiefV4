@@ -351,6 +351,8 @@ vr_gaze_scale = Gazing scale
 vr_gaze_transparency = Gazing transparency
 vr_force_topmost_window = Force window on top
 vr_toggle_key = Toggle Key(s)
+vr_tracking_universe_overwrite = Overwrite VR tracking universe
+vr_recenter_pose = Reset VR view
 ###################################### Preferences ######################################################
 # to change the name of the property title in the properties screen, just use the property name like this:
 # enable_spotter = Enable spotter

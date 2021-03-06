@@ -532,6 +532,10 @@ namespace CrewChiefV4
                     Log.Error($"reset_vr_view_control: invalid keycode '{str}'");
                 }
             }
+            else if(CrewChief.gameDefinition.gameEnum == GameEnum.NONE)
+            {
+                MainWindow.instance.resetSteamVRTrackingPose();
+            }
             else
             {
                 Log.Verbose($"{CrewChief.gameDefinition.friendlyName} doesn't use 'Reset VR view'");
