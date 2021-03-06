@@ -2142,13 +2142,21 @@ namespace CrewChiefV4
                 }
                 foreach (KeyValuePair<String[], int> numberEntry in numberToNumber)
                 {
-                    if (numberEntry.Value >= 15 && numberEntry.Value <= 40)
+                    // 20.4 - 35 is the valid range here
+                    bool lowerLimit = false;
+                    bool upperLimit = false;
+                    if (numberEntry.Value >= 20 && numberEntry.Value <= 35)
                     {
                         validateAndAdd(numberEntry.Key[0], pressureIntAmountChoicesWrapper);
+                        lowerLimit = numberEntry.Value == 20;
+                        upperLimit = numberEntry.Value == 35;
                     }
-                    else if (numberEntry.Value >= 0 && numberEntry.Value <= 9)
+                    else if (numberEntry.Value >= 0 && numberEntry.Value <= 9 && !upperLimit)
                     {
-                        validateAndAdd(POINT[0] + " " + numberEntry.Key[0], pressureFractionAmountChoicesWrapper);
+                        if (!lowerLimit || numberEntry.Value >= 4)
+                        {
+                            validateAndAdd(POINT[0] + " " + numberEntry.Key[0], pressureFractionAmountChoicesWrapper);
+                        }
                     }
                 }
                 //  note that 24.0 should be "twenty four", there's no "point zero" in the grammar

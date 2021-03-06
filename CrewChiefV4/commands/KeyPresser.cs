@@ -10,19 +10,12 @@ namespace CrewChiefV4.commands
 {
     public class KeyPresser
     {
+        // used for free text entry only
         public static InputSimulator InputSim = new InputSimulator();
-
-        private static bool useLegacyKeyPresser = UserSettings.GetUserSettings().getBoolean("use_legacy_key_presser");
 
         // used by VROverlayWindow
         [DllImport("user32.dll")]
         public static extern short GetAsyncKeyState(System.Windows.Forms.Keys vKey);
-
-        private static KeyCode[] modifierKeys = { KeyCode.ALT, KeyCode.LSHIFT, KeyCode.RSHIFT, KeyCode.SHIFT, KeyCode.CONTROL, KeyCode.LCONTROL,
-                                                  KeyCode.RCONTROL, KeyCode.LWIN, KeyCode.RWIN };
-
-        private static VirtualKeyCode[] modifierVirtualKeys = { VirtualKeyCode.MENU, VirtualKeyCode.LSHIFT, VirtualKeyCode.RSHIFT, VirtualKeyCode.SHIFT,
-                                                         VirtualKeyCode.CONTROL, VirtualKeyCode.LCONTROL, VirtualKeyCode.RCONTROL, VirtualKeyCode.LWIN, VirtualKeyCode.RWIN };
 
         public static bool parseKeycode(String keyString, out Tuple<VirtualKeyCode?, VirtualKeyCode> modifierAndKeyCode)
         {
@@ -63,13 +56,13 @@ namespace CrewChiefV4.commands
         private static bool parseModifier(String modifierKeyString, out VirtualKeyCode modifierVirtualKeyCode)
         {
             VirtualKeyCode parsedModifierVirtualKeyCode;
-            if (Enum.TryParse(modifierKeyString, true, out parsedModifierVirtualKeyCode) && KeyPresser.modifierVirtualKeys.Contains(parsedModifierVirtualKeyCode))
+            if (Enum.TryParse(modifierKeyString, true, out parsedModifierVirtualKeyCode))
             {
                 modifierVirtualKeyCode = parsedModifierVirtualKeyCode;
                 return true;
             }
             KeyCode parsedModifierKeyCode;
-            if (Enum.TryParse(modifierKeyString, true, out parsedModifierKeyCode) && KeyPresser.modifierKeys.Contains(parsedModifierKeyCode))
+            if (Enum.TryParse(modifierKeyString, true, out parsedModifierKeyCode))
             {
                 modifierVirtualKeyCode = (VirtualKeyCode)parsedModifierKeyCode;
                 return true;
@@ -127,55 +120,15 @@ namespace CrewChiefV4.commands
 
         public static void SendKeyPress(Tuple<VirtualKeyCode?, VirtualKeyCode> modifierAndKeyCode, int? keyPressTime = null)
         {
-            if (useLegacyKeyPresser)
+            KeyCode? modifierKeyCode = null;
+            if (modifierAndKeyCode.Item1 != null)
             {
-                KeyCode? modifierKeyCode = null;
-                if (modifierAndKeyCode.Item1 != null)
-                {
-                    modifierKeyCode = (KeyCode)modifierAndKeyCode.Item1;
-                }
-                int defaultKeyHoldTime = CrewChief.gameDefinition.gameEnum == GameEnum.ACC ? 80 : 50;
-                SendScanCodeKeyPress(new Tuple<KeyCode?, KeyCode>(modifierKeyCode, (KeyCode)modifierAndKeyCode.Item2), keyPressTime == null ? defaultKeyHoldTime : keyPressTime.Value);
+                modifierKeyCode = (KeyCode)modifierAndKeyCode.Item1;
             }
-            else
-            {
-                SendKeyPressWithInputSim(modifierAndKeyCode, keyPressTime);
-            }
+            int defaultKeyHoldTime = CrewChief.gameDefinition.gameEnum == GameEnum.ACC ? 80 : 50;
+            SendScanCodeKeyPress(new Tuple<KeyCode?, KeyCode>(modifierKeyCode, (KeyCode)modifierAndKeyCode.Item2), keyPressTime == null ? defaultKeyHoldTime : keyPressTime.Value);
         }
 
-        private static void SendKeyPressWithInputSim(Tuple<VirtualKeyCode?, VirtualKeyCode> modifierAndKeyCode, int? keyPressTime = null)
-        {
-            if (keyPressTime == null || keyPressTime.Value <= 0)
-            {
-                if (modifierAndKeyCode.Item1 == null)
-                {
-                    KeyPresser.InputSim.Keyboard.KeyPress(modifierAndKeyCode.Item2);
-                }
-                else
-                {
-                    KeyPresser.InputSim.Keyboard.ModifiedKeyStroke(modifierAndKeyCode.Item1.Value, modifierAndKeyCode.Item2);
-                }
-            }
-            else
-            {
-                if (modifierAndKeyCode.Item1 != null)
-                {
-                    KeyPresser.InputSim.Keyboard.KeyDown(modifierAndKeyCode.Item1.Value);
-                    Thread.Sleep(10);
-                }
-                KeyPresser.InputSim.Keyboard.KeyDown(modifierAndKeyCode.Item2);
-                Thread.Sleep(keyPressTime.Value);
-                KeyPresser.InputSim.Keyboard.KeyUp(modifierAndKeyCode.Item2);
-                if (modifierAndKeyCode.Item1 != null)
-                {
-                    Thread.Sleep(10);
-                    KeyPresser.InputSim.Keyboard.KeyUp(modifierAndKeyCode.Item1.Value);
-                }
-            }
-        }
-
-
-        // legacy key presser code, to be removed
         const int INPUT_MOUSE = 0;
         const int INPUT_KEYBOARD = 1;
         const int INPUT_HARDWARE = 2;
@@ -272,7 +225,7 @@ namespace CrewChiefV4.commands
 
         private static void SendScanCodeKeyPress(Tuple<KeyPresser.KeyCode?, KeyPresser.KeyCode> modifierAndKeyCode, int holdTimeMillis)
         {
-            bool sendModifier = modifierAndKeyCode.Item1 != null && KeyPresser.modifierKeys.Contains(modifierAndKeyCode.Item1.Value);
+            bool sendModifier = modifierAndKeyCode.Item1 != null;
 
             ushort scanCode = (ushort)MapVirtualKey((ushort)modifierAndKeyCode.Item2, 0);
             Boolean extended = extendedKeys.Contains(modifierAndKeyCode.Item2);
@@ -355,7 +308,6 @@ namespace CrewChiefV4.commands
                 keyBeingPressed = null;
             }
         }
-
 
 
         public enum KeyCode : ushort

@@ -61,10 +61,6 @@ namespace CrewChiefV4.ACC
         private float minorAeroDamageThreshold = 100.0f;
         private float severeAeroDamageThreshold = 200.0f;
         private float destroyedAeroDamageThreshold = 400.0f;
-        private HashSet<int> msgHash = new HashSet<int>();
-
-        // ABS can trigger below 1.1 in the Ferrari 488
-        private float wheelSlipThreshold = 1.3f;
 
         private AC_SESSION_TYPE sessionTypeOnPreviousTick = AC_SESSION_TYPE.AC_UNKNOWN;
         private DateTime ignoreUnknownSessionTypeUntil = DateTime.MinValue;
@@ -352,7 +348,7 @@ namespace CrewChiefV4.ACC
 
             float sessionTimeRemaining = -1;
             //if (sessionType != AC_SESSION_TYPE.AC_PRACTICE && (numberOfLapsInSession == 0 || shared.accStatic.isTimedRace == 1))
-            if (numberOfLapsInSession == 0 || shared.accStatic.SET_FROM_UDP_isTimedRace == 1)
+            if ((numberOfLapsInSession == 0 && shared.accGraphic.sessionTimeLeft != -1) || shared.accStatic.SET_FROM_UDP_isTimedRace == 1)
             {
                 currentGameState.SessionData.SessionHasFixedTime = true;
                 sessionTimeRemaining = gameSessionTimeLeft;

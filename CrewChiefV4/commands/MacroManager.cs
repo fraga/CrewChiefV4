@@ -19,6 +19,7 @@ namespace CrewChiefV4.commands
         public static readonly String HOLD_TIME_IDENTIFIER = "HOLD_TIME";   // used to override the key hold time on a per-key basis
         public static readonly String MULTIPLE_PRESS_FROM_VOICE_TRIGGER_IDENTIFIER = "VOICE_TRIGGER";
         public static readonly String WAIT_IDENTIFIER = "WAIT";
+        public static readonly String APPLICABLE_SESSION_TYPES_IDENTIFIER = "SESSION_TYPES";
 
         public static Boolean enablePitExitPositionEstimates = UserSettings.GetUserSettings().getBoolean("enable_pit_exit_position_estimates");
 

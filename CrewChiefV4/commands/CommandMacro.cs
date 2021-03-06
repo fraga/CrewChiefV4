@@ -1,5 +1,6 @@
 ﻿using CrewChiefV4.Audio;
 using CrewChiefV4.Events;
+using CrewChiefV4.GameState;
 using CrewChiefV4.R3E;
 using Newtonsoft.Json;
 using System;
@@ -288,7 +289,9 @@ namespace CrewChiefV4.commands
                 {
                     for (int actionItemIndex = 0; actionItemIndex < actionItemsCount; actionItemIndex++)
                     {
-                        if (actionItems[actionItemIndex].extendedTypeTextParam != null && actionItemIndex >= 2)
+                        if (actionItemIndex >= 2 && 
+                            (actionItems[actionItemIndex].repeatCountFromVoiceCommand 
+                                || "fuel".Equals(actionItems[actionItemIndex].eventToResolveRepeatCount, StringComparison.InvariantCultureIgnoreCase)))
                         {
                             // this is the action item that actually adds the fuel. We want the action item before this one to trigger (this resets
                             // fuel to 0) but action items before that reset will be skipped
@@ -304,13 +307,12 @@ namespace CrewChiefV4.commands
                     {
                         break;
                     }
-                    if (MacroManager.WAIT_IDENTIFIER.Equals(actionItem.extendedType))
+                    if (actionItem.applicableSessionTypes == null || CrewChief.currentGameState == null || actionItem.applicableSessionTypes.Contains(CrewChief.currentGameState.SessionData.SessionType))
                     {
-                        Thread.Sleep(actionItem.extendedTypeNumericParam);
-                    }
-                    else
-                    {
-                        int count;
+                        if (actionItem.waitTime > 0)
+                        {
+                            Thread.Sleep(actionItem.waitTime);
+                        }
                         if (actionItemIndex > 0 && r3eFuelMacroSkipUntil != -1)
                         {
                             // we're skipping all actions items until the actual fuelling action and replacing it with the proper menu navigation stuff
@@ -320,49 +322,43 @@ namespace CrewChiefV4.commands
                             }
                             else if (actionItemIndex == r3eFuelMacroSkipUntil)
                             {
+                                // eewwww... for the r3e fuel macro we want to ensure we're on 'fuel' and it's enabled before issuing the many
+                                // commands to set the amount. In this case, there'll be multiple other button presses to get us to fuel so
+                                // we need to catch the actual fuelling amount action and insert a crafty 'go to fuel item and deselect it' line
                                 Thread.Sleep(100);
                                 R3EPitMenuManager.goToMenuItem(SelectedItem.Fuel);
                                 R3EPitMenuManager.unselectFuel(false);
                                 Thread.Sleep(100);
                             }
                         }
-                        if (MacroManager.MULTIPLE_PRESS_IDENTIFIER.Equals(actionItem.extendedType))
+                        int count = actionItem.fixedRepeatCount;
+                        bool doR3EFuellingMenuHack = false;
+                        if (actionItem.eventToResolveRepeatCount != null)
                         {
-                            if (actionItem.extendedTypeTextParam != null)
+                            count = CrewChief.getEvent(actionItem.eventToResolveRepeatCount).resolveMacroKeyPressCount(macro.name);
+                            doR3EFuellingMenuHack = isR3e && actionItem.eventToResolveRepeatCount.Equals("fuel", StringComparison.InvariantCultureIgnoreCase);
+                        }
+                        else if (actionItem.repeatCountFromVoiceCommand)
+                        {
+                            count = multiplePressCountFromVoiceCommand;
+                            // no event to check against here - this is the case where we say "add fuel, 20 litres" - we want an additional 3 presses for this
+                            doR3EFuellingMenuHack = isR3e && macro.name.Contains("fuel");
+                        }
+                        if (doR3EFuellingMenuHack)
+                        {
+                            // hack for R3E: fuel menu needs 3 presses to get it from the start to 0. 3 extra presses when dropping the fuel to zero doesn't matter
+                            // so this added the extras to both command actions
+                            count = count + 3;
+                        }
+                        if (count > 0)
+                        {
+                            int? keyPressTime = commandSet.keyPressTime;
+                            if (actionItem.holdTime > 0)
                             {
-                                if (MacroManager.MULTIPLE_PRESS_FROM_VOICE_TRIGGER_IDENTIFIER.Equals(actionItem.extendedTypeTextParam))
-                                {
-                                    count = multiplePressCountFromVoiceCommand;
-                                }
-                                else
-                                {
-                                    count = CrewChief.getEvent(actionItem.extendedTypeTextParam).resolveMacroKeyPressCount(macro.name);
-                                }
-
-                                // eewwww... for the r3e fuel macro we want to ensure we're on 'fuel' and it's enabled before issuing the many
-                                // commands to set the amount. In this case, there'll be multiple other button presses to get us to fuel so
-                                // we need to catch the actual fuelling amount action and insert a crafty 'go to fuel item and deselect it' line
-                                if (isR3e && macro.name.Contains("fuel"))
-                                {
-                                    // hack for R3E: fuel menu needs 3 presses to get it from the start to 0
-                                    count = count + 3;
-                                }
+                                keyPressTime = actionItem.holdTime;
                             }
-                            else
-                            {
-                                count = actionItem.extendedTypeNumericParam;
-                            }
+                            sendKeys(count, actionItem, keyPressTime, commandSet.waitBetweenEachCommand);
                         }
-                        else
-                        {
-                            count = 1;
-                        }
-                        int? keyPressTime = commandSet.keyPressTime;
-                        if (MacroManager.HOLD_TIME_IDENTIFIER.Equals(actionItem.extendedType) && actionItem.extendedTypeNumericParam > 0)
-                        {
-                            keyPressTime = actionItem.extendedTypeNumericParam;
-                        }
-                        sendKeys(count, actionItem, keyPressTime, commandSet.waitBetweenEachCommand);
                     }
                 }
                 // if we changed forground window we need to restore the old window again as the user could be running overlays or other apps they want to keep in forground.
@@ -590,10 +586,16 @@ namespace CrewChiefV4.commands
         public Tuple<VirtualKeyCode?, VirtualKeyCode>[] keyCodes;
         public String actionText;
         public String freeText;
-        public String extendedType;
-        public String extendedTypeTextParam;
+        //public String extendedType;
+        //public String extendedTypeTextParam;
         public Boolean allowFreeText;
-        public int extendedTypeNumericParam;
+
+        public HashSet<SessionType> applicableSessionTypes = null;
+        public int waitTime = -1;
+        public int holdTime = -1;
+        public int fixedRepeatCount = 1; // a fixed number of repeated presses specified in the macro
+        public bool repeatCountFromVoiceCommand = false;
+        public string eventToResolveRepeatCount = null;
 
         public ActionItem(String action)
         {
@@ -612,22 +614,67 @@ namespace CrewChiefV4.commands
                 int end = action.IndexOf("}", start);
                 if (start != -1 && end > -1)
                 {
-                    String[] typeAndParam = action.Substring(start, end - start).Split(',');
-                    if (typeAndParam.Length == 1 && MacroManager.FREE_TEXT_IDENTIFIER.Equals(typeAndParam[0]))
+                    String[] typeAndParamBlocks = action.Substring(start, end - start).Split('|');
+                    foreach (string typeAndParamBlock in typeAndParamBlocks)
                     {
-                        extendedType = typeAndParam[0];
-                        allowFreeText = true;
-                    }
-                    else if (typeAndParam.Length == 2)
-                    {
-                        extendedType = typeAndParam[0];
-                        if (typeAndParam[1].All(char.IsDigit))
+                        String[] typeAndParam = typeAndParamBlock.Split(',');
+                        if (typeAndParam.Length == 1 && MacroManager.FREE_TEXT_IDENTIFIER.Equals(typeAndParam[0]))
                         {
-                            extendedTypeNumericParam = int.Parse(typeAndParam[1]);
+                            allowFreeText = true;
+                            parsedSuccessfully = true;
                         }
-                        else
+                        else if (typeAndParam.Length > 1 && MacroManager.APPLICABLE_SESSION_TYPES_IDENTIFIER.Equals(typeAndParam[0]))
                         {
-                            extendedTypeTextParam = typeAndParam[1];
+                            HashSet<SessionType> parsedSessionTypes = new HashSet<SessionType>();
+                            for (int i = 1; i < typeAndParam.Length; i++)
+                            {
+                                if (Enum.TryParse(typeAndParam[i].Trim(), out SessionType parsedSessionType))
+                                {
+                                    parsedSessionTypes.Add(parsedSessionType);
+                                }
+                            }
+                            if (parsedSessionTypes.Count > 0)
+                            {
+                                this.applicableSessionTypes = parsedSessionTypes;
+                                parsedSuccessfully = true;
+                            }
+                        }
+                        else if (typeAndParam.Length == 2)
+                        {
+                            if (MacroManager.WAIT_IDENTIFIER.Equals(typeAndParam[0]))
+                            {
+                                if (int.TryParse(typeAndParam[1], out int millis))
+                                {
+                                    this.waitTime = millis;
+                                    parsedSuccessfully = true;
+                                }
+                            }
+                            else if (MacroManager.HOLD_TIME_IDENTIFIER.Equals(typeAndParam[0]))
+                            {
+                                if (int.TryParse(typeAndParam[1], out int millis))
+                                {
+                                    this.holdTime = millis;
+                                    parsedSuccessfully = true;
+                                }
+                            }
+                            else if (MacroManager.MULTIPLE_PRESS_IDENTIFIER.Equals(typeAndParam[0]))
+                            {
+                                if (MacroManager.MULTIPLE_PRESS_FROM_VOICE_TRIGGER_IDENTIFIER.Equals(typeAndParam[1]))
+                                {
+                                    this.repeatCountFromVoiceCommand = true;
+                                    parsedSuccessfully = true;
+                                }
+                                else if (typeAndParam[1].All(char.IsDigit))
+                                {
+                                    this.fixedRepeatCount = int.Parse(typeAndParam[1]);
+                                    parsedSuccessfully = true;
+                                }
+                                else
+                                {
+                                    this.eventToResolveRepeatCount = typeAndParam[1].Trim();
+                                    parsedSuccessfully = true;
+                                }
+                            }
                         }
                     }
                 }
@@ -655,41 +702,52 @@ namespace CrewChiefV4.commands
                         else
                         {
                             Console.WriteLine("actionItem = \"" + action + "\" not recognised");
+                            parsedSuccessfully = false;
                         }
                     }
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine("Error parsing action " + action + ", message:" + e.Message + " stackTrace: " + e.StackTrace);
+                    parsedSuccessfully = false;
                 }
             }
-            else
-            {
-                parsedSuccessfully = extendedType != null;
-            }
+            // Console.WriteLine(this.ToString());
         }
 
         public override String ToString()
         {
             if (parsedSuccessfully)
             {
-                if (extendedType != null)
+                string str = "Raw actionItem: " + actionText + ". Extracted data: ";
+                if (this.waitTime > 0)
                 {
-                    String additionalInfo = "";
-                    if (extendedTypeNumericParam > 0)
-                    {
-                        additionalInfo = ": " + extendedTypeNumericParam;
-                    }
-                    else if (extendedTypeTextParam != null)
-                    {
-                        additionalInfo = ": " + extendedTypeTextParam;
-                    }
-                    return extendedType + additionalInfo;
+                    str += "wait " + waitTime + "ms ";
                 }
-                else
+                if (this.repeatCountFromVoiceCommand)
                 {
-                    String str = "";
+                    str += "repeat count from voice command ";
+                }
+                if (this.fixedRepeatCount > 1)
+                {
+                    str += "repeated " + this.fixedRepeatCount + " times ";
+                }
+                if (this.eventToResolveRepeatCount != null)
+                {
+                    str += "repeat count from event " + this.eventToResolveRepeatCount + " ";
+                }
+                if (this.applicableSessionTypes != null)
+                {
+                    str += "applicable session types " + String.Join(",", this.applicableSessionTypes) + " ";
+                }
+                if (this.allowFreeText)
+                {
+                    str += "free text " + this.freeText + " ";
+                }
+                if (keyCodes != null)
+                {
                     bool addComma = false;
+                    str += ". Keys: ";
                     foreach (Tuple<VirtualKeyCode?, VirtualKeyCode> keyCode in keyCodes)
                     {
                         if (addComma)
@@ -703,8 +761,8 @@ namespace CrewChiefV4.commands
                         str += keyCode.Item2.ToString();
                         addComma = true;
                     }
-                    return str;
                 }
+                return str;
             }
             else
             {
