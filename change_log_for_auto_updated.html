@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html>
 <body>
-<h2>Version 4.15.1.6</h2>
+<h2>Version 4.15.2.1</h2>
 <ul>
+	<li>Added support for Assetto Corsa rally tracks (use Assetto Corsa Rally game option) - puts the app in 'rally mode'</li>
 	<li>Added support for modifier keys in macros - prefix the key with modifier+ to hold down that modifier while typing the key (e.g. LSHIFT+KEY_X, RSHIFT+KEY_X, LCONTROL+KEY_X, ALT+KEY_X, etc)</li>
-	<li>Adding an optional HOLD_TIME modifier to macro keys to specify how long that single key will be held down (e.g. "{HOLD_TIME,4000}KEY_A" hold A down for 4000 milliseconds)</li>
+	<li>Added an optional HOLD_TIME modifier to macro keys to specify how long that single key will be held down (e.g. "{HOLD_TIME,4000}KEY_A" hold A down for 4000 milliseconds)</li>
 	<li>Added message playback resample option for nAudio - specify a resampling rate in Hz with the "nAudio playback resample rate" property - 0 disables resampling (the default). The sound files are recorded at 22050Hz so there's no point in going above that, values below 5000 may make the messages difficult to understand</li>
-	<li>Prevent key bindings activing macros multiple times after restarting the app</li>
-	<li>Some error logging improvements</li>
+	<li>Prevent key bindings activing macros multiple times after restarting the app; Some error logging improvements</li>
 	<li>Updated track landmark locations for a couple of tracks (thanks to the users who submitted these)</li>
-	<li>A few other bit & bobs</li>
+	<li>Fixed a few bugs and crashes</li>
 	<li>RF1 / AMS - experimental implementation of pit box in use warnings (still lots of work and testing to do here, enable this with the "Warn about opponents sharing player's pit box (RF1 / AMS 1 only)" property, note this relies on participants making practice pitstops during practice / qual)</li>
+	<li>AC - fixed some incorrect tyre wear thresholds</li>
+	<li>ACC - wired up tyre pressure and weather data (including weather forecast data)</li>
+	<li>ACC - first cut of a pit menu manager (this will need updated macro definitions, please delete Documents/CrewChiefV4/saved_command_macros.json so the app can recreate it with the required content). The ACC pit menu manager uses cursor (arrow) keys and "P" to navigate the pit menu and can be a bit slow (to reduce the risk of presses being ignored by the game). Supported voice commands include "add fuel, [x] litres", "fuel to the end", "box, change tyres", "box, don't change tyres", "box, wet tyres", "box, dry tyres", "box, change [front / rear / left front / right front / left rear / right rear] tyre pressure, [20.3 -> 35]" (note that changing tyre pressures can be a bit hit and miss). In each case the app has to find and change the 'change tyre set' option to work out the menu state - it should revert the change it makes</li>
 </ul>
 <h2>Version 4.15.1.5</h2>
 <ul>
