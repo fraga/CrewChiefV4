@@ -212,7 +212,14 @@ namespace CrewChiefV4.commands
                                 lock (ExecutableCommandMacro.mutex)
                                 {
                                     this.macroExecutingOnCommandMacroThread = true;
-                                    runMacro(commandSet, isR3e, multiplePressCountFromVoiceCommand);
+                                    try
+                                    {
+                                        runMacro(commandSet, isR3e, multiplePressCountFromVoiceCommand);
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        Console.WriteLine("Error executing command macro: " + e.ToString());
+                                    }
                                     this.macroExecutingOnCommandMacroThread = false;
                                 }
                             });
@@ -223,7 +230,14 @@ namespace CrewChiefV4.commands
                     }
                     else
                     {
-                        runMacro(commandSet, isR3e, multiplePressCountFromVoiceCommand);
+                        try
+                        {
+                            runMacro(commandSet, isR3e, multiplePressCountFromVoiceCommand);
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine("Error executing command macro: " + e.ToString());
+                        }
                     }
                 }
                 break;
