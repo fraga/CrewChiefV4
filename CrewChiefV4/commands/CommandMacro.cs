@@ -350,7 +350,7 @@ namespace CrewChiefV4.commands
                             // so this added the extras to both command actions
                             count = count + 3;
                         }
-                        if (count > 0)
+                        if (count > 0 && actionItem.keyCodes != null)
                         {
                             int? keyPressTime = commandSet.keyPressTime;
                             if (actionItem.holdTime > 0)
