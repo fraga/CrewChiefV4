@@ -2162,7 +2162,15 @@ namespace CrewChiefV4
                     }
                 }
                 //  note that 24.0 should be "twenty four", there's no "point zero" in the grammar
-
+                // now assemble the choices
+                GrammarBuilderWrapper pressureChangeGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper();
+                pressureChangeGrammarBuilder.SetCulture(cultureInfo);
+                pressureChangeGrammarBuilder.Append(pressureIntroChoicesWrapper, 1, 1);
+                pressureChangeGrammarBuilder.Append(pressureIntAmountChoicesWrapper, 1, 1);
+                pressureChangeGrammarBuilder.Append(pressureFractionAmountChoicesWrapper, 0, 1);    // optional fractional part
+                GrammarWrapper pressureChangeGrammar = SREWrapperFactory.createNewGrammarWrapper(pressureChangeGrammarBuilder);
+                accPitstopGrammarList.Add(pressureChangeGrammar);
+                sreWrapper.LoadGrammar(pressureChangeGrammar);
 
                 // now complex grammar for tyre set changes
                 ChoicesWrapper tyreSetIntroChoicesWrapper = SREWrapperFactory.createNewChoicesWrapper();
