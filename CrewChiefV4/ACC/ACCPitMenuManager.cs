@@ -87,6 +87,24 @@ namespace CrewChiefV4.ACC
                     recognised = true;
                     audioPlayer.playMessageImmediately(new QueuedMessage(folderConfirmWetTyres, 0));
                 }
+                else if (SpeechRecogniser.ResultContains(recognisedText, SpeechRecogniser.PIT_STOP_SELECT_TYRE_SET))
+                {
+                    foreach (string command in SpeechRecogniser.PIT_STOP_SELECT_TYRE_SET)
+                    {
+                        if (recognisedText.StartsWith(command))
+                        {
+                            recognisedText = recognisedText.Substring(command.Length);
+                            break;
+                        }
+                    }
+                    int requestedSet = extractInt(recognisedText);
+                    if (requestedSet > 0 && requestedSet < 50)
+                    {
+                        selectTyreSet(requestedSet, isRaceSession);
+                        recognised = true;
+                        audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
+                    }
+                }
                 else if (SpeechRecogniser.ResultContains(recognisedText, SpeechRecogniser.PIT_STOP_DONT_REFUEL))
                 {
                     clearFuel(isRaceSession);
@@ -231,7 +249,7 @@ namespace CrewChiefV4.ACC
             return 0;
         }
 
-        private static void mashKeysToPutPitMenuInKnownState(bool isRaceSession)
+        private static void mashKeysToPutPitMenuInKnownState(bool isRaceSession, bool returnToTop = true)
         {
             // keep track of this
             int currentSelectedTyreSet = CrewChief.currentGameState.TyreData.selectedSet;
@@ -305,7 +323,10 @@ namespace CrewChiefV4.ACC
                 // put the tyre set back to where it was
                 sendKeyPressOrMacro(getMenuLeftMacro(), leftKey);
                 // put the cursor back to the top
-                moveCursorToTopOfPitMenu();
+                if (returnToTop)
+                {
+                    moveCursorToTopOfPitMenu();
+                }
             }
         }
 
@@ -329,6 +350,26 @@ namespace CrewChiefV4.ACC
             sendKeyPressOrMacro(getPitMenuMacro(), pitMenuKey);
             // additional pause - sometimes this specific key is ignored or it takes a while to complete the action
             Thread.Sleep(300);
+        }
+
+        private static void selectTyreSet(int requestedTyreSet, bool isRaceSession)
+        {
+            mashKeysToPutPitMenuInKnownState(isRaceSession, false);
+            // assuming the masher worked, we're now on the tyre set option
+            int currentTyreSet = CrewChief.currentGameState.TyreData.selectedSet;
+            bool increase = requestedTyreSet > currentTyreSet;
+            int presses = Math.Abs(requestedTyreSet - currentTyreSet);
+            for (int i=0; i<presses; i++)
+            {
+                if (increase)
+                {
+                    sendKeyPressOrMacro(getMenuRightMacro(), rightKey);
+                }
+                else
+                {
+                    sendKeyPressOrMacro(getMenuLeftMacro(), leftKey);
+                }
+            }
         }
 
         private static void selectWets(bool isRaceSession)

@@ -359,6 +359,7 @@ PIT_STOP_CHANGE_LEFT_FRONT_PRESSURE = pitstop change left front pressure:box cha
 PIT_STOP_CHANGE_RIGHT_FRONT_PRESSURE = pitstop change right front pressure:boc change right front pressure
 PIT_STOP_CHANGE_LEFT_REAR_PRESSURE = pitstop change left rear pressure:box change left rear pressure
 PIT_STOP_CHANGE_RIGHT_REAR_PRESSURE = pitstop change right rear pressure:box change right rear pressure
+PIT_STOP_SELECT_TYRE_SET = pitstop tire set:box tire set
 
 // Pit Manager/rF2-specific pit commands
 PIT_STOP_FIX_ALL = pitstop fix all:box, fix all:pitstop repair all:box, repair all

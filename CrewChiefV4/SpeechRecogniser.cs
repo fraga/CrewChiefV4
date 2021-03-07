@@ -301,6 +301,7 @@ namespace CrewChiefV4
         public static String[] PIT_STOP_HARD_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_HARD_TYRES");
         public static String[] PIT_STOP_INTERMEDIATE_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_INTERMEDIATE_TYRES");
         public static String[] PIT_STOP_WET_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_WET_TYRES");
+        public static String[] PIT_STOP_SELECT_TYRE_SET = Configuration.getSpeechRecognitionPhrases("PIT_STOP_SELECT_TYRE_SET");        
         public static String[] PIT_STOP_DRY_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_DRY_TYRES");
         public static String[] PIT_STOP_MONSOON_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_MONSOON_TYRES");
         public static String[] PIT_STOP_OPTION_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_OPTION_TYRES");
@@ -2162,15 +2163,30 @@ namespace CrewChiefV4
                 }
                 //  note that 24.0 should be "twenty four", there's no "point zero" in the grammar
 
+
+                // now complex grammar for tyre set changes
+                ChoicesWrapper tyreSetIntroChoicesWrapper = SREWrapperFactory.createNewChoicesWrapper();
+                ChoicesWrapper tyreSetIntAmountChoicesWrapper = SREWrapperFactory.createNewChoicesWrapper();
+                foreach (string intro in PIT_STOP_SELECT_TYRE_SET)
+                {
+                    validateAndAdd(intro, tyreSetIntroChoicesWrapper);
+                }
+                foreach (KeyValuePair<String[], int> numberEntry in numberToNumber)
+                {
+                    // 1-50 is the valid range here
+                    if (numberEntry.Value >= 1 && numberEntry.Value <= 50)
+                    {
+                        validateAndAdd(numberEntry.Key[0], tyreSetIntAmountChoicesWrapper);
+                    }
+                }
                 // now assemble the choices
-                GrammarBuilderWrapper pressureChangeGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper();
-                pressureChangeGrammarBuilder.SetCulture(cultureInfo);
-                pressureChangeGrammarBuilder.Append(pressureIntroChoicesWrapper, 1, 1);
-                pressureChangeGrammarBuilder.Append(pressureIntAmountChoicesWrapper, 1, 1);
-                pressureChangeGrammarBuilder.Append(pressureFractionAmountChoicesWrapper, 0, 1);    // optional fractional part
-                GrammarWrapper pressureChangeGrammar = SREWrapperFactory.createNewGrammarWrapper(pressureChangeGrammarBuilder);
-                accPitstopGrammarList.Add(pressureChangeGrammar);
-                sreWrapper.LoadGrammar(pressureChangeGrammar);
+                GrammarBuilderWrapper tyreSetGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper();
+                tyreSetGrammarBuilder.SetCulture(cultureInfo);
+                tyreSetGrammarBuilder.Append(tyreSetIntroChoicesWrapper, 1, 1);
+                tyreSetGrammarBuilder.Append(tyreSetIntAmountChoicesWrapper, 1, 1);
+                GrammarWrapper tyreSetGrammar = SREWrapperFactory.createNewGrammarWrapper(tyreSetGrammarBuilder);
+                accPitstopGrammarList.Add(tyreSetGrammar);
+                sreWrapper.LoadGrammar(tyreSetGrammar);
             }
             catch (Exception e)
             {
