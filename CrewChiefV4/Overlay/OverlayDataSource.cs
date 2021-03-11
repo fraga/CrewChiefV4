@@ -105,9 +105,17 @@ namespace CrewChiefV4.Overlay
                 Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "chart_subscriptions.json");
 
             String defaultFilePath = Configuration.getDefaultFileLocation("chart_subscriptions.json");
-
-            Dictionary<GameEnum, List<OverlaySubscription>> allUserSubscriptions = JsonConvert.DeserializeObject<Dictionary<GameEnum, List<OverlaySubscription>>>(
-                getFileContents(userFilePath));
+            Dictionary<GameEnum, List<OverlaySubscription>> allUserSubscriptions;
+            try
+            {
+                allUserSubscriptions = JsonConvert.DeserializeObject<Dictionary<GameEnum, List<OverlaySubscription>>>(
+                    getFileContents(userFilePath));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error parsing user chart subscriptions: " + e.ToString());
+                allUserSubscriptions = new Dictionary<GameEnum, List<OverlaySubscription>>();
+            }
 
             Dictionary<GameEnum, List<OverlaySubscription>> allDefaultSubscriptions = JsonConvert.DeserializeObject<Dictionary<GameEnum, List<OverlaySubscription>>>(
                 getFileContents(defaultFilePath));
