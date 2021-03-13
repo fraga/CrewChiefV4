@@ -309,13 +309,8 @@ namespace CrewChiefV4
         public static String[] PIT_STOP_ALTERNATE_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_ALTERNATE_TYRES");
 
         // ACC only:
-        public static String[] PIT_STOP_CHANGE_ALL_PRESSURES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CHANGE_ALL_PRESSURES");
         public static String[] PIT_STOP_CHANGE_FRONT_PRESSURES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CHANGE_FRONT_PRESSURES");
         public static String[] PIT_STOP_CHANGE_REAR_PRESSURES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CHANGE_REAR_PRESSURES");
-        public static String[] PIT_STOP_CHANGE_LEFT_FRONT_PRESSURE = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CHANGE_LEFT_FRONT_PRESSURE");
-        public static String[] PIT_STOP_CHANGE_RIGHT_FRONT_PRESSURE = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CHANGE_RIGHT_FRONT_PRESSURE");
-        public static String[] PIT_STOP_CHANGE_LEFT_REAR_PRESSURE = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CHANGE_LEFT_REAR_PRESSURE");
-        public static String[] PIT_STOP_CHANGE_RIGHT_REAR_PRESSURE = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CHANGE_RIGHT_REAR_PRESSURE");
         public static String[] POINT = Configuration.getSpeechRecognitionPhrases("POINT");
 
         public static String[] HOW_MANY_INCIDENT_POINTS = Configuration.getSpeechRecognitionPhrases("HOW_MANY_INCIDENT_POINTS");
@@ -2114,7 +2109,7 @@ namespace CrewChiefV4
                 ChoicesWrapper pressureIntroChoicesWrapper = SREWrapperFactory.createNewChoicesWrapper();
                 ChoicesWrapper pressureIntAmountChoicesWrapper = SREWrapperFactory.createNewChoicesWrapper();
                 ChoicesWrapper pressureFractionAmountChoicesWrapper = SREWrapperFactory.createNewChoicesWrapper();
-                foreach (string intro in PIT_STOP_CHANGE_ALL_PRESSURES)
+                foreach (string intro in PIT_STOP_CHANGE_TYRE_PRESSURE)
                 {
                     validateAndAdd(intro, pressureIntroChoicesWrapper);
                 }
@@ -2126,19 +2121,19 @@ namespace CrewChiefV4
                 {
                     validateAndAdd(intro, pressureIntroChoicesWrapper);
                 }
-                foreach (string intro in PIT_STOP_CHANGE_LEFT_FRONT_PRESSURE)
+                foreach (string intro in PIT_STOP_CHANGE_FRONT_LEFT_TYRE_PRESSURE)
                 {
                     validateAndAdd(intro, pressureIntroChoicesWrapper);
                 }
-                foreach (string intro in PIT_STOP_CHANGE_RIGHT_FRONT_PRESSURE)
+                foreach (string intro in PIT_STOP_CHANGE_FRONT_RIGHT_TYRE_PRESSURE)
                 {
                     validateAndAdd(intro, pressureIntroChoicesWrapper);
                 }
-                foreach (string intro in PIT_STOP_CHANGE_LEFT_REAR_PRESSURE)
+                foreach (string intro in PIT_STOP_CHANGE_REAR_LEFT_TYRE_PRESSURE)
                 {
                     validateAndAdd(intro, pressureIntroChoicesWrapper);
                 }
-                foreach (string intro in PIT_STOP_CHANGE_RIGHT_REAR_PRESSURE)
+                foreach (string intro in PIT_STOP_CHANGE_REAR_RIGHT_TYRE_PRESSURE)
                 {
                     validateAndAdd(intro, pressureIntroChoicesWrapper);
                 }

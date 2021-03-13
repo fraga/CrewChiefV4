@@ -110,9 +110,9 @@ namespace CrewChiefV4.ACC
                     recognised = true;
                     audioPlayer.playMessageImmediately(new QueuedMessage(folderConfirmNoRefuelling, 0));
                 }
-                else if (SpeechRecogniser.ResultContains(recognisedText, SpeechRecogniser.PIT_STOP_CHANGE_ALL_PRESSURES))
+                else if (SpeechRecogniser.ResultContains(recognisedText, SpeechRecogniser.PIT_STOP_CHANGE_TYRE_PRESSURE))
                 {
-                    foreach (string command in SpeechRecogniser.PIT_STOP_CHANGE_ALL_PRESSURES)
+                    foreach (string command in SpeechRecogniser.PIT_STOP_CHANGE_TYRE_PRESSURE)
                     {
                         if (recognisedText.StartsWith(command))
                         {
@@ -152,9 +152,9 @@ namespace CrewChiefV4.ACC
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
                     recognised = true;
                 }
-                else if (SpeechRecogniser.ResultContains(recognisedText, SpeechRecogniser.PIT_STOP_CHANGE_LEFT_FRONT_PRESSURE))
+                else if (SpeechRecogniser.ResultContains(recognisedText, SpeechRecogniser.PIT_STOP_CHANGE_FRONT_LEFT_TYRE_PRESSURE))
                 {
-                    foreach (string command in SpeechRecogniser.PIT_STOP_CHANGE_LEFT_FRONT_PRESSURE)
+                    foreach (string command in SpeechRecogniser.PIT_STOP_CHANGE_FRONT_LEFT_TYRE_PRESSURE)
                     {
                         if (recognisedText.StartsWith(command))
                         {
@@ -166,9 +166,9 @@ namespace CrewChiefV4.ACC
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
                     recognised = true;
                 }
-                else if (SpeechRecogniser.ResultContains(recognisedText, SpeechRecogniser.PIT_STOP_CHANGE_RIGHT_FRONT_PRESSURE))
+                else if (SpeechRecogniser.ResultContains(recognisedText, SpeechRecogniser.PIT_STOP_CHANGE_FRONT_RIGHT_TYRE_PRESSURE))
                 {
-                    foreach (string command in SpeechRecogniser.PIT_STOP_CHANGE_RIGHT_FRONT_PRESSURE)
+                    foreach (string command in SpeechRecogniser.PIT_STOP_CHANGE_FRONT_RIGHT_TYRE_PRESSURE)
                     {
                         if (recognisedText.StartsWith(command))
                         {
@@ -180,9 +180,9 @@ namespace CrewChiefV4.ACC
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
                     recognised = true;
                 }
-                else if (SpeechRecogniser.ResultContains(recognisedText, SpeechRecogniser.PIT_STOP_CHANGE_LEFT_REAR_PRESSURE))
+                else if (SpeechRecogniser.ResultContains(recognisedText, SpeechRecogniser.PIT_STOP_CHANGE_REAR_LEFT_TYRE_PRESSURE))
                 {
-                    foreach (string command in SpeechRecogniser.PIT_STOP_CHANGE_LEFT_REAR_PRESSURE)
+                    foreach (string command in SpeechRecogniser.PIT_STOP_CHANGE_REAR_LEFT_TYRE_PRESSURE)
                     {
                         if (recognisedText.StartsWith(command))
                         {
@@ -194,9 +194,9 @@ namespace CrewChiefV4.ACC
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
                     recognised = true;
                 }
-                else if (SpeechRecogniser.ResultContains(recognisedText, SpeechRecogniser.PIT_STOP_CHANGE_RIGHT_REAR_PRESSURE))
+                else if (SpeechRecogniser.ResultContains(recognisedText, SpeechRecogniser.PIT_STOP_CHANGE_REAR_RIGHT_TYRE_PRESSURE))
                 {
-                    foreach (string command in SpeechRecogniser.PIT_STOP_CHANGE_RIGHT_REAR_PRESSURE)
+                    foreach (string command in SpeechRecogniser.PIT_STOP_CHANGE_REAR_RIGHT_TYRE_PRESSURE)
                     {
                         if (recognisedText.StartsWith(command))
                         {
