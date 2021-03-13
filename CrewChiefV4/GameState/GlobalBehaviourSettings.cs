@@ -42,6 +42,7 @@ namespace CrewChiefV4.GameState
         public static Boolean defaultToAmericanTerms = UserSettings.GetUserSettings().getBoolean("use_american_terms");
         private static Boolean enableOvalSpotterBehaviours = UserSettings.GetUserSettings().getBoolean("enable_oval_spotter_enhancements");
         public static Boolean playPitSpeedLimitWarnings = UserSettings.GetUserSettings().getBoolean("play_pit_speed_limit_warnings");
+        public static Boolean enableFrozenOrderMessages = UserSettings.GetUserSettings().getBoolean("enable_frozen_order_messages");
 
         public static Boolean useAmericanTerms = false; // if true we use american phrasing where appropriate ("pace car" etc).
         public static Boolean useMetric = false; // if true we use metric units (KPH)
@@ -89,6 +90,7 @@ namespace CrewChiefV4.GameState
             GlobalBehaviourSettings.enableBreathIn = UserSettings.GetUserSettings().getBoolean("enable_breath_in") && SoundCache.availableSounds.Contains(AudioPlayer.folderBreathIn);
             GlobalBehaviourSettings.useMetric = UserSettings.GetUserSettings().getBoolean("use_metric");
             GlobalBehaviourSettings.playPitSpeedLimitWarnings = UserSettings.GetUserSettings().getBoolean("play_pit_speed_limit_warnings");
+            GlobalBehaviourSettings.enableFrozenOrderMessages = UserSettings.GetUserSettings().getBoolean("enable_frozen_order_messages");
         }
 
         public static void UpdateFromCarClass(CarData.CarClass carClass)

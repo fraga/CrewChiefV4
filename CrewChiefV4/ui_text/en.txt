@@ -2133,3 +2133,7 @@ force_resample = nAudio playback resample rate (0 - no resampling)
 force_resample_help = Change sample rate of message files before playback, set to 0 to disable resampling (nAudio only)
 force_resample_category = AUDIO_VOICE_AND_CONTROLLERS
 force_resample_metadata = RESTART_REQUIRED
+
+enable_frozen_order_messages = Enable frozen order messages
+enable_frozen_order_messages_help = Play formation lap and full course yellow order messages
+enable_frozen_order_messages_category = FLAGS_AND_RULES
