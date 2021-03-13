@@ -232,7 +232,7 @@
 						"{HOLD_TIME,200}KEY_P",
 						"{WAIT,300}",
 						"DOWN",
-						"{SESSION_TYPES,Race}DOWN",
+						"DOWN",
 						"{MULTIPLE,100}LEFT",
 						"{MULTIPLE,Fuel}RIGHT"
 					],
@@ -312,7 +312,7 @@
 					"actionSequence": [
 						"{HOLD_TIME,200}KEY_P",
 						"{WAIT,300}",
-						"{SESSION_TYPES,Race}DOWN",
+						"DOWN",
 						"{MULTIPLE,100}LEFT",
 						"{MULTIPLE,VOICE_TRIGGER}RIGHT"
 					],
@@ -346,8 +346,8 @@
 					"actionSequence": [
 						"{HOLD_TIME,200}KEY_P",
 						"{WAIT,300}",
-						"{SESSION_TYPES,Race}DOWN",
-						"{SESSION_TYPES,Race}RIGHT"
+						"DOWN",
+						"RIGHT"
 					]
 				}
 			]
@@ -377,8 +377,8 @@
 					"actionSequence": [
 						"{HOLD_TIME,200}KEY_P",
 						"{WAIT,300}",
-						"{SESSION_TYPES,Race}DOWN",
-						"{SESSION_TYPES,Race}RIGHT"
+						"DOWN",
+						"RIGHT"
 					]
 				}
 			]

@@ -40,8 +40,8 @@ namespace CrewChiefV4.ACC
 
         public static void processVoiceCommand(string recognisedText, AudioPlayer audioPlayer, bool allowDidntUnderstandResponse = true)
         {
-            // in race sessions, the pit menu goes 'limiter', 'strategy', 'fuel to add', 'change tyres', 'change brakes', 'suspension', 'bodywork'.
-            // In other sessions 'strategy' is not in the list.
+            // usually, the pit menu goes 'limiter', 'strategy', 'fuel to add', 'change tyres', 'change brakes', 'suspension', 'bodywork'.
+            // Sometimes 'strategy' is not in the list.
             // If 'change tyres' is selected another set of items are inserted between it and 'change brakes' - 'tyre set', 'compound', 'pressures', 
             // 'LF pressure', 'RF pressure', 'LR pressure', 'RR pressure'.
             // If 'change brakes' is selected 2 items are inserted between it and 'suspension' - 'front brake' and 'rear brake'.
@@ -62,28 +62,27 @@ namespace CrewChiefV4.ACC
             }
             else
             {
-                bool isRaceSession = CrewChief.currentGameState.SessionData.SessionType == GameState.SessionType.Race;                
                 if (SpeechRecogniser.ResultContains(recognisedText, SpeechRecogniser.PIT_STOP_CHANGE_TYRES))
                 {
-                    mashKeysToPutPitMenuInKnownState(isRaceSession);
+                    mashKeysToPutPitMenuInKnownState();
                     recognised = true;
                     audioPlayer.playMessageImmediately(new QueuedMessage(folderConfirmChangeTyres, 0));
                 }
                 if (SpeechRecogniser.ResultContains(recognisedText, SpeechRecogniser.PIT_STOP_DRY_TYRES))
                 {
-                    mashKeysToPutPitMenuInKnownState(isRaceSession);
+                    mashKeysToPutPitMenuInKnownState();
                     recognised = true;
                     audioPlayer.playMessageImmediately(new QueuedMessage(folderConfirmDryTyres, 0));
                 }
                 else if (SpeechRecogniser.ResultContains(recognisedText, SpeechRecogniser.PIT_STOP_CLEAR_TYRES))
                 {
-                    dontChangeTyres(isRaceSession);
+                    dontChangeTyres();
                     recognised = true;
                     audioPlayer.playMessageImmediately(new QueuedMessage(folderConfirmNoTyres, 0));
                 }
                 else if (SpeechRecogniser.ResultContains(recognisedText, SpeechRecogniser.PIT_STOP_WET_TYRES))
                 {
-                    selectWets(isRaceSession);
+                    selectWets();
                     recognised = true;
                     audioPlayer.playMessageImmediately(new QueuedMessage(folderConfirmWetTyres, 0));
                 }
@@ -100,14 +99,14 @@ namespace CrewChiefV4.ACC
                     int requestedSet = extractInt(recognisedText);
                     if (requestedSet > 0 && requestedSet < 50)
                     {
-                        selectTyreSet(requestedSet, isRaceSession);
+                        selectTyreSet(requestedSet);
                         recognised = true;
                         audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
                     }
                 }
                 else if (SpeechRecogniser.ResultContains(recognisedText, SpeechRecogniser.PIT_STOP_DONT_REFUEL))
                 {
-                    clearFuel(isRaceSession);
+                    clearFuel();
                     recognised = true;
                     audioPlayer.playMessageImmediately(new QueuedMessage(folderConfirmNoRefuelling, 0));
                 }
@@ -121,7 +120,7 @@ namespace CrewChiefV4.ACC
                             break;
                         }
                     }
-                    changeAllPressuresTo(isRaceSession, parsePressureRequest(recognisedText));
+                    changeAllPressuresTo(parsePressureRequest(recognisedText));
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
                     recognised = true;
                 }
@@ -135,7 +134,7 @@ namespace CrewChiefV4.ACC
                             break;
                         }
                     }
-                    changeFrontPressuresTo(isRaceSession, parsePressureRequest(recognisedText));
+                    changeFrontPressuresTo(parsePressureRequest(recognisedText));
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
                     recognised = true;
                 }
@@ -149,7 +148,7 @@ namespace CrewChiefV4.ACC
                             break;
                         }
                     }
-                    changeRearPressuresTo(isRaceSession, parsePressureRequest(recognisedText));
+                    changeRearPressuresTo(parsePressureRequest(recognisedText));
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
                     recognised = true;
                 }
@@ -163,7 +162,7 @@ namespace CrewChiefV4.ACC
                             break;
                         }
                     }
-                    changeLFPressuresTo(isRaceSession, parsePressureRequest(recognisedText));
+                    changeLFPressuresTo(parsePressureRequest(recognisedText));
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
                     recognised = true;
                 }
@@ -177,7 +176,7 @@ namespace CrewChiefV4.ACC
                             break;
                         }
                     }
-                    changeRFPressuresTo(isRaceSession, parsePressureRequest(recognisedText));
+                    changeRFPressuresTo(parsePressureRequest(recognisedText));
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
                     recognised = true;
                 }
@@ -191,7 +190,7 @@ namespace CrewChiefV4.ACC
                             break;
                         }
                     }
-                    changeLRPressuresTo(isRaceSession, parsePressureRequest(recognisedText));
+                    changeLRPressuresTo(parsePressureRequest(recognisedText));
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
                     recognised = true;
                 }
@@ -205,7 +204,7 @@ namespace CrewChiefV4.ACC
                             break;
                         }
                     }
-                    changeRRPressuresTo(isRaceSession, parsePressureRequest(recognisedText));
+                    changeRRPressuresTo(parsePressureRequest(recognisedText));
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
                     recognised = true;
                 }
@@ -216,6 +215,12 @@ namespace CrewChiefV4.ACC
             {
                 audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderDidntUnderstand, 0));
             }
+        }
+
+        private static bool isStrategyOptionShown()
+        {
+            // maybe get this value from some clue in shared memory, for now just assume it's show.
+            return true;
         }
 
         private static float parsePressureRequest(string phrase)
@@ -249,7 +254,7 @@ namespace CrewChiefV4.ACC
             return 0;
         }
 
-        private static void mashKeysToPutPitMenuInKnownState(bool isRaceSession, bool returnToTop = true)
+        private static void mashKeysToPutPitMenuInKnownState(bool returnToTop = true)
         {
             // keep track of this
             int currentSelectedTyreSet = CrewChief.currentGameState.TyreData.selectedSet;
@@ -259,7 +264,7 @@ namespace CrewChiefV4.ACC
             moveCursorToTopOfPitMenu();
 
             // now go down 3 or 4 times and press right. If change tyres is selected this will change the selected tyre set
-            int itemsToReachTyreSets = isRaceSession ? 4 : 3;
+            int itemsToReachTyreSets = isStrategyOptionShown() ? 4 : 3;
             for (int i = 0; i < itemsToReachTyreSets; i++)
             {
                 sendKeyPressOrMacro(getMenuDownMacro(), downKey);
@@ -352,9 +357,9 @@ namespace CrewChiefV4.ACC
             Thread.Sleep(300);
         }
 
-        private static void selectTyreSet(int requestedTyreSet, bool isRaceSession)
+        private static void selectTyreSet(int requestedTyreSet)
         {
-            mashKeysToPutPitMenuInKnownState(isRaceSession, false);
+            mashKeysToPutPitMenuInKnownState(false);
             // assuming the masher worked, we're now on the tyre set option
             int currentTyreSet = CrewChief.currentGameState.TyreData.selectedSet;
             bool increase = requestedTyreSet > currentTyreSet;
@@ -372,38 +377,38 @@ namespace CrewChiefV4.ACC
             }
         }
 
-        private static void selectWets(bool isRaceSession)
+        private static void selectWets()
         {
-            mashKeysToPutPitMenuInKnownState(isRaceSession);
+            mashKeysToPutPitMenuInKnownState();
             sendKeyPressOrMacro(getMenuDownMacro(), downKey);
             sendKeyPressOrMacro(getMenuDownMacro(), downKey);
             sendKeyPressOrMacro(getMenuDownMacro(), downKey);
             sendKeyPressOrMacro(getMenuDownMacro(), downKey);
-            if (isRaceSession)
+            if (isStrategyOptionShown())
                 sendKeyPressOrMacro(getMenuDownMacro(), downKey);
             sendKeyPressOrMacro(getMenuRightMacro(), rightKey);
         }
 
-        private static void selectDrys(bool isRaceSession)
+        private static void selectDrys()
         {
-            mashKeysToPutPitMenuInKnownState(isRaceSession);
+            mashKeysToPutPitMenuInKnownState();
         }
 
-        private static void dontChangeTyres(bool isRaceSession)
+        private static void dontChangeTyres()
         {
-            mashKeysToPutPitMenuInKnownState(isRaceSession);
+            mashKeysToPutPitMenuInKnownState();
             sendKeyPressOrMacro(getMenuDownMacro(), downKey);
             sendKeyPressOrMacro(getMenuDownMacro(), downKey);
-            if (isRaceSession)
+            if (isStrategyOptionShown())
                 sendKeyPressOrMacro(getMenuDownMacro(), downKey);
             sendKeyPressOrMacro(getMenuRightMacro(), rightKey);
         }
 
-        private static void clearFuel(bool isRaceSession)
+        private static void clearFuel()
         {
             moveCursorToTopOfPitMenu();
             sendKeyPressOrMacro(getMenuDownMacro(), downKey);
-            if (isRaceSession)
+            if (isStrategyOptionShown())
                 sendKeyPressOrMacro(getMenuDownMacro(), downKey);
             for (int i = 0; i < 100; i++)
             {
@@ -411,10 +416,10 @@ namespace CrewChiefV4.ACC
             }
         }
 
-        private static void changeAllPressuresTo(bool isRaceSession, float targetPressure)
+        private static void changeAllPressuresTo(float targetPressure)
         {
-            mashKeysToPutPitMenuInKnownState(isRaceSession);
-            int pressesToReachTyrePressureOption = isRaceSession ? 6 : 5;
+            mashKeysToPutPitMenuInKnownState();
+            int pressesToReachTyrePressureOption = isStrategyOptionShown() ? 6 : 5;
             for (int i = 0; i < pressesToReachTyrePressureOption; i++)
             {
                 sendKeyPressOrMacro(getMenuDownMacro(), downKey);
@@ -422,10 +427,10 @@ namespace CrewChiefV4.ACC
             changePressureTo(targetPressure, CrewChief.currentGameState.TyreData.ACCFrontLeftPressureMFD);
         }
 
-        private static void changeFrontPressuresTo(bool isRaceSession, float targetPressure)
+        private static void changeFrontPressuresTo(float targetPressure)
         {
-            mashKeysToPutPitMenuInKnownState(isRaceSession);
-            int pressesToReachTyrePressureOption = isRaceSession ? 7 : 6;
+            mashKeysToPutPitMenuInKnownState();
+            int pressesToReachTyrePressureOption = isStrategyOptionShown() ? 7 : 6;
             for (int i = 0; i < pressesToReachTyrePressureOption; i++)
             {
                 sendKeyPressOrMacro(getMenuDownMacro(), downKey);
@@ -435,10 +440,10 @@ namespace CrewChiefV4.ACC
             changePressureTo(targetPressure, CrewChief.currentGameState.TyreData.ACCFrontRightPressureMFD);
         }
 
-        private static void changeRearPressuresTo(bool isRaceSession, float targetPressure)
+        private static void changeRearPressuresTo(float targetPressure)
         {
-            mashKeysToPutPitMenuInKnownState(isRaceSession);
-            int pressesToReachTyrePressureOption = isRaceSession ? 9 : 8;
+            mashKeysToPutPitMenuInKnownState();
+            int pressesToReachTyrePressureOption = isStrategyOptionShown() ? 9 : 8;
             for (int i = 0; i < pressesToReachTyrePressureOption; i++)
             {
                 sendKeyPressOrMacro(getMenuDownMacro(), downKey);
@@ -448,10 +453,10 @@ namespace CrewChiefV4.ACC
             changePressureTo(targetPressure, CrewChief.currentGameState.TyreData.ACCRearRightPressureMFD);
         }
 
-        private static void changeLFPressuresTo(bool isRaceSession, float targetPressure)
+        private static void changeLFPressuresTo(float targetPressure)
         {
-            mashKeysToPutPitMenuInKnownState(isRaceSession);
-            int pressesToReachTyrePressureOption = isRaceSession ? 7 : 6;
+            mashKeysToPutPitMenuInKnownState();
+            int pressesToReachTyrePressureOption = isStrategyOptionShown() ? 7 : 6;
             for (int i = 0; i < pressesToReachTyrePressureOption; i++)
             {
                 sendKeyPressOrMacro(getMenuDownMacro(), downKey);
@@ -459,10 +464,10 @@ namespace CrewChiefV4.ACC
             changePressureTo(targetPressure, CrewChief.currentGameState.TyreData.ACCFrontLeftPressureMFD);
         }
 
-        private static void changeRFPressuresTo(bool isRaceSession, float targetPressure)
+        private static void changeRFPressuresTo(float targetPressure)
         {
-            mashKeysToPutPitMenuInKnownState(isRaceSession);
-            int pressesToReachTyrePressureOption = isRaceSession ? 8 : 7;
+            mashKeysToPutPitMenuInKnownState();
+            int pressesToReachTyrePressureOption = isStrategyOptionShown() ? 8 : 7;
             for (int i = 0; i < pressesToReachTyrePressureOption; i++)
             {
                 sendKeyPressOrMacro(getMenuDownMacro(), downKey);
@@ -470,10 +475,10 @@ namespace CrewChiefV4.ACC
             changePressureTo(targetPressure, CrewChief.currentGameState.TyreData.ACCFrontRightPressureMFD);
         }
 
-        private static void changeLRPressuresTo(bool isRaceSession, float targetPressure)
+        private static void changeLRPressuresTo(float targetPressure)
         {
-            mashKeysToPutPitMenuInKnownState(isRaceSession);
-            int pressesToReachTyrePressureOption = isRaceSession ? 9 : 8;
+            mashKeysToPutPitMenuInKnownState();
+            int pressesToReachTyrePressureOption = isStrategyOptionShown() ? 9 : 8;
             for (int i = 0; i < pressesToReachTyrePressureOption; i++)
             {
                 sendKeyPressOrMacro(getMenuDownMacro(), downKey);
@@ -481,10 +486,10 @@ namespace CrewChiefV4.ACC
             changePressureTo(targetPressure, CrewChief.currentGameState.TyreData.ACCRearLeftPressureMFD);
         }
 
-        private static void changeRRPressuresTo(bool isRaceSession, float targetPressure)
+        private static void changeRRPressuresTo(float targetPressure)
         {
-            mashKeysToPutPitMenuInKnownState(isRaceSession);
-            int pressesToReachTyrePressureOption = isRaceSession ? 10 : 9;
+            mashKeysToPutPitMenuInKnownState();
+            int pressesToReachTyrePressureOption = isStrategyOptionShown() ? 10 : 9;
             for (int i = 0; i < pressesToReachTyrePressureOption; i++)
             {
                 sendKeyPressOrMacro(getMenuDownMacro(), downKey);
