@@ -389,13 +389,15 @@ namespace CrewChiefV4
                     Macro macro = new Macro();
                     macro.name = textBoxAddNewMacro.Text;
                     macro.description = textBoxDescription.Text;
-                    if (radioButtonRegularVoiceTrigger.Enabled)
+                    if (radioButtonRegularVoiceTrigger.Checked)
                     {
                         macro.voiceTriggers = textBoxVoiceTriggers.Lines;
+                        macro.integerVariableVoiceTrigger = null;
                     }
                     else
                     {
                         macro.integerVariableVoiceTrigger = textBoxVoiceTriggers.Text;
+                        macro.voiceTriggers = null;
                     }
                     if (textBoxConfirmationMessage.Text.Length > 0)
                     {
@@ -413,13 +415,15 @@ namespace CrewChiefV4
                     Macro currentMacro = macroContainer.macros.FirstOrDefault(mc => mc.name == listBoxAvailableMacros.SelectedItem.ToString());
                     currentMacro.name = textBoxAddNewMacro.Text;
                     currentMacro.description = textBoxDescription.Text;
-                    if (radioButtonRegularVoiceTrigger.Enabled)
+                    if (radioButtonRegularVoiceTrigger.Checked)
                     {
                         currentMacro.voiceTriggers = textBoxVoiceTriggers.Lines;
+                        currentMacro.integerVariableVoiceTrigger = null;
                     }
                     else
                     {
                         currentMacro.integerVariableVoiceTrigger = textBoxVoiceTriggers.Text;
+                        currentMacro.voiceTriggers = null;
                     }
                     if (textBoxConfirmationMessage.Text.Length > 0)
                     {
