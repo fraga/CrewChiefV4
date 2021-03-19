@@ -77,20 +77,6 @@ namespace CrewChiefV4.ACC
         private int[] pendingYellowSectors = new int[] { 0, 0, 0 };
         private bool hasPendingChanges = false;
 
-
-        private Dictionary<int, int> lapsOnEachTyreSet = new Dictionary<int, int>();
-        private void incrementLapsOnCurrentTyreSet(int currentTyreSet)
-        {
-            if (lapsOnEachTyreSet.ContainsKey(currentTyreSet))
-            {
-                lapsOnEachTyreSet[currentTyreSet] = lapsOnEachTyreSet[currentTyreSet] + 1;
-            }
-            else
-            {
-                lapsOnEachTyreSet[currentTyreSet] = 1;
-            }
-        }
-
         private void updateFlagSectors(int sector1, int sector2, int sector3, DateTime now)
         {
             bool isYellow = sector1 == 1 || sector2 == 1 || sector3 == 1;
@@ -301,13 +287,18 @@ namespace CrewChiefV4.ACC
                 currentGameState.SessionData.PreviousLapWasValid = previousGameState.SessionData.PreviousLapWasValid;
                 currentGameState.readLandmarksForThisLap = previousGameState.readLandmarksForThisLap;
 
-                // if we have valid session index data and our session index has decreased reset the tyre laps data
-                if (currentGameState.SessionData.EventIndex < previousGameState.SessionData.EventIndex || currentGameState.SessionData.EventIndex < 0)
+                // preserve the tyre set usage data from the previous tick unless we've decremented the event index counter.
+                // Note that this will retain usage if we restart a session, which is definitely *not* what we want but will do for now
+                if (currentGameState.SessionData.EventIndex >= previousGameState.SessionData.EventIndex)
                 {
-                    this.lapsOnEachTyreSet.Clear();
+                    currentGameState.TyreData.lapsPerSet = previousGameState.TyreData.lapsPerSet;
+                }
+                else
+                {
+                    Console.WriteLine("Resetting tyre tracking data");
                 }
             }
-            
+
             if (currentGameState.carClass.carClassEnum == CarData.CarClassEnum.UNKNOWN_RACE)
             {
                 CarData.CarClass newClass = CarData.getCarClassForClassNameOrCarName(playerVehicle.carModel);
@@ -738,10 +729,11 @@ namespace CrewChiefV4.ACC
                 currentGameState.SessionData.IsNewLap = currentGameState.HasNewLapData(previousGameState, lastLapTime, hasCrossedSFLine)
                     || ((lastSessionPhase == SessionPhase.Countdown)
                     && (currentGameState.SessionData.SessionPhase == SessionPhase.Green || currentGameState.SessionData.SessionPhase == SessionPhase.FullCourseYellow));
-                
+
+                currentGameState.TyreData.fittedSet = shared.accGraphic.currentTyreSet;
                 if (currentGameState.SessionData.IsNewLap)
                 {
-                    incrementLapsOnCurrentTyreSet(shared.accGraphic.currentTyreSet);
+                    currentGameState.TyreData.incrementLapsPerSet();
                     currentGameState.SessionData.CurrentLapIsValid = true;
                     Boolean lapWasValid = previousGameState != null && previousGameState.SessionData.CurrentLapIsValid;
                     currentGameState.readLandmarksForThisLap = false;

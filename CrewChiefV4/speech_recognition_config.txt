@@ -381,6 +381,8 @@ HOW_MANY_INCIDENT_POINTS = how many incidents do i have:how many incident points
 WHATS_THE_INCIDENT_LIMIT = what's the incident limit:what's the incident points limit
 WHATS_THE_SOF = what's the sof:what is the strength of field:what's the strength of field
 
+# Only wired up for ACC at the moment
+HOW_MANY_LAPS_ON_TYRE_SET = how many laps on tire set:how many laps are on tire set
 
 #################################################
 # Overlay controls common to all datasets.

@@ -2937,7 +2937,26 @@ namespace CrewChiefV4.GameState
         public Single ACCRearLeftPressureMFD;
         public Single ACCRearRightPressureMFD;
 
-        public int selectedSet = -1;
+        public int selectedSet = -1;    // not necessarily the same as fittedSet
+        public int fittedSet = -1;
+        public int[] lapsPerSet;
+
+        public void clearLapsPerSet()
+        {
+            this.lapsPerSet = new int[50];
+        }
+
+        public void incrementLapsPerSet()
+        {
+            if (lapsPerSet == null)
+            {
+                clearLapsPerSet();
+            }
+            if (selectedSet != -1 && selectedSet < lapsPerSet.Length)
+            {
+                lapsPerSet[selectedSet] = lapsPerSet[selectedSet] + 1;
+            }
+        }
 
         private CornerData _TyreTempStatus;
         public CornerData TyreTempStatus
@@ -3003,6 +3022,11 @@ namespace CrewChiefV4.GameState
         public Boolean RightFrontIsSpinning;
         public Boolean LeftRearIsSpinning;
         public Boolean RightRearIsSpinning;
+
+        public TyreData()
+        {
+            this.clearLapsPerSet();
+        }
     }
 
     public class Conditions

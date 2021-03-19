@@ -1838,7 +1838,7 @@ namespace CrewChiefV4.Events
                     audioPlayer.playMessageImmediately(new QueuedMessage("left front surface temps", 0, MessageContents(
                         convertTemp(CrewChief.currentGameState.TyreData.FrontLeft_LeftTemp, 1),
                         convertTemp(CrewChief.currentGameState.TyreData.FrontLeft_CenterTemp, 1),
-                        convertTemp(CrewChief.currentGameState.TyreData.FrontLeft_RightTemp, 1), 
+                        convertTemp(CrewChief.currentGameState.TyreData.FrontLeft_RightTemp, 1),
                         getTempUnit())));
                 }
             }
@@ -1887,6 +1887,45 @@ namespace CrewChiefV4.Events
                         getTempUnit())));
                 }
             }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOW_MANY_LAPS_ON_TYRE_SET))
+            {
+                // get the requested tyre set number
+                foreach (string command in SpeechRecogniser.HOW_MANY_LAPS_ON_TYRE_SET)
+                {
+                    if (voiceMessage.StartsWith(command))
+                    {
+                        voiceMessage = voiceMessage.Substring(command.Length);
+                        break;
+                    }
+                }
+                int requestedTyreSet = extractInt(voiceMessage) -1; // internal data is zero indexed, request is 1 indexed
+                if (requestedTyreSet > -1 && CrewChief.currentGameState != null && requestedTyreSet <= CrewChief.currentGameState.TyreData.lapsPerSet.Length)
+                {
+                    int lapsOnTyreSet = CrewChief.currentGameState.TyreData.lapsPerSet[requestedTyreSet];
+                    audioPlayer.playMessageImmediately(new QueuedMessage("laps_on_tyre_set_" + requestedTyreSet, 0, MessageContents(
+                        MessageFragment.Integer(lapsOnTyreSet, MessageFragment.Genders("pt-br", NumberReader.ARTICLE_GENDER.FEMALE)),
+                            Battery.folderLaps)));
+                }
+                else
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                }
+            }
+        }
+
+        private static int extractInt(String commandFragment)
+        {
+            foreach (KeyValuePair<String[], int> entry in SpeechRecogniser.numberToNumber)
+            {
+                foreach (String numberStr in entry.Key)
+                {
+                    if (commandFragment.Trim() == numberStr)
+                    {
+                        return entry.Value;
+                    }
+                }
+            }
+            return -1;
         }
 
         private void playPressureMessage(Boolean allowDelayedResponse, string folder)

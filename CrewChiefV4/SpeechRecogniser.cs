@@ -196,6 +196,7 @@ namespace CrewChiefV4
         public static String[] WHAT_ARE_MY_LEFT_REAR_SURFACE_TEMPS = Configuration.getSpeechRecognitionPhrases("WHAT_ARE_MY_LEFT_REAR_SURFACE_TEMPS");
         public static String[] WHAT_ARE_MY_RIGHT_REAR_SURFACE_TEMPS = Configuration.getSpeechRecognitionPhrases("WHAT_ARE_MY_RIGHT_REAR_SURFACE_TEMPS");
 
+        public static String[] HOW_MANY_LAPS_ON_TYRE_SET = Configuration.getSpeechRecognitionPhrases("HOW_MANY_LAPS_ON_TYRE_SET");
 
         public static String[] STOP_COMPLAINING = Configuration.getSpeechRecognitionPhrases("STOP_COMPLAINING");
 
@@ -1681,6 +1682,33 @@ namespace CrewChiefV4
                     fuelTimeChoices.AddRange(HOURS);
                 }
                 addCompoundChoices(CALCULATE_FUEL_FOR, false, this.digitsChoices, fuelTimeChoices.ToArray(), true);
+
+
+                // now the 'laps on tyre set' choices, enabled for ACC only
+                if (CrewChief.gameDefinition.gameEnum == GameEnum.ACC)
+                {
+                    ChoicesWrapper lapsOnTyreSetIntroChoicesWrapper = SREWrapperFactory.createNewChoicesWrapper();
+                    foreach (string intro in HOW_MANY_LAPS_ON_TYRE_SET)
+                    {
+                        validateAndAdd(intro, lapsOnTyreSetIntroChoicesWrapper);
+                    }
+                    ChoicesWrapper tyreSetIntAmountChoicesWrapper = SREWrapperFactory.createNewChoicesWrapper();
+                    foreach (KeyValuePair<String[], int> numberEntry in numberToNumber)
+                    {
+                        // 1-50 is the valid range here
+                        if (numberEntry.Value >= 1 && numberEntry.Value <= 50)
+                        {
+                            validateAndAdd(numberEntry.Key[0], tyreSetIntAmountChoicesWrapper);
+                        }
+                    }
+                    // now assemble the choices
+                    GrammarBuilderWrapper lapsOnTyreSetGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper();
+                    lapsOnTyreSetGrammarBuilder.SetCulture(cultureInfo);
+                    lapsOnTyreSetGrammarBuilder.Append(lapsOnTyreSetIntroChoicesWrapper, 1, 1);
+                    lapsOnTyreSetGrammarBuilder.Append(tyreSetIntAmountChoicesWrapper, 1, 1);
+                    GrammarWrapper lapsOnTyreSetGrammar = SREWrapperFactory.createNewGrammarWrapper(lapsOnTyreSetGrammarBuilder);
+                    sreWrapper.LoadGrammar(lapsOnTyreSetGrammar);
+                }
             }
             catch (Exception e)
             {
@@ -3331,7 +3359,8 @@ namespace CrewChiefV4
                 ResultContains(recognisedSpeech, WHAT_ARE_MY_LEFT_FRONT_SURFACE_TEMPS, false) ||
                 ResultContains(recognisedSpeech, WHAT_ARE_MY_RIGHT_FRONT_SURFACE_TEMPS, false) ||
                 ResultContains(recognisedSpeech, WHAT_ARE_MY_LEFT_REAR_SURFACE_TEMPS, false) ||
-                ResultContains(recognisedSpeech, WHAT_ARE_MY_RIGHT_REAR_SURFACE_TEMPS, false))
+                ResultContains(recognisedSpeech, WHAT_ARE_MY_RIGHT_REAR_SURFACE_TEMPS, false) ||
+                ResultContains(recognisedSpeech, HOW_MANY_LAPS_ON_TYRE_SET, false))
             {
                 return CrewChief.getEvent("TyreMonitor");
             }
