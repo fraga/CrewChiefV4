@@ -77,6 +77,20 @@ namespace CrewChiefV4.ACC
         private int[] pendingYellowSectors = new int[] { 0, 0, 0 };
         private bool hasPendingChanges = false;
 
+
+        private Dictionary<int, int> lapsOnEachTyreSet = new Dictionary<int, int>();
+        private void incrementLapsOnCurrentTyreSet(int currentTyreSet)
+        {
+            if (lapsOnEachTyreSet.ContainsKey(currentTyreSet))
+            {
+                lapsOnEachTyreSet[currentTyreSet] = lapsOnEachTyreSet[currentTyreSet] + 1;
+            }
+            else
+            {
+                lapsOnEachTyreSet[currentTyreSet] = 1;
+            }
+        }
+
         private void updateFlagSectors(int sector1, int sector2, int sector3, DateTime now)
         {
             bool isYellow = sector1 == 1 || sector2 == 1 || sector3 == 1;
@@ -263,6 +277,7 @@ namespace CrewChiefV4.ACC
 
             updateClockMultiplierGuess(shared.accGraphic.Clock, currentGameState.Now);
 
+            currentGameState.SessionData.EventIndex = shared.accGraphic.sessionIndex;
             if (previousGameState != null)
             {
                 lastSessionPhase = previousGameState.SessionData.SessionPhase;
@@ -285,8 +300,14 @@ namespace CrewChiefV4.ACC
                 currentGameState.SessionData.CurrentLapIsValid = previousGameState.SessionData.CurrentLapIsValid;
                 currentGameState.SessionData.PreviousLapWasValid = previousGameState.SessionData.PreviousLapWasValid;
                 currentGameState.readLandmarksForThisLap = previousGameState.readLandmarksForThisLap;
-            }
 
+                // if we have valid session index data and our session index has decreased reset the tyre laps data
+                if (currentGameState.SessionData.EventIndex < previousGameState.SessionData.EventIndex || currentGameState.SessionData.EventIndex < 0)
+                {
+                    this.lapsOnEachTyreSet.Clear();
+                }
+            }
+            
             if (currentGameState.carClass.carClassEnum == CarData.CarClassEnum.UNKNOWN_RACE)
             {
                 CarData.CarClass newClass = CarData.getCarClassForClassNameOrCarName(playerVehicle.carModel);
@@ -629,7 +650,6 @@ namespace CrewChiefV4.ACC
                     currentGameState.SessionData.HasExtraLap = previousGameState.SessionData.HasExtraLap;
                     currentGameState.SessionData.NumCarsOverallAtStartOfSession = previousGameState.SessionData.NumCarsOverallAtStartOfSession;
                     currentGameState.SessionData.TrackDefinition = previousGameState.SessionData.TrackDefinition;
-                    currentGameState.SessionData.EventIndex = previousGameState.SessionData.EventIndex;
                     currentGameState.SessionData.SessionIteration = previousGameState.SessionData.SessionIteration;
                     currentGameState.SessionData.PositionAtStartOfCurrentLap = previousGameState.SessionData.PositionAtStartOfCurrentLap;
                     currentGameState.SessionData.SessionStartClassPosition = previousGameState.SessionData.SessionStartClassPosition;
@@ -721,6 +741,7 @@ namespace CrewChiefV4.ACC
                 
                 if (currentGameState.SessionData.IsNewLap)
                 {
+                    incrementLapsOnCurrentTyreSet(shared.accGraphic.currentTyreSet);
                     currentGameState.SessionData.CurrentLapIsValid = true;
                     Boolean lapWasValid = previousGameState != null && previousGameState.SessionData.CurrentLapIsValid;
                     currentGameState.readLandmarksForThisLap = false;

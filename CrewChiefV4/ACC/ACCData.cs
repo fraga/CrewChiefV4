@@ -108,7 +108,6 @@ namespace CrewChiefV4.ACC
         [Serializable]
         public struct SPageFilePhysics
         {
-
             public int packetId;
             public float gas;
             public float brake;
@@ -218,27 +217,25 @@ namespace CrewChiefV4.ACC
                                     // and is a copy of the tyreCoreTemperature array (why???)
             public float waterTemp;
 
-            /* some unmapped fields at the end of this block:
-float brakePressure[4]  Brake pressure [FL, FR, RL, RR] see Appendix 2
-int frontBrakeCompound  Brake pad compund front
-int rearBrakeCompound  Brake pad compund rear
-float padLife[4]  Brake pad wear  [FL, FR, RL, RR]
-float discLife[4]  Brake disk wear  [FL, FR, RL, RR]
-int ignitionOn  Ignition switch set to on?
-int starterEngineOn  Starter Switch set to on?
-int isEngineRunning  Engine running?
-float kerbVibration  vibrations sent to the FFB, could be used for motion rigs
-float slipVibrations  vibrations sent to the FFB, could be used for motion rigs
-float gVibrations  vibrations sent to the FFB, could be used for motion rigs
-float absVibrations  vibrations sent to the FFB, could be used for motion rigs
-             */
+            //some unmapped fields at the end of this block:
+            /*public float[] brakePressure; // Brake pressure [FL, FR, RL, RR]
+            public int frontBrakeCompound; // Brake pad compund front
+            public int rearBrakeCompound; // Brake pad compund rear
+            public float[] padLife; //   Brake pad wear  [FL, FR, RL, RR]
+            public float[] discLife; //  Brake disk wear  [FL, FR, RL, RR]
+            public int ignitionOn; // Ignition switch set to on?
+            public int starterEngineOn; // Starter Switch set to on?
+            public int isEngineRunning; // Engine running?
+            public float kerbVibration; // vibrations sent to the FFB, could be used for motion rigs
+            public float slipVibrations; // vibrations sent to the FFB, could be used for motion rigs
+            public float gVibrations; // vibrations sent to the FFB, could be used for motion rigs
+            public float absVibrations; // vibrations sent to the FFB, could be used for motion rigs*/
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Unicode)]
         [Serializable]
         public struct SPageFileGraphic
         {
-
             public int packetId;
             public AC_STATUS status;
             public AC_SESSION_TYPE session;
@@ -349,6 +346,9 @@ float absVibrations  vibrations sent to the FFB, could be used for motion rigs
             public ACC_RAIN_INTENSITY rainIntensity;
             public ACC_RAIN_INTENSITY rainIntensityIn10min;
             public ACC_RAIN_INTENSITY rainIntensityIn30min;
+
+            public int currentTyreSet;
+            public int strategyTyreSet;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Unicode)]
