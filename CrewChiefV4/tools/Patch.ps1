@@ -46,7 +46,7 @@ MirrorDirectory $rootPath\"sounds\voice" $env:LOCALAPPDATA"\CrewChiefV4\sounds\v
 OverwriteFile $releaseBinPath\"CrewChiefV4.exe" $ccLayoutMainPath
 OverwriteFile $releaseBinPath\"CrewChiefV4.pdb" $ccLayoutMainPath
 OverwriteFile $releaseBinPath\"CrewChiefV4.exe.config" $ccLayoutMainPath
-OverwriteFile $rootPath\"ui_text.txt" $ccLayoutMainPath
+OverwriteFile $rootPath\"ui_text\en.txt" $ccLayoutMainPath\ui_text\
 OverwriteFile $rootPath\"carClassData.json" $ccLayoutMainPath
 OverwriteFile $rootPath\"trackLandmarksData.json" $ccLayoutMainPath
 OverwriteFile $rootPath\"controllerConfigurationData.json" $ccLayoutMainPath
@@ -69,6 +69,7 @@ OverwriteFile $releaseBinPath\"SharpDX.Mathematics.dll" $ccLayoutMainPath
 OverwriteFile $releaseBinPath\"websocket-sharp.dll" $ccLayoutMainPath
 OverwriteFile $releaseBinPath\"GameOverlay.dll" $ccLayoutMainPath
 OverwriteFile $releaseBinPath\"openvr_api.dll" $ccLayoutMainPath
+OverwriteFile $releaseBinPath\"WindowsInput.dll" $ccLayoutMainPath
 
 echo "Press any key to finish..."
 

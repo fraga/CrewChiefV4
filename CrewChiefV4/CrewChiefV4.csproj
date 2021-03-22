@@ -116,10 +116,14 @@
       <HintPath>..\packages\WebSocketSharp-netstandard.1.0.1\lib\net45\websocket-sharp.dll</HintPath>
     </Reference>
     <Reference Include="WindowsBase" />
+    <Reference Include="WindowsInput, Version=1.0.6.0, Culture=neutral, PublicKeyToken=de2685b4776e9c2e, processorArchitecture=MSIL">
+      <HintPath>..\packages\InputSimulatorPlus.1.0.7\lib\net20\WindowsInput.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ACC\ACCData.cs" />
     <Compile Include="ACC\ACCGameStateMapper.cs" />
+    <Compile Include="ACC\ACCPitMenuManager.cs" />
     <Compile Include="ACC\ACCSharedMemoryReader.cs" />
     <Compile Include="ACC\ACCSpotter.cs" />
     <Compile Include="ACC\ksBroadcastingNetwork\ACCUdpRemoteClient.cs" />
@@ -170,6 +174,7 @@
     <Compile Include="commands\KeyPresser.cs" />
     <Compile Include="commands\CommandMacro.cs" />
     <Compile Include="commands\MacroManager.cs" />
+    <Compile Include="Dirt\DirtData.cs" />
     <Compile Include="DriverNameHelper.cs" />
     <Compile Include="DriverTrainingService.cs" />
     <Compile Include="Events\AbstractEvent.cs" />
@@ -180,6 +185,7 @@
     <Compile Include="Events\CommonActions.cs" />
     <Compile Include="Events\CommonDataContainers.cs" />
     <Compile Include="Events\DriverSwaps.cs" />
+    <Compile Include="Events\CoDriver.cs" />
     <Compile Include="Events\WatchedOpponents.cs" />
     <Compile Include="Events\Strategy.cs" />
     <Compile Include="Events\FrozenOrderMonitor.cs" />
@@ -240,6 +246,9 @@
     <Compile Include="F1_2019\longtomjr\Structs\RaceWinner.cs" />
     <Compile Include="F1_2019\longtomjr\Structs\TeamMateInPits.cs" />
     <Compile Include="F1_2019\longtomjr\Structs\Retirement.cs" />
+    <Compile Include="Dirt\DirtGameStateMapper.cs" />
+    <Compile Include="Dirt\DirtStructWrapper.cs" />
+    <Compile Include="Dirt\DirtUDPreader.cs" />
     <Compile Include="F1_2020\F12020GameStateMapper.cs" />
     <Compile Include="F1_2020\F12020Spotter.cs" />
     <Compile Include="F1_2020\F12020StructWrapper.cs" />
@@ -273,6 +282,8 @@
     <Compile Include="GameDataSerializer.cs" />
     <Compile Include="GameDefinition.cs" />
     <Compile Include="GameStateReaderFactory.cs" />
+    <Compile Include="GameState\DummyGameDataReader.cs" />
+    <Compile Include="GameState\DummyGameStateMapper.cs" />
     <Compile Include="GameState\GlobalBehaviourSettings.cs" />
     <Compile Include="GlobalResources.cs" />
     <Compile Include="iRacing\Bitfields\CameraState.cs" />
@@ -301,6 +312,7 @@
     <Compile Include="iRacing\SessionData.cs" />
     <Compile Include="iRacing\Sim.cs" />
     <Compile Include="iRacing\Track.cs" />
+    <Compile Include="Logging.cs" />
     <Compile Include="NumberReaderPtBr.cs" />
     <Compile Include="NumberReaderIt2.cs" />
     <Compile Include="Overlay\Charts.cs" />
@@ -320,9 +332,30 @@
     <Compile Include="Overlay\OverlayElements\OverlayHeader.cs" />
     <Compile Include="Overlay\OverlaySettings.cs" />
     <Compile Include="Overlay\SubtitleOverlay.cs" />
+    <Compile Include="PitManager\PitManager.cs" />
+    <Compile Include="PitManager\PitManagerEventHandlers_RF2.cs" />
+    <Compile Include="PitManager\PitManagerResponseHandlers.cs" />
+    <Compile Include="PitManager\PitManagerVoiceCmds.cs" />
     <Compile Include="R3E\R3EPitMenuManager.cs" />
     <Compile Include="R3E\R3ERatings.cs" />
     <Compile Include="R3E\R3ESerializer.cs" />
+    <Compile Include="RBR\RBRData.cs" />
+    <Compile Include="RBR\RBRGameStateMapper.cs" />
+    <Compile Include="RBR\RBRSharedMemoryReader.cs" />
+    <Compile Include="RF2\MappedBuffer.cs" />
+    <Compile Include="RF2\PitMenuAbstractionLayer.cs" />
+    <Compile Include="RF2\PitMenuAPI.cs" />
+    <Compile Include="RF2\PitMenuController.cs" />
+    <Compile Include="RF2\rF2HWControl.cs" />
+    <Compile Include="UserInterface\Loading.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UserInterface\Loading.Designer.cs">
+      <DependentUpon>Loading.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserInterface\MainWindowMenu.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="VROverlayWindow\CaptureScreen.cs" />
     <Compile Include="VROverlayWindow\CursorInteraction.cs" />
     <Compile Include="VROverlayWindow\DeviceManager.cs" />
@@ -382,7 +415,7 @@
       <DependentUpon>VROverlay.cs</DependentUpon>
     </Compile>
     <Compile Include="UserSettings.cs" />
-    <Compile Include="Validator.cs" />
+    <Compile Include="AdditionalDataProvider.cs" />
     <Compile Include="NoisyCartesianCoordinateSpotter.cs" />
     <Compile Include="NumberProcessing\TimeSpanWrapper.cs" />
     <Compile Include="NumberReaderIt.cs" />
@@ -508,6 +541,10 @@
     </Compile>
     <Compile Include="Configuration.cs" />
     <Compile Include="Utilities.cs" />
+    <Compile Include="GTR2\GTR2GameStateMapper.cs" />
+    <Compile Include="GTR2\GTR2SharedMemoryReader.cs" />
+    <Compile Include="GTR2\GTR2Spotter.cs" />
+    <Compile Include="GTR2\GTR2Data.cs" />
     <EmbeddedResource Include="UserInterface\ActionEditor.resx">
       <DependentUpon>ActionEditor.cs</DependentUpon>
     </EmbeddedResource>
@@ -517,6 +554,9 @@
     <EmbeddedResource Include="UserInterface\HelpWindow.resx" />
     <EmbeddedResource Include="UserInterface\IntPropertycontrol.resx">
       <DependentUpon>IntPropertyControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UserInterface\Loading.resx">
+      <DependentUpon>Loading.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UserInterface\MacroEditor.resx">
       <DependentUpon>MacroEditor.cs</DependentUpon>
@@ -552,9 +592,11 @@
     <None Include="controllerConfigurationData.json" />
     <Compile Include="Overlay\OverlaySubscription.cs" />
     <None Include="packages.config" />
+    <None Include="PitManager\Documentation\rF2_PitManager.graphml" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </None>
     <None Include="saved_command_macros.json" />
     <None Include="tools\GetUnvocalizedCorners.ps1" />
@@ -594,6 +636,7 @@
     <Content Include="openvr_api.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="PitManager\Documentation\rF2_PitManager.jpg" />
     <Content Include="Resources\cursor.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

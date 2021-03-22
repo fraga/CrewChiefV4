@@ -47,6 +47,7 @@ namespace CrewChiefV4
             UI_STARTUP_AND_PATHS,
             AUDIO_VOICE_AND_CONTROLLERS,
             SPOTTER,
+            CODRIVER,
             FLAGS_AND_RULES,
             MESSAGE_FREQUENCIES,
             FUEL_TEMPS_AND_DAMAGES,
@@ -87,7 +88,9 @@ namespace CrewChiefV4
                 + Configuration.getUIString("search_box_tooltip_line5") + Environment.NewLine
                 + Configuration.getUIString("search_box_tooltip_line6") + Environment.NewLine
                 + Configuration.getUIString("search_box_tooltip_line7") + Environment.NewLine
-                + Configuration.getUIString("search_box_tooltip_line8") + Environment.NewLine;
+                + Configuration.getUIString("search_box_tooltip_line8") + Environment.NewLine
+                + Configuration.getUIString("search_box_tooltip_line9") + Environment.NewLine
+                + Configuration.getUIString("search_box_tooltip_line10") + Environment.NewLine;
             this.searchBoxTooltip.SetToolTip(this.searchTextBox, tooltip);
             this.exitButton.Text = Configuration.getUIString("exit_without_saving");
             this.restoreButton.Text = Configuration.getUIString("restore_default_settings");
@@ -264,14 +267,17 @@ namespace CrewChiefV4
                     foreach (var game in MainWindow.instance.gameDefinitionList.Items)
                     {
                         var friendlyGameName = game.ToString();
-                        this.filterBox.Items.Add(new ComboBoxItem<GameEnum>()
+                        if (friendlyGameName != GameDefinition.none.friendlyName)
                         {
-                            Label = friendlyGameName,
-                            Value = GameDefinition.getGameDefinitionForFriendlyName(friendlyGameName).gameEnum
-                        });
+                            this.filterBox.Items.Add(new ComboBoxItem<GameEnum>()
+                            {
+                                Label = friendlyGameName,
+                                Value = GameDefinition.getGameDefinitionForFriendlyName(friendlyGameName).gameEnum
+                            });
 
-                        if (friendlyGameName == currSelectedGameFriendlyName)
-                            this.filterBox.SelectedIndex = this.filterBox.Items.Count - 1;
+                            if (friendlyGameName == currSelectedGameFriendlyName)
+                                this.filterBox.SelectedIndex = this.filterBox.Items.Count - 1;
+                        }
                     }
                 }
             }
@@ -314,6 +320,12 @@ namespace CrewChiefV4
             {
                 Label = Configuration.getUIString("spotter_category_label"),
                 Value = PropertyCategory.SPOTTER
+            });
+
+            this.categoriesBox.Items.Add(new ComboBoxItem<PropertyCategory>()
+            {
+                Label = Configuration.getUIString("codriver_category_label"),
+                Value = PropertyCategory.CODRIVER
             });
 
             this.categoriesBox.Items.Add(new ComboBoxItem<PropertyCategory>()
@@ -512,7 +524,7 @@ namespace CrewChiefV4
                     this.saveActiveProfile();
                     if (requiresRestart)
                     {
-                        if (Utilities.RestartApp(new List<string> { "-app_restart" }))
+                        if (Utilities.RestartApp(app_restart:true))
                         {
                             parent.Close(); // To turn off current app
                         }
@@ -993,7 +1005,7 @@ namespace CrewChiefV4
             {
                 UserSettings.GetUserSettings().saveUserSettings();
 
-                if (Utilities.RestartApp(new List<string> { "-app_restart" }))
+                if (Utilities.RestartApp(app_restart:true, removeProfile:true))
                 {
                     this.clearChangedState();
                     this.parent.Close(); //to turn off current app

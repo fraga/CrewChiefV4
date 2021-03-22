@@ -93,6 +93,13 @@ namespace CrewChiefV4.Events
 
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
+            // allow incident points and SoF for other games so we can ask about them in R3E:
+            maxIncidentCount = currentGameState.SessionData.MaxIncidentCount;
+            incidentsCount = currentGameState.SessionData.CurrentIncidentCount;
+            strenghtOfField = currentGameState.SessionData.StrengthOfField;
+            hasLimitedIncidents = currentGameState.SessionData.HasLimitedIncidents;
+
+            // the rest of this event is iRacing only
             if (CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)
             {
                 return;
@@ -102,12 +109,8 @@ namespace CrewChiefV4.Events
             lastColdRLPressure = (int)currentGameState.TyreData.RearLeftPressure;
             lastColdRRPressure = (int)currentGameState.TyreData.RearRightPressure;
 
-            maxIncidentCount = currentGameState.SessionData.MaxIncidentCount;
-            incidentsCount = currentGameState.SessionData.CurrentIncidentCount;
-            hasLimitedIncidents = currentGameState.SessionData.HasLimitedIncidents;
             licenseLevel = currentGameState.SessionData.LicenseLevel;
             iRating = currentGameState.SessionData.iRating;
-            strenghtOfField = currentGameState.SessionData.StrengthOfField;
             fuelCapacity = currentGameState.FuelData.FuelCapacity;
             currentFuel = currentGameState.FuelData.FuelLeft;
             if(autoFuelToEnd)
@@ -404,7 +407,14 @@ namespace CrewChiefV4.Events
 
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOW_MANY_INCIDENT_POINTS))
             {
-                audioPlayer.playMessageImmediately(new QueuedMessage("Incidents/incidents", 0, messageFragments: MessageContents(folderYouHave, incidentsCount, folderincidents)));
+                if (incidentsCount == -1)
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+                }
+                else
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage("Incidents/incidents", 0, messageFragments: MessageContents(folderYouHave, incidentsCount, folderincidents)));
+                }
                 return;
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHATS_THE_INCIDENT_LIMIT))
@@ -481,9 +491,20 @@ namespace CrewChiefV4.Events
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHATS_THE_SOF))
             {
-                if (strenghtOfField != -1)
+                // for R3E we need to recalculate this on each request unless we're in a race session. For race sessions we want to use the fixed SoF the mapper generated
+                // at the green light
+                int sofToReport;
+                if (CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM && CrewChief.currentGameState != null && CrewChief.currentGameState.SessionData.SessionType != SessionType.Race)
                 {
-                    audioPlayer.playMessageImmediately(new QueuedMessage("license/irating", 0, messageFragments: MessageContents(strenghtOfField)));
+                    sofToReport = R3E.R3ERatings.getAverageRatingForParticipants(CrewChief.currentGameState.OpponentData);
+                }
+                else
+                {
+                    sofToReport = this.strenghtOfField;
+                }
+                if (sofToReport != -1)
+                {
+                    audioPlayer.playMessageImmediately(new QueuedMessage("license/irating", 0, messageFragments: MessageContents(sofToReport)));
                     return;
                 }
                 else

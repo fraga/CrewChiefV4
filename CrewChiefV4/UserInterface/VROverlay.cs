@@ -1,24 +1,45 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using SharpDX;
 using Valve.VR;
 using CrewChiefV4.VirtualReality;
 using System.Threading;
 using System.Diagnostics;
+using static CrewChiefV4.commands.KeyPresser;
 
 namespace CrewChiefV4
 {
     public partial class VROverlaySettings : Form
     {
+        private class TrackingUniverseMap
+        {
+            public ETrackingUniverseOrigin eTrackingUniverse;
+            public TrackingUniverseMap(ETrackingUniverseOrigin eTrackingUniverse)
+            {
+                this.eTrackingUniverse = eTrackingUniverse;
+            }
+            public override string ToString()
+            {
+                return eTrackingUniverse.ToString();
+            }
+        }
+        
+        private class VirtualKeyMap
+        {
+            public Keys keyCode;
+            public VirtualKeyMap(Keys keyCode)
+            {
+                this.keyCode = keyCode;
+            }
+
+            public override string ToString()
+            {
+                return keyCode.ToString();
+            }
+        }
+
         List<VROverlayWindow> settings = VROverlayWindow.loadOverlaySetttings<List<VROverlayWindow>>("vr_overlay_windows.json");
 
         public static object instanceLock = new object();
@@ -57,6 +78,36 @@ namespace CrewChiefV4
             labelGazeTransparency.Text = Configuration.getUIString("vr_gaze_transparency");
 
             checkBoxForceTopMostWindow.Text = Configuration.getUIString("vr_force_topmost_window");
+
+            labelTrackingSpace.Text = Configuration.getUIString("vr_tracking_space");
+            comboBoxTrackingSpace.Items.Add(Configuration.getUIString("vr_tracking_space_seated"));
+            comboBoxTrackingSpace.Items.Add(Configuration.getUIString("vr_tracking_space_standing"));
+            comboBoxTrackingSpace.Items.Add(Configuration.getUIString("vr_tracking_space_followhead"));
+
+            labelToggleKey.Text = Configuration.getUIString("vr_toggle_key");
+
+            groupBoxTrackingUniverse.Text = Configuration.getUIString("vr_tracking_universe_overwrite");
+            buttonReCenter.Text = Configuration.getUIString("vr_recenter_pose");
+
+            var keys = Enum.GetValues(typeof(Keys));
+            foreach(var key in keys)
+            {
+                comboBoxToggleVirtualKeys.Items.Add(new VirtualKeyMap((Keys)key));
+            }
+            foreach (var key in keys)
+            {
+                comboBoxModifierKeys.Items.Add(new VirtualKeyMap((Keys)key));
+            }
+
+            comboBoxSetTrackingSpace.DropDownStyle = ComboBoxStyle.DropDownList;
+            var trackingSpaces = Enum.GetValues(typeof(ETrackingUniverseOrigin));
+            foreach (var trackingSpace in trackingSpaces)
+            {
+                comboBoxSetTrackingSpace.Items.Add(new TrackingUniverseMap((ETrackingUniverseOrigin)trackingSpace));
+            }
+            List<TrackingUniverseMap> trackList = comboBoxSetTrackingSpace.Items.OfType<TrackingUniverseMap>().ToList();
+            var currentSpace = trackList.FirstOrDefault(t => t.ToString() == OpenVR.Compositor.GetTrackingSpace().ToString());
+            comboBoxSetTrackingSpace.SelectedItem = currentSpace;
 
             updateWindowList();
 
@@ -245,6 +296,24 @@ namespace CrewChiefV4
                     textBoxGazeScale.Text = window.gazeScale.ToString("0.0");
                     textBoxGazeTransparency.Text = window.gazeTransparency.ToString("0.00");
 
+                    comboBoxTrackingSpace.SelectedIndex = (int)window.trackingSpace;
+
+                    if(window.toggleVKeyCode == -1)
+                    {
+                        comboBoxToggleVirtualKeys.SelectedIndex = 0;
+                    }
+                    else
+                    {
+                        comboBoxToggleVirtualKeys.SelectedIndex = comboBoxToggleVirtualKeys.FindString(((Keys)window.toggleVKeyCode).ToString());
+                    }
+                    if (window.modifierVKeyCode == -1)
+                    {
+                        comboBoxModifierKeys.SelectedIndex = 0;
+                    }
+                    else
+                    {
+                        comboBoxModifierKeys.SelectedIndex = comboBoxModifierKeys.FindString(((Keys)window.modifierVKeyCode).ToString());
+                    }
                     this.loadingSettings = false;
                 }
             }
@@ -318,13 +387,12 @@ namespace CrewChiefV4
                         if (s.Text == currWnd.Text)
                         {
                             newWindow = false;
-
                             Debug.Assert(s.Name == currWnd.Name);
                             s.enabled = currWnd.enabled;
                             s.wasEnabled = currWnd.wasEnabled;
                             s.positionX = currWnd.positionX;
                             s.positionY = currWnd.positionY;
-                            s.positionY = currWnd.positionY;
+                            s.positionZ = currWnd.positionZ;
                             s.rotationX = currWnd.rotationX;
                             s.rotationY = currWnd.rotationY;
                             s.rotationZ = currWnd.rotationZ;
@@ -335,9 +403,10 @@ namespace CrewChiefV4
                             s.curvature = currWnd.curvature;
                             s.gazeEnabled = currWnd.gazeEnabled;
                             s.forceTopMost = currWnd.forceTopMost;
-                            s.trackingUniverse = currWnd.trackingUniverse;
+                            s.trackingSpace = currWnd.trackingSpace;
                             s.isDisplay = currWnd.isDisplay;
                             s.toggleVKeyCode = currWnd.toggleVKeyCode;
+                            s.modifierVKeyCode = currWnd.modifierVKeyCode;
                         }
                     }
 
@@ -492,7 +561,7 @@ namespace CrewChiefV4
                         this.buttonSaveSettings.Enabled = true;
 
                     var window = ((VROverlayWindow)listBoxWindows.SelectedItem);
-                    window.gazeEnabled = checkBoxEnableGazeing.Enabled;
+                    window.gazeEnabled = checkBoxEnableGazeing.Checked;
                 }
             }
         }
@@ -542,6 +611,69 @@ namespace CrewChiefV4
                     window.forceTopMost = checkBoxForceTopMostWindow.Checked;
                 }
             }
+        }
+
+        private void comboBoxTrackingSpace_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            lock (instanceLock)
+            {
+                if (listBoxWindows.SelectedIndex != -1)
+                {
+                    if (!this.loadingSettings)
+                        this.buttonSaveSettings.Enabled = true;
+
+                    var window = ((VROverlayWindow)listBoxWindows.SelectedItem);
+                    window.trackingSpace = comboBoxTrackingSpace.SelectedIndex != -1 ? (TrackingSpace)comboBoxTrackingSpace.SelectedIndex : TrackingSpace.Seated;
+                    ///window.forceTopMost = checkBoxForceTopMostWindow.Checked;
+                }
+            }
+        }
+
+        private void comboBoxVirtualKeys_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            lock (instanceLock)
+            {
+                if (listBoxWindows.SelectedIndex != -1)
+                {
+                    if (!this.loadingSettings)
+                        this.buttonSaveSettings.Enabled = true;
+
+                    var window = ((VROverlayWindow)listBoxWindows.SelectedItem);
+                        window.toggleVKeyCode =  comboBoxToggleVirtualKeys.SelectedIndex != -1 || comboBoxToggleVirtualKeys.SelectedIndex == 0 ? (int)((VirtualKeyMap)comboBoxToggleVirtualKeys.SelectedItem).keyCode : -1;
+                    ///window.forceTopMost = checkBoxForceTopMostWindow.Checked;
+                }
+            }
+        }
+
+        private void comboBoxModifierKeys_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            lock (instanceLock)
+            {
+                if (listBoxWindows.SelectedIndex != -1)
+                {
+                    if (!this.loadingSettings)
+                        this.buttonSaveSettings.Enabled = true;
+
+                    var window = ((VROverlayWindow)listBoxWindows.SelectedItem);
+                    window.modifierVKeyCode = comboBoxModifierKeys.SelectedIndex != -1 || comboBoxModifierKeys.SelectedIndex == 0 ? (int)((VirtualKeyMap)comboBoxModifierKeys.SelectedItem).keyCode : -1;
+                    ///window.forceTopMost = checkBoxForceTopMostWindow.Checked;
+                }
+            }
+        }
+
+        private void comboBoxSetTrackingSpace_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (comboBoxSetTrackingSpace.SelectedIndex == -1)
+                return;
+            lock (instanceLock)
+            {
+                OpenVR.Compositor.SetTrackingSpace(((TrackingUniverseMap)comboBoxSetTrackingSpace.SelectedItem).eTrackingUniverse);
+            }
+        }
+
+        private void buttonReCenter_Click(object sender, EventArgs e)
+        {
+            OpenVR.Chaperone.ResetZeroPose(((TrackingUniverseMap)comboBoxSetTrackingSpace.SelectedItem).eTrackingUniverse);
         }
     }
 }

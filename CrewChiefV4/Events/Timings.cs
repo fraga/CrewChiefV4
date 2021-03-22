@@ -321,7 +321,7 @@ namespace CrewChiefV4.Events
             {
                 return;
             }
-            if (!currentGameState.PitData.InPitlane && enableGapMessages && !currentGameState.FlagData.currentLapIsFCY && !isNearRaceEnd(currentGameState) && !Penalties.playerMustPitThisLap)
+            if (!currentGameState.PitData.InPitlane && enableGapMessages && !currentGameState.FlagData.currentLapIsFCY && !isNearRaceEnd(currentGameState) && !PitStops.isPittingThisLap)
             {
                 // as soon as there's a position change in front, reset the being-held-up-by value
                 if (!currentGameState.SessionData.IsRacingSameCarInFront)
@@ -337,7 +337,8 @@ namespace CrewChiefV4.Events
                     sectorsSinceLastCloseCarBehindReport++;
                     GapStatus gapInFrontStatus = GapStatus.NONE;
                     GapStatus gapBehindStatus = GapStatus.NONE;
-                    if (currentGameState.SessionData.ClassPosition != 1)
+                    int lapsBeforeAnnouncingGaps = LapTimes.lapsBeforeAnnouncingGaps[currentGameState.SessionData.TrackDefinition.trackLengthClass];
+                    if (currentGameState.SessionData.ClassPosition != 1 && currentGameState.SessionData.CompletedLaps >= lapsBeforeAnnouncingGaps)
                     {
                         // AMS / RF1 hack - sometimes the gap data is stale, so don't put the exact same gap in the list
                         if (gapsInFront.Count == 0 || gapsInFront[0].timeDelta != currentGameState.SessionData.TimeDeltaFront)
@@ -351,7 +352,7 @@ namespace CrewChiefV4.Events
                             gapInFrontStatus = getGapStatus(gapsInFront, gapInFrontAtLastReport);
                         }
                     }
-                    if (!isLast)
+                    if (!isLast && currentGameState.SessionData.CompletedLaps >= lapsBeforeAnnouncingGaps)
                     {
                         // AMS / RF1 hack - sometimes the gap data is stale, so don't put the exact same gap in the list
                         if (gapsBehind.Count == 0 || gapsBehind[0].timeDelta != currentGameState.SessionData.TimeDeltaBehind)

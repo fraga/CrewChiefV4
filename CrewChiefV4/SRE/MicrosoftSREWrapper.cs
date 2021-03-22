@@ -2,6 +2,7 @@
 using Microsoft.Speech.AudioFormat;
 using System;
 using System.Globalization;
+using System.Collections.Generic;
 
 namespace CrewChiefV4.SRE
 {
@@ -9,7 +10,15 @@ namespace CrewChiefV4.SRE
     {
         private SpeechRecognitionEngine internalSRE;
 
-        public MicrosoftSREWrapper(CultureInfo culture)
+        private int maxAudioLevel = 0;
+
+        private List<string> lastProblems = new List<string>();
+
+        private bool debugRecognitionAttempt = false;
+
+        private bool writeDebugData;
+
+        public MicrosoftSREWrapper(CultureInfo culture, TimeSpan? endSilenceTimeoutAmbiguous, bool writeSREDebugData)
         {
             // if the culture is null we won't be able to use the SRE - this is checked later in the initialisation code.
             // We still want to check if the engine is available so we know which warning to display to the user
@@ -21,10 +30,28 @@ namespace CrewChiefV4.SRE
             {
                 this.internalSRE = new SpeechRecognitionEngine(culture);
             }
+            if (endSilenceTimeoutAmbiguous != null)
+            {
+                this.internalSRE.EndSilenceTimeoutAmbiguous = endSilenceTimeoutAmbiguous.Value;
+            }
+            this.internalSRE.AudioLevelUpdated += new EventHandler<AudioLevelUpdatedEventArgs>(recognizer_AudioLevelUpdated); ;
+            this.internalSRE.AudioSignalProblemOccurred += new EventHandler<AudioSignalProblemOccurredEventArgs>(recognizer_AudioSignalProblemOccurred);
+            this.writeDebugData = writeSREDebugData;
         }
+
         public void AddSpeechRecognizedCallback(object callback)
         {
             internalSRE.SpeechRecognized += (EventHandler<SpeechRecognizedEventArgs>)callback;
+        }
+
+        public void AddRecognitionCompleteCallback(object callback)
+        {
+            internalSRE.RecognizeCompleted += (EventHandler<RecognizeCompletedEventArgs>)callback;
+        }
+
+        public void AddRecognitionRejectedCallback(object callback)
+        {
+            internalSRE.SpeechRecognitionRejected += (EventHandler<SpeechRecognitionRejectedEventArgs>)callback;
         }
 
         public void LoadGrammar(GrammarWrapper grammarWrapper)
@@ -34,17 +61,43 @@ namespace CrewChiefV4.SRE
 
         public void RecognizeAsync()
         {
+            if (writeDebugData)
+            {
+                this.maxAudioLevel = 0;
+                this.lastProblems.Clear();
+                this.debugRecognitionAttempt = false;
+            }
             internalSRE.RecognizeAsync(RecognizeMode.Multiple);
         }
 
         public void RecognizeAsyncCancel()
         {
             internalSRE.RecognizeAsyncCancel();
+            if (this.debugRecognitionAttempt)
+            {
+                Console.WriteLine("Max audio level for recogniser operation = " + this.maxAudioLevel);
+                Console.WriteLine("Reported audio signal problems: " + string.Join(", ", this.lastProblems));
+            }
         }
 
         public void RecognizeAsyncStop()
         {
             internalSRE.RecognizeAsyncStop();
+            if (this.debugRecognitionAttempt)
+            {
+                Console.WriteLine("Max audio level for recogniser operation = " + this.maxAudioLevel);
+                Console.WriteLine("Reported audio signal problems: " + string.Join(", ", this.lastProblems));
+            }
+        }
+
+        public int GetMaxAudioLevelForLastOperation()
+        {
+            return maxAudioLevel;
+        }
+
+        public List<string> GetReportedProblemsForLastOperation()
+        {
+            return this.lastProblems;
         }
 
         public void SetInitialSilenceTimeout(TimeSpan timeSpan)
@@ -83,6 +136,24 @@ namespace CrewChiefV4.SRE
         public object GetInternalSRE()
         {
             return internalSRE;
+        }
+
+        private void recognizer_AudioLevelUpdated(object sender, AudioLevelUpdatedEventArgs e)
+        {
+            if (this.writeDebugData && this.maxAudioLevel < e.AudioLevel)
+            {
+                this.maxAudioLevel = e.AudioLevel;
+            }
+        }
+
+        // Gather information when the AudioSignalProblemOccurred event is raised.  
+        private void recognizer_AudioSignalProblemOccurred(object sender, AudioSignalProblemOccurredEventArgs e)
+        {
+            if (this.writeDebugData)
+            {
+                this.lastProblems.Add(e.AudioSignalProblem.ToString());
+                this.debugRecognitionAttempt = true;
+            }
         }
     }
 }

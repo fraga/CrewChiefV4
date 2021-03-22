@@ -7,23 +7,12 @@ using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using Newtonsoft.Json;
-using System.Runtime.InteropServices;
-
+using System.Xml;
 
 namespace CrewChiefV4
 {
     class PluginInstaller
     {
-        //decided to import instead of "hacking" the ini
-        [DllImport("kernel32", CharSet = CharSet.Unicode)]
-        private static extern int GetPrivateProfileString(string section, string key,
-            string defaultValue, StringBuilder value, int size, string filePath);
-
-        [DllImport("kernel32", CharSet = CharSet.Unicode, SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool WritePrivateProfileString(string section, string key,
-            string value, string filePath);
-
         Boolean messageBoxPresented;
         Boolean errorMessageBoxPresented;
         Boolean messageBoxResult;
@@ -35,19 +24,6 @@ namespace CrewChiefV4
         {
             messageBoxPresented = false;
             messageBoxResult = false;
-        }
-
-        public static string ReadValue(string section, string key, string filePath, string defaultValue = "")
-        {
-            var value = new StringBuilder(512);
-            GetPrivateProfileString(section, key, defaultValue, value, value.Capacity, filePath);
-            return value.ToString();
-        }
-
-        public static bool WriteValue(string section, string key, string value, string filePath)
-        {
-            bool result = WritePrivateProfileString(section, key, value, filePath);
-            return result;
         }
 
         private string checkMD5(string filename)
@@ -205,7 +181,7 @@ namespace CrewChiefV4
             }
             return true;
         }
-        
+
         public void InstallOrUpdatePlugins(GameDefinition gameDefinition)
         {
             //appInstallPath is also used to check if the user allready was asked to update
@@ -252,7 +228,7 @@ namespace CrewChiefV4
                     try
                     {
                         // if the game is running it'll need to be bounced to pick up this change
-                        if (Utilities.IsGameRunning(gameDefinition.processName, gameDefinition.alternativeProcessNames))
+                        if (Utilities.IsGameRunning(gameDefinition.processName, gameDefinition.alternativeProcessNames, out var parentDir))
                         {
                             MessageBox.Show("broadcasting.json needs to be updated and the game restarted. Please exit the game then click 'OK'");
                         }
@@ -264,7 +240,7 @@ namespace CrewChiefV4
                         // again, write with the same encoding the game uses
                         File.WriteAllText(broadcastPath, accBroadcastFileContents, LEunicodeWithoutBOM);
                     }
-                    catch { }
+                    catch(Exception e) { Log.Exception(e); }
                 }
                 return;
             }
@@ -272,7 +248,7 @@ namespace CrewChiefV4
             {
                 gameInstallPath = UserSettings.GetUserSettings().getString("rf2_install_path");
             }
-            else if (gameDefinition.gameEnum == GameEnum.ASSETTO_32BIT || gameDefinition.gameEnum == GameEnum.ASSETTO_64BIT)
+            else if (gameDefinition.gameEnum == GameEnum.ASSETTO_32BIT || gameDefinition.gameEnum == GameEnum.ASSETTO_64BIT || gameDefinition.gameEnum == GameEnum.ASSETTO_64BIT_RALLY)
             {
                 gameInstallPath = UserSettings.GetUserSettings().getString("acs_install_path");
             }
@@ -297,7 +273,29 @@ namespace CrewChiefV4
                     return;
                 }
             }
-            //try to get the install folder from steam common install folders.
+            else if (gameDefinition.gameEnum == GameEnum.RBR)
+            {
+                gameInstallPath = UserSettings.GetUserSettings().getString("rbr_install_path");
+            }
+            else if (gameDefinition.gameEnum == GameEnum.DIRT)
+            {
+                UpdateDirtRallyXML(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\My Games\DiRT Rally\hardwaresettings\hardware_settings_config.xml",
+                    UserSettings.GetUserSettings().getInt("dirt_rally_udp_data_port"));
+                return;
+            }
+            else if (gameDefinition.gameEnum == GameEnum.DIRT_2)
+            {
+                UpdateDirtRallyXML(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\My Games\DiRT Rally\hardwaresettings\hardware_settings_config.xml",
+                    UserSettings.GetUserSettings().getInt("dirt_rally_2_udp_data_port"));
+                UpdateDirtRallyXML(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + @"\My Games\DiRT Rally\hardwaresettings\hardware_settings_config_vr.xml",
+                    UserSettings.GetUserSettings().getInt("dirt_rally_2_udp_data_port"));
+                return;
+            }
+            else if (gameDefinition.gameEnum == GameEnum.GTR2)
+            {
+                gameInstallPath = UserSettings.GetUserSettings().getString("gtr2_install_path");
+            }
+            // try to get the install folder from steam common install folders.
             if (!Directory.Exists(gameInstallPath))
             {
                 //Present a messagebox to the user asking if they want to install plugins
@@ -309,7 +307,7 @@ namespace CrewChiefV4
                         string commonPath = Path.Combine(lib, @"steamapps\common\" + gameDefinition.gameInstallDirectory);
                         if (Directory.Exists(commonPath))
                         {
-                            gameInstallPath = commonPath;
+                            gameInstallPath = commonPath;                            
                             break;
                         }
                     }
@@ -330,7 +328,6 @@ namespace CrewChiefV4
 
                     if (result == DialogResult.OK && dialog.SelectedPath.Length > 0)
                     {
-                        
                         //This should now take care of checking against the main .exe instead of the folder name, special case for rFactor 2 as its has the file installed in ..\Bin64
                         if(gameDefinition.gameEnum == GameEnum.RF2_64BIT)                                                
                         {
@@ -362,7 +359,6 @@ namespace CrewChiefV4
                 if (gameDefinition.gameEnum == GameEnum.RF2_64BIT)
                 {
                     UserSettings.GetUserSettings().setProperty("rf2_install_path", gameInstallPath);
-                    
                     try
                     {
                         string configPath = Path.Combine(gameInstallPath, @"UserData\player\CustomPluginVariables.JSON");
@@ -379,7 +375,7 @@ namespace CrewChiefV4
                                     if(presentEnableMessagebox())
                                     {
                                         plugin[" Enabled"] = 1;
-                                        json = JsonConvert.SerializeObject(plugins, Formatting.Indented);
+                                        json = JsonConvert.SerializeObject(plugins, Newtonsoft.Json.Formatting.Indented);
                                         File.WriteAllText(configPath, json);
                                     }
                                 }
@@ -389,11 +385,10 @@ namespace CrewChiefV4
                                 if (presentEnableMessagebox())
                                 {
                                     plugins.Add(rf2PluginFileName, new Dictionary<string, int>() { { " Enabled", 1 } });
-                                    json = JsonConvert.SerializeObject(plugins, Formatting.Indented);
+                                    json = JsonConvert.SerializeObject(plugins, Newtonsoft.Json.Formatting.Indented);
                                     File.WriteAllText(configPath, json);
                                 }
                             }
-
                         }
                     }
                     catch (Exception e)
@@ -401,20 +396,19 @@ namespace CrewChiefV4
                         Console.WriteLine("Failed to enable plugin" + e.Message);
                     }
                 }
-                else if (gameDefinition.gameEnum == GameEnum.ASSETTO_32BIT || gameDefinition.gameEnum == GameEnum.ASSETTO_64BIT)
+                else if (gameDefinition.gameEnum == GameEnum.ASSETTO_32BIT || gameDefinition.gameEnum == GameEnum.ASSETTO_64BIT || gameDefinition.gameEnum == GameEnum.ASSETTO_64BIT_RALLY)
                 {
                     UserSettings.GetUserSettings().setProperty("acs_install_path", gameInstallPath);
                     string pythonConfigPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), @"Assetto Corsa\cfg", @"python.ini");
                     if (File.Exists(pythonConfigPath))
                     {
-                        string valueActive = ReadValue("CREWCHIEFEX", "ACTIVE", pythonConfigPath, "0");
+                        string valueActive = Utilities.ReadIniValue("CREWCHIEFEX", "ACTIVE", pythonConfigPath, "0");
                         if (!valueActive.Equals("1"))
                         {
                             if (presentEnableMessagebox())
                             {
-                                WriteValue("CREWCHIEFEX", "ACTIVE", "1", pythonConfigPath);
+                                Utilities.WriteIniValue("CREWCHIEFEX", "ACTIVE", "1", pythonConfigPath);
                             }
-                            
                         }
                     }
                 }
@@ -429,9 +423,106 @@ namespace CrewChiefV4
                         UserSettings.GetUserSettings().setProperty("rf1_install_path", gameInstallPath);
                     }
                 }
+                else if (gameDefinition.gameEnum == GameEnum.RBR)
+                {
+                    UserSettings.GetUserSettings().setProperty("rbr_install_path", gameInstallPath);
+                }
+                else if (gameDefinition.gameEnum == GameEnum.GTR2)
+                {
+                    UserSettings.GetUserSettings().setProperty("gtr2_install_path", gameInstallPath);
+                }
                 UserSettings.GetUserSettings().saveUserSettings();
-                
             }
+        }
+
+        private void UpdateDirtRallyXML(string fileName, int udpPort)
+        {
+            if (File.Exists(fileName))
+            {
+                try
+                {
+                    bool save = false;
+                    XmlDocument doc = new XmlDocument();
+                    doc.Load(fileName);
+                    XmlNode root = doc.DocumentElement;
+                    XmlNode udpNode = root.SelectSingleNode("descendant::udp");
+                    if (udpNode == null)
+                    {
+                        // no UDP node, create it and it's motion_platform parent, with the attributes we need
+                        save = true;
+                        CreateDirtRallyUDPElement(doc, root);
+                    }
+                    else
+                    {
+                        // check the attributes and update them if necessary
+                        save = UpdateDirtRallyUDPAttributes(udpNode, udpPort);
+                    }
+                    if (save)
+                    {
+                        Console.WriteLine("Updating UDP element in " + fileName);
+                        if (!File.Exists(fileName + "_backup"))
+                        {
+                            File.Copy(fileName, fileName + "_backup");
+                        }
+                        doc.Save(fileName);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Failed to update settings XML file " + fileName + ", " + e.Message);
+                }
+            }
+        }
+
+        private bool UpdateDirtRallyUDPAttributes(XmlNode udpNode, int udpPort)
+        {
+            bool save = false;
+            if (udpNode.Attributes["enabled"] == null || !udpNode.Attributes["enabled"].Value.Equals("true"))
+            {
+                save = true;
+                udpNode.Attributes["enabled"].Value = "true";
+            }
+            if (udpNode.Attributes["extradata"] == null || !int.TryParse(udpNode.Attributes["extradata"].Value, out var edv) || edv < 3)
+            {
+                // extradata doesn't exist, or it exists but it's not set to "3" or above
+                save = true;
+                udpNode.Attributes["extradata"].Value = "3";
+            }
+            if (udpNode.Attributes["port"] == null || !udpNode.Attributes["port"].Value.Equals(udpPort.ToString()))
+            {
+                save = true;
+                udpNode.Attributes["port"].Value = udpPort.ToString();
+            }
+            return save;
+        }
+
+        private void CreateDirtRallyUDPElement(XmlDocument doc, XmlNode root)
+        {
+            // try to create it
+            XmlNode motionPlatform = root.SelectSingleNode("descendant::motion_platform");
+            if (motionPlatform == null)
+            {
+                motionPlatform = doc.CreateElement("motion_platform");
+                root.AppendChild(motionPlatform);
+            }
+            XmlNode udpNode = doc.CreateElement("udp");
+            XmlAttribute enabledAttrib = doc.CreateAttribute("enabled");
+            enabledAttrib.Value = "true";
+            udpNode.Attributes.Append(enabledAttrib);
+            XmlAttribute extradataAttrib = doc.CreateAttribute("extradata");
+            extradataAttrib.Value = "3";
+            udpNode.Attributes.Append(extradataAttrib);
+            XmlAttribute ipAttrib = doc.CreateAttribute("ip");
+            ipAttrib.Value = "127.0.0.1";
+            udpNode.Attributes.Append(ipAttrib);
+            XmlAttribute portAttrib = doc.CreateAttribute("port");
+            portAttrib.Value = CrewChief.gameDefinition.gameEnum == GameEnum.DIRT ?
+                UserSettings.GetUserSettings().getInt("dirt_rally_udp_data_port").ToString() : UserSettings.GetUserSettings().getInt("dirt_rally_2_udp_data_port").ToString();
+            udpNode.Attributes.Append(portAttrib);
+            XmlAttribute delayAttrib = doc.CreateAttribute("delay");
+            delayAttrib.Value = "1";
+            udpNode.Attributes.Append(delayAttrib);
+            motionPlatform.AppendChild(udpNode);
         }
     }
 }

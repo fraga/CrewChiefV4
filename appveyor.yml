@@ -1,0 +1,101 @@
+-
+  branches:
+    only:
+      - HTMLhelp
+
+  only_commits:
+    files:
+      - HelpFiles/*
+      - change_log_for_auto_updated.html
+      - appveyor.yml
+
+  version: 4.15.0.{build}
+  image: Visual Studio 2019
+  configuration: Release
+  # Update the HelpFiles.exe release version (turned off)
+  assembly_info:
+    patch: false
+    file: 'HelpFiles\AssemblyInfo.*'
+    assembly_version: '{version}'
+    assembly_file_version: '{version}'
+    assembly_informational_version: '{version}'
+
+  # Build HelpFiles.exe every time
+  build_script:
+  - cmd: >-
+      nuget restore
+
+      cd HelpFiles
+
+      msbuild HelpFiles.csproj /t:Rebuild /p:Configuration=Release
+
+      cd bin\Release
+
+      HelpFiles.exe
+
+      cd ..\..\..
+
+      cd public
+
+# Build the release package
+#     cd CrewChiefV4
+#
+#     msbuild CrewChiefV4.csproj /t:Rebuild /p:Configuration=Release
+# fails because an SDK is required
+#
+#     cd ..
+#
+#     cd CrewChiefV4_installer
+#
+#     msbuild CrewChiefV4_installer.wixproj /t:Rebuild
+#
+#     cd ..
+#  artifacts:
+#  - path: Deployment\
+#    name: Binaries
+#  - path: \Installs\CrewChiefV4-4.14.0.3.msi
+#  name: Installer
+
+# Public Access Token giving AppVeyor write access to https://gitlab.com/mr_belowski/CrewChiefV4
+  environment:
+    access_token:
+      secure: hn932XqaLSiyTGxBTK5FbUiHSO58gsQKdQGp0JOU1a4=
+
+  on_success:
+    # Push any new files in public/ so they're published to
+    # https://mr_belowski.gitlab.io/CrewChiefV4/index.html
+    - git config --global credential.helper store
+    - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://oauth2:$($env:access_token)@gitlab.com`n" -NoNewline
+    - git config --global user.email "crewchiefTony@outlook.com"
+    - git config --global user.name "Tony Whitley"
+    - git checkout HTMLhelp
+    - git add ./
+    # git diff --quiet && git diff --staged --quiet ensures only commit if files changed
+    - git diff --quiet && git diff --staged --quiet || git commit -am "Appveyor update public/ files" && git push
+
+#####################################################################################################
+# If master change_log_for_auto_updated.html changes merge master to HTMLhelp (kicking off the above)
+-
+  branches:
+    only:
+      - XXmasterXX
+      # XX should stop it matching and thus stop this running
+
+  only_commits:
+    files:
+      - change_log_for_auto_updated.html
+
+# Public Access Token giving AppVeyor write access to https://gitlab.com/mr_belowski/CrewChiefV4
+  environment:
+    access_token:
+      secure: hn932XqaLSiyTGxBTK5FbUiHSO58gsQKdQGp0JOU1a4=
+
+  on_finish:
+    - git config --global credential.helper store
+    - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://oauth2:$($env:access_token)@gitlab.com`n" -NoNewline
+    - git config --global user.email "crewchiefTony@outlook.com"
+    - git config --global user.name "Tony Whitley"
+    - git checkout master
+    - git merge origin/HTMLhelp
+    # git diff --quiet && git diff --staged --quiet ensures only commit if files changed
+    - git diff --quiet && git diff --staged --quiet || git commit -am "Appveyor merge master change_log_for_auto_updated.html" && git push

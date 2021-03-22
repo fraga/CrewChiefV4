@@ -12,13 +12,19 @@ namespace CrewChiefV4.Events
         public static String folderAFewTenthsOffDRSRange = "overtaking_aids/a_few_tenths_off_drs_range";
         public static String folderASecondOffDRSRange = "overtaking_aids/a_second_off_drs_range";
         public static String folderActivationsRemaining = "overtaking_aids/activations_remaining";
-        public static String folderNoActivationsRemaining = "overtaking_aids/no_activations_remaining";
-        public static String folderOneActivationRemaining = "overtaking_aids/one_activation_remaining";
         public static String folderDontForgetDRS = "overtaking_aids/dont_forget_drs"; 
         public static String folderGuyBehindHasDRS = "overtaking_aids/guy_behind_has_drs";
         public static String folderPushToPassNowAvailable = "overtaking_aids/push_to_pass_now_available";
         public static String folderDRSEnabled = "overtaking_aids/drs_enabled";
         public static String folderDRSDisabled = "overtaking_aids/drs_disabled";
+
+        // for PtP:
+        public static String folderNoActivationsRemaining = "overtaking_aids/no_activations_remaining";
+        public static String folderOneActivationRemaining = "overtaking_aids/one_activation_remaining";
+        public static String folderTenPtPActivationsRemaining = "overtaking_aids/ten_ptp_activations_remaining";
+        public static String folderFivePtPActivationsRemaining = "overtaking_aids/five_ptp_activations_remaining";
+        public static String folderThreePtPActivationsRemaining = "overtaking_aids/three_ptp_activations_remaining";
+        public static String folderUsePtPReminder = "overtaking_aids/remember_to_use_ptp";
 
         private Boolean hasUsedDrsOnThisLap = false;    // Note that DTM 2015 experience has 3 DRS activations per lap - only moans if we've used none of them
         private Boolean drsAvailableOnThisLap = false;
@@ -27,10 +33,13 @@ namespace CrewChiefV4.Events
         private Boolean playedGetCloserForDRSOnThisLap = false;
         private Boolean playedOpponentHasDRSOnThisLap = false;
 
-        private int pushToPassActivationsRemaining = 0;
-
         private Boolean drsMessagesEnabled = UserSettings.GetUserSettings().getBoolean("enable_drs_messages");
         private Boolean ptpMessagesEnabled = UserSettings.GetUserSettings().getBoolean("enable_push_to_pass_messages");
+
+        private bool ptpHasCooldown = false;
+
+        private bool hasUsedPtPOnThisLap = false;
+        private bool hasRemindedPlayerToUsePtP = false;
 
         public override List<SessionType> applicableSessionTypes
         {
@@ -45,11 +54,13 @@ namespace CrewChiefV4.Events
         public override void clearState()
         {
             this.hasUsedDrsOnThisLap = false;
+            this.hasUsedPtPOnThisLap = false;
+            this.hasRemindedPlayerToUsePtP = false;
             this.drsAvailableOnThisLap = false;
             this.trackDistanceToCheckDRSGapFrontAt = -1;
             this.playedOpponentHasDRSOnThisLap = false;
             this.playedGetCloserForDRSOnThisLap = false;
-            this.pushToPassActivationsRemaining = 0;
+            this.ptpHasCooldown = false;
         }
 
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
@@ -141,34 +152,90 @@ namespace CrewChiefV4.Events
             }
 
             // push to pass
+            if (!ptpHasCooldown)
+            {
+                // this is reset at the start of the session so will be true for the whole session if we ever have a non-zero wait time
+                ptpHasCooldown = currentGameState.OvertakingAids.PushToPassWaitTimeLeft > 0;
+            }
             if (ptpMessagesEnabled && currentGameState.OvertakingAids.PushToPassActivationsRemaining != -1)
             {
                 if (previousGameState.OvertakingAids.PushToPassEngaged && !currentGameState.OvertakingAids.PushToPassEngaged &&
                     currentGameState.OvertakingAids.PushToPassActivationsRemaining == 0)
                 {
                     audioPlayer.playMessage(new QueuedMessage(folderNoActivationsRemaining, 10, abstractEvent: this, priority: 5));
-                    pushToPassActivationsRemaining = 0;
                 }
-                else if (previousGameState.OvertakingAids.PushToPassWaitTimeLeft > 0 && currentGameState.OvertakingAids.PushToPassWaitTimeLeft == 0)
+                else if (ptpHasCooldown && previousGameState.OvertakingAids.PushToPassWaitTimeLeft > 0 && currentGameState.OvertakingAids.PushToPassWaitTimeLeft == 0)
                 {
+                    // if we've reached the end of the cooldown phase (when it exists), so warn about the availability and the remaining count
                     if (currentGameState.OvertakingAids.PushToPassActivationsRemaining == 1)
                     {
                         audioPlayer.playMessage(new QueuedMessage("one_push_to_pass_remaining", 10, 
                             messageFragments: MessageContents(folderPushToPassNowAvailable, folderOneActivationRemaining), abstractEvent: this, priority: 7));
-                        pushToPassActivationsRemaining = 1;
                     }
                     else if (currentGameState.OvertakingAids.PushToPassActivationsRemaining > 0)
                     {
                         audioPlayer.playMessage(new QueuedMessage("push_to_pass_remaining", 5, 
                             messageFragments: MessageContents(folderPushToPassNowAvailable, currentGameState.OvertakingAids.PushToPassActivationsRemaining, folderActivationsRemaining), 
                             abstractEvent: this, priority: 2));
-                        pushToPassActivationsRemaining = currentGameState.OvertakingAids.PushToPassActivationsRemaining;
                     }
-                    else
+                }
+                else if (!ptpHasCooldown && previousGameState.OvertakingAids.PushToPassEngaged && !currentGameState.OvertakingAids.PushToPassEngaged)
+                {
+                    // ptp has just stopped, warn about the remaining count
+                    if (currentGameState.OvertakingAids.PushToPassActivationsRemaining == 1)
                     {
-                        audioPlayer.playMessage(new QueuedMessage("no_push_to_pass_remaining", 10,
-                            messageFragments: MessageContents(folderNoActivationsRemaining), abstractEvent: this, priority: 5));
-                        pushToPassActivationsRemaining = 0;
+                        audioPlayer.playMessage(new QueuedMessage("one_push_to_pass_remaining", 10,
+                            messageFragments: MessageContents(folderOneActivationRemaining), abstractEvent: this));
+                    }
+                    else if (currentGameState.OvertakingAids.PushToPassActivationsRemaining == 10)
+                    {
+                        audioPlayer.playMessage(new QueuedMessage("push_to_pass_remaining", 5,
+                            messageFragments: MessageContents(folderTenPtPActivationsRemaining),
+                            abstractEvent: this));
+                    }
+                    else if (currentGameState.OvertakingAids.PushToPassActivationsRemaining == 5)
+                    {
+                        audioPlayer.playMessage(new QueuedMessage("push_to_pass_remaining", 5,
+                            messageFragments: MessageContents(folderFivePtPActivationsRemaining),
+                            abstractEvent: this));
+                    }
+                    else if (currentGameState.OvertakingAids.PushToPassActivationsRemaining == 3)
+                    {
+                        audioPlayer.playMessage(new QueuedMessage("push_to_pass_remaining", 5,
+                            messageFragments: MessageContents(folderThreePtPActivationsRemaining),
+                            abstractEvent: this));
+                    }
+                }
+                // check if the player is using their PtP allocation properly - only applies to DTM 2020
+                if (!hasRemindedPlayerToUsePtP && currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.carClass.carClassEnum == CarData.CarClassEnum.DTM_2020)
+                {
+                    if (currentGameState.SessionData.IsNewLap)
+                    {
+                        if (!hasUsedPtPOnThisLap && currentGameState.SessionData.CompletedLaps > 2 
+                            && ((currentGameState.SessionData.SessionHasFixedTime && currentGameState.SessionData.PlayerLapTimeSessionBest > 0) || !currentGameState.SessionData.SessionHasFixedTime))
+                        {
+                            // we didn't use PtP on the previous lap, perhaps the player needs a reminder
+                            int lapsRemaining;
+                            if (currentGameState.SessionData.SessionHasFixedTime)
+                            {
+                                // need to estimate the remaining laps
+                                lapsRemaining = (int) Math.Floor(currentGameState.SessionData.SessionTimeRemaining / currentGameState.SessionData.PlayerLapTimeSessionBest) + 1;
+                            }
+                            else
+                            {
+                                lapsRemaining = currentGameState.SessionData.SessionNumberOfLaps - currentGameState.SessionData.CompletedLaps;
+                            }
+                            if (currentGameState.OvertakingAids.PushToPassActivationsRemaining >= lapsRemaining)
+                            {
+                                audioPlayer.playMessage(new QueuedMessage(folderUsePtPReminder, 3, abstractEvent: this));
+                                hasRemindedPlayerToUsePtP = true;
+                            }
+                        }
+                        hasUsedPtPOnThisLap = false;
+                    }
+                    if (currentGameState.OvertakingAids.PushToPassEngaged)
+                    {
+                        hasUsedPtPOnThisLap = true;
                     }
                 }
             }
@@ -179,7 +246,7 @@ namespace CrewChiefV4.Events
             string opponentKey = inFront ? currentGameState.getOpponentKeyInFront(currentGameState.carClass) : currentGameState.getOpponentKeyBehind(currentGameState.carClass);
             OpponentData opponent;
             return opponentKey != null && currentGameState.OpponentData.TryGetValue(opponentKey, out opponent) &&
-                opponent != null && !opponent.isEnteringPits() && !opponent.isExitingPits() && !opponent.InPits && !opponent.isApporchingPits;
+                opponent != null && !opponent.isEnteringPits() && !opponent.isOnOutLap()/*TODO: change for correct impl*/ && !opponent.InPits && !opponent.isApporchingPits;
         }
 
         public override void respond(string voiceMessage)

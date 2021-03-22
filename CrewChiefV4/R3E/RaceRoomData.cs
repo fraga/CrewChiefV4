@@ -558,8 +558,8 @@ namespace CrewChiefV4.RaceRoom
             public Int32 ClassPerformanceIndex;
             // Note: See the EngineType enum
             public Int32 EngineType;
-            public Int32 IncidentPoints;
 
+            public Int32 Unused1;
             public Int32 Unused2;
         }
 
@@ -771,8 +771,8 @@ namespace CrewChiefV4.RaceRoom
             public Single SessionTimeDuration;
             public Single SessionTimeRemaining;
 
+            public Int32 MaxIncidentPoints; // max incident points before the player is booted
             // Reserved data
-            public Int32 EventUnused1;
             public Single EventUnused2;
 
             //////////////////////////////////////////////////////////////////////////
@@ -810,10 +810,9 @@ namespace CrewChiefV4.RaceRoom
 
             // Number of pitstops the current vehicle has performed (-1 = N/A)
             public Int32 NumPitstopsPerformed;
-
-            // Reserved data
-            public Int32 PitUnused1;
-            public Single PitUnused2;
+            
+            public Single PitMinDurationTotal;
+            public Single PitMinDurationLeft;
 
             //////////////////////////////////////////////////////////////////////////
             // Scoring & Timings
@@ -883,11 +882,13 @@ namespace CrewChiefV4.RaceRoom
             public Sectors<Single> BestIndividualSectorTimeLeader;
             public Sectors<Single> BestIndividualSectorTimeLeaderClass;
 
+            // Incident points (-1 = N/A)
+            public Int32 IncidentPoints;
+
             // Reserved data
             public Int32 ScoreUnused1;
-            public Int32 ScoreUnused2;
+            public Single ScoreUnused2;
             public Single ScoreUnused3;
-            public Single ScoreUnused4;
 
             //////////////////////////////////////////////////////////////////////////
             // Vehicle information
@@ -993,12 +994,13 @@ namespace CrewChiefV4.RaceRoom
             // Note: Not valid for AI or remote players
             public Single BrakeBias;
 
+            public Int32 DrsNumActivationsTotal;    // -1 = n/a or no limit
+            public Int32 PtPNumActivationsTotal;    // -1 = n/a or no limit
+
             // Reserved data
-            public Int32 VehicleUnused1;
-            public Int32 VehicleUnused2;
-            public Single VehicleUnused3;
-            public Single VehicleUnused4;
-            Orientation<Single> VehicleUnused5;
+            public Single VehicleUnused1;
+            public Single VehicleUnused2;
+            Orientation<Single> VehicleUnused3;
 
             //////////////////////////////////////////////////////////////////////////
             // Tires
@@ -1057,11 +1059,12 @@ namespace CrewChiefV4.RaceRoom
             public TireData<Single> BrakePressure;
 
             // Reserved data
-            public Int32 TireUnused1;
-            public Int32 TireUnused2;
-            public Single TireUnused3;
-            public Single TireUnused4;
-            public TireData<Single> TireUnused5;
+            public Int32 TractionControlSetting;
+            public Int32 EngineMapSetting;
+            public Int32 EngineBrakeSetting;
+
+            public Single TireUnused1;
+            public TireData<Single> TireUnused2;
             
             // Tyre load (N).
             public TireData<Single> TireLoad;

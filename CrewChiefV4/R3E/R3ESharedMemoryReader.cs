@@ -180,7 +180,7 @@ namespace CrewChiefV4.RaceRoom
                     memoryMappedFile.Dispose();
                     memoryMappedFile = null;
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
             }
             initialised = false;
         }

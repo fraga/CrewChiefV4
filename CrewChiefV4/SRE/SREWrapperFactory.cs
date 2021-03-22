@@ -1,27 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CrewChiefV4.SRE
 {
     class SREWrapperFactory
     {
-        public static Boolean useSystem = UserSettings.GetUserSettings().getBoolean("prefer_system_sre");
+        public static bool useSystem = UserSettings.GetUserSettings().getBoolean("prefer_system_sre");
+
+        private static bool writeDebugData = UserSettings.GetUserSettings().getBoolean("save_sre_debug_data");
 
         // try to create the preferred SRE impl, fall back to the other type if this isn't available
-        public static SREWrapper createNewSREWrapper(CultureInfo culture, Boolean log = false)
+        // if endSilenceTimeoutAmbiguous is not null we override the default endSilenceTimeoutAmbiguous in the SRE impl
+        public static SREWrapper createNewSREWrapper(CultureInfo culture, TimeSpan? endSilenceTimeoutAmbiguous, Boolean log = false)
         {
             SREWrapper sreWrapper = null;
             if (useSystem)
             {
-                sreWrapper = createSystemSREWrapper(culture);
+                sreWrapper = createSystemSREWrapper(culture, endSilenceTimeoutAmbiguous);
                 if (sreWrapper == null)
                 {
                     if (log) Console.WriteLine("Unable to create a System SRE, trying with Microsoft SRE");
-                    sreWrapper = createMicrosoftSREWrapper(culture);
+                    sreWrapper = createMicrosoftSREWrapper(culture, endSilenceTimeoutAmbiguous);
                     if (sreWrapper != null)
                     {
                         useSystem = false;
@@ -35,11 +38,11 @@ namespace CrewChiefV4.SRE
             }
             else
             {
-                sreWrapper = createMicrosoftSREWrapper(culture);
+                sreWrapper = createMicrosoftSREWrapper(culture, endSilenceTimeoutAmbiguous);
                 if (sreWrapper == null)
                 {
                     if (log) Console.WriteLine("Unable to create a Microsoft SRE, trying with System SRE");
-                    sreWrapper = createSystemSREWrapper(culture);
+                    sreWrapper = createSystemSREWrapper(culture, endSilenceTimeoutAmbiguous);
                     if (sreWrapper != null)
                     {
                         useSystem = true;
@@ -70,11 +73,11 @@ namespace CrewChiefV4.SRE
             dictationGrammar.SetDictationContext(dictationContextStart, dictationContextEnd);
         }
 
-        private static SREWrapper createMicrosoftSREWrapper(CultureInfo culture)
+        private static SREWrapper createMicrosoftSREWrapper(CultureInfo culture, TimeSpan? endSilenceTimeoutAmbiguous)
         {
             try
             {
-                return new MicrosoftSREWrapper(culture);
+                return new MicrosoftSREWrapper(culture, endSilenceTimeoutAmbiguous, writeDebugData);
             }
             catch (Exception)
             {
@@ -82,11 +85,11 @@ namespace CrewChiefV4.SRE
             }
         }
 
-        private static SREWrapper createSystemSREWrapper(CultureInfo culture)
+        private static SREWrapper createSystemSREWrapper(CultureInfo culture, TimeSpan? endSilenceTimeoutAmbiguous)
         {
             try
             {
-                return new SystemSREWrapper(culture);
+                return new SystemSREWrapper(culture, endSilenceTimeoutAmbiguous, writeDebugData);
             }
             catch (Exception)
             {
@@ -160,10 +163,21 @@ namespace CrewChiefV4.SRE
             {
                 if (useSystem)
                 {
+                    // first check we can get the system installed recognisers
+                    ReadOnlyCollection<System.Speech.Recognition.RecognizerInfo> systemRecognisers = null;
+                    try
+                    {
+                        systemRecognisers = System.Speech.Recognition.SpeechRecognitionEngine.InstalledRecognizers();
+                    }
+                    catch (Exception)
+                    {
+                        Console.WriteLine("Unable to get System (Windows) speech recogniser");
+                        return null;
+                    }
                     if (langAndCountryToUse != null && langAndCountryToUse.Length == 5)
                     {
                         if (log) Console.WriteLine("Attempting to get recogniser for " + langAndCountryToUse);
-                        foreach (System.Speech.Recognition.RecognizerInfo ri in System.Speech.Recognition.SpeechRecognitionEngine.InstalledRecognizers())
+                        foreach (System.Speech.Recognition.RecognizerInfo ri in systemRecognisers)
                         {
                             if (ri.Culture.Name.Equals(langAndCountryToUse))
                             {
@@ -176,7 +190,7 @@ namespace CrewChiefV4.SRE
                         Console.WriteLine("Failed to get recogniser for " + langAndCountryToUse);
                     }
                     if (log) Console.WriteLine("Attempting to get recogniser for " + langToUse);
-                    foreach (System.Speech.Recognition.RecognizerInfo ri in System.Speech.Recognition.SpeechRecognitionEngine.InstalledRecognizers())
+                    foreach (System.Speech.Recognition.RecognizerInfo ri in systemRecognisers)
                     {
                         if (ri.Culture.TwoLetterISOLanguageName.Equals(langToUse))
                         {
@@ -186,10 +200,21 @@ namespace CrewChiefV4.SRE
                 }
                 else
                 {
+                    // first check we can get the microsoft installed recognisers
+                    ReadOnlyCollection<Microsoft.Speech.Recognition.RecognizerInfo> microsoftRecognisers = null;
+                    try
+                    {
+                        microsoftRecognisers = Microsoft.Speech.Recognition.SpeechRecognitionEngine.InstalledRecognizers();
+                    }
+                    catch (Exception)
+                    {
+                        Console.WriteLine("Unable to get Microsoft speech recogniser. Is SpeechPlatformRuntime.msi installed?");
+                        return null;
+                    }
                     if (langAndCountryToUse != null && langAndCountryToUse.Length == 5)
                     {
-                        if (log) Console.WriteLine("Attempting to get recogniser for " + langAndCountryToUse);
-                        foreach (Microsoft.Speech.Recognition.RecognizerInfo ri in Microsoft.Speech.Recognition.SpeechRecognitionEngine.InstalledRecognizers())
+                        if (log) Console.WriteLine("Attempting to get recogniser for " + langAndCountryToUse + " package name MSSpeech_SR_" + langAndCountryToUse + "_TELE.msi");
+                        foreach (Microsoft.Speech.Recognition.RecognizerInfo ri in microsoftRecognisers)
                         {
                             if (ri.Culture.Name.Equals(langAndCountryToUse))
                             {
@@ -201,8 +226,8 @@ namespace CrewChiefV4.SRE
                     {
                         Console.WriteLine("Failed to get recogniser for " + langAndCountryToUse);
                     }
-                    if (log) Console.WriteLine("Attempting to get recogniser for " + langToUse);
-                    foreach (Microsoft.Speech.Recognition.RecognizerInfo ri in Microsoft.Speech.Recognition.SpeechRecognitionEngine.InstalledRecognizers())
+                    if (log) Console.WriteLine("Attempting to get recogniser for " + langToUse + " package name MSSpeech_SR_" + langToUse + "-XX_TELE.msi");
+                    foreach (Microsoft.Speech.Recognition.RecognizerInfo ri in microsoftRecognisers)
                     {
                         if (ri.Culture.TwoLetterISOLanguageName.Equals(langToUse))
                         {
@@ -265,6 +290,74 @@ namespace CrewChiefV4.SRE
             {
                 return ((Microsoft.Speech.Recognition.SpeechRecognizedEventArgs)recognitionCallback).Result.Grammar;
             }
+        }
+
+        public static List<string> WriteSREDebugData(object recognitionCallback, Stream stream, SREWrapper sreWrapper)
+        {
+            List<string> metadata = new List<string>();
+            bool gotResult = false;
+            string recognisedText = "";
+            float confidence = 0;
+            if (recognitionCallback is System.Speech.Recognition.RecognizeCompletedEventArgs)
+            {
+                var callbackArgs = (System.Speech.Recognition.RecognizeCompletedEventArgs)recognitionCallback;
+                if (callbackArgs.Result != null)
+                {
+                    gotResult = true;
+                    var recognisedAudio = callbackArgs.Result.Audio;
+                    recognisedText = callbackArgs.Result.Text;
+                    confidence = callbackArgs.Result.Confidence;
+                    recognisedAudio.GetRange(TimeSpan.FromSeconds(0), recognisedAudio.Duration).WriteToWaveStream(stream);
+                }
+            }
+            else if (recognitionCallback is Microsoft.Speech.Recognition.RecognizeCompletedEventArgs)
+            {
+                var callbackArgs = (Microsoft.Speech.Recognition.RecognizeCompletedEventArgs)recognitionCallback;
+                if (callbackArgs.Result != null)
+                {
+                    gotResult = true;
+                    var recognisedAudio = callbackArgs.Result.Audio;
+                    recognisedText = callbackArgs.Result.Text;
+                    confidence = callbackArgs.Result.Confidence;
+                    recognisedAudio.GetRange(TimeSpan.FromSeconds(0), recognisedAudio.Duration).WriteToWaveStream(stream);
+                }
+            }
+            else if (recognitionCallback is System.Speech.Recognition.SpeechRecognitionRejectedEventArgs)
+            {
+                var callbackArgs = (System.Speech.Recognition.SpeechRecognitionRejectedEventArgs)recognitionCallback;
+                if (callbackArgs.Result != null)
+                {
+                    gotResult = true;
+                    var recognisedAudio = callbackArgs.Result.Audio;
+                    recognisedText = callbackArgs.Result.Text;
+                    confidence = callbackArgs.Result.Confidence;
+                    recognisedAudio.GetRange(TimeSpan.FromSeconds(0), recognisedAudio.Duration).WriteToWaveStream(stream);
+                }
+            }
+            else if (recognitionCallback is Microsoft.Speech.Recognition.SpeechRecognitionRejectedEventArgs)
+            {
+                var callbackArgs = (Microsoft.Speech.Recognition.SpeechRecognitionRejectedEventArgs)recognitionCallback;
+                if (callbackArgs.Result != null)
+                {
+                    gotResult = true;
+                    var recognisedAudio = callbackArgs.Result.Audio;
+                    recognisedText = callbackArgs.Result.Text;
+                    confidence = callbackArgs.Result.Confidence;
+                    recognisedAudio.GetRange(TimeSpan.FromSeconds(0), recognisedAudio.Duration).WriteToWaveStream(stream);
+                }
+            }
+            if (!gotResult)
+            {
+                metadata.Add("No SRE result");
+            }
+            else
+            {
+                metadata.Add("Recognised text: " + recognisedText);
+                metadata.Add("Confidence: " + confidence);
+            }
+            metadata.Add("Max audio level: " + sreWrapper.GetMaxAudioLevelForLastOperation());
+            metadata.Add("Reported problems: " + string.Join(",", sreWrapper.GetReportedProblemsForLastOperation()));
+            return metadata;
         }
     }
 }

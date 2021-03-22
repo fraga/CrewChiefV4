@@ -78,6 +78,7 @@
 	<Exec Command="copy ..\CrewChiefV4\bin\$(Configuration)\SharpDX.Direct3D11.dll ..\CrewChiefV4\bin\PublishedComponents\SharpDX.Direct3D11.dll" />	
 	<Exec Command="copy ..\CrewChiefV4\bin\$(Configuration)\SharpDX.Mathematics.dll ..\CrewChiefV4\bin\PublishedComponents\SharpDX.Mathematics.dll" />
 	<Exec Command="copy ..\CrewChiefV4\bin\$(Configuration)\SharpDX.DXGI.dll ..\CrewChiefV4\bin\PublishedComponents\SharpDX.DXGI.dll" />
+	<Exec Command="copy ..\CrewChiefV4\bin\$(Configuration)\WindowsInput.dll ..\CrewChiefV4\bin\PublishedComponents\WindowsInput.dll" />
 	<Exec Command="copy ..\CrewChiefV4\carClassData.json ..\CrewChiefV4\bin\PublishedComponents\carClassData.json" />
     <Exec Command="copy ..\CrewChiefV4\controllerConfigurationData.json ..\CrewChiefV4\bin\PublishedComponents\controllerConfigurationData.json" />
     <Exec Command="copy ..\CrewChiefV4\saved_command_macros.json ..\CrewChiefV4\bin\PublishedComponents\saved_command_macros.json" />

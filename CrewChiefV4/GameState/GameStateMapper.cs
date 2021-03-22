@@ -132,15 +132,16 @@ namespace CrewChiefV4.GameState
                     if (opponent.ClassPosition == currentGameState.SessionData.ClassPosition - 1)
                     {
                         var useDerivedDeltas = true;
-                        if (CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2
-                            || CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM
-                            || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT
-                            || CrewChief.gameDefinition.gameEnum == GameEnum.RF1
-                            || CrewChief.gameDefinition.gameEnum == GameEnum.AMS2
-                            || CrewChief.gameDefinition.gameEnum == GameEnum.PCARS3)
+                        if (singleClass &&
+                             (CrewChief.gameDefinition.gameEnum == GameEnum.PCARS2
+                              || CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM
+                              || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT
+                              || CrewChief.gameDefinition.gameEnum == GameEnum.RF1
+                              || CrewChief.gameDefinition.gameEnum == GameEnum.AMS2
+                              || CrewChief.gameDefinition.gameEnum == GameEnum.PCARS3))
                         {
                             // special case for R3E, RF1, RF2 and PCars2 - gap ahead is provided by the game - use these 
-                            // (already set in the mapper) if the opponent is on the same lap
+                            // (already set in the mapper) if the opponent is on the same lap and we're racing a single class
                             var lapDifference = opponent.DeltaTime.GetSignedLapDifference(currentGameState.SessionData.DeltaTime);
                             if (lapDifference == 0)
                             {
@@ -260,15 +261,31 @@ namespace CrewChiefV4.GameState
             }
         }
 
-
         // so far, only the laps remaining is populated for non-race sessions. This is a bit of an edge case anyway - non-race sessions
         // with fixed number of laps is an American thing really.
+        //
+        // Update - we also need a little car class data in these sessions
         public virtual void populateDerivedNonRaceSessionData(GameStateData currentGameState)
         {
             if (!currentGameState.SessionData.SessionHasFixedTime)
             {
                 currentGameState.SessionData.SessionLapsRemaining = currentGameState.SessionData.SessionNumberOfLaps - currentGameState.SessionData.CompletedLaps;
             }
+            // just need the car class counts here
+            Boolean singleClass = GameStateData.NumberOfClasses == 1 || CrewChief.forceSingleClass;
+            int numCarsInPlayerClass = 1;
+            foreach (OpponentData opponent in currentGameState.OpponentData.Values)
+            {
+                if (!opponent.IsActive)
+                {
+                    continue;
+                }
+                if (singleClass || CarData.IsCarClassEqual(opponent.CarClass, currentGameState.carClass))
+                {
+                    numCarsInPlayerClass++;
+                }
+            }
+            currentGameState.SessionData.NumCarsInPlayerClass = numCarsInPlayerClass;
         }
 
         // filters race position changes by delaying them a short time to prevent bouncing and noise interferring with event logic

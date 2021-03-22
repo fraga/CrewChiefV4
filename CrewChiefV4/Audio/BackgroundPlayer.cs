@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CrewChiefV4.GameState;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -31,7 +32,9 @@ namespace CrewChiefV4.Audio
 
         protected float getBackgroundVolume()
         {
-            float volume = UserSettings.GetUserSettings().getFloat("background_volume");
+            float volume = GlobalBehaviourSettings.racingType == CrewChief.RacingType.Circuit
+                ? UserSettings.GetUserSettings().getFloat("background_volume")
+                : 0.0f;  // No background noise in Rally mode.
             if (volume > 1)
             {
                 volume = 1;

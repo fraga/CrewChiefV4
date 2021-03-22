@@ -1693,6 +1693,18 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("4.5")]
+        public float gtr2_spotter_car_length {
+            get {
+                return ((float)(this["gtr2_spotter_car_length"]));
+            }
+            set {
+                this["gtr2_spotter_car_length"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool enable_rf2_pit_stop_prediction {
             get {
@@ -2689,7 +2701,7 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool use_naudio {
             get {
                 return ((bool)(this["use_naudio"]));
@@ -4069,7 +4081,7 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool prefer_system_sre {
             get {
                 return ((bool)(this["prefer_system_sre"]));
@@ -4597,6 +4609,162 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Jim (default)")]
+        public string codriver_name {
+            get {
+                return ((string)(this["codriver_name"]));
+            }
+            set {
+                this["codriver_name"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int racing_type {
+            get {
+                return ((int)(this["racing_type"]));
+            }
+            set {
+                this["racing_type"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string rbr_launch_exe {
+            get {
+                return ((string)(this["rbr_launch_exe"]));
+            }
+            set {
+                this["rbr_launch_exe"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:/RBR")]
+        public string rbr_install_path {
+            get {
+                return ((string)(this["rbr_install_path"]));
+            }
+            set {
+                this["rbr_install_path"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool launch_rbr {
+            get {
+                return ((bool)(this["launch_rbr"]));
+            }
+            set {
+                this["launch_rbr"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string gtr2_launch_exe {
+            get {
+                return ((string)(this["gtr2_launch_exe"]));
+            }
+            set {
+                this["gtr2_launch_exe"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string gtr2_install_path {
+            get {
+                return ((string)(this["gtr2_install_path"]));
+            }
+            set {
+                this["gtr2_install_path"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool launch_gtr2 {
+            get {
+                return ((bool)(this["launch_gtr2"]));
+            }
+            set {
+                this["launch_gtr2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public int codriver_style {
+            get {
+                return ((int)(this["codriver_style"]));
+            }
+            set {
+                this["codriver_style"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("140")]
+        public float codriver_rushed_speed {
+            get {
+                return ((float)(this["codriver_rushed_speed"]));
+            }
+            set {
+                this["codriver_rushed_speed"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("30")]
+        public float codriver_chained_pacenote_threshold_distance {
+            get {
+                return ((float)(this["codriver_chained_pacenote_threshold_distance"]));
+            }
+            set {
+                this["codriver_chained_pacenote_threshold_distance"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("4")]
+        public float codriver_lookahead_seconds {
+            get {
+                return ((float)(this["codriver_lookahead_seconds"]));
+            }
+            set {
+                this["codriver_lookahead_seconds"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("2")]
+        public float codriver_rushed_lookahead_seconds {
+            get {
+                return ((float)(this["codriver_rushed_lookahead_seconds"]));
+            }
+            set {
+                this["codriver_rushed_lookahead_seconds"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string Setting {
             get {
@@ -4640,6 +4808,486 @@ namespace CrewChiefV4.Properties {
             }
             set {
                 this["launch_pcars3"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool enable_controller_pov_switches {
+            get {
+                return ((bool)(this["enable_controller_pov_switches"]));
+            }
+            set {
+                this["enable_controller_pov_switches"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool rf2_enable_auto_fuel_to_end_of_race {
+            get {
+                return ((bool)(this["rf2_enable_auto_fuel_to_end_of_race"]));
+            }
+            set {
+                this["rf2_enable_auto_fuel_to_end_of_race"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool block_male_sounds {
+            get {
+                return ((bool)(this["block_male_sounds"]));
+            }
+            set {
+                this["block_male_sounds"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool rf2_enable_pit_manager {
+            get {
+                return ((bool)(this["rf2_enable_pit_manager"]));
+            }
+            set {
+                this["rf2_enable_pit_manager"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool enable_gtr2_pit_stop_prediction {
+            get {
+                return ((bool)(this["enable_gtr2_pit_stop_prediction"]));
+            }
+            set {
+                this["enable_gtr2_pit_stop_prediction"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool enable_gtr2_cut_track_heuristics {
+            get {
+                return ((bool)(this["enable_gtr2_cut_track_heuristics"]));
+            }
+            set {
+                this["enable_gtr2_cut_track_heuristics"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool enable_watch_car_command {
+            get {
+                return ((bool)(this["enable_watch_car_command"]));
+            }
+            set {
+                this["enable_watch_car_command"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.96")]
+        public float trigger_word_sre_min_confidence_system_sre {
+            get {
+                return ((float)(this["trigger_word_sre_min_confidence_system_sre"]));
+            }
+            set {
+                this["trigger_word_sre_min_confidence_system_sre"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.75")]
+        public float minimum_voice_recognition_confidence_system_sre {
+            get {
+                return ((float)(this["minimum_voice_recognition_confidence_system_sre"]));
+            }
+            set {
+                this["minimum_voice_recognition_confidence_system_sre"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.7")]
+        public float minimum_name_voice_recognition_confidence_system_sre {
+            get {
+                return ((float)(this["minimum_name_voice_recognition_confidence_system_sre"]));
+            }
+            set {
+                this["minimum_name_voice_recognition_confidence_system_sre"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool lazy_load_subtitles {
+            get {
+                return ((bool)(this["lazy_load_subtitles"]));
+            }
+            set {
+                this["lazy_load_subtitles"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool show_splash_screen {
+            get {
+                return ((bool)(this["show_splash_screen"]));
+            }
+            set {
+                this["show_splash_screen"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool enable_gtr2_pit_lane_approach_heuristics {
+            get {
+                return ((bool)(this["enable_gtr2_pit_lane_approach_heuristics"]));
+            }
+            set {
+                this["enable_gtr2_pit_lane_approach_heuristics"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool scroll_bars_on_main_window {
+            get {
+                return ((bool)(this["scroll_bars_on_main_window"]));
+            }
+            set {
+                this["scroll_bars_on_main_window"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool launch_dirt {
+            get {
+                return ((bool)(this["launch_dirt"]));
+            }
+            set {
+                this["launch_dirt"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool launch_dirt2 {
+            get {
+                return ((bool)(this["launch_dirt2"]));
+            }
+            set {
+                this["launch_dirt2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string dirt_launch_exe {
+            get {
+                return ((string)(this["dirt_launch_exe"]));
+            }
+            set {
+                this["dirt_launch_exe"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string dirt2_launch_exe {
+            get {
+                return ((string)(this["dirt2_launch_exe"]));
+            }
+            set {
+                this["dirt2_launch_exe"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string dirt_launch_params {
+            get {
+                return ((string)(this["dirt_launch_params"]));
+            }
+            set {
+                this["dirt_launch_params"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string dirt2_launch_params {
+            get {
+                return ((string)(this["dirt2_launch_params"]));
+            }
+            set {
+                this["dirt2_launch_params"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool use_dictation_grammar_for_rally {
+            get {
+                return ((bool)(this["use_dictation_grammar_for_rally"]));
+            }
+            set {
+                this["use_dictation_grammar_for_rally"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.55")]
+        public float minimum_rally_voice_recognition_confidence_system_sre {
+            get {
+                return ((float)(this["minimum_rally_voice_recognition_confidence_system_sre"]));
+            }
+            set {
+                this["minimum_rally_voice_recognition_confidence_system_sre"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool confirm_recce_pace_notes {
+            get {
+                return ((bool)(this["confirm_recce_pace_notes"]));
+            }
+            set {
+                this["confirm_recce_pace_notes"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.35")]
+        public float minimum_rally_voice_recognition_confidence_microsoft_sre {
+            get {
+                return ((float)(this["minimum_rally_voice_recognition_confidence_microsoft_sre"]));
+            }
+            set {
+                this["minimum_rally_voice_recognition_confidence_microsoft_sre"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("20777")]
+        public int dirt_rally_udp_data_port {
+            get {
+                return ((int)(this["dirt_rally_udp_data_port"]));
+            }
+            set {
+                this["dirt_rally_udp_data_port"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("20777")]
+        public string dirt_rally_2_udp_data_port {
+            get {
+                return ((string)(this["dirt_rally_2_udp_data_port"]));
+            }
+            set {
+                this["dirt_rally_2_udp_data_port"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool log_type_debug {
+            get {
+                return ((bool)(this["log_type_debug"]));
+            }
+            set {
+                this["log_type_debug"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool log_type_verbose {
+            get {
+                return ((bool)(this["log_type_verbose"]));
+            }
+            set {
+                this["log_type_verbose"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool allow_composite_personalisations {
+            get {
+                return ((bool)(this["allow_composite_personalisations"]));
+            }
+            set {
+                this["allow_composite_personalisations"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("40")]
+        public float codriver_min_space_for_auto_distance_call {
+            get {
+                return ((float)(this["codriver_min_space_for_auto_distance_call"]));
+            }
+            set {
+                this["codriver_min_space_for_auto_distance_call"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool codriver_dynamic_lookahead {
+            get {
+                return ((bool)(this["codriver_dynamic_lookahead"]));
+            }
+            set {
+                this["codriver_dynamic_lookahead"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool include_start_pos_in_dirt_stage_names {
+            get {
+                return ((bool)(this["include_start_pos_in_dirt_stage_names"]));
+            }
+            set {
+                this["include_start_pos_in_dirt_stage_names"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool save_sre_debug_data {
+            get {
+                return ((bool)(this["save_sre_debug_data"]));
+            }
+            set {
+                this["save_sre_debug_data"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int sre_button_release_delay {
+            get {
+                return ((int)(this["sre_button_release_delay"]));
+            }
+            set {
+                this["sre_button_release_delay"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("NUMPAD5")]
+        public string reset_vr_view_control {
+            get {
+                return ((string)(this["reset_vr_view_control"]));
+            }
+            set {
+                this["reset_vr_view_control"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool log_type_fuel {
+            get {
+                return ((bool)(this["log_type_fuel"]));
+            }
+            set {
+                this["log_type_fuel"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool sre_enable_threshold_tuning {
+            get {
+                return ((bool)(this["sre_enable_threshold_tuning"]));
+            }
+            set {
+                this["sre_enable_threshold_tuning"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool enable_rf1_box_sharing_warnings {
+            get {
+                return ((bool)(this["enable_rf1_box_sharing_warnings"]));
+            }
+            set {
+                this["enable_rf1_box_sharing_warnings"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int force_resample {
+            get {
+                return ((int)(this["force_resample"]));
+            }
+            set {
+                this["force_resample"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool enable_frozen_order_messages {
+            get {
+                return ((bool)(this["enable_frozen_order_messages"]));
+            }
+            set {
+                this["enable_frozen_order_messages"] = value;
             }
         }
     }

@@ -24,12 +24,6 @@ namespace CrewChiefV4.iRacing
             // no version number in iRacing shared data so this is a no-op
         }
 
-        public override void setSpeechRecogniser(SpeechRecogniser speechRecogniser)
-        {
-            speechRecogniser.addiRacingSpeechRecogniser();
-            this.speechRecogniser = speechRecogniser;
-        }
-
         Dictionary<string, DateTime> lastActiveTimeForOpponents = new Dictionary<string, DateTime>();
         DateTime nextOpponentCleanupTime = DateTime.MinValue;
         TimeSpan opponentCleanupInterval = TimeSpan.FromSeconds(3);
@@ -113,7 +107,7 @@ namespace CrewChiefV4.iRacing
             {
                 leaderCar = playerCar;
             }
-            Validator.validate(playerName);
+            AdditionalDataProvider.validate(playerName);
 
             currentGameState.SafetyCarData = GetSafetyCarData(previousGameState == null ? null : previousGameState.SafetyCarData, shared.PaceCar, 
                 (float)(shared.SessionData.Track.Length * 1000), shared.PaceCarPresent && shared.Drivers.Count <= shared.Telemetry.NumberOfCarsEnabled);                      
@@ -146,7 +140,8 @@ namespace CrewChiefV4.iRacing
                 Console.WriteLine("TrackPitSpeedLimit = " + shared.SessionData.Track.TrackPitSpeedLimit);
                 Console.WriteLine("CourseCautions = " + shared.SessionData.CourseCautions);
                 Console.WriteLine("Restarts = " + shared.SessionData.Restarts);
-                if(shared.Telemetry.NumberOfCarsEnabled < shared.Drivers.Count && shared.PaceCarPresent)
+                Console.WriteLine("TrackCodeName " + shared.SessionData.Track.CodeName + " Track Reported Length " + (float)shared.SessionData.Track.Length * 1000);
+                if (shared.Telemetry.NumberOfCarsEnabled < shared.Drivers.Count && shared.PaceCarPresent)
                 {
                     Console.WriteLine("Advanced Safety/Pace Car calls has been disable for this session, to enable increase the Max Cars in iRacing graphics settings to " + shared.Drivers.Count + ". And restart the app");
                 }                
@@ -217,7 +212,8 @@ namespace CrewChiefV4.iRacing
                 Console.WriteLine("Player is using car class " + currentGameState.carClass.getClassIdentifier() + " (car ID " + playerCar.Car.CarId + ")");
                 currentGameState.SessionData.PlayerCarNr = playerCar.CarNumber;
 
-                currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.Now);
+                currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, 
+                    currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.PositionAndMotionData.CarSpeed, currentGameState.Now);
                 currentGameState.SessionData.SectorNumber = playerCar.Live.CurrentSector;
                 foreach (Driver driver in shared.Drivers)
                 {
@@ -295,7 +291,8 @@ namespace CrewChiefV4.iRacing
                             currentGameState.carClass.limiterAvailable = false;
                         }
                         GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass);
-                        currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.Now);
+                        currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength,
+                            currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.PositionAndMotionData.CarSpeed, currentGameState.Now);
                         Console.WriteLine("Player is using car class " + currentGameState.carClass.getClassIdentifier() + " (car ID " + playerCar.Car.CarId + ")");
                         currentGameState.SessionData.PlayerCarNr = playerCar.CarNumber;
 
@@ -756,10 +753,7 @@ namespace CrewChiefV4.iRacing
             SessionFlags flag = (SessionFlags)shared.Telemetry.SessionFlags;
             if (flag.HasFlag(SessionFlags.Black) && !flag.HasFlag(SessionFlags.Furled))
             {
-                if (currentGameState.PitData.OnInLap || currentGameState.PitData.OnOutLap)
-                    currentGameState.PenaltiesData.HasStopAndGo = true;
-                else
-                    currentGameState.PenaltiesData.HasDriveThrough = true;
+                currentGameState.PenaltiesData.HasPitStop = true;
             }
             if (flag.HasFlag(SessionFlags.Furled) && currentGameState.SessionData.SessionType != SessionType.Qualify)
             {
@@ -767,7 +761,7 @@ namespace CrewChiefV4.iRacing
             }
             if (flag.HasFlag(SessionFlags.Repair))
             {
-                currentGameState.PenaltiesData.HasPitStop = true;
+                currentGameState.PenaltiesData.HasMeatballFlag = true;
             }
             if (flag.HasFlag(SessionFlags.YellowWaving))
             {
@@ -790,15 +784,17 @@ namespace CrewChiefV4.iRacing
                 currentGameState.SessionData.IsLastLap = true;
             }
             currentGameState.PitData.PitSpeedLimit = shared.SessionData.Track.TrackPitSpeedLimit;
-
+            float speed = (float)playerCar.Live.Speed;
+            bool hasValidSpeed = speed > 0 && speed < 110;  // we get some wild speed data occasionally (>400m/s)
             currentGameState.SessionData.DeltaTime.SetNextDeltaPoint(currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.SessionData.CompletedLaps,
-                (float)playerCar.Live.Speed, currentGameState.Now, !currentGameState.PitData.InPitlane && !currentGameState.PitData.IsApproachingPitlane && !currentGameState.PitData.OnOutLap);
+                speed, currentGameState.Now, 
+                hasValidSpeed && !currentGameState.PitData.InPitlane && !currentGameState.PitData.IsApproachingPitlane && !currentGameState.PitData.OnOutLap && playerCar.Live.TrackSurface != TrackSurfaces.NotInWorld);
 
             if (previousGameState != null)
             {
                 String stoppedInLandmark = currentGameState.SessionData.trackLandmarksTiming.updateLandmarkTiming(currentGameState.SessionData.TrackDefinition,
                     currentGameState.SessionData.SessionRunningTime, previousGameState.PositionAndMotionData.DistanceRoundTrack,
-                    currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.PositionAndMotionData.CarSpeed, currentGameState.SessionData.DeltaTime.currentDeltaPoint, currentGameState.carClass);
+                    currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.PositionAndMotionData.CarSpeed, currentGameState.carClass);
                 currentGameState.SessionData.stoppedInLandmark = currentGameState.PitData.InPitlane ? null : stoppedInLandmark;
             }
             if (playerCar.Live.HasCrossedSFLine)
@@ -866,7 +862,6 @@ namespace CrewChiefV4.iRacing
                             int previousOpponentCompletedLaps = 0;
                             int previousOpponentOverallPosition = 0;
                             Boolean previousOpponentIsEnteringPits = false;
-                            Boolean previousOpponentIsExitingPits = false;
                             float previousOpponentSpeed = 0;
                             float previousDistanceRoundTrack = 0;
                             bool previousIsInPits = false;
@@ -883,7 +878,6 @@ namespace CrewChiefV4.iRacing
                                 previousOpponentCompletedLaps = previousOpponentData.CompletedLaps;
                                 previousOpponentOverallPosition = previousOpponentData.OverallPosition;
                                 previousOpponentIsEnteringPits = previousOpponentData.isEnteringPits();
-                                previousOpponentIsExitingPits = previousOpponentData.isExitingPits();
                                 previousOpponentSpeed = previousOpponentData.Speed;
                                 previousDistanceRoundTrack = previousOpponentData.DistanceRoundTrack;
                                 previousIsInPits = previousOpponentData.InPits;
@@ -938,7 +932,9 @@ namespace CrewChiefV4.iRacing
                             float currentOpponentLapDistance = isInWorld && currentGameState.SessionData.TrackDefinition != null ? currentGameState.SessionData.TrackDefinition.trackLength * driver.Live.CorrectedLapDistance : 0;
                             float currentOpponentSpeed = isInWorld ? (float)driver.Live.Speed : 0;
                             //Console.WriteLine("lapdistance:" + currentOpponentLapDistance);
-                            currentOpponentData.DeltaTime.SetNextDeltaPoint(currentOpponentLapDistance, currentOpponentLapsCompleted, currentOpponentSpeed, currentGameState.Now, driver.Live.TrackSurface != TrackSurfaces.AproachingPits && !shared.Telemetry.CarIdxOnPitRoad[driver.Id] && driver.Live.TrackSurface != TrackSurfaces.NotInWorld);
+                            bool opponentHasValidSpeed = currentOpponentSpeed > 7 && currentOpponentSpeed < 110;    // we get some wild speed data occasionally (>400m/s)
+                            currentOpponentData.DeltaTime.SetNextDeltaPoint(currentOpponentLapDistance, currentOpponentLapsCompleted, currentOpponentSpeed, currentGameState.Now,
+                                opponentHasValidSpeed && driver.Live.TrackSurface != TrackSurfaces.AproachingPits && !shared.Telemetry.CarIdxOnPitRoad[driver.Id] && driver.Live.TrackSurface != TrackSurfaces.NotInWorld);
 
                             Boolean finishedAllottedRaceLaps = currentGameState.SessionData.SessionNumberOfLaps > 0 && currentGameState.SessionData.SessionNumberOfLaps == currentOpponentLapsCompleted;
                             Boolean finishedAllottedRaceTime = false;
@@ -990,7 +986,7 @@ namespace CrewChiefV4.iRacing
                                 currentOpponentData.trackLandmarksTiming = previousOpponentData.trackLandmarksTiming;
                                 String stoppedInLandmark = currentOpponentData.trackLandmarksTiming.updateLandmarkTiming(
                                     currentGameState.SessionData.TrackDefinition, currentGameState.SessionData.SessionRunningTime,
-                                    previousDistanceRoundTrack, currentOpponentData.DistanceRoundTrack, currentOpponentData.Speed, currentOpponentData.DeltaTime.currentDeltaPoint, currentOpponentData.CarClass);
+                                    previousDistanceRoundTrack, currentOpponentData.DistanceRoundTrack, currentOpponentData.Speed, currentOpponentData.CarClass);
                                 currentOpponentData.stoppedInLandmark = shared.Telemetry.CarIdxOnPitRoad[driver.Id] || !isInWorld || finishedAllottedRaceTime || finishedAllottedRaceLaps || driver.Live.TrackSurface == TrackSurfaces.AproachingPits ? null : stoppedInLandmark;
                             }
                             if (currentGameState.SessionData.JustGoneGreen)
@@ -1118,17 +1114,18 @@ namespace CrewChiefV4.iRacing
                 currentGameState.Conditions.addSample(currentGameState.Now, currentGameState.SessionData.CompletedLaps, currentGameState.SessionData.SectorNumber,
                     shared.Telemetry.AirTemp, shared.Telemetry.TrackTempCrew, 0, shared.Telemetry.WindVel, 0, 0, 0, currentGameState.SessionData.IsNewLap);
             }
+
             currentGameState.PenaltiesData.IsOffRacingSurface = shared.Telemetry.PlayerTrackSurface == TrackSurfaces.OffTrack;
 
-
-
-            if(invalidateCutTrackLaps && !currentGameState.PitData.OnOutLap && previousGameState != null &&
+            if (invalidateCutTrackLaps && !currentGameState.PitData.OnOutLap && previousGameState != null &&
                 !(currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.SessionData.SessionPhase == SessionPhase.Countdown) &&
-                currentGameState.SessionData.CurrentIncidentCount + 1 == shared.Telemetry.PlayerCarMyIncidentCount)
+                currentGameState.SessionData.CurrentIncidentCount + 1 == shared.Telemetry.PlayerCarMyIncidentCount && 
+                currentGameState.SessionData.TrackSurface == (int)TrackSurfaces.OffTrack)
             {
                 currentGameState.PenaltiesData.CutTrackWarnings = previousGameState.PenaltiesData.CutTrackWarnings + 1;
                 currentGameState.SessionData.CurrentLapIsValid = false;
             }
+
             currentGameState.SessionData.CurrentIncidentCount = shared.Telemetry.PlayerCarMyIncidentCount;
             currentGameState.SessionData.CurrentDriverIncidentCount = shared.Telemetry.PlayerCarDriverIncidentCount;
             currentGameState.SessionData.CurrentTeamIncidentCount = shared.Telemetry.PlayerCarTeamIncidentCount;
@@ -1136,11 +1133,11 @@ namespace CrewChiefV4.iRacing
             currentGameState.SessionData.MaxIncidentCount = shared.SessionData.IncidentLimit;
             if(currentGameState.PenaltiesData.HasSlowDown)
             {
-                currentGameState.PenaltiesData.NumPenalties++;
+                currentGameState.PenaltiesData.NumOutstandingPenalties++;
             }
-            if (currentGameState.PenaltiesData.HasStopAndGo)
+            if (currentGameState.PenaltiesData.HasPitStop)
             {
-                currentGameState.PenaltiesData.NumPenalties++;
+                currentGameState.PenaltiesData.NumOutstandingPenalties++;
             }
             currentGameState.TyreData.FrontLeftPressure = shared.Telemetry.LFcoldPressure;
             currentGameState.TyreData.FrontRightPressure = shared.Telemetry.RFcoldPressure;
@@ -1497,7 +1494,7 @@ namespace CrewChiefV4.iRacing
             opponentData.OverallPosition = driver.Live.PositionRaw;
             opponentData.CompletedLaps = driver.Live.LiveLapsCompleted;
             opponentData.DistanceRoundTrack = driver.Live.CorrectedLapDistance * trackLength;
-            opponentData.DeltaTime = new DeltaTime(trackLength, opponentData.DistanceRoundTrack, DateTime.UtcNow);
+            opponentData.DeltaTime = new DeltaTime(trackLength, opponentData.DistanceRoundTrack, (float)driver.Live.Speed, DateTime.UtcNow);
             opponentData.CarClass = CarData.getCarClassForIRacingId(driver.Car.CarClassId, driver.Car.CarId);
             opponentData.CurrentSectorNumber = driver.Live.CurrentSector;
             opponentData.CarNumber = driver.CarNumber;

@@ -151,7 +151,7 @@ namespace CrewChiefV4.Audio
                             backgroundPlayer.Stop();
                             backgroundPlayer.Volume = 0.0;
                         }
-                        catch (Exception) { }
+                        catch (Exception e) {Log.Exception(e);}
                     }, null);
                 }
             }

@@ -60,14 +60,14 @@ namespace CrewChiefV4
             return key;
         }
 
-        public static String[] getSpeechRecognitionPhrases(String key)
+        public static String[] getSpeechRecognitionPhrases(String key, bool loadHomophones = false)
         {
+            List<string> phrasesList = new List<string>();
             string options = null;
             if (SpeechRecognitionConfig.TryGetValue(key, out options))
             {
                 if (options.Contains(":"))
                 {
-                    List<String> phrasesList = new List<string>();
                     var phrases = options.Split(':');
                     for (int i = 0; i < phrases.Length; ++i)
                     {
@@ -77,14 +77,36 @@ namespace CrewChiefV4
                             phrasesList.Add(phrase);
                         }
                     }
-                    return phrasesList.ToArray();
                 }
                 else if (options.Length > 0)
                 {
-                    return new String[] {options};
+                    phrasesList.Add(options);
+                }
+                if (loadHomophones)
+                {
+                    string homophonesOptions = null;
+                    if (SpeechRecognitionConfig.TryGetValue(key + "_HOMOPHONES", out homophonesOptions))
+                    {
+                        if (homophonesOptions.Contains(":"))
+                        {
+                            var phrases = homophonesOptions.Split(':');
+                            for (int i = 0; i < phrases.Length; ++i)
+                            {
+                                String phrase = phrases[i].Trim();
+                                if (phrase.Length > 0)
+                                {
+                                    phrasesList.Add(phrase);
+                                }
+                            }
+                        }
+                        else if (homophonesOptions.Length > 0)
+                        {
+                            phrasesList.Add(homophonesOptions);
+                        }
+                    }
                 }
             }
-            return new String[] {};
+            return phrasesList.ToArray();
         }
 
         public static String getDefaultFileLocation(String filename)

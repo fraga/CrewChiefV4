@@ -12,6 +12,8 @@ namespace CrewChiefV4.SRE
         void UnloadGrammar(GrammarWrapper grammar);
         void LoadGrammar(GrammarWrapper grammar);
         void AddSpeechRecognizedCallback(Object callback); // internalRealSRE += (CAST to EventHandler<SpeechRecognizedEventArgs>) new EventHandler<SpeechRecognizedEventArgs>(sre_SpeechRecognized);
+        void AddRecognitionCompleteCallback(Object callback);
+        void AddRecognitionRejectedCallback(Object callback);
         void RecognizeAsync();
         void SetInputToAudioStream(RingBufferStream.RingBufferStream stream, int rate, int depth, int channelCount);
 
@@ -25,5 +27,8 @@ namespace CrewChiefV4.SRE
         void UnloadAllGrammars();
 
         object GetInternalSRE();
+
+        int GetMaxAudioLevelForLastOperation();
+        List<string> GetReportedProblemsForLastOperation();
     }
 }

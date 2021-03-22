@@ -105,9 +105,17 @@ namespace CrewChiefV4.Overlay
                 Environment.SpecialFolder.MyDocuments), "CrewChiefV4", "chart_subscriptions.json");
 
             String defaultFilePath = Configuration.getDefaultFileLocation("chart_subscriptions.json");
-
-            Dictionary<GameEnum, List<OverlaySubscription>> allUserSubscriptions = JsonConvert.DeserializeObject<Dictionary<GameEnum, List<OverlaySubscription>>>(
-                getFileContents(userFilePath));
+            Dictionary<GameEnum, List<OverlaySubscription>> allUserSubscriptions;
+            try
+            {
+                allUserSubscriptions = JsonConvert.DeserializeObject<Dictionary<GameEnum, List<OverlaySubscription>>>(
+                    getFileContents(userFilePath));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error parsing user chart subscriptions: " + e.ToString());
+                allUserSubscriptions = new Dictionary<GameEnum, List<OverlaySubscription>>();
+            }
 
             Dictionary<GameEnum, List<OverlaySubscription>> allDefaultSubscriptions = JsonConvert.DeserializeObject<Dictionary<GameEnum, List<OverlaySubscription>>>(
                 getFileContents(defaultFilePath));
@@ -122,7 +130,7 @@ namespace CrewChiefV4.Overlay
                     foreach (var overlay in subscription.Value)
                     {
                         // is it a new entry in the list
-                        if (userSub.FirstOrDefault(os => os.voiceCommandFragment == overlay.voiceCommandFragment) == null)
+                        if (userSub.FirstOrDefault(os => os.voiceCommandFragment_Internal == overlay.voiceCommandFragment_Internal) == null)
                         {
                             allUserSubscriptions[subscription.Key].Add(overlay);
                             addedNewSubscription = true;
@@ -131,7 +139,7 @@ namespace CrewChiefV4.Overlay
                 }
                 else // we add the entire list
                 {
-                    allUserSubscriptions[subscription.Key].AddRange(subscription.Value);
+                    allUserSubscriptions[subscription.Key] = subscription.Value;
                     addedNewSubscription = true;
                 }
             }
@@ -407,24 +415,13 @@ namespace CrewChiefV4.Overlay
             }
             if (overlayLapData != null)
             {
-                switch (overlaySubscription.Item1.overlayDataType)
+                if (overlaySubscription.Item1.dataSeriesType == DataSeriesType.HISTOGRAM)
                 {
-                    case OverlayDataType.DOUBLE:
-                    case OverlayDataType.FLOAT:
-                    case OverlayDataType.INT:
-                    case OverlayDataType.STRING:
-                        seriesData.AddRange(overlayLapData.convertLapDataToFloat(sectorToShow, OverlayController.x_min, OverlayController.x_max));
-                        break;
-                    case OverlayDataType.FLOAT_3:
-                        seriesData.AddRange(overlayLapData.convertLapDataToFloat_3(sectorToShow, OverlayController.x_min, OverlayController.x_max));
-                        break;
-                    case OverlayDataType.FLOAT_4:
-                    case OverlayDataType.INT_4:
-                    case OverlayDataType.DOUBLE_4:
-                        seriesData.AddRange(overlayLapData.convertLapDataToFloat_4(sectorToShow, OverlayController.x_min, OverlayController.x_max));
-                        break;
-                    default:
-                        break;
+                    seriesData.AddRange(overlayLapData.convertHistogramSeries(sectorToShow, overlaySubscription.Item1.overlayDataType, overlaySubscription.Item1.histogramSteps));
+                }
+                else
+                {
+                    seriesData.AddRange(overlayLapData.convertTimeSeries(sectorToShow, overlaySubscription.Item1.overlayDataType, OverlayController.x_min, OverlayController.x_max));
                 }
             }
             return seriesData;
@@ -439,11 +436,13 @@ namespace CrewChiefV4.Overlay
             }            
             if (previousGameState.SessionData.SectorNumber != currentGameState.SessionData.SectorNumber && !currentGameState.PitData.InPitlane)
             {
-                if (sector1End == -1 && previousGameState.SessionData.SectorNumber == 1 && currentGameState.SessionData.SectorNumber == 2)
+                if (sector1End == -1 && previousGameState.SessionData.SectorNumber == 1 && currentGameState.SessionData.SectorNumber == 2
+                    && currentGameState.PositionAndMotionData.DistanceRoundTrack > 0)
                 {
                     sector1End = currentGameState.PositionAndMotionData.DistanceRoundTrack;
                 }
-                else if (sector2End == -1 && previousGameState.SessionData.SectorNumber == 2 && currentGameState.SessionData.SectorNumber == 3)
+                else if (sector2End == -1 && previousGameState.SessionData.SectorNumber == 2 && currentGameState.SessionData.SectorNumber == 3
+                    && currentGameState.PositionAndMotionData.DistanceRoundTrack > 0)
                 {
                     sector2End = currentGameState.PositionAndMotionData.DistanceRoundTrack;
                 }
@@ -532,11 +531,13 @@ namespace CrewChiefV4.Overlay
             }
             if (previousGameState.SessionData.SectorNumber != currentGameState.SessionData.SectorNumber && !currentGameState.PitData.InPitlane)
             {
-                if (sector1End == -1 && previousGameState.SessionData.SectorNumber == 1 && currentGameState.SessionData.SectorNumber == 2)
+                if (sector1End == -1 && previousGameState.SessionData.SectorNumber == 1 && currentGameState.SessionData.SectorNumber == 2
+                    && currentGameState.PositionAndMotionData.DistanceRoundTrack > 0)
                 {
                     sector1End = currentGameState.PositionAndMotionData.DistanceRoundTrack;
                 }
-                else if (sector2End == -1 && previousGameState.SessionData.SectorNumber == 2 && currentGameState.SessionData.SectorNumber == 3)
+                else if (sector2End == -1 && previousGameState.SessionData.SectorNumber == 2 && currentGameState.SessionData.SectorNumber == 3
+                    && currentGameState.PositionAndMotionData.DistanceRoundTrack > 0)
                 {
                     sector2End = currentGameState.PositionAndMotionData.DistanceRoundTrack;
                 }
@@ -629,6 +630,7 @@ namespace CrewChiefV4.Overlay
                             break;
                         case GameEnum.ASSETTO_32BIT:
                         case GameEnum.ASSETTO_64BIT:
+                        case GameEnum.ASSETTO_64BIT_RALLY:
                             lapData.addDataPoint(new DataPoint(currentGameState.SessionData.CompletedLaps, distanceRoundTrack,
                                 getPropertyValue(((CrewChiefV4.assetto.ACSSharedMemoryReader.ACSStructWrapper)currentGameState.rawGameData).data, field.fieldName), field.overlayDataType, currentGameState.Ticks, currentGameState.SessionData.SectorNumber));
                             break;
@@ -805,7 +807,7 @@ namespace CrewChiefV4.Overlay
         {
             if (src == null) throw new ArgumentException("Value cannot be null.", "src");
             if (propName == null) throw new ArgumentException("Value cannot be null.", "propName");
-
+            
             if (propName.Contains("."))//complex type nested
             {
                 var temp = propName.Split(new char[] { '.' }, 2);
@@ -813,15 +815,48 @@ namespace CrewChiefV4.Overlay
             }
             else
             {
+                int arrayIndex = -1;
+                int arrayStartBracketLocation = propName.IndexOf('[');
+                if (arrayStartBracketLocation != -1)
+                {
+                    int arrayEndBracketLocation = propName.IndexOf(']');
+                    if (arrayEndBracketLocation != -1)
+                    {
+                        string arrayIndexString = propName.Substring(arrayStartBracketLocation + 1, arrayEndBracketLocation - arrayStartBracketLocation - 1);
+                        arrayIndex = int.Parse(arrayIndexString);
+                        propName = propName.Substring(0, arrayStartBracketLocation);
+                    }
+                }
                 FieldInfo field = src.GetType().GetField(propName);
                 if (field != null)
                 {
-                    return field.GetValue(src);
+                    if (arrayIndex != -1)
+                    {
+                        return ((Array)field.GetValue(src)).GetValue(arrayIndex);
+                    }
+                    else
+                    {
+                        return field.GetValue(src);
+                    }
                 }
                 else
                 {
                     PropertyInfo prop = src.GetType().GetProperty(propName);
-                    return prop != null ? prop.GetValue(src) : null;
+                    if (prop != null)
+                    {
+                        if (arrayIndex != -1)
+                        {
+                            return ((Array)prop.GetValue(src)).GetValue(arrayIndex);
+                        }
+                        else
+                        {
+                            return prop.GetValue(src);
+                        }
+                    }
+                    else
+                    {
+                        return null;
+                    }
                 }                
             }
         }
@@ -833,6 +868,10 @@ namespace CrewChiefV4.Overlay
         FLOAT_4, INT_4, DOUBLE_4,
         /* 3 element array for IMO tyre data */
         FLOAT_3
+    }
+    public enum DataSeriesType
+    {
+        TIMESERIES, HISTOGRAM
     }
     public enum YAxisScaling
     {
@@ -872,15 +911,16 @@ namespace CrewChiefV4.Overlay
         {
             return new List<DataPoint>(dataPoints);
         }
-        public List<Tuple<float, float[]>> convertLapDataToFloat(SectorToShow sectorToShow, float startPoint = -1, float endPoint = -1)
+        public List<Tuple<float, float[]>> convertHistogramSeries(SectorToShow sectorToShow, OverlayDataType type, int? numberOfBuckets)
         {
             List<Tuple<float, float[]>> data = new List<Tuple<float, float[]>>();
             if (dataPoints.Count > 0)
             {
-                long startTicks = dataPoints[0].ticksWhenRead;
                 Boolean foundStartOfLap = false;
                 float previousPointDistanceRoundTrack = float.MinValue;
-                bool gotFirstPoint = false;
+                List<float[]> dataPointsToUse = new List<float[]>();
+                float min = float.MaxValue;
+                float max = float.MinValue;
                 foreach (DataPoint dataPoint in dataPoints)
                 {
                     if (dataPoint.distanceRoundTrack < 100)
@@ -894,30 +934,103 @@ namespace CrewChiefV4.Overlay
                             // this is generally because a datapoint from the next lap has leaked into this lap's data
                             break;
                         }
-                        // if we have no distance range and the data point is in the required sector, add it. If we have a distance range, it must be in that range
-                        if ((startPoint == -1 && endPoint == -1 && (sectorToShow == SectorToShow.ALL || dataPoint.sector <= 0 || dataPoint.sector == (int)sectorToShow))
-                            || dataPoint.distanceRoundTrack >= startPoint && dataPoint.distanceRoundTrack <= endPoint)
+                        // if the data point is in the required sector, add it.
+                        if (sectorToShow == SectorToShow.ALL || dataPoint.sector <= 0 || dataPoint.sector == (int)sectorToShow)
                         {
-                            float xPoint = OverlayDataSource.xAxisType == X_AXIS_TYPE.DISTANCE ?
-                               dataPoint.distanceRoundTrack : (float)TimeSpan.FromTicks(dataPoint.ticksWhenRead - startTicks).TotalSeconds;
-                            data.Add(new Tuple<float, float[]>(xPoint, new float[] { dataPoint.convertToFloat() }));
-                            if (startPoint == -1 && endPoint == -1)
+                            float[] point = null;
+                            switch (type)
                             {
-                                if (!gotFirstPoint)
+                                case OverlayDataType.FLOAT:
+                                case OverlayDataType.DOUBLE:
+                                case OverlayDataType.INT:
+                                case OverlayDataType.STRING:
+                                    point = new float[] { dataPoint.convertToFloat() };
+                                    break;
+                                case OverlayDataType.FLOAT_3:
+                                    point = dataPoint.convertToFloat_3();
+                                    break;
+                                case OverlayDataType.FLOAT_4:
+                                case OverlayDataType.DOUBLE_4:
+                                case OverlayDataType.INT_4:
+                                    point = dataPoint.convertToFloat_4();
+                                    break;
+                            }
+                            dataPointsToUse.Add(point);
+                            foreach (float v in point)
+                            {
+                                if (v < min)
                                 {
-                                    OverlayController.x_min = dataPoint.distanceRoundTrack;
-                                    gotFirstPoint = true;
+                                    min = v;
                                 }
-                                OverlayController.x_max = dataPoint.distanceRoundTrack;
+                                if (v > max)
+                                {
+                                    max = v;
+                                }
                             }
                         }
                         previousPointDistanceRoundTrack = dataPoint.distanceRoundTrack;
-                    }                    
+                    }
+                }
+                // now split them up into range counts
+                int buckets = numberOfBuckets == null ? dataPointsToUse.Count / 10 : numberOfBuckets.Value;
+                float step = (max - min) / (float)buckets;
+                Dictionary<float, float[]> counts = new Dictionary<float, float[]>();
+                for (int i = 0; i < buckets; i++)
+                {
+                    float rangeStart = min + (step * i);
+                    float rangeEnd = rangeStart + step;
+                    float thisKey = rangeStart + (step / 2f);
+                    if (!counts.ContainsKey(thisKey))
+                    {
+                        switch (type)
+                        {
+                            case OverlayDataType.FLOAT:
+                            case OverlayDataType.DOUBLE:
+                            case OverlayDataType.INT:
+                            case OverlayDataType.STRING:
+                                counts.Add(thisKey, new float[] { 0 });
+                                break;
+                            case OverlayDataType.FLOAT_3:
+                                counts.Add(thisKey, new float[] { 0, 0, 0 });
+                                break;
+                            case OverlayDataType.FLOAT_4:
+                            case OverlayDataType.DOUBLE_4:
+                            case OverlayDataType.INT_4:
+                                counts.Add(thisKey, new float[] { 0, 0, 0, 0 });
+                                break;
+                        }
+                    }
+                    foreach (float[] point in dataPointsToUse)
+                    {
+                        for (int j = 0; j < point.Length; j++)
+                        {
+                            if (point[j] >= rangeStart && point[j] < rangeEnd)
+                            {
+                                counts[thisKey][j] = counts[thisKey][j] + 1;
+                            }
+                        }
+                    }
+                }
+                float minXValueToShow = min / OverlayController.histogramZoomLevel;
+                float maxXValueToShow = max / OverlayController.histogramZoomLevel;
+                foreach (var entry in counts)
+                {
+                    if (entry.Key >= minXValueToShow && entry.Key <= maxXValueToShow)
+                    {
+                        float[] thisPoint = new float[entry.Value.Length];
+                        for (int i=0; i<entry.Value.Length; i++)
+                        {
+                            // convert each value to a proportion of the total - note these are formatted as percentages on the chart y-axis
+                            thisPoint[i] = entry.Value[i] / dataPointsToUse.Count;
+                        }
+                        data.Add(new Tuple<float, float[]>(entry.Key, thisPoint));
+                    }
                 }
             }
             return data;
         }
-        public List<Tuple<float, float[]>> convertLapDataToFloat_4(SectorToShow sectorToShow, float startPoint = -1, float endPoint = -1)
+
+        public List<Tuple<float, float[]>> convertTimeSeries(SectorToShow sectorToShow, OverlayDataType type, float startPoint = -1, float endPoint = -1)
         {
             List<Tuple<float, float[]>> data = new List<Tuple<float, float[]>>();
             if (dataPoints.Count > 0)
@@ -945,52 +1058,23 @@ namespace CrewChiefV4.Overlay
                         {
                             float xPoint = OverlayDataSource.xAxisType == X_AXIS_TYPE.DISTANCE ?
                                 dataPoint.distanceRoundTrack : (float)TimeSpan.FromTicks(dataPoint.ticksWhenRead - startTicks).TotalSeconds;
-                            data.Add(new Tuple<float, float[]>(xPoint, dataPoint.convertToFloat_4()));
-                            if (startPoint == -1 && endPoint == -1)
+                            switch (type)
                             {
-                                if (!gotFirstPoint)
-                                {
-                                    OverlayController.x_min = dataPoint.distanceRoundTrack;
-                                    gotFirstPoint = true;
-                                }
-                                OverlayController.x_max = dataPoint.distanceRoundTrack;
+                                case OverlayDataType.FLOAT:
+                                case OverlayDataType.DOUBLE:
+                                case OverlayDataType.INT:
+                                case OverlayDataType.STRING:
+                                    data.Add(new Tuple<float, float[]>(xPoint, new float[] { dataPoint.convertToFloat() }));
+                                    break;
+                                case OverlayDataType.FLOAT_3:
+                                    data.Add(new Tuple<float, float[]>(xPoint, dataPoint.convertToFloat_3()));
+                                    break;
+                                case OverlayDataType.FLOAT_4:
+                                case OverlayDataType.DOUBLE_4:
+                                case OverlayDataType.INT_4:
+                                    data.Add(new Tuple<float, float[]>(xPoint, dataPoint.convertToFloat_4()));
+                                    break;
                             }
-                        }
-                        previousPointDistanceRoundTrack = dataPoint.distanceRoundTrack;
-                    }
-                }
-            }
-            return data;
-        }
-        public List<Tuple<float, float[]>> convertLapDataToFloat_3(SectorToShow sectorToShow, float startPoint = -1, float endPoint = -1)
-        {
-            List<Tuple<float, float[]>> data = new List<Tuple<float, float[]>>();
-            if (dataPoints.Count > 0)
-            {
-                Boolean foundStartOfLap = false;
-                float previousPointDistanceRoundTrack = float.MinValue;
-                long startTicks = dataPoints[0].ticksWhenRead;
-                bool gotFirstPoint = false;
-                foreach (DataPoint dataPoint in dataPoints)
-                {
-                    if (dataPoint.distanceRoundTrack < 100)
-                    {
-                        foundStartOfLap = true;
-                    }
-                    if (foundStartOfLap)
-                    {
-                        if (previousPointDistanceRoundTrack - dataPoint.distanceRoundTrack > 200)
-                        {
-                            // this is generally because a datapoint from the next lap has leaked into this lap's data
-                            break;
-                        }
-                        // if we have no distance range and the data point is in the required sector, add it. If we have a distance range, it must be in that range
-                        if ((startPoint == -1 && endPoint == -1 && (sectorToShow == SectorToShow.ALL || dataPoint.sector <= 0 || dataPoint.sector == (int)sectorToShow))
-                            || dataPoint.distanceRoundTrack >= startPoint && dataPoint.distanceRoundTrack <= endPoint)
-                        {
-                            float xPoint = OverlayDataSource.xAxisType == X_AXIS_TYPE.DISTANCE ?
-                                dataPoint.distanceRoundTrack : (float)TimeSpan.FromTicks(dataPoint.ticksWhenRead - startTicks).TotalSeconds;
-                            data.Add(new Tuple<float, float[]>(xPoint, dataPoint.convertToFloat_3()));
                             if (startPoint == -1 && endPoint == -1)
                             {
                                 if (!gotFirstPoint)

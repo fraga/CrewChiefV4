@@ -31,9 +31,11 @@
         <li class="active has-sub"><a href="#"><span>Getting Started </span></a>
           <ul>
             <li><a href="GettingStarted_General.html"><span>General </span></a></li>
+            <li><a href="GettingStarted_ControlButtons.html"><span>Control buttons </span></a></li>
             <li class="has-sub"><a href="#"><span>Game specific</span></a>
               <ul>
                 <li><a href="GettingStarted_GameSpecific_AssettoCorsa.html"><span>Assetto
+
 
 
 
@@ -44,10 +46,13 @@
 
 
 
+
                       Corsa Competizione</span></a></li>
+                <li><a href="GettingStarted_GameSpecific_GTR2.html"><span>GTR 2</span></a></li>
                 <li><a href="GettingStarted_GameSpecific_F1_2018.html" title="Also F1 2018 and 2019"><span>F1 2020</span></a></li>
                 <li><a href="GettingStarted_GameSpecific_iRacing.html"><span>iRacing</span></a></li>
                 <li><a href="GettingStarted_GameSpecific_ProjectCars.html"><span>Project
+
 
 
 
@@ -58,9 +63,11 @@
 
 
 
-                      Cars 2 /<br>
+
+                      Cars 2 /&nbsp;3&nbsp; &amp;<br>
                       Automobilista 2</span></a></li>
                 <li><a href="GettingStarted_GameSpecific_RaceRoomRacingExperience.html"><span>RaceRoom
+
 
 
 
@@ -74,11 +81,14 @@
 
 
 
+
                       2</span></a></li>
+                <li><a href="GettingStarted_GameSpecific_RichardBurnsRally.html"><span>Richard Burns Rally</span></a></li>
               </ul>
             </li>
-            <li><a href="GettingStarted_nAudio.html"><span>nAudio </span></a></li>
+            <li><a href="GettingStarted_nAudio.html"><span>Choosing Audio methods</span></a></li>
             <li><a href="VoiceRecognition_InstallationTraining.html"><span>Voice
+
 
 
 
@@ -91,6 +101,7 @@
             <li><a href="Speech_DriverNames.html"><span>Driver Names </span></a></li>
             <li class="last"><a href="Speech_Swearing.html"><span>Swearing</span></a></li>
             <li class="last"><a href="Speech_TextToSpeech.html"><span>Text
+
 
 
 
@@ -109,12 +120,15 @@
 
 
 
+
                   &amp; Training</span></a> </li>
             <li class="has-sub"><a href="#"><span>Voice Commands</span></a>
               <ul>
                 <li><a href="VoiceRecognition_VoiceCommandsAll.html"><span>All</span></a></li>
                 <li><a href="VoiceRecognition_VoiceCommandsGrouped.html"><span>Grouped</span></a></li>
+                <li><a href="VoiceRecognition_VoiceCommandsPitstopManagement.html"><span>Pitstop Management</span></a></li>
                 <li><a href="VoiceRecognition_VoiceCommandsCheatSheet.html"><span>Cheat
+
 
 
 
@@ -127,13 +141,22 @@
 
 
 
+
                   Macros</span></a></li>
-            <li class="last"><a href="VoiceRecognition_FreeDictationChatMessages.html"><span>Free
+            <li><a href="VoiceRecognition_FreeDictationChatMessages.html"><span>Free
+
 
 
 
 
                   dictation chat messages</span></a></li>
+            <li class="last"><a href="VoiceRecognition_RallyStageNotes.html"><span>Rally
+
+
+
+
+
+                  stage notes</span></a></li>
           </ul>
         </li>
         <li class="active has-sub"><a href="#"><span>Overlays</span></a>
@@ -161,6 +184,7 @@
 
 
 
+
                   line switches</span></a> </li>
           </ul>
         </li>
@@ -184,8 +208,10 @@
 
 
 
+
                       Landmarks</span></a></li>
                 <li><a href="About_Customising_VoicePacks.html"><span>Voice
+
 
 
 
@@ -194,8 +220,10 @@
 
 
 
+
                       Requests</span></a></li>
                 <li><a href="About_Customising_CarClasses.html"><span>Car
+
 
 
 
@@ -212,15 +240,33 @@
     </div>
     <br>
     <div style="font-family:'Lucida Sans Unicode';font-size:13px;" class="main">
-<h3>Choosing Audio method</h3>
-The nAudio playback library allows playback device selection and higher volumes. It can also play messages in stereo.<br>
-<br>
-It allows speech recognition device selection but voice recognition <b>Trigger word</b> and <b>Press and release button</b> are not available with nAudio.<br>
-<br>
-There are two Properties selecting the audio method: <b>Use nAudio for playback</b> and <b>Use nAudio for speech recognition</b>.<br>
-<br>
-nAudio offers two output interface types - WaveOut and WASAPI.  WaveOut is more compatible, but WASAPI is more responsive/direct playback.<br>
-</div>
+      <h3>Choosing Audio methods</h3>
+      Crew Chief offers the choice of using <b>nAudio </b>instead of
+      the standard Windows audio library.&nbsp; There are two Properties
+      for selecting the audio method:<br>
+      <h4>Use nAudio for playback</h4>
+      Recommended. Using nAudio for playback allows device selection and
+      higher volumes. It can also play messages in stereo.<br>
+      <i>However, </i>nAudio has been known to cause some issues so
+      it's worth disabling it if Crew Chief is misbehaving.<br>
+      <br>
+      nAudio offers two output interface types - <b>WaveOut </b>and <b>WASAPI</b>.
+      WaveOut is more compatible, but WASAPI is more responsive/direct
+      playback.<br>
+      <br>
+      If not using nAudio for playback you might need to change your
+      default sound 'playback' device in the Windows Control Panel so
+      Crew Chief sends audio to the right device. Windows 10 also
+      includes the option to route audio from a specific application to
+      a chosen output device.<br>
+      <h4>Use nAudio for speech recognition</h4>
+      Not recommended. It allows speech recognition device selection but
+      voice recognition <b>Trigger word</b> and <b>Press and release
+        button</b> are not available with nAudio. Also Crew Chief works
+      better if this setting is disabled and instead your preferred
+      microphone is set as the default sound recording device in the
+      Windows sounds Control Panel.<br>
+    </div>
     <hr width="100%" size="2">
     <table style="font-family:'Lucida Sans Unicode';font-size:13px;" width="100%" cellspacing="0" cellpadding="0" border="0">
       <tbody>
@@ -230,6 +276,7 @@ nAudio offers two output interface types - WaveOut and WASAPI.  WaveOut is more 
           <td valign="top"><br>
           </td>
           <td width="20%" valign="top" align="right"><a href="https://discord.com/channels/322071247032942592/406527523455893504">Discord
+
 
 
 

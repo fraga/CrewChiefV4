@@ -149,7 +149,7 @@ namespace CrewChiefV4.rFactor1
             if (playerName == null)
             {
                 String driverName = getStringFromBytes(player.driverName).ToLower();
-                Validator.validate(driverName);
+                AdditionalDataProvider.validate(driverName);
                 playerName = driverName;
             }
             // these things should remain constant during a session
@@ -358,7 +358,7 @@ namespace CrewChiefV4.rFactor1
             {
                 // Preserve current timing values.
                 // Those values change on sector/lap change, otherwise stay the same between updates.
-                previousGameState.SessionData.restorePlayerTimings(currentGameState.SessionData);
+                previousGameState.SessionData.RestorePlayerTimings(currentGameState.SessionData);
 
                 currentGameState.SessionData.DeltaTime = previousGameState.SessionData.DeltaTime;
                 currentGameState.Conditions.samples = previousGameState.Conditions.samples;
@@ -508,7 +508,7 @@ namespace CrewChiefV4.rFactor1
             if (currentGameState.SessionData.IsNewSession)
             {
                 currentGameState.SessionData.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength,
-                    currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.Now);
+                    currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.PositionAndMotionData.CarSpeed, currentGameState.Now);
             }
 
             // --------------------------------
@@ -792,6 +792,7 @@ namespace CrewChiefV4.rFactor1
                 opponent.PreviousBestLapTime = opponentPrevious != null && opponentPrevious.CurrentBestLapTime > 0 && 
                     opponentPrevious.CurrentBestLapTime > opponent.CurrentBestLapTime ? opponentPrevious.CurrentBestLapTime : -1;
                 float previousDistanceRoundTrack = opponentPrevious != null ? opponentPrevious.DistanceRoundTrack : 0;
+                float previousSpeed = opponentPrevious != null ? opponentPrevious.Speed : 0;
 
                 if (previousDistanceRoundTrack > 0)
                 {
@@ -810,7 +811,8 @@ namespace CrewChiefV4.rFactor1
                 }
                 else
                 {
-                    opponent.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, opponent.DistanceRoundTrack, DateTime.UtcNow);
+                    opponent.DeltaTime = new DeltaTime(currentGameState.SessionData.TrackDefinition.trackLength, 
+                        opponent.DistanceRoundTrack, opponent.Speed, DateTime.UtcNow);
                 }
                 opponent.DeltaTime.SetNextDeltaPoint(opponent.DistanceRoundTrack, opponent.CompletedLaps, opponent.Speed, currentGameState.Now, vehicle.inPits != 1);
 
@@ -897,7 +899,7 @@ namespace CrewChiefV4.rFactor1
                 {
                     opponent.trackLandmarksTiming = opponentPrevious.trackLandmarksTiming;
                     String stoppedInLandmark = opponent.trackLandmarksTiming.updateLandmarkTiming(currentGameState.SessionData.TrackDefinition,
-                        currentGameState.SessionData.SessionRunningTime, previousDistanceRoundTrack, opponent.DistanceRoundTrack, opponent.Speed, opponent.DeltaTime.currentDeltaPoint, opponent.CarClass);
+                        currentGameState.SessionData.SessionRunningTime, previousDistanceRoundTrack, opponent.DistanceRoundTrack, opponent.Speed, opponent.CarClass);
                     opponent.stoppedInLandmark = opponent.InPits ? null : stoppedInLandmark;
                 }
                 if (opponent.IsNewLap)
@@ -909,6 +911,12 @@ namespace CrewChiefV4.rFactor1
                 if (!currentGameState.OpponentData.ContainsKey(opponentKey))
                 {
                     currentGameState.OpponentData.Add(opponentKey, opponent);
+                }
+
+                // if the opponent is stopping in the pits, update his pit position
+                if (opponent.InPits && opponent.Speed > 0 && opponent.Speed < 0.1 && previousSpeed > opponent.Speed)
+                {
+                    Strategy.checkIfOpponentSharesPlayerPitBox(opponentKey, opponent.DistanceRoundTrack, opponent.WorldPosition);
                 }
             }
 
@@ -925,7 +933,7 @@ namespace CrewChiefV4.rFactor1
                 currentGameState.SessionData.trackLandmarksTiming = previousGameState.SessionData.trackLandmarksTiming;
                 String stoppedInLandmark = currentGameState.SessionData.trackLandmarksTiming.updateLandmarkTiming(currentGameState.SessionData.TrackDefinition,
                                     currentGameState.SessionData.SessionRunningTime, previousGameState.PositionAndMotionData.DistanceRoundTrack,
-                                    currentGameState.PositionAndMotionData.DistanceRoundTrack, shared.speed, currentGameState.SessionData.DeltaTime.currentDeltaPoint, currentGameState.carClass);
+                                    currentGameState.PositionAndMotionData.DistanceRoundTrack, shared.speed, currentGameState.carClass);
                 currentGameState.SessionData.stoppedInLandmark = currentGameState.PitData.InPitlane ? null : stoppedInLandmark;
                 if (currentGameState.SessionData.IsNewLap)
                 {
@@ -1028,7 +1036,7 @@ namespace CrewChiefV4.rFactor1
 
             // --------------------------------
             // penalties data
-            currentGameState.PenaltiesData.NumPenalties = player.numPenalties;
+            currentGameState.PenaltiesData.NumOutstandingPenalties = player.numPenalties;
 
             if (previousGameState != null)
             {

@@ -131,16 +131,38 @@ namespace CrewChiefV4.Events
             if (loadNamesFromProperty
                 && (currentGameState.SessionData.IsNewSession || (currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.SessionData.JustGoneGreen)))
             {
-                foreach (KeyValuePair<string, OpponentData> entry in currentGameState.OpponentData)
+                foreach (string name in namesSetFromProperty)
                 {
-                    String usableDriverName = DriverNameHelper.getUsableDriverName(entry.Value.DriverRawName);
-                    foreach (string name in namesSetFromProperty)
+                    string fullMatch = null;
+                    string surnameMatch = null;
+                    foreach (KeyValuePair<string, OpponentData> entry in currentGameState.OpponentData)
                     {
-                        if (usableDriverName.Equals(name, StringComparison.InvariantCultureIgnoreCase))
+                        // check for full name match against all the names first
+                        if (entry.Value.DriverRawName.Equals(name, StringComparison.InvariantCultureIgnoreCase))
                         {
-                            watchedOpponentKeys.Add(entry.Key);
+                            fullMatch = entry.Key;
+                            // no need to check any more opponents with a full match
                             break;
                         }
+                        // fall back to matching on surnames only
+                        else if (DriverNameHelper.getUsableDriverName(entry.Value.DriverRawName).Equals(name, StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            surnameMatch = entry.Key;
+                        }
+                    }
+                    if (fullMatch != null)
+                    {
+                        Console.WriteLine("Watching driver " + fullMatch + " (name set in watched opponents property = " + name + ")");
+                        watchedOpponentKeys.Add(fullMatch);
+                    }
+                    else if (surnameMatch != null)
+                    {
+                        Console.WriteLine("Watching driver " + surnameMatch + " (name set in watched opponents property = " + name + ")");
+                        watchedOpponentKeys.Add(surnameMatch);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Watched driver " + name + " doesn't appear in this session");
                     }
                 }
             }
@@ -184,7 +206,7 @@ namespace CrewChiefV4.Events
                                 // get the laptime, decide whether it's worth reporting
                                 if (opponentData.LastLapValid && opponentData.LastLapTime == opponentData.CurrentBestLapTime && opponentData.LastLapTime > 0 && opponentData.OpponentLapData.Count > 2)
                                 {
-                                    if (AudioPlayer.canReadName(opponentData.DriverRawName))
+                                    if (AudioPlayer.canReadName(opponentData.DriverRawName, false))
                                     {
                                         audioPlayer.playMessage(new QueuedMessage("watched opponent laptime", 10,
                                             messageFragments: MessageContents(opponentData, folderHasJustDoneA, TimeSpanWrapper.FromSeconds(opponentData.LastLapTime, Precision.AUTO_LAPTIMES))));
@@ -212,14 +234,14 @@ namespace CrewChiefV4.Events
                                 }
                             }
                             // pitting is handled by the Strategy class                            
-                            else if (isRaceSession && opponentData.isExitingPits())
+                            else if (isRaceSession && opponentData.isOnOutLap() && !opponentData.InPits)
                             {
                                 int alreadyPlayedForLapNumber = -1;
                                 // if we've no previously played pit exit for this opponent, or the last pit exit message was played on an earlier lap, we can play it
                                 if (!pitExitMessagesPlayed.TryGetValue(opponentKey, out alreadyPlayedForLapNumber) || alreadyPlayedForLapNumber < opponentData.CompletedLaps)
                                 {
                                     pitExitMessagesPlayed[opponentKey] = opponentData.CompletedLaps;
-                                    if (AudioPlayer.canReadName(opponentData.DriverRawName))
+                                    if (AudioPlayer.canReadName(opponentData.DriverRawName, false))
                                     {
                                         audioPlayer.playMessage(new QueuedMessage("watched opponent exiting pit", 10,
                                             messageFragments: MessageContents(opponentData, folderIsLeavingThePit)));
@@ -252,7 +274,7 @@ namespace CrewChiefV4.Events
                                 if (!nextPositionUpdateDueTimes.TryGetValue(opponentKey, out nextUpdateDue) || currentGameState.Now > nextUpdateDue)
                                 {
                                     nextPositionUpdateDueTimes[opponentKey] = currentGameState.Now.AddSeconds(40);
-                                    if (AudioPlayer.canReadName(opponentData.DriverRawName))
+                                    if (AudioPlayer.canReadName(opponentData.DriverRawName, false))
                                     {
                                         audioPlayer.playMessage(new QueuedMessage("watched opponent position change", 10,
                                             messageFragments: MessageContents(opponentData, folderIsNowInPosition, opponentData.ClassPosition)));
@@ -406,7 +428,7 @@ namespace CrewChiefV4.Events
             else
             {
                 List<MessageFragment> messageFragments = new List<MessageFragment>();
-                if (AudioPlayer.canReadName(opponentName))
+                if (AudioPlayer.canReadName(opponentName, false))
                 {
                     messageFragments.Add(MessageFragment.Opponent(opponent));
                 }

@@ -21,23 +21,27 @@ namespace CrewChiefV4.NumberProcessing
         {
             //LoadImplmentationFromSource();
             // select the correct implementation for the language pack
-            if ("it" == AudioPlayer.soundPackLanguage)
+            if ("it".Equals(AudioPlayer.soundPackLanguage, StringComparison.InvariantCultureIgnoreCase))
             {
                 if (SoundPackVersionsHelper.currentSoundPackVersion >= 150)
                 {
+                    Console.WriteLine("Using NumberReaderIt2 for soundPackLanguage " + AudioPlayer.soundPackLanguage);
                     numberReader = new NumberReaderIt2();
                 }
                 else
                 {
+                    Console.WriteLine("Using NumberReaderIt for soundPackLanguage " + AudioPlayer.soundPackLanguage);
                     numberReader = new NumberReaderIt();
                 }
             }
-            else if ("pt-br" == AudioPlayer.soundPackLanguage)
+            else if ("pt-br".Equals(AudioPlayer.soundPackLanguage, StringComparison.InvariantCultureIgnoreCase))
             {
+                Console.WriteLine("Using NumberReaderPtBr for soundPackLanguage " + AudioPlayer.soundPackLanguage);
                 numberReader = new NumberReaderPtBr();
             }
             else
             {
+                Console.WriteLine("Using NumberReaderEn for soundPackLanguage " + AudioPlayer.soundPackLanguage);
                 numberReader = new NumberReaderEn();
             }
         }
@@ -88,7 +92,7 @@ namespace CrewChiefV4.NumberProcessing
                 LoadNumberReader(sb.ToString());
                 loadedOverride = true;
             }
-            catch (Exception) {}
+            catch (Exception e) { Log.Exception(e); }
             finally
             {
                 if (file != null)

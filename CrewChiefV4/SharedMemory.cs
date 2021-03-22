@@ -165,6 +165,7 @@ namespace CrewChiefV4.SharedMemory
             offsetNextBuf = AddVarHeader((int)VarType.wstringArray, offsetNextBuf, 10, "phraseVoiceNames", "Phrase voice name", "" , 256);
             offsetNextBuf = AddVarHeader((int)VarType.wstringArray, offsetNextBuf, 10, "phrasePhrases", "phrases", "", 4096);
             offsetNextBuf = AddVarHeader((int)VarType.ccInt, offsetNextBuf, 10, "phrasesVoiceType", "enum PhraseVoiceType { chief = 0, spotter, you }", "");
+            offsetNextBuf = AddVarHeader((int)VarType.ccBool, offsetNextBuf, 1, "phraseIsPlaying", "Is the phrase currently playing");
 
             header.ver = 1;
             header.varHeaderOffset = headerSize;

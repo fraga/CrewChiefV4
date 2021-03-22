@@ -170,7 +170,7 @@ namespace CrewChiefV4
                 if (MessageBox.Show(warningMessage, Configuration.getUIString("save_changes"), MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
                     ControllerConfiguration.saveControllerConfigurationDataFile(controllerConfigurationData);
-                    if (Utilities.RestartApp(new List<string> { "-app_restart" }))
+                    if (Utilities.RestartApp(app_restart:true))
                     {
                         MainWindow.instance.Close(); //to turn off current app
                     }

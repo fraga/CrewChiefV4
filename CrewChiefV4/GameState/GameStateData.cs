@@ -1,5 +1,6 @@
 ﻿using CrewChiefV4.Audio;
 using CrewChiefV4.Events;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -31,7 +32,7 @@ namespace CrewChiefV4.GameState
     {
         // separate enum for compound & weather, and prime / option?
         Hard, Medium, Soft, Super_Soft, Ultra_Soft, Hyper_Soft, Wet, Intermediate, Road, Bias_Ply, Unknown_Race, R3E_2017_SOFT, R3E_2017_MEDIUM, R3E_2017_HARD,
-        R3E_2016_SOFT, R3E_2016_MEDIUM, R3E_2016_HARD, Prime, Option, Alternate, Primary, Ice, Snow, AllTerrain, Uninitialized
+        R3E_2017_F5, R3E_2016_SOFT, R3E_2016_MEDIUM, R3E_2016_HARD, Prime, Option, Alternate, Primary, Ice, Snow, AllTerrain, Uninitialized
     }
 
     public enum BrakeType
@@ -59,7 +60,7 @@ namespace CrewChiefV4.GameState
     public enum FlagEnum
     {
         // note that chequered isn't used at the moment
-        GREEN, YELLOW, DOUBLE_YELLOW, BLUE, WHITE, BLACK, CHEQUERED, UNKNOWN
+        GREEN, YELLOW, DOUBLE_YELLOW, BLUE, WHITE, BLACK, CHEQUERED, UNKNOWN, RED /* red not used yet*/
     }
 
     public enum FullCourseYellowPhase
@@ -100,7 +101,7 @@ namespace CrewChiefV4.GameState
             {
                 if (_sectorFlags == null)
                 {
-                    _sectorFlags = new FlagEnum[] { FlagEnum.GREEN, FlagEnum.GREEN, FlagEnum.GREEN };                    
+                    _sectorFlags = new FlagEnum[] { FlagEnum.GREEN, FlagEnum.GREEN, FlagEnum.GREEN };
                 }
                 return _sectorFlags;
             }
@@ -129,7 +130,7 @@ namespace CrewChiefV4.GameState
         public Boolean stockCarRulesEnabled;
     }
     public class SafetyCarData
-    {        
+    {
         //we need to monitor when the safetycar crosses the line in iRacing as its laps will only switch to 1 for a few frames and then go back to 0.
         //we might want to have more info like steering angle so we might be able to detect when it pulls off track.
         public int Lap = 0;
@@ -366,7 +367,7 @@ namespace CrewChiefV4.GameState
         private float playerClassOpponentBestLapTime = -1;
 
         private Dictionary<ConditionsEnum, int> totalLapsInEachCondition = new Dictionary<ConditionsEnum, int>();
-        
+
         // if requestedConditionsEnum aren't specified we assume 'current conditions' - that is, get the best player
         // laptime set in conditions similar to the current conditions. You can also request a best laptime from
         // some other conditions
@@ -452,7 +453,7 @@ namespace CrewChiefV4.GameState
         // sector2 time from some other conditions
         public float getPlayerClassOpponentBestLapSector2Time(ConditionsEnum requestedConditionsEnum = ConditionsEnum.CURRENT)
         {
-            return getBestTime(playerClassOpponentBestLapSector2Time, playerClassOpponentBestLapSector2TimeByConditions, false, requestedConditionsEnum);            
+            return getBestTime(playerClassOpponentBestLapSector2Time, playerClassOpponentBestLapSector2TimeByConditions, false, requestedConditionsEnum);
         }
 
         // if requestedConditionsEnum aren't specified we assume 'current conditions' - that is, get the best player class
@@ -636,9 +637,9 @@ namespace CrewChiefV4.GameState
                 // 'enough data' means enough recorded laps for any participant in the player's class
                 int totalLapsInTheseConditions;
                 return totalLapsInEachCondition.TryGetValue(requestedConditionsEnum, out totalLapsInTheseConditions) && totalLapsInTheseConditions >= minLapsUnderConditions;
-            }            
+            }
         }
-        
+
         // add a player lap, updating the best lap / sectors for player and player class if necessary
         public void addPlayerLap(float lapTime, float s1, float s2, float s3)
         {
@@ -727,7 +728,7 @@ namespace CrewChiefV4.GameState
                 playerClassBestLapSector2Time = s2;
                 playerClassBestLapSector3Time = s3;
             }
-            if (isPlayer) 
+            if (isPlayer)
             {
                 if (playerBestLapTime == -1 || lapTime < playerBestLapTime)
                 {
@@ -956,6 +957,11 @@ namespace CrewChiefV4.GameState
 
         public Boolean HasLeadChanged;
 
+        // this is the expected finish position based only on ratings, and the number of cars in the player class.
+        // For games which make this data available, it's expected to be updated regularly during Q and P sessions
+        // and to be correct at the end of Q. It's expected to be set once at the start of the race and remain constant during the race.
+        public Tuple<int, int> expectedFinishingPosition = new Tuple<int, int>(-1, -1);
+
         private Dictionary<int, float> _SessionTimesAtEndOfSectors;
         public Dictionary<int, float> SessionTimesAtEndOfSectors {
             get {
@@ -1088,7 +1094,7 @@ namespace CrewChiefV4.GameState
 
         public String PlayerCarNr = "-1";
 
-        // Currently only used in iRacing.
+        // Currently only used in iRacing and R3E
         public int MaxIncidentCount = -1;
 
         public int CurrentIncidentCount ;
@@ -1139,22 +1145,22 @@ namespace CrewChiefV4.GameState
             SessionTimesAtEndOfSectors.Add(2, -1);
             SessionTimesAtEndOfSectors.Add(3, -1);
             // JB: i know this is hiding the underlying issue with the index-out-of-bounds exception that's occasionally thrown
-            // when inserting into this dictionary with the dict[newItem] = newValue syntax, but I can't be arsed to chase this 
+            // when inserting into this dictionary with the dict[newItem] = newValue syntax, but I can't be arsed to chase this
             // particular ghost
             //
             SessionTimesAtEndOfSectors.Add(0, -1);
             SessionTimesAtEndOfSectors.Add(4, -1);
             SessionTimesAtEndOfSectors.Add(5, -1);
-            SessionTimesAtEndOfSectors.Add(6, -1); 
+            SessionTimesAtEndOfSectors.Add(6, -1);
             SessionTimesAtEndOfSectors.Add(7, -1);
             SessionTimesAtEndOfSectors.Add(8, -1);
-            SessionTimesAtEndOfSectors.Add(9, -1); 
+            SessionTimesAtEndOfSectors.Add(9, -1);
             SessionTimesAtEndOfSectors.Add(10, -1);
             SessionTimesAtEndOfSectors.Add(11, -1);
             SessionTimesAtEndOfSectors.Add(12, -1);
         }
 
-        public void restorePlayerTimings(SessionData restoreTo)
+        public void RestorePlayerTimings(SessionData restoreTo)
         {
             restoreTo.PlayerBestSector1Time = PlayerBestSector1Time;
             restoreTo.PlayerBestSector2Time = PlayerBestSector2Time;
@@ -1231,7 +1237,7 @@ namespace CrewChiefV4.GameState
         }
 
         public void playerCompleteLapWithProvidedLapTime(int overallPosition, float gameTimeAtLapEnd, float providedLapTime,
-            Boolean lapIsValid /*IMPORTANT: this is 'current lap is valid'*/, Boolean inPitLane, Boolean isRaining, float trackTemp, 
+            Boolean lapIsValid /*IMPORTANT: this is 'current lap is valid'*/, Boolean inPitLane, Boolean isRaining, float trackTemp,
             float airTemp, Boolean sessionLengthIsTime, float sessionTimeRemaining, int numberOfSectors, TimingData timingData)
         {
             if (PlayerLapData.Count == 0)
@@ -1241,7 +1247,7 @@ namespace CrewChiefV4.GameState
             CurrentLapIsValid = true;
             formattedPlayerLapTimes.Add(TimeSpan.FromSeconds(providedLapTime).ToString(@"mm\:ss\.fff"));
             PositionAtStartOfCurrentLap = overallPosition;
-            
+
             LapData lapData = PlayerLapData[PlayerLapData.Count - 1];
 
             float sessionTimeAtEndOfLastLap = -1;
@@ -1284,7 +1290,7 @@ namespace CrewChiefV4.GameState
                 {
                     PlayerClassSessionBestLapTime = LapTimePrevious;
                 }
-            }                
+            }
         }
 
 
@@ -1364,7 +1370,7 @@ namespace CrewChiefV4.GameState
                     {
                         PlayerBestSector3Time = thisSectorTime;
                     }
-                }                    
+                }
             }
             else
             {
@@ -1389,7 +1395,7 @@ namespace CrewChiefV4.GameState
             {
                 lapData.IsValid = false;
             }
-            
+
         }
 
         public float[] getPlayerTimeAndSectorsForBestLap(bool ignoreLast)
@@ -1448,13 +1454,13 @@ namespace CrewChiefV4.GameState
 
         // other stuff: acceleration, orientation, ...
 
-        // not set for all games. Pitch, roll, yaw (all in radians. Not sure what 0 means here - 
+        // not set for all games. Pitch, roll, yaw (all in radians. Not sure what 0 means here -
         // presumably it's relative to the world rather than the track orientation under the car. Is yaw relative to the track spline or 'north'?).
         public Rotation Orientation = new Rotation();
 
         public Acceleration AccelerationVector = new Acceleration();
     }
-    
+
     public class OpponentData
     {
         // Sometimes the name is corrupted with previous session's data. Worst case is that the name is entirely readable
@@ -1466,7 +1472,7 @@ namespace CrewChiefV4.GameState
 
         // the name read directly from the game data - might be a 'handle' with all kinds of random crap in it
         public String DriverRawName;
-        
+
         //iRacing costumer ID used to check for driver changes.
         public int CostId = -1;
 
@@ -1659,7 +1665,7 @@ namespace CrewChiefV4.GameState
 
         public override string ToString()
         {
-            return DriverRawName + " " + CarClass.getClassIdentifier() + " class position " + ClassPosition + " overall position " 
+            return DriverRawName + " " + CarClass.getClassIdentifier() + " class position " + ClassPosition + " overall position "
                 + OverallPosition + " lapsCompleted " + CompletedLaps + " lapDist " + DistanceRoundTrack;
         }
 
@@ -1728,10 +1734,10 @@ namespace CrewChiefV4.GameState
         }
 
         /// <summary>
-        /// be careful using this - it should actually be called 'isOnOutLap'
+        /// This returns true as soon as the car passes the start line after entering the pit.
         /// </summary>
         /// <returns></returns>
-        public Boolean isExitingPits()
+        public Boolean isOnOutLap()
         {
             LapData currentLap = getCurrentLapData();
             return currentLap != null && currentLap.OutLap;
@@ -1812,7 +1818,7 @@ namespace CrewChiefV4.GameState
                             if (isPlayerCarClass)
                             {
                                 timingData.addOpponentPlayerClassLap(lapData.LapTime, lapData.SectorTimes[0], lapData.SectorTimes[1], lapData.SectorTimes[2]);
-                            }              
+                            }
                         }
                     }
                     else
@@ -1899,7 +1905,7 @@ namespace CrewChiefV4.GameState
             {
                 InvalidateCurrentLap();
             }
-            CompleteLapWithProvidedLapTime(position, gameTimeAtLapEnd, providedLapTime, InPits, isRaining, trackTemp, airTemp, sessionLengthIsTime, 
+            CompleteLapWithProvidedLapTime(position, gameTimeAtLapEnd, providedLapTime, InPits, isRaining, trackTemp, airTemp, sessionLengthIsTime,
                 sessionTimeRemaining, numberOfSectors, timingData, isPlayerCarClass);
         }
 
@@ -1908,9 +1914,9 @@ namespace CrewChiefV4.GameState
             TimingData timingData, Boolean isPlayerCarClass)
         {
             if (OpponentLapData.Count > 0)
-            {                
-                LapData lapData = OpponentLapData[OpponentLapData.Count - 1]; 
-                if (OpponentLapData.Count == 1 || !lapData.hasMissingSectors) 
+            {
+                LapData lapData = OpponentLapData[OpponentLapData.Count - 1];
+                if (OpponentLapData.Count == 1 || !lapData.hasMissingSectors)
                 {
                     AddCumulativeSectorData(numberOfSectors, position, providedLapTime, gameTimeAtLapEnd, lapData.IsValid, isRaining, trackTemp, airTemp);
                     lapData.LapTime = providedLapTime;
@@ -1929,9 +1935,9 @@ namespace CrewChiefV4.GameState
                         }
                     }
                     LastLapValid = lapData.IsValid;
-                } 
+                }
                 else
-                { 
+                {
                     OpponentLapData.Remove(lapData);
                 }
             }
@@ -1984,7 +1990,7 @@ namespace CrewChiefV4.GameState
                 isProbablyLastLap = true;
             }
         }
-        public void AddCumulativeSectorData(int sectorNumberJustCompleted, int position, float cumulativeSectorTime, float gameTimeAtSectorEnd, Boolean lapIsValid, 
+        public void AddCumulativeSectorData(int sectorNumberJustCompleted, int position, float cumulativeSectorTime, float gameTimeAtSectorEnd, Boolean lapIsValid,
             Boolean isRaining, float trackTemp, float airTemp)
         {
             if (OpponentLapData.Count > 0)
@@ -2015,7 +2021,7 @@ namespace CrewChiefV4.GameState
                     thisSectorTime = -1;
                     lapData.hasMissingSectors = true;
                 }
-                
+
                 if (lapIsValid && thisSectorTime > 0)
                 {
                     if (sectorNumberJustCompleted == 1 && (bestSector1Time == -1 || thisSectorTime < bestSector1Time))
@@ -2036,7 +2042,7 @@ namespace CrewChiefV4.GameState
                 {
                     sectorNumberJustCompleted = 3;
                 }
-                
+
                 lapData.SectorTimes[sectorNumberJustCompleted - 1] = thisSectorTime;
                 lapData.SectorPositions[sectorNumberJustCompleted - 1] = position;
                 lapData.GameTimeAtSectorEnd[sectorNumberJustCompleted - 1] = gameTimeAtSectorEnd;
@@ -2056,7 +2062,7 @@ namespace CrewChiefV4.GameState
                 LapData lapData = OpponentLapData[OpponentLapData.Count - 1];
                 lapData.SectorTimes[sectorNumberJustCompleted - 1] = thisSectorTime;
 
-                // fragile code here. If the lap is invalid PCars network mode sends -1 (-123 actually but never mind). If the data is just missing (we had no sectorX time info) 
+                // fragile code here. If the lap is invalid PCars network mode sends -1 (-123 actually but never mind). If the data is just missing (we had no sectorX time info)
                 // then we'll have 0. So looking for sectorTime[x] == 0 is different from looking for -1
                 if ((sectorNumberJustCompleted == 2 && lapData.SectorTimes[0] == 0) || (sectorNumberJustCompleted == 3 && lapData.SectorTimes[1] == 0))
                 {
@@ -2112,7 +2118,7 @@ namespace CrewChiefV4.GameState
             int previousOpponentCompletedLapsWhenHasNewLapDataWasLastTrue, float previousOpponentGameTimeWhenLastCrossedStartFinishLine)
         {
             // here we need to make sure that CompletedLaps is bigger then CompletedLapsWhenHasNewLapDataWasLastTrue
-            // else the user will have jumped to pits 
+            // else the user will have jumped to pits
             if ((hasCrossedSFLine && completedLaps > CompletedLapsWhenHasNewLapDataWasLastTrue) || (isRace && hasCrossedSFLine))
             {
                 // reset the timer and start waiting for an updated laptime...
@@ -2226,23 +2232,23 @@ namespace CrewChiefV4.GameState
                 }
             }
         }
-        
-        
+
+
         // the timing difference will have errors in it, depending on how accurate the vehicle speed data is
 
         // don't count time differences shorter than these - no point in being told to defend into a corner when
         // the other guys is only 0.01 seconds faster through that corner
         // These are used when we're checking time / speed difference at common overtaking spots
         private static float minSignificantRelativeTimeDiffOvertakingSpot = 0.07f;    // 7% - is this a good value?
-        private static float minSignificantRelativeStartSpeedDiffOvertakingSpot = 0.1f;   // 10% - is this a good value? 
+        private static float minSignificantRelativeStartSpeedDiffOvertakingSpot = 0.1f;   // 10% - is this a good value?
 
         // these values are used when we're responding to a voice command, so are more generous
         private static float minSignificantRelativeTimeDiffOvertakingSpotForVoiceCommand = 0f;    // as long as we're not slower we'll report
         private static float minSignificantRelativeStartSpeedDiffOvertakingSpotForVoiceCommand = 0f;   // as long as we're not slower we'll report
 
-        // these are used when we're checking time / speed difference at places where overtaking is rare, so need to be bigger 
+        // these are used when we're checking time / speed difference at places where overtaking is rare, so need to be bigger
         private static float minSignificantRelativeTimeDiff = 0.10f;    // 10% - is this a good value?
-        private static float minSignificantRelativeStartSpeedDiff = 0.13f;   // 13% - is this a good value? 
+        private static float minSignificantRelativeStartSpeedDiff = 0.13f;   // 13% - is this a good value?
 
         // these values are used when we're responding to a voice command, so are more generous
         private static float minSignificantRelativeTimeDiffForVoiceCommand = 0.03f;    // 3% - is this a good value?
@@ -2277,7 +2283,7 @@ namespace CrewChiefV4.GameState
                 tltd.addTimeAndSpeeds(time, startSpeed, endSpeed);
             }
         }
-        
+
         // returns [timeInSection, entrySpeed, exitSpeed] for the quickest time through that section
         public float[] getBestTimeAndSpeeds(String landmarkName, int lapsToCheck, int minTimesRequired)
         {
@@ -2358,7 +2364,7 @@ namespace CrewChiefV4.GameState
 
                     float[] myBestTimeAndSpeeds = getBestTimeAndSpeeds(landmarkName, lapsToCheck, minTimesRequired);
                     float[] otherBestTimeAndSpeeds = otherVehicleTrackLandMarksTiming.getBestTimeAndSpeeds(landmarkName, lapsToCheck, minTimesRequired);
-                    // for times, other - mine if we want sections where I'm faster (more positive => better), 
+                    // for times, other - mine if we want sections where I'm faster (more positive => better),
                     // or mine - other if we want sections where he's faster (more positive => worse)
                     if (myBestTimeAndSpeeds != null && otherBestTimeAndSpeeds != null)
                     {
@@ -2394,13 +2400,17 @@ namespace CrewChiefV4.GameState
         // called for every opponent and the player for each tick
         //
         // returns null or a landmark name this car is stopped in
-        public String updateLandmarkTiming(TrackDefinition trackDefinition, float gameTime, float previousDistanceRoundTrack, float currentDistanceRoundTrack, float speed, float currentDeltaPoint, CarData.CarClass carClass)
+        public String updateLandmarkTiming(TrackDefinition trackDefinition, float gameTime, float previousDistanceRoundTrack, float currentDistanceRoundTrack, float speed, CarData.CarClass carClass)
         {
-            if (trackDefinition == null || trackDefinition.trackLandmarks == null || trackDefinition.trackLandmarks.Count == 0 ||
-                gameTime < 30 ||
-                (CrewChief.isPCars() && (currentDistanceRoundTrack == 0 || speed == 0)))
+            if (trackDefinition == null || trackDefinition.trackLandmarks == null || currentDistanceRoundTrack <= 0 || speed <= 0 || gameTime < 30
+                || previousDistanceRoundTrack == currentDistanceRoundTrack || trackDefinition.trackLandmarks.Count == 0)
             {
-                // don't collect data if the session has been running < 30 seconds or we're PCars and the distanceRoundTrack or speed is exactly zero
+                // don't collect data if the session has been running < 30 seconds, the distanceRoundTrack values haven't changed at all,
+                // or the distanceRoundTrack or speed are exactly zero or less (generally this means we have no data for this participant).
+                // We want to ignore any cases where the data coming from the game may be frozen or incomplete
+
+                // for iRacing we sometimes don't get a position update or sometimes don't get a speed update. This doesn't mean the data
+                // are broken, it's just that this tick's data are incomplete
                 return null;
             }
             // yuk...
@@ -2431,7 +2441,6 @@ namespace CrewChiefV4.GameState
             }
             else
             {
-
                 // looking for landmark end only
                 foreach (TrackLandmark trackLandmark in trackDefinition.trackLandmarks)
                 {
@@ -2441,7 +2450,7 @@ namespace CrewChiefV4.GameState
                         {
                             // we're in the landmark zone somewhere
                             // if this car is very slow, set the stopped car timer
-                            float avgSpeedCurrentDeltaPoint = CalculateAvgSpeedForCurentDelta(currentDeltaPoint, carClass);
+                            float avgSpeedCurrentDeltaPoint = CalculateAvgSpeedForCurentDelta(currentDistanceRoundTrack, carClass);
                             if (((avgSpeedCurrentDeltaPoint != -1f && ((speed / avgSpeedCurrentDeltaPoint) * 100f) <= percentageConsideredGoingSlow) ||
                                 (speed < 5 && avgSpeedCurrentDeltaPoint == -1f)) && landMarkStoppedDelayTime == DateTime.MaxValue)
                             {
@@ -2450,7 +2459,7 @@ namespace CrewChiefV4.GameState
                                     CrewChief.gameDefinition.gameEnum == GameEnum.RF1 ||
                                     CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM ||
                                     CrewChief.gameDefinition.gameEnum == GameEnum.IRACING ?
-                                    CrewChief.currentGameState.Now + TimeSpan.FromMilliseconds(200) : CrewChief.currentGameState.Now + TimeSpan.FromMilliseconds(2000);                               
+                                    CrewChief.currentGameState.Now + TimeSpan.FromMilliseconds(200) : CrewChief.currentGameState.Now + TimeSpan.FromMilliseconds(2000);
                             }
                             else if ((speed > 5 && avgSpeedCurrentDeltaPoint == -1f) || (avgSpeedCurrentDeltaPoint != -1 && ((speed / avgSpeedCurrentDeltaPoint) * 100f) > percentageConsideredGoingSlow))
                             {
@@ -2498,8 +2507,7 @@ namespace CrewChiefV4.GameState
             // now some landmark proximity stuff
             if (landmarkNameStart == null)
             {
-                // again, we're waiting to enter a landmark zone - perhaps we've just left a zone so still check for stopped cars       
-
+                // again, we're waiting to enter a landmark zone - perhaps we've just left a zone so still check for stopped cars
                 foreach (TrackLandmark trackLandmark in trackDefinition.trackLandmarks)
                 {
                     if (currentDistanceRoundTrack > Math.Max(0, trackLandmark.distanceRoundLapStart - 70) &&
@@ -2512,7 +2520,7 @@ namespace CrewChiefV4.GameState
                         nearLandmarkName = trackLandmark.landmarkName;
                         nearLandmark = true;
                         // if this car is very slow, set the stopped car timer
-                        float avgSpeedCurrentDeltaPoint = CalculateAvgSpeedForCurentDelta(currentDeltaPoint, carClass);
+                        float avgSpeedCurrentDeltaPoint = CalculateAvgSpeedForCurentDelta(currentDistanceRoundTrack, carClass);
 
                         if (((avgSpeedCurrentDeltaPoint != -1f && ((speed / avgSpeedCurrentDeltaPoint) * 100f) <= percentageConsideredGoingSlow) ||
                             (speed < 5 && avgSpeedCurrentDeltaPoint == -1f)) && landMarkStoppedDelayTime == DateTime.MaxValue)
@@ -2538,7 +2546,6 @@ namespace CrewChiefV4.GameState
                     nearLandmarkName = null;
                 }
             }
-
             if (landMarkStoppedDelayTime != DateTime.MaxValue && CrewChief.currentGameState.Now >= landMarkStoppedDelayTime)
             {
                 return landmarkNameStart == null ? nearLandmarkName : landmarkNameStart;
@@ -2548,7 +2555,8 @@ namespace CrewChiefV4.GameState
                 return null;
             }
         }
-        public float CalculateAvgSpeedForCurentDelta(float currentDeltaPoint, CarData.CarClass carClass)
+
+        public float CalculateAvgSpeedForCurentDelta(float lapDistance, CarData.CarClass carClass)
         {
             int opponentCount = 0;
             float avgSpeedCurrentDeltaPoint = 0;
@@ -2557,7 +2565,7 @@ namespace CrewChiefV4.GameState
             {
                 if (opponent.Value != null && CarData.IsCarClassEqual(opponent.Value.CarClass, carClass))
                 {
-                    Tuple<int, float> avgSpeedAndSampleCount = opponent.Value.DeltaTime.GetAvarageSpeedCurrentDeltaPoint(currentDeltaPoint);
+                    Tuple<int, float> avgSpeedAndSampleCount = opponent.Value.DeltaTime.GetAverageSpeedCurrentDeltaPoint(lapDistance);
                     if (avgSpeedAndSampleCount.Item1 > 0)
                     {
                         sampleCount += avgSpeedAndSampleCount.Item1;
@@ -2750,8 +2758,8 @@ namespace CrewChiefV4.GameState
 
         public TyreType MandatoryTyreChangeRequiredTyreType = TyreType.Unknown_Race;
 
-        // might be a number of laps or a number of minutes. These are (currently) for DTM 2014. If we start on Options, 
-        // MaxPermittedDistanceOnCurrentTyre will be half race distance (rounded down), if we start on Primes 
+        // might be a number of laps or a number of minutes. These are (currently) for DTM 2014. If we start on Options,
+        // MaxPermittedDistanceOnCurrentTyre will be half race distance (rounded down), if we start on Primes
         // MinPermittedDistanceOnCurrentTyre will be half race distance (rounded up)
         public int MaxPermittedDistanceOnCurrentTyre = -1;
         public int MinPermittedDistanceOnCurrentTyre = -1;
@@ -2789,6 +2797,10 @@ namespace CrewChiefV4.GameState
 
         public float DriverStintTotalSecondsRemaining;  // total time remaining that this driver is allowed to drive in the session
 
+        public float MandatoryPitMinDurationTotal = -1.0f;
+
+        public float MandatoryPitMinDurationLeft = -1.0f;
+
         // Note that callers have to also check if PitSpeedLimit != -1.0f, which means no data.
         public bool pitlaneHasSpeedLimit()
         {
@@ -2802,15 +2814,20 @@ namespace CrewChiefV4.GameState
 
         public Boolean HasStopAndGo;
 
-        // from R3E data - what is this??
+        // used for iRacing where we don't know the pit action required to serve the penalty
         public Boolean HasPitStop;
+
+        // iRacing only
+        public Boolean HasMeatballFlag;
 
         public Boolean HasTimeDeduction;
 
         public Boolean HasSlowDown;
 
-        // Number of penalties pending for the player
-        public int NumPenalties;
+        // Number of outstanding (unserved) penalties pending for the player
+        // For some games (e.g. ACC) this will either be 0 (no penalty to serve) or 1 (1 or more to serve).
+        // It is *not* a cumulative number of penalties acquired (and potentially served) during a session
+        public int NumOutstandingPenalties;
 
         // Total number of cut track warnings
         public int CutTrackWarnings;
@@ -2822,9 +2839,10 @@ namespace CrewChiefV4.GameState
         // Below fields are one tick triggers.
         public enum DetailedPenaltyType
         {
-           NONE,
-           STOP_AND_GO,
-           DRIVE_THROUGH
+            NONE,
+            STOP_AND_GO,
+            DRIVE_THROUGH,
+            TEN_SECONDS
         }
         public DetailedPenaltyType PenaltyType = DetailedPenaltyType.NONE;
 
@@ -2907,10 +2925,19 @@ namespace CrewChiefV4.GameState
         public float RearLeftPercentWear;
         public float RearRightPercentWear;
 
+        // note these are expected to be in kPa
         public Single FrontLeftPressure;
         public Single FrontRightPressure;
         public Single RearLeftPressure;
         public Single RearRightPressure;
+
+        // specific fields for manuipulating tyre pressure in ACC, all in PSI (the game's standard internal unit)
+        public Single ACCFrontLeftPressureMFD;
+        public Single ACCFrontRightPressureMFD;
+        public Single ACCRearLeftPressureMFD;
+        public Single ACCRearRightPressureMFD;
+
+        public int selectedSet = -1;
 
         private CornerData _TyreTempStatus;
         public CornerData TyreTempStatus
@@ -2980,6 +3007,11 @@ namespace CrewChiefV4.GameState
 
     public class Conditions
     {
+        // set by ACC only:
+        public ConditionsMonitor.RainLevel rainLevelNow = ConditionsMonitor.RainLevel.NONE;
+        public ConditionsMonitor.RainLevel rainLevelIn10Mins = ConditionsMonitor.RainLevel.NONE;
+        public ConditionsMonitor.RainLevel rainLevelIn30Mins = ConditionsMonitor.RainLevel.NONE;
+
         private List<ConditionsSample> _samples;
         public List<ConditionsSample> samples
         {
@@ -3073,120 +3105,222 @@ namespace CrewChiefV4.GameState
         public Boolean DrsAvailable;
         public Boolean DrsEngaged;
         public Single DrsRange;
+        public Single DrsActivationsRemaining = -1; // -1 means no limit
     }
 
     public class DeltaTime
     {
-        public Dictionary<float, DateTime> deltaPoints = new Dictionary<float, DateTime>();
-        public Dictionary<float, float[]> avgSpeedTrapPoints = new Dictionary<float, float[]>();
-        public Dictionary<float, float> avgSpeedForEachDeltapointSection = new Dictionary<float, float>();
-
-        // this array holds the keyset of the above dictionaries:
-        private float[] deltaPointsKeysArray = new float[] { };
-
-        public float currentDeltaPoint = -1;
-        public float nextDeltaPoint = -1;
+        public DateTime[] deltaPoints;
+        public float[] speeds;
+        public List<float>[] avgSpeedTrapPoints;
+        public float[] avgSpeedForEachDeltapointSection;
+        
+        public int currentDeltaPointIndex = -1;
         public float distanceRoundTrackOnCurrentLap = -1;
         public float totalDistanceTravelled = -1;
         public int lapsCompleted = -1;
         public float trackLength = 0;
         public int goingSlowCount = 0;
+        public float spacing = 20;
+
+        public int indexOfLastPointSet = -1;
+
+        private bool initialised = false;
 
         public DeltaTime()
         {
-            this.currentDeltaPoint = -1;
-            this.nextDeltaPoint = -1;
+            this.currentDeltaPointIndex = -1;
             this.distanceRoundTrackOnCurrentLap = -1;
             this.totalDistanceTravelled = -1;
             this.lapsCompleted = -1;
             this.trackLength = 0;
         }
-        public DeltaTime(float trackLength, float distanceRoundTrackOnCurrentLap, DateTime now, float spacing = 20f)
+
+        public DeltaTime(float trackLength, float distanceRoundTrackOnCurrentLap, float speed, DateTime now, float spacing = 20f)
         {
-            this.distanceRoundTrackOnCurrentLap = distanceRoundTrackOnCurrentLap;
-            this.totalDistanceTravelled = distanceRoundTrackOnCurrentLap;
-            this.trackLength = trackLength;
-            float totalSpacing = 0;
-            while (totalSpacing < trackLength)
+            if (trackLength >= spacing) // only initialise if we have at least 1 deltapoint
             {
-                //first one at s/f line
-                if (totalSpacing == 0)
+                this.distanceRoundTrackOnCurrentLap = distanceRoundTrackOnCurrentLap;
+                this.totalDistanceTravelled = distanceRoundTrackOnCurrentLap;
+                this.trackLength = trackLength;
+                this.spacing = spacing;
+                float totalSpacing = 0;
+                List<DateTime> deltaPointsList = new List<DateTime>();
+                List<float> speedsList = new List<float>();
+                List<List<float>> avgSpeedTrapPointsList = new List<List<float>>();
+                List<float> avgSpeedForEachDeltapointSectionList = new List<float>();
+                bool foundCurrentDeltaPoint = false;
+                int index = 0;
+                while (totalSpacing < trackLength)
                 {
-                    deltaPoints.Add(totalSpacing, now);
-                    avgSpeedTrapPoints.Add(totalSpacing, new float[5] { -1, -1, -1, -1, -1 });
-                }
-                totalSpacing += spacing;
-                Boolean addedDeltaPoint = false;
-                if (totalSpacing < trackLength - spacing)
-                {
-                    deltaPoints.Add(totalSpacing, now);
-                    avgSpeedTrapPoints.Add(totalSpacing, new float[5] { -1, -1, -1, -1, -1 });
-                    addedDeltaPoint = true;
-                }
-                if (distanceRoundTrackOnCurrentLap >= totalSpacing)
-                {
-                    if (addedDeltaPoint)
+                    deltaPointsList.Add(now);
+                    speedsList.Add(speed);
+                    avgSpeedTrapPointsList.Add(new List<float>());
+                    avgSpeedForEachDeltapointSectionList.Add(0);
+                    totalSpacing += spacing;
+                    if (!foundCurrentDeltaPoint)
                     {
-                        currentDeltaPoint = totalSpacing;
+                        currentDeltaPointIndex = index;
+                        if (distanceRoundTrackOnCurrentLap >= totalSpacing)
+                        {
+                            foundCurrentDeltaPoint = true;
+                        }
                     }
+                    index++;
+                }
+                this.deltaPoints = deltaPointsList.ToArray();
+                this.speeds = speedsList.ToArray();
+                this.avgSpeedTrapPoints = avgSpeedTrapPointsList.ToArray();
+                this.avgSpeedForEachDeltapointSection = avgSpeedForEachDeltapointSectionList.ToArray();
+                this.initialised = true;
+            }
+        }
+
+        private int getIndexFromLapDistance(float lapDistance)
+        {
+            int index = (int) (lapDistance / this.spacing);
+            if (index < 0)
+            {
+                return 0;
+            }
+            if (index >= this.deltaPoints.Length)
+            {
+                return this.deltaPoints.Length - 1;
+            }
+            return index;
+        }
+
+        // interpolate missing DeltaPoint timing data assuming a constant speed between the last know DeltaPoint and the current one
+        private void interpolateMissingData(int startIndex, int endIndex, DateTime now)
+        {
+            DateTime timeAtLastRecordedDataPoint = deltaPoints[startIndex];
+            bool wrap = startIndex > endIndex;  // the missing block might include the zero point
+            int numberOfPointsToInterpolate;
+            if (wrap)
+            {
+                numberOfPointsToInterpolate = deltaPoints.Length - (startIndex - endIndex);
+            }
+            else
+            {
+                numberOfPointsToInterpolate = endIndex - startIndex;
+            }
+            float secondsToAdd = (float)(now - timeAtLastRecordedDataPoint).TotalSeconds / (float)numberOfPointsToInterpolate;
+            float n = 0;
+            // set the missing data from start index +1 (the first missing point). Stop before we reach endIndex (the point we're actually setting)
+            if (wrap)
+            {
+                for (; startIndex < deltaPoints.Length; startIndex++)
+                {
+                    n++;
+                    deltaPoints[startIndex] = timeAtLastRecordedDataPoint.AddSeconds(secondsToAdd * n);
+                }
+                for (int i=0; i < endIndex; i++)
+                {
+                    n++;
+                    deltaPoints[i] = timeAtLastRecordedDataPoint.AddSeconds(secondsToAdd * n);
                 }
             }
-            // extract the keyset to a float array so we can iterate it much more efficiently - the keyset doesn't
-            // change after the dictionary has been constructed
-            deltaPointsKeysArray = deltaPoints.Keys.ToArray();
+            else
+            {
+                for (; startIndex < endIndex; startIndex++)
+                {
+                    n++;
+                    deltaPoints[startIndex] = timeAtLastRecordedDataPoint.AddSeconds(secondsToAdd * n);
+                }
+            }
         }
+
         public void SetNextDeltaPoint(float distanceRoundTrackOnCurrentLap, int lapsCompleted, float speed, DateTime now, bool collectAvgSpeed = false, int percentageForGoingSlow = 80)
         {
+            if (!this.initialised || distanceRoundTrackOnCurrentLap <= 0)
+            {
+                return;
+            }
             this.distanceRoundTrackOnCurrentLap = distanceRoundTrackOnCurrentLap;
             this.lapsCompleted = lapsCompleted;
             this.totalDistanceTravelled = (lapsCompleted * this.trackLength) + distanceRoundTrackOnCurrentLap;
+            
+            // if we've reached the next deltapoint we need to update its time (obviously).
+            // if we're going < 5m/s we need to retrospectively adjust the time for the last deltapoint
+            int deltaPointsIndex = getIndexFromLapDistance(distanceRoundTrackOnCurrentLap);
 
-            float deltaPoint = 0;
-            foreach (float key in deltaPointsKeysArray)
+            // if we've reached a new point, check if there are any missing and interpolate and add the average speed data
+            if (deltaPointsIndex != this.currentDeltaPointIndex)
             {
-                if (key >= distanceRoundTrackOnCurrentLap)
+                // adjust the 'now' time based on our speed and the distance between our exact position and 
+                // the deltaPoint position we're about to set
+                float lapDistanceError = distanceRoundTrackOnCurrentLap - (deltaPointsIndex * this.spacing);
+                // get a speed - use average of this speed and the last speed we set if possible
+                float averageSpeedBetweenPoints = speed;
+                if (this.indexOfLastPointSet != -1)
                 {
-                    deltaPoint = key;
-                    break;
-                }
-            }
-            this.nextDeltaPoint = deltaPoint;
-
-            if (currentDeltaPoint != nextDeltaPoint || speed < 5)
-            {
-                deltaPoints[nextDeltaPoint] = now;
-                if (collectAvgSpeed && currentDeltaPoint != nextDeltaPoint)
-                {
-                    float [] points = null;
-                    if (avgSpeedTrapPoints.TryGetValue(nextDeltaPoint, out points))
+                    float lastSpeed = this.speeds[this.indexOfLastPointSet];
+                    if (lastSpeed > 0)
                     {
-                        if (points.Average() == -1f)
-                        {
-                            points[0] = speed;
-                        }
-                        // only add avgspeed if its bigger or  xx % of current collected average else car is going 'slow'
-                        // we only collect 5 samples for each speedTrap
-                        else if (((speed / points.Average()) * 100) >= percentageForGoingSlow)
-                        {
-                            int index = points.IndexOfMin();
-                            points[index] = speed;
-                        }
-                        float averageSpeedCurrentDelta = 0;
-                        int count = 0;
-                        foreach(var deltaSpeed in points)
-                        {
-                            // we dont want elements that have not yet been set with propper values
-                            if (deltaSpeed != -1f)
-                            {
-                                averageSpeedCurrentDelta += deltaSpeed;
-                                count++;
-                            }                            
-                        }                        
-                        avgSpeedForEachDeltapointSection[nextDeltaPoint] = averageSpeedCurrentDelta / count;
+                        averageSpeedBetweenPoints = Math.Abs((speed + this.speeds[this.indexOfLastPointSet]) / 2f);
                     }
                 }
-                currentDeltaPoint = nextDeltaPoint;
+                // only adjust if we have sensible speed data
+                float secondsSinceWePassedDeltaPoint = averageSpeedBetweenPoints < 0.5 ? 0 : lapDistanceError / averageSpeedBetweenPoints;
+                now = now.AddSeconds(-1 * secondsSinceWePassedDeltaPoint);
+
+                // check if there's any missing data - if the key index we just found is more than 1 greater than the previous key
+                // index we have data for, there's at least 1 missing time entry in the deltaPoints dictionary
+                if (deltaPointsIndex != this.indexOfLastPointSet && this.indexOfLastPointSet != -1)
+                {
+                    int missingDeltaPoints;
+                    if (deltaPointsIndex > this.indexOfLastPointSet)
+                    {
+                        missingDeltaPoints = deltaPointsIndex - this.indexOfLastPointSet;
+                    }
+                    else if (deltaPointsIndex + 10 < this.indexOfLastPointSet) // we're interpolating over the start line, but we need to exclude cases where a car is reversing
+                                                                               // or lag means the lapDistance jumps back. So only allow the wrap stuff to trigger if the change is
+                                                                               // 10 or more points (200m)
+                    {
+                        missingDeltaPoints = this.deltaPoints.Length - (this.indexOfLastPointSet - deltaPointsIndex);
+                    }
+                    else
+                    {
+                        missingDeltaPoints = 0;
+                    }
+                    // don't try and interpolate more than half a lap
+                    if (missingDeltaPoints > 1 && missingDeltaPoints < this.deltaPoints.Length / 2)
+                    {
+                        interpolateMissingData(this.indexOfLastPointSet, deltaPointsIndex, now);
+                    }
+                }
+                this.indexOfLastPointSet = deltaPointsIndex;
+
+                // if we've reached a new deltapoint, add the average speed data
+                if (collectAvgSpeed)
+                {
+                    List<float> points = this.avgSpeedTrapPoints[deltaPointsIndex];
+                    // only add avgspeed if its bigger or  xx % of current collected average else car is going 'slow'
+                    // we only collect 5 samples for each speedTrap
+                    if (points.Count < 5)
+                    {
+                        points.Add(speed);
+                        this.avgSpeedForEachDeltapointSection[deltaPointsIndex] = speed;
+                    }
+                    else if (((speed / points.Average()) * 100) >= percentageForGoingSlow)
+                    {
+                        int index = points.IndexOfMin();
+                        points[index] = speed;
+                        this.avgSpeedForEachDeltapointSection[deltaPointsIndex] = points.Average();
+                    }
+                }
             }
+
+            // update the deltapoint's time if it's a new deltapoint or we're going slow - for cars that are (nearly) stopped we
+            // keep moving the deltapoint time forward for the last point they passed to force gaps to grow / shrink even though
+            // they won't pass another deltapoint for a while
+            // sometimes the game sends speed = 0, don't update the deltapoint time in this case
+            if (deltaPointsIndex != this.currentDeltaPointIndex || (speed < 5 && speed > 0))
+            {
+                this.deltaPoints[deltaPointsIndex] = now;
+                this.speeds[deltaPointsIndex] = speed;
+            }
+            this.currentDeltaPointIndex = deltaPointsIndex;
         }
 
         // get the delta to otherCar in whole laps and seconds.
@@ -3194,32 +3328,29 @@ namespace CrewChiefV4.GameState
         {
             TimeSpan splitTime = new TimeSpan(0);
             int lapDifference = 0;
-            if (otherCarDelta.deltaPoints.Count > 0 && deltaPoints.Count > 0 && currentDeltaPoint != -1 && otherCarDelta.currentDeltaPoint != -1)
+            if (initialised && otherCarDelta != null && otherCarDelta.deltaPoints != null && this.deltaPoints != null
+                && otherCarDelta.deltaPoints.Length > 0 && this.deltaPoints.Length > 0 && this.currentDeltaPointIndex != -1 && otherCarDelta.currentDeltaPointIndex != -1)
             {
                 lapDifference = GetSignedLapDifference(otherCarDelta);
 
                 DateTime otherCarTime;
                 DateTime thisCarTime;
-                if (totalDistanceTravelled < otherCarDelta.totalDistanceTravelled)
+                if (this.totalDistanceTravelled < otherCarDelta.totalDistanceTravelled && otherCarDelta.deltaPoints.Length > this.currentDeltaPointIndex)
                 {
                     // I'm behind otherCar, so we want to know time between otherCar reaching the last deltaPoint I've just hit, and me reaching it.
                     // Because otherCar reached it further in the past than me, this will be negative
-                    if (otherCarDelta.deltaPoints.TryGetValue(currentDeltaPoint, out otherCarTime)
-                        && deltaPoints.TryGetValue(currentDeltaPoint, out thisCarTime))
-                    {
-                        splitTime = otherCarTime - thisCarTime;
-                    }
+                    otherCarTime = otherCarDelta.deltaPoints[this.currentDeltaPointIndex];
+                    thisCarTime = this.deltaPoints[this.currentDeltaPointIndex];
+                    splitTime = otherCarTime - thisCarTime;
                 }
-                else if (totalDistanceTravelled > otherCarDelta.totalDistanceTravelled)
+                else if (this.totalDistanceTravelled > otherCarDelta.totalDistanceTravelled && this.deltaPoints.Length > otherCarDelta.currentDeltaPointIndex)
                 {
-                    // I'm ahead of otherCar, so we want to know time between otherCar reaching the last deltaPoint he's just hit, and me reaching 
+                    // I'm ahead of otherCar, so we want to know time between otherCar reaching the last deltaPoint he's just hit, and me reaching
                     // that delta point.
                     // Because otherCar reached it more recently than me, this will be positive
-                    if (otherCarDelta.deltaPoints.TryGetValue(otherCarDelta.currentDeltaPoint, out otherCarTime)
-                        && deltaPoints.TryGetValue(otherCarDelta.currentDeltaPoint, out thisCarTime))
-                    {
-                        splitTime = otherCarTime - thisCarTime;
-                    }
+                    otherCarTime = otherCarDelta.deltaPoints[otherCarDelta.currentDeltaPointIndex];
+                    thisCarTime = this.deltaPoints[otherCarDelta.currentDeltaPointIndex];
+                    splitTime = otherCarTime - thisCarTime;
                 }
             }
             return new Tuple<int, float>(lapDifference, (float) splitTime.TotalSeconds);
@@ -3228,12 +3359,13 @@ namespace CrewChiefV4.GameState
         public int GetSignedLapDifference(DeltaTime otherCarDelta)
         {
             int lapDifference = 0;
-            if (otherCarDelta.deltaPoints.Count > 0 && deltaPoints.Count > 0 && currentDeltaPoint != -1 && otherCarDelta.currentDeltaPoint != -1)
+            if (initialised && otherCarDelta != null && otherCarDelta.deltaPoints != null && this.deltaPoints != null
+                && otherCarDelta.deltaPoints.Length > 0 && this.deltaPoints.Length > 0 && this.currentDeltaPointIndex != -1 && otherCarDelta.currentDeltaPointIndex != -1)
             {
                 // +ve means I've travelled further than him:
-                float totalDistanceTravelledDifference = totalDistanceTravelled - otherCarDelta.totalDistanceTravelled;
+                float totalDistanceTravelledDifference = this.totalDistanceTravelled - otherCarDelta.totalDistanceTravelled;
                 // +ve means I've completed more laps:
-                lapDifference = lapsCompleted - otherCarDelta.lapsCompleted;
+                lapDifference = this.lapsCompleted - otherCarDelta.lapsCompleted;
                 if (lapDifference > 0 && Math.Abs(totalDistanceTravelledDifference) < this.trackLength)
                 {
                     // OK, I've completed more laps, but I'm one less complete lap ahead than the lapDifference suggests
@@ -3256,31 +3388,27 @@ namespace CrewChiefV4.GameState
             // Not sure lap delta needs to be absolute.
             return new Tuple<int, float>(Math.Abs(deltaTime.Item1), Math.Abs(deltaTime.Item2));
         }
-        
+
         // return a signed delta based only on track position
         public float GetSignedDeltaTimeOnly(DeltaTime otherCarDelta)
         {
             TimeSpan splitTime = new TimeSpan(0);
-            if (otherCarDelta.deltaPoints.Count > 0 && deltaPoints.Count > 0 && currentDeltaPoint != -1 && otherCarDelta.currentDeltaPoint != -1)
+            if (initialised && otherCarDelta.deltaPoints.Length > 0 && deltaPoints.Length > 0 && currentDeltaPointIndex != -1 && otherCarDelta.currentDeltaPointIndex != -1)
             {
                 DateTime otherCarTime;
                 DateTime thisCarTime;
                 //opponent is behind
-                if (distanceRoundTrackOnCurrentLap < otherCarDelta.distanceRoundTrackOnCurrentLap)
+                if (distanceRoundTrackOnCurrentLap < otherCarDelta.distanceRoundTrackOnCurrentLap && otherCarDelta.deltaPoints.Length > this.currentDeltaPointIndex)
                 {
-                    if(otherCarDelta.deltaPoints.TryGetValue(currentDeltaPoint, out otherCarTime)
-                        && deltaPoints.TryGetValue(currentDeltaPoint, out thisCarTime))
-                    {
-                        splitTime = otherCarTime - thisCarTime;
-                    }
+                    otherCarTime = otherCarDelta.deltaPoints[this.currentDeltaPointIndex];
+                    thisCarTime = this.deltaPoints[this.currentDeltaPointIndex];
+                    splitTime = otherCarTime - thisCarTime;
                 }
-                else if (distanceRoundTrackOnCurrentLap > otherCarDelta.distanceRoundTrackOnCurrentLap)
+                else if (distanceRoundTrackOnCurrentLap > otherCarDelta.distanceRoundTrackOnCurrentLap && this.deltaPoints.Length > otherCarDelta.currentDeltaPointIndex)
                 {
-                    if (otherCarDelta.deltaPoints.TryGetValue(otherCarDelta.currentDeltaPoint, out otherCarTime)
-                        && deltaPoints.TryGetValue(otherCarDelta.currentDeltaPoint, out thisCarTime))
-                    {
-                        splitTime = otherCarTime - thisCarTime;
-                    }
+                    otherCarTime = otherCarDelta.deltaPoints[otherCarDelta.currentDeltaPointIndex];
+                    thisCarTime = this.deltaPoints[otherCarDelta.currentDeltaPointIndex];
+                    splitTime = otherCarTime - thisCarTime;
                 }
                 else
                 {
@@ -3289,15 +3417,15 @@ namespace CrewChiefV4.GameState
             }
             return (float)splitTime.TotalSeconds;
         }
-        public Tuple<int, float> GetAvarageSpeedCurrentDeltaPoint(float currentDeltaPointOtherCar)
+
+        public Tuple<int, float> GetAverageSpeedCurrentDeltaPoint(float lapDistance)
         {
-            float avgSpeed = 0;
-            float[] points = null;
-            if (currentDeltaPointOtherCar != -1 &&
-                avgSpeedTrapPoints.TryGetValue(currentDeltaPointOtherCar, out points) &&
-                avgSpeedForEachDeltapointSection.TryGetValue(currentDeltaPointOtherCar, out avgSpeed))
-            {
-                return new Tuple<int, float>(points.Length, avgSpeed);
+            if (initialised && lapDistance != -1)
+            { 
+                int index = getIndexFromLapDistance(lapDistance);
+                List<float> points = this.avgSpeedTrapPoints[index];
+                float avgSpeed = this.avgSpeedForEachDeltapointSection[index];
+                return new Tuple<int, float>(points.Count, avgSpeed);
             }
             else
             {
@@ -3310,7 +3438,7 @@ namespace CrewChiefV4.GameState
     {
         public List<Tuple<float, float>> rawHardPartsForThisLap = new List<Tuple<float, float>>();
         public List<Tuple<float, float>> processedHardPartsForBestLap = new List<Tuple<float, float>>();
-        public Boolean isAlreadyBraking = false;        
+        public Boolean isAlreadyBraking = false;
         public Boolean hardPartsMapped = false;
         public Boolean gapsAdjusted = false;
         public float hardPartStart = -1;
@@ -3340,7 +3468,7 @@ namespace CrewChiefV4.GameState
                     if (CrewChief.Debugging)
                     {
                         Console.WriteLine("raw lap Hard parts. Starts at: " + hardPart.Item1.ToString("0.000") + "    Ends at: " + hardPart.Item2.ToString("0.000"));
-                    }                    
+                    }
                     totalDistanceCoveredByHardPoints += (hardPart.Item2 - hardPart.Item1);
                 }
                 if (CrewChief.Debugging)
@@ -3557,6 +3685,54 @@ namespace CrewChiefV4.GameState
         public PerWheelData RearRightData = new PerWheelData();
     }
 
+    // Rally stuff
+    public class CoDriverPacenote
+    {
+        public float Distance = -1.0f;
+
+        // corrected distance is used when a correction is made to move a note earlier or later
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public float? CorrectedDistance = null;
+        // corrected PacenoteType is used when a correction is made to an actual call
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public CoDriver.PacenoteType? CorrectedPacenoteType = null;
+        // corrected PacenoteModifier is used when a correction is made to an actual call
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public CoDriver.PacenoteModifier? CorrectedPacenoteModifier = null;
+        // special case for corrections - normally a correction will replace a note, but in some
+        // cases we may want a correction to be added to a note (played after)
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public bool? AppendToNote = null;
+
+        public CoDriver.PacenoteType Pacenote = CoDriver.PacenoteType.unknown;
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public object Options = null;
+        public CoDriver.PacenoteModifier Modifier = CoDriver.PacenoteModifier.none;
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string RawVoiceCommand = null;
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string UnprocessedVoiceCommandText = null;
+        public override string ToString()
+        {
+            return GetPacenoteType().ToString() + ": " + GetModifier().ToString() + " at " + GetDistance();
+        }
+        
+        public CoDriver.PacenoteType GetPacenoteType()
+        {
+            return this.CorrectedPacenoteType == null ? this.Pacenote : this.CorrectedPacenoteType.Value;
+        }
+
+        public CoDriver.PacenoteModifier GetModifier()
+        {
+            return this.CorrectedPacenoteModifier == null ? this.Modifier : this.CorrectedPacenoteModifier.Value;
+        }
+
+        public float GetDistance()
+        {
+            return this.CorrectedDistance == null ? this.Distance : this.CorrectedDistance.Value;
+        }
+    }
+
     public class GameStateData
     {
         // first some static crap to ensure the code is sufficiently badly factored
@@ -3583,6 +3759,9 @@ namespace CrewChiefV4.GameState
 
         // Set when actually in the car
         public Boolean inCar;
+
+        public string carName;
+        public string trackName;
 
         private CarData.CarClass _carClass;
         public CarData.CarClass carClass
@@ -3922,7 +4101,7 @@ namespace CrewChiefV4.GameState
                 _SafetyCarData = value;
             }
         }
-        
+
         private HashSet<String> _retriedDriverNames;
         public HashSet<String> retriedDriverNames
         {
@@ -3956,7 +4135,7 @@ namespace CrewChiefV4.GameState
                 _disqualifiedDriverNames = value;
             }
         }
-        
+
         private static TimeSpan MaxWaitForNewLapData = TimeSpan.FromSeconds(3);
 
         private DateTime NewLapDataTimerExpiry = DateTime.MaxValue;
@@ -3979,7 +4158,7 @@ namespace CrewChiefV4.GameState
                 _hardPartsOnTrackData = value;
             }
         }
-                
+
         // special case for pcars2 CloudBrightness and rain because we want to track this in real-time
         public float CloudBrightness = -1;
         public float RainDensity = -1;
@@ -3992,7 +4171,7 @@ namespace CrewChiefV4.GameState
         {
             if (previousGameState != null)
             {
-                if ((hasCrossedSFLine && CompletedLapsWhenHasNewLapDataWasLastTrue < this.SessionData.CompletedLaps) || 
+                if ((hasCrossedSFLine && CompletedLapsWhenHasNewLapDataWasLastTrue < this.SessionData.CompletedLaps) ||
                     (this.SessionData.SessionType == SessionType.Race && hasCrossedSFLine))
                 {
                     // reset the timer and start waiting for an updated laptime...
@@ -4008,7 +4187,7 @@ namespace CrewChiefV4.GameState
                     this.GameTimeWhenLastCrossedStartFinishLine = previousGameState.GameTimeWhenLastCrossedStartFinishLine;
                 }
                 // if we're waiting, see if the timer has expired or we have a change in the previous laptime value
-                if (this.WaitingForNewLapData && 
+                if (this.WaitingForNewLapData &&
                     (previousGameState.SessionData.LapTimePrevious != gameProvidedLastLapTime || this.Now > this.NewLapDataTimerExpiry))
                 {
                     // the timer has expired or we have new data
@@ -4023,12 +4202,12 @@ namespace CrewChiefV4.GameState
                     this.SessionData.LapTimePrevious = previousGameState.SessionData.LapTimePrevious;
                     this.SessionData.PreviousLapWasValid = previousGameState.SessionData.PreviousLapWasValid;
                     this.CompletedLapsWhenHasNewLapDataWasLastTrue = previousGameState.CompletedLapsWhenHasNewLapDataWasLastTrue;
-                    
+
                 }
             }
             return false;
         }
-        
+
         public GameStateData(long ticks)
         {
             this.Ticks = ticks;
@@ -4294,7 +4473,7 @@ namespace CrewChiefV4.GameState
                         {
                             // there's an opponent with the same position as the player - usually caused by delays in updating
                             // opponent position data when the player passes an opponent car. Once the race start data have settled
-                            // down, this opponent key might be the one we want. Note that we can't use this hack when inspecting 
+                            // down, this opponent key might be the one we want. Note that we can't use this hack when inspecting
                             // opponents' previous positions (previousTick == false) because the player position will be a tick newer
                             if (opponentsWithSamePositionAsPlayer == 0)
                             {
@@ -4328,12 +4507,12 @@ namespace CrewChiefV4.GameState
                     {
                         return entry.Key;
                     }
-                    else if (!previousTick && opponentPosition == this.SessionData.OverallPosition && 
+                    else if (!previousTick && opponentPosition == this.SessionData.OverallPosition &&
                         this.SessionData.SessionType == SessionType.Race && this.SessionData.SessionRunningTime > 30)
                     {
                         // there's an opponent with the same position as the player - usually caused by delays in updating
                         // opponent position data when the player passes an opponent car. Once the race start data have settled
-                        // down, this opponent key might be the one we want. Note that we can't use this hack when inspecting 
+                        // down, this opponent key might be the one we want. Note that we can't use this hack when inspecting
                         // opponents' previous positions (previousTick == false) because the player position will be a tick newer
                         if (opponentsWithSamePositionAsPlayer == 0)
                         {
@@ -4572,5 +4751,25 @@ namespace CrewChiefV4.GameState
                 _TelemetryData = value;
             }
         }
+
+        // Rally stuff
+        private List<CoDriverPacenote> _CoDriverPacenotes;
+        public List<CoDriverPacenote> CoDriverPacenotes
+        {
+            get
+            {
+                if (_CoDriverPacenotes == null)
+                {
+                    _CoDriverPacenotes = new List<CoDriverPacenote>();
+                }
+                return _CoDriverPacenotes;
+            }
+            set
+            {
+                _CoDriverPacenotes = value;
+            }
+        }
+        public bool UseCrewchiefPaceNotes = false;
+    
     }
 }

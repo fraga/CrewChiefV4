@@ -1,6 +1,193 @@
 <!DOCTYPE html>
 <html>
 <body>
+<h2>Version 4.15.2.2</h2>
+<ul>
+	<li>Updated to include hotfix for macro crash bug</li>
+	<li>Added support for Assetto Corsa rally tracks (use Assetto Corsa Rally game option) - puts the app in 'rally mode'</li>
+	<li>Added support for modifier keys in macros - prefix the key with modifier+ to hold down that modifier while typing the key (e.g. LSHIFT+KEY_X, RSHIFT+KEY_X, LCONTROL+KEY_X, ALT+KEY_X, etc)</li>
+	<li>Added an optional HOLD_TIME modifier to macro keys to specify how long that single key will be held down (e.g. "{HOLD_TIME,4000}KEY_A" hold A down for 4000 milliseconds)</li>
+	<li>Added message playback resample option for nAudio - specify a resampling rate in Hz with the "nAudio playback resample rate" property - 0 disables resampling (the default). The sound files are recorded at 22050Hz so there's no point in going above that, values below 5000 may make the messages difficult to understand</li>
+	<li>Prevent key bindings activing macros multiple times after restarting the app; Some error logging improvements</li>
+	<li>Updated track landmark locations for a couple of tracks (thanks to the users who submitted these)</li>
+	<li>Fixed a few bugs and crashes</li>
+	<li>RF1 / AMS - experimental implementation of pit box in use warnings (still lots of work and testing to do here, enable this with the "Warn about opponents sharing player's pit box (RF1 / AMS 1 only)" property, note this relies on participants making practice pitstops during practice / qual)</li>
+	<li>AC - fixed some incorrect tyre wear thresholds</li>
+	<li>ACC - wired up tyre pressure and weather data (including weather forecast data)</li>
+	<li>ACC - first cut of a pit menu manager (this will need updated macro definitions, please delete Documents/CrewChiefV4/saved_command_macros.json so the app can recreate it with the required content). The ACC pit menu manager uses cursor (arrow) keys and "P" to navigate the pit menu and can be a bit slow (to reduce the risk of presses being ignored by the game). Supported voice commands include "add fuel, [x] litres", "fuel to the end", "box, change tyres", "box, don't change tyres", "box, wet tyres", "box, dry tyres", "box, tyre set [x]", "box, change [front / rear / left front / right front / left rear / right rear] tyre pressure, [20.3 -> 35]" (note that changing tyre pressures can be a bit hit and miss). In each case the app has to find and change the 'change tyre set' option to work out the menu state - it should revert the change it makes</li>
+</ul>
+<h2>Version 4.15.1.5</h2>
+<ul>
+	<li>iRacing crash hotfix</li>
+</ul>
+<h2>Version 4.15.1.4</h2>
+<ul>
+	<li>Added option to prefer driver names over car numbers for frozen order calls (full course yellow / rolling start)</li>
+	<li>Added suspension velocity histogram data to R3E, AMS2 and pCars2 chart data (default voice command "show me suspension velocity")</li>
+	<li>Made Windows speech recognition the default</li>
+	<li>Shared memory, added phraseIsPlaying to tell if a phrase is currently being played</li>
+	<li>R3E - fixed ratings retrieval</li>
+	<li>R3E - increase app tick-rate during start lights to reduce delay in reporting countdown / green flag state to other apps</li>
+	<li>GTR2 - fix some VR rendering issues</li>
+	<li>ACC - fix free chat macros</li>
+	<li>Various bug fixes and improvements</li>
+</ul>
+<h2>Version 4.15.1.2</h2>
+<ul>
+	<li>Fixed some issues in gap reporting that could result in incorrect gaps or unwanted messages</li>
+	<li>Some internal speech recognition improvements</li>
+	<li>Automatically tune the speech recogniser's confidence thresholds - should improve recognition accuracy and consistency (this behaviour is enabled by default and can be disable by unchecking the 'Auto-tune speech recognition thresholds' property)</li>
+	<li>GTR2 - some plugin and VR rendering improvements</li>
+	<li>RF2 - some pit menu fixes</li>
+</ul>
+<h2>Version 4.15.1.1</h2>
+<ul>
+	<li>Added a configurable delay after releasing the speech recognition button before finishing speech recognition - may help users who tend to release the button too early ('hold button' mode only, property name 'SRE delay after button release')</li>
+	<li>Allow keyboard and button assignments to trigger macro functions and extended the Macro Editor UI to support key / button assignments</li>
+	<li>Speeded up free-chat macro functions</li>
+	<li>Extended mid-stage rally stage notes correction feature to include many more call types</li>
+	<li>UI enhancements (console context menu and other stuff)</li>
+	<li>AMS2 - use separate command macros for AMS2 rather than reusing pCars2 macros</li>
+	<li>GTR2 - VR rendering enhancements and support for more message types including rolling start</li>
+	<li>RF2 - pit menu fixes</li>
+</ul>
+<h2>Version 4.15.0.6 </h2>
+<ul>
+	<li>Some error handling improvements - the app should show a popup window with error details instead of silently crashing and writing to the Windows Event Log</li>
+	<li>Command line parameter rework (note that the "RF2_64BIT" parameter has been changed to "RF2")</li>
+	<li>iRacing - some car class fixes</li>
+	<li>iRacing - fix some issues with off track penalties</li>
+</ul>
+<h2>Version 4.15.0.5</h2>
+<ul>
+	<li>Added speech recogniser debug function (enable with 'Write speech recognition debug data' property) - writes recognition information and captured audio as a .wav file to Documents/CrewChiefV4/voiceRecognitionDebug/</li>
+	<li>RBR / Dirt / Dirt 2 - fixed a few bugs in the recce pace notes parser</li>
+	<li>GTR2 - fixed missing speech recognition commands</li>
+	<li>GTR2 - fixed missing reflections in VR</li>
+	<li>RF2 - pit menu manager improvements</li>
+	<li>Minor bugfixes</li>
+</ul>
+<h2>Version 4.15.0.3</h2>
+<ul>
+	<li>Some timing accuracy improvements where opponent data is incomplete</li>
+	<li>RBR / Dirt / Dirt 2 - ensure corner / obstacle modifiers apply to the correct pace note fragment and fixed issue with pace note corrections not working</li>
+	<li>GTR2 - improved plugin handling</li>
+	<li>RF2 - pit menu tyre type matching improvements</li>
+</ul>
+<h2>Version 4.15.0.2</h2>
+<ul>
+	<li>R3E - hotfix for error when the player has no rating data (i.e. has never raced on one of the official ranked servers)</li>
+</ul>
+<h2>Version 4.15.0.1</h2>
+<ul>
+	<li>Added full support for GTR2, see <a href="http://thecrewchief.org/showthread.php?2012-GTR2-Setup-Instructions-and-Known-Issues&p=8180#post8180">forum post</a> for installation and setup instructions. Note that this also includes full (native) VR support for GTR2 (see the link for details)</li>
+	<li>R3E - added rating-based finishing position expectation messages and voice command ("what's my expected finish position?"). The rating data also affects the race-end messages</li>
+	<li>RBR / Dirt / Dirt2 - rally stage notes creation improvements - added "into", "and" and "then" items, added "tightens to [1/2/3/4/5/hairpin]" command, ensure pace notes are ordered correctly, some other fixes and improvements</li>
+	<li>iRacing - added sanity checks to opponent speed and position data, should reduce the number of spurious stopped-car calls</li>
+	<li>Various bug fixes</li>
+</ul>
+<h2>Version 4.14.0.6</h2>
+<ul>
+	<li>Fixed 'force single class' option (was being ignored by the app)</li>
+	<li>Fix timing issue in multiclass races for some games</li>
+	<li>RBR / Dirt Rally / Dirty Rally2 - added 'Minimum rally distance pace note distance (metres)' property to set how far ahead the next pace note needs to be before the app inserts a distance call and 'Dynamic co-driver look ahead distance' property to shorten the look-ahead distance immediately after a slow corner (should reduce call overload into slow corners, disabled by default)</li>
+	<li>RBR / Dirt Rally / Dirty Rally2 - added a few more corner / obstacle types ('open hairpin left / right', 'go-straight', 'danger / triple caution' and 'trees / logs / rocks inside / outside') and more corner modifiers ('opens', 'very long' and 'plus / minus') to the rally speech recogniser</li>
+	<li>R3E - added "What's the strength of field?" and "What are my incident points?" voice commands</li>
+	<li>iRacing - fixed missing meatball flag message</li>
+	<li>AMS2 - updated car mappings for new classes</li>
+	<li>RF2 - added more tyre types to the pit menu</li>
+</ul>
+<h2>Version 4.14.0.3</h2>
+<ul>
+	<li>Changed 'My name' list behaviour - this UI component use to show the specially recorded 'personalisations' (about 1000 names) and all the opponent driver names in the app (about 10000 names), which made it unreliable for some users. By default it now hides the opponent driver names so you'll only see the 1000 specially recorded personalisations. Enabling the "Allow opponent names in 'My name' list" property will add all opponent driver names to this list allowing the app to generate a personalisation from any of the opponent names (see folder C:\Users\[user name]\AppData\Local\CrewChiefV4\sounds\driver_names). Note that these won't sound as natural as the specially recorded personalisations. If you've requested that your name be added to this list, please check again after updating as it might be shown</li>
+	<li>AMS2 - added missing car class mappings</li>
+	<li>RF2 - fixed tyre selection issues in pit menu manager when selecting some tyre types</li>
+	<li>R3E - fixed some missing incident points messages</li>
+	<li>RBR - automatically install the Crew Chief plugin</li>
+	<li>Various minor bug fixes</li>
+</ul>
+<h2>Version 4.14.0.2</h2>
+<ul>
+	<li>Added rally stage notes creation support - see <a href="https://mr_belowski.gitlab.io/CrewChiefV4/VoiceRecognition_RallyStageNotes.html">rally pace notes help page</a></li>
+	<li>Added support for Dirt Rally and Dirt Rally 2 (user-created stage notes only)</li>
+	<li>Added option to enable scroll bars on main window where necessary (enable with 'Scroll bars on main window' property)</li>
+	<li>R3E - use correct field for player incident points</li>
+	<li>Pit Manager - tyre selection handles in-game tyre compound that is not in PM's list</li>
+	<li>R3E - use correct field for player incident points</li>
+</ul>
+<h2>Version 4.13.1.7</h2>
+<ul>
+	<li>Changed "watch" commands to be "monitor" ("monitor [opponent name / the car ahead / p12 / the leader / etc]" / stop monitoring [opponent name / etc] / stop monitoring all etc) - the word "watch" is too similar to "what's" so was being regularly mis-interpreted by the speech recogniser</li>
+	<li>Fix some issues with macros not applying to the correct application window</li>
+	<li>ACC - fix penalty logic</li>
+	<li>ACC - fix for the app repeating laptime in hotstint mode</li>
+	<li>RBR - subtitles fix</li>
+	<li>R3E - reduced optimial tyre temps for F-Junior</li>
+</ul>
+<h2>Version 4.13.1.6</h2>
+<ul>
+	<li>Hotfix for iRacing crash bug (sorry guys)</li>
+</ul>
+<h2>Version 4.13.1.5</h2>
+<ul>
+	<li>Added some interpolation for car timing positions - should address issues with wildly inaccurate gap messages where stale data (1 lap old) was being used to calculate gaps</li>
+	<li>ACC - fixed player car always being in a separate car class from opponents (should fix at least some of the inaccurate position calls)</li>
+	<li>ACC - workaround for unsynchronised lap distance and laps completed data - should greatly improve car position calls in online races</li>
+</ul>
+<h2>Version 4.13.1.3</h2>
+<ul>
+	<li>Made splash screen optional</li>
+	<li>Some internal sound player wiring fixes</li>
+	<li>Don't attempt to show subtitles when there's nothing to show</li>
+	<li>Pit Manager "Clear all" clears tyre changes, fuel, any penalties and any damage repairs</li>
+	<li>Show separate speech recognition confidence thresholds for Windows and Microsoft speech recognisers on the Properties screen and ensure the thresholds used match the recogniser in use even in cases where the app has to override the user's preferred recogniser. Also added some additional logging to make it clear which recogniser is in use and what confidence thresholds are being applied</li>
+	<li>RF2 - Pit Manager changes tyres as part of tyre type commands (so you don't have to make 2 separate commands to change tyre type)</li>
+	<li>RF2 - Fix tyre selection on Pit Manager for some cars</li>
+</ul>
+<h2>Version 4.13.1.2</h2>
+<ul>
+	<li>Hotfix for startup crash for new users</li>
+</ul>
+<h2>Version 4.13.1.1</h2>
+<ul>
+	<li>Added separate voice recognition sensitivity threshold values for when using the built-in Windows speech recogniser. These are higher (particularly for the 'Trigger word') and should stop a lot of the false-positives (again, especially for the 'Trigger word') when using the 'Prefer Windows speech recogniser' option</li>
+	<li>Fix z-offset not saving for some VR overlays</li>
+	<li>Allow the 'Watch opponent' function to be disabled (added 'Enable watch opponent commands' property, default enabled)</li>
+	<li>Fix bug playing start-listening beep using Trigger Word voice recognition mode and nAudio</li>
+	<li>Added shortcut key bindings to toggle VR overlays</li>
+	<li>Added option to control when subtitles are loaded. If the property 'Lazy load subtitles' is enabled the subtitles are loaded only when needed. This can improve app launch times when using subtitles but may increase app resource use when driving</li>
+	<li>R3E - fix for incorrect session length message with time + 1 extra lap race sessions</li>
+	<li>iRacing - added Meatball flag message and generic pit-to-serve-penalty message (the app doesn't know if it's a drive-through or a stop-and-go penalty)</li>
+	<li>RF2 & RBR - fix app crash when restarting the app</li>
+</ul>
+<h2>Version 4.13.1.0</h2>
+<ul>
+	<li>Fixed some cases where the app would use text-to-speech driver names when it shouldn't when the TTS settings was 'Use TTS only when necessary'</li>
+	<li>pCars3 - always assume races are single class</li>
+	<li>R3E - added support for DTM 2020 rules (push to pass and DRS)</li>
+	<li>R3E - added support for minimum pit stop duration (calculates how long you need to wait in the pitbox and warns you about it - note that this calculation requires you to have driven out of the pits at least once since starting the app to record the pit exit position)</li>
+	<li>R3E - added support for maximum incident points on ranked servers before being kicked (warnings about further incidents resulting in a DQ / kick)</li>
+	<li>R3E - reduced some engine temp warning thresholds</li>
+	<li>RF2 - enhanced pit menu manager to support fuel in gallons and some other fixes</li>
+</ul>
+<h2>Version 4.13.0.2</h2>
+<ul>
+	<li>VR overlays: Fixed gazing. Added an option to change tracking space for overlays (Seated/Standing/Follow Head)</li>
+	<li>Added an option to only use sounds which are gender-neutral. The app has, historically, assumed all players are male so contains lots of sounds with words like words like 'man', 'guy', 'he' etc which is a bit silly. If you enable the 'Block sounds which refer to drivers as male' property the app will only use sounds that are gender-neutral ('driver', 'car', etc). Note that this requires the latest sound pack update to work</li>
+	<li>RF2 - tweaked the behaviour of the pit manager system so it only inspects the pit menu layout when it's first invoked, rather than at the start of a session</li>
+	<li>RF2 - added an option to disable the pit menu manager ('enable rF2 pit manager' property)</li>
+	<li>RF2 - fixed initialisation of pit menu manager</li>
+</ul>
+<h2>Version 4.13.0.0</h2>
+<ul>
+	<li>rFactor 2 now needs Vytautas Leonavi&#x010D;ius' rFactor 2 Plugin version 3.7.14.2  It's part of this CC version and will be installed automatically but note that any other apps that use it will need to be updated</li>
+	<li>Added Rally mode and support for Richard Burns Rally</li>
+	<li>Added rudamentary pCars3 support</li>
+	<li>Added support for controller 'point of view' buttons (should allow direction-pads to be used for button assignments)</li>
+	<li>AMS2 - A few car class tweaks</li>
+	<li>ACC - added multi-class support</li>
+	<li>RF2 - updated plugin and added a pit menu manager</li>
+</ul>
 <h2>Version 4.12.0.8</h2>
 <ul>
 	<li>Corrected VR overlay default behaviour (should fix the remaining issues with the overlays)</li>

@@ -1,9 +1,9 @@
 {
-	"RACE_ROOM": [		
+	"RACE_ROOM": [
 		{
 			"id": "downforce",
 			"voiceCommandFragment": "downforce",
-			"rawDataFieldName": "Player.CurrentDownforce",			
+			"rawDataFieldName": "Player.CurrentDownforce",
 			"overlayDataType": "DOUBLE",
 			"labels": [ "Downforce" ]
 		},
@@ -15,12 +15,12 @@
 		{
 			"id": "front suspension deflection",
 			"voiceCommandFragment": "front suspension deflection",
-			"groupMemberIds": [ "lf suspension deflection", "rf suspension deflection"]
+			"groupMemberIds": [ "lf suspension deflection", "rf suspension deflection" ]
 		},
 		{
 			"id": "rear suspension deflection",
 			"voiceCommandFragment": "rear suspension deflection",
-			"groupMemberIds": [ "lr suspension deflection", "rr suspension deflection"]
+			"groupMemberIds": [ "lr suspension deflection", "rr suspension deflection" ]
 		},
 		{
 			"id": "lf suspension deflection",
@@ -49,6 +49,70 @@
 			"rawDataFieldName": "Player.SuspensionDeflection.RearRight",
 			"overlayDataType": "FLOAT",
 			"labels": [ "RR Suspension" ]
+		},
+		{
+			"id": "suspension velocity",
+			"voiceCommandFragment": "suspension velocity",
+			"groupMemberIds": [ "front suspension velocity", "rear suspension velocity" ],
+			"dataSeriesType": "HISTOGRAM",
+			"histogramXLabel": "Velocity (m/s)",
+			"histogramSteps": 50
+		},
+		{
+			"id": "front suspension velocity",
+			"voiceCommandFragment": "front suspension velocity",
+			"groupMemberIds": [ "lf suspension velocity", "rf suspension velocity" ],
+			"dataSeriesType": "HISTOGRAM",
+			"histogramXLabel": "Velocity (m/s)",
+			"histogramSteps": 50
+		},
+		{
+			"id": "rear suspension velocity",
+			"voiceCommandFragment": "rear suspension velocity",
+			"groupMemberIds": [ "lr suspension velocity", "rr suspension velocity" ],
+			"dataSeriesType": "HISTOGRAM",
+			"histogramXLabel": "Velocity (m/s)",
+			"histogramSteps": 50
+		},
+		{
+			"id": "lf suspension velocity",
+			"voiceCommandFragment": "left front suspension velocity",
+			"rawDataFieldName": "Player.SuspensionVelocity.FrontLeft",
+			"overlayDataType": "FLOAT",
+			"labels": [ "LF Suspension Velocity" ],
+			"dataSeriesType": "HISTOGRAM",
+			"histogramXLabel": "Velocity (m/s)",
+			"histogramSteps": 50
+		},
+		{
+			"id": "rf suspension velocity",
+			"voiceCommandFragment": "right front suspension velocity",
+			"rawDataFieldName": "Player.SuspensionVelocity.FrontRight",
+			"overlayDataType": "FLOAT",
+			"labels": [ "RF Suspension Velocity" ],
+			"dataSeriesType": "HISTOGRAM",
+			"histogramXLabel": "Velocity (m/s)",
+			"histogramSteps": 50
+		},
+		{
+			"id": "lr suspension velocity",
+			"voiceCommandFragment": "left rear suspension velocity",
+			"rawDataFieldName": "Player.SuspensionVelocity.RearLeft",
+			"overlayDataType": "FLOAT",
+			"labels": [ "LR Suspension Velocity" ],
+			"dataSeriesType": "HISTOGRAM",
+			"histogramXLabel": "Velocity (m/s)",
+			"histogramSteps": 50
+		},
+		{
+			"id": "rr suspension velocity",
+			"voiceCommandFragment": "right rear suspension velocity",
+			"rawDataFieldName": "Player.SuspensionVelocity.RearRight",
+			"overlayDataType": "FLOAT",
+			"labels": [ "RR Suspension Velocity" ],
+			"dataSeriesType": "HISTOGRAM",
+			"histogramXLabel": "Velocity (m/s)",
+			"histogramSteps": 50
 		},
 		{
 			"id": "ride height",
@@ -94,7 +158,7 @@
 			"labels": [ "RR Ride height" ]
 		}
 	],
-	"IRACING": [		
+	"IRACING": [
 		{
 			"id": "engine revs",
 			"voiceCommandFragment": "engine revs:revs",
@@ -160,7 +224,7 @@
 		{
 			"id": "lf suspension deflection",
 			"voiceCommandFragment": "left front suspension deflection",
-			"diskDataFieldname": "LFshockDefl",
+			"rawDataFieldName": "LFshockDefl",
 			"overlayDataType": "FLOAT",
 			"labels": [ "LF Suspension" ],
 			"yAxisFormat": "F1"
@@ -168,7 +232,7 @@
 		{
 			"id": "rf suspension deflection",
 			"voiceCommandFragment": "right front suspension deflection",
-			"diskDataFieldname": "RFshockDefl",
+			"rawDataFieldName": "RFshockDefl",
 			"overlayDataType": "FLOAT",
 			"labels": [ "RF Suspension" ],
 			"yAxisFormat": "F1"
@@ -176,7 +240,7 @@
 		{
 			"id": "lr suspension deflection",
 			"voiceCommandFragment": "left rear suspension deflection",
-			"diskDataFieldname": "LRshockDefl",
+			"rawDataFieldName": "LRshockDefl",
 			"overlayDataType": "FLOAT",
 			"labels": [ "LR Suspension" ],
 			"yAxisFormat": "F1"
@@ -184,7 +248,7 @@
 		{
 			"id": "rr suspension deflection",
 			"voiceCommandFragment": "right rear suspension deflection",
-			"diskDataFieldname": "RRshockDefl",
+			"rawDataFieldName": "RRshockDefl",
 			"overlayDataType": "FLOAT",
 			"labels": [ "RR Suspension" ],
 			"yAxisFormat": "F1"
@@ -203,6 +267,70 @@
 			"id": "rear suspension deflection",
 			"voiceCommandFragment": "rear suspension deflection",
 			"groupMemberIds": [ "lr suspension deflection", "rr suspension deflection" ]
+		},
+		{
+			"id": "suspension velocity",
+			"voiceCommandFragment": "suspension velocity",
+			"groupMemberIds": [ "front suspension velocity", "rear suspension velocity" ],
+			"dataSeriesType": "HISTOGRAM",
+			"histogramXLabel": "Velocity (m/s)",
+			"histogramSteps": 50
+		},
+		{
+			"id": "front suspension velocity",
+			"voiceCommandFragment": "front suspension velocity",
+			"groupMemberIds": [ "lf suspension velocity", "rf suspension velocity" ],
+			"dataSeriesType": "HISTOGRAM",
+			"histogramXLabel": "Velocity (m/s)",
+			"histogramSteps": 50
+		},
+		{
+			"id": "rear suspension velocity",
+			"voiceCommandFragment": "rear suspension velocity",
+			"groupMemberIds": [ "lr suspension velocity", "rr suspension velocity" ],
+			"dataSeriesType": "HISTOGRAM",
+			"histogramXLabel": "Velocity (m/s)",
+			"histogramSteps": 50
+		},
+		{
+			"id": "lf suspension velocity",
+			"voiceCommandFragment": "left front suspension velocity",
+			"rawDataFieldName": "LFshockVel",
+			"overlayDataType": "FLOAT",
+			"labels": [ "LF Suspension Velocity" ],
+			"dataSeriesType": "HISTOGRAM",
+			"histogramXLabel": "Velocity (m/s)",
+			"histogramSteps": 50
+		},
+		{
+			"id": "rf suspension velocity",
+			"voiceCommandFragment": "right front suspension velocity",
+			"rawDataFieldName": "RFshockVel",
+			"overlayDataType": "FLOAT",
+			"labels": [ "RF Suspension Velocity" ],
+			"dataSeriesType": "HISTOGRAM",
+			"histogramXLabel": "Velocity (m/s)",
+			"histogramSteps": 50
+		},
+		{
+			"id": "lr suspension velocity",
+			"voiceCommandFragment": "left rear suspension velocity",
+			"rawDataFieldName": "LRshockVel",
+			"overlayDataType": "FLOAT",
+			"labels": [ "LR Suspension Velocity" ],
+			"dataSeriesType": "HISTOGRAM",
+			"histogramXLabel": "Velocity (m/s)",
+			"histogramSteps": 50
+		},
+		{
+			"id": "rr suspension velocity",
+			"voiceCommandFragment": "right rear suspension velocity",
+			"rawDataFieldName": "RRshockVel",
+			"overlayDataType": "FLOAT",
+			"labels": [ "RR Suspension Velocity" ],
+			"dataSeriesType": "HISTOGRAM",
+			"histogramXLabel": "Velocity (m/s)",
+			"histogramSteps": 50
 		},
 		{
 			"id": "lf inner temp",
@@ -309,7 +437,7 @@
 			"groupMemberIds": [ "rr inner temp", "rr middle temp", "rr outer temp" ]
 		}
 	],
-	"RF2_64BIT": [		
+	"RF2_64BIT": [
 		{
 			"id": "front downforce",
 			"voiceCommandFragment": "front downforce",
@@ -332,12 +460,12 @@
 		{
 			"id": "front suspension deflection",
 			"voiceCommandFragment": "front suspension deflection",
-			"groupMemberIds": [ "lf suspension deflection", "rf suspension deflection"]
+			"groupMemberIds": [ "lf suspension deflection", "rf suspension deflection" ]
 		},
 		{
 			"id": "rear suspension deflection",
 			"voiceCommandFragment": "rear suspension deflection",
-			"groupMemberIds": [ "lr suspension deflection", "rr suspension deflection"]
+			"groupMemberIds": [ "lr suspension deflection", "rr suspension deflection" ]
 		},
 		{
 			"id": "lf suspension deflection",
@@ -375,7 +503,7 @@
 		{
 			"id": "front ride height",
 			"voiceCommandFragment": "front ride height",
-			"groupMemberIds": [ "lf ride heightn", "rf ride height" ]
+			"groupMemberIds": [ "lf ride height", "rf ride height" ]
 		},
 		{
 			"id": "rear ride height",
@@ -409,6 +537,224 @@
 			"mappedDataFieldName": "TelemetryData.RearRightData.RideHeight",
 			"overlayDataType": "FLOAT",
 			"labels": [ "RR Ride height" ]
+		}
+	],
+	"AMS2": [
+		{
+			"id": "suspension deflection",
+			"voiceCommandFragment": "suspension deflection",
+			"groupMemberIds": [ "front suspension deflection", "rear suspension deflection" ]
+		},
+		{
+			"id": "front suspension deflection",
+			"voiceCommandFragment": "front suspension deflection",
+			"groupMemberIds": [ "lf suspension deflection", "rf suspension deflection" ]
+		},
+		{
+			"id": "rear suspension deflection",
+			"voiceCommandFragment": "rear suspension deflection",
+			"groupMemberIds": [ "lr suspension deflection", "rr suspension deflection" ]
+		},
+		{
+			"id": "lf suspension deflection",
+			"voiceCommandFragment": "left front suspension deflection",
+			"rawDataFieldName": "mSuspensionTravel[0]",
+			"overlayDataType": "FLOAT",
+			"labels": [ "LF Suspension" ]
+		},
+		{
+			"id": "rf suspension deflection",
+			"voiceCommandFragment": "right front suspension deflection",
+			"rawDataFieldName": "mSuspensionTravel[1]",
+			"overlayDataType": "FLOAT",
+			"labels": [ "RF Suspension" ]
+		},
+		{
+			"id": "lr suspension deflection",
+			"voiceCommandFragment": "left rear suspension deflection",
+			"rawDataFieldName": "mSuspensionTravel[2]",
+			"overlayDataType": "FLOAT",
+			"labels": [ "LR Suspension" ]
+		},
+		{
+			"id": "rr suspension deflection",
+			"voiceCommandFragment": "right rear suspension deflection",
+			"rawDataFieldName": "mSuspensionTravel[3]",
+			"overlayDataType": "FLOAT",
+			"labels": [ "RR Suspension" ]
+		},
+		{
+			"id": "suspension velocity",
+			"voiceCommandFragment": "suspension velocity",
+			"groupMemberIds": [ "front suspension velocity", "rear suspension velocity" ],
+			"dataSeriesType": "HISTOGRAM",
+			"histogramXLabel": "Velocity (m/s)",
+			"histogramSteps": 50
+		},
+		{
+			"id": "front suspension velocity",
+			"voiceCommandFragment": "front suspension velocity",
+			"groupMemberIds": [ "lf suspension velocity", "rf suspension velocity" ],
+			"dataSeriesType": "HISTOGRAM",
+			"histogramXLabel": "Velocity (m/s)",
+			"histogramSteps": 50
+		},
+		{
+			"id": "rear suspension velocity",
+			"voiceCommandFragment": "rear suspension velocity",
+			"groupMemberIds": [ "lr suspension velocity", "rr suspension velocity" ],
+			"dataSeriesType": "HISTOGRAM",
+			"histogramXLabel": "Velocity (m/s)",
+			"histogramSteps": 50
+		},
+		{
+			"id": "lf suspension velocity",
+			"voiceCommandFragment": "left front suspension velocity",
+			"rawDataFieldName": "mSuspensionVelocity[0]",
+			"overlayDataType": "FLOAT",
+			"labels": [ "LF Suspension Velocity" ],
+			"dataSeriesType": "HISTOGRAM",
+			"histogramXLabel": "Velocity (m/s)",
+			"histogramSteps": 50
+		},
+		{
+			"id": "rf suspension velocity",
+			"voiceCommandFragment": "right front suspension velocity",
+			"rawDataFieldName": "mSuspensionVelocity[1]",
+			"overlayDataType": "FLOAT",
+			"labels": [ "RF Suspension Velocity" ],
+			"dataSeriesType": "HISTOGRAM",
+			"histogramXLabel": "Velocity (m/s)",
+			"histogramSteps": 50
+		},
+		{
+			"id": "lr suspension velocity",
+			"voiceCommandFragment": "left rear suspension velocity",
+			"rawDataFieldName": "mSuspensionVelocity[2]",
+			"overlayDataType": "FLOAT",
+			"labels": [ "LR Suspension Velocity" ],
+			"dataSeriesType": "HISTOGRAM",
+			"histogramXLabel": "Velocity (m/s)",
+			"histogramSteps": 50
+		},
+		{
+			"id": "rr suspension velocity",
+			"voiceCommandFragment": "right rear suspension velocity",
+			"rawDataFieldName": "mSuspensionVelocity[3]",
+			"overlayDataType": "FLOAT",
+			"labels": [ "RR Suspension Velocity" ],
+			"dataSeriesType": "HISTOGRAM",
+			"histogramXLabel": "Velocity (m/s)",
+			"histogramSteps": 50
+		}
+	],
+	"PCARS2": [
+		{
+			"id": "suspension deflection",
+			"voiceCommandFragment": "suspension deflection",
+			"groupMemberIds": [ "front suspension deflection", "rear suspension deflection" ]
+		},
+		{
+			"id": "front suspension deflection",
+			"voiceCommandFragment": "front suspension deflection",
+			"groupMemberIds": [ "lf suspension deflection", "rf suspension deflection" ]
+		},
+		{
+			"id": "rear suspension deflection",
+			"voiceCommandFragment": "rear suspension deflection",
+			"groupMemberIds": [ "lr suspension deflection", "rr suspension deflection" ]
+		},
+		{
+			"id": "lf suspension deflection",
+			"voiceCommandFragment": "left front suspension deflection",
+			"rawDataFieldName": "mSuspensionTravel[0]",
+			"overlayDataType": "FLOAT",
+			"labels": [ "LF Suspension" ]
+		},
+		{
+			"id": "rf suspension deflection",
+			"voiceCommandFragment": "right front suspension deflection",
+			"rawDataFieldName": "mSuspensionTravel[1]",
+			"overlayDataType": "FLOAT",
+			"labels": [ "RF Suspension" ]
+		},
+		{
+			"id": "lr suspension deflection",
+			"voiceCommandFragment": "left rear suspension deflection",
+			"rawDataFieldName": "mSuspensionTravel[2]",
+			"overlayDataType": "FLOAT",
+			"labels": [ "LR Suspension" ]
+		},
+		{
+			"id": "rr suspension deflection",
+			"voiceCommandFragment": "right rear suspension deflection",
+			"rawDataFieldName": "mSuspensionTravel[3]",
+			"overlayDataType": "FLOAT",
+			"labels": [ "RR Suspension" ]
+		},
+		{
+			"id": "suspension velocity",
+			"voiceCommandFragment": "suspension velocity",
+			"groupMemberIds": [ "front suspension velocity", "rear suspension velocity" ],
+			"dataSeriesType": "HISTOGRAM",
+			"histogramXLabel": "Velocity (m/s)",
+			"histogramSteps": 50
+		},
+		{
+			"id": "front suspension velocity",
+			"voiceCommandFragment": "front suspension velocity",
+			"groupMemberIds": [ "lf suspension velocity", "rf suspension velocity" ],
+			"dataSeriesType": "HISTOGRAM",
+			"histogramXLabel": "Velocity (m/s)",
+			"histogramSteps": 50
+		},
+		{
+			"id": "rear suspension velocity",
+			"voiceCommandFragment": "rear suspension velocity",
+			"groupMemberIds": [ "lr suspension velocity", "rr suspension velocity" ],
+			"dataSeriesType": "HISTOGRAM",
+			"histogramXLabel": "Velocity (m/s)",
+			"histogramSteps": 50
+		},
+		{
+			"id": "lf suspension velocity",
+			"voiceCommandFragment": "left front suspension velocity",
+			"rawDataFieldName": "mSuspensionVelocity[0]",
+			"overlayDataType": "FLOAT",
+			"labels": [ "LF Suspension Velocity" ],
+			"dataSeriesType": "HISTOGRAM",
+			"histogramXLabel": "Velocity (m/s)",
+			"histogramSteps": 50
+		},
+		{
+			"id": "rf suspension velocity",
+			"voiceCommandFragment": "right front suspension velocity",
+			"rawDataFieldName": "mSuspensionVelocity[1]",
+			"overlayDataType": "FLOAT",
+			"labels": [ "RF Suspension Velocity" ],
+			"dataSeriesType": "HISTOGRAM",
+			"histogramXLabel": "Velocity (m/s)",
+			"histogramSteps": 50
+		},
+		{
+			"id": "lr suspension velocity",
+			"voiceCommandFragment": "left rear suspension velocity",
+			"rawDataFieldName": "mSuspensionVelocity[2]",
+			"overlayDataType": "FLOAT",
+			"labels": [ "LR Suspension Velocity" ],
+			"dataSeriesType": "HISTOGRAM",
+			"histogramXLabel": "Velocity (m/s)",
+			"histogramSteps": 50
+		},
+		{
+			"id": "rr suspension velocity",
+			"voiceCommandFragment": "right rear suspension velocity",
+			"rawDataFieldName": "mSuspensionVelocity[3]",
+			"overlayDataType": "FLOAT",
+			"labels": [ "RR Suspension Velocity" ],
+			"dataSeriesType": "HISTOGRAM",
+			"histogramXLabel": "Velocity (m/s)",
+			"histogramSteps": 50
 		}
 	]
 }

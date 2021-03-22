@@ -520,7 +520,7 @@ namespace CrewChiefV4.Events
                         {
                             OpponentData carAhead = currentGameState.getOpponentAtOverallPosition(currentGameState.SessionData.OverallPosition - 1);
                             Console.WriteLine("Stock Car Rule triggered: " + currentGreenFlagLuckyDogStatus + " driver to pass: " + (carAhead != null ? carAhead.DriverRawName : "not found"));
-                            if (carAhead != null && AudioPlayer.canReadName(carAhead.DriverRawName))
+                            if (carAhead != null && AudioPlayer.canReadName(carAhead.DriverRawName, false))
                             {
                                 audioPlayer.playMessage(new QueuedMessage("push_to_pass_lucky_dog", 6,
                                     messageFragments: MessageContents(folderPassDriverForLuckyDogPositionIntro, carAhead, folderPassDriverForLuckyDogPositionOutro),
@@ -551,7 +551,7 @@ namespace CrewChiefV4.Events
                 float trackLength = currentGameState.SessionData.TrackDefinition.trackLength;
                 OpponentData leader = currentGameState.getOpponentAtOverallPosition(1);
                 OpponentData carAhead = currentGameState.getOpponentAtOverallPosition(currentGameState.SessionData.OverallPosition - 1);
-                if (carAhead != null && leader != null && leader.CompletedLaps > 0 && !leader.InPits && !leader.isExitingPits())
+                if (carAhead != null && leader != null && leader.CompletedLaps > 0 && !leader.InPits && !leader.isOnOutLap())
                 {
                     float leaderRaceDistance = (trackLength * leader.CompletedLaps) + leader.DistanceRoundTrack;
                     float carAheadRaceDistance = (trackLength * carAhead.CompletedLaps) + carAhead.DistanceRoundTrack;
@@ -570,7 +570,7 @@ namespace CrewChiefV4.Events
                     if (carAheadDistanceToLeader < trackLength && myDistanceToLeader > trackLength)
                     {
                         // we're the first lapped car. Only allow a lucky dog call if he's not in the pit or on an out lap
-                        return carAhead.InPits || carAhead.isExitingPits() ? GreenFlagLuckyDogStatus.NONE : GreenFlagLuckyDogStatus.WE_ARE_IN_LUCKY_DOG;
+                        return carAhead.InPits || carAhead.isOnOutLap() ? GreenFlagLuckyDogStatus.NONE : GreenFlagLuckyDogStatus.WE_ARE_IN_LUCKY_DOG;
                     }
 
                     // if we're in p3 or higher, see if the guy in front is the lucky dog:
@@ -593,7 +593,7 @@ namespace CrewChiefV4.Events
                             {
                                 // the car 2 places ahead is on the lead lap, the car ahead is lapped, so he's the lucky dog.
                                 // Only allow a lucky dog call if he's not in the pit or on an out lap
-                                return car2PlacesAhead.InPits || car2PlacesAhead.isExitingPits() ? GreenFlagLuckyDogStatus.NONE : GreenFlagLuckyDogStatus.PASS_FOR_LUCKY_DOG;                                
+                                return car2PlacesAhead.InPits || car2PlacesAhead.isOnOutLap() ? GreenFlagLuckyDogStatus.NONE : GreenFlagLuckyDogStatus.PASS_FOR_LUCKY_DOG;
                             }
                         }
                     }
@@ -606,7 +606,7 @@ namespace CrewChiefV4.Events
         private void processIllegalOvertakes(GameStateData previousGameState, GameStateData currentGameState)
         {
             // some uncertainty here - once a penalty has been applied, does the numCarsPassedIllegally reset or remain non-zero?
-            if (illegalPassCarsCountAtLastAnnouncement > 0 && previousGameState.PenaltiesData.NumPenalties > currentGameState.PenaltiesData.NumPenalties)
+            if (illegalPassCarsCountAtLastAnnouncement > 0 && previousGameState.PenaltiesData.NumOutstandingPenalties > currentGameState.PenaltiesData.NumOutstandingPenalties)
             {
                 Console.WriteLine("numCarsPassedIllegally has changed from " + illegalPassCarsCountAtLastAnnouncement +
                     " to  " + currentGameState.FlagData.numCarsPassedIllegally + " and penalty count has increased");
@@ -656,7 +656,7 @@ namespace CrewChiefV4.Events
                 else
                 {
                     // more guesswork :(
-                    if (currentGameState.PenaltiesData.NumPenalties == 0)
+                    if (currentGameState.PenaltiesData.NumOutstandingPenalties == 0)
                     {
                         // don't allow any other message to override this one:
                         audioPlayer.playMessageImmediately(new QueuedMessage("give_positions_back_completed", 5,
@@ -1126,7 +1126,7 @@ namespace CrewChiefV4.Events
                             if (!isInteresting && CarData.IsCarClassEqual(currentGameState.carClass, opponent.CarClass) && currentGameState.SessionData.ClassPosition < 1000 && opponent.ClassPosition < 1000)
                             {
                                 isInteresting = Math.Abs(currentGameState.SessionData.ClassPosition - opponent.ClassPosition) <= 2 &&
-                                (AudioPlayer.canReadName(opponent.DriverRawName) || opponent.ClassPosition <= folderPositionHasGoneOff.Length) && 
+                                (AudioPlayer.canReadName(opponent.DriverRawName, false) || opponent.ClassPosition <= folderPositionHasGoneOff.Length) && 
                                 currentGameState.SessionData.SessionType == SessionType.Race; // only call out interesting incidents in race sessions 
                             }
                             DateTime incidentWarningTime = DateTime.MinValue;
@@ -1194,7 +1194,7 @@ namespace CrewChiefV4.Events
                             {
                                 if (CarData.IsCarClassEqual(opponent.CarClass, currentGameState.carClass))
                                 {
-                                    if (AudioPlayer.canReadName(opponent.DriverRawName))
+                                    if (AudioPlayer.canReadName(opponent.DriverRawName, false))
                                     {
                                         opponentNamesToRead.Add(opponent);
                                     }
@@ -1317,7 +1317,7 @@ namespace CrewChiefV4.Events
                             {
                                 lastIncidentPositionForOpponents[opponent.DriverRawName] = opponent.DistanceRoundTrack;
                                 involvedDrivers.Add(new NamePositionPair(opponent.DriverRawName, incidentCandidate.classPositionAtStartOfIncident,
-                                    incidentCandidate.overallPositionAtStartOfIncident, opponent.DistanceRoundTrack, AudioPlayer.canReadName(opponent.DriverRawName), 
+                                    incidentCandidate.overallPositionAtStartOfIncident, opponent.DistanceRoundTrack, AudioPlayer.canReadName(opponent.DriverRawName, false), 
                                     incidentCandidate.opponentDataKey));
                             }
                         }

@@ -48,6 +48,11 @@ namespace CrewChiefV4.ACC
 
         private SPageFileCrewChief mostRecentUDPData = null;
 
+        private Dictionary<int, int> lapsCompletedByCarId = new Dictionary<int, int>();
+        private Dictionary<int, float> splinePositionByCarId = new Dictionary<int, float>();
+        private HashSet<int> carIdsWaitingForSplineReset = new HashSet<int>();
+        private HashSet<int> carIdsWithForcedLapIncrement = new HashSet<int>();
+
         public class ACCStructWrapper
         {
             public long ticksWhenRead;
@@ -199,12 +204,8 @@ namespace CrewChiefV4.ACC
                         return previousAACStructWrapper ?? structWrapper;
 
                     structWrapper.data = accShared;
-
-                    // Tyre missing data fixups
-                    structWrapper.data.accPhysics.tyreTempI = structWrapper.data.accPhysics.tyreTempM;
-                    structWrapper.data.accPhysics.tyreTempO = structWrapper.data.accPhysics.tyreTempM; 
-
-                    structWrapper.data.accStatic.isTimedRace = udpUpdateViewModel.SessionInfoVM.RemainingTime.TotalMilliseconds > 0 ? 1 : 0;
+                    
+                    structWrapper.data.accStatic.SET_FROM_UDP_isTimedRace = udpUpdateViewModel.SessionInfoVM.RemainingTime.TotalMilliseconds > 0 ? 1 : 0;
 
                     // New penality?
                     if (structWrapper.data.accGraphic.penaltyTime != ackPenalityTime)
@@ -311,8 +312,7 @@ namespace CrewChiefV4.ACC
                                 accShared.accStatic, accShared.accGraphic.position);
                             if (playerVehicle != null)
                             {
-                                activeVehicles.AddFirst(createCar(1, playerVehicle,accShared.accPhysics.wheelsPressure,
-                                    structWrapper.data.accGraphic.carIDs, structWrapper.data.accGraphic.carCoordinates));
+                                activeVehicles.AddFirst(createCar(1, playerVehicle, structWrapper.data.accGraphic.carIDs, structWrapper.data.accGraphic.carCoordinates));
                                 distancesTravelled.Add(playerVehicle.Laps + playerVehicle.SplinePosition);
 
                                 // only add a car to our data set if it exists in the UDP data and the shared memory car IDs array
@@ -320,8 +320,7 @@ namespace CrewChiefV4.ACC
                                 {
                                     if (car != playerVehicle && structWrapper.data.accGraphic.carIDs.Contains(car.CarIndex))
                                     {
-                                        activeVehicles.AddLast(createCar(0, car, new float[4],
-                                            structWrapper.data.accGraphic.carIDs, structWrapper.data.accGraphic.carCoordinates));
+                                        activeVehicles.AddLast(createCar(0, car, structWrapper.data.accGraphic.carIDs, structWrapper.data.accGraphic.carCoordinates));
                                         distancesTravelled.Add(car.Laps + car.SplinePosition);
                                     }
                                 }
@@ -362,8 +361,25 @@ namespace CrewChiefV4.ACC
             }
         }
 
-        // the tyreInflation data aren't available for opponents, so these will always be the player's tyre inflation or an array of zeros
-        private accVehicleInfo createCar(int carIsPlayerVehicle, CarViewModel car, float[] tyreInflation, int[] carIds, accVec3[] carPositions)
+        public string getCarModel(int carModelEnum)
+        {
+            // 4 classes in ACC - GT4 (class enum 50 - 61), Porsche Cup (class enum 9) and Huracan Super Trofeo (class enum 18). Everything else is GT3
+            if (carModelEnum == 9)
+            {
+                return "porsche_911_cup";
+            }
+            else if (carModelEnum == 18)
+            {
+                return "ks_lamborghini_huracan_st"; // this puts the ST in the GTE class
+            }
+            else if (carModelEnum >= 50 && carModelEnum <= 61)
+            {
+                return "GT4";
+            }
+            return "GT3";
+        }
+
+        private accVehicleInfo createCar(int carIsPlayerVehicle, CarViewModel car, int[] carIds, accVec3[] carPositions)
         {
             var currentLap = car.CurrentLap;
             var lastLap = car.LastLap;
@@ -390,28 +406,14 @@ namespace CrewChiefV4.ACC
                 x_coord = carPosition.x;
                 z_coord = carPosition.z;
             }
-            // 4 classes in ACC - GT4 (class enum 50 - 61), Porsche Cup (class enum 9) and Huracan Super Trofeo (class enum 18). Everything else is GT3
-            string carModel = "GT3";
-            if (car.CarModelEnum == 9)
-            {
-                carModel = "porsche_911_cup";
-            }
-            else if (car.CarModelEnum == 18)
-            {
-                carModel = "ks_lamborghini_huracan_st"; // this puts the ST in the GTE class
-            }
-            else if (car.CarModelEnum >= 50 && car.CarModelEnum <= 61)
-            {
-                carModel = "GT4";
-            }
-
+            int correctedLapCount = correctLapCount(car.Laps, car.SplinePosition, car.CarIndex);
             return new accVehicleInfo
             {
                 bestLapMS = (bestLap?.IsValid ?? false) ? bestLap.LaptimeMS ?? 0 : 0,
                 carId = car.CarIndex,
                 carLeaderboardPosition = car.Position,
-                carModel = carModel,
-                carRealTimeLeaderboardPosition = car.Position,
+                carModel = getCarModel(car.CarModelEnum),
+                carRealTimeLeaderboardPosition = car.Position,  /* don't be tempted to use TrackPosition here, it's always zero */    
                 currentLapInvalid = (currentLap?.IsValid ?? false) ? 0 : 1,
                 currentLapTimeMS = currentLap?.LaptimeMS ?? 0,
                 isPlayerVehicle = carIsPlayerVehicle,
@@ -419,16 +421,80 @@ namespace CrewChiefV4.ACC
                 isCarInPit = (car.CarLocation == CarLocationEnum.PitEntry || car.CarLocation == CarLocationEnum.PitExit || car.CarLocation == CarLocationEnum.Pitlane) ? 1 : 0,
                 isCarInPitline = (car.CarLocation == CarLocationEnum.Pitlane) ? 1 : 0,
                 isConnected = 1,
-                lapCount = car.Laps,
+                lapCount = correctedLapCount,
                 lastLapTimeMS = (lastLap?.IsValid ?? false) ? lastLap.LaptimeMS ?? 0 : 0,
                 speedMS = car.Kmh * 0.277778f,
                 spLineLength = car.SplinePosition,
                 worldPosition = new accVec3 { x = x_coord, z = z_coord },
-                tyreInflation = tyreInflation,
                 raceNumber = car.RaceNumber
             };            
         }
         
+        private int correctLapCount(int lapCountFromData, float splineFromData, int carId)
+        {
+            int correctedLapCount = lapCountFromData;
+            // 2 cases: one where the spline position is small (<0.1) and one where it's large (> 0.9). This is a bit arbitrary but it should be
+            // enough to catch the 2 possible cases
+            int previousLapsCompleted;
+            float previousSplinePosition;
+            // only proceed if we have data and we've completed 1 or more laps. Can't apply this correction
+            // on lap 1 because we don't know the difference between crossing the startline at the race start and crossing it after lap 1
+            if (lapCountFromData > 0 && lapsCompletedByCarId.TryGetValue(carId, out previousLapsCompleted) && splinePositionByCarId.TryGetValue(carId, out previousSplinePosition))
+            {
+                if (splineFromData > 0.9 && lapCountFromData > previousLapsCompleted && !carIdsWaitingForSplineReset.Contains(carId))
+                {
+                    // we've not yet crossed the line according to the spline position but the lap count has been incremented so we're waiting for the spline position to reset
+                    carIdsWaitingForSplineReset.Add(carId);
+                    carIdsWithForcedLapIncrement.Remove(carId);
+                    correctedLapCount = previousLapsCompleted;
+                    Console.WriteLine("Car " + carId + " lapcount increment blocked, waiting for spline to reset from " + splineFromData);
+                }
+                else if (splineFromData < 0.1 && splineFromData > 0)
+                {
+                    if (carIdsWithForcedLapIncrement.Contains(carId))
+                    {
+                        // we're in the early part of the lap and we've already established that the game was late sending the lap increment so use
+                        // the corrected value we saved
+                        correctedLapCount = lapsCompletedByCarId[carId];
+                    }
+                    else if (previousSplinePosition > 0.9)
+                    {
+                        // we've just crossed the line, see if we're waiting to increment or if we're late incrementing
+                        if (carIdsWaitingForSplineReset.Contains(carId))
+                        {
+                            // we can now allow the game's updated lap count to be used
+                            carIdsWaitingForSplineReset.Remove(carId);
+                            carIdsWithForcedLapIncrement.Remove(carId);
+                            lapsCompletedByCarId[carId] = lapCountFromData;
+                            Console.WriteLine("Car " + carId + " lapcount incremented after spline to reset");
+                        }
+                        else if (lapCountFromData == previousLapsCompleted && !carIdsWithForcedLapIncrement.Contains(carId))
+                        {
+                            // we've just crossed the line, our lap count should have been incremented but hasn't
+                            correctedLapCount = lapCountFromData + 1;
+                            carIdsWaitingForSplineReset.Remove(carId);
+                            carIdsWithForcedLapIncrement.Add(carId);
+                            lapsCompletedByCarId[carId] = correctedLapCount;
+                            Console.WriteLine("Car " + carId + " spline reset but lapcount hasn't incremented, forcing increment");
+                        }
+                    }
+                }
+                else
+                {
+                    // we're not in the interesting area of the lap so reset all the cached stuff
+                    carIdsWaitingForSplineReset.Remove(carId);
+                    carIdsWithForcedLapIncrement.Remove(carId);
+                    lapsCompletedByCarId[carId] = lapCountFromData;
+                }
+            }
+            else
+            {
+                lapsCompletedByCarId[carId] = lapCountFromData;
+            }
+            splinePositionByCarId[carId] = splineFromData;
+            return correctedLapCount;
+        }
+
         private CarViewModel getPlayerVehicle(List<CarViewModel> cars, int carId, SPageFileStatic accStatic, int positionFromSharedMem)
         {
             foreach (var car in cars)
@@ -498,7 +564,7 @@ namespace CrewChiefV4.ACC
                     memoryMappedPhysicsFile.Dispose();
                     memoryMappedPhysicsFile = null;
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
             }
             if (memoryMappedGraphicFile != null)
             {
@@ -507,7 +573,7 @@ namespace CrewChiefV4.ACC
                     memoryMappedGraphicFile.Dispose();
                     memoryMappedGraphicFile = null;
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
             }
             if (memoryMappedStaticFile != null)
             {
@@ -516,7 +582,7 @@ namespace CrewChiefV4.ACC
                     memoryMappedStaticFile.Dispose();
                     memoryMappedStaticFile = null;
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
             }
             if (udpUpdateViewModel != null)
             {
@@ -524,7 +590,7 @@ namespace CrewChiefV4.ACC
                 {
                     udpUpdateViewModel.Shutdown();
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
             }
             initialised = false;
         }

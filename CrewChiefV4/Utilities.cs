@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading;
 using WebSocketSharp;
 using WebSocketSharp.Server;
@@ -36,7 +37,7 @@ namespace CrewChiefV4
         {
             this.messageNames = messageNames;
             this.minCount = minCount;
-            this.maxCount = maxCount;            
+            this.maxCount = maxCount;
         }
         // expect a specific message to be played the exact number of times - note that the DELAYED_ and COMPOUND_ prefixes are also considered here
         public ExpectedMessage(string messageName, int exactCount)
@@ -87,15 +88,15 @@ namespace CrewChiefV4
         // TODO: move the hard-coded Strings to a messageNames class and reference these in all the events instead of using random
         // magic Strings everywhere
         private static ExpectedMessage[] defaultExpectedMessagesForRaceSessions = new ExpectedMessage[]
-        {        
+        {
             new ExpectedMessage("lap_counter/get_ready", 1),
             new ExpectedMessage("lap_counter/green_green_green", 1),
             new ExpectedMessage("position", 1, 1000), // expect at least *some* position messages
             new ExpectedMessage(new string[] {"Timings/gap_behind", "Timings/gap_in_front"}, 1, 1000), // expect at least *some* gap messages
             new ExpectedMessage(new string[] {"fuel/half_distance_good_fuel", "fuel/half_distance_low_fuel"}, 0, 1),    // won't always get this, but should never have > 1
-            new ExpectedMessage(new string[] {"lap_counter/two_to_go", "lap_counter/two_to_go_top_three", "lap_counter/two_to_go_leading", 
+            new ExpectedMessage(new string[] {"lap_counter/two_to_go", "lap_counter/two_to_go_top_three", "lap_counter/two_to_go_leading",
                 "race_time/five_minutes_left_podium", "race_time/five_minutes_left_leading", "race_time/five_minutes_left"}, 1),    // should always get 1 2-to-go or 5-mins-to-go
-            new ExpectedMessage(new string[] {"lap_counter/last_lap", "lap_counter/white_flag_last_lap", "lap_counter/last_lap_leading", 
+            new ExpectedMessage(new string[] {"lap_counter/last_lap", "lap_counter/white_flag_last_lap", "lap_counter/last_lap_leading",
                 "lap_counter/last_lap_top_three", "race_time/last_lap", "race_time/last_lap_leading", "race_time/last_lap_top_three"}, 1),  // should always get 1 last-lap
             new ExpectedMessage("SESSION_END", 1)   // should always get 1 session end
         };
@@ -117,7 +118,7 @@ namespace CrewChiefV4
         public static GameDataReader gameDataReader;
 
         public static GameDataSerializer gameDataSerializer;
-        
+
         public static void checkPlaybackCounts()
         {
             if (includesRaceSession)
@@ -220,7 +221,7 @@ namespace CrewChiefV4
             }
         }
 
-        private static void stopGameDataWebsocketServer() 
+        private static void stopGameDataWebsocketServer()
         {
             GameDataWebsocketData.reset();
             try
@@ -241,10 +242,22 @@ namespace CrewChiefV4
             }
         }
 
-        public static bool IsGameRunning(String processName, String[] alternateProcessNames)
+        public static bool IsGameRunning(String processName, String[] alternateProcessNames, out String parentDir)
         {
-            if (Process.GetProcessesByName(processName).Length > 0)
+            parentDir = null;
+
+            var proc = Process.GetProcessesByName(processName);
+            if (proc.Length > 0)
             {
+                if (CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)
+                {
+                    try
+                    {
+                        parentDir = Path.GetDirectoryName(proc[0].MainModule.FileName);
+                    }
+                    catch (Win32Exception) { /*Ignore - anti cheat protection?*/ }
+                    catch (Exception e) { Log.Exception(e); }
+                }
                 return true;
             }
             else if (alternateProcessNames != null && alternateProcessNames.Length > 0)
@@ -298,7 +311,7 @@ namespace CrewChiefV4
          * For tyre life estimates we want to know how long the tyres will last, so we're asking for a time prediction
          * given a wear amount (100% wear). So y_data is the y-axis which may be time points (session running time) or
          * number of sectors since session start incrementing +1 for each sector. When we change tyres we clear these
-         * data sets but the y-axis time / sector counts will start at however long into the session (time or total 
+         * data sets but the y-axis time / sector counts will start at however long into the session (time or total
          * sectors) we are.
          * x_data is the tyre wear at that y point (a percentage).
          * the x_point is the point you want to predict the life - wear amount. So we pass 100% in here to give us
@@ -427,42 +440,144 @@ namespace CrewChiefV4
         /// <param name="newArgs"></param>
         /// <param name="removeSkipUpdates"></param>
         /// <returns>true if app restarted</returns>
-        public static bool RestartApp(List<String> newArgs=null, bool removeSkipUpdates = false)
+        public static bool RestartApp(
+            bool app_restart = false,
+            bool removeSkipUpdates = false,
+            bool removeProfile = false)
         {
             if (!CrewChief.Debugging)
             {
-                List<String> startArgs = new List<string>();
-                foreach (String startArg in Environment.GetCommandLineArgs())
+                if (app_restart)
                 {
-                    // if we're restarting because the 'force update check'
-                    // was clicked, remove the '-skip_updates' arg
-                    if (removeSkipUpdates && 
-                        ("-skip_updates".Equals(startArg, StringComparison.InvariantCultureIgnoreCase)
-                        || "SKIP_UPDATES".Equals(startArg)))
-                    {
-                        continue;
-                    }
-                    startArgs.Add(startArg);
+                    CrewChief.CommandLine.Add("app_restart", "");
                 }
-
-                // Always have to add "-multi" to the start args so the app can restart
-                if (newArgs == null)
-                    newArgs = new List<string>();
-                newArgs.Add("-multi");
-                foreach (string arg in newArgs)
+                // if we're restarting because the 'force update check'
+                // was clicked, remove the '-skip_updates' arg
+                if (removeSkipUpdates)
                 {
-                    if (!startArgs.Contains(arg))
-                    {
-                        startArgs.Add(arg);
-                    }
+                    CrewChief.CommandLine.Remove("skip_updates");
+                    CrewChief.CommandLine.Remove("SKIP_UPDATES");
+                }
+                if (removeProfile)
+                {
+                    CrewChief.CommandLine.Remove("profile");
+                }
+                // Always have to add "-multi" to the start args so the app can restart
+                CrewChief.CommandLine.Add("multi", "");
+
+                // Translate the dict back into a command line
+                var newArgs = new List<string>();
+                foreach (var arg in CrewChief.CommandLine._dict)
+                {
+                    newArgs.Add("-" + arg.Key);
+                    newArgs.Add(arg.Value);
                 }
                 System.Diagnostics.Process.Start(    // to start new instance of application
                     System.Windows.Forms.Application.ExecutablePath,
-                    String.Join(" ", startArgs.ToArray()));
+                    String.Join(" ", newArgs.ToArray()));
                 return true;
             }
             // If debugging then carry on regardless
             return false;
+        }
+
+    /// <summary>
+    /// Read the command line arguments into a dictionary
+    /// </summary>
+    public class CommandLineParametersReader
+        {
+            private string[] _args
+            {
+                get;
+            }
+            public Dictionary<string, string> _dict
+            {
+                get;
+            }
+
+            private bool CaseSensitive
+            {
+                get;
+            }
+
+            public CommandLineParametersReader(string[] args=null, bool isCaseSensitive=false)
+            {
+                if (args == null)
+                {
+                    args = Environment.GetCommandLineArgs();
+                }
+                _args = args;
+                CaseSensitive = isCaseSensitive;
+                _dict = new Dictionary<string, string>();
+                Process();
+            }
+
+            // Process Arguments into KeyPairs
+            private void Process()
+            {
+                string currentKey = null;
+                foreach (var arg in _args)
+                {
+                    var s = arg.Trim();
+                    if (s.StartsWith("-"))
+                    {
+                        currentKey = s.Substring(1);
+                        if (!CaseSensitive)
+                        {
+                            currentKey = currentKey.ToLower();
+                        }
+                        _dict[currentKey] = "";
+                    }
+                    else
+                    {
+                        if (currentKey != null)
+                        {
+                            _dict[currentKey] = s;
+                            currentKey = null;
+                        }
+                    }
+                }
+            }
+
+            // Return the Key with a default value
+            public string Get(string key, string defaultvalue = null)
+            {
+                if (!CaseSensitive)
+                {
+                    key = key.ToLower();
+                }
+                return _dict.ContainsKey(key) ? _dict[key] : defaultvalue;
+            }
+
+            public void Add(string key, string value)
+            {
+                _dict[key] = value;
+            }
+            public void Remove(string key)
+            {
+                if (_dict.ContainsKey(key))
+                {
+                    _dict.Remove(key);
+                }
+            }
+            /// <summary>
+            /// Return a -c_[command] argument
+            /// </summary>
+            /// <returns>
+            /// The command or "" if none
+            /// </returns>
+            public string GetCommandArg()
+            {
+                string cmd = "";
+                foreach (var arg in _dict)
+                {
+                    if (arg.Key.StartsWith("c_"))
+                    {
+                        cmd = "-" + arg.Key;
+                    }
+                }
+                return cmd;
+            }
         }
 
         internal static void ReportException(Exception e, string msg, bool needReport)
@@ -551,6 +666,68 @@ namespace CrewChiefV4
 
         [System.Runtime.InteropServices.DllImport("kernel32.dll")]
         public static extern long GetTickCount64();
+
+        public static IEnumerable<Enum> GetEnumFlags(Enum input)
+        {
+            foreach (Enum value in Enum.GetValues(input.GetType()))
+            {
+                if (input.HasFlag(value))
+                    yield return value;
+            }
+        }
+
+        public static string GetFileContentsJsonWithComment(string fullFilePath)
+        {
+            var jsonString = new StringBuilder();
+            StreamReader file = null;
+            try
+            {
+                file = new StreamReader(fullFilePath);
+                String line;
+                while ((line = file.ReadLine()) != null)
+                {
+                    if (!line.Trim().StartsWith("#"))
+                    {
+                        jsonString.AppendLine(line);
+                    }
+                }
+                return jsonString.ToString();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error reading file " + fullFilePath + ": " + e.Message);
+            }
+            finally
+            {
+                if (file != null)
+                {
+                    file.Close();
+                }
+            }
+            return null;
+        }
+
+        [DllImport("kernel32", CharSet = CharSet.Unicode)]
+        private static extern int GetPrivateProfileString(string section, string key,
+            string defaultValue, StringBuilder value, int size, string filePath);
+
+        [DllImport("kernel32", CharSet = CharSet.Unicode, SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool WritePrivateProfileString(string section, string key,
+            string value, string filePath);
+
+        public static string ReadIniValue(string section, string key, string filePath, string defaultValue = "")
+        {
+            var value = new StringBuilder(512);
+            GetPrivateProfileString(section, key, defaultValue, value, value.Capacity, filePath);
+            return value.ToString();
+        }
+
+        public static bool WriteIniValue(string section, string key, string value, string filePath)
+        {
+            bool result = WritePrivateProfileString(section, key, value, filePath);
+            return result;
+        }
     }
 
     public class WebsocketData : WebSocketBehavior

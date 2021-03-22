@@ -45,6 +45,7 @@ HOWS_MY_PACE = how's my pace
 HOWS_MY_SELF_PACE = how's my self gap:how's my personal pace:how's my delta best
 HOW_ARE_MY_TYRE_TEMPS = how are my tire temps:how are my tire temperatures
 WHAT_ARE_MY_TYRE_TEMPS = what are my tire temps:what are my tire temperatures:tire temps:tire temperatures
+WHAT_ARE_MY_TYRE_PRESSURES = what are my tire pressures:tire pressures
 HOW_ARE_MY_BRAKE_TEMPS = how are my brake temps:how are my brake temperatures
 WHAT_ARE_MY_BRAKE_TEMPS = what are my brake temps:what are my brake temperatures:brake temps:brake temperatures
 HOW_ARE_MY_ENGINE_TEMPS = how are my engine temps:how are my engine temperatures
@@ -61,6 +62,7 @@ WHATS_MY_FUEL_LEVEL = what's my fuel level
 WHATS_MY_FUEL_USAGE = what's my fuel usage:what's my fuel consumption:what's my fuel use
 WHATS_MY_IRATING = whats my eye rating
 WHATS_MY_LICENSE_CLASS = what's my licence class
+WHATS_MY_EXPECTED_FINISH_POSITION = what's my expected finish position:what's my expected position
 WHAT_TYRES_AM_I_ON = what tires am i on:what tire am i on:what tire type am i on
 IS_MY_PIT_BOX_OCCUPIED = is my pit box occupied:is my pit stall occupied
 HOW_MUCH_FUEL_TO_END_OF_RACE = how much fuel to the end:how much fuel do we need
@@ -176,7 +178,7 @@ WHATS_MY_RANK = what's my rank
 WHATS_MY_RATING = what's my rating
 WHATS_MY_REPUTATION = what's my reputation
 
-STOP_WATCHING_ALL = cancel watched drivers:stop watching drivers:stop watching all
+STOP_WATCHING_ALL = cancel monitored drivers:stop monitoring drivers:stop monitoring all
 
 #################################################
 # Dynamic recognition phrase fragments - these are used to build up recognition sentences for opponent information.
@@ -276,9 +278,11 @@ IRATING = eye rating
 RATING = rating
 REPUTATION = reputation
 RANK = rank
+#  this gets a combined rank and reputation - "how good is bob" / "how good is the driver in front"
+HOW_GOOD_IS = how good is
 
-WATCH = watch
-STOP_WATCHING = stop watching
+WATCH = monitor
+STOP_WATCHING = stop monitoring
 RIVAL = rival
 TEAM_MATE = team mate
 
@@ -297,31 +301,31 @@ HOUR = hour
 HOURS = hours
 
 # used for iracing and rF2 pitstop commands
-PIT_STOP = pitstop
-PIT_STOP_ADD = pitstop add
-PIT_STOP_TEAROFF = pitstop tearoff:pitstop windscreen
-PIT_STOP_FAST_REPAIR = pitstop fast repair:pitstop repair
-PIT_STOP_CLEAR_ALL = pitstop clear all
-PIT_STOP_CLEAR_TYRES = pitstop clear tyres:pitstop don't change tyres:box, clear tyres:box, don't change tyres
-PIT_STOP_CLEAR_WIND_SCREEN = pitstop clear tearoff:pitstop clear windscreen
-PIT_STOP_CLEAR_FAST_REPAIR = pitstop clear fast repair
-PIT_STOP_CLEAR_FUEL = pitstop clear fuel
+PIT_STOP_ADD = pitstop add:box, add
+PIT_STOP_TEAROFF = pitstop tearoff:box, tearoff:pitstop windscreen:box, windscreen
+PIT_STOP_FAST_REPAIR = pitstop fast repair:box, fast repair:pitstop repair:box, repair
+PIT_STOP_CLEAR_ALL = pitstop clear all:box, clear all
+PIT_STOP_CLEAR_TYRES = pitstop clear tyres:box, clear tyres:pitstop don't change tyres:box, don't change tyres
+PIT_STOP_CLEAR_WIND_SCREEN = pitstop clear tearoff:box, clear tearoff:pitstop clear windscreen:box, clear windscreen
+PIT_STOP_CLEAR_FAST_REPAIR = pitstop clear fast repair:box, clear fast repair
+PIT_STOP_CLEAR_FUEL = pitstop clear fuel:box, clear fuel
 
 PIT_STOP_CHANGE_ALL_TYRES = pitstop change all tyres:box, change all tyres
-PIT_STOP_CHANGE_FRONT_LEFT_TYRE = pitstop change left front tyre:pitstop change front left tyre
-PIT_STOP_CHANGE_FRONT_RIGHT_TYRE = pitstop change right front tyre:pitstop change front right tyre
-PIT_STOP_CHANGE_REAR_LEFT_TYRE = pitstop change left rear tyre:pitstop change rear left tyre
-PIT_STOP_CHANGE_REAR_RIGHT_TYRE = pitstop change right rear tyre:pitstop change rear right tyre
-PIT_STOP_CHANGE_LEFT_SIDE_TYRES = pitstop change left side tyres
-PIT_STOP_CHANGE_RIGHT_SIDE_TYRES = pitstop change right side tyres
+PIT_STOP_CHANGE_TYRES = pitstop change tyres:box, change tyres
+PIT_STOP_CHANGE_FRONT_LEFT_TYRE = pitstop change left front tyre:box, change left front tyre:pitstop change front left tyre:box, change front left tyre
+PIT_STOP_CHANGE_FRONT_RIGHT_TYRE = pitstop change right front tyre:box, change right front tyre:pitstop change front right tyre:box, change front right tyre
+PIT_STOP_CHANGE_REAR_LEFT_TYRE = pitstop change left rear tyre:box, change left rear tyre:pitstop change rear left tyre:box, change rear left tyre
+PIT_STOP_CHANGE_REAR_RIGHT_TYRE = pitstop change right rear tyre:box, change right rear tyre:pitstop change rear right tyre:box, change rear right tyre
+PIT_STOP_CHANGE_LEFT_SIDE_TYRES = pitstop change left side tyres:box, change left side tyres
+PIT_STOP_CHANGE_RIGHT_SIDE_TYRES = pitstop change right side tyres:box, change right side tyres
 
-PIT_STOP_CHANGE_TYRE_PRESSURE = pitstop change tyres pressure
-PIT_STOP_CHANGE_FRONT_LEFT_TYRE_PRESSURE = pitstop change left front tyre pressure
-PIT_STOP_CHANGE_FRONT_RIGHT_TYRE_PRESSURE = pitstop change right front tyre pressure
-PIT_STOP_CHANGE_REAR_LEFT_TYRE_PRESSURE = pitstop change left rear tyre pressure
-PIT_STOP_CHANGE_REAR_RIGHT_TYRE_PRESSURE = pitstop change right rear tyre pressure
-PIT_STOP_FUEL_TO_THE_END = pitstop fuel to the end:pitstop fuel to the end of the race:box, fuel to the end
-
+PIT_STOP_CHANGE_TYRE_PRESSURE = pitstop change tyre pressures:box, change tyre pressures
+PIT_STOP_CHANGE_FRONT_LEFT_TYRE_PRESSURE = pitstop change left front tyre pressure:box, change left front tyre pressure
+PIT_STOP_CHANGE_FRONT_RIGHT_TYRE_PRESSURE = pitstop change right front tyre pressure:box, change right front tyre pressure
+PIT_STOP_CHANGE_REAR_LEFT_TYRE_PRESSURE = pitstop change left rear tyre pressure:box, change left rear tyre pressure
+PIT_STOP_CHANGE_REAR_RIGHT_TYRE_PRESSURE = pitstop change right rear tyre pressure:box, change right rear tyre pressure
+PIT_STOP_FUEL_TO_THE_END = pitstop fuel to the end:box, fuel to the end:pitstop fuel to the end of the race:box, fuel to the end of the race
+POINT = point
 
 // R3E-specific pit commands
 PIT_STOP_CHANGE_FRONT_TYRES = pitstop change front tyres only:box, change front tyres only
@@ -335,27 +339,47 @@ PIT_STOP_DONT_FIX_SUSPENSION = pitstop don't fix suspension:box, don't fix suspe
 PIT_STOP_SERVE_PENALTY = pitstop serve penalty:box, serve penalty
 PIT_STOP_DONT_SERVE_PENALTY = pitstop don't serve penalty:box, don't serve penalty
 PIT_STOP_REFUEL = pitstop refuel:box, refuel
-PIT_STOP_DONT_REFUEL = pitstop don't refuel:box, don't refuel:pitstop clear fuel
-PIT_STOP_NEXT_TYRE_COMPOUND = pitstop next tyre compound:box, next tyre compound
-PIT_STOP_HARD_TYRES = pitstop hard tyres:box, hard tyres
-PIT_STOP_MEDIUM_TYRES = pitstop medium tyres:box, medium tyres
-PIT_STOP_SOFT_TYRES = pitstop soft tyres:box, soft tyres
-PIT_STOP_PRIME_TYRES = pitstop prime tyres:box, prime tyres:pitstop primary tyres:box, primary tyres
-PIT_STOP_OPTION_TYRES = pitstop option tyres:box, option tyres
-PIT_STOP_ALTERNATE_TYRES = pitstop alternate tyres:box, alternate tyres
+PIT_STOP_DONT_REFUEL = pitstop don't refuel:box, don't refuel:pitstop clear fuel:box, clear fuel
+PIT_STOP_NEXT_TYRE_COMPOUND = pitstop next tire compound:box, next tire compound
+PIT_STOP_HARD_TYRES = pitstop hard tires:box, hard tires
+PIT_STOP_MEDIUM_TYRES = pitstop medium tires:box, medium tires
+PIT_STOP_SOFT_TYRES = pitstop soft tires:box, soft tires
+PIT_STOP_SUPERSOFT_TYRES = pitstop super soft tires:box, super soft tires
+PIT_STOP_ULTRASOFT_TYRES = pitstop ultra soft tires:box, ultra soft tires
+PIT_STOP_HYPERSOFT_TYRES = pitstop hyper soft tires:box, hyper soft tires
+PIT_STOP_PRIME_TYRES = pitstop prime tires:box, prime tires:pitstop primary tires:box, primary tyres
+PIT_STOP_OPTION_TYRES = pitstop option tires:box, option tires
+
+// ACC specific pit commands
+PIT_STOP_ALTERNATE_TYRES = pitstop alternate tyres:box, alternate tires
+PIT_STOP_CHANGE_FRONT_PRESSURES = pitstop change front pressures:box change front pressures
+PIT_STOP_CHANGE_REAR_PRESSURES = pitstop change rear pressures:box change rear pressures
+PIT_STOP_SELECT_TYRE_SET = pitstop tire set:box tire set
 
 // Pit Manager/rF2-specific pit commands
-PIT_STOP_FIX_BODY = pitstop fix body:box, fix body
+PIT_STOP_FIX_ALL = pitstop fix all:box, fix all:pitstop repair all:box, repair all
+PIT_STOP_FIX_BODY = pitstop fix body:box, fix body:pitstop repair body:box, repair body
+PIT_STOP_FIX_NONE = pitstop fix none:box, fix none:pitstop repair none:box, repair none
 PIT_STOP_INTERMEDIATE_TYRES = pitstop intermediate tyres:box, intermediate tyres
 PIT_STOP_WET_TYRES = pitstop wet tyres:box, wet tyres
+PIT_STOP_DRY_TYRES = pitstop dry tyres:box, dry tyres
 PIT_STOP_MONSOON_TYRES = pitstop monsoon tyres:box, monsoon tyres
+PIT_STOP_FILL_TO = pitstop fill to:box, fill to
+
+DISPLAY_SECTORS = display sectors:display sector times
+DISPLAY_PIT_MENU = display pit menu
+DISPLAY_TYRES = display tyres
+DISPLAY_TEMPS = display temps:display temperatures
+DISPLAY_RACE_INFO = display race info
+DISPLAY_STANDINGS = display standings
+DISPLAY_PENALTIES = display penalties
 
 LITERS = liters
 GALLONS = gallons
 
-HOW_MANY_INCIDENT_POINTS = how many incidents do i have:what's my incident count
-WHATS_THE_INCIDENT_LIMIT = what's the incident limit
-WHATS_THE_SOF = what's the sof:what is the strength of field
+HOW_MANY_INCIDENT_POINTS = how many incidents do i have:how many incident points do i have:what's my incident count:what are my incident points
+WHATS_THE_INCIDENT_LIMIT = what's the incident limit:what's the incident points limit
+WHATS_THE_SOF = what's the sof:what is the strength of field:what's the strength of field
 
 
 #################################################
@@ -426,6 +450,114 @@ CHART_FRAGMENT_RR_TEMPS = right rear surface temps:right rear temps
 # subtitle overlay commands
 SHOW_SUBTITLES = show subtitles
 HIDE_SUBTITLES = hide subtitles:close subtitles
+
+# Rally-specific commands
+RALLY_EARLIER_CALLS = earlier calls:more notice
+RALLY_LATER_CALLS = later calls
+RALLY_CORNER_NUMBER_FIRST = corner number first:use corner number first
+RALLY_CORNER_DECRIPTIONS = corner description:use corner description
+RALLY_CORNER_DIRECTION_FIRST = corner direction first:use corner direction first
+RALLY_START_RECORDING_STAGE_NOTES = start stage reccy:start reccy:start recording pace notes:start recording stage notes
+RALLY_FINISH_RECORDING_STAGE_NOTES = finish stage reccy:finish reccy:finish recording pace notes:finish recording stage notes
+RALLY_CORRECTION = correction
+RALLY_EARLIER = earlier:sooner
+RALLY_LATER = later
+RALLY_INSERT = insert
+RALLY_LEFT = left
+RALLY_RIGHT = right
+RALLY_1 = one:acute
+RALLY_2 = two:kay
+RALLY_3 = three:slow
+RALLY_4 = four:medium
+RALLY_5 = five:fast
+RALLY_6 = six:slight
+RALLY_SQUARE = square
+RALLY_HAIRPIN = hairpin
+RALLY_OPEN_HAIRPIN = open hairpin
+RALLY_FLAT = flat
+RALLY_TIGHTENS_TO_1 = tightens to one:tightens one:tightens acute:tightens to acute
+RALLY_TIGHTENS_TO_2 = tightens to two:tightens two:tightens kay:tightens to kay
+RALLY_TIGHTENS_TO_3 = tightens to three:tightens three:tightens slow:tightens to slow
+RALLY_TIGHTENS_TO_4 = tightens to four:tightens four:tightens medium:tightens to medium
+RALLY_TIGHTENS_TO_5 = tightens to five:tightens five:tightens fast:tightens to fast
+RALLY_TIGHTENS_TO_HAIRPIN = tightens to hairpin:tightens hairpin
+RALLY_CUT = cut
+RALLY_DONT_CUT = don't cut
+RALLY_TIGHTENS = tightens
+RALLY_TIGHTENS_BAD = tightens bad
+RALLY_WIDENS = widens
+RALLY_WIDE_OUT = wide out
+RALLY_NARROWS = narrows
+RALLY_THROUGH_GATE = gate:through gate
+RALLY_OPENS = opens
+RALLY_LONG = long
+RALLY_LONGLONG = very long
+RALLY_BAD_CAMBER = bad camber
+RALLY_BRIDGE = bridge
+RALLY_OVER_BRIDGE = over bridge
+RALLY_FORD = ford:water splash:water crossing
+RALLY_CREST = crest
+RALLY_OVER_CREST = over crest
+RALLY_JUMP = jump
+RALLY_OVER_JUMP = over jump
+RALLY_BIG_JUMP = big jump:over big jump
+RALLY_MAYBE = maybe
+RALLY_JUNCTION = over junction:junction:past junction:through junction
+RALLY_CAUTION = caution
+RALLY_START_RECE = start stage reccy
+RALLY_FINISH_RECE = finish stage reccy:end stage reccy
+RALLY_DISTANCE = distance
+RALLY_TARMAC = onto tarmac:tarmac
+RALLY_GRAVEL = onto gravel:gravel
+RALLY_SNOW = onto snow:snow
+RALLY_SLIPPY = slippy:slippery
+RALLY_CONCRETE = onto concrete:concrete
+RALLY_RUTS = ruts
+RALLY_DEEP_RUTS = deep ruts
+RALLY_TUNNEL = tunnel
+RALLY_LEFT_ENTRY_CHICANE = left entry chicane
+RALLY_RIGHT_ENTRY_CHICANE = right entry chicane
+RALLY_TIGHTENS_THEN_OPENS = tightens then opens
+RALLY_OPENS_THEN_TIGHTENS = opens then tightens
+RALLY_CARE = care
+RALLY_DOUBLE_CAUTION = double caution
+RALLY_DANGER = danger:triple caution
+RALLY_KEEP_MIDDLE = keep middle:keep center
+RALLY_KEEP_LEFT = keep left
+RALLY_KEEP_RIGHT = keep right
+RALLY_KEEP_IN = keep in
+RALLY_KEEP_OUT = keep out
+RALLY_BUMPS = bumps:bumpy
+RALLY_OVER_RAILS = over rails
+RALLY_DOWNHILL = down hill
+RALLY_UPHILL = up hill
+RALLY_BRAKE = braking:brake
+RALLY_GO_STRAIGHT = go straight
+RALLY_TWISTY = twisty
+RALLY_DIP = dip
+RALLY_PLUS = plus
+RALLY_MINUS = minus
+RALLY_LOGS_INSIDE = log inside:logs inside
+RALLY_ROCKS_INSIDE = rock inside:rocks inside
+RALLY_TREE_INSIDE = tree inside:trees inside
+RALLY_LOGS_OUTSIDE = log outside:logs outside
+RALLY_ROCKS_OUTSIDE = rock outside:rocks outside
+RALLY_TREE_OUTSIDE = tree outside:trees outside
+RALLY_LOOSE_GRAVEL = onto loose gravel:loose gravel
+RALLY_INTO = into
+RALLY_THEN = then
+RALLY_AND = and
+
+RALLY_RIGHT_HOMOPHONES = write:wright:rate
+RALLY_1_HOMOPHONES = 1
+RALLY_2_HOMOPHONES = 2:too:to
+RALLY_3_HOMOPHONES = 3
+RALLY_4_HOMOPHONES = 4:for
+RALLY_5_HOMOPHONES = 5
+RALLY_6_HOMOPHONES = 6:sex
+RALLY_HAIRPIN_HOMOPHONES = hair-pin:hair pin:hare pin
+RALLY_FLAT_HOMOPHONES = fat
+
 
 #################################################
 # numbers - these are the text strings the voice recogniser will listen for (it's not good at listening for numeric characters)

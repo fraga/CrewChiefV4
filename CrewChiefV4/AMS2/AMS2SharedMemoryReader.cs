@@ -168,7 +168,7 @@ namespace CrewChiefV4.AMS2
                     memoryMappedFile.Dispose();
                     memoryMappedFile = null;
                 }
-                catch (Exception) { }
+                catch (Exception e) {Log.Exception(e);}
             }
             initialised = false;
         }

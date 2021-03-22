@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using CrewChiefV4.commands;
 using System.IO;
+using System.Threading;
+using static CrewChiefV4.ControllerConfiguration;
 
 namespace CrewChiefV4
 {
@@ -18,8 +20,14 @@ namespace CrewChiefV4
         public static List<String> builtInKeyMappings = new List<String>();
         MacroContainer macroContainer = null;
         List<GameDefinition> availableMacroGames = null;
-        public MacroEditor(Form parent)
+        ControllerConfiguration controllerConfiguration;
+
+        private Thread assignButtonThread = null;
+        bool isAssigningButton = false;
+
+        public MacroEditor(Form parent, ControllerConfiguration controllerConfiguration)
         {
+            this.controllerConfiguration = controllerConfiguration;
             StartPosition = FormStartPosition.CenterParent;
             InitializeComponent();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
@@ -65,12 +73,18 @@ namespace CrewChiefV4
             radioButtonWaitAction.Text = Configuration.getUIString("wait_action");
             radioButtonFreeTextAction.Text = Configuration.getUIString("free_text_action");
             radioButtonAdvancedEditAction.Text = Configuration.getUIString("advanced_edit_action");
+            radioButtonModifierAndKey.Text = Configuration.getUIString("modifier_and_key");
             buttonAddSelectedKeyToSequence.Text = Configuration.getUIString("add_key_to_sequence");
             buttonUndoLastAction.Text = Configuration.getUIString("undo_last_action");
             labelActionKeys.Text = Configuration.getUIString("actions_keys");
+            lableModifierKeys.Text = Configuration.getUIString("modifier_keys");
             // Load
             buttonLoadUserMacroSettings.Text = Configuration.getUIString("load_user_macro_settings");
             buttonLoadDefaultMacroSettings.Text = Configuration.getUIString("load_default_macro_settings");
+
+            deleteAssignmentButton.Text = Configuration.getUIString("delete_assignment");
+            addAssignmentButton.Text = Configuration.getUIString("assign_control");
+            currentAssignmentLabel.Text = Configuration.getUIString("no_control_assigned");
 
             radioButtonRegularKeyAction.Checked = true;
             radioButtonViewOnly.Checked = true;
@@ -86,10 +100,14 @@ namespace CrewChiefV4
             {
                 comboBoxKeySelection.Items.AddRange(builtInKeyMappings.ToArray());
             }
+            if (comboBoxModifierKeySelection.Items.Count <= 0)
+            {
+                comboBoxModifierKeySelection.Items.AddRange(builtInKeyMappings.ToArray());
+            }
             macroContainer = MacroManager.loadCommands(MacroManager.getMacrosFileLocation());
 
-            availableMacroGames = GameDefinition.getAllGameDefinitions().Where(
-                gd => gd.gameEnum != GameEnum.PCARS2_NETWORK && gd.gameEnum != GameEnum.AMS2 && gd.gameEnum != GameEnum.AMS2_NETWORK).ToList();
+            availableMacroGames = GameDefinition.getAllAvailableGameDefinitions(true).Where(
+                gd => gd.gameEnum != GameEnum.PCARS2_NETWORK).ToList();
             var items = from name in availableMacroGames orderby name.friendlyName ascending select name;
             availableMacroGames = items.ToList();
             listBoxGames.Items.Clear();
@@ -98,11 +116,23 @@ namespace CrewChiefV4
                 listBoxGames.Items.Add(mapping.macroEditorName);
             }
             // try to select the CME game matching the main window game
-            var selection = Math.Min(MainWindow.instance.gameDefinitionList.SelectedIndex,
+            var selectionIndexFromPosition = Math.Min(MainWindow.instance.gameDefinitionList.SelectedIndex,
                 listBoxGames.Items.Count-1);
-            listBoxGames.SetSelected(selection, true);
+            var selectionIndexFromName = listBoxGames.Items.IndexOf(MainWindow.instance.gameDefinitionList.SelectedItem);
+
+            if (selectionIndexFromName != -1)
+            {
+                listBoxGames.SetSelected(selectionIndexFromName, true);
+            }
+            else if (selectionIndexFromPosition != -1)
+            {
+                listBoxGames.SetSelected(selectionIndexFromPosition, true);
+            }
             updateMacroList();
             listBoxGames.Select();
+
+            updateControllersList();
+            updateAssignmentElements(true);
 
             this.KeyPreview = true;
             this.KeyDown += this.MacroEditor_KeyDown;
@@ -122,6 +152,7 @@ namespace CrewChiefV4
             textBoxActionSequence.Text = "";
             textBoxDescription.Text = "";
             comboBoxKeySelection.SelectedIndex = -1;
+            comboBoxModifierKeySelection.SelectedIndex = -1;
             if (listBoxGames.SelectedIndex != -1)
             {
                 buttonAddActionSequence.Text = Configuration.getUIString("add_action_sequence") + " " + listBoxGames.Items[listBoxGames.SelectedIndex].ToString();
@@ -137,7 +168,7 @@ namespace CrewChiefV4
             textBoxActionSequence.Text = "";
             textBoxDescription.Text = "";
             textBoxConfirmationMessage.Text = "";
-            textBoxKeyPressTime.Text = "20";
+            textBoxKeyPressTime.Text = "";
             textBoxWaitBetweenEachCommand.Text = "60";
             textBoxGameMacroDescription.Text = "";
             textBoxAddNewMacro.Text = "";
@@ -177,12 +208,47 @@ namespace CrewChiefV4
                     if (macroForGame != null)
                     {
                         textBoxActionSequence.Lines = macroForGame.actionSequence;
-                        textBoxKeyPressTime.Text = macroForGame.keyPressTime.ToString();
+                        textBoxKeyPressTime.Text = macroForGame.keyPressTime == null ? "" : macroForGame.keyPressTime.Value.ToString();
                         textBoxWaitBetweenEachCommand.Text = macroForGame.waitBetweenEachCommand.ToString();
                         textBoxGameMacroDescription.Text = macroForGame.description;
                     }
                 }
 
+            }
+            updateAssignmentElements(true);
+        }
+
+        private void updateAssignmentElements(bool updateSelectedController)
+        {
+            Macro currentMacro = macroContainer.macros.FirstOrDefault(mc => mc.name == listBoxAvailableMacros.Items[listBoxAvailableMacros.SelectedIndex].ToString());
+            this.addAssignmentButton.Enabled = currentMacro != null && this.controllersList.SelectedIndex > -1 && ((MainWindow.ControllerUiEntry)this.controllersList.Items[this.controllersList.SelectedIndex]).isConnected;
+            if (currentMacro != null && currentMacro.buttonTriggers != null && currentMacro.buttonTriggers.Length > 0
+                && currentMacro.buttonTriggers[0].deviceId != null && currentMacro.buttonTriggers[0].deviceId.Length > 0)
+            {
+                this.currentAssignmentLabel.Text = "Assigned to " + currentMacro.buttonTriggers[0].description + ", Button " + currentMacro.buttonTriggers[0].buttonIndex;
+                this.deleteAssignmentButton.Enabled = true;
+                if (updateSelectedController)
+                {
+                    int index = 0;
+                    foreach (var item in this.controllersList.Items)
+                    {
+                        if (item.ToString().Equals(currentMacro.buttonTriggers[0].description))
+                        {
+                            this.controllersList.SelectedIndex = index;
+                            break;
+                        }
+                        index++;
+                    }
+                }
+            }
+            else
+            {
+                this.currentAssignmentLabel.Text = Configuration.getUIString("no_control_assigned");
+                this.deleteAssignmentButton.Enabled = false;
+                if (updateSelectedController)
+                {
+                    this.controllersList.SelectedIndex = -1;
+                }
             }
         }
 
@@ -221,6 +287,20 @@ namespace CrewChiefV4
             else if (radioButtonFreeTextAction.Checked)
             {
                 formatedAction = "{FREE_TEXT}" + textBoxSpecialActionParameter.Text;
+            }
+            else if(radioButtonModifierAndKey.Checked)
+            {
+                if (comboBoxKeySelection.SelectedIndex != -1 && comboBoxModifierKeySelection.SelectedIndex != -1)
+                {
+                    formatedAction = comboBoxModifierKeySelection.Items[comboBoxModifierKeySelection.SelectedIndex].ToString() 
+                        + textBoxSpecialActionParameter.Text 
+                        + comboBoxKeySelection.Items[comboBoxKeySelection.SelectedIndex].ToString();
+                }
+                else
+                {
+                    MessageBox.Show(Configuration.getUIString("must_select_a_key"));
+                    return;
+                }
             }
             else if(comboBoxKeySelection.SelectedIndex != -1)
             {
@@ -263,7 +343,7 @@ namespace CrewChiefV4
                         soundPackLocation = soundPackLocationOverride;
                     }
                 }
-                catch (Exception) {}
+                catch (Exception ee) { Log.Exception(ee); }
             }
             try
             {
@@ -309,13 +389,15 @@ namespace CrewChiefV4
                     Macro macro = new Macro();
                     macro.name = textBoxAddNewMacro.Text;
                     macro.description = textBoxDescription.Text;
-                    if (radioButtonRegularVoiceTrigger.Enabled)
+                    if (radioButtonRegularVoiceTrigger.Checked)
                     {
                         macro.voiceTriggers = textBoxVoiceTriggers.Lines;
+                        macro.integerVariableVoiceTrigger = null;
                     }
                     else
                     {
                         macro.integerVariableVoiceTrigger = textBoxVoiceTriggers.Text;
+                        macro.voiceTriggers = null;
                     }
                     if (textBoxConfirmationMessage.Text.Length > 0)
                     {
@@ -333,13 +415,15 @@ namespace CrewChiefV4
                     Macro currentMacro = macroContainer.macros.FirstOrDefault(mc => mc.name == listBoxAvailableMacros.SelectedItem.ToString());
                     currentMacro.name = textBoxAddNewMacro.Text;
                     currentMacro.description = textBoxDescription.Text;
-                    if (radioButtonRegularVoiceTrigger.Enabled)
+                    if (radioButtonRegularVoiceTrigger.Checked)
                     {
                         currentMacro.voiceTriggers = textBoxVoiceTriggers.Lines;
+                        currentMacro.integerVariableVoiceTrigger = null;
                     }
                     else
                     {
                         currentMacro.integerVariableVoiceTrigger = textBoxVoiceTriggers.Text;
+                        currentMacro.voiceTriggers = null;
                     }
                     if (textBoxConfirmationMessage.Text.Length > 0)
                     {
@@ -394,17 +478,20 @@ namespace CrewChiefV4
         private void updateMacroList(bool setToEnd = false, bool retainIndex = true)
         {
             listBoxAvailableMacros.Items.Clear();
-            foreach (var macro in macroContainer.macros)
+            if (macroContainer != null && macroContainer.macros != null)
             {
-                listBoxAvailableMacros.Items.Add(macro.name);
-            }
-            if (setToEnd)
-            {
-                listBoxAvailableMacros.SetSelected(listBoxAvailableMacros.Items.Count - 1, true);
-            }
-            else
-            {
-                listBoxAvailableMacros.SetSelected(0, true);
+                foreach (var macro in macroContainer.macros)
+                {
+                    listBoxAvailableMacros.Items.Add(macro.name);
+                }
+                if (setToEnd)
+                {
+                    listBoxAvailableMacros.SetSelected(listBoxAvailableMacros.Items.Count - 1, true);
+                }
+                else
+                {
+                    listBoxAvailableMacros.SetSelected(0, true);
+                }
             }
         }
 
@@ -420,11 +507,9 @@ namespace CrewChiefV4
                 MessageBox.Show(Configuration.getUIString("action_sequence_cant_be_empty"));
                 return;
             }
-            if(string.IsNullOrWhiteSpace(textBoxKeyPressTime.Text) || string.IsNullOrWhiteSpace(textBoxWaitBetweenEachCommand.Text))
+            if(string.IsNullOrWhiteSpace(textBoxWaitBetweenEachCommand.Text))
             {
-                MessageBox.Show(Configuration.getUIString("empty_keypress_time_start") + " " +
-                    labelKeyPressTime.Text + " " + Configuration.getUIString("empty_keypress_time_middle") + " " +
-                    labelWaitBetweenEachCommand.Text + " " + Configuration.getUIString("empty_keypress_time_end"));
+                MessageBox.Show(labelWaitBetweenEachCommand.Text + " " + Configuration.getUIString("empty_wait_time_end"));
                 return;
             }
             int currentSelectedMacroIndex = listBoxAvailableMacros.SelectedIndex;
@@ -454,7 +539,14 @@ namespace CrewChiefV4
                     currentCommandSet.description = currentSelectedGame.friendlyName + " version";
                 }
                 currentCommandSet.actionSequence = actions.ToArray();
-                currentCommandSet.keyPressTime = int.Parse(textBoxKeyPressTime.Text);
+                if (string.IsNullOrWhiteSpace(textBoxKeyPressTime.Text))
+                {
+                    currentCommandSet.keyPressTime = null;
+                }
+                else
+                {
+                    currentCommandSet.keyPressTime = int.Parse(textBoxKeyPressTime.Text);
+                }
                 currentCommandSet.waitBetweenEachCommand = int.Parse(textBoxWaitBetweenEachCommand.Text);
                 currentCommandSets.Add(currentCommandSet);
                 currentMacro.commandSets = currentCommandSets.ToArray();
@@ -467,7 +559,14 @@ namespace CrewChiefV4
             {
                 currentCommandSet.gameDefinition = currentSelectedGame.gameEnum.ToString();
                 currentCommandSet.actionSequence = actions.ToArray();
-                currentCommandSet.keyPressTime = int.Parse(textBoxKeyPressTime.Text);
+                if (string.IsNullOrWhiteSpace(textBoxKeyPressTime.Text))
+                {
+                    currentCommandSet.keyPressTime = null;
+                }
+                else
+                {
+                    currentCommandSet.keyPressTime = int.Parse(textBoxKeyPressTime.Text);
+                }
                 currentCommandSet.waitBetweenEachCommand = int.Parse(textBoxWaitBetweenEachCommand.Text);
                 if (!string.IsNullOrWhiteSpace(textBoxGameMacroDescription.Text))
                 {
@@ -521,9 +620,11 @@ namespace CrewChiefV4
             buttonAddSelectedKeyToSequence.Enabled = true;
             textBoxDescription.ShortcutsEnabled = false;
             comboBoxKeySelection.Enabled = true;
+            comboBoxModifierKeySelection.Enabled = false;
             if (radioButtonRegularKeyAction.Checked)
             {
                 textBoxSpecialActionParameter.Enabled = false;
+                comboBoxModifierKeySelection.Enabled = false;
                 textBoxSpecialActionParameter.Text = "";
                 labelSpecialActionParameter.Text = "";
             }
@@ -558,6 +659,14 @@ namespace CrewChiefV4
                 textBoxSpecialActionParameter.Text = "";
                 comboBoxKeySelection.Enabled = false;
                 labelSpecialActionParameter.Text = Configuration.getUIString("action_free_text");
+            }
+            else if(radioButtonModifierAndKey.Checked)
+            {
+                comboBoxModifierKeySelection.Enabled = true;
+                textBoxSpecialActionParameter.Enabled = false;
+                textBoxSpecialActionParameter.Text = "+";
+                labelSpecialActionParameter.Text = "";
+
             }
             else if (radioButtonAdvancedEditAction.Checked)
             {
@@ -644,6 +753,120 @@ namespace CrewChiefV4
             {
                 textBoxActionSequence.Lines = textBoxActionSequence.Lines.Take(textBoxActionSequence.Lines.Count() - 1).ToArray();
             }
+        }
+
+        private void controllersList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            updateAssignmentElements(false);
+        }
+
+        private void updateControllersList()
+        {
+            foreach (ControllerConfiguration.ControllerData configData in this.controllerConfiguration.controllers)
+            {
+                this.controllersList.Items.Add(new MainWindow.ControllerUiEntry(configData.deviceName, isConnected: true));
+            }
+
+            // Now, add grayed out (inactive) controllers
+            foreach (ControllerConfiguration.ControllerData configData in this.controllerConfiguration.knownControllers)
+            {
+                if (this.controllerConfiguration.controllers.Exists(c => c.guid == configData.guid))
+                {
+                    continue;
+                }
+                this.controllersList.Items.Add(new MainWindow.ControllerUiEntry(configData.deviceName, isConnected: false));
+            }
+        }
+
+        private void addAssignment_Click(object sender, EventArgs e)
+        {
+            if (!this.isAssigningButton)
+            {
+                if (this.controllersList.SelectedIndex >= 0)
+                {
+                    isAssigningButton = true;
+                    this.addAssignmentButton.Text = Configuration.getUIString("waiting_for_button_click_to_cancel");
+                    ThreadStart assignButtonWork = assignButton;
+                    ThreadManager.UnregisterTemporaryThread(assignButtonThread);
+                    assignButtonThread = new Thread(assignButtonWork);
+                    assignButtonThread.Name = "MacroWindow.assignButtonThread";
+                    ThreadManager.RegisterTemporaryThread(assignButtonThread);
+                    assignButtonThread.Start();
+                }
+            }
+            else
+            {
+                isAssigningButton = false;
+                controllerConfiguration.listenForAssignment = false;
+                this.addAssignmentButton.Text = Configuration.getUIString("assign_control");
+            }
+        }
+
+        private void assignButton()
+        {
+            ButtonAssignment buttonAssignment = new ButtonAssignment();
+            if (controllerConfiguration.assignButton(this, this.controllersList.SelectedIndex, buttonAssignment))
+            {
+                // update the macro with the controller guid and button id
+                isAssigningButton = false;
+                Macro currentMacro = macroContainer.macros.FirstOrDefault(mc => mc.name == listBoxAvailableMacros.Items[listBoxAvailableMacros.SelectedIndex].ToString());
+                if (currentMacro != null)
+                {
+                    if (currentMacro.buttonTriggers == null || currentMacro.buttonTriggers.Length == 0)
+                    {
+                        currentMacro.buttonTriggers = new ButtonTrigger[] { new ButtonTrigger() };
+                    }
+                    currentMacro.buttonTriggers[0].buttonIndex = buttonAssignment.buttonIndex;
+                    currentMacro.buttonTriggers[0].deviceId = buttonAssignment.deviceGuid;
+                    currentMacro.buttonTriggers[0].description = buttonAssignment.controller.deviceName;
+                    saveMacroSettings();
+                    updateAssignmentElements(true);
+                }
+            }
+            try
+            {
+                this.Invoke((MethodInvoker)delegate
+                {
+                    this.addAssignmentButton.Text = Configuration.getUIString("assign_control");
+                });
+            }
+            catch (Exception)
+            {
+                // Shutdown.
+            }
+        }
+
+        private void deleteAssignment_Click(object sender, EventArgs e)
+        {
+            Macro currentMacro = macroContainer.macros.FirstOrDefault(mc => mc.name == listBoxAvailableMacros.Items[listBoxAvailableMacros.SelectedIndex].ToString());
+            if (currentMacro != null && currentMacro.buttonTriggers != null && currentMacro.buttonTriggers.Length > 0)
+            {
+                bool remove = false;
+                int i = 0;
+                // remove the loaded button assignment for this macro. Here we match on macro name, which is kind of nasty. Note that if we move button assignments
+                // to be in the per-game element this won't work
+                for (; i < this.controllerConfiguration.buttonAssignments.Count; i++)
+                {
+                    if (this.controllerConfiguration.buttonAssignments[i].executableCommandMacro != null
+                        && this.controllerConfiguration.buttonAssignments[i].executableCommandMacro.macro.name == currentMacro.name)
+                    {
+                        remove = true;
+                        break;
+                    }
+                }
+                if (remove)
+                {
+                    this.controllerConfiguration.buttonAssignments.RemoveAt(i);
+                }
+                currentMacro.buttonTriggers = null;
+                saveMacroSettings();
+                updateAssignmentElements(true);
+            }
+        }
+
+        private void MacroEditor_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }

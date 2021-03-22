@@ -12,7 +12,10 @@ namespace CrewChiefV4.Events
     {
         private static String folderCelsius = "conditions/celsius";
         private static String folderFahrenheit = "conditions/fahrenheit";
+        private static String folderPSI = "tyre_monitor/psi";
+        private static String folderBar = "tyre_monitor/bar";   // if people grumble about this, 1bar = 100kPa
         private Boolean useFahrenheit = UserSettings.GetUserSettings().getBoolean("use_fahrenheit");
+        private Boolean usePSI = !UserSettings.GetUserSettings().getBoolean("use_metric");
 
         public enum SIMPLE_INCIDENT_DETECTION_SESSIONS { DISABLED, RACE_ONLY, ALL_SESSIONS };
         public static SIMPLE_INCIDENT_DETECTION_SESSIONS simpleIncidentDetectionSessions = SIMPLE_INCIDENT_DETECTION_SESSIONS.RACE_ONLY;
@@ -148,7 +151,12 @@ namespace CrewChiefV4.Events
             }
         }
 
-        public virtual List<SessionType> applicableSessionTypes 
+        public virtual List<CrewChief.RacingType> applicableRacingTypes
+        {
+            get { return new List<CrewChief.RacingType> { CrewChief.RacingType.Circuit }; }
+        }
+
+        public virtual List<SessionType> applicableSessionTypes
         {
             get { return new List<SessionType> { SessionType.Practice, SessionType.Qualify, SessionType.Race, SessionType.HotLap, SessionType.LonePractice }; }
         }
@@ -181,7 +189,7 @@ namespace CrewChiefV4.Events
 
         public virtual Boolean isApplicableForCurrentSessionAndPhase(SessionType sessionType, SessionPhase sessionPhase)
         {
-            return applicableSessionPhases.Contains(sessionPhase) && applicableSessionTypes.Contains(sessionType);
+            return applicableSessionPhases.Contains(sessionPhase) && applicableSessionTypes.Contains(sessionType) && applicableRacingTypes.Contains(GlobalBehaviourSettings.racingType);
         }
 
         public virtual void respond(String voiceMessage)
@@ -274,11 +282,16 @@ namespace CrewChiefV4.Events
             return useFahrenheit ? folderFahrenheit : folderCelsius;
         }
 
+        public String getPressureUnit()
+        {
+            return usePSI ? folderPSI : folderBar;
+        }
+
         public int convertTemp(float temp)
         {
             return convertTemp(temp, 1);
         }
-
+        
         public int convertTemp(float temp, int precision)
         {
             return useFahrenheit ? celciusToFahrenheit(temp, precision) : (int)(Math.Round(temp / (double)precision) * precision);
@@ -288,6 +301,21 @@ namespace CrewChiefV4.Events
         {
             float temp = (int)Math.Round((celcius * (9f / 5f)) + 32f);
             return (int)(Math.Round(temp / (double)precision) * precision);
+        }
+
+        public float convertPressure(float pressure, int decimalPlaces)
+        {
+            return usePSI ? kpaToPsi(pressure, decimalPlaces) : kpaToBar(pressure, decimalPlaces);
+        }
+
+        private static float kpaToPsi(float kpa, int decimalPlaces)
+        {
+            return (float) Math.Round(kpa / 6.894f, decimalPlaces);
+        }
+
+        private static float kpaToBar(float kpa, int decimalPlaces)
+        {
+            return (float)Math.Round(kpa / 100f, decimalPlaces);
         }
     }
 }

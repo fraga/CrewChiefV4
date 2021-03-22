@@ -1,5 +1,6 @@
 ﻿using CrewChiefV4.Audio;
 using CrewChiefV4.Events;
+using CrewChiefV4.GameState;
 using CrewChiefV4.R3E;
 using Newtonsoft.Json;
 using System;
@@ -7,10 +8,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
-
+using WindowsInput.Native;
 namespace CrewChiefV4.commands
 {
     // wrapper that actually runs the macro
@@ -22,6 +21,8 @@ namespace CrewChiefV4.commands
         public Macro macro;
         private Thread executableCommandMacroThread = null;
 
+        private bool macroExecutingOnCommandMacroThread = false;
+
         public ExecutableCommandMacro(AudioPlayer audioPlayer, Macro macro)
         {
             this.audioPlayer = audioPlayer;
@@ -32,34 +33,62 @@ namespace CrewChiefV4.commands
         [DllImport("user32.dll")]
         public static extern IntPtr GetForegroundWindow();
 
+        /// <summary>
+        /// If the game process is not already the foreground window, set it to be.
+        /// rFactor 2 in particular has 3 or 4 processes, only one is "the" window
+        /// </summary>
+        /// <param name="processName"></param>
+        /// <param name="currentForgroundWindow"></param>
+        /// <returns>true: foreground was changed</returns>
+        /// <exception cref="System.InvalidOperationException">Thrown if unable
+        /// to change foreground window</exception>
+        private bool SetGameProcessAsForeground(String processName, IntPtr currentForgroundWindow)
+        {
+            Process[] matchingProcesses = Process.GetProcessesByName(processName);
+            foreach (var gameProcess in matchingProcesses)
+            {
+                if (gameProcess.MainWindowHandle != (IntPtr)0 &&
+                    gameProcess.MainWindowHandle != currentForgroundWindow)
+                {
+                    if (SetForegroundWindow(gameProcess.MainWindowHandle))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Couldn't set {processName} to be the current window");
+                        throw new System.InvalidOperationException($"Couldn't set {processName} to be the current window");
+                    }
+                }
+            }
+            return false;
+        }
+        /// <summary>
+        /// If the game window is not already the foreground window, set it to be.
+        /// </summary>
+        /// <param name="processName"> Name of the game</param>
+        /// <param name="alternateProcessNames"> Optional list of alternate
+        /// names the game might use</param>
+        /// <param name="currentForgroundWindow"></param>
+        /// <returns>true: foreground was changed</returns>
         bool BringGameWindowToFront(String processName, String[] alternateProcessNames, IntPtr currentForgroundWindow)
         {
             if (!UserSettings.GetUserSettings().getBoolean("bring_game_window_to_front_for_macros"))
             {
                 return false;
             }
-            Process[] p = Process.GetProcessesByName(processName);
-            if (p.Count() > 0)
+            if (SetGameProcessAsForeground(processName, currentForgroundWindow))
             {
-                if (p[0].MainWindowHandle != currentForgroundWindow)
-                {
-                    SetForegroundWindow(p[0].MainWindowHandle);
-                    return true;
-                }               
-            }                
+                return true;
+            }
             else if (alternateProcessNames != null && alternateProcessNames.Length > 0)
             {
                 foreach (String alternateProcessName in alternateProcessNames)
                 {
-                    p = Process.GetProcessesByName(processName);
-                    if (p.Count() > 0)
+                    if (SetGameProcessAsForeground(alternateProcessName, currentForgroundWindow))
                     {
-                        if (p[0].MainWindowHandle != currentForgroundWindow)
-                        {
-                            SetForegroundWindow(p[0].MainWindowHandle);
-                            return true;
-                        }                       
-                    } 
+                        return true;
+                    }
                 }
             }
             return false;
@@ -68,7 +97,7 @@ namespace CrewChiefV4.commands
         private Boolean checkValidAndPlayConfirmation(CommandSet commandSet, Boolean supressConfirmationMessage)
         {
             Boolean isValid = true;
-            String macroConfirmationMessage = macro.confirmationMessage != null && macro.confirmationMessage.Length > 0 && !supressConfirmationMessage ? 
+            String macroConfirmationMessage = macro.confirmationMessage != null && macro.confirmationMessage.Length > 0 && !supressConfirmationMessage ?
                 macro.confirmationMessage : null;
 
 
@@ -81,7 +110,7 @@ namespace CrewChiefV4.commands
                     ((CrewChief.gameDefinition == GameDefinition.pCars2 || CrewChief.gameDefinition == GameDefinition.rfactor2_64bit || CrewChief.gameDefinition == GameDefinition.AMS2) &&
                      CrewChief.currentGameState != null && CrewChief.currentGameState.PitData.HasRequestedPitStop))
                 {
-                    // special case for R3E. Pit requested state doesn't clear after completing a stop, so we might need to execute the 
+                    // special case for R3E. Pit requested state doesn't clear after completing a stop, so we might need to execute the
                     // serve penalty macro even if we deem this request invalid (the pit request flag is already true)
                     if (CrewChief.gameDefinition == GameDefinition.raceRoom && CrewChief.currentGameState != null &&
                         (CrewChief.currentGameState.PenaltiesData.PenaltyType == GameState.PenatiesData.DetailedPenaltyType.DRIVE_THROUGH
@@ -105,8 +134,8 @@ namespace CrewChiefV4.commands
                 }
                 if (isValid)
                 {
-                    if (CrewChief.gameDefinition == GameDefinition.raceRoom && CrewChief.currentGameState != null && 
-                        (CrewChief.currentGameState.PenaltiesData.PenaltyType == GameState.PenatiesData.DetailedPenaltyType.DRIVE_THROUGH 
+                    if (CrewChief.gameDefinition == GameDefinition.raceRoom && CrewChief.currentGameState != null &&
+                        (CrewChief.currentGameState.PenaltiesData.PenaltyType == GameState.PenatiesData.DetailedPenaltyType.DRIVE_THROUGH
                          || CrewChief.currentGameState.PenaltiesData.PenaltyType == GameState.PenatiesData.DetailedPenaltyType.STOP_AND_GO))
                     {
                         // if we request a stop and we have a penalty, select the 'serve penalty' option in R3E
@@ -150,8 +179,9 @@ namespace CrewChiefV4.commands
             return isValid;
         }
 
-        public void execute(String recognitionResult, Boolean supressConfirmationMessage, Boolean useNewThread)
+        public bool execute(String recognitionResult, Boolean supressConfirmationMessage, Boolean useNewThread)
         {
+            bool allowedToRun = true;
             // blocking...
             Boolean isR3e = CrewChief.gameDefinition == GameDefinition.raceRoom;
             int multiplePressCountFromVoiceCommand = 0;
@@ -161,135 +191,224 @@ namespace CrewChiefV4.commands
             }
             // only execute for the requested game - is this check sensible?
             foreach (CommandSet commandSet in macro.commandSets.Where(cs => MacroManager.isCommandSetForCurrentGame(cs.gameDefinition)))
-            {                
+            {
                 Boolean isValid = checkValidAndPlayConfirmation(commandSet, supressConfirmationMessage);
                 if (isValid)
                 {
                     if (useNewThread)
                     {
-                        ThreadManager.UnregisterTemporaryThread(executableCommandMacroThread);
-                        executableCommandMacroThread = new Thread(() =>
+                        if (this.macroExecutingOnCommandMacroThread)
                         {
-                            // only allow macros to excute one at a time
-                            lock (ExecutableCommandMacro.mutex)
+                            Log.Debug("Macro \"" + this.macro.name + "\" can't run while another macro is excuting");
+                            allowedToRun = false;
+                        }
+                        else
+                        {
+                            this.macroExecutingOnCommandMacroThread = true;
+                            ThreadManager.UnregisterTemporaryThread(executableCommandMacroThread);
+                            executableCommandMacroThread = new Thread(() =>
                             {
-                                runMacro(commandSet, isR3e, multiplePressCountFromVoiceCommand);
-                            }
-                        });
-                        executableCommandMacroThread.Name = "CommandMacro.executableCommandMacroThread";
-                        ThreadManager.RegisterTemporaryThread(executableCommandMacroThread);
-                        executableCommandMacroThread.Start();
+                                // only allow macros to excute one at a time
+                                lock (ExecutableCommandMacro.mutex)
+                                {
+                                    this.macroExecutingOnCommandMacroThread = true;
+                                    try
+                                    {
+                                        runMacro(commandSet, isR3e, multiplePressCountFromVoiceCommand);
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        Console.WriteLine("Error executing command macro: " + e.ToString());
+                                    }
+                                    this.macroExecutingOnCommandMacroThread = false;
+                                }
+                            });
+                            executableCommandMacroThread.Name = "CommandMacro.executableCommandMacroThread";
+                            ThreadManager.RegisterTemporaryThread(executableCommandMacroThread);
+                            executableCommandMacroThread.Start();
+                        }
                     }
                     else
                     {
-                        runMacro(commandSet, isR3e, multiplePressCountFromVoiceCommand);
+                        try
+                        {
+                            runMacro(commandSet, isR3e, multiplePressCountFromVoiceCommand);
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine("Error executing command macro: " + e.ToString());
+                        }
                     }
                 }
                 break;
-            }            
+            }
+            return allowedToRun;
+        }
+        // must be called from static method SpeechRecogniser.getStartChatMacro()
+        public VirtualKeyCode getStartChatKey()
+        {
+            //defaut to KEY_T as that is most common 
+            KeyPresser.KeyCode keyCode = KeyPresser.KeyCode.KEY_T;
+            foreach (CommandSet commandSet in macro.commandSets.Where(cs => MacroManager.isCommandSetForCurrentGame(cs.gameDefinition)))
+            {
+                string action = commandSet.actionSequence[0];
+                if (Enum.TryParse(action, out keyCode))
+                {
+                    return (VirtualKeyCode)keyCode;
+                }
+            }
+            return (VirtualKeyCode)keyCode;
+        }
+        // must be called from static method SpeechRecogniser.getEndChatMacro()
+        public VirtualKeyCode getEndChatKey()
+        {
+            //defaut to ENTER as that is most common 
+            KeyPresser.KeyCode keyCode = KeyPresser.KeyCode.ENTER;
+            foreach (CommandSet commandSet in macro.commandSets.Where(cs => MacroManager.isCommandSetForCurrentGame(cs.gameDefinition)))
+            {
+                string action = commandSet.actionSequence[0];
+                if (Enum.TryParse(action, out keyCode))
+                {
+                    return (VirtualKeyCode)keyCode;
+                }
+            }
+            return (VirtualKeyCode)keyCode;
+        }
+
+        public int getWaitBetweenEachCommand()
+        {
+            //defaut to 100
+            int waitTime = 100;
+            foreach (CommandSet commandSet in macro.commandSets.Where(cs => MacroManager.isCommandSetForCurrentGame(cs.gameDefinition)))
+            {
+                waitTime = commandSet.waitBetweenEachCommand;
+            }
+            return waitTime;
         }
 
         private void runMacro(CommandSet commandSet, Boolean isR3e, int multiplePressCountFromVoiceCommand)
         {
             IntPtr currentForgroundWindow = GetForegroundWindow();
-            bool hasChangedForgroundWindow = BringGameWindowToFront(CrewChief.gameDefinition.processName, CrewChief.gameDefinition.alternativeProcessNames, currentForgroundWindow);
-
-            List<ActionItem> actionItems = commandSet.getActionItems();
-            int actionItemsCount = actionItems.Count();
-
-            // R3E set fuel macro is a special case. There are some menu commands to move the cursor to fuel and deselect it. We want to skip
-            // all of these and simply move the cursor to fuel and deselect it (if necessary) using the new menu stuff. So skip all fuel key
-            // presses after the initial command (which opens the pit menu) but before the event or SRE driven fuelling amount:
-            int r3eFuelMacroSkipUntil = -1;
-            if (isR3e && macro.name.Contains("fuel"))
+            try // catch "Couldn't set the game to foreground", don't send keys in that case
             {
+                bool hasChangedForgroundWindow = BringGameWindowToFront(CrewChief.gameDefinition.processName, CrewChief.gameDefinition.alternativeProcessNames, currentForgroundWindow);
+
+                List<ActionItem> actionItems = commandSet.getActionItems();
+                int actionItemsCount = actionItems.Count();
+                // R3E set fuel macro is a special case. There are some menu commands to move the cursor to fuel and deselect it. We want to skip
+                // all of these and simply move the cursor to fuel and deselect it (if necessary) using the new menu stuff. So skip all fuel key
+                // presses after the initial command (which opens the pit menu) but before the event or SRE driven fuelling amount:
+                int r3eFuelMacroSkipUntil = -1;
+                if (isR3e && macro.name.Contains("fuel"))
+                {
+                    for (int actionItemIndex = 0; actionItemIndex < actionItemsCount; actionItemIndex++)
+                    {
+                        if (actionItemIndex >= 2 && 
+                            (actionItems[actionItemIndex].repeatCountFromVoiceCommand 
+                                || "fuel".Equals(actionItems[actionItemIndex].eventToResolveRepeatCount, StringComparison.InvariantCultureIgnoreCase)))
+                        {
+                            // this is the action item that actually adds the fuel. We want the action item before this one to trigger (this resets
+                            // fuel to 0) but action items before that reset will be skipped
+                            r3eFuelMacroSkipUntil = actionItemIndex - 1;
+                            break;
+                        }
+                    }
+                }
                 for (int actionItemIndex = 0; actionItemIndex < actionItemsCount; actionItemIndex++)
                 {
-                    if (actionItems[actionItemIndex].extendedTypeTextParam != null && actionItemIndex >= 2)
+                    ActionItem actionItem = actionItems[actionItemIndex];
+                    if (MacroManager.stopped)
                     {
-                        // this is the action item that actually adds the fuel. We want the action item before this one to trigger (this resets
-                        // fuel to 0) but action items before that reset will be skipped
-                        r3eFuelMacroSkipUntil = actionItemIndex - 1;
                         break;
                     }
+                    if (actionItem.applicableSessionTypes == null || CrewChief.currentGameState == null || actionItem.applicableSessionTypes.Contains(CrewChief.currentGameState.SessionData.SessionType))
+                    {
+                        if (actionItem.waitTime > 0)
+                        {
+                            Thread.Sleep(actionItem.waitTime);
+                        }
+                        if (actionItemIndex > 0 && r3eFuelMacroSkipUntil != -1)
+                        {
+                            // we're skipping all actions items until the actual fuelling action and replacing it with the proper menu navigation stuff
+                            if (actionItemIndex < r3eFuelMacroSkipUntil)
+                            {
+                                continue;
+                            }
+                            else if (actionItemIndex == r3eFuelMacroSkipUntil)
+                            {
+                                // eewwww... for the r3e fuel macro we want to ensure we're on 'fuel' and it's enabled before issuing the many
+                                // commands to set the amount. In this case, there'll be multiple other button presses to get us to fuel so
+                                // we need to catch the actual fuelling amount action and insert a crafty 'go to fuel item and deselect it' line
+                                Thread.Sleep(100);
+                                R3EPitMenuManager.goToMenuItem(SelectedItem.Fuel);
+                                R3EPitMenuManager.unselectFuel(false);
+                                Thread.Sleep(100);
+                            }
+                        }
+                        int count = actionItem.fixedRepeatCount;
+                        bool doR3EFuellingMenuHack = false;
+                        if (actionItem.eventToResolveRepeatCount != null)
+                        {
+                            count = CrewChief.getEvent(actionItem.eventToResolveRepeatCount).resolveMacroKeyPressCount(macro.name);
+                            doR3EFuellingMenuHack = isR3e && actionItem.eventToResolveRepeatCount.Equals("fuel", StringComparison.InvariantCultureIgnoreCase);
+                        }
+                        else if (actionItem.repeatCountFromVoiceCommand)
+                        {
+                            count = multiplePressCountFromVoiceCommand;
+                            // no event to check against here - this is the case where we say "add fuel, 20 litres" - we want an additional 3 presses for this
+                            doR3EFuellingMenuHack = isR3e && macro.name.Contains("fuel");
+                        }
+                        if (doR3EFuellingMenuHack)
+                        {
+                            // hack for R3E: fuel menu needs 3 presses to get it from the start to 0. 3 extra presses when dropping the fuel to zero doesn't matter
+                            // so this added the extras to both command actions
+                            count = count + 3;
+                        }
+                        if (count > 0 && actionItem.keyCodes != null)
+                        {
+                            int? keyPressTime = commandSet.keyPressTime;
+                            if (actionItem.holdTime > 0)
+                            {
+                                keyPressTime = actionItem.holdTime;
+                            }
+                            sendKeys(count, actionItem, keyPressTime, commandSet.waitBetweenEachCommand);
+                        }
+                    }
+                }
+                // if we changed forground window we need to restore the old window again as the user could be running overlays or other apps they want to keep in forground.
+                if (hasChangedForgroundWindow)
+                {
+                    SetForegroundWindow(currentForgroundWindow);
                 }
             }
-            for (int actionItemIndex = 0; actionItemIndex < actionItemsCount; actionItemIndex++)
+            catch (System.InvalidOperationException e)
             {
-                ActionItem actionItem = actionItems[actionItemIndex];
-                if (MacroManager.stopped)
-                {
-                    break;
-                }
-                if (MacroManager.WAIT_IDENTIFIER.Equals(actionItem.extendedType))
-                {
-                    Thread.Sleep(actionItem.extendedTypeNumericParam);
-                }
-                else
-                {
-                    int count;
-                    if (actionItemIndex > 0 && r3eFuelMacroSkipUntil != -1)
-                    {
-                        // we're skipping all actions items until the actual fuelling action and replacing it with the proper menu navigation stuff
-                        if (actionItemIndex < r3eFuelMacroSkipUntil)
-                        {
-                            continue;
-                        }
-                        else if (actionItemIndex == r3eFuelMacroSkipUntil)
-                        {
-                            Thread.Sleep(100);
-                            R3EPitMenuManager.goToMenuItem(SelectedItem.Fuel);
-                            R3EPitMenuManager.unselectFuel(false);
-                            Thread.Sleep(100);
-                        }
-                    }
-                    if (MacroManager.MULTIPLE_PRESS_IDENTIFIER.Equals(actionItem.extendedType))
-                    {
-                        if (actionItem.extendedTypeTextParam != null)
-                        {
-                            if (MacroManager.MULTIPLE_PRESS_FROM_VOICE_TRIGGER_IDENTIFIER.Equals(actionItem.extendedTypeTextParam))
-                            {
-                                count = multiplePressCountFromVoiceCommand;
-                            }
-                            else
-                            {
-                                count = CrewChief.getEvent(actionItem.extendedTypeTextParam).resolveMacroKeyPressCount(macro.name);
-                            }
-
-                            // eewwww... for the r3e fuel macro we want to ensure we're on 'fuel' and it's enabled before issuing the many
-                            // commands to set the amount. In this case, there'll be multiple other button presses to get us to fuel so
-                            // we need to catch the actual fuelling amount action and insert a crafty 'go to fuel item and deselect it' line
-                            if (isR3e && macro.name.Contains("fuel"))
-                            {
-                                // hack for R3E: fuel menu needs 3 presses to get it from the start to 0
-                                count = count + 3;
-                            }
-                        }
-                        else
-                        {
-                            count = actionItem.extendedTypeNumericParam;
-                        }
-                    }
-                    else
-                    {
-                        count = 1;
-                    }
-                    // only wait if there's another key press in the sequence
-                    int wait = actionItemIndex == actionItemsCount - 1 ? 0 : commandSet.waitBetweenEachCommand;
-                    sendKeys(count, actionItem, commandSet.keyPressTime, wait);
-                }
-            }
-            // if we changed forground window we need to restore the old window again as the user could be running overlays or other apps they want to keep in forground.
-            if (hasChangedForgroundWindow)
-            {
-                SetForegroundWindow(currentForgroundWindow);
+                // Couldn't set the game to foreground
             }
         }
 
-        private void sendKeys(int count, ActionItem actionItem, int keyPressTime, int waitBetweenKeys)
+        private void sendKeys(int count, ActionItem actionItem, int? keyPressTime, int waitBetweenKeys)
         {
+            if (actionItem.allowFreeText)
+            {
+                if (SpeechRecogniser.getStartChatMacro() == null)
+                {
+                    Console.WriteLine("Can't send chat macro, no \"start chat message\" macro is defined for game " + CrewChief.gameDefinition.gameEnum);
+                    return;
+                }
+                if (SpeechRecogniser.getEndChatMacro() == null)
+                {
+                    Console.WriteLine("Can't send chat macro, no \"end chat message\" macro is defined for game " + CrewChief.gameDefinition.gameEnum);
+                    return;
+                }
+                Console.WriteLine(actionItem.freeText);
+                KeyPresser.InputSim.Keyboard
+                    .KeyPress(SpeechRecogniser.getStartChatMacro().getStartChatKey()).Sleep(getWaitBetweenEachCommand())
+                    .TextEntry(actionItem.freeText).Sleep(getWaitBetweenEachCommand())
+                    .KeyPress(SpeechRecogniser.getEndChatMacro().getEndChatKey());
+            }
             // completely arbitrary sanity check on resolved count. We don't want the app trying to press 'right' MaxInt times
-            if (actionItem.keyCodes.Length * count > 300)
+            else if (actionItem.keyCodes.Length * count > 300)
             {
                 Console.WriteLine("Macro item " + actionItem.actionText + " has > 300 key presses and will be ignored");
             }
@@ -301,10 +420,13 @@ namespace CrewChiefV4.commands
                     {
                         break;
                     }
-                    for (int keyIndex = 0; keyIndex < actionItem.keyCodes.Length; keyIndex++)
+                    else
                     {
-                        KeyPresser.SendScanCodeKeyPress(actionItem.keyCodes[keyIndex], actionItem.forcedUpperCases[keyIndex], keyPressTime);
-                        Thread.Sleep(waitBetweenKeys);
+                        for (int keyIndex = 0; keyIndex < actionItem.keyCodes.Length; keyIndex++)
+                        {
+                            KeyPresser.SendKeyPress(actionItem.keyCodes[keyIndex], keyPressTime);
+                            Thread.Sleep(waitBetweenKeys);
+                        }
                     }
                 }
             }
@@ -338,22 +460,22 @@ namespace CrewChiefV4.commands
 
     public class Macro
     {
-        public String name { get; set; }        
+        public String name { get; set; }
         public String description { get; set; }
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public String confirmationMessage { get; set; }
-		
+
         public String[] voiceTriggers { get; set; }
-        
+
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public ButtonTrigger[] buttonTriggers { get; set; }
-        
+
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public CommandSet[] commandSets { get; set; }
 
         [JsonIgnore]
         private String _integerVariableVoiceTrigger;
-        
+
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public String integerVariableVoiceTrigger
         {
@@ -422,8 +544,9 @@ namespace CrewChiefV4.commands
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public String description { get; set; }
         public String gameDefinition { get; set; }
-		public String[] actionSequence { get; set; }
-		public int keyPressTime { get; set; }
+        public String[] actionSequence { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? keyPressTime { get; set; }
         public int waitBetweenEachCommand { get; set; }
         [JsonIgnore]
         private List<ActionItem> actionItems = null;
@@ -435,7 +558,19 @@ namespace CrewChiefV4.commands
             {
                 Console.WriteLine("No action sequence for commandSet " + description);
                 return false;
-            }            
+            }
+
+            foreach (String action in actionSequence.Where(ai => ai.Contains(MacroManager.FREE_TEXT_IDENTIFIER)))
+            {
+                ActionItem actionItem = new ActionItem(action);
+                if (actionItem.parsedSuccessfully)
+                {
+                    this.actionItems.Add(actionItem);
+                    Console.WriteLine("Found " + MacroManager.FREE_TEXT_IDENTIFIER + " for commandSet " + description);
+                    return true;
+                }
+            }
+
             foreach (String action in actionSequence)
             {
                 ActionItem actionItem = new ActionItem(action);
@@ -462,15 +597,19 @@ namespace CrewChiefV4.commands
     public class ActionItem
     {
         public Boolean parsedSuccessfully = false;
-        public KeyPresser.KeyCode[] keyCodes;
-        // for free-text entry, capital letters (e.g. in chat commands) will trigger holding down the LSHIFT key
-        // for single action items this will be a single element array with 'false'
-        public Boolean[] forcedUpperCases;
+        public Tuple<VirtualKeyCode?, VirtualKeyCode>[] keyCodes;
         public String actionText;
-        public String extendedType;
-        public String extendedTypeTextParam;
+        public String freeText;
+        //public String extendedType;
+        //public String extendedTypeTextParam;
         public Boolean allowFreeText;
-        public int extendedTypeNumericParam;
+
+        public HashSet<SessionType> applicableSessionTypes = null;
+        public int waitTime = -1;
+        public int holdTime = -1;
+        public int fixedRepeatCount = 1; // a fixed number of repeated presses specified in the macro
+        public bool repeatCountFromVoiceCommand = false;
+        public string eventToResolveRepeatCount = null;
 
         public ActionItem(String action)
         {
@@ -489,22 +628,67 @@ namespace CrewChiefV4.commands
                 int end = action.IndexOf("}", start);
                 if (start != -1 && end > -1)
                 {
-                    String[] typeAndParam = action.Substring(start, end - start).Split(',');
-                    if (typeAndParam.Length == 1 && MacroManager.FREE_TEXT_IDENTIFIER.Equals(typeAndParam[0]))
+                    String[] typeAndParamBlocks = action.Substring(start, end - start).Split('|');
+                    foreach (string typeAndParamBlock in typeAndParamBlocks)
                     {
-                        extendedType = typeAndParam[0];
-                        allowFreeText = true;
-                    }
-                    else if (typeAndParam.Length == 2)
-                    {
-                        extendedType = typeAndParam[0];
-                        if (typeAndParam[1].All(char.IsDigit))
+                        String[] typeAndParam = typeAndParamBlock.Split(',');
+                        if (typeAndParam.Length == 1 && MacroManager.FREE_TEXT_IDENTIFIER.Equals(typeAndParam[0]))
                         {
-                            extendedTypeNumericParam = int.Parse(typeAndParam[1]);
+                            allowFreeText = true;
+                            parsedSuccessfully = true;
                         }
-                        else
+                        else if (typeAndParam.Length > 1 && MacroManager.APPLICABLE_SESSION_TYPES_IDENTIFIER.Equals(typeAndParam[0]))
                         {
-                            extendedTypeTextParam = typeAndParam[1];
+                            HashSet<SessionType> parsedSessionTypes = new HashSet<SessionType>();
+                            for (int i = 1; i < typeAndParam.Length; i++)
+                            {
+                                if (Enum.TryParse(typeAndParam[i].Trim(), out SessionType parsedSessionType))
+                                {
+                                    parsedSessionTypes.Add(parsedSessionType);
+                                }
+                            }
+                            if (parsedSessionTypes.Count > 0)
+                            {
+                                this.applicableSessionTypes = parsedSessionTypes;
+                                parsedSuccessfully = true;
+                            }
+                        }
+                        else if (typeAndParam.Length == 2)
+                        {
+                            if (MacroManager.WAIT_IDENTIFIER.Equals(typeAndParam[0]))
+                            {
+                                if (int.TryParse(typeAndParam[1], out int millis))
+                                {
+                                    this.waitTime = millis;
+                                    parsedSuccessfully = true;
+                                }
+                            }
+                            else if (MacroManager.HOLD_TIME_IDENTIFIER.Equals(typeAndParam[0]))
+                            {
+                                if (int.TryParse(typeAndParam[1], out int millis))
+                                {
+                                    this.holdTime = millis;
+                                    parsedSuccessfully = true;
+                                }
+                            }
+                            else if (MacroManager.MULTIPLE_PRESS_IDENTIFIER.Equals(typeAndParam[0]))
+                            {
+                                if (MacroManager.MULTIPLE_PRESS_FROM_VOICE_TRIGGER_IDENTIFIER.Equals(typeAndParam[1]))
+                                {
+                                    this.repeatCountFromVoiceCommand = true;
+                                    parsedSuccessfully = true;
+                                }
+                                else if (typeAndParam[1].All(char.IsDigit))
+                                {
+                                    this.fixedRepeatCount = int.Parse(typeAndParam[1]);
+                                    parsedSuccessfully = true;
+                                }
+                                else
+                                {
+                                    this.eventToResolveRepeatCount = typeAndParam[1].Trim();
+                                    parsedSuccessfully = true;
+                                }
+                            }
                         }
                     }
                 }
@@ -515,68 +699,84 @@ namespace CrewChiefV4.commands
                 try
                 {
                     // first assume we have a single key binding
-                    this.keyCodes = new KeyPresser.KeyCode[1];
-                    this.forcedUpperCases = new Boolean[] { false };
+                    this.keyCodes = new Tuple<VirtualKeyCode?, VirtualKeyCode>[1];
                     // try and get it directly without going through the key bindings
-                    parsedSuccessfully = KeyPresser.parseKeycode(action, false, out this.keyCodes[0], out this.forcedUpperCases[0]);
+                    parsedSuccessfully = KeyPresser.parseKeycode(action, out this.keyCodes[0]);
                     if (!parsedSuccessfully)
                     {
                         if (allowFreeText)
                         {
-                            // finally, try to parse each letter
-                            this.keyCodes = new KeyPresser.KeyCode[action.Length];
-                            // any of the free text chars might be upper case
-                            this.forcedUpperCases = new Boolean[action.Length];
-                            for (int i = 0; i < action.Length; i++)
-                            {
-                                parsedSuccessfully = KeyPresser.parseKeycode(action[i].ToString(), true, out this.keyCodes[i], out this.forcedUpperCases[i]);
-                                if (!parsedSuccessfully)
-                                {
-                                    Console.WriteLine("Unable to convert character " + action[i] + " to a key press");
-                                    break;
-                                }
-                            }
+                            parsedSuccessfully = true;
+                            this.freeText = action;
                             if (parsedSuccessfully)
                             {
-                                Console.WriteLine("Free text action macro, text = \"" + action + "\" key presses to send = " + String.Join(", ", keyCodes));
+                                Console.WriteLine("Free text action macro, text = " + freeText);
                             }
                         }
                         else
                         {
                             Console.WriteLine("actionItem = \"" + action + "\" not recognised");
+                            parsedSuccessfully = false;
                         }
                     }
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    Console.WriteLine("Action " + action + " not recognised");
+                    Console.WriteLine("Error parsing action " + action + ", message:" + e.Message + " stackTrace: " + e.StackTrace);
+                    parsedSuccessfully = false;
                 }
             }
-            else
-            {
-                parsedSuccessfully = extendedType != null;
-            }
+            // Console.WriteLine(this.ToString());
         }
 
         public override String ToString()
         {
             if (parsedSuccessfully)
             {
-                if (extendedType != null)
+                string str = "Raw actionItem: " + actionText + ". Extracted data: ";
+                if (this.waitTime > 0)
                 {
-                    String additionalInfo = "";
-                    if (extendedTypeNumericParam > 0) {
-                        additionalInfo = ": " + extendedTypeNumericParam;
-                    }
-                    else if (extendedTypeTextParam != null) {
-                        additionalInfo = ": " + extendedTypeTextParam;
-                    }
-                    return extendedType + additionalInfo;
+                    str += "wait " + waitTime + "ms ";
                 }
-                else
+                if (this.repeatCountFromVoiceCommand)
                 {
-                    return String.Join(",", keyCodes);
+                    str += "repeat count from voice command ";
                 }
+                if (this.fixedRepeatCount > 1)
+                {
+                    str += "repeated " + this.fixedRepeatCount + " times ";
+                }
+                if (this.eventToResolveRepeatCount != null)
+                {
+                    str += "repeat count from event " + this.eventToResolveRepeatCount + " ";
+                }
+                if (this.applicableSessionTypes != null)
+                {
+                    str += "applicable session types " + String.Join(",", this.applicableSessionTypes) + " ";
+                }
+                if (this.allowFreeText)
+                {
+                    str += "free text " + this.freeText + " ";
+                }
+                if (keyCodes != null)
+                {
+                    bool addComma = false;
+                    str += ". Keys: ";
+                    foreach (Tuple<VirtualKeyCode?, VirtualKeyCode> keyCode in keyCodes)
+                    {
+                        if (addComma)
+                        {
+                            str += ", ";
+                        }
+                        if (keyCode.Item1 != null)
+                        {
+                            str += keyCode.Item1.ToString() + "+";
+                        }
+                        str += keyCode.Item2.ToString();
+                        addComma = true;
+                    }
+                }
+                return str;
             }
             else
             {

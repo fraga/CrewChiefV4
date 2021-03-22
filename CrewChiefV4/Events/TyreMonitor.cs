@@ -226,6 +226,7 @@ namespace CrewChiefV4.Events
             {TyreType.R3E_2017_HARD, new float[] {4, 7}},     // more recent tyre model
             {TyreType.R3E_2017_MEDIUM, new float[] {4, 7}},     // more recent tyre model
             {TyreType.R3E_2017_SOFT, new float[] {3, 6}},     // more recent tyre model
+            {TyreType.R3E_2017_F5, new float[] {3, 6}},     // more recent tyre model
             {TyreType.Medium, new float[] {4, 7}},
             {TyreType.Soft, new float[] {3, 6}},
             {TyreType.Super_Soft, new float[] {3, 5}},
@@ -334,6 +335,11 @@ namespace CrewChiefV4.Events
         private float rightFrontTyreTemp = 0;
         private float leftRearTyreTemp = 0;
         private float rightRearTyreTemp = 0;
+
+        private float leftFrontTyrePressure = 0;
+        private float rightFrontTyrePressure = 0;
+        private float leftRearTyrePressure = 0;
+        private float rightRearTyrePressure = 0;
 
         private float leftFrontBrakeTemp = 0;
         private float rightFrontBrakeTemp = 0;
@@ -471,6 +477,11 @@ namespace CrewChiefV4.Events
             rightFrontTyreTemp = 0;
             leftRearTyreTemp = 0;
             rightRearTyreTemp = 0;
+
+            leftFrontTyrePressure = 0;
+            rightFrontTyrePressure = 0;
+            leftRearTyrePressure = 0;
+            rightRearTyrePressure = 0;
 
             leftFrontBrakeTemp = 0;
             rightFrontBrakeTemp = 0;
@@ -723,9 +734,9 @@ namespace CrewChiefV4.Events
 
             enableWheelSpinWarnings = enableWheelSpinWarnings && GlobalBehaviourSettings.enabledMessageTypes.Contains(MessageTypes.LOCKING_AND_SPINNING);
             enableBrakeLockWarnings = enableBrakeLockWarnings && GlobalBehaviourSettings.enabledMessageTypes.Contains(MessageTypes.LOCKING_AND_SPINNING);
-            enableTyreWearWarnings = enableTyreWearWarnings && GlobalBehaviourSettings.enabledMessageTypes.Contains(MessageTypes.TYRE_WEAR) && !Penalties.playerMustPitThisLap;
-            enableTyreTempWarnings = enableTyreTempWarnings && GlobalBehaviourSettings.enabledMessageTypes.Contains(MessageTypes.TYRE_TEMPS) && !Penalties.playerMustPitThisLap;
-            enableBrakeTempWarnings = enableBrakeTempWarnings && GlobalBehaviourSettings.enabledMessageTypes.Contains(MessageTypes.BRAKE_TEMPS) && !Penalties.playerMustPitThisLap;
+            enableTyreWearWarnings = enableTyreWearWarnings && GlobalBehaviourSettings.enabledMessageTypes.Contains(MessageTypes.TYRE_WEAR) && !PitStops.isPittingThisLap;
+            enableTyreTempWarnings = enableTyreTempWarnings && GlobalBehaviourSettings.enabledMessageTypes.Contains(MessageTypes.TYRE_TEMPS) && !PitStops.isPittingThisLap;
+            enableBrakeTempWarnings = enableBrakeTempWarnings && GlobalBehaviourSettings.enabledMessageTypes.Contains(MessageTypes.BRAKE_TEMPS) && !PitStops.isPittingThisLap;
 
             if (previousGameState != null && currentGameState.Ticks > previousGameState.Ticks)
             {
@@ -894,6 +905,10 @@ namespace CrewChiefV4.Events
             rightFrontTyreTemp = currentGameState.TyreData.FrontRight_CenterTemp;
             leftRearTyreTemp = currentGameState.TyreData.RearLeft_CenterTemp;
             rightRearTyreTemp = currentGameState.TyreData.RearRight_CenterTemp;
+            leftFrontTyrePressure = currentGameState.TyreData.FrontLeftPressure;
+            rightFrontTyrePressure = currentGameState.TyreData.FrontRightPressure;
+            leftRearTyrePressure = currentGameState.TyreData.RearLeftPressure;
+            rightRearTyrePressure = currentGameState.TyreData.RearRightPressure;
 
             currentTyreTempStatus = currentGameState.TyreData.TyreTempStatus;
             currentBrakeTempStatus = currentGameState.TyreData.BrakeTempStatus;
@@ -1412,7 +1427,20 @@ namespace CrewChiefV4.Events
                     messageFragments: MessageContents(folderLeftFront, convertTemp(leftFrontTyreTemp), folderRightFront, convertTemp(rightFrontTyreTemp),
                                                        folderLeftRear, convertTemp(leftRearTyreTemp), folderRightRear, convertTemp(rightRearTyreTemp), getTempUnit())));
             }
+        }
 
+        private void reportCurrentTyrePressures()
+        {
+            if (leftFrontTyrePressure == 0 && rightFrontTyrePressure == 0 && leftRearTyrePressure == 0 && rightRearTyrePressure == 0)
+            {
+                audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
+            }
+            else
+            {
+                audioPlayer.playMessageImmediately(new QueuedMessage("tyre_pressures", 0,
+                    messageFragments: MessageContents(folderLeftFront, convertPressure(leftFrontTyrePressure, 1), folderRightFront, convertPressure(rightFrontTyrePressure, 1),
+                                                       folderLeftRear, convertPressure(leftRearTyrePressure, 1), folderRightRear, convertPressure(rightRearTyrePressure, 1), getPressureUnit())));
+            }
         }
 
         private void reportCurrentBrakeTemps()
@@ -1446,6 +1474,10 @@ namespace CrewChiefV4.Events
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHAT_ARE_MY_TYRE_TEMPS))
             {
                 reportCurrentTyreTemps();
+            }
+            else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHAT_ARE_MY_TYRE_PRESSURES))
+            {
+                reportCurrentTyrePressures();
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOW_ARE_MY_BRAKE_TEMPS))
             {
@@ -1866,14 +1898,17 @@ namespace CrewChiefV4.Events
         {
             List<MessageFragment> fragments = new List<MessageFragment>();
             Array.ForEach(folders, f => fragments.Add(MessageFragment.Text(f)));
-            QueuedMessage message = new QueuedMessage("pressures", 0, fragments);
-            if (delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
+            if (fragments.Count > 0)
             {
-                this.audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(message, 5 /*lowerDelayBoundInclusive*/, 7 /*upperDelayBound*/);
-            }
-            else
-            {
-                this.audioPlayer.playMessageImmediately(message);
+                QueuedMessage message = new QueuedMessage("pressures", 0, fragments);
+                if (delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
+                {
+                    this.audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(message, 5 /*lowerDelayBoundInclusive*/, 7 /*upperDelayBound*/);
+                }
+                else
+                {
+                    this.audioPlayer.playMessageImmediately(message);
+                }
             }
         }
 
@@ -2021,13 +2056,16 @@ namespace CrewChiefV4.Events
             {
                 message = new QueuedMessage("imo_diff", 0, messageFragments: MessageContents(folderDiffIntro, absoluteDiff, folderHotterThanOutersOutro, folderCamberOK));
             }
-            if (delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
+            if (message != null)
             {
-                this.audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(message, 5 /*lowerDelayBoundInclusive*/, 7 /*upperDelayBound*/);
-            }
-            else
-            {
-                this.audioPlayer.playMessageImmediately(message);
+                if (delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
+                {
+                    this.audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(message, 5 /*lowerDelayBoundInclusive*/, 7 /*upperDelayBound*/);
+                }
+                else
+                {
+                    this.audioPlayer.playMessageImmediately(message);
+                }
             }
         }
 

@@ -1,7 +1,7 @@
 # this is a comment - any blank line or line starting with # is ignored
 
 # This file contains default user interface text Strings, ***** and will be overwritten when the app is updated *****.
-# The text in here can be overridden by creating another file called "ui_text.txt" and placing this in 
+# The text in here can be overridden by creating another file called "ui_text.txt" and placing this in
 # [user]/AppData/local/CrewChiefV4/
 #
 # Any text set in that file will replace the corresponding default here
@@ -26,6 +26,7 @@ personalisations_are_up_to_date = Personalisations are up to date
 stop = &Stop
 stop_and_save = &Stop and Save trace
 start_application = &Start application
+incremental_updates_count = updates to apply
 
 pcars_64_bit = pCARS (64 bit)
 pcars_32_bit = pCARS (32 bit)
@@ -43,6 +44,7 @@ automobilista = Automobilista
 marcas = Copa Petrobras de Marcas
 ftruck = Formula Truck
 assetto_64_bit = Assetto Corsa (64 bit)
+assetto_64_bit_rally_mode = Assetto Corsa Rally (64 bit)
 assetto_32_bit = Assetto Corsa (32 bit)
 rfactor2_64_bit = rFactor 2 (64 bit)
 iracing = iRacing
@@ -50,6 +52,11 @@ f1_2018 = F1 2018 (spotter only)
 acc = Assetto Corsa Competizione
 f1_2019 = F1 2019 (spotter only)
 f1_2020 = F1 2020 (spotter only)
+rbr = Richard Burns Rally
+gtr2 = GTR 2
+dirt = Dirt Rally
+dirt2 = Dirt Rally 2
+unsupported_game = None (unsupported game)
 please_choose_a_game_option = Please choose a game option
 no_game_selected = No game selected
 
@@ -58,6 +65,7 @@ assign = Assign
 assign_control = Assi&gn control
 delete_assignment = &Delete assignment
 available_controllers = Available &controllers
+no_control_assigned = No control assigned
 available_actions = Available ac&tions
 properties = &Properties
 voice_recognition_mode = Voice &recognition mode
@@ -67,10 +75,13 @@ toggle_button = Press and release button
 hold_button = Hold button
 disabled = Disabled
 clear_console = Clear c&onsole
+copy_console_text = Copy &all console text
+copy_selected_text = Copy &selected console text
 game = &Game
 app_version = App version
 help_menu = &Help
 file_menu = &File
+console_menu =  C&onsole
 exit_menu_item = E&xit
 save_console_output = Save console &text
 voice_recognition_mode_help = Voice recognition mode - 'Trigger word' and 'Press and release button' not available with nAudio
@@ -128,10 +139,13 @@ get_status = Report car, damage and session status
 get_car_status = Report car status and damage
 get_session_status = Report session status
 get_damage_report = Report car damage
+toggle_rally_recce_mode = Toggle stage recce mode (rally only)
+reset_vr_view = Reset VR view
 
 custom_device = custom device
 assigned_to = assigned to
 button = button
+POV = PoV
 not_assigned = not assigned
 
 text_prop_type = (text)
@@ -167,7 +181,7 @@ personalisation_tooltip = Choose a name you'd like Chief to call you (requires r
 
 install_plugin_popup_text = Crew Chief needs additional files to be installed or updated for the selected game. Click OK to install or Cancel to Return
 install_plugin_popup_title = Plugin Needed
-install_plugin_select_directory_start = Please select 
+install_plugin_select_directory_start = Please select
 install_plugin_select_directory_end = installation directory
 install_plugin_popup_enable_text = Crew Chief can automatically enable the plugin for you, if you select Cancel you will have to enable it manually in the game ui. Click OK to enable or Cancel to Return
 install_plugin_popup_enable_title = Enable Plugin
@@ -194,6 +208,8 @@ search_box_tooltip_line6 = rF2 - for rFactor 2 specific preferences
 search_box_tooltip_line7 = pCARS - for Project CARS 1 and 2 specific preferences
 search_box_tooltip_line8 = iRacing - for iRacing specific preferences
 search_box_tooltip_line8 = ACC - for Assetto Corsa Competizione specific preferences
+search_box_tooltip_line9 = RBR - for Richard Burns Rally specific preferences
+search_box_tooltip_line10 = GTR2 - for GTR 2 specific preferences
 no_matches = No matches.
 reset_warning_text = This will reset all the Crew Chief {0} profile '{1}' settings to their default values, are you sure?
 reset_warning_title = Reset All Settings to Default Values
@@ -202,6 +218,14 @@ chief_name_label = Chief &voice:
 chief_name_tooltip = Choose a Chief voice (requires restart)
 spotter_name_label = Spotter &voice:
 spotter_name_tooltip = Choose a Spotter voice (requires restart)
+codriver_name_label = Co-&driver:
+codriver_name_tooltip = Choose a Co-Driver voice (requires restart)
+codriver_style_label = &Style:
+codriver_style_number_first = Number First
+codriver_style_direction_first = Direction First
+codriver_style_descriptive = Descriptive
+codriver_style_number_first_reversed = Number First Reversed
+codriver_style_direction_first_reversed = Direction First Reversed
 messages_audio_device_label = Messages playbac&k device
 background_audio_device_label = Background playback &device
 
@@ -212,11 +236,14 @@ check_for_updates_title = Force update check
 donate_link_text = Donate to Support Crew Chief development
 toggle_manual_formation_lap = Toggle manual formation lap mode
 read_corner_names_for_lap = Read corner names for current lap
+the_application_must_be_restarted_to_switch_between_circuit_and_rally_racing = The application must be restarted to switch between Circuit and Rally racing. Click OK to restart the application.
+switch_racing_type = Switch racing type
 
 all_categories_label = All Categories
 ui_startup_and_paths_category_label = UI, Startup & Paths
 audio_voice_and_controllers_category_label = Audio, Voice & Controllers
 spotter_category_label = Spotter
+codriver_category_label = Co-Driver
 flags_and_rules_category_label = Flags & Rules
 message_frequencies_category_label = Message Frequencies
 fuel_temps_and_damages_category_label = Fuel, Temperatures & Damage
@@ -269,11 +296,11 @@ macro_edit_mode = Mode
 game_specific_settings = Game specific settings
 action_sequence = Action sequence
 new_action = New action name
-keypress_time = Key hold down time
+keypress_time = Key hold time (optional)
 keypress_wait_time = Time between key presses
 add_action_to_sequence = Add action to sequence
 add_key_to_sequence = Add action to sequence
-add_action_sequence = Save sequence to macro for 
+add_action_sequence = Save sequence to macro for
 load_user_macro_settings = Load user macros file
 load_default_macro_settings = Load default macros file
 macro_please_download_soundpack = Please download sound packs before adding confirmation message
@@ -285,21 +312,21 @@ voice_trigger_action = Voice Trigger
 multiple_fuel_action = Fuel action
 wait_action = Wait action
 free_text_action = Free text
+modifier_and_key = Modifier and key
 advanced_edit_action = Advanced edit(no error checking!)
 action_repeated_key_presses = Repetition count(integer)
 action_wait_time = Wait time in milliseconds.
 action_free_text = Free Text
 undo_last_action = Undo last action
 actions_keys = Available keys
+modifier_keys = Available modifiers
 must_select_a_key = You must select a key from the list of available keys
 special_action_text_cant_be_empty = must contain a value
-delete_selected_macro_confirmation = Are you sure you want to delete 
+delete_selected_macro_confirmation = Are you sure you want to delete
 delete_selected_macro_confirmation_title = Confirm delete
 must_select_a_macro = You must select a macro before trying to add a sequence
 action_sequence_cant_be_empty = You must add at least one action to Action sequence
-empty_keypress_time_start = Both
-empty_keypress_time_middle = and
-empty_keypress_time_end = must contain a value
+empty_wait_time_end = must contain a value
 
 ###################################### Action Editor ######################################################
 current_available_actions = &Current available actions
@@ -324,6 +351,9 @@ vr_enable_gazing = Enable gazing
 vr_gaze_scale = Gazing scale
 vr_gaze_transparency = Gazing transparency
 vr_force_topmost_window = Force window on top
+vr_toggle_key = Toggle Key(s)
+vr_tracking_universe_overwrite = Overwrite VR tracking universe
+vr_recenter_pose = Reset VR view
 ###################################### Preferences ######################################################
 # to change the name of the property title in the properties screen, just use the property name like this:
 # enable_spotter = Enable spotter
@@ -335,11 +365,11 @@ vr_force_topmost_window = Force window on top
 #
 # In order to specify property filter, add entry [property_name]_filter = [filter].
 # If property has no filter attached, it is considered to be common property.
-# Filter can consist of semicolon separated GameEnum values.  Filter can be inclusive or exclusive.  Exclusive filter starts with '!'. 
+# Filter can consist of semicolon separated GameEnum values.  Filter can be inclusive or exclusive.  Exclusive filter starts with '!'.
 #
 # Examples:
 # To specify that property applies to rF2 and R3E (include filter):
-#	my_prop_filter = RF2_64BIT;RACE_ROOM  
+#	my_prop_filter = RF2_64BIT;RACE_ROOM
 #
 # To specify that property applies to all games but rF1 and AC (exclude filter):
 #	my_prop_filter = !RF1;ASSETTO_64BIT;ASSETTO_32BIT
@@ -376,8 +406,20 @@ rf1_install_path_metadata = RESTART_REQUIRED
 rf2_install_path = rF2 install path
 rf2_install_path_help = rF2 installation path for plugin installation and updating
 rf2_install_path_filter = RF2_64BIT
-rf1_install_path_category = UI_STARTUP_AND_PATHS
-rf1_install_path_metadata = RESTART_REQUIRED
+rf2_install_path_category = UI_STARTUP_AND_PATHS
+rf2_install_path_metadata = RESTART_REQUIRED
+
+rbr_install_path = RBR install path
+rbr_install_path_help = RBR installation path for plugin installation and updating
+rbr_install_path_filter = RBR
+rbr_install_path_category = UI_STARTUP_AND_PATHS
+rbr_install_path_metadata = RESTART_REQUIRED
+
+gtr2_install_path = GTR 2 install path
+gtr2_install_path_help = GTR 2 installation path for plugin installation and updating
+gtr2_install_path_filter = GTR2
+gtr2_install_path_category = UI_STARTUP_AND_PATHS
+gtr2_install_path_metadata = RESTART_REQUIRED
 
 f1_2018_install_path = F1 2018 install path
 f1_2018_install_path_help = F1 2018 installation path
@@ -619,6 +661,10 @@ rf2_spotter_car_length = rF2 Spotter default car length
 rf2_spotter_car_length_filter = RF2_64BIT
 rf2_spotter_car_length_category = SPOTTER
 
+gtr2_spotter_car_length = GTR 2 Spotter default car length
+gtr2_spotter_car_length_filter = GTR2
+gtr2_spotter_car_length_category = SPOTTER
+
 f1_2018_spotter_car_length = F1 2018 Spotter default car length
 f1_2018_spotter_car_length_filter = F1_2018
 f1_2018_spotter_car_length_category = SPOTTER
@@ -730,7 +776,7 @@ rf1_launch_params_category = UI_STARTUP_AND_PATHS
 rf1_launch_params_metadata = RESTART_REQUIRED
 
 rf2_launch_params = rF2 launch params
-rf2_launch_params_help = This is used to tell Steam what app to run - rFactor2's Steam app ID is 365960. If you specified a path rFactor2.exe you can leave this blank
+rf2_launch_params_help = This is used to tell Steam what app to run - rFactor 2's Steam app ID is 365960. If you specified a path rFactor2.exe you can leave this blank
 rf2_launch_params_filter = RF2_64BIT
 rf2_launch_params_category = UI_STARTUP_AND_PATHS
 rf2_launch_params_metadata = RESTART_REQUIRED
@@ -776,11 +822,50 @@ f1_2019_launch_params_help = This is used to tell Steam what app to run - F1 201
 f1_2019_launch_params_filter = F1_2019
 f1_2019_launch_params_category = UI_STARTUP_AND_PATHS
 
+f1_2020_launch_params = F1 2020 launch params
+f1_2020_launch_params_help = This is used to tell Steam what app to run - F1 2020's Steam app ID is ??????. If you specified a path f1_2020.exe you can leave this blank
+f1_2020_launch_params_filter = F1_2020
+f1_2020_launch_params_category = UI_STARTUP_AND_PATHS
+
 r3e_launch_exe = R3E launch exe
 r3e_launch_exe_help = This is the location of Steam.exe or the direct path to RRRE.exe. Use forward slashes to separate paths.
 r3e_launch_exe_filter = RACE_ROOM
 r3e_launch_exe_category = UI_STARTUP_AND_PATHS
 r3e_launch_exe_metadata = RESTART_REQUIRED
+
+rbr_launch_exe = RBR launch exe
+rbr_launch_exe_help = This is the direct path to RichardBurnsRally_SSE.exe. Use forward slashes to separate paths.
+rbr_launch_exe_filter = RBR
+rbr_launch_exe_category = UI_STARTUP_AND_PATHS
+rbr_launch_exe_metadata = RESTART_REQUIRED
+
+gtr2_launch_exe = GTR 2 launch exe
+gtr2_launch_exe_help = This is the direct path to GTR2.exe. Use forward slashes to separate paths.
+gtr2_launch_exe_filter = GTR2
+gtr2_launch_exe_category = UI_STARTUP_AND_PATHS
+gtr2_launch_exe_metadata = RESTART_REQUIRED
+
+dirt_launch_exe = Dirt Rally launch exe
+dirt_launch_exe_help = This is the location of Steam.exe or the direct path to dirtrally.exe. Use forward slashes to separate paths.
+dirt_launch_exe_filter = DIRT
+dirt_launch_exe_category = UI_STARTUP_AND_PATHS
+dirt_launch_exe_metadata = RESTART_REQUIRED
+
+dirt_launch_params = Dirt Rally launch params
+dirt_launch_params_help = This is used to tell Steam what app to run - Dirt Rally's Steam app ID is 310560. If you specified a path dirtrally.exe you can leave this blank
+dirt_launch_params_filter = DIRT
+dirt_launch_params_category = UI_STARTUP_AND_PATHS
+
+dirt2_launch_exe = Dirt Rally 2 launch exe
+dirt2_launch_exe_help = This is the location of Steam.exe or the direct path to dirtrally2.exe. Use forward slashes to separate paths.
+dirt2_launch_exe_filter = DIRT_2
+dirt2_launch_exe_category = UI_STARTUP_AND_PATHS
+dirt2_launch_exe_metadata = RESTART_REQUIRED
+
+dirt2_launch_params = Dirt Rally 2 launch params
+dirt2_launch_params_help = This is used to tell Steam what app to run - Dirt Rally 2's Steam app ID is 690790. If you specified a path dirtrally.exe you can leave this blank
+dirt2_launch_params_filter = DIRT_2
+dirt2_launch_params_category = UI_STARTUP_AND_PATHS
 
 acc_launch_exe = ACC launch exe
 acc_launch_exe_help = This is the location of Steam.exe or the direct path to acc.exe. Use forward slashes to separate paths.
@@ -870,6 +955,30 @@ launch_rfactor2_filter = RF2_64BIT
 launch_rfactor2_category = UI_STARTUP_AND_PATHS
 launch_rfactor2_metadata = RESTART_REQUIRED
 
+launch_rbr = Launch RBR
+launch_rbr_help = If this is true the application will attempt to launch Richard Burns Rally when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
+launch_rbr_filter = RBR
+launch_rbr_category = UI_STARTUP_AND_PATHS
+launch_rbr_metadata = RESTART_REQUIRED
+
+launch_gtr2 = Launch GTR 2
+launch_gtr2_help = If this is true the application will attempt to launch Richard Burns Rally when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
+launch_gtr2_filter = GTR2
+launch_gtr2_category = UI_STARTUP_AND_PATHS
+launch_gtr2_metadata = RESTART_REQUIRED
+
+launch_dirt = Launch Dirt Rally
+launch_dirt_help = If this is true the application will attempt to launch Dirt Rally when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
+launch_dirt_filter = DIRT
+launch_dirt_category = UI_STARTUP_AND_PATHS
+launch_dirt_metadata = RESTART_REQUIRED
+
+launch_dirt2 = Launch Dirt Rally 2
+launch_dirt2_help = If this is true the application will attempt to launch Dirt Rally 2 when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
+launch_dirt2_filter = DIRT_2
+launch_dirt2_category = UI_STARTUP_AND_PATHS
+launch_dirt2_metadata = RESTART_REQUIRED
+
 launch_gsc = Launch GSC
 launch_gsc_help = If this is true the application will attempt to launch Stock Car Extreme when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
 launch_gsc_filter = RF1
@@ -886,6 +995,11 @@ launch_f1_2019 = Launch F1 2019
 launch_f1_2019_help = If this is true the application will attempt to launch F1 2019 when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
 launch_f1_2019_filter = F1_2019
 launch_f1_2019_category = UI_STARTUP_AND_PATHS
+
+launch_f1_2020 = Launch F1 2020
+launch_f1_2020_help = If this is true the application will attempt to launch F1 2020 when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
+launch_f1_2020_filter = F1_2020
+launch_f1_2020_category = UI_STARTUP_AND_PATHS
 
 launch_ams = Launch AMS
 launch_ams_help = If this is true the application will attempt to launch Automobilista when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
@@ -965,7 +1079,7 @@ launch_pcars2_filter = PCARS2
 launch_pcars2_category = UI_STARTUP_AND_PATHS
 launch_pcars2_metadata = RESTART_REQUIRED
 
-launch_pcars3 = Launch pCARS 
+launch_pcars3 = Launch pCARS
 launch_pcars3_help = If this is true the application will attempt to launch pCARS 3 when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
 launch_pcars3_filter = PCARS3
 launch_pcars3_category = UI_STARTUP_AND_PATHS
@@ -1015,15 +1129,25 @@ cumulative_lap_wheelspin_warning_threshold_help = If the player has wheelspin fo
 cumulative_lap_wheelspin_warning_threshold_filter = !IRACING
 cumulative_lap_wheelspin_warning_threshold_category = FUEL_TEMPS_AND_DAMAGES;MESSAGE_FREQUENCIES
 
-minimum_name_voice_recognition_confidence = Minimum name voice recognition confidence
-minimum_name_voice_recognition_confidence_help = When processing voice commands asking about opponent drivers, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0, default 0.4)
+minimum_name_voice_recognition_confidence = Min name voice recognition confidence (Microsoft recogniser)
+minimum_name_voice_recognition_confidence_help = When processing voice commands asking about opponent drivers, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0)
 minimum_name_voice_recognition_confidence_category = AUDIO_VOICE_AND_CONTROLLERS
 minimum_name_voice_recognition_confidence_metadata = RESTART_REQUIRED
 
-minimum_voice_recognition_confidence = Minimum voice recognition confidence
-minimum_voice_recognition_confidence_help = When processing voice commands, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0, default 0.5)
+minimum_name_voice_recognition_confidence_system_sre = Min name voice recognition confidence (Windows recogniser)
+minimum_name_voice_recognition_confidence_system_sre_help = When processing voice commands asking about opponent drivers, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0)
+minimum_name_voice_recognition_confidence_system_sre_category = AUDIO_VOICE_AND_CONTROLLERS
+minimum_name_voice_recognition_confidence_system_sre_metadata = RESTART_REQUIRED
+
+minimum_voice_recognition_confidence = Min voice recognition confidence (Microsoft recogniser)
+minimum_voice_recognition_confidence_help = When processing voice commands, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0)
 minimum_voice_recognition_confidence_category = AUDIO_VOICE_AND_CONTROLLERS
 minimum_voice_recognition_confidence_metadata = RESTART_REQUIRED
+
+minimum_voice_recognition_confidence_system_sre = Min voice recognition confidence (Windows recogniser)
+minimum_voice_recognition_confidence_system_sre_help = When processing voice commands, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0)
+minimum_voice_recognition_confidence_system_sre_category = AUDIO_VOICE_AND_CONTROLLERS
+minimum_voice_recognition_confidence_system_sre_metadata = RESTART_REQUIRED
 
 display_session_lap_times = Display session lap times
 display_session_lap_times_help = Write all the lap times from the completed session to the console (separated by ;)
@@ -1204,6 +1328,11 @@ enable_rf2_pit_stop_prediction_help = Play 'box now' messages when using offline
 enable_rf2_pit_stop_prediction_filter = RF2_64BIT
 enable_rf2_pit_stop_prediction_category = PIT_STOPS_AND_MULTICLASS
 
+enable_gtr2_pit_stop_prediction = Enable GTR 2 pit stop prediction
+enable_gtr2_pit_stop_prediction_help = Play 'box now' messages when using offline scheduled pit stops
+enable_gtr2_pit_stop_prediction_filter = GTR2
+enable_gtr2_pit_stop_prediction_category = PIT_STOPS_AND_MULTICLASS
+
 enable_simple_incident_detection_listprop = Enable simple incident detection
 enable_simple_incident_detection_listprop_help = Watch for and report very slow cars as incidents (iRacing, pCARS and AC only)
 enable_simple_incident_detection_listprop_filter = ASSETTO_64BIT;ASSETTO_32BIT;PCARS_64BIT;PCARS_32BIT;PCARS_NETWORK;IRACING
@@ -1285,6 +1414,11 @@ enable_rf2_cut_track_heuristics = Enable rF2 cut track heuristic detection
 enable_rf2_cut_track_heuristics_help = If enabled, CC will try to detect if user cut track.  If disabled, cut track will only be reported if game reported that lap got invalidated.
 enable_rf2_cut_track_heuristics_filter = RF2_64BIT
 enable_rf2_cut_track_heuristics_category = FLAGS_AND_RULES
+
+enable_gtr2_cut_track_heuristics = Enable GTR 2 cut track heuristic detection
+enable_gtr2_cut_track_heuristics_help = If enabled, CC will try to detect if user cut track.  If disabled, cut track will only be reported if game reported that lap got invalidated.
+enable_gtr2_cut_track_heuristics_filter = GTR2
+enable_gtr2_cut_track_heuristics_category = FLAGS_AND_RULES
 
 enable_rf2_pit_lane_approach_heuristics = Enable rF2 pit lane approach detection
 enable_rf2_pit_lane_approach_heuristics_help = Experimental: If enabled, CC will try to detect if user approaches the pit lane entry and remind him to respect speed limit.  Might not work correctly for all tracks.
@@ -1411,7 +1545,7 @@ force_min_window_size_category = UI_STARTUP_AND_PATHS
 force_min_window_size_metadata = RESTART_REQUIRED
 
 pit_box_position_countdown = Pit box distance countdown
-pit_box_position_countdown_help = Play distance in metres to box as you approach (R3E, rF2 and iRacing only).  Note:  In rF2, disabled for oval tracks.  May not work with some other tracks too.
+pit_box_position_countdown_help = Play distance in metres to box as you approach (R3E, rF2, iRacing and GTR 2 only).  Note:  In rF2, disabled for oval tracks.  May not work with some other tracks too.
 pit_box_position_countdown_filter = IRACING;RACE_ROOM;RF2_64BIT
 pit_box_position_countdown_category = PIT_STOPS_AND_MULTICLASS
 
@@ -1486,6 +1620,16 @@ iracing_enable_auto_fuel_to_end_of_race_help = Enables auto refueling in iRacing
 iracing_enable_auto_fuel_to_end_of_race_category = PIT_STOPS_AND_MULTICLASS
 iracing_enable_auto_fuel_to_end_of_race_filter = IRACING
 
+rf2_enable_auto_fuel_to_end_of_race = Enable rF2 auto refueling when entering pit in race
+rf2_enable_auto_fuel_to_end_of_race_help = Enables auto refueling in rFactor 2 based on fuel calculations done by the app.
+rf2_enable_auto_fuel_to_end_of_race_category = PIT_STOPS_AND_MULTICLASS
+rf2_enable_auto_fuel_to_end_of_race_filter = RF2_64BIT
+
+rf2_enable_pit_manager = Enable rF2 pit manager
+rf2_enable_pit_manager_help = Enables voice commands controlling rF2 pit menu
+rf2_enable_pit_manager_category = PIT_STOPS_AND_MULTICLASS
+rf2_enable_pit_manager_filter = RF2_64BIT
+
 priortise_messages_depending_on_situation = Advanced message prioritisation
 priortise_messages_depending_on_situation_help = Disable less important messages when under pressure, on a qualifying lap, etc
 priortise_messages_depending_on_situation_category = AUDIO_VOICE_AND_CONTROLLERS
@@ -1528,10 +1672,15 @@ naudio_wasapi_latency_help = Set WASAPI output latency in milliseconds.  Lower v
 naudio_wasapi_latency_category = AUDIO_VOICE_AND_CONTROLLERS
 naudio_wasapi_latency_metadata = RESTART_REQUIRED
 
-trigger_word_sre_min_confidence = Minimum trigger word confidence
-trigger_word_sre_min_confidence_help = When listening for the voice command trigger word, the app must be at least this confident it understood before starting speech recognition (0.0 - 1.0, default 0.6)
+trigger_word_sre_min_confidence = Min trigger word confidence (Microsoft recogniser)
+trigger_word_sre_min_confidence_help = When listening for the voice command trigger word, the app must be at least this confident it understood before starting speech recognition (0.0 - 1.0)
 trigger_word_sre_min_confidence_category = AUDIO_VOICE_AND_CONTROLLERS
 trigger_word_sre_min_confidence_metadata = RESTART_REQUIRED
+
+trigger_word_sre_min_confidence_system_sre = Min trigger word confidence (Windows recogniser)
+trigger_word_sre_min_confidence_system_sre_help = When listening for the voice command trigger word, the app must be at least this confident it understood before starting speech recognition (0.0 - 1.0)
+trigger_word_sre_min_confidence_system_sre_category = AUDIO_VOICE_AND_CONTROLLERS
+trigger_word_sre_min_confidence_system_sre_metadata = RESTART_REQUIRED
 
 trigger_word_listen_timeout = Trigger word listen timeout (ms)
 trigger_word_listen_timeout_help = Wait this many milliseconds for a command after receiving the trigger word
@@ -1539,7 +1688,7 @@ trigger_word_listen_timeout_category = AUDIO_VOICE_AND_CONTROLLERS
 trigger_word_listen_timeout_metadata = RESTART_REQUIRED
 
 enable_alarm_clock_voice_recognition = Enable alarm clock voice commands
-enable_alarm_clock_voice_recognition_help = Enable this if you want to use the alarm clock feature, this is disabled by default to limit the number of voice commands 
+enable_alarm_clock_voice_recognition_help = Enable this if you want to use the alarm clock feature, this is disabled by default to limit the number of voice commands
 enable_alarm_clock_voice_recognition_category = AUDIO_VOICE_AND_CONTROLLERS;TIMINGS
 
 alarm_clock_times = Alarm time(s)
@@ -1571,7 +1720,7 @@ persist_pitstop_benchmark_times_category = PIT_STOPS_AND_MULTICLASS
 persist_pitstop_benchmark_times_metadata = RESTART_REQUIRED
 
 controller_mappings_file_error_title = Error reading controller mappings
-controller_mappings_file_error_details_1 = Controller mapping file 
+controller_mappings_file_error_details_1 = Controller mapping file
 controller_mappings_file_error_details_2 = is invalid - no button mappings will be available. Error message from JSON parsers is:
 
 use_rf2_wheel_size_for_locking_and_spinning = Use rF2's real wheel size for lock/spin messages
@@ -1583,7 +1732,7 @@ enable_iracing_pit_state_during_fcy = Enable iRacing FCY pit state messages
 enable_iracing_pit_state_during_fcy_help = Announce pit state during Safety Car/Pace Car phase
 enable_iracing_pit_state_during_fcy_filter = IRACING
 enable_iracing_pit_state_during_fcy_category = FLAGS_AND_RULES;PIT_STOPS_AND_MULTICLASS
-		
+
 iracing_fcy_formation_use_drivername = iRacing fcy/formation use driver names
 iracing_fcy_formation_use_drivername_help = Use driver names instead of car number if available doing fcy and formation laps
 iracing_fcy_formation_use_drivername_filter = IRACING
@@ -1752,24 +1901,24 @@ make_overlay_app_window_help = Make the overlay window appear on the taskbar as 
 make_overlay_app_window_category = UI_STARTUP_AND_PATHS
 make_overlay_app_window_metadata = RESTART_REQUIRED
 
-delete_iracing_telemetryfile = Delete iRacing telemetry file after processing 
-delete_iracing_telemetryfile_help = Deletes the latest iRacing telemetry file after processing it, helps reducing diskspace used for telelmetry recordings. 
+delete_iracing_telemetryfile = Delete iRacing telemetry file after processing
+delete_iracing_telemetryfile_help = Deletes the latest iRacing telemetry file after processing it, helps reducing diskspace used for telelmetry recordings.
 delete_iracing_telemetryfile_filter = IRACING
 delete_iracing_telemetryfile_category = UI_STARTUP_AND_PATHS
 delete_iracing_telemetryfile_metadata = RESTART_REQUIRED
 
-enable_automatic_disk_telemetry_recording = Enable automatic telemetry disk recording   
-enable_automatic_disk_telemetry_recording_help = Let's Crew Chief handle the starting and stopping of iRacing telemetry recoding. 
+enable_automatic_disk_telemetry_recording = Enable automatic telemetry disk recording
+enable_automatic_disk_telemetry_recording_help = Let's Crew Chief handle the starting and stopping of iRacing telemetry recoding.
 enable_automatic_disk_telemetry_recording_filter = IRACING
 enable_automatic_disk_telemetry_recording_category = UI_STARTUP_AND_PATHS
 enable_automatic_disk_telemetry_recording_metadata = RESTART_REQUIRED
 
 enable_shared_memory = Enable Shared Memory
-enable_shared_memory_help = Allows other apps to read the current shared memory from Crew Chief 
+enable_shared_memory_help = Allows other apps to read the current shared memory from Crew Chief
 enable_shared_memory_metadata = RESTART_REQUIRED
 
 enable_subtitle_overlay = Enable subtitle overlay
-enable_subtitle_overlay_help = Displays an overlay window with subtitles 
+enable_subtitle_overlay_help = Displays an overlay window with subtitles
 enable_subtitle_overlay_category = AUDIO_VOICE_AND_CONTROLLERS
 enable_subtitle_overlay_metadata = RESTART_REQUIRED
 
@@ -1812,6 +1961,11 @@ vr_overlays_enabled_on_startup = Enable VR overlays when app starts
 vr_overlays_enabled_on_startup_help = Draw previously enabled Steam VR overlays on Crew Chief startup
 vr_overlays_enabled_on_startup_category = VR_SETTINGS;UI_STARTUP_AND_PATHS
 
+vr_tracking_space_seated = Seated
+vr_tracking_space_standing = Standing
+vr_tracking_space_followhead = Follow Head
+vr_tracking_space = Tracking space
+
 r3e_ratings_url = R3E Ratings URL
 r3e_ratings_url_help = URL to retrieve R3E rating data
 r3e_ratings_url_filter = RACE_ROOM
@@ -1820,5 +1974,166 @@ watched_opponent_names = Watched opponent names
 watched_opponent_names_help = Comma separated list of opponent names to report on
 
 show_vr_settings_as_overlay = Always show VR Settings window as overlay
-show_vr_settings_as_overlay_help = If enabled, SteamVR Settings window is always shown as an overlay.  Disable if it gets in a way of other windows.
+show_vr_settings_as_overlay_help = If enabled, SteamVR Settings window is always shown as an overlay.  Disable if it gets in a way of other windows
 show_vr_settings_as_overlay_category = VR_SETTINGS
+
+codriver_rushed_speed = Codriver rushing speed threshold (km/h)
+codriver_rushed_speed_help = Use rushed / urgent calls when above this speed (rally only).  Set to unrealistically high value, e.g. 400km/h to never rush based on speed
+codriver_rushed_speed_category = CODRIVER
+codriver_rushed_speed_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
+
+codriver_rushed_lookahead_seconds = Codriver rushing look ahead (seconds)
+codriver_rushed_lookahead_seconds_help = Use rushed / urgent calls when there are pace notes to be announced this many seconds away (rally only).  If set to 0, codriver will only rush based on speed.  The bigger the value, the more likely it is thatcodriver will rush.
+codriver_rushed_lookahead_seconds_category = CODRIVER
+codriver_rushed_lookahead_seconds_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
+
+codriver_chained_pacenote_threshold_distance = Link codriver calls closer than this (metres)
+codriver_chained_pacenote_threshold_distance_help = Combined calls when they're closer together than this many metres (rally only)
+codriver_chained_pacenote_threshold_distance_category = CODRIVER
+codriver_chained_pacenote_threshold_distance_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
+
+codriver_lookahead_seconds = Default look ahead for codriver calls (seconds)
+codriver_lookahead_seconds_help = Call out corners etc when you're this many seconds away (rally only)
+codriver_lookahead_seconds_category = CODRIVER
+codriver_lookahead_seconds_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
+
+enable_controller_pov_switches = Enable controller PoV switches
+enable_controller_pov_switches_help = Allow controller point-of-view switches to be used for button assignments
+enable_controller_pov_switches_category = AUDIO_VOICE_AND_CONTROLLERS
+
+block_male_sounds = Block sounds which refer to drivers as male
+block_male_sounds_help = Don't play sounds which assume the player and all opponents are male (sounds that include "he", "guy", "man" etc)
+block_male_sounds_category = AUDIO_VOICE_AND_CONTROLLERS
+block_male_sounds_metadata = RESTART_REQUIRED
+
+enable_watch_car_command = Enable watch opponent commands
+enable_watch_car_command_help = Enable the watched opponent / rivals voice commands
+enable_watch_car_command_category = AUDIO_VOICE_AND_CONTROLLERS
+
+lazy_load_subtitles = Lazy load subtitles
+lazy_load_subtitles_help = Load subtitles immediately before displaying (improves app startup time, may add additional load at runtime)
+lazy_load_subtitles_category = AUDIO_VOICE_AND_CONTROLLERS
+lazy_load_subtitles_metadata = RESTART_REQUIRED
+
+show_splash_screen = Show splash screen
+show_splash_screen_help = Show splash screen while the app is launching
+show_splash_screen_category = MISC
+
+enable_gtr2_pit_lane_approach_heuristics = Enable GTR 2 pit lane approach detection
+enable_gtr2_pit_lane_approach_heuristics_help = Experimental: If enabled, CC will try to detect if user approaches the pit lane entry and remind him to respect speed limit.  Might not work correctly for all tracks.
+enable_gtr2_pit_lane_approach_heuristics_filter = GTR2
+enable_gtr2_pit_lane_approach_heuristics_category = PIT_STOPS_AND_MULTICLASS
+
+scroll_bars_on_main_window = Scroll bars on main window
+scroll_bars_on_main_window_help = Scroll bars if main window is larger than screen
+scroll_bars_on_main_window_category = MISC
+scroll_bars_on_main_window_metadata = RESTART_REQUIRED
+
+use_dictation_grammar_for_rally = Use free dictation for stage notes
+use_dictation_grammar_for_rally_help = Record pace notes using free dictaction grammar (Windows speech recogniser only)
+use_dictation_grammar_for_rally_category = AUDIO_VOICE_AND_CONTROLLERS
+use_dictation_grammar_for_rally_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
+use_dictation_grammar_for_rally_metadata = RESTART_REQUIRED
+
+dictation_grammar_for_rally_confidence = Min rally free dictation voice recognition confidence (Microsoft recogniser)
+dictation_grammar_for_rally_confidence_help = When processing stage notes in free dictation mode, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0)
+dictation_grammar_for_rally_confidence_category = AUDIO_VOICE_AND_CONTROLLERS
+dictation_grammar_for_rally_confidence_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
+
+confirm_recce_pace_notes = Confirm each pace note in stage recce
+confirm_recce_pace_notes_help = Play back the pace note(s) created from each stage notes voice command
+confirm_recce_pace_notes_category = AUDIO_VOICE_AND_CONTROLLERS
+dictation_grammar_for_rally_confidence_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
+
+minimum_rally_voice_recognition_confidence_microsoft_sre = Min rally voice recognition confidence (Windows recogniser)
+minimum_rally_voice_recognition_confidence_microsoft_sre_help =  When processing voice commands in rally mode, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0)
+minimum_rally_voice_recognition_confidence_microsoft_sre_category = AUDIO_VOICE_AND_CONTROLLERS
+minimum_rally_voice_recognition_confidence_microsoft_sre_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
+minimum_rally_voice_recognition_confidence_microsoft_sre_metadata = RESTART_REQUIRED
+
+minimum_rally_voice_recognition_confidence_system_sre = Min rally voice recognition confidence (Windows recogniser)
+minimum_rally_voice_recognition_confidence_system_sre_help =  When processing voice commands in rally mode, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0)
+minimum_rally_voice_recognition_confidence_system_sre_category = AUDIO_VOICE_AND_CONTROLLERS
+minimum_rally_voice_recognition_confidence_system_sre_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
+minimum_rally_voice_recognition_confidence_system_sre_metadata = RESTART_REQUIRED
+
+dirt_rally_udp_data_port = Dirt Rally UDP port
+dirt_rally_udp_data_port_help = Dirt Rally network data UDP port (should usually be 20777)
+dirt_rally_udp_data_port_category = UI_STARTUP_AND_PATHS
+dirt_rally_udp_data_port_filter = DIRT
+dirt_rally_udp_data_port_metadata = RESTART_REQUIRED
+
+dirt_rally_2_udp_data_port = Dirt Rally 2 UDP port
+dirt_rally_2_udp_data_port_help = Dirt Rally 2 network data UDP port (should usually be 20777)
+dirt_rally_2_udp_data_port_category = UI_STARTUP_AND_PATHS
+dirt_rally_2_udp_data_port_filter = DIRT_2
+dirt_rally_2_udp_data_port_metadata = RESTART_REQUIRED
+
+log_type_debug = Log type - debug
+log_type_debug_help = Include debug messages in the console and log
+log_type_debug_category = MISC
+log_type_debug_metadata = RESTART_REQUIRED
+
+log_type_verbose = Log type - verbose
+log_type_verbose_help = Include verbose messages in the console and log
+log_type_verbose_category = MISC
+log_type_verbose_metadata = RESTART_REQUIRED
+
+log_type_fuel = Log type - fuel
+log_type_fuel_help = Include fuel messages in the console and log
+log_type_fuel_category = MISC
+log_type_fuel_metadata = RESTART_REQUIRED
+
+allow_composite_personalisations = Allow opponent names in 'My name' list
+allow_composite_personalisations_help = Include composite names (using opponent names) in the 'My name' list on the main screen
+allow_composite_personalisations_category = MISC
+allow_composite_personalisations_metadata = RESTART_REQUIRED
+
+codriver_dynamic_lookahead = Dynamic co-driver distance look ahead
+codriver_dynamic_lookahead_help = Reduce co-driver look ahead distance when approaching slow corners
+codriver_dynamic_lookahead_category = MISC
+codriver_dynamic_lookahead_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
+
+codriver_min_space_for_auto_distance_call = Min gap for auto-generated distance pace note (metres)
+codriver_min_space_for_auto_distance_call_help = Insert auto-generated distance call when the next call is greater than this distance away
+codriver_min_space_for_auto_distance_call_category = AUDIO_VOICE_AND_CONTROLLERS
+codriver_min_space_for_auto_distance_call_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
+
+include_start_pos_in_dirt_stage_names = Include start location in Dirt Rally pace note folders
+include_start_pos_in_dirt_stage_names_help = Add X and Z coordinates to stage length when constructing folder name for pace notes
+include_start_pos_in_dirt_stage_names_category = MISC
+include_start_pos_in_dirt_stage_names_filter = DIRT;DIRT_2
+
+save_sre_debug_data = Write speech recognition debug data
+save_sre_debug_data_help = SRE audio file and recognised text to voiceRecognitionDebug
+save_sre_debug_data_category = MISC
+save_sre_debug_data_metadata = RESTART_REQUIRED
+
+sre_button_release_delay = SRE delay after button release, hold button mode only (ms)
+sre_button_release_delay_help = Wait this long after releasing the radio button before invoking the speech recogniser
+sre_button_release_delay_category = AUDIO_VOICE_AND_CONTROLLERS
+
+reset_vr_view_control = Keycode to reset VR view
+reset_vr_view_control_help = Keycode sent to game to reset VR view, default is NUMPAD5
+reset_vr_view_control_category = MISC
+reset_vr_view_control_filter = RF1;GTR2
+
+sre_enable_threshold_tuning = Auto-tune speech recognition thresholds
+sre_enable_threshold_tuning_help = Adjust SRE confidence thresholds automatically
+sre_enable_threshold_tuning_category = AUDIO_VOICE_AND_CONTROLLERS
+sre_enable_threshold_tuning_metadata = RESTART_REQUIRED
+
+enable_rf1_box_sharing_warnings = Warn about opponents sharing player's pit box (RF1 / AMS 1 only)
+enable_rf1_box_sharing_warnings_help = Use practice pit stop car position data to trigger pit-box-in-use warnings
+enable_rf1_box_sharing_warnings_category = MISC
+enable_rf1_box_sharing_warnings_filter = RF1
+enable_rf1_box_sharing_warnings_metadata = RESTART_REQUIRED
+
+force_resample = nAudio playback resample rate (0 - no resampling)
+force_resample_help = Change sample rate of message files before playback, set to 0 to disable resampling (nAudio only)
+force_resample_category = AUDIO_VOICE_AND_CONTROLLERS
+force_resample_metadata = RESTART_REQUIRED
+
+enable_frozen_order_messages = Enable frozen order messages
+enable_frozen_order_messages_help = Play formation lap and full course yellow order messages
+enable_frozen_order_messages_category = FLAGS_AND_RULES
