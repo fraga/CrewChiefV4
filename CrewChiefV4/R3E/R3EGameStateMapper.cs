@@ -109,8 +109,6 @@ namespace CrewChiefV4.RaceRoom
             suspensionDamageThresholds.Add(suspensionDamageMinor);
             suspensionDamageThresholds.Add(suspensionDamageMajor);
             suspensionDamageThresholds.Add(suspensionDamageDestroyed);
-
-            CarData.optimalTempsFromGame.Clear();
         }
 
         public override void versionCheck(Object memoryMappedFileStruct)
@@ -233,7 +231,6 @@ namespace CrewChiefV4.RaceRoom
                     currentGameState.SessionData.SessionPhase == SessionPhase.Countdown) ||
                 lastSessionRunningTime > currentGameState.SessionData.SessionRunningTime)
             {
-                CarData.optimalTempsFromGame.Clear();
                 R3EPitMenuManager.hasStateForCurrentSession = false;
                 currentGameState.SessionData.IsNewSession = true;
                 chequeredFlagShownInThisSession = false;
@@ -361,7 +358,6 @@ namespace CrewChiefV4.RaceRoom
                 if (lastSessionPhase != currentGameState.SessionData.SessionPhase)
                 {
                     Console.WriteLine("New session phase, was " + lastSessionPhase + " now " + currentGameState.SessionData.SessionPhase);
-                    CarData.optimalTempsFromGame.Clear();
                     if (currentGameState.SessionData.SessionPhase == SessionPhase.Green)
                     {
                         currentGameState.SessionData.JustGoneGreen = true;
@@ -1238,9 +1234,10 @@ namespace CrewChiefV4.RaceRoom
             currentGameState.TyreData.HasMatchedTyreTypes = true;
             currentGameState.TyreData.TyreWearActive = shared.TireWearActive > 0;
             TyreType tyreType = mapToTyreType(shared.TireTypeFront, shared.TireSubtypeFront, shared.TireTypeRear, shared.TireSubtypeFront, currentGameState.carClass.carClassEnum);
-            if (!CarData.optimalTempsFromGame.ContainsKey(tyreType))
+            var key = new Tuple<CarData.CarClassEnum, TyreType>(currentGameState.carClass.carClassEnum, tyreType);
+            if (!CarData.optimalTempsFromGame.ContainsKey(key))
             {
-                CarData.AddTempThresholdsFromGame(tyreType, shared.TireTemp.FrontLeft.ColdTemp, shared.TireTemp.FrontLeft.OptimalTemp, shared.TireTemp.FrontLeft.HotTemp);
+                CarData.AddTempThresholdsFromGame(key, shared.TireTemp.FrontLeft.ColdTemp, shared.TireTemp.FrontLeft.OptimalTemp, shared.TireTemp.FrontLeft.HotTemp);
             }
             currentGameState.TyreData.FrontLeft_CenterTemp = shared.TireTemp.FrontLeft.CurrentTemp.Center;
             currentGameState.TyreData.FrontLeft_LeftTemp = shared.TireTemp.FrontLeft.CurrentTemp.Left;
