@@ -1455,6 +1455,7 @@
 			"rf2TrackNames": [ "Zolder" ],
 			"irTrackName": "zolder gp",
 			"accTrackName": "Zolder:track config",
+			"gtr2TrackNames": [ "2005ZOLDER" ],
 			"trackLandmarks": [
 				{
 					"landmarkName": "turn1",
