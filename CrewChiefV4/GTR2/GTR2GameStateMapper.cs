@@ -34,6 +34,7 @@ namespace CrewChiefV4.GTR2
 
         private List<CornerData.EnumWithThresholds> suspensionDamageThresholds = new List<CornerData.EnumWithThresholds>();
         private List<CornerData.EnumWithThresholds> tyreWearThresholds = new List<CornerData.EnumWithThresholds>();
+        private List<CornerData.EnumWithThresholds> tyreFlatSpotThresholds = new List<CornerData.EnumWithThresholds>();
 
         // Numbers below are pretty good match for HUD colors, all series, tire types.  Yay for best in class physics ;)
         // Exact thresholds/ probably depend on tire type/series, even user preferences.  Maybe expose this via car class data in the future.
@@ -165,9 +166,16 @@ namespace CrewChiefV4.GTR2
 
             this.suspensionDamageThresholds.Add(new CornerData.EnumWithThresholds(DamageLevel.NONE, 0.0f, 1.0f));
             this.suspensionDamageThresholds.Add(new CornerData.EnumWithThresholds(DamageLevel.DESTROYED, 1.0f, 2.0f));
+
+            this.tyreFlatSpotThresholds.Add(new CornerData.EnumWithThresholds(TyreFlatSpotState.NONE, 0.0f, Single.Epsilon));
+            this.tyreFlatSpotThresholds.Add(new CornerData.EnumWithThresholds(TyreFlatSpotState.MINOR, Single.Epsilon, 0.3f));
+
+            // Secondary lockups start at around 0.2, that's when shit hits the fan really.
+            // Weird - 1.0 + Single.Epsilon does not work.
+            this.tyreFlatSpotThresholds.Add(new CornerData.EnumWithThresholds(TyreFlatSpotState.MAJOR, 0.3f, 1.1f));
         }
 
-        private int[] minimumSupportedVersionParts = new int[] { 1, 1, 11, 0 };
+        private int[] minimumSupportedVersionParts = new int[] { 1, 2, 0, 0 };
         public static bool pluginVerified = false;
         private static int reinitWaitAttempts = 0;
         public override void versionCheck(Object memoryMappedFileStruct)
@@ -1155,7 +1163,8 @@ namespace CrewChiefV4.GTR2
             // --------------------------------
             // Tyre data
             // GTR2 reports in Kelvin
-            cgs.TyreData.TyreWearActive = true;
+            cgs.TyreData.TyreWearActive = shared.extended.mTireMult > 0;
+            cgs.TyreData.FlatSpotEmulationActive = shared.extended.mFlatSpotEmulationEnabled != 0;
 
             // For now, all tyres will be reported as front compund.
             var tt = TyreType.Uninitialized;
@@ -1181,10 +1190,12 @@ namespace CrewChiefV4.GTR2
             cgs.TyreData.FrontLeft_LeftTemp = (float)wheelFrontLeft.mTemperature[0] - 273.15f;
             cgs.TyreData.FrontLeft_CenterTemp = (float)wheelFrontLeft.mTemperature[1] - 273.15f;
             cgs.TyreData.FrontLeft_RightTemp = (float)wheelFrontLeft.mTemperature[2] - 273.15f;
+            cgs.TyreData.FrontLeftFlatSpotSeverity = (float)shared.extended.mWheels[0].mFlatSpotSeverity;
 
             var frontLeftTemp = (cgs.TyreData.FrontLeft_CenterTemp + cgs.TyreData.FrontLeft_LeftTemp + cgs.TyreData.FrontLeft_RightTemp) / 3.0f;
             cgs.TyreData.FrontLeftPressure = wheelFrontLeft.mFlat == 0 ? (float)wheelFrontLeft.mPressure : 0.0f;
-            cgs.TyreData.FrontLeftPercentWear = (float)(1.0f - wheelFrontLeft.mWear) * 100.0f;
+            const double MAX_WEAR = 0.6875;
+            cgs.TyreData.FrontLeftPercentWear = (float)((1.0 - MAX_WEAR - Math.Max(wheelFrontLeft.mWear - MAX_WEAR, 0.0)) * (100.0 / (1.0 - MAX_WEAR)));
 
             if (csd.IsNewLap || cgs.TyreData.PeakFrontLeftTemperatureForLap == 0)
                 cgs.TyreData.PeakFrontLeftTemperatureForLap = frontLeftTemp;
@@ -1197,10 +1208,11 @@ namespace CrewChiefV4.GTR2
             cgs.TyreData.FrontRight_LeftTemp = (float)wheelFrontRight.mTemperature[0] - 273.15f;
             cgs.TyreData.FrontRight_CenterTemp = (float)wheelFrontRight.mTemperature[1] - 273.15f;
             cgs.TyreData.FrontRight_RightTemp = (float)wheelFrontRight.mTemperature[2] - 273.15f;
+            cgs.TyreData.FrontRightFlatSpotSeverity = (float)shared.extended.mWheels[1].mFlatSpotSeverity;
 
             var frontRightTemp = (cgs.TyreData.FrontRight_CenterTemp + cgs.TyreData.FrontRight_LeftTemp + cgs.TyreData.FrontRight_RightTemp) / 3.0f;
             cgs.TyreData.FrontRightPressure = wheelFrontRight.mFlat == 0 ? (float)wheelFrontRight.mPressure : 0.0f;
-            cgs.TyreData.FrontRightPercentWear = (float)(1.0f - wheelFrontRight.mWear) * 100.0f;
+            cgs.TyreData.FrontRightPercentWear = (float)((1.0 - MAX_WEAR - Math.Max(wheelFrontRight.mWear - MAX_WEAR, 0.0)) * (100.0 / (1.0 - MAX_WEAR)));
 
             if (csd.IsNewLap || cgs.TyreData.PeakFrontRightTemperatureForLap == 0)
                 cgs.TyreData.PeakFrontRightTemperatureForLap = frontRightTemp;
@@ -1208,15 +1220,16 @@ namespace CrewChiefV4.GTR2
                 cgs.TyreData.PeakFrontRightTemperatureForLap = frontRightTemp;
 
             var wheelRearLeft = playerTelemetry.mWheel[(int)GTR2Constants.GTR2WheelIndex.RearLeft];
-            //cgs.TyreData.RearLeftTyreType = tt;
+            cgs.TyreData.RearLeftTyreType = tt;
             cgs.TyreData.LeftRearAttached = wheelRearLeft.mDetached == 0;
             cgs.TyreData.RearLeft_LeftTemp = (float)wheelRearLeft.mTemperature[0] - 273.15f;
             cgs.TyreData.RearLeft_CenterTemp = (float)wheelRearLeft.mTemperature[1] - 273.15f;
             cgs.TyreData.RearLeft_RightTemp = (float)wheelRearLeft.mTemperature[2] - 273.15f;
+            cgs.TyreData.RearLeftFlatSpotSeverity = (float)shared.extended.mWheels[2].mFlatSpotSeverity;
 
             var rearLeftTemp = (cgs.TyreData.RearLeft_CenterTemp + cgs.TyreData.RearLeft_LeftTemp + cgs.TyreData.RearLeft_RightTemp) / 3.0f;
             cgs.TyreData.RearLeftPressure = wheelRearLeft.mFlat == 0 ? (float)wheelRearLeft.mPressure : 0.0f;
-            cgs.TyreData.RearLeftPercentWear = (float)(1.0f - wheelRearLeft.mWear) * 100.0f;
+            cgs.TyreData.RearLeftPercentWear = (float)((1.0 - MAX_WEAR - Math.Max(wheelRearLeft.mWear - MAX_WEAR, 0.0)) * (100.0 / (1.0 - MAX_WEAR)));
 
             if (csd.IsNewLap || cgs.TyreData.PeakRearLeftTemperatureForLap == 0)
                 cgs.TyreData.PeakRearLeftTemperatureForLap = rearLeftTemp;
@@ -1229,10 +1242,11 @@ namespace CrewChiefV4.GTR2
             cgs.TyreData.RearRight_LeftTemp = (float)wheelRearRight.mTemperature[0] - 273.15f;
             cgs.TyreData.RearRight_CenterTemp = (float)wheelRearRight.mTemperature[1] - 273.15f;
             cgs.TyreData.RearRight_RightTemp = (float)wheelRearRight.mTemperature[2] - 273.15f;
+            cgs.TyreData.RearRightFlatSpotSeverity = (float)shared.extended.mWheels[3].mFlatSpotSeverity;
 
             var rearRightTemp = (cgs.TyreData.RearRight_CenterTemp + cgs.TyreData.RearRight_LeftTemp + cgs.TyreData.RearRight_RightTemp) / 3.0f;
             cgs.TyreData.RearRightPressure = wheelRearRight.mFlat == 0 ? (float)wheelRearRight.mPressure : 0.0f;
-            cgs.TyreData.RearRightPercentWear = (float)(1.0f - wheelRearRight.mWear) * 100.0f;
+            cgs.TyreData.RearRightPercentWear = (float)((1.0 - MAX_WEAR - Math.Max(wheelRearRight.mWear - MAX_WEAR, 0.0)) * (100.0 / (1.0 - MAX_WEAR)));
 
             if (csd.IsNewLap || cgs.TyreData.PeakRearRightTemperatureForLap == 0)
                 cgs.TyreData.PeakRearRightTemperatureForLap = rearRightTemp;
@@ -1242,6 +1256,9 @@ namespace CrewChiefV4.GTR2
             cgs.TyreData.TyreConditionStatus = CornerData.getCornerData(this.tyreWearThresholds, cgs.TyreData.FrontLeftPercentWear,
                 cgs.TyreData.FrontRightPercentWear, cgs.TyreData.RearLeftPercentWear, cgs.TyreData.RearRightPercentWear);
 
+            cgs.TyreData.TyreFlatSpotStatus = CornerData.getCornerData(this.tyreFlatSpotThresholds, cgs.TyreData.FrontLeftFlatSpotSeverity,
+                cgs.TyreData.FrontRightFlatSpotSeverity, cgs.TyreData.RearLeftFlatSpotSeverity, cgs.TyreData.RearRightFlatSpotSeverity);
+
             var tyreTempThresholds = CarData.getTyreTempThresholds(cgs.carClass);
             cgs.TyreData.TyreTempStatus = CornerData.getCornerData(tyreTempThresholds,
                 cgs.TyreData.PeakFrontLeftTemperatureForLap, cgs.TyreData.PeakFrontRightTemperatureForLap,
@@ -1250,51 +1267,52 @@ namespace CrewChiefV4.GTR2
             // some simple locking / spinning checks
             if (cgs.PositionAndMotionData.CarSpeed > 7.0f)
             {
-                /*if (this.useRealWheelSizeForLockingAndSpinning)
+                if (shared.extended.mUnofficialFeaturesEnabled != 0
+                    && shared.extended.mFlatSpotEmulationEnabled != 0) // For now, flat spot emulation has to be on for this to work.
                 {
-                    float minRotatingSpeedOld = (float)Math.PI * cgs.PositionAndMotionData.CarSpeed / cgs.carClass.maxTyreCircumference;
-                    float maxRotatingSpeedOld = 3 * (float)Math.PI * cgs.PositionAndMotionData.CarSpeed / cgs.carClass.minTyreCircumference;
+                    //float minRotatingSpeedOld = (float)Math.PI * cgs.PositionAndMotionData.CarSpeed / cgs.carClass.maxTyreCircumference;
+                    //float maxRotatingSpeedOld = 3 * (float)Math.PI * cgs.PositionAndMotionData.CarSpeed / cgs.carClass.minTyreCircumference;
 
                     // w = v/r
                     // https://www.lucidar.me/en/unit-converter/rad-per-second-to-meters-per-second/
                     float MAX_RADIUS = 3.6f;  // When making a left turn, right wheel spins faster, as if it was smaller.  Because of that, scale real radius up for lock detection.
-                    var minFrontRotatingSpeedRadSec = cgs.PositionAndMotionData.CarSpeed / (wheelFrontLeft.mStaticUndeflectedRadius * 0.01f * MAX_RADIUS);
+                    var minFrontRotatingSpeedRadSec = cgs.PositionAndMotionData.CarSpeed / (shared.extended.mWheels[0].mRadiusMeters * MAX_RADIUS);
                     cgs.TyreData.LeftFrontIsLocked = Math.Abs(wheelFrontLeft.mRotation) < minFrontRotatingSpeedRadSec;
                     cgs.TyreData.RightFrontIsLocked = Math.Abs(wheelFrontRight.mRotation) < minFrontRotatingSpeedRadSec;
 
-                    var minRearRotatingSpeedRadSec = cgs.PositionAndMotionData.CarSpeed / (wheelRearLeft.mStaticUndeflectedRadius * 0.01f * MAX_RADIUS);
+                    var minRearRotatingSpeedRadSec = cgs.PositionAndMotionData.CarSpeed / (shared.extended.mWheels[1].mRadiusMeters * MAX_RADIUS);
                     cgs.TyreData.LeftRearIsLocked = Math.Abs(wheelRearLeft.mRotation) < minRearRotatingSpeedRadSec;
                     cgs.TyreData.RightRearIsLocked = Math.Abs(wheelRearRight.mRotation) < minRearRotatingSpeedRadSec;
 
                     float MIN_RADIUS = 0.5f;  // When making a left turn, right wheel spins faster, as if it was smaller.  Because of that, scale real radius down for spin detection.
-                    var maxFrontRotatingSpeedRadSec = cgs.PositionAndMotionData.CarSpeed / (wheelFrontLeft.mStaticUndeflectedRadius * 0.01f * MIN_RADIUS);
+                    var maxFrontRotatingSpeedRadSec = cgs.PositionAndMotionData.CarSpeed / (shared.extended.mWheels[2].mRadiusMeters * MIN_RADIUS);
                     cgs.TyreData.LeftFrontIsSpinning = Math.Abs(wheelFrontLeft.mRotation) > maxFrontRotatingSpeedRadSec;
                     cgs.TyreData.RightFrontIsSpinning = Math.Abs(wheelFrontRight.mRotation) > maxFrontRotatingSpeedRadSec;
 
-                    var maxRearRotatingSpeedRadSec = cgs.PositionAndMotionData.CarSpeed / (wheelRearLeft.mStaticUndeflectedRadius * 0.01f * MIN_RADIUS);
+                    var maxRearRotatingSpeedRadSec = cgs.PositionAndMotionData.CarSpeed / (shared.extended.mWheels[3].mRadiusMeters * MIN_RADIUS);
                     cgs.TyreData.LeftRearIsSpinning = Math.Abs(wheelRearLeft.mRotation) > maxRearRotatingSpeedRadSec;
                     cgs.TyreData.RightRearIsSpinning = Math.Abs(wheelRearRight.mRotation) > maxRearRotatingSpeedRadSec;
 
-#if DEBUG
+/*#if DEBUG
                     GTR2GameStateMapper.writeSpinningLockingDebugMsg(cgs, wheelFrontLeft.mRotation, wheelFrontRight.mRotation,
                         wheelRearLeft.mRotation, wheelRearRight.mRotation, minRotatingSpeedOld, maxRotatingSpeedOld, minFrontRotatingSpeedRadSec,
                         minRearRotatingSpeedRadSec, maxFrontRotatingSpeedRadSec, maxRearRotatingSpeedRadSec);
-#endif
+#endif*/
                 }
                 else
-                {*/
-                float minRotatingSpeed = (float)Math.PI * cgs.PositionAndMotionData.CarSpeed / cgs.carClass.maxTyreCircumference;
-                cgs.TyreData.LeftFrontIsLocked = Math.Abs(wheelFrontLeft.mRotation) < minRotatingSpeed;
-                cgs.TyreData.RightFrontIsLocked = Math.Abs(wheelFrontRight.mRotation) < minRotatingSpeed;
-                cgs.TyreData.LeftRearIsLocked = Math.Abs(wheelRearLeft.mRotation) < minRotatingSpeed;
-                cgs.TyreData.RightRearIsLocked = Math.Abs(wheelRearRight.mRotation) < minRotatingSpeed;
+                {
+                    float minRotatingSpeed = (float)Math.PI * cgs.PositionAndMotionData.CarSpeed / cgs.carClass.maxTyreCircumference;
+                    cgs.TyreData.LeftFrontIsLocked = Math.Abs(wheelFrontLeft.mRotation) < minRotatingSpeed;
+                    cgs.TyreData.RightFrontIsLocked = Math.Abs(wheelFrontRight.mRotation) < minRotatingSpeed;
+                    cgs.TyreData.LeftRearIsLocked = Math.Abs(wheelRearLeft.mRotation) < minRotatingSpeed;
+                    cgs.TyreData.RightRearIsLocked = Math.Abs(wheelRearRight.mRotation) < minRotatingSpeed;
 
-                float maxRotatingSpeed = 3 * (float)Math.PI * cgs.PositionAndMotionData.CarSpeed / cgs.carClass.minTyreCircumference;
-                cgs.TyreData.LeftFrontIsSpinning = Math.Abs(wheelFrontLeft.mRotation) > maxRotatingSpeed;
-                cgs.TyreData.RightFrontIsSpinning = Math.Abs(wheelFrontRight.mRotation) > maxRotatingSpeed;
-                cgs.TyreData.LeftRearIsSpinning = Math.Abs(wheelRearLeft.mRotation) > maxRotatingSpeed;
-                cgs.TyreData.RightRearIsSpinning = Math.Abs(wheelRearRight.mRotation) > maxRotatingSpeed;
-                //  }
+                    float maxRotatingSpeed = 3 * (float)Math.PI * cgs.PositionAndMotionData.CarSpeed / cgs.carClass.minTyreCircumference;
+                    cgs.TyreData.LeftFrontIsSpinning = Math.Abs(wheelFrontLeft.mRotation) > maxRotatingSpeed;
+                    cgs.TyreData.RightFrontIsSpinning = Math.Abs(wheelFrontRight.mRotation) > maxRotatingSpeed;
+                    cgs.TyreData.LeftRearIsSpinning = Math.Abs(wheelRearLeft.mRotation) > maxRotatingSpeed;
+                    cgs.TyreData.RightRearIsSpinning = Math.Abs(wheelRearRight.mRotation) > maxRotatingSpeed;
+                }
             }
 
             // use detached wheel status for suspension damage

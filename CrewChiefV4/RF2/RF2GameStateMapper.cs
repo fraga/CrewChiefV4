@@ -1204,6 +1204,7 @@ namespace CrewChiefV4.rFactor2
             {
                 if (this.useRealWheelSizeForLockingAndSpinning && playerTelemetryAvailable)
                 {
+                    // TODO: remove.
                     float minRotatingSpeedOld = (float)Math.PI * cgs.PositionAndMotionData.CarSpeed / cgs.carClass.maxTyreCircumference;
                     float maxRotatingSpeedOld = 3 * (float)Math.PI * cgs.PositionAndMotionData.CarSpeed / cgs.carClass.minTyreCircumference;
 
