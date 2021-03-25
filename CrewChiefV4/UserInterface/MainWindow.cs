@@ -218,6 +218,8 @@ namespace CrewChiefV4
         }
         private void FormMain_Load(object sender, EventArgs e)
         {
+            ServicePointManager.Expect100Continue = true;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             // Restore window position.
             try
             {
