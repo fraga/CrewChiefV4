@@ -35,7 +35,7 @@
     <Icon Id="icon.ico" SourceFile="$(var.CrewChiefV4.ProjectDir)\engineer_edited.ico"/>
     <!--Display some additional info about the app in add/remove programs-->
     <Property Id ="ARPPRODUCTICON">icon.ico</Property>    
-    <Property Id ="ARPHELPLINK">http://thecrewchief.org</Property>
+    <Property Id ="ARPHELPLINK">https://thecrewchief.org</Property>
     <!-- legacy URL to preserve property file migration between versions. The AppData/local/Britton_IT_ltd/CrewChiefV4.exe_Url_ltwjk4vypogatqgrzioneuqoankc3spb
     folder path includes a hash of this nonsense URL. If we change it, the properties files end up in a different subfolder and the version-to-version upgrade
     process will break, resetting everyone's properties to default when they update the app after changing this URL. -->

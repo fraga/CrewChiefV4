@@ -200,7 +200,7 @@ namespace CrewChiefV4.GTR2
             GTR2GameStateMapper.reinitWaitAttempts = 0;
 
             var failureHelpMsg = ".\nMake sure you have \"Update game plugins on startup\" option enabled."
-                + "\nFor manual setup instructions, visit http://thecrewchief.org/showthread.php?2012-GTR2-Setup-Instructions-and-Known-Issues.";
+                + "\nFor manual setup instructions, visit https://thecrewchief.org/showthread.php?2012-GTR2-Setup-Instructions-and-Known-Issues.";
 
             var versionParts = versionStr.Split('.');
             if (versionParts.Length != 4)

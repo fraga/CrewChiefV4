@@ -97,11 +97,11 @@ namespace CrewChiefV4
 
         // the new update stuff all hosted on the CrewChief website
         // this is the physical file:
-        // private static String autoUpdateXMLURL1 = "http://thecrewchief.org/downloads/auto_update_data_primary.xml";
+        // private static String autoUpdateXMLURL1 = "https://thecrewchief.org/downloads/auto_update_data_primary.xml";
         // this is the file accessed via the PHP download script:
-        private static String autoUpdateXMLURL1 = "http://thecrewchief.org/downloads.php?do=downloadxml";
+        private static String autoUpdateXMLURL1 = "https://thecrewchief.org/downloads.php?do=downloadxml";
 
-        private static String additionalDataURL = "http://thecrewchief.org/downloads.php?do=getadditionaldata";
+        private static String additionalDataURL = "https://thecrewchief.org/downloads.php?do=getadditionaldata";
 
         // the legacy update stuff hosted on GoogleDrive with downloads on the isnais ftp server
         private static String autoUpdateXMLURL2 = "https://drive.google.com/uc?export=download&id=0B4KQS820QNFbWWFjaDAzRldMNUE";
@@ -3605,7 +3605,7 @@ namespace CrewChiefV4
 
         private void internetPanHandler(object sender, EventArgs e)
         {
-            Process.Start("http://thecrewchief.org/misc.php?do=donate");
+            Process.Start("https://thecrewchief.org/misc.php?do=donate");
         }
 
         private void playSmokeTestSounds(object sender, EventArgs e)
