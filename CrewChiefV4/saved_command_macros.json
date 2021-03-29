@@ -384,6 +384,39 @@
 			]
 		},
 		{
+			"name": "next tyre compound",
+			"description": "selects the next tyre compound from the AMS2 ICM",
+			"confirmationMessage": "acknowledge/OK",
+			"voiceTriggers": [
+				"next tire compound"
+			],
+			"commandSets": [
+				{
+					"description": "AMS2 next tire compound",
+					"gameDefinition": "AMS2",
+					"actionSequence": [
+						"KEY_E",
+						"KEY_W",
+						"KEY_D",
+						"{MULTIPLE,5}KEY_W",
+						"KEY_S",
+						"KEY_S",
+						"KEY_D",
+						"KEY_S",
+						"KEY_D",
+						"KEY_W",
+						"KEY_D",
+						"KEY_W",
+						"KEY_W",
+						"KEY_D",
+						"KEY_S",
+						"KEY_D"
+					],
+					"waitBetweenEachCommand": 100
+				}
+			]
+		},
+		{
 			"name": "select race strategy 1",
 			"description": "selects strategy 1 from the pCARS2 / AMS2 ICM",
 			"confirmationMessage": "acknowledge/pit_strategy_1",
@@ -597,6 +630,130 @@
 						"KEY_S",
 						"KEY_D",
 						"{MULTIPLE,5}KEY_W",
+						"KEY_D",
+						"KEY_W",
+						"KEY_D",
+						"KEY_S",
+						"KEY_D"
+					],
+					"waitBetweenEachCommand": 100
+				}
+			]
+		},
+		{
+			"name": "select race strategy 5",
+			"description": "selects strategy 5 from the pCARS2 ICM",
+			"confirmationMessage": "acknowledge/OK",
+			"voiceTriggers": [
+				"strategy five",
+				"strat five"
+			],
+			"commandSets": [
+				{
+					"description": "pcars2 select strat 5",
+					"gameDefinition": "PCARS2",
+					"actionSequence": [
+						"KEY_E",
+						"KEY_W",
+						"KEY_D",
+						"{MULTIPLE,5}KEY_W",
+						"KEY_S",
+						"KEY_D",
+						"KEY_S",
+						"KEY_S",
+						"KEY_S",
+						"KEY_S",
+						"KEY_S",
+						"KEY_D",
+						"{MULTIPLE,6}KEY_W",
+						"KEY_D",
+						"KEY_W",
+						"KEY_D",
+						"KEY_S",
+						"KEY_D"
+					],
+					"waitBetweenEachCommand": 100
+				},
+				{
+					"description": "AMS2 select strat 5",
+					"gameDefinition": "AMS2",
+					"actionSequence": [
+						"KEY_E",
+						"KEY_W",
+						"KEY_D",
+						"{MULTIPLE,5}KEY_W",
+						"KEY_S",
+						"KEY_D",
+						"KEY_S",
+						"KEY_S",
+						"KEY_S",
+						"KEY_S",
+						"KEY_S",
+						"KEY_D",
+						"{MULTIPLE,6}KEY_W",
+						"KEY_D",
+						"KEY_W",
+						"KEY_D",
+						"KEY_S",
+						"KEY_D"
+					],
+					"waitBetweenEachCommand": 100
+				}
+			]
+		},
+		{
+			"name": "select race strategy 6",
+			"description": "selects strategy 6 from the pCARS2 ICM",
+			"confirmationMessage": "acknowledge/OK",
+			"voiceTriggers": [
+				"strategy six",
+				"strat six"
+			],
+			"commandSets": [
+				{
+					"description": "pcars2 select strat 6",
+					"gameDefinition": "PCARS2",
+					"actionSequence": [
+						"KEY_E",
+						"KEY_W",
+						"KEY_D",
+						"{MULTIPLE,5}KEY_W",
+						"KEY_S",
+						"KEY_D",
+						"KEY_S",
+						"KEY_S",
+						"KEY_S",
+						"KEY_S",
+						"KEY_S",
+						"KEY_S",
+						"KEY_D",
+						"{MULTIPLE,7}KEY_W",
+						"KEY_D",
+						"KEY_W",
+						"KEY_D",
+						"KEY_S",
+						"KEY_D"
+					],
+					"waitBetweenEachCommand": 100
+				},
+				{
+					"description": "AMS2 select strat 6",
+					"gameDefinition": "AMS2",
+					"actionSequence": [
+						"KEY_E",
+						"KEY_W",
+						"KEY_D",
+						"{MULTIPLE,5}KEY_W",
+						"KEY_S",
+						"KEY_D",
+						"KEY_S",
+						"KEY_S",
+						"KEY_S",
+						"KEY_S",
+						"KEY_S",
+						"KEY_S",
+						"KEY_D",
+						"{MULTIPLE,7}KEY_W",
 						"KEY_D",
 						"KEY_W",
 						"KEY_D",
