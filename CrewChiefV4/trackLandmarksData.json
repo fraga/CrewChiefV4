@@ -17158,6 +17158,96 @@
 					"isCommonOvertakingSpot": true
 				}
 			]
+		},
+		{
+			"irTrackName": "spa combined",
+			"trackLandmarks": [
+				{
+					"landmarkName": "la_source",
+					"distanceRoundLapStart": 310.0927,
+					"distanceRoundLapEnd": 453.63028,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "eau_rouge",
+					"distanceRoundLapStart": 936.2984,
+					"distanceRoundLapEnd": 1150,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "radillion",
+					"distanceRoundLapStart": 1155,
+					"distanceRoundLapEnd": 1400.42737,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "kemmel",
+					"distanceRoundLapStart": 1484.141,
+					"distanceRoundLapEnd": 1739.89465,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "les_combes",
+					"distanceRoundLapStart": 2352.21826,
+					"distanceRoundLapEnd": 2731.91968,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "bruxelles",
+					"distanceRoundLapStart": 2919.71436,
+					"distanceRoundLapEnd": 3148.529,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn9",
+					"distanceRoundLapStart": 3203.83936,
+					"distanceRoundLapEnd": 3342.37769,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "pouhon",
+					"distanceRoundLapStart": 3706.517,
+					"distanceRoundLapEnd": 4173.61328,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "les_fanges",
+					"distanceRoundLapStart": 4378.12939,
+					"distanceRoundLapEnd": 4734.62549,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "campus",
+					"distanceRoundLapStart": 4831.78125,
+					"distanceRoundLapEnd": 4989.551,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "stavlot",
+					"distanceRoundLapStart": 5041.9375,
+					"distanceRoundLapEnd": 5222.60645,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "courbe_paul_frere",
+					"distanceRoundLapStart": 5298.39063,
+					"distanceRoundLapEnd": 5543.935,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "blanchimont",
+					"distanceRoundLapStart": 5717.78564,
+					"distanceRoundLapEnd": 6278.279,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "the chicane",
+					"distanceRoundLapStart": 6633.2334,
+					"distanceRoundLapEnd": 6821.402,
+					"isCommonOvertakingSpot": true
+				}
+			],
+			"isOval": false
 		}
 	]
 }
