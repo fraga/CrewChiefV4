@@ -104,12 +104,18 @@ namespace CrewChiefV4
         private static String additionalDataURL = "https://thecrewchief.org/downloads.php?do=getadditionaldata";
 
         // the legacy update stuff hosted on GoogleDrive with downloads on the isnais ftp server
-        // Note that GoogleDrive have updated their front end, making it difficult to download plain text files
-        // in an automated way. A 'this file cannot be scanned for viruses' is shown instead. To fix this we'll
+        // Note that GoogleDrive have updated their front end, making it difficult to download XML files
+        // in an automated way. A 'this file cannot be scanned for viruses' page is shown instead. To fix this we'll
         // need to capture the cookie offered by that page then make another request to the 'download anyway' link
         // on that page passing back the cookie. Not rocket science but a job for another day. Or another life.
+        //
+        // Changing the file extension to .txt causes the "can't scan for viruses" page to be skipped but GoogeDrive
+        // still behaves differently - it sends a 302 with some token that needs to be passed into the follow-on link.
+        // Working around these changes can be done but Google being Google, any effort here is likely to be wasted
+        // when they make another unannounced and undocumented change
         // private static String autoUpdateXMLURL2 = "https://drive.google.com/uc?export=download&id=0B4KQS820QNFbWWFjaDAzRldMNUE";
 
+        // a copy on ISNAIS:
         private static String autoUpdateXMLURL2 = "http://crewchief.isnais.de/auto_update_data.xml";
 
         private Boolean preferAlternativeDownloadSite = UserSettings.GetUserSettings().getBoolean("prefer_alternative_download_site");
