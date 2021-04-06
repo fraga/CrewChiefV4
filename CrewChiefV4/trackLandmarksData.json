@@ -17248,6 +17248,48 @@
 				}
 			],
 			"isOval": false
+		},
+		{
+			"irTrackName": "limerock 2019 classic",
+			"trackLandmarks": [
+				{
+					"landmarkName": "big_bend",
+					"distanceRoundLapStart": 176.443146,
+					"distanceRoundLapEnd": 500.613373,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "lefthander",
+					"distanceRoundLapStart": 557.2083,
+					"distanceRoundLapEnd": 720.4375,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "righthander",
+					"distanceRoundLapStart": 742.6075,
+					"distanceRoundLapEnd": 863.6886,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "uphill",
+					"distanceRoundLapStart": 1143.70349,
+					"distanceRoundLapEnd": 1349.58325,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "west_bend",
+					"distanceRoundLapStart": 1510.32739,
+					"distanceRoundLapEnd": 1685.24036,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "downhill",
+					"distanceRoundLapStart": 1817.28247,
+					"distanceRoundLapEnd": 2034.30017,
+					"isCommonOvertakingSpot": false
+				}
+			],
+			"isOval": false
 		}
 	]
 }

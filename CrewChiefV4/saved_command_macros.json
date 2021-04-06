@@ -1076,7 +1076,7 @@
 					"actionSequence": [
 						"KEY_T"
 					],
-					"waitBetweenEachCommand": 100
+					"waitBetweenEachCommand": 60
 				},
 				{
 					"description": "AMS2 version",
@@ -1084,7 +1084,7 @@
 					"actionSequence": [
 						"KEY_T"
 					],
-					"waitBetweenEachCommand": 100
+					"waitBetweenEachCommand": 60
 				},
 				{
 					"description": "iRacing version",
