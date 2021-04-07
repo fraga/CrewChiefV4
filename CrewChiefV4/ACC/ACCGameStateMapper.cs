@@ -47,9 +47,9 @@ namespace CrewChiefV4.ACC
 
         private List<CornerData.EnumWithThresholds> suspensionDamageThresholds = new List<CornerData.EnumWithThresholds>();
 
-        private float trivialSuspensionDamageThreshold = 0.01f;
-        private float minorSuspensionDamageThreshold = 0.05f;
-        private float severeSuspensionDamageThreshold = 0.15f;
+        private float trivialSuspensionDamageThreshold = 0.03f;
+        private float minorSuspensionDamageThreshold = 0.08f;
+        private float severeSuspensionDamageThreshold = 0.25f;
         private float destroyedSuspensionDamageThreshold = 0.60f;
 
         private float trivialEngineDamageThreshold = 900.0f;
@@ -57,10 +57,10 @@ namespace CrewChiefV4.ACC
         private float severeEngineDamageThreshold = 350.0f;
         private float destroyedEngineDamageThreshold = 25.0f;
 
-        private float trivialAeroDamageThreshold = 40.0f;
-        private float minorAeroDamageThreshold = 100.0f;
-        private float severeAeroDamageThreshold = 200.0f;
-        private float destroyedAeroDamageThreshold = 400.0f;
+        private float trivialAeroDamageThreshold = 20.0f;
+        private float minorAeroDamageThreshold = 50.0f;
+        private float severeAeroDamageThreshold = 150.0f;
+        private float destroyedAeroDamageThreshold = 300.0f;
 
         private AC_SESSION_TYPE sessionTypeOnPreviousTick = AC_SESSION_TYPE.AC_UNKNOWN;
         private DateTime ignoreUnknownSessionTypeUntil = DateTime.MinValue;
@@ -1196,7 +1196,11 @@ namespace CrewChiefV4.ACC
                 currentGameState.CarDamageData.OverallAeroDamage = mapToAeroDamageLevel(shared.accPhysics.carDamage[0] +
                     shared.accPhysics.carDamage[1] +
                     shared.accPhysics.carDamage[2] +
-                    shared.accPhysics.carDamage[3]);                
+                    shared.accPhysics.carDamage[3]);
+
+                currentGameState.CarDamageData.SuspensionDamageStatus = CornerData.getCornerData(suspensionDamageThresholds,
+                    shared.accPhysics.NOT_SET_suspensionDamage[0], shared.accPhysics.NOT_SET_suspensionDamage[1],
+                    shared.accPhysics.NOT_SET_suspensionDamage[2], shared.accPhysics.NOT_SET_suspensionDamage[3]);
             }
             else
             {
