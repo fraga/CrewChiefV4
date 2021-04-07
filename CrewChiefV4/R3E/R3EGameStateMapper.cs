@@ -239,7 +239,10 @@ namespace CrewChiefV4.RaceRoom
                 chequeredFlagShownInThisSession = false;
                 // if this is a new prac / qual session, we might have just joined a multiclass session so we need to keep
                 // updating the car class until it settles.
-                if (currentGameState.SessionData.SessionType == SessionType.Qualify || currentGameState.SessionData.SessionType == SessionType.Practice)
+                // Also allow this during race start countdown
+                if (currentGameState.SessionData.SessionType == SessionType.Qualify
+                    || currentGameState.SessionData.SessionType == SessionType.Practice
+                    || (currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.SessionData.SessionPhase != SessionPhase.Green))
                 {
                     recheckCarClassesUntil = currentGameState.Now.Add(recheckCarClassesForSeconds);
                 }
@@ -349,7 +352,7 @@ namespace CrewChiefV4.RaceRoom
                             {
                                 opponentDriverNamesProcessedForThisTick.Add(driverName);
                                 currentGameState.OpponentData.Add(driverName, createOpponentData(participantStruct, driverName,
-                                    false, CarData.getCarClassForRaceRoomId(participantStruct.DriverInfo.ClassId).carClassEnum, currentGameState.SessionData.TrackDefinition.trackLength));
+                                    false, currentGameState.SessionData.TrackDefinition.trackLength));
                             }
                         }
                     }
@@ -1050,8 +1053,7 @@ namespace CrewChiefV4.RaceRoom
 
                     if (!skipGhost)
                     {
-                        currentGameState.OpponentData.Add(driverName, createOpponentData(participantStruct, driverName, true,
-                            CarData.getCarClassForRaceRoomId(participantStruct.DriverInfo.ClassId).carClassEnum, currentGameState.SessionData.TrackDefinition.trackLength));
+                        currentGameState.OpponentData.Add(driverName, createOpponentData(participantStruct, driverName, true, currentGameState.SessionData.TrackDefinition.trackLength));
                     }
                 }
             }
@@ -1915,7 +1917,7 @@ namespace CrewChiefV4.RaceRoom
             }
         }
 
-        private OpponentData createOpponentData(DriverData participantStruct, String driverName, Boolean loadDriverName, CarData.CarClassEnum playerCarClass, float trackLength)
+        private OpponentData createOpponentData(DriverData participantStruct, String driverName, Boolean loadDriverName, float trackLength)
         {
             if (loadDriverName && CrewChief.enableDriverNames)
             {
@@ -1932,7 +1934,7 @@ namespace CrewChiefV4.RaceRoom
             opponentData.DeltaTime = new DeltaTime(trackLength, opponentData.DistanceRoundTrack, participantStruct.CarSpeed, DateTime.UtcNow);
             opponentData.CarClass = CarData.getCarClassForRaceRoomId(participantStruct.DriverInfo.ClassId);
             opponentData.CurrentTyres = mapToTyreType(participantStruct.TireTypeFront, participantStruct.TireSubtypeFront,
-                participantStruct.TireTypeRear, participantStruct.TireSubtypeRear, playerCarClass);
+                participantStruct.TireTypeRear, participantStruct.TireSubtypeRear, opponentData.CarClass.carClassEnum);
             Console.WriteLine("New driver " + driverName + " is using car class " +
                 opponentData.CarClass.getClassIdentifier() + " (class ID " + participantStruct.DriverInfo.ClassId + ") with tyres " + opponentData.CurrentTyres);
             opponentData.TyreChangesByLap[0] = opponentData.CurrentTyres;
