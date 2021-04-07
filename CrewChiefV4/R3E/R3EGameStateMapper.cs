@@ -325,13 +325,22 @@ namespace CrewChiefV4.RaceRoom
 
                         currentGameState.PitData.InPitlane = participantStruct.InPitlane == 1;
                         currentGameState.PositionAndMotionData.DistanceRoundTrack = participantStruct.LapDistance;
-                        currentGameState.carClass = CarData.getCarClassForRaceRoomId(participantStruct.DriverInfo.ClassId);
-                        currentGameState.SessionData.PlayerCarNr = participantStruct.DriverInfo.CarNumber.ToString();
-                        CarData.RACEROOM_CLASS_ID = participantStruct.DriverInfo.ClassId;
-                        GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass);
-                        Console.WriteLine("Player is using car class " + currentGameState.carClass.getClassIdentifier() + " (class ID " + participantStruct.DriverInfo.ClassId + ")");
+                        // sanity check the car class data before using it - retain the previous state's class if we need to
+                        if (participantStruct.DriverInfo.ClassId <= 0 && previousGameState != null)
+                        {
+                            currentGameState.carClass = previousGameState.carClass;
+                            currentGameState.SessionData.PlayerCarNr = previousGameState.SessionData.PlayerCarNr;
+                            Console.WriteLine("Player is using car class " + currentGameState.carClass.getClassIdentifier() + " copied from previous game state");
+                        }
+                        else
+                        {
+                            currentGameState.carClass = CarData.getCarClassForRaceRoomId(participantStruct.DriverInfo.ClassId);
+                            currentGameState.SessionData.PlayerCarNr = participantStruct.DriverInfo.CarNumber.ToString();
+                            CarData.RACEROOM_CLASS_ID = participantStruct.DriverInfo.ClassId;
+                            GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass);
+                            Console.WriteLine("Player is using car class " + currentGameState.carClass.getClassIdentifier() + " (class ID " + participantStruct.DriverInfo.ClassId + ")");
+                        }
                         brakeTempThresholdsForPlayersCar = CarData.getBrakeTempThresholds(currentGameState.carClass);
-                        Utilities.TraceEventClass(currentGameState);
 
                         if ((currentGameState.SessionData.SessionType == SessionType.Qualify || currentGameState.SessionData.SessionType == SessionType.HotLap) &&
                             currentGameState.SessionData.SectorNumber != 1 && !currentGameState.PitData.InPitlane)
@@ -390,10 +399,18 @@ namespace CrewChiefV4.RaceRoom
 
                         currentGameState.SessionData.NumCarsOverallAtStartOfSession = shared.NumCars;
                         currentGameState.SessionData.SessionStartTime = currentGameState.Now;
-                        currentGameState.carClass = CarData.getCarClassForRaceRoomId(shared.VehicleInfo.ClassId);
-                        CarData.RACEROOM_CLASS_ID = shared.VehicleInfo.ClassId;
-                        GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass);
-                        Console.WriteLine("Player is using car class " + currentGameState.carClass.getClassIdentifier());
+                        if (shared.VehicleInfo.ClassId <= 0 && previousGameState != null)
+                        {
+                            currentGameState.carClass = previousGameState.carClass;
+                            Console.WriteLine("Player is using car class " + currentGameState.carClass.getClassIdentifier() + "(copied from previous game state)");
+                        }
+                        else
+                        {
+                            currentGameState.carClass = CarData.getCarClassForRaceRoomId(shared.VehicleInfo.ClassId);
+                            CarData.RACEROOM_CLASS_ID = shared.VehicleInfo.ClassId;
+                            GlobalBehaviourSettings.UpdateFromCarClass(currentGameState.carClass);
+                            Console.WriteLine("Player is using car class " + currentGameState.carClass.getClassIdentifier());
+                        }
                         brakeTempThresholdsForPlayersCar = CarData.getBrakeTempThresholds(currentGameState.carClass);
                         if (previousGameState != null)
                         {
@@ -685,7 +702,7 @@ namespace CrewChiefV4.RaceRoom
             {
                 if (participantStruct.DriverInfo.SlotId == shared.VehicleInfo.SlotId)
                 {
-                    if (currentGameState.carClass.carClassEnum == CarData.CarClassEnum.UNKNOWN_RACE)
+                    if (currentGameState.carClass.carClassEnum == CarData.CarClassEnum.UNKNOWN_RACE && participantStruct.DriverInfo.ClassId > 0)
                     {
                         CarData.CarClass newClass = CarData.getCarClassForRaceRoomId(participantStruct.DriverInfo.ClassId);
                         if (newClass.carClassEnum != currentGameState.carClass.carClassEnum)
@@ -788,7 +805,7 @@ namespace CrewChiefV4.RaceRoom
             if (currentGameState.SessionData.IsNewLap)
             {
                 // quick n dirty hack here - if the current car class is unknown, try and get it again
-                if (currentGameState.carClass.carClassEnum == CarData.CarClassEnum.UNKNOWN_RACE)
+                if (currentGameState.carClass.carClassEnum == CarData.CarClassEnum.UNKNOWN_RACE && shared.VehicleInfo.ClassId > 0)
                 {
                     currentGameState.carClass = CarData.getCarClassForRaceRoomId(shared.VehicleInfo.ClassId);
                     brakeTempThresholdsForPlayersCar = CarData.getBrakeTempThresholds(currentGameState.carClass);
@@ -1077,10 +1094,15 @@ namespace CrewChiefV4.RaceRoom
                     currentGameState.OpponentData.Remove(inactiveOpponent);
                 }
             }
-            //Sort class positions
+            // Sort class positions
             currentGameState.sortClassPositions();
             currentGameState.setPracOrQualiDeltas();
 
+            // garage phase has nonsense data
+            if (currentGameState.SessionData.JustGoneGreen || (currentGameState.SessionData.IsNewSession && currentGameState.SessionData.SessionPhase != SessionPhase.Garage))
+            {
+                Utilities.TraceEventClass(currentGameState);
+            }
             if (currentGameState.SessionData.IsNewLap && currentGameState.SessionData.PreviousLapWasValid &&
                 currentGameState.SessionData.LapTimePrevious > 0)
             {
@@ -1401,7 +1423,7 @@ namespace CrewChiefV4.RaceRoom
             }
 
             // hack to work around delayed car class data joining online multiclass sessions
-            if (currentGameState.Now < recheckCarClassesUntil)
+            if (currentGameState.Now < recheckCarClassesUntil && playerDriverData.DriverInfo.ClassId > 0)
             {
                 CarData.CarClass correctedCarClass = CarData.getCarClassForRaceRoomId(playerDriverData.DriverInfo.ClassId);
                 if (!CarData.IsCarClassEqual(correctedCarClass, currentGameState.carClass, false))
@@ -1818,7 +1840,7 @@ namespace CrewChiefV4.RaceRoom
             /* may need to recalculate car classes for a short time at session start */int carClassId, DateTime now, TimingData timingData, CarData.CarClass playerCarClass)
         {
             // hack to work around delayed car class data in online sessions
-            if (now < recheckCarClassesUntil)
+            if (now < recheckCarClassesUntil && carClassId > 0)
             {
                 CarData.CarClass correctedCarClass = CarData.getCarClassForRaceRoomId(carClassId);
                 if (!CarData.IsCarClassEqual(opponentData.CarClass, correctedCarClass, false))
