@@ -471,6 +471,7 @@ enable_damage_messages_category = FUEL_TEMPS_AND_DAMAGES
 enable_driver_names = Enable driver names
 enable_driver_names_category = AUDIO_VOICE_AND_CONTROLLERS
 enable_driver_names_metadata = RESTART_REQUIRED
+enable_driver_names_help = Chief uses all names, not just personalised ones
 
 enable_drs_messages = Enable DRS messages
 enable_drs_messages_filter = !IRACING

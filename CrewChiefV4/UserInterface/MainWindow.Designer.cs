@@ -154,6 +154,8 @@ namespace CrewChiefV4
             this.buttonActionSelect.Size = new System.Drawing.Size(528, 108);
             this.buttonActionSelect.TabIndex = 230;
             this.buttonActionSelect.SelectedIndexChanged += new System.EventHandler(this.buttonActionSelect_SelectedIndexChanged);
+            this.buttonActionSelect.ScrollAlwaysVisible = true;
+            this.buttonActionSelect.HorizontalScrollbar = true;
             //
             // controllersList
             //
@@ -163,6 +165,8 @@ namespace CrewChiefV4
             this.controllersList.Size = new System.Drawing.Size(248, 108);
             this.controllersList.TabIndex = 210;
             this.controllersList.SelectedIndexChanged += new System.EventHandler(this.controllersList_SelectedIndexChanged);
+            this.controllersList.ScrollAlwaysVisible = true;
+            this.controllersList.HorizontalScrollbar = true;
             //
             // assignButtonToAction
             //

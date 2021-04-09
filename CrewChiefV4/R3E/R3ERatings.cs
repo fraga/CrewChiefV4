@@ -136,7 +136,6 @@ namespace CrewChiefV4.R3E
 
         public static void init()
         {
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             lock (R3ERatings.initLock)
             {
                 // Download ratings only once per CC session.

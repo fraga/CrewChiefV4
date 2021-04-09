@@ -14,7 +14,6 @@ using System.Runtime.InteropServices;
 using NAudio.CoreAudioApi;
 using CrewChiefV4.Overlay;
 using System.IO;
-using WindowsInput;
 using CrewChiefV4.ACC;
 
 namespace CrewChiefV4
@@ -2745,14 +2744,20 @@ namespace CrewChiefV4
                         Console.WriteLine("chat recognised: \"" + recognisedText + "\"");
                         if (recognisedText.StartsWith(chatContextStart))
                         {
-                            string chatText = recognisedText.TrimStart(chatContextStart.ToCharArray()).Trim();                            
-                            Console.WriteLine("Sending chat text \"" + chatText + "\"");
-                            new InputSimulator().Keyboard.KeyPress(getStartChatMacro()
-                                .getStartChatKey())
-                                .Sleep(getStartChatMacro().getWaitBetweenEachCommand())
-                                .TextEntry(chatText)
-                                .Sleep(getStartChatMacro().getWaitBetweenEachCommand())
-                                .KeyPress(getEndChatMacro().getEndChatKey());
+                            ActionItem startChatActionItem = SpeechRecogniser.getStartChatMacro() == null ? null : SpeechRecogniser.getStartChatMacro().getSingleActionItemForChatStartAndEnd();
+                            ActionItem endChatActionItem = SpeechRecogniser.getEndChatMacro() == null ? null : SpeechRecogniser.getEndChatMacro().getSingleActionItemForChatStartAndEnd();
+                            if (startChatActionItem != null && endChatActionItem != null)
+                            {
+                                string chatText = recognisedText.TrimStart(chatContextStart.ToCharArray()).Trim();
+                                KeyPresser.SendKeyPresses(startChatActionItem.keyCodes, startChatActionItem.holdTime, startChatActionItem.waitTime);
+                                KeyPresser.InputSim.Keyboard.TextEntry(chatText).Sleep(50);
+                                KeyPresser.SendKeyPresses(endChatActionItem.keyCodes, endChatActionItem.holdTime, endChatActionItem.waitTime);
+                            }
+                            else
+                            {
+                                Console.WriteLine("Unable to send free chat output because suitable \"" + startChatMacroName + "\" and \"" + endChatMacroName
+                                    + "\" macros were not found for game " + CrewChief.gameDefinition.gameEnum);
+                            }
                         }
                         else
                         {

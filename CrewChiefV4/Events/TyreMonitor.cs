@@ -117,6 +117,20 @@ namespace CrewChiefV4.Events
         public static String folderSpinningLeftRearForLapWarning = "tyre_monitor/spinning_left_rear_lap_warning";
         public static String folderSpinningRightRearForLapWarning = "tyre_monitor/spinning_right_rear_lap_warning";
 
+        public static String folderDamageToFrontTyres = "tyre_monitor/damage_to_front_tyres";
+        public static String folderDamageToRearTyres = "tyre_monitor/damage_to_rear_tyres";
+        public static String folderDamageToFrontLeftTyre = "tyre_monitor/damage_to_front_left_tyre";
+        public static String folderDamageToFrontRightTyre = "tyre_monitor/damage_to_front_right_tyre";
+        public static String folderDamageToRearLeftTyre = "tyre_monitor/damage_to_rear_left_tyre";
+        public static String folderDamageToRearRightTyre = "tyre_monitor/damage_to_rear_right_tyre";
+
+        public static String folderFrontsFlatSpotted = "tyre_monitor/fronts_are_flat_spotted";
+        public static String folderRearsFlatSpotted = "tyre_monitor/rears_are_flat_spotted";
+        public static String folderLeftFrontFlatSpotted = "tyre_monitor/left_front_is_flat_spotted";
+        public static String folderRightFrontFlatSpotted = "tyre_monitor/right_front_is_flat_spotted";
+        public static String folderLeftRearFlatSpotted = "tyre_monitor/left_rear_is_flat_spotted";
+        public static String folderRightRearFlatSpotted = "tyre_monitor/right_rear_is_flat_spotted";
+
         private Boolean enableTyreTempWarnings = UserSettings.GetUserSettings().getBoolean("enable_tyre_temp_warnings");
         private Boolean enableBrakeTempWarnings = UserSettings.GetUserSettings().getBoolean("enable_brake_temp_warnings");
         private Boolean enableTyreWearWarnings = UserSettings.GetUserSettings().getBoolean("enable_tyre_wear_warnings");
@@ -277,6 +291,7 @@ namespace CrewChiefV4.Events
         private float timeElapsed;
 
         private CornerData currentTyreConditionStatus;
+        private CornerData currentTyreFlatSpotStatus;
 
         private CornerData currentTyreTempStatus;
 
@@ -447,6 +462,7 @@ namespace CrewChiefV4.Events
             timeInSession = 0;
             timeElapsed = 0;
             currentTyreConditionStatus = new CornerData();
+            currentTyreFlatSpotStatus = new CornerData();
             currentTyreTempStatus = new CornerData();
             currentBrakeTempStatus = new CornerData();
             peakBrakeTempStatus = new CornerData();
@@ -585,6 +601,7 @@ namespace CrewChiefV4.Events
             }
 
             Console.WriteLine("-------------------------");
+
             Console.WriteLine("Wear, percentage  |------|  percentage");
             Console.WriteLine("Fronts:    " + Math.Round(tyreData.FrontLeftPercentWear, 2) +
                 "  |------|  " + Math.Round(tyreData.FrontRightPercentWear, 2));
@@ -597,6 +614,23 @@ namespace CrewChiefV4.Events
                 Console.WriteLine("Status: " + key);
             }
             Console.WriteLine("-------------------------");
+
+            if (tyreData.FlatSpotEmulationActive)
+            {
+                Console.WriteLine("-------------------------");
+                Console.WriteLine("Flat spot severity, percentage  |------|  percentage");
+                Console.WriteLine("Fronts:    " + Math.Round(tyreData.FrontLeftFlatSpotSeverity == -1.0 ? 0.0 : tyreData.FrontLeftFlatSpotSeverity, 2) +
+                    "  |------|  " + Math.Round(tyreData.FrontRightFlatSpotSeverity == -1.0 ? 0.0 : tyreData.FrontRightFlatSpotSeverity, 2));
+                Console.WriteLine("Rears:    " + Math.Round(tyreData.RearLeftFlatSpotSeverity == -1.0 ? 0.0 : tyreData.RearLeftFlatSpotSeverity, 2) +
+                    "  |------|  " + Math.Round(tyreData.RearRightFlatSpotSeverity == -1.0 ? 0.0 : tyreData.RearRightFlatSpotSeverity, 2));
+                Console.WriteLine("-------------------------");
+                Console.WriteLine("Flat spot severity interpretation:");
+                foreach (var key in tyreData.TyreFlatSpotStatus.cornersForEachStatus)
+                {
+                    Console.WriteLine("Status: " + key);
+                }
+                Console.WriteLine("-------------------------");
+            }
         }
 
         private void getIMOAveragesForLap()
@@ -952,6 +986,8 @@ namespace CrewChiefV4.Events
                 peakBrakeTempForLap = 0;
             }
 
+            currentTyreFlatSpotStatus = currentGameState.TyreData.TyreFlatSpotStatus;
+
             // only do tyre wear stuff if tyre wear is active
             currentTyreConditionStatus = currentGameState.TyreData.TyreConditionStatus;
             if (currentGameState.TyreData.TyreWearActive)
@@ -1213,6 +1249,11 @@ namespace CrewChiefV4.Events
             addTyreConditionWarningMessages(currentTyreConditionStatus.getCornersForStatus(TyreCondition.MINOR_WEAR), TyreCondition.MINOR_WEAR, messageContents);
             addTyreConditionWarningMessages(currentTyreConditionStatus.getCornersForStatus(TyreCondition.MAJOR_WEAR), TyreCondition.MAJOR_WEAR, messageContents);
             addTyreConditionWarningMessages(currentTyreConditionStatus.getCornersForStatus(TyreCondition.WORN_OUT), TyreCondition.WORN_OUT, messageContents);
+            if (CrewChief.currentGameState.TyreData.FlatSpotEmulationActive)
+            {
+                addTyreFlatSpotStateWarningMessages(currentTyreFlatSpotStatus.getCornersForStatus(TyreFlatSpotState.MAJOR), TyreFlatSpotState.MAJOR, messageContents);
+            }
+
             Boolean wearIsGood = false;
             if (messageContents.Count == 0)
             {
@@ -2435,6 +2476,88 @@ namespace CrewChiefV4.Events
                             messageContents.Add(MessageFragment.Text(folderKnackeredRightRear));
                             break;
                         default:
+                            break;
+                    }
+                    break;
+            }
+        }
+
+        private void addTyreFlatSpotStateWarningMessages(CornerData.Corners corners, TyreFlatSpotState tfss, List<MessageFragment> messageContents)
+        {
+            switch (corners)
+            {
+                case CornerData.Corners.ALL:
+                    switch (tfss)
+                    {
+                        case TyreFlatSpotState.MAJOR:
+                            messageContents.Add(MessageFragment.Text(folderFrontsFlatSpotted));
+                            messageContents.Add(MessageFragment.Text(folderRearsFlatSpotted));
+                            break;
+                    }
+                    break;
+                case CornerData.Corners.FRONTS:
+                    switch (tfss)
+                    {
+                        case TyreFlatSpotState.MAJOR:
+                            messageContents.Add(MessageFragment.Text(folderFrontsFlatSpotted));
+                            break;
+                    }
+                    break;
+                case CornerData.Corners.REARS:
+                    switch (tfss)
+                    {
+                        case TyreFlatSpotState.MAJOR:
+                            messageContents.Add(MessageFragment.Text(folderRearsFlatSpotted));
+                            break;
+                    }
+                    break;
+                case CornerData.Corners.LEFTS:
+                    switch (tfss)
+                    {
+                        case TyreFlatSpotState.MAJOR:
+                            messageContents.Add(MessageFragment.Text(folderLeftFrontFlatSpotted));
+                            messageContents.Add(MessageFragment.Text(folderLeftRearFlatSpotted));
+                            break;
+                    }
+                    break;
+                case CornerData.Corners.RIGHTS:
+                    switch (tfss)
+                    {
+                        case TyreFlatSpotState.MAJOR:
+                            messageContents.Add(MessageFragment.Text(folderRightFrontFlatSpotted));
+                            messageContents.Add(MessageFragment.Text(folderRightRearFlatSpotted));
+                            break;
+                    }
+                    break;
+                case CornerData.Corners.FRONT_LEFT:
+                    switch (tfss)
+                    {
+                        case TyreFlatSpotState.MAJOR:
+                            messageContents.Add(MessageFragment.Text(folderLeftFrontFlatSpotted));
+                            break;
+                    }
+                    break;
+                case CornerData.Corners.FRONT_RIGHT:
+                    switch (tfss)
+                    {
+                        case TyreFlatSpotState.MAJOR:
+                            messageContents.Add(MessageFragment.Text(folderRightFrontFlatSpotted));
+                            break;
+                    }
+                    break;
+                case CornerData.Corners.REAR_LEFT:
+                    switch (tfss)
+                    {
+                        case TyreFlatSpotState.MAJOR:
+                            messageContents.Add(MessageFragment.Text(folderLeftRearFlatSpotted));
+                            break;
+                    }
+                    break;
+                case CornerData.Corners.REAR_RIGHT:
+                    switch (tfss)
+                    {
+                        case TyreFlatSpotState.MAJOR:
+                            messageContents.Add(MessageFragment.Text(folderRightRearFlatSpotted));
                             break;
                     }
                     break;

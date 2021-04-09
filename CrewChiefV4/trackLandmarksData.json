@@ -1455,6 +1455,7 @@
 			"rf2TrackNames": [ "Zolder" ],
 			"irTrackName": "zolder gp",
 			"accTrackName": "Zolder:track config",
+			"gtr2TrackNames": [ "2005ZOLDER" ],
 			"trackLandmarks": [
 				{
 					"landmarkName": "turn1",
@@ -17157,6 +17158,138 @@
 					"isCommonOvertakingSpot": true
 				}
 			]
+		},
+		{
+			"irTrackName": "spa combined",
+			"trackLandmarks": [
+				{
+					"landmarkName": "la_source",
+					"distanceRoundLapStart": 310.0927,
+					"distanceRoundLapEnd": 453.63028,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "eau_rouge",
+					"distanceRoundLapStart": 936.2984,
+					"distanceRoundLapEnd": 1150,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "radillion",
+					"distanceRoundLapStart": 1155,
+					"distanceRoundLapEnd": 1400.42737,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "kemmel",
+					"distanceRoundLapStart": 1484.141,
+					"distanceRoundLapEnd": 1739.89465,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "les_combes",
+					"distanceRoundLapStart": 2352.21826,
+					"distanceRoundLapEnd": 2731.91968,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "bruxelles",
+					"distanceRoundLapStart": 2919.71436,
+					"distanceRoundLapEnd": 3148.529,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn9",
+					"distanceRoundLapStart": 3203.83936,
+					"distanceRoundLapEnd": 3342.37769,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "pouhon",
+					"distanceRoundLapStart": 3706.517,
+					"distanceRoundLapEnd": 4173.61328,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "les_fanges",
+					"distanceRoundLapStart": 4378.12939,
+					"distanceRoundLapEnd": 4734.62549,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "campus",
+					"distanceRoundLapStart": 4831.78125,
+					"distanceRoundLapEnd": 4989.551,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "stavlot",
+					"distanceRoundLapStart": 5041.9375,
+					"distanceRoundLapEnd": 5222.60645,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "courbe_paul_frere",
+					"distanceRoundLapStart": 5298.39063,
+					"distanceRoundLapEnd": 5543.935,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "blanchimont",
+					"distanceRoundLapStart": 5717.78564,
+					"distanceRoundLapEnd": 6278.279,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "the_chicane",
+					"distanceRoundLapStart": 6633.2334,
+					"distanceRoundLapEnd": 6821.402,
+					"isCommonOvertakingSpot": true
+				}
+			],
+			"isOval": false
+		},
+		{
+			"irTrackName": "limerock 2019 classic",
+			"trackLandmarks": [
+				{
+					"landmarkName": "big_bend",
+					"distanceRoundLapStart": 176.443146,
+					"distanceRoundLapEnd": 500.613373,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "lefthander",
+					"distanceRoundLapStart": 557.2083,
+					"distanceRoundLapEnd": 720.4375,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "righthander",
+					"distanceRoundLapStart": 742.6075,
+					"distanceRoundLapEnd": 863.6886,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "uphill",
+					"distanceRoundLapStart": 1143.70349,
+					"distanceRoundLapEnd": 1349.58325,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "west_bend",
+					"distanceRoundLapStart": 1510.32739,
+					"distanceRoundLapEnd": 1685.24036,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "downhill",
+					"distanceRoundLapStart": 1817.28247,
+					"distanceRoundLapEnd": 2034.30017,
+					"isCommonOvertakingSpot": false
+				}
+			],
+			"isOval": false
 		}
 	]
 }

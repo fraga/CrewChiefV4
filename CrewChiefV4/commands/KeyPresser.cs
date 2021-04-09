@@ -118,6 +118,19 @@ namespace CrewChiefV4.commands
             return false;
         }
 
+        // this should be used if the action item may have mulitple key presses (e.g. { MULTIPLE_100, KEY_A } - this is the
+        // case for all standard actionItem instances constructed from the macros json
+        public static void SendKeyPresses(Tuple<VirtualKeyCode?, VirtualKeyCode>[] keyCodes, int? keyPressTime, int waitBetweenKeys)
+        {
+            for (int keyIndex = 0; keyIndex < keyCodes.Length; keyIndex++)
+            {
+                KeyPresser.SendKeyPress(keyCodes[keyIndex], keyPressTime);
+                Thread.Sleep(waitBetweenKeys);
+            }
+        }
+
+        // this should only be used if we've constructed our own key press in code (e.g. the VR recentre key and ACC fall back pit commands)
+        // where we know there can't be a multiple key press directive
         public static void SendKeyPress(Tuple<VirtualKeyCode?, VirtualKeyCode> modifierAndKeyCode, int? keyPressTime = null)
         {
             KeyCode? modifierKeyCode = null;

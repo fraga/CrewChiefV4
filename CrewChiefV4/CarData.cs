@@ -168,7 +168,10 @@ namespace CrewChiefV4
         private static Dictionary<BrakeType, List<CornerData.EnumWithThresholds>> brakeTempThresholds = new Dictionary<BrakeType, List<CornerData.EnumWithThresholds>>();
 
         private static Dictionary<string, List<CarClassEnum>> groupedClasses = new Dictionary<string, List<CarClassEnum>>();
-        
+
+        // these are set from R3E data
+        public static Dictionary<Tuple<CarClassEnum, TyreType>, List<CornerData.EnumWithThresholds>> optimalTempsFromGame = new Dictionary<Tuple<CarClassEnum, TyreType>, List<CornerData.EnumWithThresholds>>();
+
         static CarData()
         {
             List<CarClassEnum> r3eDTMClasses = new List<CarClassEnum>();
@@ -1074,13 +1077,35 @@ namespace CrewChiefV4
             return ttt;
         }
 
+        public static void AddTempThresholdsFromGame(Tuple<CarClassEnum, TyreType> key, float coldTemp, float optimalTemp, float hotTemp)
+        {
+            float coldThreshold = optimalTemp - (optimalTemp - coldTemp) / 2;
+            float hotThreshold = hotTemp - (hotTemp - optimalTemp) / 2;
+            float cookingThresold = hotTemp + (hotTemp - optimalTemp) / 2;
+            List<CornerData.EnumWithThresholds> thresholdsFromGameData = new List<CornerData.EnumWithThresholds>();
+            thresholdsFromGameData.Add(new CornerData.EnumWithThresholds(TyreTemp.COLD, -10000, coldThreshold));
+            thresholdsFromGameData.Add(new CornerData.EnumWithThresholds(TyreTemp.WARM, coldThreshold, hotThreshold));
+            thresholdsFromGameData.Add(new CornerData.EnumWithThresholds(TyreTemp.HOT, hotThreshold, cookingThresold));
+            thresholdsFromGameData.Add(new CornerData.EnumWithThresholds(TyreTemp.COOKING, cookingThresold, 10000));
+            CarData.optimalTempsFromGame[key] = thresholdsFromGameData;
+        }
+
         public static List<CornerData.EnumWithThresholds> getTyreTempThresholds(CarClass carClass, TyreType tyreType)
         {
-            if (!tyreTempThresholds.ContainsKey(tyreType))
+            List<CornerData.EnumWithThresholds> predefinedTyreThresholds;
+            var key = new Tuple<CarClassEnum, TyreType>(carClass.carClassEnum, tyreType);
+            if (CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM && CarData.optimalTempsFromGame.ContainsKey(key))
             {
-                tyreType = TyreType.Unknown_Race;
+                predefinedTyreThresholds = CarData.optimalTempsFromGame[key];
             }
-            var predefinedTyreThresholds = tyreTempThresholds[tyreType];
+            else
+            {
+                if (!tyreTempThresholds.ContainsKey(tyreType))
+                {
+                    tyreType = TyreType.Unknown_Race;
+                }
+                predefinedTyreThresholds = tyreTempThresholds[tyreType];
+            }
             // Copy predefined thresholds to avoid overriding defaults.
             var ttt = new List<CornerData.EnumWithThresholds>();
             foreach (var threshold in predefinedTyreThresholds)

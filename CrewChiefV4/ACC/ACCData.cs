@@ -146,6 +146,7 @@ namespace CrewChiefV4.ACC
             public float pitch;
             public float roll;
             public float NOT_SET_cgHeight;
+            // this is a weird one, it's documented as just "damage", front, rear, left, right, centre. Centre is, apparently, the sum of the other 4. No idea on scale
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 5)]
             public float[] carDamage;
             public int NOT_SET_numberOfTyresOut;
@@ -211,6 +212,7 @@ namespace CrewChiefV4.ACC
             public int NOT_SET_tcinAction;
             public int NOT_SET_absInAction;
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
+            // i think this is set (lf, rf, lr, rr) - not sure on unit, 0 - 1?
             public float[] NOT_SET_suspensionDamage;// Suspensions damage levels[FL, FR, RL, RR]
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4)]
             public float[] tyreTemp;// * Tyres core temperatures[FL, FR, RL, RR] - this is actually set (despite being listed as unset in the documentation)

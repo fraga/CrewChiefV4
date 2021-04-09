@@ -244,35 +244,19 @@ namespace CrewChiefV4.commands
             }
             return allowedToRun;
         }
-        // must be called from static method SpeechRecogniser.getStartChatMacro()
-        public VirtualKeyCode getStartChatKey()
+
+        // This must be called from static method SpeechRecogniser.getStartChatMacro()
+        public ActionItem getSingleActionItemForChatStartAndEnd()
         {
-            //defaut to KEY_T as that is most common 
-            KeyPresser.KeyCode keyCode = KeyPresser.KeyCode.KEY_T;
             foreach (CommandSet commandSet in macro.commandSets.Where(cs => MacroManager.isCommandSetForCurrentGame(cs.gameDefinition)))
             {
-                string action = commandSet.actionSequence[0];
-                if (Enum.TryParse(action, out keyCode))
+                if (commandSet.getActionItems().Count == 1)
                 {
-                    return (VirtualKeyCode)keyCode;
+                    return commandSet.getActionItems()[0];
                 }
+                break;
             }
-            return (VirtualKeyCode)keyCode;
-        }
-        // must be called from static method SpeechRecogniser.getEndChatMacro()
-        public VirtualKeyCode getEndChatKey()
-        {
-            //defaut to ENTER as that is most common 
-            KeyPresser.KeyCode keyCode = KeyPresser.KeyCode.ENTER;
-            foreach (CommandSet commandSet in macro.commandSets.Where(cs => MacroManager.isCommandSetForCurrentGame(cs.gameDefinition)))
-            {
-                string action = commandSet.actionSequence[0];
-                if (Enum.TryParse(action, out keyCode))
-                {
-                    return (VirtualKeyCode)keyCode;
-                }
-            }
-            return (VirtualKeyCode)keyCode;
+            return null;
         }
 
         public int getWaitBetweenEachCommand()
@@ -386,26 +370,23 @@ namespace CrewChiefV4.commands
                 // Couldn't set the game to foreground
             }
         }
-
+ 
         private void sendKeys(int count, ActionItem actionItem, int? keyPressTime, int waitBetweenKeys)
         {
             if (actionItem.allowFreeText)
             {
-                if (SpeechRecogniser.getStartChatMacro() == null)
-                {
-                    Console.WriteLine("Can't send chat macro, no \"start chat message\" macro is defined for game " + CrewChief.gameDefinition.gameEnum);
-                    return;
-                }
-                if (SpeechRecogniser.getEndChatMacro() == null)
-                {
-                    Console.WriteLine("Can't send chat macro, no \"end chat message\" macro is defined for game " + CrewChief.gameDefinition.gameEnum);
-                    return;
-                }
                 Console.WriteLine(actionItem.freeText);
-                KeyPresser.InputSim.Keyboard
-                    .KeyPress(SpeechRecogniser.getStartChatMacro().getStartChatKey()).Sleep(getWaitBetweenEachCommand())
-                    .TextEntry(actionItem.freeText).Sleep(getWaitBetweenEachCommand())
-                    .KeyPress(SpeechRecogniser.getEndChatMacro().getEndChatKey());
+                ActionItem startChatActionItem = SpeechRecogniser.getStartChatMacro() == null ? null : SpeechRecogniser.getStartChatMacro().getSingleActionItemForChatStartAndEnd();
+                ActionItem endChatActionItem = SpeechRecogniser.getEndChatMacro() == null ? null : SpeechRecogniser.getEndChatMacro().getSingleActionItemForChatStartAndEnd();
+                if (startChatActionItem != null)
+                {
+                    KeyPresser.SendKeyPresses(startChatActionItem.keyCodes, startChatActionItem.holdTime, startChatActionItem.waitTime);
+                }
+                KeyPresser.InputSim.Keyboard.TextEntry(actionItem.freeText).Sleep(getWaitBetweenEachCommand());
+                if (endChatActionItem != null)
+                {
+                    KeyPresser.SendKeyPresses(endChatActionItem.keyCodes, endChatActionItem.holdTime, endChatActionItem.waitTime);
+                }
             }
             // completely arbitrary sanity check on resolved count. We don't want the app trying to press 'right' MaxInt times
             else if (actionItem.keyCodes.Length * count > 300)
@@ -422,11 +403,7 @@ namespace CrewChiefV4.commands
                     }
                     else
                     {
-                        for (int keyIndex = 0; keyIndex < actionItem.keyCodes.Length; keyIndex++)
-                        {
-                            KeyPresser.SendKeyPress(actionItem.keyCodes[keyIndex], keyPressTime);
-                            Thread.Sleep(waitBetweenKeys);
-                        }
+                        KeyPresser.SendKeyPresses(actionItem.keyCodes, keyPressTime, waitBetweenKeys);
                     }
                 }
             }
@@ -597,6 +574,7 @@ namespace CrewChiefV4.commands
     public class ActionItem
     {
         public Boolean parsedSuccessfully = false;
+        // note this is an array only because we may have multiple presses of the same key
         public Tuple<VirtualKeyCode?, VirtualKeyCode>[] keyCodes;
         public String actionText;
         public String freeText;
@@ -726,7 +704,6 @@ namespace CrewChiefV4.commands
                     parsedSuccessfully = false;
                 }
             }
-            // Console.WriteLine(this.ToString());
         }
 
         public override String ToString()

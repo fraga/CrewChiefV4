@@ -49,6 +49,10 @@ namespace CrewChiefV4.GameState
     {
         UNKNOWN, COLD, WARM, HOT, COOKING
     }
+    public enum TyreFlatSpotState
+    {
+        UNKNOWN, NONE, MINOR, MAJOR
+    }
     public enum BrakeTemp
     {
         UNKNOWN, COLD, WARM, HOT, COOKING
@@ -2958,6 +2962,14 @@ namespace CrewChiefV4.GameState
             }
         }
 
+        public Boolean FlatSpotEmulationActive = false;
+
+        // Flat spot severity in range of [0.0, 1.0]
+        public Single FrontLeftFlatSpotSeverity = -1.0f;
+        public Single FrontRightFlatSpotSeverity = -1.0f;
+        public Single RearLeftFlatSpotSeverity = -1.0f;
+        public Single RearRightFlatSpotSeverity = -1.0f;
+
         private CornerData _TyreTempStatus;
         public CornerData TyreTempStatus
         {
@@ -2989,6 +3001,23 @@ namespace CrewChiefV4.GameState
             set
             {
                 _TyreConditionStatus = value;
+            }
+        }
+
+        private CornerData _TyreFlatSpotStatus;
+        public CornerData TyreFlatSpotStatus
+        {
+            get
+            {
+                if (_TyreFlatSpotStatus == null)
+                {
+                    _TyreFlatSpotStatus = new CornerData();
+                }
+                return _TyreFlatSpotStatus;
+            }
+            set
+            {
+                _TyreFlatSpotStatus = value;
             }
         }
 
