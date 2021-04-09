@@ -2,6 +2,7 @@
 using CrewChiefV4.commands;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using WindowsInput.Native;
 
@@ -37,6 +38,8 @@ namespace CrewChiefV4.ACC
         private const string folderConfirmDryTyres = "mandatory_pit_stops/confirm_dry_tyres";
         private const string folderConfirmNoTyres = "mandatory_pit_stops/confirm_change_no_tyres";
         private const string folderConfirmNoRefuelling = "mandatory_pit_stops/confirm_no_refuelling";
+
+        private const string folderCantDoThat= "mandatory_pit_stops/cant_do_that";
 
         public static void processVoiceCommand(string recognisedText, AudioPlayer audioPlayer, bool allowDidntUnderstandResponse = true)
         {
@@ -96,13 +99,33 @@ namespace CrewChiefV4.ACC
                             break;
                         }
                     }
-                    int requestedSet = extractInt(recognisedText);
-                    if (requestedSet > 0 && requestedSet < 50)
+                    int requestedSet = extractInt(recognisedText) - 1;
+                    if (requestedSet >= 0 && requestedSet < 50)
                     {
-                        selectTyreSet(requestedSet);
+                        mashKeysToPutPitMenuInKnownState(false);
+                        if (selectTyreSet(requestedSet, getAvailableTyreSetsCount()))
+                        {
+                            audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
+                        }
+                        else
+                        {
+                            audioPlayer.playMessageImmediately(new QueuedMessage(folderCantDoThat, 0));
+                        }
                         recognised = true;
+                    }
+                }
+                else if (SpeechRecogniser.ResultContains(recognisedText, SpeechRecogniser.PIT_STOP_SELECT_LEAST_USED_TYRE_SET))
+                {
+                    mashKeysToPutPitMenuInKnownState(false);
+                    if (selectLeastUsedTyreSet(getAvailableTyreSetsCount()))
+                    {
                         audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderAcknowlegeOK, 0));
                     }
+                    else
+                    {
+                        audioPlayer.playMessageImmediately(new QueuedMessage(folderCantDoThat, 0));
+                    }
+                    recognised = true;
                 }
                 else if (SpeechRecogniser.ResultContains(recognisedText, SpeechRecogniser.PIT_STOP_DONT_REFUEL))
                 {
@@ -356,17 +379,117 @@ namespace CrewChiefV4.ACC
             // additional pause - sometimes this specific key is ignored or it takes a while to complete the action
             Thread.Sleep(300);
         }
-
-        private static void selectTyreSet(int requestedTyreSet)
+ 
+        // assumes we're already on the available tyres sets option
+        private static bool selectTyreSet(int requestedTyreSet, int totalAvailableSets)
         {
-            mashKeysToPutPitMenuInKnownState(false);
-            // assuming the masher worked, we're now on the tyre set option
-            int currentTyreSet = CrewChief.currentGameState.TyreData.selectedSet;
-            bool increase = requestedTyreSet > currentTyreSet;
-            int presses = Math.Abs(requestedTyreSet - currentTyreSet);
-            for (int i=0; i<presses; i++)
+            if (requestedTyreSet <= totalAvailableSets)
             {
-                if (increase)
+                int currentTyreSet = CrewChief.currentGameState.TyreData.selectedSet;
+                if (requestedTyreSet == currentTyreSet)
+                {
+                    Console.WriteLine("Tyre set " + (requestedTyreSet + 1) + " is already selected");
+                    return true;
+                }
+                bool increase = requestedTyreSet > currentTyreSet;
+                string directionString = increase ? "right" : "left";
+                int presses = Math.Abs(requestedTyreSet - currentTyreSet);
+                Console.WriteLine("Selecting set " + (requestedTyreSet + 1) + ", current set = " + (currentTyreSet + 1) + " sending " + presses + " " + directionString + " presses");
+                for (int i = 0; i < presses; i++)
+                {
+                    if (increase)
+                    {
+                        sendKeyPressOrMacro(getMenuRightMacro(), rightKey);
+                    }
+                    else
+                    {
+                        sendKeyPressOrMacro(getMenuLeftMacro(), leftKey);
+                    }
+                }
+                return true;
+            }
+            Console.WriteLine("Requested tyre set " + (requestedTyreSet + 1) + " but only " + (totalAvailableSets + 1) + " are available");
+            return false;
+        }
+ 
+        // assumes we're already on the available tyres sets option
+        private static bool selectLeastUsedTyreSet(int totalAvailableSets)
+        {
+            if (totalAvailableSets > 0)
+            {
+                int leastLaps = int.MaxValue;
+                int bestSet = -1;
+                for (int availableSet = 0; availableSet < totalAvailableSets; availableSet++)
+                {
+                    if (CrewChief.currentGameState.TyreData.lapsPerSet[availableSet] < leastLaps)
+                    {
+                        leastLaps = CrewChief.currentGameState.TyreData.lapsPerSet[availableSet];
+                        bestSet = availableSet;
+                    }
+                }
+                if (bestSet != -1)
+                {
+                    Console.WriteLine("Best tyre set is " + (bestSet + 1) + " with " + leastLaps + " laps use");
+                    return selectTyreSet(bestSet, totalAvailableSets);
+                }
+                else
+                {
+                    Console.WriteLine("Unable to derive the best tyre set");
+                    return false;
+                }
+            }
+            else
+            {
+                Console.WriteLine("Unable to get the list of available sets");
+                return false;
+            }
+        }
+
+        // assumes we're already on the available tyres sets option
+        private static int getAvailableTyreSetsCount()
+        {
+            int pressCount = 0;
+            int selectedSet = CrewChief.currentGameState.TyreData.selectedSet;
+            int lastTyreSet = selectedSet;
+            int totalAvailableSets = 50;
+            // if selectedSet > 25, increase otherwise decrease
+            bool decrease = selectedSet < 25;
+            while (pressCount < 25)
+            {
+                if (decrease)
+                {
+                    sendKeyPressOrMacro(getMenuLeftMacro(), leftKey);
+                }
+                else
+                {
+                    sendKeyPressOrMacro(getMenuRightMacro(), rightKey);
+                }
+                pressCount++;
+                Thread.Sleep(200);
+                selectedSet = CrewChief.currentGameState.TyreData.selectedSet;
+
+                // the selected set should wrap. If it's not changed after pressing left / right then we're probably not where we think we are in the menu
+                if (selectedSet == lastTyreSet)
+                {
+                    break;
+                }
+                // if we've wrapped, then we can stop looking
+                if (decrease && selectedSet > lastTyreSet)
+                {
+                    totalAvailableSets = selectedSet + 1;
+                    break;
+                }
+                else if (!decrease && selectedSet < lastTyreSet)
+                {
+                    totalAvailableSets = lastTyreSet + 1;
+                    break;
+                }
+                lastTyreSet = selectedSet;
+            }
+            // now reselect the original tyre set
+            for (int i=0; i<pressCount; i++)
+            {
+                if (decrease)
                 {
                     sendKeyPressOrMacro(getMenuRightMacro(), rightKey);
                 }
@@ -374,7 +497,15 @@ namespace CrewChiefV4.ACC
                 {
                     sendKeyPressOrMacro(getMenuLeftMacro(), leftKey);
                 }
+                Thread.Sleep(200);
             }
+            List<string> availableSetsInfo = new List<string>();
+            for (int availableSet = 0; availableSet < totalAvailableSets; availableSet++)
+            {
+                availableSetsInfo.Add((availableSet + 1) + " (" + CrewChief.currentGameState.TyreData.lapsPerSet[availableSet] + " laps use)");
+            }
+            Console.WriteLine("Available tyre sets are " + String.Join(", ", availableSetsInfo));
+            return totalAvailableSets;
         }
 
         private static void selectWets()

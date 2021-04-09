@@ -355,6 +355,7 @@ PIT_STOP_ALTERNATE_TYRES = pitstop alternate tyres:box, alternate tires
 PIT_STOP_CHANGE_FRONT_PRESSURES = pitstop change front pressures:box change front pressures
 PIT_STOP_CHANGE_REAR_PRESSURES = pitstop change rear pressures:box change rear pressures
 PIT_STOP_SELECT_TYRE_SET = pitstop tire set:box tire set
+PIT_STOP_SELECT_LEAST_USED_TYRE_SET = pitstop select best tires:box select best tyres
 
 // Pit Manager/rF2-specific pit commands
 PIT_STOP_FIX_ALL = pitstop fix all:box, fix all:pitstop repair all:box, repair all

@@ -311,6 +311,7 @@ namespace CrewChiefV4
         // ACC only:
         public static String[] PIT_STOP_CHANGE_FRONT_PRESSURES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CHANGE_FRONT_PRESSURES");
         public static String[] PIT_STOP_CHANGE_REAR_PRESSURES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CHANGE_REAR_PRESSURES");
+        public static String[] PIT_STOP_SELECT_LEAST_USED_TYRE_SET = Configuration.getSpeechRecognitionPhrases("PIT_STOP_SELECT_LEAST_USED_TYRE_SET");
         public static String[] POINT = Configuration.getSpeechRecognitionPhrases("POINT");
 
         public static String[] HOW_MANY_INCIDENT_POINTS = Configuration.getSpeechRecognitionPhrases("HOW_MANY_INCIDENT_POINTS");
@@ -2126,6 +2127,7 @@ namespace CrewChiefV4
                 validateAndAdd(PIT_STOP_WET_TYRES, accChoices);
                 validateAndAdd(PIT_STOP_DRY_TYRES, accChoices);
                 validateAndAdd(PIT_STOP_DONT_REFUEL, accChoices);
+                validateAndAdd(PIT_STOP_SELECT_LEAST_USED_TYRE_SET, accChoices);
                 GrammarBuilderWrapper accGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper(accChoices);
                 accGrammarBuilder.SetCulture(cultureInfo);
                 GrammarWrapper accGrammar = SREWrapperFactory.createNewGrammarWrapper(accGrammarBuilder);

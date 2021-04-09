@@ -2943,11 +2943,15 @@ namespace CrewChiefV4.GameState
 
         public int selectedSet = -1;    // not necessarily the same as fittedSet
         public int fittedSet = -1;
-        public int[] lapsPerSet;
+        public int[] lapsPerSet = new int[50];
 
         public void clearLapsPerSet()
         {
             this.lapsPerSet = new int[50];
+            // some test data
+            this.lapsPerSet[0] = 3;
+            this.lapsPerSet[1] = 10;
+            this.lapsPerSet[2] = 12;
         }
 
         public void incrementLapsPerSet()
