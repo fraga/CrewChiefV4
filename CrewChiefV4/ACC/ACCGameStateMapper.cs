@@ -58,9 +58,9 @@ namespace CrewChiefV4.ACC
         private float destroyedEngineDamageThreshold = 25.0f;
 
         private float trivialAeroDamageThreshold = 20.0f;
-        private float minorAeroDamageThreshold = 50.0f;
-        private float severeAeroDamageThreshold = 150.0f;
-        private float destroyedAeroDamageThreshold = 300.0f;
+        private float minorAeroDamageThreshold = 40.0f;
+        private float severeAeroDamageThreshold = 130.0f;
+        private float destroyedAeroDamageThreshold = 250.0f;
 
         private AC_SESSION_TYPE sessionTypeOnPreviousTick = AC_SESSION_TYPE.AC_UNKNOWN;
         private DateTime ignoreUnknownSessionTypeUntil = DateTime.MinValue;
