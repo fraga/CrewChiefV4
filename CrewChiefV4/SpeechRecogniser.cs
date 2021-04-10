@@ -1094,12 +1094,12 @@ namespace CrewChiefV4
                     if (MessageBox.Show(Configuration.getUIString("install_any_speechlanguage_popup_text"), Configuration.getUIString("install_speechplatform_popup_title"),
                     MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
                     {
-                        Process.Start("https://www.microsoft.com/en-us/download/details.aspx?id=27224");
+                        Process.Start("https://www.microsoft.com/en-us/download/details.aspx?id=24139");
                     }
                     Console.WriteLine("Unable to initialise speech engine with English voice recognition pack. " +
                     "Check that at least one of MSSpeech_SR_en-GB_TELE.msi, MSSpeech_SR_en-US_TELE.msi, " +
                     "MSSpeech_SR_en-AU_TELE.msi, MSSpeech_SR_en-CA_TELE.msi or MSSpeech_SR_en-IN_TELE.msi are installed." +
-                    " It can be downloaded from https://www.microsoft.com/en-us/download/details.aspx?id=27224");
+                    " It can be downloaded from https://www.microsoft.com/en-us/download/details.aspx?id=24139");
                 }
                 else
                 {
@@ -1108,11 +1108,11 @@ namespace CrewChiefV4
                     Configuration.getUIString("install_speechplatform_popup_title"),
                     MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
                     {
-                        Process.Start("https://www.microsoft.com/en-us/download/details.aspx?id=27224");
+                        Process.Start("https://www.microsoft.com/en-us/download/details.aspx?id=24139");
                     }
                     Console.WriteLine("Unable to initialise speech engine with '" + langCodes.langToUse + "' voice recognition pack. " +
                     "Check that and appropriate language pack is installed." +
-                    " They can be downloaded from https://www.microsoft.com/en-us/download/details.aspx?id=27224");
+                    " They can be downloaded from https://www.microsoft.com/en-us/download/details.aspx?id=24139");
                 }
 
                 return false;
@@ -1124,11 +1124,11 @@ namespace CrewChiefV4
                     Configuration.getUIString("install_speechplatform_popup_title"),
                     MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
                 {
-                    Process.Start("https://www.microsoft.com/en-us/download/details.aspx?id=27224");
+                    Process.Start("https://www.microsoft.com/en-us/download/details.aspx?id=24139");
                 }
                 Console.WriteLine("Unable to initialise speech engine with voice recognition pack for location " + langCodes.langAndCountryToUse +
                     ". Check MSSpeech_SR_" + langCodes.langAndCountryToUse + "_TELE.msi is installed." +
-                    " It can be downloaded from https://www.microsoft.com/en-us/download/details.aspx?id=27224");
+                    " It can be downloaded from https://www.microsoft.com/en-us/download/details.aspx?id=24139");
 
                 return false;
             }
