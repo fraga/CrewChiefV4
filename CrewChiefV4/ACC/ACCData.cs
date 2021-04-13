@@ -336,7 +336,7 @@ namespace CrewChiefV4.ACC
             public int GlobalGreen; //  Green Flag is out?
             public int GlobalChequered; //  Checkered Flag is out?
             public int GlobalRed; //  Red Flag is out?
-            public int mfdTyreSet; //  # of tyre set on the MFD
+            public int mfdTyreSet; //  # of tyre set on the MFD. THIS STARTS AT 0 IS AS MFD / PIT MENU SET - 1
             public float mfdFuelToAdd; //  How much fuel to add on the MFD
 
             // note these are the tyre pressure you've set in the MFD (for pit changes), *not* the current pressure
@@ -349,7 +349,7 @@ namespace CrewChiefV4.ACC
             public ACC_RAIN_INTENSITY rainIntensityIn10min;
             public ACC_RAIN_INTENSITY rainIntensityIn30min;
 
-            public int currentTyreSet;
+            public int currentTyreSet;  // THIS STARTS AT 1 AND IS THE SAME DIGIT AS DISPLAYED IN THE PIT MENU
             public int strategyTyreSet;
         }
 

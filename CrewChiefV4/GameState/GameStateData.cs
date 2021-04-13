@@ -2941,17 +2941,13 @@ namespace CrewChiefV4.GameState
         public Single ACCRearLeftPressureMFD;
         public Single ACCRearRightPressureMFD;
 
-        public int selectedSet = -1;    // not necessarily the same as fittedSet
-        public int fittedSet = -1;
+        public int selectedSet = -1;    // not necessarily the same as fittedSet, zero indexed
+        public int fittedSet = -1;      // zero indexed
         public int[] lapsPerSet = new int[50];
 
         public void clearLapsPerSet()
         {
             this.lapsPerSet = new int[50];
-            // some test data
-            this.lapsPerSet[0] = 3;
-            this.lapsPerSet[1] = 10;
-            this.lapsPerSet[2] = 12;
         }
 
         public void incrementLapsPerSet()
@@ -2960,9 +2956,9 @@ namespace CrewChiefV4.GameState
             {
                 clearLapsPerSet();
             }
-            if (selectedSet != -1 && selectedSet < lapsPerSet.Length)
+            if (fittedSet != -1 && fittedSet < lapsPerSet.Length)
             {
-                lapsPerSet[selectedSet] = lapsPerSet[selectedSet] + 1;
+                lapsPerSet[fittedSet] = lapsPerSet[fittedSet] + 1;
             }
         }
 

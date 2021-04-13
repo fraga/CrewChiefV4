@@ -730,7 +730,7 @@ namespace CrewChiefV4.ACC
                     || ((lastSessionPhase == SessionPhase.Countdown)
                     && (currentGameState.SessionData.SessionPhase == SessionPhase.Green || currentGameState.SessionData.SessionPhase == SessionPhase.FullCourseYellow));
 
-                currentGameState.TyreData.fittedSet = shared.accGraphic.currentTyreSet;
+                currentGameState.TyreData.fittedSet = shared.accGraphic.currentTyreSet - 1; // 1-indexed
                 if (currentGameState.SessionData.IsNewLap)
                 {
                     currentGameState.TyreData.incrementLapsPerSet();
@@ -1235,6 +1235,7 @@ namespace CrewChiefV4.ACC
             currentGameState.TyreData.RightFrontBrakeTemp = shared.accPhysics.brakeTemp[1];
             currentGameState.TyreData.LeftRearBrakeTemp = shared.accPhysics.brakeTemp[2];
             currentGameState.TyreData.RightRearBrakeTemp = shared.accPhysics.brakeTemp[3];
+            // this appears to be zero-indexed
             currentGameState.TyreData.selectedSet = shared.accGraphic.mfdTyreSet;
 
             // specific fields for manuipulating tyre pressure in ACC:
