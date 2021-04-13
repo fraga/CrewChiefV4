@@ -17290,6 +17290,108 @@
 				}
 			],
 			"isOval": false
+		},
+		{
+			"irTrackName": "hockenheim gp",
+			"trackLandmarks": [
+				{
+					"landmarkName": "nord_kurve",
+					"distanceRoundLapStart": 195.582169,
+					"distanceRoundLapEnd": 351.976135,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn2",
+					"distanceRoundLapStart": 781.9775,
+					"distanceRoundLapEnd": 869.5319,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn3",
+					"distanceRoundLapStart": 875.8477,
+					"distanceRoundLapEnd": 922.015259,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn4",
+					"distanceRoundLapStart": 923.5863,
+					"distanceRoundLapEnd": 1051.34363,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "parabolica",
+					"distanceRoundLapStart": 1057.75989,
+					"distanceRoundLapEnd": 1804.07959,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "spitzkehre_hairpin",
+					"distanceRoundLapStart": 2035,
+					"distanceRoundLapEnd": 2165.084,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn7",
+					"distanceRoundLapStart": 2444.61084,
+					"distanceRoundLapEnd": 2633.32764,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "mercedes",
+					"distanceRoundLapStart": 2766.54663,
+					"distanceRoundLapEnd": 2849.80078,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn9",
+					"distanceRoundLapStart": 2850.1333,
+					"distanceRoundLapEnd": 2907.424,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn10",
+					"distanceRoundLapStart": 2911.36255,
+					"distanceRoundLapEnd": 3082.281,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "mobile_1",
+					"distanceRoundLapStart": 3343.82446,
+					"distanceRoundLapEnd": 3541.06323,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "sachs",
+					"distanceRoundLapStart": 3684.77856,
+					"distanceRoundLapEnd": 3853.82813,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn13",
+					"distanceRoundLapStart": 3879.162,
+					"distanceRoundLapEnd": 3962.57251,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn14",
+					"distanceRoundLapStart": 3966.9856,
+					"distanceRoundLapEnd": 4031.52441,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn15",
+					"distanceRoundLapStart": 4052.91626,
+					"distanceRoundLapEnd": 4172.917,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "sud_kurve",
+					"distanceRoundLapStart": 4178.615,
+					"distanceRoundLapEnd": 4353.787,
+					"isCommonOvertakingSpot": false
+				}
+			],
+			"isOval": false
 		}
 	]
 }

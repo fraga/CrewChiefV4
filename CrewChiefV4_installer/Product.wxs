@@ -3,7 +3,7 @@
 	<!--Change ProductCode when building a new version, this is the only variable that needs to be changed in this file
       BuildVersion gets auto generate by pulling it from the file assembly after building
   -->
-  <?define ProductCode = {48D76CCF-65FF-4DE6-ACB3-FEF0451F452A} ?>
+  <?define ProductCode = {0AACE480-1E16-4FF3-AC4B-080CBADB3D02} ?>
   <!--Keep our existing UpgradeCode (731ED4D4-F49C-4844-8C4F-FDE17802FDA8) from install shield this allows up to overwrite previous installation made by install shield-->
   <?define UpgradeCode = {731ED4D4-F49C-4844-8C4F-FDE17802FDA8} ?>
   
