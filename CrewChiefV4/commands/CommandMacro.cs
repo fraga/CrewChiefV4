@@ -375,17 +375,18 @@ namespace CrewChiefV4.commands
         {
             if (actionItem.allowFreeText)
             {
-                Console.WriteLine(actionItem.freeText);
                 ActionItem startChatActionItem = SpeechRecogniser.getStartChatMacro() == null ? null : SpeechRecogniser.getStartChatMacro().getSingleActionItemForChatStartAndEnd();
                 ActionItem endChatActionItem = SpeechRecogniser.getEndChatMacro() == null ? null : SpeechRecogniser.getEndChatMacro().getSingleActionItemForChatStartAndEnd();
                 if (startChatActionItem != null)
                 {
-                    KeyPresser.SendKeyPresses(startChatActionItem.keyCodes, startChatActionItem.holdTime, startChatActionItem.waitTime);
+                    KeyPresser.SendKeyPresses(startChatActionItem.keyCodes, keyPressTime, startChatActionItem.waitTime);
                 }
-                KeyPresser.InputSim.Keyboard.TextEntry(actionItem.freeText).Sleep(getWaitBetweenEachCommand());
+                Console.WriteLine("Sending " + actionItem.freeText);
+                KeyPresser.InputSim.Keyboard.TextEntry(actionItem.freeText);
+                Thread.Sleep(getWaitBetweenEachCommand());
                 if (endChatActionItem != null)
                 {
-                    KeyPresser.SendKeyPresses(endChatActionItem.keyCodes, endChatActionItem.holdTime, endChatActionItem.waitTime);
+                    KeyPresser.SendKeyPresses(endChatActionItem.keyCodes, keyPressTime, endChatActionItem.waitTime);
                 }
             }
             // completely arbitrary sanity check on resolved count. We don't want the app trying to press 'right' MaxInt times

@@ -125,7 +125,8 @@ namespace CrewChiefV4.commands
             for (int keyIndex = 0; keyIndex < keyCodes.Length; keyIndex++)
             {
                 KeyPresser.SendKeyPress(keyCodes[keyIndex], keyPressTime);
-                Thread.Sleep(waitBetweenKeys);
+                int waitTime = waitBetweenKeys <= 0 ? 20 : waitBetweenKeys;
+                Thread.Sleep(waitTime);
             }
         }
 
@@ -139,7 +140,8 @@ namespace CrewChiefV4.commands
                 modifierKeyCode = (KeyCode)modifierAndKeyCode.Item1;
             }
             int defaultKeyHoldTime = CrewChief.gameDefinition.gameEnum == GameEnum.ACC ? 80 : 50;
-            SendScanCodeKeyPress(new Tuple<KeyCode?, KeyCode>(modifierKeyCode, (KeyCode)modifierAndKeyCode.Item2), keyPressTime == null ? defaultKeyHoldTime : keyPressTime.Value);
+            SendScanCodeKeyPress(new Tuple<KeyCode?, KeyCode>(modifierKeyCode, (KeyCode)modifierAndKeyCode.Item2),
+                keyPressTime == null || keyPressTime <= 0 ? defaultKeyHoldTime : keyPressTime.Value);
         }
 
         const int INPUT_MOUSE = 0;
