@@ -375,18 +375,53 @@ namespace CrewChiefV4.commands
         {
             if (actionItem.allowFreeText)
             {
-                ActionItem startChatActionItem = SpeechRecogniser.getStartChatMacro() == null ? null : SpeechRecogniser.getStartChatMacro().getSingleActionItemForChatStartAndEnd();
-                ActionItem endChatActionItem = SpeechRecogniser.getEndChatMacro() == null ? null : SpeechRecogniser.getEndChatMacro().getSingleActionItemForChatStartAndEnd();
-                if (startChatActionItem != null)
+                // 3 cases here: either we have one or more actions either side the free text, or we have no actions either
+                // side but have start / end chat macros, or we guess and surround the free text with T and ENTER
+                if (actionItem.actionItemsBeforeFreeText.Count > 0)
                 {
-                    KeyPresser.SendKeyPresses(startChatActionItem.keyCodes, keyPressTime, startChatActionItem.waitTime);
+                    foreach (ActionItem beforeItem in actionItem.actionItemsBeforeFreeText)
+                    {
+                        // TODO: do we actually need to parse out the repeats here?
+                        sendKeys(1, beforeItem, actionItem.holdTime, waitBetweenKeys);
+                    }
                 }
+                else
+                {
+                    ActionItem startChatActionItem = SpeechRecogniser.getStartChatMacro() == null ? null : SpeechRecogniser.getStartChatMacro().getSingleActionItemForChatStartAndEnd();
+                    if (startChatActionItem == null)
+                    {
+                        // yikes, no start chat macro, press T and hope
+                        KeyPresser.SendKeyPress(new Tuple<VirtualKeyCode?, VirtualKeyCode>(null, VirtualKeyCode.VK_T), keyPressTime);
+                    }
+                    else
+                    {
+                        KeyPresser.SendKeyPresses(startChatActionItem.keyCodes, keyPressTime, startChatActionItem.waitTime);
+                    }
+                }                
                 Console.WriteLine("Sending " + actionItem.freeText);
                 KeyPresser.InputSim.Keyboard.TextEntry(actionItem.freeText);
                 Thread.Sleep(getWaitBetweenEachCommand());
-                if (endChatActionItem != null)
+
+                if (actionItem.actionItemsAfterFreeText.Count > 0)
                 {
-                    KeyPresser.SendKeyPresses(endChatActionItem.keyCodes, keyPressTime, endChatActionItem.waitTime);
+                    foreach (ActionItem afterItem in actionItem.actionItemsAfterFreeText)
+                    {
+                        // TODO: do we actually need to parse out the repeats here?
+                        sendKeys(1, afterItem, actionItem.holdTime, waitBetweenKeys);
+                    }
+                }
+                else
+                {
+                    ActionItem endChatActionItem = SpeechRecogniser.getEndChatMacro() == null ? null : SpeechRecogniser.getEndChatMacro().getSingleActionItemForChatStartAndEnd();
+                    if (endChatActionItem == null)
+                    {
+                        // yikes, no end chat macro, press ENTER and hope
+                        KeyPresser.SendKeyPress(new Tuple<VirtualKeyCode?, VirtualKeyCode>(null, VirtualKeyCode.RETURN), keyPressTime);
+                    }
+                    else
+                    {
+                        KeyPresser.SendKeyPresses(endChatActionItem.keyCodes, keyPressTime, endChatActionItem.waitTime);
+                    }
                 }
             }
             // completely arbitrary sanity check on resolved count. We don't want the app trying to press 'right' MaxInt times
@@ -545,6 +580,27 @@ namespace CrewChiefV4.commands
                 {
                     this.actionItems.Add(actionItem);
                     Console.WriteLine("Found " + MacroManager.FREE_TEXT_IDENTIFIER + " for commandSet " + description);
+                    if (actionSequence.Length > 2)
+                    {
+                        // save the actions before and after. If these are set we'll play them, otherwise we'll 
+                        // look for the start / end chat macros
+                        bool before = true;
+                        foreach (String surroundingAction in actionSequence)
+                        {
+                            if (surroundingAction.Contains(MacroManager.FREE_TEXT_IDENTIFIER))
+                            {
+                                before = false;
+                            }
+                            else if (before)
+                            {
+                                actionItem.actionItemsBeforeFreeText.Add(new ActionItem(surroundingAction));
+                            }
+                            else
+                            {
+                                actionItem.actionItemsAfterFreeText.Add(new ActionItem(surroundingAction));
+                            }
+                        }
+                    }
                     return true;
                 }
             }
@@ -589,6 +645,10 @@ namespace CrewChiefV4.commands
         public int fixedRepeatCount = 1; // a fixed number of repeated presses specified in the macro
         public bool repeatCountFromVoiceCommand = false;
         public string eventToResolveRepeatCount = null;
+
+        // these are used when playing free test macros
+        public List<ActionItem> actionItemsBeforeFreeText = new List<ActionItem>();
+        public List<ActionItem> actionItemsAfterFreeText = new List<ActionItem>();
 
         public ActionItem(String action)
         {
