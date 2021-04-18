@@ -580,7 +580,7 @@ namespace CrewChiefV4.commands
                 {
                     this.actionItems.Add(actionItem);
                     Console.WriteLine("Found " + MacroManager.FREE_TEXT_IDENTIFIER + " for commandSet " + description);
-                    if (actionSequence.Length > 2)
+                    if (actionSequence.Length > 1)
                     {
                         // save the actions before and after. If these are set we'll play them, otherwise we'll 
                         // look for the start / end chat macros
