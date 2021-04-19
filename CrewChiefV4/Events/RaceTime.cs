@@ -56,7 +56,7 @@ namespace CrewChiefV4.Events
         // allow condition messages during caution periods
         public override List<SessionPhase> applicableSessionPhases
         {
-            get { return new List<SessionPhase> { SessionPhase.Green, SessionPhase.Checkered, SessionPhase.FullCourseYellow }; }
+            get { return new List<SessionPhase> { SessionPhase.Green, SessionPhase.Checkered, SessionPhase.FullCourseYellow, SessionPhase.Formation }; }
         }
 
         public RaceTime(AudioPlayer audioPlayer)
@@ -80,6 +80,11 @@ namespace CrewChiefV4.Events
         
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
+            // For now, scope Formation phase to GTR2 only.
+            if (CrewChief.gameDefinition.gameEnum != GameEnum.GTR2
+                && currentGameState.SessionData.SessionPhase == SessionPhase.Formation)
+                return;
+
             if (CrewChief.gameDefinition.gameEnum == GameEnum.IRACING
                 && currentGameState.SessionData.SessionType == SessionType.Race
                 && previousGameState != null
@@ -297,35 +302,35 @@ namespace CrewChiefV4.Events
                 if (leaderHasFinishedRace)
                 {
                     Console.WriteLine("Playing last lap message, timeleft = " + timeLeft);
-                    audioPlayer.playMessageImmediately(new QueuedMessage(folderThisIsTheLastLap, 0));                    
+                    audioPlayer.playMessageImmediately(new QueuedMessage(folderThisIsTheLastLap, 0));
                 }
                 if (timeLeft >= 120)
                 {
                     int minutesLeft = (int)Math.Round(timeLeft / 60f);
                     audioPlayer.playMessageImmediately(new QueuedMessage("RaceTime/time_remaining", 0,
-                        messageFragments: MessageContents(TimeSpanWrapper.FromMinutes(minutesLeft, Precision.MINUTES), folderRemaining)));                    
+                        messageFragments: MessageContents(TimeSpanWrapper.FromMinutes(minutesLeft, Precision.MINUTES), folderRemaining)));
                 }
                 else if (timeLeft >= 60)
                 {
-                    audioPlayer.playMessageImmediately(new QueuedMessage(folderOneMinuteRemaining, 0));                    
+                    audioPlayer.playMessageImmediately(new QueuedMessage(folderOneMinuteRemaining, 0));
                 }
                 else if (timeLeft <= 0)
                 {
                     if (addExtraLap && !startedExtraLap)
                     {
                         Console.WriteLine("Playing extra lap one more lap message, timeleft = " + timeLeft);
-                        audioPlayer.playMessageImmediately(new QueuedMessage(folderOneLapAfterThisOne, 0));                        
+                        audioPlayer.playMessageImmediately(new QueuedMessage(folderOneLapAfterThisOne, 0));
                     }
                     else 
                     {
                         Console.WriteLine("Playing last lap message, timeleft = " + timeLeft);
-                        audioPlayer.playMessageImmediately(new QueuedMessage(folderThisIsTheLastLap, 0));                        
-                    }                   
+                        audioPlayer.playMessageImmediately(new QueuedMessage(folderThisIsTheLastLap, 0));
+                    }
                 }
                 else if (timeLeft < 60)
                 {
                     Console.WriteLine("Playing less than a minute message, timeleft = " + timeLeft);
-                    audioPlayer.playMessageImmediately(new QueuedMessage(folderLessThanOneMinute, 0));                    
+                    audioPlayer.playMessageImmediately(new QueuedMessage(folderLessThanOneMinute, 0));
                 }
             }
             else
@@ -341,7 +346,7 @@ namespace CrewChiefV4.Events
                 }
                 else if (lapsLeft == 1)
                 {
-                    audioPlayer.playMessageImmediately(new QueuedMessage(folderThisIsTheLastLap, 0));                    
+                    audioPlayer.playMessageImmediately(new QueuedMessage(folderThisIsTheLastLap, 0));
                 }
             }     
         }

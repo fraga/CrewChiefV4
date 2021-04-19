@@ -292,6 +292,7 @@ namespace CrewChiefV4.GTR2
 
             this.rspwState = RollingStateWorkaroundState.Done;
             this.rspwIDToRSWData = null;
+            this.timeRollingStartWentGreen = 0.0f;
 
             this.lastFOChangeTicks = DateTime.MinValue.Ticks;
             this.lastKnownVehicleToFollowID = GTR2GameStateMapper.SPECIAL_MID_NONE;
@@ -579,7 +580,7 @@ namespace CrewChiefV4.GTR2
             float defaultSessionTotalRunTime = 3630.0f;
             if (shared.extended.mUnofficialFeaturesEnabled != 0 && cgs.inCar)
             {
-                if (shared.extended.mTotalSessionRunningTime < 108000.0f 
+                if (shared.extended.mTotalSessionRunningTime < 108000.0f
                     && !(shared.extended.mGameMode == (int)GTR2GameMode.Championship && csd.SessionType == SessionType.Race))  // Seems like Championship race is laps only, no matter what.
                 {
                     csd.SessionNumberOfLaps = 0;
@@ -716,9 +717,33 @@ namespace CrewChiefV4.GTR2
 
             csd.SessionStartTime = csd.IsNewSession ? cgs.Now : psd.SessionStartTime;
             csd.SessionHasFixedTime = csd.SessionTotalRunTime > 0.0f;
-
             csd.SessionRunningTime = (float)shared.scoring.mScoringInfo.mCurrentET;
-            csd.SessionTimeRemaining = csd.SessionHasFixedTime ? csd.SessionTotalRunTime - csd.SessionRunningTime : 0.0f;
+
+            if (psd != null
+                && csd.SessionType == SessionType.Race
+                && psd.SessionPhase == SessionPhase.Formation
+                && csd.SessionPhase == SessionPhase.Green)
+                this.timeRollingStartWentGreen = csd.SessionRunningTime;
+
+            if (csd.SessionType == SessionType.Race)
+            {
+                if (csd.SessionPhase == SessionPhase.Formation)
+                {
+                    // During the Rolling start formation lap, consider remaining time the total time.
+                    //csd.SessionRunningTime = 0.0f;
+                    csd.SessionTimeRemaining = csd.SessionHasFixedTime ? csd.SessionTotalRunTime : 0.0f;
+                }
+                else
+                {
+                    // Exclude the time spent during the formation lap.
+                    csd.SessionRunningTime -= this.timeRollingStartWentGreen;
+
+                    // Note: this could mute some messages for a few seconds, if 
+                    csd.SessionTimeRemaining = csd.SessionHasFixedTime ? csd.SessionTotalRunTime - csd.SessionRunningTime : 0.0f;
+                }
+            }
+            else // Non Race case.
+                csd.SessionTimeRemaining = csd.SessionHasFixedTime ? csd.SessionTotalRunTime - csd.SessionRunningTime : 0.0f;
 
             // hack for test day sessions running longer than allotted time
             csd.SessionTimeRemaining = csd.SessionTimeRemaining < 0.0f && shared.scoring.mScoringInfo.mSession == 0 ? defaultSessionTotalRunTime : csd.SessionTimeRemaining;
@@ -2087,6 +2112,9 @@ namespace CrewChiefV4.GTR2
         }
 
         Dictionary<int, RollingStateWorkaroundVehicleData> rspwIDToRSWData = null;
+
+        // 0.0f means either that this not a rolling start race session, or we have not yet went green.
+        private float timeRollingStartWentGreen = 0.0f;
 
         private void ApplyRollingStartPosWorkaround(
             GameStateData cgs,

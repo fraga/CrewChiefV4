@@ -366,6 +366,7 @@
 				"RaceRfactor Austria 2014",
 				"Red Bull Ring GP"
 			],
+			"gtr2TrackNames": [ "A1-Ring 2001" ],
 			"acTrackNames": [
 				"ks_red_bull_ring:layout_gp",
 				"spielberg:circuit_full"
@@ -2217,7 +2218,7 @@
 			"raceroomLayoutId": 1691,
 			"raceroomRollingStartLapDistance": 4591,
 			"rf2TrackNames": [ "Nuerburg GP", "Nurburgring -- Grand Prix" ],
-			"gtr2TrackNames": [ "Nürburgring, GT Masters Round 7" ],
+			"gtr2TrackNames": [ "Nürburgring, GT Masters Round 7", "Nürburgring GP, FIA GT Special Event" ],
 			"accTrackName": "nurburgring:track config",
 			"trackLandmarks": [
 				{
@@ -5113,7 +5114,7 @@
 			"pcars2TrackName": "Barcelona_Catalunya:GP",
 			"accTrackName": "Barcelona:track config",
 			"irTrackName": "barcelona gp",
-			"gtr2TrackNames": [ "Barcelona, 2003 FIA GT Championship Round 1", "HQ Circuit de Catalunya" ],
+			"gtr2TrackNames": [ "Barcelona, 2003 FIA GT Championship Round 1", "HQ Circuit de Catalunya", "HQ-Reborn Barcelona 2003", "HQ-Reborn Barcelona 2004"],
 			"trackLandmarks": [
 				{
 					"landmarkName": "turn1",
@@ -16810,7 +16811,7 @@
 			]
 		},
 		{
-			"gtr2TrackNames": [ "Enna Pergusa, 2003 FIA GT Championship Round 3", "HQ Autodromo di Pergusa" ],
+			"gtr2TrackNames": [ "Enna Pergusa, 2003 FIA GT Championship Round 3", "HQ Autodromo di Pergusa", "HQ-Reborn Enna Pergusa 2003", "HQ-Reborn Enna Pergusa 2004" ],
 			"trackLandmarks": [
 				{
 					"landmarkName": "turn1",
