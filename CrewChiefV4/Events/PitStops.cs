@@ -360,15 +360,18 @@ namespace CrewChiefV4.Events
 
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
-            if (currentGameState.SessionData.SessionPhase == SessionPhase.Finished
-                && currentGameState.ControlData.ControlType == ControlType.AI)
+            if (!currentGameState.inCar 
+                || (currentGameState.SessionData.SessionPhase == SessionPhase.Finished
+                    && currentGameState.ControlData.ControlType == ControlType.AI))
             {
                 return;
             }
+
             if (CrewChief.gameDefinition.gameEnum == GameEnum.PCARS3)
             {
                 return;
             }
+
             // for r3e get the pit exit point for mandatory stop timing
             if (CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM
                 && previousGameState != null && previousGameState.PitData.InPitlane && !currentGameState.PitData.InPitlane

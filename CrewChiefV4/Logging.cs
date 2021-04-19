@@ -85,7 +85,7 @@ namespace CrewChiefV4
         /// <param name="log"></param>
         internal static void _Log(LogType logType, string log)
         {
-            if ((logType & _logMask) != 0 || CrewChief.Debugging)
+            if ((logType & _logMask) != 0)
             {
                 Console.WriteLine(logPrefixes[logType] + log);
             }

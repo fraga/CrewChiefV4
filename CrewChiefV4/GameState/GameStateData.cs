@@ -3810,8 +3810,8 @@ namespace CrewChiefV4.GameState
         // lazily initialised only when we're using trace playback:
         public String CurrentTimeStr;
 
-        // Set when actually in the car
-        public Boolean inCar;
+        // Set when actually in the car.  Default to true so that only games that wire this unset it.
+        public Boolean inCar = true;
 
         public string carName;
         public string trackName;
