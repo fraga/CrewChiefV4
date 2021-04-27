@@ -774,7 +774,7 @@ namespace CrewChiefV4
                 }
                 else
                 {
-                    TRACK_LANDMARKS_DATA.trackLandmarksData.AddRange(data.trackLandmarksData);
+                    TRACK_LANDMARKS_DATA.trackLandmarksData.InsertRange(0, data.trackLandmarksData);
                 }
             }
             string[] subdirectoryEntries = Directory.GetDirectories(targetDirectory);
