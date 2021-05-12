@@ -62,7 +62,7 @@ namespace CrewChiefV4
         private const int IRACING_INTERVAL = 16;               // always use 60Hz for iracing
         private const int DEFAULT_START_LIGHTS_INTERVAL = 10;  // default 10ms during race countdown
         private static int startLightsInterval;
-        private static int timeInterval;
+        public static int timeInterval;
 
         private static int spotterInterval;
 
@@ -246,6 +246,7 @@ namespace CrewChiefV4
                 {
                     if (gameDefinition.gameEnum == GameEnum.ASSETTO_32BIT ||
                         gameDefinition.gameEnum == GameEnum.ASSETTO_64BIT ||
+                        gameDefinition.gameEnum == GameEnum.ASSETTO_64BIT_RALLY ||
                         gameDefinition.gameEnum == GameEnum.RF1 ||
                         gameDefinition.gameEnum == GameEnum.RF2_64BIT ||
                         gameDefinition.gameEnum == GameEnum.ACC ||
@@ -931,6 +932,7 @@ namespace CrewChiefV4
                             Thread.Sleep(CrewChief.playbackIntervalMilliseconds);
                             if (enableSharedMemory)
                             {
+                                sharedMemoryManager.UpdateVariable("phraseIsPlaying", new bool[1] { audioPlayer.isChannelOpen() });
                                 sharedMemoryManager.Tick(playbackIntervalMilliseconds);
                             }
                         }
@@ -957,6 +959,7 @@ namespace CrewChiefV4
                         }
                         if (enableSharedMemory)
                         {
+                            sharedMemoryManager.UpdateVariable("phraseIsPlaying", new bool[1] { audioPlayer.isChannelOpen() });
                             sharedMemoryManager.Tick(interval);
                         }
                         Thread.Sleep(interval);

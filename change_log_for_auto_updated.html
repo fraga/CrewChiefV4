@@ -1,6 +1,63 @@
 <!DOCTYPE html>
 <html>
 <body>
+<h2>Version 4.15.2.5</h2>
+<ul>
+	<li>Hotfix for broken chat macros (sorry it took so long)</li>
+	<li>GTR2 - added windscreen wipers support and wired up formation lap logic</li>
+</ul>
+<h2>Version 4.15.2.4</h2>
+<ul>
+	<li>Remove references to GoogleDrive in auto-updater data</li>
+	<li>Chat macro fixes</li>
+	<li>iRacing - added Spa Combined, Limerock Classic 2019 and Hockenheim GP corner mappings</li>
+	<li>ACC - added "how many laps on tyre set [x]" voice command (reports the number of laps this tyre set has been used for)</li>
+	<li>ACC - added "[pitstop / box], select best tyres" voice command - uses the tyre usage data to select the least used tyre set in the pit MFD (just in terms of number of laps)</li>
+	<li>ACC - damage threshold tweaks</li>
+	<li>R3E - fix some car class handling bugs when server use rolling start qualifying</li>
+	<li>A few minor bug fixes</li>
+</ul>
+<h2>Version 4.15.2.3</h2>
+<ul>
+	<li>Change all links to thecrewchief.org to use HTTPS</li>
+	<li>Added option to disable frozen order (full course yellow / formation lap) messages (property "Enable frozen order messages")</li>
+	<li>Fix an app crash when some option files are corrupt or empty</li>
+	<li>Some fixes to the macro editor</li>
+	<li>ACC - fix some pit menu interactions - the app will always assume that the "Strategy" option is show so you'll need to ensure your current setup has at some pit strategies defined</li>
+	<li>R3E - use the tyre temperature ranges sent by the game instead of CC's internal ranges</li>
+	<li>GTR2 - added simple flatspot implementation</li>
+</ul>
+<h2>Version 4.15.2.2</h2>
+<ul>
+	<li>Updated to include hotfix for macro crash bug</li>
+	<li>Added support for Assetto Corsa rally tracks (use Assetto Corsa Rally game option) - puts the app in 'rally mode'</li>
+	<li>Added support for modifier keys in macros - prefix the key with modifier+ to hold down that modifier while typing the key (e.g. LSHIFT+KEY_X, RSHIFT+KEY_X, LCONTROL+KEY_X, ALT+KEY_X, etc)</li>
+	<li>Added an optional HOLD_TIME modifier to macro keys to specify how long that single key will be held down (e.g. "{HOLD_TIME,4000}KEY_A" hold A down for 4000 milliseconds)</li>
+	<li>Added message playback resample option for nAudio - specify a resampling rate in Hz with the "nAudio playback resample rate" property - 0 disables resampling (the default). The sound files are recorded at 22050Hz so there's no point in going above that, values below 5000 may make the messages difficult to understand</li>
+	<li>Prevent key bindings activing macros multiple times after restarting the app; Some error logging improvements</li>
+	<li>Updated track landmark locations for a couple of tracks (thanks to the users who submitted these)</li>
+	<li>Fixed a few bugs and crashes</li>
+	<li>RF1 / AMS - experimental implementation of pit box in use warnings (still lots of work and testing to do here, enable this with the "Warn about opponents sharing player's pit box (RF1 / AMS 1 only)" property, note this relies on participants making practice pitstops during practice / qual)</li>
+	<li>AC - fixed some incorrect tyre wear thresholds</li>
+	<li>ACC - wired up tyre pressure and weather data (including weather forecast data)</li>
+	<li>ACC - first cut of a pit menu manager (this will need updated macro definitions, please delete Documents/CrewChiefV4/saved_command_macros.json so the app can recreate it with the required content). The ACC pit menu manager uses cursor (arrow) keys and "P" to navigate the pit menu and can be a bit slow (to reduce the risk of presses being ignored by the game). Supported voice commands include "add fuel, [x] litres", "fuel to the end", "box, change tyres", "box, don't change tyres", "box, wet tyres", "box, dry tyres", "box, tyre set [x]", "box, change [front / rear / left front / right front / left rear / right rear] tyre pressure, [20.3 -> 35]" (note that changing tyre pressures can be a bit hit and miss). In each case the app has to find and change the 'change tyre set' option to work out the menu state - it should revert the change it makes</li>
+</ul>
+<h2>Version 4.15.1.5</h2>
+<ul>
+	<li>iRacing crash hotfix</li>
+</ul>
+<h2>Version 4.15.1.4</h2>
+<ul>
+	<li>Added option to prefer driver names over car numbers for frozen order calls (full course yellow / rolling start)</li>
+	<li>Added suspension velocity histogram data to R3E, AMS2 and pCars2 chart data (default voice command "show me suspension velocity")</li>
+	<li>Made Windows speech recognition the default</li>
+	<li>Shared memory, added phraseIsPlaying to tell if a phrase is currently being played</li>
+	<li>R3E - fixed ratings retrieval</li>
+	<li>R3E - increase app tick-rate during start lights to reduce delay in reporting countdown / green flag state to other apps</li>
+	<li>GTR2 - fix some VR rendering issues</li>
+	<li>ACC - fix free chat macros</li>
+	<li>Various bug fixes and improvements</li>
+</ul>
 <h2>Version 4.15.1.2</h2>
 <ul>
 	<li>Fixed some issues in gap reporting that could result in incorrect gaps or unwanted messages</li>

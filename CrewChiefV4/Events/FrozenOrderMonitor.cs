@@ -19,6 +19,7 @@ namespace CrewChiefV4.Events
     {
         private const int ACTION_STABLE_THRESHOLD = 10;
         private const float DIST_TO_START_TO_ANNOUNCE_POS_REMINDER = 300.0f;
+
         private bool useDriverName = UserSettings.GetUserSettings().getBoolean("iracing_fcy_formation_use_drivername");
         // Number of updates FO Action and Driver name were the same.
         private int numUpdatesActionSame = 0;
@@ -178,7 +179,8 @@ namespace CrewChiefV4.Events
         {
             var cgs = currentGameState;
             var pgs = previousGameState;
-            if (cgs.PitData.InPitlane /*|| cgs.SessionData.SessionRunningTime < 10 */
+            if (!GlobalBehaviourSettings.enableFrozenOrderMessages
+                || cgs.PitData.InPitlane /*|| cgs.SessionData.SessionRunningTime < 10 */
                 || GameStateData.onManualFormationLap  // We may want manual formation to phase of FrozenOrder.
                 || pgs == null)
                 return; // don't process if we're in the pits or just started a session

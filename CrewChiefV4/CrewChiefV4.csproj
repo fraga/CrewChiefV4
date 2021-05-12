@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -123,6 +123,7 @@
   <ItemGroup>
     <Compile Include="ACC\ACCData.cs" />
     <Compile Include="ACC\ACCGameStateMapper.cs" />
+    <Compile Include="ACC\ACCPitMenuManager.cs" />
     <Compile Include="ACC\ACCSharedMemoryReader.cs" />
     <Compile Include="ACC\ACCSpotter.cs" />
     <Compile Include="ACC\ksBroadcastingNetwork\ACCUdpRemoteClient.cs" />

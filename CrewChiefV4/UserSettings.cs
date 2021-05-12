@@ -279,8 +279,6 @@ namespace CrewChiefV4
                     {
                         var fileName = Path.GetFileName(file);
                         Properties.Settings.Default["current_settings_profile"] = fileName;
-                        // hmm not sure this will ever get displayed as this init happens before main window is initialized
-                        Console.WriteLine($"Setting profile ({fileName}.json) from the command line");
                         break;
                     }
                 }

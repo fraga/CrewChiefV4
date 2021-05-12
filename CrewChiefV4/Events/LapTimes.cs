@@ -519,7 +519,7 @@ namespace CrewChiefV4.Events
                                             messageFragments: MessageContents(folderGapIntro, new TimeSpanWrapper(deltaPlayerLastToSessionBestInClass, Precision.AUTO_GAPS),
                                             isHotLappingOrLonePractice ? folderSelfGapOutroOffPace : folderGapOutroOffPace), abstractEvent: this, priority: 3));
                                     }
-                                    if (!GlobalBehaviourSettings.useOvalLogic &&
+                                    if (!GlobalBehaviourSettings.useOvalLogic && CrewChief.gameDefinition.gameEnum != GameEnum.ACC &&
                                         practiceAndQualSectorReportsLapEnd && frequencyOfPracticeAndQualSectorDeltaReports > Utilities.random.NextDouble() * 10)
                                     {
                                         List<MessageFragment> sectorMessageFragments = getSectorDeltaMessages(SectorReportOption.ALL, currentGameState.SessionData.LastSector1Time, lapAndSectorsComparisonData[1],
@@ -585,7 +585,7 @@ namespace CrewChiefV4.Events
                                         audioPlayer.playMessage(new QueuedMessage("lapTimeNotRaceGap", 0,
                                             messageFragments: MessageContents(folderGapIntro, new TimeSpanWrapper(deltaPlayerLastToSessionBestInClass, Precision.AUTO_GAPS), folderGapOutroOffPace), abstractEvent: this, priority: 5));
                                     }
-                                    if (!GlobalBehaviourSettings.useOvalLogic &&
+                                    if (!GlobalBehaviourSettings.useOvalLogic && CrewChief.gameDefinition.gameEnum != GameEnum.ACC &&
                                         practiceAndQualSectorReportsLapEnd && frequencyOfPracticeAndQualSectorDeltaReports > Utilities.random.NextDouble() * 10)
                                     {
                                         List<MessageFragment> sectorMessageFragments = getSectorDeltaMessages(SectorReportOption.ALL, currentGameState.SessionData.LastSector1Time, lapAndSectorsComparisonData[1],
@@ -650,7 +650,8 @@ namespace CrewChiefV4.Events
                                     }
                                 }
 
-                                if (!GlobalBehaviourSettings.useOvalLogic && currentGameState.SessionData.ClassPosition == ClassPositionAtStartOfCurrentLap &&
+                                if (!GlobalBehaviourSettings.useOvalLogic && CrewChief.gameDefinition.gameEnum != GameEnum.ACC &&
+                                    currentGameState.SessionData.ClassPosition == ClassPositionAtStartOfCurrentLap &&
                                     raceSectorReportsAtLapEnd && frequencyOfRaceSectorDeltaReports > Utilities.random.NextDouble() * 15)
                                 {
                                     double r = Utilities.random.NextDouble();

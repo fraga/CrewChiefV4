@@ -496,7 +496,20 @@ namespace GTR2SharedMemory
             public int mNumScoringVehicles;
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = GTR2Constants.MAX_MAPPED_VEHICLES)]
             public GTR2VehScoringCapture[] mScoringVehicles;
-        };
+        }
+
+
+        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        public struct GTR2ExtendedWheel
+        {
+            public float mFlatSpotSeverity;
+            public float mDirtPickupSeverity;
+            
+            // Currently written out only if FS emulation is on.
+            public float mOptimalTempK;
+            public float mColdTempK;
+            public float mRadiusMeters;
+        }
 
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 4)]
@@ -543,9 +556,17 @@ namespace GTR2SharedMemory
             public float mTotalSessionRunningTime;
             public float mPitApproachLapDist;
             public int mFuelMult;
+            public int mTireMult;
             public byte mInvulnerable;
             public byte mRaceDistanceIsLaps;
             public int mGameMode;
+
+            public byte mFlatSpotEmulationEnabled;
+
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 4)]
+            public GTR2ExtendedWheel[] mWheels;
+
+            public float mGearboxDamageSeverity;
 
             [JsonIgnore] public int mUnsubscribedBuffersMask;                         // Currently active UnsbscribedBuffersMask value.  This will be allowed for clients to write to in the future, but not yet.
 

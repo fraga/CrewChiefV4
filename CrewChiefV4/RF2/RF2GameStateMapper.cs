@@ -285,7 +285,7 @@ namespace CrewChiefV4.rFactor2
             this.lastHistoryMessageUpdatedTicks = 0L;
         }
 
-    public override GameStateData mapToGameStateData(Object memoryMappedFileStruct, GameStateData previousGameState)
+        public override GameStateData mapToGameStateData(Object memoryMappedFileStruct, GameStateData previousGameState)
         {
             var pgs = previousGameState;
             var shared = memoryMappedFileStruct as RF2SharedMemoryReader.RF2StructWrapper;
@@ -1204,6 +1204,7 @@ namespace CrewChiefV4.rFactor2
             {
                 if (this.useRealWheelSizeForLockingAndSpinning && playerTelemetryAvailable)
                 {
+                    // TODO: remove.
                     float minRotatingSpeedOld = (float)Math.PI * cgs.PositionAndMotionData.CarSpeed / cgs.carClass.maxTyreCircumference;
                     float maxRotatingSpeedOld = 3 * (float)Math.PI * cgs.PositionAndMotionData.CarSpeed / cgs.carClass.minTyreCircumference;
 

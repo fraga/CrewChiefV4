@@ -49,6 +49,10 @@ namespace CrewChiefV4.GameState
     {
         UNKNOWN, COLD, WARM, HOT, COOKING
     }
+    public enum TyreFlatSpotState
+    {
+        UNKNOWN, NONE, MINOR, MAJOR
+    }
     public enum BrakeTemp
     {
         UNKNOWN, COLD, WARM, HOT, COOKING
@@ -60,7 +64,7 @@ namespace CrewChiefV4.GameState
     public enum FlagEnum
     {
         // note that chequered isn't used at the moment
-        GREEN, YELLOW, DOUBLE_YELLOW, BLUE, WHITE, BLACK, CHEQUERED, UNKNOWN
+        GREEN, YELLOW, DOUBLE_YELLOW, BLUE, WHITE, BLACK, CHEQUERED, UNKNOWN, RED /* red not used yet*/
     }
 
     public enum FullCourseYellowPhase
@@ -2925,10 +2929,46 @@ namespace CrewChiefV4.GameState
         public float RearLeftPercentWear;
         public float RearRightPercentWear;
 
+        // note these are expected to be in kPa
         public Single FrontLeftPressure;
         public Single FrontRightPressure;
         public Single RearLeftPressure;
         public Single RearRightPressure;
+
+        // specific fields for manuipulating tyre pressure in ACC, all in PSI (the game's standard internal unit)
+        public Single ACCFrontLeftPressureMFD;
+        public Single ACCFrontRightPressureMFD;
+        public Single ACCRearLeftPressureMFD;
+        public Single ACCRearRightPressureMFD;
+
+        public int selectedSet = -1;    // not necessarily the same as fittedSet, zero indexed
+        public int fittedSet = -1;      // zero indexed
+        public int[] lapsPerSet = new int[50];
+
+        public void clearLapsPerSet()
+        {
+            this.lapsPerSet = new int[50];
+        }
+
+        public void incrementLapsPerSet()
+        {
+            if (lapsPerSet == null)
+            {
+                clearLapsPerSet();
+            }
+            if (fittedSet != -1 && fittedSet < lapsPerSet.Length)
+            {
+                lapsPerSet[fittedSet] = lapsPerSet[fittedSet] + 1;
+            }
+        }
+
+        public Boolean FlatSpotEmulationActive = false;
+
+        // Flat spot severity in range of [0.0, 1.0]
+        public Single FrontLeftFlatSpotSeverity = -1.0f;
+        public Single FrontRightFlatSpotSeverity = -1.0f;
+        public Single RearLeftFlatSpotSeverity = -1.0f;
+        public Single RearRightFlatSpotSeverity = -1.0f;
 
         private CornerData _TyreTempStatus;
         public CornerData TyreTempStatus
@@ -2964,6 +3004,23 @@ namespace CrewChiefV4.GameState
             }
         }
 
+        private CornerData _TyreFlatSpotStatus;
+        public CornerData TyreFlatSpotStatus
+        {
+            get
+            {
+                if (_TyreFlatSpotStatus == null)
+                {
+                    _TyreFlatSpotStatus = new CornerData();
+                }
+                return _TyreFlatSpotStatus;
+            }
+            set
+            {
+                _TyreFlatSpotStatus = value;
+            }
+        }
+
         private CornerData _BrakeTempStatus;
         public CornerData BrakeTempStatus
         {
@@ -2994,10 +3051,20 @@ namespace CrewChiefV4.GameState
         public Boolean RightFrontIsSpinning;
         public Boolean LeftRearIsSpinning;
         public Boolean RightRearIsSpinning;
+
+        public TyreData()
+        {
+            this.clearLapsPerSet();
+        }
     }
 
     public class Conditions
     {
+        // set by ACC only:
+        public ConditionsMonitor.RainLevel rainLevelNow = ConditionsMonitor.RainLevel.NONE;
+        public ConditionsMonitor.RainLevel rainLevelIn10Mins = ConditionsMonitor.RainLevel.NONE;
+        public ConditionsMonitor.RainLevel rainLevelIn30Mins = ConditionsMonitor.RainLevel.NONE;
+
         private List<ConditionsSample> _samples;
         public List<ConditionsSample> samples
         {
@@ -3314,7 +3381,8 @@ namespace CrewChiefV4.GameState
         {
             TimeSpan splitTime = new TimeSpan(0);
             int lapDifference = 0;
-            if (initialised && otherCarDelta.deltaPoints.Length > 0 && this.deltaPoints.Length > 0 && this.currentDeltaPointIndex != -1 && otherCarDelta.currentDeltaPointIndex != -1)
+            if (initialised && otherCarDelta != null && otherCarDelta.deltaPoints != null && this.deltaPoints != null
+                && otherCarDelta.deltaPoints.Length > 0 && this.deltaPoints.Length > 0 && this.currentDeltaPointIndex != -1 && otherCarDelta.currentDeltaPointIndex != -1)
             {
                 lapDifference = GetSignedLapDifference(otherCarDelta);
 
@@ -3344,7 +3412,8 @@ namespace CrewChiefV4.GameState
         public int GetSignedLapDifference(DeltaTime otherCarDelta)
         {
             int lapDifference = 0;
-            if (initialised && otherCarDelta.deltaPoints.Length > 0 && this.deltaPoints.Length > 0 && this.currentDeltaPointIndex != -1 && otherCarDelta.currentDeltaPointIndex != -1)
+            if (initialised && otherCarDelta != null && otherCarDelta.deltaPoints != null && this.deltaPoints != null
+                && otherCarDelta.deltaPoints.Length > 0 && this.deltaPoints.Length > 0 && this.currentDeltaPointIndex != -1 && otherCarDelta.currentDeltaPointIndex != -1)
             {
                 // +ve means I've travelled further than him:
                 float totalDistanceTravelledDifference = this.totalDistanceTravelled - otherCarDelta.totalDistanceTravelled;
@@ -3741,8 +3810,8 @@ namespace CrewChiefV4.GameState
         // lazily initialised only when we're using trace playback:
         public String CurrentTimeStr;
 
-        // Set when actually in the car
-        public Boolean inCar;
+        // Set when actually in the car.  Default to true so that only games that wire this unset it.
+        public Boolean inCar = true;
 
         public string carName;
         public string trackName;

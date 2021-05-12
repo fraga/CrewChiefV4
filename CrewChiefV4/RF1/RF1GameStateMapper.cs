@@ -792,6 +792,7 @@ namespace CrewChiefV4.rFactor1
                 opponent.PreviousBestLapTime = opponentPrevious != null && opponentPrevious.CurrentBestLapTime > 0 && 
                     opponentPrevious.CurrentBestLapTime > opponent.CurrentBestLapTime ? opponentPrevious.CurrentBestLapTime : -1;
                 float previousDistanceRoundTrack = opponentPrevious != null ? opponentPrevious.DistanceRoundTrack : 0;
+                float previousSpeed = opponentPrevious != null ? opponentPrevious.Speed : 0;
 
                 if (previousDistanceRoundTrack > 0)
                 {
@@ -910,6 +911,12 @@ namespace CrewChiefV4.rFactor1
                 if (!currentGameState.OpponentData.ContainsKey(opponentKey))
                 {
                     currentGameState.OpponentData.Add(opponentKey, opponent);
+                }
+
+                // if the opponent is stopping in the pits, update his pit position
+                if (opponent.InPits && opponent.Speed > 0 && opponent.Speed < 0.1 && previousSpeed > opponent.Speed)
+                {
+                    Strategy.checkIfOpponentSharesPlayerPitBox(opponentKey, opponent.DistanceRoundTrack, opponent.WorldPosition);
                 }
             }
 

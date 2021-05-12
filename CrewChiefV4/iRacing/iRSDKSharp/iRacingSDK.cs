@@ -148,7 +148,7 @@ namespace iRSDKSharp
 
                 foreach (CVarHeader header in VarHeaders.Values)
                 {
-                    if (header.Name.StartsWith("dp") || header.Name.StartsWith("dc") || header.Name.Contains("shockDefl") || header.Name.Contains("shockVel") || header.Name.Contains("_ST"))
+                    if (header.Name.StartsWith("dp") || header.Name.StartsWith("dc") || header.Name.Contains("_ST"))
                     {
                         continue;
                     }
@@ -164,7 +164,7 @@ namespace iRSDKSharp
                 file.WriteLine("\t\tpublic System.String SessionInfo;");
                 foreach (CVarHeader header in VarHeaders.Values)
                 {
-                    if (header.Name.StartsWith("dp") || header.Name.StartsWith("dc") || header.Name.Contains("shockDefl") || header.Name.Contains("shockVel") || header.Name.Contains("_ST"))
+                    if (header.Name.StartsWith("dp") || header.Name.StartsWith("dc") || header.Name.Contains("_ST"))
                     {
                         continue;
                     }

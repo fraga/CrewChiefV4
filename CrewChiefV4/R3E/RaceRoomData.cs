@@ -1059,11 +1059,12 @@ namespace CrewChiefV4.RaceRoom
             public TireData<Single> BrakePressure;
 
             // Reserved data
-            public Int32 TireUnused1;
-            public Int32 TireUnused2;
-            public Single TireUnused3;
-            public Single TireUnused4;
-            public TireData<Single> TireUnused5;
+            public Int32 TractionControlSetting;
+            public Int32 EngineMapSetting;
+            public Int32 EngineBrakeSetting;
+
+            public Single TireUnused1;
+            public TireData<Single> TireUnused2;
             
             // Tyre load (N).
             public TireData<Single> TireLoad;

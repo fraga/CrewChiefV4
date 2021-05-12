@@ -1017,7 +1017,7 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="prefer_system_sre" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
+      <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="use_free_dictation_for_chat" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
@@ -1308,6 +1308,15 @@
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="sre_enable_threshold_tuning" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="enable_rf1_box_sharing_warnings" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="force_resample" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="enable_frozen_order_messages" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>

@@ -1060,7 +1060,7 @@ namespace CrewChiefV4.Events
 
         public override List<SessionType> applicableSessionTypes
         {
-            get { return new List<SessionType> { SessionType.Race }; }
+            get { return new List<SessionType> { SessionType.LonePractice, SessionType.HotLap, SessionType.Practice, SessionType.Qualify, SessionType.Race }; }
         }
 
         public override List<SessionPhase> applicableSessionPhases
@@ -2211,6 +2211,10 @@ namespace CrewChiefV4.Events
         // we allow ambiguous Dirt track names when loading but not when saving
         private string GetPacenotesPath(string trackName, bool allowAmbiguousPath)
         {
+            foreach (char invalidChar in Path.GetInvalidFileNameChars())
+            {
+                trackName = trackName.Replace(invalidChar, '_');
+            }
             string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "CrewChiefV4", CrewChief.gameDefinition.gameEnum.ToString(), trackName);
             if (allowAmbiguousPath && (CrewChief.gameDefinition.gameEnum == GameEnum.DIRT || CrewChief.gameDefinition.gameEnum == GameEnum.DIRT_2))
             {

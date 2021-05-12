@@ -14,7 +14,7 @@ using System.Runtime.InteropServices;
 using NAudio.CoreAudioApi;
 using CrewChiefV4.Overlay;
 using System.IO;
-using WindowsInput;
+using CrewChiefV4.ACC;
 
 namespace CrewChiefV4
 {
@@ -97,6 +97,7 @@ namespace CrewChiefV4
         public static String[] HOWS_MY_SELF_PACE = Configuration.getSpeechRecognitionPhrases("HOWS_MY_SELF_PACE");
         public static String[] HOW_ARE_MY_TYRE_TEMPS = Configuration.getSpeechRecognitionPhrases("HOW_ARE_MY_TYRE_TEMPS");
         public static String[] WHAT_ARE_MY_TYRE_TEMPS = Configuration.getSpeechRecognitionPhrases("WHAT_ARE_MY_TYRE_TEMPS");
+        public static String[] WHAT_ARE_MY_TYRE_PRESSURES = Configuration.getSpeechRecognitionPhrases("WHAT_ARE_MY_TYRE_PRESSURES");
         public static String[] HOW_ARE_MY_BRAKE_TEMPS = Configuration.getSpeechRecognitionPhrases("HOW_ARE_MY_BRAKE_TEMPS");
         public static String[] WHAT_ARE_MY_BRAKE_TEMPS = Configuration.getSpeechRecognitionPhrases("WHAT_ARE_MY_BRAKE_TEMPS");
         public static String[] HOW_ARE_MY_ENGINE_TEMPS = Configuration.getSpeechRecognitionPhrases("HOW_ARE_MY_ENGINE_TEMPS");
@@ -194,6 +195,7 @@ namespace CrewChiefV4
         public static String[] WHAT_ARE_MY_LEFT_REAR_SURFACE_TEMPS = Configuration.getSpeechRecognitionPhrases("WHAT_ARE_MY_LEFT_REAR_SURFACE_TEMPS");
         public static String[] WHAT_ARE_MY_RIGHT_REAR_SURFACE_TEMPS = Configuration.getSpeechRecognitionPhrases("WHAT_ARE_MY_RIGHT_REAR_SURFACE_TEMPS");
 
+        public static String[] HOW_MANY_LAPS_ON_TYRE_SET = Configuration.getSpeechRecognitionPhrases("HOW_MANY_LAPS_ON_TYRE_SET");
 
         public static String[] STOP_COMPLAINING = Configuration.getSpeechRecognitionPhrases("STOP_COMPLAINING");
 
@@ -259,6 +261,7 @@ namespace CrewChiefV4
         public static String[] PIT_STOP_CLEAR_FAST_REPAIR = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CLEAR_FAST_REPAIR");
         public static String[] PIT_STOP_CLEAR_FUEL = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CLEAR_FUEL");
 
+        public static String[] PIT_STOP_CHANGE_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CHANGE_TYRES");  // for ACC
         public static String[] PIT_STOP_CHANGE_ALL_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CHANGE_ALL_TYRES");
         public static String[] PIT_STOP_CHANGE_FRONT_LEFT_TYRE = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CHANGE_FRONT_LEFT_TYRE");
         public static String[] PIT_STOP_CHANGE_FRONT_RIGHT_TYRE = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CHANGE_FRONT_RIGHT_TYRE");
@@ -298,10 +301,18 @@ namespace CrewChiefV4
         public static String[] PIT_STOP_HARD_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_HARD_TYRES");
         public static String[] PIT_STOP_INTERMEDIATE_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_INTERMEDIATE_TYRES");
         public static String[] PIT_STOP_WET_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_WET_TYRES");
+        public static String[] PIT_STOP_SELECT_TYRE_SET = Configuration.getSpeechRecognitionPhrases("PIT_STOP_SELECT_TYRE_SET");        
+        public static String[] PIT_STOP_DRY_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_DRY_TYRES");
         public static String[] PIT_STOP_MONSOON_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_MONSOON_TYRES");
         public static String[] PIT_STOP_OPTION_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_OPTION_TYRES");
         public static String[] PIT_STOP_PRIME_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_PRIME_TYRES");
         public static String[] PIT_STOP_ALTERNATE_TYRES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_ALTERNATE_TYRES");
+
+        // ACC only:
+        public static String[] PIT_STOP_CHANGE_FRONT_PRESSURES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CHANGE_FRONT_PRESSURES");
+        public static String[] PIT_STOP_CHANGE_REAR_PRESSURES = Configuration.getSpeechRecognitionPhrases("PIT_STOP_CHANGE_REAR_PRESSURES");
+        public static String[] PIT_STOP_SELECT_LEAST_USED_TYRE_SET = Configuration.getSpeechRecognitionPhrases("PIT_STOP_SELECT_LEAST_USED_TYRE_SET");
+        public static String[] POINT = Configuration.getSpeechRecognitionPhrases("POINT");
 
         public static String[] HOW_MANY_INCIDENT_POINTS = Configuration.getSpeechRecognitionPhrases("HOW_MANY_INCIDENT_POINTS");
         public static String[] WHATS_THE_INCIDENT_LIMIT = Configuration.getSpeechRecognitionPhrases("WHATS_THE_INCIDENT_LIMIT");
@@ -574,6 +585,7 @@ namespace CrewChiefV4
         private List<GrammarWrapper> opponentGrammarList = new List<GrammarWrapper>();
         private List<GrammarWrapper> iracingPitstopGrammarList = new List<GrammarWrapper>();
         private List<GrammarWrapper> r3ePitstopGrammarList = new List<GrammarWrapper>();
+        private List<GrammarWrapper> accPitstopGrammarList = new List<GrammarWrapper>();
         private List<GrammarWrapper> pitManagerGrammarList = new List<GrammarWrapper>();
         private List<GrammarWrapper> overlayGrammarList = new List<GrammarWrapper>();
         private List<GrammarWrapper> rallyGrammarList = new List<GrammarWrapper>();
@@ -778,7 +790,6 @@ namespace CrewChiefV4
             }
             return dict;
         }
-
 
         private static Dictionary<String[], string> getCarNumberMappings()
         {
@@ -1083,12 +1094,12 @@ namespace CrewChiefV4
                     if (MessageBox.Show(Configuration.getUIString("install_any_speechlanguage_popup_text"), Configuration.getUIString("install_speechplatform_popup_title"),
                     MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
                     {
-                        Process.Start("https://www.microsoft.com/en-us/download/details.aspx?id=27224");
+                        Process.Start("https://www.microsoft.com/en-us/download/details.aspx?id=24139");
                     }
                     Console.WriteLine("Unable to initialise speech engine with English voice recognition pack. " +
                     "Check that at least one of MSSpeech_SR_en-GB_TELE.msi, MSSpeech_SR_en-US_TELE.msi, " +
                     "MSSpeech_SR_en-AU_TELE.msi, MSSpeech_SR_en-CA_TELE.msi or MSSpeech_SR_en-IN_TELE.msi are installed." +
-                    " It can be downloaded from https://www.microsoft.com/en-us/download/details.aspx?id=27224");
+                    " It can be downloaded from https://www.microsoft.com/en-us/download/details.aspx?id=24139");
                 }
                 else
                 {
@@ -1097,11 +1108,11 @@ namespace CrewChiefV4
                     Configuration.getUIString("install_speechplatform_popup_title"),
                     MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
                     {
-                        Process.Start("https://www.microsoft.com/en-us/download/details.aspx?id=27224");
+                        Process.Start("https://www.microsoft.com/en-us/download/details.aspx?id=24139");
                     }
                     Console.WriteLine("Unable to initialise speech engine with '" + langCodes.langToUse + "' voice recognition pack. " +
                     "Check that and appropriate language pack is installed." +
-                    " They can be downloaded from https://www.microsoft.com/en-us/download/details.aspx?id=27224");
+                    " They can be downloaded from https://www.microsoft.com/en-us/download/details.aspx?id=24139");
                 }
 
                 return false;
@@ -1113,11 +1124,11 @@ namespace CrewChiefV4
                     Configuration.getUIString("install_speechplatform_popup_title"),
                     MessageBoxButtons.OKCancel, MessageBoxIcon.Information) == DialogResult.OK)
                 {
-                    Process.Start("https://www.microsoft.com/en-us/download/details.aspx?id=27224");
+                    Process.Start("https://www.microsoft.com/en-us/download/details.aspx?id=24139");
                 }
                 Console.WriteLine("Unable to initialise speech engine with voice recognition pack for location " + langCodes.langAndCountryToUse +
                     ". Check MSSpeech_SR_" + langCodes.langAndCountryToUse + "_TELE.msi is installed." +
-                    " It can be downloaded from https://www.microsoft.com/en-us/download/details.aspx?id=27224");
+                    " It can be downloaded from https://www.microsoft.com/en-us/download/details.aspx?id=24139");
 
                 return false;
             }
@@ -1271,6 +1282,7 @@ namespace CrewChiefV4
                 sreWrapper.UnloadAllGrammars();
                 iracingPitstopGrammarList.Clear();
                 r3ePitstopGrammarList.Clear();
+                accPitstopGrammarList.Clear();
                 rallyGrammarList.Clear();
                 pitManagerGrammarList.Clear();
                 overlayGrammarList.Clear();
@@ -1383,6 +1395,7 @@ namespace CrewChiefV4
                     validateAndAdd(WHAT_IS_MY_WATER_TEMP, staticSpeechChoices);
                     validateAndAdd(HOW_ARE_MY_TYRE_TEMPS, staticSpeechChoices);
                     validateAndAdd(WHAT_ARE_MY_TYRE_TEMPS, staticSpeechChoices);
+                    validateAndAdd(WHAT_ARE_MY_TYRE_PRESSURES, staticSpeechChoices);
                     validateAndAdd(HOW_ARE_MY_BRAKE_TEMPS, staticSpeechChoices);
                     validateAndAdd(WHAT_ARE_MY_BRAKE_TEMPS, staticSpeechChoices);
                     validateAndAdd(HOW_ARE_MY_ENGINE_TEMPS, staticSpeechChoices);
@@ -1430,6 +1443,9 @@ namespace CrewChiefV4
                 case GameEnum.RF2_64BIT:
                     addPitManagerSpeechRecogniser();
                     break;
+                case GameEnum.ACC:
+                    addACCPitManagerSpeechRecogniser();
+                    break;
                 default:
                     break;
             }
@@ -1474,6 +1490,7 @@ namespace CrewChiefV4
                 case GameEnum.RBR:
                 case GameEnum.DIRT:
                 case GameEnum.DIRT_2:
+                case GameEnum.ASSETTO_64BIT_RALLY:
                     addRallySpeechRecogniser();
                     break;
                 default:
@@ -1665,6 +1682,33 @@ namespace CrewChiefV4
                     fuelTimeChoices.AddRange(HOURS);
                 }
                 addCompoundChoices(CALCULATE_FUEL_FOR, false, this.digitsChoices, fuelTimeChoices.ToArray(), true);
+
+
+                // now the 'laps on tyre set' choices, enabled for ACC only
+                if (CrewChief.gameDefinition.gameEnum == GameEnum.ACC)
+                {
+                    ChoicesWrapper lapsOnTyreSetIntroChoicesWrapper = SREWrapperFactory.createNewChoicesWrapper();
+                    foreach (string intro in HOW_MANY_LAPS_ON_TYRE_SET)
+                    {
+                        validateAndAdd(intro, lapsOnTyreSetIntroChoicesWrapper);
+                    }
+                    ChoicesWrapper tyreSetIntAmountChoicesWrapper = SREWrapperFactory.createNewChoicesWrapper();
+                    foreach (KeyValuePair<String[], int> numberEntry in numberToNumber)
+                    {
+                        // 1-50 is the valid range here
+                        if (numberEntry.Value >= 1 && numberEntry.Value <= 50)
+                        {
+                            validateAndAdd(numberEntry.Key[0], tyreSetIntAmountChoicesWrapper);
+                        }
+                    }
+                    // now assemble the choices
+                    GrammarBuilderWrapper lapsOnTyreSetGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper();
+                    lapsOnTyreSetGrammarBuilder.SetCulture(cultureInfo);
+                    lapsOnTyreSetGrammarBuilder.Append(lapsOnTyreSetIntroChoicesWrapper, 1, 1);
+                    lapsOnTyreSetGrammarBuilder.Append(tyreSetIntAmountChoicesWrapper, 1, 1);
+                    GrammarWrapper lapsOnTyreSetGrammar = SREWrapperFactory.createNewGrammarWrapper(lapsOnTyreSetGrammarBuilder);
+                    sreWrapper.LoadGrammar(lapsOnTyreSetGrammar);
+                }
             }
             catch (Exception e)
             {
@@ -2066,6 +2110,119 @@ namespace CrewChiefV4
             catch (Exception e)
             {
                 Console.WriteLine("Unable to add R3E pit stop commands to speech recognition engine - " + e.Message);
+            }
+        }
+
+        private void addACCPitManagerSpeechRecogniser()
+        {
+            if (!initialised)
+            {
+                return;
+            }
+            try
+            {
+                ChoicesWrapper accChoices = SREWrapperFactory.createNewChoicesWrapper();
+                validateAndAdd(PIT_STOP_CHANGE_TYRES, accChoices);
+                validateAndAdd(PIT_STOP_CLEAR_TYRES, accChoices);
+                validateAndAdd(PIT_STOP_WET_TYRES, accChoices);
+                validateAndAdd(PIT_STOP_DRY_TYRES, accChoices);
+                validateAndAdd(PIT_STOP_DONT_REFUEL, accChoices);
+                validateAndAdd(PIT_STOP_SELECT_LEAST_USED_TYRE_SET, accChoices);
+                GrammarBuilderWrapper accGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper(accChoices);
+                accGrammarBuilder.SetCulture(cultureInfo);
+                GrammarWrapper accGrammar = SREWrapperFactory.createNewGrammarWrapper(accGrammarBuilder);
+                accPitstopGrammarList.Add(accGrammar);
+                sreWrapper.LoadGrammar(accGrammar);
+
+                // now complex grammar for pit stop tyre pressure changes
+                ChoicesWrapper pressureIntroChoicesWrapper = SREWrapperFactory.createNewChoicesWrapper();
+                ChoicesWrapper pressureIntAmountChoicesWrapper = SREWrapperFactory.createNewChoicesWrapper();
+                ChoicesWrapper pressureFractionAmountChoicesWrapper = SREWrapperFactory.createNewChoicesWrapper();
+                foreach (string intro in PIT_STOP_CHANGE_TYRE_PRESSURE)
+                {
+                    validateAndAdd(intro, pressureIntroChoicesWrapper);
+                }
+                foreach (string intro in PIT_STOP_CHANGE_FRONT_PRESSURES)
+                {
+                    validateAndAdd(intro, pressureIntroChoicesWrapper);
+                }
+                foreach (string intro in PIT_STOP_CHANGE_REAR_PRESSURES)
+                {
+                    validateAndAdd(intro, pressureIntroChoicesWrapper);
+                }
+                foreach (string intro in PIT_STOP_CHANGE_FRONT_LEFT_TYRE_PRESSURE)
+                {
+                    validateAndAdd(intro, pressureIntroChoicesWrapper);
+                }
+                foreach (string intro in PIT_STOP_CHANGE_FRONT_RIGHT_TYRE_PRESSURE)
+                {
+                    validateAndAdd(intro, pressureIntroChoicesWrapper);
+                }
+                foreach (string intro in PIT_STOP_CHANGE_REAR_LEFT_TYRE_PRESSURE)
+                {
+                    validateAndAdd(intro, pressureIntroChoicesWrapper);
+                }
+                foreach (string intro in PIT_STOP_CHANGE_REAR_RIGHT_TYRE_PRESSURE)
+                {
+                    validateAndAdd(intro, pressureIntroChoicesWrapper);
+                }
+                foreach (KeyValuePair<String[], int> numberEntry in numberToNumber)
+                {
+                    // 20.4 - 35 is the valid range here
+                    bool lowerLimit = false;
+                    bool upperLimit = false;
+                    if (numberEntry.Value >= 20 && numberEntry.Value <= 35)
+                    {
+                        validateAndAdd(numberEntry.Key[0], pressureIntAmountChoicesWrapper);
+                        lowerLimit = numberEntry.Value == 20;
+                        upperLimit = numberEntry.Value == 35;
+                    }
+                    else if (numberEntry.Value >= 0 && numberEntry.Value <= 9 && !upperLimit)
+                    {
+                        if (!lowerLimit || numberEntry.Value >= 4)
+                        {
+                            validateAndAdd(POINT[0] + " " + numberEntry.Key[0], pressureFractionAmountChoicesWrapper);
+                        }
+                    }
+                }
+                //  note that 24.0 should be "twenty four", there's no "point zero" in the grammar
+                // now assemble the choices
+                GrammarBuilderWrapper pressureChangeGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper();
+                pressureChangeGrammarBuilder.SetCulture(cultureInfo);
+                pressureChangeGrammarBuilder.Append(pressureIntroChoicesWrapper, 1, 1);
+                pressureChangeGrammarBuilder.Append(pressureIntAmountChoicesWrapper, 1, 1);
+                pressureChangeGrammarBuilder.Append(pressureFractionAmountChoicesWrapper, 0, 1);    // optional fractional part
+                GrammarWrapper pressureChangeGrammar = SREWrapperFactory.createNewGrammarWrapper(pressureChangeGrammarBuilder);
+                accPitstopGrammarList.Add(pressureChangeGrammar);
+                sreWrapper.LoadGrammar(pressureChangeGrammar);
+
+                // now complex grammar for tyre set changes
+                ChoicesWrapper tyreSetIntroChoicesWrapper = SREWrapperFactory.createNewChoicesWrapper();
+                ChoicesWrapper tyreSetIntAmountChoicesWrapper = SREWrapperFactory.createNewChoicesWrapper();
+                foreach (string intro in PIT_STOP_SELECT_TYRE_SET)
+                {
+                    validateAndAdd(intro, tyreSetIntroChoicesWrapper);
+                }
+                foreach (KeyValuePair<String[], int> numberEntry in numberToNumber)
+                {
+                    // 1-50 is the valid range here
+                    if (numberEntry.Value >= 1 && numberEntry.Value <= 50)
+                    {
+                        validateAndAdd(numberEntry.Key[0], tyreSetIntAmountChoicesWrapper);
+                    }
+                }
+                // now assemble the choices
+                GrammarBuilderWrapper tyreSetGrammarBuilder = SREWrapperFactory.createNewGrammarBuilderWrapper();
+                tyreSetGrammarBuilder.SetCulture(cultureInfo);
+                tyreSetGrammarBuilder.Append(tyreSetIntroChoicesWrapper, 1, 1);
+                tyreSetGrammarBuilder.Append(tyreSetIntAmountChoicesWrapper, 1, 1);
+                GrammarWrapper tyreSetGrammar = SREWrapperFactory.createNewGrammarWrapper(tyreSetGrammarBuilder);
+                accPitstopGrammarList.Add(tyreSetGrammar);
+                sreWrapper.LoadGrammar(tyreSetGrammar);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Unable to add ACC pit stop commands to speech recognition engine - " + e.Message);
             }
         }
 
@@ -2589,14 +2746,20 @@ namespace CrewChiefV4
                         Console.WriteLine("chat recognised: \"" + recognisedText + "\"");
                         if (recognisedText.StartsWith(chatContextStart))
                         {
-                            string chatText = recognisedText.TrimStart(chatContextStart.ToCharArray()).Trim();                            
-                            Console.WriteLine("Sending chat text \"" + chatText + "\"");
-                            new InputSimulator().Keyboard.KeyPress(getStartChatMacro()
-                                .getStartChatKey())
-                                .Sleep(getStartChatMacro().getWaitBetweenEachCommand())
-                                .TextEntry(chatText)
-                                .Sleep(getStartChatMacro().getWaitBetweenEachCommand())
-                                .KeyPress(getEndChatMacro().getEndChatKey());
+                            ActionItem startChatActionItem = SpeechRecogniser.getStartChatMacro() == null ? null : SpeechRecogniser.getStartChatMacro().getSingleActionItemForChatStartAndEnd();
+                            ActionItem endChatActionItem = SpeechRecogniser.getEndChatMacro() == null ? null : SpeechRecogniser.getEndChatMacro().getSingleActionItemForChatStartAndEnd();
+                            if (startChatActionItem != null && endChatActionItem != null)
+                            {
+                                string chatText = recognisedText.TrimStart(chatContextStart.ToCharArray()).Trim();
+                                KeyPresser.SendKeyPresses(startChatActionItem.keyCodes, startChatActionItem.holdTime, startChatActionItem.waitTime);
+                                KeyPresser.InputSim.Keyboard.TextEntry(chatText).Sleep(50);
+                                KeyPresser.SendKeyPresses(endChatActionItem.keyCodes, endChatActionItem.holdTime, endChatActionItem.waitTime);
+                            }
+                            else
+                            {
+                                Console.WriteLine("Unable to send free chat output because suitable \"" + startChatMacroName + "\" and \"" + endChatMacroName
+                                    + "\" macros were not found for game " + CrewChief.gameDefinition.gameEnum);
+                            }
                         }
                         else
                         {
@@ -2660,6 +2823,11 @@ namespace CrewChiefV4
                         {
                             this.lastRecognisedText = recognisedText;
                             R3EPitMenuManager.processVoiceCommand(recognisedText, crewChief.audioPlayer);
+                        }
+                        else if (GrammarWrapperListContains(accPitstopGrammarList, recognitionGrammar))
+                        {
+                            this.lastRecognisedText = recognisedText;
+                            ACCPitMenuManager.processVoiceCommand(recognisedText, crewChief.audioPlayer);
                         }
                         else if (GrammarWrapperListContains(pitManagerGrammarList, recognitionGrammar))
                         {
@@ -3170,6 +3338,7 @@ namespace CrewChiefV4
                 return CrewChief.getEvent("LapTimes");
             }
             else if (ResultContains(recognisedSpeech, WHAT_ARE_MY_TYRE_TEMPS, false) ||
+                ResultContains(recognisedSpeech, WHAT_ARE_MY_TYRE_PRESSURES, false) ||
                 ResultContains(recognisedSpeech, HOW_ARE_MY_TYRE_TEMPS, false) ||
                 ResultContains(recognisedSpeech, HOWS_MY_TYRE_WEAR, false) ||
                 ResultContains(recognisedSpeech, HOW_ARE_MY_BRAKE_TEMPS, false) ||
@@ -3197,7 +3366,8 @@ namespace CrewChiefV4
                 ResultContains(recognisedSpeech, WHAT_ARE_MY_LEFT_FRONT_SURFACE_TEMPS, false) ||
                 ResultContains(recognisedSpeech, WHAT_ARE_MY_RIGHT_FRONT_SURFACE_TEMPS, false) ||
                 ResultContains(recognisedSpeech, WHAT_ARE_MY_LEFT_REAR_SURFACE_TEMPS, false) ||
-                ResultContains(recognisedSpeech, WHAT_ARE_MY_RIGHT_REAR_SURFACE_TEMPS, false))
+                ResultContains(recognisedSpeech, WHAT_ARE_MY_RIGHT_REAR_SURFACE_TEMPS, false) ||
+                ResultContains(recognisedSpeech, HOW_MANY_LAPS_ON_TYRE_SET, false))
             {
                 return CrewChief.getEvent("TyreMonitor");
             }

@@ -231,6 +231,8 @@ namespace CrewChiefV4.iRacing
                 currentGameState.Conditions.addSample(currentGameState.Now, 0, 1, shared.Telemetry.AirTemp, shared.Telemetry.TrackTempCrew, 0, shared.Telemetry.WindVel, 0, 0, 0, true);
 
                 //need to call this after adding opponents else we have nothing to compare against 
+                GameStateData.Multiclass = shared.SessionData.NumCarClasses > 1;
+                GameStateData.NumberOfClasses = shared.SessionData.NumCarClasses;
                 Utilities.TraceEventClass(currentGameState);
             }
             else

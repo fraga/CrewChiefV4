@@ -68,8 +68,8 @@ namespace CrewChiefV4.Events
         // pit stop messages
         private String folderWatchYourPitSpeed = "mandatory_pit_stops/watch_your_pit_speed";
         private String folderPitCrewReady = "mandatory_pit_stops/pit_crew_ready";
-        private String folderPitStallOccupied = "mandatory_pit_stops/pit_stall_occupied";
-        private String folderPitStallAvailable = "mandatory_pit_stops/pit_stall_available";
+        public static String folderPitStallOccupied = "mandatory_pit_stops/pit_stall_occupied";
+        public static String folderPitStallAvailable = "mandatory_pit_stops/pit_stall_available";
         private String folderStopCompleteGo = "mandatory_pit_stops/stop_complete_go";
         private String folderPitStopRequestReceived = "mandatory_pit_stops/pit_stop_requested";
         private String folderPitStopRequestCancelled = "mandatory_pit_stops/pit_request_cancelled";
@@ -360,15 +360,18 @@ namespace CrewChiefV4.Events
 
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
-            if (currentGameState.SessionData.SessionPhase == SessionPhase.Finished
-                && currentGameState.ControlData.ControlType == ControlType.AI)
+            if (!currentGameState.inCar 
+                || (currentGameState.SessionData.SessionPhase == SessionPhase.Finished
+                    && currentGameState.ControlData.ControlType == ControlType.AI))
             {
                 return;
             }
+
             if (CrewChief.gameDefinition.gameEnum == GameEnum.PCARS3)
             {
                 return;
             }
+
             // for r3e get the pit exit point for mandatory stop timing
             if (CrewChief.gameDefinition.gameEnum == GameEnum.RACE_ROOM
                 && previousGameState != null && previousGameState.PitData.InPitlane && !currentGameState.PitData.InPitlane
@@ -1414,7 +1417,7 @@ namespace CrewChiefV4.Events
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.IS_MY_PIT_BOX_OCCUPIED))
             {
-                if (this.pitStallOccupied)
+                if (this.pitStallOccupied || Strategy.pitStallIsBlocked)
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(folderPitStallOccupied, 0));
                 }

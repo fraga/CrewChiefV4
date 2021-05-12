@@ -97,14 +97,26 @@ namespace CrewChiefV4
 
         // the new update stuff all hosted on the CrewChief website
         // this is the physical file:
-        // private static String autoUpdateXMLURL1 = "http://thecrewchief.org/downloads/auto_update_data_primary.xml";
+        // private static String autoUpdateXMLURL1 = "https://thecrewchief.org/downloads/auto_update_data_primary.xml";
         // this is the file accessed via the PHP download script:
-        private static String autoUpdateXMLURL1 = "http://thecrewchief.org/downloads.php?do=downloadxml";
+        private static String autoUpdateXMLURL1 = "https://thecrewchief.org/downloads.php?do=downloadxml";
 
-        private static String additionalDataURL = "http://thecrewchief.org/downloads.php?do=getadditionaldata";
+        private static String additionalDataURL = "https://thecrewchief.org/downloads.php?do=getadditionaldata";
 
         // the legacy update stuff hosted on GoogleDrive with downloads on the isnais ftp server
-        private static String autoUpdateXMLURL2 = "https://drive.google.com/uc?export=download&id=0B4KQS820QNFbWWFjaDAzRldMNUE";
+        // Note that GoogleDrive have updated their front end, making it difficult to download XML files
+        // in an automated way. A 'this file cannot be scanned for viruses' page is shown instead. To fix this we'll
+        // need to capture the cookie offered by that page then make another request to the 'download anyway' link
+        // on that page passing back the cookie. Not rocket science but a job for another day. Or another life.
+        //
+        // Changing the file extension to .txt causes the "can't scan for viruses" page to be skipped but GoogeDrive
+        // still behaves differently - it sends a 302 with some token that needs to be passed into the follow-on link.
+        // Working around these changes can be done but Google being Google, any effort here is likely to be wasted
+        // when they make another unannounced and undocumented change
+        // private static String autoUpdateXMLURL2 = "https://drive.google.com/uc?export=download&id=0B4KQS820QNFbWWFjaDAzRldMNUE";
+
+        // a copy on ISNAIS:
+        private static String autoUpdateXMLURL2 = "http://crewchief.isnais.de/auto_update_data.xml";
 
         private Boolean preferAlternativeDownloadSite = UserSettings.GetUserSettings().getBoolean("prefer_alternative_download_site");
         private Boolean allowCompositePersonalisations = UserSettings.GetUserSettings().getBoolean("allow_composite_personalisations");
@@ -218,6 +230,8 @@ namespace CrewChiefV4
         }
         private void FormMain_Load(object sender, EventArgs e)
         {
+            ServicePointManager.Expect100Continue = true;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             // Restore window position.
             try
             {
@@ -1522,7 +1536,7 @@ namespace CrewChiefV4
             }
         }
 
-       private void vrOverlaysUpdateThreadWorker()
+        private void vrOverlaysUpdateThreadWorker()
         {
             bool vrOverlayForceDisabledDrawing = false;
             uint vrEventSize = (uint)SharpDX.Utilities.SizeOf<VREvent_t>();
@@ -1683,6 +1697,14 @@ namespace CrewChiefV4
             {
                 Utilities.ReportException(ex, "handleVRQuit exited with exception.", needReport: false);
             }
+        }
+        public void resetSteamVRTrackingPose()
+        {
+            if (!VROverlayController.vrUpdateThreadRunning)
+                return;
+
+            OpenVR.Chaperone.ResetZeroPose(OpenVR.Compositor.GetTrackingSpace());
+            Log.Commentary("Reset VR view");
         }
 
         private void consoleUpdateThreadWorker()
@@ -3597,7 +3619,7 @@ namespace CrewChiefV4
 
         private void internetPanHandler(object sender, EventArgs e)
         {
-            Process.Start("http://thecrewchief.org/misc.php?do=donate");
+            Process.Start("https://thecrewchief.org/misc.php?do=donate");
         }
 
         private void playSmokeTestSounds(object sender, EventArgs e)

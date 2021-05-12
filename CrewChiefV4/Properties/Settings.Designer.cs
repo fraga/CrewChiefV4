@@ -4081,7 +4081,7 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool prefer_system_sre {
             get {
                 return ((bool)(this["prefer_system_sre"]));
@@ -5252,6 +5252,42 @@ namespace CrewChiefV4.Properties {
             }
             set {
                 this["sre_enable_threshold_tuning"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool enable_rf1_box_sharing_warnings {
+            get {
+                return ((bool)(this["enable_rf1_box_sharing_warnings"]));
+            }
+            set {
+                this["enable_rf1_box_sharing_warnings"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int force_resample {
+            get {
+                return ((int)(this["force_resample"]));
+            }
+            set {
+                this["force_resample"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool enable_frozen_order_messages {
+            get {
+                return ((bool)(this["enable_frozen_order_messages"]));
+            }
+            set {
+                this["enable_frozen_order_messages"] = value;
             }
         }
     }

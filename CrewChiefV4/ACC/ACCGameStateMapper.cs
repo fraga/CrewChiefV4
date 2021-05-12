@@ -47,9 +47,9 @@ namespace CrewChiefV4.ACC
 
         private List<CornerData.EnumWithThresholds> suspensionDamageThresholds = new List<CornerData.EnumWithThresholds>();
 
-        private float trivialSuspensionDamageThreshold = 0.01f;
-        private float minorSuspensionDamageThreshold = 0.05f;
-        private float severeSuspensionDamageThreshold = 0.15f;
+        private float trivialSuspensionDamageThreshold = 0.03f;
+        private float minorSuspensionDamageThreshold = 0.08f;
+        private float severeSuspensionDamageThreshold = 0.25f;
         private float destroyedSuspensionDamageThreshold = 0.60f;
 
         private float trivialEngineDamageThreshold = 900.0f;
@@ -57,20 +57,83 @@ namespace CrewChiefV4.ACC
         private float severeEngineDamageThreshold = 350.0f;
         private float destroyedEngineDamageThreshold = 25.0f;
 
-        private float trivialAeroDamageThreshold = 40.0f;
-        private float minorAeroDamageThreshold = 100.0f;
-        private float severeAeroDamageThreshold = 200.0f;
-        private float destroyedAeroDamageThreshold = 400.0f;
-        private HashSet<int> msgHash = new HashSet<int>();
-
-        // ABS can trigger below 1.1 in the Ferrari 488
-        private float wheelSlipThreshold = 1.3f;
+        private float trivialAeroDamageThreshold = 20.0f;
+        private float minorAeroDamageThreshold = 40.0f;
+        private float severeAeroDamageThreshold = 130.0f;
+        private float destroyedAeroDamageThreshold = 250.0f;
 
         private AC_SESSION_TYPE sessionTypeOnPreviousTick = AC_SESSION_TYPE.AC_UNKNOWN;
         private DateTime ignoreUnknownSessionTypeUntil = DateTime.MinValue;
         private Boolean waitingForUnknownSessionTypeToSettle = false;
 
         private Dictionary<string, int> opponentDisconnectionCounter = new Dictionary<string, int>();
+
+        // workaround for shit sector flag data
+        TimeSpan timeForYellowToGreenToSettle = TimeSpan.FromSeconds(3);
+        TimeSpan timeForGreenToYellowToSettle = TimeSpan.FromSeconds(2);
+        TimeSpan timeForYellowToYellowToSettle = TimeSpan.FromSeconds(4);
+        private DateTime pendingChangesCreatedTime = DateTime.MinValue;
+        private int[] acceptedYellowSectors = new int[] { 0, 0, 0 };
+        private int[] pendingYellowSectors = new int[] { 0, 0, 0 };
+        private bool hasPendingChanges = false;
+
+        private void updateFlagSectors(int sector1, int sector2, int sector3, DateTime now)
+        {
+            bool isYellow = sector1 == 1 || sector2 == 1 || sector3 == 1;
+            bool wasYellow = acceptedYellowSectors[0] == 1 || acceptedYellowSectors[1] == 1 || acceptedYellowSectors[2] == 1;
+            if (sector1 != acceptedYellowSectors[0] || sector2 != acceptedYellowSectors[1] || sector3 != acceptedYellowSectors[2])
+            {
+                // some changes, only accept them if they've been stable for a while. Here we use different settling times
+                // depending on the type of change - we want to report green -> yellow fairly quickly, yellow -> green might be
+                // noise in the data so wait a bit longer, yellow -> yellow (change of sector) is often just noise
+                if (!hasPendingChanges ||
+                    sector1 != pendingYellowSectors[0] || sector2 != pendingYellowSectors[1] || sector3 != pendingYellowSectors[2])
+                {
+                    // update the pending changes and start the timer ticking
+                    // Console.WriteLine("new sector flags at " + now.ToLongTimeString() + ": " + sector1 + " " + sector2 + " " + sector3);
+                    pendingYellowSectors[0] = sector1; pendingYellowSectors[1] = sector2; pendingYellowSectors[2] = sector3;
+                    pendingChangesCreatedTime = now;
+                    hasPendingChanges = true;
+                }
+                else if (hasPendingChanges)
+                {
+                    // our pending changes are still valid, if they're old enough apply them
+                    TimeSpan settleTime = isYellow && !wasYellow ? timeForGreenToYellowToSettle : isYellow && wasYellow ? timeForYellowToYellowToSettle : timeForYellowToGreenToSettle;
+                    if (now > pendingChangesCreatedTime.Add(settleTime))
+                    {
+                        Console.WriteLine("accepted sector flags at " + now.ToLongTimeString() + ": " + sector1 + " " + sector2 + " " + sector3);
+                        acceptedYellowSectors[0] = sector1; acceptedYellowSectors[1] = sector2; acceptedYellowSectors[2] = sector3;
+                        hasPendingChanges = false;
+                    }
+                }
+            }
+            else
+            {
+                // the game agrees with our accepted state so reset the timer and pending changes
+                hasPendingChanges = false;
+                pendingChangesCreatedTime = DateTime.MinValue;
+            }
+        }
+        
+        public static float clockMultiplierGuess = 1.0f;
+        private DateTime realTimeAtLastClockMultiplierGuess = DateTime.MinValue;
+        private DateTime nextClockGuessDue = DateTime.MinValue;
+        private float clockAtLastClockMultiplierGuess = -1f;
+        private void updateClockMultiplierGuess(float currentClock, DateTime now)
+        {
+            if (now > nextClockGuessDue)
+            {
+                if (clockAtLastClockMultiplierGuess > 0 && realTimeAtLastClockMultiplierGuess != DateTime.MinValue)
+                {
+                    float clockDiff = currentClock - clockAtLastClockMultiplierGuess;
+                    float realtimeDiff = (float) (now - realTimeAtLastClockMultiplierGuess).TotalSeconds;
+                    clockMultiplierGuess = clockDiff / realtimeDiff;
+                }
+                nextClockGuessDue = now.AddSeconds(10);
+                realTimeAtLastClockMultiplierGuess = now;
+                clockAtLastClockMultiplierGuess = currentClock;
+            }
+        }
 
         #region WaYToManyTyres
         public ACCGameStateMapper()
@@ -168,7 +231,7 @@ namespace CrewChiefV4.ACC
             AC_STATUS status = shared.accGraphic.status;
             if (status == AC_STATUS.AC_REPLAY)
             {
-                CrewChief.trackName = shared.accStatic.track + ":" + shared.accStatic.trackConfiguration;
+                CrewChief.trackName = shared.accStatic.track + ":" + shared.accStatic.NOT_SET_trackConfiguration;
                 CrewChief.carClass = CarData.getCarClassForClassNameOrCarName(playerVehicle.carModel).carClassEnum;
                 CrewChief.viewingReplay = true;
                 CrewChief.distanceRoundTrack = (shared.accChief.vehicle?.Length ?? 0) == 0 ? 0 : spLineLengthToDistanceRoundTrack(shared.accChief.trackLength, playerVehicle.spLineLength);
@@ -183,7 +246,7 @@ namespace CrewChiefV4.ACC
             Boolean isSinglePlayerPracticeSession = shared.accChief.vehicle.Length == 1 && !isOnline && shared.accGraphic.session == AC_SESSION_TYPE.AC_PRACTICE;
             float distanceRoundTrack = spLineLengthToDistanceRoundTrack(shared.accChief.trackLength, playerVehicle.spLineLength);
 
-            currentGameState.SessionData.TrackDefinition = new TrackDefinition(shared.accStatic.track + ":" + shared.accStatic.trackConfiguration, shared.accChief.trackLength);
+            currentGameState.SessionData.TrackDefinition = new TrackDefinition(shared.accStatic.track + ":" + shared.accStatic.NOT_SET_trackConfiguration, shared.accChief.trackLength);
 
             AdditionalDataProvider.validate(playerVehicle.driverName);
             AC_SESSION_TYPE sessionTypeAsSentByGame = shared.accGraphic.session;
@@ -198,6 +261,9 @@ namespace CrewChiefV4.ACC
             float lastSessionTotalRunTime = 0;
             float lastSessionTimeRemaining = 0;
 
+            updateClockMultiplierGuess(shared.accGraphic.Clock, currentGameState.Now);
+
+            currentGameState.SessionData.EventIndex = shared.accGraphic.sessionIndex;
             if (previousGameState != null)
             {
                 lastSessionPhase = previousGameState.SessionData.SessionPhase;
@@ -220,6 +286,17 @@ namespace CrewChiefV4.ACC
                 currentGameState.SessionData.CurrentLapIsValid = previousGameState.SessionData.CurrentLapIsValid;
                 currentGameState.SessionData.PreviousLapWasValid = previousGameState.SessionData.PreviousLapWasValid;
                 currentGameState.readLandmarksForThisLap = previousGameState.readLandmarksForThisLap;
+
+                // preserve the tyre set usage data from the previous tick unless we've decremented the event index counter.
+                // Note that this will retain usage if we restart a session, which is definitely *not* what we want but will do for now
+                if (currentGameState.SessionData.EventIndex >= previousGameState.SessionData.EventIndex)
+                {
+                    currentGameState.TyreData.lapsPerSet = previousGameState.TyreData.lapsPerSet;
+                }
+                else
+                {
+                    Console.WriteLine("Resetting tyre tracking data");
+                }
             }
 
             if (currentGameState.carClass.carClassEnum == CarData.CarClassEnum.UNKNOWN_RACE)
@@ -283,7 +360,7 @@ namespace CrewChiefV4.ACC
 
             float sessionTimeRemaining = -1;
             //if (sessionType != AC_SESSION_TYPE.AC_PRACTICE && (numberOfLapsInSession == 0 || shared.accStatic.isTimedRace == 1))
-            if (numberOfLapsInSession == 0 || shared.accStatic.isTimedRace == 1)
+            if ((numberOfLapsInSession == 0 && shared.accGraphic.sessionTimeLeft != -1) || shared.accStatic.SET_FROM_UDP_isTimedRace == 1)
             {
                 currentGameState.SessionData.SessionHasFixedTime = true;
                 sessionTimeRemaining = gameSessionTimeLeft;
@@ -295,7 +372,7 @@ namespace CrewChiefV4.ACC
             if (sessionType == AC_SESSION_TYPE.AC_RACE || sessionType == AC_SESSION_TYPE.AC_DRIFT || sessionType == AC_SESSION_TYPE.AC_DRAG)
             {
                 //Make sure to check for both numberOfLapsInSession and isTimedRace as latter sometimes tells lies!
-                if (shared.accStatic.isTimedRace == 1 || numberOfLapsInSession == 0)
+                if (shared.accStatic.SET_FROM_UDP_isTimedRace == 1 || numberOfLapsInSession == 0)
                 {
                     isCountDown = playerVehicle.currentLapTimeMS <= 0 && playerVehicle.lapCount <= 0;
                 }
@@ -304,10 +381,8 @@ namespace CrewChiefV4.ACC
                     isCountDown = countDown.TotalMilliseconds >= 0.25;
                 }
             }
-
-            AC_FLAG_TYPE currentFlag = shared.accGraphic.flag;
-
-            currentGameState.SessionData.IsDisqualified = currentFlag == AC_FLAG_TYPE.AC_BLACK_FLAG;
+            
+            currentGameState.SessionData.IsDisqualified = shared.accGraphic.flag == AC_FLAG_TYPE.AC_BLACK_FLAG;
             bool isInPits = shared.accGraphic.isInPit == 1;
             int lapsCompleted = shared.accGraphic.completedLaps;
             ACCGameStateMapper.numberOfSectorsOnTrack = shared.accStatic.sectorCount;
@@ -335,7 +410,7 @@ namespace CrewChiefV4.ACC
                 currentGameState.SessionData.OverallPosition = playerVehicle.carRealTimeLeaderboardPosition;
             }
 
-            currentGameState.SessionData.TrackDefinition = TrackData.getTrackDefinition(shared.accStatic.track + ":" + shared.accStatic.trackConfiguration, shared.accChief.trackLength, shared.accStatic.sectorCount);
+            currentGameState.SessionData.TrackDefinition = TrackData.getTrackDefinition(shared.accStatic.track + ":" + shared.accStatic.NOT_SET_trackConfiguration, shared.accChief.trackLength, shared.accStatic.sectorCount);
 
             Boolean sessionOfSameTypeRestarted = ((currentGameState.SessionData.SessionType == SessionType.Race && lastSessionType == SessionType.Race) ||
                 (currentGameState.SessionData.SessionType == SessionType.Practice && lastSessionType == SessionType.Practice) ||
@@ -388,7 +463,7 @@ namespace CrewChiefV4.ACC
                 {
                     currentGameState.SessionData.SessionTotalRunTime = sessionTimeRemaining;
                     currentGameState.SessionData.SessionTimeRemaining = sessionTimeRemaining;
-                    currentGameState.SessionData.HasExtraLap = shared.accStatic.hasExtraLap == 1;
+                    currentGameState.SessionData.HasExtraLap = shared.accStatic.NOT_SET_hasExtraLap == 1;
                     if (currentGameState.SessionData.SessionTotalRunTime == 0)
                     {
                         Console.WriteLine("Setting session run time to 0");
@@ -484,7 +559,7 @@ namespace CrewChiefV4.ACC
                         lapCountAtSector1End = -1;
                         currentGameState.SessionData.LeaderHasFinishedRace = false;
                         currentGameState.SessionData.NumCarsOverallAtStartOfSession = shared.accChief.vehicle.Length;
-                        currentGameState.SessionData.TrackDefinition = TrackData.getTrackDefinition(shared.accStatic.track + ":" + shared.accStatic.trackConfiguration, shared.accChief.trackLength, shared.accStatic.sectorCount);
+                        currentGameState.SessionData.TrackDefinition = TrackData.getTrackDefinition(shared.accStatic.track + ":" + shared.accStatic.NOT_SET_trackConfiguration, shared.accChief.trackLength, shared.accStatic.sectorCount);
                         if (currentGameState.SessionData.TrackDefinition.unknownTrack)
                         {
                             currentGameState.SessionData.TrackDefinition.setSectorPointsForUnknownTracks();
@@ -566,7 +641,6 @@ namespace CrewChiefV4.ACC
                     currentGameState.SessionData.HasExtraLap = previousGameState.SessionData.HasExtraLap;
                     currentGameState.SessionData.NumCarsOverallAtStartOfSession = previousGameState.SessionData.NumCarsOverallAtStartOfSession;
                     currentGameState.SessionData.TrackDefinition = previousGameState.SessionData.TrackDefinition;
-                    currentGameState.SessionData.EventIndex = previousGameState.SessionData.EventIndex;
                     currentGameState.SessionData.SessionIteration = previousGameState.SessionData.SessionIteration;
                     currentGameState.SessionData.PositionAtStartOfCurrentLap = previousGameState.SessionData.PositionAtStartOfCurrentLap;
                     currentGameState.SessionData.SessionStartClassPosition = previousGameState.SessionData.SessionStartClassPosition;
@@ -655,9 +729,11 @@ namespace CrewChiefV4.ACC
                 currentGameState.SessionData.IsNewLap = currentGameState.HasNewLapData(previousGameState, lastLapTime, hasCrossedSFLine)
                     || ((lastSessionPhase == SessionPhase.Countdown)
                     && (currentGameState.SessionData.SessionPhase == SessionPhase.Green || currentGameState.SessionData.SessionPhase == SessionPhase.FullCourseYellow));
-                
+
+                currentGameState.TyreData.fittedSet = shared.accGraphic.currentTyreSet - 1; // 1-indexed
                 if (currentGameState.SessionData.IsNewLap)
                 {
+                    currentGameState.TyreData.incrementLapsPerSet();
                     currentGameState.SessionData.CurrentLapIsValid = true;
                     Boolean lapWasValid = previousGameState != null && previousGameState.SessionData.CurrentLapIsValid;
                     currentGameState.readLandmarksForThisLap = false;
@@ -702,11 +778,30 @@ namespace CrewChiefV4.ACC
                         shared.accPhysics.airTemp);
                 }
 
-                currentGameState.SessionData.Flag = mapToFlagEnum(currentFlag, false);
-                /*if (currentGameState.SessionData.Flag == FlagEnum.YELLOW && previousGameState != null && previousGameState.SessionData.Flag != FlagEnum.YELLOW)
+                currentGameState.SessionData.Flag = mapToFlagEnum(
+                    shared.accGraphic.GlobalChequered == 1,
+                    shared.accGraphic.GlobalGreen == 1,
+                    shared.accGraphic.GlobalRed == 1,
+                    shared.accGraphic.GlobalWhite == 1,
+                    shared.accGraphic.GlobalYellow == 1,
+                    shared.accGraphic.flag == AC_FLAG_TYPE.AC_BLACK_FLAG,
+                    shared.accGraphic.flag == AC_FLAG_TYPE.AC_BLUE_FLAG);
+                if (currentGameState.SessionData.Flag == FlagEnum.YELLOW && previousGameState != null && previousGameState.SessionData.Flag != FlagEnum.YELLOW)
                 {
                     currentGameState.SessionData.YellowFlagStartTime = currentGameState.Now;
-                }*/
+                }
+                updateFlagSectors(shared.accGraphic.GlobalYellow1, shared.accGraphic.GlobalYellow2, shared.accGraphic.GlobalYellow3, currentGameState.Now);
+                currentGameState.FlagData.sectorFlags[0] = acceptedYellowSectors[0] == 1 ? FlagEnum.YELLOW : FlagEnum.GREEN;
+                currentGameState.FlagData.sectorFlags[1] = acceptedYellowSectors[1] == 1 ? FlagEnum.YELLOW : FlagEnum.GREEN;
+                currentGameState.FlagData.sectorFlags[2] = acceptedYellowSectors[2] == 1 ? FlagEnum.YELLOW : FlagEnum.GREEN;
+                currentGameState.FlagData.isLocalYellow = currentGameState.FlagData.sectorFlags[currentGameState.SessionData.SectorNumber - 1] == FlagEnum.YELLOW;
+
+                // unfortunately the sector yellow data are noisy as hell. If a car goes off in S1, the game reports S1 as yellow mostly, with occasional periods of 
+                // a second or so when S1 goes green but S2 is yellow, then back for a few tenths and so on. So like much of the ACC data it's completely unusable horseshit
+                // Console.WriteLine("Local yellow = " + currentGameState.FlagData.isLocalYellow + " sector = " + (currentGameState.SessionData.SectorNumber - 1) + " flags " + String.Join(",", currentGameState.FlagData.sectorFlags));
+                // stick to improvised flag calling
+                currentGameState.FlagData.useImprovisedIncidentCalling = false;
+
                 currentGameState.SessionData.NumCarsOverall = shared.accChief.vehicle.Length;
 
                 /*previousGameState != null && previousGameState.SessionData.IsNewLap == false &&
@@ -1116,18 +1211,13 @@ namespace CrewChiefV4.ACC
                     shared.accPhysics.carDamage[2] +
                     shared.accPhysics.carDamage[3]);
 
-                playerVehicle.tyreInflation[0] = 1;
-                playerVehicle.tyreInflation[1] = 1;
-                playerVehicle.tyreInflation[2] = 1;
-                playerVehicle.tyreInflation[3] = 1;
+                currentGameState.CarDamageData.SuspensionDamageStatus = CornerData.getCornerData(suspensionDamageThresholds,
+                    shared.accPhysics.NOT_SET_suspensionDamage[0], shared.accPhysics.NOT_SET_suspensionDamage[1],
+                    shared.accPhysics.NOT_SET_suspensionDamage[2], shared.accPhysics.NOT_SET_suspensionDamage[3]);
             }
             else
             {
                 currentGameState.CarDamageData.DamageEnabled = false;
-                playerVehicle.tyreInflation[0] = 1;
-                playerVehicle.tyreInflation[1] = 1;
-                playerVehicle.tyreInflation[2] = 1;
-                playerVehicle.tyreInflation[3] = 1;
             }
             currentGameState.EngineData.EngineWaterTemp = shared.accPhysics.waterTemp;
 
@@ -1135,16 +1225,24 @@ namespace CrewChiefV4.ACC
             currentGameState.TyreData.HasMatchedTyreTypes = true;
             currentGameState.TyreData.TyreWearActive = shared.accStatic.aidTireRate > 0;
 
-            currentGameState.TyreData.FrontLeftPressure = playerVehicle.tyreInflation[0] == 1.0f ? shared.accPhysics.wheelsPressure[0] * 6.894f : 0.0f;
-            currentGameState.TyreData.FrontRightPressure = playerVehicle.tyreInflation[1] == 1.0f ? shared.accPhysics.wheelsPressure[1] * 6.894f : 0.0f;
-            currentGameState.TyreData.RearLeftPressure = playerVehicle.tyreInflation[2] == 1.0f ? shared.accPhysics.wheelsPressure[2] * 6.894f : 0.0f;
-            currentGameState.TyreData.RearRightPressure = playerVehicle.tyreInflation[3] == 1.0f ? shared.accPhysics.wheelsPressure[3] * 6.894f : 0.0f;
+            currentGameState.TyreData.FrontLeftPressure = shared.accPhysics.wheelsPressure[0] * 6.894f;
+            currentGameState.TyreData.FrontRightPressure = shared.accPhysics.wheelsPressure[1] * 6.894f;
+            currentGameState.TyreData.RearLeftPressure = shared.accPhysics.wheelsPressure[2] * 6.894f;
+            currentGameState.TyreData.RearRightPressure = shared.accPhysics.wheelsPressure[3] * 6.894f;
 
             currentGameState.TyreData.BrakeTempStatus = CornerData.getCornerData(brakeTempThresholdsForPlayersCar, shared.accPhysics.brakeTemp[0], shared.accPhysics.brakeTemp[1], shared.accPhysics.brakeTemp[2], shared.accPhysics.brakeTemp[3]);
             currentGameState.TyreData.LeftFrontBrakeTemp = shared.accPhysics.brakeTemp[0];
             currentGameState.TyreData.RightFrontBrakeTemp = shared.accPhysics.brakeTemp[1];
             currentGameState.TyreData.LeftRearBrakeTemp = shared.accPhysics.brakeTemp[2];
             currentGameState.TyreData.RightRearBrakeTemp = shared.accPhysics.brakeTemp[3];
+            // this appears to be zero-indexed
+            currentGameState.TyreData.selectedSet = shared.accGraphic.mfdTyreSet;
+
+            // specific fields for manuipulating tyre pressure in ACC:
+            currentGameState.TyreData.ACCFrontLeftPressureMFD = shared.accGraphic.mfdTyrePressureLF;
+            currentGameState.TyreData.ACCFrontRightPressureMFD = shared.accGraphic.mfdTyrePressureRF;
+            currentGameState.TyreData.ACCRearLeftPressureMFD = shared.accGraphic.mfdTyrePressureLR;
+            currentGameState.TyreData.ACCRearRightPressureMFD = shared.accGraphic.mfdTyrePressureRR;
 
             String currentTyreCompound = shared.accGraphic.tyreCompound;
 
@@ -1154,10 +1252,13 @@ namespace CrewChiefV4.ACC
                 tyreTempThresholds = getTyreTempThresholds(currentGameState.carClass, currentTyreCompound);
                 currentGameState.TyreData.TyreTypeName = currentTyreCompound;
             }
+
+            // NOTE only a single tyre core temp value per corner is available. Shit shit data.
+
             //Front Left
-            currentGameState.TyreData.FrontLeft_CenterTemp = shared.accPhysics.tyreTempM[0];
-            currentGameState.TyreData.FrontLeft_LeftTemp = shared.accPhysics.tyreTempO[0];
-            currentGameState.TyreData.FrontLeft_RightTemp = shared.accPhysics.tyreTempI[0];
+            currentGameState.TyreData.FrontLeft_CenterTemp = shared.accPhysics.tyreCoreTemperature[0];
+            currentGameState.TyreData.FrontLeft_LeftTemp = shared.accPhysics.tyreCoreTemperature[0];
+            currentGameState.TyreData.FrontLeft_RightTemp = shared.accPhysics.tyreCoreTemperature[0];
             currentGameState.TyreData.FrontLeftTyreType = shared.accGraphic.rainTyres == 1 ? TyreType.Wet : defaultTyreTypeForPlayersCar;
             if (currentGameState.SessionData.IsNewLap || currentGameState.TyreData.PeakFrontLeftTemperatureForLap == 0)
             {
@@ -1168,9 +1269,9 @@ namespace CrewChiefV4.ACC
                 currentGameState.TyreData.PeakFrontLeftTemperatureForLap = currentGameState.TyreData.FrontLeft_CenterTemp;
             }
             //Front Right
-            currentGameState.TyreData.FrontRight_CenterTemp = shared.accPhysics.tyreTempM[1];
-            currentGameState.TyreData.FrontRight_LeftTemp = shared.accPhysics.tyreTempI[1];
-            currentGameState.TyreData.FrontRight_RightTemp = shared.accPhysics.tyreTempO[1];
+            currentGameState.TyreData.FrontRight_CenterTemp = shared.accPhysics.tyreCoreTemperature[1];
+            currentGameState.TyreData.FrontRight_LeftTemp = shared.accPhysics.tyreCoreTemperature[1];
+            currentGameState.TyreData.FrontRight_RightTemp = shared.accPhysics.tyreCoreTemperature[1];
             currentGameState.TyreData.FrontRightTyreType = shared.accGraphic.rainTyres == 1 ? TyreType.Wet : defaultTyreTypeForPlayersCar;
             if (currentGameState.SessionData.IsNewLap || currentGameState.TyreData.PeakFrontRightTemperatureForLap == 0)
             {
@@ -1181,9 +1282,9 @@ namespace CrewChiefV4.ACC
                 currentGameState.TyreData.PeakFrontRightTemperatureForLap = currentGameState.TyreData.FrontRight_CenterTemp;
             }
             //Rear Left
-            currentGameState.TyreData.RearLeft_CenterTemp = shared.accPhysics.tyreTempM[2];
-            currentGameState.TyreData.RearLeft_LeftTemp = shared.accPhysics.tyreTempO[2];
-            currentGameState.TyreData.RearLeft_RightTemp = shared.accPhysics.tyreTempI[2];
+            currentGameState.TyreData.RearLeft_CenterTemp = shared.accPhysics.tyreCoreTemperature[2];
+            currentGameState.TyreData.RearLeft_LeftTemp = shared.accPhysics.tyreCoreTemperature[2];
+            currentGameState.TyreData.RearLeft_RightTemp = shared.accPhysics.tyreCoreTemperature[2];
             currentGameState.TyreData.RearLeftTyreType = shared.accGraphic.rainTyres == 1 ? TyreType.Wet : defaultTyreTypeForPlayersCar;
             if (currentGameState.SessionData.IsNewLap || currentGameState.TyreData.PeakRearLeftTemperatureForLap == 0)
             {
@@ -1194,9 +1295,9 @@ namespace CrewChiefV4.ACC
                 currentGameState.TyreData.PeakRearLeftTemperatureForLap = currentGameState.TyreData.RearLeft_CenterTemp;
             }
             //Rear Right
-            currentGameState.TyreData.RearRight_CenterTemp = shared.accPhysics.tyreTempM[3];
-            currentGameState.TyreData.RearRight_LeftTemp = shared.accPhysics.tyreTempI[3];
-            currentGameState.TyreData.RearRight_RightTemp = shared.accPhysics.tyreTempO[3];
+            currentGameState.TyreData.RearRight_CenterTemp = shared.accPhysics.tyreCoreTemperature[3];
+            currentGameState.TyreData.RearRight_LeftTemp = shared.accPhysics.tyreCoreTemperature[3];
+            currentGameState.TyreData.RearRight_RightTemp = shared.accPhysics.tyreCoreTemperature[3];
             currentGameState.TyreData.RearRightTyreType = shared.accGraphic.rainTyres == 1 ? TyreType.Wet : defaultTyreTypeForPlayersCar;
             if (currentGameState.SessionData.IsNewLap || currentGameState.TyreData.PeakRearRightTemperatureForLap == 0)
             {
@@ -1244,7 +1345,7 @@ namespace CrewChiefV4.ACC
                 System.Diagnostics.Debug.WriteLine(msg);
             */
 
-            currentGameState.PenaltiesData.IsOffRacingSurface = shared.accPhysics.numberOfTyresOut > 2;
+            currentGameState.PenaltiesData.IsOffRacingSurface = shared.accPhysics.NOT_SET_numberOfTyresOut > 2;
             if (!currentGameState.PitData.OnOutLap && previousGameState != null && !previousGameState.PenaltiesData.IsOffRacingSurface && currentGameState.PenaltiesData.IsOffRacingSurface &&
                 !(shared.accGraphic.session == AC_SESSION_TYPE.AC_RACE && isCountDown))
             {
@@ -1271,10 +1372,16 @@ namespace CrewChiefV4.ACC
             //conditions
             if (currentGameState.Now > nextConditionsSampleDue)
             {
+                float currentRainLevel = (float)shared.accGraphic.rainIntensity / 5f;   // 5 enum levels for rain from 0 (none) to 1 (monsoon)
                 nextConditionsSampleDue = currentGameState.Now.Add(ConditionsMonitor.ConditionsSampleFrequency);
                 currentGameState.Conditions.addSample(currentGameState.Now, currentGameState.SessionData.CompletedLaps, currentGameState.SessionData.SectorNumber,
-                    shared.accPhysics.airTemp, shared.accPhysics.roadTemp, shared.accChief.rainLevel, 0, 0, 0, 0, currentGameState.SessionData.IsNewLap);
+                    shared.accPhysics.airTemp, shared.accPhysics.roadTemp, currentRainLevel, 0, 0, 0, 0, currentGameState.SessionData.IsNewLap);
+
+                
             }
+            currentGameState.Conditions.rainLevelNow = (ConditionsMonitor.RainLevel)shared.accGraphic.rainIntensity;
+            currentGameState.Conditions.rainLevelIn10Mins = (ConditionsMonitor.RainLevel)shared.accGraphic.rainIntensityIn10min;
+            currentGameState.Conditions.rainLevelIn30Mins = (ConditionsMonitor.RainLevel)shared.accGraphic.rainIntensityIn30min;
 
             if (currentGameState.SessionData.TrackDefinition != null)
             {
@@ -1305,10 +1412,6 @@ namespace CrewChiefV4.ACC
                 currentGameState.hardPartsOnTrackData.mapHardPartsOnTrack(currentGameState.ControlData.BrakePedal, currentGameState.ControlData.ThrottlePedal,
                     currentGameState.PositionAndMotionData.DistanceRoundTrack, currentGameState.SessionData.CurrentLapIsValid, currentGameState.SessionData.TrackDefinition.trackLength);
             }
-
-            // don't enable improvised incident calling until we can work out how to cull the disconnected drivers from the opponents set
-            // before we disable this lets see if it works better with proper purging of disconnected players (note that it defaults to true)
-            // currentGameState.FlagData.useImprovisedIncidentCalling = false;
 
             currentGameState.PositionAndMotionData.WorldPosition = new float[] { playerVehicle.worldPosition.x, playerVehicle.worldPosition.y, playerVehicle.worldPosition.z };
 
@@ -1495,33 +1598,34 @@ namespace CrewChiefV4.ACC
             return (float)ts.TotalMilliseconds * 10;
         }
 
-        private FlagEnum mapToFlagEnum(AC_FLAG_TYPE flag, Boolean disableYellowFlag)
+        private FlagEnum mapToFlagEnum(bool checkered, bool green, bool red, bool white, bool yellow, bool black, bool blue)
         {
-            if (flag == AC_FLAG_TYPE.AC_CHECKERED_FLAG)
+            if (checkered)
             {
                 return FlagEnum.CHEQUERED;
             }
-            else if (flag == AC_FLAG_TYPE.AC_BLACK_FLAG)
+            else if (red)
             {
-                return FlagEnum.BLACK;
+                return FlagEnum.RED;
             }
-            else if (flag == AC_FLAG_TYPE.AC_YELLOW_FLAG)
-            {
-                if (disableYellowFlag)
-                {
-                    return FlagEnum.UNKNOWN;
-                }
-                return FlagEnum.YELLOW;
-            }
-            else if (flag == AC_FLAG_TYPE.AC_WHITE_FLAG)
-            {
-                return FlagEnum.WHITE;
-            }
-            else if (flag == AC_FLAG_TYPE.AC_BLUE_FLAG)
+            else if (blue)
             {
                 return FlagEnum.BLUE;
             }
-            else if (flag == AC_FLAG_TYPE.AC_NO_FLAG)
+            else if (black)
+            {
+                return FlagEnum.BLACK;
+            }
+            // note that white flag in ACC is the American version (last lap) for some odd reason
+            /*else if (white)
+            {
+                return FlagEnum.WHITE;
+            }*/
+            else if (yellow)
+            {
+                return FlagEnum.YELLOW;
+            }
+            else if (green)
             {
                 return FlagEnum.GREEN;
             }

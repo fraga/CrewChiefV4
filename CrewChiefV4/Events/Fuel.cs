@@ -899,72 +899,74 @@ namespace CrewChiefV4.Events
             if (fuelUseActive && averageUsagePerLap > 0)
             {
                 // round to 1dp
-                float meanUsePerLap = ((float)Math.Round(averageUsagePerLap * 10f)) / 10f;
-                if (meanUsePerLap == 0)
+                float roundedAverageUsePerLap;
+                if (fuelReportsInGallon)
                 {
-                    // rounded fuel use is < 0.1 litres per lap - can't really do anything with this.
+                    roundedAverageUsePerLap = ((float)Math.Round(convertLitersToGallons(averageUsagePerLap, false) * 10f)) / 10f;
+                }
+                else
+                {
+                    roundedAverageUsePerLap = ((float)Math.Round(averageUsagePerLap * 10f)) / 10f;
+                }
+                if (roundedAverageUsePerLap <= 0)
+                {
+                    // rounded fuel use is < 0.1 litres or gallons per lap - can't really do anything with this.
                     return false;
                 }
-                if(fuelReportsInGallon)
-                {
-                    meanUsePerLap = convertLitersToGallons(averageUsagePerLap, true);
-                }
-                Tuple<int, int> wholeandfractional = Utilities.WholeAndFractionalPart(meanUsePerLap);
+                Tuple<int, int> wholeandfractional = Utilities.WholeAndFractionalPart(roundedAverageUsePerLap);
                 QueuedMessage queuedMessage = null;
-                if (meanUsePerLap > 0)
+                haveData = true;
+
+                if (wholeandfractional.Item2 > 0)
                 {
-                    haveData = true;
-
-                    if (wholeandfractional.Item2 > 0)
+                    if (fuelReportsInGallon)
                     {
-                        if (fuelReportsInGallon)
-                        {
-                            queuedMessage = new QueuedMessage("Fuel/mean_use_per_lap", 0,
-                                    messageFragments: MessageContents(wholeandfractional.Item1, NumberReader.folderPoint, wholeandfractional.Item2, folderGallonsPerLap));
+                        queuedMessage = new QueuedMessage("Fuel/mean_use_per_lap", 0,
+                                messageFragments: MessageContents(wholeandfractional.Item1, NumberReader.folderPoint, wholeandfractional.Item2, folderGallonsPerLap));
 
-                            if (!individualResponse)
-                            {
-                                messageFragments.AddRange(MessageContents(wholeandfractional.Item1, NumberReader.folderPoint, wholeandfractional.Item2, folderGallonsPerLap));
-                            }
-                        }
-                        else
+                        if (!individualResponse)
                         {
-                            queuedMessage = new QueuedMessage("Fuel/mean_use_per_lap", 0,
-                                    messageFragments: MessageContents(wholeandfractional.Item1, NumberReader.folderPoint, wholeandfractional.Item2, folderLitresPerLap));
-
-                            if (!individualResponse)
-                            {
-                                messageFragments.AddRange(MessageContents(wholeandfractional.Item1, NumberReader.folderPoint, wholeandfractional.Item2, folderLitresPerLap));
-                            }
+                            messageFragments.AddRange(MessageContents(wholeandfractional.Item1, NumberReader.folderPoint, wholeandfractional.Item2, folderGallonsPerLap));
                         }
                     }
                     else
                     {
-                        if (fuelReportsInGallon)
-                        {
-                            queuedMessage = new QueuedMessage("Fuel/mean_use_per_lap", 0,
-                                    messageFragments: MessageContents(wholeandfractional.Item1, folderGallonsPerLap));
+                        queuedMessage = new QueuedMessage("Fuel/mean_use_per_lap", 0,
+                                messageFragments: MessageContents(wholeandfractional.Item1, NumberReader.folderPoint, wholeandfractional.Item2, folderLitresPerLap));
 
-                            if (!individualResponse)
-                            {
-                                messageFragments.AddRange(MessageContents(wholeandfractional.Item1, folderGallonsPerLap));
-                            }
-                        }
-                        else
+                        if (!individualResponse)
                         {
-                            queuedMessage = new QueuedMessage("Fuel/mean_use_per_lap", 0,
-                                    messageFragments: MessageContents(wholeandfractional.Item1, folderLitresPerLap));
-
-                            if (!individualResponse)
-                            {
-                                messageFragments.AddRange(MessageContents(wholeandfractional.Item1, folderLitresPerLap));
-                            }
+                            messageFragments.AddRange(MessageContents(wholeandfractional.Item1, NumberReader.folderPoint, wholeandfractional.Item2, folderLitresPerLap));
                         }
                     }
                 }
+                else
+                {
+                    if (fuelReportsInGallon)
+                    {
+                        queuedMessage = new QueuedMessage("Fuel/mean_use_per_lap", 0,
+                                messageFragments: MessageContents(wholeandfractional.Item1, folderGallonsPerLap));
+
+                        if (!individualResponse)
+                        {
+                            messageFragments.AddRange(MessageContents(wholeandfractional.Item1, folderGallonsPerLap));
+                        }
+                    }
+                    else
+                    {
+                        queuedMessage = new QueuedMessage("Fuel/mean_use_per_lap", 0,
+                                messageFragments: MessageContents(wholeandfractional.Item1, folderLitresPerLap));
+
+                        if (!individualResponse)
+                        {
+                            messageFragments.AddRange(MessageContents(wholeandfractional.Item1, folderLitresPerLap));
+                        }
+                    }                    
+                }
 
                 Debug.Assert(queuedMessage != null);
-                if (individualResponse)
+                if (individualResponse
+                    && queuedMessage != null)
                 {
                     if (this.delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
                     {
@@ -1025,16 +1027,20 @@ namespace CrewChiefV4.Events
                         messageFragments.Add(MessageFragment.Integer(usage, false));
                         messageFragments.Add(MessageFragment.Text(usage == 1 ? folderLitre : folderLitres));
                     }
-                    QueuedMessage fuelEstimateMessage = new QueuedMessage("Fuel/estimate", 0, messageFragments: messageFragments);
 
-                    // play this immediately or play "stand by", and queue it to be played in a few seconds
-                    if (delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
+                    if (messageFragments.Count > 0)
                     {
-                        audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(fuelEstimateMessage, 5 /*lowerDelayBoundInclusive*/, 8 /*upperDelayBound*/);
-                    }
-                    else
-                    {
-                        audioPlayer.playMessageImmediately(fuelEstimateMessage);
+                        QueuedMessage fuelEstimateMessage = new QueuedMessage("Fuel/estimate", 0, messageFragments: messageFragments);
+
+                        // play this immediately or play "stand by", and queue it to be played in a few seconds
+                        if (delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
+                        {
+                            audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(fuelEstimateMessage, 5 /*lowerDelayBoundInclusive*/, 8 /*upperDelayBound*/);
+                        }
+                        else
+                        {
+                            audioPlayer.playMessageImmediately(fuelEstimateMessage);
+                        }
                     }
                 }
             }
@@ -1088,15 +1094,18 @@ namespace CrewChiefV4.Events
                         messageFragments.Add(MessageFragment.Text(usage == 1 ? folderLitre : folderLitres));
                     }
 
-                    QueuedMessage fuelEstimateMessage = new QueuedMessage("Fuel/estimate", 0, messageFragments: messageFragments);
-                    // play this immediately or play "stand by", and queue it to be played in a few seconds
-                    if (delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
+                    if (messageFragments.Count > 0)
                     {
-                        audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(fuelEstimateMessage, 5 /*lowerDelayBoundInclusive*/, 8 /*upperDelayBound*/);
-                    }
-                    else
-                    {
-                        audioPlayer.playMessageImmediately(fuelEstimateMessage);
+                        QueuedMessage fuelEstimateMessage = new QueuedMessage("Fuel/estimate", 0, messageFragments: messageFragments);
+                        // play this immediately or play "stand by", and queue it to be played in a few seconds
+                        if (delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
+                        {
+                            audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(fuelEstimateMessage, 5 /*lowerDelayBoundInclusive*/, 8 /*upperDelayBound*/);
+                        }
+                        else
+                        {
+                            audioPlayer.playMessageImmediately(fuelEstimateMessage);
+                        }
                     }
                 }
             }
@@ -1329,15 +1338,17 @@ namespace CrewChiefV4.Events
             }
             else
             {
-                if (allowNoDataMessage  // True if this is fuel specific command response.
-                    && fuelStatusMessageFragments.Count > 0
-                    && this.delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
+                if (fuelStatusMessageFragments.Count > 0)
                 {
-                    this.audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(new QueuedMessage("Fuel/status", 0, messageFragments: fuelStatusMessageFragments), 3 /*lowerDelayBoundInclusive*/, 6 /*upperDelayBound*/);
-                }
-                else
-                {
-                    this.audioPlayer.playMessageImmediately(new QueuedMessage("Fuel/status", 0, messageFragments: fuelStatusMessageFragments));
+                    if (allowNoDataMessage  // True if this is fuel specific command response.
+                        && this.delayResponses && Utilities.random.Next(10) >= 2 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
+                    {
+                        this.audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(new QueuedMessage("Fuel/status", 0, messageFragments: fuelStatusMessageFragments), 3 /*lowerDelayBoundInclusive*/, 6 /*upperDelayBound*/);
+                    }
+                    else
+                    {
+                        this.audioPlayer.playMessageImmediately(new QueuedMessage("Fuel/status", 0, messageFragments: fuelStatusMessageFragments));
+                    }
                 }
             }
         }
@@ -1404,6 +1415,7 @@ namespace CrewChiefV4.Events
                 {
                     audioPlayer.playMessageImmediately(new QueuedMessage(AudioPlayer.folderNoData, 0));
                 }
+                // TODO: report this in gallons for the metrically challenged users
                 else if (currentFuel >= 2)
                 {
                     queuedMessage = new QueuedMessage("Fuel/level", 0, messageFragments: MessageContents((int)currentFuel, folderLitresRemaining));
@@ -1412,13 +1424,16 @@ namespace CrewChiefV4.Events
                 {
                     queuedMessage = new QueuedMessage(folderAboutToRunOut, 0);
                 }
-                if (queuedMessage != null && delayResponses && Utilities.random.Next(10) >= 4 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
+                if (queuedMessage != null)
                 {
-                    this.audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(queuedMessage, 3 /*lowerDelayBoundInclusive*/, 6 /*upperDelayBound*/);
-                }
-                else
-                {
-                    this.audioPlayer.playMessageImmediately(queuedMessage);
+                    if (delayResponses && Utilities.random.Next(10) >= 4 && SoundCache.availableSounds.Contains(AudioPlayer.folderStandBy))
+                    {
+                        this.audioPlayer.pauseQueueAndPlayDelayedImmediateMessage(queuedMessage, 3 /*lowerDelayBoundInclusive*/, 6 /*upperDelayBound*/);
+                    }
+                    else
+                    {
+                        this.audioPlayer.playMessageImmediately(queuedMessage);
+                    }
                 }
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.HOW_MUCH_FUEL_TO_END_OF_RACE))

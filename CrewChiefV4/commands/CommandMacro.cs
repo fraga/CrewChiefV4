@@ -1,5 +1,6 @@
 ﻿using CrewChiefV4.Audio;
 using CrewChiefV4.Events;
+using CrewChiefV4.GameState;
 using CrewChiefV4.R3E;
 using Newtonsoft.Json;
 using System;
@@ -7,10 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
-using WindowsInput;
 using WindowsInput.Native;
 namespace CrewChiefV4.commands
 {
@@ -214,7 +212,14 @@ namespace CrewChiefV4.commands
                                 lock (ExecutableCommandMacro.mutex)
                                 {
                                     this.macroExecutingOnCommandMacroThread = true;
-                                    runMacro(commandSet, isR3e, multiplePressCountFromVoiceCommand);
+                                    try
+                                    {
+                                        runMacro(commandSet, isR3e, multiplePressCountFromVoiceCommand);
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        Console.WriteLine("Error executing command macro: " + e.ToString());
+                                    }
                                     this.macroExecutingOnCommandMacroThread = false;
                                 }
                             });
@@ -225,42 +230,33 @@ namespace CrewChiefV4.commands
                     }
                     else
                     {
-                        runMacro(commandSet, isR3e, multiplePressCountFromVoiceCommand);
+                        try
+                        {
+                            runMacro(commandSet, isR3e, multiplePressCountFromVoiceCommand);
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine("Error executing command macro: " + e.ToString());
+                        }
                     }
                 }
                 break;
             }
             return allowedToRun;
         }
-        // must be called from static method SpeechRecogniser.getStartChatMacro()
-        public VirtualKeyCode getStartChatKey()
+
+        // This must be called from static method SpeechRecogniser.getStartChatMacro()
+        public ActionItem getSingleActionItemForChatStartAndEnd()
         {
-            //defaut to KEY_T as that is most common 
-            KeyPresser.KeyCode keyCode = KeyPresser.KeyCode.KEY_T;
             foreach (CommandSet commandSet in macro.commandSets.Where(cs => MacroManager.isCommandSetForCurrentGame(cs.gameDefinition)))
             {
-                string action = commandSet.actionSequence[0];                
-                if (Enum.TryParse(action, out keyCode))
+                if (commandSet.getActionItems().Count == 1)
                 {
-                    return (VirtualKeyCode)keyCode;
+                    return commandSet.getActionItems()[0];
                 }
+                break;
             }
-            return (VirtualKeyCode)keyCode;
-        }
-        // must be called from static method SpeechRecogniser.getEndChatMacro()
-        public VirtualKeyCode getEndChatKey()
-        {
-            //defaut to ENTER as that is most common 
-            KeyPresser.KeyCode keyCode = KeyPresser.KeyCode.ENTER;
-            foreach (CommandSet commandSet in macro.commandSets.Where(cs => MacroManager.isCommandSetForCurrentGame(cs.gameDefinition)))
-            {
-                string action = commandSet.actionSequence[0];
-                if (Enum.TryParse(action, out keyCode))
-                {
-                    return (VirtualKeyCode)keyCode;
-                }
-            }
-            return (VirtualKeyCode)keyCode;
+            return null;
         }
 
         public int getWaitBetweenEachCommand()
@@ -291,7 +287,9 @@ namespace CrewChiefV4.commands
                 {
                     for (int actionItemIndex = 0; actionItemIndex < actionItemsCount; actionItemIndex++)
                     {
-                        if (actionItems[actionItemIndex].extendedTypeTextParam != null && actionItemIndex >= 2)
+                        if (actionItemIndex >= 2 && 
+                            (actionItems[actionItemIndex].repeatCountFromVoiceCommand 
+                                || "fuel".Equals(actionItems[actionItemIndex].eventToResolveRepeatCount, StringComparison.InvariantCultureIgnoreCase)))
                         {
                             // this is the action item that actually adds the fuel. We want the action item before this one to trigger (this resets
                             // fuel to 0) but action items before that reset will be skipped
@@ -307,13 +305,12 @@ namespace CrewChiefV4.commands
                     {
                         break;
                     }
-                    if (MacroManager.WAIT_IDENTIFIER.Equals(actionItem.extendedType))
+                    if (actionItem.applicableSessionTypes == null || CrewChief.currentGameState == null || actionItem.applicableSessionTypes.Contains(CrewChief.currentGameState.SessionData.SessionType))
                     {
-                        Thread.Sleep(actionItem.extendedTypeNumericParam);
-                    }
-                    else
-                    {
-                        int count;
+                        if (actionItem.waitTime > 0)
+                        {
+                            Thread.Sleep(actionItem.waitTime);
+                        }
                         if (actionItemIndex > 0 && r3eFuelMacroSkipUntil != -1)
                         {
                             // we're skipping all actions items until the actual fuelling action and replacing it with the proper menu navigation stuff
@@ -323,46 +320,43 @@ namespace CrewChiefV4.commands
                             }
                             else if (actionItemIndex == r3eFuelMacroSkipUntil)
                             {
+                                // eewwww... for the r3e fuel macro we want to ensure we're on 'fuel' and it's enabled before issuing the many
+                                // commands to set the amount. In this case, there'll be multiple other button presses to get us to fuel so
+                                // we need to catch the actual fuelling amount action and insert a crafty 'go to fuel item and deselect it' line
                                 Thread.Sleep(100);
                                 R3EPitMenuManager.goToMenuItem(SelectedItem.Fuel);
                                 R3EPitMenuManager.unselectFuel(false);
                                 Thread.Sleep(100);
                             }
                         }
-                        if (MacroManager.MULTIPLE_PRESS_IDENTIFIER.Equals(actionItem.extendedType))
+                        int count = actionItem.fixedRepeatCount;
+                        bool doR3EFuellingMenuHack = false;
+                        if (actionItem.eventToResolveRepeatCount != null)
                         {
-                            if (actionItem.extendedTypeTextParam != null)
-                            {
-                                if (MacroManager.MULTIPLE_PRESS_FROM_VOICE_TRIGGER_IDENTIFIER.Equals(actionItem.extendedTypeTextParam))
-                                {
-                                    count = multiplePressCountFromVoiceCommand;
-                                }
-                                else
-                                {
-                                    count = CrewChief.getEvent(actionItem.extendedTypeTextParam).resolveMacroKeyPressCount(macro.name);
-                                }
-
-                                // eewwww... for the r3e fuel macro we want to ensure we're on 'fuel' and it's enabled before issuing the many
-                                // commands to set the amount. In this case, there'll be multiple other button presses to get us to fuel so
-                                // we need to catch the actual fuelling amount action and insert a crafty 'go to fuel item and deselect it' line
-                                if (isR3e && macro.name.Contains("fuel"))
-                                {
-                                    // hack for R3E: fuel menu needs 3 presses to get it from the start to 0
-                                    count = count + 3;
-                                }
-                            }
-                            else
-                            {
-                                count = actionItem.extendedTypeNumericParam;
-                            }
+                            count = CrewChief.getEvent(actionItem.eventToResolveRepeatCount).resolveMacroKeyPressCount(macro.name);
+                            doR3EFuellingMenuHack = isR3e && actionItem.eventToResolveRepeatCount.Equals("fuel", StringComparison.InvariantCultureIgnoreCase);
                         }
-                        else
+                        else if (actionItem.repeatCountFromVoiceCommand)
                         {
-                            count = 1;
+                            count = multiplePressCountFromVoiceCommand;
+                            // no event to check against here - this is the case where we say "add fuel, 20 litres" - we want an additional 3 presses for this
+                            doR3EFuellingMenuHack = isR3e && macro.name.Contains("fuel");
                         }
-                        // only wait if there's another key press in the sequence
-                        int wait = actionItemIndex == actionItemsCount - 1 ? 0 : commandSet.waitBetweenEachCommand;
-                        sendKeys(count, actionItem, commandSet.keyPressTime, wait);
+                        if (doR3EFuellingMenuHack)
+                        {
+                            // hack for R3E: fuel menu needs 3 presses to get it from the start to 0. 3 extra presses when dropping the fuel to zero doesn't matter
+                            // so this added the extras to both command actions
+                            count = count + 3;
+                        }
+                        if (count > 0 && actionItem.keyCodes != null)
+                        {
+                            int? keyPressTime = commandSet.keyPressTime;
+                            if (actionItem.holdTime > 0)
+                            {
+                                keyPressTime = actionItem.holdTime;
+                            }
+                            sendKeys(count, actionItem, keyPressTime, commandSet.waitBetweenEachCommand);
+                        }
                     }
                 }
                 // if we changed forground window we need to restore the old window again as the user could be running overlays or other apps they want to keep in forground.
@@ -376,16 +370,59 @@ namespace CrewChiefV4.commands
                 // Couldn't set the game to foreground
             }
         }
-
-        private void sendKeys(int count, ActionItem actionItem, int keyPressTime, int waitBetweenKeys)
-        {            
+ 
+        private void sendKeys(int count, ActionItem actionItem, int? keyPressTime, int waitBetweenKeys)
+        {
             if (actionItem.allowFreeText)
             {
-                Console.WriteLine(actionItem.freeText);
-                new InputSimulator().Keyboard
-                    .KeyPress(SpeechRecogniser.getStartChatMacro().getStartChatKey()).Sleep(getWaitBetweenEachCommand())
-                    .TextEntry(actionItem.freeText).Sleep(getWaitBetweenEachCommand())
-                    .KeyPress(SpeechRecogniser.getEndChatMacro().getEndChatKey());
+                // 3 cases here: either we have one or more actions either side the free text, or we have no actions either
+                // side but have start / end chat macros, or we guess and surround the free text with T and ENTER
+                if (actionItem.actionItemsBeforeFreeText.Count > 0)
+                {
+                    foreach (ActionItem beforeItem in actionItem.actionItemsBeforeFreeText)
+                    {
+                        // TODO: do we actually need to parse out the repeats here?
+                        sendKeys(1, beforeItem, actionItem.holdTime, waitBetweenKeys);
+                    }
+                }
+                else
+                {
+                    ActionItem startChatActionItem = SpeechRecogniser.getStartChatMacro() == null ? null : SpeechRecogniser.getStartChatMacro().getSingleActionItemForChatStartAndEnd();
+                    if (startChatActionItem == null)
+                    {
+                        // yikes, no start chat macro, press T and hope
+                        KeyPresser.SendKeyPress(new Tuple<VirtualKeyCode?, VirtualKeyCode>(null, VirtualKeyCode.VK_T), keyPressTime);
+                    }
+                    else
+                    {
+                        KeyPresser.SendKeyPresses(startChatActionItem.keyCodes, keyPressTime, startChatActionItem.waitTime);
+                    }
+                }                
+                Console.WriteLine("Sending " + actionItem.freeText);
+                KeyPresser.InputSim.Keyboard.TextEntry(actionItem.freeText);
+                Thread.Sleep(getWaitBetweenEachCommand());
+
+                if (actionItem.actionItemsAfterFreeText.Count > 0)
+                {
+                    foreach (ActionItem afterItem in actionItem.actionItemsAfterFreeText)
+                    {
+                        // TODO: do we actually need to parse out the repeats here?
+                        sendKeys(1, afterItem, actionItem.holdTime, waitBetweenKeys);
+                    }
+                }
+                else
+                {
+                    ActionItem endChatActionItem = SpeechRecogniser.getEndChatMacro() == null ? null : SpeechRecogniser.getEndChatMacro().getSingleActionItemForChatStartAndEnd();
+                    if (endChatActionItem == null)
+                    {
+                        // yikes, no end chat macro, press ENTER and hope
+                        KeyPresser.SendKeyPress(new Tuple<VirtualKeyCode?, VirtualKeyCode>(null, VirtualKeyCode.RETURN), keyPressTime);
+                    }
+                    else
+                    {
+                        KeyPresser.SendKeyPresses(endChatActionItem.keyCodes, keyPressTime, endChatActionItem.waitTime);
+                    }
+                }
             }
             // completely arbitrary sanity check on resolved count. We don't want the app trying to press 'right' MaxInt times
             else if (actionItem.keyCodes.Length * count > 300)
@@ -402,11 +439,7 @@ namespace CrewChiefV4.commands
                     }
                     else
                     {
-                        for (int keyIndex = 0; keyIndex < actionItem.keyCodes.Length; keyIndex++)
-                        {
-                            KeyPresser.SendScanCodeKeyPress(actionItem.keyCodes[keyIndex], keyPressTime);
-                            Thread.Sleep(waitBetweenKeys);
-                        }
+                        KeyPresser.SendKeyPresses(actionItem.keyCodes, keyPressTime, waitBetweenKeys);
                     }
                 }
             }
@@ -524,8 +557,9 @@ namespace CrewChiefV4.commands
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public String description { get; set; }
         public String gameDefinition { get; set; }
-		public String[] actionSequence { get; set; }
-		public int keyPressTime { get; set; }
+        public String[] actionSequence { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public int? keyPressTime { get; set; }
         public int waitBetweenEachCommand { get; set; }
         [JsonIgnore]
         private List<ActionItem> actionItems = null;
@@ -546,6 +580,27 @@ namespace CrewChiefV4.commands
                 {
                     this.actionItems.Add(actionItem);
                     Console.WriteLine("Found " + MacroManager.FREE_TEXT_IDENTIFIER + " for commandSet " + description);
+                    if (actionSequence.Length > 1)
+                    {
+                        // save the actions before and after. If these are set we'll play them, otherwise we'll 
+                        // look for the start / end chat macros
+                        bool before = true;
+                        foreach (String surroundingAction in actionSequence)
+                        {
+                            if (surroundingAction.Contains(MacroManager.FREE_TEXT_IDENTIFIER))
+                            {
+                                before = false;
+                            }
+                            else if (before)
+                            {
+                                actionItem.actionItemsBeforeFreeText.Add(new ActionItem(surroundingAction));
+                            }
+                            else
+                            {
+                                actionItem.actionItemsAfterFreeText.Add(new ActionItem(surroundingAction));
+                            }
+                        }
+                    }
                     return true;
                 }
             }
@@ -576,13 +631,24 @@ namespace CrewChiefV4.commands
     public class ActionItem
     {
         public Boolean parsedSuccessfully = false;
-        public KeyPresser.KeyCode[] keyCodes;
+        // note this is an array only because we may have multiple presses of the same key
+        public Tuple<VirtualKeyCode?, VirtualKeyCode>[] keyCodes;
         public String actionText;
         public String freeText;
-        public String extendedType;
-        public String extendedTypeTextParam;
+        //public String extendedType;
+        //public String extendedTypeTextParam;
         public Boolean allowFreeText;
-        public int extendedTypeNumericParam;
+
+        public HashSet<SessionType> applicableSessionTypes = null;
+        public int waitTime = -1;
+        public int holdTime = -1;
+        public int fixedRepeatCount = 1; // a fixed number of repeated presses specified in the macro
+        public bool repeatCountFromVoiceCommand = false;
+        public string eventToResolveRepeatCount = null;
+
+        // these are used when playing free test macros
+        public List<ActionItem> actionItemsBeforeFreeText = new List<ActionItem>();
+        public List<ActionItem> actionItemsAfterFreeText = new List<ActionItem>();
 
         public ActionItem(String action)
         {
@@ -601,22 +667,67 @@ namespace CrewChiefV4.commands
                 int end = action.IndexOf("}", start);
                 if (start != -1 && end > -1)
                 {
-                    String[] typeAndParam = action.Substring(start, end - start).Split(',');
-                    if (typeAndParam.Length == 1 && MacroManager.FREE_TEXT_IDENTIFIER.Equals(typeAndParam[0]))
+                    String[] typeAndParamBlocks = action.Substring(start, end - start).Split('|');
+                    foreach (string typeAndParamBlock in typeAndParamBlocks)
                     {
-                        extendedType = typeAndParam[0];
-                        allowFreeText = true;
-                    }
-                    else if (typeAndParam.Length == 2)
-                    {
-                        extendedType = typeAndParam[0];
-                        if (typeAndParam[1].All(char.IsDigit))
+                        String[] typeAndParam = typeAndParamBlock.Split(',');
+                        if (typeAndParam.Length == 1 && MacroManager.FREE_TEXT_IDENTIFIER.Equals(typeAndParam[0]))
                         {
-                            extendedTypeNumericParam = int.Parse(typeAndParam[1]);
+                            allowFreeText = true;
+                            parsedSuccessfully = true;
                         }
-                        else
+                        else if (typeAndParam.Length > 1 && MacroManager.APPLICABLE_SESSION_TYPES_IDENTIFIER.Equals(typeAndParam[0]))
                         {
-                            extendedTypeTextParam = typeAndParam[1];
+                            HashSet<SessionType> parsedSessionTypes = new HashSet<SessionType>();
+                            for (int i = 1; i < typeAndParam.Length; i++)
+                            {
+                                if (Enum.TryParse(typeAndParam[i].Trim(), out SessionType parsedSessionType))
+                                {
+                                    parsedSessionTypes.Add(parsedSessionType);
+                                }
+                            }
+                            if (parsedSessionTypes.Count > 0)
+                            {
+                                this.applicableSessionTypes = parsedSessionTypes;
+                                parsedSuccessfully = true;
+                            }
+                        }
+                        else if (typeAndParam.Length == 2)
+                        {
+                            if (MacroManager.WAIT_IDENTIFIER.Equals(typeAndParam[0]))
+                            {
+                                if (int.TryParse(typeAndParam[1], out int millis))
+                                {
+                                    this.waitTime = millis;
+                                    parsedSuccessfully = true;
+                                }
+                            }
+                            else if (MacroManager.HOLD_TIME_IDENTIFIER.Equals(typeAndParam[0]))
+                            {
+                                if (int.TryParse(typeAndParam[1], out int millis))
+                                {
+                                    this.holdTime = millis;
+                                    parsedSuccessfully = true;
+                                }
+                            }
+                            else if (MacroManager.MULTIPLE_PRESS_IDENTIFIER.Equals(typeAndParam[0]))
+                            {
+                                if (MacroManager.MULTIPLE_PRESS_FROM_VOICE_TRIGGER_IDENTIFIER.Equals(typeAndParam[1]))
+                                {
+                                    this.repeatCountFromVoiceCommand = true;
+                                    parsedSuccessfully = true;
+                                }
+                                else if (typeAndParam[1].All(char.IsDigit))
+                                {
+                                    this.fixedRepeatCount = int.Parse(typeAndParam[1]);
+                                    parsedSuccessfully = true;
+                                }
+                                else
+                                {
+                                    this.eventToResolveRepeatCount = typeAndParam[1].Trim();
+                                    parsedSuccessfully = true;
+                                }
+                            }
                         }
                     }
                 }
@@ -627,9 +738,9 @@ namespace CrewChiefV4.commands
                 try
                 {
                     // first assume we have a single key binding
-                    this.keyCodes = new KeyPresser.KeyCode[1];
+                    this.keyCodes = new Tuple<VirtualKeyCode?, VirtualKeyCode>[1];
                     // try and get it directly without going through the key bindings
-                    parsedSuccessfully = KeyPresser.parseKeycode(action, false, out this.keyCodes[0]);
+                    parsedSuccessfully = KeyPresser.parseKeycode(action, out this.keyCodes[0]);
                     if (!parsedSuccessfully)
                     {
                         if (allowFreeText)
@@ -644,17 +755,15 @@ namespace CrewChiefV4.commands
                         else
                         {
                             Console.WriteLine("actionItem = \"" + action + "\" not recognised");
+                            parsedSuccessfully = false;
                         }
                     }
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    Console.WriteLine("Action " + action + " not recognised");
+                    Console.WriteLine("Error parsing action " + action + ", message:" + e.Message + " stackTrace: " + e.StackTrace);
+                    parsedSuccessfully = false;
                 }
-            }
-            else
-            {
-                parsedSuccessfully = extendedType != null;
             }
         }
 
@@ -662,21 +771,50 @@ namespace CrewChiefV4.commands
         {
             if (parsedSuccessfully)
             {
-                if (extendedType != null)
+                string str = "Raw actionItem: " + actionText + ". Extracted data: ";
+                if (this.waitTime > 0)
                 {
-                    String additionalInfo = "";
-                    if (extendedTypeNumericParam > 0) {
-                        additionalInfo = ": " + extendedTypeNumericParam;
-                    }
-                    else if (extendedTypeTextParam != null) {
-                        additionalInfo = ": " + extendedTypeTextParam;
-                    }
-                    return extendedType + additionalInfo;
+                    str += "wait " + waitTime + "ms ";
                 }
-                else
+                if (this.repeatCountFromVoiceCommand)
                 {
-                    return String.Join(",", keyCodes);
+                    str += "repeat count from voice command ";
                 }
+                if (this.fixedRepeatCount > 1)
+                {
+                    str += "repeated " + this.fixedRepeatCount + " times ";
+                }
+                if (this.eventToResolveRepeatCount != null)
+                {
+                    str += "repeat count from event " + this.eventToResolveRepeatCount + " ";
+                }
+                if (this.applicableSessionTypes != null)
+                {
+                    str += "applicable session types " + String.Join(",", this.applicableSessionTypes) + " ";
+                }
+                if (this.allowFreeText)
+                {
+                    str += "free text " + this.freeText + " ";
+                }
+                if (keyCodes != null)
+                {
+                    bool addComma = false;
+                    str += ". Keys: ";
+                    foreach (Tuple<VirtualKeyCode?, VirtualKeyCode> keyCode in keyCodes)
+                    {
+                        if (addComma)
+                        {
+                            str += ", ";
+                        }
+                        if (keyCode.Item1 != null)
+                        {
+                            str += keyCode.Item1.ToString() + "+";
+                        }
+                        str += keyCode.Item2.ToString();
+                        addComma = true;
+                    }
+                }
+                return str;
             }
             else
             {

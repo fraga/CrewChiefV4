@@ -198,6 +198,7 @@
 			"raceroomClassIds": [ 6345, 7982, 8165, 8681 ],
 			"ams2ClassNames": [ "Carrera Cup" ],
 			"acClassNames": [ "porsche*cup*" ],
+			"iracingCarIds": [ 88 ],
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL",
 			"allMembersAreRWD": true
@@ -225,7 +226,7 @@
 			"rf2ClassNames": [ "*GT4*" ],
 			"acClassNames": [ "*GT4*", "ks_bmw_m235i_racing", "lotus_evora_gx", "ginetta_g55" ],
 			"ams2ClassNames": [ "GT4" ],
-			"iracingCarIds": [ 119, 122 ],
+			"iracingCarIds": [ 119, 122, 135 ],
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL",
 			"allMembersAreRWD": true,
@@ -1375,6 +1376,6 @@
 			"carClassEnum": "E_TCR",
 			"raceroomClassIds": [ 8682 ],
 			"isBatteryPowered": true
-		},
+		}
 	]
 }
