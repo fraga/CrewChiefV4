@@ -190,6 +190,7 @@ namespace PitMenuAPI
         public static void CategoryUp()
         {
             sendControl("PitMenuUp");
+            Log.Verbose("Pit menu category up");
         }
 
         /// <summary>
@@ -198,6 +199,7 @@ namespace PitMenuAPI
         public static void CategoryDown()
         {
             sendControl("PitMenuDown");
+            Log.Verbose("Pit menu category down");
         }
 
         //////////////////////////////////////////////////////////////////////////
@@ -208,6 +210,7 @@ namespace PitMenuAPI
         public static void ChoiceInc()
         {
             sendControl("PitMenuIncrementValue");
+            Log.Verbose("Pit menu value inc");
         }
 
         /// <summary>
@@ -216,6 +219,7 @@ namespace PitMenuAPI
         public static void ChoiceDec()
         {
             sendControl("PitMenuDecrementValue");
+            Log.Verbose("Pit menu value dec");
         }
 
         /// <summary>
