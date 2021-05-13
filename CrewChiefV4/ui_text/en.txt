@@ -1594,7 +1594,7 @@ enable_iracing_pit_stop_commands_category = AUDIO_VOICE_AND_CONTROLLERS;PIT_STOP
 
 add_additional_fuel = Additional fuel to add to finish the race (number of laps worth)
 add_additional_fuel_help = Amount of extra fuel to add as a reserve (in laps or fractions of a lap) when working out how much is needed to finish a race (e.g. 0.7 means 0.7 laps' worth)
-add_additional_fuel_category = FUEL_TEMPS_AND_DAMAGES
+add_additional_fuel_category = FUEL_TEMPS_AND_DAMAGES;PIT_STOPS_AND_MULTICLASS
 
 iracing_invalidate_cut_track_laps = iRacing Invalidate cut track Laps
 iracing_invalidate_cut_track_laps_help = Disable this if you don't want the app to invalidate laps where you cut the track.
@@ -1785,7 +1785,7 @@ sre_wait_time_metadata = RESTART_REQUIRED
 
 prefer_max_consumption_in_fuel_calculations = Base fuel calculations on max fuel consumption
 prefer_max_consumption_in_fuel_calculations_help = Use max per-lap fuel consumption when calculating fuel on all track types
-prefer_max_consumption_in_fuel_calculations_category = FUEL_TEMPS_AND_DAMAGES
+prefer_max_consumption_in_fuel_calculations_category = FUEL_TEMPS_AND_DAMAGES;PIT_STOPS_AND_MULTICLASS
 
 sre_enable_opponents_by_position = Identify opponents by race position
 sre_enable_opponents_by_position_help = Allow the app to recognise opponents in voice commands by their race position
@@ -2082,7 +2082,7 @@ log_type_verbose_metadata = RESTART_REQUIRED
 
 log_type_fuel = Log type - fuel
 log_type_fuel_help = Include fuel messages in the console and log
-log_type_fuel_category = MISC
+log_type_fuel_category = MISC;FUEL_TEMPS_AND_DAMAGES;PIT_STOPS_AND_MULTICLASS
 log_type_fuel_metadata = RESTART_REQUIRED
 
 allow_composite_personalisations = Allow opponent names in 'My name' list

@@ -71,6 +71,8 @@ namespace CrewChiefV4.PitManager
         }
         #endregion Public struct
 
+        public static bool fuelVoiceCommandGiven = false;
+
         #region Private field made Public for unit testing
         // Complicated because rF2 has many names for tyres so use a dict of
         // possible alternative names for each type
@@ -314,7 +316,6 @@ namespace CrewChiefV4.PitManager
             // Select the next compound available for this car
             // Get the current tyre type
             // Get the list of tyre type, remove "No Change"
-            bool response = false;
             List<string> tyreTypes = Pmal.GetTyreTypeNames();
             tyreTypes.Remove("No Change");
             string currentTyreTypeStr = Pmal.GetCurrentTyreType();
@@ -322,7 +323,6 @@ namespace CrewChiefV4.PitManager
             int currentTyreTypeIndex = tyreTypes.IndexOf(currentTyreTypeStr) + 1;
             if (currentTyreTypeIndex >= tyreTypes.Count)
                 currentTyreTypeIndex = 0;
-            response = true;
             currentRf2TyreType.Set(tyreTypes[currentTyreTypeIndex]);
             return PMrF2eh_changeAllTyres(null);
         }
@@ -413,6 +413,7 @@ namespace CrewChiefV4.PitManager
             {
                 amount = (int)PitManagerVoiceCmds.getFuelCapacity();
             }
+            fuelVoiceCommandGiven = true;
             return rF2SetFuel(amount + current);
         }
         static public bool PMrF2eh_FuelAddXlitres(string voiceMessage)
@@ -426,10 +427,6 @@ namespace CrewChiefV4.PitManager
 
         static public bool PMrF2eh_FuelToEnd(string __)
         {
-            if (UserSettings.GetUserSettings().getBoolean("rf2_enable_auto_fuel_to_end_of_race"))
-            {   // Ignore the voice command if we're going to do it automatically
-                return true;
-            }
             var litresNeeded = PitFuelling.fuelToEnd(
                 PitManagerVoiceCmds.getFuelCapacity(),
                 PitManagerVoiceCmds.getCurrentFuel());
@@ -437,11 +434,13 @@ namespace CrewChiefV4.PitManager
             {
                 return true;
             }
+            fuelVoiceCommandGiven = true;
             return rF2SetFuel(litresNeeded);
         }
 
         static public bool PMrF2eh_FuelNone(string __)
         {
+            fuelVoiceCommandGiven = true;
             return rF2SetFuel(1);
         }
 

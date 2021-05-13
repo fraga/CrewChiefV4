@@ -60,7 +60,7 @@ namespace PitMenuAPI
 
             Log.Verbose("GetMenuDict");
             if (startUsingPitMenu())
-                {
+            {
                 do
                 {
                     category = GetCategory();
@@ -125,10 +125,10 @@ namespace PitMenuAPI
                 }
             }
             if (!shadowPitMenu.ContainsKey(category))
-                {
+            {
                 Log.Commentary($"Pit menu doesn't have category '{category}'");
                 return false;
-                }
+            }
             string currentCategory = GetCategory();
             if (category != currentCategory)
             {
@@ -252,57 +252,53 @@ namespace PitMenuAPI
         /// </returns>
         public bool SetFuelLevel(int requiredFuel)
         {
-            int tryNo = 5;
+            const int retries = 5;
+            int tryNo = retries;
 
-            if (!SmartSetCategory("FUEL:"))
+            if (!SmartSetCategory("FUEL:")) // (has its own logging)
             {   // Menu doesn't contain FUEL
                 return false;
             }
-            int current = GetFuelLevel();
-
+            int current = GetFuelLevel();   // (has its own logging)
             if (current < 0)
             {
                 return false; // Can't read value
             }
 
-            // Adjust down if necessary
-            while (current > requiredFuel)
+            Log.Commentary($"Set fuel level: current {current}, required {requiredFuel} litres");
+
+            // Adjust if necessary
+            while (current != requiredFuel)
             {
-                ChoiceDec();
+
+                if (current > requiredFuel)
+                {
+                    ChoiceDec();
+                }
+                else
+                {
+                    ChoiceInc();
+                }
+                Log.Fuel($"{GetChoice()}");
                 int newLevel = GetFuelLevel();
                 if (newLevel == current)
                 { // Can't adjust further
                     if (tryNo-- < 0)
                     {
-                        return true;
+                        Log.Warning("Can't adjust fuel further");
+                        break;
                     }
+                    Log.Verbose("Retry Pit Menu fuel adjust");
                     startUsingPitMenu();
                     SmartSetCategory("FUEL:");
                 }
                 else
                 {
                     current = newLevel;
+                    tryNo = retries;
                 }
             }
-            // Adjust up to >= required level
-            while (current < requiredFuel)
-            {
-                ChoiceInc();
-                int newLevel = GetFuelLevel();
-                if (newLevel == current)
-                { // Can't adjust further
-                    if (tryNo-- < 0)
-                    {
-                        return true;
-                    }
-                    startUsingPitMenu();
-                    SmartSetCategory("FUEL:");
-                }
-                else
-                {
-                    current = newLevel;
-                }
-            }
+            Log.Commentary($"Fuel level set: {GetFuelLevel()} litres");
             return true;
         }
 
@@ -385,6 +381,6 @@ namespace PitMenuAPI
             return false;
         }
 
-#endregion Public Methods
+        #endregion Public Methods
     }
 }
