@@ -108,6 +108,8 @@ namespace CrewChiefV4.PitManager
         // In the car (in real time)
         private static bool inCar = false;
 
+        private static Boolean rf2AutoFuelToEnd = UserSettings.GetUserSettings().getBoolean("rf2_enable_auto_fuel_to_end_of_race");
+
         #endregion Private Fields
 
         #region Public Constructors
@@ -192,6 +194,7 @@ namespace CrewChiefV4.PitManager
         {
             fuelCapacity = -1;
             currentFuel = -1;
+            PitManagerEventHandlers_RF2.fuelVoiceCommandGiven = false;
             pmh.EventHandlerInit();
         }
 
@@ -231,8 +234,6 @@ namespace CrewChiefV4.PitManager
         /// <param name="currentGameState"></param>
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
-            Boolean autoFuelToEnd = UserSettings.GetUserSettings().getBoolean("rf2_enable_auto_fuel_to_end_of_race");
-
             inCar = currentGameState.inCar;
             if (!previousGameState.inCar && currentGameState.inCar)
             {
@@ -243,19 +244,39 @@ namespace CrewChiefV4.PitManager
 
             fuelCapacity = currentGameState.FuelData.FuelCapacity;
             currentFuel = currentGameState.FuelData.FuelLeft;
-            if (inCar && autoFuelToEnd
+            if (inCar
                 && (previousGameState != null
-                    && (!previousGameState.PitData.InPitlane
-                    && currentGameState.PitData.InPitlane)
                     && currentGameState.SessionData.SessionType == SessionType.Race
                     && currentGameState.SessionData.SessionRunningTime > 15
                     && !previousGameState.PitData.IsInGarage
                     && !currentGameState.PitData.JumpedToPits))
             {
-                var litres = PitFuelling.fuelToEnd(fuelCapacity, currentFuel);
-                if (CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT)
+                if (!previousGameState.PitData.InPitlane
+                    && currentGameState.PitData.InPitlane)
                 {
-                    PitManagerEventHandlers_RF2.rF2SetFuel(litres);
+                    Log.Commentary("Entered pit lane");
+                    if (rf2AutoFuelToEnd)
+                    {
+                        if (PitManagerEventHandlers_RF2.fuelVoiceCommandGiven)
+                        {
+                            Log.Warning("'rF2 auto refuelling' ignored as a pitstop fuel voice command has been given");
+                            PitManagerEventHandlers_RF2.fuelVoiceCommandGiven = false;  // auto refuel next pitstop
+                        }
+                        else
+                        {
+
+                            if (CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT)
+                            {
+                                var litres = PitFuelling.fuelToEnd(fuelCapacity, currentFuel);
+                                PitManagerEventHandlers_RF2.rF2SetFuel(litres);
+                            }
+                        }
+                    }
+                }
+                else if (previousGameState.PitData.InPitlane
+                    && !currentGameState.PitData.InPitlane)
+                {
+                    Log.Commentary("Left pit lane");
                 }
             }
         }
@@ -378,12 +399,19 @@ namespace CrewChiefV4.PitManager
     {
         private static readonly CrewChief crewChief = MainWindow.instance.crewChief;
 
+        static private float addAdditionalFuelLaps = UserSettings.GetUserSettings().getFloat("add_additional_fuel");
+
+        static private Boolean baseCalculationsOnMaxConsumption = UserSettings.GetUserSettings().getBoolean("prefer_max_consumption_in_fuel_calculations");
+
         #region Public Methods
         static public int fuelToEnd(float fuelCapacity, float currentFuel)
         {
             int roundedLitresNeeded = -1;
             Fuel fuelEvent = (Fuel)CrewChief.getEvent("Fuel");
             float additionaLitresNeeded = fuelEvent.getLitresToEndOfRace(true);
+
+            Log.Fuel($"Laps of extra fuel: {addAdditionalFuelLaps}");
+            Log.Fuel($"Fuel calculations based on max fuel consumption: {baseCalculationsOnMaxConsumption}");
 
             if (additionaLitresNeeded == float.MaxValue)
             {
