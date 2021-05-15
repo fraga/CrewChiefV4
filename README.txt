@@ -431,6 +431,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.15.2.6: R3E - updated WebHub to latest version with new data; iRacing - updated track landmarks data to add more tracks and correct some existing ones (thanks to Jacob Klein for the hard work here); RF2 - pit menu manager improvements
+
 Version 4.15.2.5: Hotfix for broken chat macros (sorry it took so long); GTR2 - added windscreen wipers support and wired up formation lap logic
 
 Version 4.15.2.4: Remove references to GoogleDrive in auto-updater data; Chat macro fixes; iRacing - added Spa Combined, Limerock Classic 2019 and Hockenheim GP corner mappings; ACC - added "how many laps on tyre set [x]" voice command (reports the number of laps this tyre set has been used for); ACC - added "[pitstop / box], select best tyres" voice command - uses the tyre usage data to select the least used tyre set in the pit MFD (just in terms of number of laps); ACC - damage threshold tweaks; R3E - fix some car class handling bugs when server use rolling start qualifying; A few minor bug fixes
