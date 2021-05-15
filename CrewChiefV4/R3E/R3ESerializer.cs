@@ -213,6 +213,7 @@ namespace CrewChiefV4.RaceRoom
                     writeSectors(writer, "BestIndividualSectorTimeLeaderClass", data.BestIndividualSectorTimeLeaderClass.Sector1, data.BestIndividualSectorTimeLeaderClass.Sector2, data.BestIndividualSectorTimeLeaderClass.Sector3, disabledProperties);
 
                     writeProperty(writer, "IncidentPoints", data.IncidentPoints, disabledProperties);
+                    writeProperty(writer, "LapValidState", data.LapValidState, disabledProperties);
 
                     if (enabled("VehicleInfo", disabledProperties))
                     {
@@ -445,6 +446,7 @@ namespace CrewChiefV4.RaceRoom
                     writeProperty(writer, "TractionControlSetting", data.TractionControlSetting, disabledProperties);
                     writeProperty(writer, "EngineMapSetting", data.EngineMapSetting, disabledProperties);
                     writeProperty(writer, "EngineBrakeSetting", data.EngineBrakeSetting, disabledProperties);
+                    writeProperty(writer, "TractionControlPercent", data.TractionControlPercent, disabledProperties);
 
                     if (enabled("CarDamage", disabledProperties))
                     {
@@ -542,6 +544,7 @@ namespace CrewChiefV4.RaceRoom
             writeProperty(writer, "PtpState", driverData.PtpState, disabledProperties);
             writeProperty(writer, "PenaltyType", driverData.PenaltyType, disabledProperties);
             writeProperty(writer, "PenaltyReason", driverData.PenaltyReason, disabledProperties);
+            writeProperty(writer, "EngineState", driverData.EngineState, disabledProperties);
             writer.WriteEndObject();
         }
 
