@@ -199,28 +199,46 @@ namespace CrewChiefV4.Audio
         public static List<WaveDevice> GetWaveOutDevices()
         {
             List<WaveDevice> retVal = new List<WaveDevice>();
-            var devEnum = new MMDeviceEnumerator().EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active);
-            foreach (var dev in devEnum)
+            try
             {
-                WaveDevice di = new WaveDevice()
+                var devEnum = new MMDeviceEnumerator().EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active);
+                foreach (var dev in devEnum)
                 {
-                    EndpointGuid = dev.ID,
-                    FullName = dev.FriendlyName,
-                    WaveDeviceId = -1,
-                };
-
-                for (int waveOutIdx = 0; waveOutIdx < devEnum.Count; waveOutIdx++)
-                {
-                    string guid = GetWaveOutEndpointId(waveOutIdx);
-                    if (guid == di.EndpointGuid)
+                    try
                     {
-                        di.WaveDeviceId = waveOutIdx;
-                        break;
+                        WaveDevice di = new WaveDevice()
+                        {
+                            EndpointGuid = dev.ID,
+                            FullName = dev.FriendlyName,
+                            WaveDeviceId = -1,
+                        };
+
+                        for (int waveOutIdx = 0; waveOutIdx < devEnum.Count; waveOutIdx++)
+                        {
+                            string guid = GetWaveOutEndpointId(waveOutIdx);
+                            if (guid == di.EndpointGuid)
+                            {
+                                di.WaveDeviceId = waveOutIdx;
+                                break;
+                            }
+                        }
+                        retVal.Add(di);
+                    }
+                    catch (Exception)
+                    {
+                        // ignore - we'll log an error later if we can't get any devices
                     }
                 }
-                retVal.Add(di);
             }
-
+            catch (Exception e)
+            {
+                Log.Error("Error enumerating nAudio wave out devices: " + e.ToString());
+            }
+            if (retVal.Count == 0)
+            {
+                Log.Error("Unable to initialise any nAudio playback devices, try setting \" nAudio Playback\" to false in the properties screen -" +
+                    "the app will use the Windows Sounds default playback device instead");
+            }
             return retVal;
         }
         public static string GetDefaultOutputDeviceName()
