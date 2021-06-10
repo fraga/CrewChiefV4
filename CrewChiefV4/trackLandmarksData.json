@@ -540,6 +540,7 @@
 			"acTrackNames": [ "spa:" ],
 			"irTrackName": "spa up",
 			"pcars2TrackName": "Spa_Francorchamps:GP",
+			"ams2TrackName": "SpaFrancorchamps:Spa_Francorchamps_2020",
 			"trackLandmarks": [
 				{
 					"landmarkName": "la_source",
@@ -1137,6 +1138,7 @@
 		{
 			"pcarsTrackName": "Mazda Raceway:Laguna Seca",
 			"pcars2TrackName": "Laguna_Seca:",
+			"ams2TrackName": "Laguna_Seca:Laguna_Seca_2020",
 			"acTrackNames": [ "ks_laguna_seca:" ],
 			"raceroomLayoutId": 1856,
 			"irTrackName": "lagunaseca",
@@ -8283,6 +8285,7 @@
 		{
 			"rf2TrackNames": [ "Daytona International Speedway", "Daytona Road Course DX11" ],
 			"pcars2TrackName": "Daytona_International_Speedway:Road_Course",
+			"ams2TrackName": "Daytona:Daytona_Road_Course",
 			"irTrackName": "daytona 2011 road",
 			"raceroomLayoutId": 8367,
 			"approximateTrackLength": 5800,
@@ -11036,6 +11039,7 @@
 		{
 			"rf2TrackNames": [ "Long_Beech_2014" ],
 			"pcars2TrackName": "Long_Beach:Street_Circuit",
+			"ams2TrackName": "Long_Beach:Long_Beach",
 			"trackLandmarks": [
 				{
 					"landmarkName": "turn1",
