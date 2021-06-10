@@ -175,7 +175,8 @@ namespace GTR2SharedMemory
             OpenPractice = 1,
             RaceWeekendOr24Hr = 3,
             Championship = 4,
-            Online = 5
+            Online = 5,
+            DrivingSchool = 8
         }
     }
 
@@ -562,6 +563,7 @@ namespace GTR2SharedMemory
             public int mGameMode;
 
             public byte mFlatSpotEmulationEnabled;
+            public byte mDirtPickupEmulationEnabled;
 
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 4)]
             public GTR2ExtendedWheel[] mWheels;

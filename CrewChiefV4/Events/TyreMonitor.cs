@@ -631,6 +631,17 @@ namespace CrewChiefV4.Events
                 }
                 Console.WriteLine("-------------------------");
             }
+
+            if (tyreData.DirtPickupEmulationActive)
+            {
+                Console.WriteLine("-------------------------");
+                Console.WriteLine("Dirt pickup severity, percentage  |------|  percentage");
+                Console.WriteLine("Fronts:    " + Math.Round(tyreData.FrontLeftDirtPickupSeverity == -1.0 ? 0.0 : tyreData.FrontLeftDirtPickupSeverity, 2) +
+                    "  |------|  " + Math.Round(tyreData.FrontRightDirtPickupSeverity == -1.0 ? 0.0 : tyreData.FrontRightDirtPickupSeverity, 2));
+                Console.WriteLine("Rears:    " + Math.Round(tyreData.RearLeftDirtPickupSeverity == -1.0 ? 0.0 : tyreData.RearLeftDirtPickupSeverity, 2) +
+                    "  |------|  " + Math.Round(tyreData.RearRightDirtPickupSeverity == -1.0 ? 0.0 : tyreData.RearRightDirtPickupSeverity, 2));
+                Console.WriteLine("-------------------------");
+            }
         }
 
         private void getIMOAveragesForLap()

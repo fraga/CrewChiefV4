@@ -514,32 +514,11 @@ namespace CrewChiefV4
         }
 
         /// <summary>
-        /// Send Numpad 5 to games that have CC VR DLLs
+        /// Reset VR Zero Position if VR thread is running.
         /// </summary>
         static void resetVRview()
         {
-            if (CrewChief.gameDefinition.friendlyName.Equals("Automobilista") ||
-                CrewChief.gameDefinition.friendlyName.Equals("GTR 2"))
-            {
-                string str = UserSettings.GetUserSettings().getString("reset_vr_view_control");
-                if (KeyPresser.parseKeycode(str, out Tuple<VirtualKeyCode?, VirtualKeyCode> keyCode))
-                {
-                    KeyPresser.SendKeyPress(keyCode);
-                    Log.Commentary("Reset VR view");
-                }
-                else
-                {
-                    Log.Error($"reset_vr_view_control: invalid keycode '{str}'");
-                }
-            }
-            else if(CrewChief.gameDefinition.gameEnum == GameEnum.NONE)
-            {
-                MainWindow.instance.resetSteamVRTrackingPose();
-            }
-            else
-            {
-                Log.Verbose($"{CrewChief.gameDefinition.friendlyName} doesn't use 'Reset VR view'");
-            }
+            MainWindow.instance.resetSteamVRTrackingPose();
         }
 
         /// <summary>

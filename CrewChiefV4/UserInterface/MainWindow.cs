@@ -1703,7 +1703,11 @@ namespace CrewChiefV4
             if (!VROverlayController.vrUpdateThreadRunning)
                 return;
 
-            OpenVR.Chaperone.ResetZeroPose(OpenVR.Compositor.GetTrackingSpace());
+            if (UserSettings.GetUserSettings().getBoolean("force_seated_on_vr_view_reset"))
+                OpenVR.Chaperone.ResetZeroPose(ETrackingUniverseOrigin.TrackingUniverseSeated);
+            else
+                OpenVR.Chaperone.ResetZeroPose(OpenVR.Compositor.GetTrackingSpace());
+
             Log.Commentary("Reset VR view");
         }
 
