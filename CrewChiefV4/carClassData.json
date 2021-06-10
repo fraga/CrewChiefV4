@@ -187,7 +187,7 @@
 			"rf2ClassNames": [ "*GT3*" ],
 			"ams2ClassNames": [ "GT3" ],
 			"acClassNames": [ "ks_audi_r8_lms*", "*GT3*" ],
-			"iracingCarIds": [ 43, 55, 59, 72, 73, 94, 132, 133 ],
+			"iracingCarIds": [ 43, 55, 59, 72, 73, 94, 132, 133, 137 ],
 			"timesInHundredths": true,
 			"enabledMessageTypes": "ALL",
 			"maxSafeOilTemp": 135,
