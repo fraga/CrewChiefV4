@@ -14,7 +14,7 @@ namespace CrewChiefV4.GameState
 {
     public enum SessionType
     {
-        Unavailable, Practice, Qualify, Race, HotLap, LonePractice
+        Unavailable, Practice, Qualify, Race, HotLap, LonePractice, DrivingSchool
     }
     public enum SessionPhase
     {
@@ -2963,12 +2963,19 @@ namespace CrewChiefV4.GameState
         }
 
         public Boolean FlatSpotEmulationActive = false;
+        public Boolean DirtPickupEmulationActive = false;
 
         // Flat spot severity in range of [0.0, 1.0]
         public Single FrontLeftFlatSpotSeverity = -1.0f;
         public Single FrontRightFlatSpotSeverity = -1.0f;
         public Single RearLeftFlatSpotSeverity = -1.0f;
         public Single RearRightFlatSpotSeverity = -1.0f;
+
+        // Dirt pickup severity in range of [0.0, 1.0]
+        public Single FrontLeftDirtPickupSeverity = -1.0f;
+        public Single FrontRightDirtPickupSeverity = -1.0f;
+        public Single RearLeftDirtPickupSeverity = -1.0f;
+        public Single RearRightDirtPickupSeverity = -1.0f;
 
         private CornerData _TyreTempStatus;
         public CornerData TyreTempStatus

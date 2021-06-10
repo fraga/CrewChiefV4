@@ -4765,18 +4765,6 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string Setting {
-            get {
-                return ((string)(this["Setting"]));
-            }
-            set {
-                this["Setting"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("C:/Program Files (x86)/Steam/steamapps/common/Project CARS 3/pCARS3.exe")]
         public string pcars3_launch_exe {
             get {
@@ -5221,18 +5209,6 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("NUMPAD5")]
-        public string reset_vr_view_control {
-            get {
-                return ((string)(this["reset_vr_view_control"]));
-            }
-            set {
-                this["reset_vr_view_control"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool log_type_fuel {
             get {
@@ -5288,6 +5264,18 @@ namespace CrewChiefV4.Properties {
             }
             set {
                 this["enable_frozen_order_messages"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool force_seated_on_vr_view_reset {
+            get {
+                return ((bool)(this["force_seated_on_vr_view_reset"]));
+            }
+            set {
+                this["force_seated_on_vr_view_reset"] = value;
             }
         }
     }

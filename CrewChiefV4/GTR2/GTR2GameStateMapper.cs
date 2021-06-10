@@ -175,7 +175,7 @@ namespace CrewChiefV4.GTR2
             this.tyreFlatSpotThresholds.Add(new CornerData.EnumWithThresholds(TyreFlatSpotState.MAJOR, 0.3f, 1.1f));
         }
 
-        private int[] minimumSupportedVersionParts = new int[] { 1, 2, 0, 0 };
+        private int[] minimumSupportedVersionParts = new int[] { 1, 3, 0, 0 };
         public static bool pluginVerified = false;
         private static int reinitWaitAttempts = 0;
         public override void versionCheck(Object memoryMappedFileStruct)
@@ -1190,6 +1190,7 @@ namespace CrewChiefV4.GTR2
             // GTR2 reports in Kelvin
             cgs.TyreData.TyreWearActive = shared.extended.mTireMult > 0;
             cgs.TyreData.FlatSpotEmulationActive = shared.extended.mFlatSpotEmulationEnabled != 0;
+            cgs.TyreData.DirtPickupEmulationActive = shared.extended.mDirtPickupEmulationEnabled != 0;
 
             // For now, all tyres will be reported as front compund.
             var tt = TyreType.Uninitialized;
@@ -1216,6 +1217,7 @@ namespace CrewChiefV4.GTR2
             cgs.TyreData.FrontLeft_CenterTemp = (float)wheelFrontLeft.mTemperature[1] - 273.15f;
             cgs.TyreData.FrontLeft_RightTemp = (float)wheelFrontLeft.mTemperature[2] - 273.15f;
             cgs.TyreData.FrontLeftFlatSpotSeverity = (float)shared.extended.mWheels[0].mFlatSpotSeverity;
+            cgs.TyreData.FrontLeftDirtPickupSeverity = (float)shared.extended.mWheels[0].mDirtPickupSeverity;
 
             var frontLeftTemp = (cgs.TyreData.FrontLeft_CenterTemp + cgs.TyreData.FrontLeft_LeftTemp + cgs.TyreData.FrontLeft_RightTemp) / 3.0f;
             cgs.TyreData.FrontLeftPressure = wheelFrontLeft.mFlat == 0 ? (float)wheelFrontLeft.mPressure : 0.0f;
@@ -1234,6 +1236,7 @@ namespace CrewChiefV4.GTR2
             cgs.TyreData.FrontRight_CenterTemp = (float)wheelFrontRight.mTemperature[1] - 273.15f;
             cgs.TyreData.FrontRight_RightTemp = (float)wheelFrontRight.mTemperature[2] - 273.15f;
             cgs.TyreData.FrontRightFlatSpotSeverity = (float)shared.extended.mWheels[1].mFlatSpotSeverity;
+            cgs.TyreData.FrontRightDirtPickupSeverity = (float)shared.extended.mWheels[1].mDirtPickupSeverity;
 
             var frontRightTemp = (cgs.TyreData.FrontRight_CenterTemp + cgs.TyreData.FrontRight_LeftTemp + cgs.TyreData.FrontRight_RightTemp) / 3.0f;
             cgs.TyreData.FrontRightPressure = wheelFrontRight.mFlat == 0 ? (float)wheelFrontRight.mPressure : 0.0f;
@@ -1251,6 +1254,7 @@ namespace CrewChiefV4.GTR2
             cgs.TyreData.RearLeft_CenterTemp = (float)wheelRearLeft.mTemperature[1] - 273.15f;
             cgs.TyreData.RearLeft_RightTemp = (float)wheelRearLeft.mTemperature[2] - 273.15f;
             cgs.TyreData.RearLeftFlatSpotSeverity = (float)shared.extended.mWheels[2].mFlatSpotSeverity;
+            cgs.TyreData.RearLeftDirtPickupSeverity = (float)shared.extended.mWheels[2].mDirtPickupSeverity;
 
             var rearLeftTemp = (cgs.TyreData.RearLeft_CenterTemp + cgs.TyreData.RearLeft_LeftTemp + cgs.TyreData.RearLeft_RightTemp) / 3.0f;
             cgs.TyreData.RearLeftPressure = wheelRearLeft.mFlat == 0 ? (float)wheelRearLeft.mPressure : 0.0f;
@@ -1268,6 +1272,7 @@ namespace CrewChiefV4.GTR2
             cgs.TyreData.RearRight_CenterTemp = (float)wheelRearRight.mTemperature[1] - 273.15f;
             cgs.TyreData.RearRight_RightTemp = (float)wheelRearRight.mTemperature[2] - 273.15f;
             cgs.TyreData.RearRightFlatSpotSeverity = (float)shared.extended.mWheels[3].mFlatSpotSeverity;
+            cgs.TyreData.RearRightDirtPickupSeverity = (float)shared.extended.mWheels[3].mDirtPickupSeverity;
 
             var rearRightTemp = (cgs.TyreData.RearRight_CenterTemp + cgs.TyreData.RearRight_LeftTemp + cgs.TyreData.RearRight_RightTemp) / 3.0f;
             cgs.TyreData.RearRightPressure = wheelRearRight.mFlat == 0 ? (float)wheelRearRight.mPressure : 0.0f;
@@ -2741,6 +2746,11 @@ namespace CrewChiefV4.GTR2
                 case 0:  // Applies to open practice, private practice, time trial.
                          // This might be problematic - memory may be simply empty.
                          // up to four possible practice sessions (seems 2 in GTR2)
+                    if (shared.extended.mGameMode == (int)GTR2GameMode.DrivingSchool)
+                        return SessionType.DrivingSchool;
+
+                    goto case 1;
+
                 case 1:
                 case 2:
                     // This might go from LonePractice to Practice without any nice state transition.  However,

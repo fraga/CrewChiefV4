@@ -360,10 +360,16 @@ namespace CrewChiefV4.Events
 
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
-            if (!currentGameState.inCar 
-                || (currentGameState.SessionData.SessionPhase == SessionPhase.Finished
-                    && currentGameState.ControlData.ControlType == ControlType.AI))
+            if (currentGameState.SessionData.SessionPhase == SessionPhase.Finished
+                && currentGameState.ControlData.ControlType == ControlType.AI)
             {
+                return;
+            }
+
+            if (!currentGameState.inCar)
+            {
+                // Reset pit countdown in games that detect being in the garage.
+                previousDistanceToBox = -1;
                 return;
             }
 

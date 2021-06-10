@@ -1547,22 +1547,22 @@ force_min_window_size_metadata = RESTART_REQUIRED
 
 pit_box_position_countdown = Pit box distance countdown
 pit_box_position_countdown_help = Play distance in metres to box as you approach (R3E, rF2, iRacing and GTR 2 only).  Note:  In rF2, disabled for oval tracks.  May not work with some other tracks too.
-pit_box_position_countdown_filter = IRACING;RACE_ROOM;RF2_64BIT
+pit_box_position_countdown_filter = IRACING;RACE_ROOM;RF2_64BIT;GTR2
 pit_box_position_countdown_category = PIT_STOPS_AND_MULTICLASS
 
 pit_box_time_countdown = Pit box time countdown
-pit_box_time_countdown_help = Play time to box as you approach (R3E, rF2 and iRacing only).  Note:  In rF2, disabled for oval tracks.  May not work with some other tracks too.
-pit_box_time_countdown_filter = IRACING;RACE_ROOM;RF2_64BIT
+pit_box_time_countdown_help = Play time to box as you approach (R3E, rF2, iRacing and GTR 2 only).  Note:  In rF2, disabled for oval tracks.  May not work with some other tracks too.
+pit_box_time_countdown_filter = IRACING;RACE_ROOM;RF2_64BIT;GTR2
 pit_box_time_countdown_category = PIT_STOPS_AND_MULTICLASS
 
 pit_box_time_countdown_end_position = Pit box time countdown end point (metres)
 pit_box_time_countdown_end_position_help = End pit box time countdown this many metres from the box
-pit_box_time_countdown_end_position_filter = IRACING;RACE_ROOM;RF2_64BIT
+pit_box_time_countdown_end_position_filter = IRACING;RACE_ROOM;RF2_64BIT;GTR2
 pit_box_time_countdown_end_position_category = PIT_STOPS_AND_MULTICLASS
 
 pit_box_position_countdown_in_feet = Pit box distance countdown in feet
 pit_box_position_countdown_in_feet_help = Play pit distance countdown in feet
-pit_box_position_countdown_in_feet_filter = IRACING;RACE_ROOM;RF2_64BIT
+pit_box_position_countdown_in_feet_filter = IRACING;RACE_ROOM;RF2_64BIT;GTR2
 pit_box_position_countdown_in_feet_category = PIT_STOPS_AND_MULTICLASS
 
 enable_multiclass_messages = Enable multi-class messages
@@ -2114,11 +2114,6 @@ sre_button_release_delay = SRE delay after button release, hold button mode only
 sre_button_release_delay_help = Wait this long after releasing the radio button before invoking the speech recogniser
 sre_button_release_delay_category = AUDIO_VOICE_AND_CONTROLLERS
 
-reset_vr_view_control = Keycode to reset VR view
-reset_vr_view_control_help = Keycode sent to game to reset VR view, default is NUMPAD5
-reset_vr_view_control_category = MISC
-reset_vr_view_control_filter = RF1;GTR2
-
 sre_enable_threshold_tuning = Auto-tune speech recognition thresholds
 sre_enable_threshold_tuning_help = Adjust SRE confidence thresholds automatically
 sre_enable_threshold_tuning_category = AUDIO_VOICE_AND_CONTROLLERS
@@ -2138,3 +2133,7 @@ force_resample_metadata = RESTART_REQUIRED
 enable_frozen_order_messages = Enable frozen order messages
 enable_frozen_order_messages_help = Play formation lap and full course yellow order messages
 enable_frozen_order_messages_category = FLAGS_AND_RULES
+
+force_seated_on_vr_view_reset = Force Seated tracking mode on Reset VR View
+force_seated_on_vr_view_reset_help = If enabled, will force Seated position reset on Reset VR View.  If disabled, will respect the current SteamVR tracking mode.
+force_seated_on_vr_view_reset_category = VR_SETTINGS
