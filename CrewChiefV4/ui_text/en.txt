@@ -133,7 +133,7 @@ volume_down = Decrease messages volume
 toggle_mute = Toggle mute
 print_track_data = Print track and position info
 toggle_yellow_flag_messages = Toggle yellow flag messages
-activate_pit_prediction = Pitstop prediction
+activate_pit_prediction = Pit stop prediction
 get_fuel_status = Report fuel/battery status
 get_status = Report car, damage and session status
 get_car_status = Report car status and damage
@@ -1154,7 +1154,7 @@ display_session_lap_times = Display session lap times
 display_session_lap_times_help = Write all the lap times from the completed session to the console (separated by ;)
 display_session_lap_times_category = TIMINGS;UI_STARTUP_AND_PATHS
 
-enable_opponent_laptime_reporting_in_race = Enable opponent laptime reporting in race
+enable_opponent_laptime_reporting_in_race = Enable opponent lap time reporting in race
 enable_opponent_laptime_reporting_in_race_help = Call out opponent lap times in the race (car front, behind & leader) if the lap time is their best lap.
 enable_opponent_laptime_reporting_in_race_category = TIMINGS
 
@@ -1247,11 +1247,11 @@ track_temp_check_interval_seconds_help = How often to check for changes in track
 track_temp_check_interval_seconds_category = FUEL_TEMPS_AND_DAMAGES
 
 report_ambient_temp_changes_greater_than = Report ambient temp changes greater than
-report_ambient_temp_changes_greater_than_help = Report ambient (air) temperature if it's changed by more than this amount (in celsius)
+report_ambient_temp_changes_greater_than_help = Report ambient (air) temperature if it's changed by more than this amount (in Celsius)
 report_ambient_temp_changes_greater_than_category = FUEL_TEMPS_AND_DAMAGES
 
 report_track_temp_changes_greater_than = Report track temp changes greater than
-report_track_temp_changes_greater_than_help = Report track temperature if it's changed by more than this amount (in celsius)
+report_track_temp_changes_greater_than_help = Report track temperature if it's changed by more than this amount (in Celsius)
 report_track_temp_changes_greater_than_category = FUEL_TEMPS_AND_DAMAGES
 
 pause_between_messages = Pause between messages
@@ -1373,7 +1373,7 @@ realistic_mode_help = Experimental: Restrict available message types based on th
 realistic_mode_metadata = RESTART_REQUIRED
 
 always_report_time_in_hundredths = Always report time in hundredths
-always_report_time_in_hundredths_help = Always report laptimes and gaps to hundredths of a second
+always_report_time_in_hundredths_help = Always report lap times and gaps to hundredths of a second
 always_report_time_in_hundredths_category = TIMINGS
 always_report_time_in_hundredths_metadata = RESTART_REQUIRED
 
@@ -1616,13 +1616,13 @@ enable_delayed_messages_on_hardparts_metadata = RESTART_REQUIRED
 
 toggle_delay_messages_in_hard_parts = Toggle delay messages on hard parts
 
-iracing_enable_auto_fuel_to_end_of_race = Enable iRacing auto refueling when entering pit in race
-iracing_enable_auto_fuel_to_end_of_race_help = Enables auto refueling in iRacing based on fuel calculations done by the app.
+iracing_enable_auto_fuel_to_end_of_race = Enable iRacing auto refuelling when entering pit in race
+iracing_enable_auto_fuel_to_end_of_race_help = Enables auto refuelling in iRacing based on fuel calculations done by the app.
 iracing_enable_auto_fuel_to_end_of_race_category = PIT_STOPS_AND_MULTICLASS
 iracing_enable_auto_fuel_to_end_of_race_filter = IRACING
 
-rf2_enable_auto_fuel_to_end_of_race = Enable rF2 auto refueling when entering pit in race
-rf2_enable_auto_fuel_to_end_of_race_help = Enables auto refueling in rFactor 2 based on fuel calculations done by the app.
+rf2_enable_auto_fuel_to_end_of_race = Enable rF2 auto refuelling when entering pit in race
+rf2_enable_auto_fuel_to_end_of_race_help = Enables auto refuelling in rFactor 2 based on fuel calculations done by the app.
 rf2_enable_auto_fuel_to_end_of_race_category = PIT_STOPS_AND_MULTICLASS
 rf2_enable_auto_fuel_to_end_of_race_filter = RF2_64BIT
 
@@ -1696,8 +1696,8 @@ alarm_clock_times = Alarm time(s)
 alarm_clock_times_help = Set the time(s) you want the alarm to go off. Format eg. 5:11PM 5:11AM 17:11, if you want to have more than one alarm separate times with ";" eg. 5:11PM;5:11AM
 alarm_clock_times_category = AUDIO_VOICE_AND_CONTROLLERS;TIMINGS
 
-disable_behavior_altering_voice_commands = Disable behavior voice commands
-disable_behavior_altering_voice_commands_help = When checked, will disable all voice commands that affect CC behavior, for example: "Spot", "Don't spot", "Keep quiet" etc.
+disable_behavior_altering_voice_commands = Disable behaviour voice commands
+disable_behavior_altering_voice_commands_help = When checked, will disable all voice commands that affect CC behaviour, for example: "Spot", "Don't spot", "Keep quiet" etc.
 disable_behavior_altering_voice_commands_category = AUDIO_VOICE_AND_CONTROLLERS
 disable_behavior_altering_voice_commands_metadata = RESTART_REQUIRED
 
@@ -1715,7 +1715,7 @@ record_sound_variety_data_help = Log the number of times each sound is played an
 record_sound_variety_data_category = AUDIO_VOICE_AND_CONTROLLERS
 record_sound_variety_data_metadata = RESTART_REQUIRED
 
-persist_pitstop_benchmark_times = Save pitstop benchmark times to disk
+persist_pitstop_benchmark_times = Save pit stop benchmark times to disk
 persist_pitstop_benchmark_times_help = Save benchmark times to Documents folder
 persist_pitstop_benchmark_times_category = PIT_STOPS_AND_MULTICLASS
 persist_pitstop_benchmark_times_metadata = RESTART_REQUIRED
@@ -1735,7 +1735,7 @@ enable_iracing_pit_state_during_fcy_filter = IRACING
 enable_iracing_pit_state_during_fcy_category = FLAGS_AND_RULES;PIT_STOPS_AND_MULTICLASS
 
 iracing_fcy_formation_use_drivername = iRacing fcy/formation use driver names
-iracing_fcy_formation_use_drivername_help = Use driver names instead of car number if available doing fcy and formation laps
+iracing_fcy_formation_use_drivername_help = Use driver names instead of car number if available during FCY and formation laps
 iracing_fcy_formation_use_drivername_filter = IRACING
 iracing_fcy_formation_use_drivername_category = FLAGS_AND_RULES;PIT_STOPS_AND_MULTICLASS
 
@@ -1752,7 +1752,7 @@ websocket_port_filter = RACE_ROOM
 websocket_port_metadata = RESTART_REQUIRED
 
 enable_rf2_wrong_way_message = Enable rF2 'Wrong Way' message
-enable_rf2_wrong_way_message_help = Announce Message Center 'Wrong Way' messsage.  Requires DMA enabled in plugin.
+enable_rf2_wrong_way_message_help = Announce Message Centre 'Wrong Way' message.  Requires DMA enabled in plugin.
 enable_rf2_wrong_way_message_filter = RF2_64BIT
 enable_rf2_wrong_way_message_category = FLAGS_AND_RULES
 
@@ -1903,7 +1903,7 @@ make_overlay_app_window_category = UI_STARTUP_AND_PATHS
 make_overlay_app_window_metadata = RESTART_REQUIRED
 
 delete_iracing_telemetryfile = Delete iRacing telemetry file after processing
-delete_iracing_telemetryfile_help = Deletes the latest iRacing telemetry file after processing it, helps reducing diskspace used for telelmetry recordings.
+delete_iracing_telemetryfile_help = Deletes the latest iRacing telemetry file after processing it, helps reducing disk space used for telemetry recordings.
 delete_iracing_telemetryfile_filter = IRACING
 delete_iracing_telemetryfile_category = UI_STARTUP_AND_PATHS
 delete_iracing_telemetryfile_metadata = RESTART_REQUIRED
@@ -1978,22 +1978,22 @@ show_vr_settings_as_overlay = Always show VR Settings window as overlay
 show_vr_settings_as_overlay_help = If enabled, SteamVR Settings window is always shown as an overlay.  Disable if it gets in a way of other windows
 show_vr_settings_as_overlay_category = VR_SETTINGS
 
-codriver_rushed_speed = Codriver rushing speed threshold (km/h)
+codriver_rushed_speed = Co-driver rushing speed threshold (km/h)
 codriver_rushed_speed_help = Use rushed / urgent calls when above this speed (rally only).  Set to unrealistically high value, e.g. 400km/h to never rush based on speed
 codriver_rushed_speed_category = CODRIVER
 codriver_rushed_speed_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
 
-codriver_rushed_lookahead_seconds = Codriver rushing look ahead (seconds)
-codriver_rushed_lookahead_seconds_help = Use rushed / urgent calls when there are pace notes to be announced this many seconds away (rally only).  If set to 0, codriver will only rush based on speed.  The bigger the value, the more likely it is thatcodriver will rush.
+codriver_rushed_lookahead_seconds = Co-driver rushing look ahead (seconds)
+codriver_rushed_lookahead_seconds_help = Use rushed / urgent calls when there are pace notes to be announced this many seconds away (rally only).  If set to 0, co-driver will only rush based on speed.  The bigger the value, the more likely it is that co-driver will rush.
 codriver_rushed_lookahead_seconds_category = CODRIVER
 codriver_rushed_lookahead_seconds_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
 
-codriver_chained_pacenote_threshold_distance = Link codriver calls closer than this (metres)
+codriver_chained_pacenote_threshold_distance = Link co-driver calls closer than this (metres)
 codriver_chained_pacenote_threshold_distance_help = Combined calls when they're closer together than this many metres (rally only)
 codriver_chained_pacenote_threshold_distance_category = CODRIVER
 codriver_chained_pacenote_threshold_distance_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
 
-codriver_lookahead_seconds = Default look ahead for codriver calls (seconds)
+codriver_lookahead_seconds = Default look ahead for co-driver calls (seconds)
 codriver_lookahead_seconds_help = Call out corners etc when you're this many seconds away (rally only)
 codriver_lookahead_seconds_category = CODRIVER
 codriver_lookahead_seconds_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
@@ -2031,7 +2031,7 @@ scroll_bars_on_main_window_category = MISC
 scroll_bars_on_main_window_metadata = RESTART_REQUIRED
 
 use_dictation_grammar_for_rally = Use free dictation for stage notes
-use_dictation_grammar_for_rally_help = Record pace notes using free dictaction grammar (Windows speech recogniser only)
+use_dictation_grammar_for_rally_help = Record pace notes using free dictation grammar (Windows speech recogniser only)
 use_dictation_grammar_for_rally_category = AUDIO_VOICE_AND_CONTROLLERS
 use_dictation_grammar_for_rally_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
 use_dictation_grammar_for_rally_metadata = RESTART_REQUIRED
