@@ -131,15 +131,21 @@ namespace CrewChiefV4.R3E
             { CarData.CarClassEnum.F1_90S, new TyreType[]{ TyreType.Soft, TyreType.Medium, TyreType.Hard} },
             { CarData.CarClassEnum.F1, new TyreType[]{ TyreType.Soft, TyreType.Medium, TyreType.Hard} },
             { CarData.CarClassEnum.DTM_92, new TyreType[]{ TyreType.Soft, TyreType.Hard} },
-            { CarData.CarClassEnum.DTM_2014, new TyreType[]{ TyreType.Prime, TyreType.Option} },
             { CarData.CarClassEnum.INDYCAR, new TyreType[]{ TyreType.Alternate, TyreType.Prime} },  // note we use Prime here, not Primary - the SRE recognises either
             { CarData.CarClassEnum.GROUPC, new TyreType[]{ TyreType.Soft, TyreType.Medium, TyreType.Hard} },
             { CarData.CarClassEnum.GT2, new TyreType[]{ TyreType.Soft, TyreType.Hard} },
             { CarData.CarClassEnum.GROUP5, new TyreType[]{ TyreType.Soft, TyreType.Hard} },
             { CarData.CarClassEnum.M1_PROCAR, new TyreType[]{ TyreType.Soft, TyreType.Hard} },
             { CarData.CarClassEnum.GTE, new TyreType[]{ TyreType.Soft, TyreType.Medium, TyreType.Hard} },
-            { CarData.CarClassEnum.HILL_CLIMB_ICONS, new TyreType[]{ TyreType.Soft, TyreType.Hard} },
+            { CarData.CarClassEnum.HILL_CLIMB_ICONS, new TyreType[]{ TyreType.Soft, TyreType.Medium, TyreType.Hard} },
             { CarData.CarClassEnum.GROUPA, new TyreType[]{ TyreType.Soft, TyreType.Hard} }
+        };
+
+        private static HashSet<CarData.CarClassEnum> classesAllowingMismatchedTyres = new HashSet<CarData.CarClassEnum>
+        {
+            CarData.CarClassEnum.F1_90S, CarData.CarClassEnum.DTM_92, CarData.CarClassEnum.F1, CarData.CarClassEnum.INDYCAR,
+            CarData.CarClassEnum.GROUPC, CarData.CarClassEnum.GT2, CarData.CarClassEnum.GROUP5, CarData.CarClassEnum.M1_PROCAR,
+            CarData.CarClassEnum.GTE, CarData.CarClassEnum.HILL_CLIMB_ICONS, CarData.CarClassEnum.GROUPA
         };
 
         static R3EPitMenuManager()
@@ -589,23 +595,16 @@ namespace CrewChiefV4.R3E
                 {
                     setItemToOnOrOff(SelectedItem.Fronttires, false);
                     setItemToOnOrOff(SelectedItem.Reartires, false);
-                    // here we're assuming that changing the rear compound wil also change the front. This is 
-                    // probably OK at the moment - they're tied together for the classes with multiple compounds 
-                    // and the menu enforces this.
+                    // some car classes allow mismatched tyres
                     goToMenuItem(SelectedItem.Reartires);
-                    int resetCount = tyreOptions[CrewChief.carClass].Length - 1;
-                    int selectCount = Array.IndexOf(tyreOptions[CrewChief.carClass], tyreType);
-                    ExecutableCommandMacro leftMacro = getMenuLeftMacro();
-                    ExecutableCommandMacro rightMacro = getMenuRightMacro();
-                    if (leftMacro != null && rightMacro != null)
+                    setSelectedTyres(tyreType);
+                    if (classesAllowingMismatchedTyres.Contains(CrewChief.carClass))
                     {
-                        for (int i = 0; i < resetCount; i++)
-                            executeMacro(leftMacro);
-                        for (int i = 0; i < selectCount; i++)
-                            executeMacro(rightMacro);
+                        goToMenuItem(SelectedItem.Fronttires);
+                        setSelectedTyres(tyreType);
                     }
-                    setItemToOnOrOff(SelectedItem.Reartires, true);
                     setItemToOnOrOff(SelectedItem.Fronttires, true);
+                    setItemToOnOrOff(SelectedItem.Reartires, true);
                 }
                 if (closeAfterSetting)
                 {
@@ -970,6 +969,21 @@ namespace CrewChiefV4.R3E
                 MacroManager.macros.TryGetValue(PIT_MENU_LEFT_MACRO_NAME, out R3EPitMenuManager.menuLeftMacro);
             }
             return R3EPitMenuManager.menuLeftMacro;
+        }
+
+        private static void setSelectedTyres(TyreType tyreType)
+        {
+            int resetCount = tyreOptions[CrewChief.carClass].Length - 1;
+            int selectCount = Array.IndexOf(tyreOptions[CrewChief.carClass], tyreType);
+            ExecutableCommandMacro leftMacro = getMenuLeftMacro();
+            ExecutableCommandMacro rightMacro = getMenuRightMacro();
+            if (leftMacro != null && rightMacro != null)
+            {
+                for (int i = 0; i < resetCount; i++)
+                    executeMacro(leftMacro);
+                for (int i = 0; i < selectCount; i++)
+                    executeMacro(rightMacro);
+            }
         }
     }
 }
