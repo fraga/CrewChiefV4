@@ -999,7 +999,7 @@ namespace CrewChiefV4.Events
                         audioPlayer.playMessageImmediately(new QueuedMessage("mandatory_stop_minimum_time", 0,  messageFragments: MessageContents(folderMandatoryPitstopMinimumTimeIntro,
                             new TimeSpanWrapper(TimeSpan.FromSeconds(mandatoryPitTimeToWait), Precision.SECONDS)), abstractEvent: this));
                     }
-                    if (!previousGameState.PitData.IsPitCrewDone
+                    if (currentGameState.SessionData.SessionPhase == SessionPhase.Green && !previousGameState.PitData.IsPitCrewDone
                         && currentGameState.PitData.IsPitCrewDone)
                     {
                         mandatoryPitTimeToWait = currentGameState.PitData.MandatoryPitMinDurationLeft - timeFromBoxToEndOfPitLane;
@@ -1032,7 +1032,7 @@ namespace CrewChiefV4.Events
                             audioPlayer.playMessageImmediately(new QueuedMessage(folderStopCompleteGo, 1, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
                         }
                     }
-                    if (currentGameState.PitData.IsPitCrewDone && waitingForMandatoryStopTimer)
+                    if (currentGameState.SessionData.SessionPhase == SessionPhase.Green && currentGameState.PitData.IsPitCrewDone && waitingForMandatoryStopTimer)
                     {
                         // we've made the first "wait 12 seconds" call, so we're now on to the "wait... wait... 5 seconds ... wait... GO" phase
                         float waitTimeRemaining = currentGameState.PitData.MandatoryPitMinDurationLeft - timeFromBoxToEndOfPitLane;
@@ -1071,7 +1071,8 @@ namespace CrewChiefV4.Events
                             }
                         }
                     }
-                    else if (waitingForMandatoryStopTimer && previousGameState.PitData.MandatoryPitMinDurationLeft > 0 && currentGameState.PitData.MandatoryPitMinDurationLeft == -1)
+                    else if (currentGameState.SessionData.SessionPhase == SessionPhase.Green &&
+                        waitingForMandatoryStopTimer && previousGameState.PitData.MandatoryPitMinDurationLeft > 0 && currentGameState.PitData.MandatoryPitMinDurationLeft == -1)
                     {
                         // in R3E if we're waiting for the stop timer and the time remaining goes from >0 to -1 it means we've exited too soon
                         audioPlayer.playMessageImmediately(new QueuedMessage(folderLeftPitTooSoon, 0, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
