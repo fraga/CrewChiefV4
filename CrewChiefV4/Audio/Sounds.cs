@@ -1807,7 +1807,7 @@ namespace CrewChiefV4.Audio
                 WaveFileReader uncachedReader = new WaveFileReader(fullPath);
                 this.eventHandler = new EventHandler<StoppedEventArgs>(playbackStopped);
                 uncachedNAudioOut.SubscribePlaybackStopped(this.eventHandler);
-                ISampleProvider sampleProvider = createSampleProvider(reader, volume);
+                ISampleProvider sampleProvider = createSampleProvider(uncachedReader, volume);
                 try
                 {
                     uncachedNAudioOut.Init(sampleProvider);
