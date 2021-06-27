@@ -155,7 +155,7 @@ namespace CrewChiefV4.GTR2
         private int numFODetectPhaseAttempts = 0;
         private const int maxFormationStandingCheckAttempts = 5;
         //private bool safetyCarLeft = false;
-
+        private bool nonRaceSessionDurationLogged = false;
         public GTR2GameStateMapper()
         {
             this.tyreWearThresholds.Add(new CornerData.EnumWithThresholds(TyreCondition.NEW, -10000.0f, this.scrubbedTyreWearPercent));
@@ -296,6 +296,8 @@ namespace CrewChiefV4.GTR2
 
             this.lastFOChangeTicks = DateTime.MinValue.Ticks;
             this.lastKnownVehicleToFollowID = GTR2GameStateMapper.SPECIAL_MID_NONE;
+
+            this.nonRaceSessionDurationLogged = false;
         }
 
         public override GameStateData mapToGameStateData(Object memoryMappedFileStruct, GameStateData previousGameState)
@@ -580,8 +582,7 @@ namespace CrewChiefV4.GTR2
             float defaultSessionTotalRunTime = 3630.0f;
             if (shared.extended.mUnofficialFeaturesEnabled != 0 && cgs.inCar)
             {
-                if (shared.extended.mTotalSessionRunningTime < 108000.0f
-                    && !(shared.extended.mGameMode == (int)GTR2GameMode.Championship && csd.SessionType == SessionType.Race))  // Seems like Championship race is laps only, no matter what.
+                if (shared.extended.mTotalSessionRunningTime < 108000.0f)
                 {
                     csd.SessionNumberOfLaps = 0;
                     csd.SessionTotalRunTime = shared.extended.mTotalSessionRunningTime;
@@ -602,6 +603,7 @@ namespace CrewChiefV4.GTR2
                         ? (float)shared.scoring.mScoringInfo.mEndET
                         : csd.SessionNumberOfLaps > 0 ? 0.0f : defaultSessionTotalRunTime;
             }
+
             // If any difference between current and previous states suggests it is a new session
             if (pgs == null
                 || csd.SessionType != psd.SessionType
@@ -2002,20 +2004,20 @@ namespace CrewChiefV4.GTR2
             // console output
             if (csd.IsNewSession)
             {
+                Console.WriteLine("=====================================================");
                 Console.WriteLine("New session, trigger data:");
+                Console.WriteLine("=====================================================");
                 Console.WriteLine("SessionType: " + csd.SessionType);
                 Console.WriteLine("SessionPhase: " + csd.SessionPhase);
                 Console.WriteLine("HasMandatoryPitStop: " + cgs.PitData.HasMandatoryPitStop);
                 Console.WriteLine("PitWindowStart: " + cgs.PitData.PitWindowStart);
                 Console.WriteLine("PitWindowEnd: " + cgs.PitData.PitWindowEnd);
                 Console.WriteLine("NumCarsAtStartOfSession: " + csd.NumCarsOverallAtStartOfSession);
-                if (!csd.SessionHasFixedTime)
-                    Console.WriteLine("SessionNumberOfLaps: " + csd.SessionNumberOfLaps);
-                Console.WriteLine("SessionStartTime: " + csd.SessionStartTime);
-                Console.WriteLine("SessionIteration: " + csd.SessionIteration);
+                Console.WriteLine("SessionStartTime: " + csd.SessionStartTime); 
                 Console.WriteLine("EventIndex: " + csd.EventIndex);
                 Console.WriteLine("Player is using car class: \"" + cgs.carClass.getClassIdentifier() +
                     "\" at position: " + csd.OverallPosition.ToString());
+                Console.WriteLine("=====================================================");
 
                 Utilities.TraceEventClass(cgs);
             }
@@ -2023,10 +2025,25 @@ namespace CrewChiefV4.GTR2
             {
                 Console.WriteLine("SessionPhase changed from " + psd.SessionPhase +
                     " to " + csd.SessionPhase);
-                if (csd.SessionPhase == SessionPhase.Checkered ||
-                    csd.SessionPhase == SessionPhase.Finished)
+
+                if (csd.SessionPhase == SessionPhase.Checkered
+                     || csd.SessionPhase == SessionPhase.Finished)
                     Console.WriteLine("Checkered - completed " + csd.CompletedLaps + " laps, session running time = " + csd.SessionRunningTime + "  (" + TimeSpan.FromSeconds(csd.SessionRunningTime).ToString(@"hh\:mm\:ss\:fff") + ")");
+
+                if (csd.SessionType == SessionType.Race
+                    && psd.SessionPhase == SessionPhase.Gridwalk)
+                    this.PrintSessionDurationDetails(csd);
             }
+
+            if (csd.SessionType != SessionType.Race
+                && !this.nonRaceSessionDurationLogged
+                && cgs.inCar)
+            {
+                this.PrintSessionDurationDetails(csd);
+
+                this.nonRaceSessionDurationLogged = true;
+            }
+
             if (pgs != null && !psd.LeaderHasFinishedRace && csd.LeaderHasFinishedRace)
                 Console.WriteLine("Leader has finished race, player has done " + csd.CompletedLaps + " laps, session time = " + csd.SessionRunningTime + "  (" + TimeSpan.FromSeconds(csd.SessionRunningTime).ToString(@"hh\:mm\:ss\:fff") + ")");
 
@@ -2081,6 +2098,19 @@ namespace CrewChiefV4.GTR2
             this.ApplyRollingStartPosWorkaround(cgs, pgs, ref shared.scoring, ref shared.extended, leaderScoring.mID, leaderOppoentData, csd.IsNewLap, playerScoring.mID);
 
             return cgs;
+        }
+
+        private void PrintSessionDurationDetails(SessionData csd)
+        {
+            Console.WriteLine("=====================================================");
+            Console.WriteLine("Session duration details:");
+            Console.WriteLine("=====================================================");
+            Console.WriteLine("SessionHasFixedTime: " + csd.SessionHasFixedTime);
+            if (csd.SessionHasFixedTime)
+                Console.WriteLine("SessionRunningTime: {0} minutes", csd.SessionTotalRunTime / 60);
+            else
+                Console.WriteLine("SessionNumberOfLaps: " + csd.SessionNumberOfLaps);
+            Console.WriteLine("=====================================================");
         }
 
         private int GetPreprocessedPlace(ref GTR2VehicleScoring vehScoring)
