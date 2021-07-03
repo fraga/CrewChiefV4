@@ -19,11 +19,17 @@ namespace CrewChiefV4.commands
 
         public static bool parseKeycode(String keyString, out Tuple<VirtualKeyCode?, VirtualKeyCode> modifierAndKeyCode)
         {
+            VirtualKeyCode virtualKeyCode;
+            VirtualKeyCode? modifier = null;
+            if (parseNonLetterChars(keyString, out virtualKeyCode))
+            {
+                modifierAndKeyCode = new Tuple<VirtualKeyCode?, VirtualKeyCode>(modifier, virtualKeyCode);
+                return true;
+            }
             // special case for action keys where the keyString is just a letter - we parse this to the appropriate VirtualKeyCode
             // but we add the modifier to capitalize it
             bool isSingleUpperCaseChar = keyString.Length == 1 && Regex.IsMatch(keyString, "^[A-Z]$");
             bool addedModifier = false;
-            VirtualKeyCode? modifier = null;
             if (keyString.Contains("+"))
             {
                 string[] split = keyString.Split('+');
@@ -38,7 +44,6 @@ namespace CrewChiefV4.commands
             {
                 modifier = VirtualKeyCode.LSHIFT;
             }
-            VirtualKeyCode virtualKeyCode;
             if (parseKeycodeAsVirtualKeyCode(keyString, out virtualKeyCode))
             {
                 modifierAndKeyCode = new Tuple<VirtualKeyCode?, VirtualKeyCode>(modifier, virtualKeyCode);
@@ -71,8 +76,44 @@ namespace CrewChiefV4.commands
             return false;
         }
 
+        private static bool parseNonLetterChars(String keyString, out VirtualKeyCode virtualKeyCode)
+        {
+            if (keyString == " ")
+            {
+                virtualKeyCode = VirtualKeyCode.SPACE;
+                return true;
+            }
+            if (keyString == ",")
+            {
+                virtualKeyCode = VirtualKeyCode.OEM_COMMA;
+                return true;
+            }
+            if (keyString == ".")
+            {
+                virtualKeyCode = VirtualKeyCode.OEM_PERIOD;
+                return true;
+            }
+            if (keyString == "-")
+            {
+                virtualKeyCode = VirtualKeyCode.OEM_MINUS;
+                return true;
+            }
+            if (keyString == "+")
+            {
+                virtualKeyCode = VirtualKeyCode.OEM_PLUS;
+                return true;
+            }
+            virtualKeyCode = 0;
+            return false;
+        }
+
         private static bool parseKeycodeAsVirtualKeyCode(String keyString, out VirtualKeyCode virtualKeyCode)
         {
+            if (keyString == " ")
+            {
+                virtualKeyCode = VirtualKeyCode.SPACE;
+                return true;
+            }
             if (Enum.TryParse(keyString, true, out virtualKeyCode))
             {
                 return true;
@@ -94,6 +135,11 @@ namespace CrewChiefV4.commands
 
         private static bool parseKeycodeAsKeyCode(String keyString, out VirtualKeyCode virtualKeyCode)
         {
+            if (keyString == " ")
+            {
+                virtualKeyCode = VirtualKeyCode.SPACE;
+                return true;
+            }
             KeyCode parsedKeyCode;
             if (Enum.TryParse(keyString, true, out parsedKeyCode))
             {
