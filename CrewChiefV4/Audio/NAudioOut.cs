@@ -95,7 +95,7 @@ namespace CrewChiefV4.Audio
             }
 
             // Don't allow latency of 0 as it causes CPU spike.  Probably because such low latency is achieved via busy wait. 
-            this.wasapiOut = new WasapiOut(NAudioOutWasapi.cachedDevice, AudioClientShareMode.Shared, true, Math.Max(NAudioOutWasapi.wasapiLatency, 1));
+            this.wasapiOut = new WasapiOut(NAudioOutWasapi.cachedDevice, AudioClientShareMode.Shared, false, Math.Max(NAudioOutWasapi.wasapiLatency, 1));
 
             SoundCache.activeSoundPlayerObjects++;
         }

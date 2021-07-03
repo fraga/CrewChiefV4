@@ -1510,6 +1510,8 @@ namespace CrewChiefV4.Audio
         public int pauseLength = 0;
         public String fullPath;
         private byte[] fileBytes = null;
+        private DateTime playbackStartTime = DateTime.MinValue;
+        private int expectedPlaybackTime = 0;
         private MemoryStream memoryStream;
         private SoundPlayer soundPlayer;
 
@@ -1644,6 +1646,7 @@ namespace CrewChiefV4.Audio
                             try
                             {
                                 this.fileBytes = ConvertTTSWaveStreamToBytes(rawStream, SoundCache.ttsTrimStartMilliseconds, SoundCache.ttsTrimEndMilliseconds);
+                                this.expectedPlaybackTime = getPlaybackTimeForWavFile(this.fileBytes);
                             }
                             catch (Exception e)
                             {
@@ -1656,6 +1659,7 @@ namespace CrewChiefV4.Audio
                         else
                         {
                             this.fileBytes = File.ReadAllBytes(fullPath);
+                            this.expectedPlaybackTime = getPlaybackTimeForWavFile(this.fileBytes);
                         }
                         loadedFile = true;
                         SoundCache.currentSoundsLoaded++;
@@ -1668,6 +1672,16 @@ namespace CrewChiefV4.Audio
                     }
                 }
             }
+        }
+
+        private int getPlaybackTimeForWavFile(byte[] fileBytes)
+        {
+            int dataChunkSize = BitConverter.ToInt32(fileBytes, 16);
+            int headerLength = Math.Max(44, 28 + dataChunkSize);
+            int channels = (int) BitConverter.ToInt16(fileBytes, 22);
+            int sampleRate = BitConverter.ToInt32(fileBytes, 24);
+            int bytesPerSample  = (int) (BitConverter.ToInt16(fileBytes, 34) / 8);
+            return (int)((float)(fileBytes.Length - headerLength) * 1000 / ((float)channels * sampleRate * bytesPerSample));
         }
 
         public void LoadAndCacheSound()
@@ -1812,6 +1826,7 @@ namespace CrewChiefV4.Audio
                 {
                     uncachedNAudioOut.Init(sampleProvider);
                     SoundCache.currentlyPlayingSound = this;
+                    this.playbackStartTime = DateTime.UtcNow;
                     uncachedNAudioOut.Play();
                     // stop waiting after 30 seconds if it's not a beep. If it is a beep wait a few seconds
                     // just in case someone has done something weird like swap the beep sound for a personalisation
@@ -1843,6 +1858,7 @@ namespace CrewChiefV4.Audio
                         LoadAndCacheSound();
                         this.reader.CurrentTime = TimeSpan.Zero;
                         SoundCache.currentlyPlayingSound = this;
+                        this.playbackStartTime = DateTime.UtcNow;
                         this.nAudioOut.Play();
                         // It's a beep so wait a few seconds just in case someone has done something weird like swap the beep sound for a personalisation.
                         // Special case for the listen start beep - don't wait for it to finish playing before returning
@@ -1902,6 +1918,16 @@ namespace CrewChiefV4.Audio
 
         private void playbackStopped(object sender, NAudio.Wave.StoppedEventArgs e)
         {
+            int playbackTime = (int) (DateTime.UtcNow - this.playbackStartTime).TotalMilliseconds;
+            int delta = expectedPlaybackTime - playbackTime;
+            if (delta > 10)
+            {
+                Console.WriteLine("PlaybackStopped callback made " + delta + "ms early. Expected playback time " + expectedPlaybackTime + " actual time = " + playbackTime);
+            }
+            else if (delta < -10)
+            {
+                Console.WriteLine("PlaybackStopped callback made " + Math.Abs(delta) + "ms late. Expected playback time " + expectedPlaybackTime + " actual time = " + playbackTime);
+            }
             this.playWaitHandle.Set();
             SoundCache.currentlyPlayingSound = null;
         }
