@@ -3041,6 +3041,7 @@
 		},
 		{
 			"rf2TrackNames": [ "Oulton Park International" ],
+			"gtr2TrackNames": [ "Oulton Park International Circuit" ],
 			"pcarsTrackName": "Oulton Park:International",
 			"pcars2TrackName": "Oulton_Park:International",
 			"ams2TrackName": "OultonPark:OultonPark_International",
@@ -6823,6 +6824,7 @@
 		},
 		{
 			"rf2TrackNames": [ "Brands Hatch INDY", "Brands" ],
+			"gtr2TrackNames": [ "Brands Hatch 2008 Indy", "Brands Hatch Indy I" ],
 			"irTrackName": "brandshatch indy",
 			"trackLandmarks": [
 

@@ -528,6 +528,11 @@ enable_wheel_spin_warnings = Enable wheelspin warnings
 enable_wheel_spin_warnings_filter = !IRACING
 enable_wheel_spin_warnings_category = FUEL_TEMPS_AND_DAMAGES
 
+enable_tyre_dirt_pickup_warnings = Enable tyre dirt pickup warnings
+enable_tyre_dirt_pickup_warnings_help = Enables warning messages about going off track and picking up dirt (R3E and GTR2 only).
+enable_tyre_dirt_pickup_warnings_filter = RACE_ROOM;GTR2
+enable_tyre_dirt_pickup_warnings_category = FUEL_TEMPS_AND_DAMAGES
+
 attempt_pcars_opponent_pit_detection = Attempt pCARS opponent pit detection
 attempt_pcars_opponent_pit_detection_help = Monitor opponent world positions and try to guess when they're entering and leaving the pit lane
 attempt_pcars_opponent_pit_detection_filter = PCARS_64BIT;PCARS_32BIT;PCARS_NETWORK

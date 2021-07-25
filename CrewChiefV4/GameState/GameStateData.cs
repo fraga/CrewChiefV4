@@ -53,6 +53,10 @@ namespace CrewChiefV4.GameState
     {
         UNKNOWN, NONE, MINOR, MAJOR
     }
+    public enum TyreDirtPickupState
+    {
+        UNKNOWN, NONE, MAJOR
+    }
     public enum BrakeTemp
     {
         UNKNOWN, COLD, WARM, HOT, COOKING
@@ -2880,7 +2884,8 @@ namespace CrewChiefV4.GameState
             DISQUALIFIED_IGNORED_STOP_AND_GO,
             DISQUALIFIED_IGNORED_DRIVE_THROUGH,
             ENTER_PITS_TO_SERVE_PENALTY,
-            UNSPORTSMANLIKE_DRIVING
+            UNSPORTSMANLIKE_DRIVING,
+            POINTS_WILL_BE_AWARDED_THIS_LAP
         }
         public WarningMessage Warning = WarningMessage.NONE;
     }
@@ -3025,6 +3030,23 @@ namespace CrewChiefV4.GameState
             set
             {
                 _TyreFlatSpotStatus = value;
+            }
+        }
+
+        private CornerData _TyreDirtPickupStatus;
+        public CornerData TyreDirtPickupStatus
+        {
+            get
+            {
+                if (_TyreDirtPickupStatus == null)
+                {
+                    _TyreDirtPickupStatus = new CornerData();
+                }
+                return _TyreDirtPickupStatus;
+            }
+            set
+            {
+                _TyreDirtPickupStatus = value;
             }
         }
 

@@ -25,6 +25,7 @@ namespace CrewChiefV4.RaceRoom
         private List<CornerData.EnumWithThresholds> suspensionDamageThresholds = new List<CornerData.EnumWithThresholds>();
         private List<CornerData.EnumWithThresholds> tyreWearThresholds = new List<CornerData.EnumWithThresholds>();
         private List<CornerData.EnumWithThresholds> brakeDamageThresholds = new List<CornerData.EnumWithThresholds>();
+        private List<CornerData.EnumWithThresholds> tyreDirtPickupThresholds = new List<CornerData.EnumWithThresholds>();
 
         // recent r3e changes to tyre wear levels / rates - the data in the block appear to 
         // have changed recently, with about 0.94 representing 'worn out' - these start at (or close to) 1
@@ -56,6 +57,8 @@ namespace CrewChiefV4.RaceRoom
         private float minorSuspensionDamageThresholdPercent = 14f;
         private float severeSuspensionDamageThresholdPercent = 20f;
         private float destroyedSuspensionThresholdPercent = 50f;
+
+        private float severeTyreDirtPickupThreshold = 0.6f;
 
         private List<CornerData.EnumWithThresholds> brakeTempThresholdsForPlayersCar = null;
         // blue flag zone for improvised blues when the 'full flag rules' are disabled
@@ -110,6 +113,9 @@ namespace CrewChiefV4.RaceRoom
             suspensionDamageThresholds.Add(suspensionDamageMinor);
             suspensionDamageThresholds.Add(suspensionDamageMajor);
             suspensionDamageThresholds.Add(suspensionDamageDestroyed);
+
+            tyreDirtPickupThresholds.Add(new CornerData.EnumWithThresholds(TyreDirtPickupState.NONE, 0.0f, severeTyreDirtPickupThreshold));
+            tyreDirtPickupThresholds.Add(new CornerData.EnumWithThresholds(TyreDirtPickupState.MAJOR, severeTyreDirtPickupThreshold, 1.1f));
         }
 
         public override void versionCheck(Object memoryMappedFileStruct)
@@ -1354,6 +1360,10 @@ namespace CrewChiefV4.RaceRoom
 
             currentGameState.TyreData.TyreConditionStatus = CornerData.getCornerData(tyreWearThresholds, currentGameState.TyreData.FrontLeftPercentWear,
                 currentGameState.TyreData.FrontRightPercentWear, currentGameState.TyreData.RearLeftPercentWear, currentGameState.TyreData.RearRightPercentWear);
+
+            currentGameState.TyreData.DirtPickupEmulationActive = true;
+            currentGameState.TyreData.TyreDirtPickupStatus = CornerData.getCornerData(tyreDirtPickupThresholds, shared.TireDirt.FrontLeft,
+                shared.TireDirt.FrontRight, shared.TireDirt.RearLeft, shared.TireDirt.RearRight);
 
             var tyreTempThresholds = CarData.getTyreTempThresholds(currentGameState.carClass, tyreType);
             currentGameState.TyreData.TyreTempStatus = CornerData.getCornerData(tyreTempThresholds,
