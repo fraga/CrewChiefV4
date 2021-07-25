@@ -431,6 +431,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.15.2.9: Tweaked nAudio WASAPI playback to reduce the likelihood of sounds being truncated; fixed chat macro key presses not registering for some games; R3E & GTR2 - added dirt pickup warning messages (can be disabled with "Enable tyre dirt pickup warnings" property); GTR2 - damage reporting and gearbox improvements
+
 Version 4.15.2.7: Fix a crash on start up if nAudio devices fail to initialise; AMS2 - added some missing content mapping; iRacing - added some missing content mapping; GTR2 - updated VR plugin, improved Driving School support and added some additional features
 
 Version 4.15.2.6: R3E - updated WebHub to latest version with new data; iRacing - updated track landmarks data to add more tracks and correct some existing ones (thanks to Jacob Klein for the hard work here); RF2 - pit menu manager improvements; GTR2 - VR improvements
