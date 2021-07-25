@@ -35,6 +35,7 @@ namespace CrewChiefV4.GTR2
         private List<CornerData.EnumWithThresholds> suspensionDamageThresholds = new List<CornerData.EnumWithThresholds>();
         private List<CornerData.EnumWithThresholds> tyreWearThresholds = new List<CornerData.EnumWithThresholds>();
         private List<CornerData.EnumWithThresholds> tyreFlatSpotThresholds = new List<CornerData.EnumWithThresholds>();
+        private List<CornerData.EnumWithThresholds> tyreDirtPickupThresholds = new List<CornerData.EnumWithThresholds>();
 
         // Numbers below are pretty good match for HUD colors, all series, tire types.  Yay for best in class physics ;)
         // Exact thresholds/ probably depend on tire type/series, even user preferences.  Maybe expose this via car class data in the future.
@@ -164,7 +165,8 @@ namespace CrewChiefV4.GTR2
             this.tyreWearThresholds.Add(new CornerData.EnumWithThresholds(TyreCondition.MAJOR_WEAR, this.majorTyreWearPercent, this.wornOutTyreWearPercent));
             this.tyreWearThresholds.Add(new CornerData.EnumWithThresholds(TyreCondition.WORN_OUT, this.wornOutTyreWearPercent, 10000.0f));
 
-            this.suspensionDamageThresholds.Add(new CornerData.EnumWithThresholds(DamageLevel.NONE, 0.0f, 1.0f));
+            this.suspensionDamageThresholds.Add(new CornerData.EnumWithThresholds(DamageLevel.NONE, 0.0f, 0.5f));
+            this.suspensionDamageThresholds.Add(new CornerData.EnumWithThresholds(DamageLevel.MAJOR, 0.5f, 1.0f));
             this.suspensionDamageThresholds.Add(new CornerData.EnumWithThresholds(DamageLevel.DESTROYED, 1.0f, 2.0f));
 
             this.tyreFlatSpotThresholds.Add(new CornerData.EnumWithThresholds(TyreFlatSpotState.NONE, 0.0f, Single.Epsilon));
@@ -173,9 +175,12 @@ namespace CrewChiefV4.GTR2
             // Secondary lockups start at around 0.2, that's when shit hits the fan really.
             // Weird - 1.0 + Single.Epsilon does not work.
             this.tyreFlatSpotThresholds.Add(new CornerData.EnumWithThresholds(TyreFlatSpotState.MAJOR, 0.3f, 1.1f));
+
+            this.tyreDirtPickupThresholds.Add(new CornerData.EnumWithThresholds(TyreDirtPickupState.NONE, 0.0f, 0.7f));
+            this.tyreDirtPickupThresholds.Add(new CornerData.EnumWithThresholds(TyreDirtPickupState.MAJOR, 0.7f, 1.1f));
         }
 
-        private int[] minimumSupportedVersionParts = new int[] { 1, 3, 0, 0 };
+        private int[] minimumSupportedVersionParts = new int[] { 1, 4, 0, 0 };
         public static bool pluginVerified = false;
         private static int reinitWaitAttempts = 0;
         public override void versionCheck(Object memoryMappedFileStruct)
@@ -292,7 +297,6 @@ namespace CrewChiefV4.GTR2
 
             this.rspwState = RollingStateWorkaroundState.Done;
             this.rspwIDToRSWData = null;
-            this.timeRollingStartWentGreen = 0.0f;
 
             this.lastFOChangeTicks = DateTime.MinValue.Ticks;
             this.lastKnownVehicleToFollowID = GTR2GameStateMapper.SPECIAL_MID_NONE;
@@ -580,12 +584,26 @@ namespace CrewChiefV4.GTR2
             csd.SessionPhase = this.MapToSessionPhase((GTR2GamePhase)shared.scoring.mScoringInfo.mGamePhase, csd.SessionType, ref playerScoring);
 
             float defaultSessionTotalRunTime = 3630.0f;
-            if (shared.extended.mUnofficialFeaturesEnabled != 0 && cgs.inCar)
+            if (csd.SessionType == SessionType.Race
+                && shared.extended.mUnofficialFeaturesEnabled != 0
+                && cgs.inCar)
             {
-                if (shared.extended.mTotalSessionRunningTime < 108000.0f)
+                // mTimedRaceTotalSeconds is only meaningful:
+                // * In Race.
+                // * During the rolling start.
+                //
+                // After rolling start goes Green we need to use endET, because it is re-calculated
+                // by the game to include rolling lap time.
+                if (shared.extended.mTimedRaceTotalSeconds < 108000.0f)
                 {
                     csd.SessionNumberOfLaps = 0;
-                    csd.SessionTotalRunTime = shared.extended.mTotalSessionRunningTime;
+
+                    if (csd.SessionPhase == SessionPhase.Gridwalk
+                        || csd.SessionPhase == SessionPhase.Countdown
+                        || csd.SessionPhase == SessionPhase.Formation)
+                        csd.SessionTotalRunTime = shared.extended.mTimedRaceTotalSeconds;
+                    else
+                        csd.SessionTotalRunTime = shared.scoring.mScoringInfo.mEndET;
                 }
                 else
                 {
@@ -599,7 +617,7 @@ namespace CrewChiefV4.GTR2
 
                 // default to 60:30 if both session time and number of laps undefined (test day)
                 csd.SessionTotalRunTime
-                    = (float)shared.scoring.mScoringInfo.mEndET > 0.0f
+                    = (float)shared.scoring.mScoringInfo.mEndET != float.MaxValue
                         ? (float)shared.scoring.mScoringInfo.mEndET
                         : csd.SessionNumberOfLaps > 0 ? 0.0f : defaultSessionTotalRunTime;
             }
@@ -721,28 +739,18 @@ namespace CrewChiefV4.GTR2
             csd.SessionHasFixedTime = csd.SessionTotalRunTime > 0.0f;
             csd.SessionRunningTime = (float)shared.scoring.mScoringInfo.mCurrentET;
 
-            if (psd != null
-                && csd.SessionType == SessionType.Race
-                && psd.SessionPhase == SessionPhase.Formation
-                && csd.SessionPhase == SessionPhase.Green)
-                this.timeRollingStartWentGreen = csd.SessionRunningTime;
-
-            if (csd.SessionType == SessionType.Race)
+            if (csd.SessionType == SessionType.Race 
+                && csd.SessionHasFixedTime)
             {
-                if (csd.SessionPhase == SessionPhase.Formation)
+                if (csd.SessionPhase == SessionPhase.Formation
+                    || csd.SessionPhase == SessionPhase.Countdown
+                    || csd.SessionPhase == SessionPhase.Gridwalk)
                 {
-                    // During the Rolling start formation lap, consider remaining time the total time.
-                    //csd.SessionRunningTime = 0.0f;
-                    csd.SessionTimeRemaining = csd.SessionHasFixedTime ? csd.SessionTotalRunTime : 0.0f;
+                    // Ignore running time for the above cases.
+                    csd.SessionTimeRemaining = csd.SessionTotalRunTime;
                 }
                 else
-                {
-                    // Exclude the time spent during the formation lap.
-                    csd.SessionRunningTime -= this.timeRollingStartWentGreen;
-
-                    // Note: this could mute some messages for a few seconds, if 
                     csd.SessionTimeRemaining = csd.SessionHasFixedTime ? csd.SessionTotalRunTime - csd.SessionRunningTime : 0.0f;
-                }
             }
             else // Non Race case.
                 csd.SessionTimeRemaining = csd.SessionHasFixedTime ? csd.SessionTotalRunTime - csd.SessionRunningTime : 0.0f;
@@ -876,22 +884,17 @@ namespace CrewChiefV4.GTR2
 
             if (shared.extended.mUnofficialFeaturesEnabled != 0)
                 cgs.PitData.HasRequestedPitStop = (GTR2PitState)playerExtendedScoring.mPitState == GTR2Constants.GTR2PitState.Request;
-            //cgs.PitData.HasRequestedPitStop = (GTR2PitState)shared.extended.mPlayerPitState == GTR2Constants.GTR2PitState.Request;
 
             // Is this new pit request?
             if (pgs != null && !pgs.PitData.HasRequestedPitStop && cgs.PitData.HasRequestedPitStop)
                 this.timePitStopRequested = cgs.Now;
 
-            //if (shared.extended.mUnofficialFeaturesEnabled == 0)
-            //{
-            // TODO: use hardcoded time for now.
             // If DMA is not enabled, check if it's time to mark pit crew as ready.
             if (pgs != null
                 && pgs.PitData.HasRequestedPitStop
                 && cgs.PitData.HasRequestedPitStop
                 && (cgs.Now - this.timePitStopRequested).TotalSeconds > cgs.carClass.pitCrewPreparationTime)
                 cgs.PitData.IsPitCrewReady = true;
-            //}
 
             if (shared.extended.mUnofficialFeaturesEnabled != 0)
                 cgs.PitData.PitSpeedLimit = shared.extended.mCurrentPitSpeedLimit;
@@ -1096,92 +1099,38 @@ namespace CrewChiefV4.GTR2
             // Investigate if impact is ever not 0 and dents ever not 0.
             if (shared.extended.mInvulnerable == 0)
             {
-                var bodyDamage = 0;
-                foreach (int dent in playerTelemetry.mDentSeverity)
-                    bodyDamage += dent;
-
-                if (bodyDamage > 0)
-                    Console.WriteLine("DAMAGE DENT");
-
-                if (playerTelemetry.mLastImpactMagnitude > 0.0f)
-                    Console.WriteLine("DAMAGE IMPACT");
-
-                bool anyWheelDetached = false;
-                foreach (var wheel in playerTelemetry.mWheel)
-                    anyWheelDetached |= wheel.mDetached == 1;
-
-                if (playerTelemetry.mDetached == 1
-                    && anyWheelDetached)  // Wheel is not really aero damage, but it is bad situation.
-                {
-                    // Things are sad if we have both part and wheel detached.
-                    cgs.CarDamageData.OverallAeroDamage = DamageLevel.DESTROYED;
-                }
-                else if (playerTelemetry.mDetached == 1)  // If there are parts detached, consider damage major, and pit stop is necessary.)
-                    cgs.CarDamageData.OverallAeroDamage = DamageLevel.MAJOR;
-            }
-
-            /*
-            switch (bodyDamage)
-            {
-                // there's suspension damage included in these bytes but I'm not sure which ones
-                case 0:
-                    cgs.CarDamageData.OverallAeroDamage = DamageLevel.NONE;
-                    break;
-                case 1:
-                    cgs.CarDamageData.OverallAeroDamage = DamageLevel.TRIVIAL;
-                    break;
-                case 2:
-                case 3:
-                    cgs.CarDamageData.OverallAeroDamage = DamageLevel.MINOR;
-                    break;
-                case 4:
-                case 5:
-                    cgs.CarDamageData.OverallAeroDamage = DamageLevel.MAJOR;
-                    break;
-                default:
-                    cgs.CarDamageData.OverallAeroDamage = DamageLevel.DESTROYED;
-                    break;
-            }*/
-            /*var playerDamageInfo = shared.extended.mTrackedDamages[playerScoring.mID % GTR2Constants.MAX_MAPPED_IDS];
-
-            // TODO: extract
-            //if (shared.extended.mPhysics.mInvulnerable == 0)
-            //{
-                const double MINOR_DAMAGE_THRESHOLD = 1500.0;
-                const double MAJOR_DAMAGE_THRESHOLD = 4000.0;
-                const double ACCUMULATED_THRESHOLD_FACTOR = 4.0;
-
-                bool anyWheelDetached = false;
-                foreach (var wheel in playerTelemetry.mWheel)
-                    anyWheelDetached |= wheel.mDetached == 1;
-
-                if (playerTelemetry.mDetached == 1
-                    && anyWheelDetached)  // Wheel is not really aero damage, but it is bad situation.
-                {
-                    // Things are sad if we have both part and wheel detached.
-                    cgs.CarDamageData.OverallAeroDamage = DamageLevel.DESTROYED;
-                }
-                else if (playerTelemetry.mDetached == 1  // If there are parts detached, consider damage major, and pit stop is necessary.
-                    || playerDamageInfo.mMaxImpactMagnitude > MAJOR_DAMAGE_THRESHOLD)  // Also take max impact magnitude into consideration.
-                {
-
-                    cgs.CarDamageData.OverallAeroDamage = DamageLevel.MAJOR;
-                }
-                else if (playerDamageInfo.mMaxImpactMagnitude > MINOR_DAMAGE_THRESHOLD
-                    || playerDamageInfo.mAccumulatedImpactMagnitude > MINOR_DAMAGE_THRESHOLD * ACCUMULATED_THRESHOLD_FACTOR)  // Also consider accumulated damage, if user grinds car against the wall, max won't be high, but car is still damaged.
-                {
-                    cgs.CarDamageData.OverallAeroDamage = DamageLevel.MINOR;
-                }
-                else if (playerDamageInfo.mMaxImpactMagnitude > 0.0)
-                    cgs.CarDamageData.OverallAeroDamage = DamageLevel.TRIVIAL;
+                var mf = (GTR2MechanicalFailure)playerExtendedScoring.mMechanicalFailureID;
+                if (mf == GTR2MechanicalFailure.Gearbox)
+                    cgs.CarDamageData.OverallTransmissionDamage = DamageLevel.DESTROYED;
+                else if (mf == GTR2MechanicalFailure.Engine)
+                    cgs.CarDamageData.OverallEngineDamage = DamageLevel.DESTROYED;
                 else
-                    cgs.CarDamageData.OverallAeroDamage = DamageLevel.NONE;
-            /*}
-            else  // shared.extended.mPhysics.mInvulnerable != 0
-            {
-                // roll over all you want - it's just a scratch.
-                cgs.CarDamageData.OverallAeroDamage = playerDamageInfo.mMaxImpactMagnitude > 0.0 ? DamageLevel.TRIVIAL : DamageLevel.NONE;
-            }*/
+                {
+                    bool anyWheelDetached = false;
+                    foreach (var wheel in playerTelemetry.mWheel)
+                        anyWheelDetached |= wheel.mDetached == 1;
+
+                    if (playerTelemetry.mDetached == 1
+                        && anyWheelDetached)  // Wheel is not really aero damage, but it is bad situation.
+                    {
+                        // Things are sad if we have both part and wheel detached.
+                        cgs.CarDamageData.OverallAeroDamage = DamageLevel.DESTROYED;
+                    }
+                    else if (playerTelemetry.mDetached == 1)  // If there are parts detached, consider damage major, and pit stop is necessary.
+                        cgs.CarDamageData.OverallAeroDamage = DamageLevel.MAJOR;
+
+                    if (shared.extended.mTotalGearboxDamage == 1.0)
+                        cgs.CarDamageData.OverallTransmissionDamage = DamageLevel.DESTROYED;
+                    else if (shared.extended.mTotalGearboxDamage > 0.499)
+                        cgs.CarDamageData.OverallTransmissionDamage = DamageLevel.MAJOR;
+                    else if (shared.extended.mTotalGearboxDamage > 0.1)
+                        cgs.CarDamageData.OverallTransmissionDamage = DamageLevel.MINOR; // Something to remember: if, say, aero is at MAJOR, this won't get called out.
+                    else if (shared.extended.mTotalGearboxDamage > 0.02)
+                        cgs.CarDamageData.OverallTransmissionDamage = DamageLevel.TRIVIAL;
+                    else
+                        cgs.CarDamageData.OverallTransmissionDamage = DamageLevel.NONE;
+                }
+            }
 
             // --------------------------------
             // control data
@@ -1291,6 +1240,9 @@ namespace CrewChiefV4.GTR2
             cgs.TyreData.TyreFlatSpotStatus = CornerData.getCornerData(this.tyreFlatSpotThresholds, cgs.TyreData.FrontLeftFlatSpotSeverity,
                 cgs.TyreData.FrontRightFlatSpotSeverity, cgs.TyreData.RearLeftFlatSpotSeverity, cgs.TyreData.RearRightFlatSpotSeverity);
 
+            cgs.TyreData.TyreDirtPickupStatus = CornerData.getCornerData(this.tyreDirtPickupThresholds, cgs.TyreData.FrontLeftDirtPickupSeverity,
+                cgs.TyreData.FrontRightDirtPickupSeverity, cgs.TyreData.RearLeftDirtPickupSeverity, cgs.TyreData.RearRightDirtPickupSeverity);
+
             var tyreTempThresholds = CarData.getTyreTempThresholds(cgs.carClass);
             cgs.TyreData.TyreTempStatus = CornerData.getCornerData(tyreTempThresholds,
                 cgs.TyreData.PeakFrontLeftTemperatureForLap, cgs.TyreData.PeakFrontRightTemperatureForLap,
@@ -1347,12 +1299,14 @@ namespace CrewChiefV4.GTR2
                 }
             }
 
-            // use detached wheel status for suspension damage
+            var suspDmgThresh = playerExtendedScoring.mMechanicalFailureID == (int)GTR2MechanicalFailure.Suspension ? 0.5f : 0.0f;
+
+            // use detached wheel status for destroyed suspension damage
             cgs.CarDamageData.SuspensionDamageStatus = CornerData.getCornerData(this.suspensionDamageThresholds,
-                !cgs.TyreData.LeftFrontAttached ? 1 : 0,
-                !cgs.TyreData.RightFrontAttached ? 1 : 0,
-                !cgs.TyreData.LeftRearAttached ? 1 : 0,
-                !cgs.TyreData.RightRearAttached ? 1 : 0);
+                !cgs.TyreData.LeftFrontAttached ? 1.0f : suspDmgThresh,
+                !cgs.TyreData.RightFrontAttached ? 1.0f : suspDmgThresh,
+                !cgs.TyreData.LeftRearAttached ? 1.0f : suspDmgThresh,
+                !cgs.TyreData.RightRearAttached ? 1.0f : suspDmgThresh);
 
             // --------------------------------
             // brake data
@@ -2023,8 +1977,10 @@ namespace CrewChiefV4.GTR2
             }
             if (pgs != null && psd.SessionPhase != csd.SessionPhase)
             {
-                Console.WriteLine("SessionPhase changed from " + psd.SessionPhase +
-                    " to " + csd.SessionPhase);
+                if (!csd.SessionHasFixedTime)
+                    Console.WriteLine($"SessionPhase changed from '{psd.SessionPhase}' to '{csd.SessionPhase}'");
+                else
+                    Console.WriteLine($"SessionPhase changed from '{psd.SessionPhase}' to '{csd.SessionPhase}'.  SessionTimeRemaining: {TimeSpan.FromSeconds(csd.SessionTimeRemaining).ToString(@"hh\:mm\:ss\:fff")}.");
 
                 if (csd.SessionPhase == SessionPhase.Checkered
                      || csd.SessionPhase == SessionPhase.Finished)
@@ -2107,9 +2063,15 @@ namespace CrewChiefV4.GTR2
             Console.WriteLine("=====================================================");
             Console.WriteLine("SessionHasFixedTime: " + csd.SessionHasFixedTime);
             if (csd.SessionHasFixedTime)
-                Console.WriteLine("SessionRunningTime: {0} minutes", csd.SessionTotalRunTime / 60);
+            {
+                if (csd.SessionType == SessionType.Race)
+                    Console.WriteLine("SessionRunningTime: {0} minutes", csd.SessionTotalRunTime / 60);
+                else
+                    Console.WriteLine("SessionRunningTime: {0} minutes", (csd.SessionTotalRunTime - 30.0f) / 60);  // For now subtract 30 secs of red light, but eventually extract the exact delay.
+            }
             else
                 Console.WriteLine("SessionNumberOfLaps: " + csd.SessionNumberOfLaps);
+
             Console.WriteLine("=====================================================");
         }
 
@@ -2147,9 +2109,6 @@ namespace CrewChiefV4.GTR2
         }
 
         Dictionary<int, RollingStateWorkaroundVehicleData> rspwIDToRSWData = null;
-
-        // 0.0f means either that this not a rolling start race session, or we have not yet went green.
-        private float timeRollingStartWentGreen = 0.0f;
 
         private void ApplyRollingStartPosWorkaround(
             GameStateData cgs,
@@ -2410,6 +2369,10 @@ namespace CrewChiefV4.GTR2
                 else if (msg == "Blue Flag Warning: Move over soon or be penalized")
                 {
                     cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.BLUE_MOVE_OR_BE_PENALIZED;
+                }
+                else if (msg == "Points will be awarded this lap!")
+                {
+                    cgs.PenaltiesData.Warning = PenatiesData.WarningMessage.POINTS_WILL_BE_AWARDED_THIS_LAP;
                 }
                 else
                 {

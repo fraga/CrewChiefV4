@@ -382,7 +382,7 @@ namespace CrewChiefV4.Events
                                 //      Allow messages for gridwalk phase for any game *except* Raceroom (which treats gridwalk as its own session with different data to the race session)
                                 //      Allow messages for formation phase for Raceroom
                                 //      Allow messages for formation phase for iRacing
-                                //      Allow messages for formation phase for RF1 (AMS) and rF2 only when we enter sector 3 of the formation lap.
+                                //      Allow messages for formation phase for RF1 (AMS), rF2 and GTR2 only when we enter sector 3 of the formation lap.
                                 if (currentGameState.SessionData.SessionType == SessionType.Race &&
                                         (currentGameState.SessionData.SessionPhase == SessionPhase.Countdown ||
                                         (currentGameState.SessionData.SessionPhase == SessionPhase.Gridwalk && CrewChief.gameDefinition.gameEnum != GameEnum.RACE_ROOM) ||
@@ -417,8 +417,9 @@ namespace CrewChiefV4.Events
                     {
                         preLightsMessageCount = 2;
                     }
+
                     if (!playedPreLightsMessage && currentGameState.SessionData.SessionType == SessionType.Race && 
-                        currentGameState.SessionData.SessionPhase == SessionPhase.Gridwalk && CrewChief.gameDefinition.gameEnum != GameEnum.RF2_64BIT && CrewChief.gameDefinition.gameEnum != GameEnum.GTR2) // Not much correct info is available during rF2's Gridwalk.
+                        currentGameState.SessionData.SessionPhase == SessionPhase.Gridwalk && CrewChief.gameDefinition.gameEnum != GameEnum.RF2_64BIT && CrewChief.gameDefinition.gameEnum != GameEnum.GTR2) // Not much correct info is available during rF1/rF2's Gridwalk.  In GTR2 it simply does not sound nice.
                     {
                         playPreLightsMessage(currentGameState, preLightsMessageCount);
                         if (CrewChief.gameDefinition.gameEnum != GameEnum.IRACING)
@@ -438,12 +439,18 @@ namespace CrewChiefV4.Events
                         currentGameState.SessionData.SectorNumber == 3 && (currentGameState.FrozenOrderData.Phase == FrozenOrderPhase.Rolling || currentGameState.FrozenOrderData.Phase == FrozenOrderPhase.FastRolling)) ||
                         // Actually as above, just check for prev sector.  Merge it later with above clause.
                         (currentGameState.SessionData.SessionPhase == SessionPhase.Formation && CrewChief.gameDefinition.gameEnum == GameEnum.GTR2 &&
-                        previousGameState  != null && previousGameState.SessionData.SectorNumber == 2 && currentGameState.SessionData.SectorNumber == 3 && currentGameState.FrozenOrderData.Phase == FrozenOrderPhase.Rolling)))
+                        previousGameState != null && previousGameState.SessionData.SectorNumber == 2 && currentGameState.SessionData.SectorNumber == 3 && currentGameState.FrozenOrderData.Phase == FrozenOrderPhase.Rolling)))
                     {
                         // If we've not yet played the pre-lights messages, just play one of them here, but not for RaceRoom as the lights will already have started
                         if (!playedPreLightsMessage && CrewChief.gameDefinition.gameEnum != GameEnum.RACE_ROOM)
                         {
-                            playPreLightsMessage(currentGameState, (CrewChief.gameDefinition.gameEnum != GameEnum.RF2_64BIT && CrewChief.gameDefinition.gameEnum != GameEnum.GTR2) ? 1 : 2);
+                            preLightsMessageCount = (CrewChief.gameDefinition.gameEnum != GameEnum.RF2_64BIT) ? 1 : 2;
+                            if (CrewChief.gameDefinition.gameEnum == GameEnum.GTR2)
+                            {
+                                preLightsMessageCount = 3;
+                            }
+
+                            playPreLightsMessage(currentGameState, preLightsMessageCount);
                             purgePreLightsMessages = false;
                         }
                         if (purgePreLightsMessages)

@@ -131,9 +131,14 @@ namespace CrewChiefV4.Events
         public static String folderLeftRearFlatSpotted = "tyre_monitor/left_rear_is_flat_spotted";
         public static String folderRightRearFlatSpotted = "tyre_monitor/right_rear_is_flat_spotted";
 
+        public static String folderAllTyresDirty = "tyre_monitor/all_tyres_dirty";
+        public static String folderLeftTyresDirty = "tyre_monitor/left_tyres_dirty";
+        public static String folderRightTyresDirty = "tyre_monitor/right_tyres_dirty";
+
         private Boolean enableTyreTempWarnings = UserSettings.GetUserSettings().getBoolean("enable_tyre_temp_warnings");
         private Boolean enableBrakeTempWarnings = UserSettings.GetUserSettings().getBoolean("enable_brake_temp_warnings");
         private Boolean enableTyreWearWarnings = UserSettings.GetUserSettings().getBoolean("enable_tyre_wear_warnings");
+        private Boolean enableTyreDirtPickupWarnings = UserSettings.GetUserSettings().getBoolean("enable_tyre_dirt_pickup_warnings");
 
         private Boolean useFahrenheit = UserSettings.GetUserSettings().getBoolean("use_fahrenheit");
 
@@ -292,6 +297,11 @@ namespace CrewChiefV4.Events
 
         private CornerData currentTyreConditionStatus;
         private CornerData currentTyreFlatSpotStatus;
+        private CornerData currentTyreDirtPickupStatus;
+        private CornerData.Corners lastDirtPickupCorners = CornerData.Corners.NONE;
+        private bool waitingForDirtPickupToStabilize = false;
+        private DateTime timeWaitForDirtPickupStarted = DateTime.MinValue;
+        private DateTime timeLastDirtPickupMessagePlayed = DateTime.MinValue;
 
         private CornerData currentTyreTempStatus;
 
@@ -463,6 +473,11 @@ namespace CrewChiefV4.Events
             timeElapsed = 0;
             currentTyreConditionStatus = new CornerData();
             currentTyreFlatSpotStatus = new CornerData();
+            currentTyreDirtPickupStatus = new CornerData();
+            lastDirtPickupCorners = CornerData.Corners.NONE;
+            waitingForDirtPickupToStabilize = false;
+            timeWaitForDirtPickupStarted = DateTime.MinValue;
+            timeLastDirtPickupMessagePlayed = DateTime.MinValue;
             currentTyreTempStatus = new CornerData();
             currentBrakeTempStatus = new CornerData();
             peakBrakeTempStatus = new CornerData();
@@ -998,6 +1013,7 @@ namespace CrewChiefV4.Events
             }
 
             currentTyreFlatSpotStatus = currentGameState.TyreData.TyreFlatSpotStatus;
+            currentTyreDirtPickupStatus = currentGameState.TyreData.TyreDirtPickupStatus;
 
             // only do tyre wear stuff if tyre wear is active
             currentTyreConditionStatus = currentGameState.TyreData.TyreConditionStatus;
@@ -1116,6 +1132,54 @@ namespace CrewChiefV4.Events
                             tyreLifeXPointsRRWearByTime.Add((double)currentGameState.TyreData.RearRightPercentWear);
                         }
                     }
+                }
+            }
+
+            if (CrewChief.currentGameState.TyreData.DirtPickupEmulationActive
+                && enableTyreDirtPickupWarnings
+                && currentGameState.PositionAndMotionData.CarSpeed > 20.0f)
+            {
+                var dpCorners = currentTyreDirtPickupStatus.getCornersForStatus(TyreDirtPickupState.MAJOR);
+                if (dpCorners != CornerData.Corners.NONE)
+                {
+                    if (dpCorners != lastDirtPickupCorners)
+                    {
+                        // Give tire dirt pickup time to stabilize.
+                        waitingForDirtPickupToStabilize = true;
+                        timeWaitForDirtPickupStarted = currentGameState.Now;
+                    }
+
+                    lastDirtPickupCorners = dpCorners;
+
+                    if (waitingForDirtPickupToStabilize
+                        && (currentGameState.Now - timeWaitForDirtPickupStarted).TotalSeconds > 4)
+                    {
+                        waitingForDirtPickupToStabilize = false;
+                        var messageContents = new List<MessageFragment>();
+                        addTyreDirtPickupStateWarningMessages(currentTyreDirtPickupStatus.getCornersForStatus(TyreDirtPickupState.MAJOR), TyreDirtPickupState.MAJOR, messageContents);
+                        if (messageContents.Count > 0)
+                        {
+                            Console.WriteLine($"Announcing dirt pickup for corners: {dpCorners}"
+                                + $"  FL: {currentGameState.TyreData.FrontLeftDirtPickupSeverity.ToString("0.000")}"
+                                + $"  FR: {currentGameState.TyreData.FrontRightDirtPickupSeverity.ToString("0.000")}"
+                                + $"  RL: {currentGameState.TyreData.RearLeftDirtPickupSeverity.ToString("0.000")}"
+                                + $"  RR: {currentGameState.TyreData.RearRightDirtPickupSeverity.ToString("0.000")}");
+
+                            if ((currentGameState.Now - timeLastDirtPickupMessagePlayed).TotalSeconds > 300)
+                            {
+                                timeLastDirtPickupMessagePlayed = currentGameState.Now;
+                                audioPlayer.playMessageImmediately(new QueuedMessage("tyres_dirty_warning", 0, messageFragments: messageContents));
+                            }
+                            else
+                            {
+                                Console.WriteLine("Suppressing dirt pickup message due to time since last message.");
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    lastDirtPickupCorners = dpCorners;
                 }
             }
         }
@@ -1262,7 +1326,7 @@ namespace CrewChiefV4.Events
             addTyreConditionWarningMessages(currentTyreConditionStatus.getCornersForStatus(TyreCondition.WORN_OUT), TyreCondition.WORN_OUT, messageContents);
             if (CrewChief.currentGameState.TyreData.FlatSpotEmulationActive)
             {
-                addTyreFlatSpotStateWarningMessages(currentTyreFlatSpotStatus.getCornersForStatus(TyreFlatSpotState.MAJOR), TyreFlatSpotState.MAJOR, messageContents);
+                addTyreFlatSpotWarningMessages(currentTyreFlatSpotStatus.getCornersForStatus(TyreFlatSpotState.MAJOR), TyreFlatSpotState.MAJOR, messageContents);
             }
 
             Boolean wearIsGood = false;
@@ -2493,7 +2557,7 @@ namespace CrewChiefV4.Events
             }
         }
 
-        private void addTyreFlatSpotStateWarningMessages(CornerData.Corners corners, TyreFlatSpotState tfss, List<MessageFragment> messageContents)
+        private void addTyreFlatSpotWarningMessages(CornerData.Corners corners, TyreFlatSpotState tfss, List<MessageFragment> messageContents)
         {
             switch (corners)
             {
@@ -2569,6 +2633,37 @@ namespace CrewChiefV4.Events
                     {
                         case TyreFlatSpotState.MAJOR:
                             messageContents.Add(MessageFragment.Text(folderRightRearFlatSpotted));
+                            break;
+                    }
+                    break;
+            }
+        }
+
+        private void addTyreDirtPickupStateWarningMessages(CornerData.Corners corners, TyreDirtPickupState tdps, List<MessageFragment> messageContents)
+        {
+            switch (corners)
+            {
+                case CornerData.Corners.ALL:
+                    switch (tdps)
+                    {
+                        case TyreDirtPickupState.MAJOR:
+                            messageContents.Add(MessageFragment.Text(folderAllTyresDirty));
+                            break;
+                    }
+                    break;
+                case CornerData.Corners.LEFTS:
+                    switch (tdps)
+                    {
+                        case TyreDirtPickupState.MAJOR:
+                            messageContents.Add(MessageFragment.Text(folderLeftTyresDirty));
+                            break;
+                    }
+                    break;
+                case CornerData.Corners.RIGHTS:
+                    switch (tdps)
+                    {
+                        case TyreDirtPickupState.MAJOR:
+                            messageContents.Add(MessageFragment.Text(folderRightTyresDirty));
                             break;
                     }
                     break;
