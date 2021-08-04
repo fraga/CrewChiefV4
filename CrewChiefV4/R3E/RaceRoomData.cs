@@ -453,9 +453,12 @@ namespace CrewChiefV4.RaceRoom
             public Int32 Fuel;
             public Int32 FrontTires;
             public Int32 RearTires;
+            public Int32 Body;
             public Int32 FrontWing;
             public Int32 RearWing;
-            public Int32 Suspension;
+
+            // note that this one is no longer in the array since body got added :(
+            // public Int32 Suspension;
 
             // Pit menu buttons
             public Int32 ButtonTop;
