@@ -431,6 +431,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.15.2.10: Work around R3E's pit menu changes. The voice command "fix suspension" should work now but note that it will only toggle the value of this option (the app can't know what it's currently set to)
+
 Version 4.15.2.9: Tweaked nAudio WASAPI playback to reduce the likelihood of sounds being truncated; fixed chat macro key presses not registering for some games; R3E & GTR2 - added dirt pickup warning messages (can be disabled with "Enable tyre dirt pickup warnings" property); GTR2 - damage reporting and gearbox improvements
 
 Version 4.15.2.7: Fix a crash on start up if nAudio devices fail to initialise; AMS2 - added some missing content mapping; iRacing - added some missing content mapping; GTR2 - updated VR plugin, improved Driving School support and added some additional features
