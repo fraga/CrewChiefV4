@@ -1511,7 +1511,6 @@ namespace CrewChiefV4.Audio
         public String fullPath;
         private byte[] fileBytes = null;
         private DateTime playbackStartTime = DateTime.MinValue;
-        private int expectedPlaybackTime = 0;
         private MemoryStream memoryStream;
         private SoundPlayer soundPlayer;
 
@@ -1646,7 +1645,6 @@ namespace CrewChiefV4.Audio
                             try
                             {
                                 this.fileBytes = ConvertTTSWaveStreamToBytes(rawStream, SoundCache.ttsTrimStartMilliseconds, SoundCache.ttsTrimEndMilliseconds);
-                                this.expectedPlaybackTime = getPlaybackTimeForWavFile(this.fileBytes);
                             }
                             catch (Exception e)
                             {
@@ -1659,7 +1657,6 @@ namespace CrewChiefV4.Audio
                         else
                         {
                             this.fileBytes = File.ReadAllBytes(fullPath);
-                            this.expectedPlaybackTime = getPlaybackTimeForWavFile(this.fileBytes);
                         }
                         loadedFile = true;
                         SoundCache.currentSoundsLoaded++;
@@ -1918,16 +1915,6 @@ namespace CrewChiefV4.Audio
 
         private void playbackStopped(object sender, NAudio.Wave.StoppedEventArgs e)
         {
-            int playbackTime = (int) (DateTime.UtcNow - this.playbackStartTime).TotalMilliseconds;
-            int delta = expectedPlaybackTime - playbackTime;
-            if (delta > 10)
-            {
-                Console.WriteLine("PlaybackStopped callback made " + delta + "ms early. Expected playback time " + expectedPlaybackTime + " actual time = " + playbackTime);
-            }
-            else if (delta < -10)
-            {
-                Console.WriteLine("PlaybackStopped callback made " + Math.Abs(delta) + "ms late. Expected playback time " + expectedPlaybackTime + " actual time = " + playbackTime);
-            }
             this.playWaitHandle.Set();
             SoundCache.currentlyPlayingSound = null;
         }
