@@ -451,7 +451,7 @@ namespace CrewChiefV4.commands
 
         private static void sendMacroTextKeyPresses(string keys)
         {
-            if (useInputSimForFreeText)
+            if (useInputSimForFreeText || CrewChief.gameDefinition.gameEnum == GameEnum.IRACING)
             {
                 KeyPresser.InputSim.Keyboard.TextEntry(keys);
             }

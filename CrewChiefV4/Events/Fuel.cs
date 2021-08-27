@@ -137,6 +137,10 @@ namespace CrewChiefV4.Events
 
         private Boolean playedPitForFuelNow;
 
+        private Boolean playedPitForFuelNowLastWarning;
+
+        private Boolean crossedIntoSector3;
+
         private Boolean playedTwoMinutesRemaining;
 
         private Boolean playedFiveMinutesRemaining;
@@ -216,6 +220,8 @@ namespace CrewChiefV4.Events
             gameTimeAtLastFuelWindowUpdate = 0;
             averageUsagePerMinute = 0;
             playedPitForFuelNow = false;
+            playedPitForFuelNowLastWarning = false;
+            crossedIntoSector3 = false;
             playedFiveMinutesRemaining = false;
             playedTenMinutesRemaining = false;
             playedTwoMinutesRemaining = false;
@@ -317,6 +323,8 @@ namespace CrewChiefV4.Events
                     gameTimeWhenFuelWasReset = currentGameState.SessionData.SessionRunningTime;
                     gameTimeAtLastFuelWindowUpdate = currentGameState.SessionData.SessionRunningTime;
                     playedPitForFuelNow = false;
+                    playedPitForFuelNowLastWarning = false;
+                    crossedIntoSector3 = false;
                     playedFiveMinutesRemaining = false;
                     playedTenMinutesRemaining = false;
                     playedTwoMinutesRemaining = false;
@@ -407,6 +415,10 @@ namespace CrewChiefV4.Events
                 }
                 if (initialised)
                 {
+                    if(previousGameState != null && previousGameState.SessionData.SectorNumber == 2 && currentGameState.SessionData.SectorNumber == 3 && playedPitForFuelNow)
+                    {
+                        crossedIntoSector3 = true;
+                    }
                     if (currentGameState.SessionData.IsNewLap)
                     {
                         lapsCompletedSinceFuelReset++;
@@ -678,9 +690,13 @@ namespace CrewChiefV4.Events
                                 lastFuelCall = currentGameState.Now;
                                 // if we've not played the pit-now message, play it with a bit of a delay - should probably wait for sector3 here
                                 // but i'd have to move some stuff around and I'm an idle fucker
-                                if (!playedPitForFuelNow && lapsRemaining > 1)
+                                if (((crossedIntoSector3 && !playedPitForFuelNowLastWarning) || !playedPitForFuelNow) && lapsRemaining > 1)
                                 {
                                     playedPitForFuelNow = true;
+                                    if(crossedIntoSector3)
+                                    {
+                                        playedPitForFuelNowLastWarning = true;
+                                    }
                                     audioPlayer.playMessage(new QueuedMessage(PitStops.folderMandatoryPitStopsPitThisLap, 0, secondsDelay: 10, abstractEvent: this, priority: 7));
                                 }
                             }
@@ -751,8 +767,12 @@ namespace CrewChiefV4.Events
                             float estimatedFuelMinutesLeft = currentGameState.FuelData.FuelLeft / averageUsagePerMinuteToCheck;
                             float estimatedFuelTimeRemaining = 2.0f;
                             estimatedFuelTimeRemaining = ((benchmarkLaptime / 60) * 1.1f) + ((benchmarkLaptime - currentGameState.SessionData.LapTimeCurrent) / 60);
-                            if (estimatedFuelMinutesLeft < estimatedFuelTimeRemaining  && !playedPitForFuelNow)
+                            if (estimatedFuelMinutesLeft < estimatedFuelTimeRemaining && (!playedPitForFuelNow || (!playedPitForFuelNowLastWarning && crossedIntoSector3)))
                             {
+                                if(crossedIntoSector3)
+                                {
+                                    playedPitForFuelNowLastWarning = true;
+                                }
                                 playedPitForFuelNow = true;
                                 playedTwoMinutesRemaining = true;
                                 playedFiveMinutesRemaining = true;
