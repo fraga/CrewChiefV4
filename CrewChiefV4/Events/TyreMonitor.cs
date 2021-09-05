@@ -2244,7 +2244,7 @@ namespace CrewChiefV4.Events
 
         private Boolean hasUsableIMOTempData(Boolean useAverageData)
         {
-            return CrewChief.gameDefinition.gameEnum != GameEnum.IRACING && CrewChief.gameDefinition.gameEnum != GameEnum.F1_2018 && CrewChief.gameDefinition.gameEnum != GameEnum.F1_2019 && CrewChief.gameDefinition.gameEnum != GameEnum.F1_2020 &&
+            return CrewChief.gameDefinition.gameEnum != GameEnum.IRACING && CrewChief.gameDefinition.gameEnum != GameEnum.F1_2018 && CrewChief.gameDefinition.gameEnum != GameEnum.F1_2019 && CrewChief.gameDefinition.gameEnum != GameEnum.F1_2020 && CrewChief.gameDefinition.gameEnum != GameEnum.F1_2021 &&
                 ((useAverageData && leftFrontAverageIMOLastLap != null && rightFrontAverageIMOLastLap != null && leftRearAverageIMOLastLap != null && rightRearAverageIMOLastLap != null) ||
                 (!useAverageData && CrewChief.currentGameState != null && CrewChief.currentGameState.TyreData != null && CrewChief.currentGameState.TyreData.FrontLeft_LeftTemp > 30));
         }

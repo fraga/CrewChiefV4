@@ -392,7 +392,8 @@ namespace CrewChiefV4
             "race_room",
             "rfactor1",
             "rfactor2_64_bit",
-            "f1_2020"});
+            "f1_2020",
+            "f1_2021"});
             this.gameDefinitionList.Location = new System.Drawing.Point(782, 52);
             this.gameDefinitionList.MaximumSize = new System.Drawing.Size(170, 173);
             this.gameDefinitionList.MinimumSize = new System.Drawing.Size(170, 173);
