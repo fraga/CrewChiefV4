@@ -1484,6 +1484,7 @@ namespace CrewChiefV4
                 case GameEnum.F1_2018:
                 case GameEnum.F1_2019:
                 case GameEnum.F1_2020:
+                case GameEnum.F1_2021:
                     loadSpotterCommands();
                     break;
                 // rally games

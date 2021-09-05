@@ -52,6 +52,7 @@ f1_2018 = F1 2018 (spotter only)
 acc = Assetto Corsa Competizione
 f1_2019 = F1 2019 (spotter only)
 f1_2020 = F1 2020 (spotter only)
+f1_2021 = F1 2021 (spotter only)
 rbr = Richard Burns Rally
 gtr2 = GTR 2
 dirt = Dirt Rally
@@ -631,6 +632,11 @@ f1_2020_udp_data_port_help = F1 2020 network data UDP port (should usually be 20
 f1_2020_udp_data_port_filter = F1_2020
 f1_2020_udp_data_port_category = UI_STARTUP_AND_PATHS
 
+f1_2021_udp_data_port = F1 2021 UDP port
+f1_2021_udp_data_port_help = F1 2021 network data UDP port (should usually be 20777)
+f1_2021_udp_data_port_filter = F1_2021
+f1_2021_udp_data_port_category = UI_STARTUP_AND_PATHS
+
 acs_spotter_car_length = ACS Spotter default car length
 acs_spotter_car_length_filter = ASSETTO_64BIT;ASSETTO_32BIT
 acs_spotter_car_length_category = SPOTTER
@@ -682,6 +688,10 @@ f1_2019_spotter_car_length_category = SPOTTER
 f1_2020_spotter_car_length = F1 2020 Spotter default car length
 f1_2020_spotter_car_length_filter = F1_2020
 f1_2020_spotter_car_length_category = SPOTTER
+
+f1_2021_spotter_car_length = F1 2021 Spotter default car length
+f1_2021_spotter_car_length_filter = F1_2021
+f1_2021_spotter_car_length_category = SPOTTER
 
 spotter_gap_for_clear = Spotter gap for clear
 spotter_gap_for_clear_category = SPOTTER;MESSAGE_FREQUENCIES
@@ -833,6 +843,11 @@ f1_2020_launch_params_help = This is used to tell Steam what app to run - F1 202
 f1_2020_launch_params_filter = F1_2020
 f1_2020_launch_params_category = UI_STARTUP_AND_PATHS
 
+f1_2021_launch_params = F1 2021 launch params
+f1_2021_launch_params_help = This is used to tell Steam what app to run - F1 2021's Steam app ID is ??????. If you specified a path f1_2021.exe you can leave this blank
+f1_2021_launch_params_filter = F1_2021
+f1_2021_launch_params_category = UI_STARTUP_AND_PATHS
+
 r3e_launch_exe = R3E launch exe
 r3e_launch_exe_help = This is the location of Steam.exe or the direct path to RRRE.exe. Use forward slashes to separate paths.
 r3e_launch_exe_filter = RACE_ROOM
@@ -949,6 +964,11 @@ f1_2020_launch_exe_help = This is the location of Steam.exe or the direct path t
 f1_2020_launch_exe_filter = F1_2020
 f1_2020_launch_exe_category = UI_STARTUP_AND_PATHS
 
+f1_2021_launch_exe = F1 2021 launch exe
+f1_2021_launch_exe_help = This is the location of Steam.exe or the direct path to f1_2021.exe. Use forward slashes to separate paths.
+f1_2021_launch_exe_filter = F1_2021
+f1_2021_launch_exe_category = UI_STARTUP_AND_PATHS
+
 launch_rfactor1 = Launch rFactor 1
 launch_rfactor1_help = If this is true the application will attempt to launch rFactor when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
 launch_rfactor1_filter = RF1
@@ -1006,6 +1026,11 @@ launch_f1_2020 = Launch F1 2020
 launch_f1_2020_help = If this is true the application will attempt to launch F1 2020 when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
 launch_f1_2020_filter = F1_2020
 launch_f1_2020_category = UI_STARTUP_AND_PATHS
+
+launch_f1_2021 = Launch F1 2021
+launch_f1_2021_help = If this is true the application will attempt to launch F1 2021 when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
+launch_f1_2021_filter = F1_2021
+launch_f1_2021_category = UI_STARTUP_AND_PATHS
 
 launch_ams = Launch AMS
 launch_ams_help = If this is true the application will attempt to launch Automobilista when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
