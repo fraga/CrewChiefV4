@@ -2521,6 +2521,7 @@
 			"raceroomRollingStartLapDistance": 3828,
 			"rf2TrackNames": [ "RaceRfactor Hungaroring 2013" ],
 			"accTrackName": "Hungaroring:track config",
+			"irTrackName": "hungaroring",
 			"trackLandmarks": [
 				{
 					"landmarkName": "turn1",

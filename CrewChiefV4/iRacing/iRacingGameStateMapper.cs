@@ -69,7 +69,7 @@ namespace CrewChiefV4.iRacing
                 CrewChief.carClass = CarData.getCarClassForIRacingId(shared.Driver.Car.CarClassId, shared.Driver.Car.CarId).carClassEnum;
                 CrewChief.viewingReplay = true;
                 CrewChief.distanceRoundTrack = shared.Driver.Live.CorrectedLapDistance * ((float)shared.SessionData.Track.Length * 1000);
-                return previousGameState;
+                //return previousGameState;
             }
 
             SessionPhase lastSessionPhase = SessionPhase.Unavailable;
@@ -1122,8 +1122,8 @@ namespace CrewChiefV4.iRacing
 
             if (invalidateCutTrackLaps && !currentGameState.PitData.OnOutLap && previousGameState != null &&
                 !(currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.SessionData.SessionPhase == SessionPhase.Countdown) &&
-                currentGameState.SessionData.CurrentIncidentCount + 1 == shared.Telemetry.PlayerCarMyIncidentCount && 
-                currentGameState.SessionData.TrackSurface == (int)TrackSurfaces.OffTrack)
+                previousGameState.SessionData.CurrentIncidentCount + 1 == shared.Telemetry.PlayerCarMyIncidentCount /*&& 
+                currentGameState.SessionData.TrackSurface == (int)TrackSurfaces.OffTrack*/)
             {
                 currentGameState.PenaltiesData.CutTrackWarnings = previousGameState.PenaltiesData.CutTrackWarnings + 1;
                 currentGameState.SessionData.CurrentLapIsValid = false;
