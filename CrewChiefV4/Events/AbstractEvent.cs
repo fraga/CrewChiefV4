@@ -315,7 +315,7 @@ namespace CrewChiefV4.Events
 
         private static float kpaToBar(float kpa, int decimalPlaces)
         {
-            return (float)Math.Round(kpa / 100f, decimalPlaces + 2);
+            return (float)Math.Round(kpa / 100f, 2);
         }
     }
 }
