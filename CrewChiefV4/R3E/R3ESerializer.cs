@@ -135,9 +135,11 @@ namespace CrewChiefV4.RaceRoom
                         writeProperty(writer, "Fuel", data.PitMenuState.Fuel, disabledProperties);
                         writeProperty(writer, "FrontTires", data.PitMenuState.FrontTires, disabledProperties);
                         writeProperty(writer, "RearTires", data.PitMenuState.RearTires, disabledProperties);
+                        writeProperty(writer, "Body", data.PitMenuState.Body, disabledProperties);
                         writeProperty(writer, "FrontWing", data.PitMenuState.FrontWing, disabledProperties);
                         writeProperty(writer, "RearWing", data.PitMenuState.RearWing, disabledProperties);
-                        writeProperty(writer, "Suspension", data.PitMenuState.Suspension, disabledProperties);
+                        // body got added, suspension got bumped off the end of the array. Sad panda 
+                        // writeProperty(writer, "Suspension", data.PitMenuState.Suspension, disabledProperties);
                         writeProperty(writer, "ButtonTop", data.PitMenuState.ButtonTop, disabledProperties);
                         writeProperty(writer, "ButtonBottom", data.PitMenuState.ButtonBottom, disabledProperties);
                         writer.WriteEndObject();
@@ -213,6 +215,7 @@ namespace CrewChiefV4.RaceRoom
                     writeSectors(writer, "BestIndividualSectorTimeLeaderClass", data.BestIndividualSectorTimeLeaderClass.Sector1, data.BestIndividualSectorTimeLeaderClass.Sector2, data.BestIndividualSectorTimeLeaderClass.Sector3, disabledProperties);
 
                     writeProperty(writer, "IncidentPoints", data.IncidentPoints, disabledProperties);
+                    writeProperty(writer, "LapValidState", data.LapValidState, disabledProperties);
 
                     if (enabled("VehicleInfo", disabledProperties))
                     {
@@ -445,6 +448,7 @@ namespace CrewChiefV4.RaceRoom
                     writeProperty(writer, "TractionControlSetting", data.TractionControlSetting, disabledProperties);
                     writeProperty(writer, "EngineMapSetting", data.EngineMapSetting, disabledProperties);
                     writeProperty(writer, "EngineBrakeSetting", data.EngineBrakeSetting, disabledProperties);
+                    writeProperty(writer, "TractionControlPercent", data.TractionControlPercent, disabledProperties);
 
                     if (enabled("CarDamage", disabledProperties))
                     {
@@ -542,6 +546,7 @@ namespace CrewChiefV4.RaceRoom
             writeProperty(writer, "PtpState", driverData.PtpState, disabledProperties);
             writeProperty(writer, "PenaltyType", driverData.PenaltyType, disabledProperties);
             writeProperty(writer, "PenaltyReason", driverData.PenaltyReason, disabledProperties);
+            writeProperty(writer, "EngineState", driverData.EngineState, disabledProperties);
             writer.WriteEndObject();
         }
 

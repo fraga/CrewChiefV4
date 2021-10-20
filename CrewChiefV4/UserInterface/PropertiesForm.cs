@@ -1024,7 +1024,7 @@ namespace CrewChiefV4
 
                 // Hacks for debugging purposes only (may not be identical to the actual restart).
                 // Load activated profile into the active user profile.
-                UserSettings.GetUserSettings().loadActiveUserSettingsProfile(Path.Combine(UserSettings.userProfilesPath, activeProfileName));
+                UserSettings.GetUserSettings().loadActiveUserSettingsProfile(fileName: Path.Combine(UserSettings.userProfilesPath, activeProfileName), loadingDefault: false);
                 // Update active profile name so that settings are saved into correct file.
                 UserSettings.currentUserProfileFileName = activeProfileName;
 

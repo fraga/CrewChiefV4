@@ -296,22 +296,16 @@ namespace CrewChiefV4.VirtualReality
                 }
                 if (KeyPresser.GetAsyncKeyState((System.Windows.Forms.Keys)toggleVKeyCode) != 0 && modifierPressed != 0)
                 {
-                    //var ticksNow = Utilities.GetTickCount64();
-                    //if (ticksNow - lastKeyHandleTickCount > 150L)  // 150ms
-                    //{
-                        //lastKeyHandleTickCount = ticksNow;
+                    enabled = !enabled;
+                    if (enabled && vrOverlayHandle == 0)
+                    {
+                        // First time toggle.
+                        CreateOverlay();
+                        SetOverlayCurvature();
+                        SetOverlayTransparency();
+                    }
 
-                        enabled = !enabled;
-                        if (enabled && vrOverlayHandle == 0)
-                        {
-                            // First time toggle.
-                            CreateOverlay();
-                            SetOverlayCurvature();
-                            SetOverlayTransparency();
-                        }
-
-                        SetOverlayEnabled(enabled);
-                    //}
+                    SetOverlayEnabled(enabled);
                 }
             }
         }

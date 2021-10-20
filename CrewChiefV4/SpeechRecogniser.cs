@@ -1484,6 +1484,7 @@ namespace CrewChiefV4
                 case GameEnum.F1_2018:
                 case GameEnum.F1_2019:
                 case GameEnum.F1_2020:
+                case GameEnum.F1_2021:
                     loadSpotterCommands();
                     break;
                 // rally games
@@ -2073,6 +2074,7 @@ namespace CrewChiefV4
                 validateAndAdd(PIT_STOP_CHANGE_REAR_TYRES, r3eChoices);
                 validateAndAdd(PIT_STOP_CLEAR_TYRES, r3eChoices);
                 validateAndAdd(PIT_STOP_FIX_FRONT_AERO, r3eChoices);
+                validateAndAdd(PIT_STOP_FIX_BODY, r3eChoices);
                 validateAndAdd(PIT_STOP_FIX_REAR_AERO, r3eChoices);
                 validateAndAdd(PIT_STOP_FIX_ALL_AERO, r3eChoices);
                 validateAndAdd(PIT_STOP_FIX_NO_AERO, r3eChoices);

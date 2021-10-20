@@ -14,7 +14,7 @@ namespace CrewChiefV4.GameState
 {
     public enum SessionType
     {
-        Unavailable, Practice, Qualify, Race, HotLap, LonePractice
+        Unavailable, Practice, Qualify, Race, HotLap, LonePractice, DrivingSchool
     }
     public enum SessionPhase
     {
@@ -52,6 +52,10 @@ namespace CrewChiefV4.GameState
     public enum TyreFlatSpotState
     {
         UNKNOWN, NONE, MINOR, MAJOR
+    }
+    public enum TyreDirtPickupState
+    {
+        UNKNOWN, NONE, MAJOR
     }
     public enum BrakeTemp
     {
@@ -2880,7 +2884,8 @@ namespace CrewChiefV4.GameState
             DISQUALIFIED_IGNORED_STOP_AND_GO,
             DISQUALIFIED_IGNORED_DRIVE_THROUGH,
             ENTER_PITS_TO_SERVE_PENALTY,
-            UNSPORTSMANLIKE_DRIVING
+            UNSPORTSMANLIKE_DRIVING,
+            POINTS_WILL_BE_AWARDED_THIS_LAP
         }
         public WarningMessage Warning = WarningMessage.NONE;
     }
@@ -2963,12 +2968,19 @@ namespace CrewChiefV4.GameState
         }
 
         public Boolean FlatSpotEmulationActive = false;
+        public Boolean DirtPickupEmulationActive = false;
 
         // Flat spot severity in range of [0.0, 1.0]
         public Single FrontLeftFlatSpotSeverity = -1.0f;
         public Single FrontRightFlatSpotSeverity = -1.0f;
         public Single RearLeftFlatSpotSeverity = -1.0f;
         public Single RearRightFlatSpotSeverity = -1.0f;
+
+        // Dirt pickup severity in range of [0.0, 1.0]
+        public Single FrontLeftDirtPickupSeverity = -1.0f;
+        public Single FrontRightDirtPickupSeverity = -1.0f;
+        public Single RearLeftDirtPickupSeverity = -1.0f;
+        public Single RearRightDirtPickupSeverity = -1.0f;
 
         private CornerData _TyreTempStatus;
         public CornerData TyreTempStatus
@@ -3018,6 +3030,23 @@ namespace CrewChiefV4.GameState
             set
             {
                 _TyreFlatSpotStatus = value;
+            }
+        }
+
+        private CornerData _TyreDirtPickupStatus;
+        public CornerData TyreDirtPickupStatus
+        {
+            get
+            {
+                if (_TyreDirtPickupStatus == null)
+                {
+                    _TyreDirtPickupStatus = new CornerData();
+                }
+                return _TyreDirtPickupStatus;
+            }
+            set
+            {
+                _TyreDirtPickupStatus = value;
             }
         }
 

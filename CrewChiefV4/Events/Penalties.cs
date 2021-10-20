@@ -104,6 +104,8 @@ namespace CrewChiefV4.Events
 
         private String folderWarningBlueFlagMoveOrBePenalized = "penalties/blue_move_now_or_be_penalized";
 
+        private String folderWarningPointsWillBeAwardedThisLap = "penalties/points_will_be_awarded_this_lap";
+
         private String folderDisqualifiedIgnoredStopAndGo = "penalties/disqualified_ignored_stop_and_go";
 
         private String folderDisqualifiedIgnoredDriveThrough = "penalties/disqualified_ignored_drive_through";
@@ -416,6 +418,9 @@ namespace CrewChiefV4.Events
                         break;
                     case PenatiesData.WarningMessage.BLUE_MOVE_OR_BE_PENALIZED:
                         warningMsg = folderWarningBlueFlagMoveOrBePenalized;
+                        break;
+                    case PenatiesData.WarningMessage.POINTS_WILL_BE_AWARDED_THIS_LAP:
+                        warningMsg = folderWarningPointsWillBeAwardedThisLap;
                         break;
                     case PenatiesData.WarningMessage.DISQUALIFIED_IGNORED_STOP_AND_GO:
                         warningMsg = folderDisqualifiedIgnoredStopAndGo;

@@ -17,6 +17,9 @@ namespace CrewChiefV4.commands
     {
         private static Object mutex = new Object();
 
+        // make this an option?
+        private static bool useInputSimForFreeText = false;
+
         AudioPlayer audioPlayer;
         public Macro macro;
         private Thread executableCommandMacroThread = null;
@@ -250,9 +253,10 @@ namespace CrewChiefV4.commands
         {
             foreach (CommandSet commandSet in macro.commandSets.Where(cs => MacroManager.isCommandSetForCurrentGame(cs.gameDefinition)))
             {
-                if (commandSet.getActionItems().Count == 1)
+                List<ActionItem> actionItems = commandSet.getActionItems();
+                if (actionItems.Count == 1)
                 {
-                    return commandSet.getActionItems()[0];
+                    return actionItems[0];
                 }
                 break;
             }
@@ -399,7 +403,7 @@ namespace CrewChiefV4.commands
                     }
                 }                
                 Console.WriteLine("Sending " + actionItem.freeText);
-                KeyPresser.InputSim.Keyboard.TextEntry(actionItem.freeText);
+                sendMacroTextKeyPresses(actionItem.freeText);
                 Thread.Sleep(getWaitBetweenEachCommand());
 
                 if (actionItem.actionItemsAfterFreeText.Count > 0)
@@ -442,6 +446,26 @@ namespace CrewChiefV4.commands
                         KeyPresser.SendKeyPresses(actionItem.keyCodes, keyPressTime, waitBetweenKeys);
                     }
                 }
+            }
+        }
+
+        private static void sendMacroTextKeyPresses(string keys)
+        {
+            if (useInputSimForFreeText || CrewChief.gameDefinition.gameEnum == GameEnum.IRACING)
+            {
+                KeyPresser.InputSim.Keyboard.TextEntry(keys);
+            }
+            else
+            {
+                var keyCodesArray = new Tuple<VirtualKeyCode?, VirtualKeyCode>[keys.Length];
+                for (int i=0; i<keys.Length; i++)
+                {
+                    if (!KeyPresser.parseKeycode(keys[i].ToString(), out keyCodesArray[i]))
+                    {
+                        Console.WriteLine("Unable to parse char " + keys[i].ToString() + " of free text " + keys);
+                    }
+                }
+                KeyPresser.SendKeyPresses(keyCodesArray, 10, 20);
             }
         }
     }

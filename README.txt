@@ -431,6 +431,14 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.15.3.0: Added a sector 3 pit warning when needing fuel; Added support for F1 2021 (spotter only, thanks to Christopher Berger); R3E - Work around the game's pit menu changes. The voice command "fix suspension" should work now but note that it will only toggle the value of this option (the app can't know what it's currently set to); GTR2 - update plugin to latest version; iRacing - fixed macro key presses; A few minor bug fixes
+
+Version 4.15.2.9: Tweaked nAudio WASAPI playback to reduce the likelihood of sounds being truncated; fixed chat macro key presses not registering for some games; R3E & GTR2 - added dirt pickup warning messages (can be disabled with "Enable tyre dirt pickup warnings" property); GTR2 - damage reporting and gearbox improvements
+
+Version 4.15.2.7: Fix a crash on start up if nAudio devices fail to initialise; AMS2 - added some missing content mapping; iRacing - added some missing content mapping; GTR2 - updated VR plugin, improved Driving School support and added some additional features
+
+Version 4.15.2.6: R3E - updated WebHub to latest version with new data; iRacing - updated track landmarks data to add more tracks and correct some existing ones (thanks to Jacob Klein for the hard work here); RF2 - pit menu manager improvements; GTR2 - VR improvements
+
 Version 4.15.2.5: Hotfix for broken chat macros (sorry it took so long); GTR2 - added windscreen wipers support and wired up formation lap logic
 
 Version 4.15.2.4: Remove references to GoogleDrive in auto-updater data; Chat macro fixes; iRacing - added Spa Combined, Limerock Classic 2019 and Hockenheim GP corner mappings; ACC - added "how many laps on tyre set [x]" voice command (reports the number of laps this tyre set has been used for); ACC - added "[pitstop / box], select best tyres" voice command - uses the tyre usage data to select the least used tyre set in the pit MFD (just in terms of number of laps); ACC - damage threshold tweaks; R3E - fix some car class handling bugs when server use rolling start qualifying; A few minor bug fixes

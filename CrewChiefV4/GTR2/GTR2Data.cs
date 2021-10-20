@@ -175,7 +175,21 @@ namespace GTR2SharedMemory
             OpenPractice = 1,
             RaceWeekendOr24Hr = 3,
             Championship = 4,
-            Online = 5
+            Online = 5,
+            DrivingSchool = 8
+        }
+
+        public enum GTR2MechanicalFailure
+        {
+            None = 0,
+            Engine = 1,
+            Gearbox = 2,
+            Suspension = 4,
+            Brakes = 5,
+            Accident = 6,
+            Clutch = 7,
+            Electronics = 8,
+            Fuel = 9
         }
     }
 
@@ -471,6 +485,7 @@ namespace GTR2SharedMemory
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 8)]
             public byte[] mCarClass;
             public int mYearAndCarNumber;
+            public int mMechanicalFailureID;
         }
 
 
@@ -553,7 +568,7 @@ namespace GTR2SharedMemory
 
             public float mCurrentPitSpeedLimit;                          // speed limit m/s.
             public float mFormationLapSpeeed;
-            public float mTotalSessionRunningTime;
+            public float mTimedRaceTotalSeconds;
             public float mPitApproachLapDist;
             public int mFuelMult;
             public int mTireMult;
@@ -562,11 +577,17 @@ namespace GTR2SharedMemory
             public int mGameMode;
 
             public byte mFlatSpotEmulationEnabled;
+            public byte mDirtPickupEmulationEnabled;
 
             [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 4)]
             public GTR2ExtendedWheel[] mWheels;
 
-            public float mGearboxDamageSeverity;
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 8)]
+            public double[] mPerGearDamage;
+            public double mTotalGearboxDamage;
+
+            [MarshalAsAttribute(UnmanagedType.ByValArray, SizeConst = 256)]
+            [JsonIgnore] public byte[] mReserved;
 
             [JsonIgnore] public int mUnsubscribedBuffersMask;                         // Currently active UnsbscribedBuffersMask value.  This will be allowed for clients to write to in the future, but not yet.
 

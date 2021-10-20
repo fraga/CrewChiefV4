@@ -274,10 +274,10 @@ namespace CrewChiefV4.assetto
 
             List<CornerData.EnumWithThresholds> tyreWearThresholdsSoftGP70 = new List<CornerData.EnumWithThresholds>();
             tyreWearThresholdsSoftGP70.Add(new CornerData.EnumWithThresholds(TyreCondition.NEW, -10000f, 0.000f));
-            tyreWearThresholdsSoftGP70.Add(new CornerData.EnumWithThresholds(TyreCondition.SCRUBBED, 0.000f, 4.522629f));
-            tyreWearThresholdsSoftGP70.Add(new CornerData.EnumWithThresholds(TyreCondition.MINOR_WEAR, 4.522629f, 18.36731f));
-            tyreWearThresholdsSoftGP70.Add(new CornerData.EnumWithThresholds(TyreCondition.MAJOR_WEAR, 18.36731f, 27.83508f));
-            tyreWearThresholdsSoftGP70.Add(new CornerData.EnumWithThresholds(TyreCondition.WORN_OUT, 27.83508f, 1000f));
+            tyreWearThresholdsSoftGP70.Add(new CornerData.EnumWithThresholds(TyreCondition.SCRUBBED, 0.000f, 14.522629f));
+            tyreWearThresholdsSoftGP70.Add(new CornerData.EnumWithThresholds(TyreCondition.MINOR_WEAR, 14.522629f, 28.36731f));
+            tyreWearThresholdsSoftGP70.Add(new CornerData.EnumWithThresholds(TyreCondition.MAJOR_WEAR, 28.36731f, 37.83508f));
+            tyreWearThresholdsSoftGP70.Add(new CornerData.EnumWithThresholds(TyreCondition.WORN_OUT, 37.83508f, 1000f));
 
             List<CornerData.EnumWithThresholds> tyreTempsThresholdsSoftGP70 = new List<CornerData.EnumWithThresholds>();
             tyreTempsThresholdsSoftGP70.Add(new CornerData.EnumWithThresholds(TyreTemp.COLD, -10000f, 75f));
@@ -287,10 +287,10 @@ namespace CrewChiefV4.assetto
             acTyres.Add("Soft GP70 (S)", new AcTyres(tyreWearThresholdsSoftGP70, tyreTempsThresholdsSoftGP70, 90f));
 
             List<CornerData.EnumWithThresholds> tyreWearThresholdsGP70H = new List<CornerData.EnumWithThresholds>();
-            tyreWearThresholdsGP70H.Add(new CornerData.EnumWithThresholds(TyreCondition.NEW, -10000f, -1.0f));
-            tyreWearThresholdsGP70H.Add(new CornerData.EnumWithThresholds(TyreCondition.SCRUBBED, -1.0f, 0.0f));
-            tyreWearThresholdsGP70H.Add(new CornerData.EnumWithThresholds(TyreCondition.MINOR_WEAR, 0.0f, 19.19189f));
-            tyreWearThresholdsGP70H.Add(new CornerData.EnumWithThresholds(TyreCondition.MAJOR_WEAR, 19.19189f, 38.77548f));
+            tyreWearThresholdsGP70H.Add(new CornerData.EnumWithThresholds(TyreCondition.NEW, -10000f, -0.0f));
+            tyreWearThresholdsGP70H.Add(new CornerData.EnumWithThresholds(TyreCondition.SCRUBBED, 0.0f, 14.0f));
+            tyreWearThresholdsGP70H.Add(new CornerData.EnumWithThresholds(TyreCondition.MINOR_WEAR, 14.0f, 28.19189f));
+            tyreWearThresholdsGP70H.Add(new CornerData.EnumWithThresholds(TyreCondition.MAJOR_WEAR, 28.19189f, 38.77548f));
             tyreWearThresholdsGP70H.Add(new CornerData.EnumWithThresholds(TyreCondition.WORN_OUT, 38.77548f, 1000f));
 
             List<CornerData.EnumWithThresholds> tyreTempsThresholdsGP70H = new List<CornerData.EnumWithThresholds>();

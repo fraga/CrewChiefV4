@@ -375,6 +375,7 @@
 			"pcars2TrackName": "Red_Bull_Ring:GP",
 			"ams2TrackName": "Spielberg:Modern",
 			"raceroomLayoutId": 2556,
+			"irTrackName": " spielberg gp",
 			"raceroomRollingStartLapDistance": 3476,
 			"trackLandmarks": [
 				{
@@ -539,6 +540,7 @@
 			"acTrackNames": [ "spa:" ],
 			"irTrackName": "spa up",
 			"pcars2TrackName": "Spa_Francorchamps:GP",
+			"ams2TrackName": "SpaFrancorchamps:Spa_Francorchamps_2020",
 			"trackLandmarks": [
 				{
 					"landmarkName": "la_source",
@@ -1136,6 +1138,7 @@
 		{
 			"pcarsTrackName": "Mazda Raceway:Laguna Seca",
 			"pcars2TrackName": "Laguna_Seca:",
+			"ams2TrackName": "Laguna_Seca:Laguna_Seca_2020",
 			"acTrackNames": [ "ks_laguna_seca:" ],
 			"raceroomLayoutId": 1856,
 			"irTrackName": "lagunaseca",
@@ -1274,7 +1277,6 @@
 			"pcars2TrackName": "Monza:GP",
 			"acTrackNames": [ "monza:" ],
 			"rf2TrackNames": [ "RaceRfactor Monza 2014" ],
-			"irTrackName": "monza full",
 			"raceroomLayoutId": 1671,
 			"raceroomRollingStartLapDistance": 4285,
 			"gtr2TrackNames": [ "Monza, 2003 FIA GT Championship Round 10", "Monza, 2004 FIA GT Championship Round 1", "Monza", "HQ Autodromo Nazionale di Monza", "HQ-Vanilla Monza 2004", "HQ-Vanilla Monza 2003", "HQ-Reborn Monza 2004", "HQ-Reborn Monza 2003", "HQ-NAP Monza 2004", "HQ-NAP Monza 2003" ],
@@ -1285,7 +1287,7 @@
 			],
 			"trackLandmarks": [
 				{
-					"landmarkName": "the_first_chicane",
+					"landmarkName": "variante_del_rettifilo",
 					"distanceRoundLapStart": 590,
 					"distanceRoundLapEnd": 690,
 					"isCommonOvertakingSpot": true
@@ -1297,7 +1299,7 @@
 					"isCommonOvertakingSpot": false
 				},
 				{
-					"landmarkName": "della_roggia",
+					"landmarkName": "variante_della_roggia",
 					"distanceRoundLapStart": 1800,
 					"distanceRoundLapEnd": 1910,
 					"isCommonOvertakingSpot": true
@@ -1321,9 +1323,56 @@
 					"isCommonOvertakingSpot": true
 				},
 				{
-					"landmarkName": "parabolica",
+					"landmarkName": "curva_parabolica",
 					"distanceRoundLapStart": 4780,
 					"distanceRoundLapEnd": 5170,
+					"isCommonOvertakingSpot": true
+				}
+			]
+		},
+		{
+			"irTrackName": "monza full",
+			"trackLandmarks": [
+				{
+					"landmarkName": "variante_del_rettifilo",
+					"distanceRoundLapStart": 867.24646,
+					"distanceRoundLapEnd": 1038.903,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "curva_grande",
+					"distanceRoundLapStart": 1240.95117,
+					"distanceRoundLapEnd": 1822.60876,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "variante_della_roggia",
+					"distanceRoundLapStart": 2077.113,
+					"distanceRoundLapEnd": 2246.33154,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "lesmos1",
+					"distanceRoundLapStart": 2420.01367,
+					"distanceRoundLapEnd": 2687.58276,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "lesmos2",
+					"distanceRoundLapStart": 2783.70679,
+					"distanceRoundLapEnd": 2961.60742,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "ascari",
+					"distanceRoundLapStart": 3871.48853,
+					"distanceRoundLapEnd": 4199.59131,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "curva_parabolica",
+					"distanceRoundLapStart": 5027.1333,
+					"distanceRoundLapEnd": 5559.57031,
 					"isCommonOvertakingSpot": true
 				}
 			]
@@ -1332,7 +1381,7 @@
 			"accTrackName": "monza:track config",
 			"trackLandmarks": [
 				{
-					"landmarkName": "the_first_chicane",
+					"landmarkName": "variante_del_rettifilo",
 					"distanceRoundLapStart": 890,
 					"distanceRoundLapEnd": 990,
 					"isCommonOvertakingSpot": true
@@ -1344,7 +1393,7 @@
 					"isCommonOvertakingSpot": false
 				},
 				{
-					"landmarkName": "della_roggia",
+					"landmarkName": "variante_della_roggia",
 					"distanceRoundLapStart": 2100,
 					"distanceRoundLapEnd": 2210,
 					"isCommonOvertakingSpot": true
@@ -1368,7 +1417,7 @@
 					"isCommonOvertakingSpot": true
 				},
 				{
-					"landmarkName": "parabolica",
+					"landmarkName": "curva_parabolica",
 					"distanceRoundLapStart": 5080,
 					"distanceRoundLapEnd": 5470,
 					"isCommonOvertakingSpot": true
@@ -1583,7 +1632,6 @@
 			"rf1TrackNames": [ "Road America 2016" ],
 			"pcarsTrackName": "Road America:",
 			"pcars2TrackName": "Road_America:",
-			"irTrackName": "roadamerica full",
 			"trackLandmarks": [
 				{
 					"landmarkName": "turn1",
@@ -1649,6 +1697,166 @@
 					"landmarkName": "turn14",
 					"distanceRoundLapStart": 5676,
 					"distanceRoundLapEnd": 5862,
+					"isCommonOvertakingSpot": false
+				}
+			]
+		},
+		{
+			"irTrackName": "roadamerica full",
+			"trackLandmarks": [
+				{
+					"landmarkName": "turn1",
+					"distanceRoundLapStart": 541.937134,
+					"distanceRoundLapEnd": 758,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn3",
+					"distanceRoundLapStart": 1027.31665,
+					"distanceRoundLapEnd": 1227.80212,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "the_sweep",
+					"distanceRoundLapStart": 1569.24963,
+					"distanceRoundLapEnd": 2182.88721,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn5",
+					"distanceRoundLapStart": 2217.69653,
+					"distanceRoundLapEnd": 2382.095,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn6",
+					"distanceRoundLapStart": 2532.47168,
+					"distanceRoundLapEnd": 2686,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn7",
+					"distanceRoundLapStart": 2761.68164,
+					"distanceRoundLapEnd": 2939,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn8",
+					"distanceRoundLapStart": 3170.589,
+					"distanceRoundLapEnd": 3343,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "the_carousel",
+					"distanceRoundLapStart": 3386.06787,
+					"distanceRoundLapEnd": 3930,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "the_kink",
+					"distanceRoundLapStart": 4131.72266,
+					"distanceRoundLapEnd": 4411,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "canada_corner",
+					"distanceRoundLapStart": 5017.58643,
+					"distanceRoundLapEnd": 5156.96875,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "thunder_valley",
+					"distanceRoundLapStart": 5172.141,
+					"distanceRoundLapEnd": 5334.57373,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "bill_mitchell_bend",
+					"distanceRoundLapStart": 5343.97559,
+					"distanceRoundLapEnd": 5563,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn14",
+					"distanceRoundLapStart": 5652.1167,
+					"distanceRoundLapEnd": 5862,
+					"isCommonOvertakingSpot": false
+				}
+			]
+		},
+		{
+			"irTrackName": "phillipisland",
+			"trackLandmarks": [
+				{
+					"landmarkName": "turn1",
+					"distanceRoundLapStart": 395.6062,
+					"distanceRoundLapEnd": 733.0769,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "the_loop",
+					"distanceRoundLapStart": 778.2761,
+					"distanceRoundLapEnd": 1239.12219,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn3",
+					"distanceRoundLapStart": 1406.23181,
+					"distanceRoundLapEnd": 1699.92444,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn4",
+					"distanceRoundLapStart": 1817.56641,
+					"distanceRoundLapEnd": 1972.219,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn5",
+					"distanceRoundLapStart": 1978.23413,
+					"distanceRoundLapEnd": 2060.38965,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn6",
+					"distanceRoundLapStart": 2074.513,
+					"distanceRoundLapEnd": 2337.96631,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn7",
+					"distanceRoundLapStart": 2367.72974,
+					"distanceRoundLapEnd": 2514.96045,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn8",
+					"distanceRoundLapStart": 2575.43335,
+					"distanceRoundLapEnd": 2779.079,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn9",
+					"distanceRoundLapStart": 2825.08643,
+					"distanceRoundLapEnd": 3238.798,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn10",
+					"distanceRoundLapStart": 3260.57178,
+					"distanceRoundLapEnd": 3376.77124,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn11",
+					"distanceRoundLapStart": 3393.38916,
+					"distanceRoundLapEnd": 3642.8877,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "turn12",
+					"distanceRoundLapStart": 3713.80981,
+					"distanceRoundLapEnd": 4128.829,
 					"isCommonOvertakingSpot": false
 				}
 			]
@@ -2313,6 +2521,7 @@
 			"raceroomRollingStartLapDistance": 3828,
 			"rf2TrackNames": [ "RaceRfactor Hungaroring 2013" ],
 			"accTrackName": "Hungaroring:track config",
+			"irTrackName": "hungaroring",
 			"trackLandmarks": [
 				{
 					"landmarkName": "turn1",
@@ -2833,6 +3042,7 @@
 		},
 		{
 			"rf2TrackNames": [ "Oulton Park International" ],
+			"gtr2TrackNames": [ "Oulton Park International Circuit" ],
 			"pcarsTrackName": "Oulton Park:International",
 			"pcars2TrackName": "Oulton_Park:International",
 			"ams2TrackName": "OultonPark:OultonPark_International",
@@ -3095,6 +3305,7 @@
 		},
 		{
 			"rf2TrackNames": [ "Circuit de la Sarthe" ],
+			"gtr2TrackNames": [ "Le Mans 2019" ],
 			"pcarsTrackName": "Le Mans:Circuit des 24 Heures du Mans",
 			"pcars2TrackName": "Le_Mans:24_Hours_of_Le_Mans_Circuit",
 			"trackLandmarks": [
@@ -5114,7 +5325,7 @@
 			"pcars2TrackName": "Barcelona_Catalunya:GP",
 			"accTrackName": "Barcelona:track config",
 			"irTrackName": "barcelona gp",
-			"gtr2TrackNames": [ "Barcelona, 2003 FIA GT Championship Round 1", "HQ Circuit de Catalunya", "HQ-Reborn Barcelona 2003", "HQ-Reborn Barcelona 2004"],
+			"gtr2TrackNames": [ "Barcelona, 2003 FIA GT Championship Round 1", "HQ Circuit de Catalunya", "HQ-Reborn Barcelona 2003", "HQ-Reborn Barcelona 2004" ],
 			"trackLandmarks": [
 				{
 					"landmarkName": "turn1",
@@ -6615,6 +6826,7 @@
 		},
 		{
 			"rf2TrackNames": [ "Brands Hatch INDY", "Brands" ],
+			"gtr2TrackNames": [ "Brands Hatch 2008 Indy", "Brands Hatch Indy I" ],
 			"irTrackName": "brandshatch indy",
 			"trackLandmarks": [
 
@@ -8077,6 +8289,7 @@
 		{
 			"rf2TrackNames": [ "Daytona International Speedway", "Daytona Road Course DX11" ],
 			"pcars2TrackName": "Daytona_International_Speedway:Road_Course",
+			"ams2TrackName": "Daytona:Daytona_Road_Course",
 			"irTrackName": "daytona 2011 road",
 			"raceroomLayoutId": 8367,
 			"approximateTrackLength": 5800,
@@ -9231,7 +9444,7 @@
 					"isCommonOvertakingSpot": false
 				},
 				{
-					"landmarkName": "della_roggia",
+					"landmarkName": "variante_della_roggia",
 					"distanceRoundLapStart": 1815,
 					"distanceRoundLapEnd": 1945,
 					"isCommonOvertakingSpot": true
@@ -10830,6 +11043,7 @@
 		{
 			"rf2TrackNames": [ "Long_Beech_2014" ],
 			"pcars2TrackName": "Long_Beach:Street_Circuit",
+			"ams2TrackName": "Long_Beach:Long_Beach",
 			"trackLandmarks": [
 				{
 					"landmarkName": "turn1",
@@ -15354,6 +15568,124 @@
 					"landmarkName": "last_corner",
 					"distanceRoundLapStart": 1445,
 					"distanceRoundLapEnd": 1605,
+					"isCommonOvertakingSpot": false
+				}
+			]
+		},
+		{
+			"irTrackName": "okayama full",
+			"trackLandmarks": [
+				{
+					"landmarkName": "first_corner",
+					"distanceRoundLapStart": 150,
+					"distanceRoundLapEnd": 370,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "williams",
+					"distanceRoundLapStart": 430,
+					"distanceRoundLapEnd": 635.7623,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "moss_s",
+					"distanceRoundLapStart": 700,
+					"distanceRoundLapEnd": 985,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "attwood_curve",
+					"distanceRoundLapStart": 1029.88782,
+					"distanceRoundLapEnd": 1349.05908,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "the_hairpin",
+					"distanceRoundLapStart": 1964.15723,
+					"distanceRoundLapEnd": 2130,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "revolver",
+					"distanceRoundLapStart": 2153.262,
+					"distanceRoundLapEnd": 2270,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "piper",
+					"distanceRoundLapStart": 2287.45654,
+					"distanceRoundLapEnd": 2445,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "redman_corner",
+					"distanceRoundLapStart": 2619.86719,
+					"distanceRoundLapEnd": 2744.248,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "hobbs",
+					"distanceRoundLapStart": 2751.70386,
+					"distanceRoundLapEnd": 2930,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "mike_knight_corner",
+					"distanceRoundLapStart": 2982.05786,
+					"distanceRoundLapEnd": 3123.05786,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "last_corner",
+					"distanceRoundLapStart": 3146.59668,
+					"distanceRoundLapEnd": 3351.55029,
+					"isCommonOvertakingSpot": false
+				}
+			]
+		},
+		{
+			"irTrackName": "okayama short",
+			"trackLandmarks": [
+				{
+					"landmarkName": "first_corner",
+					"distanceRoundLapStart": 150,
+					"distanceRoundLapEnd": 370,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "turn2",
+					"distanceRoundLapStart": 420.942352,
+					"distanceRoundLapEnd": 577.762939,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "piper",
+					"distanceRoundLapStart": 580,
+					"distanceRoundLapEnd": 714.4097,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "redman_corner",
+					"distanceRoundLapStart": 888.5005,
+					"distanceRoundLapEnd": 1020,
+					"isCommonOvertakingSpot": true
+				},
+				{
+					"landmarkName": "hobbs",
+					"distanceRoundLapStart": 1026.5752,
+					"distanceRoundLapEnd": 1185,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "mike_knight_corner",
+					"distanceRoundLapStart": 1266.86414,
+					"distanceRoundLapEnd": 1406.19275,
+					"isCommonOvertakingSpot": false
+				},
+				{
+					"landmarkName": "last_corner",
+					"distanceRoundLapStart": 1431.88989,
+					"distanceRoundLapEnd": 1609.76123,
 					"isCommonOvertakingSpot": false
 				}
 			]

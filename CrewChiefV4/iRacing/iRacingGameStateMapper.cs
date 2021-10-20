@@ -69,6 +69,7 @@ namespace CrewChiefV4.iRacing
                 CrewChief.carClass = CarData.getCarClassForIRacingId(shared.Driver.Car.CarClassId, shared.Driver.Car.CarId).carClassEnum;
                 CrewChief.viewingReplay = true;
                 CrewChief.distanceRoundTrack = shared.Driver.Live.CorrectedLapDistance * ((float)shared.SessionData.Track.Length * 1000);
+                //return previousGameState;
             }
 
             SessionPhase lastSessionPhase = SessionPhase.Unavailable;
@@ -113,9 +114,9 @@ namespace CrewChiefV4.iRacing
                 (float)(shared.SessionData.Track.Length * 1000), shared.PaceCarPresent && shared.Drivers.Count <= shared.Telemetry.NumberOfCarsEnabled);                      
            
             currentGameState.SessionData.SessionPhase = mapToSessionPhase(lastSessionPhase, shared.Telemetry.SessionState, currentGameState.SessionData.SessionType, 
-                shared.Telemetry.IsReplayPlaying, (float)shared.Telemetry.SessionTime, previousLapsCompleted, playerCar.Live.LiveLapsCompleted,
-                (SessionFlags)shared.Telemetry.SessionFlags, shared.SessionData.hasFullCourseCautions,
-                currentGameState.SafetyCarData, previousGameState == null ? null : previousGameState.SafetyCarData, shared.SessionData.Track.FormationLapCount, previousPitEntranceDistanceRoundTrack);
+                (float)shared.Telemetry.SessionTime, previousLapsCompleted, playerCar.Live.LiveLapsCompleted, (SessionFlags)shared.Telemetry.SessionFlags, 
+                shared.SessionData.hasFullCourseCautions,currentGameState.SafetyCarData, previousGameState == null ? null : previousGameState.SafetyCarData, 
+                shared.SessionData.Track.FormationLapCount, previousPitEntranceDistanceRoundTrack);
                        
             currentGameState.SessionData.NumCarsOverallAtStartOfSession = shared.PaceCarPresent ? shared.Drivers.Count - 1 : shared.Drivers.Count;
             
@@ -1121,8 +1122,8 @@ namespace CrewChiefV4.iRacing
 
             if (invalidateCutTrackLaps && !currentGameState.PitData.OnOutLap && previousGameState != null &&
                 !(currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.SessionData.SessionPhase == SessionPhase.Countdown) &&
-                currentGameState.SessionData.CurrentIncidentCount + 1 == shared.Telemetry.PlayerCarMyIncidentCount && 
-                currentGameState.SessionData.TrackSurface == (int)TrackSurfaces.OffTrack)
+                previousGameState.SessionData.CurrentIncidentCount + 1 == shared.Telemetry.PlayerCarMyIncidentCount /*&& 
+                currentGameState.SessionData.TrackSurface == (int)TrackSurfaces.OffTrack*/)
             {
                 currentGameState.PenaltiesData.CutTrackWarnings = previousGameState.PenaltiesData.CutTrackWarnings + 1;
                 currentGameState.SessionData.CurrentLapIsValid = false;
@@ -1342,7 +1343,7 @@ namespace CrewChiefV4.iRacing
         }
         SessionFlags previousSessionFlags;
         SessionStates previousSessionState;
-        private SessionPhase mapToSessionPhase(SessionPhase lastSessionPhase, SessionStates sessionState, SessionType currentSessionType, bool isReplay, float thisSessionRunningTime,
+        private SessionPhase mapToSessionPhase(SessionPhase lastSessionPhase, SessionStates sessionState, SessionType currentSessionType, float thisSessionRunningTime,
             int previousLapsCompleted, int laps, SessionFlags sessionFlags, bool IsFullCourseCautions, SafetyCarData currentSafetyCarData, SafetyCarData previousSafetyCarData, 
             int formationLapCount, float pitEntranceDistanceRoundTrack)
         {
@@ -1473,7 +1474,7 @@ namespace CrewChiefV4.iRacing
                 {
                     return SessionPhase.FullCourseYellow;
                 }
-                else if ((SessionStates.Racing == sessionState && isReplay) || sessionFlags.HasFlag(SessionFlags.Green) || 
+                else if (sessionFlags.HasFlag(SessionFlags.Green) || 
                     sessionFlags.HasFlag(SessionFlags.StartGo) || SessionPhase.Unavailable == lastSessionPhase)
                 {
                     return SessionPhase.Green;

@@ -360,10 +360,16 @@ namespace CrewChiefV4.Events
 
         override protected void triggerInternal(GameStateData previousGameState, GameStateData currentGameState)
         {
-            if (!currentGameState.inCar 
-                || (currentGameState.SessionData.SessionPhase == SessionPhase.Finished
-                    && currentGameState.ControlData.ControlType == ControlType.AI))
+            if (currentGameState.SessionData.SessionPhase == SessionPhase.Finished
+                && currentGameState.ControlData.ControlType == ControlType.AI)
             {
+                return;
+            }
+
+            if (!currentGameState.inCar)
+            {
+                // Reset pit countdown in games that detect being in the garage.
+                previousDistanceToBox = -1;
                 return;
             }
 
@@ -993,7 +999,7 @@ namespace CrewChiefV4.Events
                         audioPlayer.playMessageImmediately(new QueuedMessage("mandatory_stop_minimum_time", 0,  messageFragments: MessageContents(folderMandatoryPitstopMinimumTimeIntro,
                             new TimeSpanWrapper(TimeSpan.FromSeconds(mandatoryPitTimeToWait), Precision.SECONDS)), abstractEvent: this));
                     }
-                    if (!previousGameState.PitData.IsPitCrewDone
+                    if (currentGameState.SessionData.SessionPhase == SessionPhase.Green && !previousGameState.PitData.IsPitCrewDone
                         && currentGameState.PitData.IsPitCrewDone)
                     {
                         mandatoryPitTimeToWait = currentGameState.PitData.MandatoryPitMinDurationLeft - timeFromBoxToEndOfPitLane;
@@ -1026,7 +1032,7 @@ namespace CrewChiefV4.Events
                             audioPlayer.playMessageImmediately(new QueuedMessage(folderStopCompleteGo, 1, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
                         }
                     }
-                    if (currentGameState.PitData.IsPitCrewDone && waitingForMandatoryStopTimer)
+                    if (currentGameState.SessionData.SessionPhase == SessionPhase.Green && currentGameState.PitData.IsPitCrewDone && waitingForMandatoryStopTimer)
                     {
                         // we've made the first "wait 12 seconds" call, so we're now on to the "wait... wait... 5 seconds ... wait... GO" phase
                         float waitTimeRemaining = currentGameState.PitData.MandatoryPitMinDurationLeft - timeFromBoxToEndOfPitLane;
@@ -1065,7 +1071,8 @@ namespace CrewChiefV4.Events
                             }
                         }
                     }
-                    else if (waitingForMandatoryStopTimer && previousGameState.PitData.MandatoryPitMinDurationLeft > 0 && currentGameState.PitData.MandatoryPitMinDurationLeft == -1)
+                    else if (currentGameState.SessionData.SessionPhase == SessionPhase.Green &&
+                        waitingForMandatoryStopTimer && previousGameState.PitData.MandatoryPitMinDurationLeft > 0 && currentGameState.PitData.MandatoryPitMinDurationLeft == -1)
                     {
                         // in R3E if we're waiting for the stop timer and the time remaining goes from >0 to -1 it means we've exited too soon
                         audioPlayer.playMessageImmediately(new QueuedMessage(folderLeftPitTooSoon, 0, abstractEvent: this, type: SoundType.CRITICAL_MESSAGE, priority: 15));
@@ -1330,7 +1337,8 @@ namespace CrewChiefV4.Events
                     audioPlayer.playMessage(new QueuedMessage(folderWillFixRearAero, 0));
                 }
             }
-            if (R3EPitMenuManager.latestState[SelectedItem.Suspension] == PitSelectionState.SELECTED)
+            // can't announce suspension fix as we don't know the state any more
+            /*if (R3EPitMenuManager.latestState[SelectedItem.Suspension] == PitSelectionState.SELECTED)
             {
                 // "we'll fix the suspension"
                 audioPlayer.playMessage(new QueuedMessage(folderWillFixSuspension, 0));
@@ -1341,7 +1349,7 @@ namespace CrewChiefV4.Events
                 // "we'll leave the suspension"
                 audioPlayer.playMessage(new QueuedMessage(folderWillLeaveSuspension, 0));
                 haveData = true;
-            }
+            }*/
             if (R3EPitMenuManager.latestState[SelectedItem.Penalty] == PitSelectionState.SELECTED)
             {
                 // "we'll be serving the penalty"

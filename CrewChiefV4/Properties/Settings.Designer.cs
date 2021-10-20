@@ -4597,6 +4597,66 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:/Program Files (x86)/Steam/Steam.exe")]
+        public string f1_2021_launch_exe {
+            get {
+                return ((string)(this["f1_2021_launch_exe"]));
+            }
+            set {
+                this["f1_2021_launch_exe"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string f1_2021_launch_params {
+            get {
+                return ((string)(this["f1_2021_launch_params"]));
+            }
+            set {
+                this["f1_2021_launch_params"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool launch_f1_2021 {
+            get {
+                return ((bool)(this["launch_f1_2021"]));
+            }
+            set {
+                this["launch_f1_2021"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("5")]
+        public float f1_2021_spotter_car_length {
+            get {
+                return ((float)(this["f1_2021_spotter_car_length"]));
+            }
+            set {
+                this["f1_2021_spotter_car_length"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("20777")]
+        public int f1_2021_udp_data_port {
+            get {
+                return ((int)(this["f1_2021_udp_data_port"]));
+            }
+            set {
+                this["f1_2021_udp_data_port"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool show_vr_settings_as_overlay {
             get {
@@ -4760,18 +4820,6 @@ namespace CrewChiefV4.Properties {
             }
             set {
                 this["codriver_rushed_lookahead_seconds"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string Setting {
-            get {
-                return ((string)(this["Setting"]));
-            }
-            set {
-                this["Setting"] = value;
             }
         }
         
@@ -5221,18 +5269,6 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("NUMPAD5")]
-        public string reset_vr_view_control {
-            get {
-                return ((string)(this["reset_vr_view_control"]));
-            }
-            set {
-                this["reset_vr_view_control"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool log_type_fuel {
             get {
@@ -5288,6 +5324,30 @@ namespace CrewChiefV4.Properties {
             }
             set {
                 this["enable_frozen_order_messages"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool force_seated_on_vr_view_reset {
+            get {
+                return ((bool)(this["force_seated_on_vr_view_reset"]));
+            }
+            set {
+                this["force_seated_on_vr_view_reset"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool enable_tyre_dirt_pickup_warnings {
+            get {
+                return ((bool)(this["enable_tyre_dirt_pickup_warnings"]));
+            }
+            set {
+                this["enable_tyre_dirt_pickup_warnings"] = value;
             }
         }
     }

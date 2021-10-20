@@ -205,3 +205,5 @@ ModelManifest.xml
 
 /CrewChiefV4_installer/ComponentsGenerated.wxs
 /CrewChiefV4/HelpFiles
+/UnitTest/Packages
+/XunitTest/Packages

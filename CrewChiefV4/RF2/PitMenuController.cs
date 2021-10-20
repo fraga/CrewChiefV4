@@ -60,7 +60,7 @@ namespace PitMenuAPI
 
             Log.Verbose("GetMenuDict");
             if (startUsingPitMenu())
-                {
+            {
                 do
                 {
                     category = GetCategory();
@@ -125,10 +125,10 @@ namespace PitMenuAPI
                 }
             }
             if (!shadowPitMenu.ContainsKey(category))
-                {
+            {
                 Log.Commentary($"Pit menu doesn't have category '{category}'");
                 return false;
-                }
+            }
             string currentCategory = GetCategory();
             if (category != currentCategory)
             {
@@ -279,6 +279,7 @@ namespace PitMenuAPI
                 {
                     ChoiceInc();
                 }
+                Log.Fuel($"{GetChoice()}");
                 int newLevel = GetFuelLevel();
                 if (newLevel == current)
                 { // Can't adjust further
@@ -380,6 +381,6 @@ namespace PitMenuAPI
             return false;
         }
 
-#endregion Public Methods
+        #endregion Public Methods
     }
 }

@@ -461,7 +461,7 @@ namespace CrewChiefV4
                 if (filenameToRun != null)
                 {
                     loadDataFromFile = true;
-                    GlobalBehaviourSettings.spotterEnabled = gameDefinition.gameEnum == GameEnum.F1_2018 || gameDefinition.gameEnum == GameEnum.F1_2019 || gameDefinition.gameEnum == GameEnum.F1_2020;
+                    GlobalBehaviourSettings.spotterEnabled = gameDefinition.gameEnum == GameEnum.F1_2018 || gameDefinition.gameEnum == GameEnum.F1_2019 || gameDefinition.gameEnum == GameEnum.F1_2020 || gameDefinition.gameEnum == GameEnum.F1_2021;
                     dumpToFile = false;
                 }
                 else
@@ -486,7 +486,7 @@ namespace CrewChiefV4
                         // TODO: version handling is a bit hooky here. The version data are in shared memory but if we just pass this
                         // through to the JSON there's a risk the game version will advance (so the client expects new data) but CC isn't
                         // actually sending this data. So we'll hard-code it here for now
-                        Utilities.startGameDataWebsocketServer("/r3e", gameDataReader, new R3ESerializer(true, 3, 2, 8));
+                        Utilities.startGameDataWebsocketServer("/r3e", gameDataReader, new R3ESerializer(true, 3, 2, 10));
                     }
                 }
 
@@ -532,7 +532,8 @@ namespace CrewChiefV4
                     CrewChief.gameDefinition.gameEnum != GameEnum.PCARS_NETWORK &&
                     CrewChief.gameDefinition.gameEnum != GameEnum.F1_2018 &&
                     CrewChief.gameDefinition.gameEnum != GameEnum.F1_2019 &&
-                    CrewChief.gameDefinition.gameEnum != GameEnum.F1_2020)
+                    CrewChief.gameDefinition.gameEnum != GameEnum.F1_2020 &&
+                    CrewChief.gameDefinition.gameEnum != GameEnum.F1_2021)
                 {
                     Console.WriteLine("Polling for shared data every " + timeInterval + "ms");
                 }
@@ -772,7 +773,7 @@ namespace CrewChiefV4
                                 audioPlayer.wakeMonitorThreadForRegularMessages(currentGameState.Now);
                             }
                             else if (previousGameState != null &&
-                                        (gameDefinition.gameEnum == GameEnum.F1_2018 || gameDefinition.gameEnum == GameEnum.F1_2019 || gameDefinition.gameEnum == GameEnum.F1_2020 ||
+                                        (gameDefinition.gameEnum == GameEnum.F1_2018 || gameDefinition.gameEnum == GameEnum.F1_2019 || gameDefinition.gameEnum == GameEnum.F1_2020 || gameDefinition.gameEnum == GameEnum.F1_2021 ||
                                         ((((gameDefinition.gameEnum == GameEnum.PCARS2 || gameDefinition.gameEnum == GameEnum.AMS2 || gameDefinition.gameEnum == GameEnum.PCARS3) && currentGameState.SessionData.SessionPhase == SessionPhase.Countdown) ||
                                             currentGameState.SessionData.SessionRunningTime > previousGameState.SessionData.SessionRunningTime) ||
                                         (previousGameState.SessionData.SessionPhase != currentGameState.SessionData.SessionPhase) ||
@@ -845,7 +846,7 @@ namespace CrewChiefV4
 
                                 // Allow events to be processed after session finish.  Event should use applicableSessionPhases/applicableSessionTypes to opt in/out.
                                 // for now, don't trigger any events for F1 2018 / 2019 as there's no game mapping
-                                if (gameDefinition.gameEnum != GameEnum.F1_2018 && gameDefinition.gameEnum != GameEnum.F1_2019 && gameDefinition.gameEnum != GameEnum.F1_2020)
+                                if (gameDefinition.gameEnum != GameEnum.F1_2018 && gameDefinition.gameEnum != GameEnum.F1_2019 && gameDefinition.gameEnum != GameEnum.F1_2020 && gameDefinition.gameEnum != GameEnum.F1_2021)
                                 {
                                     Boolean isPractice = currentGameState.SessionData.SessionType == SessionType.Practice || currentGameState.SessionData.SessionType == SessionType.LonePractice;
                                     // before triggering events, see if we need to enable pace notes automatically.
@@ -903,7 +904,7 @@ namespace CrewChiefV4
                                             audioPlayer);
                                     }
                                     if (spotter != null && GlobalBehaviourSettings.spotterEnabled && !spotterIsRunning &&
-                                        (gameDefinition.gameEnum == GameEnum.F1_2018 || gameDefinition.gameEnum == GameEnum.F1_2019 || gameDefinition.gameEnum == GameEnum.F1_2020 || !loadDataFromFile))
+                                        (gameDefinition.gameEnum == GameEnum.F1_2018 || gameDefinition.gameEnum == GameEnum.F1_2019 || gameDefinition.gameEnum == GameEnum.F1_2020 || gameDefinition.gameEnum == GameEnum.F1_2021 || !loadDataFromFile))
                                     {
                                         Console.WriteLine("********** starting spotter***********");
                                         spotter.clearState();

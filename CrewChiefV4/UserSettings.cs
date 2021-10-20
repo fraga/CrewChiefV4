@@ -69,7 +69,7 @@ namespace CrewChiefV4
 
         public Dictionary<string, object> currentApplicationSettings = new Dictionary<string, object>();
 
-        public void loadActiveUserSettingsProfile(String fileName)
+        public void loadActiveUserSettingsProfile(String fileName, Boolean loadingDefault)
         {
             Boolean settingsProfileBroken = false;
             // Create a user profile with the users current settings if it does not yet exist(new user, first time upgrade to new format, default file deleted)
@@ -117,6 +117,14 @@ namespace CrewChiefV4
             {
                 settingsProfileBroken = true;
             }
+
+            if (settingsProfileBroken
+                && loadingDefault)
+            {
+                Console.WriteLine($"Failed to Load default settings file at: '{fileName}', giving up.");
+                return;
+            }
+
             try
             {
                 if (settingsProfileBroken)
@@ -136,7 +144,7 @@ namespace CrewChiefV4
                     saveUserSettings();
                     currentUserProfileFileName = getString("current_settings_profile");
                     // Load default file
-                    loadActiveUserSettingsProfile(Path.Combine(userProfilesPath, defaultUserSettingsfileName));
+                    loadActiveUserSettingsProfile(fileName:Path.Combine(userProfilesPath, defaultUserSettingsfileName), loadingDefault:true);
                 }
             }
             catch (Exception e)
@@ -321,11 +329,11 @@ namespace CrewChiefV4
 
                 if (!string.IsNullOrWhiteSpace(currentUserProfileFileName))
                 {
-                    loadActiveUserSettingsProfile(Path.Combine(userProfilesPath, currentUserProfileFileName));
+                    loadActiveUserSettingsProfile(fileName: Path.Combine(userProfilesPath, currentUserProfileFileName), loadingDefault: false);
                 }
                 else
                 {
-                    loadActiveUserSettingsProfile(Path.Combine(userProfilesPath, defaultUserSettingsfileName));
+                    loadActiveUserSettingsProfile(fileName: Path.Combine(userProfilesPath, defaultUserSettingsfileName), loadingDefault: true);
                 }
             }
             catch (Exception exception)

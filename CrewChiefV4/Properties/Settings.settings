@@ -1145,6 +1145,21 @@
     <Setting Name="f1_2020_udp_data_port" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">20777</Value>
     </Setting>
+    <Setting Name="f1_2021_launch_exe" Type="System.String" Scope="User">
+      <Value Profile="(Default)">C:/Program Files (x86)/Steam/Steam.exe</Value>
+    </Setting>
+    <Setting Name="f1_2021_launch_params" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="launch_f1_2021" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="f1_2021_spotter_car_length" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">5</Value>
+    </Setting>
+    <Setting Name="f1_2021_udp_data_port" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">20777</Value>
+    </Setting>
     <Setting Name="show_vr_settings_as_overlay" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
@@ -1186,9 +1201,6 @@
     </Setting>
     <Setting Name="codriver_rushed_lookahead_seconds" Type="System.Single" Scope="User">
       <Value Profile="(Default)">2</Value>
-    </Setting>
-    <Setting Name="Setting" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
     </Setting>
     <Setting Name="pcars3_launch_exe" Type="System.String" Scope="User">
       <Value Profile="(Default)">C:/Program Files (x86)/Steam/steamapps/common/Project CARS 3/pCARS3.exe</Value>
@@ -1301,9 +1313,6 @@
     <Setting Name="sre_button_release_delay" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
-    <Setting Name="reset_vr_view_control" Type="System.String" Scope="User">
-      <Value Profile="(Default)">NUMPAD5</Value>
-    </Setting>
     <Setting Name="log_type_fuel" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
@@ -1317,6 +1326,12 @@
       <Value Profile="(Default)">0</Value>
     </Setting>
     <Setting Name="enable_frozen_order_messages" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="force_seated_on_vr_view_reset" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="enable_tyre_dirt_pickup_warnings" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>

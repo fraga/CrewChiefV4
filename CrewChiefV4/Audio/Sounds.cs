@@ -1510,6 +1510,7 @@ namespace CrewChiefV4.Audio
         public int pauseLength = 0;
         public String fullPath;
         private byte[] fileBytes = null;
+        private DateTime playbackStartTime = DateTime.MinValue;
         private MemoryStream memoryStream;
         private SoundPlayer soundPlayer;
 
@@ -1670,6 +1671,16 @@ namespace CrewChiefV4.Audio
             }
         }
 
+        private int getPlaybackTimeForWavFile(byte[] fileBytes)
+        {
+            int dataChunkSize = BitConverter.ToInt32(fileBytes, 16);
+            int headerLength = Math.Max(44, 28 + dataChunkSize);
+            int channels = (int) BitConverter.ToInt16(fileBytes, 22);
+            int sampleRate = BitConverter.ToInt32(fileBytes, 24);
+            int bytesPerSample  = (int) (BitConverter.ToInt16(fileBytes, 34) / 8);
+            return (int)((float)(fileBytes.Length - headerLength) * 1000 / ((float)channels * sampleRate * bytesPerSample));
+        }
+
         public void LoadAndCacheSound()
         {
             lock (this)
@@ -1807,11 +1818,12 @@ namespace CrewChiefV4.Audio
                 WaveFileReader uncachedReader = new WaveFileReader(fullPath);
                 this.eventHandler = new EventHandler<StoppedEventArgs>(playbackStopped);
                 uncachedNAudioOut.SubscribePlaybackStopped(this.eventHandler);
-                ISampleProvider sampleProvider = createSampleProvider(reader, volume);
+                ISampleProvider sampleProvider = createSampleProvider(uncachedReader, volume);
                 try
                 {
                     uncachedNAudioOut.Init(sampleProvider);
                     SoundCache.currentlyPlayingSound = this;
+                    this.playbackStartTime = DateTime.UtcNow;
                     uncachedNAudioOut.Play();
                     // stop waiting after 30 seconds if it's not a beep. If it is a beep wait a few seconds
                     // just in case someone has done something weird like swap the beep sound for a personalisation
@@ -1843,6 +1855,7 @@ namespace CrewChiefV4.Audio
                         LoadAndCacheSound();
                         this.reader.CurrentTime = TimeSpan.Zero;
                         SoundCache.currentlyPlayingSound = this;
+                        this.playbackStartTime = DateTime.UtcNow;
                         this.nAudioOut.Play();
                         // It's a beep so wait a few seconds just in case someone has done something weird like swap the beep sound for a personalisation.
                         // Special case for the listen start beep - don't wait for it to finish playing before returning
