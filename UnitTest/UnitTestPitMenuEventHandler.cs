@@ -295,4 +295,28 @@ namespace UnitTest
 
         }
     }
+    [TestClass]
+    public class TestFuelMenuParsing
+    {
+        [TestMethod]
+        public void Test_Parse()
+        {
+            int fuelLevel;
+            fuelLevel = PitMenuController.ParseFuelLevel("+10.0/5");
+            Assert.AreEqual(38, fuelLevel); // Litres
+
+            fuelLevel = PitMenuController.ParseFuelLevel("+ 9.8/5");
+            Assert.AreEqual(37, fuelLevel); // Litres
+
+            fuelLevel = PitMenuController.ParseFuelLevel("65/25");
+            Assert.AreEqual(65, fuelLevel); // Litres
+
+            fuelLevel = PitMenuController.ParseFuelLevel("+65/25");
+            Assert.AreEqual(65, fuelLevel); // Litres
+
+            fuelLevel = PitMenuController.ParseFuelLevel("+ 5/25");
+            Assert.AreEqual(5, fuelLevel); // Litres
+
+        }
+    }
 }
