@@ -26,8 +26,7 @@ namespace CrewChiefV4
             Verbose = 1 << 8,   // Shown if log_type_verbose is set
             Exception = 1 << 9
         };
-        private static LogType _logMask = System.Diagnostics.Debugger.IsAttached ? setLogLevel(LogType.Exception) :
-            UserSettings.GetUserSettings().getBoolean("log_type_debug") ?
+        private static LogType _logMask = UserSettings.GetUserSettings().getBoolean("log_type_debug") ?
             setLogLevel(LogType.Debug) : (UserSettings.GetUserSettings().getBoolean("log_type_verbose") ?
             setLogLevel(LogType.Verbose) : setLogLevel(LogType.Subtitle));
         private static readonly Dictionary<LogType, string> logPrefixes = new
