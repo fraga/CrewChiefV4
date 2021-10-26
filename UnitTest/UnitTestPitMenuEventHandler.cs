@@ -20,6 +20,7 @@ namespace UnitTest
         [ExpectedException(typeof(ArgumentOutOfRangeException),
             "text")]
         /// RUNS OK AS LONG AS RF2 IS NOT LOADED
+        /// can be used to create Documents\CrewChiefV4\rF2\TyreDictionary.json
         public void Test_EventHandler()
         {
             bool result;
@@ -142,6 +143,12 @@ namespace UnitTest
     [TestClass]
     public class TestTranslateTyreTypes
     {
+        /// <summary>
+        /// inMenu is the list of tyre types in the game's pit menu
+        /// Test the result list to see if each Pit Manager tyre compound
+        /// ("Hypersoft", "Ultrasoft" etc.) matches the corresponding name
+        /// used by the pit menu.
+        /// </summary>
         private static readonly PitMenuAbstractionLayer Pmal = new PitMenuAbstractionLayer();
         [TestMethod]
         public void Test_TTT_FormulaISI()
@@ -159,6 +166,7 @@ namespace UnitTest
                     PitManagerEventHandlers_RF2.SampleTyreTranslationDict,
                     inMenu);
             Assert.IsNotNull(result);
+            //               In menu              In Pit Manager
             Assert.AreEqual("Super Soft", result["Hypersoft"]);
             Assert.AreEqual("Super Soft", result["Ultrasoft"]);
             Assert.AreEqual("Super Soft", result["Supersoft"]);
@@ -289,6 +297,35 @@ namespace UnitTest
             Assert.AreEqual("Soft", result["Soft"]);
             Assert.AreEqual("Medium", result["Medium"]);
             Assert.AreEqual("Hard", result["Hard"]);
+            Assert.AreEqual("Intermediate", result["Intermediate"]);
+            Assert.AreEqual("Wet", result["Wet"]);
+            Assert.AreEqual("Wet", result["Monsoon"]);
+
+        }
+        [TestMethod]
+        public void Test_TTT_F1_Cs()
+        {
+            List<string> inMenu = new List<string>();
+            inMenu.Add("C1");
+            inMenu.Add("C2");
+            inMenu.Add("C3");
+            inMenu.Add("C4");
+            inMenu.Add("C5");
+            inMenu.Add("Intermediate");
+            inMenu.Add("Wet");
+
+            Dictionary<string, string> result =
+                PitManagerEventHandlers_RF2.TranslateTyreTypes(
+                    PitManagerEventHandlers_RF2.SampleTyreTranslationDict,
+                    inMenu);
+            Assert.IsNotNull(result);
+            //             In menu      In Pit Manager
+            Assert.AreEqual("C1", result["Hypersoft"]);
+            Assert.AreEqual("C1", result["Ultrasoft"]);
+            Assert.AreEqual("C2", result["Supersoft"]);
+            Assert.AreEqual("C3", result["Soft"]);
+            Assert.AreEqual("C4", result["Medium"]);
+            Assert.AreEqual("C5", result["Hard"]);
             Assert.AreEqual("Intermediate", result["Intermediate"]);
             Assert.AreEqual("Wet", result["Wet"]);
             Assert.AreEqual("Wet", result["Monsoon"]);
