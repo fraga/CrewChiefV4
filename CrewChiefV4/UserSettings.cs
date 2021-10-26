@@ -411,74 +411,104 @@ namespace CrewChiefV4
             return _userSettings;
         }
 
-        private T get<T>(String name)
-        {
-            if (currentActiveProfile.userSettings.TryGetValue(name, out object val))
-            {
-                return (T)val;
-            }
-            else if (currentApplicationSettings.TryGetValue(name, out object value))
-            {
-                return (T)value;
-            }
-            else
-            {
-                try
-                {
-                    return (T)Properties.Settings.Default[name];
-                }
-                catch (Exception)
-                {
-                    Console.WriteLine("PROPERTY " + name + " NOT FOUND");
-                }
-            }
-
-            return default(T);
-        }
         public String getString(String name)
         {
-            return get<String>(name);
+            try
+            {
+                if (currentActiveProfile.userSettings.TryGetValue(name, out object value))
+                {
+                    return (String)value;
+                }
+                else if (currentApplicationSettings.TryGetValue(name, out value))
+                {
+                    return (String)value;
+                }
+                else
+                {
+                    return (String)Properties.Settings.Default[name];
+                }
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("PROPERTY " + name + " NOT FOUND");
+            }
+
+            return "";
         }
 
         public float getFloat(String name)
         {
+
             try
             {
-                return get<float>(name);
-            }
-            catch
-            {
-                try
+                if (currentActiveProfile.userSettings.TryGetValue(name, out object value))
                 {
-                    Log.Verbose($"{name} is a double");
-                    return Convert.ToSingle(get<double>(name));
+                    return Convert.ToSingle(value);
                 }
-                catch (Exception e) { Log.Exception(e, "getFloat"); }
-            return 0.0f;
+                else if (currentApplicationSettings.TryGetValue(name, out value))
+                {
+                    return Convert.ToSingle(value);
+                }
+                else
+                {
+                    return (float)Properties.Settings.Default[name];
+                }
             }
+            catch (Exception)
+            {
+                Console.WriteLine("PROPERTY " + name + " NOT FOUND");
+            }
+
+            return 0f;
         }
 
         public Boolean getBoolean(String name)
         {
-            return get<Boolean>(name);
+            try
+            {
+                if (currentActiveProfile.userSettings.TryGetValue(name, out object value))
+                {
+                    return Convert.ToBoolean(value);
+                }
+                else if (currentApplicationSettings.TryGetValue(name, out value))
+                {
+                    return Convert.ToBoolean(value);
+                }
+                else
+                {
+                    return (Boolean)Properties.Settings.Default[name];
+                }
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("PROPERTY " + name + " NOT FOUND");
+            }
+
+            return false;
         }
 
         public int getInt(String name)
         {
             try
             {
-                return get<Int32>(name);
-            }
-            catch
-            {
-                try
+                if (currentActiveProfile.userSettings.TryGetValue(name, out object value))
                 {
-                    Log.Verbose($"{name} is a long");
-                    return Convert.ToInt32(get<long>(name));
+                    return Convert.ToInt32(value);
                 }
-                catch (Exception e) { Log.Exception(e, "getInt"); }
-                return 0;
+                else if (currentApplicationSettings.TryGetValue(name, out value))
+                {
+                    return Convert.ToInt32(value);
+                }
+                else
+                {
+                    return (int)Properties.Settings.Default[name];
+                }
             }
+            catch (Exception)
+            {
+                Console.WriteLine("PROPERTY " + name + " NOT FOUND");
+            }
+            return 0;
         }
 
         public void setProperty(String name, Object value)
@@ -512,13 +542,10 @@ namespace CrewChiefV4
                     if(propertiesUpdated)
                     {
                         Properties.Settings.Default.Save();
-                        propertiesUpdated = false;
-
                     }
                     if(userProfilePropertiesUpdated)
                     {
                         saveUserSettingsFile(currentActiveProfile, currentUserProfileFileName);
-                        userProfilePropertiesUpdated = false;
                     }
                 }
             }
