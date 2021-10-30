@@ -10,6 +10,8 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("UnitTest")]
+
 namespace PitMenuAPI
 {
     /// <summary>
@@ -206,37 +208,47 @@ namespace PitMenuAPI
         /// </returns>
         public int GetFuelLevel()
         {
-            float current = -1;
-            Match match;
-            Regex reggie = new Regex(@"(.*)/(.*)");
             if (SmartSetCategory("FUEL:"))
             {
-                match = reggie.Match(GetChoice());
-                if (match.Groups.Count >= 1)
+                return ParseFuelLevel(GetChoice());
+            }
+            return -1;
+        }
+        internal static int ParseFuelLevel(string fuelMenu)
+        {
+            float current = -1;
+            Match match;
+            Regex reggie = new Regex(@"\+? *(.*)/(.*)");
+            match = reggie.Match(fuelMenu);
+            Log.Verbose($"Fuel menu: {fuelMenu}");
+            if (match.Groups.Count >= 1)
+            {
+                bool parsed = float.TryParse(match.Groups[1].Value, out current);
+                if (parsed)
                 {
-                    bool parsed = float.TryParse(match.Groups[1].Value, out current);
-                    if (parsed)
-                    {
-                        if (match.Value.Contains("."))
-                        {   // Gallons are displayed in 10ths
-                            current = convertGallonsToLitres(current);
-                            Log.Verbose("Using gallons");
-                        }
-                        else
-                        {
-                            Log.Verbose("Using litres");
-                        }
-                        Log.Verbose($"Fuel level {current}");
+                    if (match.Value.Contains("."))
+                    {   // Gallons are displayed in 10ths
+                        current = convertGallonsToLitres(current);
+                        Log.Verbose("Using gallons");
                     }
                     else
                     {
-                        Log.Warning($"Couldn't parse fuel level '{GetChoice()}'");
+                        Log.Verbose("Using litres");
                     }
+                    Log.Verbose($"Fuel level {current}");
                 }
+                else
+                {
+                    Log.Warning($"Couldn't parse fuel level '{fuelMenu}'");
+                }
+            }
+            else
+            {
+                Log.Error($"Couldn't parse fuel level '{fuelMenu}'");
             }
             return (int)current;
         }
-        private float convertGallonsToLitres(float gallons)
+        private static float convertGallonsToLitres(float gallons)
         {
             float litresPerGallon = 3.78541f;
             return (float)Math.Round(gallons * litresPerGallon);
