@@ -739,10 +739,15 @@ namespace CrewChiefV4.PitManager
                         using (StreamReader r = new StreamReader(filepath))
                         {
                             string json = r.ReadToEnd();
-                            TyreDictionary data = JsonConvert.DeserializeObject<TyreDictionary>(json);
-                            if (data != null)
+                            // Check if file contents are the old version
+                            int hash = json.GetHashCode();
+                            if (hash != 0X37AF3AAF) // It's not
                             {
-                                return data;
+                                TyreDictionary data = JsonConvert.DeserializeObject<TyreDictionary>(json);
+                                if (data != null)
+                                {
+                                    return data;
+                                }
                             }
                         }
                     }
@@ -751,11 +756,9 @@ namespace CrewChiefV4.PitManager
                         Log.Error($"Error parsing {filepath}: {e.Message}");
                     }
                 }
-                else
-                {
-                    // No file so create a default one
-                    saveTyreDictionaryFile(SampleTyreTranslationDict);
-                }
+                // else
+                // No file or file is an old version so create a default one
+                saveTyreDictionaryFile(SampleTyreTranslationDict);
                 return SampleTyreTranslationDict;
             }
 
