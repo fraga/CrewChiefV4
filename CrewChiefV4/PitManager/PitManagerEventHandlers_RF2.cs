@@ -81,17 +81,17 @@ namespace CrewChiefV4.PitManager
         // The user can edit that file to add new names if required
         public static readonly TyreDictionary SampleTyreTranslationDict =
           new TyreDictionary() {
-            { "Hypersoft",    new List <string> {"hypersoft", "ultrasoft", "supersoft", "soft", "alternates",
+            { "Hypersoft",    new List <string> {"hypersoft", "c1", "ultrasoft", "supersoft", "soft", "alternates",
                         "s310", "slick", "dry", "allweather", "medium" } },
-            { "Ultrasoft",    new List <string> {"ultrasoft","hypersoft", "supersoft", "soft", "alternates",
+            { "Ultrasoft",    new List <string> {"ultrasoft","c1", "hypersoft", "supersoft", "soft", "alternates",
                         "s310", "slick", "dry", "allweather", "medium" } },
-            { "Supersoft",    new List <string> {"supersoft", "hypersoft", "ultrasoft", "soft", "alternates",
+            { "Supersoft",    new List <string> {"supersoft", "c2", "hypersoft", "ultrasoft", "soft", "alternates",
                         "s310", "slick", "dry", "allweather", "medium" } },
-            { "Soft",         new List <string> {"soft", "alternates",
+            { "Soft",         new List <string> {"soft", "c3", "alternates",
                         "s310", "slick", "dry", "allweather", "medium" } },
-            { "Medium",       new List <string> { "medium", "default",
+            { "Medium",       new List <string> { "medium", "c4", "default",
                         "s310", "slick", "dry", "allweather" } },
-            { "Hard",         new List <string> {"hard", "p310", "endur", "primary",
+            { "Hard",         new List <string> {"hard", "c5", "p310", "endur", "primary",
                         "medium", "default",
                                 "slick", "dry", "allweather" } },
             { "Intermediate", new List <string> { "intermediate", "inter", "inters",
@@ -739,10 +739,15 @@ namespace CrewChiefV4.PitManager
                         using (StreamReader r = new StreamReader(filepath))
                         {
                             string json = r.ReadToEnd();
-                            TyreDictionary data = JsonConvert.DeserializeObject<TyreDictionary>(json);
-                            if (data != null)
+                            // Check if file contents are the old version
+                            int hash = json.GetHashCode();
+                            if (hash != 0X37AF3AAF) // It's not
                             {
-                                return data;
+                                TyreDictionary data = JsonConvert.DeserializeObject<TyreDictionary>(json);
+                                if (data != null)
+                                {
+                                    return data;
+                                }
                             }
                         }
                     }
@@ -751,11 +756,9 @@ namespace CrewChiefV4.PitManager
                         Log.Error($"Error parsing {filepath}: {e.Message}");
                     }
                 }
-                else
-                {
-                    // No file so create a default one
-                    saveTyreDictionaryFile(SampleTyreTranslationDict);
-                }
+                // else
+                // No file or file is an old version so create a default one
+                saveTyreDictionaryFile(SampleTyreTranslationDict);
                 return SampleTyreTranslationDict;
             }
 
