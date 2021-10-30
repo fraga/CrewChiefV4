@@ -173,6 +173,8 @@ namespace CrewChiefV4.Events
         // checking if we need to read fuel messages involves a bit of arithmetic and stuff, so only do this every few seconds
         private DateTime nextFuelStatusCheck = DateTime.MinValue;
 
+        private DateTime nextFuelPitWindowOpenCheck = DateTime.MinValue;
+
         private TimeSpan fuelStatusCheckInterval = TimeSpan.FromSeconds(5);
 
         private Boolean sessionHasFixedNumberOfLaps = false;
@@ -185,6 +187,10 @@ namespace CrewChiefV4.Events
         private float secondsRemaining = -1;
 
         private Boolean gotPredictedPitWindow = false;
+
+        private bool playedPitWindowEstimate = false;
+
+        private bool playedPitWindowOpen = false;
 
         private static float litresPerGallon = 3.78541f;
 
@@ -232,6 +238,7 @@ namespace CrewChiefV4.Events
             gameTimeWhenFuelWasReset = 0;
             hasBeenRefuelled = false;
             nextFuelStatusCheck = DateTime.MinValue;
+            nextFuelPitWindowOpenCheck = DateTime.MinValue;
             sessionHasFixedNumberOfLaps = false;
             lapsCompletedSinceFuelReset = 0;
 
@@ -240,6 +247,8 @@ namespace CrewChiefV4.Events
             hasExtraLap = false;
             fuelCapacity = 0;
             gotPredictedPitWindow = false;
+            playedPitWindowOpen = false;
+            playedPitWindowEstimate = false;
             sessionHasHadFCY = false;
 
             historicAverageUsagePerLap.Clear();
@@ -842,6 +851,7 @@ namespace CrewChiefV4.Events
                             }
                         }
 
+                        // This section only triggers in sessions where there is a single pitstop enforced by fuel limit
                         if (!gotPredictedPitWindow && currentGameState.SessionData.SessionType == SessionType.Race &&
                             !currentGameState.PitData.HasMandatoryPitStop &&
                             previousGameState != null && previousGameState.SessionData.SectorNumber == 1 && currentGameState.SessionData.SectorNumber == 2)
@@ -879,11 +889,13 @@ namespace CrewChiefV4.Events
                                     {
                                         audioPlayer.playMessage(new QueuedMessage("Fuel/pit_window_for_fuel", 0, secondsDelay: Utilities.random.Next(8),
                                             messageFragments: MessageContents(folderWillNeedToPitForFuelByLap, predictedWindow.Item2)));
+                                        playedPitWindowEstimate = true;
                                     }
                                     else
                                     {
                                         audioPlayer.playMessage(new QueuedMessage("Fuel/pit_window_for_fuel", 0, secondsDelay: Utilities.random.Next(8),
                                             messageFragments: MessageContents(folderFuelWindowOpensOnLap, predictedWindow.Item1, folderAndFuelWindowClosesOnLap, predictedWindow.Item2)));
+                                        playedPitWindowEstimate = true;
                                     }
                                 }
                                 else
@@ -898,14 +910,31 @@ namespace CrewChiefV4.Events
                                     {
                                         audioPlayer.playMessage(new QueuedMessage("Fuel/pit_window_for_fuel", 0, secondsDelay: Utilities.random.Next(8),
                                             messageFragments: MessageContents(folderWillNeedToPitForFuelByTimeIntro, TimeSpanWrapper.FromMinutes(predictedWindow.Item2, Precision.MINUTES), folderWillNeedToPitForFuelByTimeOutro)));
+                                        playedPitWindowEstimate = true;
                                     }
                                     else
                                     {
                                         audioPlayer.playMessage(new QueuedMessage("Fuel/pit_window_for_fuel", 0, secondsDelay: Utilities.random.Next(8),
                                             messageFragments: MessageContents(folderFuelWindowOpensAfterTime, TimeSpanWrapper.FromMinutes(predictedWindow.Item1, Precision.MINUTES),
                                             folderAndFuelWindowClosesAfterTime,  TimeSpanWrapper.FromMinutes(predictedWindow.Item2, Precision.MINUTES))));
+                                        playedPitWindowEstimate = true;
                                     }
                                 }
+                            }
+                        }
+
+                        if(gotPredictedPitWindow && playedPitWindowEstimate && !playedPitWindowOpen && currentGameState.SessionData.SessionType == SessionType.Race &&
+                            !currentGameState.PitData.HasMandatoryPitStop &&
+                            // check every 5 sec regardless if its a time limited or lap limited race, we want to know this as soon as possible. 
+                            currentGameState.Now > nextFuelPitWindowOpenCheck)
+                        {
+                            nextFuelPitWindowOpenCheck = currentGameState.Now.Add(fuelStatusCheckInterval);
+                            float litersNeeded = getLitresToEndOfRace(true, false);
+                            if (litersNeeded <= fuelCapacity - currentFuel)
+                            {
+                                //Console.WriteLine($"Pit Window is now open, Liters Needed: {litersNeeded}");
+                                playedPitWindowOpen = true;
+                                audioPlayer.playMessage(new QueuedMessage(PitStops.folderMandatoryPitStopsPitWindowOpen, 0, abstractEvent: this, priority: 10));
                             }
                         }
                     }
@@ -1564,7 +1593,7 @@ namespace CrewChiefV4.Events
         }
 
         // int.MaxValue means no data
-        public float getLitresToEndOfRace(Boolean addReserve)
+        public float getLitresToEndOfRace(Boolean addReserve, bool verbose = true)
         {
             float additionalLitresNeeded = float.MaxValue;
             if (fuelUseActive && CrewChief.currentGameState != null)
@@ -1619,8 +1648,11 @@ namespace CrewChiefV4.Events
                 {
                     float totalLitresNeededToEnd = (averageUsagePerLapForCalculation * lapsRemaining) + (addReserve ? reserve : 0);
                     additionalLitresNeeded = totalLitresNeededToEnd - currentFuel;
-                    Log.Fuel("Use per lap = " + averageUsagePerLapForCalculation.ToString("F1") + " laps to go = " + lapsRemaining + " current fuel = " +
-                        currentFuel.ToString("F1") + " additional fuel needed = " + additionalLitresNeeded.ToString("F1"));
+                    if(verbose)
+                    {
+                        Log.Fuel("Use per lap = " + averageUsagePerLapForCalculation.ToString("F1") + " laps to go = " + lapsRemaining + " current fuel = " +
+                            currentFuel.ToString("F1") + " additional fuel needed = " + additionalLitresNeeded.ToString("F1"));
+                    }
                 }
                 else if (averageUsagePerMinuteForCalculation > 0)
                 {
@@ -1659,8 +1691,11 @@ namespace CrewChiefV4.Events
                         totalLitresNeededToEnd = (averageUsagePerMinuteForCalculation * maxMinutesRemaining) + (addReserve ? reserve : 0);
                     }
                     additionalLitresNeeded = totalLitresNeededToEnd - currentFuel;
-                    Log.Fuel("Use per minute = " + averageUsagePerMinuteForCalculation.ToString("F1") + " estimated minutes to go (including final lap) = " +
+                    if (verbose)
+                    {
+                        Log.Fuel("Use per minute = " + averageUsagePerMinuteForCalculation.ToString("F1") + " estimated minutes to go (including final lap) = " +
                         maxMinutesRemaining.ToString("F1") + " current fuel = " + currentFuel.ToString("F1") + " additional fuel needed = " + additionalLitresNeeded.ToString("F1"));
+                    }
                 }
             }
             return additionalLitresNeeded;
@@ -1712,7 +1747,7 @@ namespace CrewChiefV4.Events
                         int diff = maximumLapsForFullTankOfFuel - pitWindowEnd;
                         int pitWindowStart = (maximumLapsForFullTankOfFuel - diff) - estimatedlapsWorth;
                         Log.Fuel("calculated fuel window (laps): pitwindowStart = " + pitWindowStart + " pitWindowEnd = " + pitWindowEnd +
-                                "maximumLapsForFullTankOfFuel = " + maximumLapsForFullTankOfFuel + " estimatedlapsWorth = " + estimatedlapsWorth);
+                                " maximumLapsForFullTankOfFuel = " + maximumLapsForFullTankOfFuel + " estimatedlapsWorth = " + estimatedlapsWorth);
                         pitWindow = new Tuple<int, int>(pitWindowStart, pitWindowEnd);
                     }
                 }
@@ -1737,7 +1772,7 @@ namespace CrewChiefV4.Events
                         int diff = maximumMinutesForFullTankOfFuel - pitWindowEnd;
                         int pitWindowStart = (maximumMinutesForFullTankOfFuel - diff) - estimatedMinutesWorth;
                         Log.Fuel("calculated fuel window (minutes): pitwindowStart = " + pitWindowStart + " pitWindowEnd = " + pitWindowEnd +
-                                "maximumMinutesForFullTankOfFuel = " + maximumMinutesForFullTankOfFuel + " estimatedMinutesWorth = " + estimatedMinutesWorth);
+                                " maximumMinutesForFullTankOfFuel = " + maximumMinutesForFullTankOfFuel + " estimatedMinutesWorth = " + estimatedMinutesWorth);
                         pitWindow = new Tuple<int, int>(pitWindowStart, pitWindowEnd);
                     }
                 }

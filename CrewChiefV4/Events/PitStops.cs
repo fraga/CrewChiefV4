@@ -41,7 +41,7 @@ namespace CrewChiefV4.Events
 
         private String folderMandatoryPitStopsPitWindowOpen2Min = "mandatory_pit_stops/pit_window_opens_2_min";
 
-        private String folderMandatoryPitStopsPitWindowOpen = "mandatory_pit_stops/pit_window_open";
+        public static String folderMandatoryPitStopsPitWindowOpen = "mandatory_pit_stops/pit_window_open";
 
         private String folderMandatoryPitStopsPitWindowCloses1min = "mandatory_pit_stops/pit_window_closes_1_min";
 
