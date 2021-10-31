@@ -25,11 +25,10 @@ namespace CrewChiefV4
 {
     public partial class MainWindow : Form
     {
-        public const int TASKBAR_ALLOWANCE = 40;
         private const int PREFERRED_X_SIZE = 1170;
         private const int PREFERRED_Y_SIZE = 730;
-        private static int X_SIZE = Math.Min(PREFERRED_X_SIZE, Screen.PrimaryScreen.Bounds.Width);
-        private static int Y_SIZE = Math.Min(PREFERRED_Y_SIZE, Screen.PrimaryScreen.Bounds.Height - TASKBAR_ALLOWANCE);
+        private static int X_SIZE = Math.Min(PREFERRED_X_SIZE, Screen.PrimaryScreen.WorkingArea.Width);
+        private static int Y_SIZE = Math.Min(PREFERRED_Y_SIZE, Screen.PrimaryScreen.WorkingArea.Height);
         private static bool NEED_H_SCROLL = X_SIZE < PREFERRED_X_SIZE;
         private static bool NEED_V_SCROLL = Y_SIZE < PREFERRED_Y_SIZE;
 
@@ -315,8 +314,10 @@ namespace CrewChiefV4
             {
                 this.MinimumSize = new System.Drawing.Size(X_SIZE, Y_SIZE);
             }
-            this.Size = new System.Drawing.Size(X_SIZE, Y_SIZE);
-
+            if (NEED_H_SCROLL || NEED_V_SCROLL)
+            {
+                this.Size = new System.Drawing.Size(X_SIZE, Y_SIZE);
+            }
 
             // do the auto updating stuff in a separate Thread's
             if (!CrewChief.Debugging)

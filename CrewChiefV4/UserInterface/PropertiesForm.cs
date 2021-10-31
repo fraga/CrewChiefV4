@@ -16,8 +16,8 @@ namespace CrewChiefV4
     {
         public const int PREFERRED_X_SIZE = 1030;
         public const int PREFERRED_Y_SIZE = 840;
-        private static int X_SIZE = Math.Min(PREFERRED_X_SIZE, Screen.PrimaryScreen.Bounds.Width);
-        private static int Y_SIZE = Math.Min(PREFERRED_Y_SIZE, Screen.PrimaryScreen.Bounds.Height - MainWindow.TASKBAR_ALLOWANCE);
+        private static int X_SIZE = Math.Min(PREFERRED_X_SIZE, Screen.PrimaryScreen.WorkingArea.Width);
+        private static int Y_SIZE = Math.Min(PREFERRED_Y_SIZE, Screen.PrimaryScreen.WorkingArea.Height);
         private static bool NEED_H_SCROLL = X_SIZE < PREFERRED_X_SIZE;
         private static bool NEED_V_SCROLL = Y_SIZE < PREFERRED_Y_SIZE;
 
@@ -388,7 +388,10 @@ namespace CrewChiefV4
 
             this.ResumeLayout(false);
 
-            this.Size = new System.Drawing.Size(X_SIZE, Y_SIZE);
+            if (NEED_H_SCROLL || NEED_V_SCROLL)
+            {
+                this.Size = new System.Drawing.Size(X_SIZE, Y_SIZE);
+            }
 
             bool forceHScrollbar = UserSettings.GetUserSettings().getBoolean("scroll_bars_on_main_window") || NEED_H_SCROLL;
             bool forceVScrollbar = UserSettings.GetUserSettings().getBoolean("scroll_bars_on_main_window") || NEED_V_SCROLL;
