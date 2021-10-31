@@ -25,6 +25,14 @@ namespace CrewChiefV4
 {
     public partial class MainWindow : Form
     {
+        public const int TASKBAR_ALLOWANCE = 40;
+        private const int PREFERRED_X_SIZE = 1170;
+        private const int PREFERRED_Y_SIZE = 730;
+        private static int X_SIZE = Math.Min(PREFERRED_X_SIZE, Screen.PrimaryScreen.Bounds.Width);
+        private static int Y_SIZE = Math.Min(PREFERRED_Y_SIZE, Screen.PrimaryScreen.Bounds.Height - TASKBAR_ALLOWANCE);
+        private static bool NEED_H_SCROLL = X_SIZE < PREFERRED_X_SIZE;
+        private static bool NEED_V_SCROLL = Y_SIZE < PREFERRED_Y_SIZE;
+
         // used when retrying downloads:
         private Boolean usingRetryAddressForSoundPack = false;
         private Boolean usingRetryAddressForDriverNames = false;
@@ -305,8 +313,10 @@ namespace CrewChiefV4
 
             if (forceMinWindowSize)
             {
-                this.MinimumSize = new System.Drawing.Size(1160, 730);
+                this.MinimumSize = new System.Drawing.Size(X_SIZE, Y_SIZE);
             }
+            this.Size = new System.Drawing.Size(X_SIZE, Y_SIZE);
+
 
             // do the auto updating stuff in a separate Thread's
             if (!CrewChief.Debugging)
@@ -1032,7 +1042,6 @@ namespace CrewChiefV4
             this.buttonVRWindowSettings.Text = Configuration.getUIString("vr_window_settings");
             this.gameDefinitionList.Items.Clear();
             this.gameDefinitionList.Items.AddRange(GameDefinition.getGameDefinitionFriendlyNames());
-            this.AutoScroll = UserSettings.GetUserSettings().getBoolean("scroll_bars_on_main_window");
 
             this.codriverStyleBox.Items.Add(new MainWindow.CoDriverStyleEntry()
             {
@@ -1459,6 +1468,13 @@ namespace CrewChiefV4
             this.deleteAssigmentButton.Enabled = false;
 
             this.ResumeLayout();
+            
+            bool forceHScrollbar = UserSettings.GetUserSettings().getBoolean("scroll_bars_on_main_window") || NEED_H_SCROLL;
+            bool forceVScrollbar = UserSettings.GetUserSettings().getBoolean("scroll_bars_on_main_window") || NEED_V_SCROLL;
+
+            this.AutoScroll = forceHScrollbar || forceVScrollbar;
+            this.HScroll = forceHScrollbar;
+            this.VScroll = forceVScrollbar;
 
             this.Resize += MainWindow_Resize;
             this.KeyPreview = true;

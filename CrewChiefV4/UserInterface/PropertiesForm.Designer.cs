@@ -364,7 +364,8 @@ namespace CrewChiefV4
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(1014, 821);
+            this.ClientSize = new System.Drawing.Size(Math.Min(Screen.PrimaryScreen.Bounds.Width, PropertiesForm.PREFERRED_X_SIZE - 16),
+                Math.Min(Screen.PrimaryScreen.Bounds.Height - MainWindow.TASKBAR_ALLOWANCE, PropertiesForm.PREFERRED_Y_SIZE - 19));
             this.Controls.Add(this.userProfileGroupBox);
             this.Controls.Add(this.userProfileSettingsGroupBox);
             this.MaximizeBox = false;
