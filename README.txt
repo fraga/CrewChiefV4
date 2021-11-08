@@ -431,6 +431,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.15.3.5: Fix MS Speech recognition platform download links; use 2 decimal places when reporting tyre pressure in kPa; iRacing - prevent autofuel triggering immediately after a driver swap and when the player isn't driving the car (thanks to Jacob Klien and Doug Evenson for helping track this down); GTR2 - plugin update; a couple of minor fixes
+
 Version 4.15.3.0: Added a sector 3 pit warning when needing fuel; Added support for F1 2021 (spotter only, thanks to Christopher Berger); R3E - Work around the game's pit menu changes. The voice command "fix suspension" should work now but note that it will only toggle the value of this option (the app can't know what it's currently set to); GTR2 - update plugin to latest version; iRacing - fixed macro key presses; A few minor bug fixes
 
 Version 4.15.2.9: Tweaked nAudio WASAPI playback to reduce the likelihood of sounds being truncated; fixed chat macro key presses not registering for some games; R3E & GTR2 - added dirt pickup warning messages (can be disabled with "Enable tyre dirt pickup warnings" property); GTR2 - damage reporting and gearbox improvements

@@ -115,7 +115,13 @@ namespace CrewChiefV4.Events
             currentFuel = currentGameState.FuelData.FuelLeft;
             if(autoFuelToEnd)
             {
-                if(previousGameState != null && !previousGameState.PitData.InPitlane && currentGameState.PitData.InPitlane
+                if (previousGameState != null 
+                    // special case: don't allow auto fuelling to trigger if we've just been given control of the car. Prevents this
+                    // triggering immediately after a driver change. We also don't want this to trigger when we're not in the car because
+                    // the fuel data aren't sent
+                    && currentGameState.ControlData.ControlType == ControlType.Player
+                    && !(previousGameState.ControlData.ControlType == ControlType.Replay && currentGameState.ControlData.ControlType == ControlType.Player)
+                    && !previousGameState.PitData.InPitlane && currentGameState.PitData.InPitlane
                     && currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.SessionData.SessionRunningTime > 15 
                     && !previousGameState.PitData.IsInGarage && !currentGameState.PitData.JumpedToPits)
                 {
