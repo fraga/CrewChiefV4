@@ -101,7 +101,8 @@ namespace CrewChiefV4.iRacing
                 playerCar = shared.Driver;
                 playerName = playerCar.Name.ToLower();
             }
-
+            // only used for auto fuelling check
+            currentGameState.ControlData.ControlType = shared.Telemetry.IsReplayPlaying ? ControlType.Replay : ControlType.Player;
             leaderCar = shared.Drivers.Where(d => d.CurrentResults.Position > 0).OrderBy(d => d.CurrentResults.Position).FirstOrDefault();
 
             if(leaderCar == null)

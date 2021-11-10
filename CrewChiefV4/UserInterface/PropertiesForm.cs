@@ -14,6 +14,13 @@ namespace CrewChiefV4
 {
     public partial class PropertiesForm : Form
     {
+        public const int PREFERRED_X_SIZE = 1030;
+        public const int PREFERRED_Y_SIZE = 840;
+        private static int X_SIZE = Math.Min(PREFERRED_X_SIZE, Screen.PrimaryScreen.WorkingArea.Width);
+        private static int Y_SIZE = Math.Min(PREFERRED_Y_SIZE, Screen.PrimaryScreen.WorkingArea.Height);
+        private static bool NEED_H_SCROLL = X_SIZE < PREFERRED_X_SIZE;
+        private static bool NEED_V_SCROLL = Y_SIZE < PREFERRED_Y_SIZE;
+
         public HashSet<string> updatedPropertiesRequiringRestart = new HashSet<string>();
         public HashSet<string> updatedProperties = new HashSet<string>();
 
@@ -124,9 +131,10 @@ namespace CrewChiefV4
         public PropertiesForm(Form parent)
         {
             StartPosition = FormStartPosition.CenterParent;
+            // if we're not forcing the window size, see if the regular layout will fit and shrink it if necessary
             if (MainWindow.forceMinWindowSize)
             {
-                this.MinimumSize = new Size(1030, 860);
+                this.MinimumSize = new Size(X_SIZE, Y_SIZE);
             }
 
             this.parent = parent;
@@ -377,7 +385,20 @@ namespace CrewChiefV4
             this.loadActiveProfile();
 
             this.propertiesFlowLayoutPanel.ResumeLayout(false);
+
             this.ResumeLayout(false);
+
+            if (NEED_H_SCROLL || NEED_V_SCROLL)
+            {
+                this.Size = new System.Drawing.Size(X_SIZE, Y_SIZE);
+            }
+
+            bool forceHScrollbar = UserSettings.GetUserSettings().getBoolean("scroll_bars_on_main_window") || NEED_H_SCROLL;
+            bool forceVScrollbar = UserSettings.GetUserSettings().getBoolean("scroll_bars_on_main_window") || NEED_V_SCROLL;
+
+            this.AutoScroll = forceHScrollbar || forceVScrollbar;
+            this.HScroll = forceHScrollbar;
+            this.VScroll = forceVScrollbar;
         }
 
         public void saveActiveProfile()

@@ -188,10 +188,10 @@ namespace CrewChiefV4.iRacing
 		/// <summary>
 		public System.Boolean IsOnTrack;
 
-		/// <summary>
-		/// 0=replay not playing  1=replay playing
-		/// <summary>
-		public System.Boolean IsReplayPlaying;
+        /// <summary>
+        /// 0=replay not playing  1=replay playing
+        /// <summary>
+        public System.Boolean IsReplayPlaying;
 
         /// <summary>
         /// 0=disk based telemetry turned off  1=turned on

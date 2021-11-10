@@ -428,7 +428,7 @@ namespace CrewChiefV4.Events
                     {
                         crossedIntoSector3 = true;
                     }
-                    if (currentGameState.SessionData.IsNewLap)
+                    if (currentGameState.SessionData.IsNewLap && currentGameState.FuelData.FuelLeft > 0)
                     {
                         lapsCompletedSinceFuelReset++;
                         // completed a lap, so store the fuel left at this point:
@@ -492,7 +492,7 @@ namespace CrewChiefV4.Events
                             onLowFuelRun = false;
                         }
                     }
-                    if (!currentGameState.PitData.InPitlane
+                    if (!currentGameState.PitData.InPitlane && currentGameState.FuelData.FuelLeft > 0
                         && currentGameState.SessionData.SessionRunningTime > gameTimeAtLastFuelWindowUpdate + fuelUseSampleTime)
                     {
                         // it's x minutes since the last fuel window check
@@ -514,13 +514,13 @@ namespace CrewChiefV4.Events
                             if (fuelReportsInGallon)
                             {
                                 Log.Fuel("Fuel use per minute: windowed calc=" + convertLitersToGallons(averageUsagePerMinute).ToString("0.000") +
-                                    ", max per lap calc=" + convertLitersToGallons(maxConsumptionPerMinute).ToString("0.000") +
+                                    ", max per min calc=" + convertLitersToGallons(maxConsumptionPerMinute).ToString("0.000") +
                                     " fuel(gallons) left=" + convertLitersToGallons(currentGameState.FuelData.FuelLeft).ToString("0.000"));
                             }
                             else
                             {
                                 Log.Fuel("Fuel use per minute: windowed calc=" + averageUsagePerMinute.ToString("0.000") +
-                                    ", max per lap calc=" + maxConsumptionPerMinute.ToString("0.000") +
+                                    ", max per min calc=" + maxConsumptionPerMinute.ToString("0.000") +
                                     " fuel left(liters)=" + currentGameState.FuelData.FuelLeft.ToString("0.000"));
                             }
                         }
@@ -591,6 +591,7 @@ namespace CrewChiefV4.Events
                         float averageUsagePerLapToCheck = getConsumptionPerLap();
                         float averageUsagePerMinuteToCheck = getConsumptionPerMinute();
                         if (currentGameState.SessionData.IsNewLap && averageUsagePerLapToCheck > 0 &&
+                            currentGameState.FuelData.FuelLeft > 0 &&
                             (currentGameState.SessionData.SessionNumberOfLaps > 0 ||
                                 currentGameState.SessionData.SessionType == SessionType.HotLap ||
                                 currentGameState.SessionData.SessionType == SessionType.LonePractice) &&
@@ -712,7 +713,7 @@ namespace CrewChiefV4.Events
                         }
 
                         // warnings for fixed time sessions - check every 5 seconds
-                        else if (currentGameState.Now > nextFuelStatusCheck &&
+                        else if (currentGameState.Now > nextFuelStatusCheck && currentGameState.FuelData.FuelLeft > 0 &&
                             currentGameState.SessionData.SessionNumberOfLaps <= 0 && currentGameState.SessionData.SessionTotalRunTime > 0 && averageUsagePerMinuteToCheck > 0)
                         {
                             float benchmarkLaptime = currentGameState.TimingData.getPlayerBestLapTime();
