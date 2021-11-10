@@ -1,7 +1,7 @@
 -
   branches:
     only:
-      - HTMLhelp
+      - master
 
   only_commits:
     files:
