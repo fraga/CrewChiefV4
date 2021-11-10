@@ -68,7 +68,7 @@
     - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://oauth2:$($env:access_token)@gitlab.com`n" -NoNewline
     - git config --global user.email "crewchiefTony@outlook.com"
     - git config --global user.name "Tony Whitley"
-    - git checkout HTMLhelp
+    - git checkout master
     - git add ./
     # git diff --quiet && git diff --staged --quiet ensures only commit if files changed
     - git diff --quiet && git diff --staged --quiet || git commit -am "Appveyor update public/ files" && git push
@@ -95,7 +95,7 @@
     - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://oauth2:$($env:access_token)@gitlab.com`n" -NoNewline
     - git config --global user.email "crewchiefTony@outlook.com"
     - git config --global user.name "Tony Whitley"
-    - git checkout master
+    - git checkout HTMLhelp
     - git merge origin/master
     # git diff --quiet && git diff --staged --quiet ensures only commit if files changed
     - git diff --quiet && git diff --staged --quiet || git commit -am "Appveyor merge master change_log_for_auto_updated.html" && git push
