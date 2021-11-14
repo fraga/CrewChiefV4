@@ -386,6 +386,7 @@ vr_recenter_pose = Reset VR view
 # Where CATEGORY_NAME is one of the values in PropertiesForm.PropertyCategory enumeration.
 #
 
+no_help_provided = No help provided
 acs_install_path = ACS install path
 acs_install_path_help = ACS installation path for plugin installation and updating
 acs_install_path_filter = ASSETTO_64BIT;ASSETTO_32BIT
