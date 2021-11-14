@@ -589,8 +589,21 @@ namespace CrewChiefV4.AMS2
             //------------------- Variable session data ---------------------------
             if (currentGameState.SessionData.SessionHasFixedTime)
             {
-                //Console.WriteLine("Setting session running time 1, total run time = " + currentGameState.SessionData.SessionTotalRunTime + " event time remaining  " + shared.mEventTimeRemaining);
-                currentGameState.SessionData.SessionRunningTime = currentGameState.SessionData.SessionTotalRunTime - shared.mEventTimeRemaining;
+                /*
+                in fixed-time races, shared.mEventTimeRemaining decreases to zero when we reach the event time limit, then changes to -1 and remains -1 as we complete our
+                last lap. So we see the number decrease to something very small (0.01 or whatever) then at the remaining ticks in the race it's -1
+                 */
+                if (shared.mEventTimeRemaining == -1 && previousGameState != null && previousGameState.SessionData.SessionRunningTime > 0)
+                {
+                    // derive the run time from the previous tick + the time difference. If we just use the event time remaining here we'll jump
+                    // forward in time 1 second and remain at that time.
+                    currentGameState.SessionData.SessionRunningTime = previousGameState.SessionData.SessionRunningTime +
+                        (float)(currentGameState.Now - previousGameState.Now).TotalSeconds;
+                }
+                else
+                {
+                    currentGameState.SessionData.SessionRunningTime = currentGameState.SessionData.SessionTotalRunTime - shared.mEventTimeRemaining;
+                }
                 currentGameState.SessionData.SessionTimeRemaining = shared.mEventTimeRemaining;
             }
             else
