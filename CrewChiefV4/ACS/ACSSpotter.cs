@@ -55,7 +55,7 @@ namespace CrewChiefV4.assetto
             float playerXPosition = playerData.worldPosition.x;
             float playerZPosition = playerData.worldPosition.y;
             int playerStartingPosition = playerData.carLeaderboardPosition;
-            int numCars = latestRawData.acsChief.numVehicles;
+            int numCars = Math.Min(latestRawData.acsChief.numVehicles, 64);
             return getGridSideInternal(latestRawData, playerRotation, playerXPosition, playerZPosition, playerStartingPosition, numCars);
         }
 
@@ -132,7 +132,7 @@ namespace CrewChiefV4.assetto
                 playerVelocityData[1] = (currentPlayerData.worldPosition.x - previousPlayerData.worldPosition.x) / timeDiffSeconds;
                 playerVelocityData[2] = (currentPlayerData.worldPosition.z - previousPlayerData.worldPosition.z) / timeDiffSeconds;
 
-                for (int i = 0; i < currentState.acsChief.numVehicles; i++)
+                for (int i = 0; i < Math.Min(currentState.acsChief.numVehicles, 64); i++)
                 {
                     acsVehicleInfo vehicle = currentState.acsChief.vehicle[i];
                     if (vehicle.carId == 0 || vehicle.isCarInPit == 1 || vehicle.isCarInPitline == 1 || vehicle.isConnected != 1)
