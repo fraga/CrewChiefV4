@@ -2168,3 +2168,8 @@ enable_frozen_order_messages_category = FLAGS_AND_RULES
 force_seated_on_vr_view_reset = Force Seated tracking mode on Reset VR View
 force_seated_on_vr_view_reset_help = If enabled, will force Seated position reset on Reset VR View.  If disabled, will respect the current SteamVR tracking mode.
 force_seated_on_vr_view_reset_category = VR_SETTINGS
+
+speak_only_when_spoken_to = Speak only when spoken to
+speak_only_when_spoken_to_help = Only play audio in response to commands or requests (spotter messages may still play)
+speak_only_when_spoken_to_category = AUDIO_VOICE_AND_CONTROLLERS
+speak_only_when_spoken_to_metadata = RESTART_REQUIRED

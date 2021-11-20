@@ -5350,5 +5350,17 @@ namespace CrewChiefV4.Properties {
                 this["enable_tyre_dirt_pickup_warnings"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool speak_only_when_spoken_to {
+            get {
+                return ((bool)(this["speak_only_when_spoken_to"]));
+            }
+            set {
+                this["speak_only_when_spoken_to"] = value;
+            }
+        }
     }
 }

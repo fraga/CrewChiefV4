@@ -1978,7 +1978,7 @@ namespace CrewChiefV4.Audio
                         Console.WriteLine("Clip for event " + queuedMessage.messageName + " is already queued, ignoring");
                         return;
                     }
-                    else
+                    else if (PlaybackModerator.ImmediateMessageCanBeQueued(queuedMessage))
                     {
                         lastImmediateMessageName = queuedMessage.messageName;
                         lastImmediateMessageTime = GameStateData.CurrentTime;

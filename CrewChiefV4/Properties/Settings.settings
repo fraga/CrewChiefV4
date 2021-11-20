@@ -1334,5 +1334,8 @@
     <Setting Name="enable_tyre_dirt_pickup_warnings" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="speak_only_when_spoken_to" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
