@@ -1728,53 +1728,78 @@ namespace CrewChiefV4.Events
             }
 
             Tuple<int, int> pitWindow = new Tuple<int, int>(-1, -1);
+            // tweak the fuelCapacity using the requested reserve. That is, the fuel capcity we use for these calcuations is the full
+            // tank minus the reserve amount we've set in the Properties
+            float averageUsagePerLapToUse = getConsumptionPerLap();
+            float fuelCapacityAllowingForReserve;
+            if (addAdditionalFuelLaps > 0)
+            {
+                fuelCapacityAllowingForReserve = fuelCapacity - (averageUsagePerLap * addAdditionalFuelLaps);
+            }
+            else
+            {
+                // no reserve set so use the same 2 litre reserve as we use in the calculation on line 1642 (getLitresToEndOfRace)
+                fuelCapacityAllowingForReserve = fuelCapacity - 2f;
+            }
             if (sessionHasFixedNumberOfLaps)
             {
-                float averageUsagePerLapToUse = getConsumptionPerLap();
-                if (lapsCompletedSinceFuelReset > minLaps && averageUsagePerLapToUse > 0)
+                if (lapsCompletedSinceFuelReset >= minLaps && averageUsagePerLapToUse > 0)
                 {
                     float litersNeeded = getLitresToEndOfRace(false);
                     gotPredictedPitWindow = true;
                     if (litersNeeded > 0)
                     {
                         // more then 1 stop needed
-                        if (litersNeeded > fuelCapacity)
+                        if (litersNeeded > fuelCapacityAllowingForReserve)
                         {
                             return pitWindow;
                         }
-                        int maximumLapsForFullTankOfFuel = (int)Math.Floor(fuelCapacity / averageUsagePerLapToUse);
-                        int pitWindowEnd = (int)Math.Floor(initialFuelLevel / averageUsagePerLapToUse); //pitwindow end
-                        int estimatedlapsWorth = (int)Math.Floor(litersNeeded / averageUsagePerLapToUse);
-                        int diff = maximumLapsForFullTankOfFuel - pitWindowEnd;
-                        int pitWindowStart = (maximumLapsForFullTankOfFuel - diff) - estimatedlapsWorth;
+                        int maximumLapsForFullTankOfFuel = (int)Math.Floor(fuelCapacityAllowingForReserve / averageUsagePerLapToUse);
+                        // pit window start is just the total race distance - maximumLapsForFullTankOfFuel. It's the earliest we can stop, fill the tank, and still finish
+                        int pitWindowStart = currentGameState.SessionData.SessionNumberOfLaps - maximumLapsForFullTankOfFuel;
+                        // pit window end is just the lap on which we'll run out of fuel if we don't stop
+                        int pitWindowEnd = currentGameState.SessionData.CompletedLaps + (int)Math.Floor(currentFuel / averageUsagePerLap);
                         Log.Fuel("calculated fuel window (laps): pitwindowStart = " + pitWindowStart + " pitWindowEnd = " + pitWindowEnd +
-                                " maximumLapsForFullTankOfFuel = " + maximumLapsForFullTankOfFuel + " estimatedlapsWorth = " + estimatedlapsWorth);
-                        pitWindow = new Tuple<int, int>(pitWindowStart, pitWindowEnd);
+                            " maximumLapsForFullTankOfFuel = " + maximumLapsForFullTankOfFuel);
+
+                        // some sanity checks to ensure we're not calling nonsense window data. A negative window start is OK - this just means we're inside the
+                        // window at the point where we're doing the calculation
+                        if (pitWindowStart <= pitWindowEnd && pitWindowStart < currentGameState.SessionData.SessionNumberOfLaps && pitWindowEnd > 0)
+                        {
+                            pitWindow = new Tuple<int, int>(pitWindowStart, pitWindowEnd);
+                        }
                     }
                 }
             }
             else
             {
                 float averageUsagePerMinuteToUse = getConsumptionPerMinute();
-                if (lapsCompletedSinceFuelReset > minLaps && averageUsagePerMinuteToUse > 0)
+                if (lapsCompletedSinceFuelReset >= minLaps && averageUsagePerMinuteToUse > 0)
                 {
                     float litersNeeded = getLitresToEndOfRace(false);
                     gotPredictedPitWindow = true;
                     if (litersNeeded > 0)
                     {
                         // more then 1 stop needed
-                        if (litersNeeded > fuelCapacity)
+                        if (litersNeeded > fuelCapacityAllowingForReserve)
                         {
                             return pitWindow;
                         }
-                        int maximumMinutesForFullTankOfFuel = (int)Math.Floor(fuelCapacity / averageUsagePerMinuteToUse);
-                        int pitWindowEnd = (int)Math.Floor(initialFuelLevel / averageUsagePerMinuteToUse); //pitwindow end
-                        int estimatedMinutesWorth = (int)Math.Floor(litersNeeded / averageUsagePerMinuteToUse);
-                        int diff = maximumMinutesForFullTankOfFuel - pitWindowEnd;
-                        int pitWindowStart = (maximumMinutesForFullTankOfFuel - diff) - estimatedMinutesWorth;
+                        int sessionTotalRunTimeMinutes = (int)Math.Floor(currentGameState.SessionData.SessionTotalRunTime / 60);
+                        int sessionRunningTimeMinutes = (int)Math.Floor(currentGameState.SessionData.SessionRunningTime / 60);
+                        int maximumMinutesForFullTankOfFuel = (int)Math.Floor(fuelCapacityAllowingForReserve / averageUsagePerMinuteToUse);
+                        // pit window start is just the total race time - maximumMinutesForFullTankOfFuel. It's the earliest we can stop, fill the tank, and still finish
+                        int pitWindowStart = sessionTotalRunTimeMinutes - maximumMinutesForFullTankOfFuel;
+                        // pit window end is just the minute on which we'll run out of fuel if we don't stop
+                        int pitWindowEnd = sessionRunningTimeMinutes + (int)Math.Floor(currentFuel / averageUsagePerMinute);
                         Log.Fuel("calculated fuel window (minutes): pitwindowStart = " + pitWindowStart + " pitWindowEnd = " + pitWindowEnd +
-                                " maximumMinutesForFullTankOfFuel = " + maximumMinutesForFullTankOfFuel + " estimatedMinutesWorth = " + estimatedMinutesWorth);
-                        pitWindow = new Tuple<int, int>(pitWindowStart, pitWindowEnd);
+                            " maximumMinutesForFullTankOfFuel = " + maximumMinutesForFullTankOfFuel);
+                        // some sanity checks to ensure we're not calling nonsense window data. A negative window start is OK - this just means we're inside the
+                        // window at the point where we're doing the calculation
+                        if (pitWindowStart <= pitWindowEnd && pitWindowStart < sessionTotalRunTimeMinutes && pitWindowEnd > 0)
+                        {
+                            pitWindow = new Tuple<int, int>(pitWindowStart, pitWindowEnd);
+                        }
                     }
                 }
             }
