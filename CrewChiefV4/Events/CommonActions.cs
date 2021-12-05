@@ -298,6 +298,8 @@ namespace CrewChiefV4.Events
         public void disableKeepQuietMode()
         {
             keepQuietEnabled = false;
+            // also disable the global speak-only-when-spoken-to setting
+            GlobalBehaviourSettings.speakOnlyWhenSpokenTo = false;
             audioPlayer.disableKeepQuietMode();
         }
         public void toggleKeepQuietMode()

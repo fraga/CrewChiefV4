@@ -52,8 +52,6 @@ namespace CrewChiefV4.Audio
         private static bool respondWhileChannelIsStillOpen = UserSettings.GetUserSettings().getBoolean("sre_respond_while_channel_still_open");
         public static bool paceNotesMuteOtherMessages = UserSettings.GetUserSettings().getBoolean("pace_notes_mute_all_messages");
 
-        private static bool speakOnlyWhenSpokenTo = UserSettings.GetUserSettings().getBoolean("speak_only_when_spoken_to");
-
         private static SoundType minPriorityForInterrupt = SoundType.SPOTTER;
 
         public static bool lastSoundWasSpotter = false;
@@ -369,7 +367,7 @@ namespace CrewChiefV4.Audio
                 priority = queuedMessage.metadata.priority;
                 type = queuedMessage.metadata.type;
             }
-            if (PlaybackModerator.speakOnlyWhenSpokenTo &&
+            if (GlobalBehaviourSettings.speakOnlyWhenSpokenTo &&
                 !(queuedMessage.metadata.type == SoundType.VOICE_COMMAND_RESPONSE || queuedMessage.metadata.type == SoundType.SPOTTER))
             {
                 PlaybackModerator.Trace(string.Format("Message {0} hasn't been queued because we're in 'speak only when spoken to' mode and it's type is {1}", queuedMessage.messageName, queuedMessage.metadata.type));
@@ -409,7 +407,7 @@ namespace CrewChiefV4.Audio
 
         public static bool ImmediateMessageCanBeQueued(QueuedMessage queuedMessage)
         {
-            if (PlaybackModerator.speakOnlyWhenSpokenTo &&
+            if (GlobalBehaviourSettings.speakOnlyWhenSpokenTo &&
                 (queuedMessage.metadata == null || !(queuedMessage.metadata.type == SoundType.VOICE_COMMAND_RESPONSE || queuedMessage.metadata.type == SoundType.SPOTTER)))
             {
                 PlaybackModerator.Trace(string.Format("Immediate message {0} hasn't been queued because we're in 'speak only when spoken to' mode and it's type is {1}", queuedMessage.messageName, queuedMessage.metadata.type));
