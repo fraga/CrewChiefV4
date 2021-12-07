@@ -152,7 +152,7 @@ namespace CrewChiefV4.Events
             }
             else if (o.GetType() == typeof(double) || o.GetType() == typeof(float) || o.GetType() == typeof(decimal))
             {
-                double d = (double)o;
+                double d = Convert.ToDouble(o);
                 string str = d.ToString("0.00", CultureInfo.InvariantCulture);
                 int integral = int.Parse(str.Substring(0, str.IndexOf('.')));
                 int fraction = int.Parse(str.Substring(str.IndexOf('.') + 1));
