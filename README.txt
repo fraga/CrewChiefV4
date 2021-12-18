@@ -431,6 +431,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.15.3.7: Content updates for iRacing and R3E; GTR2: Minor VR improvements; various bug fixes
+
 Version 4.15.3.6: Revised pit window calculations; added a "Speak only when spoken to" option in the Properties screen (when this is enabled the app will only play messages in response to a voice command or button press); various bug fixes
 
 Version 4.15.3.5: Fix MS Speech recognition platform download links; use 2 decimal places when reporting tyre pressure in kPa; iRacing - prevent autofuel triggering immediately after a driver swap and when the player isn't driving the car (thanks to Jacob Klien and Doug Evenson for helping track this down); GTR2 - plugin update; a couple of minor fixes
