@@ -431,7 +431,7 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
-Version 4.15.3.7: Content updates for iRacing and R3E; GTR2: Minor VR improvements; various bug fixes
+Version 4.15.3.8: Content updates for iRacing and R3E; GTR2: Minor VR improvements; various bug fixes
 
 Version 4.15.3.6: Revised pit window calculations; added a "Speak only when spoken to" option in the Properties screen (when this is enabled the app will only play messages in response to a voice command or button press); various bug fixes
 
