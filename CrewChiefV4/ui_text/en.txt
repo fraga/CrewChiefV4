@@ -695,7 +695,8 @@ f1_2021_spotter_car_length_filter = F1_2021
 f1_2021_spotter_car_length_category = SPOTTER
 
 spotter_gap_for_clear = Spotter gap for clear
-spotter_gap_for_clear_category = SPOTTER;MESSAGE_FREQUENCIES
+spotter_gap_for_clear_help = Gap between cars before calling clear (metres)
+spotter_gap_for_clear_category = SPOTTER
 
 messages_volume = &Messages volume
 messages_volume_category = AUDIO_VOICE_AND_CONTROLLERS
