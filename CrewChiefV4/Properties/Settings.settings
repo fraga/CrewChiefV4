@@ -1026,7 +1026,7 @@
       <Value Profile="(Default)">chat</Value>
     </Setting>
     <Setting Name="max_complaints_per_session" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">50</Value>
+      <Value Profile="(Default)">70</Value>
     </Setting>
     <Setting Name="enable_on_hold_close_channel_beep" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
