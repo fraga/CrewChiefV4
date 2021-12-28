@@ -66,10 +66,9 @@ namespace CrewChiefV4.GameState
         public static readonly List<MessageTypes> defaultBatteryPoweredEnabledMessageTypes = new List<MessageTypes> {
             MessageTypes.TYRE_TEMPS, MessageTypes.TYRE_WEAR, MessageTypes.BRAKE_TEMPS, MessageTypes.BRAKE_DAMAGE, MessageTypes.BATTERY, MessageTypes.LOCKING_AND_SPINNING };
         public static List<MessageTypes> enabledMessageTypes = new List<MessageTypes>();
-
-        public static Boolean complaintsDisabled = false;
+        
         public static int complaintsCountInThisSession = 0;
-        public static int maxComplaintsPerSession = UserSettings.GetUserSettings().getInt("max_complaints_per_session");
+        public static int maxComplaintsPerSession = Math.Min(int.MaxValue - 10000, UserSettings.GetUserSettings().getInt("max_complaints_per_session"));
 
         static GlobalBehaviourSettings()
         {
@@ -85,7 +84,7 @@ namespace CrewChiefV4.GameState
             GlobalBehaviourSettings.spotterEnabledInitialState = UserSettings.GetUserSettings().getBoolean("enable_spotter");
             GlobalBehaviourSettings.spotterEnabled = spotterEnabledInitialState;
             GlobalBehaviourSettings.cutTrackWarningsEnabledInitialState = UserSettings.GetUserSettings().getBoolean("play_cut_track_warnings");
-            GlobalBehaviourSettings.maxComplaintsPerSession = UserSettings.GetUserSettings().getInt("max_complaints_per_session");
+            GlobalBehaviourSettings.maxComplaintsPerSession = Math.Min(int.MaxValue - 10000, UserSettings.GetUserSettings().getInt("max_complaints_per_session"));
             GlobalBehaviourSettings.spotterVehicleLength = defaultSpotterVehicleLength;
             GlobalBehaviourSettings.spotterVehicleWidth = defaultSpotterVehicleWidth;
             GlobalBehaviourSettings.enableBreathIn = UserSettings.GetUserSettings().getBoolean("enable_breath_in") && SoundCache.availableSounds.Contains(AudioPlayer.folderBreathIn);
