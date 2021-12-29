@@ -88,13 +88,16 @@ namespace CrewChiefV4.Events
                     // rest of the logic still needs to trigger
                     if (currentGameState.SessionData.SessionType == SessionType.Race || currentGameState.SessionData.SessionType == SessionType.Qualify)
                     {
-                        audioPlayer.playMessageImmediately(new QueuedMessage(folderStalled, 3));
+                        if (!GlobalBehaviourSettings.justTheFacts)
+                        {
+                            audioPlayer.playMessageImmediately(new QueuedMessage(folderStalled, 3));
+                        }
+                        // don't re-check stalled warning for a couple of minutes.
+                        nextStalledCheck = currentGameState.Now.Add(TimeSpan.FromMinutes(2));
+                        // move the oil and fuel pressure checks out a bit to allow it to settle
+                        nextOilPressureCheck = currentGameState.Now.Add(TimeSpan.FromSeconds(20));
+                        nextFuelPressureCheck = currentGameState.Now.Add(TimeSpan.FromSeconds(20));
                     }
-                    // don't re-check stalled warning for a couple of minutes.
-                    nextStalledCheck = currentGameState.Now.Add(TimeSpan.FromMinutes(2));
-                    // move the oil and fuel pressure checks out a bit to allow it to settle
-                    nextOilPressureCheck = currentGameState.Now.Add(TimeSpan.FromSeconds(20));
-                    nextFuelPressureCheck = currentGameState.Now.Add(TimeSpan.FromSeconds(20));
                 }
                 else
                 {

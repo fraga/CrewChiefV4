@@ -1046,7 +1046,8 @@ namespace CrewChiefV4.Events
             // if we don't have the updated sounds, just return false here
             // note that this check will be 3 seconds *after* the acceleration event because we've waited for
             // the damage to settle
-            if (!playedAreYouOKInThisSession && !inPitLane &&
+            if (SpeechRecogniser.hasMadeVoiceCommandSinceStarting /* don't ask if we're OK if we're not making any voice commands */
+                && !playedAreYouOKInThisSession && !inPitLane &&
                 SoundCache.availableSounds.Contains(folderAreYouOKFirstTry) && 
                 now.Subtract(timeOfDangerousAcceleration) < TimeSpan.FromSeconds(5))
             {

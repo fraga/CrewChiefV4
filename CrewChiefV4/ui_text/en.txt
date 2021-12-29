@@ -1887,8 +1887,8 @@ free_dictation_chat_start_word_help = Say this word before dictating a chat mess
 free_dictation_chat_start_word_category = AUDIO_VOICE_AND_CONTROLLERS
 free_dictation_chat_start_word_metadata = RESTART_REQUIRED
 
-max_complaints_per_session = Max complaints per session (0 = disable complaints)
-max_complaints_per_session_help = Prevent the app from complaining too much in long sessions
+max_complaints_per_session = Max complaints per session (0: disable complaints)
+max_complaints_per_session_help = Prevent the app from complaining too much in long sessions, set to 0 to disable negative messages
 max_complaints_per_session_category = MESSAGE_FREQUENCIES
 
 enable_on_hold_close_channel_beep = Enable close channel beep ("Hold button" mode)
@@ -2173,3 +2173,7 @@ force_seated_on_vr_view_reset_category = VR_SETTINGS
 speak_only_when_spoken_to = Speak only when spoken to
 speak_only_when_spoken_to_help = Only play audio in response to commands or requests (spotter messages may still play)
 speak_only_when_spoken_to_category = AUDIO_VOICE_AND_CONTROLLERS
+
+just_the_facts = Disable commentary
+just_the_facts_help = Play only factual messages - no suggestions, encouragement or complaints
+just_the_facts_category = AUDIO_VOICE_AND_CONTROLLERS

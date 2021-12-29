@@ -20,7 +20,7 @@ namespace CrewChiefV4
 {
     public class SpeechRecogniser : IDisposable
     {
-        //private SpeechRecognitionEngine sre;
+        public static bool hasMadeVoiceCommandSinceStarting = false;
 
         private SREWrapper sreWrapper;
 
@@ -2710,7 +2710,7 @@ namespace CrewChiefV4
             {
                 return;
             }
-
+            SpeechRecogniser.hasMadeVoiceCommandSinceStarting = true;
             // cancel the thread that's waiting for a speech recognised timeout:
             triggerTimeoutWaitHandle.Set();
             SpeechRecogniser.waitingForSpeech = false;

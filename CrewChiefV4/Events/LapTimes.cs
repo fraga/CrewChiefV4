@@ -680,7 +680,7 @@ namespace CrewChiefV4.Events
 
                                 // play the consistency message if we've not played the good lap message, or sometimes
                                 // play them both
-                                Boolean playConsistencyMessage = !playedLapMessage || Utilities.random.NextDouble() < 0.25;
+                                Boolean playConsistencyMessage = !GlobalBehaviourSettings.justTheFacts && (!playedLapMessage || Utilities.random.NextDouble() < 0.25);
                                 if (playConsistencyMessage && currentGameState.SessionData.CompletedLaps >= lastConsistencyUpdate + lapTimesWindowSize &&
                                     lapTimesWindow.Count >= lapTimesWindowSize)
                                 {
