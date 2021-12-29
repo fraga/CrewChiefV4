@@ -431,6 +431,8 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.15.3.10: Updated how we handle the "Max complaints per session" variable - this limits the maximum number of times the app can complain at or make a negative comment to the player in a single session. If you're happy to have the app complain when you do badly (by the app's occasionally unattainable standards) then set this to a higher number. If you don't want the app to complain at all set it to 0. The default value is intended to prevent the app's grumbling from getting tiresome in endurance or very long races
+
 Version 4.15.3.8: Content updates for iRacing and R3E; GTR2: Minor VR improvements; various bug fixes
 
 Version 4.15.3.6: Revised pit window calculations; added a "Speak only when spoken to" option in the Properties screen (when this is enabled the app will only play messages in response to a voice command or button press); various bug fixes

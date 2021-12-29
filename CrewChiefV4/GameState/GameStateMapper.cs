@@ -69,8 +69,7 @@ namespace CrewChiefV4.GameState
                 {
                     currentGameState.SessionData.NumCarsInPlayerClassAtStartOfSession = currentGameState.SessionData.NumCarsOverallAtStartOfSession;
                 }
-                // reset the complaints-disabled option and set the complaints count to zero
-                GlobalBehaviourSettings.complaintsDisabled = false;
+                // reset the complaints count to zero
                 GlobalBehaviourSettings.complaintsCountInThisSession = 0;
             }
             if (currentGameState.SessionData.JustGoneGreen)

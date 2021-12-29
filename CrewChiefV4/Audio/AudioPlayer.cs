@@ -2163,7 +2163,7 @@ namespace CrewChiefV4.Audio
         {
             if (newPearlType == PearlsOfWisdom.PearlType.BAD)
             {
-                if (GlobalBehaviourSettings.complaintsDisabled || GlobalBehaviourSettings.complaintsCountInThisSession > GlobalBehaviourSettings.maxComplaintsPerSession)
+                if (GlobalBehaviourSettings.complaintsCountInThisSession >= GlobalBehaviourSettings.maxComplaintsPerSession)
                 {
                     return false;
                 }

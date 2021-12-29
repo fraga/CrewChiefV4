@@ -1887,7 +1887,7 @@ free_dictation_chat_start_word_help = Say this word before dictating a chat mess
 free_dictation_chat_start_word_category = AUDIO_VOICE_AND_CONTROLLERS
 free_dictation_chat_start_word_metadata = RESTART_REQUIRED
 
-max_complaints_per_session = Max complaints per session
+max_complaints_per_session = Max complaints per session (0 = disable complaints)
 max_complaints_per_session_help = Prevent the app from complaining too much in long sessions
 max_complaints_per_session_category = MESSAGE_FREQUENCIES
 

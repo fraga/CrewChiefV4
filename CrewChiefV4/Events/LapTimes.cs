@@ -708,10 +708,11 @@ namespace CrewChiefV4.Events
                                         {
                                             // only complain about worsening laptimes if we've not overtaken anyone on this lap
                                             lastConsistencyUpdate = currentGameState.SessionData.CompletedLaps;
-                                            if (!GlobalBehaviourSettings.complaintsDisabled && GlobalBehaviourSettings.complaintsCountInThisSession <= GlobalBehaviourSettings.maxComplaintsPerSession)
+                                            if (GlobalBehaviourSettings.complaintsCountInThisSession < GlobalBehaviourSettings.maxComplaintsPerSession)
                                             {
                                                 audioPlayer.playMessage(new QueuedMessage(folderWorseningTimes, delay + 10, secondsDelay: delay, abstractEvent: this,
                                                     validationData: new Dictionary<String, Object>(), priority: 3));
+                                                GlobalBehaviourSettings.complaintsCountInThisSession++;
                                             }
                                         }
                                     }
@@ -1193,9 +1194,10 @@ namespace CrewChiefV4.Events
                                     break;
                                 case LastLapRating.BAD:
                                     // don't play this if we've disabled complaints or have complained too much
-                                    if (!GlobalBehaviourSettings.complaintsDisabled && GlobalBehaviourSettings.complaintsCountInThisSession <= GlobalBehaviourSettings.maxComplaintsPerSession)
+                                    if (GlobalBehaviourSettings.complaintsCountInThisSession < GlobalBehaviourSettings.maxComplaintsPerSession)
                                     {
                                         messages.Add(MessageFragment.Text(folderPaceBad));
+                                        GlobalBehaviourSettings.complaintsCountInThisSession++;
                                     }
                                     if (timeToFindFolder != null)
                                     {
@@ -1239,9 +1241,10 @@ namespace CrewChiefV4.Events
                                     }
                                     break;
                                 case LastLapRating.BAD:
-                                    if (!GlobalBehaviourSettings.complaintsDisabled && GlobalBehaviourSettings.complaintsCountInThisSession <= GlobalBehaviourSettings.maxComplaintsPerSession)
+                                    if (GlobalBehaviourSettings.complaintsCountInThisSession < GlobalBehaviourSettings.maxComplaintsPerSession)
                                     {
                                         messages.Add(MessageFragment.Text(folderPaceBad));
+                                        GlobalBehaviourSettings.complaintsCountInThisSession++;
                                     }
                                     if (timeToFindFolder != null)
                                     {
@@ -1328,9 +1331,10 @@ namespace CrewChiefV4.Events
                                     break;
                                 case LastLapRating.MEH:
                                 case LastLapRating.BAD:
-                                    if (!GlobalBehaviourSettings.complaintsDisabled && GlobalBehaviourSettings.complaintsCountInThisSession <= GlobalBehaviourSettings.maxComplaintsPerSession)
+                                    if (GlobalBehaviourSettings.complaintsCountInThisSession < GlobalBehaviourSettings.maxComplaintsPerSession)
                                     {
                                         messages.Add(MessageFragment.Text(folderPaceBad));
+                                        GlobalBehaviourSettings.complaintsCountInThisSession++;
                                     }
                                     audioPlayer.playMessageImmediately(new QueuedMessage("lapTimeRacePaceReport", 0, messageFragments: messages));
                                     break;
