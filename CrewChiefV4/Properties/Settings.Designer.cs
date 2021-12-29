@@ -5362,5 +5362,17 @@ namespace CrewChiefV4.Properties {
                 this["speak_only_when_spoken_to"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool just_the_facts {
+            get {
+                return ((bool)(this["just_the_facts"]));
+            }
+            set {
+                this["just_the_facts"] = value;
+            }
+        }
     }
 }

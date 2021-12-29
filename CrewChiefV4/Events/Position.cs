@@ -219,7 +219,7 @@ namespace CrewChiefV4.Events
             if (currentGameState.SessionData.SessionPhase == SessionPhase.Green &&
                 currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.SessionData.CompletedLaps > 0)
             {                
-                if (currentGameState.Now > lastPassCheck.Add(passCheckInterval))
+                if (!GlobalBehaviourSettings.justTheFacts && currentGameState.Now > lastPassCheck.Add(passCheckInterval))
                 {
                     lastPassCheck = currentGameState.Now;
                     if (currentGameState.SessionData.TimeDeltaFront > 0)
@@ -417,7 +417,8 @@ namespace CrewChiefV4.Events
                     Console.WriteLine("Race start message... isLastInStandings = " + isLastInStandings +
                         " session start pos = " + currentGameState.SessionData.SessionStartClassPosition + " current pos = " + currentGameState.SessionData.ClassPosition);
                     bool hasrFactorPenaltyPending = (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT) && currentGameState.PenaltiesData.NumOutstandingPenalties > 0;
-                    if (currentGameState.SessionData.SessionStartClassPosition > 0 &&
+                    if (!GlobalBehaviourSettings.justTheFacts &&
+                        currentGameState.SessionData.SessionStartClassPosition > 0 &&
                             !currentGameState.PenaltiesData.HasDriveThrough && !currentGameState.PenaltiesData.HasStopAndGo &&
                             !hasrFactorPenaltyPending)
                     {
@@ -576,7 +577,7 @@ namespace CrewChiefV4.Events
                     return new Tuple<List<MessageFragment>, List<MessageFragment>>(MessageContents(folderQuickestOverall), null);                    
                 }
             }
-            else if (this.isLastInStandings && GlobalBehaviourSettings.complaintsCountInThisSession < GlobalBehaviourSettings.maxComplaintsPerSession)
+            else if (this.isLastInStandings && !GlobalBehaviourSettings.justTheFacts && GlobalBehaviourSettings.complaintsCountInThisSession < GlobalBehaviourSettings.maxComplaintsPerSession)
             {
                 if (this.numberOfLapsInLastPlace > 5 &&
                     CrewChief.currentGameState.SessionData.LapTimePrevious > CrewChief.currentGameState.SessionData.PlayerLapTimeSessionBest &&

@@ -2161,6 +2161,10 @@ namespace CrewChiefV4.Audio
         // a 'keep it up' message in a block that contains a 'your lap times are worsening' message
         private Boolean checkPearlOfWisdomValid(PearlsOfWisdom.PearlType newPearlType)
         {
+            if (GlobalBehaviourSettings.justTheFacts)
+            {
+                return false;
+            }
             if (newPearlType == PearlsOfWisdom.PearlType.BAD)
             {
                 if (GlobalBehaviourSettings.complaintsCountInThisSession >= GlobalBehaviourSettings.maxComplaintsPerSession)
