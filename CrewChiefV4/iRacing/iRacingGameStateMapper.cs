@@ -93,7 +93,6 @@ namespace CrewChiefV4.iRacing
             currentGameState.SessionData.SessionTimeRemaining = (float)shared.Telemetry.SessionTimeRemain;
 
             int previousLapsCompleted = previousGameState == null ? 0 : previousGameState.SessionData.CompletedLaps;
-            int sessionNumberOfLaps = previousGameState == null ? 0 : previousGameState.SessionData.SessionNumberOfLaps;
             int PlayerCarIdx = shared.Telemetry.PlayerCarIdx;
 
             if (shared.Driver != null)
@@ -138,6 +137,7 @@ namespace CrewChiefV4.iRacing
                 Console.WriteLine("rawSessionPhase = " + shared.Telemetry.SessionState);
                 Console.WriteLine("currentSessionRunningTime = " + currentGameState.SessionData.SessionRunningTime);
                 Console.WriteLine("NumCarsAtStartOfSession = " + currentGameState.SessionData.NumCarsOverallAtStartOfSession);
+                Console.WriteLine("Category = " + shared.SessionData.Category);
                 Console.WriteLine("TrackType = " + shared.SessionData.Track.TrackType);
                 Console.WriteLine("TrackPitSpeedLimit = " + shared.SessionData.Track.TrackPitSpeedLimit);
                 Console.WriteLine("CourseCautions = " + shared.SessionData.CourseCautions);
@@ -179,8 +179,6 @@ namespace CrewChiefV4.iRacing
                 GlobalBehaviourSettings.UpdateFromTrackDefinition(currentGameState.SessionData.TrackDefinition);
 
 
-
-                currentGameState.SessionData.SessionNumberOfLaps = Parser.ParseInt(shared.SessionData.RaceLaps);
                 currentGameState.SessionData.LeaderHasFinishedRace = false;
                 currentGameState.PitData.IsRefuellingAllowed = true;
                 currentGameState.SessionData.SessionTimeRemaining = (float)shared.Telemetry.SessionTimeRemain;
@@ -189,8 +187,15 @@ namespace CrewChiefV4.iRacing
                 {
                     currentGameState.SessionData.SessionHasFixedTime = true;
                     currentGameState.SessionData.SessionTotalRunTime = (float)shared.SessionData.RaceTime;
-                    Console.WriteLine("SessionTotalRunTime = " + currentGameState.SessionData.SessionTotalRunTime);
+                    Console.WriteLine("Treating this as a time limited race");
                 }
+                else
+                {
+                    currentGameState.SessionData.SessionHasFixedTime = false;
+                    currentGameState.SessionData.SessionNumberOfLaps = Parser.ParseInt(shared.SessionData.RaceLaps);
+                    Console.WriteLine("Treating this as a lap limited race");
+                }
+                
 
                 currentGameState.SessionData.MaxIncidentCount = shared.SessionData.IncidentLimit;
                 currentGameState.SessionData.CurrentIncidentCount = shared.Telemetry.PlayerCarMyIncidentCount;
@@ -252,17 +257,19 @@ namespace CrewChiefV4.iRacing
                         currentGameState.SessionData.JustGoneGreen = true;
                         // just gone green, so get the session data
 
-                        if (shared.SessionData.IsLimitedSessionLaps)
-                        {
-                            currentGameState.SessionData.SessionNumberOfLaps = Parser.ParseInt(shared.SessionData.RaceLaps);
-                            currentGameState.SessionData.SessionHasFixedTime = false;
-                        }
-                        else
+                        if (!shared.SessionData.IsLimitedSessionLaps)
                         {
                             currentGameState.SessionData.SessionHasFixedTime = true;
                             currentGameState.SessionData.SessionTotalRunTime = (float)shared.SessionData.RaceTime;
+                            Console.WriteLine("Treating this as a time limited race");
                         }
-                        currentGameState.SessionData.SessionNumberOfLaps = Parser.ParseInt(shared.SessionData.RaceLaps);
+                        else
+                        {
+                            currentGameState.SessionData.SessionHasFixedTime = false;
+                            currentGameState.SessionData.SessionNumberOfLaps = Parser.ParseInt(shared.SessionData.RaceLaps);
+                            Console.WriteLine("Treating this as a lap limited race");
+                        }
+                        
 
                         currentGameState.SessionData.TrackDefinition = TrackData.getTrackDefinition(shared.SessionData.Track.CodeName, 0, (float)shared.SessionData.Track.Length * 1000);
                         currentGameState.SessionData.TrackDefinition.iracingTrackNorthOffset = shared.SessionData.Track.TrackNorthOffset;
