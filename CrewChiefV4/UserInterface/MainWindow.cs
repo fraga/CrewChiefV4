@@ -322,6 +322,7 @@ namespace CrewChiefV4
             // do the auto updating stuff in a separate Thread's
             if (!CrewChief.Debugging)
             {
+                string commentSeparator = "//";
                 var updateAdditionalData = new Thread(() =>
                 {
                     try
@@ -329,12 +330,17 @@ namespace CrewChiefV4
                         string base64EncodedData = new WebClient().DownloadString(additionalDataURL);
                         string decodedData = Base64Decode(base64EncodedData);
                         string[] splitData = decodedData.Split(',');
-                        foreach (var s in splitData)
+                        foreach (var nameWithComment in splitData)
                         {
-                            if (!AdditionalDataProvider.additionalData.Contains(s))
+                            string[] nameWithCommentSplitData = nameWithComment.Split(new String[] { commentSeparator }, StringSplitOptions.None);
+                            if (nameWithCommentSplitData.Length > 0)
                             {
-                                string cleanedData = s.Trim('\r', '\n'); ;
-                                AdditionalDataProvider.additionalData.Add(cleanedData);
+                                string s = nameWithCommentSplitData[0].Trim();
+                                if (!AdditionalDataProvider.additionalData.Contains(s))
+                                {
+                                    string cleanedData = s.Trim('\r', '\n');
+                                    AdditionalDataProvider.additionalData.Add(cleanedData);
+                                }
                             }
                         }
                     }
