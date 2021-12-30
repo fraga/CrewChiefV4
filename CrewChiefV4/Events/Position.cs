@@ -457,7 +457,10 @@ namespace CrewChiefV4.Events
                 if (canPlayPositionReminder && currentGameState.SessionData.IsNewSector &&
                     currentGameState.SessionData.CompletedLaps == lapForPositionReminder && currentGameState.SessionData.SectorNumber == sectorForPositionReminder)
                 {
-                    playCurrentPositionMessage(PearlsOfWisdom.PearlType.NONE, 0f, true);
+                    if (!GlobalBehaviourSettings.justTheFacts)
+                    {
+                        playCurrentPositionMessage(PearlsOfWisdom.PearlType.NONE, 0f, true);
+                    }
                     canPlayPositionReminder = false;
                 }
                 if (currentGameState.SessionData.IsNewLap)

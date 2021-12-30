@@ -520,7 +520,7 @@ namespace CrewChiefV4.Events
                     {
                         if (gapBehindStatus == GapStatus.CLOSE)
                         {
-                            if (GlobalBehaviourSettings.justTheFacts)
+                            if (!GlobalBehaviourSettings.justTheFacts)
                             {
                                 if (!GlobalBehaviourSettings.useOvalLogic && sectorsSinceLastCloseCarBehindReport >= sectorsUntilNextCloseCarBehindReport && !currentGameState.FlagData.isLocalYellow)
                                 {
