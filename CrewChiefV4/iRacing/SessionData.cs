@@ -19,6 +19,7 @@ namespace CrewChiefV4.iRacing
         public string SessionTimeString { get; set; }
         public string RaceLaps { get; set; }
         public double RaceTime { get; set; }
+        public bool IsHeatRacing { get; set; }
         public string IncidentLimitString { get; set; }
         public int IncidentLimit { get; set; }
         public bool IsTeamRacing { get; set; }
@@ -27,6 +28,7 @@ namespace CrewChiefV4.iRacing
         public bool StartingGridPoleOnLeft { get; set; }
         public string Restarts { get; set; }
         public string CourseCautions { get; set; }
+        public string Category { get; set; }
         public bool hasFullCourseCautions { get; set; }
         public string diskTelemetryFile { get; set; }
         public const string sessionInfoYamlPath = "SessionInfo:Sessions:SessionNum:{{{0}}}{1}:";
@@ -39,9 +41,11 @@ namespace CrewChiefV4.iRacing
             this.IsTeamRacing = Parser.ParseInt(YamlParser.Parse(sessionString, "WeekendInfo:TeamRacing:")) == 1;
             this.NumCarClasses = Parser.ParseInt(YamlParser.Parse(sessionString, "WeekendInfo:NumCarClasses:"));
             this.EventType = YamlParser.Parse(sessionString, "WeekendInfo:EventType:");
+            this.Category = YamlParser.Parse(sessionString, "WeekendInfo:Category:");
             this.SessionType = YamlParser.Parse(sessionString, string.Format(sessionInfoYamlPath, sessionNumber, "SessionType"));
             this.RaceLaps = YamlParser.Parse(sessionString, string.Format(sessionInfoYamlPath, sessionNumber, "SessionLaps"));
             this.SessionTimeString = YamlParser.Parse(sessionString, string.Format(sessionInfoYamlPath, sessionNumber, "SessionTime"));
+            this.IsHeatRacing = Parser.ParseInt(YamlParser.Parse(sessionString, "WeekendInfo:HeatRacing:")) == 1;
             this.RaceTime = Parser.ParseSec(SessionTimeString);            
             this.IncidentLimitString = YamlParser.Parse(sessionString, "WeekendInfo:WeekendOptions:IncidentLimit:");
             this.StandingStart = Parser.ParseInt(YamlParser.Parse(sessionString, "WeekendInfo:WeekendOptions:StandingStart:")) == 1;
@@ -63,7 +67,10 @@ namespace CrewChiefV4.iRacing
         {
             get
             {
-                return RaceLaps.ToLower() != "unlimited";
+                if ((Category.ToLower() == "dirtroad" || Category.ToLower() == "dirtoval") && RaceLaps.ToLower() != "unlimited")
+                    return true;
+
+                return RaceLaps.ToLower() != "unlimited" && !IsHeatRacing;
             }
         }
 
