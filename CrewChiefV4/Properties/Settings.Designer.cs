@@ -4117,7 +4117,7 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("70")]
+        [global::System.Configuration.DefaultSettingValueAttribute("60")]
         public int max_complaints_per_session {
             get {
                 return ((int)(this["max_complaints_per_session"]));
