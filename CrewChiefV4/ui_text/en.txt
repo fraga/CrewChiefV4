@@ -276,6 +276,10 @@ add_remove_actions = Add/&Remove Actions
 vr_window_settings = Steam&VR overlay settings
 available_windows_label = Visible &windows:
 
+controller_mappings_file_error_title = Error reading controller mappings
+controller_mappings_file_error_details_1 = Controller mapping file
+controller_mappings_file_error_details_2 = is invalid - no button mappings will be available. Error message from JSON parsers is:
+
 ###################################### Macro Editor ######################################################
 global_macro_settings = Global Settings
 available_macros = Available macros
@@ -355,6 +359,12 @@ vr_force_topmost_window = Force window on top
 vr_toggle_key = Toggle Key(s)
 vr_tracking_universe_overwrite = Overwrite VR tracking universe
 vr_recenter_pose = Reset VR view
+
+vr_tracking_space_seated = Seated
+vr_tracking_space_standing = Standing
+vr_tracking_space_followhead = Follow Head
+vr_tracking_space = Tracking space
+
 ###################################### Preferences ######################################################
 # to change the name of the property title in the properties screen, just use the property name like this:
 # enable_spotter = Enable spotter
@@ -387,985 +397,1184 @@ vr_recenter_pose = Reset VR view
 #
 
 no_help_provided = No help provided
+
+# Property: ACS install path
 acs_install_path = ACS install path
 acs_install_path_help = ACS installation path for plugin installation and updating
 acs_install_path_filter = ASSETTO_64BIT;ASSETTO_32BIT
 acs_install_path_category = UI_STARTUP_AND_PATHS
 acs_install_path_metadata = RESTART_REQUIRED
 
+# Property: AMS install path
 ams_install_path = AMS install path
 ams_install_path_help = AMS installation path for plugin installation and updating
 ams_install_path_filter = RF1
 ams_install_path_category = UI_STARTUP_AND_PATHS
 ams_install_path_metadata = RESTART_REQUIRED
 
+# Property: rF1 install path
 rf1_install_path = rF1 install path
 rf1_install_path_help = rF1 installation path for plugin installation and updating
 rf1_install_path_filter = RF1
 rf1_install_path_category = UI_STARTUP_AND_PATHS
 rf1_install_path_metadata = RESTART_REQUIRED
 
+# Property: rF2 install path
 rf2_install_path = rF2 install path
 rf2_install_path_help = rF2 installation path for plugin installation and updating
 rf2_install_path_filter = RF2_64BIT
 rf2_install_path_category = UI_STARTUP_AND_PATHS
 rf2_install_path_metadata = RESTART_REQUIRED
 
+# Property: RBR install path
 rbr_install_path = RBR install path
 rbr_install_path_help = RBR installation path for plugin installation and updating
 rbr_install_path_filter = RBR
 rbr_install_path_category = UI_STARTUP_AND_PATHS
 rbr_install_path_metadata = RESTART_REQUIRED
 
+# Property: GTR 2 install path
 gtr2_install_path = GTR 2 install path
 gtr2_install_path_help = GTR 2 installation path for plugin installation and updating
 gtr2_install_path_filter = GTR2
 gtr2_install_path_category = UI_STARTUP_AND_PATHS
 gtr2_install_path_metadata = RESTART_REQUIRED
 
+# Property: F1 2018 install path
 f1_2018_install_path = F1 2018 install path
 f1_2018_install_path_help = F1 2018 installation path
 f1_2018_install_path_filter = F1_2018
 f1_2018_install_path_category = UI_STARTUP_AND_PATHS
 f1_2018_install_path_metadata = RESTART_REQUIRED
 
+# Property: ACC install path
 acc_install_path = ACC install path
 acc_install_path_help = ACC installation path
 acc_install_path_filter = ACC
 acc_install_path_category = UI_STARTUP_AND_PATHS
 acc_install_path_metadata = RESTART_REQUIRED
 
+# Property: IP address for the machine ACC is running on
 acc_machine_ip = IP address for the machine ACC is running on
 acc_machine_ip_category = UI_STARTUP_AND_PATHS
 acc_machine_ip_metadata = RESTART_REQUIRED
 acc_machine_ip_filter = ACC
 
+# Property: F1 2019 install path
 f1_2019_install_path = F1 2019 install path
 f1_2019_install_path_help = F1 2019 installation path
 f1_2019_install_path_filter = F1_2019
 f1_2019_install_path_category = UI_STARTUP_AND_PATHS
 
+# Property: Override default Sound Pack location
 override_default_sound_pack_location = Override default Sound Pack location
 override_default_sound_pack_location_help = Use an alternative folder for the Sound Pack
 override_default_sound_pack_location_category = AUDIO_VOICE_AND_CONTROLLERS
 override_default_sound_pack_location_metadata = RESTART_REQUIRED
 
+# Property: Enable brake damage messages
 enable_brake_damage_messages = Enable brake damage messages
 enable_brake_damage_messages_filter = !IRACING;RF2_64BIT
 enable_brake_damage_messages_category = FUEL_TEMPS_AND_DAMAGES
 
+# Property: Enable ACS log sectors for unknown tracks
 enable_acs_log_sectors_for_unknown_tracks = Enable ACS log sectors for unknown tracks
 enable_acs_log_sectors_for_unknown_tracks_filter = ASSETTO_64BIT;ASSETTO_32BIT
 enable_acs_log_sectors_for_unknown_tracks_category = TIMINGS;UI_STARTUP_AND_PATHS
 
+# Property: Enable brake lock warnings
 enable_brake_lock_warnings = Enable brake lock warnings
 enable_brake_lock_warnings_filter = !IRACING
 enable_brake_lock_warnings_category = FUEL_TEMPS_AND_DAMAGES
 
+# Property: Enable brake temp warnings
 enable_brake_temp_warnings = Enable brake temp warnings
 enable_brake_temp_warnings_filter = !IRACING
 enable_brake_temp_warnings_category = FUEL_TEMPS_AND_DAMAGES
 
+# Property: Enable damage messages
 enable_damage_messages = Enable damage messages
 enable_damage_messages_filter = !IRACING
 enable_damage_messages_category = FUEL_TEMPS_AND_DAMAGES
 
+# Property: Enable driver names
 enable_driver_names = Enable driver names
 enable_driver_names_category = AUDIO_VOICE_AND_CONTROLLERS
 enable_driver_names_metadata = RESTART_REQUIRED
 enable_driver_names_help = Chief uses all names, not just personalised ones
 
+# Property: Enable DRS messages
 enable_drs_messages = Enable DRS messages
 enable_drs_messages_filter = !IRACING
 enable_drs_messages_category = FLAGS_AND_RULES
 
+# Property: Enable fuel messages
 enable_fuel_messages = Enable fuel messages
 enable_fuel_messages_category = FUEL_TEMPS_AND_DAMAGES
 
+# Property: Enable battery messages
 enable_battery_messages = Enable battery messages
 enable_battery_messages_filter = RF2_64BIT
 enable_battery_messages_category = FUEL_TEMPS_AND_DAMAGES
 
+# Property: Enable gap messages
 enable_gap_messages = Enable gap messages
 enable_gap_messages_category = TIMINGS
 enable_green_light_messages = Enable green light messages
 enable_pearls_of_wisdom	= Enable pearls of wisdom
 
+# Property: Enable pit exit brake temp warning
 enable_pit_exit_brake_temp_warning = Enable pit exit brake temp warning
 enable_pit_exit_brake_temp_warning_filter = !IRACING
 enable_pit_exit_brake_temp_warning_category = FUEL_TEMPS_AND_DAMAGES;PIT_STOPS_AND_MULTICLASS
 
+# Property: Enable pit exit tyre temp warning
 enable_pit_exit_tyre_temp_warning = Enable pit exit tyre temp warning
 enable_pit_exit_tyre_temp_warning_filter = !IRACING
 enable_pit_exit_tyre_temp_warning_category = FUEL_TEMPS_AND_DAMAGES;PIT_STOPS_AND_MULTICLASS
 
+# Property: Enable position messages
 enable_position_messages = Enable position messages
 
+# Property: Enable push to pass messages
 enable_push_to_pass_messages = Enable push to pass messages
 enable_push_to_pass_messages_filter = !IRACING
 enable_push_to_pass_messages_category = FLAGS_AND_RULES
 
+# Property: Enable race start messages
 enable_race_start_messages = Enable race start messages
+
+# Property: Enable session end messages
 enable_session_end_messages = Enable session end messages
 
+# Property: Enable Spotter in timetrial
 enable_spotter_in_timetrial = Enable Spotter in timetrial
 enable_spotter_in_timetrial_category = SPOTTER
 
+# Property: Enable suspension damage messages
 enable_suspension_damage_messages = Enable suspension damage messages
 enable_suspension_damage_messages_filter = !IRACING
 enable_suspension_damage_messages_category = FUEL_TEMPS_AND_DAMAGES
 
+# Property: Enable track and air temp reports
 enable_track_and_air_temp_reports = Enable track and air temp reports
 enable_track_and_air_temp_reports_category = FUEL_TEMPS_AND_DAMAGES
 
+# Property: Enable tyre temp warnings
 enable_tyre_temp_warnings = Enable tyre temp warnings
 enable_tyre_temp_warnings_filter = !IRACING
 enable_tyre_temp_warnings_category = FUEL_TEMPS_AND_DAMAGES
 
+# Property: Enable tyre wear warnings
 enable_tyre_wear_warnings = Enable tyre wear warnings
 enable_tyre_wear_warnings_filter = !IRACING
 enable_tyre_wear_warnings_category = FUEL_TEMPS_AND_DAMAGES
 
+# Property: Enable wheelspin warnings
 enable_wheel_spin_warnings = Enable wheelspin warnings
 enable_wheel_spin_warnings_filter = !IRACING
 enable_wheel_spin_warnings_category = FUEL_TEMPS_AND_DAMAGES
 
+# Property: Enable tyre dirt pickup warnings
 enable_tyre_dirt_pickup_warnings = Enable tyre dirt pickup warnings
 enable_tyre_dirt_pickup_warnings_help = Enables warning messages about going off track and picking up dirt (R3E and GTR2 only).
 enable_tyre_dirt_pickup_warnings_filter = RACE_ROOM;GTR2
 enable_tyre_dirt_pickup_warnings_category = FUEL_TEMPS_AND_DAMAGES
 
+# Property: Attempt pCARS opponent pit detection
 attempt_pcars_opponent_pit_detection = Attempt pCARS opponent pit detection
 attempt_pcars_opponent_pit_detection_help = Monitor opponent world positions and try to guess when they're entering and leaving the pit lane
 attempt_pcars_opponent_pit_detection_filter = PCARS_64BIT;PCARS_32BIT;PCARS_NETWORK
 attempt_pcars_opponent_pit_detection_category = PIT_STOPS_AND_MULTICLASS
 
+# Property: Cache sounds
 cache_sounds = Cache sounds
 cache_sounds_help = Cache sounds in memory
 cache_sounds_category = AUDIO_VOICE_AND_CONTROLLERS
 cache_sounds_metadata = RESTART_REQUIRED
 
+# Property: Disable ACS yellow flag warnings
 disable_acs_yellow_flag_warnings = Disable ACS yellow flag warnings
 disable_acs_yellow_flag_warnings_help = Prevents yellow flag message spamming in messy online races
 disable_acs_yellow_flag_warnings_filter = ASSETTO_64BIT;ASSETTO_32BIT
 disable_acs_yellow_flag_warnings_category = FLAGS_AND_RULES
 
+# Property: Disable pCARS prac and qual pole deltas
 disable_pcars_prac_and_qual_pole_deltas = Disable pCARS prac and qual pole deltas
 disable_pcars_prac_and_qual_pole_deltas_help = Disable pCARS practice and qual pole deltas - these are unreliable
 disable_pcars_prac_and_qual_pole_deltas_filter = PCARS_64BIT;PCARS_32BIT;PCARS_NETWORK
 disable_pcars_prac_and_qual_pole_deltas_category = TIMINGS
 
+# Property: Launch ACS
 launch_acs = Launch ACS
 launch_acs_filter = ASSETTO_64BIT;ASSETTO_32BIT
 launch_acs_category = UI_STARTUP_AND_PATHS
 launch_acs_metadata = RESTART_REQUIRED
 
+# Property: Play cut track warnings
 play_cut_track_warnings = Play cut track warnings
 play_cut_track_warnings_category = FLAGS_AND_RULES
 
+# Property: Spotter enable three wide left and right
 spotter_enable_three_wide_left_and_right = Spotter enable three wide left and right
 spotter_enable_three_wide_left_and_right_help = Use "three wide, you're on the left / right" messages (can be confusing)
 spotter_enable_three_wide_left_and_right_category = SPOTTER
 
+# Property: Use alternate beeps
 use_alternate_beeps = Use alternate beeps
 use_alternate_beeps_help = Use a different radio sound (just the click)
 use_alternate_beeps_category = AUDIO_VOICE_AND_CONTROLLERS
 use_alternate_beeps_metadata = RESTART_REQUIRED
 
+# Property: Use Fahrenheit for temps
 use_fahrenheit = Use Fahrenheit for temps
 use_fahrenheit_category = INTERNATIONALISATION;FUEL_TEMPS_AND_DAMAGES
 
+# Property: Use listen beep
 use_listen_beep = Use listen beep
 use_listen_beep_help = Play a beep when you press the 'talk to Crew Chief' button
 use_listen_beep_category = AUDIO_VOICE_AND_CONTROLLERS
 use_listen_beep_metadata = RESTART_REQUIRED
 
+# Property: Use end of listening beep
 use_listen_end_beep = Use end of listening beep
 use_listen_end_beep_help = Play a beep when the 'talk to Crew Chief' button didn't get a reply
 use_listen_end_beep_category = AUDIO_VOICE_AND_CONTROLLERS
 use_listen_end_beep_metadata = RESTART_REQUIRED
 
+# Property: ACS practice time minutes
 acs_practice_time_minuts = ACS practice time minutes
 acs_practice_time_minuts_filter = ASSETTO_64BIT;ASSETTO_32BIT
 
+# Property: Min time between personalised messages
 min_time_between_personalised_messages = Min time between personalised messages
 min_time_between_personalised_messages_category = MESSAGE_FREQUENCIES
 min_time_between_personalised_messages_metadata = RESTART_REQUIRED
 
+# Property: Min time between pearls of wisdom
 minimum_time_between_pearls_of_wisdom = Min time between pearls of wisdom
 minimum_time_between_pearls_of_wisdom_category = MESSAGE_FREQUENCIES
 minimum_time_between_pearls_of_wisdom_metadata = RESTART_REQUIRED
 
+# Property: Spotter hold repeat frequency
 spotter_hold_repeat_frequency = Spotter hold repeat frequency
 spotter_hold_repeat_frequency_help = Time between the Spotter repeating "hold your line" when along side a car
 spotter_hold_repeat_frequency_category = SPOTTER;MESSAGE_FREQUENCIES
 
+# Property: Spotter hold repeat frequency (ovals)
 spotter_hold_repeat_frequency_ovals = Spotter hold repeat frequency (ovals)
 spotter_hold_repeat_frequency_ovals_help = Time between the Spotter repeating "hold your line" when along side a car on an oval track
 spotter_hold_repeat_frequency_ovals_category = SPOTTER;MESSAGE_FREQUENCIES
 
+# Property: Enable enhanced spotter on ovals
 enable_oval_spotter_enhancements = Enable enhanced spotter on ovals
 enable_oval_spotter_enhancements_help = Allow radio calls between spotter messages and disable beeps on ovals
 enable_oval_spotter_enhancements_category = SPOTTER;MESSAGE_FREQUENCIES
 
+# Property: Spotter update interval
 spotter_update_interval = Spotter update interval
 spotter_update_interval_category = SPOTTER
 
+# Property: pCARS UDP port
 udp_data_port = pCARS UDP port
 udp_data_port_help = pCARS network data UDP port (should usually be 5606)
 udp_data_port_filter = PCARS_NETWORK
 udp_data_port_category = UI_STARTUP_AND_PATHS
 udp_data_port_metadata = RESTART_REQUIRED
 
+# Property: F1 2018 UDP port
 f1_2018_udp_data_port = F1 2018 UDP port
 f1_2018_udp_data_port_help = F1 2018 network data UDP port (should usually be 20777)
 f1_2018_udp_data_port_filter = F1_2018
 f1_2018_udp_data_port_category = UI_STARTUP_AND_PATHS
 f1_2018_udp_data_port_metadata = RESTART_REQUIRED
 
+# Property: F1 2019 UDP port
 f1_2019_udp_data_port = F1 2019 UDP port
 f1_2019_udp_data_port_help = F1 2019 network data UDP port (should usually be 20777)
 f1_2019_udp_data_port_filter = F1_2019
 f1_2019_udp_data_port_category = UI_STARTUP_AND_PATHS
 
+# Property: F1 2020 UDP port
 f1_2020_udp_data_port = F1 2020 UDP port
 f1_2020_udp_data_port_help = F1 2020 network data UDP port (should usually be 20777)
 f1_2020_udp_data_port_filter = F1_2020
 f1_2020_udp_data_port_category = UI_STARTUP_AND_PATHS
 
+# Property: F1 2021 UDP port
 f1_2021_udp_data_port = F1 2021 UDP port
 f1_2021_udp_data_port_help = F1 2021 network data UDP port (should usually be 20777)
 f1_2021_udp_data_port_filter = F1_2021
 f1_2021_udp_data_port_category = UI_STARTUP_AND_PATHS
 
+# Property: ACS Spotter default car length
 acs_spotter_car_length = ACS Spotter default car length
 acs_spotter_car_length_filter = ASSETTO_64BIT;ASSETTO_32BIT
 acs_spotter_car_length_category = SPOTTER
 
+# Property: ACC Spotter default car length
 acc_spotter_car_length = ACC Spotter default car length
 acc_spotter_car_length_filter = ACC
 acc_spotter_car_length_category = SPOTTER
 
+# Property: AMS Spotter default car length
 ams_spotter_car_length = AMS Spotter default car length
 ams_spotter_car_length_filter = RF1
 ams_spotter_car_length_category = SPOTTER
 
+# Property: pCARS Spotter default car length
 pcars_spotter_car_length = pCARS Spotter default car length
 pcars_spotter_car_length_filter = PCARS_64BIT;PCARS_32BIT;PCARS_NETWORK
 pcars_spotter_car_length_category = SPOTTER
 
+# Property: pCARS2 Spotter default car length
 pcars2_spotter_car_length = pCARS2 Spotter default car length
 pcars2_spotter_car_length_filter = PCARS2
 pcars2_spotter_car_length_category = SPOTTER
 
+# Property: AMS2 Spotter default car length
 ams2_spotter_car_length = AMS2 Spotter default car length
 ams2_spotter_car_length_filter = AMS2
 ams2_spotter_car_length_category = SPOTTER
 
+# Property: R3E Spotter default car length
 r3e_spotter_car_length = R3E Spotter default car length
 r3e_spotter_car_length_filter = RACE_ROOM
 r3e_spotter_car_length_category = SPOTTER
 
+# Property: rF1 Spotter default car length
 rf1_spotter_car_length = rF1 Spotter default car length
 rf1_spotter_car_length_filter = RF1
 rf1_spotter_car_length_category = SPOTTER
 
+# Property: rF2 Spotter default car length
 rf2_spotter_car_length = rF2 Spotter default car length
 rf2_spotter_car_length_filter = RF2_64BIT
 rf2_spotter_car_length_category = SPOTTER
 
+# Property: GTR 2 Spotter default car length
 gtr2_spotter_car_length = GTR 2 Spotter default car length
 gtr2_spotter_car_length_filter = GTR2
 gtr2_spotter_car_length_category = SPOTTER
 
+# Property: F1 2018 Spotter default car length
 f1_2018_spotter_car_length = F1 2018 Spotter default car length
 f1_2018_spotter_car_length_filter = F1_2018
 f1_2018_spotter_car_length_category = SPOTTER
 
+# Property: F1 2019 Spotter default car length
 f1_2019_spotter_car_length = F1 2019 Spotter default car length
 f1_2019_spotter_car_length_filter = F1_2019
 f1_2019_spotter_car_length_category = SPOTTER
 
+# Property: F1 2020 Spotter default car length
 f1_2020_spotter_car_length = F1 2020 Spotter default car length
 f1_2020_spotter_car_length_filter = F1_2020
 f1_2020_spotter_car_length_category = SPOTTER
 
+# Property: F1 2021 Spotter default car length
 f1_2021_spotter_car_length = F1 2021 Spotter default car length
 f1_2021_spotter_car_length_filter = F1_2021
 f1_2021_spotter_car_length_category = SPOTTER
 
+# Property: Spotter gap for clear
 spotter_gap_for_clear = Spotter gap for clear
 spotter_gap_for_clear_help = Gap between cars before calling clear (metres)
 spotter_gap_for_clear_category = SPOTTER
 
+# Property: &Messages volume
 messages_volume = &Messages volume
 messages_volume_category = AUDIO_VOICE_AND_CONTROLLERS
 
+# Property: &Background volume
 background_volume = &Background volume
 background_volume_help = The volume of the background sounds (0 - 1)
 background_volume_category = AUDIO_VOICE_AND_CONTROLLERS
 
+# Property: Update interval
 update_interval = Update interval
 update_interval_help = The time (milliseconds) between app updates
 update_interval_category = MESSAGE_FREQUENCIES
 update_interval_metadata = RESTART_REQUIRED
 
+# Property: Use sweary messages
 use_sweary_messages = Use sweary messages
 use_sweary_messages_help = A few messages contain swearing - then enables / disables these
 use_sweary_messages_metadata = RESTART_REQUIRED
 
+# Property: Enable Spotter
 enable_spotter = Enable Spotter
 enable_spotter_help = The Spotter can be enabled and disabled with a button. This setting sets it initial state
 enable_spotter_category = SPOTTER
 
+# Property: Speech recognition country
 speech_recognition_country = Speech recognition country
 speech_recognition_country_help = Optional - the localisation country to use for speech recognition. If this isn't set, the app will use which ever English pack you've installed (or the first it finds if you have more than one). If you set it, the value must be a country specifics value ex. GB, US, IT, DA, LT.
 speech_recognition_country_category = INTERNATIONALISATION;AUDIO_VOICE_AND_CONTROLLERS
 speech_recognition_country_metadata = RESTART_REQUIRED
 
+# Property: UI language
 ui_language = UI language
 ui_language_help = Optional - the localisation country to use for the ui. If this isn't set, the app will use OS system language. If you set it, the value must be a valid ISO 639-1 code for country, followed by a hyphen, then a valid two letter region code. For example en-GB. If no translation file is found, the app will default back to English.
 ui_language_category = INTERNATIONALISATION;AUDIO_VOICE_AND_CONTROLLERS
 ui_language_metadata = RESTART_REQUIRED
 
+# Property: Spotter car length
 spotter_car_length = Spotter car length
 spotter_car_length_help = The length of a car, used to check if there's an overlap. Decrease this if the Spotter calls 'hold your line' when you're not overlapping. Increase it if the Spotter doesn't call 'hold your line' when you clearly are overlapping.
 spotter_car_length_category = SPOTTER
 
+# Property: Time after race start for spotter
 time_after_race_start_for_spotter = Time after race start for spotter
 time_after_race_start_for_spotter_help = Wait this many seconds after race start before enabling the spotter
 time_after_race_start_for_spotter_category = SPOTTER
 
+# Property: Min speed for spotter
 min_speed_for_spotter = Min speed for spotter
 min_speed_for_spotter_help = Don't use the Spotter if your speed is less than this
 min_speed_for_spotter_category = SPOTTER
 
+# Property: Max closing speed for spotter
 max_closing_speed_for_spotter = Max closing speed for spotter
 max_closing_speed_for_spotter_help = Don't call 'hold your line' if the closing speed between you and the other car is greater than this
 max_closing_speed_for_spotter_category = SPOTTER
 
+# Property: Spotter clear delay
 spotter_clear_delay = Spotter clear delay
 spotter_clear_delay_help = You need to be clear for this many milliseconds before the Spotter calls 'clear'
 spotter_clear_delay_category = SPOTTER
 
+# Property: Spotter overlap delay
 spotter_overlap_delay = Spotter overlap delay
 spotter_overlap_delay_help = You need to be overlapping for this many milliseconds before the Spotter calls 'hold your line'
 spotter_overlap_delay_category = SPOTTER
 
+# Property: Custom device GUID
 custom_device_guid = Custom device GUID
 custom_device_guid_help = Manually set a controller GUID if the app doesn't display your controller in the devices list
 custom_device_guid_category = AUDIO_VOICE_AND_CONTROLLERS
 custom_device_guid_metadata = RESTART_REQUIRED
 
-max_safe_oil_temp_over_baseline_help = Baseline oil temp is taken after a few minutes. If the oil temp goes more than this value over the baseline a warning message is played. Reduce this to make the 'high oil temp' warning more sensitive
-max_safe_oil_temp_over_baseline_category = FUEL_TEMPS_AND_DAMAGES
-
-max_safe_water_temp_over_baseline_help = Baseline water temp is taken after a few minutes. If the water temp goes more than this value over the baseline a warning message is played. Reduce this to make the 'high water temp' warning more sensitive
-max_safe_water_temp_over_baseline_category = FUEL_TEMPS_AND_DAMAGES
-
+# Property: Launch R3E
 launch_raceroom = Launch R3E
 launch_raceroom_help = If this is true the application will attempt to launch RaceRoom Racing Experience when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
 launch_raceroom_filter = RACE_ROOM
 launch_raceroom_category = UI_STARTUP_AND_PATHS
 launch_raceroom_metadata = RESTART_REQUIRED
 
+# Property: R3E launch params
 r3e_launch_params = R3E launch params
 r3e_launch_params_help = This is used to tell Steam what app to run - R3E's Steam app ID is 211500. If you specified a path RRRE.exe you can leave this blank
 r3e_launch_params_filter = RACE_ROOM
 r3e_launch_params_category = UI_STARTUP_AND_PATHS
 r3e_launch_params_metadata = RESTART_REQUIRED
 
+# Property: pCARS 32bit launch params
 pcars32_launch_params = pCARS 32bit launch params
 pcars32_launch_params_help = This is used to tell Steam what app to run - pCARS' Steam app ID is 234630. If you specified a path pcars32.exe you can leave this blank
 pcars32_launch_params_filter = PCARS_32BIT
 pcars32_launch_params_category = UI_STARTUP_AND_PATHS
 pcars32_launch_params_metadata = RESTART_REQUIRED
 
+# Property: pCARS 64bit launch params
 pcars64_launch_params = pCARS 64bit launch params
 pcars64_launch_params_help = This is used to tell Steam what app to run - pCARS' Steam app ID is 234630. If you specified a path pcars64.exe you can leave this blank
 pcars64_launch_params_filter = PCARS_64BIT
 pcars64_launch_params_category = UI_STARTUP_AND_PATHS
 pcars64_launch_params_metadata = RESTART_REQUIRED
 
+# Property: rF1 launch params
 rf1_launch_params = rF1 launch params
 rf1_launch_params_help = This is used to tell Steam what app to run - rFactor's Steam app ID is 339790. If you specified a path rFactor.exe you can leave this blank
 rf1_launch_params_filter = RF1
 rf1_launch_params_category = UI_STARTUP_AND_PATHS
 rf1_launch_params_metadata = RESTART_REQUIRED
 
+# Property: rF2 launch params
 rf2_launch_params = rF2 launch params
 rf2_launch_params_help = This is used to tell Steam what app to run - rFactor 2's Steam app ID is 365960. If you specified a path rFactor2.exe you can leave this blank
 rf2_launch_params_filter = RF2_64BIT
 rf2_launch_params_category = UI_STARTUP_AND_PATHS
 rf2_launch_params_metadata = RESTART_REQUIRED
 
+# Property: GSC launch params
 gsc_launch_params = GSC launch params
 gsc_launch_params_help = This is used to tell Steam what app to run - Stock Car Extreme's Steam app ID is 273840. If you specified a path GSC.exe you can leave this blank
 gsc_launch_params_filter = RF1
 gsc_launch_params_category = UI_STARTUP_AND_PATHS
 gsc_launch_params_metadata = RESTART_REQUIRED
 
+# Property: AMS launch params
 ams_launch_params = AMS launch params
 ams_launch_params_help = This is used to tell Steam what app to run - Automobilista's Steam app ID is 431600. If you specified a path AMS.exe you can leave this blank
 ams_launch_params_filter = RF1
 ams_launch_params_category = UI_STARTUP_AND_PATHS
 ams_launch_params_metadata = RESTART_REQUIRED
 
+# Property: ACS launch params
 acs_launch_params = ACS launch params
 acs_launch_params_help = This is used to tell Steam what app to run - Assetto Corsa's Steam app ID is 244210. If you specified a path ACS.exe you can leave this blank
 acs_launch_params_filter = ASSETTO_64BIT;ASSETTO_32BIT
 acs_launch_params_category = UI_STARTUP_AND_PATHS
 acs_launch_params_metadata = RESTART_REQUIRED
 
+# Property: Marcas launch params
 marcas_launch_params = Marcas launch params
 marcas_launch_params_help = This is used to tell Steam what app to run - Copa Petrobras de Marcas Steam app ID is 359800. If you specified a path marcas.exe you can leave this blank
 marcas_launch_params_filter = RF1
 marcas_launch_params_category = UI_STARTUP_AND_PATHS
 marcas_launch_params_metadata = RESTART_REQUIRED
 
+# Property: FTruck launch params
 ftruck_launch_params = FTruck launch params
 ftruck_launch_params_help = This is used to tell Steam what app to run - Formula Truck's Steam app ID is 273750. If you specified a path FTruck.exe you can leave this blank
 ftruck_launch_params_filter = RF1
 ftruck_launch_params_category = UI_STARTUP_AND_PATHS
 ftruck_launch_params_metadata = RESTART_REQUIRED
 
+# Property: F1 2018 launch params
 f1_2018_launch_params = F1 2018 launch params
-f1_2018_launch_params_help = This is used to tell Steam what app to run - F1 2018's Steam app ID is ??????. If you specified a path f1_2018.exe you can leave this blank
+f1_2018_launch_params_help = This is used to tell Steam what app to run - F1 2018's Steam app ID is 737800. If you specified a path f1_2018.exe you can leave this blank
 f1_2018_launch_params_filter = F1_2018
 f1_2018_launch_params_category = UI_STARTUP_AND_PATHS
 f1_2018_launch_params_metadata = RESTART_REQUIRED
 
+# Property: F1 2019 launch params
 f1_2019_launch_params = F1 2019 launch params
-f1_2019_launch_params_help = This is used to tell Steam what app to run - F1 2019's Steam app ID is ??????. If you specified a path f1_2019.exe you can leave this blank
+f1_2019_launch_params_help = This is used to tell Steam what app to run - F1 2019's Steam app ID is 928600. If you specified a path f1_2019.exe you can leave this blank
 f1_2019_launch_params_filter = F1_2019
 f1_2019_launch_params_category = UI_STARTUP_AND_PATHS
 
+# Property: F1 2020 launch params
 f1_2020_launch_params = F1 2020 launch params
-f1_2020_launch_params_help = This is used to tell Steam what app to run - F1 2020's Steam app ID is ??????. If you specified a path f1_2020.exe you can leave this blank
+f1_2020_launch_params_help = This is used to tell Steam what app to run - F1 2020's Steam app ID is 1080110. If you specified a path f1_2020.exe you can leave this blank
 f1_2020_launch_params_filter = F1_2020
 f1_2020_launch_params_category = UI_STARTUP_AND_PATHS
 
+# Property: F1 2021 launch params
 f1_2021_launch_params = F1 2021 launch params
-f1_2021_launch_params_help = This is used to tell Steam what app to run - F1 2021's Steam app ID is ??????. If you specified a path f1_2021.exe you can leave this blank
+f1_2021_launch_params_help = This is used to tell Steam what app to run - F1 2021's Steam app ID is 1134570. If you specified a path f1_2021.exe you can leave this blank
 f1_2021_launch_params_filter = F1_2021
 f1_2021_launch_params_category = UI_STARTUP_AND_PATHS
 
+# Property: R3E launch exe
 r3e_launch_exe = R3E launch exe
 r3e_launch_exe_help = This is the location of Steam.exe or the direct path to RRRE.exe. Use forward slashes to separate paths.
 r3e_launch_exe_filter = RACE_ROOM
 r3e_launch_exe_category = UI_STARTUP_AND_PATHS
 r3e_launch_exe_metadata = RESTART_REQUIRED
 
+# Property: RBR launch exe
 rbr_launch_exe = RBR launch exe
 rbr_launch_exe_help = This is the direct path to RichardBurnsRally_SSE.exe. Use forward slashes to separate paths.
 rbr_launch_exe_filter = RBR
 rbr_launch_exe_category = UI_STARTUP_AND_PATHS
 rbr_launch_exe_metadata = RESTART_REQUIRED
 
+# Property: GTR 2 launch exe
 gtr2_launch_exe = GTR 2 launch exe
 gtr2_launch_exe_help = This is the direct path to GTR2.exe. Use forward slashes to separate paths.
 gtr2_launch_exe_filter = GTR2
 gtr2_launch_exe_category = UI_STARTUP_AND_PATHS
 gtr2_launch_exe_metadata = RESTART_REQUIRED
 
+# Property: Dirt Rally launch exe
 dirt_launch_exe = Dirt Rally launch exe
 dirt_launch_exe_help = This is the location of Steam.exe or the direct path to dirtrally.exe. Use forward slashes to separate paths.
 dirt_launch_exe_filter = DIRT
 dirt_launch_exe_category = UI_STARTUP_AND_PATHS
 dirt_launch_exe_metadata = RESTART_REQUIRED
 
+# Property: Dirt Rally launch params
 dirt_launch_params = Dirt Rally launch params
 dirt_launch_params_help = This is used to tell Steam what app to run - Dirt Rally's Steam app ID is 310560. If you specified a path dirtrally.exe you can leave this blank
 dirt_launch_params_filter = DIRT
 dirt_launch_params_category = UI_STARTUP_AND_PATHS
 
+# Property: Dirt Rally 2 launch exe
 dirt2_launch_exe = Dirt Rally 2 launch exe
 dirt2_launch_exe_help = This is the location of Steam.exe or the direct path to dirtrally2.exe. Use forward slashes to separate paths.
 dirt2_launch_exe_filter = DIRT_2
 dirt2_launch_exe_category = UI_STARTUP_AND_PATHS
 dirt2_launch_exe_metadata = RESTART_REQUIRED
 
+# Property: Dirt Rally 2 launch params
 dirt2_launch_params = Dirt Rally 2 launch params
 dirt2_launch_params_help = This is used to tell Steam what app to run - Dirt Rally 2's Steam app ID is 690790. If you specified a path dirtrally.exe you can leave this blank
 dirt2_launch_params_filter = DIRT_2
 dirt2_launch_params_category = UI_STARTUP_AND_PATHS
 
+# Property: ACC launch exe
 acc_launch_exe = ACC launch exe
 acc_launch_exe_help = This is the location of Steam.exe or the direct path to acc.exe. Use forward slashes to separate paths.
 acc_launch_exe_filter = ACC
 acc_launch_exe_category = UI_STARTUP_AND_PATHS
 acc_launch_exe_metadata = RESTART_REQUIRED
 
+# Property: rF1 launch exe
 rf1_launch_exe = rF1 launch exe
 rf1_launch_exe_help = This is the location of Steam.exe or the direct path to rFactor.exe. Use forward slashes to separate paths.
 rf1_launch_exe_filter = RF1
 rf1_launch_exe_category = UI_STARTUP_AND_PATHS
 rf1_launch_exe_metadata = RESTART_REQUIRED
 
+# Property: rF2 launch exe
 rf2_launch_exe = rF2 launch exe
 rf2_launch_exe_help = This is the location of Steam.exe or the direct path to rFactor2.exe. Use forward slashes to separate paths.
 rf2_launch_exe_filter = RF2_64BIT
 rf2_launch_exe_category = UI_STARTUP_AND_PATHS
 rf2_launch_exe_metadata = RESTART_REQUIRED
 
+# Property: GSC launch exe
 gsc_launch_exe = GSC launch exe
 gsc_launch_exe_help = This is the location of Steam.exe or the direct path to GSC.exe. Use forward slashes to separate paths.
 gsc_launch_exe_filter = RF1
 gsc_launch_exe_category = UI_STARTUP_AND_PATHS
 gsc_launch_exe_metadata = RESTART_REQUIRED
 
+# Property: AMS launch exe
 ams_launch_exe = AMS launch exe
 ams_launch_exe_help = This is the location of Steam.exe or the direct path to AMS.exe. Use forward slashes to separate paths.
 ams_launch_exe_filter = RF1
 ams_launch_exe_category = UI_STARTUP_AND_PATHS
 ams_launch_exe_metadata = RESTART_REQUIRED
 
+# Property: ACS launch exe
 acs_launch_exe = ACS launch exe
 acs_launch_exe_help = This is the location of Steam.exe or the direct path to ACS.exe. Use forward slashes to separate paths.
 acs_launch_exe_filter = ASSETTO_64BIT;ASSETTO_32BIT
 acs_launch_exe_category = UI_STARTUP_AND_PATHS
 acs_launch_exe_metadata = RESTART_REQUIRED
 
+# Property: Marcas launch exe
 marcas_launch_exe = Marcas launch exe
 marcas_launch_exe_help = This is the location of Steam.exe or the direct path to marcas.exe. Use forward slashes to separate paths.
 marcas_launch_exe_filter = RF1
 marcas_launch_exe_category = UI_STARTUP_AND_PATHS
 marcas_launch_exe_metadata = RESTART_REQUIRED
 
+# Property: FTruck launch exe
 ftruck_launch_exe = FTruck launch exe
 ftruck_launch_exe_help = This is the location of Steam.exe or the direct path to FTruck.exe. Use forward slashes to separate paths.
 ftruck_launch_exe_filter = RF1
 ftruck_launch_exe_category = UI_STARTUP_AND_PATHS
 ftruck_launch_exe_metadata = RESTART_REQUIRED
 
+# Property: pCARS 32bit launch exe
 pcars32_launch_exe = pCARS 32bit launch exe
 pcars32_launch_exe_help = This is the location of Steam.exe or the direct path to pcars32.exe. Use forward slashes to separate paths.
 pcars32_launch_exe_filter = PCARS_32BIT
 pcars32_launch_exe_category = UI_STARTUP_AND_PATHS
 pcars32_launch_exe_metadata = RESTART_REQUIRED
 
+# Property: pCARS 64bit launch exe
 pcars64_launch_exe = pCARS 64bit launch exe
 pcars64_launch_exe_help = This is the location of Steam.exe or the direct path to pcars64.exe. Use forward slashes to separate paths.
 pcars64_launch_exe_filter = PCARS_64BIT
 pcars64_launch_exe_category = UI_STARTUP_AND_PATHS
 pcars64_launch_exe_metadata = RESTART_REQUIRED
 
+# Property: F1 2018 launch exe
 f1_2018_launch_exe = F1 2018 launch exe
 f1_2018_launch_exe_help = This is the location of Steam.exe or the direct path to f1_2018.exe. Use forward slashes to separate paths.
 f1_2018_launch_exe_filter = F1_2018
 f1_2018_launch_exe_category = UI_STARTUP_AND_PATHS
 f1_2018_launch_exe_metadata = RESTART_REQUIRED
 
+# Property: F1 2019 launch exe
 f1_2019_launch_exe = F1 2019 launch exe
 f1_2019_launch_exe_help = This is the location of Steam.exe or the direct path to f1_2019.exe. Use forward slashes to separate paths.
 f1_2019_launch_exe_filter = F1_2019
 f1_2019_launch_exe_category = UI_STARTUP_AND_PATHS
 
+# Property: F1 2020 launch exe
 f1_2020_launch_exe = F1 2020 launch exe
 f1_2020_launch_exe_help = This is the location of Steam.exe or the direct path to f1_2020.exe. Use forward slashes to separate paths.
 f1_2020_launch_exe_filter = F1_2020
 f1_2020_launch_exe_category = UI_STARTUP_AND_PATHS
 
+# Property: F1 2021 launch exe
 f1_2021_launch_exe = F1 2021 launch exe
 f1_2021_launch_exe_help = This is the location of Steam.exe or the direct path to f1_2021.exe. Use forward slashes to separate paths.
 f1_2021_launch_exe_filter = F1_2021
 f1_2021_launch_exe_category = UI_STARTUP_AND_PATHS
 
+# Property: Launch rFactor 1
 launch_rfactor1 = Launch rFactor 1
 launch_rfactor1_help = If this is true the application will attempt to launch rFactor when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
 launch_rfactor1_filter = RF1
 launch_rfactor1_category = UI_STARTUP_AND_PATHS
 launch_rfactor1_metadata = RESTART_REQUIRED
 
+# Property: Launch rFactor 2
 launch_rfactor2 = Launch rFactor 2
 launch_rfactor2_help = If this is true the application will attempt to launch rFactor 2 when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
 launch_rfactor2_filter = RF2_64BIT
 launch_rfactor2_category = UI_STARTUP_AND_PATHS
 launch_rfactor2_metadata = RESTART_REQUIRED
 
+# Property: Launch RBR
 launch_rbr = Launch RBR
 launch_rbr_help = If this is true the application will attempt to launch Richard Burns Rally when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
 launch_rbr_filter = RBR
 launch_rbr_category = UI_STARTUP_AND_PATHS
 launch_rbr_metadata = RESTART_REQUIRED
 
+# Property: Launch GTR 2
 launch_gtr2 = Launch GTR 2
 launch_gtr2_help = If this is true the application will attempt to launch Richard Burns Rally when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
 launch_gtr2_filter = GTR2
 launch_gtr2_category = UI_STARTUP_AND_PATHS
 launch_gtr2_metadata = RESTART_REQUIRED
 
+# Property: Launch Dirt Rally
 launch_dirt = Launch Dirt Rally
 launch_dirt_help = If this is true the application will attempt to launch Dirt Rally when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
 launch_dirt_filter = DIRT
 launch_dirt_category = UI_STARTUP_AND_PATHS
 launch_dirt_metadata = RESTART_REQUIRED
 
+# Property: Launch Dirt Rally 2
 launch_dirt2 = Launch Dirt Rally 2
 launch_dirt2_help = If this is true the application will attempt to launch Dirt Rally 2 when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
 launch_dirt2_filter = DIRT_2
 launch_dirt2_category = UI_STARTUP_AND_PATHS
 launch_dirt2_metadata = RESTART_REQUIRED
 
+# Property: Launch GSC
 launch_gsc = Launch GSC
 launch_gsc_help = If this is true the application will attempt to launch Stock Car Extreme when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
 launch_gsc_filter = RF1
 launch_gsc_category = UI_STARTUP_AND_PATHS
 launch_gsc_metadata = RESTART_REQUIRED
 
+# Property: Launch F1 2018
 launch_f1_2018 = Launch F1 2018
 launch_f1_2018_help = If this is true the application will attempt to launch F1 2018 when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
 launch_f1_2018_filter = F1_2018
 launch_f1_2018_category = UI_STARTUP_AND_PATHS
 launch_f1_2018_metadata = RESTART_REQUIRED
 
+# Property: Launch F1 2019
 launch_f1_2019 = Launch F1 2019
 launch_f1_2019_help = If this is true the application will attempt to launch F1 2019 when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
 launch_f1_2019_filter = F1_2019
 launch_f1_2019_category = UI_STARTUP_AND_PATHS
 
+# Property: Launch F1 2020
 launch_f1_2020 = Launch F1 2020
 launch_f1_2020_help = If this is true the application will attempt to launch F1 2020 when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
 launch_f1_2020_filter = F1_2020
 launch_f1_2020_category = UI_STARTUP_AND_PATHS
 
+# Property: Launch F1 2021
 launch_f1_2021 = Launch F1 2021
 launch_f1_2021_help = If this is true the application will attempt to launch F1 2021 when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
 launch_f1_2021_filter = F1_2021
 launch_f1_2021_category = UI_STARTUP_AND_PATHS
 
+# Property: Launch AMS
 launch_ams = Launch AMS
 launch_ams_help = If this is true the application will attempt to launch Automobilista when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
 launch_ams_filter = RF1
 launch_ams_category = UI_STARTUP_AND_PATHS
 launch_ams_metadata = RESTART_REQUIRED
 
+# Property: Launch Marcas
 launch_marcas = Launch Marcas
 launch_marcas_help = If this is true the application will attempt to launch Copa Petrobras de Marcas when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
 launch_marcas_filter = RF1
 launch_marcas_category = UI_STARTUP_AND_PATHS
 launch_marcas_metadata = RESTART_REQUIRED
 
+# Property: Launch FTruck
 launch_ftruck = Launch FTruck
 launch_ftruck_help = If this is true the application will attempt to launch Formula Truck when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
 launch_ftruck_filter = RF1
 launch_ftruck_category = UI_STARTUP_AND_PATHS
 launch_ftruck_metadata = RESTART_REQUIRED
 
+# Property: Launch pCARS
 launch_pcars = Launch pCARS
 launch_pcars_help = If this is true the application will attempt to launch pCARS when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
 launch_pcars_filter = PCARS_64BIT;PCARS_32BIT;PCARS_NETWORK
 launch_pcars_category = UI_STARTUP_AND_PATHS
 launch_pcars_metadata = RESTART_REQUIRED
 
+# Property: Launch ACC
 launch_acc = Launch ACC
 launch_acc_help = If this is true the application will attempt to launch ACC when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
 launch_acc_filter = ACC
 launch_acc_category = UI_STARTUP_AND_PATHS
 launch_acc_metadata = RESTART_REQUIRED
 
+# Property: pCARS 2 launch exe
 pcars2_launch_exe = pCARS 2 launch exe
 pcars2_launch_exe_help = This is the location of Steam.exe or the direct path to pCARS2AVX.exe. Use forward slashes to separate paths.
 pcars2_launch_exe_filter = PCARS2
 pcars2_launch_exe_category = UI_STARTUP_AND_PATHS
 pcars2_launch_exe_metadata = RESTART_REQUIRED
 
+# Property: pCARS 3 launch exe
 pcars3_launch_exe = pCARS 3 launch exe
 pcars3_launch_exe_help = This is the location of Steam.exe or the direct path to pCARS3.exe. Use forward slashes to separate paths.
 pcars3_launch_exe_filter = PCARS3
 pcars3_launch_exe_category = UI_STARTUP_AND_PATHS
 pcars3_launch_exe_metadata = RESTART_REQUIRED
 
+# Property: pCARS 2 launch params
 pcars2_launch_params = pCARS 2 launch params
 pcars2_launch_params_help = This is used to tell Steam what app to run - pCARS 2's Steam app ID is 378860. If you specified a path pCARS2AVX.exe you can leave this blank
 pcars2_launch_params_filter = PCARS2
 pcars2_launch_params_category = UI_STARTUP_AND_PATHS
 pcars2_launch_params_metadata = RESTART_REQUIRED
 
+# Property: pCARS 3 launch params
 pcars3_launch_params = pCARS 3 launch params
 pcars3_launch_params_help = This is used to tell Steam what app to run - pCARS 3's Steam app ID is 958400. If you specified a path pCARS3.exe you can leave this blank
 pcars3_launch_params_filter = PCARS3
 pcars3_launch_params_category = UI_STARTUP_AND_PATHS
 pcars3_launch_params_metadata = RESTART_REQUIRED
 
+# Property: AMS 2 launch exe
 ams2_launch_exe = AMS 2 launch exe
 ams2_launch_exe_help = This is the location of Steam.exe or the direct path to AMS2.exe. Use forward slashes to separate paths.
 ams2_launch_exe_filter = AMS2
 ams2_launch_exe_category = UI_STARTUP_AND_PATHS
 ams2_launch_exe_metadata = RESTART_REQUIRED
 
+# Property: AMS 2 launch params
 ams2_launch_params = AMS 2 launch params
-ams2_launch_params_help = This is used to tell Steam what app to run - AMS 2's Steam app ID is ??????. If you specified a path AMS2.exe you can leave this blank
+ams2_launch_params_help = This is used to tell Steam what app to run - AMS 2's Steam app ID is 1066890. If you specified a path AMS2.exe you can leave this blank
 ams2_launch_params_filter = AMS2
 ams2_launch_params_category = UI_STARTUP_AND_PATHS
 ams2_launch_params_metadata = RESTART_REQUIRED
 
+# Property: ACC launch params
 acc_launch_params = ACC launch params
 acc_launch_params_help = This is used to tell Steam what app to run - ACC's Steam app ID is 805550. If you specified a path AC2-Win64-Shipping.exe you can leave this blank
 acc_launch_params_filter = ACC
 acc_launch_params_category = UI_STARTUP_AND_PATHS
 acc_launch_params_metadata = RESTART_REQUIRED
 
+# Property: Launch pCARS 2
 launch_pcars2 = Launch pCARS 2
 launch_pcars2_help = If this is true the application will attempt to launch pCARS 2 when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
 launch_pcars2_filter = PCARS2
 launch_pcars2_category = UI_STARTUP_AND_PATHS
 launch_pcars2_metadata = RESTART_REQUIRED
 
-launch_pcars3 = Launch pCARS
+# Property: Launch pCARS 3
+launch_pcars3 = Launch pCARS 3
 launch_pcars3_help = If this is true the application will attempt to launch pCARS 3 when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
 launch_pcars3_filter = PCARS3
 launch_pcars3_category = UI_STARTUP_AND_PATHS
 launch_pcars3_metadata = RESTART_REQUIRED
 
+# Property: Launch AMS 2
 launch_ams2 = Launch AMS 2
 launch_ams2_help = If this is true the application will attempt to launch AMS 2 when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
 launch_ams2_filter = AMS2
 launch_ams2_category = UI_STARTUP_AND_PATHS
 launch_ams2_metadata = RESTART_REQUIRED
 
+# Property: iRacing launch exe
 iracing_launch_exe = iRacing launch exe
 iracing_launch_exe_help = This is the path to iRacingSim64DX11.exe. Use forward slashes to separate paths.
 iracing_launch_exe_filter = IRACING
 iracing_launch_exe_category = UI_STARTUP_AND_PATHS
 iracing_launch_exe_metadata = RESTART_REQUIRED
 
+# Property: iRacing launch params
 iracing_launch_params = iRacing launch params
 iracing_launch_params_filter = IRACING
 iracing_launch_params_category = UI_STARTUP_AND_PATHS
 iracing_launch_params_metadata = RESTART_REQUIRED
 
+# Property: Launch iRacing
 launch_iracing = Launch iRacing
 launch_iracing_help = If this is true the application will attempt to launch iRacing when Crew Chief starts (when you click 'Start application' or the app auto starts Crew Chief if you set 'Run immediately' to true)
 launch_iracing_filter = IRACING
 launch_iracing_category = UI_STARTUP_AND_PATHS
 launch_iracing_metadata = RESTART_REQUIRED
 
+# Property: Run immediately
 run_immediately = Run immediately
 run_immediately_help = If this is true the application will start running Crew Chief as soon as you start it up, using whatever options you previously set
 run_immediately_category = UI_STARTUP_AND_PATHS
 run_immediately_metadata = RESTART_REQUIRED
 
+# Property: pCARS Steam ID
 pcars_steam_id = pCARS Steam ID
 pcars_steam_id_help = pCARS sometimes sends the participant data in the wrong order. If this value is set, the app will use it to try and work around this issue, preventing the app 'seeing' the wrong data for the player
 pcars_steam_id_filter = PCARS_64BIT;PCARS_32BIT;PCARS_NETWORK
 pcars_steam_id_category = UI_STARTUP_AND_PATHS
 pcars_steam_id_metadata = RESTART_REQUIRED
 
+# Property: Cumulative lap lockup warning threshold
 cumulative_lap_lockup_warning_threshold = Cumulative lap lockup warning threshold
 cumulative_lap_lockup_warning_threshold_help = If the player has locked wheels for more than this many seconds over the course of a lap, play a warning
 cumulative_lap_lockup_warning_threshold_filter = !IRACING
 cumulative_lap_lockup_warning_threshold_category = FUEL_TEMPS_AND_DAMAGES;MESSAGE_FREQUENCIES
 
+# Property: Cumulative lap wheelspin warning threshold
 cumulative_lap_wheelspin_warning_threshold = Cumulative lap wheelspin warning threshold
 cumulative_lap_wheelspin_warning_threshold_help = If the player has wheelspin for more than this many seconds over the course of a lap, play a warning
 cumulative_lap_wheelspin_warning_threshold_filter = !IRACING
 cumulative_lap_wheelspin_warning_threshold_category = FUEL_TEMPS_AND_DAMAGES;MESSAGE_FREQUENCIES
 
+# Property: Min name voice recognition confidence (Microsoft recogniser)
 minimum_name_voice_recognition_confidence = Min name voice recognition confidence (Microsoft recogniser)
 minimum_name_voice_recognition_confidence_help = When processing voice commands asking about opponent drivers, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0)
 minimum_name_voice_recognition_confidence_category = AUDIO_VOICE_AND_CONTROLLERS
 minimum_name_voice_recognition_confidence_metadata = RESTART_REQUIRED
 
+# Property: Min name voice recognition confidence (Windows recogniser)
 minimum_name_voice_recognition_confidence_system_sre = Min name voice recognition confidence (Windows recogniser)
 minimum_name_voice_recognition_confidence_system_sre_help = When processing voice commands asking about opponent drivers, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0)
 minimum_name_voice_recognition_confidence_system_sre_category = AUDIO_VOICE_AND_CONTROLLERS
 minimum_name_voice_recognition_confidence_system_sre_metadata = RESTART_REQUIRED
 
+# Property: Min voice recognition confidence (Microsoft recogniser)
 minimum_voice_recognition_confidence = Min voice recognition confidence (Microsoft recogniser)
 minimum_voice_recognition_confidence_help = When processing voice commands, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0)
 minimum_voice_recognition_confidence_category = AUDIO_VOICE_AND_CONTROLLERS
 minimum_voice_recognition_confidence_metadata = RESTART_REQUIRED
 
+# Property: Min voice recognition confidence (Windows recogniser)
 minimum_voice_recognition_confidence_system_sre = Min voice recognition confidence (Windows recogniser)
 minimum_voice_recognition_confidence_system_sre_help = When processing voice commands, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0)
 minimum_voice_recognition_confidence_system_sre_category = AUDIO_VOICE_AND_CONTROLLERS
 minimum_voice_recognition_confidence_system_sre_metadata = RESTART_REQUIRED
 
+# Property: Display session lap times
 display_session_lap_times = Display session lap times
 display_session_lap_times_help = Write all the lap times from the completed session to the console (separated by ;)
 display_session_lap_times_category = TIMINGS;UI_STARTUP_AND_PATHS
 
+# Property: Enable opponent lap time reporting in race
 enable_opponent_laptime_reporting_in_race = Enable opponent lap time reporting in race
 enable_opponent_laptime_reporting_in_race_help = Call out opponent lap times in the race (car front, behind & leader) if the lap time is their best lap.
 enable_opponent_laptime_reporting_in_race_category = TIMINGS
 
+# Property: Report race sector deltas
 report_sector_deltas_race = Report race sector deltas
 report_sector_deltas_race_help = Give sector delta information during a race.
 report_sector_deltas_race_category = TIMINGS
 
+# Property: Report race sector deltas likelihood
 report_sector_deltas_race_likelihood = Report race sector deltas likelihood
 report_sector_deltas_race_likelihood_help = Probability of giving a sectors report after each race lap (0 = disabled, 1 = every lap, default 0.3 - 30% chance of sector information on each lap)
 report_sector_deltas_race_likelihood_category = TIMINGS;MESSAGE_FREQUENCIES
 
+# Property: Report practice and qual sector deltas
 report_sector_deltas_practice_and_qual = Report practice and qual sector deltas
 report_sector_deltas_practice_and_qual_help = Give sector delta information during practice and qualifying.
 report_sector_deltas_practice_and_qual_category = TIMINGS
 
+# Property: Frequency of overtaking messages
 frequency_of_overtaking_messages = Frequency of overtaking messages
 frequency_of_overtaking_messages_help = How often to congratulate the player when he makes a clean overtake. 0 (never) to 10 (as often as possible)
 frequency_of_overtaking_messages_category = MESSAGE_FREQUENCIES
 
+# Property: Frequency of being overtaken messages
 frequency_of_being_overtaken_messages = Frequency of being overtaken messages
 frequency_of_being_overtaken_messages_help = How often to berate the player when he gets overtaken. 0 (never) to 10 (as often as possible)
 frequency_of_being_overtaken_messages_category = MESSAGE_FREQUENCIES
 
+# Property: Frequency of car close ahead reports
 frequency_of_car_close_ahead_reports = Frequency of car close ahead reports
 frequency_of_car_close_ahead_reports_help = How often to report a car close behind (being pressured). 0 (never) to 10 (as often as possible)
 frequency_of_car_close_ahead_reports_category = MESSAGE_FREQUENCIES;TIMINGS
 
+# Property: Frequency of car close behind reports
 frequency_of_car_close_behind_reports = Frequency of car close behind reports
 frequency_of_car_close_behind_reports_help = How often to report a car close in front (pressuring an opponent). 0 (never) to 10 (as often as possible)
 frequency_of_car_close_behind_reports_category = MESSAGE_FREQUENCIES;TIMINGS
 
+# Property: Frequency of gap ahead reports
 frequency_of_gap_ahead_reports = Frequency of gap ahead reports
 frequency_of_gap_ahead_reports_help = How often to report a the gap to the car in front. 0 (never) to 10 (as often as possible)
 frequency_of_gap_ahead_reports_category = MESSAGE_FREQUENCIES;TIMINGS
 
+# Property: Frequency of gap behind reports
 frequency_of_gap_behind_reports = Frequency of gap behind reports
 frequency_of_gap_behind_reports_help = How often to report a the gap to the car behind. 0 (never) to 10 (as often as possible)
 frequency_of_gap_behind_reports_category = MESSAGE_FREQUENCIES;TIMINGS
 
+# Property: Frequency of opponent race lap times
 frequency_of_opponent_race_lap_times = Frequency of opponent race lap times
 frequency_of_opponent_race_lap_times_help = How often to report fast laps times for race leader and car in front and behind. 0 (never) to 10 (as often as possible). If this is 1, times are only reported if they're the session best. This criteria becomes less strict up to 10 where the time just needs to be a few tenths off session best.
 frequency_of_opponent_race_lap_times_category = MESSAGE_FREQUENCIES;TIMINGS
 
+# Property: Frequency of opponent practice and quali lap times
 frequency_of_opponent_practice_and_qual_lap_times = Frequency of opponent practice and quali lap times
 frequency_of_opponent_practice_and_qual_lap_times_help = How often to report fast laps times for race leader and car in front and behind. 0 (never) to 10 (as often as possible). If this is 1, times are only reported if they're the session best. This criteria becomes less strict up to 10 where the time just needs to be a few tenths off session best.
 frequency_of_opponent_practice_and_qual_lap_times_category = MESSAGE_FREQUENCIES
 
+# Property: Frequency of pearls of wisdom
 frequency_of_pearls_of_wisdom = Frequency of pearls of wisdom
 frequency_of_pearls_of_wisdom_help = How often to play general encouragement messages. 0 (never) to 10 (as often as possible)
 frequency_of_pearls_of_wisdom_category = MESSAGE_FREQUENCIES
 
+# Property: Frequency of player race lap time reports
 frequency_of_player_race_lap_time_reports = Frequency of player race lap time reports
 frequency_of_player_race_lap_time_reports_help = How often to report player lap times in the race. 0 (never) to 10 (as often as possible)
 frequency_of_player_race_lap_time_reports_category = MESSAGE_FREQUENCIES;TIMINGS
 
+# Property: Freq of player prac and qual lap time reports
 frequency_of_player_prac_and_qual_lap_time_reports = Freq of player prac and qual lap time reports
 frequency_of_player_prac_and_qual_lap_time_reports_help = How often to report player lap times in the practice and qualifying. 0 (never) to 10 (as often as possible)
 frequency_of_player_prac_and_qual_lap_time_reports_category = MESSAGE_FREQUENCIES;TIMINGS
 
+# Property: Frequency of player prac and qual sector delta reports
 frequency_of_prac_and_qual_sector_delta_reports = Frequency of player prac and qual sector delta reports
 frequency_of_prac_and_qual_sector_delta_reports_help = How often to report player sector deltas in practice and qualifying. 0 (never) to 10 (as often as possible)
 frequency_of_prac_and_qual_sector_delta_reports_category = MESSAGE_FREQUENCIES;TIMINGS
 
+# Property: Frequency of race sector delta reports
 frequency_of_race_sector_delta_reports = Frequency of race sector delta reports
 frequency_of_race_sector_delta_reports_help = How often to report a player sector deltas in race. 0 (never) to 10 (as often as possible)
 frequency_of_race_sector_delta_reports_category = MESSAGE_FREQUENCIES;TIMINGS
 
+# Property: Race sector reports at each sector
 race_sector_reports_at_each_sector = Race sector reports at each sector
 race_sector_reports_at_each_sector_help = Play race sector delta reports as you complete each sector
 race_sector_reports_at_each_sector_category = TIMINGS
 
+# Property: Race sector reports at lap end
 race_sector_reports_at_lap_end = Race sector reports at lap end
 race_sector_reports_at_lap_end_help = Play sector delta reports for whole lap when you complete the lap
 race_sector_reports_at_lap_end_category = TIMINGS
 
+# Property: Prac and qual sector reports at each sector
 practice_and_qual_sector_reports_at_each_sector = Prac and qual sector reports at each sector
 practice_and_qual_sector_reports_at_each_sector_help = Play practice and qual sector delta reports as you complete each sector
 practice_and_qual_sector_reports_at_each_sector_category = TIMINGS
 
+# Property: Prac and qual sector reports at lap end
 practice_and_qual_sector_reports_at_lap_end = Prac and qual sector reports at lap end
 practice_and_qual_sector_reports_at_lap_end_help = Play practice and qual sector delta reports for whole lap when you complete the lap
 practice_and_qual_sector_reports_at_lap_end_category = TIMINGS
 
+# Property: Ambient temp check interval seconds
 ambient_temp_check_interval_seconds = Ambient temp check interval seconds
 ambient_temp_check_interval_seconds_help = How often to check for changes in ambient (air) temperature, in seconds
 ambient_temp_check_interval_seconds_category = FUEL_TEMPS_AND_DAMAGES
 
+# Property: Track temp check interval seconds
 track_temp_check_interval_seconds = Track temp check interval seconds
 track_temp_check_interval_seconds_help = How often to check for changes in track temperature, in seconds
 track_temp_check_interval_seconds_category = FUEL_TEMPS_AND_DAMAGES
 
+# Property: Report ambient temp changes greater than
 report_ambient_temp_changes_greater_than = Report ambient temp changes greater than
 report_ambient_temp_changes_greater_than_help = Report ambient (air) temperature if it's changed by more than this amount (in Celsius)
 report_ambient_temp_changes_greater_than_category = FUEL_TEMPS_AND_DAMAGES
 
+# Property: Report track temp changes greater than
 report_track_temp_changes_greater_than = Report track temp changes greater than
 report_track_temp_changes_greater_than_help = Report track temperature if it's changed by more than this amount (in Celsius)
 report_track_temp_changes_greater_than_category = FUEL_TEMPS_AND_DAMAGES
 
+# Property: Pause between messages
 pause_between_messages = Pause between messages
 pause_between_messages_help = Time pause between messages (in seconds) when reading multiple messages together in a single group.
 pause_between_messages_category = MESSAGE_FREQUENCIES
 pause_between_messages_metadata = RESTART_REQUIRED
 
+# Property: Load sound files on startup
 load_sound_files_on_startup = Load sound files on startup
 load_sound_files_on_startup_help = Load all the sounds when the app starts up. This may make app start times quite long, but prevents the app having to load stuff while you're racing.
 load_sound_files_on_startup_category = UI_STARTUP_AND_PATHS
 load_sound_files_on_startup_metadata = RESTART_REQUIRED
 
+# Property: Update game plugins on startup
 enable_automatic_plugin_update = Update game plugins on startup
 enable_automatic_plugin_update_help = If enabled, CC will check if latest plugin is installed and will prompt to install plugin if it is not found or out of date.
 enable_automatic_plugin_update_category = UI_STARTUP_AND_PATHS
 
+# Property: pCARS character encoding
 pcars_character_encoding = pCARS character encoding
 pcars_character_encoding_help = For PS4 always use UTF-8. For PC and XBox this will usually be windows-1252 (Windows Western European).
 pcars_character_encoding_filter = PCARS_64BIT;PCARS_32BIT;PCARS_NETWORK
 pcars_character_encoding_metadata = RESTART_REQUIRED
 
+# Property: Enable pCARS pit window messages
 enable_pcars_pit_window_messages = Enable pCARS pit window messages
 enable_pcars_pit_window_messages_help = Play pit window messages in pCARS. Don't use this in online racing - the game always sends an enforced pit stop lap even if this isn't enabled by the host
 enable_pcars_pit_window_messages_filter = PCARS_64BIT;PCARS_32BIT;PCARS_NETWORK
 enable_pcars_pit_window_messages_category = PIT_STOPS_AND_MULTICLASS
 
+# Property: Report yellows in all sectors
 report_yellows_in_all_sectors = Report yellows in all sectors
 report_yellows_in_all_sectors_help = If this is disabled the app will report yellow flags only in the current and next sector
 report_yellows_in_all_sectors_category = FLAGS_AND_RULES
 
+# Property: Max distance moved for yellow announcement
 max_distance_moved_for_yellow_announcement = Max distance moved for yellow announcement
 max_distance_moved_for_yellow_announcement_help = Cars which have moved less than this many metres in 3 seconds may be reported as having crashed
 max_distance_moved_for_yellow_announcement_category = FLAGS_AND_RULES
 
+# Property: Enable delayed voice command responses
 enable_delayed_responses = Enable delayed voice command responses
 enable_delayed_responses_help = Some voice commands will trigger a "stand by" response, followed some time later by the requested into
 enable_delayed_responses_category = AUDIO_VOICE_AND_CONTROLLERS
 
+# Property: Enable console logging
 enable_console_logging = Enable console logging
 enable_console_logging_help = Uncheck this to prevent console window messages being shown. Reduces the CPU load of the app
 enable_console_logging_category = UI_STARTUP_AND_PATHS
 enable_console_logging_metadata = RESTART_REQUIRED
 
+# Property: Log tyre stats
 log_tyre_stats = Log tyre stats
 log_tyre_stats_help = Show tyre temps and wear at the start of each sector
 log_tyre_stats_category = FUEL_TEMPS_AND_DAMAGES;UI_STARTUP_AND_PATHS
 log_tyre_stats_metadata = RESTART_REQUIRED
 
+# Property: R3E blue flag detection distance
 r3e_blue_flag_detection_distance = R3E blue flag detection distance
 r3e_blue_flag_detection_distance_help = Max distance (metres) for R3E blue flag trigger
 r3e_blue_flag_detection_distance_filter = RACE_ROOM
 r3e_blue_flag_detection_distance_category = FLAGS_AND_RULES
 
+# Property: Play pre-lights messages until cancelled
 play_pre_lights_messages_until_cancelled = Play pre-lights messages until cancelled
 play_pre_lights_messages_until_cancelled_help = Play pre-race info messages until a control input is detected
 play_pre_lights_messages_until_cancelled_metadata = RESTART_REQUIRED
 
+# Property: Time between caution period status reminders
 time_between_caution_period_status_reminders = Time between caution period status reminders
 time_between_caution_period_status_reminders_help = Time between caution period status reminders (seconds)
 time_between_caution_period_status_reminders_category = MESSAGE_FREQUENCIES;FLAGS_AND_RULES
 
+# Property: Enable AMS pit schedule messages
 enable_ams_pit_schedule_messages = Enable AMS pit schedule messages
 enable_ams_pit_schedule_messages_help = Play 'box now' messages when using offline scheduled pit stops
 enable_ams_pit_schedule_messages_filter = RF1
 enable_ams_pit_schedule_messages_category = PIT_STOPS_AND_MULTICLASS
 enable_ams_pit_schedule_messages_metadata = RESTART_REQUIRED
 
+# Property: Report allowed overtakes under yellow
 report_allowed_overtakes_under_yellow = Report allowed overtakes under yellow
 report_allowed_overtakes_under_yellow_help = Play can-overtake and no-overtaking messages during yellow flags (R3E only)
 report_allowed_overtakes_under_yellow_filter = RACE_ROOM
 report_allowed_overtakes_under_yellow_category = FLAGS_AND_RULES
 
+# Property: Enable rF2 pit stop prediction
 enable_rf2_pit_stop_prediction = Enable rF2 pit stop prediction
 enable_rf2_pit_stop_prediction_help = Play 'box now' messages when using offline scheduled pit stops
 enable_rf2_pit_stop_prediction_filter = RF2_64BIT
 enable_rf2_pit_stop_prediction_category = PIT_STOPS_AND_MULTICLASS
 
+# Property: Enable GTR 2 pit stop prediction
 enable_gtr2_pit_stop_prediction = Enable GTR 2 pit stop prediction
 enable_gtr2_pit_stop_prediction_help = Play 'box now' messages when using offline scheduled pit stops
 enable_gtr2_pit_stop_prediction_filter = GTR2
 enable_gtr2_pit_stop_prediction_category = PIT_STOPS_AND_MULTICLASS
 
+# Property: Enable simple incident detection
 enable_simple_incident_detection_listprop = Enable simple incident detection
 enable_simple_incident_detection_listprop_help = Watch for and report very slow cars as incidents (iRacing, pCARS and AC only)
 enable_simple_incident_detection_listprop_filter = ASSETTO_64BIT;ASSETTO_32BIT;PCARS_64BIT;PCARS_32BIT;PCARS_NETWORK;IRACING
@@ -1375,304 +1584,370 @@ enable_simple_incident_detection_listprop_value_0 = Disabled
 enable_simple_incident_detection_listprop_value_1 = Race Only
 enable_simple_incident_detection_listprop_value_2 = All Sessions
 
+# Property: simple incident detection delay (ms)
 simple_incident_detection_report_delay = simple incident detection delay (ms)
 simple_incident_detection_report_delay_help = Time too delay simple incident reports, to low a value might cause false reports (iRacing, pCARS and AC only)
 simple_incident_detection_report_delay_filter = ASSETTO_64BIT;ASSETTO_32BIT;PCARS_64BIT;PCARS_32BIT;PCARS_NETWORK;IRACING
 simple_incident_detection_report_delay_category = FUEL_TEMPS_AND_DAMAGES
 
+# Property: Enable yellow flag messages
 enable_yellow_flag_messages = Enable yellow flag messages
 enable_yellow_flag_messages_help = Enable yellow flag messages (can be overridden during a session with voice command or button assignment)
 enable_yellow_flag_messages_category = FLAGS_AND_RULES
 
+# Property: Enable opponent crash messages
 enable_opponent_crash_messages = Enable opponent crash messages
 enable_opponent_crash_messages_help = Report the names of opponent cars involved in incidents where possible
 enable_opponent_crash_messages_category = FUEL_TEMPS_AND_DAMAGES
 
+# Property: Prefer alternative download site
 prefer_alternative_download_site = Prefer alternative download site
 prefer_alternative_download_site_help = Use the secondary download location for updates
 prefer_alternative_download_site_metadata = RESTART_REQUIRED
 
+# Property: Use American terms
 use_american_terms = Use American terms
 use_american_terms_help = Assume unknown cars use American phrasing ("pace car", "white flag" for last lap etc)
 use_american_terms_category = INTERNATIONALISATION;FLAGS_AND_RULES
 
+# Property: Use metric
 use_metric = Use metric
 use_metric_help = Use metric units (KPH, litres etc). If not set use MPH, gallons etc.
 use_metric_category = INTERNATIONALISATION;PIT_STOPS_AND_MULTICLASS
 
+# Property: Realistic mode
 realistic_mode = Realistic mode
 realistic_mode_help = Experimental: Restrict available message types based on the car and track in use
 realistic_mode_metadata = RESTART_REQUIRED
 
+# Property: Always report time in hundredths
 always_report_time_in_hundredths = Always report time in hundredths
 always_report_time_in_hundredths_help = Always report lap times and gaps to hundredths of a second
 always_report_time_in_hundredths_category = TIMINGS
 always_report_time_in_hundredths_metadata = RESTART_REQUIRED
 
+# Property: Insert beep-in between Spotter and Chief
 insert_beep_in_between_spotter_and_chief = Insert beep-in between Spotter and Chief
 insert_beep_in_between_spotter_and_chief_help = If Spotter and Chief are different people (spotter voices other than Jim), insert open channel beep sound on switching messages.
 insert_beep_in_between_spotter_and_chief_category = AUDIO_VOICE_AND_CONTROLLERS;SPOTTER
 insert_beep_in_between_spotter_and_chief_metadata = RESTART_REQUIRED
 
+# Property: Insert beep-out between Spotter and Chief
 insert_beep_out_between_spotter_and_chief = Insert beep-out between Spotter and Chief
 insert_beep_out_between_spotter_and_chief_help = If Spotter and Chief are different people (spotter voices other than Jim), insert close channel beep sound on switching messages.
 insert_beep_out_between_spotter_and_chief_category = AUDIO_VOICE_AND_CONTROLLERS;SPOTTER
 insert_beep_out_between_spotter_and_chief_metadata = RESTART_REQUIRED
 
+# Property: Minimize to tray
 minimize_to_tray = Minimize to tray
 minimize_to_tray_help = Minimize Crew Chief to the system notification area instead of taskbar.
 minimize_to_tray_category = UI_STARTUP_AND_PATHS
 minimize_to_tray_metadata = RESTART_REQUIRED
 
+# Property: Minimize on startup
 minimize_on_startup = Minimize on startup
 minimize_on_startup_help = Starts Crew Chief minimized to task bar or system tray.
 minimize_on_startup_category = UI_STARTUP_AND_PATHS
 minimize_on_startup_metadata = RESTART_REQUIRED
 
+# Property: Manual formation 'go' when leader crosses line
 manual_formation_go_with_leader = Manual formation 'go' when leader crosses line
 manual_formation_go_with_leader_help = Cars are allowed to overtake on a manual formation lap as soon as the leader crosses the line
 manual_formation_go_with_leader_category = FLAGS_AND_RULES
 
+# Property: Block messages when talking to the Chief
 reject_message_when_talking = Block messages when talking to the Chief
 reject_message_when_talking_help = Don't play any messages while you have the 'talk to chief' radio channel open
 reject_message_when_talking_category = AUDIO_VOICE_AND_CONTROLLERS
 reject_message_when_talking_metadata = RESTART_REQUIRED
 
+# Property: Enable rF2 frozen order messages
 enable_rf2_frozen_order_messages = Enable rF2 frozen order messages
 enable_rf2_frozen_order_messages_help = Announce order information during Full Course Yellow, Rolling and Formation/Standing starts.
 enable_rf2_frozen_order_messages_filter = RF2_64BIT
 enable_rf2_frozen_order_messages_category = FLAGS_AND_RULES
 
+# Property: Enable rF2 cut track heuristic detection
 enable_rf2_cut_track_heuristics = Enable rF2 cut track heuristic detection
 enable_rf2_cut_track_heuristics_help = If enabled, CC will try to detect if user cut track.  If disabled, cut track will only be reported if game reported that lap got invalidated.
 enable_rf2_cut_track_heuristics_filter = RF2_64BIT
 enable_rf2_cut_track_heuristics_category = FLAGS_AND_RULES
 
+# Property: Enable GTR 2 cut track heuristic detection
 enable_gtr2_cut_track_heuristics = Enable GTR 2 cut track heuristic detection
 enable_gtr2_cut_track_heuristics_help = If enabled, CC will try to detect if user cut track.  If disabled, cut track will only be reported if game reported that lap got invalidated.
 enable_gtr2_cut_track_heuristics_filter = GTR2
 enable_gtr2_cut_track_heuristics_category = FLAGS_AND_RULES
 
+# Property: Enable rF2 pit lane approach detection
 enable_rf2_pit_lane_approach_heuristics = Enable rF2 pit lane approach detection
 enable_rf2_pit_lane_approach_heuristics_help = Experimental: If enabled, CC will try to detect if user approaches the pit lane entry and remind him to respect speed limit.  Might not work correctly for all tracks.
 enable_rf2_pit_lane_approach_heuristics_filter = RF2_64BIT
 enable_rf2_pit_lane_approach_heuristics_category = PIT_STOPS_AND_MULTICLASS
 
+# Property: Enable voice command macros
 enable_command_macros = Enable voice command macros
 enable_command_macros_help = Enable voice-triggered command macros for pit actions etc
 enable_command_macros_category = AUDIO_VOICE_AND_CONTROLLERS;PIT_STOPS_AND_MULTICLASS
 enable_command_macros_metadata = RESTART_REQUIRED
 
+# Property: Enable PCars rain prediction using CloudBrightness
 pcars_enable_rain_prediction = Enable PCars rain prediction using CloudBrightness
 pcars_enable_rain_prediction_help = Use CloudBrightness to guess when it might rain - can be quite inaccurate
 pcars_enable_rain_prediction_filter = PCARS_64BIT;PCARS_32BIT;PCARS_NETWORK
 
+# Property: Disable alternative voice commands
 disable_alternative_voice_commands = Disable alternative voice commands
 disable_alternative_voice_commands_help = Experimental: If enabled, CC will only use the first item from each voice command set - may improve recognition accuracy
 disable_alternative_voice_commands_category = AUDIO_VOICE_AND_CONTROLLERS
 disable_alternative_voice_commands_metadata = RESTART_REQUIRED
 
+# Property: Use verbose command responses
 use_verbose_responses = Use verbose command responses
 use_verbose_responses_help = If enabled, will automatically request more info for the previously issued voice or button command
 use_verbose_responses_category = AUDIO_VOICE_AND_CONTROLLERS
 use_verbose_responses_metadata = RESTART_REQUIRED
 
+# Property: Start / stop recording pace notes
 toggle_pace_notes_recording = Start / stop recording pace notes
 toggle_pace_notes_playback = Start / stop playing pace notes
 
+# Property: Use nAudio for playback
 use_naudio = Use nAudio for playback
 use_naudio_help = nAudio playback library allows playback device selection and higher volumes
 use_naudio_category = AUDIO_VOICE_AND_CONTROLLERS
 use_naudio_metadata = RESTART_REQUIRED
 
+# Property: Start / stop track landmarks recording
 toggle_track_landmarks_recording = Start / stop track landmarks recording
 add_track_landmark = Add Start / end track landmark
 
+# Property: TTS volume boost (scale)
 tts_volume_boost = TTS volume boost (scale)
 tts_volume_boost_help = Scale (multiply) text-to-speech volume by this amount
 tts_volume_boost_category = AUDIO_VOICE_AND_CONTROLLERS
 tts_volume_boost_metadata = RESTART_REQUIRED
 
+# Property: Trim start of TTS sounds (milliseconds)
 tts_trim_start_milliseconds = Trim start of TTS sounds (milliseconds)
 tts_trim_start_milliseconds_help = Trim this many milliseconds off the start of TTS sounds to remove pauses before they play
 tts_trim_start_milliseconds_category = AUDIO_VOICE_AND_CONTROLLERS
 tts_trim_start_milliseconds_metadata = RESTART_REQUIRED
 
+# Property: Trim end of TTS sounds (milliseconds)
 tts_trim_end_milliseconds = Trim end of TTS sounds (milliseconds)
 tts_trim_end_milliseconds_help = Trim this many milliseconds off the end of TTS sounds to remove pauses after they play
 tts_trim_end_milliseconds_category = AUDIO_VOICE_AND_CONTROLLERS
 tts_trim_end_milliseconds_metadata = RESTART_REQUIRED
 
+# Property: iRacing tyre pressure adjustments in PSI
 iracing_pit_tyre_pressure_in_psi = iRacing tyre pressure adjustments in PSI
 iracing_pit_tyre_pressure_in_psi_help = Assume tyre adjust tyre pressure commands are in PSI (disable this to use kPa)
 iracing_pit_tyre_pressure_in_psi_filter = IRACING
 iracing_pit_tyre_pressure_in_psi_category = INTERNATIONALISATION;PIT_STOPS_AND_MULTICLASS
 
+# Property: Spotter volume boost (scale)
 spotter_volume_boost = Spotter volume boost (scale)
 spotter_volume_boost_help = Scale (multiply) spotter volume by this amount (nAudio only)
 spotter_volume_boost_category = AUDIO_VOICE_AND_CONTROLLERS;SPOTTER
 spotter_volume_boost_metadata = RESTART_REQUIRED
 
+# Property: Manual formation lap double-file start
 manual_formation_double_file = Manual formation lap double-file start
 manual_formation_double_file_help = Assume manual formation lap starts use 2 lines of cars
 manual_formation_double_file_category = FLAGS_AND_RULES
 
+# Property: Manual formation lap separate classes
 manual_formation_split_classes = Manual formation lap separate classes
 manual_formation_split_classes_help = Assume there's a gap between different classes during a rolling start
 manual_formation_split_classes_category = FLAGS_AND_RULES
 
+# Property: Save driver names with no sound
 save_list_of_unvocalized_names = Save driver names with no sound
 save_list_of_unvocalized_names_help = Write unvocalized driver names to file
 save_list_of_unvocalized_names_category = AUDIO_VOICE_AND_CONTROLLERS
 save_list_of_unvocalized_names_metadata = RESTART_REQUIRED
 
+# Property: Enable AMS / rF1 blue on slower
 enable_ams_blue_on_slower = Enable AMS / rF1 blue on slower
 enable_ams_blue_on_slower_help = Play 'Blue Flag' messages if car behind seems to be faster.  Useful in multi-class races
 enable_ams_blue_on_slower_filter = RF1
 enable_ams_blue_on_slower_category = FLAGS_AND_RULES;PIT_STOPS_AND_MULTICLASS
 
+# Property: Enable rants
 enable_rants = Enable rants
 enable_rants_help = Allow the Chief to occasionally express his disappointment in colourful and forceful terms
 enable_rants_metadata = RESTART_REQUIRED
 
+# Property: Spotter oval clear delay
 spotter_oval_clear_delay = Spotter oval clear delay
 spotter_oval_clear_delay_help = You need to be clear for this many milliseconds before the Spotter calls 'clear' on ovals
 spotter_oval_clear_delay_category = SPOTTER
 
+# Property: Use nAudio for speech recognition
 use_naudio_for_speech_recognition = Use nAudio for speech recognition
 use_naudio_for_speech_recognition_help = nAudio allows speech recognition device selection
 use_naudio_for_speech_recognition_category = AUDIO_VOICE_AND_CONTROLLERS
 use_naudio_for_speech_recognition_metadata = RESTART_REQUIRED
 
+# Property: Enable rF2 FCY pit state messages
 enable_rf2_pit_state_during_fcy = Enable rF2 FCY pit state messages
 enable_rf2_pit_state_during_fcy_help = Announce pit state during Safety Car/Pace Car phase
 enable_rf2_pit_state_during_fcy_filter = RF2_64BIT
 enable_rf2_pit_state_during_fcy_category = FLAGS_AND_RULES;PIT_STOPS_AND_MULTICLASS
 
+# Property: Enable AMS / rF1 FCY pit state messages
 enable_ams_pit_state_during_fcy = Enable AMS / rF1 FCY pit state messages
 enable_ams_pit_state_during_fcy_help = Announce pit state during Safety Car/Pace Car phase
 enable_ams_pit_state_during_fcy_filter = RF1
 enable_ams_pit_state_during_fcy_category = FLAGS_AND_RULES;PIT_STOPS_AND_MULTICLASS
 
+# Property: Ensure game is on top for voice command macros
 bring_game_window_to_front_for_macros = Ensure game is on top for voice command macros
 bring_game_window_to_front_for_macros_help = Bring the game window to the front (on top) before running command macros
 bring_game_window_to_front_for_macros_category = AUDIO_VOICE_AND_CONTROLLERS
 bring_game_window_to_front_for_macros_metadata = RESTART_REQUIRED
 
+# Property: Report all laps when hotlapping/lone practice
 report_all_laps_in_hotlap_mode = Report all laps when hotlapping/lone practice
 report_all_laps_in_hotlap_mode_help = Announce all lap times when in hotlap/lone practice mode or when we have no opponents in the session
 report_all_laps_in_hotlap_mode_category = MESSAGE_FREQUENCIES;TIMINGS
 
+# Property: Enable crash messages
 enable_crash_messages = Enable crash messages
 enable_crash_messages_help = Play 'are you OK?' messages when you crash very heavily
 enable_crash_messages_filter = !IRACING
 enable_crash_messages_category = FUEL_TEMPS_AND_DAMAGES
 
+# Property: Force single car class
 force_single_class = Force single car class
 force_single_class_help = Don't allow participants to be grouped by their car classes
 force_single_class_category = PIT_STOPS_AND_MULTICLASS
 
+# Property: Force minimum window size
 force_min_window_size = Force minimum window size
 force_min_window_size_help = Don't allow the app's window size to resized below the minimum size
 force_min_window_size_category = UI_STARTUP_AND_PATHS
 force_min_window_size_metadata = RESTART_REQUIRED
 
+# Property: Pit box distance countdown
 pit_box_position_countdown = Pit box distance countdown
 pit_box_position_countdown_help = Play distance in metres to box as you approach (R3E, rF2, iRacing and GTR 2 only).  Note:  In rF2, disabled for oval tracks.  May not work with some other tracks too.
 pit_box_position_countdown_filter = IRACING;RACE_ROOM;RF2_64BIT;GTR2
 pit_box_position_countdown_category = PIT_STOPS_AND_MULTICLASS
 
+# Property: Pit box time countdown
 pit_box_time_countdown = Pit box time countdown
 pit_box_time_countdown_help = Play time to box as you approach (R3E, rF2, iRacing and GTR 2 only).  Note:  In rF2, disabled for oval tracks.  May not work with some other tracks too.
 pit_box_time_countdown_filter = IRACING;RACE_ROOM;RF2_64BIT;GTR2
 pit_box_time_countdown_category = PIT_STOPS_AND_MULTICLASS
 
+# Property: Pit box time countdown end point (metres)
 pit_box_time_countdown_end_position = Pit box time countdown end point (metres)
 pit_box_time_countdown_end_position_help = End pit box time countdown this many metres from the box
 pit_box_time_countdown_end_position_filter = IRACING;RACE_ROOM;RF2_64BIT;GTR2
 pit_box_time_countdown_end_position_category = PIT_STOPS_AND_MULTICLASS
 
+# Property: Pit box distance countdown in feet
 pit_box_position_countdown_in_feet = Pit box distance countdown in feet
 pit_box_position_countdown_in_feet_help = Play pit distance countdown in feet
 pit_box_position_countdown_in_feet_filter = IRACING;RACE_ROOM;RF2_64BIT;GTR2
 pit_box_position_countdown_in_feet_category = PIT_STOPS_AND_MULTICLASS
 
+# Property: Enable multi-class messages
 enable_multiclass_messages = Enable multi-class messages
 enable_multiclass_messages_help = Play warnings when slower or faster class cars are approaching
 enable_multiclass_messages_category = PIT_STOPS_AND_MULTICLASS
 
+# Property: Multi-class slower car warning time
 target_warning_time_for_slower_class_car = Multi-class slower car warning time
 target_warning_time_for_slower_class_car_help = Try and warn this many seconds in advance when passing slower class cars
 target_warning_time_for_slower_class_car_category = PIT_STOPS_AND_MULTICLASS
 
+# Property: Multi-class faster car warning time
 target_warning_time_for_faster_class_car = Multi-class faster car warning time
 target_warning_time_for_faster_class_car_help = Try and warn this many seconds in advance when being passed by faster class cars
 target_warning_time_for_faster_class_car_category = PIT_STOPS_AND_MULTICLASS
 
+# Property: Max unknown car models in ACS multi-class races
 max_unknown_car_classes_for_assetto = Max unknown car models in ACS multi-class races
 max_unknown_car_classes_for_assetto_help = Assume single-class race if there are more than this many unknown car models in Assetto Corsa
 max_unknown_car_classes_for_assetto_filter = ASSETTO_64BIT;ASSETTO_32BIT
 max_unknown_car_classes_for_assetto_category = PIT_STOPS_AND_MULTICLASS
 
+# Property: iRacing faster parser
 iracing_fast_parsing = iRacing faster parser
 iracing_fast_parsing_help = Use fast parser for iRacing session info. Disable only if you experience crashes (and please tell us)
 iracing_fast_parsing_filter = IRACING
 iracing_fast_parsing_metadata = RESTART_REQUIRED
 
+# Property: Enable iRacing pit stop voice commands
 enable_iracing_pit_stop_commands = Enable iRacing pit stop voice commands
 enable_iracing_pit_stop_commands_help = If you do not use iRacing pit stop commands, you may disable this.  If disabled, CC will exclude iRacing pit stop commands from the command set - may improve recognition accuracy
 enable_iracing_pit_stop_commands_filter = IRACING
 enable_iracing_pit_stop_commands_category = AUDIO_VOICE_AND_CONTROLLERS;PIT_STOPS_AND_MULTICLASS
 
+# Property: Additional fuel to add to finish the race (number of laps worth)
 add_additional_fuel = Additional fuel to add to finish the race (number of laps worth)
 add_additional_fuel_help = Amount of extra fuel to add as a reserve (in laps or fractions of a lap) when working out how much is needed to finish a race (e.g. 0.7 means 0.7 laps' worth)
 add_additional_fuel_category = FUEL_TEMPS_AND_DAMAGES;PIT_STOPS_AND_MULTICLASS
 
+# Property: iRacing Invalidate cut track Laps
 iracing_invalidate_cut_track_laps = iRacing Invalidate cut track Laps
 iracing_invalidate_cut_track_laps_help = Disable this if you don't want the app to invalidate laps where you cut the track.
 iracing_invalidate_cut_track_laps_filter = IRACING
 iracing_invalidate_cut_track_laps_category = FLAGS_AND_RULES
 
+# Property: Enable pit exit position estimates
 enable_pit_exit_position_estimates = Enable pit exit position estimates
 enable_pit_exit_position_estimates_help = Play pit exit position estimates
 enable_pit_exit_position_estimates_category = PIT_STOPS_AND_MULTICLASS
 
+# Property: Enable opponent pit exit estimates
 enable_opponent_pit_exit_estimates = Enable opponent pit exit estimates
 enable_opponent_pit_exit_estimates_help = Play pit exit position estimates for opponent cars
 enable_opponent_pit_exit_estimates_category = PIT_STOPS_AND_MULTICLASS
 
+# Property: Delay messages on hard parts
 enable_delayed_messages_on_hardparts = Delay messages on hard parts
 enable_delayed_messages_on_hardparts_help = Delays non immediate messages when approaching a corner (initial state).
 enable_delayed_messages_on_hardparts_category = AUDIO_VOICE_AND_CONTROLLERS
 enable_delayed_messages_on_hardparts_metadata = RESTART_REQUIRED
 
+# Property: Toggle delay messages on hard parts
 toggle_delay_messages_in_hard_parts = Toggle delay messages on hard parts
 
+# Property: Enable iRacing auto refuelling when entering pit in race
 iracing_enable_auto_fuel_to_end_of_race = Enable iRacing auto refuelling when entering pit in race
 iracing_enable_auto_fuel_to_end_of_race_help = Enables auto refuelling in iRacing based on fuel calculations done by the app.
 iracing_enable_auto_fuel_to_end_of_race_category = PIT_STOPS_AND_MULTICLASS
 iracing_enable_auto_fuel_to_end_of_race_filter = IRACING
 
+# Property: Enable rF2 auto refuelling when entering pit in race
 rf2_enable_auto_fuel_to_end_of_race = Enable rF2 auto refuelling when entering pit in race
 rf2_enable_auto_fuel_to_end_of_race_help = Enables auto refuelling in rFactor 2 based on fuel calculations done by the app.
 rf2_enable_auto_fuel_to_end_of_race_category = PIT_STOPS_AND_MULTICLASS
 rf2_enable_auto_fuel_to_end_of_race_filter = RF2_64BIT
 
+# Property: Enable rF2 pit manager
 rf2_enable_pit_manager = Enable rF2 pit manager
 rf2_enable_pit_manager_help = Enables voice commands controlling rF2 pit menu
 rf2_enable_pit_manager_category = PIT_STOPS_AND_MULTICLASS
 rf2_enable_pit_manager_filter = RF2_64BIT
 
+# Property: Advanced message prioritisation
 priortise_messages_depending_on_situation = Advanced message prioritisation
 priortise_messages_depending_on_situation_help = Disable less important messages when under pressure, on a qualifying lap, etc
 priortise_messages_depending_on_situation_category = AUDIO_VOICE_AND_CONTROLLERS
 priortise_messages_depending_on_situation_metadata = RESTART_REQUIRED
 
+# Property: Speech recogniser trigger word
 trigger_word_for_always_on_sre = Speech recogniser trigger word
 trigger_word_for_always_on_sre_help = When running 'Trigger word' mode, the app listens for this trigger word before each command
 trigger_word_for_always_on_sre_category = AUDIO_VOICE_AND_CONTROLLERS
 trigger_word_for_always_on_sre_metadata = RESTART_REQUIRED
 
+# Property: Interrupt regular messages
 interrupt_setting_listprop = Interrupt regular messages
 interrupt_setting_listprop_help = Set which important messages are allowed to interrupt regular messages
 interrupt_setting_listprop_category = AUDIO_VOICE_AND_CONTROLLERS
@@ -1683,6 +1958,7 @@ interrupt_setting_listprop_value_2 = Spotter and critical messages only
 interrupt_setting_listprop_value_3 = Spotter and all important messages
 interrupt_setting_listprop_metadata = RESTART_REQUIRED
 
+# Property: TTS setting
 tts_setting_listprop = TTS setting
 tts_setting_listprop_help = Set how often the app will use text-to-speech to read driver names
 tts_setting_listprop_category = AUDIO_VOICE_AND_CONTROLLERS
@@ -1692,6 +1968,7 @@ tts_setting_listprop_value_1 = Use TTS only when necessary
 tts_setting_listprop_value_2 = Use TTS for all missing names
 tts_setting_listprop_metadata = RESTART_REQUIRED
 
+# Property: nAudio Output Interface Type
 naudio_output_interface_listprop = nAudio Output Interface Type
 naudio_output_interface_listprop_help = Select nAudio Output Interface Type.  WaveOut is more compatible, but WASAPI is more responsive/direct playback.
 naudio_output_interface_listprop_category = AUDIO_VOICE_AND_CONTROLLERS
@@ -1700,480 +1977,562 @@ naudio_output_interface_listprop_value_0 = WaveOut
 naudio_output_interface_listprop_value_1 = WASAPI
 naudio_output_interface_listprop_metadata = RESTART_REQUIRED
 
+# Property: nAudio WASAPI latency (ms)
 naudio_wasapi_latency = nAudio WASAPI latency (ms)
 naudio_wasapi_latency_help = Set WASAPI output latency in milliseconds.  Lower value reduces latency, but increases CPU usage.
 naudio_wasapi_latency_category = AUDIO_VOICE_AND_CONTROLLERS
 naudio_wasapi_latency_metadata = RESTART_REQUIRED
 
+# Property: Min trigger word confidence (Microsoft recogniser)
 trigger_word_sre_min_confidence = Min trigger word confidence (Microsoft recogniser)
 trigger_word_sre_min_confidence_help = When listening for the voice command trigger word, the app must be at least this confident it understood before starting speech recognition (0.0 - 1.0)
 trigger_word_sre_min_confidence_category = AUDIO_VOICE_AND_CONTROLLERS
 trigger_word_sre_min_confidence_metadata = RESTART_REQUIRED
 
+# Property: Min trigger word confidence (Windows recogniser)
 trigger_word_sre_min_confidence_system_sre = Min trigger word confidence (Windows recogniser)
 trigger_word_sre_min_confidence_system_sre_help = When listening for the voice command trigger word, the app must be at least this confident it understood before starting speech recognition (0.0 - 1.0)
 trigger_word_sre_min_confidence_system_sre_category = AUDIO_VOICE_AND_CONTROLLERS
 trigger_word_sre_min_confidence_system_sre_metadata = RESTART_REQUIRED
 
+# Property: Trigger word listen timeout (ms)
 trigger_word_listen_timeout = Trigger word listen timeout (ms)
 trigger_word_listen_timeout_help = Wait this many milliseconds for a command after receiving the trigger word
 trigger_word_listen_timeout_category = AUDIO_VOICE_AND_CONTROLLERS
 trigger_word_listen_timeout_metadata = RESTART_REQUIRED
 
+# Property: Enable alarm clock voice commands
 enable_alarm_clock_voice_recognition = Enable alarm clock voice commands
 enable_alarm_clock_voice_recognition_help = Enable this if you want to use the alarm clock feature, this is disabled by default to limit the number of voice commands
 enable_alarm_clock_voice_recognition_category = AUDIO_VOICE_AND_CONTROLLERS;TIMINGS
 
+# Property: Alarm time(s)
 alarm_clock_times = Alarm time(s)
 alarm_clock_times_help = Set the time(s) you want the alarm to go off. Format eg. 5:11PM 5:11AM 17:11, if you want to have more than one alarm separate times with ";" eg. 5:11PM;5:11AM
 alarm_clock_times_category = AUDIO_VOICE_AND_CONTROLLERS;TIMINGS
 
+# Property: Disable behaviour voice commands
 disable_behavior_altering_voice_commands = Disable behaviour voice commands
 disable_behavior_altering_voice_commands_help = When checked, will disable all voice commands that affect CC behaviour, for example: "Spot", "Don't spot", "Keep quiet" etc.
 disable_behavior_altering_voice_commands_category = AUDIO_VOICE_AND_CONTROLLERS
 disable_behavior_altering_voice_commands_metadata = RESTART_REQUIRED
 
+# Property: Disable overlay voice commands
 disable_overlay_voice_commands = Disable overlay voice commands
 disable_overlay_voice_commands_help = When checked, will disable all voice commands that affect CC overlays, for example: "Show subtitles", "Toggle VR overlays" etc.
 disable_overlay_voice_commands_category = AUDIO_VOICE_AND_CONTROLLERS;UI_STARTUP_AND_PATHS;VR_SETTINGS
 disable_overlay_voice_commands_metadata = RESTART_REQUIRED
 
+# Property: Slow car class warnings in race only
 slow_class_car_warnings_in_race_only = Slow car class warnings in race only
 slow_class_car_warnings_in_race_only_help = Only play 'slow car ahead' multiclass warnings in race sessions
 slow_class_car_warnings_in_race_only_category = PIT_STOPS_AND_MULTICLASS
 
+# Property: Record sound variety data
 record_sound_variety_data = Record sound variety data
 record_sound_variety_data_help = Log the number of times each sound is played and the number of versions of this sound. For sound pack developers
 record_sound_variety_data_category = AUDIO_VOICE_AND_CONTROLLERS
 record_sound_variety_data_metadata = RESTART_REQUIRED
 
+# Property: Save pit stop benchmark times to disk
 persist_pitstop_benchmark_times = Save pit stop benchmark times to disk
 persist_pitstop_benchmark_times_help = Save benchmark times to Documents folder
 persist_pitstop_benchmark_times_category = PIT_STOPS_AND_MULTICLASS
 persist_pitstop_benchmark_times_metadata = RESTART_REQUIRED
 
-controller_mappings_file_error_title = Error reading controller mappings
-controller_mappings_file_error_details_1 = Controller mapping file
-controller_mappings_file_error_details_2 = is invalid - no button mappings will be available. Error message from JSON parsers is:
-
+# Property: Use rF2's real wheel size for lock/spin messages
 use_rf2_wheel_size_for_locking_and_spinning = Use rF2's real wheel size for lock/spin messages
 use_rf2_wheel_size_for_locking_and_spinning_help = Use rF2 provided wheel size (instead of car class data) for lock and spin messages calculations.
 use_rf2_wheel_size_for_locking_and_spinning_category = FUEL_TEMPS_AND_DAMAGES
 use_rf2_wheel_size_for_locking_and_spinning_filter = RF2_64BIT
 
+# Property: Enable iRacing FCY pit state messages
 enable_iracing_pit_state_during_fcy = Enable iRacing FCY pit state messages
 enable_iracing_pit_state_during_fcy_help = Announce pit state during Safety Car/Pace Car phase
 enable_iracing_pit_state_during_fcy_filter = IRACING
 enable_iracing_pit_state_during_fcy_category = FLAGS_AND_RULES;PIT_STOPS_AND_MULTICLASS
 
+# Property: iRacing fcy/formation use driver names
 iracing_fcy_formation_use_drivername = iRacing fcy/formation use driver names
 iracing_fcy_formation_use_drivername_help = Use driver names instead of car number if available during FCY and formation laps
 iracing_fcy_formation_use_drivername_filter = IRACING
 iracing_fcy_formation_use_drivername_category = FLAGS_AND_RULES;PIT_STOPS_AND_MULTICLASS
 
+# Property: Enable Websocket integration
 enable_websocket = Enable Websocket integration
 enable_websocket_help = Send some Crew Chief data over a Websocket
 enable_websocket_category = AUDIO_VOICE_AND_CONTROLLERS
 enable_websocket_filter = RACE_ROOM
 enable_websocket_metadata = RESTART_REQUIRED
 
+# Property: Crew Chief data Websocket port
 websocket_port = Crew Chief data Websocket port
 websocket_port_help = Port to use for Crew Chief specific Websocket data (currently only a radio flag for R3E WebHud)
 websocket_port_category = AUDIO_VOICE_AND_CONTROLLERS
 websocket_port_filter = RACE_ROOM
 websocket_port_metadata = RESTART_REQUIRED
 
+# Property: Enable rF2 'Wrong Way' message
 enable_rf2_wrong_way_message = Enable rF2 'Wrong Way' message
 enable_rf2_wrong_way_message_help = Announce Message Centre 'Wrong Way' message.  Requires DMA enabled in plugin.
 enable_rf2_wrong_way_message_filter = RF2_64BIT
 enable_rf2_wrong_way_message_category = FLAGS_AND_RULES
 
+# Property: Enable WebHud integration (R3E only)
 enable_game_data_websocket = Enable WebHud integration (R3E only)
 enable_game_data_websocket_help = Send shared memory data to a socket in exactly the same way that 'dash.exe' would
 enable_game_data_websocket_filter = RACE_ROOM
 enable_game_data_websocket_category = AUDIO_VOICE_AND_CONTROLLERS
 enable_game_data_websocket_metadata = RESTART_REQUIRED
 
+# Property: Game data Websocket port
 game_data_websocket_port = Game data Websocket port
 game_data_websocket_port_help = Port to use for R3E WebHud Websocket data
 game_data_websocket_port_filter = RACE_ROOM
 game_data_websocket_port_category = AUDIO_VOICE_AND_CONTROLLERS
 game_data_websocket_port_metadata = RESTART_REQUIRED
 
+# Property: Disable rF2 race end msg. for abandoned events
 disable_rf2_race_end_messages_on_abandoned_sessions = Disable rF2 race end msg. for abandoned events
 disable_rf2_race_end_messages_on_abandoned_sessions_help = Enable this preference if you would like to turn off race end messages for times when you quit Single Player race without finishing it.
 disable_rf2_race_end_messages_on_abandoned_sessions_filter = RF2_64BIT
 disable_rf2_race_end_messages_on_abandoned_sessions_category = MESSAGE_FREQUENCIES
 
+# Property: Hold button poll frequency
 hold_button_poll_frequency = Hold button poll frequency
 hold_button_poll_frequency_help = Time between checks if "Talk to Chief" button is pressed.  The lower the value the higher the CPU usage is.
 hold_button_poll_frequency_category = AUDIO_VOICE_AND_CONTROLLERS
 hold_button_poll_frequency_metadata = RESTART_REQUIRED
 
+# Property: How long to wait for speech recognition
 sre_wait_time = How long to wait for speech recognition
 sre_wait_time_help = Time (milliseconds) to wait until giving up on recognizing the phrase and saying 'I didn't catch that'.
 sre_wait_time_category = AUDIO_VOICE_AND_CONTROLLERS
 sre_wait_time_metadata = RESTART_REQUIRED
 
+# Property: Base fuel calculations on max fuel consumption
 prefer_max_consumption_in_fuel_calculations = Base fuel calculations on max fuel consumption
 prefer_max_consumption_in_fuel_calculations_help = Use max per-lap fuel consumption when calculating fuel on all track types
 prefer_max_consumption_in_fuel_calculations_category = FUEL_TEMPS_AND_DAMAGES;PIT_STOPS_AND_MULTICLASS
 
+# Property: Identify opponents by race position
 sre_enable_opponents_by_position = Identify opponents by race position
 sre_enable_opponents_by_position_help = Allow the app to recognise opponents in voice commands by their race position
 sre_enable_opponents_by_position_category = AUDIO_VOICE_AND_CONTROLLERS
 sre_enable_opponents_by_position_metadata = RESTART_REQUIRED
 
+# Property: Identify opponents by car number
 sre_enable_opponents_by_number = Identify opponents by car number
 sre_enable_opponents_by_number_help = Allow the app to recognise opponents in voice commands by their car numbers (iRacing and R3E only)
 sre_enable_opponents_by_number_category = AUDIO_VOICE_AND_CONTROLLERS
 sre_enable_opponents_by_number_metadata = RESTART_REQUIRED
 
+# Property: Identify opponents by driver name
 sre_enable_opponents_by_name = Identify opponents by driver name
 sre_enable_opponents_by_name_help = Allow the app to recognise opponents in voice commands by their driver name
 sre_enable_opponents_by_name_category = AUDIO_VOICE_AND_CONTROLLERS
 sre_enable_opponents_by_name_metadata = RESTART_REQUIRED
 
+# Property: Sample rate for nAudio wave-in device
 naudio_wave_in_sample_rate = Sample rate for nAudio wave-in device
 naudio_wave_in_sample_rate_help = Sample rate for voice recording device (Hz, nAudio only)
 naudio_wave_in_sample_rate_category = AUDIO_VOICE_AND_CONTROLLERS
 naudio_wave_in_sample_rate_metadata = RESTART_REQUIRED
 
+# Property: Channel count for nAudio wave-in device
 naudio_wave_in_channel_count = Channel count for nAudio wave-in device
 naudio_wave_in_channel_count_help = Channels (1: mono, 2: stereo) for recording device (nAudio only)
 naudio_wave_in_channel_count_category = AUDIO_VOICE_AND_CONTROLLERS
 naudio_wave_in_channel_count_metadata = RESTART_REQUIRED
 
+# Property: Sample depth for nAudio wave-in device (8 or 16)
 naudio_wave_in_sample_depth = Sample depth for nAudio wave-in device (8 or 16)
 naudio_wave_in_sample_depth_help = Sample depth, 8 or 16 bits per sample, for recording device (nAudio only)
 naudio_wave_in_sample_depth_category = AUDIO_VOICE_AND_CONTROLLERS
 naudio_wave_in_sample_depth_metadata = RESTART_REQUIRED
 
+# Property: Play important messages when silenced
 allow_important_messages_even_when_silenced = Play important messages when silenced
 allow_important_messages_even_when_silenced_help = The Chief still gives high priority messages even when you ask him to keep quiet
 allow_important_messages_even_when_silenced_category = AUDIO_VOICE_AND_CONTROLLERS
 allow_important_messages_even_when_silenced_metadata = RESTART_REQUIRED
 
+# Property: Mute spotter immediately on full course yellow
 fcy_stop_spotter_immediately = Mute spotter immediately on full course yellow
 fcy_stop_spotter_immediately_help = Turn off spotter on FCY without waiting until you've slowed or start a new lap
 fcy_stop_spotter_immediately_category = SPOTTER
 
+# Property: Enable blue flag messages
 enable_blue_flag_messages = Enable blue flag messages
 enable_blue_flag_messages_help = Enable blue flag calls
 enable_blue_flag_messages_category = FLAGS_AND_RULES
 
+# Property: Limit available games
 limit_available_games = Limit available games
 limit_available_games_help = Comma separated list of games to show in the Games list (e.g. PCARS2, R3E)
 limit_available_games_category = UI_STARTUP_AND_PATHS
 limit_available_games_metadata = RESTART_REQUIRED
 
+# Property: Enable radio beeps
 enable_radio_beeps = Enable radio beeps
 enable_radio_beeps_help = Play a beep before the Chief starts talking
 enable_radio_beeps_category = AUDIO_VOICE_AND_CONTROLLERS
 enable_radio_beeps_metadata = RESTART_REQUIRED
 
+# Property: Prefer Windows speech recogniser
 prefer_system_sre = Prefer Windows speech recogniser
 prefer_system_sre_help = Use Windows' built-in speech recogniser, can be trained to your voice
 prefer_system_sre_category = AUDIO_VOICE_AND_CONTROLLERS
 prefer_system_sre_metadata = RESTART_REQUIRED
 
+# Property: Enable free dictation chat messages (experimental)
 use_free_dictation_for_chat = Enable free dictation chat messages (experimental)
 use_free_dictation_for_chat_help = Use free dictation for chat messages (Windows Speech recogniser only)
 use_free_dictation_for_chat_category = AUDIO_VOICE_AND_CONTROLLERS
 use_free_dictation_for_chat_metadata = RESTART_REQUIRED
 
+# Property: Chat free dictation start word
 free_dictation_chat_start_word = Chat free dictation start word
 free_dictation_chat_start_word_help = Say this word before dictating a chat message
 free_dictation_chat_start_word_category = AUDIO_VOICE_AND_CONTROLLERS
 free_dictation_chat_start_word_metadata = RESTART_REQUIRED
 
+# Property: Max complaints per session (0: disable complaints)
 max_complaints_per_session = Max complaints per session (0: disable complaints)
 max_complaints_per_session_help = Prevent the app from complaining too much in long sessions, set to 0 to disable negative messages
 max_complaints_per_session_category = MESSAGE_FREQUENCIES
 
+# Property: Enable close channel beep ("Hold button" mode)
 enable_on_hold_close_channel_beep = Enable close channel beep ("Hold button" mode)
 enable_on_hold_close_channel_beep_help = Play close channel sound on button release in "Hold button" speech mode
 enable_on_hold_close_channel_beep_category = AUDIO_VOICE_AND_CONTROLLERS
 enable_on_hold_close_channel_beep_metadata = RESTART_REQUIRED
 
+# Property: Respond to voice commands immediately
 sre_respond_while_channel_still_open = Respond to voice commands immediately
 sre_respond_while_channel_still_open_help = Don't wait for the radio channel to be closed before responding to commands ("Hold button" mode)
 sre_respond_while_channel_still_open_category = AUDIO_VOICE_AND_CONTROLLERS
 sre_respond_while_channel_still_open_metadata = RESTART_REQUIRED
 
+# Property: Enable breath in pause
 enable_breath_in = Enable breath in pause
 enable_breath_in_help = Occasionally pause for breath when reading messages
 enable_breath_in_category = AUDIO_VOICE_AND_CONTROLLERS
 
+# Property: Enable overlays (windowed / borderless window only)
 enable_overlay_window = Enable overlays (windowed / borderless window only)
 enable_overlay_window_help = Shows a transparent window showing the console output text and/or telemetry charts
 enable_overlay_window_category = UI_STARTUP_AND_PATHS
 enable_overlay_window_metadata = RESTART_REQUIRED
 
+# Property: Enable disk based telemetry for overlay
 iracing_enable_disk_based_telemetry = Enable disk based telemetry for overlay
 iracing_enable_disk_help = Enable disk based telemetry reading for overlay charts
 iracing_enable_disk_based_telemetry_filter = IRACING
 iracing_enable_disk_based_telemetry_category = UI_STARTUP_AND_PATHS
 iracing_enable_disk_metadata = RESTART_REQUIRED
 
-# charting stuff
-chart_label_BEST_LAP = (best lap)
-chart_label_LAST_LAP = (last lap)
-chart_label_OPPONENT_BEST_LAP = (opponent best lap)
-
+# Property: Enable chart telemetry in race session
 enable_chart_telemetry_in_race_session = Enable chart telemetry in race session
 enable_chart_telemetry_in_race_session_help = Record chart telemetry during races
 enable_chart_telemetry_in_race_session_category = UI_STARTUP_AND_PATHS
 
+# Property: Update interval when collecting telemetry
 update_interval_when_collecting_telemetry = Update interval when collecting telemetry
 update_interval_when_collecting_telemetry_help = Update interval for capturing chart data
 update_interval_when_collecting_telemetry_category = UI_STARTUP_AND_PATHS
 
+# Property: Enable overlay app window (Oculus mode)
 make_overlay_app_window = Enable overlay app window (Oculus mode)
 make_overlay_app_window_help = Make the overlay window appear on the taskbar as an app window
 make_overlay_app_window_category = UI_STARTUP_AND_PATHS
 make_overlay_app_window_metadata = RESTART_REQUIRED
 
+# Property: Delete iRacing telemetry file after processing
 delete_iracing_telemetryfile = Delete iRacing telemetry file after processing
 delete_iracing_telemetryfile_help = Deletes the latest iRacing telemetry file after processing it, helps reducing disk space used for telemetry recordings.
 delete_iracing_telemetryfile_filter = IRACING
 delete_iracing_telemetryfile_category = UI_STARTUP_AND_PATHS
 delete_iracing_telemetryfile_metadata = RESTART_REQUIRED
 
+# Property: Enable automatic telemetry disk recording
 enable_automatic_disk_telemetry_recording = Enable automatic telemetry disk recording
 enable_automatic_disk_telemetry_recording_help = Let's Crew Chief handle the starting and stopping of iRacing telemetry recoding.
 enable_automatic_disk_telemetry_recording_filter = IRACING
 enable_automatic_disk_telemetry_recording_category = UI_STARTUP_AND_PATHS
 enable_automatic_disk_telemetry_recording_metadata = RESTART_REQUIRED
 
+# Property: Enable Shared Memory
 enable_shared_memory = Enable Shared Memory
 enable_shared_memory_help = Allows other apps to read the current shared memory from Crew Chief
 enable_shared_memory_metadata = RESTART_REQUIRED
 
+# Property: Enable subtitle overlay
 enable_subtitle_overlay = Enable subtitle overlay
 enable_subtitle_overlay_help = Displays an overlay window with subtitles
 enable_subtitle_overlay_category = AUDIO_VOICE_AND_CONTROLLERS
 enable_subtitle_overlay_metadata = RESTART_REQUIRED
 
+# Property: Play messages in stereo (nAudio only)
 force_stereo = Play messages in stereo (nAudio only)
 force_stereo_help = Convert messages to stereo before playing (nAudio only)
 force_stereo_category = AUDIO_VOICE_AND_CONTROLLERS
 force_stereo_metadata = RESTART_REQUIRED
 
+# Property: Play pace notes automatically in practice
 auto_enable_pacenotes_in_practice = Play pace notes automatically in practice
 auto_enable_pacenotes_in_practice_help = Always start with pace note playback enabled in practice where pace notes are available
 auto_enable_pacenotes_in_practice_category = AUDIO_VOICE_AND_CONTROLLERS
 
+# Property: Enable console autoscroll
 enable_console_autoscroll = Enable console autoscroll
 enable_console_autoscroll_help = Automatically scroll console while Crew Chief is running.  Can cost a bit of performance if window is not minimized.
 enable_console_autoscroll_category = UI_STARTUP_AND_PATHS
 
+# Property: Multi-lap pace notes
 multi_lap_pace_notes = Multi-lap pace notes
 multi_lap_pace_notes_help = Record pace notes over more than one lap
 multi_lap_pace_notes_category = AUDIO_VOICE_AND_CONTROLLERS
 
+# Property: Mute messages when playing pace notes
 pace_notes_mute_all_messages = Mute messages when playing pace notes
 pace_notes_mute_all_messages_help = Mute other messages when pace notes are playing
 pace_notes_mute_all_messages_category = AUDIO_VOICE_AND_CONTROLLERS
 
+# Property: Enable pit speed limit warnings
 play_pit_speed_limit_warnings = Enable pit speed limit warnings
 play_pit_speed_limit_warnings_help = Play pit speed limit when leaving garage or entering the pitlane
 play_pit_speed_limit_warnings_category = PIT_STOPS_AND_MULTICLASS
 
+# Property: Start SteamVR if detected
 start_steam_vr_if_detected = Start SteamVR if detected
 start_steam_vr_if_detected_help = Starts SteamVR if detected on the system (Needed for VR overlays)
 start_steam_vr_if_detected_category = VR_SETTINGS;UI_STARTUP_AND_PATHS
 start_steam_vr_if_detected_metadata = RESTART_REQUIRED
 
+# Property: Enable VR overlays
 enable_vr_overlay_windows = Enable VR overlays
 enable_vr_overlay_windows_help = Enables Steam VR overlay windows
 enable_vr_overlay_windows_category = VR_SETTINGS;UI_STARTUP_AND_PATHS
 enable_vr_overlay_windows_metadata = RESTART_REQUIRED
 
+# Property: Enable VR overlays when app starts
 vr_overlays_enabled_on_startup = Enable VR overlays when app starts
 vr_overlays_enabled_on_startup_help = Draw previously enabled Steam VR overlays on Crew Chief startup
 vr_overlays_enabled_on_startup_category = VR_SETTINGS;UI_STARTUP_AND_PATHS
 
-vr_tracking_space_seated = Seated
-vr_tracking_space_standing = Standing
-vr_tracking_space_followhead = Follow Head
-vr_tracking_space = Tracking space
-
+# Property: R3E Ratings URL
 r3e_ratings_url = R3E Ratings URL
 r3e_ratings_url_help = URL to retrieve R3E rating data
 r3e_ratings_url_filter = RACE_ROOM
 
+# Property: Watched opponent names
 watched_opponent_names = Watched opponent names
 watched_opponent_names_help = Comma separated list of opponent names to report on
 
+# Property: Always show VR Settings window as overlay
 show_vr_settings_as_overlay = Always show VR Settings window as overlay
 show_vr_settings_as_overlay_help = If enabled, SteamVR Settings window is always shown as an overlay.  Disable if it gets in a way of other windows
 show_vr_settings_as_overlay_category = VR_SETTINGS
 
+# Property: Co-driver rushing speed threshold (km/h)
 codriver_rushed_speed = Co-driver rushing speed threshold (km/h)
 codriver_rushed_speed_help = Use rushed / urgent calls when above this speed (rally only).  Set to unrealistically high value, e.g. 400km/h to never rush based on speed
 codriver_rushed_speed_category = CODRIVER
 codriver_rushed_speed_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
 
+# Property: Co-driver rushing look ahead (seconds)
 codriver_rushed_lookahead_seconds = Co-driver rushing look ahead (seconds)
 codriver_rushed_lookahead_seconds_help = Use rushed / urgent calls when there are pace notes to be announced this many seconds away (rally only).  If set to 0, co-driver will only rush based on speed.  The bigger the value, the more likely it is that co-driver will rush.
 codriver_rushed_lookahead_seconds_category = CODRIVER
 codriver_rushed_lookahead_seconds_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
 
+# Property: Link co-driver calls closer than this (metres)
 codriver_chained_pacenote_threshold_distance = Link co-driver calls closer than this (metres)
 codriver_chained_pacenote_threshold_distance_help = Combined calls when they're closer together than this many metres (rally only)
 codriver_chained_pacenote_threshold_distance_category = CODRIVER
 codriver_chained_pacenote_threshold_distance_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
 
+# Property: Default look ahead for co-driver calls (seconds)
 codriver_lookahead_seconds = Default look ahead for co-driver calls (seconds)
 codriver_lookahead_seconds_help = Call out corners etc when you're this many seconds away (rally only)
 codriver_lookahead_seconds_category = CODRIVER
 codriver_lookahead_seconds_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
 
+# Property: Enable controller PoV switches
 enable_controller_pov_switches = Enable controller PoV switches
 enable_controller_pov_switches_help = Allow controller point-of-view switches to be used for button assignments
 enable_controller_pov_switches_category = AUDIO_VOICE_AND_CONTROLLERS
 
+# Property: Block sounds which refer to drivers as male
 block_male_sounds = Block sounds which refer to drivers as male
 block_male_sounds_help = Don't play sounds which assume the player and all opponents are male (sounds that include "he", "guy", "man" etc)
 block_male_sounds_category = AUDIO_VOICE_AND_CONTROLLERS
 block_male_sounds_metadata = RESTART_REQUIRED
 
+# Property: Enable watch opponent commands
 enable_watch_car_command = Enable watch opponent commands
 enable_watch_car_command_help = Enable the watched opponent / rivals voice commands
 enable_watch_car_command_category = AUDIO_VOICE_AND_CONTROLLERS
 
+# Property: Lazy load subtitles
 lazy_load_subtitles = Lazy load subtitles
 lazy_load_subtitles_help = Load subtitles immediately before displaying (improves app startup time, may add additional load at runtime)
 lazy_load_subtitles_category = AUDIO_VOICE_AND_CONTROLLERS
 lazy_load_subtitles_metadata = RESTART_REQUIRED
 
+# Property: Show splash screen
 show_splash_screen = Show splash screen
 show_splash_screen_help = Show splash screen while the app is launching
 show_splash_screen_category = MISC
 
+# Property: Enable GTR 2 pit lane approach detection
 enable_gtr2_pit_lane_approach_heuristics = Enable GTR 2 pit lane approach detection
 enable_gtr2_pit_lane_approach_heuristics_help = Experimental: If enabled, CC will try to detect if user approaches the pit lane entry and remind him to respect speed limit.  Might not work correctly for all tracks.
 enable_gtr2_pit_lane_approach_heuristics_filter = GTR2
 enable_gtr2_pit_lane_approach_heuristics_category = PIT_STOPS_AND_MULTICLASS
 
+# Property: Scroll bars on main window
 scroll_bars_on_main_window = Scroll bars on main window
 scroll_bars_on_main_window_help = Scroll bars if main window is larger than screen
 scroll_bars_on_main_window_category = MISC
 scroll_bars_on_main_window_metadata = RESTART_REQUIRED
 
+# Property: Use free dictation for stage notes
 use_dictation_grammar_for_rally = Use free dictation for stage notes
 use_dictation_grammar_for_rally_help = Record pace notes using free dictation grammar (Windows speech recogniser only)
 use_dictation_grammar_for_rally_category = AUDIO_VOICE_AND_CONTROLLERS
 use_dictation_grammar_for_rally_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
 use_dictation_grammar_for_rally_metadata = RESTART_REQUIRED
 
+# Property: Min rally free dictation voice recognition confidence (Microsoft recogniser)
 dictation_grammar_for_rally_confidence = Min rally free dictation voice recognition confidence (Microsoft recogniser)
 dictation_grammar_for_rally_confidence_help = When processing stage notes in free dictation mode, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0)
 dictation_grammar_for_rally_confidence_category = AUDIO_VOICE_AND_CONTROLLERS
 dictation_grammar_for_rally_confidence_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
 
+# Property: Confirm each pace note in stage recce
 confirm_recce_pace_notes = Confirm each pace note in stage recce
 confirm_recce_pace_notes_help = Play back the pace note(s) created from each stage notes voice command
 confirm_recce_pace_notes_category = AUDIO_VOICE_AND_CONTROLLERS
 dictation_grammar_for_rally_confidence_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
 
+# Property: Min rally voice recognition confidence (Windows recogniser)
 minimum_rally_voice_recognition_confidence_microsoft_sre = Min rally voice recognition confidence (Windows recogniser)
 minimum_rally_voice_recognition_confidence_microsoft_sre_help =  When processing voice commands in rally mode, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0)
 minimum_rally_voice_recognition_confidence_microsoft_sre_category = AUDIO_VOICE_AND_CONTROLLERS
 minimum_rally_voice_recognition_confidence_microsoft_sre_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
 minimum_rally_voice_recognition_confidence_microsoft_sre_metadata = RESTART_REQUIRED
 
+# Property: Min rally voice recognition confidence (Windows recogniser)
 minimum_rally_voice_recognition_confidence_system_sre = Min rally voice recognition confidence (Windows recogniser)
 minimum_rally_voice_recognition_confidence_system_sre_help =  When processing voice commands in rally mode, the speech recognition engine must be at least this confident it understood before the app responds (0.0 - 1.0)
 minimum_rally_voice_recognition_confidence_system_sre_category = AUDIO_VOICE_AND_CONTROLLERS
 minimum_rally_voice_recognition_confidence_system_sre_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
 minimum_rally_voice_recognition_confidence_system_sre_metadata = RESTART_REQUIRED
 
+# Property: Dirt Rally UDP port
 dirt_rally_udp_data_port = Dirt Rally UDP port
 dirt_rally_udp_data_port_help = Dirt Rally network data UDP port (should usually be 20777)
 dirt_rally_udp_data_port_category = UI_STARTUP_AND_PATHS
 dirt_rally_udp_data_port_filter = DIRT
 dirt_rally_udp_data_port_metadata = RESTART_REQUIRED
 
+# Property: Dirt Rally 2 UDP port
 dirt_rally_2_udp_data_port = Dirt Rally 2 UDP port
 dirt_rally_2_udp_data_port_help = Dirt Rally 2 network data UDP port (should usually be 20777)
 dirt_rally_2_udp_data_port_category = UI_STARTUP_AND_PATHS
 dirt_rally_2_udp_data_port_filter = DIRT_2
 dirt_rally_2_udp_data_port_metadata = RESTART_REQUIRED
 
+# Property: Log type - debug
 log_type_debug = Log type - debug
 log_type_debug_help = Include debug messages in the console and log
 log_type_debug_category = MISC
 log_type_debug_metadata = RESTART_REQUIRED
 
+# Property: Log type - verbose
 log_type_verbose = Log type - verbose
 log_type_verbose_help = Include verbose messages in the console and log
 log_type_verbose_category = MISC
 log_type_verbose_metadata = RESTART_REQUIRED
 
+# Property: Log type - fuel
 log_type_fuel = Log type - fuel
 log_type_fuel_help = Include fuel messages in the console and log
 log_type_fuel_category = MISC;FUEL_TEMPS_AND_DAMAGES;PIT_STOPS_AND_MULTICLASS
 log_type_fuel_metadata = RESTART_REQUIRED
 
+# Property: Allow opponent names in 'My name' list
 allow_composite_personalisations = Allow opponent names in 'My name' list
 allow_composite_personalisations_help = Include composite names (using opponent names) in the 'My name' list on the main screen
 allow_composite_personalisations_category = MISC
 allow_composite_personalisations_metadata = RESTART_REQUIRED
 
+# Property: Dynamic co-driver distance look ahead
 codriver_dynamic_lookahead = Dynamic co-driver distance look ahead
 codriver_dynamic_lookahead_help = Reduce co-driver look ahead distance when approaching slow corners
 codriver_dynamic_lookahead_category = MISC
 codriver_dynamic_lookahead_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
 
+# Property: Min gap for auto-generated distance pace note (metres)
 codriver_min_space_for_auto_distance_call = Min gap for auto-generated distance pace note (metres)
 codriver_min_space_for_auto_distance_call_help = Insert auto-generated distance call when the next call is greater than this distance away
 codriver_min_space_for_auto_distance_call_category = AUDIO_VOICE_AND_CONTROLLERS
 codriver_min_space_for_auto_distance_call_filter = RBR;DIRT;DIRT_2;ASSETTO_64BIT_RALLY
 
+# Property: Include start location in Dirt Rally pace note folders
 include_start_pos_in_dirt_stage_names = Include start location in Dirt Rally pace note folders
 include_start_pos_in_dirt_stage_names_help = Add X and Z coordinates to stage length when constructing folder name for pace notes
 include_start_pos_in_dirt_stage_names_category = MISC
 include_start_pos_in_dirt_stage_names_filter = DIRT;DIRT_2
 
+# Property: Write speech recognition debug data
 save_sre_debug_data = Write speech recognition debug data
 save_sre_debug_data_help = SRE audio file and recognised text to voiceRecognitionDebug
 save_sre_debug_data_category = MISC
 save_sre_debug_data_metadata = RESTART_REQUIRED
 
+# Property: SRE delay after button release, hold button mode only (ms)
 sre_button_release_delay = SRE delay after button release, hold button mode only (ms)
 sre_button_release_delay_help = Wait this long after releasing the radio button before invoking the speech recogniser
 sre_button_release_delay_category = AUDIO_VOICE_AND_CONTROLLERS
 
+# Property: Auto-tune speech recognition thresholds
 sre_enable_threshold_tuning = Auto-tune speech recognition thresholds
 sre_enable_threshold_tuning_help = Adjust SRE confidence thresholds automatically
 sre_enable_threshold_tuning_category = AUDIO_VOICE_AND_CONTROLLERS
 sre_enable_threshold_tuning_metadata = RESTART_REQUIRED
 
+# Property: Warn about opponents sharing player's pit box (RF1 / AMS 1 only)
 enable_rf1_box_sharing_warnings = Warn about opponents sharing player's pit box (RF1 / AMS 1 only)
 enable_rf1_box_sharing_warnings_help = Use practice pit stop car position data to trigger pit-box-in-use warnings
 enable_rf1_box_sharing_warnings_category = MISC
 enable_rf1_box_sharing_warnings_filter = RF1
 enable_rf1_box_sharing_warnings_metadata = RESTART_REQUIRED
 
+# Property: nAudio playback resample rate (0 - no resampling)
 force_resample = nAudio playback resample rate (0 - no resampling)
 force_resample_help = Change sample rate of message files before playback, set to 0 to disable resampling (nAudio only)
 force_resample_category = AUDIO_VOICE_AND_CONTROLLERS
 force_resample_metadata = RESTART_REQUIRED
 
+# Property: Enable frozen order messages
 enable_frozen_order_messages = Enable frozen order messages
 enable_frozen_order_messages_help = Play formation lap and full course yellow order messages
 enable_frozen_order_messages_category = FLAGS_AND_RULES
 
+# Property: Force Seated tracking mode on Reset VR View
 force_seated_on_vr_view_reset = Force Seated tracking mode on Reset VR View
 force_seated_on_vr_view_reset_help = If enabled, will force Seated position reset on Reset VR View.  If disabled, will respect the current SteamVR tracking mode.
 force_seated_on_vr_view_reset_category = VR_SETTINGS
 
+# Property: Speak only when spoken to
 speak_only_when_spoken_to = Speak only when spoken to
 speak_only_when_spoken_to_help = Only play audio in response to commands or requests (spotter messages may still play)
 speak_only_when_spoken_to_category = AUDIO_VOICE_AND_CONTROLLERS
 
+# Property: Disable commentary
 just_the_facts = Disable commentary
 just_the_facts_help = Play only factual messages - no suggestions, encouragement or complaints
 just_the_facts_category = AUDIO_VOICE_AND_CONTROLLERS
