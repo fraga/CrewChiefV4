@@ -417,12 +417,12 @@ namespace CrewChiefV4.commands
                 else
                 {
                     ActionItem endChatActionItem = SpeechRecogniser.getEndChatMacro() == null ? null : SpeechRecogniser.getEndChatMacro().getSingleActionItemForChatStartAndEnd();
-                    if (endChatActionItem == null && autoExecuteStartChatMacro)
+                    if (endChatActionItem == null && autoExecuteEndChatMacro)
                     {
                         // yikes, no end chat macro, press ENTER and hope
                         KeyPresser.SendKeyPress(new Tuple<VirtualKeyCode?, VirtualKeyCode>(null, VirtualKeyCode.RETURN), keyPressTime);
                     }
-                    else if (autoExecuteStartChatMacro)
+                    else if (autoExecuteEndChatMacro)
                     {
                         KeyPresser.SendKeyPresses(endChatActionItem.keyCodes, keyPressTime, endChatActionItem.waitTime);
                     }
