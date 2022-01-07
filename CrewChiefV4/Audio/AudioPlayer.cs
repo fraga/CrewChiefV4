@@ -1978,7 +1978,7 @@ namespace CrewChiefV4.Audio
                         Console.WriteLine("Clip for event " + queuedMessage.messageName + " is already queued, ignoring");
                         return;
                     }
-                    else
+                    else if (PlaybackModerator.ImmediateMessageCanBeQueued(queuedMessage))
                     {
                         lastImmediateMessageName = queuedMessage.messageName;
                         lastImmediateMessageTime = GameStateData.CurrentTime;
@@ -2161,9 +2161,13 @@ namespace CrewChiefV4.Audio
         // a 'keep it up' message in a block that contains a 'your lap times are worsening' message
         private Boolean checkPearlOfWisdomValid(PearlsOfWisdom.PearlType newPearlType)
         {
+            if (GlobalBehaviourSettings.justTheFacts)
+            {
+                return false;
+            }
             if (newPearlType == PearlsOfWisdom.PearlType.BAD)
             {
-                if (GlobalBehaviourSettings.complaintsDisabled || GlobalBehaviourSettings.complaintsCountInThisSession > GlobalBehaviourSettings.maxComplaintsPerSession)
+                if (GlobalBehaviourSettings.complaintsCountInThisSession >= GlobalBehaviourSettings.maxComplaintsPerSession)
                 {
                     return false;
                 }

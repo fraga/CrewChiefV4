@@ -415,7 +415,8 @@ namespace CrewChiefV4.Events
             orientationSamples.AddLast(currentGameState.PositionAndMotionData.Orientation);
 
             // don't check for rolling if we've just had a dangerous acceleration as we don't want both messages to trigger
-            if (enableCrashMessages && currentGameState.Now > nextOrientationCheckDue && orientationSamplesFull &&
+            if (!GlobalBehaviourSettings.justTheFacts
+                && enableCrashMessages && currentGameState.Now > nextOrientationCheckDue && orientationSamplesFull &&
                 currentGameState.Now.Subtract(timeOfDangerousAcceleration) > TimeSpan.FromSeconds(10))
             {
                 nextOrientationCheckDue = currentGameState.Now.Add(orientationCheckEvery);
@@ -1046,7 +1047,9 @@ namespace CrewChiefV4.Events
             // if we don't have the updated sounds, just return false here
             // note that this check will be 3 seconds *after* the acceleration event because we've waited for
             // the damage to settle
-            if (!playedAreYouOKInThisSession && !inPitLane &&
+            if (!GlobalBehaviourSettings.justTheFacts
+                && SpeechRecogniser.hasMadeVoiceCommandSinceStarting /* don't ask if we're OK if we're not making any voice commands */
+                && !playedAreYouOKInThisSession && !inPitLane &&
                 SoundCache.availableSounds.Contains(folderAreYouOKFirstTry) && 
                 now.Subtract(timeOfDangerousAcceleration) < TimeSpan.FromSeconds(5))
             {

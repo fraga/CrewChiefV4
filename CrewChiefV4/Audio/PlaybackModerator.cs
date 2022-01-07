@@ -367,7 +367,12 @@ namespace CrewChiefV4.Audio
                 priority = queuedMessage.metadata.priority;
                 type = queuedMessage.metadata.type;
             }
-
+            if (GlobalBehaviourSettings.speakOnlyWhenSpokenTo &&
+                !(queuedMessage.metadata.type == SoundType.VOICE_COMMAND_RESPONSE || queuedMessage.metadata.type == SoundType.SPOTTER))
+            {
+                PlaybackModerator.Trace(string.Format("Message {0} hasn't been queued because we're in 'speak only when spoken to' mode and it's type is {1}", queuedMessage.messageName, queuedMessage.metadata.type));
+                return false;
+            }
             if (paceNotesMuteOtherMessages
                 && (DriverTrainingService.isPlayingPaceNotes || DriverTrainingService.isRecordingPaceNotes)
                 && type != SoundType.PACE_NOTE)
@@ -398,6 +403,17 @@ namespace CrewChiefV4.Audio
                 PlaybackModerator.Trace(string.Format("Message {0} hasn't been queued because its priority is {1} and our verbosity is currently {2}", queuedMessage.messageName, priority, verbosity));
 
             return canPlay;
+        }
+
+        public static bool ImmediateMessageCanBeQueued(QueuedMessage queuedMessage)
+        {
+            if (GlobalBehaviourSettings.speakOnlyWhenSpokenTo &&
+                (queuedMessage.metadata == null || !(queuedMessage.metadata.type == SoundType.VOICE_COMMAND_RESPONSE || queuedMessage.metadata.type == SoundType.SPOTTER)))
+            {
+                PlaybackModerator.Trace(string.Format("Immediate message {0} hasn't been queued because we're in 'speak only when spoken to' mode and it's type is {1}", queuedMessage.messageName, queuedMessage.metadata.type));
+                return false;
+            }
+            return true;
         }
 
         internal static void BlockNAudioPlaybackFor(int milliseconds)

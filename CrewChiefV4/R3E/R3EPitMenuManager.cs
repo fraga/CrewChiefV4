@@ -142,12 +142,13 @@ namespace CrewChiefV4.R3E
             { CarData.CarClassEnum.M1_PROCAR, new TyreType[]{ TyreType.Soft, TyreType.Hard} },
             { CarData.CarClassEnum.GTE, new TyreType[]{ TyreType.Soft, TyreType.Medium, TyreType.Hard} },
             { CarData.CarClassEnum.HILL_CLIMB_ICONS, new TyreType[]{ TyreType.Soft, TyreType.Medium, TyreType.Hard} },
-            { CarData.CarClassEnum.GROUPA, new TyreType[]{ TyreType.Soft, TyreType.Hard} }
+            { CarData.CarClassEnum.GROUPA, new TyreType[]{ TyreType.Soft, TyreType.Hard} },
+            { CarData.CarClassEnum.GTO, new TyreType[]{ TyreType.Soft, TyreType.Medium, TyreType.Hard} }
         };
 
         private static HashSet<CarData.CarClassEnum> classesAllowingMismatchedTyres = new HashSet<CarData.CarClassEnum>
         {
-            CarData.CarClassEnum.F1_90S, CarData.CarClassEnum.DTM_92, CarData.CarClassEnum.F1, CarData.CarClassEnum.INDYCAR,
+            CarData.CarClassEnum.F1_90S, CarData.CarClassEnum.DTM_92,
             CarData.CarClassEnum.GROUPC, CarData.CarClassEnum.GT2, CarData.CarClassEnum.GROUP5, CarData.CarClassEnum.M1_PROCAR,
             CarData.CarClassEnum.GTE, CarData.CarClassEnum.HILL_CLIMB_ICONS, CarData.CarClassEnum.GROUPA
         };

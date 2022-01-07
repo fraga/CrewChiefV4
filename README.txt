@@ -431,6 +431,12 @@ One final point. If the app says "Jim is faster than you", let him through :)
 
 Changelog
 ---------
+Version 4.15.3.10: Optionally block all complaining and negative messages - to implement this we've updated how we handle the "Max complaints per session" variable - this limits the maximum number of times the app can complain at or make a negative comment to the player in a single session. If you're happy to have the app complain when you do badly (by the app's occasionally unattainable standards) then set this to a higher number. If you don't want the app to complain at all set it to 0. The default value of 60 is intended to prevent the app's grumbling from getting tiresome in endurance or very long races; Added an option to limit the app's messages to information only ("Disable commentary" property, default false). This setting blocks the app's general 'advice' and encouragement / grumbling messages; GTR2 - updated plugin
+
+Version 4.15.3.8: Content updates for iRacing and R3E; GTR2: Minor VR improvements; various bug fixes
+
+Version 4.15.3.6: Revised pit window calculations; added a "Speak only when spoken to" option in the Properties screen (when this is enabled the app will only play messages in response to a voice command or button press); various bug fixes
+
 Version 4.15.3.5: Fix MS Speech recognition platform download links; use 2 decimal places when reporting tyre pressure in kPa; iRacing - prevent autofuel triggering immediately after a driver swap and when the player isn't driving the car (thanks to Jacob Klien and Doug Evenson for helping track this down); GTR2 - plugin update; a couple of minor fixes
 
 Version 4.15.3.0: Added a sector 3 pit warning when needing fuel; Added support for F1 2021 (spotter only, thanks to Christopher Berger); R3E - Work around the game's pit menu changes. The voice command "fix suspension" should work now but note that it will only toggle the value of this option (the app can't know what it's currently set to); GTR2 - update plugin to latest version; iRacing - fixed macro key presses; A few minor bug fixes

@@ -5,6 +5,7 @@ using System.Text;
 using CrewChiefV4.GameState;
 using CrewChiefV4.Audio;
 using CrewChiefV4.NumberProcessing;
+using System.Globalization;
 
 namespace CrewChiefV4.Events
 {
@@ -129,7 +130,8 @@ namespace CrewChiefV4.Events
             {
                 messageFragments.Add((MessageFragment)o);
             }
-            else if (o.GetType() == typeof(String)) {
+            else if (o.GetType() == typeof(String))
+            {
                 messageFragments.Add(MessageFragment.Text((String)o));
             }
             else if (o.GetType() == typeof(TimeSpan))
@@ -144,10 +146,31 @@ namespace CrewChiefV4.Events
             {
                 messageFragments.Add(MessageFragment.Opponent((OpponentData)o));
             }
-            else if (o.GetType() == typeof(int) || o.GetType() == typeof(double) || o.GetType() == typeof(float) ||
-                o.GetType() == typeof(short) || o.GetType() == typeof(long) || o.GetType() == typeof(decimal) || o.GetType() == typeof(uint))
+            else if (o.GetType() == typeof(int) || o.GetType() == typeof(short) || o.GetType() == typeof(long) || o.GetType() == typeof(uint))
             {
                 messageFragments.Add(MessageFragment.Integer(Convert.ToInt32(o)));
+            }
+            else if (o.GetType() == typeof(double) || o.GetType() == typeof(float) || o.GetType() == typeof(decimal))
+            {
+                double d = Convert.ToDouble(o);
+                string str = d.ToString("0.00", CultureInfo.InvariantCulture);
+                int integral = int.Parse(str.Substring(0, str.IndexOf('.')));
+                int fraction = int.Parse(str.Substring(str.IndexOf('.') + 1));
+                Console.WriteLine("Converted real number " + o + " to " + integral + ", " + NumberReader.folderPoint + ", " + fraction);
+                if (fraction == 0)
+                {
+                    // there's no 'right' answer here - do we read it as "x point zero" or just "x"? Really this is an issue in the event - it should be
+                    // doing the work to convert a real number to 'int point int' in accordance with its own requirements, so this is just a fallback.
+                    // So warn and read it anyway
+                    Console.WriteLine("Real number " + integral + ".0" + " will be read with a trailing \"point zero\"");
+                }
+                messageFragments.Add(MessageFragment.Integer(Convert.ToInt32(integral)));
+                messageFragments.Add(MessageFragment.Text(NumberReader.folderPoint));
+                messageFragments.Add(MessageFragment.Integer(Convert.ToInt32(fraction)));
+            }
+            else
+            {
+                Console.WriteLine("Unexpected message fragment type of " + o.GetType() + " with content " + o.ToString());
             }
         }
 

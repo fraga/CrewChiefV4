@@ -883,7 +883,7 @@ namespace CrewChiefV4.assetto
             }
 
 
-            int realTimeLeaderBoardValid = isCarRealTimeLeaderBoardValid(shared.acsChief.vehicle, shared.acsChief.numVehicles);
+            int realTimeLeaderBoardValid = isCarRealTimeLeaderBoardValid(shared.acsChief.vehicle, Math.Min(shared.acsChief.numVehicles, 64));
             AC_FLAG_TYPE currentFlag = shared.acsGraphic.flag;
             if (sessionType == AC_SESSION_TYPE.AC_PRACTICE || sessionType == AC_SESSION_TYPE.AC_QUALIFY)
             {
@@ -994,7 +994,7 @@ namespace CrewChiefV4.assetto
                 // no tyre data in the block so get the default tyre types for this car
                 defaultTyreTypeForPlayersCar = CarData.getDefaultTyreType(currentGameState.carClass);
 
-                for (int i = 0; i < shared.acsChief.numVehicles; i++)
+                for (int i = 0; i < Math.Min(shared.acsChief.numVehicles, 64); i++)
                 {
                     acsVehicleInfo participantStruct = shared.acsChief.vehicle[i];
                     if (participantStruct.isConnected == 1)
@@ -1058,7 +1058,7 @@ namespace CrewChiefV4.assetto
                         }
                         lapCountAtSector1End = -1;
                         currentGameState.SessionData.LeaderHasFinishedRace = false;
-                        currentGameState.SessionData.NumCarsOverallAtStartOfSession = shared.acsChief.numVehicles;
+                        currentGameState.SessionData.NumCarsOverallAtStartOfSession = Math.Min(shared.acsChief.numVehicles, 64);
                         currentGameState.SessionData.TrackDefinition = TrackData.getTrackDefinition(shared.acsStatic.track + ":" + shared.acsStatic.trackConfiguration, shared.acsStatic.trackSPlineLength, shared.acsStatic.sectorCount);
                         if (currentGameState.SessionData.TrackDefinition.unknownTrack)
                         {
@@ -1288,7 +1288,7 @@ namespace CrewChiefV4.assetto
                 {
                     currentGameState.SessionData.YellowFlagStartTime = currentGameState.Now;
                 }*/
-                currentGameState.SessionData.NumCarsOverall = shared.acsChief.numVehicles;
+                currentGameState.SessionData.NumCarsOverall = Math.Min(shared.acsChief.numVehicles, 64);
 
                 /*previousGameState != null && previousGameState.SessionData.IsNewLap == false &&
                     (shared.acsGraphic.completedLaps == previousGameState.SessionData.CompletedLaps + 1 || ((lastSessionPhase == SessionPhase.Countdown)
@@ -1317,7 +1317,7 @@ namespace CrewChiefV4.assetto
                 // get all the duplicate names
                 List<string> driversToBeProcessed = new List<string>();
                 List<string> duplicateNames = new List<string>();
-                for (int i = 0; i < shared.acsChief.numVehicles; i++)
+                for (int i = 0; i < Math.Min(shared.acsChief.numVehicles, 64); i++)
                 {
                     String participantName = getNameFromBytes(shared.acsChief.vehicle[i].driverName).ToLower();
                     if (driversToBeProcessed.Contains(participantName))
@@ -1333,7 +1333,7 @@ namespace CrewChiefV4.assetto
                     }
                 }
 
-                for (int i = 0; i < shared.acsChief.numVehicles; i++)
+                for (int i = 0; i < Math.Min(shared.acsChief.numVehicles, 64); i++)
                 {
                     acsVehicleInfo participantStruct = shared.acsChief.vehicle[i];
 
@@ -2280,6 +2280,5 @@ namespace CrewChiefV4.assetto
             }
             return 0;
         }
-
     }
 }

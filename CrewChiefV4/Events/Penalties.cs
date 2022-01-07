@@ -719,8 +719,10 @@ namespace CrewChiefV4.Events
 
         private void updateCuttingEnum(GameStateData currentGameState)
         {
-            if (currentGameState.SessionData.SessionRunningTime < 60)
+            if (currentGameState.SessionData.SessionRunningTime < 60 || GlobalBehaviourSettings.justTheFacts
+                || GlobalBehaviourSettings.complaintsCountInThisSession >= GlobalBehaviourSettings.maxComplaintsPerSession)
             {
+                trackLimitsMode = TrackLimitsMode.OK;
                 return;
             }
             float cutsPerMinute = (60f * (float)totalAnnouncableCutWarnings) / currentGameState.SessionData.SessionRunningTime;

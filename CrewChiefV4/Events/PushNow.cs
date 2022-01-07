@@ -81,7 +81,7 @@ namespace CrewChiefV4.Events
             }
             Boolean checkPushToGain = currentGameState.SessionData.SessionRunningTime - currentGameState.SessionData.GameTimeAtLastPositionFrontChange < minTimeToBeInThisPosition;
             Boolean checkPushToHold = currentGameState.SessionData.SessionRunningTime - currentGameState.SessionData.GameTimeAtLastPositionBehindChange < minTimeToBeInThisPosition;
-            if (currentGameState.SessionData.SessionType == SessionType.Race && !currentGameState.PitData.InPitlane)
+            if (currentGameState.SessionData.SessionType == SessionType.Race && !currentGameState.PitData.InPitlane && !GlobalBehaviourSettings.justTheFacts)
             {
                 if ((checkPushToGain || checkPushToHold) && !playedNearEndTimePush && currentGameState.SessionData.SessionHasFixedTime &&
                         currentGameState.SessionData.SessionTimeRemaining < 4 * 60 && currentGameState.SessionData.SessionTimeRemaining > 2 * 60)

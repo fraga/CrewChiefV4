@@ -4117,7 +4117,7 @@ namespace CrewChiefV4.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("50")]
+        [global::System.Configuration.DefaultSettingValueAttribute("60")]
         public int max_complaints_per_session {
             get {
                 return ((int)(this["max_complaints_per_session"]));
@@ -5348,6 +5348,30 @@ namespace CrewChiefV4.Properties {
             }
             set {
                 this["enable_tyre_dirt_pickup_warnings"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool speak_only_when_spoken_to {
+            get {
+                return ((bool)(this["speak_only_when_spoken_to"]));
+            }
+            set {
+                this["speak_only_when_spoken_to"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool just_the_facts {
+            get {
+                return ((bool)(this["just_the_facts"]));
+            }
+            set {
+                this["just_the_facts"] = value;
             }
         }
     }

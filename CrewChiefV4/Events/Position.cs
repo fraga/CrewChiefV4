@@ -219,7 +219,7 @@ namespace CrewChiefV4.Events
             if (currentGameState.SessionData.SessionPhase == SessionPhase.Green &&
                 currentGameState.SessionData.SessionType == SessionType.Race && currentGameState.SessionData.CompletedLaps > 0)
             {                
-                if (currentGameState.Now > lastPassCheck.Add(passCheckInterval))
+                if (!GlobalBehaviourSettings.justTheFacts && currentGameState.Now > lastPassCheck.Add(passCheckInterval))
                 {
                     lastPassCheck = currentGameState.Now;
                     if (currentGameState.SessionData.TimeDeltaFront > 0)
@@ -351,8 +351,12 @@ namespace CrewChiefV4.Events
                             // allow an existing queued pearl to be played if it's type is 'bad'
                             Dictionary<String, Object> validationData = new Dictionary<String, Object>();
                             validationData.Add(positionValidationKey, currentGameState.SessionData.ClassPosition);
-                            QueuedMessage beingOvertakenMessage = new QueuedMessage(folderBeingOvertaken, 3, abstractEvent: this, validationData: validationData, priority: 10);
-                            audioPlayer.playMessage(beingOvertakenMessage, PearlsOfWisdom.PearlType.BAD, 0);
+                            if (GlobalBehaviourSettings.complaintsCountInThisSession < GlobalBehaviourSettings.maxComplaintsPerSession)
+                            {
+                                QueuedMessage beingOvertakenMessage = new QueuedMessage(folderBeingOvertaken, 3, abstractEvent: this, validationData: validationData, priority: 10);
+                                audioPlayer.playMessage(beingOvertakenMessage, PearlsOfWisdom.PearlType.BAD, 0);
+                                GlobalBehaviourSettings.complaintsCountInThisSession++;
+                            }
                             reported = true;
                         }
                     }
@@ -413,7 +417,8 @@ namespace CrewChiefV4.Events
                     Console.WriteLine("Race start message... isLastInStandings = " + isLastInStandings +
                         " session start pos = " + currentGameState.SessionData.SessionStartClassPosition + " current pos = " + currentGameState.SessionData.ClassPosition);
                     bool hasrFactorPenaltyPending = (CrewChief.gameDefinition.gameEnum == GameEnum.RF1 || CrewChief.gameDefinition.gameEnum == GameEnum.RF2_64BIT) && currentGameState.PenaltiesData.NumOutstandingPenalties > 0;
-                    if (currentGameState.SessionData.SessionStartClassPosition > 0 &&
+                    if (!GlobalBehaviourSettings.justTheFacts &&
+                        currentGameState.SessionData.SessionStartClassPosition > 0 &&
                             !currentGameState.PenaltiesData.HasDriveThrough && !currentGameState.PenaltiesData.HasStopAndGo &&
                             !hasrFactorPenaltyPending)
                     {
@@ -421,15 +426,17 @@ namespace CrewChiefV4.Events
                         validationData.Add(positionValidationKey, currentGameState.SessionData.ClassPosition);
                         if (currentGameState.SessionData.ClassPosition > currentGameState.SessionData.SessionStartClassPosition + 5)
                         {
-                            if (!GlobalBehaviourSettings.complaintsDisabled && GlobalBehaviourSettings.complaintsCountInThisSession <= GlobalBehaviourSettings.maxComplaintsPerSession)
+                            if (GlobalBehaviourSettings.complaintsCountInThisSession < GlobalBehaviourSettings.maxComplaintsPerSession)
                             {
+                                GlobalBehaviourSettings.complaintsCountInThisSession++;
                                 audioPlayer.playMessage(new QueuedMessage(folderTerribleStart, 10, abstractEvent: this, priority: 5, validationData: validationData));
                             }
                         }
                         else if (currentGameState.SessionData.ClassPosition > currentGameState.SessionData.SessionStartClassPosition + 3)
                         {
-                            if (!GlobalBehaviourSettings.complaintsDisabled && GlobalBehaviourSettings.complaintsCountInThisSession <= GlobalBehaviourSettings.maxComplaintsPerSession)
+                            if (GlobalBehaviourSettings.complaintsCountInThisSession < GlobalBehaviourSettings.maxComplaintsPerSession)
                             {
+                                GlobalBehaviourSettings.complaintsCountInThisSession++;
                                 audioPlayer.playMessage(new QueuedMessage(folderBadStart, 10, abstractEvent: this, priority: 5, validationData: validationData));
                             }
                         }
@@ -450,7 +457,10 @@ namespace CrewChiefV4.Events
                 if (canPlayPositionReminder && currentGameState.SessionData.IsNewSector &&
                     currentGameState.SessionData.CompletedLaps == lapForPositionReminder && currentGameState.SessionData.SectorNumber == sectorForPositionReminder)
                 {
-                    playCurrentPositionMessage(PearlsOfWisdom.PearlType.NONE, 0f, true);
+                    if (!GlobalBehaviourSettings.justTheFacts)
+                    {
+                        playCurrentPositionMessage(PearlsOfWisdom.PearlType.NONE, 0f, true);
+                    }
                     canPlayPositionReminder = false;
                 }
                 if (currentGameState.SessionData.IsNewLap)
@@ -570,7 +580,7 @@ namespace CrewChiefV4.Events
                     return new Tuple<List<MessageFragment>, List<MessageFragment>>(MessageContents(folderQuickestOverall), null);                    
                 }
             }
-            else if (this.isLastInStandings && !GlobalBehaviourSettings.complaintsDisabled && GlobalBehaviourSettings.complaintsCountInThisSession <= GlobalBehaviourSettings.maxComplaintsPerSession)
+            else if (this.isLastInStandings && !GlobalBehaviourSettings.justTheFacts && GlobalBehaviourSettings.complaintsCountInThisSession < GlobalBehaviourSettings.maxComplaintsPerSession)
             {
                 if (this.numberOfLapsInLastPlace > 5 &&
                     CrewChief.currentGameState.SessionData.LapTimePrevious > CrewChief.currentGameState.SessionData.PlayerLapTimeSessionBest &&
@@ -606,8 +616,9 @@ namespace CrewChiefV4.Events
             }
             else if (SpeechRecogniser.ResultContains(voiceMessage, SpeechRecogniser.WHATS_MY_POSITION))
             {
-                if (isLastInStandings && !GlobalBehaviourSettings.complaintsDisabled && GlobalBehaviourSettings.complaintsCountInThisSession <= GlobalBehaviourSettings.maxComplaintsPerSession)
+                if (isLastInStandings && GlobalBehaviourSettings.complaintsCountInThisSession < GlobalBehaviourSettings.maxComplaintsPerSession)
                 {
+                    GlobalBehaviourSettings.complaintsCountInThisSession++;
                     audioPlayer.playMessageImmediately(new QueuedMessage(folderLast, 0));
                 }
                 else if (currentPosition == 1)
