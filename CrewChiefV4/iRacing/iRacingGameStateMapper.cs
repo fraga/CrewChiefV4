@@ -1077,7 +1077,7 @@ namespace CrewChiefV4.iRacing
             //Sof calculations
             if (combinedStrengthOfField.Count > 0)
             {
-                double baseSof = 1600 / Math.Log(2);
+                double baseSof = 1350 / Math.Log(2);
                 double sofExpSum = 0;
                 foreach (double ir in combinedStrengthOfField)
                 {

@@ -332,6 +332,8 @@ delete_selected_macro_confirmation_title = Confirm delete
 must_select_a_macro = You must select a macro before trying to add a sequence
 action_sequence_cant_be_empty = You must add at least one action to Action sequence
 empty_wait_time_end = must contain a value
+auto_execute_start_chat = Auto execute start chat
+auto_execute_end_chat = Auto execute end chat
 
 ###################################### Action Editor ######################################################
 current_available_actions = &Current available actions
