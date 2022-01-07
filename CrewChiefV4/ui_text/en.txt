@@ -2124,6 +2124,7 @@ sre_enable_opponents_by_position_metadata = RESTART_REQUIRED
 # Property: Identify opponents by car number
 sre_enable_opponents_by_number = Identify opponents by car number
 sre_enable_opponents_by_number_help = Allow the app to recognise opponents in voice commands by their car numbers (iRacing and R3E only)
+sre_enable_opponents_by_number_filter = IRACING;RACE_ROOM
 sre_enable_opponents_by_number_category = AUDIO_VOICE_AND_CONTROLLERS
 sre_enable_opponents_by_number_metadata = RESTART_REQUIRED
 
