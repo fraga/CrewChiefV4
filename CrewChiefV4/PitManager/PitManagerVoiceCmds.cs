@@ -423,7 +423,7 @@ namespace CrewChiefV4.PitManager
             {
                 crewChief.audioPlayer.playMessage(new QueuedMessage(Fuel.folderPlentyOfFuel, 0));
                 Log.Fuel("Pit: no fuel needed");
-                roundedLitresNeeded = 0;
+                // roundedLitresNeeded = -1;  Set the menu to min.
             }
             else if (additionaLitresNeeded > 0)
             {
