@@ -518,19 +518,19 @@
             // groupAvailableActions
             // 
             this.groupAvailableActions.Controls.Add(this.autoExecuteEndMacro);
-            this.groupAvailableActions.Controls.Add(this.autoExecuteStartMacro);
             this.groupAvailableActions.Controls.Add(this.lableModifierKeys);
             this.groupAvailableActions.Controls.Add(this.comboBoxModifierKeySelection);
+            this.groupAvailableActions.Controls.Add(this.autoExecuteStartMacro);
             this.groupAvailableActions.Controls.Add(this.radioButtonModifierAndKey);
             this.groupAvailableActions.Controls.Add(this.textBoxSpecialActionParameter);
             this.groupAvailableActions.Controls.Add(this.buttonUndoLastAction);
             this.groupAvailableActions.Controls.Add(this.labelActionKeys);
+            this.groupAvailableActions.Controls.Add(this.radioButtonFreeTextAction);
             this.groupAvailableActions.Controls.Add(this.radioButtonAdvancedEditAction);
             this.groupAvailableActions.Controls.Add(this.labelSpecialActionParameter);
             this.groupAvailableActions.Controls.Add(this.radioButtonMultipleFuelAction);
             this.groupAvailableActions.Controls.Add(this.radioButtonWaitAction);
             this.groupAvailableActions.Controls.Add(this.radioButtonMultipleVoiceTrigger);
-            this.groupAvailableActions.Controls.Add(this.radioButtonFreeTextAction);
             this.groupAvailableActions.Controls.Add(this.buttonAddSelectedKeyToSequence);
             this.groupAvailableActions.Controls.Add(this.radioButtonMultipleKeyAction);
             this.groupAvailableActions.Controls.Add(this.radioButtonRegularKeyAction);
@@ -547,7 +547,7 @@
             // autoExecuteEndMacro
             // 
             this.autoExecuteEndMacro.AutoSize = true;
-            this.autoExecuteEndMacro.Location = new System.Drawing.Point(9, 221);
+            this.autoExecuteEndMacro.Location = new System.Drawing.Point(8, 290);
             this.autoExecuteEndMacro.Name = "autoExecuteEndMacro";
             this.autoExecuteEndMacro.Size = new System.Drawing.Size(182, 21);
             this.autoExecuteEndMacro.TabIndex = 32;
@@ -557,7 +557,7 @@
             // autoExecuteStartMacro
             // 
             this.autoExecuteStartMacro.AutoSize = true;
-            this.autoExecuteStartMacro.Location = new System.Drawing.Point(9, 194);
+            this.autoExecuteStartMacro.Location = new System.Drawing.Point(8, 263);
             this.autoExecuteStartMacro.Name = "autoExecuteStartMacro";
             this.autoExecuteStartMacro.Size = new System.Drawing.Size(186, 21);
             this.autoExecuteStartMacro.TabIndex = 29;
@@ -588,7 +588,7 @@
             // radioButtonModifierAndKey
             // 
             this.radioButtonModifierAndKey.AutoSize = true;
-            this.radioButtonModifierAndKey.Location = new System.Drawing.Point(9, 248);
+            this.radioButtonModifierAndKey.Location = new System.Drawing.Point(9, 166);
             this.radioButtonModifierAndKey.Name = "radioButtonModifierAndKey";
             this.radioButtonModifierAndKey.Size = new System.Drawing.Size(141, 21);
             this.radioButtonModifierAndKey.TabIndex = 26;
@@ -629,7 +629,7 @@
             // radioButtonAdvancedEditAction
             // 
             this.radioButtonAdvancedEditAction.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.radioButtonAdvancedEditAction.Location = new System.Drawing.Point(9, 274);
+            this.radioButtonAdvancedEditAction.Location = new System.Drawing.Point(9, 192);
             this.radioButtonAdvancedEditAction.Margin = new System.Windows.Forms.Padding(4);
             this.radioButtonAdvancedEditAction.Name = "radioButtonAdvancedEditAction";
             this.radioButtonAdvancedEditAction.Size = new System.Drawing.Size(157, 42);
@@ -690,7 +690,7 @@
             // radioButtonFreeTextAction
             // 
             this.radioButtonFreeTextAction.AutoSize = true;
-            this.radioButtonFreeTextAction.Location = new System.Drawing.Point(9, 166);
+            this.radioButtonFreeTextAction.Location = new System.Drawing.Point(8, 235);
             this.radioButtonFreeTextAction.Margin = new System.Windows.Forms.Padding(4);
             this.radioButtonFreeTextAction.Name = "radioButtonFreeTextAction";
             this.radioButtonFreeTextAction.Size = new System.Drawing.Size(130, 21);

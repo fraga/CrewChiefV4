@@ -702,6 +702,8 @@ namespace CrewChiefV4
                 textBoxActionSequence.Enabled = true;
                 buttonAddSelectedKeyToSequence.Enabled = false;
                 textBoxDescription.ShortcutsEnabled = true;
+                autoExecuteStartMacro.Enabled = true;
+                autoExecuteEndMacro.Enabled = true;
             }
 
         }
